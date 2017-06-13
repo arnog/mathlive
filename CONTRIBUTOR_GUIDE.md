@@ -1,9 +1,9 @@
 #MathLive Contributor Guide
 
-This guide describes the structure of the MathLive project if you are 
+This guide describes the structure of the MathLive project. If you are 
 interested in contributing to it, or if you want to better understand how
-it works. If you simply want to use MathLive with your web content, see the
- [MathLive UsageGuide](USAGE_GUIDE.md).
+it works you will find it useful. If you simply want to use MathLive 
+with your web content, see the [MathLive UsageGuide](USAGE_GUIDE.md).
 
 ## Code structure
 The MathLive library consists of the following key directories:
@@ -13,15 +13,22 @@ The MathLive library consists of the following key directories:
 on the `src/core` module.
 * `src/addons` some optional modules that provide additional functionality
 
+You can include only the files you need. For example, if you only
+need to display math, you can skip `src/editor/` and `src/addons`.
+
 ## Language
-MathLive is written in Javascript, using the ES2016 dialect. This includes
+MathLive is written in Javascript, using the [ES2016 dialect]
+(https://www.ecma-international.org/ecma-262/7.0/). This includes
 in particular features such as:
 * `let` and `const` instead of `var`
+* block-scoped variables and functions
 * `Array.prototype.includes()`
+* `Object.assign()`
 * arrow functions (to a limited extent, there appears to be issues with transpilers)
 * template strings
 * `for...of` iterators
-* `Object.assign()`
+* string searching `String.startsWith()`, `tring.endsWith()`
+* number formatting
 
 Features that have not been adopted include:
 * classes. The syntax doesn't seem to offer that much benefit and forces 
@@ -37,7 +44,7 @@ transpiles it to ES5 for compatibility with browsers that don't support all
 those features
 
 The code is written using 4-spaces and follow the linting described in the 
-.eslintrc.json file.
+`.eslintrc.json` file.
 
 
 ## Compatibility
@@ -49,8 +56,9 @@ supported.
 
 ## Architecture
 The core of MathLive is a renderer that can display complex math content
-using HTML and CSS. This renderer is using the TeX layout algorithms. Given
-the same input, it will render pixel for pixel what TeX would have rendered.
+using HTML and CSS. This renderer uses the TeX layout algorithms because of 
+their quality. Given the same input, MathLive will render pixel for pixel what 
+TeX would have rendered.
 To do so, it make use of a web version of the fonts used by TeX and which are
 included in the `css/fonts/` directory.
 
@@ -64,20 +72,63 @@ and denominator of a fraction, etc...
 
 The basic layout strategy is to calculate the vertical placement of the spans and 
 position them accordingly, while letting the HTML rendering engine position
-and display the horizontal items. An exception is when some adjustment needs
-to be made, such as additional space between items, in which case CSS adjustments
-are made.
+and display the horizontal items. An exception is when some horizontal 
+adjustment needs to be made, such as additional space between items, in which 
+case CSS margin adjustments are made.
 
-**Spans** can be rendered to HTML markup before being displayed on the page.
+**Spans** can be rendered to HTML markup with `Span.toMarkup()` before being 
+displayed on the page.
 
  ### Math Atom
-An atom is an object encapsulating a mathematical unit, indepdent of its 
-graphical representation. It can be of several types such as `mbin` (binary 
-operator), `mrel` (relational operator), `genfrac` (generalized fraction).
+
+An atom is an object encapsulating an elementary mathematical unit, indepdent of
+its graphical representation. It can be of one of the following types:
+* **ord**: ordinary math, e.g. _x_
+* **bin**: binary operator: _+_, _*_, etc...
+* **rel**: relational operator: _=_, _\ne_, etc...
+* **punct**: punctuation: _,_, _:_, etc...
+* **open**: opening fence: _(_, _\langle_, etc...
+* **close**: closing fence: _)_, _\rangle_, etc...
+* **op**: operators, _\sum_, _\cap_.
+* **inner**: special layout cases, overlap
+* **accent**: a diacritic mark above a symbol
+
+In addition to these basic types, which correspond to the TeX atom types,
+some atoms represent more complex compounds, including:
+* **line**: used by `\overline` and `\underline` commands
+* **overunder**: displays an annotation above or below a symbold
+* **overlap**: display a symbol _over_ another
+* **rule**: a line, for the `\rule` command
+* **space** and **spacing**: blank space between atoms
+* **font**: to change the font used. Used by `\mathbb`, `\mathbb`, etc...
+* **sizing**: to change the size of the font used
+* **mathstyle**: to change the math style used: **display** or **text**. The 
+layout rules are different for each, the latter being more compact and intended
+to be incorporated with surrounding non-math text.
+* **color**: to change the foreground color
+* **box**: to draw a border around an expression and change its background color
+* **group**: a simple group of atoms
+* **root**: a group, which has no parent
+* **array**: a group, which has children arranged in columns and rows. Used
+by environments such as `matrix`, `cases`, etc...
+* **genfrac**: a generalized fraction: a numerator and denominator, separated
+by an optional line, and surrounded by optional fences
+* **surd**: a surd, aka root
+* **leftright**: used by the `\left` and `\right` commands
+* **delim**: some delimiter
+* **sizeddelim**: a delimiter that can grow
+
+The following types are used by the editor:
+* **command** indicate a command being entered
+* **error**: indicate a command that is unknown, for example `\xyzy`
+* **placeholder**: indicate a temporary item
+* **first**: a special, empty, atom put at the first atom in math lists in 
+order to more easily represent the cursor position
+
 
  ### Math List
-A **math list** is simply an array of Atom. Although it's a common data 
-structure there are no classes to represent them: they are simply an Array() of MathAtom.
+A **math list** is simply an array of atoms. Although it's a common data 
+structure there is no class to represent it: it's simply an `Array()` of `MathAtom`.
 
 ### Lexer
 The **lexer** converts a string of TeX code into tokens that can be digested
@@ -94,7 +145,49 @@ adding and removing content and keeping track of and modifying an insertion
 point and selection.
 
 
+## Files
+Here's a brief guide to the files of the project:
 
+* **mathlive.js** The public API to Mathlive
+
+* **core/lexer.js** Implements the `Lexer` class: strings to tokens
+
+* **core/parser.js** Implements the `Parser` class: tokens to atoms
+* **core/definitions.js** Dictionary of all the known LaTeX commands, and 
+which symbol or atom type they map to. Used by the `Parser`
+* **core/color.js** Support to parse color arguments
+
+* **core/mathAtom.js** Implements the `MathAtom` class: atoms to spans
+* **core.delimiters.js** Rendering (atoms to span) for delimiters. 
+* **core/context.js** Rendering context of the current parse level (math style,
+color, font size, font family, font style, etc...). Used by MathAtom while 
+generating spans
+* **core/mathstyle.js** Provides info about the ** math styles**: display, text,
+scripttext, scripscripttext and their tight variants.
+* **core/fontMetrics.js** Provides glyph metrics: height above baseline, depth
+below baseline, italic correction.
+* **core/fontMetricsData.js** Used by `fontMetrics.js`
+
+* **core/span.js** Implements the `Span` class: spans to markup
+
+* **editor/editableMathlist.js**: The `EditableMathlist` keeps track of a tree
+of math atoms representing the math expression being edited, and a selection
+with can either be _collapsed_ (only the insertion point is visible) or not, in
+which case it has an _extent_ indicating how big the selection is. This class
+has no UI logic in it.
+* **editor/mathpath.js** A utility class that represents a path in an atom
+tree to a specific atom
+
+* **editor/mathfield.js** Public API for the editor. Implements the UI for the
+mathfield, including mouse and touch interaction, and  the popover and the 
+command bar
+* **editor/shortcuts.js** Defines the keyboard shorcuts
+* **editor-commands.js**: list of commands displayed in the command bar
+* **editor/popover.js** Implements the popover panel
+* **editor/keyboard.js** A utility class that captures keyboard events from 
+a _Textarea_ DOM element.
+* **editor/undo.js** Implements the _Undo Manager_ which keeps tracks of the 
+state of the mathfield as it is being edited in order to support undo/redo.
 
 
 

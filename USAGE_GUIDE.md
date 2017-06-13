@@ -1,6 +1,6 @@
-#MathLive Usage Guide
+# MathLive Usage Guide
 
-This guide describes how to use the MathLive Javascript libraries in your own
+This guide describes how to use the MathLive Javascript libraries with your own
 web content. To contribute to the MathLive project, see the [MathLive 
 Contributor Guide](CONTRIBUTOR_GUIDE.md)
 
@@ -11,21 +11,22 @@ Download the content of the `dist/` directory and copy it at a location of
 your choice in your project. MathLive has no dependency (not even jQuery!) 
 and you do not needs to install/download anything else.
 
-The MathLive library is a series of Javascript modules and a few 
-CSS files. The modules can be combined into a single library
-using a bundler such as **webpack**, or they can be included 
+The MathLive library is a series of Javascript modules, a few 
+stylesheets and some font files. The modules can be combined into a single 
+library using a bundler such as **webpack**, or they can be included 
 individually. We recommend to use **require.js** to simplify
 and optimize the loading of the individual modules.
 
-If you use **require.js**, include the following 
-in your web page, preferably before the `</body>` tag:
+If you use **require.js**, include the following in your web page, 
+preferably before the `</body>` tag:
 
 ```
 <script data-main="js/main" src="third-party/require.js"></script>
 ```
 
-``js/main`` should be a path to your "main" file, without the `.js`
-extension.
+`js/main` should be a path to your "main" file, without the `.js`
+extension, while `third-party/require.js` should be the path to your local
+copy of `require.js`. You could use a CDN version as well.
 
 Inside `main.js`, use the following:
 ```
@@ -39,7 +40,7 @@ define(['mathlive'], function(MathLive) {
 
 ## Rendering Math Automatically
 
-Math in a web page can automatically be rendered after the page has 
+Math in a web page will automatically be rendered after the page has 
 loaded using the optional `auto-render` module.
 
 By default, any text that is enclosed with the following delimiters
@@ -105,12 +106,12 @@ For example:
 ```
 
 You can control the math field using the public functions of MathField, that 
-is functions that do not contain an `_` at the beginnig or end of their name.
+is, functions that do not contain an `_` at the beginnig or end of their name.
 Here's a short list for some common operations:
 
 * `el()` the DOM element associated with this math field
 * `text(format)` return a textual representation of the content of the math 
-field, `format` can be either `"latex"` or `"spoken"`.
+field, `format` can be either `"latex"` (default) or `"spoken"`.
 * `.write(content, options)` insert the specified content at the current 
 insertion point. With `options` it is possible to specify the insertion mode,
 as well as what will be selected after the insertion. If the content contains

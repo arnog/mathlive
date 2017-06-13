@@ -1,27 +1,27 @@
-![MathLive](assets/logo-240.png)
+![MathLive](assets/logo-1024.jpg)
 
+MathLive is a Javascript library to render and edit math. 
 
-MathLive is a Javascript library to render and edit math. It is fast, small 
-and provides TeX-quality typesetting and an easy to use interface for math 
-editing.
-
-## Screenshots
+It is fast, small and provides TeX-quality typesetting 
+and an easy to use interface for math editing.
 
 <table>
     <tr>
         <td>
-            <img alt=“The popover panel“ src=“assets/screenshots/popover.png”>
+            <img alt="The popover panel" src="assets/screenshots/popover.png">
         </td>
+    </tr><tr>
         <td>
-            <img alt=“The command bar panel“ src="assets/screenshots/commandbar.png">
+            <img alt="The command bar panel" src="assets/screenshots/commandbar.png">
         </td>
+    </tr><tr>
         <td>
-            <img alt=“The Loop Equation“ src="assets/screenshots/loop-eqn.png">
+            <img alt="The Loop Equation" src="assets/screenshots/loop-eqn.png">
         </td>
     </tr>
 </table>
 
-## How to use it
+## How To Use MathLive
 
 You can use MathLive to simply render math equations by 
 [adding a few lines to your web page](USAGE_GUIDE.md). You can also 
@@ -30,7 +30,7 @@ of the more advanced APIs, you can interact with the math field, including
 extracting its content, inserting placeholders and more.
 
 
-## How you can help
+## How You Can Help
 
 * If you see something wrong or would like to request a feature, write up 
   issues
@@ -44,4 +44,4 @@ and follow our [Code of Conduct](CODE_OF_CONDUCT.md)
 ## License
 
 This project is licensed under the MIT license. For more information, 
-see the [license](LICENSE.md).
+see the [license](LICENSE.txt).

@@ -1,112 +1,87 @@
-#MathLive Programming Guide
+# Contributing to MathLive
 
-MathLive can be used to beautifully render and edit math in web pages.
+There are many ways you can get involved with MathLive. Contributing to 
+an open source project is fun and rewarding.
 
-This guide describes how to use the MathLive Javascript libraries in your own
-web content. To contribute to the MathLive project, see the MathLive 
-Contributor Guide.
+## Contributings Issues
 
-## Overview
+If you're running into some problems using MathLive or something doesn't 
+behave the way you think it should, please file an issue in GitHub.
 
-```
-```
+Before filing something, [have a look](https://github.com/arnog/mathlive/issues) 
+at the existing issues. It's better to avoid filing duplicates. You can 
+add a comment to an existing issue if you'd like.
 
-## Getting Started
+### What happens after I file an issue?
 
-The MathLive library is a series of Javascript modules and a few 
-CSS files. The modules can be combined into a single library
-using a bundler such as **webpack**, or they can be included 
-individually. We recommend to use **require.js** to simplify
-and optimize the loading of the individual modules.
+1. After a bug is filed, it will be _awaiting review_ (the issue will be untagged)
+2. After the bug has been triaged, it will be tagged _reviewed_
+3. Once a developer has started working on the bug, it will be tagged _fix in progress_. If the bug is a feature rather than a bug, it will be tagged _moved to backlog_
+4. Once a bug has been fixed, it will be tagged _fixed_
 
-To use **require.js**, include the following in your web page, 
-preferably before the `</body>` tag:
+In addition, issues can be tagged with the following:
+* _high priority_: Catastrophic issue that impacts many users
+* _medium priority_: Regression or issues that impact a significant number of users
+* _low priority_: Low severity (minor cosmetic issue) or very few users impacted
+* _no priority_: No plan to fix the issue, but we will consider a fix if someone offers a pull request
+* _starter bug_: This is an issue that would be a good candidate for someone 
+who has little experience with the code base
+* _external_: This is an issue that has a dependency on an external component
+(typically, a browser)
+* _architecture_: This is an issue that requires a significant architectural
+change
+* _performance_: This issue affects perceived or measurable performance
+* _cleanup_: Resolving this issue would improve the code base maintainability
+without adding new functionality
+* _utr_: _unable to reproduce_ the bug, as reported, could not be replicated
+by the developer. Additional information is necessary to continue investigating.
+* _nab_: _not a bug_: The behavior described in the issue report is actually
+the intended behavior. This may be a usability issue, a documentation issue, 
+or a disagreement regarding what the behavior should be.
+* _fol_: _fact of life_: The issue cannot be resolved due to constraints of
+the browser, the OS, or the laws of physics.
 
-```
-<script data-main="js/main" src="js/vendor/require.js"></script>
-```
+### Can I help fix a bug?
 
-``js/main`` should be a path to your "main" file, without the `.js`
-extension.
-
-Inside `main.js`, use the following:
-```
-define(['mathlive'], function(MathLive) {
-
-        // YOUR CODE GOES HERE
-
-});
-```
-
-
-## Rendering math automatically
-
-Math in a web page can automatically be rendered after the page has 
-loaded using the `auto-render` module. 
-
-By default, any text that is enclosed with the following delimiters
-will be converted to a math formula:
-* `$$`...`$$`
-* `\[`...`\]`
-* `\(`...`\)`
-
-When being considered for conversion, some tags are ignored: `script`, `noscript`, `style`, `textarea`, `pre` and `code`.
-
-To use this module, add it to the list of modules you import, for example:
-```
-define(['mathlive', 'auto-render'], function(MathLive, AutoRender) {
-
-        // YOUR CODE GOES HERE
-
-});
-```
-
-Alternatively, if you don't have a `main.js` file, you can load it 
-directly from your main page:
-
-```
-<!doctype html>
-<html lang="en-US">
-<head>
-    ...
-</head>
-<body onload = "
-    requirejs.config({baseUrl:'js/'});
-    requirejs(['auto-render'], function(AutoRender) {
-        AutoRender.renderMathInElement(
-            document.getElementsByTagName('body')[0])
-    });
-">
-<h1>Taxicab Number</h1>
-<p>The second taxicab number is $$1729 = 10^3 + 9^3 = 12^3 + 1^3$$</p>
-
-<script data-main="js/main" src="js/vendor/require.js"></script>
-</body>
-</html>
-```
-
-If you dynamically generate content, you can request the autorenderer to run again using `AutoRender.renderMathInElement(el)`.
-
-The `renderMathInElement()` functions takes a second parameter which can be used to customize the list of delimiters to consider, and the tags to ignore.
+Sure! Have a look at the issue report, and make sure no one is already 
+working on it. If the issue is tagged _fix in progress_, someone is already
+on it. Otherwise, add a comment in the issue indicating you'd like to work on
+resolving the issue and go for it! See the [Contributor Guide](CONTRIBUTOR_GUIDE.md) for coding guidelines.
 
 
+## Contributings Test Cases
 
-## Rendering math programatically
+The `test/` folder contains test cases that are used to make sure that 
+bugs are not introduced as new features are added (regression). 
 
-To make use of the MathLive API, include the MathLive module.
-
-
-## Math Editor
-
-
-
-#MathLive Contributor Guide
-
-This guide describes how to make contributions to the MathLive project. If you
-simply want to use MathLive with your web content, see the MathLive Programming
-Guide.
-
-## Code structure
+If you'd like to revise or add some new test cases, that can be very helpful
+to improve MathLive's quality. Submit an issue indicating what you'd like
+to work on, and a pull request when you have it ready. Test cases should 
+follow the TAP (Test Anything Protocol) format.
 
 
-## Architecture
+## Contributing Ideas and Feature Requests
+
+Use the [issue tracker](https://github.com/arnog/mathlive/issues) to submit
+requests for new features. First, have a look at what might already be there,
+and if you don't see anything that matches, write up a new issue.
+
+## Contributing Code
+
+Whether you have a fix for an issue, some improved test cases, or a brand
+new feature, we welcome contributions in the form of pull requests. 
+Once submitted, your pull request will be reviewed and you will receive
+some feedback to make sure that your pull request fits in with
+* the roadmap for MathLive
+* the architecture of the project
+* the coding guidelines of the project
+
+Before we can consider merging your pull request, you must sign the 
+Contributor License Agreement here: 
+
+<a href="https://cla-assistant.io/arnog/mathlive"><img src="https://cla-assistant.io/readme/badge/arnog/mathlive" alt="CLA assistant" /></a>
+
+Once your pull request has been accepted, it will be merged 
+into the master branch.
+
+Congratulations, you've become a Mathlive contributor! Thanks for your help!

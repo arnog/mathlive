@@ -1,0 +1,70 @@
+{
+    "env": {
+        "browser": true,
+        // "commonjs": true,
+        "es6": true,
+        "node": true,
+        "amd": true,
+        "mocha": true
+    },
+
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "sourceType": "module"
+    },
+
+    "extends": "eslint:recommended",
+    // See http://eslint.org/docs/rules/
+
+    "rules": {
+        // Note: 
+        // "off" or 0 - turn the rule off
+        // "warn" or 1 - turn the rule on as a warning (doesn’t affect exit code)
+        // "error" or 2 - turn the rule on as an error (exit code is 1 when triggered)
+        "no-const-assign": "warn",
+        "no-this-before-super": "warn",
+        // "no-undef": "warn",
+        "no-unreachable": "warn",
+        // "no-unused-vars": "warn",
+        "constructor-super": "warn",
+
+        "block-scoped-var": "error",
+
+        "array-bracket-spacing": ["error", "never"],
+        "block-spacing": ["error", "always"],
+        "brace-style": [1, "1tbs", { "allowSingleLine": true }],
+        "prefer-const": "warn",
+
+        "valid-typeof": "error",
+        "consistent-return": "error",
+        "curly": ["warn","multi-line"],
+        "eqeqeq": ["error","smart"],
+        "guard-for-in": "warn",
+        // "max-len": "warn",
+        "new-cap": 1,
+        "no-bitwise": 1,
+        "no-else-return": 1,
+        "no-eval": 2,
+        "no-fallthrough": 1,
+        "no-invalid-this": 1,
+        "no-lone-blocks": 1,
+        "no-return-assign": [1,"always"],
+        "no-self-compare": 2,
+        "no-sequences": 1,
+        "no-unneeded-ternary": 1,
+        "no-unused-expressions": 1,
+        "no-useless-call": 1,
+        "no-var": "error",
+        "no-with": 2,
+        // "vars-on-top": 1,
+        "no-delete-var": 1,
+        "no-mixed-spaces-and-tabs": [1,"smart-tabs"],
+        "require-jsdoc": "error",
+        "space-infix-ops": ["error", {"int32Hint": false}]
+
+        
+        // "no-trailing-spaces": [1,{"skipBlankLines":true}]
+    }
+}
