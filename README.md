@@ -10,11 +10,9 @@ and an easy to use interface for math editing.
         <td>
             <img alt="The popover panel" src="assets/screenshots/popover.png">
         </td>
-    </tr><tr>
         <td>
             <img alt="The command bar panel" src="assets/screenshots/commandbar.png">
         </td>
-    </tr><tr>
         <td>
             <img alt="The Loop Equation" src="assets/screenshots/loop-eqn.png">
         </td>
