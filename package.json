@@ -1,0 +1,36 @@
+{
+  "name": "mathlive",
+  "version": "0.0.1",
+  "description": "The interactive math editor",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node ./js/test.js",
+    "prepublish": "webpack --config ./js/webpack.config.js"
+  },
+  "dependencies": {
+    "requirejs": "latest"
+  },
+  "nyc": {
+    "exclude": [
+      "**/test.js",
+      "**/Debug.js",
+      "build"
+    ]
+  },
+  "engines": {
+    "node": "4.0.0"
+  },
+  "keywords": [
+    "math",
+    "text",
+    "typography"
+  ],
+  "author": "Arno Gourdol <arno@arno.org>",
+  "contributors": [],
+  "license": "MIT",
+  "devDependencies": {
+    "tape": "^4.6.3",
+    "webpack": "^2.5.0"
+  }
+}

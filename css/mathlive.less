@@ -1,0 +1,823 @@
+@import "fonts.less";
+
+@monospace: "Source Code Pro", Menlo, "Bitstream Vera Sans Mono", Monaco, 
+    Courier, "Andale Mono", monospace;
+@system: -apple-system,BlinkMacSystemFont,Roboto,Oxygen-Sans,Ubuntu,Cantarell,
+    "Droid Sans","Helvetica Neue",sans-serif;
+@primary: #0066ce;
+@secondary: #cd0030;
+// @highlight: rgba(243, 243, 21, 0.28);
+
+
+// The mu (mathematical unit) is defined by TeX as 1/18 em
+@mu: 1.0/18.0em;
+
+
+
+.ML__mathlive {
+
+    /*** ***/
+
+    .mathit {
+        font-family: KaTeX_Math;
+        font-style: italic;
+    }
+
+    .mathrm {
+        font-style: normal;
+    }
+
+    .textit {
+        font-style: italic;
+    }
+
+
+    .mathbf {
+        font-family: KaTeX_Main;
+        font-weight: bold;
+    }
+
+    .amsrm {
+        font-family: KaTeX_AMS;
+    }
+
+    .amsbf {
+        font-family: KaTeX_AMS;
+        font-weight: bold;
+    }
+
+    .amsit {
+        font-family: KaTeX_AMS;
+        font-style: italic;
+    }
+
+    .mathbb {
+        font-family: KaTeX_AMS;
+    }
+
+    .mathcal {
+        font-family: KaTeX_Caligraphic;
+    }
+
+    .mathfrak {
+        font-family: KaTeX_Fraktur;
+    }
+
+    .mathtt {
+        font-family: KaTeX_Typewriter;
+    }
+
+    .mathscr {
+        font-family: KaTeX_Script;
+    }
+
+    .mathsf {
+        font-family: KaTeX_SansSerif;
+    }
+
+    .mainit {
+        font-family: KaTeX_Main;
+        font-style: italic;
+    }
+
+    // This value is also used in fontMetrics.js, if you change it make sure the
+    // values match.
+    @ptperem: 10.0;
+    @nulldelimiterspace: 1.2em / @ptperem;
+
+    @thinspace: 0.16667em;      // 3mu
+    @mediumspace: 0.22222em;    // 4mu
+    @thickspace: 0.27778em;     // 5mu
+
+
+
+    // I believe that setting the font-size to 1em is a no-op and could be eliminated @todo
+    // .reset-textstyle.textstyle { font-size: 1em; }
+    .reset-textstyle.scriptstyle { font-size: 0.7em; }
+    .reset-textstyle.scriptscriptstyle { font-size: 0.5em; }
+
+    .reset-scriptstyle.textstyle { font-size: 1.42857em; }
+    // .reset-scriptstyle.scriptstyle { font-size: 1em; }
+    .reset-scriptstyle.scriptscriptstyle { font-size: 0.71429em; }
+
+    .reset-scriptscriptstyle.textstyle { font-size: 2em; }
+    .reset-scriptscriptstyle.scriptstyle { font-size: 1.4em; }
+    // .reset-scriptscriptstyle.scriptscriptstyle { font-size: 1em; }
+
+    .style-wrap {
+        position: relative;
+    }
+
+    .vlist {
+        display: inline-block;
+
+        > span {
+            display: block;
+            height: 0;
+            position: relative;
+
+            > span {
+                display: inline-block;
+            }
+        }
+
+        .baseline-fix {
+            display: inline-table;
+            table-layout: fixed;
+        }
+    }
+
+    .msupsub {
+        text-align: left;
+    }
+
+    .mfrac {
+        /*  Original KaTex */
+        // > span > span {
+        //     text-align: center;
+        // }
+        /* Modified from KaTex */
+        > span  {
+            text-align: center;
+        }
+
+       .frac-line {
+            width: 100%;
+
+            // &:before {
+            //     border-bottom-style: solid;
+            //     border-bottom-width: 1px;
+            //     content: "";
+            //     display: block;
+            // }
+
+            &:after {
+                border-bottom-style: solid;
+                border-bottom-width: 0.04em;
+                content: "";
+                display: block;
+                margin-top: -1px;
+            }
+        }
+    }
+
+    .mspace {
+        display: inline-block;
+
+        &.negativethinspace {
+            margin-left: -@thinspace;
+        }
+
+        &.thinspace {
+            width: @thinspace;
+        }
+
+        &.negativemediumspace {
+            margin-left: -@mediumspace;
+        }
+
+        &.mediumspace {
+            width: @mediumspace;
+        }
+
+        &.thickspace {
+            width: @thickspace;
+        }
+
+        &.sixmuspace {
+            width: 0.333333em;
+        }
+
+        &.eightmuspace {
+            width: 0.444444em;
+        }
+
+        &.enspace {
+            width: 0.5em;
+        }
+
+        &.twelvemuspace {
+            width: 0.666667em;
+        }
+
+        &.quad {
+            width: 1em;
+        }
+
+        &.qquad {
+            width: 2em;
+        }
+    }
+
+    .llap,
+    .rlap {
+        width: 0;
+        position: relative;
+
+        > .inner {
+            position: absolute;
+        }
+
+        > .fix {
+            display: inline-block;
+        }
+    }
+
+    .llap > .inner {
+        right: 0;
+    }
+
+    .rlap > .inner {
+        left: 0;
+    }
+
+    .rule {
+        display: inline-block;
+        border: solid 0;
+        position: relative;
+    }
+
+    .overline .overline-line,
+    .underline .underline-line {
+        width: 100%;
+
+        &:before {
+            border-bottom-style: solid;
+            border-bottom-width: 1px;
+            content: "";
+            display: block;
+        }
+
+        &:after {
+            border-bottom-style: solid;
+            border-bottom-width: 0.04em;
+            content: "";
+            display: block;
+            margin-top: -1px;
+        }
+    }
+
+    .sqrt {
+        display: inline-block;
+
+        > .sqrt-sign {
+            position: relative;
+        }
+
+        .sqrt-line {
+            width: 100%;
+
+            &:before {
+                border-bottom-style: solid;
+                border-bottom-width: 0.04em;
+                content: "";
+                display: block;
+                margin-top: -0.1em;
+            }
+
+            // &:after {
+            //     border-bottom-style: dash;
+            //     border-bottom-width: 0.04em;
+            //     content: "";
+            //     display: block;
+            //     margin-top: -0.1em;
+            // }
+        }
+
+        > .root {
+            // These values are taken from the definition of `\r@@t`,
+            // `\mkern 5mu` and `\mkern -10mu`.
+            margin-left: 5*@mu;
+            margin-right: -10*@mu;
+        }
+    }
+
+    .sizing, .fontsize-ensurer {
+        display: inline-block;
+
+        @size1: 0.5;
+        @size2: 0.7;
+        @size3: 0.8;
+        @size4: 0.9;
+        @size5: 1.0;
+        @size6: 1.2;
+        @size7: 1.44;
+        @size8: 1.73;
+        @size9: 2.07;
+        @size10: 2.49;
+
+        .generate-size-change(@from, @to) {
+            &.reset-size@{from}.size@{to} {
+                @sizeFromVariable: ~"size@{from}";
+                @sizeToVariable: ~"size@{to}";
+                font-size: (@@sizeToVariable / @@sizeFromVariable) * 1em;
+            }
+        }
+
+        .generate-to-size-change(@from, @currTo) when (@currTo =< 10) {
+            .generate-size-change(@from, @currTo);
+
+            .generate-to-size-change(@from, (@currTo + 1));
+        }
+
+        .generate-from-size-change(@currFrom) when (@currFrom =< 10) {
+            .generate-to-size-change(@currFrom, 1);
+
+            .generate-from-size-change((@currFrom + 1));
+        }
+
+        .generate-from-size-change(1);
+    }
+
+    .delimsizing {
+        &.size1 { font-family: KaTeX_Size1; }
+        &.size2 { font-family: KaTeX_Size2; }
+        &.size3 { font-family: KaTeX_Size3; }
+        &.size4 { font-family: KaTeX_Size4; }
+
+        &.mult {
+            .delim-size1 > span {
+                font-family: KaTeX_Size1;
+                vertical-align: top;
+            }
+            .delim-size4 > span {
+                font-family: KaTeX_Size4;
+                vertical-align: top;
+            }
+        }
+    }
+
+    .nulldelimiter {
+        display: inline-block;
+        width: @nulldelimiterspace;
+    }
+
+    .op-symbol {
+        position: relative;
+
+        &.small-op {
+            font-family: KaTeX_Size1;
+        }
+        &.large-op {
+            font-family: KaTeX_Size2;
+        }
+    }
+
+    .op-limits {
+        > .vlist > span {
+            text-align: center;
+        }
+    }
+
+    .accent {
+        > .vlist > span {
+            text-align: center;
+        }
+
+        .accent-body > span {
+            width: 0;
+        }
+
+        .accent-body.accent-vec > span {
+            position: relative;
+            // This value is half of the value that the MathJax's makeFF shifts
+            // it left. We center it by shifting it half way right again.
+            left: 0.326em;
+        }
+    }
+
+    .mtable {
+        .vertical-separator {
+            display: inline-block;
+            margin: 0 -0.025em;
+            border-right: 0.05em solid black;
+        }
+
+        .arraycolsep {
+            display: inline-block;
+        }
+
+        .col-align-c > .vlist {
+            text-align: center;
+        }
+
+        .col-align-l > .vlist {
+            text-align: left;
+        }
+
+        .col-align-r > .vlist {
+            text-align: right;
+        }
+    }
+
+
+// Highlight color defined in https://www.w3.org/TR/REC-CSS2/ui.html
+    &.ML__focused .ML__selected {
+        background: Highlight !important;
+        background: #b4d5fe !important;
+        color: HighlightText;
+        border-color: HighlightText;
+        display: inline-block;
+    }
+
+    &.ML__blured .ML__selected {
+        background: #ccc;
+        display: inline-block;
+    }
+
+    .ML__command {
+        font-family: @monospace;
+        letter-spacing: -.05em;
+        font-weight: 700;
+
+        color: @primary;
+    }
+
+
+    :not(.ML__command) + .ML__command {
+        margin-left: .25em;
+    }
+
+    .ML__command + :not(.ML__command)  {
+        padding-left: .25em;
+    }
+
+    .ML__error {
+        // Wavy pattern
+        background-image: radial-gradient(ellipse at center, 
+            #cd0030,rgba(76,41,41,0) 70%);
+
+        // background-image:
+        //     linear-gradient(45deg, transparent 65%, @secondary 80%, transparent 90%),
+        //     linear-gradient(135deg, transparent 5%, @secondary 15%, transparent 25%),
+        //     linear-gradient(135deg, transparent 45%, @secondary 55%, transparent 65%),
+        //     linear-gradient(45deg, transparent 25%, @secondary 35%, transparent 50%);
+        background-repeat: repeat-x;
+        background-size: 3px 3px;
+        background-position:0 98%;
+    }
+
+    .ML__suggestion {
+        opacity: .25;
+    }
+
+    .ML__placeholder {
+        font-family: @system;
+        letter-spacing: -.05em;
+
+        // background:rgba(243, 243, 21, 0.28);
+        color: rgba(0, 0, 0, .25);
+
+        font-size: .8rem;
+
+        border-radius: 500px;
+        border: 1px solid rgba(0, 0, 0, .25);;
+        padding-left: .5em;
+        padding-right: .5em;
+    }
+
+    .ML__placeholder.ML__caret {
+        border: none;
+        border-radius: 0;
+        border-right: 2px solid @primary;
+        margin-right: -2px;
+        z-index: 1;
+        animation: blink 1.05s step-end forwards infinite;
+
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+}
+
+    .ML__keystrokecaption > span {
+        min-width: 14px;
+        /*height: 8px;*/
+        margin: 0 8px 0 0;
+        padding: 4px;
+
+        background-color: #fff;
+        color: #555;
+
+        font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+        /*font-family: "Source Code Pro", Menlo, "Bitstream Vera Sans Mono", Monaco, Courier, "Andale Mono", monospace;*/
+        font-size: 1em;
+        text-shadow: 0 1px #fff;
+        letter-spacing: -0.07rem;
+
+        border-radius: 6px;
+        border: 2px solid #eee;
+
+        /*box-shadow: 0 7px 14px rgba(0,0,0,0.25), 0 5px 5px rgba(0,0,0,0.22);*/
+        box-shadow:0 0 0 1px #ddd, 0 1px 2px 1px #ccc;
+
+    }
+
+
+    div.ML__commandbar > div.ML__commandbuttons {
+        display: flex;
+        flex-direction: row;
+        justify-content: left;
+        align-items: center;
+        pointer-events: auto;
+        user-select: none;
+
+        min-height: 64px;
+        flex-wrap: wrap;
+    }
+
+
+    div.ML__commandbar > div.ML__commandbuttons > span {
+        font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+        /*font-family: "Source Code Pro", Menlo, "Bitstream Vera Sans Mono", Monaco, Courier, "Andale Mono", monospace;*/
+        font-size: 1em;
+        text-shadow: 0 1px #fff;
+        // letter-spacing: -0.07rem;
+        font-weight: 100;
+        text-transform: uppercase;
+
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+
+        padding: 10px;
+        margin: 5px 5px 5px 5px;
+        min-height: 48px;
+        min-width: 48px;
+
+        cursor: pointer;
+
+        border-radius: 8px;
+        background: #fff;
+        border: 1px solid #eee;
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+    }
+
+    div.ML__commandbar > div.ML__commandbuttons > span.glyph {
+        font-size: 1.5em;
+        color: #555;
+        font-weight: 700;
+    }
+
+    @media (max-width: 600px) {
+        div.ML__commandbar > div.ML__commandbuttons {
+            font-size: 2.66vw;
+        }
+        div.ML__commandbar > div.ML__commandbuttons > span {
+            padding-right: 1.33vw;
+            padding-left: 1.33vw;
+            padding-top: 5.33vw;
+            padding-bottom: 5.33vw;
+            
+        }
+
+    }
+
+    div.ML__commandbar > div.ML__commandbuttons > span:hover.pressed, 
+    div.ML__commandbar > div.ML__commandbuttons > span.pressed {
+            background: #0066ce;
+            color: white;
+    }
+
+    div.ML__commandbar > div.ML__commandbuttons > span.active {
+        animation: .1s ML__flash forwards;
+    }
+
+    div.ML__commandbar > div.ML__commandbuttons span span.ML__dynamicLabel {
+        display: block;
+        text-align: center;
+        text-transform: none;
+    }
+
+    div.ML__commandbar > div.ML__commandbuttons span span.ML__shortLabel {
+        font-family: @system;
+        font-size: .7rem;
+        line-height: 1em;
+        text-align: center;
+        padding-top: .25em;
+        opacity: .7;
+    }
+
+    div.ML__commandbar > div.ML__commandbuttons span span.ML__keyboardShortcut {
+        font-family: @system;
+        font-size: .7rem;
+        line-height: 1em;
+        text-align: center;
+        opacity: .7;
+        margin-left: .5em;
+        text-transform: none;
+    }
+
+    @keyframes ML__flash {
+        from {
+            background: #0066ce;
+            color: white;
+        }
+        to {
+            color: inherit;
+            background: inherit;
+        }
+    }
+
+    .ML__commandbartoggle:hover {
+        background: #eee;
+    }
+
+    .ML__commandbartoggle.pressed, 
+    .ML__commandbartoggle.active:hover, 
+    .ML__commandbartoggle.active {
+        background: @primary;
+        color: white;
+        &:after {
+            text-shadow: none;
+            color: white;
+        }
+    }
+    
+    div.ML__commandbar > div.ML__commandbuttons > span:hover {
+        background: #eee;
+        text-shadow: none;
+    }
+
+    div.ML__commandbar > div.ML__commandbuttons > span.ML__round {
+        border-radius: 24px;
+        width: 24px;
+        height: 24px;
+        text-align: center;
+        font-weight: 900;
+    }
+
+
+    div.ML__commandbar > div.ML__commandpanel {
+        display: flex;
+        flex-direction: column;
+        justify-content: left;
+        padding-left: 8px;
+        padding-right: 8px;
+
+        font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+
+        cursor: default;
+    }
+
+    .ML__popover.ML__popover_visible {
+        visibility: visible;
+        animation: fadeIn cubic-bezier(0.0, 0.0, 0.2, 1) .15s;
+    }
+    @keyframes fadeIn {
+        from {opacity: 0;}
+        to {opacity:1 ;}
+    }
+
+    /* The wrapper class for the entire content of the popover panel */
+    .ML__popover_content {
+        border-radius: 6px;
+        padding: 2px;
+        cursor: pointer;
+        min-height: 100px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin-left: 8px;
+        margin-right: 8px;
+   }
+
+    .ML__popover_content a {
+        color: #5Ea6Fd;
+        padding-top: .3em;
+        margin-top: .4em;
+        display: block;
+    }
+
+    .ML__popover_content a:hover {
+        color: #5Ea6Fd;
+        text-decoration: underline;
+    }
+
+    /* Since the content can be clicked on, provide feedback on hover */
+    .ML__popover_content:hover, 
+    .ML__popover_content.pressed,
+    .ML__popover_content.active {
+        background: rgba(255, 255, 255, .1);
+    }
+
+    /* The command inside a popover (inside a ML__popover-content) */
+    .ML__popover_command {
+        font-size: 1.6rem;
+    }
+
+    .ML__popover_prev-shortcut {
+        padding-bottom: 0;
+        height: 31px;
+        opacity: .1;
+        cursor: pointer;
+
+        margin-left: 8px;
+        margin-right: 8px;
+        padding-top: 4px;
+        padding-bottom: 2px;
+    }
+
+    .ML__popover_prev-shortcut:hover, 
+    .ML__popover_next-shortcut:hover{
+        opacity: .3;
+    }
+
+    .ML__popover_prev-shortcut.pressed,
+    .ML__popover_next-shortcut.pressed {
+        opacity: 1;
+        // color: red;
+        // background: white;
+        // background: red;
+    }
+
+    .ML__popover_prev-shortcut.active, 
+    .ML__popover_next-shortcut.active {
+        // color: white;
+        // background: cyan;
+        // color: cyan;
+        opacity: 1;
+    }
+
+    .ML__popover_prev-shortcut > span, 
+    .ML__popover_next-shortcut > span {
+        padding: 5px;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+    }
+
+    .ML__popover_prev-shortcut > span > span {
+        margin-top: -2px;
+        display: block;
+    }
+
+    .ML__popover_next-shortcut > span > span {
+        margin-top: +2px;
+        display: block;
+    }
+
+
+    .ML__popover_prev-shortcut:hover > span, 
+    .ML__popover_next-shortcut:hover > span {
+        background: rgba(255, 255, 255, .1);
+    }
+
+    .ML__popover_next-shortcut {
+        padding-top: 2px;
+        padding-bottom: 0;
+        height: 34px;
+        opacity: .1;
+        cursor: pointer;
+
+        margin-left: 8px;
+        margin-right: 8px;
+        padding-top: 2px;
+        padding-bottom: 4px;
+    }
+
+    /* The keyboard shorcuts for a symbol as displayed in the popover */
+    .ML__popover_shortcut {
+        font-family: @system;
+        font-size: .8em;
+        opacity: .7;
+
+        margin-top: .25em;
+        padding-top: .25em;
+    }
+
+    /* The field in a popover that provides some info about the symbol */
+    .ML__popover_note {
+        font-family: @system;
+        font-size: .8rem;
+        opacity: .7;
+
+        line-height: 1em;
+
+        padding-left: .5em;
+        padding-right: .5em;
+        padding-top: .25em;
+    }
+
+    /* Style for the character that joins the modifiers of a keyboard shortcut 
+    (usually a "+" sign)*/
+    .ML__shortcut_join {
+        opacity: .5;
+    }
+
+.mathlive-display {
+    display: block;
+    margin: 1em 0;
+    text-align: center;
+
+    > .mathlive {
+        display: inline-block;
+        text-align: initial;
+    }
+}
+
+

@@ -1,0 +1,15 @@
+# To generate the documentation:
+#      cd mathlive/js
+#      documentation build . -c documentation.yml -f html -o ../doc
+# Auto generation:
+#/      documentation build . -c documentation.yml -w -f html -o ../doc
+
+# See https://github.com/documentationjs/documentation/blob/master/docs/USAGE.md
+
+
+toc:
+  - InputToken
+  - Span
+  - MathAtom
+  - TokenParser
+  
