@@ -864,7 +864,7 @@ EditableMathlist.prototype.down = function(options) {
 /**
  * Change the range of the selection
  * 
- * @param {number} dist the change (positive or negative) to the extent
+ * @param {number} dist - The change (positive or negative) to the extent
  * of the selection. The anchor point does not move.
  */
 EditableMathlist.prototype.extend = function(dist) {

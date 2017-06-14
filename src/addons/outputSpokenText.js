@@ -419,6 +419,7 @@ function emph(s) {
 /**
  * @param {MathAtom[]}  [atoms] The atoms to represent as speakable text.
  * If omitted, `this` is used.
+ * @param {Object.<string, any>} [options]
 */
 MathAtom.toSpeakableText = function(atoms, options) {
     if (!options) {

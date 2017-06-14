@@ -1367,7 +1367,8 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
 
 /**
  * Add an ID attribute to both the span and this atom so that the atom
- * can be retrived from the span later on (e.g. when the span is clicked on)
+ * can be retrieved from the span later on (e.g. when the span is clicked on)
+ * @param {Context} context
  * @param {Span} span
  */
 MathAtom.prototype.bind = function(context, span) {
