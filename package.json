@@ -15,6 +15,7 @@
   ],
   "main": "mathlive.js",
   "scripts": {
+    "clean": "rm -rdf build dist", 
     "build-js": "npm-run-all -p lint test",
     "watch-js": "esw -w src/",
     "build-css": "lessc css/mathlive.less build/mathlive.css && lessc css/mathlive.core.less build/mathlive.core.css",
@@ -27,9 +28,10 @@
     "test": "tape-watch -once ./test/test.js",
     "test-watch": "npm test && npm test -- --watch",
     "coverage": "nyc node ./test/test.js && nyc report --reporter html",
-    "prepublish": "webpack --config webpack.config.js",
+    "prepublish": "npm run dist",
     "docs": "documentation build src/ -f html -o build/docs",
-    "watch-docs": "npm run docs && npm run docs -- --watch"
+    "watch-docs": "npm run docs && npm run docs -- --watch",
+    "dist": "webpack"
   },
   "nyc": {
     "exclude": [

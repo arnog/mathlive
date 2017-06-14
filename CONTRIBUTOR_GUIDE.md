@@ -85,6 +85,21 @@ on the `src/core` module.
 You can include only the files you need. For example, if you only
 need to display math, you can skip `src/editor/` and `src/addons`.
 
+In addition, the `build/` and `dist/` directories contain output generated from
+the `css/` and `src/` directories:
+* the `build/` directory should only contain intermediary build results. These
+intermediary results can be used for debugging during development, but are
+not suitable for distribution. For example, a `.css` file generated from a 
+`.less` file would be appropriate. However, a transpiled or minified `.js` 
+file would not.
+* the `dist/` directory should only contain the build results that are ready
+to be distributed. The files in this directory should be transpiled (for `.js` 
+files), autoprefixed (for `.css` files), minimized and bundled.
+
+Aside from the `buid/` and `src/` directories, there should be no location
+containing intermediate files generated as part of the build process.
+
+
 ## Language and Coding Style
 
 MathLive is written in Javascript, using the [ES2016 dialect]
