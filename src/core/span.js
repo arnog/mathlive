@@ -549,10 +549,6 @@ function makeSpanOfType(type, content, classes) {
     return result;
 }
 
-function makeBin(content, classes) {
-    return makeSpanOfType('mbin', content, classes);
-}
-
 function makeOp(content, classes) {
     return makeSpanOfType('mop', content, classes);
 }

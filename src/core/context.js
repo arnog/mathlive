@@ -94,7 +94,7 @@ Context.prototype.withMathstyle = function(value) {
 /**
  * Return a clone context with the specified mathstyle
  */
-Context.prototype.withIsSelected = function(value) {
+Context.prototype.withIsSelected = function(/* value */) {
     const result = this.clone();
     // if (!result.isSelected) {
     //     result.isSelected = value;

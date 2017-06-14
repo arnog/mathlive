@@ -2,7 +2,9 @@
 
 
 define(['mathlive/core/lexer', 'mathlive/core/mathAtom', 'mathlive/core/parser', 'mathlive/core/span', 'mathlive/editor/editor-shortcuts', 'mathlive/addons/outputLatex'], 
-    function(Lexer, MathAtom, ParserModule, Span, Shortcuts, OutputLatexModule) {
+    function(Lexer, MathAtom, ParserModule, Span, Shortcuts, 
+// eslint-disable-next-line no-unused-vars
+    OutputLatexModule) {
 
 // Although the OutputLatexModule is not referenced directly, 
 // it is required for .toLatex() to work.
@@ -170,56 +172,54 @@ const COMMANDS = [
 // `arg` functions
 //
 
-function previousSingleCharOrDigits(parent, before, selection, after) {
+function previousSingleCharOrDigits(ctx) {
     let result;
-    if (selection && selection.length > 0) {
-        result = selection;
-    } else if (before && before.length > 0) {
+    if (ctx.selection && ctx.selection.length > 0) {
+        result = ctx.selection;
+    } else if (ctx.before && ctx.before.length > 0) {
         result = [];
-        let i = before.length - 1;
-        while (i >= 0 && before[i].type === 'mord' && /[0-9\.]/.test(before[i].value)) {
-            result.unshift(before[i]);
+        let i = ctx.before.length - 1;
+        while (i >= 0 && ctx.before[i].type === 'mord' && /[0-9.]/.test(ctx.before[i].value)) {
+            result.unshift(ctx.before[i]);
             i -= 1;
         }
         if (result.length === 0) {
             // We didn't find a string of digits, look at the previous atom only
-            result.push(before[before.length - 1]);
+            result.push(ctx.before[ctx.before.length - 1]);
         }
     }
     return result;
 }
 
-function previousOrSelection(parent, before, selection, after) {
-        if (selection) {
-            return selection;
-        } else if (before && before.length > 0) {
-            return [before[before.length - 1]];
-        }
-}
+// function previousOrSelection(parent, before, selection, after) {
+//         if (selection) {
+//             return selection;
+//         } else if (before && before.length > 0) {
+//             return [before[before.length - 1]];
+//         }
+// }
 
 //
 // `condition` functions
 //
 
-function notInCommandMode(parsemode, environment, modifiers, parent, before, selection, after) {
-    return !selection && parsemode !== 'command';
+function notInCommandMode(ctx) {
+    return !ctx.selection && ctx.parsemode !== 'command';
 }
 
-function inCommandMode(parsemode, environment, modifiers, parent, before, selection, after) {
-    return parsemode === 'command';
+function inCommandMode(ctx) {
+    return ctx.parsemode === 'command';
 }
 
 
-function selectionIsNotEmpty(
-    parsemode, environment, modifiers, parent, before, selection, after) {
-        return selection !== null;
+function selectionIsNotEmpty(ctx) {
+        return ctx.selection !== null;
 }
 
-function selectionIsSingleUppercaseCharOrDigit(
-    parsemode, environment, modifiers, parent, before, selection, after) {
+function selectionIsSingleUppercaseCharOrDigit(ctx) {
     let result = false;
-    if (selection) {
-        const sel = selection.filter(function(atom) {
+    if (ctx.selection) {
+        const sel = ctx.selection.filter(function(atom) {
             return atom.type === 'mord' && /^[A-Z0-9]$/.test(atom.value);
         });
         result = sel.length === 1;
@@ -228,11 +228,10 @@ function selectionIsSingleUppercaseCharOrDigit(
     return result;
 }
 
-function selectionIsSingleUppercaseChar(
-    parsemode, environment, modifiers, parent, before, selection, after) {
+function selectionIsSingleUppercaseChar(ctx) {
     let result = false;
-    if (selection) {
-        const sel = selection.filter(function(atom) {
+    if (ctx.selection) {
+        const sel = ctx.selection.filter(function(atom) {
             return atom.type === 'mord' && /^[A-Z]$/.test(atom.value);
         });
         result = sel.length === 1;
@@ -241,11 +240,10 @@ function selectionIsSingleUppercaseChar(
     return result;
 }
 
-function selectionIsSingleAlphaChar(
-    parsemode, environment, modifiers, parent, before, selection, after) {
+function selectionIsSingleAlphaChar(ctx) {
     let result = false;
-    if (selection) {
-        const sel = selection.filter(function(atom) {
+    if (ctx.selection) {
+        const sel = ctx.selection.filter(function(atom) {
             return atom.type === 'mord' && /^[a-zA-Z]$/.test(atom.value);
         });
         result = sel.length === 1;
@@ -254,10 +252,10 @@ function selectionIsSingleAlphaChar(
     return result;
 }
 
-function supsubCandidate(parsemode, environment, modifiers, parent, before, selection, after) {
+function supsubCandidate(ctx) {
     let result = false;
-    if (before && (!parent || parent.type === 'root')) {
-        const atom = before[before.length - 1];
+    if (ctx.before && (!ctx.parent || ctx.parent.type === 'root')) {
+        const atom = ctx.before[before.length - 1];
         result = (atom.type === 'mclose') || 
             (atom.type === 'mord' /* && /^[a-zA-Z0-9]$/.test(atom.value) */);
         result = result && atom.value !== '\u200b';
@@ -267,6 +265,7 @@ function supsubCandidate(parsemode, environment, modifiers, parent, before, sele
 }
 
 
+/*
 let USER_STATS = {
     commands: {
         'delete': {
@@ -278,7 +277,7 @@ let USER_STATS = {
         }
     }
 }
-
+*/
 
 
 /**
@@ -295,14 +294,14 @@ function suggest(parsemode, environment, modifiers, parent, before, selection, a
     const result = [];
     for (const command of COMMANDS) {
         if (!command.condition || command.condition(
-                parsemode, environment, modifiers, parent, before, selection, after)) {
+                {parsemode, environment, modifiers, parent, before, selection, after})) {
             let label = command.label || '';
             const shortcuts = command.shortcut || Shortcuts.getShortcutsForCommand(command.selector);
             const shortcutLabel = shortcuts && shortcuts !== 'none' ? 
                 Shortcuts.stringify(shortcuts) : '';
             if (command.dynamicLabel) {
                 const arg = !command.arg ? selection : 
-                    command.arg(parent, before, selection, after);
+                    command.arg({parent, before, selection, after});
                 label = '<span class="ML__dynamicLabel">' + 
                     latexToMarkup(command.dynamicLabel, arg) +
                     '</span>';
@@ -332,6 +331,7 @@ function suggest(parsemode, environment, modifiers, parent, before, selection, a
 
     return result;
 }
+/*
 
 function record(modality, selector) {
     // modality = [keyboard, button]
@@ -344,6 +344,7 @@ function loadUserStats(stats) {
 function saveUserStats() {
     return USER_STATS; // JSON infy
 }
+*/
 
 function latexToMarkup(latex, arg) {
     const args = [];
@@ -376,9 +377,9 @@ function latexToMarkup(latex, arg) {
 
 return {
     suggest: suggest,
-    record: record,
-    loadUserStats: loadUserStats,
-    saveUserStats: saveUserStats,
+    // record: record,
+    // loadUserStats: loadUserStats,
+    // saveUserStats: saveUserStats,
 
 };
 

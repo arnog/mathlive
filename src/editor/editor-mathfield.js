@@ -6,6 +6,7 @@ define(['mathlive/core/definitions', 'mathlive/core/mathAtom', 'mathlive/core/le
     'mathlive/addons/outputLatex', 'mathlive/addons/outputSpokenText'], 
     function(Definitions, MathAtom, Lexer, ParserModule, Span, 
     EditableMathlist, MathPath, Keyboard, Undo, Shortcuts, Commands,
+// eslint-disable-next-line no-unused-vars
     OutputLatex, OutputSpokenText) {
 
 /* 
@@ -827,7 +828,7 @@ MathField.prototype.scrollToStart_ = MathField.prototype.scrollToStart = functio
     // @todo
 }
 
-MathField.prototype.scrollToEnd_ = MathField.prototype.scrollToEnd =function() {
+MathField.prototype.scrollToEnd_ = MathField.prototype.scrollToEnd = function() {
     // @todo
 }
 

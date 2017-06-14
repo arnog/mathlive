@@ -147,8 +147,9 @@ function letter(c) {
 }
 
 function emph(s) {
-    if (options.markup === 'ssml') {
-    } else if (options.markup) {
+    // if (options.markup === 'ssml') {
+    // } else 
+    if (options.markup) {
         return '[[emph +]]' + s;
     }
     return s;

@@ -45,6 +45,7 @@
         // "max-len": "warn",
         "new-cap": 1,
         "no-bitwise": 1,
+        "no-console": "off",
         "no-else-return": 1,
         "no-eval": 2,
         "no-fallthrough": 1,
@@ -61,7 +62,7 @@
         // "vars-on-top": 1,
         "no-delete-var": 1,
         "no-mixed-spaces-and-tabs": [1,"smart-tabs"],
-        "require-jsdoc": "error",
+        "require-jsdoc": "off",
         "space-infix-ops": ["error", {"int32Hint": false}]
 
         

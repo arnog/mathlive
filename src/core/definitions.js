@@ -72,7 +72,7 @@ const ENVIRONMENTS = [];
 // the following constants are used to denote an estimate.
 const CRYPTIC = 'CRYPTIC';
 const ARCANE = 'ARCANE';
-const VERY_RARE = 'VERY_RARE';
+// const VERY_RARE = 'VERY_RARE';
 const RARE = 'RARE';
 const UNCOMMON = 'UNCOMMON';
 const COMMON = 'COMMON';
@@ -406,9 +406,8 @@ function suggest(s) {
     result.sort( function(a, b) { 
         if (a.frequency === b.frequency) {
             return b.match.length - a.match.length;
-        } else {
-            return (b.frequency || 0) - (a.frequency || 0);
         }
+        return (b.frequency || 0) - (a.frequency || 0);
     });
     
     return result;
@@ -427,7 +426,7 @@ const AMS = 'ams';
 // Type
 const ORD = '[ord]';    // Either MATHORD or TEXTORD, depending on the mode
 const MATHORD = 'mord'; // Ordinary, e.g. '/'
-const OP = 'mop';       // Big operator e.g. '\sum'
+// const OP = 'mop';       // Big operator e.g. '\sum'
 const BIN = 'mbin';     // e.g. '+'
 const REL = 'mrel';     // e.g. '='
 const OPEN = 'mopen';   // e.g. '('
@@ -438,7 +437,7 @@ const INNER = 'minner'; // for fractions and \left...\right.
 
 const TEXTORD = 'textord';
 
-const ACCENT = 'accent';
+// const ACCENT = 'accent';
 const SPACING = 'spacing';
 const COMMANDLITERAL = 'command'; // Not in TeX. Values in a command sequence (e.g. ESC + ...)
 

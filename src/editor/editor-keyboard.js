@@ -145,27 +145,21 @@ function delegateKeyboardEvents(textarea, handlers) {
     let keypressEvent = null;
     let compositionInProgress = false;
 
-    const noop = function() {};
+    // const noop = function() {};
 
     // This callback is invoked after a keyboard event has been processed
     // by the textarea
-    let callback = noop;
+    // let callback = noop;
     let callbackTimeoutID;
 
     function defer(cb) {
-        callback = cb;
+        // callback = cb;
         clearTimeout(callbackTimeoutID);
         callbackTimeoutID = setTimeout(function() {
-            callback = noop;
+            // callback = noop;
             clearTimeout(callbackTimeoutID);
             cb();
         });
-    }
-
-    function executeDeferredCallback() {
-        callback();
-        callback = noop;
-        clearTimeout(callbackTimeoutID);
     }
 
     function handleTypedText() {
@@ -261,17 +255,6 @@ function delegateKeyboardEvents(textarea, handlers) {
     // input methods or emoji input...
     target.addEventListener('input', 
         () => { if (!compositionInProgress) { defer(handleTypedText); } });
-
-    function select(text) {
-        executeDeferredCallback();
-        if (text) {
-            textarea.value = text;
-            textarea.select();
-        }
-
-}
-
-
 
 }
 

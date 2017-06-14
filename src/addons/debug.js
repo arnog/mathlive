@@ -42,6 +42,7 @@ function getSymbol(spans, symbol) {
         }
         return result;
     }
+    return null;
 }
 
 function getProp(spans, symbol, prop) {
@@ -89,9 +90,8 @@ function hasClass(spans, symbol, cls) {
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-function spanToString(span, indent, path) {
+function spanToString(span, indent) {
     indent = indent || '';
-    path = path || '[';
 
     let result = '';
     if (Array.isArray(span)) {

@@ -1,7 +1,7 @@
 
 
-define(['mathlive/editor/editor-editableMathlist'], 
-    function(EditableMathlist) {
+define([], 
+    function() {
 
 function UndoManager(mathlist) {
     this.mathlist = mathlist;

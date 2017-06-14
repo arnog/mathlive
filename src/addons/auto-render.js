@@ -49,11 +49,12 @@ function splitAtDelimiters(startData, leftDelim, rightDelim, display) {
                 });
                 lookingForLeft = false;
             }
-
-            while (true) {
+            let done = false;
+            while (!done) {
                 if (lookingForLeft) {
                     nextIndex = text.indexOf(leftDelim, currIndex);
                     if (nextIndex === -1) {
+                        done = true;
                         break;
                     }
 
@@ -69,6 +70,7 @@ function splitAtDelimiters(startData, leftDelim, rightDelim, display) {
                         text,
                         currIndex + leftDelim.length);
                     if (nextIndex === -1) {
+                        done = true;
                         break;
                     }
 
@@ -198,7 +200,7 @@ function extend(obj) {
     return obj;
 }
 
-let renderMathInElement = function(elem, options) {
+function renderMathInElement(elem, options) {
     if (!elem) return;
 
     options = extend({}, defaultOptions, options);

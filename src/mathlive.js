@@ -120,10 +120,6 @@ function toMarkup(text, displayMode, format) {
 }
 
 
-function parse(text, args) {
-    return ParserModule.parseTokens(Lexer.tokenize(text), 'math', args);
-}
-
 function makeMathField(el, options) {
     if (!MathField) {
         console.log('The MathField module is not loaded.');

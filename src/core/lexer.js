@@ -12,7 +12,7 @@
  */
 
 
-define(function(require) {
+define(function() {
 
 
 /**

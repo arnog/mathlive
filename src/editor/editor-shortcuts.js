@@ -427,6 +427,7 @@ const INLINE_SHORTCUTS = {
     '(-)':                  '\\circleddash',
 };
 
+/* 
 const MATHEMATICA_COMMANDS = {
     'NotEqual':             '\\ne',
     'LessEqual':            '\\le',
@@ -516,6 +517,7 @@ const MATHEMATICA_COMMANDS = {
 
     'Degree':                '\\degree'
 };
+*/
 
 
 /**

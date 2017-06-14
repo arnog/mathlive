@@ -1,9 +1,7 @@
 
 
-define(['definitions', 'mathAtom', 'span', 'editableMathlist', 'editor-keyboard', 'editor-undo', 
-    'lexer', 'parser', 'editor-shortcuts'], 
-    function(Definitions, MathAtom, Span, Selection, Keyboard, Undo,
-    Lexer, ParserModule, Shortcuts) {
+define([], 
+    function() {
 
 // function Popover(el) {
 //     this.el = el;

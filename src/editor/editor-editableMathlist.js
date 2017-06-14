@@ -929,7 +929,7 @@ EditableMathlist.prototype.extend = function(dist) {
  */
 EditableMathlist.prototype.skip = function(dir, options) {
     options = options || {extend: false};
-    const extend = options.extend || false;;
+    const extend = options.extend || false;
     dir = dir < 0 ? -1 : +1;
 
     const siblings = this.siblings();
@@ -980,7 +980,7 @@ EditableMathlist.prototype.skip = function(dir, options) {
  */
 EditableMathlist.prototype.jump = function(dir, options) {
     options = options || {extend: false};
-    const extend = options.extend || false;;
+    const extend = options.extend || false;
     dir = dir < 0 ? -1 : +1;
 
     const siblings = this.siblings();

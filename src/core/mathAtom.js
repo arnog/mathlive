@@ -737,33 +737,30 @@ MathAtom.prototype.decomposeSurd = function(context) {
 
     if (!this.index) {
         return makeOrd([delim, body], 'sqrt');
-    } else {
-        // Handle the optional root index
-
-        // The index is always in scriptscript style
-        const newcontext = context.withMathstyle(Mathstyle.SCRIPTSCRIPT);
-
-        const root = makeSpan(decompose(newcontext, this.index), 
-            mathstyle.adjustTo(Mathstyle.SCRIPTSCRIPT));
-
-        // Figure out the height and depth of the inner part
-        const innerRootHeight = Math.max(delim.height, body.height);
-        const innerRootDepth = Math.max(delim.depth, body.depth);
-
-        // The amount the index is shifted by. This is taken from the TeX
-        // source, in the definition of `\r@@t`.
-        const toShift = 0.6 * (innerRootHeight - innerRootDepth);
-
-        // Build a VList with the superscript shifted up correctly
-        const rootVlist = makeVlist(context, [root], 'shift', -toShift);
-
-        // Add a class surrounding it so we can add on the appropriate
-        // kerning
-
-        return makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt');
     }
-    
+    // Handle the optional root index
 
+    // The index is always in scriptscript style
+    const newcontext = context.withMathstyle(Mathstyle.SCRIPTSCRIPT);
+
+    const root = makeSpan(decompose(newcontext, this.index), 
+        mathstyle.adjustTo(Mathstyle.SCRIPTSCRIPT));
+
+    // Figure out the height and depth of the inner part
+    const innerRootHeight = Math.max(delim.height, body.height);
+    const innerRootDepth = Math.max(delim.depth, body.depth);
+
+    // The amount the index is shifted by. This is taken from the TeX
+    // source, in the definition of `\r@@t`.
+    const toShift = 0.6 * (innerRootHeight - innerRootDepth);
+
+    // Build a VList with the superscript shifted up correctly
+    const rootVlist = makeVlist(context, [root], 'shift', -toShift);
+
+    // Add a class surrounding it so we can add on the appropriate
+    // kerning
+
+    return makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt');
  }
 
 MathAtom.prototype.decomposeAccent = function(context) {
@@ -1247,9 +1244,8 @@ MathAtom.prototype.decompose = function(context) {
             result[result.length - 1] = 
                 this.attachSupsub(ctx, lastSpan, lastSpan.type);
             return result;
-        } else {
-            return [this.attachSupsub(ctx, result, result.type)];
         }
+        return [this.attachSupsub(ctx, result, result.type)];
     }
 
     return Array.isArray(result) ? result : [result];
