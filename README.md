@@ -1,6 +1,6 @@
 <h1 align="center">
 	<br>
-        <img src = "arnog/mathlive/raw/master/assets/logo-1024.jpg">
+        <img src = "arnog/mathlive/blob/master/assets/logo-1024.jpg">
     <br>
 </h1>
 
