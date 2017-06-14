@@ -255,7 +255,7 @@ function selectionIsSingleAlphaChar(ctx) {
 function supsubCandidate(ctx) {
     let result = false;
     if (ctx.before && (!ctx.parent || ctx.parent.type === 'root')) {
-        const atom = ctx.before[before.length - 1];
+        const atom = ctx.before[ctx.before.length - 1];
         result = (atom.type === 'mclose') || 
             (atom.type === 'mord' /* && /^[a-zA-Z0-9]$/.test(atom.value) */);
         result = result && atom.value !== '\u200b';
