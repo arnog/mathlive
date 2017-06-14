@@ -137,7 +137,7 @@ function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
     console.assert(fontFamily === 'main' || fontFamily === 'ams' ||
         fontFamily === 'mathrm' || fontFamily === 'mathbb' || 
         fontFamily === 'mathscr' || Array.isArray(fontFamily),
-        "Unknown font family \'' + fontFamily + '\' for " + latexName);
+        "Unknown font family " + fontFamily + " for " + latexName);
 
     // Convert a frequency constant to a numerical value
     if (typeof frequency === 'string') frequency = FREQUENCY_VALUE[frequency];
@@ -2465,8 +2465,8 @@ defineSymbol( '"', MATH,  MAIN,  TEXTORD, '\u201D');       // Double Prime
 
 category = '';
 defineSymbols('0123456789/@.', MATH, MAIN, MATHORD);
-defineSymbols('0123456789!@*()-=+[]\";:?/.,', TEXT, MAIN, TEXTORD);
-defineSymbols("0123456789!@*()-=+{}[]\\\';:?/.,~<>`|'$%#&", COMMAND, MAIN, COMMANDLITERAL);
+defineSymbols('0123456789!@*()-=+[]";:?/.,', TEXT, MAIN, TEXTORD);
+defineSymbols("0123456789!@*()-=+{}[]\\';:?/.,~<>`|'$%#&", COMMAND, MAIN, COMMANDLITERAL);
 
 // a-z
 defineSymbolRange(0x0041, 0x005A, TEXT, MAIN, TEXTORD);

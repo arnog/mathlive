@@ -975,7 +975,7 @@ Parser.prototype.scanOptionalArg = function(parseMode) {
                         result = result || {};
                         result.padding = convertDimenToEm(parseFloat(m[1]), m[2]);
                     } else {
-                        const m = elem.match(/^\s*border\s*\:\s*(.*)/);
+                        const m = elem.match(/^\s*border\s*:\s*(.*)/);
                         if (m) {
                             result = result || {};
                             result.border = m[1];

@@ -663,7 +663,7 @@ function getShortcutsForCommand(command) {
             replace('*', '\\*').
             replace('$', '\\$').
             replace('^', '\\^')
-        + '([^\*a-zA-Z]|$)');
+        + '([^*a-zA-Z]|$)');
     for (const shortcut in KEYBOARD_SHORTCUTS) {
         if (KEYBOARD_SHORTCUTS.hasOwnProperty(shortcut)) {
             if (regex.test(commandToString(KEYBOARD_SHORTCUTS[shortcut]))) {

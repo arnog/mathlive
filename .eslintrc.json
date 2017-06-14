@@ -9,10 +9,11 @@
     },
 
     "parserOptions": {
+        "ecmaVersion": 2016,
+        "sourceType": "module",
         "ecmaFeatures": {
-            "jsx": true
-        },
-        "sourceType": "module"
+            "jsx": false
+        }
     },
 
     "extends": "eslint:recommended",

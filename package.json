@@ -1,15 +1,24 @@
 {
   "name": "mathlive",
   "version": "0.0.1",
-  "description": "The interactive math editor",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "test": "node ./js/test.js",
-    "prepublish": "webpack --config ./js/webpack.config.js"
+  "description": "Beautifully typeset math made easy",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arnog/mathlive.git"
   },
-  "dependencies": {
-    "requirejs": "latest"
+  "keywords": [
+    "math",
+    "editor",
+    "javascript",
+    "math-editing"
+  ],
+  "main": "mathlive.js",
+  "scripts": {
+    "lint": "eslint src/ css/",
+    "start": "node index.js",
+    "test": "node ./test/test.js",
+    "prepublish": "webpack --config webpack.config.js"
   },
   "nyc": {
     "exclude": [
@@ -21,15 +30,12 @@
   "engines": {
     "node": "4.0.0"
   },
-  "keywords": [
-    "math",
-    "text",
-    "typography"
-  ],
   "author": "Arno Gourdol <arno@arno.org>",
   "contributors": [],
-  "license": "MIT",
+  "bugs": "https://github.com/arnog/mathlive/issues/",
   "devDependencies": {
+    "eslint": "^4.0.0",
+    "requirejs": "latest",
     "tape": "^4.6.3",
     "webpack": "^2.5.0"
   }

@@ -1708,11 +1708,11 @@ function getFontName(symbol, fontFamily) {
             if (!/^[0-9A-Z ]$/.test(symbol)) return null;
 
         } else if (fontFamily === 'mathfrak') {
-            if (!/^[0-9A-Za-z ]$|^[!"#$%&'\(\)\*\+,\-\.\/\:\;=\?\[\]\^’‘]$/.test(symbol)) {
+            if (!/^[0-9A-Za-z ]$|^[!"#$%&'()*+,\-./:;=?[]^’‘]$/.test(symbol)) {
                 return null;
             }
         } else if (fontFamily === 'mathtt' || fontFamily === 'texttt' || fontFamily === 'textsf' || fontFamily === 'mathsf') {
-            if (!/^[0-9A-Za-z ]$|^[!"&'\(\)\*\+,\-\.\/\:\;=\?@\[\]\^_~\u0131\u0237\u0393\u0394\u0398\u039b\u039e\u03A0\u03A3\u03A5\u03A8\u03a9’‘]$/.test(symbol)) {
+            if (!/^[0-9A-Za-z ]$|^[!"&'()*+,\-./:;=?@[]^_~\u0131\u0237\u0393\u0394\u0398\u039b\u039e\u03A0\u03A3\u03A5\u03A8\u03a9’‘]$/.test(symbol)) {
                 return null;
             }
         }
