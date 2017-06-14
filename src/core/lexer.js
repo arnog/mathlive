@@ -3,13 +3,14 @@
 
 
 /**
- * Reference
+ * ## Reference
  * TeX source code:
- * @see {@link  http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web|Tex.web}
+ * {@link  http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web|Tex.web}
  * 
  * For a list of standard TeX macros, see:
- * @see {@link ftp://tug.ctan.org/pub/tex-archive/systems/knuth/dist/lib/plain.tex|plain.tex}
- */
+ * {@link ftp://tug.ctan.org/pub/tex-archive/systems/knuth/dist/lib/plain.tex|plain.tex}
+ * @kind module
+*/
 
 
 define(function() {
@@ -132,8 +133,7 @@ Lexer.prototype.skipWhiteSpace = function() {
 /**
  * Return a single token, or null, created from the lexer.
  * 
- * @param {Lexer} lex 
- * @returns {?Token}
+ * @returns {Token}
  */
 Lexer.prototype.makeToken = function() {
     // If we've reached the end, exit

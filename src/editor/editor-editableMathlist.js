@@ -5,6 +5,10 @@ define(['mathlive/core/definitions', 'mathlive/core/mathAtom', 'mathlive/core/le
     function(Definitions, MathAtom, Lexer, ParserModule, MathPath) {
 
 
+/**
+ * 
+ * @param {Object} config 
+ */
 function EditableMathlist(config) {
     this.root = MathAtom.makeRoot();
     
@@ -104,7 +108,8 @@ EditableMathlist.prototype.setPath = function(selection, extent) {
 /**
  * Extend the selection between `to` and `from` nodes
  * 
- * @param {[]} path
+ * @param {string[]} from
+ * @param {string[]} to
  */
 EditableMathlist.prototype.setRange = function(from, to) {
 
@@ -255,7 +260,7 @@ EditableMathlist.prototype.insertFirstAtom = function() {
 
 
 /**
- * @return array of children of the parent
+ * @return {MathAtom[]} array of children of the parent
  */
 EditableMathlist.prototype.siblings = function() {
     const siblings = this.parent()[this.relation()];
@@ -293,7 +298,7 @@ EditableMathlist.prototype.isCollapsed = function() {
 }
 
 /**
- * @param {number} extent.
+ * @param {number} extent
  */
 EditableMathlist.prototype.setExtent = function(extent) {
     // const anchorOffset = this.anchorOffset();
@@ -340,7 +345,7 @@ EditableMathlist.prototype.selectAll_ = function() {
 
 /**
  * 
- * @param {*} atom 
+ * @param {MathAtom} atom 
  * @param {*} target 
  * @return {boolean} True if the atom is the target, or if one of the 
  * children of atom contains the target
@@ -382,7 +387,7 @@ EditableMathlist.prototype.contains = function(atom) {
 }
 
 /**
- * @return {MathAtom[]} The currently selected atoms, or null if the 
+ * @return {MathAtom[]} The currently selected atoms, or null if the
  * selection is collapsed
  */
 EditableMathlist.prototype.extract = function() {
@@ -548,8 +553,6 @@ EditableMathlist.prototype.commitCommandStringBeforeInsertionPoint = function() 
 }
 
 
-/**
- */
 EditableMathlist.prototype.spliceCommandStringAroundInsertionPoint = function(mathlist) {
     const command = this.commandOffsets();
     if (command) {
@@ -925,7 +928,7 @@ EditableMathlist.prototype.extend = function(dist) {
  * If `extend` is true, the selection will be extended. Otherwise, it is 
  * collapsed, then moved.
  * @param {number} dir +1 to skip forward, -1 to skip back
- * @param {boolean} extend
+ * @param {Object} options
  */
 EditableMathlist.prototype.skip = function(dir, options) {
     options = options || {extend: false};
@@ -1245,7 +1248,7 @@ EditableMathlist.prototype.delete = function(count) {
 }
 
 /**
- * @param {number} count If the selection is not collapsed, and count is 
+ * @param {number} dir If the selection is not collapsed, and dir is 
  * negative, delete backward, starting with the anchor atom. 
  * That is, delete(-1) will delete only the anchor atom.
  * If count = 0, delete only if the selection is not collapsed

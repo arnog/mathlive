@@ -89,7 +89,7 @@ const FREQUENCY_VALUE = {
     'UNCOMMON': 2000,
     'COMMON': 3000,
     'SUPERCOMMON': 4000
-};
+}
 
 
 /**

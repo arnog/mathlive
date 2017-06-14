@@ -15,28 +15,54 @@
   ],
   "main": "mathlive.js",
   "scripts": {
-    "lint": "eslint src/ css/",
-    "start": "node index.js",
-    "test": "node ./test/test.js",
-    "prepublish": "webpack --config webpack.config.js"
+    "build-js": "npm-run-all -p lint test",
+    "watch-js": "esw -w src/",
+    "build-css": "lessc css/mathlive.less build/mathlive.css && lessc css/mathlive.core.less build/mathlive.core.css",
+    "watch-css": "npm run build-css && chokidar 'css/*.less' -c 'npm run build-css'",
+    "build": "npm-run-all -p build-css build-js docs",
+    "watch": "npm-run-all -p watch-css watch-js watch-docs",
+    "start": "npm run watch",
+    "dev": "npm run watch",
+    "lint": "eslint src/ css/ && documentation lint src/",
+    "test": "tape-watch -once ./test/test.js",
+    "test-watch": "npm test && npm test -- --watch",
+    "coverage": "nyc node ./test/test.js && nyc report --reporter html",
+    "prepublish": "webpack --config webpack.config.js",
+    "docs": "documentation build src/ -f html -o build/docs",
+    "watch-docs": "npm run docs && npm run docs -- --watch"
   },
   "nyc": {
     "exclude": [
-      "**/test.js",
+      "test",
       "**/Debug.js",
+      "dist",
       "build"
     ]
   },
   "engines": {
     "node": "4.0.0"
   },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ],
   "author": "Arno Gourdol <arno@arno.org>",
   "contributors": [],
   "bugs": "https://github.com/arnog/mathlive/issues/",
   "devDependencies": {
-    "eslint": "^4.0.0",
+    "autoprefixer": "^6.5.4",
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.0.0",
+    "babel-preset-env": "^1.5.2",
+    "chokidar-cli": "^1.2.0",
+    "documentation": "^4.0.0",
+    "eslint": "<4.0.0",
+    "eslint-watch": "^3.1.0",
+    "less": "^2.7.2",
+    "npm-run-all": "^4.0.2",
     "requirejs": "latest",
     "tape": "^4.6.3",
+    "tape-watch": "^2.3.0",
     "webpack": "^2.5.0"
   }
 }

@@ -7,6 +7,7 @@
  * about a specific style. It then provides instances of all the different kinds
  * of styles possible, and provides functions to move between them and get
  * information about them.
+ * @kind module
  */
 
 define(['mathlive/core/fontMetrics'], function(FontMetrics){ 
@@ -134,8 +135,8 @@ const styles = [
 
 /**
  * Maps a string (or a Mathstyle) to an actual Mathstyle object.
- * @param {?(Mathstyle|string)} s 
- * @return {?Mathstyle}
+ * @param (Mathstyle|string)} s 
+ * @return {Mathstyle}
  */
 function toMathstyle(s) {
     if (!s) return s;

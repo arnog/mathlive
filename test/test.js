@@ -19,13 +19,18 @@
 
 const requirejs = require('requirejs');
 requirejs.config({
+    baseUrl: __dirname + '/../',
+    paths: {
+        mathlive: 'src'
+    },
+
     //Pass the top-level main.js/index.js require
     //function to requirejs so that node modules
     //are loaded relative to the top-level JS file.
     nodeRequire: require
 });
 
-requirejs(['debug', 'Math'],
+requirejs(['mathlive/addons/debug', 'mathlive/mathlive'],
 function   (MathLiveDebug, MathLive) {
 
 const test = require('tape');
@@ -46,7 +51,7 @@ function getType(s, symbol) {
 }
 
 function toSpan(formula) {
-    return MathLive.toMarkup(formula, true, 'span');
+    return MathLive.latexToMarkup(formula, true, 'span');
 }
 
 

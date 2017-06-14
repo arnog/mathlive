@@ -1,11 +1,80 @@
 # MathLive Contributor Guide
 
 This guide describes the structure of the MathLive project. If you are 
-interested in contributing to it, or if you want to better understand how
+interested in contributing to the project, or if you want to better understand how
 it works you will find it useful. If you simply want to use MathLive 
 with your web content, see the [MathLive Usage Guide](USAGE_GUIDE.md).
 
-## Code structure
+## Table of Contents
+- [Development Setup](#development-setup)
+- [Code Structure](#code-structure)
+- [Language and Coding Style](#language-and-coding-style)
+- [Naming Convention](#naming-convention)
+- [Browser Support](#browser-support)
+- [Architecture](#architecture)
+- [Files](#files)
+- [Common Tasks](#common-tasks)
+
+## Development Setup
+The project uses [NPM scripts](https://docs.npmjs.com/misc/scripts) 
+ for its build system. The `package.json` 
+file contains the definitions of the build scripts.
+
+To get started developing:
+1. Install [Node.js](http://nodejs.org) on your dev machine
+2. Clone the project repo to a `mathlive/` directory
+3. Run:
+``` bash
+$ cd <you local path>/mathlive
+$ npm install
+```
+This will install in the `mathlive/` directory all the Node modules to build and test the MathLive and its documentation.
+
+Depending on your system setup, you may need to run as admin, in which case
+use `sudo npm install`.
+
+Once the installation is succesful, you can use the following commands:
+``` bash
+# Build the project for local use
+# 1. Compiles the css/*.less file to build/*.css
+# 2. "npm run lint" on the .js files
+# 3. "npm run docs" to generate the documentation
+# 4. "npm test" to run the test scripts
+$ npm run build
+
+# Watch and auto re-build the project
+# Watch for changed files, and does "npm run build"
+$ npm run dev
+
+# Run test scripts
+$ npm test
+
+# In-depth linting
+# More comprehensive linting than the one done as part of "build"
+# Includes linting of the JSDoc comment blocks
+$ npm run lint
+
+# Calculate the code coverage and output to build/coverage/
+$ npm run coverage
+
+# Build the documentation file to buid/docs/
+$ npm run docs
+
+# Builds, then transpile, minimize and bundle to dist/
+$ npm run dist
+
+# Clean up (deletes) the contents of the /build and /dist directories
+$ npm run clean
+
+# Increase the version number of the library
+# Only do this before making a new public distribution
+$ npm version major | minor | patch |
+
+```
+
+
+
+## Code Structure
 The MathLive library consists of the following key directories:
 * `css/` the stylesheets and fonts used by MathLive
 * `src/core` the core Javascript code needed to render math. This module depends on the `css/` module.
@@ -60,7 +129,8 @@ Use the `.eslintrc.json` file to follow the linting conventions used in the
 project. In addition, follow these guidelines:
 * **Tabs** are expanded to **four spaces**
 * Quotes are preferably **single quotes**. Use double-quotes when inside a 
-single-quoted string. Using backtick for multiline quotes is OK.
+single-quoted string. Using backtick (template strings)for multiline
+ quotes is OK.
 * **Typecheck** using `typeof v === 'string'`, `typeof v === 'number'`, etc... 
 Use `Array.isArray(v)` to check for arrays.
 * **Conditional evaluation** Use conditional evaluation shortcuts when applicable
@@ -74,11 +144,11 @@ you would have `f({reverse: true})`.
 * **Braces for control structures** should always be used, except for short
 `if` statement, for example `if (done) return;`
 * **Avoid method chaining** Method chaining is a programming style where a 
-method returns the `this` object so that is can be called again. For example 
+method returns the `this` object so that it can be called again. For example 
 `div.css('color', 'white').height(50).width(50)`.
 * **Use loose typing** For example, a function argument could accept a string
 or an array and behave appropriately. For example:
-```
+``` javascript
     function f(argument) {
         if (Array.isArray(argument)) {
             argument = argument.join(';');
@@ -100,7 +170,7 @@ does not include the `_`, so you would call `MathField.perform('selectAll')`.
 directly.
 
 
-## Compatibility
+## Browser Support
 
 MathLive is designed for the modern web. Supporting older browsers complicates
 the effort involved in building new features, but it is also an insecure 

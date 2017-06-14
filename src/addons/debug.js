@@ -55,7 +55,7 @@ function getProp(spans, symbol, prop) {
  * Return the type ('mbin', etc...) of a span
  * @param {Span[]} spans 
  * @param {string} symbol 
- * @return {?string}
+ * @return string}
  */
 function getType(spans, symbol) {
     const s = getSymbol(spans, symbol);

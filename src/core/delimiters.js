@@ -1,5 +1,5 @@
 /**
- * This file deals with creating delimiters of various sizes. The TeXbook
+ * This module deals with creating delimiters of various sizes. The TeXbook
  * discusses these routines on page 441-442, in the "Another subroutine sets box
  * x to a specified variable delimiter" paragraph.
  *
@@ -18,6 +18,8 @@
  * called in places like `\sqrt`. `leftRightDelim` makes an appropriate
  * delimiter which surrounds an expression of a given height an depth. It is
  * used in `\left` and `\right`.
+ * @summary   Handling of delimiters surrounds symbols.
+ * @kind module
  */
 
 define(['mathlive/core/definitions', 'mathlive/core/span', 'mathlive/core/mathstyle', 'mathlive/core/fontMetrics'],

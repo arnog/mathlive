@@ -1,4 +1,8 @@
-![MathLive](assets/logo-1024.jpg)
+<h1 align="center">
+	<br>
+        ![MathLive](assets/logo-1024.jpg)
+    <br>
+</h1>
 
 MathLive is a Javascript library to render and edit math. 
 

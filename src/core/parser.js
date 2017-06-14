@@ -544,7 +544,7 @@ Parser.prototype.scanColspec = function() {
 
 /**
  * Parse a \(...\) or \[...\] sequence
- * @return {?MathAtom} group for the sequence or null
+ * @return {MathAtom} group for the sequence or null
  */
 Parser.prototype.scanModeSet = function() {
     let final;
@@ -691,17 +691,17 @@ Parser.prototype.scanEnvironment = function() {
     return result;
 }
 
-// {black\color{red}red\color{green}green}black
 /**
  * Parse a sequence terminated with a group end marker, such as 
  * '}', '\end', '&', etc...
  * Returns an array of MathAtom or an empty array if the sequence
  * terminates right away
- * @param {?function} done A predicate indicating if a token signals the 
+ * @param {function} [done] A predicate indicating if a token signals the 
  * end of an implicit group
- * @return {?MathAtom[]} 
+ * @return MathAtom[]} 
  */
 Parser.prototype.scanImplicitGroup = function(done) {
+    // {black\color{red}red\color{green}green}black
     if (!done) done = hasImplicitGroupEnd;
     // To handle infix operators, we'll keep track of their prefix
     // (tokens coming before them)
@@ -796,7 +796,7 @@ Parser.prototype.scanGroup = function() {
 /**
  * Scan a delimiter, e.g. '(', '|', '\vert', '\ulcorner'
  * 
- * @return {?string} The delimiter (as a character or command) or null
+ * @return {string} The delimiter (as a character or command) or null
  */
 Parser.prototype.scanDelim = function() {
     this.parseToken('space');

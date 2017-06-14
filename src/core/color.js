@@ -1,22 +1,22 @@
-define([], function() {
+
 /**
- * @file
  * This file contains several color dictionaries, as well as algorithms to 
  * parse a string into a hex RGB color value.
- *
  * @summary   Parsing of color strings.
- *
+ * @name color
+ * @kind module
  */
+define([], function() {
 
 /*
 {\color{apricot}\blacksquare}{\color{aquamarine}\blacksquare}{\color{bittersweet}\blacksquare}{\color{black}\blacksquare}{\color{blue}\blacksquare}{\color{blueGreen}\blacksquare}{\color{blueviolet}\blacksquare}{\color{brickred}\blacksquare}{\color{brown}\blacksquare}{\color{burntorange}\blacksquare}{\color{cadetblue}\blacksquare}{\color{carnationpink}\blacksquare}{\color{cerulean}\blacksquare}{\color{cornflowerblue}\blacksquare}{\color{cyan}\blacksquare}{\color{dandelion}\blacksquare}{\color{darkorchid}\blacksquare}{\color{emerald}\blacksquare}{\color{forestgreen}\blacksquare}{\color{fuchsia}\blacksquare}{\color{goldenrod}\blacksquare}{\color{gray}\blacksquare}{\color{green}\blacksquare}{\color{greenyellow}\blacksquare}{\color{junglegreen}\blacksquare}{\color{lavender}\blacksquare}{\color{limegreen}\blacksquare}{\color{magenta}\blacksquare}{\color{mahogany}\blacksquare}{\color{maroon}\blacksquare}{\color{melon}\blacksquare}{\color{midnightblue}\blacksquare}{\color{mulberry}\blacksquare}{\color{navyblue}\blacksquare}{\color{olivegreen}\blacksquare}{\color{orange}\blacksquare}{\color{orangered}\blacksquare}{\color{orchid}\blacksquare}{\color{peach}\blacksquare}{\color{periwinkle}\blacksquare}{\color{pinegreen}\blacksquare}{\color{plum}\blacksquare}{\color{processblue}\blacksquare}{\color{purple}\blacksquare}{\color{rawsienna}\blacksquare}{\color{red}\blacksquare}{\color{redorange}\blacksquare}{\color{redviolet}\blacksquare}{\color{rhodamine}\blacksquare}{\color{royalblue}\blacksquare}{\color{royalpurple}\blacksquare}{\color{rubinered}\blacksquare}{\color{salmon}\blacksquare}{\color{seagreen}\blacksquare}{\color{sepia}\blacksquare}{\color{skyblue}\blacksquare}{\color{springgreen}\blacksquare}{\color{tan}\blacksquare}{\color{tealblue}\blacksquare}{\color{thistle}\blacksquare}{\color{turquoise}\blacksquare}{\color{violet}\blacksquare}{\color{violetred}\blacksquare}{\color{white}\blacksquare}{\color{wildstrawberry}\blacksquare}{\color{yellow}\blacksquare}{\color{yellowgreen}\blacksquare}{\color{yelloworange}\blacksquare}
 */
 
 /**
- * @constant
- * @type {Object.<string, string>
  * First 10 predefined colors used for plotting by Mathematica
  * also known as 'indexed color scheme #97'
+ * @constant
+ * @type {Object.<string, string>}
  */
 const MATHEMATICA_COLORS = {
     'm0': '#3f3d99',
@@ -33,13 +33,13 @@ const MATHEMATICA_COLORS = {
 
 
 /** 
- * @constant
- * @type {Object.<string, string>}
  * 68 colors (+ white) known to dvips used in LaTeX
  * The color names are based on the names of the Crayola Crayon box of 
  * 64 crayons
  * (see http://mirror.jmu.edu/pub/CTAN/systems/knuth/local/lib/colordvi.tex)
  * See also: https://en.wikibooks.org/w/index.php?title=LaTeX/Colors
+ * @constant NAMED_COLORS
+ * @type {Object.<string, string>}
  */
 const NAMED_COLORS = {
     'apricot': '#FBB982',
@@ -368,9 +368,9 @@ function stringToColor(s) {
 
 // Export the public interface for this module
 return { 
-    stringToColor: stringToColor,
-    // NAMED_COLORS : NAMED_COLORS,
-    // MATHEMATICA_COLORS : MATHEMATICA_COLORS
+    stringToColor,
+    // NAMED_COLORS,
+    // MATHEMATICA_COLORS
 }
 
 

@@ -15,7 +15,7 @@ const NUMBER_FORMATER = new Intl.NumberFormat('en-US', {
  * Each arguments can be either a string, which is unchanged,
  * or a number, which is converted to a string with at most 5 fractional digits.
  * 
- * @param {*} args
+ * @param {...string} args
  * @return {string}
  */
 function toString() {
@@ -106,7 +106,7 @@ Span.prototype.updateDimensions = function() {
  * For example, setStyle('border-right', 5.6, 'em');
  * 
  * @param {string} prop the CSS property to set
- * @param {?*} value a series of strings and numbers that will be concatenated.
+ * @param *} value a series of strings and numbers that will be concatenated.
  * @return {string}
  */
 Span.prototype.setStyle = function(prop, ...value) {
@@ -464,7 +464,7 @@ function italic(spans) {
 /**
  * Make an element made of a sequence of children with classes
  * @param {(string|Span|Span[])} content the items 'contained' by this node
- * @param {?string} classes list of classes attributes associated with this node
+ * @param {string} classes list of classes attributes associated with this node
  */
 function makeSpan(content, classes) {
     return new Span(content, classes);
@@ -475,7 +475,7 @@ function makeSpan(content, classes) {
  * 
  * @param {string} fontFamily 
  * @param {string} symbol 
- * @param {?string} classes 
+ * @param {string} classes 
  */
 function makeSymbol(fontFamily, symbol, classes) {
     const result = new Span(symbol, classes);
@@ -503,7 +503,7 @@ function makeSymbol(fontFamily, symbol, classes) {
 
 
 /**
- * @return {?Span}
+ * @return {Span}
  */
 function makeFontSizer(context, fontSize) {
 
@@ -616,7 +616,7 @@ function makeHlist(children, classes) {
 /**
  * Creata a new Span of type vlist, a set of vertically stacked items
  * @param {Context} context
- * @param {(number|Span)[]} children 
+ * @param {(number|Span)[]} elements 
  * An array of Span and integer. The integer can be either some kerning information
  * or the value of an individual shift of the preceding child if in 'individualShift' mode
  * @param {string} pos The method that will be used to position the elements in the vlist. One of:

@@ -768,7 +768,7 @@ MathField.prototype._onCopy = function() {
 
 /**
  * Return a textual representation of the mathfield.
- * @param {string?} format. One of 'latex' (default), 'spoken', 'asciimath'
+ * @param {string} [format='latex']. One of 'latex', 'spoken', 'asciimath'
  * @return {string}
  */
 MathField.prototype.text = function(format) {
@@ -788,7 +788,7 @@ MathField.prototype.text = function(format) {
  * text interpreted as a LaTeX expression.
  * If `text` is undefined, return the content of the mahtfield as a 
  * LaTeX expression.
- * @param {string?} text
+ * @param {string} text
  * @return {string}
  */
 MathField.prototype.latex = function(text) {
