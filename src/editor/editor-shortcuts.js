@@ -40,7 +40,7 @@ define([], function() {
  * - 'extend' keeps the anchor of the  selection, but moves the focus (extends,
  * or shrinks, the range of selected items)
  * 
- * @type {string[string]}
+ * @type {Object<string,string>}
  */
 const KEYBOARD_SHORTCUTS = {
     'Backspace':                'deletePreviousChar',
@@ -240,7 +240,7 @@ const REVERSE_KEYBOARD_SHORTCUTS = {
 /**
  * These shortcut strings are replaced with the corresponding latex expression
  * without requiring an escape sequence or command.
- * @type {string[string]}
+ * @type {Object.<string,string>}
  */
 const INLINE_SHORTCUTS = {
     '>=':                   '\\geqslant',
@@ -678,7 +678,7 @@ function getShortcutsForCommand(command) {
 
 /**
  * Return a human readable representation of an array of shortcut strings
- * @param {string[]} shortcuts 
+ * @param {Object<string,string>} shortcuts 
  * @param {string} join optional, string in between each shortcut representation
  */
 function stringify(shortcuts, join) {

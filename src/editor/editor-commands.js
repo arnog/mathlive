@@ -11,6 +11,10 @@ define(['mathlive/core/lexer', 'mathlive/core/mathAtom', 'mathlive/core/parser',
 // Although the OutputLatexModule is not referenced directly, 
 // it is required for .toLatex() to work.
 
+/**
+ * Description of the commands displayed in the command bar.
+ * @type {Array.<Object>}
+ */
 const COMMANDS = [
     {
         label:          '&#x21e0',       // LEFTWARDS DASHED ARROW
@@ -291,7 +295,7 @@ let USER_STATS = {
  * @param {MathAtom[]} before atoms before the insertion point/selection
  * @param {MathAtom[]} selection selected atoms (or null if insertion point)
  * @param {MathAtom[]} after atoms after the insertion point/selection
- * @memberof editor_commands
+ * @memberof module:editor_commands
  */
 function suggest(parsemode, environment, modifiers, parent, before, selection, after) {
     const result = [];

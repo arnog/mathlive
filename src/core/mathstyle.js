@@ -153,7 +153,7 @@ const styles = [
  * Maps a string (or a Mathstyle) to an actual Mathstyle object.
  * @param {(Mathstyle|string)} s 
  * @return {Mathstyle}
- * @memberof mathstyle
+ * @memberof module:mathstyle
  */
 function toMathstyle(s) {
     if (!s) return s;

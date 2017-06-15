@@ -11,6 +11,7 @@ define(['mathlive/core/definitions', 'mathlive/core/mathAtom', 'mathlive/core/le
  * 
  * @param {Object} config 
  * @class
+ * @memberof module:editor_editableMathlist
  */
 function EditableMathlist(config) {
     this.root = MathAtom.makeRoot();

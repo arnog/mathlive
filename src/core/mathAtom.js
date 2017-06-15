@@ -52,8 +52,8 @@ const getCharacterMetrics = FontMetricsModule.getCharacterMetrics;
  * @param {string} mode 
  * @param {string} type 
  * @param {string} value 
- * @param {string} [fontFamily=main]
- * @param {*[]} [extras] A set of additional properties to append to the atom
+ * @param {string} [fontFamily="main"]
+ * @param {Object} [extras=null] A set of additional properties to append to the atom
  * @return {MathAtom}
  */
 function MathAtom(mode, type, value, fontFamily, extras) {
@@ -248,7 +248,7 @@ MathAtom.prototype.decomposeGroup = function(context) {
  * Used in decomposeArray to create a column separator span.
  * 
  * @param {number} width 
- * @memberof mathAtom
+ * @memberof module:mathAtom
  */
 function makeColGap(width) {
     const separator = makeSpan(null, 'arraycolsep');
@@ -258,7 +258,7 @@ function makeColGap(width) {
 
 /**
  * Used in decomposeArray to create a columnd of repeating elements.
- * @memberof mathAtom
+ * @memberof module:mathAtom
  */
 function makeColOfRepeatingElements(context, body, offset, elem) {
     const col = [];
@@ -1574,7 +1574,7 @@ MathAtom.prototype.attachLimits =
  * @param {Span} below 
  * @param {string} type The type ('mop', 'mrel', etc...) of the result
  * @return {Span}
- * @memberof mathAtom
+ * @memberof module:mathAtom
  */
 function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
     // If nothing above and nothing below, nothing to do.
@@ -1681,7 +1681,7 @@ const GREEK_REGEX = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u0
  * @param {(string|Span[])} symbol the character for which we're seeking the font
  * @param {string} fontFamily such as 'mathbf', 'mathfrak', etc...
  * @return {string} a font name
- * @memberof mathAtom
+ * @memberof module:mathAtom
  * @private
  */
 function getFontName(symbol, fontFamily) {
@@ -1756,7 +1756,7 @@ function getFontName(symbol, fontFamily) {
  * @param {Context} context Font family, variant, size, color, etc...
  * @param {(MathAtom|MathAtom[])} atoms
  * @return {Span[]}
- * @memberof mathAtom
+ * @memberof module:mathAtom
  * @private
  */
 function decompose(context, atoms) {

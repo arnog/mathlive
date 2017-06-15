@@ -20,7 +20,7 @@ const NUMBER_FORMATER = new Intl.NumberFormat('en-US', {
  * 
  * @param {...string} args
  * @return {string}
- * @memberof span
+ * @memberof module:span
  */
 function toString() {
     let result = '';
@@ -53,7 +53,7 @@ function toString() {
  * @param {string} classes list of classes attributes associated with this node
  * @return {void}
  * @class
- * @memberof span
+ * @memberof module:span
  */
 function Span(content, classes) {
     // CLASSES
@@ -173,7 +173,7 @@ Span.prototype.addMarginRight = function(margin) {
  * @param {number} [hskip] amount of whitespace to insert before this element
  * This is used to adjust the inter-spacing between spans of different types,
  * e.g. 'bin' and 'rel', according to the TeX rules.
- * @memberof span
+ * @memberof module:span
  * @private
  */
 
@@ -412,7 +412,7 @@ Span.prototype.tryCoalesceWith = function(span) {
  * 
  * @param {Span[]} spans
  * @return {Span[]} coalesced tree
- * @memberof span
+ * @memberof module:span
  */
 function coalesce(spans) {
     if (!spans || spans.length === 0) return [];
@@ -479,7 +479,7 @@ function italic(spans) {
  * Make an element made of a sequence of children with classes
  * @param {(string|Span|Span[])} content the items 'contained' by this node
  * @param {string} classes list of classes attributes associated with this node
- * @memberof span
+ * @memberof module:span
  */
 function makeSpan(content, classes) {
     return new Span(content, classes);
@@ -491,7 +491,7 @@ function makeSpan(content, classes) {
  * @param {string} fontFamily 
  * @param {string} symbol 
  * @param {string} classes 
- * @memberof span
+ * @memberof module:span
  */
 function makeSymbol(fontFamily, symbol, classes) {
     const result = new Span(symbol, classes);
@@ -515,7 +515,7 @@ function makeSymbol(fontFamily, symbol, classes) {
 //  * Note: without this, even when fontSize = 0, the fraction bar is no 
 //  * longer positioned correctly
  * @return {Span}
- * @memberof span
+ * @memberof module:span
  */
 function makeFontSizer(context, fontSize) {
 
@@ -554,7 +554,7 @@ function makeFontSizer(context, fontSize) {
  * See https://tex.stackexchange.com/questions/81752/
  * for a thorough description of the TeXt atom type and their relevance to 
  * proper kerning.
- * @memberof span
+ * @memberof module:span
  */
 function makeSpanOfType(type, content, classes) {
     const result = makeSpan(content, classes);
@@ -611,7 +611,7 @@ function makeStyleWrap(type, children, fromStyle, toStyle, classes) {
  * 
  * @param {Span|Span[]} children 
  * @param {string} classes 
- * @memberof span
+ * @memberof module:span
  */
 function makeHlist(children, classes) {
     if (!classes || classes.length === 0) {
@@ -630,7 +630,7 @@ function makeHlist(children, classes) {
 /**
  * Creata a new Span of type vlist, a set of vertically stacked items
  * @param {Context} context
- * @param {(number|Span)[]} elements 
+ * @param {Array.<(number|Span)>} elements 
  * An array of Span and integer. The integer can be either some kerning information
  * or the value of an individual shift of the preceding child if in 'individualShift' mode
  * @param {string} pos The method that will be used to position the elements in the vlist. One of:
@@ -640,7 +640,7 @@ function makeHlist(children, classes) {
  * - shift: the baseline of the vlist will be positioned posData away from the baseline 
  * of the first child. (>0 move down)
  * @param {number} posData
- * @memberof span
+ * @memberof module:span
  */
 function makeVlist(context, elements, pos, posData) {
     let depth = 0;

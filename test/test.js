@@ -345,7 +345,7 @@ test('TYPE COERCION', function (t) {
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-test('SUBSCRIPT, SUPERSCRIPTS AND LIMITS', function (t) {
+test.only('SUBSCRIPT, SUPERSCRIPTS AND LIMITS', function (t) {
     equalSpan(t, 'a^x_y', 'a_y^x', 'The order of the superscript and subscript does not matter');
     equalSpan(t, 'a^{x}_{y}', 'a_y^x', 'Single letter grouped sup/sub are identical to ungrouped');
 

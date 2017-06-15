@@ -36,7 +36,7 @@ const makeVlist = Span.makeVlist;
  * Makes a small delimiter. This is a delimiter that comes in the Main-Regular
  * font, but is restyled to either be in textstyle, scriptstyle, or
  * scriptscriptstyle.
- * @memberof delimiters
+ * @memberof module:delimiters
  */
 function makeSmallDelim(type, delim, style, center, context, classes) {
     const text = makeSymbol(Definitions.getFontName('math', delim), 
@@ -55,7 +55,7 @@ function makeSmallDelim(type, delim, style, center, context, classes) {
 /**
  * Makes a large delimiter. This is a delimiter that comes in the Size1, Size2,
  * Size3, or Size4 fonts. It is always rendered in textstyle.
- * @memberof delimiters
+ * @memberof module:delimiters
  */
 function makeLargeDelim(type, delim, size, center, context, classes) {
     const inner = makeSymbol('Size' + size + '-Regular', 
@@ -76,7 +76,7 @@ function makeLargeDelim(type, delim, size, center, context, classes) {
 /**
  * Make an inner span with the given offset and in the given font. This is used
  * in `makeStackedDelim` to make the stacking pieces for the delimiter.
- * @memberof delimiters
+ * @memberof module:delimiters
  */
 function makeInner(symbol, font) {
     let sizeClass = '';
@@ -98,7 +98,7 @@ function makeInner(symbol, font) {
 /**
  * Make a stacked delimiter out of a given delimiter, with the total height at
  * least `heightTotal`. This routine is mentioned on page 442 of the TeXbook.
- * @memberof delimiters
+ * @memberof module:delimiters
  */
 function makeStackedDelim(type, delim, heightTotal, center, context,
                                 classes) {
@@ -320,7 +320,7 @@ const sizeToMaxHeight = [0, 1.2, 1.8, 2.4, 3.0];
 
 /**
  * Used to create a delimiter of a specific size, where `size` is 1, 2, 3, or 4.
- * @memberof delimiters
+ * @memberof module:delimiters
  */
 function makeSizedDelim(type, delim, size, context, classes) {
     if (delim === '.') {
@@ -410,7 +410,7 @@ function delimTypeToFont(type) {
  * Traverse a sequence of types of delimiters to decide what kind of delimiter
  * should be used to create a delimiter of the given height+depth.
  * @param {string} delim: a character value (not a command)
- * @memberof delimiters
+ * @memberof module:delimiters
  */
 function traverseSequence(delim, height, sequence, context) {
     // Here, we choose the index we should start at in the sequences. In smaller
@@ -462,7 +462,7 @@ function traverseSequence(delim, height, sequence, context) {
  * @param {*} center
  * @param {Context.Context} context
  * @param {string[]} classes
- * @memberof delimiters
+ * @memberof module:delimiters
  */
 function makeCustomSizedDelim(type, delim, height, center, context, classes) {
     if (!delim || delim.length === 0 || delim === '.') {
@@ -506,7 +506,7 @@ function makeCustomSizedDelim(type, delim, height, center, context, classes) {
  * Make a delimiter for use with `\left` and `\right`, given a height and depth
  * of an expression that the delimiters surround.
  * See tex.web:14994
- * @memberof delimiters
+ * @memberof module:delimiters
  */
 function makeLeftRightDelim(type, delim, height, depth, context, classes) {
     // If this is the empty delimiter, return a null fence
@@ -553,7 +553,7 @@ function makeLeftRightDelim(type, delim, height, depth, context, classes) {
  * 
  * @param {*} context 
  * @param {string} [type] either 'mopen', 'mclose' or null
- * @memberof delimiters
+ * @memberof module:delimiters
  */
 function makeNullFence(type, context, classes) {
     return Span.makeSpanOfType(type, '', 

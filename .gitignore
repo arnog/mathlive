@@ -2,7 +2,9 @@
 # Read about how to use .gitignore: https://help.github.com/articles/ignoring-files
 /build
 /dist
+/out
 /node_modules
+
 
 # OS generated files #
 ######################

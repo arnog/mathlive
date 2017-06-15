@@ -100,7 +100,7 @@ const FREQUENCY_VALUE = {
  *  frequency(COMMON , '\\sin', '\\cos')
  * @param {string|number} value The frequency as a string constant, 
  * or a numeric value [0...2000]
- * @param {...} 
+ * @param {?}
  */
 function frequency(value, ...symbols) {
     const v = typeof value === 'string' ? FREQUENCY_VALUE[value] : value;
@@ -242,7 +242,7 @@ function matchCodepoint(s) {
  * 
  * @param {string} mode 
  * @param {string} s 
- * @return 
+ * @return {Object}
  */
 function matchFunction(mode, s) {
     let result = null;
@@ -524,7 +524,7 @@ function parseParamTemplate(paramTemplate) {
  * 
  * @param {string|string[]} names 
  * @param {string} params The number and type of required and optional parameters. 
- * @param {*} options   
+ * @param {Object} options   
  * - 
  * @param {function(*)} parser 
  */
@@ -568,11 +568,11 @@ function defineEnvironment(names, params, options, parser) {
  * For example: '{}' defines a single mandatory parameter
  * '[index=2]{indicand}' defines two params, one optional, one required
  
- * @param {*} options   
+ * @param {Object} options   
  * - greediness
  * - infix
  * - allowedInText
- * @param {function(*)} handler 
+ * @param {function} handler 
  */
 function defineFunction(names, params, options, handler) {
     if (typeof names === 'string') {

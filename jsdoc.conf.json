@@ -1,0 +1,27 @@
+{
+    "tags": {
+        "allowUnknownTags": true,
+        "dictionaries": ["jsdoc","closure"]
+    },
+    "source": {
+        "include": "./src/",
+        "includePattern": ".+\\.js$",
+        "excludePattern": "(^|\\/|\\\\)_"
+    },
+    "plugins": [
+        "plugins/markdown",
+        "plugins/underscore"
+    ],
+    "templates": {
+        "cleverLinks": false,
+        "monospaceLinks": false,
+        "linenums": true
+    },
+    "opts": {
+        "template": "node_modules/namis",
+        "encoding": "utf8",               // same as -e utf8
+        "recurse": true,                  // same as -r
+        "destination": "./build/docs",
+        "readme": "CONTRIBUTOR_GUIDE.md"
+    }
+}

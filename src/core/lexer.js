@@ -32,7 +32,7 @@ define(function() {
  *  - space: one or more space characters (including tab, etc...)
  * 
  *  See: TeX 289
- * @memberof lexer
+ * @memberof module:lexer
  */
 function Token(type, value) {
     this.type = type;
@@ -43,6 +43,7 @@ function Token(type, value) {
 /**
  * @param {string} s 
  * @class Lexer
+ * @memberof module:lexer
  */
 function Lexer(s) {
     this.s = s;
@@ -129,7 +130,7 @@ Lexer.prototype.isWhiteSpace = function() {
 /***
  * Advance until non-white-space char.
  * Returns number of chars skipped.
- * @memberof Lexer
+ * @memberof v
  * @instance
  */
 Lexer.prototype.skipWhiteSpace = function() {
@@ -265,7 +266,7 @@ Lexer.prototype.makeToken = function() {
  * 
  * @param {string} s 
  * @return {Token[]}
- * @memberof lexer
+ * @memberof Lexer
  */
 function tokenize(s) {
     const result = [];

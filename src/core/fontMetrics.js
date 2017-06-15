@@ -50,7 +50,7 @@ const cjkRegex =
  *
  * The output of each of these commands is quite lengthy.  The only part we
  * care about is the FONTDIMEN section. Each value is measured in EMs.
- * @memberof fontMetrics
+ * @memberof module:fontMetrics
  */
 const SIGMAS = {
     slant: [0.250, 0.250, 0.250],       // sigma1
@@ -273,7 +273,7 @@ const extraCharacterMap = {
  *
  * Note: the `width` property may be undefined if fontMetricsData.js wasn't
  * built using `Make extended_metrics`.
- * @memberof fontMetrics
+ * @memberof module:fontMetrics
  */
 const getCharacterMetrics = function(character, fontName) {
     console.assert(character.length === 1);

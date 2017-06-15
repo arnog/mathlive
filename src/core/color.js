@@ -17,7 +17,7 @@ define([], function() {
  * also known as 'indexed color scheme #97'
  * @constant
  * @type {Object.<string, string>}
- * @memberof color
+ * @memberof module:color
  */
 const MATHEMATICA_COLORS = {
     'm0': '#3f3d99',
@@ -40,7 +40,7 @@ const MATHEMATICA_COLORS = {
  * (see http://mirror.jmu.edu/pub/CTAN/systems/knuth/local/lib/colordvi.tex)
  * See also: https://en.wikibooks.org/w/index.php?title=LaTeX/Colors
  * @constant NAMED_COLORS
- * @memberof color
+ * @memberof module:color
  * @type {Object.<string, string>}
  */
 const NAMED_COLORS = {
@@ -283,7 +283,7 @@ yellowgreen	rgb(154, 205, 50)
  * - 'blue!20!black!30!green' = (20% + 80% black) * 30 % + 70% green
  * @param {string} s - A color value expressing
  * @return {string} An RGB color expressed as a hex-triplet preceded by `#`
- * @memberof color
+ * @memberof module:color
  */
 function stringToColor(s) {
     const colorSpec = s.toLowerCase().split('!');

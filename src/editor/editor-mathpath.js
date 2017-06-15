@@ -68,8 +68,8 @@ function pathCommonAncestor(p, q) {
 
 /**
  * 
- * @param {[]} one 
- * @param {[]} two 
+ * @param {Array} one 
+ * @param {Array} two 
  * @return {number} 0 if the paths are identical
  *  - 1 if they are sibiling
  *  - >1 if they are not sibilings

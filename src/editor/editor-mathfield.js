@@ -47,17 +47,28 @@ function off(el, selectors, listener, options) {
  * This function can either be used as a classic function to retrieve
  * a MathField object previously bound to a DOM element, e.g.:
  * 
- * `mf = Mathlive.MathField(document.getElementById('id'));`
+ * ``` javascript
+    mf = Mathlive.MathField(document.getElementById('id'));
+   ```
  * 
  * Or it can be used as a constructor that will bind a new MathField 
  * object to a DOM element, e.g.
  * 
- * `mf = new Mathlive.MathField(document.getElementById('id'));`
+ * ``` javascript
+    mf = new Mathlive.MathField(document.getElementById('id'));
+   ```
  * 
  *  
  * @param {Element} element 
  * @param {Object} config - See [`MathField.setConfig()`]{@link MathField#setConfig} for details
+ * @property {Element} element - The DOM element this mathfield is attached to.
+ * @property {Object} config - A key/value/pair object that includes options
+ * customizing the behavior of the mathfield
+ * @property {string} id - A unique ID identifying this mathfield
+ * @property {boolean} keystrokeCaptionVisible - True if the keystroke caption
+ * panel is visible
  * @class
+ * @memberof module:editor_mathfield
  */
 function MathField(element, config) {
     if (!this || !(this instanceof MathField)) {
@@ -208,7 +219,7 @@ function MathField(element, config) {
  * Utility function that returns the element which has the caret
  * 
  * @param {DomElement} el 
- * @memberof editor_mathfield
+ * @memberof module:editor_mathfield
  */
 function _findElementWithCaret(el) {
     if (el.classList.contains('ML__caret')) {
@@ -246,7 +257,7 @@ MathField.prototype._getCaretPosition = function() {
  * @param {Element} el 
  * @param {number} x 
  * @param {number} y 
- * @memberof editor_mathfield
+ * @memberof module:editor_mathfield
  * @private
  */
 function nearestElementFromPoint(el, x, y) {

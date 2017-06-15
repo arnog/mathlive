@@ -12,10 +12,11 @@ const MathAtom = MathAtomModule.MathAtom;
  * A parser transforms a list of tokens into a list of MathAtom.
  * 
  * @param {InputToken[]} tokens 
- * @param {*[]} args An optional list of arguments. `#n` tokens will be 
+ * @param {Object} args An optional list of arguments. `#n` tokens will be 
  * substituted with the corresponding element in the args array. This is used
  * when parsing macros.
  * @constructor
+ * @memberof module:parser
  */
 function Parser(tokens, args) {
     // List of tokens to be parsed, an array of InputToken
@@ -144,7 +145,7 @@ Parser.prototype.hasInfixCommand = function() {
 /**
  * An implicit group is a sequence of atoms that terminates with 
  * a '}', '&', '\\', '\cr', '\end' or '\right' or the end of the stream
- * @memberof parser
+ * @memberof module:parser
  */
 function hasImplicitGroupEnd(token) {
     return token.type === '}' || 
