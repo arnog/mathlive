@@ -123,8 +123,95 @@ notification handlers, for example when the selection changes, or when
 navigation exists the math field.
 * `select()` select all the items in the math field
 * `clearSelection()` deletes the selection
+* `perform()` executes a command such as moving the insertion point. Typically
+invokved in response to a user action, such as pressing a keyboard shortcut
+or pushing a button. The command will be undoable. See the list of available
+commnads in the [**Selectors**](#selectors) section.
+
+## Selectors
+
+User initiated commands that control the mathfield can be dispatched using
+the `perform()` commands. Commands are identified by a string called the
+**selector**. Most commands take no parameters. When a command does have a 
+parameter, an array made up of the selector and the commands arguments can be
+passed to `perform()`. For example:
+
+``` javascript
+   mf.perform(['insert', '(#0)']);
+```
+
+will insert an open and close parenthesis around the selection (the `#0`
+sequence is replaced with the current selection).
+
+### Editing
+* `insert`. This selector takes two arguments. The first one is required and 
+is the content to be inserted, as a string. The second one is an optional set of key value pairs:
+  * `insertionMode`: one of `"replaceSelection"`, `"replaceAll"`, `"insertBefore"` or `"insertAfter"`.
+  * `selectionMode`: one of `"placeholder"` (the selection will be 
+the first available placeholder in the item that has been inserted),
+`"after"` (the selection will be an insertion point after the item that has 
+been inserted), `"before"` (the selection will be an insertion point before 
+the item that has been inserted) or `"item"` (the item that was inserted will
+be selected).
+* `delete` synonym for `deleteNextChar`
+* `deleteNextChar`, `deletePreviousChar`
+* `deleteNextWord`, `deletePreviousWord`
+* `deleteToGroupStart`, `deleteToGroupEnd`
+* `deleteToMathFieldEnd`
+* `transpose`
+
+### Edit Menu
+* `undo`
+* `redo`
+* `cutToClipboard`
+* `copyToClipboard`
+* `pasteFromClipboard`
+
+### User Interface
+* `enterCommandMode`
+* `complete` exit command mode and insert result
+* `nextSuggestion` and `previousSuggestion` when the popover panel is
+selected, display the next/previous suggestion
+* `toggleKeystrokeCaption` show/hide the keystroke caption panel. This panel
+displays the keys being typed, including the shorcuts. Great for demos!
+* `toggleCommandBar` show/hide the command bar
+
+### Scrolling
+* `scrollToStart`
+* `scrollToEnd`
+* `scrollIntoView`
+
+### Navigating
+* `moveToNextChar`, `moveToPreviousChar`
+* `moveToNextPlaceholder`, `moveToPreviousPlaceholder`
+* `moveToNextWord`, `moveToPreviousWord`
+* `moveToGroupStart`, `moveToGroupEnd`
+* `moveToMathFieldStart`, `moveToMathFieldEnd`
+* `moveUp`, `moveDown`
+* `moveToSuperscript`, `moveToSubscript`
+* `moveToOpposite`
+* `moveBeforeParent`, `moveAfterParent`
 
 
+### Extending the Selection
+* `selectGroup`
+* `selectAll`
+* `extendToNextChar`, `extendToPreviousChar`
+* `extendToNextWord`, `extendToPreviousWord`
+* `extendUp`, `extendDown`
+* `extendToNextBoundary`, `extendToPreviousBoundary`
+* `extendToGroupStart`, `extendToGroupEnd`
+* `extendToMathFieldStart`, `extendToMathFieldEnd`
 
+### Arrays
+* `addRowAfter`, `addRowBefore`
+* `addColumnAfter`, `addColumnBefore`
+
+### Speech
+* `speakAll`
+* `speakSelection`
+* `speakParent`
+* `speakGroup`
+* `speakLeftSibling`, `speakRightSibling`
 
 

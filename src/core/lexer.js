@@ -9,7 +9,7 @@
  * 
  * For a list of standard TeX macros, see:
  * {@link ftp://tug.ctan.org/pub/tex-archive/systems/knuth/dist/lib/plain.tex|plain.tex}
- * @kind module
+ * @module lexer
 */
 
 
@@ -32,6 +32,7 @@ define(function() {
  *  - space: one or more space characters (including tab, etc...)
  * 
  *  See: TeX 289
+ * @memberof lexer
  */
 function Token(type, value) {
     this.type = type;
@@ -40,8 +41,8 @@ function Token(type, value) {
 }
 
 /**
- * @constructor
  * @param {string} s 
+ * @class Lexer
  */
 function Lexer(s) {
     this.s = s;
@@ -50,6 +51,8 @@ function Lexer(s) {
 
 /**
  * Did we reach the end of the stream?
+ * @memberof Lexer
+ * @instance
  */
 Lexer.prototype.end = function() {
     return this.pos >= this.s.length;
@@ -57,7 +60,8 @@ Lexer.prototype.end = function() {
 
 /** 
  * Return the next char and advance 
- * 
+ * @memberof Lexer
+ * @instance
  */
 Lexer.prototype.get = function() {
     return this.pos < this.s.length ? this.s[this.pos++] : null;
@@ -65,6 +69,8 @@ Lexer.prototype.get = function() {
 
 /**
  * Return the next char, but do not advance
+ * @memberof Lexer
+ * @instance
  */
 Lexer.prototype.peek = function() {
     return this.pos < this.s.length ? this.s[this.pos] : null;
@@ -73,6 +79,8 @@ Lexer.prototype.peek = function() {
 /**
  * Return the next substring matching regEx and advance.
  * @param {RegEx} regEx
+ * @memberof Lexer
+ * @instance
  */
 Lexer.prototype.scan = function(regEx) {
     const result = regEx.exec(this.s.slice(this.pos));
@@ -92,6 +100,8 @@ Lexer.prototype.scan = function(regEx) {
  * Chrome:      [ \t\n\v\f\r\u00A0]
  * Firefox:     [ \t\n\v\f\r\u00A0\u2028\u2029]
  * IE:          [ \t\n\v\f\r]
+ * @memberof Lexer
+ * @instance
  */
 Lexer.prototype.isWhiteSpace = function() {
     return ' \f\n\r\t\v\u00A0\u2028\u2029'.indexOf(this.s[this.pos]) !== -1;
@@ -119,6 +129,8 @@ Lexer.prototype.isWhiteSpace = function() {
 /***
  * Advance until non-white-space char.
  * Returns number of chars skipped.
+ * @memberof Lexer
+ * @instance
  */
 Lexer.prototype.skipWhiteSpace = function() {
     const savedPos = this.pos;
@@ -134,6 +146,8 @@ Lexer.prototype.skipWhiteSpace = function() {
  * Return a single token, or null, created from the lexer.
  * 
  * @returns {Token}
+ * @memberof Lexer
+ * @instance
  */
 Lexer.prototype.makeToken = function() {
     // If we've reached the end, exit
@@ -251,6 +265,7 @@ Lexer.prototype.makeToken = function() {
  * 
  * @param {string} s 
  * @return {Token[]}
+ * @memberof lexer
  */
 function tokenize(s) {
     const result = [];

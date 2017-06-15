@@ -24,6 +24,7 @@ define(['mathlive/core/mathstyle'], function(Mathstyle) {
  * - an explicit groupe enclosed in braces {...)
  * - a semi-simple group enclosed in \bgroup...\endgroup
  * - an environment delimited by \begin{<envname>}...\end{<envname>}
+ * @constructor
  */
 function Context(data) {
     this.mathstyle = Mathstyle.toMathstyle(data.mathstyle);
@@ -50,6 +51,8 @@ function Context(data) {
 
 /**
  * Returns a new context with the same properties as 'this'.
+ * @memberof Context
+ * @instance
  */
 Context.prototype.clone = function() {
     const result = new Context(this);
@@ -61,6 +64,8 @@ Context.prototype.clone = function() {
 
 /**
  * Create a new context with the given property.
+ * @memberof Context
+ * @instance
  */
 Context.prototype.cloneWith = function(property, value) {
     const result = this.clone();
@@ -71,6 +76,8 @@ Context.prototype.cloneWith = function(property, value) {
 
 /**
  * Change the mathstyle of this context
+ * @memberof Context
+ * @instance
  */
 Context.prototype.setMathstyle = function(value) {
     // The special value 'auto' is used to indicate
@@ -84,6 +91,8 @@ Context.prototype.setMathstyle = function(value) {
 
 /**
  * Return a clone context with the specified mathstyle
+ * @memberof Context
+ * @instance
  */
 Context.prototype.withMathstyle = function(value) {
     const result = this.clone();
@@ -93,6 +102,8 @@ Context.prototype.withMathstyle = function(value) {
 
 /**
  * Return a clone context with the specified mathstyle
+ * @memberof Context
+ * @instance
  */
 Context.prototype.withIsSelected = function(/* value */) {
     const result = this.clone();
@@ -140,7 +151,7 @@ Context.prototype.getColor = function() {
 }
 
 /**
- * Gets the CSS bavkground color of this context
+ * Gets the CSS background color of this context
  */
 Context.prototype.getBackgroundColor = function() {
     if (this.phantom) return 'transparent';

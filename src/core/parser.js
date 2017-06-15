@@ -1,5 +1,7 @@
 
-
+/**
+ * @module parser
+ */
 
 define(['mathlive/core/definitions', 'mathlive/core/color', 'mathlive/core/fontMetrics', 'mathlive/core/mathAtom'],
     function(Definitions, Color, FontMetrics, MathAtomModule) {
@@ -85,6 +87,8 @@ Parser.prototype.peek = function(offset) {
  * Return the last atom of the math list.
  * If force is true (or undefined) and the list is empty, a new empty
  * atom is created and returned as the result.
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.lastMathAtom = function() {
     if (this.mathList.length === 0 || 
@@ -101,6 +105,8 @@ Parser.prototype.lastMathAtom = function() {
 
 /**
  * @param {string} type
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.hasToken = function(type) {
     const index = this.index;
@@ -138,6 +144,7 @@ Parser.prototype.hasInfixCommand = function() {
 /**
  * An implicit group is a sequence of atoms that terminates with 
  * a '}', '&', '\\', '\cr', '\end' or '\right' or the end of the stream
+ * @memberof parser
  */
 function hasImplicitGroupEnd(token) {
     return token.type === '}' || 
@@ -219,6 +226,8 @@ Parser.prototype.parseRowSeparator = function() {
 
 /**
  * @param {string} type
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.parseToken = function(type) {
     if (this.hasToken(type)) {
@@ -273,6 +282,8 @@ Parser.prototype.parseFiller = function() {
  * 
  * TeX: 8212
  * @return {boolean} true if the expected keyword is present
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.parseKeyword = function(keyword) {
     const savedIndex = this.index;
@@ -302,6 +313,8 @@ Parser.prototype.parseKeyword = function(keyword) {
  * e.g. '{', '}' etc...
  * Will also terminate on ']' 
  * @return {string}
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.scanString = function() {
     let result = '';
@@ -341,6 +354,8 @@ Parser.prototype.scanString = function() {
 
 /**
  * Return a CSS color (#rrggbb)
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.scanColor = function() {
     return Color.stringToColor(this.scanString());
@@ -357,6 +372,8 @@ Parser.prototype.scanColor = function() {
  * (radix 16, preceded by~\."), an alphabetic constant (preceded by~\.\`), or
  * an internal variable.
  * @return {number}
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.scanNumber = function(isInteger) {
     const negative = this.parseLiteral('-');
@@ -454,6 +471,8 @@ function convertDimenToEm(value, unit) {
  * better to return a dimen struct witht the value + unit and resolve
  * later when we have a font context....
  * @return {number}
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.scanDimen = function() {
     const value = this.scanNumber(false);
@@ -545,6 +564,8 @@ Parser.prototype.scanColspec = function() {
 /**
  * Parse a \(...\) or \[...\] sequence
  * @return {MathAtom} group for the sequence or null
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.scanModeSet = function() {
     let final;
@@ -568,6 +589,8 @@ Parser.prototype.scanModeSet = function() {
 
 /**
  * Parse a $...$ or $$...$$ sequence
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.scanModeShift = function() {
     if (!this.hasToken('$') && !this.hasToken('$$')) return null;
@@ -593,6 +616,8 @@ Parser.prototype.scanModeShift = function() {
 
 /**
  * Parse a \begin{env}...\end{end} sequence
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.scanEnvironment = function() {
     // An environment starts with a \begin command
@@ -698,7 +723,9 @@ Parser.prototype.scanEnvironment = function() {
  * terminates right away
  * @param {function} [done] A predicate indicating if a token signals the 
  * end of an implicit group
- * @return MathAtom[]} 
+ * @return {MathAtom[]}
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.scanImplicitGroup = function(done) {
     // {black\color{red}red\color{green}green}black
@@ -782,6 +809,8 @@ Parser.prototype.scanImplicitGroup = function(done) {
  * Return a group MathAtom with an empty children list if an empty
  * group (i.e. `{}`)
  * @return {MathAtom} 
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.scanGroup = function() {
     if (!this.parseToken('{')) return null;
@@ -797,6 +826,8 @@ Parser.prototype.scanGroup = function() {
  * Scan a delimiter, e.g. '(', '|', '\vert', '\ulcorner'
  * 
  * @return {string} The delimiter (as a character or command) or null
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.scanDelim = function() {
     this.parseToken('space');
@@ -835,6 +866,8 @@ Parser.prototype.scanDelim = function() {
  * /left.../right sequence, and is handled separately.
  * Return either a 'leftright' MathAtom or null
  * @return {MathAtom} 
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.scanLeftRight = function() {
     if (!this.parseCommand('left')) return null;
@@ -859,6 +892,8 @@ Parser.prototype.scanLeftRight = function() {
  * Parse a subscript/superscript: ^ and _
  * Modify the last atom accordingly.
  * @return {MathAtom} 
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.parseSupSub = function() {
     // No sup/sub in text or command mode.
@@ -910,6 +945,8 @@ Parser.prototype.parseSupSub = function() {
  * This overrides the calculation made for the placement, which is usually
  * dependent on the displaystyle (inlinemath prefers \nolimits, while 
  * displaymath prefers \limits).
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.parseLimits = function() {
     // Note: technically, \limits and \nolimits are only applicable
@@ -1003,6 +1040,8 @@ Parser.prototype.scanOptionalArg = function(parseMode) {
  * a sequence of atoms enclosed in braces.
  * The optional 'type' overrides temporarily the parsemode
  * {string} parseMode 'dimension', 'color', 'text'. A parsemode.
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.scanArg = function(parseMode) {
     parseMode = (!parseMode || parseMode === 'auto') ? this.parseMode : parseMode;
@@ -1097,6 +1136,8 @@ Parser.prototype.scanArg = function(parseMode) {
 
 /**
  * @return {MathAtom}
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.scanToken = function() {
     const token = this.get();
@@ -1250,6 +1291,8 @@ Parser.prototype.scanToken = function() {
 /**
  * Make a MathAtom for the current token or token group and 
  * add it to the parser's current mathList
+ * @memberof Parser
+ * @instance
  */
 Parser.prototype.parseAtom = function() {
     let result = this.scanEnvironment() ||

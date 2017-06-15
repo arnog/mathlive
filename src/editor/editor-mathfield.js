@@ -1,5 +1,7 @@
 
-
+/**
+ * @module editor_mahtfield
+ */
 define(['mathlive/core/definitions', 'mathlive/core/mathAtom', 'mathlive/core/lexer', 'mathlive/core/parser', 'mathlive/core/span', 
     'mathlive/editor/editor-editableMathlist', 'mathlive/editor/editor-mathpath', 'mathlive/editor/editor-keyboard', 'mathlive/editor/editor-undo', 
     'mathlive/editor/editor-shortcuts', 'mathlive/editor/editor-commands',
@@ -55,6 +57,7 @@ function off(el, selectors, listener, options) {
  *  
  * @param {Element} element 
  * @param {Object} config - See [`MathField.setConfig()`]{@link MathField#setConfig} for details
+ * @class
  */
 function MathField(element, config) {
     if (!this || !(this instanceof MathField)) {
@@ -205,6 +208,7 @@ function MathField(element, config) {
  * Utility function that returns the element which has the caret
  * 
  * @param {DomElement} el 
+ * @memberof editor_mathfield
  */
 function _findElementWithCaret(el) {
     if (el.classList.contains('ML__caret')) {
@@ -222,6 +226,8 @@ function _findElementWithCaret(el) {
 /**
  * Return the (x,y) client coordinates of the caret
  * 
+ * @memberof MathField
+ * @instance
  */
 MathField.prototype._getCaretPosition = function() {
     const caret = _findElementWithCaret(this.field);
@@ -240,6 +246,8 @@ MathField.prototype._getCaretPosition = function() {
  * @param {Element} el 
  * @param {number} x 
  * @param {number} y 
+ * @memberof editor_mathfield
+ * @private
  */
 function nearestElementFromPoint(el, x, y) {
     let result = { element: null };
@@ -534,6 +542,8 @@ MathField.prototype.perform = function(command) {
 /**
  * @param {string} keystroke
  * @param {Event} evt
+ * @memberof MathField
+ * @instance
  */
 MathField.prototype._onKeystroke = function(keystroke, evt) {
     
@@ -770,6 +780,8 @@ MathField.prototype._onCopy = function() {
  * Return a textual representation of the mathfield.
  * @param {string} [format='latex']. One of 'latex', 'spoken', 'asciimath'
  * @return {string}
+ * @memberof MathField
+ * @instance
  */
 MathField.prototype.text = function(format) {
     format = format || 'latex';
@@ -790,6 +802,8 @@ MathField.prototype.text = function(format) {
  * LaTeX expression.
  * @param {string} text
  * @return {string}
+ * @memberof MathField
+ * @instance
  */
 MathField.prototype.latex = function(text) {
     if (text) {
@@ -834,6 +848,8 @@ MathField.prototype.scrollToEnd_ = MathField.prototype.scrollToEnd = function() 
 
 /**
  * 
+ * @memberof MathField
+ * @instance
  */
 MathField.prototype.enterCommandMode_ = function() {
     // Remove any error indicator on the current command sequence (if there is one)
@@ -876,6 +892,8 @@ MathField.prototype.pasteFromClipboard_ = function() {
  * been inserted), 'before' (the selection will be an insertion point before 
  * the item that has been inserted) or 'item' (the item that was inserted will
  * be selected). Default: 'placeholder'.
+ * @memberof MathField
+ * @instance
  */
 MathField.prototype.write = MathField.prototype.insert_ = MathField.prototype.insert = function(latex, options) {
     if (typeof latex === 'string' && latex.length > 0) {
@@ -889,6 +907,8 @@ MathField.prototype.write = MathField.prototype.insert_ = MathField.prototype.in
 /**
  * Completes an operation in progress, for example when in command mode, 
  * interpret the command
+ * @memberof MathField
+ * @instance
  */
 MathField.prototype.complete_ = function() {
     this._hidePopover();
@@ -1220,6 +1240,8 @@ MathField.prototype.clearSelection = function() {
 /**
  * @param {string} keys A whitespace delimited list of key inputs
  * See https://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
+ * @memberof MathField
+ * @instance
  */
 MathField.prototype.keystroke = function(keys) {
     // This is the public API, while onKeystroke is the 
@@ -1229,6 +1251,8 @@ MathField.prototype.keystroke = function(keys) {
 
 /**
  * Simulate a user typing the keys indicated by text.
+ * @memberof MathField
+ * @instance
  */
 MathField.prototype.typedText = function(text) {
     // This is the public API, while onTypedText is the 
@@ -1305,6 +1329,8 @@ MathField.prototype.typedText = function(text) {
  * {mathfieldCallback} config.onSelectionDidChange - A handler called when 
  * just after the selection has been changed.
  * 
+ * @memberof MathField
+ * @instance
  */
 
 MathField.prototype.config = function(config) {

@@ -7,7 +7,7 @@
  * about a specific style. It then provides instances of all the different kinds
  * of styles possible, and provides functions to move between them and get
  * information about them.
- * @kind module
+ * @module mathstyle
  */
 
 define(['mathlive/core/fontMetrics'], function(FontMetrics){ 
@@ -36,7 +36,7 @@ for (i = 0; i < 3; i++) {
  * textstyle.
  * @param {boolean}  cramped flag
 
- * @constructor
+ * @class
  */
 function Mathstyle(id, size, multiplier, cramped) {
     this.id = id;
@@ -48,6 +48,8 @@ function Mathstyle(id, size, multiplier, cramped) {
 
 /**
  * Get the style of a superscript given a base in the current style.
+ * @memberof Mathstyle
+ * @instance
  */
 Mathstyle.prototype.sup = function() {
     return styles[sup[this.id]];
@@ -55,6 +57,8 @@ Mathstyle.prototype.sup = function() {
 
 /**
  * Get the style of a subscript given a base in the current style.
+ * @memberof Mathstyle
+ * @instance
  */
 Mathstyle.prototype.sub = function() {
     return styles[sub[this.id]];
@@ -63,6 +67,8 @@ Mathstyle.prototype.sub = function() {
 /**
  * Get the style of a fraction numerator given the fraction in the current
  * style.
+ * @memberof Mathstyle
+ * @instance
  */
 Mathstyle.prototype.fracNum = function() {
     return styles[fracNum[this.id]];
@@ -71,6 +77,8 @@ Mathstyle.prototype.fracNum = function() {
 /**
  * Get the style of a fraction denominator given the fraction in the current
  * style.
+ * @memberof Mathstyle
+ * @instance
  */
 Mathstyle.prototype.fracDen = function() {
     return styles[fracDen[this.id]];
@@ -79,6 +87,8 @@ Mathstyle.prototype.fracDen = function() {
 /**
  * Get the cramped version of a style (in particular, cramping a cramped style
  * doesn't change the style).
+ * @memberof Mathstyle
+ * @instance
  */
 Mathstyle.prototype.cramp = function() {
     return styles[cramp[this.id]];
@@ -86,6 +96,8 @@ Mathstyle.prototype.cramp = function() {
 
 /**
  * HTML class name, like 'displaystyle cramped'
+ * @memberof Mathstyle
+ * @instance
  */
 Mathstyle.prototype.cls = function() {
     return sizeNames[this.size] + (this.cramped ? ' cramped' : ' uncramped');
@@ -94,6 +106,8 @@ Mathstyle.prototype.cls = function() {
 
 /**
  * HTML Reset class name, like 'reset-textstyle'
+ * @memberof Mathstyle
+ * @instance
  */
 Mathstyle.prototype.adjustTo = function(newStyle) {
     let result = ADJUST_NAMES[this.size][newStyle.size];
@@ -106,6 +120,8 @@ Mathstyle.prototype.adjustTo = function(newStyle) {
 
 /**
  * Return if this style is tightly spaced (scriptstyle/scriptscriptstyle)
+ * @memberof Mathstyle
+ * @instance
  */
 Mathstyle.prototype.isTight = function() {
     return this.size >= 2;
@@ -135,8 +151,9 @@ const styles = [
 
 /**
  * Maps a string (or a Mathstyle) to an actual Mathstyle object.
- * @param (Mathstyle|string)} s 
+ * @param {(Mathstyle|string)} s 
  * @return {Mathstyle}
+ * @memberof mathstyle
  */
 function toMathstyle(s) {
     if (!s) return s;

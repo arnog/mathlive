@@ -1,6 +1,9 @@
 /*global require:false*/
 /*global define:false*/
-/* jshint undef: false, unused: false, esversion: 6, esnext: true */
+
+/**
+ * @module span
+ */
 
 define(['mathlive/core/fontMetrics'],
     function(FontMetrics) {
@@ -17,6 +20,7 @@ const NUMBER_FORMATER = new Intl.NumberFormat('en-US', {
  * 
  * @param {...string} args
  * @return {string}
+ * @memberof span
  */
 function toString() {
     let result = '';
@@ -48,7 +52,8 @@ function toString() {
  * @param {string|Span|Span[]} content the items 'contained' by this node
  * @param {string} classes list of classes attributes associated with this node
  * @return {void}
- * @constructor
+ * @class
+ * @memberof span
  */
 function Span(content, classes) {
     // CLASSES
@@ -83,6 +88,8 @@ function Span(content, classes) {
  * - height: distance from bottom to top
  * - depth: distance from bottom to baseline
  * - maxFontSize:  
+ * @memberof Span
+ * @instance
  */
 Span.prototype.updateDimensions = function() {
     let height = 0;
@@ -108,6 +115,8 @@ Span.prototype.updateDimensions = function() {
  * @param {string} prop the CSS property to set
  * @param *} value a series of strings and numbers that will be concatenated.
  * @return {string}
+ * @memberof Span
+ * @instance
  */
 Span.prototype.setStyle = function(prop, ...value) {
     const v = toString(value);
@@ -164,6 +173,8 @@ Span.prototype.addMarginRight = function(margin) {
  * @param {number} [hskip] amount of whitespace to insert before this element
  * This is used to adjust the inter-spacing between spans of different types,
  * e.g. 'bin' and 'rel', according to the TeX rules.
+ * @memberof span
+ * @private
  */
 
 const INTER_ATOM_SPACING = {
@@ -320,6 +331,8 @@ Span.prototype.toMarkup = function(hskip) {
  *      "<span class='mord mathrm'>1</span><span class='mord mathrm'>2</span>"
  * @param {Span} span
  * @return {boolean} 
+ * @memberof Span
+ * @instance
  */
 Span.prototype.tryCoalesceWith = function(span) {
 
@@ -399,6 +412,7 @@ Span.prototype.tryCoalesceWith = function(span) {
  * 
  * @param {Span[]} spans
  * @return {Span[]} coalesced tree
+ * @memberof span
  */
 function coalesce(spans) {
     if (!spans || spans.length === 0) return [];
@@ -465,6 +479,7 @@ function italic(spans) {
  * Make an element made of a sequence of children with classes
  * @param {(string|Span|Span[])} content the items 'contained' by this node
  * @param {string} classes list of classes attributes associated with this node
+ * @memberof span
  */
 function makeSpan(content, classes) {
     return new Span(content, classes);
@@ -476,6 +491,7 @@ function makeSpan(content, classes) {
  * @param {string} fontFamily 
  * @param {string} symbol 
  * @param {string} classes 
+ * @memberof span
  */
 function makeSymbol(fontFamily, symbol, classes) {
     const result = new Span(symbol, classes);
@@ -498,12 +514,8 @@ function makeSymbol(fontFamily, symbol, classes) {
  * with the correct font size.
 //  * Note: without this, even when fontSize = 0, the fraction bar is no 
 //  * longer positioned correctly
- */
-
-
-
-/**
  * @return {Span}
+ * @memberof span
  */
 function makeFontSizer(context, fontSize) {
 
@@ -542,6 +554,7 @@ function makeFontSizer(context, fontSize) {
  * See https://tex.stackexchange.com/questions/81752/
  * for a thorough description of the TeXt atom type and their relevance to 
  * proper kerning.
+ * @memberof span
  */
 function makeSpanOfType(type, content, classes) {
     const result = makeSpan(content, classes);
@@ -598,6 +611,7 @@ function makeStyleWrap(type, children, fromStyle, toStyle, classes) {
  * 
  * @param {Span|Span[]} children 
  * @param {string} classes 
+ * @memberof span
  */
 function makeHlist(children, classes) {
     if (!classes || classes.length === 0) {
@@ -626,6 +640,7 @@ function makeHlist(children, classes) {
  * - shift: the baseline of the vlist will be positioned posData away from the baseline 
  * of the first child. (>0 move down)
  * @param {number} posData
+ * @memberof span
  */
 function makeVlist(context, elements, pos, posData) {
     let depth = 0;

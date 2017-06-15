@@ -2,6 +2,10 @@
 /*global define:false*/
 /* jshint undef: false, unused: false, esversion: 6, esnext: true */
 
+/**
+ * @module mathAtom
+ */
+
 define(['mathlive/core/mathstyle', 'mathlive/core/context', 'mathlive/core/fontMetrics', 'mathlive/core/span', 'mathlive/core/delimiters'],
     function(Mathstyle, Context, FontMetricsModule, Span, Delimiters) {
 
@@ -200,6 +204,8 @@ MathAtom.prototype.forEach = function (cb) {
  * is true.
  * 
  * @return {MathAtom[]}
+ * @memberof MathAtom
+ * @instance
  */
 MathAtom.prototype.filter = function (cb) {
     let result = [];
@@ -242,6 +248,7 @@ MathAtom.prototype.decomposeGroup = function(context) {
  * Used in decomposeArray to create a column separator span.
  * 
  * @param {number} width 
+ * @memberof mathAtom
  */
 function makeColGap(width) {
     const separator = makeSpan(null, 'arraycolsep');
@@ -251,7 +258,7 @@ function makeColGap(width) {
 
 /**
  * Used in decomposeArray to create a columnd of repeating elements.
- * 
+ * @memberof mathAtom
  */
 function makeColOfRepeatingElements(context, body, offset, elem) {
     const col = [];
@@ -489,6 +496,8 @@ MathAtom.prototype.decomposeArray = function(context) {
  * display math or inline math (which is indicated by 'textstyle'). This value can
  * also be set to 'auto', which indicates it should use the current mathstyle
  * 
+ * @memberof MathAtom
+ * @instance
  */
 MathAtom.prototype.decomposeGenfrac = function(context) {
     const mathstyle = this.mathstyle === 'auto' ? 
@@ -634,6 +643,8 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
  /**
   *  \left....\right 
   *
+  * @memberof MathAtom
+  * @instance
   */
 MathAtom.prototype.decomposeLeftright = function(context) {
     // The scope of the context is this group, so make a copy of it
@@ -831,6 +842,8 @@ MathAtom.prototype.decomposeAccent = function(context) {
 /**
  * \overline and \underline
  * 
+ * @memberof MathAtom
+ * @instance
  */
 MathAtom.prototype.decomposeLine = function(context) {
     const mathstyle = context.mathstyle;
@@ -878,6 +891,8 @@ MathAtom.prototype.decomposeOverlap = function(context) {
 
 /**
  * \rule
+ * @memberof MathAtom
+ * @instance
  */
 MathAtom.prototype.decomposeRule = function(context) {
     const mathstyle = context.mathstyle;
@@ -1072,6 +1087,8 @@ MathAtom.prototype.decomposeBox = function(context) {
  * 
  * @param {Context} context Font variant, size, color, etc...
  * @return {Span[]}
+ * @memberof MathAtom
+ * @instance
  */
 MathAtom.prototype.decompose = function(context) {
     console.assert(context instanceof Context.Context);
@@ -1366,6 +1383,8 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
  * can be retrieved from the span later on (e.g. when the span is clicked on)
  * @param {Context} context
  * @param {Span} span
+ * @memberof MathAtom
+ * @instance
  */
 MathAtom.prototype.bind = function(context, span) {
     if (context.generateID && this.type !== 'first') {
@@ -1388,6 +1407,8 @@ MathAtom.prototype.bind = function(context, span) {
  * @param {Context} context
  * @param {(string|Span[])} body
  * @return {Span}
+ * @memberof MathAtom
+ * @instance
  */
 MathAtom.prototype.makeSpan = function(context, body) {
     const type = this.type === 'textord' ? 'mord' : this.type;
@@ -1553,6 +1574,7 @@ MathAtom.prototype.attachLimits =
  * @param {Span} below 
  * @param {string} type The type ('mop', 'mrel', etc...) of the result
  * @return {Span}
+ * @memberof mathAtom
  */
 function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
     // If nothing above and nothing below, nothing to do.
@@ -1659,6 +1681,8 @@ const GREEK_REGEX = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u0
  * @param {(string|Span[])} symbol the character for which we're seeking the font
  * @param {string} fontFamily such as 'mathbf', 'mathfrak', etc...
  * @return {string} a font name
+ * @memberof mathAtom
+ * @private
  */
 function getFontName(symbol, fontFamily) {
     // If this is not a single char, just do a simple fontFamily -> fontName mapping
@@ -1732,6 +1756,8 @@ function getFontName(symbol, fontFamily) {
  * @param {Context} context Font family, variant, size, color, etc...
  * @param {(MathAtom|MathAtom[])} atoms
  * @return {Span[]}
+ * @memberof mathAtom
+ * @private
  */
 function decompose(context, atoms) {
     if (!(context instanceof Context.Context)) {

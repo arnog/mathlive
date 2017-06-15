@@ -1,5 +1,11 @@
 /* eslint no-unused-vars:0 */
-
+/**
+ * This module contains metrics regarding fonts and individual symbols. The sigma
+ * and xi variables, as well as the metricMap map contain data extracted from
+ * TeX, TeX font metrics, and the TTF files. These data are then exposed via the
+ * `metrics` variable and the getCharacterMetrics function.
+ * @module fontMetrics
+ */
 define(['mathlive/core/fontMetricsData'], function(metricMap) {
 
 // This metricMap contains a mapping from font name and character code to character
@@ -18,35 +24,34 @@ const hangulRegex = /[\uAC00-\uD7AF]/;
 const cjkRegex =
     /[\u3040-\u309F]|[\u30A0-\u30FF]|[\u4E00-\u9FAF]|[\uAC00-\uD7AF]/;
 
-/**
- * This file contains metrics regarding fonts and individual symbols. The sigma
- * and xi variables, as well as the metricMap map contain data extracted from
- * TeX, TeX font metrics, and the TTF files. These data are then exposed via the
- * `metrics` variable and the getCharacterMetrics function.
- */
 
-// In TeX, there are actually three sets of dimensions, one for each of
-// textstyle, scriptstyle, and scriptscriptstyle.  These are provided in the
-// the arrays below, in that order.
-//
-// The font metrics are stored in fonts cmsy10, cmsy7, and cmsy5 respsectively.
-// This was determined by running the folllowing script:
-//
-//     latex -interaction=nonstopmode \
-//     '\documentclass{article}\usepackage{amsmath}\begin{document}' \
-//     '$a$ \expandafter\show\the\textfont2' \
-//     '\expandafter\show\the\scriptfont2' \
-//     '\expandafter\show\the\scriptscriptfont2' \
-//     '\stop'
-//
-// The metrics themselves were retreived using the following commands:
-//
-//     tftopl cmsy10
-//     tftopl cmsy7
-//     tftopl cmsy5
-//
-// The output of each of these commands is quite lengthy.  The only part we
-// care about is the FONTDIMEN section. Each value is measured in EMs.
+/**
+ * 
+ * In TeX, there are actually three sets of dimensions, one for each of
+ * textstyle, scriptstyle, and scriptscriptstyle.  These are provided in the
+ * the arrays below, in that order.
+ *
+ * The font metrics are stored in fonts cmsy10, cmsy7, and cmsy5 respsectively.
+ * This was determined by running the folllowing script:
+ *``` bash
+      latex -interaction=nonstopmode \
+      '\documentclass{article}\usepackage{amsmath}\begin{document}' \
+      '$a$ \expandafter\show\the\textfont2' \
+      '\expandafter\show\the\scriptfont2' \
+      '\expandafter\show\the\scriptscriptfont2' \
+      '\stop'
+  ```
+ * The metrics themselves were retreived using the following commands:
+ * ``` bash
+      tftopl cmsy10
+      tftopl cmsy7
+      tftopl cmsy5
+    ```
+ *
+ * The output of each of these commands is quite lengthy.  The only part we
+ * care about is the FONTDIMEN section. Each value is measured in EMs.
+ * @memberof fontMetrics
+ */
 const SIGMAS = {
     slant: [0.250, 0.250, 0.250],       // sigma1
     space: [0.000, 0.000, 0.000],       // sigma2
@@ -268,6 +273,7 @@ const extraCharacterMap = {
  *
  * Note: the `width` property may be undefined if fontMetricsData.js wasn't
  * built using `Make extended_metrics`.
+ * @memberof fontMetrics
  */
 const getCharacterMetrics = function(character, fontName) {
     console.assert(character.length === 1);
