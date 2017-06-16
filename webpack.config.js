@@ -51,7 +51,7 @@ module.exports = {
     }),
     new CopyWebpackPlugin([
       { from: 'build' },
-      { from: 'css/fonts' }
+      { from: 'css/fonts', to: 'fonts' }
     ])
   ]
 };
