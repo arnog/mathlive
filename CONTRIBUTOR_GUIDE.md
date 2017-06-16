@@ -11,7 +11,7 @@ or who want to understand more in depth how it works.
 If you simply want to use MathLive with your web content, see the [MathLive Usage Guide](USAGE_GUIDE.md).
 
 ## Table of Contents
-- [Getting Started: Setting up Your Development Environment](#getting_started_setting_up_your_development_environment)
+- [Getting Started: Setting up Your Development Environment](#getting-started-setting-up-your-development-environment)
 - [Code Structure](#code-structure)
 - [Language and Coding Style](#language-and-coding-style)
 - [Naming Convention](#naming-convention)
