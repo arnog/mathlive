@@ -1,6 +1,6 @@
 # MathLive Usage Guide
 
-This guide describes how to use the MathLive Javascript libraries with your own
+This guide describes how to use the MathLive Javascript library with your own
 web content. To contribute to the MathLive project, see the [MathLive 
 Contributor Guide](CONTRIBUTOR_GUIDE.md)
 
@@ -9,39 +9,42 @@ Contributor Guide](CONTRIBUTOR_GUIDE.md)
 
 Download the content of the `dist/` directory and copy it at a location of 
 your choice in your project. MathLive has no dependency (not even jQuery!) 
-and you do not needs to install/download anything else.
+and you do not needs to download or install anything else.
 
-The MathLive library is a series of Javascript modules, a few 
-stylesheets and some font files. The modules can be combined into a single 
-library using a bundler such as **webpack**, or they can be included 
-individually. We recommend to use **require.js** to simplify
-and optimize the loading of the individual modules.
+The `dist/` directory contains the following:
+- `mathlive.js` The MathLive Javascript library. It is an optimized and minified 
+Javascript file which exports the `MathLive` class. 
+- `mathlive-core.css` The minimal amount of CSS to display math.
+- `mathlive.css` The rest of the CSS you need to display math. You can load
+this file lazily to improve your page load time.
+- `fonts/` A directory of fonts used by MathLive. Credit for those fonts goes to
+the KaTeX project.
 
-If you use **require.js**, include the following in your web page, 
-preferably before the `</body>` tag:
 
+Include the following in your web page. Adjust the `src` argument to account 
+for your directory structure.
+
+```html
+<!doctype html>
+<html lang="en-US">
+<head>
+    ...
+    <style src="mathlive-core.css"></script>
+    <style src="mathlive.css"></script>
+</head>
+<body>
+    ...
+   <script src="mathlive.js"></script>
+</body>
+</html>
 ```
-<script data-main="js/main" src="third-party/require.js"></script>
-```
 
-`js/main` should be a path to your "main" file, without the `.js`
-extension, while `third-party/require.js` should be the path to your local
-copy of `require.js`. You could use a CDN version as well.
-
-Inside `main.js`, use the following:
-```
-define(['mathlive'], function(MathLive) {
-
-        // YOUR CODE GOES HERE
-
-});
-```
 
 
 ## Rendering Math Automatically
 
 Math in a web page will automatically be rendered after the page has 
-loaded using the optional `auto-render` module.
+loaded using the `auto-render` module.
 
 By default, any text that is enclosed with the following delimiters
 will be converted to a math formula:
@@ -52,38 +55,10 @@ will be converted to a math formula:
 When being considered for conversion, some tags are ignored: `script`, 
 `noscript`, `style`, `textarea`, `pre` and `code`.
 
-To use the `auto-render` module, add it to the list of modules you import, 
-for example:
-```
-define(['mathlive/core/mathlive', 'mathlive/auto-render'], function(MathLive, AutoRender) {
 
-        // YOUR CODE GOES HERE
-
-});
-```
-
-Alternatively, if you don't have a `main.js` file, you can load it 
-directly from your main page:
-
-```
-<!doctype html>
-<html lang="en-US">
-<head>
-    ...
-</head>
-<body onload = "
-    requirejs.config({baseUrl:'js/'});
-    requirejs(['auto-render'], function(AutoRender) {
-        AutoRender.renderMathInElement(
-            document.getElementsByTagName('body')[0])
-    });
-">
+```html
 <h1>Taxicab Number</h1>
 <p>The second taxicab number is $$1729 = 10^3 + 9^3 = 12^3 + 1^3$$</p>
-
-<script data-main="js/main" src="js/vendor/require.js"></script>
-</body>
-</html>
 ```
 
 If you dynamically generate content, you can request the autorenderer to run 
@@ -96,12 +71,12 @@ used to customize the list of delimiters to consider, and the tags to ignore.
 
 ## Using the Math Editor Programatically
 
-To make use of the MathLive API, include the `MathLive` module. This module
+To make use of the MathLive API use `MathLive` object. This object
 contains the public API to MathLive. 
 
 To create a new math field, call `MathLive.makeMathField(element, options)`.
 For example:
-```
+```javascript
     let mf = MathLive.makeMathField(document.getElementById('math-field'));
 ```
 

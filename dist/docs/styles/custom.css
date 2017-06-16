@@ -1,0 +1,123 @@
+/** fix pretty-print tommorrow night 80 */
+.prettyprint {
+	padding-left: 0px;
+	padding-right: 0px;
+}
+.prettyprint.linenums {
+	padding-left: 0;
+}
+.prettyprint code{
+  	padding-left: 0;
+	padding-right: 0;
+	margin: 0;
+	border-radius: 0;
+}
+body{
+	padding: 0;
+}
+footer {
+	color: #bbb;
+	font-size: small;
+}
+footer a {
+	color: rgba(0, 102, 206, 0.44);
+}
+h1 {
+	line-height: 1em;
+	font-weight: 700;
+	color: #cd0030;
+	letter-spacing: -0.03em;
+	text-transform: uppercase;
+}
+h1.page-title {
+	text-transform: none;
+	margin: 0 0 30px 30px;
+}
+h2 {
+	font-weight: 700;
+}
+h3 {
+	font-weight: 700;
+}
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'Source Sans Pro', sans-serif;
+}
+a, a:active {
+	color: #0066ce;
+}
+tt, code, kbd, samp {
+	font-family: 'Source Code Pro', monospace;
+	font-size: 0.875rem;
+  	background: #fdfdfd;
+}
+.details {
+	font-size: .85em;
+	color: #666;
+	background: #fafafa;
+}
+.param-type {
+	font-family: 'Source Code Pro', monospace;
+	font-size: 0.875rem;
+}
+#nav{
+	border-right: solid 1px #ddd;
+	padding: 0;
+	padding-left: 10px;
+	margin: 0;
+	width: 220px;
+}
+#main{
+	calc(100% - 220px);
+	padding-left: 0;
+	margin-left: 0;
+	padding : 20px;
+}
+.prettyprint.linenums li.selected, .prettyprint.linenums li.selected *{
+   background-color: rgba(244, 222, 54, 0.33);
+}
+.name{
+	color: #cd0030;
+	font-weight: bold;
+}
+nav ul li a, nav ul li ul li a {
+	color: #0066ce;
+}
+nav ul li a:hover, nav ul li ul li a:hover{
+	color: #0066ce;
+	text-decoration: underline;
+}
+nav > h3.group-title {
+	
+}
+h3.group-title{
+	color: #333;
+	font-weight: 700;
+	font-size: 1em;
+	letter-spacing: 0;
+	
+}
+dl.inherited-line{
+	border-bottom: 1px solid hsl(0, 0%, 87%);
+  	/* margin-bottom: 30px;
+ 	padding-bottom: 30px; */
+}
+input.search{
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 1000px;
+	padding : 5px 8px;
+	border: 1px solid #ddd;
+	width: calc(100% - 10px);
+}
+input.search:focus{
+	background: #FFF;
+	border: 1px solid #ddd;
+	outline: 0;
+	box-shadow: 0 0 5px 2px #0066ce;
+}
+input.search::placeholder {
+	color: #999;
+}
+.className{
+	color : #cd0030;
+}
