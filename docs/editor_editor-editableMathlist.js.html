@@ -1,4 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>editor/editor-editableMathlist.js - Documentation</title>
 
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/custom.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav id="nav">
+    <h3 class="group-title"><a href="index.html">&#x3C; Home &#x3E;</a></h3><input class="search" placeholder="Search" type="text"><div class="list"><h3 class="group-title">Classes</h3><ul><li><a href="Context.html" class="className">Context</a><ul class='methods'><li data-type='method'><a href="Context.html#clone" class="methodName">clone</a></li><li data-type='method'><a href="Context.html#cloneWith" class="methodName">cloneWith</a></li><li data-type='method'><a href="Context.html#setMathstyle" class="methodName">setMathstyle</a></li><li data-type='method'><a href="Context.html#withIsSelected" class="methodName">withIsSelected</a></li><li data-type='method'><a href="Context.html#withMathstyle" class="methodName">withMathstyle</a></li></ul></li><li><a href="module-editor_editableMathlist.EditableMathlist.html" class="className">EditableMathlist</a><ul class='methods'><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#ancestor" class="methodName">ancestor</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#anchor" class="methodName">anchor</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#commandOffsets" class="methodName">commandOffsets</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#commitCommandStringBeforeInsertionPoint" class="methodName">commitCommandStringBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#contains" class="methodName">contains</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#decorateCommandStringAroundInsertionPoint" class="methodName">decorateCommandStringAroundInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#delete" class="methodName">delete</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#delete_" class="methodName">delete_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#endOffset" class="methodName">endOffset</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extend" class="methodName">extend</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extract" class="methodName">extract</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractCommandStringAroundInsertionPoint" class="methodName">extractCommandStringAroundInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractContents" class="methodName">extractContents</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractContentsOrdInGroupBeforeInsertionPoint" class="methodName">extractContentsOrdInGroupBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractGroupStringBeforeInsertionPoint" class="methodName">extractGroupStringBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#filter" class="methodName">filter</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#insert" class="methodName">insert</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#insertFirstAtom" class="methodName">insertFirstAtom</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#isCollapsed" class="methodName">isCollapsed</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#jump" class="methodName">jump</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#leap" class="methodName">leap</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToOpposite_" class="methodName">moveToOpposite_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToSubscript_" class="methodName">moveToSubscript_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToSuperscript_" class="methodName">moveToSuperscript_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#next" class="methodName">next</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#selectAll_" class="methodName">selectAll_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#selectGroup_" class="methodName">selectGroup_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setExtent" class="methodName">setExtent</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setRange" class="methodName">setRange</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setSelection" class="methodName">setSelection</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#sibling" class="methodName">sibling</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#siblings" class="methodName">siblings</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#skip" class="methodName">skip</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#startOffset" class="methodName">startOffset</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#toString" class="methodName">toString</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#transpose_" class="methodName">transpose_</a></li></ul></li><li><a href="module-editor_mathfield.MathField.html" class="className">MathField</a><ul class='methods'><li data-type='method'><a href="module-editor_mathfield.MathField.html#_getCaretPosition" class="methodName">_getCaretPosition</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#_onKeystroke" class="methodName">_onKeystroke</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#complete_" class="methodName">complete_</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#config" class="methodName">config</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#enterCommandMode_" class="methodName">enterCommandMode_</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#keystroke" class="methodName">keystroke</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#latex" class="methodName">latex</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#text" class="methodName">text</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#typedText" class="methodName">typedText</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#write" class="methodName">write</a></li></ul></li><li><a href="module-lexer.Lexer.html" class="className">Lexer</a><ul class='methods'><li data-type='method'><a href="module-lexer.Lexer.html#end" class="methodName">end</a></li><li data-type='method'><a href="module-lexer.Lexer.html#get" class="methodName">get</a></li><li data-type='method'><a href="module-lexer.Lexer.html#isWhiteSpace" class="methodName">isWhiteSpace</a></li><li data-type='method'><a href="module-lexer.Lexer.html#makeToken" class="methodName">makeToken</a></li><li data-type='method'><a href="module-lexer.Lexer.html#peek" class="methodName">peek</a></li><li data-type='method'><a href="module-lexer.Lexer.html#scan" class="methodName">scan</a></li></ul></li><li><a href="module-lexer.Token.html" class="className">Token</a></li><li><a href="module-mathAtom.MathAtom.html" class="className">MathAtom</a><ul class='methods'><li data-type='method'><a href="module-mathAtom.MathAtom.html#bind" class="methodName">bind</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decompose" class="methodName">decompose</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeGenfrac" class="methodName">decomposeGenfrac</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeLeftright" class="methodName">decomposeLeftright</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeLine" class="methodName">decomposeLine</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#filter" class="methodName">filter</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#makeSpan" class="methodName">makeSpan</a></li></ul></li><li><a href="module-parser.Parser.html" class="className">Parser</a><ul class='methods'><li data-type='method'><a href="module-parser.Parser.html#hasToken" class="methodName">hasToken</a></li><li data-type='method'><a href="module-parser.Parser.html#lastMathAtom" class="methodName">lastMathAtom</a></li><li data-type='method'><a href="module-parser.Parser.html#parseAtom" class="methodName">parseAtom</a></li><li data-type='method'><a href="module-parser.Parser.html#parseKeyword" class="methodName">parseKeyword</a></li><li data-type='method'><a href="module-parser.Parser.html#parseLimits" class="methodName">parseLimits</a></li><li data-type='method'><a href="module-parser.Parser.html#parseSupSub" class="methodName">parseSupSub</a></li><li data-type='method'><a href="module-parser.Parser.html#parseToken" class="methodName">parseToken</a></li><li data-type='method'><a href="module-parser.Parser.html#scanArg" class="methodName">scanArg</a></li><li data-type='method'><a href="module-parser.Parser.html#scanColor" class="methodName">scanColor</a></li><li data-type='method'><a href="module-parser.Parser.html#scanDimen" class="methodName">scanDimen</a></li><li data-type='method'><a href="module-parser.Parser.html#scanEnvironment" class="methodName">scanEnvironment</a></li><li data-type='method'><a href="module-parser.Parser.html#scanGroup" class="methodName">scanGroup</a></li><li data-type='method'><a href="module-parser.Parser.html#scanImplicitGroup" class="methodName">scanImplicitGroup</a></li><li data-type='method'><a href="module-parser.Parser.html#scanLeftRight" class="methodName">scanLeftRight</a></li><li data-type='method'><a href="module-parser.Parser.html#scanModeSet" class="methodName">scanModeSet</a></li><li data-type='method'><a href="module-parser.Parser.html#scanModeShift" class="methodName">scanModeShift</a></li><li data-type='method'><a href="module-parser.Parser.html#scanNumber" class="methodName">scanNumber</a></li><li data-type='method'><a href="module-parser.Parser.html#scanString" class="methodName">scanString</a></li><li data-type='method'><a href="module-parser.Parser.html#scanToken" class="methodName">scanToken</a></li></ul></li><li><a href="module-span.Span.html" class="className">Span</a><ul class='methods'><li data-type='method'><a href="module-span.Span.html#setStyle" class="methodName">setStyle</a></li><li data-type='method'><a href="module-span.Span.html#toMarkup" class="methodName">toMarkup</a></li><li data-type='method'><a href="module-span.Span.html#tryCoalesceWith" class="methodName">tryCoalesceWith</a></li><li data-type='method'><a href="module-span.Span.html#updateDimensions" class="methodName">updateDimensions</a></li></ul></li></ul><h3 class="group-title">Modules</h3><ul><li><a href="module-color.html" class="className">color</a><ul class='methods'><li data-type='method'><a href="module-color.html#.stringToColor" class="methodName">stringToColor</a></li></ul></li><li><a href="module-delimiters.html" class="className">delimiters</a><ul class='methods'><li data-type='method'><a href="module-delimiters.html#.makeCustomSizedDelim" class="methodName">makeCustomSizedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeInner" class="methodName">makeInner</a></li><li data-type='method'><a href="module-delimiters.html#.makeLargeDelim" class="methodName">makeLargeDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeLeftRightDelim" class="methodName">makeLeftRightDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeNullFence" class="methodName">makeNullFence</a></li><li data-type='method'><a href="module-delimiters.html#.makeSizedDelim" class="methodName">makeSizedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeSmallDelim" class="methodName">makeSmallDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeStackedDelim" class="methodName">makeStackedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.traverseSequence" class="methodName">traverseSequence</a></li></ul></li><li><a href="module-editor_commands.html" class="className">editor_commands</a><ul class='methods'><li data-type='method'><a href="module-editor_commands.html#.suggest" class="methodName">suggest</a></li></ul></li><li><a href="module-editor_editableMathlist.html" class="className">editor_editableMathlist</a><ul class='methods'><li data-type='method'><a href="module-editor_editableMathlist.html#.atomContains" class="methodName">atomContains</a></li></ul></li><li><a href="module-editor_mathfield.html" class="className">editor_mathfield</a><ul class='methods'><li data-type='method'><a href="module-editor_mathfield.html#_findElementWithCaret" class="methodName">_findElementWithCaret</a></li><li data-type='method'><a href="module-editor_mathfield.html#nearestElementFromPoint" class="methodName">nearestElementFromPoint</a></li></ul></li><li><a href="module-fontMetrics.html" class="className">fontMetrics</a><ul class='methods'><li data-type='method'><a href="module-fontMetrics.html#.getCharacterMetrics" class="methodName">getCharacterMetrics</a></li></ul></li><li><a href="module-lexer.html" class="className">lexer</a><ul class='methods'><li data-type='method'><a href="module-lexer.html#.tokenize" class="methodName">tokenize</a></li></ul></li><li><a href="module-mathAtom.html" class="className">mathAtom</a><ul class='methods'><li data-type='method'><a href="module-mathAtom.html#.decompose" class="methodName">decompose</a></li><li data-type='method'><a href="module-mathAtom.html#.getFontName" class="methodName">getFontName</a></li><li data-type='method'><a href="module-mathAtom.html#.makeColGap" class="methodName">makeColGap</a></li><li data-type='method'><a href="module-mathAtom.html#.makeColOfRepeatingElements" class="methodName">makeColOfRepeatingElements</a></li><li data-type='method'><a href="module-mathAtom.html#.makeStack" class="methodName">makeStack</a></li></ul></li><li><a href="module-mathstyle.html" class="className">mathstyle</a><ul class='methods'><li data-type='method'><a href="module-mathstyle.html#.toMathstyle" class="methodName">toMathstyle</a></li></ul></li><li><a href="module-parser.html" class="className">parser</a><ul class='methods'><li data-type='method'><a href="module-parser.html#.hasImplicitGroupEnd" class="methodName">hasImplicitGroupEnd</a></li></ul></li><li><a href="module-span.html" class="className">span</a><ul class='methods'><li data-type='method'><a href="module-span.html#.coalesce" class="methodName">coalesce</a></li><li data-type='method'><a href="module-span.html#.makeFontSizer" class="methodName">makeFontSizer</a></li><li data-type='method'><a href="module-span.html#.makeHlist" class="methodName">makeHlist</a></li><li data-type='method'><a href="module-span.html#.makeSpan" class="methodName">makeSpan</a></li><li data-type='method'><a href="module-span.html#.makeSpanOfType" class="methodName">makeSpanOfType</a></li><li data-type='method'><a href="module-span.html#.makeSymbol" class="methodName">makeSymbol</a></li><li data-type='method'><a href="module-span.html#.makeVlist" class="methodName">makeVlist</a></li><li data-type='method'><a href="module-span.html#.toString" class="methodName">toString</a></li></ul></li></ul></div>
+</nav>
+
+<div id="main">
+    
+        <h1 class="page-title">editor/editor-editableMathlist.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>
 
 /**
  * @module editor_editableMathlist
@@ -150,7 +192,7 @@ EditableMathlist.prototype.setRange = function(from, to) {
 
             let extent = to[ancestorDepth].offset - from[ancestorDepth].offset;
 
-            if (extent <= 0) {
+            if (extent &lt;= 0) {
                 if (to.length > ancestorDepth + 1) {
                     commonAncestor[ancestorDepth].relation = to[ancestorDepth].relation;
                     commonAncestor[ancestorDepth].offset = to[ancestorDepth].offset;
@@ -191,7 +233,7 @@ EditableMathlist.prototype.ancestor = function(ancestor) {
     let result = this.root;
 
     // Iterate over the path segments, selecting the approriate 
-    for (let i = 0; i < (this.path.length - ancestor); i++) {
+    for (let i = 0; i &lt; (this.path.length - ancestor); i++) {
         const segment = this.path[i];
         if (segment.relation === 'array') {
             result = result.array[segment.row][segment.col];
@@ -236,7 +278,7 @@ EditableMathlist.prototype.focusOffset = function() {
 /**
  * Offset of the first atom included in the selection
  * i.e. =1 => selection starts with and incldues firtst atom
- * With expression "x=" and atoms 0: <first>, 1: <x>, 2:<=>
+ * With expression "x=" and atoms 0: &lt;first>, 1: &lt;x>, 2:&lt;=>
  * - if caret is before x:  start = 0, end = 0
  * - if caret is after x:   start = 1, end = 1
  * - if x is selected:      start = 1, end = 2
@@ -298,7 +340,7 @@ EditableMathlist.prototype.siblings = function() {
 EditableMathlist.prototype.sibling = function(offset) {
     const siblingOffset = this.anchorOffset() + offset;
     const siblings = this.siblings();
-    if (siblingOffset < 0 || siblingOffset > siblings.length) return null;
+    if (siblingOffset &lt; 0 || siblingOffset > siblings.length) return null;
 
     return siblings[siblingOffset]
 }
@@ -400,7 +442,7 @@ EditableMathlist.prototype.contains = function(atom) {
     const siblings = this.siblings()
     const firstOffset = this.startOffset();
     const lastOffset = this.endOffset();
-    for (let i = firstOffset; i < lastOffset; i++) {
+    for (let i = firstOffset; i &lt; lastOffset; i++) {
         if (atomContains(siblings[i], atom)) return true;
     }
     return false;
@@ -417,10 +459,10 @@ EditableMathlist.prototype.extract = function() {
 
     const siblings = this.siblings();
     const firstOffset = this.startOffset();
-    if (firstOffset < siblings.length) {
+    if (firstOffset &lt; siblings.length) {
         // const lastOffset = Math.min(siblings.length, this.endOffset());
         const endOffset = Math.min(siblings.length, this.endOffset());
-        for (let i = firstOffset; i < endOffset; i++) {
+        for (let i = firstOffset; i &lt; endOffset; i++) {
             result.push(siblings[i]);
         }
     }
@@ -438,10 +480,10 @@ EditableMathlist.prototype.extractContents = function() {
 
     const siblings = this.siblings();
     const firstOffset = this.startOffset();
-    if (firstOffset < siblings.length) {
+    if (firstOffset &lt; siblings.length) {
         // const lastOffset = Math.min(siblings.length, this.endOffset());
         const endOffset = Math.min(siblings.length, this.endOffset());
-        for (let i = firstOffset; i < endOffset; i++) {
+        for (let i = firstOffset; i &lt; endOffset; i++) {
             result.push(siblings[i]);
         }
     }
@@ -450,12 +492,12 @@ EditableMathlist.prototype.extractContents = function() {
 
 EditableMathlist.prototype.extractGroupBeforeSelection = function() {
     const siblings = this.siblings();    
-    if (siblings.length <= 1) return null;
+    if (siblings.length &lt;= 1) return null;
 
     const result = [];
 
     const lastOffset = !this.isCollapsed() ? this.startOffset() - 1 : this.startOffset(); 
-    for (let i = 1; i <= lastOffset; i++) {
+    for (let i = 1; i &lt;= lastOffset; i++) {
         if (siblings[i].type !== 'first') {
             result.push(siblings[i]);
         }
@@ -466,13 +508,13 @@ EditableMathlist.prototype.extractGroupBeforeSelection = function() {
 
 EditableMathlist.prototype.extractGroupAfterSelection = function() {
     const siblings = this.siblings();    
-    if (siblings.length <= 1) return null;
+    if (siblings.length &lt;= 1) return null;
 
     const result = [];
 
     const lastOffset = siblings.length - 1;
     const start = !this.isCollapsed() ? this.endOffset() : this.endOffset() + 1;
-    for (let i = start; i <= lastOffset; i++) {
+    for (let i = start; i &lt;= lastOffset; i++) {
         if (siblings[i].type !== 'first') {
             result.push(siblings[i]);
         }
@@ -487,11 +529,11 @@ EditableMathlist.prototype.extractGroupAfterSelection = function() {
  */
 EditableMathlist.prototype.extractGroupStringBeforeInsertionPoint = function() {
     const siblings = this.siblings();    
-    if (siblings.length <= 1) return '';
+    if (siblings.length &lt;= 1) return '';
 
     let result = '';
     const lastOffset = this.startOffset();
-    for (let i = 1; i <= lastOffset; i++) {
+    for (let i = 1; i &lt;= lastOffset; i++) {
         // If the sibling has no value (for example it's a compound math atom)
         // use the REPLACEMENT CHARACTER as a placeholder. This will prevent
         // the sequence "-1/x=" to match "-=" with "\\equiv"
@@ -514,15 +556,15 @@ EditableMathlist.prototype.extractGroupStringBeforeInsertionPoint = function() {
  */
 EditableMathlist.prototype.commandOffsets = function() {
     const siblings = this.siblings();    
-    if (siblings.length <= 1) return null;
+    if (siblings.length &lt;= 1) return null;
 
     let start = Math.min(this.endOffset(), siblings.length - 1);
     // let start = Math.max(0, this.endOffset());
     if (siblings[start].type !== 'command') return null;
-    while (start > 0 && siblings[start].type === 'command') start -= 1;
+    while (start > 0 &amp;&amp; siblings[start].type === 'command') start -= 1;
 
     let end = this.startOffset() + 1;
-    while (end <= siblings.length - 1 && siblings[end].type === 'command') end += 1;
+    while (end &lt;= siblings.length - 1 &amp;&amp; siblings[end].type === 'command') end += 1;
     if (end > start) {
         return {start: start + 1, end: end};
     }
@@ -539,7 +581,7 @@ EditableMathlist.prototype.extractCommandStringAroundInsertionPoint = function()
     const command = this.commandOffsets();
     if (command) {
         const siblings = this.siblings();    
-        for (let i = command.start; i < command.end; i++) {
+        for (let i = command.start; i &lt; command.end; i++) {
             result += siblings[i].value || '';
         }
     }
@@ -558,7 +600,7 @@ EditableMathlist.prototype.decorateCommandStringAroundInsertionPoint = function(
         //     siblings[command.start].value === '\u0027') {
         //     command.start += 1;
         // }
-        for (let i = command.start; i < command.end; i++) {
+        for (let i = command.start; i &lt; command.end; i++) {
             siblings[i].error = value;
         }
     }
@@ -573,7 +615,7 @@ EditableMathlist.prototype.commitCommandStringBeforeInsertionPoint = function() 
     if (command) {
         const siblings = this.siblings();
         const anchorOffset = this.anchorOffset();
-        for (let i = command.start; i < anchorOffset; i++) {
+        for (let i = command.start; i &lt; anchorOffset; i++) {
             siblings[i].suggestion = false;
         }
     }
@@ -612,10 +654,10 @@ EditableMathlist.prototype.extractContentsOrdInGroupBeforeInsertionPoint = funct
     const result = [];
     const siblings = this.siblings();
     
-    if (siblings.length <= 1) return [];
+    if (siblings.length &lt;= 1) return [];
 
     let i = this.startOffset();
-    while (i >= 1 && siblings[i].type === 'mord') {
+    while (i >= 1 &amp;&amp; siblings[i].type === 'mord') {
         result.unshift(siblings[i]);
         i--
     }
@@ -636,7 +678,7 @@ EditableMathlist.prototype.setSelection = function(offset, extent, relation) {
 
     // If the relation is invalid, exit and return false    
     const parent = this.parent();
-    if (!parent && relation !== 'children') return false;
+    if (!parent &amp;&amp; relation !== 'children') return false;
     if (!parent[relation]) return false;
 
     const relationChanged = relation !== oldRelation;
@@ -656,7 +698,7 @@ EditableMathlist.prototype.setSelection = function(offset, extent, relation) {
 
 
     // Calculate the new offset
-    if (offset < 0) {
+    if (offset &lt; 0) {
         offset = siblings.length + offset;
     }
     offset = Math.max(0, Math.min(offset, siblings.length));
@@ -716,7 +758,7 @@ EditableMathlist.prototype.next = function() {
         // We've reached the end of these siblings.
         // Is there another set of siblings to consider?
         let relation = NEXT_RELATION[this.relation()];
-        while (relation && !this.setSelection(0, 0, relation)) {
+        while (relation &amp;&amp; !this.setSelection(0, 0, relation)) {
             relation = NEXT_RELATION[relation];
         }
         // We found a new relation/set of siblings...
@@ -771,11 +813,11 @@ EditableMathlist.prototype.previous = function() {
         'subscript': 'body',
         'superscript': 'subscript'
     }
-    if (this.anchorOffset() < 1) {
+    if (this.anchorOffset() &lt; 1) {
         // We've reached the first of these siblings.
         // Is there another set of siblings to consider?
         let relation = PREVIOUS_RELATION[this.relation()];
-        while (relation && !this.setSelection(-1, 0 , relation)) {
+        while (relation &amp;&amp; !this.setSelection(-1, 0 , relation)) {
             relation = PREVIOUS_RELATION[relation];
         }
         // We found a new relation/set of siblings...
@@ -844,7 +886,7 @@ EditableMathlist.prototype.move = function(dist, options) {
                 this.next();
                 dist--;
             }
-        } else if (dist < 0) {
+        } else if (dist &lt; 0) {
             this.collapseBackward();
             while (dist !== 0) {
                 this.previous();
@@ -853,7 +895,7 @@ EditableMathlist.prototype.move = function(dist, options) {
         }
 
         // If the siblings list we left was empty, remove the relation
-        if (previousSiblings.length <= 1) {
+        if (previousSiblings.length &lt;= 1) {
             if (['superscript', 'subscript', 'index'].includes(previousRelation)) {
                 previousParent[previousRelation] = null;
             }
@@ -914,7 +956,7 @@ EditableMathlist.prototype.extend = function(dist) {
 
     extent = this.extent + dist;
     const newFocusOffset = offset + extent;
-    if (newFocusOffset <= 0) {
+    if (newFocusOffset &lt;= 0) {
         // We're trying to extend beyond the first element.
         // Go up to the parent.
         if (this.path.length > 1) {
@@ -965,26 +1007,26 @@ EditableMathlist.prototype.extend = function(dist) {
 EditableMathlist.prototype.skip = function(dir, options) {
     options = options || {extend: false};
     const extend = options.extend || false;
-    dir = dir < 0 ? -1 : +1;
+    dir = dir &lt; 0 ? -1 : +1;
 
     const siblings = this.siblings();
     const focus = this.focusOffset();
     let offset = focus + (dir > 0 ? 1 : 0);
     offset = Math.max(0, Math.min(offset, siblings.length - 1));
     const type = siblings[offset].type;
-    if ((offset === 0 && dir < 0) || 
-        (offset === siblings.length - 1 && dir > 0)) {
+    if ((offset === 0 &amp;&amp; dir &lt; 0) || 
+        (offset === siblings.length - 1 &amp;&amp; dir > 0)) {
         // If we've reached the end, just moved out of the list
         this.move(dir, options);
         return;
-    } else if ((type === 'mopen' && dir > 0) || 
-                (type === 'mclose' && dir < 0)) {
+    } else if ((type === 'mopen' &amp;&amp; dir > 0) || 
+                (type === 'mclose' &amp;&amp; dir &lt; 0)) {
         // We're right before (or after) an opening (or closing)
         // fence. Skip to the balanced element (in level, but not necesarily in 
         // fence symbol). 
         let level = type === 'mopen' ? 1 : -1;
         offset += dir > 0 ? 1 : -1;
-        while (offset >= 0 && offset < siblings.length && level !== 0) {
+        while (offset >= 0 &amp;&amp; offset &lt; siblings.length &amp;&amp; level !== 0) {
             if (siblings[offset].type === 'mopen') {
                 level += 1;
             } else if (siblings[offset].type === 'mclose') {
@@ -998,7 +1040,7 @@ EditableMathlist.prototype.skip = function(dir, options) {
         }
         if (dir > 0) offset = offset - 1;
     } else {
-        while (offset >= 0 && offset < siblings.length && siblings[offset].type === type) {
+        while (offset >= 0 &amp;&amp; offset &lt; siblings.length &amp;&amp; siblings[offset].type === type) {
             offset += dir;
         }
         offset -= (dir > 0 ? 1 : 0);
@@ -1017,13 +1059,13 @@ EditableMathlist.prototype.skip = function(dir, options) {
 EditableMathlist.prototype.jump = function(dir, options) {
     options = options || {extend: false};
     const extend = options.extend || false;
-    dir = dir < 0 ? -1 : +1;
+    dir = dir &lt; 0 ? -1 : +1;
 
     const siblings = this.siblings();
     let focus = this.focusOffset();
     if (dir > 0) focus = Math.min(focus + 1, siblings.length - 1);
 
-    const offset = dir < 0 ? 0 : siblings.length - 1;
+    const offset = dir &lt; 0 ? 0 : siblings.length - 1;
 
     if (extend) {
         this.extend(offset - focus);
@@ -1036,18 +1078,18 @@ EditableMathlist.prototype.jumpToMathFieldBoundary = function(dir, options) {
     options = options || {extend: false};
     const extend = options.extend || false;
     dir = dir || +1;
-    dir = dir < 0 ? -1 : +1;
+    dir = dir &lt; 0 ? -1 : +1;
 
     const path = [this.path[0]];
     let extent;
 
     if (!extend) {
         // Change the anchor to the end/start of the root expression
-        path[0].offset = dir < 0 ? 0 : this.root.children.length - 1;
+        path[0].offset = dir &lt; 0 ? 0 : this.root.children.length - 1;
         extent = 0;
     } else {
         // Don't change the anchor, but update the extent
-        if (dir < 0) {
+        if (dir &lt; 0) {
             if (path[0].offset > 0) {
                 path[0].offset++;
                 extent = - path[0].offset + 1;
@@ -1055,7 +1097,7 @@ EditableMathlist.prototype.jumpToMathFieldBoundary = function(dir, options) {
                 // @todo exit left extend
             }
         } else {
-            if (path[0].offset < this.siblings().length - 1) {
+            if (path[0].offset &lt; this.siblings().length - 1) {
                 path[0].offset++;
                 extent = this.siblings().length - path[0].offset;
             } else {
@@ -1074,7 +1116,7 @@ EditableMathlist.prototype.jumpToMathFieldBoundary = function(dir, options) {
  */
 EditableMathlist.prototype.leap = function(dir) {
     dir = dir || +1;    
-    dir = dir < 0 ? -1 : +1;
+    dir = dir &lt; 0 ? -1 : +1;
 
     const placeholders = this.filter(function(path, atom) {
         return atom.type === 'placeholder' || this.siblings().length === 1;
@@ -1176,7 +1218,7 @@ EditableMathlist.prototype.insert = function(s, options) {
         } else {
             // If we're inserting a fraction, and there was no selected content, 
             // use as the argument the `mord` atoms before the insertion point
-            if (s === '\\frac{#0}{#?}' && (!args[0] || args[0].length === 0)) {
+            if (s === '\\frac{#0}{#?}' &amp;&amp; (!args[0] || args[0].length === 0)) {
                 args[0] = this.extractContentsOrdInGroupBeforeInsertionPoint();
                 // Delete the implicit argument
                 this.delete(-args[0].length - 1);
@@ -1222,7 +1264,7 @@ EditableMathlist.prototype.positionInsertionPointAfterCommitedCommand = function
     const siblings = this.siblings();
     const command = this.commandOffsets();
     let i = command.start;
-    while (i < command.end && !siblings[i].suggestion) {
+    while (i &lt; command.end &amp;&amp; !siblings[i].suggestion) {
         i++;
     }
     this.setSelection(i - 1);
@@ -1276,7 +1318,7 @@ EditableMathlist.prototype.delete = function(count) {
             count--;
         }
     } else {
-        while (count < -1) {
+        while (count &lt; -1) {
             this.delete_(-1);
             count++;
         }
@@ -1293,7 +1335,7 @@ EditableMathlist.prototype.delete = function(count) {
  */
 EditableMathlist.prototype.delete_ = function(dir) {
     dir = dir || 0;
-    dir = dir < 0 ? -1 : (dir > 0 ? +1 : dir);
+    dir = dir &lt; 0 ? -1 : (dir > 0 ? +1 : dir);
 
     this.removeSuggestion();
 
@@ -1301,7 +1343,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
 
     if (this.isCollapsed()) {
         const anchorOffset = this.anchorOffset();
-        if (dir < 0) {
+        if (dir &lt; 0) {
             if (anchorOffset !== 0) {
                 // We're in the middle of the siblings
                 siblings.splice(anchorOffset, 1);
@@ -1522,10 +1564,10 @@ EditableMathlist.prototype.moveToSuperscript_ = function() {
                 [new MathAtom.MathAtom(this.parent().parseMode, 'first', null)];
         } else {
             const sibling = this.sibling(1);
-            if (sibling && sibling.superscript) {
+            if (sibling &amp;&amp; sibling.superscript) {
                 this.path[this.path.length - 1].offset += 1;
     //            this.setSelection(this.anchorOffset() + 1);
-            } else if (sibling && sibling.subscript) {
+            } else if (sibling &amp;&amp; sibling.subscript) {
                 this.path[this.path.length - 1].offset += 1;
     //            this.setSelection(this.anchorOffset() + 1);
                 this.anchor().superscript = 
@@ -1559,10 +1601,10 @@ EditableMathlist.prototype.moveToSubscript_ = function() {
                 [new MathAtom.MathAtom(this.parent().parseMode, 'first', null)];
         } else {
             const sibling = this.sibling(1);
-            if (sibling && sibling.subscript) {
+            if (sibling &amp;&amp; sibling.subscript) {
                 this.path[this.path.length - 1].offset += 1;
                 // this.setSelection(this.anchorOffset() + 1);
-            } else if (sibling && sibling.superscript) {
+            } else if (sibling &amp;&amp; sibling.superscript) {
                 this.path[this.path.length - 1].offset += 1;
                 // this.setSelection(this.anchorOffset() + 1);
                 this.anchor().subscript = 
@@ -1687,7 +1729,7 @@ EditableMathlist.prototype.speakParent_ = function() {
     // On ChromeOS: chrome.accessibilityFeatures.spokenFeedback
     let text = 'No parent.';
     const parent = this.parent();
-    if (parent && parent.type !== 'root') {
+    if (parent &amp;&amp; parent.type !== 'root') {
         text = MathAtom.toSpeakableText(this.parent(), getSpeechOptions());
     }
     const utterance = new SpeechSynthesisUtterance(text);
@@ -1698,9 +1740,9 @@ EditableMathlist.prototype.speakRightSibling_ = function() {
     let text = 'At the end.';
     const siblings = this.siblings();
     const first = this.startOffset() + 1;
-    if (first < siblings.length - 1) {
+    if (first &lt; siblings.length - 1) {
         const adjSiblings = [];
-        for (let i = first; i <= siblings.length - 1; i++) {
+        for (let i = first; i &lt;= siblings.length - 1; i++) {
             adjSiblings.push(siblings[i]);
         }
         text = MathAtom.toSpeakableText(adjSiblings, getSpeechOptions());
@@ -1715,7 +1757,7 @@ EditableMathlist.prototype.speakLeftSibling_ = function() {
     const last = this.isCollapsed() ? this.startOffset() : this.startOffset() - 1;
     if (last >= 1) {
         const adjSiblings = [];
-        for (let i = 1; i <= last; i++) {
+        for (let i = 1; i &lt;= last; i++) {
             adjSiblings.push(siblings[i]);
         }
         text = MathAtom.toSpeakableText(adjSiblings, getSpeechOptions());
@@ -1746,3 +1788,50 @@ return {
 
 
 })
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Doc created  on 2017-06-16T06:19:52.074Z
+    by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
+    using a customized <a href="https://www.npmjs.com/package/namis">Namis</a> theme.
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/jquery.nicescroll/3.6.0/jquery.nicescroll.min.js"></script> -->
+<script src="scripts/namis.search.jquery.js"></script>
+<script>prettyPrint();
+
+(function($){
+/*
+    $('nav').niceScroll({
+        cursorwidth: 7,
+        hwacceleration: true,
+        cursorcolor: "#036564",
+        cursorborder: "1px solid #036564"
+    });
+
+    $('html').niceScroll({
+        cursorwidth: 10,
+        hwacceleration: true,
+        smoothscroll: true,
+        cursorminheight: 32,
+        enablemousewheel: true, // nicescroll can manage mouse wheel events
+        enablekeyboard: true // nicescroll can manage keyboard events
+        ,cursorcolor: "#033649"
+    });
+*/
+    $('#nav').search(['className', 'methodName']);
+})(jQuery);
+</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

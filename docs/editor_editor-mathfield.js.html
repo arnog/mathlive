@@ -1,4 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>editor/editor-mathfield.js - Documentation</title>
 
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/custom.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav id="nav">
+    <h3 class="group-title"><a href="index.html">&#x3C; Home &#x3E;</a></h3><input class="search" placeholder="Search" type="text"><div class="list"><h3 class="group-title">Classes</h3><ul><li><a href="Context.html" class="className">Context</a><ul class='methods'><li data-type='method'><a href="Context.html#clone" class="methodName">clone</a></li><li data-type='method'><a href="Context.html#cloneWith" class="methodName">cloneWith</a></li><li data-type='method'><a href="Context.html#setMathstyle" class="methodName">setMathstyle</a></li><li data-type='method'><a href="Context.html#withIsSelected" class="methodName">withIsSelected</a></li><li data-type='method'><a href="Context.html#withMathstyle" class="methodName">withMathstyle</a></li></ul></li><li><a href="module-editor_editableMathlist.EditableMathlist.html" class="className">EditableMathlist</a><ul class='methods'><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#ancestor" class="methodName">ancestor</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#anchor" class="methodName">anchor</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#commandOffsets" class="methodName">commandOffsets</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#commitCommandStringBeforeInsertionPoint" class="methodName">commitCommandStringBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#contains" class="methodName">contains</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#decorateCommandStringAroundInsertionPoint" class="methodName">decorateCommandStringAroundInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#delete" class="methodName">delete</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#delete_" class="methodName">delete_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#endOffset" class="methodName">endOffset</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extend" class="methodName">extend</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extract" class="methodName">extract</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractCommandStringAroundInsertionPoint" class="methodName">extractCommandStringAroundInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractContents" class="methodName">extractContents</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractContentsOrdInGroupBeforeInsertionPoint" class="methodName">extractContentsOrdInGroupBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractGroupStringBeforeInsertionPoint" class="methodName">extractGroupStringBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#filter" class="methodName">filter</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#insert" class="methodName">insert</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#insertFirstAtom" class="methodName">insertFirstAtom</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#isCollapsed" class="methodName">isCollapsed</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#jump" class="methodName">jump</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#leap" class="methodName">leap</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToOpposite_" class="methodName">moveToOpposite_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToSubscript_" class="methodName">moveToSubscript_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToSuperscript_" class="methodName">moveToSuperscript_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#next" class="methodName">next</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#selectAll_" class="methodName">selectAll_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#selectGroup_" class="methodName">selectGroup_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setExtent" class="methodName">setExtent</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setRange" class="methodName">setRange</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setSelection" class="methodName">setSelection</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#sibling" class="methodName">sibling</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#siblings" class="methodName">siblings</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#skip" class="methodName">skip</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#startOffset" class="methodName">startOffset</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#toString" class="methodName">toString</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#transpose_" class="methodName">transpose_</a></li></ul></li><li><a href="module-editor_mathfield.MathField.html" class="className">MathField</a><ul class='methods'><li data-type='method'><a href="module-editor_mathfield.MathField.html#_getCaretPosition" class="methodName">_getCaretPosition</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#_onKeystroke" class="methodName">_onKeystroke</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#complete_" class="methodName">complete_</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#config" class="methodName">config</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#enterCommandMode_" class="methodName">enterCommandMode_</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#keystroke" class="methodName">keystroke</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#latex" class="methodName">latex</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#text" class="methodName">text</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#typedText" class="methodName">typedText</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#write" class="methodName">write</a></li></ul></li><li><a href="module-lexer.Lexer.html" class="className">Lexer</a><ul class='methods'><li data-type='method'><a href="module-lexer.Lexer.html#end" class="methodName">end</a></li><li data-type='method'><a href="module-lexer.Lexer.html#get" class="methodName">get</a></li><li data-type='method'><a href="module-lexer.Lexer.html#isWhiteSpace" class="methodName">isWhiteSpace</a></li><li data-type='method'><a href="module-lexer.Lexer.html#makeToken" class="methodName">makeToken</a></li><li data-type='method'><a href="module-lexer.Lexer.html#peek" class="methodName">peek</a></li><li data-type='method'><a href="module-lexer.Lexer.html#scan" class="methodName">scan</a></li></ul></li><li><a href="module-lexer.Token.html" class="className">Token</a></li><li><a href="module-mathAtom.MathAtom.html" class="className">MathAtom</a><ul class='methods'><li data-type='method'><a href="module-mathAtom.MathAtom.html#bind" class="methodName">bind</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decompose" class="methodName">decompose</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeGenfrac" class="methodName">decomposeGenfrac</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeLeftright" class="methodName">decomposeLeftright</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeLine" class="methodName">decomposeLine</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#filter" class="methodName">filter</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#makeSpan" class="methodName">makeSpan</a></li></ul></li><li><a href="module-parser.Parser.html" class="className">Parser</a><ul class='methods'><li data-type='method'><a href="module-parser.Parser.html#hasToken" class="methodName">hasToken</a></li><li data-type='method'><a href="module-parser.Parser.html#lastMathAtom" class="methodName">lastMathAtom</a></li><li data-type='method'><a href="module-parser.Parser.html#parseAtom" class="methodName">parseAtom</a></li><li data-type='method'><a href="module-parser.Parser.html#parseKeyword" class="methodName">parseKeyword</a></li><li data-type='method'><a href="module-parser.Parser.html#parseLimits" class="methodName">parseLimits</a></li><li data-type='method'><a href="module-parser.Parser.html#parseSupSub" class="methodName">parseSupSub</a></li><li data-type='method'><a href="module-parser.Parser.html#parseToken" class="methodName">parseToken</a></li><li data-type='method'><a href="module-parser.Parser.html#scanArg" class="methodName">scanArg</a></li><li data-type='method'><a href="module-parser.Parser.html#scanColor" class="methodName">scanColor</a></li><li data-type='method'><a href="module-parser.Parser.html#scanDimen" class="methodName">scanDimen</a></li><li data-type='method'><a href="module-parser.Parser.html#scanEnvironment" class="methodName">scanEnvironment</a></li><li data-type='method'><a href="module-parser.Parser.html#scanGroup" class="methodName">scanGroup</a></li><li data-type='method'><a href="module-parser.Parser.html#scanImplicitGroup" class="methodName">scanImplicitGroup</a></li><li data-type='method'><a href="module-parser.Parser.html#scanLeftRight" class="methodName">scanLeftRight</a></li><li data-type='method'><a href="module-parser.Parser.html#scanModeSet" class="methodName">scanModeSet</a></li><li data-type='method'><a href="module-parser.Parser.html#scanModeShift" class="methodName">scanModeShift</a></li><li data-type='method'><a href="module-parser.Parser.html#scanNumber" class="methodName">scanNumber</a></li><li data-type='method'><a href="module-parser.Parser.html#scanString" class="methodName">scanString</a></li><li data-type='method'><a href="module-parser.Parser.html#scanToken" class="methodName">scanToken</a></li></ul></li><li><a href="module-span.Span.html" class="className">Span</a><ul class='methods'><li data-type='method'><a href="module-span.Span.html#setStyle" class="methodName">setStyle</a></li><li data-type='method'><a href="module-span.Span.html#toMarkup" class="methodName">toMarkup</a></li><li data-type='method'><a href="module-span.Span.html#tryCoalesceWith" class="methodName">tryCoalesceWith</a></li><li data-type='method'><a href="module-span.Span.html#updateDimensions" class="methodName">updateDimensions</a></li></ul></li></ul><h3 class="group-title">Modules</h3><ul><li><a href="module-color.html" class="className">color</a><ul class='methods'><li data-type='method'><a href="module-color.html#.stringToColor" class="methodName">stringToColor</a></li></ul></li><li><a href="module-delimiters.html" class="className">delimiters</a><ul class='methods'><li data-type='method'><a href="module-delimiters.html#.makeCustomSizedDelim" class="methodName">makeCustomSizedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeInner" class="methodName">makeInner</a></li><li data-type='method'><a href="module-delimiters.html#.makeLargeDelim" class="methodName">makeLargeDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeLeftRightDelim" class="methodName">makeLeftRightDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeNullFence" class="methodName">makeNullFence</a></li><li data-type='method'><a href="module-delimiters.html#.makeSizedDelim" class="methodName">makeSizedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeSmallDelim" class="methodName">makeSmallDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeStackedDelim" class="methodName">makeStackedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.traverseSequence" class="methodName">traverseSequence</a></li></ul></li><li><a href="module-editor_commands.html" class="className">editor_commands</a><ul class='methods'><li data-type='method'><a href="module-editor_commands.html#.suggest" class="methodName">suggest</a></li></ul></li><li><a href="module-editor_editableMathlist.html" class="className">editor_editableMathlist</a><ul class='methods'><li data-type='method'><a href="module-editor_editableMathlist.html#.atomContains" class="methodName">atomContains</a></li></ul></li><li><a href="module-editor_mathfield.html" class="className">editor_mathfield</a><ul class='methods'><li data-type='method'><a href="module-editor_mathfield.html#_findElementWithCaret" class="methodName">_findElementWithCaret</a></li><li data-type='method'><a href="module-editor_mathfield.html#nearestElementFromPoint" class="methodName">nearestElementFromPoint</a></li></ul></li><li><a href="module-fontMetrics.html" class="className">fontMetrics</a><ul class='methods'><li data-type='method'><a href="module-fontMetrics.html#.getCharacterMetrics" class="methodName">getCharacterMetrics</a></li></ul></li><li><a href="module-lexer.html" class="className">lexer</a><ul class='methods'><li data-type='method'><a href="module-lexer.html#.tokenize" class="methodName">tokenize</a></li></ul></li><li><a href="module-mathAtom.html" class="className">mathAtom</a><ul class='methods'><li data-type='method'><a href="module-mathAtom.html#.decompose" class="methodName">decompose</a></li><li data-type='method'><a href="module-mathAtom.html#.getFontName" class="methodName">getFontName</a></li><li data-type='method'><a href="module-mathAtom.html#.makeColGap" class="methodName">makeColGap</a></li><li data-type='method'><a href="module-mathAtom.html#.makeColOfRepeatingElements" class="methodName">makeColOfRepeatingElements</a></li><li data-type='method'><a href="module-mathAtom.html#.makeStack" class="methodName">makeStack</a></li></ul></li><li><a href="module-mathstyle.html" class="className">mathstyle</a><ul class='methods'><li data-type='method'><a href="module-mathstyle.html#.toMathstyle" class="methodName">toMathstyle</a></li></ul></li><li><a href="module-parser.html" class="className">parser</a><ul class='methods'><li data-type='method'><a href="module-parser.html#.hasImplicitGroupEnd" class="methodName">hasImplicitGroupEnd</a></li></ul></li><li><a href="module-span.html" class="className">span</a><ul class='methods'><li data-type='method'><a href="module-span.html#.coalesce" class="methodName">coalesce</a></li><li data-type='method'><a href="module-span.html#.makeFontSizer" class="methodName">makeFontSizer</a></li><li data-type='method'><a href="module-span.html#.makeHlist" class="methodName">makeHlist</a></li><li data-type='method'><a href="module-span.html#.makeSpan" class="methodName">makeSpan</a></li><li data-type='method'><a href="module-span.html#.makeSpanOfType" class="methodName">makeSpanOfType</a></li><li data-type='method'><a href="module-span.html#.makeSymbol" class="methodName">makeSymbol</a></li><li data-type='method'><a href="module-span.html#.makeVlist" class="methodName">makeVlist</a></li><li data-type='method'><a href="module-span.html#.toString" class="methodName">toString</a></li></ul></li></ul></div>
+</nav>
+
+<div id="main">
+    
+        <h1 class="page-title">editor/editor-mathfield.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>
 /**
  * @module editor_mathfield
  */
@@ -111,12 +153,12 @@ function MathField(element, config) {
         // 5/ The command bar
         let markup = '';
         if (!config.substituteTextArea) {
-            markup += '<span class="ML__textarea" aria-hidden="true" role="none presentation">' +
-                '<textarea autocapitalize="off" autocomplete="off" ' + 
+            markup += '&lt;span class="ML__textarea" aria-hidden="true" role="none presentation">' +
+                '&lt;textarea autocapitalize="off" autocomplete="off" ' + 
                 'autocorrect="off" spellcheck="false" ' + 
                 'aria-hidden="true" role="none presentation">' +
-                '</textarea>' +
-            '</span>';
+                '&lt;/textarea>' +
+            '&lt;/span>';
         } else {
             if (typeof config.substituteTextArea === 'string') {
                 markup += config.substituteTextArea;
@@ -124,21 +166,21 @@ function MathField(element, config) {
                 // We don't really need this one, but we keep it here so that the 
                 // indexes below remain the same whether a substituteTextArea is 
                 // provided or not.
-                markup += '<span></span>';
+                markup += '&lt;span>&lt;/span>';
             }
         }
-        markup += '<span class="ML__fieldcontainer">' +
-                '<span ></span>' +
-                '<span class="ML__commandbartoggle"' +
+        markup += '&lt;span class="ML__fieldcontainer">' +
+                '&lt;span >&lt;/span>' +
+                '&lt;span class="ML__commandbartoggle"' +
                     'role="button" tabindex="0" aria-label="Toggle Command Bar">' +
-                '</span>' +
-            '</span>' +
-            '<div class="ML__popover"></div>' + 
-            '<div class="ML__keystrokecaption"></div>' + 
-            '<div class="ML__commandbar">' +
-                '<div class="ML__commandbuttons" role="toolbar" aria-label="Commmand Bar></div>' + 
-                '<div class="ML__commandpanel"></div>' +
-            '</div>';
+                '&lt;/span>' +
+            '&lt;/span>' +
+            '&lt;div class="ML__popover">&lt;/div>' + 
+            '&lt;div class="ML__keystrokecaption">&lt;/div>' + 
+            '&lt;div class="ML__commandbar">' +
+                '&lt;div class="ML__commandbuttons" role="toolbar" aria-label="Commmand Bar>&lt;/div>' + 
+                '&lt;div class="ML__commandpanel">&lt;/div>' +
+            '&lt;/div>';
 
 
         this.element.innerHTML = markup;
@@ -278,13 +320,13 @@ function nearestElementFromPoint(el, x, y) {
         // of the element.
         // This avoid searching the numerator/denominator when a fraction
         // is the last element in the formula.
-        considerChildren = x >= r.left && x <= r.right;
+        considerChildren = x >= r.left &amp;&amp; x &lt;= r.right;
     }
 
-    if (considerChildren && el.children) {
+    if (considerChildren &amp;&amp; el.children) {
         Array.from(el.children).forEach(function(child) {
             const nearest = nearestElementFromPoint(child, x, y);
-            if (nearest.element && nearest.distance <= result.distance) {
+            if (nearest.element &amp;&amp; nearest.distance &lt;= result.distance) {
                 result = nearest;
             }
         });
@@ -308,7 +350,7 @@ MathField.prototype._pathFromPoint = function(x, y) {
             return atom.id === id;
         });
 
-        if (atoms && atoms.length > 0) {
+        if (atoms &amp;&amp; atoms.length > 0) {
             // (There should be exactly one atom that matches this ID...)
             // Set the result to the path to this atom
 
@@ -317,7 +359,7 @@ MathField.prototype._pathFromPoint = function(x, y) {
             // preceding atom)
             const bounds = el.getBoundingClientRect();
             result = MathPath.pathFromString(atoms[0]).path;
-            if (x < bounds.left + bounds.width / 2) {
+            if (x &lt; bounds.left + bounds.width / 2) {
                 result[result.length - 1].offset -= 1;
             }
         }
@@ -350,7 +392,7 @@ MathField.prototype._onPointerDown = function(evt) {
         const x = moveEvt.touches ? moveEvt.touches[0].clientX : moveEvt.clientX;
         const y = moveEvt.touches ? moveEvt.touches[0].clientY : moveEvt.clientY;
         const focus = that._pathFromPoint(x, y);
-        if (anchor && focus) {
+        if (anchor &amp;&amp; focus) {
             that.mathlist.setRange(anchor, focus);
             setTimeout(that._render.bind(that), 0);
         }
@@ -369,7 +411,7 @@ MathField.prototype._onPointerDown = function(evt) {
     }
 
     // If a mouse button other than the main one was pressed, return
-    if (evt.buttons && evt.buttons !== 1) return;
+    if (evt.buttons &amp;&amp; evt.buttons !== 1) return;
 
     const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
     const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
@@ -432,7 +474,7 @@ MathField.prototype._onSelectionDidChange = function() {
     // If the selection is not collapsed, put it in the textarea
     // This will allow cut/copy to work.
     const mathlist = this.mathlist.extractContents();
-    if (mathlist && !this.mathlist.isCollapsed()) {
+    if (mathlist &amp;&amp; !this.mathlist.isCollapsed()) {
         let result = '';
         for (const atom of mathlist) {
             result += atom.toLatex();
@@ -488,13 +530,13 @@ MathField.prototype._onResize = function() {
 
 MathField.prototype._showKeystroke = function(keystroke) {
     const vb = this.keystrokeCaption;
-    if (vb && this.keystrokeCaptionVisible) {
+    if (vb &amp;&amp; this.keystrokeCaptionVisible) {
         const bounds = this.element.getBoundingClientRect();
         vb.style.left = bounds.left + 'px';
         vb.style.top = (bounds.top - 56) + 'px';
-        vb.innerHTML += '<span>' + 
+        vb.innerHTML += '&lt;span>' + 
             (Shortcuts.stringify(keystroke) || keystroke) + 
-            '</span>';
+            '&lt;/span>';
         vb.style.visibility = 'visible';
         setTimeout(function() {
             if (vb.childNodes.length > 0) {
@@ -681,7 +723,7 @@ MathField.prototype._render = function() {
             a.isSelected = this.mathlist.contains(a);
         } );
     const hasFocus = this.hasFocus();
-    if (hasFocus && this.mathlist.isCollapsed()) {
+    if (hasFocus &amp;&amp; this.mathlist.isCollapsed()) {
         this.mathlist.anchor().hasCaret = true;
     }
 
@@ -904,7 +946,7 @@ MathField.prototype.pasteFromClipboard_ = function() {
  * @method module:editor_mathfield.MathField#write
  */
 MathField.prototype.write = MathField.prototype.insert_ = MathField.prototype.insert = function(latex, options) {
-    if (typeof latex === 'string' && latex.length > 0) {
+    if (typeof latex === 'string' &amp;&amp; latex.length > 0) {
         if (!options) options = {};
         if (!options.format) options.format = 'auto';
         this.mathlist.insert(latex, options);
@@ -975,35 +1017,35 @@ MathField.prototype._showPopoverWithLatex = function(latex, displayArrows) {
         Shortcuts.getShortcutsForCommand(command)) || '';
 
     let template = displayArrows ? 
-        '<div class="ML__popover_prev-shortcut" role="button" aria-label="Previous suggestion"><span><span>&#x25B2;</span></span></div>' : '';
-    template += '<span class="ML__popover_content">';
-    template += '<div class="ML__popover_command" role="button" >' + 
-        command_markup + '</div>';
+        '&lt;div class="ML__popover_prev-shortcut" role="button" aria-label="Previous suggestion">&lt;span>&lt;span>&amp;#x25B2;&lt;/span>&lt;/span>&lt;/div>' : '';
+    template += '&lt;span class="ML__popover_content">';
+    template += '&lt;div class="ML__popover_command" role="button" >' + 
+        command_markup + '&lt;/div>';
     if (command_note) {
-        template += '<div class="ML__popover_note">' + 
-            command_note + '</div>';
+        template += '&lt;div class="ML__popover_note">' + 
+            command_note + '&lt;/div>';
     }
     if (command_shortcuts) {
-        template += '<div class="ML__popover_shortcut">' + 
-            command_shortcuts + '</div>';
+        template += '&lt;div class="ML__popover_shortcut">' + 
+            command_shortcuts + '&lt;/div>';
     }
-    template += '</span>';
-    template += displayArrows ? '<div class="ML__popover_next-shortcut" role="button" aria-label="Next suggestion"><span><span>&#x25BC;</span></span></div>' : '';
+    template += '&lt;/span>';
+    template += displayArrows ? '&lt;div class="ML__popover_next-shortcut" role="button" aria-label="Next suggestion">&lt;span>&lt;span>&amp;#x25BC;&lt;/span>&lt;/span>&lt;/div>' : '';
     this._showPopover(template);
 
     let el = this.popover.getElementsByClassName('ML__popover_content');
-    if (el && el.length > 0) {
+    if (el &amp;&amp; el.length > 0) {
         this._attachButtonHandlers(el[0], 'complete');
     }
     
     
     el = this.popover.getElementsByClassName('ML__popover_prev-shortcut');
-    if (el && el.length > 0) {
+    if (el &amp;&amp; el.length > 0) {
         this._attachButtonHandlers(el[0], 'previousSuggestion');
     }
 
     el = this.popover.getElementsByClassName('ML__popover_next-shortcut');
-    if (el && el.length > 0) {
+    if (el &amp;&amp; el.length > 0) {
         this._attachButtonHandlers(el[0], 'nextSuggestion');
     }
 
@@ -1012,7 +1054,7 @@ MathField.prototype._showPopoverWithLatex = function(latex, displayArrows) {
 MathField.prototype._updatePopoverPosition = function(options) {
     // If the popover pane is visible...
     if (this.popover.classList.contains('ML__popover_visible')) {
-        if (options && options.deferred) {
+        if (options &amp;&amp; options.deferred) {
             // Call ourselves again later, typically after the 
             // rendering/layout of the DOM has been completed
             setTimeout(this._updatePopoverPosition.bind(this), 0);    
@@ -1089,7 +1131,7 @@ MathField.prototype.nextSuggestion_ = function() {
 
 MathField.prototype.previousSuggestion_ = function() {
     this.suggestionIndex -= 1;
-    if (this.suggestionIndex < 0) {
+    if (this.suggestionIndex &lt; 0) {
         // We're rolling over
         // Get the list of suggestions, so we can know how many there are
         // Not very efficient, but simple.
@@ -1172,15 +1214,15 @@ MathField.prototype._makeButton = function(label, cls, ariaLabel, command) {
 }
 
 MathField.prototype._updateCommandBar = function() {
-    if (!this.blurred && this.commandBarVisible) {
+    if (!this.blurred &amp;&amp; this.commandBarVisible) {
         this.textarea.select();
         this.commandBar.style.visibility = 'visible';
         this.commandButtons.textContent = '';
         // let content = '';
-        // content += '<span>bold</span><span>solve</span><span>&#x21e2;</span>';
-        // content += '<span class="ML__round">&#8943;</span></div>';
-        // content += '<div>color: #566778</div>';
-        // content += '<div>gap: #566778</div>';
+        // content += '&lt;span>bold&lt;/span>&lt;span>solve&lt;/span>&lt;span>&amp;#x21e2;&lt;/span>';
+        // content += '&lt;span class="ML__round">&amp;#8943;&lt;/span>&lt;/div>';
+        // content += '&lt;div>color: #566778&lt;/div>';
+        // content += '&lt;div>gap: #566778&lt;/div>';
 
         const commands = Commands.suggest(
             this.mathlist.parseMode(), 
@@ -1217,7 +1259,7 @@ MathField.prototype.toggleCommandBar_ = function() {
 }
 
 MathField.prototype.hasFocus = function() {
-    return document.hasFocus() && document.activeElement === this.textarea;
+    return document.hasFocus() &amp;&amp; document.activeElement === this.textarea;
 }
 
 MathField.prototype.focus = function() {
@@ -1365,3 +1407,50 @@ return {
 
 
 })
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Doc created  on 2017-06-16T06:19:52.075Z
+    by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
+    using a customized <a href="https://www.npmjs.com/package/namis">Namis</a> theme.
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/jquery.nicescroll/3.6.0/jquery.nicescroll.min.js"></script> -->
+<script src="scripts/namis.search.jquery.js"></script>
+<script>prettyPrint();
+
+(function($){
+/*
+    $('nav').niceScroll({
+        cursorwidth: 7,
+        hwacceleration: true,
+        cursorcolor: "#036564",
+        cursorborder: "1px solid #036564"
+    });
+
+    $('html').niceScroll({
+        cursorwidth: 10,
+        hwacceleration: true,
+        smoothscroll: true,
+        cursorminheight: 32,
+        enablemousewheel: true, // nicescroll can manage mouse wheel events
+        enablekeyboard: true // nicescroll can manage keyboard events
+        ,cursorcolor: "#033649"
+    });
+*/
+    $('#nav').search(['className', 'methodName']);
+})(jQuery);
+</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

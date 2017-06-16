@@ -1,4 +1,46 @@
-/*global require:false*/
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>core/mathAtom.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/custom.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav id="nav">
+    <h3 class="group-title"><a href="index.html">&#x3C; Home &#x3E;</a></h3><input class="search" placeholder="Search" type="text"><div class="list"><h3 class="group-title">Classes</h3><ul><li><a href="Context.html" class="className">Context</a><ul class='methods'><li data-type='method'><a href="Context.html#clone" class="methodName">clone</a></li><li data-type='method'><a href="Context.html#cloneWith" class="methodName">cloneWith</a></li><li data-type='method'><a href="Context.html#setMathstyle" class="methodName">setMathstyle</a></li><li data-type='method'><a href="Context.html#withIsSelected" class="methodName">withIsSelected</a></li><li data-type='method'><a href="Context.html#withMathstyle" class="methodName">withMathstyle</a></li></ul></li><li><a href="module-editor_editableMathlist.EditableMathlist.html" class="className">EditableMathlist</a><ul class='methods'><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#ancestor" class="methodName">ancestor</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#anchor" class="methodName">anchor</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#commandOffsets" class="methodName">commandOffsets</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#commitCommandStringBeforeInsertionPoint" class="methodName">commitCommandStringBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#contains" class="methodName">contains</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#decorateCommandStringAroundInsertionPoint" class="methodName">decorateCommandStringAroundInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#delete" class="methodName">delete</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#delete_" class="methodName">delete_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#endOffset" class="methodName">endOffset</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extend" class="methodName">extend</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extract" class="methodName">extract</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractCommandStringAroundInsertionPoint" class="methodName">extractCommandStringAroundInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractContents" class="methodName">extractContents</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractContentsOrdInGroupBeforeInsertionPoint" class="methodName">extractContentsOrdInGroupBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractGroupStringBeforeInsertionPoint" class="methodName">extractGroupStringBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#filter" class="methodName">filter</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#insert" class="methodName">insert</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#insertFirstAtom" class="methodName">insertFirstAtom</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#isCollapsed" class="methodName">isCollapsed</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#jump" class="methodName">jump</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#leap" class="methodName">leap</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToOpposite_" class="methodName">moveToOpposite_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToSubscript_" class="methodName">moveToSubscript_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToSuperscript_" class="methodName">moveToSuperscript_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#next" class="methodName">next</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#selectAll_" class="methodName">selectAll_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#selectGroup_" class="methodName">selectGroup_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setExtent" class="methodName">setExtent</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setRange" class="methodName">setRange</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setSelection" class="methodName">setSelection</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#sibling" class="methodName">sibling</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#siblings" class="methodName">siblings</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#skip" class="methodName">skip</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#startOffset" class="methodName">startOffset</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#toString" class="methodName">toString</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#transpose_" class="methodName">transpose_</a></li></ul></li><li><a href="module-editor_mathfield.MathField.html" class="className">MathField</a><ul class='methods'><li data-type='method'><a href="module-editor_mathfield.MathField.html#_getCaretPosition" class="methodName">_getCaretPosition</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#_onKeystroke" class="methodName">_onKeystroke</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#complete_" class="methodName">complete_</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#config" class="methodName">config</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#enterCommandMode_" class="methodName">enterCommandMode_</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#keystroke" class="methodName">keystroke</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#latex" class="methodName">latex</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#text" class="methodName">text</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#typedText" class="methodName">typedText</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#write" class="methodName">write</a></li></ul></li><li><a href="module-lexer.Lexer.html" class="className">Lexer</a><ul class='methods'><li data-type='method'><a href="module-lexer.Lexer.html#end" class="methodName">end</a></li><li data-type='method'><a href="module-lexer.Lexer.html#get" class="methodName">get</a></li><li data-type='method'><a href="module-lexer.Lexer.html#isWhiteSpace" class="methodName">isWhiteSpace</a></li><li data-type='method'><a href="module-lexer.Lexer.html#makeToken" class="methodName">makeToken</a></li><li data-type='method'><a href="module-lexer.Lexer.html#peek" class="methodName">peek</a></li><li data-type='method'><a href="module-lexer.Lexer.html#scan" class="methodName">scan</a></li></ul></li><li><a href="module-lexer.Token.html" class="className">Token</a></li><li><a href="module-mathAtom.MathAtom.html" class="className">MathAtom</a><ul class='methods'><li data-type='method'><a href="module-mathAtom.MathAtom.html#bind" class="methodName">bind</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decompose" class="methodName">decompose</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeGenfrac" class="methodName">decomposeGenfrac</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeLeftright" class="methodName">decomposeLeftright</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeLine" class="methodName">decomposeLine</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#filter" class="methodName">filter</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#makeSpan" class="methodName">makeSpan</a></li></ul></li><li><a href="module-parser.Parser.html" class="className">Parser</a><ul class='methods'><li data-type='method'><a href="module-parser.Parser.html#hasToken" class="methodName">hasToken</a></li><li data-type='method'><a href="module-parser.Parser.html#lastMathAtom" class="methodName">lastMathAtom</a></li><li data-type='method'><a href="module-parser.Parser.html#parseAtom" class="methodName">parseAtom</a></li><li data-type='method'><a href="module-parser.Parser.html#parseKeyword" class="methodName">parseKeyword</a></li><li data-type='method'><a href="module-parser.Parser.html#parseLimits" class="methodName">parseLimits</a></li><li data-type='method'><a href="module-parser.Parser.html#parseSupSub" class="methodName">parseSupSub</a></li><li data-type='method'><a href="module-parser.Parser.html#parseToken" class="methodName">parseToken</a></li><li data-type='method'><a href="module-parser.Parser.html#scanArg" class="methodName">scanArg</a></li><li data-type='method'><a href="module-parser.Parser.html#scanColor" class="methodName">scanColor</a></li><li data-type='method'><a href="module-parser.Parser.html#scanDimen" class="methodName">scanDimen</a></li><li data-type='method'><a href="module-parser.Parser.html#scanEnvironment" class="methodName">scanEnvironment</a></li><li data-type='method'><a href="module-parser.Parser.html#scanGroup" class="methodName">scanGroup</a></li><li data-type='method'><a href="module-parser.Parser.html#scanImplicitGroup" class="methodName">scanImplicitGroup</a></li><li data-type='method'><a href="module-parser.Parser.html#scanLeftRight" class="methodName">scanLeftRight</a></li><li data-type='method'><a href="module-parser.Parser.html#scanModeSet" class="methodName">scanModeSet</a></li><li data-type='method'><a href="module-parser.Parser.html#scanModeShift" class="methodName">scanModeShift</a></li><li data-type='method'><a href="module-parser.Parser.html#scanNumber" class="methodName">scanNumber</a></li><li data-type='method'><a href="module-parser.Parser.html#scanString" class="methodName">scanString</a></li><li data-type='method'><a href="module-parser.Parser.html#scanToken" class="methodName">scanToken</a></li></ul></li><li><a href="module-span.Span.html" class="className">Span</a><ul class='methods'><li data-type='method'><a href="module-span.Span.html#setStyle" class="methodName">setStyle</a></li><li data-type='method'><a href="module-span.Span.html#toMarkup" class="methodName">toMarkup</a></li><li data-type='method'><a href="module-span.Span.html#tryCoalesceWith" class="methodName">tryCoalesceWith</a></li><li data-type='method'><a href="module-span.Span.html#updateDimensions" class="methodName">updateDimensions</a></li></ul></li></ul><h3 class="group-title">Modules</h3><ul><li><a href="module-color.html" class="className">color</a><ul class='methods'><li data-type='method'><a href="module-color.html#.stringToColor" class="methodName">stringToColor</a></li></ul></li><li><a href="module-delimiters.html" class="className">delimiters</a><ul class='methods'><li data-type='method'><a href="module-delimiters.html#.makeCustomSizedDelim" class="methodName">makeCustomSizedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeInner" class="methodName">makeInner</a></li><li data-type='method'><a href="module-delimiters.html#.makeLargeDelim" class="methodName">makeLargeDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeLeftRightDelim" class="methodName">makeLeftRightDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeNullFence" class="methodName">makeNullFence</a></li><li data-type='method'><a href="module-delimiters.html#.makeSizedDelim" class="methodName">makeSizedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeSmallDelim" class="methodName">makeSmallDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeStackedDelim" class="methodName">makeStackedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.traverseSequence" class="methodName">traverseSequence</a></li></ul></li><li><a href="module-editor_commands.html" class="className">editor_commands</a><ul class='methods'><li data-type='method'><a href="module-editor_commands.html#.suggest" class="methodName">suggest</a></li></ul></li><li><a href="module-editor_editableMathlist.html" class="className">editor_editableMathlist</a><ul class='methods'><li data-type='method'><a href="module-editor_editableMathlist.html#.atomContains" class="methodName">atomContains</a></li></ul></li><li><a href="module-editor_mathfield.html" class="className">editor_mathfield</a><ul class='methods'><li data-type='method'><a href="module-editor_mathfield.html#_findElementWithCaret" class="methodName">_findElementWithCaret</a></li><li data-type='method'><a href="module-editor_mathfield.html#nearestElementFromPoint" class="methodName">nearestElementFromPoint</a></li></ul></li><li><a href="module-fontMetrics.html" class="className">fontMetrics</a><ul class='methods'><li data-type='method'><a href="module-fontMetrics.html#.getCharacterMetrics" class="methodName">getCharacterMetrics</a></li></ul></li><li><a href="module-lexer.html" class="className">lexer</a><ul class='methods'><li data-type='method'><a href="module-lexer.html#.tokenize" class="methodName">tokenize</a></li></ul></li><li><a href="module-mathAtom.html" class="className">mathAtom</a><ul class='methods'><li data-type='method'><a href="module-mathAtom.html#.decompose" class="methodName">decompose</a></li><li data-type='method'><a href="module-mathAtom.html#.getFontName" class="methodName">getFontName</a></li><li data-type='method'><a href="module-mathAtom.html#.makeColGap" class="methodName">makeColGap</a></li><li data-type='method'><a href="module-mathAtom.html#.makeColOfRepeatingElements" class="methodName">makeColOfRepeatingElements</a></li><li data-type='method'><a href="module-mathAtom.html#.makeStack" class="methodName">makeStack</a></li></ul></li><li><a href="module-mathstyle.html" class="className">mathstyle</a><ul class='methods'><li data-type='method'><a href="module-mathstyle.html#.toMathstyle" class="methodName">toMathstyle</a></li></ul></li><li><a href="module-parser.html" class="className">parser</a><ul class='methods'><li data-type='method'><a href="module-parser.html#.hasImplicitGroupEnd" class="methodName">hasImplicitGroupEnd</a></li></ul></li><li><a href="module-span.html" class="className">span</a><ul class='methods'><li data-type='method'><a href="module-span.html#.coalesce" class="methodName">coalesce</a></li><li data-type='method'><a href="module-span.html#.makeFontSizer" class="methodName">makeFontSizer</a></li><li data-type='method'><a href="module-span.html#.makeHlist" class="methodName">makeHlist</a></li><li data-type='method'><a href="module-span.html#.makeSpan" class="methodName">makeSpan</a></li><li data-type='method'><a href="module-span.html#.makeSpanOfType" class="methodName">makeSpanOfType</a></li><li data-type='method'><a href="module-span.html#.makeSymbol" class="methodName">makeSymbol</a></li><li data-type='method'><a href="module-span.html#.makeVlist" class="methodName">makeVlist</a></li><li data-type='method'><a href="module-span.html#.toString" class="methodName">toString</a></li></ul></li></ul></div>
+</nav>
+
+<div id="main">
+    
+        <h1 class="page-title">core/mathAtom.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*global require:false*/
 /*global define:false*/
 /* jshint undef: false, unused: false, esversion: 6, esnext: true */
 
@@ -77,11 +119,11 @@ function MathAtom(mode, type, value, fontFamily, extras) {
     // by 'extras', so don't check agains the parameter ('type') but 
     // the value in the object ('this.type').
     if (this.type === 'mord' || this.type === 'textord') {
-        if (this.type === 'mord' && this.fontFamily === 'main' && this.value.length === 1) {
+        if (this.type === 'mord' &amp;&amp; this.fontFamily === 'main' &amp;&amp; this.value.length === 1) {
             const c = this.value.charCodeAt(0);
-            if ( (c >= 65 && c <= 90) || // A-Z
-                (c >= 97 && c <= 122) || //a-z
-                (c >= 0x03b1 && c <= 0x03C9) || // alpha-omega
+            if ( (c >= 65 &amp;&amp; c &lt;= 90) || // A-Z
+                (c >= 97 &amp;&amp; c &lt;= 122) || //a-z
+                (c >= 0x03b1 &amp;&amp; c &lt;= 0x03C9) || // alpha-omega
                 (c === 0x03f1 || c === 0x03f5 || c === 0x03d1 || 
                 c === 0x03f0 || c === 0x03d6 || c === 0x03d5)) {
                 // Auto italicize alphabetic and lowercase greek symbols 
@@ -91,10 +133,10 @@ function MathAtom(mode, type, value, fontFamily, extras) {
             }
         }
 
-        if (this.type === 'textord' && this.fontFamily === 'main') {
+        if (this.type === 'textord' &amp;&amp; this.fontFamily === 'main') {
             this.fontFamily = 'mathrm';
         }
-        // if (!italic && type === 'textord' && (mode === 'displaymath' || mode === 'inlinemath')) {
+        // if (!italic &amp;&amp; type === 'textord' &amp;&amp; (mode === 'displaymath' || mode === 'inlinemath')) {
         //     fontFamily = 'mathit';  // This is important to get \prime to render correctly
         // }
 
@@ -119,10 +161,10 @@ function MathAtom(mode, type, value, fontFamily, extras) {
 
 MathAtom.prototype.getBaseElement = function () {
     if ((this.type === 'group' || this.type === 'color') 
-            && this.children.length === 1) {
+            &amp;&amp; this.children.length === 1) {
         return this.children[0].getBaseElement();
     } 
-    if (this.body && this.body.length === 1) {
+    if (this.body &amp;&amp; this.body.length === 1) {
         // this.type === 'accent', 'surd', 'leftright', 
         // 'line', 'font', 'color', 'box'.
         return this.body[0].getBaseElement();
@@ -131,10 +173,10 @@ MathAtom.prototype.getBaseElement = function () {
 }
 
 MathAtom.prototype.getInitialBaseElement = function () {
-    if (this.children && this.children.length > 0) {
+    if (this.children &amp;&amp; this.children.length > 0) {
         return this.children[0].getFinalBaseElement();
     }
-    if (this.body && this.body.length > 0) {
+    if (this.body &amp;&amp; this.body.length > 0) {
         return this.body[0].getFinalBaseElement();
     }
 
@@ -142,10 +184,10 @@ MathAtom.prototype.getInitialBaseElement = function () {
 }
 
 MathAtom.prototype.getFinalBaseElement = function () {
-    if (this.children && this.children.length > 0) {
+    if (this.children &amp;&amp; this.children.length > 0) {
         return this.children[this.children.length - 1].getFinalBaseElement();
     }
-    if (this.body && this.body.length > 0) {
+    if (this.body &amp;&amp; this.body.length > 0) {
         return this.body[this.body.length - 1].getFinalBaseElement();
     }
 
@@ -275,7 +317,7 @@ MathAtom.prototype.decomposeArray = function(context) {
     // and http://tug.ctan.org/macros/latex/base/lttab.dtx
 
     let colFormat = this.colFormat;
-    if (colFormat && colFormat.length === 0) {
+    if (colFormat &amp;&amp; colFormat.length === 0) {
         colFormat = [{align:'l'}];
     }
     if (!colFormat) {
@@ -294,10 +336,10 @@ MathAtom.prototype.decomposeArray = function(context) {
 
     for (const row of this.array) {
         let colIndex = 0;
-        while (colIndex < row.length) {
+        while (colIndex &lt; row.length) {
             const newRow = [];
             const lastCol = Math.min(row.length, colIndex + colMax);
-            while (colIndex < lastCol) {
+            while (colIndex &lt; lastCol) {
                 newRow.push(row[colIndex++]);
             }
             array.push(newRow);
@@ -306,7 +348,7 @@ MathAtom.prototype.decomposeArray = function(context) {
     
 
     // If the last row is empty, ignore it.
-    if (array[array.length - 1].length === 1 && 
+    if (array[array.length - 1].length === 1 &amp;&amp; 
         array[array.length - 1][0].length === 0) {
         array.pop();
     }
@@ -325,7 +367,7 @@ MathAtom.prototype.decomposeArray = function(context) {
     let nc = 0;
     const body = [];
     const nr = array.length;
-    for (let r = 0; r < nr; ++r) {
+    for (let r = 0; r &lt; nr; ++r) {
         const inrow = array[r];
         nc = Math.max(nc, inrow.length);
 
@@ -333,7 +375,7 @@ MathAtom.prototype.decomposeArray = function(context) {
         let depth = arstrutDepth;   // to each row (via the template)
 
         const outrow = [];
-        for (let c = 0; c < inrow.length; ++c) {
+        for (let c = 0; c &lt; inrow.length; ++c) {
             const localContext = context.withMathstyle(this.mathstyle || 'auto');
             const cell = decompose(localContext, inrow[c]);
             if (cell) {
@@ -345,11 +387,11 @@ MathAtom.prototype.decomposeArray = function(context) {
         }
 
         let jot = r === nr - 1 ? 0 : (this.jot || 0);
-        if (this.rowGaps && this.rowGaps[r]) {
+        if (this.rowGaps &amp;&amp; this.rowGaps[r]) {
             jot = this.rowGaps[r]; 
             if (jot > 0) { // \@argarraycr
                 jot += arstrutDepth;
-                if (depth < jot) {
+                if (depth &lt; jot) {
                     depth = jot; // \@xargarraycr
                 }
                 jot = 0;
@@ -367,7 +409,7 @@ MathAtom.prototype.decomposeArray = function(context) {
     const offset = totalHeight / 2 + mathstyle.metrics.axisHeight;
 
     const contentCols = [];
-    for (let colIndex = 0; colIndex < nc; colIndex++) {
+    for (let colIndex = 0; colIndex &lt; nc; colIndex++) {
         const col = [];
         for (const row of body) {
             const elem = row[colIndex];
@@ -395,9 +437,9 @@ MathAtom.prototype.decomposeArray = function(context) {
     let firstColumn = !this.lFence;
 
     for (const colDesc of colFormat) {
-        if (colDesc.align && currentContentCol >= contentCols.length) {
+        if (colDesc.align &amp;&amp; currentContentCol >= contentCols.length) {
             break;
-        } else if (colDesc.align && currentContentCol < contentCols.length) {
+        } else if (colDesc.align &amp;&amp; currentContentCol &lt; contentCols.length) {
             // If an alignment is specified, insert a column of content
             if (prevColContent) {
                 // If no gap was provided, insert a default gap between 
@@ -455,12 +497,12 @@ MathAtom.prototype.decomposeArray = function(context) {
             firstColumn = false;
         }
     }
-    if (prevColContent && !this.rFence) {
+    if (prevColContent &amp;&amp; !this.rFence) {
         // If the last column was content, add a small gap
         cols.push(makeColGap(FONTMETRICS.arraycolsep));
     }
 
-    if (!this.lFence && !this.rFence) {
+    if (!this.lFence &amp;&amp; !this.rFence) {
         // There are no delimiters around the array, just return what
         // we've built so far.
         return makeOrd(cols, 'mtable');
@@ -556,7 +598,7 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
         // No bar line between numerator and denominator
         const candidateClearance =
             (numShift - numerReset.depth) - (denomReset.height - denomShift);
-        if (candidateClearance < clearance) {
+        if (candidateClearance &lt; clearance) {
             numShift += 0.5 * (clearance - candidateClearance);
             denomShift += 0.5 * (clearance - candidateClearance);
         }
@@ -571,14 +613,14 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
         // There is a bar line between the numerator and the denominator
         const axisHeight = mathstyle.metrics.axisHeight;
 
-        if ((numShift - numerReset.depth) - (axisHeight + 0.5 * ruleWidth) <
+        if ((numShift - numerReset.depth) - (axisHeight + 0.5 * ruleWidth) &lt;
                 clearance) {
             numShift +=
                 clearance - ((numShift - numerReset.depth) -
                             (axisHeight + 0.5 * ruleWidth));
         }
 
-        if ((axisHeight - 0.5 * ruleWidth) - (denomReset.height - denomShift) <
+        if ((axisHeight - 0.5 * ruleWidth) - (denomReset.height - denomShift) &lt;
                 clearance) {
             denomShift +=
                 clearance - ((axisHeight - 0.5 * ruleWidth) -
@@ -609,7 +651,7 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
     frac.height *= mathstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
     frac.depth *= mathstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
 
-    // if (!this.leftDelim && !this.rightDelim) {
+    // if (!this.leftDelim &amp;&amp; !this.rightDelim) {
     //     return makeOrd(frac, 
     //         context.parentMathstyle.adjustTo(mathstyle) + 
     //         ((context.parentSize !== context.size) ? 
@@ -668,7 +710,7 @@ MathAtom.prototype.decomposeLeftright = function(context) {
 
     // Replace the delim (\middle) spans with proper ones now that we know 
     // the height/depth
-    for (let i = 0; i < inner.length - 1; i++) {
+    for (let i = 0; i &lt; inner.length - 1; i++) {
         if (inner[i].delim) {
             inner[i] = Delimiters.makeLeftRightDelim(
                 '', inner[i].delim, innerHeight, innerDepth, localContext);
@@ -703,7 +745,7 @@ MathAtom.prototype.decomposeSurd = function(context) {
     line.maxFontSize = 1.0;
 
     let phi = ruleWidth;
-    if (mathstyle.id < Mathstyle.TEXT.id) {
+    if (mathstyle.id &lt; Mathstyle.TEXT.id) {
         phi = mathstyle.metrics.xHeight;
     }
 
@@ -736,7 +778,7 @@ MathAtom.prototype.decomposeSurd = function(context) {
     // like `\sqrt{\rlap{x}}`, but if someone is doing that they deserve for
     // it not to work.
     let body;
-    if (Span.height(inner) === 0 && Span.depth(inner) === 0) {
+    if (Span.height(inner) === 0 &amp;&amp; Span.depth(inner) === 0) {
         body = makeSpan();
     } else {
         body = makeVlist(context, [inner, lineClearance, line, ruleWidth]);
@@ -791,7 +833,7 @@ MathAtom.prototype.decomposeAccent = function(context) {
     // Note that our skew metrics are just the kern between each character
     // and the skewchar.
     let skew = 0;
-    if (this.body.length === 1 && this.body[0].isCharacterBox()) {
+    if (this.body.length === 1 &amp;&amp; this.body[0].isCharacterBox()) {
         skew = Span.skew(base);
     //     // If the base is a character box, then we want the skew of the
     //     // innermost character. To do that, we find the innermost character:
@@ -894,7 +936,7 @@ MathAtom.prototype.decomposeRule = function(context) {
 
     const result = makeOrd('', 'rule');
 
-    let shift = this.shift && !isNaN(this.shift) ? this.shift : 0; 
+    let shift = this.shift &amp;&amp; !isNaN(this.shift) ? this.shift : 0; 
     shift =  shift / mathstyle.sizeMultiplier;
     const width = (this.width) / mathstyle.sizeMultiplier;
     const height = (this.height) / mathstyle.sizeMultiplier;
@@ -944,8 +986,8 @@ MathAtom.prototype.decomposeOp = function(context) {
     const mathstyle = context.mathstyle;
 
     let large = false;
-    if (mathstyle.size === Mathstyle.DISPLAY.size &&
-        this.value && this.value !== '\\smallint') {
+    if (mathstyle.size === Mathstyle.DISPLAY.size &amp;&amp;
+        this.value &amp;&amp; this.value !== '\\smallint') {
 
         // Most symbol operators get larger in displaystyle (rule 13)
         large = true;
@@ -994,7 +1036,7 @@ MathAtom.prototype.decomposeOp = function(context) {
         const limits = this.limits || 'auto';
         if (this.alwaysHandleSupSub || 
             limits === 'limits' || 
-            (limits === 'auto' && mathstyle.size === Mathstyle.DISPLAY.size)) {
+            (limits === 'auto' &amp;&amp; mathstyle.size === Mathstyle.DISPLAY.size)) {
             return this.attachLimits(context, base, baseShift, slant);
         }
         return this.attachSupsub(context, base, 'mop');
@@ -1247,7 +1289,7 @@ MathAtom.prototype.decompose = function(context) {
     // At this point, result is a single Span
 
     // Finally, attach any necessary superscript, subscripts
-    if (!this.limits && (this.superscript || this.subscript)) {
+    if (!this.limits &amp;&amp; (this.superscript || this.subscript)) {
         // If limits is set, the attachment of sup/sub was handled
         // in the atom decomposition (e.g. decomposeOp, decomposeAccent)
         if (Array.isArray(result)) {
@@ -1266,7 +1308,7 @@ MathAtom.prototype.decompose = function(context) {
 
 MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
     // If no superscript or subscript, nothing to do.
-    if (!this.superscript && !this.subscript) return nucleus;
+    if (!this.superscript &amp;&amp; !this.subscript) return nucleus;
 
     // Superscript and subscripts are discussed in the TeXbook 
     // on page 445-446, rules 18(a-f).
@@ -1313,7 +1355,7 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
 
     let supsub = null;
     
-    if (submid && supmid) {
+    if (submid &amp;&amp; supmid) {
         // Rule 18e
         supShift = Math.max(
             supShift, minSupShift, supmid.depth + 0.25 * mathstyle.metrics.xHeight);
@@ -1321,7 +1363,7 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
 
         const ruleWidth = FONTMETRICS.defaultRuleThickness;
 
-        if ((supShift - Span.depth(supmid)) - (Span.height(submid) - subShift) <
+        if ((supShift - Span.depth(supmid)) - (Span.height(submid) - subShift) &lt;
                 4 * ruleWidth) {
             subShift = 4 * ruleWidth - (supShift - supmid.depth) + Span.height(submid);
             const psi = 0.8 * mathstyle.metrics.xHeight - (supShift - Span.depth(supmid));
@@ -1343,7 +1385,7 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
             supsub.children[0].setLeft(-Span.italic(nucleus));
         }
 
-    } else if (submid && !supmid) {
+    } else if (submid &amp;&amp; !supmid) {
         // Rule 18b
         subShift = Math.max(
             subShift, mathstyle.metrics.sub1,
@@ -1355,7 +1397,7 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
         if (this.isCharacterBox()) {
             supsub.children[0].setLeft(-Span.italic(nucleus));
         }
-    } else if (!submid && supmid) {
+    } else if (!submid &amp;&amp; supmid) {
         // Rule 18c, d
         supShift = Math.max(supShift, minSupShift,
             supmid.depth + 0.25 * mathstyle.metrics.xHeight);
@@ -1380,7 +1422,7 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
  * @method module:mathAtom.MathAtom#bind
  */
 MathAtom.prototype.bind = function(context, span) {
-    if (context.generateID && this.type !== 'first') {
+    if (context.generateID &amp;&amp; this.type !== 'first') {
         this.id = Date.now().toString(36) + 
             Math.floor(Math.random() * 0x186a0).toString(36);
 
@@ -1445,11 +1487,11 @@ MathAtom.prototype.makeSpan = function(context, body) {
         // Use either the calculcated font name or, if the font does not 
         // include the symbol, the original font associated with this symbol.
         fontName = getFontName(body, fontFamily);
-        if (!fontName && this.fontFamily) {
+        if (!fontName &amp;&amp; this.fontFamily) {
             fontFamily = this.fontFamily;
             fontName = getFontName(body, fontFamily) || fontFamily;
         }
-        if (!fontName && context.font) {
+        if (!fontName &amp;&amp; context.font) {
             fontFamily = context.font;
             fontName = getFontName(body, fontFamily) || fontFamily;
         }
@@ -1473,12 +1515,12 @@ MathAtom.prototype.makeSpan = function(context, body) {
     // 3. Get the metrics information
     //
 
-    if (body && typeof body === 'string' && body.length > 0) {
+    if (body &amp;&amp; typeof body === 'string' &amp;&amp; body.length > 0) {
         result.height = 0;
         result.depth = 0;
         result.skew = 0;
         result.italic = 0;
-        for (let i = 0; i < body.length; i++) {
+        for (let i = 0; i &lt; body.length; i++) {
             const metrics = getCharacterMetrics(body.charAt(i), fontName);
             // If we were able to get metrics info for this character, store it.
             if (metrics) {
@@ -1521,7 +1563,7 @@ MathAtom.prototype.makeSpan = function(context, body) {
     if (this.hasCaret) {
         // If this has a super/subscript, the caret will be attached
         // to the 'msupsub' atom, so no need to have it here.
-        if (!this.superscript && !this.subscript) {
+        if (!this.superscript &amp;&amp; !this.subscript) {
             result = Span.makeSpanOfType(type, result);
             result.hasCaret = true;
         }
@@ -1570,7 +1612,7 @@ MathAtom.prototype.attachLimits =
  */
 function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
     // If nothing above and nothing below, nothing to do.
-    if (!above && !below) return nucleus;
+    if (!above &amp;&amp; !below) return nucleus;
 
     // IE 8 clips \int if it is in a display: inline-block. We wrap it
     // in a new span so it is an inline, and works.
@@ -1593,7 +1635,7 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
 
     let result = null;
     
-    if (below && above) {
+    if (below &amp;&amp; above) {
         const bottom = FONTMETRICS.bigOpSpacing5 +
             Span.height(below) + Span.depth(below) +
             belowShift +
@@ -1613,7 +1655,7 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
         result.children[0].setLeft(-slant);
         result.children[2].setLeft(slant);
 
-    } else if (below && !above) {
+    } else if (below &amp;&amp; !above) {
         const top = Span.height(nucleus) - nucleusShift;
 
         result = makeVlist(context, [
@@ -1625,7 +1667,7 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
 
         // See comment above about slants
         result.children[0].setLeft(-slant);
-    } else if (!below && above) {
+    } else if (!below &amp;&amp; above) {
         const bottom = Span.depth(nucleus) + nucleusShift;
 
         result = makeVlist(context, [
@@ -1684,7 +1726,7 @@ function getFontName(symbol, fontFamily) {
         return FONT_NAME[fontFamily] || fontFamily;
     }
 
-    console.assert(symbol && typeof symbol === 'string');
+    console.assert(symbol &amp;&amp; typeof symbol === 'string');
 
     // This is a single character. Do some remapping as necessary.
 
@@ -1724,11 +1766,11 @@ function getFontName(symbol, fontFamily) {
             if (!/^[0-9A-Z ]$/.test(symbol)) return null;
 
         } else if (fontFamily === 'mathfrak') {
-            if (!/^[0-9A-Za-z ]$|^[!"#$%&'()*+,\-./:;=?[]^’‘]$/.test(symbol)) {
+            if (!/^[0-9A-Za-z ]$|^[!"#$%&amp;'()*+,\-./:;=?[]^’‘]$/.test(symbol)) {
                 return null;
             }
         } else if (fontFamily === 'mathtt' || fontFamily === 'texttt' || fontFamily === 'textsf' || fontFamily === 'mathsf') {
-            if (!/^[0-9A-Za-z ]$|^[!"&'()*+,\-./:;=?@[]^_~\u0131\u0237\u0393\u0394\u0398\u039b\u039e\u03A0\u03A3\u03A5\u03A8\u03a9’‘]$/.test(symbol)) {
+            if (!/^[0-9A-Za-z ]$|^[!"&amp;'()*+,\-./:;=?@[]^_~\u0131\u0237\u0393\u0394\u0398\u039b\u039e\u03A0\u03A3\u03A5\u03A8\u03a9’‘]$/.test(symbol)) {
                 return null;
             }
         }
@@ -1769,7 +1811,7 @@ function decompose(context, atoms) {
 
         } else if (atoms.length === 1) {
             result = atoms[0].decompose(context);
-            if (atoms[0].isSelected && result) {
+            if (atoms[0].isSelected &amp;&amp; result) {
                 const isTight = result.isTight;
                 let type = result.type;
                 if (type === 'placeholder') type = 'mord';
@@ -1785,7 +1827,7 @@ function decompose(context, atoms) {
             let selection =  [];
             let selectionType = '';
             let selectionIsTight = false;
-            for (let i = 0; i < atoms.length; i++) {
+            for (let i = 0; i &lt; atoms.length; i++) {
                 // Is this a binary operator ('+', '-', etc...) that potentially 
                 // needs to be adjusted?
                 // When preceded by a mbin, mopen, mrel, mpunct, mop or 
@@ -1801,11 +1843,11 @@ function decompose(context, atoms) {
                     }
                 }
 
-                if (result.length >= 1 && atoms[i].type === 'spacing' && atoms[i].width) {
+                if (result.length >= 1 &amp;&amp; atoms[i].type === 'spacing' &amp;&amp; atoms[i].width) {
                     // This is a manual spacing command, e.g. \hspace.
                     // Adjust the margin of the previous span
                     result[result.length - 1].addMarginRight(atoms[i].width);
-                } else if (result.length >= 1 && atoms[i].type === 'spacing') {
+                } else if (result.length >= 1 &amp;&amp; atoms[i].type === 'spacing') {
                     // This is spacing command, e.g. \,
                     // Adjust the margin of the previous span
                     const width = {
@@ -1825,7 +1867,7 @@ function decompose(context, atoms) {
                         console.assert(Array.isArray(span));
                         // Flatten it (i.e. [[a1, a2], b1, b2] -> [a1, a2, b1, b2]
                         const flat = [].concat.apply([], span);
-                        if (atoms[i].isSelected && !context.isSelected) {
+                        if (atoms[i].isSelected &amp;&amp; !context.isSelected) {
                             selection = selection.concat(flat);
                             if (!selectionType) {
                                 selectionType = span[0].type;
@@ -1852,7 +1894,7 @@ function decompose(context, atoms) {
                 // use getFinal...() and getInitial...() to get the closest
                 // atom linearly.
                 previousType = atoms[i].getFinalBaseElement().type;
-                nextType = i < atoms.length - 1 ? atoms[i + 1].getInitialBaseElement().type : 'none';
+                nextType = i &lt; atoms.length - 1 ? atoms[i + 1].getInitialBaseElement().type : 'none';
             }
             // Is there a leftover selection?
             if (selection.length > 0) {
@@ -1867,7 +1909,7 @@ function decompose(context, atoms) {
     } else if (atoms) {
         // This is a single atom, decompose it
         result = atoms.decompose(context);
-        if (atoms.isSelected && !context.isSelected) {
+        if (atoms.isSelected &amp;&amp; !context.isSelected) {
             let type = result.type;
             if (type === 'placeholder') type = 'mord';
             const span = Span.makeSpanOfType(type, result, 'ML__selected');
@@ -1880,7 +1922,7 @@ function decompose(context, atoms) {
 
     if (!result) return result;
 
-    console.assert(Array.isArray(result) && result.length > 0);
+    console.assert(Array.isArray(result) &amp;&amp; result.length > 0);
 
     // A table of size -> font size for the different sizing functions
     const SIZING_MULTIPLIER = {
@@ -1903,7 +1945,7 @@ function decompose(context, atoms) {
                 context.parentMathstyle.sizeMultiplier;
         for (const span of result) {
             console.assert(!Array.isArray(span));
-            console.assert(typeof span.height === 'number' && !isNaN(span.height));
+            console.assert(typeof span.height === 'number' &amp;&amp; !isNaN(span.height));
             span.height *= factor;
             span.depth *= factor;
         }
@@ -1915,7 +1957,7 @@ function decompose(context, atoms) {
                 SIZING_MULTIPLIER[context.parentSize];
         for (const span of result) {
             console.assert(!Array.isArray(span));
-            console.assert(typeof span.height === 'number' && !isNaN(span.height));
+            console.assert(typeof span.height === 'number' &amp;&amp; !isNaN(span.height));
             span.height *= factor;
             span.depth *= factor;
         }
@@ -1945,3 +1987,50 @@ return {
 
 
 })
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Doc created  on 2017-06-16T06:19:52.072Z
+    by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
+    using a customized <a href="https://www.npmjs.com/package/namis">Namis</a> theme.
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/jquery.nicescroll/3.6.0/jquery.nicescroll.min.js"></script> -->
+<script src="scripts/namis.search.jquery.js"></script>
+<script>prettyPrint();
+
+(function($){
+/*
+    $('nav').niceScroll({
+        cursorwidth: 7,
+        hwacceleration: true,
+        cursorcolor: "#036564",
+        cursorborder: "1px solid #036564"
+    });
+
+    $('html').niceScroll({
+        cursorwidth: 10,
+        hwacceleration: true,
+        smoothscroll: true,
+        cursorminheight: 32,
+        enablemousewheel: true, // nicescroll can manage mouse wheel events
+        enablekeyboard: true // nicescroll can manage keyboard events
+        ,cursorcolor: "#033649"
+    });
+*/
+    $('#nav').search(['className', 'methodName']);
+})(jQuery);
+</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

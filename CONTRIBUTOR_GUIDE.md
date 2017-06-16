@@ -1,12 +1,17 @@
+<h1 align="center">
+	<br>
+        <img src = "https://github.com/arnog/mathlive/blob/master/assets/logo-1024.jpg?raw=true">
+    <br>
+</h1>
+
 # MathLive Contributor Guide
 
-This guide describes the structure of the MathLive project. If you are 
-interested in contributing to the project, or if you want to better understand how
-it works you will find it useful. If you simply want to use MathLive 
-with your web content, see the [MathLive Usage Guide](USAGE_GUIDE.md).
+This guide is for developers who want to contribute to MathLive, 
+or who want to understand more in depth how it works.
+If you simply want to use MathLive with your web content, see the [MathLive Usage Guide](USAGE_GUIDE.md).
 
 ## Table of Contents
-- [Development Setup](#development-setup)
+- [Getting Started: Setting up Your Development Environment](#getting_started_setting_up_your_development_environment)
 - [Code Structure](#code-structure)
 - [Language and Coding Style](#language-and-coding-style)
 - [Naming Convention](#naming-convention)
@@ -15,7 +20,7 @@ with your web content, see the [MathLive Usage Guide](USAGE_GUIDE.md).
 - [Files](#files)
 - [Common Tasks](#common-tasks)
 
-## Development Setup
+## Getting Started: Setting up Your Development Environment
 The project uses [NPM scripts](https://docs.npmjs.com/misc/scripts) 
  for its build system. The `package.json` 
 file contains the definitions of the build scripts.

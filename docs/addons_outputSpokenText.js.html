@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>addons/outputSpokenText.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/custom.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav id="nav">
+    <h3 class="group-title"><a href="index.html">&#x3C; Home &#x3E;</a></h3><input class="search" placeholder="Search" type="text"><div class="list"><h3 class="group-title">Classes</h3><ul><li><a href="Context.html" class="className">Context</a><ul class='methods'><li data-type='method'><a href="Context.html#clone" class="methodName">clone</a></li><li data-type='method'><a href="Context.html#cloneWith" class="methodName">cloneWith</a></li><li data-type='method'><a href="Context.html#setMathstyle" class="methodName">setMathstyle</a></li><li data-type='method'><a href="Context.html#withIsSelected" class="methodName">withIsSelected</a></li><li data-type='method'><a href="Context.html#withMathstyle" class="methodName">withMathstyle</a></li></ul></li><li><a href="module-editor_editableMathlist.EditableMathlist.html" class="className">EditableMathlist</a><ul class='methods'><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#ancestor" class="methodName">ancestor</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#anchor" class="methodName">anchor</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#commandOffsets" class="methodName">commandOffsets</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#commitCommandStringBeforeInsertionPoint" class="methodName">commitCommandStringBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#contains" class="methodName">contains</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#decorateCommandStringAroundInsertionPoint" class="methodName">decorateCommandStringAroundInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#delete" class="methodName">delete</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#delete_" class="methodName">delete_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#endOffset" class="methodName">endOffset</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extend" class="methodName">extend</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extract" class="methodName">extract</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractCommandStringAroundInsertionPoint" class="methodName">extractCommandStringAroundInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractContents" class="methodName">extractContents</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractContentsOrdInGroupBeforeInsertionPoint" class="methodName">extractContentsOrdInGroupBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractGroupStringBeforeInsertionPoint" class="methodName">extractGroupStringBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#filter" class="methodName">filter</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#insert" class="methodName">insert</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#insertFirstAtom" class="methodName">insertFirstAtom</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#isCollapsed" class="methodName">isCollapsed</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#jump" class="methodName">jump</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#leap" class="methodName">leap</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToOpposite_" class="methodName">moveToOpposite_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToSubscript_" class="methodName">moveToSubscript_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToSuperscript_" class="methodName">moveToSuperscript_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#next" class="methodName">next</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#selectAll_" class="methodName">selectAll_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#selectGroup_" class="methodName">selectGroup_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setExtent" class="methodName">setExtent</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setRange" class="methodName">setRange</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setSelection" class="methodName">setSelection</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#sibling" class="methodName">sibling</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#siblings" class="methodName">siblings</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#skip" class="methodName">skip</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#startOffset" class="methodName">startOffset</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#toString" class="methodName">toString</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#transpose_" class="methodName">transpose_</a></li></ul></li><li><a href="module-editor_mathfield.MathField.html" class="className">MathField</a><ul class='methods'><li data-type='method'><a href="module-editor_mathfield.MathField.html#_getCaretPosition" class="methodName">_getCaretPosition</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#_onKeystroke" class="methodName">_onKeystroke</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#complete_" class="methodName">complete_</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#config" class="methodName">config</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#enterCommandMode_" class="methodName">enterCommandMode_</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#keystroke" class="methodName">keystroke</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#latex" class="methodName">latex</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#text" class="methodName">text</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#typedText" class="methodName">typedText</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#write" class="methodName">write</a></li></ul></li><li><a href="module-lexer.Lexer.html" class="className">Lexer</a><ul class='methods'><li data-type='method'><a href="module-lexer.Lexer.html#end" class="methodName">end</a></li><li data-type='method'><a href="module-lexer.Lexer.html#get" class="methodName">get</a></li><li data-type='method'><a href="module-lexer.Lexer.html#isWhiteSpace" class="methodName">isWhiteSpace</a></li><li data-type='method'><a href="module-lexer.Lexer.html#makeToken" class="methodName">makeToken</a></li><li data-type='method'><a href="module-lexer.Lexer.html#peek" class="methodName">peek</a></li><li data-type='method'><a href="module-lexer.Lexer.html#scan" class="methodName">scan</a></li></ul></li><li><a href="module-lexer.Token.html" class="className">Token</a></li><li><a href="module-mathAtom.MathAtom.html" class="className">MathAtom</a><ul class='methods'><li data-type='method'><a href="module-mathAtom.MathAtom.html#bind" class="methodName">bind</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decompose" class="methodName">decompose</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeGenfrac" class="methodName">decomposeGenfrac</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeLeftright" class="methodName">decomposeLeftright</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeLine" class="methodName">decomposeLine</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#filter" class="methodName">filter</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#makeSpan" class="methodName">makeSpan</a></li></ul></li><li><a href="module-parser.Parser.html" class="className">Parser</a><ul class='methods'><li data-type='method'><a href="module-parser.Parser.html#hasToken" class="methodName">hasToken</a></li><li data-type='method'><a href="module-parser.Parser.html#lastMathAtom" class="methodName">lastMathAtom</a></li><li data-type='method'><a href="module-parser.Parser.html#parseAtom" class="methodName">parseAtom</a></li><li data-type='method'><a href="module-parser.Parser.html#parseKeyword" class="methodName">parseKeyword</a></li><li data-type='method'><a href="module-parser.Parser.html#parseLimits" class="methodName">parseLimits</a></li><li data-type='method'><a href="module-parser.Parser.html#parseSupSub" class="methodName">parseSupSub</a></li><li data-type='method'><a href="module-parser.Parser.html#parseToken" class="methodName">parseToken</a></li><li data-type='method'><a href="module-parser.Parser.html#scanArg" class="methodName">scanArg</a></li><li data-type='method'><a href="module-parser.Parser.html#scanColor" class="methodName">scanColor</a></li><li data-type='method'><a href="module-parser.Parser.html#scanDimen" class="methodName">scanDimen</a></li><li data-type='method'><a href="module-parser.Parser.html#scanEnvironment" class="methodName">scanEnvironment</a></li><li data-type='method'><a href="module-parser.Parser.html#scanGroup" class="methodName">scanGroup</a></li><li data-type='method'><a href="module-parser.Parser.html#scanImplicitGroup" class="methodName">scanImplicitGroup</a></li><li data-type='method'><a href="module-parser.Parser.html#scanLeftRight" class="methodName">scanLeftRight</a></li><li data-type='method'><a href="module-parser.Parser.html#scanModeSet" class="methodName">scanModeSet</a></li><li data-type='method'><a href="module-parser.Parser.html#scanModeShift" class="methodName">scanModeShift</a></li><li data-type='method'><a href="module-parser.Parser.html#scanNumber" class="methodName">scanNumber</a></li><li data-type='method'><a href="module-parser.Parser.html#scanString" class="methodName">scanString</a></li><li data-type='method'><a href="module-parser.Parser.html#scanToken" class="methodName">scanToken</a></li></ul></li><li><a href="module-span.Span.html" class="className">Span</a><ul class='methods'><li data-type='method'><a href="module-span.Span.html#setStyle" class="methodName">setStyle</a></li><li data-type='method'><a href="module-span.Span.html#toMarkup" class="methodName">toMarkup</a></li><li data-type='method'><a href="module-span.Span.html#tryCoalesceWith" class="methodName">tryCoalesceWith</a></li><li data-type='method'><a href="module-span.Span.html#updateDimensions" class="methodName">updateDimensions</a></li></ul></li></ul><h3 class="group-title">Modules</h3><ul><li><a href="module-color.html" class="className">color</a><ul class='methods'><li data-type='method'><a href="module-color.html#.stringToColor" class="methodName">stringToColor</a></li></ul></li><li><a href="module-delimiters.html" class="className">delimiters</a><ul class='methods'><li data-type='method'><a href="module-delimiters.html#.makeCustomSizedDelim" class="methodName">makeCustomSizedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeInner" class="methodName">makeInner</a></li><li data-type='method'><a href="module-delimiters.html#.makeLargeDelim" class="methodName">makeLargeDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeLeftRightDelim" class="methodName">makeLeftRightDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeNullFence" class="methodName">makeNullFence</a></li><li data-type='method'><a href="module-delimiters.html#.makeSizedDelim" class="methodName">makeSizedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeSmallDelim" class="methodName">makeSmallDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeStackedDelim" class="methodName">makeStackedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.traverseSequence" class="methodName">traverseSequence</a></li></ul></li><li><a href="module-editor_commands.html" class="className">editor_commands</a><ul class='methods'><li data-type='method'><a href="module-editor_commands.html#.suggest" class="methodName">suggest</a></li></ul></li><li><a href="module-editor_editableMathlist.html" class="className">editor_editableMathlist</a><ul class='methods'><li data-type='method'><a href="module-editor_editableMathlist.html#.atomContains" class="methodName">atomContains</a></li></ul></li><li><a href="module-editor_mathfield.html" class="className">editor_mathfield</a><ul class='methods'><li data-type='method'><a href="module-editor_mathfield.html#_findElementWithCaret" class="methodName">_findElementWithCaret</a></li><li data-type='method'><a href="module-editor_mathfield.html#nearestElementFromPoint" class="methodName">nearestElementFromPoint</a></li></ul></li><li><a href="module-fontMetrics.html" class="className">fontMetrics</a><ul class='methods'><li data-type='method'><a href="module-fontMetrics.html#.getCharacterMetrics" class="methodName">getCharacterMetrics</a></li></ul></li><li><a href="module-lexer.html" class="className">lexer</a><ul class='methods'><li data-type='method'><a href="module-lexer.html#.tokenize" class="methodName">tokenize</a></li></ul></li><li><a href="module-mathAtom.html" class="className">mathAtom</a><ul class='methods'><li data-type='method'><a href="module-mathAtom.html#.decompose" class="methodName">decompose</a></li><li data-type='method'><a href="module-mathAtom.html#.getFontName" class="methodName">getFontName</a></li><li data-type='method'><a href="module-mathAtom.html#.makeColGap" class="methodName">makeColGap</a></li><li data-type='method'><a href="module-mathAtom.html#.makeColOfRepeatingElements" class="methodName">makeColOfRepeatingElements</a></li><li data-type='method'><a href="module-mathAtom.html#.makeStack" class="methodName">makeStack</a></li></ul></li><li><a href="module-mathstyle.html" class="className">mathstyle</a><ul class='methods'><li data-type='method'><a href="module-mathstyle.html#.toMathstyle" class="methodName">toMathstyle</a></li></ul></li><li><a href="module-parser.html" class="className">parser</a><ul class='methods'><li data-type='method'><a href="module-parser.html#.hasImplicitGroupEnd" class="methodName">hasImplicitGroupEnd</a></li></ul></li><li><a href="module-span.html" class="className">span</a><ul class='methods'><li data-type='method'><a href="module-span.html#.coalesce" class="methodName">coalesce</a></li><li data-type='method'><a href="module-span.html#.makeFontSizer" class="methodName">makeFontSizer</a></li><li data-type='method'><a href="module-span.html#.makeHlist" class="methodName">makeHlist</a></li><li data-type='method'><a href="module-span.html#.makeSpan" class="methodName">makeSpan</a></li><li data-type='method'><a href="module-span.html#.makeSpanOfType" class="methodName">makeSpanOfType</a></li><li data-type='method'><a href="module-span.html#.makeSymbol" class="methodName">makeSymbol</a></li><li data-type='method'><a href="module-span.html#.makeVlist" class="methodName">makeVlist</a></li><li data-type='method'><a href="module-span.html#.toString" class="methodName">toString</a></li></ul></li></ul></div>
+</nav>
+
+<div id="main">
+    
+        <h1 class="page-title">addons/outputSpokenText.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>
+
+
+define(['mathlive/core/mathAtom', 'mathlive/core/definitions'], function(MathAtom, Definitions) {
+
+const PRONUNCIATION = {
+    '\\alpha':      ' alpha ',
+    '\\mu':         ' mew ',
+    '\\sigma':      ' sigma ',
+    '\\pi':         ' pie ',
+    '\\imaginaryI':   ' eye ',
+
+    '\\sum':        ' Summation ',
+    '\\prod':       ' Product ',
+
+    '|':            ' Vertical bar.',
+    '(':            ' Open paren. [[slnc 150]]',
+    ')':            ' [[slnc 150]] Close paren.',
+    '=':            ' [[slnc 150]] equals ',
+    '\\lt':         ' [[slnc 150]] is less than ',
+    '\\le':         ' [[slnc 150]] is less than or equal to ',
+    '\\gt':         ' [[slnc 150]] is greater than ',
+    '\\ge':         ' [[slnc 150]] is greater than or equal to ',
+    '\\geq':        ' [[slnc 150]]is greater than or equal to ',
+    '\\leq':        ' [[slnc 150]]is less than or equal to ',
+    '!':            ' factorial ',
+    '\\sin':        ' sine ',
+    '\\cos':        ' cosine ',
+    '\u200b':       '',
+    '\u2212':       ' minus ',
+    '\\colon':      '[[slnc 150]] such that [[slnc 200]]',
+    '\\hbar':       'etch bar',
+    '\\iff':         ' if and only if ',
+    '\\land':       ' and ',
+    '\\lor':        ' or ',
+    '\\neg':        ' not ',
+    
+    '\\forall':     ' for all ',
+    '\\exists':     ' there exists ',
+    '\\nexists':    ' there does not exists ',
+
+    '\\in':         ' element of ',
+
+    '\\N':          ' the set [[char LTRL]]n[[char NORM]]',
+    '\\C':          ' the set [[char LTRL]]c[[char NORM]]',
+    '\\Z':          ' the set [[char LTRL]]z[[char NORM]]',
+    '\\Q':          ' the set [[char LTRL]]q[[char NORM]]',
+
+    '\\infty':      ' infinity ',
+
+    '\\nabla':      ' nabla ',
+
+    '\\partial':    ' partial derivative of ',
+
+    '\\cdots':      ' dot dot dot ',
+    
+}
+
+
+function platform(p) {
+    let result = 'other';
+    if (navigator &amp;&amp; navigator.platform &amp;&amp; navigator.userAgent) {
+        if (/^(mac)/i.test(navigator.platform)) {
+            result = 'mac';
+        } else if (/^(win)/i.test(navigator.platform)) {
+            result = 'win';
+        } else if (/(android)/i.test(navigator.userAgent)) {
+            result = 'android';
+        } else if (/(iphone)/i.test(navigator.userAgent) ||
+                    /(ipod)/i.test(navigator.userAgent) ||
+                    /(ipad)/i.test(navigator.userAgent)) {
+            result = 'ios';
+        } else if (/\bCrOS\b/i.test(navigator.userAgent)) {
+            result = 'chromeos';
+        }
+    }
+
+    return result === p ? p : '!' + p;
+}
+
+
+function isAtomic(mathlist) {
+    let count = 0;
+    if (mathlist &amp;&amp; Array.isArray(mathlist)) {
+        for (const atom of mathlist) {
+            if (atom.type !== 'first') {
+                count += 1;
+            }
+        }
+    }
+    return count === 1;
+}
+
+function atomicValue(mathlist) {
+    let result = '';
+    if (mathlist &amp;&amp; Array.isArray(mathlist)) {
+        for (const atom of mathlist) {
+            if (atom.type !== 'first') {
+                result += atom.value;
+            }
+        }
+    }
+    return result;
+}
+
+
+
+// See https://pdfs.semanticscholar.org/8887/25b82b8dbb45dd4dd69b36a65f092864adb0.pdf
+
+// "&lt;audio src='non_existing_file.au'>File could not be played.&lt;/audio>"
+
+// "I am now &lt;prosody rate='+0.06'>speaking 6% faster.&lt;/prosody>"
+
+// https://stackoverflow.com/questions/16635653/ssml-using-chrome-tts
+
+// https://developer.apple.com/library/content/documentation/UserExperience/Conceptual/SpeechSynthesisProgrammingGuide/FineTuning/FineTuning.html#//apple_ref/doc/uid/TP40004365-CH5-SW3
+
+// https://pdfs.semanticscholar.org/8887/25b82b8dbb45dd4dd69b36a65f092864adb0.pdf
+
+MathAtom.MathAtom.prototype.toSpeakableText = function(atom) {
+    return MathAtom.toSpeakableFragment(atom, {markup: false});
+}
+
+MathAtom.toSpeakableFragment = function(atom, options) {
+function letter(c) {
+    let result = '';
+    if (!options.markup) {
+        if (/[a-z]/.test(c)) {
+            result += ' "' + c.toUpperCase() + '"';
+            // result += ' "' + atom.value.toUpperCase() + '"';
+        } else if (/[A-Z]/.test(c)) {
+            result += ' "capital ' + c.toUpperCase() + '"';
+        } else {
+            result += c;
+        }
+    } else {
+        if (/[a-z]/.test(c)) {
+            result += ' [[char LTRL]]' + c + '[[char NORM]]';
+            // result += ' "' + atom.value.toUpperCase() + '"';
+        } else if (/[A-Z]/.test(c)) {
+            result += 'capital ' + c.toLowerCase() + '';
+        } else {
+            result += c;
+        }
+    }
+    return result;
+}
+
+function emph(s) {
+    // if (options.markup === 'ssml') {
+    // } else 
+    if (options.markup) {
+        return '[[emph +]]' + s;
+    }
+    return s;
+}
+
+
+    let result = '';
+    if (Array.isArray(atom)) {
+        for (let i = 0; i &lt; atom.length; i++) {
+            if (i &lt; atom.length - 2 &amp;&amp;  
+                atom[i].type === 'mopen' &amp;&amp; 
+                atom[i + 2].type === 'mclose' &amp;&amp;
+                atom[i + 1].type === 'mord') {
+                result += ' of ';
+                result += emph(MathAtom.toSpeakableFragment(atom[i + 1], options));
+                i += 2;
+            } else {
+                result += MathAtom.toSpeakableFragment(atom[i], options);
+            }
+        }
+    } else {
+        const markup = typeof options.markup === 'undefined' ? false : options.markup;
+        let numer = '';
+        let denom = '';
+        let body = '';
+        let supsubHandled = false;
+        switch(atom.type) {
+            case 'group':
+            case 'root':
+                result += MathAtom.toSpeakableFragment(atom.children, options);
+                break;
+
+            case 'genfrac':
+                numer = MathAtom.toSpeakableFragment(atom.numer, options);
+                denom = MathAtom.toSpeakableFragment(atom.denom, options);
+                if (isAtomic(atom.numer) &amp;&amp; isAtomic(atom.denom)) {
+                    const COMMON_FRACTIONS = {
+                        '1/2':      ' half ',
+                        '1/3':      ' one third ',
+                        '2/3':      ' two third',
+                        '1/4':      ' one quarter ',
+                        '3/4':      ' three quarter ',
+                        '1/5':      ' one fifth ',
+                        '2/5':      ' two fifths ',
+                        '3/5':      ' three fifths ',
+                        '4/5':      ' four fifths ',
+                        '1/6':      ' one sixth ',
+                        '5/6':      ' five sixts ',
+                        '1/8':      ' one eight ',
+                        '3/8':      ' three eights ',
+                        '5/8':      ' five eights ',
+                        '7/8':      ' seven eights ',
+                        '1/9':      ' one ninth ',
+                        '2/9':      ' two ninths ',
+                        '4/9':      ' four ninths ',
+                        '5/9':      ' five ninths ',
+                        '7/9':      ' seven ninths ',
+                        '8/9':      ' eight ninths ',
+                        // '1/10':     ' one tenth ',
+                        // '1/12':     ' one twelfth ',
+                        'x/2':     ' half [[char LTRL]] X [[char NORM]] ',
+                        // '/2':     ' half [[char LTRL]] X [[char NORM]] ',
+                        // 'x/3':     ' a third of [[char LTRL]] X [[char NORM]] ',
+                    };
+                    const commonFraction = COMMON_FRACTIONS[
+                        atomicValue(atom.numer) + '/' + atomicValue(atom.denom)];
+                    if (commonFraction) {
+                        result = commonFraction;
+                    } else {
+                        result += numer + ' over ' + denom + ' ';
+                    }
+                } else {
+                    result += ' The fraction [[slnc 200]]' + numer + ', over [[slnc 150]]' + denom + '. End fraction.';
+                }
+
+                break;
+            case 'surd':
+                body = MathAtom.toSpeakableFragment(atom.body, options);
+                
+                if (!atom.index) {
+                    if (isAtomic(atom.body)) {
+                        result += ' square root of ' + body + ' , ';
+                    } else {
+                        result += ' The square root of ' + body + ' . End square root.';
+                    }
+                } else {
+                    let index = MathAtom.toSpeakableFragment(atom.index, options);
+                    index = index.trim();
+                    if (index === '3') {
+                        result += ' The cube root of ' + body + ' . End cube root.';
+                    } else if (index === 'n') {
+                        result += ' The nth root of ' + body + ' . End root.';
+                    } else {
+                        result += ' root with index: ' + index + ', of :' + body + ' . End root.';
+                    }
+                }
+                break;
+            case 'accent':
+                break;
+            case 'leftright':
+                result += atom.leftDelim;
+                result += MathAtom.toSpeakableFragment(atom.body, options);
+                result +=  atom.rightDelim;
+                break;
+            case 'delim':
+            case 'sizeddelim':
+                // @todo
+                break;
+            case 'line':
+                // @todo
+                break;
+            case 'rule':
+                // @todo
+                break;
+            case 'overunder':
+                // @todo
+                break;
+            case 'overlap':
+                // @todo
+                break;
+            case 'mord':
+            case 'minner':
+            case 'mbin':
+            case 'mrel':
+            case 'mpunct':
+            case 'mopen':
+            case 'mclose':
+            case 'textord':
+                if (options.mode === 'text') {
+                    result += atom.value;
+                } else {
+                    if (atom.type === 'mbin') {
+                        result += '[[slnc 150]]';
+                    }
+
+                    if (atom.value) {
+                        const value = PRONUNCIATION[atom.value] || 
+                            (atom.latex ? PRONUNCIATION[atom.latex.trim()] : '');
+                        if (value) {
+                            result += ' ' + value;
+                        } else {
+                            const spokenName = atom.latex ? 
+                                Definitions.getSpokenName(atom.latex.trim()) : '';
+                            
+                            result += spokenName ? spokenName : letter(atom.value);
+                        }
+                    } else {
+                        result += MathAtom.toSpeakableFragment(atom.children, options);
+                    }
+                    if (atom.type === 'mbin') {
+                        result += '[[slnc 150]]';
+                    }
+                }
+                break;
+            case 'op':
+            case 'mop':
+            // @todo
+                if (atom.value !== '\u200b') {
+                    // Not ZERO-WIDTH
+                    const trimLatex = atom.latex ? atom.latex.trim() : '' ;
+                    if (trimLatex === '\\sum') {
+                        if (atom.superscript &amp;&amp; atom.subscript) {
+                            let sup = MathAtom.toSpeakableFragment(atom.superscript, options);
+                            sup = sup.trim();
+                            let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
+                            sub = sub.trim();
+                            result += ' The summation from ' + sub + ' to  [[slnc 150]]' + sup + ' of [[slnc 150]]';
+                            supsubHandled = true;
+                        } else {
+                            result += ' The summation  of';
+                        }
+                    } else if (trimLatex === '\\prod') {
+                        if (atom.superscript &amp;&amp; atom.subscript) {
+                            let sup = MathAtom.toSpeakableFragment(atom.superscript, options);
+                            sup = sup.trim();
+                            let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
+                            sub = sub.trim();
+                            result += ' The product from ' + sub + ' to ' + sup + ' of [[slnc 150]]';
+                            supsubHandled = true;
+                        } else {
+                            result += ' The product  of ';
+                        }
+                    } else if (trimLatex === '\\int') {
+                        if (atom.superscript &amp;&amp; atom.subscript) {
+                            let sup = MathAtom.toSpeakableFragment(atom.superscript, options);
+                            sup = sup.trim();
+                            let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
+                            sub = sub.trim();
+                            result += ' The integral from ' + emph(sub) + ' to ' + emph(sup) + ' [[slnc 200]] of ';
+                            supsubHandled = true;
+                        } else {
+                            result += ' integral ';
+                        }
+                    } else if (atom.value) {
+                        const value = PRONUNCIATION[atom.value] || 
+                            PRONUNCIATION[atom.latex.trim()];
+                        if (value) {
+                            result += value;
+                        } else {
+                            result += ' ' + atom.value;
+                        }
+                    } else if (atom.latex &amp;&amp; atom.latex.length > 0) {
+                        if (atom.latex[0] === '\\') {
+                            result += ' ' + atom.latex.substr(1);
+                        } else {
+                            result += ' ' + atom.latex;
+                        }
+                    }
+                }
+                break;
+            case 'font':
+                options.mode = 'text';
+                result += '[[slnc 150]]';
+                result += MathAtom.toSpeakableFragment(atom.body, options);
+                result += '[[slnc 150]]';
+                options.mode = 'math';
+                break;
+
+            case 'space':
+            case 'spacing':
+            case 'color':
+            case 'sizing':
+            case 'mathstyle':
+            case 'box':
+                // @todo
+                break;
+                
+        }
+        if (!supsubHandled &amp;&amp; atom.superscript) {
+            let sup = MathAtom.toSpeakableFragment(atom.superscript, options);
+            sup = sup.trim();
+            if (isAtomic(atom.superscript)) {
+                if (sup === '\u2032') {
+                    result += ' prime ';
+                } else if (sup === '2') {
+                    result += ' squared ';
+                } else if (sup === '3') {
+                    result += ' cubed ';                
+                } else {
+                    result += ' to the ' + sup + '; ';
+                }
+            } else {
+                result += ' raised to the [[pbas +4]]' + sup + ' [[pbas -4]] power. ';
+            }
+        }
+        if (!supsubHandled &amp;&amp; atom.subscript) {
+            let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
+            sub = sub.trim();
+            if (isAtomic(atom.subscript)) {
+                result += ' sub ' + sub;
+            } else {
+                result += ' subscript ' + sub + '. End subscript. ';
+            }
+        }
+        // If no markup was requested, remove any that we may have
+        if (markup === 'ssml') {
+            // @todo: convert VoiceOver markup to SSML
+        } else if (!markup) {
+            result = result.replace(/\[\[[^\]]*\]\]/g, '');
+        }
+    }
+
+
+    return result;
+}
+
+
+/**
+ * @param {MathAtom[]}  [atoms] The atoms to represent as speakable text.
+ * If omitted, `this` is used.
+ * @param {Object.&lt;string, any>} [options]
+*/
+MathAtom.toSpeakableText = function(atoms, options) {
+    if (!options) {
+        options = {
+            markup: false
+        }
+    }
+    let result = '';
+    if (options.markup === 'ssml') {
+        result = `&lt;!-- ?xml version="1.0"? -->
+&lt;speak xmlns="http://www.w3.org/2001/10/synthesis"
+version="1.0">&lt;p>&lt;s xml:lang="en-US">`;
+    } else if (options.markup) {
+        if (platform('mac') === '!mac') {
+            options.markup = false;
+        }
+    }
+
+    result += MathAtom.toSpeakableFragment(atoms, options);
+
+    result += '.';
+
+    if (options.markup === 'ssml') {
+        result += '&lt;/s>&lt;/p>&lt;/speak>';
+    }
+    return result;
+
+}
+
+// Export the public interface for this module
+return {}
+})
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Doc created  on 2017-06-16T06:19:52.071Z
+    by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
+    using a customized <a href="https://www.npmjs.com/package/namis">Namis</a> theme.
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/jquery.nicescroll/3.6.0/jquery.nicescroll.min.js"></script> -->
+<script src="scripts/namis.search.jquery.js"></script>
+<script>prettyPrint();
+
+(function($){
+/*
+    $('nav').niceScroll({
+        cursorwidth: 7,
+        hwacceleration: true,
+        cursorcolor: "#036564",
+        cursorborder: "1px solid #036564"
+    });
+
+    $('html').niceScroll({
+        cursorwidth: 10,
+        hwacceleration: true,
+        smoothscroll: true,
+        cursorminheight: 32,
+        enablemousewheel: true, // nicescroll can manage mouse wheel events
+        enablekeyboard: true // nicescroll can manage keyboard events
+        ,cursorcolor: "#033649"
+    });
+*/
+    $('#nav').search(['className', 'methodName']);
+})(jQuery);
+</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

@@ -9,8 +9,8 @@
         "excludePattern": "(^|\\/|\\\\)_"
     },
     "plugins": [
-        "plugins/markdown",
-        "plugins/underscore"
+        "plugins/markdown"
+//        "plugins/underscore"          // To remove functions that start with _
     ],
     "templates": {
         "cleverLinks": false,
@@ -18,10 +18,12 @@
         "linenums": true
     },
     "opts": {
+        "access": "all",        //  use "public" to ommit the private symbols
         "template": "node_modules/namis",
         "encoding": "utf8",               // same as -e utf8
         "recurse": true,                  // same as -r
-        "destination": "./build/docs",
-        "readme": "CONTRIBUTOR_GUIDE.md"
+        "destination": "./docs",
+        "readme": "CONTRIBUTOR_GUIDE.md",
+        "sort": false
     }
 }

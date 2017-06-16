@@ -1,4 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>core/parser.js - Documentation</title>
 
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/custom.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav id="nav">
+    <h3 class="group-title"><a href="index.html">&#x3C; Home &#x3E;</a></h3><input class="search" placeholder="Search" type="text"><div class="list"><h3 class="group-title">Classes</h3><ul><li><a href="Context.html" class="className">Context</a><ul class='methods'><li data-type='method'><a href="Context.html#clone" class="methodName">clone</a></li><li data-type='method'><a href="Context.html#cloneWith" class="methodName">cloneWith</a></li><li data-type='method'><a href="Context.html#setMathstyle" class="methodName">setMathstyle</a></li><li data-type='method'><a href="Context.html#withIsSelected" class="methodName">withIsSelected</a></li><li data-type='method'><a href="Context.html#withMathstyle" class="methodName">withMathstyle</a></li></ul></li><li><a href="module-editor_editableMathlist.EditableMathlist.html" class="className">EditableMathlist</a><ul class='methods'><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#ancestor" class="methodName">ancestor</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#anchor" class="methodName">anchor</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#commandOffsets" class="methodName">commandOffsets</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#commitCommandStringBeforeInsertionPoint" class="methodName">commitCommandStringBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#contains" class="methodName">contains</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#decorateCommandStringAroundInsertionPoint" class="methodName">decorateCommandStringAroundInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#delete" class="methodName">delete</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#delete_" class="methodName">delete_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#endOffset" class="methodName">endOffset</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extend" class="methodName">extend</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extract" class="methodName">extract</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractCommandStringAroundInsertionPoint" class="methodName">extractCommandStringAroundInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractContents" class="methodName">extractContents</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractContentsOrdInGroupBeforeInsertionPoint" class="methodName">extractContentsOrdInGroupBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractGroupStringBeforeInsertionPoint" class="methodName">extractGroupStringBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#filter" class="methodName">filter</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#insert" class="methodName">insert</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#insertFirstAtom" class="methodName">insertFirstAtom</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#isCollapsed" class="methodName">isCollapsed</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#jump" class="methodName">jump</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#leap" class="methodName">leap</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToOpposite_" class="methodName">moveToOpposite_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToSubscript_" class="methodName">moveToSubscript_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToSuperscript_" class="methodName">moveToSuperscript_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#next" class="methodName">next</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#selectAll_" class="methodName">selectAll_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#selectGroup_" class="methodName">selectGroup_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setExtent" class="methodName">setExtent</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setRange" class="methodName">setRange</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setSelection" class="methodName">setSelection</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#sibling" class="methodName">sibling</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#siblings" class="methodName">siblings</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#skip" class="methodName">skip</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#startOffset" class="methodName">startOffset</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#toString" class="methodName">toString</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#transpose_" class="methodName">transpose_</a></li></ul></li><li><a href="module-editor_mathfield.MathField.html" class="className">MathField</a><ul class='methods'><li data-type='method'><a href="module-editor_mathfield.MathField.html#_getCaretPosition" class="methodName">_getCaretPosition</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#_onKeystroke" class="methodName">_onKeystroke</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#complete_" class="methodName">complete_</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#config" class="methodName">config</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#enterCommandMode_" class="methodName">enterCommandMode_</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#keystroke" class="methodName">keystroke</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#latex" class="methodName">latex</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#text" class="methodName">text</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#typedText" class="methodName">typedText</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#write" class="methodName">write</a></li></ul></li><li><a href="module-lexer.Lexer.html" class="className">Lexer</a><ul class='methods'><li data-type='method'><a href="module-lexer.Lexer.html#end" class="methodName">end</a></li><li data-type='method'><a href="module-lexer.Lexer.html#get" class="methodName">get</a></li><li data-type='method'><a href="module-lexer.Lexer.html#isWhiteSpace" class="methodName">isWhiteSpace</a></li><li data-type='method'><a href="module-lexer.Lexer.html#makeToken" class="methodName">makeToken</a></li><li data-type='method'><a href="module-lexer.Lexer.html#peek" class="methodName">peek</a></li><li data-type='method'><a href="module-lexer.Lexer.html#scan" class="methodName">scan</a></li></ul></li><li><a href="module-lexer.Token.html" class="className">Token</a></li><li><a href="module-mathAtom.MathAtom.html" class="className">MathAtom</a><ul class='methods'><li data-type='method'><a href="module-mathAtom.MathAtom.html#bind" class="methodName">bind</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decompose" class="methodName">decompose</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeGenfrac" class="methodName">decomposeGenfrac</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeLeftright" class="methodName">decomposeLeftright</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeLine" class="methodName">decomposeLine</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#filter" class="methodName">filter</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#makeSpan" class="methodName">makeSpan</a></li></ul></li><li><a href="module-parser.Parser.html" class="className">Parser</a><ul class='methods'><li data-type='method'><a href="module-parser.Parser.html#hasToken" class="methodName">hasToken</a></li><li data-type='method'><a href="module-parser.Parser.html#lastMathAtom" class="methodName">lastMathAtom</a></li><li data-type='method'><a href="module-parser.Parser.html#parseAtom" class="methodName">parseAtom</a></li><li data-type='method'><a href="module-parser.Parser.html#parseKeyword" class="methodName">parseKeyword</a></li><li data-type='method'><a href="module-parser.Parser.html#parseLimits" class="methodName">parseLimits</a></li><li data-type='method'><a href="module-parser.Parser.html#parseSupSub" class="methodName">parseSupSub</a></li><li data-type='method'><a href="module-parser.Parser.html#parseToken" class="methodName">parseToken</a></li><li data-type='method'><a href="module-parser.Parser.html#scanArg" class="methodName">scanArg</a></li><li data-type='method'><a href="module-parser.Parser.html#scanColor" class="methodName">scanColor</a></li><li data-type='method'><a href="module-parser.Parser.html#scanDimen" class="methodName">scanDimen</a></li><li data-type='method'><a href="module-parser.Parser.html#scanEnvironment" class="methodName">scanEnvironment</a></li><li data-type='method'><a href="module-parser.Parser.html#scanGroup" class="methodName">scanGroup</a></li><li data-type='method'><a href="module-parser.Parser.html#scanImplicitGroup" class="methodName">scanImplicitGroup</a></li><li data-type='method'><a href="module-parser.Parser.html#scanLeftRight" class="methodName">scanLeftRight</a></li><li data-type='method'><a href="module-parser.Parser.html#scanModeSet" class="methodName">scanModeSet</a></li><li data-type='method'><a href="module-parser.Parser.html#scanModeShift" class="methodName">scanModeShift</a></li><li data-type='method'><a href="module-parser.Parser.html#scanNumber" class="methodName">scanNumber</a></li><li data-type='method'><a href="module-parser.Parser.html#scanString" class="methodName">scanString</a></li><li data-type='method'><a href="module-parser.Parser.html#scanToken" class="methodName">scanToken</a></li></ul></li><li><a href="module-span.Span.html" class="className">Span</a><ul class='methods'><li data-type='method'><a href="module-span.Span.html#setStyle" class="methodName">setStyle</a></li><li data-type='method'><a href="module-span.Span.html#toMarkup" class="methodName">toMarkup</a></li><li data-type='method'><a href="module-span.Span.html#tryCoalesceWith" class="methodName">tryCoalesceWith</a></li><li data-type='method'><a href="module-span.Span.html#updateDimensions" class="methodName">updateDimensions</a></li></ul></li></ul><h3 class="group-title">Modules</h3><ul><li><a href="module-color.html" class="className">color</a><ul class='methods'><li data-type='method'><a href="module-color.html#.stringToColor" class="methodName">stringToColor</a></li></ul></li><li><a href="module-delimiters.html" class="className">delimiters</a><ul class='methods'><li data-type='method'><a href="module-delimiters.html#.makeCustomSizedDelim" class="methodName">makeCustomSizedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeInner" class="methodName">makeInner</a></li><li data-type='method'><a href="module-delimiters.html#.makeLargeDelim" class="methodName">makeLargeDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeLeftRightDelim" class="methodName">makeLeftRightDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeNullFence" class="methodName">makeNullFence</a></li><li data-type='method'><a href="module-delimiters.html#.makeSizedDelim" class="methodName">makeSizedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeSmallDelim" class="methodName">makeSmallDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeStackedDelim" class="methodName">makeStackedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.traverseSequence" class="methodName">traverseSequence</a></li></ul></li><li><a href="module-editor_commands.html" class="className">editor_commands</a><ul class='methods'><li data-type='method'><a href="module-editor_commands.html#.suggest" class="methodName">suggest</a></li></ul></li><li><a href="module-editor_editableMathlist.html" class="className">editor_editableMathlist</a><ul class='methods'><li data-type='method'><a href="module-editor_editableMathlist.html#.atomContains" class="methodName">atomContains</a></li></ul></li><li><a href="module-editor_mathfield.html" class="className">editor_mathfield</a><ul class='methods'><li data-type='method'><a href="module-editor_mathfield.html#_findElementWithCaret" class="methodName">_findElementWithCaret</a></li><li data-type='method'><a href="module-editor_mathfield.html#nearestElementFromPoint" class="methodName">nearestElementFromPoint</a></li></ul></li><li><a href="module-fontMetrics.html" class="className">fontMetrics</a><ul class='methods'><li data-type='method'><a href="module-fontMetrics.html#.getCharacterMetrics" class="methodName">getCharacterMetrics</a></li></ul></li><li><a href="module-lexer.html" class="className">lexer</a><ul class='methods'><li data-type='method'><a href="module-lexer.html#.tokenize" class="methodName">tokenize</a></li></ul></li><li><a href="module-mathAtom.html" class="className">mathAtom</a><ul class='methods'><li data-type='method'><a href="module-mathAtom.html#.decompose" class="methodName">decompose</a></li><li data-type='method'><a href="module-mathAtom.html#.getFontName" class="methodName">getFontName</a></li><li data-type='method'><a href="module-mathAtom.html#.makeColGap" class="methodName">makeColGap</a></li><li data-type='method'><a href="module-mathAtom.html#.makeColOfRepeatingElements" class="methodName">makeColOfRepeatingElements</a></li><li data-type='method'><a href="module-mathAtom.html#.makeStack" class="methodName">makeStack</a></li></ul></li><li><a href="module-mathstyle.html" class="className">mathstyle</a><ul class='methods'><li data-type='method'><a href="module-mathstyle.html#.toMathstyle" class="methodName">toMathstyle</a></li></ul></li><li><a href="module-parser.html" class="className">parser</a><ul class='methods'><li data-type='method'><a href="module-parser.html#.hasImplicitGroupEnd" class="methodName">hasImplicitGroupEnd</a></li></ul></li><li><a href="module-span.html" class="className">span</a><ul class='methods'><li data-type='method'><a href="module-span.html#.coalesce" class="methodName">coalesce</a></li><li data-type='method'><a href="module-span.html#.makeFontSizer" class="methodName">makeFontSizer</a></li><li data-type='method'><a href="module-span.html#.makeHlist" class="methodName">makeHlist</a></li><li data-type='method'><a href="module-span.html#.makeSpan" class="methodName">makeSpan</a></li><li data-type='method'><a href="module-span.html#.makeSpanOfType" class="methodName">makeSpanOfType</a></li><li data-type='method'><a href="module-span.html#.makeSymbol" class="methodName">makeSymbol</a></li><li data-type='method'><a href="module-span.html#.makeVlist" class="methodName">makeVlist</a></li><li data-type='method'><a href="module-span.html#.toString" class="methodName">toString</a></li></ul></li></ul></div>
+</nav>
+
+<div id="main">
+    
+        <h1 class="page-title">core/parser.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>
 /**
  * @module parser
  */
@@ -44,7 +86,7 @@ function Parser(tokens, args) {
     // - 'colspec' formating of a column in tabular environment, e.g. 'r@{.}l' 
     this.parseMode = 'math';
 
-    // When in tabular mode, '&' is interpreted as a column separator
+    // When in tabular mode, '&amp;' is interpreted as a column separator
     // and '\\' as a row separator. Used for matrixes, etc...
     this.tabularMode = false;
 
@@ -75,12 +117,12 @@ Parser.prototype.end = function() {
 
 Parser.prototype.get = function() {
     this.endCount = 0;
-    return this.index < this.tokens.length ? this.tokens[this.index++] : null;
+    return this.index &lt; this.tokens.length ? this.tokens[this.index++] : null;
 }
 
 Parser.prototype.peek = function(offset) {
     const index = this.index + (offset ? offset : 0);
-    return index < this.tokens.length ? this.tokens[index] : null;
+    return index &lt; this.tokens.length ? this.tokens[index] : null;
 }
 
 /**
@@ -108,14 +150,14 @@ Parser.prototype.lastMathAtom = function() {
  */
 Parser.prototype.hasToken = function(type) {
     const index = this.index;
-    return index < this.tokens.length ? 
+    return index &lt; this.tokens.length ? 
         this.tokens[index].type === type : false;
 }
 
 Parser.prototype.hasLiteral = function(literal) {
     const index = this.index;
-    return index < this.tokens.length ? 
-        this.tokens[index].type === 'literal' &&
+    return index &lt; this.tokens.length ? 
+        this.tokens[index].type === 'literal' &amp;&amp;
         (!literal || this.tokens[index].value === literal) : false;
 }
 
@@ -124,30 +166,30 @@ Parser.prototype.hasCommand = function(command) {
         'hasCommand() does not require a \\');
 
     const index = this.index;
-    return index < this.tokens.length ? 
-        this.tokens[index].type === 'command' &&
+    return index &lt; this.tokens.length ? 
+        this.tokens[index].type === 'command' &amp;&amp;
         this.tokens[index].value === command : false;
 }
 
 Parser.prototype.hasInfixCommand = function() {
     const index = this.index;
-    if (index < this.tokens.length && 
+    if (index &lt; this.tokens.length &amp;&amp; 
         this.tokens[index].type === 'command') {
         const info = Definitions.getInfo('\\' + this.tokens[index].value, this.parseMode);
-        return info && info.infix;
+        return info &amp;&amp; info.infix;
     }
     return false;
 }
 
 /**
  * An implicit group is a sequence of atoms that terminates with 
- * a '}', '&', '\\', '\cr', '\end' or '\right' or the end of the stream
+ * a '}', '&amp;', '\\', '\cr', '\end' or '\right' or the end of the stream
  * @memberof module:parser
  */
 function hasImplicitGroupEnd(token) {
     return token.type === '}' || 
-        (token.type === 'literal' && token.value === '&') ||
-        (token.type === 'command' && (
+        (token.type === 'literal' &amp;&amp; token.value === '&amp;') ||
+        (token.type === 'command' &amp;&amp; (
             token.value === 'end' || 
             token.value === 'cr' || 
             token.value === '\\' || 
@@ -159,15 +201,15 @@ function hasImplicitGroupEnd(token) {
 
 Parser.prototype.hasColumnSeparator = function() {
     const index = this.index;
-    return this.tabularMode && index < this.tokens.length ? 
-        this.tokens[index].type === 'literal' &&
-        this.tokens[index].value === '&' : false;
+    return this.tabularMode &amp;&amp; index &lt; this.tokens.length ? 
+        this.tokens[index].type === 'literal' &amp;&amp;
+        this.tokens[index].value === '&amp;' : false;
 }
 
 Parser.prototype.hasRowSeparator = function() {
     const index = this.index;
-    return this.tabularMode && index < this.tokens.length ? 
-        this.tokens[index].type === 'command' &&
+    return this.tabularMode &amp;&amp; index &lt; this.tokens.length ? 
+        this.tokens[index].type === 'command' &amp;&amp;
         (this.tokens[index].value === '\\' || 
         this.tokens[index].value === 'cr') : false;
 }
@@ -189,7 +231,7 @@ const SIZING_COMMANDS = [
 ];
 
 Parser.prototype.hasImplicitSizingCommand = function() {
-    if (this.index < this.tokens.length) {
+    if (this.index &lt; this.tokens.length) {
         const token = this.tokens[this.index]
         if (token.type === 'command') {
             return SIZING_COMMANDS.indexOf(token.value) !== -1;
@@ -204,7 +246,7 @@ const MATHSTYLE_COMMANDS = [
 ]
 
 Parser.prototype.hasImplicitMathstyleCommand = function() {
-    if (this.index < this.tokens.length) {
+    if (this.index &lt; this.tokens.length) {
         const token = this.tokens[this.index]
         if (token.type === 'command') {
             return MATHSTYLE_COMMANDS.indexOf(token.value) !== -1;
@@ -235,7 +277,7 @@ Parser.prototype.parseToken = function(type) {
 }
 
 Parser.prototype.skipUntilToken = function(type) {
-    while (!this.end() && !this.parseToken(type)) {
+    while (!this.end() &amp;&amp; !this.parseToken(type)) {
         this.get();
     }
 }
@@ -264,7 +306,7 @@ Parser.prototype.parseFiller = function() {
         const skippedSpace = this.parseToken('space');
         const skippedRelax = this.parseCommand('relax');
         skipped = skipped || skippedSpace || skippedRelax;
-        done = !skippedSpace && !skippedRelax;
+        done = !skippedSpace &amp;&amp; !skippedRelax;
     } while (!done);
 
     return skipped;
@@ -333,7 +375,7 @@ Parser.prototype.scanString = function() {
             const info = Definitions.getInfo('\\' + token.value, this.parseMode);
             // If parseMode is 'math', info.type will never be 'textord'
             // Otherwise, info.type will never be 'mord'
-            if ((info.type === 'mord' || info.type === 'textord') && info.value) {
+            if ((info.type === 'mord' || info.type === 'textord') &amp;&amp; info.value) {
                 result += info.value;
             }
             done = this.end();
@@ -408,7 +450,7 @@ Parser.prototype.scanNumber = function(isInteger) {
     }
 
     // Parse the fractional part, if applicable
-    if (!isInteger &&  (this.parseLiteral('.') || this.parseLiteral(','))) {
+    if (!isInteger &amp;&amp;  (this.parseLiteral('.') || this.parseLiteral(','))) {
         value += '.';
         done = this.end();
         while (!done) {
@@ -532,7 +574,7 @@ Parser.prototype.scanSkip = function() {
 Parser.prototype.scanColspec = function() {
     this.parseToken('space');
     const result = [];
-    while (!this.end() && !(this.hasToken('}') || this.hasLiteral(']'))) {
+    while (!this.end() &amp;&amp; !(this.hasToken('}') || this.hasLiteral(']'))) {
         if (this.hasLiteral()) {
             const literal = this.get().value;
             if ('lcr'.includes(literal)) {
@@ -561,7 +603,7 @@ Parser.prototype.scanColspec = function() {
 Parser.prototype.scanModeSet = function() {
     let final;
     if (this.parseCommand('(')) final = ')';
-    if (!final && this.parseCommand('[')) final = ']';
+    if (!final &amp;&amp; this.parseCommand('[')) final = ']';
     if (!final) return null;
 
     const savedParsemode = this.swapParseMode('math');
@@ -569,7 +611,7 @@ Parser.prototype.scanModeSet = function() {
     const result = new MathAtom('math', 'group');
     result.mathstyle = final === ')' ? 'textstyle' : 'displaystyle';
     result.children = this.scanImplicitGroup(
-        token => token.type === 'command' && token.value === final);
+        token => token.type === 'command' &amp;&amp; token.value === final);
     this.parseCommand(final);
    
     this.swapParseMode(savedParsemode);
@@ -583,7 +625,7 @@ Parser.prototype.scanModeSet = function() {
  * @method module:parser.Parser#scanModeShift
  */
 Parser.prototype.scanModeShift = function() {
-    if (!this.hasToken('$') && !this.hasToken('$$')) return null;
+    if (!this.hasToken('$') &amp;&amp; !this.hasToken('$$')) return null;
 
     const final = this.get().type;
 
@@ -620,7 +662,7 @@ Parser.prototype.scanEnvironment = function() {
 
     // If the environment has some arguments, parse them
     const args = [];
-    if (env && env.params) {
+    if (env &amp;&amp; env.params) {
         for (const param of env.params) {
             // Parse an argument
             if (param.optional) {
@@ -654,7 +696,7 @@ Parser.prototype.scanEnvironment = function() {
     let done = false;
     do {
         done = this.end();
-        if (!done && this.parseCommand('end')) {
+        if (!done &amp;&amp; this.parseCommand('end')) {
             done = this.scanArg('string') === envName;
         }
         if (!done) {
@@ -691,8 +733,8 @@ Parser.prototype.scanEnvironment = function() {
     this.parseMode = savedMode;
     this.tabularMode = savedTabularMode;
 
-    if (!env.tabular && newMathList.length === 0) return null;
-    if (env.tabular && array.length === 0) return null;
+    if (!env.tabular &amp;&amp; newMathList.length === 0) return null;
+    if (env.tabular &amp;&amp; array.length === 0) return null;
 
     const result = new MathAtom(this.parseMode, 'array', null, null,
         env.parser ? env.parser(envName, args, array) : {});
@@ -707,7 +749,7 @@ Parser.prototype.scanEnvironment = function() {
 
 /**
  * Parse a sequence terminated with a group end marker, such as 
- * '}', '\end', '&', etc...
+ * '}', '\end', '&amp;', etc...
  * Returns an array of MathAtom or an empty array if the sequence
  * terminates right away
  * @param {function} [done] A predicate indicating if a token signals the 
@@ -726,7 +768,7 @@ Parser.prototype.scanImplicitGroup = function(done) {
     const savedMathlist = this.swapMathList([]);
     // if (this.index >= this.tokens.length) return true;
     // const token = this.tokens[this.index];
-    while(!this.end() && !done(this.peek())) {
+    while(!this.end() &amp;&amp; !done(this.peek())) {
         if (this.hasImplicitSizingCommand()) {
             // Implicit sizing command such as \Large, \small
             // affect the tokens following them
@@ -755,7 +797,7 @@ Parser.prototype.scanImplicitGroup = function(done) {
             atom.mathstyle = this.get().value;
             this.mathList.push(atom);
 
-        } else if (this.hasInfixCommand() && !infix) {
+        } else if (this.hasInfixCommand() &amp;&amp; !infix) {
             // The next token is an infix and we have not seen one yet
             // (there can be only one infix command per implicit group).
             infix = this.get();
@@ -837,7 +879,7 @@ Parser.prototype.scanDelim = function() {
 
     // Some symbols are not of type mopen/mclose, but are still 
     // valid delimiters...
-    if (['|', '<', '>', '\\vert', '\\Vert', '\\|', '\\surd', 
+    if (['|', '&lt;', '>', '\\vert', '\\Vert', '\\|', '\\surd', 
         '\\uparrow', '\\downarrow', '\\Uparrow', '\\Downarrow', 
         '\\updownarrow', '\\Updownarrow', 
         '\\mid', '\\mvert', '\\mVert'].includes(delim)) {
@@ -860,7 +902,7 @@ Parser.prototype.scanLeftRight = function() {
     const leftDelim = this.scanDelim() || '.';
 
     const savedMathList = this.swapMathList([]);
-    while(!this.end() && !this.parseCommand('right')) {
+    while(!this.end() &amp;&amp; !this.parseCommand('right')) {
         this.parseAtom();
     }
     
@@ -967,7 +1009,7 @@ Parser.prototype.scanOptionalArg = function(parseMode) {
     this.parseMode = parseMode;
     const savedMathlist = this.swapMathList();
     let result;
-    while (!this.end() && !this.parseLiteral(']')) {
+    while (!this.end() &amp;&amp; !this.parseLiteral(']')) {
         if (parseMode === 'string') {
             result = this.scanString();
         } else if (parseMode === 'number') {
@@ -1009,7 +1051,7 @@ Parser.prototype.scanOptionalArg = function(parseMode) {
                 'Unexpected parse mode: "' + parseMode + '"');
             this.mathList = this.mathList.concat(
                 this.scanImplicitGroup(token => 
-                    token.type === 'literal' && token.value === ']'));
+                    token.type === 'literal' &amp;&amp; token.value === ']'));
         }
     }
     this.parseMode = savedParseMode;
@@ -1108,7 +1150,7 @@ Parser.prototype.scanArg = function(parseMode) {
 
         do {
             this.mathList = this.mathList.concat(this.scanImplicitGroup());
-        } while(!this.parseToken('}') && !this.end());
+        } while(!this.parseToken('}') &amp;&amp; !this.end());
     }
 
     this.parseMode = savedParseMode;
@@ -1181,7 +1223,7 @@ Parser.prototype.scanToken = function() {
             const args = [];
 
             // Parse the arguments
-            if (info && info.params) {
+            if (info &amp;&amp; info.params) {
                 for (const param of info.params) {
                     // Parse an argument
                     if (param.optional) {
@@ -1194,8 +1236,8 @@ Parser.prototype.scanToken = function() {
                         // If it's not present, scanArg returns null.
                         // Add a placeholder instead.
                         const arg = this.scanArg(param.type);
-                        if (arg && arg.length === 1 && 
-                            arg[0].type === 'placeholder' && param.placeholder) {
+                        if (arg &amp;&amp; arg.length === 1 &amp;&amp; 
+                            arg[0].type === 'placeholder' &amp;&amp; param.placeholder) {
                             arg[0].value = param.placeholder;
                         }
                         if (arg) {
@@ -1206,12 +1248,12 @@ Parser.prototype.scanToken = function() {
                             args.push([new MathAtom(this.parseMode, 'placeholder', placeholder)]);
                         }                            
                         // @todo should check for greediness of argument here 
-                        // (should be < greediness of command)
+                        // (should be &lt; greediness of command)
                     }
                 }
            }
 
-            if (info && !info.infix) {
+            if (info &amp;&amp; !info.infix) {
                 // Infix commands should be handled in scanImplicitGroup
                 // If we find an infix command here, it's a syntax error
                 // (second infix command in an implicit group) and should be ignored.
@@ -1256,7 +1298,7 @@ Parser.prototype.scanToken = function() {
             result = new MathAtom(this.parseMode, 'placeholder', '\u2753');
         } else if (this.args) {
             result = this.args[token.value] || null;
-            if (Array.isArray(result) && result.length === 1) {
+            if (Array.isArray(result) &amp;&amp; result.length === 1) {
                 result = result[0];
             } else if (Array.isArray(result)) {
                 const group = new MathAtom(this.parseMode, 'group');
@@ -1282,7 +1324,7 @@ Parser.prototype.parseAtom = function() {
          this.scanGroup() || 
          this.scanLeftRight();
 
-    if (!result && (this.parseSupSub() || this.parseLimits())) return true;
+    if (!result &amp;&amp; (this.parseSupSub() || this.parseLimits())) return true;
 
     if (!result) result = this.scanToken();
 
@@ -1313,3 +1355,50 @@ return {
 
 
 })
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Doc created  on 2017-06-16T06:19:52.077Z
+    by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
+    using a customized <a href="https://www.npmjs.com/package/namis">Namis</a> theme.
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/jquery.nicescroll/3.6.0/jquery.nicescroll.min.js"></script> -->
+<script src="scripts/namis.search.jquery.js"></script>
+<script>prettyPrint();
+
+(function($){
+/*
+    $('nav').niceScroll({
+        cursorwidth: 7,
+        hwacceleration: true,
+        cursorcolor: "#036564",
+        cursorborder: "1px solid #036564"
+    });
+
+    $('html').niceScroll({
+        cursorwidth: 10,
+        hwacceleration: true,
+        smoothscroll: true,
+        cursorminheight: 32,
+        enablemousewheel: true, // nicescroll can manage mouse wheel events
+        enablekeyboard: true // nicescroll can manage keyboard events
+        ,cursorcolor: "#033649"
+    });
+*/
+    $('#nav').search(['className', 'methodName']);
+})(jQuery);
+</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
