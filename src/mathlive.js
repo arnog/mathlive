@@ -1,50 +1,4 @@
 
-// To generate the documentation:
-//      cd math/js
-//      documentation build . -c documentation.yml -f html -o ../doc
-// Auto generation:
-//      documentation build . -c documentation.yml -w -f html -o ../doc
-//
-// See https://github.com/documentationjs/documentation/blob/master/docs/USAGE.md
-
-/*
-
-    @todo delete (stop for }{, etc..)
-    @todo Delete behavior when inside args (or when outside \frac{1}{2}|)
-    @todo |/frac{|1|2|}{|3|4|}|       Should frac|{ be allowed? No.
-    @todo allow caret here: x|^2x
-    @todo \sin^2 should be valid... (but not \frac^2{a}{b}. \frac{a}{b}^2 is fine.)
-
-    @todo mode (math/text/command) and environment (array)
-
-    @todo Validate \alpha on enter/return and esc
-    @todo Validate esc + pi on enter/return (as well as escape)
-
-    @todo Idea: use ^^ and __ for \above and \below??
-
-When moving the caret, account for {}, i.e. 
-    |/frac{|1|2|}{|3|4|}|
-    |/sqrt{|x|}|/sin{|3|/pi|}|
-    |x^{|1|+|x|}_{|0|}|+|1|
-
-    === if in front of ^, _ or { skip to next
-    === if in front of /, skip to end of command
-
-    \sum{|PLACEHOLDER}
-    === display PLACEHOLDER as selected if caret before
-    \sum\limits_{i=1}^n i^2
-    \sum\nolimits_{P_i \in Paths(I)} Probes(P_{i})
-
-
-*/
-
-
-/*
-
-// https://github.com/kostub/iosMath/blob/master/EXAMPLES.md
-
-// https://cdn.mathjax.org/mathjax/latest/test/sample-dynamic.html
-
 /**
  * Reference
  * TeX source code:
@@ -52,6 +6,7 @@ When moving the caret, account for {}, i.e.
  * 
  * For a list of standard TeX macros, see:
  * @see {@link ftp://tug.ctan.org/pub/tex-archive/systems/knuth/dist/lib/plain.tex|plain.tex}
+// https://github.com/kostub/iosMath/blob/master/EXAMPLES.md
  */
 
 define(['mathlive/core/lexer', 'mathlive/core/mathAtom', 'mathlive/core/parser', 
@@ -134,15 +89,12 @@ function toSpeakableText() {
     MathAtom.toSpeakableText();
 }
 
-
 return {
     latexToMarkup: toMarkup,
     latexToSpeakableText: toSpeakableText,
     makeMathField: makeMathField,
     MathField: MathField.MathField
 }
-
-
 
 
 })

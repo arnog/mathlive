@@ -1,13 +1,11 @@
-<h1 align="center">
-	<br>
-        <img src = "https://github.com/arnog/mathlive/blob/master/assets/logo-1024.jpg?raw=true">
-    <br>
+<h1 align="center" style="margin-top:0">
+        <img style="max-width:100%" src="https://github.com/arnog/mathlive/blob/master/assets/logo-1024.jpg?raw=true">
 </h1>
 
 # MathLive Contributor Guide
 
-This guide is for developers who want to contribute to MathLive, 
-or who want to understand more in depth how it works.
+This guide is for developers who want to contribute code to MathLive, 
+or who want to understand in more depth how MathLive works.
 If you simply want to use MathLive with your web content, see the [MathLive Usage Guide](USAGE_GUIDE.md).
 
 ## Table of Contents
@@ -27,48 +25,48 @@ file contains the definitions of the build scripts.
 
 To get started developing:
 1. Install [Node.js](http://nodejs.org) on your dev machine
-2. Clone the project repo to a `mathlive/` directory
-3. Run:
-``` bash
-$ cd <you local path>/mathlive
+3. In your shell, type:
+```bash
+$ git clone https://github.com/arnog/mathlive && cd mathlive
 $ npm install
 ```
-This will install in the `mathlive/` directory all the Node modules to build and test the MathLive and its documentation.
+The `npm install` command installs in the `mathlive/` directory all the Node
+ modules necessary to build and test the MathLive library and its documentation.
 
 Depending on your system setup, you may need to run as admin, in which case
 use `sudo npm install`.
 
 Once the installation is succesful, you can use the following commands:
-``` bash
+```bash
 # Build the project for local use
-# 1. Compiles the css/*.less file to build/*.css
+# 1. Compile the `.css/.less` file to `build/*.css`
 # 2. "npm run lint" on the .js files
 # 3. "npm run docs" to generate the documentation
 # 4. "npm test" to run the test scripts
 $ npm run build
 
-# Watch and auto re-build the project
+# Auto re-build the project when a file changes.
 # Watch for changed files, and does "npm run build"
 $ npm run dev
 
 # Run test scripts
 $ npm test
 
-# In-depth linting
-# More comprehensive linting than the one done as part of "build"
-# Includes linting of the JSDoc comment blocks
+# Lint Javascript files
 $ npm run lint
 
 # Calculate the code coverage and output to build/coverage/
 $ npm run coverage
 
-# Build the documentation file to buid/docs/
+# Build the documentation file to `docs/`
 $ npm run docs
 
-# Builds, then transpile, minimize and bundle to dist/
+# Builds, then transpile, minimize and bundle to `dist/`.
+# The `dist/` folder will contain the `.js`, `.css` and font files necessary to 
+# use MathLive. The `docs/` folder will also be updated.
 $ npm run dist
 
-# Clean up (deletes) the contents of the /build and /dist directories
+# Clean up (deletes) the contents of the `build/`, `dist/` and `docs/` directories
 $ npm run clean
 
 # Increase the version number of the library
@@ -77,12 +75,22 @@ $ npm version major | minor | patch |
 
 ```
 
+During development, it is recommended that you keep the `npm run dev` 
+command running in a terminal window while you make the necessary changes
+to the source files of the project in your favorite editor. When you 
+save a file, if any problem with your code is detected (linting 
+failure, unit test failure), it will be displayed in the terminal window.
+
+Before doing a comit to `master` it is also recommended that you do a
+`npm run dist` to make sure that the content of the `dist/` 
+and `docs/` directory are in sync with your latest changes.
 
 
 ## Code Structure
 The MathLive library consists of the following key directories:
 * `css/` the stylesheets and fonts used by MathLive
-* `src/core` the core Javascript code needed to render math. This module depends on the `css/` module.
+* `src/core` the core Javascript code needed to render math. This module depends
+ on the `css/` module.
 * `src/editor` the Javascript code needed for the editor. This module depends
 on the `src/core` module.
 * `src/addons` some optional modules that provide additional functionality
@@ -90,26 +98,30 @@ on the `src/core` module.
 You can include only the files you need. For example, if you only
 need to display math, you can skip `src/editor/` and `src/addons`.
 
-In addition, the `build/` and `dist/` directories contain output generated from
-the `css/` and `src/` directories:
-* the `build/` directory should only contain intermediary build results. These
+In addition, the `build/` and `dist/` directories contain optimized 
+output generated from the `css/` and `src/` directories:
+* the `build/` directory contains intermediary build results. These
 intermediary results can be used for debugging during development, but are
-not suitable for distribution. For example, a `.css` file generated from a 
-`.less` file would be appropriate. However, a transpiled or minified `.js` 
-file would not.
-* the `dist/` directory should only contain the build results that are ready
-to be distributed. The files in this directory should be transpiled (for `.js` 
-files), autoprefixed (for `.css` files), minimized and bundled.
+not suitable for distribution. For example, this directory will contain the 
+`.css` files generated from the `.less` in `css/`. However, a transpiled or 
+minified `.js` file would not, as those are intended for distribution and 
+should be in the `dist/` directory.
+* the `dist/` directory contains the build results that are ready
+for distribution. The files in this directory should be transpiled (for 
+`.js` files), autoprefixed (for `.css` files), minimized and bundled.
+* finally, the `docs/` directory contain documentation generated from the 
+source code.
 
-Aside from the `buid/` and `src/` directories, there should be no location
-containing intermediate files generated as part of the build process.
+The content of the `build/`, `dist/` and `docs/` directories are entirely 
+generated as part of the build process. No other directory should contain
+intermediated files generated as part of the build process.
 
 
 ## Language and Coding Style
 
 MathLive is written in Javascript, using the [ES2016 dialect]
 (https://www.ecma-international.org/ecma-262/7.0/). This includes
-in particular features such as:
+in particular these features:
 * `let` and `const` instead of `var`
 * block-scoped variables and functions
 * `Array.prototype.includes()`
@@ -129,9 +141,10 @@ utility functions to be separated from methods that use them.
 * rest/spread
 * generators
 
-Before publishing, the code is ran through [Babel](https://babeljs.io), which 
-transpiles it to ES5 for compatibility with browsers that don't support all
-those features
+Before publishing, [Babel](https://babeljs.io) transpiles the code so it can 
+run on recent browsers, even if they don't support all the ES2016 features yet. 
+The code is also optimized for performance and minimized to reduce the load 
+time.
 
 The code base attempts to follow these general guidelines:
 
@@ -195,31 +208,34 @@ directly.
 MathLive is designed for the modern web. Supporting older browsers complicates
 the effort involved in building new features, but it is also an insecure 
 practice that should not be encouraged. In this context, _modern_ means the
-latest release of Chrome, IE, Safari, Firefox. Both desktop and mobile are
-supported.
+two latest releases of Chrome, IE, Safari and Firefox. 
+Both desktop and mobile are supported.
 
 ## Architecture
 
-The core of MathLive is a renderer that can display complex math content
-using HTML and CSS. This renderer uses the TeX layout algorithms because of 
-their quality. Given the same input, MathLive will render pixel for pixel what 
-TeX would have rendered.
-To do so, it make use of a web version of the fonts used by TeX and which are
-included in the `css/fonts/` directory.
+The core of MathLive is a math rendering enging that can output to HTML and 
+CSS. This engine uses the TeX layout algorithms because of their quality. 
+Given the same input, MathLive will render pixel for pixel what TeX would 
+have rendered.
+To do so, it makes use of a web version of the fonts used by TeX and which are
+included in the `dist/fonts/` directory.
+Although the rendering engine follows the TeX algorithms, MathLive also has
+an in-memory data structure to represent a math expression while it is being
+edited (the math atom tree).
 
- Here are some of the key concepts used throughtout the code base.
+Here are some of the key concepts used throughtout the code base.
 
  ### Span
 
-A span is an object that is used to represent an element displayed in the page:
+A span is an object that is used to represent an element displayed in 
+a web page:
 a symbol such as _x_ or _=_, an open brace, a line separating the numerator 
 and denominator of a fraction, etc...
 
 The basic layout strategy is to calculate the vertical placement of the spans and 
 position them accordingly, while letting the HTML rendering engine position
-and display the horizontal items. An exception is when some horizontal 
-adjustment needs to be made, such as additional space between items, in which 
-case CSS margin adjustments are made.
+and display the horizontal items. When horizontal adjustments need to be made,
+ such as additional space between items the CSS margin are adjusted.
 
 **Spans** can be rendered to HTML markup with `Span.toMarkup()` before being 
 displayed on the page.
@@ -276,7 +292,8 @@ order to more easily represent the cursor position. They are not displayed.
 
  ### Math List
 A **math list** is simply an array of atoms. Although it's a common data 
-structure there is no class to represent it: it's simply an `Array()` of `MathAtom`.
+structure there is no class to represent it: it's simply an `Array` of 
+`MathAtom` objects.
 
 ### Lexer
 The **lexer** converts a string of TeX code into tokens that can be digested
@@ -288,10 +305,16 @@ The **parser** turns a stream of tokens generated by the lexer into
 LaTeX or into spoken text.
 
 ### Editable Math List
-An **Editable Math List** is a class specific to the editor and that
-encapsulates the manipulations that can be done to a math list, including 
+An **Editable Math List** is a class specific to the editor. It
+encapsulates the operations that can be done to an editable math list, including 
 adding and removing content and keeping track of and modifying an insertion 
 point and selection.
+
+### Math Field
+A **MathField** is a user interface widget that captures the keyboard and 
+pointing device events, and present an appropriate user experience. It 
+uses the **EditableMathList** to manipulate the in-memory representation of 
+the math expression being edited.
 
 
 ## Files

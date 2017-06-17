@@ -3,6 +3,7 @@
 /build
 /out
 /node_modules
+/.nyc_output
 
 
 # OS generated files #

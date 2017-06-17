@@ -15,31 +15,33 @@
   ],
   "main": "mathlive.js",
   "scripts": {
-    "clean": "rm -rdf build dist",
+    "clean": "rm -rdf build dist docs",
     "build-js": "npm-run-all -p lint test",
     "watch-js": "esw -w src/",
-    "build-css": "lessc css/mathlive.less build/mathlive.css && lessc css/mathlive.core.less build/mathlive.core.css",
+    "build-css": "lessc-each css build",
     "watch-css": "npm run build-css && chokidar 'css/*.less' -c 'npm run build-css'",
-    "build": "npm-run-all -p build-css build-js docs",
-    "watch": "npm-run-all -p watch-css watch-js watch-docs",
+    "build": "npm-run-all -p build-css build-js test docs",
+    "watch": "npm-run-all -p watch-css watch-js watch-docs && tape-watch test/* --watch",
     "start": "npm run watch",
     "dev": "npm run watch",
-    "lint": "eslint src/ css/",
+    "lint": "eslint src/",
     "test": "tape test/*",
-    "test-watch": "npm test && tape-watch test/* --watch",
-    "coverage": "nyc node ./test/test.js && nyc report --reporter html",
+    "watch-test": "npm test && tape-watch test/* --watch",
+    "coverage": "nyc node ./test/test.js && nyc report",
     "prepare": "npm run dist",
     "docs": "jsdoc -c ./jsdoc.conf.json",
-    "watch-docs": "npm run docs && chokidar 'src/*.js' -c 'npm run docs'",
-    "dist": "npm run build && webpack"
+    "watch-docs": "npm run docs && chokidar 'src/*.js' '*.md' -c 'npm run docs'",
+    "dist": "npm run clean && npm run build && postcss build/*.css -d dist && webpack"
   },
   "nyc": {
     "exclude": [
       "test",
-      "**/Debug.js",
+      "**/debug.js",
       "dist",
       "build"
-    ]
+    ],
+    "report-dir": "./build/coverage",
+    "reporter": "html"
   },
   "engines": {
     "node": "4.0.0"
@@ -52,7 +54,7 @@
   "contributors": [],
   "bugs": "https://github.com/arnog/mathlive/issues/",
   "devDependencies": {
-    "autoprefixer": "^6.5.4",
+    "autoprefixer": "^6.7.7",
     "babel-core": "^6.25.0",
     "babel-loader": "^7.0.0",
     "babel-preset-env": "^1.5.2",
@@ -60,12 +62,16 @@
     "babel-preset-es2016": "^6.24.1",
     "chokidar-cli": "^1.2.0",
     "copy-webpack-plugin": "^4.0.1",
-    "eslint": "<4.0.0",
-    "eslint-watch": "^3.1.0",
+    "cssnano": "^3.10.0",
+    "eslint": "^4.0.0",
+    "eslint-watch": "^3.1.2",
     "jsdoc": "^3.4.3",
     "less": "^2.7.2",
+    "lessc-each": "^1.1.0",
     "namis": "github:arnog/namis",
     "npm-run-all": "^4.0.2",
+    "nyc": "^11.0.2",
+    "postcss-cli": "^4.1.0",
     "requirejs": "latest",
     "tape": "^4.6.3",
     "tape-watch": "^2.3.0",

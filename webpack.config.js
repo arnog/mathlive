@@ -3,10 +3,24 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  entry: path.resolve(__dirname, "src/mathlive.js"),
+/*
+  // @todo: support multiple versions of the lib, one
+  // that can only render equations, the other that includes the editor
+  // Consider using the CommonsChunkPlugin...
+  entry: {
+    "mathlive-core": 'src/mathlive-core.js',  // render only
+    "mathlive-core+editor": './mathlive.js'
+  },
   output: {
-    filename: 'mathlive.js',
+    filename: '[name].js', // Template based on keys in entry above
+    path: 'dist'
+  }
+*/
+
+  entry:   path.resolve(__dirname, "src/mathlive.js"),
+  output: {
     path: path.resolve(__dirname, "dist"),
+    filename: 'mathlive.js',
     library: 'MathLive'
   },
   resolve: {
@@ -17,14 +31,15 @@ module.exports = {
     }
   },
   module: {
-    loaders: [{
+    rules: [
+      {
         test: /\.js$/,
         exclude: /node_modules/,
         loader: 'babel-loader'
-    }]
+      }
+    ]
   },
   plugins: [
-    new webpack.optimize.OccurrenceOrderPlugin(true),
     new webpack.optimize.UglifyJsPlugin({
       "screw-ie8": true,
       compress: {
@@ -48,9 +63,9 @@ module.exports = {
       output: {
         comments: false,
       },
-    }),
+    })
+    ,
     new CopyWebpackPlugin([
-      { from: 'build' },
       { from: 'css/fonts', to: 'fonts' }
     ])
   ]
