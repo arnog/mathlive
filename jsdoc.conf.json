@@ -15,7 +15,14 @@
     "templates": {
         "cleverLinks": false,
         "monospaceLinks": false,
-        "linenums": true
+        "outputSourceFiles": true,
+        "linenums": true,
+        "includeDate": false,
+        "title": "MathLive",
+        "pageTitle": "MathLive Docs",
+        "description": "Beautifully typeset math made easy",
+        "keywords": "latex, tex, math, typesetting, documentation, docs",
+        "forkme": "https://github.com/arnog/mathlive"
     },
     "opts": {
         "access": "all",        //  use "public" to ommit the private symbols

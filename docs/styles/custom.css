@@ -1,11 +1,24 @@
 /** fix pretty-print tommorrow night 80 */
 .prettyprint {
-	padding-left: 0px;
-	padding-right: 0px;
+	padding-left: 0;
+	padding-right: 0;
 }
 .prettyprint.linenums {
 	padding-left: 0;
 }
+.prettyprint.linenums li {
+	margin-left: 60px;
+	border-left: 1px solid #eee;
+}
+
+.prettyprint.linenums li code {
+	background: transparent;
+}
+
+.prettyprint.linenums ol li.L0, li.L2,li.L4, li.L6, li.L8 {
+	background-color: #fafafa;
+}
+
 .prettyprint code{
   	padding-left: 0;
 	padding-right: 0;
@@ -14,10 +27,20 @@
 }
 body{
 	padding: 0;
+	color: #454545;
+	font-size: 14px;
+	font-weight: 400;
 }
 footer {
 	color: #bbb;
 	font-size: small;
+	background: #f8f8f8;
+	margin-left: 290px;
+}
+@media only screen and (max-width: 680px) and (min-width: 320px) {
+	footer {
+		margin-left: 0;
+	}
 }
 footer a {
 	color: rgba(0, 102, 206, 0.44);
@@ -26,7 +49,7 @@ h1 {
 	line-height: 1em;
 	font-weight: 700;
 	color: #cd0030;
-	letter-spacing: -0.03em;
+	letter-spacing: -0.01em;
 	text-transform: uppercase;
 }
 h1.page-title {
@@ -39,8 +62,72 @@ h2 {
 h3 {
 	font-weight: 700;
 }
+h4 {
+	font-size: 17.5px;
+}
+
+.container-overview, .method, .member {
+	margin-top: 10px;
+	margin-bottom: 20px;
+	overflow: hidden;
+	padding: 20px 17px;
+	border-radius: 4px;
+	border: 1px solid #dedede;
+	border-top: 1px solid #eee;
+	background-color: #fff;
+	max-width: 700px;
+}
+.container-overview .method {
+	border: none;
+	padding: 20px 0 0 0;
+	margin: 0;
+}
+.member h4, .method h4 {
+	border-bottom: 1px solid #e7e7e7;
+	font-weight: 400;
+	padding-bottom: 10px;
+	margin-top: -10px;
+	margin-bottom: 10px;
+}
+
+.member p, .method p {
+	font-size: 14px;
+	line-height: 20px;
+	margin-bottom: 20px;
+	margin-left: 20px;
+}
+
+.props {
+	border: 0;
+	box-shadow: none;
+}
+
+
+.param p.signature {
+	margin-left: -5px;
+	padding-left: 0;
+}
+
+.description p {
+	margin-left: 0;
+}
+
+.tag-source {
+	display: inline-block;
+	background: #fafafa;
+	border-radius: 5px;
+	float: right;
+	padding-left: 8px;
+	padding-right: 8px;
+	border: 1px solid #f0f0f0;
+	border-bottom: 1px solid #aaa;
+	border-right: 1px solid #aaa;
+
+}
+
 h1, h2, h3, h4, h5, h6 {
 	font-family: 'Source Sans Pro', sans-serif;
+	text-shadow: 1px 1px 1px #fff;
 }
 a, a:active {
 	color: #0066ce;
@@ -57,21 +144,90 @@ tt, code, kbd, samp {
 }
 .param-type {
 	font-family: 'Source Code Pro', monospace;
-	font-size: 0.875rem;
+	font-size: 11.844px;
+	background-color: #eee;
+	color: #222;
+	text-shadow: none;
+	padding: 4px 7px;
+	border-radius: 3px;
+	white-space: nowrap;
+	vertical-align: baseline;
+}
+.name, .signature {
+	font-family: 'Source Sans Pro', monospace;
+}
+.name code {
+	font-family: 'Source Sans Pro', monospace;
+	color: #000;
+	margin-bottom: 5px;
+	line-height: 20px;
+	font-size: 14px;
+}
+.attributes span.attribute {
+	display: inline;
+	font-family: 'Source Code Pro', monospace;
+	font-size: 11.844px;
+	background-color: #eee;
+	color: #222;
+	text-shadow: none;
+	padding: 4px 7px;
+	border-radius: 3px;
+	white-space: nowrap;
+	vertical-align: baseline;
+	font-style: italic;
 }
 #nav{
 	border-right: solid 1px #ddd;
 	padding: 0;
 	padding-left: 10px;
 	margin: 0;
-	width: 220px;
+	width: 290px;
 }
+@media only screen and (max-width: 680px) and (min-width: 320px) {
+	nav{
+		left: -290px;;
+	}
+}
+nav ul ul a, nav ul ul a:active {
+	padding-left: 5px;
+	border-left: .5px solid #f4f4f4;
+}
+
 #main{
-	calc(100% - 220px);
+	width: calc(100% - 290px);
 	padding-left: 0;
 	margin-left: 0;
-	padding : 20px;
+	padding : 0 20px 20px 20px;
+	background: #f8f8f8;
 }
+@media only screen and (max-width: 680px) and (min-width: 320px) {
+	#main {
+		width: 100%;
+		padding: 0;
+	}
+	#main section {
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+	.forkme {
+		display: none;
+	}
+}
+
+section[role="navigation"] {
+	padding: 0;
+}
+
+section {
+	background-color: transparent;
+}
+
+section.readme {
+	background-color: #fff;
+	max-width: 700px;
+	border: 1px solid #eee;
+}
+
 .prettyprint.linenums li.selected, .prettyprint.linenums li.selected *{
    background-color: rgba(244, 222, 54, 0.33);
 }

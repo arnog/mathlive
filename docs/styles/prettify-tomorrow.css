@@ -43,12 +43,14 @@ li.L9 {
 
   .kwd {
     color: #8959a8;
+    font-weight: 900;
   }
 
   /* comment */
 
   .com {
     color: #8e908c;
+    font-style: italic;
   }
 
   /* type name */
