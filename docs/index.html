@@ -118,18 +118,32 @@ $ npm run docs
 $ npm run dist
 
 # Clean up (deletes) the contents of the `build/`, `dist/` and `docs/` directories
-$ npm run clean
-
-# Increase the version number of the library
-# Only do this before making a new public distribution
-$ npm version major | minor | patch |</code></pre><p>During development, it is recommended that you keep the <code>npm run dev</code> 
+$ npm run clean</code></pre><p>During development, it is recommended that you keep the <code>npm run dev</code> 
 command running in a terminal window while you make the necessary changes
 to the source files of the project in your favorite editor. When you 
 save a file, if any problem with your code is detected (linting 
 failure, unit test failure), it will be displayed in the terminal window.</p>
-<p>Before doing a comit to <code>master</code> it is also recommended that you do a
+<p>Before doing a commit to <code>master</code> it is also recommended that you do a
 <code>npm run dist</code> to make sure that the content of the <code>dist/</code> 
 and <code>docs/</code> directory are in sync with your latest changes.</p>
+<h3>Publishing</h3><p>Once you have made significant changes that are ready to be shared broadly,
+use the following commands:</p>
+<pre class="prettyprint source lang-bash"><code># Increase the version number of the library
+# Only do this before making a new public distribution
+# After doing this, you can `npm publish`
+$ npm version major | minor | patch |
+
+# Do a full build (code, docs, test), then publish the package to npmjs.com
+$ npm publish</code></pre><p><strong>Note on versionning</strong> Use the <a href="http://semver.org/">semver</a> convention for 
+versions:</p>
+<ul>
+<li><code>npm version patch</code>: bug fixes and other minor changes. Last number of the 
+version is incremented, e.g. &quot;1.2.41&quot; → &quot;1.2.42&quot;</li>
+<li><code>npm version minor</code>: new features which don't break existing features. Middle
+number of the version is incremented, e.g. &quot;1.2.42&quot; → &quot;1.3.0&quot;</li>
+<li><code>npm version major</code>: changes which break backward compatibility of the API.
+Increment first number, e.g. &quot;1.3.56&quot; → &quot;2.0.0&quot;</li>
+</ul>
 <h2>Code Structure</h2><p>The MathLive library consists of the following key directories:</p>
 <ul>
 <li><code>css/</code> the stylesheets and fonts used by MathLive</li>

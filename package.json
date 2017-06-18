@@ -15,7 +15,7 @@
   ],
   "main": "mathlive.js",
   "scripts": {
-    "clean": "rm -rdf build dist docs",
+    "clean": "rm -rf build dist docs",
     "build-js": "npm-run-all -p lint test",
     "watch-js": "esw -w src/",
     "build-css": "lessc-each css build",
