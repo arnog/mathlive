@@ -42,11 +42,10 @@ Once the installation is succesful, you can use the following commands:
 # 1. Compile the `.css/.less` file to `build/*.css`
 # 2. "npm run lint" on the .js files
 # 3. "npm run docs" to generate the documentation
-# 4. "npm test" to run the test scripts
 $ npm run build
 
 # Auto re-build the project when a file changes.
-# Watch for changed files, and does "npm run build"
+# Watch for changed files, and does "npm run build" and "npm run test"
 $ npm run dev
 
 # Run test scripts
@@ -61,13 +60,14 @@ $ npm run coverage
 # Build the documentation file to `docs/`
 $ npm run docs
 
-# Builds, then transpile, minimize and bundle to `dist/`.
+# Clean up (deletes) the contents of the `build/`, `dist/` and `docs/` directories
+$ npm run clean
+
+# Clean, build, then transpile, minimize and bundle to `dist/`.
 # The `dist/` folder will contain the `.js`, `.css` and font files necessary to 
 # use MathLive. The `docs/` folder will also be updated.
 $ npm run dist
 
-# Clean up (deletes) the contents of the `build/`, `dist/` and `docs/` directories
-$ npm run clean
 ```
 
 During development, it is recommended that you keep the `npm run dev` 
@@ -79,6 +79,10 @@ failure, unit test failure), it will be displayed in the terminal window.
 Before doing a commit to `master` it is also recommended that you do a
 `npm run dist` to make sure that the content of the `dist/` 
 and `docs/` directory are in sync with your latest changes.
+
+After you push your changes to `master`, a Travis continuous integration 
+task will run `npm run dist` and `npm run test`. If either of those tasks
+fail, the build will be marked as failed and will need immediate fixing.
 
 ### Publishing
 

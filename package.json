@@ -16,11 +16,11 @@
   "main": "mathlive.js",
   "scripts": {
     "clean": "rm -rf build dist docs",
-    "build-js": "npm-run-all -p lint test",
+    "build-js": "npm-run-all -p lint",
     "watch-js": "esw -w src/",
     "build-css": "lessc-each css build",
     "watch-css": "npm run build-css && chokidar 'css/*.less' -c 'npm run build-css'",
-    "build": "npm-run-all -p build-css build-js test docs",
+    "build": "npm-run-all -p build-css build-js docs",
     "watch": "npm-run-all -p watch-css watch-js watch-docs && tape-watch test/* --watch",
     "start": "npm run watch",
     "dev": "npm run watch",
