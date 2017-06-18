@@ -68,11 +68,6 @@ $ npm run dist
 
 # Clean up (deletes) the contents of the `build/`, `dist/` and `docs/` directories
 $ npm run clean
-
-# Increase the version number of the library
-# Only do this before making a new public distribution
-$ npm version major | minor | patch |
-
 ```
 
 During development, it is recommended that you keep the `npm run dev` 
@@ -81,9 +76,34 @@ to the source files of the project in your favorite editor. When you
 save a file, if any problem with your code is detected (linting 
 failure, unit test failure), it will be displayed in the terminal window.
 
-Before doing a comit to `master` it is also recommended that you do a
+Before doing a commit to `master` it is also recommended that you do a
 `npm run dist` to make sure that the content of the `dist/` 
 and `docs/` directory are in sync with your latest changes.
+
+### Publishing
+
+Once you have made significant changes that are ready to be shared broadly,
+use the following commands:
+
+```bash
+# Increase the version number of the library
+# Only do this before making a new public distribution
+# After doing this, you can `npm publish`
+$ npm version major | minor | patch |
+
+# Do a full build (code, docs, test), then publish the package to npmjs.com
+$ npm publish
+
+```
+
+**Note on versionning** Use the [semver](http://semver.org/) convention for 
+versions:
+* `npm version patch`: bug fixes and other minor changes. Last number of the 
+version is incremented, e.g. "1.2.41" → "1.2.42"
+* `npm version minor`: new features which don't break existing features. Middle
+number of the version is incremented, e.g. "1.2.42" → "1.3.0"
+* `npm version major`: changes which break backward compatibility of the API.
+Increment first number, e.g. "1.3.56" → "2.0.0"
 
 
 ## Code Structure

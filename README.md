@@ -1,29 +1,31 @@
 <h1 align="center">
-	<br>
-        <img src = "https://github.com/arnog/mathlive/blob/master/assets/logo-1024.jpg?raw=true">
-    <br>
+    <img src = "https://github.com/arnog/mathlive/blob/master/assets/logo-1024.jpg?raw=true">
 </h1>
 
 MathLive is a Javascript library to render and edit math. 
 
 It is fast, small and provides TeX-quality typesetting 
-with an easy to use interface for math editing.
+with an easy to use interface for math editing. Try it at [mathlive.io](https://mathlive.io)!
 
-Give it a try at [mathlive.io](https://mathlive.io)!
+[![Build Status](https://travis-ci.org/arnog/mathlive.svg?branch=master)](https://travis-ci.org/arnog/mathlive)
 
-<table>
+
+<table align="center">
     <tr>
         <td>
             <img alt="The popover panel" src="assets/screenshots/popover.png">
         </td>
         <td>
-            <img alt="The command bar panel" src="assets/screenshots/commandbar.png">
+            <img width="60%" alt="The command bar panel" src="assets/screenshots/commandbar.png">
         </td>
-        <td>
-            <img alt="The Loop Equation" src="assets/screenshots/loop-eqn.png">
+    </tr>
+    <tr >
+        <td colspan="2" align="center">
+            <img width="50%" alt="The Loop Equation" src="assets/screenshots/loop-eqn.png">
         </td>
     </tr>
 </table>
+
 
 ## How To Use MathLive
 
@@ -41,8 +43,9 @@ extracting its content, inserting placeholders and more.
 * Want to use MathLive in your web page? The [Usage Guide](USAGE_GUIDE.md) 
 has all the details.
 * Want to contribute some code for an issue or a feature? Read the 
-[Contributor Guide](CONTRIBUTOR_GUIDE.md). Looking for inspiration? Pick one of
-those open issues for [begginers](https://github.com/arnog/mathlive/labels/BEGINNER)
+[Contributor Guide](CONTRIBUTOR_GUIDE.md) and the 
+[docs](http://docs.mathlive.io). Looking for inspiration? Pick one of
+those open issues for [beginners](https://github.com/arnog/mathlive/labels/BEGINNER)
 
 ## More Questions?
 

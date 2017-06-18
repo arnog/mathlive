@@ -7,6 +7,9 @@ Contributor Guide](CONTRIBUTOR_GUIDE.md)
 
 ## Getting Started
 
+You can install MathLive from gitHub or from NPM.
+
+### From GitHub
 Download the content of the `dist/` directory and copy it at a location of 
 your choice in your project. MathLive has no dependency (not even jQuery!) 
 and you do not needs to download or install anything else.
@@ -20,6 +23,12 @@ this file lazily to improve your page load time.
 - `fonts/` A directory of fonts used by MathLive. Credit for those fonts goes to
 the KaTeX project.
 
+### From NPM
+```bash
+$ npm install -g mathlive
+```
+
+### Using MathLive in your project
 
 Include the following in your web page. Adjust the `src` argument to account 
 for your directory structure.
