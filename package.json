@@ -29,7 +29,7 @@
     "watch-test": "npm test && tape-watch test/* --watch",
     "coverage": "nyc node ./test/test.js && nyc report",
     "prepare": "npm run dist",
-    "docs": "jsdoc -c ./jsdoc.conf.json",
+    "docs": "jsdoc -c ./jsdoc.conf.json && echo \"docs.mathlive.io\" > docs/CNAME",
     "watch-docs": "npm run docs && chokidar 'src/*.js' '*.md' -c 'npm run docs'",
     "dist": "npm run clean && npm run build && postcss build/*.css -d dist && webpack"
   },

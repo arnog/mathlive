@@ -544,7 +544,7 @@ dl.param-type {
   z-index: 1;
 }
 
-@media only screen and (min-width: 320px) and (max-width: 680px) {
+@media only screen and (min-width: 320px) and (max-width: 800px) {
   body {
     overflow-x: hidden;
   }
