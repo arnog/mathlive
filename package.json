@@ -13,7 +13,7 @@
     "javascript",
     "math-editing"
   ],
-  "main": "mathlive.js",
+  "main": "dist/mathlive.js",
   "scripts": {
     "clean": "rm -rf build dist docs",
     "build-js": "npm-run-all -p lint",
@@ -44,7 +44,7 @@
     "reporter": "html"
   },
   "engines": {
-    "node": "4.0.0"
+    "node": "~8.0"
   },
   "browserslist": [
     "> 1%",
