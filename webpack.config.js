@@ -21,7 +21,9 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: 'mathlive.js',
-    library: 'MathLive'
+    library: 'MathLive',
+    libraryTarget: 'umd',
+    umdNamedDefine: true
   },
   resolve: {
     alias: {
