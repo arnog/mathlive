@@ -86,6 +86,10 @@ h4 {
 	margin: 0;
 	box-shadow: none;
 }
+
+.no-private .method.private, .no-private li.private  {
+	display: none;
+}
 .member h4, .method h4 {
 	border-bottom: 1px solid #e7e7e7;
 	font-weight: 400;
