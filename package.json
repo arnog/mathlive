@@ -31,7 +31,7 @@
     "prepare": "npm run dist",
     "docs": "jsdoc -c ./jsdoc.conf.json && echo \"docs.mathlive.io\" > docs/CNAME",
     "watch-docs": "npm run docs && chokidar 'src/*.js' '*.md' -c 'npm run docs'",
-    "dist": "npm run clean && npm run build && postcss build/*.css -d dist && webpack"
+    "dist": "npm run clean && npm run build && postcss build/*.css -d dist && webpack --display-optimization-bailout"
   },
   "nyc": {
     "exclude": [
@@ -72,10 +72,9 @@
     "nyc": "^11.0.2",
     "postcss-cli": "^4.1.0",
     "requirejs": "latest",
-    "sutro-jsdoc-theme": "git+ssh://git@github.com/arnog/sutro-jsdoc-theme.git",
+    "sutro-jsdoc-theme": "github:arnog/sutro-jsdoc-theme",
     "tape": "^4.6.3",
     "tape-watch": "^2.3.0",
-    "webpack": "^2.5.0"
-  },
-  "dependencies": {}
+    "webpack": "^3.0.0"
+  }
 }
