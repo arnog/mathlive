@@ -51,7 +51,9 @@
     "last 2 versions"
   ],
   "author": "Arno Gourdol <arno@arno.org>",
-  "contributors": [],
+  "contributors": [
+      "Louis Larpin (lilfaf.github.io)"
+  ],
   "bugs": "https://github.com/arnog/mathlive/issues/",
   "devDependencies": {
     "autoprefixer": "^6.7.7",
