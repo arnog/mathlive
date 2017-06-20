@@ -10,13 +10,14 @@
     },
     "plugins": [
         "plugins/markdown"
-//        "plugins/underscore"          // To remove functions that start with _
     ],
     "templates": {
         "cleverLinks": false,
         "monospaceLinks": false,
         "outputSourceFiles": true,
         "linenums": true,
+        "sourceCodeTheme": "dark",
+        "sourceCodeBackground": "#35434e",
         "includeDate": false,
         "title": "MathLive",
         "pageTitle": "MathLive Docs",
@@ -25,10 +26,10 @@
         "forkme": "https://github.com/arnog/mathlive"
     },
     "opts": {
-        "access": "all",        //  use "public" to ommit the private symbols
-        "template": "node_modules/namis",
-        "encoding": "utf8",               // same as -e utf8
-        "recurse": true,                  // same as -r
+        "access": "all",
+        "template": "node_modules/sutro-jsdoc-theme",
+        "encoding": "utf8",
+        "recurse": true,
         "destination": "./docs",
         "readme": "CONTRIBUTOR_GUIDE.md",
         "sort": false

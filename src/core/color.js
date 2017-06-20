@@ -5,6 +5,7 @@
  * parse a string into a hex RGB color value.
  * @summary   Parsing of color strings.
  * @module color
+ * @private
  */
 define([], function() {
 

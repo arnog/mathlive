@@ -2,6 +2,9 @@
 .prettyprint {
 	padding-left: 0;
 	padding-right: 0;
+	border: 1px solid rgba(255, 255, 255, .3);
+	border-right: 1px solid rgba(0, 0, 0, .3);
+	border-bottom: 1px solid rgba(0, 0, 0, .3);
 }
 .prettyprint.linenums {
 	padding-left: 0;
@@ -18,7 +21,7 @@
 }
 
 .prettyprint.linenums ol li.L0, li.L2,li.L4, li.L6, li.L8 {
-	background-color: #fcfcfc;
+	background-color: rgba(128, 128, 128, .1);
 }
 
 .prettyprint code{
@@ -26,7 +29,7 @@
 	padding-right: 0;
 	margin: 0;
 	border-radius: 0;
-	background: #eeeef1;
+	background: transparent;
 }
 body{
 	padding: 0;
@@ -135,8 +138,9 @@ a, a:active {
 }
 tt, code, kbd, samp {
 	font-family: 'Source Code Pro', monospace;
-	font-size: 0.875rem;
-  	background: #fdfdfd;
+	font-size: 0.8rem;
+  	background: rgba(128, 128, 128, .07);
+	border: 1px solid rgba(0, 0, 0, .07);
 }
 .details {
 	font-size: .85em;
@@ -163,6 +167,8 @@ tt, code, kbd, samp {
 	margin-bottom: 5px;
 	line-height: 20px;
 	font-size: 14px;
+	background: transparent;
+	border: none;
 }
 .attributes span.attribute {
 	display: inline;

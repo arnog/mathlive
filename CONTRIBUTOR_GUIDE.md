@@ -103,11 +103,11 @@ $ npm publish
 **Note on versionning** Use the [semver](http://semver.org/) convention for 
 versions:
 * `npm version patch`: bug fixes and other minor changes. Last number of the 
-version is incremented, e.g. "1.2.41" → "1.2.42"
+version is incremented, e.g. `1.2.41` → `1.2.42`
 * `npm version minor`: new features which don't break existing features. Middle
-number of the version is incremented, e.g. "1.2.42" → "1.3.0"
+number of the version is incremented, e.g. `1.2.42` → `1.3.0`
 * `npm version major`: changes which break backward compatibility of the API.
-Increment first number, e.g. "1.3.56" → "2.0.0"
+Increment the first number, e.g. `1.3.56` → `2.0.0`
 
 
 ## Code Structure
@@ -188,23 +188,41 @@ project. In addition, follow these guidelines:
 * Quotes are preferably **single quotes**. Use double-quotes when inside a 
 single-quoted string. Using backtick (template strings)for multiline
  quotes is OK.
+ ```javascript
+    let s = 'hello, ' + 'world';
+    s = 'hello, "world"';
+    s = `hello:
+world`;
+ ```
 * **Typecheck** using `typeof v === 'string'`, `typeof v === 'number'`, etc... 
 Use `Array.isArray(v)` to check for arrays.
-* **Conditional evaluation** Use conditional evaluation shortcuts when applicable
+* **Conditional evaluation.** Use conditional evaluation shortcuts when applicable
 for example, use `if (string)` instead of `if (string !== '')`
-* The return variable of a function is usually named **`result`**
-* Avoid boolean as arguments. Instead, use an `options` Object that can have 
-key value pairs spelling out the meaning of the boolean. Instead of `f(true);` 
-you would have `f({reverse: true})`. 
-* Use `||` for default values, for example `m = f(n) || d`. If the function
-`f` returns `null`, `undefined` or an empty string, `m` will have the value `d`
+* The variable holding the return value of a function is usually named 
+**`result`**
+* **Avoid boolean as arguments.** Instead, use an `options` object with 
+key/value pairs spelling out the meaning of the boolean. 
+Dont'do:
+```javascript
+    f(true);
+```
+Do: 
+```javascript
+    f({reverse: true})
+```
+* **Use `||` for default values.** For example 
+```javascript
+    m = f(n) || d;
+```
+If the function `f` returns `null`, `undefined` or an empty string, 
+`m` will have the value `d`
 * **Braces for control structures** should always be used, except for short
 `if` statement, for example `if (done) return;`
-* **Avoid method chaining** Method chaining is a programming style where a 
+* **Avoid method chaining.** Method chaining is a programming style where a 
 method returns the `this` object so that it can be called again. For example 
 `div.css('color', 'white').height(50).width(50)`.
-* **Use loose typing** For example, a function argument could accept a string
-or an array and behave appropriately. For example:
+* **Use loose typing.** For example, a function argument could accept a string
+or an array and behave appropriately:
 ``` javascript
     function f(argument) {
         if (Array.isArray(argument)) {

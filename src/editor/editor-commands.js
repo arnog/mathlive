@@ -1,7 +1,7 @@
 
 
 /**
- * @module editor_commands
+ * @module editor/commands
  */
 define(['mathlive/core/lexer', 'mathlive/core/mathAtom', 'mathlive/core/parser', 'mathlive/core/span', 'mathlive/editor/editor-shortcuts', 'mathlive/addons/outputLatex'], 
     function(Lexer, MathAtom, ParserModule, Span, Shortcuts, 
@@ -295,7 +295,7 @@ let USER_STATS = {
  * @param {MathAtom[]} before atoms before the insertion point/selection
  * @param {MathAtom[]} selection selected atoms (or null if insertion point)
  * @param {MathAtom[]} after atoms after the insertion point/selection
- * @memberof module:editor_commands
+ * @memberof module:editor/commands
  */
 function suggest(parsemode, environment, modifiers, parent, before, selection, after) {
     const result = [];

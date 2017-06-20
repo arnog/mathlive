@@ -1,5 +1,3 @@
-@import url(//fonts.googleapis.com/css?family=Montserrat:400,700);
-
 * {
   box-sizing: border-box
 }
@@ -35,7 +33,7 @@ p, ul, ol, blockquote {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Montserrat', sans-serif;
+  font-family: sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -89,6 +87,18 @@ tt, code, kbd, samp {
   background: #f4f4f4;
   padding: 1px 5px;
   border-radius: 5px;
+}
+
+.attrib {
+    float: right;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    margin-left: 5px;
+    padding-right: 4px;
+    padding-left: 4px;
+    font-size: .85em;
+    background: #f4f4f4;
+    color: #999;
 }
 
 .class-description {
@@ -162,7 +172,7 @@ nav ul {
 
 nav ul a,
 nav ul a:active {
-  font-family: 'Montserrat', sans-serif;
+  font-family: sans-serif;
   line-height: 18px;
   padding: 0;
   display: block;
@@ -314,6 +324,11 @@ footer {
   margin: 0 30px;
   background-color: #fff;
   color: #4D4E53;
+}
+
+/* Prevent collapse of empty <code></code> */
+.prettyprint code:empty:before {
+  content: '';
 }
 
 .prettyprint > code {
@@ -588,3 +603,33 @@ dl.param-type {
     margin-left: 0;
   }
 }
+
+@media only print {
+  html {
+    font-size: 11px !important;
+  }
+  body {
+    font-size: 8px !important;
+  }
+  section[role="navigation"] {
+    display: none;
+  }
+
+  tt, code, kbd, samp {
+    font-size: 11px !important;
+  }
+  
+.member p, .method p {
+  font-size: 8px !important;
+  line-height: 11px !important;
+}
+
+  #main {
+    float: none;
+    left: 0        !important;
+    width: 100%   !important;
+    max-width: 100vw;
+    background: transparent !important;
+  }
+}
+

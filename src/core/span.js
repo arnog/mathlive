@@ -21,6 +21,7 @@ const NUMBER_FORMATER = new Intl.NumberFormat('en-US', {
  * @param {...string} args
  * @return {string}
  * @memberof module:span
+ * @private
  */
 function toString() {
     let result = '';
@@ -174,7 +175,6 @@ Span.prototype.addMarginRight = function(margin) {
  * @alias module:span.INTER_ATOM_SPACING
  * @private
  */
-
 const INTER_ATOM_SPACING = {
     'mord+mop':            3,
     'mord+mbin':           4,

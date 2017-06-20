@@ -1,8 +1,16 @@
+/**
+ * @module editor/mathpath
+ */
 define([], 
     function() {
 
 
 
+/**
+ * 
+ * @memberof module:editor/mathpath
+ * @param {*} path 
+ */
 function pathToString(path) {
     let result = '';
     for (const segment of path) {
@@ -19,6 +27,11 @@ function pathToString(path) {
 }
 
 
+/**
+ * 
+ * @memberof module:editor/mathpath
+ * @param {*} string 
+ */
 function pathFromString(string) {
     // Reset the path
     const result = {};
@@ -53,6 +66,12 @@ function pathFromString(string) {
     return result;
 }
 
+/**
+ * 
+ * @memberof module:editor/mathpath
+ * @param {*} p 
+ * @param {*} q 
+ */
 function pathCommonAncestor(p, q) {
     const result = [];
     const maxIndex = Math.min(p.length - 1, q.length - 1);
@@ -68,6 +87,7 @@ function pathCommonAncestor(p, q) {
 
 /**
  * 
+ * @memberof module:editor/mathpath
  * @param {Array} one 
  * @param {Array} two 
  * @return {number} 0 if the paths are identical

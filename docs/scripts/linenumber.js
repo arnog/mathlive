@@ -1,22 +1,6 @@
 /*global document */
 (function() {
-    function _class(className){
-        if(document.getElementsByClassName){
-            return document.getElementsByClassName(className);
-        }
-        else{
-            var collection = [];
-            var elements = document.getElementsByTagName('*');
-            for(var i = 0, l = elements.length; i < l; i++){
-                if(elements[i].className === 'className')
-                    collection.push(elements[i]);
-            }
-
-            return collection;
-        }
-    }
-
-    var source = _class('prettyprint source linenums');
+    var source = document.getElementsByClassName('prettyprint source linenums');
     var i = 0;
     var lineNumber = 0;
     var lineId;

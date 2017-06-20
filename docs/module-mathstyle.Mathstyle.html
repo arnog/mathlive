@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>Token - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>Mathstyle - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -46,7 +46,7 @@
 
 <main id="main">
     
-        <h1 class="page-title">Token</h1>
+        <h1 class="page-title">Mathstyle</h1>
     
 
     
@@ -59,9 +59,9 @@
 <header>
     
         <h2>
-            <span class="ancestors"><a href="module-lexer.html">lexer</a>.</span>
+            <span class="ancestors"><a href="module-mathstyle.html">mathstyle</a>.</span>
         
-        Token
+        Mathstyle
         </h2>
         
     
@@ -75,12 +75,16 @@
 
     
 
-    <h4 class="name" id="Token">new Token<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Mathstyle">new Mathstyle<span class="signature">(id, size, size, cramped)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
 
     
 
 
 
+<div class="description">
+    <p>The main mathstyle class.
+Contains:</p>
+</div>
 
 
 
@@ -88,109 +92,134 @@
 
 
 
-    
-
-    
-
-    
-
-    
-
-
-    <h5 class="subsection-title">Properties:</h5>
 
     
 
-<table class="props">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
+    
+        <!-- <h5>Parameters:</h5> -->
+        <div class='param'>
 
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
     
 
-        <tr>
+        <p class="signature">
             
-                <td class="name"><code>value</code></td>
+                <span class="name"><code>id</code></span>
             
 
-            <td class="type">
+            <span class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">number</span>
 
 
             
-            </td>
+            </span>
 
             
 
             
-
-            <td class="description last">
-                
-            </td>
-        </tr>
+            </p>
+            
+                <p class="description last">
+                    <p>unique id for the style</p>
+                    
+                </p>
+            
+        </p>
 
     
 
-        <tr>
+        <p class="signature">
             
-                <td class="name"><code>type</code></td>
+                <span class="name"><code>size</code></span>
             
 
-            <td class="type">
+            <span class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">number</span>
 
 
             
-            </td>
+            </span>
 
             
 
             
-
-            <td class="description last"><p>A token can be of type:</p>
-<ul>
-<li><code>literal</code>: the value is the character this token represents. This can be 
-a combination of Unicode codepoints, for example for emojis.</li>
-<li><code>^</code> and <code>_</code>: superscript and subscript commands.</li>
-<li>command: a command such as \sin</li>
-<li><code>{</code> and <code>}</code>: begin and end group (use for arguments of commands and for grouping)</li>
-<li><p><code>#</code>: parameter</p>
-</li>
-<li><p><code>esc</code>: start of a special command. Followed by commandliteral tokens.</p>
-</li>
-<li><code>backslash</code>: start of a special command. Followed by commandliteral tokens.</li>
-<li><code>commandliteral</code>: a-zA-Z for special commands (esc sequence, etc...)</li>
-<li><code>placeholder</code>: a placeholder value meant to be replaced by some actual value</li>
-<li><p><code>space</code>: one or more space characters (including tab, etc...)</p>
-<p>See: <a href="http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web">TeX</a>:289</p>
-</li>
-</ul>
-                
-            </td>
-        </tr>
+            </p>
+            
+                <p class="description last">
+                    <p>(which is the same for cramped and uncramped version of a style)</p>
+                    
+                </p>
+            
+        </p>
 
     
-    </tbody>
-</table>
+
+        <p class="signature">
+            
+                <span class="name"><code>size</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
 
 
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+                <p class="description last">
+                    <p>multiplier, which gives the size difference between a style and
+textstyle.</p>
+                    
+                </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>cramped</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+                <p class="description last">
+                    <p>flag</p>
+                    
+                </p>
+            
+        </p>
+
+    
+</div>
+
+    
+
+    
+
+    
 
 
 <dl class="details">
@@ -221,7 +250,7 @@ a combination of Unicode codepoints, for example for emojis.</li>
 
     
         <span class="tag-source">
-        <a href="core_lexer.js.html#line20">Source</a>
+        <a href="core_mathstyle.js.html#line41">Source</a>
         </span>
     
 

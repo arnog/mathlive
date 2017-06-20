@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>MathField - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>definitions - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -46,7 +46,7 @@
 
 <main id="main">
     
-        <h1 class="page-title">MathField</h1>
+        <h1 class="page-title">definitions</h1>
     
 
     
@@ -58,11 +58,8 @@
 
 <header>
     
-        <h2>
-            <span class="ancestors"><a href="module-editor_mathfield.html">editor/mathfield</a>.</span>
         
-        MathField
-        </h2>
+            
         
     
 </header>
@@ -71,23 +68,17 @@
     <div class="container-overview">
     
         
+            <div class="description"><p>This module contains the definitions of all the symbols and commands, for 
+example <code>\alpha</code>, <code>\sin</code>, <code>\mathrm</code>.
+There are a few exceptions with some &quot;built-in&quot; commands that require
+speach parsing such as <code>\char</code>.</p></div>
+        
+
+        
+            
 <div class='method'>
 
-    
 
-    <h4 class="name" id="MathField">new MathField<span class="signature">(element, config)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>This function can either be used as a classic function to retrieve
-a MathField object previously bound to a DOM element, e.g.:</p>
-<pre class="prettyprint source lang-javascript"><code>    mf = Mathlive.MathField(document.getElementById('id'));</code></pre><p>Or it can be used as a constructor that will bind a new MathField 
-object to a DOM element, e.g.</p>
-<pre class="prettyprint source lang-javascript"><code>    mf = new Mathlive.MathField(document.getElementById('id'));</code></pre>
-</div>
 
 
 
@@ -99,199 +90,10 @@ object to a DOM element, e.g.</p>
     
 
     
-        <!-- <h5>Parameters:</h5> -->
-        <div class='param'>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>element</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Element</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-        </p>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>See <code>MathField.setConfig()</code> for details</p>
-                    
-                </p>
-            
-        </p>
-
-    
-</div>
 
     
 
     
-
-    
-
-
-    <h5 class="subsection-title">Properties:</h5>
-
-    
-
-<table class="props">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>element</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Element</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The DOM element this mathfield is attached to.</p>
-                
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>config</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>A key/value/pair object that includes options
-customizing the behavior of the mathfield</p>
-                
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>id</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>A unique ID identifying this mathfield</p>
-                
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>keystrokeCaptionVisible</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>True if the keystroke caption
-panel is visible</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
 
 
 <dl class="details">
@@ -322,7 +124,7 @@ panel is visible</p>
 
     
         <span class="tag-source">
-        <a href="editor_editor-mathfield.js.html#line73">Source</a>
+        <a href="core_definitions.js.html#line46">Source</a>
         </span>
     
 
@@ -350,6 +152,7 @@ panel is visible</p>
 
 </div>
 
+        
     
     </div>
 
@@ -374,1130 +177,15 @@ panel is visible</p>
 
     
 
-    <h4 class="name" id="_getCaretPosition">_getCaretPosition<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".defineEnvironment">defineEnvironment<span class="signature">(names, params, options, parser)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">static</span></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Return the (x,y) client coordinates of the caret</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="editor_editor-mathfield.js.html#line237">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method'>
-
-    
-
-    <h4 class="name" id="_onKeystroke">_onKeystroke<span class="signature">(keystroke, evt)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters:</h5> -->
-        <div class='param'>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>keystroke</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-        </p>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>evt</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Event</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-        </p>
-
-    
-</div>
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="editor_editor-mathfield.js.html#line555">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method'>
-
-    
-
-    <h4 class="name" id="complete_">complete_<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Completes an operation in progress, for example when in command mode, 
-interpret the command</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="editor_editor-mathfield.js.html#line915">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method'>
-
-    
-
-    <h4 class="name" id="config">config<span class="signature">(config)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters:</h5> -->
-        <div class='param'>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    
-                    
-                        <div class='param'>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config.substituteTextArea</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>A function that returns a focusable element
-that can be used to capture text input.</p>
-                    
-                </p>
-            
-        </p>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config.onFocus</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">mathfieldCallback</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>Invoked when the mathfield has been focused</p>
-                    
-                </p>
-            
-        </p>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config.onBlur</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">mathfieldCallback</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>Invoked when the mathfield has been blurred</p>
-                    
-                </p>
-            
-        </p>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config.overrideDefaultInlineShorctus</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>If true, the default 
-inline shortcuts (e.g. 'p' + 'i' = 'π') are ignored. Default false.</p>
-                    
-                </p>
-            
-        </p>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config.inlineShortcuts</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>A map of shortcuts -&gt; replacement value.
-For example <code>{ 'pi': '\\pi'}</code>. If <code>overrideDefaultInlineShorcuts</code> is false, 
-these shortcuts are applied after any default ones, and can therefore replace
-them.</p>
-                    
-                </p>
-            
-        </p>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config.onMoveOutOf</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">mathfieldWithDirectionCallback</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>A handler called when 
-keyboard navigation would cause the insertion point to leave the mathfield.</p>
-<p>By default, the insertion point will wrap around.</p>
-                    
-                </p>
-            
-        </p>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config.onTabOutOf</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">mathfieldWithDirectionCallback</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>A handler called when 
-pressing tab (or shift-tab) would cause the insertion point to leave the mathfield.</p>
-<p>By default, the insertion point jumps to the next point of interest.</p>
-                    
-                </p>
-            
-        </p>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config.onDeleteOutOf</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">mathfieldWithDirectionCallback</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>A handler called when 
-deleting an item would cause the insertion point to leave the mathfield.</p>
-<p>By default, nothing happens. @todo</p>
-                    
-                </p>
-            
-        </p>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config.onSelectOutOf</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">mathfieldWithDirectionCallback</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>A handler called when 
-the selection is extended so that it would cause the insertion point to 
-leave the mathfield.</p>
-<p>By default, nothing happens. @todo</p>
-                    
-                </p>
-            
-        </p>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config.onUpOutOf</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">mathfieldCallback</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>A handler called when 
-the up arrow key is pressed with no element to navigate to.</p>
-<p>By default, nothing happens. @todo</p>
-                    
-                </p>
-            
-        </p>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config.onDownOutOf</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">mathfieldCallback</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>A handler called when 
-the up down key is pressed with no element to navigate to.</p>
-<p>By default, nothing happens. @todo</p>
-                    
-                </p>
-            
-        </p>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config.onEnter</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">mathfieldCallback</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>A handler called when 
-the enter/return key is pressed and it is not otherwise handled. @todo</p>
-                    
-                </p>
-            
-        </p>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config.onContentWillChange</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">mathfieldCallback</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>A handler called 
-just before the content is about to be changed. @todo</p>
-                    
-                </p>
-            
-        </p>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config.onContentDidChange</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">mathfieldCallback</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>A handler called 
-just after the content has been changed.@todo</p>
-                    
-                </p>
-            
-        </p>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config.onSelectionWillChange</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">mathfieldCallback</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>A handler called 
-just before the selection is about to be changed.</p>
-                    
-                </p>
-            
-        </p>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>config.onSelectionDidChange</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">mathfieldCallback</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>A handler called<br>just after the selection has been changed.</p>
-                    
-                </p>
-            
-        </p>
-
-    
-</div>
-
-                    
-                </p>
-            
-        </p>
-
-    
-</div>
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="editor_editor-mathfield.js.html#line1279">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method'>
-
-    
-
-    <h4 class="name" id="enterCommandMode_">enterCommandMode_<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="editor_editor-mathfield.js.html#line859">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method'>
-
-    
-
-    <h4 class="name" id="keystroke">keystroke<span class="signature">(keys)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters:</h5> -->
-        <div class='param'>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>keys</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>A whitespace delimited list of key inputs
-See https://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes</p>
-                    
-                </p>
-            
-        </p>
-
-    
-</div>
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="editor_editor-mathfield.js.html#line1247">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method'>
-
-    
-
-    <h4 class="name" id="latex">latex<span class="signature">(text)</span><span class="type-signature"> &rarr; {string}</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>If <code>text</code> is not undefined, sets the content of the mathfield to the 
-text interpreted as a LaTeX expression.
-If <code>text</code> is undefined, return the content of the mahtfield as a 
-LaTeX expression.</p>
+    <p>Define one or more environments to be used with 
+        \begin{<env-name>}...\end{<env-name>}.</p>
 </div>
 
 
@@ -1517,13 +205,16 @@ LaTeX expression.</p>
 
         <p class="signature">
             
-                <span class="name"><code>text</code></span>
+                <span class="name"><code>names</code></span>
             
 
             <span class="type">
             
                 
 <span class="param-type">string</span>
+|
+
+<span class="param-type">Array.&lt;string></span>
 
 
             
@@ -1537,123 +228,10 @@ LaTeX expression.</p>
         </p>
 
     
-</div>
-
-    
-
-    
-    
-        return 
-    
-            
-<span class="param-desc">
-    
-        
-<span class="param-type">string</span>
-
-
-        &nbsp;&nbsp;
-    
-    
-</span>
-
-
-
-        
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="editor_editor-mathfield.js.html#line809">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method'>
-
-    
-
-    <h4 class="name" id="text">text<span class="signature">(format<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {string}</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Return a textual representation of the mathfield.</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters:</h5> -->
-        <div class='param'>
-
-    
 
         <p class="signature">
             
-                <span class="name"><code>format</code></span>
+                <span class="name"><code>params</code></span>
             
 
             <span class="type">
@@ -1666,255 +244,14 @@ LaTeX expression.</p>
             </span>
 
             
-                <span class="attributes">
-                
-                    <span class="attribute">optional</span>
-                
 
-                
-
-                
-                </span>
-            
-
-            
-                
-                    <span class="default">= 'latex'</span>
-                
             
             </p>
             
                 <p class="description last">
-                    <p>One of 'latex', 'spoken', 'asciimath'</p>
+                    <p>The number and type of required and optional parameters.</p>
                     
                 </p>
-            
-        </p>
-
-    
-</div>
-
-    
-
-    
-    
-        return 
-    
-            
-<span class="param-desc">
-    
-        
-<span class="param-type">string</span>
-
-
-        &nbsp;&nbsp;
-    
-    
-</span>
-
-
-
-        
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="editor_editor-mathfield.js.html#line791">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method'>
-
-    
-
-    <h4 class="name" id="typedText">typedText<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Simulate a user typing the keys indicated by text.</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="editor_editor-mathfield.js.html#line1258">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method'>
-
-    
-
-    <h4 class="name" id="write">write<span class="signature">(latex, options)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>This function can be invoked as a selector from or called explicitly.
-It will insert the specified block of latex at the current selection point,
-according to the insertion mode specified. After the insertion, the 
-selection will be set according to the selectionMode.</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters:</h5> -->
-        <div class='param'>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>latex</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
             
         </p>
 
@@ -1940,34 +277,7 @@ selection will be set according to the selectionMode.</p>
             </p>
             
                 <p class="description last">
-                    
-                    
-                        <div class='param'>
-
-    
-
-        <p class="signature">
-            
-                <span class="name"><code>options.insertionMode</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-            </p>
-            
-                <p class="description last">
-                    <p>One of <code>&quot;replaceSelection&quot;</code>, 
-<code>&quot;replaceAll&quot;</code>, <code>&quot;insertBefore&quot;</code> or <code>&quot;insertAfter&quot;</code>. Default: <code>&quot;replaceSelection&quot;</code></p>
+                    <p>-</p>
                     
                 </p>
             
@@ -1977,13 +287,13 @@ selection will be set according to the selectionMode.</p>
 
         <p class="signature">
             
-                <span class="name"><code>options.selectionMode</code></span>
+                <span class="name"><code>parser</code></span>
             
 
             <span class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">function</span>
 
 
             
@@ -1993,25 +303,6 @@ selection will be set according to the selectionMode.</p>
 
             
             </p>
-            
-                <p class="description last">
-                    <p>Describes where the selection 
-will be after the insertion. One of 'placeholder' (the selection will be 
-the first available placeholder in the item that has been inserted), 
-'after' (the selection will be an insertion point after the item that has 
-been inserted), 'before' (the selection will be an insertion point before 
-the item that has been inserted) or 'item' (the item that was inserted will
-be selected). Default: 'placeholder'.</p>
-                    
-                </p>
-            
-        </p>
-
-    
-</div>
-
-                    
-                </p>
             
         </p>
 
@@ -2053,7 +344,1982 @@ be selected). Default: 'placeholder'.</p>
 
     
         <span class="tag-source">
-        <a href="editor_editor-mathfield.js.html#line888">Source</a>
+        <a href="core_definitions.js.html#line545">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id=".defineFunction">defineFunction<span class="signature">(names, params, options, handler)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">static</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Define one of more functions.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters:</h5> -->
+        <div class='param'>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>names</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">Array.&lt;string></span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>params</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+                <p class="description last">
+                    <p>The number and type of required and optional parameters. 
+For example: '{}' defines a single mandatory parameter
+'[index=2]{indicand}' defines two params, one optional, one required</p>
+                    
+                </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>options</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+                <p class="description last">
+                    <ul>
+<li>greediness</li>
+<li>infix</li>
+<li>allowedInText</li>
+</ul>
+                    
+                </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>handler</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="core_definitions.js.html#line592">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id=".defineSymbol">defineSymbol<span class="signature">(latexName, mode, fontFamily, type, value, frequency<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">static</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters:</h5> -->
+        <div class='param'>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>latexName</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+                <p class="description last">
+                    <p>The common LaTeX command for this symbol</p>
+                    
+                </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>mode</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">Array.&lt;string></span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>fontFamily</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>type</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>value</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>frequency</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+|
+
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+                    <span class="attribute">optional</span>
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="core_definitions.js.html#line141">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id=".defineSymbolRange">defineSymbolRange<span class="signature">(from, to, mode, fontFamily, type, frequency<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">static</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Define a set of single-character symbols as a range of Unicode codepoints</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters:</h5> -->
+        <div class='param'>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>from</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+                <p class="description last">
+                    <p>First Unicode codepoint</p>
+                    
+                </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>to</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+                <p class="description last">
+                    <p>Last Unicode codepoint</p>
+                    
+                </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>mode</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>fontFamily</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>type</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>frequency</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+                    <span class="attribute">optional</span>
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="core_definitions.js.html#line207">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id=".defineSymbols">defineSymbols<span class="signature">(string, mode, fontFamily, type, frequency<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">static</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Define a set of single-character symbols and all their attributes.
+The value associated with the symbol is the symbol itself.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters:</h5> -->
+        <div class='param'>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>string</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+                <p class="description last">
+                    <p>a string of single character symbols</p>
+                    
+                </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>mode</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>fontFamily</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>type</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>frequency</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+                    <span class="attribute">optional</span>
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="core_definitions.js.html#line190">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id=".frequency">frequency<span class="signature">(value, &hellip;symbols)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">static</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Set the frequency of the specified symbol.
+Default frequency is UNCOMMON
+The argument list is a frequency value, followed by one or more symbol strings
+For example:
+ frequency(COMMON , '\sin', '\cos')</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters:</h5> -->
+        <div class='param'>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>value</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+            </p>
+            
+                <p class="description last">
+                    <p>The frequency as a string constant, 
+or a numeric value [0...2000]</p>
+                    
+                </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>symbols</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">?</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                    <span class="attribute">repeatable</span>
+                
+                </span>
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="core_definitions.js.html#line110">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id=".getInfo">getInfo<span class="signature">(symbol, parseMode)</span><span class="type-signature"> &rarr; {any}</span><span class="type-signature"><span class="attrib">static</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters:</h5> -->
+        <div class='param'>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>symbol</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+                <p class="description last">
+                    <p>A command (e.g. '\alpha') or a character (e.g. 'a')</p>
+                    
+                </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>parseMode</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+                <p class="description last">
+                    <p>One of 'math', 'text', 'string', 'color', 'dimen', etc...</p>
+                    
+                </p>
+            
+        </p>
+
+    
+</div>
+
+    
+
+    
+    
+        return 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">any</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>An info structure about the symbol, or null</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="core_definitions.js.html#line346">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id=".matchCodepoint">matchCodepoint<span class="signature">(s)</span><span class="type-signature"> &rarr; {string}</span><span class="type-signature"><span class="attrib">static</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Given a character, return a latex expression matching its unicode codepoint.
+The return string is in the ASCII range.
+If there is a matching symbol (e.g. \alpha) it is returned.
+If there is no matching symbol and it is outside the ASCII range, an 
+expression with \char is returned.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters:</h5> -->
+        <div class='param'>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>s</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+</div>
+
+    
+
+    
+    
+        return 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="core_definitions.js.html#line224">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id=".matchFunction">matchFunction<span class="signature">(mode, s)</span><span class="type-signature"> &rarr; {Object}</span><span class="type-signature"><span class="attrib">static</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters:</h5> -->
+        <div class='param'>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>mode</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>s</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+</div>
+
+    
+
+    
+    
+        return 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">Object</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="core_definitions.js.html#line257">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id=".parseParamTemplateArgument">parseParamTemplateArgument<span class="signature">(argTemplate, isOptional)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">static</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>An argument template has the following syntax:</p>
+<p><placholder>:<type>=<default></p>
+<p>where</p>
+<ul>
+<li><placeholder> is a string whose value is displayed when the argument
+is missing</li>
+<li><type> is one of 'string', 'color', 'dimen', 'auto', 'text', 'math'</li>
+<li><default> is the default value if none is provided for an optional
+parameter</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters:</h5> -->
+        <div class='param'>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>argTemplate</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>isOptional</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="core_definitions.js.html#line481">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id=".suggest">suggest<span class="signature">(s)</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span><span class="type-signature"><span class="attrib">static</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return an array of suggestion for completing string 's'.
+For example, for 'si', it could return ['sin', 'sinh', 'sim', 'simeq', 'sigma']
+Infix operators are excluded, since they are deprecated commands.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters:</h5> -->
+        <div class='param'>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>s</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+</div>
+
+    
+
+    
+    
+        return 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">Array.&lt;string></span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="core_definitions.js.html#line398">Source</a>
         </span>
     
 

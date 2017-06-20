@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>Token - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>editor/shortcuts - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -46,7 +46,7 @@
 
 <main id="main">
     
-        <h1 class="page-title">Token</h1>
+        <h1 class="page-title">editor/shortcuts</h1>
     
 
     
@@ -58,11 +58,6 @@
 
 <header>
     
-        <h2>
-            <span class="ancestors"><a href="module-lexer.html">lexer</a>.</span>
-        
-        Token
-        </h2>
         
     
 </header>
@@ -71,124 +66,49 @@
     <div class="container-overview">
     
         
-<div class='method'>
-
-    
-
-    <h4 class="name" id="Token">new Token<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-
-    
-
-    
-
-
-    <h5 class="subsection-title">Properties:</h5>
-
-    
-
-<table class="props">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
 
         
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
 
         
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
             
-                <td class="name"><code>value</code></td>
+<div class='member'>
+<h4 class="name" id=".INLINE_SHORTCUTS">INLINE_SHORTCUTS<span class="type-signature"> :Object.&lt;string, string></span><span class="type-signature"><span class="attrib">static</span><span class="attrib">constant</span></span></h4>
+
+
+
+
+<div class="description">
+    <p>These shortcut strings are replaced with the corresponding latex expression
+without requiring an escape sequence or command.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
             
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
+<span class="param-type">Object.&lt;string, string></span>
 
 
-            
-            </td>
+        </li>
+    </ul>
 
-            
-
-            
-
-            <td class="description last">
-                
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>type</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>A token can be of type:</p>
-<ul>
-<li><code>literal</code>: the value is the character this token represents. This can be 
-a combination of Unicode codepoints, for example for emojis.</li>
-<li><code>^</code> and <code>_</code>: superscript and subscript commands.</li>
-<li>command: a command such as \sin</li>
-<li><code>{</code> and <code>}</code>: begin and end group (use for arguments of commands and for grouping)</li>
-<li><p><code>#</code>: parameter</p>
-</li>
-<li><p><code>esc</code>: start of a special command. Followed by commandliteral tokens.</p>
-</li>
-<li><code>backslash</code>: start of a special command. Followed by commandliteral tokens.</li>
-<li><code>commandliteral</code>: a-zA-Z for special commands (esc sequence, etc...)</li>
-<li><code>placeholder</code>: a placeholder value meant to be replaced by some actual value</li>
-<li><p><code>space</code>: one or more space characters (including tab, etc...)</p>
-<p>See: <a href="http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web">TeX</a>:289</p>
-</li>
-</ul>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -221,7 +141,256 @@ a combination of Unicode codepoints, for example for emojis.</li>
 
     
         <span class="tag-source">
-        <a href="core_lexer.js.html#line20">Source</a>
+        <a href="editor_editor-shortcuts.js.html#line251">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+</div>
+        
+            
+<div class='member'>
+<h4 class="name" id=".KEYBOARD_SHORTCUTS">KEYBOARD_SHORTCUTS<span class="type-signature"> :Object.&lt;string, string></span><span class="type-signature"><span class="attrib">static</span><span class="attrib">constant</span></span></h4>
+
+
+
+
+<div class="description">
+    <p>The index of this array is a keystroke combination as returned by the key
+field of a Javascript keyboard event as documented here:
+https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
+except for:</p>
+<ul>
+<li><code>Escape</code>         → <code>Esc</code></li>
+<li><code>LeftArrow</code>...   → <code>Left/Right/Up/Down</code></li>
+<li><code>Delete</code>         → <code>Del</code></li>
+<li><code>Escape</code>         → <code>Esc</code></li>
+<li>' '            → <code>Spacebar</code></li>
+</ul>
+<p>The modifiers are specified before the main key, in the following order:</p>
+<ol>
+<li><code>Ctrl</code></li>
+<li><code>Meta</code>: Command key on Mac OS. On Windows this is the Windows key,
+but the system intercepts those key combinations so they are never received</li>
+<li><code>Alt</code>: Option key on Mac OS</li>
+<li><code>Shift</code></li>
+</ol>
+<p>The keys can be preceded by a context to restrict when the shortcut is 
+applicable. For example, &quot;math:Ctrl-KeyA&quot; will restrict this shortcut
+to only apply in the &quot;math&quot; context (parseMode). Other valid context include
+&quot;text&quot; and &quot;command&quot;.</p>
+<p>The value of the entries represent the command to perform. 
+This can be either a single selector, or an array of a selector followed
+by its arguments.
+Selectors uses the following naming conventions:</p>
+<ul>
+<li>a 'char' is a math atom (a letter, digit, symbol or compound atom)</li>
+<li>a 'word' is a sequence of math atoms of the same type</li>
+<li>a 'group' is a sequence of sibling atoms, for example a numerator or 
+a superscript</li>
+<li>the 'MathField' is the entire expression being edited</li>
+<li>a 'placeholder' is either an actual placeholder atom or an empty child 
+list, for example an empty numerator</li>
+<li>'move' changes the position of the insertion point (and collapses the 
+selection range if necessary)</li>
+<li>'extend' keeps the anchor of the  selection, but moves the focus (extends,
+or shrinks, the range of selected items)</li>
+</ul>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object.&lt;string, string></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-shortcuts.js.html#line50">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+</div>
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id=".matchEndOf">matchEndOf<span class="signature">(s)</span><span class="type-signature"> &rarr; {string}</span><span class="type-signature"><span class="attrib">static</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>This function is used to resolve inline shortcuts.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters:</h5> -->
+        <div class='param'>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>s</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+                <p class="description last">
+                    <p>candidate inline shortcuts (e.g. '2+pi')</p>
+                    
+                </p>
+            
+        </p>
+
+    
+</div>
+
+    
+
+    
+    
+        return 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>null if no matching shortcut, the value of the shortcut 
+otherwise, e.g. {match: 'pi', substitute: '\pi'}</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-shortcuts.js.html#line537">Source</a>
         </span>
     
 
@@ -249,21 +418,449 @@ a combination of Unicode codepoints, for example for emojis.</li>
 
 </div>
 
-    
-    </div>
+        
+            
+<div class='method'>
 
     
 
+    <h4 class="name" id=".matchKeystroke">matchKeystroke<span class="signature">(mode, keystroke)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">static</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return the command matching the keystroke</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters:</h5> -->
+        <div class='param'>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>mode</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>keystroke</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+</div>
+
     
 
     
 
-     
+    
+
+
+<dl class="details">
 
     
 
     
 
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-shortcuts.js.html#line618">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id=".platform">platform<span class="signature">(p)</span><span class="type-signature"> &rarr; {string}</span><span class="type-signature"><span class="attrib">static</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return <code>p</code>, the platform name if p is the current platform, otherwise
+return !p. For example, when running on Windows, platform('mac') returns
+'!mac'.
+The valid values for <code>p</code> are:</p>
+<ul>
+<li>mac</li>
+<li>win</li>
+<li>android</li>
+<li>ios</li>
+<li>chromeos</li>
+<li>other (linux, etc...)</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters:</h5> -->
+        <div class='param'>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>p</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+                <p class="description last">
+                    <p>The platform to test against.</p>
+                    
+                </p>
+            
+        </p>
+
+    
+</div>
+
+    
+
+    
+    
+        return 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>if we are running on the candidate platform, return it.
+Otherwise, return &quot;!&quot; + candidate.</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-shortcuts.js.html#line591">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id=".stringify">stringify<span class="signature">(shortcuts, join)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">static</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return a human readable representation of an array of shortcut strings</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters:</h5> -->
+        <div class='param'>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>shortcuts</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Object.&lt;string, string></span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+        </p>
+
+    
+
+        <p class="signature">
+            
+                <span class="name"><code>join</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+            </p>
+            
+                <p class="description last">
+                    <p>optional, string in between each shortcut representation</p>
+                    
+                </p>
+            
+        </p>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-shortcuts.js.html#line694">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
     
 
     

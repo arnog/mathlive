@@ -1,4 +1,64 @@
-/*global require:false*/
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"><title>core/definitions.js - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="scripts/prettify/prettify.js"></script>
+<!--    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script> -->
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro" rel="stylesheet">
+    
+        <style>pre.prettyprint{background: #35434e;}</style>
+    
+    
+        <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow-night.css">
+    
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/custom.css">
+</head>
+<body>
+
+
+<div class="forkme"><a href="https://github.com/arnog/mathlive"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/52760788cde945287fbb584134c4cbc2bc36f904/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"></a></div>
+
+
+<section role="navigation">
+    <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+    <label for="nav-trigger" class="navicon-button x">
+    <div class="navicon"></div>
+    </label>
+
+    <label for="nav-trigger" class="overlay"></label>
+
+    <nav id="nav">
+        <h3 class="group-title"><a href="index.html">MathLive</a></h3><input class="search" placeholder="Search" type="text"><div class="list"><h3 class="group-title">Classes</h3><ul><li><a href="Context.html" class="className">Context</a><ul class='methods'><li data-type='method'><a href="Context.html#clone" class="methodName">clone</a></li><li data-type='method'><a href="Context.html#cloneWith" class="methodName">cloneWith</a></li><li data-type='method'><a href="Context.html#getBackgroundColor" class="methodName">getBackgroundColor</a></li><li data-type='method'><a href="Context.html#getColor" class="methodName">getColor</a></li><li data-type='method'><a href="Context.html#setMathstyle" class="methodName">setMathstyle</a></li><li data-type='method'><a href="Context.html#withIsSelected" class="methodName">withIsSelected</a></li><li data-type='method'><a href="Context.html#withMathstyle" class="methodName">withMathstyle</a></li></ul></li><li><a href="module-editor_editableMathlist.EditableMathlist.html" class="className">EditableMathlist</a><ul class='methods'><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#ancestor" class="methodName">ancestor</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#anchor" class="methodName">anchor</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#commandOffsets" class="methodName">commandOffsets</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#commitCommandStringBeforeInsertionPoint" class="methodName">commitCommandStringBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#contains" class="methodName">contains</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#decorateCommandStringAroundInsertionPoint" class="methodName">decorateCommandStringAroundInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#delete" class="methodName">delete</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#delete_" class="methodName">delete_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#endOffset" class="methodName">endOffset</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extend" class="methodName">extend</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extract" class="methodName">extract</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractCommandStringAroundInsertionPoint" class="methodName">extractCommandStringAroundInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractContents" class="methodName">extractContents</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractContentsOrdInGroupBeforeInsertionPoint" class="methodName">extractContentsOrdInGroupBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#extractGroupStringBeforeInsertionPoint" class="methodName">extractGroupStringBeforeInsertionPoint</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#filter" class="methodName">filter</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#insert" class="methodName">insert</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#insertFirstAtom" class="methodName">insertFirstAtom</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#isCollapsed" class="methodName">isCollapsed</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#jump" class="methodName">jump</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#leap" class="methodName">leap</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToOpposite_" class="methodName">moveToOpposite_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToSubscript_" class="methodName">moveToSubscript_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#moveToSuperscript_" class="methodName">moveToSuperscript_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#next" class="methodName">next</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#selectAll_" class="methodName">selectAll_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#selectGroup_" class="methodName">selectGroup_</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setExtent" class="methodName">setExtent</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setRange" class="methodName">setRange</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#setSelection" class="methodName">setSelection</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#sibling" class="methodName">sibling</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#siblings" class="methodName">siblings</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#skip" class="methodName">skip</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#startOffset" class="methodName">startOffset</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#toString" class="methodName">toString</a></li><li data-type='method'><a href="module-editor_editableMathlist.EditableMathlist.html#transpose_" class="methodName">transpose_</a></li></ul></li><li><a href="module-editor_mathfield.MathField.html" class="className">MathField</a><ul class='methods'><li data-type='method'><a href="module-editor_mathfield.MathField.html#_getCaretPosition" class="methodName">_getCaretPosition</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#_onKeystroke" class="methodName">_onKeystroke</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#complete_" class="methodName">complete_</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#config" class="methodName">config</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#enterCommandMode_" class="methodName">enterCommandMode_</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#keystroke" class="methodName">keystroke</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#latex" class="methodName">latex</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#text" class="methodName">text</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#typedText" class="methodName">typedText</a></li><li data-type='method'><a href="module-editor_mathfield.MathField.html#write" class="methodName">write</a></li></ul></li><li><a href="module-lexer.Lexer.html" class="className">Lexer</a><ul class='methods'><li data-type='method'><a href="module-lexer.Lexer.html#end" class="methodName">end</a></li><li data-type='method'><a href="module-lexer.Lexer.html#get" class="methodName">get</a></li><li data-type='method'><a href="module-lexer.Lexer.html#isWhiteSpace" class="methodName">isWhiteSpace</a></li><li data-type='method'><a href="module-lexer.Lexer.html#makeToken" class="methodName">makeToken</a></li><li data-type='method'><a href="module-lexer.Lexer.html#peek" class="methodName">peek</a></li><li data-type='method'><a href="module-lexer.Lexer.html#scan" class="methodName">scan</a></li></ul></li><li><a href="module-lexer.Token.html" class="className">Token</a></li><li><a href="module-mathAtom.MathAtom.html" class="className">MathAtom</a><ul class='methods'><li data-type='method'><a href="module-mathAtom.MathAtom.html#bind" class="methodName">bind</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decompose" class="methodName">decompose</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeGenfrac" class="methodName">decomposeGenfrac</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeLeftright" class="methodName">decomposeLeftright</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#decomposeLine" class="methodName">decomposeLine</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#filter" class="methodName">filter</a></li><li data-type='method'><a href="module-mathAtom.MathAtom.html#makeSpan" class="methodName">makeSpan</a></li></ul></li><li><a href="module-mathstyle.Mathstyle.html" class="className">Mathstyle</a></li><li><a href="module-parser.Parser.html" class="className">Parser</a><ul class='methods'><li data-type='method'><a href="module-parser.Parser.html#hasToken" class="methodName">hasToken</a></li><li data-type='method'><a href="module-parser.Parser.html#lastMathAtom" class="methodName">lastMathAtom</a></li><li data-type='method'><a href="module-parser.Parser.html#parseAtom" class="methodName">parseAtom</a></li><li data-type='method'><a href="module-parser.Parser.html#parseKeyword" class="methodName">parseKeyword</a></li><li data-type='method'><a href="module-parser.Parser.html#parseLimits" class="methodName">parseLimits</a></li><li data-type='method'><a href="module-parser.Parser.html#parseSupSub" class="methodName">parseSupSub</a></li><li data-type='method'><a href="module-parser.Parser.html#parseToken" class="methodName">parseToken</a></li><li data-type='method'><a href="module-parser.Parser.html#scanArg" class="methodName">scanArg</a></li><li data-type='method'><a href="module-parser.Parser.html#scanColor" class="methodName">scanColor</a></li><li data-type='method'><a href="module-parser.Parser.html#scanDimen" class="methodName">scanDimen</a></li><li data-type='method'><a href="module-parser.Parser.html#scanEnvironment" class="methodName">scanEnvironment</a></li><li data-type='method'><a href="module-parser.Parser.html#scanGroup" class="methodName">scanGroup</a></li><li data-type='method'><a href="module-parser.Parser.html#scanImplicitGroup" class="methodName">scanImplicitGroup</a></li><li data-type='method'><a href="module-parser.Parser.html#scanLeftRight" class="methodName">scanLeftRight</a></li><li data-type='method'><a href="module-parser.Parser.html#scanModeSet" class="methodName">scanModeSet</a></li><li data-type='method'><a href="module-parser.Parser.html#scanModeShift" class="methodName">scanModeShift</a></li><li data-type='method'><a href="module-parser.Parser.html#scanNumber" class="methodName">scanNumber</a></li><li data-type='method'><a href="module-parser.Parser.html#scanString" class="methodName">scanString</a></li><li data-type='method'><a href="module-parser.Parser.html#scanToken" class="methodName">scanToken</a></li></ul></li><li><a href="module-span.Span.html" class="className">Span</a><ul class='methods'><li data-type='method'><a href="module-span.Span.html#setStyle" class="methodName">setStyle</a></li><li data-type='method'><a href="module-span.Span.html#toMarkup" class="methodName">toMarkup</a></li><li data-type='method'><a href="module-span.Span.html#tryCoalesceWith" class="methodName">tryCoalesceWith</a></li><li data-type='method'><a href="module-span.Span.html#updateDimensions" class="methodName">updateDimensions</a></li></ul></li><li><a href="UndoManager.html" class="className">UndoManager</a><ul class='methods'><li data-type='method'><a href="UndoManager.html#canRedo" class="methodName">canRedo</a></li><li data-type='method'><a href="UndoManager.html#canUndo" class="methodName">canUndo</a></li><li data-type='method'><a href="UndoManager.html#redo" class="methodName">redo</a></li><li data-type='method'><a href="UndoManager.html#snapshot" class="methodName">snapshot</a></li><li data-type='method'><a href="UndoManager.html#undo" class="methodName">undo</a></li></ul></li></ul><h3 class="group-title">Modules</h3><ul><li><a href="module-color.html" class="className">color</a><ul class='methods'><li data-type='method'><a href="module-color.html#.stringToColor" class="methodName">stringToColor</a></li></ul></li><li><a href="module-definitions.html" class="className">definitions</a><ul class='methods'><li data-type='method'><a href="module-definitions.html#.defineEnvironment" class="methodName">defineEnvironment</a></li><li data-type='method'><a href="module-definitions.html#.defineFunction" class="methodName">defineFunction</a></li><li data-type='method'><a href="module-definitions.html#.defineSymbol" class="methodName">defineSymbol</a></li><li data-type='method'><a href="module-definitions.html#.defineSymbolRange" class="methodName">defineSymbolRange</a></li><li data-type='method'><a href="module-definitions.html#.defineSymbols" class="methodName">defineSymbols</a></li><li data-type='method'><a href="module-definitions.html#.frequency" class="methodName">frequency</a></li><li data-type='method'><a href="module-definitions.html#.getInfo" class="methodName">getInfo</a></li><li data-type='method'><a href="module-definitions.html#.matchCodepoint" class="methodName">matchCodepoint</a></li><li data-type='method'><a href="module-definitions.html#.matchFunction" class="methodName">matchFunction</a></li><li data-type='method'><a href="module-definitions.html#.parseParamTemplateArgument" class="methodName">parseParamTemplateArgument</a></li><li data-type='method'><a href="module-definitions.html#.suggest" class="methodName">suggest</a></li></ul></li><li><a href="module-delimiters.html" class="className">delimiters</a><ul class='methods'><li data-type='method'><a href="module-delimiters.html#.makeCustomSizedDelim" class="methodName">makeCustomSizedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeInner" class="methodName">makeInner</a></li><li data-type='method'><a href="module-delimiters.html#.makeLargeDelim" class="methodName">makeLargeDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeLeftRightDelim" class="methodName">makeLeftRightDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeNullFence" class="methodName">makeNullFence</a></li><li data-type='method'><a href="module-delimiters.html#.makeSizedDelim" class="methodName">makeSizedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeSmallDelim" class="methodName">makeSmallDelim</a></li><li data-type='method'><a href="module-delimiters.html#.makeStackedDelim" class="methodName">makeStackedDelim</a></li><li data-type='method'><a href="module-delimiters.html#.traverseSequence" class="methodName">traverseSequence</a></li></ul></li><li><a href="module-editor_commands.html" class="className">editor/commands</a><ul class='methods'><li data-type='method'><a href="module-editor_commands.html#.suggest" class="methodName">suggest</a></li></ul></li><li><a href="module-editor_editableMathlist.html" class="className">editor/editableMathlist</a><ul class='methods'><li data-type='method'><a href="module-editor_editableMathlist.html#.atomContains" class="methodName">atomContains</a></li></ul></li><li><a href="module-editor_keyboard.html" class="className">editor/keyboard</a></li><li><a href="module-editor_mathfield.html" class="className">editor/mathfield</a><ul class='methods'><li data-type='method'><a href="module-editor_mathfield.html#_findElementWithCaret" class="methodName">_findElementWithCaret</a></li><li data-type='method'><a href="module-editor_mathfield.html#nearestElementFromPoint" class="methodName">nearestElementFromPoint</a></li></ul></li><li><a href="module-editor_mathpath.html" class="className">editor/mathpath</a><ul class='methods'><li data-type='method'><a href="module-editor_mathpath.html#.pathCommonAncestor" class="methodName">pathCommonAncestor</a></li><li data-type='method'><a href="module-editor_mathpath.html#.pathDistance" class="methodName">pathDistance</a></li><li data-type='method'><a href="module-editor_mathpath.html#.pathFromString" class="methodName">pathFromString</a></li><li data-type='method'><a href="module-editor_mathpath.html#.pathToString" class="methodName">pathToString</a></li></ul></li><li><a href="module-editor_shortcuts.html" class="className">editor/shortcuts</a><ul class='methods'><li data-type='method'><a href="module-editor_shortcuts.html#.matchEndOf" class="methodName">matchEndOf</a></li><li data-type='method'><a href="module-editor_shortcuts.html#.matchKeystroke" class="methodName">matchKeystroke</a></li><li data-type='method'><a href="module-editor_shortcuts.html#.platform" class="methodName">platform</a></li><li data-type='method'><a href="module-editor_shortcuts.html#.stringify" class="methodName">stringify</a></li></ul></li><li><a href="module-fontMetrics.html" class="className">fontMetrics</a><ul class='methods'><li data-type='method'><a href="module-fontMetrics.html#.getCharacterMetrics" class="methodName">getCharacterMetrics</a></li></ul></li><li><a href="module-lexer.html" class="className">lexer</a><ul class='methods'><li data-type='method'><a href="module-lexer.html#.tokenize" class="methodName">tokenize</a></li></ul></li><li><a href="module-mathAtom.html" class="className">mathAtom</a><ul class='methods'><li data-type='method'><a href="module-mathAtom.html#.decompose" class="methodName">decompose</a></li><li data-type='method'><a href="module-mathAtom.html#.getFontName" class="methodName">getFontName</a></li><li data-type='method'><a href="module-mathAtom.html#.makeColGap" class="methodName">makeColGap</a></li><li data-type='method'><a href="module-mathAtom.html#.makeColOfRepeatingElements" class="methodName">makeColOfRepeatingElements</a></li><li data-type='method'><a href="module-mathAtom.html#.makeStack" class="methodName">makeStack</a></li></ul></li><li><a href="module-mathstyle.html" class="className">mathstyle</a><ul class='methods'><li data-type='method'><a href="module-mathstyle.html#.toMathstyle" class="methodName">toMathstyle</a></li></ul></li><li><a href="module-parser.html" class="className">parser</a><ul class='methods'><li data-type='method'><a href="module-parser.html#.hasImplicitGroupEnd" class="methodName">hasImplicitGroupEnd</a></li></ul></li><li><a href="module-span.html" class="className">span</a><ul class='methods'><li data-type='method'><a href="module-span.html#.coalesce" class="methodName">coalesce</a></li><li data-type='method'><a href="module-span.html#.makeFontSizer" class="methodName">makeFontSizer</a></li><li data-type='method'><a href="module-span.html#.makeHlist" class="methodName">makeHlist</a></li><li data-type='method'><a href="module-span.html#.makeSpan" class="methodName">makeSpan</a></li><li data-type='method'><a href="module-span.html#.makeSpanOfType" class="methodName">makeSpanOfType</a></li><li data-type='method'><a href="module-span.html#.makeSymbol" class="methodName">makeSymbol</a></li><li data-type='method'><a href="module-span.html#.makeVlist" class="methodName">makeVlist</a></li><li data-type='method'><a href="module-span.html#.toString" class="methodName">toString</a></li></ul></li></ul></div>
+<footer role="contentInfo">
+    Made with <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>. 
+    
+</footer>
+    </nav>
+</section>
+
+<main id="main">
+    
+        <h1 class="page-title">core/definitions.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums">
+            
+            <code>/*global require:false*/
 /*global define:false*/
 /* eslint max-len: 0 */
 
@@ -83,7 +143,7 @@ const COMMON = 'COMMON';
 const SUPERCOMMON = 'SUPERCOMMON';
 
 /**
- * @type {object.<string, number>}
+ * @type {object.&lt;string, number>}
  */
 const FREQUENCY_VALUE = {
     'CRYPTIC': 0,
@@ -188,7 +248,7 @@ function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
  * @memberof module:definitions
  */
 function defineSymbols(string, mode, fontFamily, type, frequency) {
-    for(let i = 0; i < string.length; i++) {
+    for(let i = 0; i &lt; string.length; i++) {
         const ch = string.charAt(i);
         defineSymbol(ch, mode, fontFamily, type, ch, frequency);
     }
@@ -205,7 +265,7 @@ function defineSymbols(string, mode, fontFamily, type, frequency) {
  * @memberof module:definitions
  */
 function defineSymbolRange(from, to, mode, fontFamily, type, frequency) {
-    for(let i = from; i <= to; i++) {
+    for(let i = from; i &lt;= to; i++) {
         const ch = String.fromCodePoint(i);
         defineSymbol(ch, mode, fontFamily, type, ch, frequency);
     }
@@ -236,7 +296,7 @@ function matchCodepoint(s) {
     // No symbol was found, return a \char command
     if (!result) {
         const codepoint = s.codePointAt(0);
-        if (codepoint < 32 || codepoint >= 127) {
+        if (codepoint &lt; 32 || codepoint >= 127) {
             result = '\\char"' + 
                     ('000000' + codepoint.toString(16)).toUpperCase().substr(-6)
         } else {
@@ -258,8 +318,8 @@ function matchFunction(mode, s) {
     let result = null;
     for (const p in FUNCTIONS) {
         if (FUNCTIONS.hasOwnProperty(p)) {
-            if (s === p && (mode !== 'text' || FUNCTIONS[p].allowedInText)) {
-                if (!result || result.value.length < p.length) {
+            if (s === p &amp;&amp; (mode !== 'text' || FUNCTIONS[p].allowedInText)) {
+                if (!result || result.value.length &lt; p.length) {
                     result = {
                         latexName: p,
                         value: p.slice(1)
@@ -279,7 +339,7 @@ function matchSymbol(mode, s) {
             const candidate = p;
 
             if (s === candidate) {
-                if (!result || result.match.length < candidate.length) {
+                if (!result || result.match.length &lt; candidate.length) {
                     result = {
                         latexName: p,
                         fontFamily: a[p].fontFamily,
@@ -290,7 +350,7 @@ function matchSymbol(mode, s) {
                 }
             }
 
-            if (a[p].fullName && s === '\\[' + a[p].fullName + ']') {
+            if (a[p].fullName &amp;&amp; s === '\\[' + a[p].fullName + ']') {
                 result = {
                     latexName: p,
                     fontFamily: a[p].fontFamily,
@@ -309,13 +369,13 @@ function matchSymbol(mode, s) {
 
 function getFontName(mode, symbol) {
     const a = mode === 'math' ? MATH_SYMBOLS : TEXT_SYMBOLS;
-    return a[symbol] && a[symbol].fontFamily === 'ams' ? 
+    return a[symbol] &amp;&amp; a[symbol].fontFamily === 'ams' ? 
         'AMS-Regular' : 'Main-Regular';
 }
 
 function getValue(mode, symbol) {
     const a = mode === 'math' ? MATH_SYMBOLS : TEXT_SYMBOLS;
-    return a[symbol] && a[symbol].value ? a[symbol].value : symbol;
+    return a[symbol] &amp;&amp; a[symbol].value ? a[symbol].value : symbol;
 }
 
 
@@ -401,7 +461,7 @@ function suggest(s) {
     // Iterate over items in the dictionary
     for (const p in FUNCTIONS) {
         if (FUNCTIONS.hasOwnProperty(p)) {
-            if (p.startsWith(s) && !FUNCTIONS[p].infix) {
+            if (p.startsWith(s) &amp;&amp; !FUNCTIONS[p].infix) {
                 result.push({match:p, frequency:FUNCTIONS[p].frequency});
             }
         }
@@ -458,20 +518,20 @@ const COMMANDLITERAL = 'command'; // Not in TeX. Values in a command sequence (e
 
 
 // TODO:
-// SGML &alpha;
+// SGML &amp;alpha;
 
 
 
 /**
  * An argument template has the following syntax:
  * 
- * <placholder>:<type>=<default>
+ * &lt;placholder>:&lt;type>=&lt;default>
  * 
  * where
- * - <placeholder> is a string whose value is displayed when the argument
+ * - &lt;placeholder> is a string whose value is displayed when the argument
  *   is missing
- * - <type> is one of 'string', 'color', 'dimen', 'auto', 'text', 'math'
- * - <default> is the default value if none is provided for an optional
+ * - &lt;type> is one of 'string', 'color', 'dimen', 'auto', 'text', 'math'
+ * - &lt;default> is the default value if none is provided for an optional
  * parameter
  * 
  * @param {string} argTemplate 
@@ -513,7 +573,7 @@ function parseParamTemplate(paramTemplate) {
         // We found at least one optional parameter.
         result.push(parseParamTemplateArgument(params[0].slice(1), true));
         // Parse the rest
-        for (let i = 1; i <= params.length; i++) {
+        for (let i = 1; i &lt;= params.length; i++) {
             result = result.concat(parseParamTemplate(params[i]));
         }
     } else {
@@ -522,7 +582,7 @@ function parseParamTemplate(paramTemplate) {
             // We found a required paramater
             result.push(parseParamTemplateArgument(params[0].slice(1), false));
             // Parse the rest
-            for (let i = 1; i <= params.length; i++) {
+            for (let i = 1; i &lt;= params.length; i++) {
                 result = result.concat(parseParamTemplate(params[i]));
             }
         }
@@ -533,7 +593,7 @@ function parseParamTemplate(paramTemplate) {
 
 /**
  * Define one or more environments to be used with 
- *         \begin{<env-name>}...\end{<env-name>}.
+ *         \begin{&lt;env-name>}...\end{&lt;env-name>}.
  * 
  * @param {string|string[]} names 
  * @param {string} params The number and type of required and optional parameters. 
@@ -626,9 +686,9 @@ function defineFunction(names, params, options, handler) {
 category = 'Environments';
 /*
 
-<columns> ::= <column>*<line>
-<column> ::= <line>('l'|'c'|'r')
-<line> ::= '|' | '||' | ''
+&lt;columns> ::= &lt;column>*&lt;line>
+&lt;column> ::= &lt;line>('l'|'c'|'r')
+&lt;line> ::= '|' | '||' | ''
 
 'math', 
                 frequency 0
@@ -652,7 +712,7 @@ category = 'Environments';
 'subequations'   with an 'equation' environment, appends a letter to eq no
                 frequency 1
 
-'theorem'       text mode. Prepends in bold 'Theorem <counter>', then body in italics.
+'theorem'       text mode. Prepends in bold 'Theorem &lt;counter>', then body in italics.
 
  
  'multline'     single column 
@@ -685,7 +745,7 @@ automatically, and therefore the use of alignedat is deprecated.
 
 
  'alignat'      {pairs:number}
-                {rl} alternating as many times as indicated by <pairs> arg
+                {rl} alternating as many times as indicated by &lt;pairs> arg
                 no space between column pairs (unlike align)
                 there is an implicit {} at the beginning of left columns
                 frequency: 0
@@ -748,9 +808,9 @@ the formula lines won't be numbered. Otherwise they would automatically get a nu
 
 The only difference between align and equation is the spacing of the formulas. 
 You should attempt to use equation when possible, and align when you have multi-line formulas.
-Equation will have space before/after < 1em if line before/after is short enough.
+Equation will have space before/after &lt; 1em if line before/after is short enough.
 
-Also: equation throws an error when you have an & inside the environment, 
+Also: equation throws an error when you have an &amp; inside the environment, 
 so look out for that when converting between the two.
 
 
@@ -835,7 +895,7 @@ defineEnvironment(['align', 'aligned'], '', {}, function(name, args, array) {
             { align:   'l', } ,
     ];
     let i = 2;
-    while ( i < colCount) {
+    while ( i &lt; colCount) {
         colFormat.push({gap:1});
         colFormat.push({align:'r'});
         colFormat.push({gap:0});
@@ -1156,9 +1216,9 @@ defineSymbol('\\not', MATH,  MAIN,  MATHORD, '/\\hspace{-.9em}', COMMON);
 // Can be preceded by e.g. '\fboxsep=4pt' (also \fboxrule)
 // Note:
 // - \boxed: sets content in displaystyle mode (@todo: should change type of argument)
-//      equivalent to \fbox{$$<content>$$}
+//      equivalent to \fbox{$$&lt;content>$$}
 // - \fbox: sets content in 'auto' mode (frequency 777)
-// - \framebox[<width>][<alignment>]{<content>} (<alignment> := 'c'|'t'|'b' (center, top, bottom) (frequency 28)
+// - \framebox[&lt;width>][&lt;alignment>]{&lt;content>} (&lt;alignment> := 'c'|'t'|'b' (center, top, bottom) (frequency 28)
 // @todo
 defineFunction('\\boxed', '{content:math}', null, 
     function(name, args) {
@@ -1205,9 +1265,9 @@ defineFunction('\\fcolorbox', '{frame-color:color}{background-color:color}{conte
 // The first argument is a CSS border property shorthand, e.g.
 // \bbox[red], \bbox[5px,border:2px solid red]
 // The MathJax syntax is 
-// arglist ::= <arg>[,<arg>[,<arg>]]
-// arg ::= [<background:color>|<padding:dimen>|<style>]
-// style ::= 'border:' <string>
+// arglist ::= &lt;arg>[,&lt;arg>[,&lt;arg>]]
+// arg ::= [&lt;background:color>|&lt;padding:dimen>|&lt;style>]
+// style ::= 'border:' &lt;string>
 
 defineFunction('\\bbox', '[:bbox]{body:auto}', null, 
     function(name, args) {
@@ -1595,8 +1655,8 @@ defineSymbol( '\\flat', MATH,  MAIN,  TEXTORD, '\u266d', 590);
 defineSymbol( '\\natural', MATH,  MAIN,  TEXTORD, '\u266e', 278);
 defineSymbol( '\\#', MATH,  MAIN,  TEXTORD, '\u0023', RARE);
 defineSymbol( '\\#', TEXT,  MAIN,  TEXTORD, '\u0023', RARE);
-defineSymbol( '\\&', MATH,  MAIN,  TEXTORD, '\u0026', RARE);
-defineSymbol( '\\&', TEXT,  MAIN,  TEXTORD, '\u0026', RARE);
+defineSymbol( '\\&amp;', MATH,  MAIN,  TEXTORD, '\u0026', RARE);
+defineSymbol( '\\&amp;', TEXT,  MAIN,  TEXTORD, '\u0026', RARE);
 defineSymbol( '\\clubsuit', MATH,  MAIN,  TEXTORD, '\u2663', 172);
 defineSymbol( '\\heartsuit', MATH,  MAIN,  TEXTORD, '\u2661', ARCANE);
 defineSymbol( '\\spadesuit', MATH,  MAIN,  TEXTORD, '\u2660', ARCANE);
@@ -1969,8 +2029,8 @@ defineSymbol( '\\ne', MATH,  MAIN,  REL, '\u2260', SUPERCOMMON);     // >2,000
 defineSymbol( '\\neq', MATH,  MAIN,  REL, '\u2260', COMMON);     // >2,000
 // defineSymbol( '\\longequal', MATH,  MAIN,  REL, '\uF7D9');   // NOTE: Not TeX, Mathematica
 
-defineSymbol( '<', MATH,  MAIN,  REL, '<', SUPERCOMMON);     // >2,000
-defineSymbol( '\\lt', MATH,  MAIN,  REL, '<', COMMON);     // >2,000
+defineSymbol( '&lt;', MATH,  MAIN,  REL, '&lt;', SUPERCOMMON);     // >2,000
+defineSymbol( '\\lt', MATH,  MAIN,  REL, '&lt;', COMMON);     // >2,000
 defineSymbol( '>', MATH,  MAIN,  REL, '>', SUPERCOMMON);     // >2,000
 defineSymbol( '\\gt', MATH,  MAIN,  REL, '>', COMMON);     // >2,000
 
@@ -2481,7 +2541,7 @@ defineSymbol( '"', MATH,  MAIN,  TEXTORD, '\u201D');       // Double Prime
 category = '';
 defineSymbols('0123456789/@.', MATH, MAIN, MATHORD);
 defineSymbols('0123456789!@*()-=+[]";:?/.,', TEXT, MAIN, TEXTORD);
-defineSymbols("0123456789!@*()-=+{}[]\\';:?/.,~<>`|'$%#&", COMMAND, MAIN, COMMANDLITERAL);
+defineSymbols("0123456789!@*()-=+{}[]\\';:?/.,~&lt;>`|'$%#&amp;", COMMAND, MAIN, COMMANDLITERAL);
 
 // a-z
 defineSymbolRange(0x0041, 0x005A, TEXT, MAIN, TEXTORD);
@@ -2514,7 +2574,7 @@ defineSymbol('"', TEXT, MAIN, TEXTORD, '\u201D');   // DOUBLE PRIME
 // From plain.tex
 category = 'Others';
 defineSymbol('\\%', TEXT + MATH, MAIN, TEXTORD, '%');          // PERCENT
-defineSymbol('\\&', TEXT + MATH, MAIN, TEXTORD, '\u0026');     // AMPERSAND
+defineSymbol('\\&amp;', TEXT + MATH, MAIN, TEXTORD, '\u0026');     // AMPERSAND
 // defineSymbol('\\#', TEXT + MATH, MAIN, TEXTORD, '\u00A3');     // POUND SIGN
 defineSymbol('\\$', TEXT + MATH, MAIN, TEXTORD, '$');
 defineSymbol('\\ss', TEXT, MAIN, TEXTORD, '\u00df');          // LATIN SMALL LETTER SHARP S
@@ -2670,8 +2730,8 @@ const NOTES = {
     '\\prime':      'prime',
     '\\varnothing': 'empty set',
     '\\emptyset':   'empty set',
-    '\\subseteq':   'subset of or <br>equal to',
-    '\\supseteq':   'superset of or <br>equal to',
+    '\\subseteq':   'subset of or &lt;br>equal to',
+    '\\supseteq':   'superset of or &lt;br>equal to',
     '\\supset':     'superset of',
     '\\subset':     'subset of',
     '\\partial':    'partial derivative',
@@ -2701,18 +2761,18 @@ const NOTES = {
     '\\underset':   'symbol with anotation below',
     '\\overset':    'symbol with anotation above',
     '\\hslash':     ['h-bar', 'Planck constant'],
-    '\\gtrsim':     'greater than or <br>similar to',
+    '\\gtrsim':     'greater than or &lt;br>similar to',
     '\\propto':     'proportional to',
     '\\equiv':      'equivalent to',
 
     '\\!':          ['negative thin space', '(-3 mu)'],
     '\\ ':          ['space', '(6 mu)'],
-    '\\,':          ['thin space<', '(3 mu)'],
+    '\\,':          ['thin space&lt;', '(3 mu)'],
     '\\:':          ['medium space', '(4 mu)'],
     '\\;':          ['thick space', '(5 mu)'],
     '\\quad':       ['1 em space', '(18 mu)'],
     '\\qquad':      ['2 em space', '(36 mu)'],
-    '\\enskip':     ['&#189; em space', '(9 mu)'],
+    '\\enskip':     ['&amp;#189; em space', '(9 mu)'],
 
     '\\mp':         'minus or plus',
     '\\pm':         'plus or minus',
@@ -2720,26 +2780,26 @@ const NOTES = {
     '\\Re':         'Real part',
     '\\differentialD':     'differential d',
     '\\aleph':          ['aleph', 'infinite cardinal',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Cardinal_number">Wikipedia <big>&#x203A;</big></a>'
+                        '&lt;a target="_blank" href="https://en.wikipedia.org/wiki/Cardinal_number">Wikipedia &lt;big>&amp;#x203A;&lt;/big>&lt;/a>'
     ],
     '\\beth':          ['beth', 'beth number',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Beth_number">Wikipedia <big>&#x203A;</big></a>'
+                        '&lt;a target="_blank" href="https://en.wikipedia.org/wiki/Beth_number">Wikipedia &lt;big>&amp;#x203A;&lt;/big>&lt;/a>'
     ],
     '\\gimel':          ['gimel', 'gimel function',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Gimel_function">Wikipedia <big>&#x203A;</big></a>'
+                        '&lt;a target="_blank" href="https://en.wikipedia.org/wiki/Gimel_function">Wikipedia &lt;big>&amp;#x203A;&lt;/big>&lt;/a>'
     ],
 
     '\\O':              'empty set',
-    '\\N':              'set of <br>natural numbers',
-    '\\Z':              'set of <br>integers',
-    '\\Q':              'set of <br>rational numbers',
-    '\\C':              'set of <br>complex numbers',
-    '\\R':              'set of <br>real numbers',
-    '\\P':              'set of <br>prime numbers',
+    '\\N':              'set of &lt;br>natural numbers',
+    '\\Z':              'set of &lt;br>integers',
+    '\\Q':              'set of &lt;br>rational numbers',
+    '\\C':              'set of &lt;br>complex numbers',
+    '\\R':              'set of &lt;br>real numbers',
+    '\\P':              'set of &lt;br>prime numbers',
 
-    '\\lesseqqgtr':     'less than, equal to or<br> greater than',
-    '\\gnapprox':       'greater than and <br>not approximately',
-    '\\lnapprox':       'lesser than and <br>not approximately',
+    '\\lesseqqgtr':     'less than, equal to or&lt;br> greater than',
+    '\\gnapprox':       'greater than and &lt;br>not approximately',
+    '\\lnapprox':       'lesser than and &lt;br>not approximately',
 
     '\\j':              'dotless j',
     '\\i':              'dotless i',
@@ -2749,7 +2809,7 @@ const NOTES = {
     '\\nabla':          ['nabla', 'del', 'differential vector operator'],
 
     '\\square':         ['d’Alembert operator',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/D%27Alembert_operator">Wikipedia <big>&#x203A;</big></a>'
+                        '&lt;a target="_blank" href="https://en.wikipedia.org/wiki/D%27Alembert_operator">Wikipedia &lt;big>&amp;#x203A;&lt;/big>&lt;/a>'
     ],
     '\\blacksquare':    ['end of proof', 'tombstone', 'Halmos symbol'],
     '\\Box':            'end of proof',
@@ -2770,16 +2830,16 @@ const NOTES = {
     '\\oplus':          ['direct sum', '(of modules)'],
     '\\lg':             'base-2 logarithm',
     '\\wp':             ['Weierstrass P', 
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Weierstrass%27s_elliptic_functions">Wikipedia <big>&#x203A;</big></a>'
+                        '&lt;a target="_blank" href="https://en.wikipedia.org/wiki/Weierstrass%27s_elliptic_functions">Wikipedia &lt;big>&amp;#x203A;&lt;/big>&lt;/a>'
                         ],
     '\\wr':             ['wreath product',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Wreath_product">Wikipedia <big>&#x203A;</big></a>'
+                        '&lt;a target="_blank" href="https://en.wikipedia.org/wiki/Wreath_product">Wikipedia &lt;big>&amp;#x203A;&lt;/big>&lt;/a>'
                         ],
     '\\top':            ['tautology', 'Proposition P is universally true'],
     '\\bot':            ['contradiction', 'Proposition P is contradictory'],
     '\\mid':            ['probability', 'of event A given B'],
     '\\mho':            ['Siemens', 'electrical conductance in SI unit',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Siemens_(unit)">Wikipedia <big>&#x203A;</big></a>'
+                        '&lt;a target="_blank" href="https://en.wikipedia.org/wiki/Siemens_(unit)">Wikipedia &lt;big>&amp;#x203A;&lt;/big>&lt;/a>'
                         ],
 
     '\\Longrightarrow': 'implies',
@@ -2794,12 +2854,12 @@ const NOTES = {
     '\\models':         ['entails',
                         'double-tunrstile, models',
                         'is a semantic consequence of',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Double_turnstile">Wikipedia <big>&#x203A;</big></a>'
+                        '&lt;a target="_blank" href="https://en.wikipedia.org/wiki/Double_turnstile">Wikipedia &lt;big>&amp;#x203A;&lt;/big>&lt;/a>'
                         ],
     '\\vdash':          ['satisfies',
                         'tunrstile, assertion sign',
                         'syntactic inference',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Turnstile_(symbol)">Wikipedia <big>&#x203A;</big></a>'
+                        '&lt;a target="_blank" href="https://en.wikipedia.org/wiki/Turnstile_(symbol)">Wikipedia &lt;big>&amp;#x203A;&lt;/big>&lt;/a>'
     ],
 
     '\\implies':        ['implies', 'logical consequence'],
@@ -2807,16 +2867,16 @@ const NOTES = {
     
     '\\surd':           ['surd', 'root of', 'checkmark'],
     '\\ltimes':         ['semi direct product',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Semidirect_product">Wikipedia <big>&#x203A;</big></a>'
+                        '&lt;a target="_blank" href="https://en.wikipedia.org/wiki/Semidirect_product">Wikipedia &lt;big>&amp;#x203A;&lt;/big>&lt;/a>'
                         ],
     '\\rtimes':         ['semi direct product',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Semidirect_product">Wikipedia <big>&#x203A;</big></a>'
+                        '&lt;a target="_blank" href="https://en.wikipedia.org/wiki/Semidirect_product">Wikipedia &lt;big>&amp;#x203A;&lt;/big>&lt;/a>'
                         ],
     '\\leftthreetimes':         ['semi direct product',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Semidirect_product">Wikipedia <big>&#x203A;</big></a>'
+                        '&lt;a target="_blank" href="https://en.wikipedia.org/wiki/Semidirect_product">Wikipedia &lt;big>&amp;#x203A;&lt;/big>&lt;/a>'
                         ],
     '\\rightthreetimes':         ['semi direct product',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Semidirect_product">Wikipedia <big>&#x203A;</big></a>'
+                        '&lt;a target="_blank" href="https://en.wikipedia.org/wiki/Semidirect_product">Wikipedia &lt;big>&amp;#x203A;&lt;/big>&lt;/a>'
                         ],
     '\\divideontimes':  ['divide on times'],
     '\\curlywedge':     'nor',
@@ -2846,7 +2906,7 @@ const NOTES = {
 function getNote(symbol) {
     let result = NOTES[symbol] || '';
     if (Array.isArray(result)) {
-        result = result.join('<br>');
+        result = result.join('&lt;br>');
     }
 
     return result;
@@ -2854,7 +2914,7 @@ function getNote(symbol) {
 
 function getSpokenName(symbol) {
     let result = NOTES[symbol];
-    if (!result && symbol.charAt(0) === '\\') {
+    if (!result &amp;&amp; symbol.charAt(0) === '\\') {
         result = symbol.replace('\\', '');
     }
     // If we got more than one result (from NOTES), 
@@ -2890,4 +2950,24 @@ return {
     getSpokenName: getSpokenName,
 }
 
-})
+})</code></pre>
+        </article>
+    </section>
+
+
+
+
+</main>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="scripts/namis.search.jquery.js"></script>
+<script>prettyPrint();
+
+(function($){
+    $('#nav').search(['className', 'methodName']);
+})(jQuery);
+</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

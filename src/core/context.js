@@ -15,16 +15,17 @@ define(['mathlive/core/mathstyle'], function(Mathstyle) {
  * It also holds information about the parent context to handle scaling 
  * adjustments.
  *
- * When a new scope is entered, a clone of the Context is created with .clone()
- * or .cloneWith() so that any further changes remain local to the scope.
- * Other functions creating a clone include mathstyle(), fontFamily(), sup(),
- * sub(), cramp(), etc...
+ * When a new scope is entered, a clone of the Context is created with `.clone()`
+ * or `.cloneWith()` so that any further changes remain local to the scope.
+ * Other functions creating a clone include `mathstyle()`, `fontFamily()`, `sup()`,
+ * `sub()`, `cramp()`, etc...
  * 
- * A scope is defined by 
- * - an explicit groupe enclosed in braces {...)
- * - a semi-simple group enclosed in \bgroup...\endgroup
- * - an environment delimited by \begin{<envname>}...\end{<envname>}
+ * A scope is defined by:
+ * - an explicit groupe enclosed in braces `{...}`
+ * - a semi-simple group enclosed in `\bgroup...\endgroup`
+ * - an environment delimited by `\begin{<envname>}...\end{<envname>}`
  * @class Context
+ * @private
  */
 function Context(data) {
     this.mathstyle = Mathstyle.toMathstyle(data.mathstyle);
@@ -53,6 +54,7 @@ function Context(data) {
  * Returns a new context with the same properties as 'this'.
  * @memberof Context
  * @instance
+ * @private
  */
 Context.prototype.clone = function() {
     const result = new Context(this);
@@ -66,6 +68,7 @@ Context.prototype.clone = function() {
  * Create a new context with the given property.
  * @memberof Context
  * @instance
+ * @private
  */
 Context.prototype.cloneWith = function(property, value) {
     const result = this.clone();
@@ -78,6 +81,7 @@ Context.prototype.cloneWith = function(property, value) {
  * Change the mathstyle of this context
  * @memberof Context
  * @instance
+ * @private
  */
 Context.prototype.setMathstyle = function(value) {
     // The special value 'auto' is used to indicate
@@ -93,6 +97,7 @@ Context.prototype.setMathstyle = function(value) {
  * Return a clone context with the specified mathstyle
  * @memberof Context
  * @instance
+ * @private
  */
 Context.prototype.withMathstyle = function(value) {
     const result = this.clone();
@@ -104,6 +109,7 @@ Context.prototype.withMathstyle = function(value) {
  * Return a clone context with the specified mathstyle
  * @memberof Context
  * @instance
+ * @private
  */
 Context.prototype.withIsSelected = function(/* value */) {
     const result = this.clone();
@@ -144,6 +150,9 @@ Context.prototype.fracNum = function() {
 
 /**
  * Gets the CSS color of this context.
+ * @memberof Context
+ * @instance
+ * @private
  */
 Context.prototype.getColor = function() {
     if (this.phantom) return 'transparent';
@@ -152,6 +161,9 @@ Context.prototype.getColor = function() {
 
 /**
  * Gets the CSS background color of this context
+ * @memberof Context
+ * @instance
+ * @private
  */
 Context.prototype.getBackgroundColor = function() {
     if (this.phantom) return 'transparent';

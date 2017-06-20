@@ -3,6 +3,11 @@
 define([], 
     function() {
 
+/**
+ * 
+ * @param {MathAtom[]} mathlist
+ * @class UndoManager
+ */
 function UndoManager(mathlist) {
     this.mathlist = mathlist;
     this.stack = [];
@@ -11,14 +16,31 @@ function UndoManager(mathlist) {
 }
 
 
+/**
+ * 
+ * @return {boolean}
+ * @memberof UndoManager
+ * @instance
+ */
 UndoManager.prototype.canUndo = function() {
     return this.index >= 0;
 }
 
+/**
+ * 
+ * @return {boolean}
+ * @memberof UndoManager
+ * @instance
+ */
 UndoManager.prototype.canRedo = function() {
     return this.index !== this.stack.length - 1;
 }
 
+/**
+ * 
+ * @memberof UndoManager
+ * @instance
+ */
 UndoManager.prototype.undo = function() {
     if (this.canUndo()) {
         // Restore the content
@@ -32,6 +54,11 @@ UndoManager.prototype.undo = function() {
     }
 }
 
+/**
+ * 
+ * @memberof UndoManager
+ * @instance
+ */
 UndoManager.prototype.redo = function() {
     if (this.canRedo()) {
         this.index += 1;
@@ -49,6 +76,8 @@ UndoManager.prototype.redo = function() {
 /**
  * Push a snapshot of the current atoms and of the selection onto the 
  * undo stack so that it can potentially be reverted to later.
+ * @memberof UndoManager
+ * @instance
  */
 UndoManager.prototype.snapshot = function() {
     // Drop any entries that are part of the redo stack

@@ -1,22 +1,19 @@
 
+/**
+ * This modules handles low-level keyboard events and normalize them across
+ * browsers.
+ * @module editor/keyboard
+ */
 define([], function() {
 
   const KEY_NAMES = {
     'Escape': 'Esc',
-
     ' ': 'Spacebar',
-
     'ArrowLeft': 'Left',
     'ArrowUp': 'Up',
     'ArrowRight': 'Right',
     'ArrowDown': 'Down',
-
-    // 45: 'Insert',
     'Delete': 'Del',
-
-    // 91: 'Meta',
-
-    // 144: 'NumLock',
   };
 
   const VIRTUAL_KEY_NAMES = {
@@ -81,12 +78,20 @@ define([], function() {
       ' '           : 'Spacebar'
   };
 
-  // To the extent possible, create a normalized string representation
-  // of the key combo (i.e., key code and modifier keys).
-  // @todo See https://github.com/madrobby/keymaster/blob/master/keymaster.js
-  // Doesn't work very well for command-<key>
-  // Returns "Alt-Alt" when only the Alt key is pressed
-  function keyboardEventToString(evt) {
+/**
+ * 
+ * Create a normalized string representation of the key combo,
+ * i.e., key code and modifier keys. For example:
+ * - `Ctrl-Shift-Alt-KeyF`
+ * - `Alt-Space`
+ * - `Shift-Digit6`
+ * @todo See https://github.com/madrobby/keymaster/blob/master/keymaster.js
+ * - Doesn't work very well for command-<key>
+ * - Returns "Alt-Alt" when only the Alt key is pressed
+ * @memberof module:editor_keyboard
+ * @param {Event} evt 
+ */
+function keyboardEventToString(evt) {
 
     let keyname = KEY_NAMES[evt.key] || evt.code;
 
@@ -115,30 +120,35 @@ define([], function() {
 
 
 /**
- * Setup to capture the keyboard events from a textarea and redispatch them to 
+ * Setup to capture the keyboard events from a `TextArea` and redispatch them to 
  * handlers.
  * 
- * Handlers should have:
- * - container (an Element, optional)
- * - keystroke(): invoked on a key down event, including for special keys 
- * such as ESC, arrow keys, tab, etc... and their variants with modifiers.
- * - typedtext(): invoked on a keypress or other events when a key coresponding
- * to a charater has been pressed. This include a-z, 0-9, {}, ^_(), etc...
- * This does not include arrow keys, tab, etc... but does include 'space'
- * When a 'character' key is pressed, both keystroke() and typedtext() will
- * be invoked. When a control/function key is pressed, only keystroke() will 
- * be invoked. In some cases, for example when using input methods or entering
- * emoji, only typedtext() will be invoked. 
- * Therefore, in general, commands (arrows, delete, etc..) should be handled 
- * in keystroke() while new characters should be handled in typedtext().
- * - paste(text) Invoked in response to a paste command. Not all browsers 
- * support this (Chrome doesn't), so typedtext() will be invoked instead.
- * - cut()
- * - copy()
+ * In general, commands (arrows, delete, etc..) should be handled 
+ * in the `keystroke()` handler while text input should be handled in 
+ * `typedtext()`.
  * 
- * @param {Element} textarea A Textarea element that will capture the keyboard
- * events
- * @param {*} handlers 
+ * @param {Element} textarea A `TextArea` element that will capture the keyboard
+ * events. While this element will usually be a `TextArea`, it could be any
+ * element that is focusable and can receive keyboard events.
+ * @param {Object} handlers
+ * @param {Element} [handlers.container]
+ * @param {function} handlers.keystroke invoked on a key down event, including 
+ * for special keys such as ESC, arrow keys, tab, etc... and their variants 
+ * with modifiers.
+ * @param {function} handlers.typedtext invoked on a keypress or other events 
+ * when a key coresponding to a charater has been pressed. This include `a-z`, 
+ * `0-9`, `{}`, `^_()`, etc...
+ * This does not include arrow keys, tab, etc... but does include 'space'
+ * When a 'character' key is pressed, both `keystroke()` and `typedtext()` will
+ * be invoked. When a control/function key is pressed, only `keystroke()` will 
+ * be invoked. In some cases, for example when using input methods or entering
+ * emoji, only `typedtext()` will be invoked. 
+ * @param {function} handlers.paste(text) Invoked in response to a paste 
+ * command. Not all browsers support this (Chrome doesn't), so typedtext() 
+ * will be invoked instead.
+ * @param {function} handlers.cut
+ * @param {function} handlers.copy
+ * @memberof module:editor_keyboard
  */
 function delegateKeyboardEvents(textarea, handlers) {
     let keydownEvent = null;

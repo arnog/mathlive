@@ -68,13 +68,14 @@
     "jsdoc": "^3.4.3",
     "less": "^2.7.2",
     "lessc-each": "^1.1.0",
-    "namis": "github:arnog/namis",
     "npm-run-all": "^4.0.2",
     "nyc": "^11.0.2",
     "postcss-cli": "^4.1.0",
     "requirejs": "latest",
+    "sutro-jsdoc-theme": "git+ssh://git@github.com/arnog/sutro-jsdoc-theme.git",
     "tape": "^4.6.3",
     "tape-watch": "^2.3.0",
     "webpack": "^2.5.0"
-  }
+  },
+  "dependencies": {}
 }

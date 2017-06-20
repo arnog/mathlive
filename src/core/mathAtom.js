@@ -198,7 +198,7 @@ MathAtom.prototype.forEach = function (cb) {
 }
 
 /**
- * Iterate over all the mathatom in this mathatom, including this,
+ * Iterate over all the child atoms of this atom, this included,
  * and return an array of all the atoms for which the predicate callback
  * is true.
  * 

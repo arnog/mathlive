@@ -554,7 +554,7 @@ Parser.prototype.scanColspec = function() {
 }
 
 /**
- * Parse a \(...\) or \[...\] sequence
+ * Parse a `\(...\)` or `\[...\]` sequence
  * @return {MathAtom} group for the sequence or null
  * @method module:parser.Parser#scanModeSet
  */
@@ -579,7 +579,7 @@ Parser.prototype.scanModeSet = function() {
 }
 
 /**
- * Parse a $...$ or $$...$$ sequence
+ * Parse a `$...$` or `$$...$$` sequence
  * @method module:parser.Parser#scanModeShift
  */
 Parser.prototype.scanModeShift = function() {
@@ -707,7 +707,7 @@ Parser.prototype.scanEnvironment = function() {
 
 /**
  * Parse a sequence terminated with a group end marker, such as 
- * '}', '\end', '&', etc...
+ * `}`, `\end`, `&`, etc...
  * Returns an array of MathAtom or an empty array if the sequence
  * terminates right away
  * @param {function} [done] A predicate indicating if a token signals the 
