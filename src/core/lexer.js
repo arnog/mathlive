@@ -19,8 +19,7 @@ define(function() {
 
 
 /**
- * @property {string} value
- * @property {string} type
+ * 
  * A token can be of type:
  *  - `literal`: the value is the character this token represents. This can be 
  * a combination of Unicode codepoints, for example for emojis.
@@ -35,7 +34,9 @@ define(function() {
  *  - `placeholder`: a placeholder value meant to be replaced by some actual value
  *  - `space`: one or more space characters (including tab, etc...)
  * 
- *  See: [TeX](http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web):289
+ *  See: [TeX:289](http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web)
+ * @property {string} value
+ * @property {string} type
  * @class module:lexer.Token
  * @private
  */

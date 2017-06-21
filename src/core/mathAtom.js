@@ -28,37 +28,49 @@ const getCharacterMetrics = FontMetricsModule.getCharacterMetrics;
 
 /**
  *  A MathAtom is the elementary unit of something that can be rendered.
- *  It keeps track of the content, as well as dimensions, position and style of the element.
- *  type can be one of:
- *  - ord: ordinary math, e.g. 'x'
- *  - bin: binary operator: '+', '*', etc...
- *  - rel: relational operator: '=', '\ne', etc...
- *  - punct: punctuation: ',', etc...
- *  - open: opening fence: '(', '\langle', etc...
- *  - close: closing fence: ')', '\rangle', etc...
- *  - op: limits (yes/no/default), base, above, below
- *  - inner
+ *  It keeps track of the content, while the dimensions, position and style
+ * are tracked by Span objects which are created by the `decompose()`
  *  
- *  The following types are also used by TeX, but since they are treated
- * as 'mord' for the purpose of kerning, that's what we convert them to.
- *  - accent: accent, base
- *  - spacing
- *  - textord   value
- *  - root: radicand, index
  *
- * The following are additional types that TeX doesn't use, but MathLive does.
- *  - over/underline: base
- *  - genfrac: lfence, rfence, num, denom, thickness
- *  - supsub: nucleus, sup, sub
- *
- *  - array         ???
- *  - styling       ???
  * @param {string} mode 
  * @param {string} type 
  * @param {string} value 
  * @param {?string} [fontFamily="main"]
- * @param {?Object} [extras=null] A set of additional properties to append to the atom
+ * @param {?Object} [extras=null] A set of additional properties to append to 
+ * the atom
  * @return {MathAtom}
+ * @property {string} mode
+ * @property {string} type - Type can be one of:
+ *  - `'ord'`: ordinary math, e.g. 'x'
+ *  - `'bin'`: binary operator: '+', '*', etc...
+ *  - `'rel'`: relational operator: '=', '\ne', etc...
+ *  - `'punct'`: punctuation: ',', etc...
+ *  - `'open'`: opening fence: '(', '\langle', etc...
+ *  - `'close'`: closing fence: ')', '\rangle', etc...
+ *  - `'op'`: limits (yes/no/default), base, above, below
+ *  - `'inner'`
+ *  
+ *  The following types are also used by TeX, but since they are treated
+ * as 'mord' for the purpose of kerning, that's what we convert them to.
+ *  - `'accent'`: accent, base
+ *  - `'spacing'`
+ *  - `'textord'`   value
+ *  - `'root: radicand, index
+ *
+ * The following are additional types that TeX doesn't use, but MathLive does.
+ *  - `'over/underline'`: base
+ *  - `'genfrac'`: lfence, rfence, num, denom, thickness
+ *  - `'supsub'`: nucleus, sup, sub
+ *  - `'array'`         ???
+ *  - `'styling'`       ???
+ * @property {string} value
+ * @property {string} fontFamily
+ * @property {MathAtom[]} body
+ * @property {MathAtom[]} children
+ * @property {MathAtom[]} superscript
+ * @property {MathAtom[]} subscript
+ * @property {MathAtom[]} numer
+ * @property {MathAtom[]} denom
  * @class module:mathAtom.MathAtom
  * @private
  */

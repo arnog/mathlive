@@ -56,6 +56,16 @@ function toString() {
  * @return {void}
  * @class
  * @memberof module:span
+ * @property {string} type - For example, `'command'`, `'mrel'`, etc...
+ * @property {string} classes - A string of space separated CSS classes 
+ * associated with this element
+ * @property {Span[]} children - An array, potentially empty, of spans which 
+ * this span encloses
+ * @property {string} body - Content of this span. Can be empty.
+ * @property {Object} style - A set of key/value pairs specifying CSS properties
+ * associated with this element.
+ * @property {number} height - The measurement from baseline to top, in em.
+ * @property {number} depth - The measurement from baseline to bottom, in em.
  * @private
  */
 function Span(content, classes) {
