@@ -1,9 +1,18 @@
 
 
 /**
+ * This module contains the definition of the commands that are displayed
+ * in the command bar.
  * @module editor/commands
+ * @private
  */
-define(['mathlive/core/lexer', 'mathlive/core/mathAtom', 'mathlive/core/parser', 'mathlive/core/span', 'mathlive/editor/editor-shortcuts', 'mathlive/addons/outputLatex'], 
+define([
+    'mathlive/core/lexer', 
+    'mathlive/core/mathAtom', 
+    'mathlive/core/parser', 
+    'mathlive/core/span', 
+    'mathlive/editor/editor-shortcuts', 
+    'mathlive/addons/outputLatex'], 
     function(Lexer, MathAtom, ParserModule, Span, Shortcuts, 
 // eslint-disable-next-line no-unused-vars
     OutputLatexModule) {
@@ -14,6 +23,7 @@ define(['mathlive/core/lexer', 'mathlive/core/mathAtom', 'mathlive/core/parser',
 /**
  * Description of the commands displayed in the command bar.
  * @type {Array.<Object>}
+ * @private
  */
 const COMMANDS = [
     {
@@ -289,13 +299,15 @@ let USER_STATS = {
 /**
  * Return a list of suggested command based on the current insertion context
  * 
- * @param {string} parsemode e.g. 'command', 'math', etc...
- * @param {string} environment 'array', 'matrix', or ''/null
- * @param {string} modifiers A string describing the state of the keyboard modifiers
+ * @param {string} parsemode e.g. `'command'`, `'math'`, etc...
+ * @param {string} environment `'array'`, `'matrix'`, or `''`/`null`
+ * @param {string} modifiers A string describing the state of the keyboard 
+ * modifiers
  * @param {MathAtom[]} before atoms before the insertion point/selection
  * @param {MathAtom[]} selection selected atoms (or null if insertion point)
  * @param {MathAtom[]} after atoms after the insertion point/selection
  * @memberof module:editor/commands
+ * @private
  */
 function suggest(parsemode, environment, modifiers, parent, before, selection, after) {
     const result = [];

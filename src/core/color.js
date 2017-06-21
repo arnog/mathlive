@@ -269,20 +269,29 @@ yellowgreen	rgb(154, 205, 50)
 */
 
 /**
- * Return a CSS color (#rrggbb)
+ * Return a CSS color (#rrggbb) from a string.
+ * 
  * Possible formats include:
- * - named colors from the DVI color set ('Yellow', 'red'...), case insensitive
- * - colors from the Mathematica set ('m1'...'m9')
- * - 3-digit hex ('#d50')
- * - 6-digit hex ('#dd5500')
- * - rgb functional ('rgb(240, 20, 10)')
+ * - named colors from the DVI color set: 'Yellow', 'red'... Case insensitive.
+ * - colors from the Mathematica set: 'm1'...'m9'
+ * - 3-digit hex: `'#d50'`
+ * - 6-digit hex: `'#dd5500'`
+ * - RGB functional: `'rgb(240, 20, 10)'`
+ * 
  * In addition, colors can be mixed using the following syntax:
- * <mix> = <color>!<value>[!<mix>]
+ * `<mix> = <color>![<value>][!<mix>]`
  * For example: 
- * - 'blue!20'  = 20% blue + 80% white
- * - 'blue!20!black' = 20% + 80% black
- * - 'blue!20!black!30!green' = (20% + 80% black) * 30 % + 70% green
- * @param {string} s - A color value expressing
+ * - `'blue!20'`  = 20% blue + 80% white
+ * - `'blue!20!black'` = 20% + 80% black
+ * - `'blue!20!black!30!green'` = (20% + 80% black) * 30 % + 70% green
+ * 
+ * If the input string is prefixed with a dash, the complementary color
+ * of the expression is returned.
+ * 
+ * This creative syntax is defined by the [`xcolor` LaTeX package]
+ * (http://mirror.jmu.edu/pub/CTAN/macros/latex/contrib/xcolor/xcolor.pdf).
+ * 
+ * @param {string} s - An expression representing a color value
  * @return {string} An RGB color expressed as a hex-triplet preceded by `#`
  * @memberof module:color
  */
@@ -297,7 +306,7 @@ function stringToColor(s) {
     let blue = 255;
     let mix = -1;
 
-    // If the first color begins with a '-', use the complementary color
+    // If the string is prefixed with a '-', use the complementary color
     const complementary = colorSpec.length > 0 && colorSpec[0].charAt(0) === '-';
     if (complementary) colorSpec[0] = colorSpec[0].slice(1);
 

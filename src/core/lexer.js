@@ -3,6 +3,7 @@
 
 /**
  * @module lexer
+ * @private
  */
 /**
  * ## Reference
@@ -36,6 +37,7 @@ define(function() {
  * 
  *  See: [TeX](http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web):289
  * @class module:lexer.Token
+ * @private
  */
 function Token(type, value) {
     this.type = type;
@@ -46,6 +48,7 @@ function Token(type, value) {
 /**
  * @param {string} s 
  * @class module:lexer.Lexer
+ * @private
  */
 function Lexer(s) {
     this.s = s;
@@ -55,6 +58,7 @@ function Lexer(s) {
 /**
  * @return {boolean} True if we reached the end of the stream
  * @method module:lexer.Lexer#end
+ * @private
  */
 Lexer.prototype.end = function() {
     return this.pos >= this.s.length;
@@ -73,6 +77,7 @@ Lexer.prototype.get = function() {
  * Return the next char, but do not advance
  * @return {string}
  * @method module:lexer.Lexer#peek
+ * @private
  */
 Lexer.prototype.peek = function() {
     return this.pos < this.s.length ? this.s[this.pos] : null;
@@ -83,6 +88,7 @@ Lexer.prototype.peek = function() {
  * @param {RegEx} regEx
  * @return {?string}
  * @method module:lexer.Lexer#scan
+ * @private
  */
 Lexer.prototype.scan = function(regEx) {
     const result = regEx.exec(this.s.slice(this.pos));
@@ -105,6 +111,7 @@ Lexer.prototype.scan = function(regEx) {
  * 
  * See [Stackoverflow](http://stackoverflow.com/questions/6073637/)
  * @method module:lexer.Lexer#isWhiteSpace
+ * @private
  */
 Lexer.prototype.isWhiteSpace = function() {
     return ' \f\n\r\t\v\u00A0\u2028\u2029'.indexOf(this.s[this.pos]) !== -1;
@@ -133,6 +140,7 @@ Lexer.prototype.isWhiteSpace = function() {
  * Advance until non-white-space char.
  * Returns number of chars skipped.
  * @method module:lexer.Lexer#skipWhiteSpace
+ * @private
  */
 Lexer.prototype.skipWhiteSpace = function() {
     const savedPos = this.pos;
@@ -149,6 +157,7 @@ Lexer.prototype.skipWhiteSpace = function() {
  * 
  * @returns {Token}
  * @method module:lexer.Lexer#makeToken
+ * @private
  */
 Lexer.prototype.makeToken = function() {
     // If we've reached the end, exit
@@ -262,11 +271,13 @@ Lexer.prototype.makeToken = function() {
 
 
 /**
- * Create InputTokens from a stream of latex
+ * Create Tokens from a stream of LaTeX
  * 
- * @param {string} s 
+ * @param {string} s - A string o LaTeX. It can include comments (with the `%`
+ * marker) and multiple lines.
  * @return {Token[]}
  * @memberof module:lexer
+ * @private
  */
 function tokenize(s) {
     const result = [];
@@ -301,7 +312,7 @@ function tokenize(s) {
 
 
 return {
-    tokenize: tokenize
+    tokenize
 }
 
 

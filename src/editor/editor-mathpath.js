@@ -1,5 +1,6 @@
 /**
  * @module editor/mathpath
+ * @private
  */
 define([], 
     function() {
@@ -31,6 +32,7 @@ function pathToString(path) {
  * 
  * @memberof module:editor/mathpath
  * @param {*} string 
+ * @private
  */
 function pathFromString(string) {
     // Reset the path
@@ -67,10 +69,13 @@ function pathFromString(string) {
 }
 
 /**
+ * Given two paths, return a path representing their common ancestor.
  * 
+ * @param {Array.<string>} p 
+ * @param {Array.<string>} q 
+ * @return {Array.<string>}
  * @memberof module:editor/mathpath
- * @param {*} p 
- * @param {*} q 
+ * @private
  */
 function pathCommonAncestor(p, q) {
     const result = [];
@@ -87,12 +92,13 @@ function pathCommonAncestor(p, q) {
 
 /**
  * 
- * @memberof module:editor/mathpath
- * @param {Array} one 
- * @param {Array} two 
+ * @param {Array.<string>} p 
+ * @param {Array.<string>} q 
  * @return {number} 0 if the paths are identical
  *  - 1 if they are sibiling
  *  - >1 if they are not sibilings
+ * @memberof module:editor/mathpath
+ * @private
  */
 function pathDistance(p, q) {
      let result = 0;
@@ -232,11 +238,11 @@ function clone(path) {
 }
 
 return {
-    pathFromString: pathFromString,
-    pathToString: pathToString,
-    pathDistance: pathDistance,
-    pathCommonAncestor: pathCommonAncestor,
-    clone: clone
+    pathFromString,
+    pathToString,
+    pathDistance,
+    pathCommonAncestor,
+    clone
 
 }
 

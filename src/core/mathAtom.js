@@ -4,9 +4,15 @@
 
 /**
  * @module mathAtom
+ * @private
  */
 
-define(['mathlive/core/mathstyle', 'mathlive/core/context', 'mathlive/core/fontMetrics', 'mathlive/core/span', 'mathlive/core/delimiters'],
+define([
+    'mathlive/core/mathstyle', 
+    'mathlive/core/context', 
+    'mathlive/core/fontMetrics', 
+    'mathlive/core/span', 
+    'mathlive/core/delimiters'],
     function(Mathstyle, Context, FontMetricsModule, Span, Delimiters) {
 
 
@@ -54,6 +60,7 @@ const getCharacterMetrics = FontMetricsModule.getCharacterMetrics;
  * @param {?Object} [extras=null] A set of additional properties to append to the atom
  * @return {MathAtom}
  * @class module:mathAtom.MathAtom
+ * @private
  */
 function MathAtom(mode, type, value, fontFamily, extras) {
     this.mode = mode;
@@ -1938,9 +1945,9 @@ function makeRoot(parseMode, children) {
 
 // Export the public interface for this module
 return { 
-    MathAtom: MathAtom,
-    decompose: decompose,
-    makeRoot: makeRoot
+    MathAtom,
+    decompose,
+    makeRoot
 }
 
 

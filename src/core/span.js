@@ -3,6 +3,7 @@
 
 /**
  * @module span
+ * @private
  */
 
 define(['mathlive/core/fontMetrics'],

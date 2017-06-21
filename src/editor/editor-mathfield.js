@@ -2,10 +2,20 @@
 /**
  * @module editor/mathfield
  */
-define(['mathlive/core/definitions', 'mathlive/core/mathAtom', 'mathlive/core/lexer', 'mathlive/core/parser', 'mathlive/core/span', 
-    'mathlive/editor/editor-editableMathlist', 'mathlive/editor/editor-mathpath', 'mathlive/editor/editor-keyboard', 'mathlive/editor/editor-undo', 
-    'mathlive/editor/editor-shortcuts', 'mathlive/editor/editor-commands',
-    'mathlive/addons/outputLatex', 'mathlive/addons/outputSpokenText'], 
+define([
+    'mathlive/core/definitions', 
+    'mathlive/core/mathAtom', 
+    'mathlive/core/lexer', 
+    'mathlive/core/parser', 
+    'mathlive/core/span', 
+    'mathlive/editor/editor-editableMathlist', 
+    'mathlive/editor/editor-mathpath', 
+    'mathlive/editor/editor-keyboard', 
+    'mathlive/editor/editor-undo', 
+    'mathlive/editor/editor-shortcuts', 
+    'mathlive/editor/editor-commands',
+    'mathlive/addons/outputLatex', 
+    'mathlive/addons/outputSpokenText'], 
     function(Definitions, MathAtom, Lexer, ParserModule, Span, 
     EditableMathlist, MathPath, Keyboard, Undo, Shortcuts, Commands,
 // eslint-disable-next-line no-unused-vars
@@ -220,6 +230,7 @@ function MathField(element, config) {
  * 
  * @param {DomElement} el 
  * @function module:editor/mathfield#_findElementWithCaret
+ * @private
  */
 function _findElementWithCaret(el) {
     if (el.classList.contains('ML__caret')) {
@@ -238,6 +249,7 @@ function _findElementWithCaret(el) {
  * Return the (x,y) client coordinates of the caret
  * 
  * @method module:editor/mathfield.MathField#_getCaretPosition
+ * @private
  */
 MathField.prototype._getCaretPosition = function() {
     const caret = _findElementWithCaret(this.field);
@@ -508,7 +520,11 @@ MathField.prototype._showKeystroke = function(keystroke) {
 }
 
 /**
- * @param {string}
+ * @param {Array.<string>} command - A selector and its parameters
+ * @method module:editor/mathfield:MathField#perform
+ */
+/**
+ * @param {string} command - A selector
  * @method module:editor/mathfield:MathField#perform
  */
 MathField.prototype.perform = function(command) {
@@ -556,6 +572,7 @@ MathField.prototype.perform = function(command) {
  * @param {string} keystroke
  * @param {Event} evt
  * @method module:editor/mathfield.MathField#_onKeystroke
+ * @private
  */
 MathField.prototype._onKeystroke = function(keystroke, evt) {
     
@@ -672,6 +689,13 @@ MathField.prototype._onTypedText = function(text) {
     this._showPopoverWithLatex(popoverText, displayArrows);
 }
 
+/**
+ * When the content of the math field has changed (or the selection), 
+ * call `render()` to re-layout the field and generate the udpated DOM 
+ * elements.
+ * @method module:editor/mathfield.MathField#render
+ * @private
+ */
 MathField.prototype._render = function() {
     //
     // 1. Update selection state and blinking cursor (caret)
@@ -767,6 +791,7 @@ MathField.prototype._onPaste = function() {
     this.pasteInProgress = true;
     return true;
 }
+
 MathField.prototype._onCut = function() {
     // Clearing the selection will have the side effect of clearing the 
     // content of the textarea. However, the textarea value is what will 
@@ -777,8 +802,8 @@ MathField.prototype._onCut = function() {
         this._render(); 
     }.bind(this), 0);
     return true;
-
 }
+
 MathField.prototype._onCopy = function() {
     return true;
 }
@@ -790,7 +815,8 @@ MathField.prototype._onCopy = function() {
 
 /**
  * Return a textual representation of the mathfield.
- * @param {string} [format='latex']. One of 'latex', 'spoken', 'asciimath'
+ * @param {string} [format='latex']. One of `'latex'`, `'spoken'`, 
+ * `'asciimath'` (not yet supported).
  * @return {string}
  * @method module:editor/mathfield.MathField#text
  */
@@ -807,9 +833,9 @@ MathField.prototype.text = function(format) {
 }
 
 /**
- * If `text` is not undefined, sets the content of the mathfield to the 
+ * If `text` is not empty, sets the content of the mathfield to the 
  * text interpreted as a LaTeX expression.
- * If `text` is undefined, return the content of the mahtfield as a 
+ * If `text` is empty (or omitted), return the content of the mahtfield as a 
  * LaTeX expression.
  * @param {string} text
  * @return {string}
@@ -831,6 +857,12 @@ MathField.prototype.latex = function(text) {
     return this.mathlist.root.toLatex();
 }
 
+
+/**
+ * Return the DOM element associated with this mathfield.
+ * @return {Element}
+ * @method module:editor/mathfield.MathField#el
+ */
 MathField.prototype.el = function() {
     return this.element;
 }
@@ -859,6 +891,7 @@ MathField.prototype.scrollToEnd_ = MathField.prototype.scrollToEnd = function() 
 /**
  * 
  * @method module:editor/mathfield.MathField#enterCommandMode_
+ * @private
  */
 MathField.prototype.enterCommandMode_ = function() {
     // Remove any error indicator on the current command sequence (if there is one)
@@ -903,7 +936,9 @@ MathField.prototype.pasteFromClipboard_ = function() {
  * be selected). Default: 'placeholder'.
  * @method module:editor/mathfield.MathField#write
  */
-MathField.prototype.write = MathField.prototype.insert_ = MathField.prototype.insert = function(latex, options) {
+MathField.prototype.write = 
+MathField.prototype.insert_ = 
+MathField.prototype.insert = function(latex, options) {
     if (typeof latex === 'string' && latex.length > 0) {
         if (!options) options = {};
         if (!options.format) options.format = 'auto';
@@ -916,6 +951,7 @@ MathField.prototype.write = MathField.prototype.insert_ = MathField.prototype.in
  * Completes an operation in progress, for example when in command mode, 
  * interpret the command
  * @method module:editor/mathfield.MathField#complete_
+ * @private
  */
 MathField.prototype.complete_ = function() {
     this._hidePopover();
@@ -1245,7 +1281,8 @@ MathField.prototype.clearSelection = function() {
 
 
 /**
- * @param {string} keys A whitespace delimited list of key inputs
+ * @param {string} keys - A string representation of a key combination. For
+ * example `'Alt-KeyU'`.
  * See https://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
  * @method module:editor/mathfield.MathField#keystroke
  */
@@ -1257,6 +1294,7 @@ MathField.prototype.keystroke = function(keys) {
 
 /**
  * Simulate a user typing the keys indicated by text.
+ * @param {string} text - A sequence of one or more characters.
  * @method module:editor/mathfield.MathField#typedText
  */
 MathField.prototype.typedText = function(text) {
