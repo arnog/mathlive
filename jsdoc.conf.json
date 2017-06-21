@@ -6,7 +6,7 @@
     "source": {
         "include": "./src/",
         "includePattern": ".+\\.js$",
-        "excludePattern": "(^|\\/|\\\\)_"
+        "excludePattern": "^_"
     },
     "plugins": [
         "plugins/markdown"
