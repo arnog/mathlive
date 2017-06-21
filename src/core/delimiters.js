@@ -20,6 +20,7 @@
  * used in `\left` and `\right`.
  * @summary   Handling of delimiters surrounds symbols.
  * @module delimiters
+ * @private
  */
 
 define(['mathlive/core/definitions', 'mathlive/core/span', 'mathlive/core/mathstyle', 'mathlive/core/fontMetrics'],
@@ -37,6 +38,7 @@ const makeVlist = Span.makeVlist;
  * font, but is restyled to either be in textstyle, scriptstyle, or
  * scriptscriptstyle.
  * @memberof module:delimiters
+ * @private
  */
 function makeSmallDelim(type, delim, style, center, context, classes) {
     const text = makeSymbol(Definitions.getFontName('math', delim), 
@@ -56,6 +58,7 @@ function makeSmallDelim(type, delim, style, center, context, classes) {
  * Makes a large delimiter. This is a delimiter that comes in the Size1, Size2,
  * Size3, or Size4 fonts. It is always rendered in textstyle.
  * @memberof module:delimiters
+ * @private
  */
 function makeLargeDelim(type, delim, size, center, context, classes) {
     const inner = makeSymbol('Size' + size + '-Regular', 
@@ -77,6 +80,7 @@ function makeLargeDelim(type, delim, size, center, context, classes) {
  * Make an inner span with the given offset and in the given font. This is used
  * in `makeStackedDelim` to make the stacking pieces for the delimiter.
  * @memberof module:delimiters
+ * @private
  */
 function makeInner(symbol, font) {
     let sizeClass = '';
@@ -99,6 +103,7 @@ function makeInner(symbol, font) {
  * Make a stacked delimiter out of a given delimiter, with the total height at
  * least `heightTotal`. This routine is mentioned on page 442 of the TeXbook.
  * @memberof module:delimiters
+ * @private
  */
 function makeStackedDelim(type, delim, heightTotal, center, context,
                                 classes) {
@@ -321,6 +326,7 @@ const sizeToMaxHeight = [0, 1.2, 1.8, 2.4, 3.0];
 /**
  * Used to create a delimiter of a specific size, where `size` is 1, 2, 3, or 4.
  * @memberof module:delimiters
+ * @private
  */
 function makeSizedDelim(type, delim, size, context, classes) {
     if (delim === '.') {
@@ -411,6 +417,7 @@ function delimTypeToFont(type) {
  * should be used to create a delimiter of the given height+depth.
  * @param {string} delim: a character value (not a command)
  * @memberof module:delimiters
+ * @private
  */
 function traverseSequence(delim, height, sequence, context) {
     // Here, we choose the index we should start at in the sequences. In smaller
@@ -463,6 +470,7 @@ function traverseSequence(delim, height, sequence, context) {
  * @param {Context.Context} context
  * @param {string[]} classes
  * @memberof module:delimiters
+ * @private
  */
 function makeCustomSizedDelim(type, delim, height, center, context, classes) {
     if (!delim || delim.length === 0 || delim === '.') {
@@ -507,6 +515,7 @@ function makeCustomSizedDelim(type, delim, height, center, context, classes) {
  * of an expression that the delimiters surround.
  * See tex.web:14994
  * @memberof module:delimiters
+ * @private
  */
 function makeLeftRightDelim(type, delim, height, depth, context, classes) {
     // If this is the empty delimiter, return a null fence
@@ -554,6 +563,7 @@ function makeLeftRightDelim(type, delim, height, depth, context, classes) {
  * @param {*} context 
  * @param {string} [type] either 'mopen', 'mclose' or null
  * @memberof module:delimiters
+ * @private
  */
 function makeNullFence(type, context, classes) {
     return Span.makeSpanOfType(type, '', 
@@ -569,9 +579,9 @@ function makeNullFence(type, context, classes) {
 
 // Export the public interface for this module
 return { 
-    makeSizedDelim: makeSizedDelim,
-    makeCustomSizedDelim: makeCustomSizedDelim,
-    makeLeftRightDelim: makeLeftRightDelim
+    makeSizedDelim,
+    makeCustomSizedDelim,
+    makeLeftRightDelim
 }
 
 

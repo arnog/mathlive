@@ -145,6 +145,7 @@ Parser.prototype.hasInfixCommand = function() {
  * An implicit group is a sequence of atoms that terminates with 
  * a '}', '&', '\\', '\cr', '\end' or '\right' or the end of the stream
  * @memberof module:parser
+ * @private
  */
 function hasImplicitGroupEnd(token) {
     return token.type === '}' || 

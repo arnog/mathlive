@@ -254,6 +254,7 @@ MathAtom.prototype.decomposeGroup = function(context) {
  * 
  * @param {number} width 
  * @memberof module:mathAtom
+ * @private
  */
 function makeColGap(width) {
     const separator = makeSpan(null, 'arraycolsep');
@@ -264,6 +265,7 @@ function makeColGap(width) {
 /**
  * Used in decomposeArray to create a columnd of repeating elements.
  * @memberof module:mathAtom
+ * @private
  */
 function makeColOfRepeatingElements(context, body, offset, elem) {
     const col = [];
@@ -1574,6 +1576,7 @@ MathAtom.prototype.attachLimits =
  * @param {string} type The type ('mop', 'mrel', etc...) of the result
  * @return {Span}
  * @memberof module:mathAtom
+ * @private
  */
 function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
     // If nothing above and nothing below, nothing to do.

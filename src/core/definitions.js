@@ -49,6 +49,7 @@
  * There are a few exceptions with some "built-in" commands that require
  * speach parsing such as `\char`.
  * @module definitions
+ * @private
  */
 define([], function() {
 
@@ -58,6 +59,7 @@ define([], function() {
 /**
  * To organize the symbols when generating the documentation, we 
  * keep track of a category that gets assigned to each symbol.
+ * @private
  */
 let category = '';
 
@@ -84,6 +86,7 @@ const SUPERCOMMON = 'SUPERCOMMON';
 
 /**
  * @type {object.<string, number>}
+ * @private
  */
 const FREQUENCY_VALUE = {
     'CRYPTIC': 0,
@@ -106,6 +109,7 @@ const FREQUENCY_VALUE = {
  * or a numeric value [0...2000]
  * @param {?}
  * @memberof module:definitions
+ * @private
  */
 function frequency(value, ...symbols) {
     const v = typeof value === 'string' ? FREQUENCY_VALUE[value] : value;
@@ -137,6 +141,7 @@ function frequency(value, ...symbols) {
  * @param {string} value 
  * @param {(number|string)} [frequency]
  * @memberof module:definitions
+ * @private
  */
 function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
     
@@ -186,6 +191,7 @@ function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
  * @param {string} type 
  * @param {(string|number)} [frequency] 
  * @memberof module:definitions
+ * @private
  */
 function defineSymbols(string, mode, fontFamily, type, frequency) {
     for(let i = 0; i < string.length; i++) {
@@ -203,6 +209,7 @@ function defineSymbols(string, mode, fontFamily, type, frequency) {
  * @param {string} type 
  * @param {(string|number)} [frequency] 
  * @memberof module:definitions
+ * @private
  */
 function defineSymbolRange(from, to, mode, fontFamily, type, frequency) {
     for(let i = from; i <= to; i++) {
@@ -220,6 +227,7 @@ function defineSymbolRange(from, to, mode, fontFamily, type, frequency) {
  * @param {string} s
  * @return {string}
  * @memberof module:definitions
+ * @private
  */
 function matchCodepoint(s) {
     let result;
@@ -253,6 +261,7 @@ function matchCodepoint(s) {
  * @param {string} s 
  * @return {Object}
  * @memberof module:definitions
+ * @private
  */
 function matchFunction(mode, s) {
     let result = null;
@@ -342,6 +351,7 @@ function getEnvironmentInfo(name) {
  * @param {string} parseMode One of 'math', 'text', 'string', 'color', 'dimen', etc...
  * @return {any} An info structure about the symbol, or null
  * @memberof module:definitions
+ * @private
  */
 function getInfo(symbol, parseMode) {
     if (symbol.length === 0) return null;
@@ -394,6 +404,7 @@ function getInfo(symbol, parseMode) {
  * @param {string} s 
  * @return {string[]}
  * @memberof module:definitions
+ * @private
  */
 function suggest(s) {
     const result = [];
@@ -477,6 +488,7 @@ const COMMANDLITERAL = 'command'; // Not in TeX. Values in a command sequence (e
  * @param {string} argTemplate 
  * @param {boolean} isOptional 
  * @memberof module:definitions
+ * @private
  */
 function parseParamTemplateArgument(argTemplate, isOptional) {
     let r = argTemplate.match(/=(.+)/);
@@ -541,6 +553,7 @@ function parseParamTemplate(paramTemplate) {
  * - 
  * @param {function(*)} parser 
  * @memberof module:definitions
+ * @private
  */
 function defineEnvironment(names, params, options, parser) {
     if (typeof names === 'string') names = [names];
@@ -588,6 +601,7 @@ function defineEnvironment(names, params, options, parser) {
  * - allowedInText
  * @param {function} handler 
  * @memberof module:definitions
+ * @private
  */
 function defineFunction(names, params, options, handler) {
     if (typeof names === 'string') {

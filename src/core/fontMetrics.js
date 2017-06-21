@@ -5,6 +5,7 @@
  * TeX, TeX font metrics, and the TTF files. These data are then exposed via the
  * `metrics` variable and the getCharacterMetrics function.
  * @module fontMetrics
+ * @private
  */
 define(['mathlive/core/fontMetricsData'], function(metricMap) {
 
@@ -274,6 +275,7 @@ const extraCharacterMap = {
  * Note: the `width` property may be undefined if fontMetricsData.js wasn't
  * built using `Make extended_metrics`.
  * @memberof module:fontMetrics
+ * @private
  */
 const getCharacterMetrics = function(character, fontName) {
     console.assert(character.length === 1);

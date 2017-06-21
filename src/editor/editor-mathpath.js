@@ -11,6 +11,7 @@ define([],
  * 
  * @memberof module:editor/mathpath
  * @param {*} path 
+ * @private
  */
 function pathToString(path) {
     let result = '';

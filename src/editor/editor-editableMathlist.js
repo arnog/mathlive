@@ -415,6 +415,7 @@ EditableMathlist.prototype.selectAll_ = function() {
  * @return {boolean} True if  `atom` is the target, or if one of the 
  * children of `atom` contains the target
  * @function module:editor/editableMathlist.atomContains
+ * @private
  */
 function atomContains(atom, target) {
     if (!atom) return false;

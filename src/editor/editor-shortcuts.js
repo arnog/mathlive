@@ -1,6 +1,7 @@
 
 /**
  * @module editor/shortcuts
+ * @private
  */
 define([], function() {
 
@@ -533,6 +534,7 @@ const MATHEMATICA_COMMANDS = {
  * @return {string} null if no matching shortcut, the value of the shortcut 
  * otherwise, e.g. {match: 'pi', substitute: '\\pi'}
  * @memberof module:editor/shortcuts
+ * @private
  */
 function matchEndOf(s, config) {
 
@@ -587,6 +589,7 @@ function matchEndOf(s, config) {
  * @return {string} if we are running on the candidate platform, return it.
  * Otherwise, return "!" + candidate.
  * @memberof module:editor/shortcuts
+ * @private
  */
 function platform(p) {
     let result = 'other';
@@ -614,6 +617,7 @@ function platform(p) {
  * @param {string} mode
  * @param {string} keystroke
  * @memberof module:editor/shortcuts
+ * @private
  */
 function matchKeystroke(mode, keystroke) {
     for (const c of [
@@ -690,6 +694,7 @@ function getShortcutsForCommand(command) {
  * @param {Object<string,string>} shortcuts 
  * @param {string} join optional, string in between each shortcut representation
  * @memberof module:editor/shortcuts
+ * @private
  */
 function stringify(shortcuts, join) {
     let result = '';

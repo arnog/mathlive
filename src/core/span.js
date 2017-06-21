@@ -56,6 +56,7 @@ function toString() {
  * @return {void}
  * @class
  * @memberof module:span
+ * @private
  */
 function Span(content, classes) {
     // CLASSES
@@ -91,6 +92,7 @@ function Span(content, classes) {
  * - depth: distance from bottom to baseline
  * - maxFontSize:  
  * @method module:span.Span#updateDimensions
+ * @private
  */
 Span.prototype.updateDimensions = function() {
     let height = 0;
@@ -117,6 +119,7 @@ Span.prototype.updateDimensions = function() {
  * @param {Object} value a series of strings and numbers that will be concatenated.
  * @return {string}
  * @method module:span.Span#setStyle
+ * @private
  */
 Span.prototype.setStyle = function(prop, ...value) {
     const v = toString(value);
@@ -239,6 +242,7 @@ function lastSpanType(span) {
  * left margin.
  * @return {string} HTML markup
  * @method module:span.Span#toMarkup
+ * @private
  */
 Span.prototype.toMarkup = function(hskip) {
     hskip = hskip || 0;
@@ -344,6 +348,7 @@ Span.prototype.toMarkup = function(hskip) {
  * @param {Span} span
  * @return {boolean} 
  * @method module:span.Span#tryCoalesceWith
+ * @private
  */
 Span.prototype.tryCoalesceWith = function(span) {
 
@@ -424,6 +429,7 @@ Span.prototype.tryCoalesceWith = function(span) {
  * @param {Span[]} spans
  * @return {Span[]} coalesced tree
  * @memberof module:span
+ * @private
  */
 function coalesce(spans) {
     if (!spans || spans.length === 0) return [];
@@ -491,6 +497,7 @@ function italic(spans) {
  * @param {(string|Span|Span[])} content the items 'contained' by this node
  * @param {string} classes list of classes attributes associated with this node
  * @memberof module:span
+ * @private
  */
 function makeSpan(content, classes) {
     return new Span(content, classes);
@@ -503,6 +510,7 @@ function makeSpan(content, classes) {
  * @param {string} symbol 
  * @param {string} classes 
  * @memberof module:span
+ * @private
  */
 function makeSymbol(fontFamily, symbol, classes) {
     const result = new Span(symbol, classes);
@@ -527,6 +535,7 @@ function makeSymbol(fontFamily, symbol, classes) {
 //  * longer positioned correctly
  * @return {Span}
  * @memberof module:span
+ * @private
  */
 function makeFontSizer(context, fontSize) {
 
@@ -566,6 +575,7 @@ function makeFontSizer(context, fontSize) {
  * for a thorough description of the TeXt atom type and their relevance to 
  * proper kerning.
  * @memberof module:span
+ * @private
  */
 function makeSpanOfType(type, content, classes) {
     const result = makeSpan(content, classes);
@@ -623,6 +633,7 @@ function makeStyleWrap(type, children, fromStyle, toStyle, classes) {
  * @param {Span|Span[]} children 
  * @param {string} classes 
  * @memberof module:span
+ * @private
  */
 function makeHlist(children, classes) {
     if (!classes || classes.length === 0) {
@@ -654,6 +665,7 @@ function makeHlist(children, classes) {
  * of the first child. (>0 moves down)
  * @param {number} posData
  * @memberof module:span
+ * @private
  */
 function makeVlist(context, elements, pos, posData) {
     let depth = 0;
@@ -762,26 +774,26 @@ function makeVlist(context, elements, pos, posData) {
 
 // Export the public interface for this module
 return { 
-    coalesce: coalesce,
-    makeSpan: makeSpan,
-    makeOp: makeOp,
-    makeOrd: makeOrd,
-    makeRel: makeRel,
-    makeClose: makeClose,
-    makeOpen: makeOpen,
-    makeInner: makeInner,
-    makePunct: makePunct,
+    coalesce,
+    makeSpan,
+    makeOp,
+    makeOrd,
+    makeRel,
+    makeClose,
+    makeOpen,
+    makeInner,
+    makePunct,
 
-    makeSpanOfType: makeSpanOfType,
-    makeSymbol: makeSymbol,
-    makeVlist: makeVlist,
-    makeHlist: makeHlist,
-    makeStyleWrap: makeStyleWrap,
+    makeSpanOfType,
+    makeSymbol,
+    makeVlist,
+    makeHlist,
+    makeStyleWrap,
 
-    height: height,
-    depth: depth,
-    skew: skew,
-    italic: italic
+    height,
+    depth,
+    skew,
+    italic
 }
 
 })

@@ -1,8 +1,8 @@
 
 
 /**
- * This module contains several color dictionaries, as well as algorithms to 
- * parse a string into a hex RGB color value.
+ * This module contains some color dictionaries and algorithms to 
+ * parse a string into a hex RGB color value.s
  * @summary   Parsing of color strings.
  * @module color
  * @private
@@ -14,8 +14,9 @@ define([], function() {
 */
 
 /**
- * First 10 predefined colors used for plotting by Mathematica
- * also known as 'indexed color scheme #97'
+ * First 10 predefined colors used for plotting by Mathematica.
+ * 
+ * Also known as _indexed color scheme #97_.
  * @constant
  * @type {Object.<string, string>}
  * @memberof module:color
@@ -35,11 +36,14 @@ const MATHEMATICA_COLORS = {
 
 
 /** 
- * 68 colors (+ white) known to dvips used in LaTeX
- * The color names are based on the names of the Crayola Crayon box of 
- * 64 crayons
- * (see http://mirror.jmu.edu/pub/CTAN/systems/knuth/local/lib/colordvi.tex)
- * See also: https://en.wikibooks.org/w/index.php?title=LaTeX/Colors
+ * 68 colors (+ white) known to dvips used in LaTeX.
+ * 
+ * The color names are based on the names of the _Crayola Crayon_ box of 
+ * 64 crayons.
+ * 
+ * See:
+ * - {@link http://mirror.jmu.edu/pub/CTAN/systems/knuth/local/lib/colordvi.tex|ColorDVI.tex}
+ * - {@link https://en.wikibooks.org/w/index.php?title=LaTeX/Colors|Wikibooks:LaTeX/Colors}
  * @constant NAMED_COLORS
  * @memberof module:color
  * @type {Object.<string, string>}
@@ -288,12 +292,12 @@ yellowgreen	rgb(154, 205, 50)
  * If the input string is prefixed with a dash, the complementary color
  * of the expression is returned.
  * 
- * This creative syntax is defined by the [`xcolor` LaTeX package]
- * (http://mirror.jmu.edu/pub/CTAN/macros/latex/contrib/xcolor/xcolor.pdf).
+ * This creative syntax is defined by the {@link http://mirror.jmu.edu/pub/CTAN/macros/latex/contrib/xcolor/xcolor.pdf|`xcolor` LaTeX package}.
  * 
  * @param {string} s - An expression representing a color value
  * @return {string} An RGB color expressed as a hex-triplet preceded by `#`
  * @memberof module:color
+ * @private
  */
 function stringToColor(s) {
     const colorSpec = s.toLowerCase().split('!');
