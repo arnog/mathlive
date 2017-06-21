@@ -1,0 +1,10 @@
+exclude_paths:
+- "docs/"
+- "dist/"
+- "build/"
+- "test/"
+ratings:
+   paths:
+   - "src/**/*"
+
+    
