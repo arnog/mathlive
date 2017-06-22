@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>editor/mathpath - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>Span - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -50,7 +50,7 @@ writeCookie('symbol-access', 'private')
 
 <main id="main">
     
-        <h1 class="page-title">editor/mathpath</h1>
+        <h1 class="page-title">Span</h1>
     
 
     
@@ -62,6 +62,9 @@ writeCookie('symbol-access', 'private')
 
 <header>
     
+        <h2>
+        Span
+        </h2>
         
     
 </header>
@@ -70,8 +73,370 @@ writeCookie('symbol-access', 'private')
     <div class="container-overview">
     
         
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="Span">new Span<span class="signature">(content<span class="signature-type">: string,<a href="Span.html">Span</a>,Array.&lt;<a href="Span.html">Span</a>></span>, classes<span class="signature-type">: string</span>)</span><span class="type-signature"> &rarr;  void</span><span class="type-signature"><span class="attrib">private</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>A span is the most elementary element that can be rendered.
+It is composed of an optional body of text and an optional list
+of children (other spans). Each span can be decorated with
+CSS classes and style attributes.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>content</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type"><a href="Span.html">Span</a></span>
+|
+
+<span class="param-type">Array.&lt;<a href="Span.html">Span</a>></span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>the items 'contained' by this node</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>classes</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>list of classes attributes associated with this node</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">void</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
 
         
+
+    
+
+
+    <h5 class="subsection-title">Properties</h5>
+
+    
+
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>type</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>For example, <code>'command'</code>, <code>'mrel'</code>, etc...</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>classes</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>A string of space separated CSS classes 
+associated with this element</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>children</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Array.&lt;<a href="Span.html">Span</a>></span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>An array, potentially empty, of spans which 
+this span encloses</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>body</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>Content of this span. Can be empty.</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>style</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>A set of key/value pairs specifying CSS properties
+associated with this element.</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>height</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>The measurement from baseline to top, in em.</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>depth</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>The measurement from baseline to bottom, in em.</p>
+                
+            </span>
+        </div>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="core_span.js.html#line72">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
     
     </div>
 
@@ -87,561 +452,6 @@ writeCookie('symbol-access', 'private')
 
     
 
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-<div class='method private'>
-
-    
-
-    <h4 class="name" id=".pathCommonAncestor">pathCommonAncestor<span class="signature">(p<span class="signature-type">: Array.&lt;string></span>, q<span class="signature-type">: Array.&lt;string></span>)</span><span class="type-signature"> &rarr;  Array.&lt;string></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Given two paths, return a path representing their common ancestor.</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>p</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Array.&lt;string></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>q</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Array.&lt;string></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-</div>
-
-    
-
-    
-    
-        &rarr; 
-    
-            
-<span class="param-desc">
-    
-        
-<span class="param-type">Array.&lt;string></span>
-
-
-        &nbsp;&nbsp;
-    
-    
-</span>
-
-
-
-        
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="editor_editor-mathpath.js.html#line81">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method private'>
-
-    
-
-    <h4 class="name" id=".pathDistance">pathDistance<span class="signature">(p<span class="signature-type">: Array.&lt;string></span>, q<span class="signature-type">: Array.&lt;string></span>)</span><span class="type-signature"> &rarr;  number</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
-
-    
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>p</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Array.&lt;string></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>q</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Array.&lt;string></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-</div>
-
-    
-
-    
-    
-        &rarr; 
-    
-            
-<span class="param-desc">
-    
-        
-<span class="param-type">number</span>
-
-
-        &nbsp;&nbsp;
-    
-    
-        <p>0 if the paths are identical</p>
-<ul>
-<li>1 if they are sibiling</li>
-<li><blockquote>
-<p>1 if they are not sibilings</p>
-</blockquote>
-</li>
-</ul>
-    
-</span>
-
-
-
-        
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="editor_editor-mathpath.js.html#line104">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method private'>
-
-    
-
-    <h4 class="name" id=".pathFromString">pathFromString<span class="signature">(string<span class="signature-type">: *</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
-
-    
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>string</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-</div>
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="editor_editor-mathpath.js.html#line38">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method private'>
-
-    
-
-    <h4 class="name" id=".pathToString">pathToString<span class="signature">(path<span class="signature-type">: *</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
-
-    
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>path</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-</div>
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="editor_editor-mathpath.js.html#line16">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
     
 
     

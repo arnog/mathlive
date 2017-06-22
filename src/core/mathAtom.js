@@ -1,12 +1,12 @@
 /*global require:false*/
 /*global define:false*/
-/* jshint undef: false, unused: false, esversion: 6, esnext: true */
 
 /**
+ * 
+ * See {@linkcode MathAtom}
  * @module mathAtom
  * @private
  */
-
 define([
     'mathlive/core/mathstyle', 
     'mathlive/core/context', 
@@ -27,11 +27,12 @@ const getCharacterMetrics = FontMetricsModule.getCharacterMetrics;
 
 
 /**
- *  A MathAtom is the elementary unit of something that can be rendered.
- *  It keeps track of the content, while the dimensions, position and style
- * are tracked by Span objects which are created by the `decompose()`
+ * An atom is an object encapsulating an elementary mathematical unit, 
+ * independent of its graphical representation.
+ * 
+ * It keeps track of the content, while the dimensions, position and style
+ * are tracked by Span objects which are created by the `decompose()` functions.
  *  
- *
  * @param {string} mode 
  * @param {string} type 
  * @param {string} value 
@@ -39,30 +40,53 @@ const getCharacterMetrics = FontMetricsModule.getCharacterMetrics;
  * @param {?Object} [extras=null] A set of additional properties to append to 
  * the atom
  * @return {MathAtom}
- * @property {string} mode
+ * @property {string} mode `'display'`, `'command'`, etc...
  * @property {string} type - Type can be one of:
- *  - `'ord'`: ordinary math, e.g. 'x'
- *  - `'bin'`: binary operator: '+', '*', etc...
- *  - `'rel'`: relational operator: '=', '\ne', etc...
- *  - `'punct'`: punctuation: ',', etc...
- *  - `'open'`: opening fence: '(', '\langle', etc...
- *  - `'close'`: closing fence: ')', '\rangle', etc...
- *  - `'op'`: limits (yes/no/default), base, above, below
- *  - `'inner'`
- *  
- *  The following types are also used by TeX, but since they are treated
- * as 'mord' for the purpose of kerning, that's what we convert them to.
- *  - `'accent'`: accent, base
- *  - `'spacing'`
- *  - `'textord'`   value
- *  - `'root: radicand, index
- *
- * The following are additional types that TeX doesn't use, but MathLive does.
- *  - `'over/underline'`: base
- *  - `'genfrac'`: lfence, rfence, num, denom, thickness
- *  - `'supsub'`: nucleus, sup, sub
- *  - `'array'`         ???
- *  - `'styling'`       ???
+ * - **ord**: ordinary symbol, e.g. _x_, _\alpha_
+ * - **bin**: binary operator: _+_, _*_, etc...
+ * - **rel**: relational operator: _=_, _\ne_, etc...
+ * - **punct**: punctuation: _,_, _:_, etc...
+ * - **open**: opening fence: _(_, _\langle_, etc...
+ * - **close**: closing fence: _)_, _\rangle_, etc...
+ * - **op**: (big) operators, _\sum_, _\cap_.
+ * - **inner**: special layout cases, overlap
+ * - **accent**: a diacritic mark above a symbol
+ * 
+ * In addition to these basic types, which correspond to the TeX atom types,
+ * some atoms represent more complex compounds, including:
+ * - **space** and **spacing**: blank space between atoms
+ * - **mathstyle**: to change the math style used: **display** or **text**. 
+ * The layout rules are different for each, the latter being more compact and 
+ * intended to be incorporated with surrounding non-math text.
+ * - **font**: to change the font used. Used by `\mathbb`, `\mathbb`, etc...
+ * - **sizing**: to change the size of the font used
+ * - **color**: to change the foreground color
+ * - **rule**: a line, for the `\rule` command
+ * - **line**: used by `\overline` and `\underline` commands
+ * - **box**: to draw a border around an expression and change its background color
+ * - **overlap**: display a symbol _over_ another
+ * - **overunder**: displays an annotation above or below a symbold
+ * - **group**: a simple group of atoms
+ * - **root**: a group, which has no parent
+ * - **array**: a group, which has children arranged in columns and rows. Used
+ * by environments such as `matrix`, `cases`, etc...
+ * - **genfrac**: a generalized fraction: a numerator and denominator, separated
+ * by an optional line, and surrounded by optional fences
+ * - **surd**: a surd, aka root
+ * - **leftright**: used by the `\left` and `\right` commands
+ * - **delim**: some delimiter
+ * - **sizeddelim**: a delimiter that can grow
+ * 
+ * The following types are used by the editor:
+ * - **command** indicate a command being entered. The text is displayed in 
+ * blue in the editor.
+ * - **error**: indicate a command that is unknown, for example `\xyzy`. The text
+ * is displayed with a dotted red underline in the editor.
+ * - **placeholder**: indicate a temporary item. Placeholders are displayed with a 
+ * a pill (rounded box) in the editor.
+ * - **first**: a special, empty, atom put as the first atom in math lists in 
+ * order to more easily represent the cursor position. They are not displayed.
+ * 
  * @property {string} value
  * @property {string} fontFamily
  * @property {MathAtom[]} body
@@ -71,7 +95,8 @@ const getCharacterMetrics = FontMetricsModule.getCharacterMetrics;
  * @property {MathAtom[]} subscript
  * @property {MathAtom[]} numer
  * @property {MathAtom[]} denom
- * @class module:mathAtom.MathAtom
+ * @class MathAtom
+ * @global
  * @private
  */
 function MathAtom(mode, type, value, fontFamily, extras) {
@@ -222,7 +247,7 @@ MathAtom.prototype.forEach = function (cb) {
  * is true.
  * 
  * @return {MathAtom[]}
- * @method module:mathAtom.MathAtom#filter
+ * @method MathAtom#filter
  */
 MathAtom.prototype.filter = function (cb) {
     let result = [];
@@ -515,7 +540,7 @@ MathAtom.prototype.decomposeArray = function(context) {
  * display math or inline math (which is indicated by 'textstyle'). This value can
  * also be set to 'auto', which indicates it should use the current mathstyle
  * 
- * @method module:mathAtom.MathAtom#decomposeGenfrac
+ * @method MathAtom#decomposeGenfrac
  */
 MathAtom.prototype.decomposeGenfrac = function(context) {
     const mathstyle = this.mathstyle === 'auto' ? 
@@ -661,7 +686,7 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
  /**
   *  \left....\right 
   *
- * @method module:mathAtom.MathAtom#decomposeLeftright
+ * @method MathAtom#decomposeLeftright
   */
 MathAtom.prototype.decomposeLeftright = function(context) {
     // The scope of the context is this group, so make a copy of it
@@ -859,7 +884,7 @@ MathAtom.prototype.decomposeAccent = function(context) {
 /**
  * \overline and \underline
  * 
- * @method module:mathAtom.MathAtom#decomposeLine
+ * @method MathAtom#decomposeLine
  */
 MathAtom.prototype.decomposeLine = function(context) {
     const mathstyle = context.mathstyle;
@@ -1103,7 +1128,7 @@ MathAtom.prototype.decomposeBox = function(context) {
  * 
  * @param {Context} context Font variant, size, color, etc...
  * @return {Span[]}
- * @method module:mathAtom.MathAtom#decompose
+ * @method MathAtom#decompose
  */
 MathAtom.prototype.decompose = function(context) {
     console.assert(context instanceof Context.Context);
@@ -1398,7 +1423,7 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
  * can be retrieved from the span later on (e.g. when the span is clicked on)
  * @param {Context} context
  * @param {Span} span
- * @method module:mathAtom.MathAtom#bind
+ * @method MathAtom#bind
  */
 MathAtom.prototype.bind = function(context, span) {
     if (context.generateID && this.type !== 'first') {
@@ -1421,7 +1446,7 @@ MathAtom.prototype.bind = function(context, span) {
  * @param {Context} context
  * @param {(string|Span[])} body
  * @return {Span}
- * @method module:mathAtom.MathAtom#makeSpan
+ * @method MathAtom#makeSpan
  */
 MathAtom.prototype.makeSpan = function(context, body) {
     const type = this.type === 'textord' ? 'mord' : this.type;

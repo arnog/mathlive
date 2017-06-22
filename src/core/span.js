@@ -55,6 +55,7 @@ function toString() {
  * @param {string} classes list of classes attributes associated with this node
  * @return {void}
  * @class
+ * @global
  * @memberof module:span
  * @property {string} type - For example, `'command'`, `'mrel'`, etc...
  * @property {string} classes - A string of space separated CSS classes 

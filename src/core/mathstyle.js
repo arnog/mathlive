@@ -29,15 +29,14 @@ for (i = 0; i < 3; i++) {
 }
 
 /**
- * The main mathstyle class.
- * Contains:
- * @param {number} id unique id for the style
- * @param {number} size (which is the same for cramped and uncramped version of a style)
- * @param {number}  size multiplier, which gives the size difference between a style and
+ * @property {number} id unique id for the style
+ * @property {number} size (which is the same for cramped and uncramped version of a style)
+ * @property {number}  size multiplier, which gives the size difference between a style and
  * textstyle.
- * @param {boolean}  cramped flag
+ * @property {boolean}  cramped flag
  * @memberof module:mathstyle
  * @class
+ * @global
  * @private
  */
 function Mathstyle(id, size, multiplier, cramped) {

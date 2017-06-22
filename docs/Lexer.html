@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>editor/mathpath - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>Lexer - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -50,7 +50,7 @@ writeCookie('symbol-access', 'private')
 
 <main id="main">
     
-        <h1 class="page-title">editor/mathpath</h1>
+        <h1 class="page-title">Lexer</h1>
     
 
     
@@ -62,6 +62,9 @@ writeCookie('symbol-access', 'private')
 
 <header>
     
+        <h2>
+        Lexer
+        </h2>
         
     
 </header>
@@ -70,8 +73,118 @@ writeCookie('symbol-access', 'private')
     <div class="container-overview">
     
         
+<div class='method private'>
 
-        
+    
+
+    <h4 class="name" id="Lexer">new Lexer<span class="signature">(s<span class="signature-type">: string</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>s</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="core_lexer.js.html#line50">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
     
     </div>
 
@@ -96,14 +209,118 @@ writeCookie('symbol-access', 'private')
 
     
 
-    <h4 class="name" id=".pathCommonAncestor">pathCommonAncestor<span class="signature">(p<span class="signature-type">: Array.&lt;string></span>, q<span class="signature-type">: Array.&lt;string></span>)</span><span class="type-signature"> &rarr;  Array.&lt;string></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
+    <h4 class="name" id="end">end<span class="signature">()</span><span class="type-signature"> &rarr;  boolean</span><span class="type-signature"><span class="attrib">private</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">boolean</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>True if we reached the end of the stream</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="core_lexer.js.html#line61">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="get">get<span class="signature">()</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Given two paths, return a path representing their common ancestor.</p>
+    <p>Return the next char and advance</p>
 </div>
 
 
@@ -114,59 +331,6 @@ writeCookie('symbol-access', 'private')
 
 
     
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>p</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Array.&lt;string></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>q</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Array.&lt;string></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-</div>
 
     
 
@@ -178,7 +342,7 @@ writeCookie('symbol-access', 'private')
 <span class="param-desc">
     
         
-<span class="param-type">Array.&lt;string></span>
+<span class="param-type">string</span>
 
 
         &nbsp;&nbsp;
@@ -221,7 +385,7 @@ writeCookie('symbol-access', 'private')
 
     
         <span class="tag-source">
-        <a href="editor_editor-mathpath.js.html#line81">Source</a>
+        <a href="core_lexer.js.html#line70">Source</a>
         </span>
     
 
@@ -255,98 +419,136 @@ writeCookie('symbol-access', 'private')
 
     
 
-    <h4 class="name" id=".pathDistance">pathDistance<span class="signature">(p<span class="signature-type">: Array.&lt;string></span>, q<span class="signature-type">: Array.&lt;string></span>)</span><span class="type-signature"> &rarr;  number</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
+    <h4 class="name" id="isWhiteSpace">isWhiteSpace<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
 
 
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>p</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Array.&lt;string></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>q</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Array.&lt;string></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-</div>
-
-    
-
-    
-    
-        &rarr; 
-    
-            
-<span class="param-desc">
-    
-        
-<span class="param-type">number</span>
-
-
-        &nbsp;&nbsp;
-    
-    
-        <p>0 if the paths are identical</p>
+<div class="description">
+    <p>Return true if next char is white space. Does not advance.
+Note that browsers are inconsistent in their definitions of the 
+<code>\s</code> metacharacter, so use an explicit string match instead.</p>
 <ul>
-<li>1 if they are sibiling</li>
-<li><blockquote>
-<p>1 if they are not sibilings</p>
-</blockquote>
-</li>
+<li>Chrome:      <code>[ \t\n\v\f\r\u00A0]</code></li>
+<li>Firefox:     <code>[ \t\n\v\f\r\u00A0\u2028\u2029]</code></li>
+<li>IE:          <code>[ \t\n\v\f\r]</code></li>
 </ul>
+<p>See <a href="http://stackoverflow.com/questions/6073637/">Stackoverflow</a></p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="core_lexer.js.html#line106">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="makeToken">makeToken<span class="signature">()</span><span class="type-signature"> &rarr;  <a href="Token.html">Token</a></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return a single token, or null, created from the lexer.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type"><a href="Token.html">Token</a></span>
+
+
+        &nbsp;&nbsp;
+    
     
 </span>
 
@@ -385,7 +587,7 @@ writeCookie('symbol-access', 'private')
 
     
         <span class="tag-source">
-        <a href="editor_editor-mathpath.js.html#line104">Source</a>
+        <a href="core_lexer.js.html#line158">Source</a>
         </span>
     
 
@@ -419,54 +621,46 @@ writeCookie('symbol-access', 'private')
 
     
 
-    <h4 class="name" id=".pathFromString">pathFromString<span class="signature">(string<span class="signature-type">: *</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
+    <h4 class="name" id="peek">peek<span class="signature">()</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
 
 
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>string</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
+<div class="description">
+    <p>Return the next char, but do not advance</p>
 </div>
 
+
+
+
+
+
+
+
     
 
     
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
 
     
 
@@ -499,7 +693,7 @@ writeCookie('symbol-access', 'private')
 
     
         <span class="tag-source">
-        <a href="editor_editor-mathpath.js.html#line38">Source</a>
+        <a href="core_lexer.js.html#line79">Source</a>
         </span>
     
 
@@ -533,11 +727,15 @@ writeCookie('symbol-access', 'private')
 
     
 
-    <h4 class="name" id=".pathToString">pathToString<span class="signature">(path<span class="signature-type">: *</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
+    <h4 class="name" id="scan">scan<span class="signature">(regEx<span class="signature-type">: RegEx</span>)</span><span class="type-signature"> &rarr; <span class="attrib">nullable</span> string</span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
 
+
+<div class="description">
+    <p>Return the next substring matching regEx and advance.</p>
+</div>
 
 
 
@@ -556,13 +754,13 @@ writeCookie('symbol-access', 'private')
 
         <div class="signature">
             
-                <span class="name"><code>path</code></span>
+                <span class="name"><code>regEx</code></span>
             
 
             <span class="type">
             
                 
-<span class="param-type">*</span>
+<span class="param-type">RegEx</span>
 
 
             
@@ -581,6 +779,24 @@ writeCookie('symbol-access', 'private')
     
 
     
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
 
     
 
@@ -613,7 +829,7 @@ writeCookie('symbol-access', 'private')
 
     
         <span class="tag-source">
-        <a href="editor_editor-mathpath.js.html#line16">Source</a>
+        <a href="core_lexer.js.html#line89">Source</a>
         </span>
     
 

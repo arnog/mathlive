@@ -7,6 +7,7 @@ define([],
  * 
  * @param {MathAtom[]} mathlist
  * @class UndoManager
+ * @global
  * @private
  */
 function UndoManager(mathlist) {

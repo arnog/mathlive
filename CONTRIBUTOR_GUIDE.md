@@ -284,8 +284,10 @@ displayed on the page.
 
  ### Math Atom
 
-An atom is an object encapsulating an elementary mathematical unit, indepdent of
-its graphical representation. It can be of one of the following types:
+An atom is an object encapsulating an elementary mathematical unit, independent 
+of its graphical representation. 
+
+It can be of one of the following types:
 * **ord**: ordinary symbol, e.g. _x_, _\alpha_
 * **bin**: binary operator: _+_, _*_, etc...
 * **rel**: relational operator: _=_, _\ne_, etc...

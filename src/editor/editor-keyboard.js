@@ -3,6 +3,7 @@
  * This modules handles low-level keyboard events and normalize them across
  * browsers.
  * @module editor/keyboard
+ * @private
  */
 define([], function() {
 
@@ -88,7 +89,7 @@ define([], function() {
  * @todo See https://github.com/madrobby/keymaster/blob/master/keymaster.js
  * - Doesn't work very well for command-<key>
  * - Returns "Alt-Alt" when only the Alt key is pressed
- * @memberof module:editor_keyboard
+ * @memberof module:editor/keyboard
  * @param {Event} evt 
  */
 function keyboardEventToString(evt) {
@@ -148,7 +149,8 @@ function keyboardEventToString(evt) {
  * will be invoked instead.
  * @param {function} handlers.cut
  * @param {function} handlers.copy
- * @memberof module:editor_keyboard
+ * @memberof module:editor/keyboard
+ * @private
  */
 function delegateKeyboardEvents(textarea, handlers) {
     let keydownEvent = null;

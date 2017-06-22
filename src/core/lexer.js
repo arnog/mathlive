@@ -37,7 +37,8 @@ define(function() {
  *  See: [TeX:289](http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web)
  * @property {string} value
  * @property {string} type
- * @class module:lexer.Token
+ * @class Token
+ * @global
  * @private
  */
 function Token(type, value) {
@@ -48,7 +49,8 @@ function Token(type, value) {
 
 /**
  * @param {string} s 
- * @class module:lexer.Lexer
+ * @class Lexer
+ * @global
  * @private
  */
 function Lexer(s) {
@@ -58,7 +60,7 @@ function Lexer(s) {
 
 /**
  * @return {boolean} True if we reached the end of the stream
- * @method module:lexer.Lexer#end
+ * @method Lexer#end
  * @private
  */
 Lexer.prototype.end = function() {
@@ -68,7 +70,7 @@ Lexer.prototype.end = function() {
 /** 
  * Return the next char and advance 
  * @return {string}
- * @method module:lexer.Lexer#get
+ * @method Lexer#get
  */
 Lexer.prototype.get = function() {
     return this.pos < this.s.length ? this.s[this.pos++] : null;
@@ -77,7 +79,7 @@ Lexer.prototype.get = function() {
 /**
  * Return the next char, but do not advance
  * @return {string}
- * @method module:lexer.Lexer#peek
+ * @method Lexer#peek
  * @private
  */
 Lexer.prototype.peek = function() {
@@ -88,7 +90,7 @@ Lexer.prototype.peek = function() {
  * Return the next substring matching regEx and advance.
  * @param {RegEx} regEx
  * @return {?string}
- * @method module:lexer.Lexer#scan
+ * @method Lexer#scan
  * @private
  */
 Lexer.prototype.scan = function(regEx) {
@@ -111,7 +113,7 @@ Lexer.prototype.scan = function(regEx) {
  * - IE:          `[ \t\n\v\f\r]`
  * 
  * See [Stackoverflow](http://stackoverflow.com/questions/6073637/)
- * @method module:lexer.Lexer#isWhiteSpace
+ * @method Lexer#isWhiteSpace
  * @private
  */
 Lexer.prototype.isWhiteSpace = function() {
@@ -140,7 +142,7 @@ Lexer.prototype.isWhiteSpace = function() {
 /***
  * Advance until non-white-space char.
  * Returns number of chars skipped.
- * @method module:lexer.Lexer#skipWhiteSpace
+ * @method Lexer#skipWhiteSpace
  * @private
  */
 Lexer.prototype.skipWhiteSpace = function() {
@@ -157,7 +159,7 @@ Lexer.prototype.skipWhiteSpace = function() {
  * Return a single token, or null, created from the lexer.
  * 
  * @returns {Token}
- * @method module:lexer.Lexer#makeToken
+ * @method Lexer#makeToken
  * @private
  */
 Lexer.prototype.makeToken = function() {

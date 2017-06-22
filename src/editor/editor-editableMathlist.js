@@ -8,6 +8,8 @@
  * of a selection, which can be either an insertion point — the selection is 
  * then said to be _collapsed_ — or a range of atoms.
  * 
+ * See {@linkcode EditableMathlist}
+ * 
  * @module editor/editableMathlist
  */
 define([
@@ -20,6 +22,19 @@ define([
 
 
 /**
+ * 
+ * **Note**
+ * - Method names that _begin with_ an underbar `_` are private and meant
+ * to be used only by the implementation of the class.
+ * - Method names that _end with_ an underbar `_` are selectors. They can 
+ * be invoked by calling the `perform()` function of a `MathField` object.
+ * They will be dispatched to an instance of `MathEditableList` as necessary.
+ * Note that the selector name does not include the underbar.
+ * 
+ * For example:
+ * ```
+ *    mf.perform('selectAll');
+ * ```
  * 
  * @param {Object} config
  * @property {Array.<MathAtom>} root - The root element of the math expression.
@@ -34,6 +49,7 @@ define([
  * side effect of temporarily changing the path. We should have an iterator
  * that doesn't change the path instead.
  * @class
+ * @global
  * @memberof module:editor/editableMathlist
  */
 function EditableMathlist(config) {
@@ -58,7 +74,7 @@ function EditableMathlist(config) {
  * path. Return true to include the designated atom in the result.
  * @param {number} dir - `+1` to iterate forward, `-1` to iterate backward.
  * @return {MathAtom[]} The atoms for which the predicate is true
- * @method module:editor/editableMathlist.EditableMathlist#filter
+ * @method EditableMathlist#filter
  */
 EditableMathlist.prototype.filter = function(cb, dir) {
     const suppressed = this.suppressSelectionChangeNotifications;
@@ -99,7 +115,7 @@ EditableMathlist.prototype.filter = function(cb, dir) {
  * a representation of the content, which one might expect...
  * 
  * @return {string}
- * @method module:editor/editableMathlist.EditableMathlist#toString
+ * @method EditableMathlist#toString
  */
 EditableMathlist.prototype.toString = function() {
     let result = MathPath.pathToString(this.path);
@@ -146,7 +162,7 @@ EditableMathlist.prototype.setPath = function(selection, extent) {
  * 
  * @param {string[]} from
  * @param {string[]} to
- * @method module:editor/editableMathlist.EditableMathlist#setRange
+ * @method EditableMathlist#setRange
  */
 EditableMathlist.prototype.setRange = function(from, to) {
 
@@ -210,7 +226,7 @@ EditableMathlist.prototype.setRange = function(from, to) {
  * - `ancestor` = 1: parent
  * - `ancestor` = 2: grand-parent
  * - etc...
- * @method module:editor/editableMathlist.EditableMathlist#ancestor
+ * @method EditableMathlist#ancestor
  */
 EditableMathlist.prototype.ancestor = function(ancestor) {
     // If the requested ancestor goes beyond what's available, 
@@ -238,7 +254,7 @@ EditableMathlist.prototype.ancestor = function(ancestor) {
  * the anchor remains fixed. The anchor could be either before or 
  * after the focus.
  * 
- * @method module:editor/editableMathlist.EditableMathlist#anchor
+ * @method EditableMathlist#anchor
  */
 EditableMathlist.prototype.anchor = function() {
     return this.siblings()[this.anchorOffset()];
@@ -252,7 +268,7 @@ EditableMathlist.prototype.anchor = function() {
  * insertion point, the anchor and the focus are the same.
  * 
  * If the focus is before the first element in the root mathlist, it is null.
- * @method module:editor/editableMathlist.EditableMathlist#anchor
+ * @method EditableMathlist#anchor
  */
 EditableMathlist.prototype.focus = function() {
     return this.sibling(this.extent);
@@ -286,7 +302,7 @@ EditableMathlist.prototype.focusOffset = function() {
  * - if caret is after _x_:   `start` = 1, `end` = 1
  * - if _x_ is selected:      `start` = 1, `end` = 2
  * - if _x=_ is selected:   `start` = 1, `end` = 3
- * @method module:editor/editableMathlist.EditableMathlist#startOffset
+ * @method EditableMathlist#startOffset
  */
 EditableMathlist.prototype.startOffset = function() {
     return Math.min(this.path[this.path.length - 1].offset, 
@@ -297,7 +313,7 @@ EditableMathlist.prototype.startOffset = function() {
  * Offset of the first atom not included in the selection
  * i.e. max value of `siblings.length`  
  * `endOffset - startOffset = extent`
- * @method module:editor/editableMathlist.EditableMathlist#endOffset
+ * @method EditableMathlist#endOffset
  */
 EditableMathlist.prototype.endOffset = function() {
     return Math.max(this.path[this.path.length - 1].offset, 
@@ -309,7 +325,7 @@ EditableMathlist.prototype.endOffset = function() {
  * If there's already a `first` atom, do nothing.
  * The `first` atom is used as a 'placeholder' to hold the blinking caret when
  * the caret is positioned at the very begining of the mathlist.
- * @method module:editor/editableMathlist.EditableMathlist#insertFirstAtom
+ * @method EditableMathlist#insertFirstAtom
  */
 EditableMathlist.prototype.insertFirstAtom = function() {
     this.siblings();
@@ -318,7 +334,7 @@ EditableMathlist.prototype.insertFirstAtom = function() {
 
 /**
  * @return {MathAtom[]} array of children of the parent
- * @method module:editor/editableMathlist.EditableMathlist#siblings
+ * @method EditableMathlist#siblings
  */
 EditableMathlist.prototype.siblings = function() {
     const siblings = this.parent()[this.relation()];
@@ -338,7 +354,7 @@ EditableMathlist.prototype.siblings = function() {
  * `sibling(0)` = anchor
  * `sibling(-1)` = sibling immediately left of anchor
  * @return {MathAtom}
- * @method module:editor/editableMathlist.EditableMathlist#sibling
+ * @method EditableMathlist#sibling
  */
 EditableMathlist.prototype.sibling = function(offset) {
     const siblingOffset = this.anchorOffset() + offset;
@@ -351,7 +367,7 @@ EditableMathlist.prototype.sibling = function(offset) {
 
 /**
  * @return {boolean} True if the selection is an insertion point.
- * @method module:editor/editableMathlist.EditableMathlist#isCollapsed
+ * @method EditableMathlist#isCollapsed
  */
 EditableMathlist.prototype.isCollapsed = function() {
     return this.extent === 0;
@@ -359,7 +375,7 @@ EditableMathlist.prototype.isCollapsed = function() {
 
 /**
  * @param {number} extent
- * @method module:editor/editableMathlist.EditableMathlist#setExtent
+ * @method EditableMathlist#setExtent
  */
 EditableMathlist.prototype.setExtent = function(extent) {
     // const anchorOffset = this.anchorOffset();
@@ -392,7 +408,7 @@ EditableMathlist.prototype.collapseBackward = function() {
  * Select all the atoms in the current group, that is all the siblings.
  * When the selection is in a numerator, the group is the numerator. When 
  * the selection is a superscript or subscript, the group is the supsub.
- * @method module:editor/editableMathlist.EditableMathlist#selectGroup_
+ * @method EditableMathlist#selectGroup_
  */
 EditableMathlist.prototype.selectGroup_ = function() {
     this.setSelection(1, 'end');
@@ -401,7 +417,7 @@ EditableMathlist.prototype.selectGroup_ = function() {
 
 /**
  * Select all the atoms in the math field.
- * @method module:editor/editableMathlist.EditableMathlist#selectAll_
+ * @method EditableMathlist#selectAll_
  */
 EditableMathlist.prototype.selectAll_ = function() {
     this.path = [{relation: 'children', offset: 0}];
@@ -414,7 +430,7 @@ EditableMathlist.prototype.selectAll_ = function() {
  * @param {MathAtom} target 
  * @return {boolean} True if  `atom` is the target, or if one of the 
  * children of `atom` contains the target
- * @function module:editor/editableMathlist.atomContains
+ * @function atomContains
  * @private
  */
 function atomContains(atom, target) {
@@ -437,10 +453,11 @@ function atomContains(atom, target) {
 
 
 /**
+ * @param {MathAtom} atom
  * @return {boolean} True if `atom` is within the selection range
  * @todo: poorly named, since this is specific to the selection, not the math 
  * field
- * @method module:editor/editableMathlist.EditableMathlist#contains
+ * @method EditableMathlist#contains
  */
 EditableMathlist.prototype.contains = function(atom) {
     if (this.isCollapsed()) return false;
@@ -459,7 +476,7 @@ EditableMathlist.prototype.contains = function(atom) {
 /**
  * @return {MathAtom[]} The currently selected atoms, or `null` if the 
  * selection is collapsed
- * @method module:editor/editableMathlist.EditableMathlist#extractContents
+ * @method EditableMathlist#extractContents
  */
 EditableMathlist.prototype.extractContents = function() {
     if (this.isCollapsed()) return null;
@@ -512,7 +529,7 @@ EditableMathlist.prototype.extractGroupAfterSelection = function() {
 
 /**
  * @return {string} 
- * @method module:editor/editableMathlist.EditableMathlist#extractGroupStringBeforeInsertionPoint
+ * @method EditableMathlist#extractGroupStringBeforeInsertionPoint
  */
 EditableMathlist.prototype.extractGroupStringBeforeInsertionPoint = function() {
     const siblings = this.siblings();    
@@ -539,7 +556,8 @@ EditableMathlist.prototype.extractGroupStringBeforeInsertionPoint = function() {
  * point, or null.
  * - `start` is the first atom which is of type `command`
  * - `end` is after the last atom of type `command`
- * @method module:editor/editableMathlist.EditableMathlist#commandOffsets
+ * @return {Object}
+ * @method EditableMathlist#commandOffsets
  */
 EditableMathlist.prototype.commandOffsets = function() {
     const siblings = this.siblings();    
@@ -560,7 +578,7 @@ EditableMathlist.prototype.commandOffsets = function() {
 
 /**
  * @return {string} 
- * @method module:editor/editableMathlist.EditableMathlist#extractCommandStringAroundInsertionPoint
+ * @method EditableMathlist#extractCommandStringAroundInsertionPoint
  */
 EditableMathlist.prototype.extractCommandStringAroundInsertionPoint = function() {
     let result = '';
@@ -576,8 +594,10 @@ EditableMathlist.prototype.extractCommandStringAroundInsertionPoint = function()
 }
 
 /**
- * @return {string} 
- * @method module:editor/editableMathlist.EditableMathlist#decorateCommandStringAroundInsertionPoint
+ * @param {boolean} value If true, decorate the command string around the 
+ * insertion point with an error indicator (red dotted underline). If false,
+ * remove it.
+ * @method EditableMathlist#decorateCommandStringAroundInsertionPoint
  */
 EditableMathlist.prototype.decorateCommandStringAroundInsertionPoint = function(value) {
     const command = this.commandOffsets();
@@ -595,7 +615,7 @@ EditableMathlist.prototype.decorateCommandStringAroundInsertionPoint = function(
 
 /**
  * @return {string} 
- * @method module:editor/editableMathlist.EditableMathlist#commitCommandStringBeforeInsertionPoint
+ * @method EditableMathlist#commitCommandStringBeforeInsertionPoint
  */
 EditableMathlist.prototype.commitCommandStringBeforeInsertionPoint = function() {
     const command = this.commandOffsets();
@@ -635,7 +655,7 @@ EditableMathlist.prototype.spliceCommandStringAroundInsertionPoint = function(ma
 
 /**
  * @return {string} 
- * @method module:editor/editableMathlist.EditableMathlist#extractContentsOrdInGroupBeforeInsertionPoint
+ * @method EditableMathlist#extractContentsOrdInGroupBeforeInsertionPoint
  */
 EditableMathlist.prototype.extractContentsOrdInGroupBeforeInsertionPoint = function() {
     const result = [];
@@ -654,8 +674,18 @@ EditableMathlist.prototype.extractContentsOrdInGroupBeforeInsertionPoint = funct
 
 
 /**
+ * @param {number} offset
+ * - &gt;0: index of the child in the group where the selection will start from
+ * - <0: index counting from the end of the group
+ * @param {number|string} [extent=0] Number of items in the selection:
+ * - 0: collapsed selection, single insertion point
+ * - &gt;0: selection extending _after_ the offset
+ * - <0: selection extending _before_ the offset
+ * - `'end'`: selection extending to the end of the group
+ * - `'start'`: selection extending to the beginning of the group
+ * @param {string} relation e.g. `'children'`, `'superscript'`, etc...
  * @return {boolean} False if the relation is invalid (no such children)
- * @method module:editor/editableMathlist.EditableMathlist#setSelection
+ * @method EditableMathlist#setSelection
  */
 EditableMathlist.prototype.setSelection = function(offset, extent, relation) {
     // If no relation ("children", "superscript", etc...) is specified
@@ -729,7 +759,7 @@ EditableMathlist.prototype.setSelection = function(offset, extent, relation) {
 
 /**
  * Move the anchor to the next permissible atom
- * @method module:editor/editableMathlist.EditableMathlist#next
+ * @method EditableMathlist#next
  */
 EditableMathlist.prototype.next = function() {
     const NEXT_RELATION = {
@@ -928,7 +958,7 @@ EditableMathlist.prototype.down = function(options) {
  * 
  * @param {number} dist - The change (positive or negative) to the extent
  * of the selection. The anchor point does not move.
- * @method module:editor/editableMathlist.EditableMathlist#extend
+ * @method EditableMathlist#extend
  */
 EditableMathlist.prototype.extend = function(dist) {
     let offset = this.path[this.path.length - 1].offset;
@@ -989,7 +1019,7 @@ EditableMathlist.prototype.extend = function(dist) {
  * collapsed, then moved.
  * @param {number} dir +1 to skip forward, -1 to skip back
  * @param {Object} options
- * @method module:editor/editableMathlist.EditableMathlist#skip
+ * @method EditableMathlist#skip
  */
 EditableMathlist.prototype.skip = function(dir, options) {
     options = options || {extend: false};
@@ -1041,7 +1071,7 @@ EditableMathlist.prototype.skip = function(dir, options) {
 
 /**
  * Move to the next/previous expression boundary
- * @method module:editor/editableMathlist.EditableMathlist#jump
+ * @method EditableMathlist#jump
  */
 EditableMathlist.prototype.jump = function(dir, options) {
     options = options || {extend: false};
@@ -1099,7 +1129,7 @@ EditableMathlist.prototype.jumpToMathFieldBoundary = function(dir, options) {
 /**
  * Move to the next/previous placeholder or empty child list.
  * @return {boolean} False if no placeholder found and did not move
- * @method module:editor/editableMathlist.EditableMathlist#leap
+ * @method EditableMathlist#leap
  */
 EditableMathlist.prototype.leap = function(dir) {
     dir = dir || +1;    
@@ -1161,7 +1191,7 @@ EditableMathlist.prototype.parseMode = function() {
  * @param {string} options.format - The format of the string `s`, one of 
  * `auto` (the string is interpreted as a latex fragment or command), `latex`
  * (the string is interpreted stricly as a latex fragment)
- * @method module:editor/editableMathlist.EditableMathlist#insert
+ * @method EditableMathlist#insert
  */
 EditableMathlist.prototype.insert = function(s, options) {
     options = options || {};
@@ -1292,7 +1322,7 @@ EditableMathlist.prototype.insertSuggestion = function(s, l) {
 
 /**
  * Delete multiple characters
- * @method module:editor/editableMathlist.EditableMathlist#delete
+ * @method EditableMathlist#delete
  */
 EditableMathlist.prototype.delete = function(count) {
     count = count || 0;
@@ -1317,7 +1347,7 @@ EditableMathlist.prototype.delete = function(count) {
  * negative, delete backward, starting with the anchor atom. 
  * That is, delete(-1) will delete only the anchor atom.
  * If count = 0, delete only if the selection is not collapsed
- * @method module:editor/editableMathlist.EditableMathlist#delete_
+ * @method EditableMathlist#delete_
  * @instance
  */
 EditableMathlist.prototype.delete_ = function(dir) {
@@ -1484,7 +1514,7 @@ EditableMathlist.prototype.deleteToMathFieldEnd_ = function() {
  * Swap the characters to either side of the insertion point and advances
  * the insertion point past both of them. Does nothing to a selected range of
  * text.
- * @method module:editor/editableMathlist.EditableMathlist#transpose_
+ * @method EditableMathlist#transpose_
  */
 EditableMathlist.prototype.transpose_ = function() { 
     // @todo
@@ -1541,7 +1571,7 @@ EditableMathlist.prototype.extendToMathFieldEnd_ = function() {
 /**
  * Switch the cursor to the superscript and select it. If there is no subscript
  * yet, create one.
- * @method module:editor/editableMathlist.EditableMathlist#moveToSuperscript_
+ * @method EditableMathlist#moveToSuperscript_
  */
 EditableMathlist.prototype.moveToSuperscript_ = function() {
     this.collapseForward();
@@ -1578,7 +1608,7 @@ EditableMathlist.prototype.moveToSuperscript_ = function() {
 /**
  * Switch the cursor to the subscript and select it. If there is no subscript
  * yet, create one.
- * @method module:editor/editableMathlist.EditableMathlist#moveToSubscript_
+ * @method EditableMathlist#moveToSubscript_
  */
 EditableMathlist.prototype.moveToSubscript_ = function() { 
     this.collapseForward();
@@ -1621,7 +1651,7 @@ EditableMathlist.prototype.moveToSubscript_ = function() {
  * - otherwise: do nothing and return false
  * @return {boolean} True if the move was possible. False is there is no
  * opposite to move to, in which case the cursors is left unchanged.
- * @method module:editor/editableMathlist.EditableMathlist#moveToOpposite_
+ * @method EditableMathlist#moveToOpposite_
  */
 EditableMathlist.prototype.moveToOpposite_ = function() {
     const OPPOSITE_RELATIONS = {

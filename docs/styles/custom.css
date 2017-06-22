@@ -24,19 +24,22 @@
 	background-color: rgba(128, 128, 128, .1);
 }
 
-.prettyprint code{
+.prettyprint code {
 	padding-left: 10px;
 	padding-right: 0;
 	margin: 0;
 	border-radius: 0;
 	background: transparent;
 }
-body{
+
+body {
 	padding: 0;
 	color: #454545;
 	font-size: 14px;
 	font-weight: 400;
+	font-family: 'Source Sans Pro', sans-serif;
 }
+
 footer {
 	color: #bbb;
 	font-size: small;
@@ -98,11 +101,16 @@ h4 {
 	margin-bottom: 10px;
 }
 
-.member p, .method p {
+.property {
+	margin-bottom: 10px;
+}
+
+.member p, .method p, .property .description p {
 	font-size: 14px;
 	line-height: 20px;
-	margin-bottom: 20px;
 	margin-left: 20px;
+	margin-top: 0;
+	margin-bottom: 0;
 }
 
 .props {
@@ -111,9 +119,13 @@ h4 {
 }
 
 
-.param p.signature {
-	margin-left: -5px;
+.param div.signature {
 	padding-left: 0;
+	margin-bottom: 20px;
+}
+
+.signature-type {
+	color: #aaa;
 }
 
 .description p {
@@ -202,6 +214,11 @@ tt, code, kbd, samp {
 	font-size: .9em;
 }
 
+nav ul a, nav ul a:active {
+	font-family: 'Source Sans Pro', sans-serif;
+	font-size: 14px;
+}	
+
 nav ul ul a, nav ul ul a:active {
 	padding-left: 5px;
 	border-left: .5px solid #f4f4f4;
@@ -228,7 +245,7 @@ nav ul ul a, nav ul ul a:active {
 		left: 0;
 	}
 	#main h1.page-title {
-		margin: 1em 0 1em 5px;
+		margin: 20px 0 1em 5px;
 	}
 	#main section {
 		padding-left: 10px;
@@ -237,6 +254,11 @@ nav ul ul a, nav ul ul a:active {
 	.forkme {
 		display: none;
 	}
+
+	.navicon-button {
+		top: 4px;
+	}
+
 	#nav {
 		left: -290px;
 		font-size: 24px;
@@ -286,28 +308,32 @@ nav ul li a:hover, nav ul li ul li a:hover{
 	color: #0066ce;
 	text-decoration: underline;
 }
-nav > h3.group-title {
-	
+
+h3.group-title.home {
+	font-size: 24px;
+	font-weight: 900;
+	margin-top: 30px;
+	margin-bottom: 45px;
 }
+
 h3.group-title{
 	color: #333;
 	font-weight: 700;
-	font-size: 1em;
+	font-size: 24px;
 	letter-spacing: 0;
-	
 }
+
 dl.inherited-line{
 	border-bottom: 1px solid hsl(0, 0%, 87%);
   	/* margin-bottom: 30px;
  	padding-bottom: 30px; */
 }
 input.search{
-	-webkit-border-radius: 10px;
-	-moz-border-radius: 10px;
 	border-radius: 1000px;
 	padding : 5px 8px;
 	border: 1px solid #ddd;
 	width: calc(100% - 10px);
+	margin-bottom: 30px;
 }
 input.search:focus{
 	background: #FFF;

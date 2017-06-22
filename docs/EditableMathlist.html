@@ -1,0 +1,4519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"><title>EditableMathlist - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700|Source+Sans+Pro:400,400i,700,900" rel="stylesheet">
+    <style>pre.prettyprint{background: #35434e;}</style>
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow-night.css">
+
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/custom.css">
+</head>
+<body>
+
+
+<div class="forkme"><a href="https://github.com/arnog/mathlive"><img style="position: absolute; top: 0; right: 0; border: 0; z-index:1;" src="https://camo.githubusercontent.com/52760788cde945287fbb584134c4cbc2bc36f904/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"></a></div>
+
+
+<section role="navigation">
+    <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+    <label for="nav-trigger" class="navicon-button x">
+        <div class="navicon"></div>
+    </label>
+
+    <label for="nav-trigger" class="overlay"></label>
+
+    <nav id="nav">
+        <h3 class="group-title home"><a href="index.html">MathLive Docs</a></h3><input class="search" placeholder="Search" type="text"><div class="list"><h3 class="group-title">Classes</h3><ul><li class="private"><a href="Context.html" class="className">Context</a><ul class='methods private'><li data-type='method' class='private'><a href="Context.html#clone" class="methodName">clone</a></li><li data-type='method' class='private'><a href="Context.html#cloneWith" class="methodName">cloneWith</a></li><li data-type='method' class='private'><a href="Context.html#getBackgroundColor" class="methodName">getBackgroundColor</a></li><li data-type='method' class='private'><a href="Context.html#getColor" class="methodName">getColor</a></li><li data-type='method' class='private'><a href="Context.html#setMathstyle" class="methodName">setMathstyle</a></li><li data-type='method' class='private'><a href="Context.html#withIsSelected" class="methodName">withIsSelected</a></li><li data-type='method' class='private'><a href="Context.html#withMathstyle" class="methodName">withMathstyle</a></li></ul></li><li><a href="EditableMathlist.html" class="className">EditableMathlist</a><ul class='methods'><li data-type='method'><a href="EditableMathlist.html#ancestor" class="methodName">ancestor</a></li><li data-type='method'><a href="EditableMathlist.html#anchor" class="methodName">anchor</a></li><li data-type='method'><a href="EditableMathlist.html#anchor" class="methodName">anchor</a></li><li data-type='method'><a href="EditableMathlist.html#commandOffsets" class="methodName">commandOffsets</a></li><li data-type='method'><a href="EditableMathlist.html#commitCommandStringBeforeInsertionPoint" class="methodName">commitCommandStringBeforeInsertionPoint</a></li><li data-type='method'><a href="EditableMathlist.html#contains" class="methodName">contains</a></li><li data-type='method'><a href="EditableMathlist.html#decorateCommandStringAroundInsertionPoint" class="methodName">decorateCommandStringAroundInsertionPoint</a></li><li data-type='method'><a href="EditableMathlist.html#delete" class="methodName">delete</a></li><li data-type='method'><a href="EditableMathlist.html#delete_" class="methodName">delete_</a></li><li data-type='method'><a href="EditableMathlist.html#endOffset" class="methodName">endOffset</a></li><li data-type='method'><a href="EditableMathlist.html#extend" class="methodName">extend</a></li><li data-type='method'><a href="EditableMathlist.html#extractCommandStringAroundInsertionPoint" class="methodName">extractCommandStringAroundInsertionPoint</a></li><li data-type='method'><a href="EditableMathlist.html#extractContents" class="methodName">extractContents</a></li><li data-type='method'><a href="EditableMathlist.html#extractContentsOrdInGroupBeforeInsertionPoint" class="methodName">extractContentsOrdInGroupBeforeInsertionPoint</a></li><li data-type='method'><a href="EditableMathlist.html#extractGroupStringBeforeInsertionPoint" class="methodName">extractGroupStringBeforeInsertionPoint</a></li><li data-type='method'><a href="EditableMathlist.html#filter" class="methodName">filter</a></li><li data-type='method'><a href="EditableMathlist.html#insert" class="methodName">insert</a></li><li data-type='method'><a href="EditableMathlist.html#insertFirstAtom" class="methodName">insertFirstAtom</a></li><li data-type='method'><a href="EditableMathlist.html#isCollapsed" class="methodName">isCollapsed</a></li><li data-type='method'><a href="EditableMathlist.html#jump" class="methodName">jump</a></li><li data-type='method'><a href="EditableMathlist.html#leap" class="methodName">leap</a></li><li data-type='method'><a href="EditableMathlist.html#moveToOpposite_" class="methodName">moveToOpposite_</a></li><li data-type='method'><a href="EditableMathlist.html#moveToSubscript_" class="methodName">moveToSubscript_</a></li><li data-type='method'><a href="EditableMathlist.html#moveToSuperscript_" class="methodName">moveToSuperscript_</a></li><li data-type='method'><a href="EditableMathlist.html#next" class="methodName">next</a></li><li data-type='method'><a href="EditableMathlist.html#selectAll_" class="methodName">selectAll_</a></li><li data-type='method'><a href="EditableMathlist.html#selectGroup_" class="methodName">selectGroup_</a></li><li data-type='method'><a href="EditableMathlist.html#setExtent" class="methodName">setExtent</a></li><li data-type='method'><a href="EditableMathlist.html#setRange" class="methodName">setRange</a></li><li data-type='method'><a href="EditableMathlist.html#setSelection" class="methodName">setSelection</a></li><li data-type='method'><a href="EditableMathlist.html#sibling" class="methodName">sibling</a></li><li data-type='method'><a href="EditableMathlist.html#siblings" class="methodName">siblings</a></li><li data-type='method'><a href="EditableMathlist.html#skip" class="methodName">skip</a></li><li data-type='method'><a href="EditableMathlist.html#startOffset" class="methodName">startOffset</a></li><li data-type='method'><a href="EditableMathlist.html#toString" class="methodName">toString</a></li><li data-type='method'><a href="EditableMathlist.html#transpose_" class="methodName">transpose_</a></li></ul></li><li class="private"><a href="Lexer.html" class="className">Lexer</a><ul class='methods private'><li data-type='method' class='private'><a href="Lexer.html#end" class="methodName">end</a></li><li data-type='method' class='private'><a href="Lexer.html#get" class="methodName">get</a></li><li data-type='method' class='private'><a href="Lexer.html#isWhiteSpace" class="methodName">isWhiteSpace</a></li><li data-type='method' class='private'><a href="Lexer.html#makeToken" class="methodName">makeToken</a></li><li data-type='method' class='private'><a href="Lexer.html#peek" class="methodName">peek</a></li><li data-type='method' class='private'><a href="Lexer.html#scan" class="methodName">scan</a></li></ul></li><li class="private"><a href="MathAtom.html" class="className">MathAtom</a><ul class='methods private'><li data-type='method' class='private'><a href="MathAtom.html#.toSpeakableText" class="methodName">toSpeakableText</a></li><li data-type='method' class='private'><a href="MathAtom.html#bind" class="methodName">bind</a></li><li data-type='method' class='private'><a href="MathAtom.html#decompose" class="methodName">decompose</a></li><li data-type='method' class='private'><a href="MathAtom.html#decomposeGenfrac" class="methodName">decomposeGenfrac</a></li><li data-type='method' class='private'><a href="MathAtom.html#decomposeLeftright" class="methodName">decomposeLeftright</a></li><li data-type='method' class='private'><a href="MathAtom.html#decomposeLine" class="methodName">decomposeLine</a></li><li data-type='method' class='private'><a href="MathAtom.html#decomposeRule" class="methodName">decomposeRule</a></li><li data-type='method' class='private'><a href="MathAtom.html#filter" class="methodName">filter</a></li><li data-type='method' class='private'><a href="MathAtom.html#makeSpan" class="methodName">makeSpan</a></li></ul></li><li><a href="MathField.html" class="className">MathField</a><ul class='methods'><li data-type='method' class='private'><a href="MathField.html#_getCaretPosition" class="methodName">_getCaretPosition</a></li><li data-type='method' class='private'><a href="MathField.html#_onKeystroke" class="methodName">_onKeystroke</a></li><li data-type='method' class='private'><a href="MathField.html#complete_" class="methodName">complete_</a></li><li data-type='method'><a href="MathField.html#config" class="methodName">config</a></li><li data-type='method'><a href="MathField.html#el" class="methodName">el</a></li><li data-type='method' class='private'><a href="MathField.html#enterCommandMode_" class="methodName">enterCommandMode_</a></li><li data-type='method'><a href="MathField.html#keystroke" class="methodName">keystroke</a></li><li data-type='method'><a href="MathField.html#latex" class="methodName">latex</a></li><li data-type='method' class='private'><a href="MathField.html#render" class="methodName">render</a></li><li data-type='method'><a href="MathField.html#text" class="methodName">text</a></li><li data-type='method'><a href="MathField.html#typedText" class="methodName">typedText</a></li><li data-type='method'><a href="MathField.html#write" class="methodName">write</a></li></ul></li><li class="private"><a href="Mathstyle.html" class="className">Mathstyle</a></li><li class="private"><a href="Parser.html" class="className">Parser</a><ul class='methods private'><li data-type='method' class='private'><a href="Parser.html#end" class="methodName">end</a></li><li data-type='method' class='private'><a href="Parser.html#hasLiteral" class="methodName">hasLiteral</a></li><li data-type='method' class='private'><a href="Parser.html#hasToken" class="methodName">hasToken</a></li><li data-type='method' class='private'><a href="Parser.html#lastMathAtom" class="methodName">lastMathAtom</a></li><li data-type='method' class='private'><a href="Parser.html#parseAtom" class="methodName">parseAtom</a></li><li data-type='method' class='private'><a href="Parser.html#parseKeyword" class="methodName">parseKeyword</a></li><li data-type='method' class='private'><a href="Parser.html#parseLimits" class="methodName">parseLimits</a></li><li data-type='method' class='private'><a href="Parser.html#parseSupSub" class="methodName">parseSupSub</a></li><li data-type='method' class='private'><a href="Parser.html#parseToken" class="methodName">parseToken</a></li><li data-type='method' class='private'><a href="Parser.html#scanArg" class="methodName">scanArg</a></li><li data-type='method' class='private'><a href="Parser.html#scanColor" class="methodName">scanColor</a></li><li data-type='method' class='private'><a href="Parser.html#scanDelim" class="methodName">scanDelim</a></li><li data-type='method' class='private'><a href="Parser.html#scanDimen" class="methodName">scanDimen</a></li><li data-type='method' class='private'><a href="Parser.html#scanEnvironment" class="methodName">scanEnvironment</a></li><li data-type='method' class='private'><a href="Parser.html#scanGroup" class="methodName">scanGroup</a></li><li data-type='method' class='private'><a href="Parser.html#scanImplicitGroup" class="methodName">scanImplicitGroup</a></li><li data-type='method' class='private'><a href="Parser.html#scanLeftRight" class="methodName">scanLeftRight</a></li><li data-type='method' class='private'><a href="Parser.html#scanModeSet" class="methodName">scanModeSet</a></li><li data-type='method' class='private'><a href="Parser.html#scanModeShift" class="methodName">scanModeShift</a></li><li data-type='method' class='private'><a href="Parser.html#scanNumber" class="methodName">scanNumber</a></li><li data-type='method' class='private'><a href="Parser.html#scanString" class="methodName">scanString</a></li><li data-type='method' class='private'><a href="Parser.html#scanToken" class="methodName">scanToken</a></li></ul></li><li class="private"><a href="Span.html" class="className">Span</a></li><li class="private"><a href="Token.html" class="className">Token</a></li><li class="private"><a href="UndoManager.html" class="className">UndoManager</a><ul class='methods private'><li data-type='method' class='private'><a href="UndoManager.html#canRedo" class="methodName">canRedo</a></li><li data-type='method' class='private'><a href="UndoManager.html#canUndo" class="methodName">canUndo</a></li><li data-type='method' class='private'><a href="UndoManager.html#redo" class="methodName">redo</a></li><li data-type='method' class='private'><a href="UndoManager.html#snapshot" class="methodName">snapshot</a></li><li data-type='method' class='private'><a href="UndoManager.html#undo" class="methodName">undo</a></li></ul></li></ul><h3 class="group-title">Modules</h3><ul><li class="private"><a href="module-color.html" class="className">color</a><ul class='methods private'><li data-type='method' class='private'><a href="module-color.html#.stringToColor" class="methodName">stringToColor</a></li></ul></li><li class="private"><a href="module-definitions.html" class="className">definitions</a><ul class='methods private'><li data-type='method' class='private'><a href="module-definitions.html#.defineEnvironment" class="methodName">defineEnvironment</a></li><li data-type='method' class='private'><a href="module-definitions.html#.defineFunction" class="methodName">defineFunction</a></li><li data-type='method' class='private'><a href="module-definitions.html#.defineSymbol" class="methodName">defineSymbol</a></li><li data-type='method' class='private'><a href="module-definitions.html#.defineSymbolRange" class="methodName">defineSymbolRange</a></li><li data-type='method' class='private'><a href="module-definitions.html#.defineSymbols" class="methodName">defineSymbols</a></li><li data-type='method' class='private'><a href="module-definitions.html#.frequency" class="methodName">frequency</a></li><li data-type='method' class='private'><a href="module-definitions.html#.getInfo" class="methodName">getInfo</a></li><li data-type='method' class='private'><a href="module-definitions.html#.matchCodepoint" class="methodName">matchCodepoint</a></li><li data-type='method' class='private'><a href="module-definitions.html#.matchFunction" class="methodName">matchFunction</a></li><li data-type='method' class='private'><a href="module-definitions.html#.parseParamTemplateArgument" class="methodName">parseParamTemplateArgument</a></li><li data-type='method' class='private'><a href="module-definitions.html#.suggest" class="methodName">suggest</a></li></ul></li><li class="private"><a href="module-delimiters.html" class="className">delimiters</a><ul class='methods private'><li data-type='method' class='private'><a href="module-delimiters.html#.makeCustomSizedDelim" class="methodName">makeCustomSizedDelim</a></li><li data-type='method' class='private'><a href="module-delimiters.html#.makeInner" class="methodName">makeInner</a></li><li data-type='method' class='private'><a href="module-delimiters.html#.makeLargeDelim" class="methodName">makeLargeDelim</a></li><li data-type='method' class='private'><a href="module-delimiters.html#.makeLeftRightDelim" class="methodName">makeLeftRightDelim</a></li><li data-type='method' class='private'><a href="module-delimiters.html#.makeNullFence" class="methodName">makeNullFence</a></li><li data-type='method' class='private'><a href="module-delimiters.html#.makeSizedDelim" class="methodName">makeSizedDelim</a></li><li data-type='method' class='private'><a href="module-delimiters.html#.makeSmallDelim" class="methodName">makeSmallDelim</a></li><li data-type='method' class='private'><a href="module-delimiters.html#.makeStackedDelim" class="methodName">makeStackedDelim</a></li><li data-type='method' class='private'><a href="module-delimiters.html#.traverseSequence" class="methodName">traverseSequence</a></li></ul></li><li class="private"><a href="module-editor_commands.html" class="className">editor/commands</a><ul class='methods private'><li data-type='method' class='private'><a href="module-editor_commands.html#.suggest" class="methodName">suggest</a></li></ul></li><li><a href="module-editor_editableMathlist.html" class="className">editor/editableMathlist</a><ul class='methods'><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~atomContains" class="methodName">atomContains</a></li></ul></li><li class="private"><a href="module-editor_keyboard.html" class="className">editor/keyboard</a><ul class='methods private'><li data-type='method' class='private'><a href="module-editor_keyboard.html#.delegateKeyboardEvents" class="methodName">delegateKeyboardEvents</a></li><li data-type='method' class='private'><a href="module-editor_keyboard.html#.keyboardEventToString" class="methodName">keyboardEventToString</a></li></ul></li><li><a href="module-editor_mathfield.html" class="className">editor/mathfield</a><ul class='methods'><li data-type='method' class='private'><a href="module-editor_mathfield.html#nearestElementFromPoint" class="methodName">nearestElementFromPoint</a></li></ul></li><li class="private"><a href="module-editor_mathpath.html" class="className">editor/mathpath</a><ul class='methods private'><li data-type='method' class='private'><a href="module-editor_mathpath.html#.pathCommonAncestor" class="methodName">pathCommonAncestor</a></li><li data-type='method' class='private'><a href="module-editor_mathpath.html#.pathDistance" class="methodName">pathDistance</a></li><li data-type='method' class='private'><a href="module-editor_mathpath.html#.pathFromString" class="methodName">pathFromString</a></li><li data-type='method' class='private'><a href="module-editor_mathpath.html#.pathToString" class="methodName">pathToString</a></li></ul></li><li class="private"><a href="module-editor_shortcuts.html" class="className">editor/shortcuts</a><ul class='methods private'><li data-type='method' class='private'><a href="module-editor_shortcuts.html#.matchEndOf" class="methodName">matchEndOf</a></li><li data-type='method' class='private'><a href="module-editor_shortcuts.html#.matchKeystroke" class="methodName">matchKeystroke</a></li><li data-type='method' class='private'><a href="module-editor_shortcuts.html#.platform" class="methodName">platform</a></li><li data-type='method' class='private'><a href="module-editor_shortcuts.html#.stringify" class="methodName">stringify</a></li></ul></li><li class="private"><a href="module-fontMetrics.html" class="className">fontMetrics</a><ul class='methods private'><li data-type='method' class='private'><a href="module-fontMetrics.html#.getCharacterMetrics" class="methodName">getCharacterMetrics</a></li></ul></li><li class="private"><a href="module-lexer.html" class="className">lexer</a><ul class='methods private'><li data-type='method' class='private'><a href="module-lexer.html#.tokenize" class="methodName">tokenize</a></li></ul></li><li class="private"><a href="module-mathAtom.html" class="className">mathAtom</a><ul class='methods private'><li data-type='method' class='private'><a href="module-mathAtom.html#.decompose" class="methodName">decompose</a></li><li data-type='method' class='private'><a href="module-mathAtom.html#.getFontName" class="methodName">getFontName</a></li><li data-type='method' class='private'><a href="module-mathAtom.html#.makeColGap" class="methodName">makeColGap</a></li><li data-type='method' class='private'><a href="module-mathAtom.html#.makeColOfRepeatingElements" class="methodName">makeColOfRepeatingElements</a></li><li data-type='method' class='private'><a href="module-mathAtom.html#.makeStack" class="methodName">makeStack</a></li></ul></li><li class="private"><a href="module-mathstyle.html" class="className">mathstyle</a><ul class='methods private'><li data-type='method' class='private'><a href="module-mathstyle.html#.toMathstyle" class="methodName">toMathstyle</a></li></ul></li><li class="private"><a href="module-span.html" class="className">span</a><ul class='methods private'><li data-type='method' class='private'><a href="module-span.html#.coalesce" class="methodName">coalesce</a></li><li data-type='method' class='private'><a href="module-span.html#.makeFontSizer" class="methodName">makeFontSizer</a></li><li data-type='method' class='private'><a href="module-span.html#.makeHlist" class="methodName">makeHlist</a></li><li data-type='method' class='private'><a href="module-span.html#.makeSpan" class="methodName">makeSpan</a></li><li data-type='method' class='private'><a href="module-span.html#.makeSpanOfType" class="methodName">makeSpanOfType</a></li><li data-type='method' class='private'><a href="module-span.html#.makeSymbol" class="methodName">makeSymbol</a></li><li data-type='method' class='private'><a href="module-span.html#.makeVlist" class="methodName">makeVlist</a></li><li data-type='method' class='private'><a href="module-span.html#.toString" class="methodName">toString</a></li></ul></li></ul><label class="checkbox"><input id="toggle-private" type="checkbox" onclick="
+if (!document.getElementById('toggle-private').checked) {
+document.documentElement.classList.add('no-private')
+writeCookie('symbol-access', 'no-private')
+} else {
+document.documentElement.classList.remove('no-private')
+writeCookie('symbol-access', 'private')
+}
+">Include Private Symbols</input></label></div>
+        <footer role="contentInfo">
+            Made with <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>. 
+            
+        </footer>
+    </nav>
+</section>
+
+<main id="main">
+    
+        <h1 class="page-title">EditableMathlist</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+        EditableMathlist
+        </h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+<div class='method'>
+
+    
+
+    <h4 class="name" id="EditableMathlist">new EditableMathlist<span class="signature">(config<span class="signature-type">: Object</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p><strong>Note</strong></p>
+<ul>
+<li>Method names that <em>begin with</em> an underbar <code>_</code> are private and meant
+to be used only by the implementation of the class.</li>
+<li>Method names that <em>end with</em> an underbar <code>_</code> are selectors. They can 
+be invoked by calling the <code>perform()</code> function of a <code>MathField</code> object.
+They will be dispatched to an instance of <code>MathEditableList</code> as necessary.
+Note that the selector name does not include the underbar.</li>
+</ul>
+<p>For example:</p>
+<pre class="prettyprint source"><code>   mf.perform('selectAll');</code></pre>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>config</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+    <h5 class="subsection-title">Properties</h5>
+
+    
+
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>root</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>The root element of the math expression.</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>path</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Array.&lt;Object></span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>The path to the element that is the 
+anchor for the selection.</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>extent</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>Number of atoms in the selection. <code>0</code> if the
+selection is collapsed.</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>config</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last">
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>suppressSelectionChangeNotifications</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>If true, 
+the handlers for notification change won't be called. @todo This is an 
+inelegant solution to deal with iterating the expression, which has the 
+side effect of temporarily changing the path. We should have an iterator
+that doesn't change the path instead.</p>
+                
+            </span>
+        </div>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line55">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="ancestor">ancestor<span class="signature">(ancestor<span class="signature-type">: number</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>ancestor</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>distance from self to ancestor. </p>
+<ul>
+<li><code>ancestor</code> = 0: self</li>
+<li><code>ancestor</code> = 1: parent</li>
+<li><code>ancestor</code> = 2: grand-parent</li>
+<li>etc...</li>
+</ul>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line223">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="anchor">anchor<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>The atom where the selection starts. When the selection is extended 
+the anchor remains fixed. The anchor could be either before or 
+after the focus.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line252">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="anchor">anchor<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>The atom which is the focus of the selection.</p>
+<p>A new item would be inserted <strong>after</strong> the focus.
+Note that when the selection is collapsed, that is when it it a single 
+insertion point, the anchor and the focus are the same.</p>
+<p>If the focus is before the first element in the root mathlist, it is null.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line263">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="commandOffsets">commandOffsets<span class="signature">()</span><span class="type-signature"> &rarr;  Object</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return a <code>{start:, end:}</code> for the offsets of the command around the insertion
+point, or null.</p>
+<ul>
+<li><code>start</code> is the first atom which is of type <code>command</code></li>
+<li><code>end</code> is after the last atom of type <code>command</code></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">Object</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line554">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="commitCommandStringBeforeInsertionPoint">commitCommandStringBeforeInsertionPoint<span class="signature">()</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line616">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="contains">contains<span class="signature">(atom<span class="signature-type">: <a href="MathAtom.html">MathAtom</a></span>)</span><span class="type-signature"> &rarr;  boolean</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>atom</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type"><a href="MathAtom.html">MathAtom</a></span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">boolean</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>True if <code>atom</code> is within the selection range</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line455">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="decorateCommandStringAroundInsertionPoint">decorateCommandStringAroundInsertionPoint<span class="signature">(value<span class="signature-type">: boolean</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>value</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>If true, decorate the command string around the 
+insertion point with an error indicator (red dotted underline). If false,
+remove it.</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line596">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="delete">delete<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Delete multiple characters</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line1323">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="delete_">delete_<span class="signature">(dir<span class="signature-type">: number</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>dir</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>If the selection is not collapsed, and dir is 
+negative, delete backward, starting with the anchor atom. 
+That is, delete(-1) will delete only the anchor atom.
+If count = 0, delete only if the selection is not collapsed</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line1345">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="endOffset">endOffset<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Offset of the first atom not included in the selection
+i.e. max value of <code>siblings.length</code><br><code>endOffset - startOffset = extent</code></p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line312">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="extend">extend<span class="signature">(dist<span class="signature-type">: number</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Change the range of the selection</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>dist</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>The change (positive or negative) to the extent
+of the selection. The anchor point does not move.</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line956">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="extractCommandStringAroundInsertionPoint">extractCommandStringAroundInsertionPoint<span class="signature">()</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line579">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="extractContents">extractContents<span class="signature">()</span><span class="type-signature"> &rarr;  Array.&lt;<a href="MathAtom.html">MathAtom</a>></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>The currently selected atoms, or <code>null</code> if the 
+selection is collapsed</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line476">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="extractContentsOrdInGroupBeforeInsertionPoint">extractContentsOrdInGroupBeforeInsertionPoint<span class="signature">()</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line656">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="extractGroupStringBeforeInsertionPoint">extractGroupStringBeforeInsertionPoint<span class="signature">()</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line530">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="filter">filter<span class="signature">(cb<span class="signature-type">: function</span>, dir<span class="signature-type">: number</span>)</span><span class="type-signature"> &rarr;  Array.&lt;<a href="MathAtom.html">MathAtom</a>></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Iterate over each atom in the expression, starting with the focus.</p>
+<p>Return an array of all the paths for which the callback predicate
+returned true.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>cb</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>A predicate being passed a path and the atom at this
+path. Return true to include the designated atom in the result.</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>dir</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p><code>+1</code> to iterate forward, <code>-1</code> to iterate backward.</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>The atoms for which the predicate is true</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line67">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="insert">insert<span class="signature">(s<span class="signature-type">: string</span>, options<span class="signature-type">: Object</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>s</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>options</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>options.insertionMode</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>One of 'replaceSelection', 
+'replaceAll', 'insertBefore' or 'insertAfter'.</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>options.selectionMode</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>Describes where the selection 
+will be after the insertion. One of 'placeholder' (the selection will be 
+the first available placeholder in the item that has been inserted), 
+'after' (the selection will be an insertion point after the item that has 
+been inserted), 'before' (the selection will be an insertion point before 
+the item that has been inserted) or 'item' (the item that was inserted will
+be selected).</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>options.format</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>The format of the string <code>s</code>, one of 
+<code>auto</code> (the string is interpreted as a latex fragment or command), <code>latex</code>
+(the string is interpreted stricly as a latex fragment)</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line1179">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="insertFirstAtom">insertFirstAtom<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>If necessary, insert a <code>first</code> atom in the sibling list.
+If there's already a <code>first</code> atom, do nothing.
+The <code>first</code> atom is used as a 'placeholder' to hold the blinking caret when
+the caret is positioned at the very begining of the mathlist.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line323">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="isCollapsed">isCollapsed<span class="signature">()</span><span class="type-signature"> &rarr;  boolean</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">boolean</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>True if the selection is an insertion point.</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line368">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="jump">jump<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Move to the next/previous expression boundary</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line1072">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="leap">leap<span class="signature">()</span><span class="type-signature"> &rarr;  boolean</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Move to the next/previous placeholder or empty child list.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">boolean</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>False if no placeholder found and did not move</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line1129">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="moveToOpposite_">moveToOpposite_<span class="signature">()</span><span class="type-signature"> &rarr;  boolean</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>If cursor is currently in:</p>
+<ul>
+<li>superscript: move to subscript, creating it if necessary</li>
+<li>subscript: move to superscript, creating it if necessary</li>
+<li>numerator: move to denominator</li>
+<li>denominator: move to numerator</li>
+<li>otherwise: do nothing and return false</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">boolean</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>True if the move was possible. False is there is no
+opposite to move to, in which case the cursors is left unchanged.</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line1645">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="moveToSubscript_">moveToSubscript_<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Switch the cursor to the subscript and select it. If there is no subscript
+yet, create one.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line1608">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="moveToSuperscript_">moveToSuperscript_<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Switch the cursor to the superscript and select it. If there is no subscript
+yet, create one.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line1571">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="next">next<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Move the anchor to the next permissible atom</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line760">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="selectAll_">selectAll_<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Select all the atoms in the math field.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line418">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="selectGroup_">selectGroup_<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Select all the atoms in the current group, that is all the siblings.
+When the selection is in a numerator, the group is the numerator. When 
+the selection is a superscript or subscript, the group is the supsub.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line407">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="setExtent">setExtent<span class="signature">(extent<span class="signature-type">: number</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>extent</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line376">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="setRange">setRange<span class="signature">(from<span class="signature-type">: Array.&lt;string></span>, to<span class="signature-type">: Array.&lt;string></span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Extend the selection between <code>to</code> and <code>from</code> nodes</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>from</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>to</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line160">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="setSelection">setSelection<span class="signature">(offset<span class="signature-type">: number</span>, extent<span class="signature-attributes">opt</span><span class="signature-type">: number,string</span>, relation<span class="signature-type">: string</span>)</span><span class="type-signature"> &rarr;  boolean</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>offset</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <ul>
+<li>&gt;0: index of the child in the group where the selection will start from</li>
+<li>&lt;0: index counting from the end of the group</li>
+</ul>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>extent</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+|
+
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+                    <span class="attribute">optional</span>
+                
+
+                
+
+                
+                </span>
+            
+
+            
+                <span class="default">= 0</span>
+            
+
+            
+                    <p class="description last">
+                        <p>Number of items in the selection:</p>
+<ul>
+<li>0: collapsed selection, single insertion point</li>
+<li>&gt;0: selection extending <em>after</em> the offset</li>
+<li>&lt;0: selection extending <em>before</em> the offset</li>
+<li><code>'end'</code>: selection extending to the end of the group</li>
+<li><code>'start'</code>: selection extending to the beginning of the group</li>
+</ul>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>relation</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>e.g. <code>'children'</code>, <code>'superscript'</code>, etc...</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">boolean</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>False if the relation is invalid (no such children)</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line676">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="sibling">sibling<span class="signature">()</span><span class="type-signature"> &rarr;  <a href="MathAtom.html">MathAtom</a></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Sibling, relative to <code>anchor</code>
+<code>sibling(0)</code> = anchor
+<code>sibling(-1)</code> = sibling immediately left of anchor</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type"><a href="MathAtom.html">MathAtom</a></span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line352">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="siblings">siblings<span class="signature">()</span><span class="type-signature"> &rarr;  Array.&lt;<a href="MathAtom.html">MathAtom</a>></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>array of children of the parent</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line335">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="skip">skip<span class="signature">(dir<span class="signature-type">: number</span>, options<span class="signature-type">: Object</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Move the selection focus to the next/previous point of interest.
+A point of interest is an atom that of a different type (mbin, mord, etc...)
+than the current focus.
+If <code>extend</code> is true, the selection will be extended. Otherwise, it is 
+collapsed, then moved.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>dir</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>+1 to skip forward, -1 to skip back</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>options</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line1014">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="startOffset">startOffset<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Offset of the first atom included in the selection
+i.e. <code>=1</code> =&gt; selection starts with and includes firtst atom
+With expression <em>x=</em> and atoms :</p>
+<ul>
+<li>0: <em><first></em></li>
+<li>1: <em>x</em></li>
+<li><p>2: <em>=</em></p>
+</li>
+<li><p>if caret is before <em>x</em>:  <code>start</code> = 0, <code>end</code> = 0</p>
+</li>
+<li>if caret is after <em>x</em>:   <code>start</code> = 1, <code>end</code> = 1</li>
+<li>if <em>x</em> is selected:      <code>start</code> = 1, <code>end</code> = 2</li>
+<li>if <em>x=</em> is selected:   <code>start</code> = 1, <code>end</code> = 3</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line293">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="toString">toString<span class="signature">()</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return a string representation of the selection.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line112">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+    <dt class="tag-todo">To Do:</dt>
+    <dd class="tag-todo">
+        <ul>
+            <li>This is a bad name for this function, since it doesn't return 
+a representation of the content, which one might expect...</li>
+        </ul>
+    </dd>
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="transpose_">transpose_<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Swap the characters to either side of the insertion point and advances
+the insertion point past both of them. Does nothing to a selected range of
+text.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-editableMathlist.js.html#line1513">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</main>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="scripts/namis.search.jquery.js"></script>
+<script>
+    function readCookie(a) {
+        var b = document.cookie.match('(^|;)\\s*' + a + '\\s*=\\s*([^;]+)');
+        return b ? b.pop() : '';
+    }
+    function writeCookie(a, v) {
+		var date = new Date();
+		date.setTime(date.getTime()+(30*24*60*60*1000));
+    	document.cookie = a + "=" + v + "; expires=" + date.toUTCString() + "; path=/";
+    }
+
+    var cookie = readCookie('symbol-access');
+    if (cookie === 'no-private') {
+        document.documentElement.classList.add('no-private');
+    }
+    
+   document.getElementById('toggle-private').checked = 
+    !document.documentElement.classList.contains('no-private');
+
+
+    prettyPrint();
+    (function($){
+        $('#nav').search(['className', 'methodName']);
+    })(jQuery);
+</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

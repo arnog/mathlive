@@ -1,5 +1,6 @@
 
 /**
+ * See {@linkcode MathField}
  * @module editor/mathfield
  */
 define([
@@ -68,6 +69,17 @@ function off(el, selectors, listener, options) {
     mf = new Mathlive.MathField(document.getElementById('id'));
    ```
  * 
+ * **Note**
+ * - Method names that _begin with_ an underbar `_` are private and meant
+ * to be used only by the implementation of the class.
+ * - Method names that _end with_ an underbar `_` are selectors. They can 
+ * be invoked by calling the `perform()` function of a `MathField` object. Note
+ * that the selector name does not include the underbar.
+ * 
+ * For example:
+ * ```
+ *    mf.perform('selectAll');
+ * ```
  *  
  * @param {Element} element 
  * @param {Object} config - See [`MathField.setConfig()`]{@link MathField#setConfig} for details
@@ -78,7 +90,7 @@ function off(el, selectors, listener, options) {
  * @property {boolean} keystrokeCaptionVisible - True if the keystroke caption
  * panel is visible
  * @class
- * @memberof module:editor/mathfield
+ * @global
  */
 function MathField(element, config) {
     if (!this || !(this instanceof MathField)) {
@@ -229,7 +241,6 @@ function MathField(element, config) {
  * Utility function that returns the element which has the caret
  * 
  * @param {DomElement} el 
- * @function module:editor/mathfield#_findElementWithCaret
  * @private
  */
 function _findElementWithCaret(el) {
@@ -248,7 +259,7 @@ function _findElementWithCaret(el) {
 /**
  * Return the (x,y) client coordinates of the caret
  * 
- * @method module:editor/mathfield.MathField#_getCaretPosition
+ * @method MathField#_getCaretPosition
  * @private
  */
 MathField.prototype._getCaretPosition = function() {
@@ -571,7 +582,7 @@ MathField.prototype.perform = function(command) {
 /**
  * @param {string} keystroke
  * @param {Event} evt
- * @method module:editor/mathfield.MathField#_onKeystroke
+ * @method MathField#_onKeystroke
  * @private
  */
 MathField.prototype._onKeystroke = function(keystroke, evt) {
@@ -693,7 +704,7 @@ MathField.prototype._onTypedText = function(text) {
  * When the content of the math field has changed (or the selection), 
  * call `render()` to re-layout the field and generate the udpated DOM 
  * elements.
- * @method module:editor/mathfield.MathField#render
+ * @method MathField#render
  * @private
  */
 MathField.prototype._render = function() {
@@ -818,7 +829,7 @@ MathField.prototype._onCopy = function() {
  * @param {string} [format='latex']. One of `'latex'`, `'spoken'`, 
  * `'asciimath'` (not yet supported).
  * @return {string}
- * @method module:editor/mathfield.MathField#text
+ * @method MathField#text
  */
 MathField.prototype.text = function(format) {
     format = format || 'latex';
@@ -839,7 +850,7 @@ MathField.prototype.text = function(format) {
  * LaTeX expression.
  * @param {string} text
  * @return {string}
- * @method module:editor/mathfield.MathField#latex
+ * @method MathField#latex
  */
 MathField.prototype.latex = function(text) {
     if (text) {
@@ -861,7 +872,7 @@ MathField.prototype.latex = function(text) {
 /**
  * Return the DOM element associated with this mathfield.
  * @return {Element}
- * @method module:editor/mathfield.MathField#el
+ * @method MathField#el
  */
 MathField.prototype.el = function() {
     return this.element;
@@ -890,7 +901,7 @@ MathField.prototype.scrollToEnd_ = MathField.prototype.scrollToEnd = function() 
 
 /**
  * 
- * @method module:editor/mathfield.MathField#enterCommandMode_
+ * @method MathField#enterCommandMode_
  * @private
  */
 MathField.prototype.enterCommandMode_ = function() {
@@ -934,7 +945,7 @@ MathField.prototype.pasteFromClipboard_ = function() {
  * been inserted), 'before' (the selection will be an insertion point before 
  * the item that has been inserted) or 'item' (the item that was inserted will
  * be selected). Default: 'placeholder'.
- * @method module:editor/mathfield.MathField#write
+ * @method MathField#write
  */
 MathField.prototype.write = 
 MathField.prototype.insert_ = 
@@ -950,7 +961,7 @@ MathField.prototype.insert = function(latex, options) {
 /**
  * Completes an operation in progress, for example when in command mode, 
  * interpret the command
- * @method module:editor/mathfield.MathField#complete_
+ * @method MathField#complete_
  * @private
  */
 MathField.prototype.complete_ = function() {
@@ -1284,7 +1295,7 @@ MathField.prototype.clearSelection = function() {
  * @param {string} keys - A string representation of a key combination. For
  * example `'Alt-KeyU'`.
  * See https://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
- * @method module:editor/mathfield.MathField#keystroke
+ * @method MathField#keystroke
  */
 MathField.prototype.keystroke = function(keys) {
     // This is the public API, while onKeystroke is the 
@@ -1295,7 +1306,7 @@ MathField.prototype.keystroke = function(keys) {
 /**
  * Simulate a user typing the keys indicated by text.
  * @param {string} text - A sequence of one or more characters.
- * @method module:editor/mathfield.MathField#typedText
+ * @method MathField#typedText
  */
 MathField.prototype.typedText = function(text) {
     // This is the public API, while onTypedText is the 
@@ -1378,7 +1389,7 @@ MathField.prototype.typedText = function(text) {
  * @param {mathfieldCallback} config.onSelectionDidChange - A handler called  
  * just after the selection has been changed.
  * 
- * @method module:editor/mathfield.MathField#config
+ * @method MathField#config
  */
 MathField.prototype.config = function(config) {
     const def = {
