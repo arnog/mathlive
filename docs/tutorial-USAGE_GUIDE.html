@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>editor/editor-undo.js - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>Usage Guide - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -50,138 +50,192 @@ writeCookie('symbol-access', 'private')
 
 <main id="main">
     
-        <h1 class="page-title">editor/editor-undo.js</h1>
+        <h1 class="page-title">Usage Guide</h1>
     
 
-    
-
-
-
-    
     <section>
-        <article>
-            <pre class="prettyprint source linenums">
-            
-            <code>
 
-define([], 
-    function() {
+<header>
+    
+</header>
 
-/**
- * 
- * @param {MathAtom[]} mathlist
- * @class UndoManager
- * @global
- * @private
- */
-function UndoManager(mathlist) {
-    this.mathlist = mathlist;
-    this.stack = [];
-    this.index = -1;
-    this.maximumDepth = 1000;
-}
+<article>
+    <h1 align="center" style="margin-top:0">
+        <img style="max-width:100%" src="https://github.com/arnog/mathlive/blob/master/assets/logo-1024.jpg?raw=true">
+</h1>
 
+<p>This guide describes how to use the MathLive Javascript library with your own
+web content. To contribute to the MathLive project, see the <a href="CONTRIBUTOR_GUIDE.md">MathLive 
+Contributor Guide</a></p>
+<h2>Getting Started</h2><p>You can install MathLive from gitHub or from NPM.</p>
+<h3>From GitHub</h3><p>Download the content of the <code>dist/</code> directory and copy it at a location of 
+your choice in your project. MathLive has no dependency (not even jQuery!) 
+and you do not needs to download or install anything else.</p>
+<p>The <code>dist/</code> directory contains the following:</p>
+<ul>
+<li><code>mathlive.js</code> The MathLive Javascript library. It is an optimized and minified 
+Javascript file which exports the <code>MathLive</code> class. </li>
+<li><code>mathlive-core.css</code> The minimal amount of CSS to display math.</li>
+<li><code>mathlive.css</code> The rest of the CSS you need to display math. You can load
+this file lazily to improve your page load time.</li>
+<li><code>fonts/</code> A directory of fonts used by MathLive. Credit for those fonts goes to
+the KaTeX project.</li>
+</ul>
+<h3>From NPM</h3><pre class="prettyprint source lang-bash"><code>$ npm install -g mathlive</code></pre><h3>Using MathLive in your project</h3><p>Include the following in your web page. Adjust the <code>src</code> argument to account 
+for your directory structure.</p>
+<pre class="prettyprint source lang-html"><code>&lt;!doctype html>
+&lt;html lang=&quot;en-US&quot;>
+&lt;head>
+    ...
+    &lt;style src=&quot;mathlive-core.css&quot;>&lt;/script>
+    &lt;style src=&quot;mathlive.css&quot;>&lt;/script>
+&lt;/head>
+&lt;body>
+    ...
+   &lt;script src=&quot;mathlive.js&quot;>&lt;/script>
+&lt;/body>
+&lt;/html></code></pre><h2>Rendering Math Automatically</h2><p>Math in a web page will automatically be rendered after the page has 
+loaded using the <code>auto-render</code> module.</p>
+<p>By default, any text that is enclosed with the following delimiters
+will be converted to a math formula:</p>
+<ul>
+<li><code>$$</code>...<code>$$</code></li>
+<li><code>\[</code>...<code>\]</code></li>
+<li><code>\(</code>...<code>\)</code></li>
+</ul>
+<p>When being considered for conversion, some tags are ignored: <code>script</code>, 
+<code>noscript</code>, <code>style</code>, <code>textarea</code>, <code>pre</code> and <code>code</code>.</p>
+<pre class="prettyprint source lang-html"><code>&lt;h1>Taxicab Number&lt;/h1>
+&lt;p>The second taxicab number is $$1729 = 10^3 + 9^3 = 12^3 + 1^3$$&lt;/p></code></pre><p>If you dynamically generate content, you can request the autorenderer to run 
+again using <code>AutoRender.renderMathInElement(el)</code>.</p>
+<p>The <code>renderMathInElement()</code> functions takes a second parameter which can be 
+used to customize the list of delimiters to consider, and the tags to ignore.</p>
+<h2>Using the Math Editor Programatically</h2><p>To make use of the MathLive API use the <code>MathLive</code> object. This object
+contains the public API to MathLive. </p>
+<p>To create a new math field, call <code>MathLive.makeMathField(element, options)</code>.
+For example:</p>
+<pre class="prettyprint source lang-html"><code>&lt;!DOCTYPE html>&lt;html lang=&quot;en-US&quot;>
+&lt;head>
+    &lt;meta charset=&quot;utf-8&quot;>
+    &lt;title>MathLive Sample&lt;/title>
 
-/**
- * 
- * @return {boolean}
- * @memberof UndoManager
- * @instance
- * @private
- */
-UndoManager.prototype.canUndo = function() {
-    return this.index >= 0;
-}
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;mathlive.core.css&quot;>
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;mathlive.css&quot;>
+    &lt;script src=&quot;mathlive.js&quot;>&lt;/script>
+&lt;/head>
+&lt;body>
+    &lt;div id='mathfield' style='border: 1px solid #999;padding:5px;'>
+        f(x)=
+    &lt;/div>
+&lt;script>
+    const mathfield = new MathLive.MathField(document.getElementById('mathfield'));
+&lt;/script>
+&lt;/body>
+&lt;/html></code></pre><p>You can control the math field using the public functions of <code>MathField</code>, that 
+is, functions that do not contain an <code>_</code> at the beginnig or end of their name.
+Here's a short list for some common operations:</p>
+<ul>
+<li><code>el()</code> the DOM element associated with this math field</li>
+<li><code>text(format)</code> return a textual representation of the content of the math 
+field, <code>format</code> can be either <code>&quot;latex&quot;</code> (default) or <code>&quot;spoken&quot;</code>.</li>
+<li><code>.write(content, options)</code> insert the specified content at the current 
+insertion point. With <code>options</code> it is possible to specify the insertion mode,
+as well as what will be selected after the insertion. If the content contains
+a <code>#?</code> a placeholder will be indicated in its stead. The <code>#0</code> sequence will
+be replaced by the item currently selected (or a placeholder if nothing is 
+selected)</li>
+<li><code>config()</code> customize how the math field behaves, as well as provide 
+notification handlers, for example when the selection changes, or when 
+navigation exists the math field.</li>
+<li><code>select()</code> select all the items in the math field</li>
+<li><code>clearSelection()</code> deletes the selection</li>
+<li><code>perform()</code> executes a command such as moving the insertion point. Typically
+invoked in response to a user action, such as pressing a keyboard shortcut
+or pushing a button. The command will be undoable. See the list of available
+commnads in the <a href="#selectors"><strong>Selectors</strong></a> section.</li>
+</ul>
+<h2>Selectors</h2><p>User initiated commands that control the mathfield can be dispatched using
+the <code>perform()</code> commands. Commands are identified by a string called the
+<strong>selector</strong>. Most commands take no parameters. When a command does have a 
+parameter, an array made up of the selector and the commands arguments can be
+passed to <code>perform()</code>. For example:</p>
+<pre class="prettyprint source lang-javascript"><code>   mf.perform(['insert', '(#0)']);</code></pre><p>will insert an open and close parenthesis around the selection (the <code>#0</code>
+sequence is replaced with the current selection).</p>
+<h3>Editing</h3><ul>
+<li><code>insert</code>. This selector takes two arguments. The first one is required and 
+is the content to be inserted, as a string. The second one is an optional set of key value pairs:<ul>
+<li><code>insertionMode</code>: one of <code>&quot;replaceSelection&quot;</code>, <code>&quot;replaceAll&quot;</code>, <code>&quot;insertBefore&quot;</code> or <code>&quot;insertAfter&quot;</code>.</li>
+<li><code>selectionMode</code>: one of <code>&quot;placeholder&quot;</code> (the selection will be 
+the first available placeholder in the item that has been inserted),
+<code>&quot;after&quot;</code> (the selection will be an insertion point after the item that has 
+been inserted), <code>&quot;before&quot;</code> (the selection will be an insertion point before 
+the item that has been inserted) or <code>&quot;item&quot;</code> (the item that was inserted will
+be selected).</li>
+</ul>
+</li>
+<li><code>delete</code> synonym for <code>deleteNextChar</code></li>
+<li><code>deleteNextChar</code>, <code>deletePreviousChar</code></li>
+<li><code>deleteNextWord</code>, <code>deletePreviousWord</code></li>
+<li><code>deleteToGroupStart</code>, <code>deleteToGroupEnd</code></li>
+<li><code>deleteToMathFieldEnd</code></li>
+<li><code>transpose</code></li>
+</ul>
+<h3>Edit Menu</h3><ul>
+<li><code>undo</code></li>
+<li><code>redo</code></li>
+<li><code>cutToClipboard</code></li>
+<li><code>copyToClipboard</code></li>
+<li><code>pasteFromClipboard</code></li>
+</ul>
+<h3>User Interface</h3><ul>
+<li><code>enterCommandMode</code></li>
+<li><code>complete</code> exit command mode and insert result</li>
+<li><code>nextSuggestion</code> and <code>previousSuggestion</code> when the popover panel is
+selected, display the next/previous suggestion</li>
+<li><code>toggleKeystrokeCaption</code> show/hide the keystroke caption panel. This panel
+displays the keys being typed, including the shorcuts. Great for demos!</li>
+<li><code>toggleCommandBar</code> show/hide the command bar</li>
+</ul>
+<h3>Scrolling</h3><ul>
+<li><code>scrollToStart</code></li>
+<li><code>scrollToEnd</code></li>
+<li><code>scrollIntoView</code></li>
+</ul>
+<h3>Navigating</h3><ul>
+<li><code>moveToNextChar</code>, <code>moveToPreviousChar</code></li>
+<li><code>moveToNextPlaceholder</code>, <code>moveToPreviousPlaceholder</code></li>
+<li><code>moveToNextWord</code>, <code>moveToPreviousWord</code></li>
+<li><code>moveToGroupStart</code>, <code>moveToGroupEnd</code></li>
+<li><code>moveToMathFieldStart</code>, <code>moveToMathFieldEnd</code></li>
+<li><code>moveUp</code>, <code>moveDown</code></li>
+<li><code>moveToSuperscript</code>, <code>moveToSubscript</code></li>
+<li><code>moveToOpposite</code></li>
+<li><code>moveBeforeParent</code>, <code>moveAfterParent</code></li>
+</ul>
+<h3>Extending the Selection</h3><ul>
+<li><code>selectGroup</code></li>
+<li><code>selectAll</code></li>
+<li><code>extendToNextChar</code>, <code>extendToPreviousChar</code></li>
+<li><code>extendToNextWord</code>, <code>extendToPreviousWord</code></li>
+<li><code>extendUp</code>, <code>extendDown</code></li>
+<li><code>extendToNextBoundary</code>, <code>extendToPreviousBoundary</code></li>
+<li><code>extendToGroupStart</code>, <code>extendToGroupEnd</code></li>
+<li><code>extendToMathFieldStart</code>, <code>extendToMathFieldEnd</code></li>
+</ul>
+<h3>Arrays</h3><ul>
+<li><code>addRowAfter</code>, <code>addRowBefore</code></li>
+<li><code>addColumnAfter</code>, <code>addColumnBefore</code></li>
+</ul>
+<h3>Speech</h3><ul>
+<li><code>speakAll</code></li>
+<li><code>speakSelection</code></li>
+<li><code>speakParent</code></li>
+<li><code>speakGroup</code></li>
+<li><code>speakLeftSibling</code>, <code>speakRightSibling</code></li>
+</ul>
+</article>
 
-/**
- * 
- * @return {boolean}
- * @memberof UndoManager
- * @instance
- * @private
- */
-UndoManager.prototype.canRedo = function() {
-    return this.index !== this.stack.length - 1;
-}
-
-/**
- * 
- * @memberof UndoManager
- * @instance
- * @private
- */
-UndoManager.prototype.undo = function() {
-    if (this.canUndo()) {
-        // Restore the content
-        this.mathlist.selectAll_();
-        this.mathlist.insert(this.stack[this.index].latex);
-        
-        // Restore the selection
-        this.mathlist.setPath(this.stack[this.index].selection)
-
-        this.index -= 1;
-    }
-}
-
-/**
- * 
- * @memberof UndoManager
- * @instance
- * @private
- */
-UndoManager.prototype.redo = function() {
-    if (this.canRedo()) {
-        this.index += 1;
-
-        // Restore the content
-        this.mathlist.selectAll_();
-        this.mathlist.insert(this.stack[this.index].latex);
-        
-        // Restore the selection
-        this.mathlist.setPath(this.stack[this.index].selection)        
-    }
-}
-
-
-/**
- * Push a snapshot of the content and selection of the math field onto the 
- * undo stack so that it can potentially be reverted to later.
- * @memberof UndoManager
- * @instance
- * @private
- */
-UndoManager.prototype.snapshot = function() {
-    // Drop any entries that are part of the redo stack
-    this.stack.splice(this.index + 1, this.index.length - this.index - 1);
-
-    // Add a new entry
-    this.stack.push({
-        latex: this.mathlist.root.toLatex(),
-        selection: this.mathlist.toString()
-    });
-
-    this.index++;
-
-    // If we've reached the maximum number of undo operations, forget the 
-    // oldest one.
-    if (this.stack.length > this.maximumDepth) {
-        this.stack.shift();
-    }
-}
-
-
-return {
-    UndoManager: UndoManager
-}
-
-
-})
-</code></pre>
-        </article>
-    </section>
-
-
-
+</section>
 
 </main>
 

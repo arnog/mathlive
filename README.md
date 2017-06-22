@@ -71,10 +71,10 @@ including extracting its content, inserting placeholders and more.
 
 * Something wrong? Got ideas for new features? Write up an issue. Read about
 [Contributing](CONTRIBUTING.md) and follow our [Code of Conduct](CODE_OF_CONDUCT.md)
-* Want to use MathLive in your web page? The [Usage Guide](USAGE_GUIDE.md) 
+* Want to use MathLive in your web page? The [Usage Guide](tutorials/USAGE_GUIDE.md) 
 has all the details.
 * Want to contribute some code for an issue or a feature? Read the 
-[Contributor Guide](CONTRIBUTOR_GUIDE.md) and the 
+[Contributor Guide](tutorials/CONTRIBUTOR_GUIDE.md) and the 
 [docs](http://docs.mathlive.io). Looking for inspiration? Pick one of
 those open issues for [beginners](https://github.com/arnog/mathlive/labels/BEGINNER)
 

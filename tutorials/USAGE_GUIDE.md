@@ -1,8 +1,9 @@
-# MathLive Usage Guide
+<h1 align="center" style="margin-top:0">
+        <img style="max-width:100%" src="https://github.com/arnog/mathlive/blob/master/assets/logo-1024.jpg?raw=true">
+</h1>
 
 This guide describes how to use the MathLive Javascript library with your own
-web content. To contribute to the MathLive project, see the [MathLive 
-Contributor Guide](CONTRIBUTOR_GUIDE.md)
+web content. To contribute to the MathLive project, see the {@tutorial CONTRIBUTOR_GUIDE}.
 
 
 ## Getting Started

@@ -2,6 +2,7 @@
 /**
  * See {@linkcode MathField}
  * @module editor/mathfield
+ * @private
  */
 define([
     'mathlive/core/definitions', 

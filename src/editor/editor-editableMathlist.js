@@ -11,6 +11,7 @@
  * See {@linkcode EditableMathlist}
  * 
  * @module editor/editableMathlist
+ * @private
  */
 define([
     'mathlive/core/definitions', 

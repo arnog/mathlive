@@ -31,7 +31,8 @@
         "encoding": "utf8",
         "recurse": true,
         "destination": "./docs",
-        "readme": "CONTRIBUTOR_GUIDE.md",
-        "sort": false
+        "readme": "WELCOME.md",
+        "sort": false,
+        "tutorials": "./tutorials"
     }
 }

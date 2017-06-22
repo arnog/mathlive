@@ -2,11 +2,9 @@
         <img style="max-width:100%" src="https://github.com/arnog/mathlive/blob/master/assets/logo-1024.jpg?raw=true">
 </h1>
 
-# MathLive Contributor Guide
-
 This guide is for developers who want to contribute code to MathLive, 
 or who want to understand in more depth how MathLive works.
-If you simply want to use MathLive with your web content, see the [MathLive Usage Guide](USAGE_GUIDE.md).
+If you simply want to use MathLive with your web content, see the {@tutorial USAGE_GUIDE}.
 
 ## Table of Contents
 - [Getting Started: Setting up Your Development Environment](#getting-started-setting-up-your-development-environment)
