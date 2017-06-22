@@ -826,7 +826,7 @@ MathAtom.prototype.decomposeAccent = function(context) {
         // If there is a supsub attached to the accent
         // apply it to the base.
         // Note this does not give the same result as TeX when there 
-        // are stacked accents, e.g. \vec{\breve{\hat{\acute{XXX}}}}^2
+        // are stacked accents, e.g. \vec{\breve{\hat{\acute{...}}}}^2
 
         base = this.attachSupsub(context, makeOrd(base), 'mord');
     }
@@ -839,18 +839,6 @@ MathAtom.prototype.decomposeAccent = function(context) {
     let skew = 0;
     if (this.body.length === 1 && this.body[0].isCharacterBox()) {
         skew = Span.skew(base);
-    //     // If the base is a character box, then we want the skew of the
-    //     // innermost character. To do that, we find the innermost character:
-    //     const baseChar = getBaseElem(base);
-    //     // Then, we render its group to get the symbol inside it
-    //     const baseGroup = buildGroup(
-    //         baseChar, options.withStyle(style.cramp()));
-    //     // Finally, we pull the skew off of the symbol.
-    //     skew = baseGroup.skew;
-    //     // Note that we now throw away baseGroup, because the layers we
-    //     // removed with getBaseElem might contain things like \color which
-    //     // we can't get rid of.
-    //     // TODO(emily): Find a better way to get the skew
     }
     
     // calculate the amount of space between the body and the accent
@@ -866,7 +854,6 @@ MathAtom.prototype.decomposeAccent = function(context) {
     // The \vec character that the fonts use is a combining character, and
     // thus shows up much too far to the left. To account for this, we add a
     // specific class which shifts the accent over to where we want it.
-    // TODO(emily): Fix this in a better way, like by changing the font
     const vecClass = this.accent === '\u20d7' ? ' accent-vec' : '';
 
     let accentBody = makeSpan(makeSpan(accent), 'accent-body' + vecClass);

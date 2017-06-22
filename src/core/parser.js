@@ -128,6 +128,17 @@ Parser.prototype.hasLiteral = function(value) {
         (!value || this.tokens[index].value === value) : false;
 }
 
+/**
+ * @param {RegEx} pattern
+ * @return {boolean} True if the next token is of type `'literal` and matches 
+ * the specified regular expression pattern.
+ * @method Parser#hasLiteralPattern
+ */
+Parser.prototype.hasLiteralPattern = function(pattern) {
+    return this.hasToken('literal') && 
+        pattern.test(this.tokens[this.index].value);
+}
+
 Parser.prototype.hasCommand = function(command) {
     console.assert(command === '\\' || command.charAt(0) !== '\\',
         'hasCommand() does not require a \\');
@@ -182,30 +193,21 @@ const SIZING_COMMANDS = [
     'large', 'Large', 'LARGE', 'huge', 'Huge',
 ];
 
-Parser.prototype.hasImplicitSizingCommand = function() {
-    if (this.index < this.tokens.length) {
-        const token = this.tokens[this.index]
-        if (token.type === 'command') {
-            return SIZING_COMMANDS.indexOf(token.value) !== -1;
-        }
-    }
-    return false;
-
-}
-
 const MATHSTYLE_COMMANDS = [
     'displaystyle', 'textstyle', 'scriptstyle', 'scriptscriptstyle',
 ]
 
-Parser.prototype.hasImplicitMathstyleCommand = function() {
+Parser.prototype.hasImplicitCommand = function(commands) {
     if (this.index < this.tokens.length) {
         const token = this.tokens[this.index]
         if (token.type === 'command') {
-            return MATHSTYLE_COMMANDS.indexOf(token.value) !== -1;
+            return commands.includes(token.value);
         }
     }
     return false;
 }
+
+
 
 Parser.prototype.parseRowSeparator = function() {
     if (this.hasRowSeparator()) {
@@ -376,11 +378,11 @@ Parser.prototype.scanNumber = function(isInteger) {
     isInteger = !!isInteger;
 
     let radix = 10;
-    let digits = '0123456789';
+    let digits = /[0-9]/;
     if (this.parseLiteral("'")) {
         // Apostrophe indicates an octal value
         radix = 8;
-        digits = '01234567';
+        digits = /[0-7]/;
         isInteger = true;
     } else if (this.parseLiteral('"') || this.parseLiteral('x')) {
         // Double-quote indicates a hex value
@@ -388,36 +390,20 @@ Parser.prototype.scanNumber = function(isInteger) {
         // For example: 'x3a'
         radix = 16;
         // Hex digits have to be upper-case
-        digits = '0123456789ABCDEF';
+        digits = /[0-9A-F]/;
         isInteger = true;
     }
 
     let value = '';
-    let done = this.end();
-    while (!done) {
-        if (!this.hasToken('literal')) {
-            done = true;
-        } else {
-            done = digits.indexOf(this.peek().value) === -1;
-            if (!done) {
-                value += this.get().value;
-            }
-        }
+    while (this.hasLiteralPattern(digits)) {
+        value += this.get().value;
     }
 
     // Parse the fractional part, if applicable
     if (!isInteger &&  (this.parseLiteral('.') || this.parseLiteral(','))) {
         value += '.';
-        done = this.end();
-        while (!done) {
-            if (!this.hasToken('literal')) {
-                done = true;
-            } else {
-                done = digits.indexOf(this.peek().value) === -1;
-                if (!done) {
-                    value += this.get().value;
-                }
-            }
+        while (this.hasLiteralPattern(digits)) {
+            value += this.get().value;
         }
     }
 
@@ -742,7 +728,7 @@ Parser.prototype.scanImplicitGroup = function(done) {
     // if (this.index >= this.tokens.length) return true;
     // const token = this.tokens[this.index];
     while(!this.end() && !done(this.peek())) {
-        if (this.hasImplicitSizingCommand()) {
+        if (this.hasImplicitCommand(SIZING_COMMANDS)) {
             // Implicit sizing command such as \Large, \small
             // affect the tokens following them
             // Note these commands are only appropriate in 'text' mode.
@@ -761,7 +747,7 @@ Parser.prototype.scanImplicitGroup = function(done) {
             }[this.get().value];
             this.mathList.push(atom);
 
-        } else if (this.hasImplicitMathstyleCommand()) {
+        } else if (this.hasImplicitCommand(MATHSTYLE_COMMANDS)) {
             // Implicit math style commands such as \displaystyle, \textstyle...
             // Note these commands switch to math mode and a specific size
             // \textsize is the mathstyle used for inlinemath, not for text
@@ -914,23 +900,20 @@ Parser.prototype.parseSupSub = function() {
     // an empty atom will be created, equivalent to `{{}^2}`
     let result = false;
 
-    while (this.hasToken('^') || this.hasToken('_') || this.hasLiteral('\'')) {
-        if (this.parseToken('^')) {
+    while (this.hasToken('^') || this.hasToken('_') || this.hasLiteral("'")) {
+        let supsub;
+        if (this.hasToken('^')) {
+            supsub = 'superscript';
+        } else if (this.hasToken('_')) {
+            supsub = 'subscript';
+        }
+        if (this.parseToken('^') || this.parseToken('_')) {
             const arg = this.scanArg();
             if (arg) {
                 const atom = this.lastMathAtom();
-                atom.superscript = atom.superscript || [];
-                atom.superscript = atom.superscript.concat(arg);
-                result = result || true;
-            }
-
-        } else if (this.parseToken('_')) {
-            const arg = this.scanArg();
-            if (arg) {
-                const atom = this.lastMathAtom();
-                atom.subscript = atom.subscript || [];
-                atom.subscript = atom.subscript.concat(arg);
-                result = result || true;
+                atom[supsub] = atom[supsub] || [];
+                atom[supsub] = atom[supsub].concat(arg);
+                result = true;
             }
 
         } else if (this.parseLiteral("'")) {
@@ -941,7 +924,7 @@ Parser.prototype.parseSupSub = function() {
             atom.superscript.push(
                 new MathAtom(atom.parseMode, 'mord', '\u2032', 'main')
             );
-                result = result || true;
+            result = true;
         }
     }
 
