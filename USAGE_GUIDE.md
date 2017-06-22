@@ -80,16 +80,33 @@ used to customize the list of delimiters to consider, and the tags to ignore.
 
 ## Using the Math Editor Programatically
 
-To make use of the MathLive API use `MathLive` object. This object
+To make use of the MathLive API use the `MathLive` object. This object
 contains the public API to MathLive. 
 
 To create a new math field, call `MathLive.makeMathField(element, options)`.
 For example:
-```javascript
-    let mf = MathLive.makeMathField(document.getElementById('math-field'));
+```html
+<!DOCTYPE html><html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <title>MathLive Sample</title>
+
+    <link rel="stylesheet" href="mathlive.core.css">
+    <link rel="stylesheet" href="mathlive.css">
+    <script src="mathlive.js"></script>
+</head>
+<body>
+    <div id='mathfield' style='border: 1px solid #999;padding:5px;'>
+        f(x)=
+    </div>
+<script>
+    const mathfield = new MathLive.MathField(document.getElementById('mathfield'));
+</script>
+</body>
+</html>
 ```
 
-You can control the math field using the public functions of MathField, that 
+You can control the math field using the public functions of `MathField`, that 
 is, functions that do not contain an `_` at the beginnig or end of their name.
 Here's a short list for some common operations:
 
@@ -108,7 +125,7 @@ navigation exists the math field.
 * `select()` select all the items in the math field
 * `clearSelection()` deletes the selection
 * `perform()` executes a command such as moving the insertion point. Typically
-invokved in response to a user action, such as pressing a keyboard shortcut
+invoked in response to a user action, such as pressing a keyboard shortcut
 or pushing a button. The command will be undoable. See the list of available
 commnads in the [**Selectors**](#selectors) section.
 
