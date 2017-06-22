@@ -132,7 +132,7 @@ function MathField(element, config) {
         // 4/ The keystroke caption panel (option+shift+K)
         // 5/ The command bar
         let markup = '';
-        if (!config.substituteTextArea) {
+        if (!this.config.substituteTextArea) {
             markup += '<span class="ML__textarea" aria-hidden="true" role="none presentation">' +
                 '<textarea autocapitalize="off" autocomplete="off" ' + 
                 'autocorrect="off" spellcheck="false" ' + 
@@ -140,8 +140,8 @@ function MathField(element, config) {
                 '</textarea>' +
             '</span>';
         } else {
-            if (typeof config.substituteTextArea === 'string') {
-                markup += config.substituteTextArea;
+            if (typeof this.config.substituteTextArea === 'string') {
+                markup += this.config.substituteTextArea;
             } else {
                 // We don't really need this one, but we keep it here so that the 
                 // indexes below remain the same whether a substituteTextArea is 
@@ -165,8 +165,8 @@ function MathField(element, config) {
 
         this.element.innerHTML = markup;
 
-        if (typeof config.substituteTextArea === 'function') {
-            this.textarea =  config.substituteTextArea();
+        if (typeof this.config.substituteTextArea === 'function') {
+            this.textarea =  this.config.substituteTextArea();
         } else {
             this.textarea = this.element.children[0].firstElementChild;
         }
