@@ -1,7 +1,3 @@
-<h1 align="center" style="margin-top:0">
-        <img style="max-width:100%" src="https://github.com/arnog/mathlive/blob/master/assets/logo-1024.jpg?raw=true">
-</h1>
-
 This guide is for developers who want to contribute code to MathLive, 
 or who want to understand in more depth how MathLive works.
 If you simply want to use MathLive with your web content, see the {@tutorial USAGE_GUIDE}.

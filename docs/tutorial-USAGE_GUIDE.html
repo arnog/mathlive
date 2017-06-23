@@ -53,28 +53,26 @@ writeCookie('symbol-access', 'private')
         <h1 class="page-title">Usage Guide</h1>
     
 
-    <section>
+    <section class="tutorial">
 
 <header>
     
 </header>
 
 <article>
-    <h1 align="center" style="margin-top:0">
-        <img style="max-width:100%" src="https://github.com/arnog/mathlive/blob/master/assets/logo-1024.jpg?raw=true">
-</h1>
-
-<p>This guide describes how to use the MathLive Javascript library with your own
-web content. To contribute to the MathLive project, see the <a href="tutorial-CONTRIBUTOR_GUIDE.html">Contributor Guide</a>.</p>
-<h2>Getting Started</h2><p>You can install MathLive from gitHub or from NPM.</p>
-<h3>From GitHub</h3><p>Download the content of the <code>dist/</code> directory and copy it to a location of 
-your choice in your project. MathLive has no dependency (not even jQuery!) 
-and you do not need to download or install anything else.</p>
+    <p>This guide describes how to use the MathLive Javascript library with your own
+web content. </p>
+<p>To contribute to the MathLive project, see the <a href="tutorial-CONTRIBUTOR_GUIDE.html">Contributor Guide</a>.</p>
+<h2>Getting Started</h2><p>Install MathLive from gitHub or from NPM.</p>
+<h3>From GitHub</h3><p>You can find MathLive at <a href="https://github.com/arnog/mathlive/">https://github.com/arnog/mathlive/</a></p>
+<p>The <code>dist/</code> directory contains all you need to use MathLive. MathLive has no 
+dependency on other libraries (not even jQuery!) and you do not need to 
+download or install anything else.</p>
 <p>The <code>dist/</code> directory contains the following:</p>
 <ul>
 <li><code>mathlive.js</code> The MathLive Javascript library. It is an optimized and minified 
-Javascript file which exports the <code>MathLive</code> class. You use the MathLive class
-to access the MathLive API.</li>
+Javascript file which exports the <code>MathLive</code> object which gives access to the
+MathLive API.</li>
 <li><code>mathlive-core.css</code> The minimal amount of CSS to display math with MathLive.</li>
 <li><code>mathlive.css</code> The rest of the CSS you need to display math. You can load
 this file lazily to improve your page load time.</li>
@@ -93,28 +91,28 @@ to account for your directory structure.</p>
     ...
    &lt;script src=&quot;mathlive.js&quot;>&lt;/script>
 &lt;/body>
-&lt;/html></code></pre><h2>Rendering Math Automatically</h2><p>Math in a web page can be rendered automatically by calling 
-<code>MathLive.renderMathInDocument()</code> at the end of your document, or in a <code>onload</code>
-handler:</p>
+&lt;/html></code></pre><h2>Rendering Math Automatically</h2><p>Call <code>MathLive.renderMathInDocument()</code> at the end of your document, or in a 
+<code>onload</code> handler to render math contained in the document.</p>
 <pre class="prettyprint source lang-html"><code>    ...
     &lt;script src=&quot;mathlive.js&quot;>&lt;/script>
     &lt;script>
         MathLive.renderMathInDocument();
     &lt;/script>
 &lt;/body>
-&lt;/html></code></pre><p>By default, any text that is enclosed with the following delimiters
-will be converted to a math formula:</p>
+&lt;/html></code></pre><p>By default, any LaTeX code that is enclosed with the following delimiters
+will be displayed as math:</p>
 <ul>
 <li><code>$$</code>...<code>$$</code></li>
 <li><code>\[</code>...<code>\]</code></li>
 <li><code>\(</code>...<code>\)</code></li>
 </ul>
 <pre class="prettyprint source lang-html"><code>&lt;h1>Taxicab Number&lt;/h1>
-&lt;p>The second taxicab number is $$1729 = 10^3 + 9^3 = 12^3 + 1^3$$&lt;/p></code></pre><p>When being considered for conversion, some tags are ignored: <code>script</code>, 
+&lt;p>The second taxicab number is $$1729 = 10^3 + 9^3 = 12^3 + 1^3$$&lt;/p></code></pre><p>Elements with the following tags will be ignored for conversion: <code>script</code>, 
 <code>noscript</code>, <code>style</code>, <code>textarea</code>, <code>pre</code>, <code>code</code>, <code>annotation</code> and <code>annotation-xml</code>.</p>
-<p>If you dynamically generate content, you can request the autorenderer to run 
-again using <code>AutoRender.renderMathInElement(element)</code>.</p>
-<p>The <code>renderMathInElement()</code> and <code>renderMathInDocument()</code> functions takes an 
+<p>If you dynamically generate content, call <code>AutoRender.renderMathInElement(element)</code>
+to render your element after the page has been loaded. This is a recursive
+call that will be applied to <code>element</code> and all its children.</p>
+<p>The <code>renderMathInElement()</code> and <code>renderMathInDocument()</code> functions take an 
 optional <code>options</code> object which can be used to customize their behavior:</p>
 <ul>
 <li><code>skipTags</code>: an array of tag names whose content will not be scanned for 
@@ -144,10 +142,12 @@ respectively.</li>
                 }
             }
         }
-    );</code></pre><h2>Using the Math Editor Programatically</h2><p>To make use of the MathLive API use the <code>MathLive</code> object. This object
-contains the public API to MathLive. </p>
-<p>To create a new math field, call <code>MathLive.makeMathField(element, options)</code>.
-For example:</p>
+    );</code></pre><h2>Using the Math Editor with Javascript</h2><p>To transform an existing HTML element into a math field, call 
+<code>MathLive.makeMathField(element, options)</code>. Think of this original element
+as a placeholder. Typically, a <code>&lt;div&gt;</code> would be appropriate. If the element
+contains some LaTeX text, it will be used as the initial value of the math 
+field.</p>
+<p>For example:</p>
 <pre class="prettyprint source lang-html"><code>&lt;!DOCTYPE html>&lt;html lang=&quot;en-US&quot;>
 &lt;head>
     &lt;meta charset=&quot;utf-8&quot;>
@@ -165,8 +165,8 @@ For example:</p>
     const mathfield = MathLive.makeMathField(document.getElementById('mathfield'));
 &lt;/script>
 &lt;/body>
-&lt;/html></code></pre><p>You can control the math field using the public functions of <code>MathField</code>, that 
-is, functions that do not contain an <code>_</code> at the beginnig or end of their name.
+&lt;/html></code></pre><p>You can control the math field using the public member functions of <code>MathField</code>,
+that is, functions that do not contain an <code>_</code> at the beginnig or end of their name.
 Here's a short list for some common operations:</p>
 <ul>
 <li><code>el()</code> the DOM element associated with this math field</li>

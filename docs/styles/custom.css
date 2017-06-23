@@ -226,9 +226,8 @@ nav ul ul a, nav ul ul a:active {
 
 #main{
 	width: calc(100% - 290px);
-	padding-left: 0;
+	padding: 0;
 	margin-left: 0;
-	padding : 0 20px 20px 20px;
 	background: #f8f8f8;
 	position: absolute;
 	top: 0;
@@ -236,7 +235,7 @@ nav ul ul a, nav ul ul a:active {
 	border: 1px solid #ddd;
 }
 @media only screen and
-	(max-width: 800px) and
+	(max-width: 990px) and
 	(min-width: 320px) and
 	(-webkit-min-device-pixel-ratio: 2) {
 	#main {
@@ -289,9 +288,25 @@ section {
 }
 
 section.readme {
-	background-color: #fff;
 	max-width: 700px;
+}
+
+section.readme, section.container, section.tutorial {
+	width: 700px;
+	margin:auto;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+ section.readme, section.tutorial {
+	background-color: #fff;
 	border: 1px solid #eee;
+	border-radius: 5px;
+	box-shadow: 1px 1px 5px rgba(0, 0, 0, .1)
+  }
+
+section.source {
+	padding: 0;
 }
 
 .prettyprint.linenums li.selected, .prettyprint.linenums li.selected *{
