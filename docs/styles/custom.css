@@ -38,6 +38,7 @@ body {
 	font-size: 14px;
 	font-weight: 400;
 	font-family: 'Source Sans Pro', sans-serif;
+	background: #f8f8f8;
 }
 
 footer {
@@ -59,8 +60,14 @@ h1 {
 }
 h1.page-title {
 	text-transform: none;
-	margin: 20px 0 30px 30px;
+	max-width: 700px;
+	margin: auto;
 }
+
+section.readme article h1 img {
+	border-radius: 5px 5px 0 0 ;
+}
+
 h2 {
 	font-weight: 700;
 }
@@ -81,7 +88,7 @@ h4 {
 	border-top: 1px solid #eee;
 	background-color: #fff;
 	max-width: 700px;
-	box-shadow: 1px 1px 5px rgba(0, 0, 0, .1)
+	box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
 }
 .container-overview .method {
 	border: none;
@@ -106,9 +113,9 @@ h4 {
 }
 
 .member p, .method p, .property .description p {
-	font-size: 14px;
-	line-height: 20px;
-	margin-left: 20px;
+	font-size: 17px;
+	line-height: 26px;
+	margin-left: 26px;
 	margin-top: 0;
 	margin-bottom: 0;
 }
@@ -149,6 +156,39 @@ h1, h2, h3, h4, h5, h6 {
 	font-family: 'Source Sans Pro', sans-serif;
 	text-shadow: 1px 1px 1px #fff;
 }
+
+article h2 {
+	color: #cd0030;
+	font-size: 36px;
+	line-height: 36px;
+}
+
+article h3 {
+	color: #999;
+	font-weight: 600;
+}
+
+section.readme h1 {
+	margin-top: 0;
+}
+
+section.readme h2, section.readme ul, section.readme p {
+	margin-left: 20px;
+	margin-right: 20px;
+}
+
+h3.subsection-title {
+	padding-top: 2em;
+}
+
+h5, .container-overview .subsection-title {
+	color: #999;
+	font-size: 28px;
+	line-height: 31px;
+	padding-top: .5em;
+	padding-bottom: .5em;
+}
+
 a, a:active {
 	color: #0066ce;
 }
@@ -181,8 +221,8 @@ tt, code, kbd, samp {
 	font-family: 'Source Sans Pro', monospace;
 	color: #000;
 	margin-bottom: 5px;
+	font-size: 17px;
 	line-height: 20px;
-	font-size: 14px;
 	background: transparent;
 	border: none;
 }
@@ -200,11 +240,11 @@ tt, code, kbd, samp {
 	font-style: italic;
 }
 #nav {
-	border-right: solid 1px #ddd;
+	border: 1px solid #ddd;
 	padding: 0;
 	padding-left: 10px;
 	margin: 0;
-	width: 290px;
+	width: 320px;
 	position: relative;
 }
 
@@ -225,14 +265,12 @@ nav ul ul a, nav ul ul a:active {
 }
 
 #main{
-	width: calc(100% - 290px);
+	width: calc(100% - 320px);
 	padding: 0;
 	margin-left: 0;
-	background: #f8f8f8;
 	position: absolute;
 	top: 0;
 	left: 289px;
-	border: 1px solid #ddd;
 }
 @media only screen and
 	(max-width: 990px) and
@@ -244,11 +282,8 @@ nav ul ul a, nav ul ul a:active {
 		left: 0;
 	}
 	#main h1.page-title {
-		margin: 20px 0 1em 5px;
-	}
-	#main section {
-		padding-left: 10px;
-		padding-right: 10px;
+		max-width: 700px;
+		margin: auto;
 	}
 	.forkme {
 		display: none;
@@ -259,9 +294,10 @@ nav ul ul a, nav ul ul a:active {
 	}
 
 	#nav {
-		left: -290px;
+		left: -80vw;
 		font-size: 24px;
 		position: fixed;
+		width: 80vw;
 	}
 	nav ul li a, nav ul li a:active {
 		font-size: 18px;
@@ -296,13 +332,22 @@ section.readme, section.container, section.tutorial {
 	margin:auto;
 	margin-top: 20px;
 	margin-bottom: 20px;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+section.tutorial article {
+	margin-left: 20px;
+	margin-right: 20px;
 }
 
  section.readme, section.tutorial {
+	font-size: 17px;
+	line-height: 26px;
 	background-color: #fff;
 	border: 1px solid #eee;
 	border-radius: 5px;
-	box-shadow: 1px 1px 5px rgba(0, 0, 0, .1)
+	box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
   }
 
 section.source {
