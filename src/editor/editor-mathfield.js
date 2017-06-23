@@ -533,11 +533,11 @@ MathField.prototype._showKeystroke = function(keystroke) {
 
 /**
  * @param {Array.<string>} command - A selector and its parameters
- * @method module:editor/mathfield:MathField#perform
+ * @method MathField#perform
  */
 /**
  * @param {string} command - A selector
- * @method module:editor/mathfield:MathField#perform
+ * @method MathField#perform
  */
 MathField.prototype.perform = function(command) {
     let result = false;
@@ -1329,7 +1329,7 @@ MathField.prototype.typedText = function(text) {
 /**
  * @param {Object} config
  * 
- * @param {*} config.substituteTextArea - A function that returns a focusable element
+ * @param {function} config.substituteTextArea - A function that returns a focusable element
  * that can be used to capture text input.
  * 
  * @param {mathfieldCallback} config.onFocus - Invoked when the mathfield has been focused
