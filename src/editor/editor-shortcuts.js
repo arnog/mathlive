@@ -160,7 +160,7 @@ const KEYBOARD_SHORTCUTS = {
 
     // MATHLIVE BINDINGS
     'math:Alt-KeyQ':             ['insert', '\\theta'],
-    'c':             ['insert', '\\sqrt{#0}'],
+    'math:Alt-KeyV':             ['insert', '\\sqrt{#0}'],
     'math:Alt-KeyP':             ['insert', '\\pi'],
     'math:Alt-Shift-KeyP':       ['insert', '\\prod_{n=#?}^{#?}'],
     'math:Alt-KeyW':             ['insert', '\\sum_{n=#?}^{#?}'],
@@ -786,3 +786,4 @@ return {
 }
 
 })
+
