@@ -1,5 +1,5 @@
 /* eslint no-console:0 */
-define(['mathlive/mathlive'], function(Math) {
+define(function() {
 
 function findEndOfMath(delimiter, text, startIndex) {
     // Adapted from
@@ -29,7 +29,7 @@ function findEndOfMath(delimiter, text, startIndex) {
     return -1;
 }
 
-function splitAtDelimiters(startData, leftDelim, rightDelim, display) {
+function splitAtDelimiters(startData, leftDelim, rightDelim, mathstyle) {
     const finalData = [];
 
     for (let i = 0; i < startData.length; i++) {
@@ -82,7 +82,7 @@ function splitAtDelimiters(startData, leftDelim, rightDelim, display) {
                         rawData: text.slice(
                             currIndex,
                             nextIndex + rightDelim.length),
-                        display: display
+                        mathstyle: mathstyle
                     });
 
                     currIndex = nextIndex + rightDelim.length;
@@ -105,24 +105,29 @@ function splitAtDelimiters(startData, leftDelim, rightDelim, display) {
 
 function splitWithDelimiters(text, delimiters) {
     let data = [{type: 'text', data: text}];
-    for (let i = 0; i < delimiters.length; i++) {
-        const delimiter = delimiters[i];
+    for (let i = 0; i < delimiters.inline.length; i++) {
+        const delimiter = delimiters.inline[i];
         data = splitAtDelimiters(
-            data, delimiter.left, delimiter.right,
-            delimiter.display || false);
+            data, delimiter[0], delimiter[1], 'textstyle');
     }
+    for (let i = 0; i < delimiters.display.length; i++) {
+        const delimiter = delimiters.display[i];
+        data = splitAtDelimiters(
+            data, delimiter[0], delimiter[1], 'displaystyle');
+    }
+
     return data;
 }
 
-function renderMathInText(text, delimiters) {
+function scanText(text, options, latexToMarkup) {
     const fragment = document.createDocumentFragment();
-    // If the text starts with '\\begin'...
+    // If the text starts with '\begin'...
     // (this is a MathJAX behavior)
-    if (text.match(/^\s*\\begin/)) {
+    if (options.TeX.processEnvironments && text.match(/^\s*\\begin/)) {
         const span = document.createElement('span');
         fragment.appendChild(span);
         try {
-            span.innerHTML = Math.toMarkup(text, true);
+            span.innerHTML = latexToMarkup(text, 'displaystyle');
         } catch (e) {
             console.error(
                 'Could not parse\'' + text + '\' with ', e
@@ -130,7 +135,7 @@ function renderMathInText(text, delimiters) {
             fragment.appendChild(document.createTextNode(text));
         }
     } else {
-        const data = splitWithDelimiters(text, delimiters);
+        const data = splitWithDelimiters(text, options.TeX.delimiters);
 
         for (let i = 0; i < data.length; i++) {
             if (data[i].type === 'text') {
@@ -138,7 +143,7 @@ function renderMathInText(text, delimiters) {
             } else {
                 const span = document.createElement('span');
                 try {
-                    span.innerHTML = Math.toMarkup(data[i].data, data[i].display);
+                    span.innerHTML = latexToMarkup(data[i].data, data[i].mathstyle);
                 } catch (e) {
                     console.error(
                         'Could not parse\'' + data[i].data + '\' with ', e
@@ -154,21 +159,26 @@ function renderMathInText(text, delimiters) {
     return fragment;
 }
 
-function renderElem(elem, delimiters, ignoredTags) {
+function scanElement(elem, options, latexToMarkup) {
     for (let i = 0; i < elem.childNodes.length; i++) {
         const childNode = elem.childNodes[i];
         if (childNode.nodeType === 3) {
             // Text node
-            const frag = renderMathInText(childNode.textContent, delimiters);
+            const frag = scanText(childNode.textContent, options, latexToMarkup);
             i += frag.childNodes.length - 1;
             elem.replaceChild(frag, childNode);
         } else if (childNode.nodeType === 1) {
             // Element node
-            const shouldRender = ignoredTags.indexOf(
-                childNode.nodeName.toLowerCase()) === -1;
+            const shouldRender = 
+                options.processClassPattern.test(childNode.className) ||
+                !(options.skipTags.includes(childNode.nodeName.toLowerCase()) || 
+                    options.ignoreClassPattern.test(childNode.className));
+            // const shouldRender = options.processClassPattern.test(childNode.className) ||
+            //     (options.skipTags.includes(childNode.nodeName.toLowerCase()) && 
+            //         !options.ignoreClassPattern.test(childNode.className));
 
             if (shouldRender) {
-                renderElem(childNode, delimiters, ignoredTags);
+                scanElement(childNode, options, latexToMarkup);
             }
         }
         // Otherwise, it's something else, and ignore it.
@@ -176,36 +186,38 @@ function renderElem(elem, delimiters, ignoredTags) {
 }
 
 const defaultOptions = {
-    delimiters: [
-        {left: '$$', right: '$$', display: true},
-        {left: '\\[', right: '\\]', display: true},
-        {left: '\\(', right: '\\)', display: false}
-        // LaTeX uses this, but it ruins the display of normal `$` in text:
-        // {left: '$', right: '$', display: false},
-    ],
+    // Name of tags whose content will not be scanned for math delimiters
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 
+        'annotation', 'annotation-xml'],
+    // Regex pattern of the class name of elements whose contents should not
+    // be processed
+    ignoreClass: "tex2jax_ignore",
 
-    ignoredTags: [
-        'script', 'noscript', 'style', 'textarea', 'pre', 'code'
-    ]
-};
+    // Regex pattern of the class name of elements whose contents should
+    // be processed when they appear inside ones that are ignored.
+    processClass: "tex2jax_process",
 
-function extend(obj) {
-    for (const arg of arguments) {
-        for (const prop in arg) {
-            if (Object.prototype.hasOwnProperty.call(arg, prop)) {
-                obj[prop] = arg[prop];
-            }
+    TeX: {
+        disabled: false,
+        processEnvironments : true,
+        delimiters: {
+            inline:  [['\\(','\\)']],
+            display: [['$$', '$$'], ['\\[', '\\]']],
         }
     }
-    return obj;
 }
 
-function renderMathInElement(elem, options) {
+function renderMathInElement(elem, options, latexToMarkup) {
     if (!elem) return;
 
-    options = extend({}, defaultOptions, options);
+    if (typeof elem === 'string') elem = document.getElementById(elem);
+    if (!elem) elem = document.body;
 
-    renderElem(elem, options.delimiters, options.ignoredTags);
+    options = Object.assign({}, defaultOptions, options);
+    options.ignoreClassPattern = new RegExp(options.ignoreClass);
+    options.processClassPattern = new RegExp(options.processClass);
+
+    scanElement(elem, options, latexToMarkup);
 }
 
     return {

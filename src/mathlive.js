@@ -1,17 +1,13 @@
 
-/**
- * Reference
- * TeX source code:
- * @see {@link  http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web|Tex.web}
- * 
- * For a list of standard TeX macros, see:
- * @see {@link ftp://tug.ctan.org/pub/tex-archive/systems/knuth/dist/lib/plain.tex|plain.tex}
-// https://github.com/kostub/iosMath/blob/master/EXAMPLES.md
- */
-
-define(['mathlive/core/lexer', 'mathlive/core/mathAtom', 'mathlive/core/parser', 
-'mathlive/core/context', 'mathlive/core/span', 'mathlive/editor/editor-mathfield'], 
-    function(Lexer, MathAtom, ParserModule, Context, Span, MathField) {
+define([
+    'mathlive/core/lexer', 
+    'mathlive/core/mathAtom', 
+    'mathlive/core/parser', 
+    'mathlive/core/span', 
+    'mathlive/editor/editor-mathfield',
+    'mathlive/addons/auto-render',
+    ], 
+    function(Lexer, MathAtom, ParserModule, Span, MathField, AutoRender) {
 
 /**
  * 
@@ -78,6 +74,7 @@ function toMarkup(text, displayMode, format) {
 function makeMathField(el, options) {
     if (!MathField) {
         console.log('The MathField module is not loaded.');
+        return null;
     }
     return new MathField.MathField(el, options)
 }
@@ -85,14 +82,33 @@ function makeMathField(el, options) {
 function toSpeakableText() {
     if (!MathAtom.toSpeakableText) {
         console.log('The SpokenText module is not loaded.');
+        return;
     }
     MathAtom.toSpeakableText();
+}
+
+function renderMathInDocument(options) {
+    if (!AutoRender) {
+        console.log('The AutoRender module is not loaded.');
+        return;
+    }
+    AutoRender.renderMathInElement(document.body, options, toMarkup);
+}
+
+function renderMathInElement(elem, options) {
+    if (!AutoRender) {
+        console.log('The AutoRender module is not loaded.');
+        return;
+    }
+    AutoRender.renderMathInElement(elem, options, toMarkup);
 }
 
 return {
     latexToMarkup: toMarkup,
     latexToSpeakableText: toSpeakableText,
     makeMathField: makeMathField,
+    renderMathInDocument: renderMathInDocument,
+    renderMathInElement: renderMathInElement,
     MathField: MathField.MathField
 }
 

@@ -65,52 +65,86 @@ writeCookie('symbol-access', 'private')
 </h1>
 
 <p>This guide describes how to use the MathLive Javascript library with your own
-web content. To contribute to the MathLive project, see the <a href="CONTRIBUTOR_GUIDE.md">MathLive 
-Contributor Guide</a></p>
+web content. To contribute to the MathLive project, see the <a href="tutorial-CONTRIBUTOR_GUIDE.html">Contributor Guide</a>.</p>
 <h2>Getting Started</h2><p>You can install MathLive from gitHub or from NPM.</p>
-<h3>From GitHub</h3><p>Download the content of the <code>dist/</code> directory and copy it at a location of 
+<h3>From GitHub</h3><p>Download the content of the <code>dist/</code> directory and copy it to a location of 
 your choice in your project. MathLive has no dependency (not even jQuery!) 
-and you do not needs to download or install anything else.</p>
+and you do not need to download or install anything else.</p>
 <p>The <code>dist/</code> directory contains the following:</p>
 <ul>
 <li><code>mathlive.js</code> The MathLive Javascript library. It is an optimized and minified 
-Javascript file which exports the <code>MathLive</code> class. </li>
-<li><code>mathlive-core.css</code> The minimal amount of CSS to display math.</li>
+Javascript file which exports the <code>MathLive</code> class. You use the MathLive class
+to access the MathLive API.</li>
+<li><code>mathlive-core.css</code> The minimal amount of CSS to display math with MathLive.</li>
 <li><code>mathlive.css</code> The rest of the CSS you need to display math. You can load
 this file lazily to improve your page load time.</li>
 <li><code>fonts/</code> A directory of fonts used by MathLive. Credit for those fonts goes to
 the KaTeX project.</li>
 </ul>
-<h3>From NPM</h3><pre class="prettyprint source lang-bash"><code>$ npm install -g mathlive</code></pre><h3>Using MathLive in your project</h3><p>Include the following in your web page. Adjust the <code>src</code> argument to account 
-for your directory structure.</p>
-<pre class="prettyprint source lang-html"><code>&lt;!doctype html>
-&lt;html lang=&quot;en-US&quot;>
+<h3>From NPM</h3><pre class="prettyprint source lang-bash"><code>$ npm install -g mathlive</code></pre><h3>Using MathLive in your project</h3><p>Include the following in your web page. Adjust the <code>src</code> and <code>href</code> arguments 
+to account for your directory structure.</p>
+<pre class="prettyprint source lang-html"><code>&lt;!doctype html>&lt;html lang=&quot;en-US&quot;>
 &lt;head>
     ...
-    &lt;style src=&quot;mathlive-core.css&quot;>&lt;/script>
-    &lt;style src=&quot;mathlive.css&quot;>&lt;/script>
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;mathlive.core.css&quot;>
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;mathlive.css&quot;>
 &lt;/head>
 &lt;body>
     ...
    &lt;script src=&quot;mathlive.js&quot;>&lt;/script>
 &lt;/body>
-&lt;/html></code></pre><h2>Rendering Math Automatically</h2><p>Math in a web page will automatically be rendered after the page has 
-loaded using the <code>auto-render</code> module.</p>
-<p>By default, any text that is enclosed with the following delimiters
+&lt;/html></code></pre><h2>Rendering Math Automatically</h2><p>Math in a web page can be rendered automatically by calling 
+<code>MathLive.renderMathInDocument()</code> at the end of your document, or in a <code>onload</code>
+handler:</p>
+<pre class="prettyprint source lang-html"><code>    ...
+    &lt;script src=&quot;mathlive.js&quot;>&lt;/script>
+    &lt;script>
+        MathLive.renderMathInDocument();
+    &lt;/script>
+&lt;/body>
+&lt;/html></code></pre><p>By default, any text that is enclosed with the following delimiters
 will be converted to a math formula:</p>
 <ul>
 <li><code>$$</code>...<code>$$</code></li>
 <li><code>\[</code>...<code>\]</code></li>
 <li><code>\(</code>...<code>\)</code></li>
 </ul>
-<p>When being considered for conversion, some tags are ignored: <code>script</code>, 
-<code>noscript</code>, <code>style</code>, <code>textarea</code>, <code>pre</code> and <code>code</code>.</p>
 <pre class="prettyprint source lang-html"><code>&lt;h1>Taxicab Number&lt;/h1>
-&lt;p>The second taxicab number is $$1729 = 10^3 + 9^3 = 12^3 + 1^3$$&lt;/p></code></pre><p>If you dynamically generate content, you can request the autorenderer to run 
-again using <code>AutoRender.renderMathInElement(el)</code>.</p>
-<p>The <code>renderMathInElement()</code> functions takes a second parameter which can be 
-used to customize the list of delimiters to consider, and the tags to ignore.</p>
-<h2>Using the Math Editor Programatically</h2><p>To make use of the MathLive API use the <code>MathLive</code> object. This object
+&lt;p>The second taxicab number is $$1729 = 10^3 + 9^3 = 12^3 + 1^3$$&lt;/p></code></pre><p>When being considered for conversion, some tags are ignored: <code>script</code>, 
+<code>noscript</code>, <code>style</code>, <code>textarea</code>, <code>pre</code>, <code>code</code>, <code>annotation</code> and <code>annotation-xml</code>.</p>
+<p>If you dynamically generate content, you can request the autorenderer to run 
+again using <code>AutoRender.renderMathInElement(element)</code>.</p>
+<p>The <code>renderMathInElement()</code> and <code>renderMathInDocument()</code> functions takes an 
+optional <code>options</code> object which can be used to customize their behavior:</p>
+<ul>
+<li><code>skipTags</code>: an array of tag names whose content will not be scanned for 
+delimiters</li>
+<li><code>ignoreClass</code>: a string used as a resular expression of class names of 
+elements whose content will not be scanned for delimiters (<code>'tex2jax_ignore'</code> 
+by default)</li>
+<li><code>processClass</code>:   a string used as a resular expression of class names of 
+elements whose content <strong>will</strong> be scanned for delimiters, even if their tag 
+name or parent class name would have prevented them from doing so. 
+(<code>'tex2jax_process'</code> by default)</li>
+<li><code>TeX.processEnvironments</code>: if false, math expression that start with 
+<code>\begin{</code> will not automatically be rendered. (true by default)</li>
+<li><code>TeX.delimiters.inline</code> and <code>TeX.delimiters.display</code> arrays of delimiters
+that will trigger a render of the content in 'textstyle' or 'displaystyle', 
+respectively.</li>
+</ul>
+<pre class="prettyprint source lang-javascript"><code>    MathLive.renderMathInElement(
+        document.getElementById('formulas'), {
+            // Elements with a class of &quot;instruction&quot; or &quot;source will be skipped            
+            ignoreClass: 'instruction|source', 
+            TeX : {
+                delimiters: {
+                    // Allow math formulas surround by $...$ or \(...\)
+                    // to be rendered as textstyle content.
+                    inline: [['$', '$'], ['\\(', '\\)']]
+                }
+            }
+        }
+    );</code></pre><h2>Using the Math Editor Programatically</h2><p>To make use of the MathLive API use the <code>MathLive</code> object. This object
 contains the public API to MathLive. </p>
 <p>To create a new math field, call <code>MathLive.makeMathField(element, options)</code>.
 For example:</p>
@@ -128,7 +162,7 @@ For example:</p>
         f(x)=
     &lt;/div>
 &lt;script>
-    const mathfield = new MathLive.MathField(document.getElementById('mathfield'));
+    const mathfield = MathLive.makeMathField(document.getElementById('mathfield'));
 &lt;/script>
 &lt;/body>
 &lt;/html></code></pre><p>You can control the math field using the public functions of <code>MathField</code>, that 
@@ -154,7 +188,7 @@ invoked in response to a user action, such as pressing a keyboard shortcut
 or pushing a button. The command will be undoable. See the list of available
 commnads in the <a href="#selectors"><strong>Selectors</strong></a> section.</li>
 </ul>
-<h2>Selectors</h2><p>User initiated commands that control the mathfield can be dispatched using
+<h2>Selectors</h2><p>User initiated commands that control the math field can be dispatched using
 the <code>perform()</code> commands. Commands are identified by a string called the
 <strong>selector</strong>. Most commands take no parameters. When a command does have a 
 parameter, an array made up of the selector and the commands arguments can be

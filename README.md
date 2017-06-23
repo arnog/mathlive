@@ -48,14 +48,17 @@ You can use MathLive to simply render math equations by
 <!doctype html><html lang="en-US">
 <head>
     ...
-    <style src="mathlive-core.css"></script>
-    <style src="mathlive.css"></script>
+    <link rel="stylesheet" href="mathlive.core.css">
+    <link rel="stylesheet" href="mathlive.css">
 </head>
 <body>
     <h1>Euler's Identity</h1>
     <p>$$e^{i\pi} + 1 = 0$$</p>
     ...
-   <script src="mathlive.js"></script>
+    <script src="mathlive.js"></script>
+    <script>
+        MathLive.renderMathInDocument();
+    </script>
 </body>
 </html>
 ```
@@ -66,6 +69,24 @@ You can also incorporate a “math field” to edit math just like you would edi
 text. The MathLive APIs alllow you to interact with the math field,
 including extracting its content, inserting placeholders and more.
 
+```html
+<!DOCTYPE html><html lang="en-US">
+<head>
+
+    <link rel="stylesheet" href="mathlive/mathlive.core.css">
+    <link rel="stylesheet" href="mathlive/mathlive.css">
+</head>
+<body>
+    <div id='mathfield'>
+        f(x)=
+    </div>
+<script src="mathlive/mathlive.js"></script>
+<script>
+    const mathfield = MathLive.makeMathField(document.getElementById('mathfield'));
+</script>
+</body>
+</html>
+```
 
 ## How You Can Help
 
