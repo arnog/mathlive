@@ -1,8 +1,8 @@
 {
-     "CONTRIBUTOR_GUIDE": {
-         "title": "Contributor Guide"
-     },
      "USAGE_GUIDE": {
          "title": "Usage Guide"
+     },
+     "CONTRIBUTOR_GUIDE": {
+         "title": "Contributor Guide"
      }
  }
