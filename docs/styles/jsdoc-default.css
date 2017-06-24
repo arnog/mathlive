@@ -533,6 +533,7 @@ dl.param-type {
 }
 
 .nav-trigger:checked ~ nav {
+  opacity: 1 !important;
   left: 0 !important;
 }
 
