@@ -136,7 +136,7 @@ define([], function() {
 			console.log(prev);
 		}
 		return string.length;
-	};
+	}
 	
 	// Breaks the given string into an array of grapheme cluster strings
 	function splitGraphemes(str){
@@ -151,7 +151,7 @@ define([], function() {
 			res.push(str.slice(index));
 		}
 		return res;
-	};
+	}
 	
 	// Returns the number of grapheme clusters there are in the given string
 	function countGraphemes(str){
@@ -166,7 +166,7 @@ define([], function() {
 			count++;
 		}
 		return count;
-	};
+	}
 	
 	//given a Unicode code point, determines this symbol's grapheme break property
 	function getGraphemeBreakProperty(code){
