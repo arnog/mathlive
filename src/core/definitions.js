@@ -2406,7 +2406,7 @@ defineSymbol( '\\blacktriangleright', MATH,  AMS,  REL, '\u25b6', 271);
 
 
 category = 'Others';
-defineSymbol( '\\backslash', MATH,  MAIN,  TEXTORD, '\\');
+defineSymbol( '\\backslash', [TEXT, MATH],  MAIN,  ORD, '\\');
 defineSymbol( '|', MATH,  MAIN,  TEXTORD, '\u2223');
 
 
