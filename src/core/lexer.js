@@ -15,7 +15,7 @@
 */
 
 
-define(function() {
+define(['mathlive/core/grapheme-splitter'], function(GraphemeSplitter) {
 
 
 /**
@@ -54,7 +54,7 @@ function Token(type, value) {
  * @private
  */
 function Lexer(s) {
-    this.s = s;
+    this.s = GraphemeSplitter.splitGraphemes(s);
     this.pos = 0;
 }
 
@@ -94,7 +94,7 @@ Lexer.prototype.peek = function() {
  * @private
  */
 Lexer.prototype.scan = function(regEx) {
-    const result = regEx.exec(this.s.slice(this.pos));
+    const result = regEx.exec(this.s.slice(this.pos).join(''));
     if (result) {
         this.pos += result[0].length;
         return result[0];

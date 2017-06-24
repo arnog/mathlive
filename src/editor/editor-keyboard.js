@@ -156,6 +156,7 @@ function delegateKeyboardEvents(textarea, handlers) {
     let keydownEvent = null;
     let keypressEvent = null;
     let compositionInProgress = false;
+    let deadKey = false;
 
     // const noop = function() {};
 
@@ -186,16 +187,20 @@ function delegateKeyboardEvents(textarea, handlers) {
     }
 
     function onKeydown(e) {
-        if (!compositionInProgress && e.code !== 'ControlLeft' &&
-        e.code !== 'MetaLeft') {
+        if (e.key === 'Dead' || e.keycode === 229) {
+            deadKey = true;
+            compositionInProgress = false;
+            // This sequence seems to cancel dead keys
+            textarea.blur();
+            textarea.focus();
+        } else {
+            deadKey = false;
+        }
+        if (!compositionInProgress && 
+            e.code !== 'ControlLeft' &&
+            e.code !== 'MetaLeft') {
             keydownEvent = e;
             keypressEvent = null;
-            if (e.key === 'Dead') {
-                // This sequence seems to cancel dead keys
-                textarea.blur();
-                // textarea.value = '';
-                textarea.focus();
-            }
             return handlers.keystroke(keyboardEventToString(e), e);
         }
         return true;
@@ -263,10 +268,19 @@ function delegateKeyboardEvents(textarea, handlers) {
     target.addEventListener('compositionend', 
         () => { compositionInProgress = false; defer(handleTypedText); }, true);
 
-    // Input gets called when the field is changed, for example with 
-    // input methods or emoji input...
-    target.addEventListener('input', 
-        () => { if (!compositionInProgress) { defer(handleTypedText); } });
+    // The `input` handler gets called when the field is changed, for example 
+    // with input methods or emoji input...
+    target.addEventListener('input', () => { 
+        if (deadKey) { 
+            textarea.blur();
+            textarea.focus();
+            deadKey = false;
+            compositionInProgress = false;
+            defer(handleTypedText); 
+        } else if (!compositionInProgress) {
+            defer(handleTypedText); 
+        }
+    });
 
 }
 
@@ -280,3 +294,4 @@ return {
 };
 
 });
+

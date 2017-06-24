@@ -16,10 +16,11 @@ define([
     'mathlive/editor/editor-undo', 
     'mathlive/editor/editor-shortcuts', 
     'mathlive/editor/editor-commands',
+    'mathlive/core/grapheme-splitter',
     'mathlive/addons/outputLatex', 
     'mathlive/addons/outputSpokenText'], 
     function(Definitions, MathAtom, Lexer, ParserModule, Span, 
-    EditableMathlist, MathPath, Keyboard, Undo, Shortcuts, Commands,
+    EditableMathlist, MathPath, Keyboard, Undo, Shortcuts, Commands, GraphemeSplitter,
 // eslint-disable-next-line no-unused-vars
     OutputLatex, OutputSpokenText) {
 
@@ -618,15 +619,22 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
 
 
 
-MathField.prototype._onTypedText = function(text) {    
+/**
+ * This handler is invoked when text has been typed, pasted in or input with
+ * an input method. As a result, `text` can be a sequence of characters to
+ * be inserted.
+ * @param {string} text
+ */
+MathField.prototype._onTypedText = function(text) {
     // Remove any error indicator on the current command sequence (if there is one)
     this.mathlist.decorateCommandStringAroundInsertionPoint(false);
 
     // Insert the specified text at the current insertion point.
     // If the selection is not collapsed, the content will be deleted first.
 
-    let popoverText;
-    let displayArrows;
+    let popoverText = '';
+    let displayArrows = false;
+
     if (this.pasteInProgress) {
         this.pasteInProgress = false;
         // This call was made in response to a paste event.
@@ -634,16 +642,11 @@ MathField.prototype._onTypedText = function(text) {
         this.mathlist.insert(text);
 
     } else {
-        for (const c of text) {
-            
+        const graphemes = GraphemeSplitter.splitGraphemes(text);
+        // const graphemes = text;
+        for (const c of graphemes) {
             this._showKeystroke(c);
 
-            let shortcut;
-            // Inline shortcuts only apply in `math` parseMode
-            if (this.mathlist.parseMode() === 'math') {
-                const prefix = this.mathlist.extractGroupStringBeforeInsertionPoint();
-                shortcut = Shortcuts.matchEndOf(prefix + c, this.config);
-            }
             if (this.mathlist.parseMode() === 'command') {
                 this.mathlist.removeSuggestion();
                 this.suggestionIndex = 0;
@@ -666,27 +669,42 @@ MathField.prototype._onTypedText = function(text) {
                     }
                     popoverText = suggestions[0].match;
                 }
-            } else if (shortcut) {
-                // Insert the character before applying the substitution
-                this.mathlist.insert(c);
+            } else if (this.mathlist.parseMode() === 'math') {
+                // Inline shortcuts (i.e. 'p' + 'i' = '\pi') only apply in `math` 
+                // parseMode
+                const prefix = this.mathlist.extractGroupStringBeforeInsertionPoint();
+                const shortcut = Shortcuts.matchEndOf(prefix + c, this.config);
+                if (shortcut) {
+                    // Insert the character before applying the substitution
+                    this.mathlist.insert(c);
 
-                // Create a snapshot with the inserted character so we can 
-                // revert to that. This will allow to undo the effect of 
-                // the substitution if it was undesired.
-                this.undoManager.snapshot();
+                    // Create a snapshot with the inserted character so we can 
+                    // revert to that. This will allow to undo the effect of 
+                    // the substitution if it was undesired.
+                    this.undoManager.snapshot();
 
-                // Remove the characters we're replacing
-                this.mathlist.delete(-shortcut.match.length - 1);
+                    // Remove the characters we're replacing
+                    this.mathlist.delete(-shortcut.match.length - 1);
 
-                // Insert the substitute
-                this.mathlist.insert(shortcut.substitute);        
-            } else {
-                // if (!this.mathlist.isCollapsed()) {
-                //     this.undoManager.snapshot();
-                // }
-                this.undoManager.snapshot();
-                this.mathlist.insert(c);
-                // this.undoManager.snapshot();
+                    // Insert the substitute
+                    this.mathlist.insert(shortcut.substitute);        
+                } else {
+                    // Some characters are mapped to commands. Handle them here.
+                    // This is important to handle synthetic text input and
+                    // non-US keyboards, on which, fop example, the '^' key is
+                    // not mapped to  'Shift-Digit6'.
+                    const selector = {
+                        '^': 'moveToSuperscript',
+                        '_': 'moveToSubscript',
+                        ' ': 'moveAfterParent'
+                    }[c];
+                    if (selector) {
+                        this.perform(selector);
+                    } else {
+                        this.undoManager.snapshot();
+                        this.mathlist.insert(c);
+                    }
+                }
             }
         }
     }
@@ -1415,3 +1433,5 @@ return {
 
 
 })
+
+
