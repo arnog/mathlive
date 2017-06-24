@@ -1065,14 +1065,10 @@ MathAtom.prototype.applySizing = function(context) {
 MathAtom.prototype.decomposeColor = function(context) {
     let result = null;
     // A color operation
-    const font = context.clone();
     if (this.color) {
         context.color = this.color;
     } else {
-        // if (this.textcolor) font.color = this.textcolor;
-        // if (this.backgroundcolor) font.backgroundcolor = this.backgroundcolor;
-
-        result = makeOrd(decompose(font, this.body));
+        result = makeOrd(decompose(context, this.body));
 
         if (this.textcolor) result.setStyle('color', this.textcolor);
         if (this.backgroundcolor) result.setStyle('background-color', this.backgroundcolor);
@@ -1121,27 +1117,30 @@ MathAtom.prototype.decompose = function(context) {
     console.assert(context instanceof Context.Context);
 
     let result = null;
-    const ctx = context.withIsSelected(this.isSelected);
+
+    // Temporarily switch selection state of context
+    const wasSelected = context.isSelected;
+    context.isSelected = this.isSelected;
 
     if (this.type === 'group' || this.type === 'root') {
-        result = this.decomposeGroup(ctx);
+        result = this.decomposeGroup(context);
 
     } else if (this.type === 'array') {
-        result = this.decomposeArray(ctx);
+        result = this.decomposeArray(context);
 
     } else if (this.type === 'genfrac') {
-        result = this.decomposeGenfrac(ctx);
+        result = this.decomposeGenfrac(context);
         if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'surd') {
-        result = this.decomposeSurd(ctx);
+        result = this.decomposeSurd(context);
         if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'accent') {
-        result = this.decomposeAccent(ctx);
+        result = this.decomposeAccent(context);
         
     } else if (this.type === 'leftright') {
-        result = this.decomposeLeftright(ctx);
+        result = this.decomposeLeftright(context);
         if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'delim') {
@@ -1151,23 +1150,23 @@ MathAtom.prototype.decompose = function(context) {
 
     } else if (this.type === 'sizeddelim') {
         result = Delimiters.makeSizedDelim(
-                this.cls, this.delim, this.size, ctx);
+                this.cls, this.delim, this.size, context);
 
     } else if (this.type === 'line') {
-        result = this.decomposeLine(ctx);
+        result = this.decomposeLine(context);
 
     } else if (this.type === 'overunder') {
-        result = this.decomposeOverunder(ctx);
+        result = this.decomposeOverunder(context);
 
     } else if (this.type === 'overlap') {
         // For llap (18), rlap (270), clap (0)
         // smash (common), mathllap (0), mathrlap (0), mathclap (0)
         // See https://www.tug.org/TUGboat/tb22-4/tb72perlS.pdf
         // and https://tex.stackexchange.com/questions/98785/what-are-the-different-kinds-of-vertical-spacing-and-horizontal-spacing-commands
-        result = this.decomposeOverlap(ctx);
+        result = this.decomposeOverlap(context);
 
     } else if (this.type === 'rule') {
-        result = this.decomposeRule(ctx);
+        result = this.decomposeRule(context);
 
 
     } else if (this.type === 'styling') {
@@ -1185,24 +1184,24 @@ MathAtom.prototype.decompose = function(context) {
         // Any of those atoms can be made up of either a simple string,
         // stored in this.value or a list of children.
         if (this.value) {
-            result = this.makeSpan(ctx, this.value);
+            result = this.makeSpan(context, this.value);
             result.type = this.type;
         } else {
-            result = this.makeSpan(ctx, decompose(ctx, this.children));
+            result = this.makeSpan(context, decompose(context, this.children));
         }
 
     } else if (this.type === 'op' || this.type === 'mop') {
         console.assert(this.type === 'mop');
-        result = this.decomposeOp(ctx);
+        result = this.decomposeOp(context);
         if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'font') {
-        result = this.decomposeFont(ctx);
+        result = this.decomposeFont(context);
         if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'space') {
         // A space litteral
-        result = this.makeSpan(ctx, ' ');
+        result = this.makeSpan(context, ' ');
         if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'spacing') {
@@ -1210,12 +1209,12 @@ MathAtom.prototype.decompose = function(context) {
         
         if (this.value === '\u200b') {
             // ZERO-WIDTH SPACE
-            result = this.makeSpan(ctx, '\u200b');
+            result = this.makeSpan(context, '\u200b');
         } else if (this.value === '\u00a0') {
             if (this.mode === 'math') {
-                result = this.makeSpan(ctx, ' ');
+                result = this.makeSpan(context, ' ');
             } else {
-                result = this.makeSpan(ctx, '\u00a0');
+                result = this.makeSpan(context, '\u00a0');
             }
         } else if (this.width) {
             result = makeSpan('', 'mspace ');
@@ -1238,21 +1237,21 @@ MathAtom.prototype.decompose = function(context) {
         if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'color') {
-        result = this.decomposeColor(ctx);
+        result = this.decomposeColor(context);
 
     } else if (this.type === 'sizing') {
-        this.applySizing(ctx);
+        this.applySizing(context);
 
     } else if (this.type === 'mathstyle') {
-        ctx.setMathstyle(this.mathstyle);
+        context.setMathstyle(this.mathstyle);
 
     } else if (this.type === 'box') {
-        result = this.decomposeBox(ctx);
+        result = this.decomposeBox(context);
 
 
     } else if (this.type === 'esc' || this.type === 'command' || 
         this.type === 'error' || this.type === 'placeholder' ) {
-        result = this.makeSpan(ctx, this.value);
+        result = this.makeSpan(context, this.value);
         if (this.error) {
             result.classes += ' ML__error';
         }
@@ -1265,7 +1264,7 @@ MathAtom.prototype.decompose = function(context) {
         // the first element in a children list. This makes 
         // managing the list, and the caret selection, easier. 
         // ZERO-WIDTH SPACE
-        result = this.makeSpan(ctx, '\u200b');
+        result = this.makeSpan(context, '\u200b');
 
     } else {
         //
@@ -1286,11 +1285,14 @@ MathAtom.prototype.decompose = function(context) {
         if (Array.isArray(result)) {
             const lastSpan = result[result.length - 1];
             result[result.length - 1] = 
-                this.attachSupsub(ctx, lastSpan, lastSpan.type);
-            return result;
+                this.attachSupsub(context, lastSpan, lastSpan.type);
+        } else {
+         result = [this.attachSupsub(context, result, result.type)];
         }
-        return [this.attachSupsub(ctx, result, result.type)];
     }
+
+    // Restore selection state of context
+    context.isSelected = wasSelected;
 
     return Array.isArray(result) ? result : [result];
 }
