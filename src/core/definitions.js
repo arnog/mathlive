@@ -1177,10 +1177,6 @@ defineSymbol('\\not', MATH,  MAIN,  MATHORD, '/\\hspace{-.9em}', COMMON);
 defineFunction('\\boxed', '{content:math}', null, 
     function(name, args) {
         return { 
-            // type: 'color',
-            // framecolor: args[0],
-            // backgroundcolor: args[1],
-            // children: args[1]
             type: 'box',
             framecolor: 'black',
             body: args[0]
