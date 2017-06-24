@@ -117,9 +117,7 @@ define([], function() {
 		if(index >= string.length - 1){
 			return string.length;
 		}
-		console.log("nextBreak for " + string)
 		let prev = getGraphemeBreakProperty(codePointAt(string, index));
-		console.log(prev);
 		for (let i = index + 1; i < string.length; i++) {
 			// check for already processed low surrogates
 			if(0xd800 <= string.charCodeAt(i - 1) && string.charCodeAt(i - 1) <= 0xdbff &&
@@ -133,7 +131,6 @@ define([], function() {
 			}
 			
 			prev = next;
-			console.log(prev);
 		}
 		return string.length;
 	}
