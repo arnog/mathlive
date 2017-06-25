@@ -236,7 +236,7 @@ function makeStackedDelim(type, delim, heightTotal, center, context,
         middleFactor = 2; // repeat symmetrically above and below middle
     }
 
-    // Calcuate the minimal height that the delimiter can have.
+    // Calculate the minimal height that the delimiter can have.
     // It is at least the size of the top, bottom, and optional middle combined.
     const minHeight = topHeightTotal + bottomHeightTotal + middleHeightTotal;
 
@@ -567,7 +567,7 @@ function makeLeftRightDelim(type, delim, height, depth, context, classes) {
  */
 function makeNullFence(type, context, classes) {
     return Span.makeSpanOfType(type, '', 
-        'sizing' +                                           // @todo not useful, redudant with 'nulldelimiter'
+        'sizing' +                                           // @todo not useful, redundant with 'nulldelimiter'
         // 'reset-' + context.size, 'size5',                 // @todo: that seems like a lot of resizing... do we need both?
         context.mathstyle.adjustTo(Mathstyle.TEXT) +     
                                                             

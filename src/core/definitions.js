@@ -476,7 +476,7 @@ const COMMANDLITERAL = 'command'; // Not in TeX. Values in a command sequence (e
 /**
  * An argument template has the following syntax:
  * 
- * <placholder>:<type>=<default>
+ * <placeholder>:<type>=<default>
  * 
  * where
  * - <placeholder> is a string whose value is displayed when the argument
@@ -497,7 +497,8 @@ function parseParamTemplateArgument(argTemplate, isOptional) {
     let placeholder = null;
 
     if (r) {
-        console.assert(isOptional, "Can't provide a defaut value for required parameters");
+        console.assert(isOptional, 
+            "Can't provide a default value for required parameters");
         defaultValue = r[1];
     }
     // Parse the type (:type)
@@ -531,7 +532,7 @@ function parseParamTemplate(paramTemplate) {
     } else {
         params = paramTemplate.split('}');
         if (params[0].charAt(0) === '{') {
-            // We found a required paramater
+            // We found a required parameter
             result.push(parseParamTemplateArgument(params[0].slice(1), false));
             // Parse the rest
             for (let i = 1; i <= params.length; i++) {
@@ -564,7 +565,7 @@ function defineEnvironment(names, params, options, parser) {
     const data = {
         // 'category' is a global variable keeping track of the
         // the current category being defined. This value is used
-        // stricly to group items in generateDocumentation().
+        // strictly to group items in generateDocumentation().
         category: category,
 
         // Params: the parameters for this function, an array of
@@ -577,10 +578,10 @@ function defineEnvironment(names, params, options, parser) {
         mathstyle: 'displaystyle',
 
         tabular: options.tabular || true,
-        maxColumns: options.maxColums || 10,
+        maxColumns: options.maxColumns || 10,
         colFormat: options.colFormat || [],
         leftFence: options.leftFence || '.',
-        rigtFence: options.rightFence || '.',
+        rightFence: options.rightFence || '.',
     };
     for (const name of names) {
         ENVIRONMENTS[name] = data;
@@ -616,7 +617,7 @@ function defineFunction(names, params, options, handler) {
     const data = {
         // 'category' is a global variable keeping track of the
         // the current category being defined. This value is used
-        // stricly to group items in generateDocumentation().
+        // strictly to group items in generateDocumentation().
         category: category,
 
         fontFamily: options.fontFamily,
@@ -679,7 +680,7 @@ category = 'Environments';
                 frequency 1
 
  'align'        multiple columns, 
-                alternatinge rl
+                alternating rl
                 there is some 'space' (additional column?) between each pair
                 each line is numbered (except when inside an equation environment)
                 there is an implicit {} at the beginning of left columns
@@ -724,7 +725,7 @@ automatically, and therefore the use of alignedat is deprecated.
 'matrix'        at most 10 columns
                 cells centered
                 no fence
-                no colsep at begining or end
+                no colsep at beginning or end
                 (mathtools package add an optional arg for the cell alignment)
                 frequency: COMMON
 
@@ -835,7 +836,7 @@ defineEnvironment('multline', '', {}, function() {
 // An AMS-Math environment
 // See amsmath.dtx:3565
 // Note that some versions of AMS-Math have a gap on the left.
-// More recent version supresses that gap, but have an option to turn it back on
+// More recent version suppresses that gap, but have an option to turn it back on
 // for backward compatibility.
 defineEnvironment(['align', 'aligned'], '', {}, function(name, args, array) {
     let colCount = 0;
@@ -885,7 +886,7 @@ defineEnvironment('split', '', {}, function() {
 
 
 defineEnvironment(['gather', 'gathered'], '', {}, function() {
-// An AMS-Math environemed
+// An AMS-Math environment
 // %    The \env{gathered} environment is for several lines that are
 // %    centered independently.
 // From amstex.sty

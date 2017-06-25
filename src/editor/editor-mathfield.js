@@ -104,7 +104,7 @@ function MathField(element, config) {
     const elementText = this.element.innerText.trim();
 
     // Additional elements used for UI.
-    // They are retrived in order a bit later, so they need to be kept in sync
+    // They are retrieved in order a bit later, so they need to be kept in sync
     // 0/ The textarea field that will receive keyboard events
     // 1/ The field, where the math equation will be displayed
     // 2/ The widget to activate the command bar
@@ -448,7 +448,7 @@ MathField.prototype._onPointerDown = function(evt) {
 }
 
 MathField.prototype._onSelectionDidChange = function() {
-    // Every atom before the new caret position is now comitted
+    // Every atom before the new caret position is now committed
     this.mathlist.commitCommandStringBeforeInsertionPoint();
 
     // If the selection is not collapsed, put it in the textarea
@@ -644,7 +644,7 @@ MathField.prototype._onTypedText = function(text) {
         // as a single glyph (a grapheme) but which is actually composed of 
         // multiple Unicode codepoints. This is the case in particular for 
         // emojis, such as emojis with a skin tone modifier, the country flags
-        // emojis or compound emoji such as the profesional emojis, including
+        // emojis or compound emoji such as the professional emojis, including
         // the David Bowie emoji.
         const graphemes = GraphemeSplitter.splitGraphemes(text);
         for (const c of graphemes) {
@@ -672,7 +672,7 @@ MathField.prototype._onTypedText = function(text) {
                     }
                     popoverText = suggestions[0].match;
                 }
-            } else if (this.mathlist.parsseMode() === 'math') {
+            } else if (this.mathlist.parseMode() === 'math') {
                 // Inline shortcuts (i.e. 'p' + 'i' = '\pi') only apply in `math` 
                 // parseMode
                 const prefix = this.mathlist.extractGroupStringBeforeInsertionPoint();
@@ -716,7 +716,7 @@ MathField.prototype._onTypedText = function(text) {
     // Render the mathlist
     this._render();
 
-    // Since the location of the popover depends on the positon of the caret
+    // Since the location of the popover depends on the position of the caret
     // only show the popover after the formula has been rendered and the 
     // position of the caret calculated
     this._showPopoverWithLatex(popoverText, displayArrows);
@@ -724,7 +724,7 @@ MathField.prototype._onTypedText = function(text) {
 
 /**
  * When the content of the math field has changed (or the selection), 
- * call `render()` to re-layout the field and generate the udpated DOM 
+ * call `render()` to re-layout the field and generate the updated DOM 
  * elements.
  * @method MathField#render
  * @private
@@ -774,7 +774,7 @@ MathField.prototype._render = function() {
 
 
     const wrapper = Span.makeSpan([topStrut, bottomStrut, base], 'ML__mathlive');
-    wrapper.classes += hasFocus ? ' ML__focused' : ' ML__blured';
+    wrapper.classes += hasFocus ? ' ML__focused' : ' ML__blurred';
 
     //
     // 4. Decorate with a spoken text version for accessibility
@@ -1258,7 +1258,8 @@ MathField.prototype._updateCommandBar = function() {
             this.mathlist.parent(),
             this.mathlist.extractGroupBeforeSelection(), 
             this.mathlist.extractContents(),
-            this.mathlist.extractGroupAfterSelection());
+            this.mathlist.extractGroupAfterSelection(), 
+            this.config);
 
 
         for (const command of commands) {
@@ -1277,7 +1278,7 @@ MathField.prototype._updateCommandBar = function() {
 MathField.prototype.toggleCommandBar_ = function() {
     this.commandBarVisible = !this.commandBarVisible;
 
-    // If the commanbar toggle was tapped, switch the focus to the mathfield
+    // If the commandbar toggle was tapped, switch the focus to the mathfield
     // To trigger the keyboard reveal on iOS, this needs to be done from 
     // an invocation of a user action (mousedown)
     if (this.commandBarVisible) this.focus();
@@ -1357,13 +1358,25 @@ MathField.prototype.typedText = function(text) {
  * 
  * @param {mathfieldCallback} config.onBlur - Invoked when the mathfield has been blurred
  * 
- * @param {boolean} config.overrideDefaultInlineShorctus - If true, the default 
+ * @param {boolean} config.overrideDefaultInlineShortcuts - If true, the default 
  * inline shortcuts (e.g. 'p' + 'i' = 'π') are ignored. Default false.
  * 
  * @param {Object} config.inlineShortcuts - A map of shortcuts -> replacement value.
- * For example `{ 'pi': '\\pi'}`. If `overrideDefaultInlineShorcuts` is false, 
+ * For example `{ 'pi': '\\pi'}`. If `overrideDefaultInlineShortcuts` is false, 
  * these shortcuts are applied after any default ones, and can therefore replace
  * them.
+ * 
+ * @param {string} config.commandBarToggle - If `'visible'`, the default value,
+ * the command bar widget will be automatically displayed. If set to `'hidden'`
+ * the command bar widget is not displayed, but the command bar can still
+ * be triggered programmatically with the `toggleCommandBar` selector.
+ * 
+ * @param {boolean} config.overrideDefaultCommands - If true, the default 
+ * commands displayed in the command bar are ignore. Default false.
+ * 
+ * @param {Array} config.commands - An array of commands to display in the 
+ * command bar. If `overrideDefaultCommands` is false, these commands will 
+ * supplement the default commands, otherwise they replace them.
  * 
  * @param {mathfieldWithDirectionCallback} config.onMoveOutOf - A handler called when 
  * keyboard navigation would cause the insertion point to leave the mathfield.
@@ -1416,18 +1429,16 @@ MathField.prototype.typedText = function(text) {
 MathField.prototype.config = function(config) {
     const def = {
         // If true, spacebar and shift-spacebar escape from the current block
-        spacesBehavesLikeTab: false,
+        // spacesBehavesLikeTab: false,
         // leftRightIntoCmdGoes: 
+        overrideDefaultInlineShortcuts: false,
+        commandBarToggle: 'visible',
+        overrideDefaultCommands: false,
+
     }
 
     // Copy the values from `config` to `def`
-    for (const c in config) {
-        if (config.hasOwnProperty(c)) {
-            def[c] = config[c];
-        }
-    }
-
-    this.config = def;
+    this.config = Object.assign({}, def, config);
 }
 
 return {

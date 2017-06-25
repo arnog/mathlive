@@ -23,6 +23,23 @@ define([
 /**
  * Description of the commands displayed in the command bar.
  * @type {Array.<Object>}
+ * @type {string} [].label - The static button label
+ * @type {string} [[].cls] - A CSS class to add to the label
+ * @type {string} [[].ariaLabel} - The accessible label for the button. Useful 
+ * when the label is an icon or other graphic
+ * @type {string} [[].shortcut} - Optional keyboard shortcut for the command.
+ * To override the display of the shortcut for the command, use `'none'`
+ * @type {string|string[]} [].selector - The selector to be performed when the 
+ * command is invoked.
+ * @type {number} [[].utility] - A number representing how frequently the 
+ * command is expected to be invoked by the user. Used to sort commands so that
+ * ones with higher utility are displayed first.
+ * @type {function} [[].condition] - A predicate returning true if the command
+ * should be displayed given the current context
+ * @type {function} [[].arg] - A function returning a mathlist indicating 
+ * what should be considered the argument to the command given the current
+ * context (it could be the currently selected item, or the item before the 
+ * selection or...)
  * @private
  */
 const COMMANDS = [
@@ -184,6 +201,20 @@ const COMMANDS = [
     
 ];
 
+function CommandContext(parsemode, environment, modifiers, parent, before, selection, after) {
+    this.parsemode = parsemode;
+    this.environment = environment;
+    this.modifiers = modifiers;
+    this.parent = parent;
+    this.before = before;
+    this.selection = selection;
+    this.after = after;
+    this.depth = 0;
+
+}
+
+// CommandContext.prototype.selection = 
+
 //
 // `arg` functions
 //
@@ -306,21 +337,39 @@ let USER_STATS = {
  * @param {MathAtom[]} before atoms before the insertion point/selection
  * @param {MathAtom[]} selection selected atoms (or null if insertion point)
  * @param {MathAtom[]} after atoms after the insertion point/selection
+ * @param {Object} config a set of key/value pairs to specify custom commands
  * @memberof module:editor/commands
  * @private
  */
-function suggest(parsemode, environment, modifiers, parent, before, selection, after) {
+function suggest(parsemode, environment, modifiers, 
+    parent, before, selection, after, 
+    config) {
     const result = [];
-    for (const command of COMMANDS) {
-        if (!command.condition || command.condition(
-                {parsemode, environment, modifiers, parent, before, selection, after})) {
-            let label = command.label || '';
+
+    const context = new CommandContext(parsemode, environment, modifiers, 
+        parent, before, selection, after);
+
+    let commands = [];
+    if (!config || !config.overrideDefaultCommands) {
+        commands = Object.assign(commands, COMMANDS);
+    }
+    if (config && config.commands) {
+        commands = Object.assign(commands, config.commands);
+    }
+
+    for (const command of commands) {
+        if (!command.condition || command.condition(context)) {
+            // This command is applicable given the current context 
+            // (what is selected, what is after/before the selection, etc...)
+
             const shortcuts = command.shortcut || Shortcuts.getShortcutsForCommand(command.selector);
             const shortcutLabel = shortcuts && shortcuts !== 'none' ? 
                 Shortcuts.stringify(shortcuts) : '';
+
+            let label = command.label || '';
             if (command.dynamicLabel) {
                 const arg = !command.arg ? selection : 
-                    command.arg({parent, before, selection, after});
+                    command.arg(context);
                 label = '<span class="ML__dynamicLabel">' + 
                     latexToMarkup(command.dynamicLabel, arg) +
                     '</span>';
@@ -336,6 +385,7 @@ function suggest(parsemode, environment, modifiers, parent, before, selection, a
                     shortcutLabel + 
                 '</span>';
             }
+
             result.push({
                 label: label, 
                 cls: command.cls, 
@@ -369,7 +419,7 @@ function latexToMarkup(latex, arg) {
     const args = [];
     
     if (arg && arg.length > 0) {
-        // Clone the selection mathlist by converting to LaTeX, then
+        // Clone the argument mathlist, `arg`, by converting it to LaTeX, then
         // back to mathlist
         let latex = '';
         for (const atom of arg) {

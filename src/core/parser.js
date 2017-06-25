@@ -445,7 +445,7 @@ function convertDimenToEm(value, unit) {
  * 
  * See TeX:8831
  * @todo: note that some units depend on the font (em, ex). So it might be
- * better to return a dimen struct witht the value + unit and resolve
+ * better to return a dimen struct with the value + unit and resolve
  * later when we have a font context....
  * @return {number}
  * @method Parser#scanDimen
@@ -896,7 +896,7 @@ Parser.prototype.parseSupSub = function() {
     if (this.parseMode !== 'math') return false;
 
     // Apply the subscript/superscript to the last render atom.
-    // If none is present (begining of the mathlist, i.e. `{^2}`,
+    // If none is present (beginning of the mathlist, i.e. `{^2}`,
     // an empty atom will be created, equivalent to `{{}^2}`
     let result = false;
 

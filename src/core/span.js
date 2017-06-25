@@ -9,7 +9,7 @@
 define(['mathlive/core/fontMetrics'],
     function(FontMetrics) {
 
-const NUMBER_FORMATER = new Intl.NumberFormat('en-US', {
+const NUMBER_FORMATTER = new Intl.NumberFormat('en-US', {
     useGrouping: false,
     maximumSignificantDigits: 5
 });
@@ -32,7 +32,7 @@ function toString() {
                 result += toString(elem);
             }
         } else if (typeof arg === 'number') {
-            result += NUMBER_FORMATER.format(arg);
+            result += NUMBER_FORMATTER.format(arg);
         } else if (arg) {
             result += arg.toString();
         }
@@ -661,7 +661,7 @@ function makeHlist(children, classes) {
 }
 
 /**
- * Creata a new span of type `vlist`, a set of vertically stacked items
+ * Create a new span of type `vlist`, a set of vertically stacked items
  * @param {Context} context
  * @param {Array.<(number|Span)>} elements 
  * An array of Span and integer. The integer can be either some kerning information
@@ -774,7 +774,7 @@ function makeVlist(context, elements, pos, posData) {
 
     const result = makeSpan(newelements, 'vlist');
     // Fix the final height and depth, in case there were kerns at the ends
-    // sincemakeSpan won't take that into account.
+    // since makeSpan won't take that into account.
     result.height = Math.max(currPos, result.height);
     result.depth = Math.max(-depth, result.depth);
 

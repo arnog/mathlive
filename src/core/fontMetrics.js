@@ -21,7 +21,7 @@ const hangulRegex = /[\uAC00-\uD7AF]/;
 // - Katakana: [\u30A0-\u30FF]
 // - CJK ideograms: [\u4E00-\u9FAF]
 // - Hangul syllables: [\uAC00-\uD7AF]
-// Notably missing are halfwidth Katakana and Romanji glyphs.
+// Notably missing are half width Katakana and Romaji glyphs.
 const cjkRegex =
     /[\u3040-\u309F]|[\u30A0-\u30FF]|[\u4E00-\u9FAF]|[\uAC00-\uD7AF]/;
 
@@ -32,8 +32,8 @@ const cjkRegex =
  * textstyle, scriptstyle, and scriptscriptstyle.  These are provided in the
  * the arrays below, in that order.
  *
- * The font metrics are stored in fonts cmsy10, cmsy7, and cmsy5 respsectively.
- * This was determined by running the folllowing script:
+ * The font metrics are stored in fonts cmsy10, cmsy7, and cmsy5 respectively.
+ * This was determined by running the following script:
  *``` bash
       latex -interaction=nonstopmode \
       '\documentclass{article}\usepackage{amsmath}\begin{document}' \
@@ -42,7 +42,7 @@ const cjkRegex =
       '\expandafter\show\the\scriptscriptfont2' \
       '\stop'
   ```
- * The metrics themselves were retreived using the following commands:
+ * The metrics themselves were retrieved using the following commands:
  * ``` bash
       tftopl cmsy10
       tftopl cmsy7

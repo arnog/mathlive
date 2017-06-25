@@ -98,67 +98,7 @@ function toMarkup(text, mathstyle, format) {
  * 
  * @param {Element|string} element An HTML DOM element, for example as obtained 
  * by `.getElementById()` or a string representing the ID of a DOM element.
- * @param {Object} [config]
- * @param {function} config.substituteTextArea - A function that returns a focusable element
- * that can be used to capture text input.
- * 
- * @param {mathfieldCallback} config.onFocus - Invoked when the mathfield has been focused
- * 
- * @param {mathfieldCallback} config.onBlur - Invoked when the mathfield has been blurred
- * 
- * @param {boolean} config.overrideDefaultInlineShorctus - If true, the default 
- * inline shortcuts (e.g. 'p' + 'i' = 'π') are ignored. Default false.
- * 
- * @param {Object} config.inlineShortcuts - A map of shortcuts -> replacement value.
- * For example `{ 'pi': '\\pi'}`. If `overrideDefaultInlineShorcuts` is false, 
- * these shortcuts are applied after any default ones, and can therefore replace
- * them.
- * 
- * @param {mathfieldWithDirectionCallback} config.onMoveOutOf - A handler called when 
- * keyboard navigation would cause the insertion point to leave the mathfield.
- * 
- * By default, the insertion point will wrap around.
- * 
- * @param {mathfieldWithDirectionCallback} config.onTabOutOf - A handler called when 
- * pressing tab (or shift-tab) would cause the insertion point to leave the mathfield.
- * 
- * By default, the insertion point jumps to the next point of interest.
- * 
- * @param {mathfieldWithDirectionCallback} config.onDeleteOutOf - A handler called when 
- * deleting an item would cause the insertion point to leave the mathfield.
- * 
- * By default, nothing happens. @todo
- * 
- * @param {mathfieldWithDirectionCallback} config.onSelectOutOf - A handler called when 
- * the selection is extended so that it would cause the insertion point to 
- * leave the mathfield.
- * 
- * By default, nothing happens. @todo
- * 
- * @param {mathfieldCallback} config.onUpOutOf - A handler called when 
- * the up arrow key is pressed with no element to navigate to.
- * 
- * By default, nothing happens. @todo
- * 
- * @param {mathfieldCallback} config.onDownOutOf - A handler called when 
- * the up down key is pressed with no element to navigate to.
- * 
- * By default, nothing happens. @todo
- * 
- * @param {mathfieldCallback} config.onEnter - A handler called when 
- * the enter/return key is pressed and it is not otherwise handled. @todo
- * 
- * @param {mathfieldCallback} config.onContentWillChange - A handler called 
- * just before the content is about to be changed. @todo
- * 
- * @param {mathfieldCallback} config.onContentDidChange - A handler called 
- * just after the content has been changed.@todo
- * 
- * @param {mathfieldCallback} config.onSelectionWillChange - A handler called 
- * just before the selection is about to be changed.
- * 
- * @param {mathfieldCallback} config.onSelectionDidChange - A handler called  
- * just after the selection has been changed. * @function module:mathlive#makeMathField
+ * @param {Object} [config] See `MathLive.config()` for details
  * @function module:mathlive#makeMathField
  */
 function makeMathField(element, config) {
@@ -207,16 +147,17 @@ function renderMathInDocument(options) {
  * @param {Object} [options]
  * @param {string[]} options.skipTags an array of tag names whose content will
  *  not be scanned for delimiters
- * @param {string} [options.ignoreClass='tex2jax_ignore'] a string used as a resular expression of 
- * class names of elements whose content will not be scanned for delimiters
- * @param {string} [options.processClass='tex2jax_process']   a string used as a resular expression 
- * of class names of elements whose content **will** be scanned for delimiters, 
- * even if their tag name or parent class name would have prevented them from 
- * doing so.
- * @param {boolean} [options.preserveOriginalContent=true] if true, store the original
- * textual content of the element in a `data-original-content` attribute. This 
- * value can be accessed for example to restore the element to its original 
- * value:
+ * @param {string} [options.ignoreClass='tex2jax_ignore'] a string used as a 
+ * regular expression of class names of elements whose content will not be 
+ * scanned for delimiters
+ * @param {string} [options.processClass='tex2jax_process']   a string used as a
+ * regular expression of class names of elements whose content **will** be 
+ * scanned for delimiters,  even if their tag name or parent class name would 
+ * have prevented them from doing so.
+ * @param {boolean} [options.preserveOriginalContent=true] if true, store the 
+ * original textual content of the element in a `data-original-content` 
+ * attribute. This value can be accessed for example to restore the element to 
+ * its original value:
  * ```javascript
  *      elem.innerHTML = elem.dataset.originalContent;
  * ```
@@ -224,7 +165,7 @@ function renderMathInDocument(options) {
  * that start with `\begin{` will not automatically be rendered. (true by default)
  * @param {Array} options.TeX.delimiters.inline
  * @param {Array} options.TeX.delimiters.display `TeX.delimiters.display` arrays 
- * of delimitersthat will trigger a render of the content in 'textstyle' or 
+ * of delimiters that will trigger a render of the content in 'textstyle' or 
  * 'displaystyle', respectively.
  * @function module:mathlive#renderMathInElement
  */

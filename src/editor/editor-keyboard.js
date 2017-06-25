@@ -137,7 +137,7 @@ function keyboardEventToString(evt) {
  * for special keys such as ESC, arrow keys, tab, etc... and their variants 
  * with modifiers.
  * @param {function} handlers.typedtext invoked on a keypress or other events 
- * when a key coresponding to a charater has been pressed. This include `a-z`, 
+ * when a key corresponding to a character has been pressed. This include `a-z`, 
  * `0-9`, `{}`, `^_()`, etc...
  * This does not include arrow keys, tab, etc... but does include 'space'
  * When a 'character' key is pressed, both `keystroke()` and `typedtext()` will
@@ -187,7 +187,7 @@ function delegateKeyboardEvents(textarea, handlers) {
     }
 
     function onKeydown(e) {
-        if (e.key === 'Dead' || e.keycode === 229) {
+        if (e.key === 'Dead' || e.keyCode === 229) {
             deadKey = true;
             compositionInProgress = false;
             // This sequence seems to cancel dead keys

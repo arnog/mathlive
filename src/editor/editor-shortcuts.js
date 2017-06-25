@@ -373,7 +373,7 @@ const INLINE_SHORTCUTS = {
     'NN':                   '\\N',        // Natural numbers
     'ZZ':                   '\\Z',        // Integers
     'QQ':                   '\\Q',        // Rational numbers
-    'RR':                   '\\R',        // Real nubers
+    'RR':                   '\\R',        // Real numbers
     'CC':                   '\\C',        // Complex numbers
     'PP':                   '\\P',        // Prime numbers
 

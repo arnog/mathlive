@@ -24,6 +24,8 @@ function latexify(value) {
     return result;
 }
 
+
+
 /**
  * Return a LaTeX representation of the atom
  * 

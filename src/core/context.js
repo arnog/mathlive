@@ -25,7 +25,7 @@ define(['mathlive/core/mathstyle'], function(Mathstyle) {
  * @property {number} size
  * @property {boolean} phantom
  * @property {string} font
- * @property {boolean} generateID - If true, unique IDs shoudl be generated for each span
+ * @property {boolean} generateID - If true, unique IDs should be generated for each span
  * so they can be tracked by to an atom
  * @property {boolean} isSelected - If true, items rendered in this context
  * should be rendered in a selected state

@@ -117,8 +117,8 @@ function MathAtom(mode, type, value, fontFamily, extras) {
 
 
     // Determine which font family to use
-    // Note that the type, fontFamily and value could have been overriden
-    // by 'extras', so don't check agains the parameter ('type') but 
+    // Note that the type, fontFamily and value could have been overridden
+    // by 'extras', so don't check against the parameter ('type') but 
     // the value in the object ('this.type').
     if (this.type === 'mord' || this.type === 'textord') {
         if (this.type === 'mord' && this.fontFamily === 'main' && this.value.length === 1) {
@@ -300,7 +300,7 @@ function makeColGap(width) {
 }
 
 /**
- * Used in decomposeArray to create a columnd of repeating elements.
+ * Used in decomposeArray to create a column of repeating elements.
  * @memberof module:mathAtom
  * @private
  */
@@ -1118,10 +1118,6 @@ MathAtom.prototype.decompose = function(context) {
 
     let result = null;
 
-    // Temporarily switch selection state of context
-    const wasSelected = context.isSelected;
-    context.isSelected = this.isSelected;
-
     if (this.type === 'group' || this.type === 'root') {
         result = this.decomposeGroup(context);
 
@@ -1290,9 +1286,6 @@ MathAtom.prototype.decompose = function(context) {
          result = [this.attachSupsub(context, result, result.type)];
         }
     }
-
-    // Restore selection state of context
-    context.isSelected = wasSelected;
 
     return Array.isArray(result) ? result : [result];
 }
