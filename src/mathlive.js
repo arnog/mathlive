@@ -26,15 +26,19 @@ define([
  * Convert a LaTeX string to a string of HTML markup.
  * 
  * @param {string} text A string of valid LaTeX. It does not have to start 
- * with a mode token (i.e. `$$` or `\(`).
+ * with a mode token such as `$$` or `\(`.
+ * 
  * @param {string} displayMode If `'displaystyle'` the "display" mode of TeX
  * is used to typeset the formula. Most appropriate for formulas that are 
  * displayed in a standalone block. If `'textstyle'` is used, the "text" mode
  * of TeX is used, which is most appropriate when displaying math "inline" 
  * with other text.
+ * 
  * @param {string} [format='html'] For debugging purposes, this function 
  * can also return a text representation of internal data structures
  * used to construct the markup. Valid values include `'mathlist'` and `'span'`
+ * 
+ * @return {string}
  * @function module:mathlive#latexToMarkup
  */
 function toMarkup(text, mathstyle, format) {
@@ -193,6 +197,8 @@ function toMarkup(text, mathstyle, format) {
  * @param {mathfieldCallback} [config.onSelectionDidChange] - A handler called 
  * just after the selection has been changed.
  *  
+ * @return {MathField}
+ * 
  * @function module:mathlive#makeMathField
  */
 function makeMathField(element, config) {
@@ -204,7 +210,7 @@ function makeMathField(element, config) {
 }
 
 /**
- * 
+ * @return {string}
  * @function module:mathlive#latexToSpeakableText
  */
 function toSpeakableText() {

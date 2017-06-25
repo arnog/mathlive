@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>editor/commands - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>Mathstyle - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -50,7 +50,7 @@ writeCookie('symbol-access', 'private')
 
 <main id="main">
     
-        <h1 class="page-title">editor/commands</h1>
+        <h1 class="page-title">Mathstyle</h1>
     
 
     
@@ -62,8 +62,11 @@ writeCookie('symbol-access', 'private')
 
 <header>
     
+        <h2>
+            <span class="ancestors"><a href="module-mathstyle.html">mathstyle</a>.</span>
         
-            
+        Mathstyle
+        </h2>
         
     
 </header>
@@ -72,30 +75,142 @@ writeCookie('symbol-access', 'private')
     <div class="container-overview">
     
         
-            <div class="description"><p>This module contains the definition of the commands that are displayed
-in the command bar.</p></div>
-        
+<div class='method private'>
 
-        
+    
+
+    <h4 class="name" id="Mathstyle">new Mathstyle<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+    <h5 class="subsection-title">Properties</h5>
+
+    
+
+
+    
+
+        <div class="property">
             
-<div class='method'>
+                <span class="name"><code>id</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
 
 
+            
+            </span>
 
+            
 
+            
 
-
-
-
-
+            <span class="description last"><p>unique id for the style</p>
+                
+            </span>
+        </div>
 
     
 
-    
+        <div class="property">
+            
+                <span class="name"><code>size</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>(which is the same for cramped and uncramped version 
+of a style)</p>
+                
+            </span>
+        </div>
 
     
 
+        <div class="property">
+            
+                <span class="name"><code>size</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>multiplier, which gives the size difference between 
+a style and textstyle.</p>
+                
+            </span>
+        </div>
+
     
+
+        <div class="property">
+            
+                <span class="name"><code>cramped</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>flag</p>
+                
+            </span>
+        </div>
+
+    
+
+
 
 
 <dl class="details">
@@ -126,7 +241,7 @@ in the command bar.</p></div>
 
     
         <span class="tag-source">
-        <a href="editor_editor-commands.js.html#line3">Source</a>
+        <a href="core_mathstyle.js.html#line42">Source</a>
         </span>
     
 
@@ -154,7 +269,6 @@ in the command bar.</p></div>
 
 </div>
 
-        
     
     </div>
 
@@ -170,302 +284,6 @@ in the command bar.</p></div>
 
     
 
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-<div class='method private'>
-
-    
-
-    <h4 class="name" id=".suggest">suggest<span class="signature">(parsemode<span class="signature-type">: string</span>, environment<span class="signature-type">: string</span>, modifiers<span class="signature-type">: string</span>, before<span class="signature-type">: Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>, selection<span class="signature-type">: Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>, after<span class="signature-type">: Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>, config<span class="signature-type">: Object</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Return a list of suggested command based on the current insertion context</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>parsemode</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>e.g. <code>'command'</code>, <code>'math'</code>, etc...</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>environment</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p><code>'array'</code>, <code>'matrix'</code>, or <code>''</code>/<code>null</code></p>
-                    </p>
-                    
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>modifiers</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>A string describing the state of the keyboard 
-modifiers</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>before</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>atoms before the insertion point/selection</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>selection</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>selected atoms (or null if insertion point)</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>after</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>atoms after the insertion point/selection</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>config</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>a set of key/value pairs to specify custom commands</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-</div>
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="editor_editor-commands.js.html#line344">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
     
 
     

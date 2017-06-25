@@ -709,9 +709,11 @@ MathField.prototype._onTypedText = function(text) {
 }
 
 /**
- * When the content of the math field has changed (or the selection), 
- * call `render()` to re-layout the field and generate the updated DOM 
- * elements.
+ * Call `render()` to re-layout the field and generate the updated DOM.
+ * This is usually done automatically, but if the font-size, or other geometric
+ * attributes are modified, outside of MathLive, this function may need to be
+ * called.
+ * 
  * @method MathField#render
  * @private
  */

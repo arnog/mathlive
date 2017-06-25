@@ -137,9 +137,8 @@ intermediated files generated as part of the build process.
 
 ## Language and Coding Style
 
-MathLive is written in Javascript, using the [ES2016 dialect]
-(https://www.ecma-international.org/ecma-262/7.0/). This includes
-in particular these features:
+MathLive is written in Javascript, using the [ES2016 dialect](https://www.ecma-international.org/ecma-262/7.0/). This 
+includes in particular these features:
 * `let` and `const` instead of `var`
 * block-scoped variables and functions
 * `Array.prototype.includes()`
@@ -147,14 +146,14 @@ in particular these features:
 * arrow functions (to a limited extent, there appears to be issues with transpilers)
 * template strings
 * `for...of` iterators
-* string searching `String.startsWith()`, `tring.endsWith()`
+* string searching `String.startsWith()`, `String.endsWith()`
 * number formatting
 
 Features that have not been adopted include:
 * classes. The syntax doesn't seem to offer that much benefit and forces 
 utility functions to be separated from methods that use them.
 * getters/setters: would probably be a good idea
-* destructuring: probably some opportunities to simply some code
+* destructuring: probably some opportunities to simplify some code
 * default parameters: would clean up some code
 * rest/spread
 * generators
@@ -172,9 +171,10 @@ people who will read it later.
 * **Clarity before performance** Write code that is easy to read, and avoid 
 obscure constructs that may obfuscate the code to improve performance. For 
 example, RegEx are crazy fast in all modern browsers, and trying to roll out
-your own pattern matching will result in more code and less performance. If 
-you think something could be made faster, use `jsperf.com` to try out options
-in various browsers and compare the results. You might be surprised.
+your own pattern matching will result in more code and less performance. 
+If you think something could be made faster, use [jsperf.com]`https://jsperf.com` to 
+try out options in various browsers and compare the results. You might be 
+surprised.
 
 Use the `.eslintrc.json` file to follow the linting conventions used in the 
 project. In addition, follow these guidelines:
@@ -243,9 +243,10 @@ directly.
 
 MathLive is designed for the modern web. Supporting older browsers complicates
 the effort involved in building new features, but it is also an insecure 
-practice that should not be encouraged. In this context, _modern_ means the
-two latest releases of Chrome, IE, Safari and Firefox. 
-Both desktop and mobile are supported.
+practice that should not be encouraged. 
+
+In this context, _modern_ means the two latest releases of Chrome, IE, Safari 
+and Firefox. Both desktop and mobile are supported.
 
 ## Architecture
 
