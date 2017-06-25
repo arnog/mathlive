@@ -30,7 +30,7 @@ The `npm install` command installs in the `mathlive/` directory all the Node
 Depending on your system setup, you may need to run as admin, in which case
 use `sudo npm install`.
 
-Once the installation is succesful, you can use the following commands:
+Once the installation is successful, you can use the following commands:
 ```bash
 # Build the project for local use
 # 1. Compile the `.css/.less` file to `build/*.css`
@@ -94,7 +94,7 @@ $ npm publish
 
 ```
 
-**Note on versionning** Use the [semver](http://semver.org/) convention for 
+**Note on versioning** Use the [semver](http://semver.org/) convention for 
 versions:
 * `npm version patch`: bug fixes and other minor changes. Last number of the 
 version is incremented, e.g. `1.2.41` → `1.2.42`
@@ -154,7 +154,7 @@ Features that have not been adopted include:
 * classes. The syntax doesn't seem to offer that much benefit and forces 
 utility functions to be separated from methods that use them.
 * getters/setters: would probably be a good idea
-* destructuring: probably somes opportunities to simply some code
+* destructuring: probably some opportunities to simply some code
 * default parameters: would clean up some code
 * rest/spread
 * generators
@@ -196,7 +196,7 @@ for example, use `if (string)` instead of `if (string !== '')`
 **`result`**
 * **Avoid boolean as arguments.** Instead, use an `options` object with 
 key/value pairs spelling out the meaning of the boolean. 
-Dont'do:
+Don't do:
 ```javascript
     f(true);
 ```
@@ -249,7 +249,7 @@ Both desktop and mobile are supported.
 
 ## Architecture
 
-The core of MathLive is a math rendering enging that can output to HTML and 
+The core of MathLive is a math rendering engine that can output to HTML and 
 CSS. This engine uses the TeX layout algorithms because of their quality. 
 Given the same input, MathLive will render pixel for pixel what TeX would 
 have rendered.
@@ -259,7 +259,7 @@ Although the rendering engine follows the TeX algorithms, MathLive also has
 an in-memory data structure to represent a math expression while it is being
 edited (the math atom tree).
 
-Here are some of the key concepts used throughtout the code base.
+Here are some of the key concepts used throughout the code base.
 
  ### Span
 
@@ -305,7 +305,7 @@ to be incorporated with surrounding non-math text.
 * **line**: used by `\overline` and `\underline` commands
 * **box**: to draw a border around an expression and change its background color
 * **overlap**: display a symbol _over_ another
-* **overunder**: displays an annotation above or below a symbold
+* **overunder**: displays an annotation above or below a symbol
 * **group**: a simple group of atoms
 * **root**: a group, which has no parent
 * **array**: a group, which has children arranged in columns and rows. Used
@@ -392,7 +392,7 @@ tree to a specific atom
 * **editor/mathfield.js** Public API for the editor. Implements the UI for the
 mathfield, including mouse and touch interaction, and  the popover and the 
 command bar
-* **editor/shortcuts.js** Defines the keyboard shorcuts
+* **editor/shortcuts.js** Defines the keyboard shortcuts
 * **editor/commands.js**: list of commands displayed in the command bar
 * **editor/popover.js** Implements the popover panel
 * **editor/keyboard.js** A utility class that captures keyboard events from 
@@ -407,15 +407,19 @@ So, you want to...
 
 ### Add a new LaTeX command?
 
-1. Start with `core/definitions.js`. Add a new entry to the appropriate table.
-The handler function in the definition will be called by the parser at the right
+**(1)** Start with `core/definitions.js`. Add a new entry to the appropriate table 
+by calling `defineSymbol()` for commands that need to parameters, `defineFunction()` for commands that need some parameters or `defineEnvironment()` for environments, complex `\begin{}...\end{}` block.
+
+For functions, the handler function in the definition will be called by the parser at the right
 time. It's your chance to store data that will be used by the atoms to render
-the symbold later.
-2. If you can use the existing atom types, great. If needed, modify an 
+the symbol later.
+
+**(2)** If you can use the existing atom types, great. If needed, modify an 
 existing atom type to support what you want, including passing additional 
 parameters. If no atom types match, create a new one by adding a new
 `MathAtom.decompose<atom-type>()` function and calling it from 
 `MathAtom.decompose()`.
-3. Call `makeSpan()` and its variants in your decompose function to construct
+
+**(3)** Call `makeSpan()` and its variants in your decompose function to construct
 a representation of the atom.
 

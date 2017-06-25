@@ -109,83 +109,88 @@ function toMarkup(text, mathstyle, format) {
  * 
  * @param {Element|string} element An HTML DOM element, for example as obtained 
  * by `.getElementById()` or a string representing the ID of a DOM element.
- * @param {Object}
+ * 
+ * @param {Object} [config]
  * 
  * @param {string} [config.namespace=''] - Namespace that is added to `data-`
  * attributes to avoid collisions with other libraries. It is empty by default.
  * The namespace should be a string of lowercase letters.
  * 
- * @param {function} config.substituteTextArea - A function that returns a 
+ * @param {function} [config.substituteTextArea] - A function that returns a 
  * focusable element that can be used to capture text input.
  * 
- * @param {mathfieldCallback} config.onFocus - Invoked when the mathfield has been focused
+ * @param {mathfieldCallback} [config.onFocus] - Invoked when the mathfield has 
+ * gained focus
  * 
- * @param {mathfieldCallback} config.onBlur - Invoked when the mathfield has been blurred
+ * @param {mathfieldCallback} [config.onBlur] - Invoked when the mathfield has 
+ * lost focus
  * 
- * @param {boolean} config.overrideDefaultInlineShortcuts - If true, the default 
- * inline shortcuts (e.g. 'p' + 'i' = 'π') are ignored. Default false.
+ * @param {boolean} [config.overrideDefaultInlineShortcuts=false] - If true 
+ * the default inline shortcuts (e.g. 'p' + 'i' = 'π') are ignored.
  * 
- * @param {Object} config.inlineShortcuts - A map of shortcuts -> replacement value.
- * For example `{ 'pi': '\\pi'}`. If `overrideDefaultInlineShortcuts` is false, 
- * these shortcuts are applied after any default ones, and can therefore replace
- * them.
+ * @param {Object} [config.inlineShortcuts] - A map of shortcuts → replacement 
+ * value. For example `{ 'pi': '\\pi'}`. If `overrideDefaultInlineShortcuts` is 
+ * false, these shortcuts are applied after any default ones, and can therefore 
+ * override them.
  * 
- * @param {string} config.commandBarToggle - If `'visible'`, the default value,
- * the command bar widget will be automatically displayed. If set to `'hidden'`
- * the command bar widget is not displayed, but the command bar can still
- * be triggered programmatically with the `toggleCommandBar` selector.
+ * @param {string} [config.commandBarToggle='visible'] - If `'visible'`, the 
+ * default value, the command bar widget will be automatically displayed. If 
+ * set to `'hidden'` the command bar widget is not displayed, but the command 
+ * bar can still be triggered programmatically with the `toggleCommandBar` 
+ * selector.
  * 
- * @param {boolean} config.overrideDefaultCommands - If true, the default 
- * commands displayed in the command bar are ignore. Default false.
+ * @param {boolean} [config.overrideDefaultCommands=false] - If true, the default 
+ * commands displayed in the command bar are ignored.
  * 
- * @param {Array} config.commands - An array of commands to display in the 
+ * @param {Array} [config.commands] - An array of commands to display in the 
  * command bar. If `overrideDefaultCommands` is false, these commands will 
  * supplement the default commands, otherwise they replace them.
  * 
- * @param {mathfieldWithDirectionCallback} config.onMoveOutOf - A handler called when 
- * keyboard navigation would cause the insertion point to leave the mathfield.
+ * @param {mathfieldWithDirectionCallback} [config.onMoveOutOf] - A handler 
+ * called when keyboard navigation would cause the insertion point to leave the
+ * mathfield.
  * 
  * By default, the insertion point will wrap around.
  * 
- * @param {mathfieldWithDirectionCallback} config.onTabOutOf - A handler called when 
+ * @param {mathfieldWithDirectionCallback} [config.onTabOutOf] - A handler called when 
  * pressing tab (or shift-tab) would cause the insertion point to leave the mathfield.
  * 
  * By default, the insertion point jumps to the next point of interest.
  * 
- * @param {mathfieldWithDirectionCallback} config.onDeleteOutOf - A handler called when 
+ * @param {mathfieldWithDirectionCallback} [config.onDeleteOutOf] - A handler called when 
  * deleting an item would cause the insertion point to leave the mathfield.
  * 
- * By default, nothing happens. @todo
+ * By default, nothing happens. @todo Not implemented yet.
  * 
- * @param {mathfieldWithDirectionCallback} config.onSelectOutOf - A handler called when 
+ * @param {mathfieldWithDirectionCallback} [config.onSelectOutOf] - A handler called when 
  * the selection is extended so that it would cause the insertion point to 
  * leave the mathfield.
  * 
- * By default, nothing happens. @todo
+ * By default, nothing happens. @todo Not implemented yet.
  * 
- * @param {mathfieldCallback} config.onUpOutOf - A handler called when 
+ * @param {mathfieldCallback} [config.onUpOutOf] - A handler called when 
  * the up arrow key is pressed with no element to navigate to.
  * 
- * By default, nothing happens. @todo
+ * By default, nothing happens. @todo Not implemented yet.
  * 
- * @param {mathfieldCallback} config.onDownOutOf - A handler called when 
+ * @param {mathfieldCallback} [config.onDownOutOf] - A handler called when 
  * the up down key is pressed with no element to navigate to.
  * 
- * By default, nothing happens. @todo
+ * By default, nothing happens. @todo Not implemented yet.
  * 
- * @param {mathfieldCallback} config.onEnter - A handler called when 
+ * @param {mathfieldCallback} [config.onEnter] - A handler called when 
  * the enter/return key is pressed and it is not otherwise handled. @todo
  * 
- * @param {mathfieldCallback} config.onContentWillChange - A handler called 
+ * @param {mathfieldCallback} [config.onContentWillChange] - A handler called 
  * just before the content is about to be changed. @todo
  * 
- * @param {mathfieldCallback} config.onContentDidChange - A handler called 
+ * @param {mathfieldCallback} [config.onContentDidChange] - A handler called 
  * just after the content has been changed.@todo
  * 
- * @param {mathfieldCallback} config.onSelectionWillChange - A handler called 
+ * @param {mathfieldCallback} [config.onSelectionWillChange] - A handler called 
  * just before the selection is about to be changed.
  * 
- * @param {mathfieldCallback} config.onSelectionDidChange - A handler called  
+ * @param {mathfieldCallback} [config.onSelectionDidChange] - A handler called 
  * just after the selection has been changed.
  *  
  * @function module:mathlive#makeMathField
@@ -213,9 +218,11 @@ function toSpeakableText() {
 /**
  * Transform all the elements in the document body that contain LaTeX code 
  * into typeset math.
+ * 
  * **See:** {@tutorial USAGE_GUIDE}
  * 
- * @param {Object} [options] See `renderMathInElement` for details
+ * @param {Object} [options] See [`renderMathInElement()`]{@link module:mathlive#renderMathInElement} 
+ * for details
  * @function module:mathlive#renderMathInDocument
  */
 function renderMathInDocument(options) {
@@ -227,8 +234,9 @@ function renderMathInDocument(options) {
 }
 
 /**
- * Transform all the children of element, recursively, that contain LaTeX code 
+ * Transform all the children of `element`, recursively, that contain LaTeX code 
  * into typeset math.
+ * 
  * **See:** {@tutorial USAGE_GUIDE}
  * 
  * @param {Element|string} element An HTML DOM element, or a string containing
@@ -279,6 +287,7 @@ function renderMathInElement(element, options) {
  * @param {string} options.namespace The namespace used for the `data-` 
  * attributes. If you used a namespace with `renderMathInElement`, you must
  * use the same namespace here.
+ * @function module:mathlive#revertToOriginalContent
  */
 function revertToOriginalContent(element, options) {
     options = options || {};
@@ -304,6 +313,7 @@ function revertToOriginalContent(element, options) {
  * attributes. If you used a namespace with `renderMathInElement`, you must
  * use the same namespace here.
  * @return {string} the original content of the element.
+ * @function module:mathlive#revertToOriginalContent
  */
 function getOriginalContent(element, options) {
     options = options || {};

@@ -18,8 +18,8 @@ download or install anything else.
 
 The `dist/` directory contains the following:
 - `mathlive.js` The MathLive Javascript library. It is an optimized and minified 
-Javascript file which exports the `MathLive` object which gives access to the
-MathLive API.
+Javascript file which exports the [`MathLive`]{@link module:mathlive} 
+module which gives access to the MathLive API.
 - `mathlive-core.css` The minimal amount of CSS to display math with MathLive.
 - `mathlive.css` The rest of the CSS you need to display math. You can load
 this file lazily to improve your page load time.
@@ -54,8 +54,9 @@ to account for your directory structure.
 
 ## Rendering Math Automatically
 
-Call `MathLive.renderMathInDocument()` at the end of your document, or in a 
-`onload` handler to render math contained in the document.
+Call [`MathLive.renderMathInDocument()`]{@link module:mathlive#renderMathInDocument} 
+ at the end of your document, or in a `onload` handler to render math contained 
+ in the document.
 
 ```html
     ...
@@ -68,7 +69,7 @@ Call `MathLive.renderMathInDocument()` at the end of your document, or in a
 ```
 
 By default, any LaTeX code that is enclosed with the following delimiters
-will be displayed as math:
+will be rendered as math:
 * `$$`...`$$`
 * `\[`...`\]`
 * `\(`...`\)`
@@ -81,26 +82,29 @@ will be displayed as math:
 Elements with the following tags will be ignored for conversion: `script`, 
 `noscript`, `style`, `textarea`, `pre`, `code`, `annotation` and `annotation-xml`.
 
-If you dynamically generate content, call `AutoRender.renderMathInElement(element)`
+If you dynamically generate content, call 
+[`MathLive.renderMathInElement(element)`]{@link module:mathlive#renderMathInElement} 
 to render your element after the page has been loaded. This is a recursive
 call that will be applied to `element` and all its children.
 
-The `renderMathInElement()` and `renderMathInDocument()` functions take an 
-optional `options` object which can be used to customize their behavior:
+The [`MathLive.renderMathInElement()`]{@link module:mathlive#renderMathInElement} and 
+[`MathLive.renderMathInDocument()`]{@link module:mathlive#renderMathInDocument} 
+functions take an optional `options` object which can be used to customize their 
+behavior:
 
 * `skipTags`: an array of tag names whose content will not be scanned for 
 delimiters
-* `ignoreClass`: a string used as a resular expression of class names of 
+* `ignoreClass`: a string used as a regular expression of class names of 
 elements whose content will not be scanned for delimiters (`'tex2jax_ignore'` 
 by default)
-* `processClass`:   a string used as a resular expression of class names of 
+* `processClass`:   a string used as a regular expression of class names of 
 elements whose content **will** be scanned for delimiters, even if their tag 
 name or parent class name would have prevented them from doing so. 
 (`'tex2jax_process'` by default)
 * `TeX.processEnvironments`: if false, math expression that start with 
 `\begin{` will not automatically be rendered. (true by default)
 * `TeX.delimiters.inline` and `TeX.delimiters.display` arrays of delimiters
-that will trigger a render of the content in 'textstyle' or 'displaystyle', 
+that will trigger a render of the content in 'textstyle' or 'displaystyle' style, 
 respectively.
 
 ```javascript
@@ -124,10 +128,10 @@ respectively.
 ## Using the Math Editor with Javascript
 
 To transform an existing HTML element into a math field, call 
-`MathLive.makeMathField(element, options)`. Think of this original element
-as a placeholder. Typically, a `<div>` would be appropriate. If the element
-contains some LaTeX text, it will be used as the initial value of the math 
-field.
+[`MathLive.makeMathField(element, options)`]{@link module:mathlive#makeMathField}. 
+Think of this original element as a placeholder. Typically, a `<div>` would 
+be appropriate. If the element contains some LaTeX text, it will be used as the
+ initial value of the math field.
 
 
 For example:
@@ -153,7 +157,7 @@ For example:
 ```
 
 You can control the math field using the public member functions of `MathField`,
-that is, functions that do not contain an `_` at the beginnig or end of their name.
+that is, functions that do not contain an `_` at the beginning or end of their name.
 Here's a short list for some common operations:
 
 * `el()` the DOM element associated with this math field
@@ -173,15 +177,16 @@ navigation exists the math field.
 * `perform()` executes a command such as moving the insertion point. Typically
 invoked in response to a user action, such as pressing a keyboard shortcut
 or pushing a button. The command will be undoable. See the list of available
-commnads in the [**Selectors**](#selectors) section.
+commands in the **Selectors** section below.
 
 ## Selectors
 
 User initiated commands that control the math field can be dispatched using
-the `perform()` commands. Commands are identified by a string called the
-**selector**. Most commands take no parameters. When a command does have a 
-parameter, an array made up of the selector and the commands arguments can be
-passed to `perform()`. For example:
+the [`perform()`]{@link MathField#perform} commands. Commands are identified by 
+a string called the **selector**. Most commands take no parameters. When a 
+command does have a parameter, an array made up of the selector and the 
+commands arguments can be passed to [`perform()`]{@link MathField#perform}. 
+For example:
 
 ``` javascript
    mf.perform(['insert', '(#0)']);
@@ -192,7 +197,8 @@ sequence is replaced with the current selection).
 
 ### Editing
 * `insert`. This selector takes two arguments. The first one is required and 
-is the content to be inserted, as a string. The second one is an optional set of key value pairs:
+is the content to be inserted, as a string. The second one is an optional set 
+of key value pairs:
   * `insertionMode`: one of `"replaceSelection"`, `"replaceAll"`, `"insertBefore"` or `"insertAfter"`.
   * `selectionMode`: one of `"placeholder"` (the selection will be 
 the first available placeholder in the item that has been inserted),
@@ -220,7 +226,7 @@ be selected).
 * `nextSuggestion` and `previousSuggestion` when the popover panel is
 selected, display the next/previous suggestion
 * `toggleKeystrokeCaption` show/hide the keystroke caption panel. This panel
-displays the keys being typed, including the shorcuts. Great for demos!
+displays the keys being typed, including the shortcuts. Great for demos!
 * `toggleCommandBar` show/hide the command bar
 
 ### Scrolling

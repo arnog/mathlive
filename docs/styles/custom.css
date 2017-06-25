@@ -189,7 +189,7 @@ h5, .container-overview .subsection-title {
 	padding-bottom: .5em;
 }
 
-a, a:active {
+a, a:active, a code, a:active code {
 	color: #0066ce;
 }
 tt, code, kbd, samp {
