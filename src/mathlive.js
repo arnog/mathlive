@@ -207,13 +207,19 @@ function renderMathInDocument(options) {
  * @param {Object} [options]
  * @param {string[]} options.skipTags an array of tag names whose content will
  *  not be scanned for delimiters
- * @param {string} options.ignoreClass a string used as a resular expression of 
- * class names of elements whose content will not be scanned for delimiters 
- * (`'tex2jax_ignore'` by default)
- * @param {string} options.processClass   a string used as a resular expression 
+ * @param {string} [options.ignoreClass='tex2jax_ignore'] a string used as a resular expression of 
+ * class names of elements whose content will not be scanned for delimiters
+ * @param {string} [options.processClass='tex2jax_process']   a string used as a resular expression 
  * of class names of elements whose content **will** be scanned for delimiters, 
  * even if their tag name or parent class name would have prevented them from 
- * doing so. (`'tex2jax_process'` by default)
+ * doing so.
+ * @param {boolean} [options.preserveOriginalContent=true] if true, store the original
+ * textual content of the element in a `data-original-content` attribute. This 
+ * value can be accessed for example to restore the element to its original 
+ * value:
+ * ```javascript
+ *      elem.innerHTML = elem.dataset.originalContent;
+ * ```
  * @param {boolean} options.TeX.processEnvironments if false, math expression 
  * that start with `\begin{` will not automatically be rendered. (true by default)
  * @param {Array} options.TeX.delimiters.inline

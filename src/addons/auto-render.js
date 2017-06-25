@@ -43,10 +43,12 @@ function splitAtDelimiters(startData, leftDelim, rightDelim, mathstyle) {
             nextIndex = text.indexOf(leftDelim);
             if (nextIndex !== -1) {
                 currIndex = nextIndex;
-                finalData.push({
-                    type: 'text',
-                    data: text.slice(0, currIndex)
-                });
+                if (currIndex > 0) {
+                    finalData.push({
+                        type: 'text',
+                        data: text.slice(0, currIndex)
+                    });
+                }
                 lookingForLeft = false;
             }
             let done = false;
@@ -57,11 +59,12 @@ function splitAtDelimiters(startData, leftDelim, rightDelim, mathstyle) {
                         done = true;
                         break;
                     }
-
-                    finalData.push({
-                        type: 'text',
-                        data: text.slice(currIndex, nextIndex)
-                    });
+                    if (currIndex !== nextIndex) {
+                        finalData.push({
+                            type: 'text',
+                            data: text.slice(currIndex, nextIndex)
+                        });
+                    }
 
                     currIndex = nextIndex;
                 } else {
@@ -90,11 +93,12 @@ function splitAtDelimiters(startData, leftDelim, rightDelim, mathstyle) {
 
                 lookingForLeft = !lookingForLeft;
             }
-
-            finalData.push({
-                type: 'text',
-                data: text.slice(currIndex)
-            });
+            if (currIndex < text.length) {
+                finalData.push({
+                    type: 'text',
+                    data: text.slice(currIndex)
+                });
+            }
         } else {
             finalData.push(startData[i]);
         }
@@ -125,6 +129,9 @@ function scanText(text, options, latexToMarkup) {
     // (this is a MathJAX behavior)
     if (options.TeX.processEnvironments && text.match(/^\s*\\begin/)) {
         const span = document.createElement('span');
+        if (options.preserveOriginalContent) {
+            span.setAttribute('data-original-content', text);
+        }
         fragment.appendChild(span);
         try {
             span.innerHTML = latexToMarkup(text, 'displaystyle');
@@ -142,6 +149,9 @@ function scanText(text, options, latexToMarkup) {
                 fragment.appendChild(document.createTextNode(data[i].data));
             } else {
                 const span = document.createElement('span');
+                if (options.preserveOriginalContent) {
+                    span.setAttribute('data-original-content', data[i].data);
+                }
                 try {
                     span.innerHTML = latexToMarkup(data[i].data, data[i].mathstyle);
                 } catch (e) {
@@ -160,28 +170,55 @@ function scanText(text, options, latexToMarkup) {
 }
 
 function scanElement(elem, options, latexToMarkup) {
-    for (let i = 0; i < elem.childNodes.length; i++) {
-        const childNode = elem.childNodes[i];
-        if (childNode.nodeType === 3) {
-            // Text node
-            const frag = scanText(childNode.textContent, options, latexToMarkup);
-            i += frag.childNodes.length - 1;
-            elem.replaceChild(frag, childNode);
-        } else if (childNode.nodeType === 1) {
-            // Element node
-            const shouldRender = 
-                options.processClassPattern.test(childNode.className) ||
-                !(options.skipTags.includes(childNode.nodeName.toLowerCase()) || 
-                    options.ignoreClassPattern.test(childNode.className));
-            // const shouldRender = options.processClassPattern.test(childNode.className) ||
-            //     (options.skipTags.includes(childNode.nodeName.toLowerCase()) && 
-            //         !options.ignoreClassPattern.test(childNode.className));
-
-            if (shouldRender) {
-                scanElement(childNode, options, latexToMarkup);
+    let handled = false;
+    if (elem.childNodes.length === 1 && elem.childNodes[0].nodeType === 3) {
+        // This is a node with textual content only. Perhaps an opportunity
+        // to simplify and avoid creating extra nested elements...
+        const text = elem.childNodes[0].textContent;
+        let innerContent;
+        if (options.TeX.processEnvironments && text.match(/^\s*\\begin/)) {
+            innerContent = latexToMarkup(text, 'displaystyle');
+        } 
+        if (!innerContent) {
+            const data = splitWithDelimiters(text, options.TeX.delimiters);
+            if (data.length === 1 && data[0].type === 'math') {
+                // The entire content is a math expression: we can replace the content
+                // with the latex markup without creating additional wrappers.
+                innerContent = latexToMarkup(data[0].data, data[0].mathstyle);
             }
         }
-        // Otherwise, it's something else, and ignore it.
+        if (innerContent) {
+            elem.innerHTML = innerContent;
+            if (options.preserveOriginalContent) {
+                elem.setAttribute('data-original-content', text);
+            }
+            handled = true;
+        }
+    }
+    if (!handled) {
+        for (let i = 0; i < elem.childNodes.length; i++) {
+            const childNode = elem.childNodes[i];
+            if (childNode.textContent.startsWith('$$a')) {
+                console.log('found it');
+            }
+            if (childNode.nodeType === 3) {
+                // Text node
+                const frag = scanText(childNode.textContent, options, latexToMarkup);
+                i += frag.childNodes.length - 1;
+                elem.replaceChild(frag, childNode);
+            } else if (childNode.nodeType === 1) {
+                // Element node
+                const shouldRender = 
+                    options.processClassPattern.test(childNode.className) ||
+                    !(options.skipTags.includes(childNode.nodeName.toLowerCase()) || 
+                        options.ignoreClassPattern.test(childNode.className));
+
+                if (shouldRender) {
+                    scanElement(childNode, options, latexToMarkup);
+                }
+            }
+            // Otherwise, it's something else, and ignore it.
+        }
     }
 }
 
@@ -196,6 +233,10 @@ const defaultOptions = {
     // Regex pattern of the class name of elements whose contents should
     // be processed when they appear inside ones that are ignored.
     processClass: "tex2jax_process",
+
+    // Indicate whether to preserve or discard the original content of the 
+    // elements being rendered in a 'data-original-content' attribute.
+    preserveOriginalContent: true,
 
     TeX: {
         disabled: false,
