@@ -34,10 +34,6 @@ define([
 */
 
 
-const mathfields = {};
-let mathfieldID = 0;
-
-
 
 function on(el, selectors, listener, options) {
     selectors = selectors.split(' ');
@@ -95,149 +91,150 @@ function off(el, selectors, listener, options) {
  * @global
  */
 function MathField(element, config) {
-    if (!this || !(this instanceof MathField)) {
-        // The MathField function is called directly, i.e. 
-        // mf = Mathlive.MathField(document.getElementById('id'));
+    // The MathField function is called as a constructor, with new, i.e.
+    // mf = new MathField();
 
-        // If the element is, in fact, not a DOM element, return null.
-        if (!element || !element.nodeType) return null;
+    // Setup default config options
+    this.config(config || {});
 
-        // Find the corresponding mathfield by its blockID
-        const blockID = element.getAttribute('mathlive-block-id');
-        if (blockID) {
-            return mathfields[blockID];
-        }
+    this.element = element;
+
+    // Save existing content
+    this.originalContent = element.innerHTML;
+    const elementText = this.element.innerText.trim();
+
+    // Additional elements used for UI.
+    // They are retrived in order a bit later, so they need to be kept in sync
+    // 0/ The textarea field that will receive keyboard events
+    // 1/ The field, where the math equation will be displayed
+    // 2/ The widget to activate the command bar
+    // 3/ The popover panel which displays info in command mode
+    // 4/ The keystroke caption panel (option+shift+K)
+    // 5/ The command bar
+    let markup = '';
+    if (!this.config.substituteTextArea) {
+        markup += '<span class="ML__textarea" aria-hidden="true" role="none presentation">' +
+            '<textarea autocapitalize="off" autocomplete="off" ' + 
+            'autocorrect="off" spellcheck="false" ' + 
+            'aria-hidden="true" role="none presentation">' +
+            '</textarea>' +
+        '</span>';
     } else {
-        // The MathField function is called as a constructor, with new, i.e.
-        // mf = new MathField();
-
-        // Setup default config options
-        this.config(config || {});
-
-        // Give it a new ID
-        this.id = mathfieldID++;
-
-        // Remember the mapping between ID and `this` in the mathfields array
-        mathfields[this.id] = this;
-
-        this.element = element;
-
-        // Save existing content
-        const elementText = this.element.innerText.trim();
-
-        // Additional elements used for UI.
-        // They are retrived in order a bit later, so they need to be kept in sync
-        // 0/ The textarea field that will receive keyboard events
-        // 1/ The field, where the math equation will be displayed
-        // 2/ The widget to activate the command bar
-        // 3/ The popover panel which displays info in command mode
-        // 4/ The keystroke caption panel (option+shift+K)
-        // 5/ The command bar
-        let markup = '';
-        if (!this.config.substituteTextArea) {
-            markup += '<span class="ML__textarea" aria-hidden="true" role="none presentation">' +
-                '<textarea autocapitalize="off" autocomplete="off" ' + 
-                'autocorrect="off" spellcheck="false" ' + 
-                'aria-hidden="true" role="none presentation">' +
-                '</textarea>' +
-            '</span>';
+        if (typeof this.config.substituteTextArea === 'string') {
+            markup += this.config.substituteTextArea;
         } else {
-            if (typeof this.config.substituteTextArea === 'string') {
-                markup += this.config.substituteTextArea;
-            } else {
-                // We don't really need this one, but we keep it here so that the 
-                // indexes below remain the same whether a substituteTextArea is 
-                // provided or not.
-                markup += '<span></span>';
-            }
-        }
-        markup += '<span class="ML__fieldcontainer">' +
-                '<span ></span>' +
-                '<span class="ML__commandbartoggle"' +
-                    'role="button" tabindex="0" aria-label="Toggle Command Bar">' +
-                '</span>' +
-            '</span>' +
-            '<div class="ML__popover"></div>' + 
-            '<div class="ML__keystrokecaption"></div>' + 
-            '<div class="ML__commandbar">' +
-                '<div class="ML__commandbuttons" role="toolbar" aria-label="Commmand Bar></div>' + 
-                '<div class="ML__commandpanel"></div>' +
-            '</div>';
-
-
-        this.element.innerHTML = markup;
-
-        if (typeof this.config.substituteTextArea === 'function') {
-            this.textarea =  this.config.substituteTextArea();
-        } else {
-            this.textarea = this.element.children[0].firstElementChild;
-        }
-        this.field = this.element.children[1].children[0];
-        this.commandbarToggle = this.element.children[1].children[1];
-        this._attachButtonHandlers(this.commandbarToggle, 'toggleCommandBar');
-        this.popover = this.element.children[2];
-        this.keystrokeCaption = this.element.children[3];
-        this.commandBar = this.element.children[4];
-        this.commandButtons = this.commandBar.children[0];
-        this.commandPanel = this.commandBar.children[1];
-
-        // The keystroke caption panel and the command bar are 
-        // initially hidden
-        this.keystrokeCaptionVisible = false;
-        this.commandBarVisible = false;
-
-        // This index indicates which of the suggestions available to 
-        // display in the popover panel
-        this.suggestionIndex = 0;
-
-        // Focus/blur state
-        this.blurred = true;
-        on(window, 'focus', this._onFocus.bind(this));
-        on(window, 'blur', this._onBlur.bind(this));
-
-        // Capture clipboard events
-        on(this.textarea, 'cut', this._onCut.bind(this));
-        on(this.textarea, 'copy', this._onCopy.bind(this));
-        on(this.textarea, 'paste', this._onPaste.bind(this));
-
-        // Delegate keyboard events
-        Keyboard.delegateKeyboardEvents(this.textarea, {
-            container:      this.element,
-            typedText:      this._onTypedText.bind(this),
-            paste:          this._onPaste.bind(this),
-            keystroke:      this._onKeystroke.bind(this),
-            focus:          this._onFocus.bind(this),
-            blur:           this._onBlur.bind(this),
-        })
-
-
-        // Delegate mouse and touch events
-        on(this.element, 'touchstart mousedown', this._onPointerDown.bind(this), 
-            {passive: false, capture: false});
-
-        // Request notification for when the window is resized (
-        // or the device switched from portrait to landscape) to adjust
-        // the UI (popover, etc...)
-        on(window, 'resize', this._onResize.bind(this));
-
-
-        // Override some handlers in the config
-        const localConfig = Object.assign({}, config);
-        localConfig.onSelectionDidChange = 
-            MathField.prototype._onSelectionDidChange.bind(this);
-
-        this.mathlist = new EditableMathlist.EditableMathlist(localConfig);
-
-        // Prepare to manage undo/redo
-        this.undoManager = new Undo.UndoManager(this.mathlist);
-
-        // If there was some content in the element, use it for the initial
-        // value of the mathfield
-        if (elementText.length > 0) {
-            this.latex(elementText);
+            // We don't really need this one, but we keep it here so that the 
+            // indexes below remain the same whether a substituteTextArea is 
+            // provided or not.
+            markup += '<span></span>';
         }
     }
+    markup += '<span class="ML__fieldcontainer">' +
+            '<span ></span>' +
+            '<span class="ML__commandbartoggle"' +
+                'role="button" tabindex="0" aria-label="Toggle Command Bar">' +
+            '</span>' +
+        '</span>' +
+        '<div class="ML__popover"></div>' + 
+        '<div class="ML__keystrokecaption"></div>' + 
+        '<div class="ML__commandbar">' +
+            '<div class="ML__commandbuttons" role="toolbar" aria-label="Commmand Bar></div>' + 
+            '<div class="ML__commandpanel"></div>' +
+        '</div>';
+
+
+    this.element.innerHTML = markup;
+
+    if (typeof this.config.substituteTextArea === 'function') {
+        this.textarea =  this.config.substituteTextArea();
+    } else {
+        this.textarea = this.element.children[0].firstElementChild;
+    }
+    this.field = this.element.children[1].children[0];
+    this.commandbarToggle = this.element.children[1].children[1];
+    this._attachButtonHandlers(this.commandbarToggle, 'toggleCommandBar');
+    this.popover = this.element.children[2];
+    this.keystrokeCaption = this.element.children[3];
+    this.commandBar = this.element.children[4];
+    this.commandButtons = this.commandBar.children[0];
+    this.commandPanel = this.commandBar.children[1];
+
+    // The keystroke caption panel and the command bar are 
+    // initially hidden
+    this.keystrokeCaptionVisible = false;
+    this.commandBarVisible = false;
+
+    // This index indicates which of the suggestions available to 
+    // display in the popover panel
+    this.suggestionIndex = 0;
+
+    // Focus/blur state
+    this.blurred = true;
+    on(window, 'focus', this._onFocus.bind(this));
+    on(window, 'blur', this._onBlur.bind(this));
+
+    // Capture clipboard events
+    on(this.textarea, 'cut', this._onCut.bind(this));
+    on(this.textarea, 'copy', this._onCopy.bind(this));
+    on(this.textarea, 'paste', this._onPaste.bind(this));
+
+    // Delegate keyboard events
+    Keyboard.delegateKeyboardEvents(this.textarea, {
+        container:      this.element,
+        typedText:      this._onTypedText.bind(this),
+        paste:          this._onPaste.bind(this),
+        keystroke:      this._onKeystroke.bind(this),
+        focus:          this._onFocus.bind(this),
+        blur:           this._onBlur.bind(this),
+    })
+
+
+    // Delegate mouse and touch events
+    on(this.element, 'touchstart mousedown', this._onPointerDown.bind(this), 
+        {passive: false, capture: false});
+
+    // Request notification for when the window is resized (
+    // or the device switched from portrait to landscape) to adjust
+    // the UI (popover, etc...)
+    on(window, 'resize', this._onResize.bind(this));
+
+
+    // Override some handlers in the config
+    const localConfig = Object.assign({}, config);
+    localConfig.onSelectionDidChange = 
+        MathField.prototype._onSelectionDidChange.bind(this);
+
+    this.mathlist = new EditableMathlist.EditableMathlist(localConfig);
+
+    // Prepare to manage undo/redo
+    this.undoManager = new Undo.UndoManager(this.mathlist);
+
+    // If there was some content in the element, use it for the initial
+    // value of the mathfield
+    if (elementText.length > 0) {
+        this.latex(elementText);
+    }
 }
+
+/**
+ * Revert this math field to its original content
+ * 
+ * @method MathField#revertToOriginalContent
+ */
+MathField.prototype.revertToOriginalContent = function() {
+    this.element.innerHTML = this.originalContent;
+    delete this.field;
+    delete this.textarea;
+    delete this.commandBarToggle;
+    delete this.popover;
+    delete this.keystrokeCaption;
+    delete this.commandBar;
+    delete this.commandButtons;
+    delete this.commandPanel;
+    off(this.element, 'touchstart mousedown', this._onPointerDown.bind(this));
+    off(window, 'resize', this._onResize.bind(this));
+}
+
 
 /**
  * Utility function that returns the element which has the caret
@@ -642,8 +639,14 @@ MathField.prototype._onTypedText = function(text) {
         this.mathlist.insert(text);
 
     } else {
+        // Decompose the string into an array of graphemes. This is necessary
+        // to correctly process what would be visually perceived by a human 
+        // as a single glyph (a grapheme) but which is actually composed of 
+        // multiple Unicode codepoints. This is the case in particular for 
+        // emojis, such as emojis with a skin tone modifier, the country flags
+        // emojis or compound emoji such as the profesional emojis, including
+        // the David Bowie emoji.
         const graphemes = GraphemeSplitter.splitGraphemes(text);
-        // const graphemes = text;
         for (const c of graphemes) {
             this._showKeystroke(c);
 
@@ -669,7 +672,7 @@ MathField.prototype._onTypedText = function(text) {
                     }
                     popoverText = suggestions[0].match;
                 }
-            } else if (this.mathlist.parseMode() === 'math') {
+            } else if (this.mathlist.parsseMode() === 'math') {
                 // Inline shortcuts (i.e. 'p' + 'i' = '\pi') only apply in `math` 
                 // parseMode
                 const prefix = this.mathlist.extractGroupStringBeforeInsertionPoint();
