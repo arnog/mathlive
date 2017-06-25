@@ -167,7 +167,7 @@ EditableMathlist.prototype.setPath = function(selection, extent) {
  */
 EditableMathlist.prototype.setRange = function(from, to) {
 
-    // Measure the 'distance' betwen `from` and `to`
+    // Measure the 'distance' between `from` and `to`
     const distance = MathPath.pathDistance(from, to);
     if (distance === 0) {
         // `from` and `to` are equal.
@@ -183,7 +183,7 @@ EditableMathlist.prototype.setRange = function(from, to) {
         }
         this.setPath(path, extent);
     } else {
-        // They're neither identical, not sibllings.
+        // They're neither identical, not siblings.
         
         // Find the common ancestor between the nodes
         let commonAncestor = MathPath.pathCommonAncestor(from, to);
@@ -237,7 +237,7 @@ EditableMathlist.prototype.ancestor = function(ancestor) {
     // Start with the root
     let result = this.root;
 
-    // Iterate over the path segments, selecting the approriate 
+    // Iterate over the path segments, selecting the appropriate 
     for (let i = 0; i < (this.path.length - ancestor); i++) {
         const segment = this.path[i];
         if (segment.relation === 'array') {
@@ -293,7 +293,7 @@ EditableMathlist.prototype.focusOffset = function() {
 
 /**
  * Offset of the first atom included in the selection
- * i.e. `=1` => selection starts with and includes firtst atom
+ * i.e. `=1` => selection starts with and includes first atom
  * With expression _x=_ and atoms :
  * - 0: _<first>_
  * - 1: _x_
@@ -325,7 +325,7 @@ EditableMathlist.prototype.endOffset = function() {
  * If necessary, insert a `first` atom in the sibling list.
  * If there's already a `first` atom, do nothing.
  * The `first` atom is used as a 'placeholder' to hold the blinking caret when
- * the caret is positioned at the very begining of the mathlist.
+ * the caret is positioned at the very beginning of the mathlist.
  * @method EditableMathlist#insertFirstAtom
  */
 EditableMathlist.prototype.insertFirstAtom = function() {
@@ -1040,7 +1040,7 @@ EditableMathlist.prototype.skip = function(dir, options) {
     } else if ((type === 'mopen' && dir > 0) || 
                 (type === 'mclose' && dir < 0)) {
         // We're right before (or after) an opening (or closing)
-        // fence. Skip to the balanced element (in level, but not necesarily in 
+        // fence. Skip to the balanced element (in level, but not necessarily in 
         // fence symbol). 
         let level = type === 'mopen' ? 1 : -1;
         offset += dir > 0 ? 1 : -1;
@@ -1191,7 +1191,7 @@ EditableMathlist.prototype.parseMode = function() {
  * be selected).
  * @param {string} options.format - The format of the string `s`, one of 
  * `auto` (the string is interpreted as a latex fragment or command), `latex`
- * (the string is interpreted stricly as a latex fragment)
+ * (the string is interpreted strictly as a latex fragment)
  * @method EditableMathlist#insert
  */
 EditableMathlist.prototype.insert = function(s, options) {
@@ -1367,7 +1367,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
                 siblings.splice(anchorOffset, 1);
                 this.setSelection(anchorOffset - 1);
             } else {
-                // We're at the begining of the sibling list, delete what comes
+                // We're at the beginning of the sibling list, delete what comes
                 // before
                 const relation = this.relation();
                 if (relation === 'superscript' || relation === 'subscript') {

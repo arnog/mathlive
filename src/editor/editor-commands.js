@@ -23,20 +23,20 @@ define([
 /**
  * Description of the commands displayed in the command bar.
  * @type {Array.<Object>}
- * @type {string} [].label - The static button label
- * @type {string} [[].cls] - A CSS class to add to the label
- * @type {string} [[].ariaLabel} - The accessible label for the button. Useful 
+ * @param {string} [].label - The static button label
+ * @param {string} [[].cls] - A CSS class to add to the label
+ * @param {string} [[].ariaLabel] - The accessible label for the button. Useful 
  * when the label is an icon or other graphic
- * @type {string} [[].shortcut} - Optional keyboard shortcut for the command.
+ * @param {string} [[].shortcut] - Optional keyboard shortcut for the command.
  * To override the display of the shortcut for the command, use `'none'`
- * @type {string|string[]} [].selector - The selector to be performed when the 
+ * @param {string|string[]} [].selector - The selector to be performed when the 
  * command is invoked.
- * @type {number} [[].utility] - A number representing how frequently the 
+ * @param {number} [[].utility] - A number representing how frequently the 
  * command is expected to be invoked by the user. Used to sort commands so that
  * ones with higher utility are displayed first.
- * @type {function} [[].condition] - A predicate returning true if the command
+ * @param {function} [[].condition] - A predicate returning true if the command
  * should be displayed given the current context
- * @type {function} [[].arg] - A function returning a mathlist indicating 
+ * @param {function} [[].arg] - A function returning a mathlist indicating 
  * what should be considered the argument to the command given the current
  * context (it could be the currently selected item, or the item before the 
  * selection or...)

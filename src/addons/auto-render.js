@@ -130,7 +130,7 @@ function scanText(text, options, latexToMarkup) {
     if (options.TeX.processEnvironments && text.match(/^\s*\\begin/)) {
         const span = document.createElement('span');
         if (options.preserveOriginalContent) {
-            span.setAttribute('data-original-content', text);
+            span.setAttribute('data-' + options.namespace + 'original-content', text);
         }
         fragment.appendChild(span);
         try {
@@ -150,7 +150,7 @@ function scanText(text, options, latexToMarkup) {
             } else {
                 const span = document.createElement('span');
                 if (options.preserveOriginalContent) {
-                    span.setAttribute('data-original-content', data[i].data);
+                    span.setAttribute('data-' + options.namespace + 'original-content', data[i].data);
                 }
                 try {
                     span.innerHTML = latexToMarkup(data[i].data, data[i].mathstyle);
@@ -190,7 +190,7 @@ function scanElement(elem, options, latexToMarkup) {
         if (innerContent) {
             elem.innerHTML = innerContent;
             if (options.preserveOriginalContent) {
-                elem.setAttribute('data-original-content', text);
+                elem.setAttribute('data-' + options.namespace + 'original-content', text);
             }
             handled = true;
         }
@@ -198,9 +198,6 @@ function scanElement(elem, options, latexToMarkup) {
     if (!handled) {
         for (let i = 0; i < elem.childNodes.length; i++) {
             const childNode = elem.childNodes[i];
-            if (childNode.textContent.startsWith('$$a')) {
-                console.log('found it');
-            }
             if (childNode.nodeType === 3) {
                 // Text node
                 const frag = scanText(childNode.textContent, options, latexToMarkup);
@@ -223,6 +220,9 @@ function scanElement(elem, options, latexToMarkup) {
 }
 
 const defaultOptions = {
+    // Optional namespace for the `data-` attributes.
+    namespace: '',
+
     // Name of tags whose content will not be scanned for math delimiters
     skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 
         'annotation', 'annotation-xml'],
@@ -257,6 +257,14 @@ function renderMathInElement(elem, options, latexToMarkup) {
     options = Object.assign({}, defaultOptions, options);
     options.ignoreClassPattern = new RegExp(options.ignoreClass);
     options.processClassPattern = new RegExp(options.processClass);
+
+    // Validate the namespace (used for `data-` attributes)
+    if (options.namespace) {
+        if (!/^[a-z]*$/.test(options.namespace)) {
+            throw Error('options.namespace must be a string of lowercase characters only');
+        }
+        options.namespace += '-';
+    }
 
     scanElement(elem, options, latexToMarkup);
 }

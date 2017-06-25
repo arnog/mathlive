@@ -117,20 +117,6 @@ function off(el, selectors, listener, options) {
 
 
 /**
- * This function can either be used as a classic function to retrieve
- * a MathField object previously bound to a DOM element, e.g.:
- * 
- * ``` javascript
-    mf = Mathlive.MathField(document.getElementById('id'));
-   ```
- * 
- * Or it can be used as a constructor that will bind a new MathField 
- * object to a DOM element, e.g.
- * 
- * ``` javascript
-    mf = new Mathlive.MathField(document.getElementById('id'));
-   ```
- * 
  * **Note**
  * - Method names that _begin with_ an underbar `_` are private and meant
  * to be used only by the implementation of the class.
@@ -155,9 +141,6 @@ function off(el, selectors, listener, options) {
  * @global
  */
 function MathField(element, config) {
-    // The MathField function is called as a constructor, with new, i.e.
-    // mf = new MathField();
-
     // Setup default config options
     this.config(config || {});
 
@@ -281,7 +264,10 @@ function MathField(element, config) {
 }
 
 /**
- * Revert this math field to its original content
+ * Revert this math field to its original content. After this method has been 
+ * called, no other methods can be called on the MathField object. To turn the
+ * element back into a MathField, call `MathLive.makeMathField()` on the 
+ * element again to get a new math field object.
  * 
  * @method MathField#revertToOriginalContent
  */
@@ -1255,7 +1241,8 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
     // associated with the button (the command could be an array made of a 
     // selector and one or more parameters)
 
-    el.dataset.command = JSON.stringify(command);
+    el.setAttribute(
+        'data-' + this.config.namespace + 'command', JSON.stringify(command));
 
     on(el, 'mousedown touchstart', function(ev) {
         if (ev.type !== 'mousedown' || ev.buttons === 1) {
@@ -1285,7 +1272,8 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
             150);
 
         // Restore the command (and its optional arguments) and perform it
-        that.perform(JSON.parse(el.dataset.command));
+        that.perform(JSON.parse(
+            el.getAttribute('data-' + that.config.namespace + 'command')));
         ev.stopPropagation();
         ev.preventDefault();
     });
@@ -1403,91 +1391,9 @@ MathField.prototype.typedText = function(text) {
 
 
 /**
- * @callback mathfieldCallback
- * @param {Mathfield}
- *
- * @callback mathfieldWithDirectionCallback
- * @param {Mathfield}
- * @param {number} direction
- * @return {boolean} False to suppress default behavior.
- */
+ * @param {Object} [config] See `MathLive.config()` for details
+ * 
 
-/**
- * @param {Object} config
- * 
- * @param {function} config.substituteTextArea - A function that returns a focusable element
- * that can be used to capture text input.
- * 
- * @param {mathfieldCallback} config.onFocus - Invoked when the mathfield has been focused
- * 
- * @param {mathfieldCallback} config.onBlur - Invoked when the mathfield has been blurred
- * 
- * @param {boolean} config.overrideDefaultInlineShortcuts - If true, the default 
- * inline shortcuts (e.g. 'p' + 'i' = 'π') are ignored. Default false.
- * 
- * @param {Object} config.inlineShortcuts - A map of shortcuts -> replacement value.
- * For example `{ 'pi': '\\pi'}`. If `overrideDefaultInlineShortcuts` is false, 
- * these shortcuts are applied after any default ones, and can therefore replace
- * them.
- * 
- * @param {string} config.commandBarToggle - If `'visible'`, the default value,
- * the command bar widget will be automatically displayed. If set to `'hidden'`
- * the command bar widget is not displayed, but the command bar can still
- * be triggered programmatically with the `toggleCommandBar` selector.
- * 
- * @param {boolean} config.overrideDefaultCommands - If true, the default 
- * commands displayed in the command bar are ignore. Default false.
- * 
- * @param {Array} config.commands - An array of commands to display in the 
- * command bar. If `overrideDefaultCommands` is false, these commands will 
- * supplement the default commands, otherwise they replace them.
- * 
- * @param {mathfieldWithDirectionCallback} config.onMoveOutOf - A handler called when 
- * keyboard navigation would cause the insertion point to leave the mathfield.
- * 
- * By default, the insertion point will wrap around.
- * 
- * @param {mathfieldWithDirectionCallback} config.onTabOutOf - A handler called when 
- * pressing tab (or shift-tab) would cause the insertion point to leave the mathfield.
- * 
- * By default, the insertion point jumps to the next point of interest.
- * 
- * @param {mathfieldWithDirectionCallback} config.onDeleteOutOf - A handler called when 
- * deleting an item would cause the insertion point to leave the mathfield.
- * 
- * By default, nothing happens. @todo
- * 
- * @param {mathfieldWithDirectionCallback} config.onSelectOutOf - A handler called when 
- * the selection is extended so that it would cause the insertion point to 
- * leave the mathfield.
- * 
- * By default, nothing happens. @todo
- * 
- * @param {mathfieldCallback} config.onUpOutOf - A handler called when 
- * the up arrow key is pressed with no element to navigate to.
- * 
- * By default, nothing happens. @todo
- * 
- * @param {mathfieldCallback} config.onDownOutOf - A handler called when 
- * the up down key is pressed with no element to navigate to.
- * 
- * By default, nothing happens. @todo
- * 
- * @param {mathfieldCallback} config.onEnter - A handler called when 
- * the enter/return key is pressed and it is not otherwise handled. @todo
- * 
- * @param {mathfieldCallback} config.onContentWillChange - A handler called 
- * just before the content is about to be changed. @todo
- * 
- * @param {mathfieldCallback} config.onContentDidChange - A handler called 
- * just after the content has been changed.@todo
- * 
- * @param {mathfieldCallback} config.onSelectionWillChange - A handler called 
- * just before the selection is about to be changed.
- * 
- * @param {mathfieldCallback} config.onSelectionDidChange - A handler called  
- * just after the selection has been changed.
- * 
  * @method MathField#config
  */
 MathField.prototype.config = function(config) {
@@ -1503,6 +1409,15 @@ MathField.prototype.config = function(config) {
 
     // Copy the values from `config` to `def`
     this.config = Object.assign({}, def, config);
+
+    // Validate the namespace (used for `data-` attributes)
+    if (this.config.namespace) {
+        if (!/^[a-z]*$/.test(this.config.namespace)) {
+            throw Error('config.namespace must be a string of lowercase characters only');
+        }
+        this.config.namespace += '-';
+    }
+
 }
 
 return {
