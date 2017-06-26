@@ -339,7 +339,7 @@ function getOriginalContent(element, options) {
 
     if (typeof element === 'string') element = document.getElementById(element);
 
-    if (element instanceof 'MathField') {
+    if (element instanceof MathField.MathField) {
         return element.originalContent;
     } else if (element) {
         options = options || {};
