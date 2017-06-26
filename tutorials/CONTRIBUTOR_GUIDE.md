@@ -8,6 +8,7 @@ If you simply want to use MathLive with your web content, see the {@tutorial USA
 - [Language and Coding Style](#language-and-coding-style)
 - [Naming Convention](#naming-convention)
 - [Browser Support](#browser-support)
+- [Accessibility](#accessibility)
 - [Architecture](#architecture)
 - [Files](#files)
 - [Common Tasks](#common-tasks)
@@ -250,8 +251,71 @@ MathLive is designed for the modern web. Supporting older browsers complicates
 the effort involved in building new features, but it is also an insecure 
 practice that should not be encouraged. 
 
-In this context, _modern_ means the two latest releases of Chrome, IE, Safari 
+In this context, _modern_ means the latest two releases of Chrome, IE, Safari 
 and Firefox. Both desktop and mobile are supported.
+
+## Accessibility - A11Y
+
+### Rendering
+MathLive renders math using HTML and CSS. Digits, letters and math symbols are
+displayed in `<span>` tags with the necessary CSS styling to display them in 
+the right place. In addition, rules (lines) such as the fraction line, are 
+rendered using CSS borders. In a few rare cases, SVG is used to render 
+some decorations, such as the annotations of the `\enclose` command.
+
+The rendered math is not purely graphical, and as such can be accessed by 
+screen readers.
+
+
+### Alternate renditions
+However, in addition to the "visual" HTML+CSS representation that MathLive 
+outputs, it can also generate alternate renditions, including:
+- **LaTeX**: a string of LaTeX code equivalent to the formula.
+- **Spoken Text**: a text representation of the formula as someone would speak it, 
+for example: `f(x) = x^2` → "f of x equals x squared"
+- **Annotated Spoken Text**: as above, but in addition prosody hints are 
+inserted for a more natural rendition by text to speech systems (breathing 
+pauses, variation in pitch, etc...).
+
+Those alternate renditions can be rendered as an ARIA-label, or as an element
+that is not visually rendered, but visible to screen readers.
+
+### Speech
+Although MathLive works with screen readers, since math is its own language 
+MathLive has its own built-in text to speech renderer. With the speech interface 
+it is possible to:
+- read the current group (numerator or subscript, for example)
+   - Mac: `Ctrl + Command + Down`
+   - Windows/Linux/ChromeOS: `Ctrl + Alt + Down`
+- read what's before or after the selection
+   - Mac: `Ctrl + Command + Left/Right`
+   - Windows/Linux/ChromeOS: `Ctrl + Alt + Left/Right`
+- read the parent of the current group
+   - Mac: `Ctrl + Command + Up`
+   - Windows/Linux/ChromeOS: `Ctrl + Alt + Up`
+- read the current selection
+   - Mac: `Ctrl + Command + Shift + Down`
+   - Windows/Linux/ChromeOS: `Ctrl + Alt + Shift + Down`
+
+
+With these convenient keyboard shortcuts, it is possible to aurally navigate 
+and understand even complex formulas.
+
+
+### Input and navigation
+MathLive supports multiple modalities for input: in addition to pointer devices 
+(mouse, trackpad, touch screen), MathLive has an extensive set of keyboard 
+shortcuts that allow navigation and editing of the most complex formulas. 
+Every operation is possible without the use of a pointing device.
+
+Conversely, it is possible to enter commands and complex mathematical symbols 
+using only a pointing device: the command bar can be invoked by tapping a round 
+toggle button displayed to the right of the formula. The command bar offers 
+large buttons that act as a virtual keyboard, but offer contextual operations 
+depending on the current selection, and the content around it. Those buttons 
+are easy to use on touch screens and for users of alternative pointing devices.
+
+
 
 ## Architecture
 

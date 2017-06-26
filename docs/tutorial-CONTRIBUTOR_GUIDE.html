@@ -69,6 +69,7 @@ If you simply want to use MathLive with your web content, see the <a href="tutor
 <li><a href="#language-and-coding-style">Language and Coding Style</a></li>
 <li><a href="#naming-convention">Naming Convention</a></li>
 <li><a href="#browser-support">Browser Support</a></li>
+<li><a href="#accessibility">Accessibility</a></li>
 <li><a href="#architecture">Architecture</a></li>
 <li><a href="#files">Files</a></li>
 <li><a href="#common-tasks">Common Tasks</a></li>
@@ -264,8 +265,64 @@ directly.</li>
 <h2>Browser Support</h2><p>MathLive is designed for the modern web. Supporting older browsers complicates
 the effort involved in building new features, but it is also an insecure 
 practice that should not be encouraged. </p>
-<p>In this context, <em>modern</em> means the two latest releases of Chrome, IE, Safari 
+<p>In this context, <em>modern</em> means the latest two releases of Chrome, IE, Safari 
 and Firefox. Both desktop and mobile are supported.</p>
+<h2>Accessibility - A11Y</h2><h3>Rendering</h3><p>MathLive renders math using HTML and CSS. Digits, letters and math symbols are
+displayed in <code>&lt;span&gt;</code> tags with the necessary CSS styling to display them in 
+the right place. In addition, rules (lines) such as the fraction line, are 
+rendered using CSS borders. In a few rare cases, SVG is used to render 
+some decorations, such as the annotations of the <code>\enclose</code> command.</p>
+<p>The rendered math is not purely graphical, and as such can be accessed by 
+screen readers.</p>
+<h3>Alternate renditions</h3><p>However, in addition to the &quot;visual&quot; HTML+CSS representation that MathLive 
+outputs, it can also generate alternate renditions, including:</p>
+<ul>
+<li><strong>LaTeX</strong>: a string of LaTeX code equivalent to the formula.</li>
+<li><strong>Spoken Text</strong>: a text representation of the formula as someone would speak it, 
+for example: <code>f(x) = x^2</code> → &quot;f of x equals x squared&quot;</li>
+<li><strong>Annotated Spoken Text</strong>: as above, but in addition prosody hints are 
+inserted for a more natural rendition by text to speech systems (breathing 
+pauses, variation in pitch, etc...).</li>
+</ul>
+<p>Those alternate renditions can be rendered as an ARIA-label, or as an element
+that is not visually rendered, but visible to screen readers.</p>
+<h3>Speech</h3><p>Although MathLive works with screen readers, since math is its own language 
+MathLive has its own built-in text to speech renderer. With the speech interface 
+it is possible to:</p>
+<ul>
+<li>read the current group (numerator or subscript, for example)<ul>
+<li>Mac: <code>Ctrl + Command + Down</code></li>
+<li>Windows/Linux/ChromeOS: <code>Ctrl + Alt + Down</code></li>
+</ul>
+</li>
+<li>read what's before or after the selection<ul>
+<li>Mac: <code>Ctrl + Command + Left/Right</code></li>
+<li>Windows/Linux/ChromeOS: <code>Ctrl + Alt + Left/Right</code></li>
+</ul>
+</li>
+<li>read the parent of the current group<ul>
+<li>Mac: <code>Ctrl + Command + Up</code></li>
+<li>Windows/Linux/ChromeOS: <code>Ctrl + Alt + Up</code></li>
+</ul>
+</li>
+<li>read the current selection<ul>
+<li>Mac: <code>Ctrl + Command + Shift + Down</code></li>
+<li>Windows/Linux/ChromeOS: <code>Ctrl + Alt + Shift + Down</code></li>
+</ul>
+</li>
+</ul>
+<p>With these convenient keyboard shortcuts, it is possible to aurally navigate 
+and understand even complex formulas.</p>
+<h3>Input and navigation</h3><p>MathLive supports multiple modalities for input: in addition to pointer devices 
+(mouse, trackpad, touch screen), MathLive has an extensive set of keyboard 
+shortcuts that allow navigation and editing of the most complex formulas. 
+Every operation is possible without the use of a pointing device.</p>
+<p>Conversely, it is possible to enter commands and complex mathematical symbols 
+using only a pointing device: the command bar can be invoked by tapping a round 
+toggle button displayed to the right of the formula. The command bar offers 
+large buttons that act as a virtual keyboard, but offer contextual operations 
+depending on the current selection, and the content around it. Those buttons 
+are easy to use on touch screens and for users of alternative pointing devices.</p>
 <h2>Architecture</h2><p>The core of MathLive is a math rendering engine that can output to HTML and 
 CSS. This engine uses the TeX layout algorithms because of their quality. 
 Given the same input, MathLive will render pixel for pixel what TeX would 
