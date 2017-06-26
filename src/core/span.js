@@ -145,7 +145,7 @@ Span.prototype.cacheClientDimensions = function() {
 
     const div = document.createElement('div');
     div.setAttribute('style',`position: absolute;
-        visibility: visible;
+        visibility: hidden;
         height: auto;
         width: auto;
         white-space: nowrap;`);
