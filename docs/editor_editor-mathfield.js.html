@@ -817,15 +817,17 @@ MathField.prototype._render = function() {
         'role': 'none presentation'
     }
 
-    const topStrut = Span.makeSpan('', 'ML__strut');
+    const topStrut = Span.makeSpan('', 'ML__strut')
     topStrut.setStyle('height', base.height, 'em');
-
-    const bottomStrut = Span.makeSpan('', 'ML__strut ML__bottom');
-    bottomStrut.setStyle('height', base.height + base.depth, 'em');
-    bottomStrut.setStyle('vertical-align', -base.depth, 'em');
-
-
-    const wrapper = Span.makeSpan([topStrut, bottomStrut, base], 'ML__mathlive');
+    const struts = [topStrut];
+    if (base.depth !== 0) {
+        const bottomStrut = Span.makeSpan('', 'ML__strut ML__bottom');
+        bottomStrut.setStyle('height', base.height + base.depth, 'em');
+        bottomStrut.setStyle('vertical-align', -base.depth, 'em');
+        struts.push(bottomStrut);
+    } 
+    struts.push(base);
+    const wrapper = Span.makeSpan(struts, 'ML__mathlive');
     wrapper.classes += hasFocus ? ' ML__focused' : ' ML__blurred';
 
     //
@@ -1413,10 +1415,10 @@ MathField.prototype.config = function(config) {
     this.config = Object.assign({}, def, config);
 
     // Validate the namespace (used for `data-` attributes)
-    if (this.config.namespace) {
-        if (!/^[a-z]*$/.test(this.config.namespace)) {
-            throw Error('config.namespace must be a string of lowercase characters only');
-        }
+    if (!/^[a-z]+[-]?$/.test(this.config.namespace)) {
+        throw Error('options.namespace must be a string of lowercase characters only');
+    }
+    if (!/-$/.test(this.config.namespace)) {
         this.config.namespace += '-';
     }
 

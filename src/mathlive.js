@@ -81,12 +81,17 @@ function toMarkup(text, mathstyle, format) {
     //
     const base = Span.makeSpan(spans, 'ML__base');
 
-    const topStrut = Span.makeSpan('', 'ML__strut');
+    const topStrut = Span.makeSpan('', 'ML__strut')
     topStrut.setStyle('height', base.height, 'em');
-    const bottomStrut = Span.makeSpan('', 'ML__strut ML__bottom');
-    bottomStrut.setStyle('height', base.height + base.depth, 'em');
-    bottomStrut.setStyle('vertical-align', -base.depth, 'em');
-    const wrapper = Span.makeSpan([topStrut, bottomStrut, base], 'ML__mathlive');
+    const struts = [topStrut];
+    if (base.depth !== 0) {
+        const bottomStrut = Span.makeSpan('', 'ML__strut ML__bottom');
+        bottomStrut.setStyle('height', base.height + base.depth, 'em');
+        bottomStrut.setStyle('vertical-align', -base.depth, 'em');
+        struts.push(bottomStrut);
+    } 
+    struts.push(base);
+    const wrapper = Span.makeSpan(struts, 'ML__mathlive');
 
 
     // 
@@ -285,6 +290,16 @@ function renderMathInElement(element, options) {
     AutoRender.renderMathInElement(element, options, toMarkup);
 }
 
+function validateNamespace(options) {
+    if (options.namespace) {
+        if (!/^[a-z]+[-]?$/.test(options.namespace)) {
+            throw Error('options.namespace must be a string of lowercase characters only');
+        }
+        if (!/-$/.test(options.namespace)) {
+           options.namespace += '-';
+        }
+    }
+}
 
 /**
  * 
@@ -296,17 +311,16 @@ function renderMathInElement(element, options) {
  * @function module:mathlive#revertToOriginalContent
  */
 function revertToOriginalContent(element, options) {
-    options = options || {};
-    options.namespace = options.namespace || '';
-    if (options.namespace) options.namespace += '-';
-
     if (typeof element === 'string') element = document.getElementById(element);
 
     if (element instanceof MathField.MathField) {
         element.revertToOriginalContent();
+    } else if (element) {
+        options = options || {};
+        validateNamespace(options); 
+        element.innerHTML = element.getAttribute('data-' + 
+            (options.namespace || '') + 'original-content');
     }
-
-    element.innerHTML = element.getAttribute('data-' + options.namespace + 'original-content');
 }
 
 
@@ -322,17 +336,18 @@ function revertToOriginalContent(element, options) {
  * @function module:mathlive#revertToOriginalContent
  */
 function getOriginalContent(element, options) {
-    options = options || {};
-    options.namespace = options.namespace || '';
-    if (options.namespace) options.namespace += '-';
 
     if (typeof element === 'string') element = document.getElementById(element);
 
     if (element instanceof 'MathField') {
         return element.originalContent;
+    } else if (element) {
+        options = options || {};
+        validateNamespace(options); 
+        return element.getAttribute('data-' + 
+            (options.namespace || '') + 'original-content');
     }
-
-    return element.getAttribute('data-' + options.namespace + 'original-content');
+    return '';
 }
 
 

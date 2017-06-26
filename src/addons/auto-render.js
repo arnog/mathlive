@@ -260,10 +260,12 @@ function renderMathInElement(elem, options, latexToMarkup) {
 
     // Validate the namespace (used for `data-` attributes)
     if (options.namespace) {
-        if (!/^[a-z]*$/.test(options.namespace)) {
+        if (!/^[a-z]+[-]?$/.test(options.namespace)) {
             throw Error('options.namespace must be a string of lowercase characters only');
         }
-        options.namespace += '-';
+        if (!/-$/.test(options.namespace)) {
+           options.namespace += '-';
+        }
     }
 
     scanElement(elem, options, latexToMarkup);

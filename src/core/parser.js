@@ -620,7 +620,7 @@ Parser.prototype.scanEnvironment = function() {
             } else {
                 // If it's not present, scanArg returns null,
                 // but push it on the list of arguments anyway.
-                // The null vallue will be interpreted as unspecified
+                // The null value will be interpreted as unspecified
                 // optional value by the command handler.
                 args.push(this.scanArg(param.type));
             }

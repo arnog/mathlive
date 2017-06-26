@@ -175,6 +175,11 @@ your own pattern matching will result in more code and less performance.
 If you think something could be made faster, use [jsperf.com]`https://jsperf.com` to 
 try out options in various browsers and compare the results. You might be 
 surprised.
+* **Follow Postel's Law, the Robustness Principle** "Be conservative in what
+you do, be liberal in what you accept from others". For example, functions that 
+are invoked internally do not need to check that the input parameters are valid.
+However, public APIs should check the validity of parameters, and behave 
+reasonably when they aren't. 
 
 Use the `.eslintrc.json` file to follow the linting conventions used in the 
 project. In addition, follow these guidelines:

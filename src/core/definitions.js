@@ -1239,6 +1239,76 @@ defineFunction('\\bbox', '[:bbox]{body:auto}', null,
 )
     frequency(CRYPTIC, '\\bbox');
 
+
+// \enclose, a MathJax extension mapping to the MathML `menclose` tag.
+// The first argument is a comma delimited list of notations, as defined 
+// here: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/menclose
+// The second, optional, specifies the style to use for the notations.
+defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null, 
+    function(name, args) {
+        let notations =  args[0] || [];
+        const result = { 
+            type: 'enclose',
+            strokeColor: 'currentColor',
+            strokeWidth: '0.075em',
+            strokeStyle: 'solid',
+            backgroundcolor: 'transparent',
+            body: args[2]
+        }
+
+        // Extract info from style string
+        if (args[1]) {
+            const styles = args[1].split(',');
+            for (const s of styles) {
+                const shorthand = s.match(/(\S*)\s+(\S*)\s+(\S*)/);
+                if (shorthand) {
+                    result.strokeWidth = shorthand[1];
+                    result.strokeStyle = shorthand[2];
+                    result.strokeColor = shorthand[3];
+                } else {
+                    const attribute = s.match(/([a-z]*)\s*=\s*"(.*)"/);
+                    if (attribute) {
+                        if (attribute[1] === 'mathbackground') {
+                            result.backgroundcolor = attribute[2];
+                        } else if (attribute[1] === 'mathcolor') {
+                            result.strokeColor = attribute[2];
+                        }
+                    }
+                }
+            }
+            if (result.strokeStyle === 'dashed') {
+                result.svgStrokeStyle = '5,5';
+            } else if (result.strokeStyle === 'dotted') {
+                result.svgStrokeStyle = '1,5';
+            }
+        }
+        result.borderStyle = result.strokeWidth + ' ' + 
+            result.strokeStyle + ' ' + result.strokeColor;
+
+
+        // Normalize the list of notations.
+        notations = notations.split(/[, ]/).
+            filter(v => v.length > 0).map(v => v.toLowerCase());
+        result.notation = {};
+        for (const notation of notations) {
+            result.notation[notation] = true;
+        }
+        if (result.notation['updiagonalarow']) result.notation['updiagonalstrike'] = false;
+        if (result.notation['box']) {
+            result.notation['left'] = false;
+            result.notation['right'] = false;
+            result.notation['bottom'] = false;
+            result.notation['top'] = false;
+        }
+        return result;
+    }
+)
+
+    frequency(CRYPTIC, '\\enclose');
+
+
+
+
 // defineFunction([
     // '\\tiny', '\\scriptsize', '\\footnotesize', '\\small', 
     // '\\normalsize',
@@ -2614,6 +2684,7 @@ const SAMPLES = {
     '\\boxed':          '\\boxed{\\unicode{"2B1A}}',
     '\\colorbox':        '\\colorbox{#fbc0bd}{\\unicode{"2B1A}}',
     '\\bbox':           '\\bbox[#ffd400, solid 2px #ffd400]{\\unicode{"2B1A}}',
+    '\\enclose':        '\\enclose{circle,box}{23+45}',
     '\\fcolorbox':      '\\fcolorbox{#cd0030}{#ffd400}{\\unicode{"2B1A}}',
     '\\ ':              '\\char"2423',  // OPEN BOX
 
