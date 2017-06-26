@@ -1357,7 +1357,7 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
         for (const notation of notations) {
             result.notation[notation] = true;
         }
-        if (result.notation['updiagonalarow']) result.notation['updiagonalstrike'] = false;
+        if (result.notation['updiagonalarrow']) result.notation['updiagonalstrike'] = false;
         if (result.notation['box']) {
             result.notation['left'] = false;
             result.notation['right'] = false;

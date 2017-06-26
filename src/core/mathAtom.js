@@ -1179,20 +1179,20 @@ MathAtom.prototype.decomposeEnclose = function(context) {
     }
     if (this.notation.updiagonalstrike) {
         svg += '<line ';
-        svg += `x1="0px" y1="${h}px" x2="${w}px" y2="0px"`;
+        svg += `x1="1" y1="${h - 1}px" x2="${w - 1}px" y2="1"`;
         svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
+        svg += ' stroke-linecap="round"';
         if (this.svgStrokeStyle) {
-            svg += ' stroke-linecap="round"';
             svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
         }
         svg += '/>';    
     }
     if (this.notation.downdiagonalstrike) {
         svg += '<line ';
-        svg += `x1="0px" y1="0" x2="${w}px" y2="${h}px"`;
+        svg += `x1="1" y1="1" x2="${w - 1}px" y2="${h - 1}px"`;
         svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
+        svg += ' stroke-linecap="round"';
         if (this.svgStrokeStyle) {
-            svg += ' stroke-linecap="round"';
             svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
         }
         svg += '/>';
@@ -1208,10 +1208,10 @@ MathAtom.prototype.decomposeEnclose = function(context) {
         if (y + hf - .4 * wf < 0 ) y = 0.4 * wf - hf;
 
         svg += '<line ';
-        svg += `x1="1" y1="${h}px" x2="${x - .7 * wf}px" y2="${y + .7 * hf}px"`;
+        svg += `x1="1" y1="${h - 1}px" x2="${x - .7 * wf}px" y2="${y + .7 * hf}px"`;
         svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
+        svg += ' stroke-linecap="round"';
         if (this.svgStrokeStyle) {
-            svg += ' stroke-linecap="round"';
             svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
         }
         svg += '/>';
