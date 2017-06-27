@@ -51,7 +51,7 @@
  * @module definitions
  * @private
  */
-define([], function() {
+define(['mathlive/core/fontMetrics'], function(FontMetrics) {
 
 
 
@@ -1250,9 +1250,10 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
         const result = { 
             type: 'enclose',
             strokeColor: 'currentColor',
-            strokeWidth: '0.075em',
+            strokeWidth: 1,
             strokeStyle: 'solid',
             backgroundcolor: 'transparent',
+            padding: 'auto',
             body: args[2]
         }
 
@@ -1262,7 +1263,10 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
             for (const s of styles) {
                 const shorthand = s.match(/(\S*)\s+(\S*)\s+(\S*)/);
                 if (shorthand) {
-                    result.strokeWidth = shorthand[1];
+                    result.strokeWidth = FontMetrics.toPx(shorthand[1]);
+                    if (isNaN(result.strokeWidth)) {
+                        result.strokeWidth = 1;
+                    }
                     result.strokeStyle = shorthand[2];
                     result.strokeColor = shorthand[3];
                 } else {
@@ -1272,6 +1276,8 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
                             result.backgroundcolor = attribute[2];
                         } else if (attribute[1] === 'mathcolor') {
                             result.strokeColor = attribute[2];
+                        } else if (attribute[1] === 'padding') {
+                            result.padding = FontMetrics.toPx(attribute[2]);
                         }
                     }
                 }
@@ -1282,9 +1288,8 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
                 result.svgStrokeStyle = '1,5';
             }
         }
-        result.borderStyle = result.strokeWidth + ' ' + 
+        result.borderStyle = result.strokeWidth + 'px ' + 
             result.strokeStyle + ' ' + result.strokeColor;
-
 
         // Normalize the list of notations.
         notations = notations.split(/[, ]/).

@@ -418,9 +418,7 @@ Span.prototype.toMarkup = function(hskip) {
         // If there is some SVG markup associated with this span, 
         // include it now
         if (this.svgOverlay) {
-            // Convert the baseline from em to px
-            const baseline = this.depth * FontMetrics.metrics.ptPerEm * 4 / 3;
-            result += `<span style="position:absolute;bottom:${baseline}px;left:0">`;
+            result += `<span style="position:absolute;top:${this.clientHeight() / 2}px;left:0">`;
             result += '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"';
             result += ` width="${this.clientWidth()}px"`;
             result += ` height="${this.clientHeight()}px">`;

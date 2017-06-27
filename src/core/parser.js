@@ -411,34 +411,6 @@ Parser.prototype.scanNumber = function(isInteger) {
     return negative ? -result : result;
 }
 
-function convertDimenToEm(value, unit) {
-
-    let f = 1;
-    if (unit === 'pt') {
-        f = 1;
-    } else if (unit === 'mm') {
-        f = 7227 / 2540;
-    } else if (unit === 'cm') {
-        f = 7227 / 254;
-    } else if (unit === 'ex') {
-        f = 35271 / 8192;
-    } else if (unit === 'em') {
-        f = FontMetrics.metrics.ptPerEm;
-    } else if (unit === 'bp') {
-        f = 803 / 800;
-    } else if (unit === 'dd') {
-        f = 1238 / 1157;
-    } else if (unit === 'pc') {
-        f = 12;
-    } else if (unit === 'in') {
-        f = 72.27;
-    } else if (unit === 'mu') {
-        f = 10 / 18;
-    }
-    // If the units are missing, TeX assumes 'pt'
-
-    return value / FontMetrics.metrics.ptPerEm * f;
-}
 
 /**
  * Return as a floating point number a dimension in pt (1 em = 10 pt)
@@ -459,28 +431,30 @@ Parser.prototype.scanDimen = function() {
     let result;
 
     if (this.parseKeyword('pt')) {
-        result = convertDimenToEm(value, 'pt');
+        result = FontMetrics.toEm(value, 'pt');
     } else if (this.parseKeyword('mm')) {
-        result = convertDimenToEm(value, 'mm');
+        result = FontMetrics.toEm(value, 'mm');
     } else if (this.parseKeyword('cm')) {
-        result = convertDimenToEm(value, 'cm');
+        result = FontMetrics.toEm(value, 'cm');
     } else if (this.parseKeyword('ex')) {
-        result = convertDimenToEm(value, 'ex');
+        result = FontMetrics.toEm(value, 'ex');
+    } else if (this.parseKeyword('px')) {
+        result = FontMetrics.toEm(value, 'px');
     } else if (this.parseKeyword('em')) {
-        result = convertDimenToEm(value, 'em');
+        result = FontMetrics.toEm(value, 'em');
     } else if (this.parseKeyword('bp')) {
-        result = convertDimenToEm(value, 'bp');
+        result = FontMetrics.toEm(value, 'bp');
     } else if (this.parseKeyword('dd')) {
-        result = convertDimenToEm(value, 'dd');
+        result = FontMetrics.toEm(value, 'dd');
     } else if (this.parseKeyword('pc')) {
-        result = convertDimenToEm(value, 'pc');
+        result = FontMetrics.toEm(value, 'pc');
     } else if (this.parseKeyword('in')) {
-        result = convertDimenToEm(value, 'in');
+        result = FontMetrics.toEm(value, 'in');
     } else if (this.parseKeyword('mu')) {
-        result = convertDimenToEm(value, 'mu');
+        result = FontMetrics.toEm(value, 'mu');
     } else {
         // If the units are missing, TeX assumes 'pt'
-        result = convertDimenToEm(value, 'pt');
+        result = FontMetrics.toEm(value, 'pt');
     }
 
     return result;
@@ -1005,7 +979,7 @@ Parser.prototype.scanOptionalArg = function(parseMode) {
                     const m = elem.match(/^\s*([0-9.]+)\s*([a-z][a-z])/);
                     if (m) {
                         result = result || {};
-                        result.padding = convertDimenToEm(parseFloat(m[1]), m[2]);
+                        result.padding = FontMetrics.toEm(m[1], m[2]);
                     } else {
                         const m = elem.match(/^\s*border\s*:\s*(.*)/);
                         if (m) {
