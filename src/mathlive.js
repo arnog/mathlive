@@ -208,10 +208,9 @@ function toMarkup(text, mathstyle, format) {
  */
 function makeMathField(element, config) {
     if (!MathField) {
-        console.log('The MathField module is not loaded.');
-        return null;
+        throw Error('The MathField module is not loaded.');
     }
-    return new MathField.MathField(element, config)
+    return new MathField.MathField(getElement(element), config)
 }
 
 /**
@@ -242,6 +241,17 @@ function renderMathInDocument(options) {
         return;
     }
     AutoRender.renderMathInElement(document.body, options, toMarkup);
+}
+
+function getElement(element) {
+    let result = element;
+    if (typeof element === 'string') {
+        result = document.getElementById(element);
+        if (!result) {
+            throw Error(`The element with ID "${element}" could not be found.`);
+        }
+    }
+    return result;
 }
 
 /**
@@ -287,7 +297,7 @@ function renderMathInElement(element, options) {
         console.log('The AutoRender module is not loaded.');
         return;
     }
-    AutoRender.renderMathInElement(element, options, toMarkup);
+    AutoRender.renderMathInElement(getElement(element), options, toMarkup);
 }
 
 function validateNamespace(options) {
@@ -311,11 +321,11 @@ function validateNamespace(options) {
  * @function module:mathlive#revertToOriginalContent
  */
 function revertToOriginalContent(element, options) {
-    if (typeof element === 'string') element = document.getElementById(element);
-
+    element = getElement(element);
+    
     if (element instanceof MathField.MathField) {
         element.revertToOriginalContent();
-    } else if (element) {
+    } else {
         options = options || {};
         validateNamespace(options); 
         element.innerHTML = element.getAttribute('data-' + 
@@ -336,18 +346,15 @@ function revertToOriginalContent(element, options) {
  * @function module:mathlive#revertToOriginalContent
  */
 function getOriginalContent(element, options) {
-
-    if (typeof element === 'string') element = document.getElementById(element);
+    element = getElement(element);
 
     if (element instanceof MathField.MathField) {
         return element.originalContent;
-    } else if (element) {
-        options = options || {};
-        validateNamespace(options); 
-        return element.getAttribute('data-' + 
-            (options.namespace || '') + 'original-content');
     }
-    return '';
+    options = options || {};
+    validateNamespace(options); 
+    return element.getAttribute('data-' + 
+        (options.namespace || '') + 'original-content');
 }
 
 

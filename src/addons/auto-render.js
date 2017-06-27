@@ -249,11 +249,6 @@ const defaultOptions = {
 }
 
 function renderMathInElement(elem, options, latexToMarkup) {
-    if (!elem) return;
-
-    if (typeof elem === 'string') elem = document.getElementById(elem);
-    if (!elem) elem = document.body;
-
     options = Object.assign({}, defaultOptions, options);
     options.ignoreClassPattern = new RegExp(options.ignoreClass);
     options.processClassPattern = new RegExp(options.processClass);
