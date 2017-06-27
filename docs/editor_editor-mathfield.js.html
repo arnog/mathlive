@@ -148,7 +148,8 @@ function MathField(element, config) {
 
     // Save existing content
     this.originalContent = element.innerHTML;
-    const elementText = this.element.innerText.trim();
+    let elementText = this.element.innerText;
+    if (elementText) elementText = elementText.trim();
 
     // Additional elements used for UI.
     // They are retrieved in order a bit later, so they need to be kept in sync

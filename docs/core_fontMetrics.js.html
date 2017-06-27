@@ -182,6 +182,7 @@ const metrics = {
     bigOpSpacing4: xi12,
     bigOpSpacing5: xi13,
     ptPerEm: ptPerEm,
+    pxPerEm: ptPerEm * 4.0 / 3.0,   // A CSS pt is fixed at 1.333px
     doubleRuleSep: 2.0 / ptPerEm,
     arraycolsep: 5.0 / ptPerEm,
     baselineskip: 12.0 / ptPerEm,
@@ -381,7 +382,54 @@ const getCharacterMetrics = function(character, fontName) {
     return null;
 }
 
+function convertDimenToEm(value, unit) {
+    if (typeof value === 'string') {
+        const m = value.match(/([0-9.]*)\s*([a-z]*)/);
+        if (!m) {
+            value = parseFloat(value);
+        } else {
+            value = parseFloat(m[1]);
+            unit = m[2].toLowerCase();
+        }
+    }
+
+    let f = 1;
+    if (unit === 'pt') {
+        f = 1;
+    } else if (unit === 'mm') {
+        f = 7227 / 2540;
+    } else if (unit === 'cm') {
+        f = 7227 / 254;
+    } else if (unit === 'ex') {
+        f = 35271 / 8192;
+    } else if (unit === 'px') {
+        f = 3.0 / 4.0;
+    } else if (unit === 'em') {
+        f = metrics.ptPerEm;
+    } else if (unit === 'bp') {
+        f = 803 / 800;
+    } else if (unit === 'dd') {
+        f = 1238 / 1157;
+    } else if (unit === 'pc') {
+        f = 12;
+    } else if (unit === 'in') {
+        f = 72.27;
+    } else if (unit === 'mu') {
+        f = 10 / 18;
+    }
+    // If the units are missing, TeX assumes 'pt'
+
+    return value / metrics.ptPerEm * f;
+}
+
+function convertDimenToPx(value, unit) {
+    return unit === 'px' ? value : 
+        (convertDimenToEm(value, unit) * metrics.ptPerEm * 4.0 / 3.0);
+}
+
 return {
+    toEm : convertDimenToEm,
+    toPx : convertDimenToPx,
     metrics: metrics,
     sigmas: SIGMAS,
     getCharacterMetrics: getCharacterMetrics,
