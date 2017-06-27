@@ -60,7 +60,8 @@ function EditableMathlist(config) {
     this.extent = 0;
 
     this.config = Object.assign({}, config);
-
+    
+    this.contentIsChanging = false;
     this.suppressSelectionChangeNotifications = false;
 }
 
@@ -1221,6 +1222,11 @@ EditableMathlist.prototype.parseMode = function() {
  * @method EditableMathlist#insert
  */
 EditableMathlist.prototype.insert = function(s, options) {
+    // Dispatch notifications
+    if (this.config.onContentWillChange && !this.contentIsChanging) this.config.onContentWillChange();
+    const contentWasChanging = this.contentIsChanging;
+    this.contentIsChanging = true;
+
     options = options || {};
     
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
@@ -1300,6 +1306,10 @@ EditableMathlist.prototype.insert = function(s, options) {
     } else if (options.selectionMode === 'item') {
         this.setSelection(this.anchorOffset() + 1, mathlist.length);        
     }
+
+    // Dispatch notifications
+    this.contentIsChanging = contentWasChanging;
+    if (this.config.onContentDidChange && !this.contentIsChanging) this.config.onContentDidChange();
 }
 
 
@@ -1378,6 +1388,11 @@ EditableMathlist.prototype.delete = function(count) {
  * @instance
  */
 EditableMathlist.prototype.delete_ = function(dir) {
+    // Dispatch notifications
+    if (this.config.onContentWillChange && !this.contentIsChanging) this.config.onContentWillChange();
+    const contentWasChanging = this.contentIsChanging;
+    this.contentIsChanging = true;
+
     dir = dir || 0;
     dir = dir < 0 ? -1 : (dir > 0 ? +1 : dir);
 
@@ -1453,6 +1468,10 @@ EditableMathlist.prototype.delete_ = function(dir) {
         // Adjust the anchor
         this.setSelection(first - 1);
     }
+
+    // Dispatch notifications
+    this.contentIsChanging = contentWasChanging;
+    if (this.config.onContentDidChange && !this.contentIsChanging) this.config.onContentDidChange();
 }
 
 

@@ -102,10 +102,10 @@ function toMarkup(text, mathstyle, format) {
 }
 
 /**
- * @callback mathfieldCallback
+ * @callback module:mathlive.mathfieldCallback
  * @param {Mathfield}
  *
- * @callback mathfieldWithDirectionCallback
+ * @callback module:mathlive.mathfieldWithDirectionCallback
  * @param {Mathfield}
  * @param {number} direction
  * @return {boolean} False to suppress default behavior.
@@ -191,10 +191,10 @@ function toMarkup(text, mathstyle, format) {
  * the enter/return key is pressed and it is not otherwise handled. @todo
  * 
  * @param {mathfieldCallback} [config.onContentWillChange] - A handler called 
- * just before the content is about to be changed. @todo
+ * just before the content is about to be changed.
  * 
  * @param {mathfieldCallback} [config.onContentDidChange] - A handler called 
- * just after the content has been changed.@todo
+ * just after the content has been changed.
  * 
  * @param {mathfieldCallback} [config.onSelectionWillChange] - A handler called 
  * just before the selection is about to be changed.

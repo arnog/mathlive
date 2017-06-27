@@ -187,6 +187,12 @@ function MathField(element, config) {
     const localConfig = Object.assign({}, config);
     localConfig.onSelectionDidChange = 
         MathField.prototype._onSelectionDidChange.bind(this);
+    localConfig.onSelectionWillChange = 
+        MathField.prototype._onSelectionWillChange.bind(this);
+    localConfig.onContentWillChange = 
+        MathField.prototype._onContentWillChange.bind(this);
+    localConfig.onContentDidChange = 
+        MathField.prototype._onContentDidChange.bind(this);
 
     this.mathlist = new EditableMathlist.EditableMathlist(localConfig);
 
@@ -466,6 +472,24 @@ MathField.prototype._onSelectionDidChange = function() {
     // Invoke client handlers, if provided.
     if (this.config.onSelectionDidChange) {
         this.config.onSelectionDidChange(this);
+    }
+}
+
+MathField.prototype._onSelectionWillChange = function() {
+    if (this.config.onSelectionWillChange) {
+        this.config.onSelectionWillChange(this);
+    }
+}
+
+MathField.prototype._onContentWillChange = function() {
+    if (this.config.onContentWillChange) {
+        this.config.onContentWillChange(this);
+    }
+}
+
+MathField.prototype._onContentDidChange = function() {
+    if (this.config.onContentDidChange) {
+        this.config.onContentDidChange(this);
     }
 }
 
