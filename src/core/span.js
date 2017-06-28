@@ -136,7 +136,7 @@ Span.prototype.updateDimensions = function() {
  * some notations of \enclose for example), and we cache it.
  */
 Span.prototype.cacheClientDimensions = function() {
-    // Temporarily remove any SVG decorating this span
+    // Temporarily remove any SVG decorating this span.
     // SVG is overlaid over the span, so it doesn't affect its dimensions
     // but it needs the client dimensions, which would recursively call this
     // function
@@ -418,10 +418,14 @@ Span.prototype.toMarkup = function(hskip) {
         // If there is some SVG markup associated with this span, 
         // include it now
         if (this.svgOverlay) {
-            result += `<span style="position:absolute;top:${this.clientHeight() / 2}px;left:0">`;
+            result += `<span style="position:absolute;top:.75em;left:0px">`;
             result += '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"';
             result += ` width="${this.clientWidth()}px"`;
-            result += ` height="${this.clientHeight()}px">`;
+            result += ` height="${this.clientHeight()}px"`;
+            if (this.svgStyle) {
+                result += ' style="filter: drop-shadow(0 0 .5px rgba(255, 255, 255, .7)) drop-shadow(1px 1px 2px #333);"';
+            }
+            result += '>';
             result += this.svgOverlay;
             result += '</span>';
         }
@@ -731,8 +735,9 @@ function makeStyleWrap(type, children, fromStyle, toStyle, classes) {
  * @param {Span} body 
  * @param {string} svgMarkup 
  */
-function makeSVG(body, svgMarkup) {
+function makeSVG(body, svgMarkup, svgStyle) {
     body.svgOverlay = svgMarkup;
+    body.svgStyle = svgStyle;
     return body;
 }
 

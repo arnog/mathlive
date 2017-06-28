@@ -1262,7 +1262,15 @@ MathAtom.prototype.decomposeEnclose = function(context) {
     }
 
     if (svg) {
-        return Span.makeSVG(body, svg);
+        let svgStyle;
+        if (this.shadow !== 'none') {
+            if (this.shadow === 'auto') {
+                svgStyle = 'filter: drop-shadow(0 0 .5px rgba(255, 255, 255, .7)) drop-shadow(1px 1px 2px #333)';
+            } else {
+                svgStyle = 'filter: drop-shadow(' + this.shadow + ')';
+            }
+        }
+        return Span.makeSVG(body, svg, svgStyle);
     }
     return body;
 }

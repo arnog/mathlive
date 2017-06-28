@@ -1254,6 +1254,7 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
             strokeStyle: 'solid',
             backgroundcolor: 'transparent',
             padding: 'auto',
+            shadow: 'auto',
             body: args[2]
         }
 
@@ -1261,7 +1262,7 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
         if (args[1]) {
             const styles = args[1].split(',');
             for (const s of styles) {
-                const shorthand = s.match(/(\S*)\s+(\S*)\s+(\S*)/);
+                const shorthand = s.match(/\s*(\S*)\s+(\S*)\s+(\S*)/);
                 if (shorthand) {
                     result.strokeWidth = FontMetrics.toPx(shorthand[1]);
                     if (isNaN(result.strokeWidth)) {
@@ -1270,7 +1271,7 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
                     result.strokeStyle = shorthand[2];
                     result.strokeColor = shorthand[3];
                 } else {
-                    const attribute = s.match(/([a-z]*)\s*=\s*"(.*)"/);
+                    const attribute = s.match(/\s*([a-z]*)\s*=\s*"(.*)"/);
                     if (attribute) {
                         if (attribute[1] === 'mathbackground') {
                             result.backgroundcolor = attribute[2];
@@ -1278,6 +1279,8 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
                             result.strokeColor = attribute[2];
                         } else if (attribute[1] === 'padding') {
                             result.padding = FontMetrics.toPx(attribute[2]);
+                        } else if (attribute[1] === 'shadow') {
+                            result.shadow = attribute[2];
                         }
                     }
                 }
