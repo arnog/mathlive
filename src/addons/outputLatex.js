@@ -42,7 +42,7 @@ MathAtom.MathAtom.prototype.toLatex = function() {
         case 'genfrac':
             // @todo: deal with fracs delimiters
             result += '\\frac';
-            result += `{{${latexify(this.numer)}}}{{${latexify(this.v)}}}`;
+            result += `{${latexify(this.numer)}}{${latexify(this.denom)}}`;
             break;
         case 'surd':
             result += '\\sqrt';
@@ -147,6 +147,47 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             break;
         case 'spacing':
             result += `${command}{${latexify(this.width)}}`;
+            break;
+
+        case 'enclose':
+            result += command;
+            if (command === '\\enclose') {
+                result += '{';
+                let sep = '';
+                for (const notation in this.notation) {
+                    if (this.notation.hasOwnProperty(notation) && 
+                        this.notation[notation]) {
+                        result += sep + notation;
+                        sep = ' ';
+                    }
+                }
+                result += '}';
+
+                // \enclose can have optional parameters...
+                let style = '';
+                sep = '';
+                if (this.backgroundcolor && this.backgroundcolor !== 'transparent') {
+                    style += sep + 'mathbackground="' + this.backgroundcolor + '"';
+                    sep = ',';
+                }
+                if (this.shadow && this.shadow !== 'auto') {
+                    style += sep + 'shadow="' + this.shadow + '"';
+                    sep = ',';
+                }
+                if (this.strokeWidth !== 1 || this.strokeStyle !== 'solid') {
+                    style += sep + this.borderStyle;
+                    sep = ',';
+                } else if (this.strokeColor && this.strokeColor !== 'currentColor') {
+                    style += sep + 'mathcolor="' + this.strokeColor + '"';
+                    sep = ',';
+                }
+
+
+                if (style) {
+                    result += `[${style}]`;
+                }
+            }
+            result += `{${latexify(this.body)}}`;
             break;
 
         case 'space':

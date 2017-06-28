@@ -1328,7 +1328,7 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
             for (const s of styles) {
                 const shorthand = s.match(/\s*(\S*)\s+(\S*)\s+(\S*)/);
                 if (shorthand) {
-                    result.strokeWidth = FontMetrics.toPx(shorthand[1]);
+                    result.strokeWidth = FontMetrics.toPx(shorthand[1], 'px');
                     if (isNaN(result.strokeWidth)) {
                         result.strokeWidth = 1;
                     }
@@ -1342,7 +1342,7 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
                         } else if (attribute[1] === 'mathcolor') {
                             result.strokeColor = attribute[2];
                         } else if (attribute[1] === 'padding') {
-                            result.padding = FontMetrics.toPx(attribute[2]);
+                            result.padding = FontMetrics.toPx(attribute[2], 'px');
                         } else if (attribute[1] === 'shadow') {
                             result.shadow = attribute[2];
                         }

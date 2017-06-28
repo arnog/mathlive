@@ -382,7 +382,15 @@ const getCharacterMetrics = function(character, fontName) {
     return null;
 }
 
-function convertDimenToEm(value, unit) {
+
+/**
+ * 
+ * @param {number|string} value If value is a string, it may be suffixed
+ * with a unit, which will override the `unit` paramter
+ * @param {string} unit 
+ * @param {number} precision
+ */
+function convertDimenToEm(value, unit, precision) {
     if (typeof value === 'string') {
         const m = value.match(/([0-9.]*)\s*([a-z]*)/);
         if (!m) {
@@ -393,6 +401,7 @@ function convertDimenToEm(value, unit) {
         }
     }
 
+    // If the units are missing, TeX assumes 'pt'
     let f = 1;
     if (unit === 'pt') {
         f = 1;
@@ -417,14 +426,18 @@ function convertDimenToEm(value, unit) {
     } else if (unit === 'mu') {
         f = 10 / 18;
     }
-    // If the units are missing, TeX assumes 'pt'
 
-    return value / metrics.ptPerEm * f;
+    if (precision) {
+        const factor = Math.pow(10, precision);
+        return Math.round((value / metrics.ptPerEm) * f * factor) / factor;
+    }
+
+    return (value / metrics.ptPerEm) * f;
 }
 
 function convertDimenToPx(value, unit) {
-    return unit === 'px' ? value : 
-        (convertDimenToEm(value, unit) * metrics.ptPerEm * 4.0 / 3.0);
+    // if (unit === 'px') return value;
+    return convertDimenToEm(value, unit) * (4.0 / 3.0) * metrics.ptPerEm;
 }
 
 return {
