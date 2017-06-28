@@ -1,10 +1,13 @@
 {
      "USAGE_GUIDE": {
          "title": "Usage Guide"
-     },
-     "EXAMPLES": {
-         "title": "Examples"
-     },
+    },
+    "EXAMPLES": {
+        "title": "Examples"
+    },
+    "COMMANDS_REFERENCE": {
+        "title": "Commands Reference"
+    },
      "CONTRIBUTOR_GUIDE": {
          "title": "Contributor Guide"
      }

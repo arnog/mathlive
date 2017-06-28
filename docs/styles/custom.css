@@ -5,6 +5,7 @@
 	border: 1px solid rgba(255, 255, 255, .3);
 	border-right: 1px solid rgba(0, 0, 0, .3);
 	border-bottom: 1px solid rgba(0, 0, 0, .3);
+	border-radius: 8px;
 }
 .prettyprint.linenums {
 	padding-left: 0;

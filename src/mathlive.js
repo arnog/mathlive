@@ -142,7 +142,7 @@ function toMarkup(text, mathstyle, format) {
  * false, these shortcuts are applied after any default ones, and can therefore 
  * override them.
  * 
- * @param {string} [config.commandBarToggle='visible'] - If `'visible'`, the 
+ * @param {string} [config.commandbarToggle='visible'] - If `'visible'`, the 
  * default value, the command bar widget will be automatically displayed. If 
  * set to `'hidden'` the command bar widget is not displayed, but the command 
  * bar can still be triggered programmatically with the `toggleCommandBar` 
@@ -240,7 +240,16 @@ function renderMathInDocument(options) {
         console.log('The AutoRender module is not loaded.');
         return;
     }
+
     AutoRender.renderMathInElement(document.body, options, toMarkup);
+
+    // Ask to be notified when fonts are loaded, and re-render.
+    // There are rare cases where the layout needs to be recomputed after
+    // fonts are loaded, e.g. the \compose command.
+    if (document.fonts) {
+        document.fonts.ready.then(() => renderMathInElement(document.body, options, toMarkup));
+        // document.fonts.ready.then(() => renderMathInDocument(options));
+    }
 }
 
 function getElement(element) {

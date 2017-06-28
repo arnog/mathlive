@@ -114,11 +114,20 @@ function MathField(element, config) {
         }
     }
     markup += '<span class="ML__fieldcontainer">' +
-            '<span ></span>' +
-            '<span class="ML__commandbartoggle"' +
-                'role="button" tabindex="0" aria-label="Toggle Command Bar">' +
-            '</span>' +
-        '</span>' +
+            '<span ></span>';
+
+    if (this.config.commandbarToggle === 'visible') {
+        markup += '<span class="ML__commandbartoggle"' +
+                    'role="button" tabindex="0" aria-label="Toggle Command Bar">' +
+                    '<svg viewBox="0 0 21 14" height="14" style="position:relative; bottom:6px">' +
+                    '<path d="M10.35 13.55L0 3.2 3.06.13l7.16 7.17 7.3-7.3 3.2 3.2-10.36 10.35v-.01l-.01.01z" fill-rule="evenodd" clip-rule="evenodd"></path>' +
+                    '</svg>' +
+                '</span>';
+    } else {
+        markup += '<span ></span>';
+    }
+
+    markup += '</span>' +
         '<div class="ML__popover"></div>' + 
         '<div class="ML__keystrokecaption"></div>' + 
         '<div class="ML__commandbar">' +
@@ -204,6 +213,11 @@ function MathField(element, config) {
     if (elementText.length > 0) {
         this.latex(elementText);
     }
+
+    // If fonts get loaded (which could happen as a result of the first pass 
+    // rendering done in .latex()), render again.
+    const that = this;
+    document.fonts.ready.then(() => that._render());
 }
 
 /**
@@ -218,7 +232,7 @@ MathField.prototype.revertToOriginalContent = function() {
     this.element.innerHTML = this.originalContent;
     delete this.field;
     delete this.textarea;
-    delete this.commandBarToggle;
+    delete this.commandbarToggle;
     delete this.popover;
     delete this.keystrokeCaption;
     delete this.commandBar;
@@ -1367,7 +1381,7 @@ MathField.prototype.config = function(config) {
         // spacesBehavesLikeTab: false,
         // leftRightIntoCmdGoes: 
         overrideDefaultInlineShortcuts: false,
-        commandBarToggle: 'visible',
+        commandbarToggle: 'visible',
         overrideDefaultCommands: false,
 
     }
