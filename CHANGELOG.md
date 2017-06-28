@@ -13,6 +13,9 @@ needed for an element
 - Added `MathLive.revertToOriginalContent()` and `MathLive.getOriginalContent()`
 - Added optional namespacing of `data-` attributes
 - Added \enclose command, implementing the [MathML](https://developer.mozilla.org/en-US/docs/Web/MathML/Element/menclose) equivalent.
+- Added \cancel, \bcancel and \xcancel commands
+- Added `onContentWillChange` and `onContentDidChange` handlers in the math 
+field config object.
 
 ### Bug Fixes
 - Fixed #5: AZERTY keyboard input was misbehaving, particularly for the `^` key

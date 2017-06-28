@@ -1314,6 +1314,58 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
 
     frequency(CRYPTIC, '\\enclose');
 
+defineFunction('\\cancel', '{body:auto}', null, 
+    function(name, args) {
+        return { 
+            type: 'enclose',
+            strokeColor: 'currentColor',
+            strokeWidth: 1,
+            strokeStyle: 'solid',
+            borderStyle: '1px solid currentColor',
+            backgroundcolor: 'transparent',
+            padding: 'auto',
+            shadow: 'auto',
+            notation: {"updiagonalstrike": true},
+            body: args[0]
+        }
+    }
+)
+
+defineFunction('\\bcancel', '{body:auto}', null, 
+    function(name, args) {
+        return { 
+            type: 'enclose',
+            strokeColor: 'currentColor',
+            strokeWidth: 1,
+            strokeStyle: 'solid',
+            borderStyle: '1px solid currentColor',
+            backgroundcolor: 'transparent',
+            padding: 'auto',
+            shadow: 'auto',
+            notation: {"downdiagonalstrike": true},
+            body: args[0]
+        }
+    }
+)
+
+defineFunction('\\xcancel', '{body:auto}', null, 
+    function(name, args) {
+        return { 
+            type: 'enclose',
+            strokeColor: 'currentColor',
+            strokeWidth: 1,
+            strokeStyle: 'solid',
+            borderStyle: '1px solid currentColor',
+            backgroundcolor: 'transparent',
+            padding: 'auto',
+            shadow: 'auto',
+            notation: {"updiagonalstrike": true, "downdiagonalstrike": true},
+            body: args[0]
+        }
+    }
+)
+
+    frequency(CRYPTIC, '\\cancel', '\\bcancel', '\\xcancel');
 
 
 

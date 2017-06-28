@@ -62,13 +62,17 @@ writeCookie('symbol-access', 'private')
 <article>
     <p>MathLive supports over 700 standard TeX and LaTeX commands and includes a few
 non-standard extensions which are documented here.</p>
-<h2><code>\enclose</code></h2><p>The <code>\enclose</code> command renders its content inside some decorating marks called
-<strong>notations</strong>.</p>
+<h1>Decorations</h1><h2><code>\enclose</code>, <code>\cancel</code>, <code>\bcancel</code> and <code>\xcancel</code></h2><p>These commands render some decorating marks called <strong>notations</strong> on top of 
+their content. They can be used to highlight part of an expression, or 
+to indicate an expression has been canceled with a strike mark.</p>
 <blockquote>
-<p>This command is an extension to LaTeX that follows the <code>&lt;menclose&gt;</code> definition
+<p><strong>Note</strong> <code>\enclose</code> is an extension to LaTeX that follows the <code>&lt;menclose&gt;</code> definition
 of <a href="">MathML</a> and the LaTeX flavored defined by MathJax.</p>
+<p><strong>Note</strong> The <code>\cancel</code>, <code>\bcancel</code> and <code>\xcancel</code> commands are part of the 
+<a href="https://www.ctan.org/pkg/cancel">&quot;cancel&quot;</a> LaTeX package.</p>
 </blockquote>
-<p>It accepts three arguments, two of which are required:</p>
+<h3><code>\enclose</code></h3><p>The <code>\enclose</code> command is the most flexible. It accepts three arguments, two 
+of which are required:</p>
 <pre class="prettyprint source lang-tex"><code>    \enclose{notation:text}[style:text]{body:math}</code></pre><ul>
 <li><code>notation</code> a list of whitespace delimited values. Acceptable values are:<ul>
 <li><code>box</code></li>
@@ -100,7 +104,32 @@ follows the shorthand syntax of the CSS <code>border</code> property, for exampl
 </li>
 <li><code>body</code> a math expression that is &quot;enclosed&quot; by the specified notations</li>
 </ul>
+<h3><code>\cancel</code>, <code>\bcancel</code> and <code>\xcancel</code></h3><p>These commands are shorthands.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Command</th>
+<th style="text-align:left">Shorthand for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>\cancel{body}</code></td>
+<td style="text-align:left"><code>\enclose{updiagonalstrike}{body}</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>\bcancel{body}</code></td>
+<td style="text-align:left"><code>\enclose{downdiagonalstrike}{body}</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>\xcancel{body}</code></td>
+<td style="text-align:left"><code>\enclose{updiagonalstrike downdiagonalstrike}{body}</code></td>
+</tr>
+</tbody>
+</table>
 <h3>Examples</h3><pre class="prettyprint source lang-tex"><code>    \enclose{updiagonalstrike downdiagonalstrike}[2px solid red]{42}
+
+    \xcancel{42}
 
     \enclose{circle}[mathbackground=&quot;#fbc0bd&quot;]{\frac1x}
 

@@ -1,14 +1,25 @@
 MathLive supports over 700 standard TeX and LaTeX commands and includes a few
 non-standard extensions which are documented here.
 
-## `\enclose`
-The `\enclose` command renders its content inside some decorating marks called
-**notations**.
+# Decorations
 
-> This command is an extension to LaTeX that follows the `<menclose>` definition
+## `\enclose`, `\cancel`, `\bcancel` and `\xcancel`
+
+These commands render some decorating marks called **notations** on top of 
+their content. They can be used to highlight part of an expression, or 
+to indicate an expression has been canceled with a strike mark.
+
+
+> **Note** `\enclose` is an extension to LaTeX that follows the `<menclose>` definition
 > of [MathML]() and the LaTeX flavored defined by MathJax.
 
-It accepts three arguments, two of which are required:
+> **Note** The `\cancel`, `\bcancel` and `\xcancel` commands are part of the 
+> ["cancel"](https://www.ctan.org/pkg/cancel) LaTeX package.
+
+### `\enclose`
+
+The `\enclose` command is the most flexible. It accepts three arguments, two 
+of which are required:
 
 ```tex
     \enclose{notation:text}[style:text]{body:math}
@@ -39,9 +50,22 @@ It accepts three arguments, two of which are required:
     `"2px solid red"`.
 * `body` a math expression that is "enclosed" by the specified notations
 
+### `\cancel`, `\bcancel` and `\xcancel`
+
+These commands are shorthands.
+
+| Command          | Shorthand for     |
+| :--------------- | :----------  |
+| `\cancel{body}`   | `\enclose{updiagonalstrike}{body}`         |
+| `\bcancel{body}`   | `\enclose{downdiagonalstrike}{body}`         |
+| `\xcancel{body}`   | `\enclose{updiagonalstrike downdiagonalstrike}{body}`|
+
+
 ### Examples
 ```tex
     \enclose{updiagonalstrike downdiagonalstrike}[2px solid red]{42}
+
+    \xcancel{42}
 
     \enclose{circle}[mathbackground="#fbc0bd"]{\frac1x}
 
