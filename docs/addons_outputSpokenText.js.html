@@ -190,10 +190,10 @@ function letter(c) {
     let result = '';
     if (!options.markup) {
         if (/[a-z]/.test(c)) {
-            result += ' "' + c.toUpperCase() + '"';
+            result += " '" + c.toUpperCase() + "'";
             // result += ' "' + atom.value.toUpperCase() + '"';
         } else if (/[A-Z]/.test(c)) {
-            result += ' "capital ' + c.toUpperCase() + '"';
+            result += " 'capital " + c.toUpperCase() + "'";
         } else {
             result += c;
         }
