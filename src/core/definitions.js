@@ -230,6 +230,10 @@ function defineSymbolRange(from, to, mode, fontFamily, type, frequency) {
  * @private
  */
 function matchCodepoint(s) {
+    const codepoint = s.codePointAt(0);
+    if (codepoint > 32 && codepoint < 127) {
+        return s;
+    }
     let result;
 
     for (const p in MATH_SYMBOLS) {
@@ -243,7 +247,6 @@ function matchCodepoint(s) {
 
     // No symbol was found, return a \char command
     if (!result) {
-        const codepoint = s.codePointAt(0);
         if (codepoint < 32 || codepoint >= 127) {
             result = '\\char"' + 
                     ('000000' + codepoint.toString(16)).toUpperCase().substr(-6)

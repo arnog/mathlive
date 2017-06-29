@@ -292,10 +292,10 @@ const getCharacterMetrics = function(character, fontName) {
     const metrics = metricMap[fontName][ch];
 
     if (!metrics) {
-        console.warn( 
-            'No metrics for ' +
-            '"' + character + '" (U+' + ('000000' + ch.toString(16)).substr(-6) + ')' +
-            ' in font "' + fontName + '"');
+        // console.warn( 
+        //     'No metrics for ' +
+        //     '"' + character + '" (U+' + ('000000' + ch.toString(16)).substr(-6) + ')' +
+        //     ' in font "' + fontName + '"');
         // Assume default values.
         // depth + height should be less than 1.0 em
         return {

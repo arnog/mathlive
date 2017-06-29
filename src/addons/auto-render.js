@@ -124,17 +124,18 @@ function splitWithDelimiters(text, delimiters) {
 }
 
 function scanText(text, options, latexToMarkup) {
-    const fragment = document.createDocumentFragment();
     // If the text starts with '\begin'...
     // (this is a MathJAX behavior)
+    let fragment = null;
     if (options.TeX.processEnvironments && text.match(/^\s*\\begin/)) {
+        fragment = document.createDocumentFragment();
         const span = document.createElement('span');
         if (options.preserveOriginalContent) {
             span.setAttribute('data-' + options.namespace + 'original-content', text);
         }
-        fragment.appendChild(span);
         try {
             span.innerHTML = latexToMarkup(text, 'displaystyle');
+            fragment.appendChild(span);
         } catch (e) {
             console.error(
                 'Could not parse\'' + text + '\' with ', e
@@ -143,6 +144,11 @@ function scanText(text, options, latexToMarkup) {
         }
     } else {
         const data = splitWithDelimiters(text, options.TeX.delimiters);
+        if (data.length === 1 && data[0].type === 'text') {
+            // This text contains no math. No need to continue processing
+            return null;
+        }
+        fragment = document.createDocumentFragment();
 
         for (let i = 0; i < data.length; i++) {
             if (data[i].type === 'text') {
@@ -154,6 +160,7 @@ function scanText(text, options, latexToMarkup) {
                 }
                 try {
                     span.innerHTML = latexToMarkup(data[i].data, data[i].mathstyle);
+                    fragment.appendChild(span);
                 } catch (e) {
                     console.error(
                         'Could not parse\'' + data[i].data + '\' with ', e
@@ -161,7 +168,6 @@ function scanText(text, options, latexToMarkup) {
                     fragment.appendChild(document.createTextNode(data[i].rawData));
                     continue;
                 }
-                fragment.appendChild(span);
             }
         }
     }
@@ -199,6 +205,10 @@ function scanElement(elem, options, latexToMarkup) {
                     );
                     innerContent = data[0].data;
                 }
+            } else if (data.length === 1 && data[0].type === 'text') {
+                // This element only contained text with no math. No need to 
+                // do anything.
+                handled = true;
             }
         }
         if (innerContent) {
@@ -213,11 +223,15 @@ function scanElement(elem, options, latexToMarkup) {
         for (let i = 0; i < elem.childNodes.length; i++) {
             const childNode = elem.childNodes[i];
             if (childNode.nodeType === 3) {
-                // Text node
+                // A text node
+                // Look for math mode delimiters inside the text
                 const frag = scanText(childNode.textContent, options, latexToMarkup);
-                i += frag.childNodes.length - 1;
-                elem.replaceChild(frag, childNode);
+                if (frag) {
+                    i += frag.childNodes.length - 1;
+                    elem.replaceChild(frag, childNode);
+                }
             } else if (childNode.nodeType === 1) {
+                // An element node
                 const tag = childNode.nodeName.toLowerCase();
                 if (tag === 'script' && 
                     options.processScriptTypePattern.test(childNode.type)) {
@@ -225,7 +239,12 @@ function scanElement(elem, options, latexToMarkup) {
                     for (const l of  childNode.type.split(';')) {
                         const v = l.split('=');
                         if (v[0].toLowerCase() === 'mode') {
-                            style = v[1].toLoweCase();
+                            if (v[1].toLoweCase() === 'display') {
+                                style = 'displaystyle'; 
+                            } else {
+                                style = 'textstyle';
+                            }
+
                         }
                     }
 

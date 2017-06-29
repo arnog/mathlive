@@ -94,7 +94,14 @@ Lexer.prototype.peek = function() {
  * @private
  */
 Lexer.prototype.scan = function(regEx) {
-    const result = regEx.exec(this.s.slice(this.pos).join(''));
+    let result;
+    // this.s can either be a string, if it's made up only of ASCII chars
+    // or an array of graphemes, if it's more complicated.
+    if (typeof this.s === 'string') {
+        result = regEx.exec(this.s.slice(this.pos)); 
+    } else {
+        result = regEx.exec(this.s.slice(this.pos).join('')); 
+    }
     if (result) {
         this.pos += result[0].length;
         return result[0];

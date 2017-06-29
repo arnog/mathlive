@@ -27,12 +27,14 @@ const NUMBER_FORMATTER = new Intl.NumberFormat('en-US', {
 function toString() {
     let result = '';
     for (const arg of arguments) {
-        if (Array.isArray(arg)) {
+        if (typeof arg === 'number') {
+            result += NUMBER_FORMATTER.format(arg);
+        } else if (typeof arg === 'string') {
+            result += arg;
+        } else if (Array.isArray(arg)) {
             for (const elem of arg) {
                 result += toString(elem);
             }
-        } else if (typeof arg === 'number') {
-            result += NUMBER_FORMATTER.format(arg);
         } else if (arg) {
             result += arg.toString();
         }
@@ -145,9 +147,12 @@ Span.prototype.cacheClientDimensions = function() {
 
     const div = document.createElement('div');
     div.setAttribute('style',`position: absolute;
+        left: -1000px;
+        top: -1000px;
         visibility: hidden;
         height: auto;
         width: auto;
+        overflow: hidden;
         white-space: nowrap;`);
     div.setAttribute('class', 'ML__mathlive');
 

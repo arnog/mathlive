@@ -84,7 +84,7 @@ function MathField(element, config) {
 
     // Save existing content
     this.originalContent = element.innerHTML;
-    let elementText = this.element.innerText;
+    let elementText = this.element.textContent;
     if (elementText) elementText = elementText.trim();
 
     // Additional elements used for UI.
@@ -911,6 +911,7 @@ MathField.prototype.latex = function(text) {
             format: 'latex'
         });
         this._render();
+        return text;
     }
 
     // Return the content as LaTeX

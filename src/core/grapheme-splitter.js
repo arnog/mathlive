@@ -137,6 +137,9 @@ define([], function() {
 	
 	// Breaks the given string into an array of grapheme cluster strings
 	function splitGraphemes(str){
+		// If it's all ASCII, short-circuit the grapheme splitting...
+		if (/^[\x20-\xFF]*$/.test(str)) return str;
+
 		const res = [];
 		let index = 0;
 		let brk;
