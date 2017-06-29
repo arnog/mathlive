@@ -1260,9 +1260,12 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
 
         // Extract info from style string
         if (args[1]) {
-            const styles = args[1].split(',');
+            // Split the string by comma delimited sub-strings, ignoring commas
+            // that may be inside (). For example"x, rgb(a, b, c)" would return 
+            // ['x', 'rgb(a, b, c)']
+            const styles = args[1].split(/,(?![^(]*\)(?:(?:[^(]*\)){2})*[^"]*$)/);
             for (const s of styles) {
-                const shorthand = s.match(/\s*(\S*)\s+(\S*)\s+(\S*)/);
+                const shorthand = s.match(/\s*(\S+)\s+(\S+)\s+(.*)/);
                 if (shorthand) {
                     result.strokeWidth = FontMetrics.toPx(shorthand[1], 'px');
                     if (isNaN(result.strokeWidth)) {

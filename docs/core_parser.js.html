@@ -1033,7 +1033,10 @@ Parser.prototype.scanOptionalArg = function(parseMode) {
             // The \bbox command takes a very particular argument:
             // a comma delimited list of up to three arguments:
             // a color, a dimension and a string.
-            const list = this.scanString().toLowerCase().trim().split(',');
+            // Split the string by comma delimited sub-strings, ignoring commas
+            // that may be inside (). For example"x, rgb(a, b, c)" would return 
+            // ['x', 'rgb(a, b, c)']
+            const list = this.scanString().toLowerCase().trim().split(/,(?![^(]*\)(?:(?:[^(]*\)){2})*[^"]*$)/);
             for (const elem of list) {
                 const color = Color.stringToColor(elem);
                 if (color) {

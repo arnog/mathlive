@@ -79,13 +79,39 @@ will be rendered as math:
 <p>The second taxicab number is $$1729 = 10^3 + 9^3 = 12^3 + 1^3$$</p>
 ```
 
-Elements with the following tags will be ignored for conversion: `script`, 
+You can also wrap more complex expressions in a `<script>` tag with a type 
+of `math/tex`. This is the recommended approach for stand-along formulas. One 
+of the benefits of this approach is that the browser will not attempt to 
+display the content of the `<script>` tag before it is typeset, avoiding an 
+unsightly flash of LaTeX code on screen. If the type is `"math/tex; mode=text"` 
+the inline text style will be used, otherwise if the type is 
+`"math/tex; mode=display"`, the display style will be used. If no mode is 
+provided, the display style is used.
+
+```html
+<h1>Quadratic roots</h1>
+<script type="math/tex">
+    ax^2+bx+c = 
+    a 
+    \left( x - \frac{-b + \sqrt {b^2-4ac}}{2a} \right) 
+    \left( x - \frac{-b - \sqrt {b^2-4ac}}{2a} \right)
+</script>
+
+```
+
+Elements with the following tags will be ignored for conversion: 
 `noscript`, `style`, `textarea`, `pre`, `code`, `annotation` and `annotation-xml`.
 
 If you dynamically generate content, call 
 [`MathLive.renderMathInElement(element)`]{@link module:mathlive#renderMathInElement} 
 to render your element after the page has been loaded. This is a recursive
 call that will be applied to `element` and all its children.
+
+It is possible to call `MathLive.renderMathInElement()` and 
+`MathLive.renderMathInDocument` on elements and documents that have already 
+been rendered, in which case they will be rendered again. This is useful 
+if something in the environment changes that could require the layout to be 
+updated.
 
 The [`MathLive.renderMathInElement()`]{@link module:mathlive#renderMathInElement} and 
 [`MathLive.renderMathInDocument()`]{@link module:mathlive#renderMathInDocument} 
@@ -94,6 +120,8 @@ behavior:
 
 * `skipTags`: an array of tag names whose content will not be scanned for 
 delimiters
+* `processScriptType`: `<script>` tags of the indicated type will be processed 
+while others will be ignored. Default: "math/tex".
 * `ignoreClass`: a string used as a regular expression of class names of 
 elements whose content will not be scanned for delimiters (`'tex2jax_ignore'` 
 by default)

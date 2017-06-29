@@ -177,14 +177,28 @@ function scanElement(elem, options, latexToMarkup) {
         const text = elem.childNodes[0].textContent;
         let innerContent;
         if (options.TeX.processEnvironments && text.match(/^\s*\\begin/)) {
-            innerContent = latexToMarkup(text, 'displaystyle');
+            try {
+                innerContent = latexToMarkup(text, 'displaystyle');
+            } catch (e) {
+                console.error(
+                    'Could not parse\'' + text + '\' with ', e
+                );
+                innerContent = text;
+            }
         } 
         if (!innerContent) {
             const data = splitWithDelimiters(text, options.TeX.delimiters);
             if (data.length === 1 && data[0].type === 'math') {
                 // The entire content is a math expression: we can replace the content
                 // with the latex markup without creating additional wrappers.
-                innerContent = latexToMarkup(data[0].data, data[0].mathstyle);
+                try {
+                    innerContent = latexToMarkup(data[0].data, data[0].mathstyle);
+                } catch (e) {
+                    console.error(
+                        'Could not parse\'' + data[0].data + '\' with ', e
+                    );
+                    innerContent = data[0].data;
+                }
             }
         }
         if (innerContent) {
@@ -204,14 +218,42 @@ function scanElement(elem, options, latexToMarkup) {
                 i += frag.childNodes.length - 1;
                 elem.replaceChild(frag, childNode);
             } else if (childNode.nodeType === 1) {
-                // Element node
-                const shouldRender = 
-                    options.processClassPattern.test(childNode.className) ||
-                    !(options.skipTags.includes(childNode.nodeName.toLowerCase()) || 
-                        options.ignoreClassPattern.test(childNode.className));
+                const tag = childNode.nodeName.toLowerCase();
+                if (tag === 'script' && 
+                    options.processScriptTypePattern.test(childNode.type)) {
+                    let style = 'displaystyle';
+                    for (const l of  childNode.type.split(';')) {
+                        const v = l.split('=');
+                        if (v[0].toLowerCase() === 'mode') {
+                            style = v[1].toLoweCase();
+                        }
+                    }
 
-                if (shouldRender) {
-                    scanElement(childNode, options, latexToMarkup);
+                    const span = document.createElement('span');
+                    try {
+                        span.innerHTML = latexToMarkup(childNode.textContent, style);
+                    } catch(e) {
+                        console.error(
+                            'Could not parse\'' + childNode.textContent + '\' with ', e
+                        );
+                        span.innerHTML = childNode.textContent;
+                    }
+                    if (options.preserveOriginalContent) {
+                        span.setAttribute('data-' + options.namespace + 
+                            'original-content', childNode.textContent);
+                    }
+
+                    childNode.parentNode.replaceChild(span, childNode);
+                } else {
+                    // Element node
+                    const shouldRender = 
+                        options.processClassPattern.test(childNode.className) ||
+                        !(options.skipTags.includes(tag) || 
+                            options.ignoreClassPattern.test(childNode.className));
+
+                    if (shouldRender) {
+                        scanElement(childNode, options, latexToMarkup);
+                    }
                 }
             }
             // Otherwise, it's something else, and ignore it.
@@ -224,8 +266,12 @@ const defaultOptions = {
     namespace: '',
 
     // Name of tags whose content will not be scanned for math delimiters
-    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 
+    skipTags: ['noscript', 'style', 'textarea', 'pre', 'code', 
         'annotation', 'annotation-xml'],
+
+    // <script> tags of the following types will be processed. Others, ignored.
+    processScriptType: "math/tex",
+
     // Regex pattern of the class name of elements whose contents should not
     // be processed
     ignoreClass: "tex2jax_ignore",
@@ -249,21 +295,30 @@ const defaultOptions = {
 }
 
 function renderMathInElement(elem, options, latexToMarkup) {
-    options = Object.assign({}, defaultOptions, options);
-    options.ignoreClassPattern = new RegExp(options.ignoreClass);
-    options.processClassPattern = new RegExp(options.processClass);
+    try {
+        options = Object.assign({}, defaultOptions, options);
+        options.ignoreClassPattern = new RegExp(options.ignoreClass);
+        options.processClassPattern = new RegExp(options.processClass);
+        options.processScriptTypePattern = new RegExp(options.processScriptType);
 
-    // Validate the namespace (used for `data-` attributes)
-    if (options.namespace) {
-        if (!/^[a-z]+[-]?$/.test(options.namespace)) {
-            throw Error('options.namespace must be a string of lowercase characters only');
+        // Validate the namespace (used for `data-` attributes)
+        if (options.namespace) {
+            if (!/^[a-z]+[-]?$/.test(options.namespace)) {
+                throw Error('options.namespace must be a string of lowercase characters only');
+            }
+            if (!/-$/.test(options.namespace)) {
+            options.namespace += '-';
+            }
         }
-        if (!/-$/.test(options.namespace)) {
-           options.namespace += '-';
+
+        scanElement(elem, options, latexToMarkup);
+    } catch(e) {
+        if (e instanceof Error) {
+            console.error('renderMathInElement(): ' + e.message);
+        } else {
+            console.error('renderMathInElement(): Could not render math for element ' + elem);
         }
     }
-
-    scanElement(elem, options, latexToMarkup);
 }
 
     return {

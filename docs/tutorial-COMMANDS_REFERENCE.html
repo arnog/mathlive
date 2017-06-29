@@ -67,7 +67,7 @@ their content. They can be used to highlight part of an expression, or
 to indicate an expression has been canceled with a strike mark.</p>
 <blockquote>
 <p><strong>Note</strong> <code>\enclose</code> is an extension to LaTeX that follows the <code>&lt;menclose&gt;</code> definition
-of <a href="">MathML</a> and the LaTeX flavored defined by MathJax.</p>
+of <a href="">MathML</a> and the LaTeX flavor defined by MathJax.</p>
 <p><strong>Note</strong> The <code>\cancel</code>, <code>\bcancel</code> and <code>\xcancel</code> commands are part of the 
 <a href="https://www.ctan.org/pkg/cancel">&quot;cancel&quot;</a> LaTeX package.</p>
 </blockquote>
@@ -91,8 +91,8 @@ of which are required:</p>
 </li>
 <li><code>style</code> an optional list of comma separated attributes including:<ul>
 <li><code>mathbackground=&quot;&lt;color&gt;&quot;</code> background color of the expression</li>
-<li><code>mathcolor=&quot;&lt;color&gt;&quot;</code> color of the notation, for example &quot;<code>red</code>&quot; or 
-<code>&quot;#cd0030&quot;</code></li>
+<li><code>mathcolor=&quot;&lt;color&gt;&quot;</code> color of the notation, for example <code>red</code> or 
+<code>#cd0030</code> or <code>rgba(205, 0, 11, .4)</code>.</li>
 <li><code>padding=&quot;&lt;dimension&gt;&quot;</code> <code>&quot;auto&quot;</code> or an amount of padding around the 
 content</li>
 <li><code>shadow=&quot;&lt;shadow&gt;&quot;</code>: <code>&quot;auto&quot;</code> or <code>&quot;none&quot;</code> or a CSS <code>box-shadow</code> expression 
@@ -104,12 +104,11 @@ follows the shorthand syntax of the CSS <code>border</code> property, for exampl
 </li>
 <li><code>body</code> a math expression that is &quot;enclosed&quot; by the specified notations</li>
 </ul>
-<h3><code>\cancel</code>, <code>\bcancel</code> and <code>\xcancel</code></h3><p>These commands are shorthands.</p>
-<table>
+<h3><code>\cancel</code>, <code>\bcancel</code> and <code>\xcancel</code></h3><table>
 <thead>
 <tr>
-<th style="text-align:left">Command</th>
-<th style="text-align:left">Shorthand for</th>
+<th style="text-align:left">Command...</th>
+<th style="text-align:left">is a shorthand for...</th>
 </tr>
 </thead>
 <tbody>
@@ -127,7 +126,7 @@ follows the shorthand syntax of the CSS <code>border</code> property, for exampl
 </tr>
 </tbody>
 </table>
-<h3>Examples</h3><pre class="prettyprint source lang-tex"><code>    \enclose{updiagonalstrike downdiagonalstrike}[2px solid red]{42}
+<h3>Examples</h3><pre class="prettyprint source lang-tex"><code>    \enclose{updiagonalstrike downdiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{42}
 
     \xcancel{42}
 

@@ -11,7 +11,7 @@ to indicate an expression has been canceled with a strike mark.
 
 
 > **Note** `\enclose` is an extension to LaTeX that follows the `<menclose>` definition
-> of [MathML]() and the LaTeX flavored defined by MathJax.
+> of [MathML]() and the LaTeX flavor defined by MathJax.
 
 > **Note** The `\cancel`, `\bcancel` and `\xcancel` commands are part of the 
 > ["cancel"](https://www.ctan.org/pkg/cancel) LaTeX package.
@@ -39,8 +39,8 @@ of which are required:
     * `madruwb`
 * `style` an optional list of comma separated attributes including:
     * `mathbackground="<color>"` background color of the expression
-    * `mathcolor="<color>"` color of the notation, for example "`red`" or 
-    `"#cd0030"`
+    * `mathcolor="<color>"` color of the notation, for example `red` or 
+    `#cd0030` or `rgba(205, 0, 11, .4)`.
     * `padding="<dimension>"` `"auto"` or an amount of padding around the 
     content
     * `shadow="<shadow>"`: `"auto"` or `"none"` or a CSS `box-shadow` expression 
@@ -52,18 +52,16 @@ of which are required:
 
 ### `\cancel`, `\bcancel` and `\xcancel`
 
-These commands are shorthands.
-
-| Command          | Shorthand for     |
-| :--------------- | :----------  |
-| `\cancel{body}`   | `\enclose{updiagonalstrike}{body}`         |
-| `\bcancel{body}`   | `\enclose{downdiagonalstrike}{body}`         |
+| Command...         | is a shorthand for...                           |
+| :----------------- | :---------------------------------------------  |
+| `\cancel{body}`    | `\enclose{updiagonalstrike}{body}`              |
+| `\bcancel{body}`   | `\enclose{downdiagonalstrike}{body}`            |
 | `\xcancel{body}`   | `\enclose{updiagonalstrike downdiagonalstrike}{body}`|
 
 
 ### Examples
 ```tex
-    \enclose{updiagonalstrike downdiagonalstrike}[2px solid red]{42}
+    \enclose{updiagonalstrike downdiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{42}
 
     \xcancel{42}
 
