@@ -25,6 +25,11 @@
         "keywords": "latex, tex, math, typesetting, documentation, docs",
         "forkme": "https://github.com/arnog/mathlive"
     },
+    "markdown"  : {
+        "parser"        : "gfm",
+        "hardwrap"      : false,
+        "idInHeadings"  : true
+    },
     "opts": {
         "access": "all",
         "template": "node_modules/sutro-jsdoc-theme",
