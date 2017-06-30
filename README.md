@@ -40,6 +40,8 @@ with an easy to use interface for math editing. Try it at [mathlive.io](https://
 
 ## How To Use MathLive
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/arnog/mathlive.svg)](https://greenkeeper.io/)
+
 ### To display math
 You can use MathLive to simply render math equations by 
 [adding a few lines to your web page](USAGE_GUIDE.md). 
