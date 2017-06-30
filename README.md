@@ -9,6 +9,7 @@
 [![Build Status](https://travis-ci.org/arnog/mathlive.svg?branch=master)](https://travis-ci.org/arnog/mathlive)
 [![David](https://img.shields.io/david/dev/arnog/mathlive.svg)]()
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/arnog/mathlive/master/LICENSE.txt)
+[![Greenkeeper badge](https://badges.greenkeeper.io/arnog/mathlive.svg)](https://greenkeeper.io/)
 
 MathLive is a Javascript library to render and edit math. 
 
@@ -40,7 +41,6 @@ with an easy to use interface for math editing. Try it at [mathlive.io](https://
 
 ## How To Use MathLive
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/arnog/mathlive.svg)](https://greenkeeper.io/)
 
 ### To display math
 You can use MathLive to simply render math equations by 
