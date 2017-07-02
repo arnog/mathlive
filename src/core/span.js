@@ -151,9 +151,7 @@ Span.prototype.cacheClientDimensions = function() {
         top: -1000px;
         visibility: hidden;
         height: auto;
-        width: auto;
-        overflow: hidden;
-        white-space: nowrap;`);
+        width: auto;`);
     div.setAttribute('class', 'ML__mathlive');
 
     const base = document.createElement('span');
