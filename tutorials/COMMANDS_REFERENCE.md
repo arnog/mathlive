@@ -60,12 +60,34 @@ of which are required:
 
 
 ### Examples
+
 ```tex
     \enclose{updiagonalstrike downdiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{42}
+```
+<script type="math/tex">
+    \enclose{updiagonalstrike downdiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{42}
+</script>
 
+```tex
     \xcancel{42}
+```
+<script type="math/tex">
+    \xcancel{42}
+</script>
 
+```tex
     \enclose{circle}[mathbackground="#fbc0bd"]{\frac1x}
+```
+<script type="math/tex">
+    \enclose{circle}[mathbackground="#fbc0bd"]{\frac1x}
+</script>
 
+```tex
     \enclose{roundedbox}[1px dotted #cd0030]{\frac{x^2+y^2}{\sqrt{x^2+y^2}}}
 ```
+<script type="math/tex">
+    \enclose{roundedbox}[1px dotted #cd0030]{\frac{x^2+y^2}{\sqrt{x^2+y^2}}}
+</script>
+
+
+---
