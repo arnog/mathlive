@@ -177,11 +177,25 @@ function scanText(text, options, latexToMarkup) {
 
 function scanElement(elem, options, latexToMarkup) {
     let handled = false;
-    if (elem.childNodes.length === 1 && elem.childNodes[0].nodeType === 3) {
+    const originalContent = elem.getAttribute('data-' + options.namespace + 
+        'original-content');
+    if (originalContent) {
+        const mathstyle = elem.getAttribute('data-' + options.namespace + 
+            'mathstyle') || 'displaystyle';
+        try {
+            elem.innerHTML = latexToMarkup(originalContent, mathstyle);
+        } catch (e) {
+            console.error(
+                'Could not parse\'' + originalContent + '\' with ', e
+            );
+        }
+        handled = true;
+    } else if (elem.childNodes.length === 1 && elem.childNodes[0].nodeType === 3) {
         // This is a node with textual content only. Perhaps an opportunity
         // to simplify and avoid creating extra nested elements...
         const text = elem.childNodes[0].textContent;
         let innerContent;
+        let mathstyle;
         if (options.TeX.processEnvironments && text.match(/^\s*\\begin/)) {
             try {
                 innerContent = latexToMarkup(text, 'displaystyle');
@@ -198,7 +212,8 @@ function scanElement(elem, options, latexToMarkup) {
                 // The entire content is a math expression: we can replace the content
                 // with the latex markup without creating additional wrappers.
                 try {
-                    innerContent = latexToMarkup(data[0].data, data[0].mathstyle);
+                    mathstyle = data[0].mathstyle;
+                    innerContent = latexToMarkup(data[0].data, mathstyle);
                 } catch (e) {
                     console.error(
                         'Could not parse\'' + data[0].data + '\' with ', e
@@ -215,6 +230,9 @@ function scanElement(elem, options, latexToMarkup) {
             elem.innerHTML = innerContent;
             if (options.preserveOriginalContent) {
                 elem.setAttribute('data-' + options.namespace + 'original-content', text);
+                if (mathstyle) {
+                    elem.setAttribute('data-' + options.namespace + 'original-mathstyle', mathstyle);
+                }
             }
             handled = true;
         }
@@ -260,6 +278,9 @@ function scanElement(elem, options, latexToMarkup) {
                     if (options.preserveOriginalContent) {
                         span.setAttribute('data-' + options.namespace + 
                             'original-content', childNode.textContent);
+                        span.setAttribute('data-' + options.namespace + 
+                            'mathstyle', style);
+                        
                     }
 
                     childNode.parentNode.replaceChild(span, childNode);

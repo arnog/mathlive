@@ -5,6 +5,12 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+
+    
+        <link rel="stylesheet" href="http://mathlive.io/sprint15/mathlive/mathlive.core.css" type="text/css"><link rel="stylesheet" href="http://mathlive.io/sprint15/mathlive/mathlive.css" type="text/css">
+    
+
+
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
     <!--[if lt IE 9]>
@@ -128,13 +134,24 @@ follows the shorthand syntax of the CSS <code>border</code> property, for exampl
 </tbody>
 </table>
 <h3 id="examples">Examples</h3>
-<pre class="prettyprint source lang-tex"><code>    \enclose{updiagonalstrike downdiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{42}
+<pre class="prettyprint source lang-tex"><code>    \enclose{updiagonalstrike downdiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{42}</code></pre><script type="math/tex">
+    \enclose{updiagonalstrike downdiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{42}
+</script>
 
+<pre class="prettyprint source lang-tex"><code>    \xcancel{42}</code></pre><script type="math/tex">
     \xcancel{42}
+</script>
 
-    \enclose{circle}[mathbackground=&quot;#fbc0bd&quot;]{\frac1x}
+<pre class="prettyprint source lang-tex"><code>    \enclose{circle}[mathbackground=&quot;#fbc0bd&quot;]{\frac1x}</code></pre><script type="math/tex">
+    \enclose{circle}[mathbackground="#fbc0bd"]{\frac1x}
+</script>
 
-    \enclose{roundedbox}[1px dotted #cd0030]{\frac{x^2+y^2}{\sqrt{x^2+y^2}}}</code></pre>
+<pre class="prettyprint source lang-tex"><code>    \enclose{roundedbox}[1px dotted #cd0030]{\frac{x^2+y^2}{\sqrt{x^2+y^2}}}</code></pre><script type="math/tex">
+    \enclose{roundedbox}[1px dotted #cd0030]{\frac{x^2+y^2}{\sqrt{x^2+y^2}}}
+</script>
+
+
+<hr>
 </article>
 
     
@@ -173,5 +190,10 @@ follows the shorthand syntax of the CSS <code>border</code> property, for exampl
     })(jQuery);
 </script>
 <script src="scripts/linenumber.js"></script>
+
+
+    <script src="http://mathlive.io/sprint15/mathlive/mathlive.js"></script><script>if (MathLive) {MathLive.renderMathInDocument();}</script>
+
+
 </body>
 </html>

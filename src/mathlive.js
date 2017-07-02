@@ -248,7 +248,6 @@ function renderMathInDocument(options) {
     // fonts are loaded, e.g. the \compose command.
     if (document.fonts) {
         document.fonts.ready.then(() => renderMathInElement(document.body, options, toMarkup));
-        // document.fonts.ready.then(() => renderMathInDocument(options));
     }
 }
 

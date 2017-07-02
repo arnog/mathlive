@@ -98,7 +98,7 @@ function MathField(element, config) {
     let markup = '';
     if (!this.config.substituteTextArea) {
         markup += '<span class="ML__textarea" aria-hidden="true" role="none presentation">' +
-            '<textarea autocapitalize="off" autocomplete="off" ' + 
+            '<textarea class="ML__textarea--textarea" autocapitalize="off" autocomplete="off" ' + 
             'autocorrect="off" spellcheck="false" ' + 
             'aria-hidden="true" role="none presentation">' +
             '</textarea>' +
@@ -114,12 +114,12 @@ function MathField(element, config) {
         }
     }
     markup += '<span class="ML__fieldcontainer">' +
-            '<span ></span>';
+            '<span class="ML__fieldcontainer--field"></span>';
 
     if (this.config.commandbarToggle === 'visible') {
         markup += '<span class="ML__commandbartoggle"' +
                     'role="button" tabindex="0" aria-label="Toggle Command Bar">' +
-                    '<svg viewBox="0 0 21 14" height="14" style="position:relative; bottom:6px">' +
+                    '<svg viewBox="0 0 21 14" height="14">' +
                     '<path d="M10.35 13.55L0 3.2 3.06.13l7.16 7.17 7.3-7.3 3.2 3.2-10.36 10.35v-.01l-.01.01z" fill-rule="evenodd" clip-rule="evenodd"></path>' +
                     '</svg>' +
                 '</span>';
@@ -131,8 +131,8 @@ function MathField(element, config) {
         '<div class="ML__popover"></div>' + 
         '<div class="ML__keystrokecaption"></div>' + 
         '<div class="ML__commandbar">' +
-            '<div class="ML__commandbuttons" role="toolbar" aria-label="Commmand Bar></div>' + 
-            '<div class="ML__commandpanel"></div>' +
+            '<div class="ML__commandbar--buttons" role="toolbar" aria-label="Command Bar"></div>' + 
+            '<div class="ML__commandbar--panel"></div>' +
         '</div>';
 
 
@@ -787,7 +787,7 @@ MathField.prototype._render = function() {
     const base = Span.makeSpan(spans, 'ML__base');
     base.attributes = {
         // Hint to screen readers to not attempt to read this span
-        // They should use instead the 'ariaText' below.
+        // They should use instead the 'aria-label' below.
         'aria-hidden': 'true',
         'role': 'none presentation'
     }
@@ -826,7 +826,7 @@ MathField.prototype._render = function() {
 
         'role':         'math',     // or 'application' ?
         // 'aria-multiline': 'true',
-        'aria-label': MathAtom.toSpeakableText(this.mathlist.root)
+        'aria-label':   MathAtom.toSpeakableText(this.mathlist.root)
     };
 
 
@@ -835,8 +835,7 @@ MathField.prototype._render = function() {
     // 5. Generate markup
     //
 
-    const markup = wrapper.toMarkup();
-    this.field.innerHTML = markup;
+    this.field.innerHTML = wrapper.toMarkup();
 
     //
     // 6. Stop event propagation, and scroll cursor into view

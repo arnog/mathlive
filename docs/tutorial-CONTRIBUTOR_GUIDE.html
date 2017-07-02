@@ -5,6 +5,12 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+
+    
+        <link rel="stylesheet" href="http://mathlive.io/sprint15/mathlive/mathlive.core.css" type="text/css"><link rel="stylesheet" href="http://mathlive.io/sprint15/mathlive/mathlive.css" type="text/css">
+    
+
+
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
     <!--[if lt IE 9]>
@@ -65,9 +71,9 @@ If you simply want to use MathLive with your web content, see the <a href="tutor
 <li><a href="#getting-started-setting-up-your-development-environment">Getting Started: Setting up Your Development Environment</a></li>
 <li><a href="#code-structure">Code Structure</a></li>
 <li><a href="#language-and-coding-style">Language and Coding Style</a></li>
-<li><a href="#naming-convention">Naming Convention</a></li>
+<li><a href="#naming-conventions">Naming Conventions</a></li>
 <li><a href="#browser-support">Browser Support</a></li>
-<li><a href="#accessibility">Accessibility</a></li>
+<li><a href="#accessibility-a11y">Accessibility</a></li>
 <li><a href="#architecture">Architecture</a></li>
 <li><a href="#files">Files</a></li>
 <li><a href="#common-tasks">Common Tasks</a></li>
@@ -253,15 +259,15 @@ or an array and behave appropriately:<pre class="prettyprint source lang-javascr
       }
   }</code></pre></li>
 </ul>
-<h2 id="naming-convention">Naming Convention</h2>
+<h2 id="naming-conventions">Naming Conventions</h2>
 <p>Those naming conventions are particularly important for objects that are exposed
 as part of the public API, such as <code>MathLive</code> and <code>MathField</code>.</p>
 <ul>
 <li>variables and function names that begin with <code>_</code> are private and should not
 be used.</li>
-<li>functions that end in '<em>' are selectors and should not be invoked directly.
+<li>functions that end in <code>_</code> are selectors and should not be invoked directly.
 Instead, a <code>MathField.perform()</code> call should be made. Note that the perform call
-does not include the `</em><code>, so you would call</code>MathField.perform('selectAll')`.</li>
+does not include the <code>_</code>, so you would call <code>MathField.perform('selectAll')</code>.</li>
 <li>functions that neither begin nor end with an <code>_</code> are public and can be called
 directly.</li>
 </ul>
@@ -528,5 +534,10 @@ a representation of the atom.</p>
     })(jQuery);
 </script>
 <script src="scripts/linenumber.js"></script>
+
+
+    <script src="http://mathlive.io/sprint15/mathlive/mathlive.js"></script><script>if (MathLive) {MathLive.renderMathInDocument();}</script>
+
+
 </body>
 </html>
