@@ -1,9 +1,10 @@
-## next
+## 0.0.15 (July 1, 2017)
 
 ### New Features
-- Added tutorials and improved documentation
 - Properly exported public API, including `renderMathInDocument()` and 
 `renderMathInElement()`
+- Added \enclose command, implementing the [MathML](https://developer.mozilla.org/en-US/docs/Web/MathML/Element/menclose) equivalent.
+- Added \cancel, \bcancel and \xcancel commands
 - Added  `preserveOriginalContent` option to `MathLive.renderMathIn...()`
 - Made `\backslash` work in text mode, for example when an argument of `\rlap{}`
 - Added `MathField.revertToOriginalContent()` when a math field is no longer 
@@ -12,10 +13,9 @@ needed for an element
 `config.commands`
 - Added `MathLive.revertToOriginalContent()` and `MathLive.getOriginalContent()`
 - Added optional namespacing of `data-` attributes
-- Added \enclose command, implementing the [MathML](https://developer.mozilla.org/en-US/docs/Web/MathML/Element/menclose) equivalent.
-- Added \cancel, \bcancel and \xcancel commands
 - Added `onContentWillChange` and `onContentDidChange` handlers in the math 
 field config object.
+- Added tutorials and improved documentation
 
 ### Bug Fixes
 - Fixed #5: AZERTY keyboard input was misbehaving, particularly for the `^` key
