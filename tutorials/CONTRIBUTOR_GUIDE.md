@@ -6,9 +6,9 @@ If you simply want to use MathLive with your web content, see the {@tutorial USA
 - [Getting Started: Setting up Your Development Environment](#getting-started-setting-up-your-development-environment)
 - [Code Structure](#code-structure)
 - [Language and Coding Style](#language-and-coding-style)
-- [Naming Convention](#naming-convention)
+- [Naming Conventions](#naming-conventions)
 - [Browser Support](#browser-support)
-- [Accessibility](#accessibility)
+- [Accessibility](#accessibility-a11y)
 - [Architecture](#architecture)
 - [Files](#files)
 - [Common Tasks](#common-tasks)
@@ -231,14 +231,14 @@ or an array and behave appropriately:
     }
 ```
 
-## Naming Convention
+## Naming Conventions
 
 Those naming conventions are particularly important for objects that are exposed
 as part of the public API, such as `MathLive` and `MathField`.
 
 * variables and function names that begin with `_` are private and should not
  be used.
-* functions that end in '_' are selectors and should not be invoked directly.
+* functions that end in `_` are selectors and should not be invoked directly.
 Instead, a `MathField.perform()` call should be made. Note that the perform call
 does not include the `_`, so you would call `MathField.perform('selectAll')`.
 * functions that neither begin nor end with an `_` are public and can be called
