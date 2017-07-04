@@ -232,13 +232,49 @@ function defineSymbolRange(from, to, mode, fontFamily, type, frequency) {
 function matchCodepoint(s) {
     const codepoint = s.codePointAt(0);
 
-    // Some symbols match to multiple codepoints. 
-    // Map their alternative codepoints non
+    // Some symbols map to multiple codepoints. 
+    // Map their alternative codepoints here.
     let result = { 
         '\u00b7': '\\cdot',
         '\u00bc': '\\frac{1}{4}',
         '\u00bd': '\\frac{1}{2}',
-        '\u00be': '\\frac{3}{4}'
+        '\u00be': '\\frac{3}{4}',
+        '\u2070': '^{0}',
+        '\u2071': '^{i}',
+        '\u00b9': '^{1}',
+        '\u00b2': '^{2}',
+        '\u00b3': '^{3}',
+        '\u2074': '^{4}',
+        '\u2075': '^{5}',
+        '\u2076': '^{6}',
+        '\u2077': '^{7}',
+        '\u2078': '^{8}',
+        '\u2079': '^{9}',
+        '\u207a': '^{+}',
+        '\u207b': '^{-}',
+        '\u207c': '^{=}',
+        '\u207f': '^{n}',
+
+        '\u2080': '_{0}',
+        '\u2081': '_{1}',
+        '\u2082': '_{2}',
+        '\u2083': '_{3}',
+        '\u2084': '_{4}',
+        '\u2085': '_{5}',
+        '\u2086': '_{6}',
+        '\u2087': '_{7}',
+        '\u2088': '_{8}',
+        '\u2089': '_{9}',
+        '\u208A': '_{+}',
+        '\u208B': '_{-}',
+        '\u208C': '_{=}',
+        '\u2090': '_{a}',
+        '\u2091': '_{e}',
+        '\u2092': '_{o}',
+        '\u2093': '_{x}',
+
+        '\u2115': '\\N',
+        '\u2124': '\\Z'
         }[s];
     if (result) return result;
 
