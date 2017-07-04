@@ -289,7 +289,7 @@ function defineSymbolRange(from, to, mode, fontFamily, type, frequency) {
 }
 
 /**
- * Given a character, return a latex expression matching its unicode codepoint.
+ * Given a character, return a LaTeX expression matching its Unicode codepoint.
  * The return string is in the ASCII range.
  * If there is a matching symbol (e.g. \alpha) it is returned.
  * If there is no matching symbol and it is outside the ASCII range, an 
@@ -301,10 +301,18 @@ function defineSymbolRange(from, to, mode, fontFamily, type, frequency) {
  */
 function matchCodepoint(s) {
     const codepoint = s.codePointAt(0);
-    if (codepoint > 32 &amp;&amp; codepoint &lt; 127) {
-        return s;
-    }
-    let result;
+
+    // Some symbols match to multiple codepoints. 
+    // Map their alternative codepoints non
+    let result = { 
+        '\u00b7': '\\cdot',
+        '\u00bc': '\\frac{1}{4}',
+        '\u00bd': '\\frac{1}{2}',
+        '\u00be': '\\frac{3}{4}'
+        }[s];
+    if (result) return result;
+
+    if (codepoint > 32 &amp;&amp; codepoint &lt; 127) return s;
 
     for (const p in MATH_SYMBOLS) {
         if (MATH_SYMBOLS.hasOwnProperty(p)) {
