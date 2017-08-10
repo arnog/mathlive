@@ -96,8 +96,8 @@ function pathCommonAncestor(p, q) {
  * @param {Array.<string>} p 
  * @param {Array.<string>} q 
  * @return {number} 0 if the paths are identical
- *  - 1 if they are sibiling
- *  - >1 if they are not sibilings
+ *  - 1 if they are siblings
+ *  - >1 if they are not siblings
  * @memberof module:editor/mathpath
  * @private
  */

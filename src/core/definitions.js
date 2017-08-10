@@ -51,7 +51,7 @@
  * @module definitions
  * @private
  */
-define([], function() {
+define(['mathlive/core/fontMetrics'], function(FontMetrics) {
 
 
 
@@ -219,7 +219,7 @@ function defineSymbolRange(from, to, mode, fontFamily, type, frequency) {
 }
 
 /**
- * Given a character, return a latex expression matching its unicode codepoint.
+ * Given a character, return a LaTeX expression matching its Unicode codepoint.
  * The return string is in the ASCII range.
  * If there is a matching symbol (e.g. \alpha) it is returned.
  * If there is no matching symbol and it is outside the ASCII range, an 
@@ -230,7 +230,55 @@ function defineSymbolRange(from, to, mode, fontFamily, type, frequency) {
  * @private
  */
 function matchCodepoint(s) {
-    let result;
+    const codepoint = s.codePointAt(0);
+
+    // Some symbols map to multiple codepoints. 
+    // Map their alternative codepoints here.
+    let result = { 
+        '\u00b7': '\\cdot',
+        '\u00bc': '\\frac{1}{4}',
+        '\u00bd': '\\frac{1}{2}',
+        '\u00be': '\\frac{3}{4}',
+        '\u2070': '^{0}',
+        '\u2071': '^{i}',
+        '\u00b9': '^{1}',
+        '\u00b2': '^{2}',
+        '\u00b3': '^{3}',
+        '\u2074': '^{4}',
+        '\u2075': '^{5}',
+        '\u2076': '^{6}',
+        '\u2077': '^{7}',
+        '\u2078': '^{8}',
+        '\u2079': '^{9}',
+        '\u207a': '^{+}',
+        '\u207b': '^{-}',
+        '\u207c': '^{=}',
+        '\u207f': '^{n}',
+
+        '\u2080': '_{0}',
+        '\u2081': '_{1}',
+        '\u2082': '_{2}',
+        '\u2083': '_{3}',
+        '\u2084': '_{4}',
+        '\u2085': '_{5}',
+        '\u2086': '_{6}',
+        '\u2087': '_{7}',
+        '\u2088': '_{8}',
+        '\u2089': '_{9}',
+        '\u208A': '_{+}',
+        '\u208B': '_{-}',
+        '\u208C': '_{=}',
+        '\u2090': '_{a}',
+        '\u2091': '_{e}',
+        '\u2092': '_{o}',
+        '\u2093': '_{x}',
+
+        '\u2115': '\\N',
+        '\u2124': '\\Z'
+        }[s];
+    if (result) return result;
+
+    if (codepoint > 32 && codepoint < 127) return s;
 
     for (const p in MATH_SYMBOLS) {
         if (MATH_SYMBOLS.hasOwnProperty(p)) {
@@ -243,7 +291,6 @@ function matchCodepoint(s) {
 
     // No symbol was found, return a \char command
     if (!result) {
-        const codepoint = s.codePointAt(0);
         if (codepoint < 32 || codepoint >= 127) {
             result = '\\char"' + 
                     ('000000' + codepoint.toString(16)).toUpperCase().substr(-6)
@@ -476,7 +523,7 @@ const COMMANDLITERAL = 'command'; // Not in TeX. Values in a command sequence (e
 /**
  * An argument template has the following syntax:
  * 
- * <placholder>:<type>=<default>
+ * <placeholder>:<type>=<default>
  * 
  * where
  * - <placeholder> is a string whose value is displayed when the argument
@@ -497,7 +544,8 @@ function parseParamTemplateArgument(argTemplate, isOptional) {
     let placeholder = null;
 
     if (r) {
-        console.assert(isOptional, "Can't provide a defaut value for required parameters");
+        console.assert(isOptional, 
+            "Can't provide a default value for required parameters");
         defaultValue = r[1];
     }
     // Parse the type (:type)
@@ -531,7 +579,7 @@ function parseParamTemplate(paramTemplate) {
     } else {
         params = paramTemplate.split('}');
         if (params[0].charAt(0) === '{') {
-            // We found a required paramater
+            // We found a required parameter
             result.push(parseParamTemplateArgument(params[0].slice(1), false));
             // Parse the rest
             for (let i = 1; i <= params.length; i++) {
@@ -564,7 +612,7 @@ function defineEnvironment(names, params, options, parser) {
     const data = {
         // 'category' is a global variable keeping track of the
         // the current category being defined. This value is used
-        // stricly to group items in generateDocumentation().
+        // strictly to group items in generateDocumentation().
         category: category,
 
         // Params: the parameters for this function, an array of
@@ -577,10 +625,10 @@ function defineEnvironment(names, params, options, parser) {
         mathstyle: 'displaystyle',
 
         tabular: options.tabular || true,
-        maxColumns: options.maxColums || 10,
+        maxColumns: options.maxColumns || 10,
         colFormat: options.colFormat || [],
         leftFence: options.leftFence || '.',
-        rigtFence: options.rightFence || '.',
+        rightFence: options.rightFence || '.',
     };
     for (const name of names) {
         ENVIRONMENTS[name] = data;
@@ -616,7 +664,7 @@ function defineFunction(names, params, options, handler) {
     const data = {
         // 'category' is a global variable keeping track of the
         // the current category being defined. This value is used
-        // stricly to group items in generateDocumentation().
+        // strictly to group items in generateDocumentation().
         category: category,
 
         fontFamily: options.fontFamily,
@@ -679,7 +727,7 @@ category = 'Environments';
                 frequency 1
 
  'align'        multiple columns, 
-                alternatinge rl
+                alternating rl
                 there is some 'space' (additional column?) between each pair
                 each line is numbered (except when inside an equation environment)
                 there is an implicit {} at the beginning of left columns
@@ -724,7 +772,7 @@ automatically, and therefore the use of alignedat is deprecated.
 'matrix'        at most 10 columns
                 cells centered
                 no fence
-                no colsep at begining or end
+                no colsep at beginning or end
                 (mathtools package add an optional arg for the cell alignment)
                 frequency: COMMON
 
@@ -835,7 +883,7 @@ defineEnvironment('multline', '', {}, function() {
 // An AMS-Math environment
 // See amsmath.dtx:3565
 // Note that some versions of AMS-Math have a gap on the left.
-// More recent version supresses that gap, but have an option to turn it back on
+// More recent version suppresses that gap, but have an option to turn it back on
 // for backward compatibility.
 defineEnvironment(['align', 'aligned'], '', {}, function(name, args, array) {
     let colCount = 0;
@@ -885,7 +933,7 @@ defineEnvironment('split', '', {}, function() {
 
 
 defineEnvironment(['gather', 'gathered'], '', {}, function() {
-// An AMS-Math environemed
+// An AMS-Math environment
 // %    The \env{gathered} environment is for several lines that are
 // %    centered independently.
 // From amstex.sty
@@ -1177,10 +1225,6 @@ defineSymbol('\\not', MATH,  MAIN,  MATHORD, '/\\hspace{-.9em}', COMMON);
 defineFunction('\\boxed', '{content:math}', null, 
     function(name, args) {
         return { 
-            // type: 'color',
-            // framecolor: args[0],
-            // backgroundcolor: args[1],
-            // children: args[1]
             type: 'box',
             framecolor: 'black',
             body: args[0]
@@ -1241,6 +1285,139 @@ defineFunction('\\bbox', '[:bbox]{body:auto}', null,
     }
 )
     frequency(CRYPTIC, '\\bbox');
+
+
+// \enclose, a MathJax extension mapping to the MathML `menclose` tag.
+// The first argument is a comma delimited list of notations, as defined 
+// here: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/menclose
+// The second, optional, specifies the style to use for the notations.
+defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null, 
+    function(name, args) {
+        let notations =  args[0] || [];
+        const result = { 
+            type: 'enclose',
+            strokeColor: 'currentColor',
+            strokeWidth: 1,
+            strokeStyle: 'solid',
+            backgroundcolor: 'transparent',
+            padding: 'auto',
+            shadow: 'auto',
+            body: args[2]
+        }
+
+        // Extract info from style string
+        if (args[1]) {
+            // Split the string by comma delimited sub-strings, ignoring commas
+            // that may be inside (). For example"x, rgb(a, b, c)" would return 
+            // ['x', 'rgb(a, b, c)']
+            const styles = args[1].split(/,(?![^(]*\)(?:(?:[^(]*\)){2})*[^"]*$)/);
+            for (const s of styles) {
+                const shorthand = s.match(/\s*(\S+)\s+(\S+)\s+(.*)/);
+                if (shorthand) {
+                    result.strokeWidth = FontMetrics.toPx(shorthand[1], 'px');
+                    if (isNaN(result.strokeWidth)) {
+                        result.strokeWidth = 1;
+                    }
+                    result.strokeStyle = shorthand[2];
+                    result.strokeColor = shorthand[3];
+                } else {
+                    const attribute = s.match(/\s*([a-z]*)\s*=\s*"(.*)"/);
+                    if (attribute) {
+                        if (attribute[1] === 'mathbackground') {
+                            result.backgroundcolor = attribute[2];
+                        } else if (attribute[1] === 'mathcolor') {
+                            result.strokeColor = attribute[2];
+                        } else if (attribute[1] === 'padding') {
+                            result.padding = FontMetrics.toPx(attribute[2], 'px');
+                        } else if (attribute[1] === 'shadow') {
+                            result.shadow = attribute[2];
+                        }
+                    }
+                }
+            }
+            if (result.strokeStyle === 'dashed') {
+                result.svgStrokeStyle = '5,5';
+            } else if (result.strokeStyle === 'dotted') {
+                result.svgStrokeStyle = '1,5';
+            }
+        }
+        result.borderStyle = result.strokeWidth + 'px ' + 
+            result.strokeStyle + ' ' + result.strokeColor;
+
+        // Normalize the list of notations.
+        notations = notations.split(/[, ]/).
+            filter(v => v.length > 0).map(v => v.toLowerCase());
+        result.notation = {};
+        for (const notation of notations) {
+            result.notation[notation] = true;
+        }
+        if (result.notation['updiagonalarrow']) result.notation['updiagonalstrike'] = false;
+        if (result.notation['box']) {
+            result.notation['left'] = false;
+            result.notation['right'] = false;
+            result.notation['bottom'] = false;
+            result.notation['top'] = false;
+        }
+        return result;
+    }
+)
+
+    frequency(CRYPTIC, '\\enclose');
+
+defineFunction('\\cancel', '{body:auto}', null, 
+    function(name, args) {
+        return { 
+            type: 'enclose',
+            strokeColor: 'currentColor',
+            strokeWidth: 1,
+            strokeStyle: 'solid',
+            borderStyle: '1px solid currentColor',
+            backgroundcolor: 'transparent',
+            padding: 'auto',
+            shadow: 'auto',
+            notation: {"updiagonalstrike": true},
+            body: args[0]
+        }
+    }
+)
+
+defineFunction('\\bcancel', '{body:auto}', null, 
+    function(name, args) {
+        return { 
+            type: 'enclose',
+            strokeColor: 'currentColor',
+            strokeWidth: 1,
+            strokeStyle: 'solid',
+            borderStyle: '1px solid currentColor',
+            backgroundcolor: 'transparent',
+            padding: 'auto',
+            shadow: 'auto',
+            notation: {"downdiagonalstrike": true},
+            body: args[0]
+        }
+    }
+)
+
+defineFunction('\\xcancel', '{body:auto}', null, 
+    function(name, args) {
+        return { 
+            type: 'enclose',
+            strokeColor: 'currentColor',
+            strokeWidth: 1,
+            strokeStyle: 'solid',
+            borderStyle: '1px solid currentColor',
+            backgroundcolor: 'transparent',
+            padding: 'auto',
+            shadow: 'auto',
+            notation: {"updiagonalstrike": true, "downdiagonalstrike": true},
+            body: args[0]
+        }
+    }
+)
+
+    frequency(CRYPTIC, '\\cancel', '\\bcancel', '\\xcancel');
+
+
 
 // defineFunction([
     // '\\tiny', '\\scriptsize', '\\footnotesize', '\\small', 
@@ -2410,7 +2587,7 @@ defineSymbol( '\\blacktriangleright', MATH,  AMS,  REL, '\u25b6', 271);
 
 
 category = 'Others';
-defineSymbol( '\\backslash', MATH,  MAIN,  TEXTORD, '\\');
+defineSymbol( '\\backslash', [TEXT, MATH],  MAIN,  ORD, '\\');
 defineSymbol( '|', MATH,  MAIN,  TEXTORD, '\u2223');
 
 
@@ -2617,6 +2794,7 @@ const SAMPLES = {
     '\\boxed':          '\\boxed{\\unicode{"2B1A}}',
     '\\colorbox':        '\\colorbox{#fbc0bd}{\\unicode{"2B1A}}',
     '\\bbox':           '\\bbox[#ffd400, solid 2px #ffd400]{\\unicode{"2B1A}}',
+    '\\enclose':        '\\enclose{updiagonalstrike,roundedbox}[1px solid red, mathbackground="#fbc0bd"]{23+45}',
     '\\fcolorbox':      '\\fcolorbox{#cd0030}{#ffd400}{\\unicode{"2B1A}}',
     '\\ ':              '\\char"2423',  // OPEN BOX
 

@@ -21,7 +21,7 @@ const hangulRegex = /[\uAC00-\uD7AF]/;
 // - Katakana: [\u30A0-\u30FF]
 // - CJK ideograms: [\u4E00-\u9FAF]
 // - Hangul syllables: [\uAC00-\uD7AF]
-// Notably missing are halfwidth Katakana and Romanji glyphs.
+// Notably missing are half width Katakana and Romaji glyphs.
 const cjkRegex =
     /[\u3040-\u309F]|[\u30A0-\u30FF]|[\u4E00-\u9FAF]|[\uAC00-\uD7AF]/;
 
@@ -32,8 +32,8 @@ const cjkRegex =
  * textstyle, scriptstyle, and scriptscriptstyle.  These are provided in the
  * the arrays below, in that order.
  *
- * The font metrics are stored in fonts cmsy10, cmsy7, and cmsy5 respsectively.
- * This was determined by running the folllowing script:
+ * The font metrics are stored in fonts cmsy10, cmsy7, and cmsy5 respectively.
+ * This was determined by running the following script:
  *``` bash
       latex -interaction=nonstopmode \
       '\documentclass{article}\usepackage{amsmath}\begin{document}' \
@@ -42,7 +42,7 @@ const cjkRegex =
       '\expandafter\show\the\scriptscriptfont2' \
       '\stop'
   ```
- * The metrics themselves were retreived using the following commands:
+ * The metrics themselves were retrieved using the following commands:
  * ``` bash
       tftopl cmsy10
       tftopl cmsy7
@@ -118,6 +118,7 @@ const metrics = {
     bigOpSpacing4: xi12,
     bigOpSpacing5: xi13,
     ptPerEm: ptPerEm,
+    pxPerEm: ptPerEm * 4.0 / 3.0,   // A CSS pt is fixed at 1.333px
     doubleRuleSep: 2.0 / ptPerEm,
     arraycolsep: 5.0 / ptPerEm,
     baselineskip: 12.0 / ptPerEm,
@@ -291,10 +292,10 @@ const getCharacterMetrics = function(character, fontName) {
     const metrics = metricMap[fontName][ch];
 
     if (!metrics) {
-        console.warn( 
-            'No metrics for ' +
-            '"' + character + '" (U+' + ('000000' + ch.toString(16)).substr(-6) + ')' +
-            ' in font "' + fontName + '"');
+        // console.warn( 
+        //     'No metrics for ' +
+        //     '"' + character + '" (U+' + ('000000' + ch.toString(16)).substr(-6) + ')' +
+        //     ' in font "' + fontName + '"');
         // Assume default values.
         // depth + height should be less than 1.0 em
         return {
@@ -317,7 +318,67 @@ const getCharacterMetrics = function(character, fontName) {
     return null;
 }
 
+
+/**
+ * 
+ * @param {number|string} value If value is a string, it may be suffixed
+ * with a unit, which will override the `unit` paramter
+ * @param {string} unit 
+ * @param {number} precision
+ */
+function convertDimenToEm(value, unit, precision) {
+    if (typeof value === 'string') {
+        const m = value.match(/([0-9.]*)\s*([a-z]*)/);
+        if (!m) {
+            value = parseFloat(value);
+        } else {
+            value = parseFloat(m[1]);
+            unit = m[2].toLowerCase();
+        }
+    }
+
+    // If the units are missing, TeX assumes 'pt'
+    let f = 1;
+    if (unit === 'pt') {
+        f = 1;
+    } else if (unit === 'mm') {
+        f = 7227 / 2540;
+    } else if (unit === 'cm') {
+        f = 7227 / 254;
+    } else if (unit === 'ex') {
+        f = 35271 / 8192;
+    } else if (unit === 'px') {
+        f = 3.0 / 4.0;
+    } else if (unit === 'em') {
+        f = metrics.ptPerEm;
+    } else if (unit === 'bp') {
+        f = 803 / 800;
+    } else if (unit === 'dd') {
+        f = 1238 / 1157;
+    } else if (unit === 'pc') {
+        f = 12;
+    } else if (unit === 'in') {
+        f = 72.27;
+    } else if (unit === 'mu') {
+        f = 10 / 18;
+    }
+
+    if (precision) {
+        const factor = Math.pow(10, precision);
+        return Math.round((value / metrics.ptPerEm) * f * factor) / factor;
+    }
+
+    return (value / metrics.ptPerEm) * f;
+}
+
+function convertDimenToPx(value, unit) {
+    // if (unit === 'px') return value;
+    return convertDimenToEm(value, unit) * (4.0 / 3.0) * metrics.ptPerEm;
+}
+
 return {
+    toEm : convertDimenToEm,
+    toPx : convertDimenToPx,
     metrics: metrics,
     sigmas: SIGMAS,
     getCharacterMetrics: getCharacterMetrics,

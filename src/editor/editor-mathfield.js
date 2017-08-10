@@ -2,6 +2,7 @@
 /**
  * See {@linkcode MathField}
  * @module editor/mathfield
+ * @private
  */
 define([
     'mathlive/core/definitions', 
@@ -15,10 +16,11 @@ define([
     'mathlive/editor/editor-undo', 
     'mathlive/editor/editor-shortcuts', 
     'mathlive/editor/editor-commands',
+    'mathlive/core/grapheme-splitter',
     'mathlive/addons/outputLatex', 
     'mathlive/addons/outputSpokenText'], 
     function(Definitions, MathAtom, Lexer, ParserModule, Span, 
-    EditableMathlist, MathPath, Keyboard, Undo, Shortcuts, Commands,
+    EditableMathlist, MathPath, Keyboard, Undo, Shortcuts, Commands, GraphemeSplitter,
 // eslint-disable-next-line no-unused-vars
     OutputLatex, OutputSpokenText) {
 
@@ -30,10 +32,6 @@ define([
     They modify the MathAtom class, adding toLatex() and toSpeakableText()
     respectively.
 */
-
-
-const mathfields = {};
-let mathfieldID = 0;
 
 
 
@@ -55,20 +53,6 @@ function off(el, selectors, listener, options) {
 
 
 /**
- * This function can either be used as a classic function to retrieve
- * a MathField object previously bound to a DOM element, e.g.:
- * 
- * ``` javascript
-    mf = Mathlive.MathField(document.getElementById('id'));
-   ```
- * 
- * Or it can be used as a constructor that will bind a new MathField 
- * object to a DOM element, e.g.
- * 
- * ``` javascript
-    mf = new Mathlive.MathField(document.getElementById('id'));
-   ```
- * 
  * **Note**
  * - Method names that _begin with_ an underbar `_` are private and meant
  * to be used only by the implementation of the class.
@@ -93,149 +77,171 @@ function off(el, selectors, listener, options) {
  * @global
  */
 function MathField(element, config) {
-    if (!this || !(this instanceof MathField)) {
-        // The MathField function is called directly, i.e. 
-        // mf = Mathlive.MathField(document.getElementById('id'));
+    // Setup default config options
+    this.config(config || {});
 
-        // If the element is, in fact, not a DOM element, return null.
-        if (!element || !element.nodeType) return null;
+    this.element = element;
 
-        // Find the corresponding mathfield by its blockID
-        const blockID = element.getAttribute('mathlive-block-id');
-        if (blockID) {
-            return mathfields[blockID];
-        }
+    // Save existing content
+    this.originalContent = element.innerHTML;
+    let elementText = this.element.textContent;
+    if (elementText) elementText = elementText.trim();
+
+    // Additional elements used for UI.
+    // They are retrieved in order a bit later, so they need to be kept in sync
+    // 0/ The textarea field that will receive keyboard events
+    // 1/ The field, where the math equation will be displayed
+    // 2/ The widget to activate the command bar
+    // 3/ The popover panel which displays info in command mode
+    // 4/ The keystroke caption panel (option+shift+K)
+    // 5/ The command bar
+    let markup = '';
+    if (!this.config.substituteTextArea) {
+        markup += '<span class="ML__textarea" aria-hidden="true" role="none presentation">' +
+            '<textarea class="ML__textarea--textarea" autocapitalize="off" autocomplete="off" ' + 
+            'autocorrect="off" spellcheck="false" ' + 
+            'aria-hidden="true" role="none presentation">' +
+            '</textarea>' +
+        '</span>';
     } else {
-        // The MathField function is called as a constructor, with new, i.e.
-        // mf = new MathField();
-
-        // Setup default config options
-        this.config(config || {});
-
-        // Give it a new ID
-        this.id = mathfieldID++;
-
-        // Remember the mapping between ID and `this` in the mathfields array
-        mathfields[this.id] = this;
-
-        this.element = element;
-
-        // Save existing content
-        const elementText = this.element.innerText.trim();
-
-        // Additional elements used for UI.
-        // They are retrived in order a bit later, so they need to be kept in sync
-        // 0/ The textarea field that will receive keyboard events
-        // 1/ The field, where the math equation will be displayed
-        // 2/ The widget to activate the command bar
-        // 3/ The popover panel which displays info in command mode
-        // 4/ The keystroke caption panel (option+shift+K)
-        // 5/ The command bar
-        let markup = '';
-        if (!config.substituteTextArea) {
-            markup += '<span class="ML__textarea" aria-hidden="true" role="none presentation">' +
-                '<textarea autocapitalize="off" autocomplete="off" ' + 
-                'autocorrect="off" spellcheck="false" ' + 
-                'aria-hidden="true" role="none presentation">' +
-                '</textarea>' +
-            '</span>';
+        if (typeof this.config.substituteTextArea === 'string') {
+            markup += this.config.substituteTextArea;
         } else {
-            if (typeof config.substituteTextArea === 'string') {
-                markup += config.substituteTextArea;
-            } else {
-                // We don't really need this one, but we keep it here so that the 
-                // indexes below remain the same whether a substituteTextArea is 
-                // provided or not.
-                markup += '<span></span>';
-            }
-        }
-        markup += '<span class="ML__fieldcontainer">' +
-                '<span ></span>' +
-                '<span class="ML__commandbartoggle"' +
-                    'role="button" tabindex="0" aria-label="Toggle Command Bar">' +
-                '</span>' +
-            '</span>' +
-            '<div class="ML__popover"></div>' + 
-            '<div class="ML__keystrokecaption"></div>' + 
-            '<div class="ML__commandbar">' +
-                '<div class="ML__commandbuttons" role="toolbar" aria-label="Commmand Bar></div>' + 
-                '<div class="ML__commandpanel"></div>' +
-            '</div>';
-
-
-        this.element.innerHTML = markup;
-
-        if (typeof config.substituteTextArea === 'function') {
-            this.textarea =  config.substituteTextArea();
-        } else {
-            this.textarea = this.element.children[0].firstElementChild;
-        }
-        this.field = this.element.children[1].children[0];
-        this.commandbarToggle = this.element.children[1].children[1];
-        this._attachButtonHandlers(this.commandbarToggle, 'toggleCommandBar');
-        this.popover = this.element.children[2];
-        this.keystrokeCaption = this.element.children[3];
-        this.commandBar = this.element.children[4];
-        this.commandButtons = this.commandBar.children[0];
-        this.commandPanel = this.commandBar.children[1];
-
-        // The keystroke caption panel and the command bar are 
-        // initially hidden
-        this.keystrokeCaptionVisible = false;
-        this.commandBarVisible = false;
-
-        // This index indicates which of the suggestions available to 
-        // display in the popover panel
-        this.suggestionIndex = 0;
-
-        // Focus/blur state
-        this.blurred = true;
-        on(window, 'focus', this._onFocus.bind(this));
-        on(window, 'blur', this._onBlur.bind(this));
-
-        // Capture clipboard events
-        on(this.textarea, 'cut', this._onCut.bind(this));
-        on(this.textarea, 'copy', this._onCopy.bind(this));
-        on(this.textarea, 'paste', this._onPaste.bind(this));
-
-        // Delegate keyboard events
-        Keyboard.delegateKeyboardEvents(this.textarea, {
-            container:      this.element,
-            typedText:      this._onTypedText.bind(this),
-            paste:          this._onPaste.bind(this),
-            keystroke:      this._onKeystroke.bind(this),
-            focus:          this._onFocus.bind(this),
-            blur:           this._onBlur.bind(this),
-        })
-
-
-        // Delegate mouse and touch events
-        on(this.element, 'touchstart mousedown', this._onPointerDown.bind(this), 
-            {passive: false, capture: false});
-
-        // Request notification for when the window is resized (
-        // or the device switched from portrait to landscape) to adjust
-        // the UI (popover, etc...)
-        on(window, 'resize', this._onResize.bind(this));
-
-
-        // Override some handlers in the config
-        const localConfig = Object.assign({}, config);
-        localConfig.onSelectionDidChange = 
-            MathField.prototype._onSelectionDidChange.bind(this);
-
-        this.mathlist = new EditableMathlist.EditableMathlist(localConfig);
-
-        // Prepare to manage undo/redo
-        this.undoManager = new Undo.UndoManager(this.mathlist);
-
-        // If there was some content in the element, use it for the initial
-        // value of the mathfield
-        if (elementText.length > 0) {
-            this.latex(elementText);
+            // We don't really need this one, but we keep it here so that the 
+            // indexes below remain the same whether a substituteTextArea is 
+            // provided or not.
+            markup += '<span></span>';
         }
     }
+    markup += '<span class="ML__fieldcontainer">' +
+            '<span class="ML__fieldcontainer--field"></span>';
+
+    if (this.config.commandbarToggle === 'visible') {
+        markup += '<span class="ML__commandbartoggle"' +
+                    'role="button" tabindex="0" aria-label="Toggle Command Bar">' +
+                    '<svg viewBox="0 0 21 14" height="14">' +
+                    '<path d="M10.35 13.55L0 3.2 3.06.13l7.16 7.17 7.3-7.3 3.2 3.2-10.36 10.35v-.01l-.01.01z" fill-rule="evenodd" clip-rule="evenodd"></path>' +
+                    '</svg>' +
+                '</span>';
+    } else {
+        markup += '<span ></span>';
+    }
+
+    markup += '</span>' +
+        '<div class="ML__popover"></div>' + 
+        '<div class="ML__keystrokecaption"></div>' + 
+        '<div class="ML__commandbar">' +
+            '<div class="ML__commandbar--buttons" role="toolbar" aria-label="Command Bar"></div>' + 
+            '<div class="ML__commandbar--panel"></div>' +
+        '</div>';
+
+
+    this.element.innerHTML = markup;
+
+    if (typeof this.config.substituteTextArea === 'function') {
+        this.textarea =  this.config.substituteTextArea();
+    } else {
+        this.textarea = this.element.children[0].firstElementChild;
+    }
+    this.field = this.element.children[1].children[0];
+    this.commandbarToggle = this.element.children[1].children[1];
+    this._attachButtonHandlers(this.commandbarToggle, 'toggleCommandBar');
+    this.popover = this.element.children[2];
+    this.keystrokeCaption = this.element.children[3];
+    this.commandBar = this.element.children[4];
+    this.commandButtons = this.commandBar.children[0];
+    this.commandPanel = this.commandBar.children[1];
+
+    // The keystroke caption panel and the command bar are 
+    // initially hidden
+    this.keystrokeCaptionVisible = false;
+    this.commandBarVisible = false;
+
+    // This index indicates which of the suggestions available to 
+    // display in the popover panel
+    this.suggestionIndex = 0;
+
+    // Focus/blur state
+    this.blurred = true;
+    on(window, 'focus', this._onFocus.bind(this));
+    on(window, 'blur', this._onBlur.bind(this));
+
+    // Capture clipboard events
+    on(this.textarea, 'cut', this._onCut.bind(this));
+    on(this.textarea, 'copy', this._onCopy.bind(this));
+    on(this.textarea, 'paste', this._onPaste.bind(this));
+
+    // Delegate keyboard events
+    Keyboard.delegateKeyboardEvents(this.textarea, {
+        container:      this.element,
+        typedText:      this._onTypedText.bind(this),
+        paste:          this._onPaste.bind(this),
+        keystroke:      this._onKeystroke.bind(this),
+        focus:          this._onFocus.bind(this),
+        blur:           this._onBlur.bind(this),
+    })
+
+
+    // Delegate mouse and touch events
+    on(this.element, 'touchstart mousedown', this._onPointerDown.bind(this), 
+        {passive: false, capture: false});
+
+    // Request notification for when the window is resized (
+    // or the device switched from portrait to landscape) to adjust
+    // the UI (popover, etc...)
+    on(window, 'resize', this._onResize.bind(this));
+
+
+    // Override some handlers in the config
+    const localConfig = Object.assign({}, config);
+    localConfig.onSelectionDidChange = 
+        MathField.prototype._onSelectionDidChange.bind(this);
+    localConfig.onSelectionWillChange = 
+        MathField.prototype._onSelectionWillChange.bind(this);
+    localConfig.onContentWillChange = 
+        MathField.prototype._onContentWillChange.bind(this);
+    localConfig.onContentDidChange = 
+        MathField.prototype._onContentDidChange.bind(this);
+
+    this.mathlist = new EditableMathlist.EditableMathlist(localConfig);
+
+    // Prepare to manage undo/redo
+    this.undoManager = new Undo.UndoManager(this.mathlist);
+
+    // If there was some content in the element, use it for the initial
+    // value of the mathfield
+    if (elementText.length > 0) {
+        this.latex(elementText);
+    }
+
+    // If fonts get loaded (which could happen as a result of the first pass 
+    // rendering done in .latex()), render again.
+    const that = this;
+    document.fonts.ready.then(() => that._render());
 }
+
+/**
+ * Revert this math field to its original content. After this method has been 
+ * called, no other methods can be called on the MathField object. To turn the
+ * element back into a MathField, call `MathLive.makeMathField()` on the 
+ * element again to get a new math field object.
+ * 
+ * @method MathField#revertToOriginalContent
+ */
+MathField.prototype.revertToOriginalContent = function() {
+    this.element.innerHTML = this.originalContent;
+    delete this.field;
+    delete this.textarea;
+    delete this.commandbarToggle;
+    delete this.popover;
+    delete this.keystrokeCaption;
+    delete this.commandBar;
+    delete this.commandButtons;
+    delete this.commandPanel;
+    off(this.element, 'touchstart mousedown', this._onPointerDown.bind(this));
+    off(window, 'resize', this._onResize.bind(this));
+}
+
 
 /**
  * Utility function that returns the element which has the caret
@@ -449,7 +455,7 @@ MathField.prototype._onPointerDown = function(evt) {
 }
 
 MathField.prototype._onSelectionDidChange = function() {
-    // Every atom before the new caret position is now comitted
+    // Every atom before the new caret position is now committed
     this.mathlist.commitCommandStringBeforeInsertionPoint();
 
     // If the selection is not collapsed, put it in the textarea
@@ -480,6 +486,24 @@ MathField.prototype._onSelectionDidChange = function() {
     // Invoke client handlers, if provided.
     if (this.config.onSelectionDidChange) {
         this.config.onSelectionDidChange(this);
+    }
+}
+
+MathField.prototype._onSelectionWillChange = function() {
+    if (this.config.onSelectionWillChange) {
+        this.config.onSelectionWillChange(this);
+    }
+}
+
+MathField.prototype._onContentWillChange = function() {
+    if (this.config.onContentWillChange) {
+        this.config.onContentWillChange(this);
+    }
+}
+
+MathField.prototype._onContentDidChange = function() {
+    if (this.config.onContentDidChange) {
+        this.config.onContentDidChange(this);
     }
 }
 
@@ -532,11 +556,11 @@ MathField.prototype._showKeystroke = function(keystroke) {
 
 /**
  * @param {Array.<string>} command - A selector and its parameters
- * @method module:editor/mathfield:MathField#perform
+ * @method MathField#perform
  */
 /**
  * @param {string} command - A selector
- * @method module:editor/mathfield:MathField#perform
+ * @method MathField#perform
  */
 MathField.prototype.perform = function(command) {
     let result = false;
@@ -617,15 +641,22 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
 
 
 
-MathField.prototype._onTypedText = function(text) {    
+/**
+ * This handler is invoked when text has been typed, pasted in or input with
+ * an input method. As a result, `text` can be a sequence of characters to
+ * be inserted.
+ * @param {string} text
+ */
+MathField.prototype._onTypedText = function(text) {
     // Remove any error indicator on the current command sequence (if there is one)
     this.mathlist.decorateCommandStringAroundInsertionPoint(false);
 
     // Insert the specified text at the current insertion point.
     // If the selection is not collapsed, the content will be deleted first.
 
-    let popoverText;
-    let displayArrows;
+    let popoverText = '';
+    let displayArrows = false;
+
     if (this.pasteInProgress) {
         this.pasteInProgress = false;
         // This call was made in response to a paste event.
@@ -633,16 +664,17 @@ MathField.prototype._onTypedText = function(text) {
         this.mathlist.insert(text);
 
     } else {
-        for (const c of text) {
-            
+        // Decompose the string into an array of graphemes. This is necessary
+        // to correctly process what would be visually perceived by a human 
+        // as a single glyph (a grapheme) but which is actually composed of 
+        // multiple Unicode codepoints. This is the case in particular for 
+        // emojis, such as emojis with a skin tone modifier, the country flags
+        // emojis or compound emoji such as the professional emojis, including
+        // the David Bowie emoji.
+        const graphemes = GraphemeSplitter.splitGraphemes(text);
+        for (const c of graphemes) {
             this._showKeystroke(c);
 
-            let shortcut;
-            // Inline shortcuts only apply in `math` parseMode
-            if (this.mathlist.parseMode() === 'math') {
-                const prefix = this.mathlist.extractGroupStringBeforeInsertionPoint();
-                shortcut = Shortcuts.matchEndOf(prefix + c, this.config);
-            }
             if (this.mathlist.parseMode() === 'command') {
                 this.mathlist.removeSuggestion();
                 this.suggestionIndex = 0;
@@ -665,27 +697,42 @@ MathField.prototype._onTypedText = function(text) {
                     }
                     popoverText = suggestions[0].match;
                 }
-            } else if (shortcut) {
-                // Insert the character before applying the substitution
-                this.mathlist.insert(c);
+            } else if (this.mathlist.parseMode() === 'math') {
+                // Inline shortcuts (i.e. 'p' + 'i' = '\pi') only apply in `math` 
+                // parseMode
+                const prefix = this.mathlist.extractGroupStringBeforeInsertionPoint();
+                const shortcut = Shortcuts.matchEndOf(prefix + c, this.config);
+                if (shortcut) {
+                    // Insert the character before applying the substitution
+                    this.mathlist.insert(c);
 
-                // Create a snapshot with the inserted character so we can 
-                // revert to that. This will allow to undo the effect of 
-                // the substitution if it was undesired.
-                this.undoManager.snapshot();
+                    // Create a snapshot with the inserted character so we can 
+                    // revert to that. This will allow to undo the effect of 
+                    // the substitution if it was undesired.
+                    this.undoManager.snapshot();
 
-                // Remove the characters we're replacing
-                this.mathlist.delete(-shortcut.match.length - 1);
+                    // Remove the characters we're replacing
+                    this.mathlist.delete(-shortcut.match.length - 1);
 
-                // Insert the substitute
-                this.mathlist.insert(shortcut.substitute);        
-            } else {
-                // if (!this.mathlist.isCollapsed()) {
-                //     this.undoManager.snapshot();
-                // }
-                this.undoManager.snapshot();
-                this.mathlist.insert(c);
-                // this.undoManager.snapshot();
+                    // Insert the substitute
+                    this.mathlist.insert(shortcut.substitute);        
+                } else {
+                    // Some characters are mapped to commands. Handle them here.
+                    // This is important to handle synthetic text input and
+                    // non-US keyboards, on which, fop example, the '^' key is
+                    // not mapped to  'Shift-Digit6'.
+                    const selector = {
+                        '^': 'moveToSuperscript',
+                        '_': 'moveToSubscript',
+                        ' ': 'moveAfterParent'
+                    }[c];
+                    if (selector) {
+                        this.perform(selector);
+                    } else {
+                        this.undoManager.snapshot();
+                        this.mathlist.insert(c);
+                    }
+                }
             }
         }
     }
@@ -694,16 +741,18 @@ MathField.prototype._onTypedText = function(text) {
     // Render the mathlist
     this._render();
 
-    // Since the location of the popover depends on the positon of the caret
+    // Since the location of the popover depends on the position of the caret
     // only show the popover after the formula has been rendered and the 
     // position of the caret calculated
     this._showPopoverWithLatex(popoverText, displayArrows);
 }
 
 /**
- * When the content of the math field has changed (or the selection), 
- * call `render()` to re-layout the field and generate the udpated DOM 
- * elements.
+ * Call `render()` to re-layout the field and generate the updated DOM.
+ * This is usually done automatically, but if the font-size, or other geometric
+ * attributes are modified, outside of MathLive, this function may need to be
+ * called.
+ * 
  * @method MathField#render
  * @private
  */
@@ -738,21 +787,23 @@ MathField.prototype._render = function() {
     const base = Span.makeSpan(spans, 'ML__base');
     base.attributes = {
         // Hint to screen readers to not attempt to read this span
-        // They should use instead the 'ariaText' below.
+        // They should use instead the 'aria-label' below.
         'aria-hidden': 'true',
         'role': 'none presentation'
     }
 
-    const topStrut = Span.makeSpan('', 'ML__strut');
+    const topStrut = Span.makeSpan('', 'ML__strut')
     topStrut.setStyle('height', base.height, 'em');
-
-    const bottomStrut = Span.makeSpan('', 'ML__strut ML__bottom');
-    bottomStrut.setStyle('height', base.height + base.depth, 'em');
-    bottomStrut.setStyle('vertical-align', -base.depth, 'em');
-
-
-    const wrapper = Span.makeSpan([topStrut, bottomStrut, base], 'ML__mathlive');
-    wrapper.classes += hasFocus ? ' ML__focused' : ' ML__blured';
+    const struts = [topStrut];
+    if (base.depth !== 0) {
+        const bottomStrut = Span.makeSpan('', 'ML__strut ML__bottom');
+        bottomStrut.setStyle('height', base.height + base.depth, 'em');
+        bottomStrut.setStyle('vertical-align', -base.depth, 'em');
+        struts.push(bottomStrut);
+    } 
+    struts.push(base);
+    const wrapper = Span.makeSpan(struts, 'ML__mathlive');
+    wrapper.classes += hasFocus ? ' ML__focused' : ' ML__blurred';
 
     //
     // 4. Decorate with a spoken text version for accessibility
@@ -775,7 +826,7 @@ MathField.prototype._render = function() {
 
         'role':         'math',     // or 'application' ?
         // 'aria-multiline': 'true',
-        'aria-label': MathAtom.toSpeakableText(this.mathlist.root)
+        'aria-label':   MathAtom.toSpeakableText(this.mathlist.root)
     };
 
 
@@ -784,8 +835,7 @@ MathField.prototype._render = function() {
     // 5. Generate markup
     //
 
-    const markup = wrapper.toMarkup();
-    this.field.innerHTML = markup;
+    this.field.innerHTML = wrapper.toMarkup();
 
     //
     // 6. Stop event propagation, and scroll cursor into view
@@ -860,6 +910,7 @@ MathField.prototype.latex = function(text) {
             format: 'latex'
         });
         this._render();
+        return text;
     }
 
     // Return the content as LaTeX
@@ -1169,7 +1220,8 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
     // associated with the button (the command could be an array made of a 
     // selector and one or more parameters)
 
-    el.dataset.command = JSON.stringify(command);
+    el.setAttribute(
+        'data-' + this.config.namespace + 'command', JSON.stringify(command));
 
     on(el, 'mousedown touchstart', function(ev) {
         if (ev.type !== 'mousedown' || ev.buttons === 1) {
@@ -1199,7 +1251,8 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
             150);
 
         // Restore the command (and its optional arguments) and perform it
-        that.perform(JSON.parse(el.dataset.command));
+        that.perform(JSON.parse(
+            el.getAttribute('data-' + that.config.namespace + 'command')));
         ev.stopPropagation();
         ev.preventDefault();
     });
@@ -1236,7 +1289,8 @@ MathField.prototype._updateCommandBar = function() {
             this.mathlist.parent(),
             this.mathlist.extractGroupBeforeSelection(), 
             this.mathlist.extractContents(),
-            this.mathlist.extractGroupAfterSelection());
+            this.mathlist.extractGroupAfterSelection(), 
+            this.config);
 
 
         for (const command of commands) {
@@ -1255,7 +1309,7 @@ MathField.prototype._updateCommandBar = function() {
 MathField.prototype.toggleCommandBar_ = function() {
     this.commandBarVisible = !this.commandBarVisible;
 
-    // If the commanbar toggle was tapped, switch the focus to the mathfield
+    // If the commandbar toggle was tapped, switch the focus to the mathfield
     // To trigger the keyboard reveal on iOS, this needs to be done from 
     // an invocation of a user action (mousedown)
     if (this.commandBarVisible) this.focus();
@@ -1316,96 +1370,33 @@ MathField.prototype.typedText = function(text) {
 
 
 /**
- * @callback mathfieldCallback
- * @param {Mathfield}
- *
- * @callback mathfieldWithDirectionCallback
- * @param {Mathfield}
- * @param {number} direction
- * @return {boolean} False to suppress default behavior.
- */
+ * @param {Object} [config] See `MathLive.config()` for details
+ * 
 
-/**
- * @param {Object} config
- * 
- * @param {*} config.substituteTextArea - A function that returns a focusable element
- * that can be used to capture text input.
- * 
- * @param {mathfieldCallback} config.onFocus - Invoked when the mathfield has been focused
- * 
- * @param {mathfieldCallback} config.onBlur - Invoked when the mathfield has been blurred
- * 
- * @param {boolean} config.overrideDefaultInlineShorctus - If true, the default 
- * inline shortcuts (e.g. 'p' + 'i' = 'π') are ignored. Default false.
- * 
- * @param {Object} config.inlineShortcuts - A map of shortcuts -> replacement value.
- * For example `{ 'pi': '\\pi'}`. If `overrideDefaultInlineShorcuts` is false, 
- * these shortcuts are applied after any default ones, and can therefore replace
- * them.
- * 
- * @param {mathfieldWithDirectionCallback} config.onMoveOutOf - A handler called when 
- * keyboard navigation would cause the insertion point to leave the mathfield.
- * 
- * By default, the insertion point will wrap around.
- * 
- * @param {mathfieldWithDirectionCallback} config.onTabOutOf - A handler called when 
- * pressing tab (or shift-tab) would cause the insertion point to leave the mathfield.
- * 
- * By default, the insertion point jumps to the next point of interest.
- * 
- * @param {mathfieldWithDirectionCallback} config.onDeleteOutOf - A handler called when 
- * deleting an item would cause the insertion point to leave the mathfield.
- * 
- * By default, nothing happens. @todo
- * 
- * @param {mathfieldWithDirectionCallback} config.onSelectOutOf - A handler called when 
- * the selection is extended so that it would cause the insertion point to 
- * leave the mathfield.
- * 
- * By default, nothing happens. @todo
- * 
- * @param {mathfieldCallback} config.onUpOutOf - A handler called when 
- * the up arrow key is pressed with no element to navigate to.
- * 
- * By default, nothing happens. @todo
- * 
- * @param {mathfieldCallback} config.onDownOutOf - A handler called when 
- * the up down key is pressed with no element to navigate to.
- * 
- * By default, nothing happens. @todo
- * 
- * @param {mathfieldCallback} config.onEnter - A handler called when 
- * the enter/return key is pressed and it is not otherwise handled. @todo
- * 
- * @param {mathfieldCallback} config.onContentWillChange - A handler called 
- * just before the content is about to be changed. @todo
- * 
- * @param {mathfieldCallback} config.onContentDidChange - A handler called 
- * just after the content has been changed.@todo
- * 
- * @param {mathfieldCallback} config.onSelectionWillChange - A handler called 
- * just before the selection is about to be changed.
- * 
- * @param {mathfieldCallback} config.onSelectionDidChange - A handler called  
- * just after the selection has been changed.
- * 
  * @method MathField#config
  */
 MathField.prototype.config = function(config) {
     const def = {
         // If true, spacebar and shift-spacebar escape from the current block
-        spacesBehavesLikeTab: false,
+        // spacesBehavesLikeTab: false,
         // leftRightIntoCmdGoes: 
+        overrideDefaultInlineShortcuts: false,
+        commandbarToggle: 'visible',
+        overrideDefaultCommands: false,
+
     }
 
     // Copy the values from `config` to `def`
-    for (const c in config) {
-        if (config.hasOwnProperty(c)) {
-            def[c] = config[c];
-        }
+    this.config = Object.assign({}, def, config);
+
+    // Validate the namespace (used for `data-` attributes)
+    if (!/^[a-z]+[-]?$/.test(this.config.namespace)) {
+        throw Error('options.namespace must be a string of lowercase characters only');
+    }
+    if (!/-$/.test(this.config.namespace)) {
+        this.config.namespace += '-';
     }
 
-    this.config = def;
 }
 
 return {
@@ -1414,3 +1405,5 @@ return {
 
 
 })
+
+

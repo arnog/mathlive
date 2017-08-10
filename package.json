@@ -1,6 +1,6 @@
 {
   "name": "mathlive",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Beautifully typeset math made easy",
   "license": "MIT",
   "repository": {
@@ -15,7 +15,7 @@
   ],
   "main": "dist/mathlive.js",
   "scripts": {
-    "clean": "rm -rf build dist docs",
+    "clean": "rimraf build dist docs",
     "build-js": "npm-run-all -p lint",
     "watch-js": "esw -w src/",
     "build-css": "lessc-each css build",
@@ -52,11 +52,11 @@
   ],
   "author": "Arno Gourdol <arno@arno.org>",
   "contributors": [
-      "Louis Larpin (lilfaf.github.io)"
+    "Louis Larpin (lilfaf.github.io)"
   ],
   "bugs": "https://github.com/arnog/mathlive/issues/",
   "devDependencies": {
-    "autoprefixer": "^6.7.7",
+    "autoprefixer": "^7.1.1",
     "babel-core": "^6.25.0",
     "babel-loader": "^7.0.0",
     "babel-preset-env": "^1.5.2",
@@ -74,6 +74,7 @@
     "nyc": "^11.0.2",
     "postcss-cli": "^4.1.0",
     "requirejs": "latest",
+    "rimraf": "^2.6.1",
     "sutro-jsdoc-theme": "github:arnog/sutro-jsdoc-theme",
     "tape": "^4.6.3",
     "tape-watch": "^2.3.0",

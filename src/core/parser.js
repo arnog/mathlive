@@ -128,6 +128,17 @@ Parser.prototype.hasLiteral = function(value) {
         (!value || this.tokens[index].value === value) : false;
 }
 
+/**
+ * @param {RegEx} pattern
+ * @return {boolean} True if the next token is of type `'literal` and matches 
+ * the specified regular expression pattern.
+ * @method Parser#hasLiteralPattern
+ */
+Parser.prototype.hasLiteralPattern = function(pattern) {
+    return this.hasToken('literal') && 
+        pattern.test(this.tokens[this.index].value);
+}
+
 Parser.prototype.hasCommand = function(command) {
     console.assert(command === '\\' || command.charAt(0) !== '\\',
         'hasCommand() does not require a \\');
@@ -182,30 +193,21 @@ const SIZING_COMMANDS = [
     'large', 'Large', 'LARGE', 'huge', 'Huge',
 ];
 
-Parser.prototype.hasImplicitSizingCommand = function() {
-    if (this.index < this.tokens.length) {
-        const token = this.tokens[this.index]
-        if (token.type === 'command') {
-            return SIZING_COMMANDS.indexOf(token.value) !== -1;
-        }
-    }
-    return false;
-
-}
-
 const MATHSTYLE_COMMANDS = [
     'displaystyle', 'textstyle', 'scriptstyle', 'scriptscriptstyle',
 ]
 
-Parser.prototype.hasImplicitMathstyleCommand = function() {
+Parser.prototype.hasImplicitCommand = function(commands) {
     if (this.index < this.tokens.length) {
         const token = this.tokens[this.index]
         if (token.type === 'command') {
-            return MATHSTYLE_COMMANDS.indexOf(token.value) !== -1;
+            return commands.includes(token.value);
         }
     }
     return false;
 }
+
+
 
 Parser.prototype.parseRowSeparator = function() {
     if (this.hasRowSeparator()) {
@@ -376,11 +378,11 @@ Parser.prototype.scanNumber = function(isInteger) {
     isInteger = !!isInteger;
 
     let radix = 10;
-    let digits = '0123456789';
+    let digits = /[0-9]/;
     if (this.parseLiteral("'")) {
         // Apostrophe indicates an octal value
         radix = 8;
-        digits = '01234567';
+        digits = /[0-7]/;
         isInteger = true;
     } else if (this.parseLiteral('"') || this.parseLiteral('x')) {
         // Double-quote indicates a hex value
@@ -388,36 +390,20 @@ Parser.prototype.scanNumber = function(isInteger) {
         // For example: 'x3a'
         radix = 16;
         // Hex digits have to be upper-case
-        digits = '0123456789ABCDEF';
+        digits = /[0-9A-F]/;
         isInteger = true;
     }
 
     let value = '';
-    let done = this.end();
-    while (!done) {
-        if (!this.hasToken('literal')) {
-            done = true;
-        } else {
-            done = digits.indexOf(this.peek().value) === -1;
-            if (!done) {
-                value += this.get().value;
-            }
-        }
+    while (this.hasLiteralPattern(digits)) {
+        value += this.get().value;
     }
 
     // Parse the fractional part, if applicable
     if (!isInteger &&  (this.parseLiteral('.') || this.parseLiteral(','))) {
         value += '.';
-        done = this.end();
-        while (!done) {
-            if (!this.hasToken('literal')) {
-                done = true;
-            } else {
-                done = digits.indexOf(this.peek().value) === -1;
-                if (!done) {
-                    value += this.get().value;
-                }
-            }
+        while (this.hasLiteralPattern(digits)) {
+            value += this.get().value;
         }
     }
 
@@ -425,41 +411,13 @@ Parser.prototype.scanNumber = function(isInteger) {
     return negative ? -result : result;
 }
 
-function convertDimenToEm(value, unit) {
-
-    let f = 1;
-    if (unit === 'pt') {
-        f = 1;
-    } else if (unit === 'mm') {
-        f = 7227 / 2540;
-    } else if (unit === 'cm') {
-        f = 7227 / 254;
-    } else if (unit === 'ex') {
-        f = 35271 / 8192;
-    } else if (unit === 'em') {
-        f = FontMetrics.metrics.ptPerEm;
-    } else if (unit === 'bp') {
-        f = 803 / 800;
-    } else if (unit === 'dd') {
-        f = 1238 / 1157;
-    } else if (unit === 'pc') {
-        f = 12;
-    } else if (unit === 'in') {
-        f = 72.27;
-    } else if (unit === 'mu') {
-        f = 10 / 18;
-    }
-    // If the units are missing, TeX assumes 'pt'
-
-    return value / FontMetrics.metrics.ptPerEm * f;
-}
 
 /**
  * Return as a floating point number a dimension in pt (1 em = 10 pt)
  * 
  * See TeX:8831
  * @todo: note that some units depend on the font (em, ex). So it might be
- * better to return a dimen struct witht the value + unit and resolve
+ * better to return a dimen struct with the value + unit and resolve
  * later when we have a font context....
  * @return {number}
  * @method Parser#scanDimen
@@ -473,28 +431,30 @@ Parser.prototype.scanDimen = function() {
     let result;
 
     if (this.parseKeyword('pt')) {
-        result = convertDimenToEm(value, 'pt');
+        result = FontMetrics.toEm(value, 'pt');
     } else if (this.parseKeyword('mm')) {
-        result = convertDimenToEm(value, 'mm');
+        result = FontMetrics.toEm(value, 'mm');
     } else if (this.parseKeyword('cm')) {
-        result = convertDimenToEm(value, 'cm');
+        result = FontMetrics.toEm(value, 'cm');
     } else if (this.parseKeyword('ex')) {
-        result = convertDimenToEm(value, 'ex');
+        result = FontMetrics.toEm(value, 'ex');
+    } else if (this.parseKeyword('px')) {
+        result = FontMetrics.toEm(value, 'px');
     } else if (this.parseKeyword('em')) {
-        result = convertDimenToEm(value, 'em');
+        result = FontMetrics.toEm(value, 'em');
     } else if (this.parseKeyword('bp')) {
-        result = convertDimenToEm(value, 'bp');
+        result = FontMetrics.toEm(value, 'bp');
     } else if (this.parseKeyword('dd')) {
-        result = convertDimenToEm(value, 'dd');
+        result = FontMetrics.toEm(value, 'dd');
     } else if (this.parseKeyword('pc')) {
-        result = convertDimenToEm(value, 'pc');
+        result = FontMetrics.toEm(value, 'pc');
     } else if (this.parseKeyword('in')) {
-        result = convertDimenToEm(value, 'in');
+        result = FontMetrics.toEm(value, 'in');
     } else if (this.parseKeyword('mu')) {
-        result = convertDimenToEm(value, 'mu');
+        result = FontMetrics.toEm(value, 'mu');
     } else {
         // If the units are missing, TeX assumes 'pt'
-        result = convertDimenToEm(value, 'pt');
+        result = FontMetrics.toEm(value, 'pt');
     }
 
     return result;
@@ -634,7 +594,7 @@ Parser.prototype.scanEnvironment = function() {
             } else {
                 // If it's not present, scanArg returns null,
                 // but push it on the list of arguments anyway.
-                // The null vallue will be interpreted as unspecified
+                // The null value will be interpreted as unspecified
                 // optional value by the command handler.
                 args.push(this.scanArg(param.type));
             }
@@ -742,7 +702,7 @@ Parser.prototype.scanImplicitGroup = function(done) {
     // if (this.index >= this.tokens.length) return true;
     // const token = this.tokens[this.index];
     while(!this.end() && !done(this.peek())) {
-        if (this.hasImplicitSizingCommand()) {
+        if (this.hasImplicitCommand(SIZING_COMMANDS)) {
             // Implicit sizing command such as \Large, \small
             // affect the tokens following them
             // Note these commands are only appropriate in 'text' mode.
@@ -761,7 +721,7 @@ Parser.prototype.scanImplicitGroup = function(done) {
             }[this.get().value];
             this.mathList.push(atom);
 
-        } else if (this.hasImplicitMathstyleCommand()) {
+        } else if (this.hasImplicitCommand(MATHSTYLE_COMMANDS)) {
             // Implicit math style commands such as \displaystyle, \textstyle...
             // Note these commands switch to math mode and a specific size
             // \textsize is the mathstyle used for inlinemath, not for text
@@ -910,27 +870,24 @@ Parser.prototype.parseSupSub = function() {
     if (this.parseMode !== 'math') return false;
 
     // Apply the subscript/superscript to the last render atom.
-    // If none is present (begining of the mathlist, i.e. `{^2}`,
+    // If none is present (beginning of the mathlist, i.e. `{^2}`,
     // an empty atom will be created, equivalent to `{{}^2}`
     let result = false;
 
-    while (this.hasToken('^') || this.hasToken('_') || this.hasLiteral('\'')) {
-        if (this.parseToken('^')) {
+    while (this.hasToken('^') || this.hasToken('_') || this.hasLiteral("'")) {
+        let supsub;
+        if (this.hasToken('^')) {
+            supsub = 'superscript';
+        } else if (this.hasToken('_')) {
+            supsub = 'subscript';
+        }
+        if (this.parseToken('^') || this.parseToken('_')) {
             const arg = this.scanArg();
             if (arg) {
                 const atom = this.lastMathAtom();
-                atom.superscript = atom.superscript || [];
-                atom.superscript = atom.superscript.concat(arg);
-                result = result || true;
-            }
-
-        } else if (this.parseToken('_')) {
-            const arg = this.scanArg();
-            if (arg) {
-                const atom = this.lastMathAtom();
-                atom.subscript = atom.subscript || [];
-                atom.subscript = atom.subscript.concat(arg);
-                result = result || true;
+                atom[supsub] = atom[supsub] || [];
+                atom[supsub] = atom[supsub].concat(arg);
+                result = true;
             }
 
         } else if (this.parseLiteral("'")) {
@@ -941,7 +898,7 @@ Parser.prototype.parseSupSub = function() {
             atom.superscript.push(
                 new MathAtom(atom.parseMode, 'mord', '\u2032', 'main')
             );
-                result = result || true;
+            result = true;
         }
     }
 
@@ -1012,7 +969,10 @@ Parser.prototype.scanOptionalArg = function(parseMode) {
             // The \bbox command takes a very particular argument:
             // a comma delimited list of up to three arguments:
             // a color, a dimension and a string.
-            const list = this.scanString().toLowerCase().trim().split(',');
+            // Split the string by comma delimited sub-strings, ignoring commas
+            // that may be inside (). For example"x, rgb(a, b, c)" would return 
+            // ['x', 'rgb(a, b, c)']
+            const list = this.scanString().toLowerCase().trim().split(/,(?![^(]*\)(?:(?:[^(]*\)){2})*[^"]*$)/);
             for (const elem of list) {
                 const color = Color.stringToColor(elem);
                 if (color) {
@@ -1022,7 +982,7 @@ Parser.prototype.scanOptionalArg = function(parseMode) {
                     const m = elem.match(/^\s*([0-9.]+)\s*([a-z][a-z])/);
                     if (m) {
                         result = result || {};
-                        result.padding = convertDimenToEm(parseFloat(m[1]), m[2]);
+                        result.padding = FontMetrics.toEm(m[1], m[2]);
                     } else {
                         const m = elem.match(/^\s*border\s*:\s*(.*)/);
                         if (m) {

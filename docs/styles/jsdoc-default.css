@@ -533,6 +533,7 @@ dl.param-type {
 }
 
 .nav-trigger:checked ~ nav {
+  opacity: 1 !important;
   left: 0 !important;
 }
 
@@ -559,7 +560,7 @@ dl.param-type {
   z-index: 1;
 }
 
-@media only screen and (min-width: 320px) and (max-width: 800px) {
+@media only screen and (min-width: 320px) and (max-width: 990px) {
   body {
     overflow-x: hidden;
   }

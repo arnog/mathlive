@@ -4,51 +4,47 @@
     "Droid Sans","Helvetica Neue",sans-serif;
 
 .ML__mathlive {
-    font: normal 1.12em KaTeX_Main, Times New Roman, serif;
+    font: normal 16px KaTeX_Main, Times New Roman, serif;
     line-height: 1.2;
     white-space: nowrap;
     text-shadow: none;
     user-select: none;
 
-    // Protect elements inside .mathlive from inheriting text-indent.
+    // Protect elements from inheriting text-indent.
     text-indent: 0;
+    
+    // Encourage browsers to consider allocating a hardware accelerated 
+    // layer for this element.
+    transform: translateZ(0);
+}
 
-    // .mathlive-html {
-    //     // Making .mathlive inline-block allows line breaks before and after,
-    //     // which is undesireable ("to $x$,"). Instead, adjust the .mathlive-html
-    //     // style and put nowrap on the inline .mathlive element.
-    //     display: inline-block;
-    // }
+.ML__base {
+    display: inline-block;
+}
 
-    .ML__base {
-        display: inline-block;
-    }
+.ML__strut {
+    display: inline-block;
+}
 
-    .ML__strut {
-        display: inline-block;
-    }
+.ML__caret {
+    border: none;
+    border-radius: 0;
+    border-right: 2px solid @primary;
+    margin-right: -2px;
+    // z-index: 1;
 
-    .ML__caret {
-        border: none;
-        border-radius: 0;
-        border-right: 2px solid @primary;
-        margin-right: -2px;
-        // z-index: 1;
+    animation: ML__caret-blink 1.05s step-end forwards infinite;
+}
 
-        animation: ML__caret-blink 1.05s step-end forwards infinite;
-    }
-
-    @keyframes  ML__caret-blink {
-        from, to    { border-color: @primary; }
-        50%         { border-color: transparent; }
-    }
-
+@keyframes  ML__caret-blink {
+    from, to    { border-color: @primary; }
+    50%         { border-color: transparent; }
 }
 
 /* Style for the invisible textarea element which is used
 to capture keyboard events. We're just trying really hard 
 to make sure it doesn't show. */
-.ML__textarea textarea {
+.ML__textarea--textarea {
     transform: scale(0);
     resize: none;
     /* user-select: text;   Not sure it's needed  */
@@ -66,7 +62,13 @@ to make sure it doesn't show. */
     flex-flow: row;
     justify-content: space-between;
     align-items: flex-end;
+    // overflow: scroll; /* Doesn't work yet (partial clip), because of incorrect height calculcations */ 
+    min-height: 39px;       /* Need some room for the command bar toggle */
+}
 
+/* This is the actual field content (formula) */
+.ML__fieldcontainer--field {
+    align-self: center;
 }
 
 /* The element that displays the keys as the user type them */
@@ -118,31 +120,26 @@ to make sure it doesn't show. */
 }
 
 .ML__commandbartoggle {
-    font-family: @system;
-    font-size: 32px;
+    align-self: center;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
     width: 34px;
     height: 34px;
-    border-radius: 50%;
-    font-weight: 900;
-    text-transform: none;
-    font-variant: normal;
-    border: 1px solid #ddd;
-    text-align: center;
+    margin-right: 4px;
 
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    border: 1px solid #f0f0f0;
 
     cursor: pointer;
-    
-    &::after {
-        content: '\2304';
-        bottom: 20%;
-        display: block;
-        position: relative;
-        color: #999;
-        text-shadow: 1px 1px #fff;
-    }
-}
 
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+}
+.ML__commandbartoggle svg {
+    fill: #aaa;
+}
 
 /* The element that display info while in command mode */
 .ML__popover {

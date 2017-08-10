@@ -5,10 +5,11 @@
 </h1>
 
 
-[![Maintenance](https://img.shields.io/maintenance/yes/2017.svg)]()
 [![Build Status](https://travis-ci.org/arnog/mathlive.svg?branch=master)](https://travis-ci.org/arnog/mathlive)
 [![David](https://img.shields.io/david/dev/arnog/mathlive.svg)]()
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/arnog/mathlive/master/LICENSE.txt)
+[![Greenkeeper badge](https://badges.greenkeeper.io/arnog/mathlive.svg)](https://greenkeeper.io/)
+[![Maintenance](https://img.shields.io/maintenance/yes/2017.svg)]()
+[![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://raw.githubusercontent.com/arnog/mathlive/master/LICENSE.txt)
 
 MathLive is a Javascript library to render and edit math. 
 
@@ -40,6 +41,7 @@ with an easy to use interface for math editing. Try it at [mathlive.io](https://
 
 ## How To Use MathLive
 
+
 ### To display math
 You can use MathLive to simply render math equations by 
 [adding a few lines to your web page](USAGE_GUIDE.md). 
@@ -48,14 +50,17 @@ You can use MathLive to simply render math equations by
 <!doctype html><html lang="en-US">
 <head>
     ...
-    <style src="mathlive-core.css"></script>
-    <style src="mathlive.css"></script>
+    <link rel="stylesheet" href="mathlive.core.css">
+    <link rel="stylesheet" href="mathlive.css">
 </head>
 <body>
     <h1>Euler's Identity</h1>
     <p>$$e^{i\pi} + 1 = 0$$</p>
-    ...
-   <script src="mathlive.js"></script>
+
+    <script src="mathlive.js"></script>
+    <script>
+        MathLive.renderMathInDocument();
+    </script>
 </body>
 </html>
 ```
@@ -63,27 +68,45 @@ You can use MathLive to simply render math equations by
 
 ### To edit math
 You can also incorporate a “math field” to edit math just like you would edit 
-text. The MathLive APIs alllow you to interact with the math field,
+text. The MathLive APIs allow you to interact with the math field,
 including extracting its content, inserting placeholders and more.
 
+```html
+<!DOCTYPE html><html lang="en-US">
+<head>
+    ...
+    <link rel="stylesheet" href="mathlive/mathlive.core.css">
+    <link rel="stylesheet" href="mathlive/mathlive.css">
+</head>
+<body>
+    <div id='mathfield'>
+        f(x)=
+    </div>
+
+    <script src="mathlive/mathlive.js"></script>
+    <script>
+        const mathfield = MathLive.makeMathField('mathfield');
+    </script>
+</body>
+</html>
+```
 
 ## How You Can Help
 
 * Something wrong? Got ideas for new features? Write up an issue. Read about
 [Contributing](CONTRIBUTING.md) and follow our [Code of Conduct](CODE_OF_CONDUCT.md)
-* Want to use MathLive in your web page? The [Usage Guide](USAGE_GUIDE.md) 
+* Want to use MathLive in your web page? The [Usage Guide](tutorials/USAGE_GUIDE.md) 
 has all the details.
 * Want to contribute some code for an issue or a feature? Read the 
-[Contributor Guide](CONTRIBUTOR_GUIDE.md) and the 
+[Contributor Guide](tutorials/CONTRIBUTOR_GUIDE.md) and the 
 [docs](http://docs.mathlive.io). Looking for inspiration? Pick one of
 those open issues for [beginners](https://github.com/arnog/mathlive/labels/BEGINNER)
 
 ## More Questions?
 
 * Join our Slack channel at https://mathlive.slack.com. 
-* Drop a line to arno@arno.org or tweet @arnog
+* Drop a line to arno@arno.org or tweet [@arnog](https://twitter.com/arnog).
 
 ## License
 
-This project is licensed under the MIT license. For more information, 
-see the [license file](LICENSE.txt).
+This project is licensed under the [MIT License](LICENSE.txt).

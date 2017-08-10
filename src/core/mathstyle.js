@@ -30,13 +30,13 @@ for (i = 0; i < 3; i++) {
 
 /**
  * @property {number} id unique id for the style
- * @property {number} size (which is the same for cramped and uncramped version of a style)
- * @property {number}  size multiplier, which gives the size difference between a style and
- * textstyle.
+ * @property {number} size (which is the same for cramped and uncramped version 
+ * of a style)
+ * @property {number}  size multiplier, which gives the size difference between 
+ * a style and textstyle.
  * @property {boolean}  cramped flag
  * @memberof module:mathstyle
  * @class
- * @global
  * @private
  */
 function Mathstyle(id, size, multiplier, cramped) {

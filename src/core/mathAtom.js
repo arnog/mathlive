@@ -23,6 +23,9 @@ const makeHlist = Span.makeHlist;
 const makeVlist = Span.makeVlist;
 const FONTMETRICS = FontMetricsModule.metrics;
 const getCharacterMetrics = FontMetricsModule.getCharacterMetrics;
+// const toPx = FontMetricsModule.toPx;
+const toEm = FontMetricsModule.toEm;
+
 
 
 
@@ -117,8 +120,8 @@ function MathAtom(mode, type, value, fontFamily, extras) {
 
 
     // Determine which font family to use
-    // Note that the type, fontFamily and value could have been overriden
-    // by 'extras', so don't check agains the parameter ('type') but 
+    // Note that the type, fontFamily and value could have been overridden
+    // by 'extras', so don't check against the parameter ('type') but 
     // the value in the object ('this.type').
     if (this.type === 'mord' || this.type === 'textord') {
         if (this.type === 'mord' && this.fontFamily === 'main' && this.value.length === 1) {
@@ -300,7 +303,7 @@ function makeColGap(width) {
 }
 
 /**
- * Used in decomposeArray to create a columnd of repeating elements.
+ * Used in decomposeArray to create a column of repeating elements.
  * @memberof module:mathAtom
  * @private
  */
@@ -826,7 +829,7 @@ MathAtom.prototype.decomposeAccent = function(context) {
         // If there is a supsub attached to the accent
         // apply it to the base.
         // Note this does not give the same result as TeX when there 
-        // are stacked accents, e.g. \vec{\breve{\hat{\acute{XXX}}}}^2
+        // are stacked accents, e.g. \vec{\breve{\hat{\acute{...}}}}^2
 
         base = this.attachSupsub(context, makeOrd(base), 'mord');
     }
@@ -839,18 +842,6 @@ MathAtom.prototype.decomposeAccent = function(context) {
     let skew = 0;
     if (this.body.length === 1 && this.body[0].isCharacterBox()) {
         skew = Span.skew(base);
-    //     // If the base is a character box, then we want the skew of the
-    //     // innermost character. To do that, we find the innermost character:
-    //     const baseChar = getBaseElem(base);
-    //     // Then, we render its group to get the symbol inside it
-    //     const baseGroup = buildGroup(
-    //         baseChar, options.withStyle(style.cramp()));
-    //     // Finally, we pull the skew off of the symbol.
-    //     skew = baseGroup.skew;
-    //     // Note that we now throw away baseGroup, because the layers we
-    //     // removed with getBaseElem might contain things like \color which
-    //     // we can't get rid of.
-    //     // TODO(emily): Find a better way to get the skew
     }
     
     // calculate the amount of space between the body and the accent
@@ -866,7 +857,6 @@ MathAtom.prototype.decomposeAccent = function(context) {
     // The \vec character that the fonts use is a combining character, and
     // thus shows up much too far to the left. To account for this, we add a
     // specific class which shifts the accent over to where we want it.
-    // TODO(emily): Fix this in a better way, like by changing the font
     const vecClass = this.accent === '\u20d7' ? ' accent-vec' : '';
 
     let accentBody = makeSpan(makeSpan(accent), 'accent-body' + vecClass);
@@ -1078,14 +1068,10 @@ MathAtom.prototype.applySizing = function(context) {
 MathAtom.prototype.decomposeColor = function(context) {
     let result = null;
     // A color operation
-    const font = context.clone();
     if (this.color) {
         context.color = this.color;
     } else {
-        // if (this.textcolor) font.color = this.textcolor;
-        // if (this.backgroundcolor) font.backgroundcolor = this.backgroundcolor;
-
-        result = makeOrd(decompose(font, this.body));
+        result = makeOrd(decompose(context, this.body));
 
         if (this.textcolor) result.setStyle('color', this.textcolor);
         if (this.backgroundcolor) result.setStyle('background-color', this.backgroundcolor);
@@ -1101,9 +1087,7 @@ MathAtom.prototype.decomposeColor = function(context) {
 
 
 MathAtom.prototype.decomposeBox = function(context) {
-    let result = [];
-
-    result = makeOrd(decompose(context, this.body));
+    const result = makeOrd(decompose(context, this.body));
 
     const padding = this.padding ? this.padding : FONTMETRICS.fboxsep;
 
@@ -1123,6 +1107,174 @@ MathAtom.prototype.decomposeBox = function(context) {
     return result;
 }
 
+function emToPx(value) {
+    return (value * (4 / 3 * 10 /* FontMetrics.metrics.ptPerEm */));
+}
+
+MathAtom.prototype.decomposeEnclose = function(context) {
+    const body = makeOrd(decompose(context, this.body));
+    const padding = this.padding === 'auto' ? .2 : this.padding; // em
+    // Make sure that the span takes the full height of the enclosed children
+    // otherwise the background color will not completely cover it.
+    body.setStyle('padding-top', Span.height(body) - Span.depth(body) + padding, 'em');
+    body.setStyle('padding-bottom', Span.depth(body) + padding, 'em');
+    body.setStyle('padding-left', padding, 'em');
+    body.setStyle('padding-right', padding, 'em');
+
+    if (this.backgroundcolor && this.backgroundcolor !== 'transparent') {
+        body.setStyle('background-color', this.backgroundcolor);
+    }
+
+    // Account for the padding
+    body.height += padding + toEm(this.strokeWidth, 'px');
+    body.depth += padding + toEm(this.strokeWidth, 'px');
+
+    let svg = '';
+
+    if (this.notation.box) body.setStyle('border', this.borderStyle);
+
+    if (this.notation.actuarial) {
+        body.setStyle('border-top', this.borderStyle);
+        body.setStyle('border-right', this.borderStyle);
+    }
+
+    if (this.notation.madruwb) {
+        body.setStyle('border-bottom', this.borderStyle);
+        body.setStyle('border-right', this.borderStyle);
+    }
+
+    if (this.notation.roundedbox) {
+        body.setStyle('border-radius', (Span.height(body) + Span.depth(body)) / 2, 'em');
+        body.setStyle('border', this.borderStyle);        
+    }
+
+    if (this.notation.circle) {
+        body.setStyle('border-radius', '50%');
+        body.setStyle('border', this.borderStyle);        
+    }
+
+    if (this.notation.top) body.setStyle('border-top', this.borderStyle);
+    if (this.notation.left) body.setStyle('border-left', this.borderStyle);
+    if (this.notation.right) body.setStyle('border-right', this.borderStyle);
+    if (this.notation.bottom) body.setStyle('border-bottom', this.borderStyle);
+
+    const w = body.clientWidth();
+    const h = body.clientHeight();
+
+    if (this.notation.horizontalstrike) {
+        svg += '<line ';
+        svg += `x1="${this.strokeWidth}" y1="${h / 2}" x2="${w - 2 * this.strokeWidth}" y2="${h  / 2}"`;
+        svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
+        svg += ' stroke-linecap="round"';
+        if (this.svgStrokeStyle) {
+            svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+        }
+        svg += '/>';
+    }
+    if (this.notation.verticalstrike) {
+        svg += '<line ';
+        svg += `x1="${w / 2}" y1="${this.strokeWidth}" x2="${w / 2}" y2="${h - this.strokeWidth}"`;
+        svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
+        svg += ' stroke-linecap="round"';
+        if (this.svgStrokeStyle) {
+            svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+        }
+        svg += '/>';    
+    }
+    if (this.notation.updiagonalstrike) {
+        svg += '<line ';
+        svg += `x1="${this.strokeWidth / 2}" y1="${h - this.strokeWidth / 2}px" 
+                x2="${w - this.strokeWidth / 2}px" y2="${this.strokeWidth / 2}"`;
+        svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
+        svg += ' stroke-linecap="round"';
+        if (this.svgStrokeStyle) {
+            svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+        }
+        svg += '/>';    
+    }
+    if (this.notation.downdiagonalstrike) {
+        svg += '<line ';
+        svg += `x1="${this.strokeWidth / 2}" y1="${this.strokeWidth / 2}" 
+                x2="${w - this.strokeWidth / 2}" y2="${h - this.strokeWidth / 2}"`;
+        svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
+        svg += ' stroke-linecap="round"';
+        if (this.svgStrokeStyle) {
+            svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+        }
+        svg += '/>';
+    }
+    if (this.notation.updiagonalarrow) {
+        const t = 1;
+        const length = Math.sqrt(w * w + h * h);
+        const f = 1 / length / 0.075 * t;
+        const wf = w * f;
+        const hf = h * f;
+        const x = w - t / 2;
+        let y = t / 2;
+        if (y + hf - .4 * wf < 0 ) y = 0.4 * wf - hf;
+
+        svg += '<line ';
+        svg += `x1="1" y1="${h - 1}px" x2="${x - .7 * wf}px" y2="${y + .7 * hf}px"`;
+        svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
+        svg += ' stroke-linecap="round"';
+        if (this.svgStrokeStyle) {
+            svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+        }
+        svg += '/>';
+
+        svg += '<polygon points="';
+        svg += `${x},${y} ${x - wf - .4 * hf},${y + hf - .4 * wf} `;
+        svg += `${x - .7 * wf},${y + .7 * hf} ${x - wf + .4 * hf},${y + hf + .4 * wf} `;
+        svg += `${x},${y}`;
+        svg += `" stroke='none' fill="${this.strokeColor}"`;
+
+        svg += '/>';
+    }
+    if (this.notation.phasorangle) {
+        svg += '<path d="';
+        svg += `M ${h / 2},1 L1,${h} L${w},${h} "`; 
+        svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
+        if (this.svgStrokeStyle) {
+            svg += ' stroke-linecap="round"';
+            svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+        }
+        svg += '/>';
+    }
+    if (this.notation.radical) {
+        svg += '<path d="';
+        svg += `M 0,${.6 * h} L1,${h} L${emToPx(padding) * 2},1 "`; 
+        svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
+        if (this.svgStrokeStyle) {
+            svg += ' stroke-linecap="round"';
+            svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+        }
+        svg += '/>';
+    }
+    if (this.notation.longdiv) {
+        svg += '<path d="';
+        svg += `M ${w} 1 L1 1 a${emToPx(padding)} ${h / 2}, 0, 0, 1, 1 ${h} "`; 
+        svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
+        if (this.svgStrokeStyle) {
+            svg += ' stroke-linecap="round"';
+            svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+        }
+        svg += '/>';
+    }
+
+    if (svg) {
+        let svgStyle;
+        if (this.shadow !== 'none') {
+            if (this.shadow === 'auto') {
+                svgStyle = 'filter: drop-shadow(0 0 .5px rgba(255, 255, 255, .7)) drop-shadow(1px 1px 2px #333)';
+            } else {
+                svgStyle = 'filter: drop-shadow(' + this.shadow + ')';
+            }
+        }
+        return Span.makeSVG(body, svg, svgStyle);
+    }
+    return body;
+}
+
 /**
  * Return a representation of this, but decomposed in an array of Spans
  * 
@@ -1134,27 +1286,26 @@ MathAtom.prototype.decompose = function(context) {
     console.assert(context instanceof Context.Context);
 
     let result = null;
-    const ctx = context.withIsSelected(this.isSelected);
 
     if (this.type === 'group' || this.type === 'root') {
-        result = this.decomposeGroup(ctx);
+        result = this.decomposeGroup(context);
 
     } else if (this.type === 'array') {
-        result = this.decomposeArray(ctx);
+        result = this.decomposeArray(context);
 
     } else if (this.type === 'genfrac') {
-        result = this.decomposeGenfrac(ctx);
+        result = this.decomposeGenfrac(context);
         if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'surd') {
-        result = this.decomposeSurd(ctx);
+        result = this.decomposeSurd(context);
         if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'accent') {
-        result = this.decomposeAccent(ctx);
+        result = this.decomposeAccent(context);
         
     } else if (this.type === 'leftright') {
-        result = this.decomposeLeftright(ctx);
+        result = this.decomposeLeftright(context);
         if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'delim') {
@@ -1164,23 +1315,23 @@ MathAtom.prototype.decompose = function(context) {
 
     } else if (this.type === 'sizeddelim') {
         result = Delimiters.makeSizedDelim(
-                this.cls, this.delim, this.size, ctx);
+                this.cls, this.delim, this.size, context);
 
     } else if (this.type === 'line') {
-        result = this.decomposeLine(ctx);
+        result = this.decomposeLine(context);
 
     } else if (this.type === 'overunder') {
-        result = this.decomposeOverunder(ctx);
+        result = this.decomposeOverunder(context);
 
     } else if (this.type === 'overlap') {
         // For llap (18), rlap (270), clap (0)
         // smash (common), mathllap (0), mathrlap (0), mathclap (0)
         // See https://www.tug.org/TUGboat/tb22-4/tb72perlS.pdf
         // and https://tex.stackexchange.com/questions/98785/what-are-the-different-kinds-of-vertical-spacing-and-horizontal-spacing-commands
-        result = this.decomposeOverlap(ctx);
+        result = this.decomposeOverlap(context);
 
     } else if (this.type === 'rule') {
-        result = this.decomposeRule(ctx);
+        result = this.decomposeRule(context);
 
 
     } else if (this.type === 'styling') {
@@ -1198,24 +1349,24 @@ MathAtom.prototype.decompose = function(context) {
         // Any of those atoms can be made up of either a simple string,
         // stored in this.value or a list of children.
         if (this.value) {
-            result = this.makeSpan(ctx, this.value);
+            result = this.makeSpan(context, this.value);
             result.type = this.type;
         } else {
-            result = this.makeSpan(ctx, decompose(ctx, this.children));
+            result = this.makeSpan(context, decompose(context, this.children));
         }
 
     } else if (this.type === 'op' || this.type === 'mop') {
         console.assert(this.type === 'mop');
-        result = this.decomposeOp(ctx);
+        result = this.decomposeOp(context);
         if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'font') {
-        result = this.decomposeFont(ctx);
+        result = this.decomposeFont(context);
         if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'space') {
         // A space litteral
-        result = this.makeSpan(ctx, ' ');
+        result = this.makeSpan(context, ' ');
         if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'spacing') {
@@ -1223,12 +1374,12 @@ MathAtom.prototype.decompose = function(context) {
         
         if (this.value === '\u200b') {
             // ZERO-WIDTH SPACE
-            result = this.makeSpan(ctx, '\u200b');
+            result = this.makeSpan(context, '\u200b');
         } else if (this.value === '\u00a0') {
             if (this.mode === 'math') {
-                result = this.makeSpan(ctx, ' ');
+                result = this.makeSpan(context, ' ');
             } else {
-                result = this.makeSpan(ctx, '\u00a0');
+                result = this.makeSpan(context, '\u00a0');
             }
         } else if (this.width) {
             result = makeSpan('', 'mspace ');
@@ -1251,21 +1402,24 @@ MathAtom.prototype.decompose = function(context) {
         if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'color') {
-        result = this.decomposeColor(ctx);
+        result = this.decomposeColor(context);
 
     } else if (this.type === 'sizing') {
-        this.applySizing(ctx);
+        this.applySizing(context);
 
     } else if (this.type === 'mathstyle') {
-        ctx.setMathstyle(this.mathstyle);
+        context.setMathstyle(this.mathstyle);
 
     } else if (this.type === 'box') {
-        result = this.decomposeBox(ctx);
+        result = this.decomposeBox(context);
+
+    } else if (this.type === 'enclose') {
+        result = this.decomposeEnclose(context);
 
 
     } else if (this.type === 'esc' || this.type === 'command' || 
         this.type === 'error' || this.type === 'placeholder' ) {
-        result = this.makeSpan(ctx, this.value);
+        result = this.makeSpan(context, this.value);
         if (this.error) {
             result.classes += ' ML__error';
         }
@@ -1278,7 +1432,7 @@ MathAtom.prototype.decompose = function(context) {
         // the first element in a children list. This makes 
         // managing the list, and the caret selection, easier. 
         // ZERO-WIDTH SPACE
-        result = this.makeSpan(ctx, '\u200b');
+        result = this.makeSpan(context, '\u200b');
 
     } else {
         //
@@ -1299,10 +1453,10 @@ MathAtom.prototype.decompose = function(context) {
         if (Array.isArray(result)) {
             const lastSpan = result[result.length - 1];
             result[result.length - 1] = 
-                this.attachSupsub(ctx, lastSpan, lastSpan.type);
-            return result;
+                this.attachSupsub(context, lastSpan, lastSpan.type);
+        } else {
+         result = [this.attachSupsub(context, result, result.type)];
         }
-        return [this.attachSupsub(ctx, result, result.type)];
     }
 
     return Array.isArray(result) ? result : [result];

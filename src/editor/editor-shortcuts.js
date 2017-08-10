@@ -160,7 +160,7 @@ const KEYBOARD_SHORTCUTS = {
 
     // MATHLIVE BINDINGS
     'math:Alt-KeyQ':             ['insert', '\\theta'],
-    'c':             ['insert', '\\sqrt{#0}'],
+    'math:Alt-KeyV':             ['insert', '\\sqrt{#0}'],
     'math:Alt-KeyP':             ['insert', '\\pi'],
     'math:Alt-Shift-KeyP':       ['insert', '\\prod_{n=#?}^{#?}'],
     'math:Alt-KeyW':             ['insert', '\\sum_{n=#?}^{#?}'],
@@ -180,8 +180,6 @@ const KEYBOARD_SHORTCUTS = {
     'math:Alt-Shift-KeyD':       ['insert', '\\partial'],
     'math:Slash':                ['insert', '\\frac{#0}{#?}'],
     'math:Alt-Slash':            ['insert', '\\frac{#?}{#0}'],
-    'math:Shift-Digit6':         'moveToSuperscript',
-    'math:Shift-Minus':          'moveToSubscript',
     'math:Alt-KeyO':             ['insert', '\\emptyset'],
     'math:Alt-Shift-KeyO':       ['insert', '\\varnothing'],
 
@@ -213,12 +211,16 @@ const KEYBOARD_SHORTCUTS = {
     '!mac:Ctrl-Alt-Shift-Down': 'speakSelection',
 }
 
-// Most commands can be associated to their keyboard shortcuts from the 
-// KEYBOARD_SHORTCUTS table above, for example 'speakSelection' -> 'Ctrl-KeyR'
-// However, those that contain complex commands are more ambiguous.
-// For example, '\sqrt' -> 'math-Alt-KeyV'. This table provides the reverse
-// mapping for those more complex commands. It is used when displaying 
-// keyboard shortcuts for specific commands in the popover.
+/**
+ * Most commands can be associated to their keyboard shortcuts from the 
+ * KEYBOARD_SHORTCUTS table above, for example 'speakSelection' -> 'Ctrl-KeyR'
+ * However, those that contain complex commands are more ambiguous.
+ * For example, '\sqrt' -> 'math-Alt-KeyV'. This table provides the reverse
+ * mapping for those more complex commands. It is used when displaying 
+ * keyboard shortcuts for specific commands in the popover.
+ * @memberof module:editor/shortcuts
+ * @type {Object<string,string>}
+ */
 const REVERSE_KEYBOARD_SHORTCUTS = {
     '\\theta':                  'Alt-KeyQ',
     '\\sqrt':                   ['Alt-KeyV', 'Ctrl-Digit2'],
@@ -244,8 +246,9 @@ const REVERSE_KEYBOARD_SHORTCUTS = {
 }
 
 /**
- * These shortcut strings are replaced with the corresponding latex expression
+ * These shortcut strings are replaced with the corresponding LaTeX expression
  * without requiring an escape sequence or command.
+ * 
  * @type {Object.<string,string>}
  * @memberof module:editor/shortcuts
  */
@@ -368,7 +371,7 @@ const INLINE_SHORTCUTS = {
     'NN':                   '\\N',        // Natural numbers
     'ZZ':                   '\\Z',        // Integers
     'QQ':                   '\\Q',        // Rational numbers
-    'RR':                   '\\R',        // Real nubers
+    'RR':                   '\\R',        // Real numbers
     'CC':                   '\\C',        // Complex numbers
     'PP':                   '\\P',        // Prime numbers
 
@@ -530,9 +533,9 @@ const MATHEMATICA_COMMANDS = {
 /**
  * This function is used to resolve inline shortcuts.
  * 
- * @param {string} s candidate inline shortcuts (e.g. '2+pi')
+ * @param {string} s candidate inline shortcuts (e.g. `'2+pi'`)
  * @return {string} null if no matching shortcut, the value of the shortcut 
- * otherwise, e.g. {match: 'pi', substitute: '\\pi'}
+ * otherwise, e.g. `{match: 'pi', substitute: '\pi'}`
  * @memberof module:editor/shortcuts
  * @private
  */
@@ -575,16 +578,16 @@ function matchEndOf(s, config) {
 }
 
 /**
- * Return `p`, the platform name if p is the current platform, otherwise
- * return !p. For example, when running on Windows, platform('mac') returns
- * '!mac'.
+ * Return `p`, the platform name if `p` is the current platform, otherwise
+ * return `!p`. For example, when running on Windows, `platform('mac')` returns
+ * `'!mac'`.
  * The valid values for `p` are:
- * - mac
- * - win
- * - android
- * - ios
- * - chromeos
- * - other (linux, etc...)
+ * - `'mac'`
+ * - `'win'`
+ * - `'android`'
+ * - `'ios'`
+ * - `'chromeos'`
+ * - `'other'` (Linux, etc...)
  * @param {string} p The platform to test against.
  * @return {string} if we are running on the candidate platform, return it.
  * Otherwise, return "!" + candidate.
@@ -613,7 +616,8 @@ function platform(p) {
 }
 
 /**
- * Return the command matching the keystroke
+ * Return the command matching the keystroke.
+ * 
  * @param {string} mode
  * @param {string} keystroke
  * @memberof module:editor/shortcuts
@@ -780,3 +784,4 @@ return {
 }
 
 })
+

@@ -1,19 +1,14 @@
-<h1 align="center" style="margin-top:0">
-        <img style="max-width:100%" src="https://github.com/arnog/mathlive/blob/master/assets/logo-1024.jpg?raw=true">
-</h1>
-
-# MathLive Contributor Guide
-
 This guide is for developers who want to contribute code to MathLive, 
 or who want to understand in more depth how MathLive works.
-If you simply want to use MathLive with your web content, see the [MathLive Usage Guide](USAGE_GUIDE.md).
+If you simply want to use MathLive with your web content, see the {@tutorial USAGE_GUIDE}.
 
 ## Table of Contents
 - [Getting Started: Setting up Your Development Environment](#getting-started-setting-up-your-development-environment)
 - [Code Structure](#code-structure)
 - [Language and Coding Style](#language-and-coding-style)
-- [Naming Convention](#naming-convention)
+- [Naming Conventions](#naming-conventions)
 - [Browser Support](#browser-support)
+- [Accessibility](#accessibility-a11y)
 - [Architecture](#architecture)
 - [Files](#files)
 - [Common Tasks](#common-tasks)
@@ -36,7 +31,7 @@ The `npm install` command installs in the `mathlive/` directory all the Node
 Depending on your system setup, you may need to run as admin, in which case
 use `sudo npm install`.
 
-Once the installation is succesful, you can use the following commands:
+Once the installation is successful, you can use the following commands:
 ```bash
 # Build the project for local use
 # 1. Compile the `.css/.less` file to `build/*.css`
@@ -100,7 +95,7 @@ $ npm publish
 
 ```
 
-**Note on versionning** Use the [semver](http://semver.org/) convention for 
+**Note on versioning** Use the [semver](http://semver.org/) convention for 
 versions:
 * `npm version patch`: bug fixes and other minor changes. Last number of the 
 version is incremented, e.g. `1.2.41` → `1.2.42`
@@ -143,9 +138,8 @@ intermediated files generated as part of the build process.
 
 ## Language and Coding Style
 
-MathLive is written in Javascript, using the [ES2016 dialect]
-(https://www.ecma-international.org/ecma-262/7.0/). This includes
-in particular these features:
+MathLive is written in Javascript, using the [ES2016 dialect](https://www.ecma-international.org/ecma-262/7.0/). This 
+includes in particular these features:
 * `let` and `const` instead of `var`
 * block-scoped variables and functions
 * `Array.prototype.includes()`
@@ -153,14 +147,14 @@ in particular these features:
 * arrow functions (to a limited extent, there appears to be issues with transpilers)
 * template strings
 * `for...of` iterators
-* string searching `String.startsWith()`, `tring.endsWith()`
+* string searching `String.startsWith()`, `String.endsWith()`
 * number formatting
 
 Features that have not been adopted include:
 * classes. The syntax doesn't seem to offer that much benefit and forces 
 utility functions to be separated from methods that use them.
 * getters/setters: would probably be a good idea
-* destructuring: probably somes opportunities to simply some code
+* destructuring: probably some opportunities to simplify some code
 * default parameters: would clean up some code
 * rest/spread
 * generators
@@ -178,9 +172,15 @@ people who will read it later.
 * **Clarity before performance** Write code that is easy to read, and avoid 
 obscure constructs that may obfuscate the code to improve performance. For 
 example, RegEx are crazy fast in all modern browsers, and trying to roll out
-your own pattern matching will result in more code and less performance. If 
-you think something could be made faster, use `jsperf.com` to try out options
-in various browsers and compare the results. You might be surprised.
+your own pattern matching will result in more code and less performance. 
+If you think something could be made faster, use [jsperf.com]`https://jsperf.com` to 
+try out options in various browsers and compare the results. You might be 
+surprised.
+* **Follow Postel's Law, the Robustness Principle** "Be conservative in what
+you do, be liberal in what you accept from others". For example, functions that 
+are invoked internally do not need to check that the input parameters are valid.
+However, public APIs should check the validity of parameters, and behave 
+reasonably when they aren't. 
 
 Use the `.eslintrc.json` file to follow the linting conventions used in the 
 project. In addition, follow these guidelines:
@@ -202,7 +202,7 @@ for example, use `if (string)` instead of `if (string !== '')`
 **`result`**
 * **Avoid boolean as arguments.** Instead, use an `options` object with 
 key/value pairs spelling out the meaning of the boolean. 
-Dont'do:
+Don't do:
 ```javascript
     f(true);
 ```
@@ -231,14 +231,14 @@ or an array and behave appropriately:
     }
 ```
 
-## Naming Convention
+## Naming Conventions
 
 Those naming conventions are particularly important for objects that are exposed
 as part of the public API, such as `MathLive` and `MathField`.
 
 * variables and function names that begin with `_` are private and should not
  be used.
-* functions that end in '_' are selectors and should not be invoked directly.
+* functions that end in `_` are selectors and should not be invoked directly.
 Instead, a `MathField.perform()` call should be made. Note that the perform call
 does not include the `_`, so you would call `MathField.perform('selectAll')`.
 * functions that neither begin nor end with an `_` are public and can be called
@@ -249,13 +249,77 @@ directly.
 
 MathLive is designed for the modern web. Supporting older browsers complicates
 the effort involved in building new features, but it is also an insecure 
-practice that should not be encouraged. In this context, _modern_ means the
-two latest releases of Chrome, IE, Safari and Firefox. 
-Both desktop and mobile are supported.
+practice that should not be encouraged. 
+
+In this context, _modern_ means the latest two releases of Chrome, IE, Safari 
+and Firefox. Both desktop and mobile are supported.
+
+## Accessibility - A11Y
+
+### Rendering
+MathLive renders math using HTML and CSS. Digits, letters and math symbols are
+displayed in `<span>` tags with the necessary CSS styling to display them in 
+the right place. In addition, rules (lines) such as the fraction line, are 
+rendered using CSS borders. In a few rare cases, SVG is used to render 
+some decorations, such as the annotations of the `\enclose` command.
+
+The rendered math is not purely graphical, and as such can be accessed by 
+screen readers.
+
+
+### Alternate renditions
+However, in addition to the "visual" HTML+CSS representation that MathLive 
+outputs, it can also generate alternate renditions, including:
+- **LaTeX**: a string of LaTeX code equivalent to the formula.
+- **Spoken Text**: a text representation of the formula as someone would speak it, 
+for example: `f(x) = x^2` → "f of x equals x squared"
+- **Annotated Spoken Text**: as above, but in addition prosody hints are 
+inserted for a more natural rendition by text to speech systems (breathing 
+pauses, variation in pitch, etc...).
+
+Those alternate renditions can be rendered as an ARIA-label, or as an element
+that is not visually rendered, but visible to screen readers.
+
+### Speech
+Although MathLive works with screen readers, since math is its own language 
+MathLive has its own built-in text to speech renderer. With the speech interface 
+it is possible to:
+- read the current group (numerator or subscript, for example)
+   - Mac: `Ctrl + Command + Down`
+   - Windows/Linux/ChromeOS: `Ctrl + Alt + Down`
+- read what's before or after the selection
+   - Mac: `Ctrl + Command + Left/Right`
+   - Windows/Linux/ChromeOS: `Ctrl + Alt + Left/Right`
+- read the parent of the current group
+   - Mac: `Ctrl + Command + Up`
+   - Windows/Linux/ChromeOS: `Ctrl + Alt + Up`
+- read the current selection
+   - Mac: `Ctrl + Command + Shift + Down`
+   - Windows/Linux/ChromeOS: `Ctrl + Alt + Shift + Down`
+
+
+With these convenient keyboard shortcuts, it is possible to aurally navigate 
+and understand even complex formulas.
+
+
+### Input and navigation
+MathLive supports multiple modalities for input: in addition to pointer devices 
+(mouse, trackpad, touch screen), MathLive has an extensive set of keyboard 
+shortcuts that allow navigation and editing of the most complex formulas. 
+Every operation is possible without the use of a pointing device.
+
+Conversely, it is possible to enter commands and complex mathematical symbols 
+using only a pointing device: the command bar can be invoked by tapping a round 
+toggle button displayed to the right of the formula. The command bar offers 
+large buttons that act as a virtual keyboard, but offer contextual operations 
+depending on the current selection, and the content around it. Those buttons 
+are easy to use on touch screens and for users of alternative pointing devices.
+
+
 
 ## Architecture
 
-The core of MathLive is a math rendering enging that can output to HTML and 
+The core of MathLive is a math rendering engine that can output to HTML and 
 CSS. This engine uses the TeX layout algorithms because of their quality. 
 Given the same input, MathLive will render pixel for pixel what TeX would 
 have rendered.
@@ -265,7 +329,7 @@ Although the rendering engine follows the TeX algorithms, MathLive also has
 an in-memory data structure to represent a math expression while it is being
 edited (the math atom tree).
 
-Here are some of the key concepts used throughtout the code base.
+Here are some of the key concepts used throughout the code base.
 
  ### Span
 
@@ -311,7 +375,7 @@ to be incorporated with surrounding non-math text.
 * **line**: used by `\overline` and `\underline` commands
 * **box**: to draw a border around an expression and change its background color
 * **overlap**: display a symbol _over_ another
-* **overunder**: displays an annotation above or below a symbold
+* **overunder**: displays an annotation above or below a symbol
 * **group**: a simple group of atoms
 * **root**: a group, which has no parent
 * **array**: a group, which has children arranged in columns and rows. Used
@@ -398,7 +462,7 @@ tree to a specific atom
 * **editor/mathfield.js** Public API for the editor. Implements the UI for the
 mathfield, including mouse and touch interaction, and  the popover and the 
 command bar
-* **editor/shortcuts.js** Defines the keyboard shorcuts
+* **editor/shortcuts.js** Defines the keyboard shortcuts
 * **editor/commands.js**: list of commands displayed in the command bar
 * **editor/popover.js** Implements the popover panel
 * **editor/keyboard.js** A utility class that captures keyboard events from 
@@ -413,15 +477,19 @@ So, you want to...
 
 ### Add a new LaTeX command?
 
-1. Start with `core/definitions.js`. Add a new entry to the appropriate table.
-The handler function in the definition will be called by the parser at the right
+**(1)** Start with `core/definitions.js`. Add a new entry to the appropriate table 
+by calling `defineSymbol()` for commands that need to parameters, `defineFunction()` for commands that need some parameters or `defineEnvironment()` for environments, complex `\begin{}...\end{}` block.
+
+For functions, the handler function in the definition will be called by the parser at the right
 time. It's your chance to store data that will be used by the atoms to render
-the symbold later.
-2. If you can use the existing atom types, great. If needed, modify an 
+the symbol later.
+
+**(2)** If you can use the existing atom types, great. If needed, modify an 
 existing atom type to support what you want, including passing additional 
 parameters. If no atom types match, create a new one by adding a new
 `MathAtom.decompose<atom-type>()` function and calling it from 
 `MathAtom.decompose()`.
-3. Call `makeSpan()` and its variants in your decompose function to construct
+
+**(3)** Call `makeSpan()` and its variants in your decompose function to construct
 a representation of the atom.
 

@@ -9,7 +9,7 @@
 define(['mathlive/core/fontMetrics'],
     function(FontMetrics) {
 
-const NUMBER_FORMATER = new Intl.NumberFormat('en-US', {
+const NUMBER_FORMATTER = new Intl.NumberFormat('en-US', {
     useGrouping: false,
     maximumSignificantDigits: 5
 });
@@ -27,12 +27,14 @@ const NUMBER_FORMATER = new Intl.NumberFormat('en-US', {
 function toString() {
     let result = '';
     for (const arg of arguments) {
-        if (Array.isArray(arg)) {
+        if (typeof arg === 'number') {
+            result += NUMBER_FORMATTER.format(arg);
+        } else if (typeof arg === 'string') {
+            result += arg;
+        } else if (Array.isArray(arg)) {
             for (const elem of arg) {
                 result += toString(elem);
             }
-        } else if (typeof arg === 'number') {
-            result += NUMBER_FORMATER.format(arg);
         } else if (arg) {
             result += arg.toString();
         }
@@ -74,7 +76,6 @@ function Span(content, classes) {
     this.classes = classes || '';
 
     console.assert(typeof this.classes === 'string');
-    console.assert(this.classes.substr(0, 5) !== 'mordr');
 
     // CONTENT
     if (Array.isArray(content)) {
@@ -92,8 +93,7 @@ function Span(content, classes) {
     // Use this.setStyle() to modify it.
     this.style = null;
 
-
-    // Calculate the dimensions for this span based on its children
+    // Calculate the dimensions of this span based on its children
     this.updateDimensions();
 }
 
@@ -120,7 +120,82 @@ Span.prototype.updateDimensions = function() {
     this.height = height;
     this.depth = depth;
     this.maxFontSize = maxFontSize;
+
+    // Width is expensive to calculate, and so is only computed on demand 
+    // (and cached)
+    // If this property is set, it's a cached value. Invalidate it.
+    if (typeof this._clientWidth !== 'undefined') {
+        delete this._clientWidth;
+        delete this._clientHeight
+    }
 }
+
+
+/**
+ * The width is an expensive property to calculate, as it require the span 
+ * to be laid out, then measured.
+ * So, we only calculate it when required (which is rare: it's needed for 
+ * some notations of \enclose for example), and we cache it.
+ */
+Span.prototype.cacheClientDimensions = function() {
+    // Temporarily remove any SVG decorating this span.
+    // SVG is overlaid over the span, so it doesn't affect its dimensions
+    // but it needs the client dimensions, which would recursively call this
+    // function
+    const svg = this.svgOverlay;
+    this.svgOverlay = '';
+
+    const div = document.createElement('div');
+    div.setAttribute('style',`position: absolute;
+        left: -1000px;
+        top: -1000px;
+        visibility: hidden;
+        height: auto;
+        width: auto;`);
+    div.setAttribute('class', 'ML__mathlive');
+
+    const base = document.createElement('span');
+    base.setAttribute('class', 'ML__base');
+    base.innerHTML = this.toMarkup();
+    div.appendChild(base);
+
+    document.body.appendChild(div);
+
+    const width = div.offsetWidth;
+    const height = div.offsetHeight;
+
+    div.parentNode.removeChild(div);
+
+    this._clientWidth = width;
+    this._clientHeight = height;
+    this.svgOverlay = svg;
+}
+
+/**
+ * @return {number} the width of the span, in pixels
+ */
+Span.prototype.clientWidth = function() {
+    // Return cached value if present
+    if (typeof this._clientWidth !== 'undefined' ) return this._clientWidth;
+
+    this.cacheClientDimensions();
+
+    return this._clientWidth;
+};
+
+/**
+ * @return {number} the height of the span, in pixels
+ */
+Span.prototype.clientHeight = function() {
+    // Return cached value if present
+    if (typeof this._clientHeight !== 'undefined' ) return this._clientHeight;
+
+    this.cacheClientDimensions();
+
+    return this._clientHeight;
+};
+
+
 
 /**
  * Set the value of a CSS property associated with this span.
@@ -287,11 +362,7 @@ Span.prototype.toMarkup = function(hskip) {
                 }
             }
         }
-        
-        // Remove duplicate and empty classes
-        // and 'mathrm' which is a no-op
-        // const classList = this.classes.
-            // filter(x, e, a =>  x.length > 0 && a.indexOf(x) === e).join(' ');
+
         const classes = this.classes.split(' ');
 
         if (this.hasCaret) {
@@ -307,6 +378,8 @@ Span.prototype.toMarkup = function(hskip) {
             }[this.type] || '');
         }
 
+        // Remove duplicate and empty classes
+        // and 'mathrm' which is a no-op
         const classList = classes.filter(function (x, e, a) {
                 return x.length > 0 && x !== 'mathrm' && a.indexOf(x) === e;
             }).join(' ');
@@ -326,13 +399,17 @@ Span.prototype.toMarkup = function(hskip) {
             }
         }
 
-        if (this.style) {
+        if (this.style || this.svgOverlay) {
             let styleString = ''
             for (const style in this.style) {
                 if (this.style.hasOwnProperty(style)) {
                     styleString += style + ':' + this.style[style] + ';'
                 }
             }
+            if (this.svgOverlay) {
+                styleString += 'position: relative;';
+            }
+
             if (styleString.length > 0) {
                 result += ' style="' + styleString + '"';
             }
@@ -340,6 +417,21 @@ Span.prototype.toMarkup = function(hskip) {
         result += '>';
 
         result += body;     // @todo maybe safe encode here...? (< >)
+
+        // If there is some SVG markup associated with this span, 
+        // include it now
+        if (this.svgOverlay) {
+            result += `<span style="position:absolute;top:.75em;left:0px">`;
+            result += '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"';
+            result += ` width="${this.clientWidth()}px"`;
+            result += ` height="${this.clientHeight()}px"`;
+            if (this.svgStyle) {
+                result += ' style="filter: drop-shadow(0 0 .5px rgba(255, 255, 255, .7)) drop-shadow(1px 1px 2px #333);"';
+            }
+            result += '>';
+            result += this.svgOverlay;
+            result += '</span>';
+        }
 
         result += '</' + tag + '>';
     }
@@ -483,6 +575,7 @@ function depth(spans) {
     }
     return spans.depth;
 }
+
 
 function skew(spans) {
     if (Array.isArray(spans)) {
@@ -640,6 +733,18 @@ function makeStyleWrap(type, children, fromStyle, toStyle, classes) {
 }
 
 /**
+ * Add some SVG markup to be overlaid on top of the span
+ * 
+ * @param {Span} body 
+ * @param {string} svgMarkup 
+ */
+function makeSVG(body, svgMarkup, svgStyle) {
+    body.svgOverlay = svgMarkup;
+    body.svgStyle = svgStyle;
+    return body;
+}
+
+/**
  * 
  * @param {Span|Span[]} children 
  * @param {string} classes 
@@ -661,7 +766,7 @@ function makeHlist(children, classes) {
 }
 
 /**
- * Creata a new span of type `vlist`, a set of vertically stacked items
+ * Create a new span of type `vlist`, a set of vertically stacked items
  * @param {Context} context
  * @param {Array.<(number|Span)>} elements 
  * An array of Span and integer. The integer can be either some kerning information
@@ -719,24 +824,24 @@ function makeVlist(context, elements, pos, posData) {
         // Individual adjustment to each elements.
         // The elements list is made up of a Span followed
         // by a shift adjustment as an integer
-        const originalelements = elements;
-        elements = [originalelements[0]];
+        const originalElements = elements;
+        elements = [originalElements[0]];
 
         // Add in kerns to the list of elements to get each element to be
         // shifted to the correct specified shift
-        depth = -originalelements[1] - originalelements[0].depth;
+        depth = -originalElements[1] - originalElements[0].depth;
         currPos = depth;
-        for (let i = 2; i < originalelements.length; i += 2) {
-            const diff = -originalelements[i + 1] - currPos -
-                originalelements[i].depth;
+        for (let i = 2; i < originalElements.length; i += 2) {
+            const diff = -originalElements[i + 1] - currPos -
+                originalElements[i].depth;
             const kern = diff -
-                (originalelements[i - 2].height +
-                 originalelements[i - 2].depth);
+                (originalElements[i - 2].height +
+                 originalElements[i - 2].depth);
  
             currPos = currPos + diff;
 
             elements.push(kern);
-            elements.push(originalelements[i]);
+            elements.push(originalElements[i]);
         }
     } else {
         console.assert(false, 'makeVList with unknown method: "' + pos + '"');
@@ -751,7 +856,7 @@ function makeVlist(context, elements, pos, posData) {
     }
     const fontSizer = makeFontSizer(context, maxFontSize);
 
-    const newelements = [];
+    const newElements = [];
     currPos = depth;
     for (const element of elements) {
         if (element instanceof Span) {
@@ -761,7 +866,7 @@ function makeVlist(context, elements, pos, posData) {
             const childWrap = makeSpan([fontSizer, element]);
             childWrap.setTop(shift);
 
-            newelements.push(childWrap);
+            newElements.push(childWrap);
         } else {
             // It's a kern adjustment, as an integer
             currPos += element; 
@@ -770,11 +875,11 @@ function makeVlist(context, elements, pos, posData) {
 
     // Add in an element at the end with no offset to fix the calculation of
     // baselines in some browsers (namely IE, sometimes safari)
-    newelements.push(makeHlist([fontSizer, new Span('&#x200b;')], 'baseline-fix'));
+    newElements.push(makeHlist([fontSizer, new Span('&#x200b;')], 'baseline-fix'));
 
-    const result = makeSpan(newelements, 'vlist');
+    const result = makeSpan(newElements, 'vlist');
     // Fix the final height and depth, in case there were kerns at the ends
-    // sincemakeSpan won't take that into account.
+    // since makeSpan won't take that into account.
     result.height = Math.max(currPos, result.height);
     result.depth = Math.max(-depth, result.depth);
 
@@ -800,6 +905,8 @@ return {
     makeVlist,
     makeHlist,
     makeStyleWrap,
+
+    makeSVG,
 
     height,
     depth,

@@ -23,7 +23,14 @@
         "pageTitle": "MathLive Docs",
         "description": "Beautifully typeset math made easy",
         "keywords": "latex, tex, math, typesetting, documentation, docs",
-        "forkme": "https://github.com/arnog/mathlive"
+        "forkme": "https://github.com/arnog/mathlive",
+        "headerAddendum": "<link rel=\"stylesheet\" href=\"http://mathlive.io/sprint15/mathlive/mathlive.core.css\" type=\"text/css\"><link rel=\"stylesheet\" href=\"http://mathlive.io/sprint15/mathlive/mathlive.css\" type=\"text/css\">",
+        "bodyAddendum": "<script src=\"http://mathlive.io/sprint15/mathlive/mathlive.js\"></script><script>if (MathLive) {MathLive.renderMathInDocument();}</script>"
+    },
+    "markdown"  : {
+        "parser"        : "gfm",
+        "hardwrap"      : false,
+        "idInHeadings"  : true
     },
     "opts": {
         "access": "all",
@@ -31,7 +38,8 @@
         "encoding": "utf8",
         "recurse": true,
         "destination": "./docs",
-        "readme": "CONTRIBUTOR_GUIDE.md",
-        "sort": false
+        "readme": "WELCOME.md",
+        "sort": false,
+        "tutorials": "./tutorials"
     }
 }

@@ -411,8 +411,8 @@
     }
 
 
-// Highlight color defined in https://www.w3.org/TR/REC-CSS2/ui.html
     &.ML__focused .ML__selected {
+        // Highlight color defined in https://www.w3.org/TR/REC-CSS2/ui.html
         background: Highlight !important;
         background: #b4d5fe !important;
         color: HighlightText;
@@ -420,395 +420,384 @@
         display: inline-block;
     }
 
-    &.ML__blured .ML__selected {
+    &.ML__blurred .ML__selected {
         background: #ccc;
         display: inline-block;
     }
 
-    .ML__command {
-        font-family: @monospace;
-        letter-spacing: -.05em;
-        font-weight: 700;
 
-        color: @primary;
-    }
-
-
-    :not(.ML__command) + .ML__command {
-        margin-left: .25em;
-    }
-
-    .ML__command + :not(.ML__command)  {
-        padding-left: .25em;
-    }
-
-    .ML__error {
-        // Wavy pattern
-        background-image: radial-gradient(ellipse at center, 
-            #cd0030,rgba(76,41,41,0) 70%);
-
-        // background-image:
-        //     linear-gradient(45deg, transparent 65%, @secondary 80%, transparent 90%),
-        //     linear-gradient(135deg, transparent 5%, @secondary 15%, transparent 25%),
-        //     linear-gradient(135deg, transparent 45%, @secondary 55%, transparent 65%),
-        //     linear-gradient(45deg, transparent 25%, @secondary 35%, transparent 50%);
-        background-repeat: repeat-x;
-        background-size: 3px 3px;
-        background-position:0 98%;
-    }
-
-    .ML__suggestion {
-        opacity: .25;
-    }
-
-    .ML__placeholder {
-        font-family: @system;
-        letter-spacing: -.05em;
-
-        // background:rgba(243, 243, 21, 0.28);
-        color: rgba(0, 0, 0, .25);
-
-        font-size: .8rem;
-
-        border-radius: 500px;
-        border: 1px solid rgba(0, 0, 0, .25);;
-        padding-left: .5em;
-        padding-right: .5em;
-    }
-
-    .ML__placeholder.ML__caret {
-        border: none;
-        border-radius: 0;
-        border-right: 2px solid @primary;
-        margin-right: -2px;
-        z-index: 1;
-        animation: blink 1.05s step-end forwards infinite;
-
-        padding-left: 0;
-        padding-right: 0;
-    }
 
 }
 
-    .ML__keystrokecaption > span {
-        min-width: 14px;
-        /*height: 8px;*/
-        margin: 0 8px 0 0;
-        padding: 4px;
+.ML__command {
+    font-family: @monospace;
+    letter-spacing: -.05em;
+    font-weight: 700;
 
-        background-color: #fff;
-        color: #555;
+    color: @primary;
+}
 
-        font-family: @system;
-        /*font-family: @monospace; */
-        font-size: 1em;
-        text-shadow: 0 1px #fff;
-        letter-spacing: -0.07rem;
 
-        border-radius: 6px;
-        border: 2px solid #eee;
+:not(.ML__command) + .ML__command {
+    margin-left: .25em;
+}
 
-        /*box-shadow: 0 7px 14px rgba(0,0,0,0.25), 0 5px 5px rgba(0,0,0,0.22);*/
-        box-shadow:0 0 0 1px #ddd, 0 1px 2px 1px #ccc;
+.ML__command + :not(.ML__command)  {
+    padding-left: .25em;
+}
 
+.ML__error {
+    // Wavy pattern
+    background-image: radial-gradient(ellipse at center, 
+        #cd0030,rgba(76,41,41,0) 70%);
+
+    // background-image:
+    //     linear-gradient(45deg, transparent 65%, @secondary 80%, transparent 90%),
+    //     linear-gradient(135deg, transparent 5%, @secondary 15%, transparent 25%),
+    //     linear-gradient(135deg, transparent 45%, @secondary 55%, transparent 65%),
+    //     linear-gradient(45deg, transparent 25%, @secondary 35%, transparent 50%);
+    background-repeat: repeat-x;
+    background-size: 3px 3px;
+    background-position:0 98%;
+}
+
+.ML__suggestion {
+    opacity: .25;
+}
+
+.ML__placeholder {
+    font-family: @system;
+    letter-spacing: -.05em;
+
+    // background:rgba(243, 243, 21, 0.28);
+    color: rgba(0, 0, 0, .25);
+
+    font-size: .8rem;
+
+    border-radius: 500px;
+    border: 1px solid rgba(0, 0, 0, .25);;
+    padding-left: .5em;
+    padding-right: .5em;
+}
+
+.ML__placeholder.ML__caret {
+    border: none;
+    border-radius: 0;
+    border-right: 2px solid @primary;
+    margin-right: -2px;
+    z-index: 1;
+    animation: blink 1.05s step-end forwards infinite;
+
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.ML__keystrokecaption > span {
+    min-width: 14px;
+    /*height: 8px;*/
+    margin: 0 8px 0 0;
+    padding: 4px;
+
+    background-color: #fff;
+    color: #555;
+
+    font-family: @system;
+    /*font-family: @monospace; */
+    font-size: 1em;
+    text-shadow: 0 1px #fff;
+    letter-spacing: -0.07rem;
+
+    border-radius: 6px;
+    border: 2px solid #eee;
+
+    /*box-shadow: 0 7px 14px rgba(0,0,0,0.25), 0 5px 5px rgba(0,0,0,0.22);*/
+    box-shadow:0 0 0 1px #ddd, 0 1px 2px 1px #ccc;
+
+}
+
+
+div.ML__commandbar--buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    align-items: center;
+    pointer-events: auto;
+    user-select: none;
+
+    min-height: 64px;
+    flex-wrap: wrap;
+}
+
+
+div.ML__commandbar--buttons > span {
+    font-family: @system;
+    /*font-family: @monospace; */
+    font-size: 1em;
+    text-shadow: 0 1px #fff;
+    // letter-spacing: -0.07rem;
+    font-weight: 100;
+    text-transform: uppercase;
+
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    padding: 10px;
+    margin: 5px 5px 5px 5px;
+    min-height: 48px;
+    min-width: 48px;
+
+    cursor: pointer;
+
+    border-radius: 8px;
+    background: #fff;
+    border: 1px solid #eee;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+}
+
+div.ML__commandbuttons > span.glyph {
+    font-size: 1.5em;
+    color: #555;
+    font-weight: 700;
+}
+
+@media (max-width: 600px) {
+    div.ML__commandbar--buttons {
+        font-size: 2.66vw;
     }
-
-
-    div.ML__commandbar > div.ML__commandbuttons {
-        display: flex;
-        flex-direction: row;
-        justify-content: left;
-        align-items: center;
-        pointer-events: auto;
-        user-select: none;
-
-        min-height: 64px;
-        flex-wrap: wrap;
+    div.ML__commandbar--buttons > span {
+        padding-right: 1.33vw;
+        padding-left: 1.33vw;
+        padding-top: 5.33vw;
+        padding-bottom: 5.33vw;
     }
+}
 
-
-    div.ML__commandbar > div.ML__commandbuttons > span {
-        font-family: @system;
-        /*font-family: @monospace; */
-        font-size: 1em;
-        text-shadow: 0 1px #fff;
-        // letter-spacing: -0.07rem;
-        font-weight: 100;
-        text-transform: uppercase;
-
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-
-        padding: 10px;
-        margin: 5px 5px 5px 5px;
-        min-height: 48px;
-        min-width: 48px;
-
-        cursor: pointer;
-
-        border-radius: 8px;
-        background: #fff;
-        border: 1px solid #eee;
-        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
-    }
-
-    div.ML__commandbar > div.ML__commandbuttons > span.glyph {
-        font-size: 1.5em;
-        color: #555;
-        font-weight: 700;
-    }
-
-    @media (max-width: 600px) {
-        div.ML__commandbar > div.ML__commandbuttons {
-            font-size: 2.66vw;
-        }
-        div.ML__commandbar > div.ML__commandbuttons > span {
-            padding-right: 1.33vw;
-            padding-left: 1.33vw;
-            padding-top: 5.33vw;
-            padding-bottom: 5.33vw;
-            
-        }
-
-    }
-
-    div.ML__commandbar > div.ML__commandbuttons > span:hover.pressed, 
-    div.ML__commandbar > div.ML__commandbuttons > span.pressed {
-            background: #0066ce;
-            color: white;
-    }
-
-    div.ML__commandbar > div.ML__commandbuttons > span.active {
-        animation: .1s ML__flash forwards;
-    }
-
-    div.ML__commandbar > div.ML__commandbuttons span span.ML__dynamicLabel {
-        display: block;
-        text-align: center;
-        text-transform: none;
-    }
-
-    div.ML__commandbar > div.ML__commandbuttons span span.ML__shortLabel {
-        font-family: @system;
-        font-size: .7rem;
-        line-height: 1em;
-        text-align: center;
-        padding-top: .25em;
-        opacity: .7;
-    }
-
-    div.ML__commandbar > div.ML__commandbuttons span span.ML__keyboardShortcut {
-        font-family: @system;
-        font-size: .7rem;
-        line-height: 1em;
-        text-align: center;
-        opacity: .7;
-        margin-left: .5em;
-        text-transform: none;
-    }
-
-    @keyframes ML__flash {
-        from {
-            background: #0066ce;
-            color: white;
-        }
-        to {
-            color: inherit;
-            background: inherit;
-        }
-    }
-
-    .ML__commandbartoggle:hover {
-        background: #eee;
-    }
-
-    .ML__commandbartoggle.pressed, 
-    .ML__commandbartoggle.active:hover, 
-    .ML__commandbartoggle.active {
-        background: @primary;
+div.ML__commandbar--buttons > span:hover.pressed, 
+div.ML__commandbar--buttons > span.pressed {
+        background: #0066ce;
         color: white;
-        &:after {
-            text-shadow: none;
-            color: white;
-        }
-    }
-    
-    div.ML__commandbar > div.ML__commandbuttons > span:hover {
-        background: #eee;
-        text-shadow: none;
-    }
+}
 
-    div.ML__commandbar > div.ML__commandbuttons > span.ML__round {
-        border-radius: 24px;
-        width: 24px;
-        height: 24px;
-        text-align: center;
-        font-weight: 900;
-    }
+div.ML__commandbar--buttons > span.active {
+    animation: .1s ML__flash forwards;
+}
 
-
-    div.ML__commandbar > div.ML__commandpanel {
-        display: flex;
-        flex-direction: column;
-        justify-content: left;
-        padding-left: 8px;
-        padding-right: 8px;
-
-        font-family: @system;
-
-        cursor: default;
-    }
-
-    .ML__popover.ML__popover_visible {
-        visibility: visible;
-        animation: fadeIn cubic-bezier(0.0, 0.0, 0.2, 1) .15s;
-    }
-    @keyframes fadeIn {
-        from {opacity: 0;}
-        to {opacity:1 ;}
-    }
-
-    /* The wrapper class for the entire content of the popover panel */
-    .ML__popover_content {
-        border-radius: 6px;
-        padding: 2px;
-        cursor: pointer;
-        min-height: 100px;
-
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        margin-left: 8px;
-        margin-right: 8px;
-   }
-
-    .ML__popover_content a {
-        color: #5Ea6Fd;
-        padding-top: .3em;
-        margin-top: .4em;
-        display: block;
-    }
-
-    .ML__popover_content a:hover {
-        color: #5Ea6Fd;
-        text-decoration: underline;
-    }
-
-    /* Since the content can be clicked on, provide feedback on hover */
-    .ML__popover_content:hover, 
-    .ML__popover_content.pressed,
-    .ML__popover_content.active {
-        background: rgba(255, 255, 255, .1);
-    }
-
-    /* The command inside a popover (inside a ML__popover-content) */
-    .ML__popover_command {
-        font-size: 1.6rem;
-    }
-
-    .ML__popover_prev-shortcut {
-        height: 31px;
-        opacity: .1;
-        cursor: pointer;
-
-        margin-left: 8px;
-        margin-right: 8px;
-        padding-top: 4px;
-        padding-bottom: 2px;
-    }
-
-    .ML__popover_prev-shortcut:hover, 
-    .ML__popover_next-shortcut:hover{
-        opacity: .3;
-    }
-
-    .ML__popover_prev-shortcut.pressed,
-    .ML__popover_next-shortcut.pressed {
-        opacity: 1;
-    }
-
-    .ML__popover_prev-shortcut.active, 
-    .ML__popover_next-shortcut.active {
-        opacity: 1;
-    }
-
-    .ML__popover_prev-shortcut > span, 
-    .ML__popover_next-shortcut > span {
-        padding: 5px;
-        border-radius: 50%;
-        width: 20px;
-        height: 20px;
-        display: inline-block;
-    }
-
-    .ML__popover_prev-shortcut > span > span {
-        margin-top: -2px;
-        display: block;
-    }
-
-    .ML__popover_next-shortcut > span > span {
-        margin-top: +2px;
-        display: block;
-    }
-
-
-    .ML__popover_prev-shortcut:hover > span, 
-    .ML__popover_next-shortcut:hover > span {
-        background: rgba(255, 255, 255, .1);
-    }
-
-    .ML__popover_next-shortcut {
-        height: 34px;
-        opacity: .1;
-        cursor: pointer;
-
-        margin-left: 8px;
-        margin-right: 8px;
-        padding-top: 2px;
-        padding-bottom: 4px;
-    }
-
-    /* The keyboard shorcuts for a symbol as displayed in the popover */
-    .ML__popover_shortcut {
-        font-family: @system;
-        font-size: .8em;
-        opacity: .7;
-
-        margin-top: .25em;
-        padding-top: .25em;
-    }
-
-    /* The field in a popover that provides some info about the symbol */
-    .ML__popover_note {
-        font-family: @system;
-        font-size: .8rem;
-        opacity: .7;
-
-        line-height: 1em;
-
-        padding-left: .5em;
-        padding-right: .5em;
-        padding-top: .25em;
-    }
-
-    /* Style for the character that joins the modifiers of a keyboard shortcut 
-    (usually a "+" sign)*/
-    .ML__shortcut_join {
-        opacity: .5;
-    }
-
-.mathlive-display {
+div.ML__commandbar--buttons span span.ML__dynamicLabel {
     display: block;
-    margin: 1em 0;
     text-align: center;
+    text-transform: none;
+}
 
-    > .mathlive {
-        display: inline-block;
-        text-align: initial;
+div.ML__commandbar--buttons span span.ML__shortLabel {
+    font-family: @system;
+    font-size: .7rem;
+    line-height: 1em;
+    text-align: center;
+    padding-top: .25em;
+    opacity: .7;
+}
+
+div.ML__commandbar--buttons span span.ML__keyboardShortcut {
+    font-family: @system;
+    font-size: .7rem;
+    line-height: 1em;
+    text-align: center;
+    opacity: .7;
+    margin-left: .5em;
+    text-transform: none;
+}
+
+@keyframes ML__flash {
+    from {
+        background: #0066ce;
+        color: white;
     }
+    to {
+        color: inherit;
+        background: inherit;
+    }
+}
+
+.ML__commandbartoggle:hover {
+    background: #eee;
+}
+
+.ML__commandbartoggle.pressed, 
+.ML__commandbartoggle.active:hover, 
+.ML__commandbartoggle.active {
+    background: @primary;
+    color: white;
+    &:after {
+        text-shadow: none;
+        color: white;
+    }
+}
+    
+div.ML__commandbar--buttons > span:hover {
+    background: #eee;
+    text-shadow: none;
+}
+
+div.ML__commandbar--buttons > span.ML__round {
+    border-radius: 24px;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    font-weight: 900;
+}
+
+
+div.ML__commandbar--panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    padding-left: 8px;
+    padding-right: 8px;
+
+    font-family: @system;
+
+    cursor: default;
+}
+
+.ML__popover.ML__popover_visible {
+    visibility: visible;
+    animation: ML__fadeIn cubic-bezier(0.0, 0.0, 0.2, 1) .15s;
+}
+@keyframes ML__fadeIn {
+    from {opacity: 0;}
+    to {opacity:1 ;}
+}
+
+/* The wrapper class for the entire content of the popover panel */
+.ML__popover_content {
+    border-radius: 6px;
+    padding: 2px;
+    cursor: pointer;
+    min-height: 100px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
+.ML__popover_content a {
+    color: #5Ea6Fd;
+    padding-top: .3em;
+    margin-top: .4em;
+    display: block;
+}
+
+.ML__popover_content a:hover {
+    color: #5Ea6Fd;
+    text-decoration: underline;
+}
+
+/* Since the content can be clicked on, provide feedback on hover */
+.ML__popover_content:hover, 
+.ML__popover_content.pressed,
+.ML__popover_content.active {
+    background: rgba(255, 255, 255, .1);
+}
+
+/* The command inside a popover (inside a ML__popover-content) */
+.ML__popover_command {
+    font-size: 1.6rem;
+}
+
+.ML__popover_prev-shortcut {
+    height: 31px;
+    opacity: .1;
+    cursor: pointer;
+
+    margin-left: 8px;
+    margin-right: 8px;
+    padding-top: 4px;
+    padding-bottom: 2px;
+}
+
+.ML__popover_prev-shortcut:hover, 
+.ML__popover_next-shortcut:hover{
+    opacity: .3;
+}
+
+.ML__popover_prev-shortcut.pressed,
+.ML__popover_next-shortcut.pressed {
+    opacity: 1;
+}
+
+.ML__popover_prev-shortcut.active, 
+.ML__popover_next-shortcut.active {
+    opacity: 1;
+}
+
+.ML__popover_prev-shortcut > span, 
+.ML__popover_next-shortcut > span {
+    padding: 5px;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+}
+
+.ML__popover_prev-shortcut > span > span {
+    margin-top: -2px;
+    display: block;
+}
+
+.ML__popover_next-shortcut > span > span {
+    margin-top: +2px;
+    display: block;
+}
+
+
+.ML__popover_prev-shortcut:hover > span, 
+.ML__popover_next-shortcut:hover > span {
+    background: rgba(255, 255, 255, .1);
+}
+
+.ML__popover_next-shortcut {
+    height: 34px;
+    opacity: .1;
+    cursor: pointer;
+
+    margin-left: 8px;
+    margin-right: 8px;
+    padding-top: 2px;
+    padding-bottom: 4px;
+}
+
+/* The keyboard shorcuts for a symbol as displayed in the popover */
+.ML__popover_shortcut {
+    font-family: @system;
+    font-size: .8em;
+    opacity: .7;
+
+    margin-top: .25em;
+    padding-top: .25em;
+}
+
+/* The field in a popover that provides some info about the symbol */
+.ML__popover_note {
+    font-family: @system;
+    font-size: .8rem;
+    opacity: .7;
+
+    line-height: 1em;
+
+    padding-left: .5em;
+    padding-right: .5em;
+    padding-top: .25em;
+}
+
+/* Style for the character that joins the modifiers of a keyboard shortcut 
+(usually a "+" sign)*/
+.ML__shortcut_join {
+    opacity: .5;
 }
 
 

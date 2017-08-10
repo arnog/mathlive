@@ -25,9 +25,10 @@ define(['mathlive/core/mathstyle'], function(Mathstyle) {
  * @property {number} size
  * @property {boolean} phantom
  * @property {string} font
- * @property {boolean} generateID - If true, unique IDs shoudl be generated for each span
+ * @property {boolean} generateID - If true, unique IDs should be generated for each span
  * so they can be tracked by to an atom
- * @property {boolean} isSelected
+ * @property {boolean} isSelected - If true, items rendered in this context
+ * should be rendered in a selected state
  * @property {string} parentMathstyle
  * @property {number} parentSize
  * 
@@ -60,6 +61,7 @@ function Context(data) {
 
 /**
  * Returns a new context with the same properties as 'this'.
+ * @return {Context}
  * @memberof Context
  * @instance
  * @private
@@ -73,10 +75,11 @@ Context.prototype.clone = function() {
 
 
 /**
- * Create a new context, identical to this, except for the given property/value
- * pair.
+ * Create a new context, identical to this object, except for the given 
+ * property/value pair.
  * @param {string} property
  * @param {*} value
+ * @return {Context}
  * @memberof Context
  * @instance
  * @private
@@ -90,16 +93,14 @@ Context.prototype.cloneWith = function(property, value) {
 
 /**
  * Change the mathstyle of this context
- * @param {string} value
+ * @param {string} value - `'auto'` to indicate that the mathstyle should in 
+ * fact not be changed. This is used when specifying the mathstyle for some
+ * environments.
  * @memberof Context
  * @instance
  * @private
  */
 Context.prototype.setMathstyle = function(value) {
-    // The special value 'auto' is used to indicate
-    // that the mathstyle should in fact not be changed
-    // This is used when specifying the mathstyle for
-    // some environments, for example.
     if (value && value !== 'auto') {
         this.mathstyle = Mathstyle.toMathstyle(value);
     }
@@ -118,20 +119,6 @@ Context.prototype.withMathstyle = function(value) {
     return result;
 }
 
-/**
- * Return a clone context with the specified mathstyle
- * @memberof Context
- * @instance
- * @private
- */
-Context.prototype.withIsSelected = function(/* value */) {
-    const result = this.clone();
-    // if (!result.isSelected) {
-    //     result.isSelected = value;
-    // }
-    // // result.isSelected = value || result.isSelected;
-    return result;
-}
 
 Context.prototype.fontFamily = function(value) {
     const result = this.clone();
@@ -162,7 +149,8 @@ Context.prototype.fracNum = function() {
 
 
 /**
- * Gets the CSS color of this context.
+ * Gets the CSS (foreground) color in effect
+ * @return {string} An hexadecimal color string, e.g. "#cd0030", or `'transparent'`
  * @memberof Context
  * @instance
  * @private
@@ -173,7 +161,8 @@ Context.prototype.getColor = function() {
 }
 
 /**
- * Gets the CSS background color of this context
+ * Gets the CSS background color in effect
+ * @return {string} An hexadecimal color string, e.g. "#cd0030", or `'transparent'`
  * @memberof Context
  * @instance
  * @private
