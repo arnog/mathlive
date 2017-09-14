@@ -134,6 +134,10 @@ function toMarkup(text, mathstyle, format) {
  * @param {mathfieldCallback} [config.onBlur] - Invoked when the mathfield has 
  * lost focus
  * 
+ * @param {mathfieldCallback} [config.onKeystroke] - Invoked when a keystroke is
+ * about to be processed. First argument is a string describing the keystroke,
+ * the second is the keyboard event. Return false to stop handling of the event.
+ * 
  * @param {boolean} [config.overrideDefaultInlineShortcuts=false] - If true 
  * the default inline shortcuts (e.g. 'p' + 'i' = 'π') are ignored.
  * 

@@ -610,6 +610,13 @@ MathField.prototype.perform = function(command) {
  * @private
  */
 MathField.prototype._onKeystroke = function(keystroke, evt) {
+
+    // Give a chance to the custom keystroke handler to intercept the event
+    if (this.config.onKeystroke && !this.config.onKeystroke(keystroke, evt))
+        evt.preventDefault();
+        evt.stopPropagation();
+        return false;
+    }
     
     const shortcut = Shortcuts.matchKeystroke(this.mathlist.parseMode(), 
         keystroke);
