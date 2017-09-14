@@ -1177,7 +1177,7 @@ EditableMathlist.prototype.leap = function(dir) {
                 const focussable = Array.prototype.filter.call(document.querySelectorAll(focussableElements), function (element) {
                     return element.offsetWidth > 0 || element.offsetHeight > 0 || element === document.activeElement;
                 });
-                const index = focussable.indexOf(document.activeElement) + dir;
+                let index = focussable.indexOf(document.activeElement) + dir;
                 if (index < 0) index = focussable.length - 1;
                 focussable[index].focus();
             }
