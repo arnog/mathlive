@@ -1171,6 +1171,16 @@ EditableMathlist.prototype.leap = function(dir) {
     if (placeholders.length === 0) {
         if (this.config.onTabOutOf) {
             this.config.onTabOutOf(this, dir);
+        } else {
+            if (document.activeElement) {
+                const focussableElements = 'a:not([disabled]), button:not([disabled]), textarea:not([disabled]), input[type=text]:not([disabled]), [tabindex]:not([disabled]):not([tabindex="-1"])';
+                const focussable = Array.prototype.filter.call(document.querySelectorAll(focussableElements), function (element) {
+                    return element.offsetWidth > 0 || element.offsetHeight > 0 || element === document.activeElement;
+                });
+                const index = focussable.indexOf(document.activeElement) + dir;
+                if (index < 0) index = focussable.length - 1;
+                focussable[index].focus();
+            }
         }
         return false;
     }
