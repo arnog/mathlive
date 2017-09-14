@@ -1038,7 +1038,7 @@ EditableMathlist.prototype.extend = function(dist) {
 
 /**
  * Move the selection focus to the next/previous point of interest.
- * A point of interest is an atom that of a different type (mbin, mord, etc...)
+ * A point of interest is an atom of a different type (mbin, mord, etc...)
  * than the current focus.
  * If `extend` is true, the selection will be extended. Otherwise, it is 
  * collapsed, then moved.
@@ -1652,6 +1652,8 @@ EditableMathlist.prototype.extendToPreviousWord_ = function() {
 }
 
 /**
+ * If the selection is in a denominator, the selection will be extended to
+ * include the numerator.
  * @method EditableMathlist#extendUp_
  */
 EditableMathlist.prototype.extendUp_ = function() { 
@@ -1659,6 +1661,8 @@ EditableMathlist.prototype.extendUp_ = function() {
 }
 
 /**
+ * If the selection is in a numerator, the selection will be extended to
+ * include the denominator.
  * @method EditableMathlist#extendDown_
  */
 EditableMathlist.prototype.extendDown_ = function() { 
@@ -1666,6 +1670,11 @@ EditableMathlist.prototype.extendDown_ = function() {
 }
 
 /**
+ * Extend the selection until the next boundary is reached. A boundary 
+ * is defined by an atom of a different type (mbin, mord, etc...)
+ * than the current focus. For example, in "1234+x=y", if the focus is between 
+ * "1" and "2", invoking `extendToNextBoundary_` would extend the selection
+ * to "234".
  * @method EditableMathlist#extendToNextBoundary_
  */
 EditableMathlist.prototype.extendToNextBoundary_ = function() { 
@@ -1673,6 +1682,11 @@ EditableMathlist.prototype.extendToNextBoundary_ = function() {
 }
 
 /**
+ * Extend the selection until the previous boundary is reached. A boundary 
+ * is defined by an atom of a different type (mbin, mord, etc...)
+ * than the current focus. For example, in "1+23456", if the focus is between 
+ * "5" and "6", invoking `extendToPreviousBoundary` would extend the selection
+ * to "2345".
  * @method EditableMathlist#extendToPreviousBoundary_
  */
 EditableMathlist.prototype.extendToPreviousBoundary_ = function() { 

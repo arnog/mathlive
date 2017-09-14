@@ -918,6 +918,47 @@ MathField.prototype.selectedText = function(format) {
     return result;
 }
 
+
+/**
+ * Return true if the length of the selection is 0, that is, if it is a single
+ * insertion point.
+ * @return {boolean}
+ * @method MathField#selectionIsCollapsed
+ */
+MathField.prototype.selectionIsCollapsed = function() {
+    return this.mathlist.isCollapsed();
+}
+
+/**
+ * Return the depth of the selection group. If the selection is at the root level, 
+ * returns 0. If the selection is a portion of the numerator of a fraction 
+ * which is at the root level, return 1. Note that in that case, the numerator
+ * would be the "selection group".
+ * @return {integer}
+ * @method MathField#selectionDepth
+ */
+MathField.prototype.selectionDepth = function() {
+    return this.mathlist.path.length;
+}
+
+/**
+ * Return true if the selection starts at the beginning of the selection group.
+ * @return {boolean}
+ * @method MathField#selectionAtStart
+ */
+MathField.prototype.selectionAtStart = function() {
+    return this.mathlist.startOffset() === 0;
+}
+
+/**
+ * Return true if the selection extends to the end of the selection group.
+ * @return {boolean}
+ * @method MathField#selectionAtEnd
+ */
+MathField.prototype.selectionAtEnd = function() {
+    return this.mathlist.endOffset() >= this.mathlist.siblings().length - 1;
+}
+
 /**
  * If `text` is not empty, sets the content of the mathfield to the 
  * text interpreted as a LaTeX expression.
