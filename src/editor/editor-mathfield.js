@@ -612,7 +612,7 @@ MathField.prototype.perform = function(command) {
 MathField.prototype._onKeystroke = function(keystroke, evt) {
 
     // Give a chance to the custom keystroke handler to intercept the event
-    if (this.config.onKeystroke && !this.config.onKeystroke(keystroke, evt))
+    if (this.config.onKeystroke && !this.config.onKeystroke(keystroke, evt)) {
         evt.preventDefault();
         evt.stopPropagation();
         return false;
