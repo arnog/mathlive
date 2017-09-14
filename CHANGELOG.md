@@ -1,3 +1,17 @@
+## 0.0.16 (September 13, 2017)
+
+### Deprecated Features
+- `MathField.write()` has been deprecated. Use `MathField.insert()` instead.
+
+### New Features
+
+- Added `MathField.selectedText()` which returns the textual content of the 
+selection.
+
+### Bug Fixes
+- Perform a snapshot with the undo manager when invoking `MathField.insert()`.
+- Documentation improvements.
+
 ## 0.0.15 (July 1, 2017)
 
 ### New Features

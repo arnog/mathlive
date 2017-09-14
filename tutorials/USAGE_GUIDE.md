@@ -191,7 +191,7 @@ Here's a short list for some common operations:
 * `el()` the DOM element associated with this math field
 * `text(format)` return a textual representation of the content of the math 
 field, `format` can be either `"latex"` (default) or `"spoken"`.
-* `.write(content, options)` insert the specified content at the current 
+* `.insert(content, options)` insert the specified content at the current 
 insertion point. With `options` it is possible to specify the insertion mode,
 as well as what will be selected after the insertion. If the content contains
 a `#?` a placeholder will be indicated in its stead. The `#0` sequence will

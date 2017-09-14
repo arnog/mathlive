@@ -66,7 +66,7 @@ function off(el, selectors, listener, options) {
  * ```
  *  
  * @param {Element} element 
- * @param {Object} config - See [`MathField.setConfig()`]{@link MathField#setConfig} for details
+ * @param {Object} config - See [`MathLive.makeMathField()`]{@link MathLive#makeMathField} for details
  * @property {Element} element - The DOM element this mathfield is attached to.
  * @property {Object} config - A key/value/pair object that includes options
  * customizing the behavior of the mathfield
@@ -894,6 +894,31 @@ MathField.prototype.text = function(format) {
 }
 
 /**
+ * Return a textual representation of the selection in the mathfield.
+ * @param {string} [format='latex']. One of `'latex'` or `'spoken'`
+ * @return {string}
+ * @method MathField#selectedText
+ */
+MathField.prototype.selectedText = function(format) {
+    format = format || 'latex';
+    let result = '';
+    const selection = this.mathlist.extractContents();
+    if (selection) {
+        if (format === 'latex') {
+            
+            for (const atom of selection) {
+                result += atom.toLatex();
+            }
+
+        } else if (format === 'spoken') {
+            result = MathAtom.toSpeakableText(selection, {markup:true})
+        }
+    }
+
+    return result;
+}
+
+/**
  * If `text` is not empty, sets the content of the mathfield to the 
  * text interpreted as a LaTeX expression.
  * If `text` is empty (or omitted), return the content of the mahtfield as a 
@@ -981,7 +1006,7 @@ MathField.prototype.pasteFromClipboard_ = function() {
 
 
 /**
- * This function can be invoked as a selector from or called explicitly.
+ * This function can be invoked as a selector with `perform()` or called explicitly.
  * It will insert the specified block of latex at the current selection point,
  * according to the insertion mode specified. After the insertion, the 
  * selection will be set according to the selectionMode.
@@ -996,14 +1021,14 @@ MathField.prototype.pasteFromClipboard_ = function() {
  * been inserted), 'before' (the selection will be an insertion point before 
  * the item that has been inserted) or 'item' (the item that was inserted will
  * be selected). Default: 'placeholder'.
- * @method MathField#write
+ * @method MathField#insert
  */
-MathField.prototype.write = 
 MathField.prototype.insert_ = 
 MathField.prototype.insert = function(latex, options) {
     if (typeof latex === 'string' && latex.length > 0) {
         if (!options) options = {};
         if (!options.format) options.format = 'auto';
+        this.undoManager.snapshot();
         this.mathlist.insert(latex, options);
     }
 }
