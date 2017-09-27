@@ -368,6 +368,16 @@ function emph(s) {
                 options.mode = 'math';
                 break;
 
+            case 'enclose':
+                body = MathAtom.toSpeakableFragment(atom.body, options);
+                
+                if (isAtomic(atom.body)) {
+                    result += ' crossed out ' + body + ' , ';
+                } else {
+                    result += ' crossed out ' + body + ' . End cross out.';
+                }
+                break;
+
             case 'space':
             case 'spacing':
             case 'color':
