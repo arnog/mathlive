@@ -1,5 +1,5 @@
 /* eslint no-console:0 */
-define(function() {
+define(['mathlive/core/mathAtom'], function(MathAtom) {
 
 function findEndOfMath(delimiter, text, startIndex) {
     // Adapted from
@@ -123,6 +123,29 @@ function splitWithDelimiters(text, delimiters) {
     return data;
 }
 
+
+function createAccessibleNode(latex, mathstyle) {
+    // Create a node for AT to speak, etc.
+    // This node has a style that makes it be invisible to display but is seen by AT
+    // FIX: Currently this is text, but once MathML support is added, it should be MathML
+
+    /* this style should be in the CSS
+    .MathMLNoDisplay {
+        clip: rect(1px, 1px, 1px, 1px);
+        position: absolute !important;
+        white-space: nowrap;
+        height: 1px;
+        width: 1px;
+        overflow: hidden;
+    }
+    */
+    let elem = document.createElement('span');
+    elem.innerText = MathAtom.toSpeakableText(MathLive.latexToMarkup(latex, mathstyle, 'mathlist'));
+    elem.setAttribute('class', 'MathMLNoDisplay');
+    elem.setAttribute('style', 'clip: rect(1px, 1px, 1px, 1px); position: absolute !important;white-space: nowrap; height: 1px; width: 1px; overflow: hidden;');
+    console.log(elem.outerHTML);
+    return elem;
+}
 function scanText(text, options, latexToMarkup) {
     // If the text starts with '\begin'...
     // (this is a MathJAX behavior)
@@ -130,13 +153,15 @@ function scanText(text, options, latexToMarkup) {
     if (options.TeX.processEnvironments && text.match(/^\s*\\begin/)) {
         fragment = document.createDocumentFragment();
         const span = document.createElement('span');
+        span.setAttribute('aria-hidden','true');
         if (options.preserveOriginalContent) {
             span.setAttribute('data-' + options.namespace + 'original-content', text);
         }
         try {
             span.innerHTML = latexToMarkup(text, 'displaystyle');
             fragment.appendChild(span);
-        } catch (e) {
+            fragment.appendChild(createAccessibleNode(text, 'displaystyle'))
+       } catch (e) {
             console.error(
                 'Could not parse\'' + text + '\' with ', e
             );
@@ -155,12 +180,14 @@ function scanText(text, options, latexToMarkup) {
                 fragment.appendChild(document.createTextNode(data[i].data));
             } else {
                 const span = document.createElement('span');
+                span.setAttribute('aria-hidden','true');
                 if (options.preserveOriginalContent) {
                     span.setAttribute('data-' + options.namespace + 'original-content', data[i].data);
                 }
                 try {
                     span.innerHTML = latexToMarkup(data[i].data, data[i].mathstyle);
                     fragment.appendChild(span);
+                    fragment.appendChild(createAccessibleNode(data[i].data, data[i].mathstyle));
                 } catch (e) {
                     console.error(
                         'Could not parse\'' + data[i].data + '\' with ', e
@@ -171,7 +198,6 @@ function scanText(text, options, latexToMarkup) {
             }
         }
     }
-
     return fragment;
 }
 
@@ -183,7 +209,11 @@ function scanElement(elem, options, latexToMarkup) {
         const mathstyle = elem.getAttribute('data-' + options.namespace + 
             'mathstyle') || 'displaystyle';
         try {
-            elem.innerHTML = latexToMarkup(originalContent, mathstyle);
+            const span = document.createElement('span');
+            span.appendChild(latexToMarkup(originalContent, mathstyle));
+            span.appendChild(createAccessibleNode(originalContent, mathstyle));
+            elem.textContent = '';
+            elem.appendChild(span);
         } catch (e) {
             console.error(
                 'Could not parse\'' + originalContent + '\' with ', e
@@ -227,13 +257,18 @@ function scanElement(elem, options, latexToMarkup) {
             }
         }
         if (innerContent) {
-            elem.innerHTML = innerContent;
-            if (options.preserveOriginalContent) {
-                elem.setAttribute('data-' + options.namespace + 'original-content', text);
+            let span = document.createElement('span');            
+            span.innerHTML = innerContent;
+            span.firstChild.setAttribute('aria-hidden','true');
+           if (options.preserveOriginalContent) {
+                span.setAttribute('data-' + options.namespace + 'original-content', text);
                 if (mathstyle) {
-                    elem.setAttribute('data-' + options.namespace + 'original-mathstyle', mathstyle);
+                    span.setAttribute('data-' + options.namespace + 'original-mathstyle', mathstyle);
                 }
             }
+            span.appendChild(createAccessibleNode(text, mathstyle));
+            elem.textContent = '';
+            elem.appendChild(span);
             handled = true;
         }
     }
@@ -266,7 +301,12 @@ function scanElement(elem, options, latexToMarkup) {
                         }
                     }
 
+                    // for convenience, create a wrapper around the displayed and accessible math
+                    const outterSpan = document.createElement('span');
+
                     const span = document.createElement('span');
+                    span.setAttribute('aria-hidden','true');
+
                     try {
                         span.innerHTML = latexToMarkup(childNode.textContent, style);
                     } catch(e) {
@@ -282,8 +322,11 @@ function scanElement(elem, options, latexToMarkup) {
                             'mathstyle', style);
                         
                     }
+                        
+                    childNode.appendChild(createAccessibleNode(childNode.textContent, style));
 
-                    childNode.parentNode.replaceChild(span, childNode);
+                    childNode.appendChild(span);
+                    childNode.parentNode.replaceChild(outterSpan, childNode);
                 } else {
                     // Element node
                     const shouldRender = 
