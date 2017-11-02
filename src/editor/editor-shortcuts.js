@@ -563,7 +563,7 @@ function matchEndOf(s, config) {
     if (customInlineShortcuts) {
         for (const k in customInlineShortcuts) {
             if (customInlineShortcuts.hasOwnProperty(k)) {
-                if (k.length >= matchLength && s.substr(-k.length) == k) {
+                if (k.length >= matchLength && s.substr(-k.length) === k) {
                     result = {
                         match: k,
                         substitute: customInlineShortcuts[k]
