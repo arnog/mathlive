@@ -335,6 +335,9 @@ function validateNamespace(options) {
 function revertToOriginalContent(element, options) {
     element = getElement(element);
     
+    // element is a pair: accessible span, math -- set it to the math part
+    element = element.children[1];
+
     if (element instanceof MathField.MathField) {
         element.revertToOriginalContent();
     } else {
@@ -359,6 +362,9 @@ function revertToOriginalContent(element, options) {
  */
 function getOriginalContent(element, options) {
     element = getElement(element);
+
+    // element is a pair: accessible span, math -- set it to the math part
+    element = element.children[1];
 
     if (element instanceof MathField.MathField) {
         return element.originalContent;
