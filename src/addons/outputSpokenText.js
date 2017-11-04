@@ -222,7 +222,7 @@ function emph(s) {
                         result += numer + ' over ' + denom + ' ';
                     }
                 } else {
-                    result += ' The fraction [[slnc 200]]' + numer + ', over [[slnc 150]]' + denom + '. End fraction.';
+                    result += ' The fraction [[slnc 200]]' + numer + ', over [[slnc 150]]' + denom + ', End fraction.';
                 }
 
                 break;
@@ -233,17 +233,17 @@ function emph(s) {
                     if (isAtomic(atom.body)) {
                         result += ' square root of ' + body + ' , ';
                     } else {
-                        result += ' The square root of ' + body + ' . End square root.';
+                        result += ' The square root of ' + body + ', End square root.';
                     }
                 } else {
                     let index = MathAtom.toSpeakableFragment(atom.index, options);
                     index = index.trim();
                     if (index === '3') {
-                        result += ' The cube root of ' + body + ' . End cube root.';
+                        result += ' The cube root of ' + body + ', End cube root.';
                     } else if (index === 'n') {
-                        result += ' The nth root of ' + body + ' . End root.';
+                        result += ' The nth root of ' + body + ', End root.';
                     } else {
-                        result += ' root with index: ' + index + ', of :' + body + ' . End root.';
+                        result += ' root with index: ' + index + ', of :' + body + ', End root.';
                     }
                 }
                 break;
@@ -374,7 +374,7 @@ function emph(s) {
                 if (isAtomic(atom.body)) {
                     result += ' crossed out ' + body + ' , ';
                 } else {
-                    result += ' crossed out ' + body + ' . End cross out.';
+                    result += ' crossed out ' + body + ' End cross out.';
                 }
                 break;
 
@@ -411,7 +411,7 @@ function emph(s) {
             if (isAtomic(atom.subscript)) {
                 result += ' sub ' + sub;
             } else {
-                result += ' subscript ' + sub + '. End subscript. ';
+                result += ' subscript ' + sub + ' End subscript. ';
             }
         }
         // If no markup was requested, remove any that we may have
@@ -450,8 +450,6 @@ version="1.0"><p><s xml:lang="en-US">`;
     }
 
     result += MathAtom.toSpeakableFragment(atoms, options);
-
-    result += '.';
 
     if (options.markup === 'ssml') {
         result += '</s></p></speak>';
