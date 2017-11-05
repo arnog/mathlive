@@ -1,5 +1,5 @@
 /* eslint no-console:0 */
-define(function() {
+define(['mathlive/core/mathAtom'], function(MathAtom) {
 
 function findEndOfMath(delimiter, text, startIndex) {
     // Adapted from
@@ -123,25 +123,72 @@ function splitWithDelimiters(text, delimiters) {
     return data;
 }
 
+
+function createAccessibleNode(latex, mathstyle, latexToMarkup) {
+    // Create a node for AT to speak, etc.
+    // This node has a style that makes it be invisible to display but is seen by AT
+    // FIX: Currently this is text, but once MathML support is added, it should be MathML
+    const span = document.createElement('span');
+    try {
+        span.innerText = MathAtom.toSpeakableText(latexToMarkup(latex, mathstyle, 'mathlist'));   
+    } catch (e) {
+        console.error( 'Could not convert\'' + latex + '\' to accessible format with ', e );
+        span.innerText = latex;   
+    }
+    span.setAttribute('class', 'ML__HiddenAccessibleMath');
+    return span;
+}
+
+function createMarkupNode(text, options, mathstyle, latexToMarkup, createNodeOnFailure) {
+    // Create a node for displaying math.
+    //   This is slightly ugly because in the case of failure to create the markup,
+    //   sometimes a text node is desired and sometimes not.
+    //   'createTextNodeOnFailure' controls this and null is returned when no node is created.
+    // This node is made invisible to AT
+    let span = document.createElement('span');
+    span.setAttribute('aria-hidden','true');
+    if (options.preserveOriginalContent) {
+        span.setAttribute('data-' + options.namespace + 'original-content', text);
+        if (mathstyle) {
+            span.setAttribute('data-' + options.namespace + 'original-mathstyle', mathstyle);
+        }
+    }
+
+    try {
+        span.innerHTML = latexToMarkup(text, mathstyle || 'displaystyle');
+     } catch (e) {
+        console.error( 'Could not parse\'' + text + '\' with ', e );
+        if (createNodeOnFailure) {
+            span = document.createTextNode(text);
+        } else {
+            return null;
+        }
+    }
+    return span;
+}
+
+function createAccessibleMarkupPair(text, mathstyle, options, latexToMarkup, createNodeOnFailure) {
+    // Create a math node (a span with an accessible component and a visual component)
+    // If there is an error in parsing the latex, 'createNodeOnFailure' controls whether
+    //   'null' is returned or an accessible node with the text used.
+    const markupNode = createMarkupNode(text, options, mathstyle, latexToMarkup, createNodeOnFailure);
+    if (markupNode === null) {
+        return null;
+    }
+
+    const fragment = document.createDocumentFragment();
+    fragment.appendChild(createAccessibleNode(text, mathstyle || 'displaystyle', latexToMarkup));
+    fragment.appendChild(markupNode);
+    return fragment;    
+}
+
 function scanText(text, options, latexToMarkup) {
     // If the text starts with '\begin'...
     // (this is a MathJAX behavior)
     let fragment = null;
     if (options.TeX.processEnvironments && text.match(/^\s*\\begin/)) {
         fragment = document.createDocumentFragment();
-        const span = document.createElement('span');
-        if (options.preserveOriginalContent) {
-            span.setAttribute('data-' + options.namespace + 'original-content', text);
-        }
-        try {
-            span.innerHTML = latexToMarkup(text, 'displaystyle');
-            fragment.appendChild(span);
-        } catch (e) {
-            console.error(
-                'Could not parse\'' + text + '\' with ', e
-            );
-            fragment.appendChild(document.createTextNode(text));
-        }
+        fragment.appendChild(createAccessibleMarkupPair(text, undefined, options, latexToMarkup, true));
     } else {
         const data = splitWithDelimiters(text, options.TeX.delimiters);
         if (data.length === 1 && data[0].type === 'text') {
@@ -154,150 +201,93 @@ function scanText(text, options, latexToMarkup) {
             if (data[i].type === 'text') {
                 fragment.appendChild(document.createTextNode(data[i].data));
             } else {
-                const span = document.createElement('span');
-                if (options.preserveOriginalContent) {
-                    span.setAttribute('data-' + options.namespace + 'original-content', data[i].data);
-                }
-                try {
-                    span.innerHTML = latexToMarkup(data[i].data, data[i].mathstyle);
-                    fragment.appendChild(span);
-                } catch (e) {
-                    console.error(
-                        'Could not parse\'' + data[i].data + '\' with ', e
-                    );
-                    fragment.appendChild(document.createTextNode(data[i].rawData));
-                    continue;
-                }
+                fragment.appendChild(createAccessibleMarkupPair(data[i].data, data[i].mathstyle, options, latexToMarkup, true));
             }
         }
     }
-
     return fragment;
 }
 
 function scanElement(elem, options, latexToMarkup) {
-    let handled = false;
     const originalContent = elem.getAttribute('data-' + options.namespace + 
         'original-content');
     if (originalContent) {
-        const mathstyle = elem.getAttribute('data-' + options.namespace + 
-            'mathstyle') || 'displaystyle';
-        try {
-            elem.innerHTML = latexToMarkup(originalContent, mathstyle);
-        } catch (e) {
-            console.error(
-                'Could not parse\'' + originalContent + '\' with ', e
-            );
+        const mathstyle = elem.getAttribute('data-' + options.namespace + 'mathstyle');
+        const span = createAccessibleMarkupPair(originalContent, mathstyle, options, latexToMarkup, false);
+        if (span != null) {
+            elem.textContent = '';
+            elem.appendChild(span);
         }
-        handled = true;
-    } else if (elem.childNodes.length === 1 && elem.childNodes[0].nodeType === 3) {
+        return;
+    }
+        
+    
+    if (elem.childNodes.length === 1 && elem.childNodes[0].nodeType === 3) {
         // This is a node with textual content only. Perhaps an opportunity
         // to simplify and avoid creating extra nested elements...
         const text = elem.childNodes[0].textContent;
-        let innerContent;
-        let mathstyle;
         if (options.TeX.processEnvironments && text.match(/^\s*\\begin/)) {
-            try {
-                innerContent = latexToMarkup(text, 'displaystyle');
-            } catch (e) {
-                console.error(
-                    'Could not parse\'' + text + '\' with ', e
-                );
-                innerContent = text;
-            }
-        } 
-        if (!innerContent) {
-            const data = splitWithDelimiters(text, options.TeX.delimiters);
-            if (data.length === 1 && data[0].type === 'math') {
-                // The entire content is a math expression: we can replace the content
-                // with the latex markup without creating additional wrappers.
-                try {
-                    mathstyle = data[0].mathstyle;
-                    innerContent = latexToMarkup(data[0].data, mathstyle);
-                } catch (e) {
-                    console.error(
-                        'Could not parse\'' + data[0].data + '\' with ', e
-                    );
-                    innerContent = data[0].data;
-                }
-            } else if (data.length === 1 && data[0].type === 'text') {
-                // This element only contained text with no math. No need to 
-                // do anything.
-                handled = true;
-            }
+            elem.textContent = '';
+            elem.appendChild( createAccessibleMarkupPair(originalContent, undefined, options, latexToMarkup, true) );
+            return;
         }
-        if (innerContent) {
-            elem.innerHTML = innerContent;
-            if (options.preserveOriginalContent) {
-                elem.setAttribute('data-' + options.namespace + 'original-content', text);
-                if (mathstyle) {
-                    elem.setAttribute('data-' + options.namespace + 'original-mathstyle', mathstyle);
-                }
-            }
-            handled = true;
+
+        const data = splitWithDelimiters(text, options.TeX.delimiters);
+        if (data.length === 1 && data[0].type === 'math') {
+            // The entire content is a math expression: we can replace the content
+            // with the latex markup without creating additional wrappers.
+            elem.textContent = '';
+            elem.appendChild( createAccessibleMarkupPair(data[0].data, data[0].mathstyle, options, latexToMarkup, true) );
+        } else if (data.length === 1 && data[0].type === 'text') {
+            // This element only contained text with no math. No need to 
+            // do anything.
         }
+        return;
     }
-    if (!handled) {
-        for (let i = 0; i < elem.childNodes.length; i++) {
-            const childNode = elem.childNodes[i];
-            if (childNode.nodeType === 3) {
-                // A text node
-                // Look for math mode delimiters inside the text
-                const frag = scanText(childNode.textContent, options, latexToMarkup);
-                if (frag) {
-                    i += frag.childNodes.length - 1;
-                    elem.replaceChild(frag, childNode);
-                }
-            } else if (childNode.nodeType === 1) {
-                // An element node
-                const tag = childNode.nodeName.toLowerCase();
-                if (tag === 'script' && 
-                    options.processScriptTypePattern.test(childNode.type)) {
-                    let style = 'displaystyle';
-                    for (const l of  childNode.type.split(';')) {
-                        const v = l.split('=');
-                        if (v[0].toLowerCase() === 'mode') {
-                            if (v[1].toLoweCase() === 'display') {
-                                style = 'displaystyle'; 
-                            } else {
-                                style = 'textstyle';
-                            }
 
+    for (let i = 0; i < elem.childNodes.length; i++) {
+        const childNode = elem.childNodes[i];
+        if (childNode.nodeType === 3) {
+            // A text node
+            // Look for math mode delimiters inside the text
+            const frag = scanText(childNode.textContent, options, latexToMarkup);
+            if (frag) {
+                i += frag.childNodes.length - 1;
+                elem.replaceChild(frag, childNode);
+            }
+        } else if (childNode.nodeType === 1) {
+            // An element node
+            const tag = childNode.nodeName.toLowerCase();
+            if (tag === 'script' && 
+                options.processScriptTypePattern.test(childNode.type)) {
+                let style = 'displaystyle';
+                for (const l of  childNode.type.split(';')) {
+                    const v = l.split('=');
+                    if (v[0].toLowerCase() === 'mode') {
+                        if (v[1].toLoweCase() === 'display') {
+                            style = 'displaystyle'; 
+                        } else {
+                            style = 'textstyle';
                         }
-                    }
 
-                    const span = document.createElement('span');
-                    try {
-                        span.innerHTML = latexToMarkup(childNode.textContent, style);
-                    } catch(e) {
-                        console.error(
-                            'Could not parse\'' + childNode.textContent + '\' with ', e
-                        );
-                        span.innerHTML = childNode.textContent;
                     }
-                    if (options.preserveOriginalContent) {
-                        span.setAttribute('data-' + options.namespace + 
-                            'original-content', childNode.textContent);
-                        span.setAttribute('data-' + options.namespace + 
-                            'mathstyle', style);
-                        
-                    }
+                }
 
-                    childNode.parentNode.replaceChild(span, childNode);
-                } else {
-                    // Element node
-                    const shouldRender = 
-                        options.processClassPattern.test(childNode.className) ||
-                        !(options.skipTags.includes(tag) || 
-                            options.ignoreClassPattern.test(childNode.className));
+                const span = createAccessibleMarkupPair(childNode.textContent, style, options, latexToMarkup, true)
+                childNode.parentNode.replaceChild(span, childNode);
+            } else {
+                // Element node
+                const shouldRender = 
+                    options.processClassPattern.test(childNode.className) ||
+                    !(options.skipTags.includes(tag) || 
+                        options.ignoreClassPattern.test(childNode.className));
 
-                    if (shouldRender) {
-                        scanElement(childNode, options, latexToMarkup);
-                    }
+                if (shouldRender) {
+                    scanElement(childNode, options, latexToMarkup);
                 }
             }
-            // Otherwise, it's something else, and ignore it.
         }
+        // Otherwise, it's something else, and ignore it.
     }
 }
 
