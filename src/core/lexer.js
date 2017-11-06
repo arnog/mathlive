@@ -223,7 +223,7 @@ Lexer.prototype.makeToken = function() {
                 }
             }
             if (isParam) {
-                result = new Token('#');
+                result = new Token('placeholder');
                 next = this.get();
                 if (next >= '0' && next <= '9') {
                     result.value = parseInt(next);

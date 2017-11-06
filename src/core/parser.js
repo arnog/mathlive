@@ -1045,7 +1045,7 @@ Parser.prototype.scanArg = function(parseMode) {
 
     // If this is a param token, substitute it with the
     // (optional) argument passed to the parser
-    if (this.hasToken('#')) {
+    if (this.hasToken('placeholder')) {
         const paramToken = this.get();
         this.skipUntilToken('}');
         if (paramToken.value === '?') {
@@ -1140,10 +1140,6 @@ Parser.prototype.scanToken = function() {
         }
 
         result = new MathAtom(this.parseMode, 'command', body);
-
-    } else if (token.type === 'placeholder') {
-        // RENDER PLACEHOLDER
-        result = new MathAtom(this.parseMode, 'placeholder', token.value);
 
     } else if (token.type === 'command') {
         // RENDER COMMAND
@@ -1241,7 +1237,7 @@ Parser.prototype.scanToken = function() {
         }
         result.latex = Definitions.matchCodepoint(token.value);
 
-    } else if (token.type === '#') {
+    } else if (token.type === 'placeholder') {
         // Parameter token in an implicit group (not as a parameter)
         if (token.value === '?') {
             // U+2753 = BLACK QUESTION MARK ORNAMENT  
@@ -1254,6 +1250,9 @@ Parser.prototype.scanToken = function() {
                 const group = new MathAtom(this.parseMode, 'group');
                 group.children = result;
                 result = group;
+            } else {
+                // RENDER PLACEHOLDER (value is typically '0', so choose better value)
+                 result = new MathAtom(this.parseMode, 'placeholder', '\u2753'); // U+2753 = BLACK QUESTION MARK ORNAMENT);       
             }
         }
     } else {
