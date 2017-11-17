@@ -2940,10 +2940,10 @@ const NOTES = {
     '\\rmoustache':     'right moustache',
     '\\nabla':          ['nabla', 'del', 'differential vector operator'],
 
-    '\\square':         ['d’Alembert operator',
+    '\\square':         ['square', 'd’Alembert operator',
                         '<a target="_blank" href="https://en.wikipedia.org/wiki/D%27Alembert_operator">Wikipedia <big>&#x203A;</big></a>'
     ],
-    '\\blacksquare':    ['end of proof', 'tombstone', 'Halmos symbol'],
+    '\\blacksquare':    ['black square', 'end of proof', 'tombstone', 'Halmos symbol'],
     '\\Box':            'end of proof',
     '\\colon':          ['such that', 'ratio'],
     '\\coloneq':        ['is defined by', 'is assigned'],
