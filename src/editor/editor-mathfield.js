@@ -347,7 +347,7 @@ MathField.prototype._pathFromPoint = function(x, y) {
             // preceding atom)
             const bounds = el.getBoundingClientRect();
             result = MathPath.pathFromString(atoms[0]).path;
-            if (x < bounds.left + bounds.width / 2) {
+            if (x < bounds.left + bounds.width / 2 && !el.classList.contains('ML__placeholder')) {
                 result[result.length - 1].offset -= 1;
             }
         }

@@ -135,10 +135,18 @@ EditableMathlist.prototype.setPath = function(selection, extent) {
     if (typeof selection === 'string') {
         selection = MathPath.pathFromString(selection);
     } else if (Array.isArray(selection)) {
-        selection = {
-            path: MathPath.clone(selection),
-            extent: extent || 0
+        // need to temporarily change this's path to use 'sibling()'
+        const newPath = MathPath.clone(selection);
+        const oldPath = this.path;
+        this.path = newPath;
+        if (extent === 0 && this.anchor().type === 'placeholder') {
+            extent = 1;             // select the placeholder
         }
+        selection = {
+            path: newPath,
+            extent: extent || 0
+        };
+        this.path = oldPath;
     }
 
     const pathChanged = MathPath.pathDistance(this.path, selection.path) !== 0;
