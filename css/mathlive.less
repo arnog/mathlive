@@ -153,8 +153,9 @@
 
             &:after {
                 border-bottom-style: solid;
-                border-bottom-width: 1px; /* was 0.04em. There's a bug since Chrome 62 where
-                sub-pixel border lines don't draw at some zoom levels (110%, 90%).
+                border-bottom-width: thin; /* was 0.04em. There's a bug since 
+                Chrome 62 where sub-pixel border lines don't draw at some zoom 
+                levels (110%, 90%). 1px doesn't work either, but "thin" appears to
                 */
                 content: "";
                 display: block;
