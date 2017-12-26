@@ -2,8 +2,8 @@ define(['mathlive/core/mathAtom'],
     function(MathAtom) {
 
 // TODO
-// leftright and sizeddelim as fences
-// arguments (e.g. sin(x))
+// - leftright, delim and sizeddelim as fences
+// - arguments (e.g. sin(x))
 
 // SAMPLES
 // 10+2xy
@@ -56,19 +56,21 @@ function scanIdentifier(stream, final) {
 
     if (mathML.length > 0) {
         result = true;
-        mathML = mathML;
 
         if (isSuperscriptAtom(stream)) {
             superscript = stream.index;
             stream.index += 1;
         }
         if (superscript >= 0) {
-            mathML = '<msup>' + mathML;
+            mathML = '<msup>';
             mathML +=  toMathML(stream.atoms[superscript].superscript).mathML;
             mathML += '</msup>';            
         }
 
-        if (stream.lastType === 'mi' || stream.lastType === 'mn' || stream.lastType === 'applyfunction') {
+        if (stream.lastType === 'mi' || 
+            stream.lastType === 'mn' || 
+            stream.lastType === 'applyfunction' ||
+            stream.lastType === 'fence') {
             mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
         }
         stream.mathML += mathML;
@@ -112,7 +114,7 @@ function indexOfSuperscriptInNumber(stream) {
     return result;
 }
 
-function scanArgument(stream, final) {
+function scanArgument(/*stream, final*/) {
     // TODO
     // A single identifier, number, frac, etc...
     // or a fenced list
@@ -197,7 +199,10 @@ function scanFence(stream, final) {
     
             mathML += '</mfenced>';
     
-            if (stream.lastType === 'mi' || stream.lastType === 'mn' || stream.lastType === 'applyfunction') {
+            if (stream.lastType === 'mi' || 
+                stream.lastType === 'mn' || 
+                stream.lastType === 'applyfunction' ||
+                stream.lastType === 'fence') {
                 mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
             }
             stream.index = closeIndex + 1;
