@@ -56,6 +56,7 @@ function scanIdentifier(stream, final) {
 
     if (mathML.length > 0) {
         result = true;
+        let body = mathML;
 
         if (isSuperscriptAtom(stream)) {
             superscript = stream.index;
@@ -63,18 +64,24 @@ function scanIdentifier(stream, final) {
         }
         if (superscript >= 0) {
             mathML = '<msup>' + mathML;
-            mathML +=  toMathML(stream.atoms[superscript].superscript).mathML;
+            mathML += toMathML(stream.atoms[superscript].superscript).mathML;
             mathML += '</msup>';            
         }
 
         if (stream.lastType === 'mi' || 
             stream.lastType === 'mn' || 
-            stream.lastType === 'applyfunction' ||
             stream.lastType === 'fence') {
             mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
         }
+
+        if (body === '<mi>f</mi>' || body === '<mi>g</mi>') {
+            mathML += '<mo> &ApplyFunction; </mo>';
+            stream.lastType = 'applyfunction';
+        } else {
+            stream.lastType = 'mi';
+        }
+
         stream.mathML += mathML;
-        stream.lastType = 'mi';
     }
 
     return result;
@@ -208,7 +215,6 @@ function scanFence(stream, final) {
     
             if (stream.lastType === 'mi' || 
                 stream.lastType === 'mn' || 
-                stream.lastType === 'applyfunction' ||
                 stream.lastType === 'fence') {
                 mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
             }
@@ -240,7 +246,7 @@ function scanOperator(stream, final) {
             lastType = 'mo';
         } else if (stream.index < final && 
         stream.atoms[stream.index].type === 'mop') {
-        mathML += '<mrow>';
+        // mathML += '<mrow>';
 
         mathML += '<mi>' + stream.atoms[stream.index].value + '</mi>';
 
@@ -248,9 +254,9 @@ function scanOperator(stream, final) {
 
         mathML += scanArgument(stream);
 
-        mathML += '</mrow>';
+        // mathML += '</mrow>';
 
-        if (stream.lastType === 'mi' || stream.lastType === 'mn' || stream.lastType === 'applyfunction') {
+        if (stream.lastType === 'mi' || stream.lastType === 'mn') {
             mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
         }
         stream.index += 1;
