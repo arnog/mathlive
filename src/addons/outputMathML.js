@@ -62,7 +62,7 @@ function scanIdentifier(stream, final) {
             stream.index += 1;
         }
         if (superscript >= 0) {
-            mathML = '<msup>';
+            mathML = '<msup>' + mathML;
             mathML +=  toMathML(stream.atoms[superscript].superscript).mathML;
             mathML += '</msup>';            
         }
@@ -189,11 +189,18 @@ function scanFence(stream, final) {
             index += 1;
         }
         if (found) {
-            mathML = '<mfenced open="';
-            mathML += stream.atoms[openIndex].value;
-            mathML += '" close="';
-            mathML += stream.atoms[closeIndex].value;
-            mathML += '">';
+            mathML = '<mfenced';
+            if (stream.atoms[openIndex].value !== '(') {
+                mathML += ' open="';
+                mathML += stream.atoms[openIndex].value;
+                mathML += '"';
+            }
+            if (stream.atoms[closeIndex].value !== ')') {
+                mathML += ' close="';
+                mathML += stream.atoms[closeIndex].value;
+                mathML += '"';
+            }
+            mathML += '>';
     
             mathML += toMathML(stream.atoms, openIndex + 1, closeIndex).mathML;
     
@@ -294,10 +301,13 @@ function toMathML(input, initial, final) {
                 scanFence(result, final)) {
                     count += 1;
             } else if (result.index < final) {
-                result.mathML += result.atoms[result.index].toMathML();
+                const mathML = result.atoms[result.index].toMathML();
                 result.lastType = '';
+                if (mathML.length > 0) {
+                    result.mathML += mathML;
+                    count += 1;
+                }
                 result.index += 1;
-                count += 1;
             }
         }
 
@@ -334,6 +344,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
     };
 
     let result = '';
+    let sep = '';
     const command = this.latex ? this.latex.trim() : null;
     switch(this.type) {
         case 'group':
@@ -406,8 +417,11 @@ MathAtom.MathAtom.prototype.toMathML = function() {
 
         case 'mopen':
         case 'mclose':
+            result = '<mo fence="true">' + command + '</mo>';
+            break;
+
         case 'mpunct':
-            result = '<mo>' + command + '</mo>';
+            result = '<mo separator="true">' + command + '</mo>';
             break;
 
         case 'minner':
@@ -426,6 +440,15 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             break;
 
         case 'enclose':
+            result = '<menclose notation="';
+            for (const notation in this.notation) {
+                if (this.notation.hasOwnProperty(notation) && 
+                    this.notation[notation]) {
+                    result += sep + notation;
+                    sep = ' ';
+                }
+            }
+            result += '">' + toMathML(this.body).mathML + '</menclose>';
             break;
 
         case 'space':
