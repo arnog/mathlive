@@ -885,7 +885,7 @@ MathField.prototype._onCopy = function() {
 /**
  * Return a textual representation of the mathfield.
  * @param {string} [format='latex']. One of `'latex'`, `'spoken'`, 
- * `'asciimath'` (not yet supported).
+ * or `'mathML'`.
  * @return {string}
  * @method MathField#text
  */
@@ -905,7 +905,8 @@ MathField.prototype.text = function(format) {
 
 /**
  * Return a textual representation of the selection in the mathfield.
- * @param {string} [format='latex']. One of `'latex'` or `'spoken'`
+ * @param {string} [format='latex']. One of `'latex'`, `'spoken'` or 
+ * `'mathML'`
  * @return {string}
  * @method MathField#selectedText
  */
@@ -922,11 +923,11 @@ MathField.prototype.selectedText = function(format) {
 
         } else if (format === 'mathML') {
             
-                for (const atom of selection) {
-                    result += atom.toMathML();
-                }
-    
-            } else if (format === 'spoken') {
+            for (const atom of selection) {
+                result += atom.toMathML();
+            }
+
+        } else if (format === 'spoken') {
             result = MathAtom.toSpeakableText(selection, {markup:true})
         }
     }
