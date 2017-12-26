@@ -18,11 +18,12 @@ define([
     'mathlive/editor/editor-commands',
     'mathlive/core/grapheme-splitter',
     'mathlive/addons/outputLatex', 
+    'mathlive/addons/outputMathML', 
     'mathlive/addons/outputSpokenText'], 
     function(Definitions, MathAtom, Lexer, ParserModule, Span, 
     EditableMathlist, MathPath, Keyboard, Undo, Shortcuts, Commands, GraphemeSplitter,
 // eslint-disable-next-line no-unused-vars
-    OutputLatex, OutputSpokenText) {
+    OutputLatex, OutputMathML, OutputSpokenText) {
 
 /* 
     Note: 
@@ -893,6 +894,8 @@ MathField.prototype.text = function(format) {
     let result = '';
     if (format === 'latex') {
         result = this.mathlist.root.toLatex();
+    } else if (format === 'mathML') {
+            result = this.mathlist.root.toMathML();
     } else if (format === 'spoken') {
         result = MathAtom.toSpeakableText(this.mathlist.root, {markup:true});
     }
@@ -917,7 +920,13 @@ MathField.prototype.selectedText = function(format) {
                 result += atom.toLatex();
             }
 
-        } else if (format === 'spoken') {
+        } else if (format === 'mathML') {
+            
+                for (const atom of selection) {
+                    result += atom.toMathML();
+                }
+    
+            } else if (format === 'spoken') {
             result = MathAtom.toSpeakableText(selection, {markup:true})
         }
     }
