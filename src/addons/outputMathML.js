@@ -469,15 +469,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
 
 
 MathAtom.toMathML = function(atoms) {
-    let result = '';
-    if (Array.isArray(atoms)) {
-        for (let i = 0; i < atoms.length; i++) {
-            result += atoms[i].toMathML();
-        }
-    } else {
-        result = atoms.toMathML();
-    }
-    return result;
+    return toMathML(atoms).mathML;
 }
 
 
