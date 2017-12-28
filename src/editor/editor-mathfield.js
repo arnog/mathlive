@@ -27,11 +27,11 @@ define([
 
 /* 
     Note: 
-    The OutputLatex and OutputSpokenText modules are required, even though they 
-    are not referenced directly.
+    The OutputLatex, OutputMathML and OutputSpokenText  modules are required, 
+    even though they are not referenced directly.
 
-    They modify the MathAtom class, adding toLatex() and toSpeakableText()
-    respectively.
+    They modify the MathAtom class, adding toLatex(), toMathML() and
+    toSpeakableText() respectively.
 */
 
 

@@ -230,6 +230,22 @@ function toSpeakableText() {
 }
 
 /**
+ * @param {string{ latex
+ * @return {string}
+ * @function module:mathlive#latexToMathML
+ */
+function toMathML(latex) {
+    if (!MathAtom.toMathML) {
+        console.log('The MathML module is not loaded.');
+        return '';
+    }
+
+    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex));
+
+    return MathAtom.toMathML(mathlist);
+}
+
+/**
  * Transform all the elements in the document body that contain LaTeX code 
  * into typeset math.
  * 
@@ -379,6 +395,7 @@ function getOriginalContent(element, options) {
 return {
     latexToMarkup: toMarkup,
     latexToSpeakableText: toSpeakableText,
+    latexToMathML: toMathML,
     makeMathField: makeMathField,
     renderMathInDocument: renderMathInDocument,
     renderMathInElement: renderMathInElement,

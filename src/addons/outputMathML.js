@@ -4,6 +4,7 @@ define(['mathlive/core/mathAtom'],
 // TODO
 // - leftright, delim and sizeddelim as fences
 // - arguments (e.g. sin(x))
+// See https://www.w3.org/TR/MathML2/chapter3.html
 
 // SAMPLES
 // 10+2xy
@@ -423,7 +424,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
 
         case 'mopen':
         case 'mclose':
-            result = '<mo fence="true">' + command + '</mo>';
+            result = '<mo>' + command + '</mo>';
             break;
 
         case 'mpunct':
@@ -462,6 +463,19 @@ MathAtom.MathAtom.prototype.toMathML = function() {
         case 'mathstyle':
             break;
             
+    }
+    return result;
+}
+
+
+MathAtom.toMathML = function(atoms) {
+    let result = '';
+    if (Array.isArray(atoms)) {
+        for (let i = 0; i < atoms.length; i++) {
+            result += atoms[i].toMathML();
+        }
+    } else {
+        result = atoms.toMathML();
     }
     return result;
 }
