@@ -245,16 +245,25 @@ function scanOperator(stream, final) {
             mathML += stream.atoms[stream.index].toMathML();
             stream.index += 1;
             lastType = 'mo';
-        } else if (stream.index < final && 
+    } else if (stream.index < final && 
         stream.atoms[stream.index].type === 'mop') {
         // mathML += '<mrow>';
 
-        mathML += '<mi>' + stream.atoms[stream.index].value + '</mi>';
+        if (stream.atoms[stream.index].limits) {
+            // Operator with limits...
+            mathML += '<munderover>';
+            mathML += '<mo>' + stream.atoms[stream.index].value + '</mo>';
+            mathML += toMathML(stream.atoms[stream.index].subscript).mathML;
+            mathML += toMathML(stream.atoms[stream.index].superscript).mathML;
+            mathML += '</munderover>';
+        } else {
 
-        mathML += '<mo> &ApplyFunction; </mo>';
+            mathML += '<mi>' + stream.atoms[stream.index].value + '</mi>';
 
-        mathML += scanArgument(stream);
+            mathML += '<mo> &ApplyFunction; </mo>';
 
+            mathML += scanArgument(stream);
+        }
         // mathML += '</mrow>';
 
         if (stream.lastType === 'mi' || stream.lastType === 'mn') {
@@ -308,7 +317,12 @@ function toMathML(input, initial, final) {
                 scanFence(result, final)) {
                     count += 1;
             } else if (result.index < final) {
-                const mathML = result.atoms[result.index].toMathML();
+                let mathML = result.atoms[result.index].toMathML();
+                if (result.lastType === 'mn' && mathML.length > 0 && result.atoms[result.index].type === 'genfrac') {
+                    // If this is a fraction preceded by a number (e.g. 2 1/2), 
+                    // add an "invisible plus" (U+0264) character in front of it
+                    mathML = '<mo>&#x0264;</mo>' + mathML;
+                }
                 result.lastType = '';
                 if (mathML.length > 0) {
                     result.mathML += mathML;
@@ -350,8 +364,19 @@ MathAtom.MathAtom.prototype.toMathML = function() {
         '\\pi': '&pi;'
     };
 
+    const MATH_VARIANTS = {
+        'mathbb': 'double-struck',
+        'mathbf': 'bold',
+        'mathcal': 'script',
+        'mathfrak': 'fraktur',
+        'mathscr': 'script',
+        'mathsf': 'sans-serif',
+        'mathtt': 'monospace'
+    };
+
     let result = '';
     let sep = '';
+    let variant = '';
     const command = this.latex ? this.latex.trim() : null;
     switch(this.type) {
         case 'group':
@@ -410,7 +435,13 @@ MathAtom.MathAtom.prototype.toMathML = function() {
                         this.value.charCodeAt(0).toString(16)).substr(-4) + ';';
                 }
             }
-            result = '<mi>' + result + '</mi>';
+            // fontfamily === mathit: standard
+            // mathbb
+            variant = MATH_VARIANTS[this.fontFamily] || '';
+            if (variant) {
+                variant = ' mathvariant="' + variant + '"';
+            }
+            result = '<mi' + variant + '>' + result + '</mi>';
             break;
 
         case 'mbin':
