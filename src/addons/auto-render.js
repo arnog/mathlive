@@ -130,7 +130,9 @@ function createAccessibleNode(latex, mathstyle, latexToMarkup) {
     // FIX: Currently this is text, but once MathML support is added, it should be MathML
     const span = document.createElement('span');
     try {
-        span.innerText = MathAtom.toSpeakableText(latexToMarkup(latex, mathstyle, 'mathlist'));   
+        span.innerHTML = "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
+                             MathLive.latexToMathML(latex) +
+                         "</math>";   
     } catch (e) {
         console.error( 'Could not convert\'' + latex + '\' to accessible format with ', e );
         span.innerText = latex;   
