@@ -1,5 +1,5 @@
 /* eslint no-console:0 */
-define(['mathlive/core/mathAtom'], function(MathAtom) {
+define(['mathlive/core/mathAtom'], function() {
 
 function findEndOfMath(delimiter, text, startIndex) {
     // Adapted from
@@ -124,7 +124,7 @@ function splitWithDelimiters(text, delimiters) {
 }
 
 
-function createAccessibleNode(latex, mathstyle, latexToMarkup) {
+function createAccessibleNode(latex) {
     // Create a node for AT to speak, etc.
     // This node has a style that makes it be invisible to display but is seen by AT
     // FIX: Currently this is text, but once MathML support is added, it should be MathML
@@ -179,7 +179,7 @@ function createAccessibleMarkupPair(text, mathstyle, options, latexToMarkup, cre
     }
 
     const fragment = document.createDocumentFragment();
-    fragment.appendChild(createAccessibleNode(text, mathstyle || 'displaystyle', latexToMarkup));
+    fragment.appendChild(createAccessibleNode(text));
     fragment.appendChild(markupNode);
     return fragment;    
 }
