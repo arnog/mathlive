@@ -1,4 +1,5 @@
 /* eslint no-console:0 */
+/*global MathLive */
 define(['mathlive/core/mathAtom'], function() {
 
 function findEndOfMath(delimiter, text, startIndex) {
