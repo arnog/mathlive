@@ -266,7 +266,7 @@ function scanOperator(stream, final) {
     final = final || stream.atoms.length;
     let mathML = '';
     let lastType = '';
-    let atom = stream.atoms[stream.index];
+    const atom = stream.atoms[stream.index];
 
     if (stream.index < final && (
         atom.type === 'mbin' || atom.type === 'mrel')) {
