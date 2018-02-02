@@ -101,7 +101,7 @@ function MathField(element, config) {
         markup += '<span class="ML__textarea" aria-hidden="true" role="none presentation">' +
             '<textarea class="ML__textarea--textarea" autocapitalize="off" autocomplete="off" ' + 
             'autocorrect="off" spellcheck="false" ' + 
-            'aria-hidden="true" role="none presentation">' +
+            'aria-hidden="true">' +
             '</textarea>' +
         '</span>';
     } else {
