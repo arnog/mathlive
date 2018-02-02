@@ -1,41 +1,7 @@
 define(['mathlive/core/mathAtom'],
     function(MathAtom) {
 
-// TODO
-// - leftright, delim and sizeddelim as fences
-// - arguments (e.g. sin(x))
-// See https://www.w3.org/TR/MathML2/chapter3.html
 
-// \mathbf{r} -- pass variant as argument to toMathML
-// special case "|" to be a <mo> instead of a <mi>
-
-
-// SAMPLES
-// 10+2xy
-    // <mrow>
-    //  <mn>10</mn>
-    //  <mo>+</mo>
-    //  <mn>2</mn>
-    //  <mo>&InvisibleTimes;</mo><mi>x</mi>
-    //  <mo>&InvisibleTimes;</mo><mi>y</mi>
-    //  </mrow>
-
-// 123+45^6
-
-// 12^2+34x^2
-
-// \frac{1}{3+x}
-
-// \sin x
-    // <mrow>
-    //  <mi> sin </mi>
-    //  <mo> &ApplyFunction; </mo>
-    //  <mi> x </mi>
-    // </mrow>
-
-// \sin (x + \pi)
-
-// \sin (x / 2)
 
 
 
@@ -53,7 +19,7 @@ function scanIdentifier(stream, final) {
     if (stream.index < final && 
         atom.type === 'mord' && 
         '0123456789,.'.indexOf(atom.latex) < 0) {
-        body = atom.toMathML();
+        body = atom.toAST();
         if (atom.superscript) {
             superscript = stream.index;
         }
@@ -79,16 +45,16 @@ function scanIdentifier(stream, final) {
 
         if (superscript >= 0 && subscript >= 0) {
             mathML = '<msubsup>' + body;
-            mathML += toMathML(stream.atoms[subscript].subscript).mathML;
-            mathML += toMathML(stream.atoms[superscript].superscript).mathML;
+            mathML += toAST(stream.atoms[subscript].subscript).mathML;
+            mathML += toAST(stream.atoms[superscript].superscript).mathML;
             mathML += '</msubsup>';            
         } else if (superscript >= 0) {
             mathML = '<msup>' + body;
-            mathML += toMathML(stream.atoms[superscript].superscript).mathML;
+            mathML += toAST(stream.atoms[superscript].superscript).mathML;
             mathML += '</msup>';            
         } else if (subscript >= 0) {
             mathML = '<msub>' + body;
-            mathML += toMathML(stream.atoms[subscript].subscript).mathML;
+            mathML += toAST(stream.atoms[subscript].subscript).mathML;
             mathML += '</msub>';            
         } else {
             mathML = body;
@@ -192,7 +158,7 @@ function scanNumber(stream, final) {
 
         if (superscript >= 0) {
             mathML = '<msup>' + mathML;
-            mathML +=  toMathML(stream.atoms[superscript].superscript).mathML;
+            mathML +=  toAST(stream.atoms[superscript].superscript).mathML;
             mathML += '</msup>';
         }
     
@@ -242,7 +208,7 @@ function scanFence(stream, final) {
             }
             mathML += '>';
     
-            mathML += toMathML(stream.atoms, openIndex + 1, closeIndex).mathML;
+            mathML += toAST(stream.atoms, openIndex + 1, closeIndex).mathML;
     
             mathML += '</mfenced>';
     
@@ -274,7 +240,7 @@ function scanOperator(stream, final) {
 
     if (stream.index < final && (
         atom.type === 'mbin' || atom.type === 'mrel')) {
-        mathML += stream.atoms[stream.index].toMathML();
+        mathML += stream.atoms[stream.index].toAST();
         stream.index += 1;
         lastType = 'mo';
     } else if (stream.index < final && atom.type === 'mop') {
@@ -286,20 +252,20 @@ function scanOperator(stream, final) {
                 // Both superscript and subscript
                 mathML += '<munderover>';
                 mathML += '<mo>' + stream.atoms[stream.index].value + '</mo>';
-                mathML += toMathML(stream.atoms[stream.index].subscript).mathML;
-                mathML += toMathML(stream.atoms[stream.index].superscript).mathML;
+                mathML += toAST(stream.atoms[stream.index].subscript).mathML;
+                mathML += toAST(stream.atoms[stream.index].superscript).mathML;
                 mathML += '</munderover>';
             } else if (atom.superscript) {
                 // Superscript only
                 mathML += '<mover>';
                 mathML += '<mo>' + stream.atoms[stream.index].value + '</mo>';
-                mathML += toMathML(stream.atoms[stream.index].superscript).mathML;
+                mathML += toAST(stream.atoms[stream.index].superscript).mathML;
                 mathML += '</mover>';
             } else {
                 // Subscript only
                 mathML += '<munder>';
                 mathML += '<mo>' + stream.atoms[stream.index].value + '</mo>';
-                mathML += toMathML(stream.atoms[stream.index].subscript).mathML;
+                mathML += toAST(stream.atoms[stream.index].subscript).mathML;
                 mathML += '</munder>';
             }
             lastType = 'mo';
@@ -339,7 +305,7 @@ function scanOperator(stream, final) {
  * @param {number{ final last index of the input to stop conversion to 
  * @private
  */
-function toMathML(input, initial, final) {
+function toAST(input, initial, final) {
     const result = {
         atoms: input,
         index: initial || 0,
@@ -352,8 +318,8 @@ function toMathML(input, initial, final) {
         result.mathML = input.toString();
     } else if (typeof input === 'string') {
         result.mathML = input;
-    } else if (input && typeof input.toMathML === 'function') {
-        result.mathML = input.toMathML();
+    } else if (input && typeof input.toAST === 'function') {
+        result.mathML = input.toAST();
     } else if (Array.isArray(input)) {
         let count = 0;
 
@@ -364,7 +330,7 @@ function toMathML(input, initial, final) {
                 scanFence(result, final)) {
                     count += 1;
             } else if (result.index < final) {
-                let mathML = result.atoms[result.index].toMathML();
+                let mathML = result.atoms[result.index].toAST();
                 if (result.lastType === 'mn' && mathML.length > 0 && result.atoms[result.index].type === 'genfrac') {
                     // If this is a fraction preceded by a number (e.g. 2 1/2), 
                     // add an "invisible plus" (U+0264) character in front of it
@@ -405,7 +371,7 @@ function toString(atoms) {
  * 
  * @return {string}
  */
-MathAtom.MathAtom.prototype.toMathML = function() {
+MathAtom.MathAtom.prototype.toAST = function() {
     const SPECIAL_OPERATORS = {
         '\\pm': '&PlusMinus;',
         '\\times': '&times;'
@@ -447,26 +413,26 @@ MathAtom.MathAtom.prototype.toMathML = function() {
     switch(this.type) {
         case 'group':
         case 'root':
-            result = toMathML(this.children).mathML;
+            result = toAST(this.children).mathML;
             break;
 
         case 'genfrac':
             // @todo: deal with fracs delimiters
             result += '<mfrac>';
-            result += toMathML(this.numer).mathML;
-            result += toMathML(this.denom).mathML;
+            result += toAST(this.numer).mathML;
+            result += toAST(this.denom).mathML;
             result += '</mfrac>';
             break;
 
         case 'surd':
             if (this.index) {
                 result += '<mroot>';
-                result += toMathML(this.body).mathML;
-                result += toMathML(this.index).mathML;
+                result += toAST(this.body).mathML;
+                result += toAST(this.index).mathML;
                 result += '</mroot>';
             } else {
                 result += '<msqrt>';
-                result += toMathML(this.body).mathML;
+                result += toAST(this.body).mathML;
                 result += '</msqrt>';
             }
             break;
@@ -514,7 +480,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             if (command && SPECIAL_OPERATORS[command]) {
                 result = '<mo>' + SPECIAL_OPERATORS[command] + '</mo>';
             } else {
-                result = '<mo>' + (this.value ||  toMathML(this.children).mathML) + '</mo>';
+                result = '<mo>' + (this.value ||  toAST(this.children).mathML) + '</mo>';
             }
             break;
 
@@ -551,7 +517,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
                     sep = ' ';
                 }
             }
-            result += '">' + toMathML(this.body).mathML + '</menclose>';
+            result += '">' + toAST(this.body).mathML + '</menclose>';
             break;
 
         case 'space':
@@ -564,8 +530,8 @@ MathAtom.MathAtom.prototype.toMathML = function() {
 }
 
 
-MathAtom.toMathML = function(atoms) {
-    return toMathML(atoms).mathML;
+MathAtom.toAST = function(atoms) {
+    return toAST(atoms).ast;
 }
 
 
