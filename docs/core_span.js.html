@@ -202,10 +202,10 @@ Span.prototype.updateDimensions = function() {
 
 
 /**
- * The width is an expensive property to calculate, as it require the span 
+ * The width is an expensive property to calculate, as it requires the span 
  * to be laid out, then measured.
- * So, we only calculate it when required (which is rare: it's needed for 
- * some notations of \enclose for example), and we cache it.
+ * So, we only calculate it when required, which is rare: it's needed for 
+ * some notations of \enclose for example, and we cache it.
  */
 Span.prototype.cacheClientDimensions = function() {
     // Temporarily remove any SVG decorating this span.
@@ -217,11 +217,16 @@ Span.prototype.cacheClientDimensions = function() {
 
     const div = document.createElement('div');
     div.setAttribute('style',`position: absolute;
-        left: -1000px;
-        top: -1000px;
-        visibility: hidden;
-        height: auto;
-        width: auto;`);
+    left: 0px;
+    top: 0px;
+    height: auto;
+    width: auto;`);
+    // div.setAttribute('style',`position: absolute;
+    //     left: -1000px;
+    //     top: -1000px;
+    //     visibility: hidden;
+    //     height: auto;
+    //     width: auto;`);
     div.setAttribute('class', 'ML__mathlive');
 
     const base = document.createElement('span');
@@ -491,7 +496,9 @@ Span.prototype.toMarkup = function(hskip) {
         // If there is some SVG markup associated with this span, 
         // include it now
         if (this.svgOverlay) {
-            result += `&lt;span style="position:absolute;top:.75em;left:0px">`;
+            result += '&lt;span style="position:absolute;left:0px;';
+            result += 'bottom:0;'
+            result += '">';
             result += '&lt;svg xmlns="http://www.w3.org/2000/svg" version="1.1"';
             result += ` width="${this.clientWidth()}px"`;
             result += ` height="${this.clientHeight()}px"`;
@@ -832,7 +839,8 @@ function makeHlist(children, classes) {
             return children[0]
         }
     }
-    return new Span(children, classes);
+    const result = new Span(children, classes);
+    return result;
 }
 
 /**

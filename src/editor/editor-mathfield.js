@@ -18,19 +18,20 @@ define([
     'mathlive/editor/editor-commands',
     'mathlive/core/grapheme-splitter',
     'mathlive/addons/outputLatex', 
+    'mathlive/addons/outputMathML', 
     'mathlive/addons/outputSpokenText'], 
     function(Definitions, MathAtom, Lexer, ParserModule, Span, 
     EditableMathlist, MathPath, Keyboard, Undo, Shortcuts, Commands, GraphemeSplitter,
 // eslint-disable-next-line no-unused-vars
-    OutputLatex, OutputSpokenText) {
+    OutputLatex, OutputMathML, OutputSpokenText) {
 
 /* 
     Note: 
-    The OutputLatex and OutputSpokenText modules are required, even though they 
-    are not referenced directly.
+    The OutputLatex, OutputMathML and OutputSpokenText  modules are required, 
+    even though they are not referenced directly.
 
-    They modify the MathAtom class, adding toLatex() and toSpeakableText()
-    respectively.
+    They modify the MathAtom class, adding toLatex(), toMathML() and
+    toSpeakableText() respectively.
 */
 
 
@@ -884,7 +885,7 @@ MathField.prototype._onCopy = function() {
 /**
  * Return a textual representation of the mathfield.
  * @param {string} [format='latex']. One of `'latex'`, `'spoken'`, 
- * `'asciimath'` (not yet supported).
+ * or `'mathML'`.
  * @return {string}
  * @method MathField#text
  */
@@ -893,6 +894,8 @@ MathField.prototype.text = function(format) {
     let result = '';
     if (format === 'latex') {
         result = this.mathlist.root.toLatex();
+    } else if (format === 'mathML') {
+            result = this.mathlist.root.toMathML();
     } else if (format === 'spoken') {
         result = MathAtom.toSpeakableText(this.mathlist.root, {markup:true});
     }
@@ -902,7 +905,8 @@ MathField.prototype.text = function(format) {
 
 /**
  * Return a textual representation of the selection in the mathfield.
- * @param {string} [format='latex']. One of `'latex'` or `'spoken'`
+ * @param {string} [format='latex']. One of `'latex'`, `'spoken'` or 
+ * `'mathML'`
  * @return {string}
  * @method MathField#selectedText
  */
@@ -915,6 +919,12 @@ MathField.prototype.selectedText = function(format) {
             
             for (const atom of selection) {
                 result += atom.toLatex();
+            }
+
+        } else if (format === 'mathML') {
+            
+            for (const atom of selection) {
+                result += atom.toMathML();
             }
 
         } else if (format === 'spoken') {

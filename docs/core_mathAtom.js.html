@@ -749,10 +749,13 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
             'mclose', this.rightDelim, delimSize, true,
             context.withMathstyle(mathstyle));
 
-    return this.bind(context, makeOrd([leftDelim, frac, rightDelim], 
+    const result = this.bind(context, makeOrd([leftDelim, frac, rightDelim], 
         context.parentMathstyle.adjustTo(mathstyle) + 
         ((context.parentSize !== context.size) ? 
             (' sizing reset-' + context.parentSize + ' ' + context.size) : '')));
+    result.setStyle('display', 'flex');
+    result.setStyle('flex-direction', 'row');
+    return result;
 }
 
 
@@ -1186,10 +1189,12 @@ MathAtom.prototype.decomposeEnclose = function(context) {
     const padding = this.padding === 'auto' ? .2 : this.padding; // em
     // Make sure that the span takes the full height of the enclosed children
     // otherwise the background color will not completely cover it.
-    body.setStyle('padding-top', Span.height(body) - Span.depth(body) + padding, 'em');
-    body.setStyle('padding-bottom', Span.depth(body) + padding, 'em');
-    body.setStyle('padding-left', padding, 'em');
-    body.setStyle('padding-right', padding, 'em');
+    // body.setStyle('padding-top', emToPx(Span.height(body) - Span.depth(body) + padding), 'px');
+    // body.setStyle('padding-bottom', emToPx(Span.depth(body) + padding), 'px');
+    body.setStyle('padding-top', emToPx(padding), 'px');
+    body.setStyle('padding-bottom', emToPx(padding), 'px');
+    body.setStyle('padding-left', emToPx(padding), 'px');
+    body.setStyle('padding-right', emToPx(padding), 'px');
 
     if (this.backgroundcolor &amp;&amp; this.backgroundcolor !== 'transparent') {
         body.setStyle('background-color', this.backgroundcolor);
