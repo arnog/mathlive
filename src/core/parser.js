@@ -1254,6 +1254,10 @@ Parser.prototype.scanToken = function() {
                 const group = new MathAtom(this.parseMode, 'group');
                 group.children = result;
                 result = group;
+            } else {
+                // If there is no argument value specified, use a placeholder
+                // U+2753 = BLACK QUESTION MARK ORNAMENT  
+                result = new MathAtom(this.parseMode, 'placeholder', '\u2753');
             }
         }
     } else {
