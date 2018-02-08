@@ -13,9 +13,9 @@ const PRONUNCIATION = {
     '\\sum':        ' Summation ',
     '\\prod':       ' Product ',
 
-    '|':            ' Vertical bar.',
-    '(':            ' Open paren. [[slnc 150]]',
-    ')':            ' [[slnc 150]] Close paren.',
+    '|':            ' Vertical bar',
+    '(':            ' Open paren [[slnc 150]]',
+    ')':            ' [[slnc 150]] Close paren',
     '=':            ' [[slnc 150]] equals ',
     '\\lt':         ' [[slnc 150]] is less than ',
     '\\le':         ' [[slnc 150]] is less than or equal to ',
@@ -34,6 +34,7 @@ const PRONUNCIATION = {
     '\\land':       ' and ',
     '\\lor':        ' or ',
     '\\neg':        ' not ',
+    '\\div':        'divided by',
     
     '\\forall':     ' for all ',
     '\\exists':     ' there exists ',
@@ -222,7 +223,7 @@ function emph(s) {
                         result += numer + ' over ' + denom + ' ';
                     }
                 } else {
-                    result += ' The fraction [[slnc 200]]' + numer + ', over [[slnc 150]]' + denom + ', End fraction.';
+                    result += ' The fraction [[slnc 200]]' + numer + ', over [[slnc 150]]' + denom + ', End fraction';
                 }
 
                 break;
@@ -233,17 +234,17 @@ function emph(s) {
                     if (isAtomic(atom.body)) {
                         result += ' square root of ' + body + ' , ';
                     } else {
-                        result += ' The square root of ' + body + ', End square root.';
+                        result += ' The square root of ' + body + ', End square root';
                     }
                 } else {
                     let index = MathAtom.toSpeakableFragment(atom.index, options);
                     index = index.trim();
                     if (index === '3') {
-                        result += ' The cube root of ' + body + ', End cube root.';
+                        result += ' The cube root of ' + body + ', End cube root';
                     } else if (index === 'n') {
-                        result += ' The nth root of ' + body + ', End root.';
+                        result += ' The nth root of ' + body + ', End root';
                     } else {
-                        result += ' root with index: ' + index + ', of :' + body + ', End root.';
+                        result += ' root with index: ' + index + ', of :' + body + ', End root';
                     }
                 }
                 break;
@@ -374,7 +375,7 @@ function emph(s) {
                 if (isAtomic(atom.body)) {
                     result += ' crossed out ' + body + ' , ';
                 } else {
-                    result += ' crossed out ' + body + ' End cross out.';
+                    result += ' crossed out ' + body + ' End cross out';
                 }
                 break;
 
