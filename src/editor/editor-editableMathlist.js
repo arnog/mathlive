@@ -135,10 +135,18 @@ EditableMathlist.prototype.setPath = function(selection, extent) {
     if (typeof selection === 'string') {
         selection = MathPath.pathFromString(selection);
     } else if (Array.isArray(selection)) {
-        selection = {
-            path: MathPath.clone(selection),
-            extent: extent || 0
+        // need to temporarily change this's path to use 'sibling()'
+        const newPath = MathPath.clone(selection);
+        const oldPath = this.path;
+        this.path = newPath;
+        if (extent === 0 && this.anchor().type === 'placeholder') {
+            extent = 1;             // select the placeholder
         }
+        selection = {
+            path: newPath,
+            extent: extent || 0
+        };
+        this.path = oldPath;
     }
 
     const pathChanged = MathPath.pathDistance(this.path, selection.path) !== 0;
@@ -942,6 +950,7 @@ EditableMathlist.prototype.move = function(dist, options) {
             }
         }
     }
+    this.config.announceChange("move");
 }
 
 EditableMathlist.prototype.up = function(options) {
@@ -958,6 +967,7 @@ EditableMathlist.prototype.up = function(options) {
             this.setSelection(this.anchorOffset(), 0, 'numer');
         }
     }
+    this.config.announceChange(extend ? "extend" : "moveUp");
 }
 
 EditableMathlist.prototype.down = function(options) {
@@ -974,7 +984,7 @@ EditableMathlist.prototype.down = function(options) {
             this.setSelection(this.anchorOffset(), 0, 'denom');
         }
     }
-
+    this.config.announceChange(extend ? "extend" : "moveDown");
 }
 
 /**
@@ -1032,6 +1042,7 @@ EditableMathlist.prototype.extend = function(dist) {
     }
 
     this.setSelection(offset, extent);
+    this.config.announceChange("extend");
 }
 
 
@@ -1093,6 +1104,7 @@ EditableMathlist.prototype.skip = function(dir, options) {
     } else {
         this.setSelection(offset);
     }
+    this.config.announceChange(extend ? "extend" : "move");
 }
 
 /**
@@ -1116,6 +1128,7 @@ EditableMathlist.prototype.jump = function(dir, options) {
     } else {
         this.move(offset - focus);
     }
+    this.config.announceChange(extend ? "extend" : "move");
 }
 
 EditableMathlist.prototype.jumpToMathFieldBoundary = function(dir, options) {
@@ -1151,6 +1164,7 @@ EditableMathlist.prototype.jumpToMathFieldBoundary = function(dir, options) {
     }
 
     this.setPath(path, extent);
+    this.config.announceChange(extend ? "extend" : "move");
 }
 
 /**
@@ -1197,6 +1211,7 @@ EditableMathlist.prototype.leap = function(dir) {
     // Set the selection to the next placeholder
     this.setPath(placeholders[0]);
     if (this.anchor().type === 'placeholder') this.setExtent(1);
+    this.config.announceChange("move");
     return true;
 }
 
@@ -1415,6 +1430,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
         if (dir < 0) {
             if (anchorOffset !== 0) {
                 // We're in the middle of the siblings
+                this.config.announceChange("delete", siblings.slice(anchorOffset,anchorOffset + 1));
                 siblings.splice(anchorOffset, 1);
                 this.setSelection(anchorOffset - 1);
             } else {
@@ -1424,6 +1440,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
                 if (relation === 'superscript' || relation === 'subscript') {
                     this.parent()[relation] = null;
                     this.path.pop();
+                    this.config.announceChange("deleted: " + relation);
                 } else if (relation === 'denom') {
                     // Fraction denominator
                     const numer = this.parent()['numer'];
@@ -1448,6 +1465,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
             }
         } else if (dir > 0) {
             if (anchorOffset !== siblings.length - 1) {
+                this.config.announceChange("deleted", siblings.slice(anchorOffset + 1, anchorOffset + 2));
                 siblings.splice(anchorOffset + 1, 1);
             } else {
                 // We're at the end of the sibling list, delete what comes next
@@ -1455,6 +1473,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
                 if (relation === 'superscript' || relation === 'subscript') {
                     this.parent()[relation] = null;
                     this.path.pop();
+                    this.config.announceChange("deleted: " + relation);
                 } else if (relation === 'numer') {
                     const denom = this.parent()['denom'];
                     denom.shift(); // Remove 'first' atom
@@ -1473,6 +1492,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
         const first = this.startOffset();
         const last = this.endOffset();
 
+        this.config.announceChange("deleted", siblings.slice(first, last));
         siblings.splice(first, last - first);
 
         // Adjust the anchor
