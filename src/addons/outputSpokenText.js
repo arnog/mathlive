@@ -271,6 +271,9 @@ function emph(s) {
             case 'overlap':
                 // @todo
                 break;
+            case 'placeholder':
+                result += 'placeholder ' + atom.value;
+                break;
             case 'mord':
             case 'minner':
             case 'mbin':
