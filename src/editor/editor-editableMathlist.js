@@ -966,8 +966,10 @@ EditableMathlist.prototype.up = function(options) {
         } else {
             this.setSelection(this.anchorOffset(), 0, 'numer');
         }
+        this.config.announceChange(extend ? "extend" : "moveUp");
+    } else {
+        this.config.announceChange("line");
     }
-    this.config.announceChange(extend ? "extend" : "moveUp");
 }
 
 EditableMathlist.prototype.down = function(options) {
@@ -983,8 +985,10 @@ EditableMathlist.prototype.down = function(options) {
         } else {
             this.setSelection(this.anchorOffset(), 0, 'denom');
         }
+        this.config.announceChange(extend ? "extend" : "moveDown");
+    } else {
+        this.config.announceChange("line");       
     }
-    this.config.announceChange(extend ? "extend" : "moveDown");
 }
 
 /**
@@ -1323,6 +1327,8 @@ EditableMathlist.prototype.insert = function(s, options) {
             // No placeholder found, move to right after what we just inserted
             this.setSelection(this.anchorOffset() + mathlist.length);
             // this.path[this.path.length - 1].offset += mathlist.length;
+        } else {
+            this.config.announceChange("extend");   // should have placeholder selected
         }
     } else if (options.selectionMode === 'before') {
         // Do nothing: don't change the anchorOffset.
@@ -1449,6 +1455,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
                     Array.prototype.splice.apply(this.siblings(), 
                         [this.anchorOffset(), 1].concat(numer));
                     this.setSelection(this.anchorOffset() + numer.length - 1);
+                    this.config.announceChange("deleted: denominator");
                 } else if (relation === 'body') {
                     // Root
                     const body = this.siblings();
@@ -1457,6 +1464,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
                     Array.prototype.splice.apply(this.siblings(), 
                         [this.anchorOffset(), 1].concat(body));
                     this.setSelection(this.anchorOffset() + body.length - 1);
+                    this.config.announceChange("deleted: root");
                 } else {
                     // Numer, index, children
                     // @todo
@@ -1480,7 +1488,8 @@ EditableMathlist.prototype.delete_ = function(dir) {
                     this.path.pop();
                     Array.prototype.splice.apply(this.siblings(), 
                         [this.anchorOffset(), 1].concat(denom));
-                    this.setSelection(this.anchorOffset() + denom.length - 1);
+                    this.setSelection(this.anchorOffset() - 1);
+                    this.config.announceChange("deleted: numerator");
                 } else {
                     // @todo
 

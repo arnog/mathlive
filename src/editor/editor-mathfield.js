@@ -103,7 +103,7 @@ function MathField(element, config) {
     if (!this.config.substituteTextArea) {
         markup += '<span class="ML__textarea">' +
             '<textarea class="ML__textarea--textarea" autocapitalize="off" autocomplete="off" ' + 
-            'autocorrect="off" spellcheck="false" aria-label="editable math" tabindex="0">' +
+            'autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="0">' +
             '</textarea>' +
         '</span>';
     } else {
@@ -116,7 +116,7 @@ function MathField(element, config) {
             markup += '<span></span>';
         }
     }
-    markup += '<span class="ML__fieldcontainer">' +
+    markup += '<span class="ML__fieldcontainer" aria-hidden="true">' +
             '<span class="ML__fieldcontainer--field"></span>';
 
     if (this.config.commandbarToggle === 'visible') {
@@ -535,6 +535,10 @@ function nextAtomSpeechText(mathlist) {
         'subscript': 'subscript',
         'superscript': 'superscript'
     }
+
+    if (!mathlist.isCollapsed()) {
+        return MathAtom.toSpeakableText(mathlist.extractContents());
+    }
     const path = mathlist.path;
     const leaf = path[path.length - 1];
     const relationName = EXPR_NAME[leaf.relation];
@@ -569,21 +573,24 @@ MathField.prototype._announceChange = function(command, atomsToSpeak) {
         //*** FIX -- should be xxx selected/unselected */
         this.ariaLiveText.textContent = "selected: " + ariaLiveChangeHack + MathAtom.toSpeakableText(this.mathlist.extractContents());
 //*** FIX: could also be moveUp or moveDown -- do something different like provide context???
-    } else if (/move/.test(command)) {
+    } else if (command === "focus" || /move/.test(command)) {
         this.ariaLiveText.textContent = ariaLiveChangeHack + nextAtomSpeechText(this.mathlist);
     } else if (command === "replacement") {
         // announce the contents
         this.ariaLiveText.textContent = ariaLiveChangeHack + "changed to: " + MathAtom.toSpeakableText(this.mathlist.sibling(0));
+    } else if (command === "line") {
+        // announce the current line -- currently that's everything
+        this.ariaLiveText.textContent = ariaLiveChangeHack + MathAtom.toSpeakableText(this.mathlist.root);
     } else {
-        this.ariaLiveText.textContent = ariaLiveChangeHack + command;        
+        this.ariaLiveText.textContent = ariaLiveChangeHack + command + " " + (atomsToSpeak ? MathAtom.toSpeakableText(atomsToSpeak) : "");        
     }
 }
 
 MathField.prototype._onFocus = function() {
     if (this.blurred) {
         this.blurred = false;
-        this.ariaLiveText.textContent = MathAtom.toSpeakableText(this.mathlist.root);
-        this.textarea.setAttribute('aria-label', 'after: ' + MathAtom.toSpeakableText(this.mathlist.root))
+        this._announceChange("focus");
+        // this.textarea.setAttribute('aria-label', 'after: ' + MathAtom.toSpeakableText(this.mathlist.root))
         this.textarea.select();
         this._updatePopoverPosition();
         this._updateCommandBar();
