@@ -54,7 +54,21 @@ const PRONUNCIATION = {
     '\\partial':    ' partial derivative of ',
 
     '\\cdots':      ' dot dot dot ',
-    
+
+    '\\lbrace':		'left brace',
+    '\\rbrace':		'right brace',
+    '\\langle':		'left angle bracket',
+    '\\rangle':		'right angle bracket',
+    '\\lfloor':		'left floor',
+    '\\rfloor':		'right floor',
+    '\\lceil':		'left ceiling',
+    '\\rceil':		'right ceiling',
+    '\\vert':		'vertical bar',
+    '\\mvert':		'divides',
+    '\\lvert':		'left vertical bar',
+    '\\rvert':		'right vertical bar',
+    '\\lbrack':		'left bracket',
+    '\\rbrack':		'right bracket',    
 }
 
 
@@ -255,10 +269,6 @@ function emph(s) {
                 result += MathAtom.toSpeakableFragment(atom.body, options);
                 result +=  atom.rightDelim;
                 break;
-            case 'delim':
-            case 'sizeddelim':
-                // @todo
-                break;
             case 'line':
                 // @todo
                 break;
@@ -274,6 +284,8 @@ function emph(s) {
             case 'placeholder':
                 result += 'placeholder ' + atom.value;
                 break;
+            case 'delim':
+            case 'sizeddelim':
             case 'mord':
             case 'minner':
             case 'mbin':
@@ -282,23 +294,29 @@ function emph(s) {
             case 'mopen':
             case 'mclose':
             case 'textord':
+            {
+                let atomValue = atom.value;
+                let latexValue = atom.latex;
+                if (atom.type === 'delim' || atom.type === 'sizeddelim') {
+                    atomValue = latexValue = atom.delim;
+                }
                 if (options.mode === 'text') {
-                    result += atom.value;
+                    result += atomValue;
                 } else {
                     if (atom.type === 'mbin') {
                         result += '[[slnc 150]]';
                     }
 
-                    if (atom.value) {
-                        const value = PRONUNCIATION[atom.value] || 
-                            (atom.latex ? PRONUNCIATION[atom.latex.trim()] : '');
+                    if (atomValue) {
+                        const value = PRONUNCIATION[atomValue] || 
+                            (latexValue ? PRONUNCIATION[latexValue.trim()] : '');
                         if (value) {
                             result += ' ' + value;
                         } else {
-                            const spokenName = atom.latex ? 
-                                Definitions.getSpokenName(atom.latex.trim()) : '';
+                            const spokenName = latexValue ? 
+                                Definitions.getSpokenName(latexValue.trim()) : '';
                             
-                            result += spokenName ? spokenName : letter(atom.value);
+                            result += spokenName ? spokenName : letter(atomValue);
                         }
                     } else {
                         result += MathAtom.toSpeakableFragment(atom.children, options);
@@ -308,6 +326,7 @@ function emph(s) {
                     }
                 }
                 break;
+            }
             case 'op':
             case 'mop':
             // @todo
