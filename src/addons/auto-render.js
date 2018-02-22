@@ -1,5 +1,6 @@
 /* eslint no-console:0 */
-define(['mathlive/core/mathAtom'], function(MathAtom) {
+/*global MathLive */
+define(['mathlive/core/mathAtom'], function() {
 
 function findEndOfMath(delimiter, text, startIndex) {
     // Adapted from
@@ -124,13 +125,15 @@ function splitWithDelimiters(text, delimiters) {
 }
 
 
-function createAccessibleNode(latex, mathstyle, latexToMarkup) {
+function createAccessibleNode(latex) {
     // Create a node for AT to speak, etc.
     // This node has a style that makes it be invisible to display but is seen by AT
     // FIX: Currently this is text, but once MathML support is added, it should be MathML
     const span = document.createElement('span');
     try {
-        span.innerText = MathAtom.toSpeakableText(latexToMarkup(latex, mathstyle, 'mathlist'));   
+        span.innerHTML = "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
+                             MathLive.latexToMathML(latex) +
+                         "</math>";   
     } catch (e) {
         console.error( 'Could not convert\'' + latex + '\' to accessible format with ', e );
         span.innerText = latex;   
@@ -177,7 +180,7 @@ function createAccessibleMarkupPair(text, mathstyle, options, latexToMarkup, cre
     }
 
     const fragment = document.createDocumentFragment();
-    fragment.appendChild(createAccessibleNode(text, mathstyle || 'displaystyle', latexToMarkup));
+    fragment.appendChild(createAccessibleNode(text));
     fragment.appendChild(markupNode);
     return fragment;    
 }
