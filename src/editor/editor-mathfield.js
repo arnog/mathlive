@@ -103,7 +103,7 @@ function MathField(element, config) {
     if (!this.config.substituteTextArea) {
         markup += '<span class="ML__textarea">' +
             '<textarea class="ML__textarea--textarea" autocapitalize="off" autocomplete="off" ' + 
-            'autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="0">' +
+            'autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="-1">' +
             '</textarea>' +
         '</span>';
     } else {
@@ -141,7 +141,7 @@ function MathField(element, config) {
     
     markup +=   '<div class="ML__HiddenAccessibleMath">' +
                     '<span></span>' + 
-                    '<span aria-live="assertive" aria-atomic="true">  </span>' +
+                    '<span aria-live="assertive" aria-atomic="true"> math </span>' +
                 '</div>';
 
     this.element.innerHTML = markup;
@@ -151,7 +151,7 @@ function MathField(element, config) {
         this.textarea =  this.config.substituteTextArea();
     } else {
         this.textarea = this.element.children[iChild++].firstElementChild;
-    }
+}
     this.field = this.element.children[iChild].children[0];
     this.commandbarToggle = this.element.children[iChild++].children[1];
     this._attachButtonHandlers(this.commandbarToggle, 'toggleCommandBar');
@@ -525,23 +525,32 @@ MathField.prototype._onContentDidChange = function() {
  *   an 'end of' phrasing based on what structure we are at the end of
  */
 function nextAtomSpeechText(mathlist) {
-    const EXPR_NAME = {
-        'children': 'line',   // not sure what it should be -- happens at end of exprs
-    //    'array': 'should not happen',
-        'numer': 'numerator',
-        'denom': 'denominator',
-        'index': 'index',
-        'body': 'square root',
-        'subscript': 'subscript',
-        'superscript': 'superscript'
-    }
+    function relation(parent, leaf) {
+        const EXPR_NAME = {
+            'children': 'line',   // not sure what it should be -- happens at end of exprs
+        //    'array': 'should not happen',
+            'numer': 'numerator',
+            'denom': 'denominator',
+            'index': 'index',
+            'body': 'parent',
+            'subscript': 'subscript',
+            'superscript': 'superscript'
+        }
+
+        const PARENT_NAME = {
+            'enclose': 'cross out', // FIX -- should base on type of enclose
+            'leftright': 'fence',
+            'surd': 'square root'
+        }
+        return (leaf.relation === 'body' ? PARENT_NAME[parent.type] : EXPR_NAME[leaf.relation]);
+}
 
     if (!mathlist.isCollapsed()) {
         return MathAtom.toSpeakableText(mathlist.extractContents());
     }
     const path = mathlist.path;
     const leaf = path[path.length - 1];
-    const relationName = EXPR_NAME[leaf.relation];
+    const relationName = relation(mathlist.parent(), leaf);
     let result = "";
 
     // announce start of denominator, etc
@@ -551,7 +560,7 @@ function nextAtomSpeechText(mathlist) {
     const atom = mathlist.sibling(Math.max(1, mathlist.extent));
     if (atom) {
         result += MathAtom.toSpeakableText(atom);
-    } else {
+    } else if (leaf.offset !== 0) { // don't say both start and end
         result += relationName ? "end of " + relationName : "unknown";
     }
     return result;
@@ -563,24 +572,38 @@ function nextAtomSpeechText(mathlist) {
  * @param {command} string the command that invoked the change 
  */
 MathField.prototype._announceChange = function(command, atomsToSpeak) {
-    //** the focus is the end of the selection, so it is before where we want it
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+//** the focus is the end of the selection, so it is before where we want it
     // aria-live regions are only spoken when it changes; force a change by alternately using nonbreaking space or narrow nonbreaking space
     const ariaLiveChangeHack = /\u00a0/.test(this.ariaLiveText.textContent) ? " \u202f " : " \u00a0 ";
     // const command = moveAmount > 0 ? "right" : "left";
     if (command === "delete") {
         this.ariaLiveText.textContent = "deleted: " + ariaLiveChangeHack + MathAtom.toSpeakableText(atomsToSpeak);
-    } else if (command === "extend") {
-        //*** FIX -- should be xxx selected/unselected */
-        this.ariaLiveText.textContent = "selected: " + ariaLiveChangeHack + MathAtom.toSpeakableText(this.mathlist.extractContents());
-//*** FIX: could also be moveUp or moveDown -- do something different like provide context???
+    //*** FIX: could also be moveUp or moveDown -- do something different like provide context???
     } else if (command === "focus" || /move/.test(command)) {
-        this.ariaLiveText.textContent = ariaLiveChangeHack + nextAtomSpeechText(this.mathlist);
+        //*** FIX -- should be xxx selected/unselected */
+        this.ariaLiveText.textContent = ariaLiveChangeHack +
+                    (this.mathlist.isCollapsed() ? "" : "selected: ") +
+                    nextAtomSpeechText(this.mathlist);
     } else if (command === "replacement") {
         // announce the contents
-        this.ariaLiveText.textContent = ariaLiveChangeHack + "changed to: " + MathAtom.toSpeakableText(this.mathlist.sibling(0));
+        this.ariaLiveText.textContent = ariaLiveChangeHack + MathAtom.toSpeakableText(this.mathlist.sibling(0));
     } else if (command === "line") {
         // announce the current line -- currently that's everything
         this.ariaLiveText.textContent = ariaLiveChangeHack + MathAtom.toSpeakableText(this.mathlist.root);
+        /*** FIX -- testing hack for setting braille ***/
+        this.accessibleNode.innerHTML = 
+            "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
+                MathAtom.toMathML(this.mathlist.root) +
+            "</math>";
+        this.accessibleNode.focus();
+        console.log("before sleep");
+        sleep(1000).then(() => {
+            this.textarea.focus();
+            console.log("after sleep");
+        });
     } else {
         this.ariaLiveText.textContent = ariaLiveChangeHack + command + " " + (atomsToSpeak ? MathAtom.toSpeakableText(atomsToSpeak) : "");        
     }
@@ -589,8 +612,6 @@ MathField.prototype._announceChange = function(command, atomsToSpeak) {
 MathField.prototype._onFocus = function() {
     if (this.blurred) {
         this.blurred = false;
-        this._announceChange("focus");
-        // this.textarea.setAttribute('aria-label', 'after: ' + MathAtom.toSpeakableText(this.mathlist.root))
         this.textarea.select();
         this._updatePopoverPosition();
         this._updateCommandBar();
@@ -913,10 +934,10 @@ MathField.prototype._render = function() {
 
     this.field.innerHTML = wrapper.toMarkup();
     // Probably want to generate content on fly depending on what to speak
-    //this.accessibleNode.innerHTML = 
-    //    "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
-    //        MathAtom.toMathML(this.mathlist.root) +
-    //    "</math>";
+    this.accessibleNode.innerHTML = 
+       "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
+           MathAtom.toMathML(this.mathlist.root) +
+       "</math>";
     //this.ariaLiveText.textContent = "";
 
 
@@ -1482,8 +1503,9 @@ MathField.prototype.hasFocus = function() {
 
 MathField.prototype.focus = function() {
         if (!this.hasFocus()) {
-        // this.textarea.focus();
         this.textarea.select();
+        this._announceChange("line");
+        this.textarea.setAttribute('aria-label', 'after: ' + MathAtom.toSpeakableText(this.mathlist.root))
         this._render();
     }
 }
@@ -1510,10 +1532,10 @@ MathField.prototype.clearSelection = function() {
  * See https://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
  * @method MathField#keystroke
  */
-MathField.prototype.keystroke = function(keys) {
+MathField.prototype.keystroke = function(keys, evt) {
     // This is the public API, while onKeystroke is the 
     // internal handler
-    this._onKeystroke(keys);
+    return !this._onKeystroke(keys, evt);
 }
 
 /**

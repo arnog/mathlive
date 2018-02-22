@@ -966,7 +966,7 @@ EditableMathlist.prototype.up = function(options) {
         } else {
             this.setSelection(this.anchorOffset(), 0, 'numer');
         }
-        this.config.announceChange(extend ? "extend" : "moveUp");
+        this.config.announceChange("moveUp");
     } else {
         this.config.announceChange("line");
     }
@@ -985,7 +985,7 @@ EditableMathlist.prototype.down = function(options) {
         } else {
             this.setSelection(this.anchorOffset(), 0, 'denom');
         }
-        this.config.announceChange(extend ? "extend" : "moveDown");
+        this.config.announceChange("moveDown");
     } else {
         this.config.announceChange("line");       
     }
@@ -1046,7 +1046,7 @@ EditableMathlist.prototype.extend = function(dist) {
     }
 
     this.setSelection(offset, extent);
-    this.config.announceChange("extend");
+    this.config.announceChange("move");
 }
 
 
@@ -1108,7 +1108,7 @@ EditableMathlist.prototype.skip = function(dir, options) {
     } else {
         this.setSelection(offset);
     }
-    this.config.announceChange(extend ? "extend" : "move");
+    this.config.announceChange("move");
 }
 
 /**
@@ -1132,7 +1132,7 @@ EditableMathlist.prototype.jump = function(dir, options) {
     } else {
         this.move(offset - focus);
     }
-    this.config.announceChange(extend ? "extend" : "move");
+    this.config.announceChange("move");
 }
 
 EditableMathlist.prototype.jumpToMathFieldBoundary = function(dir, options) {
@@ -1168,7 +1168,7 @@ EditableMathlist.prototype.jumpToMathFieldBoundary = function(dir, options) {
     }
 
     this.setPath(path, extent);
-    this.config.announceChange(extend ? "extend" : "move");
+    this.config.announceChange("move");
 }
 
 /**
@@ -1328,7 +1328,7 @@ EditableMathlist.prototype.insert = function(s, options) {
             this.setSelection(this.anchorOffset() + mathlist.length);
             // this.path[this.path.length - 1].offset += mathlist.length;
         } else {
-            this.config.announceChange("extend");   // should have placeholder selected
+            this.config.announceChange("move");   // should have placeholder selected
         }
     } else if (options.selectionMode === 'before') {
         // Do nothing: don't change the anchorOffset.
