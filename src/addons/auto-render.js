@@ -1,5 +1,4 @@
 /* eslint no-console:0 */
-/*global MathLive */
 define(['mathlive/core/mathAtom'], function() {
 
 function findEndOfMath(delimiter, text, startIndex) {
@@ -125,13 +124,13 @@ function splitWithDelimiters(text, delimiters) {
 }
 
 
-function createAccessibleNode(latex) {
+function createAccessibleNode(latex, latexToMathML) {
     // Create a node for AT (Assistive Technology, e.g. screen reader) to speak, etc.
     // This node has a style that makes it be invisible to display but is seen by AT
     const span = document.createElement('span');
     try {
         span.innerHTML = "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
-                             MathLive.latexToMathML(latex) +
+                            latexToMathML(latex) +
                          "</math>";   
     } catch (e) {
         console.error( 'Could not convert\'' + latex + '\' to accessible format with ', e );
@@ -169,7 +168,7 @@ function createMarkupNode(text, options, mathstyle, latexToMarkup, createNodeOnF
     return span;
 }
 
-function createAccessibleMarkupPair(text, mathstyle, options, latexToMarkup, createNodeOnFailure) {
+function createAccessibleMarkupPair(text, mathstyle, options, latexToMarkup, latexToMathML, createNodeOnFailure) {
     // Create a math node (a span with an accessible component and a visual component)
     // If there is an error in parsing the latex, 'createNodeOnFailure' controls whether
     //   'null' is returned or an accessible node with the text used.
@@ -179,18 +178,18 @@ function createAccessibleMarkupPair(text, mathstyle, options, latexToMarkup, cre
     }
 
     const fragment = document.createDocumentFragment();
-    fragment.appendChild(createAccessibleNode(text));
+    fragment.appendChild(createAccessibleNode(text, latexToMathML));
     fragment.appendChild(markupNode);
     return fragment;    
 }
 
-function scanText(text, options, latexToMarkup) {
+function scanText(text, options, latexToMarkup, latexToMathML) {
     // If the text starts with '\begin'...
     // (this is a MathJAX behavior)
     let fragment = null;
     if (options.TeX.processEnvironments && text.match(/^\s*\\begin/)) {
         fragment = document.createDocumentFragment();
-        fragment.appendChild(createAccessibleMarkupPair(text, undefined, options, latexToMarkup, true));
+        fragment.appendChild(createAccessibleMarkupPair(text, undefined, options, latexToMarkup, latexToMathML, true));
     } else {
         const data = splitWithDelimiters(text, options.TeX.delimiters);
         if (data.length === 1 && data[0].type === 'text') {
@@ -203,19 +202,19 @@ function scanText(text, options, latexToMarkup) {
             if (data[i].type === 'text') {
                 fragment.appendChild(document.createTextNode(data[i].data));
             } else {
-                fragment.appendChild(createAccessibleMarkupPair(data[i].data, data[i].mathstyle, options, latexToMarkup, true));
+                fragment.appendChild(createAccessibleMarkupPair(data[i].data, data[i].mathstyle, options, latexToMarkup, latexToMathML, true));
             }
         }
     }
     return fragment;
 }
 
-function scanElement(elem, options, latexToMarkup) {
+function scanElement(elem, options, latexToMarkup, latexToMathML) {
     const originalContent = elem.getAttribute('data-' + options.namespace + 
         'original-content');
     if (originalContent) {
         const mathstyle = elem.getAttribute('data-' + options.namespace + 'mathstyle');
-        const span = createAccessibleMarkupPair(originalContent, mathstyle, options, latexToMarkup, false);
+        const span = createAccessibleMarkupPair(originalContent, mathstyle, options, latexToMarkup, latexToMathML, false);
         if (span != null) {
             elem.textContent = '';
             elem.appendChild(span);
@@ -239,7 +238,7 @@ function scanElement(elem, options, latexToMarkup) {
             // The entire content is a math expression: we can replace the content
             // with the latex markup without creating additional wrappers.
             elem.textContent = '';
-            elem.appendChild( createAccessibleMarkupPair(data[0].data, data[0].mathstyle, options, latexToMarkup, true) );
+            elem.appendChild( createAccessibleMarkupPair(data[0].data, data[0].mathstyle, options, latexToMarkup, latexToMathML, true) );
         } else if (data.length === 1 && data[0].type === 'text') {
             // This element only contained text with no math. No need to 
             // do anything.
@@ -252,7 +251,7 @@ function scanElement(elem, options, latexToMarkup) {
         if (childNode.nodeType === 3) {
             // A text node
             // Look for math mode delimiters inside the text
-            const frag = scanText(childNode.textContent, options, latexToMarkup);
+            const frag = scanText(childNode.textContent, options, latexToMarkup, latexToMathML);
             if (frag) {
                 i += frag.childNodes.length - 1;
                 elem.replaceChild(frag, childNode);
@@ -275,7 +274,7 @@ function scanElement(elem, options, latexToMarkup) {
                     }
                 }
 
-                const span = createAccessibleMarkupPair(childNode.textContent, style, options, latexToMarkup, true)
+                const span = createAccessibleMarkupPair(childNode.textContent, style, options, latexToMarkup, latexToMathML, true)
                 childNode.parentNode.replaceChild(span, childNode);
             } else {
                 // Element node
@@ -285,7 +284,7 @@ function scanElement(elem, options, latexToMarkup) {
                         options.ignoreClassPattern.test(childNode.className));
 
                 if (shouldRender) {
-                    scanElement(childNode, options, latexToMarkup);
+                    scanElement(childNode, options, latexToMarkup, latexToMathML);
                 }
             }
         }
@@ -326,7 +325,7 @@ const defaultOptions = {
     }
 }
 
-function renderMathInElement(elem, options, latexToMarkup) {
+function renderMathInElement(elem, options, latexToMarkup, latexToMathML) {
     try {
         options = Object.assign({}, defaultOptions, options);
         options.ignoreClassPattern = new RegExp(options.ignoreClass);
@@ -343,7 +342,7 @@ function renderMathInElement(elem, options, latexToMarkup) {
             }
         }
 
-        scanElement(elem, options, latexToMarkup);
+        scanElement(elem, options, latexToMarkup, latexToMathML);
     } catch(e) {
         if (e instanceof Error) {
             console.error('renderMathInElement(): ' + e.message);
