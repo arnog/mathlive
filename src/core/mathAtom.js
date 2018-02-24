@@ -1415,6 +1415,7 @@ MathAtom.prototype.decompose = function(context) {
 
     } else if (this.type === 'enclose') {
         result = this.decomposeEnclose(context);
+        if (this.hasCaret) result.hasCaret = true;
 
 
     } else if (this.type === 'esc' || this.type === 'command' || 
