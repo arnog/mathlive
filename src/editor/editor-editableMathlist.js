@@ -130,12 +130,48 @@ EditableMathlist.prototype.toString = function() {
 }
 
 
+/** 
+ * When changing the selection, if the former selection is an empty list,
+ * insert a placeholder if necessary. For example, if in an empty numerator.
+*/
+EditableMathlist.prototype.adjustPlaceholder = function() {
+    // Should we insert a placeholder?
+    // Check if we're an empty list that is the child of a fraction
+    const siblings = this.siblings();
+    if (siblings.length <= 1) {
+        if (this.relation() === 'numer') {
+            const mathlist = [new MathAtom.MathAtom('math', 'placeholder', 'numerator')];
+            Array.prototype.splice.apply(siblings, [1, 0].concat(mathlist));
+        } else if (this.relation() === 'denom') {
+            const mathlist = [new MathAtom.MathAtom('math', 'placeholder', 'denominator')];
+            Array.prototype.splice.apply(siblings, [1, 0].concat(mathlist));
+        } else if (this.relation() === 'body') {
+            // Surd (roots)
+            const mathlist = [new MathAtom.MathAtom('math', 'placeholder', 'root')];
+            Array.prototype.splice.apply(siblings, [1, 0].concat(mathlist));
+        }
+}
+
+}
+
+EditableMathlist.prototype.selectionWillChange = function() {
+    if (!this.suppressSelectionChangeNotifications) {
+        if (this.config.onSelectionWillChange) this.config.onSelectionWillChange();
+    }
+}
+
+EditableMathlist.prototype.selectionDidChange = function() {
+    if (!this.suppressSelectionChangeNotifications) {
+        if (this.config.onSelectionDidChange) this.config.onSelectionDidChange();
+    }
+}
+
 EditableMathlist.prototype.setPath = function(selection, extent) {
     // Convert to a path array if necessary
     if (typeof selection === 'string') {
         selection = MathPath.pathFromString(selection);
     } else if (Array.isArray(selection)) {
-        // need to temporarily change this's path to use 'sibling()'
+        // need to temporarily change the path of this to use 'sibling()'
         const newPath = MathPath.clone(selection);
         const oldPath = this.path;
         this.path = newPath;
@@ -153,9 +189,10 @@ EditableMathlist.prototype.setPath = function(selection, extent) {
     const extentChanged = selection.extent !== this.extent;
 
     if (pathChanged || extentChanged) {
-        if (!this.suppressSelectionChangeNotifications) {
-            if (this.config.onSelectionWillChange) this.config.onSelectionWillChange();
+        if (pathChanged) {
+            this.adjustPlaceholder();
         }
+        this.selectionWillChange();
 
         this.path = MathPath.clone(selection.path);
         
@@ -163,9 +200,7 @@ EditableMathlist.prototype.setPath = function(selection, extent) {
 
         this.setExtent(selection.extent);
 
-        if (!this.suppressSelectionChangeNotifications) {
-            if (this.config.onSelectionDidChange) this.config.onSelectionDidChange();
-        }
+        this.selectionDidChange();
     }
 }
 
@@ -650,7 +685,7 @@ EditableMathlist.prototype.commitCommandStringBeforeInsertionPoint = function() 
     const command = this.commandOffsets();
     if (command) {
         const siblings = this.siblings();
-        const anchorOffset = this.anchorOffset();
+        const anchorOffset = this.anchorOffset() + 1;
         for (let i = command.start; i < anchorOffset; i++) {
             siblings[i].suggestion = false;
         }
@@ -772,17 +807,16 @@ EditableMathlist.prototype.setSelection = function(offset, extent, relation) {
     this.setExtent(oldExtent);
 
     if (relationChanged || offsetChanged || extentChanged) {
-        if (!this.suppressSelectionChangeNotifications) {
-            if (this.config.onSelectionWillChange) this.config.onSelectionWillChange();
+        if (relationChanged) {
+            this.adjustPlaceholder();
         }
+        this.selectionWillChange();
 
         this.path[this.path.length - 1].relation = relation;
         this.path[this.path.length - 1].offset = offset;
         this.setExtent(extent);
 
-        if (!this.suppressSelectionChangeNotifications) {
-            if (this.config.onSelectionDidChange) this.config.onSelectionDidChange();
-        }
+        this.selectionDidChange();
     }
 
     return true;
@@ -813,9 +847,9 @@ EditableMathlist.prototype.next = function() {
         // We found a new relation/set of siblings...
         if (relation) return;
 
-        if (!this.suppressSelectionChangeNotifications) {
-            if (this.config.onSelectionWillChange) this.config.onSelectionWillChange();
-        }
+        this.adjustPlaceholder();
+
+        this.selectionWillChange();
 
         // No more siblings, go up to the parent.
         if (this.path.length === 1) {
@@ -830,9 +864,7 @@ EditableMathlist.prototype.next = function() {
             this.path.pop();
         }
 
-        if (!this.suppressSelectionChangeNotifications) {
-            if (this.config.onSelectionDidChange) this.config.onSelectionDidChange();
-        }
+        this.selectionDidChange();
         return;
     }
 
@@ -841,14 +873,18 @@ EditableMathlist.prototype.next = function() {
 
     // If the new anchor is a compound atom, dive into its components
     const anchor = this.anchor();
-    let relation = 'children';
-    while (relation) {
-        if (anchor[relation]) {
-            this.path.push({relation:relation, offset: 0});
-            this.insertFirstAtom();
-            return;
+    if (!anchor.captureSelection) {
+        // Only dive in if the atom allows capture of the selection by 
+        // its sub-elements
+        let relation = 'children';
+        while (relation) {
+            if (anchor[relation]) {
+                this.path.push({relation:relation, offset: 0});
+                this.insertFirstAtom();
+                return;
+            }
+            relation = NEXT_RELATION[relation];
         }
-        relation = NEXT_RELATION[relation];
     }
 }
 
@@ -872,9 +908,9 @@ EditableMathlist.prototype.previous = function() {
         // We found a new relation/set of siblings...
         if (relation) return;
 
-        if (!this.suppressSelectionChangeNotifications) {
-            if (this.config.onSelectionWillChange) this.config.onSelectionWillChange();
-        }
+        this.adjustPlaceholder();
+
+        this.selectionWillChange();
 
         // No more siblings, go up to the parent.
         if (this.path.length === 1) {
@@ -890,27 +926,28 @@ EditableMathlist.prototype.previous = function() {
             this.setSelection(this.anchorOffset() - 1);
         }
 
-        if (!this.suppressSelectionChangeNotifications) {
-            if (this.config.onSelectionDidChange) this.config.onSelectionDidChange();
-        }
+        this.selectionDidChange();
         return;
     }
 
     // If the new anchor is a compound atom, dive into its components
     const anchor = this.anchor();
-    let relation = 'superscript';
-    while (relation) {
-        if (anchor[relation]) {
-            
-            this.path.push({relation:relation, 
-                offset: anchor[relation].length - 1});
+    if (!anchor.captureSelection) {
+        // Only dive in if the atom allows capture of the selection by 
+        // its sub-elements
+        let relation = 'superscript';
+        while (relation) {
+            if (anchor[relation]) {
+                
+                this.path.push({relation:relation, 
+                    offset: anchor[relation].length - 1});
 
-            this.setSelection(-1, 0, relation);
-            return;
+                this.setSelection(-1, 0, relation);
+                return;
+            }
+            relation = PREVIOUS_RELATION[relation];
         }
-        relation = PREVIOUS_RELATION[relation];
     }
-
     // There wasn't a component to navigate to, so...
     // Still some siblings to go through: move on to the previous one.
     this.setSelection(this.anchorOffset() - 1);
@@ -1281,6 +1318,15 @@ EditableMathlist.prototype.insert = function(s, options) {
         this.collapseForward();
     }
 
+    // Delete any placeholders before or after the insertion point
+    const siblings = this.siblings();
+    const firstOffset = this.startOffset();
+    if (firstOffset + 1 < siblings.length && siblings[firstOffset + 1].type === 'placeholder') {
+        this.delete_(1);
+    } else if (firstOffset > 0 && siblings[firstOffset].type === 'placeholder') {
+        this.delete_(-1);
+    }
+
     if (options.format === 'auto') {
         if (parseMode === 'command') {
             // Short-circuit the tokenizer and parser if in command mode
@@ -1414,7 +1460,7 @@ EditableMathlist.prototype.delete = function(count) {
  * @param {number} dir If the selection is not collapsed, and dir is 
  * negative, delete backward, starting with the anchor atom. 
  * That is, delete(-1) will delete only the anchor atom.
- * If count = 0, delete only if the selection is not collapsed
+ * If dir = 0, delete only if the selection is not collapsed
  * @method EditableMathlist#delete_
  * @instance
  */
