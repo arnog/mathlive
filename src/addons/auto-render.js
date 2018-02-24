@@ -126,9 +126,8 @@ function splitWithDelimiters(text, delimiters) {
 
 
 function createAccessibleNode(latex) {
-    // Create a node for AT to speak, etc.
+    // Create a node for AT (Assistive Technology, e.g. screen reader) to speak, etc.
     // This node has a style that makes it be invisible to display but is seen by AT
-    // FIX: Currently this is text, but once MathML support is added, it should be MathML
     const span = document.createElement('span');
     try {
         span.innerHTML = "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
@@ -147,7 +146,7 @@ function createMarkupNode(text, options, mathstyle, latexToMarkup, createNodeOnF
     //   This is slightly ugly because in the case of failure to create the markup,
     //   sometimes a text node is desired and sometimes not.
     //   'createTextNodeOnFailure' controls this and null is returned when no node is created.
-    // This node is made invisible to AT
+    // This node is made invisible to AT (screen readers)
     let span = document.createElement('span');
     span.setAttribute('aria-hidden','true');
     if (options.preserveOriginalContent) {
