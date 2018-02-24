@@ -755,7 +755,7 @@ EditableMathlist.prototype.commitCommandStringBeforeInsertionPoint = function() 
     const command = this.commandOffsets();
     if (command) {
         const siblings = this.siblings();
-        const anchorOffset = this.anchorOffset();
+        const anchorOffset = this.anchorOffset() + 1;
         for (let i = command.start; i &lt; anchorOffset; i++) {
             siblings[i].suggestion = false;
         }
@@ -943,14 +943,18 @@ EditableMathlist.prototype.next = function() {
 
     // If the new anchor is a compound atom, dive into its components
     const anchor = this.anchor();
-    let relation = 'children';
-    while (relation) {
-        if (anchor[relation]) {
-            this.path.push({relation:relation, offset: 0});
-            this.insertFirstAtom();
-            return;
+    if (!anchor.captureSelection) {
+        // Only dive in if the atom allows capture of the selection by 
+        // its sub-elements
+        let relation = 'children';
+        while (relation) {
+            if (anchor[relation]) {
+                this.path.push({relation:relation, offset: 0});
+                this.insertFirstAtom();
+                return;
+            }
+            relation = NEXT_RELATION[relation];
         }
-        relation = NEXT_RELATION[relation];
     }
 }
 
@@ -998,19 +1002,22 @@ EditableMathlist.prototype.previous = function() {
 
     // If the new anchor is a compound atom, dive into its components
     const anchor = this.anchor();
-    let relation = 'superscript';
-    while (relation) {
-        if (anchor[relation]) {
-            
-            this.path.push({relation:relation, 
-                offset: anchor[relation].length - 1});
+    if (!anchor.captureSelection) {
+        // Only dive in if the atom allows capture of the selection by 
+        // its sub-elements
+        let relation = 'superscript';
+        while (relation) {
+            if (anchor[relation]) {
+                
+                this.path.push({relation:relation, 
+                    offset: anchor[relation].length - 1});
 
-            this.setSelection(-1, 0, relation);
-            return;
+                this.setSelection(-1, 0, relation);
+                return;
+            }
+            relation = PREVIOUS_RELATION[relation];
         }
-        relation = PREVIOUS_RELATION[relation];
     }
-
     // There wasn't a component to navigate to, so...
     // Still some siblings to go through: move on to the previous one.
     this.setSelection(this.anchorOffset() - 1);

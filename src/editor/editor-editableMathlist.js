@@ -685,7 +685,7 @@ EditableMathlist.prototype.commitCommandStringBeforeInsertionPoint = function() 
     const command = this.commandOffsets();
     if (command) {
         const siblings = this.siblings();
-        const anchorOffset = this.anchorOffset();
+        const anchorOffset = this.anchorOffset() + 1;
         for (let i = command.start; i < anchorOffset; i++) {
             siblings[i].suggestion = false;
         }
