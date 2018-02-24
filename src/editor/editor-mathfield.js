@@ -91,18 +91,20 @@ function MathField(element, config) {
 
     // Additional elements used for UI.
     // They are retrieved in order a bit later, so they need to be kept in sync
-    // 0/ The textarea field that will receive keyboard events
-    // 1/ The field, where the math equation will be displayed
-    // 2/ The widget to activate the command bar
-    // 3/ The popover panel which displays info in command mode
-    // 4/ The keystroke caption panel (option+shift+K)
-    // 5/ The command bar
-    let markup = '';
+    // 1.0/ The field, where the math equation will be displayed
+    // 1.1/ The widget to activate the command bar
+    // 2/ The popover panel which displays info in command mode
+    // 3/ The keystroke caption panel (option+shift+K)
+    // 4/ The command bar
+    // 5.0/ The area to stick MathML for screen reading larger exprs (not used right now)
+    //      The for the area is that focus would bounce their and then back triggering the
+    //         screen reader to read it
+    // 5.1/ The aria-live region for announcements
+    let markup = ''
     if (!this.config.substituteTextArea) {
-        markup += '<span class="ML__textarea" aria-hidden="true" role="none presentation">' +
+        markup += '<span class="ML__textarea">' +
             '<textarea class="ML__textarea--textarea" autocapitalize="off" autocomplete="off" ' + 
-            'autocorrect="off" spellcheck="false" ' + 
-            'aria-hidden="true">' +
+            'autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="0">' +
             '</textarea>' +
         '</span>';
     } else {
@@ -115,7 +117,7 @@ function MathField(element, config) {
             markup += '<span></span>';
         }
     }
-    markup += '<span class="ML__fieldcontainer">' +
+    markup += '<span class="ML__fieldcontainer" aria-hidden="true">' +
             '<span class="ML__fieldcontainer--field"></span>';
 
     if (this.config.commandbarToggle === 'visible') {
@@ -128,32 +130,40 @@ function MathField(element, config) {
     } else {
         markup += '<span ></span>';
     }
-
-    markup += '</span>' +
-        '<div class="ML__popover"></div>' + 
-        '<div class="ML__keystrokecaption"></div>' + 
-        '<div class="ML__commandbar">' +
+    markup += '</span>';
+    
+    markup +=
+        '<div class="ML__popover" aria-hidden="true"></div>' + 
+        '<div class="ML__keystrokecaption" aria-hidden="true"></div>' + 
+        '<div class="ML__commandbar" aria-hidden="true">' +
             '<div class="ML__commandbar--buttons" role="toolbar" aria-label="Command Bar"></div>' + 
             '<div class="ML__commandbar--panel"></div>' +
         '</div>';
-
+    
+    markup +=   '<div class="ML__HiddenAccessibleMath">' +
+                    '<span></span>' + 
+                    '<span aria-live="assertive" aria-atomic="true">  </span>' +
+                '</div>';
 
     this.element.innerHTML = markup;
 
+    let iChild = 0;       // index of child -- used to make changes below easier
     if (typeof this.config.substituteTextArea === 'function') {
         this.textarea =  this.config.substituteTextArea();
     } else {
-        this.textarea = this.element.children[0].firstElementChild;
+        this.textarea = this.element.children[iChild++].firstElementChild;
     }
-    this.field = this.element.children[1].children[0];
-    this.commandbarToggle = this.element.children[1].children[1];
+    this.field = this.element.children[iChild].children[0];
+    this.commandbarToggle = this.element.children[iChild++].children[1];
     this._attachButtonHandlers(this.commandbarToggle, 'toggleCommandBar');
-    this.popover = this.element.children[2];
-    this.keystrokeCaption = this.element.children[3];
-    this.commandBar = this.element.children[4];
+    this.popover = this.element.children[iChild++];
+    this.keystrokeCaption = this.element.children[iChild++];
+    this.commandBar = this.element.children[iChild++];
     this.commandButtons = this.commandBar.children[0];
     this.commandPanel = this.commandBar.children[1];
-
+    this.accessibleNode = this.element.children[iChild].children[0];
+    this.ariaLiveText = this.element.children[iChild++].children[1];
+ 
     // The keystroke caption panel and the command bar are 
     // initially hidden
     this.keystrokeCaptionVisible = false;
@@ -202,8 +212,10 @@ function MathField(element, config) {
         MathField.prototype._onSelectionWillChange.bind(this);
     localConfig.onContentWillChange = 
         MathField.prototype._onContentWillChange.bind(this);
-    localConfig.onContentDidChange = 
+        localConfig.onContentDidChange = 
         MathField.prototype._onContentDidChange.bind(this);
+    localConfig.announceChange = 
+        MathField.prototype._announceChange.bind(this);
 
     this.mathlist = new EditableMathlist.EditableMathlist(localConfig);
 
@@ -232,6 +244,8 @@ function MathField(element, config) {
  */
 MathField.prototype.revertToOriginalContent = function() {
     this.element.innerHTML = this.originalContent;
+    delete this.accessibleNode;
+    delete this.ariaLiveText;
     delete this.field;
     delete this.textarea;
     delete this.commandbarToggle;
@@ -348,7 +362,7 @@ MathField.prototype._pathFromPoint = function(x, y) {
             // preceding atom)
             const bounds = el.getBoundingClientRect();
             result = MathPath.pathFromString(atoms[0]).path;
-            if (x < bounds.left + bounds.width / 2) {
+            if (x < bounds.left + bounds.width / 2 && !el.classList.contains('ML__placeholder')) {
                 result[result.length - 1].offset -= 1;
             }
         }
@@ -469,7 +483,6 @@ MathField.prototype._onSelectionDidChange = function() {
             result += atom.toLatex();
         }
         this.textarea.value = result;
-        this.textarea.setAttribute('aria-label', MathAtom.toSpeakableText(mathlist));
         if (this.hasFocus()) {
             this.textarea.select();
         }
@@ -509,9 +522,76 @@ MathField.prototype._onContentDidChange = function() {
     }
 }
 
+/* Returns the speech text of the next atom after the selection or
+ *   an 'end of' phrasing based on what structure we are at the end of
+ */
+function nextAtomSpeechText(mathlist) {
+    const EXPR_NAME = {
+        'children': 'line',   // not sure what it should be -- happens at end of exprs
+    //    'array': 'should not happen',
+        'numer': 'numerator',
+        'denom': 'denominator',
+        'index': 'index',
+        'body': 'square root',
+        'subscript': 'subscript',
+        'superscript': 'superscript'
+    }
+
+    if (!mathlist.isCollapsed()) {
+        return MathAtom.toSpeakableText(mathlist.extractContents());
+    }
+    const path = mathlist.path;
+    const leaf = path[path.length - 1];
+    const relationName = EXPR_NAME[leaf.relation];
+    let result = "";
+
+    // announce start of denominator, etc
+    if (leaf.offset === 0) {
+        result += relationName ? "start of " + relationName + ": " : "unknown";
+    }
+    const atom = mathlist.sibling(Math.max(1, mathlist.extent));
+    if (atom) {
+        result += MathAtom.toSpeakableText(atom);
+    } else {
+        result += relationName ? "end of " + relationName : "unknown";
+    }
+    return result;
+}
+
+/**
+ * Set the aria-live region to announce the change and the following character/notation
+ * E.g, "in numerator, x"
+ * @param {command} string the command that invoked the change 
+ */
+MathField.prototype._announceChange = function(command, atomsToSpeak) {
+    //** the focus is the end of the selection, so it is before where we want it
+    // aria-live regions are only spoken when it changes; force a change by alternately using nonbreaking space or narrow nonbreaking space
+    const ariaLiveChangeHack = /\u00a0/.test(this.ariaLiveText.textContent) ? " \u202f " : " \u00a0 ";
+    // const command = moveAmount > 0 ? "right" : "left";
+    if (command === "delete") {
+        this.ariaLiveText.textContent = "deleted: " + ariaLiveChangeHack + MathAtom.toSpeakableText(atomsToSpeak);
+    } else if (command === "extend") {
+        //*** FIX -- should be xxx selected/unselected */
+        this.ariaLiveText.textContent = "selected: " + ariaLiveChangeHack + MathAtom.toSpeakableText(this.mathlist.extractContents());
+//*** FIX: could also be moveUp or moveDown -- do something different like provide context???
+    } else if (command === "focus" || /move/.test(command)) {
+        this.ariaLiveText.textContent = ariaLiveChangeHack + nextAtomSpeechText(this.mathlist);
+    } else if (command === "replacement") {
+        // announce the contents
+        this.ariaLiveText.textContent = ariaLiveChangeHack + "changed to: " + MathAtom.toSpeakableText(this.mathlist.sibling(0));
+    } else if (command === "line") {
+        // announce the current line -- currently that's everything
+        this.ariaLiveText.textContent = ariaLiveChangeHack + MathAtom.toSpeakableText(this.mathlist.root);
+    } else {
+        this.ariaLiveText.textContent = ariaLiveChangeHack + command + " " + (atomsToSpeak ? MathAtom.toSpeakableText(atomsToSpeak) : "");        
+    }
+}
+
 MathField.prototype._onFocus = function() {
     if (this.blurred) {
         this.blurred = false;
+        this._announceChange("focus");
+        // this.textarea.setAttribute('aria-label', 'after: ' + MathAtom.toSpeakableText(this.mathlist.root))
         this.textarea.select();
         this._updatePopoverPosition();
         this._updateCommandBar();
@@ -523,6 +603,7 @@ MathField.prototype._onFocus = function() {
 MathField.prototype._onBlur = function() {
     if (!this.blurred) {
         this.blurred = true;
+        this.ariaLiveText.textContent = '';
         this._updatePopoverPosition();
         this._updateCommandBar();
         this._render();
@@ -724,7 +805,8 @@ MathField.prototype._onTypedText = function(text) {
                     this.mathlist.delete(-shortcut.match.length - 1);
 
                     // Insert the substitute
-                    this.mathlist.insert(shortcut.substitute);        
+                    this.mathlist.insert(shortcut.substitute);
+                    this._announceChange("replacement");        
                 } else {
                     // Some characters are mapped to commands. Handle them here.
                     // This is important to handle synthetic text input and
@@ -816,35 +898,28 @@ MathField.prototype._render = function() {
 
     //
     // 4. Decorate with a spoken text version for accessibility
+    // We only want the label to speak when focused into.
+    // After that, it should be blank to avoid it being spoken after a char is typed.
     //
 
     wrapper.attributes = {
         // Accessibility: make sure this text span is taken into account
         // and read by screen readers, since it's intended to replace
         // the base span.
-        // 'aria-hidden': false,
-        // Accessibility: Indicate this is a math equation
-        // 'role': 'math',
-        // Accessibility: Indicate this content can get updated (as the user edits it)
-        // 'aria-live': 'assertive',
-
-        // Accessibility: Indicate this item can be focused
-        'tabindex':     '0',
-
-        // 'content-editable': 'true',
-
-        'role':         'math',     // or 'application' ?
-        // 'aria-multiline': 'true',
-        'aria-label':   MathAtom.toSpeakableText(this.mathlist.root)
     };
 
-
-
     //
-    // 5. Generate markup
+    // 5. Generate markup and set the accessibility to reflect that
     //
 
     this.field.innerHTML = wrapper.toMarkup();
+    // Probably want to generate content on fly depending on what to speak
+    //this.accessibleNode.innerHTML = 
+    //    "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
+    //        MathAtom.toMathML(this.mathlist.root) +
+    //    "</math>";
+    //this.ariaLiveText.textContent = "";
+
 
     //
     // 6. Stop event propagation, and scroll cursor into view
@@ -1125,6 +1200,7 @@ MathField.prototype.complete_ = function() {
                 this.mathlist.decorateCommandStringAroundInsertionPoint(true);
             }
         }
+        this._announceChange("replacement"); 
     }
 }
 
@@ -1406,7 +1482,7 @@ MathField.prototype.hasFocus = function() {
 }
 
 MathField.prototype.focus = function() {
-    if (!this.hasFocus()) {
+        if (!this.hasFocus()) {
         // this.textarea.focus();
         this.textarea.select();
         this._render();
