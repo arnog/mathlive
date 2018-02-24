@@ -688,7 +688,7 @@ MathField.prototype.perform = function(command) {
 
 /**
  * @param {string} keystroke
- * @param {Event} evt
+ * @param {Event} evt - optional, an Event corresponding to the keystroke
  * @method MathField#_onKeystroke
  * @private
  */
@@ -696,8 +696,10 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
 
     // Give a chance to the custom keystroke handler to intercept the event
     if (this.config.onKeystroke && !this.config.onKeystroke(keystroke, evt)) {
-        evt.preventDefault();
-        evt.stopPropagation();
+        if (evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+        }
         return false;
     }
     
@@ -722,8 +724,10 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
 
     // Keystroke has been handled, if it wasn't caught in the default
     // case, so prevent propagation
-    evt.preventDefault();
-    evt.stopPropagation();
+    if (evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+    }
     return false;
 }
 
@@ -759,7 +763,7 @@ MathField.prototype._onTypedText = function(text) {
         // as a single glyph (a grapheme) but which is actually composed of 
         // multiple Unicode codepoints. This is the case in particular for 
         // emojis, such as emojis with a skin tone modifier, the country flags
-        // emojis or compound emoji such as the professional emojis, including
+        // emojis or compound emojis such as the professional emojis, including
         // the David Bowie emoji.
         const graphemes = GraphemeSplitter.splitGraphemes(text);
         for (const c of graphemes) {
@@ -1509,12 +1513,13 @@ MathField.prototype.clearSelection = function() {
  * @param {string} keys - A string representation of a key combination. For
  * example `'Alt-KeyU'`.
  * See https://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
+ * @param {Event} evt
  * @method MathField#keystroke
  */
-MathField.prototype.keystroke = function(keys) {
+MathField.prototype.keystroke = function(keys, evt) {
     // This is the public API, while onKeystroke is the 
     // internal handler
-    this._onKeystroke(keys);
+    return this._onKeystroke(keys, evt);
 }
 
 /**
