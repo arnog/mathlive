@@ -274,7 +274,7 @@ const INLINE_SHORTCUTS = {
     '-<':                   '\\prec',               // ASCIIMath
     '-<=':                  '\\preceq',             // ASCIIMath
     '\u2212<':              '\\prec',               // ASCIIMath
-    '>-':                   '\\succ',               // ASCIIMath
+    // '>-':                   '\\succ',               // ASCIIMath
     '>-=':                  '\\succeq',             // ASCIIMath
     '>\u2212=':             '\\succeq',             // ASCIIMath
     'prop':                 '\\propto',             // ASCIIMath
@@ -406,8 +406,9 @@ const INLINE_SHORTCUTS = {
     '∣−>':                  '\\mapsto',
     '-->':                  '\\longrightarrow',
     '\u2212\u2212>':        '\\longrightarrow',
-    '<-':                   '\\leftarrow',
+    // '<-':                   '\\leftarrow',
     '<--':                  '\\longleftarrow',
+    '<\u2212-':                  '\\longleftarrow',
     '←-':                   '\\longleftarrow',
     '=>':                   '\\Rightarrow',
     '==>':                  '\\Longrightarrow',
