@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>addons/outputSpokenText.js - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>addons/outputAST.js - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -56,7 +56,7 @@ writeCookie('symbol-access', 'private')
 
 <main id="main">
     
-        <h1 class="page-title">addons/outputSpokenText.js</h1>
+        <h1 class="page-title">addons/outputAST.js</h1>
     
 
     
@@ -68,491 +68,548 @@ writeCookie('symbol-access', 'private')
         <article>
             <pre class="prettyprint source linenums">
             
-            <code>
+            <code>define(['mathlive/core/mathAtom'],
+    function(MathAtom) {
 
 
-define(['mathlive/core/mathAtom', 'mathlive/core/definitions'], function(MathAtom, Definitions) {
 
-const PRONUNCIATION = {
-    '\\alpha':      ' alpha ',
-    '\\mu':         ' mew ',
-    '\\sigma':      ' sigma ',
-    '\\pi':         ' pie ',
-    '\\imaginaryI':   ' eye ',
 
-    '\\sum':        ' Summation ',
-    '\\prod':       ' Product ',
 
-    '|':            ' Vertical bar',
-    '(':            ' Open paren [[slnc 150]]',
-    ')':            ' [[slnc 150]] Close paren',
-    '=':            ' [[slnc 150]] equals ',
-    '\\lt':         ' [[slnc 150]] is less than ',
-    '\\le':         ' [[slnc 150]] is less than or equal to ',
-    '\\gt':         ' [[slnc 150]] is greater than ',
-    '\\ge':         ' [[slnc 150]] is greater than or equal to ',
-    '\\geq':        ' [[slnc 150]]is greater than or equal to ',
-    '\\leq':        ' [[slnc 150]]is less than or equal to ',
-    '!':            ' factorial ',
-    '\\sin':        ' sine ',
-    '\\cos':        ' cosine ',
-    '\u200b':       '',
-    '\u2212':       ' minus ',
-    '\\colon':      '[[slnc 150]] such that [[slnc 200]]',
-    '\\hbar':       'etch bar',
-    '\\iff':         ' if and only if ',
-    '\\land':       ' and ',
-    '\\lor':        ' or ',
-    '\\neg':        ' not ',
-    '\\div':        'divided by',
+
+
+function scanIdentifier(stream, final) {
+    let result = false;
+    final = final || stream.atoms.length;
+    let mathML = '';
+    let body = '';
+    let superscript = -1;
+    let subscript = -1;
+    const atom = stream.atoms[stream.index];
+
+    if (stream.index &lt; final &amp;&amp; 
+        atom.type === 'mord' &amp;&amp; 
+        '0123456789,.'.indexOf(atom.latex) &lt; 0) {
+        body = atom.toAST();
+        if (atom.superscript) {
+            superscript = stream.index;
+        }
+        if (atom.subscript) {
+            subscript = stream.index;
+        }
+        stream.index += 1;
+    }
+
+    if (body.length > 0) {
+        result = true;
+
+        // If there are separate atoms for sub/sup, record them
+        if (isSuperscriptAtom(stream)) {
+            superscript = stream.index;
+            stream.index += 1;
+        }
+        if (isSubscriptAtom(stream)) {
+            subscript = stream.index;
+            stream.index += 1;
+        }
+
+
+        if (superscript >= 0 &amp;&amp; subscript >= 0) {
+            mathML = '&lt;msubsup>' + body;
+            mathML += toAST(stream.atoms[subscript].subscript).mathML;
+            mathML += toAST(stream.atoms[superscript].superscript).mathML;
+            mathML += '&lt;/msubsup>';            
+        } else if (superscript >= 0) {
+            mathML = '&lt;msup>' + body;
+            mathML += toAST(stream.atoms[superscript].superscript).mathML;
+            mathML += '&lt;/msup>';            
+        } else if (subscript >= 0) {
+            mathML = '&lt;msub>' + body;
+            mathML += toAST(stream.atoms[subscript].subscript).mathML;
+            mathML += '&lt;/msub>';            
+        } else {
+            mathML = body;
+        }
+
+        if (stream.lastType === 'mi' || 
+            stream.lastType === 'mn' || 
+            stream.lastType === 'fence') {
+            mathML = '&lt;mo>&amp;InvisibleTimes;&lt;/mo>' + mathML;
+        }
+
+        if (body === '&lt;mi>f&lt;/mi>' || body === '&lt;mi>g&lt;/mi>') {
+            mathML += '&lt;mo> &amp;ApplyFunction; &lt;/mo>';
+            stream.lastType = 'applyfunction';
+        } else {
+            stream.lastType = 'mi';
+        }
+
+        stream.mathML += mathML;
+    }
+
+    return result;
+}
+
+/**
+ * Return true if the current atom is a standalone superscript atom
+ * i.e. an atom with no content, except of a superscript.
+ * Superscripts can be encoded either as an attribute on the last atom
+ * or as a standalone, empty, atom following the one to which it applies.
+ * @param {*} stream 
+ */
+function isSuperscriptAtom(stream) {
+    return stream.index &lt; stream.atoms.length &amp;&amp; 
+        stream.atoms[stream.index].superscript &amp;&amp; 
+        stream.atoms[stream.index].type === 'mord' &amp;&amp;
+        stream.atoms[stream.index].value === '\u200b';
+}
+
+function isSubscriptAtom(stream) {
+    return stream.index &lt; stream.atoms.length &amp;&amp; 
+        stream.atoms[stream.index].subscript &amp;&amp; 
+        stream.atoms[stream.index].type === 'mord' &amp;&amp;
+        stream.atoms[stream.index].value === '\u200b';
+}
+
+function indexOfSuperscriptInNumber(stream) {
+
+    let result = -1;
+    let i = stream.index;
+    let done = false;
+    let found = false;
+    while (i &lt; stream.atoms.length &amp;&amp; !done &amp;&amp; !found) {
+        done = stream.atoms[i].type !== 'mord' ||
+            '0123456789,.'.indexOf(stream.atoms[i].latex) &lt; 0;
+        found = !done &amp;&amp; stream.atoms[i].superscript;
+        i++
+    }
+
+    if (found) {
+        result = i;
+    }
+
+    return result;
+}
+
+function scanArgument(/*stream, final*/) {
+    // TODO
+    // A single identifier, number, frac, etc...
+    // or a fenced list
+
+    return '';
+}
+
+function scanNumber(stream, final) {
+    let result = false;
+    final = final || stream.atoms.length;
+    let mathML = '';
+
+    let superscript = indexOfSuperscriptInNumber(stream);
+    if (superscript >= 0 &amp;&amp; superscript &lt; final) {
+        final = superscript;
+    }
+
+    while (stream.index &lt; final &amp;&amp; 
+        stream.atoms[stream.index].type === 'mord' &amp;&amp; 
+        '0123456789,.'.indexOf(stream.atoms[stream.index].latex) >= 0
+    ) {
+        mathML += stream.atoms[stream.index].latex;
+        stream.index += 1;
+    }
+
+
+    if (mathML.length > 0) {
+        result = true;
+        mathML = '&lt;mn>' + mathML + '&lt;/mn>';
+
+        if (superscript &lt; 0 &amp;&amp; isSuperscriptAtom(stream)) {
+            superscript = stream.index;
+            stream.index += 1;
+        }
+
+        if (superscript >= 0) {
+            mathML = '&lt;msup>' + mathML;
+            mathML +=  toAST(stream.atoms[superscript].superscript).mathML;
+            mathML += '&lt;/msup>';
+        }
     
-    '\\forall':     ' for all ',
-    '\\exists':     ' there exists ',
-    '\\nexists':    ' there does not exists ',
-
-    '\\in':         ' element of ',
-
-    '\\N':          ' the set [[char LTRL]]n[[char NORM]]',
-    '\\C':          ' the set [[char LTRL]]c[[char NORM]]',
-    '\\Z':          ' the set [[char LTRL]]z[[char NORM]]',
-    '\\Q':          ' the set [[char LTRL]]q[[char NORM]]',
-
-    '\\infty':      ' infinity ',
-
-    '\\nabla':      ' nabla ',
-
-    '\\partial':    ' partial derivative of ',
-
-    '\\cdots':      ' dot dot dot ',
-
-    '\\lbrace':		'left brace',
-    '\\rbrace':		'right brace',
-    '\\langle':		'left angle bracket',
-    '\\rangle':		'right angle bracket',
-    '\\lfloor':		'left floor',
-    '\\rfloor':		'right floor',
-    '\\lceil':		'left ceiling',
-    '\\rceil':		'right ceiling',
-    '\\vert':		'vertical bar',
-    '\\mvert':		'divides',
-    '\\lvert':		'left vertical bar',
-    '\\rvert':		'right vertical bar',
-    '\\lbrack':		'left bracket',
-    '\\rbrack':		'right bracket',    
-}
-
-
-function platform(p) {
-    let result = 'other';
-    if (navigator &amp;&amp; navigator.platform &amp;&amp; navigator.userAgent) {
-        if (/^(mac)/i.test(navigator.platform)) {
-            result = 'mac';
-        } else if (/^(win)/i.test(navigator.platform)) {
-            result = 'win';
-        } else if (/(android)/i.test(navigator.userAgent)) {
-            result = 'android';
-        } else if (/(iphone)/i.test(navigator.userAgent) ||
-                    /(ipod)/i.test(navigator.userAgent) ||
-                    /(ipad)/i.test(navigator.userAgent)) {
-            result = 'ios';
-        } else if (/\bCrOS\b/i.test(navigator.userAgent)) {
-            result = 'chromeos';
-        }
+        stream.mathML += mathML;
+        stream.lastType = 'mn';
     }
 
-    return result === p ? p : '!' + p;
-}
-
-
-function isAtomic(mathlist) {
-    let count = 0;
-    if (mathlist &amp;&amp; Array.isArray(mathlist)) {
-        for (const atom of mathlist) {
-            if (atom.type !== 'first') {
-                count += 1;
-            }
-        }
-    }
-    return count === 1;
-}
-
-function atomicValue(mathlist) {
-    let result = '';
-    if (mathlist &amp;&amp; Array.isArray(mathlist)) {
-        for (const atom of mathlist) {
-            if (atom.type !== 'first') {
-                result += atom.value;
-            }
-        }
-    }
     return result;
 }
 
+function scanFence(stream, final) {
+    let result = false;
+    final = final || stream.atoms.length;
+    let mathML = '';
+    let lastType = '';
 
-
-// See https://pdfs.semanticscholar.org/8887/25b82b8dbb45dd4dd69b36a65f092864adb0.pdf
-
-// "&lt;audio src='non_existing_file.au'>File could not be played.&lt;/audio>"
-
-// "I am now &lt;prosody rate='+0.06'>speaking 6% faster.&lt;/prosody>"
-
-// https://stackoverflow.com/questions/16635653/ssml-using-chrome-tts
-
-// https://developer.apple.com/library/content/documentation/UserExperience/Conceptual/SpeechSynthesisProgrammingGuide/FineTuning/FineTuning.html#//apple_ref/doc/uid/TP40004365-CH5-SW3
-
-// https://pdfs.semanticscholar.org/8887/25b82b8dbb45dd4dd69b36a65f092864adb0.pdf
-
-MathAtom.MathAtom.prototype.toSpeakableText = function(atom) {
-    return MathAtom.toSpeakableFragment(atom, {markup: false});
-}
-
-MathAtom.toSpeakableFragment = function(atom, options) {
-function letter(c) {
-    let result = '';
-    if (!options.markup) {
-        if (/[a-z]/.test(c)) {
-            result += " '" + c.toUpperCase() + "'";
-            // result += ' "' + atom.value.toUpperCase() + '"';
-        } else if (/[A-Z]/.test(c)) {
-            result += " 'capital " + c.toUpperCase() + "'";
-        } else {
-            result += c;
+    if (stream.index &lt; final &amp;&amp;
+        stream.atoms[stream.index].type === 'mopen') {
+        let found = false;
+        let depth = 0;
+        const openIndex = stream.index;
+        let closeIndex = -1;
+        let index = openIndex + 1;
+        while (index &lt; final &amp;&amp; !found) {
+            if (stream.atoms[index].type === 'mopen') {
+                depth += 1;
+            } else if (stream.atoms[index].type === 'mclose') {
+                depth -= 1;
+            }
+            if (depth === -1) {
+                found = true;
+                closeIndex = index;
+            }
+            index += 1;
         }
-    } else {
-        if (/[a-z]/.test(c)) {
-            result += ' [[char LTRL]]' + c + '[[char NORM]]';
-            // result += ' "' + atom.value.toUpperCase() + '"';
-        } else if (/[A-Z]/.test(c)) {
-            result += 'capital ' + c.toLowerCase() + '';
-        } else {
-            result += c;
+        if (found) {
+            mathML = '&lt;mfenced';
+            if (stream.atoms[openIndex].value !== '(') {
+                mathML += ' open="';
+                mathML += stream.atoms[openIndex].value;
+                mathML += '"';
+            }
+            if (stream.atoms[closeIndex].value !== ')') {
+                mathML += ' close="';
+                mathML += stream.atoms[closeIndex].value;
+                mathML += '"';
+            }
+            mathML += '>';
+    
+            mathML += toAST(stream.atoms, openIndex + 1, closeIndex).mathML;
+    
+            mathML += '&lt;/mfenced>';
+    
+            if (stream.lastType === 'mi' || 
+                stream.lastType === 'mn' || 
+                stream.lastType === 'fence') {
+                mathML = '&lt;mo>&amp;InvisibleTimes;&lt;/mo>' + mathML;
+            }
+            stream.index = closeIndex + 1;
+            lastType = 'fence';
         }
     }
+
+    if (mathML.length > 0) {
+        result = true;
+        stream.mathML += mathML;
+        stream.lastType = lastType;
+    }
+
     return result;
 }
 
-function emph(s) {
-    // if (options.markup === 'ssml') {
-    // } else 
-    if (options.markup) {
-        return '[[emph +]]' + s;
-    }
-    return s;
-}
+function scanOperator(stream, final) {
+    let result = false;
+    final = final || stream.atoms.length;
+    let mathML = '';
+    let lastType = '';
+    const atom = stream.atoms[stream.index];
 
+    if (stream.index &lt; final &amp;&amp; (
+        atom.type === 'mbin' || atom.type === 'mrel')) {
+        mathML += stream.atoms[stream.index].toAST();
+        stream.index += 1;
+        lastType = 'mo';
+    } else if (stream.index &lt; final &amp;&amp; atom.type === 'mop') {
+        // mathML += '&lt;mrow>';
 
-    let result = '';
-    if (Array.isArray(atom)) {
-        for (let i = 0; i &lt; atom.length; i++) {
-            if (i &lt; atom.length - 2 &amp;&amp;  
-                atom[i].type === 'mopen' &amp;&amp; 
-                atom[i + 2].type === 'mclose' &amp;&amp;
-                atom[i + 1].type === 'mord') {
-                result += ' of ';
-                result += emph(MathAtom.toSpeakableFragment(atom[i + 1], options));
-                i += 2;
+        if (atom.limits &amp;&amp; (atom.superscript || atom.subscript)) {
+            // Operator with limits, e.g. \sum
+            if (atom.superscript &amp;&amp; atom.subscript) {
+                // Both superscript and subscript
+                mathML += '&lt;munderover>';
+                mathML += '&lt;mo>' + stream.atoms[stream.index].value + '&lt;/mo>';
+                mathML += toAST(stream.atoms[stream.index].subscript).mathML;
+                mathML += toAST(stream.atoms[stream.index].superscript).mathML;
+                mathML += '&lt;/munderover>';
+            } else if (atom.superscript) {
+                // Superscript only
+                mathML += '&lt;mover>';
+                mathML += '&lt;mo>' + stream.atoms[stream.index].value + '&lt;/mo>';
+                mathML += toAST(stream.atoms[stream.index].superscript).mathML;
+                mathML += '&lt;/mover>';
             } else {
-                result += MathAtom.toSpeakableFragment(atom[i], options);
+                // Subscript only
+                mathML += '&lt;munder>';
+                mathML += '&lt;mo>' + stream.atoms[stream.index].value + '&lt;/mo>';
+                mathML += toAST(stream.atoms[stream.index].subscript).mathML;
+                mathML += '&lt;/munder>';
             }
-        }
-    } else {
-        const markup = typeof options.markup === 'undefined' ? false : options.markup;
-        let numer = '';
-        let denom = '';
-        let body = '';
-        let supsubHandled = false;
-        switch(atom.type) {
-            case 'group':
-            case 'root':
-                result += MathAtom.toSpeakableFragment(atom.children, options);
-                break;
+            lastType = 'mo';
+        } else {
 
-            case 'genfrac':
-                numer = MathAtom.toSpeakableFragment(atom.numer, options);
-                denom = MathAtom.toSpeakableFragment(atom.denom, options);
-                if (isAtomic(atom.numer) &amp;&amp; isAtomic(atom.denom)) {
-                    const COMMON_FRACTIONS = {
-                        '1/2':      ' half ',
-                        '1/3':      ' one third ',
-                        '2/3':      ' two third',
-                        '1/4':      ' one quarter ',
-                        '3/4':      ' three quarter ',
-                        '1/5':      ' one fifth ',
-                        '2/5':      ' two fifths ',
-                        '3/5':      ' three fifths ',
-                        '4/5':      ' four fifths ',
-                        '1/6':      ' one sixth ',
-                        '5/6':      ' five sixts ',
-                        '1/8':      ' one eight ',
-                        '3/8':      ' three eights ',
-                        '5/8':      ' five eights ',
-                        '7/8':      ' seven eights ',
-                        '1/9':      ' one ninth ',
-                        '2/9':      ' two ninths ',
-                        '4/9':      ' four ninths ',
-                        '5/9':      ' five ninths ',
-                        '7/9':      ' seven ninths ',
-                        '8/9':      ' eight ninths ',
-                        // '1/10':     ' one tenth ',
-                        // '1/12':     ' one twelfth ',
-                        'x/2':     ' half [[char LTRL]] X [[char NORM]] ',
-                        // '/2':     ' half [[char LTRL]] X [[char NORM]] ',
-                        // 'x/3':     ' a third of [[char LTRL]] X [[char NORM]] ',
-                    };
-                    const commonFraction = COMMON_FRACTIONS[
-                        atomicValue(atom.numer) + '/' + atomicValue(atom.denom)];
-                    if (commonFraction) {
-                        result = commonFraction;
-                    } else {
-                        result += numer + ' over ' + denom + ' ';
-                    }
-                } else {
-                    result += ' The fraction [[slnc 200]]' + numer + ', over [[slnc 150]]' + denom + ', End fraction';
-                }
+            mathML += '&lt;mi>' + stream.atoms[stream.index].value + '&lt;/mi>';
 
-                break;
-            case 'surd':
-                body = MathAtom.toSpeakableFragment(atom.body, options);
-                
-                if (!atom.index) {
-                    if (isAtomic(atom.body)) {
-                        result += ' square root of ' + body + ' , ';
-                    } else {
-                        result += ' The square root of ' + body + ', End square root';
-                    }
-                } else {
-                    let index = MathAtom.toSpeakableFragment(atom.index, options);
-                    index = index.trim();
-                    if (index === '3') {
-                        result += ' The cube root of ' + body + ', End cube root';
-                    } else if (index === 'n') {
-                        result += ' The nth root of ' + body + ', End root';
-                    } else {
-                        result += ' root with index: ' + index + ', of :' + body + ', End root';
-                    }
-                }
-                break;
-            case 'accent':
-                break;
-            case 'leftright':
-                result += atom.leftDelim;
-                result += MathAtom.toSpeakableFragment(atom.body, options);
-                result +=  atom.rightDelim;
-                break;
-            case 'line':
-                // @todo
-                break;
-            case 'rule':
-                // @todo
-                break;
-            case 'overunder':
-                // @todo
-                break;
-            case 'overlap':
-                // @todo
-                break;
-            case 'placeholder':
-                result += 'placeholder ' + atom.value;
-                break;
-            case 'delim':
-            case 'sizeddelim':
-            case 'mord':
-            case 'minner':
-            case 'mbin':
-            case 'mrel':
-            case 'mpunct':
-            case 'mopen':
-            case 'mclose':
-            case 'textord':
-            {
-                let atomValue = atom.value;
-                let latexValue = atom.latex;
-                if (atom.type === 'delim' || atom.type === 'sizeddelim') {
-                    atomValue = latexValue = atom.delim;
-                }
-                if (options.mode === 'text') {
-                    result += atomValue;
-                } else {
-                    if (atom.type === 'mbin') {
-                        result += '[[slnc 150]]';
-                    }
+            mathML += '&lt;mo> &amp;ApplyFunction; &lt;/mo>';
 
-                    if (atomValue) {
-                        const value = PRONUNCIATION[atomValue] || 
-                            (latexValue ? PRONUNCIATION[latexValue.trim()] : '');
-                        if (value) {
-                            result += ' ' + value;
-                        } else {
-                            const spokenName = latexValue ? 
-                                Definitions.getSpokenName(latexValue.trim()) : '';
-                            
-                            result += spokenName ? spokenName : letter(atomValue);
-                        }
-                    } else {
-                        result += MathAtom.toSpeakableFragment(atom.children, options);
-                    }
-                    if (atom.type === 'mbin') {
-                        result += '[[slnc 150]]';
-                    }
-                }
-                break;
-            }
-            case 'op':
-            case 'mop':
-            // @todo
-                if (atom.value !== '\u200b') {
-                    // Not ZERO-WIDTH
-                    const trimLatex = atom.latex ? atom.latex.trim() : '' ;
-                    if (trimLatex === '\\sum') {
-                        if (atom.superscript &amp;&amp; atom.subscript) {
-                            let sup = MathAtom.toSpeakableFragment(atom.superscript, options);
-                            sup = sup.trim();
-                            let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
-                            sub = sub.trim();
-                            result += ' The summation from ' + sub + ' to  [[slnc 150]]' + sup + ' of [[slnc 150]]';
-                            supsubHandled = true;
-                        } else {
-                            result += ' The summation  of';
-                        }
-                    } else if (trimLatex === '\\prod') {
-                        if (atom.superscript &amp;&amp; atom.subscript) {
-                            let sup = MathAtom.toSpeakableFragment(atom.superscript, options);
-                            sup = sup.trim();
-                            let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
-                            sub = sub.trim();
-                            result += ' The product from ' + sub + ' to ' + sup + ' of [[slnc 150]]';
-                            supsubHandled = true;
-                        } else {
-                            result += ' The product  of ';
-                        }
-                    } else if (trimLatex === '\\int') {
-                        if (atom.superscript &amp;&amp; atom.subscript) {
-                            let sup = MathAtom.toSpeakableFragment(atom.superscript, options);
-                            sup = sup.trim();
-                            let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
-                            sub = sub.trim();
-                            result += ' The integral from ' + emph(sub) + ' to ' + emph(sup) + ' [[slnc 200]] of ';
-                            supsubHandled = true;
-                        } else {
-                            result += ' integral ';
-                        }
-                    } else if (atom.value) {
-                        const value = PRONUNCIATION[atom.value] || 
-                            PRONUNCIATION[atom.latex.trim()];
-                        if (value) {
-                            result += value;
-                        } else {
-                            result += ' ' + atom.value;
-                        }
-                    } else if (atom.latex &amp;&amp; atom.latex.length > 0) {
-                        if (atom.latex[0] === '\\') {
-                            result += ' ' + atom.latex.substr(1);
-                        } else {
-                            result += ' ' + atom.latex;
-                        }
-                    }
-                }
-                break;
-            case 'font':
-                options.mode = 'text';
-                result += '[[slnc 150]]';
-                result += MathAtom.toSpeakableFragment(atom.body, options);
-                result += '[[slnc 150]]';
-                options.mode = 'math';
-                break;
+            mathML += scanArgument(stream);
+            lastType = 'applyfunction';
+        }
+        // mathML += '&lt;/mrow>';
 
-            case 'enclose':
-                body = MathAtom.toSpeakableFragment(atom.body, options);
-                
-                if (isAtomic(atom.body)) {
-                    result += ' crossed out ' + body + ' , ';
-                } else {
-                    result += ' crossed out ' + body + ' End cross out';
-                }
-                break;
-
-            case 'space':
-            case 'spacing':
-            case 'color':
-            case 'sizing':
-            case 'mathstyle':
-            case 'box':
-                // @todo
-                break;
-                
+        if (stream.lastType === 'mi' || stream.lastType === 'mn') {
+            mathML = '&lt;mo>&amp;InvisibleTimes;&lt;/mo>' + mathML;
         }
-        if (!supsubHandled &amp;&amp; atom.superscript) {
-            let sup = MathAtom.toSpeakableFragment(atom.superscript, options);
-            sup = sup.trim();
-            if (isAtomic(atom.superscript)) {
-                if (sup === '\u2032') {
-                    result += ' prime ';
-                } else if (sup === '2') {
-                    result += ' squared ';
-                } else if (sup === '3') {
-                    result += ' cubed ';                
-                } else {
-                    result += ' to the ' + sup + '; ';
-                }
-            } else {
-                result += ' raised to the [[pbas +4]]' + sup + ' [[pbas -4]] power. ';
-            }
-        }
-        if (!supsubHandled &amp;&amp; atom.subscript) {
-            let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
-            sub = sub.trim();
-            if (isAtomic(atom.subscript)) {
-                result += ' sub ' + sub;
-            } else {
-                result += ' subscript ' + sub + ' End subscript. ';
-            }
-        }
-        // If no markup was requested, remove any that we may have
-        if (markup === 'ssml') {
-            // @todo: convert VoiceOver markup to SSML
-        } else if (!markup) {
-            result = result.replace(/\[\[[^\]]*\]\]/g, '');
-        }
+        stream.index += 1;
     }
 
+    if (mathML.length > 0) {
+        result = true;
+        stream.mathML += mathML;
+        stream.lastType = lastType;
+    }
 
     return result;
 }
 
 
 /**
- * @param {MathAtom[]}  [atoms] The atoms to represent as speakable text.
- * If omitted, `this` is used.
- * @param {Object.&lt;string, any>} [options]
-*/
-MathAtom.toSpeakableText = function(atoms, options) {
-    if (!options) {
-        options = {
-            markup: false
+ * Given an atom or an array of atoms, return their MathML representation as 
+ * a string.
+ * @return {string}
+ * @param {string|MathAtom|MathAtom[]} input
+ * @param {number} initial index of the input to start conversion from
+ * @param {number{ final last index of the input to stop conversion to 
+ * @private
+ */
+function toAST(input, initial, final) {
+    const result = {
+        atoms: input,
+        index: initial || 0,
+        mathML: '',
+        lastType: ''
+    };
+    final = final || input.length;
+
+    if (typeof input === 'number' || typeof input === 'boolean') {
+        result.mathML = input.toString();
+    } else if (typeof input === 'string') {
+        result.mathML = input;
+    } else if (input &amp;&amp; typeof input.toAST === 'function') {
+        result.mathML = input.toAST();
+    } else if (Array.isArray(input)) {
+        let count = 0;
+
+        while (result.index &lt; final) {
+            if (scanNumber(result, final) ||
+                scanIdentifier(result, final) ||
+                scanOperator(result, final) ||
+                scanFence(result, final)) {
+                    count += 1;
+            } else if (result.index &lt; final) {
+                let mathML = result.atoms[result.index].toAST();
+                if (result.lastType === 'mn' &amp;&amp; mathML.length > 0 &amp;&amp; result.atoms[result.index].type === 'genfrac') {
+                    // If this is a fraction preceded by a number (e.g. 2 1/2), 
+                    // add an "invisible plus" (U+0264) character in front of it
+                    mathML = '&lt;mo>&amp;#x0264;&lt;/mo>' + mathML;
+                }
+                result.lastType = '';
+                if (mathML.length > 0) {
+                    result.mathML += mathML;
+                    count += 1;
+                }
+                result.index += 1;
+            }
         }
-    }
-    let result = '';
-    if (options.markup === 'ssml') {
-        result = `&lt;!-- ?xml version="1.0"? -->
-&lt;speak xmlns="http://www.w3.org/2001/10/synthesis"
-version="1.0">&lt;p>&lt;s xml:lang="en-US">`;
-    } else if (options.markup) {
-        if (platform('mac') === '!mac') {
-            options.markup = false;
+
+        // If there are more than a single element, wrap them in a mrow tag.
+        if (count > 1) {
+            result.mathML = '&lt;mrow>' + result.mathML + '&lt;/mrow>';
         }
     }
 
-    result += MathAtom.toSpeakableFragment(atoms, options);
-
-    if (options.markup === 'ssml') {
-        result += '&lt;/s>&lt;/p>&lt;/speak>';
-    }
     return result;
-
 }
 
+
+function toString(atoms) {
+    let result = '';
+    for (const atom of atoms) {
+        if (atom.type === 'textord') {
+            result += atom.value;
+        }
+    }
+    return result;
+}
+
+
+/**
+ * Return a MathML fragment representation of a single atom
+ * 
+ * @return {string}
+ */
+MathAtom.MathAtom.prototype.toAST = function() {
+    const SPECIAL_OPERATORS = {
+        '\\pm': '&amp;PlusMinus;',
+        '\\times': '&amp;times;'
+    };
+
+    const SPECIAL_IDENTIFIERS = {
+        '\\exponentialE': '&amp;ExponentialE;',
+        '\\imaginaryI': '&amp;ImaginaryI;',
+        '\\differentialD': '&amp;DifferentialD;',
+        '\\capitalDifferentialD': '&amp;CapitalDifferentialD;',
+        '\\alpha': '&amp;alpha;',
+        '\\pi': '&amp;pi;',
+        '\\infty' : '&amp;infin;',
+        '\\forall' : '&amp;forall;',
+        '\\nexists': '&amp;nexists;',
+        '\\exists': '&amp;exist;'
+    };
+
+    const MATH_VARIANTS = {
+        'mathbb': 'double-struck',
+        'mathbf': 'bold',
+        'mathcal': 'script',
+        'mathfrak': 'fraktur',
+        'mathscr': 'script',
+        'mathsf': 'sans-serif',
+        'mathtt': 'monospace'
+    };
+
+    let result = '';
+    let sep = '';
+    let variant = MATH_VARIANTS[this.fontFamily];
+    if (variant) {
+        variant = ' mathvariant="' + variant + '"';
+    } else {
+        variant = '';
+    }
+
+    const command = this.latex ? this.latex.trim() : null;
+    switch(this.type) {
+        case 'group':
+        case 'root':
+            result = toAST(this.children).mathML;
+            break;
+
+        case 'genfrac':
+            // @todo: deal with fracs delimiters
+            result += '&lt;mfrac>';
+            result += toAST(this.numer).mathML;
+            result += toAST(this.denom).mathML;
+            result += '&lt;/mfrac>';
+            break;
+
+        case 'surd':
+            if (this.index) {
+                result += '&lt;mroot>';
+                result += toAST(this.body).mathML;
+                result += toAST(this.index).mathML;
+                result += '&lt;/mroot>';
+            } else {
+                result += '&lt;msqrt>';
+                result += toAST(this.body).mathML;
+                result += '&lt;/msqrt>';
+            }
+            break;
+
+        case 'leftright':
+            break;
+
+        case 'delim':
+        case 'sizeddelim':
+            break;
+
+        case 'rule':
+            break;
+
+        case 'font':
+            result += '&lt;mtext' + variant + '>';
+            result += toString(this.body);
+            result += '&lt;/mtext>';
+            break;
+
+        case 'line':
+        case 'overlap':
+        case 'accent':
+            break;
+
+        case 'overunder':
+            break;
+
+        case 'mord':
+        case 'textord':
+            result = SPECIAL_IDENTIFIERS[command] || command || this.value;
+            if (result.length > 0 &amp;&amp; result.charAt(0) === '\\') {
+                // This is an identifier with no special handling. Use the 
+                // Unicode value
+                if (this.value) {
+                    result = '&amp;#x' + ('000000' + 
+                        this.value.charCodeAt(0).toString(16)).substr(-4) + ';';
+                }
+            }
+            result = '&lt;mi' + variant + '>' + result + '&lt;/mi>';
+            break;
+
+        case 'mbin':
+        case 'mrel':
+            if (command &amp;&amp; SPECIAL_OPERATORS[command]) {
+                result = '&lt;mo>' + SPECIAL_OPERATORS[command] + '&lt;/mo>';
+            } else {
+                result = '&lt;mo>' + (this.value ||  toAST(this.children).mathML) + '&lt;/mo>';
+            }
+            break;
+
+        case 'mopen':
+        case 'mclose':
+            result = '&lt;mo>' + command + '&lt;/mo>';
+            break;
+
+        case 'mpunct':
+            result = '&lt;mo separator="true">' + command + '&lt;/mo>';
+            break;
+
+        case 'minner':
+            break;
+
+        case 'op':
+        case 'mop':
+            break;
+
+        case 'color':
+            break;
+        case 'box':
+            break;
+
+        case 'spacing':
+            break;
+
+        case 'enclose':
+            result = '&lt;menclose notation="';
+            for (const notation in this.notation) {
+                if (this.notation.hasOwnProperty(notation) &amp;&amp; 
+                    this.notation[notation]) {
+                    result += sep + notation;
+                    sep = ' ';
+                }
+            }
+            result += '">' + toAST(this.body).mathML + '&lt;/menclose>';
+            break;
+
+        case 'space':
+        case 'sizing':
+        case 'mathstyle':
+            break;
+            
+    }
+    return result;
+}
+
+
+MathAtom.toAST = function(atoms) {
+    return toAST(atoms).ast;
+}
+
+
 // Export the public interface for this module
-return {}
+return { 
+}
+
+
 })
 </code></pre>
         </article>
