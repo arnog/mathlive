@@ -420,7 +420,17 @@ MathField.prototype._pathFromPoint = function(x, y) {
         // Let's find the atom that has a matching ID with the element that 
         // was clicked on (or near)
         const atoms = this.mathlist.filter(function(path, atom) {
-            return atom.id === id;
+            // If the atom allows children to be selected, match only if 
+            // the ID of  the atom matches the one we're looking for.
+            if (!atom.captureSelection) {
+                return atom.id === id; 
+            }
+            // If the atom does not allow children to be selected 
+            // (captureSelection === true), the element matches if any of 
+            // its children has an ID that matches.
+            return atom.filter(function(childAtom) {
+                return childAtom.id === id;
+            }).length > 0;
         });
 
         if (atoms &amp;&amp; atoms.length > 0) {
