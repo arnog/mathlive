@@ -85,8 +85,8 @@ const toEm = FontMetricsModule.toEm;
  * blue in the editor.
  * - **error**: indicate a command that is unknown, for example `\xyzy`. The text
  * is displayed with a dotted red underline in the editor.
- * - **placeholder**: indicate a temporary item. Placeholders are displayed with a 
- * a pill (rounded box) in the editor.
+ * - **placeholder**: indicate a temporary item. Placeholders are displayed 
+ * as a pill (rounded box) in the editor.
  * - **first**: a special, empty, atom put as the first atom in math lists in 
  * order to more easily represent the cursor position. They are not displayed.
  * 
@@ -98,6 +98,8 @@ const toEm = FontMetricsModule.toEm;
  * @property {MathAtom[]} subscript
  * @property {MathAtom[]} numer
  * @property {MathAtom[]} denom
+ * @property {boolean} captureSelection if true, this atom does not let its 
+ * children be selected. Used by the enclose anotations, for example.
  * @class MathAtom
  * @global
  * @private
@@ -679,10 +681,10 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
             'mclose', this.rightDelim, delimSize, true,
             context.withMathstyle(mathstyle));
 
-    return this.bind(context, makeOrd([leftDelim, frac, rightDelim], 
-        context.parentMathstyle.adjustTo(mathstyle) + 
-        ((context.parentSize !== context.size) ? 
-            (' sizing reset-' + context.parentSize + ' ' + context.size) : '')));
+            return this.bind(context, makeOrd([leftDelim, frac, rightDelim], 
+                context.parentMathstyle.adjustTo(mathstyle) + 
+                ((context.parentSize !== context.size) ? 
+                    (' sizing reset-' + context.parentSize + ' ' + context.size) : '')));
 }
 
 

@@ -504,6 +504,7 @@ Span.prototype.toMarkup = function(hskip) {
             }
             result += '>';
             result += this.svgOverlay;
+            result += '&lt;/svg>';
             result += '&lt;/span>';
         } else {
             result += body;     // @todo maybe safe encode here...? (&lt; >)

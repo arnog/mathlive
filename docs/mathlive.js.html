@@ -331,13 +331,13 @@ function renderMathInDocument(options) {
         return;
     }
 
-    AutoRender.renderMathInElement(document.body, options, toMarkup);
+    AutoRender.renderMathInElement(document.body, options, toMarkup, toMathML);
 
     // Ask to be notified when fonts are loaded, and re-render.
     // There are rare cases where the layout needs to be recomputed after
     // fonts are loaded, e.g. the \compose command.
     if (document.fonts) {
-        document.fonts.ready.then(() => renderMathInElement(document.body, options, toMarkup));
+        document.fonts.ready.then(() => renderMathInElement(document.body, options, toMarkup, toMathML));
     }
 }
 
@@ -395,7 +395,7 @@ function renderMathInElement(element, options) {
         console.log('The AutoRender module is not loaded.');
         return;
     }
-    AutoRender.renderMathInElement(getElement(element), options, toMarkup);
+    AutoRender.renderMathInElement(getElement(element), options, toMarkup, toMathML);
 }
 
 function validateNamespace(options) {

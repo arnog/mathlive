@@ -1302,6 +1302,7 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
             backgroundcolor: 'transparent',
             padding: 'auto',
             shadow: 'auto',
+            captureSelection: true,     // Do not let children be selected
             body: args[2]
         }
 
