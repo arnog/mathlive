@@ -681,10 +681,10 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
             'mclose', this.rightDelim, delimSize, true,
             context.withMathstyle(mathstyle));
 
-            return this.bind(context, makeOrd([leftDelim, frac, rightDelim], 
-                context.parentMathstyle.adjustTo(mathstyle) + 
-                ((context.parentSize !== context.size) ? 
-                    (' sizing reset-' + context.parentSize + ' ' + context.size) : '')));
+    const result = this.bind(context, makeOrd([leftDelim, frac, rightDelim], 
+        ((context.parentSize !== context.size) ? 
+            ('sizing reset-' + context.parentSize + ' ' + context.size) : 'genfrac')));
+    return result;
 }
 
 
