@@ -110,9 +110,17 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             result = latexify(this.children);
             break;
         case 'genfrac':
-            // @todo: deal with fracs delimiters
-            result += '\\frac';
-            result += `{${latexify(this.numer)}}{${latexify(this.denom)}}`;
+            if (this.value === 'choose' || this.value === 'atop') {
+                result += '{';
+                result += latexify(this.numer)
+                result += '\\' + this.value + ' ';
+                result += latexify(this.denom);
+                result += '}';
+            } else {
+                // @todo: deal with fracs delimiters
+                result += '\\frac';
+                result += `{${latexify(this.numer)}}{${latexify(this.denom)}}`;
+            }
             break;
         case 'surd':
             result += '\\sqrt';

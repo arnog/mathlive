@@ -201,71 +201,6 @@ Span.prototype.updateDimensions = function() {
 }
 
 
-/**
- * The width is an expensive property to calculate, as it requires the span 
- * to be laid out, then measured.
- * So, we only calculate it when required, which is rare: it's needed for 
- * some notations of \enclose for example, and we cache it.
- */
-Span.prototype.cacheClientDimensions = function() {
-    // Temporarily remove any SVG decorating this span.
-    // SVG is overlaid over the span, so it doesn't affect its dimensions
-    // but it needs the client dimensions, which would recursively call this
-    // function
-    const svg = this.svgOverlay;
-    this.svgOverlay = '';
-
-    const div = document.createElement('div');
-    div.setAttribute('style',`position: absolute;
-    left: -1000px;
-    top: -1000px;
-    visibility: hidden;
-    height: auto;
-    width: auto;`);
-    div.setAttribute('class', 'ML__mathlive');
-
-    const base = document.createElement('span');
-    base.setAttribute('class', 'ML__base');
-    base.innerHTML = this.toMarkup();
-    div.appendChild(base);
-
-    document.body.appendChild(div);
-
-    const width = div.offsetWidth;
-    const height = div.offsetHeight;
-
-    div.parentNode.removeChild(div);
-
-    this._clientWidth = width;
-    this._clientHeight = height;
-    this.svgOverlay = svg;
-}
-
-/**
- * @return {number} the width of the span, in pixels
- */
-Span.prototype.clientWidth = function() {
-    // Return cached value if present
-    if (typeof this._clientWidth !== 'undefined' ) return this._clientWidth;
-
-    this.cacheClientDimensions();
-
-    return this._clientWidth;
-};
-
-/**
- * @return {number} the height of the span, in pixels
- */
-Span.prototype.clientHeight = function() {
-    // Return cached value if present
-    if (typeof this._clientHeight !== 'undefined' ) return this._clientHeight;
-
-    this.cacheClientDimensions();
-
-    return this._clientHeight;
-};
-
-
 
 /**
  * Set the value of a CSS property associated with this span.
@@ -425,6 +360,11 @@ Span.prototype.toMarkup = function(hskip) {
     } else {
         result = '&lt;' + tag;
 
+        if (this.svgOverlay) {
+            if (!this.style) this.style = {};
+            this.style['position'] =  'relative';
+        }
+
         if (this.attributes) {
             for (const attribute in this.attributes) {
                 if (this.attributes.hasOwnProperty(attribute)) {  
@@ -469,15 +409,12 @@ Span.prototype.toMarkup = function(hskip) {
             }
         }
 
-        if (this.style || this.svgOverlay) {
+        if (this.style) {
             let styleString = ''
             for (const style in this.style) {
                 if (this.style.hasOwnProperty(style)) {
                     styleString += style + ':' + this.style[style] + ';'
                 }
-            }
-            if (this.svgOverlay) {
-                styleString += 'position: relative;';
             }
 
             if (styleString.length > 0) {
@@ -490,22 +427,17 @@ Span.prototype.toMarkup = function(hskip) {
         // include it now
         if (this.svgOverlay) {
             result += body;     // @todo maybe safe encode here...? (&lt; >)
-            result += `&lt;span style="position:absolute;top:.75em;left:0px">`;
-            // result += '&lt;span style="display:inline-block;">' + body + '&lt;/span>';
-            // result += `&lt;span style="position:absolute;top:.75em;left:0px">`;
-            // result += '&lt;span style="position:absolute;left:0px;';
-            // result += 'bottom:0;'
-            // result += '">';
-            result += '&lt;svg xmlns="http://www.w3.org/2000/svg" version="1.1"';
-            result += ` width="${this.clientWidth()}px"`;
-            result += ` height="${this.clientHeight()}px"`;
+            result += '&lt;svg ';
+            // result += ` width="${this.clientWidth()}px"`;
+            // result += ` height="${this.clientHeight()}px"`;
+            result += ' width="100%" height="100%"';
+            result += 'style="position:absolute;left:0;top:0;width:100%;height:100%;z-index:2;"';
             if (this.svgStyle) {
                 result += ' style="filter: drop-shadow(0 0 .5px rgba(255, 255, 255, .7)) drop-shadow(1px 1px 2px #333);"';
             }
             result += '>';
             result += this.svgOverlay;
             result += '&lt;/svg>';
-            result += '&lt;/span>';
         } else {
             result += body;     // @todo maybe safe encode here...? (&lt; >)
         }
@@ -958,7 +890,7 @@ function makeVlist(context, elements, pos, posData) {
     // Fix the final height and depth, in case there were kerns at the ends
     // since makeSpan won't take that into account.
     result.height = Math.max(currPos, result.height);
-    result.depth = Math.max(-depth, result.depth);
+    result.depth = Math.max(depth, result.depth);
 
     return result;
 }
