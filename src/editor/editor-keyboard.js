@@ -197,7 +197,6 @@ function delegateKeyboardEvents(textarea, handlers) {
             deadKey = false;
         }
         if (!compositionInProgress && 
-            e.code !== 'Escape' &&
             e.code !== 'ControlLeft' &&
             e.code !== 'MetaLeft') {
             keydownEvent = e;
