@@ -535,7 +535,7 @@ MathField.prototype._onContentDidChange = function() {
 /* Returns the speech text of the next atom after the selection or
  *   an 'end of' phrasing based on what structure we are at the end of
  */
-function nextAtomSpeechText(mathlist) {
+function nextAtomSpeechText(oldMathlist, mathlist) {
     function relation(parent, leaf) {
         const EXPR_NAME = {
             'children': 'line',   // not sure what it should be -- happens at end of exprs
@@ -554,17 +554,23 @@ function nextAtomSpeechText(mathlist) {
             'surd': 'square root'
         }
         return (leaf.relation === 'body' ? PARENT_NAME[parent.type] : EXPR_NAME[leaf.relation]);
-}
+    }
 
+    const oldPath = oldMathlist ? oldMathlist.path : [];
+    const path = mathlist.path;
+    const leaf = path[path.length - 1];
+    let result = "";
+
+    while (oldPath.length > path.length) {
+        result += "out of " + relation(oldMathlist.parent(), oldPath[oldPath.length - 1]) + "; ";
+        oldPath.pop(); 
+    }
     if (!mathlist.isCollapsed()) {
         return MathAtom.toSpeakableText(mathlist.extractContents());
     }
-    const path = mathlist.path;
-    const leaf = path[path.length - 1];
-    const relationName = relation(mathlist.parent(), leaf);
-    let result = "";
 
     // announce start of denominator, etc
+    const relationName = relation(mathlist.parent(), leaf);
     if (leaf.offset === 0) {
         result += relationName ? "start of " + relationName + ": " : "unknown";
     }
@@ -581,12 +587,14 @@ function nextAtomSpeechText(mathlist) {
  * Set the aria-live region to announce the change and the following character/notation
  * E.g, "in numerator, x"
  * @param {command} string the command that invoked the change 
+ * @param {command} oldMathlist [null] the previous value of mathlist before the change 
+ * @param {command} array [null] or atom: atomsToSpeak the command that invoked the change 
  */
-MathField.prototype._announceChange = function(command, atomsToSpeak) {
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-      }
-//** the focus is the end of the selection, so it is before where we want it
+MathField.prototype._announceChange = function(command, oldMathlist, atomsToSpeak) {
+//    function sleep(ms) {
+//        return new Promise(resolve => setTimeout(resolve, ms));
+//      }
+//** Fix: the focus is the end of the selection, so it is before where we want it
     // aria-live regions are only spoken when it changes; force a change by alternately using nonbreaking space or narrow nonbreaking space
     const ariaLiveChangeHack = /\u00a0/.test(this.ariaLiveText.textContent) ? " \u202f " : " \u00a0 ";
     // const command = moveAmount > 0 ? "right" : "left";
@@ -597,24 +605,24 @@ MathField.prototype._announceChange = function(command, atomsToSpeak) {
         //*** FIX -- should be xxx selected/unselected */
         this.ariaLiveText.textContent = ariaLiveChangeHack +
                     (this.mathlist.isCollapsed() ? "" : "selected: ") +
-                    nextAtomSpeechText(this.mathlist);
+                    nextAtomSpeechText(oldMathlist, this.mathlist);
     } else if (command === "replacement") {
         // announce the contents
         this.ariaLiveText.textContent = ariaLiveChangeHack + MathAtom.toSpeakableText(this.mathlist.sibling(0));
     } else if (command === "line") {
         // announce the current line -- currently that's everything
         this.ariaLiveText.textContent = ariaLiveChangeHack + MathAtom.toSpeakableText(this.mathlist.root);
-        /*** FIX -- testing hack for setting braille ***/
         this.accessibleNode.innerHTML = 
             "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
                 MathAtom.toMathML(this.mathlist.root) +
             "</math>";
-        this.accessibleNode.focus();
-        console.log("before sleep");
-        sleep(1000).then(() => {
-            this.textarea.focus();
-            console.log("after sleep");
-        });
+        /*** FIX -- testing hack for setting braille ***/
+        // this.accessibleNode.focus();
+        // console.log("before sleep");
+        // sleep(1000).then(() => {
+        //     this.textarea.focus();
+        //     console.log("after sleep");
+        // });
     } else {
         this.ariaLiveText.textContent = ariaLiveChangeHack + command + " " + (atomsToSpeak ? MathAtom.toSpeakableText(atomsToSpeak) : "");        
     }
