@@ -36,6 +36,10 @@ MathAtom.MathAtom.prototype.toLatex = function() {
     const command = this.latex ? this.latex.trim() : null;
     switch(this.type) {
         case 'group':
+            result += this.latexOpen || '';
+            result += latexify(this.children);  
+            result += this.latexClose || '';
+            break;
         case 'root':
             result = latexify(this.children);
             break;

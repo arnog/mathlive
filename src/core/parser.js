@@ -550,6 +550,8 @@ Parser.prototype.scanModeShift = function() {
 
     const result = new MathAtom('math', 'group');
     result.mathstyle = final === '$' ? 'textstyle' : 'displaystyle';
+    result.latexOpen = result.mathstyle === 'textstyle' ? '$' : '$$';
+    result.latexClose = result.latexOpen;
     const savedParsemode = this.swapParseMode('math');
 
     result.children = this.scanImplicitGroup(token => token.type === final);
