@@ -1,8 +1,11 @@
-## 0.0.17 (2018)
-- Improved accessibility support.
+## 0.0.17 (February 27, 2018)
+### New Features
+- Improved accessibility support (major contribution from Neil Soiffer)
+- Support for MathML output and Latex to MathML conversion.
+
+### Bug Fixes
 - #26 Fixed issue with Chrome 62 where fraction lines and other thin lines would
   intermittently not render.
-- Support for MathML output and Latex to MathML conversion.
 - #20, #51. Ensure that a placeholder is always present for numerator, 
     denominator.
 - #21. Do not allow sub-elements of an enclose element to be selected.
