@@ -754,8 +754,6 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
     const result = this.bind(context, makeOrd([leftDelim, frac, rightDelim], 
         ((context.parentSize !== context.size) ? 
             ('sizing reset-' + context.parentSize + ' ' + context.size) : 'genfrac')));
-    //  result.setStyle('display', 'flex');
-    //  result.setStyle('flex-flow', 'column');
     return result;
 }
 

@@ -1,3 +1,21 @@
+## 0.0.17 (2018)
+- Improved accessibility support.
+- #26 Fixed issue with Chrome 62 where fraction lines and other thin lines would
+  intermittently not render.
+- Support for MathML output and Latex to MathML conversion.
+- #20, #51. Ensure that a placeholder is always present for numerator, 
+    denominator.
+- #21. Do not allow sub-elements of an enclose element to be selected.
+- Font-size will now respect font-size specified by the parent element. As
+a result of this non-backward compatible change, the size of the equation
+may now be different than it was. To ensure that the size remains the same
+as before, specify a font-size property on the parent element with a 
+value of 16px.
+- #29. Correctly handle $ and @ as inlineShortcuts
+- Improved handling of undo.
+- New implementation of \enclose notations.
+
+
 ## 0.0.16 (September 13, 2017)
 
 ### Deprecated Features

@@ -1689,7 +1689,7 @@ defineFunction([
     '\\over' /* 21 */ , 
     '\\atop' /* 12 */, 
     '\\choose' /* 1968 */    
-], '{n}{k}', {greediness: 2, infix: true}, 
+], '', {greediness: 2, infix: true}, 
         function(name, args) {
     const numer = args[0];
     const denom = args[1];

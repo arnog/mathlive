@@ -890,7 +890,7 @@ function makeVlist(context, elements, pos, posData) {
     // Fix the final height and depth, in case there were kerns at the ends
     // since makeSpan won't take that into account.
     result.height = Math.max(currPos, result.height);
-    result.depth = Math.max(depth, result.depth);
+    result.depth = Math.max(-depth, result.depth);
 
     return result;
 }
