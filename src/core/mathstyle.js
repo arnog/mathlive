@@ -187,7 +187,7 @@ const sizeNames = [
 const ADJUST_NAMES = [
     [   
         '', // 'reset-textstyle displaystyle textstyle', 
-        'reset-textstyle textstyle', 
+        '', // 'reset-textstyle textstyle', 
         'reset-textstyle scriptstyle', 
         'reset-textstyle scriptscriptstyle'
     ],

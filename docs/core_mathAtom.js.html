@@ -716,8 +716,8 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
         frac = makeVlist(newContext,
             [
                 numerReset, -numShift,
-                denomReset, denomShift,
                 mid, ruleWidth / 2 - axisHeight,
+                denomReset, denomShift,
             ], 'individualShift')
     }
 
@@ -752,11 +752,10 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
             context.withMathstyle(mathstyle));
 
     const result = this.bind(context, makeOrd([leftDelim, frac, rightDelim], 
-        context.parentMathstyle.adjustTo(mathstyle) + 
         ((context.parentSize !== context.size) ? 
-            (' sizing reset-' + context.parentSize + ' ' + context.size) : '')));
+            ('sizing reset-' + context.parentSize + ' ' + context.size) : 'genfrac')));
     //  result.setStyle('display', 'flex');
-    //  result.setStyle('flex-direction', 'row');
+    //  result.setStyle('flex-flow', 'column');
     return result;
 }
 
@@ -1182,25 +1181,19 @@ MathAtom.prototype.decomposeBox = function(context) {
     return result;
 }
 
-function emToPx(value) {
-    return (value * (4 / 3 * 10 /* FontMetrics.metrics.ptPerEm */));
-}
-
 MathAtom.prototype.decomposeEnclose = function(context) {
     const body = makeOrd(decompose(context, this.body));
     const padding = this.padding === 'auto' ? .2 : this.padding; // em
     // Make sure that the span takes the full height of the enclosed children
-    // otherwise the background color will not completely cover it.
-    // body.setStyle('padding-top', emToPx(Span.height(body) - Span.depth(body) + padding), 'px');
-    // body.setStyle('padding-bottom', emToPx(Span.depth(body) + padding), 'px');
-    body.setStyle('padding-top', Span.height(body) - Span.depth(body) + padding, 'em');
-    body.setStyle('padding-bottom', Span.depth(body) + padding, 'em');
+
+    if (Span.height(body) >= 1.0) {
+        // If the body is short (i.e. a single line of digits, characters)
+        // use no vertical padding, it looks better.
+        body.setStyle('padding-top', Span.height(body) - Span.depth(body) + padding, 'em');
+        body.setStyle('padding-bottom', Span.depth(body) - padding, 'em');
+    }
     body.setStyle('padding-left', padding, 'em');
     body.setStyle('padding-right', padding, 'em');
-    // body.setStyle('padding-top', emToPx(padding), 'px');
-    // body.setStyle('padding-bottom', emToPx(padding), 'px');
-    // body.setStyle('padding-left', emToPx(padding), 'px');
-    // body.setStyle('padding-right', emToPx(padding), 'px');
 
     if (this.backgroundcolor &amp;&amp; this.backgroundcolor !== 'transparent') {
         body.setStyle('background-color', this.backgroundcolor);
@@ -1239,12 +1232,8 @@ MathAtom.prototype.decomposeEnclose = function(context) {
     if (this.notation.right) body.setStyle('border-right', this.borderStyle);
     if (this.notation.bottom) body.setStyle('border-bottom', this.borderStyle);
 
-    const w = body.clientWidth();
-    const h = body.clientHeight();
-
     if (this.notation.horizontalstrike) {
-        svg += '&lt;line ';
-        svg += `x1="${this.strokeWidth}" y1="${h / 2}" x2="${w - 2 * this.strokeWidth}" y2="${h  / 2}"`;
+        svg += '&lt;line x1="3%"  y1="50%" x2="97%" y2="50%"';
         svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
         svg += ' stroke-linecap="round"';
         if (this.svgStrokeStyle) {
@@ -1253,30 +1242,26 @@ MathAtom.prototype.decomposeEnclose = function(context) {
         svg += '/>';
     }
     if (this.notation.verticalstrike) {
-        svg += '&lt;line ';
-        svg += `x1="${w / 2}" y1="${this.strokeWidth}" x2="${w / 2}" y2="${h - this.strokeWidth}"`;
+        svg += '&lt;line x1="50%"  y1="3%" x2="50%" y2="97%"';
         svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
         svg += ' stroke-linecap="round"';
         if (this.svgStrokeStyle) {
             svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
         }
-        svg += '/>';    
+        svg += '/>';
     }
+
     if (this.notation.updiagonalstrike) {
-        svg += '&lt;line ';
-        svg += `x1="${this.strokeWidth / 2}" y1="${h - this.strokeWidth / 2}px" 
-                x2="${w - this.strokeWidth / 2}px" y2="${this.strokeWidth / 2}"`;
+        svg += '&lt;line x1="3%"  y1="97%" x2="97%" y2="3%"';
         svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
         svg += ' stroke-linecap="round"';
         if (this.svgStrokeStyle) {
             svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
         }
-        svg += '/>';    
+        svg += '/>';
     }
     if (this.notation.downdiagonalstrike) {
-        svg += '&lt;line ';
-        svg += `x1="${this.strokeWidth / 2}" y1="${this.strokeWidth / 2}" 
-                x2="${w - this.strokeWidth / 2}" y2="${h - this.strokeWidth / 2}"`;
+        svg += '&lt;line x1="3%"  y1="3%" x2="97%" y2="97%"';
         svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
         svg += ' stroke-linecap="round"';
         if (this.svgStrokeStyle) {
@@ -1284,63 +1269,63 @@ MathAtom.prototype.decomposeEnclose = function(context) {
         }
         svg += '/>';
     }
-    if (this.notation.updiagonalarrow) {
-        const t = 1;
-        const length = Math.sqrt(w * w + h * h);
-        const f = 1 / length / 0.075 * t;
-        const wf = w * f;
-        const hf = h * f;
-        const x = w - t / 2;
-        let y = t / 2;
-        if (y + hf - .4 * wf &lt; 0 ) y = 0.4 * wf - hf;
+    // if (this.notation.updiagonalarrow) {
+    //     const t = 1;
+    //     const length = Math.sqrt(w * w + h * h);
+    //     const f = 1 / length / 0.075 * t;
+    //     const wf = w * f;
+    //     const hf = h * f;
+    //     const x = w - t / 2;
+    //     let y = t / 2;
+    //     if (y + hf - .4 * wf &lt; 0 ) y = 0.4 * wf - hf;
 
-        svg += '&lt;line ';
-        svg += `x1="1" y1="${h - 1}px" x2="${x - .7 * wf}px" y2="${y + .7 * hf}px"`;
-        svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
-        svg += ' stroke-linecap="round"';
-        if (this.svgStrokeStyle) {
-            svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-        }
-        svg += '/>';
+    //     svg += '&lt;line ';
+    //     svg += `x1="1" y1="${h - 1}px" x2="${x - .7 * wf}px" y2="${y + .7 * hf}px"`;
+    //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
+    //     svg += ' stroke-linecap="round"';
+    //     if (this.svgStrokeStyle) {
+    //         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+    //     }
+    //     svg += '/>';
 
-        svg += '&lt;polygon points="';
-        svg += `${x},${y} ${x - wf - .4 * hf},${y + hf - .4 * wf} `;
-        svg += `${x - .7 * wf},${y + .7 * hf} ${x - wf + .4 * hf},${y + hf + .4 * wf} `;
-        svg += `${x},${y}`;
-        svg += `" stroke='none' fill="${this.strokeColor}"`;
+    //     svg += '&lt;polygon points="';
+    //     svg += `${x},${y} ${x - wf - .4 * hf},${y + hf - .4 * wf} `;
+    //     svg += `${x - .7 * wf},${y + .7 * hf} ${x - wf + .4 * hf},${y + hf + .4 * wf} `;
+    //     svg += `${x},${y}`;
+    //     svg += `" stroke='none' fill="${this.strokeColor}"`;
 
-        svg += '/>';
-    }
-    if (this.notation.phasorangle) {
-        svg += '&lt;path d="';
-        svg += `M ${h / 2},1 L1,${h} L${w},${h} "`; 
-        svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
-        if (this.svgStrokeStyle) {
-            svg += ' stroke-linecap="round"';
-            svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-        }
-        svg += '/>';
-    }
-    if (this.notation.radical) {
-        svg += '&lt;path d="';
-        svg += `M 0,${.6 * h} L1,${h} L${emToPx(padding) * 2},1 "`; 
-        svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
-        if (this.svgStrokeStyle) {
-            svg += ' stroke-linecap="round"';
-            svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-        }
-        svg += '/>';
-    }
-    if (this.notation.longdiv) {
-        svg += '&lt;path d="';
-        svg += `M ${w} 1 L1 1 a${emToPx(padding)} ${h / 2}, 0, 0, 1, 1 ${h} "`; 
-        svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
-        if (this.svgStrokeStyle) {
-            svg += ' stroke-linecap="round"';
-            svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-        }
-        svg += '/>';
-    }
+    //     svg += '/>';
+    // }
+    // if (this.notation.phasorangle) {
+    //     svg += '&lt;path d="';
+    //     svg += `M ${h / 2},1 L1,${h} L${w},${h} "`; 
+    //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
+    //     if (this.svgStrokeStyle) {
+    //         svg += ' stroke-linecap="round"';
+    //         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+    //     }
+    //     svg += '/>';
+    // }
+    // if (this.notation.radical) {
+    //     svg += '&lt;path d="';
+    //     svg += `M 0,${.6 * h} L1,${h} L${emToPx(padding) * 2},1 "`; 
+    //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
+    //     if (this.svgStrokeStyle) {
+    //         svg += ' stroke-linecap="round"';
+    //         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+    //     }
+    //     svg += '/>';
+    // }
+    // if (this.notation.longdiv) {
+    //     svg += '&lt;path d="';
+    //     svg += `M ${w} 1 L1 1 a${emToPx(padding)} ${h / 2}, 0, 0, 1, 1 ${h} "`; 
+    //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
+    //     if (this.svgStrokeStyle) {
+    //         svg += ' stroke-linecap="round"';
+    //         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+    //     }
+    //     svg += '/>';
+    // }
 
     if (svg) {
         let svgStyle;

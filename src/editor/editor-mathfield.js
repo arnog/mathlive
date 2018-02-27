@@ -836,6 +836,8 @@ MathField.prototype._onTypedText = function(text) {
                 const prefix = this.mathlist.extractGroupStringBeforeInsertionPoint();
                 const shortcut = Shortcuts.matchEndOf(prefix + c, this.config);
                 if (shortcut) {
+                    const savedState = this.undoManager.save();
+
                     // Insert the character before applying the substitution
                     this.mathlist.insert(c);
 
@@ -844,8 +846,11 @@ MathField.prototype._onTypedText = function(text) {
                     // the substitution if it was undesired.
                     this.undoManager.snapshot();
 
-                    // Remove the characters we're replacing
-                    this.mathlist.delete(-shortcut.match.length - 1);
+                    // Revert to before inserting the character
+                    this.undoManager.restore(savedState);
+
+                    // Remove the characters from the prefix string
+                    this.mathlist.delete(-shortcut.match.length);
 
                     // Insert the substitute
                     this.mathlist.insert(shortcut.substitute);

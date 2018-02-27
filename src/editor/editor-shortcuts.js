@@ -406,7 +406,7 @@ const INLINE_SHORTCUTS = {
     '∣−>':                  '\\mapsto',
     '-->':                  '\\longrightarrow',
     '\u2212\u2212>':        '\\longrightarrow',
-    // '<-':                   '\\leftarrow',
+//    '<-':                   '\\leftarrow',
     '<--':                  '\\longleftarrow',
     '<\u2212-':                  '\\longleftarrow',
     '←-':                   '\\longleftarrow',

@@ -2673,7 +2673,7 @@ defineSymbol( '"', MATH,  MAIN,  TEXTORD, '\u201D');       // Double Prime
 category = '';
 defineSymbols('0123456789/@.', MATH, MAIN, MATHORD);
 defineSymbols('0123456789!@*()-=+[]";:?/.,', TEXT, MAIN, TEXTORD);
-defineSymbols("0123456789!@*()-=+{}[]\\';:?/.,~<>`|'$%#&", COMMAND, MAIN, COMMANDLITERAL);
+defineSymbols("0123456789!@*()-=+{}[]\\';:?/.,~<>`|'$%#&^_", COMMAND, MAIN, COMMANDLITERAL);
 
 // a-z
 defineSymbolRange(0x0041, 0x005A, TEXT, MAIN, TEXTORD);

@@ -323,9 +323,9 @@ const REVERSE_KEYBOARD_SHORTCUTS = {
  * @memberof module:editor/shortcuts
  */
 const INLINE_SHORTCUTS = {
-    '>=':                   '\\geqslant',
+    '>=':                   '\\ge',                 //ASCIIMath
     '≥':                    '\\ge',
-    '&lt;=':                   '\\leqslant',
+    '&lt;=':                   '\\le',                 //ASCIIMath
     '≤':                    '\\le',
     '!=':                   '\\ne',
     '≈':                    '\\approx',
@@ -334,17 +334,20 @@ const INLINE_SHORTCUTS = {
     '-:':                   '\\div',                // ASCIIMath
     '¬':                    '\\neg',
     '+-':                   '\\pm',                 // ASCIIMath
-    '-=':                   '\\equiv',                 // ASCIIMath
-    '\u2212=':              '\\equiv',                 // ASCIIMath
+    '-=':                   '\\equiv',              // ASCIIMath
+    '\u2212=':              '\\equiv',              // ASCIIMath
     '~=':                   '\\cong',               // ASCIIMath
     ':=':                   '\\coloneq',
     '::':                   '\\Colon',
     '(:':                   '\\langle',
     ':)':                   '\\rangle',
-    '-&lt;':                   '\\preq',                // ASCIIMath
-    '\u2212&lt;':              '\\preq',                // ASCIIMath
-    '>-':                   '\\succ',               // ASCIIMath
-    'prop':                 '\\propto',              // ASCIIMath
+    '-&lt;':                   '\\prec',               // ASCIIMath
+    '-&lt;=':                  '\\preceq',             // ASCIIMath
+    '\u2212&lt;':              '\\prec',               // ASCIIMath
+    // '>-':                   '\\succ',               // ASCIIMath
+    '>-=':                  '\\succeq',             // ASCIIMath
+    '>\u2212=':             '\\succeq',             // ASCIIMath
+    'prop':                 '\\propto',             // ASCIIMath
     ':.':                   '\\therefore',          // ASCIIMath
     '**':                   '\\ast',                // ASCIIMath
     // '\u2217*':              '\\ast',             // ASCIIMath
@@ -352,8 +355,8 @@ const INLINE_SHORTCUTS = {
     'xx':                   '\\times',              // ASCIIMath
     '@':                    '\\circ',               // ASCIIMath
     'diamond':              '\\diamond',            // ASCIIMath
-    'square':               '\\square',            // ASCIIMath
-    'iff':                  '\\iff',            // ASCIIMath
+    'square':               '\\square',             // ASCIIMath
+    'iff':                  '\\iff',                // ASCIIMath
 
 
 
@@ -473,8 +476,9 @@ const INLINE_SHORTCUTS = {
     '∣−>':                  '\\mapsto',
     '-->':                  '\\longrightarrow',
     '\u2212\u2212>':        '\\longrightarrow',
-    '&lt;-':                   '\\leftarrow',
+//    '&lt;-':                   '\\leftarrow',
     '&lt;--':                  '\\longleftarrow',
+    '&lt;\u2212-':                  '\\longleftarrow',
     '←-':                   '\\longleftarrow',
     '=>':                   '\\Rightarrow',
     '==>':                  '\\Longrightarrow',
