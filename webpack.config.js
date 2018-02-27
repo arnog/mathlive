@@ -16,7 +16,7 @@ module.exports = {
     path: 'dist'
   }
 */
-
+  mode: "production",
   entry:   path.resolve(__dirname, "src/mathlive.js"),
   output: {
     path: path.resolve(__dirname, "dist"),
@@ -37,37 +37,40 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: 'babel-loader'
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['env'],
+          }
+        }
       }
     ]
   },
+  optimization: {
+    minimize: true,
+    runtimeChunk: true,
+    splitChunks: {
+        chunks: "async",
+        minSize: 1000,
+        minChunks: 2,
+        maxAsyncRequests: 5,
+        maxInitialRequests: 3,
+        name: true,
+        cacheGroups: {
+            default: {
+                minChunks: 1,
+                priority: -20,
+                reuseExistingChunk: true,
+            },
+            vendors: {
+                test: /[\\/]node_modules[\\/]/,
+                priority: -10
+            }
+        }
+    }
+},
   plugins: [
     new webpack.optimize.ModuleConcatenationPlugin(),
-    new webpack.optimize.UglifyJsPlugin({
-      "screw-ie8": true,
-      compress: {
-        booleans: true,
-        cascade: true,
-        comparisons: true,
-        conditionals: true,
-        dead_code: true,
-        drop_console: true,
-        drop_debugger: true,
-        evaluate: true,
-        if_return: true,
-        join_vars: true,
-        loops: true,
-        pure_getters: true,
-        sequences: true,
-        unsafe: true,
-        unused: true,
-        warnings: false
-      },
-      output: {
-        comments: false,
-      },
-    })
-    ,
     new CopyWebpackPlugin([
       { from: 'css/fonts', to: 'fonts' }
     ])
