@@ -543,6 +543,15 @@ function italic(spans) {
  * @private
  */
 function makeSpan(content, classes) {
+    if (Array.isArray(content)) {
+        const c = [];
+        for (const s of content) {
+            if (s) c.push(s);
+        }
+        if (c.length === 1) {
+            return makeSpan(c[0], classes);
+        }
+    }
     return new Span(content, classes);
 }
 
@@ -581,32 +590,20 @@ function makeSymbol(fontFamily, symbol, classes) {
  * @private
  */
 function makeFontSizer(context, fontSize) {
-
-    // // if (context.size !== 'size5') { 
-    // //     const fontSizeInner = new Span('&#x200b;');    // ZERO WIDTH SPACE
-    // //     fontSizeInner.setStyle('font-size', 
-    // //         fontSize / context.mathstyle.sizeMultiplier, 
-    // //         (fontSize && fontSize !== 0) ? 'em' : '');
-    // //     return new Span(fontSizeInner, 
-    // //         'fontsize-ensurer reset-' + context.size + ' size5');
-    // // } 
-
-    // return new Span('');
-
+    const fontSizeAdjustment = fontSize ? fontSize / context.mathstyle.sizeMultiplier : 0;
     const fontSizeInner = new Span('&#x200b;');    // ZERO WIDTH SPACE
     fontSizeInner.attributes = {
         "aria-hidden": true
     }
     fontSizeInner.setStyle('font-size', 
-        fontSize / context.mathstyle.sizeMultiplier, 
-        (fontSize && fontSize !== 0) ? 'em' : '');
+        fontSizeAdjustment, 
+        (fontSizeAdjustment > 0) ? 'em' : '');
 
     if (context.size !== 'size5') { 
         return new Span(fontSizeInner, 
             'fontsize-ensurer reset-' + context.size + ' size5');
     } 
-
-    return fontSizeInner;
+    return fontSizeAdjustment ? fontSizeInner : null;
 }
 
 /**
@@ -801,7 +798,6 @@ function makeVlist(context, elements, pos, posData) {
         if (element instanceof Span) {
             const shift = -element.depth - currPos;
             currPos += element.height + element.depth;
-
             const childWrap = makeSpan([fontSizer, element]);
             childWrap.setTop(shift);
 
@@ -812,15 +808,29 @@ function makeVlist(context, elements, pos, posData) {
         }
     }
 
-    // Add in an element at the end with no offset to fix the calculation of
-    // baselines in some browsers (namely IE, sometimes safari)
-    newElements.push(makeHlist([fontSizer, new Span('&#x200b;')], 'baseline-fix'));
+    // Add a strut to force the height of the enclosing element
+    // const strut = makeSpan('', 'ML__strut');
+    // strut.height = currPos + depth;
+    // strut.setStyle('height', currPos + depth, 'em');
+    // newElements.push(strut);
+    // const base = makeSpan(newElements);
+
+    // const topStrut = makeSpan('', 'ML__strut');
+    // topStrut.setStyle('height', base.height, 'em');
+    // topStrut.setStyle('top', -base.height + base.depth, 'em');
+    // const bottomStrut = makeSpan('', 'ML__strut ML__bottom');
+    // bottomStrut.setStyle('height', Math.max(currPos, base.height) - base.depth, 'em');
+    // bottomStrut.setStyle('top', -base.height, 'em');
+    // bottomStrut.setStyle('vertical-align', -base.depth, 'em');
+
+    // newElements.push(topStrut);
+    // newElements.push(bottomStrut);
 
     const result = makeSpan(newElements, 'vlist');
     // Fix the final height and depth, in case there were kerns at the ends
     // since makeSpan won't take that into account.
     result.height = Math.max(currPos, result.height);
-    result.depth = Math.max(-depth, result.depth);
+    result.depth = Math.max(depth, result.depth);
 
     return result;
 }

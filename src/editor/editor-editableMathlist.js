@@ -505,7 +505,8 @@ function atomContains(atom, target) {
         if (atom === target) return true;
 
         if (['array', 'children', 'numer', 'denom', 
-            'body', 'offset', 'subscript', 'superscript']
+            'body', 'offset', 'subscript', 'superscript', 
+            'underscript', 'overscript']
             .some(function(value) { 
                 return value === target || atomContains(atom[value], target)
             } )) return true;
@@ -839,8 +840,11 @@ EditableMathlist.prototype.next = function() {
         'numer': 'denom',
         'denom': 'index',
         'index': 'body',
-        'body': 'subscript',
-        'subscript': 'superscript'
+        'body': 'overscript',
+        'overscript': 'underscript',
+        'underscript': 'subscript',
+        'subscript': 'superscript',
+
     }
     if (this.anchorOffset() === this.siblings().length - 1) {
         // We've reached the end of these siblings.
@@ -900,7 +904,9 @@ EditableMathlist.prototype.previous = function() {
         'denom': 'numer',
         'index': 'denom',
         'body': 'index',
-        'subscript': 'body',
+        'subscript': 'underscript',
+        'underscript': 'overscript',
+        'overscript': 'body',
         'superscript': 'subscript'
     }
     if (this.anchorOffset() < 1) {

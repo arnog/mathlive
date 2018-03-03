@@ -225,6 +225,12 @@ MathAtom.prototype.forEach = function (cb) {
     if (this.subscript) {
         for (const atom of this.subscript) if (atom) atom.forEach(cb);
     }
+    if (this.overscript) {
+        for (const atom of this.overscript) if (atom) atom.forEach(cb);
+    }
+    if (this.underscript) {
+        for (const atom of this.underscript) if (atom) atom.forEach(cb);
+    }
     if (this.numer) {
         for (const atom of this.numer) if (atom) atom.forEach(cb);
     }
@@ -258,7 +264,8 @@ MathAtom.prototype.filter = function (cb) {
     let result = [];
     if (cb(this)) result.push(this);
 
-    for (const relation of ['children', 'superscript', 'subscript', 
+    for (const relation of ['children', 'superscript', 'subscript',
+        'overscript', 'underscript', 
         'numer', 'denom', 'body', 'index']) {
         if (this[relation]) {
             for (const atom of this[relation]) {
@@ -637,7 +644,7 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
         }
 
         const mid = makeSpan('',
-            newContext.mathstyle.adjustTo(Mathstyle.TEXT) + ' frac-line');        
+            /* newContext.mathstyle.adjustTo(Mathstyle.TEXT) + */ ' frac-line');        
             // @todo: do we really need to reset the size?
         // Manually set the height of the line because its height is
         // created in CSS
