@@ -85,24 +85,20 @@
     @ptperem: 10.0;
     @nulldelimiterspace: 1.2em / @ptperem;
 
-    @thinspace: 0.16667em;      // 3mu
-    @mediumspace: 0.22222em;    // 4mu
-    @thickspace: 0.27778em;     // 5mu
+    @thinspace:   0.16667em;      // 3mu
+    @mediumspace: 0.22222em;      // 4mu
+    @thickspace:  0.27778em;      // 5mu
 
 
 
-    // I believe that setting the font-size to 1em is a no-op and could be eliminated @todo
-    // .reset-textstyle.textstyle { font-size: 1em; }
     .reset-textstyle.scriptstyle { font-size: 0.7em; }
     .reset-textstyle.scriptscriptstyle { font-size: 0.5em; }
 
     .reset-scriptstyle.textstyle { font-size: 1.42857em; }
-    // .reset-scriptstyle.scriptstyle { font-size: 1em; }
     .reset-scriptstyle.scriptscriptstyle { font-size: 0.71429em; }
 
     .reset-scriptscriptstyle.textstyle { font-size: 2em; }
     .reset-scriptscriptstyle.scriptstyle { font-size: 1.4em; }
-    // .reset-scriptscriptstyle.scriptscriptstyle { font-size: 1em; }
 
     .style-wrap {
         position: relative;
@@ -121,11 +117,6 @@
                 display: inline-block;
             }
         }
-
-        .baseline-fix {
-            display: inline-table;
-            table-layout: fixed;
-        }
     }
 
     .msupsub {
@@ -133,11 +124,6 @@
     }
 
     .mfrac {
-        /*  Original KaTex */
-        // > span > span {
-        //     text-align: center;
-        // }
-        /* Modified from KaTex */
         > span  {
             text-align: center;
         }
@@ -154,13 +140,14 @@
 
             &:after {
                 border-bottom-style: solid;
-                border-bottom-width: thin; /* was 0.04em. There's a bug since 
-                Chrome 62 where sub-pixel border lines don't draw at some zoom 
-                levels (110%, 90%). 1px doesn't work either, but "thin" appears to
-                */
                 content: "";
                 display: block;
                 margin-top: -1px;
+                border-bottom-width: 0.04em; 
+                min-height: 1px;    /* There's a bug since Chrome 62 where 
+                sub-pixel border lines don't draw at some zoom 
+                levels (110%, 90%). Setting the min-height seems to work around it.
+                */
             }
         }
     }
@@ -254,10 +241,12 @@
 
         &:after {
             border-bottom-style: solid;
-            border-bottom-width: 1px; /* was 0.04em. There's a bug since Chrome 62 where
-            sub-pixel border lines don't draw at some zoom levels (110%, 90%).
+            border-bottom-width: 0.04em; 
+            min-height: 1px;    /* There's a bug since Chrome 62 where 
+            sub-pixel border lines don't draw at some zoom 
+            levels (110%, 90%). Setting the min-height seems to work around it.
             */
-        content: "";
+            content: "";
             display: block;
             margin-top: -1px;
         }
@@ -275,8 +264,10 @@
 
             &:before {
                 border-bottom-style: solid;
-                border-bottom-width: 1px; /* was 0.04em. There's a bug since Chrome 62 where
-                sub-pixel border lines don't draw at some zoom levels (110%, 90%).
+                border-bottom-width: 0.04em; 
+                min-height: 1px;    /* There's a bug since Chrome 62 where 
+                sub-pixel border lines don't draw at some zoom 
+                levels (110%, 90%). Setting the min-height seems to work around it.
                 */
                 content: "";
                 display: block;
@@ -356,7 +347,6 @@
     }
 
     .nulldelimiter {
-        display: inline-block;
         width: @nulldelimiterspace;
     }
 
