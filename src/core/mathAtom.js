@@ -1323,6 +1323,7 @@ MathAtom.prototype.decompose = function(context) {
 
     } else if (this.type === 'overunder') {
         result = this.decomposeOverunder(context);
+        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'overlap') {
         // For llap (18), rlap (270), clap (0)
