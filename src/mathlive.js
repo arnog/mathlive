@@ -230,7 +230,7 @@ function toSpeakableText() {
 }
 
 /**
- * @param {string{ latex
+ * @param {string} latex
  * @return {string}
  * @function module:mathlive#latexToMathML
  */
@@ -244,6 +244,23 @@ function toMathML(latex) {
 
     return MathAtom.toMathML(mathlist);
 }
+
+/**
+ * @param {string} latex
+ * @return {string}
+ * @function module:mathlive#latexToAST
+ */
+function latexToAST(latex) {
+    if (!MathAtom.toAST) {
+        console.log('The AST module is not loaded.');
+        return '';
+    }
+
+    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex));
+
+    return MathAtom.toAST(mathlist);
+}
+
 
 /**
  * Transform all the elements in the document body that contain LaTeX code 
@@ -396,6 +413,7 @@ return {
     latexToMarkup: toMarkup,
     latexToSpeakableText: toSpeakableText,
     latexToMathML: toMathML,
+    latexToAST: latexToAST,
     makeMathField: makeMathField,
     renderMathInDocument: renderMathInDocument,
     renderMathInElement: renderMathInElement,

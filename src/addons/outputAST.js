@@ -310,7 +310,8 @@ function toAST(input, initial, final) {
         atoms: input,
         index: initial || 0,
         mathML: '',
-        lastType: ''
+        lastType: '',
+        ast: {result: 'none'}
     };
     final = final || input.length;
 
