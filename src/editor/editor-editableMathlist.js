@@ -159,7 +159,8 @@ EditableMathlist.prototype.adjustPlaceholder = function() {
             placeholder = 'anotation';
         }
         if (placeholder) {
-            const placeholderAtom = [new MathAtom.MathAtom('math', 'placeholder', placeholder)];
+            // ◌ ⬚
+            const placeholderAtom = [new MathAtom.MathAtom('math', 'placeholder', '⬚')];
             Array.prototype.splice.apply(siblings, [1, 0].concat(placeholderAtom));
         }
 }

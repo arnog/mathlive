@@ -1421,7 +1421,7 @@ MathAtom.prototype.decompose = function(context) {
 
 
     } else if (this.type === 'esc' || this.type === 'command' || 
-        this.type === 'error' || this.type === 'placeholder' ) {
+        this.type === 'error' ) {
         result = this.makeSpan(context, this.value);
         if (this.error) {
             result.classes += ' ML__error';
@@ -1429,6 +1429,9 @@ MathAtom.prototype.decompose = function(context) {
         if (this.suggestion) {
             result.classes += ' ML__suggestion';
         }
+
+    } else if (this.type === 'placeholder' ) {
+        result = this.makeSpan(context, '⬚');
 
     } else if (this.type === 'first') {
         // the `first` pseudo-type is used as a placeholder as 
