@@ -213,17 +213,25 @@ EditableMathlist.prototype.adjustPlaceholder = function() {
     // Should we insert a placeholder?
     // Check if we're an empty list that is the child of a fraction
     const siblings = this.siblings();
-    if (siblings.length &lt;= 1) {
-        if (this.relation() === 'numer') {
-            const mathlist = [new MathAtom.MathAtom('math', 'placeholder', 'numerator')];
-            Array.prototype.splice.apply(siblings, [1, 0].concat(mathlist));
-        } else if (this.relation() === 'denom') {
-            const mathlist = [new MathAtom.MathAtom('math', 'placeholder', 'denominator')];
-            Array.prototype.splice.apply(siblings, [1, 0].concat(mathlist));
-        } else if (this.relation() === 'body') {
+    if (siblings &amp;&amp; siblings.length &lt;= 1) {
+        let placeholder;
+        const relation = this.relation();
+        if (relation === 'numer') {
+            placeholder = 'numerator';
+        } else if (relation === 'denom') {
+            placeholder = 'denominator';
+        } else if (this.parent().type === 'surd' &amp;&amp; relation === 'body') {
             // Surd (roots)
-            const mathlist = [new MathAtom.MathAtom('math', 'placeholder', 'root')];
-            Array.prototype.splice.apply(siblings, [1, 0].concat(mathlist));
+            placeholder = 'radicand';
+        } else if (this.parent().type === 'overunder' &amp;&amp; relation === 'body') {
+            placeholder = 'base';
+        } else if (relation === 'underscript' || relation === 'overscript') {
+            placeholder = 'anotation';
+        }
+        if (placeholder) {
+            // ◌ ⬚
+            const placeholderAtom = [new MathAtom.MathAtom('math', 'placeholder', '⬚')];
+            Array.prototype.splice.apply(siblings, [1, 0].concat(placeholderAtom));
         }
 }
 
@@ -467,7 +475,7 @@ EditableMathlist.prototype.insertFirstAtom = function() {
  * @private
  */
 EditableMathlist.prototype.siblings = function() {
-    const siblings = this.parent()[this.relation()];
+    const siblings = this.parent()[this.relation()] || [];
 
     // If the 'first' math atom is missing, insert it
     if (siblings.length === 0 || siblings[0].type !== 'first') {
@@ -974,9 +982,9 @@ EditableMathlist.prototype.previous = function() {
         'denom': 'numer',
         'index': 'denom',
         'body': 'index',
-        'subscript': 'underscript',
-        'underscript': 'overscript',
         'overscript': 'body',
+        'underscript': 'overscript',
+        'subscript': 'underscript',
         'superscript': 'subscript'
     }
     if (this.anchorOffset() &lt; 1) {
