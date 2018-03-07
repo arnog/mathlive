@@ -79,6 +79,6 @@
     "sutro-jsdoc-theme": "github:arnog/sutro-jsdoc-theme",
     "tape": "^4.9.0",
     "tape-watch": "^2.3.0",
-    "webpack": "^3.0.0"
+    "webpack": "^4.1.1"
   }
 }
