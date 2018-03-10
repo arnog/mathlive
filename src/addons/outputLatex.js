@@ -33,12 +33,24 @@ function latexify(value) {
  */
 MathAtom.MathAtom.prototype.toLatex = function() {
     let result = '';
+    let col, row = 0;
     const command = this.latex ? this.latex.trim() : null;
     switch(this.type) {
         case 'group':
             result += this.latexOpen || '';
             result += latexify(this.children);  
             result += this.latexClose || '';
+            break;
+        case 'array':
+            result += '\\begin{' + this.env.name + '}';
+            for (row = 0; row < this.array.length; row++) {
+                for (col = 0; col < this.array[row].length; col++) {
+                    if (col > 0) result += ' & ';
+                    result += latexify(this.array[row][col]);
+                }
+                result += ' \\\\ ';
+            }
+            result += '\\end{' + this.env.name + '}';
             break;
         case 'root':
             result = latexify(this.children);
@@ -206,6 +218,11 @@ MathAtom.MathAtom.prototype.toLatex = function() {
         case 'sizing':
         case 'mathstyle':
             // @todo
+            break;
+        case 'first':
+            break;  
+        default:
+            console.log('unknown atom type "' + this.type + '"');
             break;
             
     }
