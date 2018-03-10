@@ -210,7 +210,7 @@ function scanFence(stream, final) {
     let lastType = '';
 
     if (stream.index < final &&
-        stream.atoms[stream.index].type === 'mopen') {
+            stream.atoms[stream.index].type === 'mopen') {
         let found = false;
         let depth = 0;
         const openIndex = stream.index;
@@ -336,7 +336,7 @@ function scanOperator(stream, final) {
  * @return {string}
  * @param {string|MathAtom|MathAtom[]} input
  * @param {number} initial index of the input to start conversion from
- * @param {number{ final last index of the input to stop conversion to 
+ * @param {number} final last index of the input to stop conversion to 
  * @private
  */
 function toMathML(input, initial, final) {
@@ -392,7 +392,7 @@ function toMathML(input, initial, final) {
 function toString(atoms) {
     let result = '';
     for (const atom of atoms) {
-        if (atom.type === 'textord') {
+        if (atom.type === 'textord' || atom.type === 'mord') {
             result += atom.value;
         }
     }
@@ -436,11 +436,9 @@ MathAtom.MathAtom.prototype.toMathML = function() {
 
     let result = '';
     let sep = '';
-    let variant = MATH_VARIANTS[this.fontFamily];
+    let variant = MATH_VARIANTS[this.fontFamily || this.font] || '';
     if (variant) {
         variant = ' mathvariant="' + variant + '"';
-    } else {
-        variant = '';
     }
 
     const command = this.latex ? this.latex.trim() : null;
@@ -450,12 +448,43 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             result = toMathML(this.children).mathML;
             break;
 
+        case 'array':
+            // @TODO
+            // result += '\\begin{' + this.env.name + '}';
+            // for (row = 0; row < this.array.length; row++) {
+            //     for (col = 0; col < this.array[row].length; col++) {
+            //         if (col > 0) result += ' & ';
+            //         result += toMathML(this.array[row][col]).mathML;
+            //     }
+            //     result += ' \\\\ ';
+            // }
+            // result += '\\end{' + this.env.name + '}';
+            break;
+
         case 'genfrac':
-            // @todo: deal with fracs delimiters
+            // @TODO: deal with this.hasBarLine === false
+            if (this.leftDelim || this.rightDelim) {
+                result = '<mfenced';
+                if (this.leftDelim !== '.') {
+                    result += ' open="';
+                    result += this.leftDelim;
+                    result += '"';
+                }
+                if (this.rightDelim !== '.') {
+                    result += ' close="';
+                    result += this.rightDelim;
+                    result += '"';
+                }
+                result += '>';
+            }
             result += '<mfrac>';
             result += toMathML(this.numer).mathML;
             result += toMathML(this.denom).mathML;
             result += '</mfrac>';
+
+            if (this.leftDelim || this.rightDelim) {
+                result += '</mfenced>';
+            }
             break;
 
         case 'surd':
@@ -472,6 +501,22 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             break;
 
         case 'leftright':
+            result = '<mfenced';
+            if (this.leftDelim !== '.') {
+                result += ' open="';
+                result += this.leftDelim;
+                result += '"';
+            }
+            if (this.rightDelim !== '.') {
+                result += ' close="';
+                result += this.rightDelim;
+                result += '"';
+            }
+            result += '>';
+
+            result += toMathML(this.body).mathML;
+
+            result += '</mfenced>';
             break;
 
         case 'delim':
@@ -518,10 +563,10 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             }
             break;
 
-        case 'mopen':
-        case 'mclose':
-            result = '<mo>' + command + '</mo>';
-            break;
+        // case 'mopen':
+        // case 'mclose':
+        //     result = '<mo>' + command + '</mo>';
+        //     break;
 
         case 'mpunct':
             result = '<mo separator="true">' + command + '</mo>';
@@ -540,6 +585,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             break;
 
         case 'spacing':
+            result += '<mspace></mspace>'; // see this.latex ('\,', etc...)
             break;
 
         case 'enclose':
