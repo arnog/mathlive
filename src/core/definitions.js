@@ -2095,8 +2095,8 @@ defineSymbol( '(', MATH,  MAIN,  OPEN, '(');
 defineSymbol( ')', MATH,  MAIN,  CLOSE, ')');
 defineSymbol( '[', MATH,  MAIN,  OPEN, '[');
 defineSymbol( ']', MATH,  MAIN,  CLOSE, ']');
-defineSymbol( '?', MATH,  MAIN,  CLOSE, '?');       // @todo: why is this type CLOSE?
-defineSymbol( '!', MATH,  MAIN,  CLOSE, '!');       // @todo: why is this type CLOSE?
+defineSymbol( '?', MATH,  MAIN,  TEXTORD, '?');
+defineSymbol( '!', MATH,  MAIN,  TEXTORD, '!');
 
 defineSymbol( '\\ulcorner', MATH,  AMS,  OPEN, '\u250c', 296);
 defineSymbol( '\\urcorner', MATH,  AMS,  CLOSE, '\u2510', 310);
