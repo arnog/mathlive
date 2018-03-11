@@ -34,6 +34,7 @@ function latexify(value) {
 MathAtom.MathAtom.prototype.toLatex = function() {
     let result = '';
     let col, row = 0;
+    let i = 0;
     const command = this.latex ? this.latex.trim() : null;
     switch(this.type) {
         case 'group':
@@ -41,8 +42,18 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             result += latexify(this.children);  
             result += this.latexClose || '';
             break;
+
         case 'array':
             result += '\\begin{' + this.env.name + '}';
+            if (this.env.name === 'array') {
+                result += '{';
+                if (this.colFormat) {
+                    for (i = 0; i < this.colFormat.length; i++) {
+                        result += this.colFormat[i].align;
+                    }
+                }
+                result += '}';
+            }
             for (row = 0; row < this.array.length; row++) {
                 for (col = 0; col < this.array[row].length; col++) {
                     if (col > 0) result += ' & ';
@@ -52,9 +63,11 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             }
             result += '\\end{' + this.env.name + '}';
             break;
+
         case 'root':
             result = latexify(this.children);
             break;
+
         case 'genfrac':
             if (this.value === 'choose' || this.value === 'atop') {
                 result += '{';
@@ -64,10 +77,11 @@ MathAtom.MathAtom.prototype.toLatex = function() {
                 result += '}';
             } else {
                 // @todo: deal with fracs delimiters
-                result += '\\frac';
+                result += this.latex;
                 result += `{${latexify(this.numer)}}{${latexify(this.denom)}}`;
             }
             break;
+
         case 'surd':
             result += '\\sqrt';
             if (this.index) {
@@ -77,15 +91,22 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             }
             result += `{${latexify(this.body)}}`;
             break;
+
         case 'leftright':
-            result += '\\left' + this.leftDelim;
+            result += '\\left' + this.leftDelim + ' ';
             result += latexify(this.body);
-            result += '\\right' + this.rightDelim;
+            result += '\\right' + this.rightDelim + ' ';
             break;
+
         case 'delim':
+            result += this.latex + this.delim + ' ';
+            break;
+        
+
         case 'sizeddelim':
             // @todo
             break;
+
         case 'rule':
             result += command;
             if (this.shift) {
@@ -93,15 +114,18 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             }
             result += `{${latexify(this.width)}}{${latexify(this.height)}}`;
             break;
+
         case 'line':
         case 'overlap':
         case 'font':
         case 'accent':
             result += `${command}{${latexify(this.body)}}`;
             break;
+
         case 'overunder':
             result += `${command}{${latexify(this.overscript || this.underscript)}}{${latexify(this.body)}}`;
             break;
+
         case 'mord':
         case 'minner':
         case 'mbin':
@@ -119,26 +143,32 @@ MathAtom.MathAtom.prototype.toLatex = function() {
                 result += latexify(this.children);
             }
             break;
+
         case 'op':
         case 'mop':
-        // @todo
             if (this.value !== '\u200b') {
                 // Not ZERO-WIDTH
-                result += this.latex || this.value;
+                if (this.latex === '\\operatorname ') {
+                    result += this.latex + '{' + this.value + '}';
+                } else {
+                    result += this.latex || this.value;
+                }
             }
             if (this.explicitLimits) {
                 if (this.limits === 'limits') result += '\\limits ';
                 if (this.limits === 'nolimits') result += '\\nolimits ';
             }
             break;
+
         case 'color':
             result += command;
             if (this.color) {
                 result += `{${this.color}}`;
             } else if (this.textcolor) {
-                result += `{${this.textcolor}{${latexify(this.body)}}`;
+                result += '{' + this.textcolor + '}{' + latexify(this.body) + '}';
             }
             break;
+
         case 'box':
             if (command === '\\bbox') {
                 result += command;
@@ -156,7 +186,7 @@ MathAtom.MathAtom.prototype.toLatex = function() {
                 }
                 result += `{${latexify(this.body)}}`;
             } else if (command === '\\boxed') {
-                result += command;
+                result += `\\boxed{${latexify(this.body)}}`;
             } else {
                 // \\colorbox, \\fcolorbox
                 result += command;
@@ -169,8 +199,14 @@ MathAtom.MathAtom.prototype.toLatex = function() {
                 result += `{${latexify(this.body)}}`;
             }
             break;
+
         case 'spacing':
-            result += `${command}{${latexify(this.width)}}`;
+            result += command;
+            if (this.width) {
+                result += `{${latexify(this.width)}}`;
+            } else {
+                result += ' ';
+            }
             break;
 
         case 'enclose':
@@ -214,13 +250,30 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             result += `{${latexify(this.body)}}`;
             break;
 
-        case 'space':
-        case 'sizing':
         case 'mathstyle':
+            result += '\\' + this.mathstyle + ' ';
+            break;
+
+        case 'sizing':
+            result =  {'size1': '\\tiny ', 
+                'size2': '\\scriptsize ', 
+                'size3': '\\footnotesize ',
+                'size4': '\\small ', 
+                'size5': '\\normalsize ',
+                'size6': '\\large ', 
+                'size7': '\\Large ', 
+                'size8': '\\LARGE ', 
+                'size9': '\\huge ',
+                'size10': '\\Huge '}[this.size] || '';
+            break;
+
+        case 'space':
             // @todo
             break;
+
         case 'first':
             break;  
+
         default:
             console.log('unknown atom type "' + this.type + '"');
             break;
