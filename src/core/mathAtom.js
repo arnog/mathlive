@@ -518,7 +518,8 @@ MathAtom.prototype.decomposeArray = function(context) {
         cols.push(makeColGap(FONTMETRICS.arraycolsep));
     }
 
-    if (!this.lFence && !this.rFence) {
+    if ((!this.lFence || this.lFence === '.') && 
+        (!this.rFence || this.rFence === '.')) {
         // There are no delimiters around the array, just return what
         // we've built so far.
         return makeOrd(cols, 'mtable');
