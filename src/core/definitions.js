@@ -627,8 +627,6 @@ function defineEnvironment(names, params, options, parser) {
         tabular: options.tabular || true,
         maxColumns: options.maxColumns || 10,
         colFormat: options.colFormat || [],
-        leftFence: options.leftFence || '.',
-        rightFence: options.rightFence || '.',
     };
     for (const name of names) {
         ENVIRONMENTS[name] = data;
