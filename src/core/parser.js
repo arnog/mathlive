@@ -331,7 +331,7 @@ Parser.prototype.scanString = function() {
             const info = Definitions.getInfo('\\' + token.value, this.parseMode);
             // If parseMode is 'math', info.type will never be 'textord'
             // Otherwise, info.type will never be 'mord'
-            if ((info.type === 'mord' || info.type === 'textord') && info.value) {
+            if (info && (info.type === 'mord' || info.type === 'textord') && info.value) {
                 result += info.value;
             }
             done = this.end();
@@ -754,14 +754,18 @@ Parser.prototype.scanImplicitGroup = function(done) {
         // only defined in 'math' mode, we can use the 'math' constant 
         // for the parseMode
         const info = Definitions.getInfo('\\' + infix.value, 'math');
-
-        result =  [new MathAtom(
+        if (info) {
+            result =  [new MathAtom(
                 this.parseMode, info.type || 'mop', 
                 info.value || infix.value, 
                 info.fontFamily,
                 info.handler ? 
                     info.handler('\\' + infix.value, [prefix, suffix]) :
                     null)];
+        } else {
+            result =  [new MathAtom(
+                this.parseMode, 'mop', infix.value, '', null)];
+        }
     } else {
         result = this.swapMathList(savedMathlist);
     }
