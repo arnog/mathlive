@@ -275,7 +275,7 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             break;
 
         case 'space':
-            // @todo
+            result += this.latex;
             break;
 
         case 'first':
