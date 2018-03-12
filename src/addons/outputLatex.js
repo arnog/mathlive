@@ -134,7 +134,12 @@ MathAtom.MathAtom.prototype.toLatex = function() {
         case 'mopen':
         case 'mclose':
         case 'textord':
-            if (this.value) {
+            if (this.latex === '\\mathbin' || this.latex === '\\mathrel' || 
+                this.latex === '\\mathopen' || this.latex === '\\mathclose' || 
+                this.latex === '\\mathpunct' || this.latex === '\\mathord' || 
+                this.latex === '\\mathinner') {
+                result += this.latex + '{' + latexify(this.children) + '}';
+            } else if (this.value) {
                 if (this.value !== '\u200b') {
                     // Not ZERO-WIDTH
                     result += this.latex || this.value;
@@ -148,8 +153,10 @@ MathAtom.MathAtom.prototype.toLatex = function() {
         case 'mop':
             if (this.value !== '\u200b') {
                 // Not ZERO-WIDTH
-                if (this.latex === '\\operatorname ') {
-                    result += this.latex + '{' + this.value + '}';
+                if (this.latex === '\\mathop ') {
+                    result += this.latex + '{' + latexify(this.children) + '}';                    
+                } else if (this.latex === '\\operatorname ') {
+                        result += this.latex + '{' + this.value + '}';
                 } else {
                     result += this.latex || this.value;
                 }
