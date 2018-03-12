@@ -428,23 +428,6 @@ function toMathML(input, initial, final) {
     return result;
 }
 
-function toMi(atom) {
-    let result = '';
-    if (atom) {
-        if (atom.value) {
-            result = xmlEscape(atom.value);
-        } else {
-            result = toMathML(atom.children).mathML;
-        }
-        // Wrap the result with a <mi></mi> tag, unless it happens to be a 
-        // <mo></mo> already.
-        if (result && !result.match(/^<mo>(.*)<\/mo>$/)) {
-            result = '<mi>' + result + '</mi>';
-        }
-    }
-    return result;
-}
-
 function toMo(atom) {
     let result = '';
     if (atom) {
