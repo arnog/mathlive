@@ -149,9 +149,8 @@ function indexOfSuperscriptInNumber(stream) {
 
 
 
-function parseSubsup(base, stream, final) {
+function parseSubsup(base, stream) {
     let result = false;
-    final = final || stream.atoms.length;
     let mathML = '';
     let atom = stream.atoms[stream.index - 1];
 
@@ -272,7 +271,7 @@ function scanFence(stream, final) {
             }
             stream.index = closeIndex + 1;
 
-            if (parseSubsup(mathML, stream, final)) {
+            if (parseSubsup(mathML, stream)) {
                 result = true;
                 stream.lastType = '';
                 mathML = '';

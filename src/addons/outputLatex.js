@@ -172,7 +172,7 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             if (this.color) {
                 result += `{${this.color}}`;
             } else if (this.textcolor) {
-                result += '{' + this.textcolor + '}{' + latexify(this.body) + '}';
+                result += '{' + this.textcolor + '}{' + latexify(this.body) + '}';
             }
             break;
 

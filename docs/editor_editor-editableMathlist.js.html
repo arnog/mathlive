@@ -169,6 +169,7 @@ EditableMathlist.prototype.filter = function(cb, dir) {
     }
     const initialPath = MathPath.pathToString(this.path);
     do {
+        // console.log(MathPath.pathToString(this.path));
         if (cb.bind(this)(this.path, this.anchor())) {
             result.push(this.toString());
         }
@@ -372,7 +373,9 @@ EditableMathlist.prototype.ancestor = function(ancestor) {
     for (let i = 0; i &lt; (this.path.length - ancestor); i++) {
         const segment = this.path[i];
         if (segment.relation === 'array') {
-            result = result.array[segment.row][segment.col];
+            if (Array.isArray(result.array[segment.row])) {
+                result = result.array[segment.row][segment.col];
+            }
         } else {
             result = result[segment.relation][segment.offset];
         }
@@ -478,7 +481,7 @@ EditableMathlist.prototype.siblings = function() {
     const siblings = this.parent()[this.relation()] || [];
 
     // If the 'first' math atom is missing, insert it
-    if (siblings.length === 0 || siblings[0].type !== 'first') {
+    if (this.relation() !== 'array' &amp;&amp; (siblings.length === 0 || siblings[0].type !== 'first')) {
         const firstAtom = new MathAtom.MathAtom(this.parent().parseMode, 'first', null);
         siblings.unshift(firstAtom);
     }
@@ -906,6 +909,8 @@ EditableMathlist.prototype.setSelection = function(offset, extent, relation) {
     return true;
 } 
 
+
+
 /**
  * Move the anchor to the next permissible atom
  * @method EditableMathlist#next
@@ -921,8 +926,7 @@ EditableMathlist.prototype.next = function() {
         'body': 'overscript',
         'overscript': 'underscript',
         'underscript': 'subscript',
-        'subscript': 'superscript',
-
+        'subscript': 'superscript'
     }
     if (this.anchorOffset() === this.siblings().length - 1) {
         // We've reached the end of these siblings.
@@ -965,7 +969,11 @@ EditableMathlist.prototype.next = function() {
         // its sub-elements
         let relation = 'children';
         while (relation) {
-            if (anchor[relation]) {
+            if (relation === 'array' &amp;&amp; anchor.array) {
+                this.path.push({relation:'array', col: 0, row: 0});
+                this.insertFirstAtom();
+                return;
+            } else if (anchor[relation]) {
                 this.path.push({relation:relation, offset: 0});
                 this.insertFirstAtom();
                 return;
@@ -974,6 +982,8 @@ EditableMathlist.prototype.next = function() {
         }
     }
 }
+
+
 
 EditableMathlist.prototype.previous = function() {
     const PREVIOUS_RELATION = {
@@ -990,9 +1000,16 @@ EditableMathlist.prototype.previous = function() {
     if (this.anchorOffset() &lt; 1) {
         // We've reached the first of these siblings.
         // Is there another set of siblings to consider?
-        let relation = PREVIOUS_RELATION[this.relation()];
-        while (relation &amp;&amp; !this.setSelection(-1, 0 , relation)) {
-            relation = PREVIOUS_RELATION[relation];
+        let relation;
+        if (this.relation === 'array') {
+            // Navigate through the cells of the array
+            relation = 'children';
+
+        } else {
+            relation = PREVIOUS_RELATION[this.relation()];
+            while (relation &amp;&amp; !this.setSelection(-1, 0 , relation)) {
+                relation = PREVIOUS_RELATION[relation];
+            }
         }
         // We found a new relation/set of siblings...
         if (relation) return;
@@ -1026,7 +1043,14 @@ EditableMathlist.prototype.previous = function() {
         // its sub-elements
         let relation = 'superscript';
         while (relation) {
-            if (anchor[relation]) {
+            if (relation === 'array' &amp;&amp; anchor.array) {
+                this.path.push({relation:'array', 
+                    col: anchor.array[anchor.array.length - 1].length - 1,
+                    row: anchor.array.length - 1});
+
+                this.setSelection(-1, 0, relation);
+                return;
+            } else if (anchor[relation]) {
                 
                 this.path.push({relation:relation, 
                     offset: anchor[relation].length - 1});

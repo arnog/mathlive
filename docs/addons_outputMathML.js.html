@@ -68,47 +68,40 @@ writeCookie('symbol-access', 'private')
         <article>
             <pre class="prettyprint source linenums">
             
-            <code>define(['mathlive/core/mathAtom'],
-    function(MathAtom) {
-
-// TODO
-// - leftright, delim and sizeddelim as fences
-// - arguments (e.g. sin(x))
-// See https://www.w3.org/TR/MathML2/chapter3.html
-
-// \mathbf{r} -- pass variant as argument to toMathML
-// special case "|" to be a &lt;mo> instead of a &lt;mi>
+            <code>define(['mathlive/core/mathAtom', 'mathlive/core/color'],
+    function(MathAtom, Color) {
 
 
-// SAMPLES
-// 10+2xy
-    // &lt;mrow>
-    //  &lt;mn>10&lt;/mn>
-    //  &lt;mo>+&lt;/mo>
-    //  &lt;mn>2&lt;/mn>
-    //  &lt;mo>&amp;InvisibleTimes;&lt;/mo>&lt;mi>x&lt;/mi>
-    //  &lt;mo>&amp;InvisibleTimes;&lt;/mo>&lt;mi>y&lt;/mi>
-    //  &lt;/mrow>
-
-// 123+45^6
-
-// 12^2+34x^2
-
-// \frac{1}{3+x}
-
-// \sin x
-    // &lt;mrow>
-    //  &lt;mi> sin &lt;/mi>
-    //  &lt;mo> &amp;ApplyFunction; &lt;/mo>
-    //  &lt;mi> x &lt;/mi>
-    // &lt;/mrow>
-
-// \sin (x + \pi)
-
-// \sin (x / 2)
+const SPECIAL_OPERATORS = {
+    '\\pm': '&amp;PlusMinus;',
+    '\\times': '&amp;times;',
+    '\\colon': ':',
+    '\\lbrace': '{',
+    '\\rbrace': '}',
+    '\\vert': '|',
+    '\\Vert': '\u2225',
+    '\\mid': '\u2223',
+    '\\vec': '&amp;#x20d7;',
+    '\\acute': '&amp;#x00b4;',
+    '\\grave': '&amp;#x0060;',
+    '\\dot': '&amp;#x02d9;',
+    '\\ddot': '&amp;#x00a8;',
+    '\\tilde': '&amp;#x007e;',
+    '\\bar': '&amp;#x00af;',
+    '\\breve': '&amp;#x02d8;',
+    '\\check': '&amp;#x02c7;',
+    '\\hat': '&amp;#x005e;'
+};
 
 
-
+function xmlEscape(str) {
+    return str
+        // .replace(/&amp;/g, '&amp;amp;')
+        .replace(/"/g, '&amp;quot;')
+        .replace(/'/g, '&amp;#39;')
+        .replace(/&lt;/g, '&amp;lt;')
+        .replace(/>/g, '&amp;gt;');
+}
 
 
 function scanIdentifier(stream, final) {
@@ -121,7 +114,7 @@ function scanIdentifier(stream, final) {
     const atom = stream.atoms[stream.index];
 
     if (stream.index &lt; final &amp;&amp; 
-        atom.type === 'mord' &amp;&amp; 
+        (atom.type === 'mord' || atom.type === 'textord') &amp;&amp; 
         '0123456789,.'.indexOf(atom.latex) &lt; 0) {
         body = atom.toMathML();
         if (atom.superscript) {
@@ -224,12 +217,45 @@ function indexOfSuperscriptInNumber(stream) {
     return result;
 }
 
-function scanArgument(/*stream, final*/) {
-    // TODO
-    // A single identifier, number, frac, etc...
-    // or a fenced list
 
-    return '';
+
+function parseSubsup(base, stream, final) {
+    let result = false;
+    final = final || stream.atoms.length;
+    let mathML = '';
+    let atom = stream.atoms[stream.index - 1];
+
+    if (!atom) return false;
+
+    if (!atom.superscript &amp;&amp; !atom.subscript) {
+        if (isSuperscriptAtom(stream) || isSubscriptAtom(stream)) {
+            atom = stream.atoms[stream.index];
+            stream.index += 1;
+        }
+    }
+    if (!atom) return false;
+
+    if (atom.superscript &amp;&amp; atom.subscript) {
+        mathML = '&lt;msubsup>' + base;
+        mathML += toMathML(atom.subscript).mathML;
+        mathML += toMathML(atom.superscript).mathML;
+        mathML += '&lt;/msubsup>';
+    } else if (atom.superscript) {
+        mathML = '&lt;msup>' + base;
+        mathML += toMathML(atom.superscript).mathML;
+        mathML += '&lt;/msup>';
+    } else if (atom.subscript) {
+        mathML = '&lt;msub>' + base;
+        mathML += toMathML(atom.subscript).mathML;
+        mathML += '&lt;/msub>';
+    }
+
+    if (mathML.length > 0) {
+        result = true;
+        stream.mathML += mathML;
+        stream.lastType = '';
+    }
+    return result;
 }
 
 function scanNumber(stream, final) {
@@ -280,7 +306,7 @@ function scanFence(stream, final) {
     let lastType = '';
 
     if (stream.index &lt; final &amp;&amp;
-        stream.atoms[stream.index].type === 'mopen') {
+            stream.atoms[stream.index].type === 'mopen') {
         let found = false;
         let depth = 0;
         const openIndex = stream.index;
@@ -299,29 +325,29 @@ function scanFence(stream, final) {
             index += 1;
         }
         if (found) {
-            mathML = '&lt;mfenced';
-            if (stream.atoms[openIndex].value !== '(') {
-                mathML += ' open="';
-                mathML += stream.atoms[openIndex].value;
-                mathML += '"';
-            }
-            if (stream.atoms[closeIndex].value !== ')') {
-                mathML += ' close="';
-                mathML += stream.atoms[closeIndex].value;
-                mathML += '"';
-            }
-            mathML += '>';
+            // TODO: could add attribute indicating it's a fence (fence=true)
+            mathML = '&lt;mrow>';
+            mathML += toMo(stream.atoms[openIndex]);
     
             mathML += toMathML(stream.atoms, openIndex + 1, closeIndex).mathML;
     
-            mathML += '&lt;/mfenced>';
-    
+            // TODO: could add attribute indicating it's a fence (fence=true)
+            mathML += toMo(stream.atoms[closeIndex]);
+            mathML += '&lt;/mrow>';
+
             if (stream.lastType === 'mi' || 
                 stream.lastType === 'mn' || 
                 stream.lastType === 'fence') {
                 mathML = '&lt;mo>&amp;InvisibleTimes;&lt;/mo>' + mathML;
             }
             stream.index = closeIndex + 1;
+
+            if (parseSubsup(mathML, stream, final)) {
+                result = true;
+                stream.lastType = '';
+                mathML = '';
+            }
+
             lastType = 'fence';
         }
     }
@@ -352,34 +378,32 @@ function scanOperator(stream, final) {
 
         if (atom.limits &amp;&amp; (atom.superscript || atom.subscript)) {
             // Operator with limits, e.g. \sum
+            const op = toMo(atom);
             if (atom.superscript &amp;&amp; atom.subscript) {
                 // Both superscript and subscript
-                mathML += '&lt;munderover>';
-                mathML += '&lt;mo>' + stream.atoms[stream.index].value + '&lt;/mo>';
-                mathML += toMathML(stream.atoms[stream.index].subscript).mathML;
-                mathML += toMathML(stream.atoms[stream.index].superscript).mathML;
-                mathML += '&lt;/munderover>';
+                mathML += (atom.limits !== 'nolimits' ? '&lt;munderover>' : '&lt;msubsup>') + op;
+                mathML += toMathML(atom.subscript).mathML;
+                mathML += toMathML(atom.superscript).mathML;
+                mathML += (atom.limits !== 'nolimits' ? '&lt;/munderover>' : '&lt;/msubsup>');
             } else if (atom.superscript) {
                 // Superscript only
-                mathML += '&lt;mover>';
-                mathML += '&lt;mo>' + stream.atoms[stream.index].value + '&lt;/mo>';
-                mathML += toMathML(stream.atoms[stream.index].superscript).mathML;
-                mathML += '&lt;/mover>';
+                mathML += (atom.limits !== 'nolimits' ? '&lt;mover>' : '&lt;msup>') + op;
+                mathML += toMathML(atom.superscript).mathML;
+                mathML += (atom.limits !== 'nolimits' ? '&lt;/mover>' : '&lt;/msup>');
             } else {
                 // Subscript only
-                mathML += '&lt;munder>';
-                mathML += '&lt;mo>' + stream.atoms[stream.index].value + '&lt;/mo>';
-                mathML += toMathML(stream.atoms[stream.index].subscript).mathML;
-                mathML += '&lt;/munder>';
+                mathML += (atom.limits !== 'nolimits' ? '&lt;munder>' : '&lt;msub>') + op;
+                mathML += toMathML(atom.subscript).mathML;
+                mathML += (atom.limits !== 'nolimits' ? '&lt;/munder>' : '&lt;/msub>');
             }
             lastType = 'mo';
         } else {
 
-            mathML += '&lt;mi>' + stream.atoms[stream.index].value + '&lt;/mi>';
+            mathML += toMi(stream.atoms[stream.index]);
 
             mathML += '&lt;mo> &amp;ApplyFunction; &lt;/mo>';
 
-            mathML += scanArgument(stream);
+            // mathML += scanArgument(stream);
             lastType = 'applyfunction';
         }
         // mathML += '&lt;/mrow>';
@@ -406,7 +430,7 @@ function scanOperator(stream, final) {
  * @return {string}
  * @param {string|MathAtom|MathAtom[]} input
  * @param {number} initial index of the input to start conversion from
- * @param {number{ final last index of the input to stop conversion to 
+ * @param {number} final last index of the input to stop conversion to 
  * @private
  */
 function toMathML(input, initial, final) {
@@ -438,7 +462,7 @@ function toMathML(input, initial, final) {
                 if (result.lastType === 'mn' &amp;&amp; mathML.length > 0 &amp;&amp; result.atoms[result.index].type === 'genfrac') {
                     // If this is a fraction preceded by a number (e.g. 2 1/2), 
                     // add an "invisible plus" (U+0264) character in front of it
-                    mathML = '&lt;mo>&amp;#x0264;&lt;/mo>' + mathML;
+                    mathML = '&lt;mo>&amp;#x2064;&lt;/mo>' + mathML;
                 }
                 result.lastType = '';
                 if (mathML.length > 0) {
@@ -458,15 +482,45 @@ function toMathML(input, initial, final) {
     return result;
 }
 
-
-function toString(atoms) {
+function toMi(atom) {
     let result = '';
-    for (const atom of atoms) {
-        if (atom.type === 'textord') {
-            result += atom.value;
+    if (atom) {
+        if (atom.value) {
+            result = xmlEscape(atom.value);
+        } else {
+            result = toMathML(atom.children).mathML;
+        }
+        if (result) {
+            result = '&lt;mi>' + result + '&lt;/mi>';
         }
     }
     return result;
+}
+
+function toMo(atom) {
+    let result = '';
+    if (atom) {
+        if (atom.value) {
+            result = xmlEscape(atom.value);
+        } else {
+            result = toMathML(atom.children).mathML;
+        }
+        if (result &amp;&amp; !result.match(/^&lt;mo>(.*)&lt;\/mo>$/)) {
+            result = '&lt;mo>' + result + '&lt;/mo>';
+        }
+    }
+    return result;
+}
+
+function toString(atoms) {
+    if (!atoms) return undefined;
+    let result = '';
+    for (const atom of atoms) {
+        if (atom.type === 'textord' || atom.type === 'mord') {
+            result += atom.value;
+        }
+    }
+    return xmlEscape(result);
 }
 
 
@@ -476,11 +530,6 @@ function toString(atoms) {
  * @return {string}
  */
 MathAtom.MathAtom.prototype.toMathML = function() {
-    const SPECIAL_OPERATORS = {
-        '\\pm': '&amp;PlusMinus;',
-        '\\times': '&amp;times;'
-    };
-
     const SPECIAL_IDENTIFIERS = {
         '\\exponentialE': '&amp;ExponentialE;',
         '\\imaginaryI': '&amp;ImaginaryI;',
@@ -491,7 +540,15 @@ MathAtom.MathAtom.prototype.toMathML = function() {
         '\\infty' : '&amp;infin;',
         '\\forall' : '&amp;forall;',
         '\\nexists': '&amp;nexists;',
-        '\\exists': '&amp;exist;'
+        '\\exists': '&amp;exist;',
+        '\\hbar': '\u210f',
+        '\\cdotp': '\u22c5',
+        '\\ldots': '\u2026',
+        '\\cdots': '\u22ef',
+        '\\ddots': '\u22f1',
+        '\\vdots': '\u22ee',
+        '\\ldotp': '\u002e',
+                // TODO: include all the 'textord' that are identifiers, not operators.
     };
 
     const MATH_VARIANTS = {
@@ -503,14 +560,24 @@ MathAtom.MathAtom.prototype.toMathML = function() {
         'mathsf': 'sans-serif',
         'mathtt': 'monospace'
     };
+    const SPACING = {
+        '\\! ':          -3 / 18,
+        '\\  ':          6 / 18,
+        '\\, ':          3 / 18,
+        '\\: ':          4 / 18,
+        '\\; ':          5 / 18,
+        '\\quad ':       1,
+        '\\qquad ':      2,
+        '\\enskip ':    .5,
+    };
 
     let result = '';
     let sep = '';
-    let variant = MATH_VARIANTS[this.fontFamily];
+    let col, row, i;
+    let underscript, overscript, body;
+    let variant = MATH_VARIANTS[this.fontFamily || this.font] || '';
     if (variant) {
         variant = ' mathvariant="' + variant + '"';
-    } else {
-        variant = '';
     }
 
     const command = this.latex ? this.latex.trim() : null;
@@ -520,13 +587,71 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             result = toMathML(this.children).mathML;
             break;
 
-        case 'genfrac':
-            // @todo: deal with fracs delimiters
-            result += '&lt;mfrac>';
-            result += toMathML(this.numer).mathML;
-            result += toMathML(this.denom).mathML;
-            result += '&lt;/mfrac>';
+        case 'array':
+            if ((this.lFence &amp;&amp; this.lFence !== '.') || 
+                (this.rFence &amp;&amp; this.rFence !== '.')) {
+                result += '&lt;mrow>';
+                if ((this.lFence &amp;&amp; this.lFence !== '.')) {
+                    result += '&lt;mo>' + (SPECIAL_OPERATORS[this.lFence] || this.lFence) + '&lt;/mo>';
+                }
+            }
+            result += '&lt;mtable';
+            if (this.colFormat) {
+                result += ' columnalign="';
+                for (i = 0; i &lt; this.colFormat.length; i++) {
+                    if (this.colFormat[i].align) {
+                        result += {l:'left', c:'center', r:'right'}[this.colFormat[i].align] + ' ';
+                    }
+                }
+                result += '"';
+            }
+        
+            result += '>';
+            for (row = 0; row &lt; this.array.length; row++) {
+                result += '&lt;mtr>';
+                for (col = 0; col &lt; this.array[row].length; col++) {
+                    result += '&lt;mtd>' + toMathML(this.array[row][col]).mathML + '&lt;/mtd>';
+                }
+                result += '&lt;/mtr>';
+            }
+            
+            result += '&lt;/mtable>';
+
+            if ((this.lFence &amp;&amp; this.lFence !== '.') || 
+                (this.rFence &amp;&amp; this.rFence !== '.')) {
+                if ((this.rFence &amp;&amp; this.rFence !== '.')) {
+                    result += '&lt;mo>' + (SPECIAL_OPERATORS[this.lFence] || this.rFence) + '&lt;/mo>';
+                }
+                result += '&lt;/mrow>';
+            }
             break;
+
+        case 'genfrac':
+            if (this.leftDelim || this.rightDelim) {
+                result += '&lt;mrow>';
+            }
+            if (this.leftDelim &amp;&amp; this.leftDelim !== '.') {
+                result += '&lt;mo>' + (SPECIAL_OPERATORS[this.leftDelim] || this.leftDelim) + '&lt;/mo>';
+            }
+            if (this.hasBarLine) {
+                result += '&lt;mfrac>';
+                result += toMathML(this.numer).mathML || '&lt;mi>&amp;nbsp;&lt;/mi>';
+                result += toMathML(this.denom).mathML || '&lt;mi>&amp;nbsp;&lt;/mi>';
+                result += '&lt;/mfrac>';
+            } else {
+                // No bar line, i.e. \choose, etc...
+                result += '&lt;mtable>';
+                result += '&lt;mtr>' + toMathML(this.numer).mathML + '&lt;/mtr>';
+                result += '&lt;mtr>' + toMathML(this.denom).mathML + '&lt;/mtr>';
+                result += '&lt;/mtable>';
+            }
+            if (this.rightDelim &amp;&amp; this.rightDelim !== '.') {
+                result += '&lt;mo>' + (SPECIAL_OPERATORS[this.rightDelim] || this.rightDelim) + '&lt;/mo>';
+            }
+            if (this.leftDelim || this.rightDelim) {
+                result += '&lt;/mrow>';
+            }
+        break;
 
         case 'surd':
             if (this.index) {
@@ -542,9 +667,22 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             break;
 
         case 'leftright':
+            // TODO: could add fence=true attribute
+            result = '&lt;mrow>';
+            if (this.leftDelim &amp;&amp; this.leftDelim !== '.') {
+                result += '&lt;mo>' + (SPECIAL_OPERATORS[this.leftDelim] || this.leftDelim) + '&lt;/mo>';
+            }
+            result += toMathML(this.body).mathML;
+            if (this.rightDelim &amp;&amp; this.rightDelim !== '.') {
+                result += '&lt;mo>' + (SPECIAL_OPERATORS[this.rightDelim] || this.rightDelim) + '&lt;/mo>';
+            }
+            result += '&lt;/mrow>';
             break;
 
         case 'delim':
+            result += '&lt;mo>' + (SPECIAL_OPERATORS[this.delim] || this.delim) + '&lt;/mo>';
+            break;
+
         case 'sizeddelim':
             break;
 
@@ -552,64 +690,149 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             break;
 
         case 'font':
-            result += '&lt;mtext' + variant + '>';
-            result += toString(this.body);
-            result += '&lt;/mtext>';
+            if (this.latex === '\\text' || this.latex === '\\textrm' ||
+                this.latex === '\\textsf' || this.latex === '\\texttt' ||
+                this.latex === '\\textnormal' || this.latex === '\\textbf' ||
+                this.latex === '\\textit') {
+                result += '&lt;mtext' + variant + '>';
+                // Replace first and last space in text with a &amp;nbsp; to ensure they 
+                // are actually displayed (content surrounded by a tag gets trimmed)
+                // TODO: alternative: use &lt;mspace>
+                result += toString(this.body).
+                    replace(/^\s/, '&amp;nbsp;').
+                    replace(/\s$/, '&amp;nbsp;');
+                result += '&lt;/mtext>';
+            } else {
+                result += '&lt;mi' + variant + '>' + toString(this.body) + '&lt;/mi>';
+            }
+            break;
+
+        case 'accent':
+            result += '&lt;mover accent="true">';
+            result += toMathML(this.body).mathML;
+            result += '&lt;mo>' + (SPECIAL_OPERATORS[this.latex.trim()] || this.accent) + '&lt;/mo>';
+            result += '&lt;/mover>'
             break;
 
         case 'line':
         case 'overlap':
-        case 'accent':
             break;
 
         case 'overunder':
+            overscript = this.overscript;
+            underscript = this.underscript;
+            if (overscript &amp;&amp; underscript) {
+                body = this.body;
+            } else if (overscript) {
+                body = this.body;
+                if (this.body[0] &amp;&amp; this.body[0].underscript) {
+                    underscript = this.body[0].underscript;
+                    body = this.body[0].body;
+                } else if (this.body[0] &amp;&amp; this.body[0].type === 'first' &amp;&amp; this.body[1] &amp;&amp; this.body[1].underscript) {
+                    underscript = this.body[1].underscript;
+                    body = this.body[1].body;
+                }
+            } else if (underscript) {
+                body = this.body;
+                if (this.body[0] &amp;&amp; this.body[0].overscript) {
+                    overscript = this.body[0].overscript;
+                    body = this.body[0].body;
+                } else if (this.body[0] &amp;&amp; this.body[0].type === 'first' &amp;&amp; this.body[1] &amp;&amp; this.body[1].overscript) {
+                    overscript = this.body[1].overscript;
+                    body = this.body[1].body;
+                }
+            }
+            
+            if (overscript &amp;&amp; underscript) {
+                result += '&lt;munderover' + variant + '>' + toMathML(body).mathML;
+                result += toMathML(underscript).mathML;
+                result += toMathML(overscript).mathML;
+                result += '&lt;/munderover>';
+            } else if (overscript) {
+                result += '&lt;mover' + variant + '>' + toMathML(body).mathML;
+                result += toMathML(overscript).mathML;
+                result += '&lt;/mover>';
+            } else if (underscript) {
+                result += '&lt;munder' + variant + '>' + toMathML(body).mathML;
+                result += toMathML(underscript).mathML;
+                result += '&lt;/munder>';
+            }
             break;
 
         case 'mord':
-        case 'textord':
             result = SPECIAL_IDENTIFIERS[command] || command || this.value;
             if (result.length > 0 &amp;&amp; result.charAt(0) === '\\') {
                 // This is an identifier with no special handling. Use the 
                 // Unicode value
-                if (this.value) {
+                if (this.value &amp;&amp; this.value.charCodeAt(0) > 255) {
                     result = '&amp;#x' + ('000000' + 
                         this.value.charCodeAt(0).toString(16)).substr(-4) + ';';
+                } else if (this.value) {
+                    result = this.value.charAt(0);
                 }
             }
-            result = '&lt;mi' + variant + '>' + result + '&lt;/mi>';
+            result = '&lt;mi' + variant + '>' + xmlEscape(result) + '&lt;/mi>';
             break;
 
         case 'mbin':
         case 'mrel':
-            if (command &amp;&amp; SPECIAL_OPERATORS[command]) {
+        case 'textord':
+        case 'minner':
+            if (command &amp;&amp; SPECIAL_IDENTIFIERS[command]) {
+                // Some 'textord' are actually identifiers. Check them here.
+                result = '&lt;mi>' + SPECIAL_IDENTIFIERS[command] + '&lt;/mi>';
+            } else if (command &amp;&amp; SPECIAL_OPERATORS[command]) {
                 result = '&lt;mo>' + SPECIAL_OPERATORS[command] + '&lt;/mo>';
             } else {
-                result = '&lt;mo>' + (this.value ||  toMathML(this.children).mathML) + '&lt;/mo>';
+                result = toMo(this);
             }
             break;
 
-        case 'mopen':
-        case 'mclose':
-            result = '&lt;mo>' + command + '&lt;/mo>';
-            break;
-
         case 'mpunct':
-            result = '&lt;mo separator="true">' + command + '&lt;/mo>';
+            result = '&lt;mo separator="true">' + (SPECIAL_OPERATORS[command] || command) + '&lt;/mo>';
             break;
-
-        case 'minner':
-            break;
-
+ 
         case 'op':
         case 'mop':
+            if (this.value !== '\u200b') {
+                // Not ZERO-WIDTH
+                if (this.latex === '\\operatorname ') {
+                    result += '&lt;mo>' + this.value + '&lt;/mo>';
+                } else {
+                    result += '&lt;mo>' + this.latex || this.value + '&lt;/mo>';
+                }
+            }    
             break;
 
         case 'color':
+            if (this.textcolor) {
+                result += '&lt;mstyle color="' + Color.stringToColor(this.textcolor) + '">'; 
+                result += toMathML(this.body).mathML;
+                result += '&lt;/mstyle>';
+            }
             break;
+
+        case 'mathstyle':
+            // TODO: mathstyle is a switch. Need to figure out its scope to properly wrap it around a &lt;mstyle> tag
+            // if (this.mathstyle === 'displaystyle') {
+            //     result += '&lt;mstyle displaystyle="true">'; 
+            //     result += '&lt;/mstyle>'; 
+            // } else {
+            //     result += '&lt;mstyle displaystyle="false">'; 
+            //     result += '&lt;/mstyle>'; 
+            // };
+            break;
+
         case 'box':
+            result = '&lt;menclose notation="box"';
+            if (this.backgroundcolor) {
+                result += ' mathbackground="' + Color.stringToColor(this.backgroundcolor) + '"';
+            }
+            result += '>' + toMathML(this.body).mathML + '&lt;/menclose>';
             break;
 
         case 'spacing':
+            result += '&lt;mspace width="' + (SPACING[this.latex] || 0) + 'em"/>';
             break;
 
         case 'enclose':
@@ -624,9 +847,11 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             result += '">' + toMathML(this.body).mathML + '&lt;/menclose>';
             break;
 
-        case 'space':
         case 'sizing':
-        case 'mathstyle':
+            break;
+
+        case 'space':
+            result += '&amp;nbsp;'
             break;
             
     }

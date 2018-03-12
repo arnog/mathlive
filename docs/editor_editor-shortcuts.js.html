@@ -735,11 +735,13 @@ function commandToString(command) {
 }
 
 function getShortcutsForCommand(command) {
-    const result = [];
+    let result = [];
 
     if (typeof command === 'string') {
         const candidate = REVERSE_KEYBOARD_SHORTCUTS[command];
-        if (candidate) {
+        if (Array.isArray(candidate)) {
+            result = candidate.slice();
+        } else if (candidate) {
             result.push(candidate);
         }
     }

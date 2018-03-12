@@ -697,8 +697,6 @@ function defineEnvironment(names, params, options, parser) {
         tabular: options.tabular || true,
         maxColumns: options.maxColumns || 10,
         colFormat: options.colFormat || [],
-        leftFence: options.leftFence || '.',
-        rightFence: options.rightFence || '.',
     };
     for (const name of names) {
         ENVIRONMENTS[name] = data;
@@ -2165,8 +2163,8 @@ defineSymbol( '(', MATH,  MAIN,  OPEN, '(');
 defineSymbol( ')', MATH,  MAIN,  CLOSE, ')');
 defineSymbol( '[', MATH,  MAIN,  OPEN, '[');
 defineSymbol( ']', MATH,  MAIN,  CLOSE, ']');
-defineSymbol( '?', MATH,  MAIN,  CLOSE, '?');       // @todo: why is this type CLOSE?
-defineSymbol( '!', MATH,  MAIN,  CLOSE, '!');       // @todo: why is this type CLOSE?
+defineSymbol( '?', MATH,  MAIN,  TEXTORD, '?');
+defineSymbol( '!', MATH,  MAIN,  TEXTORD, '!');
 
 defineSymbol( '\\ulcorner', MATH,  AMS,  OPEN, '\u250c', 296);
 defineSymbol( '\\urcorner', MATH,  AMS,  CLOSE, '\u2510', 310);
