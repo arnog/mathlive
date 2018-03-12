@@ -2103,10 +2103,10 @@ defineSymbol( '\\lrcorner', MATH,  AMS,  CLOSE, '\u2518', 199);
 
 // Large Delimiters
 
-defineSymbol( '\\rgroup', MATH,  MAIN,  CLOSE, '\u27ef', 24);
 defineSymbol( '\\lgroup', MATH,  MAIN,  OPEN, '\u27ee', 24);
-defineSymbol( '\\rmoustache', MATH,  MAIN,  CLOSE, '\u23b1', CRYPTIC);
+defineSymbol( '\\rgroup', MATH,  MAIN,  CLOSE, '\u27ef', 24);
 defineSymbol( '\\lmoustache', MATH,  MAIN,  OPEN, '\u23b0', CRYPTIC);
+defineSymbol( '\\rmoustache', MATH,  MAIN,  CLOSE, '\u23b1', CRYPTIC);
 
 defineFunction(['\\middle'], '{:delim}', {}, function(name, args) {
     return {type: 'delim', delim: args[0]};

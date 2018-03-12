@@ -6,11 +6,18 @@ const SPECIAL_OPERATORS = {
     '\\pm': '&PlusMinus;',
     '\\times': '&times;',
     '\\colon': ':',
-    '\\lbrace': '{',
-    '\\rbrace': '}',
     '\\vert': '|',
     '\\Vert': '\u2225',
     '\\mid': '\u2223',
+    '\\lbrace': '{',
+    '\\rbrace': '}',
+    '\\langle': '\u27e8',
+    '\\rangle': '\u27e9',
+    '\\lfloor': '\u230a',
+    '\\rfloor': '\u230b',
+    '\\lceil': '\u2308',
+    '\\rceil': '\u2309',
+    
     '\\vec': '&#x20d7;',
     '\\acute': '&#x00b4;',
     '\\grave': '&#x0060;',
@@ -69,7 +76,6 @@ function scanIdentifier(stream, final) {
             stream.index += 1;
         }
 
-
         if (superscript >= 0 && subscript >= 0) {
             mathML = '<msubsup>' + body;
             mathML += toMathML(stream.atoms[subscript].subscript).mathML;
@@ -106,6 +112,8 @@ function scanIdentifier(stream, final) {
     return result;
 }
 
+
+
 /**
  * Return true if the current atom is a standalone superscript atom
  * i.e. an atom with no content, except of a superscript.
@@ -120,12 +128,16 @@ function isSuperscriptAtom(stream) {
         stream.atoms[stream.index].value === '\u200b';
 }
 
+
+
 function isSubscriptAtom(stream) {
     return stream.index < stream.atoms.length && 
         stream.atoms[stream.index].subscript && 
         stream.atoms[stream.index].type === 'mord' &&
         stream.atoms[stream.index].value === '\u200b';
 }
+
+
 
 function indexOfSuperscriptInNumber(stream) {
 
@@ -186,6 +198,8 @@ function parseSubsup(base, stream) {
     }
     return result;
 }
+
+
 
 function scanNumber(stream, final) {
     let result = false;
@@ -326,14 +340,17 @@ function scanOperator(stream, final) {
                 mathML += (atom.limits !== 'nolimits' ? '</munder>' : '</msub>');
             }
             lastType = 'mo';
+
         } else {
-
-            mathML += toMi(stream.atoms[stream.index]);
-
-            mathML += '<mo> &ApplyFunction; </mo>';
-
-            // mathML += scanArgument(stream);
-            lastType = 'applyfunction';
+            const op = toMo(stream.atoms[stream.index]);
+            mathML += op;
+            if (!op.match(/^<mo>(.*)<\/mo>$/)) {
+                mathML += '<mo> &ApplyFunction; </mo>';
+                // mathML += scanArgument(stream);
+                lastType = 'applyfunction';
+            } else {
+                lastType = 'mo';
+            }
         }
         // mathML += '</mrow>';
 
@@ -419,7 +436,9 @@ function toMi(atom) {
         } else {
             result = toMathML(atom.children).mathML;
         }
-        if (result) {
+        // Wrap the result with a <mi></mi> tag, unless it happens to be a 
+        // <mo></mo> already.
+        if (result && !result.match(/^<mo>(.*)<\/mo>$/)) {
             result = '<mi>' + result + '</mi>';
         }
     }
@@ -432,9 +451,9 @@ function toMo(atom) {
         if (atom.value) {
             result = xmlEscape(atom.value);
         } else {
-            result = toMathML(atom.children).mathML;
+            result = toString(atom.children);
         }
-        if (result && !result.match(/^<mo>(.*)<\/mo>$/)) {
+        if (result) {
             result = '<mo>' + result + '</mo>';
         }
     }
@@ -608,16 +627,12 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             result += '</mrow>';
             break;
 
-        case 'delim':
-            result += '<mo>' + (SPECIAL_OPERATORS[this.delim] || this.delim) + '</mo>';
-            break;
-
         case 'sizeddelim':
+        case 'delim':
+            result += '<mo separator="true">' + (SPECIAL_OPERATORS[this.delim] || this.delim) + '</mo>';
             break;
 
-        case 'rule':
-            break;
-
+        
         case 'font':
             if (command === '\\text' || command === '\\textrm' ||
                 command === '\\textsf' || command === '\\texttt' ||

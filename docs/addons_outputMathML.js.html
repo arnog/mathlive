@@ -76,11 +76,18 @@ const SPECIAL_OPERATORS = {
     '\\pm': '&amp;PlusMinus;',
     '\\times': '&amp;times;',
     '\\colon': ':',
-    '\\lbrace': '{',
-    '\\rbrace': '}',
     '\\vert': '|',
     '\\Vert': '\u2225',
     '\\mid': '\u2223',
+    '\\lbrace': '{',
+    '\\rbrace': '}',
+    '\\langle': '\u27e8',
+    '\\rangle': '\u27e9',
+    '\\lfloor': '\u230a',
+    '\\rfloor': '\u230b',
+    '\\lceil': '\u2308',
+    '\\rceil': '\u2309',
+    
     '\\vec': '&amp;#x20d7;',
     '\\acute': '&amp;#x00b4;',
     '\\grave': '&amp;#x0060;',
@@ -139,7 +146,6 @@ function scanIdentifier(stream, final) {
             stream.index += 1;
         }
 
-
         if (superscript >= 0 &amp;&amp; subscript >= 0) {
             mathML = '&lt;msubsup>' + body;
             mathML += toMathML(stream.atoms[subscript].subscript).mathML;
@@ -176,6 +182,8 @@ function scanIdentifier(stream, final) {
     return result;
 }
 
+
+
 /**
  * Return true if the current atom is a standalone superscript atom
  * i.e. an atom with no content, except of a superscript.
@@ -190,12 +198,16 @@ function isSuperscriptAtom(stream) {
         stream.atoms[stream.index].value === '\u200b';
 }
 
+
+
 function isSubscriptAtom(stream) {
     return stream.index &lt; stream.atoms.length &amp;&amp; 
         stream.atoms[stream.index].subscript &amp;&amp; 
         stream.atoms[stream.index].type === 'mord' &amp;&amp;
         stream.atoms[stream.index].value === '\u200b';
 }
+
+
 
 function indexOfSuperscriptInNumber(stream) {
 
@@ -219,9 +231,8 @@ function indexOfSuperscriptInNumber(stream) {
 
 
 
-function parseSubsup(base, stream, final) {
+function parseSubsup(base, stream) {
     let result = false;
-    final = final || stream.atoms.length;
     let mathML = '';
     let atom = stream.atoms[stream.index - 1];
 
@@ -257,6 +268,8 @@ function parseSubsup(base, stream, final) {
     }
     return result;
 }
+
+
 
 function scanNumber(stream, final) {
     let result = false;
@@ -342,7 +355,7 @@ function scanFence(stream, final) {
             }
             stream.index = closeIndex + 1;
 
-            if (parseSubsup(mathML, stream, final)) {
+            if (parseSubsup(mathML, stream)) {
                 result = true;
                 stream.lastType = '';
                 mathML = '';
@@ -397,14 +410,17 @@ function scanOperator(stream, final) {
                 mathML += (atom.limits !== 'nolimits' ? '&lt;/munder>' : '&lt;/msub>');
             }
             lastType = 'mo';
+
         } else {
-
-            mathML += toMi(stream.atoms[stream.index]);
-
-            mathML += '&lt;mo> &amp;ApplyFunction; &lt;/mo>';
-
-            // mathML += scanArgument(stream);
-            lastType = 'applyfunction';
+            const op = toMo(stream.atoms[stream.index]);
+            mathML += op;
+            if (!op.match(/^&lt;mo>(.*)&lt;\/mo>$/)) {
+                mathML += '&lt;mo> &amp;ApplyFunction; &lt;/mo>';
+                // mathML += scanArgument(stream);
+                lastType = 'applyfunction';
+            } else {
+                lastType = 'mo';
+            }
         }
         // mathML += '&lt;/mrow>';
 
@@ -482,30 +498,15 @@ function toMathML(input, initial, final) {
     return result;
 }
 
-function toMi(atom) {
-    let result = '';
-    if (atom) {
-        if (atom.value) {
-            result = xmlEscape(atom.value);
-        } else {
-            result = toMathML(atom.children).mathML;
-        }
-        if (result) {
-            result = '&lt;mi>' + result + '&lt;/mi>';
-        }
-    }
-    return result;
-}
-
 function toMo(atom) {
     let result = '';
     if (atom) {
         if (atom.value) {
             result = xmlEscape(atom.value);
         } else {
-            result = toMathML(atom.children).mathML;
+            result = toString(atom.children);
         }
-        if (result &amp;&amp; !result.match(/^&lt;mo>(.*)&lt;\/mo>$/)) {
+        if (result) {
             result = '&lt;mo>' + result + '&lt;/mo>';
         }
     }
@@ -561,14 +562,14 @@ MathAtom.MathAtom.prototype.toMathML = function() {
         'mathtt': 'monospace'
     };
     const SPACING = {
-        '\\! ':          -3 / 18,
-        '\\  ':          6 / 18,
-        '\\, ':          3 / 18,
-        '\\: ':          4 / 18,
-        '\\; ':          5 / 18,
-        '\\quad ':       1,
-        '\\qquad ':      2,
-        '\\enskip ':    .5,
+        '\\!':          -3 / 18,
+        '\\ ':          6 / 18,
+        '\\,':          3 / 18,
+        '\\:':          4 / 18,
+        '\\;':          5 / 18,
+        '\\quad':       1,
+        '\\qquad':      2,
+        '\\enskip':    .5,
     };
 
     let result = '';
@@ -679,21 +680,17 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             result += '&lt;/mrow>';
             break;
 
-        case 'delim':
-            result += '&lt;mo>' + (SPECIAL_OPERATORS[this.delim] || this.delim) + '&lt;/mo>';
-            break;
-
         case 'sizeddelim':
+        case 'delim':
+            result += '&lt;mo separator="true">' + (SPECIAL_OPERATORS[this.delim] || this.delim) + '&lt;/mo>';
             break;
 
-        case 'rule':
-            break;
-
+        
         case 'font':
-            if (this.latex === '\\text' || this.latex === '\\textrm' ||
-                this.latex === '\\textsf' || this.latex === '\\texttt' ||
-                this.latex === '\\textnormal' || this.latex === '\\textbf' ||
-                this.latex === '\\textit') {
+            if (command === '\\text' || command === '\\textrm' ||
+                command === '\\textsf' || command === '\\texttt' ||
+                command === '\\textnormal' || command === '\\textbf' ||
+                command === '\\textit') {
                 result += '&lt;mtext' + variant + '>';
                 // Replace first and last space in text with a &amp;nbsp; to ensure they 
                 // are actually displayed (content surrounded by a tag gets trimmed)
@@ -710,7 +707,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
         case 'accent':
             result += '&lt;mover accent="true">';
             result += toMathML(this.body).mathML;
-            result += '&lt;mo>' + (SPECIAL_OPERATORS[this.latex.trim()] || this.accent) + '&lt;/mo>';
+            result += '&lt;mo>' + (SPECIAL_OPERATORS[command] || this.accent) + '&lt;/mo>';
             result += '&lt;/mover>'
             break;
 
@@ -796,10 +793,10 @@ MathAtom.MathAtom.prototype.toMathML = function() {
         case 'mop':
             if (this.value !== '\u200b') {
                 // Not ZERO-WIDTH
-                if (this.latex === '\\operatorname ') {
+                if (command === '\\operatorname') {
                     result += '&lt;mo>' + this.value + '&lt;/mo>';
                 } else {
-                    result += '&lt;mo>' + this.latex || this.value + '&lt;/mo>';
+                    result += '&lt;mo>' + command || this.value + '&lt;/mo>';
                 }
             }    
             break;
@@ -832,7 +829,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             break;
 
         case 'spacing':
-            result += '&lt;mspace width="' + (SPACING[this.latex] || 0) + 'em"/>';
+            result += '&lt;mspace width="' + (SPACING[command] || 0) + 'em"/>';
             break;
 
         case 'enclose':

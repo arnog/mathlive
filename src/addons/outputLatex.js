@@ -99,12 +99,8 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             break;
 
         case 'delim':
-            result += this.latex + this.delim + ' ';
-            break;
-        
-
         case 'sizeddelim':
-            // @todo
+            result += command + '{' + this.delim + '}';
             break;
 
         case 'rule':
@@ -134,11 +130,11 @@ MathAtom.MathAtom.prototype.toLatex = function() {
         case 'mopen':
         case 'mclose':
         case 'textord':
-            if (this.latex === '\\mathbin' || this.latex === '\\mathrel' || 
-                this.latex === '\\mathopen' || this.latex === '\\mathclose' || 
-                this.latex === '\\mathpunct' || this.latex === '\\mathord' || 
-                this.latex === '\\mathinner') {
-                result += this.latex + '{' + latexify(this.children) + '}';
+            if (command === '\\mathbin' || command === '\\mathrel' || 
+                command === '\\mathopen' || command === '\\mathclose' || 
+                command === '\\mathpunct' || command === '\\mathord' || 
+                command === '\\mathinner') {
+                result += command + '{' + latexify(this.children) + '}';
             } else if (this.value) {
                 if (this.value !== '\u200b') {
                     // Not ZERO-WIDTH
@@ -153,10 +149,10 @@ MathAtom.MathAtom.prototype.toLatex = function() {
         case 'mop':
             if (this.value !== '\u200b') {
                 // Not ZERO-WIDTH
-                if (this.latex === '\\mathop ') {
-                    result += this.latex + '{' + latexify(this.children) + '}';                    
-                } else if (this.latex === '\\operatorname ') {
-                        result += this.latex + '{' + this.value + '}';
+                if (command === '\\mathop') {
+                    result += command + '{' + latexify(this.children) + '}';                    
+                } else if (command === '\\operatorname') {
+                        result += command + '{' + this.value + '}';
                 } else {
                     result += this.latex || this.value;
                 }

@@ -1391,6 +1391,7 @@ MathAtom.prototype.decompose = function(context) {
     } else if (this.type === 'sizeddelim') {
         result = Delimiters.makeSizedDelim(
                 this.cls, this.delim, this.size, context);
+        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'line') {
         result = this.decomposeLine(context);
