@@ -490,14 +490,14 @@ MathAtom.MathAtom.prototype.toMathML = function() {
         'mathtt': 'monospace'
     };
     const SPACING = {
-        '\\! ':          -3 / 18,
-        '\\  ':          6 / 18,
-        '\\, ':          3 / 18,
-        '\\: ':          4 / 18,
-        '\\; ':          5 / 18,
-        '\\quad ':       1,
-        '\\qquad ':      2,
-        '\\enskip ':    .5,
+        '\\!':          -3 / 18,
+        '\\ ':          6 / 18,
+        '\\,':          3 / 18,
+        '\\:':          4 / 18,
+        '\\;':          5 / 18,
+        '\\quad':       1,
+        '\\qquad':      2,
+        '\\enskip':    .5,
     };
 
     let result = '';
@@ -619,10 +619,10 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             break;
 
         case 'font':
-            if (this.latex === '\\text' || this.latex === '\\textrm' ||
-                this.latex === '\\textsf' || this.latex === '\\texttt' ||
-                this.latex === '\\textnormal' || this.latex === '\\textbf' ||
-                this.latex === '\\textit') {
+            if (command === '\\text' || command === '\\textrm' ||
+                command === '\\textsf' || command === '\\texttt' ||
+                command === '\\textnormal' || command === '\\textbf' ||
+                command === '\\textit') {
                 result += '<mtext' + variant + '>';
                 // Replace first and last space in text with a &nbsp; to ensure they 
                 // are actually displayed (content surrounded by a tag gets trimmed)
@@ -639,7 +639,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
         case 'accent':
             result += '<mover accent="true">';
             result += toMathML(this.body).mathML;
-            result += '<mo>' + (SPECIAL_OPERATORS[this.latex.trim()] || this.accent) + '</mo>';
+            result += '<mo>' + (SPECIAL_OPERATORS[command] || this.accent) + '</mo>';
             result += '</mover>'
             break;
 
@@ -725,10 +725,10 @@ MathAtom.MathAtom.prototype.toMathML = function() {
         case 'mop':
             if (this.value !== '\u200b') {
                 // Not ZERO-WIDTH
-                if (this.latex === '\\operatorname ') {
+                if (command === '\\operatorname') {
                     result += '<mo>' + this.value + '</mo>';
                 } else {
-                    result += '<mo>' + this.latex || this.value + '</mo>';
+                    result += '<mo>' + command || this.value + '</mo>';
                 }
             }    
             break;
@@ -761,7 +761,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             break;
 
         case 'spacing':
-            result += '<mspace width="' + (SPACING[this.latex] || 0) + 'em"/>';
+            result += '<mspace width="' + (SPACING[command] || 0) + 'em"/>';
             break;
 
         case 'enclose':
