@@ -44,7 +44,7 @@ function scanIdentifier(stream, final) {
     const atom = stream.atoms[stream.index];
 
     if (stream.index < final && 
-        atom.type === 'mord' && 
+        (atom.type === 'mord' || atom.type === 'textord') && 
         '0123456789,.'.indexOf(atom.latex) < 0) {
         body = atom.toMathML();
         if (atom.superscript) {
@@ -781,6 +781,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             break;
 
         case 'space':
+            result += '&nbsp;'
             break;
             
     }
