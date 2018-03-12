@@ -257,12 +257,12 @@ function scanFence(stream, final) {
         if (found) {
             // TODO: could add attribute indicating it's a fence (fence=true)
             mathML = '<mrow>';
-            mathML += '<mo>' + xmlEscape(stream.atoms[openIndex].value) + '</mo>';
+            mathML += toMo(stream.atoms[openIndex]);
     
             mathML += toMathML(stream.atoms, openIndex + 1, closeIndex).mathML;
     
             // TODO: could add attribute indicating it's a fence (fence=true)
-            mathML += '<mo>' + xmlEscape(stream.atoms[closeIndex].value) + '</mo>';
+            mathML += toMo(stream.atoms[closeIndex]);
             mathML += '</mrow>';
 
             if (stream.lastType === 'mi' || 
@@ -308,7 +308,7 @@ function scanOperator(stream, final) {
 
         if (atom.limits && (atom.superscript || atom.subscript)) {
             // Operator with limits, e.g. \sum
-            const op = '<mo>' + xmlEscape(atom.value) + '</mo>';
+            const op = toMo(atom);
             if (atom.superscript && atom.subscript) {
                 // Both superscript and subscript
                 mathML += (atom.limits !== 'nolimits' ? '<munderover>' : '<msubsup>') + op;
@@ -329,7 +329,7 @@ function scanOperator(stream, final) {
             lastType = 'mo';
         } else {
 
-            mathML += '<mi>' + xmlEscape(stream.atoms[stream.index].value) + '</mi>';
+            mathML += toMi(stream.atoms[stream.index]);
 
             mathML += '<mo> &ApplyFunction; </mo>';
 
@@ -412,6 +412,35 @@ function toMathML(input, initial, final) {
     return result;
 }
 
+function toMi(atom) {
+    let result = '';
+    if (atom) {
+        if (atom.value) {
+            result = xmlEscape(atom.value);
+        } else {
+            result = toMathML(atom.children).mathML;
+        }
+        if (result) {
+            result = '<mi>' + result + '</mi>';
+        }
+    }
+    return result;
+}
+
+function toMo(atom) {
+    let result = '';
+    if (atom) {
+        if (atom.value) {
+            result = xmlEscape(atom.value);
+        } else {
+            result = toMathML(atom.children).mathML;
+        }
+        if (result && !result.match(/^<mo>(.*)<\/mo>$/)) {
+            result = '<mo>' + result + '</mo>';
+        }
+    }
+    return result;
+}
 
 function toString(atoms) {
     if (!atoms) return undefined;
@@ -685,7 +714,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             } else if (command && SPECIAL_OPERATORS[command]) {
                 result = '<mo>' + SPECIAL_OPERATORS[command] + '</mo>';
             } else {
-                result = '<mo>' + (xmlEscape(this.value) ||  toMathML(this.children).mathML) + '</mo>';
+                result = toMo(this);
             }
             break;
 
