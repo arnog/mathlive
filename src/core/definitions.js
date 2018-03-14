@@ -503,7 +503,6 @@ const OPEN = 'mopen';   // e.g. '('
 const CLOSE = 'mclose'; // e.g. ')'
 const PUNCT = 'mpunct'; // e.g. ','
 const INNER = 'minner'; // for fractions and \left...\right.
-// const VAR = 'mvar';     // variables, e.g. 'x' (roman letters, lowercase greek)
 
 const TEXTORD = 'textord';
 
@@ -1073,7 +1072,11 @@ defineFunction([
 frequency(SUPERCOMMON, '\\cos', '\\sin', '\\tan');
 
 
-frequency(UNCOMMON, '\\arcsin', '\\arccos', '\\arctan', '\\arctg', '\\arcctg');
+frequency(UNCOMMON, '\\arcsin', '\\arccos', '\\arctan', '\\arctg', '\\arcctg', 
+    '\\arcsec', '\\arccsc');
+
+frequency(UNCOMMON, '\\arsinh', '\\arccosh', '\\arctanh', 
+    '\\arcsech', '\\arccsch');
 
 frequency(UNCOMMON, '\\arg', '\\ch', '\\cosec', '\\cosh', '\\cot', '\\cotg',
     '\\coth', '\\csc', '\\ctg', '\\cth', 
@@ -1086,7 +1089,7 @@ category = 'Functions';
 
 defineFunction([
     '\\deg', '\\dim', '\\exp', '\\hom', '\\ker', 
-    '\\lg', '\\ln', '\\log'], 
+    '\\lb', '\\lg', '\\ln', '\\log'], 
     '', {fontFamily:'mainrm'}, function(name) {
     return {
         type: 'mop',
