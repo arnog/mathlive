@@ -914,7 +914,7 @@ MathField.prototype._render = function() {
     const spans = MathAtom.decompose(
         {
             mathstyle: 'displaystyle', 
-            generateID: 'true'
+            generateID: true
         }, this.mathlist.root.children);
 
 
