@@ -315,10 +315,8 @@ MathAtom.prototype.forEach = function (cb) {
     }
     if (this.array) {
         for (const row of this.array) {
-            if (Array.isArray(row)) {
-                for (const cell of row) {
-                    cell.forEach(cb);
-                }
+            for (const cell of row) {
+                for (const atom of cell) atom.forEach(cb);
             }
         }
     }
