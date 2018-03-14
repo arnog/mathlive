@@ -246,7 +246,7 @@ MathAtom.prototype.forEach = function (cb) {
     if (this.array) {
         for (const row of this.array) {
             for (const cell of row) {
-                cell.forEach(cb);
+                for (const atom of cell) atom.forEach(cb);
             }
         }
     }
@@ -1294,6 +1294,7 @@ MathAtom.prototype.decompose = function(context) {
 
     } else if (this.type === 'array') {
         result = this.decomposeArray(context);
+        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'genfrac') {
         result = this.decomposeGenfrac(context);
@@ -1318,6 +1319,7 @@ MathAtom.prototype.decompose = function(context) {
     } else if (this.type === 'sizeddelim') {
         result = Delimiters.makeSizedDelim(
                 this.cls, this.delim, this.size, context);
+        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'line') {
         result = this.decomposeLine(context);
@@ -1342,6 +1344,8 @@ MathAtom.prototype.decompose = function(context) {
         // STYLING
         //
      
+    } else if (this.type === 'msupsub') {
+        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'mord' || 
         this.type === 'minner' || this.type === 'mbin' ||
@@ -1357,6 +1361,7 @@ MathAtom.prototype.decompose = function(context) {
         } else {
             result = this.makeSpan(context, decompose(context, this.children));
         }
+        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'op' || this.type === 'mop') {
         console.assert(this.type === 'mop');
