@@ -234,7 +234,7 @@
 
         &:before {
             border-bottom-style: solid;
-            border-bottom-width: 1px;
+            border-bottom-width: 0.04em;
             content: "";
             display: block;
         }
@@ -242,7 +242,7 @@
         &:after {
             border-bottom-style: solid;
             border-bottom-width: 0.04em; 
-            min-height: 1px;    /* There's a bug since Chrome 62 where 
+            min-height: thin;    /* There's a bug since Chrome 62 where 
             sub-pixel border lines don't draw at some zoom 
             levels (110%, 90%). Setting the min-height seems to work around it.
             */
