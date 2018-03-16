@@ -19,12 +19,12 @@ define([
     'mathlive/core/grapheme-splitter',
     'mathlive/addons/outputLatex', 
     'mathlive/addons/outputMathML', 
-    'mathlive/addons/outputAST', 
+    'mathlive/addons/maston', 
     'mathlive/addons/outputSpokenText'], 
     function(Definitions, MathAtom, Lexer, ParserModule, Span, 
     EditableMathlist, MathPath, Keyboard, Undo, Shortcuts, Commands, GraphemeSplitter,
 // eslint-disable-next-line no-unused-vars
-    OutputLatex, OutputMathML, OutputAST, OutputSpokenText) {
+    OutputLatex, OutputMathML, MASTON, OutputSpokenText) {
 
 /* 
     Note: 

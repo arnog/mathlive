@@ -374,7 +374,6 @@ function getValue(mode, symbol) {
     return a[symbol] && a[symbol].value ? a[symbol].value : symbol;
 }
 
-
 function getEnvironmentInfo(name) {
     let result = ENVIRONMENTS[name];
     if (!result) {
@@ -1080,7 +1079,7 @@ frequency(UNCOMMON, '\\arsinh', '\\arccosh', '\\arctanh',
 
 frequency(UNCOMMON, '\\arg', '\\ch', '\\cosec', '\\cosh', '\\cot', '\\cotg',
     '\\coth', '\\csc', '\\ctg', '\\cth', 
-    '\\lg', '\\sec',
+    '\\lg', '\\lb', '\\sec',
     '\\sinh', '\\sh', '\\tanh', '\\tg', '\\th');
 
 
@@ -1213,7 +1212,7 @@ defineFunction('\\mathllap', '{:auto}', null, function(name, args) {
 
 // @todo definemacro?
 defineSymbol('\\not', MATH,  MAIN,  MATHORD, '/\\hspace{-.9em}', COMMON);
-
+// defineSymbol('\\nicefrac', MATH,  MAIN,  MATHORD, '^1\\!\\!/\\!_2', COMMON);
 
 
 // Can be preceded by e.g. '\fboxsep=4pt' (also \fboxrule)
@@ -2638,7 +2637,7 @@ defineFunction([
             '\\hat': '\u005e',
             '\\vec': '\u20d7',
         }[name],
-        limits: 'accent',   // This will suppress the regulat
+        limits: 'accent',   // This will suppress the regular
                             // supsub attachment and will delegate
                             // it to the decomposeAccent 
                             // (any non-null value would do)
@@ -2962,7 +2961,8 @@ const NOTES = {
     '\\otimes':         ['tensor product', '(of algebras)',
                         'Kronecker product', '(of matrices)'],
     '\\oplus':          ['direct sum', '(of modules)'],
-    '\\lg':             'base-2 logarithm',
+    '\\lb':             'base-2 logarithm',
+    '\\lg':             'base-10 logarithm',
     '\\wp':             ['Weierstrass P', 
                         '<a target="_blank" href="https://en.wikipedia.org/wiki/Weierstrass%27s_elliptic_functions">Wikipedia <big>&#x203A;</big></a>'
                         ],
@@ -3022,7 +3022,7 @@ const NOTES = {
                         'is an ideal ring of'
                         ],
 
-    '\\circ':           ['circle', 'function composition'],
+    '\\circ':           ['circle', 'ring', 'function composition'],
     
     '\\rlap':           ['overlap right',
                             '\\rlap{x}o'],
@@ -3046,19 +3046,299 @@ function getNote(symbol) {
     return result;
 }
 
-function getSpokenName(symbol) {
-    let result = NOTES[symbol];
-    if (!result && symbol.charAt(0) === '\\') {
-        result = symbol.replace('\\', '');
+function getSpokenName(latex) {
+    let result = NOTES[latex];
+    if (!result && latex.charAt(0) === '\\') {
+        result = latex.replace('\\', '');
     }
+
     // If we got more than one result (from NOTES), 
     // pick the first one.
-
     if (Array.isArray(result)) {
         result = result[0];
     }
 
     return result;
+}
+
+
+const CANONICAL_NAMES = {
+    // CONSTANTS
+    '\\imaginaryI': '\u2148',
+    '\\imaginaryJ': '\u2149',
+    '\\pi':         'π',
+    '\\exponentialE':          '\u212f',
+
+    // ARITHMETIC
+    '﹢':        '+',        // SMALL PLUS SIGN
+    '＋':        '+',        // FULL WIDTH PLUS SIGN
+    '−':        '-',        // MINUS SIGN
+    '-':        '-',        // HYPHEN-MINUS
+    '﹣':        '-',        // SMALL HYPHEN-MINUS
+    '－':        '-',        // FULLWIDTH HYPHEN-MINUS
+    '\\times':  '*',
+    '⨉':        '*',        // N-ARY TIMES OPERATOR U+
+    '️✖':        '*',        // MULTIPLICATION SYMBOL
+    '️×':        '*',        // MULTIPLICATION SIGN
+    '.':        '*',
+    '÷':        '/',        // DIVISION SIGN
+    // '/':        '/',        // SOLIDUS
+    '⁄':        '/',        // FRACTION SLASH
+    '／':        '/',        // FULLWIDTH SOLIDUS
+    '!':        'factorial',
+    '️\\pm':     'plusminus',        // PLUS-MINUS SIGN
+    '\\mp':     'minusplus',         // MINUS-PLUS SIGN
+
+    '\\land':   'and',
+    '\\wedge':  'and',
+    '\\lor':    'or',
+    '\\vee':    'or',
+    '\\oplus':  'xor',
+    '\\veebar': 'xor',
+    '\\lnot':   'not',
+    '\\neg':    'not',
+
+    '\\nabla':  'nabla',
+    '\\circ':   'circle',
+    // '\\oplus':  'oplus',
+    '\\ominus': 'ominus',
+    '\\odot':   'odot',
+    '\\otimes': 'otimes',
+
+    '\\zeta':   'Zeta',
+    '\\min':    'min',
+    '\\max':    'max',
+    '\\mod':    'mod',
+    '\\lim':    'lim',  // BIG OP
+    '\\sum':    'sum',
+    '\\prod':   'prod',
+    '\\int':    'integral',
+    '\\iint':   'integral2',
+    '\\iiint':  'integral3',
+
+    '\\Re': 'Re',
+    '\\Im': 'Im',
+
+    '\\binom':  'binom',
+
+    '\\partial': 'partial',
+    '\\differentialD': 'differentialD',
+    '\\capitalDifferentialD': 'capitalDifferentialD',
+    '\\Finv':   'Finv',
+    '\\Game':   'Game',
+    '\\wp':     'wp',
+    '\\ast':    'ast',
+    '\\star':   'star',
+    '\\asymp':  'asymp'
+}
+
+const FUNCTION_TEMPLATE = {
+    // TRIGONOMETRY
+    'sin':      '\\sin%_%^ %',
+    'cos':      '\\cos%_%^ %',
+    'tan':      '\\tan%_%^ %',
+    'cot':      '\\cot%_%^ %',
+    'sec':      '\\sec%_%^ %',
+    'csc':      '\\csc%_%^ %',
+
+    'sinh':     '\\sinh %',
+    'cosh':     '\\cosh %',
+    'tanh':     '\\tanh %',
+    'csch':     '\\csch %',
+    'sech':     '\\sech %',
+    'coth':     '\\coth %',
+
+    'arcsin':      '\\arcsin %',
+    'arccos':      '\\arccos %',
+    'arctan':      '\\arctan %',
+    'arccot':      '\\arcctg %',        // Check
+    'arcsec':      '\\arcsec %',
+    'arccsc':      '\\arccsc %',
+
+    'arsinh':     '\\arsinh %',
+    'arcosh':     '\\arcosh %',
+    'artanh':     '\\artanh %',
+    'arcsch':     '\\arcsch %',
+    'arsech':     '\\arsech %',
+    'arcoth':     '\\arcoth %',
+
+    // LOGARITHMS
+    'ln':       '\\ln%_%^ %',     // Natural logarithm
+    'log':      '\\log%_%^ %',    // General logarithm, e.g. log_10
+    'lg':       '\\lg %',     // Common, base-10, logarithm
+    'lb':       '\\lb %',     // Binary, base-2, logarithm
+
+    // Big operator
+    'sum':      '\\sum%_%^ %',
+
+    // OTHER
+    'Zeta':     '\\zeta%_%^ %', // Riemann Zeta function
+    'min':      '\\min%_%^ %',
+    'max':      '\\max%_%^ %',
+    'mod':      '\\mod%_%^ %',
+    'lim':      '\\lim%_%^ %',      // BIG OP
+    'binom':    '\\binom %',
+    'nabla':    '\\nabla %',
+    'curl':     '\\nabla\\times %',
+    'div':      '\\nabla\\cdot %',
+    'floor':    '\\lfloor % \\rfloor%_%^',
+    'ceil':     '\\lceil % \\rceil%_%^',
+    'abs':      '\\vert % \\vert%_%^',
+    'norm':     '\\lVert % \\rVert%_%^',
+    'ucorner':  '\\ulcorner % \\urcorner%_%^',
+    'lcorner':  '\\llcorner % \\lrcorner%_%^',
+    'angle':    '\\langle % \\rangle%_%^',
+    'group':    '\\lgroup % \\rgroup%_%^',
+    'moustache':'\\lmoustache % \\rmoustache%_%^',
+    'brace':    '\\lbrace % \\rbrace%_%^',
+    'sqrt':     '\\sqrt[%^]{%}',
+
+    // Arithmetic operators
+    '*':        '%0 \\times %1',
+
+    // Logic operators
+    'and':      '%0 \\land %1',
+    'or':       '%0 \\lor %1',
+    'xor':      '%0 \\oplus %1',
+    'not':      '%0 \\lnot %1',
+
+    // Other operators
+    'circle':   '%0 \\circ %1',
+    'ast':      '%0 \\ast %1',
+    'star':     '%0 \\star %1',
+    'asymp':    '%0 \\asymp %1',
+    '/':        '\\frac{%0}{%1}',
+    'Re':       '\\Re{%}',
+    'Im':       '\\Im{%}',
+    'factorial': '%!',
+    'factorial2': '%!!',
+}
+
+
+const OP_PRECEDENCE = {
+    // '^':    6, Not an actual operator
+    'not':   8,
+
+    'and':   7,
+    'or':    7,
+    'xor':    7,
+
+    'circle':   6,
+    'ominus': 6,
+    'odot': 6,
+    'otimes': 6,
+    'nabla': 6,
+    'curl':     6,
+    'div':      6,
+    'partial': 6,
+    'differentialD': 6,
+    'capitalDifferentialD': 6,
+    'Re':       6,
+    'Im':       6,
+
+    'ast':  5,
+    'star': 5,
+    '*':    5,
+    '.':    5,
+    '/':    5,
+    '%':    5,
+
+    '+':    4,
+    '-':    4,
+
+    'asymp': 3,
+    '=':    3,
+
+    ',':    2,
+    ';':    1
+}
+
+/**
+ * 
+ * @param {string} latex, for example '\\times'
+ * @return {string} the canonical name for the input, for example '*'
+ */
+function getCanonicalName(latex) {
+    latex = (latex || '').trim();
+    let result = CANONICAL_NAMES[latex];
+    if (!result) {
+        if (latex.charAt(0) === '\\') {
+            const info = getInfo(latex, 'math');
+            if (info && info.type !== 'error') {
+                result = info.value || latex.slice(1);
+            } else {
+                result = latex.slice(1);
+            }
+        } else {
+            result = latex;
+        }
+    }
+    return result;
+}
+
+
+/**
+ * 
+ * @param {string} name function or operator canonical name
+ * @return {string}
+ */
+function getLatexTemplateForOperator(name) {
+    let result = FUNCTION_TEMPLATE[name];
+    if (!result) {
+        result = '%0 \\mathbin{' + name + '} %1';
+    }
+
+    return result;
+}
+
+/**
+ * 
+ * @param {string} name symbol name
+ * @return {string}
+ */
+function getLatexForSymbol(name) {
+    let result = FUNCTION_TEMPLATE[name];
+    if (result) {
+        return result.replace('%1', '').replace('%0', '').replace('%', '');
+    }
+    const info = getInfo('\\' + name, 'math');
+    if (info && info.type !== 'error' && 
+        (!info.fontFamily || info.fontFamily === 'main' || info.fontFamily === 'ams')) {
+        result = '\\' + name;
+    }
+
+    return result;
+}
+
+/**
+ * 
+ * @param {string} name function canonical name
+ * @return {string}
+ */
+function getLatexTemplateForFunction(name) {
+    let result = FUNCTION_TEMPLATE[name];
+    if (!result) {
+        result = name.length > 1 ? '\\mathop{' + name + '} %' : (name + ' %');
+    }
+
+    return result;
+}
+
+/**
+ * Given a canonical name, return its precedence
+ * @param {string} canonicalName, for example "and"
+ * @return {number}
+ */
+function getPrecedence(canonicalName) {
+    return canonicalName ? (OP_PRECEDENCE[canonicalName] || -1) : -1;
+}
+
+function isFunction(canonicalName) {
+    let t = FUNCTION_TEMPLATE[canonicalName];
+    if (!t) return false;
+    t = t.replace('%0', '').replace('%1', '');
+    if (t.match(/%/)) return true;
+    return false;
 }
 
 return {
@@ -3082,6 +3362,13 @@ return {
     NOTES: NOTES,
     getNote: getNote,
     getSpokenName: getSpokenName,
+    getPrecedence: getPrecedence,
+    getCanonicalName: getCanonicalName,
+    getLatexForSymbol: getLatexForSymbol,
+    getLatexTemplateForOperator: getLatexTemplateForOperator, 
+    getLatexTemplateForFunction: getLatexTemplateForFunction,
+    isFunction: isFunction
+
 }
 
 })
