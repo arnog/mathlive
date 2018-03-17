@@ -128,23 +128,25 @@ to make sure it doesn't show. */
     left: 0;
     margin-top: 16px;
 }
-
 .ML__commandbartoggle {
-    align-self: center;
-    flex-shrink: 0;
     display: flex;
+    align-self: center;
+    align-items: center;
+    color: #aaa;
+    flex-shrink: 0;
     flex-direction: column;
     justify-content: center;
 
     width: 34px;
     height: 34px;
     margin-right: 4px;
+    cursor: pointer;
+    box-sizing: border-box;
+}
 
+.ML__commandbartoggle:hover {
     border-radius: 50%;
     border: 1px solid #f0f0f0;
-
-    cursor: pointer;
-
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
 }
 .ML__commandbartoggle svg {
