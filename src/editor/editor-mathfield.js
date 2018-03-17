@@ -122,11 +122,15 @@ function MathField(element, config) {
 
     if (this.config.commandbarToggle === 'visible') {
         markup += '<span class="ML__commandbartoggle"' +
-                    'role="button" tabindex="0" aria-label="Toggle Command Bar">' +
-                    '<svg viewBox="0 0 21 14" height="14">' +
-                    '<path d="M10.35 13.55L0 3.2 3.06.13l7.16 7.17 7.3-7.3 3.2 3.2-10.36 10.35v-.01l-.01.01z" fill-rule="evenodd" clip-rule="evenodd"></path>' +
-                    '</svg>' +
-                '</span>';
+                    'role="button" tabindex="0" aria-label="Toggle Command Bar">';
+        if (this.config.commandbarToggleGlyph) {
+            markup += this.config.commandbarToggleGlyph;
+        } else {
+            markup += '<svg viewBox="0 0 21 14" height="14">' +
+            '<path d="M10.35 13.55L0 3.2 3.06.13l7.16 7.17 7.3-7.3 3.2 3.2-10.36 10.35v-.01l-.01.01z" fill-rule="evenodd" clip-rule="evenodd"></path>' +
+            '</svg>';
+        }
+        markup += '</span>';
     } else {
         markup += '<span ></span>';
     }
@@ -1593,14 +1597,14 @@ MathField.prototype.config = function(config) {
         overrideDefaultInlineShortcuts: false,
         commandbarToggle: 'visible',
         overrideDefaultCommands: false,
-
+        namespace: ''
     }
 
     // Copy the values from `config` to `def`
     this.config = Object.assign({}, def, config);
 
     // Validate the namespace (used for `data-` attributes)
-    if (!/^[a-z]+[-]?$/.test(this.config.namespace)) {
+    if (!/^[a-z]*[-]?$/.test(this.config.namespace)) {
         throw Error('options.namespace must be a string of lowercase characters only');
     }
     if (!/-$/.test(this.config.namespace)) {
