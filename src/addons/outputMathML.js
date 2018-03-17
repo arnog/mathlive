@@ -93,9 +93,10 @@ function scanIdentifier(stream, final) {
             mathML = body;
         }
 
-        if (stream.lastType === 'mi' || 
+        if ((stream.lastType === 'mi' || 
             stream.lastType === 'mn' || 
-            stream.lastType === 'fence') {
+            stream.lastType === 'fence') && 
+            !mathML.match(/^<mo>(.*)<\/mo>$/)) {
             mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
         }
 
@@ -103,7 +104,7 @@ function scanIdentifier(stream, final) {
             mathML += '<mo> &ApplyFunction; </mo>';
             stream.lastType = 'applyfunction';
         } else {
-            stream.lastType = 'mi';
+            stream.lastType = mathML.match(/^<mo>(.*)<\/mo>$/) ? 'mo' : 'mi';
         }
 
         stream.mathML += mathML;
@@ -355,7 +356,8 @@ function scanOperator(stream, final) {
         }
         // mathML += '</mrow>';
 
-        if (stream.lastType === 'mi' || stream.lastType === 'mn') {
+        if ((stream.lastType === 'mi' || stream.lastType === 'mn') && 
+            !mathML.match(/^<mo>(.*)<\/mo>$/)) {
             mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
         }
         stream.index += 1;
