@@ -280,6 +280,7 @@ function scanFence(stream, final) {
 
             if (stream.lastType === 'mi' || 
                 stream.lastType === 'mn' || 
+                stream.lastType === 'mfrac' || 
                 stream.lastType === 'fence') {
                 mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
             }
@@ -410,7 +411,11 @@ function toMathML(input, initial, final) {
                     // add an "invisible plus" (U+0264) character in front of it
                     mathML = '<mo>&#x2064;</mo>' + mathML;
                 }
-                result.lastType = '';
+                if (result.atoms[result.index].type === 'genfrac') {
+                    result.lastType = 'mfrac';
+                } else {
+                    result.lastType = '';
+                }
                 if (mathML.length > 0) {
                     result.mathML += mathML;
                     count += 1;
