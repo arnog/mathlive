@@ -1821,9 +1821,9 @@ defineSymbol( '\\nabla', MATH,  MAIN,  TEXTORD, '\u2207', SUPERCOMMON);
 defineSymbol( '\\partial', MATH,  MAIN,  TEXTORD, '\u2202', SUPERCOMMON); // >2,000
 
 defineSymbol( '\\ell', MATH,  MAIN,  TEXTORD, '\u2113', COMMON); // >2,000
-defineSymbol( '\\imaginaryI', MATH,  'mathrm',  MATHORD, 'i'); // NOTE: not a real TeX symbol, but Mathematica
+defineSymbol( '\\imaginaryI', MATH,  'main',  MATHORD, 'i'); // NOTE: not a real TeX symbol, but Mathematica
 // NOTE: set in math as per ISO 80000-2:2009.
-defineSymbol( '\\imaginaryJ', MATH,  'mathrm',  MATHORD, 'j'); // NOTE: not a real TeX symbol, but Mathematica
+defineSymbol( '\\imaginaryJ', MATH,  'main',  MATHORD, 'j'); // NOTE: not a real TeX symbol, but Mathematica
 // NOTE: set in math as per ISO 80000-2:2009.
 defineSymbol( '\\Re', MATH,  MAIN,  TEXTORD, '\u211c', COMMON); // >2,000
 defineSymbol( '\\Im', MATH,  MAIN,  TEXTORD, '\u2111', COMMON); // >2,000
@@ -3233,8 +3233,8 @@ const OP_PRECEDENCE = {
     'partial': 6,
     'differentialD': 6,
     'capitalDifferentialD': 6,
-    'Re':       6,
-    'Im':       6,
+
+    'mod':  5,
 
     'ast':  5,
     'star': 5,
