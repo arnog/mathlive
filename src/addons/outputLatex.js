@@ -59,7 +59,10 @@ MathAtom.MathAtom.prototype.toLatex = function() {
                     if (col > 0) result += ' & ';
                     result += latexify(this.array[row][col]);
                 }
-                result += ' \\\\ ';
+                // Adds a separator between rows (but not after the last row)
+                if (row < this.array.length - 1) {
+                    result += ' \\\\ ';
+                }
             }
             result += '\\end{' + this.env.name + '}';
             break;
