@@ -2000,13 +2000,13 @@ function decompose(context, atoms) {
             let selectionIsTight = false;
             for (let i = 0; i < atoms.length; i++) {
                 // Is this a binary operator ('+', '-', etc...) that potentially 
-                // needs to be adjusted?
+                // needs to be adjusted to a unary operator?
                 // When preceded by a mbin, mopen, mrel, mpunct, mop or 
                 // when followed by a mrel, mclose or mpunct
                 // or if preceded or followed by no sibling, a 'mbin' becomes a 
                 // 'mord'
                 if (atoms[i].type === 'mbin') {
-                    if (['none', 'mrel', 'mpunct', 'mopen', 'mbin', 'mop']
+                    if (['first', 'none', 'mrel', 'mpunct', 'mopen', 'mbin', 'mop']
                             .includes(previousType) || 
                         ['none', 'mrel', 'mpunct', 'mclose']
                             .includes(nextType)) {
