@@ -182,6 +182,21 @@ Span.prototype.setWidth = function(width) {
 
 Span.prototype.addMarginRight = function(margin) {
     if (margin && margin !== 0) {
+        if (!this.style && !this.classes.match(/qquad|quad|enspace|thickspace|mediumspace|thinspace|negativethinspace/)) {
+            // Attempt to use a class instead of an explicit margin
+            const cls = {
+                '2': 'qquad',
+                '1': 'quad',
+                '.5': 'enspace',
+                '0.277778': 'thickspace',
+                '0.222222': 'mediumspace',
+                '0.166667': 'thinspace',
+                '-0.166667': 'negativethinspace'}[margin.toString()];
+            if (cls) {
+                this.classes += ' rspace ' + cls;
+                return;
+            }
+        }
         if (!this.style) this.style = {};
         const currentMargin = parseFloat(this.style['margin-right'] || '0');
         this.style['margin-right'] = toString(currentMargin + margin) + 'em'
