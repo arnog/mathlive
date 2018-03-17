@@ -17,8 +17,9 @@ e^{\imaginaryI \pi }+1=0
 ```
 In MASTON:
 ```JSON
-{"lhs":{"lhs":{"sym":"e","sup":{"lhs":"&ImaginaryI;","op":"*","rhs":"π"}},"op":"+","rhs":1},"op":"=","rhs":0}
+{"lhs":{"lhs":{"sym":"e","sup":{"lhs":"ⅈ","op":"*","rhs":"π"}},"op":"+","rhs":1},"op":"=","rhs":0}
 ```
+
 
 ### An approximation of Pi
 ```tex
@@ -33,26 +34,38 @@ In MASTON:
 
 A MASTON expression is encoded as a JSON object. The root element is an &langle;expression&rangle;, which contains other elements according to the grammar below.
 
-### Key order
-The order of the keys in an element is not significant. That is, all these expressions are equivalent:
+### Native Numbers
 
-```JSON
-   {"lhs":1, "op":"+", "rhs":2}
-   {"op":"+", "lhs":1, "rhs":2}
-   {"rhs":2, "op":"+", "lhs":1}
-```
-### Strings
-Strings are made up of a sequence of Unicode characters.
+A native number is encoded following the JSON grammar, with two extensions:
+* support for arbitrary precision numbers. The number of digits included may be more than supported by consuming software. The software can handle this situation by either reading only as many digits as can be supported internally or by treating it as an error.
+* support for explicit fractions. These numbers can be used to represent exact fractional quantities.
+* support for `NaN` and `infinity`
 
-As per JSON, any character may be escaped using a `\u` escape sequence.
+&langle;native-number&rangle; := `'"NaN"'` | &langle;native-infinity&rangle; | [`'-'`] &langle;native-int&rangle; [ &langle;native-frac&rangle;] [ &langle;native-exp&rangle; ]
+
+&langle;native-infinity&rangle; := `'"'` [`'+'` | `'-'`] `'infinity'` `'"'`
+
+&langle;native-int&rangle; := `'0'` | [ `'1'` - `'9'` ]*
+
+&langle;native-frac&rangle; := `'.'` (`'0'` - `'9'`)*
+
+&langle;native-exp&rangle; := [`'e'` | `'E'`] [`'+'` | `'-'`] (`'0'` - `'9'` )*
+
+&langle;native-fraction&rangle; := [`'+'` | `'-'`] (`'0'` - `'9'`)* `'/'` (`'0'` - `'9'`)*
+
+### Native Strings
+Native strings are a sequence of Unicode characters.
+
+As per JSON, any Unicode character may be escaped using a `\u` escape sequence.
 
 Compliant MATSON producing software should not generate character entities in strings. However, when consuming a MATSON format, the following character entities may be recognize in a string:
- Accent             | Value   | Unicode   | Possible Meanings
- -------------      |:-------|----------:|---
- &CapitalDifferentialD;              | \&CapitalDifferentialD;       | U+2145    |
- &DifferentialD;              | \&DifferentialD;       | U+2146    |
- &ExponentialE;              | \&ExponentialE;       | U+2147    |
- &ImaginaryI;              | \&ImaginaryI;       | U+2147    |
+
+ Entity             | Value   | Unicode   
+ -------------      |:-------|----------:
+ &CapitalDifferentialD;              | \&CapitalDifferentialD;       | U+2145
+ &DifferentialD;              | \&DifferentialD;       | U+2146
+ &ExponentialE;              | \&ExponentialE;       | U+2147
+ &ImaginaryI;              | \&ImaginaryI;       | U+2148
 
 
 ### Optional keys
@@ -64,6 +77,15 @@ All elements may have the following keys:
 * `class`: A CSS class to be associated with a representation of this element
 * `id`: A CSS id to be associated with a representation of this element
 * `style`: A CSS style string
+
+### Key order
+The order of the keys in an element is not significant. That is, all these expressions are equivalent:
+
+```JSON
+   {"lhs":1, "op":"+", "rhs":2}
+   {"op":"+", "lhs":1, "rhs":2}
+   {"rhs":2, "op":"+", "lhs":1}
+```
 
 ## Grammar
 
@@ -79,8 +101,8 @@ All elements may have the following keys:
 
 ### &langle;num&rangle; 
 
-A number or an object with the following key
-* `num`: &langle;js-number&rangle; or &langle;js-string&rangle;
+A native number or an object with the following key
+* `num`: &langle;native-number&rangle; or &langle;native-string&rangle;
 
 **Note:** When only the `num` key is present a shortcut may be used by replacing the element with the number. That is, both representations are equivalent:
 ```JSON
@@ -89,19 +111,20 @@ A number or an object with the following key
 ```
 
 ### &langle;complex&rangle;
-* `re`: &langle;js-number&rangle;
-* `im`: &langle;js-number&rangle;
+* `re`: &langle;native-number&rangle;
+* `im`: &langle;native-number&rangle;
 
 ### &langle;symbol&rangle;
 
 A string or an object with the following keys
-* `sym`: &langle;string&rangle;
+* `sym`: &langle;native-string&rangle;
 * `index`: A 0-based index into a vector or array. An index can be a number or an array of numbers.
 * `accent`: &langle;string&rangle;, a single unicode character representing the accent to display over the symbol.
 
 An accent is a decoration over a symbol that provides the proper context to interpret the symbol or modifies it in some way. For example, an accent can indicate that a symbol is a vector, or to represent the mean, complex conjugate or complement of the symbol.
 
 The following values are recommended:
+
  Accent             | Value           | Unicode   | Possible Meanings
  -------------      |:---------------:|----------:|---
  Vector             | &#9676;&#x20d7; | U+20d7    |
@@ -117,24 +140,25 @@ The following values are recommended:
 
 
 ### &langle;function&rangle;
-* `fn`: &langle;string&rangle;, the name of the function.
+* `fn`: &langle;native-string&rangle;, the name of the function.
 * `arg`: &langle;expression&rangle; | array of &langle;expression&rangle;, the arguments to the function. If there's a single argument, it should be represented as an expression. If there's more than one, they should be represented as an array of expressions.
 * `fence`: &langle;string&rangle;, one to three characters indicating the delimiters used for the expression. The first character is the opening delimiter, the second character, if present, is the closing delimiter. The third character, if present, is the delimiters separating the arguments. If no value is provided for this key, the default value `(),` is used. The character `.` can be used to indicate the absence of a delimiter, for example `..;`.
 * `sub`: &langle;expression&rangle;
 * `sup`: &langle;expression&rangle;
-* `accent`: &langle;string&rangle;, a single unicode character representing the accent to display over the function. See the SYMBOL section for more details.
+* `accent`: &langle;native-string&rangle;, a single unicode character representing the accent to display over the function. See the SYMBOL section for more details.
 
 The `fn` key is the only one required.
 
 When using common functions, the following values are recommended:
+
  Name (and common synonyms) | Value       |Argument
  -------------------------- |:------------|:----------
- Cosine                     | `cos`       | &langle;number&rangle; in radians
- Sin                        | `sin`       | &langle;number&rangle; in radians
- Tangent (tan, tg)          | `tan`       | &langle;number&rangle; in radians
- Arctangent (arctan, arctg) | `arctangent`| &langle;number&rangle; in radians
+ Cosine                     | `cos`       | angle in radians
+ Sin                        | `sin`       | angle in radians
+ Tangent (tan, tg)          | `tan`       | angle in radians
+ Arctangent (arctan, arctg) | `arctangent`| angle in radians
  Co-tangent (cot, ctg, cotg, ctn) | `cotangent`
- Hyperbolic tangent (th, tan) | `htangent`
+ Hyperbolic tangent (th, tan) | `tanh`
 
 
 
@@ -144,7 +168,7 @@ hand side expression. The expressions are optional, for example:
 `a-b` and `-x`. Use a function when there is only a rhs input, for 
 example `Re()`.
 
-Operators can have additional input displayed over and under them.
+Operators can have additional input or modifiers displayed over and under them.
 
 For example the "sum" operator can have expressions indicating the 
 range and limits of the operator. The "integral" operator under and over can indicate the start and end of its range.
@@ -161,6 +185,7 @@ The `op` key, the name of the operator, is the only one required.
 The following values should be used to represent common operators:
 
 #### Arithmetic operators
+
  Operation          | Name      | Unicode   | Comment
  -------------      |:---------:|----------:|---
  Add                | `+`       | U+002B    |
@@ -169,6 +194,7 @@ The following values should be used to represent common operators:
  Divide             | `/`       | U+002F    |
 
 #### Logic operators
+
  Operation          | Name      | Unicode   | Comment
  -------------      |:---------:|----------:|---
 
@@ -226,7 +252,7 @@ The following values should be used to represent these common big operators:
 
 
 ### &langle;text&rangle;
-* `text`: &langle;string&rangle;
+* `text`: &langle;native-string&rangle;
 
 ### &langle;group&rangle;
 * `group`:  &langle;expression&rangle;
@@ -239,15 +265,15 @@ The `group` key is the only one required.
 This element is used when a `sup`, `sub` or `accent` need to be applied to an expression, as in `(x+1)^2`.
 
 ### &langle;range&rangle;
-* `start`: &langle;expression&rangle;
-* `end`: &langle;expression&rangle;
-* `step`: &langle;expression&rangle;
+* `range_start`: &langle;expression&rangle;
+* `range_end`: &langle;expression&rangle;
+* `range_step`: &langle;expression&rangle;
 
 The `start` key is the only one required. If absent, `end` is assumed to be `infinity`. If absent, `step` is assumed ot be `1`.
 
 ### &langle;array&rangle;
 * `rows`: array of &langle;expression&rangle;
-* `fence`: &langle;string&rangle;
+* `fence`: &langle;native-string&rangle;
 * `index`: A 0-based index into the vector or array. An index can be a number or an array of numbers.
 
 The `rows` key is the only one required.
@@ -260,6 +286,7 @@ Example:
 {keys:{a:1, b:"one"}}
 ```
 defines the following dictionary:
+
  Key          | Value
  -------------|:------------------
  `a`          | `1`
