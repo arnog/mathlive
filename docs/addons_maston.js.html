@@ -172,8 +172,6 @@ function asNumber(num) {
     if (num !== undefined) {
         if (num.num !== undefined) {
             result = parseFloat(num.num);
-        } else if (num.re !== undefined) {
-            result = parseFloat(num.re);
         } else if (asSymbol(num)) {
             if (BUILT_IN_CONSTANTS[asSymbol(num)]) {
                 result = BUILT_IN_CONSTANTS[asSymbol(num)];
@@ -470,7 +468,7 @@ function parsePrimary(expr) {
         // Looks like a number
         let num = '';
         let done = false;
-        let pat = '0123456789,.eEdD';
+        let pat = '0123456789.eEdD';
         while (expr.index &lt; expr.atoms.length &amp;&amp; !done &amp;&amp; (isAtom(expr, 'spacing') ||
                 (
                     (
@@ -515,12 +513,39 @@ function parsePrimary(expr) {
         }   
         expr = parseSupsub(expr);
         expr = parsePostfix(expr);
+        
+    } else if (atom.type === 'genfrac' || atom.type === 'surd') {
+        expr.index += 1;
+        expr.ast = atom.toAST();
+        expr = parseSupsub(expr);
+        expr = parsePostfix(expr);
 
+    } else if (atom.type === 'font') {
+        expr.ast = atom.toAST();
+        if (expr.ast.sym &amp;&amp; expr.ast.variant === 'normal' &amp;&amp; 
+            Definitions.isFunction(expr.ast.sym)) {
+            // This is a function (for example used with \\mathrm{foo}
+            expr.ast = {fn: expr.ast.sym};
+            expr = parseSupsub(expr);
+
+            const fn = expr.ast;
+            expr.index += 1;  // Skip the function name
+            fn.arg = parsePrimary(expr).ast;
+            expr.ast = fn;
+            
+        } else {
+            // It's an identifier of some kind...
+            if (atom.superscript === undefined) {
+                expr.index += 1;
+            }
+            expr = parseSupsub(expr);
+        }
+        expr = parsePostfix(expr);
     } else if (atom.type === 'mord') {
         // A 'mord' but not a number, either an identifier ('x') or a function
         // ('\\Zeta')
         const name = Definitions.getCanonicalName(atom.latex || atom.value);
-        if (Definitions.isFunction(name)) {
+        if (Definitions.isFunction(name) &amp;&amp; opPrec(atom) &lt; 0) {
             // A function
             expr.ast = {fn: name};
             expr = parseSupsub(expr);
@@ -529,8 +554,6 @@ function parsePrimary(expr) {
             expr.index += 1;  // Skip the function name
             fn.arg = parsePrimary(expr).ast;
             expr.ast = fn;
-                
-            expr = parsePostfix(expr);
         } else {
             // An identifier
             expr.ast = atom.toAST();
@@ -538,8 +561,8 @@ function parsePrimary(expr) {
                 expr.index += 1;
             }
             expr = parseSupsub(expr);
-            expr = parsePostfix(expr);
         }
+        expr = parsePostfix(expr);
 
     } else if (atom.type === 'textord') {
         // Note that 'textord' can also be operators, and are handled as such 
@@ -547,74 +570,84 @@ function parsePrimary(expr) {
         if (opPrec(atom) &lt; 0) {
             // This doesn't look like a textord operator
             if (!RIGHT_DELIM[atom.latex.trim()]) {
-                // Not an operator, not a fence, assume it's a symbol
-                expr.ast = atom.toAST();
-                if (atom.superscript === undefined) {
-                    expr.index += 1;
-                }
-                expr = parseSupsub(expr);
-                expr = parsePostfix(expr);
-            }
-        }
+                // Not an operator, not a fence, it's a symbol or a function
+                const name = Definitions.getCanonicalName(atom.latex || atom.value);
+                if (Definitions.isFunction(name)) {
+                    // It's a function
+                    expr.ast = {fn: name};
+                    expr = parseSupsub(expr);
         
-    } else if (atom.type === 'genfrac' || atom.type === 'surd') {
-        expr.index += 1;
-        expr.ast = atom.toAST();
-        expr = parseSupsub(expr);
-        expr = parsePostfix(expr);
-
-    } else if (atom.type === 'mop') {
-        expr.index += 1;
-        expr.ast = {fn: Definitions.getCanonicalName(atom.latex || atom.value)};
-        expr = parseSupsub(expr);
-
-        if (expr.ast.sup) {
-            // There was an exponent with the function. 
-            if (expr.ast.sup === -1 || (expr.ast.sup.op === '-' &amp;&amp; expr.ast.sup.rhs === 1)) {
-                // This is the inverse function
-                const INVERSE_FUNCTION = {
-                    'sin' : 'arcsin',
-                    'cos':  'arccos',
-                    'tan':  'arctan',
-                    'cot':  'arccot',
-                    'sec':  'arcsec',
-                    'csc':  'arccsc',
-                    'sinh': 'arsinh',
-                    'cosh': 'arcosh',
-                    'tanh': 'artanh',
-                    'csch': 'arcsch',
-                    'sech': 'arsech',
-                    'coth': 'arcoth'
-                };
-                if (INVERSE_FUNCTION[expr.ast.fn]) {
-                    const fn = {fn: INVERSE_FUNCTION[expr.ast.fn]};
+                    const fn = expr.ast;
+                    expr.index += 1;  // Skip the function name
                     fn.arg = parsePrimary(expr).ast;
                     expr.ast = fn;
+                        
+                    expr = parsePostfix(expr);
+                            
                 } else {
+                    // It was a symbol...
+                    expr.ast = atom.toAST();
+                    if (atom.superscript === undefined) {
+                        expr.index += 1;
+                    }
+                    expr = parseSupsub(expr);
+                    expr = parsePostfix(expr);
+                }
+            }
+        }
+
+    } else if (atom.type === 'mop') {
+        // Could be a function or an operator.
+        const name = Definitions.getCanonicalName(atom.latex || atom.value);
+        if (Definitions.isFunction(name) &amp;&amp; opPrec(atom) &lt; 0) {
+            expr.index += 1;
+            expr.ast = {fn: name};
+            expr = parseSupsub(expr);
+
+            if (expr.ast.sup) {
+                // There was an exponent with the function. 
+                if (expr.ast.sup === -1 || (expr.ast.sup.op === '-' &amp;&amp; expr.ast.sup.rhs === 1)) {
+                    // This is the inverse function
+                    const INVERSE_FUNCTION = {
+                        'sin' : 'arcsin',
+                        'cos':  'arccos',
+                        'tan':  'arctan',
+                        'cot':  'arccot',
+                        'sec':  'arcsec',
+                        'csc':  'arccsc',
+                        'sinh': 'arsinh',
+                        'cosh': 'arcosh',
+                        'tanh': 'artanh',
+                        'csch': 'arcsch',
+                        'sech': 'arsech',
+                        'coth': 'arcoth'
+                    };
+                    if (INVERSE_FUNCTION[expr.ast.fn]) {
+                        const fn = {fn: INVERSE_FUNCTION[expr.ast.fn]};
+                        fn.arg = parsePrimary(expr).ast;
+                        expr.ast = fn;
+                    } else {
+                        const fn = expr.ast;
+                        fn.arg = parsePrimary(expr).ast;
+                        expr.ast = fn;
+                    }
+                } else {
+                    // Keep the exponent, add the argument
                     const fn = expr.ast;
                     fn.arg = parsePrimary(expr).ast;
                     expr.ast = fn;
                 }
+
             } else {
-                // Keep the exponent, add the argument
                 const fn = expr.ast;
                 fn.arg = parsePrimary(expr).ast;
                 expr.ast = fn;
             }
-
-        } else {
-            const fn = expr.ast;
-            fn.arg = parsePrimary(expr).ast;
-            expr.ast = fn;
         }
-    } else if (atom.type === 'font') {
-        expr.ast = atom.toAST();
-        if (atom.superscript === undefined) {
-            expr.index += 1;
-        }
-        expr = parseSupsub(expr);
-        expr = parsePostfix(expr);
-}
+    } else if (atom.type === 'sizing') {
+       expr.index += 1;
+       return parsePrimary(expr); 
+    }
 
 
     if (expr.ast === undefined) {
@@ -654,7 +687,7 @@ function parsePrimary(expr) {
                 }
             }
         }
-        if ((atom.type === 'mord' || atom.type === 'textord') &amp;&amp; opPrec(atom) >= 0) {
+        if ((atom.type === 'mord' || atom.type === 'textord' || atom.type === 'mop') &amp;&amp; opPrec(atom) >= 0) {
             // It's actually an operator
             return expr;
         }
@@ -765,6 +798,7 @@ MathAtom.MathAtom.prototype.toAST = function() {
 
     let result = {};
     let sym = '';
+    let m;
     const variant = MATH_VARIANTS[this.fontFamily || this.font];
 
     const command = this.latex ? this.latex.trim() : null;
@@ -815,18 +849,24 @@ MathAtom.MathAtom.prototype.toAST = function() {
 
         case 'mord':
         case 'textord':
-            sym = Definitions.getCanonicalName(command || this.value);
-            if (sym.length > 0 &amp;&amp; sym.charAt(0) === '\\') {
-                // This is an identifier with no special handling. 
-                // Use the Unicode value if outside ASCII range
-                if (this.value) {
-                    // TODO: consider making this an option?
-                    // if (this.value.charCodeAt(0) > 255) {
-                    //     sym = '&amp;#x' + ('000000' + 
-                    //         this.value.charCodeAt(0).toString(16)).substr(-4) + ';';
-                    // } else {
-                        sym = this.value.charAt(0);
-                    // }
+            // Check to see if it's a \char command
+            m = command.match(/[{]?\\char"([0-9abcdefABCDEF]*)[}]?/);
+            if (m) {
+                sym = String.fromCodePoint(parseInt(m[1], 16));
+            } else {
+                sym = Definitions.getCanonicalName(command || this.value);
+                if (sym.length > 0 &amp;&amp; sym.charAt(0) === '\\') {
+                    // This is an identifier with no special handling. 
+                    // Use the Unicode value if outside ASCII range
+                    if (this.value) {
+                        // TODO: consider making this an option?
+                        // if (this.value.charCodeAt(0) > 255) {
+                        //     sym = '&amp;#x' + ('000000' + 
+                        //         this.value.charCodeAt(0).toString(16)).substr(-4) + ';';
+                        // } else {
+                            sym = this.value.charAt(0);
+                        // }
+                    }
                 }
             }
             if (variant) {
@@ -923,24 +963,31 @@ function validateFence(fence, defaultFence) {
 
 /**
  * Return a formatted mantissa:
- * 1234567 -> 123 456 7
+ * 1234567 -> 123 456 7...
  * 1233333 -> 12(3)
  * @param {*} m 
  * @param {*} config 
  */
 function formatMantissa(m, config) {
     const originalLength = m.length;
-    m = m.substr(0, Math.min(m.length, config.precision - 1));
-    for (let i = 0; i &lt; m.length; i++) {    
+    // The last digit may have been rounded, if it exceeds the precison, 
+    // which could throw off the 
+    // repeating pattern detection. Ignore it.
+    m = m.substr(0, config.precision - 1);
+
+    for (let i = 0; i &lt; m.length - 16; i++) {
+        // Offset is the part of the mantissa that is not repeating
         const offset = m.substr(0, i);
-        for (let j = 0; j &lt; 8; j++) {
-            const pad = m.substr(i, j + 1);
-            const times = Math.ceil((m.length - offset.length) / pad.length);
-            if (times > 1 &amp;&amp; (offset.length + j * times) &lt;= m.length) {
-                const repeat = new Array(times + 1).join(pad); // Silly String.repeat hack
-                if (0 === (offset + repeat).indexOf(m)) {
+        // Try to find a repeating pattern of length j
+        for (let j = 0; j &lt; 17; j++) {
+            const cycle = m.substr(i, j + 1);
+            const times = Math.floor((m.length - offset.length) / cycle.length);
+            if (times > 1) {
+                if ((offset + cycle.repeat(times + 1)).startsWith(m)) {
                     return offset.replace(/(\d{3})/g, '$1' + config.groupSeparator) +
-                    config.beginRepeatingDigits + pad.replace(/(\d{3})/g, '$1' + config.groupSeparator) + config.endRepeatingDigits;
+                        config.beginRepeatingDigits + 
+                        cycle.replace(/(\d{3})/g, '$1' + config.groupSeparator) + 
+                        config.endRepeatingDigits;
                 }
             }
         }
@@ -990,27 +1037,35 @@ function numberAsLatex(num, config) {
                 num = num.substr(1);
             }
             if (num.indexOf('.') >= 0) {
-                if (num.length - 1 &lt;= config.precision) {
-                    return sign + num;
-                }
-                if (num.match(/^((\d)*\.)/)[1] === '0.') {
-                    let p = 2;
+                // if (num.length - 1 &lt; config.precision) {
+                //     // 
+                //     return sign + formatMantissa(num, config);
+                // }
+                const m = num.match(/(\d*).(\d*)/);
+                const base = m[1];
+                const mantissa = m[2];
+                
+                if (base === '0') {
+                    let p = 2;  // Index of the first non-zero digit after the decimal
                     while (num[p] === '0' &amp;&amp; p &lt; num.length - 1) {
                         p += 1;
                     }
-                    let r;
-                    if (p === 2) {
-                        p = 1;
-                        r = num[0]
+                    let r = '';
+                    let q = 0;
+                    if (p &lt;= 6) {
+                        r = '0' + config.decimalMarker;
+                        r += num.substr(2, p - 2);
+                        q = r.length;
                     } else {
                         r = num[p];
+                        r += config.decimalMarker;
+                        q = p + 1;
                     }
-                    r += config.decimalMarker;
-                    r += formatMantissa(num.substr(p + 1, config.precision - 1), config);
-                    if (r[r.length - 1] !== '}' &amp;&amp; num.length - 1 > config.precision) {
+                    r += formatMantissa(num.substr(q), config);
+                    if (num.length - 1 > config.precision &amp;&amp; !r.endsWith('}') &amp;&amp; !r.endsWith('\\ldots')) {
                         r += '\\ldots';
                     }
-                    if (p > 1) {
+                    if (p > 6) {
                         r += config.exponentProduct;
                         if (config.exponentMarker) {
                             r += config.exponentMarker + (1 - p).toString();
@@ -1020,16 +1075,18 @@ function numberAsLatex(num, config) {
                     }
                     num = r;
                 } else {
-                    num = formatMantissa(num.substr(0, config.precision + 1), config);
-                    if (num[num.length - 1] !== '}' &amp;&amp; num.length - 1 > config.precision) {
+                    num = base.replace(/\B(?=(\d{3})+(?!\d))/g, config.groupSeparator);
+                    num += config.decimalMarker;
+                    num += formatMantissa(mantissa, config);
+                    if (num.length - 1 > config.precision &amp;&amp; !num.endsWith('}') &amp;&amp; !num.endsWith('\\ldots')) {
                         num += '\\ldots';
                     }
                 }
             } else if (num.length > config.precision) {
                 const len = num.length;
                 let r = num[0];
-                r += '.';
-                r += formatMantissa(num.substr(1, config.precision - 1), config);
+                r += config.decimalMarker;
+                r += formatMantissa(num.substr(2), config);
                 if (r[r.length - 1] !== '}') {
                     r += '\\ldots';
                 }
@@ -1100,6 +1157,8 @@ function numberAsLatex(num, config) {
     return result;
 }
 
+
+
  /**
  * 
  * @param {Object} ast -- Abstract Syntax Tree object
@@ -1123,7 +1182,11 @@ function asLatex(ast, options) {
 
     if (ast === undefined) return '';
 
-    if (isNumber(ast)) {
+    if (ast.latex) {
+        // If ast.latex key is present, use it to render the element
+        result = ast.latex;
+
+    } else if (isNumber(ast)) {
         const val = asNumber(ast);
         if (isNaN(val)) {
             result = '\\mathrm{NaN}';
@@ -1139,19 +1202,25 @@ function asLatex(ast, options) {
 
     } else if (ast.re !== undefined || ast.im !== undefined ) {
         let wrap = false;
-        if (ast.re !== undefined) {
-            result = asNumber(ast.re);
-        }
-        if (ast.im !== undefined) {
-            if (ast.re !== undefined) {
-                result += '+';
-                wrap = true;
+        if (Math.abs(ast.im) &lt;= 1e-14 &amp;&amp; Math.abs(ast.re) &lt;= 1e-14) {
+            result = '0';
+        } else {
+            if (ast.re &amp;&amp; Math.abs(ast.re) > 1e-14) {
+                result = numberAsLatex(ast.re, config);
             }
-            result += asNumber(ast.im) + '\\imaginaryI ';
-        }
-        if (wrap) {
-            const fence = validateFence(ast.fence, '(),');
-            result = fence[0] + result + fence[1];
+            if (Math.abs(ast.im) > 1e-14) {
+                const im = asNumber(ast.im); 
+                if (Math.abs(ast.re) > 1e-14) {
+                    result += im > 0 ? '+' : '';
+                    wrap = true;
+                }
+                result += (Math.abs(im) !== 1 ? 
+                    numberAsLatex(ast.im, config) : '') + '\\imaginaryI ';
+            }
+            if (wrap) {
+                const fence = validateFence(ast.fence, '(),');
+                result = fence[0] + result + fence[1];
+            }
         }
         if (ast.sup) result += '^{' + asLatex(ast.sup, config) + '}';
         if (ast.sub) result += '_{' + asLatex(ast.sub, config) + '}';
@@ -1294,7 +1363,7 @@ function asLatex(ast, options) {
             result = result.replace('%0', lhs).replace('%1', rhs).replace('%', lhs);
         }
 
-    } else if (ast.text) { 
+    } else if (ast.text) {
         result = '\\text{' + ast.text + '}';
 
     } else if (ast.array) {

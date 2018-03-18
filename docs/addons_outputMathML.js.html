@@ -163,9 +163,10 @@ function scanIdentifier(stream, final) {
             mathML = body;
         }
 
-        if (stream.lastType === 'mi' || 
+        if ((stream.lastType === 'mi' || 
             stream.lastType === 'mn' || 
-            stream.lastType === 'fence') {
+            stream.lastType === 'fence') &amp;&amp; 
+            !mathML.match(/^&lt;mo>(.*)&lt;\/mo>$/)) {
             mathML = '&lt;mo>&amp;InvisibleTimes;&lt;/mo>' + mathML;
         }
 
@@ -173,7 +174,7 @@ function scanIdentifier(stream, final) {
             mathML += '&lt;mo> &amp;ApplyFunction; &lt;/mo>';
             stream.lastType = 'applyfunction';
         } else {
-            stream.lastType = 'mi';
+            stream.lastType = mathML.match(/^&lt;mo>(.*)&lt;\/mo>$/) ? 'mo' : 'mi';
         }
 
         stream.mathML += mathML;
@@ -350,6 +351,7 @@ function scanFence(stream, final) {
 
             if (stream.lastType === 'mi' || 
                 stream.lastType === 'mn' || 
+                stream.lastType === 'mfrac' || 
                 stream.lastType === 'fence') {
                 mathML = '&lt;mo>&amp;InvisibleTimes;&lt;/mo>' + mathML;
             }
@@ -424,7 +426,8 @@ function scanOperator(stream, final) {
         }
         // mathML += '&lt;/mrow>';
 
-        if (stream.lastType === 'mi' || stream.lastType === 'mn') {
+        if ((stream.lastType === 'mi' || stream.lastType === 'mn') &amp;&amp; 
+            !mathML.match(/^&lt;mo>(.*)&lt;\/mo>$/)) {
             mathML = '&lt;mo>&amp;InvisibleTimes;&lt;/mo>' + mathML;
         }
         stream.index += 1;
@@ -480,7 +483,11 @@ function toMathML(input, initial, final) {
                     // add an "invisible plus" (U+0264) character in front of it
                     mathML = '&lt;mo>&amp;#x2064;&lt;/mo>' + mathML;
                 }
-                result.lastType = '';
+                if (result.atoms[result.index].type === 'genfrac') {
+                    result.lastType = 'mfrac';
+                } else {
+                    result.lastType = '';
+                }
                 if (mathML.length > 0) {
                     result.mathML += mathML;
                     count += 1;
@@ -582,6 +589,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
     }
 
     const command = this.latex ? this.latex.trim() : null;
+    let m;
     switch(this.type) {
         case 'group':
         case 'root':
@@ -758,7 +766,11 @@ MathAtom.MathAtom.prototype.toMathML = function() {
 
         case 'mord':
             result = SPECIAL_IDENTIFIERS[command] || command || this.value;
-            if (result.length > 0 &amp;&amp; result.charAt(0) === '\\') {
+            m = command.match(/[{]?\\char"([0-9abcdefABCDEF]*)[}]?/);
+            if (m) {
+                // It's a \char command
+                result = '&amp;#x' + m[1] + ';'                
+            } else if (result.length > 0 &amp;&amp; result.charAt(0) === '\\') {
                 // This is an identifier with no special handling. Use the 
                 // Unicode value
                 if (this.value &amp;&amp; this.value.charCodeAt(0) > 255) {
@@ -766,6 +778,8 @@ MathAtom.MathAtom.prototype.toMathML = function() {
                         this.value.charCodeAt(0).toString(16)).substr(-4) + ';';
                 } else if (this.value) {
                     result = this.value.charAt(0);
+                } else {
+                    result = this.latex;
                 }
             }
             result = '&lt;mi' + variant + '>' + xmlEscape(result) + '&lt;/mi>';

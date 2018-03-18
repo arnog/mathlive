@@ -156,7 +156,7 @@ function MathField(element, config) {
         this.textarea =  this.config.substituteTextArea();
     } else {
         this.textarea = this.element.children[iChild++].firstElementChild;
-}
+    }
     this.field = this.element.children[iChild].children[0];
     this.commandbarToggle = this.element.children[iChild++].children[1];
     this._attachButtonHandlers(this.commandbarToggle, 'toggleCommandBar');

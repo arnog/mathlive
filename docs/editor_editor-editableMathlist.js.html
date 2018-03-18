@@ -366,7 +366,11 @@ function arrayCell(atom, colrow) {
     let result;
     if (Array.isArray(atom.array)) {
         if (Array.isArray(atom.array[colrow.row])) {
-            result = atom.array[colrow.row][colrow.col];
+            let col = colrow.col;
+            while (!result &amp;&amp; col >= 0) {
+                result = atom.array[colrow.row][col];
+                col -= 1;
+            }
         }
     }
 
@@ -414,6 +418,12 @@ EditableMathlist.prototype.ancestor = function(ancestor) {
             const cellIndex = parseInt(segment.relation.match(/cell([0-9]*)$/)[1]);
             result = arrayCell(result, cellIndex)[segment.offset];
         } else {
+            // Make sure the 'first' atom has been inserted, otherwise 
+            // the segment.offset might be invalid
+            if (result[segment.relation].length === 0 || result[segment.relation][0].type !== 'first') {
+                const firstAtom = new MathAtom.MathAtom(result.parseMode, 'first', null);
+                result[segment.relation].unshift(firstAtom);
+            }
             result = result[segment.relation][segment.offset];
         }
     }
@@ -683,8 +693,8 @@ EditableMathlist.prototype.extractContents = function() {
     const firstOffset = this.startOffset();
     if (firstOffset &lt; siblings.length) {
         // const lastOffset = Math.min(siblings.length, this.endOffset());
-        const endOffset = Math.min(siblings.length, this.endOffset());
-        for (let i = firstOffset; i &lt; endOffset; i++) {
+        const endOffset = Math.min(siblings.length - 1, this.endOffset());
+        for (let i = firstOffset; i &lt;= endOffset; i++) {
             result.push(siblings[i]);
         }
     }
@@ -739,7 +749,7 @@ EditableMathlist.prototype.extractGroupStringBeforeInsertionPoint = function() {
         // If the sibling has no value (for example it's a compound math atom)
         // use the REPLACEMENT CHARACTER as a placeholder. This will prevent
         // the sequence "-1/x=" to match "-=" with "\\equiv"
-        if (['mord', 'mbin', 'mrel', 'mopen', 'mclose', 'minner'].includes(siblings[i].type)) {
+        if (['mord', 'mbin', 'mrel', 'mopen', 'mclose', 'minner', 'textord'].includes(siblings[i].type)) {
             result += siblings[i].value || '\ufffd';
         } else {
             result += '\ufffd';
@@ -932,7 +942,7 @@ EditableMathlist.prototype.setSelection = function(offset, extent, relation) {
     const oldExtent = this.extent;
     extent = extent || 0;
     if (extent === 'end') {
-        extent = siblingsCount - offset;
+        extent = siblingsCount - offset ;
         if (extent === 0) {
             offset -= 1;
         }
@@ -1240,6 +1250,12 @@ EditableMathlist.prototype.extend = function(dist) {
     }
 
     extent = this.extent + dist;
+
+    // If the selection collapses, need to readjust where the anchor starts
+    if (extent === 0) {
+        offset -= 1;
+    }
+
     const newFocusOffset = offset + extent;
     if (newFocusOffset &lt;= 0) {
         // We're trying to extend beyond the first element.
@@ -1506,6 +1522,7 @@ EditableMathlist.prototype.insert = function(s, options) {
         // Remove all the children of root, save for the 'first' atom
         this.root.children.splice(1);
         this.path = [{relation: 'children', offset: 0}];
+        this.extent = 0;
     } else if (options.insertionMode === 'insertBefore') {
         this.collapseBackward();
     } else if (options.insertionMode === 'insertAfter') {
@@ -2104,7 +2121,7 @@ EditableMathlist.prototype.moveToOpposite_ = function() {
             // If we have a supub, move to it
             this.path.pop();
             this.path.push({relation: oppositeRelation, offset: 1});
-            this.setSelection(1, 'end');
+            this.setSelection(0, 'end');
         } else {
             // If we don't have the opposite of the supsub, add it now
             if (this.parent()[OPPOSITE_RELATIONS[oppositeRelation]]) {
