@@ -669,7 +669,7 @@ EditableMathlist.prototype.extractGroupStringBeforeInsertionPoint = function() {
         // If the sibling has no value (for example it's a compound math atom)
         // use the REPLACEMENT CHARACTER as a placeholder. This will prevent
         // the sequence "-1/x=" to match "-=" with "\\equiv"
-        if (['mord', 'mbin', 'mrel', 'mopen', 'mclose', 'minner'].includes(siblings[i].type)) {
+        if (['mord', 'mbin', 'mrel', 'mopen', 'mclose', 'minner', 'textord'].includes(siblings[i].type)) {
             result += siblings[i].value || '\ufffd';
         } else {
             result += '\ufffd';
@@ -854,7 +854,7 @@ EditableMathlist.prototype.setSelection = function(offset, extent, relation) {
     if (offset < 0) {
         offset = siblingsCount + offset;
     }
-    offset = Math.max(0, Math.min(offset, siblingsCount - 1));
+    offset = Math.max(0, Math.min(offset, siblingsCount));
 
     const oldOffset = this.path[this.path.length - 1].offset;
     const offsetChanged = oldOffset !== offset;
@@ -862,7 +862,7 @@ EditableMathlist.prototype.setSelection = function(offset, extent, relation) {
     const oldExtent = this.extent;
     extent = extent || 0;
     if (extent === 'end') {
-        extent = siblingsCount - offset;
+        extent = siblingsCount - offset ;
         if (extent === 0) {
             offset -= 1;
         }
@@ -1170,6 +1170,12 @@ EditableMathlist.prototype.extend = function(dist) {
     }
 
     extent = this.extent + dist;
+
+    // If the selection collapses, need to readjust where the anchor starts
+    if (extent === 0) {
+        offset -= 1;
+    }
+
     const newFocusOffset = offset + extent;
     if (newFocusOffset <= 0) {
         // We're trying to extend beyond the first element.
@@ -2034,7 +2040,7 @@ EditableMathlist.prototype.moveToOpposite_ = function() {
             // If we have a supub, move to it
             this.path.pop();
             this.path.push({relation: oppositeRelation, offset: 1});
-            this.setSelection(1, 'end');
+            this.setSelection(0, 'end');
         } else {
             // If we don't have the opposite of the supsub, add it now
             if (this.parent()[OPPOSITE_RELATIONS[oppositeRelation]]) {
