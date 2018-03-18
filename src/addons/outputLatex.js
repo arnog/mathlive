@@ -49,7 +49,11 @@ MathAtom.MathAtom.prototype.toLatex = function() {
                 result += '{';
                 if (this.colFormat) {
                     for (i = 0; i < this.colFormat.length; i++) {
-                        result += this.colFormat[i].align;
+                        if (this.colFormat[i].align) {
+                            result += this.colFormat[i].align;
+                        } else if (this.colFormat[i].rule) {
+                            result += '|';
+                        }
                     }
                 }
                 result += '}';
@@ -109,9 +113,9 @@ MathAtom.MathAtom.prototype.toLatex = function() {
         case 'rule':
             result += command;
             if (this.shift) {
-                result += `[${latexify(this.shift)}]`;
+                result += `[${latexify(this.shift)}em]`;
             }
-            result += `{${latexify(this.width)}}{${latexify(this.height)}}`;
+            result += `{${latexify(this.width)}em}{${latexify(this.height)}em}`;
             break;
 
         case 'line':
@@ -278,6 +282,7 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             break;
 
         case 'first':
+        case 'placeholder':
             break;  
 
         default:
