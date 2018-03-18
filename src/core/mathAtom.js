@@ -1345,7 +1345,7 @@ MathAtom.prototype.decompose = function(context) {
         //
      
     } else if (this.type === 'msupsub') {
-        if (this.hasCaret) result.hasCaret = true;
+        // The caret for this atom type is handle by its elements
 
     } else if (this.type === 'mord' || 
         this.type === 'minner' || this.type === 'mbin' ||
@@ -1361,7 +1361,6 @@ MathAtom.prototype.decompose = function(context) {
         } else {
             result = this.makeSpan(context, decompose(context, this.children));
         }
-        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'op' || this.type === 'mop') {
         console.assert(this.type === 'mop');
@@ -1445,6 +1444,7 @@ MathAtom.prototype.decompose = function(context) {
         // managing the list, and the caret selection, easier. 
         // ZERO-WIDTH SPACE
         result = this.makeSpan(context, '\u200b');
+        if (this.hasCaret) result.hasCaret = true;
 
     } else {
         //
@@ -1578,9 +1578,13 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
 
     // Display the caret *following* the superscript and subscript, 
     // so attach the caret to the 'msupsub' element.
-    if (this.hasCaret) supsub.hasCaret = true;
 
-    return Span.makeSpanOfType(type, [nucleus, makeSpan(supsub, 'msupsub')]);
+    const supsubContainer = makeSpan(supsub, 'msupsub');
+    if (this.hasCaret) {
+        supsubContainer.hasCaret = true;
+    }
+
+    return Span.makeSpanOfType(type, [nucleus, supsubContainer]);
 }
 
 
@@ -1736,8 +1740,8 @@ MathAtom.prototype.makeSpan = function(context, body) {
         if (!this.superscript && !this.subscript) {
             result = Span.makeSpanOfType(type, result);
             result.hasCaret = true;
+            if (context.mathstyle.isTight()) result.isTight = true;
         }
-        if (context.mathstyle.isTight()) result.isTight = true;
     }
 
     return result;
