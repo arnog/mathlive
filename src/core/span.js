@@ -268,7 +268,7 @@ function lastSpanType(span) {
     if (span.classes.indexOf('ML__selected') !== -1) {
         result = span.children[span.children.length - 1].type;
     }
-    return result !== 'textord' ? result : 'mord';
+    return (result === 'textord' || result === 'first') ? 'mord' : result;
 }
 
 /**
@@ -288,7 +288,8 @@ Span.prototype.toMarkup = function(hskip) {
         let previousType = 'none';
         for (const child of this.children) {
             let spacing = 0;
-            const type = child.type !== 'textord' ? child.type : 'mord';
+            let type = child.type !== 'textord' ? child.type : 'mord';
+            if (type === 'first') type = 'mord';
             if (child.isTight) { 
                 spacing = (INTER_ATOM_TIGHT_SPACING[previousType + '+' + type] || 0) / 18;
             } else {

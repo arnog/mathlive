@@ -180,14 +180,25 @@ MathAtom.prototype.getBaseElement = function () {
 }
 
 MathAtom.prototype.getInitialBaseElement = function () {
+    let result = this;
     if (this.children && this.children.length > 0) {
-        return this.children[0].getFinalBaseElement();
+        for (const child of this.children) {
+            if (child.type !== 'first') {
+                result = this.children[0].getInitialBaseElement();
+                break;
+            }
+        }
     }
     if (this.body && this.body.length > 0) {
-        return this.body[0].getFinalBaseElement();
+        for (const child of this.body) {
+            if (child.type !== 'first') {
+                result = this.body[0].getInitialBaseElement();
+                break;
+            }
+        }
     }
 
-    return this;
+    return result;
 }
 
 MathAtom.prototype.getFinalBaseElement = function () {
@@ -306,7 +317,7 @@ MathAtom.prototype.decomposeGroup = function(context) {
  * @private
  */
 function makeColGap(width) {
-    const separator = makeSpan(null, 'arraycolsep');
+    const separator = makeSpan('\u200b', 'arraycolsep');
     separator.setWidth(width, 'em');
     return separator;
 }
@@ -401,7 +412,7 @@ MathAtom.prototype.decomposeArray = function(context) {
                 outrow.push(elt);
             }
         }
-
+        
         let jot = r === nr - 1 ? 0 : (this.jot || 0);
         if (this.rowGaps && this.rowGaps[r]) {
             jot = this.rowGaps[r]; 
@@ -478,7 +489,7 @@ MathAtom.prototype.decomposeArray = function(context) {
             if (typeof colDesc.gap === 'number') {
                 // It's a number, indicating how much space, in em,
                 // to leave in between columns
-                cols.push(makeColGap(colDesc.gap));
+                    cols.push(makeColGap(colDesc.gap));
             } else {
                 // It's a mathlist
                 // Create a column made up of the mathlist
@@ -1306,6 +1317,7 @@ MathAtom.prototype.decompose = function(context) {
 
     } else if (this.type === 'accent') {
         result = this.decomposeAccent(context);
+        if (this.hasCaret) result.hasCaret = true;
         
     } else if (this.type === 'leftright') {
         result = this.decomposeLeftright(context);
@@ -1389,7 +1401,7 @@ MathAtom.prototype.decompose = function(context) {
                 result = this.makeSpan(context, '\u00a0');
             }
         } else if (this.width) {
-            result = makeSpan('', 'mspace ');
+            result = makeSpan('\u200b', 'mspace ');
             if (this.width > 0) {
                 result.setWidth(this.width);            
             } else {
@@ -1404,7 +1416,7 @@ MathAtom.prototype.decompose = function(context) {
                 ':': 'mediumspace',
                 ',': 'thinspace',
                 '!': 'negativethinspace'}[this.value] || 'quad'
-            result = makeSpan('', 'mspace ' + spacingCls);
+            result = makeSpan('\u200b', 'mspace ' + spacingCls);
         }
         if (this.hasCaret) result.hasCaret = true;
 
@@ -2018,50 +2030,34 @@ function decompose(context, atoms) {
                     }
                 }
 
-                if (result.length >= 1 && atoms[i].type === 'spacing' && atoms[i].width) {
-                    // This is a manual spacing command, e.g. \hspace.
-                    // Adjust the margin of the previous span
-                    result[result.length - 1].addMarginRight(atoms[i].width);
-                } else if (result.length >= 1 && atoms[i].type === 'spacing') {
-                    // This is spacing command, e.g. \,
-                    // Adjust the margin of the previous span
-                    const width = {
-                        'qquad': 2,
-                        'quad': 1,
-                        'enspace': .5,
-                        ';': 0.277778,
-                        ':': 0.222222,
-                        ',': 0.166667,
-                        '!': -0.166667}[atoms[i].value] || 1;
-
-                    result[result.length - 1].addMarginRight(width);
-                } else {
-                    const span = atoms[i].decompose(context);
-                    // The result from decompose is an array
-                    if (span) {
-                        console.assert(Array.isArray(span));
-                        // Flatten it (i.e. [[a1, a2], b1, b2] -> [a1, a2, b1, b2]
-                        const flat = [].concat.apply([], span);
-                        if (atoms[i].isSelected && !context.isSelected) {
-                            selection = selection.concat(flat);
-                            if (!selectionType) {
-                                selectionType = span[0].type;
-                                if (selectionType === 'placeholder') selectionType = 'mord';
-                                selectionIsTight = span[0].isTight;
+                const span = atoms[i].decompose(context);
+                if (span) {
+                    // The result from decompose is always an array
+                    console.assert(Array.isArray(span));
+                    // Flatten it (i.e. [[a1, a2], b1, b2] -> [a1, a2, b1, b2]
+                    const flat = [].concat.apply([], span);
+                    if (atoms[i].isSelected && !context.isSelected) {
+                        selection = selection.concat(flat);
+                        if (!selectionType) {
+                            selectionType = atoms[i].type;
+                            if (selectionType === 'array') selectionType = 'mopen';
+                            if (selectionType.match(/^(first|accent|surd|genfrac|textord|font|placeholder)$/)) {
+                                selectionType = 'mord';
                             }
-                        } else {
-                            if (selection.length > 0) {
-                                // There was a selection, but we're out of it now
-                                // Insert the selection
-                                const span = Span.makeSpanOfType(
-                                        selectionType, selection, 'ML__selected');
-                                span.isTight = selectionIsTight;
-                                result.push(span);
-                                selection = [];
-                                selectionType = '';
-                            }
-                            result = result.concat(flat);
+                            selectionIsTight = atoms[i].isTight;
                         }
+                    } else {
+                        if (selection.length > 0) {
+                            // There was a selection, but we're out of it now
+                            // Insert the selection
+                            const span = Span.makeSpanOfType(
+                                    selectionType, selection, 'ML__selected');
+                            span.isTight = selectionIsTight;
+                            result.push(span);
+                            selection = [];
+                            selectionType = '';
+                        }
+                        result = result.concat(flat);
                     }
                 }
 
