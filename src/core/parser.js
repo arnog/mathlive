@@ -1156,14 +1156,16 @@ Parser.prototype.scanToken = function() {
         if (token.value === 'char') {
             // \char has a special syntax and requires a non-braced integer 
             // argument
-            let codepoint = this.scanNumber(true);
-            if (isNaN(codepoint)) codepoint = 0x2753; // BLACK QUESTION MARK
+            let codepoint = Math.floor(this.scanNumber(true));
+            if (!isFinite(codepoint) || codepoint < 0 || codepoint > 0x10FFFF) {
+                codepoint = 0x2753; // BLACK QUESTION MARK
+            }
             result = new MathAtom(this.parseMode,
                 this.parseMode === 'math' ? 'mord' : 'textord', 
                 String.fromCodePoint(codepoint), 
                 'main');
-            result.latex = '\\char"' + 
-                ('000000' + codepoint.toString(16)).toUpperCase().substr(-6);
+            result.latex = '{\\char"' + 
+                ('000000' + codepoint.toString(16)).toUpperCase().substr(-6) + '}';
 
         } else if (token.value === 'hskip' || token.value === 'kern') {
             // \hskip and \kern have a special syntax and requires a non-braced 
