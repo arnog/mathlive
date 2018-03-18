@@ -390,6 +390,11 @@ Span.prototype.toMarkup = function(hskip) {
         result += '</' + tag + '>';
     }
 
+    // Collapse 'empty' spans
+    if (result === '<span>\u200b</span>') {
+        result = '';
+    }
+
     return result;    
 }
 
