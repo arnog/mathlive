@@ -1596,7 +1596,7 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
  * @method MathAtom#bind
  */
 MathAtom.prototype.bind = function(context, span) {
-    if (context.generateID && this.type !== 'first') {
+    if (context.generateID && this.type !== 'first' && this.value !== '\u200b') {
         this.id = Date.now().toString(36) + 
             Math.floor(Math.random() * 0x186a0).toString(36);
 

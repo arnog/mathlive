@@ -611,19 +611,22 @@ function makeSymbol(fontFamily, symbol, classes) {
  */
 function makeFontSizer(context, fontSize) {
     const fontSizeAdjustment = fontSize ? fontSize / context.mathstyle.sizeMultiplier : 0;
-    const fontSizeInner = new Span('&#x200b;');    // ZERO WIDTH SPACE
-    fontSizeInner.attributes = {
-        "aria-hidden": true
+    const fontSizeInner = new Span('\u200b');    // ZERO WIDTH SPACE
+
+    if (fontSizeAdjustment !== 1) {
+        fontSizeInner.setStyle('font-size', 
+            fontSizeAdjustment, 
+            (fontSizeAdjustment > 0) ? 'em' : '');
+        fontSizeInner.attributes = {
+            "aria-hidden": true
+        }
     }
-    fontSizeInner.setStyle('font-size', 
-        fontSizeAdjustment, 
-        (fontSizeAdjustment > 0) ? 'em' : '');
 
     if (context.size !== 'size5') { 
         return new Span(fontSizeInner, 
             'fontsize-ensurer reset-' + context.size + ' size5');
     } 
-    return fontSizeAdjustment ? fontSizeInner : null;
+    return (fontSizeAdjustment !== 0) ? fontSizeInner : null;
 }
 
 /**
