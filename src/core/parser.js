@@ -1239,8 +1239,8 @@ Parser.prototype.scanToken = function() {
             result = new MathAtom(this.parseMode,  info.type, 
                 info.value || token.value, info.fontFamily);
         } else {
-            console.warn('Unknown literal "' + token.value + 
-                '" (U+' + ('000000' + token.value.charCodeAt(0).toString(16)).substr(-6) + ')');
+            // console.warn('Unknown literal "' + token.value + 
+            //     '" (U+' + ('000000' + token.value.charCodeAt(0).toString(16)).substr(-6) + ')');
             result = new MathAtom(this.parseMode, 
                 this.parseMode === 'math' ? 'mord' : 'textord', 
                 token.value, 'main');
