@@ -142,10 +142,12 @@ MathAtom.MathAtom.prototype.toLatex = function() {
                 command === '\\mathpunct' || command === '\\mathord' || 
                 command === '\\mathinner') {
                 result += command + '{' + latexify(this.children) + '}';
-            } else if (this.value) {
-                if (this.value !== '\u200b') {
-                    // Not ZERO-WIDTH
-                    result += this.latex || this.value;
+            } else if (this.latex || this.value) {
+                // Not ZERO-WIDTH
+                if (this.latex && this.latex[0] === '\\') {
+                    result += this.latex + ' ';
+                } else {
+                    result += this.value !== '\u200b' ? this.value : '';
                 }
             } else {
                 result += latexify(this.children);
@@ -283,6 +285,7 @@ MathAtom.MathAtom.prototype.toLatex = function() {
 
         case 'first':
         case 'placeholder':
+        case 'command':
             break;  
 
         default:
