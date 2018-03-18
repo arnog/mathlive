@@ -296,7 +296,11 @@ function arrayCell(atom, colrow) {
     let result;
     if (Array.isArray(atom.array)) {
         if (Array.isArray(atom.array[colrow.row])) {
-            result = atom.array[colrow.row][colrow.col];
+            let col = colrow.col;
+            while (!result && col >= 0) {
+                result = atom.array[colrow.row][col];
+                col -= 1;
+            }
         }
     }
 
@@ -344,6 +348,12 @@ EditableMathlist.prototype.ancestor = function(ancestor) {
             const cellIndex = parseInt(segment.relation.match(/cell([0-9]*)$/)[1]);
             result = arrayCell(result, cellIndex)[segment.offset];
         } else {
+            // Make sure the 'first' atom has been inserted, otherwise 
+            // the segment.offset might be invalid
+            if (result[segment.relation].length === 0 || result[segment.relation][0].type !== 'first') {
+                const firstAtom = new MathAtom.MathAtom(result.parseMode, 'first', null);
+                result[segment.relation].unshift(firstAtom);
+            }
             result = result[segment.relation][segment.offset];
         }
     }
@@ -1442,6 +1452,7 @@ EditableMathlist.prototype.insert = function(s, options) {
         // Remove all the children of root, save for the 'first' atom
         this.root.children.splice(1);
         this.path = [{relation: 'children', offset: 0}];
+        this.extent = 0;
     } else if (options.insertionMode === 'insertBefore') {
         this.collapseBackward();
     } else if (options.insertionMode === 'insertAfter') {
