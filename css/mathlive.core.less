@@ -142,6 +142,10 @@ to make sure it doesn't show. */
     margin-right: 4px;
     cursor: pointer;
     box-sizing: border-box;
+    /* Avoid some weird blinking with :hover */
+    border-radius: 50%;
+    border: 1px solid transparent;
+    transition: background 0.2s cubic-bezier(.64,.09,.08,1);
 }
 
 .ML__commandbartoggle:hover {
@@ -170,6 +174,7 @@ to make sure it doesn't show. */
     justify-content: center;
 
     box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+    transition: all 0.2s cubic-bezier(.64,.09,.08,1);
 }
 
 /* The 'tip' of the popover panel */
