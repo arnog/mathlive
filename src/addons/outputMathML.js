@@ -519,6 +519,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
     }
 
     const command = this.latex ? this.latex.trim() : null;
+    let m;
     switch(this.type) {
         case 'group':
         case 'root':
@@ -695,7 +696,11 @@ MathAtom.MathAtom.prototype.toMathML = function() {
 
         case 'mord':
             result = SPECIAL_IDENTIFIERS[command] || command || this.value;
-            if (result.length > 0 && result.charAt(0) === '\\') {
+            m = command.match(/[{]?\\char"([0-9abcdefABCDEF]*)[}]?/);
+            if (m) {
+                // It's a \char command
+                result = '&#x' + m[1] + ';'                
+            } else if (result.length > 0 && result.charAt(0) === '\\') {
                 // This is an identifier with no special handling. Use the 
                 // Unicode value
                 if (this.value && this.value.charCodeAt(0) > 255) {
@@ -703,6 +708,8 @@ MathAtom.MathAtom.prototype.toMathML = function() {
                         this.value.charCodeAt(0).toString(16)).substr(-4) + ';';
                 } else if (this.value) {
                     result = this.value.charAt(0);
+                } else {
+                    result = this.latex;
                 }
             }
             result = '<mi' + variant + '>' + xmlEscape(result) + '</mi>';
