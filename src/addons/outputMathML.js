@@ -696,7 +696,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
 
         case 'mord':
             result = SPECIAL_IDENTIFIERS[command] || command || this.value;
-            m = command.match(/[{]?\\char"([0-9abcdefABCDEF]*)[}]?/);
+            m = command ? command.match(/[{]?\\char"([0-9abcdefABCDEF]*)[}]?/) : null;
             if (m) {
                 // It's a \char command
                 result = '&#x' + m[1] + ';'                
