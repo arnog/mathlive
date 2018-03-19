@@ -3106,6 +3106,7 @@ const CANONICAL_NAMES = {
     '\\otimes': 'otimes',
 
     '\\zeta':   'Zeta',
+    '\\Gamma':  'Gamma',
     '\\min':    'min',
     '\\max':    'max',
     '\\mod':    'mod',
@@ -3173,6 +3174,7 @@ const FUNCTION_TEMPLATE = {
 
     // OTHER
     'Zeta':     '\\zeta%_%^ %', // Riemann Zeta function
+    'Gamma':    '\\Gamma %',    // Gamma function, such that Gamma(n) = (n - 1)!
     'min':      '\\min%_%^ %',
     'max':      '\\max%_%^ %',
     'mod':      '\\mod%_%^ %',
@@ -3192,6 +3194,13 @@ const FUNCTION_TEMPLATE = {
     'moustache':'\\lmoustache % \\rmoustache%_%^',
     'brace':    '\\lbrace % \\rbrace%_%^',
     'sqrt':     '\\sqrt[%^]{%}',
+    'lcm':      '\\mathrm{lcm}%',
+    'gcd':      '\\mathrm{gcd}%',
+    'erf':      '\\mathrm{erf}%',
+    'erfc':     '\\mathrm{erfc}%',
+    'randomReal': '\\mathrm{randomReal}%',
+    'randomInteger': '\\mathrm{randomInteger}%',
+    
 
     // Arithmetic operators
     '*':        '%0 \\times %1',

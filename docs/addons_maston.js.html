@@ -160,21 +160,11 @@ function asSymbol(expr) {
  * @return {number} -- A Javascript number, the value of the AST or NaN
  */
 function asNumber(num) {
-    const BUILT_IN_CONSTANTS = {
-        'π':        Math.PI,
-        '\u03c4':   2 * Math.PI,            // GREEK SMALL LETTER TAU
-        '\u212f':   Math.E,                 // ℯ SCRIPT SMALL E
-        '\u2147':   Math.E,                 // ⅇ DOUBLE-STRUCK ITALIC SMALL E 
-        'e':        Math.E,
-        '\u03d5':   1.618033988749895      //  GREEK SMALL LETTER PHI
-    }
     let result = undefined;
     if (num !== undefined) {
         if (num.num !== undefined) {
-            result = parseFloat(num.num);
-        } else if (asSymbol(num)) {
-            if (BUILT_IN_CONSTANTS[asSymbol(num)]) {
-                result = BUILT_IN_CONSTANTS[asSymbol(num)];
+            if (num.num.toString().match(/^[+-]?[0-9]*[.]?[0-9]*[eE]?[+-]?[0-9]?$/)) {
+                result = parseFloat(num.num);
             }
         } else if (typeof num === 'number') {
             result = parseFloat(num);
@@ -541,6 +531,7 @@ function parsePrimary(expr) {
             expr = parseSupsub(expr);
         }
         expr = parsePostfix(expr);
+
     } else if (atom.type === 'mord') {
         // A 'mord' but not a number, either an identifier ('x') or a function
         // ('\\Zeta')
@@ -741,7 +732,20 @@ function parseExpression(expr) {
             rhs = parseExpression(expr).ast;
             atom = expr.atoms[expr.index];
         }
-        lhs = {lhs: lhs, op: opName, rhs: rhs}
+        // Handle in-line fractions, i.e. "1/4" instead of \genfrac.
+        // This can happen when text is pasted directly in...
+        if (opName === '/') {
+            const p = asNumber(lhs);
+            const q = asNumber(rhs);
+            if (!isNaN(p) &amp;&amp; Number.isInteger(p) &amp;&amp; !isNaN(q) &amp;&amp; Number.isInteger(q)) {
+                lhs = {num: p.toString() + '/' + q.toString()};
+            } else {
+                lhs = {lhs: lhs, op: '/', rhs: rhs}
+            }
+        
+        } else {
+            lhs = {lhs: lhs, op: opName, rhs: rhs}
+        }
     }
 
     expr.ast = lhs;
@@ -799,6 +803,7 @@ MathAtom.MathAtom.prototype.toAST = function() {
     let result = {};
     let sym = '';
     let m;
+    let lhs, rhs, p, q;
     const variant = MATH_VARIANTS[this.fontFamily || this.font];
 
     const command = this.latex ? this.latex.trim() : null;
@@ -808,10 +813,17 @@ MathAtom.MathAtom.prototype.toAST = function() {
             break;
 
         case 'genfrac':
-            // @todo: deal with fracs delimiters, hasBarLine === false
-            result.lhs = parse(this.numer);
-            result.op = '/';
-            result.rhs = parse(this.denom);
+            lhs = parse(this.numer);
+            rhs = parse(this.denom);
+            p = parseInt(lhs);
+            q = parseInt(rhs);
+            if (!isNaN(p) &amp;&amp; !isNaN(q)) {
+                result.num = p.toString() + '/' + q.toString();
+            } else {
+                result.lhs = lhs;
+                result.op = '/';
+                result.rhs = rhs;
+            }
             break;
 
         case 'surd':
@@ -850,7 +862,7 @@ MathAtom.MathAtom.prototype.toAST = function() {
         case 'mord':
         case 'textord':
             // Check to see if it's a \char command
-            m = command.match(/[{]?\\char"([0-9abcdefABCDEF]*)[}]?/);
+            m = !command ? undefined : command.match(/[{]?\\char"([0-9abcdefABCDEF]*)[}]?/);
             if (m) {
                 sym = String.fromCodePoint(parseInt(m[1], 16));
             } else {
@@ -973,7 +985,7 @@ function formatMantissa(m, config) {
     // The last digit may have been rounded, if it exceeds the precison, 
     // which could throw off the 
     // repeating pattern detection. Ignore it.
-    m = m.substr(0, config.precision - 1);
+    m = m.substr(0, config.precision - 2);
 
     for (let i = 0; i &lt; m.length - 16; i++) {
         // Offset is the part of the mantissa that is not repeating
@@ -984,6 +996,10 @@ function formatMantissa(m, config) {
             const times = Math.floor((m.length - offset.length) / cycle.length);
             if (times > 1) {
                 if ((offset + cycle.repeat(times + 1)).startsWith(m)) {
+                    // We've found a repeating pattern!
+                    if (cycle === '0') {
+                        return offset.replace(/(\d{3})/g, '$1' + config.groupSeparator);
+                    }
                     return offset.replace(/(\d{3})/g, '$1' + config.groupSeparator) +
                         config.beginRepeatingDigits + 
                         cycle.replace(/(\d{3})/g, '$1' + config.groupSeparator) + 
@@ -1051,17 +1067,17 @@ function numberAsLatex(num, config) {
                         p += 1;
                     }
                     let r = '';
-                    let q = 0;
                     if (p &lt;= 6) {
                         r = '0' + config.decimalMarker;
                         r += num.substr(2, p - 2);
-                        q = r.length;
+                        r += formatMantissa(num.substr(r.length), config);
                     } else {
                         r = num[p];
-                        r += config.decimalMarker;
-                        q = p + 1;
+                        const f = formatMantissa(num.substr(p + 1), config);
+                        if (f) {
+                            r += config.decimalMarker + f;
+                        }
                     }
-                    r += formatMantissa(num.substr(q), config);
                     if (num.length - 1 > config.precision &amp;&amp; !r.endsWith('}') &amp;&amp; !r.endsWith('\\ldots')) {
                         r += '\\ldots';
                     }
@@ -1076,25 +1092,33 @@ function numberAsLatex(num, config) {
                     num = r;
                 } else {
                     num = base.replace(/\B(?=(\d{3})+(?!\d))/g, config.groupSeparator);
-                    num += config.decimalMarker;
-                    num += formatMantissa(mantissa, config);
-                    if (num.length - 1 > config.precision &amp;&amp; !num.endsWith('}') &amp;&amp; !num.endsWith('\\ldots')) {
-                        num += '\\ldots';
+                    const f = formatMantissa(mantissa, config);
+                    if (f) {
+                        num += config.decimalMarker + f;
+                        if (num.length - 1 > config.precision &amp;&amp; !num.endsWith('}') &amp;&amp; !num.endsWith('\\ldots')) {
+                            num += '\\ldots';
+                        }
                     }
                 }
             } else if (num.length > config.precision) {
                 const len = num.length;
                 let r = num[0];
-                r += config.decimalMarker;
-                r += formatMantissa(num.substr(2), config);
-                if (r[r.length - 1] !== '}') {
-                    r += '\\ldots';
+                const f = formatMantissa(num.substr(2), config);
+                if (f) {
+                    r += config.decimalMarker + f;
+                    if (r[r.length - 1] !== '}') {
+                        r += '\\ldots';
+                    }
                 }
-                r += config.exponentProduct;
-                if (config.exponentMarker) {
-                    r += config.exponentMarker + (len - 1).toString();
+                if (r !== '1') {
+                    r += config.exponentProduct;
                 } else {
-                    r += '10^{' + (len - 1).toString() + '}';
+                    r = '';
+                }
+                if (config.exponentMarker) {
+                    r += config.exponentMarker + (len - 2).toString();
+                } else {
+                    r += '10^{' + (len - 2).toString() + '}';
                 }
                 num = r;
             }
@@ -1185,6 +1209,11 @@ function asLatex(ast, options) {
     if (ast.latex) {
         // If ast.latex key is present, use it to render the element
         result = ast.latex;
+
+    } else if (ast.num !== undefined &amp;&amp; ast.num.match(/([+-]?[0-9]+)\/([0-9]+)/)) {
+        result = numberAsLatex(ast.num, config);
+        if (ast.sup) result += '^{' + asLatex(ast.sup, config) + '}';
+        if (ast.sub) result += '_{' + asLatex(ast.sub, config) + '}';
 
     } else if (isNumber(ast)) {
         const val = asNumber(ast);
