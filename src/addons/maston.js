@@ -971,7 +971,7 @@ function numberAsLatex(num, config) {
 
     if (typeof config.precision === 'number') {
         if (typeof num === 'number') {
-            num = parseFloat(num.toFixed(config.precision));
+            num = parseFloat(num.toFixed(Math.min(20, config.precision)));
         } else if (typeof num === 'string' && num.indexOf('/') >= 0) {
             // It's a fraction. We can ignore the precision
         } else {
