@@ -186,6 +186,24 @@ function parsePostfix(expr) {
         expr.ast = {op: digraph.ast, lhs: lhs};
         expr = parseSupsub(expr);
         expr = parsePostfix(expr);
+    } else if (atom && atom.latex && atom.latex.match(/\^{.*}/)) {
+        expr.index += 1;
+        // It's a superscript Unicode char (e.g. ⁰¹²³⁴⁵⁶⁷⁸⁹ⁱ⁺⁻⁼...)
+        if (typeof expr.ast === 'string') {
+            expr.ast = {sym: expr.ast};            
+        } else if (typeof expr.ast === 'number') {
+            expr.ast = {num: expr.ast};            
+        } else if (!expr.ast.group && !expr.ast.fn && !expr.ast.sym) {
+            expr.ast = {group: expr.ast};
+        }
+        const sup = atom.latex.match(/\^{(.*)}/)[1];
+        const n = parseInt(sup);
+        if (!isNaN(n)) {
+            expr.ast.sup = n;
+        } else {
+            expr.ast.sup = sup;
+        }
+
     } else if (atom && atom.type === 'textord' && POSTFIX_FUNCTION[atom.latex.trim()]) {
         expr.index += 1;
         expr.ast = {fn: POSTFIX_FUNCTION[atom.latex.trim()], arg: lhs};
@@ -1051,6 +1069,8 @@ function numberAsLatex(num, config) {
                     r += '10^{' + (len - 2).toString() + '}';
                 }
                 num = r;
+            } else {
+                num = num.replace(/\B(?=(\d{3})+(?!\d))/g, config.groupSeparator);
             }
             return sign + num;
         }
