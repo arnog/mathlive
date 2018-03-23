@@ -346,7 +346,8 @@ const LAYERS = {
             </div>`,
         'functions': `
             <div class='rows'>
-                <ul><li class='fnbutton' data-insert='\\sin'></li>
+                <ul><li class='separator'></li>
+                    <li class='fnbutton' data-insert='\\sin'></li>
                     <li class='fnbutton' data-insert='\\sin^{-1}'></li>
                     <li class='fnbutton' data-insert='\\ln'></li>
                     <li class='fnbutton' data-insert='\\exponentialE^{#?}'></li>
@@ -356,7 +357,8 @@ const LAYERS = {
                     <li class='bigfnbutton' data-insert='\\int'></li>
                     <li class='bigfnbutton' data-insert='\\mathrm{abs}(#?)' data-latex='\\mathrm{abs}()'></li>
                 </ul>
-                <ul><li class='fnbutton' data-insert='\\cos'></li>
+                <ul><li class='separator'></li>
+                    <li class='fnbutton' data-insert='\\cos'></li>
                     <li class='fnbutton' data-insert='\\cos^{-1}'></li>
                     <li class='fnbutton' data-insert='\\ln_{10}'></li>
                     <li class='fnbutton' data-insert='10^{#?}'></li>
@@ -366,7 +368,8 @@ const LAYERS = {
                     <li class='bigfnbutton' data-insert='\\int_{0}^{\\infty}'></li>
                     <li class='bigfnbutton' data-insert='\\mathrm{sign}(#?)' data-latex='\\mathrm{sign}()'></li>
                 </ul>
-                <ul><li class='fnbutton' data-insert='\\tan'></li>
+                <ul><li class='separator'></li>
+                    <li class='fnbutton' data-insert='\\tan'></li>
                     <li class='fnbutton' data-insert='\\tan^{-1}'></li>
                     <li class='fnbutton' data-insert='\\log_{#?}'></li>
                     <li class='fnbutton' data-insert='\\sqrt[#?]{#0}'></li>
@@ -375,7 +378,7 @@ const LAYERS = {
                     <li class='bigfnbutton' data-insert='\\prod_{n=0}^{\\infty}' data-latex='{\\tiny \\prod_{n=0}^{\\infty}}'></li>
                     <li class='bigfnbutton' data-insert='\\frac{\\differentialD #0}{\\differentialD x}'></li>
                     <li class='action font-glyph bottom right' data-command='"deletePreviousChar"'>&#x232b;</li></ul>
-                <ul>
+                <ul><li class='separator'></li>
                     <li class='fnbutton'>(</li>
                     <li class='fnbutton'>)</li>
                     <li class='fnbutton' data-insert='^{#?} ' data-latex='x^{#?} '></li>
@@ -386,6 +389,7 @@ const LAYERS = {
                     <li class='action' data-command='"complete"'><svg><use xlink:href='#svg-tab' /></svg></li>
                 </ul>
             </div>`,
+     
             // 'functions': makeFunctionsLayer.bind(null, FUNCTIONS),
 
 }
@@ -456,13 +460,15 @@ function makeFunctionsLayer(functions) {
 /**
  * Return a markup string for the keyboard toolbar for the specified layer.
  */
-function makeKeyboardToolbar(keyboards, currentKeyboard) {
+function makeKeyboardToolbar(mf, keyboardIDs, currentKeyboard) {
     // The left hand side of the toolbar has a list of all the available keyboards
     let result = "<div class='left'>";
-    const keyboardList = keyboards.replace(/\s+/g, ' ').split(' ');
+    const keyboardList = keyboardIDs.replace(/\s+/g, ' ').split(' ');
     if (keyboardList.length > 1) {
+        const keyboards = Object.assign({}, KEYBOARDS, mf.config.customVirtualKeyboards || {});
+        
         for (const keyboard of keyboardList) {
-            if (!KEYBOARDS[keyboard]) {
+            if (!keyboards[keyboard]) {
                 console.error('Unknown virtual keyboard "' + keyboard + '"');
                 break;
             }
@@ -470,30 +476,30 @@ function makeKeyboardToolbar(keyboards, currentKeyboard) {
             if (keyboard === currentKeyboard) {
                 result += 'selected ';
             } else {
-                if (KEYBOARDS[keyboard].command) {
+                if (keyboards[keyboard].command) {
                     result += 'action ';
                 } else {
                     result += 'layer-switch ';
                 }
             }
 
-            result += (KEYBOARDS[keyboard].classes || '') + "'";
+            result += (keyboards[keyboard].classes || '') + "'";
 
-            if (KEYBOARDS[keyboard].tooltip) {
-                result += "data-tooltip='" + KEYBOARDS[keyboard].tooltip + "' ";
+            if (keyboards[keyboard].tooltip) {
+                result += "data-tooltip='" + keyboards[keyboard].tooltip + "' ";
                 result += "data-placement='top' data-delay='1s'";
             }
             
             if (keyboard !== currentKeyboard) {
-                if (KEYBOARDS[keyboard].command) {
-                    result += "data-command='\"" + KEYBOARDS[keyboard].command + "\"'";
+                if (keyboards[keyboard].command) {
+                    result += "data-command='\"" + keyboards[keyboard].command + "\"'";
                 }
 
-                if (KEYBOARDS[keyboard].layer) {
-                    result += "data-layer='" + KEYBOARDS[keyboard].layer + "'";
+                if (keyboards[keyboard].layer) {
+                    result += "data-layer='" + keyboards[keyboard].layer + "'";
                 }
             }
-            result += '>' + KEYBOARDS[keyboard].label + '</div>';
+            result += '>' + keyboards[keyboard].label + '</div>';
         }
     }
     result += '</div>';
@@ -574,25 +580,35 @@ function make(mf, theme) {
     
     let markup = svgIcons;
 
-    let keyboards = mf.config.virtualKeyboards;
-    if (!keyboards || keyboards === 'all') {
-        keyboards = 'numeric latin greek functions command';
+    let keyboardIDs = mf.config.virtualKeyboards;
+    if (!keyboardIDs) {
+        keyboardIDs = 'all';
     }
+    keyboardIDs = keyboardIDs.replace(/\ball\b/i, 'numeric latin greek functions command')
 
-    const keyboardList = keyboards.replace(/\s+/g, ' ').split(' ');
+    const layers = Object.assign({}, LAYERS, mf.config.customVirtualKeyboardLayers || {});
+    const keyboards = Object.assign({}, KEYBOARDS, mf.config.customVirtualKeyboards || {});
+
+    const keyboardList = keyboardIDs.replace(/\s+/g, ' ').split(' ');
     for (const keyboard of keyboardList) {
-        if (!KEYBOARDS[keyboard]) {
+        if (!keyboards[keyboard]) {
             console.error('Unknown virtual keyboard "' + keyboard + '"');
             break;
         }
-        for (const layer of KEYBOARDS[keyboard].layers) {
-            if (!LAYERS[layer]) {
+        // Add the default layer to the list of layers, 
+        // and make sure the list of layers is uniquified.
+        let keyboardLayers = keyboards[keyboard].layers || [];
+        keyboardLayers.push(keyboards[keyboard].layer || '');
+        keyboardLayers = Array.from(new Set(keyboardLayers));
+
+        for (const layer of keyboardLayers) {
+            if (!layers[layer]) {
                 console.error('Unknown virtual keyboard layer: "' + layer + '"');
                 break;
             }
             markup += `<div class='keyboard-layer' id='` + layer + `'>`;
-            markup += makeKeyboardToolbar(keyboards, keyboard);
-            markup += typeof LAYERS[layer] === 'function' ? LAYERS[layer]() : LAYERS[layer];
+            markup += makeKeyboardToolbar(mf, keyboardIDs, keyboard);
+            markup += typeof layers[layer] === 'function' ? layers[layer]() : layers[layer];
             markup += '</div>';
         }
     }
@@ -603,7 +619,7 @@ function make(mf, theme) {
         result.classList.add(theme);
     } else if (mf.config.virtualKeyboardTheme) {
         result.classList.add(mf.config.virtualKeyboardTheme);
-    } else if (/(android)/i.test(navigator.userAgent)) {
+    } else if (/android|cros/i.test(navigator.userAgent)) {
         result.classList.add('material');
     }
     result.innerHTML = markup;

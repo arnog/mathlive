@@ -29,7 +29,7 @@ define([
 
 /* 
     Note: 
-    The OutputLatex, OutputMathML and OutputSpokenText  modules are required, 
+    The OutputLatex, OutputMathML, MASTON and OutputSpokenText  modules are required, 
     even though they are not referenced directly.
 
     They modify the MathAtom class, adding toLatex(), toMathML() and
@@ -104,7 +104,7 @@ function MathField(element, config) {
     let markup = ''
     if (!this.config.substituteTextArea) {
         if (/android|ipad|ipod|iphone/i.test(navigator.userAgent)) {
-            // On Android, don't use a textarea, which has the side effect of
+            // On Android or iOS, don't use a textarea, which has the side effect of
             // bringing up the OS virtual keyboard
             markup += `<span class='ML__textarea'> 
                 <span class='ML__textarea--textarea'
@@ -143,7 +143,7 @@ function MathField(element, config) {
         if (this.config.virtualKeyboardToggleGlyph) {
             markup += this.config.virtualKeyboardToggleGlyph;
         } else {
-            markup += `<span style="width: 21px; height: 21px; margin-top: 5px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M528 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h480c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm16 336c0 8.823-7.177 16-16 16H48c-8.823 0-16-7.177-16-16V112c0-8.823 7.177-16 16-16h480c8.823 0 16 7.177 16 16v288zM168 268v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-336 80v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm384 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zM120 188v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-96 152v-8c0-6.627-5.373-12-12-12H180c-6.627 0-12 5.373-12 12v8c0 6.627 5.373 12 12 12h216c6.627 0 12-5.373 12-12z"/></svg></span>`;
+            markup += `<span style="width: 21px; margin-top: 5px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M528 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h480c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm16 336c0 8.823-7.177 16-16 16H48c-8.823 0-16-7.177-16-16V112c0-8.823 7.177-16 16-16h480c8.823 0 16 7.177 16 16v288zM168 268v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-336 80v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm384 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zM120 188v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-96 152v-8c0-6.627-5.373-12-12-12H180c-6.627 0-12 5.373-12 12v8c0 6.627 5.373 12 12 12h216c6.627 0 12-5.373 12-12z"/></svg></span>`;
         }
         markup += '</span>';
     } else {
@@ -398,22 +398,7 @@ MathField.prototype._pathFromPoint = function(x, y) {
 }
 
 MathField.prototype._onPointerDown = function(evt) {
-    const that = this;
-    let trackingPointer = false;
-
-    const bounds = this.element.getBoundingClientRect();
-    if (evt.clientX < bounds.left || evt.clientX > bounds.right || 
-        evt.clientY < bounds.top || evt.clientY > bounds.bottom) {
-        return; 
-    }
-
-    // This should not be necessary, but just in case we got in a weird state...
-    off(this.field, 'touchmove', onPointerMove);
-    off(this.field, 'touchend touchleave', endPointerTracking);
-    off(window, 'mousemove', onPointerMove);
-    off(window, 'mouseup blur', endPointerTracking);
-
-
+    let anchor;
     function endPointerTracking(evt) {
         off(that.field, 'touchmove', onPointerMove);
         off(that.field, 'touchend touchleave', endPointerTracking);
@@ -436,60 +421,71 @@ MathField.prototype._onPointerDown = function(evt) {
         moveEvt.preventDefault();
         moveEvt.stopPropagation();
     }
-
+    const that = this;
+    let trackingPointer = false;
     let dirty = false;
-    
-    // Switch the keyboard focus to the textarea to receive keyboard events
-    // on behalf of the MathField
+
+    // Focus the math field
     if (!this.hasFocus()) {
         dirty = true;
-        this.textarea.focus();
+        if (this.textarea.focus) this.textarea.focus();
     }
 
-    // If a mouse button other than the main one was pressed, return
-    if (evt.buttons && evt.buttons !== 1) return;
+    const bounds = this.field.getBoundingClientRect();
+    if (evt.clientX > bounds.left && evt.clientX < bounds.right &&
+        evt.clientY > bounds.top && evt.clientY < bounds.bottom) {
 
-    const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
-    const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
-    let anchor = this._pathFromPoint(x, y);
-    if (anchor) {
-        if (evt.shiftKey) {
-            // Extend the selection if the shift-key is down
-            this.mathlist.setRange(this.mathlist.path, anchor);
-            anchor = MathPath.clone(this.mathlist.path);
-            anchor[anchor.length - 1].offset -= 1;
-        } else {
-            this.mathlist.setPath(anchor, 0);
-        }
-        // The selection has changed, so we'll need to re-render
-        dirty = true;
+        // This should not be necessary, but just in case we got in a weird state...
+        off(this.field, 'touchmove', onPointerMove);
+        off(this.field, 'touchend touchleave', endPointerTracking);
+        off(window, 'mousemove', onPointerMove);
+        off(window, 'mouseup blur', endPointerTracking);
+        
+        // If a mouse button other than the main one was pressed, return
+        if (evt.buttons && evt.buttons !== 1) return;
 
-        if (evt.detail === 2 || evt.detail === 3) {
-            off(this.field, 'touchmove', onPointerMove);
-            off(this.field, 'touchend', endPointerTracking);
-            off(window, 'mousemove', onPointerMove);
-            off(window, 'mouseup blur', endPointerTracking);
-            trackingPointer = false;
-            if (evt.detail === 3) {
-                // This is a triple-click
-                this.mathlist.selectAll_();
-            } else if (evt.detail === 2) {
-                // This is a double-click
-                this.mathlist.selectGroup_();
+        const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
+        const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
+        anchor = this._pathFromPoint(x, y);
+        if (anchor) {
+            if (evt.shiftKey) {
+                // Extend the selection if the shift-key is down
+                this.mathlist.setRange(this.mathlist.path, anchor);
+                anchor = MathPath.clone(this.mathlist.path);
+                anchor[anchor.length - 1].offset -= 1;
+            } else {
+                this.mathlist.setPath(anchor, 0);
             }
-        } else {
-            if (!trackingPointer) {
-                trackingPointer = true;
-                on(window, 'blur', endPointerTracking);
-                if (evt.touches) {
-                    // To receive the subsequent touchmove/touch, need to 
-                    // listen to this evt.target.
-                    // This was a touch event
-                    on(evt.target, 'touchend', endPointerTracking);
-                    on(evt.target, 'touchmove', onPointerMove);
-                } else {
-                    on(window, 'mouseup', endPointerTracking);
-                    on(window, 'mousemove', onPointerMove);
+            // The selection has changed, so we'll need to re-render
+            dirty = true;
+
+            if (evt.detail === 2 || evt.detail === 3) {
+                off(this.field, 'touchmove', onPointerMove);
+                off(this.field, 'touchend', endPointerTracking);
+                off(window, 'mousemove', onPointerMove);
+                off(window, 'mouseup blur', endPointerTracking);
+                trackingPointer = false;
+                if (evt.detail === 3) {
+                    // This is a triple-click
+                    this.mathlist.selectAll_();
+                } else if (evt.detail === 2) {
+                    // This is a double-click
+                    this.mathlist.selectGroup_();
+                }
+            } else {
+                if (!trackingPointer) {
+                    trackingPointer = true;
+                    on(window, 'blur', endPointerTracking);
+                    if (evt.touches) {
+                        // To receive the subsequent touchmove/touch, need to 
+                        // listen to this evt.target.
+                        // This was a touch event
+                        on(evt.target, 'touchend', endPointerTracking);
+                        on(evt.target, 'touchmove', onPointerMove);
+                    } else {
+                        on(window, 'mouseup', endPointerTracking);
+                        on(window, 'mousemove', onPointerMove);
+                    }
                 }
             }
         }

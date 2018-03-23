@@ -632,9 +632,17 @@
     z-index: 100;
 
     font-family: @system;
+    font-size: 16px;
     font-weight: 400;
 
-    background-color: rgba(209, 213, 217, .9);;
+    margin: 0;
+    box-shadow: none;
+    text-shadow: none;
+    box-sizing: border-box;
+
+
+    background-color: rgba(209, 213, 217, .9);
+    backdrop-filter: grayscale(50%);
     border: 1px solid #ddd;
 
     touch-action: none;
@@ -642,16 +650,17 @@
     cursor: pointer;
 
     box-shadow: 0 8px 10px 1px rgba(0, 0, 0, .14),
-                0 3px 14px 2px rgba(0, 0, 0, .12),
-                0 5px 5px -3px rgba(0, 0, 0, .4);
+            0 3px 14px 2px rgba(0, 0, 0, .12),
+            0 5px 5px -3px rgba(0, 0, 0, .4);
+
     .tex {
-        font-family: KaTeX_Main, "Cambria Math", "Asana Math", OpenSymbol, Symbola, STIX, Times, serif;
+        font-family: KaTeX_Main, "Cambria Math", "Asana Math", OpenSymbol, Symbola, STIX, Times, serif !important;
     }
     .tex-math {
-        font-family: KaTeX_Math, "Cambria Math", "Asana Math", OpenSymbol, Symbola, STIX, Times, serif;
+        font-family: KaTeX_Math, "Cambria Math", "Asana Math", OpenSymbol, Symbola, STIX, Times, serif !important;
     }
     .tt {
-        font-family: @monospace;
+        font-family: @monospace !important;
         font-size: 30px;
         font-weight: 400;
     }
@@ -965,27 +974,21 @@
         @media only screen and (min-width : 768px) and (max-width : 1024px)  {
             ul { 
                 height: 52px; 
-                max-height: 52px;
                 li {
                     height: 52px;
                     width: 52px;
-                    max-width: 52px;
                 }
                 li.w5 {
                     width: 24px;
-                    max-width: 24px;
                 }
                 li.w15 {
                     width: 80px;
-                    max-width: 80px;
                 }
                 li.w20 {
                     width: 108px;
-                    max-width: 108px;
                 }
                 li.w50 {
                     width: 276px;
-                    max-width: 276px;
                 }
             }
         }
@@ -993,31 +996,17 @@
         @media only screen and (min-width : 1025px)  {
             ul { 
                 height: 52px; 
-                max-height: 52px;
                 li {
                     height: 52px;
                     width: 70px;
-                    max-width: 70px;
                 }
                 li.modifier, li.action {
                     font-size: 80%;
                 }
-                li.w5 {
-                    width: 33px;
-                    max-width: 33px;
-                }
-                li.w15 {
-                    width: 107px;
-                    max-width: 107px;
-                }
-                li.w20 {
-                    width: 144px;
-                    max-width: 144px;
-                }
-                li.w50 {
-                    width: 366px;
-                    max-width: 366px;
-                }
+                li.w5 { width: 33px; }
+                li.w15 { width: 107px; }
+                li.w20 { width: 144px; }
+                li.w50 { width: 366px; }
             }
         }
     }
@@ -1049,6 +1038,7 @@ div#ML__keyboard.material  {
         border: 1px solid transparent;
         border-radius: 5px;
         color: #000;
+        fill: #000;
 
         &.tt {
             color: @material-primary;
@@ -1075,6 +1065,7 @@ div#ML__keyboard.material  {
         &:not([data-key=' ']):active {
             background: #efefef;
             color: #000;
+            fill: #000;
             box-shadow: none;
             @media only screen and (max-width : 768px) {
                 box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .14),
@@ -1102,6 +1093,7 @@ div#ML__keyboard.material  {
         background: transparent;
         border: 0;
         color: #869096;
+        fill: #869096;
         font-size: 16px;
         transition: .28s cubic-bezier(.4, 0, .2, 1);;
         &.selected, &.selected {
@@ -1116,7 +1108,23 @@ div#ML__keyboard.material  {
             box-shadow: none;
         }
     }
+    div div.rows ul li.fnbutton, div div.rows ul li.bigfnbutton {
+        background: transparent;
+        border: 0;
+        transition: .28s cubic-bezier(.4, 0, .2, 1);;
+        &.selected, &.selected {
+            color: @material-primary;
+            border-radius: 0;
+            border-bottom: 2px solid @material-primary;
+        }
+        &:hover, &:active {
+            border: 0;
+            color: @material-primary;
+            background: #cccfd1;
+            box-shadow: none;
+        }
 
+    }
 };
 
 

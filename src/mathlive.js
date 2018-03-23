@@ -159,14 +159,34 @@ function toMarkup(text, mathstyle, format) {
  * When this setting is not empty, `config.overrideDefaultCommands` and 
  * `config.commands` are ignored.
  * 
- * @param {string} [config.virtualKeyboards='all'] - If `'all'`, all the 
- * virtual keyboards will be made available. Otherwise, this should be 
- * a space separated list of the keyboards that should be made available. The
- * supported keyboards are:
+ * @param {string} [config.virtualKeyboards='all'] - A space separated list of
+ * the keyboards that should be available. The keyboard `'all'` is synonym with:
  * 
  * * `'numeric'`, `'latin'`, `'greek'`, `'functions'` and `'command'`
  * 
  * The keyboards will be displayed in the order indicated.
+ * 
+ * @param {Object} [config.customVirtualKeyboardLayers] - Some additional
+ * custom virtual keyboard layers. A keyboard is made up of one or more 
+ * layers (think of the main layer and the shift layer on a hardware keyboard).
+ * Each key in this object define a new keyboard layer (or replace an existing 
+ * one). The value of the key should be some HTML markup.
+ * 
+ * @param {Object} [config.customVirtualKeyboards] - An object describing 
+ * additional keyboards. Each key in the object is an ID for a separate keyboard.
+ * The key should have a value made up of an object with the following keys:
+ *    * tooltip: a string label describing the keyboard.
+ *    * label: a string, displayed in the keyboard switcher to identify this 
+ *           keyboard
+ *    * layers: an array of strings, the ID of the layers used by this keyboard.
+ *     These layers should be defined using `customVirtualKeyboardLayers`.
+ *    * classes: a string, the classes to be added to the label for this keyboard
+ * Possible values are 'tex' to use a TeX font to display the label.
+ *    * layer: optional, the ID of the layer to switch to when the label of this
+ * keyboard is clicked on in the keyboard switcher.
+ *    * command: optional, a selector to perform when the label is clicked. 
+ * Either the `command` or `layer` key must be present.
+ * 
  * 
  * @param {boolean} [config.virtualKeyboardTheme=''] - The visual theme used
  * for the virtual keyboard. If empty, the theme will switch automatically
