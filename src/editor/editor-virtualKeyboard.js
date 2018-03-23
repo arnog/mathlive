@@ -501,6 +501,11 @@ function makeKeyboardToolbar(keyboards, currentKeyboard) {
     // The right hand side of the toolbar, with the undo/redo commands
     result += `
         <div class='right'>
+            <div class='action' 
+                data-command='"copyToClipboard"'
+                data-tooltip='Copy to Clipboard' data-placement='top' data-delay='1s'>
+                <svg><use xlink:href='#svg-copy' /></svg>
+            </div>
             <div class='action disabled' 
                 data-command='"undo"'
                 data-tooltip='Undo' data-placement='top' data-delay='1s'>
@@ -561,7 +566,9 @@ function make(mf, theme) {
             <symbol id="svg-external-link" viewBox="0 0 512 512">
                 <path d="M256 40c118.621 0 216 96.075 216 216 0 119.291-96.61 216-216 216-119.244 0-216-96.562-216-216 0-119.203 96.602-216 216-216m0-32C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm-36 344h12V232h-12c-6.627 0-12-5.373-12-12v-8c0-6.627 5.373-12 12-12h48c6.627 0 12 5.373 12 12v140h12c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12h-72c-6.627 0-12-5.373-12-12v-8c0-6.627 5.373-12 12-12zm36-240c-17.673 0-32 14.327-32 32s14.327 32 32 32 32-14.327 32-32-14.327-32-32-32z"/>
             </symbol>
-
+            <symbol id="svg-copy" viewBox="0 0 448 512">
+                <path d="M433.941 65.941l-51.882-51.882A48 48 0 0 0 348.118 0H176c-26.51 0-48 21.49-48 48v48H48c-26.51 0-48 21.49-48 48v320c0 26.51 21.49 48 48 48h224c26.51 0 48-21.49 48-48v-48h80c26.51 0 48-21.49 48-48V99.882a48 48 0 0 0-14.059-33.941zM352 32.491a15.88 15.88 0 0 1 7.431 4.195l51.882 51.883A15.885 15.885 0 0 1 415.508 96H352V32.491zM288 464c0 8.822-7.178 16-16 16H48c-8.822 0-16-7.178-16-16V144c0-8.822 7.178-16 16-16h80v240c0 26.51 21.49 48 48 48h112v48zm128-96c0 8.822-7.178 16-16 16H176c-8.822 0-16-7.178-16-16V48c0-8.822 7.178-16 16-16h144v72c0 13.2 10.8 24 24 24h72v240z"/>
+            </symbol>
         </svg>
         `;
     

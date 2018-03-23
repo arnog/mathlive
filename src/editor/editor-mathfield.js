@@ -1228,6 +1228,11 @@ MathField.prototype.enterCommandMode_ = function() {
 
 
 MathField.prototype.copyToClipboard_ = function() {
+    // If the selection is empty, select the entire field before 
+    // copying it.
+    if (this.mathlist.isCollapsed()) {
+        this.select();
+    }
     document.execCommand('copy');
 }
 
@@ -1535,13 +1540,13 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
             150);
 
         let command;
-        if (ev.getModifierState('Alt') && ev.getModifierState('Shift')) {
+        if (ev.altKey && ev.shiftKey) {
             command = el.getAttribute('data-' + that.config.namespace + 'command-altshift');
         }
-        if (!command && ev.getModifierState('Alt')) {
+        if (!command && ev.altKey) {
             command = el.getAttribute('data-' + that.config.namespace + 'command-alt');
         }
-        if (!command && ev.getModifierState('Shift')) {
+        if (!command && ev.shiftKey) {
             command = el.getAttribute('data-' + that.config.namespace + 'command-shift');
         }
 
