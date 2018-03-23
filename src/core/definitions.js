@@ -2671,9 +2671,14 @@ defineSymbol( '"', MATH,  MAIN,  TEXTORD, '\u201D');       // Double Prime
 // defineSymbol( "\'', MATH,  MAIN,  TEXTORD, '\u2033');       // Double Prime
 
 category = '';
+// Some characters allowed in math mode (along all the others above for MATH mode)
 defineSymbols('0123456789/@.', MATH, MAIN, MATHORD);
+
+// List of characters allowed when in TEXT mode (e.g. inside a \text{})
 defineSymbols('0123456789!@*()-=+[]";:?/.,', TEXT, MAIN, TEXTORD);
-defineSymbols("0123456789!@*()-=+{}[]\\';:?/.,~<>`|'$%#&^_", COMMAND, MAIN, COMMANDLITERAL);
+
+// List of characters allowed to be entered when in COMMAND mode:
+defineSymbols("0123456789!@*()-=+{}[]\\';:?/.,~<>`|'$%#&^_\" ", COMMAND, MAIN, COMMANDLITERAL);
 
 // a-z
 defineSymbolRange(0x0041, 0x005A, TEXT, MAIN, TEXTORD);
