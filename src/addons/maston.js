@@ -89,7 +89,7 @@ function asSymbol(expr) {
  * @param {Object} num -- Abstract Syntax Tree object
  * @return {number} -- A Javascript number, the value of the AST or NaN
  */
-function asNumber(num) {
+function asMachineNumber(num) {
     let result = undefined;
     if (num !== undefined) {
         if (num.num !== undefined) {
@@ -104,7 +104,8 @@ function asNumber(num) {
 }
 
 function isNumber(expr) {
-    return asNumber(expr) !== undefined;
+    return typeof expr === 'number' || 
+        (expr !== undefined && expr.num !== undefined);
 }
 
 /**
@@ -683,8 +684,8 @@ function parseExpression(expr) {
         // Handle in-line fractions, i.e. "1/4" instead of \genfrac.
         // This can happen when text is pasted directly in...
         if (opName === '/') {
-            const p = asNumber(lhs);
-            const q = asNumber(rhs);
+            const p = asMachineNumber(lhs);
+            const q = asMachineNumber(rhs);
             if (!isNaN(p) && Number.isInteger(p) && !isNaN(q) && Number.isInteger(q)) {
                 lhs = {num: p.toString() + '/' + q.toString()};
             } else {
@@ -1166,7 +1167,7 @@ function asLatex(ast, options) {
         if (ast.sub) result += '_{' + asLatex(ast.sub, config) + '}';
 
     } else if (isNumber(ast)) {
-        const val = asNumber(ast);
+        const val = typeof ast === 'number' ? ast : ast.num;
         if (isNaN(val)) {
             result = '\\mathrm{NaN}';
         } else if (val === -Infinity) {
@@ -1188,7 +1189,7 @@ function asLatex(ast, options) {
                 result = numberAsLatex(ast.re, config);
             }
             if (Math.abs(ast.im) > 1e-14) {
-                const im = asNumber(ast.im); 
+                const im = asMachineNumber(ast.im); 
                 if (Math.abs(ast.re) > 1e-14) {
                     result += im > 0 ? '+' : '';
                     wrap = true;
@@ -1362,7 +1363,7 @@ function asLatex(ast, options) {
 // Export the public interface for this module
 return { 
     asLatex,
-    asNumber,
+    asMachineNumber,
     isNumber,
     asSymbol,
 }
