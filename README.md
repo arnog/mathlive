@@ -11,10 +11,13 @@
 [![Maintenance](https://img.shields.io/maintenance/yes/2017.svg)]()
 [![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://raw.githubusercontent.com/arnog/mathlive/master/LICENSE.txt)
 
-MathLive is a Javascript library to render and edit math. 
-
-It is fast, small and provides TeX-quality typesetting 
-with an easy to use interface for math editing. Try it at [mathlive.io](https://mathlive.io)!
+MathLive is a Javascript library to render and edit math.
+* Fast and small
+* TeX-quality typesetting
+* Easy to use interface for math editing
+* Works great on mobile devices thanks to a comprehensive set of virtual keyboards. 
+* Comprehensive APIs, including generation of LaTeX, MathML and Abstract Syntax Tree (MASTON)
+* And it is easy to customize to your needs! Try it at [mathlive.io](https://mathlive.io)!
 
 <table align="center" >
     <tr>
@@ -24,9 +27,9 @@ with an easy to use interface for math editing. Try it at [mathlive.io](https://
             src="assets/screenshots/popover.png">
         </td>
         <td width='50%' align='center' style="border:none;">
-            <img alt="The command bar panel" 
+            <img alt="A Virtual Keyboard" 
             style='margin:15px; box-shadow: 0px 5px 15px #ddd; border: 1px solid #eee' 
-            src="assets/screenshots/commandbar.png">
+            src="assets/screenshots/virtualKeyboard.png">
         </td>
     </tr>
     <tr style="background-color: initial; border: none;">

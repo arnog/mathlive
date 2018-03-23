@@ -185,7 +185,7 @@ const KEYBOARD_SHORTCUTS = {
 
     // Accessibility
     'Alt-Shift-KeyK':           'toggleKeystrokeCaption',
-    'Alt-Space':                'toggleCommandBar',
+    'Alt-Space':                'toggleVirtualKeyboard',
 
     // Note: On Mac OS (as of 10.12), there is a bug/behavior that causes
     // a beep to be generated with certain command+control key combinations.

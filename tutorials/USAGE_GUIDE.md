@@ -255,7 +255,7 @@ be selected).
 selected, display the next/previous suggestion
 * `toggleKeystrokeCaption` show/hide the keystroke caption panel. This panel
 displays the keys being typed, including the shortcuts. Great for demos!
-* `toggleCommandBar` show/hide the command bar
+* `toggleVirtualKeyboard` show/hide the virtual keyboard
 
 ### Scrolling
 * `scrollToStart`

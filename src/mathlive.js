@@ -146,14 +146,8 @@ function toMarkup(text, mathstyle, format) {
  * false, these shortcuts are applied after any default ones, and can therefore 
  * override them.
  * 
- * @param {string} [config.commandbarToggle='visible'] - If `'visible'`, the 
- * default value, the command bar widget will be automatically displayed. If 
- * set to `'hidden'` the command bar widget is not displayed, but the command 
- * bar can still be triggered programmatically with the `toggleCommandBar` 
- * selector.
- * 
- * @param {string} [config.commandbarToggleGlyph] - If specified, the markup 
- * to be used to display the command bar toggle glyph.
+ * @param {string} [config.virtualKeyboardToggleGlyph] - If specified, the markup 
+ * to be used to display the virtual keyboard toggle glyph.
  * 
  * @param {boolean} [config.overrideDefaultCommands=false] - If true, the default 
  * commands displayed in the command bar are ignored.

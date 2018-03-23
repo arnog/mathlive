@@ -1141,31 +1141,22 @@ div#ML__keyboard.material  {
 }
 
 .ML__placeholder {
-    // font-family: @system;
-    // letter-spacing: -.05em;
-
-    // // background:rgba(243, 243, 21, 0.28);
-    // color: rgba(0, 0, 0, .25);
-
-    // font-size: .8em;
-
-    // border-radius: 500px;
-    // border: 1px solid rgba(0, 0, 0, .25);;
     padding-left: .12em;
     padding-right: .12em;
+
+    &.ML__caret {
+        border: none;
+        border-radius: 0;
+        border-right: 2px solid @primary;
+        margin-right: -2px;
+        z-index: 1;
+        animation: blink 1.05s step-end forwards infinite;
+
+        padding-left: 0;
+        padding-right: 0;
+    }
 }
 
-.ML__placeholder.ML__caret {
-    border: none;
-    border-radius: 0;
-    border-right: 2px solid @primary;
-    margin-right: -2px;
-    z-index: 1;
-    animation: blink 1.05s step-end forwards infinite;
-
-    padding-left: 0;
-    padding-right: 0;
-}
 
 .ML__keystrokecaption > span {
     min-width: 14px;
@@ -1191,99 +1182,7 @@ div#ML__keyboard.material  {
 }
 
 
-div.ML__commandbar--buttons {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    pointer-events: auto;
-    user-select: none;
 
-    min-height: 64px;
-    flex-wrap: wrap;
-}
-
-
-div.ML__commandbar--buttons > span {
-    font-family: @system;
-    /*font-family: @monospace; */
-    font-size: .6rem;
-    text-shadow: 0 1px #fff;
-    // letter-spacing: -0.07rem;
-    font-weight: 600;
-    text-transform: uppercase;
-
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-
-    padding: 10px;
-    margin: 5px 5px 5px 5px;
-    min-height: 48px;
-    min-width: 48px;
-
-    cursor: pointer;
-
-    border-radius: 8px;
-    background: #fff;
-    border: 1px solid #eee;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
-}
-
-div.ML__commandbuttons > span.glyph {
-    font-size: 1.5em;
-    color: #555;
-    font-weight: 700;
-}
-
-@media (max-width: 600px) {
-    div.ML__commandbar--buttons {
-        font-size: 2.66vw;
-    }
-    div.ML__commandbar--buttons > span {
-        padding-right: 1.33vw;
-        padding-left: 1.33vw;
-        padding-top: 1.33vw;
-        padding-bottom: 1.33vw;
-    }
-}
-
-div.ML__commandbar--buttons > span:hover.pressed, 
-div.ML__commandbar--buttons > span.pressed {
-        background: #0066ce;
-        color: white;
-}
-
-div.ML__commandbar--buttons > span.active {
-    animation: .1s ML__flash forwards;
-}
-
-div.ML__commandbar--buttons span span.ML__dynamicLabel {
-    display: block;
-    text-align: center;
-    text-transform: none;
-}
-
-div.ML__commandbar--buttons span span.ML__shortLabel {
-    font-family: @system;
-    font-size: .7rem;
-    line-height: 1em;
-    text-align: center;
-    padding-top: .25em;
-    opacity: .7;
-}
-
-div.ML__commandbar--buttons span span.ML__keyboardShortcut {
-    font-family: @system;
-    font-size: .7rem;
-    line-height: 1em;
-    text-align: center;
-    opacity: .7;
-    margin-left: .5em;
-    text-transform: none;
-}
 
 @keyframes ML__flash {
     from {
@@ -1296,13 +1195,13 @@ div.ML__commandbar--buttons span span.ML__keyboardShortcut {
     }
 }
 
-.ML__commandbartoggle:hover {
+.ML__virtualKeyboardToggle:hover {
     background: #eee;
 }
 
-.ML__commandbartoggle.pressed, 
-.ML__commandbartoggle.active:hover, 
-.ML__commandbartoggle.active {
+.ML__virtualKeyboardToggle.pressed, 
+.ML__virtualKeyboardToggle.active:hover, 
+.ML__virtualKeyboardToggle.active {
     background: #fff;
     color: white;
     &:after {
@@ -1311,31 +1210,6 @@ div.ML__commandbar--buttons span span.ML__keyboardShortcut {
     }
 }
     
-div.ML__commandbar--buttons > span:hover {
-    background: #eee;
-    text-shadow: none;
-}
-
-div.ML__commandbar--buttons > span.ML__round {
-    border-radius: 24px;
-    width: 24px;
-    height: 24px;
-    text-align: center;
-    font-weight: 900;
-}
-
-
-div.ML__commandbar--panel {
-    display: flex;
-    flex-direction: column;
-    justify-content: left;
-    padding-left: 8px;
-    padding-right: 8px;
-
-    font-family: @system;
-
-    cursor: default;
-}
 
 .ML__popover.ML__popover_visible {
     visibility: visible;

@@ -122,37 +122,10 @@ to make sure it doesn't show. */
     justify-content: center;
 }
 
-/* The element that displays commands available */
-.ML__commandbar {
-    // display: inline-block;
-    position: fixed;
-    visibility: hidden;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    max-width: 100vw;
-
-    z-index: 100;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
-    background: #d1d5d9;
-    border: 1px solid #ddd;
-
-    user-select: none;
-    cursor: pointer;
-
-    box-shadow: 0 8px 10px 1px rgba(0, 0, 0, .14),
-                0 3px 14px 2px rgba(0, 0, 0, .12),
-                0 5px 5px -3px rgba(0, 0, 0, .4);
-}
-.ML__commandbartoggle {
+.ML__virtualKeyboardToggle {
     display: flex;
     align-self: center;
     align-items: center;
-    color: #aaa;
     flex-shrink: 0;
     flex-direction: column;
     justify-content: center;
@@ -166,16 +139,16 @@ to make sure it doesn't show. */
     border-radius: 50%;
     border: 1px solid transparent;
     transition: background 0.2s cubic-bezier(.64,.09,.08,1);
+    color: @primary;
+    fill: @primary;
+
+    &:hover {
+        border-radius: 50%;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+    }
 }
 
-.ML__commandbartoggle:hover {
-    border-radius: 50%;
-    border: 1px solid #f0f0f0;
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
-}
-.ML__commandbartoggle {
-    fill: #aaa;
-}
 
 
 /* The element that display info while in command mode */
@@ -196,21 +169,22 @@ to make sure it doesn't show. */
 
     box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
     transition: all 0.2s cubic-bezier(.64,.09,.08,1);
+
+    /* The 'tip' of the popover panel */
+    &::after {
+        content: "";
+        position: absolute;
+        top: -5px;
+        left: calc(50% - 3px);
+        width: 0; 
+        height: 0; 
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        
+        font-size: 1rem;
+        
+        border-bottom: 5px solid rgba(97, 97, 97, .9);
+    }
 }
 
-/* The 'tip' of the popover panel */
-.ML__popover::after {
-    content: "";
-    position: absolute;
-    top: -5px;
-    left: calc(50% - 3px);
-    width: 0; 
-    height: 0; 
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    
-    font-size: 1rem;
-    
-    border-bottom: 5px solid rgba(97, 97, 97, .9);
-}
 

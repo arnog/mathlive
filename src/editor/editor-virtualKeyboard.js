@@ -6,10 +6,9 @@ define([
     'mathlive/core/parser', 
     'mathlive/editor/editor-keyboard', 
     'mathlive/editor/editor-shortcuts', 
-    'mathlive/editor/editor-commands',
     'mathlive/addons/outputLatex'], 
     function(Definitions, MathAtom, Span, Lexer, ParserModule, 
-    Keyboard, Shortcuts, Commands, 
+    Keyboard, Shortcuts, 
 // eslint-disable-next-line no-unused-vars
     OutputLatex) {
 
