@@ -107,6 +107,7 @@ EditableMathlist.prototype.filter = function(cb, dir) {
         } else {
             this.previous();
         }
+        console.assert(this.anchor());
     } while (initialPath !== MathPath.pathToString(this.path));
 
     this.extent = originalExtent;
