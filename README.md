@@ -11,31 +11,53 @@
 [![Maintenance](https://img.shields.io/maintenance/yes/2017.svg)]()
 [![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://raw.githubusercontent.com/arnog/mathlive/master/LICENSE.txt)
 
+<table align="center" >
+    <tr>
+        <td width='21%' align='center' style="border:none;">
+            <img alt="iPhone" 
+            style='margin:15px;' 
+            src="assets/screenshots/iPhone.png">
+        </td>
+        <td width='42%' align='center' style="border:none;">
+            <img alt="iPad" 
+            style='margin:15px;' 
+            src="assets/screenshots/iPad.png">
+        </td>
+        <td width='35%' align="center" style="border:none;">
+            <img width="50%" alt="Android" 
+            style='margin:15px; box-shadow: 0px 10px 45px #000; border: 1px solid #333' 
+            src="assets/screenshots/Android.png">
+        </td>
+    </tr>
+    <tr style="background-color: initial; border: none;">
+    </tr>
+</table>
+
 MathLive is a Javascript library to render and edit math.
 * Fast and small
 * TeX-quality typesetting
 * Easy to use interface for math editing
-* Works great on mobile devices thanks to a comprehensive set of virtual keyboards. 
-* Comprehensive APIs, including generation of LaTeX, MathML and Abstract Syntax Tree (MASTON)
+* Works great on desktop and on mobile devices thanks to a extensive set of virtual keyboards. 
+* Comprehensive APIs, including generation of **LaTeX**, **MathML** and **Abstract Syntax Tree (MASTON)**
 * And it is easy to customize to your needs! Try it at [mathlive.io](https://mathlive.io)!
 
 <table align="center" >
     <tr>
         <td width='50%' align='center' style="border:none;">
             <img alt="The popover panel" 
-            style='margin:15px; box-shadow: 0px 5px 15px #ddd; border: 1px solid #eee' 
+            style='margin:15px; box-shadow: 0px 5px 15px #000; border: 1px solid #eee' 
             src="assets/screenshots/popover.png">
         </td>
         <td width='50%' align='center' style="border:none;">
             <img alt="A Virtual Keyboard" 
-            style='margin:15px; box-shadow: 0px 5px 15px #ddd; border: 1px solid #eee' 
+            style='margin:15px; box-shadow: 0px 5px 15px #000; border: 1px solid #eee' 
             src="assets/screenshots/virtualKeyboard.png">
         </td>
     </tr>
     <tr style="background-color: initial; border: none;">
         <td colspan="2" align="center" style="border:none;">
             <img width="50%" alt="The Loop Equation" 
-            style='margin:15px; box-shadow: 0px 5px 15px #ddd; border: 1px solid #eee' 
+            style='margin:15px; box-shadow: 0px 5px 15px #000; border: 1px solid #eee' 
             src="assets/screenshots/loop-eqn.png">
         </td>
     </tr>
