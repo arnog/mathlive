@@ -296,3 +296,51 @@ displays the keys being typed, including the shortcuts. Great for demos!
 * `speakLeftSibling`, `speakRightSibling`
 
 
+## Virtual Keyboards
+
+Entry of expressions can be accomplished using a standard keyboard. In addition
+to numerous keyboard shortcuts, the 'command mode', which can be
+entered by pressing the `\` key, will allow the entry of less common symbols.
+
+However, on mobile devices in particular, the virtual keyboar of the operating
+system tends to interfere with the text entry, and is in generally poorly 
+suited to the specialized task of entering math. For this reason, MathLive
+supports custom virtual keyboards that are displayed on screen and simulate
+specialized keyboards. Those keyboards are necessary on mobile devices,
+but they can also be used on desktop systems.
+
+By default on desktop devices the virtual keyboard will be displayed only when
+the user selects the keyboard button, displayed on the right of the formula.
+On mobile devices, the virtual keyboard will always be used, and the keyboard
+button is therefore not displayed.
+
+Each keyboard can be made up of one or more _keyboard layers_ which is a specific
+configuration of keys. For example, a regular hardware keyboard has a 
+default layer, where the key produce lower case characters when you press them,
+along with a 'shift' layer that produces upper case characters, and a 'alt'
+or 'option' layer that provides additional symbols.
+
+The virtual keyboards can be customized using the following keys in the `config`
+parameter of `makeMathField`.
+
+* `virtualKeyboardMode` If no value is specified, the default value is `manual`
+on desktop and `auto` on mobile.
+   * If `'manual'`, pressing the keyboard toggle will display a virtual 
+   keyboard 
+   * If `'onfocus'`, the virtual keyboard will be displayed whenever the field is focused. In that case, the command bar toggle is not displayed. 
+ 
+ * `virtualKeyboards` - If `'all'`, all the virtual keyboards will be made
+ available. Otherwise, this should be a space separated list of the 
+ keyboards that should be made available. The supported keyboards are:
+    * `'numeric'`
+    * `'latin'`
+    * `'greek'`
+    * `'functions'`
+    * `'command'`
+
+ The keyboards will be displayed in the order indicated.
+ 
+ * `virtualKeyboardTheme` - The visual theme of the virtual keyboard. If empty, the theme will switch automatically based on the device it's running on. 
+ The two supported themes are  `material` and `apple`.
+
+ 

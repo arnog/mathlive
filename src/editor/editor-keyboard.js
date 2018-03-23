@@ -93,15 +93,26 @@ define([], function() {
  * @param {Event} evt 
  */
 function keyboardEventToString(evt) {
+    let keyname;
 
-    let keyname = KEY_NAMES[evt.key] || evt.code;
+    if (evt.key === 'Unidentified') {
+        // On Android, the evt.key seems to always be Unidentified. 
+        // Get the value entered in the event target
+        if (evt.target) {
+            keyname = VIRTUAL_KEY_NAMES[evt.target.value] || evt.target.value;
+        }
+    }
 
-    // For virtual keyboards (iOS, Android) and Microsoft Edge (!)
-    // the `evt.code`, which represents the physical key pressed, is set 
-    // to undefined. In that case, map the virtual key ("q") to a
-    // pseudo-hardware key ("KeyQ")
     if (!keyname) {
-        keyname = VIRTUAL_KEY_NAMES[evt.key.toLowerCase()] || evt.key;
+        keyname = KEY_NAMES[evt.key] || evt.code;
+
+        // For virtual keyboards (iOS, Android) and Microsoft Edge (!)
+        // the `evt.code`, which represents the physical key pressed, is set 
+        // to undefined. In that case, map the virtual key ("q") to a
+        // pseudo-hardware key ("KeyQ")
+        if (!keyname) {
+            keyname = VIRTUAL_KEY_NAMES[evt.key.toLowerCase()] || evt.key;
+        }
     }
 
     const modifiers = [];
@@ -187,7 +198,7 @@ function delegateKeyboardEvents(textarea, handlers) {
     }
 
     function onKeydown(e) {
-        if (e.key === 'Dead' || e.keyCode === 229) {
+        if ((e.key === 'Dead' || e.key === 'Unidentified') || e.keyCode === 229) {
             deadKey = true;
             compositionInProgress = false;
             // This sequence seems to cancel dead keys

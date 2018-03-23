@@ -344,6 +344,10 @@ let USER_STATS = {
 function suggest(parsemode, environment, modifiers, 
     parent, before, selection, after, 
     config) {
+
+    // If the virtual keyboard is enabled, no suggestions.
+    if (config.virtualKeyboardMode) return [];
+
     const result = [];
 
     const context = new CommandContext(parsemode, environment, modifiers, 

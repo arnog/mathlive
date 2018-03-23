@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>editor/editor-undo.js - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>MASTON - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -56,154 +56,559 @@ writeCookie('symbol-access', 'private')
 
 <main id="main">
     
-        <h1 class="page-title">editor/editor-undo.js</h1>
+        <h1 class="page-title">MASTON</h1>
     
 
+    <section class="tutorial">
+
+
+<article>
+    <h1 id="the-maston-format">The MASTON Format</h1>
+<p>The <strong>Math Abstract Syntax Tree Object Notation</strong> is a lightweight data interchange format for mathematical notation.</p>
+<p>It is human-readable, while being easy for computers to generate and parse.</p>
+<p>It is built on the JSON [1] format. Its focus is on interoperability between software programs to facilitate the exchange of mathematical data, as well as the building of complex software through software components communicating with a common format.</p>
+<p>It is not suitable for a visual representation of arbitrary mathematical notations, and as such is not a replacement for LaTeX or MathML.</p>
+<h2 id="examples">Examples</h2>
+<h3 id="euler-s-identity">Euler's Identity</h3>
+<p>In TeX</p>
+<pre class="prettyprint source lang-tex"><code>e^{\imaginaryI \pi }+1=0</code></pre><p>In MASTON:</p>
+<pre class="prettyprint source lang-JSON"><code>{&quot;lhs&quot;:{&quot;lhs&quot;:{&quot;sym&quot;:&quot;e&quot;,&quot;sup&quot;:{&quot;lhs&quot;:&quot;ⅈ&quot;,&quot;op&quot;:&quot;*&quot;,&quot;rhs&quot;:&quot;π&quot;}},&quot;op&quot;:&quot;+&quot;,&quot;rhs&quot;:1},&quot;op&quot;:&quot;=&quot;,&quot;rhs&quot;:0}</code></pre><h3 id="an-approximation-of-pi">An approximation of Pi</h3>
+<pre class="prettyprint source lang-tex"><code>\frac {63}{25}\times \frac {17+15\sqrt{5}}{7+15\sqrt{5}}</code></pre><pre class="prettyprint source lang-JSON"><code>{&quot;lhs&quot;:{&quot;lhs&quot;:63,&quot;op&quot;:&quot;/&quot;,&quot;rhs&quot;:25},&quot;op&quot;:&quot;*&quot;,&quot;rhs&quot;:{&quot;lhs&quot;:{&quot;lhs&quot;:17,&quot;op&quot;:&quot;+&quot;,&quot;rhs&quot;:{&quot;lhs&quot;:15,&quot;op&quot;:&quot;*&quot;,&quot;rhs&quot;:{&quot;fn&quot;:&quot;sqrt&quot;,&quot;arg&quot;:5}}},&quot;op&quot;:&quot;/&quot;,&quot;rhs&quot;:{&quot;lhs&quot;:7,&quot;op&quot;:&quot;+&quot;,&quot;rhs&quot;:{&quot;lhs&quot;:15,&quot;op&quot;:&quot;*&quot;,&quot;rhs&quot;:{&quot;fn&quot;:&quot;sqrt&quot;,&quot;arg&quot;:5}}}}}</code></pre><h2 id="encoding">Encoding</h2>
+<p>A MASTON expression is encoded as a JSON object. The root element is an &langle;expression&rangle;, which contains other elements according to the grammar below.</p>
+<h3 id="native-numbers">Native Numbers</h3>
+<p>A native number is encoded following the JSON grammar, with two extensions:</p>
+<ul>
+<li>support for arbitrary precision numbers. The number of digits included may be more than supported by consuming software. The software can handle this situation by either reading only as many digits as can be supported internally or by treating it as an error.</li>
+<li>support for explicit fractions. These numbers can be used to represent exact fractional quantities.</li>
+<li>support for <code>NaN</code> and <code>infinity</code></li>
+</ul>
+<p>&langle;native-number&rangle; := <code>'&quot;NaN&quot;'</code> | &langle;native-infinity&rangle; | [<code>'-'</code>] &langle;native-int&rangle; [ &langle;native-frac&rangle;] [ &langle;native-exp&rangle; ]</p>
+<p>&langle;native-infinity&rangle; := <code>'&quot;'</code> [<code>'+'</code> | <code>'-'</code>] <code>'infinity'</code> <code>'&quot;'</code></p>
+<p>&langle;native-int&rangle; := <code>'0'</code> | [ <code>'1'</code> - <code>'9'</code> ]*</p>
+<p>&langle;native-frac&rangle; := <code>'.'</code> (<code>'0'</code> - <code>'9'</code>)*</p>
+<p>&langle;native-exp&rangle; := [<code>'e'</code> | <code>'E'</code>] [<code>'+'</code> | <code>'-'</code>] (<code>'0'</code> - <code>'9'</code> )*</p>
+<p>&langle;native-fraction&rangle; := [<code>'+'</code> | <code>'-'</code>] (<code>'0'</code> - <code>'9'</code>)<em> <code>'/'</code> (<code>'0'</code> - <code>'9'</code>)</em></p>
+<h3 id="native-strings">Native Strings</h3>
+<p>Native strings are a sequence of Unicode characters.</p>
+<p>As per JSON, any Unicode character may be escaped using a <code>\u</code> escape sequence.</p>
+<p>Compliant MATSON producing software should not generate character entities in strings. However, when consuming a MATSON format, the following character entities may be recognize in a string:</p>
+<table>
+<thead>
+<tr>
+<th>Entity</th>
+<th style="text-align:left">Value</th>
+<th style="text-align:right">Unicode   </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> &CapitalDifferentialD;</td>
+<td style="text-align:left">\&CapitalDifferentialD;</td>
+<td style="text-align:right">U+2145</td>
+</tr>
+<tr>
+<td> &DifferentialD;</td>
+<td style="text-align:left">\&DifferentialD;</td>
+<td style="text-align:right">U+2146</td>
+</tr>
+<tr>
+<td> &ExponentialE;</td>
+<td style="text-align:left">\&ExponentialE;</td>
+<td style="text-align:right">U+2147</td>
+</tr>
+<tr>
+<td> &ImaginaryI;</td>
+<td style="text-align:left">\&ImaginaryI;</td>
+<td style="text-align:right">U+2148</td>
+</tr>
+</tbody>
+</table>
+<h3 id="optional-keys">Optional keys</h3>
+<p>All elements may have the following keys:</p>
+<ul>
+<li><code>comment</code>: A human readable string to annotate an expression, since JSON does not allow comments in its encoding</li>
+<li><code>error</code>: A human readable string that can be used to indicate a syntax error or other problem when parsing or evaluating an expression.</li>
+<li><code>latex</code>: A visual representation in LaTeX of the expression. This can be useful to preserve non-semantic details, for example parentheses in an expression.</li>
+<li>`mathml': A visual representation in MathML of the expression.</li>
+<li><code>class</code>: A CSS class to be associated with a representation of this element</li>
+<li><code>id</code>: A CSS id to be associated with a representation of this element</li>
+<li><code>style</code>: A CSS style string</li>
+</ul>
+<h3 id="key-order">Key order</h3>
+<p>The order of the keys in an element is not significant. That is, all these expressions are equivalent:</p>
+<pre class="prettyprint source lang-JSON"><code>   {&quot;lhs&quot;:1, &quot;op&quot;:&quot;+&quot;, &quot;rhs&quot;:2}
+   {&quot;op&quot;:&quot;+&quot;, &quot;lhs&quot;:1, &quot;rhs&quot;:2}
+   {&quot;rhs&quot;:2, &quot;op&quot;:&quot;+&quot;, &quot;lhs&quot;:1}</code></pre><h2 id="grammar">Grammar</h2>
+<p>&langle;expression&rangle; := &langle;num&rangle; |
+    &langle;complex&rangle; | 
+    &langle;range&rangle; |
+    &langle;string&rangle; |
+    &langle;symbol&rangle; | 
+    &langle;operator&rangle; | 
+    &langle;function&rangle; | 
+    &langle;array&rangle; |
+    &langle;text&rangle;</p>
+<h3 id="-langle-num-rangle-">&langle;num&rangle;</h3>
+<p>A native number or an object with the following key</p>
+<ul>
+<li><code>num</code>: &langle;native-number&rangle; or &langle;native-string&rangle;</li>
+</ul>
+<p><strong>Note:</strong> When only the <code>num</code> key is present a shortcut may be used by replacing the element with the number. That is, both representations are equivalent:</p>
+<pre class="prettyprint source lang-JSON"><code>   {&quot;lhs&quot;:{&quot;num&quot;:1}, &quot;op&quot;:&quot;+&quot;, &quot;rhs&quot;:{&quot;num&quot;:2}}
+   {&quot;lhs&quot;:1, &quot;op&quot;:&quot;+&quot;, &quot;rhs&quot;:2}</code></pre><h3 id="-langle-complex-rangle-">&langle;complex&rangle;</h3>
+<ul>
+<li><code>re</code>: &langle;native-number&rangle;</li>
+<li><code>im</code>: &langle;native-number&rangle;</li>
+</ul>
+<h3 id="-langle-symbol-rangle-">&langle;symbol&rangle;</h3>
+<p>A string or an object with the following keys</p>
+<ul>
+<li><code>sym</code>: &langle;native-string&rangle;</li>
+<li><code>index</code>: A 0-based index into a vector or array. An index can be a number or an array of numbers.</li>
+<li><code>accent</code>: &langle;string&rangle;, a single unicode character representing the accent to display over the symbol.</li>
+</ul>
+<p>An accent is a decoration over a symbol that provides the proper context to interpret the symbol or modifies it in some way. For example, an accent can indicate that a symbol is a vector, or to represent the mean, complex conjugate or complement of the symbol.</p>
+<p>The following values are recommended:</p>
+<table>
+<thead>
+<tr>
+<th>Accent</th>
+<th style="text-align:center">Value</th>
+<th style="text-align:right">Unicode</th>
+<th>Possible Meanings</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> Vector</td>
+<td style="text-align:center">&#9676;&#x20d7;</td>
+<td style="text-align:right">U+20d7</td>
+<td></td>
+</tr>
+<tr>
+<td> Bar</td>
+<td style="text-align:center">&#9676;&#x00af;</td>
+<td style="text-align:right">U+00af</td>
+<td>Mean, complex conjugate, set complement.</td>
+</tr>
+<tr>
+<td> Hat</td>
+<td style="text-align:center">&#9676;&#x005e;</td>
+<td style="text-align:right">U+005e</td>
+<td>Unit vector, estimator</td>
+</tr>
+<tr>
+<td> Dot</td>
+<td style="text-align:center">&#9676;&#x02d9;</td>
+<td style="text-align:right">U+02d9</td>
+<td>Derivative with respect to time</td>
+</tr>
+<tr>
+<td> Double dot</td>
+<td style="text-align:center">&#9676;&#x00a8;</td>
+<td style="text-align:right">U+00a8</td>
+<td>Second derivative with respect to time.</td>
+</tr>
+<tr>
+<td> Acute</td>
+<td style="text-align:center">&#9676;&#x00b4;</td>
+<td style="text-align:right">U+00b4</td>
+<td></td>
+</tr>
+<tr>
+<td> Grave</td>
+<td style="text-align:center">&#9676;&#x0060;</td>
+<td style="text-align:right">U+0060</td>
+<td></td>
+</tr>
+<tr>
+<td> Tilde</td>
+<td style="text-align:center">&#9676;&#x007e;</td>
+<td style="text-align:right">U+007e</td>
+<td></td>
+</tr>
+<tr>
+<td> Breve</td>
+<td style="text-align:center">&#9676;&#x02d8;</td>
+<td style="text-align:right">U+02d8</td>
+<td></td>
+</tr>
+<tr>
+<td> Check</td>
+<td style="text-align:center">&#9676;&#x02c7;</td>
+<td style="text-align:right">U+02c7</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="-langle-function-rangle-">&langle;function&rangle;</h3>
+<ul>
+<li><code>fn</code>: &langle;native-string&rangle;, the name of the function.</li>
+<li><code>arg</code>: &langle;expression&rangle; | array of &langle;expression&rangle;, the arguments to the function. If there's a single argument, it should be represented as an expression. If there's more than one, they should be represented as an array of expressions.</li>
+<li><code>fence</code>: &langle;string&rangle;, one to three characters indicating the delimiters used for the expression. The first character is the opening delimiter, the second character, if present, is the closing delimiter. The third character, if present, is the delimiters separating the arguments. If no value is provided for this key, the default value <code>(),</code> is used. The character <code>.</code> can be used to indicate the absence of a delimiter, for example <code>..;</code>.</li>
+<li><code>sub</code>: &langle;expression&rangle;</li>
+<li><code>sup</code>: &langle;expression&rangle;</li>
+<li><code>accent</code>: &langle;native-string&rangle;, a single unicode character representing the accent to display over the function. See the SYMBOL section for more details.</li>
+</ul>
+<p>The <code>fn</code> key is the only one required.</p>
+<p>When using common functions, the following values are recommended:</p>
+<table>
+<thead>
+<tr>
+<th>Name (and common synonyms)</th>
+<th style="text-align:left">Value</th>
+<th style="text-align:left">Argument</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> Cosine</td>
+<td style="text-align:left"><code>cos</code></td>
+<td style="text-align:left">angle in radians</td>
+</tr>
+<tr>
+<td> Sin</td>
+<td style="text-align:left"><code>sin</code></td>
+<td style="text-align:left">angle in radians</td>
+</tr>
+<tr>
+<td> Tangent (tan, tg)</td>
+<td style="text-align:left"><code>tan</code></td>
+<td style="text-align:left">angle in radians</td>
+</tr>
+<tr>
+<td> Arctangent (arctan, arctg)</td>
+<td style="text-align:left"><code>arctangent</code></td>
+<td style="text-align:left">angle in radians</td>
+</tr>
+<tr>
+<td> Co-tangent (cot, ctg, cotg, ctn)</td>
+<td style="text-align:left"><code>cotangent</code></td>
+</tr>
+<tr>
+<td> Hyperbolic tangent (th, tan)</td>
+<td style="text-align:left"><code>tanh</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="-langle-operator-rangle-">&langle;operator&rangle;</h3>
+<p>The input of an operator is a left hand side expression and a right 
+hand side expression. The expressions are optional, for example: 
+<code>a-b</code> and <code>-x</code>. Use a function when there is only a rhs input, for 
+example <code>Re()</code>.</p>
+<p>Operators can have additional input or modifiers displayed over and under them.</p>
+<p>For example the &quot;sum&quot; operator can have expressions indicating the 
+range and limits of the operator. The &quot;integral&quot; operator under and over can indicate the start and end of its range.</p>
+<ul>
+<li><code>op</code>: &langle;string&rangle;, the name of the operator</li>
+<li><code>lhs</code>: &langle;expression&rangle;, the left hand side operand</li>
+<li><code>rhs</code>: &langle;expression&rangle;, the right hand side operand</li>
+<li><code>sup</code>: &langle;expression&rangle;</li>
+<li><code>sub</code>: &langle;expression&rangle;</li>
+<li><code>accent</code>: &langle;string&rangle;</li>
+</ul>
+<p>The <code>op</code> key, the name of the operator, is the only one required.</p>
+<p>The following values should be used to represent common operators:</p>
+<h4 id="arithmetic-operators">Arithmetic operators</h4>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th style="text-align:center">Name</th>
+<th style="text-align:right">Unicode</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> Add</td>
+<td style="text-align:center"><code>+</code></td>
+<td style="text-align:right">U+002B</td>
+<td></td>
+</tr>
+<tr>
+<td> Subtract</td>
+<td style="text-align:center"><code>-</code></td>
+<td style="text-align:right">U+002D</td>
+<td></td>
+</tr>
+<tr>
+<td> Multiply</td>
+<td style="text-align:center"><code>*</code></td>
+<td style="text-align:right">U+002A</td>
+<td></td>
+</tr>
+<tr>
+<td> Divide</td>
+<td style="text-align:center"><code>/</code></td>
+<td style="text-align:right">U+002F</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="logic-operators">Logic operators</h4>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th style="text-align:center">Name</th>
+<th style="text-align:right">Unicode</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="relational-operators">Relational operators</h4>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th style="text-align:center">Name</th>
+<th style="text-align:right">Unicode</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> Equal to</td>
+<td style="text-align:center"><code>=</code></td>
+<td style="text-align:right">U+003D</td>
+<td></td>
+</tr>
+<tr>
+<td> Definition/assignment</td>
+<td style="text-align:center"><code>:=</code></td>
+<td style="text-align:right">U+003D</td>
+<td>Used with <code>a := 5</code> or <code>f(x) := sin(x)</code></td>
+</tr>
+<tr>
+<td> Identity</td>
+<td style="text-align:center"><code>:=:</code></td>
+<td style="text-align:right">U+003D</td>
+<td>Used with <code>1 + 1 :=: 2</code></td>
+</tr>
+<tr>
+<td> Approximately equal to</td>
+<td style="text-align:center"><code>≈</code></td>
+<td style="text-align:right">≈ U+2248</td>
+<td></td>
+</tr>
+<tr>
+<td> Not equal to</td>
+<td style="text-align:center"><code>≠</code></td>
+<td style="text-align:right">U+2260</td>
+<td></td>
+</tr>
+<tr>
+<td> Less than</td>
+<td style="text-align:center"><code>&lt;</code></td>
+<td style="text-align:right">U+003C</td>
+<td></td>
+</tr>
+<tr>
+<td> Less than or equal to</td>
+<td style="text-align:center"><code>&lt;=</code></td>
+<td style="text-align:right">≤ U+2264</td>
+<td></td>
+</tr>
+<tr>
+<td> Greater than</td>
+<td style="text-align:center"><code>&gt;</code></td>
+<td style="text-align:right">U+003C</td>
+<td></td>
+</tr>
+<tr>
+<td> Greater than or equal to</td>
+<td style="text-align:center"><code>&gt;=</code></td>
+<td style="text-align:right">≥ U+2265</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>There are three semantically distinct use for &quot;equal to&quot; which are often all represented with <code>=</code> in mathematical notation:</p>
+<ul>
+<li>conditional equality: the expression is true when the left hand side and the right hand side are equal, for example when defining a curve representin the unit circle: <code>x^2 + y^2 = 1</code></li>
+<li>definition or assignment: the symbol (or expression) on the left hand side is defined by the expression on the right hand side. For example <code>f(x) := sin x</code>, <code>a = 5</code></li>
+<li>identity: the right hand side expression is a syntactic derivation from the left hand size expression. For example, <code>1 + 1 :=: 2</code></li>
+</ul>
+<h4 id="big-operators">Big operators</h4>
+<p>Big operators, such as ∑, &quot;sum&quot;, and ∏, &quot;product&quot;, are represented as an operator with a <code>sup</code> and <code>sub</code> keys as necessary. </p>
+<p>The following values should be used to represent these common big operators:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th style="text-align:left">Op</th>
+<th style="text-align:left">Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> Sum</td>
+<td style="text-align:left"><code>sum</code></td>
+<td style="text-align:left">∑ U+2211</td>
+</tr>
+<tr>
+<td> Product</td>
+<td style="text-align:left"><code>product</code></td>
+<td style="text-align:left">∏ U+220f</td>
+</tr>
+<tr>
+<td> Intersection</td>
+<td style="text-align:left"><code>intersection</code></td>
+<td style="text-align:left">⋂ U+22c2</td>
+</tr>
+<tr>
+<td> Union</td>
+<td style="text-align:left"><code>union</code></td>
+<td style="text-align:left">⋃ U+22c3</td>
+</tr>
+<tr>
+<td> Integral</td>
+<td style="text-align:left"><code>integral</code></td>
+<td style="text-align:left">∫ U+222b</td>
+</tr>
+<tr>
+<td> Double integral</td>
+<td style="text-align:left"><code>integral2</code></td>
+<td style="text-align:left">∬ U+222c</td>
+</tr>
+<tr>
+<td> Triple integral</td>
+<td style="text-align:left"><code>integral3</code></td>
+<td style="text-align:left">∭ U+222d</td>
+</tr>
+<tr>
+<td> Contour integral</td>
+<td style="text-align:left"><code>contour_integral</code></td>
+<td style="text-align:left">∮ U+222e</td>
+</tr>
+<tr>
+<td> Circle Plus</td>
+<td style="text-align:left"><code>circle_plus</code></td>
+<td style="text-align:left">U+2a01</td>
+</tr>
+<tr>
+<td> Circle Times</td>
+<td style="text-align:left"><code>circle_times</code></td>
+<td style="text-align:left">U+2a02</td>
+</tr>
+<tr>
+<td> And</td>
+<td style="text-align:left"><code>n_and</code></td>
+<td style="text-align:left">U+22c1</td>
+</tr>
+<tr>
+<td> Or</td>
+<td style="text-align:left"><code>n_or</code></td>
+<td style="text-align:left">U+22c0</td>
+</tr>
+<tr>
+<td> Coproduct</td>
+<td style="text-align:left"><code>coproduct</code></td>
+<td style="text-align:left">∐ U+2210</td>
+</tr>
+<tr>
+<td> Square cup</td>
+<td style="text-align:left"><code>square_cup</code></td>
+<td style="text-align:left">U+2a06</td>
+</tr>
+<tr>
+<td> U plus</td>
+<td style="text-align:left"><code>union_plus</code></td>
+<td style="text-align:left">U+2a04</td>
+</tr>
+<tr>
+<td> O dot</td>
+<td style="text-align:left"><code>odot</code></td>
+<td style="text-align:left">U+2a00</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th style="text-align:left">Op</th>
+<th style="text-align:left">Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> Factorial</td>
+<td style="text-align:left"><code>factorial</code></td>
+<td style="text-align:left"><code>!</code></td>
+</tr>
+<tr>
+<td> Double factorial</td>
+<td style="text-align:left"><code>factorial2</code></td>
+<td style="text-align:left"><code>!!</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="-langle-text-rangle-">&langle;text&rangle;</h3>
+<ul>
+<li><code>text</code>: &langle;native-string&rangle;</li>
+</ul>
+<h3 id="-langle-group-rangle-">&langle;group&rangle;</h3>
+<ul>
+<li><code>group</code>:  &langle;expression&rangle;</li>
+<li><code>sup</code>:    &langle;expression&rangle;</li>
+<li><code>sub</code>:    &langle;expression&rangle;</li>
+<li><code>accent</code>: &langle;string&rangle;</li>
+</ul>
+<p>The <code>group</code> key is the only one required.</p>
+<p>This element is used when a <code>sup</code>, <code>sub</code> or <code>accent</code> need to be applied to an expression, as in <code>(x+1)^2</code>.</p>
+<h3 id="-langle-range-rangle-">&langle;range&rangle;</h3>
+<ul>
+<li><code>range_start</code>: &langle;expression&rangle;</li>
+<li><code>range_end</code>: &langle;expression&rangle;</li>
+<li><code>range_step</code>: &langle;expression&rangle;</li>
+</ul>
+<p>The <code>start</code> key is the only one required. If absent, <code>end</code> is assumed to be <code>infinity</code>. If absent, <code>step</code> is assumed ot be <code>1</code>.</p>
+<h3 id="-langle-array-rangle-">&langle;array&rangle;</h3>
+<ul>
+<li><code>rows</code>: array of &langle;expression&rangle;</li>
+<li><code>fence</code>: &langle;native-string&rangle;</li>
+<li><code>index</code>: A 0-based index into the vector or array. An index can be a number or an array of numbers.</li>
+</ul>
+<p>The <code>rows</code> key is the only one required.</p>
+<h3 id="-langle-dictionary-rangle-">&langle;dictionary&rangle;</h3>
+<ul>
+<li><code>keys</code>: object mapping keys to values</li>
+</ul>
+<p>Example:</p>
+<pre class="prettyprint source lang-JSON"><code>{keys:{a:1, b:&quot;one&quot;}}</code></pre><p>defines the following dictionary:</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th style="text-align:left">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> <code>a</code></td>
+<td style="text-align:left"><code>1</code></td>
+</tr>
+<tr>
+<td> <code>b</code></td>
+<td style="text-align:left"><code>&quot;one&quot;</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="references">REFERENCES</h3>
+<p>[1] https://www.json.org/</p>
+</article>
+
     
 
 
-
-    
-    <section class="source">
-        <article>
-            <pre class="prettyprint source linenums">
-            
-            <code>
-
-define([], 
-    function() {
-
-/**
- * 
- * @param {MathAtom[]} mathlist
- * @class UndoManager
- * @global
- * @private
- */
-function UndoManager(mathlist) {
-    this.mathlist = mathlist;
-    this.stack = [];
-    this.index = -1;
-    this.maximumDepth = 1000;
-}
-
-
-/**
- * 
- * @return {boolean}
- * @memberof UndoManager
- * @instance
- * @private
- */
-UndoManager.prototype.canUndo = function() {
-    return this.index > 0;
-}
-
-/**
- * 
- * @return {boolean}
- * @memberof UndoManager
- * @instance
- * @private
- */
-UndoManager.prototype.canRedo = function() {
-    return this.index !== this.stack.length - 1;
-}
-
-/**
- * 
- * @memberof UndoManager
- * @instance
- * @private
- */
-UndoManager.prototype.undo = function() {
-    if (this.canUndo()) {
-        this.restore(this.stack[this.index]);
-        this.index -= 1;
-    }
-}
-
-/**
- * 
- * @memberof UndoManager
- * @instance
- * @private
- */
-UndoManager.prototype.redo = function() {
-    if (this.canRedo()) {
-        this.index += 1;
-        this.restore(this.stack[this.index]);
-    }
-}
-
-
-/**
- * Push a snapshot of the content and selection of the math field onto the 
- * undo stack so that it can potentially be reverted to later.
- * @memberof UndoManager
- * @instance
- * @private
- */
-UndoManager.prototype.snapshot = function() {
-    // Drop any entries that are part of the redo stack
-    this.stack.splice(this.index + 1, this.stack.length - this.index - 1);
-
-    // Add a new entry
-    this.stack.push({
-        latex: this.mathlist.root.toLatex(),
-        selection: this.mathlist.toString()
-    });
-
-    this.index++;
-
-    // If we've reached the maximum number of undo operations, forget the 
-    // oldest one.
-    if (this.stack.length > this.maximumDepth) {
-        this.stack.shift();
-    }
-}
-
-
-/**
- * Return an object capturing the state of the content and selection of the 
- * math field. Pass this object to restore() to reset the value of the math
- * field to this saved value. This does not affect the undo stack.
-*/
-UndoManager.prototype.save = function () {
-    return {
-        latex: this.mathlist.root.toLatex(),
-        selection: this.mathlist.toString()
-    };
-}
-
-/**
- * Set the content and selection of the math field to a value previously
- * captured with save() or stored in the undo stack. 
- * This does not affect the undo stack.
-*/
-UndoManager.prototype.restore = function (state) {
-    // Restore the content
-    this.mathlist.selectAll_();
-    this.mathlist.insert(state.latex);
-    
-    // Restore the selection
-    this.mathlist.setPath(state.selection)
-}
-
-
-
-return {
-    UndoManager: UndoManager
-}
-
-
-})
-</code></pre>
-        </article>
-    </section>
-
-
-
+</section>
 
 </main>
 

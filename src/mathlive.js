@@ -152,8 +152,32 @@ function toMarkup(text, mathstyle, format) {
  * bar can still be triggered programmatically with the `toggleCommandBar` 
  * selector.
  * 
+ * @param {string} [config.commandbarToggleGlyph] - If specified, the markup 
+ * to be used to display the command bar toggle glyph.
+ * 
  * @param {boolean} [config.overrideDefaultCommands=false] - If true, the default 
  * commands displayed in the command bar are ignored.
+ * 
+ * @param {string} [config.virtualKeyboardMode=''] - If `'manual'`, pressing the 
+ * command bar toggle will display a virtual keyboard instead of the command bar.
+ * If `'onfocus'`, the virtual keyboard will be displayed whenever the field is 
+ * focused. In that case, the command bar toggle is not displayed. 
+ * When this setting is not empty, `config.overrideDefaultCommands` and 
+ * `config.commands` are ignored.
+ * 
+ * @param {string} [config.virtualKeyboards='all'] - If `'all'`, all the 
+ * virtual keyboards will be made available. Otherwise, this should be 
+ * a space separated list of the keyboards that should be made available. The
+ * supported keyboards are:
+ * 
+ * * `'numeric'`, `'latin'`, `'greek'`, `'functions'` and `'command'`
+ * 
+ * The keyboards will be displayed in the order indicated.
+ * 
+ * @param {boolean} [config.virtualKeyboardTheme=''] - The visual theme used
+ * for the virtual keyboard. If empty, the theme will switch automatically
+ * based on the device it's running on. The two supported themes are 
+ * 'material' and 'apple' (the default).
  * 
  * @param {Array} [config.commands] - An array of commands to display in the 
  * command bar. If `overrideDefaultCommands` is false, these commands will 

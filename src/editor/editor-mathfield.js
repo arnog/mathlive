@@ -16,13 +16,15 @@ define([
     'mathlive/editor/editor-undo', 
     'mathlive/editor/editor-shortcuts', 
     'mathlive/editor/editor-commands',
+    'mathlive/editor/editor-virtualKeyboard',
     'mathlive/core/grapheme-splitter',
     'mathlive/addons/outputLatex', 
     'mathlive/addons/outputMathML', 
     'mathlive/addons/maston', 
     'mathlive/addons/outputSpokenText'], 
     function(Definitions, MathAtom, Lexer, ParserModule, Span, 
-    EditableMathlist, MathPath, Keyboard, Undo, Shortcuts, Commands, GraphemeSplitter,
+    EditableMathlist, MathPath, Keyboard, Undo, Shortcuts, Commands, 
+    VirtualKeyboard, GraphemeSplitter,
 // eslint-disable-next-line no-unused-vars
     OutputLatex, OutputMathML, MASTON, OutputSpokenText) {
 
@@ -102,11 +104,23 @@ function MathField(element, config) {
     // 5.1/ The aria-live region for announcements
     let markup = ''
     if (!this.config.substituteTextArea) {
-        markup += '<span class="ML__textarea">' +
-            '<textarea class="ML__textarea--textarea" autocapitalize="off" autocomplete="off" ' + 
-            'autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="-1">' +
-            '</textarea>' +
-        '</span>';
+        if (/android|ipad|ipod|iphone/i.test(navigator.userAgent)) {
+            // On Android, don't use a textarea, which has the side effect of
+            // bringing up the OS virtual keyboard
+            markup += `<span class='ML__textarea'> 
+                <span class='ML__textarea--textarea'
+                    tabindex="0" role="textbox" 
+                    style='display:inline-block;height:1px;width:1px' >
+                </span>
+            </span>`;
+        } else {
+            markup += '<span class="ML__textarea">' +
+                '<textarea class="ML__textarea--textarea" autocapitalize="off" autocomplete="off" ' + 
+                'autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="-1">' +
+                '</textarea>' +
+            '</span>';
+        }
+
     } else {
         if (typeof this.config.substituteTextArea === 'string') {
             markup += this.config.substituteTextArea;
@@ -120,9 +134,17 @@ function MathField(element, config) {
     markup += '<span class="ML__fieldcontainer" aria-hidden="true">' +
             '<span class="ML__fieldcontainer--field"></span>';
 
+    // If the virtual keyboard is on auto mode (i.e. it shows whenever the 
+    // field is focused), we don't need the toggle.
+    if (this.config.virtualKeyboardMode === 'onfocus') {
+        this.config.commandbarToggle = 'hidden';
+    }
+
     if (this.config.commandbarToggle === 'visible') {
-        markup += '<span class="ML__commandbartoggle"' +
-                    'role="button" tabindex="0" aria-label="Toggle Command Bar">';
+        markup += `<span class="ML__commandbartoggle"
+                    role="button" tabindex="0" aria-label="Toggle Virtual Keyboard" 
+                    >`;
+                    // data-tooltip='Toggle Virtual Keyboard'
         if (this.config.commandbarToggleGlyph) {
             markup += this.config.commandbarToggleGlyph;
         } else {
@@ -159,7 +181,9 @@ function MathField(element, config) {
     }
     this.field = this.element.children[iChild].children[0];
     this.commandbarToggle = this.element.children[iChild++].children[1];
-    this._attachButtonHandlers(this.commandbarToggle, 'toggleCommandBar');
+    this._attachButtonHandlers(this.commandbarToggle, 
+        {default: 'toggleCommandBar', alt: 'toggleCommandBarAlt'}
+    );
     this.popover = this.element.children[iChild++];
     this.keystrokeCaption = this.element.children[iChild++];
     this.commandBar = this.element.children[iChild++];
@@ -253,12 +277,15 @@ MathField.prototype.revertToOriginalContent = function() {
     delete this.accessibleNode;
     delete this.ariaLiveText;
     delete this.field;
+    // this.textarea.remove();
     delete this.textarea;
     delete this.commandbarToggle;
     delete this.popover;
     delete this.keystrokeCaption;
     delete this.commandBar;
     delete this.commandButtons;
+    // this.virtualKeyboard.remove();
+    delete this.virtualKeyboard;
     delete this.commandPanel;
     off(this.element, 'touchstart mousedown', this._onPointerDown.bind(this));
     off(window, 'resize', this._onResize.bind(this));
@@ -390,6 +417,12 @@ MathField.prototype._onPointerDown = function(evt) {
     const that = this;
     let trackingPointer = false;
 
+    const bounds = this.element.getBoundingClientRect();
+    if (evt.clientX < bounds.left || evt.clientX > bounds.right || 
+        evt.clientY < bounds.top || evt.clientY > bounds.bottom) {
+        return; 
+    }
+
     // This should not be necessary, but just in case we got in a weird state...
     off(this.field, 'touchmove', onPointerMove);
     off(this.field, 'touchend touchleave', endPointerTracking);
@@ -499,7 +532,9 @@ MathField.prototype._onSelectionDidChange = function() {
             result += atom.toLatex();
         }
         this.textarea.value = result;
-        if (this.hasFocus()) {
+        // The textarea may be a span (on mobile, for example), so check that
+        // it has a select() before calling it.
+        if (this.hasFocus() && this.textarea.select) {
             this.textarea.select();
         }
     } else {
@@ -533,6 +568,16 @@ MathField.prototype._onContentWillChange = function() {
 }
 
 MathField.prototype._onContentDidChange = function() {
+    if (this.undoManager.canRedo()) {
+        this.element.classList.add('can-redo');
+    } else {
+        this.element.classList.remove('can-redo');
+    }
+    if (this.undoManager.canUndo()) {
+        this.element.classList.add('can-undo');
+    } else {
+        this.element.classList.remove('can-undo');
+    }
     if (this.config.onContentDidChange) {
         this.config.onContentDidChange(this);
     }
@@ -637,7 +682,13 @@ MathField.prototype._announceChange = function(command, oldMathlist, atomsToSpea
 MathField.prototype._onFocus = function() {
     if (this.blurred) {
         this.blurred = false;
-        this.textarea.select();
+        // The textarea may be a span (on mobile, for example), so check that
+        // it has a select() before calling it.
+        if (this.textarea.select) this.textarea.select();
+        if (this.config.virtualKeyboardMode === 'onfocus') {
+            this.commandBarVisible = false; // Toggle will turn it to true
+            this.toggleCommandBar_();
+        }
         this._updatePopoverPosition();
         this._updateCommandBar();
         this._render();
@@ -649,6 +700,10 @@ MathField.prototype._onBlur = function() {
     if (!this.blurred) {
         this.blurred = true;
         this.ariaLiveText.textContent = '';
+        if (this.config.virtualKeyboardMode === 'onfocus') {
+            this.commandBarVisible = true; // Toggle will turn it to false
+            this.toggleCommandBar_();
+        }
         this._updatePopoverPosition();
         this._updateCommandBar();
         this._render();
@@ -657,6 +712,15 @@ MathField.prototype._onBlur = function() {
 }
 
 MathField.prototype._onResize = function() {
+
+    this.element.classList.remove('ML__isNarrowWidth', 'ML__isWideWidth', 'ML__isExtendedWidth');
+    if (window.innerWidth >= 1024) {
+        this.element.classList.add('ML__isExtendedWidth');
+    } else if (window.innerWidth >= 768) {
+        this.element.classList.add('ML__isWideWidth');
+    } else {
+        this.element.classList.add('ML__isNarrowWidth');
+    }
     this._updatePopoverPosition();
 }
 
@@ -1176,9 +1240,15 @@ MathField.prototype.enterCommandMode_ = function() {
     this._hidePopover();
     this.suggestionIndex = 0;
 
+    // Switch to the command mode keyboard layer
+    if (this.commandBar.style.visibility !== 'hidden') {
+        this.switchKeyboardLayer_('lower-command');
+    }
+
     this.undoManager.snapshot();
     this.mathlist.insert('\u0027');
 }
+
 
 MathField.prototype.copyToClipboard_ = function() {
     document.execCommand('copy');
@@ -1346,11 +1416,6 @@ MathField.prototype._updatePopoverPosition = function(options) {
 }
 
 MathField.prototype._showPopover = function(markup) {
-    // Temporarily hide the command bar
-    if (this.commandBar.style.visibility === 'visible') {
-        this.commandBar.style.visibility = 'hidden';
-    }
-
     this.popover.innerHTML = markup;
 
     const position = this._getCaretPosition();
@@ -1365,11 +1430,6 @@ MathField.prototype._showPopover = function(markup) {
 
 MathField.prototype._hidePopover = function() {
     this.popover.classList.remove('ML__popover_visible');    
-
-    // Make the command bar visible again
-    if (this.commandBarVisible) {
-        this.commandBar.style.visibility = 'visible';
-    }
 }
 
 MathField.prototype._updateSuggestion = function() {
@@ -1425,32 +1485,65 @@ MathField.prototype.toggleKeystrokeCaption_ = function() {
     }
 }
 
+/**
+ * Attach event handlers to an element so that it will react by executing
+ * a command when pressed.
+ * Command can be:
+ * - a string, a single selector or 
+ * - an array, whose first element is a selector followed by one or more arguments.
+ * - an object, with a 'default', 'alt', 'shift', 'altshift' keys. Only 
+ * 'default' is required. The value of the keys specify which selector (string
+ * or array) to perform depending on the keyboard state when the button is 
+ * pressed.
+ *
+ * The 'pressed' and 'active' classes will get added to 
+ * the element, as the :hover and :active pseudo-classes are not reliable
+ * (at least on Chrome Android).
+ * 
+ * @param {*} el 
+ * @param {*} command
+ */
 MathField.prototype._attachButtonHandlers = function(el, command) {
     const that = this;
-    // Command can be either a single selector or an array consisting of 
-    // one selector followed by one or more arguments.
 
-    // We need to turn the command into a string to attach it to the dataset 
-    // associated with the button (the command could be an array made of a 
-    // selector and one or more parameters)
-
-    el.setAttribute(
-        'data-' + this.config.namespace + 'command', JSON.stringify(command));
+    if (typeof command === 'object' && command.default) {
+        // Attach the default (no modifiers pressed) command to the element
+        el.setAttribute('data-' + this.config.namespace + 'command', 
+            JSON.stringify(command.default));
+        if (command.alt) {
+            el.setAttribute('data-' + this.config.namespace + 'command-alt', 
+                JSON.stringify(command.alt));
+        }
+        if (command.altshift) {
+            el.setAttribute('data-' + this.config.namespace + 'command-altshift', 
+                JSON.stringify(command.altshift));
+        }
+        if (command.shift) {
+            el.setAttribute('data-' + this.config.namespace + 'command-shift', 
+                JSON.stringify(command.shift));
+        }
+    } else {
+        // We need to turn the command into a string to attach it to the dataset 
+        // associated with the button (the command could be an array made of a 
+        // selector and one or more parameters)
+        el.setAttribute('data-' + this.config.namespace + 'command', 
+            JSON.stringify(command));
+    }
 
     on(el, 'mousedown touchstart', function(ev) {
         if (ev.type !== 'mousedown' || ev.buttons === 1) {
             // The primary button was pressed.
-            ev.target.classList.add('pressed');
+            el.classList.add('pressed');
             ev.stopPropagation(); 
             ev.preventDefault();
         }
     }, {passive: false, capture: false});
-    on (el, 'mouseleave touchcancel', function(ev) {
-        ev.target.classList.remove('pressed');
+    on (el, 'mouseleave touchcancel', function() {
+        el.classList.remove('pressed');
     });
     on (el, 'mouseenter', function(ev) {
         if (ev.buttons === 1) {
-            ev.target.classList.add('pressed');
+            el.classList.add('pressed');
         }
     });
 
@@ -1464,9 +1557,22 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
             function(){ el.classList.remove('active'); },
             150);
 
-        // Restore the command (and its optional arguments) and perform it
-        that.perform(JSON.parse(
-            el.getAttribute('data-' + that.config.namespace + 'command')));
+        let command;
+        if (ev.getModifierState('Alt') && ev.getModifierState('Shift')) {
+            command = el.getAttribute('data-' + that.config.namespace + 'command-altshift');
+        }
+        if (!command && ev.getModifierState('Alt')) {
+            command = el.getAttribute('data-' + that.config.namespace + 'command-alt');
+        }
+        if (!command && ev.getModifierState('Shift')) {
+            command = el.getAttribute('data-' + that.config.namespace + 'command-shift');
+        }
+
+        if (!command) {
+            // Restore the command (and its optional arguments) and perform it
+            command = el.getAttribute('data-' + that.config.namespace + 'command');
+        }
+        that.perform(JSON.parse(command));
         ev.stopPropagation();
         ev.preventDefault();
     });
@@ -1486,49 +1592,132 @@ MathField.prototype._makeButton = function(label, cls, ariaLabel, command) {
 }
 
 MathField.prototype._updateCommandBar = function() {
+    if (this.virtualKeyboard) {
+        if (this.blurred) {
+            this.commandBarVisible = true;
+            this.toggleCommandBar_();
+        }
+        return;
+    }
+
     if (!this.blurred && this.commandBarVisible) {
-        this.textarea.select();
         this.commandBar.style.visibility = 'visible';
-        this.commandButtons.textContent = '';
-        // let content = '';
-        // content += '<span>bold</span><span>solve</span><span>&#x21e2;</span>';
-        // content += '<span class="ML__round">&#8943;</span></div>';
-        // content += '<div>color: #566778</div>';
-        // content += '<div>gap: #566778</div>';
+        if (!this.config.virtualKeyboardMode) {
+            // The textarea may be a span (on mobile, for example), so check that
+            // it has a select() before calling it.
+            if (this.textarea.select) this.textarea.select();
+            this.commandButtons.textContent = '';
+            // let content = '';
+            // content += '<span>bold</span><span>solve</span><span>&#x21e2;</span>';
+            // content += '<span class="ML__round">&#8943;</span></div>';
+            // content += '<div>color: #566778</div>';
+            // content += '<div>gap: #566778</div>';
 
-        const commands = Commands.suggest(
-            this.mathlist.parseMode(), 
-            '' /* environment */, 
-            '' /* modifiers */, 
-            this.mathlist.parent(),
-            this.mathlist.extractGroupBeforeSelection(), 
-            this.mathlist.extractContents(),
-            this.mathlist.extractGroupAfterSelection(), 
-            this.config);
+            const commands = Commands.suggest(
+                this.mathlist.parseMode(), 
+                '' /* environment */, 
+                '' /* modifiers */, 
+                this.mathlist.parent(),
+                this.mathlist.extractGroupBeforeSelection(), 
+                this.mathlist.extractContents(),
+                this.mathlist.extractGroupAfterSelection(), 
+                this.config);
 
 
-        for (const command of commands) {
-            const button  = this._makeButton(
-                command.label, 
-                command.cls,
-                command.ariaLabel,
-                command.selector);
-            this.commandButtons.appendChild(button);
+            for (const command of commands) {
+                const button  = this._makeButton(
+                    command.label, 
+                    command.cls,
+                    command.ariaLabel,
+                    command.selector);
+                this.commandButtons.appendChild(button);
+            }
         }
     } else {
         this.commandBar.style.visibility = 'hidden';
     }
 }
 
-MathField.prototype.toggleCommandBar_ = function() {
+MathField.prototype.switchKeyboardLayer_ = function(layer) {
+    if (this.config.virtualKeyboardMode) {
+        if (layer !== 'lower-command' && layer !== 'upper-command' && layer !== 'symbols-command') {
+            // If we switch to a non-command keyboard layer, first exit command mode.
+            this.complete_();
+        }
+
+        this.commandBarVisible = false; // Toggle will turn it to true
+        this.toggleCommandBar_();
+        const layers = this.virtualKeyboard.getElementsByClassName('keyboard-layer');
+
+        // Search for the requested layer
+        let found = false;
+        for (let i = 0; i < layers.length; i++) {
+            if (layers[i].id === layer) {
+                found = true;
+                break;
+            }
+        }
+
+        // We did find the layer, switch to it.
+        // If we didn't find it, do nothing and keep the current layer
+        if (found) {
+            for (let i = 0; i < layers.length; i++) {
+                if (layers[i].id === layer) {
+                    layers[i].style.display = 'flex';
+                } else {
+                    layers[i].style.display = 'none';
+                }
+            }
+        }
+
+        this.focus();
+    }
+}
+
+/* Toggle the command bar, but switch to the alternate theme if available */
+MathField.prototype.toggleCommandBarAlt_ = function() {
+    let hadAltTheme = false;
+    if (this.virtualKeyboard) {
+        hadAltTheme = this.virtualKeyboard.classList.contains('material');
+        this.virtualKeyboard.remove();
+        delete this.virtualKeyboard;
+        this.virtualKeyboard = null;
+    }
+    this.toggleCommandBar_(hadAltTheme ? '' : 'material');
+}
+
+MathField.prototype.toggleCommandBar_ = function(theme) {
     this.commandBarVisible = !this.commandBarVisible;
+    if (this.config.virtualKeyboardMode) {
+        if (this.commandBarVisible) {
+            if (this.virtualKeyboard) {
+                this.virtualKeyboard.style.opacity = 1;
+            } else {
+                // Construct the virtual keyboard
+                this.virtualKeyboard = VirtualKeyboard.make(this, theme);
 
-    // If the commandbar toggle was tapped, switch the focus to the mathfield
-    // To trigger the keyboard reveal on iOS, this needs to be done from 
-    // an invocation of a user action (mousedown)
-    if (this.commandBarVisible) this.focus();
+                // Let's make sure that tapping on the keyboard focuses the field
+                const that = this;
+                on(this.virtualKeyboard, 'touchstart mousedown', function(evt) {
+                    that.focus();
+                    evt.preventDefault();
+                });
+                this.commandBar.appendChild(this.virtualKeyboard);
+                this.commandButtons.style.display = 'none';
+            }
+            this.commandBar.style.visibility = 'visible';
+        } else if (this.virtualKeyboard) {
+            this.virtualKeyboard.style.opacity = 0;
+            this.commandBar.style.visibility = 'hidden';
+        }
+    } else {
+        // If the commandbar toggle was tapped, switch the focus to the mathfield
+        // To trigger the keyboard reveal on iOS, this needs to be done from 
+        // an invocation of a user action (mousedown)
+        if (this.commandBarVisible) this.focus();
 
-    this._updateCommandBar();
+        this._updateCommandBar();
+    }
 }
 
 MathField.prototype.hasFocus = function() {
@@ -1536,8 +1725,10 @@ MathField.prototype.hasFocus = function() {
 }
 
 MathField.prototype.focus = function() {
-        if (!this.hasFocus()) {
-        this.textarea.select();
+    if (!this.hasFocus()) {
+        // The textarea may be a span (on mobile, for example), so check that
+        // it has a select() before calling it.
+        if (this.textarea.select) this.textarea.select();
         this._announceChange("line");
         this.textarea.setAttribute('aria-label', 'after: ' + MathAtom.toSpeakableText(this.mathlist.root))
         this._render();
@@ -1573,6 +1764,7 @@ MathField.prototype.keystroke = function(keys, evt) {
     return this._onKeystroke(keys, evt);
 }
 
+
 /**
  * Simulate a user typing the keys indicated by text.
  * @param {string} text - A sequence of one or more characters.
@@ -1582,6 +1774,11 @@ MathField.prototype.typedText = function(text) {
     // This is the public API, while onTypedText is the 
     // internal handler
     this._onTypedText(text);
+}
+
+MathField.prototype.typedText_ = function(text) {
+    this.focus();
+    return this._onTypedText(text);
 }
 
 
@@ -1599,6 +1796,7 @@ MathField.prototype.config = function(config) {
         overrideDefaultInlineShortcuts: false,
         commandbarToggle: 'visible',
         overrideDefaultCommands: false,
+        virtualKeyboard: '',
         namespace: ''
     }
 
