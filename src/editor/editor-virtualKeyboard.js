@@ -178,8 +178,14 @@ const LAYERS = {
                 <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols'>&infin;≠</li>
                 <li class='keycap'>,</li>
                 <li class='keycap w50' data-key=' '>&nbsp;</li>
-                <li class='action' data-command='"moveToPreviousChar"'><svg><use xlink:href='#svg-arrow-left' /></svg></li>
-                <li class='action' data-command='"moveToNextChar"'><svg><use xlink:href='#svg-arrow-right' /></svg></li>
+                <li class='action' data-command='"moveToPreviousChar"'
+                    data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' data-shifted-command='"extendToPreviousChar"'>
+                    <svg><use xlink:href='#svg-arrow-left' /></svg>
+                </li>
+                <li class='action' data-command='"moveToNextChar"'
+                    data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' data-shifted-command='"extendToNextChar"'>
+                    <svg><use xlink:href='#svg-arrow-right' /></svg>
+                </li>
                 <li class='action' data-command='"moveToNextPlaceholder"'><svg><use xlink:href='#svg-tab' /></svg></li>
             </ul>
         </div>`,
@@ -215,8 +221,14 @@ const LAYERS = {
                 <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols'>&infin;≠</li>
                 <li class='keycap'>;</li>
                 <li class='keycap w50' data-key=' '>&nbsp;</li>
-                <li class='action' data-command='"moveToPreviousChar"'><svg><use xlink:href='#svg-arrow-left' /></svg></li>
-                <li class='action' data-command='"moveToNextChar"'><svg><use xlink:href='#svg-arrow-right' /></svg></li>
+                <li class='action' data-command='"moveToPreviousChar"'
+                    data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' data-shifted-command='"extendToPreviousChar"'>
+                    <svg><use xlink:href='#svg-arrow-left' /></svg>
+                </li>
+                <li class='action' data-command='"moveToNextChar"'
+                    data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' data-shifted-command='"extendToNextChar"'>
+                    <svg><use xlink:href='#svg-arrow-right' /></svg>
+                </li>
                 <li class='action' data-command='"moveToNextPlaceholder"'><svg><use xlink:href='#svg-tab' /></svg></li>
             </ul>
         </div>`,
@@ -328,8 +340,15 @@ const LAYERS = {
                 <li class='keycap tex-math' data-insert='\\varkappa '><i>&#x3f0;</i><aside>kappa var.</aside></li>
                 <li class='keycap tex-math' data-insert='\\varpi '><i>&#x03d6;<aside>pi var.</aside></i></li>
                 <li class='keycap tex-math' data-insert='\\varrho '><i>&#x03f1;</i><aside>rho var.</aside></li>
-                <li class='action' data-command='"moveToPreviousChar"'><svg><use xlink:href='#svg-arrow-left' /></svg></li>
-                <li class='action' data-command='"moveToNextChar"'><svg><use xlink:href='#svg-arrow-right' /></svg></li>
+                <li class='action' data-command='"moveToPreviousChar"'
+                    data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' data-shifted-command='"extendToPreviousChar"'>
+                    <svg><use xlink:href='#svg-arrow-left' /></svg>
+                </li>
+                <li class='action' data-command='"moveToNextChar"'
+                    data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' data-shifted-command='"extendToNextChar"'>
+                    <svg><use xlink:href='#svg-arrow-right' /></svg>
+                </li>
+
                 <li class='action' data-command='"moveToNextPlaceholder"'><svg><use xlink:href='#svg-tab' /></svg></li>
             </ul>
         </div>`,
@@ -367,8 +386,14 @@ const LAYERS = {
                 <li class='separator w10'>&nbsp;</li>
                 <li class='keycap'>.</li>
                 <li class='keycap w50' data-key=' '>&nbsp;</li>
-                <li class='action' data-command='"moveToPreviousChar"'><svg><use xlink:href='#svg-arrow-left' /></svg></li>
-                <li class='action' data-command='"moveToNextChar"'><svg><use xlink:href='#svg-arrow-right' /></svg></li>
+                <li class='action' data-command='"moveToPreviousChar"'
+                    data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' data-shifted-command='"extendToPreviousChar"'>
+                    <svg><use xlink:href='#svg-arrow-left' /></svg>
+                </li>
+                <li class='action' data-command='"moveToNextChar"'
+                    data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' data-shifted-command='"extendToNextChar"'>
+                    <svg><use xlink:href='#svg-arrow-right' /></svg>
+                </li>
                 <li class='action' data-command='"moveToNextPlaceholder"'><svg><use xlink:href='#svg-tab' /></svg></li>
             </ul>
         </div>`,
@@ -385,8 +410,14 @@ const LAYERS = {
                 <li class='keycap tt'>^</li>
                 <li class='keycap tt'>_</li>
                 <li class='keycap w20' data-key=' '>&nbsp;</li>
-                <li class='action' data-command='"moveToPreviousChar"'><svg><use xlink:href='#svg-arrow-left' /></svg></li>
-                <li class='action' data-command='"moveToNextChar"'><svg><use xlink:href='#svg-arrow-right' /></svg></li>
+                <li class='action' data-command='"moveToPreviousChar"'
+                    data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' data-shifted-command='"extendToPreviousChar"'>
+                    <svg><use xlink:href='#svg-arrow-left' /></svg>
+                </li>
+                <li class='action' data-command='"moveToNextChar"'
+                    data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' data-shifted-command='"extendToNextChar"'>
+                    <svg><use xlink:href='#svg-arrow-right' /></svg>
+                </li>
                 <li class='action' data-command='"complete"'><svg><use xlink:href='#svg-tab' /></svg></li>
             </ul>
         </div>`,
@@ -403,8 +434,14 @@ const LAYERS = {
                     <li class='keycap tt'>(</li>
                     <li class='keycap tt'>)</li>
                     <li class='keycap w20' data-key=' '>&nbsp;</li>
-                    <li class='action' data-command='"moveToPreviousChar"'><svg><use xlink:href='#svg-arrow-left' /></svg></li>
-                    <li class='action' data-command='"moveToNextChar"'><svg><use xlink:href='#svg-arrow-right' /></svg></li>
+                    <li class='action' data-command='"moveToPreviousChar"'
+                        data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' data-shifted-command='"extendToPreviousChar"'>
+                        <svg><use xlink:href='#svg-arrow-left' /></svg>
+                    </li>
+                    <li class='action' data-command='"moveToNextChar"'
+                        data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' data-shifted-command='"extendToNextChar"'>
+                        <svg><use xlink:href='#svg-arrow-right' /></svg>
+                    </li>
                     <li class='action' data-command='"complete"'><svg><use xlink:href='#svg-tab' /></svg></li>
                 </ul>
             </div>`,
@@ -431,8 +468,14 @@ const LAYERS = {
                     <li class='keycap tt'>,</li>
                     <li class='keycap tt'>.</li>
                     <li class='keycap' data-key=' '>&nbsp;</li>
-                    <li class='action' data-command='"moveToPreviousChar"'><svg><use xlink:href='#svg-arrow-left' /></svg></li>
-                    <li class='action' data-command='"moveToNextChar"'><svg><use xlink:href='#svg-arrow-right' /></svg></li>
+                    <li class='action' data-command='"moveToPreviousChar"'
+                        data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' data-shifted-command='"extendToPreviousChar"'>
+                        <svg><use xlink:href='#svg-arrow-left' /></svg>
+                    </li>
+                    <li class='action' data-command='"moveToNextChar"'
+                        data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' data-shifted-command='"extendToNextChar"'>
+                        <svg><use xlink:href='#svg-arrow-right' /></svg>
+                    </li>
                     <li class='action' data-command='"complete"'><svg><use xlink:href='#svg-tab' /></svg></li>
                 </ul>
             </div>`,
@@ -668,7 +711,12 @@ function make(mf, theme) {
             <symbol id="svg-copy" viewBox="0 0 448 512">
                 <path d="M433.941 65.941l-51.882-51.882A48 48 0 0 0 348.118 0H176c-26.51 0-48 21.49-48 48v48H48c-26.51 0-48 21.49-48 48v320c0 26.51 21.49 48 48 48h224c26.51 0 48-21.49 48-48v-48h80c26.51 0 48-21.49 48-48V99.882a48 48 0 0 0-14.059-33.941zM352 32.491a15.88 15.88 0 0 1 7.431 4.195l51.882 51.883A15.885 15.885 0 0 1 415.508 96H352V32.491zM288 464c0 8.822-7.178 16-16 16H48c-8.822 0-16-7.178-16-16V144c0-8.822 7.178-16 16-16h80v240c0 26.51 21.49 48 48 48h112v48zm128-96c0 8.822-7.178 16-16 16H176c-8.822 0-16-7.178-16-16V48c0-8.822 7.178-16 16-16h144v72c0 13.2 10.8 24 24 24h72v240z"/>
             </symbol>
-        </svg>
+            <symbol id="svg-angle-double-right" viewBox="0 0 320 512">
+                <path d="M166.9 264.5l-117.8 116c-4.7 4.7-12.3 4.7-17 0l-7.1-7.1c-4.7-4.7-4.7-12.3 0-17L127.3 256 25.1 155.6c-4.7-4.7-4.7-12.3 0-17l7.1-7.1c4.7-4.7 12.3-4.7 17 0l117.8 116c4.6 4.7 4.6 12.3-.1 17zm128-17l-117.8-116c-4.7-4.7-12.3-4.7-17 0l-7.1 7.1c-4.7 4.7-4.7 12.3 0 17L255.3 256 153.1 356.4c-4.7 4.7-4.7 12.3 0 17l7.1 7.1c4.7 4.7 12.3 4.7 17 0l117.8-116c4.6-4.7 4.6-12.3-.1-17z"/>
+            </symbol>
+            <symbol id="svg-angle-double-left" viewBox="0 0 320 512">
+                <path d="M153.1 247.5l117.8-116c4.7-4.7 12.3-4.7 17 0l7.1 7.1c4.7 4.7 4.7 12.3 0 17L192.7 256l102.2 100.4c4.7 4.7 4.7 12.3 0 17l-7.1 7.1c-4.7 4.7-12.3 4.7-17 0L153 264.5c-4.6-4.7-4.6-12.3.1-17zm-128 17l117.8 116c4.7 4.7 12.3 4.7 17 0l7.1-7.1c4.7-4.7 4.7-12.3 0-17L64.7 256l102.2-100.4c4.7-4.7 4.7-12.3 0-17l-7.1-7.1c-4.7-4.7-12.3-4.7-17 0L25 247.5c-4.6 4.7-4.6 12.3.1 17z"/>            
+            </symbol>
         `;
     
     let markup = svgIcons;

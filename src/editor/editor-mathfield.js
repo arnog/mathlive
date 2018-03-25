@@ -1665,7 +1665,7 @@ MathField.prototype.switchKeyboardLayer_ = function(layer) {
  * (for example when a modifier key is held down.)
  */
 MathField.prototype.shiftKeyboardLayer_ = function() {
-    const keycaps = this.virtualKeyboard.querySelectorAll('div.keyboard-layer.visible .rows .keycap');
+    const keycaps = this.virtualKeyboard.querySelectorAll('div.keyboard-layer.visible .rows .keycap, div.keyboard-layer.visible .rows .action');
     if (keycaps) {
         for (let i = 0; i < keycaps.length; i++) {
             const keycap = keycaps[i];
@@ -1708,7 +1708,7 @@ MathField.prototype.shiftKeyboardLayer_ = function() {
  * 
  */
 MathField.prototype.unshiftKeyboardLayer_ = function() {
-    const keycaps = this.virtualKeyboard.querySelectorAll('div.keyboard-layer.visible .rows .keycap');
+    const keycaps = this.virtualKeyboard.querySelectorAll('div.keyboard-layer.visible .rows .keycap, div.keyboard-layer.visible .rows .action');
     if (keycaps) {
         for (let i = 0; i < keycaps.length; i++) {
             const keycap = keycaps[i];
