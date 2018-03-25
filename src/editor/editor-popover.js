@@ -1,7 +1,13 @@
 
 
-define([], 
-    function() {
+define(['mathlive/core/definitions', 
+    'mathlive/core/mathAtom', 
+    'mathlive/core/lexer', 
+    'mathlive/core/parser', 
+    'mathlive/core/span', 
+    'mathlive/editor/editor-shortcuts', 
+], 
+    function(Definitions, MathAtom, Lexer, ParserModule, Span, Shortcuts) {
 
 
 
@@ -331,39 +337,121 @@ function getNote(symbol) {
 }
 
 
-// function Popover(el) {
-//     this.el = el;
-// }
 
-// Popover.prototype.isVisible = function() {
-//     return this.el.classList.contains('ML__popover_visible');
-// }
+function latexToMarkup(latex) {
+    const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', null);
+    const spans = MathAtom.decompose({mathstyle: 'displaystyle'}, parse);
+    
+    const base = Span.makeSpan(spans, 'ML__base');
 
-// Popover.prototype.show = function() {
-//     this.el.classList.add('ML__popover_visible');
-// }
+    const topStrut = Span.makeSpan('', 'ML__strut');
+    topStrut.setStyle('height', base.height, 'em');
+    const bottomStrut = Span.makeSpan('', 'ML__strut ML__bottom');
+    bottomStrut.setStyle('height', base.height + base.depth, 'em');
+    bottomStrut.setStyle('vertical-align', -base.depth, 'em');
+    const wrapper = Span.makeSpan([topStrut, bottomStrut, base], 'ML__mathlive');
 
-// Popover.prototype.hide = function() {
-//     this.el.classList.remove('ML__popover_visible');
-// }
+    return wrapper.toMarkup();
+}
 
-// Popover.prototype.setContent = function(content) {
-//     this.el.innerHTML = content;
-// }
+function showPopoverWithLatex(mf, latex, displayArrows) {
+    if (!latex || latex.length === 0) {
+        hidePopover(mf);
+        return;
+    }
 
-// Popover.prototype.setPosition = function(x, y) {
-//     // If the popover pane is visible...
-//     if (this.isVisible()) {
-//         this.el.style.left = (x - this.el.offsetWidth / 2) + 'px';
-//         this.el.style.top = (y + 5) + 'px';
-//     }
-// }
+    const command = latex;
+    const command_markup = latexToMarkup(SAMPLES[command] || latex);
+    const command_note = getNote(command);
+    const command_shortcuts = Shortcuts.stringify(
+        Shortcuts.getShortcutsForCommand(command)) || '';
+
+    let template = displayArrows ? 
+        '<div class="ML__popover_prev-shortcut" role="button" aria-label="Previous suggestion"><span><span>&#x25B2;</span></span></div>' : '';
+    template += '<span class="ML__popover_content">';
+    template += '<div class="ML__popover_command" role="button" >' + 
+        command_markup + '</div>';
+    if (command_note) {
+        template += '<div class="ML__popover_note">' + 
+            command_note + '</div>';
+    }
+    if (command_shortcuts) {
+        template += '<div class="ML__popover_shortcut">' + 
+            command_shortcuts + '</div>';
+    }
+    template += '</span>';
+    template += displayArrows ? '<div class="ML__popover_next-shortcut" role="button" aria-label="Next suggestion"><span><span>&#x25BC;</span></span></div>' : '';
+    showPopover(mf, template);
+
+    let el = mf.popover.getElementsByClassName('ML__popover_content');
+    if (el && el.length > 0) {
+        mf._attachButtonHandlers(el[0], 'complete');
+    }
+    
+    
+    el = mf.popover.getElementsByClassName('ML__popover_prev-shortcut');
+    if (el && el.length > 0) {
+        mf._attachButtonHandlers(el[0], 'previousSuggestion');
+    }
+
+    el = mf.popover.getElementsByClassName('ML__popover_next-shortcut');
+    if (el && el.length > 0) {
+        mf._attachButtonHandlers(el[0], 'nextSuggestion');
+    }
+
+}
+
+function updatePopoverPosition(mf, options) {
+    // If the popover pane is visible...
+    if (mf.popover.classList.contains('ML__popover_visible')) {
+        if (options && options.deferred) {
+            // Call ourselves again later, typically after the 
+            // rendering/layout of the DOM has been completed
+            setTimeout(updatePopoverPosition.bind(null, mf), 0);    
+        } else {
+            if (mf.blurred || !mf.mathlist.anchor() || mf.mathlist.anchor().type !== 'command') {
+                hidePopover(mf);
+            } else {
+                // ... get the caret position
+                const position = mf._getCaretPosition();
+                if (position) {
+                    // and position the popover right below the caret
+                    mf.popover.style.left = 
+                        (position.x - mf.popover.offsetWidth / 2) + 'px';
+                    mf.popover.style.top = (position.y + 5) + 'px';
+                }
+            }
+        }
+    }
+}
+
+function showPopover(mf, markup) {
+    mf.popover.innerHTML = markup;
+
+    const position = mf._getCaretPosition();
+    if (position) {
+        mf.popover.style.left = (position.x - mf.popover.offsetWidth / 2) + 'px';
+        mf.popover.style.top = (position.y + 5) + 'px';
+    }
+
+    mf.popover.classList.add('ML__popover_visible');
+}
+
+
+function hidePopover(mf) {
+    mf.popover.classList.remove('ML__popover_visible');    
+}
+
 
 
 return {
     getNote,
     SAMPLES,
-    NOTES
+    NOTES,
+    showPopoverWithLatex,
+    showPopover,
+    hidePopover,
+    updatePopoverPosition
 }
 
 

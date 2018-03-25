@@ -97,7 +97,7 @@ function MathField(element, config) {
     // 1.1/ The widget to activate the command bar
     // 2/ The popover panel which displays info in command mode
     // 3/ The keystroke caption panel (option+shift+K)
-    // 4/ The command bar
+    // 4/ The virtual keyboard
     // 5.0/ The area to stick MathML for screen reading larger exprs (not used right now)
     //      The for the area is that focus would bounce their and then back triggering the
     //         screen reader to read it
@@ -268,6 +268,7 @@ MathField.prototype.revertToOriginalContent = function() {
     delete this.textarea;
     this.virtualKeyboardToggleDOMNode.remove()
     delete this.virtualKeyboardToggleDOMNode;
+    this.popover.remove();
     delete this.popover;
     delete this.keystrokeCaption;
     // this.virtualKeyboard.remove();
@@ -527,7 +528,7 @@ MathField.prototype._onSelectionDidChange = function() {
 
     // Defer the updating of the popover position: we'll need the tree to be
     // re-rendered first to get an updated caret position
-    this._updatePopoverPosition({deferred:true});
+    Popover.updatePopoverPosition(this, {deferred:true});
 
     // Invoke client handlers, if provided.
     if (this.config.onSelectionDidChange) {
@@ -668,7 +669,7 @@ MathField.prototype._onFocus = function() {
         if (this.config.virtualKeyboardMode === 'onfocus') {
             this.showVirtualKeyboard_();
         }
-        this._updatePopoverPosition();
+        Popover.updatePopoverPosition(this);
         this._render();
         if (this.config.onFocus) this.config.onFocus(this);
     }
@@ -681,7 +682,7 @@ MathField.prototype._onBlur = function() {
         if (this.config.virtualKeyboardMode === 'onfocus') {
             this.hideVirtualKeyboard_();
         }
-        this._updatePopoverPosition();
+        Popover.updatePopoverPosition(this);
         this._render();
         if (this.config.onBlur) this.config.onBlur(this);
     }
@@ -697,7 +698,7 @@ MathField.prototype._onResize = function() {
     } else {
         this.element.classList.add('ML__isNarrowWidth');
     }
-    this._updatePopoverPosition();
+    Popover.updatePopoverPosition(this);
 }
 
 
@@ -866,7 +867,7 @@ MathField.prototype._onTypedText = function(text) {
                         // This looks like a command name, but not a known one
                         this.mathlist.decorateCommandStringAroundInsertionPoint(true);
                     }
-                    this._hidePopover();
+                    Popover.hidePopover(this);
                 } else {
                     this.mathlist.insert(c);
                     if (suggestions[0].match !== command + c) {
@@ -929,7 +930,7 @@ MathField.prototype._onTypedText = function(text) {
     // Since the location of the popover depends on the position of the caret
     // only show the popover after the formula has been rendered and the 
     // position of the caret calculated
-    this._showPopoverWithLatex(popoverText, displayArrows);
+    Popover.showPopoverWithLatex(this, popoverText, displayArrows);
 }
 
 /**
@@ -1213,7 +1214,7 @@ MathField.prototype.enterCommandMode_ = function() {
     this.mathlist.decorateCommandStringAroundInsertionPoint(false);
 
     this.mathlist.removeSuggestion();
-    this._hidePopover();
+    Popover.hidePopover(this);
     this.suggestionIndex = 0;
 
     // Switch to the command mode keyboard layer
@@ -1283,7 +1284,7 @@ MathField.prototype.insert = function(latex, options) {
  * @private
  */
 MathField.prototype.complete_ = function() {
-    this._hidePopover();
+    Popover.hidePopover(this);
 
     const command = this.mathlist.extractCommandStringAroundInsertionPoint();
     if (command) {
@@ -1312,109 +1313,6 @@ MathField.prototype.complete_ = function() {
     }
 }
 
-function latexToMarkup(latex) {
-    const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', null);
-    const spans = MathAtom.decompose({mathstyle: 'displaystyle'}, parse);
-    
-    const base = Span.makeSpan(spans, 'ML__base');
-
-    const topStrut = Span.makeSpan('', 'ML__strut');
-    topStrut.setStyle('height', base.height, 'em');
-    const bottomStrut = Span.makeSpan('', 'ML__strut ML__bottom');
-    bottomStrut.setStyle('height', base.height + base.depth, 'em');
-    bottomStrut.setStyle('vertical-align', -base.depth, 'em');
-    const wrapper = Span.makeSpan([topStrut, bottomStrut, base], 'ML__mathlive');
-
-    return wrapper.toMarkup();
-}
-
-MathField.prototype._showPopoverWithLatex = function(latex, displayArrows) {
-    if (!latex || latex.length === 0) {
-        this._hidePopover();
-        return;
-    }
-
-    const command = latex;
-    const command_markup = latexToMarkup(Popover.SAMPLES[command] || latex);
-    const command_note = Popover.getNote(command);
-    const command_shortcuts = Shortcuts.stringify(
-        Shortcuts.getShortcutsForCommand(command)) || '';
-
-    let template = displayArrows ? 
-        '<div class="ML__popover_prev-shortcut" role="button" aria-label="Previous suggestion"><span><span>&#x25B2;</span></span></div>' : '';
-    template += '<span class="ML__popover_content">';
-    template += '<div class="ML__popover_command" role="button" >' + 
-        command_markup + '</div>';
-    if (command_note) {
-        template += '<div class="ML__popover_note">' + 
-            command_note + '</div>';
-    }
-    if (command_shortcuts) {
-        template += '<div class="ML__popover_shortcut">' + 
-            command_shortcuts + '</div>';
-    }
-    template += '</span>';
-    template += displayArrows ? '<div class="ML__popover_next-shortcut" role="button" aria-label="Next suggestion"><span><span>&#x25BC;</span></span></div>' : '';
-    this._showPopover(template);
-
-    let el = this.popover.getElementsByClassName('ML__popover_content');
-    if (el && el.length > 0) {
-        this._attachButtonHandlers(el[0], 'complete');
-    }
-    
-    
-    el = this.popover.getElementsByClassName('ML__popover_prev-shortcut');
-    if (el && el.length > 0) {
-        this._attachButtonHandlers(el[0], 'previousSuggestion');
-    }
-
-    el = this.popover.getElementsByClassName('ML__popover_next-shortcut');
-    if (el && el.length > 0) {
-        this._attachButtonHandlers(el[0], 'nextSuggestion');
-    }
-
-}
-
-MathField.prototype._updatePopoverPosition = function(options) {
-    // If the popover pane is visible...
-    if (this.popover.classList.contains('ML__popover_visible')) {
-        if (options && options.deferred) {
-            // Call ourselves again later, typically after the 
-            // rendering/layout of the DOM has been completed
-            setTimeout(this._updatePopoverPosition.bind(this), 0);    
-        } else {
-            if (this.blurred || !this.mathlist.anchor() || this.mathlist.anchor().type !== 'command') {
-                this._hidePopover();
-            } else {
-                // ... get the caret position
-                const position = this._getCaretPosition();
-                if (position) {
-                    // and position the popover right below the caret
-                    this.popover.style.left = 
-                        (position.x - this.popover.offsetWidth / 2) + 'px';
-                    this.popover.style.top = (position.y + 5) + 'px';
-                }
-            }
-        }
-    }
-}
-
-MathField.prototype._showPopover = function(markup) {
-    this.popover.innerHTML = markup;
-
-    const position = this._getCaretPosition();
-    if (position) {
-        this.popover.style.left = (position.x - this.popover.offsetWidth / 2) + 'px';
-        this.popover.style.top = (position.y + 5) + 'px';
-    }
-
-    this.popover.classList.add('ML__popover_visible');
-}
-
-
-MathField.prototype._hidePopover = function() {
-    this.popover.classList.remove('ML__popover_visible');    
-}
 
 MathField.prototype._updateSuggestion = function() {
     this.mathlist.positionInsertionPointAfterCommitedCommand();
@@ -1422,7 +1320,7 @@ MathField.prototype._updateSuggestion = function() {
     const command = this.mathlist.extractCommandStringAroundInsertionPoint();
     const suggestions = Definitions.suggest(command);
     if (suggestions.length === 0) {
-        this._hidePopover();
+        Popover.hidePopover(this);
         this.mathlist.decorateCommandStringAroundInsertionPoint(true);
     } else {
         const index = this.suggestionIndex % suggestions.length;
@@ -1430,7 +1328,7 @@ MathField.prototype._updateSuggestion = function() {
         if (l !== 0) {
             this.mathlist.insertSuggestion(suggestions[index].match, l);
         }
-        this._showPopoverWithLatex(suggestions[index].match, suggestions.length > 1);
+        Popover.showPopoverWithLatex(this, suggestions[index].match, suggestions.length > 1);
     }
 
     this._render();
