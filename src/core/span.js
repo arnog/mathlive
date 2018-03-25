@@ -182,6 +182,21 @@ Span.prototype.setWidth = function(width) {
 
 Span.prototype.addMarginRight = function(margin) {
     if (margin && margin !== 0) {
+        if (!this.style && !this.classes.match(/qquad|quad|enspace|thickspace|mediumspace|thinspace|negativethinspace/)) {
+            // Attempt to use a class instead of an explicit margin
+            const cls = {
+                '2': 'qquad',
+                '1': 'quad',
+                '.5': 'enspace',
+                '0.277778': 'thickspace',
+                '0.222222': 'mediumspace',
+                '0.166667': 'thinspace',
+                '-0.166667': 'negativethinspace'}[margin.toString()];
+            if (cls) {
+                this.classes += ' rspace ' + cls;
+                return;
+            }
+        }
         if (!this.style) this.style = {};
         const currentMargin = parseFloat(this.style['margin-right'] || '0');
         this.style['margin-right'] = toString(currentMargin + margin) + 'em'
@@ -253,7 +268,7 @@ function lastSpanType(span) {
     if (span.classes.indexOf('ML__selected') !== -1) {
         result = span.children[span.children.length - 1].type;
     }
-    return result !== 'textord' ? result : 'mord';
+    return (result === 'textord' || result === 'first') ? 'mord' : result;
 }
 
 /**
@@ -273,7 +288,8 @@ Span.prototype.toMarkup = function(hskip) {
         let previousType = 'none';
         for (const child of this.children) {
             let spacing = 0;
-            const type = child.type !== 'textord' ? child.type : 'mord';
+            let type = child.type !== 'textord' ? child.type : 'mord';
+            if (type === 'first') type = 'mord';
             if (child.isTight) { 
                 spacing = (INTER_ATOM_TIGHT_SPACING[previousType + '+' + type] || 0) / 18;
             } else {
@@ -373,6 +389,11 @@ Span.prototype.toMarkup = function(hskip) {
         }
 
         result += '</' + tag + '>';
+    }
+
+    // Collapse 'empty' spans
+    if (result === '<span>\u200b</span>') {
+        result = '';
     }
 
     return result;    
@@ -591,19 +612,22 @@ function makeSymbol(fontFamily, symbol, classes) {
  */
 function makeFontSizer(context, fontSize) {
     const fontSizeAdjustment = fontSize ? fontSize / context.mathstyle.sizeMultiplier : 0;
-    const fontSizeInner = new Span('&#x200b;');    // ZERO WIDTH SPACE
-    fontSizeInner.attributes = {
-        "aria-hidden": true
+    const fontSizeInner = new Span('\u200b');    // ZERO WIDTH SPACE
+
+    if (fontSizeAdjustment !== 1) {
+        fontSizeInner.setStyle('font-size', 
+            fontSizeAdjustment, 
+            (fontSizeAdjustment > 0) ? 'em' : '');
+        fontSizeInner.attributes = {
+            "aria-hidden": true
+        }
     }
-    fontSizeInner.setStyle('font-size', 
-        fontSizeAdjustment, 
-        (fontSizeAdjustment > 0) ? 'em' : '');
 
     if (context.size !== 'size5') { 
         return new Span(fontSizeInner, 
             'fontsize-ensurer reset-' + context.size + ' size5');
     } 
-    return fontSizeAdjustment ? fontSizeInner : null;
+    return (fontSizeAdjustment !== 0) ? fontSizeInner : null;
 }
 
 /**

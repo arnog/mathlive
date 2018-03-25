@@ -2,9 +2,11 @@
 
 @system: -apple-system,BlinkMacSystemFont,Roboto,Oxygen-Sans,Ubuntu,Cantarell,
     "Droid Sans","Helvetica Neue",sans-serif;
+@math_main: KaTeX_Main;
+
 
 .ML__mathlive {
-    font: normal 1em KaTeX_Main, 'Times New Roman', serif;
+    font: 400 1em @math_main,times new roman,serif;
     line-height: 1.2;
     white-space: nowrap;
     text-shadow: none;
@@ -12,7 +14,12 @@
 
     // Protect elements from inheriting text-indent.
     text-indent: 0;
-    
+
+
+    text-rendering: auto;
+    width: min-content;
+
+
     // Encourage browsers to consider allocating a hardware accelerated 
     // layer for this element.
     transform: translateZ(0);
@@ -35,6 +42,22 @@
 
     animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
+.ML__command.ML__caret {
+    border: none;
+    margin-right: 0;
+
+    &:after {
+        content: '_';
+        color: @primary;
+        animation: ML__caret-command-blink 1.05s step-end forwards infinite;
+    }
+}
+
+@keyframes  ML__caret-command-blink {
+    from, to    { opacity: 1; }
+    50%         { opacity: 0; }
+}
+
 
 @keyframes  ML__caret-blink {
     from, to    { border-color: @primary; }
@@ -55,6 +78,9 @@ to make sure it doesn't show. */
     width: 1px;
     height: 1px;
     /*-ms-transform: scale(0);*/
+
+    /* Need this to prevent iOS Safari from auto-zooming */
+    font-size: 16px;
 }
 
 .ML__HiddenAccessibleMath {
@@ -73,7 +99,12 @@ to make sure it doesn't show. */
     justify-content: space-between;
     align-items: flex-end;
     // overflow: scroll; /* Doesn't work yet (partial clip), because of incorrect height calculcations */ 
-    min-height: 39px;       /* Need some room for the command bar toggle */
+    min-height: 39px;       /* Need some room for the virtual keyboard toggle */
+
+    /* Prevent the browser from trying to interpret touch gestures in the field */
+    /* "Disabling double-tap to zoom removes the need for browsers to 
+        delay the generation of click events when the user taps the screen." */
+    touch-action: none;
 }
 
 /* This is the actual field content (formula) */
@@ -98,58 +129,34 @@ to make sure it doesn't show. */
     justify-content: center;
 }
 
-.ML__commandbar {
-    display: inline-block;
-    width: 100%
-}
-
-/* The element that displays commands available */
-.ML__commandbar {
-    visibility: hidden;
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid #ddd;
-    // border-radius: 6px;
-    // padding: 8px;
-    // margin-right: 1em;
-    position: absolute;
-    z-index: 1;
-
-    pointer-events: none;   // If opacity <1, mouse events get passed below
-                            // unless pointer-events is set to none.
-    cursor: pointer;
-    
+.ML__virtualKeyboardToggle {
     display: flex;
-    flex-direction: column;
-    justify-content: left;
-
-    box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
-
-    max-width: 100vw;
-    left: 0;
-    margin-top: 16px;
-}
-
-.ML__commandbartoggle {
     align-self: center;
+    align-items: center;
     flex-shrink: 0;
-    display: flex;
     flex-direction: column;
     justify-content: center;
 
     width: 34px;
     height: 34px;
     margin-right: 4px;
-
-    border-radius: 50%;
-    border: 1px solid #f0f0f0;
-
     cursor: pointer;
+    box-sizing: border-box;
+    /* Avoid some weird blinking with :hover */
+    border-radius: 50%;
+    border: 1px solid transparent;
+    transition: background 0.2s cubic-bezier(.64,.09,.08,1);
+    color: @primary;
+    fill: @primary;
 
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+    &:hover {
+        border-radius: 50%;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+    }
 }
-.ML__commandbartoggle svg {
-    fill: #aaa;
-}
+
+
 
 /* The element that display info while in command mode */
 .ML__popover {
@@ -168,21 +175,23 @@ to make sure it doesn't show. */
     justify-content: center;
 
     box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+    transition: all 0.2s cubic-bezier(.64,.09,.08,1);
+
+    /* The 'tip' of the popover panel */
+    &::after {
+        content: "";
+        position: absolute;
+        top: -5px;
+        left: calc(50% - 3px);
+        width: 0; 
+        height: 0; 
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        
+        font-size: 1rem;
+        
+        border-bottom: 5px solid rgba(97, 97, 97, .9);
+    }
 }
 
-/* The 'tip' of the popover panel */
-.ML__popover::after {
-    content: "";
-    position: absolute;
-    top: -5px;
-    left: calc(50% - 3px);
-    width: 0; 
-    height: 0; 
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    
-    font-size: 1rem;
-    
-    border-bottom: 5px solid rgba(97, 97, 97, .9);
-}
 

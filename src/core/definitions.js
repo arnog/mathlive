@@ -374,7 +374,6 @@ function getValue(mode, symbol) {
     return a[symbol] && a[symbol].value ? a[symbol].value : symbol;
 }
 
-
 function getEnvironmentInfo(name) {
     let result = ENVIRONMENTS[name];
     if (!result) {
@@ -503,7 +502,6 @@ const OPEN = 'mopen';   // e.g. '('
 const CLOSE = 'mclose'; // e.g. ')'
 const PUNCT = 'mpunct'; // e.g. ','
 const INNER = 'minner'; // for fractions and \left...\right.
-// const VAR = 'mvar';     // variables, e.g. 'x' (roman letters, lowercase greek)
 
 const TEXTORD = 'textord';
 
@@ -627,8 +625,6 @@ function defineEnvironment(names, params, options, parser) {
         tabular: options.tabular || true,
         maxColumns: options.maxColumns || 10,
         colFormat: options.colFormat || [],
-        leftFence: options.leftFence || '.',
-        rightFence: options.rightFence || '.',
     };
     for (const name of names) {
         ENVIRONMENTS[name] = data;
@@ -1075,11 +1071,15 @@ defineFunction([
 frequency(SUPERCOMMON, '\\cos', '\\sin', '\\tan');
 
 
-frequency(UNCOMMON, '\\arcsin', '\\arccos', '\\arctan', '\\arctg', '\\arcctg');
+frequency(UNCOMMON, '\\arcsin', '\\arccos', '\\arctan', '\\arctg', '\\arcctg', 
+    '\\arcsec', '\\arccsc');
+
+frequency(UNCOMMON, '\\arsinh', '\\arccosh', '\\arctanh', 
+    '\\arcsech', '\\arccsch');
 
 frequency(UNCOMMON, '\\arg', '\\ch', '\\cosec', '\\cosh', '\\cot', '\\cotg',
     '\\coth', '\\csc', '\\ctg', '\\cth', 
-    '\\lg', '\\sec',
+    '\\lg', '\\lb', '\\sec',
     '\\sinh', '\\sh', '\\tanh', '\\tg', '\\th');
 
 
@@ -1088,7 +1088,7 @@ category = 'Functions';
 
 defineFunction([
     '\\deg', '\\dim', '\\exp', '\\hom', '\\ker', 
-    '\\lg', '\\ln', '\\log'], 
+    '\\lb', '\\lg', '\\ln', '\\log'], 
     '', {fontFamily:'mainrm'}, function(name) {
     return {
         type: 'mop',
@@ -1210,9 +1210,9 @@ defineFunction('\\mathllap', '{:auto}', null, function(name, args) {
 });
     frequency(CRYPTIC, '\\mathllap');
 
-// @todo definemacro?
-defineSymbol('\\not', MATH,  MAIN,  MATHORD, '/\\hspace{-.9em}', COMMON);
 
+// @todo definemacro?
+// defineSymbol('\\nicefrac', MATH,  MAIN,  MATHORD, '^1\\!\\!/\\!_2', COMMON);
 
 
 // Can be preceded by e.g. '\fboxsep=4pt' (also \fboxrule)
@@ -1726,6 +1726,7 @@ defineFunction([
         type: 'mop',
         limits: 'auto',
         symbol: true,
+        fontFamily: 'main',
         value: {
             'coprod': '\u2210', 
             'bigvee': '\u22c1', 
@@ -1821,9 +1822,9 @@ defineSymbol( '\\nabla', MATH,  MAIN,  TEXTORD, '\u2207', SUPERCOMMON);
 defineSymbol( '\\partial', MATH,  MAIN,  TEXTORD, '\u2202', SUPERCOMMON); // >2,000
 
 defineSymbol( '\\ell', MATH,  MAIN,  TEXTORD, '\u2113', COMMON); // >2,000
-defineSymbol( '\\imaginaryI', MATH,  'mathrm',  MATHORD, 'i'); // NOTE: not a real TeX symbol, but Mathematica
+defineSymbol( '\\imaginaryI', MATH,  'main',  MATHORD, 'i'); // NOTE: not a real TeX symbol, but Mathematica
 // NOTE: set in math as per ISO 80000-2:2009.
-defineSymbol( '\\imaginaryJ', MATH,  'mathrm',  MATHORD, 'j'); // NOTE: not a real TeX symbol, but Mathematica
+defineSymbol( '\\imaginaryJ', MATH,  'main',  MATHORD, 'j'); // NOTE: not a real TeX symbol, but Mathematica
 // NOTE: set in math as per ISO 80000-2:2009.
 defineSymbol( '\\Re', MATH,  MAIN,  TEXTORD, '\u211c', COMMON); // >2,000
 defineSymbol( '\\Im', MATH,  MAIN,  TEXTORD, '\u2111', COMMON); // >2,000
@@ -1885,9 +1886,11 @@ defineSymbol( '\\euro', TEXT,  MAIN,  TEXTORD, '\u20AC', 4); // NOTE: not a real
 // Math and Text
 
 category = 'Crosses';
+defineSymbol( '\\textdagger', MATH,  MAIN,  BIN, '\u2020');
 defineSymbol( '\\dagger', MATH,  MAIN,  BIN, '\u2020', COMMON);         // >2000
-defineSymbol( '\\dag', MATH,  MAIN,  TEXTORD, '\u2020', COMMON);        // >2000 results
-defineSymbol( '\\ddag', MATH,  MAIN,  TEXTORD, '\u2021', 500);    // 500 results in latexsearch
+defineSymbol( '\\dag', MATH,  MAIN,  BIN, '\u2020', COMMON);        // >2000 results
+defineSymbol( '\\ddag', MATH,  MAIN,  BIN, '\u2021', 500);    // 500 results in latexsearch
+defineSymbol( '\\textdaggerdbl', MATH,  MAIN,  BIN, '\u2021');
 defineSymbol( '\\ddagger', MATH,  MAIN,  BIN, '\u2021', 353);        // 353 results in latexsearch
 defineSymbol( '\\maltese', MATH,  AMS,  TEXTORD, '\u2720', 24);
 defineSymbol( '\\maltese', TEXT,  AMS,  TEXTORD, '\u2720', 24);
@@ -2095,8 +2098,8 @@ defineSymbol( '(', MATH,  MAIN,  OPEN, '(');
 defineSymbol( ')', MATH,  MAIN,  CLOSE, ')');
 defineSymbol( '[', MATH,  MAIN,  OPEN, '[');
 defineSymbol( ']', MATH,  MAIN,  CLOSE, ']');
-defineSymbol( '?', MATH,  MAIN,  CLOSE, '?');       // @todo: why is this type CLOSE?
-defineSymbol( '!', MATH,  MAIN,  CLOSE, '!');       // @todo: why is this type CLOSE?
+defineSymbol( '?', MATH,  MAIN,  TEXTORD, '?');
+defineSymbol( '!', MATH,  MAIN,  TEXTORD, '!');
 
 defineSymbol( '\\ulcorner', MATH,  AMS,  OPEN, '\u250c', 296);
 defineSymbol( '\\urcorner', MATH,  AMS,  CLOSE, '\u2510', 310);
@@ -2105,10 +2108,10 @@ defineSymbol( '\\lrcorner', MATH,  AMS,  CLOSE, '\u2518', 199);
 
 // Large Delimiters
 
-defineSymbol( '\\rgroup', MATH,  MAIN,  CLOSE, '\u27ef', 24);
 defineSymbol( '\\lgroup', MATH,  MAIN,  OPEN, '\u27ee', 24);
-defineSymbol( '\\rmoustache', MATH,  MAIN,  CLOSE, '\u23b1', CRYPTIC);
+defineSymbol( '\\rgroup', MATH,  MAIN,  CLOSE, '\u27ef', 24);
 defineSymbol( '\\lmoustache', MATH,  MAIN,  OPEN, '\u23b0', CRYPTIC);
+defineSymbol( '\\rmoustache', MATH,  MAIN,  CLOSE, '\u23b1', CRYPTIC);
 
 defineFunction(['\\middle'], '{:delim}', {}, function(name, args) {
     return {type: 'delim', delim: args[0]};
@@ -2414,6 +2417,7 @@ defineSymbol( '\\complement', MATH,  AMS,  TEXTORD, '\u2201', 200);
 category = 'Set Relations';
 defineSymbol( '\\in', MATH,  MAIN,  REL, '\u2208', SUPERCOMMON);    // >2,000
 defineSymbol( '\\notin', MATH,  MAIN,  REL, '\u2209', SUPERCOMMON);    // >2,000
+defineSymbol( '\\not', MATH,  MAIN,  REL, '\u0338', COMMON);
 defineSymbol( '\\ni', MATH,  MAIN,  REL, '\u220b', COMMON);    // >2,000
 defineSymbol( '\\owns', MATH,  MAIN,  REL, '\u220b', 18);
 defineSymbol( '\\subset', MATH,  MAIN,  REL, '\u2282', SUPERCOMMON);    // >2,000
@@ -2435,6 +2439,7 @@ category = 'Spacing';
 defineSymbol( '\\ ', MATH,  MAIN,  SPACING, '\u00a0');
 defineSymbol( '~', MATH,  MAIN,  SPACING, '\u00a0');
 defineSymbol( '\\space', MATH,  MAIN,  SPACING, '\u00a0');
+defineSymbol( '\\nobreakspace', [TEXT, MATH],  MAIN,  SPACING, '\u00a0');
 
 defineSymbol( '\\!', MATH,  MAIN,  SPACING, null);
 defineSymbol( '\\,', MATH, MAIN,  SPACING,  null);
@@ -2602,6 +2607,7 @@ defineSymbol( '\\Cup', MATH,  AMS,  BIN, '\u22d3', 2);
 defineSymbol( '\\doublecap', MATH,  AMS,  BIN, '\u22d2', 1);
 defineSymbol( '\\doublecup', MATH,  AMS,  BIN, '\u22d3', 1);
 defineSymbol( '\\amalg', MATH,  MAIN,  BIN, '\u2a3f', CRYPTIC);
+defineSymbol( '\\And', MATH,  MAIN,  BIN, '\u0026');
 
 category = 'Accents';
 // defineSymbol( '\\bar', MATH,  MAIN,  ACCENT, '\u00af', COMMON);    // >2,000
@@ -2626,18 +2632,19 @@ defineFunction([
     return {
         type: 'accent',
         accent: {
-            '\\acute': '\u00b4',
-            '\\grave': '\u0060',
+            '\\acute': '\u02ca',
+            '\\grave': '\u02cb',
             '\\dot': '\u02d9',
+            '\\mathring': '\u02da',
             '\\ddot': '\u00a8',
             '\\tilde': '\u007e',
-            '\\bar': '\u00af',
+            '\\bar': '\u02c9',
             '\\breve': '\u02d8',
             '\\check': '\u02c7',
             '\\hat': '\u005e',
             '\\vec': '\u20d7',
         }[name],
-        limits: 'accent',   // This will suppress the regulat
+        limits: 'accent',   // This will suppress the regular
                             // supsub attachment and will delegate
                             // it to the decomposeAccent 
                             // (any non-null value would do)
@@ -2671,9 +2678,14 @@ defineSymbol( '"', MATH,  MAIN,  TEXTORD, '\u201D');       // Double Prime
 // defineSymbol( "\'', MATH,  MAIN,  TEXTORD, '\u2033');       // Double Prime
 
 category = '';
+// Some characters allowed in math mode (along all the others above for MATH mode)
 defineSymbols('0123456789/@.', MATH, MAIN, MATHORD);
+
+// List of characters allowed when in TEXT mode (e.g. inside a \text{})
 defineSymbols('0123456789!@*()-=+[]";:?/.,', TEXT, MAIN, TEXTORD);
-defineSymbols("0123456789!@*()-=+{}[]\\';:?/.,~<>`|'$%#&^_", COMMAND, MAIN, COMMANDLITERAL);
+
+// List of characters allowed to be entered when in COMMAND mode:
+defineSymbols("0123456789!@*()-=+{}[]\\';:?/.,~<>`|'$%#&^_\" ", COMMAND, MAIN, COMMANDLITERAL);
 
 // a-z
 defineSymbolRange(0x0041, 0x005A, TEXT, MAIN, TEXTORD);
@@ -2721,343 +2733,295 @@ defineSymbol('\\aa', TEXT + MATH, MAIN, TEXTORD, '\u00e5');    // LATIN SMALL LE
 defineSymbol('\\AA', TEXT + MATH, MAIN, TEXTORD, '\u00c5');    // LATIN CAPITAL LETTER A WITH RING ABOVE
 
 
-const SAMPLES = {
-    '\\mathrm':         '\\mathrm{ABab=+01}',
-    '\\mathbf':         '\\mathbf{ABab=+01}',
-    '\\bf':             '\\bf{ABab=+01}',
-    '\\bm':             '\\bm{ABab=+01}',
-    '\\bold':           '\\bold{ABab=+01}',
-    '\\mathit':         '\\mathbb{ab=+01}',
-    '\\mathbb':         '\\mathbb{ABCD}',
-    '\\Bbb':            '\\mathbb{ABCD}',
-    '\\frak':           '\\frak{ABCD}',
-    '\\mathfrak':       '\\mathfrak{ABCD}',
-    '\\mathscr':        '\\mathscr{ABCD}',
-    '\\mathsf':         '\\mathsf{ABab01}',
-    '\\mathtt':         '\\mathtt{ABab=+01}',
-    '\\mathcal':        '\\mathcal{ABCD}',
-    '\\boldsymbol':     '\\boldsymbol{ABab01+=}',
-
-    '\\text':           '\\text{ABC abc}',
-    '\\textrm':         '\\textrm{ABC abc}',
-    '\\textnormal':     '\\textnormal{ABC abc}',
-    '\\textit':         '\\textit{ABC abc}',
-    '\\textbf':         '\\textbf{ABC abc}',
-    '\\texttt':         '\\texttt{ABC abc}',
-    '\\textsf':         '\\textsf{ABC abc}',
-    '\\textcolor':      `{\\textcolor{m0}A}{\\textcolor{m1}B}{\\textcolor{m2}C }{\\textcolor{m3}a}{\\textcolor{m4}b}{\\textcolor{m5}c}{\\textcolor{m6}8}`,
-    '\\color':          `{\\color{m0}A}{\\color{m1}B}{\\color{m2}C}{\\color{m3}a}{\\color{m4}b}{\\color{m5}c}{\\color{m6}8}`,
-
-    '\\underline':      '\\underline{\\unicode{"2B1A}}',
-    '\\overline':       '\\overline{\\unicode{"2B1A}}',
-
-    '\\vec':            '\\vec{\\unicode{"25CC}}',
-    '\\check':          '\\check{\\unicode{"25CC}}',
-    '\\acute':          '\\acute{\\unicode{"25CC}}',
-    '\\breve':          '\\breve{\\unicode{"25CC}}',
-    '\\tilde':          '\\tilde{\\unicode{"25CC}}',
-    '\\hat':            '\\hat{\\unicode{"25CC}}',
-    '\\ddot':           '\\ddot{\\unicode{"25CC}}',
-    '\\dot':            '\\dot{\\unicode{"25CC}}',
-    '\\bar':            '\\bar{\\unicode{"25CC}}',
-
-    '\\!':              '\\unicode{"203A}\\!\\unicode{"2039}',
-    '\\,':              '\\unicode{"203A}\\,\\unicode{"2039}',
-    '\\:':              '\\unicode{"203A}\\:\\unicode{"2039}',
-    '\\;':              '\\unicode{"203A}\\;\\unicode{"2039}',
-    '\\quad':           '\\unicode{"203A}\\quad\\unicode{"2039}',
-    '\\qquad':          '\\unicode{"203A}\\qquad\\unicode{"2039}',
-    '\\enskip':         '\\unicode{"203A}\\enskip\\unicode{"2039}',
-    '\\space':          '\\unicode{"203A}\\space\\unicode{"2039}',
 
 
-    '\\frac':           '\\frac{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\dfrac':          '\\dfrac{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\cfrac':          '\\cfrac{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\tfrac':          '\\tfrac{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\dbinom':         '\\dbinom{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\tbinom':         '\\tbinom{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\binom':          '\\binom{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\pdiff':          '\\pdiff{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
 
-    '\\bigcup':         '\\bigcup_{\\unicode{"2B1A}}',
-    '\\bigcap':         '\\bigcap_{\\unicode{"2B1A}}',
-    '\\sqrt':           '\\sqrt{\\unicode{"2B1A}}',
-    '\\prod':           '\\prod_{\\unicode{"2B1A}}^{\\unicode{"2B1A}}',
-    '\\sum':            '\\sum_{\\unicode{"2B1A}}^{\\unicode{"2B1A}}',
-    '\\int':            '\\int_{\\unicode{"2B1A}}^{\\unicode{"2B1A}}',
-    '\\stackrel':       '\\stackrel{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\stackbin':       '\\stackbin{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\underset':       '\\underset{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\overset':        '\\overset{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\prime':          '\\unicode{"2B1A}^{\\prime}',
+const CANONICAL_NAMES = {
+    // CONSTANTS
+    '\\imaginaryI': '\u2148',
+    '\\imaginaryJ': '\u2149',
+    '\\pi':         'π',
+    '\\exponentialE':          '\u212f',
 
-    '\\boxed':          '\\boxed{\\unicode{"2B1A}}',
-    '\\colorbox':        '\\colorbox{#fbc0bd}{\\unicode{"2B1A}}',
-    '\\bbox':           '\\bbox[#ffd400, solid 2px #ffd400]{\\unicode{"2B1A}}',
-    '\\enclose':        '\\enclose{updiagonalstrike,roundedbox}[1px solid red, mathbackground="#fbc0bd"]{23+45}',
-    '\\fcolorbox':      '\\fcolorbox{#cd0030}{#ffd400}{\\unicode{"2B1A}}',
-    '\\ ':              '\\char"2423',  // OPEN BOX
+    // ARITHMETIC
+    '﹢':        '+',        // SMALL PLUS SIGN
+    '＋':        '+',        // FULL WIDTH PLUS SIGN
+    '−':        '-',        // MINUS SIGN
+    '-':        '-',        // HYPHEN-MINUS
+    '﹣':        '-',        // SMALL HYPHEN-MINUS
+    '－':        '-',        // FULLWIDTH HYPHEN-MINUS
+    '\\times':  '*',
+    '⨉':        '*',        // N-ARY TIMES OPERATOR U+
+    '️✖':        '*',        // MULTIPLICATION SYMBOL
+    '️×':        '*',        // MULTIPLICATION SIGN
+    '.':        '*',
+    '÷':        '/',        // DIVISION SIGN
+    // '/':        '/',        // SOLIDUS
+    '⁄':        '/',        // FRACTION SLASH
+    '／':        '/',        // FULLWIDTH SOLIDUS
+    '!':        'factorial',
+    '️\\pm':     'plusminus',        // PLUS-MINUS SIGN
+    '\\mp':     'minusplus',         // MINUS-PLUS SIGN
 
-    '\\top':            '{\\color{red}P}\\top',
-    '\\bot':            '{\\color{#0F0}P}\\bot',
-    '\\mid':            'P(A\\mid B)',
+    '\\land':   'and',
+    '\\wedge':  'and',
+    '\\lor':    'or',
+    '\\vee':    'or',
+    '\\oplus':  'xor',
+    '\\veebar': 'xor',
+    '\\lnot':   'not',
+    '\\neg':    'not',
 
-    '\\rlap':           '\\rlap{x}o',
-    '\\llap':           'o\\llap{/}',
-};
+    '\\nabla':  'nabla',
+    '\\circ':   'circle',
+    // '\\oplus':  'oplus',
+    '\\ominus': 'ominus',
+    '\\odot':   'odot',
+    '\\otimes': 'otimes',
 
-// A textual description of a LaTeX command.
-// The value can be either a single string, or an array of string
-// in order to provide alternatives or additional context. 
-// In that case, the first string in the array should be appropriate
-// to be spoken for accessibility.
-const NOTES = {
-    '\\text':       'roman text',
-    '\\textrm':     'roman text',
-    '\\textnormal': 'roman text',
-    '\\textit':     'italic text',
-    '\\textbf':     'bold text',
-    '\\texttt':     'monospaced text',
-    '\\textsf':     'sans-serif text',
-    '\\mathrm':     ['roman', '(upright)'],
-    '\\mathbf':     'bold',
-    '\\bf':         'bold',
-    '\\bold':       'bold',
-    '\\mathit':     'italic',
-    '\\mathbb':     'blackboard',
-    '\\Bbb':        'blackboard',
-    '\\mathscr':    'script',
-    '\\mathtt':     ['typewriter', '(monospaced)'],
-    '\\mathsf':     'sans-serif',
-    '\\mathcal':    'caligraphic',
-    '\\frak':       ['fraktur', '(gothic)'],
-    '\\mathfrak':   ['fraktur', '(gothic)'],
+    '\\zeta':   'Zeta',
+    '\\Gamma':  'Gamma',
+    '\\min':    'min',
+    '\\max':    'max',
+    '\\mod':    'mod',
+    '\\lim':    'lim',  // BIG OP
+    '\\sum':    'sum',
+    '\\prod':   'prod',
+    '\\int':    'integral',
+    '\\iint':   'integral2',
+    '\\iiint':  'integral3',
 
-    '\\textcolor':  'text color',
-    '\\color':      'color',
+    '\\Re': 'Re',
+    '\\Im': 'Im',
 
+    '\\binom':  'binom',
 
-    '\\forall':     'for all',
-    '\\exists':     'there exists',
-    '\\nexists':    'there does not exist',
-    '\\frac':       'fraction',
-    '\\dfrac':      'display fraction',
-    '\\cfrac':      'continuous fraction',
-    '\\tfrac':      'text fraction',
-    '\\binom':      'binomial coefficient',
-    '\\dbinom':     'display binomial coefficient',
-    '\\tbinom':     'text binomial coefficient',
-    '\\pdiff':      'partial differential',
+    '\\partial': 'partial',
+    '\\differentialD': 'differentialD',
+    '\\capitalDifferentialD': 'capitalDifferentialD',
+    '\\Finv':   'Finv',
+    '\\Game':   'Game',
+    '\\wp':     'wp',
+    '\\ast':    'ast',
+    '\\star':   'star',
+    '\\asymp':  'asymp'
+}
 
-    '\\vec':        'vector',
-    '\\check':      'caron',
-    '\\acute':      'acute',
-    '\\breve':      'breve',
-    '\\tilde':      'tilde',
-    '\\dot':        'dot',
-    '\\hat':        ['hat', 'circumflex'],
-    '\\ddot':       'double dot',
-    '\\bar':        'bar',
+const FUNCTION_TEMPLATE = {
+    // TRIGONOMETRY
+    'sin':      '\\sin%_%^ %',
+    'cos':      '\\cos%_%^ %',
+    'tan':      '\\tan%_%^ %',
+    'cot':      '\\cot%_%^ %',
+    'sec':      '\\sec%_%^ %',
+    'csc':      '\\csc%_%^ %',
 
-    '\\prime':      'prime',
-    '\\varnothing': 'empty set',
-    '\\emptyset':   'empty set',
-    '\\subseteq':   'subset of or <br>equal to',
-    '\\supseteq':   'superset of or <br>equal to',
-    '\\supset':     'superset of',
-    '\\subset':     'subset of',
-    '\\partial':    'partial derivative',
-    '\\bigcup':     'union',
-    '\\bigcap':     'intersection',
-    '\\approx':     'approximately equal to',
-    '\\notin':      'not an element of',
-    '\\in':         ['element of', 'included in'],
-    '\\infty':      'infinity',
-    '\\land':       'logical and',
-    '\\sqrt':       'square root',
-    '\\prod':       'product',
-    '\\sum':        'summation',
-    '\\amalg':      ['amalgamation', 'coproduct', 'free product', 'disjoint union'],
-    '\\cup':        'union with',
-    '\\cap':        'intersection with',
-    '\\int':        'integral',
-    '\\iint':       'surface integral',
-    '\\oint':       'curve integral',
-    '\\iiint':      'volume integral',
-    '\\iff':        'if and only if',
-    '\\ln':         'natural logarithm',
-    '\\boldsymbol': 'bold',
-    '\\setminus':   'set substraction',
-    '\\stackrel':   'relation with symbol above',
-    '\\stackbin':   'operator with symbol above',
-    '\\underset':   'symbol with anotation below',
-    '\\overset':    'symbol with anotation above',
-    '\\hslash':     ['h-bar', 'Planck constant'],
-    '\\gtrsim':     'greater than or <br>similar to',
-    '\\propto':     'proportional to',
-    '\\equiv':      'equivalent to',
+    'sinh':     '\\sinh %',
+    'cosh':     '\\cosh %',
+    'tanh':     '\\tanh %',
+    'csch':     '\\csch %',
+    'sech':     '\\sech %',
+    'coth':     '\\coth %',
 
-    '\\!':          ['negative thin space', '(-3 mu)'],
-    '\\ ':          ['space', '(6 mu)'],
-    '\\,':          ['thin space<', '(3 mu)'],
-    '\\:':          ['medium space', '(4 mu)'],
-    '\\;':          ['thick space', '(5 mu)'],
-    '\\quad':       ['1 em space', '(18 mu)'],
-    '\\qquad':      ['2 em space', '(36 mu)'],
-    '\\enskip':     ['&#189; em space', '(9 mu)'],
+    'arcsin':      '\\arcsin %',
+    'arccos':      '\\arccos %',
+    'arctan':      '\\arctan %',
+    'arccot':      '\\arcctg %',        // Check
+    'arcsec':      '\\arcsec %',
+    'arccsc':      '\\arccsc %',
 
-    '\\mp':         'minus or plus',
-    '\\pm':         'plus or minus',
-    '\\Im':         'Imaginary part',
-    '\\Re':         'Real part',
-    '\\differentialD':     'differential d',
-    '\\aleph':          ['aleph', 'infinite cardinal',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Cardinal_number">Wikipedia <big>&#x203A;</big></a>'
-    ],
-    '\\beth':          ['beth', 'beth number',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Beth_number">Wikipedia <big>&#x203A;</big></a>'
-    ],
-    '\\gimel':          ['gimel', 'gimel function',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Gimel_function">Wikipedia <big>&#x203A;</big></a>'
-    ],
+    'arsinh':     '\\arsinh %',
+    'arcosh':     '\\arcosh %',
+    'artanh':     '\\artanh %',
+    'arcsch':     '\\arcsch %',
+    'arsech':     '\\arsech %',
+    'arcoth':     '\\arcoth %',
 
-    '\\O':              'empty set',
-    '\\N':              'set of <br>natural numbers',
-    '\\Z':              'set of <br>integers',
-    '\\Q':              'set of <br>rational numbers',
-    '\\C':              'set of <br>complex numbers',
-    '\\R':              'set of <br>real numbers',
-    '\\P':              'set of <br>prime numbers',
+    // LOGARITHMS
+    'ln':       '\\ln%_%^ %',     // Natural logarithm
+    'log':      '\\log%_%^ %',    // General logarithm, e.g. log_10
+    'lg':       '\\lg %',     // Common, base-10, logarithm
+    'lb':       '\\lb %',     // Binary, base-2, logarithm
 
-    '\\lesseqqgtr':     'less than, equal to or<br> greater than',
-    '\\gnapprox':       'greater than and <br>not approximately',
-    '\\lnapprox':       'lesser than and <br>not approximately',
+    // Big operator
+    'sum':      '\\sum%_%^ %',
 
-    '\\j':              'dotless j',
-    '\\i':              'dotless i',
-    '\\cdot':           'centered dot',
-    '\\lmoustache':     'left moustache',
-    '\\rmoustache':     'right moustache',
-    '\\nabla':          ['nabla', 'del', 'differential vector operator'],
-
-    '\\square':         ['square', 'd’Alembert operator',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/D%27Alembert_operator">Wikipedia <big>&#x203A;</big></a>'
-    ],
-    '\\blacksquare':    ['black square', 'end of proof', 'tombstone', 'Halmos symbol'],
-    '\\Box':            'end of proof',
-    '\\colon':          ['such that', 'ratio'],
-    '\\coloneq':        ['is defined by', 'is assigned'],
-    '\\Colon':          ['is defined by', 'as'],
-    '\\_':              ['underbar', 'underscore'],
-    '\\ll':             'much less than',
-    '\\gg':             'much greater than',
-    '\\doteq':          'approximately equal to',
-    '\\Doteq':          'approximately equal to',
-    '\\doteqdot':       'approximately equal to',
-    '\\cong':           ['isomorphism of', '(for algebras, modules...)'],
-    '\\det':            ['determinant of', '(of a matrix)'],
-    '\\dotplus':        'Cartesian product algebra',
-    '\\otimes':         ['tensor product', '(of algebras)',
-                        'Kronecker product', '(of matrices)'],
-    '\\oplus':          ['direct sum', '(of modules)'],
-    '\\lg':             'base-2 logarithm',
-    '\\wp':             ['Weierstrass P', 
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Weierstrass%27s_elliptic_functions">Wikipedia <big>&#x203A;</big></a>'
-                        ],
-    '\\wr':             ['wreath product',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Wreath_product">Wikipedia <big>&#x203A;</big></a>'
-                        ],
-    '\\top':            ['tautology', 'Proposition P is universally true'],
-    '\\bot':            ['contradiction', 'Proposition P is contradictory'],
-    '\\mid':            ['probability', 'of event A given B'],
-    '\\mho':            ['Siemens', 'electrical conductance in SI unit',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Siemens_(unit)">Wikipedia <big>&#x203A;</big></a>'
-                        ],
-
-    '\\Longrightarrow': 'implies',
-    '\\Longleftrightarrow': 'if and only iff',
-
-    '\\prec':           'predeces',
-    '\\preceq':         'predeces or is equal to',
-    '\\succ':           'succedes',
-    '\\succeq':         'succedes or is equal to',
-    '\\perp':           ['is perpendicular to', 'is independent of'],
-
-    '\\models':         ['entails',
-                        'double-tunrstile, models',
-                        'is a semantic consequence of',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Double_turnstile">Wikipedia <big>&#x203A;</big></a>'
-                        ],
-    '\\vdash':          ['satisfies',
-                        'tunrstile, assertion sign',
-                        'syntactic inference',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Turnstile_(symbol)">Wikipedia <big>&#x203A;</big></a>'
-    ],
-
-    '\\implies':        ['implies', 'logical consequence'],
-    '\\impliedby':      ['implied by', 'logical consequence'],
+    // OTHER
+    'Zeta':     '\\zeta%_%^ %', // Riemann Zeta function
+    'Gamma':    '\\Gamma %',    // Gamma function, such that Gamma(n) = (n - 1)!
+    'min':      '\\min%_%^ %',
+    'max':      '\\max%_%^ %',
+    'mod':      '\\mod%_%^ %',
+    'lim':      '\\lim%_%^ %',      // BIG OP
+    'binom':    '\\binom %',
+    'nabla':    '\\nabla %',
+    'curl':     '\\nabla\\times %',
+    'div':      '\\nabla\\cdot %',
+    'floor':    '\\lfloor % \\rfloor%_%^',
+    'ceil':     '\\lceil % \\rceil%_%^',
+    'abs':      '\\vert % \\vert%_%^',
+    'norm':     '\\lVert % \\rVert%_%^',
+    'ucorner':  '\\ulcorner % \\urcorner%_%^',
+    'lcorner':  '\\llcorner % \\lrcorner%_%^',
+    'angle':    '\\langle % \\rangle%_%^',
+    'group':    '\\lgroup % \\rgroup%_%^',
+    'moustache':'\\lmoustache % \\rmoustache%_%^',
+    'brace':    '\\lbrace % \\rbrace%_%^',
+    'sqrt':     '\\sqrt[%^]{%}',
+    'lcm':      '\\mathrm{lcm}%',
+    'gcd':      '\\mathrm{gcd}%',
+    'erf':      '\\mathrm{erf}%',
+    'erfc':     '\\mathrm{erfc}%',
+    'randomReal': '\\mathrm{randomReal}%',
+    'randomInteger': '\\mathrm{randomInteger}%',
     
-    '\\surd':           ['surd', 'root of', 'checkmark'],
-    '\\ltimes':         ['semi direct product',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Semidirect_product">Wikipedia <big>&#x203A;</big></a>'
-                        ],
-    '\\rtimes':         ['semi direct product',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Semidirect_product">Wikipedia <big>&#x203A;</big></a>'
-                        ],
-    '\\leftthreetimes':         ['semi direct product',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Semidirect_product">Wikipedia <big>&#x203A;</big></a>'
-                        ],
-    '\\rightthreetimes':         ['semi direct product',
-                        '<a target="_blank" href="https://en.wikipedia.org/wiki/Semidirect_product">Wikipedia <big>&#x203A;</big></a>'
-                        ],
-    '\\divideontimes':  ['divide on times'],
-    '\\curlywedge':     'nor',
-    '\\curlyvee':       'nand',
 
-    '\\simeq':          'is group isomorphic with',
-    '\\vartriangleleft':   [
-                        'is a normal subgroup of', 
-                        'is an ideal ring of'
-                        ],
+    // Arithmetic operators
+    '*':        '%0 \\times %1',
 
-    '\\circ':           ['circle', 'function composition'],
-    
-    '\\rlap':           ['overlap right',
-                            '\\rlap{x}o'],
-    '\\llap':           ['overlap left',
-                            'o\\llap{/}'],
-    '\\colorbox':       ['color box',
-                            '\\colorbox{#fbc0bd}{...}'
-                        ],
-    '\\ast':            ['asterisk', 'reflexive closure (as a superscript)'],
-    '\\bullet':         'bullet',
+    // Logic operators
+    'and':      '%0 \\land %1',
+    'or':       '%0 \\lor %1',
+    'xor':      '%0 \\oplus %1',
+    'not':      '%0 \\lnot %1',
 
-    '\\lim':            'limit',
-};
+    // Other operators
+    'circle':   '%0 \\circ %1',
+    'ast':      '%0 \\ast %1',
+    'star':     '%0 \\star %1',
+    'asymp':    '%0 \\asymp %1',
+    '/':        '\\frac{%0}{%1}',
+    'Re':       '\\Re{%}',
+    'Im':       '\\Im{%}',
+    'factorial': '%!',
+    'factorial2': '%!!',
+}
 
-function getNote(symbol) {
-    let result = NOTES[symbol] || '';
-    if (Array.isArray(result)) {
-        result = result.join('<br>');
+
+const OP_PRECEDENCE = {
+    // '^':    6, Not an actual operator
+    'not':   8,
+
+    'and':   7,
+    'or':    7,
+    'xor':    7,
+
+    'circle':   6,
+    'ominus': 6,
+    'odot': 6,
+    'otimes': 6,
+    'nabla': 6,
+    'curl':     6,
+    'div':      6,
+    'partial': 6,
+    'differentialD': 6,
+    'capitalDifferentialD': 6,
+
+    'mod':  5,
+
+    'ast':  5,
+    'star': 5,
+    '*':    5,
+    '.':    5,
+    '/':    5,
+    '%':    5,
+
+    '+':    4,
+    '-':    4,
+
+    'asymp': 3,
+    '=':    3,
+
+    ',':    2,
+    ';':    1
+}
+
+/**
+ * 
+ * @param {string} latex, for example '\\times'
+ * @return {string} the canonical name for the input, for example '*'
+ */
+function getCanonicalName(latex) {
+    latex = (latex || '').trim();
+    let result = CANONICAL_NAMES[latex];
+    if (!result) {
+        if (latex.charAt(0) === '\\') {
+            const info = getInfo(latex, 'math');
+            if (info && info.type !== 'error') {
+                result = info.value || latex.slice(1);
+            } else {
+                result = latex.slice(1);
+            }
+        } else {
+            result = latex;
+        }
+    }
+    return result;
+}
+
+
+/**
+ * 
+ * @param {string} name function or operator canonical name
+ * @return {string}
+ */
+function getLatexTemplateForOperator(name) {
+    let result = FUNCTION_TEMPLATE[name];
+    if (!result) {
+        result = '%0 \\mathbin{' + name + '} %1';
     }
 
     return result;
 }
 
-function getSpokenName(symbol) {
-    let result = NOTES[symbol];
-    if (!result && symbol.charAt(0) === '\\') {
-        result = symbol.replace('\\', '');
+/**
+ * 
+ * @param {string} name symbol name
+ * @return {string}
+ */
+function getLatexForSymbol(name) {
+    let result = FUNCTION_TEMPLATE[name];
+    if (result) {
+        return result.replace('%1', '').replace('%0', '').replace('%', '');
     }
-    // If we got more than one result (from NOTES), 
-    // pick the first one.
-
-    if (Array.isArray(result)) {
-        result = result[0];
+    const info = getInfo('\\' + name, 'math');
+    if (info && info.type !== 'error' && 
+        (!info.fontFamily || info.fontFamily === 'main' || info.fontFamily === 'ams')) {
+        result = '\\' + name;
     }
 
     return result;
+}
+
+/**
+ * 
+ * @param {string} name function canonical name
+ * @return {string}
+ */
+function getLatexTemplateForFunction(name) {
+    let result = FUNCTION_TEMPLATE[name];
+    if (!result) {
+        result = name.length > 1 ? '\\mathop{' + name + '} %' : (name + ' %');
+    }
+
+    return result;
+}
+
+/**
+ * Given a canonical name, return its precedence
+ * @param {string} canonicalName, for example "and"
+ * @return {number}
+ */
+function getPrecedence(canonicalName) {
+    return canonicalName ? (OP_PRECEDENCE[canonicalName] || -1) : -1;
+}
+
+function isFunction(canonicalName) {
+    let t = FUNCTION_TEMPLATE[canonicalName];
+    if (!t) return false;
+    t = t.replace('%0', '').replace('%1', '');
+    if (t.match(/%/)) return true;
+    return false;
 }
 
 return {
@@ -3077,10 +3041,13 @@ return {
 
     FUNCTIONS: FUNCTIONS,
 
-    SAMPLES: SAMPLES,
-    NOTES: NOTES,
-    getNote: getNote,
-    getSpokenName: getSpokenName,
+    getPrecedence: getPrecedence,
+    getCanonicalName: getCanonicalName,
+    getLatexForSymbol: getLatexForSymbol,
+    getLatexTemplateForOperator: getLatexTemplateForOperator, 
+    getLatexTemplateForFunction: getLatexTemplateForFunction,
+    isFunction: isFunction
+
 }
 
 })

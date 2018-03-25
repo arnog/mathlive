@@ -331,7 +331,7 @@ Parser.prototype.scanString = function() {
             const info = Definitions.getInfo('\\' + token.value, this.parseMode);
             // If parseMode is 'math', info.type will never be 'textord'
             // Otherwise, info.type will never be 'mord'
-            if ((info.type === 'mord' || info.type === 'textord') && info.value) {
+            if (info && (info.type === 'mord' || info.type === 'textord') && info.value) {
                 result += info.value;
             }
             done = this.end();
@@ -754,14 +754,18 @@ Parser.prototype.scanImplicitGroup = function(done) {
         // only defined in 'math' mode, we can use the 'math' constant 
         // for the parseMode
         const info = Definitions.getInfo('\\' + infix.value, 'math');
-
-        result =  [new MathAtom(
+        if (info) {
+            result =  [new MathAtom(
                 this.parseMode, info.type || 'mop', 
                 info.value || infix.value, 
                 info.fontFamily,
                 info.handler ? 
                     info.handler('\\' + infix.value, [prefix, suffix]) :
                     null)];
+        } else {
+            result =  [new MathAtom(
+                this.parseMode, 'mop', infix.value, '', null)];
+        }
     } else {
         result = this.swapMathList(savedMathlist);
     }
@@ -1152,14 +1156,16 @@ Parser.prototype.scanToken = function() {
         if (token.value === 'char') {
             // \char has a special syntax and requires a non-braced integer 
             // argument
-            let codepoint = this.scanNumber(true);
-            if (isNaN(codepoint)) codepoint = 0x2753; // BLACK QUESTION MARK
+            let codepoint = Math.floor(this.scanNumber(true));
+            if (!isFinite(codepoint) || codepoint < 0 || codepoint > 0x10FFFF) {
+                codepoint = 0x2753; // BLACK QUESTION MARK
+            }
             result = new MathAtom(this.parseMode,
                 this.parseMode === 'math' ? 'mord' : 'textord', 
                 String.fromCodePoint(codepoint), 
                 'main');
-            result.latex = '\\char"' + 
-                ('000000' + codepoint.toString(16)).toUpperCase().substr(-6);
+            result.latex = '{\\char"' + 
+                ('000000' + codepoint.toString(16)).toUpperCase().substr(-6) + '}';
 
         } else if (token.value === 'hskip' || token.value === 'kern') {
             // \hskip and \kern have a special syntax and requires a non-braced 
@@ -1235,8 +1241,8 @@ Parser.prototype.scanToken = function() {
             result = new MathAtom(this.parseMode,  info.type, 
                 info.value || token.value, info.fontFamily);
         } else {
-            console.warn('Unknown literal "' + token.value + 
-                '" (U+' + ('000000' + token.value.charCodeAt(0).toString(16)).substr(-6) + ')');
+            // console.warn('Unknown literal "' + token.value + 
+            //     '" (U+' + ('000000' + token.value.charCodeAt(0).toString(16)).substr(-6) + ')');
             result = new MathAtom(this.parseMode, 
                 this.parseMode === 'math' ? 'mord' : 'textord', 
                 token.value, 'main');

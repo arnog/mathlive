@@ -185,7 +185,7 @@ const KEYBOARD_SHORTCUTS = {
 
     // Accessibility
     'Alt-Shift-KeyK':           'toggleKeystrokeCaption',
-    'Alt-Space':                'toggleCommandBar',
+    'Alt-Space':                'toggleVirtualKeyboard',
 
     // Note: On Mac OS (as of 10.12), there is a bug/behavior that causes
     // a beep to be generated with certain command+control key combinations.
@@ -362,6 +362,7 @@ const INLINE_SHORTCUTS = {
     'sin':                  '\\sin',
     'cos':                  '\\cos',
     'tan':                  '\\tan',
+    'tanh':                 '\\tanh',
     'log':                  '\\log',
     'ln':                   '\\ln',
     'exp':                  '\\exp',
@@ -370,6 +371,15 @@ const INLINE_SHORTCUTS = {
     'mod':                  '\\mod',
     'max':                  '\\max',
     'min':                  '\\min',
+    'erf':                  '\\mathrm{erf}',
+    'erfc':                 '\\mathrm{erfc}',
+    'lcm':                  '\\mathrm{lcm}',
+    'gcd':                  '\\mathrm{gcd}',
+    'randomReal':           '\\mathrm{randomReal}',
+    'randomInteger':        '\\mathrm{randomInteger}',
+
+    'km':                   '\\mathrm{km}', // Unit: kilometer
+    
 
     'NN':                   '\\N',        // Natural numbers
     'ZZ':                   '\\Z',        // Integers
@@ -384,7 +394,7 @@ const INLINE_SHORTCUTS = {
     'exists':               '\\exists',
     'EE':                   '\\exists',
     '!EE':                  '\\nexists',
-    'in':                   '\\in',
+    // 'in':                   '\\in',
     '!in':                  '\\notin',
     'sub':                  '\\subset',     // ASCIIMath
     'sup':                  '\\supset',     // ASCIIMath
@@ -395,7 +405,7 @@ const INLINE_SHORTCUTS = {
 
 
     '&&':                   '\\land',
-    '||':                   '\\lor',
+    // '||':                   '\\lor',
     '+...':                 '+\\cdots',
     '\u2212...':            '-\\cdots',
     '\u2192...':            '\to\\cdots',
@@ -435,6 +445,10 @@ const INLINE_SHORTCUTS = {
     // '(/)':                  '\\oslash',
     '(\u2217)':             '\\otimes',
     'ox':                   '\\otimes',            // ASCIIMath
+
+    '\u2223|':              '\\Vert',               // || 
+    '{':                    '\\{',
+    '}':                    '\\}',
 
     '(–)':                  '\\ominus',
     '(\u2212)':             '\\circleddash',
@@ -665,11 +679,13 @@ function commandToString(command) {
 }
 
 function getShortcutsForCommand(command) {
-    const result = [];
+    let result = [];
 
     if (typeof command === 'string') {
         const candidate = REVERSE_KEYBOARD_SHORTCUTS[command];
-        if (candidate) {
+        if (Array.isArray(candidate)) {
+            result = candidate.slice();
+        } else if (candidate) {
             result.push(candidate);
         }
     }

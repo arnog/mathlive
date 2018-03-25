@@ -1,10 +1,14 @@
 @import "__fonts.less";
 
-@monospace: "Source Code Pro", Menlo, "Bitstream Vera Sans Mono", Monaco, 
-    Courier, "Andale Mono", monospace;
-@system: -apple-system,BlinkMacSystemFont,Roboto,Oxygen-Sans,Ubuntu,Cantarell,
-    "Droid Sans","Helvetica Neue",sans-serif;
+@monospace: 'VT323', 'Glass TTY VT220', 'PR Number 3', 'vt220-mod', 'Roboto Mono', 'Source Code Pro', Menlo, "Bitstream Vera Sans Mono", 
+    "DejaVu Sans Mono", Monaco, Consolas, Courier, monospace;
+@system: -apple-system, BlinkMacSystemFont, Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+    "Droid Sans", "Helvetica Neue", sans-serif;
+@math_main: KaTeX_Main;
+@math_math: KaTeX_Math;
+
 @primary: #0066ce;
+@material-primary: #5f97fc;
 @secondary: #cd0030;
 // @highlight: rgba(243, 243, 21, 0.28);
 
@@ -19,7 +23,7 @@
     /*** ***/
 
     .mathit {
-        font-family: KaTeX_Math;
+        font-family: @math_math;
         font-style: italic;
     }
 
@@ -76,7 +80,7 @@
     }
 
     .mainit {
-        font-family: KaTeX_Main;
+        font-family: @math_main;
         font-style: italic;
     }
 
@@ -152,6 +156,52 @@
         }
     }
 
+    .rspace {
+        &.negativethinspace {
+            margin-right: -@thinspace;
+        }
+
+        &.thinspace {
+            margin-right: @thinspace;
+        }
+
+        &.negativemediumspace {
+            margin-right: -@mediumspace;
+        }
+
+        &.mediumspace {
+            margin-right: @mediumspace;
+        }
+
+        &.thickspace {
+            margin-right: @thickspace;
+        }
+
+        &.sixmuspace {
+            margin-right: 0.333333em;
+        }
+
+        &.eightmuspace {
+            margin-right: 0.444444em;
+        }
+
+        &.enspace {
+            margin-right: 0.5em;
+        }
+
+        &.twelvemuspace {
+            margin-right: 0.666667em;
+        }
+
+        &.quad {
+            margin-right: 1em;
+        }
+
+        &.qquad {
+            margin-right: 2em;
+        }
+    }
+    
     .mspace {
         display: inline-block;
 
@@ -234,7 +284,7 @@
 
         &:before {
             border-bottom-style: solid;
-            border-bottom-width: 1px;
+            border-bottom-width: 0.04em;
             content: "";
             display: block;
         }
@@ -242,7 +292,7 @@
         &:after {
             border-bottom-style: solid;
             border-bottom-width: 0.04em; 
-            min-height: 1px;    /* There's a bug since Chrome 62 where 
+            min-height: thin;    /* There's a bug since Chrome 62 where 
             sub-pixel border lines don't draw at some zoom 
             levels (110%, 90%). Setting the min-height seems to work around it.
             */
@@ -261,10 +311,11 @@
 
         .sqrt-line {
             width: 100%;
+            margin-bottom: 1px;
 
             &:before {
                 border-bottom-style: solid;
-                border-bottom-width: 0.04em; 
+                border-bottom-width: 1px; 
                 min-height: 1px;    /* There's a bug since Chrome 62 where 
                 sub-pixel border lines don't draw at some zoom 
                 levels (110%, 90%). Setting the min-height seems to work around it.
@@ -415,12 +466,10 @@
         background: #b4d5fe !important;
         color: HighlightText;
         border-color: HighlightText;
-        display: inline-block;
     }
 
     &.ML__blurred .ML__selected {
         background: #ccc;
-        display: inline-block;
     }
 
 
@@ -429,11 +478,13 @@
 
 .ML__command {
     font-family: @monospace;
+    font-size: 20px;
     letter-spacing: -.05em;
-    font-weight: 700;
+    font-weight: 400;
 
     color: @primary;
 }
+
 
 
 :not(.ML__command) + .ML__command {
@@ -444,16 +495,697 @@
     padding-left: .25em;
 }
 
+
+
+/* Add an attribute 'data-tooltip' to automatically show a 
+   tooltip over a element on hover. 
+   Use 'data-position="top"' to place the tooltip above the 
+   element rather than below.
+   Use 'data-delay' to delay the triggering of the tooltip.
+*/
+[data-tooltip] {
+    position: relative;
+    &[data-placement='top']::after {
+        top: inherit;
+        bottom: 100%;
+    }
+    &::after {
+        position: absolute;
+        visibility: hidden;
+        content: attr(data-tooltip);
+        
+        display: inline-table;
+
+        top: 100%;
+        left: -50%;
+        height: 22px;
+        padding: 4px 8px;
+        background: #616161;    // Grey 700
+        color: #fff;
+        text-align: center;
+        z-index: 2;
+
+        font-family: @system;
+        font-weight: 400;
+        font-size: 10px;
+
+        /* Phone */
+        @media only screen and (max-width : 767px) {
+            height: 32px;
+            padding: 4px 16px;
+            font-size: 14px;
+        }
+
+        opacity: 0;
+        border-radius: 2px;
+        border-bottom-left-radius: 50%;
+        border-bottom-right-radius: 50%;
+        // margin-top: 0;
+        transform: scale(0.5);
+        // animation: .150s tooltipFadeOut cubic-bezier(0.4, 0.0, 1, 1) forwards;
+        transition: all .150s cubic-bezier(0.4, 0.0, 1, 1);
+
+    }
+}
+
+[data-tooltip]:hover {
+    position: relative;
+    &::after {
+        visibility: visible;          // Visible triggers the animation...
+        opacity: 1;                   // ... but we start fully transparent to
+                                    // give ourselves a delay before showing
+        border-bottom-left-radius: 2px;
+        border-bottom-right-radius: 2px;
+        transform: scale(1)
+    }
+}
+
+[data-tooltip][data-delay]::after {
+    // On fade out, we don't want a delay
+    transition-delay: 0s;
+}
+[data-tooltip][data-delay]:hover::after {
+    // But we do want a delay on fade in
+    transition-delay: 1s; /* attr(data-delay); Should work. But doesn't. */
+}
+
+
+@keyframes tooltipFadeIn {
+  0% {
+    opacity: 0;
+    border-bottom-left-radius: 50%;
+    border-bottom-right-radius: 50%;
+    // margin-top: 0;
+    transform: scale(0.5)
+  }
+  100% {
+    opacity: .9;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    // margin-top: 6px;
+    transform: scale(1)
+  }
+}
+@keyframes tooltipFadeOut {
+  0% {
+    opacity: 0.9;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    // margin-top: 0;
+    transform: scale(1)
+  }
+  100% {
+    opacity: 0;
+    border-bottom-left-radius: 50%;
+    border-bottom-right-radius: 50%;
+    // margin-top: 6px;
+    transform: scale(.5)
+  }
+}
+
+
+.can-redo [data-command="\"redo\""] {
+    opacity: 1 !important;
+}
+.can-undo [data-command="\"undo\""] {
+    opacity: 1 !important;
+}
+
+
+#ML__keyboard {
+    position: fixed;
+    left: 0;
+    padding-top: 5px;
+    width: 100vw;
+    z-index: 100;
+
+    // To make the keyboard visible, add the .visible class
+    // This will slide in and fade in the keyboard
+    transition: .28s cubic-bezier(0.0, 0.0, 0.2, 1);    // Deceleration curve
+    
+    bottom: -267px;
+    opacity: 0;
+    visibility: hidden;
+    &.visible {
+        bottom: 0;
+        opacity: 1;
+        visibility: visible;
+        transition: .28s cubic-bezier(0.4, 0.0, 1, 1); // Acceleration curve
+    }
+
+    backdrop-filter: grayscale(50%);
+    background-color: rgba(209, 213, 217, .9);
+    border: 1px solid #ddd;
+
+    font-family: @system;
+    font-size: 16px;
+    font-weight: 400;
+
+    margin: 0;
+    text-shadow: none;
+    box-sizing: border-box;
+
+    touch-action: none;
+    user-select: none;
+    cursor: pointer;
+
+    box-shadow: 0 8px 10px 1px rgba(0, 0, 0, .14),
+            0 3px 14px 2px rgba(0, 0, 0, .12),
+            0 5px 5px -3px rgba(0, 0, 0, .4);
+
+    .tex {
+        font-family: @math_main, "Cambria Math", "Asana Math", OpenSymbol, Symbola, STIX, Times, serif !important;
+    }
+    .tex-math {
+        font-family: @math_math, "Cambria Math", "Asana Math", OpenSymbol, Symbola, STIX, Times, serif !important;
+    }
+    .tt {
+        font-family: @monospace !important;
+        font-size: 30px;
+        font-weight: 400;
+    }
+
+    div.keyboard-layer {
+        display: none;
+        &.visible { 
+            display: flex; 
+            flex-flow: column;
+        }
+    }
+    div.keyboard-toolbar {
+        align-self: center;
+        display: flex;
+        flex-flow: row;
+        justify-content: space-between;
+        width: 736px;   // Desktop
+        /* Tablet */
+        @media only screen and (min-width : 768px) and (max-width : 1024px)  {
+            width: 556px;
+        }
+        /* Phone */
+        @media only screen and (max-width : 767px) {
+            width: 365px;
+            max-width: 100vw;       // iPhone 5 is 320px
+        }
+        
+        /* Icons for undo/redo, etc.. */
+        svg {
+            height: 20px;
+            width: 25px;
+        }
+        @media only screen and (max-width : 767px)  {
+            svg {
+                height: 13px;
+                width: 17px;
+            }
+        }
+        div.left {
+            justify-content: flex-start;
+            display: flex;
+            flex-flow: row;
+        }
+        div.right {
+            justify-content: flex-end;
+            display: flex;
+            flex-flow: row;
+        }
+        div div {
+            /* "button" in the toolbar */
+            pointer-events: all;
+            color: #000;
+            background: 0;
+            font-size: 110%;
+            padding: 4px 15px;
+            cursor: pointer;
+            min-height: 0;
+            border: none;
+            padding-left: 10px;
+            padding-right: 10px;
+            margin-top: 7px;
+            margin-bottom: 6px;
+            margin-left: 4px;
+            margin-right: 4px;
+            box-shadow: none;
+            border-bottom: 2px solid transparent;
+
+            &.disabled, &.disabled:hover, &.disabled.pressed {
+                color: #000;
+                opacity: .2;
+            }
+
+            /* iPhone 5 */
+            @media only screen and (max-width : 320px)  {
+                font-size: 100%;
+                padding: 0 6px 0 0;
+            }
+            /* Phone */
+            @media only screen and (min-width : 321px) and (max-width : 767px)  {
+                padding-left: 4px;
+                padding-right: 4px;
+                font-size: 90%;
+            }
+            &:hover, &:active, &.pressed, &.active {
+                color: @primary;
+                fill: @primary;
+            }
+            &.selected {
+                color: @primary;
+                fill: @primary;
+                border-bottom: 2px solid @primary;
+                margin-bottom: 8px;
+                padding-bottom: 0;
+            }
+        }
+    }
+    // div.functions-list {
+    //     border: 0;
+    //     border-collapse: separate;
+    //     clear: both;
+    //     margin: 0;
+    //     padding: 0;
+    //     display: flex;
+    //     flex-flow: row;
+    //     align-items: flex-start;
+    //     max-height: 220px;
+    //     width: 100vw;
+    //     @media only screen and (max-width : 767px) {
+    //         max-height: 172px;
+    //     }
+
+    //     display: flex;
+    //     justify-content: center;
+    //     // flex-flow: row wrap;
+    //     // align-content: flex-start;
+    //     // max-height: 100%;
+    //     // width: 150px;
+    //     overflow-x: scroll;
+
+    //     section {
+    //         padding-right: 24px;
+
+    //         // flex: 1;
+    //         h3 {
+    //             padding: 0;
+    //             margin: 0;
+    //             font-family: @system;
+    //             font-size: 16px;
+    //             color: #000;
+    //             border: 1px solid red;
+    //         }
+    //         div.functions_section_content {
+    //             display: flex;
+    //             flex-flow: column;
+    //             ul {
+    //                 margin: 0;
+    //                 padding: 0;
+    //                 list-style: none;
+    //                 display: flex;
+    //                 flex-flow: column wrap;
+    //                 max-height: 220px;
+    //                 li {
+    //                     display: flex;
+    //                     justify-content: center;
+    //                     flex-flow: column;
+    //                     height: 40px;
+    //                     box-sizing: border-box;
+    //                     width: 33px;        // 25%;
+    //                     min-width: 70px;
+    //                     padding: 8px 0;
+    //                     margin-right: 4px;
+    //                     margin-bottom: 4px;
+    //                     vertical-align: top;
+    //                     text-align: center;
+    //                     float: left;
+
+    //                     color: #000;
+    //                     font-size: 20px;
+    //                     background: white;
+    //                     border: 1px solid #e5e6e9;
+    //                     border-bottom-color: #8d8f92;
+    //                     border-radius: 5px;
+    //                     pointer-events: all;
+
+    //                     // // Waves effect
+    //                     // display: inline-block;
+    //                     position: relative;
+    //                     overflow: hidden;
+    //                     user-select: none;
+    //                     -webkit-tap-highlight-color: transparent;
+    //                     // vertical-align: middle;
+    //                     z-index: 1;
+    //                     transition: .14s cubic-bezier(.4, 0, .2, 1);
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    // }
+    /* Keyboard layouts are made or rows of keys... */
+    div.rows {
+        border: 0;
+        border-collapse: separate;
+        clear: both;
+        margin: auto;
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        ul {
+            list-style: none;
+            height: 40px;
+            margin: 0 0 3px 0;
+            padding: 0;
+            li.tt {
+                color: @primary;
+            }
+            /* For the alignment of the text on some modifiers (e.g. shift) */
+            li.bottom {
+                justify-content: flex-end;
+            }
+            li.left {
+                text-align: left;
+                padding-left: 4px;
+            }
+            li.right {
+                text-align: right;
+                padding-right: 4px;
+            }
+
+            li svg {
+                height: 20px;
+            }
+            /* Last key should be flush against the border */
+            :last-child {
+                margin-right: 0;
+            }
+            
+            li {
+                /* Key widths. A standard key is 10 units wide (w10) */
+                /* The formula for wn = n * w10 / 10 + (n -1) * margin-right */
+                width: 34px;
+                margin-right: 2px;
+                display: flex;
+                align-items: center;
+                
+                &.w0 { width: 0; }
+                &.w5 { width: 16px; }
+                &.w15 {width: 52px;}
+                &.w20 {width: 70px;}
+                &.w50 {width: 178px;}
+                /* Extra spacing between two adjacent keys */
+                &.separator {
+                    background: transparent;
+                    border: none;
+                    pointer-events: none;
+                }
+
+                // Only show if there's extra room (up to four more columns)
+                @media only screen and (max-width : 560px)  {
+                    &.if-wide {
+                        display: none;
+                    }
+                }
+
+                &.tex-math {font-size: 25px;}
+                &.tt {font-size: 30px;}
+                &:hover, &.pressed {
+                    // box-shadow: inset 0 0 1px 1px #8d8f92;
+                    background: #e5e5e5;
+                    color: @primary;
+                    fill: @primary;
+                }
+                &.keycap:active, &.keycap.active, &.action:active, &.action.active {
+                    transform: translateY(-20px) scale(1.4, 1.4);
+                    z-index: 100;
+                    color: @primary;
+                    fill: @primary;
+                }
+                &.modifier:active, &.modifier.active {
+                    background: @primary;
+                    color: white;
+                    fill: white;
+                }
+                &.action.font-glyph, &.modifier.font-glyph {
+                    font-size: 18px;
+                    @media only screen and (max-width : 767px) {
+                        font-size: 16px;
+                    }
+                }
+                display: flex;
+                justify-content: center;
+                flex-flow: column;
+                height: 40px;
+                box-sizing: border-box;
+                padding: 8px 0;
+                vertical-align: top;
+                text-align: center;
+                float: left;
+
+                color: #000;
+                font-size: 20px;
+                background: white;
+                border: 1px solid #e5e6e9;
+                border-bottom-color: #8d8f92;
+                border-radius: 5px;
+                pointer-events: all;
+
+                // Waves effect
+                position: relative;
+                overflow: hidden;
+                user-select: none;
+                -webkit-tap-highlight-color: transparent;
+                // z-index: 1;
+                transition: .14s cubic-bezier(.4, 0, .2, 1);
+                &.fnbutton, &.bigfnbutton {
+                    @media only screen and (max-width : 767px)  {
+                        font-size: 12px;
+                    }
+                    // width: 60px;
+                    // max-width: 60px;
+                }
+                &.bigfnbutton {
+                    font-size: 14px;
+                    @media only screen and (max-width : 767px)  {
+                        font-size: 9px;
+                    }
+                }
+                &.modifier, &.action {
+                    background-color: #b9bdc7;
+                    border-color: #c5c9d0;
+                    border-bottom-color: #989da6;
+                    font-size: 65%;
+                    font-weight: 100;
+                }
+                &.modifier.selected, &.action.selected {
+                    color: @primary;
+                }
+                &.keycap.w50 {
+                    font-size: 80%;
+                    padding-top: 10px;
+                    font-weight: 100;
+                }            
+                small {
+                    color: #555;
+                    @media only screen and (max-width : 767px)  {
+                        font-size: 9px;
+                    }                
+                }
+                aside {
+                    font-family: @system;
+                    font-size: 10px;
+                    line-height: 10px;
+                    color: #666;
+                    /* On small screens, don't display */
+                    @media only screen and (max-width : 767px)  {
+                        display: none;
+                    }
+                }
+        }
+
+        }
+        /* iPhone 5 */
+        @media only screen and (max-width : 320px)  {
+            ul { 
+                li {
+                    width: 29px;
+                    margin-right: 2px;
+                }
+                li.w5 { width: 13.5px; }
+                li.w15 { width: 44.5px; }
+                li.w20 { width: 60px; }
+                li.w50 { width: 153px; }
+            }
+        }
+        /* Pixel, iPhone 6,7,8+ */
+        @media only screen and (min-width : 414px) and (max-width : 768px)  {
+            ul { 
+                li {
+                    width: 37px;
+                    margin-right: 3px;
+                }
+                li.w5 { width: 17px; }
+                li.w15 { width: 57px; }
+                li.w20 { width: 77px; }
+                li.w50 { width: 197px; }
+            }
+        }
+        /* Tablet size */
+        @media only screen and (min-width : 768px) and (max-width : 1024px)  {
+            ul { 
+                height: 52px; 
+                li {
+                    height: 52px;
+                    width: 51px;
+                    margin-right: 4px;
+                }
+                li.w5 { width: 23.5px; }
+                li.w15 { width: 78.5px; }
+                li.w20 { width: 106px; }
+                li.w50 { width: 271px; }
+            }
+        }
+        /* Desktop size */
+        @media only screen and (min-width : 1025px)  {
+            ul { 
+                height: 52px; 
+                li {
+                    height: 52px;
+                    width: 66px;
+                    margin-right: 6px;
+                }
+                li.modifier, li.action {
+                    font-size: 80%;
+                }
+                li.w5 { width: 30px; }
+                li.w15 { width: 102px; }
+                li.w20 { width: 138px; }
+                li.w50 { width: 354px; }
+            }
+        }
+    }
+}
+
+
+/* The 'material' theme for the virtual keyboard */
+div#ML__keyboard.material  {
+    font-family: Roboto, sans-serif;
+    background-color:#f7f7f7;
+    div.keyboard-toolbar {
+        div div {
+            font-size: 16px;
+        }
+        div div:hover, div div:active, div.div.active, div.div.pressed {
+            color: @material-primary;
+            fill: @material-primary;
+        }
+        div div.selected {
+            color: @material-primary;
+            fill: @material-primary;
+            border-bottom: 2px solid @material-primary;
+            margin-bottom: 8px;
+            padding-bottom: 0;
+        }
+    }
+    div div.rows ul li.keycap {
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 5px;
+        color: #000;
+        fill: #000;
+
+        &.tt {
+            color: @material-primary;
+        }
+
+        transition: .14s cubic-bezier(.4, 0, .2, 1);
+        &[data-key=' '] {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            height: 20px;
+            background: #e0e0e0;
+
+            &:hover, &:active, &.active, &.pressed {
+                background: #d0d0d0;
+                box-shadow: none;
+                transform: none;
+            }
+        }
+        &:not([data-key=' ']):hover, &:not([data-key=' ']).pressed {
+            border: 0;
+            background: #cccfd1;
+            box-shadow: none;
+        }
+        &:not([data-key=' ']):active, &:not([data-key=' ']).active {
+            background: #efefef;
+            color: #000;
+            fill: #000;
+            box-shadow: none;
+            @media only screen and (max-width : 767px) {
+                box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .14),
+                0 1px 5px 0 rgba(0, 0, 0, .12),
+                0 3px 1px -2px rgba(0, 0, 0, .2);
+                font-size: 10px;
+                vertical-align: top;
+                width: 18.5px;
+                margin-right: 9px;
+                margin-left: 9px;
+                transform: translateY(-20px) scale(2, 2);
+                transition: .07s cubic-bezier(.4, 0, .2, 1);
+                justify-content: flex-start;
+                z-index: 100;
+            }
+        }
+        &:last-child:active {
+            @media only screen and (max-width : 767px) {
+                margin-right: 0;
+                margin-left: 14px;
+            }
+        }
+    }
+    div div.rows ul li.modifier, div div.rows ul li.action {
+        background: transparent;
+        border: 0;
+        color: #869096;
+        fill: #869096;
+        font-size: 16px;
+        transition: .28s cubic-bezier(.4, 0, .2, 1);
+        &.selected, &.selected {
+            color: @material-primary;
+            border-radius: 0;
+            border-bottom: 2px solid @material-primary;
+        }
+        &:hover, &:active, &.active, &.pressed {
+            border: 0;
+            color: @material-primary;
+            background: #cccfd1;
+            box-shadow: none;
+        }
+    }
+    div div.rows ul li.fnbutton, div div.rows ul li.bigfnbutton {
+        background: transparent;
+        border: 0;
+        transition: .28s cubic-bezier(.4, 0, .2, 1);
+        &.selected, &.selected {
+            color: @material-primary;
+            border-radius: 0;
+            border-bottom: 2px solid @material-primary;
+        }
+        &:hover, &:active, &.pressed, &.active {
+            border: 0;
+            color: @material-primary;
+            background: #cccfd1;
+            box-shadow: none;
+        }
+
+    }
+};
+
+
+
 .ML__error {
     // Wavy pattern
     background-image: radial-gradient(ellipse at center, 
         #cd0030,rgba(76,41,41,0) 70%);
 
-    // background-image:
-    //     linear-gradient(45deg, transparent 65%, @secondary 80%, transparent 90%),
-    //     linear-gradient(135deg, transparent 5%, @secondary 15%, transparent 25%),
-    //     linear-gradient(135deg, transparent 45%, @secondary 55%, transparent 65%),
-    //     linear-gradient(45deg, transparent 25%, @secondary 35%, transparent 50%);
     background-repeat: repeat-x;
     background-size: 3px 3px;
     background-position:0 98%;
@@ -464,31 +1196,22 @@
 }
 
 .ML__placeholder {
-    // font-family: @system;
-    // letter-spacing: -.05em;
-
-    // // background:rgba(243, 243, 21, 0.28);
-    // color: rgba(0, 0, 0, .25);
-
-    // font-size: .8em;
-
-    // border-radius: 500px;
-    // border: 1px solid rgba(0, 0, 0, .25);;
     padding-left: .12em;
     padding-right: .12em;
+
+    &.ML__caret {
+        border: none;
+        border-radius: 0;
+        border-right: 2px solid @primary;
+        margin-right: -2px;
+        z-index: 1;
+        animation: blink 1.05s step-end forwards infinite;
+
+        padding-left: 0;
+        padding-right: 0;
+    }
 }
 
-.ML__placeholder.ML__caret {
-    border: none;
-    border-radius: 0;
-    border-right: 2px solid @primary;
-    margin-right: -2px;
-    z-index: 1;
-    animation: blink 1.05s step-end forwards infinite;
-
-    padding-left: 0;
-    padding-right: 0;
-}
 
 .ML__keystrokecaption > span {
     min-width: 14px;
@@ -506,7 +1229,7 @@
     letter-spacing: -0.07rem;
 
     border-radius: 6px;
-    border: 2px solid #eee;
+    border: 2px solid #f7f7f7;
 
     /*box-shadow: 0 7px 14px rgba(0,0,0,0.25), 0 5px 5px rgba(0,0,0,0.22);*/
     box-shadow:0 0 0 1px #ddd, 0 1px 2px 1px #ccc;
@@ -514,119 +1237,15 @@
 }
 
 
-div.ML__commandbar--buttons {
-    display: flex;
-    flex-direction: row;
-    justify-content: left;
-    align-items: center;
-    pointer-events: auto;
-    user-select: none;
 
-    min-height: 64px;
-    flex-wrap: wrap;
+.ML__virtualKeyboardToggle:hover, 
+.ML__virtualKeyboardToggle.pressed {
+    background: #f7f7f7;
 }
 
-
-div.ML__commandbar--buttons > span {
-    font-family: @system;
-    /*font-family: @monospace; */
-    font-size: 1em;
-    text-shadow: 0 1px #fff;
-    // letter-spacing: -0.07rem;
-    font-weight: 100;
-    text-transform: uppercase;
-
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-
-    padding: 10px;
-    margin: 5px 5px 5px 5px;
-    min-height: 48px;
-    min-width: 48px;
-
-    cursor: pointer;
-
-    border-radius: 8px;
+.ML__virtualKeyboardToggle.active:hover, 
+.ML__virtualKeyboardToggle.active {
     background: #fff;
-    border: 1px solid #eee;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
-}
-
-div.ML__commandbuttons > span.glyph {
-    font-size: 1.5em;
-    color: #555;
-    font-weight: 700;
-}
-
-@media (max-width: 600px) {
-    div.ML__commandbar--buttons {
-        font-size: 2.66vw;
-    }
-    div.ML__commandbar--buttons > span {
-        padding-right: 1.33vw;
-        padding-left: 1.33vw;
-        padding-top: 5.33vw;
-        padding-bottom: 5.33vw;
-    }
-}
-
-div.ML__commandbar--buttons > span:hover.pressed, 
-div.ML__commandbar--buttons > span.pressed {
-        background: #0066ce;
-        color: white;
-}
-
-div.ML__commandbar--buttons > span.active {
-    animation: .1s ML__flash forwards;
-}
-
-div.ML__commandbar--buttons span span.ML__dynamicLabel {
-    display: block;
-    text-align: center;
-    text-transform: none;
-}
-
-div.ML__commandbar--buttons span span.ML__shortLabel {
-    font-family: @system;
-    font-size: .7rem;
-    line-height: 1em;
-    text-align: center;
-    padding-top: .25em;
-    opacity: .7;
-}
-
-div.ML__commandbar--buttons span span.ML__keyboardShortcut {
-    font-family: @system;
-    font-size: .7rem;
-    line-height: 1em;
-    text-align: center;
-    opacity: .7;
-    margin-left: .5em;
-    text-transform: none;
-}
-
-@keyframes ML__flash {
-    from {
-        background: #0066ce;
-        color: white;
-    }
-    to {
-        color: inherit;
-        background: inherit;
-    }
-}
-
-.ML__commandbartoggle:hover {
-    background: #eee;
-}
-
-.ML__commandbartoggle.pressed, 
-.ML__commandbartoggle.active:hover, 
-.ML__commandbartoggle.active {
-    background: @primary;
     color: white;
     &:after {
         text-shadow: none;
@@ -634,31 +1253,6 @@ div.ML__commandbar--buttons span span.ML__keyboardShortcut {
     }
 }
     
-div.ML__commandbar--buttons > span:hover {
-    background: #eee;
-    text-shadow: none;
-}
-
-div.ML__commandbar--buttons > span.ML__round {
-    border-radius: 24px;
-    width: 24px;
-    height: 24px;
-    text-align: center;
-    font-weight: 900;
-}
-
-
-div.ML__commandbar--panel {
-    display: flex;
-    flex-direction: column;
-    justify-content: left;
-    padding-left: 8px;
-    padding-right: 8px;
-
-    font-family: @system;
-
-    cursor: default;
-}
 
 .ML__popover.ML__popover_visible {
     visibility: visible;
