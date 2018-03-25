@@ -176,6 +176,13 @@ EditableMathlist.prototype.selectionDidChange = function() {
     }
 }
 
+
+/**
+ * 
+ * @param {*} selection 
+ * @param {number} extent the length of the selection
+ * @return {boolean} true if the path has actually changed
+ */
 EditableMathlist.prototype.setPath = function(selection, extent) {
     // Convert to a path array if necessary
     if (typeof selection === 'string') {
@@ -212,6 +219,8 @@ EditableMathlist.prototype.setPath = function(selection, extent) {
 
         this.selectionDidChange();
     }
+
+    return pathChanged || extentChanged;
 }
 
 
@@ -222,18 +231,19 @@ EditableMathlist.prototype.setPath = function(selection, extent) {
  * @param {string[]} from
  * @param {string[]} to
  * @method EditableMathlist#setRange
+ * @return {boolean} true if the range was actually changed
  * @private
  */
 EditableMathlist.prototype.setRange = function(from, to) {
-
     // Measure the 'distance' between `from` and `to`
     const distance = MathPath.pathDistance(from, to);
     if (distance === 0) {
         // `from` and `to` are equal.
         // Set the path to a collapsed insertion point
-        this.setPath(from, 0);
+        return this.setPath(from, 0);
+    }
 
-    } else if (distance === 1) {
+    if (distance === 1) {
         // They're siblings, set an extent
         const extent = to[to.length - 1].offset - from[from.length - 1].offset;
         const path = MathPath.clone(from);
@@ -241,43 +251,43 @@ EditableMathlist.prototype.setRange = function(from, to) {
             relation : path[path.length - 1].relation,
             offset : path[path.length - 1].offset + 1,
         }
-        this.setPath(path, extent);
-
-    } else {
-        // They're neither identical, not siblings.
-        
-        // Find the common ancestor between the nodes
-        let commonAncestor = MathPath.pathCommonAncestor(from, to);
-        const ancestorDepth = commonAncestor.length;
-        if (from.length === ancestorDepth || to.length === ancestorDepth ||
-            from[ancestorDepth].relation !== to[ancestorDepth].relation) {
-            this.setPath(commonAncestor, 1);
-        } else {
-            commonAncestor.push(from[ancestorDepth]);
-            commonAncestor = MathPath.clone(commonAncestor);
-
-            let extent = to[ancestorDepth].offset - from[ancestorDepth].offset;
-
-            if (extent <= 0) {
-                if (to.length > ancestorDepth + 1) {
-                    commonAncestor[ancestorDepth].relation = to[ancestorDepth].relation;
-                    commonAncestor[ancestorDepth].offset = to[ancestorDepth].offset;
-                    extent = -extent;
-                } else {
-                    commonAncestor[ancestorDepth].relation = to[ancestorDepth].relation;
-                    commonAncestor[ancestorDepth].offset = to[ancestorDepth].offset + 1;
-                    extent = -extent - 1;
-                }
-            } else if (to.length > from.length) {
-                commonAncestor = MathPath.clone(commonAncestor);
-                commonAncestor[commonAncestor.length - 1].offset +=  1;
-                extent -= 1;
-            }
-
-            this.setPath(commonAncestor, extent + 1);
-        }
+        return this.setPath(path, extent);
     }
+
+    // They're neither identical, not siblings.
+    
+    // Find the common ancestor between the nodes
+    let commonAncestor = MathPath.pathCommonAncestor(from, to);
+    const ancestorDepth = commonAncestor.length;
+    if (from.length === ancestorDepth || to.length === ancestorDepth ||
+        from[ancestorDepth].relation !== to[ancestorDepth].relation) {
+        return this.setPath(commonAncestor, 1);
+    }
+
+    commonAncestor.push(from[ancestorDepth]);
+    commonAncestor = MathPath.clone(commonAncestor);
+
+    let extent = to[ancestorDepth].offset - from[ancestorDepth].offset;
+
+    if (extent <= 0) {
+        if (to.length > ancestorDepth + 1) {
+            commonAncestor[ancestorDepth].relation = to[ancestorDepth].relation;
+            commonAncestor[ancestorDepth].offset = to[ancestorDepth].offset;
+            extent = -extent;
+        } else {
+            commonAncestor[ancestorDepth].relation = to[ancestorDepth].relation;
+            commonAncestor[ancestorDepth].offset = to[ancestorDepth].offset + 1;
+            extent = -extent - 1;
+        }
+    } else if (to.length > from.length) {
+        commonAncestor = MathPath.clone(commonAncestor);
+        commonAncestor[commonAncestor.length - 1].offset +=  1;
+        extent -= 1;
+    }
+
+    return this.setPath(commonAncestor, extent + 1);
 }
+
 
 /**
  * Convert an array index (scalar) to an array row/col.

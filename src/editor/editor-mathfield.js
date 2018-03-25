@@ -416,8 +416,10 @@ MathField.prototype._onPointerDown = function(evt) {
         const y = moveEvt.touches ? moveEvt.touches[0].clientY : moveEvt.clientY;
         const focus = that._pathFromPoint(x, y);
         if (anchor && focus) {
-            that.mathlist.setRange(anchor, focus);
-            setTimeout(that._render.bind(that), 0);
+            if (that.mathlist.setRange(anchor, focus)) {
+                // Re-render if the range has actually changed
+                setTimeout(that._render.bind(that), 0);
+            }
         }
         // Prevent synthetic mouseMove event when this is a touch event
         moveEvt.preventDefault();
@@ -618,36 +620,39 @@ function nextAtomSpeechText(oldMathlist, mathlist) {
 /**
  * Set the aria-live region to announce the change and the following character/notation
  * E.g, "in numerator, x"
- * @param {command} string the command that invoked the change 
- * @param {command} oldMathlist [null] the previous value of mathlist before the change 
- * @param {command} array [null] or atom: atomsToSpeak the command that invoked the change 
+ * @param {string} command the command that invoked the change 
+ * @param {object} oldMathlist [null] the previous value of mathlist before the change 
+ * @param {object} array [null] or atom: atomsToSpeak the command that invoked the change 
  */
 MathField.prototype._announceChange = function(command, oldMathlist, atomsToSpeak) {
-//    function sleep(ms) {
-//        return new Promise(resolve => setTimeout(resolve, ms));
-//      }
 //** Fix: the focus is the end of the selection, so it is before where we want it
-    // aria-live regions are only spoken when it changes; force a change by alternately using nonbreaking space or narrow nonbreaking space
-    const ariaLiveChangeHack = /\u00a0/.test(this.ariaLiveText.textContent) ? " \u202f " : " \u00a0 ";
+    // aria-live regions are only spoken when it changes; force a change by 
+    // alternately using nonbreaking space or narrow nonbreaking space
+    const ariaLiveChangeHack = /\u00a0/.test(this.ariaLiveText.textContent) ? 
+        ' \u202f ' : ' \u00a0 ';
     // const command = moveAmount > 0 ? "right" : "left";
-    if (command === "delete") {
-        this.ariaLiveText.textContent = "deleted: " + ariaLiveChangeHack + MathAtom.toSpeakableText(atomsToSpeak);
+    if (command === 'delete') {
+        this.ariaLiveText.textContent = 'deleted: ' + ariaLiveChangeHack + MathAtom.toSpeakableText(atomsToSpeak);
     //*** FIX: could also be moveUp or moveDown -- do something different like provide context???
-    } else if (command === "focus" || /move/.test(command)) {
+    } else if (command === 'focus' || /move/.test(command)) {
         //*** FIX -- should be xxx selected/unselected */
         this.ariaLiveText.textContent = ariaLiveChangeHack +
-                    (this.mathlist.isCollapsed() ? "" : "selected: ") +
+                    (this.mathlist.isCollapsed() ? '' : 'selected: ') +
                     nextAtomSpeechText(oldMathlist, this.mathlist);
-    } else if (command === "replacement") {
+    } else if (command === 'replacement') {
         // announce the contents
         this.ariaLiveText.textContent = ariaLiveChangeHack + MathAtom.toSpeakableText(this.mathlist.sibling(0));
-    } else if (command === "line") {
+    } else if (command === 'line') {
         // announce the current line -- currently that's everything
-        this.ariaLiveText.textContent = ariaLiveChangeHack + MathAtom.toSpeakableText(this.mathlist.root);
+        const spokenText = MathAtom.toSpeakableText(this.mathlist.root);
+        this.ariaLiveText.textContent = ariaLiveChangeHack + spokenText;
         this.accessibleNode.innerHTML = 
-            "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
+            '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
                 MathAtom.toMathML(this.mathlist.root) +
-            "</math>";
+            '</math>';
+
+        this.textarea.setAttribute('aria-label', 'after: ' + spokenText)
+
         /*** FIX -- testing hack for setting braille ***/
         // this.accessibleNode.focus();
         // console.log("before sleep");
@@ -656,7 +661,8 @@ MathField.prototype._announceChange = function(command, oldMathlist, atomsToSpea
         //     console.log("after sleep");
         // });
     } else {
-        this.ariaLiveText.textContent = ariaLiveChangeHack + command + " " + (atomsToSpeak ? MathAtom.toSpeakableText(atomsToSpeak) : "");        
+        this.ariaLiveText.textContent = ariaLiveChangeHack + command + " " + 
+            (atomsToSpeak ? MathAtom.toSpeakableText(atomsToSpeak) : "");        
     }
 }
 
@@ -1685,8 +1691,7 @@ MathField.prototype.focus = function() {
         // The textarea may be a span (on mobile, for example), so check that
         // it has a select() before calling it.
         if (this.textarea.select) this.textarea.select();
-        this._announceChange("line");
-        this.textarea.setAttribute('aria-label', 'after: ' + MathAtom.toSpeakableText(this.mathlist.root))
+        this._announceChange('line');
         this._render();
     }
 }
