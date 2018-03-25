@@ -431,9 +431,11 @@ MathField.prototype._onPointerDown = function(evt) {
         if (this.textarea.focus) this.textarea.focus();
     }
 
-    const bounds = this.field.getBoundingClientRect();
-    if (evt.clientX > bounds.left && evt.clientX < bounds.right &&
-        evt.clientY > bounds.top && evt.clientY < bounds.bottom) {
+    const bounds = this.element.getBoundingClientRect();
+    const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
+    const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
+    if (x > bounds.left && x < bounds.right &&
+        y > bounds.top && y < bounds.bottom) {
 
         // This should not be necessary, but just in case we got in a weird state...
         off(this.field, 'touchmove', onPointerMove);
@@ -444,8 +446,6 @@ MathField.prototype._onPointerDown = function(evt) {
         // If a mouse button other than the main one was pressed, return
         if (evt.buttons && evt.buttons !== 1) return;
 
-        const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
-        const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
         anchor = this._pathFromPoint(x, y);
         if (anchor) {
             if (evt.shiftKey) {
@@ -459,6 +459,8 @@ MathField.prototype._onPointerDown = function(evt) {
             // The selection has changed, so we'll need to re-render
             dirty = true;
 
+            // evt.details contains the number of consecutive clicks 
+            // for double-click, triple-click, etc...
             if (evt.detail === 2 || evt.detail === 3) {
                 off(this.field, 'touchmove', onPointerMove);
                 off(this.field, 'touchend', endPointerTracking);
@@ -1224,6 +1226,7 @@ MathField.prototype.enterCommandMode_ = function() {
 
 
 MathField.prototype.copyToClipboard_ = function() {
+    this.focus();
     // If the selection is empty, select the entire field before 
     // copying it.
     if (this.mathlist.isCollapsed()) {
@@ -1233,10 +1236,12 @@ MathField.prototype.copyToClipboard_ = function() {
 }
 
 MathField.prototype.cutToClipboard_ = function() {
+    this.focus();
     document.execCommand('cut');
 }
 
 MathField.prototype.pasteFromClipboard_ = function() {
+    this.focus();
     document.execCommand('paste');
 }
 
@@ -1469,8 +1474,15 @@ MathField.prototype.toggleKeystrokeCaption_ = function() {
  * Command can be:
  * - a string, a single selector or 
  * - an array, whose first element is a selector followed by one or more arguments.
- * - an object, with a 'default', 'alt', 'shift', 'altshift' keys. Only 
- * 'default' is required. The value of the keys specify which selector (string
+ * - an object, with the following keys:
+ *    * 'default': command performed on up, with a down + up sequence with no
+ *      delay between down and up
+ *    * 'alt', 'shift', 'altshift' keys: command performed on up with 
+ *      one of these modifiers pressed
+ *    * 'pressed': command performed on 'down'
+ *    * 'pressAndHold': command performed on up, if there was a delay
+ *     between down and up, other 'default'
+ * The value of the keys specify which selector (string
  * or array) to perform depending on the keyboard state when the button is 
  * pressed.
  *
@@ -1484,10 +1496,12 @@ MathField.prototype.toggleKeystrokeCaption_ = function() {
 MathField.prototype._attachButtonHandlers = function(el, command) {
     const that = this;
 
-    if (typeof command === 'object' && command.default) {
+    if (typeof command === 'object' && (command.default || command.pressed)) {
         // Attach the default (no modifiers pressed) command to the element
-        el.setAttribute('data-' + this.config.namespace + 'command', 
-            JSON.stringify(command.default));
+        if (command.default) {
+            el.setAttribute('data-' + this.config.namespace + 'command', 
+                JSON.stringify(command.default));
+        }
         if (command.alt) {
             el.setAttribute('data-' + this.config.namespace + 'command-alt', 
                 JSON.stringify(command.alt));
@@ -1500,6 +1514,17 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
             el.setAttribute('data-' + this.config.namespace + 'command-shift', 
                 JSON.stringify(command.shift));
         }
+        // .pressed: command to perform when the button is pressed (i.e. 
+        // on mouse down/touch). Otherwise the command is performed when 
+        // the button is released
+        if (command.pressed) {
+            el.setAttribute('data-' + this.config.namespace + 'command-pressed', 
+                JSON.stringify(command.pressed));
+        }
+        if (command.pressAndHold) {
+            el.setAttribute('data-' + this.config.namespace + 'command-pressAndHold', 
+                JSON.stringify(command.pressAndHold));
+        }
     } else {
         // We need to turn the command into a string to attach it to the dataset 
         // associated with the button (the command could be an array made of a 
@@ -1508,12 +1533,24 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
             JSON.stringify(command));
     }
 
+
+    let pressHoldStart;
+
     on(el, 'mousedown touchstart', function(ev) {
         if (ev.type !== 'mousedown' || ev.buttons === 1) {
             // The primary button was pressed.
             el.classList.add('pressed');
             ev.stopPropagation(); 
             ev.preventDefault();
+
+            pressHoldStart = Date.now();
+
+            const command = el.getAttribute('data-' + that.config.namespace + 'command-pressed');
+            // Parse the JSON to get the command (and its optional arguments) 
+            // and perform it
+            if (command) {
+                that.perform(JSON.parse(command));
+            }
         }
     }, {passive: false, capture: false});
     on (el, 'mouseleave touchcancel', function() {
@@ -1531,26 +1568,37 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
 
         // Since we want the active state to be visible for a while,
         // use a timer to remove it after a while
-        setTimeout(
-            function(){ el.classList.remove('active'); },
-            150);
+        setTimeout(function(){ el.classList.remove('active'); }, 150);
 
-        let command;
-        if (ev.altKey && ev.shiftKey) {
-            command = el.getAttribute('data-' + that.config.namespace + 'command-altshift');
+        let command = el.getAttribute('data-' + that.config.namespace + 
+            'command-pressAndHold');
+        const now = Date.now();
+        // If the button has not been pressed for very long, don't consider
+        // it a press-and-hold.
+        if (now < pressHoldStart + 300) {
+            command = undefined;
+        }
+        if (!command && ev.altKey && ev.shiftKey) {
+            command = el.getAttribute('data-' + that.config.namespace + 
+                'command-altshift');
         }
         if (!command && ev.altKey) {
-            command = el.getAttribute('data-' + that.config.namespace + 'command-alt');
+            command = el.getAttribute('data-' + that.config.namespace + 
+                'command-alt');
         }
         if (!command && ev.shiftKey) {
-            command = el.getAttribute('data-' + that.config.namespace + 'command-shift');
+            command = el.getAttribute('data-' + that.config.namespace + 
+                'command-shift');
         }
-
         if (!command) {
-            // Restore the command (and its optional arguments) and perform it
-            command = el.getAttribute('data-' + that.config.namespace + 'command');
+            command = el.getAttribute('data-' + that.config.namespace + 
+                'command');
         }
-        that.perform(JSON.parse(command));
+        if (command) {
+            // Parse the JSON to get the command (and its optional arguments) 
+            // and perform it
+            that.perform(JSON.parse(command));
+        }
         ev.stopPropagation();
         ev.preventDefault();
     });
@@ -1569,6 +1617,8 @@ MathField.prototype._makeButton = function(label, cls, ariaLabel, command) {
     return button;
 }
 
+
+
 MathField.prototype.switchKeyboardLayer_ = function(layer) {
     if (this.config.virtualKeyboardMode) {
         if (layer !== 'lower-command' && layer !== 'upper-command' && layer !== 'symbols-command') {
@@ -1578,6 +1628,10 @@ MathField.prototype.switchKeyboardLayer_ = function(layer) {
 
         this.showVirtualKeyboard_();
         const layers = this.virtualKeyboard.getElementsByClassName('keyboard-layer');
+
+        // If we were in a temporarily shifted state (shift-key held down)
+        // restore our state before switching to a new layer.
+        this.unshiftKeyboardLayer_();
 
         // Search for the requested layer
         let found = false;
@@ -1593,15 +1647,86 @@ MathField.prototype.switchKeyboardLayer_ = function(layer) {
         if (found) {
             for (let i = 0; i < layers.length; i++) {
                 if (layers[i].id === layer) {
-                    layers[i].style.display = 'flex';
+                    layers[i].classList.add('visible');
                 } else {
-                    layers[i].style.display = 'none';
+                    layers[i].classList.remove('visible');
                 }
             }
         }
 
         this.focus();
     }
+}
+
+
+/** 
+ * Temporarily change the labels and the command of the keys 
+ * (for example when a modifier key is held down.)
+ */
+MathField.prototype.shiftKeyboardLayer_ = function() {
+    const keycaps = this.virtualKeyboard.querySelectorAll('div.keyboard-layer.visible .rows .keycap');
+    if (keycaps) {
+        for (let i = 0; i < keycaps.length; i++) {
+            const keycap = keycaps[i];
+            let shiftedContent = keycap.getAttribute('data-shifted');
+            if (shiftedContent || keycap.innerHTML.match(/^[a-z]$/)) {
+                keycap.setAttribute('data-unshifted-content', keycap.innerHTML);
+
+                if (!shiftedContent) {
+                    shiftedContent = keycap.innerHTML.toUpperCase();
+                }
+                keycap.innerHTML = shiftedContent;
+
+                const command = keycap.getAttribute('data-' + this.config.namespace + 'command');
+                if (command) {
+                    keycap.setAttribute('data-unshifted-command', command);
+                    const shiftedCommand = keycap.getAttribute('data-shifted-command');
+                    if (shiftedCommand) {
+                        keycap.setAttribute('data-' + this.config.namespace + 'command', 
+                            shiftedCommand);
+                    } else {
+                        const commandObj = JSON.parse(command);
+                        if (Array.isArray(commandObj)) {
+                            commandObj[1] = commandObj[1].toUpperCase()
+                        }
+                        keycap.setAttribute('data-' + this.config.namespace + 'command', 
+                            JSON.stringify(commandObj));
+                    }
+                }
+
+            }
+        }
+    }
+}
+
+
+
+/** 
+ * Restore the key labels and commands to the state before a modifier key
+ * was pressed.
+ * 
+ */
+MathField.prototype.unshiftKeyboardLayer_ = function() {
+    const keycaps = this.virtualKeyboard.querySelectorAll('div.keyboard-layer.visible .rows .keycap');
+    if (keycaps) {
+        for (let i = 0; i < keycaps.length; i++) {
+            const keycap = keycaps[i];
+            const content = keycap.getAttribute('data-unshifted-content');
+            if (content) {
+                keycap.innerHTML = content;
+            }
+            const command = keycap.getAttribute('data-unshifted-command');
+            if (command) {
+                keycap.setAttribute('data-' + this.config.namespace + 'command', 
+                    command);
+            }
+        }
+    }
+}
+
+MathField.prototype.insertAndUnshiftKeyboardLayer_ = function(c) {
+    this.insert_(c);
+    this.unshiftKeyboardLayer_();
 }
 
 /* Toggle the command bar, but switch to the alternate theme if available */
@@ -1630,7 +1755,7 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
     this.virtualKeyboardVisible = !this.virtualKeyboardVisible;
     if (this.virtualKeyboardVisible) {
         if (this.virtualKeyboard) {
-            this.virtualKeyboard.style.opacity = 1;
+            this.virtualKeyboard.classList.add('visible');
         } else {
             // Construct the virtual keyboard
             this.virtualKeyboard = VirtualKeyboard.make(this, theme);
@@ -1643,10 +1768,12 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
             });
             this.element.appendChild(this.virtualKeyboard);
         }
-        this.virtualKeyboard.style.visibility = 'visible';
+        // For the transition effect to work, the property has to be changed
+        // after the insertion in the DOM. Use setTimeout
+        const that = this;
+        window.setTimeout(function() { that.virtualKeyboard.classList.add('visible'); }, 1);
     } else if (this.virtualKeyboard) {
-        this.virtualKeyboard.style.opacity = 0;
-        this.virtualKeyboard.style.visibility = 'hidden';
+        this.virtualKeyboard.classList.remove('visible');
     }
 }
 

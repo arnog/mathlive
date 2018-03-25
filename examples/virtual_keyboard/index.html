@@ -57,7 +57,7 @@
     (function() {
     const mf = MathLive.makeMathField('mf', {
         onContentDidChange: updateOutput,
-        virtualKeyboardMode: 'onfocus',
+        virtualKeyboardMode: 'manual',
         customVirtualKeyboardLayers: {
         'four-op': `
                 <div class='rows'>
@@ -128,7 +128,7 @@
                 }
                 div#ML__keyboard div div.rows.calculator ul li.btn,
                 div#ML__keyboard div div.rows.calculator ul li.btn:hover,
-                div#ML__keyboard.material div div.rows ul li.keycap:not([data-key=' ']):hover {
+                div#ML__keyboard.material div div.rows.calculator ul li.keycap:not([data-key=' ']):hover {
                     background: url(btn.png);
                     background-size: 70px;
                     border: 0;
@@ -136,6 +136,7 @@
                     margin: 0;
                     background-position-y: 2px;
                     background-position-x: 5px;
+                    background-repeat: no-repeat;
                     width: 78px;
                     max-width: 78px;
                     height: 78px;                    
@@ -166,39 +167,46 @@
                     background: url(btn-pressed.png);
                     background-position-y: 2px;
                     background-position-x: 5px;
-                    padding-top: 3px;
+                    // padding-top: 3px;
                     background-size: 70px;
                     transform: none;
                     // clip: rect(0px,70px,80px,0px);
                     overflow: hidden;
                 }
+                div#ML__keyboard div div.rows.calculator ul li.btn:hover:active aside.below,
+                div#ML__keyboard div div.rows.calculator ul li.btn:active aside.below,
+                div#ML__keyboard div div.rows.calculator ul li.btn:hover:active > span,
+                div#ML__keyboard div div.rows.calculator ul li.btn:active > span  {
+                    position: relative;
+                    top: 2px;
+                }
             </style>
             <div class='calculator-backdrop'>
                 <div class='calculator-frame'>
                     <div class='calculator rows'>
-                        <ul><li class='keycap btn '>7</li>
-                            <li class='keycap btn' >8</li>
-                            <li class='keycap btn' >9</li>
-                            <li class='keycap btn' data-insert='\\frac{#0}{#?}'>&divide;</li>
+                        <ul><li class='keycap btn '><span>7</span></li>
+                            <li class='keycap btn' ><span>8</span></li>
+                            <li class='keycap btn' ><span>9</span></li>
+                            <li class='keycap btn' data-insert='\\frac{#0}{#?}'><span>&divide;</span></li>
                         </ul>
-                        <ul><li class='keycap btn '>4</li>
-                            <li class='keycap btn' >5</li>
-                            <li class='keycap btn' >6</li>
+                        <ul><li class='keycap btn '><span>4</span></li>
+                            <li class='keycap btn' ><span>5</span></li>
+                            <li class='keycap btn' ><span>6</span></li>
                             <li class='keycap btn' data-insert='\\times '>&times;</li>
                         </ul>
-                        <ul><li class='keycap btn '>1</li>
-                            <li class='keycap btn' >2</li>
-                            <li class='keycap btn' >3</li>
-                            <li class='keycap btn' >-</li>
+                        <ul><li class='keycap btn '><span>1</span></li>
+                            <li class='keycap btn' ><span>2</span></li>
+                            <li class='keycap btn' ><span>3</span></li>
+                            <li class='keycap btn' ><span>-</span></li>
                         </ul>
                         <ul><li class='keycap btn ' data-key='0'>
                                 <aside class='above tex'><i>x</i>&thinsp;!</aside>
                                 <span>0</span>
                                 <aside class='below'>TEST</aside>
                             </li>
-                            <li class='keycap btn' >.</li>
-                            <li class='keycap btn' data-insert='\\pi '>π</li>
-                            <li class='keycap btn'>+</li>
+                            <li class='keycap btn' ><span>.</span></li>
+                            <li class='keycap btn' data-insert='\\pi '><span>π</span></li>
+                            <li class='keycap btn'><span>+</span></li>
                         </ul>
                     </div>
                 </div>
@@ -218,7 +226,7 @@
                 layer: 'four-op'
             },
         },
-        virtualKeyboards: 'basic hp numeric',
+        virtualKeyboards: 'hp basic',
     });
     
     function escapeHtml (string) {
@@ -238,7 +246,7 @@
     }
 
     function evaluate(ast) {
-        if (!ast) return NaN;
+        if (ast === undefined) return NaN;
         if (typeof ast === 'number') return ast;
         if (ast.num !== undefined) return evaluate(ast.num);
         if (typeof ast === 'string') {
@@ -252,13 +260,13 @@
             return parseFloat(ast);
         }
         if (ast.op === '*') {
-            return evaluate(ast.rhs) * evaluate(ast.lhs);
+            return evaluate(ast.lhs) * evaluate(ast.rhs);
         } else if (ast.op === '/') {
-            return evaluate(ast.rhs) / evaluate(ast.lhs);
+            return evaluate(ast.lhs) / evaluate(ast.rhs);
         } else if (ast.op === '-') {
-            return evaluate(ast.rhs) - evaluate(ast.lhs);
+            return evaluate(ast.lhs) - evaluate(ast.rhs);
         } else if (ast.op === '+') {
-            return evaluate(ast.rhs) + evaluate(ast.lhs);
+            return evaluate(ast.lhs) + evaluate(ast.rhs);
         }
         return NaN;
     }
