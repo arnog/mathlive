@@ -1,6 +1,6 @@
 <h1 align="center">
     <a href="https://mathlive.io">
-        <img src = "https://github.com/arnog/mathlive/blob/master/assets/logo-1024.jpg?raw=true">
+        <img src="assets/logo-1024.jpg?raw=true">
     </a>
 </h1>
 
@@ -8,37 +8,21 @@
 [![Build Status](https://travis-ci.org/arnog/mathlive.svg?branch=master)](https://travis-ci.org/arnog/mathlive)
 [![David](https://img.shields.io/david/dev/arnog/mathlive.svg)]()
 [![Greenkeeper badge](https://badges.greenkeeper.io/arnog/mathlive.svg)](https://greenkeeper.io/)
-[![Maintenance](https://img.shields.io/maintenance/yes/2017.svg)]()
+[![Maintenance](https://img.shields.io/maintenance/yes/2018.svg)]()
 [![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://raw.githubusercontent.com/arnog/mathlive/master/LICENSE.txt)
 
-<table align="center" >
-    <tr>
-        <td width='21%' align='center' style="border:none;">
-            <img alt="iPhone" 
-            style='margin:15px;' 
-            src="assets/screenshots/iPhone.png">
-        </td>
-        <td width='42%' align='center' style="border:none;">
-            <img alt="iPad" 
-            style='margin:15px;' 
-            src="assets/screenshots/iPad.png">
-        </td>
-        <td width='35%' align="center" style="border:none;">
-            <img width="50%" alt="Android" 
-            style='margin:15px; box-shadow: 0px 10px 45px #000; border: 1px solid #333' 
-            src="assets/screenshots/Android.png">
-        </td>
-    </tr>
-    <tr style="background-color: initial; border: none;">
-    </tr>
-</table>
+
+<img alt="Screenshot" 
+style='margin:15px;' 
+src="assets/screenshots/screenshot.jpg">
+
 
 MathLive is a Javascript library to render and edit math.
 * Fast and small
-* TeX-quality typesetting
+* <span style="font-family: Times, 'Times New Roman', serif">T<sub style="vertical-align:-0.5ex;margin-left: -0.1667em;margin-right: -0.125em;">E</sub></span>X-quality typesetting
 * Easy to use interface for math editing
 * Works great on desktop and on mobile devices thanks to a extensive set of virtual keyboards. 
-* Comprehensive APIs, including generation of **LaTeX**, **MathML** and **Abstract Syntax Tree (MASTON)**
+* Comprehensive APIs, including generation of <span style="font-family: Times, 'Times New Roman', serif">L<sup style="letter-spacing: 1px;font-size: 0.85em;vertical-align: 0.15em;margin-left: -0.36em;margin-right: -0.15em">A</sup>T<sub style="vertical-align:-0.5ex;margin-left: -0.1667em;margin-right: -0.125em;">E</sub>X</span>, **MathML** and **Abstract Syntax Tree (MASTON)**
 * And it is easy to customize to your needs! Try it at [mathlive.io](https://mathlive.io)!
 
 <table align="center" >
