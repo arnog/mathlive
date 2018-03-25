@@ -14,7 +14,12 @@
 
     // Protect elements from inheriting text-indent.
     text-indent: 0;
-    
+
+
+    text-rendering: auto;
+    width: min-content;
+
+
     // Encourage browsers to consider allocating a hardware accelerated 
     // layer for this element.
     transform: translateZ(0);
@@ -40,11 +45,12 @@
 .ML__command.ML__caret {
     border: none;
     margin-right: 0;
-}
-.ML__command.ML__caret:after {
-    content: '_';
-    color: @primary;
-    animation: ML__caret-command-blink 1.05s step-end forwards infinite;
+
+    &:after {
+        content: '_';
+        color: @primary;
+        animation: ML__caret-command-blink 1.05s step-end forwards infinite;
+    }
 }
 
 @keyframes  ML__caret-command-blink {
@@ -93,7 +99,7 @@ to make sure it doesn't show. */
     justify-content: space-between;
     align-items: flex-end;
     // overflow: scroll; /* Doesn't work yet (partial clip), because of incorrect height calculcations */ 
-    min-height: 39px;       /* Need some room for the command bar toggle */
+    min-height: 39px;       /* Need some room for the virtual keyboard toggle */
 
     /* Prevent the browser from trying to interpret touch gestures in the field */
     /* "Disabling double-tap to zoom removes the need for browsers to 

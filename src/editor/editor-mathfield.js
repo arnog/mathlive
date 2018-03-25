@@ -15,6 +15,7 @@ define([
     'mathlive/editor/editor-keyboard', 
     'mathlive/editor/editor-undo', 
     'mathlive/editor/editor-shortcuts', 
+    'mathlive/editor/editor-popover', 
     'mathlive/editor/editor-virtualKeyboard',
     'mathlive/core/grapheme-splitter',
     'mathlive/addons/outputLatex', 
@@ -22,7 +23,7 @@ define([
     'mathlive/addons/maston', 
     'mathlive/addons/outputSpokenText'], 
     function(Definitions, MathAtom, Lexer, ParserModule, Span, 
-    EditableMathlist, MathPath, Keyboard, Undo, Shortcuts, 
+    EditableMathlist, MathPath, Keyboard, Undo, Shortcuts, Popover, 
     VirtualKeyboard, GraphemeSplitter,
 // eslint-disable-next-line no-unused-vars
     OutputLatex, OutputMathML, MASTON, OutputSpokenText) {
@@ -1334,8 +1335,8 @@ MathField.prototype._showPopoverWithLatex = function(latex, displayArrows) {
     }
 
     const command = latex;
-    const command_markup = latexToMarkup(Definitions.SAMPLES[command] || latex);
-    const command_note = Definitions.getNote(command);
+    const command_markup = latexToMarkup(Popover.SAMPLES[command] || latex);
+    const command_note = Popover.getNote(command);
     const command_shortcuts = Shortcuts.stringify(
         Shortcuts.getShortcutsForCommand(command)) || '';
 

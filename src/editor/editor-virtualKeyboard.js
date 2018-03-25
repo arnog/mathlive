@@ -4,11 +4,12 @@ define([
     'mathlive/core/span', 
     'mathlive/core/lexer', 
     'mathlive/core/parser', 
+    'mathlive/editor/editor-popover', 
     'mathlive/editor/editor-keyboard', 
     'mathlive/editor/editor-shortcuts', 
     'mathlive/addons/outputLatex'], 
     function(Definitions, MathAtom, Span, Lexer, ParserModule, 
-    Keyboard, Shortcuts, 
+        Popover, Keyboard, Shortcuts, 
 // eslint-disable-next-line no-unused-vars
     OutputLatex) {
 
@@ -526,7 +527,7 @@ function makeFunctionsLayer(functions) {
                 // }
                 const command = f[i];
                 const command_markup =  latexToMarkup(
-                    Definitions.SAMPLES[command] || command,
+                    Popover.SAMPLES[command] || command,
                     ['{\\color{#550000}{\\tiny x}}']            // \\char"2B1A
                 );
                 const command_note = Definitions.getNote(command);

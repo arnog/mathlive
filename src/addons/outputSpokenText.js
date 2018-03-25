@@ -1,7 +1,10 @@
 
 
 
-define(['mathlive/core/mathAtom', 'mathlive/core/definitions'], function(MathAtom, Definitions) {
+define(['mathlive/core/mathAtom', 
+    'mathlive/core/definitions', 
+    'mathlive/editor/editor-popover'], 
+    function(MathAtom, Definitions, Popover) {
 
 const PRONUNCIATION = {
     '\\alpha':      ' alpha ',
@@ -69,6 +72,22 @@ const PRONUNCIATION = {
     '\\rvert':		'right vertical bar',
     '\\lbrack':		'left bracket',
     '\\rbrack':		'right bracket',    
+}
+
+
+function getSpokenName(latex) {
+    let result = Popover.NOTES[latex];
+    if (!result && latex.charAt(0) === '\\') {
+        result = latex.replace('\\', '');
+    }
+
+    // If we got more than one result (from NOTES), 
+    // pick the first one.
+    if (Array.isArray(result)) {
+        result = result[0];
+    }
+
+    return result;
 }
 
 
@@ -314,7 +333,7 @@ function emph(s) {
                             result += ' ' + value;
                         } else {
                             const spokenName = latexValue ? 
-                                Definitions.getSpokenName(latexValue.trim()) : '';
+                                getSpokenName(latexValue.trim()) : '';
                             
                             result += spokenName ? spokenName : letter(atomValue);
                         }
