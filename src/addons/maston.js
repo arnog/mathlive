@@ -758,7 +758,8 @@ MathAtom.MathAtom.prototype.toAST = function() {
     const command = this.latex ? this.latex.trim() : null;
     switch(this.type) {
         case 'root':
-            result.group = parse(this.children);
+        case 'group':
+            result.group = parse(this.body);
             break;
 
         case 'genfrac':
@@ -847,7 +848,6 @@ MathAtom.MathAtom.prototype.toAST = function() {
         case 'minner':
             break;
 
-        case 'op':
         case 'mop':
             break;
 

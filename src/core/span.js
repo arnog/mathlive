@@ -632,7 +632,8 @@ function makeFontSizer(context, fontSize) {
 
 /**
  * 
- * @param {string} type One of 'bin', 'op', 'ord', 'rel' 'close', 'punct', 'inner'
+ * @param {string} type One of 'mbin', 'mop', 'mord', 'mrel' 'mclose', 
+ * 'mpunct', 'minner'
  * @param {string|Span[]} content A string or an array of other Spans
  * @param {string} classes CSS classes decorating this span
  * See https://tex.stackexchange.com/questions/81752/

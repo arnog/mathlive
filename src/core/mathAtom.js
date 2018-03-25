@@ -167,13 +167,7 @@ function MathAtom(mode, type, value, fontFamily, extras) {
 
 
 MathAtom.prototype.getBaseElement = function () {
-    if ((this.type === 'group' || this.type === 'color') 
-            && this.children.length === 1) {
-        return this.children[0].getBaseElement();
-    } 
-    if (this.body && this.body.length === 1) {
-        // this.type === 'accent', 'surd', 'leftright', 
-        // 'line', 'font', 'color', 'box'.
+    if (Array.isArray(this.body) && this.body.length === 1) {
         return this.body[0].getBaseElement();
     }
     return this;
@@ -181,18 +175,10 @@ MathAtom.prototype.getBaseElement = function () {
 
 MathAtom.prototype.getInitialBaseElement = function () {
     let result = this;
-    if (this.children && this.children.length > 0) {
-        for (const child of this.children) {
-            if (child.type !== 'first') {
-                result = this.children[0].getInitialBaseElement();
-                break;
-            }
-        }
-    }
-    if (this.body && this.body.length > 0) {
-        for (const child of this.body) {
-            if (child.type !== 'first') {
-                result = this.body[0].getInitialBaseElement();
+    if (Array.isArray(this.body) && this.body.length > 0) {
+        for (let i = 0; i < this.body.length; i++) {
+            if (this.body[i].type !== 'first') {
+                result = this.body[i].getInitialBaseElement();
                 break;
             }
         }
@@ -202,10 +188,7 @@ MathAtom.prototype.getInitialBaseElement = function () {
 }
 
 MathAtom.prototype.getFinalBaseElement = function () {
-    if (this.children && this.children.length > 0) {
-        return this.children[this.children.length - 1].getFinalBaseElement();
-    }
-    if (this.body && this.body.length > 0) {
+    if (Array.isArray(this.body) && this.body.length > 0) {
         return this.body[this.body.length - 1].getFinalBaseElement();
     }
 
@@ -224,11 +207,10 @@ MathAtom.prototype.isCharacterBox = function () {
 
 
 MathAtom.prototype.forEach = function (cb) {
-
     cb(this);
 
-    if (this.children) {
-        for (const atom of this.children) atom.forEach(cb);
+    if (Array.isArray(this.body)) {
+        for (const atom of this.body) if (atom) atom.forEach(cb);
     }
     if (this.superscript) {
         for (const atom of this.superscript) if (atom) atom.forEach(cb);
@@ -247,9 +229,6 @@ MathAtom.prototype.forEach = function (cb) {
     }
     if (this.denom) {
         for (const atom of this.denom) if (atom) atom.forEach(cb);
-    }
-    if (this.body) {
-        for (const atom of this.body) atom.forEach(cb);
     }
     if (this.index) {
         for (const atom of this.index) atom.forEach(cb);
@@ -275,9 +254,9 @@ MathAtom.prototype.filter = function (cb) {
     let result = [];
     if (cb(this)) result.push(this);
 
-    for (const relation of ['children', 'superscript', 'subscript',
+    for (const relation of ['body', 'superscript', 'subscript',
         'overscript', 'underscript', 
-        'numer', 'denom', 'body', 'index']) {
+        'numer', 'denom', 'index']) {
         if (this[relation]) {
             for (const atom of this[relation]) {
                 if (atom) result = result.concat(atom.filter(cb));
@@ -306,7 +285,7 @@ MathAtom.prototype.decomposeGroup = function(context) {
     // context with the same mathstyle.
     const localContext = context.withMathstyle(this.mathstyle);
 
-    return makeOrd(decompose(localContext, this.children));
+    return makeOrd(decompose(localContext, this.body));
 }
 
 /**
@@ -887,7 +866,7 @@ MathAtom.prototype.decomposeAccent = function(context) {
     // Shift the accent over by the skew. Note we shift by twice the skew
     // because we are centering the accent, so by adding 2*skew to the left,
     // we shift it to the right by 1*skew.
-    accentBody.children[1].setLeft(2 * skew);
+    accentBody.body[1].setLeft(2 * skew);
 
     return makeOrd(accentBody, 'accent');
 }  
@@ -1032,10 +1011,10 @@ MathAtom.prototype.decomposeOp = function(context) {
         // Bind the generated span and this atom so the atom can be retrieved
         // from the span later.
         this.bind(context, base);
-    } else if (this.children) {
+    } else if (Array.isArray(this.body)) {
         // If this is a list, decompose that list.
 
-        base = Span.makeOp(decompose(context, this.children));
+        base = Span.makeOp(decompose(context, this.body));
 
         // Bind the generated span and this atom so the atom can be retrieved
         // from the span later.
@@ -1371,11 +1350,10 @@ MathAtom.prototype.decompose = function(context) {
             result = this.makeSpan(context, this.value);
             result.type = this.type;
         } else {
-            result = this.makeSpan(context, decompose(context, this.children));
+            result = this.makeSpan(context, decompose(context, this.body));
         }
 
-    } else if (this.type === 'op' || this.type === 'mop') {
-        console.assert(this.type === 'mop');
+    } else if (this.type === 'mop') {
         result = this.decomposeOp(context);
         if (this.hasCaret) result.hasCaret = true;
 
@@ -2137,12 +2115,12 @@ function decompose(context, atoms) {
     return result;
 }
 
-function makeRoot(parseMode, children) {
+function makeRoot(parseMode, body) {
     parseMode = parseMode || 'math';
     const result =  new MathAtom(parseMode, 'root', null);
-    result.children = children || [];
-    if (result.children.length === 0 || result.children[0].type !== 'first') {
-        result.children.unshift(new MathAtom(parseMode, 'first', null));
+    result.body = body || [];
+    if (result.body.length === 0 || result.body[0].type !== 'first') {
+        result.body.unshift(new MathAtom(parseMode, 'first', null));
     }
     return result;
 }

@@ -192,7 +192,6 @@ function mathlistToString(mathlist, indent) {
         result += mathlistPropToString(mathlist, 'superscript', indent);
         result += mathlistPropToString(mathlist, 'subscript', indent);
         result += mathlistPropToString(mathlist, 'body', indent);
-        result += mathlistPropToString(mathlist, 'children', indent);
 
         result += mathlistPropToString(mathlist, 'array', indent);
 
@@ -358,7 +357,6 @@ function mathlistToMarkup(mathlist, indent) {
 
         result += mathlistToMarkup(mathlist.superscript, indent + '↑');
         result += mathlistToMarkup(mathlist.subscript, indent + '↓');
-        result += mathlistToMarkup(mathlist.children, indent + '▷');
         result += mathlistToMarkup(mathlist.body, indent + '▶');
         result += mathlistToMarkup(mathlist.numer, indent + '\u25B2');
         result += mathlistToMarkup(mathlist.denom, indent + '\u25Bc');

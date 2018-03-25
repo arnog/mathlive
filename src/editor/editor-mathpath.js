@@ -117,19 +117,6 @@ function pathDistance(p, q) {
      return result;
 }
 
-// function MathIterator(root, path) {
-//     this.root = root;
-//     this.path = path ? path : [{relation: 'children', offset: 0}];
-// }
-
-/**
- * Move to the next permissible atom
- */
-// MathIterator.prototype.next = function() {
-// }
-
-// MathIterator.prototype.previous = function() {
-// }
 
 
 function clone(path) {

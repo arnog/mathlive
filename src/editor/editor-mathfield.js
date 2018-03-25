@@ -572,7 +572,6 @@ MathField.prototype._onContentDidChange = function() {
 function nextAtomSpeechText(oldMathlist, mathlist) {
     function relation(parent, leaf) {
         const EXPR_NAME = {
-            'children': 'line',   // not sure what it should be -- happens at end of exprs
         //    'array': 'should not happen',
             'numer': 'numerator',
             'denom': 'denominator',
@@ -968,7 +967,7 @@ MathField.prototype._render = function() {
         {
             mathstyle: 'displaystyle', 
             generateID: true
-        }, this.mathlist.root.children);
+        }, this.mathlist.root.body);
 
 
 

@@ -528,13 +528,13 @@ Parser.prototype.scanModeSet = function() {
 
     const result = new MathAtom('math', 'group');
     result.mathstyle = final === ')' ? 'textstyle' : 'displaystyle';
-    result.children = this.scanImplicitGroup(
+    result.body = this.scanImplicitGroup(
         token => token.type === 'command' && token.value === final);
     this.parseCommand(final);
    
     this.swapParseMode(savedParsemode);
 
-    if (!result.children || result.children.length === 0) return null;
+    if (!result.body || result.body.length === 0) return null;
     return result;
 }
 
@@ -554,13 +554,13 @@ Parser.prototype.scanModeShift = function() {
     result.latexClose = result.latexOpen;
     const savedParsemode = this.swapParseMode('math');
 
-    result.children = this.scanImplicitGroup(token => token.type === final);
+    result.body = this.scanImplicitGroup(token => token.type === final);
 
     this.parseToken(final);
 
     this.swapParseMode(savedParsemode);
 
-    if (!result.children || result.children.length === 0) return null;
+    if (!result.body || result.body.length === 0) return null;
     return result;
 }
 
@@ -661,7 +661,7 @@ Parser.prototype.scanEnvironment = function() {
     const result = new MathAtom(this.parseMode, 'array', null, null,
         env.parser ? env.parser(envName, args, array) : {});
     result.array = array;
-    result.children = newMathList;
+    result.body = newMathList;
     result.rowGaps = rowGaps;
     result.env = env;
     result.env.name = envName;
@@ -777,7 +777,7 @@ Parser.prototype.scanImplicitGroup = function(done) {
  * 
  * Return either a group MathAtom or null if not a group.
  * 
- * Return a group MathAtom with an empty children list if an empty
+ * Return a group MathAtom with an empty body if an empty
  * group (i.e. `{}`).
  * @return {MathAtom} 
  * @method Parser#scanGroup
@@ -787,7 +787,7 @@ Parser.prototype.scanGroup = function() {
     if (!this.parseToken('{')) return null;
 
     const result = new MathAtom(this.parseMode, 'group');
-    result.children = this.scanImplicitGroup(token => token.type === '}');
+    result.body = this.scanImplicitGroup(token => token.type === '}');
     this.parseToken('}');
 
     return result;
@@ -1260,7 +1260,7 @@ Parser.prototype.scanToken = function() {
                 result = result[0];
             } else if (Array.isArray(result)) {
                 const group = new MathAtom(this.parseMode, 'group');
-                group.children = result;
+                group.body = result;
                 result = group;
             } else {
                 // If there is no argument value specified, use a placeholder

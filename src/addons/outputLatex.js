@@ -39,7 +39,7 @@ MathAtom.MathAtom.prototype.toLatex = function() {
     switch(this.type) {
         case 'group':
             result += this.latexOpen || '';
-            result += latexify(this.children);  
+            result += latexify(this.body);  
             result += this.latexClose || '';
             break;
 
@@ -72,7 +72,7 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             break;
 
         case 'root':
-            result = latexify(this.children);
+            result = latexify(this.body);
             break;
 
         case 'genfrac':
@@ -141,7 +141,7 @@ MathAtom.MathAtom.prototype.toLatex = function() {
                 command === '\\mathopen' || command === '\\mathclose' || 
                 command === '\\mathpunct' || command === '\\mathord' || 
                 command === '\\mathinner') {
-                result += command + '{' + latexify(this.children) + '}';
+                result += command + '{' + latexify(this.body) + '}';
             } else if (this.latex || this.value) {
                 // Not ZERO-WIDTH
                 if (this.latex && this.latex[0] === '\\') {
@@ -149,19 +149,16 @@ MathAtom.MathAtom.prototype.toLatex = function() {
                 } else {
                     result += this.value !== '\u200b' ? this.value : '';
                 }
-            } else {
-                result += latexify(this.children);
             }
             break;
 
-        case 'op':
         case 'mop':
             if (this.value !== '\u200b') {
                 // Not ZERO-WIDTH
                 if (command === '\\mathop') {
-                    result += command + '{' + latexify(this.children) + '}';                    
+                    result += '\\mathop{' + latexify(this.body) + '}';                    
                 } else if (command === '\\operatorname') {
-                        result += command + '{' + this.value + '}';
+                        result += '\\operatorname{' + this.value + '}';
                 } else {
                     result += this.latex || this.value;
                 }

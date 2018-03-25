@@ -441,7 +441,7 @@ function toMo(atom) {
         if (atom.value) {
             result = xmlEscape(atom.value);
         } else {
-            result = toString(atom.children);
+            result = toString(atom.body);
         }
         if (result) {
             result = '<mo>' + result + '</mo>';
@@ -523,7 +523,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
     switch(this.type) {
         case 'group':
         case 'root':
-            result = toMathML(this.children).mathML;
+            result = toMathML(this.body).mathML;
             break;
 
         case 'array':
@@ -733,7 +733,6 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             result = '<mo separator="true">' + (SPECIAL_OPERATORS[command] || command) + '</mo>';
             break;
  
-        case 'op':
         case 'mop':
             if (this.value !== '\u200b') {
                 // Not ZERO-WIDTH

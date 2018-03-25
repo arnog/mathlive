@@ -213,7 +213,7 @@ function emph(s) {
         switch(atom.type) {
             case 'group':
             case 'root':
-                result += MathAtom.toSpeakableFragment(atom.children, options);
+                result += MathAtom.toSpeakableFragment(atom.body, options);
                 break;
 
             case 'genfrac':
@@ -338,7 +338,7 @@ function emph(s) {
                             result += spokenName ? spokenName : letter(atomValue);
                         }
                     } else {
-                        result += MathAtom.toSpeakableFragment(atom.children, options);
+                        result += MathAtom.toSpeakableFragment(atom.body, options);
                     }
                     if (atom.type === 'mbin') {
                         result += '[[slnc 150]]';
@@ -346,7 +346,6 @@ function emph(s) {
                 }
                 break;
             }
-            case 'op':
             case 'mop':
             // @todo
                 if (atom.value !== '\u200b') {
