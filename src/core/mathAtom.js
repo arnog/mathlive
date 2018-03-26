@@ -165,13 +165,6 @@ function MathAtom(mode, type, body, fontFamily, extras) {
 
 
 
-MathAtom.prototype.getBaseElement = function () {
-    if (Array.isArray(this.body) && this.body.length === 1) {
-        return this.body[0].getBaseElement();
-    }
-    return this;
-}
-
 MathAtom.prototype.getInitialBaseElement = function () {
     let result = this;
     if (Array.isArray(this.body) && this.body.length > 0) {
@@ -2017,7 +2010,12 @@ function decompose(context, atoms) {
                         selection = selection.concat(flat);
                         if (!selectionType) {
                             selectionType = atoms[i].type;
+                            if (selectionType === 'group') {
+                                const base = atoms[i].getInitialBaseElement();
+                                if (base) selectionType = base.type;
+                            }
                             if (selectionType === 'array') selectionType = 'mopen';
+                            if (selectionType === 'leftright') selectionType = 'minner';
                             if (selectionType.match(/^(first|accent|surd|genfrac|textord|font|placeholder)$/)) {
                                 selectionType = 'mord';
                             }
