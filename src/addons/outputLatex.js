@@ -147,6 +147,8 @@ MathAtom.MathAtom.prototype.toLatex = function() {
                 // Not ZERO-WIDTH
                 if (this.latex && this.latex[0] === '\\') {
                     result += this.latex + ' ';
+                } else if (this.latex) {
+                    result += this.latex;
                 } else {
                     result += this.body !== '\u200b' ? this.body : '';
                 }
