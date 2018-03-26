@@ -592,10 +592,10 @@ function nextAtomSpeechText(oldMathlist, mathlist) {
     const oldPath = oldMathlist ? oldMathlist.path : [];
     const path = mathlist.path;
     const leaf = path[path.length - 1];
-    let result = "";
+    let result = '';
 
     while (oldPath.length > path.length) {
-        result += "out of " + relation(oldMathlist.parent(), oldPath[oldPath.length - 1]) + "; ";
+        result += 'out of ' + relation(oldMathlist.parent(), oldPath[oldPath.length - 1]) + '; ';
         oldPath.pop(); 
     }
     if (!mathlist.isCollapsed()) {
@@ -605,13 +605,13 @@ function nextAtomSpeechText(oldMathlist, mathlist) {
     // announce start of denominator, etc
     const relationName = relation(mathlist.parent(), leaf);
     if (leaf.offset === 0) {
-        result += relationName ? "start of " + relationName + ": " : "unknown";
+        result += relationName ? 'start of ' + relationName + ': ' : 'unknown';
     }
     const atom = mathlist.sibling(Math.max(1, mathlist.extent));
     if (atom) {
         result += MathAtom.toSpeakableText(atom);
     } else if (leaf.offset !== 0) { // don't say both start and end
-        result += relationName ? "end of " + relationName : "unknown";
+        result += relationName ? 'end of ' + relationName : 'unknown';
     }
     return result;
 }
@@ -729,7 +729,7 @@ MathField.prototype._showKeystroke = function(keystroke) {
 }
 
 /**
- * @param {Array.<string>} command - A selector and its parameters
+ * @param {string|Array.<string>} command - A selector and its parameters
  * @method MathField#perform
  */
 /**
@@ -883,31 +883,43 @@ MathField.prototype._onTypedText = function(text) {
                     popoverText = suggestions[0].match;
                 }
             } else if (this.mathlist.parseMode() === 'math') {
-                // Inline shortcuts (i.e. 'p' + 'i' = '\pi') only apply in `math` 
-                // parseMode
-                const prefix = this.mathlist.extractGroupStringBeforeInsertionPoint();
-                const shortcut = Shortcuts.matchEndOf(prefix + c, this.config);
+                // Inline shortcuts (i.e. 'p' + 'i' = '\pi') only apply in 
+                // `math` parseMode
+
+                let count = this.mathlist.startOffset();
+                let shortcut;
+                // Try to find the longest matching shortcut possible
+                while (!shortcut && count > 0) {
+                    // Note that 'count' is a number of atoms
+                    // An atom can be more than one character (for example '\sin')
+                    const prefix = this.mathlist.extractCharactersBeforeInsertionPoint(count);
+                    shortcut = Shortcuts.match(prefix + c, this.config);
+                    count -= 1;
+                }
+
                 if (shortcut) {
                     const savedState = this.undoManager.save();
 
-                    // Insert the character before applying the substitution
+                    // To enable the substitution to be undoable, 
+                    // insert the character before applying the substitution
                     this.mathlist.insert(c);
 
-                    // Create a snapshot with the inserted character so we can 
-                    // revert to that. This will allow to undo the effect of 
-                    // the substitution if it was undesired.
+                    // Create a snapshot with the inserted character
                     this.undoManager.snapshot();
 
                     // Revert to before inserting the character
+                    // (restore doesn't change the undo stack)
                     this.undoManager.restore(savedState);
 
-                    // Remove the characters from the prefix string
-                    this.mathlist.delete(-shortcut.match.length);
+                    // Remove the atoms from the prefix string
+                    this.mathlist.delete(-count - 1);
 
                     // Insert the substitute
-                    this.mathlist.insert(shortcut.substitute);
+                    this.mathlist.insert(shortcut, {format: 'latex'});
                     this._announceChange("replacement");        
-                } else {
+                } 
+                
+                if (!shortcut) {
                     // Some characters are mapped to commands. Handle them here.
                     // This is important to handle synthetic text input and
                     // non-US keyboards, on which, fop example, the '^' key is
@@ -1166,6 +1178,7 @@ MathField.prototype.latex = function(text) {
         this.undoManager.snapshot();
         this.mathlist.insert(text, {
             insertionMode: 'replaceAll',
+            selectionMode: 'after',
             format: 'latex'
         });
         this._render();

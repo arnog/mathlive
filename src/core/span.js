@@ -541,7 +541,7 @@ function skew(spans) {
     if (Array.isArray(spans)) {
         let result = 0;
         for (const span of spans) {
-            result += span.skew;
+            result += span.skew || 0;
         }
         return result;
     }

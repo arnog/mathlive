@@ -299,13 +299,13 @@ function mathlistToMarkup(mathlist, indent) {
             result += mathlist.hasCaret ? ' caret' : '';
             result += '">' + mathlist.type + '</span>';
         }
-        if (mathlist.value && mathlist.value.length > 0) {
+        if (typeof mathlist.body === 'string' && mathlist.body.length > 0) {
             result += '&nbsp;<span class="value">';
-            result += mathlist.value;
-            if (mathlist.value.charCodeAt(0) < 32 
-                || mathlist.value.charCodeAt(0) > 127) {
+            result += mathlist.body;
+            if (mathlist.body.charCodeAt(0) < 32 
+                || mathlist.body.charCodeAt(0) > 127) {
                 result += '&nbsp;U+' + ('000000' + 
-                    mathlist.value.charCodeAt(0).toString(16)).substr(-6);
+                    mathlist.body.charCodeAt(0).toString(16)).substr(-6);
             }
             result += '</span>&nbsp;';
         }

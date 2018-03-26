@@ -126,7 +126,7 @@ function isSuperscriptAtom(stream) {
     return stream.index < stream.atoms.length && 
         stream.atoms[stream.index].superscript && 
         stream.atoms[stream.index].type === 'mord' &&
-        stream.atoms[stream.index].value === '\u200b';
+        stream.atoms[stream.index].body === '\u200b';
 }
 
 
@@ -135,7 +135,7 @@ function isSubscriptAtom(stream) {
     return stream.index < stream.atoms.length && 
         stream.atoms[stream.index].subscript && 
         stream.atoms[stream.index].type === 'mord' &&
-        stream.atoms[stream.index].value === '\u200b';
+        stream.atoms[stream.index].body === '\u200b';
 }
 
 
@@ -438,11 +438,7 @@ function toMathML(input, initial, final) {
 function toMo(atom) {
     let result = '';
     if (atom) {
-        if (atom.value) {
-            result = xmlEscape(atom.value);
-        } else {
-            result = toString(atom.body);
-        }
+        result = toString(atom.body);
         if (result) {
             result = '<mo>' + result + '</mo>';
         }
@@ -451,11 +447,12 @@ function toMo(atom) {
 }
 
 function toString(atoms) {
-    if (!atoms) return undefined;
+    if (!atoms) return '';
+    if (typeof atoms === 'string') return xmlEscape(atoms);
     let result = '';
     for (const atom of atoms) {
-        if (atom.type === 'textord' || atom.type === 'mord') {
-            result += atom.value;
+        if (typeof atom.body === 'string') {
+            result += atom.body;
         }
     }
     return xmlEscape(result);
@@ -695,7 +692,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             break;
 
         case 'mord':
-            result = SPECIAL_IDENTIFIERS[command] || command || this.value;
+            result = SPECIAL_IDENTIFIERS[command] || command || (typeof this.body === 'string' ? this.body : '');
             m = command ? command.match(/[{]?\\char"([0-9abcdefABCDEF]*)[}]?/) : null;
             if (m) {
                 // It's a \char command
@@ -703,11 +700,11 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             } else if (result.length > 0 && result.charAt(0) === '\\') {
                 // This is an identifier with no special handling. Use the 
                 // Unicode value
-                if (this.value && this.value.charCodeAt(0) > 255) {
+                if (typeof this.body === 'string' && this.body.charCodeAt(0) > 255) {
                     result = '&#x' + ('000000' + 
-                        this.value.charCodeAt(0).toString(16)).substr(-4) + ';';
-                } else if (this.value) {
-                    result = this.value.charAt(0);
+                        this.body.charCodeAt(0).toString(16)).substr(-4) + ';';
+                } else if (typeof this.body === 'string') {
+                    result = this.body.charAt(0);
                 } else {
                     result = this.latex;
                 }
@@ -734,12 +731,12 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             break;
  
         case 'mop':
-            if (this.value !== '\u200b') {
+            if (this.body !== '\u200b') {
                 // Not ZERO-WIDTH
                 if (command === '\\operatorname') {
-                    result += '<mo>' + this.value + '</mo>';
+                    result += '<mo>' + this.body + '</mo>';
                 } else {
-                    result += '<mo>' + command || this.value + '</mo>';
+                    result += '<mo>' + command || this.body + '</mo>';
                 }
             }    
             break;

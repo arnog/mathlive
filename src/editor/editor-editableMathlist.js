@@ -408,15 +408,16 @@ EditableMathlist.prototype.parent = function() {
 }
 
 EditableMathlist.prototype.relation = function() {
-    return this.path[this.path.length - 1].relation;
+    return this.path.length > 0 ? this.path[this.path.length - 1].relation : '';
 }
 
 EditableMathlist.prototype.anchorOffset = function() {
-    return this.path[this.path.length - 1].offset;
+    return this.path.length > 0 ? this.path[this.path.length - 1].offset : 0;
 }
 
 EditableMathlist.prototype.focusOffset = function() {
-    return this.path[this.path.length - 1].offset + this.extent;
+    return this.path.length > 0 ? 
+        this.path[this.path.length - 1].offset + this.extent : 0;
 }
 
 /**
@@ -470,12 +471,15 @@ EditableMathlist.prototype.insertFirstAtom = function() {
  * @private
  */
 EditableMathlist.prototype.siblings = function() {
+    if (this.path.length === 0) return [];
+
     let siblings;
     if (this.relation().startsWith('cell')) {
         const cellIndex = parseInt(this.relation().match(/cell([0-9]*)$/)[1]);
         siblings = arrayCell(this.parent(), cellIndex);
     } else {
         siblings = this.parent()[this.relation()] || [];
+        if (typeof siblings === 'string') siblings = [];
     }
 
     // If the 'first' math atom is missing, insert it
@@ -628,12 +632,11 @@ EditableMathlist.prototype.contains = function(atom) {
  */
 EditableMathlist.prototype.extractContents = function() {
     if (this.isCollapsed()) return null;
-    const result = [];
 
+    const result = [];
     const siblings = this.siblings();
     const firstOffset = this.startOffset();
     if (firstOffset < siblings.length) {
-        // const lastOffset = Math.min(siblings.length, this.endOffset());
         const endOffset = Math.min(siblings.length - 1, this.endOffset());
         for (let i = firstOffset; i <= endOffset; i++) {
             result.push(siblings[i]);
@@ -642,59 +645,77 @@ EditableMathlist.prototype.extractContents = function() {
     return result;
 }
 
-EditableMathlist.prototype.extractGroupBeforeSelection = function() {
-    const siblings = this.siblings();    
-    if (siblings.length <= 1) return null;
 
-    const result = [];
 
-    const lastOffset = !this.isCollapsed() ? this.startOffset() - 1 : this.startOffset(); 
-    for (let i = 1; i <= lastOffset; i++) {
-        if (siblings[i].type !== 'first') {
-            result.push(siblings[i]);
+
+/**
+ * Return a 'string' version of the atom. This is used when matching auto-inline
+ * replacements for example, so we make a best attempt at getting a string
+ * version of the atom. Some atom types are effectively 'hard' barriers 
+ * in the string because they're not obvious to translate to a string.
+ * We don't want them to be transparent, so we map them to '\ufffd'.
+ * For example, '+\sqrt{2}-' should not trigger a replacement of '-='
+ * @param {*} atom 
+ */
+function getString(atom) {
+    if (!atom) return '';
+    if (atom.type === 'array' || atom.type === 'surd' || atom.type === 'rule' ||
+        atom.type === 'overunder' || atom.type === 'box' || 
+        atom.type === 'enclose' || atom.type === 'placeholder' || atom.type === 'command') {
+        // Don't decompose these.
+        return '\ufffd';
+    }
+    if (atom.type === 'genfrac') {
+        return '(' + getString(atom.numer) + ')/(' + getString(atom.denom) + ')'; 
+    }
+    if (atom.type === 'leftright') {
+        return atom.leftDelim + getString(atom.body) + atom.rightDelim;
+    }
+    if (atom.type === 'delim' || atom.type === 'sizeddelim') {
+        return atom.delim;
+    }
+    if (atom.type === 'spacing' || atom.type === 'space') {
+        return ' '; // a single space
+    }
+    if (atom.type === 'mathstyle' || atom.type === 'sizing' || atom.type === 'first') {
+        return '';
+    }
+    // 'group', 'root', 'line', 'overlap', 'font', 'accent', 
+    // 'mord', 'minner', 'mbin', 'mrel', 'mpunct', 'mopen', 'mclose',
+    // 'textord', 'mop', 'color', 
+    if (typeof atom.body === 'string') {
+        return atom.body;
+    }
+    if (Array.isArray(atom.body)) {
+        let result = '';
+        for (const subAtom of atom.body) {
+            result += getString(subAtom);
         }
+        return result;
     }
 
-    return result.length > 0 ? result : null;
-}
-
-EditableMathlist.prototype.extractGroupAfterSelection = function() {
-    const siblings = this.siblings();    
-    if (siblings.length <= 1) return null;
-
-    const result = [];
-
-    const lastOffset = siblings.length - 1;
-    const start = !this.isCollapsed() ? this.endOffset() : this.endOffset() + 1;
-    for (let i = start; i <= lastOffset; i++) {
-        if (siblings[i].type !== 'first') {
-            result.push(siblings[i]);
-        }
-    }
-
-    return result.length > 0 ? result : null;
+    return '';
 }
 
 /**
+ * @param {number} count -- The number of atoms back we should return. Note 
+ * that since an atom can map to multiple characters, the length of the string
+ * may be greater than this argument. It could also be smaller.
  * @return {string} 
- * @method EditableMathlist#extractGroupStringBeforeInsertionPoint
+ * @method EditableMathlist#extractCharactersBeforeInsertionPoint
  * @private
  */
-EditableMathlist.prototype.extractGroupStringBeforeInsertionPoint = function() {
+EditableMathlist.prototype.extractCharactersBeforeInsertionPoint = function(count) {
     const siblings = this.siblings();    
     if (siblings.length <= 1) return '';
 
+    // Going backwards, accumulate 
     let result = '';
-    const lastOffset = this.startOffset();
-    for (let i = 1; i <= lastOffset; i++) {
-        // If the sibling has no value (for example it's a compound math atom)
-        // use the REPLACEMENT CHARACTER as a placeholder. This will prevent
-        // the sequence "-1/x=" to match "-=" with "\\equiv"
-        if (['mord', 'mbin', 'mrel', 'mopen', 'mclose', 'minner', 'textord'].includes(siblings[i].type)) {
-            result += siblings[i].value || '\ufffd';
-        } else {
-            result += '\ufffd';
-        }
+    let offset = this.startOffset();
+    while (offset >= 1 && count > 0) {
+        result = getString(siblings[offset]) + result;
+        count -= 1;
+        offset -= 1;
     }
     return result;
 }
@@ -738,7 +759,9 @@ EditableMathlist.prototype.extractCommandStringAroundInsertionPoint = function()
     if (command) {
         const siblings = this.siblings();    
         for (let i = command.start; i < command.end; i++) {
-            result += siblings[i].value || '';
+            // All these atoms are 'command' atom with a body that's
+            // a single character 
+            result += siblings[i].body || '';
         }
     }
     return result;
@@ -755,10 +778,6 @@ EditableMathlist.prototype.decorateCommandStringAroundInsertionPoint = function(
     const command = this.commandOffsets();
     if (command) {
         const siblings = this.siblings();
-        // if (siblings[command.start].value === '\\' || 
-        //     siblings[command.start].value === '\u0027') {
-        //     command.start += 1;
-        // }
         for (let i = command.start; i < command.end; i++) {
             siblings[i].error = value;
         }
@@ -800,7 +819,7 @@ EditableMathlist.prototype.spliceCommandStringAroundInsertionPoint = function(ma
         // if the length of the mathlist is shorter than the name of the command
         this.path[this.path.length - 1].offset = command.start - 1;
 
-        if (newPlaceholders.length === 0 || !this.leap()) {
+        if (newPlaceholders.length === 0 || !this.leap(+1, false)) {
             this.setSelection(command.start + mathlist.length - 1);
         }
     }
@@ -993,7 +1012,7 @@ EditableMathlist.prototype.next = function() {
         }
         relation = 'body';
         while (relation) {
-           if (anchor[relation]) {
+           if (Array.isArray(anchor[relation])) {
                 this.path.push({relation:relation, offset: 0});
                 this.insertFirstAtom();
                 return;
@@ -1077,7 +1096,7 @@ EditableMathlist.prototype.previous = function() {
         }
         relation = 'superscript';
         while (relation) {
-            if (anchor[relation]) {                
+            if (Array.isArray(anchor[relation])) {
                 this.path.push({relation:relation, 
                     offset: anchor[relation].length - 1});
 
@@ -1362,9 +1381,10 @@ EditableMathlist.prototype.jumpToMathFieldBoundary = function(dir, options) {
  * @method EditableMathlist#leap
  * @private
  */
-EditableMathlist.prototype.leap = function(dir) {
+EditableMathlist.prototype.leap = function(dir, callHandler) {
     dir = dir || +1;    
     dir = dir < 0 ? -1 : +1;
+    callHandler = callHandler || true;
 
     const oldPath = clone(this);
     const placeholders = this.filter(function(path, atom) {
@@ -1373,17 +1393,19 @@ EditableMathlist.prototype.leap = function(dir) {
     
     // If no placeholders were found, call handler
     if (placeholders.length === 0) {
-        if (this.config.onTabOutOf) {
-            this.config.onTabOutOf(this, dir);
-        } else {
-            if (document.activeElement) {
-                const focussableElements = 'a:not([disabled]), button:not([disabled]), textarea:not([disabled]), input[type=text]:not([disabled]), [tabindex]:not([disabled]):not([tabindex="-1"])';
-                const focussable = Array.prototype.filter.call(document.querySelectorAll(focussableElements), function (element) {
-                    return element.offsetWidth > 0 || element.offsetHeight > 0 || element === document.activeElement;
-                });
-                let index = focussable.indexOf(document.activeElement) + dir;
-                if (index < 0) index = focussable.length - 1;
-                focussable[index].focus();
+        if (callHandler) {
+            if (this.config.onTabOutOf) {
+                this.config.onTabOutOf(this, dir);
+            } else {
+                if (document.activeElement) {
+                    const focussableElements = 'a:not([disabled]), button:not([disabled]), textarea:not([disabled]), input[type=text]:not([disabled]), [tabindex]:not([disabled]):not([tabindex="-1"])';
+                    const focussable = Array.prototype.filter.call(document.querySelectorAll(focussableElements), function (element) {
+                        return element.offsetWidth > 0 || element.offsetHeight > 0 || element === document.activeElement;
+                    });
+                    let index = focussable.indexOf(document.activeElement) + dir;
+                    if (index < 0) index = focussable.length - 1;
+                    focussable[index].focus();
+                }
             }
         }
         return false;
@@ -1422,18 +1444,26 @@ EditableMathlist.prototype.parseMode = function() {
 /**
  * @param {string} s
  * @param {Object} options
- * @param {string} options.insertionMode - One of 'replaceSelection', 
- * 'replaceAll', 'insertBefore' or 'insertAfter'.
+ * @param {string} options.insertionMode - 
+ *    * 'replaceSelection' (default)
+ *    * 'replaceAll'
+ *    * 'insertBefore'
+ *    * 'insertAfter'
+ * 
  * @param {string} options.selectionMode - Describes where the selection 
- * will be after the insertion. One of 'placeholder' (the selection will be 
- * the first available placeholder in the item that has been inserted), 
- * 'after' (the selection will be an insertion point after the item that has 
- * been inserted), 'before' (the selection will be an insertion point before 
+ * will be after the insertion:
+ *    * `'placeholder'`: the selection will be the first available placeholder 
+ * in the item that has been inserted) (default)
+ *    * `'after'`: the selection will be an insertion point after the item that 
+ * has been inserted), 
+ *    * `'before'`: the selection will be an insertion point before 
  * the item that has been inserted) or 'item' (the item that was inserted will
  * be selected).
- * @param {string} options.format - The format of the string `s`, one of 
- * `auto` (the string is interpreted as a latex fragment or command), `latex`
- * (the string is interpreted strictly as a latex fragment)
+ * 
+ * @param {string} options.format - The format of the string `s`:
+ *    * `'auto'`: the string is interpreted as a latex fragment or command) 
+ * (default)
+ *    * `'latex'`: the string is interpreted strictly as a latex fragment
  * @method EditableMathlist#insert
  */
 EditableMathlist.prototype.insert = function(s, options) {
@@ -1519,12 +1549,12 @@ EditableMathlist.prototype.insert = function(s, options) {
             newPlaceholders = newPlaceholders.concat(atom.filter(
                 atom => atom.type === 'placeholder'));
         }
-        if (newPlaceholders.length === 0 || !this.leap()) {
+        if (newPlaceholders.length === 0 || !this.leap(+1, false)) {
             // No placeholder found, move to right after what we just inserted
             this.setSelection(this.anchorOffset() + mathlist.length);
             // this.path[this.path.length - 1].offset += mathlist.length;
         } else {
-            this.config.announceChange("move");   // should have placeholder selected
+            this.config.announceChange('move');   // should have placeholder selected
         }
     } else if (options.selectionMode === 'before') {
         // Do nothing: don't change the anchorOffset.
@@ -1599,7 +1629,7 @@ EditableMathlist.prototype.delete = function(count) {
             count--;
         }
     } else {
-        while (count < -1) {
+        while (count < 0) {
             this.delete_(-1);
             count++;
         }
@@ -1655,12 +1685,14 @@ EditableMathlist.prototype.delete_ = function(dir) {
                 } else if (relation === 'body') {
                     // Root
                     const body = this.siblings();
-                    body.shift();    // Remove the 'first' atom
-                    this.path.pop();
-                    Array.prototype.splice.apply(this.siblings(), 
-                        [this.anchorOffset(), 1].concat(body));
-                    this.setSelection(this.anchorOffset() + body.length - 1);
-                    this.config.announceChange("deleted: root");
+                    if (this.path.length > 1) {
+                        body.shift();    // Remove the 'first' atom
+                        this.path.pop();
+                        Array.prototype.splice.apply(this.siblings(), 
+                            [this.anchorOffset(), 1].concat(body));
+                        this.setSelection(this.anchorOffset() + body.length - 1);
+                        this.config.announceChange("deleted: root");
+                    }
                 } else {
                     // Numer, index, children
                     // @todo

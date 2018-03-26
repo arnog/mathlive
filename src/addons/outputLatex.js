@@ -17,7 +17,7 @@ function latexify(value) {
     } else if (typeof value === 'number' || typeof value === 'boolean') {
         result = value.toString();
     } else if (typeof value === 'string') {
-        result = value;
+        result = value.replace(/\s/g, '~');
     } else if (value && typeof value.toLatex === 'function') {
         result = value.toLatex();
     }
@@ -76,10 +76,11 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             break;
 
         case 'genfrac':
-            if (this.value === 'choose' || this.value === 'atop') {
+            if (this.body === 'choose' || this.body === 'atop') {
+                // Infix commands.
                 result += '{';
                 result += latexify(this.numer)
-                result += '\\' + this.value + ' ';
+                result += '\\' + this.body + ' ';
                 result += latexify(this.denom);
                 result += '}';
             } else {
@@ -142,25 +143,23 @@ MathAtom.MathAtom.prototype.toLatex = function() {
                 command === '\\mathpunct' || command === '\\mathord' || 
                 command === '\\mathinner') {
                 result += command + '{' + latexify(this.body) + '}';
-            } else if (this.latex || this.value) {
+            } else if (this.latex || typeof this.body === 'string') {
                 // Not ZERO-WIDTH
                 if (this.latex && this.latex[0] === '\\') {
                     result += this.latex + ' ';
                 } else {
-                    result += this.value !== '\u200b' ? this.value : '';
+                    result += this.body !== '\u200b' ? this.body : '';
                 }
             }
             break;
 
         case 'mop':
-            if (this.value !== '\u200b') {
+            if (this.body !== '\u200b') {
                 // Not ZERO-WIDTH
-                if (command === '\\mathop') {
-                    result += '\\mathop{' + latexify(this.body) + '}';                    
-                } else if (command === '\\operatorname') {
-                        result += '\\operatorname{' + this.value + '}';
+                if (command === '\\mathop' || command === '\\operatorname') {
+                    result += command + '{' + latexify(this.body) + '}';                    
                 } else {
-                    result += this.latex || this.value;
+                    result += this.latex || this.body;
                 }
             }
             if (this.explicitLimits) {

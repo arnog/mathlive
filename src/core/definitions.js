@@ -159,7 +159,7 @@ function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
             category: category,         // To group items when generating the documentation
             fontFamily: fontFamily,
             type: type === ORD ? TEXTORD : type,
-            value: value,
+            body: value,
             frequency: frequency
         };
     }
@@ -233,48 +233,49 @@ function matchCodepoint(s) {
     const codepoint = s.codePointAt(0);
 
     // Some symbols map to multiple codepoints. 
+    // Some symbols are 'pseudosuperscript'. Convert them to a super(or sub)script.
     // Map their alternative codepoints here.
     let result = { 
-        '\u00b7': '\\cdot',
-        '\u00bc': '\\frac{1}{4}',
-        '\u00bd': '\\frac{1}{2}',
-        '\u00be': '\\frac{3}{4}',
-        '\u2070': '^{0}',
-        '\u2071': '^{i}',
-        '\u00b9': '^{1}',
-        '\u00b2': '^{2}',
-        '\u00b3': '^{3}',
-        '\u2074': '^{4}',
-        '\u2075': '^{5}',
-        '\u2076': '^{6}',
-        '\u2077': '^{7}',
-        '\u2078': '^{8}',
-        '\u2079': '^{9}',
-        '\u207a': '^{+}',
-        '\u207b': '^{-}',
-        '\u207c': '^{=}',
-        '\u207f': '^{n}',
+        0x00b7: '\\cdot',
+        0x00bc: '\\frac{1}{4}',
+        0x00bd: '\\frac{1}{2}',
+        0x00be: '\\frac{3}{4}',
+        0x2070: '^{0}',
+        0x2071: '^{i}',
+        0x00b9: '^{1}',
+        0x00b2: '^{2}',
+        0x00b3: '^{3}',
+        0x2074: '^{4}',
+        0x2075: '^{5}',
+        0x2076: '^{6}',
+        0x2077: '^{7}',
+        0x2078: '^{8}',
+        0x2079: '^{9}',
+        0x207a: '^{+}',
+        0x207b: '^{-}',
+        0x207c: '^{=}',
+        0x207f: '^{n}',
 
-        '\u2080': '_{0}',
-        '\u2081': '_{1}',
-        '\u2082': '_{2}',
-        '\u2083': '_{3}',
-        '\u2084': '_{4}',
-        '\u2085': '_{5}',
-        '\u2086': '_{6}',
-        '\u2087': '_{7}',
-        '\u2088': '_{8}',
-        '\u2089': '_{9}',
-        '\u208A': '_{+}',
-        '\u208B': '_{-}',
-        '\u208C': '_{=}',
-        '\u2090': '_{a}',
-        '\u2091': '_{e}',
-        '\u2092': '_{o}',
-        '\u2093': '_{x}',
+        0x2080: '_{0}',
+        0x2081: '_{1}',
+        0x2082: '_{2}',
+        0x2083: '_{3}',
+        0x2084: '_{4}',
+        0x2085: '_{5}',
+        0x2086: '_{6}',
+        0x2087: '_{7}',
+        0x2088: '_{8}',
+        0x2089: '_{9}',
+        0x208A: '_{+}',
+        0x208B: '_{-}',
+        0x208C: '_{=}',
+        0x2090: '_{a}',
+        0x2091: '_{e}',
+        0x2092: '_{o}',
+        0x2093: '_{x}',
 
-        '\u2115': '\\N',
-        '\u2124': '\\Z'
+        0x2115: '\\N',
+        0x2124: '\\Z'
         }[s];
     if (result) return result;
 
@@ -1063,7 +1064,7 @@ defineFunction([
         type: 'mop',
         limits: 'nolimits',
         symbol: false,
-        value: name.slice(1),
+        body: name.slice(1),
         fontFamily: 'mainrm'
     };
 })
@@ -1094,7 +1095,7 @@ defineFunction([
         type: 'mop',
         limits: 'nolimits',
         symbol: false,
-        value: name.slice(1),
+        body: name.slice(1),
         fontFamily: 'mainrm'
     };
 })
@@ -1111,7 +1112,7 @@ defineFunction(['\\lim', '\\det', '\\mod', '\\max', '\\min'],
         type: 'mop',
         limits: 'limits',
         symbol: false,
-        value: name.slice(1),
+        body: name.slice(1),
         fontFamily: 'mainrm'
     };
 })
@@ -1727,7 +1728,7 @@ defineFunction([
         limits: 'auto',
         symbol: true,
         fontFamily: 'main',
-        value: {
+        body: {
             'coprod': '\u2210', 
             'bigvee': '\u22c1', 
             'bigwedge': '\u22c0', 
@@ -1752,7 +1753,7 @@ defineFunction(['\\int', '\\iint', '\\iiint', '\\oint'], '', {}, function(name) 
         type: 'mop',
         limits: 'nolimits',
         symbol: true,
-        value: {
+        body: {
             'int': '\u222b', 
             'iint': '\u222c', 
             'iiint': '\u222d', 
@@ -1812,7 +1813,7 @@ function(name, args) {
     return {
         type: 'mord',
         fontFamily: 'main',
-        value: String.fromCodePoint(codepoint)
+        body: String.fromCodePoint(codepoint)
     }
 });
 
@@ -2463,6 +2464,24 @@ defineFunction([
 });
 
 
+/**
+ * If possible, i.e. if they are all simple atoms, return a string made up of 
+ * their body
+ * @param {object[]} atoms 
+ */
+function getSimpleString(atoms) {
+    let result = '';
+    let success = true;
+    for (const atom of atoms) {
+        if (typeof atom.body === 'string') {
+            result += atom.body;
+        } else {
+            success = false;
+        }
+    }
+    return success ? result : '';
+}
+
 defineFunction([
     '\\mathop', '\\mathbin', '\\mathrel', '\\mathopen', 
     '\\mathclose', '\\mathpunct', '\\mathord', '\\mathinner'
@@ -2478,7 +2497,8 @@ defineFunction([
             '\\mathord': 'mord',
             '\\mathinner': 'minner'
         }[name],
-        children: args[0]
+        body: getSimpleString(args[0]) || args[0],
+        fontFamily: 'mainrm'        
     };
     if (name === '\\mathop') {
         result.limits = 'nolimits';
@@ -2489,7 +2509,7 @@ defineFunction([
 defineFunction([
     '\\operatorname', '\\operatorname*'
 ], '{operator:string}', null, function(name, args) {
-    const result = { type: 'mop', value: args[0] };
+    const result = { type: 'mop', body: args[0] };
 
     if (name === '\\operatorname') {
         result.limits = 'nolimits'
@@ -2868,12 +2888,12 @@ const FUNCTION_TEMPLATE = {
     'moustache':'\\lmoustache % \\rmoustache%_%^',
     'brace':    '\\lbrace % \\rbrace%_%^',
     'sqrt':     '\\sqrt[%^]{%}',
-    'lcm':      '\\mathrm{lcm}%',
-    'gcd':      '\\mathrm{gcd}%',
-    'erf':      '\\mathrm{erf}%',
-    'erfc':     '\\mathrm{erfc}%',
-    'randomReal': '\\mathrm{randomReal}%',
-    'randomInteger': '\\mathrm{randomInteger}%',
+    'lcm':      '\\mathop{lcm}%',
+    'gcd':      '\\mathop{gcd}%',
+    'erf':      '\\mathop{erf}%',
+    'erfc':     '\\mathop{erfc}%',
+    'randomReal': '\\mathop{randomReal}%',
+    'randomInteger': '\\mathop{randomInteger}%',
     
 
     // Arithmetic operators
