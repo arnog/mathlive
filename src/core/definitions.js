@@ -2353,54 +2353,53 @@ defineSymbol( '\\_', MATH,  MAIN,  TEXTORD, '_');
 defineSymbol( '\\_', TEXT,  MAIN,  TEXTORD, '_');
 
 category = 'Greek';
-// Note: In TeX, greek symbols are not available in text mode, only math. 
-// We're more permissive.
-defineSymbol( '\\alpha',  [TEXT, MATH],  MAIN,  ORD, '\u03b1', COMMON);    // >2,000
-defineSymbol( '\\beta', [TEXT, MATH],  MAIN,  ORD, '\u03b2', COMMON);    // >2,000
-defineSymbol( '\\gamma', [TEXT, MATH],  MAIN,  ORD, '\u03b3', COMMON);    // >2,000
-defineSymbol( '\\delta', [TEXT, MATH],  MAIN,  ORD, '\u03b4', COMMON);    // >2,000
-defineSymbol( '\\epsilon', [TEXT, MATH],  MAIN,  ORD, '\u03f5', COMMON);    // >2,000
-defineSymbol( '\\varepsilon', [TEXT, MATH],  MAIN,  ORD, '\u03b5');
-defineSymbol( '\\zeta', [TEXT, MATH],  MAIN,  ORD, '\u03b6', COMMON);    // >2,000
-defineSymbol( '\\eta', [TEXT, MATH],  MAIN,  ORD, '\u03b7', COMMON);    // >2,000
-defineSymbol( '\\theta', [TEXT, MATH],  MAIN,  ORD, '\u03b8', COMMON);    // >2,000
-defineSymbol( '\\vartheta', [TEXT, MATH],  MAIN,  ORD, '\u03d1', COMMON);    // >2,000
-defineSymbol( '\\iota', [TEXT, MATH],  MAIN,  ORD, '\u03b9', COMMON);    // >2,000
-defineSymbol( '\\kappa', [TEXT, MATH],  MAIN,  ORD, '\u03ba', COMMON);    // >2,000
-defineSymbol( '\\varkappa', [TEXT, MATH],  AMS,  ORD, '\u03f0', COMMON);    // >2,000
-defineSymbol( '\\lambda', [TEXT, MATH],  MAIN,  ORD, '\u03bb', COMMON);    // >2,000
-defineSymbol( '\\mu', [TEXT, MATH],  MAIN,  ORD, '\u03bc', COMMON);    // >2,000
-defineSymbol( '\\nu', [TEXT, MATH],  MAIN,  ORD, '\u03bd', COMMON);    // >2,000
-defineSymbol( '\\xi', [TEXT, MATH],  MAIN,  ORD, '\u03be', COMMON);    // >2,000
-defineSymbol( '\\omicron', [TEXT, MATH],  MAIN,  ORD, 'o');
-defineSymbol( '\\pi', [TEXT, MATH],  MAIN,  ORD, '\u03c0', COMMON);    // >2,000
-defineSymbol( '\\varpi', [TEXT, MATH],  MAIN,  ORD, '\u03d6', COMMON);    // >2,000
-defineSymbol( '\\rho', [TEXT, MATH],  MAIN,  ORD, '\u03c1', COMMON);    // >2,000
-defineSymbol( '\\varrho', [TEXT, MATH],  MAIN,  ORD, '\u03f1', COMMON);    // >2,000
-defineSymbol( '\\sigma', [TEXT, MATH],  MAIN,  ORD, '\u03c3', COMMON);    // >2,000
-defineSymbol( '\\varsigma', [TEXT, MATH],  MAIN,  ORD, '\u03c2', COMMON);    // >2,000
-defineSymbol( '\\tau', [TEXT, MATH],  MAIN,  ORD, '\u03c4', COMMON);    // >2,000
-defineSymbol( '\\phi', [TEXT, MATH],  MAIN,  ORD, '\u03d5', COMMON);    // >2,000
-defineSymbol( '\\varphi', [TEXT, MATH],  MAIN,  ORD, '\u03c6', COMMON);    // >2,000
-defineSymbol( '\\upsilon', [TEXT, MATH],  MAIN,  ORD, '\u03c5', COMMON);    // >2,000
-defineSymbol( '\\chi', [TEXT, MATH],  MAIN,  ORD, '\u03c7', COMMON);    // >2,000
-defineSymbol( '\\psi', [TEXT, MATH],  MAIN,  ORD, '\u03c8', COMMON);    // >2,000
-defineSymbol( '\\omega', [TEXT, MATH],  MAIN,  ORD, '\u03c9', COMMON);    // >2,000
+// Note: In TeX, greek symbols are only available in Math mode
+defineSymbol( '\\alpha',  MATH,  MAIN,  ORD, '\u03b1', COMMON);    // >2,000
+defineSymbol( '\\beta', MATH,  MAIN,  ORD, '\u03b2', COMMON);    // >2,000
+defineSymbol( '\\gamma', MATH,  MAIN,  ORD, '\u03b3', COMMON);    // >2,000
+defineSymbol( '\\delta', MATH,  MAIN,  ORD, '\u03b4', COMMON);    // >2,000
+defineSymbol( '\\epsilon', MATH,  MAIN,  ORD, '\u03f5', COMMON);    // >2,000
+defineSymbol( '\\varepsilon', MATH,  MAIN,  ORD, '\u03b5');
+defineSymbol( '\\zeta', MATH,  MAIN,  ORD, '\u03b6', COMMON);    // >2,000
+defineSymbol( '\\eta', MATH,  MAIN,  ORD, '\u03b7', COMMON);    // >2,000
+defineSymbol( '\\theta', MATH,  MAIN,  ORD, '\u03b8', COMMON);    // >2,000
+defineSymbol( '\\vartheta', MATH,  MAIN,  ORD, '\u03d1', COMMON);    // >2,000
+defineSymbol( '\\iota', MATH,  MAIN,  ORD, '\u03b9', COMMON);    // >2,000
+defineSymbol( '\\kappa', MATH,  MAIN,  ORD, '\u03ba', COMMON);    // >2,000
+defineSymbol( '\\varkappa', MATH,  AMS,  ORD, '\u03f0', COMMON);    // >2,000
+defineSymbol( '\\lambda', MATH,  MAIN,  ORD, '\u03bb', COMMON);    // >2,000
+defineSymbol( '\\mu', MATH,  MAIN,  ORD, '\u03bc', COMMON);    // >2,000
+defineSymbol( '\\nu', MATH,  MAIN,  ORD, '\u03bd', COMMON);    // >2,000
+defineSymbol( '\\xi', MATH,  MAIN,  ORD, '\u03be', COMMON);    // >2,000
+defineSymbol( '\\omicron', MATH,  MAIN,  ORD, 'o');
+defineSymbol( '\\pi', MATH,  MAIN,  ORD, '\u03c0', COMMON);    // >2,000
+defineSymbol( '\\varpi', MATH,  MAIN,  ORD, '\u03d6', COMMON);    // >2,000
+defineSymbol( '\\rho', MATH,  MAIN,  ORD, '\u03c1', COMMON);    // >2,000
+defineSymbol( '\\varrho', MATH,  MAIN,  ORD, '\u03f1', COMMON);    // >2,000
+defineSymbol( '\\sigma', MATH,  MAIN,  ORD, '\u03c3', COMMON);    // >2,000
+defineSymbol( '\\varsigma', MATH,  MAIN,  ORD, '\u03c2', COMMON);    // >2,000
+defineSymbol( '\\tau', MATH,  MAIN,  ORD, '\u03c4', COMMON);    // >2,000
+defineSymbol( '\\phi', MATH,  MAIN,  ORD, '\u03d5', COMMON);    // >2,000
+defineSymbol( '\\varphi', MATH,  MAIN,  ORD, '\u03c6', COMMON);    // >2,000
+defineSymbol( '\\upsilon', MATH,  MAIN,  ORD, '\u03c5', COMMON);    // >2,000
+defineSymbol( '\\chi', MATH,  MAIN,  ORD, '\u03c7', COMMON);    // >2,000
+defineSymbol( '\\psi', MATH,  MAIN,  ORD, '\u03c8', COMMON);    // >2,000
+defineSymbol( '\\omega', MATH,  MAIN,  ORD, '\u03c9', COMMON);    // >2,000
 
-defineSymbol( '\\Gamma', [TEXT, MATH],  MAIN,  ORD, '\u0393', COMMON);    // >2,000
-defineSymbol( '\\Delta', [TEXT, MATH],  MAIN,  ORD, '\u0394', COMMON);    // >2,000
-defineSymbol( '\\Theta', [TEXT, MATH],  MAIN,  ORD, '\u0398', COMMON);    // >2,000
-defineSymbol( '\\Lambda', [TEXT, MATH],  MAIN,  ORD, '\u039b', COMMON);    // >2,000
-defineSymbol( '\\Xi', [TEXT, MATH],  MAIN,  ORD, '\u039e', COMMON);    // >2,000
-defineSymbol( '\\Pi', [TEXT, MATH],  MAIN,  ORD, '\u03a0', COMMON);    // >2,000
-defineSymbol( '\\Sigma', [TEXT, MATH],  MAIN,  ORD, '\u03a3', COMMON);    // >2,000
-defineSymbol( '\\Upsilon', [TEXT, MATH],  MAIN,  ORD, '\u03a5', COMMON);    // >2,000
-defineSymbol( '\\Phi', [TEXT, MATH],  MAIN,  ORD, '\u03a6', COMMON);    // >2,000
-defineSymbol( '\\Psi', [TEXT, MATH],  MAIN,  ORD, '\u03a8', COMMON);    // >2,000
-defineSymbol( '\\Omega', [TEXT, MATH],  MAIN,  ORD, '\u03a9', COMMON);    // >2,000
+defineSymbol( '\\Gamma', MATH,  MAIN,  ORD, '\u0393', COMMON);    // >2,000
+defineSymbol( '\\Delta', MATH,  MAIN,  ORD, '\u0394', COMMON);    // >2,000
+defineSymbol( '\\Theta', MATH,  MAIN,  ORD, '\u0398', COMMON);    // >2,000
+defineSymbol( '\\Lambda', MATH,  MAIN,  ORD, '\u039b', COMMON);    // >2,000
+defineSymbol( '\\Xi', MATH,  MAIN,  ORD, '\u039e', COMMON);    // >2,000
+defineSymbol( '\\Pi', MATH,  MAIN,  ORD, '\u03a0', COMMON);    // >2,000
+defineSymbol( '\\Sigma', MATH,  MAIN,  ORD, '\u03a3', COMMON);    // >2,000
+defineSymbol( '\\Upsilon', MATH,  MAIN,  ORD, '\u03a5', COMMON);    // >2,000
+defineSymbol( '\\Phi', MATH,  MAIN,  ORD, '\u03a6', COMMON);    // >2,000
+defineSymbol( '\\Psi', MATH,  MAIN,  ORD, '\u03a8', COMMON);    // >2,000
+defineSymbol( '\\Omega', MATH,  MAIN,  ORD, '\u03a9', COMMON);    // >2,000
 
 // AMS Greek
-defineSymbol( '\\digamma', [TEXT, MATH],  AMS,  ORD, '\u03dd', 248);
+defineSymbol( '\\digamma', MATH,  AMS,  ORD, '\u03dd', 248);
 
 category = 'Others';
 defineSymbol( '\\emptyset', [TEXT, MATH],  MAIN,  TEXTORD, '\u2205', SUPERCOMMON);    // >2,000
@@ -2646,8 +2645,8 @@ category = 'Accents';
 // defineSymbol( '\\grave', MATH,  MAIN,  ACCENT, '\u0060', 735);
 
 defineFunction([
-    '\\acute', '\\grave', '\\ddot', '\\tilde', '\\bar', '\\breve',
-    '\\check', '\\hat', '\\vec', '\\dot'
+    '\\acute', '\\grave', '\\dot', '\\ddot', '\\mathring', 
+    '\\tilde', '\\bar', '\\breve', '\\check', '\\hat', '\\vec', 
 ], '{body:auto}', null, function(name, args) {
     return {
         type: 'accent',
@@ -2655,8 +2654,8 @@ defineFunction([
             '\\acute': '\u02ca',
             '\\grave': '\u02cb',
             '\\dot': '\u02d9',
-            '\\mathring': '\u02da',
             '\\ddot': '\u00a8',
+            '\\mathring': '\u02da',
             '\\tilde': '\u007e',
             '\\bar': '\u02c9',
             '\\breve': '\u02d8',
@@ -2708,22 +2707,12 @@ defineSymbols('0123456789!@*()-=+[]";:?/.,', TEXT, MAIN, TEXTORD);
 defineSymbols("0123456789!@*()-=+{}[]\\';:?/.,~<>`|'$%#&^_\" ", COMMAND, MAIN, COMMANDLITERAL);
 
 // a-z
-defineSymbolRange(0x0041, 0x005A, TEXT, MAIN, TEXTORD);
 defineSymbolRange(0x0041, 0x005A, MATH, MAIN, MATHORD);
 defineSymbolRange(0x0041, 0x005A, COMMAND, MAIN, COMMANDLITERAL);
 
 // A-Z
-defineSymbolRange(0x0061, 0x007A, TEXT, MAIN, TEXTORD);
 defineSymbolRange(0x0061, 0x007A, MATH, MAIN, MATHORD);
 defineSymbolRange(0x0061, 0x007A, COMMAND, MAIN, COMMANDLITERAL);
-
-// Latin-1
-defineSymbolRange(0x00C0, 0x00D6, TEXT, MAIN, TEXTORD);
-defineSymbolRange(0x00D8, 0x00F6, TEXT, MAIN, TEXTORD);
-defineSymbolRange(0x00F8, 0x00FF, TEXT, MAIN, TEXTORD);
-
-// Cyrillic
-defineSymbolRange(0x0410, 0x044F, TEXT, MAIN, TEXTORD);
 
 
 // Unicode versions of some characters
