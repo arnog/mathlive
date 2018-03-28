@@ -86,104 +86,340 @@ const SHIFTED_KEYS = {
 //     'Operators',
 //         ['\\sum', '\\prod', '\\bigcup_x']
 // ]
+const ALT_KEYS_BASE = {
+    '0': ['\\emptyset', '\\varnothing', '\\infty', {latex: '#?_0', insert: '#@_0'},
+            '\\circ', '\\bigcirc', '\\bullet'],
+    '2': ['\\frac{1}{2}', {latex: '#?^2', insert: '#@^2' }],
+    '3': ['\\frac{1}{3}', {latex: '#?^3', insert: '#@^3' }],
+    '.': [
+        ',',  ';', '\\colon',  {latex:':', aside:'ratio'}, 
+        {latex:'\\cdotp', aside:'center dot', classes:'box'}, 
+        {latex:'\\cdots', aside:'center ellipsis', classes:'box'}, 
+        {latex:'\\ldotp', aside:'low dot', classes:'box'} , 
+        {latex:'\\ldots', aside:'low ellipsis', classes:'box'} , 
+        {latex:'\\vdots', aside:'', classes:'box'} , 
+        {latex:'\\ddots', aside:'', classes:'box'} , 
+        '\\odot', '\\oslash', '\\circledcirc', 
+        
+        ],
+
+    '*': [
+            '\\cdot', '\\ast', '\\star', '\\bigstar', 
+            '\\ltimes', '\\rtimes', '\\rightthreetimes','\\leftthreetimes',
+            '\\intercal', '\\prod', {latex:'\\prod_{n\\mathop=0}^{\\infty}', classes:'small'},
+        ],
+
+    '+': [
+            '\\pm', '\\mp', 
+            '\\sum', {latex:'\\sum_{n\\mathop=0}^{\\infty}', classes:'small'}, 
+            '\\dotplus', '\\oplus'
+        ],
+    '-': ['\\pm', '\\mp', 
+            '\\ominus', '\\vert #0  \\vert'],
+
+    '/': ['\\divideontimes', '/', '\\div'],
+
+    '(':[
+            '\\left( #0\\right)', '\\left[ #0\\right]', '\\left\\{ #0\\right\\}', '\\left\\langle #0\\right\\rangle',
+            '\\lfloor',    '\\llcorner',    '(',            '\\lbrack',         
+            '\\lvert',     '\\lVert',       '\\lgroup',     '\\langle',
+            '\\lceil',     '\\ulcorner',    '\\lmoustache', '\\lbrace',
+        ],
+    ')':[
+            '\\rfloor',    '\\lrcorner',    ')',            '\\rbrack',      
+            '\\rvert',     '\\rVert',       '\\rgroup',     '\\rangle',
+            '\\rceil',     '\\urcorner',    '\\rmoustache', '\\rbrace',
+        ],
+        
+    '=': [  '\\cong',       '\\asymp', '\\equiv', 
+            '\\differencedelta',    '\\varpropto',  
+            '\\thickapprox', '\\approxeq', '\\thicksim', '\\backsim', '\\eqsim', '\\simeq',
+            '\\Bumpeq', '\\bumpeq', '\\doteq', '\\Doteq', 
+            '\\fallingdotseq', '\\risingdotseq', '\\coloneq', '\\eqcirc', '\\circeq',
+            '\\triangleq', '\\between', 
+        ],
+
+    '!=': [  '\\neq', '\\ncong',    '',  
+            '\\nsim', 
+        ],
+
+    '<': [  '\\leq', '\\leqq', '\\lneqq', '\\ll', '\\nless', '\\nleq', 
+            '\\precsim', '\\lesssim', '\\lessgtr', '\\prec', '\\preccurlyeq', '\\lessdot',
+            '\\nprec', 
+        ],
+
+    '>': [
+            '\\geq', '\\geqq', '\\gneqq', '\\gg', '\\ngtr', '\\ngeq', 
+            '\\succsim', '\\gtrsim', '\\gtrless', '\\succ', '\\succcurlyeq', '\\gtrdot', 
+            '\\nsucc'
+        ],
+
+    'set': [    '\\in', '\\owns', 
+            '\\subset', '\\nsubset', '\\supset', '\\nsupset'
+        ],
+
+    '!set': [   '\\notin', '\\backepsilon'
+        ],
+
+    'subset': [],
+    'supset': [],
+
+    'infinity': ['\\aleph_0', '\\aleph_1', '\\omega', '\\mathfrak{m}'],
+    
+    
+    'numeric-pi': ['\\prod', '\\theta', '\\rho',
+        '\\sin', '\\cos', '\\tan'
+    ],
+
+
+    'ee': [
+            '\\times 10^{#?}',
+            '\\ln', '\\ln_{10}', '\\log'
+        ],
+
+    '^':  ['_{#?}'],
+
+    // Integrals
+    'int': [
+            {latex:'\\int_{#?}^{#?}', classes:'small'},
+            {latex:'\\int', classes:'small'},
+            {latex:'\\smallint', classes:'small'},
+            {latex:'\\iint', classes:'small'}, 
+            {latex:'\\iiint', classes:'small'},
+            {latex:'\\oint', classes:'small'},
+            {latex: '\\dfrac{\\rd}{\\rd x}',  classes:'small'},
+            {latex:'\\frac{\\partial}{\\partial x}', classes:'small'},
+
+            '\\capitalDifferentialD', '\\rd',  '\\partial',
+    ],
+
+    'nabla': [    '\\nabla\\times', '\\nabla\\cdot', '\\nabla^{2}'],
+
+    '!':    ['!!', '\\Gamma', '\\Pi'],
+    'accents': ['\\bar{#0}', '\\vec{#0}', '\\hat{#0}', '\\check{#0}',
+        '\\dot{#0}', '\\ddot{#0}', '\\mathring{#0}', '\\breve{#0}',
+        '\\acute{#0}', '\\tilde{#0}', '\\grave{#0}',   ],
+    'A':        ['\\aleph', ],
+    'a':        ['\\aleph', ],
+    'b':        ['\\beth', ],
+    'B':        ['\\beth', ],
+    'c':        ['\\C'],
+    'C':        ['\\C'],
+    'd':        ['\\daleth', ],
+    'D':        ['\\daleth', ],
+    'g':        ['\\gimel', ],
+    'G':        ['\\gimel', ],
+    'h':        ['\\hbar', '\\hslash'],
+    'i':        [{latex:'\\imaginaryI', aside:'imaginary i'}],
+    'j':        [{latex:'\\imaginaryJ', aside:'imaginary j'}],
+    'l':        [{latex:'\\ell', aside:'ell'}],
+    'n':        ['\\N'],
+    'N':        ['\\N'],
+    'p':        ['\\P'],
+    'P':        ['\\P'],
+    'q':        ['\\Q'],
+    'Q':        ['\\Q'],
+    'r':        ['\\R'],
+    'R':        ['\\R'],
+    'z':        ['\\Z'],
+    'Z':        ['\\Z'],
+
+    'x-var': ['y', 'z', 't', 'r', 
+            {latex:'f(#?)', classes:'small'}, {latex:'g(#?)', classes:'small'}, 'x^2', 'x^n', 
+            'x_n', 'x_{n+1}', 'x_i', 'x_{i+1}'],
+    'n-var': ['i', 'j', 'p', 'k', 'a', 'u'],
+    'ii': ['\\Re', '\\Im', '\\imaginaryJ', '\\Vert #0 \\Vert'],
+
+
+    'logic': [
+        {latex:'\\exists', aside:'there is'},
+        {latex:'\\nexists', aside:'there isn’t'},
+        
+        {latex:'\\ni', aside:'such that'},
+        {latex:'\\Colon', aside:'such that'},
+
+        {latex:'\\implies', aside:'implies'},
+        {latex:'\\impliedby', aside:'implied by'},
+
+        {latex:'\\iff', aside:'if and only if'},
+
+
+        {latex:'\\land', aside:'and'},
+        {latex:'\\lor', aside:'or'},
+        {latex:'\\oplus', aside:'xor'},
+        {latex:'\\lnot', aside:'not'},
+
+        {latex:'\\downarrow', aside:'nor'},
+        {latex:'\\uparrow', aside:'nand'},
+
+        {latex:'\\curlywedge', aside:'nor'},
+        {latex:'\\bar\\curlywedge', aside:'nand'},
+
+
+        // {latex:'\\barwedge', aside:'bar wedge'},
+        // {latex:'\\curlyvee', aside:'curly vee'},
+        // {latex:'\\veebar', aside:'vee bar'},
+        
+        {latex:'\\therefore', aside:'therefore'},
+        {latex:'\\because', aside:'because'},
+
+        {latex:'^\\biconditional', aside:'biconditional'},
+        
+        '\\leftrightarrow', '\\Leftrightarrow', '\\to', 
+        '\\models', '\\vdash', '\\gets', '\\dashv', 
+        '\\roundimplies'],
+
+    'set-operators': 
+        ['\\cap', '\\cup', '\\setminus', '\\smallsetminus', 
+        '\\complement'],
+
+    'set-relations': [
+            '\\in', '\\notin', '\\ni', '\\owns', '\\subset', '\\supset',
+            '\\subseteq', '\\supseteq', '\\subsetneq', '\\supsetneq',
+            '\\varsubsetneq', '\\subsetneqq', '\\nsubset', '\\nsupset',
+            '\\nsubseteq', '\\nsupseteq'],
+
+    'space': ['\\!', '\\,', '\\:', '\\;', '\\enspace', '\\quad', '\\qquad'],
+
+
+
+    // @todo could also delete to end
+    'delete': [{label: '<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>', 
+                command: '"deleteAll"' }],
+
+    // @todo Tab: could turn on speech, visible keyboard...
+    '->|': []
+
+};
+let ALT_KEYS = {};
 
 const LAYERS = {
     'math': `
         <div class='rows'>
             <ul>
-                <li class='keycap tex'><i>x</i></li>
-                <li class='keycap tex'><i>y</i></li>
+                <li class='keycap tex' data-alt-keys='x-var'><i>x</i></li>
+                <li class='keycap tex' data-alt-keys='n-var'><i>n</i></li>
                 <li class='separator w5'></li>
-                <li class='keycap tex'>7</li>
-                <li class='keycap tex'>8</li>
-                <li class='keycap tex'>9</li>
-                <li class='keycap tex' data-insert='\\frac{#0}{#?}'>&divide;</li>
+                <li class='keycap tex' data-alt-keys='7'>7</li>
+                <li class='keycap tex' data-alt-keys='8'>8</li>
+                <li class='keycap tex' data-alt-keys='9'>9</li>
+                <li class='keycap tex' data-alt-keys='/' data-insert='\\frac{#0}{#?}'>&divide;</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-key='ee'>e</li>
-                <li class='keycap tex' data-key='ii'>i</li>
-                <li class='keycap tex' data-key='pi'>π</li>
+                <li class='keycap tex' data-key='ee' data-alt-keys='ee'>e</li>
+                <li class='keycap tex' data-key='ii' data-alt-keys='ii'>i</li>
+                <li class='keycap tex' data-latex='\\pi' data-alt-keys='numeric-pi'></li>
             </ul>
             <ul>
-                <li class='keycap tex' data-key='<'>&lt;</li>
-                <li class='keycap tex' data-key='>'>&gt;</li>
+                <li class='keycap tex' data-key='<' data-alt-keys='<'>&lt;</li>
+                <li class='keycap tex' data-key='>' data-alt-keys='>'>&gt;</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex'>4</li>
-                <li class='keycap tex'>5</li>
-                <li class='keycap tex'>6</li>
-                <li class='keycap tex' data-insert='\\times '>&times;</li>
+                <li class='keycap tex' data-alt-keys='4'>4</li>
+                <li class='keycap tex' data-alt-keys='5'>5</li>
+                <li class='keycap tex' data-alt-keys='6'>6</li>
+                <li class='keycap tex' data-alt-keys='*'data-insert='\\times '>&times;</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-insert='^{2}'><span><i>x</i>&thinsp;²</span></li>
-                <li class='keycap tex' data-insert='^{#?}'><span><i>x</i><sup>&thinsp;<small>&#x2b1a;</small></sup></span></li>
-                <li class='keycap tex' data-insert='\\sqrt{#0}' data-latex='\\sqrt{#0}'></li>
+                <li class='keycap tex' data-alt-keys='x2' data-insert='#@^{2}'><span><i>x</i>&thinsp;²</span></li>
+                <li class='keycap tex' data-alt-keys='^' data-insert='#@^{#?}'><span><i>x</i><sup>&thinsp;<small>&#x2b1a;</small></sup></span></li>
+                <li class='keycap tex' data-alt-keys='sqrt' data-insert='\\sqrt{#0}' data-latex='\\sqrt{#0}'></li>
             </ul>
             <ul>
                 <li class='keycap tex' data-insert='\\le '>&#x2264;</li>
                 <li class='keycap tex' data-insert='\\ge '>&#x2265;</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex'>1</li>
-                <li class='keycap tex'>2</li>
-                <li class='keycap tex'>3</li>
-                <li class='keycap tex' data-key='-'>&#x2212;</li>
+                <li class='keycap tex' data-alt-keys='1'>1</li>
+                <li class='keycap tex' data-alt-keys='2'>2</li>
+                <li class='keycap tex' data-alt-keys='3'>3</li>
+                <li class='keycap tex' data-alt-keys='-' data-key='-'>&#x2212;</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-insert='|#0|'><span>|<small>&#x2b1a;</small>|</span></li>
-                <li class='keycap tex' >,</li>
-                <li class='action font-glyph bottom right' data-command='"deletePreviousChar"'>&#x232b;</li></ul>
+                <li class='keycap tex small' data-alt-keys='int' data-latex='\\int_0^\\infty'><span></span></li>
+                <li class='keycap tex' data-latex='\\forall' data-alt-keys='logic' ></li>
+                <li class='action font-glyph bottom right' data-alt-keys='delete' data-command='"deletePreviousChar"'>&#x232b;</li></ul>
             </ul>
             <ul>
-                <li class='keycap tex'>(</li>
-                <li class='keycap tex'>)</li>
+                <li class='keycap tex' data-alt-keys='(' data-latex='\\left('></li>
+                <li class='keycap tex' data-alt-keys=')' data-latex='\\right)'></li>
                 <li class='separator w5'></li>
-                <li class='keycap tex'>0</li>
-                <li class='keycap tex'>.</li>
-                <li class='keycap tex'>=</li>
-                <li class='keycap tex' data-key='+'>+</li>
+                <li class='keycap tex' data-alt-keys='0'>0</li>
+                <li class='keycap tex' data-alt-keys='.'>.</li>
+                <li class='keycap tex' data-alt-keys='='>=</li>
+                <li class='keycap tex' data-key='+' data-alt-keys='+'>+</li>
                 <li class='separator w5'></li>
                 <li class='action' data-command='"moveToPreviousChar"'><svg><use xlink:href='#svg-arrow-left' /></svg></li>
                 <li class='action' data-command='"moveToNextChar"'><svg><use xlink:href='#svg-arrow-right' /></svg></li>
-                <li class='action' data-command='"moveToNextPlaceholder"'><svg><use xlink:href='#svg-tab' /></svg></li>
+                <li class='action' data-alt-keys='->|' data-command='"moveToNextPlaceholder"'><svg><use xlink:href='#svg-tab' /></svg></li>
             </ul>
         </div>
     `,
     'lower-latin': `
         <div class='rows'>
             <ul>
-                <li class='keycap if-wide'>7</li>
-                <li class='keycap if-wide'>8</li>
-                <li class='keycap if-wide'>9</li>
-                <li class='keycap tex if-wide' data-insert='\\frac{#0}{#?}'>&divide;</li>
-                <li class='keycap'>q</li><li class='keycap'>w</li><li class='keycap'>e</li><li class='keycap'>r</li><li class='keycap'>t</li><li class='keycap'>y</li><li class='keycap'>u</li><li class='keycap'>i</li><li class='keycap'>o</li><li class='keycap'>p</li>
+                <li class='keycap if-wide' data-alt-keys='7'>7</li>
+                <li class='keycap if-wide' data-alt-keys='8'>8</li>
+                <li class='keycap if-wide' data-alt-keys='9'>9</li>
+                <li class='keycap tex if-wide' data-alt-keys='/' data-insert='\\frac{#0}{#?}'>&divide;</li>
+                <li class='keycap' data-alt-keys='q'>q</li>
+                <li class='keycap' data-alt-keys='w'>w</li>
+                <li class='keycap' data-alt-keys='e'>e</li>
+                <li class='keycap' data-alt-keys='r'>r</li>
+                <li class='keycap' data-alt-keys='t'>t</li>
+                <li class='keycap' data-alt-keys='y'>y</li>
+                <li class='keycap' data-alt-keys='u'>u</li>
+                <li class='keycap' data-alt-keys='i'>i</li>
+                <li class='keycap' data-alt-keys='o'>o</li>
+                <li class='keycap' data-alt-keys='p'>p</li>
             </ul>
             <ul>
-                <li class='keycap if-wide'>4</li>
-                <li class='keycap if-wide'>5</li>
-                <li class='keycap if-wide'>6</li>
-                <li class='keycap if-wide' data-insert='\\times '>&times;</li>
+                <li class='keycap if-wide' data-alt-keys='4'>4</li>
+                <li class='keycap if-wide' data-alt-keys='5'>5</li>
+                <li class='keycap if-wide' data-alt-keys='6'>6</li>
+                <li class='keycap if-wide' data-alt-keys='*' data-insert='\\times '>&times;</li>
                 <li class='separator tex w5 if-wide'></li>
-                <li class='keycap'>a</li><li class='keycap'>s</li><li class='keycap'>d</li><li class='keycap'>f</li><li class='keycap'>g</li><li class='keycap'>h</li><li class='keycap'>j</li><li class='keycap'>k</li><li class='keycap'>l</li>
+                <li class='keycap' data-alt-keys='a'>a</li>
+                <li class='keycap' data-alt-keys='s'>s</li>
+                <li class='keycap' data-alt-keys='d'>d</li>
+                <li class='keycap' data-alt-keys='f'>f</li>
+                <li class='keycap' data-alt-keys='g'>g</li>
+                <li class='keycap' data-alt-keys='h'>h</li>
+                <li class='keycap' data-alt-keys='j'>j</li>
+                <li class='keycap' data-alt-keys='k'>k</li>
+                <li class='keycap' data-alt-keys='l'>l</li>
                 <li class='separator tex w5 if-wide'></li>
             </ul>
             <ul>
-                <li class='keycap if-wide'>1</li>
-                <li class='keycap if-wide'>2</li>
-                <li class='keycap if-wide'>3</li>
-                <li class='keycap if-wide' data-key='-'>&#x2212;</li>
-                <li class='shift modifier font-glyph bottom left w15 layer-switch' data-layer='upper-latin'>&#x21e7;</li><li class='keycap'>z</li><li class='keycap'>x</li><li class='keycap'>c</li><li class='keycap'>v</li><li class='keycap'>b</li><li class='keycap'>n</li><li class='keycap'>m</li>
-                <li class='action font-glyph bottom right w15' data-command='"deletePreviousChar"'>&#x232b;</li>
+                <li class='keycap if-wide' data-alt-keys='1'>1</li>
+                <li class='keycap if-wide' data-alt-keys='2'>2</li>
+                <li class='keycap if-wide' data-alt-keys='3'>3</li>
+                <li class='keycap if-wide' data-key='-' data-alt-keys='-'>&#x2212;</li>
+                <li class='shift modifier font-glyph bottom left w15 layer-switch' data-layer='upper-latin'>&#x21e7;</li>
+                <li class='keycap' data-alt-keys='z'>z</li>
+                <li class='keycap' data-alt-keys='x'>x</li>
+                <li class='keycap' data-alt-keys='c'>c</li>
+                <li class='keycap' data-alt-keys='v'>v</li>
+                <li class='keycap' data-alt-keys='b'>b</li>
+                <li class='keycap' data-alt-keys='n'>n</li>
+                <li class='keycap' data-alt-keys='m'>m</li>
+                <li class='action font-glyph bottom right w15' 
+                    data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+                    data-shifted-command='"deleteAll"'
+                    data-alt-keys='delete' data-command='"deletePreviousChar"'
+                >&#x232b;</li>
             </ul>
             <ul>
-                <li class='keycap if-wide'>0</li>
-                <li class='keycap if-wide'>.</li>
-                <li class='keycap if-wide'>=</li>
+                <li class='keycap if-wide' data-alt-keys='0'>0</li>
+                <li class='keycap if-wide' data-alt-keys='.'>.</li>
+                <li class='keycap if-wide' data-alt-keys='='>=</li>
                 <li class='keycap if-wide' data-key='+'>+</li>
                 <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols'>&infin;≠</li>
-                <li class='keycap'>,</li>
-                <li class='keycap w50' data-key=' '>&nbsp;</li>
+                <li class='keycap' data-alt-keys=','>,</li>
+                <li class='keycap w50' data-key=' ' data-alt-keys='space'>&nbsp;</li>
                 <li class='action' data-command='"moveToPreviousChar"'
-                    data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' data-shifted-command='"extendToPreviousChar"'>
+                    data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' 
+                    data-shifted-command='"extendToPreviousChar"'>
                     <svg><use xlink:href='#svg-arrow-left' /></svg>
                 </li>
                 <li class='action' data-command='"moveToNextChar"'
-                    data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' data-shifted-command='"extendToNextChar"'>
+                    data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' 
+                    data-shifted-command='"extendToNextChar"'>
                     <svg><use xlink:href='#svg-arrow-right' /></svg>
                 </li>
                 <li class='action' data-command='"moveToNextPlaceholder"'><svg><use xlink:href='#svg-tab' /></svg></li>
@@ -192,34 +428,64 @@ const LAYERS = {
     'upper-latin': `
         <div class='rows'>
             <ul>
-                <li class='keycap if-wide'>7</li>
-                <li class='keycap if-wide'>8</li>
-                <li class='keycap if-wide'>9</li>
-                <li class='keycap tex if-wide' data-insert='\\frac{#0}{#?}'>&divide;</li>
-                <li class='keycap'>Q</li><li class='keycap'>W</li><li class='keycap'>E</li><li class='keycap'>R</li><li class='keycap'>T</li><li class='keycap'>Y</li><li class='keycap'>U</li><li class='keycap'>I</li><li class='keycap'>O</li><li class='keycap'>P</li></ul>
+                <li class='keycap if-wide' data-alt-keys='7'>7</li>
+                <li class='keycap if-wide' data-alt-keys='8'>8</li>
+                <li class='keycap if-wide' data-alt-keys='9'>9</li>
+                <li class='keycap tex if-wide' data-alt-keys='/' data-insert='\\frac{#0}{#?}'>&divide;</li>
+                <li class='keycap' data-alt-keys='Q'>Q</li>
+                <li class='keycap' data-alt-keys='w'>W</li>
+                <li class='keycap' data-alt-keys='E'>E</li>
+                <li class='keycap' data-alt-keys='R'>R</li>
+                <li class='keycap' data-alt-keys='T'>T</li>
+                <li class='keycap' data-alt-keys='Y'>Y</li>
+                <li class='keycap' data-alt-keys='U'>U</li>
+                <li class='keycap' data-alt-keys='I'>I</li>
+                <li class='keycap' data-alt-keys='O'>O</li>
+                <li class='keycap' data-alt-keys='P'>P</li>
+            </ul>
             <ul>
-                <li class='keycap if-wide'>4</li>
-                <li class='keycap if-wide'>5</li>
-                <li class='keycap if-wide'>6</li>
-                <li class='keycap if-wide' data-insert='\\times '>&times;</li>
+                <li class='keycap if-wide' data-alt-keys='4'>4</li>
+                <li class='keycap if-wide' data-alt-keys='5'>5</li>
+                <li class='keycap if-wide' data-alt-keys='6'>6</li>
+                <li class='keycap if-wide' data-alt-keys='*' data-insert='\\times '>&times;</li>
                 <li class='separator tex w5 if-wide'></li>
-                <li class='keycap'>A</li><li class='keycap'>S</li><li class='keycap'>D</li><li class='keycap'>F</li><li class='keycap'>G</li><li class='keycap'>H</li><li class='keycap'>J</li><li class='keycap'>K</li><li class='keycap'>L</li>
+                <li class='keycap' data-alt-keys='A'>A</li>
+                <li class='keycap' data-alt-keys='S'>S</li>
+                <li class='keycap' data-alt-keys='D'>D</li>
+                <li class='keycap' data-alt-keys='F'>F</li>
+                <li class='keycap' data-alt-keys='G'>G</li>
+                <li class='keycap' data-alt-keys='H'>H</li>
+                <li class='keycap' data-alt-keys='J'>J</li>
+                <li class='keycap' data-alt-keys='K'>K</li>
+                <li class='keycap' data-alt-keys='L'>L</li>
                 <li class='separator tex w5 if-wide'></li>
-                </ul>
+            </ul>
             <ul>
-                <li class='keycap if-wide'>1</li>
-                <li class='keycap if-wide'>2</li>
-                <li class='keycap if-wide'>3</li>
-                <li class='keycap if-wide' data-key='-'>&#x2212;</li>
-                <li class='shift modifier font-glyph selected bottom left w15 layer-switch' data-layer='lower-latin'>&#x21e7;</li><li class='keycap'>Z</li><li class='keycap'>X</li><li class='keycap'>C</li><li class='keycap'>V</li><li class='keycap'>B</li><li class='keycap'>N</li><li class='keycap'>M</li>
-                <li class='action font-glyph bottom right w15' data-command='"deletePreviousChar"'>&#x232b;</li></ul>
+                <li class='keycap if-wide' data-alt-keys='1'>1</li>
+                <li class='keycap if-wide' data-alt-keys='2'>2</li>
+                <li class='keycap if-wide' data-alt-keys='3'>3</li>
+                <li class='keycap if-wide' data-key='-' data-alt-keys='-'>&#x2212;</li>
+                <li class='shift modifier font-glyph selected bottom left w15 layer-switch' data-layer='lower-latin'>&#x21e7;</li>
+                <li class='keycap' data-alt-keys='Z'>Z</li>
+                <li class='keycap' data-alt-keys='X'>X</li>
+                <li class='keycap' data-alt-keys='C'>C</li>
+                <li class='keycap' data-alt-keys='V'>V</li>
+                <li class='keycap' data-alt-keys='B'>B</li>
+                <li class='keycap' data-alt-keys='N'>N</li>
+                <li class='keycap' data-alt-keys='M'>M</li>
+                <li class='action font-glyph bottom right w15' 
+                    data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+                    data-shifted-command='"deleteAll"'
+                    data-alt-keys='delete' data-command='"deletePreviousChar"'
+                >&#x232b;</li>
+            </ul>
             <ul>
-                <li class='keycap if-wide'>0</li>
-                <li class='keycap if-wide'>.</li>
-                <li class='keycap if-wide'>=</li>
+                <li class='keycap if-wide' data-alt-keys='0'>0</li>
+                <li class='keycap if-wide' data-alt-keys='.'>.</li>
+                <li class='keycap if-wide' data-alt-keys='='>=</li>
                 <li class='keycap if-wide' data-key='+'>+</li>
                 <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols'>&infin;≠</li>
-                <li class='keycap'>;</li>
+                <li class='keycap' data-alt-keys='.'>;</li>
                 <li class='keycap w50' data-key=' '>&nbsp;</li>
                 <li class='action' data-command='"moveToPreviousChar"'
                     data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' data-shifted-command='"extendToPreviousChar"'>
@@ -235,33 +501,33 @@ const LAYERS = {
     'symbols': `
         <div class='rows'>
             <ul>
-                <li class='keycap if-wide'>7</li>
-                <li class='keycap if-wide'>8</li>
-                <li class='keycap if-wide'>9</li>
+                <li class='keycap if-wide' data-alt-keys='7'>7</li>
+                <li class='keycap if-wide' data-alt-keys='8'>8</li>
+                <li class='keycap if-wide' data-alt-keys='9'>9</li>
                 <li class='keycap tex if-wide' data-insert='\\frac{#0}{#?}'>&divide;</li>
-                <li class='keycap tex' data-insert='\\lbrace '>{</li>
-                <li class='keycap tex' data-insert='\\rbrace '>}</li>
+                <li class='keycap tex' data-alt-keys='(' data-insert='\\lbrace '>{</li>
+                <li class='keycap tex' data-alt-keys=')' data-insert='\\rbrace '>}</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-insert='\\in '>&#x2208;</li>
-                <li class='keycap tex' data-insert='\\notin '>&#x2209;</li>
+                <li class='keycap tex' data-alt-keys='set' data-insert='\\in '>&#x2208;</li>
+                <li class='keycap tex' data-alt-keys='!set' data-insert='\\notin '>&#x2209;</li>
                 <li class='keycap tex' data-insert='\\Re '>&#x211c;<aside>Real</aside></li>
                 <li class='keycap tex' data-insert='\\Im '>&#x2111;<aside>Imaginary</aside></li>
                 <li class='keycap w15' data-insert='\\ulcorner#0\\urcorner '><span><sup>&#x250c;</sup><span><span style='color:#ddd'>o</span><sup>&#x2510;</sup></span><aside>ceil</aside></li>
-                <li class='keycap tex' data-insert='\\nabla '>&#x2207;<aside>nabla</aside></li>
-                <li class='keycap tex' data-insert='\\infty '>&#x221e;</li>
+                <li class='keycap tex' data-alt-keys='nabla' data-insert='\\nabla '>&#x2207;<aside>nabla</aside></li>
+                <li class='keycap tex' data-alt-keys='infinity' data-insert='\\infty '>&#x221e;</li>
                     
             </ul>
             <ul>
-                <li class='keycap if-wide'>4</li>
-                <li class='keycap if-wide'>5</li>
-                <li class='keycap if-wide'>6</li>
-                <li class='keycap if-wide' data-insert='\\times '>&times;</li>
-                <li class='keycap tex' data-insert='\\lbrack '>[</li>
-                <li class='keycap tex' data-insert='\\rbrack '>]</li>
+                <li class='keycap if-wide' data-alt-keys='4'>4</li>
+                <li class='keycap if-wide' data-alt-keys='5'>5</li>
+                <li class='keycap if-wide' data-alt-keys='6'>6</li>
+                <li class='keycap if-wide' data-alt-keys='*' data-insert='\\times '>&times;</li>
+                <li class='keycap tex' data-alt-keys='(' data-insert='\\lbrack '>[</li>
+                <li class='keycap tex' data-alt-keys=')' data-insert='\\rbrack '>]</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-insert='\\subset '>&#x2282;</li>
-                <li class='keycap tex' data-insert='\\supset '>&#x2283;</li>
-                <li class='keycap tex' data-key='!'>!<aside>factorial</aside></li>
+                <li class='keycap tex' data-alt-keys='subset' data-insert='\\subset '>&#x2282;</li>
+                <li class='keycap tex' data-alt-keys='supset' data-insert='\\supset '>&#x2283;</li>
+                <li class='keycap tex' data-key='!' data-alt-keys='!'>!<aside>factorial</aside></li>
                 <li class='keycap' data-insert='^\\prime '><span><sup><span><span style='color:#ddd'>o</span>&#x2032</sup></span><aside>prime</aside></li>
                 <li class='keycap w15' data-insert='\\llcorner#0\\lrcorner '><span><sub>&#x2514;</sub><span style='color:#ddd'>o</span><sub>&#x2518;</sub></span><aside>floor</aside></li>
                 <li class='keycap tex' data-insert='\\partial '>&#x2202;<aside>partial<br>derivative</aside></li>
@@ -269,27 +535,31 @@ const LAYERS = {
 
             </ul>
             <ul>
-                <li class='keycap if-wide'>1</li>
-                <li class='keycap if-wide'>2</li>
-                <li class='keycap if-wide'>3</li>
-                <li class='keycap if-wide' data-key='-'>&#x2212;</li>
-                <li class='keycap tex' data-insert='\\langle '>&#x27e8;</li>
-                <li class='keycap tex' data-insert='\\rangle '>&#x27e9;</li>
+                <li class='keycap if-wide data-alt-keys='1'>1</li>
+                <li class='keycap if-wide' data-alt-keys='2'>2</li>
+                <li class='keycap if-wide' data-alt-keys='3'>3</li>
+                <li class='keycap if-wide' data-alt-keys='-' data-key='-'>&#x2212;</li>
+                <li class='keycap tex' data-alt-keys='(' data-insert='\\langle '>&#x27e8;</li>
+                <li class='keycap tex' data-alt-keys=')' data-insert='\\rangle '>&#x27e9;</li>
                 <li class='separator w5'></li>
                 <li class='keycap tex' data-insert='\\subseteq '>&#x2286;</li>
                 <li class='keycap tex' data-insert='\\supseteq '>&#x2287;</li>
-                <li class='keycap tex' data-insert='\\vec{#0}'><span><span style='color:#ddd'>o</span>&#x20d7;</span><aside>vector</aside></li>
-                <li class='keycap tex' data-insert='\\bar{#0}' data-latex='\\bar{#0}'></li>
+                <li class='keycap tex' data-alt-keys='accents' data-insert='\\vec{#@}' data-latex='\\vec{#?}' data-aside='vector'></li>
+                <li class='keycap tex' data-alt-keys='accents' data-insert='\\bar{#@}' data-latex='\\bar{#?}' data-aside='bar'></li>
                 <li class='keycap tex' data-insert='\\lVert #0 \\rVert '><span>&#x2225;<span style='color:#ddd'>o</span>&#x2225;</span><aside>norm</aside></li>
                 <li class='keycap tex' data-insert='\\ast '>&#x2217;<aside>asterisk</aside></li>
                 
-                <li class='action font-glyph bottom right w15' data-command='"deletePreviousChar"'>&#x232b;</li>
+                <li class='action font-glyph bottom right w15' 
+                    data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+                    data-shifted-command='"deleteAll"'
+                    data-alt-keys='delete' data-command='"deletePreviousChar"'
+                >&#x232b;</li>
             </ul>
             <ul>
-                <li class='keycap if-wide'>0</li>
-                <li class='keycap if-wide'>.</li>
-                <li class='keycap if-wide'>=</li>
-                <li class='keycap if-wide' data-key='+'>+</li>
+                <li class='keycap if-wide' data-alt-keys='0' >0</li>
+                <li class='keycap if-wide' data-alt-keys='.' >.</li>
+                <li class='keycap if-wide' data-alt-keys='=' >=</li>
+                <li class='keycap if-wide' data-alt-keys='+'  data-key='+'>+</li>
                 <li class='layer-switch font-glyph modifier bottom left' data-layer='lower-latin'>abc</li>
                 <li class='keycap tex' data-insert='\\cdot '>&#x22c5;<aside>centered dot</aside></li>
                 <li class='keycap tex' data-insert='\\colon '>:<aside>colon</aside></li>
@@ -331,7 +601,12 @@ const LAYERS = {
                 <li class='keycap tex-math' data-insert='\\beta '><i>&beta;</i></li>
                 <li class='keycap tex-math' data-insert='\\nu '><i>&nu;</i></li>
                 <li class='keycap tex-math' data-insert='\\mu '><i>&mu;</i></li>
-            <li class='action font-glyph bottom right w15' data-command='"deletePreviousChar"'>&#x232b;</li></ul>
+                <li class='action font-glyph bottom right w15' 
+                    data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+                    data-shifted-command='"deleteAll"'
+                    data-alt-keys='delete' data-command='"deletePreviousChar"'
+                >&#x232b;</li>
+            </ul>
             <ul>
                 <li class='keycap ' data-key=' '>&nbsp;</li>
                 <li class='keycap'>,</li>
@@ -401,14 +676,23 @@ const LAYERS = {
         <div class='rows'>
             <ul><li class='keycap tt'>q</li><li class='keycap tt'>w</li><li class='keycap tt'>e</li><li class='keycap tt'>r</li><li class='keycap tt'>t</li><li class='keycap tt'>y</li><li class='keycap tt'>u</li><li class='keycap tt'>i</li><li class='keycap tt'>o</li><li class='keycap tt'>p</li></ul>
             <ul><li class='keycap tt'>a</li><li class='keycap tt'>s</li><li class='keycap tt'>d</li><li class='keycap tt'>f</li><li class='keycap tt'>g</li><li class='keycap tt'>h</li><li class='keycap tt'>j</li><li class='keycap tt'>k</li><li class='keycap tt'>l</li></ul>
-            <ul><li class='shift modifier font-glyph bottom left w15 layer-switch' data-layer='upper-command'>&#x21e7;</li><li class='keycap tt'>z</li><li class='keycap tt'>x</li><li class='keycap tt'>c</li><li class='keycap tt'>v</li><li class='keycap tt'>b</li><li class='keycap tt'>n</li><li class='keycap tt'>m</li>
-                <li class='action font-glyph bottom right w15' data-command='"deletePreviousChar"'>&#x232b;</li></ul>
+            <ul><li class='shift modifier font-glyph bottom left w15 layer-switch' data-layer='upper-command'>&#x21e7;</li>
+                <li class='keycap tt'>z</li>
+                <li class='keycap tt'>x</li>
+                <li class='keycap tt'>c</li>
+                <li class='keycap tt'>v</li><li class='keycap tt'>b</li><li class='keycap tt'>n</li><li class='keycap tt'>m</li>
+                <li class='action font-glyph bottom right w15' 
+                    data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+                    data-shifted-command='"deleteAll"'
+                    data-alt-keys='delete' data-command='"deletePreviousChar"'
+                >&#x232b;</li>
+            </ul>
             <ul>
                 <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols-command'>01#</li>
-                <li class='keycap tt'>{</li>
-                <li class='keycap tt'>}</li>
-                <li class='keycap tt'>^</li>
-                <li class='keycap tt'>_</li>
+                <li class='keycap tt' data-shifted='[' data-shifted-command='["insertAndUnshiftKeyboardLayer", "["]'>{</li>
+                <li class='keycap tt' data-shifted=']' data-shifted-command='["insertAndUnshiftKeyboardLayer", "]"]'>}</li>
+                <li class='keycap tt' data-shifted='(' data-shifted-command='["insertAndUnshiftKeyboardLayer", "("]'>^</li>
+                <li class='keycap tt' data-shifted=')' data-shifted-command='["insertAndUnshiftKeyboardLayer", ")"]'>_</li>
                 <li class='keycap w20' data-key=' '>&nbsp;</li>
                 <li class='action' data-command='"moveToPreviousChar"'
                     data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' data-shifted-command='"extendToPreviousChar"'>
@@ -426,7 +710,12 @@ const LAYERS = {
                 <ul><li class='keycap tt'>Q</li><li class='keycap tt'>W</li><li class='keycap tt'>E</li><li class='keycap tt'>R</li><li class='keycap tt'>T</li><li class='keycap tt'>Y</li><li class='keycap tt'>U</li><li class='keycap tt'>I</li><li class='keycap tt'>O</li><li class='keycap tt'>P</li></ul>
                 <ul><li class='keycap tt'>A</li><li class='keycap tt'>S</li><li class='keycap tt'>D</li><li class='keycap tt'>F</li><li class='keycap tt'>G</li><li class='keycap tt'>H</li><li class='keycap tt'>J</li><li class='keycap tt'>K</li><li class='keycap tt'>L</li></ul>
                 <ul><li class='shift modifier font-glyph selected bottom left w15 layer-switch' data-layer='lower-command'>&#x21e7;</li><li class='keycap tt'>Z</li><li class='keycap tt'>X</li><li class='keycap tt'>C</li><li class='keycap tt'>V</li><li class='keycap tt'>B</li><li class='keycap tt'>N</li><li class='keycap tt'>M</li>
-                    <li class='action font-glyph bottom right w15' data-command='"deletePreviousChar"'>&#x232b;</li></ul>
+                    <li class='action font-glyph bottom right w15' 
+                        data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+                        data-shifted-command='"deleteAll"'
+                        data-alt-keys='delete' data-command='"deletePreviousChar"'
+                    >&#x232b;</li>
+                </ul>
                 <ul>
                     <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols-command'01#</li>
                     <li class='keycap tt'>[</li>
@@ -459,7 +748,12 @@ const LAYERS = {
                     <li class='keycap tt'>?</li>
                     <li class='keycap tt'>'</li>
                     <li class='keycap tt'>"</li>
-                    <li class='action font-glyph bottom right' data-command='"deletePreviousChar"'>&#x232b;</li></ul>
+                    <li class='action font-glyph bottom right' 
+                        data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+                        data-shifted-command='"deleteAll"'
+                        data-alt-keys='delete' data-command='"deletePreviousChar"'
+                    >&#x232b;</li>
+                </ul>
                 <ul>
                     <li class='layer-switch font-glyph modifier bottom left' data-layer='lower-command'>abc</li>
                     <li class='keycap tt'>&lt;</li>
@@ -499,7 +793,7 @@ const LAYERS = {
                     <li class='fnbutton' data-insert='10^{#?}'></li>
                     <li class='bigfnbutton' data-insert='\\mathop{gcd}(#?)' data-latex='\\mathop{gcd}()'></li>
                     <li class='bigfnbutton' data-insert='\\mathop{floor}(#?)' data-latex='\\mathop{floor}()'></li>
-                    <li class='bigfnbutton' data-insert='\\sum_{n=0}^{\\infty}'></li>
+                    <li class='bigfnbutton' data-insert='\\sum_{n\\mathop=0}^{\\infty}'></li>
                     <li class='bigfnbutton' data-insert='\\int_{0}^{\\infty}'></li>
                     <li class='bigfnbutton' data-insert='\\mathop{sign}(#?)' data-latex='\\mathop{sign}()'></li>
                 </ul>
@@ -510,7 +804,7 @@ const LAYERS = {
                     <li class='fnbutton' data-insert='\\sqrt[#?]{#0}'></li>
                     <li class='bigfnbutton' data-insert='#0 \\mod' data-latex='\\mod'></li>
                     <li class='bigfnbutton' data-insert='\\mathop{round}(#?) ' data-latex='\\mathop{round}()'></li>
-                    <li class='bigfnbutton' data-insert='\\prod_{n=0}^{\\infty}' data-latex='{\\tiny \\prod_{n=0}^{\\infty}}'></li>
+                    <li class='bigfnbutton' data-insert='\\prod_{n\\mathop=0}^{\\infty}' data-latex='{\\tiny \\prod_{n=0}^{\\infty}}'></li>
                     <li class='bigfnbutton' data-insert='\\frac{\\differentialD #0}{\\differentialD x}'></li>
                     <li class='action font-glyph bottom right' data-command='"deletePreviousChar"'>&#x232b;</li></ul>
                 <ul><li class='separator'></li>
@@ -530,15 +824,7 @@ const LAYERS = {
 }
 
 function latexToMarkup(latex, arg) {
-    const args = [];
-    
-    if (arg && arg.length > 0) {
-        for (let i = 0; i < arg.length; i++) {
-            args.push(ParserModule.parseTokens(Lexer.tokenize(arg[i]), 'math'));
-        }
-    }
-
-    const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', args);
+    const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', arg, Definitions.MACROS);
     const spans = MathAtom.decompose({mathstyle: 'displaystyle'}, parse);
     
     const base = Span.makeSpan(spans, 'ML__base');
@@ -571,7 +857,7 @@ function makeFunctionsLayer(functions) {
                 const command = f[i];
                 const command_markup =  latexToMarkup(
                     Popover.SAMPLES[command] || command,
-                    ['{\\color{#550000}{\\tiny x}}']            // \\char"2B1A
+                    {'?': '{\\color{#550000}{\\tiny x}}'}            // \\char"2B1A
                 );
                 const command_note = Definitions.getNote(command);
                 // const command_shortcuts = Shortcuts.stringify(
@@ -665,6 +951,62 @@ function makeKeyboardToolbar(mf, keyboardIDs, currentKeyboard) {
 }
 
 
+function makeKeycap(mf, elList, chainedCommand) {
+    for (let i = 0; i < elList.length; ++i) {
+        const el = elList[i];
+        // Display
+        if (el.getAttribute('data-latex')) {
+            el.innerHTML = latexToMarkup(el.getAttribute('data-latex'),
+                    {'?':'{\\color{#555}{\\tiny \\char"2B1A}}'});
+        } else if (el.innerHTML === '') {
+            el.innerHTML = latexToMarkup(el.getAttribute('data-insert') || '', 
+                    {'?':'{\\color{#555}{\\tiny \\char"2B1A}}'});
+        }
+        if (el.getAttribute('data-aside')) {
+            el.innerHTML += '<aside>' + el.getAttribute('data-aside') + '</aside>';
+        }
+        if (el.getAttribute('data-classes')) {
+            el.classList.add(el.getAttribute('data-classes'));
+        }
+
+        const key = el.getAttribute('data-insert');
+        if (key && SHIFTED_KEYS[key]) {
+            el.setAttribute('data-shifted', SHIFTED_KEYS[key].label);
+            el.setAttribute('data-shifted-command', 
+                JSON.stringify(['insertAndUnshiftKeyboardLayer', SHIFTED_KEYS[key].insert]));
+        }
+
+        // Commands
+        let handlers;
+        if (el.getAttribute('data-command')) {
+            handlers = JSON.parse(el.getAttribute('data-command'));
+        } else if (el.getAttribute('data-insert')) {
+            handlers = ['insert', el.getAttribute('data-insert'), {focus:true}];
+        } else if (el.getAttribute('data-latex')) {
+            handlers = ['insert', el.getAttribute('data-latex'), {focus:true}];
+        } else {
+            handlers = ['typedText', el.getAttribute('data-key') || el.textContent];
+        }
+        if (chainedCommand) {
+            handlers = [chainedCommand, handlers];
+        }
+        if (el.getAttribute('data-alt-keys')) {
+            const altKeys = ALT_KEYS[el.getAttribute('data-alt-keys')];
+            if (altKeys) {
+                handlers = {
+                    default: handlers,
+                    pressAndHoldStart: ['showAlternateKeys', el.getAttribute('data-alt-keys'), altKeys],
+                    pressAndHoldEnd: 'hideAlternateKeys'
+                }
+            } else {
+                console.log('Unknown alt key set: "' + el.getAttribute('data-alt-keys'));
+            }
+        }
+
+        mf._attachButtonHandlers(el, handlers);
+
+    }
+}
 
 /**
  * Construct a virtual keyboard element based on the config options in the 
@@ -696,18 +1038,6 @@ function make(mf, theme) {
             <symbol id="svg-tab" viewBox="0 0 448 512">
                     <path d="M32 217.1c0-8.8 7.2-16 16-16h144v-93.9c0-7.1 8.6-10.7 13.6-5.7l143.5 143.1c6.3 6.3 6.3 16.4 0 22.7L205.6 410.4c-5 5-13.6 1.5-13.6-5.7v-93.9H48c-8.8 0-16-7.2-16-16v-77.7m-32 0v77.7c0 26.5 21.5 48 48 48h112v61.9c0 35.5 43 53.5 68.2 28.3l143.6-143c18.8-18.8 18.8-49.2 0-68L228.2 78.9c-25.1-25.1-68.2-7.3-68.2 28.3v61.9H48c-26.5 0-48 21.6-48 48zM436 64h-8c-6.6 0-12 5.4-12 12v360c0 6.6 5.4 12 12 12h8c6.6 0 12-5.4 12-12V76c0-6.6-5.4-12-12-12z"/>
             </symbol>
-            <symbol id="svg-wikipedia" viewBox="0 0 640 512">
-                    <path d="M640 51.2l-.3 12.2c-28.1.8-45 15.8-55.8 40.3-25 57.8-103.3 240-155.3 358.6H415l-81.9-193.1c-32.5 63.6-68.3 130-99.2 193.1-.3.3-15 0-15-.3C172 352.3 122.8 243.4 75.8 133.4 64.4 106.7 26.4 63.4.2 63.7c0-3.1-.3-10-.3-14.2h161.9v13.9c-19.2 1.1-52.8 13.3-43.3 34.2 21.9 49.7 103.6 240.3 125.6 288.6 15-29.7 57.8-109.2 75.3-142.8-13.9-28.3-58.6-133.9-72.8-160-9.7-17.8-36.1-19.4-55.8-19.7V49.8l142.5.3v13.1c-19.4.6-38.1 7.8-29.4 26.1 18.9 40 30.6 68.1 48.1 104.7 5.6-10.8 34.7-69.4 48.1-100.8 8.9-20.6-3.9-28.6-38.6-29.4.3-3.6 0-10.3.3-13.6 44.4-.3 111.1-.3 123.1-.6v13.6c-22.5.8-45.8 12.8-58.1 31.7l-59.2 122.8c6.4 16.1 63.3 142.8 69.2 156.7L559.2 91.8c-8.6-23.1-36.4-28.1-47.2-28.3V49.6l127.8 1.1.2.5z"/>
-            </symbol>
-            <symbol id="svg-link" viewBox="0 0 512 512">
-                    <path d="M301.148 394.702l-79.2 79.19c-50.778 50.799-133.037 50.824-183.84 0-50.799-50.778-50.824-133.037 0-183.84l79.19-79.2a132.833 132.833 0 0 1 3.532-3.403c7.55-7.005 19.795-2.004 20.208 8.286.193 4.807.598 9.607 1.216 14.384.481 3.717-.746 7.447-3.397 10.096-16.48 16.469-75.142 75.128-75.3 75.286-36.738 36.759-36.731 96.188 0 132.94 36.759 36.738 96.188 36.731 132.94 0l79.2-79.2.36-.36c36.301-36.672 36.14-96.07-.37-132.58-8.214-8.214-17.577-14.58-27.585-19.109-4.566-2.066-7.426-6.667-7.134-11.67a62.197 62.197 0 0 1 2.826-15.259c2.103-6.601 9.531-9.961 15.919-7.28 15.073 6.324 29.187 15.62 41.435 27.868 50.688 50.689 50.679 133.17 0 183.851zm-90.296-93.554c12.248 12.248 26.362 21.544 41.435 27.868 6.388 2.68 13.816-.68 15.919-7.28a62.197 62.197 0 0 0 2.826-15.259c.292-5.003-2.569-9.604-7.134-11.67-10.008-4.528-19.371-10.894-27.585-19.109-36.51-36.51-36.671-95.908-.37-132.58l.36-.36 79.2-79.2c36.752-36.731 96.181-36.738 132.94 0 36.731 36.752 36.738 96.181 0 132.94-.157.157-58.819 58.817-75.3 75.286-2.651 2.65-3.878 6.379-3.397 10.096a163.156 163.156 0 0 1 1.216 14.384c.413 10.291 12.659 15.291 20.208 8.286a131.324 131.324 0 0 0 3.532-3.403l79.19-79.2c50.824-50.803 50.799-133.062 0-183.84-50.802-50.824-133.062-50.799-183.84 0l-79.2 79.19c-50.679 50.682-50.688 133.163 0 183.851z"/>
-            </symbol>
-            <symbol id="svg-external-link" viewBox="0 0 448 512">
-                <path d="M400 32H48C21.49 32 0 53.49 0 80v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V80c0-26.51-21.49-48-48-48zm16 400c0 8.822-7.178 16-16 16H48c-8.822 0-16-7.178-16-16V80c0-8.822 7.178-16 16-16h352c8.822 0 16 7.178 16 16v352zM99.515 374.828c-4.686-4.686-4.686-12.284 0-16.971l195.15-195.15-.707-.707-89.958.342c-6.627 0-12-5.373-12-12v-9.999c0-6.628 5.372-12 12-12L340 128c6.627 0 12 5.372 12 12l-.343 136c0 6.627-5.373 12-12 12h-9.999c-6.627 0-12-5.373-12-12l.342-89.958-.707-.707-195.15 195.15c-4.686 4.686-12.284 4.686-16.971 0l-5.657-5.657z"/>
-            </symbol>
-            <symbol id="svg-external-link" viewBox="0 0 512 512">
-                <path d="M256 40c118.621 0 216 96.075 216 216 0 119.291-96.61 216-216 216-119.244 0-216-96.562-216-216 0-119.203 96.602-216 216-216m0-32C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm-36 344h12V232h-12c-6.627 0-12-5.373-12-12v-8c0-6.627 5.373-12 12-12h48c6.627 0 12 5.373 12 12v140h12c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12h-72c-6.627 0-12-5.373-12-12v-8c0-6.627 5.373-12 12-12zm36-240c-17.673 0-32 14.327-32 32s14.327 32 32 32 32-14.327 32-32-14.327-32-32-32z"/>
-            </symbol>
             <symbol id="svg-copy" viewBox="0 0 448 512">
                 <path d="M433.941 65.941l-51.882-51.882A48 48 0 0 0 348.118 0H176c-26.51 0-48 21.49-48 48v48H48c-26.51 0-48 21.49-48 48v320c0 26.51 21.49 48 48 48h224c26.51 0 48-21.49 48-48v-48h80c26.51 0 48-21.49 48-48V99.882a48 48 0 0 0-14.059-33.941zM352 32.491a15.88 15.88 0 0 1 7.431 4.195l51.882 51.883A15.885 15.885 0 0 1 415.508 96H352V32.491zM288 464c0 8.822-7.178 16-16 16H48c-8.822 0-16-7.178-16-16V144c0-8.822 7.178-16 16-16h80v240c0 26.51 21.49 48 48 48h112v48zm128-96c0 8.822-7.178 16-16 16H176c-8.822 0-16-7.178-16-16V48c0-8.822 7.178-16 16-16h144v72c0 13.2 10.8 24 24 24h72v240z"/>
             </symbol>
@@ -717,9 +1047,134 @@ function make(mf, theme) {
             <symbol id="svg-angle-double-left" viewBox="0 0 320 512">
                 <path d="M153.1 247.5l117.8-116c4.7-4.7 12.3-4.7 17 0l7.1 7.1c4.7 4.7 4.7 12.3 0 17L192.7 256l102.2 100.4c4.7 4.7 4.7 12.3 0 17l-7.1 7.1c-4.7 4.7-12.3 4.7-17 0L153 264.5c-4.6-4.7-4.6-12.3.1-17zm-128 17l117.8 116c4.7 4.7 12.3 4.7 17 0l7.1-7.1c4.7-4.7 4.7-12.3 0-17L64.7 256l102.2-100.4c4.7-4.7 4.7-12.3 0-17l-7.1-7.1c-4.7-4.7-12.3-4.7-17 0L25 247.5c-4.6 4.7-4.6 12.3.1 17z"/>            
             </symbol>
+            <symbol id="svg-trash" viewBox="0 0 448 512">
+                <path d="M336 64l-33.6-44.8C293.3 7.1 279.1 0 264 0h-80c-15.1 0-29.3 7.1-38.4 19.2L112 64H24C10.7 64 0 74.7 0 88v2c0 3.3 2.7 6 6 6h26v368c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V96h26c3.3 0 6-2.7 6-6v-2c0-13.3-10.7-24-24-24h-88zM184 32h80c5 0 9.8 2.4 12.8 6.4L296 64H152l19.2-25.6c3-4 7.8-6.4 12.8-6.4zm200 432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V96h320v368zm-176-44V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12zm-80 0V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12zm160 0V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12z"/>
+            </symbol>
         `;
-    
+            // <symbol id="svg-wikipedia" viewBox="0 0 640 512">
+            //         <path d="M640 51.2l-.3 12.2c-28.1.8-45 15.8-55.8 40.3-25 57.8-103.3 240-155.3 358.6H415l-81.9-193.1c-32.5 63.6-68.3 130-99.2 193.1-.3.3-15 0-15-.3C172 352.3 122.8 243.4 75.8 133.4 64.4 106.7 26.4 63.4.2 63.7c0-3.1-.3-10-.3-14.2h161.9v13.9c-19.2 1.1-52.8 13.3-43.3 34.2 21.9 49.7 103.6 240.3 125.6 288.6 15-29.7 57.8-109.2 75.3-142.8-13.9-28.3-58.6-133.9-72.8-160-9.7-17.8-36.1-19.4-55.8-19.7V49.8l142.5.3v13.1c-19.4.6-38.1 7.8-29.4 26.1 18.9 40 30.6 68.1 48.1 104.7 5.6-10.8 34.7-69.4 48.1-100.8 8.9-20.6-3.9-28.6-38.6-29.4.3-3.6 0-10.3.3-13.6 44.4-.3 111.1-.3 123.1-.6v13.6c-22.5.8-45.8 12.8-58.1 31.7l-59.2 122.8c6.4 16.1 63.3 142.8 69.2 156.7L559.2 91.8c-8.6-23.1-36.4-28.1-47.2-28.3V49.6l127.8 1.1.2.5z"/>
+            // </symbol>
+            // <symbol id="svg-link" viewBox="0 0 512 512">
+            //         <path d="M301.148 394.702l-79.2 79.19c-50.778 50.799-133.037 50.824-183.84 0-50.799-50.778-50.824-133.037 0-183.84l79.19-79.2a132.833 132.833 0 0 1 3.532-3.403c7.55-7.005 19.795-2.004 20.208 8.286.193 4.807.598 9.607 1.216 14.384.481 3.717-.746 7.447-3.397 10.096-16.48 16.469-75.142 75.128-75.3 75.286-36.738 36.759-36.731 96.188 0 132.94 36.759 36.738 96.188 36.731 132.94 0l79.2-79.2.36-.36c36.301-36.672 36.14-96.07-.37-132.58-8.214-8.214-17.577-14.58-27.585-19.109-4.566-2.066-7.426-6.667-7.134-11.67a62.197 62.197 0 0 1 2.826-15.259c2.103-6.601 9.531-9.961 15.919-7.28 15.073 6.324 29.187 15.62 41.435 27.868 50.688 50.689 50.679 133.17 0 183.851zm-90.296-93.554c12.248 12.248 26.362 21.544 41.435 27.868 6.388 2.68 13.816-.68 15.919-7.28a62.197 62.197 0 0 0 2.826-15.259c.292-5.003-2.569-9.604-7.134-11.67-10.008-4.528-19.371-10.894-27.585-19.109-36.51-36.51-36.671-95.908-.37-132.58l.36-.36 79.2-79.2c36.752-36.731 96.181-36.738 132.94 0 36.731 36.752 36.738 96.181 0 132.94-.157.157-58.819 58.817-75.3 75.286-2.651 2.65-3.878 6.379-3.397 10.096a163.156 163.156 0 0 1 1.216 14.384c.413 10.291 12.659 15.291 20.208 8.286a131.324 131.324 0 0 0 3.532-3.403l79.19-79.2c50.824-50.803 50.799-133.062 0-183.84-50.802-50.824-133.062-50.799-183.84 0l-79.2 79.19c-50.679 50.682-50.688 133.163 0 183.851z"/>
+            // </symbol>
+            //     <symbol id="svg-external-link" viewBox="0 0 448 512">
+            //     <path d="M400 32H48C21.49 32 0 53.49 0 80v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V80c0-26.51-21.49-48-48-48zm16 400c0 8.822-7.178 16-16 16H48c-8.822 0-16-7.178-16-16V80c0-8.822 7.178-16 16-16h352c8.822 0 16 7.178 16 16v352zM99.515 374.828c-4.686-4.686-4.686-12.284 0-16.971l195.15-195.15-.707-.707-89.958.342c-6.627 0-12-5.373-12-12v-9.999c0-6.628 5.372-12 12-12L340 128c6.627 0 12 5.372 12 12l-.343 136c0 6.627-5.373 12-12 12h-9.999c-6.627 0-12-5.373-12-12l.342-89.958-.707-.707-195.15 195.15c-4.686 4.686-12.284 4.686-16.971 0l-5.657-5.657z"/>
+            // </symbol>
+            // <symbol id="svg-external-link" viewBox="0 0 512 512">
+            //     <path d="M256 40c118.621 0 216 96.075 216 216 0 119.291-96.61 216-216 216-119.244 0-216-96.562-216-216 0-119.203 96.602-216 216-216m0-32C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm-36 344h12V232h-12c-6.627 0-12-5.373-12-12v-8c0-6.627 5.373-12 12-12h48c6.627 0 12 5.373 12 12v140h12c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12h-72c-6.627 0-12-5.373-12-12v-8c0-6.627 5.373-12 12-12zm36-240c-17.673 0-32 14.327-32 32s14.327 32 32 32 32-14.327 32-32-14.327-32-32-32z"/>
+            // </symbol>
+
     let markup = svgIcons;
+
+    // Add an element to hold the alternate keys displayed on press+hold
+    markup += '<div class="alternate-keys"></div>';
+
+    // Auto-populate the ALT_KEYS table
+    ALT_KEYS = Object.assign({}, ALT_KEYS_BASE);
+    const upperAlpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const lowerAlpha = 'abcdefghijklmnopqrstuvwxyz';
+    const digits = '0123456789';
+    for (let i = 0; i < 26; i++) {
+        const key = upperAlpha[i];
+        if (!ALT_KEYS[key]) ALT_KEYS[key] = [];
+        ALT_KEYS[key].unshift({
+                latex: '\\mathbb{' + key + '}',
+                aside: 'blackboard',
+                insert: '\\mathbb{' + key + '}'});
+        ALT_KEYS[key].unshift({
+                latex: '\\mathbf{' + key + '}',
+                aside: 'bold',
+                insert: '\\mathbf{' + key + '}'});
+        ALT_KEYS[key].unshift({
+                latex: '\\mathsf{' + key + '}',
+                aside: 'sans',
+                insert: '\\mathsf{' + key + '}'});
+        ALT_KEYS[key].unshift({
+                latex: '\\mathtt{' + key + '}',
+                aside: 'monospace',
+                insert: '\\mathtt{' + key + '}'});
+        ALT_KEYS[key].unshift({
+                latex: '\\mathcal{' + key + '}',
+                aside: 'script',
+                insert: '\\mathcal{' + key + '}'});
+        ALT_KEYS[key].unshift({
+                latex: '\\mathfrak{' + key + '}',
+                aside: 'fraktur',
+                insert: '\\mathfrak{' + key + '}'});
+
+        ALT_KEYS[key].unshift({
+                latex: '\\mathbb{' + lowerAlpha[i] + '}',
+                aside: 'blackboard',
+                insert: '\\mathbb{' + lowerAlpha[i] + '}'});
+        ALT_KEYS[key].unshift({
+                latex: '\\mathbf{' + lowerAlpha[i] + '}',
+                aside: 'bold',
+                insert: '\\mathbf{' + lowerAlpha[i] + '}'});
+        ALT_KEYS[key].unshift({
+                latex: '\\mathsf{' + lowerAlpha[i] + '}',
+                aside: 'sans',
+                insert: '\\mathsf{' + lowerAlpha[i] + '}'});
+        ALT_KEYS[key].unshift({
+                latex: '\\mathcal{' + lowerAlpha[i] + '}',
+                aside: 'script',
+                insert: '\\mathcal{' + lowerAlpha[i] + '}'});
+        ALT_KEYS[key].unshift({
+                latex: '\\mathfrak{' + lowerAlpha[i] + '}',
+                aside: 'fraktur',
+                insert: '\\mathfrak{' + lowerAlpha[i] + '}'});
+    }
+    for (let i = 0; i <= 26; i++) {
+        const key = lowerAlpha[i];
+        if (!ALT_KEYS[key]) ALT_KEYS[key] = [];
+        ALT_KEYS[key].unshift({
+                latex: '\\mathsf{' + key + '}',
+                aside: 'sans',
+                insert: '\\mathbb{' + key + '}'});
+        ALT_KEYS[key].unshift({
+                latex: '\\mathbf{' + key + '}',
+                aside: 'bold',
+                insert: '\\mathbf{' + key + '}'});
+        ALT_KEYS[key].unshift({
+                latex: '\\mathtt{' + key + '}',
+                aside: 'monospace',
+                insert: '\\mathtt{' + key + '}'});
+        ALT_KEYS[key].unshift({
+                latex: '\\mathfrak{' + key + '}',
+                aside: 'fraktur',
+                insert: '\\mathfrak{' + key + '}'});
+    }
+    for (let i = 0; i < 10; i++) {
+        const key = digits[i];
+        if (!ALT_KEYS[key]) ALT_KEYS[key] = [];
+        // The mathbb font does not appear to include digits, 
+        // although it's supposed to.
+        // ALT_KEYS[key].push({
+        //         latex: '\\underset{\\textsf{\\footnotesize blackboard}}{\\mathbb{' + key + '}}',
+        //         insert: '\\mathbb{' + key + '}}'});
+        ALT_KEYS[key].unshift({
+                latex: '\\mathbf{' + key + '}',
+                aside: 'bold',
+                insert: '\\mathbf{' + key + '}'});
+        ALT_KEYS[key].unshift({
+                latex: '\\mathsf{' + key + '}',
+                aside: 'sans',
+                insert: '\\mathsf{' + key + '}'});
+        ALT_KEYS[key].unshift({
+                latex: '\\mathtt{' + key + '}',
+                aside: 'monospace',
+                insert: '\\mathtt{' + key + '}'});
+        ALT_KEYS[key].unshift({
+                latex: '\\mathcal{' + key + '}',
+                aside: 'script',
+                insert: '\\mathcal{' + key + '}'});
+        ALT_KEYS[key].unshift({
+                latex: '\\mathfrak{' + key + '}',
+                aside: 'fraktur',
+                insert: '\\mathfrak{' + key + '}'});
+    }
+
+
+
 
     let keyboardIDs = mf.config.virtualKeyboards;
     if (!keyboardIDs) {
@@ -768,38 +1223,9 @@ function make(mf, theme) {
     result.innerHTML = markup;
 
     // Attach the element handlers
-    let elList = result.querySelectorAll('.keycap, .action, .fnbutton, .bigfnbutton');
-    for (let i = 0; i < elList.length; ++i) {
-        const el = elList[i];
-        // Display
-        if (el.getAttribute('data-latex')) {
-            el.innerHTML = latexToMarkup(el.getAttribute('data-latex'),
-                ['{\\color{#555}{\\tiny \\char"2B1A}}', '{\\color{#555}{\\tiny \\char"2B1A}}']            );
-        } else if (el.innerHTML === '') {
-            el.innerHTML = latexToMarkup(el.getAttribute('data-insert') || '', 
-                ['{\\color{#555}{\\tiny \\char"2B1A}}', '{\\color{#555}{\\tiny \\char"2B1A}}']);
-        }
+    makeKeycap(mf, result.querySelectorAll('.keycap, .action, .fnbutton, .bigfnbutton'));
 
-        const key = el.getAttribute('data-insert');
-        if (key && SHIFTED_KEYS[key]) {
-            el.setAttribute('data-shifted', SHIFTED_KEYS[key].label);
-            el.setAttribute('data-shifted-command', 
-                JSON.stringify(['insertAndUnshiftKeyboardLayer', SHIFTED_KEYS[key].insert]));
-        }
-
-        // Commands
-        if (el.getAttribute('data-command')) {
-            mf._attachButtonHandlers(el, JSON.parse(el.getAttribute('data-command')));
-        } else if (el.getAttribute('data-insert')) {
-            mf._attachButtonHandlers(el, ['insert', 
-                el.getAttribute('data-insert')]);
-        } else {
-            mf._attachButtonHandlers(el, ['typedText', 
-                el.getAttribute('data-key') || el.textContent]);
-        }
-    }
-
-    elList = result.getElementsByClassName('layer-switch');
+    const elList = result.getElementsByClassName('layer-switch');
     for (let i = 0; i < elList.length; ++i) {
         if (elList[i].classList.contains('shift')) {
             // This is a potential press-and-hold layer switch
@@ -813,7 +1239,7 @@ function make(mf, theme) {
 
                 // If the key is released after a longer delay, we restore the 
                 // shifted labels
-                pressAndHold: 'unshiftKeyboardLayer',
+                pressAndHoldEnd: 'unshiftKeyboardLayer',
             });
         } else {
             // This is a simple layer switch
@@ -826,6 +1252,22 @@ function make(mf, theme) {
     // Select the first keyboard as the initial one.
     result.getElementsByClassName('keyboard-layer')[0].classList.add('visible');
 
+    // Listen to know when the mouse has been released without being
+    // captured to remove the alternate keys panel and the shifted state of the 
+    // keyboard.
+    window.addEventListener('mouseup', function() {
+        mf.hideAlternateKeys_();
+        mf.unshiftKeyboardLayer_();
+    });
+    window.addEventListener('blur', function() {
+        mf.hideAlternateKeys_();
+        mf.unshiftKeyboardLayer_();
+    });
+    window.addEventListener('touchend', function() {
+        mf.hideAlternateKeys_();
+        mf.unshiftKeyboardLayer_();
+    });
+
     return result;
 }
 
@@ -834,7 +1276,8 @@ function make(mf, theme) {
 
 return {
     make,
-    makeFunctionsLayer
+    makeFunctionsLayer,
+    makeKeycap
 }
 
 

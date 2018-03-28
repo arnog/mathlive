@@ -1072,7 +1072,11 @@ MathField.prototype._onCopy = function() {
 
 /**
  * Return a textual representation of the mathfield.
- * @param {string} [format='latex']. One of `'latex'`, `'spoken'`, 
+ * @param {string} [format='latex']. One of 
+ *    * `'latex'`
+ *    * `'expandedLatex'` : all macros are recursively expanded to their definition
+ *    * `'spoken'`
+ *    * `'mathML'`
  * or `'mathML'`.
  * @return {string}
  * @method MathField#text
@@ -1080,8 +1084,8 @@ MathField.prototype._onCopy = function() {
 MathField.prototype.text = function(format) {
     format = format || 'latex';
     let result = '';
-    if (format === 'latex') {
-        result = this.mathlist.root.toLatex();
+    if (format === 'latex' || format === 'expandedLatex') {
+        result = this.mathlist.root.toLatex(format === 'expandedLatex');
     } else if (format === 'mathML') {
             result = this.mathlist.root.toMathML();
     } else if (format === 'spoken') {
@@ -1093,8 +1097,11 @@ MathField.prototype.text = function(format) {
 
 /**
  * Return a textual representation of the selection in the mathfield.
- * @param {string} [format='latex']. One of `'latex'`, `'spoken'` or 
- * `'mathML'`
+ * @param {string} [format='latex']. One of 
+ *    * `'latex'`
+ *    * `'expandedLatex'` : all macros are recursively expanded to their definition
+ *    * `'spoken'`
+ *    * `'mathML'`
  * @return {string}
  * @method MathField#selectedText
  */
@@ -1103,10 +1110,10 @@ MathField.prototype.selectedText = function(format) {
     let result = '';
     const selection = this.mathlist.extractContents();
     if (selection) {
-        if (format === 'latex') {
+        if (format === 'latex' || format === 'expandedLatex') {
             
             for (const atom of selection) {
-                result += atom.toLatex();
+                result += atom.toLatex(format === 'expandedLatex');
             }
 
         } else if (format === 'mathML') {
@@ -1272,25 +1279,30 @@ MathField.prototype.pasteFromClipboard_ = function() {
  * according to the insertion mode specified. After the insertion, the 
  * selection will be set according to the selectionMode.
  * @param {string} latex
- * @param {Object} options
- * @param {string} options.insertionMode - One of `"replaceSelection"`, 
- * `"replaceAll"`, `"insertBefore"` or `"insertAfter"`. Default: `"replaceSelection"`
  * @param {string} options.selectionMode - Describes where the selection 
- * will be after the insertion. One of 'placeholder' (the selection will be 
- * the first available placeholder in the item that has been inserted), 
- * 'after' (the selection will be an insertion point after the item that has 
- * been inserted), 'before' (the selection will be an insertion point before 
+ * will be after the insertion:
+ *    * `'placeholder'`: the selection will be the first available placeholder 
+ * in the item that has been inserted) (default)
+ *    * `'after'`: the selection will be an insertion point after the item that 
+ * has been inserted), 
+ *    * `'before'`: the selection will be an insertion point before 
  * the item that has been inserted) or 'item' (the item that was inserted will
- * be selected). Default: 'placeholder'.
+ * be selected).
+ * 
+ * @param {string} options.format - The format of the string `s`:
+ *    * `'auto'`: the string is interpreted as a latex fragment or command) 
+ * (default)
+ *    * `'latex'`: the string is interpreted strictly as a latex fragment
+ * 
+ * @param {boolean} options.focus - If true, the mathfield will be focused
  * @method MathField#insert
  */
 MathField.prototype.insert_ = 
-MathField.prototype.insert = function(latex, options) {
-    if (typeof latex === 'string' && latex.length > 0) {
-        if (!options) options = {};
-        if (!options.format) options.format = 'auto';
+MathField.prototype.insert = function(s, options) {
+    if (typeof s === 'string' && s.length > 0) {
+        if (options && options.focus) this.focus();
         this.undoManager.snapshot();
-        this.mathlist.insert(latex, options);
+        this.mathlist.insert(s, options);
     }
 }
 
@@ -1313,14 +1325,14 @@ MathField.prototype.complete_ = function() {
         }
         if (match) {
             const mathlist = ParserModule.parseTokens(
-                    Lexer.tokenize(match.latexName), mode, null);
+                    Lexer.tokenize(match.latexName), mode, null, Definitions.MACROS);
 
             this.mathlist.spliceCommandStringAroundInsertionPoint(mathlist);
         } else {
             // This wasn't a simple function or symbol.
             // Interpret the input as LaTeX code
             const mathlist = ParserModule.parseTokens(
-                    Lexer.tokenize(command), mode, null);
+                    Lexer.tokenize(command), mode, null, Definitions.MACROS);
             if (mathlist) {
                 this.mathlist.spliceCommandStringAroundInsertionPoint(mathlist);
             } else {            
@@ -1388,8 +1400,8 @@ MathField.prototype.toggleKeystrokeCaption_ = function() {
 /**
  * Attach event handlers to an element so that it will react by executing
  * a command when pressed.
- * Command can be:
- * - a string, a single selector or 
+ * `'command'` can be:
+ * - a string, a single selector
  * - an array, whose first element is a selector followed by one or more arguments.
  * - an object, with the following keys:
  *    * 'default': command performed on up, with a down + up sequence with no
@@ -1397,8 +1409,10 @@ MathField.prototype.toggleKeystrokeCaption_ = function() {
  *    * 'alt', 'shift', 'altshift' keys: command performed on up with 
  *      one of these modifiers pressed
  *    * 'pressed': command performed on 'down'
- *    * 'pressAndHold': command performed on up, if there was a delay
- *     between down and up, other 'default'
+ *    * 'pressAndHoldStart': command performed after a tap/down followed by a 
+ * delay (optional)
+ *    * 'pressAndHoldEnd': command performed on up, if there was a delay
+ *     between down and up, if absent, 'default' is performed
  * The value of the keys specify which selector (string
  * or array) to perform depending on the keyboard state when the button is 
  * pressed.
@@ -1438,9 +1452,13 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
             el.setAttribute('data-' + this.config.namespace + 'command-pressed', 
                 JSON.stringify(command.pressed));
         }
-        if (command.pressAndHold) {
-            el.setAttribute('data-' + this.config.namespace + 'command-pressAndHold', 
-                JSON.stringify(command.pressAndHold));
+        if (command.pressAndHoldStart) {
+            el.setAttribute('data-' + this.config.namespace + 'command-pressAndHoldStart', 
+                JSON.stringify(command.pressAndHoldStart));
+        }
+        if (command.pressAndHoldEnd) {
+            el.setAttribute('data-' + this.config.namespace + 'command-pressAndHoldEnd', 
+                JSON.stringify(command.pressAndHoldEnd));
         }
     } else {
         // We need to turn the command into a string to attach it to the dataset 
@@ -1468,10 +1486,26 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
             if (command) {
                 that.perform(JSON.parse(command));
             }
+
+            const pressAndHoldStartCommand = el.getAttribute('data-' + that.config.namespace + 'command-pressAndHoldStart');
+            if (pressAndHoldStartCommand) {
+                window.setTimeout(function() {
+                    if (el.classList.contains('pressed')) {
+                        that.perform(JSON.parse(pressAndHoldStartCommand));
+                    }
+                }, 300);
+            }
+
         }
     }, {passive: false, capture: false});
     on (el, 'mouseleave touchcancel', function() {
         el.classList.remove('pressed');
+        // let command = el.getAttribute('data-' + that.config.namespace + 
+        //     'command-pressAndHoldEnd');
+        // const now = Date.now();
+        // if (command && now > pressHoldStart + 300) {
+        //     that.perform(JSON.parse(command));
+        // }
     });
     on (el, 'mouseenter', function(ev) {
         if (ev.buttons === 1) {
@@ -1484,11 +1518,11 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
         el.classList.add('active');
 
         // Since we want the active state to be visible for a while,
-        // use a timer to remove it after a while
-        setTimeout(function(){ el.classList.remove('active'); }, 150);
+        // use a timer to remove it after a short delay
+        window.setTimeout(function(){ el.classList.remove('active'); }, 150);
 
         let command = el.getAttribute('data-' + that.config.namespace + 
-            'command-pressAndHold');
+            'command-pressAndHoldEnd');
         const now = Date.now();
         // If the button has not been pressed for very long, don't consider
         // it a press-and-hold.
@@ -1534,6 +1568,100 @@ MathField.prototype._makeButton = function(label, cls, ariaLabel, command) {
     return button;
 }
 
+
+/**
+ * Alternate options are displayed when a key on the virtual keyboard is pressed
+ * and held.
+ * 
+ */
+MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
+    let altContainer = this.virtualKeyboard.getElementsByClassName('alternate-keys');
+    if (!altContainer || altContainer.length === 0) return;
+
+    altContainer = altContainer[0];
+
+    if (altKeys.length >= 7) {
+        // Width 4
+        altContainer.style.width = '286px';
+    } else if (altKeys.length === 4 || altKeys.length === 2) {
+        // Width 2
+        altContainer.style.width = '146px';
+    } else if (altKeys.length === 1) {
+        // Width 1
+        altContainer.style.width = '86px';
+    } else {
+        // Width 3
+        altContainer.style.width = '146px';
+    }
+
+
+    let markup = '';
+    for (const altKey of altKeys) {
+        markup += '<li';
+        if (typeof altKey === 'string') {
+            markup += ' data-latex="' + altKey + '"';
+        } else {
+            if (altKey.latex) {
+                markup += ' data-latex="' + altKey.latex + '"';
+            }
+            if (altKey.insert) {
+                markup += ' data-insert="' + altKey.insert + '"';
+            }
+            if (altKey.command) {
+                markup += " data-command='" + altKey.command + "'";
+            }
+            if (altKey.aside) {
+                markup += ' data-aside="' + altKey.aside + '"';
+            }
+            if (altKey.classes) {
+                markup += ' data-classes="' + altKey.classes + '"';
+            }
+        }
+
+        markup += '>';        
+        markup += altKey.label || '';
+
+        markup += '</li>';
+    }
+    markup = '<ul>' + markup + '</ul>';
+    altContainer.innerHTML = markup;
+
+    VirtualKeyboard.makeKeycap(this, 
+        altContainer.querySelectorAll('li'), 'performAlternateKeys');
+
+    const keycapEl = this.virtualKeyboard.querySelector(
+        'div.keyboard-layer.visible div.rows ul li[data-alt-keys="' + keycap + '"]');
+    const position = keycapEl.getBoundingClientRect();
+    if (position) {
+        altContainer.style.top = (position.top - altContainer.clientHeight + 5).toString() + 'px';
+        altContainer.style.left = Math.max(0, 
+            Math.min(window.innerWidth - altContainer.offsetWidth,
+            ((position.left + position.right - altContainer.offsetWidth) / 2) )) + 'px';
+        altContainer.classList.add('visible');
+    }
+}
+
+
+MathField.prototype.hideAlternateKeys_ = function() {
+    let altContainer = this.virtualKeyboard.getElementsByClassName('alternate-keys');
+    if (altContainer && altContainer.length > 0) {
+        altContainer = altContainer[0];
+    } else {
+        return;
+    }
+    altContainer.classList.remove('visible');
+    altContainer.innerHTML = '';
+}
+
+/**
+ * The command invoked when an alternate key is pressed.
+ * We need to hide the Alternate Keys panel, then perform the 
+ * command.
+ */
+MathField.prototype.performAlternateKeys_ = function(command) {
+    this.hideAlternateKeys_();
+    this.perform(command);
+}
 
 
 MathField.prototype.switchKeyboardLayer_ = function(layer) {
@@ -1581,12 +1709,13 @@ MathField.prototype.switchKeyboardLayer_ = function(layer) {
  * (for example when a modifier key is held down.)
  */
 MathField.prototype.shiftKeyboardLayer_ = function() {
-    const keycaps = this.virtualKeyboard.querySelectorAll('div.keyboard-layer.visible .rows .keycap, div.keyboard-layer.visible .rows .action');
+    const keycaps = this.virtualKeyboard.querySelectorAll(
+        'div.keyboard-layer.visible .rows .keycap, div.keyboard-layer.visible .rows .action');
     if (keycaps) {
         for (let i = 0; i < keycaps.length; i++) {
             const keycap = keycaps[i];
             let shiftedContent = keycap.getAttribute('data-shifted');
-            if (shiftedContent || keycap.innerHTML.match(/^[a-z]$/)) {
+            if (shiftedContent || /^[a-z]$/.test(keycap.innerHTML)) {
                 keycap.setAttribute('data-unshifted-content', keycap.innerHTML);
 
                 if (!shiftedContent) {
@@ -1624,7 +1753,8 @@ MathField.prototype.shiftKeyboardLayer_ = function() {
  * 
  */
 MathField.prototype.unshiftKeyboardLayer_ = function() {
-    const keycaps = this.virtualKeyboard.querySelectorAll('div.keyboard-layer.visible .rows .keycap, div.keyboard-layer.visible .rows .action');
+    const keycaps = this.virtualKeyboard.querySelectorAll(
+        'div.keyboard-layer.visible .rows .keycap, div.keyboard-layer.visible .rows .action');
     if (keycaps) {
         for (let i = 0; i < keycaps.length; i++) {
             const keycap = keycaps[i];
@@ -1678,7 +1808,6 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
             this.virtualKeyboard = VirtualKeyboard.make(this, theme);
 
             // Let's make sure that tapping on the keyboard focuses the field
-            const that = this;
             on(this.virtualKeyboard, 'touchstart mousedown', function(evt) {
                 that.focus();
                 evt.preventDefault();

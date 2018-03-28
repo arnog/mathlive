@@ -569,6 +569,16 @@ EditableMathlist.prototype.selectAll_ = function() {
     this.setSelection(1, 'end');
 }
 
+
+/**
+ * Delete everything in the field
+ * @method EditableMathlist#deleteAll_
+ */
+EditableMathlist.prototype.deleteAll_ = function() {
+    this.selectAll_();
+    this.delete_();
+}
+
 /**
  * 
  * @param {MathAtom} atom 
@@ -1482,7 +1492,8 @@ EditableMathlist.prototype.insert = function(s, options) {
     let mathlist;
 
     // Save the content of the selection, if any
-    const args = [this.extractContents()];
+    const args = {};
+    args[0] = this.extractContents();
 
     // Delete any selected items
     if (options.insertionMode === 'replaceSelection') {
@@ -1521,17 +1532,20 @@ EditableMathlist.prototype.insert = function(s, options) {
         } else if (s === '\u0027') {
             mathlist = [new MathAtom.MathAtom('command', 'command', '\\', 'main')];
         } else {
-            // If we're inserting a fraction, and there was no selected content, 
-            // use as the argument the `mord` atoms before the insertion point
-            if (s === '\\frac{#0}{#?}' && (!args[0] || args[0].length === 0)) {
+            // If we're inserting a latex fragment that includes a #@ argument
+            // substitute the preceding `mord` atoms for it.
+            if (!args[0] && /(^|[^\\])#@/.test(s)) {
+                s = s.replace(/(^|[^\\])#@/g, '#0');
                 args[0] = this.extractContentsOrdInGroupBeforeInsertionPoint();
                 // Delete the implicit argument
-                this.delete(-args[0].length - 1);
+                this.delete(-args[0].length);
+                // If there was no implicit argument, remove it from the args list.
+                if (Array.isArray(args[0]) && args[0].length === 0) args[0] = undefined;
             }
-            mathlist = ParserModule.parseTokens(Lexer.tokenize(s), parseMode, args);
+            mathlist = ParserModule.parseTokens(Lexer.tokenize(s), parseMode, args, Definitions.MACROS);
         }
     } else if (options.format === 'latex') {
-        mathlist = ParserModule.parseTokens(Lexer.tokenize(s), parseMode, args);
+        mathlist = ParserModule.parseTokens(Lexer.tokenize(s), parseMode, args, Definitions.MACROS);
     }
 
     // Insert the mathlist at the position following the anchor
