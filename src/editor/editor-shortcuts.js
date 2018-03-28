@@ -178,8 +178,8 @@ const KEYBOARD_SHORTCUTS = {
     // 'Alt-Digit0':       '\\right)',      // ")" key
     'math:Alt-keyD':             ['insert', '\\differentialD'],
     'math:Alt-Shift-KeyD':       ['insert', '\\partial'],
-    'math:Slash':                ['insert', '\\frac{#0}{#?}'],
-    'math:Alt-Slash':            ['insert', '\\frac{#?}{#0}'],
+    'math:Slash':                ['insert', '\\frac{#@}{#?}'],
+    'math:Alt-Slash':            ['insert', '\\frac{#?}{#@}'],
     'math:Alt-KeyO':             ['insert', '\\emptyset'],
     'math:Alt-Shift-KeyO':       ['insert', '\\varnothing'],
 
