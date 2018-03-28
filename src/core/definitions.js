@@ -1834,9 +1834,11 @@ defineSymbol( '\\hbar', MATH,  MAIN,  TEXTORD, '\u210f', COMMON); // >2,000
 defineSymbol( '\\hslash', MATH,  AMS,  TEXTORD, '\u210f', COMMON); // >2,000
 
 defineSymbol( '\\differentialD', MATH,  'mathrm',  MATHORD, 'd'); // NOTE: not a real TeX symbol, but Mathematica
+defineSymbol( '\\rd', MATH,  'mathrm',  MATHORD, 'd'); // NOTE: not a real TeX symbol, but used in ProofWiki
 // NOTE: set in math as per ISO 80000-2:2009.
 defineSymbol( '\\capitalDifferentialD', MATH,  'mathrm',  MATHORD, 'D'); // NOTE: not a real TeX symbol, but Mathematica
 // NOTE: set in math as per ISO 80000-2:2009.
+defineSymbol( '\\rD', MATH,  'mathrm',  MATHORD, 'D'); // NOTE: not a real TeX symbol
 defineSymbol( '\\exponentialE', MATH,  'mathrm',  MATHORD, 'e'); // NOTE: not a real TeX symbol, but Mathematica
 // NOTE: set in math as per ISO 80000-2:2009.
 
@@ -3029,7 +3031,7 @@ function isFunction(canonicalName) {
     let t = FUNCTION_TEMPLATE[canonicalName];
     if (!t) return false;
     t = t.replace('%0', '').replace('%1', '');
-    if (t.match(/%/)) return true;
+    if (/%/.test(t)) return true;
     return false;
 }
 
