@@ -1534,12 +1534,16 @@ EditableMathlist.prototype.insert = function(s, options) {
         } else {
             // If we're inserting a latex fragment that includes a #@ argument
             // substitute the preceding `mord` atoms for it.
-            if (!args[0] && /(^|[^\\])#@/.test(s)) {
+            if (args[0]) {
+                // There was a selection, we'll use it for #@
+                s = s.replace(/(^|[^\\])#@/g, '#0');
+                
+            } else if (/(^|[^\\])#@/.test(s)) {
                 s = s.replace(/(^|[^\\])#@/g, '#0');
                 args[0] = this.extractContentsOrdInGroupBeforeInsertionPoint();
                 // Delete the implicit argument
                 this.delete(-args[0].length);
-                // If there was no implicit argument, remove it from the args list.
+                // If the implicit argument was empty, remove it from the args list.
                 if (Array.isArray(args[0]) && args[0].length === 0) args[0] = undefined;
             }
             mathlist = ParserModule.parseTokens(Lexer.tokenize(s), parseMode, args, Definitions.MACROS);
