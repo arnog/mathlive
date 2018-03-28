@@ -591,7 +591,8 @@ const LAYERS = {
                 <li class='keycap tex-math' data-insert='\\theta '><i>&theta;</i></li>
                 <li class='keycap tex-math' data-insert='\\iota '><i>&iota;</i></li>
                 <li class='keycap tex-math' data-insert='\\omicron '>&omicron;</i></li>
-                <li class='keycap tex-math' data-insert='\\pi '><i>&pi;</i></li></ul>
+                <li class='keycap tex-math' data-insert='\\pi '><i>&pi;</i></li>
+            </ul>
             <ul><li class='keycap tex-math' data-insert='\\alpha ' data-shifted='&Alpha;' data-shifted-command='["insert","{\\\\char\\"391}"]'><i>&alpha;</i></li>
                 <li class='keycap tex-math' data-insert='\\sigma '><i>&sigma;</i></li>
                 <li class='keycap tex-math' data-insert='\\delta '><i>&delta;</i></li>
@@ -600,7 +601,8 @@ const LAYERS = {
                 <li class='keycap tex-math' data-insert='\\eta '><i>&eta;</i></li>
                 <li class='keycap tex-math' data-insert='\\xi '><i>&xi;</i></li>
                 <li class='keycap tex-math' data-insert='\\kappa '><i>&kappa;</i></li>
-                <li class='keycap tex-math' data-insert='\\lambda '><i>&lambda;</i></li></ul>
+                <li class='keycap tex-math' data-insert='\\lambda '><i>&lambda;</i></li>
+            </ul>
             <ul><li class='shift modifier font-glyph bottom left w15 layer-switch' data-layer='upper-greek'>&#x21e7;</li>
                 <li class='keycap tex-math' data-insert='\\zeta '><i>&zeta;</i></li>
                 <li class='keycap tex-math' data-insert='\\chi '><i>&chi;</i></li>
