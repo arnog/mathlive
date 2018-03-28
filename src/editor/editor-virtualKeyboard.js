@@ -101,65 +101,73 @@ const ALT_KEYS_BASE = {
         {latex:'\\ddots', aside:'', classes:'box'} , 
         '\\odot', '\\oslash', '\\circledcirc', 
         
-        ],
+    ],
 
     '*': [
-            '\\cdot', '\\ast', '\\star', '\\bigstar', 
-            '\\ltimes', '\\rtimes', '\\rightthreetimes','\\leftthreetimes',
-            '\\intercal', '\\prod', {latex:'\\prod_{n\\mathop=0}^{\\infty}', classes:'small'},
-        ],
+        '\\cdot', '\\ast', '\\star', '\\bigstar', 
+        '\\ltimes', '\\rtimes', '\\rightthreetimes','\\leftthreetimes',
+        '\\intercal', '\\prod', {latex:'\\prod_{n\\mathop=0}^{\\infty}', classes:'small'},
+    ],
 
     '+': [
-            '\\pm', '\\mp', 
-            '\\sum', {latex:'\\sum_{n\\mathop=0}^{\\infty}', classes:'small'}, 
-            '\\dotplus', '\\oplus'
-        ],
-    '-': ['\\pm', '\\mp', 
-            '\\ominus', '\\vert #0  \\vert'],
+        '\\pm', '\\mp', 
+        '\\sum', {latex:'\\sum_{n\\mathop=0}^{\\infty}', classes:'small'}, 
+        '\\dotplus', '\\oplus'
+    ],
+    '-': [
+        '\\pm', '\\mp', 
+        '\\ominus', '\\vert #0  \\vert'
+    ],
 
     '/': ['\\divideontimes', '/', '\\div'],
 
     '(':[
-            '\\left( #0\\right)', '\\left[ #0\\right]', '\\left\\{ #0\\right\\}', '\\left\\langle #0\\right\\rangle',
-            '\\lfloor',    '\\llcorner',    '(',            '\\lbrack',         
-            '\\lvert',     '\\lVert',       '\\lgroup',     '\\langle',
-            '\\lceil',     '\\ulcorner',    '\\lmoustache', '\\lbrace',
-        ],
+        '\\left( #0\\right)', '\\left[ #0\\right]', '\\left\\{ #0\\right\\}', '\\left\\langle #0\\right\\rangle',
+        '\\lfloor',    '\\llcorner',    '(',            '\\lbrack',         
+        '\\lvert',     '\\lVert',       '\\lgroup',     '\\langle',
+        '\\lceil',     '\\ulcorner',    '\\lmoustache', '\\lbrace',
+    ],
+
     ')':[
-            '\\rfloor',    '\\lrcorner',    ')',            '\\rbrack',      
-            '\\rvert',     '\\rVert',       '\\rgroup',     '\\rangle',
-            '\\rceil',     '\\urcorner',    '\\rmoustache', '\\rbrace',
-        ],
+        '\\rfloor',    '\\lrcorner',    ')',            '\\rbrack',      
+        '\\rvert',     '\\rVert',       '\\rgroup',     '\\rangle',
+        '\\rceil',     '\\urcorner',    '\\rmoustache', '\\rbrace',
+    ],
         
-    '=': [  '\\cong',       '\\asymp', '\\equiv', 
-            '\\differencedelta',    '\\varpropto',  
-            '\\thickapprox', '\\approxeq', '\\thicksim', '\\backsim', '\\eqsim', '\\simeq',
-            '\\Bumpeq', '\\bumpeq', '\\doteq', '\\Doteq', 
-            '\\fallingdotseq', '\\risingdotseq', '\\coloneq', '\\eqcirc', '\\circeq',
-            '\\triangleq', '\\between', 
-        ],
+    '=': [  
+        '\\cong',       '\\asymp', '\\equiv', 
+        '\\differencedelta',    '\\varpropto',  
+        '\\thickapprox', '\\approxeq', '\\thicksim', '\\backsim', '\\eqsim', '\\simeq',
+        '\\Bumpeq', '\\bumpeq', '\\doteq', '\\Doteq', 
+        '\\fallingdotseq', '\\risingdotseq', '\\coloneq', '\\eqcirc', '\\circeq',
+        '\\triangleq', '\\between', 
+    ],
 
-    '!=': [  '\\neq', '\\ncong',    '',  
-            '\\nsim', 
-        ],
+    '!=': [  
+        '\\neq', '\\ncong',    '',  
+        '\\nsim', 
+    ],
 
-    '<': [  '\\leq', '\\leqq', '\\lneqq', '\\ll', '\\nless', '\\nleq', 
-            '\\precsim', '\\lesssim', '\\lessgtr', '\\prec', '\\preccurlyeq', '\\lessdot',
-            '\\nprec', 
-        ],
+    '<': [  
+        '\\leq', '\\leqq', '\\lneqq', '\\ll', '\\nless', '\\nleq', 
+        '\\precsim', '\\lesssim', '\\lessgtr', '\\prec', '\\preccurlyeq', '\\lessdot',
+        '\\nprec', 
+    ],
 
     '>': [
-            '\\geq', '\\geqq', '\\gneqq', '\\gg', '\\ngtr', '\\ngeq', 
-            '\\succsim', '\\gtrsim', '\\gtrless', '\\succ', '\\succcurlyeq', '\\gtrdot', 
-            '\\nsucc'
-        ],
+        '\\geq', '\\geqq', '\\gneqq', '\\gg', '\\ngtr', '\\ngeq', 
+        '\\succsim', '\\gtrsim', '\\gtrless', '\\succ', '\\succcurlyeq', '\\gtrdot', 
+        '\\nsucc'
+     ],
 
-    'set': [    '\\in', '\\owns', 
-            '\\subset', '\\nsubset', '\\supset', '\\nsupset'
-        ],
+    'set': [    
+        '\\in', '\\owns', 
+        '\\subset', '\\nsubset', '\\supset', '\\nsupset'
+    ],
 
-    '!set': [   '\\notin', '\\backepsilon'
-        ],
+    '!set': [   
+        '\\notin', '\\backepsilon'
+    ],
 
     'subset': [],
     'supset': [],
@@ -193,22 +201,22 @@ const ALT_KEYS_BASE = {
             '\\capitalDifferentialD', '\\rd',  '\\partial',
     ],
 
-    'nabla': [    '\\nabla\\times', '\\nabla\\cdot', '\\nabla^{2}'],
+    'nabla': ['\\nabla\\times', '\\nabla\\cdot', '\\nabla^{2}'],
 
     '!':    ['!!', '\\Gamma', '\\Pi'],
     'accents': ['\\bar{#0}', '\\vec{#0}', '\\hat{#0}', '\\check{#0}',
         '\\dot{#0}', '\\ddot{#0}', '\\mathring{#0}', '\\breve{#0}',
-        '\\acute{#0}', '\\tilde{#0}', '\\grave{#0}',   ],
-    'A':        ['\\aleph', ],
-    'a':        ['\\aleph', ],
-    'b':        ['\\beth', ],
-    'B':        ['\\beth', ],
+        '\\acute{#0}', '\\tilde{#0}', '\\grave{#0}'],
+    'A':        ['\\aleph'],
+    'a':        ['\\aleph'],
+    'b':        ['\\beth'],
+    'B':        ['\\beth'],
     'c':        ['\\C'],
     'C':        ['\\C'],
-    'd':        ['\\daleth', ],
-    'D':        ['\\daleth', ],
-    'g':        ['\\gimel', ],
-    'G':        ['\\gimel', ],
+    'd':        ['\\daleth'],
+    'D':        ['\\daleth'],
+    'g':        ['\\gimel'],
+    'G':        ['\\gimel'],
     'h':        ['\\hbar', '\\hslash'],
     'i':        [{latex:'\\imaginaryI', aside:'imaginary i'}],
     'j':        [{latex:'\\imaginaryJ', aside:'imaginary j'}],
