@@ -63,13 +63,19 @@ define(['mathlive/core/fontMetrics'], function(FontMetrics) {
  */
 let category = '';
 
-const TEXT_SYMBOLS = [];
-const MATH_SYMBOLS = [];
-const COMMAND_SYMBOLS = [];
+const TEXT_SYMBOLS = {};
+const MATH_SYMBOLS = {};
+const COMMAND_SYMBOLS = {};
 
-const FUNCTIONS = [];
+const FUNCTIONS = {};
 
-const ENVIRONMENTS = [];
+const ENVIRONMENTS = {};
+
+const MACROS = {
+    'iff':    '\\;\u27fa\\;',         //>2,000 Note: additional spaces around the arrows
+// @todo definemacro?
+    'nicefrac': '^{#0}\\!\\!/\\!_{#1}'
+};
 
 // Frequency of a symbol.
 // String constants corresponding to frequency values, 
@@ -1212,8 +1218,6 @@ defineFunction('\\mathllap', '{:auto}', null, function(name, args) {
     frequency(CRYPTIC, '\\mathllap');
 
 
-// @todo definemacro?
-// defineSymbol('\\nicefrac', MATH,  MAIN,  MATHORD, '^1\\!\\!/\\!_2', COMMON);
 
 
 // Can be preceded by e.g. '\fboxsep=4pt' (also \fboxrule)
@@ -2299,7 +2303,7 @@ defineSymbol( '\\gtrdot', MATH,  AMS,  BIN, '\u22d7', 45);
 category = 'Logic';
 defineSymbol( '\\leftrightarrow', MATH,  MAIN,  REL, '\u2194', SUPERCOMMON);    // >2,000
 defineSymbol( '\\Leftrightarrow', MATH,  MAIN,  REL, '\u21d4', SUPERCOMMON);    // >2,000
-defineSymbol( '\\iff', MATH,  MAIN,  REL, '\\;\u27fa\\;', SUPERCOMMON);        // >2,000 Note: additional spaces around the arrows
+// defineSymbol( '\\iff', MATH,  MAIN,  REL, '\\;\u27fa\\;', SUPERCOMMON);        // >2,000 Note: additional spaces around the arrows
 defineSymbol( '\\to', MATH,  MAIN,  REL, '\u2192', SUPERCOMMON);    // >2,000
 defineSymbol( '\\models', MATH,  MAIN,  REL, '\u22a8', COMMON);    // >2,000
 defineSymbol( '\\vdash', MATH,  MAIN,  REL, '\u22a2', COMMON);    // >2,000
@@ -3051,6 +3055,7 @@ return {
     ENVIRONMENTS: ENVIRONMENTS,
 
     FUNCTIONS: FUNCTIONS,
+    MACROS: MACROS,
 
     getPrecedence: getPrecedence,
     getCanonicalName: getCanonicalName,

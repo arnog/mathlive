@@ -199,8 +199,8 @@ const NOTES = {
 
     '\\mp':         'minus or plus',
     '\\pm':         'plus or minus',
-    '\\Im':         'Imaginary part',
-    '\\Re':         'Real part',
+    '\\Im':         'Imaginary part of',
+    '\\Re':         'Real part of',
     '\\differentialD':     'differential d',
     '\\aleph':          ['aleph', 'infinite cardinal',
                         '<a target="_blank" href="https://en.wikipedia.org/wiki/Cardinal_number">Wikipedia <big>&#x203A;</big></a>'
@@ -339,7 +339,7 @@ function getNote(symbol) {
 
 
 function latexToMarkup(latex) {
-    const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', null);
+    const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', null, Definitions.MACROS);
     const spans = MathAtom.decompose({mathstyle: 'displaystyle'}, parse);
     
     const base = Span.makeSpan(spans, 'ML__base');

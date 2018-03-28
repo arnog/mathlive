@@ -1294,6 +1294,7 @@ MathAtom.prototype.decompose = function(context) {
 
     if (this.type === 'group' || this.type === 'root') {
         result = this.decomposeGroup(context);
+        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'array') {
         result = this.decomposeArray(context);

@@ -8,18 +8,18 @@ define(['mathlive/core/mathAtom'],
  * @param {string|MathAtom|MathAtom[]} value 
  * @private
  */
-function latexify(value) {
+function latexify(value, expandMacro) {
     let result = '';
     if (Array.isArray(value)) {
         for (const child of value) {
-            result += latexify(child);
+            result += latexify(child, expandMacro);
         }
     } else if (typeof value === 'number' || typeof value === 'boolean') {
         result = value.toString();
     } else if (typeof value === 'string') {
         result = value.replace(/\s/g, '~');
     } else if (value && typeof value.toLatex === 'function') {
-        result = value.toLatex();
+        result = value.toLatex(expandMacro);
     }
     return result;
 }
@@ -29,9 +29,13 @@ function latexify(value) {
 /**
  * Return a LaTeX representation of the atom
  * 
+ * @param {boolean} expandMacro - If true, macros are fully expanded. This will
+ * no longer round-trip.
+ * 
  * @return {string}
  */
-MathAtom.MathAtom.prototype.toLatex = function() {
+MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
+    expandMacro = expandMacro === undefined ? false : expandMacro;
     let result = '';
     let col, row = 0;
     let i = 0;
@@ -39,7 +43,8 @@ MathAtom.MathAtom.prototype.toLatex = function() {
     switch(this.type) {
         case 'group':
             result += this.latexOpen || '';
-            result += latexify(this.body);  
+            result += expandMacro ? latexify(this.body, true) : 
+                (this.latex || latexify(this.body, false)); 
             result += this.latexClose || '';
             break;
 
@@ -61,7 +66,7 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             for (row = 0; row < this.array.length; row++) {
                 for (col = 0; col < this.array[row].length; col++) {
                     if (col > 0) result += ' & ';
-                    result += latexify(this.array[row][col]);
+                    result += latexify(this.array[row][col], expandMacro);
                 }
                 // Adds a separator between rows (but not after the last row)
                 if (row < this.array.length - 1) {
@@ -72,21 +77,21 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             break;
 
         case 'root':
-            result = latexify(this.body);
+            result = latexify(this.body, expandMacro);
             break;
 
         case 'genfrac':
             if (this.body === 'choose' || this.body === 'atop') {
                 // Infix commands.
                 result += '{';
-                result += latexify(this.numer)
+                result += latexify(this.numer, expandMacro)
                 result += '\\' + this.body + ' ';
-                result += latexify(this.denom);
+                result += latexify(this.denom, expandMacro);
                 result += '}';
             } else {
                 // @todo: deal with fracs delimiters
                 result += this.latex;
-                result += `{${latexify(this.numer)}}{${latexify(this.denom)}}`;
+                result += `{${latexify(this.numer, expandMacro)}}{${latexify(this.denom, expandMacro)}}`;
             }
             break;
 
@@ -94,15 +99,15 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             result += '\\sqrt';
             if (this.index) {
                 result += '[';
-                result += latexify(this.index);
+                result += latexify(this.index, expandMacro);
                 result += ']';
             }
-            result += `{${latexify(this.body)}}`;
+            result += `{${latexify(this.body, expandMacro)}}`;
             break;
 
         case 'leftright':
             if (this.leftDelim) result += '\\left' + this.leftDelim + ' ';
-            result += latexify(this.body);
+            result += latexify(this.body, expandMacro);
             if (this.rightDelim) result += '\\right' + this.rightDelim + ' ';
             break;
 
@@ -114,20 +119,20 @@ MathAtom.MathAtom.prototype.toLatex = function() {
         case 'rule':
             result += command;
             if (this.shift) {
-                result += `[${latexify(this.shift)}em]`;
+                result += `[${latexify(this.shift, expandMacro)}em]`;
             }
-            result += `{${latexify(this.width)}em}{${latexify(this.height)}em}`;
+            result += `{${latexify(this.width, expandMacro)}em}{${latexify(this.height, expandMacro)}em}`;
             break;
 
         case 'line':
         case 'overlap':
         case 'font':
         case 'accent':
-            result += `${command}{${latexify(this.body)}}`;
+            result += `${command}{${latexify(this.body, expandMacro)}}`;
             break;
 
         case 'overunder':
-            result += `${command}{${latexify(this.overscript || this.underscript)}}{${latexify(this.body)}}`;
+            result += `${command}{${latexify(this.overscript || this.underscript, expandMacro)}}{${latexify(this.body, expandMacro)}}`;
             break;
 
         case 'mord':
@@ -142,7 +147,7 @@ MathAtom.MathAtom.prototype.toLatex = function() {
                 command === '\\mathopen' || command === '\\mathclose' || 
                 command === '\\mathpunct' || command === '\\mathord' || 
                 command === '\\mathinner') {
-                result += command + '{' + latexify(this.body) + '}';
+                result += command + '{' + latexify(this.body, expandMacro) + '}';
             } else if (this.latex || typeof this.body === 'string') {
                 // Not ZERO-WIDTH
                 if (this.latex && this.latex[0] === '\\') {
@@ -159,7 +164,7 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             if (this.body !== '\u200b') {
                 // Not ZERO-WIDTH
                 if (command === '\\mathop' || command === '\\operatorname') {
-                    result += command + '{' + latexify(this.body) + '}';                    
+                    result += command + '{' + latexify(this.body, expandMacro) + '}';                    
                 } else {
                     result += this.latex || this.body;
                 }
@@ -175,7 +180,7 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             if (this.color) {
                 result += `{${this.color}}`;
             } else if (this.textcolor) {
-                result += '{' + this.textcolor + '}{' + latexify(this.body) + '}';
+                result += '{' + this.textcolor + '}{' + latexify(this.body, expandMacro) + '}';
             }
             break;
 
@@ -183,37 +188,37 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             if (command === '\\bbox') {
                 result += command;
                 if (this.padding || this.border || this.backgroundcolor) {
-                    let bboxParams = latexify(this.padding);
+                    let bboxParams = latexify(this.padding, expandMacro);
                     if (this.border) {
                         if (bboxParams) bboxParams += ',';
-                        bboxParams += 'border:' + latexify(this.border);
+                        bboxParams += 'border:' + latexify(this.border, expandMacro);
                     }
                     if (this.backgroundcolor) {
                         if (bboxParams) bboxParams += ',';
-                        bboxParams += latexify(this.backgroundcolor);
+                        bboxParams += latexify(this.backgroundcolor, expandMacro);
                     }
                     result += `[${bboxParams}]`;
                 }
-                result += `{${latexify(this.body)}}`;
+                result += `{${latexify(this.body, expandMacro)}}`;
             } else if (command === '\\boxed') {
-                result += `\\boxed{${latexify(this.body)}}`;
+                result += `\\boxed{${latexify(this.body, expandMacro)}}`;
             } else {
                 // \\colorbox, \\fcolorbox
                 result += command;
                 if (this.framecolor) {
-                    result += `{${latexify(this.framecolor)}}`;
+                    result += `{${latexify(this.framecolor, expandMacro)}}`;
                 }
                 if (this.backgroundcolor) {
-                    result += `{${latexify(this.backgroundcolor)}}`;
+                    result += `{${latexify(this.backgroundcolor, expandMacro)}}`;
                 }
-                result += `{${latexify(this.body)}}`;
+                result += `{${latexify(this.body, expandMacro)}}`;
             }
             break;
 
         case 'spacing':
             result += command;
             if (this.width) {
-                result += `{${latexify(this.width)}}`;
+                result += `{${latexify(this.width, expandMacro)}}`;
             } else {
                 result += ' ';
             }
@@ -257,7 +262,7 @@ MathAtom.MathAtom.prototype.toLatex = function() {
                     result += `[${style}]`;
                 }
             }
-            result += `{${latexify(this.body)}}`;
+            result += `{${latexify(this.body, expandMacro)}}`;
             break;
 
         case 'mathstyle':
@@ -292,7 +297,7 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             
     }
     if (this.superscript) {
-        const sup = latexify(this.superscript);
+        const sup = latexify(this.superscript, expandMacro);
         if (sup.length === 1) {
             result += '^' + sup;
         } else {
@@ -300,7 +305,7 @@ MathAtom.MathAtom.prototype.toLatex = function() {
         }
     }
     if (this.subscript) {
-        const sub = latexify(this.subscript);
+        const sub = latexify(this.subscript, expandMacro);
         if (sub.length === 1) {
             result += '_' + sub;
         } else {

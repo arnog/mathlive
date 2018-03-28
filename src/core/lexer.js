@@ -216,6 +216,7 @@ Lexer.prototype.makeToken = function() {
             let next = this.peek();
             if (/[0-9?]/.test(next)) {
                 // Could be a param
+                isParam = true;
                 // Need to look ahead to the following char
                 if (this.pos + 1 < this.s.length) {
                     const after = this.s[this.pos + 1];
