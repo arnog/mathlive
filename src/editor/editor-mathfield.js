@@ -1666,6 +1666,7 @@ MathField.prototype.performAlternateKeys_ = function(command) {
 
 MathField.prototype.switchKeyboardLayer_ = function(layer) {
     if (this.config.virtualKeyboardMode) {
+
         if (layer !== 'lower-command' && layer !== 'upper-command' && layer !== 'symbols-command') {
             // If we switch to a non-command keyboard layer, first exit command mode.
             this.complete_();
@@ -1673,6 +1674,9 @@ MathField.prototype.switchKeyboardLayer_ = function(layer) {
 
         this.showVirtualKeyboard_();
         const layers = this.virtualKeyboard.getElementsByClassName('keyboard-layer');
+
+        // If the alternate keys panel was visible, hide it
+        this.hideAlternateKeys_();
 
         // If we were in a temporarily shifted state (shift-key held down)
         // restore our state before switching to a new layer.
@@ -1892,9 +1896,6 @@ MathField.prototype.typedText_ = function(text) {
  */
 MathField.prototype.config = function(config) {
     const def = {
-        // If true, spacebar and shift-spacebar escape from the current block
-        // spacesBehavesLikeTab: false,
-        // leftRightIntoCmdGoes: 
         overrideDefaultInlineShortcuts: false,
         virtualKeyboard: '',
         namespace: ''
