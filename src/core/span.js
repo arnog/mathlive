@@ -182,7 +182,8 @@ Span.prototype.setWidth = function(width) {
 
 Span.prototype.addMarginRight = function(margin) {
     if (margin && margin !== 0) {
-        if (!this.style && !this.classes.match(/qquad|quad|enspace|thickspace|mediumspace|thinspace|negativethinspace/)) {
+        if (!this.style && 
+            !/qquad|quad|enspace|thickspace|mediumspace|thinspace|negativethinspace/.test(this.classes)) {
             // Attempt to use a class instead of an explicit margin
             const cls = {
                 '2': 'qquad',

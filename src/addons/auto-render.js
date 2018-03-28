@@ -187,7 +187,7 @@ function scanText(text, options, latexToMarkup, latexToMathML) {
     // If the text starts with '\begin'...
     // (this is a MathJAX behavior)
     let fragment = null;
-    if (options.TeX.processEnvironments && text.match(/^\s*\\begin/)) {
+    if (options.TeX.processEnvironments && /^\s*\\begin/.test(text)) {
         fragment = document.createDocumentFragment();
         fragment.appendChild(createAccessibleMarkupPair(text, undefined, options, latexToMarkup, latexToMathML, true));
     } else {
@@ -227,7 +227,7 @@ function scanElement(elem, options, latexToMarkup, latexToMathML) {
         // This is a node with textual content only. Perhaps an opportunity
         // to simplify and avoid creating extra nested elements...
         const text = elem.childNodes[0].textContent;
-        if (options.TeX.processEnvironments && text.match(/^\s*\\begin/)) {
+        if (options.TeX.processEnvironments && /^\s*\\begin/.test(text)) {
             elem.textContent = '';
             elem.appendChild( createAccessibleMarkupPair(originalContent, undefined, options, latexToMarkup, true) );
             return;
