@@ -208,7 +208,7 @@ Parser.prototype.placeholder = function() {
         return parseTokens(Lexer.tokenize(this.args['?']), this.parseMode, null, this.macros);
     }
     // U+2753 = BLACK QUESTION MARK ORNAMENT  
-    return [new MathAtom(this.parseMode, 'placeholder', '\u2753')];
+    return [new MathAtom(this.parseMode, 'placeholder', '?')];
 }
 
 
@@ -1094,6 +1094,10 @@ Parser.prototype.scanArg = function(parseMode) {
             return this.placeholder();
         }
         if (this.args) {
+            if (this.args[paramToken.value] === undefined && 
+                this.args['?'] !== undefined) {
+                return this.placeholder();
+            }
             return this.args[paramToken.value] || null;
         }
         return null;
@@ -1236,11 +1240,11 @@ Parser.prototype.scanToken = function() {
                             }
                             if (arg) {
                                 args.push(arg);
+                            } else if (param.placeholder) {
+                                args.push([new MathAtom(this.parseMode, 'placeholder', param.placeholder)]);
                             } else {
-                                const placeholder = param.placeholder ||
-                                    '\u2753'; // U+2753 = BLACK QUESTION MARK ORNAMENT  
-                                args.push([new MathAtom(this.parseMode, 'placeholder', placeholder)]);
-                            }                            
+                                args.push(this.placeholder());
+                            }
                             // @todo should check for greediness of argument here 
                             // (should be < greediness of command)
                         }
@@ -1323,16 +1327,16 @@ Parser.prototype.scanMacro = function(macro) {
     if (typeof this.macros[macro] === 'string') {
         def = this.macros[macro];
         // Let's see if there are arguments in the definition.
-        if (/[^\\]#0/.test(def)) argCount = 1;
-        if (/[^\\]#1/.test(def)) argCount = 2;
-        if (/[^\\]#2/.test(def)) argCount = 3;
-        if (/[^\\]#3/.test(def)) argCount = 4;
-        if (/[^\\]#4/.test(def)) argCount = 5;
-        if (/[^\\]#5/.test(def)) argCount = 6;
-        if (/[^\\]#6/.test(def)) argCount = 7;
-        if (/[^\\]#7/.test(def)) argCount = 8;
-        if (/[^\\]#8/.test(def)) argCount = 9;
-        if (/[^\\]#9/.test(def)) argCount = 10;
+        if (/(^|[^\\])#0/.test(def)) argCount = 1;
+        if (/(^|[^\\])#1/.test(def)) argCount = 2;
+        if (/(^|[^\\])#2/.test(def)) argCount = 3;
+        if (/(^|[^\\])#3/.test(def)) argCount = 4;
+        if (/(^|[^\\])#4/.test(def)) argCount = 5;
+        if (/(^|[^\\])#5/.test(def)) argCount = 6;
+        if (/(^|[^\\])#6/.test(def)) argCount = 7;
+        if (/(^|[^\\])#7/.test(def)) argCount = 8;
+        if (/(^|[^\\])#8/.test(def)) argCount = 9;
+        if (/(^|[^\\])#9/.test(def)) argCount = 10;
     } else {
         def = this.macros[macro].def;
         argCount = (this.macros[macro].args || 0);
