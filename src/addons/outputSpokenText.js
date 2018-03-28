@@ -156,37 +156,38 @@ MathAtom.MathAtom.prototype.toSpeakableText = function(atom) {
 }
 
 MathAtom.toSpeakableFragment = function(atom, options) {
-function letter(c) {
-    let result = '';
-    if (!options.markup) {
-        if (/[a-z]/.test(c)) {
-            result += " '" + c.toUpperCase() + "'";
-        } else if (/[A-Z]/.test(c)) {
-            result += " 'capital " + c.toUpperCase() + "'";
+    function letter(c) {
+        let result = '';
+        if (!options.markup) {
+            if (/[a-z]/.test(c)) {
+                result += " '" + c.toUpperCase() + "'";
+            } else if (/[A-Z]/.test(c)) {
+                result += " 'capital " + c.toUpperCase() + "'";
+            } else {
+                result += c;
+            }
         } else {
-            result += c;
+            if (/[a-z]/.test(c)) {
+                result += ' [[char LTRL]]' + c + '[[char NORM]]';
+            } else if (/[A-Z]/.test(c)) {
+                result += 'capital ' + c.toLowerCase() + '';
+            } else {
+                result += c;
+            }
         }
-    } else {
-        if (/[a-z]/.test(c)) {
-            result += ' [[char LTRL]]' + c + '[[char NORM]]';
-        } else if (/[A-Z]/.test(c)) {
-            result += 'capital ' + c.toLowerCase() + '';
-        } else {
-            result += c;
+        return result;
+    }
+
+    function emph(s) {
+        // if (options.markup === 'ssml') {
+        // } else 
+        if (options.markup) {
+            return '[[emph +]]' + s;
         }
+        return s;
     }
-    return result;
-}
 
-function emph(s) {
-    // if (options.markup === 'ssml') {
-    // } else 
-    if (options.markup) {
-        return '[[emph +]]' + s;
-    }
-    return s;
-}
-
+    if (!atom) return '';
 
     let result = '';
     if (Array.isArray(atom)) {

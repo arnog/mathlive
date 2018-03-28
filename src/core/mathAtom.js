@@ -680,10 +680,27 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
 
  /**
   *  \left....\right 
+  * 
+  * Note that we can encounter malformed \left...\right, for example
+  * a \left without a matching \right or vice versa. In that case, the 
+  * leftDelim (resp. rightDelim) will be undefined. We still need to handle 
+  * those cases.
   *
  * @method MathAtom#decomposeLeftright
   */
 MathAtom.prototype.decomposeLeftright = function(context) {
+
+    if (!this.body) {
+        // No body, only a delimiter
+        if (this.leftDelim) {
+            return new MathAtom('math', 'mopen', this.leftDelim).decompose(context);
+        }
+        if (this.rightDelim) {
+            return new MathAtom('math', 'mclose', this.rightDelim).decompose(context);
+        }
+        return null;
+    }
+
     // The scope of the context is this group, so make a copy of it
     // so that any changes to it will be discarded when finished 
     // with this group.
@@ -704,8 +721,10 @@ MathAtom.prototype.decomposeLeftright = function(context) {
 
     // Add the left delimiter to the beginning of the expression
     let result = [];
-    result.push(Delimiters.makeLeftRightDelim('mopen',
-        this.leftDelim, innerHeight, innerDepth, localContext));
+    if (this.leftDelim) {
+        result.push(Delimiters.makeLeftRightDelim('mopen',
+            this.leftDelim, innerHeight, innerDepth, localContext));
+    }
 
     // Replace the delim (\middle) spans with proper ones now that we know 
     // the height/depth
@@ -718,8 +737,10 @@ MathAtom.prototype.decomposeLeftright = function(context) {
     result  = result.concat(inner);
 
     // Add the right delimiter to the end of the expression.
-    result.push(Delimiters.makeLeftRightDelim('mclose',
-        this.rightDelim, innerHeight, innerDepth, localContext));
+    if (this.rightDelim) {
+        result.push(Delimiters.makeLeftRightDelim('mclose',
+            this.rightDelim, innerHeight, innerDepth, localContext));
+    }
 
     return makeInner(result, mathstyle.cls());
 }
@@ -2016,7 +2037,7 @@ function decompose(context, atoms) {
                             }
                             if (selectionType === 'array') selectionType = 'mopen';
                             if (selectionType === 'leftright') selectionType = 'minner';
-                            if (selectionType.match(/^(first|accent|surd|genfrac|textord|font|placeholder)$/)) {
+                            if (/^(first|accent|surd|genfrac|textord|font|placeholder)$/.test(selectionType)) {
                                 selectionType = 'mord';
                             }
                             selectionIsTight = atoms[i].isTight;

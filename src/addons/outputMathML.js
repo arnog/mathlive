@@ -96,7 +96,7 @@ function scanIdentifier(stream, final) {
         if ((stream.lastType === 'mi' || 
             stream.lastType === 'mn' || 
             stream.lastType === 'fence') && 
-            !mathML.match(/^<mo>(.*)<\/mo>$/)) {
+            !/^<mo>(.*)<\/mo>$/.test(mathML)) {
             mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
         }
 
@@ -104,7 +104,7 @@ function scanIdentifier(stream, final) {
             mathML += '<mo> &ApplyFunction; </mo>';
             stream.lastType = 'applyfunction';
         } else {
-            stream.lastType = mathML.match(/^<mo>(.*)<\/mo>$/) ? 'mo' : 'mi';
+            stream.lastType = /^<mo>(.*)<\/mo>$/.test(mathML) ? 'mo' : 'mi';
         }
 
         stream.mathML += mathML;
@@ -346,7 +346,7 @@ function scanOperator(stream, final) {
         } else {
             const op = toMo(stream.atoms[stream.index]);
             mathML += op;
-            if (!op.match(/^<mo>(.*)<\/mo>$/)) {
+            if (!/^<mo>(.*)<\/mo>$/.test(op)) {
                 mathML += '<mo> &ApplyFunction; </mo>';
                 // mathML += scanArgument(stream);
                 lastType = 'applyfunction';
@@ -357,7 +357,7 @@ function scanOperator(stream, final) {
         // mathML += '</mrow>';
 
         if ((stream.lastType === 'mi' || stream.lastType === 'mn') && 
-            !mathML.match(/^<mo>(.*)<\/mo>$/)) {
+            !/^<mo>(.*)<\/mo>$/.test(mathML)) {
             mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
         }
         stream.index += 1;
@@ -608,7 +608,7 @@ MathAtom.MathAtom.prototype.toMathML = function() {
             if (this.leftDelim && this.leftDelim !== '.') {
                 result += '<mo>' + (SPECIAL_OPERATORS[this.leftDelim] || this.leftDelim) + '</mo>';
             }
-            result += toMathML(this.body).mathML;
+            if (this.body) result += toMathML(this.body).mathML;
             if (this.rightDelim && this.rightDelim !== '.') {
                 result += '<mo>' + (SPECIAL_OPERATORS[this.rightDelim] || this.rightDelim) + '</mo>';
             }

@@ -683,7 +683,7 @@ Parser.prototype.scanEnvironment = function() {
 Parser.prototype.scanImplicitGroup = function(done) {
     // {black\color{red}red\color{green}green}black
     // An implicit group is a sequence of atoms that terminates with 
-    // a `'}'`, `'&'`, `'\'`, `'\cr'`, `'\end'` or `'\right'` or the end of the 
+    // a `'}'`, `'&'`, `'\'`, `'\cr'` or `'\end'` or the end of the stream
     if (!done) {
         done =  token =>
          token.type === '}' || 
@@ -691,8 +691,7 @@ Parser.prototype.scanImplicitGroup = function(done) {
         (token.type === 'command' && (
             token.value === 'end' || 
             token.value === 'cr' || 
-            token.value === '\\' || 
-            token.value === 'right'
+            token.value === '\\'
         ));
     }
     // To handle infix operators, we'll keep track of their prefix
@@ -844,7 +843,15 @@ Parser.prototype.scanDelim = function() {
  * @private
  */
 Parser.prototype.scanLeftRight = function() {
+    if (this.parseCommand('right')) {
+        // We have an unbalanced left/right (there's a \right, but no \left)
+        const result = new MathAtom(this.parseMode, 'leftright');
+        result.rightDelim = this.scanDelim() || '.';
+        return result;
+    }
+
     if (!this.parseCommand('left')) return null;
+    
     const leftDelim = this.scanDelim() || '.';
 
     const savedMathList = this.swapMathList([]);
@@ -852,7 +859,10 @@ Parser.prototype.scanLeftRight = function() {
         this.parseAtom();
     }
     
-    const rightDelim = this.scanDelim() || '.';
+    // If we've reached the end and there was no '\right' or 
+    // there isn't a valid delimited after '\right', we'll 
+    // consider the '\right' missing and set the rightDelim to undefined
+    const rightDelim = this.scanDelim();
 
     const result = new MathAtom(this.parseMode, 'leftright');
     result.leftDelim = leftDelim;

@@ -101,9 +101,9 @@ MathAtom.MathAtom.prototype.toLatex = function() {
             break;
 
         case 'leftright':
-            result += '\\left' + this.leftDelim + ' ';
+            if (this.leftDelim) result += '\\left' + this.leftDelim + ' ';
             result += latexify(this.body);
-            result += '\\right' + this.rightDelim + ' ';
+            if (this.rightDelim) result += '\\right' + this.rightDelim + ' ';
             break;
 
         case 'delim':
