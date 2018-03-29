@@ -648,7 +648,7 @@ EditableMathlist.prototype.extractContents = function() {
     const firstOffset = this.startOffset();
     if (firstOffset < siblings.length) {
         const endOffset = Math.min(siblings.length - 1, this.endOffset());
-        for (let i = firstOffset; i <= endOffset; i++) {
+        for (let i = firstOffset; i < endOffset; i++) {
             result.push(siblings[i]);
         }
     }
