@@ -1163,7 +1163,7 @@ function asLatex(ast, options) {
         scientificNotation:     'auto', // 'engineering', 'auto', 'on'
         beginRepeatingDigits:   '\\overline{',
         endRepeatingDigits:     '}',
-    }, options, config);
+    }, options);
 
     let result = '';
 

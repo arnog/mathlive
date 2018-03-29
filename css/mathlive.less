@@ -7,6 +7,20 @@
 @math_main: KaTeX_Main;
 @math_math: KaTeX_Math;
 
+@shadow1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+@shadow2: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+@shadow3: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+@shadow4: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+@shadow5: 0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);
+
+// 0 8px 10px 1px rgba(0, 0, 0, .14),
+//             0 3px 14px 2px rgba(0, 0, 0, .12),
+//             0 5px 5px -3px rgba(0, 0, 0, .4)
+
+// 0 2px 2px 0 rgba(0, 0, 0, .14),
+//                     0 1px 5px 0 rgba(0, 0, 0, .12),
+//                     0 3px 1px -2px rgba(0, 0, 0, .2)
+
 @primary: #0066ce;
 @material-primary: #5f97fc;
 @secondary: #cd0030;
@@ -649,9 +663,7 @@
     user-select: none;
     cursor: pointer;
 
-    box-shadow: 0 8px 10px 1px rgba(0, 0, 0, .14),
-            0 3px 14px 2px rgba(0, 0, 0, .12),
-            0 5px 5px -3px rgba(0, 0, 0, .4);
+    box-shadow: @shadow2;
 
     .tex {
         font-family: @math_main, "Cambria Math", "Asana Math", OpenSymbol, Symbola, STIX, Times, serif !important;
@@ -681,9 +693,8 @@
         justify-content: center;
         align-content: center;
     
-        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .14),
-            0 1px 5px 0 rgba(0, 0, 0, .12),
-            0 3px 1px -2px rgba(0, 0, 0, .2);
+        box-shadow: @shadow4;
+
 
         transition: none;
 
@@ -715,6 +726,7 @@
                 color: #000;
                 fill: #000;
                 &:hover, &.pressed, &.active {
+                    shadow-box: @shadow3;
                     background: #e5e5e5;
                     color: @primary;
                     fill: @primary;
@@ -747,6 +759,7 @@
                }
                 aside {
                     font-size: 12px;
+                    line-height: 12px;
                     opacity: .78;
                 }
             }
@@ -1198,9 +1211,7 @@ div#ML__keyboard.material  {
         background: #efefef;
         border: 1px solid transparent;
         border-radius: 5px;
-        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .14),
-            0 1px 5px 0 rgba(0, 0, 0, .12),
-            0 3px 1px -2px rgba(0, 0, 0, .2);
+        box-shadow: @shadow4;
 
         ul li:hover, ul li:active, ul li.active, ul li.pressed {
             border: 1px solid transparent;
@@ -1264,11 +1275,9 @@ div#ML__keyboard.material  {
             background: #efefef;
             color: #000;
             fill: #000;
-            box-shadow: none;
+            box-shadow: @shadow3;
             @media only screen and (max-width : 767px) {
-                box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .14),
-                    0 1px 5px 0 rgba(0, 0, 0, .12),
-                    0 3px 1px -2px rgba(0, 0, 0, .2);
+                box-shadow: @shadow3;
                 font-size: 10px;
                 vertical-align: top;
                 width: 19.5px;
@@ -1385,7 +1394,7 @@ div#ML__keyboard.material  {
     border: 2px solid #f7f7f7;
 
     /*box-shadow: 0 7px 14px rgba(0,0,0,0.25), 0 5px 5px rgba(0,0,0,0.22);*/
-    box-shadow:0 0 0 1px #ddd, 0 1px 2px 1px #ccc;
+    box-shadow: @shadow1;
 
 }
 

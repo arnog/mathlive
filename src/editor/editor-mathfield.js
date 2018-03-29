@@ -1470,25 +1470,34 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
 
 
     let pressHoldStart;
+    let pressHoldElement;
+    let touchID;
+    let syntheticTarget;    // Target while touch move
 
     on(el, 'mousedown touchstart', function(ev) {
         if (ev.type !== 'mousedown' || ev.buttons === 1) {
-            // The primary button was pressed.
-            el.classList.add('pressed');
+            // The primary button was pressed or the screen was tapped.
             ev.stopPropagation(); 
             ev.preventDefault();
 
+            el.classList.add('pressed');
             pressHoldStart = Date.now();
 
-            const command = el.getAttribute('data-' + that.config.namespace + 'command-pressed');
+            // Record the ID of the primary touch point for tracking on touchmove
+            if (ev.type === 'touchstart') touchID = ev.changedTouches[0].identifier;
+
             // Parse the JSON to get the command (and its optional arguments) 
-            // and perform it
+            // and perform it immediately
+            const command = el.getAttribute('data-' + that.config.namespace + 'command-pressed');
             if (command) {
                 that.perform(JSON.parse(command));
             }
 
+            // If there is a `press and hold start` command, perform it
+            // after a delay, if we're still pressed by then.
             const pressAndHoldStartCommand = el.getAttribute('data-' + that.config.namespace + 'command-pressAndHoldStart');
             if (pressAndHoldStartCommand) {
+                pressHoldElement = el;
                 window.setTimeout(function() {
                     if (el.classList.contains('pressed')) {
                         that.perform(JSON.parse(pressAndHoldStartCommand));
@@ -1507,6 +1516,31 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
         //     that.perform(JSON.parse(command));
         // }
     });
+    on (el, 'touchmove', function(ev) {
+        // Unlike with mouse tracking, touch tracking only sends events
+        // to the target that was originally tapped on. For consistency,
+        // we want to mimic the behavior of the mouse interaction by 
+        // tracking the touch events and dispatching them to potential targets
+        ev.preventDefault();
+        for (let i = 0; i < ev.changedTouches.length; i++) {
+            if (ev.changedTouches[i].identifier === touchID) {
+                // Found a touch matching our primary/tracked touch
+                const target = document.elementFromPoint(
+                        ev.changedTouches[i].clientX,
+                        ev.changedTouches[i].clientY);
+                if (target !== syntheticTarget && syntheticTarget) {
+                    syntheticTarget.dispatchEvent(
+                        new MouseEvent('mouseleave'), {bubbles: true});
+                    syntheticTarget = null;
+                }
+                if (target) {
+                    syntheticTarget = target;
+                    target.dispatchEvent(new MouseEvent('mouseenter',
+                        {bubbles: true, buttons: 1}));
+                }
+            }
+        }
+    });
     on (el, 'mouseenter', function(ev) {
         if (ev.buttons === 1) {
             el.classList.add('pressed');
@@ -1514,6 +1548,14 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
     });
 
     on(el, 'mouseup touchend', function(ev) {
+        if (syntheticTarget) {
+            ev.stopPropagation();
+            ev.preventDefault();
+            const target = syntheticTarget;
+            syntheticTarget = null;
+            target.dispatchEvent(new MouseEvent('mouseup', {bubbles: true}));
+            return;
+        }
         el.classList.remove('pressed');
         el.classList.add('active');
 
@@ -1524,9 +1566,10 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
         let command = el.getAttribute('data-' + that.config.namespace + 
             'command-pressAndHoldEnd');
         const now = Date.now();
-        // If the button has not been pressed for very long, don't consider
+        // If the button has not been pressed for very long or if we were 
+        // not the button that started the press and hold, don't consider
         // it a press-and-hold.
-        if (now < pressHoldStart + 300) {
+        if (el !== pressHoldElement || now < pressHoldStart + 300) {
             command = undefined;
         }
         if (!command && ev.altKey && ev.shiftKey) {
@@ -1889,20 +1932,18 @@ MathField.prototype.typedText_ = function(text) {
 
 
 /**
- * @param {Object} [config] See `MathLive.config()` for details
+ * @param {Object} [conf] See `MathLive.config()` for details
  * 
 
  * @method MathField#config
  */
-MathField.prototype.config = function(config) {
-    const def = {
+MathField.prototype.config = function(conf) {
+    // Copy the values from `config` to `def`
+    this.config = Object.assign({
         overrideDefaultInlineShortcuts: false,
         virtualKeyboard: '',
         namespace: ''
-    }
-
-    // Copy the values from `config` to `def`
-    this.config = Object.assign({}, def, config);
+    }, conf);
 
     // Validate the namespace (used for `data-` attributes)
     if (!/^[a-z]*[-]?$/.test(this.config.namespace)) {

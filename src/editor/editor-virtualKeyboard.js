@@ -207,37 +207,40 @@ const ALT_KEYS_BASE = {
     'accents': ['\\bar{#0}', '\\vec{#0}', '\\hat{#0}', '\\check{#0}',
         '\\dot{#0}', '\\ddot{#0}', '\\mathring{#0}', '\\breve{#0}',
         '\\acute{#0}', '\\tilde{#0}', '\\grave{#0}'],
-    'A':        ['\\aleph'],
-    'a':        ['\\aleph'],
-    'b':        ['\\beth'],
-    'B':        ['\\beth'],
-    'c':        ['\\C'],
-    'C':        ['\\C'],
-    'd':        ['\\daleth'],
-    'D':        ['\\daleth'],
-    'g':        ['\\gimel'],
-    'G':        ['\\gimel'],
-    'h':        ['\\hbar', '\\hslash'],
+    'A':        [{latex:'\\aleph', aside:'aleph'},
+                {latex:'\\forall', aside:'for all'},
+    ],
+    'a':        [{latex:'\\aleph', aside:'aleph'},
+                {latex:'\\forall', aside:'for all'},
+    ],
+    'b':        [{latex:'\\beth', aside:'beth'}],
+    'B':        [{latex:'\\beth', aside:'beth'}],
+    'c':        [{latex:'\\C', aside:'set of complex numbers'}],
+    'd':        [{latex:'\\daleth', aside:'daleth'}],
+    'D':        [{latex:'\\daleth', aside:'daleth'}],
+    'e':        [{latex:'\\exponentialE', aside:'exponential e'}, 
+                {latex:'\\exists', aside:'there is'},
+                {latex:'\\nexists', aside:'there isn’t'},
+    ],
+    'g':        [{latex:'\\gimel', aside:'gimel'}],
+    'G':        [{latex:'\\gimel', aside:'gimel'}],
+    'h':        [{latex:'\\hbar',  aside:'h bar'}, 
+                    {latex: '\\hslash', aside:'h slash'}
+    ],
     'i':        [{latex:'\\imaginaryI', aside:'imaginary i'}],
     'j':        [{latex:'\\imaginaryJ', aside:'imaginary j'}],
     'l':        [{latex:'\\ell', aside:'ell'}],
-    'n':        ['\\N'],
-    'N':        ['\\N'],
-    'p':        ['\\P'],
-    'P':        ['\\P'],
-    'q':        ['\\Q'],
-    'Q':        ['\\Q'],
-    'r':        ['\\R'],
-    'R':        ['\\R'],
-    'z':        ['\\Z'],
-    'Z':        ['\\Z'],
+    'n':        [{latex:'\\N', aside:'set of natural numbers'}],
+    'p':        [{latex:'\\P', aside:'set of primes'}],
+    'q':        [{latex:'\\Q', aside:'set of rational numbers'}],
+    'r':        [{latex:'\\R', aside:'set of real numbers'}],
+    'z':        [{latex:'\\Z', aside:'set of integers'}],
 
     'x-var': ['y', 'z', 't', 'r', 
             {latex:'f(#?)', classes:'small'}, {latex:'g(#?)', classes:'small'}, 'x^2', 'x^n', 
             'x_n', 'x_{n+1}', 'x_i', 'x_{i+1}'],
     'n-var': ['i', 'j', 'p', 'k', 'a', 'u'],
     'ii': ['\\Re', '\\Im', '\\imaginaryJ', '\\Vert #0 \\Vert'],
-
 
     'logic': [
         {latex:'\\exists', aside:'there is'},
@@ -1274,6 +1277,10 @@ function make(mf, theme) {
         mf.unshiftKeyboardLayer_();
     });
     window.addEventListener('touchend', function() {
+        mf.hideAlternateKeys_();
+        mf.unshiftKeyboardLayer_();
+    });
+    window.addEventListener('touchcancel', function() {
         mf.hideAlternateKeys_();
         mf.unshiftKeyboardLayer_();
     });

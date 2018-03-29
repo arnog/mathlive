@@ -1536,10 +1536,10 @@ EditableMathlist.prototype.insert = function(s, options) {
             // substitute the preceding `mord` atoms for it.
             if (args[0]) {
                 // There was a selection, we'll use it for #@
-                s = s.replace(/(^|[^\\])#@/g, '#0');
+                s = s.replace(/(^|[^\\])#@/g, '$1#0');
                 
             } else if (/(^|[^\\])#@/.test(s)) {
-                s = s.replace(/(^|[^\\])#@/g, '#0');
+                s = s.replace(/(^|[^\\])#@/g, '$1#0');
                 args[0] = this.extractContentsOrdInGroupBeforeInsertionPoint();
                 // Delete the implicit argument
                 this.delete(-args[0].length);

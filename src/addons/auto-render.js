@@ -327,7 +327,7 @@ const defaultOptions = {
 
 function renderMathInElement(elem, options, latexToMarkup, latexToMathML) {
     try {
-        options = Object.assign({}, defaultOptions, options);
+        options = Object.assign({}, defaultOptions);
         options.ignoreClassPattern = new RegExp(options.ignoreClass);
         options.processClassPattern = new RegExp(options.processClass);
         options.processScriptTypePattern = new RegExp(options.processScriptType);
