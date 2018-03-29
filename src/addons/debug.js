@@ -192,7 +192,6 @@ function mathlistToString(mathlist, indent) {
         result += mathlistPropToString(mathlist, 'superscript', indent);
         result += mathlistPropToString(mathlist, 'subscript', indent);
         result += mathlistPropToString(mathlist, 'body', indent);
-        result += mathlistPropToString(mathlist, 'children', indent);
 
         result += mathlistPropToString(mathlist, 'array', indent);
 
@@ -300,13 +299,13 @@ function mathlistToMarkup(mathlist, indent) {
             result += mathlist.hasCaret ? ' caret' : '';
             result += '">' + mathlist.type + '</span>';
         }
-        if (mathlist.value && mathlist.value.length > 0) {
+        if (typeof mathlist.body === 'string' && mathlist.body.length > 0) {
             result += '&nbsp;<span class="value">';
-            result += mathlist.value;
-            if (mathlist.value.charCodeAt(0) < 32 
-                || mathlist.value.charCodeAt(0) > 127) {
+            result += mathlist.body;
+            if (mathlist.body.charCodeAt(0) < 32 
+                || mathlist.body.charCodeAt(0) > 127) {
                 result += '&nbsp;U+' + ('000000' + 
-                    mathlist.value.charCodeAt(0).toString(16)).substr(-6);
+                    mathlist.body.charCodeAt(0).toString(16)).substr(-6);
             }
             result += '</span>&nbsp;';
         }
@@ -358,7 +357,6 @@ function mathlistToMarkup(mathlist, indent) {
 
         result += mathlistToMarkup(mathlist.superscript, indent + '↑');
         result += mathlistToMarkup(mathlist.subscript, indent + '↓');
-        result += mathlistToMarkup(mathlist.children, indent + '▷');
         result += mathlistToMarkup(mathlist.body, indent + '▶');
         result += mathlistToMarkup(mathlist.numer, indent + '\u25B2');
         result += mathlistToMarkup(mathlist.denom, indent + '\u25Bc');

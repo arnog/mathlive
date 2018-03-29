@@ -182,7 +182,8 @@ Span.prototype.setWidth = function(width) {
 
 Span.prototype.addMarginRight = function(margin) {
     if (margin && margin !== 0) {
-        if (!this.style && !this.classes.match(/qquad|quad|enspace|thickspace|mediumspace|thinspace|negativethinspace/)) {
+        if (!this.style && 
+            !/qquad|quad|enspace|thickspace|mediumspace|thinspace|negativethinspace/.test(this.classes)) {
             // Attempt to use a class instead of an explicit margin
             const cls = {
                 '2': 'qquad',
@@ -541,7 +542,7 @@ function skew(spans) {
     if (Array.isArray(spans)) {
         let result = 0;
         for (const span of spans) {
-            result += span.skew;
+            result += span.skew || 0;
         }
         return result;
     }
@@ -632,7 +633,8 @@ function makeFontSizer(context, fontSize) {
 
 /**
  * 
- * @param {string} type One of 'bin', 'op', 'ord', 'rel' 'close', 'punct', 'inner'
+ * @param {string} type One of 'mbin', 'mop', 'mord', 'mrel' 'mclose', 
+ * 'mpunct', 'minner'
  * @param {string|Span[]} content A string or an array of other Spans
  * @param {string} classes CSS classes decorating this span
  * See https://tex.stackexchange.com/questions/81752/

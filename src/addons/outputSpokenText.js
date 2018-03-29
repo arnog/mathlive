@@ -129,8 +129,8 @@ function atomicValue(mathlist) {
     let result = '';
     if (mathlist && Array.isArray(mathlist)) {
         for (const atom of mathlist) {
-            if (atom.type !== 'first') {
-                result += atom.value;
+            if (atom.type !== 'first' && typeof atom.body === 'string') {
+                result += atom.body;
             }
         }
     }
@@ -156,39 +156,38 @@ MathAtom.MathAtom.prototype.toSpeakableText = function(atom) {
 }
 
 MathAtom.toSpeakableFragment = function(atom, options) {
-function letter(c) {
-    let result = '';
-    if (!options.markup) {
-        if (/[a-z]/.test(c)) {
-            result += " '" + c.toUpperCase() + "'";
-            // result += ' "' + atom.value.toUpperCase() + '"';
-        } else if (/[A-Z]/.test(c)) {
-            result += " 'capital " + c.toUpperCase() + "'";
+    function letter(c) {
+        let result = '';
+        if (!options.markup) {
+            if (/[a-z]/.test(c)) {
+                result += " '" + c.toUpperCase() + "'";
+            } else if (/[A-Z]/.test(c)) {
+                result += " 'capital " + c.toUpperCase() + "'";
+            } else {
+                result += c;
+            }
         } else {
-            result += c;
+            if (/[a-z]/.test(c)) {
+                result += ' [[char LTRL]]' + c + '[[char NORM]]';
+            } else if (/[A-Z]/.test(c)) {
+                result += 'capital ' + c.toLowerCase() + '';
+            } else {
+                result += c;
+            }
         }
-    } else {
-        if (/[a-z]/.test(c)) {
-            result += ' [[char LTRL]]' + c + '[[char NORM]]';
-            // result += ' "' + atom.value.toUpperCase() + '"';
-        } else if (/[A-Z]/.test(c)) {
-            result += 'capital ' + c.toLowerCase() + '';
-        } else {
-            result += c;
+        return result;
+    }
+
+    function emph(s) {
+        // if (options.markup === 'ssml') {
+        // } else 
+        if (options.markup) {
+            return '[[emph +]]' + s;
         }
+        return s;
     }
-    return result;
-}
 
-function emph(s) {
-    // if (options.markup === 'ssml') {
-    // } else 
-    if (options.markup) {
-        return '[[emph +]]' + s;
-    }
-    return s;
-}
-
+    if (!atom) return '';
 
     let result = '';
     if (Array.isArray(atom)) {
@@ -213,7 +212,7 @@ function emph(s) {
         switch(atom.type) {
             case 'group':
             case 'root':
-                result += MathAtom.toSpeakableFragment(atom.children, options);
+                result += MathAtom.toSpeakableFragment(atom.body, options);
                 break;
 
             case 'genfrac':
@@ -301,7 +300,7 @@ function emph(s) {
                 // @todo
                 break;
             case 'placeholder':
-                result += 'placeholder ' + atom.value;
+                result += 'placeholder ' + atom.body;
                 break;
             case 'delim':
             case 'sizeddelim':
@@ -314,7 +313,7 @@ function emph(s) {
             case 'mclose':
             case 'textord':
             {
-                let atomValue = atom.value;
+                let atomValue = atom.body;
                 let latexValue = atom.latex;
                 if (atom.type === 'delim' || atom.type === 'sizeddelim') {
                     atomValue = latexValue = atom.delim;
@@ -338,7 +337,7 @@ function emph(s) {
                             result += spokenName ? spokenName : letter(atomValue);
                         }
                     } else {
-                        result += MathAtom.toSpeakableFragment(atom.children, options);
+                        result += MathAtom.toSpeakableFragment(atom.body, options);
                     }
                     if (atom.type === 'mbin') {
                         result += '[[slnc 150]]';
@@ -346,10 +345,9 @@ function emph(s) {
                 }
                 break;
             }
-            case 'op':
             case 'mop':
             // @todo
-                if (atom.value !== '\u200b') {
+                if (atom.body !== '\u200b') {
                     // Not ZERO-WIDTH
                     const trimLatex = atom.latex ? atom.latex.trim() : '' ;
                     if (trimLatex === '\\sum') {
@@ -385,13 +383,13 @@ function emph(s) {
                         } else {
                             result += ' integral ';
                         }
-                    } else if (atom.value) {
-                        const value = PRONUNCIATION[atom.value] || 
+                    } else if (typeof atom.body === 'string') {
+                        const value = PRONUNCIATION[atom.body] || 
                             PRONUNCIATION[atom.latex.trim()];
                         if (value) {
                             result += value;
                         } else {
-                            result += ' ' + atom.value;
+                            result += ' ' + atom.body;
                         }
                     } else if (atom.latex && atom.latex.length > 0) {
                         if (atom.latex[0] === '\\') {

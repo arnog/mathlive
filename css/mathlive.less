@@ -7,6 +7,20 @@
 @math_main: KaTeX_Main;
 @math_math: KaTeX_Math;
 
+@shadow1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+@shadow2: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+@shadow3: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+@shadow4: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+@shadow5: 0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);
+
+// 0 8px 10px 1px rgba(0, 0, 0, .14),
+//             0 3px 14px 2px rgba(0, 0, 0, .12),
+//             0 5px 5px -3px rgba(0, 0, 0, .4)
+
+// 0 2px 2px 0 rgba(0, 0, 0, .14),
+//                     0 1px 5px 0 rgba(0, 0, 0, .12),
+//                     0 3px 1px -2px rgba(0, 0, 0, .2)
+
 @primary: #0066ce;
 @material-primary: #5f97fc;
 @secondary: #cd0030;
@@ -649,9 +663,7 @@
     user-select: none;
     cursor: pointer;
 
-    box-shadow: 0 8px 10px 1px rgba(0, 0, 0, .14),
-            0 3px 14px 2px rgba(0, 0, 0, .12),
-            0 5px 5px -3px rgba(0, 0, 0, .4);
+    box-shadow: @shadow2;
 
     .tex {
         font-family: @math_main, "Cambria Math", "Asana Math", OpenSymbol, Symbola, STIX, Times, serif !important;
@@ -664,6 +676,96 @@
         font-size: 30px;
         font-weight: 400;
     }
+
+    /* This is the element that displays alternate keys on press+hold */
+    div.alternate-keys {
+        visibility: hidden;
+        max-width: 286px;
+        background-color: white;
+        text-align: center;
+        border-radius: 6px;
+        // padding: 8px 8px;
+        position: fixed;
+        z-index: 101;   // Keyboard is at 100, need to be above it.
+    
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-content: center;
+    
+        box-shadow: @shadow4;
+
+
+        transition: none;
+
+        &.visible {
+            visibility: visible;
+        }
+        ul {
+            list-style: none;
+            margin: 3px;
+            padding: 0;
+            display: flex;
+            flex-flow: row wrap-reverse;
+            justify-content: center;
+            li {        // Alternate Keys
+                display: flex;
+                flex-flow: column;
+                align-items: center;
+                justify-content: center;
+                font-size: 30px;
+                
+                height: 70px;
+                width: 70px;
+                box-sizing: border-box;
+                margin: 0;
+                background: transparent;
+                border: 1px solid transparent; // #e5e6e9;
+                border-radius: 5px;
+                pointer-events: all;
+                color: #000;
+                fill: #000;
+                &:hover, &.pressed, &.active {
+                    shadow-box: @shadow3;
+                    background: #e5e5e5;
+                    color: @primary;
+                    fill: @primary;
+                }
+                &.small {
+                    font-size: 18px;
+                }
+                &.box > div, &.box > span {
+                    border: 1px dashed rgba(0, 0, 0, .24);
+                }
+                // Use to display warning icons, with a SVG icon
+                .warning {
+                    min-height: 60px;
+                    min-width: 60px;
+                    background: #cd0030;
+                    fill: white;
+                    color: white;
+                    padding: 5px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 5px;
+                    &:hover, &.pressed, &.active {
+                        background: red;
+                    }
+                    svg {
+                        width: 50px;
+                        height: 50px;
+                    }
+               }
+                aside {
+                    font-size: 12px;
+                    line-height: 12px;
+                    opacity: .78;
+                }
+            }
+        }
+    }
+    
 
     div.keyboard-layer {
         display: none;
@@ -691,7 +793,7 @@
         /* Icons for undo/redo, etc.. */
         svg {
             height: 20px;
-            width: 25px;
+            width: 20px;
         }
         @media only screen and (max-width : 767px)  {
             svg {
@@ -854,40 +956,88 @@
             height: 40px;
             margin: 0 0 3px 0;
             padding: 0;
-            li.tt {
-                color: @primary;
-            }
-            /* For the alignment of the text on some modifiers (e.g. shift) */
-            li.bottom {
-                justify-content: flex-end;
-            }
-            li.left {
-                text-align: left;
-                padding-left: 4px;
-            }
-            li.right {
-                text-align: right;
-                padding-right: 4px;
-            }
 
-            li svg {
-                height: 20px;
-            }
-            /* Last key should be flush against the border */
-            :last-child {
-                margin-right: 0;
-            }
+
             
             li {
                 /* Key widths. A standard key is 10 units wide (w10) */
                 /* The formula for wn = n * w10 / 10 + (n -1) * margin-right */
+                display: flex;
+                flex-flow: column;
+                align-items: center;
+                justify-content: center;
+
                 width: 34px;
                 margin-right: 2px;
-                display: flex;
-                align-items: center;
-                
-                &.w0 { width: 0; }
-                &.w5 { width: 16px; }
+                height: 40px;
+                box-sizing: border-box;
+                padding: 8px 0;
+                vertical-align: top;
+                text-align: center;
+                float: left;
+
+                color: #000;
+                font-size: 20px;
+                background: white;
+                border: 1px solid #e5e6e9;
+                border-bottom-color: #8d8f92;
+                border-radius: 5px;
+                pointer-events: all;
+
+                /* Last key should be flush against the border */
+                &:last-child {
+                    margin-right: 0;
+                }
+
+                &.small {font-size: 16px;}
+                &.tt {color: @primary;}
+
+                /* For the alignment of the text on some modifiers (e.g. shift) */
+                &.bottom {
+                    justify-content: flex-end;
+                }
+                &.left {
+                    align-items: flex-start;
+                    padding-left: 4px;
+                }
+                &.right {
+                    align-items: flex-end;
+                    padding-right: 4px;
+                }
+
+                svg {width: 20px; height: 20px;}
+                // Use to display warning icons, with a SVG icon
+                .warning {
+                    height: 25px;
+                    width: 25px;
+                    min-height: 25px;
+                    min-width: 25px;
+                    background: #cd0030;
+                    fill: white;
+                    color: white;
+                    border-radius: 100%;
+                    padding: 5px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-bottom: -2px;
+                    svg {
+                        width: 16px;
+                        height: 16px;
+                    }
+                    @media only screen and (max-width : 768px)  {
+                        height: 16px;
+                        width: 16px;
+                        min-height: 16px;
+                        min-width: 16px;
+                        svg {
+                            width: 14px;
+                            height: 14px;
+                        }
+                    }
+               }
+                &.w0 {width: 0;}
+                &.w5 {width: 16px;}
                 &.w15 {width: 52px;}
                 &.w20 {width: 70px;}
                 &.w50 {width: 178px;}
@@ -930,23 +1080,7 @@
                         font-size: 16px;
                     }
                 }
-                display: flex;
-                justify-content: center;
-                flex-flow: column;
-                height: 40px;
-                box-sizing: border-box;
-                padding: 8px 0;
-                vertical-align: top;
-                text-align: center;
-                float: left;
 
-                color: #000;
-                font-size: 20px;
-                background: white;
-                border: 1px solid #e5e6e9;
-                border-bottom-color: #8d8f92;
-                border-radius: 5px;
-                pointer-events: all;
 
                 // Waves effect
                 position: relative;
@@ -954,7 +1088,7 @@
                 user-select: none;
                 -webkit-tap-highlight-color: transparent;
                 // z-index: 1;
-                transition: .14s cubic-bezier(.4, 0, .2, 1);
+                // transition: .14s cubic-bezier(.4, 0, .2, 1);
                 &.fnbutton, &.bigfnbutton {
                     @media only screen and (max-width : 767px)  {
                         font-size: 12px;
@@ -977,6 +1111,9 @@
                 }
                 &.modifier.selected, &.action.selected {
                     color: @primary;
+                    &:hover, &:active, &.pressed, &.active {
+                        color: white;
+                    }
                 }
                 &.keycap.w50 {
                     font-size: 80%;
@@ -1069,6 +1206,23 @@
 div#ML__keyboard.material  {
     font-family: Roboto, sans-serif;
     background-color:#f7f7f7;
+
+    div.alternate-keys {
+        background: #efefef;
+        border: 1px solid transparent;
+        border-radius: 5px;
+        box-shadow: @shadow4;
+
+        ul li:hover, ul li:active, ul li.active, ul li.pressed {
+            border: 1px solid transparent;
+            background: @material-primary;
+            color: white;
+            fill: white;
+        }
+
+
+    }
+
     div.keyboard-toolbar {
         div div {
             font-size: 16px;
@@ -1096,7 +1250,8 @@ div#ML__keyboard.material  {
             color: @material-primary;
         }
 
-        transition: .14s cubic-bezier(.4, 0, .2, 1);
+        // transition: .14s cubic-bezier(.4, 0, .2, 1);
+        transition: none;
         &[data-key=' '] {
             margin-top: 10px;
             margin-bottom: 10px;
@@ -1109,32 +1264,38 @@ div#ML__keyboard.material  {
                 transform: none;
             }
         }
-        &:not([data-key=' ']):hover, &:not([data-key=' ']).pressed {
-            border: 0;
+        &:not([data-key=' ']):hover {
+            border: 1px solid transparent;
             background: #cccfd1;
             box-shadow: none;
         }
-        &:not([data-key=' ']):active, &:not([data-key=' ']).active {
+        &:not([data-key=' ']).pressed, 
+        &:not([data-key=' ']).active,
+        &:not([data-key=' ']):active,  {
             background: #efefef;
             color: #000;
             fill: #000;
-            box-shadow: none;
+            box-shadow: @shadow3;
             @media only screen and (max-width : 767px) {
-                box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .14),
-                0 1px 5px 0 rgba(0, 0, 0, .12),
-                0 3px 1px -2px rgba(0, 0, 0, .2);
+                box-shadow: @shadow3;
                 font-size: 10px;
                 vertical-align: top;
-                width: 18.5px;
-                margin-right: 9px;
-                margin-left: 9px;
+                width: 19.5px;
+                margin-right: 10px;
+                margin-left: 10px;
                 transform: translateY(-20px) scale(2, 2);
-                transition: .07s cubic-bezier(.4, 0, .2, 1);
+                // transition: .07s cubic-bezier(.4, 0, .2, 1);
+                transition: none;
                 justify-content: flex-start;
+                padding: 2px 0 0 0;
                 z-index: 100;
             }
+            @media only screen and (max-width : 414px)  {
+                width: 16.5px;
+            }
         }
-        &:last-child:active {
+        &:last-child:active, 
+        &:last-child.active, {
             @media only screen and (max-width : 767px) {
                 margin-right: 0;
                 margin-left: 14px;
@@ -1147,8 +1308,9 @@ div#ML__keyboard.material  {
         color: #869096;
         fill: #869096;
         font-size: 16px;
-        transition: .28s cubic-bezier(.4, 0, .2, 1);
-        &.selected, &.selected {
+        // transition: .28s cubic-bezier(.4, 0, .2, 1);
+        transition: none;
+        &.selected {
             color: @material-primary;
             border-radius: 0;
             border-bottom: 2px solid @material-primary;
@@ -1163,7 +1325,7 @@ div#ML__keyboard.material  {
     div div.rows ul li.fnbutton, div div.rows ul li.bigfnbutton {
         background: transparent;
         border: 0;
-        transition: .28s cubic-bezier(.4, 0, .2, 1);
+        // transition: .28s cubic-bezier(.4, 0, .2, 1);
         &.selected, &.selected {
             color: @material-primary;
             border-radius: 0;
@@ -1232,7 +1394,7 @@ div#ML__keyboard.material  {
     border: 2px solid #f7f7f7;
 
     /*box-shadow: 0 7px 14px rgba(0,0,0,0.25), 0 5px 5px rgba(0,0,0,0.22);*/
-    box-shadow:0 0 0 1px #ddd, 0 1px 2px 1px #ccc;
+    box-shadow: @shadow1;
 
 }
 
@@ -1275,26 +1437,25 @@ div#ML__keyboard.material  {
     justify-content: center;
     margin-left: 8px;
     margin-right: 8px;
+    a {
+        color: #5Ea6Fd;
+        padding-top: .3em;
+        margin-top: .4em;
+        display: block;
+        &:hover {
+            color: #5Ea6Fd;
+            text-decoration: underline;
+        }
+    }
+    /* Since the content can be clicked on, provide feedback on hover */
+    &:hover, 
+    &.pressed,
+    &.active {
+        background: rgba(255, 255, 255, .1);
+    }
 }
 
-.ML__popover_content a {
-    color: #5Ea6Fd;
-    padding-top: .3em;
-    margin-top: .4em;
-    display: block;
-}
 
-.ML__popover_content a:hover {
-    color: #5Ea6Fd;
-    text-decoration: underline;
-}
-
-/* Since the content can be clicked on, provide feedback on hover */
-.ML__popover_content:hover, 
-.ML__popover_content.pressed,
-.ML__popover_content.active {
-    background: rgba(255, 255, 255, .1);
-}
 
 /* The command inside a popover (inside a ML__popover-content) */
 .ML__popover_command {

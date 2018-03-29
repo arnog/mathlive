@@ -10,7 +10,7 @@ define(['mathlive/core/definitions', 'mathlive/core/mathAtom'],
 function opPrec(atom) {
     if (!atom) return -1;
     return Definitions.getPrecedence(
-        Definitions.getCanonicalName(atom.latex || atom.value));
+        Definitions.getCanonicalName(getString(atom)));
 }
 
 const RIGHT_DELIM = {
@@ -63,6 +63,26 @@ const POSTFIX_FUNCTION = {
     '\\%': '%',
     '\\_': '_',
     '\\degree': 'degree'
+}
+
+function getString(atom) {
+    if (atom.latex && atom.latex !== '\\mathop ' && atom.latex !== '\\mathbin ' &&
+        atom.latex !== '\\mathrel ' && atom.latex !== '\\mathopen ' && 
+        atom.latex !== '\\mathpunct ' && atom.latex !== '\\mathord ' && 
+        atom.latex !== '\\mathinner ') {
+        return atom.latex.trim();
+    }
+    if (typeof atom.body === 'string') {
+        return atom.body;
+    }
+    if (Array.isArray(atom.body)) {
+        let result = '';
+        for (const subAtom of atom.body) {
+            result += getString(subAtom);
+        }
+        return result;
+    }
+    return '';
 }
 
 /**
@@ -121,13 +141,7 @@ function isAtom(expr, type, value) {
         if (value === undefined) {
             result = true;
         } else {
-            if (type === 'mord' || type === 'mbin' || type === 'mrel' || type === 'mop') {
-                result = (atom.latex && atom.latex.trim() === value) || atom.value === value;
-            } else if (type === 'textord') {
-                result = atom.latex.trim() === value;
-            } else {
-                result = atom.value === value;
-            }
+            result = getString(atom) === value;
         }
     }
     return result;
@@ -269,23 +283,21 @@ function parsePostfix(expr) {
         return undefined;
     }
 
-    if (atom.type === 'mopen' && (atom.latex.trim() === ldelim || atom.value === ldelim)) {
+    if (atom.type === 'mopen' && getString(atom) === ldelim) {
         expr.index += 1;    // Skip the open delim
         expr = parseExpression(parsePrimary(expr));
         atom = expr.atoms[expr.index];
-        if (atom && atom.type === 'mclose' && 
-            (atom.latex.trim() === rdelim || atom.value === rdelim)) {
+        if (atom && atom.type === 'mclose' && getString(atom) === rdelim) {
             expr.index += 1;
             expr = parseSupsub(expr);
             expr = parsePostfix(expr);
         } // TODO: else, syntax error?
 
-    } else if (atom.type === 'textord' && (atom.latex.trim() === ldelim || atom.value === ldelim)) {
+    } else if (atom.type === 'textord' && getString(atom) === ldelim) {
             expr.index += 1;    // Skip the open delim
             expr = parseExpression(parsePrimary(expr));
             atom = expr.atoms[expr.index];
-            if (atom && atom.type === 'textord' && 
-                (atom.latex.trim() === rdelim || atom.value === rdelim)) {
+            if (atom && atom.type === 'textord' && getString(atom) === rdelim) {
                 expr.index += 1;
                 expr = parseSupsub(expr);
                 expr = parsePostfix(expr);
@@ -376,7 +388,7 @@ function parsePrimary(expr) {
     }
     
     let atom = expr.atoms[expr.index];
-    const val = Definitions.getCanonicalName(atom.latex || atom.value);
+    const val = Definitions.getCanonicalName(getString(atom));
 
     const digraph = parseDigraph(expr);
     if (digraph) {
@@ -484,7 +496,7 @@ function parsePrimary(expr) {
     } else if (atom.type === 'mord') {
         // A 'mord' but not a number, either an identifier ('x') or a function
         // ('\\Zeta')
-        const name = Definitions.getCanonicalName(atom.latex || atom.value);
+        const name = Definitions.getCanonicalName(getString(atom));
         if (Definitions.isFunction(name) && opPrec(atom) < 0) {
             // A function
             expr.ast = {fn: name};
@@ -511,7 +523,7 @@ function parsePrimary(expr) {
             // This doesn't look like a textord operator
             if (!RIGHT_DELIM[atom.latex.trim()]) {
                 // Not an operator, not a fence, it's a symbol or a function
-                const name = Definitions.getCanonicalName(atom.latex || atom.value);
+                const name = Definitions.getCanonicalName(getString(atom));
                 if (Definitions.isFunction(name)) {
                     // It's a function
                     expr.ast = {fn: name};
@@ -538,7 +550,7 @@ function parsePrimary(expr) {
 
     } else if (atom.type === 'mop') {
         // Could be a function or an operator.
-        const name = Definitions.getCanonicalName(atom.latex || atom.value);
+        const name = Definitions.getCanonicalName(getString(atom));
         if (Definitions.isFunction(name) && opPrec(atom) < 0) {
             expr.index += 1;
             expr.ast = {fn: name};
@@ -604,7 +616,7 @@ function parsePrimary(expr) {
                 // Couldn't interpret the expression. Output an error.
                 expr.ast = {text: '?'};
                 expr.ast.error = 'Unexpected token ' + 
-                    "'" + atom.type + "' = " + atom.value + ' = ' + atom.latex;
+                    "'" + atom.type + "' = " + atom.body + ' = ' + atom.latex;
                 expr.index += 1;    // Skip the unexpected token, and attempt to continue
             }
         }
@@ -708,7 +720,7 @@ function toString(atoms) {
     let result = '';
     for (const atom of atoms) {
         if (atom.type === 'textord' || atom.type === 'mord') {
-            result += atom.value;
+            result += atom.body;
         }
     }
     return escapeText(result);
@@ -758,7 +770,8 @@ MathAtom.MathAtom.prototype.toAST = function() {
     const command = this.latex ? this.latex.trim() : null;
     switch(this.type) {
         case 'root':
-            result.group = parse(this.children);
+        case 'group':
+            result.group = parse(this.body);
             break;
 
         case 'genfrac':
@@ -815,17 +828,17 @@ MathAtom.MathAtom.prototype.toAST = function() {
             if (m) {
                 sym = String.fromCodePoint(parseInt(m[1], 16));
             } else {
-                sym = Definitions.getCanonicalName(command || this.value);
+                sym = Definitions.getCanonicalName(getString(this));
                 if (sym.length > 0 && sym.charAt(0) === '\\') {
                     // This is an identifier with no special handling. 
                     // Use the Unicode value if outside ASCII range
-                    if (this.value) {
+                    if (typeof this.body === 'string') {
                         // TODO: consider making this an option?
-                        // if (this.value.charCodeAt(0) > 255) {
+                        // if (this.body.charCodeAt(0) > 255) {
                         //     sym = '&#x' + ('000000' + 
-                        //         this.value.charCodeAt(0).toString(16)).substr(-4) + ';';
+                        //         this.body.charCodeAt(0).toString(16)).substr(-4) + ';';
                         // } else {
-                            sym = this.value.charAt(0);
+                            sym = this.body.charAt(0);
                         // }
                     }
                 }
@@ -847,7 +860,6 @@ MathAtom.MathAtom.prototype.toAST = function() {
         case 'minner':
             break;
 
-        case 'op':
         case 'mop':
             break;
 
@@ -874,7 +886,7 @@ MathAtom.MathAtom.prototype.toAST = function() {
         case 'mathstyle':
             break;
         default: 
-            console.log('Unhandled atom ' + this.type + ' - ' + this.value);
+            console.log('Unhandled atom ' + this.type + ' - ' + this.body);
             
     }
 
@@ -1151,7 +1163,7 @@ function asLatex(ast, options) {
         scientificNotation:     'auto', // 'engineering', 'auto', 'on'
         beginRepeatingDigits:   '\\overline{',
         endRepeatingDigits:     '}',
-    }, options, config);
+    }, options);
 
     let result = '';
 
@@ -1169,7 +1181,7 @@ function asLatex(ast, options) {
     } else if (isNumber(ast)) {
         const val = typeof ast === 'number' ? ast : ast.num;
         if (isNaN(val)) {
-            result = '\\mathrm{NaN}';
+            result = '\\text{NaN}';
         } else if (val === -Infinity) {
             result = '-\\infty ';
         } else if (val === Infinity) {

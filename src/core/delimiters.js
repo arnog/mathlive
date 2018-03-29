@@ -135,13 +135,13 @@ function makeStackedDelim(type, delim, heightTotal, center, context,
     } else if (delim === '\\Downarrow') {
         top = repeat = '\u2016';
     } else if (delim === '\\updownarrow') {
-        top = '\\uparrow';
+        top = '\u2191';
         repeat = '\u23d0';
-        bottom = '\\downarrow';
+        bottom = '\u2193';
     } else if (delim === '\\Updownarrow') {
-        top = '\\Uparrow';
+        top = '\u21d1';
         repeat = '\u2016';
-        bottom = '\\Downarrow';
+        bottom = '\u21d3';
     } else if (delim === '[' || delim === '\\lbrack') {
         top = '\u23a1';
         repeat = '\u23a2';

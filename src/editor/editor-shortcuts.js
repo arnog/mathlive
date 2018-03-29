@@ -178,8 +178,8 @@ const KEYBOARD_SHORTCUTS = {
     // 'Alt-Digit0':       '\\right)',      // ")" key
     'math:Alt-keyD':             ['insert', '\\differentialD'],
     'math:Alt-Shift-KeyD':       ['insert', '\\partial'],
-    'math:Slash':                ['insert', '\\frac{#0}{#?}'],
-    'math:Alt-Slash':            ['insert', '\\frac{#?}{#0}'],
+    'math:Slash':                ['insert', '\\frac{#@}{#?}'],
+    'math:Alt-Slash':            ['insert', '\\frac{#?}{#@}'],
     'math:Alt-KeyO':             ['insert', '\\emptyset'],
     'math:Alt-Shift-KeyO':       ['insert', '\\varnothing'],
 
@@ -254,9 +254,7 @@ const REVERSE_KEYBOARD_SHORTCUTS = {
  */
 const INLINE_SHORTCUTS = {
     '>=':                   '\\ge',                 //ASCIIMath
-    '≥':                    '\\ge',
     '<=':                   '\\le',                 //ASCIIMath
-    '≤':                    '\\le',
     '!=':                   '\\ne',
     '≈':                    '\\approx',
     '~~':                   '\\approx',             // ASCIIMath
@@ -265,7 +263,6 @@ const INLINE_SHORTCUTS = {
     '¬':                    '\\neg',
     '+-':                   '\\pm',                 // ASCIIMath
     '-=':                   '\\equiv',              // ASCIIMath
-    '\u2212=':              '\\equiv',              // ASCIIMath
     '~=':                   '\\cong',               // ASCIIMath
     ':=':                   '\\coloneq',
     '::':                   '\\Colon',
@@ -273,21 +270,16 @@ const INLINE_SHORTCUTS = {
     ':)':                   '\\rangle',
     '-<':                   '\\prec',               // ASCIIMath
     '-<=':                  '\\preceq',             // ASCIIMath
-    '\u2212<':              '\\prec',               // ASCIIMath
     // '>-':                   '\\succ',               // ASCIIMath
     '>-=':                  '\\succeq',             // ASCIIMath
-    '>\u2212=':             '\\succeq',             // ASCIIMath
     'prop':                 '\\propto',             // ASCIIMath
     ':.':                   '\\therefore',          // ASCIIMath
-    '**':                   '\\ast',                // ASCIIMath
-    // '\u2217*':              '\\ast',             // ASCIIMath
-    '\u2217*':              '\\star',               // ASCIIMath
+    '**':                  '\\star',               // ASCIIMath
     'xx':                   '\\times',              // ASCIIMath
     '@':                    '\\circ',               // ASCIIMath
     'diamond':              '\\diamond',            // ASCIIMath
     'square':               '\\square',             // ASCIIMath
     'iff':                  '\\iff',                // ASCIIMath
-
 
 
     'alpha':                '\\alpha',            // ASCIIMath
@@ -306,7 +298,7 @@ const INLINE_SHORTCUTS = {
     'Lambda':               '\\Lambda',            // ASCIIMath
     'mu':                   '\\mu',            // ASCIIMath
     'µ':                    '\\mu',        // @TODO: or micro?
-    'nu':                   '\\nu',            // ASCIIMath
+    // 'nu':                   '\\nu',            // ASCIIMath
     'pi':                   '\\pi',
     'π':                    '\\pi',
     'Pi':                   '\\Pi',
@@ -323,7 +315,7 @@ const INLINE_SHORTCUTS = {
     'Theta':                '\\Theta',
     'vartheta':             '\\vartheta',
     'upsilon':              '\\upsilon',
-    'xi':                   '\\xi',
+    // 'xi':                   '\\xi',
     'Xi':                   '\\Xi',
     'zeta':                 '\\zeta',
     'omega':                '\\omega',
@@ -335,7 +327,7 @@ const INLINE_SHORTCUTS = {
     'nabla':                '\\nabla',
 
     'oo':                   '\\infty',       // ASCIIMath
-    '∞':                    '\\infty',         // @TODO: doesn't work
+    '\u221e':               '\\infty',         // @TODO: doesn't work
     // '&infin;': '\\infty',
     // '&#8734;': '\\infty',
 
@@ -353,10 +345,8 @@ const INLINE_SHORTCUTS = {
 
     'nn':                   '\\cap',            // ASCIIMath
     'nnn':                  '\\bigcap',         // ASCIIMath
-    '\u2229n':              '\\bigcap',         // ASCIIMath
     'uu':                   '\\cup',            // ASCIIMath
     'uuu':                  '\\bigcup',         // ASCIIMath
-    '\u222au':              '\\bigcup',         // ASCIIMath
     
     // 'arg': '\\arg',
     'sin':                  '\\sin',
@@ -366,19 +356,27 @@ const INLINE_SHORTCUTS = {
     'log':                  '\\log',
     'ln':                   '\\ln',
     'exp':                  '\\exp',
-    'lim':                  '\\lim',
+    'lim':                  '\\lim_{#?}',
+    'liminf':               '\\mathop{lim~inf}\\limits_{#?}',
+    'limsup':               '\\mathop{lim~sup}\\limits_{#?}',
+    'argmin':               '\\mathop{arg~min}\\limits_{#?}',
+    'argmax':               '\\mathop{arg~max}\\limits_{#?}',
     'det':                  '\\det',
     'mod':                  '\\mod',
     'max':                  '\\max',
     'min':                  '\\min',
-    'erf':                  '\\mathrm{erf}',
-    'erfc':                 '\\mathrm{erfc}',
-    'lcm':                  '\\mathrm{lcm}',
-    'gcd':                  '\\mathrm{gcd}',
-    'randomReal':           '\\mathrm{randomReal}',
-    'randomInteger':        '\\mathrm{randomInteger}',
+    'erf':                  '\\mathop{erf}',
+    'erfc':                 '\\mathop{erfc}',
+    'bessel':               '\\mathop{bessel}',
+    'mean':                 '\\mathop{mean}',
+    'median':               '\\mathop{median}',
+    'fft':                  '\\mathop{fft}',
+    'lcm':                  '\\mathop{lcm}',
+    'gcd':                  '\\mathop{gcd}',
+    'randomReal':           '\\mathop{randomReal}',
+    'randomInteger':        '\\mathop{randomInteger}',
 
-    'km':                   '\\mathrm{km}', // Unit: kilometer
+    'km':                   '\\mathop{km}', // Unit: kilometer
     
 
     'NN':                   '\\N',        // Natural numbers
@@ -399,34 +397,26 @@ const INLINE_SHORTCUTS = {
     'sub':                  '\\subset',     // ASCIIMath
     'sup':                  '\\supset',     // ASCIIMath
     'sube':                 '\\subseteq',     // ASCIIMath
-    '\u2282e':              '\\subseteq',     // ASCIIMath
     'supe':                 '\\supseteq',     // ASCIIMath
-    '\u2283e':              '\\supseteq',     // ASCIIMath
 
 
     '&&':                   '\\land',
     // '||':                   '\\lor',
-    '+...':                 '+\\cdots',
-    '\u2212...':            '-\\cdots',
-    '\u2192...':            '\to\\cdots',
-    '...':                  '\\ldots',
+    '...':                  '\\ldots',          // In general, use \ldots
+    '+...':                 '+\\cdots',         // ... but use \cdots after + ...
+    '-...':                 '-\\cdots',         // ... - and ...
+    '->...':                '\to\\cdots',       // ->
 
     '->':                   '\\to',
-    '\u2212>':              '\\to',      // minus sign + >
     '∣−>':                  '\\mapsto',
     '-->':                  '\\longrightarrow',
-    '\u2212\u2212>':        '\\longrightarrow',
 //    '<-':                   '\\leftarrow',
     '<--':                  '\\longleftarrow',
-    '<\u2212-':                  '\\longleftarrow',
-    '←-':                   '\\longleftarrow',
     '=>':                   '\\Rightarrow',
     '==>':                  '\\Longrightarrow',
 // '<=': '\\Leftarrow',     // CONFLICTS WITH LESS THAN OR EQUAL
     '<=>':                  '\\Leftrightarrow',
-    '⩽>':                   '\\Leftrightarrow',
     '<->':                  '\\leftrightarrow',
-    '←>':                   '\\leftrightarrow',
     '<<':                   '\\ll',
     '>>':                   '\\gg',
     'uarr':                  '\\uparrow',            // ASCIIMath
@@ -443,16 +433,15 @@ const INLINE_SHORTCUTS = {
     '(+)':                  '\\oplus',      
     'o+':                   '\\oplus',                 // ASCIIMath
     // '(/)':                  '\\oslash',
-    '(\u2217)':             '\\otimes',
+    '(*)':                  '\\otimes',
     'ox':                   '\\otimes',            // ASCIIMath
 
-    '\u2223|':              '\\Vert',               // || 
+    '||':                   '\\Vert',               // || 
     '{':                    '\\{',
     '}':                    '\\}',
 
     '(–)':                  '\\ominus',
-    '(\u2212)':             '\\circleddash',
-    '(-)':                  '\\circleddash',
+    // '(-)':                  '\\circleddash',
 };
 
 /* 
@@ -553,46 +542,38 @@ const MATHEMATICA_COMMANDS = {
  * 
  * @param {string} s candidate inline shortcuts (e.g. `'2+pi'`)
  * @return {string} null if no matching shortcut, the value of the shortcut 
- * otherwise, e.g. `{match: 'pi', substitute: '\pi'}`
+ * otherwise
  * @memberof module:editor/shortcuts
  * @private
  */
-function matchEndOf(s, config) {
-
+function match(s, config) {
     let result = null;
-    let matchLength = 0;
+
+    // Some common substitutions use characters that may have been replaced 
+    // already. Attempt to convert them back to their original form.
+    // Useful for things like '<-' where the '-' becomes a \u2212.
+    const s2 = s.replace(/\u2212/g, '-').
+        replace(/\u2217/g, '*').replace(/\u22c6/g, '**').
+        replace(/\u2223/g, '|').replace(/\u2192/g, '->').
+        replace(/\u2264/g, '<=').replace(/\u2a7d/g, '<=').
+        replace(/\u2265/g, '>=').replace(/\u2a7e/g, '>=').
+        replace(/\u2282/g, 'sub').replace(/\u2283/g, 'sup').
+        replace(/\u2229/g, 'nn').replace(/\u222a/g, 'uu');
+        
+
     const skipDefaultShortcuts = config && config.overrideDefaultInlineShortcuts;
     if (!skipDefaultShortcuts) {
-        for (const k in INLINE_SHORTCUTS) {
-            if (INLINE_SHORTCUTS.hasOwnProperty(k)) {
-                if (k.length > matchLength && s.substr(-k.length) === k) {
-                    result = {
-                        match: k,
-                        substitute: INLINE_SHORTCUTS[k]
-                    };
-                    matchLength = k.length;
-                }
-            }
-        }
+        result = INLINE_SHORTCUTS[s] || INLINE_SHORTCUTS[s2];
     }
 
     const customInlineShortcuts = config && config.inlineShortcuts ? 
         config.inlineShortcuts : null;
+    let customResult;
     if (customInlineShortcuts) {
-        for (const k in customInlineShortcuts) {
-            if (customInlineShortcuts.hasOwnProperty(k)) {
-                if (k.length >= matchLength && s.substr(-k.length) === k) {
-                    result = {
-                        match: k,
-                        substitute: customInlineShortcuts[k]
-                    };
-                    matchLength = k.length;
-                }
-            }
-        }
+        customResult = customInlineShortcuts[s] || customInlineShortcuts[s2];
     }
     
-    return result;
+    return customResult || result;
 }
 
 /**
@@ -797,7 +778,7 @@ function stringify(shortcuts, join) {
 return {
     INLINE : INLINE_SHORTCUTS,
     KEYBOARD: KEYBOARD_SHORTCUTS,
-    matchEndOf: matchEndOf,
+    match: match,
     matchKeystroke: matchKeystroke,
     getShortcutsForCommand: getShortcutsForCommand,
     stringify: stringify,

@@ -97,7 +97,7 @@ function MathField(element, config) {
     // 1.1/ The widget to activate the command bar
     // 2/ The popover panel which displays info in command mode
     // 3/ The keystroke caption panel (option+shift+K)
-    // 4/ The command bar
+    // 4/ The virtual keyboard
     // 5.0/ The area to stick MathML for screen reading larger exprs (not used right now)
     //      The for the area is that focus would bounce their and then back triggering the
     //         screen reader to read it
@@ -268,6 +268,7 @@ MathField.prototype.revertToOriginalContent = function() {
     delete this.textarea;
     this.virtualKeyboardToggleDOMNode.remove()
     delete this.virtualKeyboardToggleDOMNode;
+    this.popover.remove();
     delete this.popover;
     delete this.keystrokeCaption;
     // this.virtualKeyboard.remove();
@@ -415,8 +416,10 @@ MathField.prototype._onPointerDown = function(evt) {
         const y = moveEvt.touches ? moveEvt.touches[0].clientY : moveEvt.clientY;
         const focus = that._pathFromPoint(x, y);
         if (anchor && focus) {
-            that.mathlist.setRange(anchor, focus);
-            setTimeout(that._render.bind(that), 0);
+            if (that.mathlist.setRange(anchor, focus)) {
+                // Re-render if the range has actually changed
+                setTimeout(that._render.bind(that), 0);
+            }
         }
         // Prevent synthetic mouseMove event when this is a touch event
         moveEvt.preventDefault();
@@ -527,7 +530,7 @@ MathField.prototype._onSelectionDidChange = function() {
 
     // Defer the updating of the popover position: we'll need the tree to be
     // re-rendered first to get an updated caret position
-    this._updatePopoverPosition({deferred:true});
+    Popover.updatePopoverPosition(this, {deferred:true});
 
     // Invoke client handlers, if provided.
     if (this.config.onSelectionDidChange) {
@@ -569,7 +572,6 @@ MathField.prototype._onContentDidChange = function() {
 function nextAtomSpeechText(oldMathlist, mathlist) {
     function relation(parent, leaf) {
         const EXPR_NAME = {
-            'children': 'line',   // not sure what it should be -- happens at end of exprs
         //    'array': 'should not happen',
             'numer': 'numerator',
             'denom': 'denominator',
@@ -590,10 +592,10 @@ function nextAtomSpeechText(oldMathlist, mathlist) {
     const oldPath = oldMathlist ? oldMathlist.path : [];
     const path = mathlist.path;
     const leaf = path[path.length - 1];
-    let result = "";
+    let result = '';
 
     while (oldPath.length > path.length) {
-        result += "out of " + relation(oldMathlist.parent(), oldPath[oldPath.length - 1]) + "; ";
+        result += 'out of ' + relation(oldMathlist.parent(), oldPath[oldPath.length - 1]) + '; ';
         oldPath.pop(); 
     }
     if (!mathlist.isCollapsed()) {
@@ -603,13 +605,13 @@ function nextAtomSpeechText(oldMathlist, mathlist) {
     // announce start of denominator, etc
     const relationName = relation(mathlist.parent(), leaf);
     if (leaf.offset === 0) {
-        result += relationName ? "start of " + relationName + ": " : "unknown";
+        result += relationName ? 'start of ' + relationName + ': ' : 'unknown';
     }
     const atom = mathlist.sibling(Math.max(1, mathlist.extent));
     if (atom) {
         result += MathAtom.toSpeakableText(atom);
     } else if (leaf.offset !== 0) { // don't say both start and end
-        result += relationName ? "end of " + relationName : "unknown";
+        result += relationName ? 'end of ' + relationName : 'unknown';
     }
     return result;
 }
@@ -617,36 +619,39 @@ function nextAtomSpeechText(oldMathlist, mathlist) {
 /**
  * Set the aria-live region to announce the change and the following character/notation
  * E.g, "in numerator, x"
- * @param {command} string the command that invoked the change 
- * @param {command} oldMathlist [null] the previous value of mathlist before the change 
- * @param {command} array [null] or atom: atomsToSpeak the command that invoked the change 
+ * @param {string} command the command that invoked the change 
+ * @param {object} oldMathlist [null] the previous value of mathlist before the change 
+ * @param {object} array [null] or atom: atomsToSpeak the command that invoked the change 
  */
 MathField.prototype._announceChange = function(command, oldMathlist, atomsToSpeak) {
-//    function sleep(ms) {
-//        return new Promise(resolve => setTimeout(resolve, ms));
-//      }
 //** Fix: the focus is the end of the selection, so it is before where we want it
-    // aria-live regions are only spoken when it changes; force a change by alternately using nonbreaking space or narrow nonbreaking space
-    const ariaLiveChangeHack = /\u00a0/.test(this.ariaLiveText.textContent) ? " \u202f " : " \u00a0 ";
+    // aria-live regions are only spoken when it changes; force a change by 
+    // alternately using nonbreaking space or narrow nonbreaking space
+    const ariaLiveChangeHack = /\u00a0/.test(this.ariaLiveText.textContent) ? 
+        ' \u202f ' : ' \u00a0 ';
     // const command = moveAmount > 0 ? "right" : "left";
-    if (command === "delete") {
-        this.ariaLiveText.textContent = "deleted: " + ariaLiveChangeHack + MathAtom.toSpeakableText(atomsToSpeak);
+    if (command === 'delete') {
+        this.ariaLiveText.textContent = 'deleted: ' + ariaLiveChangeHack + MathAtom.toSpeakableText(atomsToSpeak);
     //*** FIX: could also be moveUp or moveDown -- do something different like provide context???
-    } else if (command === "focus" || /move/.test(command)) {
+    } else if (command === 'focus' || /move/.test(command)) {
         //*** FIX -- should be xxx selected/unselected */
         this.ariaLiveText.textContent = ariaLiveChangeHack +
-                    (this.mathlist.isCollapsed() ? "" : "selected: ") +
+                    (this.mathlist.isCollapsed() ? '' : 'selected: ') +
                     nextAtomSpeechText(oldMathlist, this.mathlist);
-    } else if (command === "replacement") {
+    } else if (command === 'replacement') {
         // announce the contents
         this.ariaLiveText.textContent = ariaLiveChangeHack + MathAtom.toSpeakableText(this.mathlist.sibling(0));
-    } else if (command === "line") {
+    } else if (command === 'line') {
         // announce the current line -- currently that's everything
-        this.ariaLiveText.textContent = ariaLiveChangeHack + MathAtom.toSpeakableText(this.mathlist.root);
+        const spokenText = MathAtom.toSpeakableText(this.mathlist.root);
+        this.ariaLiveText.textContent = ariaLiveChangeHack + spokenText;
         this.accessibleNode.innerHTML = 
-            "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
+            '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
                 MathAtom.toMathML(this.mathlist.root) +
-            "</math>";
+            '</math>';
+
+        this.textarea.setAttribute('aria-label', 'after: ' + spokenText)
+
         /*** FIX -- testing hack for setting braille ***/
         // this.accessibleNode.focus();
         // console.log("before sleep");
@@ -655,7 +660,8 @@ MathField.prototype._announceChange = function(command, oldMathlist, atomsToSpea
         //     console.log("after sleep");
         // });
     } else {
-        this.ariaLiveText.textContent = ariaLiveChangeHack + command + " " + (atomsToSpeak ? MathAtom.toSpeakableText(atomsToSpeak) : "");        
+        this.ariaLiveText.textContent = ariaLiveChangeHack + command + " " + 
+            (atomsToSpeak ? MathAtom.toSpeakableText(atomsToSpeak) : "");        
     }
 }
 
@@ -668,7 +674,7 @@ MathField.prototype._onFocus = function() {
         if (this.config.virtualKeyboardMode === 'onfocus') {
             this.showVirtualKeyboard_();
         }
-        this._updatePopoverPosition();
+        Popover.updatePopoverPosition(this);
         this._render();
         if (this.config.onFocus) this.config.onFocus(this);
     }
@@ -681,7 +687,7 @@ MathField.prototype._onBlur = function() {
         if (this.config.virtualKeyboardMode === 'onfocus') {
             this.hideVirtualKeyboard_();
         }
-        this._updatePopoverPosition();
+        Popover.updatePopoverPosition(this);
         this._render();
         if (this.config.onBlur) this.config.onBlur(this);
     }
@@ -697,7 +703,7 @@ MathField.prototype._onResize = function() {
     } else {
         this.element.classList.add('ML__isNarrowWidth');
     }
-    this._updatePopoverPosition();
+    Popover.updatePopoverPosition(this);
 }
 
 
@@ -723,7 +729,7 @@ MathField.prototype._showKeystroke = function(keystroke) {
 }
 
 /**
- * @param {Array.<string>} command - A selector and its parameters
+ * @param {string|Array.<string>} command - A selector and its parameters
  * @method MathField#perform
  */
 /**
@@ -866,7 +872,7 @@ MathField.prototype._onTypedText = function(text) {
                         // This looks like a command name, but not a known one
                         this.mathlist.decorateCommandStringAroundInsertionPoint(true);
                     }
-                    this._hidePopover();
+                    Popover.hidePopover(this);
                 } else {
                     this.mathlist.insert(c);
                     if (suggestions[0].match !== command + c) {
@@ -877,31 +883,43 @@ MathField.prototype._onTypedText = function(text) {
                     popoverText = suggestions[0].match;
                 }
             } else if (this.mathlist.parseMode() === 'math') {
-                // Inline shortcuts (i.e. 'p' + 'i' = '\pi') only apply in `math` 
-                // parseMode
-                const prefix = this.mathlist.extractGroupStringBeforeInsertionPoint();
-                const shortcut = Shortcuts.matchEndOf(prefix + c, this.config);
+                // Inline shortcuts (i.e. 'p' + 'i' = '\pi') only apply in 
+                // `math` parseMode
+
+                let count = this.mathlist.startOffset();
+                let shortcut;
+                // Try to find the longest matching shortcut possible
+                while (!shortcut && count > 0) {
+                    // Note that 'count' is a number of atoms
+                    // An atom can be more than one character (for example '\sin')
+                    const prefix = this.mathlist.extractCharactersBeforeInsertionPoint(count);
+                    shortcut = Shortcuts.match(prefix + c, this.config);
+                    count -= 1;
+                }
+
                 if (shortcut) {
                     const savedState = this.undoManager.save();
 
-                    // Insert the character before applying the substitution
+                    // To enable the substitution to be undoable, 
+                    // insert the character before applying the substitution
                     this.mathlist.insert(c);
 
-                    // Create a snapshot with the inserted character so we can 
-                    // revert to that. This will allow to undo the effect of 
-                    // the substitution if it was undesired.
+                    // Create a snapshot with the inserted character
                     this.undoManager.snapshot();
 
                     // Revert to before inserting the character
+                    // (restore doesn't change the undo stack)
                     this.undoManager.restore(savedState);
 
-                    // Remove the characters from the prefix string
-                    this.mathlist.delete(-shortcut.match.length);
+                    // Remove the atoms from the prefix string
+                    this.mathlist.delete(-count - 1);
 
                     // Insert the substitute
-                    this.mathlist.insert(shortcut.substitute);
+                    this.mathlist.insert(shortcut, {format: 'latex'});
                     this._announceChange("replacement");        
-                } else {
+                } 
+                
+                if (!shortcut) {
                     // Some characters are mapped to commands. Handle them here.
                     // This is important to handle synthetic text input and
                     // non-US keyboards, on which, fop example, the '^' key is
@@ -929,7 +947,7 @@ MathField.prototype._onTypedText = function(text) {
     // Since the location of the popover depends on the position of the caret
     // only show the popover after the formula has been rendered and the 
     // position of the caret calculated
-    this._showPopoverWithLatex(popoverText, displayArrows);
+    Popover.showPopoverWithLatex(this, popoverText, displayArrows);
 }
 
 /**
@@ -961,7 +979,7 @@ MathField.prototype._render = function() {
         {
             mathstyle: 'displaystyle', 
             generateID: true
-        }, this.mathlist.root.children);
+        }, this.mathlist.root.body);
 
 
 
@@ -1054,7 +1072,11 @@ MathField.prototype._onCopy = function() {
 
 /**
  * Return a textual representation of the mathfield.
- * @param {string} [format='latex']. One of `'latex'`, `'spoken'`, 
+ * @param {string} [format='latex']. One of 
+ *    * `'latex'`
+ *    * `'expandedLatex'` : all macros are recursively expanded to their definition
+ *    * `'spoken'`
+ *    * `'mathML'`
  * or `'mathML'`.
  * @return {string}
  * @method MathField#text
@@ -1062,8 +1084,8 @@ MathField.prototype._onCopy = function() {
 MathField.prototype.text = function(format) {
     format = format || 'latex';
     let result = '';
-    if (format === 'latex') {
-        result = this.mathlist.root.toLatex();
+    if (format === 'latex' || format === 'expandedLatex') {
+        result = this.mathlist.root.toLatex(format === 'expandedLatex');
     } else if (format === 'mathML') {
             result = this.mathlist.root.toMathML();
     } else if (format === 'spoken') {
@@ -1075,8 +1097,11 @@ MathField.prototype.text = function(format) {
 
 /**
  * Return a textual representation of the selection in the mathfield.
- * @param {string} [format='latex']. One of `'latex'`, `'spoken'` or 
- * `'mathML'`
+ * @param {string} [format='latex']. One of 
+ *    * `'latex'`
+ *    * `'expandedLatex'` : all macros are recursively expanded to their definition
+ *    * `'spoken'`
+ *    * `'mathML'`
  * @return {string}
  * @method MathField#selectedText
  */
@@ -1085,10 +1110,10 @@ MathField.prototype.selectedText = function(format) {
     let result = '';
     const selection = this.mathlist.extractContents();
     if (selection) {
-        if (format === 'latex') {
+        if (format === 'latex' || format === 'expandedLatex') {
             
             for (const atom of selection) {
-                result += atom.toLatex();
+                result += atom.toLatex(format === 'expandedLatex');
             }
 
         } else if (format === 'mathML') {
@@ -1160,6 +1185,7 @@ MathField.prototype.latex = function(text) {
         this.undoManager.snapshot();
         this.mathlist.insert(text, {
             insertionMode: 'replaceAll',
+            selectionMode: 'after',
             format: 'latex'
         });
         this._render();
@@ -1213,7 +1239,7 @@ MathField.prototype.enterCommandMode_ = function() {
     this.mathlist.decorateCommandStringAroundInsertionPoint(false);
 
     this.mathlist.removeSuggestion();
-    this._hidePopover();
+    Popover.hidePopover(this);
     this.suggestionIndex = 0;
 
     // Switch to the command mode keyboard layer
@@ -1253,25 +1279,30 @@ MathField.prototype.pasteFromClipboard_ = function() {
  * according to the insertion mode specified. After the insertion, the 
  * selection will be set according to the selectionMode.
  * @param {string} latex
- * @param {Object} options
- * @param {string} options.insertionMode - One of `"replaceSelection"`, 
- * `"replaceAll"`, `"insertBefore"` or `"insertAfter"`. Default: `"replaceSelection"`
  * @param {string} options.selectionMode - Describes where the selection 
- * will be after the insertion. One of 'placeholder' (the selection will be 
- * the first available placeholder in the item that has been inserted), 
- * 'after' (the selection will be an insertion point after the item that has 
- * been inserted), 'before' (the selection will be an insertion point before 
+ * will be after the insertion:
+ *    * `'placeholder'`: the selection will be the first available placeholder 
+ * in the item that has been inserted) (default)
+ *    * `'after'`: the selection will be an insertion point after the item that 
+ * has been inserted), 
+ *    * `'before'`: the selection will be an insertion point before 
  * the item that has been inserted) or 'item' (the item that was inserted will
- * be selected). Default: 'placeholder'.
+ * be selected).
+ * 
+ * @param {string} options.format - The format of the string `s`:
+ *    * `'auto'`: the string is interpreted as a latex fragment or command) 
+ * (default)
+ *    * `'latex'`: the string is interpreted strictly as a latex fragment
+ * 
+ * @param {boolean} options.focus - If true, the mathfield will be focused
  * @method MathField#insert
  */
 MathField.prototype.insert_ = 
-MathField.prototype.insert = function(latex, options) {
-    if (typeof latex === 'string' && latex.length > 0) {
-        if (!options) options = {};
-        if (!options.format) options.format = 'auto';
+MathField.prototype.insert = function(s, options) {
+    if (typeof s === 'string' && s.length > 0) {
+        if (options && options.focus) this.focus();
         this.undoManager.snapshot();
-        this.mathlist.insert(latex, options);
+        this.mathlist.insert(s, options);
     }
 }
 
@@ -1283,7 +1314,7 @@ MathField.prototype.insert = function(latex, options) {
  * @private
  */
 MathField.prototype.complete_ = function() {
-    this._hidePopover();
+    Popover.hidePopover(this);
 
     const command = this.mathlist.extractCommandStringAroundInsertionPoint();
     if (command) {
@@ -1294,14 +1325,14 @@ MathField.prototype.complete_ = function() {
         }
         if (match) {
             const mathlist = ParserModule.parseTokens(
-                    Lexer.tokenize(match.latexName), mode, null);
+                    Lexer.tokenize(match.latexName), mode, null, Definitions.MACROS);
 
             this.mathlist.spliceCommandStringAroundInsertionPoint(mathlist);
         } else {
             // This wasn't a simple function or symbol.
             // Interpret the input as LaTeX code
             const mathlist = ParserModule.parseTokens(
-                    Lexer.tokenize(command), mode, null);
+                    Lexer.tokenize(command), mode, null, Definitions.MACROS);
             if (mathlist) {
                 this.mathlist.spliceCommandStringAroundInsertionPoint(mathlist);
             } else {            
@@ -1312,109 +1343,6 @@ MathField.prototype.complete_ = function() {
     }
 }
 
-function latexToMarkup(latex) {
-    const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', null);
-    const spans = MathAtom.decompose({mathstyle: 'displaystyle'}, parse);
-    
-    const base = Span.makeSpan(spans, 'ML__base');
-
-    const topStrut = Span.makeSpan('', 'ML__strut');
-    topStrut.setStyle('height', base.height, 'em');
-    const bottomStrut = Span.makeSpan('', 'ML__strut ML__bottom');
-    bottomStrut.setStyle('height', base.height + base.depth, 'em');
-    bottomStrut.setStyle('vertical-align', -base.depth, 'em');
-    const wrapper = Span.makeSpan([topStrut, bottomStrut, base], 'ML__mathlive');
-
-    return wrapper.toMarkup();
-}
-
-MathField.prototype._showPopoverWithLatex = function(latex, displayArrows) {
-    if (!latex || latex.length === 0) {
-        this._hidePopover();
-        return;
-    }
-
-    const command = latex;
-    const command_markup = latexToMarkup(Popover.SAMPLES[command] || latex);
-    const command_note = Popover.getNote(command);
-    const command_shortcuts = Shortcuts.stringify(
-        Shortcuts.getShortcutsForCommand(command)) || '';
-
-    let template = displayArrows ? 
-        '<div class="ML__popover_prev-shortcut" role="button" aria-label="Previous suggestion"><span><span>&#x25B2;</span></span></div>' : '';
-    template += '<span class="ML__popover_content">';
-    template += '<div class="ML__popover_command" role="button" >' + 
-        command_markup + '</div>';
-    if (command_note) {
-        template += '<div class="ML__popover_note">' + 
-            command_note + '</div>';
-    }
-    if (command_shortcuts) {
-        template += '<div class="ML__popover_shortcut">' + 
-            command_shortcuts + '</div>';
-    }
-    template += '</span>';
-    template += displayArrows ? '<div class="ML__popover_next-shortcut" role="button" aria-label="Next suggestion"><span><span>&#x25BC;</span></span></div>' : '';
-    this._showPopover(template);
-
-    let el = this.popover.getElementsByClassName('ML__popover_content');
-    if (el && el.length > 0) {
-        this._attachButtonHandlers(el[0], 'complete');
-    }
-    
-    
-    el = this.popover.getElementsByClassName('ML__popover_prev-shortcut');
-    if (el && el.length > 0) {
-        this._attachButtonHandlers(el[0], 'previousSuggestion');
-    }
-
-    el = this.popover.getElementsByClassName('ML__popover_next-shortcut');
-    if (el && el.length > 0) {
-        this._attachButtonHandlers(el[0], 'nextSuggestion');
-    }
-
-}
-
-MathField.prototype._updatePopoverPosition = function(options) {
-    // If the popover pane is visible...
-    if (this.popover.classList.contains('ML__popover_visible')) {
-        if (options && options.deferred) {
-            // Call ourselves again later, typically after the 
-            // rendering/layout of the DOM has been completed
-            setTimeout(this._updatePopoverPosition.bind(this), 0);    
-        } else {
-            if (this.blurred || !this.mathlist.anchor() || this.mathlist.anchor().type !== 'command') {
-                this._hidePopover();
-            } else {
-                // ... get the caret position
-                const position = this._getCaretPosition();
-                if (position) {
-                    // and position the popover right below the caret
-                    this.popover.style.left = 
-                        (position.x - this.popover.offsetWidth / 2) + 'px';
-                    this.popover.style.top = (position.y + 5) + 'px';
-                }
-            }
-        }
-    }
-}
-
-MathField.prototype._showPopover = function(markup) {
-    this.popover.innerHTML = markup;
-
-    const position = this._getCaretPosition();
-    if (position) {
-        this.popover.style.left = (position.x - this.popover.offsetWidth / 2) + 'px';
-        this.popover.style.top = (position.y + 5) + 'px';
-    }
-
-    this.popover.classList.add('ML__popover_visible');
-}
-
-
-MathField.prototype._hidePopover = function() {
-    this.popover.classList.remove('ML__popover_visible');    
-}
 
 MathField.prototype._updateSuggestion = function() {
     this.mathlist.positionInsertionPointAfterCommitedCommand();
@@ -1422,7 +1350,7 @@ MathField.prototype._updateSuggestion = function() {
     const command = this.mathlist.extractCommandStringAroundInsertionPoint();
     const suggestions = Definitions.suggest(command);
     if (suggestions.length === 0) {
-        this._hidePopover();
+        Popover.hidePopover(this);
         this.mathlist.decorateCommandStringAroundInsertionPoint(true);
     } else {
         const index = this.suggestionIndex % suggestions.length;
@@ -1430,7 +1358,7 @@ MathField.prototype._updateSuggestion = function() {
         if (l !== 0) {
             this.mathlist.insertSuggestion(suggestions[index].match, l);
         }
-        this._showPopoverWithLatex(suggestions[index].match, suggestions.length > 1);
+        Popover.showPopoverWithLatex(this, suggestions[index].match, suggestions.length > 1);
     }
 
     this._render();
@@ -1472,8 +1400,8 @@ MathField.prototype.toggleKeystrokeCaption_ = function() {
 /**
  * Attach event handlers to an element so that it will react by executing
  * a command when pressed.
- * Command can be:
- * - a string, a single selector or 
+ * `'command'` can be:
+ * - a string, a single selector
  * - an array, whose first element is a selector followed by one or more arguments.
  * - an object, with the following keys:
  *    * 'default': command performed on up, with a down + up sequence with no
@@ -1481,8 +1409,10 @@ MathField.prototype.toggleKeystrokeCaption_ = function() {
  *    * 'alt', 'shift', 'altshift' keys: command performed on up with 
  *      one of these modifiers pressed
  *    * 'pressed': command performed on 'down'
- *    * 'pressAndHold': command performed on up, if there was a delay
- *     between down and up, other 'default'
+ *    * 'pressAndHoldStart': command performed after a tap/down followed by a 
+ * delay (optional)
+ *    * 'pressAndHoldEnd': command performed on up, if there was a delay
+ *     between down and up, if absent, 'default' is performed
  * The value of the keys specify which selector (string
  * or array) to perform depending on the keyboard state when the button is 
  * pressed.
@@ -1522,9 +1452,13 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
             el.setAttribute('data-' + this.config.namespace + 'command-pressed', 
                 JSON.stringify(command.pressed));
         }
-        if (command.pressAndHold) {
-            el.setAttribute('data-' + this.config.namespace + 'command-pressAndHold', 
-                JSON.stringify(command.pressAndHold));
+        if (command.pressAndHoldStart) {
+            el.setAttribute('data-' + this.config.namespace + 'command-pressAndHoldStart', 
+                JSON.stringify(command.pressAndHoldStart));
+        }
+        if (command.pressAndHoldEnd) {
+            el.setAttribute('data-' + this.config.namespace + 'command-pressAndHoldEnd', 
+                JSON.stringify(command.pressAndHoldEnd));
         }
     } else {
         // We need to turn the command into a string to attach it to the dataset 
@@ -1536,26 +1470,76 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
 
 
     let pressHoldStart;
+    let pressHoldElement;
+    let touchID;
+    let syntheticTarget;    // Target while touch move
 
     on(el, 'mousedown touchstart', function(ev) {
         if (ev.type !== 'mousedown' || ev.buttons === 1) {
-            // The primary button was pressed.
-            el.classList.add('pressed');
+            // The primary button was pressed or the screen was tapped.
             ev.stopPropagation(); 
             ev.preventDefault();
 
+            el.classList.add('pressed');
             pressHoldStart = Date.now();
 
-            const command = el.getAttribute('data-' + that.config.namespace + 'command-pressed');
+            // Record the ID of the primary touch point for tracking on touchmove
+            if (ev.type === 'touchstart') touchID = ev.changedTouches[0].identifier;
+
             // Parse the JSON to get the command (and its optional arguments) 
-            // and perform it
+            // and perform it immediately
+            const command = el.getAttribute('data-' + that.config.namespace + 'command-pressed');
             if (command) {
                 that.perform(JSON.parse(command));
             }
+
+            // If there is a `press and hold start` command, perform it
+            // after a delay, if we're still pressed by then.
+            const pressAndHoldStartCommand = el.getAttribute('data-' + that.config.namespace + 'command-pressAndHoldStart');
+            if (pressAndHoldStartCommand) {
+                pressHoldElement = el;
+                window.setTimeout(function() {
+                    if (el.classList.contains('pressed')) {
+                        that.perform(JSON.parse(pressAndHoldStartCommand));
+                    }
+                }, 300);
+            }
+
         }
     }, {passive: false, capture: false});
     on (el, 'mouseleave touchcancel', function() {
         el.classList.remove('pressed');
+        // let command = el.getAttribute('data-' + that.config.namespace + 
+        //     'command-pressAndHoldEnd');
+        // const now = Date.now();
+        // if (command && now > pressHoldStart + 300) {
+        //     that.perform(JSON.parse(command));
+        // }
+    });
+    on (el, 'touchmove', function(ev) {
+        // Unlike with mouse tracking, touch tracking only sends events
+        // to the target that was originally tapped on. For consistency,
+        // we want to mimic the behavior of the mouse interaction by 
+        // tracking the touch events and dispatching them to potential targets
+        ev.preventDefault();
+        for (let i = 0; i < ev.changedTouches.length; i++) {
+            if (ev.changedTouches[i].identifier === touchID) {
+                // Found a touch matching our primary/tracked touch
+                const target = document.elementFromPoint(
+                        ev.changedTouches[i].clientX,
+                        ev.changedTouches[i].clientY);
+                if (target !== syntheticTarget && syntheticTarget) {
+                    syntheticTarget.dispatchEvent(
+                        new MouseEvent('mouseleave'), {bubbles: true});
+                    syntheticTarget = null;
+                }
+                if (target) {
+                    syntheticTarget = target;
+                    target.dispatchEvent(new MouseEvent('mouseenter',
+                        {bubbles: true, buttons: 1}));
+                }
+            }
+        }
     });
     on (el, 'mouseenter', function(ev) {
         if (ev.buttons === 1) {
@@ -1564,19 +1548,28 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
     });
 
     on(el, 'mouseup touchend', function(ev) {
+        if (syntheticTarget) {
+            ev.stopPropagation();
+            ev.preventDefault();
+            const target = syntheticTarget;
+            syntheticTarget = null;
+            target.dispatchEvent(new MouseEvent('mouseup', {bubbles: true}));
+            return;
+        }
         el.classList.remove('pressed');
         el.classList.add('active');
 
         // Since we want the active state to be visible for a while,
-        // use a timer to remove it after a while
-        setTimeout(function(){ el.classList.remove('active'); }, 150);
+        // use a timer to remove it after a short delay
+        window.setTimeout(function(){ el.classList.remove('active'); }, 150);
 
         let command = el.getAttribute('data-' + that.config.namespace + 
-            'command-pressAndHold');
+            'command-pressAndHoldEnd');
         const now = Date.now();
-        // If the button has not been pressed for very long, don't consider
+        // If the button has not been pressed for very long or if we were 
+        // not the button that started the press and hold, don't consider
         // it a press-and-hold.
-        if (now < pressHoldStart + 300) {
+        if (el !== pressHoldElement || now < pressHoldStart + 300) {
             command = undefined;
         }
         if (!command && ev.altKey && ev.shiftKey) {
@@ -1619,9 +1612,104 @@ MathField.prototype._makeButton = function(label, cls, ariaLabel, command) {
 }
 
 
+/**
+ * Alternate options are displayed when a key on the virtual keyboard is pressed
+ * and held.
+ * 
+ */
+MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
+    let altContainer = this.virtualKeyboard.getElementsByClassName('alternate-keys');
+    if (!altContainer || altContainer.length === 0) return;
+
+    altContainer = altContainer[0];
+
+    if (altKeys.length >= 7) {
+        // Width 4
+        altContainer.style.width = '286px';
+    } else if (altKeys.length === 4 || altKeys.length === 2) {
+        // Width 2
+        altContainer.style.width = '146px';
+    } else if (altKeys.length === 1) {
+        // Width 1
+        altContainer.style.width = '86px';
+    } else {
+        // Width 3
+        altContainer.style.width = '146px';
+    }
+
+
+    let markup = '';
+    for (const altKey of altKeys) {
+        markup += '<li';
+        if (typeof altKey === 'string') {
+            markup += ' data-latex="' + altKey + '"';
+        } else {
+            if (altKey.latex) {
+                markup += ' data-latex="' + altKey.latex + '"';
+            }
+            if (altKey.insert) {
+                markup += ' data-insert="' + altKey.insert + '"';
+            }
+            if (altKey.command) {
+                markup += " data-command='" + altKey.command + "'";
+            }
+            if (altKey.aside) {
+                markup += ' data-aside="' + altKey.aside + '"';
+            }
+            if (altKey.classes) {
+                markup += ' data-classes="' + altKey.classes + '"';
+            }
+        }
+
+        markup += '>';        
+        markup += altKey.label || '';
+
+        markup += '</li>';
+    }
+    markup = '<ul>' + markup + '</ul>';
+    altContainer.innerHTML = markup;
+
+    VirtualKeyboard.makeKeycap(this, 
+        altContainer.querySelectorAll('li'), 'performAlternateKeys');
+
+    const keycapEl = this.virtualKeyboard.querySelector(
+        'div.keyboard-layer.visible div.rows ul li[data-alt-keys="' + keycap + '"]');
+    const position = keycapEl.getBoundingClientRect();
+    if (position) {
+        altContainer.style.top = (position.top - altContainer.clientHeight + 5).toString() + 'px';
+        altContainer.style.left = Math.max(0, 
+            Math.min(window.innerWidth - altContainer.offsetWidth,
+            ((position.left + position.right - altContainer.offsetWidth) / 2) )) + 'px';
+        altContainer.classList.add('visible');
+    }
+}
+
+
+MathField.prototype.hideAlternateKeys_ = function() {
+    let altContainer = this.virtualKeyboard.getElementsByClassName('alternate-keys');
+    if (altContainer && altContainer.length > 0) {
+        altContainer = altContainer[0];
+    } else {
+        return;
+    }
+    altContainer.classList.remove('visible');
+    altContainer.innerHTML = '';
+}
+
+/**
+ * The command invoked when an alternate key is pressed.
+ * We need to hide the Alternate Keys panel, then perform the 
+ * command.
+ */
+MathField.prototype.performAlternateKeys_ = function(command) {
+    this.hideAlternateKeys_();
+    this.perform(command);
+}
+
 
 MathField.prototype.switchKeyboardLayer_ = function(layer) {
     if (this.config.virtualKeyboardMode) {
+
         if (layer !== 'lower-command' && layer !== 'upper-command' && layer !== 'symbols-command') {
             // If we switch to a non-command keyboard layer, first exit command mode.
             this.complete_();
@@ -1629,6 +1717,9 @@ MathField.prototype.switchKeyboardLayer_ = function(layer) {
 
         this.showVirtualKeyboard_();
         const layers = this.virtualKeyboard.getElementsByClassName('keyboard-layer');
+
+        // If the alternate keys panel was visible, hide it
+        this.hideAlternateKeys_();
 
         // If we were in a temporarily shifted state (shift-key held down)
         // restore our state before switching to a new layer.
@@ -1665,12 +1756,13 @@ MathField.prototype.switchKeyboardLayer_ = function(layer) {
  * (for example when a modifier key is held down.)
  */
 MathField.prototype.shiftKeyboardLayer_ = function() {
-    const keycaps = this.virtualKeyboard.querySelectorAll('div.keyboard-layer.visible .rows .keycap');
+    const keycaps = this.virtualKeyboard.querySelectorAll(
+        'div.keyboard-layer.visible .rows .keycap, div.keyboard-layer.visible .rows .action');
     if (keycaps) {
         for (let i = 0; i < keycaps.length; i++) {
             const keycap = keycaps[i];
             let shiftedContent = keycap.getAttribute('data-shifted');
-            if (shiftedContent || keycap.innerHTML.match(/^[a-z]$/)) {
+            if (shiftedContent || /^[a-z]$/.test(keycap.innerHTML)) {
                 keycap.setAttribute('data-unshifted-content', keycap.innerHTML);
 
                 if (!shiftedContent) {
@@ -1708,7 +1800,8 @@ MathField.prototype.shiftKeyboardLayer_ = function() {
  * 
  */
 MathField.prototype.unshiftKeyboardLayer_ = function() {
-    const keycaps = this.virtualKeyboard.querySelectorAll('div.keyboard-layer.visible .rows .keycap');
+    const keycaps = this.virtualKeyboard.querySelectorAll(
+        'div.keyboard-layer.visible .rows .keycap, div.keyboard-layer.visible .rows .action');
     if (keycaps) {
         for (let i = 0; i < keycaps.length; i++) {
             const keycap = keycaps[i];
@@ -1762,7 +1855,6 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
             this.virtualKeyboard = VirtualKeyboard.make(this, theme);
 
             // Let's make sure that tapping on the keyboard focuses the field
-            const that = this;
             on(this.virtualKeyboard, 'touchstart mousedown', function(evt) {
                 that.focus();
                 evt.preventDefault();
@@ -1787,8 +1879,7 @@ MathField.prototype.focus = function() {
         // The textarea may be a span (on mobile, for example), so check that
         // it has a select() before calling it.
         if (this.textarea.select) this.textarea.select();
-        this._announceChange("line");
-        this.textarea.setAttribute('aria-label', 'after: ' + MathAtom.toSpeakableText(this.mathlist.root))
+        this._announceChange('line');
         this._render();
     }
 }
@@ -1841,23 +1932,18 @@ MathField.prototype.typedText_ = function(text) {
 
 
 /**
- * @param {Object} [config] See `MathLive.config()` for details
+ * @param {Object} [conf] See `MathLive.config()` for details
  * 
 
  * @method MathField#config
  */
-MathField.prototype.config = function(config) {
-    const def = {
-        // If true, spacebar and shift-spacebar escape from the current block
-        // spacesBehavesLikeTab: false,
-        // leftRightIntoCmdGoes: 
+MathField.prototype.config = function(conf) {
+    // Copy the values from `config` to `def`
+    this.config = Object.assign({
         overrideDefaultInlineShortcuts: false,
         virtualKeyboard: '',
         namespace: ''
-    }
-
-    // Copy the values from `config` to `def`
-    this.config = Object.assign({}, def, config);
+    }, conf);
 
     // Validate the namespace (used for `data-` attributes)
     if (!/^[a-z]*[-]?$/.test(this.config.namespace)) {

@@ -63,13 +63,19 @@ define(['mathlive/core/fontMetrics'], function(FontMetrics) {
  */
 let category = '';
 
-const TEXT_SYMBOLS = [];
-const MATH_SYMBOLS = [];
-const COMMAND_SYMBOLS = [];
+const TEXT_SYMBOLS = {};
+const MATH_SYMBOLS = {};
+const COMMAND_SYMBOLS = {};
 
-const FUNCTIONS = [];
+const FUNCTIONS = {};
 
-const ENVIRONMENTS = [];
+const ENVIRONMENTS = {};
+
+const MACROS = {
+    'iff':    '\\;\u27fa\\;',         //>2,000 Note: additional spaces around the arrows
+// @todo definemacro?
+    'nicefrac': '^{#0}\\!\\!/\\!_{#1}'
+};
 
 // Frequency of a symbol.
 // String constants corresponding to frequency values, 
@@ -159,7 +165,7 @@ function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
             category: category,         // To group items when generating the documentation
             fontFamily: fontFamily,
             type: type === ORD ? TEXTORD : type,
-            value: value,
+            body: value,
             frequency: frequency
         };
     }
@@ -233,48 +239,49 @@ function matchCodepoint(s) {
     const codepoint = s.codePointAt(0);
 
     // Some symbols map to multiple codepoints. 
+    // Some symbols are 'pseudosuperscript'. Convert them to a super(or sub)script.
     // Map their alternative codepoints here.
     let result = { 
-        '\u00b7': '\\cdot',
-        '\u00bc': '\\frac{1}{4}',
-        '\u00bd': '\\frac{1}{2}',
-        '\u00be': '\\frac{3}{4}',
-        '\u2070': '^{0}',
-        '\u2071': '^{i}',
-        '\u00b9': '^{1}',
-        '\u00b2': '^{2}',
-        '\u00b3': '^{3}',
-        '\u2074': '^{4}',
-        '\u2075': '^{5}',
-        '\u2076': '^{6}',
-        '\u2077': '^{7}',
-        '\u2078': '^{8}',
-        '\u2079': '^{9}',
-        '\u207a': '^{+}',
-        '\u207b': '^{-}',
-        '\u207c': '^{=}',
-        '\u207f': '^{n}',
+        0x00b7: '\\cdot',
+        0x00bc: '\\frac{1}{4}',
+        0x00bd: '\\frac{1}{2}',
+        0x00be: '\\frac{3}{4}',
+        0x2070: '^{0}',
+        0x2071: '^{i}',
+        0x00b9: '^{1}',
+        0x00b2: '^{2}',
+        0x00b3: '^{3}',
+        0x2074: '^{4}',
+        0x2075: '^{5}',
+        0x2076: '^{6}',
+        0x2077: '^{7}',
+        0x2078: '^{8}',
+        0x2079: '^{9}',
+        0x207a: '^{+}',
+        0x207b: '^{-}',
+        0x207c: '^{=}',
+        0x207f: '^{n}',
 
-        '\u2080': '_{0}',
-        '\u2081': '_{1}',
-        '\u2082': '_{2}',
-        '\u2083': '_{3}',
-        '\u2084': '_{4}',
-        '\u2085': '_{5}',
-        '\u2086': '_{6}',
-        '\u2087': '_{7}',
-        '\u2088': '_{8}',
-        '\u2089': '_{9}',
-        '\u208A': '_{+}',
-        '\u208B': '_{-}',
-        '\u208C': '_{=}',
-        '\u2090': '_{a}',
-        '\u2091': '_{e}',
-        '\u2092': '_{o}',
-        '\u2093': '_{x}',
+        0x2080: '_{0}',
+        0x2081: '_{1}',
+        0x2082: '_{2}',
+        0x2083: '_{3}',
+        0x2084: '_{4}',
+        0x2085: '_{5}',
+        0x2086: '_{6}',
+        0x2087: '_{7}',
+        0x2088: '_{8}',
+        0x2089: '_{9}',
+        0x208A: '_{+}',
+        0x208B: '_{-}',
+        0x208C: '_{=}',
+        0x2090: '_{a}',
+        0x2091: '_{e}',
+        0x2092: '_{o}',
+        0x2093: '_{x}',
 
-        '\u2115': '\\N',
-        '\u2124': '\\Z'
+        0x2115: '\\N',
+        0x2124: '\\Z'
         }[s];
     if (result) return result;
 
@@ -1063,7 +1070,7 @@ defineFunction([
         type: 'mop',
         limits: 'nolimits',
         symbol: false,
-        value: name.slice(1),
+        body: name.slice(1),
         fontFamily: 'mainrm'
     };
 })
@@ -1094,7 +1101,7 @@ defineFunction([
         type: 'mop',
         limits: 'nolimits',
         symbol: false,
-        value: name.slice(1),
+        body: name.slice(1),
         fontFamily: 'mainrm'
     };
 })
@@ -1111,7 +1118,7 @@ defineFunction(['\\lim', '\\det', '\\mod', '\\max', '\\min'],
         type: 'mop',
         limits: 'limits',
         symbol: false,
-        value: name.slice(1),
+        body: name.slice(1),
         fontFamily: 'mainrm'
     };
 })
@@ -1211,8 +1218,6 @@ defineFunction('\\mathllap', '{:auto}', null, function(name, args) {
     frequency(CRYPTIC, '\\mathllap');
 
 
-// @todo definemacro?
-// defineSymbol('\\nicefrac', MATH,  MAIN,  MATHORD, '^1\\!\\!/\\!_2', COMMON);
 
 
 // Can be preceded by e.g. '\fboxsep=4pt' (also \fboxrule)
@@ -1727,7 +1732,7 @@ defineFunction([
         limits: 'auto',
         symbol: true,
         fontFamily: 'main',
-        value: {
+        body: {
             'coprod': '\u2210', 
             'bigvee': '\u22c1', 
             'bigwedge': '\u22c0', 
@@ -1752,7 +1757,7 @@ defineFunction(['\\int', '\\iint', '\\iiint', '\\oint'], '', {}, function(name) 
         type: 'mop',
         limits: 'nolimits',
         symbol: true,
-        value: {
+        body: {
             'int': '\u222b', 
             'iint': '\u222c', 
             'iiint': '\u222d', 
@@ -1812,7 +1817,7 @@ function(name, args) {
     return {
         type: 'mord',
         fontFamily: 'main',
-        value: String.fromCodePoint(codepoint)
+        body: String.fromCodePoint(codepoint)
     }
 });
 
@@ -1833,9 +1838,11 @@ defineSymbol( '\\hbar', MATH,  MAIN,  TEXTORD, '\u210f', COMMON); // >2,000
 defineSymbol( '\\hslash', MATH,  AMS,  TEXTORD, '\u210f', COMMON); // >2,000
 
 defineSymbol( '\\differentialD', MATH,  'mathrm',  MATHORD, 'd'); // NOTE: not a real TeX symbol, but Mathematica
+defineSymbol( '\\rd', MATH,  'mathrm',  MATHORD, 'd'); // NOTE: not a real TeX symbol, but used in ProofWiki
 // NOTE: set in math as per ISO 80000-2:2009.
 defineSymbol( '\\capitalDifferentialD', MATH,  'mathrm',  MATHORD, 'D'); // NOTE: not a real TeX symbol, but Mathematica
 // NOTE: set in math as per ISO 80000-2:2009.
+defineSymbol( '\\rD', MATH,  'mathrm',  MATHORD, 'D'); // NOTE: not a real TeX symbol
 defineSymbol( '\\exponentialE', MATH,  'mathrm',  MATHORD, 'e'); // NOTE: not a real TeX symbol, but Mathematica
 // NOTE: set in math as per ISO 80000-2:2009.
 
@@ -2296,7 +2303,7 @@ defineSymbol( '\\gtrdot', MATH,  AMS,  BIN, '\u22d7', 45);
 category = 'Logic';
 defineSymbol( '\\leftrightarrow', MATH,  MAIN,  REL, '\u2194', SUPERCOMMON);    // >2,000
 defineSymbol( '\\Leftrightarrow', MATH,  MAIN,  REL, '\u21d4', SUPERCOMMON);    // >2,000
-defineSymbol( '\\iff', MATH,  MAIN,  REL, '\\;\u27fa\\;', SUPERCOMMON);        // >2,000 Note: additional spaces around the arrows
+// defineSymbol( '\\iff', MATH,  MAIN,  REL, '\\;\u27fa\\;', SUPERCOMMON);        // >2,000 Note: additional spaces around the arrows
 defineSymbol( '\\to', MATH,  MAIN,  REL, '\u2192', SUPERCOMMON);    // >2,000
 defineSymbol( '\\models', MATH,  MAIN,  REL, '\u22a8', COMMON);    // >2,000
 defineSymbol( '\\vdash', MATH,  MAIN,  REL, '\u22a2', COMMON);    // >2,000
@@ -2352,54 +2359,53 @@ defineSymbol( '\\_', MATH,  MAIN,  TEXTORD, '_');
 defineSymbol( '\\_', TEXT,  MAIN,  TEXTORD, '_');
 
 category = 'Greek';
-// Note: In TeX, greek symbols are not available in text mode, only math. 
-// We're more permissive.
-defineSymbol( '\\alpha',  [TEXT, MATH],  MAIN,  ORD, '\u03b1', COMMON);    // >2,000
-defineSymbol( '\\beta', [TEXT, MATH],  MAIN,  ORD, '\u03b2', COMMON);    // >2,000
-defineSymbol( '\\gamma', [TEXT, MATH],  MAIN,  ORD, '\u03b3', COMMON);    // >2,000
-defineSymbol( '\\delta', [TEXT, MATH],  MAIN,  ORD, '\u03b4', COMMON);    // >2,000
-defineSymbol( '\\epsilon', [TEXT, MATH],  MAIN,  ORD, '\u03f5', COMMON);    // >2,000
-defineSymbol( '\\varepsilon', [TEXT, MATH],  MAIN,  ORD, '\u03b5');
-defineSymbol( '\\zeta', [TEXT, MATH],  MAIN,  ORD, '\u03b6', COMMON);    // >2,000
-defineSymbol( '\\eta', [TEXT, MATH],  MAIN,  ORD, '\u03b7', COMMON);    // >2,000
-defineSymbol( '\\theta', [TEXT, MATH],  MAIN,  ORD, '\u03b8', COMMON);    // >2,000
-defineSymbol( '\\vartheta', [TEXT, MATH],  MAIN,  ORD, '\u03d1', COMMON);    // >2,000
-defineSymbol( '\\iota', [TEXT, MATH],  MAIN,  ORD, '\u03b9', COMMON);    // >2,000
-defineSymbol( '\\kappa', [TEXT, MATH],  MAIN,  ORD, '\u03ba', COMMON);    // >2,000
-defineSymbol( '\\varkappa', [TEXT, MATH],  AMS,  ORD, '\u03f0', COMMON);    // >2,000
-defineSymbol( '\\lambda', [TEXT, MATH],  MAIN,  ORD, '\u03bb', COMMON);    // >2,000
-defineSymbol( '\\mu', [TEXT, MATH],  MAIN,  ORD, '\u03bc', COMMON);    // >2,000
-defineSymbol( '\\nu', [TEXT, MATH],  MAIN,  ORD, '\u03bd', COMMON);    // >2,000
-defineSymbol( '\\xi', [TEXT, MATH],  MAIN,  ORD, '\u03be', COMMON);    // >2,000
-defineSymbol( '\\omicron', [TEXT, MATH],  MAIN,  ORD, 'o');
-defineSymbol( '\\pi', [TEXT, MATH],  MAIN,  ORD, '\u03c0', COMMON);    // >2,000
-defineSymbol( '\\varpi', [TEXT, MATH],  MAIN,  ORD, '\u03d6', COMMON);    // >2,000
-defineSymbol( '\\rho', [TEXT, MATH],  MAIN,  ORD, '\u03c1', COMMON);    // >2,000
-defineSymbol( '\\varrho', [TEXT, MATH],  MAIN,  ORD, '\u03f1', COMMON);    // >2,000
-defineSymbol( '\\sigma', [TEXT, MATH],  MAIN,  ORD, '\u03c3', COMMON);    // >2,000
-defineSymbol( '\\varsigma', [TEXT, MATH],  MAIN,  ORD, '\u03c2', COMMON);    // >2,000
-defineSymbol( '\\tau', [TEXT, MATH],  MAIN,  ORD, '\u03c4', COMMON);    // >2,000
-defineSymbol( '\\phi', [TEXT, MATH],  MAIN,  ORD, '\u03d5', COMMON);    // >2,000
-defineSymbol( '\\varphi', [TEXT, MATH],  MAIN,  ORD, '\u03c6', COMMON);    // >2,000
-defineSymbol( '\\upsilon', [TEXT, MATH],  MAIN,  ORD, '\u03c5', COMMON);    // >2,000
-defineSymbol( '\\chi', [TEXT, MATH],  MAIN,  ORD, '\u03c7', COMMON);    // >2,000
-defineSymbol( '\\psi', [TEXT, MATH],  MAIN,  ORD, '\u03c8', COMMON);    // >2,000
-defineSymbol( '\\omega', [TEXT, MATH],  MAIN,  ORD, '\u03c9', COMMON);    // >2,000
+// Note: In TeX, greek symbols are only available in Math mode
+defineSymbol( '\\alpha',  MATH,  MAIN,  ORD, '\u03b1', COMMON);    // >2,000
+defineSymbol( '\\beta', MATH,  MAIN,  ORD, '\u03b2', COMMON);    // >2,000
+defineSymbol( '\\gamma', MATH,  MAIN,  ORD, '\u03b3', COMMON);    // >2,000
+defineSymbol( '\\delta', MATH,  MAIN,  ORD, '\u03b4', COMMON);    // >2,000
+defineSymbol( '\\epsilon', MATH,  MAIN,  ORD, '\u03f5', COMMON);    // >2,000
+defineSymbol( '\\varepsilon', MATH,  MAIN,  ORD, '\u03b5');
+defineSymbol( '\\zeta', MATH,  MAIN,  ORD, '\u03b6', COMMON);    // >2,000
+defineSymbol( '\\eta', MATH,  MAIN,  ORD, '\u03b7', COMMON);    // >2,000
+defineSymbol( '\\theta', MATH,  MAIN,  ORD, '\u03b8', COMMON);    // >2,000
+defineSymbol( '\\vartheta', MATH,  MAIN,  ORD, '\u03d1', COMMON);    // >2,000
+defineSymbol( '\\iota', MATH,  MAIN,  ORD, '\u03b9', COMMON);    // >2,000
+defineSymbol( '\\kappa', MATH,  MAIN,  ORD, '\u03ba', COMMON);    // >2,000
+defineSymbol( '\\varkappa', MATH,  AMS,  ORD, '\u03f0', COMMON);    // >2,000
+defineSymbol( '\\lambda', MATH,  MAIN,  ORD, '\u03bb', COMMON);    // >2,000
+defineSymbol( '\\mu', MATH,  MAIN,  ORD, '\u03bc', COMMON);    // >2,000
+defineSymbol( '\\nu', MATH,  MAIN,  ORD, '\u03bd', COMMON);    // >2,000
+defineSymbol( '\\xi', MATH,  MAIN,  ORD, '\u03be', COMMON);    // >2,000
+defineSymbol( '\\omicron', MATH,  MAIN,  ORD, 'o');
+defineSymbol( '\\pi', MATH,  MAIN,  ORD, '\u03c0', COMMON);    // >2,000
+defineSymbol( '\\varpi', MATH,  MAIN,  ORD, '\u03d6', COMMON);    // >2,000
+defineSymbol( '\\rho', MATH,  MAIN,  ORD, '\u03c1', COMMON);    // >2,000
+defineSymbol( '\\varrho', MATH,  MAIN,  ORD, '\u03f1', COMMON);    // >2,000
+defineSymbol( '\\sigma', MATH,  MAIN,  ORD, '\u03c3', COMMON);    // >2,000
+defineSymbol( '\\varsigma', MATH,  MAIN,  ORD, '\u03c2', COMMON);    // >2,000
+defineSymbol( '\\tau', MATH,  MAIN,  ORD, '\u03c4', COMMON);    // >2,000
+defineSymbol( '\\phi', MATH,  MAIN,  ORD, '\u03d5', COMMON);    // >2,000
+defineSymbol( '\\varphi', MATH,  MAIN,  ORD, '\u03c6', COMMON);    // >2,000
+defineSymbol( '\\upsilon', MATH,  MAIN,  ORD, '\u03c5', COMMON);    // >2,000
+defineSymbol( '\\chi', MATH,  MAIN,  ORD, '\u03c7', COMMON);    // >2,000
+defineSymbol( '\\psi', MATH,  MAIN,  ORD, '\u03c8', COMMON);    // >2,000
+defineSymbol( '\\omega', MATH,  MAIN,  ORD, '\u03c9', COMMON);    // >2,000
 
-defineSymbol( '\\Gamma', [TEXT, MATH],  MAIN,  ORD, '\u0393', COMMON);    // >2,000
-defineSymbol( '\\Delta', [TEXT, MATH],  MAIN,  ORD, '\u0394', COMMON);    // >2,000
-defineSymbol( '\\Theta', [TEXT, MATH],  MAIN,  ORD, '\u0398', COMMON);    // >2,000
-defineSymbol( '\\Lambda', [TEXT, MATH],  MAIN,  ORD, '\u039b', COMMON);    // >2,000
-defineSymbol( '\\Xi', [TEXT, MATH],  MAIN,  ORD, '\u039e', COMMON);    // >2,000
-defineSymbol( '\\Pi', [TEXT, MATH],  MAIN,  ORD, '\u03a0', COMMON);    // >2,000
-defineSymbol( '\\Sigma', [TEXT, MATH],  MAIN,  ORD, '\u03a3', COMMON);    // >2,000
-defineSymbol( '\\Upsilon', [TEXT, MATH],  MAIN,  ORD, '\u03a5', COMMON);    // >2,000
-defineSymbol( '\\Phi', [TEXT, MATH],  MAIN,  ORD, '\u03a6', COMMON);    // >2,000
-defineSymbol( '\\Psi', [TEXT, MATH],  MAIN,  ORD, '\u03a8', COMMON);    // >2,000
-defineSymbol( '\\Omega', [TEXT, MATH],  MAIN,  ORD, '\u03a9', COMMON);    // >2,000
+defineSymbol( '\\Gamma', MATH,  MAIN,  ORD, '\u0393', COMMON);    // >2,000
+defineSymbol( '\\Delta', MATH,  MAIN,  ORD, '\u0394', COMMON);    // >2,000
+defineSymbol( '\\Theta', MATH,  MAIN,  ORD, '\u0398', COMMON);    // >2,000
+defineSymbol( '\\Lambda', MATH,  MAIN,  ORD, '\u039b', COMMON);    // >2,000
+defineSymbol( '\\Xi', MATH,  MAIN,  ORD, '\u039e', COMMON);    // >2,000
+defineSymbol( '\\Pi', MATH,  MAIN,  ORD, '\u03a0', COMMON);    // >2,000
+defineSymbol( '\\Sigma', MATH,  MAIN,  ORD, '\u03a3', COMMON);    // >2,000
+defineSymbol( '\\Upsilon', MATH,  MAIN,  ORD, '\u03a5', COMMON);    // >2,000
+defineSymbol( '\\Phi', MATH,  MAIN,  ORD, '\u03a6', COMMON);    // >2,000
+defineSymbol( '\\Psi', MATH,  MAIN,  ORD, '\u03a8', COMMON);    // >2,000
+defineSymbol( '\\Omega', MATH,  MAIN,  ORD, '\u03a9', COMMON);    // >2,000
 
 // AMS Greek
-defineSymbol( '\\digamma', [TEXT, MATH],  AMS,  ORD, '\u03dd', 248);
+defineSymbol( '\\digamma', MATH,  AMS,  ORD, '\u03dd', 248);
 
 category = 'Others';
 defineSymbol( '\\emptyset', [TEXT, MATH],  MAIN,  TEXTORD, '\u2205', SUPERCOMMON);    // >2,000
@@ -2463,6 +2469,24 @@ defineFunction([
 });
 
 
+/**
+ * If possible, i.e. if they are all simple atoms, return a string made up of 
+ * their body
+ * @param {object[]} atoms 
+ */
+function getSimpleString(atoms) {
+    let result = '';
+    let success = true;
+    for (const atom of atoms) {
+        if (typeof atom.body === 'string') {
+            result += atom.body;
+        } else {
+            success = false;
+        }
+    }
+    return success ? result : '';
+}
+
 defineFunction([
     '\\mathop', '\\mathbin', '\\mathrel', '\\mathopen', 
     '\\mathclose', '\\mathpunct', '\\mathord', '\\mathinner'
@@ -2478,7 +2502,8 @@ defineFunction([
             '\\mathord': 'mord',
             '\\mathinner': 'minner'
         }[name],
-        children: args[0]
+        body: getSimpleString(args[0]) || args[0],
+        fontFamily: 'mainrm'        
     };
     if (name === '\\mathop') {
         result.limits = 'nolimits';
@@ -2489,7 +2514,7 @@ defineFunction([
 defineFunction([
     '\\operatorname', '\\operatorname*'
 ], '{operator:string}', null, function(name, args) {
-    const result = { type: 'mop', value: args[0] };
+    const result = { type: 'mop', body: args[0] };
 
     if (name === '\\operatorname') {
         result.limits = 'nolimits'
@@ -2626,8 +2651,8 @@ category = 'Accents';
 // defineSymbol( '\\grave', MATH,  MAIN,  ACCENT, '\u0060', 735);
 
 defineFunction([
-    '\\acute', '\\grave', '\\ddot', '\\tilde', '\\bar', '\\breve',
-    '\\check', '\\hat', '\\vec', '\\dot'
+    '\\acute', '\\grave', '\\dot', '\\ddot', '\\mathring', 
+    '\\tilde', '\\bar', '\\breve', '\\check', '\\hat', '\\vec', 
 ], '{body:auto}', null, function(name, args) {
     return {
         type: 'accent',
@@ -2635,8 +2660,8 @@ defineFunction([
             '\\acute': '\u02ca',
             '\\grave': '\u02cb',
             '\\dot': '\u02d9',
-            '\\mathring': '\u02da',
             '\\ddot': '\u00a8',
+            '\\mathring': '\u02da',
             '\\tilde': '\u007e',
             '\\bar': '\u02c9',
             '\\breve': '\u02d8',
@@ -2688,22 +2713,12 @@ defineSymbols('0123456789!@*()-=+[]";:?/.,', TEXT, MAIN, TEXTORD);
 defineSymbols("0123456789!@*()-=+{}[]\\';:?/.,~<>`|'$%#&^_\" ", COMMAND, MAIN, COMMANDLITERAL);
 
 // a-z
-defineSymbolRange(0x0041, 0x005A, TEXT, MAIN, TEXTORD);
 defineSymbolRange(0x0041, 0x005A, MATH, MAIN, MATHORD);
 defineSymbolRange(0x0041, 0x005A, COMMAND, MAIN, COMMANDLITERAL);
 
 // A-Z
-defineSymbolRange(0x0061, 0x007A, TEXT, MAIN, TEXTORD);
 defineSymbolRange(0x0061, 0x007A, MATH, MAIN, MATHORD);
 defineSymbolRange(0x0061, 0x007A, COMMAND, MAIN, COMMANDLITERAL);
-
-// Latin-1
-defineSymbolRange(0x00C0, 0x00D6, TEXT, MAIN, TEXTORD);
-defineSymbolRange(0x00D8, 0x00F6, TEXT, MAIN, TEXTORD);
-defineSymbolRange(0x00F8, 0x00FF, TEXT, MAIN, TEXTORD);
-
-// Cyrillic
-defineSymbolRange(0x0410, 0x044F, TEXT, MAIN, TEXTORD);
 
 
 // Unicode versions of some characters
@@ -2868,12 +2883,12 @@ const FUNCTION_TEMPLATE = {
     'moustache':'\\lmoustache % \\rmoustache%_%^',
     'brace':    '\\lbrace % \\rbrace%_%^',
     'sqrt':     '\\sqrt[%^]{%}',
-    'lcm':      '\\mathrm{lcm}%',
-    'gcd':      '\\mathrm{gcd}%',
-    'erf':      '\\mathrm{erf}%',
-    'erfc':     '\\mathrm{erfc}%',
-    'randomReal': '\\mathrm{randomReal}%',
-    'randomInteger': '\\mathrm{randomInteger}%',
+    'lcm':      '\\mathop{lcm}%',
+    'gcd':      '\\mathop{gcd}%',
+    'erf':      '\\mathop{erf}%',
+    'erfc':     '\\mathop{erfc}%',
+    'randomReal': '\\mathop{randomReal}%',
+    'randomInteger': '\\mathop{randomInteger}%',
     
 
     // Arithmetic operators
@@ -3020,7 +3035,7 @@ function isFunction(canonicalName) {
     let t = FUNCTION_TEMPLATE[canonicalName];
     if (!t) return false;
     t = t.replace('%0', '').replace('%1', '');
-    if (t.match(/%/)) return true;
+    if (/%/.test(t)) return true;
     return false;
 }
 
@@ -3040,6 +3055,7 @@ return {
     ENVIRONMENTS: ENVIRONMENTS,
 
     FUNCTIONS: FUNCTIONS,
+    MACROS: MACROS,
 
     getPrecedence: getPrecedence,
     getCanonicalName: getCanonicalName,
