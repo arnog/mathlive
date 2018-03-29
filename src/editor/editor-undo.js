@@ -26,7 +26,7 @@ function UndoManager(mathlist) {
  * @private
  */
 UndoManager.prototype.canUndo = function() {
-    return this.index > 0;
+    return this.index >= 0;
 }
 
 /**

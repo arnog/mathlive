@@ -36,17 +36,16 @@ function pathToString(path, extent) {
  */
 function pathFromString(string) {
     // Reset the path
-    const result = {path: []};
+    const result = {path: [], extent: 0};
 
     // Parse the selection extent, if present
-    const m = string.match(/@([^,]*)$/);
-    if (m) {
-        string = string.match(/([^@]*)@/)[1];
+    const components = string.split('#');
+    if (components.length > 1) {
+        result.extent = parseInt(components[1]);
     }
-    result.extent = m ? parseInt(m[1]) : 0;
 
     // Parse the segments
-    const segments = string.split('/');
+    const segments = components[0].split('/');
     for (const segment of segments) {
         const m2 = segment.match(/([^:]*):(.*)/);
         if (m2) {
