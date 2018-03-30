@@ -399,6 +399,10 @@ MathField.prototype._pathFromPoint = function(x, y) {
     return result;
 }
 
+let lastTouchEndTouch;
+let lastTouchEndTimestamp;
+let tapCount = 0;
+
 MathField.prototype._onPointerDown = function(evt) {
     let anchor;
     function endPointerTracking(evt) {
@@ -435,6 +439,19 @@ MathField.prototype._onPointerDown = function(evt) {
         if (this.textarea.focus) this.textarea.focus();
     }
 
+    // Calculate the tap count (if this is a touch event)
+    if (evt.touches) {
+        if (lastTouchEndTouch && Math.abs(lastTouchEndTouch.pageX - evt.touches[0].pageX) < 5 && 
+            Math.abs(lastTouchEndTouch.pageY - evt.touches[0].pageY) < 5 && 
+            Date.now() < lastTouchEndTimestamp + 500) {
+            tapCount += 1;
+        } else {
+            lastTouchEndTouch = evt.touches[0];
+            tapCount = 1;
+        }
+        lastTouchEndTimestamp = Date.now();
+    }
+
     const bounds = this.element.getBoundingClientRect();
     const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
     const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
@@ -465,16 +482,16 @@ MathField.prototype._onPointerDown = function(evt) {
 
             // evt.details contains the number of consecutive clicks 
             // for double-click, triple-click, etc...
-            if (evt.detail === 2 || evt.detail === 3) {
+            if (evt.detail === 2 || evt.detail === 3 || (tapCount > 1)) {
                 off(this.field, 'touchmove', onPointerMove);
                 off(this.field, 'touchend', endPointerTracking);
                 off(window, 'mousemove', onPointerMove);
                 off(window, 'mouseup blur', endPointerTracking);
                 trackingPointer = false;
-                if (evt.detail === 3) {
+                if (evt.detail === 3 || tapCount === 3) {
                     // This is a triple-click
                     this.mathlist.selectAll_();
-                } else if (evt.detail === 2) {
+                } else if (evt.detail === 2 || tapCount === 2) {
                     // This is a double-click
                     this.mathlist.selectGroup_();
                 }
@@ -495,6 +512,8 @@ MathField.prototype._onPointerDown = function(evt) {
                 }
             }
         }
+    } else {
+        lastTouchEndTouch = null;
     }
 
 
@@ -1636,25 +1655,27 @@ MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
         // Width 3
         altContainer.style.width = '146px';
     }
+    // Reset container height
+    altContainer.style.height = 'auto';
 
 
     let markup = '';
     for (const altKey of altKeys) {
         markup += '<li';
         if (typeof altKey === 'string') {
-            markup += ' data-latex="' + altKey + '"';
+            markup += ' data-latex="' + altKey.replace(/"/g, '&quot;') + '"';
         } else {
             if (altKey.latex) {
-                markup += ' data-latex="' + altKey.latex + '"';
+                markup += ' data-latex="' + altKey.latex.replace(/"/g, '&quot;') + '"';
             }
             if (altKey.insert) {
-                markup += ' data-insert="' + altKey.insert + '"';
+                markup += ' data-insert="' + altKey.insert.replace(/"/g, '&quot;') + '"';
             }
             if (altKey.command) {
-                markup += " data-command='" + altKey.command + "'";
+                markup += " data-command='" + altKey.command.replace(/"/g, '&quot;') + "'";
             }
             if (altKey.aside) {
-                markup += ' data-aside="' + altKey.aside + '"';
+                markup += ' data-aside="' + altKey.aside.replace(/"/g, '&quot;') + '"';
             }
             if (altKey.classes) {
                 markup += ' data-classes="' + altKey.classes + '"';
@@ -1667,6 +1688,7 @@ MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
         markup += '</li>';
     }
     markup = '<ul>' + markup + '</ul>';
+    
     altContainer.innerHTML = markup;
 
     VirtualKeyboard.makeKeycap(this, 
@@ -1676,7 +1698,21 @@ MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
         'div.keyboard-layer.visible div.rows ul li[data-alt-keys="' + keycap + '"]');
     const position = keycapEl.getBoundingClientRect();
     if (position) {
-        altContainer.style.top = (position.top - altContainer.clientHeight + 5).toString() + 'px';
+        if (position.top - altContainer.clientHeight < 0) {
+            // altContainer.style.maxWidth = '320px';  // Up to six columns
+            altContainer.style.width = 'auto';
+            if (altKeys.length <= 6) {
+                altContainer.style.height = '56px';     // 1 row
+            } else if (altKeys.length <= 12) {
+                altContainer.style.height = '108px';    // 2 rows
+            } else {
+                altContainer.style.height = '205px';    // 3 rows
+            }
+            altContainer.style.top = (position.top - altContainer.clientHeight + 5) + 'px';
+
+        } else {
+            altContainer.style.top = (position.top - altContainer.clientHeight + 5).toString() + 'px';
+        }
         altContainer.style.left = Math.max(0, 
             Math.min(window.innerWidth - altContainer.offsetWidth,
             ((position.left + position.right - altContainer.offsetWidth) / 2) )) + 'px';
@@ -1867,6 +1903,12 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
         window.setTimeout(function() { that.virtualKeyboard.classList.add('visible'); }, 1);
     } else if (this.virtualKeyboard) {
         this.virtualKeyboard.classList.remove('visible');
+    }
+
+    if (typeof this.config.onVirtualKeyboardToggle === 'function') {
+        this.config.onVirtualKeyboardToggle(
+                this.virtualKeyboardVisible, 
+                this.virtualKeyboard);
     }
 }
 
