@@ -314,6 +314,12 @@ function toMarkup(text, mathstyle, format) {
  * @param {mathfieldCallback} [config.onSelectionDidChange] - A handler called 
  * just after the selection has been changed.
  *  
+ * @param {mathfieldCallback} [config.onVirtualKeyboardToggle] - A handler  
+ * called after the virtual keyboard visibility has changed. The first argument
+ * is true if the virtual keyboard is visible, the second argument is a DOM
+ * element containing the virtual keyboard, which can be used to determine its
+ * size (and therefore the portion of the screen it obscures) 
+ *  
  * @return {MathField}
  * 
  * @function module:mathlive#makeMathField

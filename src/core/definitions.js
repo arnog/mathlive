@@ -3021,12 +3021,6 @@ const OP_PRECEDENCE = {
 
     // Conditional (?:)
 
-    // Assignment
-    '=':    3,
-
-
-
-
 
 
     // Logical OR

@@ -190,7 +190,7 @@ const NOTES = {
 
     '\\!':          ['negative thin space', '(-3 mu)'],
     '\\ ':          ['space', '(6 mu)'],
-    '\\,':          ['thin space<', '(3 mu)'],
+    '\\,':          ['thin space', '(3 mu)'],
     '\\:':          ['medium space', '(4 mu)'],
     '\\;':          ['thick space', '(5 mu)'],
     '\\quad':       ['1 em space', '(18 mu)'],
@@ -201,6 +201,8 @@ const NOTES = {
     '\\pm':         'plus or minus',
     '\\Im':         'Imaginary part of',
     '\\Re':         'Real part of',
+    '\\gothicCapitalR': 'Real part of',
+    '\\gothicCapitalI': 'Imaginary part part of',
     '\\differentialD':     'differential d',
     '\\aleph':          ['aleph', 'infinite cardinal',
                         '<a target="_blank" href="https://en.wikipedia.org/wiki/Cardinal_number">Wikipedia <big>&#x203A;</big></a>'

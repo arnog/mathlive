@@ -285,12 +285,22 @@ const ALT_KEYS_BASE = {
         '\\complement'],
 
     'set-relations': [
-            '\\in', '\\notin', '\\ni', '\\owns', '\\subset', '\\supset',
-            '\\subseteq', '\\supseteq', '\\subsetneq', '\\supsetneq',
-            '\\varsubsetneq', '\\subsetneqq', '\\nsubset', '\\nsupset',
-            '\\nsubseteq', '\\nsupseteq'],
+        '\\in', '\\notin', '\\ni', '\\owns', '\\subset', '\\supset',
+        '\\subseteq', '\\supseteq', '\\subsetneq', '\\supsetneq',
+        '\\varsubsetneq', '\\subsetneqq', '\\nsubset', '\\nsupset',
+        '\\nsubseteq', '\\nsupseteq'
+    ],
 
-    'space': ['\\!', '\\,', '\\:', '\\;', '\\enspace', '\\quad', '\\qquad'],
+    'space': [
+        {latex: '\\char"203A\\!\\char"2039', insert: '\\!', aside:'negative thin space<br>⁻³⧸₁₈ em'}, 
+        {latex: '\\unicode{"203A}\\,\\unicode{"2039}', insert: '\\,', aside:'thin space<br>³⧸₁₈ em'}, 
+        {latex: '\\unicode{"203A}\\:\\unicode{"2039}', insert: '\\:', aside:'medium space<br>⁴⧸₁₈ em'}, 
+        {latex: '\\unicode{"203A}\\;\\unicode{"2039}', insert: '\\;', aside:'thick space<br>⁵⧸₁₈ em'}, 
+        {latex: '\\unicode{"203A}\\ \\unicode{"2039}', insert: '\\ ', aside:'⅓ em'}, 
+        {latex: '\\unicode{"203A}\\enspace\\unicode{"2039}', insert: '\\enspace', aside:'½ em'}, 
+        {latex: '\\unicode{"203A}\\quad\\unicode{"2039}', insert: '\\quad', aside:'1 em'}, 
+        {latex: '\\unicode{"203A}\\qquad\\unicode{"2039}', insert: '\\qquad', aside:'2 em'}
+    ],
 
 
 
@@ -969,20 +979,21 @@ function makeKeycap(mf, elList, chainedCommand) {
         const el = elList[i];
         // Display
         if (el.getAttribute('data-latex')) {
-            el.innerHTML = latexToMarkup(el.getAttribute('data-latex'),
+            el.innerHTML = latexToMarkup(el.getAttribute('data-latex').replace(/&quot;/g, '"'),
                     {'?':'{\\color{#555}{\\tiny \\char"2B1A}}'});
-        } else if (el.innerHTML === '') {
-            el.innerHTML = latexToMarkup(el.getAttribute('data-insert') || '', 
+        } else if (el.innerHTML === '' && el.getAttribute('data-insert')) {
+            el.innerHTML = latexToMarkup(el.getAttribute('data-insert').replace(/&quot;/g, '"'), 
                     {'?':'{\\color{#555}{\\tiny \\char"2B1A}}'});
         }
         if (el.getAttribute('data-aside')) {
-            el.innerHTML += '<aside>' + el.getAttribute('data-aside') + '</aside>';
+            el.innerHTML += '<aside>' + el.getAttribute('data-aside').replace(/&quot;/g, '"') + '</aside>';
         }
         if (el.getAttribute('data-classes')) {
             el.classList.add(el.getAttribute('data-classes'));
         }
 
-        const key = el.getAttribute('data-insert');
+        let key = el.getAttribute('data-insert');
+        if (key) key = key.replace(/&quot;/g, '"');
         if (key && SHIFTED_KEYS[key]) {
             el.setAttribute('data-shifted', SHIFTED_KEYS[key].label);
             el.setAttribute('data-shifted-command', 
