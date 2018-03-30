@@ -153,7 +153,9 @@ function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
     
     console.assert(fontFamily === 'main' || fontFamily === 'ams' ||
         fontFamily === 'mathrm' || fontFamily === 'mathbb' || 
-        fontFamily === 'mathscr' || Array.isArray(fontFamily),
+        fontFamily === 'mathfrak' || fontFamily === 'mathcal' || 
+        fontFamily === 'mathscr' || 
+        Array.isArray(fontFamily),
         "Unknown font family " + fontFamily + " for " + latexName);
 
     // Convert a frequency constant to a numerical value
@@ -1873,10 +1875,10 @@ defineSymbol( '\\scriptCapitalE', MATH,  'mathscr',  MATHORD, 'E');    // NOTE: 
 defineSymbol( '\\scriptCapitalH', MATH,  'mathscr',  MATHORD, 'H');    // NOTE: Not TeX?
 defineSymbol( '\\scriptCapitalL', MATH,  'mathscr',  MATHORD, 'L');    // NOTE: Not TeX?
 
-defineSymbol( '\\gothicCapitalC', MATH,  'main',  MATHORD, '\u212D');    // NOTE: Not TeX?
-defineSymbol( '\\gothicCapitalH', MATH,  'main',  MATHORD, '\u210c');    // NOTE: Not TeX?
-defineSymbol( '\\gothicCapitalI', MATH,  'main',  MATHORD, '\u2111');    // NOTE: Not TeX?
-defineSymbol( '\\gothicCapitalR', MATH,  'main',  MATHORD, '\u211C');    // NOTE: Not TeX?
+defineSymbol( '\\gothicCapitalC', MATH,  'mathfrak',  MATHORD, 'C');    // NOTE: Not TeX?
+defineSymbol( '\\gothicCapitalH', MATH,  'mathfrak',  MATHORD, 'H');    // NOTE: Not TeX?
+defineSymbol( '\\gothicCapitalI', MATH,  'mathfrak',  MATHORD, 'I');    // NOTE: Not TeX?
+defineSymbol( '\\gothicCapitalR', MATH,  'mathfrak',  MATHORD, 'R');    // NOTE: Not TeX?
 
 
 defineSymbol( '\\pounds', MATH,  MAIN,  MATHORD, '\u00a3', 509);
@@ -2451,7 +2453,7 @@ defineSymbol( '\\!', MATH,  MAIN,  SPACING, null);
 defineSymbol( '\\,', MATH, MAIN,  SPACING,  null);
 defineSymbol( '\\:', MATH,  MAIN,  SPACING, null);
 defineSymbol( '\\;', MATH,  MAIN,  SPACING, null);
-// defineSymbol( '\\enspace', MATH,  MAIN,  SPACING, null, 672);
+defineSymbol( '\\enskip', MATH,  MAIN,  SPACING, null);
 // \enspace is a TeX command (not LaTeX) equivalent to a \skip
 defineSymbol( '\\enspace', MATH,  MAIN,  SPACING, null, 672);
 defineSymbol( '\\quad', MATH,  MAIN,  SPACING, null, COMMON);    // >2,000
@@ -2790,36 +2792,59 @@ const CANONICAL_NAMES = {
     '\\nabla':  'nabla',
     '\\circ':   'circle',
     // '\\oplus':  'oplus',
-    '\\ominus': 'ominus',
-    '\\odot':   'odot',
-    '\\otimes': 'otimes',
+    '\\ominus':         'ominus',
+    '\\odot':           'odot',
+    '\\otimes':         'otimes',
 
-    '\\zeta':   'Zeta',
-    '\\Gamma':  'Gamma',
-    '\\min':    'min',
-    '\\max':    'max',
-    '\\mod':    'mod',
-    '\\lim':    'lim',  // BIG OP
-    '\\sum':    'sum',
-    '\\prod':   'prod',
-    '\\int':    'integral',
-    '\\iint':   'integral2',
-    '\\iiint':  'integral3',
+    '\\zeta':           'Zeta',
+    '\\Gamma':          'Gamma',
+    '\\min':            'min',
+    '\\max':            'max',
+    '\\mod':            'mod',
+    '\\lim':            'lim',  // BIG OP
+    '\\sum':            'sum',
+    '\\prod':           'prod',
+    '\\int':            'integral',
+    '\\iint':           'integral2',
+    '\\iiint':          'integral3',
 
-    '\\Re': 'Re',
-    '\\Im': 'Im',
+    '\\Re':             'Re',
+    '\\gothicCapitalR': 'Re',
+    '\\Im':             'Im',
+    '\\gothicCapitalI': 'Im',
 
-    '\\binom':  'binom',
+    '\\binom':          'binom',
 
-    '\\partial': 'partial',
+    '\\partial':        'partial',
     '\\differentialD': 'differentialD',
     '\\capitalDifferentialD': 'capitalDifferentialD',
-    '\\Finv':   'Finv',
-    '\\Game':   'Game',
-    '\\wp':     'wp',
-    '\\ast':    'ast',
-    '\\star':   'star',
-    '\\asymp':  'asymp'
+    '\\Finv':           'Finv',
+    '\\Game':           'Game',
+    '\\wp':             'wp',
+    '\\ast':            'ast',
+    '\\star':           'star',
+    '\\asymp':          'asymp',
+
+    '\\to':             '->',
+    '\\rightarrow':     '->',
+    '\\gets':           '<-',
+    '\\leftarrow':      '<-',
+    '\\leftrightarrow': '<->',
+    '\\longrightarrow': '-->',
+    '\\longleftarrow':  '<--',
+    '\\lingleftrightarrow': '<-->',
+
+    '\\Rightarrow':     '=>',
+    '\\Leftarrow':      '<=',
+    '\\Leftrightarrow': '<=>',
+
+    '\\implies':        '==>',
+    '\\Longrightarrow': '==>',
+    '\\impliedby':      '<==',
+    '\\Longleftarrow':  '<==',
+    '\\iff':            '<==>',
+    '\\Longleftrightarrow': '<==>',
+
 }
 
 const FUNCTION_TEMPLATE = {
@@ -2912,43 +2937,112 @@ const FUNCTION_TEMPLATE = {
     'factorial2': '%!!',
 }
 
+// From www.w3.org/TR/MathML3/appendixc.html
 
 const OP_PRECEDENCE = {
-    // '^':    6, Not an actual operator
-    'not':   8,
+    'degree':               880,
+    'nabla':                740,
+    'curl':                 740,    // not in MathML
+    'partial':              740,
+    'differentialD':        740,    // not in MathML
+    'capitalDifferentialD': 740,    // not in MathML
 
-    'and':   7,
-    'or':    7,
-    'xor':    7,
+    'odot':                 710,
 
-    'circle':   6,
-    'ominus': 6,
-    'odot': 6,
-    'otimes': 6,
-    'nabla': 6,
-    'curl':     6,
-    'div':      6,
-    'partial': 6,
-    'differentialD': 6,
-    'capitalDifferentialD': 6,
+    // Logical not
+    'not':                  680,
 
-    'mod':  5,
+    // Division
+    'div':                  660,    // division sign
+    'solidus':              660,
+    '/':                    660,
 
-    'ast':  5,
-    'star': 5,
-    '*':    5,
-    '.':    5,
-    '/':    5,
-    '%':    5,
 
-    '+':    4,
-    '-':    4,
+    'otimes':               410,
 
-    'asymp': 3,
+    // Multiplication
+    '*':                    390,
+    'ast':                  390,
+    '.':                    390,
+
+
+    'oplus':                300,    // also logical XOR...
+    'ominus':               300,
+
+    // Most circled-ops are 265
+    'circle':               265,
+    'circledast':           265,
+    'circledcirc':          265,
+
+    'star':                 265,    // Different from ast
+
+
+    // 
+    'exists':                230,
+    'nexists':               230,
+    'forall':                230,
+
+    // Addition
+    '+':                275,
+    '-':                9,
+
+    // Arrows
+    '->':               270,
+    '=>':               270,
+    '-->':              270,
+    '==>':              270,
+
+    '<-':               270,
+    '<=':               270,
+    '<--':              270,
+    '<==':              270,
+
+    '<->':              270,
+    '<=>':              270,
+    '<-->':             270,
+    '<==>':             270,
+
+    // Comparisons
+    '=':                260,
+
+    '≠':                255,
+    'approx':           247,
+    '<':                245,
+    '>':                243,
+    '≥':                242,
+    '≤':                241,
+
+    // Logical AND
+    'and':              200,
+
+
+
+    // '∴':                70
+
+    // Conditional (?:)
+
+    // Assignment
     '=':    3,
 
-    ',':    2,
-    ';':    1
+
+
+
+
+
+    // Logical OR
+    'or':               190,
+    'xor':              190,
+
+
+    // center, low, diag, vert ellipsis         150
+
+    // Composition/sequence
+    // '∋' such that:          110
+    ':':                100,
+    // '..':               100,
+    // '...':               100,
+    ',':                40,
+    ';':                30
 }
 
 /**
