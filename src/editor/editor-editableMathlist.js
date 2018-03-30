@@ -647,7 +647,7 @@ EditableMathlist.prototype.extractContents = function() {
     const siblings = this.siblings();
     const firstOffset = this.startOffset();
     if (firstOffset < siblings.length) {
-        const endOffset = Math.min(siblings.length - 1, this.endOffset());
+        const endOffset = this.endOffset();
         for (let i = firstOffset; i < endOffset; i++) {
             result.push(siblings[i]);
         }
@@ -1545,6 +1545,9 @@ EditableMathlist.prototype.insert = function(s, options) {
                 this.delete(-args[0].length);
                 // If the implicit argument was empty, remove it from the args list.
                 if (Array.isArray(args[0]) && args[0].length === 0) args[0] = undefined;
+            } else {
+                // No selection, no 'mord' before. Let's make '#@' a placeholder.
+                s = s.replace(/(^|[^\\])#@/g, '$1#?');
             }
             mathlist = ParserModule.parseTokens(Lexer.tokenize(s), parseMode, args, Definitions.MACROS);
         }

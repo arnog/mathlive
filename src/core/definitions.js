@@ -74,7 +74,7 @@ const ENVIRONMENTS = {};
 const MACROS = {
     'iff':    '\\;\u27fa\\;',         //>2,000 Note: additional spaces around the arrows
 // @todo definemacro?
-    'nicefrac': '^{#0}\\!\\!/\\!_{#1}'
+    'nicefrac': '^{#1}\\!\\!/\\!_{#2}'
 };
 
 // Frequency of a symbol.
@@ -429,6 +429,43 @@ function getInfo(symbol, parseMode) {
             // It wasn't a function, maybe it's a symbol?
             const a = parseMode === 'math' ? MATH_SYMBOLS : TEXT_SYMBOLS;
             info = a[symbol];
+        }
+
+        if (!info) {
+            // Maybe it's a macro
+            const command = symbol.slice(1);
+            if (MACROS[command]) {
+                let def = MACROS[command];
+                if (typeof def === 'object') {
+                    def = def.def;
+                }
+                let argCount = 0;
+                // Let's see if there are arguments in the definition.
+                if (/(^|[^\\])#1/.test(def)) argCount = 1;
+                if (/(^|[^\\])#2/.test(def)) argCount = 2;
+                if (/(^|[^\\])#3/.test(def)) argCount = 3;
+                if (/(^|[^\\])#4/.test(def)) argCount = 4;
+                if (/(^|[^\\])#5/.test(def)) argCount = 5;
+                if (/(^|[^\\])#6/.test(def)) argCount = 6;
+                if (/(^|[^\\])#7/.test(def)) argCount = 7;
+                if (/(^|[^\\])#8/.test(def)) argCount = 8;
+                if (/(^|[^\\])#9/.test(def)) argCount = 9;
+                info = {
+                    type: 'group',
+                    allowedInText: false,
+                    params: [],
+                    infix: false
+                }
+                while (argCount >= 1) {
+                    info.params.push({
+                        optional: false,
+                        type: 'math',
+                        defaultValue: null,
+                        placeholder: null
+                    });
+                    argCount -= 1;
+                }
+            }
         }
 
         if (!info) {

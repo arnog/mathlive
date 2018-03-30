@@ -1,5 +1,10 @@
-define(['mathlive/core/definitions', 'mathlive/core/mathAtom'],
-    function(Definitions, MathAtom) {
+define([
+    'mathlive/core/lexer', 
+    'mathlive/core/mathAtom', 
+    'mathlive/core/parser', 
+    'mathlive/core/definitions',
+],
+    function(Lexer, MathAtom, ParserModule, Definitions) {
 
         /**
  * Return the operator precedence of the atom
@@ -599,6 +604,10 @@ function parsePrimary(expr) {
     } else if (atom.type === 'sizing') {
        expr.index += 1;
        return parsePrimary(expr); 
+    } else if (atom.type === 'group') {
+        // This includes macros
+       expr.index += 1;
+       expr.ast = atom.toAST(); 
     }
 
 
@@ -771,7 +780,35 @@ MathAtom.MathAtom.prototype.toAST = function() {
     switch(this.type) {
         case 'root':
         case 'group':
-            result.group = parse(this.body);
+            // Macros appear as group as well. Handle some of them.
+            if (this.latex.startsWith('\\nicefrac')) {
+                m = this.latex.slice(9).match(/({.*}|[^}])({.*}|[^}])/);
+                if (m) {
+                    if (m[1].length === 1) {
+                        lhs = m[1];
+                    } else {
+                        lhs = m[1].substr(1, m[1].length - 2);
+                    }
+                    lhs = ParserModule.parseTokens(Lexer.tokenize(lhs),
+                        'math', null, Definitions.MACROS);
+                    result.lhs = parse(lhs);
+
+                    if (m[2].length === 1) {
+                        rhs = m[2];
+                    } else {
+                        rhs = m[2].substr(1, m[2].length - 2);
+                    }
+                    rhs = ParserModule.parseTokens(Lexer.tokenize(rhs),
+                        'math', null, Definitions.MACROS);
+
+                    result.op = '/';
+                    result.rhs = parse(rhs);                    
+                } else {
+                    result.op = '/';
+                }
+            } else {
+                result.group = parse(this.body);
+            }
             break;
 
         case 'genfrac':

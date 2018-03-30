@@ -204,9 +204,9 @@ const ALT_KEYS_BASE = {
     'nabla': ['\\nabla\\times', '\\nabla\\cdot', '\\nabla^{2}'],
 
     '!':    ['!!', '\\Gamma', '\\Pi'],
-    'accents': ['\\bar{#0}', '\\vec{#0}', '\\hat{#0}', '\\check{#0}',
-        '\\dot{#0}', '\\ddot{#0}', '\\mathring{#0}', '\\breve{#0}',
-        '\\acute{#0}', '\\tilde{#0}', '\\grave{#0}'],
+    'accents': ['\\bar{#@}', '\\vec{#@}', '\\hat{#@}', '\\check{#@}',
+        '\\dot{#@}', '\\ddot{#@}', '\\mathring{#@}', '\\breve{#@}',
+        '\\acute{#@}', '\\tilde{#@}', '\\grave{#@}'],
     'A':        [{latex:'\\aleph', aside:'aleph'},
                 {latex:'\\forall', aside:'for all'},
     ],
@@ -324,7 +324,7 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys='7'>7</li>
                 <li class='keycap tex' data-alt-keys='8'>8</li>
                 <li class='keycap tex' data-alt-keys='9'>9</li>
-                <li class='keycap tex' data-alt-keys='/' data-insert='\\frac{#0}{#?}'>&divide;</li>
+                <li class='keycap tex' data-alt-keys='/' data-insert='\\frac{#@}{#?}'>&divide;</li>
                 <li class='separator w5'></li>
                 <li class='keycap tex' data-key='ee' data-alt-keys='ee'>e</li>
                 <li class='keycap tex' data-key='ii' data-alt-keys='ii'>i</li>
@@ -847,6 +847,9 @@ const LAYERS = {
 }
 
 function latexToMarkup(latex, arg) {
+    // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
+    latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
+    
     const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', arg, Definitions.MACROS);
     const spans = MathAtom.decompose({mathstyle: 'displaystyle'}, parse);
     

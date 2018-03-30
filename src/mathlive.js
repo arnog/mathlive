@@ -17,10 +17,11 @@ define([
     'mathlive/core/mathAtom', 
     'mathlive/core/parser', 
     'mathlive/core/span', 
+    'mathlive/core/definitions',
     'mathlive/editor/editor-mathfield',
     'mathlive/addons/auto-render',
     ], 
-    function(Lexer, MathAtom, ParserModule, Span, MathField, AutoRender) {
+    function(Lexer, MathAtom, ParserModule, Span, Definitions, MathField, AutoRender) {
 
 /**
  * Convert a LaTeX string to a string of HTML markup.
@@ -54,7 +55,7 @@ function toMarkup(text, mathstyle, format) {
     //    a tree of high-level MathAtom, e.g. 'genfrac'.
     //
 
-    const mathlist = ParserModule.parseTokens(tokens);
+    const mathlist = ParserModule.parseTokens(tokens, 'math', null, Definitions.MACROS);
 
     if (format === 'mathlist') return mathlist;
 
@@ -284,7 +285,8 @@ function toMathML(latex) {
         return '';
     }
 
-    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex));
+    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex),
+        'math', null, Definitions.MACROS);
 
     return MathAtom.toMathML(mathlist);
 }
@@ -300,7 +302,8 @@ function latexToAST(latex) {
         return '';
     }
 
-    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex));
+    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex), 
+        'math', null, Definitions.MACROS);
 
     return MathAtom.toAST(mathlist);
 }
