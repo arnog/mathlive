@@ -333,7 +333,7 @@ on desktop and `auto` on mobile.
  available. Otherwise, this should be a space separated list of the 
  keyboards that should be made available. The supported keyboards are:
     * `'numeric'`
-    * `'latin'`
+    * `'roman'`
     * `'greek'`
     * `'functions'`
     * `'command'`

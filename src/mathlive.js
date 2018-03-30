@@ -163,9 +163,13 @@ function toMarkup(text, mathstyle, format) {
  * @param {string} [config.virtualKeyboards='all'] - A space separated list of
  * the keyboards that should be available. The keyboard `'all'` is synonym with:
  * 
- * * `'numeric'`, `'latin'`, `'greek'`, `'functions'` and `'command'`
+ * * `'numeric'`, `'roman'`, `'greek'`, `'functions'` and `'command'`
  * 
  * The keyboards will be displayed in the order indicated.
+ * 
+ * @param {string} [config.virtualKeyboardRomanLayout='qwerty'] - The 
+ * arrangement of the keys for the layers of the roman virtual keyboard.
+ * One of `'qwerty'`, `'azerty'`, '`qwertz'`, '`dvorak`' or '`colemak`'.
  * 
  * @param {Object} [config.customVirtualKeyboardLayers] - Some additional
  * custom virtual keyboard layers. A keyboard is made up of one or more 

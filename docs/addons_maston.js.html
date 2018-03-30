@@ -68,8 +68,13 @@ writeCookie('symbol-access', 'private')
         <article>
             <pre class="prettyprint source linenums">
             
-            <code>define(['mathlive/core/definitions', 'mathlive/core/mathAtom'],
-    function(Definitions, MathAtom) {
+            <code>define([
+    'mathlive/core/lexer', 
+    'mathlive/core/mathAtom', 
+    'mathlive/core/parser', 
+    'mathlive/core/definitions',
+],
+    function(Lexer, MathAtom, ParserModule, Definitions) {
 
         /**
  * Return the operator precedence of the atom
@@ -850,18 +855,27 @@ MathAtom.MathAtom.prototype.toAST = function() {
                 m = this.latex.slice(9).match(/({.*}|[^}])({.*}|[^}])/);
                 if (m) {
                     if (m[1].length === 1) {
-                        result.lhs = parse(m[1]);
+                        lhs = m[1];
                     } else {
-                        result.lhs = parse(m[1].substr(1, m[1].length - 2));
+                        lhs = m[1].substr(1, m[1].length - 2);
                     }
+                    lhs = ParserModule.parseTokens(Lexer.tokenize(lhs),
+                        'math', null, Definitions.MACROS);
+                    result.lhs = parse(lhs);
+
                     if (m[2].length === 1) {
-                        result.rhs = parse(m[2]);
+                        rhs = m[2];
                     } else {
-                        result.rhs = parse(m[2].substr(1, m[2].length - 2));
+                        rhs = m[2].substr(1, m[2].length - 2);
                     }
-                    
+                    rhs = ParserModule.parseTokens(Lexer.tokenize(rhs),
+                        'math', null, Definitions.MACROS);
+
+                    result.op = '/';
+                    result.rhs = parse(rhs);                    
+                } else {
+                    result.op = '/';
                 }
-                result.op = '/';
             } else {
                 result.group = parse(this.body);
             }

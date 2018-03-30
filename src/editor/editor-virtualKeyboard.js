@@ -20,11 +20,11 @@ const KEYBOARDS = {
         label: '123',
         layers: ['math']
     },
-    'latin': {
-        tooltip: 'Symbols and Latin Letters',
-        layer: 'lower-latin',
+    'roman': {
+        tooltip: 'Symbols and Roman Letters',
+        layer: 'lower-roman',
         label: 'ABC',
-        layers: ['lower-latin', 'upper-latin', 'symbols']
+        layers: ['lower-roman', 'upper-roman', 'symbols']
     },
     'greek': {
         tooltip: 'Greek letters',
@@ -365,65 +365,32 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys='='>=</li>
                 <li class='keycap tex' data-key='+' data-alt-keys='+'>+</li>
                 <li class='separator w5'></li>
-                <li class='action' data-command='"moveToPreviousChar"'><svg><use xlink:href='#svg-arrow-left' /></svg></li>
-                <li class='action' data-command='"moveToNextChar"'><svg><use xlink:href='#svg-arrow-right' /></svg></li>
-                <li class='action' data-alt-keys='->|' data-command='"moveToNextPlaceholder"'><svg><use xlink:href='#svg-tab' /></svg></li>
+                <arrows/>
             </ul>
         </div>
     `,
-    'lower-latin': `
+    'lower-roman': `
         <div class='rows'>
             <ul>
                 <li class='keycap if-wide' data-alt-keys='7'>7</li>
                 <li class='keycap if-wide' data-alt-keys='8'>8</li>
                 <li class='keycap if-wide' data-alt-keys='9'>9</li>
                 <li class='keycap tex if-wide' data-alt-keys='/' data-insert='\\frac{#0}{#?}'>&divide;</li>
-                <li class='keycap' data-alt-keys='q'>q</li>
-                <li class='keycap' data-alt-keys='w'>w</li>
-                <li class='keycap' data-alt-keys='e'>e</li>
-                <li class='keycap' data-alt-keys='r'>r</li>
-                <li class='keycap' data-alt-keys='t'>t</li>
-                <li class='keycap' data-alt-keys='y'>y</li>
-                <li class='keycap' data-alt-keys='u'>u</li>
-                <li class='keycap' data-alt-keys='i'>i</li>
-                <li class='keycap' data-alt-keys='o'>o</li>
-                <li class='keycap' data-alt-keys='p'>p</li>
+                <row name='lower-1' shift-layer='upper-roman'/>
             </ul>
             <ul>
                 <li class='keycap if-wide' data-alt-keys='4'>4</li>
                 <li class='keycap if-wide' data-alt-keys='5'>5</li>
                 <li class='keycap if-wide' data-alt-keys='6'>6</li>
                 <li class='keycap if-wide' data-alt-keys='*' data-insert='\\times '>&times;</li>
-                <li class='separator tex w5 if-wide'></li>
-                <li class='keycap' data-alt-keys='a'>a</li>
-                <li class='keycap' data-alt-keys='s'>s</li>
-                <li class='keycap' data-alt-keys='d'>d</li>
-                <li class='keycap' data-alt-keys='f'>f</li>
-                <li class='keycap' data-alt-keys='g'>g</li>
-                <li class='keycap' data-alt-keys='h'>h</li>
-                <li class='keycap' data-alt-keys='j'>j</li>
-                <li class='keycap' data-alt-keys='k'>k</li>
-                <li class='keycap' data-alt-keys='l'>l</li>
-                <li class='separator tex w5 if-wide'></li>
+                <row name='lower-2'  shift-layer='upper-roman''/>
             </ul>
             <ul>
                 <li class='keycap if-wide' data-alt-keys='1'>1</li>
                 <li class='keycap if-wide' data-alt-keys='2'>2</li>
                 <li class='keycap if-wide' data-alt-keys='3'>3</li>
                 <li class='keycap if-wide' data-key='-' data-alt-keys='-'>&#x2212;</li>
-                <li class='shift modifier font-glyph bottom left w15 layer-switch' data-layer='upper-latin'>&#x21e7;</li>
-                <li class='keycap' data-alt-keys='z'>z</li>
-                <li class='keycap' data-alt-keys='x'>x</li>
-                <li class='keycap' data-alt-keys='c'>c</li>
-                <li class='keycap' data-alt-keys='v'>v</li>
-                <li class='keycap' data-alt-keys='b'>b</li>
-                <li class='keycap' data-alt-keys='n'>n</li>
-                <li class='keycap' data-alt-keys='m'>m</li>
-                <li class='action font-glyph bottom right w15' 
-                    data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
-                    data-shifted-command='"deleteAll"'
-                    data-alt-keys='delete' data-command='"deletePreviousChar"'
-                >&#x232b;</li>
+                <row name='lower-3'  shift-layer='upper-roman''/>
             </ul>
             <ul>
                 <li class='keycap if-wide' data-alt-keys='0'>0</li>
@@ -433,72 +400,31 @@ const LAYERS = {
                 <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols'>&infin;≠</li>
                 <li class='keycap' data-alt-keys=','>,</li>
                 <li class='keycap w50' data-key=' ' data-alt-keys='space'>&nbsp;</li>
-                <li class='action' data-command='"moveToPreviousChar"'
-                    data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' 
-                    data-shifted-command='"extendToPreviousChar"'>
-                    <svg><use xlink:href='#svg-arrow-left' /></svg>
-                </li>
-                <li class='action' data-command='"moveToNextChar"'
-                    data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' 
-                    data-shifted-command='"extendToNextChar"'>
-                    <svg><use xlink:href='#svg-arrow-right' /></svg>
-                </li>
-                <li class='action' data-command='"moveToNextPlaceholder"'><svg><use xlink:href='#svg-tab' /></svg></li>
+                <arrows/>
             </ul>
         </div>`,
-    'upper-latin': `
+    'upper-roman': `
         <div class='rows'>
             <ul>
                 <li class='keycap if-wide' data-alt-keys='7'>7</li>
                 <li class='keycap if-wide' data-alt-keys='8'>8</li>
                 <li class='keycap if-wide' data-alt-keys='9'>9</li>
                 <li class='keycap tex if-wide' data-alt-keys='/' data-insert='\\frac{#0}{#?}'>&divide;</li>
-                <li class='keycap' data-alt-keys='Q'>Q</li>
-                <li class='keycap' data-alt-keys='w'>W</li>
-                <li class='keycap' data-alt-keys='E'>E</li>
-                <li class='keycap' data-alt-keys='R'>R</li>
-                <li class='keycap' data-alt-keys='T'>T</li>
-                <li class='keycap' data-alt-keys='Y'>Y</li>
-                <li class='keycap' data-alt-keys='U'>U</li>
-                <li class='keycap' data-alt-keys='I'>I</li>
-                <li class='keycap' data-alt-keys='O'>O</li>
-                <li class='keycap' data-alt-keys='P'>P</li>
+                <row name='upper-1'  shift-layer='lower-roman'/>
             </ul>
             <ul>
                 <li class='keycap if-wide' data-alt-keys='4'>4</li>
                 <li class='keycap if-wide' data-alt-keys='5'>5</li>
                 <li class='keycap if-wide' data-alt-keys='6'>6</li>
                 <li class='keycap if-wide' data-alt-keys='*' data-insert='\\times '>&times;</li>
-                <li class='separator tex w5 if-wide'></li>
-                <li class='keycap' data-alt-keys='A'>A</li>
-                <li class='keycap' data-alt-keys='S'>S</li>
-                <li class='keycap' data-alt-keys='D'>D</li>
-                <li class='keycap' data-alt-keys='F'>F</li>
-                <li class='keycap' data-alt-keys='G'>G</li>
-                <li class='keycap' data-alt-keys='H'>H</li>
-                <li class='keycap' data-alt-keys='J'>J</li>
-                <li class='keycap' data-alt-keys='K'>K</li>
-                <li class='keycap' data-alt-keys='L'>L</li>
-                <li class='separator tex w5 if-wide'></li>
+                <row name='upper-2' shift-layer='lower-roman'/>
             </ul>
             <ul>
                 <li class='keycap if-wide' data-alt-keys='1'>1</li>
                 <li class='keycap if-wide' data-alt-keys='2'>2</li>
                 <li class='keycap if-wide' data-alt-keys='3'>3</li>
                 <li class='keycap if-wide' data-key='-' data-alt-keys='-'>&#x2212;</li>
-                <li class='shift modifier font-glyph selected bottom left w15 layer-switch' data-layer='lower-latin'>&#x21e7;</li>
-                <li class='keycap' data-alt-keys='Z'>Z</li>
-                <li class='keycap' data-alt-keys='X'>X</li>
-                <li class='keycap' data-alt-keys='C'>C</li>
-                <li class='keycap' data-alt-keys='V'>V</li>
-                <li class='keycap' data-alt-keys='B'>B</li>
-                <li class='keycap' data-alt-keys='N'>N</li>
-                <li class='keycap' data-alt-keys='M'>M</li>
-                <li class='action font-glyph bottom right w15' 
-                    data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
-                    data-shifted-command='"deleteAll"'
-                    data-alt-keys='delete' data-command='"deletePreviousChar"'
-                >&#x232b;</li>
+                <row name='upper-3' shift-layer='lower-roman'/>
             </ul>
             <ul>
                 <li class='keycap if-wide' data-alt-keys='0'>0</li>
@@ -508,15 +434,7 @@ const LAYERS = {
                 <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols'>&infin;≠</li>
                 <li class='keycap' data-alt-keys='.'>;</li>
                 <li class='keycap w50' data-key=' '>&nbsp;</li>
-                <li class='action' data-command='"moveToPreviousChar"'
-                    data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' data-shifted-command='"extendToPreviousChar"'>
-                    <svg><use xlink:href='#svg-arrow-left' /></svg>
-                </li>
-                <li class='action' data-command='"moveToNextChar"'
-                    data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' data-shifted-command='"extendToNextChar"'>
-                    <svg><use xlink:href='#svg-arrow-right' /></svg>
-                </li>
-                <li class='action' data-command='"moveToNextPlaceholder"'><svg><use xlink:href='#svg-tab' /></svg></li>
+                <arrows/>
             </ul>
         </div>`,
     'symbols': `
@@ -581,16 +499,14 @@ const LAYERS = {
                 <li class='keycap if-wide' data-alt-keys='.' >.</li>
                 <li class='keycap if-wide' data-alt-keys='=' >=</li>
                 <li class='keycap if-wide' data-alt-keys='+'  data-key='+'>+</li>
-                <li class='layer-switch font-glyph modifier bottom left' data-layer='lower-latin'>abc</li>
+                <li class='layer-switch font-glyph modifier bottom left' data-layer='lower-roman'>abc</li>
                 <li class='keycap tex' data-insert='\\cdot '>&#x22c5;<aside>centered dot</aside></li>
                 <li class='keycap tex' data-insert='\\colon '>:<aside>colon</aside></li>
                 <li class='keycap tex' data-insert='\\circ '>&#x2218;<aside>circle</aside></li>
                 <li class='keycap tex' data-insert='\\approx '>&#x2248;<aside>approx.</aside></li>
                 <li class='keycap tex' data-insert='\\ne '>&#x2260;</li>
                 <li class='keycap tex' data-insert='\\pm '>&#x00b1;</li>
-                <li class='action' data-command='"moveToPreviousChar"'><svg><use xlink:href='#svg-arrow-left' /></svg></li>
-                <li class='action' data-command='"moveToNextChar"'><svg><use xlink:href='#svg-arrow-right' /></svg></li>
-                <li class='action' data-command='"moveToNextPlaceholder"'><svg><use xlink:href='#svg-tab' /></svg></li>
+                <arrows/>
             </ul>
         </div>`,
     'lower-greek': `
@@ -638,16 +554,7 @@ const LAYERS = {
                 <li class='keycap tex-math' data-insert='\\varkappa '><i>&#x3f0;</i><aside>kappa var.</aside></li>
                 <li class='keycap tex-math' data-insert='\\varpi '><i>&#x03d6;<aside>pi var.</aside></i></li>
                 <li class='keycap tex-math' data-insert='\\varrho '><i>&#x03f1;</i><aside>rho var.</aside></li>
-                <li class='action' data-command='"moveToPreviousChar"'
-                    data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' data-shifted-command='"extendToPreviousChar"'>
-                    <svg><use xlink:href='#svg-arrow-left' /></svg>
-                </li>
-                <li class='action' data-command='"moveToNextChar"'
-                    data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' data-shifted-command='"extendToNextChar"'>
-                    <svg><use xlink:href='#svg-arrow-right' /></svg>
-                </li>
-
-                <li class='action' data-command='"moveToNextPlaceholder"'><svg><use xlink:href='#svg-tab' /></svg></li>
+                <arrows/>
             </ul>
         </div>`,
     'upper-greek': `
@@ -684,32 +591,14 @@ const LAYERS = {
                 <li class='separator w10'>&nbsp;</li>
                 <li class='keycap'>.</li>
                 <li class='keycap w50' data-key=' '>&nbsp;</li>
-                <li class='action' data-command='"moveToPreviousChar"'
-                    data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' data-shifted-command='"extendToPreviousChar"'>
-                    <svg><use xlink:href='#svg-arrow-left' /></svg>
-                </li>
-                <li class='action' data-command='"moveToNextChar"'
-                    data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' data-shifted-command='"extendToNextChar"'>
-                    <svg><use xlink:href='#svg-arrow-right' /></svg>
-                </li>
-                <li class='action' data-command='"moveToNextPlaceholder"'><svg><use xlink:href='#svg-tab' /></svg></li>
+                <arrows/>
             </ul>
         </div>`,
     'lower-command': `
         <div class='rows'>
-            <ul><li class='keycap tt'>q</li><li class='keycap tt'>w</li><li class='keycap tt'>e</li><li class='keycap tt'>r</li><li class='keycap tt'>t</li><li class='keycap tt'>y</li><li class='keycap tt'>u</li><li class='keycap tt'>i</li><li class='keycap tt'>o</li><li class='keycap tt'>p</li></ul>
-            <ul><li class='keycap tt'>a</li><li class='keycap tt'>s</li><li class='keycap tt'>d</li><li class='keycap tt'>f</li><li class='keycap tt'>g</li><li class='keycap tt'>h</li><li class='keycap tt'>j</li><li class='keycap tt'>k</li><li class='keycap tt'>l</li></ul>
-            <ul><li class='shift modifier font-glyph bottom left w15 layer-switch' data-layer='upper-command'>&#x21e7;</li>
-                <li class='keycap tt'>z</li>
-                <li class='keycap tt'>x</li>
-                <li class='keycap tt'>c</li>
-                <li class='keycap tt'>v</li><li class='keycap tt'>b</li><li class='keycap tt'>n</li><li class='keycap tt'>m</li>
-                <li class='action font-glyph bottom right w15' 
-                    data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
-                    data-shifted-command='"deleteAll"'
-                    data-alt-keys='delete' data-command='"deletePreviousChar"'
-                >&#x232b;</li>
-            </ul>
+            <ul><row name='lower-1' class='tt' shift-layer='upper-command'/></ul>
+            <ul><row name='lower-2' class='tt' shift-layer='upper-command'/></ul>
+            <ul><row name='lower-3' class='tt' shift-layer='upper-command'/></ul>
             <ul>
                 <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols-command'>01#</li>
                 <li class='keycap tt' data-shifted='[' data-shifted-command='["insertAndUnshiftKeyboardLayer", "["]'>{</li>
@@ -717,132 +606,100 @@ const LAYERS = {
                 <li class='keycap tt' data-shifted='(' data-shifted-command='["insertAndUnshiftKeyboardLayer", "("]'>^</li>
                 <li class='keycap tt' data-shifted=')' data-shifted-command='["insertAndUnshiftKeyboardLayer", ")"]'>_</li>
                 <li class='keycap w20' data-key=' '>&nbsp;</li>
-                <li class='action' data-command='"moveToPreviousChar"'
-                    data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' data-shifted-command='"extendToPreviousChar"'>
-                    <svg><use xlink:href='#svg-arrow-left' /></svg>
-                </li>
-                <li class='action' data-command='"moveToNextChar"'
-                    data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' data-shifted-command='"extendToNextChar"'>
-                    <svg><use xlink:href='#svg-arrow-right' /></svg>
-                </li>
-                <li class='action' data-command='"complete"'><svg><use xlink:href='#svg-tab' /></svg></li>
+                <arrows/>
             </ul>
         </div>`,
-        'upper-command': `
-            <div class='rows'>
-                <ul><li class='keycap tt'>Q</li><li class='keycap tt'>W</li><li class='keycap tt'>E</li><li class='keycap tt'>R</li><li class='keycap tt'>T</li><li class='keycap tt'>Y</li><li class='keycap tt'>U</li><li class='keycap tt'>I</li><li class='keycap tt'>O</li><li class='keycap tt'>P</li></ul>
-                <ul><li class='keycap tt'>A</li><li class='keycap tt'>S</li><li class='keycap tt'>D</li><li class='keycap tt'>F</li><li class='keycap tt'>G</li><li class='keycap tt'>H</li><li class='keycap tt'>J</li><li class='keycap tt'>K</li><li class='keycap tt'>L</li></ul>
-                <ul><li class='shift modifier font-glyph selected bottom left w15 layer-switch' data-layer='lower-command'>&#x21e7;</li><li class='keycap tt'>Z</li><li class='keycap tt'>X</li><li class='keycap tt'>C</li><li class='keycap tt'>V</li><li class='keycap tt'>B</li><li class='keycap tt'>N</li><li class='keycap tt'>M</li>
-                    <li class='action font-glyph bottom right w15' 
-                        data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
-                        data-shifted-command='"deleteAll"'
-                        data-alt-keys='delete' data-command='"deletePreviousChar"'
-                    >&#x232b;</li>
-                </ul>
-                <ul>
-                    <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols-command'01#</li>
-                    <li class='keycap tt'>[</li>
-                    <li class='keycap tt'>]</li>
-                    <li class='keycap tt'>(</li>
-                    <li class='keycap tt'>)</li>
-                    <li class='keycap w20' data-key=' '>&nbsp;</li>
-                    <li class='action' data-command='"moveToPreviousChar"'
-                        data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' data-shifted-command='"extendToPreviousChar"'>
-                        <svg><use xlink:href='#svg-arrow-left' /></svg>
-                    </li>
-                    <li class='action' data-command='"moveToNextChar"'
-                        data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' data-shifted-command='"extendToNextChar"'>
-                        <svg><use xlink:href='#svg-arrow-right' /></svg>
-                    </li>
-                    <li class='action' data-command='"complete"'><svg><use xlink:href='#svg-tab' /></svg></li>
-                </ul>
-            </div>`,
-        'symbols-command': `
-            <div class='rows'>
-                <ul><li class='keycap tt'>1</li><li class='keycap tt'>2</li><li class='keycap tt'>3</li><li class='keycap tt'>4</li><li class='keycap tt'>5</li><li class='keycap tt'>6</li><li class='keycap tt'>7</li><li class='keycap tt'>8</li><li class='keycap tt'>9</li><li class='keycap tt'>0</li></ul>
-                <ul><li class='keycap tt'>!</li><li class='keycap tt'>@</li><li class='keycap tt'>#</li><li class='keycap tt'>$</li><li class='keycap tt'>%</li><li class='keycap tt'>^</li><li class='keycap tt'>&</li><li class='keycap tt'>*</li><li class='keycap tt'>+</li><li class='keycap tt'>=</li></ul>
-                <ul>
-                    <li class='keycap tt'>\\</li>
-                    <li class='keycap tt'>|</li>
-                    <li class='keycap tt'>/</li>
-                    <li class='keycap tt'>\`</li>
-                    <li class='keycap tt'>;</li>
-                    <li class='keycap tt'>:</li>
-                    <li class='keycap tt'>?</li>
-                    <li class='keycap tt'>'</li>
-                    <li class='keycap tt'>"</li>
-                    <li class='action font-glyph bottom right' 
-                        data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
-                        data-shifted-command='"deleteAll"'
-                        data-alt-keys='delete' data-command='"deletePreviousChar"'
-                    >&#x232b;</li>
-                </ul>
-                <ul>
-                    <li class='layer-switch font-glyph modifier bottom left' data-layer='lower-command'>abc</li>
-                    <li class='keycap tt'>&lt;</li>
-                    <li class='keycap tt'>&gt;</li>
-                    <li class='keycap tt'>~</li>
-                    <li class='keycap tt'>,</li>
-                    <li class='keycap tt'>.</li>
-                    <li class='keycap' data-key=' '>&nbsp;</li>
-                    <li class='action' data-command='"moveToPreviousChar"'
-                        data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' data-shifted-command='"extendToPreviousChar"'>
-                        <svg><use xlink:href='#svg-arrow-left' /></svg>
-                    </li>
-                    <li class='action' data-command='"moveToNextChar"'
-                        data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' data-shifted-command='"extendToNextChar"'>
-                        <svg><use xlink:href='#svg-arrow-right' /></svg>
-                    </li>
-                    <li class='action' data-command='"complete"'><svg><use xlink:href='#svg-tab' /></svg></li>
-                </ul>
-            </div>`,
-        'functions': `
-            <div class='rows'>
-                <ul><li class='separator'></li>
-                    <li class='fnbutton' data-insert='\\sin'></li>
-                    <li class='fnbutton' data-insert='\\sin^{-1}'></li>
-                    <li class='fnbutton' data-insert='\\ln'></li>
-                    <li class='fnbutton' data-insert='\\exponentialE^{#?}'></li>
-                    <li class='bigfnbutton' data-insert='\\mathop{lcm}(#?)' data-latex='\\mathop{lcm}()'></li>
-                    <li class='bigfnbutton' data-insert='\\mathop{ceil}(#?)' data-latex='\\mathop{ceil}()'></li>
-                    <li class='bigfnbutton' data-insert='\\lim_{n\\to\\infty}'></li>
-                    <li class='bigfnbutton' data-insert='\\int'></li>
-                    <li class='bigfnbutton' data-insert='\\mathop{abs}(#?)' data-latex='\\mathop{abs}()'></li>
-                </ul>
-                <ul><li class='separator'></li>
-                    <li class='fnbutton' data-insert='\\cos'></li>
-                    <li class='fnbutton' data-insert='\\cos^{-1}'></li>
-                    <li class='fnbutton' data-insert='\\ln_{10}'></li>
-                    <li class='fnbutton' data-insert='10^{#?}'></li>
-                    <li class='bigfnbutton' data-insert='\\mathop{gcd}(#?)' data-latex='\\mathop{gcd}()'></li>
-                    <li class='bigfnbutton' data-insert='\\mathop{floor}(#?)' data-latex='\\mathop{floor}()'></li>
-                    <li class='bigfnbutton' data-insert='\\sum_{n\\mathop=0}^{\\infty}'></li>
-                    <li class='bigfnbutton' data-insert='\\int_{0}^{\\infty}'></li>
-                    <li class='bigfnbutton' data-insert='\\mathop{sign}(#?)' data-latex='\\mathop{sign}()'></li>
-                </ul>
-                <ul><li class='separator'></li>
-                    <li class='fnbutton' data-insert='\\tan'></li>
-                    <li class='fnbutton' data-insert='\\tan^{-1}'></li>
-                    <li class='fnbutton' data-insert='\\log_{#?}'></li>
-                    <li class='fnbutton' data-insert='\\sqrt[#?]{#0}'></li>
-                    <li class='bigfnbutton' data-insert='#0 \\mod' data-latex='\\mod'></li>
-                    <li class='bigfnbutton' data-insert='\\mathop{round}(#?) ' data-latex='\\mathop{round}()'></li>
-                    <li class='bigfnbutton' data-insert='\\prod_{n\\mathop=0}^{\\infty}' data-latex='{\\tiny \\prod_{n=0}^{\\infty}}'></li>
-                    <li class='bigfnbutton' data-insert='\\frac{\\differentialD #0}{\\differentialD x}'></li>
-                    <li class='action font-glyph bottom right' data-command='"deletePreviousChar"'>&#x232b;</li></ul>
-                <ul><li class='separator'></li>
-                    <li class='fnbutton'>(</li>
-                    <li class='fnbutton'>)</li>
-                    <li class='fnbutton' data-insert='^{#?} ' data-latex='x^{#?} '></li>
-                    <li class='fnbutton' data-insert='_{#?} ' data-latex='x_{#?} '></li>
-                    <li class='keycap w20 ' data-key=' '>&nbsp;</li>
-                    <li class='action' data-command='"moveToPreviousChar"'><svg><use xlink:href='#svg-arrow-left' /></svg></li>
-                    <li class='action' data-command='"moveToNextChar"'><svg><use xlink:href='#svg-arrow-right' /></svg></li>
-                    <li class='action' data-command='"complete"'><svg><use xlink:href='#svg-tab' /></svg></li>
-                </ul>
-            </div>`,
+    'upper-command': `
+        <div class='rows'>
+            <ul><row name='upper-1' class='tt' shift-layer='lower-command'/></ul>
+            <ul><row name='upper-2' class='tt' shift-layer='lower-command'/></ul>
+            <ul><row name='upper-3' class='tt' shift-layer='lower-command'/></ul>
+            <ul>
+                <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols-command'01#</li>
+                <li class='keycap tt'>[</li>
+                <li class='keycap tt'>]</li>
+                <li class='keycap tt'>(</li>
+                <li class='keycap tt'>)</li>
+                <li class='keycap w20' data-key=' '>&nbsp;</li>
+                <arrows/>
+            </ul>
+        </div>`,
+    'symbols-command': `
+        <div class='rows'>
+            <ul><li class='keycap tt'>1</li><li class='keycap tt'>2</li><li class='keycap tt'>3</li><li class='keycap tt'>4</li><li class='keycap tt'>5</li><li class='keycap tt'>6</li><li class='keycap tt'>7</li><li class='keycap tt'>8</li><li class='keycap tt'>9</li><li class='keycap tt'>0</li></ul>
+            <ul><li class='keycap tt'>!</li><li class='keycap tt'>@</li><li class='keycap tt'>#</li><li class='keycap tt'>$</li><li class='keycap tt'>%</li><li class='keycap tt'>^</li><li class='keycap tt'>&</li><li class='keycap tt'>*</li><li class='keycap tt'>+</li><li class='keycap tt'>=</li></ul>
+            <ul>
+                <li class='keycap tt'>\\</li>
+                <li class='keycap tt'>|</li>
+                <li class='keycap tt'>/</li>
+                <li class='keycap tt'>\`</li>
+                <li class='keycap tt'>;</li>
+                <li class='keycap tt'>:</li>
+                <li class='keycap tt'>?</li>
+                <li class='keycap tt'>'</li>
+                <li class='keycap tt'>"</li>
+                <li class='action font-glyph bottom right' 
+                    data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+                    data-shifted-command='"deleteAll"'
+                    data-alt-keys='delete' data-command='"deletePreviousChar"'
+                >&#x232b;</li>
+            </ul>
+            <ul>
+                <li class='layer-switch font-glyph modifier bottom left' data-layer='lower-command'>abc</li>
+                <li class='keycap tt'>&lt;</li>
+                <li class='keycap tt'>&gt;</li>
+                <li class='keycap tt'>~</li>
+                <li class='keycap tt'>,</li>
+                <li class='keycap tt'>.</li>
+                <li class='keycap' data-key=' '>&nbsp;</li>
+                <arrows/>
+            </ul>
+        </div>`,
+    'functions': `
+        <div class='rows'>
+            <ul><li class='separator'></li>
+                <li class='fnbutton' data-insert='\\sin'></li>
+                <li class='fnbutton' data-insert='\\sin^{-1}'></li>
+                <li class='fnbutton' data-insert='\\ln'></li>
+                <li class='fnbutton' data-insert='\\exponentialE^{#?}'></li>
+                <li class='bigfnbutton' data-insert='\\mathop{lcm}(#?)' data-latex='\\mathop{lcm}()'></li>
+                <li class='bigfnbutton' data-insert='\\mathop{ceil}(#?)' data-latex='\\mathop{ceil}()'></li>
+                <li class='bigfnbutton' data-insert='\\lim_{n\\to\\infty}'></li>
+                <li class='bigfnbutton' data-insert='\\int'></li>
+                <li class='bigfnbutton' data-insert='\\mathop{abs}(#?)' data-latex='\\mathop{abs}()'></li>
+            </ul>
+            <ul><li class='separator'></li>
+                <li class='fnbutton' data-insert='\\cos'></li>
+                <li class='fnbutton' data-insert='\\cos^{-1}'></li>
+                <li class='fnbutton' data-insert='\\ln_{10}'></li>
+                <li class='fnbutton' data-insert='10^{#?}'></li>
+                <li class='bigfnbutton' data-insert='\\mathop{gcd}(#?)' data-latex='\\mathop{gcd}()'></li>
+                <li class='bigfnbutton' data-insert='\\mathop{floor}(#?)' data-latex='\\mathop{floor}()'></li>
+                <li class='bigfnbutton' data-insert='\\sum_{n\\mathop=0}^{\\infty}'></li>
+                <li class='bigfnbutton' data-insert='\\int_{0}^{\\infty}'></li>
+                <li class='bigfnbutton' data-insert='\\mathop{sign}(#?)' data-latex='\\mathop{sign}()'></li>
+            </ul>
+            <ul><li class='separator'></li>
+                <li class='fnbutton' data-insert='\\tan'></li>
+                <li class='fnbutton' data-insert='\\tan^{-1}'></li>
+                <li class='fnbutton' data-insert='\\log_{#?}'></li>
+                <li class='fnbutton' data-insert='\\sqrt[#?]{#0}'></li>
+                <li class='bigfnbutton' data-insert='#0 \\mod' data-latex='\\mod'></li>
+                <li class='bigfnbutton' data-insert='\\mathop{round}(#?) ' data-latex='\\mathop{round}()'></li>
+                <li class='bigfnbutton' data-insert='\\prod_{n\\mathop=0}^{\\infty}' data-latex='{\\tiny \\prod_{n=0}^{\\infty}}'></li>
+                <li class='bigfnbutton' data-insert='\\frac{\\differentialD #0}{\\differentialD x}'></li>
+                <li class='action font-glyph bottom right' data-command='"deletePreviousChar"'>&#x232b;</li></ul>
+            <ul><li class='separator'></li>
+                <li class='fnbutton'>(</li>
+                <li class='fnbutton'>)</li>
+                <li class='fnbutton' data-insert='^{#?} ' data-latex='x^{#?} '></li>
+                <li class='fnbutton' data-insert='_{#?} ' data-latex='x_{#?} '></li>
+                <li class='keycap w20 ' data-key=' '>&nbsp;</li>
+                <arrows/>
+            </ul>
+        </div>`,
      
-            // 'functions': makeFunctionsLayer.bind(null, FUNCTIONS),
+        // 'functions': makeFunctionsLayer.bind(null, FUNCTIONS),
 
 }
 
@@ -1036,6 +893,129 @@ function makeKeycap(mf, elList, chainedCommand) {
 }
 
 /**
+ * Expand the shortcut tags (e.g. <row>) inside a layer.
+ * @param {*} mf 
+ * @param {*} layer 
+ */
+function expandLayerMarkup(mf, layer) {
+    const ROWS = {
+        // First row should be 10 key wide
+        // Second row should be 10 key wide
+        // Third row should be 8.5 key wide
+        // One row should have ^ (shift key) which is 1.5 key wide
+        // One row should have ~ (delete key) which is .5 or 1.5 key wide
+        'qwerty': {
+                'lower-1': 'qwertyuiop',
+                'lower-2': ' asdfghjkl ',
+                'lower-3': '^zxcvbnm~',
+                'upper-1': 'QWERTYUIOP',
+                'upper-2': ' ASDFGHJKL ',
+                'upper-3': '^ZXCVBNM~'
+        },
+        'azerty': {
+                'lower-1': 'azertyuiop',
+                'lower-2': 'qsdfghjklm',
+                'lower-3': '^ wxcvbn ~',
+                'upper-1': 'AZERTYUIOP',
+                'upper-2': 'QSDFGHJKLM',
+                'upper-3': '^ WXCVBN ~'
+        },
+        'qwertz': {
+                'lower-1': 'qwertzuiop',
+                'lower-2': ' asdfghjkl ',
+                'lower-3': '^yxcvbnm~',
+                'upper-1': 'QWERTZUIOP',
+                'upper-2': ' ASDFGHJKL',
+                'upper-3': '^YXCVBNM~'
+        },
+        'dvorak': {
+                'lower-1': '^  pyfgcrl ',
+                'lower-2': 'aoeuidhtns',
+                'lower-3': 'qjkxbmwvz~',
+                'upper-1': '^  PYFGCRL ',
+                'upper-2': ' ASDFGHJKL',
+                'upper-3': 'QJKXBMWVZ~'
+        },
+        'colemak': {
+                'lower-1': ' qwfpgjluy ',
+                'lower-2': 'arstdhneio',
+                'lower-3': '^zxcvbkm~',
+                'upper-1': ' QWFPGNLUY ',
+                'upper-2': 'ARSTDHNEIO',
+                'upper-3': '^ZXCVBKM~'
+        },
+        
+
+    }
+    const layout = ROWS[mf.config.virtualKeyboardLayout] ? ROWS[mf.config.virtualKeyboardLayout] : ROWS['qwerty'];
+
+    let result = layer;
+    let row;
+
+    result = result.replace(/<arrows\/>/g, `
+                <li class='action' data-command='"moveToPreviousChar"'
+                    data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' 
+                    data-shifted-command='"extendToPreviousChar"'>
+                    <svg><use xlink:href='#svg-arrow-left' /></svg>
+                </li>
+                <li class='action' data-command='"moveToNextChar"'
+                    data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' 
+                    data-shifted-command='"extendToNextChar"'>
+                    <svg><use xlink:href='#svg-arrow-right' /></svg>
+                </li>
+                <li class='action' data-command='"moveToNextPlaceholder"'>
+                <svg><use xlink:href='#svg-tab' /></svg></li>`);
+
+
+    let m = result.match(/(<row\s+)(.*)((?:<\/row|\/)>)/);
+    while (m) {
+        row = '';
+        const attributesArray = m[2].match(/[a-zA-Z][a-zA-Z0-9-]*=(['"])(.*?)\1/g);
+        const attributes = {};
+        for (const attribute of attributesArray) {
+            const m2 = attribute.match(/([a-zA-Z][a-zA-Z0-9-]*)=(['"])(.*?)\2/);
+            attributes[m2[1]] = m2[3];
+        }
+
+
+        if (!layout[attributes['name']]) {
+            console.log('Unknown roman keyboard layout: ' + attributes['name']);
+        } else {
+            for (const c of layout[attributes['name']]) {
+                if (c === '~') {
+                    row += `<li class='action font-glyph bottom right `;
+                    row += layout[attributes['name']].length - 
+                        ((layout[attributes['name']].match(/ /g) || []).length / 2) === 10 ? 'w10' : 'w15';
+                    row += `' data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+                        data-shifted-command='"deleteAll"'
+                        data-alt-keys='delete' data-command='"deletePreviousChar"'
+                        >&#x232b;</li>`;
+
+                } else if (c === ' ') {
+                    // Separator
+                    row += "<li class='separator w5'></li>";
+                } else if (c === '^') {
+                    // Shift key
+                    row += `<li class='shift modifier font-glyph bottom left w15 layer-switch' data-layer='` + 
+                        attributes['shift-layer'] + `'>&#x21e7;</li>`;
+                } else {
+                    let cls = attributes['class'] || '';
+                    if (cls) cls = ' ' + cls;
+                    row += "<li class='keycap" + cls + "' data-alt-keys='" + c + "'>" + c + "</li>"
+                }
+            }
+
+        }
+        result = result.replace(new RegExp(m[1] + m[2] + m[3]), row);
+
+        m = result.match(/(<row\s+)(.*)((?:<\/row|\/)>)/);
+    }
+
+
+    return result;
+}
+
+/**
  * Construct a virtual keyboard element based on the config options in the 
  * mathfield and an optional theme.
  * @param {Object} mf 
@@ -1207,9 +1187,11 @@ function make(mf, theme) {
     if (!keyboardIDs) {
         keyboardIDs = 'all';
     }
-    keyboardIDs = keyboardIDs.replace(/\ball\b/i, 'numeric latin greek functions command')
+    keyboardIDs = keyboardIDs.replace(/\ball\b/i, 'numeric roman greek functions command')
 
     const layers = Object.assign({}, LAYERS, mf.config.customVirtualKeyboardLayers || {});
+
+
     const keyboards = Object.assign({}, KEYBOARDS, mf.config.customVirtualKeyboards || {});
 
     const keyboardList = keyboardIDs.replace(/\s+/g, ' ').split(' ');
@@ -1233,7 +1215,11 @@ function make(mf, theme) {
             }
             markup += `<div class='keyboard-layer' id='` + layer + `'>`;
             markup += makeKeyboardToolbar(mf, keyboardIDs, keyboard);
-            markup += typeof layers[layer] === 'function' ? layers[layer]() : layers[layer];
+            const layerMarkup = typeof layers[layer] === 'function' ? 
+                layers[layer]() : layers[layer];
+            // A layer can contain 'shortcuts' (i.e. <row> tags) that need to 
+            // be expanded
+            markup += expandLayerMarkup(mf, layerMarkup);
             markup += '</div>';
         }
     }
