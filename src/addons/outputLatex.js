@@ -148,6 +148,10 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 command === '\\mathpunct' || command === '\\mathord' || 
                 command === '\\mathinner') {
                 result += command + '{' + latexify(this.body, expandMacro) + '}';
+            } else if (command === '\\unicode') {
+                result += '\\unicode{"';
+                result += ('000000' + this.body.charCodeAt(0).toString(16)).toUpperCase().substr(-6);
+                result += '}';
             } else if (this.latex || typeof this.body === 'string') {
                 // Not ZERO-WIDTH
                 if (this.latex && this.latex[0] === '\\') {
