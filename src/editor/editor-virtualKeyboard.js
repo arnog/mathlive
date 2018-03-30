@@ -321,10 +321,7 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys='x-var'><i>x</i></li>
                 <li class='keycap tex' data-alt-keys='n-var'><i>n</i></li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-alt-keys='7'>7</li>
-                <li class='keycap tex' data-alt-keys='8'>8</li>
-                <li class='keycap tex' data-alt-keys='9'>9</li>
-                <li class='keycap tex' data-alt-keys='/' data-insert='\\frac{#@}{#?}'>&divide;</li>
+                <row name='numpad-1'/>
                 <li class='separator w5'></li>
                 <li class='keycap tex' data-key='ee' data-alt-keys='ee'>e</li>
                 <li class='keycap tex' data-key='ii' data-alt-keys='ii'>i</li>
@@ -334,10 +331,7 @@ const LAYERS = {
                 <li class='keycap tex' data-key='<' data-alt-keys='<'>&lt;</li>
                 <li class='keycap tex' data-key='>' data-alt-keys='>'>&gt;</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-alt-keys='4'>4</li>
-                <li class='keycap tex' data-alt-keys='5'>5</li>
-                <li class='keycap tex' data-alt-keys='6'>6</li>
-                <li class='keycap tex' data-alt-keys='*'data-insert='\\times '>&times;</li>
+                <row name='numpad-2'/>
                 <li class='separator w5'></li>
                 <li class='keycap tex' data-alt-keys='x2' data-insert='#@^{2}'><span><i>x</i>&thinsp;²</span></li>
                 <li class='keycap tex' data-alt-keys='^' data-insert='#@^{#?}'><span><i>x</i><sup>&thinsp;<small>&#x2b1a;</small></sup></span></li>
@@ -347,10 +341,7 @@ const LAYERS = {
                 <li class='keycap tex' data-insert='\\le '>&#x2264;</li>
                 <li class='keycap tex' data-insert='\\ge '>&#x2265;</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-alt-keys='1'>1</li>
-                <li class='keycap tex' data-alt-keys='2'>2</li>
-                <li class='keycap tex' data-alt-keys='3'>3</li>
-                <li class='keycap tex' data-alt-keys='-' data-key='-'>&#x2212;</li>
+                <row name='numpad-3'/>
                 <li class='separator w5'></li>
                 <li class='keycap tex small' data-alt-keys='int' data-latex='\\int_0^\\infty'><span></span></li>
                 <li class='keycap tex' data-latex='\\forall' data-alt-keys='logic' ></li>
@@ -360,10 +351,7 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys='(' data-latex='\\left('></li>
                 <li class='keycap tex' data-alt-keys=')' data-latex='\\right)'></li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-alt-keys='0'>0</li>
-                <li class='keycap tex' data-alt-keys='.'>.</li>
-                <li class='keycap tex' data-alt-keys='='>=</li>
-                <li class='keycap tex' data-key='+' data-alt-keys='+'>+</li>
+                <row name='numpad-4'/>
                 <li class='separator w5'></li>
                 <arrows/>
             </ul>
@@ -372,31 +360,19 @@ const LAYERS = {
     'lower-roman': `
         <div class='rows'>
             <ul>
-                <li class='keycap if-wide' data-alt-keys='7'>7</li>
-                <li class='keycap if-wide' data-alt-keys='8'>8</li>
-                <li class='keycap if-wide' data-alt-keys='9'>9</li>
-                <li class='keycap tex if-wide' data-alt-keys='/' data-insert='\\frac{#0}{#?}'>&divide;</li>
+                <row name='numpad-1' class='if-wide'/>
                 <row name='lower-1' shift-layer='upper-roman'/>
             </ul>
             <ul>
-                <li class='keycap if-wide' data-alt-keys='4'>4</li>
-                <li class='keycap if-wide' data-alt-keys='5'>5</li>
-                <li class='keycap if-wide' data-alt-keys='6'>6</li>
-                <li class='keycap if-wide' data-alt-keys='*' data-insert='\\times '>&times;</li>
+                <row name='numpad-2' class='if-wide'/>
                 <row name='lower-2'  shift-layer='upper-roman''/>
             </ul>
             <ul>
-                <li class='keycap if-wide' data-alt-keys='1'>1</li>
-                <li class='keycap if-wide' data-alt-keys='2'>2</li>
-                <li class='keycap if-wide' data-alt-keys='3'>3</li>
-                <li class='keycap if-wide' data-key='-' data-alt-keys='-'>&#x2212;</li>
+                <row name='numpad-3' class='if-wide'/>
                 <row name='lower-3'  shift-layer='upper-roman''/>
             </ul>
             <ul>
-                <li class='keycap if-wide' data-alt-keys='0'>0</li>
-                <li class='keycap if-wide' data-alt-keys='.'>.</li>
-                <li class='keycap if-wide' data-alt-keys='='>=</li>
-                <li class='keycap if-wide' data-key='+'>+</li>
+                <row name='numpad-4' class='if-wide'/>
                 <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols'>&infin;≠</li>
                 <li class='keycap' data-alt-keys=','>,</li>
                 <li class='keycap w50' data-key=' ' data-alt-keys='space'>&nbsp;</li>
@@ -406,31 +382,19 @@ const LAYERS = {
     'upper-roman': `
         <div class='rows'>
             <ul>
-                <li class='keycap if-wide' data-alt-keys='7'>7</li>
-                <li class='keycap if-wide' data-alt-keys='8'>8</li>
-                <li class='keycap if-wide' data-alt-keys='9'>9</li>
-                <li class='keycap tex if-wide' data-alt-keys='/' data-insert='\\frac{#0}{#?}'>&divide;</li>
+                <row name='numpad-1' class='if-wide'/>
                 <row name='upper-1'  shift-layer='lower-roman'/>
             </ul>
             <ul>
-                <li class='keycap if-wide' data-alt-keys='4'>4</li>
-                <li class='keycap if-wide' data-alt-keys='5'>5</li>
-                <li class='keycap if-wide' data-alt-keys='6'>6</li>
-                <li class='keycap if-wide' data-alt-keys='*' data-insert='\\times '>&times;</li>
+                <row name='numpad-2' class='if-wide'/>
                 <row name='upper-2' shift-layer='lower-roman'/>
             </ul>
             <ul>
-                <li class='keycap if-wide' data-alt-keys='1'>1</li>
-                <li class='keycap if-wide' data-alt-keys='2'>2</li>
-                <li class='keycap if-wide' data-alt-keys='3'>3</li>
-                <li class='keycap if-wide' data-key='-' data-alt-keys='-'>&#x2212;</li>
+                <row name='numpad-3' class='if-wide'/>
                 <row name='upper-3' shift-layer='lower-roman'/>
             </ul>
             <ul>
-                <li class='keycap if-wide' data-alt-keys='0'>0</li>
-                <li class='keycap if-wide' data-alt-keys='.'>.</li>
-                <li class='keycap if-wide' data-alt-keys='='>=</li>
-                <li class='keycap if-wide' data-key='+'>+</li>
+                <row name='numpad-4' class='if-wide'/>
                 <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols'>&infin;≠</li>
                 <li class='keycap' data-alt-keys='.'>;</li>
                 <li class='keycap w50' data-key=' '>&nbsp;</li>
@@ -440,10 +404,7 @@ const LAYERS = {
     'symbols': `
         <div class='rows'>
             <ul>
-                <li class='keycap if-wide' data-alt-keys='7'>7</li>
-                <li class='keycap if-wide' data-alt-keys='8'>8</li>
-                <li class='keycap if-wide' data-alt-keys='9'>9</li>
-                <li class='keycap tex if-wide' data-insert='\\frac{#0}{#?}'>&divide;</li>
+                <row name='numpad-1' class='if-wide'/>
                 <li class='keycap tex' data-alt-keys='(' data-insert='\\lbrace '>{</li>
                 <li class='keycap tex' data-alt-keys=')' data-insert='\\rbrace '>}</li>
                 <li class='separator w5'></li>
@@ -457,10 +418,7 @@ const LAYERS = {
                     
             </ul>
             <ul>
-                <li class='keycap if-wide' data-alt-keys='4'>4</li>
-                <li class='keycap if-wide' data-alt-keys='5'>5</li>
-                <li class='keycap if-wide' data-alt-keys='6'>6</li>
-                <li class='keycap if-wide' data-alt-keys='*' data-insert='\\times '>&times;</li>
+                <row name='numpad-2' class='if-wide'/>
                 <li class='keycap tex' data-alt-keys='(' data-insert='\\lbrack '>[</li>
                 <li class='keycap tex' data-alt-keys=')' data-insert='\\rbrack '>]</li>
                 <li class='separator w5'></li>
@@ -474,10 +432,7 @@ const LAYERS = {
 
             </ul>
             <ul>
-                <li class='keycap if-wide data-alt-keys='1'>1</li>
-                <li class='keycap if-wide' data-alt-keys='2'>2</li>
-                <li class='keycap if-wide' data-alt-keys='3'>3</li>
-                <li class='keycap if-wide' data-alt-keys='-' data-key='-'>&#x2212;</li>
+                <row name='numpad-3' class='if-wide'/>
                 <li class='keycap tex' data-alt-keys='(' data-insert='\\langle '>&#x27e8;</li>
                 <li class='keycap tex' data-alt-keys=')' data-insert='\\rangle '>&#x27e9;</li>
                 <li class='separator w5'></li>
@@ -495,10 +450,7 @@ const LAYERS = {
                 >&#x232b;</li>
             </ul>
             <ul>
-                <li class='keycap if-wide' data-alt-keys='0' >0</li>
-                <li class='keycap if-wide' data-alt-keys='.' >.</li>
-                <li class='keycap if-wide' data-alt-keys='=' >=</li>
-                <li class='keycap if-wide' data-alt-keys='+'  data-key='+'>+</li>
+                <row name='numpad-4' class='if-wide'/>
                 <li class='layer-switch font-glyph modifier bottom left' data-layer='lower-roman'>abc</li>
                 <li class='keycap tex' data-insert='\\cdot '>&#x22c5;<aside>centered dot</aside></li>
                 <li class='keycap tex' data-insert='\\colon '>:<aside>colon</aside></li>
@@ -910,7 +862,11 @@ function expandLayerMarkup(mf, layer) {
                 'lower-3': '^zxcvbnm~',
                 'upper-1': 'QWERTYUIOP',
                 'upper-2': ' ASDFGHJKL ',
-                'upper-3': '^ZXCVBNM~'
+                'upper-3': '^ZXCVBNM~',
+                'numpad-1': '789/',
+                'numpad-2': '456*',
+                'numpad-3': '123-',
+                'numpad-4': '0.=+',
         },
         'azerty': {
                 'lower-1': 'azertyuiop',
@@ -978,14 +934,18 @@ function expandLayerMarkup(mf, layer) {
         }
 
 
-        if (!layout[attributes['name']]) {
-            console.log('Unknown roman keyboard layout: ' + attributes['name']);
+        let keys = layout[attributes['name']];
+        if (!keys) keys = ROWS['qwerty'][attributes['name']];
+        if (!keys) {
+            console.log('Unknown roman keyboard row: ' + attributes['name']);
         } else {
-            for (const c of layout[attributes['name']]) {
+            for (const c of keys) {
+                let cls = attributes['class'] || '';
+                if (cls) cls = ' ' + cls;
                 if (c === '~') {
                     row += `<li class='action font-glyph bottom right `;
-                    row += layout[attributes['name']].length - 
-                        ((layout[attributes['name']].match(/ /g) || []).length / 2) === 10 ? 'w10' : 'w15';
+                    row += keys.length - 
+                        ((keys.match(/ /g) || []).length / 2) === 10 ? 'w10' : 'w15';
                     row += `' data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
                         data-shifted-command='"deleteAll"'
                         data-alt-keys='delete' data-command='"deletePreviousChar"'
@@ -998,9 +958,13 @@ function expandLayerMarkup(mf, layer) {
                     // Shift key
                     row += `<li class='shift modifier font-glyph bottom left w15 layer-switch' data-layer='` + 
                         attributes['shift-layer'] + `'>&#x21e7;</li>`;
+                } else if (c === '/') {
+                    row += "<li class='keycap" + cls + "' data-alt-keys='/' data-insert='\\frac{#0}{#?}'>&divide;</li>";
+                } else if (c === '*') {
+                    row += "<li class='keycap" + cls + "' data-alt-keys='*' data-insert='\\times '>&times;</li>";
+                } else if (c === '-') {
+                    row += "<li class='keycap" + cls + "' data-alt-keys='*' data-key='-' data-alt-keys='-'>&#x2212;</li>";
                 } else {
-                    let cls = attributes['class'] || '';
-                    if (cls) cls = ' ' + cls;
                     row += "<li class='keycap" + cls + "' data-alt-keys='" + c + "'>" + c + "</li>"
                 }
             }
