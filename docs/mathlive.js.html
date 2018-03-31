@@ -125,7 +125,7 @@ function toMarkup(text, mathstyle, format, macros) {
     //    a tree of high-level MathAtom, e.g. 'genfrac'.
     //
 
-    const mathlist = ParserModule.parseTokens(tokens, 'math', null, Definitions.MACROS);
+    const mathlist = ParserModule.parseTokens(tokens, 'math', null, macros);
 
     if (format === 'mathlist') return mathlist;
 
