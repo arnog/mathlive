@@ -148,8 +148,7 @@ function getString(atom) {
         return atom.latex.trim();
     }
     if (atom.type === 'leftright') {
-        if (atom.leftDelim) return atom.leftDelim;
-        if (atom.rightDelim) return atom.rightDelim;
+        return '';
     }
     if (typeof atom.body === 'string') {
         return atom.body;

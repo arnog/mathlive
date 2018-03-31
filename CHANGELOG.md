@@ -1,3 +1,98 @@
+
+
+## 0.21 (March 30, 2018)
+### Major New Features
+- Basic support for Latex macros. Macros can be defined with `MathField.config({macros:'...')` 
+- Display alternate keys when a key on the virtual
+keyboard is held down.
+- Support for AZERTY, QWERTZ, Dvorak and Colemak virtual keyboards. Can be setup with `MathField.config({virtualKeyboardLayout:'...')`. Also, shift clicking on the keyboard icon toggles between layouts.
+
+### Other New Features
+- Toggle the virtual keyboard layer when the shift
+key is pressed
+- New `onVirtualKeyboardToogle` handler will get called when the visibility of the virtual keyboard changes. Useful to scroll into view important content that might be obscured by the keyboard.
+- Some common functions added as inline shortcuts:
+`limsup`, `liminf`, `argmin`, `argmax`, `bessel`, `mean`, `median`, `fft`.
+- Added `\rd` command (synonym with `\differentialD` and used by Proof Wiki)
+- Added a format option (`latex-expanded`) to `MathField.text()` and `MathField.selectedText()` to return Latex with macros expanded.
+- Removed restrictions on charset in `text`
+- Support shift + arrows to extend the selection with the virtual keyboard
+
+
+### Bug Fixes
+- More accurate operator precedence. Follow the [MathML](www.w3.org/TR/MathML3/appendixc.html) recommendation, except for arrows that are given a way too high priority in MathML.
+- Correctly output to Latex the `\unicode` command
+- When undoing, correctly restore the selection
+- Improved behavior when inserting superscript and
+subscript on a selected item
+- Fixed handling of unbalanced `\left`...`\right` sequences
+- Correctly output the minus sign to Latex (as U+002D not as U+2212)
+- Fixed some cases where the layout would shift by a couple of pixels as you navigated into the expression
+
+### Code Maintenance and Performance
+- Use `.test()` instead of `.match()` whenever possible
+- Eliminated `.value` and `.children` in Math Atoms. It's only `.body` now.
+- Avoid unnecessary rendering while tracking the pointer
+- Refactored the Popover code into `Popover.js`
+- Moved some content from `Definitions.js` and into `Popover.js`
+
+
+## 0.20 (March 24, 2018)
+### Major New Features
+- Virtual keyboards with multi-touch support
+- BREAKING CHANGE: the command bar is no longer supported. Use virtual keyboards instead.
+
+### Other New Features
+- Added support for wide layouts to virtual keyboard. If space is available, up to four more columns of keys can be displayed.
+- Added Copy button to virtual keyboard
+- Allow 'space' in command mode
+- MASTON: improved parsing of numbers
+- Handle Unicode pseudo-superscript characters as exponents
+
+## 0.19 (March 19, 2018)
+### Majore New Features
+- MASTON: first implementation
+- Support selecting cells in arrays
+
+### Other New Features
+- MASTON: handle complex numbers and modulo
+- Added option for styling of keyboard glyph
+- Improved output to Latex for arrays
+- Additional trig and long functions (`\lb`, `\arsinh`, `\arcosh`, `\artanh`, `\arcsech`, `\arccsh`, `\arcsec`, `\arccsc`)
+- MathML: more robust handling of complex `<mo>`
+- MathML: improved handling of fences
+- Improved Latex output
+
+### Bug Fixes
+- Correctly handle latex output for the `\char` command
+- Correctly handle invalid Unicode code points in the `\char` command
+- Correctly output MathML for extended Unicode characters and `\char` command
+- Correctly handle selection in sparse arrays
+- Correct spacing issue of selected items
+- Fixed #17: correctly extend the selection when the anchor is at the end of the selection
+- The caret would not blink in empty supsub
+- The last character of the selection would not be copied on the clipboard
+- MathML: don't insert `&invisibleTimes;` for factorial, but *do* insert it before a fence.
+- Going up from a numerator longer than the denominator could hang.
+- MathML and Latex output: better handling of `\Big` (etc...) delimiters
+- MathML: do not render `\text` as `<mi>`
+- Latex output: handle the `\math...` (`\mathop`, `\mathbin`...) family of functions
+- Properly parse custom operators
+- Commands with multiple keyboard shortcuts would not display correctly in the Popover panel
+
+
+### Code Maintenance and Performance
+- Reduce the amount of markup generated, avoid generating markup for empty spans.
+- Updated fonts from KaTeX
+
+
+## 0.18 (March 4, 2018)
+### Bug Fixes
+- Fixed issue where `\underset` annotation was not selectable
+### Code Maintenance and Performance
+- Reverted back to WebPack 3
+- Simplified CSS and streamlined markup for `vlist` spans.
+
 ## 0.0.17 (February 27, 2018)
 ### New Features
 - Improved accessibility support (major contribution from Neil Soiffer)

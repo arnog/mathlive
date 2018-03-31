@@ -1170,7 +1170,7 @@ MathField.prototype._onCopy = function() {
  * Return a textual representation of the mathfield.
  * @param {string} [format='latex']. One of 
  *    * `'latex'`
- *    * `'expandedLatex'` : all macros are recursively expanded to their definition
+ *    * `'latex-expanded'` : all macros are recursively expanded to their definition
  *    * `'spoken'`
  *    * `'mathML'`
  * or `'mathML'`.
@@ -1180,8 +1180,8 @@ MathField.prototype._onCopy = function() {
 MathField.prototype.text = function(format) {
     format = format || 'latex';
     let result = '';
-    if (format === 'latex' || format === 'expandedLatex') {
-        result = this.mathlist.root.toLatex(format === 'expandedLatex');
+    if (format === 'latex' || format === 'latex-expanded') {
+        result = this.mathlist.root.toLatex(format === 'expanded');
     } else if (format === 'mathML') {
             result = this.mathlist.root.toMathML(this.config);
     } else if (format === 'spoken') {
@@ -1196,7 +1196,7 @@ MathField.prototype.text = function(format) {
  * Return a textual representation of the selection in the mathfield.
  * @param {string} [format='latex']. One of 
  *    * `'latex'`
- *    * `'expandedLatex'` : all macros are recursively expanded to their definition
+ *    * `'latex-expanded'` : all macros are recursively expanded to their definition
  *    * `'spoken'`
  *    * `'mathML'`
  * @return {string}
@@ -1207,10 +1207,10 @@ MathField.prototype.selectedText = function(format) {
     let result = '';
     const selection = this.mathlist.extractContents();
     if (selection) {
-        if (format === 'latex' || format === 'expandedLatex') {
+        if (format === 'latex' || format === 'latex-expanded') {
             
             for (const atom of selection) {
-                result += atom.toLatex(format === 'expandedLatex');
+                result += atom.toLatex(format === 'latex-expanded');
             }
 
         } else if (format === 'mathML') {
@@ -1399,7 +1399,8 @@ MathField.prototype.pasteFromClipboard_ = function() {
 MathField.prototype.insert_ = 
 MathField.prototype.insert = function(s, options) {
     if (typeof s === 'string' &amp;&amp; s.length > 0) {
-        if (options &amp;&amp; options.focus) this.focus();
+        options = options || {};
+        if (options.focus) this.focus();
         this.undoManager.snapshot();
         options.macros = this.config.macros;
         this.mathlist.insert(s, options);

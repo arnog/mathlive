@@ -1,12 +1,17 @@
 # The MASTON Format
 
-The **Math Abstract Syntax Tree Object Notation** is a lightweight data interchange format for mathematical notation.
+The **Math Abstract Syntax Tree Object Notation** is a lightweight data 
+interchange format for mathematical notation.
 
 It is human-readable, while being easy for computers to generate and parse.
 
-It is built on the JSON [1] format. Its focus is on interoperability between software programs to facilitate the exchange of mathematical data, as well as the building of complex software through software components communicating with a common format.
+It is built on the JSON [1] format. Its focus is on interoperability between 
+software programs to facilitate the exchange of mathematical data, as well as 
+the building of complex software through software components communicating with 
+a common format.
 
-It is not suitable for a visual representation of arbitrary mathematical notations, and as such is not a replacement for LaTeX or MathML.
+It is not suitable for a visual representation of arbitrary mathematical 
+notations, and as such is not a replacement for LaTeX or MathML.
 
 ## Examples
 
@@ -37,8 +42,10 @@ A MASTON expression is encoded as a JSON object. The root element is an &langle;
 ### Native Numbers
 
 A native number is encoded following the JSON grammar, with two extensions:
-* support for arbitrary precision numbers. The number of digits included may be more than supported by consuming software. The software can handle this situation by either reading only as many digits as can be supported internally or by treating it as an error.
-* support for explicit fractions. These numbers can be used to represent exact fractional quantities.
+* support for arbitrary precision numbers. The number of digits included may be
+ more than supported by consuming software. The software can handle this 
+ situation by either reading only as many digits as can be supported internally 
+ or by treating it as an error.
 * support for `NaN` and `infinity`
 
 &langle;native-number&rangle; := `'"NaN"'` | &langle;native-infinity&rangle; | [`'-'`] &langle;native-int&rangle; [ &langle;native-frac&rangle;] [ &langle;native-exp&rangle; ]
@@ -51,14 +58,12 @@ A native number is encoded following the JSON grammar, with two extensions:
 
 &langle;native-exp&rangle; := [`'e'` | `'E'`] [`'+'` | `'-'`] (`'0'` - `'9'` )*
 
-&langle;native-fraction&rangle; := [`'+'` | `'-'`] (`'0'` - `'9'`)* `'/'` (`'0'` - `'9'`)*
-
 ### Native Strings
 Native strings are a sequence of Unicode characters.
 
 As per JSON, any Unicode character may be escaped using a `\u` escape sequence.
 
-Compliant MATSON producing software should not generate character entities in strings. However, when consuming a MATSON format, the following character entities may be recognize in a string:
+Compliant MATSON producing software should not generate character entities in strings. However, when consuming a MATSON format, the following character entities may be recognized in a string:
 
  Entity             | Value   | Unicode   
  -------------      |:-------|----------:
@@ -77,9 +82,11 @@ All elements may have the following keys:
 * `class`: A CSS class to be associated with a representation of this element
 * `id`: A CSS id to be associated with a representation of this element
 * `style`: A CSS style string
+* `wikidata` 
 
 ### Key order
-The order of the keys in an element is not significant. That is, all these expressions are equivalent:
+The order of the keys in an element is not significant. That is, all these 
+expressions are equivalent:
 
 ```JSON
    {"lhs":1, "op":"+", "rhs":2}
@@ -104,7 +111,8 @@ The order of the keys in an element is not significant. That is, all these expre
 A native number or an object with the following key
 * `num`: &langle;native-number&rangle; or &langle;native-string&rangle;
 
-**Note:** When only the `num` key is present a shortcut may be used by replacing the element with the number. That is, both representations are equivalent:
+**Note:** When only the `num` key is present a shortcut may be used by 
+replacing the element with the number. That is, both representations are equivalent:
 ```JSON
    {"lhs":{"num":1}, "op":"+", "rhs":{"num":2}}
    {"lhs":1, "op":"+", "rhs":2}
@@ -130,8 +138,8 @@ The following values are recommended:
  Vector             | &#9676;&#x20d7; | U+20d7    |
  Bar                | &#9676;&#x00af; | U+00af    | Mean, complex conjugate, set complement.
  Hat                | &#9676;&#x005e; | U+005e    | Unit vector, estimator
- Dot                | &#9676;&#x02d9; | U+02d9 | Derivative with respect to time
- Double dot         | &#9676;&#x00a8; | U+00a8 | Second derivative with respect to time.
+ Dot                | &#9676;&#x02d9; | U+02d9    | Derivative with respect to time
+ Double dot         | &#9676;&#x00a8; | U+00a8    | Second derivative with respect to time.
  Acute              | &#9676;&#x00b4; | U+00b4 | 
  Grave              | &#9676;&#x0060; | U+0060 | 
  Tilde              | &#9676;&#x007e; | U+007e | 
