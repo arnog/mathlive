@@ -894,7 +894,7 @@ function expandLayerMarkup(mf, layer) {
                 'lower-2': 'aoeuidhtns',
                 'lower-3': 'qjkxbmwvz~',
                 'upper-1': '^  PYFGCRL ',
-                'upper-2': ' ASDFGHJKL',
+                'upper-2': 'AOEUIDHTNS',
                 'upper-3': 'QJKXBMWVZ~'
         },
         'colemak': {
