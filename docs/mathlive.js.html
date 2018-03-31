@@ -112,7 +112,7 @@ define([
  * @return {string}
  * @function module:mathlive#latexToMarkup
  */
-function toMarkup(text, mathstyle, format) {
+function toMarkup(text, mathstyle, format, macros) {
     mathstyle = mathstyle || 'displaystyle'
     //
     // 1. Tokenize the text

@@ -794,7 +794,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
                         lhs = m[1].substr(1, m[1].length - 2);
                     }
                     lhs = ParserModule.parseTokens(Lexer.tokenize(lhs),
-                        'math', null, options);
+                        'math', null, options.macros);
                     result.lhs = parse(lhs);
 
                     if (m[2].length === 1) {
@@ -803,7 +803,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
                         rhs = m[2].substr(1, m[2].length - 2);
                     }
                     rhs = ParserModule.parseTokens(Lexer.tokenize(rhs),
-                        'math', null, options);
+                        'math', null, options.macros);
 
                     result.op = '/';
                     result.rhs = parse(rhs);                    

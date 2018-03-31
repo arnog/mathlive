@@ -659,7 +659,8 @@ function latexToMarkup(latex, arg, mf) {
     // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
     latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
     
-    const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', arg, Definitions.MACROS);
+    const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', 
+        arg, mf.config.macros);
     const spans = MathAtom.decompose({
             mathstyle: 'displaystyle',
             macros: mf.config.macros

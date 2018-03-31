@@ -341,7 +341,7 @@ function getNote(symbol) {
 
 
 function latexToMarkup(latex, mf) {
-    const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', null, Definitions.MACROS);
+    const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', null, mf.config.macros);
     const spans = MathAtom.decompose(
         {
             mathstyle: 'displaystyle', 

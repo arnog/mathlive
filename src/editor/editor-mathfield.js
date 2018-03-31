@@ -1355,14 +1355,14 @@ MathField.prototype.complete_ = function() {
         }
         if (match) {
             const mathlist = ParserModule.parseTokens(
-                    Lexer.tokenize(match.latexName), mode, null, Definitions.MACROS);
+                    Lexer.tokenize(match.latexName), mode, null, this.config.macros);
 
             this.mathlist.spliceCommandStringAroundInsertionPoint(mathlist);
         } else {
             // This wasn't a simple function or symbol.
             // Interpret the input as LaTeX code
             const mathlist = ParserModule.parseTokens(
-                    Lexer.tokenize(command), mode, null, Definitions.MACROS);
+                    Lexer.tokenize(command), mode, null, this.config.macros);
             if (mathlist) {
                 this.mathlist.spliceCommandStringAroundInsertionPoint(mathlist);
             } else {            
