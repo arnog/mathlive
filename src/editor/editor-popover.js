@@ -340,9 +340,14 @@ function getNote(symbol) {
 
 
 
-function latexToMarkup(latex) {
+function latexToMarkup(latex, mf) {
     const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', null, Definitions.MACROS);
-    const spans = MathAtom.decompose({mathstyle: 'displaystyle'}, parse);
+    const spans = MathAtom.decompose(
+        {
+            mathstyle: 'displaystyle', 
+            macros: mf.config.macros
+        }, 
+        parse);
     
     const base = Span.makeSpan(spans, 'ML__base');
 
@@ -363,7 +368,7 @@ function showPopoverWithLatex(mf, latex, displayArrows) {
     }
 
     const command = latex;
-    const command_markup = latexToMarkup(SAMPLES[command] || latex);
+    const command_markup = latexToMarkup(SAMPLES[command] || latex, mf);
     const command_note = getNote(command);
     const command_shortcuts = Shortcuts.stringify(
         Shortcuts.getShortcutsForCommand(command)) || '';

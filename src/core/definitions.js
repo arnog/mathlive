@@ -404,11 +404,12 @@ function getEnvironmentInfo(name) {
 /**
  * @param {string} symbol    A command (e.g. '\alpha') or a character (e.g. 'a')
  * @param {string} parseMode One of 'math', 'text', 'string', 'color', 'dimen', etc...
+ * @param {object} macros A macros dictionary
  * @return {any} An info structure about the symbol, or null
  * @memberof module:definitions
  * @private
  */
-function getInfo(symbol, parseMode) {
+function getInfo(symbol, parseMode, macros) {
     if (symbol.length === 0) return null;
 
     let info = null;
@@ -434,8 +435,8 @@ function getInfo(symbol, parseMode) {
         if (!info) {
             // Maybe it's a macro
             const command = symbol.slice(1);
-            if (MACROS[command]) {
-                let def = MACROS[command];
+            if (macros[command]) {
+                let def = macros[command];
                 if (typeof def === 'object') {
                     def = def.def;
                 }
@@ -3092,7 +3093,7 @@ function getCanonicalName(latex) {
     let result = CANONICAL_NAMES[latex];
     if (!result) {
         if (latex.charAt(0) === '\\') {
-            const info = getInfo(latex, 'math');
+            const info = getInfo(latex, 'math', {});
             if (info && info.type !== 'error') {
                 result = info.value || latex.slice(1);
             } else {

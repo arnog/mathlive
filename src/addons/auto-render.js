@@ -124,13 +124,13 @@ function splitWithDelimiters(text, delimiters) {
 }
 
 
-function createAccessibleNode(latex, latexToMathML) {
+function createAccessibleNode(latex, latexToMathML, options) {
     // Create a node for AT (Assistive Technology, e.g. screen reader) to speak, etc.
     // This node has a style that makes it be invisible to display but is seen by AT
     const span = document.createElement('span');
     try {
         span.innerHTML = "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
-                            latexToMathML(latex) +
+                            latexToMathML(latex, options) +
                          "</math>";   
     } catch (e) {
         console.error( 'Could not convert\'' + latex + '\' to accessible format with ', e );
@@ -156,7 +156,7 @@ function createMarkupNode(text, options, mathstyle, latexToMarkup, createNodeOnF
     }
 
     try {
-        span.innerHTML = latexToMarkup(text, mathstyle || 'displaystyle');
+        span.innerHTML = latexToMarkup(text, mathstyle || 'displaystyle', options.macros);
      } catch (e) {
         console.error( 'Could not parse\'' + text + '\' with ', e );
         if (createNodeOnFailure) {
@@ -178,7 +178,7 @@ function createAccessibleMarkupPair(text, mathstyle, options, latexToMarkup, lat
     }
 
     const fragment = document.createDocumentFragment();
-    fragment.appendChild(createAccessibleNode(text, latexToMathML));
+    fragment.appendChild(createAccessibleNode(text, latexToMathML, options));
     fragment.appendChild(markupNode);
     return fragment;    
 }
@@ -274,7 +274,8 @@ function scanElement(elem, options, latexToMarkup, latexToMathML) {
                     }
                 }
 
-                const span = createAccessibleMarkupPair(childNode.textContent, style, options, latexToMarkup, latexToMathML, true)
+                const span = createAccessibleMarkupPair(childNode.textContent, 
+                    style, options, latexToMarkup, latexToMathML, true)
                 childNode.parentNode.replaceChild(span, childNode);
             } else {
                 // Element node

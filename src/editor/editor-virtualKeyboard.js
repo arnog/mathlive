@@ -655,12 +655,15 @@ const LAYERS = {
 
 }
 
-function latexToMarkup(latex, arg) {
+function latexToMarkup(latex, arg, mf) {
     // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
     latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
     
     const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', arg, Definitions.MACROS);
-    const spans = MathAtom.decompose({mathstyle: 'displaystyle'}, parse);
+    const spans = MathAtom.decompose({
+            mathstyle: 'displaystyle',
+            macros: mf.config.macros
+        }, parse);
     
     const base = Span.makeSpan(spans, 'ML__base');
 
@@ -674,7 +677,7 @@ function latexToMarkup(latex, arg) {
     return wrapper.toMarkup();
 }
 
-function makeFunctionsLayer(functions) {
+function makeFunctionsLayer(mf, functions) {
     let result = '';
 
     for (const f of functions) {
@@ -692,7 +695,8 @@ function makeFunctionsLayer(functions) {
                 const command = f[i];
                 const command_markup =  latexToMarkup(
                     Popover.SAMPLES[command] || command,
-                    {'?': '{\\color{#550000}{\\tiny x}}'}            // \\char"2B1A
+                    {'?': '{\\color{#550000}{\\tiny x}}'},            // \\char"2B1A
+                    mf
                 );
                 const command_note = Definitions.getNote(command);
                 // const command_shortcuts = Shortcuts.stringify(
@@ -792,10 +796,10 @@ function makeKeycap(mf, elList, chainedCommand) {
         // Display
         if (el.getAttribute('data-latex')) {
             el.innerHTML = latexToMarkup(el.getAttribute('data-latex').replace(/&quot;/g, '"'),
-                    {'?':'{\\color{#555}{\\tiny \\char"2B1A}}'});
+                    {'?':'{\\color{#555}{\\tiny \\char"2B1A}}'}, mf);
         } else if (el.innerHTML === '' && el.getAttribute('data-insert')) {
             el.innerHTML = latexToMarkup(el.getAttribute('data-insert').replace(/&quot;/g, '"'), 
-                    {'?':'{\\color{#555}{\\tiny \\char"2B1A}}'});
+                    {'?':'{\\color{#555}{\\tiny \\char"2B1A}}'}, mf);
         }
         if (el.getAttribute('data-aside')) {
             el.innerHTML += '<aside>' + el.getAttribute('data-aside').replace(/&quot;/g, '"') + '</aside>';
@@ -1041,7 +1045,13 @@ function make(mf, theme) {
     markup += '<div class="alternate-keys"></div>';
 
     // Auto-populate the ALT_KEYS table
+    ALT_KEYS = {};
     ALT_KEYS = Object.assign({}, ALT_KEYS_BASE);
+    for (const key in ALT_KEYS) {
+        if (ALT_KEYS.hasOwnProperty(key)) {
+            ALT_KEYS[key] = ALT_KEYS[key].slice();
+        }
+    }
     const upperAlpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const lowerAlpha = 'abcdefghijklmnopqrstuvwxyz';
     const digits = '0123456789';

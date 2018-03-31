@@ -46,9 +46,9 @@ UndoManager.prototype.canRedo = function() {
  * @instance
  * @private
  */
-UndoManager.prototype.undo = function() {
+UndoManager.prototype.undo = function(options) {
     if (this.canUndo()) {
-        this.restore(this.stack[this.index]);
+        this.restore(this.stack[this.index], options);
         this.index -= 1;
     }
 }
@@ -59,10 +59,10 @@ UndoManager.prototype.undo = function() {
  * @instance
  * @private
  */
-UndoManager.prototype.redo = function() {
+UndoManager.prototype.redo = function(options) {
     if (this.canRedo()) {
         this.index += 1;
-        this.restore(this.stack[this.index]);
+        this.restore(this.stack[this.index], options);
     }
 }
 
@@ -111,10 +111,13 @@ UndoManager.prototype.save = function () {
  * captured with save() or stored in the undo stack. 
  * This does not affect the undo stack.
 */
-UndoManager.prototype.restore = function (state) {
+UndoManager.prototype.restore = function (state, options) {
     // Restore the content
-    this.mathlist.selectAll_();
-    this.mathlist.insert(state.latex);
+    this.mathlist.insert(state.latex, Object.assign({
+            insertionMode: 'replaceAll',
+            selectionMode: 'after', // Doesn't matter, we'll set the selection after
+            format: 'latex'
+        }, options));
     
     // Restore the selection
     this.mathlist.setPath(state.selection)

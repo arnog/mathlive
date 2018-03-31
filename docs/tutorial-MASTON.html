@@ -64,10 +64,15 @@ writeCookie('symbol-access', 'private')
 
 <article>
     <h1 id="the-maston-format">The MASTON Format</h1>
-<p>The <strong>Math Abstract Syntax Tree Object Notation</strong> is a lightweight data interchange format for mathematical notation.</p>
+<p>The <strong>Math Abstract Syntax Tree Object Notation</strong> is a lightweight data 
+interchange format for mathematical notation.</p>
 <p>It is human-readable, while being easy for computers to generate and parse.</p>
-<p>It is built on the JSON [1] format. Its focus is on interoperability between software programs to facilitate the exchange of mathematical data, as well as the building of complex software through software components communicating with a common format.</p>
-<p>It is not suitable for a visual representation of arbitrary mathematical notations, and as such is not a replacement for LaTeX or MathML.</p>
+<p>It is built on the JSON [1] format. Its focus is on interoperability between 
+software programs to facilitate the exchange of mathematical data, as well as 
+the building of complex software through software components communicating with 
+a common format.</p>
+<p>It is not suitable for a visual representation of arbitrary mathematical 
+notations, and as such is not a replacement for LaTeX or MathML.</p>
 <h2 id="examples">Examples</h2>
 <h3 id="euler-s-identity">Euler's Identity</h3>
 <p>In TeX</p>
@@ -78,8 +83,10 @@ writeCookie('symbol-access', 'private')
 <h3 id="native-numbers">Native Numbers</h3>
 <p>A native number is encoded following the JSON grammar, with two extensions:</p>
 <ul>
-<li>support for arbitrary precision numbers. The number of digits included may be more than supported by consuming software. The software can handle this situation by either reading only as many digits as can be supported internally or by treating it as an error.</li>
-<li>support for explicit fractions. These numbers can be used to represent exact fractional quantities.</li>
+<li>support for arbitrary precision numbers. The number of digits included may be
+more than supported by consuming software. The software can handle this 
+situation by either reading only as many digits as can be supported internally 
+or by treating it as an error.</li>
 <li>support for <code>NaN</code> and <code>infinity</code></li>
 </ul>
 <p>&langle;native-number&rangle; := <code>'&quot;NaN&quot;'</code> | &langle;native-infinity&rangle; | [<code>'-'</code>] &langle;native-int&rangle; [ &langle;native-frac&rangle;] [ &langle;native-exp&rangle; ]</p>
@@ -87,11 +94,10 @@ writeCookie('symbol-access', 'private')
 <p>&langle;native-int&rangle; := <code>'0'</code> | [ <code>'1'</code> - <code>'9'</code> ]*</p>
 <p>&langle;native-frac&rangle; := <code>'.'</code> (<code>'0'</code> - <code>'9'</code>)*</p>
 <p>&langle;native-exp&rangle; := [<code>'e'</code> | <code>'E'</code>] [<code>'+'</code> | <code>'-'</code>] (<code>'0'</code> - <code>'9'</code> )*</p>
-<p>&langle;native-fraction&rangle; := [<code>'+'</code> | <code>'-'</code>] (<code>'0'</code> - <code>'9'</code>)<em> <code>'/'</code> (<code>'0'</code> - <code>'9'</code>)</em></p>
 <h3 id="native-strings">Native Strings</h3>
 <p>Native strings are a sequence of Unicode characters.</p>
 <p>As per JSON, any Unicode character may be escaped using a <code>\u</code> escape sequence.</p>
-<p>Compliant MATSON producing software should not generate character entities in strings. However, when consuming a MATSON format, the following character entities may be recognize in a string:</p>
+<p>Compliant MATSON producing software should not generate character entities in strings. However, when consuming a MATSON format, the following character entities may be recognized in a string:</p>
 <table>
 <thead>
 <tr>
@@ -133,9 +139,11 @@ writeCookie('symbol-access', 'private')
 <li><code>class</code>: A CSS class to be associated with a representation of this element</li>
 <li><code>id</code>: A CSS id to be associated with a representation of this element</li>
 <li><code>style</code>: A CSS style string</li>
+<li><code>wikidata</code> </li>
 </ul>
 <h3 id="key-order">Key order</h3>
-<p>The order of the keys in an element is not significant. That is, all these expressions are equivalent:</p>
+<p>The order of the keys in an element is not significant. That is, all these 
+expressions are equivalent:</p>
 <pre class="prettyprint source lang-JSON"><code>   {&quot;lhs&quot;:1, &quot;op&quot;:&quot;+&quot;, &quot;rhs&quot;:2}
    {&quot;op&quot;:&quot;+&quot;, &quot;lhs&quot;:1, &quot;rhs&quot;:2}
    {&quot;rhs&quot;:2, &quot;op&quot;:&quot;+&quot;, &quot;lhs&quot;:1}</code></pre><h2 id="grammar">Grammar</h2>
@@ -153,7 +161,8 @@ writeCookie('symbol-access', 'private')
 <ul>
 <li><code>num</code>: &langle;native-number&rangle; or &langle;native-string&rangle;</li>
 </ul>
-<p><strong>Note:</strong> When only the <code>num</code> key is present a shortcut may be used by replacing the element with the number. That is, both representations are equivalent:</p>
+<p><strong>Note:</strong> When only the <code>num</code> key is present a shortcut may be used by 
+replacing the element with the number. That is, both representations are equivalent:</p>
 <pre class="prettyprint source lang-JSON"><code>   {&quot;lhs&quot;:{&quot;num&quot;:1}, &quot;op&quot;:&quot;+&quot;, &quot;rhs&quot;:{&quot;num&quot;:2}}
    {&quot;lhs&quot;:1, &quot;op&quot;:&quot;+&quot;, &quot;rhs&quot;:2}</code></pre><h3 id="-langle-complex-rangle-">&langle;complex&rangle;</h3>
 <ul>

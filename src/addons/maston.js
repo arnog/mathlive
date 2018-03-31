@@ -77,6 +77,10 @@ function getString(atom) {
         atom.latex !== '\\mathinner ') {
         return atom.latex.trim();
     }
+    if (atom.type === 'leftright') {
+        if (atom.leftDelim) return atom.leftDelim;
+        if (atom.rightDelim) return atom.rightDelim;
+    }
     if (typeof atom.body === 'string') {
         return atom.body;
     }
@@ -691,7 +695,7 @@ function parseExpression(expr) {
     expr.lhs = undefined;
     while (atom && (atom.type === 'delim' || opPrec(atom) >= expr.minPrec)) {
         const opName = parseDigraph(expr) || Definitions.getCanonicalName(atom.latex);
-        atom = expr.atoms[expr.index];  // parseDigraph may have avanced to the next token.
+        atom = expr.atoms[expr.index];  // parseDigraph may have advanced to the next token.
         const opPrecedence = opPrec(atom);
         expr.index += 1;    // advance to next token
         let rhs = parsePrimary(expr).ast;
@@ -757,7 +761,7 @@ function escapeText(s) {
  * 
  * @return {Object}
  */
-MathAtom.MathAtom.prototype.toAST = function() {
+MathAtom.MathAtom.prototype.toAST = function(options) {
     const MATH_VARIANTS = {
         'mathrm':   'normal',
         'mathbb': 'double-struck',
@@ -790,7 +794,7 @@ MathAtom.MathAtom.prototype.toAST = function() {
                         lhs = m[1].substr(1, m[1].length - 2);
                     }
                     lhs = ParserModule.parseTokens(Lexer.tokenize(lhs),
-                        'math', null, Definitions.MACROS);
+                        'math', null, options);
                     result.lhs = parse(lhs);
 
                     if (m[2].length === 1) {
@@ -799,7 +803,7 @@ MathAtom.MathAtom.prototype.toAST = function() {
                         rhs = m[2].substr(1, m[2].length - 2);
                     }
                     rhs = ParserModule.parseTokens(Lexer.tokenize(rhs),
-                        'math', null, Definitions.MACROS);
+                        'math', null, options);
 
                     result.op = '/';
                     result.rhs = parse(rhs);                    

@@ -164,7 +164,8 @@ Parser.prototype.hasInfixCommand = function() {
     const index = this.index;
     if (index < this.tokens.length && 
         this.tokens[index].type === 'command') {
-        const info = Definitions.getInfo('\\' + this.tokens[index].value, this.parseMode);
+        const info = Definitions.getInfo('\\' + this.tokens[index].value, 
+            this.parseMode, this.macros);
         return info && info.infix;
     }
     return false;
@@ -353,7 +354,8 @@ Parser.prototype.scanString = function() {
             // if it encounters any command when expecting a string.
             // We're a bit more lax.
             const token = this.get();
-            const info = Definitions.getInfo('\\' + token.value, this.parseMode);
+            const info = Definitions.getInfo('\\' + token.value, 
+                this.parseMode, this.macros);
             // If parseMode is 'math', info.type will never be 'textord'
             // Otherwise, info.type will never be 'mord'
             if (info && (info.type === 'mord' || info.type === 'textord') && info.value) {
@@ -777,7 +779,8 @@ Parser.prototype.scanImplicitGroup = function(done) {
         // it had when we encountered the infix. However, since all infix are
         // only defined in 'math' mode, we can use the 'math' constant 
         // for the parseMode
-        const info = Definitions.getInfo('\\' + infix.value, 'math');
+        const info = Definitions.getInfo('\\' + infix.value, 
+            'math', this.macros);
         if (info) {
             result =  [new MathAtom(
                 this.parseMode, info.type || 'mop', 
@@ -837,7 +840,7 @@ Parser.prototype.scanDelim = function() {
     } else if (token.type === 'literal') {
         delim = token.value;
     }
-    const info = Definitions.getInfo(delim, 'math');
+    const info = Definitions.getInfo(delim, 'math', this.macros);
     if (!info) return null;
 
     if (info.type === 'mopen' || info.type === 'mclose') {
@@ -1217,7 +1220,8 @@ Parser.prototype.scanToken = function() {
             result = this.scanMacro(token.value);
 
             if (!result) {
-                const info = Definitions.getInfo('\\' + token.value, this.parseMode);
+                const info = Definitions.getInfo('\\' + token.value, 
+                    this.parseMode, this.macros);
                 const args = [];
 
                 // Parse the arguments
@@ -1277,7 +1281,7 @@ Parser.prototype.scanToken = function() {
         }
 
     } else if (token.type === 'literal') {
-        const info = Definitions.getInfo(token.value, this.parseMode);
+        const info = Definitions.getInfo(token.value, this.parseMode, this.macros);
         if (info) {
             result = new MathAtom(this.parseMode,  info.type, 
                 info.value || token.value, info.fontFamily);

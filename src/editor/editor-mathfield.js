@@ -172,7 +172,11 @@ function MathField(element, config) {
     this.field = this.element.children[iChild].children[0];
     this.virtualKeyboardToggleDOMNode = this.element.children[iChild++].children[1];
     this._attachButtonHandlers(this.virtualKeyboardToggleDOMNode, 
-        {default: 'toggleVirtualKeyboard', alt: 'toggleVirtualKeyboardAlt'}
+        {
+            default: 'toggleVirtualKeyboard', 
+            alt: 'toggleVirtualKeyboardAlt',
+            shift: 'toggleVirtualKeyboardShift'
+        }
     );
     this.popover = this.element.children[iChild++];
     this.keystrokeCaption = this.element.children[iChild++];
@@ -666,7 +670,7 @@ MathField.prototype._announceChange = function(command, oldMathlist, atomsToSpea
         this.ariaLiveText.textContent = ariaLiveChangeHack + spokenText;
         this.accessibleNode.innerHTML = 
             '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
-                MathAtom.toMathML(this.mathlist.root) +
+                MathAtom.toMathML(this.mathlist.root, this.config) +
             '</math>';
 
         this.textarea.setAttribute('aria-label', 'after: ' + spokenText)
@@ -825,7 +829,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
     this._showKeystroke(keystroke);
 
     if (!this.perform(shortcut)) {
-        this.mathlist.insert(shortcut);
+        this.mathlist.insert(shortcut, {macros: this.config.macros});
         // Render the mathlist
         this._render();
 
@@ -865,7 +869,7 @@ MathField.prototype._onTypedText = function(text) {
         this.pasteInProgress = false;
         // This call was made in response to a paste event.
         // Interpret `text` as a LaTeX expression
-        this.mathlist.insert(text);
+        this.mathlist.insert(text, {macros: this.config.macros});
 
     } else {
         // Decompose the string into an array of graphemes. This is necessary
@@ -886,14 +890,14 @@ MathField.prototype._onTypedText = function(text) {
                 const suggestions = Definitions.suggest(command + c);
                 displayArrows = suggestions.length > 1;
                 if (suggestions.length === 0) {
-                    this.mathlist.insert(c);
+                    this.mathlist.insert(c, this.config);
                     if (/^\\[a-zA-Z\\*]+$/.test(command + c)) {
                         // This looks like a command name, but not a known one
                         this.mathlist.decorateCommandStringAroundInsertionPoint(true);
                     }
                     Popover.hidePopover(this);
                 } else {
-                    this.mathlist.insert(c);
+                    this.mathlist.insert(c, {macros: this.config.macros});
                     if (suggestions[0].match !== command + c) {
 
                         this.mathlist.insertSuggestion(suggestions[0].match, 
@@ -921,20 +925,22 @@ MathField.prototype._onTypedText = function(text) {
 
                     // To enable the substitution to be undoable, 
                     // insert the character before applying the substitution
-                    this.mathlist.insert(c);
+                    this.mathlist.insert(c, {macros: this.config.macros});
 
                     // Create a snapshot with the inserted character
                     this.undoManager.snapshot();
 
                     // Revert to before inserting the character
                     // (restore doesn't change the undo stack)
-                    this.undoManager.restore(savedState);
+                    this.undoManager.restore(savedState, this.config);
 
                     // Remove the atoms from the prefix string
                     this.mathlist.delete(-count - 1);
 
                     // Insert the substitute
-                    this.mathlist.insert(shortcut, {format: 'latex'});
+                    this.mathlist.insert(shortcut, {
+                        format: 'latex', 
+                        macros: this.config.macros});
                     this._announceChange("replacement");        
                 } 
                 
@@ -952,7 +958,7 @@ MathField.prototype._onTypedText = function(text) {
                         this.perform(selector);
                     } else {
                         this.undoManager.snapshot();
-                        this.mathlist.insert(c);
+                        this.mathlist.insert(c, {macros: this.config.macros});
                     }
                 }
             }
@@ -997,7 +1003,8 @@ MathField.prototype._render = function() {
     const spans = MathAtom.decompose(
         {
             mathstyle: 'displaystyle', 
-            generateID: true
+            generateID: true,
+            macros: this.config.macros
         }, this.mathlist.root.body);
 
 
@@ -1047,7 +1054,7 @@ MathField.prototype._render = function() {
     // Probably want to generate content on fly depending on what to speak
     this.accessibleNode.innerHTML = 
        "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
-           MathAtom.toMathML(this.mathlist.root) +
+           MathAtom.toMathML(this.mathlist.root, this.config) +
        "</math>";
     //this.ariaLiveText.textContent = "";
 
@@ -1106,9 +1113,10 @@ MathField.prototype.text = function(format) {
     if (format === 'latex' || format === 'expandedLatex') {
         result = this.mathlist.root.toLatex(format === 'expandedLatex');
     } else if (format === 'mathML') {
-            result = this.mathlist.root.toMathML();
+            result = this.mathlist.root.toMathML(this.config);
     } else if (format === 'spoken') {
-        result = MathAtom.toSpeakableText(this.mathlist.root, {markup:true});
+        const options = Object.assign({markup:true}, this.config);
+        result = MathAtom.toSpeakableText(this.mathlist.root, options);
     }
 
     return result;
@@ -1138,11 +1146,12 @@ MathField.prototype.selectedText = function(format) {
         } else if (format === 'mathML') {
             
             for (const atom of selection) {
-                result += atom.toMathML();
+                result += atom.toMathML(this.config);
             }
 
         } else if (format === 'spoken') {
-            result = MathAtom.toSpeakableText(selection, {markup:true})
+            const options = Object.assign({markup:true}, this.config);
+            result = MathAtom.toSpeakableText(selection, options)
         }
     }
 
@@ -1205,7 +1214,8 @@ MathField.prototype.latex = function(text) {
         this.mathlist.insert(text, {
             insertionMode: 'replaceAll',
             selectionMode: 'after',
-            format: 'latex'
+            format: 'latex',
+            macros: this.config.macros
         });
         this._render();
         return text;
@@ -1228,11 +1238,11 @@ MathField.prototype.el = function() {
 }
 
 MathField.prototype.undo_ = MathField.prototype.undo = function() {
-    this.undoManager.undo();
+    this.undoManager.undo(this.config);
 }
 
 MathField.prototype.redo_ = MathField.prototype.redo = function() {
-    this.undoManager.redo();
+    this.undoManager.redo(this.config);
 }
 
 
@@ -1267,7 +1277,7 @@ MathField.prototype.enterCommandMode_ = function() {
     }
 
     this.undoManager.snapshot();
-    this.mathlist.insert('\u0027');
+    this.mathlist.insert('\u0027', {macros: this.config.macros});
 }
 
 
@@ -1321,6 +1331,7 @@ MathField.prototype.insert = function(s, options) {
     if (typeof s === 'string' && s.length > 0) {
         if (options && options.focus) this.focus();
         this.undoManager.snapshot();
+        options.macros = this.config.macros;
         this.mathlist.insert(s, options);
     }
 }
@@ -1752,7 +1763,6 @@ MathField.prototype.switchKeyboardLayer_ = function(layer) {
         }
 
         this.showVirtualKeyboard_();
-        const layers = this.virtualKeyboard.getElementsByClassName('keyboard-layer');
 
         // If the alternate keys panel was visible, hide it
         this.hideAlternateKeys_();
@@ -1761,6 +1771,7 @@ MathField.prototype.switchKeyboardLayer_ = function(layer) {
         // restore our state before switching to a new layer.
         this.unshiftKeyboardLayer_();
 
+        const layers = this.virtualKeyboard.getElementsByClassName('keyboard-layer');
         // Search for the requested layer
         let found = false;
         for (let i = 0; i < layers.length; i++) {
@@ -1859,7 +1870,7 @@ MathField.prototype.insertAndUnshiftKeyboardLayer_ = function(c) {
     this.unshiftKeyboardLayer_();
 }
 
-/* Toggle the command bar, but switch to the alternate theme if available */
+/* Toggle the virtual keyboard, but switch to the alternate theme if available */
 MathField.prototype.toggleVirtualKeyboardAlt_ = function() {
     let hadAltTheme = false;
     if (this.virtualKeyboard) {
@@ -1869,6 +1880,29 @@ MathField.prototype.toggleVirtualKeyboardAlt_ = function() {
         this.virtualKeyboard = null;
     }
     this.showVirtualKeyboard_(hadAltTheme ? '' : 'material');
+}
+
+/* Toggle the virtual keyboard, but switch another keyboard layout */
+MathField.prototype.toggleVirtualKeyboardShift_ = function() {
+    this.config.virtualKeyboardLayout = {
+        'qwerty': 'azerty',
+        'azerty': 'qwertz',
+        'qwertz': 'dvorak',
+        'dvorak': 'colemak',
+        'colemak': 'qwerty'
+    }[this.config.virtualKeyboardLayout];
+
+    let layer = this.virtualKeyboard ? 
+        this.virtualKeyboard.querySelector('div.keyboard-layer.visible') : null;
+    layer = layer ? layer.id : '';
+
+    if (this.virtualKeyboard) {
+        this.virtualKeyboard.remove();
+        delete this.virtualKeyboard;
+        this.virtualKeyboard = null;
+    }
+    this.showVirtualKeyboard_();
+    if (layer) this.switchKeyboardLayer_(layer);
 }
 
 MathField.prototype.showVirtualKeyboard_ = function(theme) {
@@ -1984,8 +2018,11 @@ MathField.prototype.config = function(conf) {
     this.config = Object.assign({
         overrideDefaultInlineShortcuts: false,
         virtualKeyboard: '',
+        virtualKeyboardLayout: 'qwerty',
         namespace: ''
     }, conf);
+
+    this.config.macros = Object.assign({}, Definitions.MACROS, this.config.macros);
 
     // Validate the namespace (used for `data-` attributes)
     if (!/^[a-z]*[-]?$/.test(this.config.namespace)) {

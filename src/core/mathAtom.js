@@ -1977,7 +1977,7 @@ function decompose(context, atoms) {
         // We can be passed either a Context object, or a simple object
         // with some properties set.
         // If those properties are not set, use default values..
-        if (typeof context.generateID === 'undefined') context.generateID = false;
+        if (context.generateID === undefined) context.generateID = false;
         context.size = context.size || 'size5'; // medium size
         context.mathstyle = context.mathstyle || 'displaystyle';
 

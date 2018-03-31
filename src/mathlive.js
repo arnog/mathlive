@@ -283,16 +283,18 @@ function toSpeakableText() {
  * @return {string}
  * @function module:mathlive#latexToMathML
  */
-function toMathML(latex) {
+function toMathML(latex, options) {
     if (!MathAtom.toMathML) {
         console.log('The MathML module is not loaded.');
         return '';
     }
+    options = options || {macros:{}};
+    Object.assign(options.macros, Definitions.MACROS);
 
     const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex),
-        'math', null, Definitions.MACROS);
+        'math', null, options.macros);
 
-    return MathAtom.toMathML(mathlist);
+    return MathAtom.toMathML(mathlist, options);
 }
 
 /**
@@ -300,14 +302,16 @@ function toMathML(latex) {
  * @return {string}
  * @function module:mathlive#latexToAST
  */
-function latexToAST(latex) {
+function latexToAST(latex, options) {
     if (!MathAtom.toAST) {
         console.log('The AST module is not loaded.');
         return '';
     }
+    options = options || {macros:{}};
+    Object.assign(options.macros, Definitions.MACROS);
 
     const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex), 
-        'math', null, Definitions.MACROS);
+        'math', null, options.macros);
 
     return MathAtom.toAST(mathlist);
 }
@@ -360,10 +364,10 @@ function getElement(element) {
  * the ID an element.
  * @param {Object} [options]
  * 
- * @param {string} [config.namespace=''] - Namespace that is added to `data-`
+ * @param {string} [options.namespace=''] - Namespace that is added to `data-`
  * attributes to avoid collisions with other libraries. It is empty by default.
  * The namespace should be a string of lowercase letters.
- * 
+ * @param {object[]} [options.macros={}] - Custom macros
  * @param {string[]} options.skipTags an array of tag names whose content will
  *  not be scanned for delimiters
  * @param {string} [options.ignoreClass='tex2jax_ignore'] a string used as a 
