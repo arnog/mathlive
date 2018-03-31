@@ -13,9 +13,18 @@ define([
  * @return {number}
  */
 function opPrec(atom) {
-    if (!atom) return -1;
-    return Definitions.getPrecedence(
-        Definitions.getCanonicalName(getString(atom)));
+    if (!atom) return null;
+    const name = Definitions.getCanonicalName(getString(atom));
+    const result = {
+        prec: Definitions.getPrecedence(name), 
+        assoc: Definitions.getAssociativity(name)
+    }
+    if (result.prec <= 0) return null
+    return result;
+}
+
+function isOperator(atom) {
+    return opPrec(atom) !== null;
 }
 
 const RIGHT_DELIM = {
@@ -55,19 +64,26 @@ const DELIM_FUNCTION = {
 }
 
 const POSTFIX_FUNCTION = {
-    '!':    'factorial',
-    '\\dag': 'dagger',
-    '\\dagger': 'dagger',
-    '\\ddager': 'dagger2',
-    '\\maltese': 'maltese',
-    '\\backprime': 'backprime',
-    '\\backdoubleprime': 'backprime2',
-    '\\prime':  'prime',
-    '\\doubleprime': 'prime2',
-    '\\$': '$',
-    '\\%': '%',
-    '\\_': '_',
-    '\\degree': 'degree'
+    '!':                    'factorial',
+    '\\dag':                'dagger',
+    '\\dagger':             'dagger',
+    '\\ddager':             'dagger2',
+    '\\maltese':            'maltese',
+    '\\backprime':          'backprime',
+    '\\backdoubleprime':    'backprime2',
+    '\\prime':              'prime',
+    '\\doubleprime':        'prime2',
+    '\\$':                  '$',
+    '\\%':                  '%',
+    '\\_':                  '_',
+    '\\degree':             'degree'
+}
+
+const COMMUTATIVE_FUNCTION = {
+    '+':                    'add',
+    '*':                    'multiply',
+    ',':                    'list',
+    ';':                    'list2',
 }
 
 function getString(atom) {
@@ -293,7 +309,7 @@ function parsePostfix(expr) {
 
     if (atom.type === 'mopen' && getString(atom) === ldelim) {
         expr.index += 1;    // Skip the open delim
-        expr = parseExpression(parsePrimary(expr));
+        expr = parseExpression(expr);
         atom = expr.atoms[expr.index];
         if (atom && atom.type === 'mclose' && getString(atom) === rdelim) {
             expr.index += 1;
@@ -303,7 +319,7 @@ function parsePostfix(expr) {
 
     } else if (atom.type === 'textord' && getString(atom) === ldelim) {
             expr.index += 1;    // Skip the open delim
-            expr = parseExpression(parsePrimary(expr));
+            expr = parseExpression(expr);
             atom = expr.atoms[expr.index];
             if (atom && atom.type === 'textord' && getString(atom) === rdelim) {
                 expr.index += 1;
@@ -313,7 +329,7 @@ function parsePostfix(expr) {
     
     } else if (atom.type === 'sizeddelim' && atom.delim === ldelim) {
         expr.index += 1;    // Skip the open delim
-        expr = parseExpression(parsePrimary(expr));
+        expr = parseExpression(expr);
         atom = expr.atoms[expr.index];
         if (atom && atom.type === 'sizeddelim' && atom.delim === rdelim) {
             expr.index += 1;
@@ -505,7 +521,7 @@ function parsePrimary(expr) {
         // A 'mord' but not a number, either an identifier ('x') or a function
         // ('\\Zeta')
         const name = Definitions.getCanonicalName(getString(atom));
-        if (Definitions.isFunction(name) && opPrec(atom) < 0) {
+        if (Definitions.isFunction(name) && !isOperator(atom)) {
             // A function
             expr.ast = {fn: name};
             expr = parseSupsub(expr);
@@ -527,7 +543,7 @@ function parsePrimary(expr) {
     } else if (atom.type === 'textord') {
         // Note that 'textord' can also be operators, and are handled as such 
         // in parseExpression()
-        if (opPrec(atom) < 0) {
+        if (!isOperator(atom)) {
             // This doesn't look like a textord operator
             if (!RIGHT_DELIM[atom.latex.trim()]) {
                 // Not an operator, not a fence, it's a symbol or a function
@@ -559,7 +575,7 @@ function parsePrimary(expr) {
     } else if (atom.type === 'mop') {
         // Could be a function or an operator.
         const name = Definitions.getCanonicalName(getString(atom));
-        if (Definitions.isFunction(name) && opPrec(atom) < 0) {
+        if (Definitions.isFunction(name) && !isOperator(atom)) {
             expr.index += 1;
             expr.ast = {fn: name};
             expr = parseSupsub(expr);
@@ -622,7 +638,7 @@ function parsePrimary(expr) {
         if (delim) {
             expr = delim;
         } else {
-            if (opPrec(atom) < 0) {
+            if (!isOperator(atom)) {
                 // This is not an operator (if it is, it may be an operator 
                 // dealing with an empty lhs. It's possible.
                 // Couldn't interpret the expression. Output an error.
@@ -661,8 +677,12 @@ function parsePrimary(expr) {
             // TODO: need to parse multiple arguments, e.g. f(x, y)
             expr.ast  = {fn: lhs, arg: expr.ast};
         } else if (expr && expr.ast) {
-            // Invisible times, e.g. '2x'
-            expr.ast = {lhs: lhs, op:'*', rhs: expr.ast};
+            if (Definitions.isFunction(lhs)) {
+                expr.ast = {fn: lhs, arg: expr.ast};
+            } else {
+                // Invisible times, e.g. '2x'
+                expr.ast = {lhs: lhs, op:'*', rhs: expr.ast};
+            }
         } else {
             expr.ast = lhs;
         }
@@ -681,48 +701,42 @@ function parsePrimary(expr) {
  * @private
  */
 function parseExpression(expr) {
-    expr.minPrec = expr.minPrec || 0;
     expr.index = expr.index || 0;
-
-    if (expr.atoms.length === 0 || expr.index >= expr.atoms.length) {
-        return expr;
-    }
+    expr.ast = undefined;
+    if (expr.atoms.length === 0 || expr.index >= expr.atoms.length) return expr;
+    expr.minPrec = expr.minPrec || 0;
     
-    let atom = expr.atoms[expr.index];
+    let lhs = parsePrimary(expr).ast;
 
-    let lhs = expr.ast;
-    expr.lhs = undefined;
-    while (atom && (atom.type === 'delim' || opPrec(atom) >= expr.minPrec)) {
-        const opName = parseDigraph(expr) || Definitions.getCanonicalName(atom.latex);
-        atom = expr.atoms[expr.index];  // parseDigraph may have advanced to the next token.
-        const opPrecedence = opPrec(atom);
-        expr.index += 1;    // advance to next token
-        let rhs = parsePrimary(expr).ast;
-        atom = expr.atoms[expr.index];
-        while (atom && (atom.type === 'delim' || opPrec(atom) >= opPrecedence)) {
-            expr.lhs = rhs;
-            expr.minPrec = opPrec(atom);
-            rhs = parseExpression(expr).ast;
-            atom = expr.atoms[expr.index];
-        }
-        // Handle in-line fractions, i.e. "1/4" instead of \genfrac.
-        // This can happen when text is pasted directly in...
-        if (opName === '/') {
-            const p = asMachineNumber(lhs);
-            const q = asMachineNumber(rhs);
-            if (!isNaN(p) && Number.isInteger(p) && !isNaN(q) && Number.isInteger(q)) {
-                lhs = {num: p.toString() + '/' + q.toString()};
+    let done = false;
+    const minPrec = expr.minPrec;
+    while (!done) {
+        const atom = expr.atoms[expr.index];
+        done = !atom || !isOperator(atom) || opPrec(atom).prec < minPrec;
+        if (!done) {
+            const opName = Definitions.getCanonicalName(getString(atom));
+            const {prec, assoc} = opPrec(atom);
+            if (assoc === 'left') {
+                expr.minPrec = prec + 1;
             } else {
-                lhs = {lhs: lhs, op: '/', rhs: rhs}
+                expr.minPrec = prec;
             }
-        
-        } else {
-            lhs = {lhs: lhs, op: opName, rhs: rhs}
+            expr.index += 1;
+            const rhs = parseExpression(expr).ast;
+            // Is there a function (e.g. 'add') implementing the 
+            // commutative version of this operator ('+')?
+            const commutativeFunction = COMMUTATIVE_FUNCTION[opName];
+            if (commutativeFunction && lhs.op === opName) {
+                lhs = {fn: commutativeFunction, arg:[lhs.lhs, lhs.rhs, rhs]};
+            } else if (commutativeFunction && lhs.fn === commutativeFunction) {
+                lhs.arg.push(rhs);
+            } else {
+                lhs = {lhs: lhs, op: opName, rhs: rhs};
+            }
         }
     }
 
     expr.ast = lhs;
-
     return expr;
 }
 
@@ -944,7 +958,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
  */
 function parse(atoms) {
 
-    return parseExpression(parsePrimary({atoms: atoms})).ast;
+    return parseExpression({atoms: atoms}).ast;
 }
 
 MathAtom.toAST = function(atoms) {

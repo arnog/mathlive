@@ -3163,6 +3163,13 @@ function getPrecedence(canonicalName) {
     return canonicalName ? (OP_PRECEDENCE[canonicalName] || -1) : -1;
 }
 
+function getAssociativity(canonicalName) {
+    if (/=|=>/.test(canonicalName)) {
+        return 'right';
+    } 
+    return 'left';
+}
+
 function isFunction(canonicalName) {
     let t = FUNCTION_TEMPLATE[canonicalName];
     if (!t) return false;
@@ -3190,6 +3197,7 @@ return {
     MACROS: MACROS,
 
     getPrecedence: getPrecedence,
+    getAssociativity: getAssociativity,
     getCanonicalName: getCanonicalName,
     getLatexForSymbol: getLatexForSymbol,
     getLatexTemplateForOperator: getLatexTemplateForOperator, 
