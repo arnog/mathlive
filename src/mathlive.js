@@ -313,7 +313,7 @@ function latexToAST(latex, options) {
     const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex), 
         'math', null, options.macros);
 
-    return MathAtom.toAST(mathlist);
+    return MathAtom.toAST(mathlist, options);
 }
 
 

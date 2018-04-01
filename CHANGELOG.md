@@ -1,5 +1,12 @@
 
 
+### Major New Features
+
+### Other New Features
+- MASTON: Commutativity support. a + b + c -> add(a, b, c)
+- MASTON: support for right-associativity (e.g. for '=', '=>')
+
+
 ## 0.21 (March 30, 2018)
 ### Major New Features
 - Basic support for Latex macros. Macros can be defined with `MathField.config({macros:'...')` 

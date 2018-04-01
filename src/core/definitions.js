@@ -2799,37 +2799,44 @@ const CANONICAL_NAMES = {
     '\\exponentialE':          '\u212f',
 
     // ARITHMETIC
-    '﹢':        '+',        // SMALL PLUS SIGN
-    '＋':        '+',        // FULL WIDTH PLUS SIGN
-    '−':        '-',        // MINUS SIGN
-    '-':        '-',        // HYPHEN-MINUS
-    '﹣':        '-',        // SMALL HYPHEN-MINUS
-    '－':        '-',        // FULLWIDTH HYPHEN-MINUS
-    '\\times':  '*',
-    '⨉':        '*',        // N-ARY TIMES OPERATOR U+
-    '️✖':        '*',        // MULTIPLICATION SYMBOL
-    '️×':        '*',        // MULTIPLICATION SIGN
-    '.':        '*',
-    '÷':        '/',        // DIVISION SIGN
-    // '/':        '/',        // SOLIDUS
-    '⁄':        '/',        // FRACTION SLASH
-    '／':        '/',        // FULLWIDTH SOLIDUS
-    '!':        'factorial',
-    '️\\pm':     'plusminus',        // PLUS-MINUS SIGN
-    '\\mp':     'minusplus',         // MINUS-PLUS SIGN
+    '﹢':               '+',        // SMALL PLUS SIGN
+    '＋':               '+',        // FULL WIDTH PLUS SIGN
+    '−':                '-',        // MINUS SIGN
+    '-':                '-',        // HYPHEN-MINUS
+    '﹣':               '-',        // SMALL HYPHEN-MINUS
+    '－':               '-',        // FULLWIDTH HYPHEN-MINUS
+    '\\times':          '*',
+    '⨉':                '*',        // N-ARY TIMES OPERATOR U+
+    '️✖':                '*',        // MULTIPLICATION SYMBOL
+    '️×':                '*',        // MULTIPLICATION SIGN
+    '.':                '*',
+    '÷':                '/',        // DIVISION SIGN
+    // '/':             '/',        // SOLIDUS
+    '⁄':                 '/',        // FRACTION SLASH
+    '／':                '/',        // FULLWIDTH SOLIDUS
+    '!':                'factorial',
+    '️\\pm':             'plusminus', // PLUS-MINUS SIGN
+    '\\mp':             'minusplus', // MINUS-PLUS SIGN
 
-    '\\land':   'and',
-    '\\wedge':  'and',
-    '\\lor':    'or',
-    '\\vee':    'or',
-    '\\oplus':  'xor',
-    '\\veebar': 'xor',
-    '\\lnot':   'not',
-    '\\neg':    'not',
+    '\\land':           'and',
+    '\\wedge':          'and',
+    '\\lor':            'or',
+    '\\vee':            'or',
+    '\\oplus':          'xor',
+    '\\veebar':         'xor',
+    '\\lnot':           'not',
+    '\\neg':            'not',
 
-    '\\nabla':  'nabla',
-    '\\circ':   'circle',
-    // '\\oplus':  'oplus',
+    '\\exists':         'exists',
+    '\\nexists':        '!exists',
+    '\\forall':         'forAll',
+    '\\backepsilon':    'suchThat',
+    '\\therefore':      'therefore',
+    '\\because':        'because',
+
+    '\\nabla':          'nabla',
+    '\\circ':           'circle',
+    // '\\oplus':       'oplus',
     '\\ominus':         'ominus',
     '\\odot':           'odot',
     '\\otimes':         'otimes',
@@ -2851,10 +2858,10 @@ const CANONICAL_NAMES = {
     '\\Im':             'Im',
     '\\gothicCapitalI': 'Im',
 
-    '\\binom':          'binom',
+    '\\binom':          'nCr',
 
     '\\partial':        'partial',
-    '\\differentialD': 'differentialD',
+    '\\differentialD':  'differentialD',
     '\\capitalDifferentialD': 'capitalDifferentialD',
     '\\Finv':           'Finv',
     '\\Game':           'Game',
@@ -2863,25 +2870,29 @@ const CANONICAL_NAMES = {
     '\\star':           'star',
     '\\asymp':          'asymp',
 
-    '\\to':             '->',
-    '\\rightarrow':     '->',
-    '\\gets':           '<-',
-    '\\leftarrow':      '<-',
-    '\\leftrightarrow': '<->',
-    '\\longrightarrow': '-->',
-    '\\longleftarrow':  '<--',
-    '\\lingleftrightarrow': '<-->',
+    // Function domain, limits
+    '\\to':             'to',       // Looks like \rightarrow
+    '\\gets':           'gets',     // Looks like \leftarrow
 
-    '\\Rightarrow':     '=>',
-    '\\Leftarrow':      '<=',
-    '\\Leftrightarrow': '<=>',
+    // Logic
+    '\\rightarrow':     'shortLogicalImplies',
+    '\\leftarrow':      'shortLogicalImpliedBy',
+    '\\leftrightarrow': 'shortLogicalEquivalent',
+    '\\longrightarrow': 'logicalImplies',
+    '\\longleftarrow':  'logicalImpliedBy',
+    '\\longleftrightarrow': 'logicalEquivalent',
 
-    '\\implies':        '==>',
-    '\\Longrightarrow': '==>',
-    '\\impliedby':      '<==',
-    '\\Longleftarrow':  '<==',
-    '\\iff':            '<==>',
-    '\\Longleftrightarrow': '<==>',
+    // Metalogic
+    '\\Rightarrow':     'shortImplies',
+    '\\Leftarrow':      'shortImpliedBy',
+    '\\Leftrightarrow': 'shortEquivalent',
+
+    '\\implies':        'implies',
+    '\\Longrightarrow': 'implies',
+    '\\impliedby':      'impliedBy',
+    '\\Longleftarrow':  'impliedBy',
+    '\\iff':            'equivalent',
+    '\\Longleftrightarrow': 'equivalent',
 
 }
 
@@ -2995,88 +3006,112 @@ const OP_PRECEDENCE = {
     'solidus':              660,
     '/':                    660,
 
+    'setminus':             650,    // \setminus, \smallsetminus
+
+    '%':                    640,
 
     'otimes':               410,
 
-    // Multiplication
+    // Set operators
+    'union':                350,    // \cup
+    'intersection':         350,    // \cap
+
+    // Multiplication, division and modulo
     '*':                    390,
     'ast':                  390,
     '.':                    390,
 
 
-    'oplus':                300,    // also logical XOR...
+    'oplus':                300,    // also logical XOR... @todo
     'ominus':               300,
+
+    // Addition
+    '+':                    275,
+    '-':                    275,
+    '+-':                   275,    // \pm
+    '-+':                   275,    // \mp
+
 
     // Most circled-ops are 265
     'circle':               265,
     'circledast':           265,
     'circledcirc':          265,
-
     'star':                 265,    // Different from ast
 
 
+    // Range
+    '..':                   263,    // Not in MathML
+
+    // Unit conversion
+    'to':                   262,    // Not in MathLM
+    'in':                   262,    // Not in MathML
+
+
+    // Relational
+    '=':                    260,
+    '!=':                   255,
+
+    'approx':               247,
+    '<':                    245,
+    '>':                    243,
+    '≥':                    242,
+    '≤':                    241,
+
+    // Set operator
+    'complement':           240,
+    'subset':               240,    // \subset
+    'superset':             240,    // \supset
+    // @todo and equality and neg operators
+    'elementof':            240,    // \in
+    '!elementof':           240,    // \notin
     // 
     'exists':                230,
-    'nexists':               230,
+    '!exists':               230,
     'forall':                230,
 
-    // Addition
-    '+':                    275,
-    '-':                    275,
-
-    // Comparisons
-    '=':                260,
-
-    '≠':                255,
-
-    'approx':           247,
-    '<':                245,
-    '>':                243,
-    '≥':                242,
-    '≤':                241,
-
-    // Logical AND
+    // Logical operators
     'and':              200,
-
-
-
-    // '∴':                70
-
-    // Conditional (?:)
-
-
-
-    // Logical OR
+    'xor':              195,            // MathML had 190
     'or':               190,
-    'xor':              190,
-
+    // Note: 'not' is 680
 
     // center, low, diag, vert ellipsis         150
 
     // Composition/sequence
-    // '∋' such that:          110
-        ':':                100,
+    'suchThat':              110,   // \backepsilon
+    ':':                     100,
     // '..':               100,
     // '...':               100,
+
+    // Conditional (?:)
     
-    
+
+    // Assignement    
+    ':=':                80,       // MathML had 260 (same with U+2254 COLON EQUALS)
+
+    'therefore':                70,
+    'because':                70,
+
     // Arrows
     // Note: MathML had 270 for the arrows, but this
     // would not work for (a = b => b = a)
-    '->':               50,
-    '=>':               45,
-    '-->':              50,
-    '==>':              45,
+    // See also https://en.wikipedia.org/wiki/Logical_connective#Order_of_precedence 
+    // for a suggested precedence (note that in this page lower precedence 
+    // has the opposite meaning as what we use)
+    'shortLogicalImplies': 52,  // ->
+    'shortImplies':     51,     // =>
+    'logicalImplies':   50,     // -->
+    'implies':          49,     // ==>
 
-    '<-':               50,
-    '<=':               45,
-    '<--':              50,
-    '<==':              45,
+    'shortLogicalImpliedBy': 48,// <-
+    'shortImpliedBy':   47,     // <=
+    'logicalImpliedBy': 46,     // <--
+    'impliedBy':        45,     // <==
 
-    '<->':              50,
-    '<=>':              45,
-    '<-->':             50,
-    '<==>':             45,
+    'shortLogicalEquivalent':44,// <->
+    'shortEquivalent':  43,     // <=>
+    'logicalEquivalent':42,     // <-->
+    'equivalent':       41,     // <==>
 
 
     ',':                40,
@@ -3171,6 +3206,7 @@ function getAssociativity(canonicalName) {
 }
 
 function isFunction(canonicalName) {
+    if (canonicalName === 'f' || canonicalName === 'g') return true;
     let t = FUNCTION_TEMPLATE[canonicalName];
     if (!t) return false;
     t = t.replace('%0', '').replace('%1', '');

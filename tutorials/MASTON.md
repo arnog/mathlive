@@ -35,6 +35,24 @@ In MASTON:
 {"lhs":{"lhs":63,"op":"/","rhs":25},"op":"*","rhs":{"lhs":{"lhs":17,"op":"+","rhs":{"lhs":15,"op":"*","rhs":{"fn":"sqrt","arg":5}}},"op":"/","rhs":{"lhs":7,"op":"+","rhs":{"lhs":15,"op":"*","rhs":{"fn":"sqrt","arg":5}}}}}
 ```
 
+## Design Goals
+
+### Vocabulary
+* **producer** software that generates a MASTON data structure
+* **consumer** software that parses and acts on a MASTON data structure
+
+### Goals
+- Easy to consume, even if that's at the expense of complexity to generate.
+- Extensibility. It should be possible to add information to the data structure
+that can help its interpretation or its rendition. This information should be
+optional and can be ignored by any consumer.
+
+### Non-goals
+- Be suitable as an internal data structure
+- Be suitable as a display format
+- Capture complete semantic information with no ambiguity and in a self-sufficient manner.
+
+
 ## Encoding
 
 A MASTON expression is encoded as a JSON object. The root element is an &langle;expression&rangle;, which contains other elements according to the grammar below.
