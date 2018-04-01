@@ -912,7 +912,7 @@ MathField.prototype._onTypedText = function(text) {
                 let count = this.mathlist.startOffset();
                 let shortcut;
                 // Try to find the longest matching shortcut possible
-                while (!shortcut && count > 0) {
+                while (!shortcut && count >= 0) {
                     // Note that 'count' is a number of atoms
                     // An atom can be more than one character (for example '\sin')
                     const prefix = this.mathlist.extractCharactersBeforeInsertionPoint(count);
