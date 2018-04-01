@@ -1,10 +1,17 @@
 
 
 ### Major New Features
+- Haptic and audio feedback for the virtual keyboard. Haptic feedback is available on 
+Android only. <br> Two new config options to control it. `config.keypressVibration`,
+which is on by default, control the haptic feedback. `config.keypressSound`
+control the audio feedback (off by default). Specify the URL to a sound file 
+to be played when a key on the virtual keyboard is pressed, or an object with 
+a `delete`, `return`, `spacebar` and `default` (required) keys to specify
+different sounds for those keys.
 
 ### Other New Features
 - MASTON: Commutativity support. a + b + c -> add(a, b, c)
-- MASTON: support for right-associativity (e.g. for '=', '=>')
+- MASTON: Right and left-associativity support ('=' and '=>' are right associative)
 
 
 ## 0.21 (March 30, 2018)

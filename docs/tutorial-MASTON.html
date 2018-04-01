@@ -79,7 +79,7 @@ notations, and as such is not a replacement for LaTeX or MathML.</p>
 <pre class="prettyprint source lang-tex"><code>e^{\imaginaryI \pi }+1=0</code></pre><p>In MASTON:</p>
 <pre class="prettyprint source lang-JSON"><code>{&quot;lhs&quot;:{&quot;lhs&quot;:{&quot;sym&quot;:&quot;e&quot;,&quot;sup&quot;:{&quot;lhs&quot;:&quot;ⅈ&quot;,&quot;op&quot;:&quot;*&quot;,&quot;rhs&quot;:&quot;π&quot;}},&quot;op&quot;:&quot;+&quot;,&quot;rhs&quot;:1},&quot;op&quot;:&quot;=&quot;,&quot;rhs&quot;:0}</code></pre><h3 id="an-approximation-of-pi">An approximation of Pi</h3>
 <pre class="prettyprint source lang-tex"><code>\frac {63}{25}\times \frac {17+15\sqrt{5}}{7+15\sqrt{5}}</code></pre><pre class="prettyprint source lang-JSON"><code>{&quot;lhs&quot;:{&quot;lhs&quot;:63,&quot;op&quot;:&quot;/&quot;,&quot;rhs&quot;:25},&quot;op&quot;:&quot;*&quot;,&quot;rhs&quot;:{&quot;lhs&quot;:{&quot;lhs&quot;:17,&quot;op&quot;:&quot;+&quot;,&quot;rhs&quot;:{&quot;lhs&quot;:15,&quot;op&quot;:&quot;*&quot;,&quot;rhs&quot;:{&quot;fn&quot;:&quot;sqrt&quot;,&quot;arg&quot;:5}}},&quot;op&quot;:&quot;/&quot;,&quot;rhs&quot;:{&quot;lhs&quot;:7,&quot;op&quot;:&quot;+&quot;,&quot;rhs&quot;:{&quot;lhs&quot;:15,&quot;op&quot;:&quot;*&quot;,&quot;rhs&quot;:{&quot;fn&quot;:&quot;sqrt&quot;,&quot;arg&quot;:5}}}}}</code></pre><h2 id="design-goals">Design Goals</h2>
-<h3 id="vocabulary">Vocabulary</h3>
+<h3 id="definitions">Definitions</h3>
 <ul>
 <li><strong>producer</strong> software that generates a MASTON data structure</li>
 <li><strong>consumer</strong> software that parses and acts on a MASTON data structure</li>
@@ -98,7 +98,10 @@ optional and can be ignored by any consumer.</li>
 <li>Capture complete semantic information with no ambiguity and in a self-sufficient manner.</li>
 </ul>
 <h2 id="encoding">Encoding</h2>
-<p>A MASTON expression is encoded as a JSON object. The root element is an &langle;expression&rangle;, which contains other elements according to the grammar below.</p>
+<p>A MASTON expression is an <a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">abstract syntax tree</a> 
+encoded as a JSON object. </p>
+<p>The root element is an &langle;expression&rangle;, with child nodes according 
+to the grammar below.</p>
 <h3 id="native-numbers">Native Numbers</h3>
 <p>A native number is encoded following the JSON grammar, with two extensions:</p>
 <ul>
@@ -108,7 +111,8 @@ situation by either reading only as many digits as can be supported internally
 or by treating it as an error.</li>
 <li>support for <code>NaN</code> and <code>infinity</code></li>
 </ul>
-<p>&langle;native-number&rangle; := <code>'&quot;NaN&quot;'</code> | &langle;native-infinity&rangle; | [<code>'-'</code>] &langle;native-int&rangle; [ &langle;native-frac&rangle;] [ &langle;native-exp&rangle; ]</p>
+<p>&langle;native-number&rangle; := <code>'&quot;NaN&quot;'</code> | &langle;native-infinity&rangle; | 
+    [<code>'-'</code>] &langle;native-int&rangle; [ &langle;native-frac&rangle;] [ &langle;native-exp&rangle; ]</p>
 <p>&langle;native-infinity&rangle; := <code>'&quot;'</code> [<code>'+'</code> | <code>'-'</code>] <code>'infinity'</code> <code>'&quot;'</code></p>
 <p>&langle;native-int&rangle; := <code>'0'</code> | [ <code>'1'</code> - <code>'9'</code> ]*</p>
 <p>&langle;native-frac&rangle; := <code>'.'</code> (<code>'0'</code> - <code>'9'</code>)*</p>
@@ -116,38 +120,17 @@ or by treating it as an error.</li>
 <h3 id="native-strings">Native Strings</h3>
 <p>Native strings are a sequence of Unicode characters.</p>
 <p>As per JSON, any Unicode character may be escaped using a <code>\u</code> escape sequence.</p>
-<p>Compliant MATSON producing software should not generate character entities in strings. However, when consuming a MATSON format, the following character entities may be recognized in a string:</p>
-<table>
-<thead>
-<tr>
-<th>Entity</th>
-<th style="text-align:left">Value</th>
-<th style="text-align:right">Unicode   </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td> &CapitalDifferentialD;</td>
-<td style="text-align:left">\&CapitalDifferentialD;</td>
-<td style="text-align:right">U+2145</td>
-</tr>
-<tr>
-<td> &DifferentialD;</td>
-<td style="text-align:left">\&DifferentialD;</td>
-<td style="text-align:right">U+2146</td>
-</tr>
-<tr>
-<td> &ExponentialE;</td>
-<td style="text-align:left">\&ExponentialE;</td>
-<td style="text-align:right">U+2147</td>
-</tr>
-<tr>
-<td> &ImaginaryI;</td>
-<td style="text-align:left">\&ImaginaryI;</td>
-<td style="text-align:right">U+2148</td>
-</tr>
-</tbody>
-</table>
+<p>MATSON producing software should not generate character entities in 
+strings.</p>
+<p>Whenever applicable, a specific Unicode symbol should be used.</p>
+<p>For example, the set of complex numbers should be represented with U+2102 ℂ,
+not with U+0043 C and a math variant styling attribute.</p>
+<p>See <a href="http://www.unicode.org/versions/Unicode10.0.0/ch22.pdf">Unicode Chapter 22 - Symbols</a></p>
+<blockquote>
+<p>When used with markup languages—for example, with Mathematical Markup Language
+(MathML)—the characters are expected to be used directly, instead of indirectly via
+entity references or by composing them from base letters and style markup.</p>
+</blockquote>
 <h3 id="optional-keys">Optional keys</h3>
 <p>All elements may have the following keys:</p>
 <ul>
@@ -158,7 +141,11 @@ or by treating it as an error.</li>
 <li><code>class</code>: A CSS class to be associated with a representation of this element</li>
 <li><code>id</code>: A CSS id to be associated with a representation of this element</li>
 <li><code>style</code>: A CSS style string</li>
-<li><code>wikidata</code> </li>
+<li><code>wikidata</code>: A short string indicating an entry in a wikibase. For example, 
+  <code>&quot;Q2111&quot;</code></li>
+<li><code>wikibase</code>: A base URL for the wikidata key. A full URL can be produced 
+by concatenating this key with the wikidata key. This key applies to 
+this element and all its children. The default value is &quot;https://www.wikidata.org/wiki/&quot;</li>
 </ul>
 <h3 id="key-order">Key order</h3>
 <p>The order of the keys in an element is not significant. That is, all these 
@@ -319,6 +306,8 @@ replacing the element with the number. That is, both representations are equival
 </tr>
 </tbody>
 </table>
+<p>Note that for inverse functions, no assumptions is made about the branch 
+cuts of those functions. The interpretation is left up to the consuming software.</p>
 <h3 id="-langle-operator-rangle-">&langle;operator&rangle;</h3>
 <p>The input of an operator is a left hand side expression and a right 
 hand side expression. The expressions are optional, for example: 

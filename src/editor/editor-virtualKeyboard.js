@@ -345,7 +345,7 @@ const LAYERS = {
                 <li class='separator w5'></li>
                 <li class='keycap tex small' data-alt-keys='int' data-latex='\\int_0^\\infty'><span></span></li>
                 <li class='keycap tex' data-latex='\\forall' data-alt-keys='logic' ></li>
-                <li class='action font-glyph bottom right' data-alt-keys='delete' data-command='"deletePreviousChar"'>&#x232b;</li></ul>
+                <li class='action font-glyph bottom right' data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'>&#x232b;</li></ul>
             </ul>
             <ul>
                 <li class='keycap tex' data-alt-keys='(' data-latex='\\left('></li>
@@ -446,7 +446,7 @@ const LAYERS = {
                 <li class='action font-glyph bottom right w15' 
                     data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
-                    data-alt-keys='delete' data-command='"deletePreviousChar"'
+                    data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'
                 >&#x232b;</li>
             </ul>
             <ul>
@@ -495,7 +495,7 @@ const LAYERS = {
                 <li class='action font-glyph bottom right w15' 
                     data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
-                    data-alt-keys='delete' data-command='"deletePreviousChar"'
+                    data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'
                 >&#x232b;</li>
             </ul>
             <ul>
@@ -538,7 +538,7 @@ const LAYERS = {
                 <li class='keycap tex' data-insert='{\\char"392}'>&Beta;<aside>beta</aside></li>
                 <li class='keycap tex' data-insert='{\\char"39D}'>&Nu;<aside>nu</aside></li>
                 <li class='keycap tex' data-insert='{\\char"39C}'>&Mu;<aside>mu</aside></li>
-                <li class='action font-glyph bottom right w15' data-command='"deletePreviousChar"'>&#x232b;</li></ul>
+                <li class='action font-glyph bottom right w15' data-command='["performWithFeedback","deletePreviousChar"]'>&#x232b;</li></ul>
             <ul>
                 <li class='separator w10'>&nbsp;</li>
                 <li class='keycap'>.</li>
@@ -593,7 +593,7 @@ const LAYERS = {
                 <li class='action font-glyph bottom right' 
                     data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
-                    data-alt-keys='delete' data-command='"deletePreviousChar"'
+                    data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'
                 >&#x232b;</li>
             </ul>
             <ul>
@@ -640,7 +640,7 @@ const LAYERS = {
                 <li class='bigfnbutton' data-insert='\\mathop{round}(#?) ' data-latex='\\mathop{round}()'></li>
                 <li class='bigfnbutton' data-insert='\\prod_{n\\mathop=0}^{\\infty}' data-latex='{\\tiny \\prod_{n=0}^{\\infty}}'></li>
                 <li class='bigfnbutton' data-insert='\\frac{\\differentialD #0}{\\differentialD x}'></li>
-                <li class='action font-glyph bottom right' data-command='"deletePreviousChar"'>&#x232b;</li></ul>
+                <li class='action font-glyph bottom right' data-command='["performWithFeedback","deletePreviousChar"]'>&#x232b;</li></ul>
             <ul><li class='separator'></li>
                 <li class='fnbutton'>(</li>
                 <li class='fnbutton'>)</li>
@@ -822,11 +822,14 @@ function makeKeycap(mf, elList, chainedCommand) {
         if (el.getAttribute('data-command')) {
             handlers = JSON.parse(el.getAttribute('data-command'));
         } else if (el.getAttribute('data-insert')) {
-            handlers = ['insert', el.getAttribute('data-insert'), {focus:true}];
+            handlers = ['insert', el.getAttribute('data-insert'), 
+                {focus:true, feedback:true}];
         } else if (el.getAttribute('data-latex')) {
-            handlers = ['insert', el.getAttribute('data-latex'), {focus:true}];
+            handlers = ['insert', el.getAttribute('data-latex'), 
+                {focus:true, feedback:true}];
         } else {
-            handlers = ['typedText', el.getAttribute('data-key') || el.textContent];
+            handlers = ['typedText', el.getAttribute('data-key') || el.textContent,
+                {focus:true, feedback:true}];
         }
         if (chainedCommand) {
             handlers = [chainedCommand, handlers];
@@ -914,17 +917,17 @@ function expandLayerMarkup(mf, layer) {
     let row;
 
     result = result.replace(/<arrows\/>/g, `
-                <li class='action' data-command='"moveToPreviousChar"'
+                <li class='action' data-command='["performWithFeedback","moveToPreviousChar"]'
                     data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' 
-                    data-shifted-command='"extendToPreviousChar"'>
+                    data-shifted-command='["performWithFeedback","extendToPreviousChar"]'>
                     <svg><use xlink:href='#svg-arrow-left' /></svg>
                 </li>
-                <li class='action' data-command='"moveToNextChar"'
+                <li class='action' data-command='["performWithFeedback","moveToNextChar"]'
                     data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' 
-                    data-shifted-command='"extendToNextChar"'>
+                    data-shifted-command='["performWithFeedback","extendToNextChar"]'>
                     <svg><use xlink:href='#svg-arrow-right' /></svg>
                 </li>
-                <li class='action' data-command='"moveToNextPlaceholder"'>
+                <li class='action' data-command='["performWithFeedback","moveToNextPlaceholder"]'>
                 <svg><use xlink:href='#svg-tab' /></svg></li>`);
 
 
@@ -953,7 +956,7 @@ function expandLayerMarkup(mf, layer) {
                         ((keys.match(/ /g) || []).length / 2) === 10 ? 'w10' : 'w15';
                     row += `' data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
                         data-shifted-command='"deleteAll"'
-                        data-alt-keys='delete' data-command='"deletePreviousChar"'
+                        data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'
                         >&#x232b;</li>`;
 
                 } else if (c === ' ') {

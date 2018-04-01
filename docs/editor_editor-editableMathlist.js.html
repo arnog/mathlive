@@ -1619,7 +1619,9 @@ EditableMathlist.prototype.insert = function(s, options) {
                 // No selection, no 'mord' before. Let's make '#@' a placeholder.
                 s = s.replace(/(^|[^\\])#@/g, '$1#?');
             }
-            mathlist = ParserModule.parseTokens(Lexer.tokenize(s), parseMode, args, options.macros);
+            mathlist = ParserModule.parseTokens(
+                Lexer.tokenize(Definitions.unicodeStringToLatex(s)), 
+                parseMode, args, options.macros);
         }
     } else if (options.format === 'latex') {
         mathlist = ParserModule.parseTokens(Lexer.tokenize(s), parseMode, args, options.macros);

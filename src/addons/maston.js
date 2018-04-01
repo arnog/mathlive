@@ -6,7 +6,438 @@ define([
 ],
     function(Lexer, MathAtom, ParserModule, Definitions) {
 
-        /**
+const CANONICAL_NAMES = {
+    // CONSTANTS
+    '\\imaginaryI':     '\u2148',
+    '\\imaginaryJ':     '\u2149',
+    '\\pi':             'π',
+    '\\exponentialE':   '\u212f',
+
+    // ARITHMETIC
+    '﹢':               '+',        // SMALL PLUS SIGN
+    '＋':               '+',        // FULL WIDTH PLUS SIGN
+    '−':                '-',        // MINUS SIGN
+    '-':                '-',        // HYPHEN-MINUS
+    '﹣':               '-',        // SMALL HYPHEN-MINUS
+    '－':               '-',        // FULLWIDTH HYPHEN-MINUS
+    '\\times':          '*',
+    '⨉':                '*',        // N-ARY TIMES OPERATOR U+
+    '️✖':                '*',        // MULTIPLICATION SYMBOL
+    '️×':                '*',        // MULTIPLICATION SIGN
+    '.':                '*',
+    '÷':                '/',        // DIVISION SIGN
+    // '/':             '/',        // SOLIDUS
+    '⁄':                 '/',        // FRACTION SLASH
+    '／':                '/',        // FULLWIDTH SOLIDUS
+    '!':                'factorial',
+    '️\\pm':             'plusminus', // PLUS-MINUS SIGN
+    '\\mp':             'minusplus', // MINUS-PLUS SIGN
+
+    '\\land':           'and',
+    '\\wedge':          'and',
+    '\\lor':            'or',
+    '\\vee':            'or',
+    '\\oplus':          'xor',
+    '\\veebar':         'xor',
+    '\\lnot':           'not',
+    '\\neg':            'not',
+
+    '\\exists':         'exists',
+    '\\nexists':        '!exists',
+    '\\forall':         'forAll',
+    '\\backepsilon':    'suchThat',
+    '\\therefore':      'therefore',
+    '\\because':        'because',
+
+    '\\nabla':          'nabla',
+    '\\circ':           'circle',
+    // '\\oplus':       'oplus',
+    '\\ominus':         'ominus',
+    '\\odot':           'odot',
+    '\\otimes':         'otimes',
+
+    '\\zeta':           'Zeta',
+    '\\Gamma':          'Gamma',
+    '\\min':            'min',
+    '\\max':            'max',
+    '\\mod':            'mod',
+    '\\lim':            'lim',  // BIG OP
+    '\\sum':            'sum',
+    '\\prod':           'prod',
+    '\\int':            'integral',
+    '\\iint':           'integral2',
+    '\\iiint':          'integral3',
+
+    '\\Re':             'Re',
+    '\\gothicCapitalR': 'Re',
+    '\\Im':             'Im',
+    '\\gothicCapitalI': 'Im',
+
+    '\\binom':          'nCr',
+
+    '\\partial':        'partial',
+    '\\differentialD':  'differentialD',
+    '\\capitalDifferentialD': 'capitalDifferentialD',
+    '\\Finv':           'Finv',
+    '\\Game':           'Game',
+    '\\wp':             'wp',
+    '\\ast':            'ast',
+    '\\star':           'star',
+    '\\asymp':          'asymp',
+
+    // Function domain, limits
+    '\\to':             'to',       // Looks like \rightarrow
+    '\\gets':           'gets',     // Looks like \leftarrow
+
+    // Logic
+    '\\rightarrow':     'shortLogicalImplies',
+    '\\leftarrow':      'shortLogicalImpliedBy',
+    '\\leftrightarrow': 'shortLogicalEquivalent',
+    '\\longrightarrow': 'logicalImplies',
+    '\\longleftarrow':  'logicalImpliedBy',
+    '\\longleftrightarrow': 'logicalEquivalent',
+
+    // Metalogic
+    '\\Rightarrow':     'shortImplies',
+    '\\Leftarrow':      'shortImpliedBy',
+    '\\Leftrightarrow': 'shortEquivalent',
+
+    '\\implies':        'implies',
+    '\\Longrightarrow': 'implies',
+    '\\impliedby':      'impliedBy',
+    '\\Longleftarrow':  'impliedBy',
+    '\\iff':            'equivalent',
+    '\\Longleftrightarrow': 'equivalent',
+
+}
+
+
+const FUNCTION_TEMPLATE = {
+    // TRIGONOMETRY
+    'sin':      '\\sin%_%^ %',
+    'cos':      '\\cos%_%^ %',
+    'tan':      '\\tan%_%^ %',
+    'cot':      '\\cot%_%^ %',
+    'sec':      '\\sec%_%^ %',
+    'csc':      '\\csc%_%^ %',
+
+    'sinh':     '\\sinh %',
+    'cosh':     '\\cosh %',
+    'tanh':     '\\tanh %',
+    'csch':     '\\csch %',
+    'sech':     '\\sech %',
+    'coth':     '\\coth %',
+
+    'arcsin':      '\\arcsin %',
+    'arccos':      '\\arccos %',
+    'arctan':      '\\arctan %',
+    'arccot':      '\\arcctg %',        // Check
+    'arcsec':      '\\arcsec %',
+    'arccsc':      '\\arccsc %',
+
+    'arsinh':     '\\arsinh %',
+    'arcosh':     '\\arcosh %',
+    'artanh':     '\\artanh %',
+    'arcsch':     '\\arcsch %',
+    'arsech':     '\\arsech %',
+    'arcoth':     '\\arcoth %',
+
+    // LOGARITHMS
+    'ln':       '\\ln%_%^ %',     // Natural logarithm
+    'log':      '\\log%_%^ %',    // General logarithm, e.g. log_10
+    'lg':       '\\lg %',     // Common, base-10, logarithm
+    'lb':       '\\lb %',     // Binary, base-2, logarithm
+
+    // Big operator
+    'sum':      '\\sum%_%^ %',
+
+    // OTHER
+    'Zeta':     '\\zeta%_%^ %', // Riemann Zeta function
+    'Gamma':    '\\Gamma %',    // Gamma function, such that Gamma(n) = (n - 1)!
+    'min':      '\\min%_%^ %',
+    'max':      '\\max%_%^ %',
+    'mod':      '\\mod%_%^ %',
+    'lim':      '\\lim%_%^ %',      // BIG OP
+    'binom':    '\\binom %',
+    'nabla':    '\\nabla %',
+    'curl':     '\\nabla\\times %',
+    'div':      '\\nabla\\cdot %',
+    'floor':    '\\lfloor % \\rfloor%_%^',
+    'ceil':     '\\lceil % \\rceil%_%^',
+    'abs':      '\\vert % \\vert%_%^',
+    'norm':     '\\lVert % \\rVert%_%^',
+    'ucorner':  '\\ulcorner % \\urcorner%_%^',
+    'lcorner':  '\\llcorner % \\lrcorner%_%^',
+    'angle':    '\\langle % \\rangle%_%^',
+    'group':    '\\lgroup % \\rgroup%_%^',
+    'moustache':'\\lmoustache % \\rmoustache%_%^',
+    'brace':    '\\lbrace % \\rbrace%_%^',
+    'sqrt':     '\\sqrt[%^]{%}',
+    'lcm':      '\\mathop{lcm}%',
+    'gcd':      '\\mathop{gcd}%',
+    'erf':      '\\mathop{erf}%',
+    'erfc':     '\\mathop{erfc}%',
+    'randomReal': '\\mathop{randomReal}%',
+    'randomInteger': '\\mathop{randomInteger}%',
+    
+
+    // Arithmetic operators
+    '*':        '%0 \\times %1',
+
+    // Logic operators
+    'and':      '%0 \\land %1',
+    'or':       '%0 \\lor %1',
+    'xor':      '%0 \\oplus %1',
+    'not':      '%0 \\lnot %1',
+
+    // Other operators
+    'circle':   '%0 \\circ %1',
+    'ast':      '%0 \\ast %1',
+    'star':     '%0 \\star %1',
+    'asymp':    '%0 \\asymp %1',
+    '/':        '\\frac{%0}{%1}',
+    'Re':       '\\Re{%}',
+    'Im':       '\\Im{%}',
+    'factorial': '%!',
+    'factorial2': '%!!',
+}
+
+
+
+
+
+// From www.w3.org/TR/MathML3/appendixc.html
+
+const OP_PRECEDENCE = {
+    'degree':               880,
+    'nabla':                740,
+    'curl':                 740,    // not in MathML
+    'partial':              740,
+    'differentialD':        740,    // not in MathML
+    'capitalDifferentialD': 740,    // not in MathML
+
+    'odot':                 710,
+
+    // Logical not
+    'not':                  680,
+
+    // Division
+    'div':                  660,    // division sign
+    'solidus':              660,
+    '/':                    660,
+
+    'setminus':             650,    // \setminus, \smallsetminus
+
+    '%':                    640,
+
+    'otimes':               410,
+
+    // Set operators
+    'union':                350,    // \cup
+    'intersection':         350,    // \cap
+
+    // Multiplication, division and modulo
+    '*':                    390,
+    'ast':                  390,
+    '.':                    390,
+
+
+    'oplus':                300,    // also logical XOR... @todo
+    'ominus':               300,
+
+    // Addition
+    '+':                    275,
+    '-':                    275,
+    '+-':                   275,    // \pm
+    '-+':                   275,    // \mp
+
+
+    // Most circled-ops are 265
+    'circle':               265,
+    'circledast':           265,
+    'circledcirc':          265,
+    'star':                 265,    // Different from ast
+
+
+    // Range
+    '..':                   263,    // Not in MathML
+
+    // Unit conversion
+    'to':                   262,    // Not in MathLM
+    'in':                   262,    // Not in MathML
+
+
+    // Relational
+    '=':                    260,
+    '!=':                   255,
+
+    'approx':               247,
+    '<':                    245,
+    '>':                    243,
+    '≥':                    242,
+    '≤':                    241,
+
+    // Set operator
+    'complement':           240,
+    'subset':               240,    // \subset
+    'superset':             240,    // \supset
+    // @todo and equality and neg operators
+    'elementof':            240,    // \in
+    '!elementof':           240,    // \notin
+    // 
+    'exists':                230,
+    '!exists':               230,
+    'forall':                230,
+
+    // Logical operators
+    'and':              200,
+    'xor':              195,            // MathML had 190
+    'or':               190,
+    // Note: 'not' is 680
+
+    // center, low, diag, vert ellipsis         150
+
+    // Composition/sequence
+    'suchThat':              110,   // \backepsilon
+    ':':                     100,
+    // '..':               100,
+    // '...':               100,
+
+    // Conditional (?:)
+    
+
+    // Assignement    
+    ':=':                80,       // MathML had 260 (same with U+2254 COLON EQUALS)
+
+    'therefore':                70,
+    'because':                70,
+
+    // Arrows
+    // Note: MathML had 270 for the arrows, but this
+    // would not work for (a = b => b = a)
+    // See also https://en.wikipedia.org/wiki/Logical_connective#Order_of_precedence 
+    // for a suggested precedence (note that in this page lower precedence 
+    // has the opposite meaning as what we use)
+    'shortLogicalImplies': 52,  // ->
+    'shortImplies':     51,     // =>
+    'logicalImplies':   50,     // -->
+    'implies':          49,     // ==>
+
+    'shortLogicalImpliedBy': 48,// <-
+    'shortImpliedBy':   47,     // <=
+    'logicalImpliedBy': 46,     // <--
+    'impliedBy':        45,     // <==
+
+    'shortLogicalEquivalent':44,// <->
+    'shortEquivalent':  43,     // <=>
+    'logicalEquivalent':42,     // <-->
+    'equivalent':       41,     // <==>
+
+
+    ',':                40,
+    ';':                30
+}
+
+/**
+ * Given a canonical name, return its precedence
+ * @param {string} canonicalName, for example "and"
+ * @return {number}
+ */
+function getPrecedence(canonicalName) {
+    return canonicalName ? (OP_PRECEDENCE[canonicalName] || -1) : -1;
+}
+
+function getAssociativity(canonicalName) {
+    if (/=|=>/.test(canonicalName)) {
+        return 'right';
+    } 
+    return 'left';
+}
+
+
+
+/**
+ * 
+ * @param {string} name function canonical name
+ * @return {string}
+ */
+function getLatexTemplateForFunction(name) {
+    let result = FUNCTION_TEMPLATE[name];
+    if (!result) {
+        result = name.length > 1 ? '\\mathop{' + name + '} %' : (name + ' %');
+    }
+
+    return result;
+}
+
+/**
+ * 
+ * @param {string} name symbol name
+ * @return {string}
+ */
+function getLatexForSymbol(name) {
+    let result = FUNCTION_TEMPLATE[name];
+    if (result) {
+        return result.replace('%1', '').replace('%0', '').replace('%', '');
+    }
+    const info = Definitions.getInfo('\\' + name, 'math');
+    if (info && info.type !== 'error' && 
+        (!info.fontFamily || info.fontFamily === 'main' || info.fontFamily === 'ams')) {
+        result = '\\' + name;
+    }
+
+    return result;
+}
+
+/**
+ * 
+ * @param {string} name function or operator canonical name
+ * @return {string}
+ */
+function getLatexTemplateForOperator(name) {
+    let result = FUNCTION_TEMPLATE[name];
+    if (!result) {
+        result = '%0 \\mathbin{' + name + '} %1';
+    }
+
+    return result;
+}
+
+function isFunction(canonicalName) {
+    if (canonicalName === 'f' || canonicalName === 'g') return true;
+    let t = FUNCTION_TEMPLATE[canonicalName];
+    if (!t) return false;
+    t = t.replace('%0', '').replace('%1', '');
+    if (/%/.test(t)) return true;
+    return false;
+}
+
+
+/**
+ * 
+ * @param {string} latex, for example '\\times'
+ * @return {string} the canonical name for the input, for example '*'
+ */
+function getCanonicalName(latex) {
+    latex = (latex || '').trim();
+    let result = CANONICAL_NAMES[latex];
+    if (!result) {
+        if (latex.charAt(0) === '\\') {
+            const info = Definitions.getInfo(latex, 'math', {});
+            if (info && info.type !== 'error') {
+                result = info.value || latex.slice(1);
+            } else {
+                result = latex.slice(1);
+            }
+        } else {
+            result = latex;
+        }
+    }
+    return result;
+}
+
+
+/**
  * Return the operator precedence of the atom
  * or -1 if not an operator
  * @param {*} atom 
@@ -14,10 +445,10 @@ define([
  */
 function opPrec(atom) {
     if (!atom) return null;
-    const name = Definitions.getCanonicalName(getString(atom));
+    const name = getCanonicalName(getString(atom));
     const result = {
-        prec: Definitions.getPrecedence(name), 
-        assoc: Definitions.getAssociativity(name)
+        prec: getPrecedence(name), 
+        assoc: getAssociativity(name)
     }
     if (result.prec <= 0) return null
     return result;
@@ -112,7 +543,7 @@ function getString(atom) {
     if (atom.latex && atom.latex !== '\\mathop ' && atom.latex !== '\\mathbin ' &&
         atom.latex !== '\\mathrel ' && atom.latex !== '\\mathopen ' && 
         atom.latex !== '\\mathpunct ' && atom.latex !== '\\mathord ' && 
-        atom.latex !== '\\mathinner ') {
+        atom.latex !== '\\mathinner ' && atom.type !== 'font') {
         return atom.latex.trim();
     }
     if (atom.type === 'leftright') {
@@ -142,7 +573,7 @@ function asSymbol(expr) {
         result = expr !== undefined ? expr.sym : undefined;
     }
     if (result) {
-        const latex = Definitions.getLatexForSymbol(result);
+        const latex = getLatexForSymbol(result);
         result = latex || result;
     }
     return result;
@@ -449,7 +880,7 @@ function parsePrimary(expr, options) {
     }
     
     let atom = expr.atoms[expr.index];
-    const val = Definitions.getCanonicalName(getString(atom));
+    const val = getCanonicalName(getString(atom));
 
     const digraph = parseDigraph(expr);
     if (digraph) {
@@ -523,7 +954,7 @@ function parsePrimary(expr, options) {
             expr = parsePrimary(expr, options);
             expr.ast = {lhs: lhs, op:'+', rhs: expr.ast};
         }
-        if (atom && atom.type === 'group' && atom.latex.startsWith('\\nicefrac')) {
+        if (atom && atom.type === 'group' && atom.latex && atom.latex.startsWith('\\nicefrac')) {
             // \nicefrac macro, add an invisible plus
             const lhs = expr.ast;
             expr = parsePrimary(expr, options);
@@ -541,7 +972,7 @@ function parsePrimary(expr, options) {
     } else if (atom.type === 'font') {
         expr.ast = atom.toAST(options);
         if (expr.ast.sym && expr.ast.variant === 'normal' && 
-            Definitions.isFunction(expr.ast.sym)) {
+            isFunction(expr.ast.sym)) {
             // This is a function (for example used with \\mathrm{foo}
             expr.ast = {fn: expr.ast.sym};
             expr = parseSupsub(expr, options);
@@ -563,8 +994,8 @@ function parsePrimary(expr, options) {
     } else if (atom.type === 'mord') {
         // A 'mord' but not a number, either an identifier ('x') or a function
         // ('\\Zeta')
-        const name = Definitions.getCanonicalName(getString(atom));
-        if (Definitions.isFunction(name) && !isOperator(atom)) {
+        const name = getCanonicalName(getString(atom));
+        if (isFunction(name) && !isOperator(atom)) {
             // A function
             expr.ast = {fn: name};
             expr = parseSupsub(expr, options);
@@ -593,8 +1024,8 @@ function parsePrimary(expr, options) {
             // This doesn't look like a textord operator
             if (!RIGHT_DELIM[atom.latex.trim()]) {
                 // Not an operator, not a fence, it's a symbol or a function
-                const name = Definitions.getCanonicalName(getString(atom));
-                if (Definitions.isFunction(name)) {
+                const name = getCanonicalName(getString(atom));
+                if (isFunction(name)) {
                     // It's a function
                     expr.ast = {fn: name};
                     expr = parseSupsub(expr, options);
@@ -620,8 +1051,8 @@ function parsePrimary(expr, options) {
 
     } else if (atom.type === 'mop') {
         // Could be a function or an operator.
-        const name = Definitions.getCanonicalName(getString(atom));
-        if (Definitions.isFunction(name) && !isOperator(atom)) {
+        const name = getCanonicalName(getString(atom));
+        if (isFunction(name) && !isOperator(atom)) {
             expr.index += 1;
             expr.ast = {fn: name};
             expr = parseSupsub(expr, options);
@@ -721,7 +1152,7 @@ function parsePrimary(expr, options) {
         const lhs = expr.ast;
         expr = parsePrimary(expr, options);
        if (expr && expr.ast) {
-            if (Definitions.isFunction(lhs)) {
+            if (isFunction(lhs)) {
                 // A function followed by a list -> the list becomes the 
                 // argument to the function
                 if (expr.ast.fn === 'list2' || expr.ast.fn === 'list') {
@@ -770,7 +1201,7 @@ function parseExpression(expr, options) {
         const atom = expr.atoms[expr.index];
         done = !atom || !isOperator(atom) || opPrec(atom).prec < minPrec;
         if (!done) {
-            const opName = Definitions.getCanonicalName(getString(atom));
+            const opName = getCanonicalName(getString(atom));
             const {prec, assoc} = opPrec(atom);
             if (assoc === 'left') {
                 expr.minPrec = prec + 1;
@@ -793,21 +1224,21 @@ function parseExpression(expr, options) {
 
             // Promote substraction to an addition
             if (opName === '-') {
-                if (lhs.op === '+') {
+                if (lhs && lhs.op === '+') {
                     // x+y - z      -> add(x, y, -z)
                     const arg = [];
                     if (lhs.lhs !== undefined) arg.push(lhs.lhs);
                     if (lhs.rhs !== undefined) arg.push(lhs.rhs);
                     if (rhs !== undefined) arg.push(negate(rhs));
                     lhs = {fn:'add', arg:arg}
-                } else if (lhs.op === '-') {
+                } else if (lhs && lhs.op === '-') {
                     // x-y - z      -> add(x, -y, -z)
                     const arg = [];
                     if (lhs.lhs !== undefined) arg.push(lhs.lhs);
                     if (lhs.rhs !== undefined) arg.push(negate(lhs.rhs));
                     if (rhs !== undefined) arg.push(negate(rhs));
                     lhs = {fn:'add', arg:arg}
-                } else if (lhs.fn === 'add') {
+                } else if (lhs && lhs.fn === 'add') {
                     // add(x,y) - z -> add(x, y, -z)
                     if (rhs !== undefined) lhs.arg.push(negate(rhs));
                 } else {
@@ -817,20 +1248,20 @@ function parseExpression(expr, options) {
                 // Is there a function (e.g. 'add') implementing the 
                 // associative version of this operator (e.g. '+')?
                 fn = ASSOCIATIVE_FUNCTION[opName];
-                if (fn === 'add' && lhs.op === '-') {
+                if (fn === 'add' && lhs && lhs.op === '-') {
                     const arg = [];
                     if (lhs.lhs !== undefined) arg.push(lhs.lhs);
                     if (lhs.rhs !== undefined) arg.push(negate(lhs.rhs));
                     if (rhs !== undefined) arg.push(rhs);
                     lhs = {fn: fn, arg:arg};
-                } else if (fn && lhs.op === opName) {
+                } else if (fn && lhs && lhs.op === opName) {
                     // x+y + z -> add(x, y, z)
                     const arg = [];
                     if (lhs.lhs !== undefined) arg.push(lhs.lhs);
                     if (lhs.rhs !== undefined) arg.push(lhs.rhs);
                     if (rhs !== undefined) arg.push(rhs);
                     lhs = {fn: fn, arg:arg};
-                } else if (fn && lhs.fn === fn) {
+                } else if (fn && lhs && lhs.fn === fn) {
                     // add(x,y) + z -> add(x, y, z)
                     if (rhs !== undefined) lhs.arg.push(rhs);
                 } else {
@@ -894,7 +1325,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
     let result = {};
     let sym = '';
     let m;
-    let lhs, rhs, p, q;
+    let lhs, rhs;
     const variant = MATH_VARIANTS[this.fontFamily || this.font];
 
     const command = this.latex ? this.latex.trim() : null;
@@ -902,7 +1333,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
         case 'root':
         case 'group':
             // Macros appear as group as well. Handle some of them.
-            if (this.latex.startsWith('\\nicefrac')) {
+            if (this.latex && this.latex.startsWith('\\nicefrac')) {
                 m = this.latex.slice(9).match(/({.*}|[^}])({.*}|[^}])/);
                 if (m) {
                     if (m[1].length === 1) {
@@ -935,15 +1366,9 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
         case 'genfrac':
             lhs = parse(this.numer, options);
             rhs = parse(this.denom, options);
-            p = parseInt(lhs);
-            q = parseInt(rhs);
-            if (!isNaN(p) && !isNaN(q)) {
-                result.num = p.toString() + '/' + q.toString();
-            } else {
-                result.lhs = lhs;
-                result.op = '/';
-                result.rhs = rhs;
-            }
+            result.lhs = lhs;
+            result.op = '/';
+            result.rhs = rhs;
             break;
 
         case 'surd':
@@ -986,7 +1411,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
             if (m) {
                 sym = String.fromCodePoint(parseInt(m[1], 16));
             } else {
-                sym = Definitions.getCanonicalName(getString(this));
+                sym = getCanonicalName(getString(this));
                 if (sym.length > 0 && sym.charAt(0) === '\\') {
                     // This is an identifier with no special handling. 
                     // Use the Unicode value if outside ASCII range
@@ -996,16 +1421,18 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
                         //     sym = '&#x' + ('000000' + 
                         //         this.body.charCodeAt(0).toString(16)).substr(-4) + ';';
                         // } else {
-                            sym = this.body.charAt(0);
+                            sym = this.body;
                         // }
                     }
                 }
             }
-            if (variant) {
-                result.sym = escapeText(sym);
-            } else {
-                result = escapeText(sym);       // Shortcut: symbol as string
-            }
+            result = escapeText(Definitions.mathVariantToUnicode(
+                    sym, this.fontFamily || this.font));
+            // if (variant) {
+            //     result.sym = escapeText(sym);
+            // } else {
+            //     result = escapeText(sym);       // Shortcut: symbol as string
+            // }
             break;
 
         // case 'mbin':
@@ -1140,23 +1567,6 @@ function formatMantissa(m, config) {
  */
 function numberAsLatex(num, config) {
     let result = '';
-    if (typeof num === 'string' && num.indexOf('/') >= 0) {
-        result = num;
-        // It's a fraction
-        const m = num.match(/(\+|-)?(\d*)\/(\d*)/);
-        if (m) {
-            result = (m[1] || '');
-            if (m[3] === '0') {
-                result = 0;
-            } else if (m[3] === '1') {
-                result += m[2];
-            } else {
-                result += '\\frac{' + m[2] + '}{' + m[3] + '}';
-            }
-        }
-
-        return result;
-    }
 
     if (typeof config.precision === 'number') {
         if (typeof num === 'number') {
@@ -1394,7 +1804,7 @@ function asLatex(ast, options) {
     
             result += '^{' + asLatex(ast.arg[1], config) + '}';
         } else {
-            const fn = Definitions.getLatexTemplateForFunction(ast.fn);
+            const fn = getLatexTemplateForFunction(ast.fn);
             let argstring = '';
             const optionalParen = ast.fn.match(/^(factorial(2)?|(((ar|arc)?(sin|cos|tan|cot|sec|csc)h?)|ln|log|lb))$/);
             if (Array.isArray(ast.arg) || !optionalParen) {
@@ -1494,19 +1904,19 @@ function asLatex(ast, options) {
         } else {
             let lhs, rhs;
             lhs = asLatex(ast.lhs, config);
-            if (ast.lhs && ast.lhs.op && Definitions.getPrecedence(ast.lhs.op) < Definitions.getPrecedence(ast.op)) {
+            if (ast.lhs && ast.lhs.op && getPrecedence(ast.lhs.op) < getPrecedence(ast.op)) {
                 lhs = '(' + lhs + ')';
             }
             
             rhs = asLatex(ast.rhs, config);
-            if (ast.rhs && ast.rhs.op && Definitions.getPrecedence(ast.rhs.op) < Definitions.getPrecedence(ast.op)) {
+            if (ast.rhs && ast.rhs.op && getPrecedence(ast.rhs.op) < getPrecedence(ast.op)) {
                 rhs = '(' + rhs + ')';
             }
 
             if (ast.op === '*') {
                 result = '%0 ' + config.product + ' %1';
             } else {
-                result = Definitions.getLatexTemplateForOperator(ast.op);
+                result = getLatexTemplateForOperator(ast.op);
             }
             result = result.replace('%^', ast.sup ? '^{' + asLatex(ast.sup, config) + '}' : '');
             result = result.replace('%_', ast.sub ? '_{' + asLatex(ast.sub, config) + '}' : '');

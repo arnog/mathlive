@@ -226,6 +226,53 @@ function defineSymbolRange(from, to, mode, fontFamily, type, frequency) {
     }
 }
 
+
+const CODEPOINT_SHORTCUTS = { 
+    0x00b7: '\\cdot',
+    0x00bc: '\\frac{1}{4}',
+    0x00bd: '\\frac{1}{2}',
+    0x00be: '\\frac{3}{4}',
+    0x2070: '^{0}',
+    0x2071: '^{i}',
+    0x00b9: '^{1}',
+    0x00b2: '^{2}',
+    0x00b3: '^{3}',
+    0x2074: '^{4}',
+    0x2075: '^{5}',
+    0x2076: '^{6}',
+    0x2077: '^{7}',
+    0x2078: '^{8}',
+    0x2079: '^{9}',
+    0x207a: '^{+}',
+    0x207b: '^{-}',
+    0x207c: '^{=}',
+    0x207f: '^{n}',
+
+    0x2080: '_{0}',
+    0x2081: '_{1}',
+    0x2082: '_{2}',
+    0x2083: '_{3}',
+    0x2084: '_{4}',
+    0x2085: '_{5}',
+    0x2086: '_{6}',
+    0x2087: '_{7}',
+    0x2088: '_{8}',
+    0x2089: '_{9}',
+    0x208A: '_{+}',
+    0x208B: '_{-}',
+    0x208C: '_{=}',
+    0x2090: '_{a}',
+    0x2091: '_{e}',
+    0x2092: '_{o}',
+    0x2093: '_{x}',
+
+    0x2102: '\\C',
+    0x2115: '\\N',
+    0x2119: '\\P',
+    0x211A: '\\Q',
+    0x211D: '\\R',
+    0x2124: '\\Z',
+    };
 /**
  * Given a character, return a LaTeX expression matching its Unicode codepoint.
  * The return string is in the ASCII range.
@@ -243,55 +290,14 @@ function matchCodepoint(s) {
     // Some symbols map to multiple codepoints. 
     // Some symbols are 'pseudosuperscript'. Convert them to a super(or sub)script.
     // Map their alternative codepoints here.
-    let result = { 
-        0x00b7: '\\cdot',
-        0x00bc: '\\frac{1}{4}',
-        0x00bd: '\\frac{1}{2}',
-        0x00be: '\\frac{3}{4}',
-        0x2070: '^{0}',
-        0x2071: '^{i}',
-        0x00b9: '^{1}',
-        0x00b2: '^{2}',
-        0x00b3: '^{3}',
-        0x2074: '^{4}',
-        0x2075: '^{5}',
-        0x2076: '^{6}',
-        0x2077: '^{7}',
-        0x2078: '^{8}',
-        0x2079: '^{9}',
-        0x207a: '^{+}',
-        0x207b: '^{-}',
-        0x207c: '^{=}',
-        0x207f: '^{n}',
-
-        0x2080: '_{0}',
-        0x2081: '_{1}',
-        0x2082: '_{2}',
-        0x2083: '_{3}',
-        0x2084: '_{4}',
-        0x2085: '_{5}',
-        0x2086: '_{6}',
-        0x2087: '_{7}',
-        0x2088: '_{8}',
-        0x2089: '_{9}',
-        0x208A: '_{+}',
-        0x208B: '_{-}',
-        0x208C: '_{=}',
-        0x2090: '_{a}',
-        0x2091: '_{e}',
-        0x2092: '_{o}',
-        0x2093: '_{x}',
-
-        0x2115: '\\N',
-        0x2124: '\\Z'
-        }[s];
+    let result = CODEPOINT_SHORTCUTS[s];
     if (result) return result;
 
     if (codepoint > 32 && codepoint < 127) return s;
 
     for (const p in MATH_SYMBOLS) {
         if (MATH_SYMBOLS.hasOwnProperty(p)) {
-            if (MATH_SYMBOLS[p].value === s) {
+            if (MATH_SYMBOLS[p].value === s || MATH_SYMBOLS[p].body === s) {
                 result = p;
                 if (p[0] === '\\') result += ' ';
             }
@@ -309,6 +315,204 @@ function matchCodepoint(s) {
     }
     return result;
 }
+
+
+
+/**
+ * Given a Unicode character returns {char:, variant:, style} corresponding 
+ * to this codepoint. `variant` is optional and is one of 'mathbb', 
+ * 'mathfrak', 'mathcal', 'mathscr', 'mathsf' and 'mathtt'
+ * This maps characters such as "blackboard uppercase C" to 
+ * {char: 'C', variant: 'mathbb', style:}
+ * @param {string} char 
+ */
+
+/* Some symbols in the MATHEMATICAL ALPHANUMERICAL SYMBOLS blocked had 
+   been previously defined in other blocks. Remap them */
+const MATH_LETTER_EXCEPTIONS = {
+    0x1d455: 0x0210e,
+    0x1D49D: 0x0212C,
+    0x1D4A0: 0x02130,
+    0x1D4A1: 0x02131,
+    0x1D4A3: 0x0210B,
+    0x1D4A4: 0x02110,
+    0x1D4A7: 0x02112,
+    0x1D4A8: 0x02133,
+    0x1D4AD: 0x0211B,
+    0x1D4BA: 0x0212F,
+    0x1D4BC: 0x0210A,
+    0x1D4C4: 0x02134,
+    0x1D506: 0x0212D,
+    0x1D50B: 0x0210C,
+    0x1D50C: 0x02111,
+    0x1D515: 0x0211C,
+    0x1D51D: 0x02128,
+    0x1D53A: 0x02102,
+    0x1D53F: 0x0210D,
+    0x1D545: 0x02115,
+    0x1D547: 0x02119,
+    0x1D548: 0x0211A,
+    0x1D549: 0x0211D,
+    0x1D551: 0x02124,
+}
+
+
+const MATH_UNICODE_BLOCKS = [
+    { start: 0x1D400, len: 26, offset: 65, style: 'bold' },
+    { start: 0x1D41A, len: 26, offset: 97, style: 'bold' },
+    { start: 0x1D434, len: 26, offset: 65, style: 'italic' },
+    { start: 0x1D44E, len: 26, offset: 97, style: 'italic' },
+    { start: 0x1D468, len: 26, offset: 65, style: 'bolditalic'},
+    { start: 0x1D482, len: 26, offset: 97, style: 'bolditalic'},
+
+    { start: 0x1D49c, len: 26, offset: 65, variant: 'mathcal'},
+    { start: 0x1D4b6, len: 26, offset: 97, variant: 'mathcal'},
+    { start: 0x1D4d0, len: 26, offset: 65, variant: 'mathcal', style: 'bold'},
+    { start: 0x1D4ea, len: 26, offset: 97, variant: 'mathcal', style: 'bold'},
+
+    { start: 0x1D504, len: 26, offset: 65, variant: 'mathfrak'},
+    { start: 0x1D51e, len: 26, offset: 97, variant: 'mathfrak'},
+    { start: 0x1D56c, len: 26, offset: 65, variant: 'mathfrak', style: 'bold'},
+    { start: 0x1D586, len: 26, offset: 97, variant: 'mathfrak', style: 'bold'},
+ 
+    { start: 0x1D538, len: 26, offset: 65, variant: 'mathbb'},
+    { start: 0x1D552, len: 26, offset: 97, variant: 'mathbb'},
+
+    { start: 0x1D5A0, len: 26, offset: 65, variant: 'mathsf'},
+    { start: 0x1D5BA, len: 26, offset: 97, variant: 'mathsf'},
+    { start: 0x1D5D4, len: 26, offset: 65, variant: 'mathsf', style: 'bold'},
+    { start: 0x1D5EE, len: 26, offset: 97, variant: 'mathsf', style: 'bold'},
+    { start: 0x1D608, len: 26, offset: 65, variant: 'mathsf', style: 'italic'},
+    { start: 0x1D622, len: 26, offset: 97, variant: 'mathsf', style: 'italic'},
+    { start: 0x1D63c, len: 26, offset: 65, variant: 'mathsf', style: 'bolditalic'},
+    { start: 0x1D656, len: 26, offset: 97, variant: 'mathsf', style: 'bolditalic'},
+    
+    { start: 0x1D670, len: 26, offset: 65, variant: 'mathtt'},
+    { start: 0x1D68A, len: 26, offset: 97, variant: 'mathtt'},
+
+    { start: 0x1D6A8, len: 25, offset: 0x391, style: 'bold'},
+    { start: 0x1D6C2, len: 25, offset: 0x3B1, style: 'bold'},
+    { start: 0x1D6E2, len: 25, offset: 0x391, style: 'italic'},
+    { start: 0x1D6FC, len: 25, offset: 0x3B1, style: 'italic'},
+    { start: 0x1D71C, len: 25, offset: 0x391, style: 'bolditalic'},
+    { start: 0x1D736, len: 25, offset: 0x3B1, style: 'bolditalic'},
+    { start: 0x1D756, len: 25, offset: 0x391, variant: 'mathsf', style: 'bold'},
+    { start: 0x1D770, len: 25, offset: 0x3B1, variant: 'mathsf', style: 'bold'},
+    { start: 0x1D790, len: 25, offset: 0x391, variant: 'mathsf', style: 'bolditalic'},
+    { start: 0x1D7AA, len: 25, offset: 0x3B1, variant: 'mathsf', style: 'bolditalic'},
+
+
+    { start: 0x1D7CE, len: 10, offset: 48, variant: '', style: 'bold' },
+    { start: 0x1D7D8, len: 10, offset: 48, variant: 'mathbb' },
+    { start: 0x1D7E3, len: 10, offset: 48, variant: 'mathsf' },
+    { start: 0x1D7Ec, len: 10, offset: 48, variant: 'mathsf', style: 'bold' },
+    { start: 0x1D7F6, len: 10, offset: 48, variant: 'mathtt'},
+]
+
+
+function unicodeToMathVariant(char) {
+    let codepoint = char;
+    if (typeof char === 'string') codepoint = char.codePointAt(0);
+    if ((codepoint < 0x1d400 || codepoint > 0x1d7ff) &&
+        (codepoint < 0x2100 || codepoint > 0x214f)) {
+            return {char:char};
+    }
+
+    // Handle the 'gap' letters by converting them back into their logical range
+    for (const c in MATH_LETTER_EXCEPTIONS) {
+        if (MATH_LETTER_EXCEPTIONS.hasOwnProperty(c)) {
+            if (MATH_LETTER_EXCEPTIONS[c] === codepoint) {
+                codepoint = c;
+                break;
+            }
+        }
+    }
+
+
+    for (let i = 0; i < MATH_UNICODE_BLOCKS.length; i++) {
+        if (codepoint >= MATH_UNICODE_BLOCKS[i].start && 
+            codepoint < MATH_UNICODE_BLOCKS[i].start + MATH_UNICODE_BLOCKS[i].len) {
+                return {
+                    char: String.fromCodePoint(codepoint - MATH_UNICODE_BLOCKS[i].start + MATH_UNICODE_BLOCKS[i].offset),
+                    variant: MATH_UNICODE_BLOCKS[i].variant,
+                    style: MATH_UNICODE_BLOCKS[i].style,
+                }
+        }
+    }
+
+    return {char:char};
+}
+
+/**
+ * Given a character and variant ('mathbb', 'mathcal', etc...) 
+ * return the corresponding unicode character (a string)
+ * @param {string} char 
+ * @param {string} variant 
+ */
+function mathVariantToUnicode(char, variant, style) {
+    if (!/[A-Za-z0-9]/.test(char)) return char;
+
+    const codepoint = char.codePointAt(0);
+    
+    for (let i = 0; i < MATH_UNICODE_BLOCKS.length; i++) {
+        if (!variant || MATH_UNICODE_BLOCKS[i].variant === variant) {
+            if (!style || MATH_UNICODE_BLOCKS[i].style === style) {
+                if (codepoint >= MATH_UNICODE_BLOCKS[i].offset && 
+                    codepoint < MATH_UNICODE_BLOCKS[i].offset + MATH_UNICODE_BLOCKS[i].len) {
+                        return String.fromCodePoint(
+                                MATH_UNICODE_BLOCKS[i].start + 
+                                codepoint - MATH_UNICODE_BLOCKS[i].offset);
+                }
+            }
+        }
+    }
+
+    return char;
+}
+
+
+
+function codepointToLatex(cp) {
+    if (CODEPOINT_SHORTCUTS[cp]) return CODEPOINT_SHORTCUTS[cp];
+
+    let result;
+    // const s = String.fromCodePoint(cp);
+    // for (const p in MATH_SYMBOLS) {
+    //     if (MATH_SYMBOLS.hasOwnProperty(p)) {
+    //         if (MATH_SYMBOLS[p].value === s || MATH_SYMBOLS[p].body === s) {
+    //             result = p;
+    //             if (p[0] === '\\') result += ' ';
+    //             return result;
+    //         }
+    //     }
+    // }
+
+    const v = unicodeToMathVariant(cp);
+    if (!v.style && !v.variant) return String.fromCodePoint(cp);
+    result =  v.char;
+    if (v.variant) {
+        result = '\\' + v.variant + '{' + result + '}';
+    }
+    if (v.style === 'bold') {
+        result = '\\mathbf{' + result + '}';
+    } else if (v.style === 'italic') {
+        result = '\\mathit{' + result + '}';
+    } else if (v.style === 'bolditalic') {
+        result = '\\mathbf{\\mathit{' + result + '}}';
+    }
+    return '\\mathord{' + result + '}';
+}
+
+
+
+function unicodeStringToLatex(s) {
+    let result = '';
+    for (const cp of s) {
+        result += codepointToLatex(cp.codePointAt(0));
+    }
+    return result;
+}
+
 
 
 /**
@@ -2543,7 +2747,9 @@ defineFunction([
             '\\mathinner': 'minner'
         }[name],
         body: getSimpleString(args[0]) || args[0],
-        fontFamily: 'mainrm'        
+        fontFamily: 'mainrm',
+        captureSelection: true,     // Do not let children be selected
+
     };
     if (name === '\\mathop') {
         result.limits = 'nolimits';
@@ -2789,435 +2995,14 @@ defineSymbol('\\AA', TEXT + MATH, MAIN, TEXTORD, '\u00c5');    // LATIN CAPITAL 
 
 
 
-
-
-const CANONICAL_NAMES = {
-    // CONSTANTS
-    '\\imaginaryI': '\u2148',
-    '\\imaginaryJ': '\u2149',
-    '\\pi':         'π',
-    '\\exponentialE':          '\u212f',
-
-    // ARITHMETIC
-    '﹢':               '+',        // SMALL PLUS SIGN
-    '＋':               '+',        // FULL WIDTH PLUS SIGN
-    '−':                '-',        // MINUS SIGN
-    '-':                '-',        // HYPHEN-MINUS
-    '﹣':               '-',        // SMALL HYPHEN-MINUS
-    '－':               '-',        // FULLWIDTH HYPHEN-MINUS
-    '\\times':          '*',
-    '⨉':                '*',        // N-ARY TIMES OPERATOR U+
-    '️✖':                '*',        // MULTIPLICATION SYMBOL
-    '️×':                '*',        // MULTIPLICATION SIGN
-    '.':                '*',
-    '÷':                '/',        // DIVISION SIGN
-    // '/':             '/',        // SOLIDUS
-    '⁄':                 '/',        // FRACTION SLASH
-    '／':                '/',        // FULLWIDTH SOLIDUS
-    '!':                'factorial',
-    '️\\pm':             'plusminus', // PLUS-MINUS SIGN
-    '\\mp':             'minusplus', // MINUS-PLUS SIGN
-
-    '\\land':           'and',
-    '\\wedge':          'and',
-    '\\lor':            'or',
-    '\\vee':            'or',
-    '\\oplus':          'xor',
-    '\\veebar':         'xor',
-    '\\lnot':           'not',
-    '\\neg':            'not',
-
-    '\\exists':         'exists',
-    '\\nexists':        '!exists',
-    '\\forall':         'forAll',
-    '\\backepsilon':    'suchThat',
-    '\\therefore':      'therefore',
-    '\\because':        'because',
-
-    '\\nabla':          'nabla',
-    '\\circ':           'circle',
-    // '\\oplus':       'oplus',
-    '\\ominus':         'ominus',
-    '\\odot':           'odot',
-    '\\otimes':         'otimes',
-
-    '\\zeta':           'Zeta',
-    '\\Gamma':          'Gamma',
-    '\\min':            'min',
-    '\\max':            'max',
-    '\\mod':            'mod',
-    '\\lim':            'lim',  // BIG OP
-    '\\sum':            'sum',
-    '\\prod':           'prod',
-    '\\int':            'integral',
-    '\\iint':           'integral2',
-    '\\iiint':          'integral3',
-
-    '\\Re':             'Re',
-    '\\gothicCapitalR': 'Re',
-    '\\Im':             'Im',
-    '\\gothicCapitalI': 'Im',
-
-    '\\binom':          'nCr',
-
-    '\\partial':        'partial',
-    '\\differentialD':  'differentialD',
-    '\\capitalDifferentialD': 'capitalDifferentialD',
-    '\\Finv':           'Finv',
-    '\\Game':           'Game',
-    '\\wp':             'wp',
-    '\\ast':            'ast',
-    '\\star':           'star',
-    '\\asymp':          'asymp',
-
-    // Function domain, limits
-    '\\to':             'to',       // Looks like \rightarrow
-    '\\gets':           'gets',     // Looks like \leftarrow
-
-    // Logic
-    '\\rightarrow':     'shortLogicalImplies',
-    '\\leftarrow':      'shortLogicalImpliedBy',
-    '\\leftrightarrow': 'shortLogicalEquivalent',
-    '\\longrightarrow': 'logicalImplies',
-    '\\longleftarrow':  'logicalImpliedBy',
-    '\\longleftrightarrow': 'logicalEquivalent',
-
-    // Metalogic
-    '\\Rightarrow':     'shortImplies',
-    '\\Leftarrow':      'shortImpliedBy',
-    '\\Leftrightarrow': 'shortEquivalent',
-
-    '\\implies':        'implies',
-    '\\Longrightarrow': 'implies',
-    '\\impliedby':      'impliedBy',
-    '\\Longleftarrow':  'impliedBy',
-    '\\iff':            'equivalent',
-    '\\Longleftrightarrow': 'equivalent',
-
-}
-
-const FUNCTION_TEMPLATE = {
-    // TRIGONOMETRY
-    'sin':      '\\sin%_%^ %',
-    'cos':      '\\cos%_%^ %',
-    'tan':      '\\tan%_%^ %',
-    'cot':      '\\cot%_%^ %',
-    'sec':      '\\sec%_%^ %',
-    'csc':      '\\csc%_%^ %',
-
-    'sinh':     '\\sinh %',
-    'cosh':     '\\cosh %',
-    'tanh':     '\\tanh %',
-    'csch':     '\\csch %',
-    'sech':     '\\sech %',
-    'coth':     '\\coth %',
-
-    'arcsin':      '\\arcsin %',
-    'arccos':      '\\arccos %',
-    'arctan':      '\\arctan %',
-    'arccot':      '\\arcctg %',        // Check
-    'arcsec':      '\\arcsec %',
-    'arccsc':      '\\arccsc %',
-
-    'arsinh':     '\\arsinh %',
-    'arcosh':     '\\arcosh %',
-    'artanh':     '\\artanh %',
-    'arcsch':     '\\arcsch %',
-    'arsech':     '\\arsech %',
-    'arcoth':     '\\arcoth %',
-
-    // LOGARITHMS
-    'ln':       '\\ln%_%^ %',     // Natural logarithm
-    'log':      '\\log%_%^ %',    // General logarithm, e.g. log_10
-    'lg':       '\\lg %',     // Common, base-10, logarithm
-    'lb':       '\\lb %',     // Binary, base-2, logarithm
-
-    // Big operator
-    'sum':      '\\sum%_%^ %',
-
-    // OTHER
-    'Zeta':     '\\zeta%_%^ %', // Riemann Zeta function
-    'Gamma':    '\\Gamma %',    // Gamma function, such that Gamma(n) = (n - 1)!
-    'min':      '\\min%_%^ %',
-    'max':      '\\max%_%^ %',
-    'mod':      '\\mod%_%^ %',
-    'lim':      '\\lim%_%^ %',      // BIG OP
-    'binom':    '\\binom %',
-    'nabla':    '\\nabla %',
-    'curl':     '\\nabla\\times %',
-    'div':      '\\nabla\\cdot %',
-    'floor':    '\\lfloor % \\rfloor%_%^',
-    'ceil':     '\\lceil % \\rceil%_%^',
-    'abs':      '\\vert % \\vert%_%^',
-    'norm':     '\\lVert % \\rVert%_%^',
-    'ucorner':  '\\ulcorner % \\urcorner%_%^',
-    'lcorner':  '\\llcorner % \\lrcorner%_%^',
-    'angle':    '\\langle % \\rangle%_%^',
-    'group':    '\\lgroup % \\rgroup%_%^',
-    'moustache':'\\lmoustache % \\rmoustache%_%^',
-    'brace':    '\\lbrace % \\rbrace%_%^',
-    'sqrt':     '\\sqrt[%^]{%}',
-    'lcm':      '\\mathop{lcm}%',
-    'gcd':      '\\mathop{gcd}%',
-    'erf':      '\\mathop{erf}%',
-    'erfc':     '\\mathop{erfc}%',
-    'randomReal': '\\mathop{randomReal}%',
-    'randomInteger': '\\mathop{randomInteger}%',
-    
-
-    // Arithmetic operators
-    '*':        '%0 \\times %1',
-
-    // Logic operators
-    'and':      '%0 \\land %1',
-    'or':       '%0 \\lor %1',
-    'xor':      '%0 \\oplus %1',
-    'not':      '%0 \\lnot %1',
-
-    // Other operators
-    'circle':   '%0 \\circ %1',
-    'ast':      '%0 \\ast %1',
-    'star':     '%0 \\star %1',
-    'asymp':    '%0 \\asymp %1',
-    '/':        '\\frac{%0}{%1}',
-    'Re':       '\\Re{%}',
-    'Im':       '\\Im{%}',
-    'factorial': '%!',
-    'factorial2': '%!!',
-}
-
-// From www.w3.org/TR/MathML3/appendixc.html
-
-const OP_PRECEDENCE = {
-    'degree':               880,
-    'nabla':                740,
-    'curl':                 740,    // not in MathML
-    'partial':              740,
-    'differentialD':        740,    // not in MathML
-    'capitalDifferentialD': 740,    // not in MathML
-
-    'odot':                 710,
-
-    // Logical not
-    'not':                  680,
-
-    // Division
-    'div':                  660,    // division sign
-    'solidus':              660,
-    '/':                    660,
-
-    'setminus':             650,    // \setminus, \smallsetminus
-
-    '%':                    640,
-
-    'otimes':               410,
-
-    // Set operators
-    'union':                350,    // \cup
-    'intersection':         350,    // \cap
-
-    // Multiplication, division and modulo
-    '*':                    390,
-    'ast':                  390,
-    '.':                    390,
-
-
-    'oplus':                300,    // also logical XOR... @todo
-    'ominus':               300,
-
-    // Addition
-    '+':                    275,
-    '-':                    275,
-    '+-':                   275,    // \pm
-    '-+':                   275,    // \mp
-
-
-    // Most circled-ops are 265
-    'circle':               265,
-    'circledast':           265,
-    'circledcirc':          265,
-    'star':                 265,    // Different from ast
-
-
-    // Range
-    '..':                   263,    // Not in MathML
-
-    // Unit conversion
-    'to':                   262,    // Not in MathLM
-    'in':                   262,    // Not in MathML
-
-
-    // Relational
-    '=':                    260,
-    '!=':                   255,
-
-    'approx':               247,
-    '<':                    245,
-    '>':                    243,
-    '≥':                    242,
-    '≤':                    241,
-
-    // Set operator
-    'complement':           240,
-    'subset':               240,    // \subset
-    'superset':             240,    // \supset
-    // @todo and equality and neg operators
-    'elementof':            240,    // \in
-    '!elementof':           240,    // \notin
-    // 
-    'exists':                230,
-    '!exists':               230,
-    'forall':                230,
-
-    // Logical operators
-    'and':              200,
-    'xor':              195,            // MathML had 190
-    'or':               190,
-    // Note: 'not' is 680
-
-    // center, low, diag, vert ellipsis         150
-
-    // Composition/sequence
-    'suchThat':              110,   // \backepsilon
-    ':':                     100,
-    // '..':               100,
-    // '...':               100,
-
-    // Conditional (?:)
-    
-
-    // Assignement    
-    ':=':                80,       // MathML had 260 (same with U+2254 COLON EQUALS)
-
-    'therefore':                70,
-    'because':                70,
-
-    // Arrows
-    // Note: MathML had 270 for the arrows, but this
-    // would not work for (a = b => b = a)
-    // See also https://en.wikipedia.org/wiki/Logical_connective#Order_of_precedence 
-    // for a suggested precedence (note that in this page lower precedence 
-    // has the opposite meaning as what we use)
-    'shortLogicalImplies': 52,  // ->
-    'shortImplies':     51,     // =>
-    'logicalImplies':   50,     // -->
-    'implies':          49,     // ==>
-
-    'shortLogicalImpliedBy': 48,// <-
-    'shortImpliedBy':   47,     // <=
-    'logicalImpliedBy': 46,     // <--
-    'impliedBy':        45,     // <==
-
-    'shortLogicalEquivalent':44,// <->
-    'shortEquivalent':  43,     // <=>
-    'logicalEquivalent':42,     // <-->
-    'equivalent':       41,     // <==>
-
-
-    ',':                40,
-    ';':                30
-}
-
-/**
- * 
- * @param {string} latex, for example '\\times'
- * @return {string} the canonical name for the input, for example '*'
- */
-function getCanonicalName(latex) {
-    latex = (latex || '').trim();
-    let result = CANONICAL_NAMES[latex];
-    if (!result) {
-        if (latex.charAt(0) === '\\') {
-            const info = getInfo(latex, 'math', {});
-            if (info && info.type !== 'error') {
-                result = info.value || latex.slice(1);
-            } else {
-                result = latex.slice(1);
-            }
-        } else {
-            result = latex;
-        }
-    }
-    return result;
-}
-
-
-/**
- * 
- * @param {string} name function or operator canonical name
- * @return {string}
- */
-function getLatexTemplateForOperator(name) {
-    let result = FUNCTION_TEMPLATE[name];
-    if (!result) {
-        result = '%0 \\mathbin{' + name + '} %1';
-    }
-
-    return result;
-}
-
-/**
- * 
- * @param {string} name symbol name
- * @return {string}
- */
-function getLatexForSymbol(name) {
-    let result = FUNCTION_TEMPLATE[name];
-    if (result) {
-        return result.replace('%1', '').replace('%0', '').replace('%', '');
-    }
-    const info = getInfo('\\' + name, 'math');
-    if (info && info.type !== 'error' && 
-        (!info.fontFamily || info.fontFamily === 'main' || info.fontFamily === 'ams')) {
-        result = '\\' + name;
-    }
-
-    return result;
-}
-
-/**
- * 
- * @param {string} name function canonical name
- * @return {string}
- */
-function getLatexTemplateForFunction(name) {
-    let result = FUNCTION_TEMPLATE[name];
-    if (!result) {
-        result = name.length > 1 ? '\\mathop{' + name + '} %' : (name + ' %');
-    }
-
-    return result;
-}
-
-/**
- * Given a canonical name, return its precedence
- * @param {string} canonicalName, for example "and"
- * @return {number}
- */
-function getPrecedence(canonicalName) {
-    return canonicalName ? (OP_PRECEDENCE[canonicalName] || -1) : -1;
-}
-
-function getAssociativity(canonicalName) {
-    if (/=|=>/.test(canonicalName)) {
-        return 'right';
-    } 
-    return 'left';
-}
-
-function isFunction(canonicalName) {
-    if (canonicalName === 'f' || canonicalName === 'g') return true;
-    let t = FUNCTION_TEMPLATE[canonicalName];
-    if (!t) return false;
-    t = t.replace('%0', '').replace('%1', '');
-    if (/%/.test(t)) return true;
-    return false;
-}
-
 return {
     matchCodepoint: matchCodepoint,
     matchSymbol: matchSymbol,
     matchFunction: matchFunction,
+    unicodeToMathVariant,
+    mathVariantToUnicode,
+    codepointToLatex,
+    unicodeStringToLatex,
     getInfo: getInfo,
     getValue: getValue,
     getFontName: getFontName,
@@ -3231,15 +3016,6 @@ return {
 
     FUNCTIONS: FUNCTIONS,
     MACROS: MACROS,
-
-    getPrecedence: getPrecedence,
-    getAssociativity: getAssociativity,
-    getCanonicalName: getCanonicalName,
-    getLatexForSymbol: getLatexForSymbol,
-    getLatexTemplateForOperator: getLatexTemplateForOperator, 
-    getLatexTemplateForFunction: getLatexTemplateForFunction,
-    isFunction: isFunction
-
 }
 
 })

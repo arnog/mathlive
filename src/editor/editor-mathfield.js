@@ -38,6 +38,8 @@ define([
 */
 
 
+const HAPTIC_FEEDBACK_DURATION = 3; // in ms
+const AUDIO_FEEDBACK_VOLUME = 0.5; // from 0.0 to 1.0
 
 function on(el, selectors, listener, options) {
     selectors = selectors.split(' ');
@@ -801,6 +803,46 @@ MathField.prototype.perform = function(command) {
 }
 
 /**
+ * Perform a command, but:
+ * * focus the mathfield
+ * * provide haptic and audio feedback
+ * This is used by the virtual keyboard when command keys (delete, arrows, etc..)
+ * are pressed.
+ * @param {string} command 
+ */
+MathField.prototype.performWithFeedback_ = function(command) {
+
+    this.focus();
+
+    if (this.config.keypressVibration && navigator.vibrate) {
+        navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
+    }
+
+
+    if (command === 'moveToNextPlaceholder' || 
+        command === 'moveToPreviousPlaceholder' ||
+        command === 'complete') {
+        if (this.returnKeypressSound) this.returnKeypressSound.play();
+        else if (this.keypressSound) this.keypressSound.play();
+    } else if (command === 'deletePreviousChar' || 
+        command === 'deleteNextChar' ||
+        command === 'deletePreviousWord' ||
+        command === 'deleteNextWord' ||
+        command === 'deleteToGroupStart' ||
+        command === 'deleteToGroupEnd' ||
+        command === 'deleteToMathFieldStart' ||
+        command === 'deleteToMathFieldEnd') {
+            if (this.deleteKeypressSound) this.deleteKeypressSound.play();
+            else if (this.keypressSound) this.keypressSound.play();    
+    } else if (this.keypressSound) {
+        this.keypressSound.play();
+    }
+
+    this.perform(command);
+}
+
+
+/**
  * @param {string} keystroke
  * @param {Event} evt - optional, an Event corresponding to the keystroke
  * @method MathField#_onKeystroke
@@ -854,8 +896,21 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
  * an input method. As a result, `text` can be a sequence of characters to
  * be inserted.
  * @param {string} text
+ * @param {object} options 
+ * @param {boolean} options.focus - If true, the mathfield will be focused
+ * @param {boolean} options.feedback - If true, provide audio and haptic feedback
  */
-MathField.prototype._onTypedText = function(text) {
+MathField.prototype._onTypedText = function(text, options) {
+    options = options || {};
+
+    if (options.focus) this.focus();
+    if (options.feedback) {
+         if (this.config.keypressVibration && navigator.vibrate) {
+            navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
+        }
+        if (this.keypressSound) this.keypressSound.play();
+    }
+
     // Remove any error indicator on the current command sequence (if there is one)
     this.mathlist.decorateCommandStringAroundInsertionPoint(false);
 
@@ -958,6 +1013,7 @@ MathField.prototype._onTypedText = function(text) {
                         this.perform(selector);
                     } else {
                         this.undoManager.snapshot();
+
                         this.mathlist.insert(c, {macros: this.config.macros});
                     }
                 }
@@ -1324,6 +1380,7 @@ MathField.prototype.pasteFromClipboard_ = function() {
  *    * `'latex'`: the string is interpreted strictly as a latex fragment
  * 
  * @param {boolean} options.focus - If true, the mathfield will be focused
+ * @param {boolean} options.feedback - If true, provide audio and haptic feedback
  * @method MathField#insert
  */
 MathField.prototype.insert_ = 
@@ -1331,6 +1388,12 @@ MathField.prototype.insert = function(s, options) {
     if (typeof s === 'string' && s.length > 0) {
         options = options || {};
         if (options.focus) this.focus();
+        if (options.feedback) {
+            if (this.config.keypressVibration && navigator.vibrate) {
+                navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
+            }
+            if (this.keypressSound) this.keypressSound.play();
+        }
         this.undoManager.snapshot();
         options.macros = this.config.macros;
         this.mathlist.insert(s, options);
@@ -1504,6 +1567,7 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
     let pressHoldElement;
     let touchID;
     let syntheticTarget;    // Target while touch move
+    let pressAndHoldTimer;
 
     on(el, 'mousedown touchstart', function(ev) {
         if (ev.type !== 'mousedown' || ev.buttons === 1) {
@@ -1529,7 +1593,8 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
             const pressAndHoldStartCommand = el.getAttribute('data-' + that.config.namespace + 'command-pressAndHoldStart');
             if (pressAndHoldStartCommand) {
                 pressHoldElement = el;
-                window.setTimeout(function() {
+                if (pressAndHoldTimer) clearTimeout(pressAndHoldTimer);
+                pressAndHoldTimer = window.setTimeout(function() {
                     if (el.classList.contains('pressed')) {
                         that.perform(JSON.parse(pressAndHoldStartCommand));
                     }
@@ -2002,9 +2067,16 @@ MathField.prototype.typedText = function(text) {
     this._onTypedText(text);
 }
 
-MathField.prototype.typedText_ = function(text) {
-    this.focus();
-    return this._onTypedText(text);
+
+/**
+ * 
+ * @param {string} text 
+ * @param {object} options 
+ * @param {boolean} options.focus - If true, the mathfield will be focused
+ * @param {boolean} options.feedback - If true, provide audio and haptic feedback
+ */
+MathField.prototype.typedText_ = function(text, options) {
+    return this._onTypedText(text, options);
 }
 
 
@@ -2031,6 +2103,40 @@ MathField.prototype.config = function(conf) {
     }
     if (!/-$/.test(this.config.namespace)) {
         this.config.namespace += '-';
+    }
+
+    // Possible keypress sound feedback
+    this.keypressSound = undefined;
+    this.spacebarKeypressSound = undefined;
+    this.returnKeypressSound = undefined;
+    this.deleteKeypressSound = undefined;
+    if (this.config.keypressSound) {
+        if (typeof this.config.keypressSound === 'string') {
+            this.keypressSound = new Audio(this.config.keypressSound);
+            this.keypressSound.volume = AUDIO_FEEDBACK_VOLUME;
+            this.spacebarKeypressSound = this.keypressSound;
+            this.returnKeypressSound = this.keypressSound;
+            this.deleteKeypressSound = this.keypressSound;
+        } else {
+            console.assert(this.config.keypressSound.default);
+            this.keypressSound = new Audio(this.config.keypressSound.default);
+            this.keypressSound.volume = AUDIO_FEEDBACK_VOLUME;
+            this.spacebarKeypressSound = this.keypressSound;
+            this.returnKeypressSound = this.keypressSound;
+            this.deleteKeypressSound = this.keypressSound;
+            if (this.config.keypressSound.spacebar) {
+                this.spacebarKeypressSound = new Audio(this.config.keypressSound.spacebar);
+                this.spacebarKeypressSound.volume = AUDIO_FEEDBACK_VOLUME;
+            } 
+            if (this.config.keypressSound.return) {
+                this.returnKeypressSound = new Audio(this.config.keypressSound.return);
+                this.returnKeypressSound.volume = AUDIO_FEEDBACK_VOLUME;
+            } 
+            if (this.config.keypressSound.delete) {
+                this.deleteKeypressSound = new Audio(this.config.keypressSound.delete);
+                this.deleteKeypressSound.volume = AUDIO_FEEDBACK_VOLUME;
+            } 
+        }
     }
 
 }

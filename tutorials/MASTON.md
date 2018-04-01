@@ -37,7 +37,7 @@ In MASTON:
 
 ## Design Goals
 
-### Vocabulary
+### Definitions
 * **producer** software that generates a MASTON data structure
 * **consumer** software that parses and acts on a MASTON data structure
 
@@ -55,7 +55,13 @@ optional and can be ignored by any consumer.
 
 ## Encoding
 
-A MASTON expression is encoded as a JSON object. The root element is an &langle;expression&rangle;, which contains other elements according to the grammar below.
+A MASTON expression is an [abstract syntax tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) 
+encoded as a JSON object. 
+
+The root element is an &langle;expression&rangle;, with child nodes according 
+to the grammar below.
+
+
 
 ### Native Numbers
 
@@ -66,7 +72,8 @@ A native number is encoded following the JSON grammar, with two extensions:
  or by treating it as an error.
 * support for `NaN` and `infinity`
 
-&langle;native-number&rangle; := `'"NaN"'` | &langle;native-infinity&rangle; | [`'-'`] &langle;native-int&rangle; [ &langle;native-frac&rangle;] [ &langle;native-exp&rangle; ]
+&langle;native-number&rangle; := `'"NaN"'` | &langle;native-infinity&rangle; | 
+    [`'-'`] &langle;native-int&rangle; [ &langle;native-frac&rangle;] [ &langle;native-exp&rangle; ]
 
 &langle;native-infinity&rangle; := `'"'` [`'+'` | `'-'`] `'infinity'` `'"'`
 
@@ -81,15 +88,19 @@ Native strings are a sequence of Unicode characters.
 
 As per JSON, any Unicode character may be escaped using a `\u` escape sequence.
 
-Compliant MATSON producing software should not generate character entities in strings. However, when consuming a MATSON format, the following character entities may be recognized in a string:
+MATSON producing software should not generate character entities in 
+strings.
 
- Entity             | Value   | Unicode   
- -------------      |:-------|----------:
- &CapitalDifferentialD;              | \&CapitalDifferentialD;       | U+2145
- &DifferentialD;              | \&DifferentialD;       | U+2146
- &ExponentialE;              | \&ExponentialE;       | U+2147
- &ImaginaryI;              | \&ImaginaryI;       | U+2148
+Whenever applicable, a specific Unicode symbol should be used.
 
+For example, the set of complex numbers should be represented with U+2102 ℂ,
+not with U+0043 C and a math variant styling attribute.
+
+See [Unicode Chapter 22 - Symbols](http://www.unicode.org/versions/Unicode10.0.0/ch22.pdf)
+
+> When used with markup languages—for example, with Mathematical Markup Language
+> (MathML)—the characters are expected to be used directly, instead of indirectly via
+> entity references or by composing them from base letters and style markup.
 
 ### Optional keys
 All elements may have the following keys:
@@ -100,7 +111,11 @@ All elements may have the following keys:
 * `class`: A CSS class to be associated with a representation of this element
 * `id`: A CSS id to be associated with a representation of this element
 * `style`: A CSS style string
-* `wikidata` 
+* `wikidata`: A short string indicating an entry in a wikibase. For example, 
+    `"Q2111"`
+* `wikibase`: A base URL for the wikidata key. A full URL can be produced 
+by concatenating this key with the wikidata key. This key applies to 
+this element and all its children. The default value is "https://www.wikidata.org/wiki/"
 
 ### Key order
 The order of the keys in an element is not significant. That is, all these 
@@ -186,6 +201,8 @@ When using common functions, the following values are recommended:
  Co-tangent (cot, ctg, cotg, ctn) | `cotangent`
  Hyperbolic tangent (th, tan) | `tanh`
 
+Note that for inverse functions, no assumptions is made about the branch 
+cuts of those functions. The interpretation is left up to the consuming software.
 
 
 ### &langle;operator&rangle;
