@@ -14,7 +14,7 @@ define(['mathlive/core/mathstyle'], function(Mathstyle) {
  * 
  * 
  * A scope is defined by:
- * - an explicit groupe enclosed in braces `{...}`
+ * - an explicit group enclosed in braces `{...}`
  * - a semi-simple group enclosed in `\bgroup...\endgroup`
  * - an environment delimited by `\begin{<envname>}...\end{<envname>}`
  * 

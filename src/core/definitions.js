@@ -77,6 +77,28 @@ const MACROS = {
     'nicefrac': '^{#1}\\!\\!/\\!_{#2}'
 };
 
+
+const RIGHT_DELIM = {
+    '(':    ')',
+    '{':    '}',
+    '[':    ']',
+    '|':    '|',
+    '\\lbrace': '\\rbrace',
+    '\\langle': '\\rangle',
+    '\\lfloor': '\\rfloor',
+    '\\lceil':  '\\rceil',
+    '\\vert':   '\\vert',
+    '\\lvert':  '\\rvert',
+    '\\Vert':   '\\Vert',
+    '\\lVert':  '\\rVert',
+    '\\lbrack': '\\rbrack',
+    '\\ulcorner':   '\\urcorner',
+    '\\llcorner':   '\\lrcorner',
+    '\\lgroup': '\\rgroup',
+    '\\lmoustache': '\\rmoustache'
+}
+
+
 // Frequency of a symbol.
 // String constants corresponding to frequency values, 
 // which are the number of results returned by latexsearch.com
@@ -2996,26 +3018,27 @@ defineSymbol('\\AA', TEXT + MATH, MAIN, TEXTORD, '\u00c5');    // LATIN CAPITAL 
 
 
 return {
-    matchCodepoint: matchCodepoint,
-    matchSymbol: matchSymbol,
-    matchFunction: matchFunction,
+    matchCodepoint,
+    matchSymbol,
+    matchFunction,
     unicodeToMathVariant,
     mathVariantToUnicode,
     codepointToLatex,
     unicodeStringToLatex,
-    getInfo: getInfo,
-    getValue: getValue,
-    getFontName: getFontName,
-    getEnvironmentInfo: getEnvironmentInfo,
-    suggest: suggest,
-    FREQUENCY_VALUE: FREQUENCY_VALUE,
-    TEXT_SYMBOLS: TEXT_SYMBOLS,
-    MATH_SYMBOLS: MATH_SYMBOLS,
-    COMMAND_SYMBOLS: COMMAND_SYMBOLS,
-    ENVIRONMENTS: ENVIRONMENTS,
+    getInfo,
+    getValue,
+    getFontName,
+    getEnvironmentInfo,
+    suggest,
+    FREQUENCY_VALUE,
+    TEXT_SYMBOLS,
+    MATH_SYMBOLS,
+    COMMAND_SYMBOLS,
+    ENVIRONMENTS,
 
-    FUNCTIONS: FUNCTIONS,
-    MACROS: MACROS,
+    RIGHT_DELIM,
+    FUNCTIONS,
+    MACROS,
 }
 
 })

@@ -50,6 +50,7 @@ function makeSmallDelim(type, delim, style, center, context, classes) {
         span.setTop((1 - context.mathstyle.sizeMultiplier / style.sizeMultiplier) *
             context.mathstyle.metrics.axisHeight);
     }
+    span.setStyle('color', context.color);
 
     return span;
 }
@@ -72,6 +73,7 @@ function makeLargeDelim(type, delim, size, center, context, classes) {
         result.setTop((1 - context.mathstyle.sizeMultiplier) *
             context.mathstyle.metrics.axisHeight);
     }
+    result.setStyle('color', context.color);
 
     return result;
 }
@@ -289,7 +291,8 @@ function makeStackedDelim(type, delim, heightTotal, center, context,
 
     // Finally, build the vlist
     const inner = makeVlist(context, inners, 'bottom', depth);
-
+    inner.setStyle('color', context.color);
+    
     return makeStyleWrap(type, makeSpan(inner, 'delimsizing mult'),
         context.mathstyle, Mathstyle.TEXT, classes);
 }

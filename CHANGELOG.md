@@ -1,6 +1,11 @@
 
 
 ### Major New Features
+- Smart Fences. When a fence ("()", "{}", etc...) is inserted, a matching 
+closing fence is automatically inserted, displayed as a greyed out placeholder.
+The Latex code inserted will vary depending on the context where the insertion
+is made, either standalone characters ("(") or `\left...\right`. This feature
+can be turned off with `config.smartFence` but it is on by default.
 - Haptic and audio feedback for the virtual keyboard. Haptic feedback is available on 
 Android only. <br> Two new config options to control it. `config.keypressVibration`,
 which is on by default, control the haptic feedback. `config.keypressSound`
@@ -10,9 +15,14 @@ a `delete`, `return`, `spacebar` and `default` (required) keys to specify
 different sounds for those keys.
 
 ### Other New Features
+- MASTON: Use Unicode to represent math-variant letters (e.g. ℂ)
+- Convert math-variant letters encoded in Unicode to Latex when pasting (e.g. ℂ
+becomes `\C`, 𝕰 becomes `\mathord{\mathbf{\mathfrak{E}}}`
 - MASTON: Commutativity support. a + b + c -> add(a, b, c)
 - MASTON: Right and left-associativity support ('=' and '=>' are right associative)
 
+### Code Maintenance and Performance
+- Moved operator precedence and canonical names from Definitions to MASTON.
 
 ## 0.21 (March 30, 2018)
 ### Major New Features

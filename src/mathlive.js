@@ -117,17 +117,20 @@ function toMarkup(text, mathstyle, format, macros) {
 /**
  * Convert a DOM element into an editable math field.
  * 
- * @param {Element|string} element An HTML DOM element, for example as obtained 
+ * @param {HTMLElement|string} element An HTML DOM element, for example as obtained 
  * by `.getElementById()` or a string representing the ID of a DOM element.
  * 
- * @param {Object} [config]
+ * @param {Object<string, *>} [config]
  * 
  * @param {string} [config.namespace=''] - Namespace that is added to `data-`
  * attributes to avoid collisions with other libraries. It is empty by default.
  * The namespace should be a string of lowercase letters.
  * 
  * @param {function} [config.substituteTextArea] - A function that returns a 
- * focusable element that can be used to capture text input.
+ * focusable element that can be used to capture text input. This can be
+ * useful when a `<textarea>` element would be undesirable. Note that by default
+ * on mobile devices the TextArea is automatically replaced with a `<span>` to
+ * prevent the device virtual keyboard from being displayed.
  * 
  * @param {mathfieldCallback} [config.onFocus] - Invoked when the mathfield has 
  * gained focus
@@ -142,16 +145,18 @@ function toMarkup(text, mathstyle, format, macros) {
  * @param {boolean} [config.overrideDefaultInlineShortcuts=false] - If true 
  * the default inline shortcuts (e.g. 'p' + 'i' = 'π') are ignored.
  * 
- * @param {Object} [config.inlineShortcuts] - A map of shortcuts → replacement 
+ * @param {Object.<string, string>} [config.inlineShortcuts] - A map of shortcuts → replacement 
  * value. For example `{ 'pi': '\\pi'}`. If `overrideDefaultInlineShortcuts` is 
  * false, these shortcuts are applied after any default ones, and can therefore 
  * override them.
  * 
+ * @param {boolean} [config.smartFence=true] - If true, when an open fence is
+ * entered via `typedText()` it will generate a contextually appropriate markup,
+ * for example using `\left...\right` if applicable. If false, the literal 
+ * value of the character will be inserted instead.
+ * 
  * @param {string} [config.virtualKeyboardToggleGlyph] - If specified, the markup 
  * to be used to display the virtual keyboard toggle glyph.
- * 
- * @param {boolean} [config.overrideDefaultCommands=false] - If true, the default 
- * commands displayed in the command bar are ignored.
  * 
  * @param {string} [config.virtualKeyboardMode=''] - If `'manual'`, pressing the 
  * command bar toggle will display a virtual keyboard instead of the command bar.
@@ -209,11 +214,6 @@ function toMarkup(text, mathstyle, format, macros) {
  *    * `spacebar` ... when the spacebar is pressed
  *    * `default` ... when any other key is pressed. This key is required, the 
  * others are optional. If they are missing, this sound is played as well.
- * 
- * 
- * @param {Array} [config.commands] - An array of commands to display in the 
- * command bar. If `overrideDefaultCommands` is false, these commands will 
- * supplement the default commands, otherwise they replace them.
  * 
  * @param {mathfieldWithDirectionCallback} [config.onMoveOutOf] - A handler 
  * called when keyboard navigation would cause the insertion point to leave the

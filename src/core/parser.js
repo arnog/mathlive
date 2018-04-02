@@ -849,7 +849,9 @@ Parser.prototype.scanDelim = function() {
 
     // Some symbols are not of type mopen/mclose, but are still 
     // valid delimiters...
-    if (['|', '<', '>', '\\vert', '\\Vert', '\\|', '\\surd', 
+    // '?' is a special delimiter used as a 'placeholder'
+    // (when the closing delimiter is displayed greyed out)
+    if (['?', '|', '<', '>', '\\vert', '\\Vert', '\\|', '\\surd', 
         '\\uparrow', '\\downarrow', '\\Uparrow', '\\Downarrow', 
         '\\updownarrow', '\\Updownarrow', 
         '\\mid', '\\mvert', '\\mVert'].includes(delim)) {

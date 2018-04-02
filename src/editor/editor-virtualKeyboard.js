@@ -348,8 +348,8 @@ const LAYERS = {
                 <li class='action font-glyph bottom right' data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'>&#x232b;</li></ul>
             </ul>
             <ul>
-                <li class='keycap tex' data-alt-keys='(' data-latex='\\left('></li>
-                <li class='keycap tex' data-alt-keys=')' data-latex='\\right)'></li>
+                <li class='keycap tex' data-alt-keys='(' >(</li>
+                <li class='keycap tex' data-alt-keys=')' >)</li>
                 <li class='separator w5'></li>
                 <row name='numpad-4'/>
                 <li class='separator w5'></li>

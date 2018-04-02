@@ -458,25 +458,6 @@ function isOperator(atom) {
     return opPrec(atom) !== null;
 }
 
-const RIGHT_DELIM = {
-    '(':    ')',
-    '{':    '}',
-    '[':    ']',
-    '|':    '|',
-    '\\lbrace': '\\rbrace',
-    '\\langle': '\\rangle',
-    '\\lfloor': '\\rfloor',
-    '\\lceil':  '\\rceil',
-    '\\vert':   '\\vert',
-    '\\lvert':  '\\rvert',
-    '\\Vert':   '\\Vert',
-    '\\lVert':  '\\rVert',
-    '\\lbrack': '\\rbrack',
-    '\\ulcorner':   '\\urcorner',
-    '\\llcorner':   '\\lrcorner',
-    '\\lgroup': '\\rgroup',
-    '\\lmoustache': '\\rmoustache'
-}
 
 const DELIM_FUNCTION = {
     '\\lfloor\\rfloor': 'floor',
@@ -750,17 +731,17 @@ function parsePostfix(expr, options) {
         let pairedDelim = true;
         if (atom.type === 'mopen') {
             ldelim = atom.latex.trim();
-            rdelim = RIGHT_DELIM[ldelim];
+            rdelim = Definitions.RIGHT_DELIM[ldelim];
         } else if (atom.type === 'sizeddelim') {
             ldelim = atom.delim;
-            rdelim = RIGHT_DELIM[ldelim];
+            rdelim = Definitions.RIGHT_DELIM[ldelim];
         } else if (atom.type === 'leftright') {
             pairedDelim = false;
             ldelim = atom.leftDelim;
             rdelim = atom.rightDelim;
         } else if (atom.type === 'textord') {
             ldelim = atom.latex.trim();
-            rdelim = RIGHT_DELIM[ldelim];
+            rdelim = Definitions.RIGHT_DELIM[ldelim];
         }
         if (ldelim && rdelim) {
             expr = parseDelim(expr, ldelim, rdelim);
@@ -1022,7 +1003,7 @@ function parsePrimary(expr, options) {
         // in parseExpression()
         if (!isOperator(atom)) {
             // This doesn't look like a textord operator
-            if (!RIGHT_DELIM[atom.latex.trim()]) {
+            if (!Definitions.RIGHT_DELIM[atom.latex.trim()]) {
                 // Not an operator, not a fence, it's a symbol or a function
                 const name = getCanonicalName(getString(atom));
                 if (isFunction(name)) {
@@ -1135,8 +1116,8 @@ function parsePrimary(expr, options) {
             atom.type === 'sizeddelim' || 
             atom.type === 'leftright')) {
         if (atom.type === 'sizeddelim') {
-            for (const d in RIGHT_DELIM) {
-                if (atom.delim === RIGHT_DELIM[d]) {
+            for (const d in Definitions.RIGHT_DELIM) {
+                if (atom.delim === Definitions.RIGHT_DELIM[d]) {
                     // This is (most likely) a closing delim, exit.
                     // There are ambiguous cases, for example |x|y|z|.
                     expr.index += 1;

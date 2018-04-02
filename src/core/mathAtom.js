@@ -68,7 +68,7 @@ const toEm = FontMetricsModule.toEm;
  * - **line**: used by `\overline` and `\underline` commands
  * - **box**: to draw a border around an expression and change its background color
  * - **overlap**: display a symbol _over_ another
- * - **overunder**: displays an annotation above or below a symbold
+ * - **overunder**: displays an annotation above or below a symbol
  * - **group**: a simple group of atoms
  * - **root**: a group, which has no parent
  * - **array**: a group, which has children arranged in columns and rows. Used
@@ -738,8 +738,24 @@ MathAtom.prototype.decomposeLeftright = function(context) {
 
     // Add the right delimiter to the end of the expression.
     if (this.rightDelim) {
-        result.push(Delimiters.makeLeftRightDelim('mclose',
-            this.rightDelim, innerHeight, innerDepth, localContext));
+        if (this.rightDelim === '?') {
+            // Use a placeholder delimiter matching the open delimiter
+            let delim = {'(':')', '{':'}', '[':']', '\\lbrace':'\\rbrace',
+                '\\langle':'\\rangle', '\\lfloor': '\\rfloor', '\\lceil':'\\rceil',
+                '\\vert':'\\vert', '\\lvert':'\\rvert', '\\Vert':'\\Vert',
+                '\\lVert':'\\rVert', '\\lbrack':'\\rbrack', 
+                '\\ulcorner':'\\urcorner', '\\llcorner':'\\lrcorner',
+                '\\lgroup': '\\rgroup', '\\lmoustache':'\\rmoustache'}[this.leftDelim];
+            delim = delim || this.leftDelim;
+            localContext.color = 'rgba(0, 0, 0, .3)';
+            const rightDelimAtom = Delimiters.makeLeftRightDelim('mclose',
+               delim, innerHeight, innerDepth, localContext);
+            
+            result.push(rightDelimAtom);
+        } else {
+            result.push(Delimiters.makeLeftRightDelim('mclose',
+               this.rightDelim, innerHeight, innerDepth, localContext));
+        }
     }
 
     return makeInner(result, mathstyle.cls());
@@ -951,7 +967,7 @@ MathAtom.prototype.decomposeRule = function(context) {
     result.setStyle('border-right-width', width, 'em');
     result.setStyle('border-top-width', height, 'em');
     result.setStyle('margin-top', -(height - shift), 'em');
-    if (context.color) result.setStyle('border-color', context.color);
+    result.setStyle('border-color', context.color);
 
     result.width = width;
     result.height = height + shift;
@@ -1634,10 +1650,10 @@ MathAtom.prototype.makeSpan = function(context, body) {
     // - the font family associated with this atom (optional). For example,
     // some atoms such as some functions ('\sin', '\cos', etc...) or some 
     // symbols ('\Z') have an explicit font family.
-    // - the font family in the current parsing context, represented by the
-    // context.font argument. This can also be null.
+    // - the font family in the current rendering context, represented by the
+    // `context.font` argument. This can also be null.
 
-    // In general, the font from the parsing context overrides the 
+    // In general, the font from the rendering context overrides the 
     // atom's font family
     let fontFamily = context.font || this.fontFamily;
 
@@ -1662,7 +1678,7 @@ MathAtom.prototype.makeSpan = function(context, body) {
 
     let fontName = 'Main-Regular';  // Default font
     if (fontFamily) {
-        // Use either the calculcated font name or, if the font does not 
+        // Use either the calculated font name or, if the font does not 
         // include the symbol, the original font associated with this symbol.
         fontName = getFontName(body, fontFamily);
         if (!fontName && this.fontFamily) {
@@ -1867,21 +1883,23 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
 
 // Map an abstract 'fontFamily' to an actual font name
 const FONT_NAME = {
-    'main':     'Main-Regular',
-    'mainrm': 'Main-Regular',
-    'mathrm': 'Main-Regular',
-    'mathbf': 'Main-Bold',
+    'main':         'Main-Regular',
+    'mainrm':       'Main-Regular',
+    'mathrm':       'Main-Regular',
+    'mathbf':       'Main-Bold',
+    // Note; 'mathit' is handled separately in getFontName
+    'amsrm':        'AMS-Regular',     // pseudo-fontFamily to select AMS-Regular
+    'mathbb':       'AMS-Regular',
+    'mathcal':      'Caligraphic-Regular',
+    'mathfrak':     'Fraktur-Regular',
+    'mathscr':      'Script-Regular',
+    'mathsf':       'SansSerif-Regular',
+    'mathtt':       'Typewriter-Regular',
+
+
     'textrm': 'Main-Regular',
     'textit': 'Main-Italic',
     'textbf': 'Main-Bold',
-    // Note; 'mathit' is handled separately in getFontName
-    'amsrm': 'AMS-Regular',     // pseudo-fontFamily to select AMS-Regular
-    'mathbb': 'AMS-Regular',
-    'mathcal': 'Caligraphic-Regular',
-    'mathfrak': 'Fraktur-Regular',
-    'mathscr': 'Script-Regular',
-    'mathsf': 'SansSerif-Regular',
-    'mathtt': 'Typewriter-Regular'
 };
 
 const GREEK_REGEX = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5/;

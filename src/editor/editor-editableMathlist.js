@@ -388,20 +388,6 @@ EditableMathlist.prototype.anchor = function() {
     return this.siblings()[this.anchorOffset()];
 }
 
-/**
- * The atom which is the focus of the selection.
- * 
- * A new item would be inserted **after** the focus.
- * Note that when the selection is collapsed, that is when it it a single 
- * insertion point, the anchor and the focus are the same.
- * 
- * If the focus is before the first element in the root mathlist, it is null.
- * @method EditableMathlist#focus
- * @private
- */
-EditableMathlist.prototype.focus = function() {
-    return this.sibling(this.extent);
-}
 
 EditableMathlist.prototype.parent = function() {
     return this.ancestor(1);
@@ -494,14 +480,14 @@ EditableMathlist.prototype.siblings = function() {
 
 /**
  * Sibling, relative to `anchor`
- * `sibling(0)` = anchor
- * `sibling(-1)` = sibling immediately left of anchor
+ * `sibling(0)` = start of selection
+ * `sibling(-1)` = sibling immediately left of start offset
  * @return {MathAtom}
  * @method EditableMathlist#sibling
  * @private
  */
 EditableMathlist.prototype.sibling = function(offset) {
-    const siblingOffset = this.anchorOffset() + offset;
+    const siblingOffset = this.startOffset() + offset;
     const siblings = this.siblings();
     if (siblingOffset < 0 || siblingOffset > siblings.length) return null;
 
@@ -1470,6 +1456,8 @@ EditableMathlist.prototype.parseMode = function() {
  * the item that has been inserted) or 'item' (the item that was inserted will
  * be selected).
  * 
+ * @param {string} options.placeholder - The placeholder string, if necessary
+ * 
  * @param {string} options.format - The format of the string `s`:
  *    * `'auto'`: the string is interpreted as a latex fragment or command) 
  * (default)
@@ -1487,6 +1475,7 @@ EditableMathlist.prototype.insert = function(s, options) {
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
     if (!options.selectionMode) options.selectionMode = 'placeholder';
     if (!options.format) options.format = 'auto';
+    options.macros = options.macros || this.config.macros;
 
     const parseMode = this.parseMode();
     let mathlist;
@@ -1494,6 +1483,11 @@ EditableMathlist.prototype.insert = function(s, options) {
     // Save the content of the selection, if any
     const args = {};
     args[0] = this.extractContents();
+
+    // If a placeholder was specified, use it
+    if (options.placeholder !== undefined) {
+        args['?'] = options.placeholder;
+    }
 
     // Delete any selected items
     if (options.insertionMode === 'replaceSelection') {
@@ -1549,6 +1543,7 @@ EditableMathlist.prototype.insert = function(s, options) {
                 // No selection, no 'mord' before. Let's make '#@' a placeholder.
                 s = s.replace(/(^|[^\\])#@/g, '$1#?');
             }
+
             mathlist = ParserModule.parseTokens(
                 Lexer.tokenize(Definitions.unicodeStringToLatex(s)), 
                 parseMode, args, options.macros);
@@ -1590,6 +1585,97 @@ EditableMathlist.prototype.insert = function(s, options) {
     // Dispatch notifications
     this.contentIsChanging = contentWasChanging;
     if (this.config.onContentDidChange && !this.contentIsChanging) this.config.onContentDidChange();
+}
+
+
+/**
+ * Insert a smart fence '(', '{', '[', etc...
+ * If not handled (because `fence` wasn't a fence), return false.
+ * @param {string} fence 
+ * @return {boolean}
+ */
+EditableMathlist.prototype._insertSmartFence = function(fence) {
+    if (!this.config.smartFence) return false;
+
+    const rDelim = Definitions.RIGHT_DELIM[fence];
+    if (rDelim) {
+        // We have a valid open fence as input
+        const collapsed = this.isCollapsed();
+        
+        let s = '\\left' + fence + '#0\\right' + (collapsed ? '?' : rDelim);
+
+        // Is our left sibling a function?
+        // If so, bracket the expression with \mathopen{}...\mathclose{} to 
+        // adjust the spacing
+        const leftSibling = this.sibling(0);
+        if (leftSibling && leftSibling.type === 'mop') {
+            s = '\\mathopen{}' + s + '\\mathclose{}'
+        }
+
+        this.insert(s, {placeholder:'', macros: this.config.macros});
+        if (collapsed) this.move(-1);
+        return true;
+    }
+    // We did not have a valid open fence. Maybe it's a close fence?
+    let lDelim;
+    for (const delim  in Definitions.RIGHT_DELIM) {
+        if (Definitions.RIGHT_DELIM.hasOwnProperty(delim)) {
+            if (fence === Definitions.RIGHT_DELIM[delim]) lDelim = delim;
+        }
+    }
+    if (lDelim) {
+        // We found the matching open fence, so it was a valid close fence.
+        // Note that `lDelim` may not match `fence`. That's OK.
+
+        // todo: If we can't find one, insert a new \left
+        // (xy?ab) -> (xyab)
+        // If we're the last atom inside a 'leftright', 
+        // update the parent
+        const parent = this.parent();
+        if (parent && parent.type === 'leftright' && 
+                this.endOffset() === this.siblings().length - 1) {
+            parent.rightDelim = fence;
+            this.move(+1);
+            return true;
+        }
+
+        // If we have a 'leftright' sibling to our left
+        // move what's between us and the 'leftright' inside the leftright
+        const siblings = this.siblings();
+        let i;
+        for (i = this.endOffset(); i >= 0; i--) {
+            if (siblings[i].type === 'leftright') break;
+        }
+        if (i >= 0) {
+            siblings[i].rightDelim = fence;
+            siblings[i].body = siblings[i].body.concat(siblings.slice(i + 1, this.endOffset() + 1));
+            siblings.splice(i + 1, this.endOffset() - i);
+            this.setSelection(i);            
+            return true;
+        }
+
+        // If we're inside a 'leftright', but not the last atom, 
+        // adjust the body (put everything after the insertion point outside)
+        if (parent && parent.type === 'leftright') {
+            parent.rightDelim = fence;
+
+            const tail = siblings.slice(this.endOffset() + 1);
+            siblings.splice(this.endOffset() + 1);
+            this.path.pop();
+
+            Array.prototype.splice.apply(this.siblings(), 
+                [this.endOffset() + 1, 0].concat(tail));
+
+            return true;
+        }
+
+        // Meh... We couldn't find a matching open fence. Just insert the 
+        // closing fence as a regular character
+        this.insert(fence, {macros: this.config.macros});
+        return true;
+    }
+    
+    return false;
 }
 
 

@@ -237,6 +237,8 @@ function MathField(element, config) {
         MathField.prototype._onContentDidChange.bind(this);
     localConfig.announceChange = 
         MathField.prototype._announceChange.bind(this);
+    localConfig.smartFence = this.config.smartFence;
+    localConfig.macros = this.config.macros;
 
     this.mathlist = new EditableMathlist.EditableMathlist(localConfig);
 
@@ -871,7 +873,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
     this._showKeystroke(keystroke);
 
     if (!this.perform(shortcut)) {
-        this.mathlist.insert(shortcut, {macros: this.config.macros});
+        this.mathlist.insert(shortcut);
         // Render the mathlist
         this._render();
 
@@ -924,7 +926,7 @@ MathField.prototype._onTypedText = function(text, options) {
         this.pasteInProgress = false;
         // This call was made in response to a paste event.
         // Interpret `text` as a LaTeX expression
-        this.mathlist.insert(text, {macros: this.config.macros});
+        this.mathlist.insert(text);
 
     } else {
         // Decompose the string into an array of graphemes. This is necessary
@@ -945,14 +947,14 @@ MathField.prototype._onTypedText = function(text, options) {
                 const suggestions = Definitions.suggest(command + c);
                 displayArrows = suggestions.length > 1;
                 if (suggestions.length === 0) {
-                    this.mathlist.insert(c, this.config);
+                    this.mathlist.insert(c);
                     if (/^\\[a-zA-Z\\*]+$/.test(command + c)) {
                         // This looks like a command name, but not a known one
                         this.mathlist.decorateCommandStringAroundInsertionPoint(true);
                     }
                     Popover.hidePopover(this);
                 } else {
-                    this.mathlist.insert(c, {macros: this.config.macros});
+                    this.mathlist.insert(c);
                     if (suggestions[0].match !== command + c) {
 
                         this.mathlist.insertSuggestion(suggestions[0].match, 
@@ -980,7 +982,7 @@ MathField.prototype._onTypedText = function(text, options) {
 
                     // To enable the substitution to be undoable, 
                     // insert the character before applying the substitution
-                    this.mathlist.insert(c, {macros: this.config.macros});
+                    this.mathlist.insert(c);
 
                     // Create a snapshot with the inserted character
                     this.undoManager.snapshot();
@@ -993,10 +995,8 @@ MathField.prototype._onTypedText = function(text, options) {
                     this.mathlist.delete(-count - 1);
 
                     // Insert the substitute
-                    this.mathlist.insert(shortcut, {
-                        format: 'latex', 
-                        macros: this.config.macros});
-                    this._announceChange("replacement");        
+                    this.mathlist.insert(shortcut, {format: 'latex'});
+                    this._announceChange('replacement');
                 } 
                 
                 if (!shortcut) {
@@ -1013,8 +1013,9 @@ MathField.prototype._onTypedText = function(text, options) {
                         this.perform(selector);
                     } else {
                         this.undoManager.snapshot();
-
-                        this.mathlist.insert(c, {macros: this.config.macros});
+                        if (!this.mathlist._insertSmartFence(c)) {
+                            this.mathlist.insert(c);
+                        }
                     }
                 }
             }
@@ -1030,6 +1031,8 @@ MathField.prototype._onTypedText = function(text, options) {
     // position of the caret calculated
     Popover.showPopoverWithLatex(this, popoverText, displayArrows);
 }
+
+
 
 /**
  * Call `render()` to re-layout the field and generate the updated DOM.
@@ -1270,8 +1273,7 @@ MathField.prototype.latex = function(text) {
         this.mathlist.insert(text, {
             insertionMode: 'replaceAll',
             selectionMode: 'after',
-            format: 'latex',
-            macros: this.config.macros
+            format: 'latex'
         });
         this._render();
         return text;
@@ -1333,7 +1335,7 @@ MathField.prototype.enterCommandMode_ = function() {
     }
 
     this.undoManager.snapshot();
-    this.mathlist.insert('\u0027', {macros: this.config.macros});
+    this.mathlist.insert('\u0027');
 }
 
 
@@ -1395,7 +1397,6 @@ MathField.prototype.insert = function(s, options) {
             if (this.keypressSound) this.keypressSound.play();
         }
         this.undoManager.snapshot();
-        options.macros = this.config.macros;
         this.mathlist.insert(s, options);
     }
 }
@@ -2089,6 +2090,7 @@ MathField.prototype.typedText_ = function(text, options) {
 MathField.prototype.config = function(conf) {
     // Copy the values from `config` to `def`
     this.config = Object.assign({
+        smartFence: true,
         overrideDefaultInlineShortcuts: false,
         virtualKeyboard: '',
         virtualKeyboardLayout: 'qwerty',
