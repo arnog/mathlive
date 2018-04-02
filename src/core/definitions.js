@@ -2018,7 +2018,10 @@ defineFunction([
 });
 
 // No limits, symbols
-defineFunction(['\\int', '\\iint', '\\iiint', '\\oint'], '', {}, function(name) {
+defineFunction(['\\int', '\\iint', '\\iiint', '\\oint', '\\oiint', 
+    '\\oiiint', '\\intclockwise', '\\varointclockwise', 
+    '\\ointctrclockwise', '\\intctrclockwise'
+], '', {}, function(name) {
     return {
         type: 'mop',
         limits: 'nolimits',
@@ -2028,6 +2031,12 @@ defineFunction(['\\int', '\\iint', '\\iiint', '\\oint'], '', {}, function(name) 
             'iint': '\u222c', 
             'iiint': '\u222d', 
             'oint': '\u222e', 
+            'oiint': '\u222f', 
+            'oiiint': '\u2230', 
+            'intclockwise': '\u2231',
+            'varointclockwise': '\u2232',
+            'ointctrclockwise': '\u2233',
+            'intctrclockwise': '\u2a11',
             }[name.slice(1)],
     };
 });
