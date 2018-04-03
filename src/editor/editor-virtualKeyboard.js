@@ -650,9 +650,6 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-     
-        // 'functions': makeFunctionsLayer.bind(null, FUNCTIONS),
-
 }
 
 function latexToMarkup(latex, arg, mf) {
@@ -676,45 +673,6 @@ function latexToMarkup(latex, arg, mf) {
     const wrapper = Span.makeSpan([topStrut, bottomStrut, base], 'ML__mathlive');
 
     return wrapper.toMarkup();
-}
-
-function makeFunctionsLayer(mf, functions) {
-    let result = '';
-
-    for (const f of functions) {
-        if (typeof f === 'string') {
-            // It's a section heading
-            result += '<section>';
-            result += '<h3>' + f + '</h3>';
-        } else if (Array.isArray(f)) {
-            // result += '<ul>';
-            result += '<div class="functions_section_content">';
-            for (let i = 0; i < f.length; i++) {
-                // if ((i + 1) % 3) {
-                //     result += '</ul><ul>';
-                // }
-                const command = f[i];
-                const command_markup =  latexToMarkup(
-                    Popover.SAMPLES[command] || command,
-                    {'?': '{\\color{#550000}{\\tiny x}}'},            // \\char"2B1A
-                    mf
-                );
-                const command_note = Definitions.getNote(command);
-                // const command_shortcuts = Shortcuts.stringify(
-                //     Shortcuts.getShortcutsForCommand(command)) || '';
-
-
-                result += '<div>' + command_markup + command_note + '</div>';
-            }
-            result += '</div>';
-            // if (f.length % 3) {
-            //     result += '</ul>';
-            // }
-            result += '</section>';
-        }
-    }
-
-    return "<div class='functions-list'>" + result + "</div>";
 }
 
 
@@ -766,7 +724,7 @@ function makeKeyboardToolbar(mf, keyboardIDs, currentKeyboard) {
     }
     result += '</div>';
 
-    // The right hand side of the toolbar, with the undo/redo commands
+    // The right hand side of the toolbar, with the copy/undo/redo commands
     result += `
         <div class='right'>
             <div class='action' 
@@ -911,24 +869,25 @@ function expandLayerMarkup(mf, layer) {
         
 
     }
-    const layout = ROWS[mf.config.virtualKeyboardLayout] ? ROWS[mf.config.virtualKeyboardLayout] : ROWS['qwerty'];
+    const layout = ROWS[mf.config.virtualKeyboardLayout] ? 
+        ROWS[mf.config.virtualKeyboardLayout] : ROWS['qwerty'];
 
     let result = layer;
     let row;
 
     result = result.replace(/<arrows\/>/g, `
-                <li class='action' data-command='["performWithFeedback","moveToPreviousChar"]'
-                    data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' 
-                    data-shifted-command='["performWithFeedback","extendToPreviousChar"]'>
-                    <svg><use xlink:href='#svg-arrow-left' /></svg>
-                </li>
-                <li class='action' data-command='["performWithFeedback","moveToNextChar"]'
-                    data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' 
-                    data-shifted-command='["performWithFeedback","extendToNextChar"]'>
-                    <svg><use xlink:href='#svg-arrow-right' /></svg>
-                </li>
-                <li class='action' data-command='["performWithFeedback","moveToNextPlaceholder"]'>
-                <svg><use xlink:href='#svg-tab' /></svg></li>`);
+        <li class='action' data-command='["performWithFeedback","moveToPreviousChar"]'
+            data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' 
+            data-shifted-command='["performWithFeedback","extendToPreviousChar"]'>
+            <svg><use xlink:href='#svg-arrow-left' /></svg>
+        </li>
+        <li class='action' data-command='["performWithFeedback","moveToNextChar"]'
+            data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' 
+            data-shifted-command='["performWithFeedback","extendToNextChar"]'>
+            <svg><use xlink:href='#svg-arrow-right' /></svg>
+        </li>
+        <li class='action' data-command='["performWithFeedback","moveToNextPlaceholder"]'>
+        <svg><use xlink:href='#svg-tab' /></svg></li>`);
 
 
     let m = result.match(/(<row\s+)(.*)((?:<\/row|\/)>)/);
@@ -972,6 +931,10 @@ function expandLayerMarkup(mf, layer) {
                     row += "<li class='keycap" + cls + "' data-alt-keys='*' data-insert='\\times '>&times;</li>";
                 } else if (c === '-') {
                     row += "<li class='keycap" + cls + "' data-alt-keys='*' data-key='-' data-alt-keys='-'>&#x2212;</li>";
+                } else if (/tt/.test(cls)) {
+                    row += "<li class='keycap" + cls + "' data-alt-keys='" + c + "'" +
+                    ` data-command='["typedText","` + c + `",{"commandMode":true, "focus":true, "feedback":true}]'` +
+                    ">" + c + "</li>"
                 } else {
                     row += "<li class='keycap" + cls + "' data-alt-keys='" + c + "'>" + c + "</li>"
                 }
@@ -1271,7 +1234,6 @@ function make(mf, theme) {
 
 return {
     make,
-    makeFunctionsLayer,
     makeKeycap
 }
 

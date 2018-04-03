@@ -307,6 +307,8 @@ function MathField(element, config) {
         MathField.prototype._onContentDidChange.bind(this);
     localConfig.announceChange = 
         MathField.prototype._announceChange.bind(this);
+    localConfig.smartFence = this.config.smartFence;
+    localConfig.macros = this.config.macros;
 
     this.mathlist = new EditableMathlist.EditableMathlist(localConfig);
 
@@ -941,7 +943,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
     this._showKeystroke(keystroke);
 
     if (!this.perform(shortcut)) {
-        this.mathlist.insert(shortcut, {macros: this.config.macros});
+        this.mathlist.insert(shortcut);
         // Render the mathlist
         this._render();
 
@@ -969,10 +971,13 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
  * @param {object} options 
  * @param {boolean} options.focus - If true, the mathfield will be focused
  * @param {boolean} options.feedback - If true, provide audio and haptic feedback
+ * @param {boolean} options.commandMode - If true, switch to command mode if
+ * necessary, then insert text
  */
 MathField.prototype._onTypedText = function(text, options) {
     options = options || {};
 
+    // Focus, then provide audio and haptic feedback
     if (options.focus) this.focus();
     if (options.feedback) {
          if (this.config.keypressVibration &amp;&amp; navigator.vibrate) {
@@ -981,7 +986,14 @@ MathField.prototype._onTypedText = function(text, options) {
         if (this.keypressSound) this.keypressSound.play();
     }
 
-    // Remove any error indicator on the current command sequence (if there is one)
+    if (options.commandMode) {
+        if (this.mathlist.parseMode() !== 'command') {
+            this.enterCommandMode_();
+        }
+    }
+
+    // Remove any error indicator on the current command sequence 
+    // (if there is one)
     this.mathlist.decorateCommandStringAroundInsertionPoint(false);
 
     // Insert the specified text at the current insertion point.
@@ -993,17 +1005,17 @@ MathField.prototype._onTypedText = function(text, options) {
     if (this.pasteInProgress) {
         this.pasteInProgress = false;
         // This call was made in response to a paste event.
-        // Interpret `text` as a LaTeX expression
-        this.mathlist.insert(text, {macros: this.config.macros});
+        // Interpret `text` as a 'smart' expression (could be LaTeX, could be UnicodeMath)
+        this.mathlist.insert(text);
 
     } else {
-        // Decompose the string into an array of graphemes. This is necessary
-        // to correctly process what would be visually perceived by a human 
-        // as a single glyph (a grapheme) but which is actually composed of 
-        // multiple Unicode codepoints. This is the case in particular for 
-        // emojis, such as emojis with a skin tone modifier, the country flags
-        // emojis or compound emojis such as the professional emojis, including
-        // the David Bowie emoji.
+        // Decompose the string into an array of graphemes. 
+        // This is necessary to correctly process what would be visually 
+        // perceived by a human as a single glyph (a grapheme) but which is 
+        // actually composed of multiple Unicode codepoints. This is the case 
+        // in particular for some emojis, such as those with a skin tone 
+        // modifier, the country flags emojis or compound emojis such as the 
+        // professional emojis, including the David Bowie emoji.
         const graphemes = GraphemeSplitter.splitGraphemes(text);
         for (const c of graphemes) {
             this._showKeystroke(c);
@@ -1015,14 +1027,14 @@ MathField.prototype._onTypedText = function(text, options) {
                 const suggestions = Definitions.suggest(command + c);
                 displayArrows = suggestions.length > 1;
                 if (suggestions.length === 0) {
-                    this.mathlist.insert(c, this.config);
+                    this.mathlist.insert(c);
                     if (/^\\[a-zA-Z\\*]+$/.test(command + c)) {
                         // This looks like a command name, but not a known one
                         this.mathlist.decorateCommandStringAroundInsertionPoint(true);
                     }
                     Popover.hidePopover(this);
                 } else {
-                    this.mathlist.insert(c, {macros: this.config.macros});
+                    this.mathlist.insert(c);
                     if (suggestions[0].match !== command + c) {
 
                         this.mathlist.insertSuggestion(suggestions[0].match, 
@@ -1050,7 +1062,7 @@ MathField.prototype._onTypedText = function(text, options) {
 
                     // To enable the substitution to be undoable, 
                     // insert the character before applying the substitution
-                    this.mathlist.insert(c, {macros: this.config.macros});
+                    this.mathlist.insert(c);
 
                     // Create a snapshot with the inserted character
                     this.undoManager.snapshot();
@@ -1063,9 +1075,7 @@ MathField.prototype._onTypedText = function(text, options) {
                     this.mathlist.delete(-count - 1);
 
                     // Insert the substitute
-                    this.mathlist.insert(shortcut, {
-                        format: 'latex', 
-                        macros: this.config.macros});
+                    this.mathlist.insert(shortcut, {format: 'latex'});
                     this._announceChange('replacement');
                 } 
                 
@@ -1081,16 +1091,16 @@ MathField.prototype._onTypedText = function(text, options) {
                     }[c];
                     if (selector) {
                         this.perform(selector);
-                    } else if (!this._handleSmartFence(c)) {
+                    } else {
                         this.undoManager.snapshot();
-
-                        this.mathlist.insert(c, {macros: this.config.macros});
+                        if (!this.mathlist._insertSmartFence(c)) {
+                            this.mathlist.insert(c);
+                        }
                     }
                 }
             }
         }
     }
-
 
     // Render the mathlist
     this._render();
@@ -1102,97 +1112,6 @@ MathField.prototype._onTypedText = function(text, options) {
 }
 
 
-/**
- * Handle the processing of fences '(', '{', '[', etc...
- * If not handled, return false.
- * @param {string} fence 
- * @return {boolean}
- */
-MathField.prototype._handleSmartFence = function(fence) {
-    if (!this.config.smartFence) return false;
-
-    const rDelim = Definitions.RIGHT_DELIM[fence];
-    if (rDelim) {
-        // We have a valid open fence as input
-        const collapsed = this.selectionIsCollapsed();
-        
-        let s = '\\left' + fence + '#0\\right' + (collapsed ? '?' : rDelim);
-
-        // Is our left sibling a function?
-        // If so, bracket the expression with \mathopen{}...\mathclose{} to 
-        // adjust the spacing
-        const leftSibling = this.mathlist.sibling(0);
-        if (leftSibling &amp;&amp; leftSibling.type === 'mop') {
-            s = '\\mathopen{}' + s + '\\mathclose{}'
-        }
-
-        this.undoManager.snapshot();
-        this.mathlist.insert(s, {placeholder:'', macros: this.config.macros});
-        if (collapsed) this.mathlist.move(-1);
-        return true;
-    }
-    // We did not have a valid open fence. Maybe it's a close fence?
-    let lDelim;
-    for (const delim  in Definitions.RIGHT_DELIM) {
-        if (Definitions.RIGHT_DELIM.hasOwnProperty(delim)) {
-            if (fence === Definitions.RIGHT_DELIM[delim]) lDelim = delim;
-        }
-    }
-    if (lDelim) {
-        // We found the matching open fence, so it was a valid close fence.
-        // Note that `lDelim` may not match `fence`. That's OK.
-        this.undoManager.snapshot();
-
-        // todo: If we can't find one, insert a new \left
-        // (xy?ab) -> (xyab)
-        // If we're the last atom inside a 'leftright', 
-        // update the parent
-        const parent = this.mathlist.parent();
-        if (parent &amp;&amp; parent.type === 'leftright' &amp;&amp; 
-                this.mathlist.endOffset() === this.mathlist.siblings().length - 1) {
-            parent.rightDelim = fence;
-            this.mathlist.move(+1);
-            return true;
-        }
-
-        // If we have a 'leftright' sibling to our left
-        // move what's between us and the 'leftright' inside the leftright
-        const siblings = this.mathlist.siblings();
-        let i;
-        for (i = this.mathlist.endOffset(); i >= 0; i--) {
-            if (siblings[i].type === 'leftright') break;
-        }
-        if (i >= 0) {
-            siblings[i].rightDelim = fence;
-            siblings[i].body = siblings[i].body.concat(siblings.slice(i + 1, this.mathlist.endOffset() + 1));
-            siblings.splice(i + 1, this.mathlist.endOffset() - i);
-            this.mathlist.setSelection(i);            
-            return true;
-        }
-
-        // If we're inside a 'leftright', but not the last atom, 
-        // adjust the body (put everything after the insertion point outside)
-        if (parent &amp;&amp; parent.type === 'leftright') {
-            parent.rightDelim = fence;
-
-            const tail = siblings.slice(this.mathlist.endOffset() + 1);
-            siblings.splice(this.mathlist.endOffset() + 1);
-            this.mathlist.path.pop();
-
-            Array.prototype.splice.apply(this.mathlist.siblings(), 
-                [this.mathlist.endOffset() + 1, 0].concat(tail));
-
-            return true;
-        }
-
-        // Meh... We couldn't find a matching open fence. Just insert the 
-        // closing fence as a regular character
-        this.mathlist.insert(fence, {macros: this.config.macros});
-        return true;
-    }
-    
-    return false;
-}
 
 /**
  * Call `render()` to re-layout the field and generate the updated DOM.
@@ -1433,8 +1352,7 @@ MathField.prototype.latex = function(text) {
         this.mathlist.insert(text, {
             insertionMode: 'replaceAll',
             selectionMode: 'after',
-            format: 'latex',
-            macros: this.config.macros
+            format: 'latex'
         });
         this._render();
         return text;
@@ -1496,7 +1414,7 @@ MathField.prototype.enterCommandMode_ = function() {
     }
 
     this.undoManager.snapshot();
-    this.mathlist.insert('\u0027', {macros: this.config.macros});
+    this.mathlist.insert('\u0027');
 }
 
 
@@ -1523,10 +1441,10 @@ MathField.prototype.pasteFromClipboard_ = function() {
 
 /**
  * This function can be invoked as a selector with `perform()` or called explicitly.
- * It will insert the specified block of latex at the current selection point,
+ * It will insert the specified block of text at the current selection point,
  * according to the insertion mode specified. After the insertion, the 
  * selection will be set according to the selectionMode.
- * @param {string} latex
+ * @param {string} s - The text to be inserted
  * @param {string} options.selectionMode - Describes where the selection 
  * will be after the insertion:
  *    * `'placeholder'`: the selection will be the first available placeholder 
@@ -1558,7 +1476,6 @@ MathField.prototype.insert = function(s, options) {
             if (this.keypressSound) this.keypressSound.play();
         }
         this.undoManager.snapshot();
-        options.macros = this.config.macros;
         this.mathlist.insert(s, options);
     }
 }
@@ -1575,25 +1492,30 @@ MathField.prototype.complete_ = function() {
 
     const command = this.mathlist.extractCommandStringAroundInsertionPoint();
     if (command) {
-        const mode = 'math'; // @todo this.mathlist.parseMode();
-        let match = Definitions.matchFunction(mode, command);
-        if (!match) {
-            match = Definitions.matchSymbol(mode, command);
-        }
-        if (match) {
-            const mathlist = ParserModule.parseTokens(
-                    Lexer.tokenize(match.latexName), mode, null, this.config.macros);
-
-            this.mathlist.spliceCommandStringAroundInsertionPoint(mathlist);
+        if (command === '\\(' || command === '\\)') {
+            this.mathlist.spliceCommandStringAroundInsertionPoint([]);
+            this.mathlist.insert(command.slice(1));
         } else {
-            // This wasn't a simple function or symbol.
-            // Interpret the input as LaTeX code
-            const mathlist = ParserModule.parseTokens(
-                    Lexer.tokenize(command), mode, null, this.config.macros);
-            if (mathlist) {
+            const mode = 'math'; // @todo this.mathlist.parseMode();
+            let match = Definitions.matchFunction(mode, command);
+            if (!match) {
+                match = Definitions.matchSymbol(mode, command);
+            }
+            if (match) {
+                const mathlist = ParserModule.parseTokens(
+                        Lexer.tokenize(match.latexName), mode, null, this.config.macros);
+
                 this.mathlist.spliceCommandStringAroundInsertionPoint(mathlist);
-            } else {            
-                this.mathlist.decorateCommandStringAroundInsertionPoint(true);
+            } else {
+                // This wasn't a simple function or symbol.
+                // Interpret the input as LaTeX code
+                const mathlist = ParserModule.parseTokens(
+                        Lexer.tokenize(command), mode, null, this.config.macros);
+                if (mathlist) {
+                    this.mathlist.spliceCommandStringAroundInsertionPoint(mathlist);
+                } else {            
+                    this.mathlist.decorateCommandStringAroundInsertionPoint(true);
+                }
             }
         }
         this._announceChange("replacement"); 

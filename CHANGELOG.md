@@ -1,12 +1,14 @@
 
 
 ### Major New Features
-- Smart Fences. When a fence ("()", "{}", etc...) is inserted, a matching 
-closing fence is automatically inserted, displayed as a greyed out placeholder.
+- Smart Fences. When a fence ("(", "{", etc...) is inserted, a matching 
+closing fence is automatically inserted, displayed as a greyed out placeholder.<br>
 The Latex code inserted will vary depending on the context where the insertion
-is made, either standalone characters ("(") or `\left...\right`. This feature
-can be turned off with `config.smartFence` but it is on by default.
-- Haptic and audio feedback for the virtual keyboard. Haptic feedback is available on 
+is made, either standalone characters (`(`) or `\left...\right`. This feature
+is on by default and can be turned off with `config.smartFence`. <br>Option-9 
+and Option-0, as well as `\(` and `\)` will override the setting and insert
+a plain old parenthesis.
+- Haptic and audio feedback for the virtual keyboard.<br>Haptic feedback is available on 
 Android only. <br> Two new config options to control it. `config.keypressVibration`,
 which is on by default, control the haptic feedback. `config.keypressSound`
 control the audio feedback (off by default). Specify the URL to a sound file 
@@ -20,6 +22,11 @@ different sounds for those keys.
 becomes `\C`, 𝕰 becomes `\mathord{\mathbf{\mathfrak{E}}}`
 - MASTON: Commutativity support. a + b + c -> add(a, b, c)
 - MASTON: Right and left-associativity support ('=' and '=>' are right associative)
+- Improvements to the delete behavior: when to the right of a `\left...\right`
+deletes remove the closing fence, not the whole expression. Same for root,
+fractions, and other groups. When at the beginning of a denominator, pressing
+delete will remove the fraction, but keep numerator and denominator, etc...
+- When using the command virtual keyboard, switch to command mode as necessary.
 
 ### Code Maintenance and Performance
 - Moved operator precedence and canonical names from Definitions to MASTON.
@@ -29,12 +36,16 @@ becomes `\C`, 𝕰 becomes `\mathord{\mathbf{\mathfrak{E}}}`
 - Basic support for Latex macros. Macros can be defined with `MathField.config({macros:'...')` 
 - Display alternate keys when a key on the virtual
 keyboard is held down.
-- Support for AZERTY, QWERTZ, Dvorak and Colemak virtual keyboards. Can be setup with `MathField.config({virtualKeyboardLayout:'...')`. Also, shift clicking on the keyboard icon toggles between layouts.
+- Support for AZERTY, QWERTZ, Dvorak and Colemak virtual keyboards. Can be 
+setup with `MathField.config({virtualKeyboardLayout:'...')`. Also, shift 
+clicking on the keyboard icon toggles between layouts.
 
 ### Other New Features
 - Toggle the virtual keyboard layer when the shift
 key is pressed
-- New `onVirtualKeyboardToogle` handler will get called when the visibility of the virtual keyboard changes. Useful to scroll into view important content that might be obscured by the keyboard.
+- New `onVirtualKeyboardToogle` handler will get called when the visibility of 
+the virtual keyboard changes. Useful to scroll into view important content that 
+might be obscured by the keyboard.
 - Some common functions added as inline shortcuts:
 `limsup`, `liminf`, `argmin`, `argmax`, `bessel`, `mean`, `median`, `fft`.
 - Added `\rd` command (synonym with `\differentialD` and used by Proof Wiki)
@@ -51,7 +62,8 @@ key is pressed
 subscript on a selected item
 - Fixed handling of unbalanced `\left`...`\right` sequences
 - Correctly output the minus sign to Latex (as U+002D not as U+2212)
-- Fixed some cases where the layout would shift by a couple of pixels as you navigated into the expression
+- Fixed some cases where the layout would shift by a couple of pixels as you 
+navigated into the expression
 
 ### Code Maintenance and Performance
 - Use `.test()` instead of `.match()` whenever possible
@@ -67,7 +79,8 @@ subscript on a selected item
 - BREAKING CHANGE: the command bar is no longer supported. Use virtual keyboards instead.
 
 ### Other New Features
-- Added support for wide layouts to virtual keyboard. If space is available, up to four more columns of keys can be displayed.
+- Added support for wide layouts to virtual keyboard. If space is available, up 
+to four more columns of keys can be displayed.
 - Added Copy button to virtual keyboard
 - Allow 'space' in command mode
 - MASTON: improved parsing of numbers
@@ -82,7 +95,8 @@ subscript on a selected item
 - MASTON: handle complex numbers and modulo
 - Added option for styling of keyboard glyph
 - Improved output to Latex for arrays
-- Additional trig and long functions (`\lb`, `\arsinh`, `\arcosh`, `\artanh`, `\arcsech`, `\arccsh`, `\arcsec`, `\arccsc`)
+- Additional trig and long functions (`\lb`, `\arsinh`, `\arcosh`, `\artanh`, 
+`\arcsech`, `\arccsh`, `\arcsec`, `\arccsc`)
 - MathML: more robust handling of complex `<mo>`
 - MathML: improved handling of fences
 - Improved Latex output
@@ -93,10 +107,12 @@ subscript on a selected item
 - Correctly output MathML for extended Unicode characters and `\char` command
 - Correctly handle selection in sparse arrays
 - Correct spacing issue of selected items
-- Fixed #17: correctly extend the selection when the anchor is at the end of the selection
+- Fixed #17: correctly extend the selection when the anchor is at the end of 
+the selection
 - The caret would not blink in empty supsub
 - The last character of the selection would not be copied on the clipboard
-- MathML: don't insert `&invisibleTimes;` for factorial, but *do* insert it before a fence.
+- MathML: don't insert `&invisibleTimes;` for factorial, but *do* insert it 
+before a fence.
 - Going up from a numerator longer than the denominator could hang.
 - MathML and Latex output: better handling of `\Big` (etc...) delimiters
 - MathML: do not render `\text` as `<mi>`

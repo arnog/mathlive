@@ -73,8 +73,18 @@ const ENVIRONMENTS = {};
 
 const MACROS = {
     'iff':    '\\;\u27fa\\;',         //>2,000 Note: additional spaces around the arrows
-// @todo definemacro?
-    'nicefrac': '^{#1}\\!\\!/\\!_{#2}'
+    'nicefrac': '^{#1}\\!\\!/\\!_{#2}',
+
+    // From bracket.sty, Diract notation
+    'bra':      '\\mathinner{\\langle{#1}|}',
+    'ket':      '\\mathinner{|{#1}\\rangle}',
+    'braket':   '\\mathinner{\\langle{#1}\\rangle}',
+    'set':      '\\mathinner{\\lbrace #1 \\rbrace}',
+    'Bra':      '\\left\\langle #1\\right|',
+    'Ket':      '\\left|#1\\right\\rangle',
+    'Braket':   '\\left\\langle{#1}\\right\\rangle',
+    'Set':      '\\left\\lbrace #1 \\right\\rbrace',
+
 };
 
 
@@ -1741,7 +1751,8 @@ defineFunction([
     return {
         type: 'font',
         font: funcName.slice(1),
-        body: args[0]
+        body: args[0],
+        captureSelection: true
     };
 });
     frequency(SUPERCOMMON, '\\mathbb');

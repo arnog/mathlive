@@ -901,10 +901,13 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
  * @param {object} options 
  * @param {boolean} options.focus - If true, the mathfield will be focused
  * @param {boolean} options.feedback - If true, provide audio and haptic feedback
+ * @param {boolean} options.commandMode - If true, switch to command mode if
+ * necessary, then insert text
  */
 MathField.prototype._onTypedText = function(text, options) {
     options = options || {};
 
+    // Focus, then provide audio and haptic feedback
     if (options.focus) this.focus();
     if (options.feedback) {
          if (this.config.keypressVibration && navigator.vibrate) {
@@ -913,7 +916,14 @@ MathField.prototype._onTypedText = function(text, options) {
         if (this.keypressSound) this.keypressSound.play();
     }
 
-    // Remove any error indicator on the current command sequence (if there is one)
+    if (options.commandMode) {
+        if (this.mathlist.parseMode() !== 'command') {
+            this.enterCommandMode_();
+        }
+    }
+
+    // Remove any error indicator on the current command sequence 
+    // (if there is one)
     this.mathlist.decorateCommandStringAroundInsertionPoint(false);
 
     // Insert the specified text at the current insertion point.
@@ -925,17 +935,17 @@ MathField.prototype._onTypedText = function(text, options) {
     if (this.pasteInProgress) {
         this.pasteInProgress = false;
         // This call was made in response to a paste event.
-        // Interpret `text` as a LaTeX expression
+        // Interpret `text` as a 'smart' expression (could be LaTeX, could be UnicodeMath)
         this.mathlist.insert(text);
 
     } else {
-        // Decompose the string into an array of graphemes. This is necessary
-        // to correctly process what would be visually perceived by a human 
-        // as a single glyph (a grapheme) but which is actually composed of 
-        // multiple Unicode codepoints. This is the case in particular for 
-        // emojis, such as emojis with a skin tone modifier, the country flags
-        // emojis or compound emojis such as the professional emojis, including
-        // the David Bowie emoji.
+        // Decompose the string into an array of graphemes. 
+        // This is necessary to correctly process what would be visually 
+        // perceived by a human as a single glyph (a grapheme) but which is 
+        // actually composed of multiple Unicode codepoints. This is the case 
+        // in particular for some emojis, such as those with a skin tone 
+        // modifier, the country flags emojis or compound emojis such as the 
+        // professional emojis, including the David Bowie emoji.
         const graphemes = GraphemeSplitter.splitGraphemes(text);
         for (const c of graphemes) {
             this._showKeystroke(c);
@@ -1021,7 +1031,6 @@ MathField.prototype._onTypedText = function(text, options) {
             }
         }
     }
-
 
     // Render the mathlist
     this._render();
@@ -1362,10 +1371,10 @@ MathField.prototype.pasteFromClipboard_ = function() {
 
 /**
  * This function can be invoked as a selector with `perform()` or called explicitly.
- * It will insert the specified block of latex at the current selection point,
+ * It will insert the specified block of text at the current selection point,
  * according to the insertion mode specified. After the insertion, the 
  * selection will be set according to the selectionMode.
- * @param {string} latex
+ * @param {string} s - The text to be inserted
  * @param {string} options.selectionMode - Describes where the selection 
  * will be after the insertion:
  *    * `'placeholder'`: the selection will be the first available placeholder 
@@ -1413,25 +1422,30 @@ MathField.prototype.complete_ = function() {
 
     const command = this.mathlist.extractCommandStringAroundInsertionPoint();
     if (command) {
-        const mode = 'math'; // @todo this.mathlist.parseMode();
-        let match = Definitions.matchFunction(mode, command);
-        if (!match) {
-            match = Definitions.matchSymbol(mode, command);
-        }
-        if (match) {
-            const mathlist = ParserModule.parseTokens(
-                    Lexer.tokenize(match.latexName), mode, null, this.config.macros);
-
-            this.mathlist.spliceCommandStringAroundInsertionPoint(mathlist);
+        if (command === '\\(' || command === '\\)') {
+            this.mathlist.spliceCommandStringAroundInsertionPoint([]);
+            this.mathlist.insert(command.slice(1));
         } else {
-            // This wasn't a simple function or symbol.
-            // Interpret the input as LaTeX code
-            const mathlist = ParserModule.parseTokens(
-                    Lexer.tokenize(command), mode, null, this.config.macros);
-            if (mathlist) {
+            const mode = 'math'; // @todo this.mathlist.parseMode();
+            let match = Definitions.matchFunction(mode, command);
+            if (!match) {
+                match = Definitions.matchSymbol(mode, command);
+            }
+            if (match) {
+                const mathlist = ParserModule.parseTokens(
+                        Lexer.tokenize(match.latexName), mode, null, this.config.macros);
+
                 this.mathlist.spliceCommandStringAroundInsertionPoint(mathlist);
-            } else {            
-                this.mathlist.decorateCommandStringAroundInsertionPoint(true);
+            } else {
+                // This wasn't a simple function or symbol.
+                // Interpret the input as LaTeX code
+                const mathlist = ParserModule.parseTokens(
+                        Lexer.tokenize(command), mode, null, this.config.macros);
+                if (mathlist) {
+                    this.mathlist.spliceCommandStringAroundInsertionPoint(mathlist);
+                } else {            
+                    this.mathlist.decorateCommandStringAroundInsertionPoint(true);
+                }
             }
         }
         this._announceChange("replacement"); 

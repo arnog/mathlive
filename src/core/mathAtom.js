@@ -515,11 +515,11 @@ MathAtom.prototype.decomposeArray = function(context) {
     const innerDepth = Span.depth(inner);
 
     return makeOrd([
-        Delimiters.makeLeftRightDelim(
-            'mopen', this.lFence, innerHeight, innerDepth, context),
+        this.bind(Delimiters.makeLeftRightDelim(context, 
+            'mopen', this.lFence, innerHeight, innerDepth, context)),
         inner,
-        Delimiters.makeLeftRightDelim(
-            'mclose', this.rFence, innerHeight, innerDepth, context)
+        this.bind(Delimiters.makeLeftRightDelim(context, 
+            'mclose', this.rFence, innerHeight, innerDepth, context))
         ]);
 }
 
@@ -693,10 +693,12 @@ MathAtom.prototype.decomposeLeftright = function(context) {
     if (!this.body) {
         // No body, only a delimiter
         if (this.leftDelim) {
-            return new MathAtom('math', 'mopen', this.leftDelim).decompose(context);
+            return this.bind(localContext,
+                new MathAtom('math', 'mopen', this.leftDelim).decompose(context));
         }
         if (this.rightDelim) {
-            return new MathAtom('math', 'mclose', this.rightDelim).decompose(context);
+            return this.bind(localContext,
+                new MathAtom('math', 'mclose', this.rightDelim).decompose(context));
         }
         return null;
     }
@@ -722,16 +724,28 @@ MathAtom.prototype.decomposeLeftright = function(context) {
     // Add the left delimiter to the beginning of the expression
     let result = [];
     if (this.leftDelim) {
-        result.push(Delimiters.makeLeftRightDelim('mopen',
-            this.leftDelim, innerHeight, innerDepth, localContext));
+        result.push(this.bind(localContext, Delimiters.makeLeftRightDelim('mopen',
+            this.leftDelim, innerHeight, innerDepth, localContext)));
     }
 
     // Replace the delim (\middle) spans with proper ones now that we know 
     // the height/depth
-    for (let i = 0; i < inner.length - 1; i++) {
+    for (let i = 0; i < inner.length; i++) {
         if (inner[i].delim) {
-            inner[i] = Delimiters.makeLeftRightDelim(
-                '', inner[i].delim, innerHeight, innerDepth, localContext);
+            const hadCaret = inner[i].hasCaret;
+            inner[i] = this.bind(localContext, Delimiters.makeLeftRightDelim(
+                'minner', inner[i].delim, innerHeight, innerDepth, localContext));
+            if (hadCaret) inner[i].hasCaret = true;
+        }
+        if (inner[i].classes && inner[i].classes.indexOf('ML__selected') >= 0) {
+            for (let j = 0; j < inner[i].children.length; j++) {
+                if (inner[i].children[j].delim) {
+                    const hadCaret = inner[i].hasCaret;
+                    inner[i].children[j] = this.bind(localContext, Delimiters.makeLeftRightDelim(
+                        'minner', inner[i].children[j].delim, innerHeight, innerDepth, localContext));
+                    if (hadCaret) inner[i].hasCaret = true;
+                }
+            }
         }
     }
     result  = result.concat(inner);
@@ -748,13 +762,13 @@ MathAtom.prototype.decomposeLeftright = function(context) {
                 '\\lgroup': '\\rgroup', '\\lmoustache':'\\rmoustache'}[this.leftDelim];
             delim = delim || this.leftDelim;
             localContext.color = 'rgba(0, 0, 0, .3)';
-            const rightDelimAtom = Delimiters.makeLeftRightDelim('mclose',
-               delim, innerHeight, innerDepth, localContext);
+            const rightDelimAtom = this.bind(localContext, Delimiters.makeLeftRightDelim('mclose',
+               delim, innerHeight, innerDepth, localContext));
             
             result.push(rightDelimAtom);
         } else {
-            result.push(Delimiters.makeLeftRightDelim('mclose',
-               this.rightDelim, innerHeight, innerDepth, localContext));
+            result.push(this.bind(localContext, Delimiters.makeLeftRightDelim('mclose',
+               this.rightDelim, innerHeight, innerDepth, localContext)));
         }
     }
 
@@ -1463,8 +1477,10 @@ MathAtom.prototype.decompose = function(context) {
         // the first element in a children list. This makes 
         // managing the list, and the caret selection, easier. 
         // ZERO-WIDTH SPACE
-        result = this.makeSpan(context, '\u200b');
-        if (this.hasCaret) result.hasCaret = true;
+        if (this.hasCaret) {
+            result = this.makeSpan(context, '\u200b');
+            result.hasCaret = true;
+        }
 
     } else {
         //
@@ -1617,7 +1633,7 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
  */
 MathAtom.prototype.bind = function(context, span) {
     if (context.generateID && this.type !== 'first' && this.body !== '\u200b') {
-        this.id = Date.now().toString(36) + 
+        this.id = Date.now().toString(36).slice(-2) + 
             Math.floor(Math.random() * 0x186a0).toString(36);
 
         if (!span.attributes) span.attributes = {};

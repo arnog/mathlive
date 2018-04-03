@@ -407,7 +407,10 @@ function isFunction(canonicalName) {
     if (canonicalName === 'f' || canonicalName === 'g') return true;
     let t = FUNCTION_TEMPLATE[canonicalName];
     if (!t) return false;
+    // %0 and %1 are the lhs and rhs arguments. Remove those from the template
     t = t.replace('%0', '').replace('%1', '');
+    // If we're left with a plain %, it's the argument list, and therefore
+    // this is a function.
     if (/%/.test(t)) return true;
     return false;
 }
@@ -788,7 +791,7 @@ function parsePostfix(expr, options) {
 
     } else if (atom.type === 'leftright' && 
         atom.leftDelim === ldelim && 
-        atom.rightDelim === rdelim) {
+        (atom.rightDelim === '?' || atom.rightDelim === rdelim)) {
         // This atom type includes the content of the parenthetical expression 
         // in its body
         expr.ast = parse(atom.body, options);

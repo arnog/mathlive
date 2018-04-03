@@ -1597,6 +1597,16 @@ EditableMathlist.prototype.insert = function(s, options) {
 EditableMathlist.prototype._insertSmartFence = function(fence) {
     if (!this.config.smartFence) return false;
 
+    const parent = this.parent();
+
+    // We're inserting a middle punctuation, for example as in {...|...}
+    if (parent && parent.type === 'leftright') {
+        if (/\||\\vert|\\Vert|\\mvert|\\mid/.test(fence)) {
+            this.insert('\\,\\middle' + fence + '\\, ');
+            return true;
+         }
+    }
+
     const rDelim = Definitions.RIGHT_DELIM[fence];
     if (rDelim) {
         // We have a valid open fence as input
@@ -1612,7 +1622,7 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
             s = '\\mathopen{}' + s + '\\mathclose{}'
         }
 
-        this.insert(s, {placeholder:'', macros: this.config.macros});
+        this.insert(s, {placeholder:''});
         if (collapsed) this.move(-1);
         return true;
     }
@@ -1631,7 +1641,6 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
         // (xy?ab) -> (xyab)
         // If we're the last atom inside a 'leftright', 
         // update the parent
-        const parent = this.parent();
         if (parent && parent.type === 'leftright' && 
                 this.endOffset() === this.siblings().length - 1) {
             parent.rightDelim = fence;
@@ -1671,7 +1680,7 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
 
         // Meh... We couldn't find a matching open fence. Just insert the 
         // closing fence as a regular character
-        this.insert(fence, {macros: this.config.macros});
+        this.insert(fence);
         return true;
     }
     
@@ -1733,7 +1742,7 @@ EditableMathlist.prototype.delete = function(count) {
     if (count === 0) {
         this.delete_(0);
     } else if (count > 0) {
-        while (count > 1) {
+        while (count > 0) {
             this.delete_(+1);
             count--;
         }
@@ -1745,9 +1754,10 @@ EditableMathlist.prototype.delete = function(count) {
     }
 }
 
+
 /**
  * @param {number} dir If the selection is not collapsed, and dir is 
- * negative, delete backward, starting with the anchor atom. 
+ * negative, delete backwards, starting with the anchor atom. 
  * That is, delete(-1) will delete only the anchor atom.
  * If dir = 0, delete only if the selection is not collapsed
  * @method EditableMathlist#delete_
@@ -1766,74 +1776,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
 
     const siblings = this.siblings();
 
-    if (this.isCollapsed()) {
-        const anchorOffset = this.anchorOffset();
-        if (dir < 0) {
-            if (anchorOffset !== 0) {
-                // We're in the middle of the siblings
-                this.config.announceChange("delete", null, siblings.slice(anchorOffset,anchorOffset + 1));
-                siblings.splice(anchorOffset, 1);
-                this.setSelection(anchorOffset - 1);
-            } else {
-                // We're at the beginning of the sibling list, delete what comes
-                // before
-                const relation = this.relation();
-                if (relation === 'superscript' || relation === 'subscript') {
-                    this.parent()[relation] = null;
-                    this.path.pop();
-                    this.config.announceChange("deleted: " + relation);
-                } else if (relation === 'denom') {
-                    // Fraction denominator
-                    const numer = this.parent()['numer'];
-                    numer.shift();    // Remove the 'first' atom
-                    this.path.pop();
-                    Array.prototype.splice.apply(this.siblings(), 
-                        [this.anchorOffset(), 1].concat(numer));
-                    this.setSelection(this.anchorOffset() + numer.length - 1);
-                    this.config.announceChange("deleted: denominator");
-                } else if (relation === 'body') {
-                    // Root
-                    const body = this.siblings();
-                    if (this.path.length > 1) {
-                        body.shift();    // Remove the 'first' atom
-                        this.path.pop();
-                        Array.prototype.splice.apply(this.siblings(), 
-                            [this.anchorOffset(), 1].concat(body));
-                        this.setSelection(this.anchorOffset() + body.length - 1);
-                        this.config.announceChange("deleted: root");
-                    }
-                } else {
-                    // Numer, index, children
-                    // @todo
-                }
-
-            }
-        } else if (dir > 0) {
-            if (anchorOffset !== siblings.length - 1) {
-                this.config.announceChange("delete", null, siblings.slice(anchorOffset + 1, anchorOffset + 2));
-                siblings.splice(anchorOffset + 1, 1);
-            } else {
-                // We're at the end of the sibling list, delete what comes next
-                const relation = this.relation();
-                if (relation === 'superscript' || relation === 'subscript') {
-                    this.parent()[relation] = null;
-                    this.path.pop();
-                    this.config.announceChange("deleted: " + relation);
-                } else if (relation === 'numer') {
-                    const denom = this.parent()['denom'];
-                    denom.shift(); // Remove 'first' atom
-                    this.path.pop();
-                    Array.prototype.splice.apply(this.siblings(), 
-                        [this.anchorOffset(), 1].concat(denom));
-                    this.setSelection(this.anchorOffset() - 1);
-                    this.config.announceChange("deleted: numerator");
-                } else {
-                    // @todo
-
-                }
-            }
-        }
-    } else {
+    if (!this.isCollapsed()) {
         // There is a selection extent. Delete all the atoms within it.
         const first = this.startOffset();
         const last = this.endOffset();
@@ -1843,8 +1786,98 @@ EditableMathlist.prototype.delete_ = function(dir) {
 
         // Adjust the anchor
         this.setSelection(first - 1);
-    }
+    } else {
+        const anchorOffset = this.anchorOffset();
+        if (dir < 0) {
+            if (anchorOffset !== 0) {
+                // We're not at the begining of the sibling list.
+                // If the previous sibling is a compound (fractions, group), 
+                // just move into it, otherwise delete it
+                const sibling = this.sibling(0);
+                if (sibling.type === 'leftright') {
+                    sibling.rightDelim = '?';
+                    this.move(-1);
+                } else if (!sibling.captureSelection && 
+                    /^(group|array|genfrac|surd|leftright|font|overlap|overunder|color|box|mathstyle|sizing)$/.test(sibling.type)) {
+                    this.move(-1);
+                } else {
+                    this.config.announceChange('delete', null, siblings.slice(anchorOffset, anchorOffset + 1));
+                    siblings.splice(anchorOffset, 1);
+                    this.setSelection(anchorOffset - 1);
+                }
+            } else {
+                // We're at the beginning of the sibling list.
+                // Delete what comes before
+                const relation = this.relation();
+                if (relation === 'superscript' || relation === 'subscript') {
+                    const supsub = this.parent()[relation].filter(atom => 
+                        atom.type !== 'placeholder' && atom.type !== 'first');
+                    this.parent()[relation] = null;
+                    this.path.pop();
+                    Array.prototype.splice.apply(this.siblings(), 
+                        [this.anchorOffset(), 0].concat(supsub));
+                    this.setSelection(this.anchorOffset() - 1);
+                    this.config.announceChange("deleted: " + relation);
+                } else if (relation === 'denom') {
+                    // Fraction denominator
+                    const numer = this.parent().numer.filter(atom => 
+                        atom.type !== 'placeholder' && atom.type !== 'first');
+                    const denom = this.parent().denom.filter(atom =>
+                        atom.type !== 'placeholder' && atom.type !== 'first');
+                    this.path.pop();
+                    Array.prototype.splice.apply(this.siblings(), 
+                        [this.anchorOffset(), 1].concat(denom));
+                    Array.prototype.splice.apply(this.siblings(), 
+                        [this.anchorOffset(), 0].concat(numer));
+                    this.setSelection(this.anchorOffset() + numer.length - 1);
+                    this.config.announceChange("deleted: denominator");
+                } else if (relation === 'body') {
+                    const body = this.siblings().filter(atom => atom.type !== 'placeholder');
+                    if (this.path.length > 1) {
+                        body.shift();    // Remove the 'first' atom
+                        this.path.pop();
+                        Array.prototype.splice.apply(this.siblings(), 
+                            [this.anchorOffset(), 1].concat(body));
+                        this.setSelection(this.anchorOffset() - 1);
+                        this.config.announceChange("deleted: root");
+                    }
+                } else {
+                    this.move(-1);
+                    this.delete(-1);
+                }
 
+            }
+        } else if (dir > 0) {
+            if (anchorOffset !== siblings.length - 1) {
+                if (/^(group|array|genfrac|surd|leftright|font|overlap|overunder|color|box|mathstyle|sizing)$/.test(this.sibling(1).type)) {
+                    this.move(+1);
+                } else {
+                    this.config.announceChange('delete', null, siblings.slice(anchorOffset + 1, anchorOffset + 2));
+                    siblings.splice(anchorOffset + 1, 1);
+                }
+            } else {
+                // We're at the end of the sibling list, delete what comes next
+                const relation = this.relation();
+                if (relation === 'numer') {
+                    const numer = this.parent().numer.filter(atom => 
+                        atom.type !== 'placeholder' && atom.type !== 'first');
+                    const denom = this.parent().denom.filter(atom =>
+                        atom.type !== 'placeholder' && atom.type !== 'first');
+                    this.path.pop();
+                    Array.prototype.splice.apply(this.siblings(), 
+                        [this.anchorOffset(), 1].concat(denom));
+                    Array.prototype.splice.apply(this.siblings(), 
+                        [this.anchorOffset(), 0].concat(numer));
+                    this.setSelection(this.anchorOffset() + numer.length - 1);
+                    this.config.announceChange("deleted: numerator");
+
+                } else {
+                    this.move(1);
+                    this.delete(1);
+                }
+            }
+        }
+    }
     // Dispatch notifications
     this.contentIsChanging = contentWasChanging;
     if (this.config.onContentDidChange && !this.contentIsChanging) this.config.onContentDidChange();
