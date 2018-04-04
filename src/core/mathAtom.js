@@ -1651,7 +1651,7 @@ MathAtom.prototype.bind = function(context, span) {
  */
 MathAtom.prototype.makeSpan = function(context, body) {
     const type = this.type === 'textord' ? 'mord' : this.type;
-    let result = Span.makeSpanOfType(type, body);
+    const result = Span.makeSpanOfType(type, body);
 
     //
     // 1. Determine the font family (i.e. 'amsrm', 'mathit', 'mathcal', etc...)
