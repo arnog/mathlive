@@ -2230,45 +2230,25 @@ EditableMathlist.prototype.moveToSubscript_ = function() {
  */
 EditableMathlist.prototype.moveToOpposite_ = function() {
     const OPPOSITE_RELATIONS = {
-        'body': 'superscript',
         'superscript': 'subscript',
         'subscript': 'superscript',
         'denom': 'numer',
         'numer': 'denom', 
     }
     const oppositeRelation = OPPOSITE_RELATIONS[this.relation()];
-    if (!oppositeRelation) return false;
-
-    if (oppositeRelation === 'superscript' || 
-        oppositeRelation === 'subscript') {
-        if (this.parent()[oppositeRelation]) {
-            // If we have a supub, move to it
-            this.path.pop();
-            this.path.push({relation: oppositeRelation, offset: 1});
-            this.setSelection(0, 'end');
-        } else {
-            // If we don't have the opposite of the supsub, add it now
-            if (this.parent()[OPPOSITE_RELATIONS[oppositeRelation]]) {
-                this.parent()[oppositeRelation] = [new MathAtom.MathAtom(this.parent().parseMode, 'first', null)]; 
-            } else {
-                // Does the previous sibling have a \limits, if so, switch to its 
-                // superscript, creating one if necessary
-
-                // Need to add a supsub
-
-                this.moveToSuperscript_();
-            }
-        }
-    } else {
-        if (!this.parent()[oppositeRelation]) {
-            // Don't have children of the opposite relation yet
-            // Add them
-            this.parent()[oppositeRelation] = 
-                [new MathAtom.MathAtom(this.parent().parseMode, 'first', null)]; 
-        }
-
-        this.setSelection(1, 'end', oppositeRelation);
+    if (!oppositeRelation) {
+        this.moveToSuperscript_();
+        return false;
     }
+
+    if (!this.parent()[oppositeRelation]) {
+        // Don't have children of the opposite relation yet
+        // Add them
+        this.parent()[oppositeRelation] = 
+            [new MathAtom.MathAtom(this.parent().parseMode, 'first', null)]; 
+    }
+
+    this.setSelection(1, 'end', oppositeRelation);
 
     return true;
 }
