@@ -42,10 +42,10 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
     const command = this.latex ? this.latex.trim() : null;
     switch(this.type) {
         case 'group':
-            result += this.latexOpen || '';
+            result += this.latexOpen || '{';
             result += expandMacro ? latexify(this.body, true) : 
                 (this.latex || latexify(this.body, false)); 
-            result += this.latexClose || '';
+            result += this.latexClose || '}';
             break;
 
         case 'array':
