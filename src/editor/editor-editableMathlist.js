@@ -1527,7 +1527,7 @@ EditableMathlist.prototype.insert = function(s, options) {
                         symbol.value, 'main'));
                 }
             }
-        } else if (s === '\u0027') {
+        } else if (s === '\u001b') {
             mathlist = [new MathAtom.MathAtom('command', 'command', '\\', 'main')];
         } else {
             // If we're inserting a latex fragment that includes a #@ argument

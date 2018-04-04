@@ -1344,7 +1344,7 @@ MathField.prototype.enterCommandMode_ = function() {
     }
 
     this.undoManager.snapshot();
-    this.mathlist.insert('\u0027');
+    this.mathlist.insert('\u001b');
 }
 
 
