@@ -256,6 +256,7 @@ const INLINE_SHORTCUTS = {
     '>=':                   '\\ge',                 //ASCIIMath
     '<=':                   '\\le',                 //ASCIIMath
     '!=':                   '\\ne',
+    '?=':                   '\\questeq',
     '≈':                    '\\approx',
     '~~':                   '\\approx',             // ASCIIMath
     '÷':                    '\\div',

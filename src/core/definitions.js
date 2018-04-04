@@ -2472,6 +2472,9 @@ defineSymbol( '\\geq', MATH,  MAIN,  REL, '\u2265', COMMON);     // >2,000
 defineSymbol( '\\ll', MATH,  MAIN,  REL, '\u226a');
 defineSymbol( '\\gg', MATH,  MAIN,  REL, '\u226b', COMMON);   // >2,000
 defineSymbol( '\\coloneq', MATH,  MAIN,  REL, '\u2254', 5);
+defineSymbol( '\\measeq', MATH,  MAIN,  REL, '\u225D');     // MEASSURED BY
+defineSymbol( '\\eqdef', MATH,  MAIN,  REL, '\u225E');
+defineSymbol( '\\questeq', MATH,  MAIN,  REL, '\u225F');    // QUESTIONED EQUAL TO
 
 
 defineSymbol( ':', MATH,  MAIN,  REL, ':');
