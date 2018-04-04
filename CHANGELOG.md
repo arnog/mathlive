@@ -17,6 +17,10 @@ a `delete`, `return`, `spacebar` and `default` (required) keys to specify
 different sounds for those keys.
 
 ### Other New Features
+- When a fraction is inserted, for example by pressing '/', the items before
+the insertion point are considered as potential numerator. This now include 
+parenthesized expressions and roots. In the case of parenthesized expressions,
+the parentheses are removed before being adoped for the numerator.
 - MASTON: Use Unicode to represent math-variant letters (e.g. ℂ)
 - Convert math-variant letters encoded in Unicode to Latex when pasting (e.g. ℂ
 becomes `\C`, 𝕰 becomes `\mathord{\mathbf{\mathfrak{E}}}`
