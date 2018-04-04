@@ -290,8 +290,11 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             result += this.latex;
             break;
 
-        case 'first':
         case 'placeholder':
+            result += '\\placeholder{' + (this.value || '') + '}';
+            break;
+
+        case 'first':
         case 'command':
         case 'msubsup':
             break;  

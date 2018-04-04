@@ -1195,7 +1195,10 @@ Parser.prototype.scanToken = function() {
 
     } else if (token.type === 'command') {
         // RENDER COMMAND
-        if (token.value === 'char') {
+        if (token.value === 'placeholder') {
+            result = new MathAtom(this.parseMode, 'placeholder', this.scanArg('string'));
+            
+        } else if (token.value === 'char') {
             // \char has a special syntax and requires a non-braced integer 
             // argument
             let codepoint = Math.floor(this.scanNumber(true));
