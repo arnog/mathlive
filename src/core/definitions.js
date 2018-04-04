@@ -72,7 +72,7 @@ const FUNCTIONS = {};
 const ENVIRONMENTS = {};
 
 const MACROS = {
-    'iff':    '\\;\u27fa\\;',         //>2,000 Note: additional spaces around the arrows
+    'iff':      '\\;\u27fa\\;',         //>2,000 Note: additional spaces around the arrows
     'nicefrac': '^{#1}\\!\\!/\\!_{#2}',
 
     // From bracket.sty, Diract notation
@@ -923,7 +923,6 @@ function defineEnvironment(names, params, options, parser) {
  * '[index=2]{indicand}' defines two params, one optional, one required
  
  * @param {Object} options   
- * - greediness
  * - infix
  * - allowedInText
  * @param {function} handler 
@@ -952,7 +951,6 @@ function defineFunction(names, params, options, handler) {
         // {optional, type, defaultValue, placeholder}
         params: parsedParams,
 
-        greediness: options.greediness || 1,
         allowedInText: !!options.allowedInText,
         infix: !!options.infix,
         handler: handler
@@ -1744,7 +1742,7 @@ defineFunction([
 
     // aliases
     '\\Bbb', '\\bold', '\\frak', '\\boldsymbol', '\\bm'
-    ], '{text:math}', {greediness: 2}, function(funcName, args) {
+    ], '{text:math}', {}, function(funcName, args) {
     if (funcName in FONT_ALIASES) {
         funcName = FONT_ALIASES[funcName];
     }
@@ -1769,7 +1767,7 @@ defineFunction([
 
 
 // Rough synomym for \text{}
-defineFunction(['\\mbox'], '{text:text}', {greediness: 2, allowedInText: true}, function(name, args) {
+defineFunction(['\\mbox'], '{text:text}', {allowedInText: true}, function(name, args) {
     return {
         type: 'font',
         body: args[0],
@@ -1784,7 +1782,7 @@ defineFunction([
 
     // toggle
     '\\emph', '\\em',
-], '{text:text}', {greediness: 2, allowedInText: true}, function(name, args) {
+], '{text:text}', {allowedInText: true}, function(name, args) {
     return {
         type: 'font',
         body: args[0],
@@ -1825,7 +1823,7 @@ defineFunction([
     '\\frac', '\\dfrac', '\\tfrac',
     '\\cfrac',
     '\\binom', '\\dbinom', '\\tbinom'
-], '{numerator}{denominator}', {greediness: 2}, function(name, args) {
+], '{numerator}{denominator}', {}, function(name, args) {
     const result = { 
         type: 'genfrac',
         numer: args[0],
@@ -1901,7 +1899,7 @@ defineFunction([
     '\\over' /* 21 */ , 
     '\\atop' /* 12 */, 
     '\\choose' /* 1968 */    
-], '', {greediness: 2, infix: true}, 
+], '', {infix: true}, 
         function(name, args) {
     const numer = args[0];
     const denom = args[1];
@@ -1941,7 +1939,7 @@ defineFunction([
     '\\overwithdelims' /* 21 */ , 
     '\\atopwithdelims' /* COMMON */, 
     
-], '{left-delim:delim}{right-delim:delim}', {greediness: 2, infix: true}, 
+], '{left-delim:delim}{right-delim:delim}', {infix: true}, 
         function(name, args) {
     return {
         type: 'genfrac',
@@ -1967,7 +1965,7 @@ defineFunction('\\slashed'
 */
 
 category = 'Fractions';
-defineFunction(['\\pdiff'], '{numerator}{denominator}' , {greediness: 2}, function(funcname, args) {
+defineFunction(['\\pdiff'], '{numerator}{denominator}' , {}, function(funcname, args) {
     return {
         type: 'genfrac',
         numer: args[0],
@@ -2789,7 +2787,6 @@ defineFunction([
             '\\mathinner': 'minner'
         }[name],
         body: getSimpleString(args[0]) || args[0],
-        fontFamily: 'mainrm',
         captureSelection: true,     // Do not let children be selected
 
     };
