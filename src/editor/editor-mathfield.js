@@ -1002,7 +1002,7 @@ MathField.prototype._onTypedText = function(text, options) {
                     this.undoManager.restore(savedState, this.config);
 
                     // Remove the atoms from the prefix string
-                    this.mathlist.delete(-count - 1);
+                    this.mathlist._deleteAtoms(-count - 1);
 
                     // Insert the substitute
                     this.mathlist.insert(shortcut, {format: 'latex'});

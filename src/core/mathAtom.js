@@ -575,13 +575,15 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
         denomShift = mathstyle.metrics.denom2;
     }
 
+    const numerDepth = numerReset ? numerReset.depth : 0;
+    const denomHeight = denomReset ? denomReset.height : 0;
 
     let frac;
     if (ruleWidth === 0) {
         // Rule 15c from Appendix G
         // No bar line between numerator and denominator
         const candidateClearance =
-            (numShift - numerReset.depth) - (denomReset.height - denomShift);
+            (numShift - numerDepth) - (denomHeight - denomShift);
         if (candidateClearance < clearance) {
             numShift += 0.5 * (clearance - candidateClearance);
             denomShift += 0.5 * (clearance - candidateClearance);
@@ -597,18 +599,18 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
         // There is a bar line between the numerator and the denominator
         const axisHeight = mathstyle.metrics.axisHeight;
 
-        if ((numShift - numerReset.depth) - (axisHeight + 0.5 * ruleWidth) <
+        if ((numShift - numerDepth) - (axisHeight + 0.5 * ruleWidth) <
                 clearance) {
             numShift +=
-                clearance - ((numShift - numerReset.depth) -
+                clearance - ((numShift - numerDepth) -
                             (axisHeight + 0.5 * ruleWidth));
         }
 
-        if ((axisHeight - 0.5 * ruleWidth) - (denomReset.height - denomShift) <
+        if ((axisHeight - 0.5 * ruleWidth) - (denomHeight - denomShift) <
                 clearance) {
             denomShift +=
                 clearance - ((axisHeight - 0.5 * ruleWidth) -
-                            (denomReset.height - denomShift));
+                            (denomHeight - denomShift));
         }
 
         const mid = makeSpan('',

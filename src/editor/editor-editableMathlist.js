@@ -833,7 +833,11 @@ EditableMathlist.prototype.extractContentsOrdInGroupBeforeInsertionPoint = funct
     if (siblings.length <= 1) return [];
 
     let i = this.startOffset();
-    while (i >= 1 && siblings[i].type === 'mord') {
+    while (i >= 1 && (siblings[i].type === 'mord' || 
+        siblings[i].type === 'surd'     || 
+        siblings[i].type === 'leftright' ||
+        siblings[i].type === 'font'
+        )) {
         result.unshift(siblings[i]);
         i--
     }
@@ -1440,6 +1444,17 @@ EditableMathlist.prototype.parseMode = function() {
 }
 
 
+function removeParen(list) {
+    if (!list) return undefined;
+
+    if (list && list.length === 1 && list[0].type === 'leftright' && 
+        list[0].leftDelim === '(') {
+        list = list[0].body;
+    }
+
+    return list;
+}
+
 
 /**
  * @param {string} s
@@ -1540,9 +1555,10 @@ EditableMathlist.prototype.insert = function(s, options) {
                 s = s.replace(/(^|[^\\])#@/g, '$1#0');
                 args[0] = this.extractContentsOrdInGroupBeforeInsertionPoint();
                 // Delete the implicit argument
-                this.delete(-args[0].length);
+                this._deleteAtoms(-args[0].length);
                 // If the implicit argument was empty, remove it from the args list.
                 if (Array.isArray(args[0]) && args[0].length === 0) args[0] = undefined;
+
             } else {
                 // No selection, no 'mord' before. Let's make '#@' a placeholder.
                 s = s.replace(/(^|[^\\])#@/g, '$1#?');
@@ -1551,6 +1567,14 @@ EditableMathlist.prototype.insert = function(s, options) {
             mathlist = ParserModule.parseTokens(
                 Lexer.tokenize(Definitions.unicodeStringToLatex(s)), 
                 parseMode, args, options.macros);
+
+            // Simplify result.
+            // If it's a fraction with a parenthesized numerator or denominator
+            // remove the parentheses.
+            if (mathlist.length === 1 && mathlist[0].type === 'genfrac') {
+                mathlist[0].numer = removeParen(mathlist[0].numer);
+                mathlist[0].denom = removeParen(mathlist[0].denom);
+            }
         }
     } else if (options.format === 'latex') {
         mathlist = ParserModule.parseTokens(Lexer.tokenize(s), parseMode, args, options.macros);
@@ -1743,6 +1767,18 @@ EditableMathlist.prototype.insertSuggestion = function(s, l) {
 
 }
 
+/**
+ * Delete sibling atoms
+ * @method EditableMathlist#_deleteAtoms
+ */
+EditableMathlist.prototype._deleteAtoms = function(count) {
+    if (count > 0) {
+        this.siblings().splice(this.anchorOffset() + 1, count);
+    } else {
+        this.siblings().splice(this.anchorOffset() + count + 1, -count);
+        this.setSelection(this.anchorOffset() + count);
+    }
+}
 
 /**
  * Delete multiple characters
