@@ -1254,8 +1254,6 @@ Parser.prototype.scanToken = function() {
                             } else {
                                 args.push(this.placeholder());
                             }
-                            // @todo should check for greediness of argument here 
-                            // (should be < greediness of command)
                         }
                     }
             }

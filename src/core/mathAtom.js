@@ -119,47 +119,32 @@ function MathAtom(mode, type, body, fontFamily, extras) {
     }
 
 
-    // Determine which font family to use
+    // Determine which font family to use.
     // Note that the type, fontFamily and body could have been overridden
     // by 'extras', so don't check against the parameter ('type') but 
     // the value in the object ('this.type').
-    if (this.type === 'mord' || this.type === 'textord') {
-        if (this.type === 'mord' && this.fontFamily === 'main' && 
-            typeof this.body === 'string' && this.body.length === 1) {
-            const c = this.body.charCodeAt(0);
-            if ( (c >= 65 && c <= 90) || // A-Z
-                (c >= 97 && c <= 122) || //a-z
-                (c >= 0x03b1 && c <= 0x03C9) || // alpha-omega
-                (c === 0x03f1 || c === 0x03f5 || c === 0x03d1 || 
-                c === 0x03f0 || c === 0x03d6 || c === 0x03d5)) {
-                // Auto italicize alphabetic and lowercase greek symbols 
-                // in math mode (European style, American style would not 
-                // italicize greek letters, but it's TeX's default behavior)
-                this.fontFamily = 'mathit';
-            }
-        }
+    if (this.type !== 'textord' && this.fontFamily === 'main' && 
+        typeof this.body === 'string' && this.body.length === 1) {
 
-        if (this.type === 'textord' && this.fontFamily === 'main') {
-            this.fontFamily = 'mathrm';
+        if (/[A-Za-z]/.test(this.body) || GREEK_REGEX.test(this.body)) {
+            // Auto italicize alphabetic and lowercase greek symbols 
+            // in math mode (European style, American style would not 
+            // italicize greek letters, but it's TeX's default behavior)
+            this.fontFamily = 'mathit';
         }
-        // if (!italic && type === 'textord' && (mode === 'displaymath' || mode === 'inlinemath')) {
-        //     fontFamily = 'mathit';  // This is important to get \prime to render correctly
-        // }
+    }
 
-        if (this.fontFamily === 'main') {
-            this.fontFamily = type === 'mord' ? 'mathrm' : 'textrm';
-        } else if (fontFamily === 'ams') {
-            this.fontFamily = 'amsrm';
-        }
+    if (this.type === 'textord' && this.fontFamily === 'main') {
+        this.fontFamily = 'mathrm';
+    }
+    // if (!italic && type === 'textord' && (mode === 'displaymath' || mode === 'inlinemath')) {
+    //     fontFamily = 'mathit';  // This is important to get \prime to render correctly
+    // }
 
-    } else if (this.type === 'mbin' || this.type === 'mrel' || this.type === 'mopen' || 
-        this.type === 'mclose' || this.type === 'minner' || this.type === 'mpunct' || 
-        this.type === 'mop') {
-        if (this.fontFamily === 'main') {
-            this.fontFamily = 'mathrm';
-        } else if (this.fontFamily === 'ams') {
-            this.fontFamily = 'amsrm';
-        }
+    if (this.fontFamily === 'main') {
+        this.fontFamily = 'mathrm';
+    } else if (fontFamily === 'ams') {
+        this.fontFamily = 'amsrm';
     }
 }
 
@@ -1471,6 +1456,7 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
     } else if (this.type === 'esc' || this.type === 'command' || 
         this.type === 'error' ) {
         result = this.makeSpan(context, this.body);
+        result.classes = '';        // Override fonts and other attributes.
         if (this.error) {
             result.classes += ' ML__error';
         }
@@ -1783,7 +1769,6 @@ MathAtom.prototype.makeSpan = function(context, body) {
         // If this has a super/subscript, the caret will be attached
         // to the 'msubsup' atom, so no need to have it here.
         if (!this.superscript && !this.subscript) {
-            result = Span.makeSpanOfType(type, result);
             result.hasCaret = true;
             if (context.mathstyle.isTight()) result.isTight = true;
         }
