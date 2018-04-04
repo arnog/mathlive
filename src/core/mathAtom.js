@@ -1709,7 +1709,7 @@ MathAtom.prototype.makeSpan = function(context, body) {
             result.classes += ' mainit';
         } else if (fontName === 'Math-Italic') {
             result.classes += ' mathit';
-        } else if (fontFamily) {
+        } else if (fontName !== 'Main-Regular' && fontFamily) {
             result.classes += ' ' + fontFamily;
         }
     }
@@ -1916,6 +1916,9 @@ const FONT_NAME = {
 
 const GREEK_REGEX = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5/;
 
+// TeX by default auto-italicize latin letters and lowercase greek letters
+const AUTO_ITALIC_REGEX = /[A-Za-z]\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5/;
+
 
 /**
  * Given a font family ('mathbf', 'mathit'...) return a corresponding
@@ -1946,7 +1949,7 @@ function getFontName(symbol, fontFamily) {
         if (/[0-9]/.test(symbol) || symbol === '\\imath' ||
             symbol === '\\jmath' || symbol === '\\pounds' ) {
             result = 'Main-Italic'
-        } else if (/[A-Za-z]/.test(symbol) || GREEK_REGEX.test(symbol)) {
+        } else if (AUTO_ITALIC_REGEX.test(symbol)) {
             result = 'Math-Italic';
         } else {
             result = 'Main-Regular';

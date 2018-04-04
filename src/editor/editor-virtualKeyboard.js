@@ -463,35 +463,35 @@ const LAYERS = {
         </div>`,
     'lower-greek': `
         <div class='rows'>
-            <ul><li class='keycap tex-math' data-insert='\\varphi '><i>&#x03c6;</i><aside>phi var.</aside></li>
-                <li class='keycap tex-math' data-insert='\\varsigma '><i>&#x03c2;</i><aside>sigma var.</aside></li>
-                <li class='keycap tex-math' data-insert='\\epsilon '><i>&#x03f5;</i></li>
-                <li class='keycap tex-math' data-insert='\\rho '><i>&rho;</i></li>
-                <li class='keycap tex-math' data-insert='\\tau '><i>&tau;</i></li>
-                <li class='keycap tex-math' data-insert='\\upsilon '><i>&upsilon;</i></li>
-                <li class='keycap tex-math' data-insert='\\theta '><i>&theta;</i></li>
-                <li class='keycap tex-math' data-insert='\\iota '><i>&iota;</i></li>
-                <li class='keycap tex-math' data-insert='\\omicron '>&omicron;</i></li>
-                <li class='keycap tex-math' data-insert='\\pi '><i>&pi;</i></li>
+            <ul><li class='keycap tex' data-insert='\\varphi '><i>&#x03c6;</i><aside>phi var.</aside></li>
+                <li class='keycap tex' data-insert='\\varsigma '><i>&#x03c2;</i><aside>sigma var.</aside></li>
+                <li class='keycap tex' data-insert='\\epsilon '><i>&#x03f5;</i></li>
+                <li class='keycap tex' data-insert='\\rho '><i>&rho;</i></li>
+                <li class='keycap tex' data-insert='\\tau '><i>&tau;</i></li>
+                <li class='keycap tex' data-insert='\\upsilon '><i>&upsilon;</i></li>
+                <li class='keycap tex' data-insert='\\theta '><i>&theta;</i></li>
+                <li class='keycap tex' data-insert='\\iota '><i>&iota;</i></li>
+                <li class='keycap tex' data-insert='\\omicron '>&omicron;</i></li>
+                <li class='keycap tex' data-insert='\\pi '><i>&pi;</i></li>
             </ul>
-            <ul><li class='keycap tex-math' data-insert='\\alpha ' data-shifted='&Alpha;' data-shifted-command='["insert","{\\\\char\\"391}"]'><i>&alpha;</i></li>
-                <li class='keycap tex-math' data-insert='\\sigma '><i>&sigma;</i></li>
-                <li class='keycap tex-math' data-insert='\\delta '><i>&delta;</i></li>
-                <li class='keycap tex-math' data-insert='\\phi '><i>&#x03d5;</i></i></li>
-                <li class='keycap tex-math' data-insert='\\gamma '><i>&gamma;</i></li>
-                <li class='keycap tex-math' data-insert='\\eta '><i>&eta;</i></li>
-                <li class='keycap tex-math' data-insert='\\xi '><i>&xi;</i></li>
-                <li class='keycap tex-math' data-insert='\\kappa '><i>&kappa;</i></li>
-                <li class='keycap tex-math' data-insert='\\lambda '><i>&lambda;</i></li>
+            <ul><li class='keycap tex' data-insert='\\alpha ' data-shifted='&Alpha;' data-shifted-command='["insert","{\\\\char\\"391}"]'><i>&alpha;</i></li>
+                <li class='keycap tex' data-insert='\\sigma '><i>&sigma;</i></li>
+                <li class='keycap tex' data-insert='\\delta '><i>&delta;</i></li>
+                <li class='keycap tex' data-insert='\\phi '><i>&#x03d5;</i></i></li>
+                <li class='keycap tex' data-insert='\\gamma '><i>&gamma;</i></li>
+                <li class='keycap tex' data-insert='\\eta '><i>&eta;</i></li>
+                <li class='keycap tex' data-insert='\\xi '><i>&xi;</i></li>
+                <li class='keycap tex' data-insert='\\kappa '><i>&kappa;</i></li>
+                <li class='keycap tex' data-insert='\\lambda '><i>&lambda;</i></li>
             </ul>
             <ul><li class='shift modifier font-glyph bottom left w15 layer-switch' data-layer='upper-greek'>&#x21e7;</li>
-                <li class='keycap tex-math' data-insert='\\zeta '><i>&zeta;</i></li>
-                <li class='keycap tex-math' data-insert='\\chi '><i>&chi;</i></li>
-                <li class='keycap tex-math' data-insert='\\psi '><i>&psi;</i></li>
-                <li class='keycap tex-math' data-insert='\\omega '><i>&omega;</i></li>
-                <li class='keycap tex-math' data-insert='\\beta '><i>&beta;</i></li>
-                <li class='keycap tex-math' data-insert='\\nu '><i>&nu;</i></li>
-                <li class='keycap tex-math' data-insert='\\mu '><i>&mu;</i></li>
+                <li class='keycap tex' data-insert='\\zeta '><i>&zeta;</i></li>
+                <li class='keycap tex' data-insert='\\chi '><i>&chi;</i></li>
+                <li class='keycap tex' data-insert='\\psi '><i>&psi;</i></li>
+                <li class='keycap tex' data-insert='\\omega '><i>&omega;</i></li>
+                <li class='keycap tex' data-insert='\\beta '><i>&beta;</i></li>
+                <li class='keycap tex' data-insert='\\nu '><i>&nu;</i></li>
+                <li class='keycap tex' data-insert='\\mu '><i>&mu;</i></li>
                 <li class='action font-glyph bottom right w15' 
                     data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
@@ -501,11 +501,11 @@ const LAYERS = {
             <ul>
                 <li class='keycap ' data-key=' '>&nbsp;</li>
                 <li class='keycap'>,</li>
-                <li class='keycap tex-math' data-insert='\\varepsilon '><i>&#x03b5;</i><aside>epsilon var.</aside></li>
-                <li class='keycap tex-math' data-insert='\\vartheta '><i>&#x03d1;</i><aside>theta var.</aside></li>
-                <li class='keycap tex-math' data-insert='\\varkappa '><i>&#x3f0;</i><aside>kappa var.</aside></li>
-                <li class='keycap tex-math' data-insert='\\varpi '><i>&#x03d6;<aside>pi var.</aside></i></li>
-                <li class='keycap tex-math' data-insert='\\varrho '><i>&#x03f1;</i><aside>rho var.</aside></li>
+                <li class='keycap tex' data-insert='\\varepsilon '><i>&#x03b5;</i><aside>epsilon var.</aside></li>
+                <li class='keycap tex' data-insert='\\vartheta '><i>&#x03d1;</i><aside>theta var.</aside></li>
+                <li class='keycap tex' data-insert='\\varkappa '><i>&#x3f0;</i><aside>kappa var.</aside></li>
+                <li class='keycap tex' data-insert='\\varpi '><i>&#x03d6;<aside>pi var.</aside></i></li>
+                <li class='keycap tex' data-insert='\\varrho '><i>&#x03f1;</i><aside>rho var.</aside></li>
                 <arrows/>
             </ul>
         </div>`,
