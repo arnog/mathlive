@@ -269,7 +269,9 @@ function lastSpanType(span) {
     if (span.classes.indexOf('ML__selected') !== -1) {
         result = span.children[span.children.length - 1].type;
     }
-    return (result === 'textord' || result === 'first') ? 'mord' : result;
+    if (result === 'first') return 'none';
+    if (result === 'textord') return 'mord';
+    return result;
 }
 
 /**
@@ -290,7 +292,7 @@ Span.prototype.toMarkup = function(hskip) {
         for (const child of this.children) {
             let spacing = 0;
             let type = child.type !== 'textord' ? child.type : 'mord';
-            if (type === 'first') type = 'mord';
+            if (type === 'first') type = 'none';
             if (child.isTight) { 
                 spacing = (INTER_ATOM_TIGHT_SPACING[previousType + '+' + type] || 0) / 18;
             } else {
@@ -516,6 +518,7 @@ function coalesce(spans) {
 //----------------------------------------------------------------------------
 
 function height(spans) {
+    if (!spans) return 0;
     if (Array.isArray(spans)) {
         let result = 0;
         for (const span of spans) {
@@ -527,6 +530,7 @@ function height(spans) {
 }
 
 function depth(spans) {
+    if (!spans) return 0;
     if (Array.isArray(spans)) {
         let result = 0;
         for (const span of spans) {
@@ -539,6 +543,7 @@ function depth(spans) {
 
 
 function skew(spans) {
+    if (!spans) return 0;
     if (Array.isArray(spans)) {
         let result = 0;
         for (const span of spans) {
@@ -550,6 +555,7 @@ function skew(spans) {
 }
 
 function italic(spans) {
+    if (!spans) return 0;
     if (Array.isArray(spans)) {
         return spans[spans.length - 1].italic;
     }
@@ -855,8 +861,8 @@ function makeVlist(context, elements, pos, posData) {
     const result = makeSpan(newElements, 'vlist');
     // Fix the final height and depth, in case there were kerns at the ends
     // since makeSpan won't take that into account.
-    result.height = Math.max(currPos, result.height);
-    result.depth = Math.max(depth, result.depth);
+    result.height = Math.max(-currPos, result.height || 0);
+    result.depth = Math.max(depth, result.depth || 0);
 
     return result;
 }

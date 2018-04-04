@@ -643,7 +643,7 @@ function parseSupsub(expr, options) {
     // Is the following atom a subsup atom?
     if (!atom) {
         atom = expr.atoms[expr.index];
-        if (isAtom(expr, 'mord', '\u200b') && (atom.superscript || atom.subscript)) {
+        if (isAtom(expr, 'msubsup') && (atom.superscript || atom.subscript)) {
             expr.index += 1;
         } else {
             atom = null;

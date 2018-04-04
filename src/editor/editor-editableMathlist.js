@@ -1038,6 +1038,10 @@ EditableMathlist.prototype.previous = function() {
         while (relation && !this.setSelection(-1, 0 , relation)) {
             relation = PREVIOUS_RELATION[relation];
         }
+        // Ignore the body of the subsup scafolding.
+        if (relation === 'body' && this.parent() && this.parent().type === 'msubsup') {
+            relation = null;
+        }
         // We found a new relation/set of siblings...
         if (relation) return;
 
@@ -1612,15 +1616,15 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
         // We have a valid open fence as input
         const collapsed = this.isCollapsed();
         
-        let s = '\\left' + fence + '#0\\right' + (collapsed ? '?' : rDelim);
+        const s = '\\left' + fence + '#0\\right' + (collapsed ? '?' : rDelim);
 
         // Is our left sibling a function?
         // If so, bracket the expression with \mathopen{}...\mathclose{} to 
         // adjust the spacing
-        const leftSibling = this.sibling(0);
-        if (leftSibling && leftSibling.type === 'mop') {
-            s = '\\mathopen{}' + s + '\\mathclose{}'
-        }
+        // const leftSibling = this.sibling(0);
+        // if (leftSibling && leftSibling.type === 'mop') {
+        //     s = '\\mathopen{}' + s + '\\mathclose{}'
+        // }
 
         this.insert(s, {placeholder:''});
         if (collapsed) this.move(-1);
@@ -1637,8 +1641,6 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
         // We found the matching open fence, so it was a valid close fence.
         // Note that `lDelim` may not match `fence`. That's OK.
 
-        // todo: If we can't find one, insert a new \left
-        // (xy?ab) -> (xyab)
         // If we're the last atom inside a 'leftright', 
         // update the parent
         if (parent && parent.type === 'leftright' && 
@@ -1676,6 +1678,16 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
                 [this.endOffset() + 1, 0].concat(tail));
 
             return true;
+        }
+
+        // Is our grand-parent a 'leftright'?
+        // If \left(\frac{1}{x|}\right? with the caret at |
+        // go up to the 'leftright' and apply it there instead
+        const grandparent = this.ancestor(2);
+        if (grandparent && grandparent.type === 'leftright' && 
+            this.endOffset() === siblings.length - 1) {
+            this.move(1);
+            return this._insertSmartFence(fence);
         }
 
         // Meh... We couldn't find a matching open fence. Just insert the 
@@ -2156,7 +2168,7 @@ EditableMathlist.prototype.moveToSuperscript_ = function() {
                 this.siblings().splice(
                     this.anchorOffset() + 1,
                     0,
-                    new MathAtom.MathAtom(this.parent().parseMode, 'mord', '\u200b'));
+                    new MathAtom.MathAtom(this.parent().parseMode, 'msubsup', '\u200b'));
                 this.path[this.path.length - 1].offset += 1;
     //            this.setSelection(this.anchorOffset() + 1);
                 this.anchor().superscript = 
@@ -2193,7 +2205,7 @@ EditableMathlist.prototype.moveToSubscript_ = function() {
                 this.siblings().splice(
                     this.anchorOffset() + 1,
                     0,
-                    new MathAtom.MathAtom(this.parent().parseMode, 'mord', '\u200b'));
+                    new MathAtom.MathAtom(this.parent().parseMode, 'msubsup', '\u200b'));
                 this.path[this.path.length - 1].offset += 1;
                 // this.setSelection(this.anchorOffset() + 1);
                 this.anchor().subscript = 

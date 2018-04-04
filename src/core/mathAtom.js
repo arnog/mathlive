@@ -713,6 +713,7 @@ MathAtom.prototype.decomposeLeftright = function(context) {
 
     let innerHeight = 0;
     let innerDepth = 0;
+    let result = [];
 
     // Calculate its height and depth
     // The size of delimiters is the same, regardless of what mathstyle we are
@@ -722,33 +723,34 @@ MathAtom.prototype.decomposeLeftright = function(context) {
     innerDepth = Span.depth(inner) * mathstyle.sizeMultiplier;
 
     // Add the left delimiter to the beginning of the expression
-    let result = [];
     if (this.leftDelim) {
         result.push(this.bind(localContext, Delimiters.makeLeftRightDelim('mopen',
             this.leftDelim, innerHeight, innerDepth, localContext)));
     }
 
-    // Replace the delim (\middle) spans with proper ones now that we know 
-    // the height/depth
-    for (let i = 0; i < inner.length; i++) {
-        if (inner[i].delim) {
-            const hadCaret = inner[i].hasCaret;
-            inner[i] = this.bind(localContext, Delimiters.makeLeftRightDelim(
-                'minner', inner[i].delim, innerHeight, innerDepth, localContext));
-            if (hadCaret) inner[i].hasCaret = true;
-        }
-        if (inner[i].classes && inner[i].classes.indexOf('ML__selected') >= 0) {
-            for (let j = 0; j < inner[i].children.length; j++) {
-                if (inner[i].children[j].delim) {
-                    const hadCaret = inner[i].hasCaret;
-                    inner[i].children[j] = this.bind(localContext, Delimiters.makeLeftRightDelim(
-                        'minner', inner[i].children[j].delim, innerHeight, innerDepth, localContext));
-                    if (hadCaret) inner[i].hasCaret = true;
+    if (inner) {
+        // Replace the delim (\middle) spans with proper ones now that we know 
+        // the height/depth
+        for (let i = 0; i < inner.length; i++) {
+            if (inner[i].delim) {
+                const hadCaret = inner[i].hasCaret;
+                inner[i] = this.bind(localContext, Delimiters.makeLeftRightDelim(
+                    'minner', inner[i].delim, innerHeight, innerDepth, localContext));
+                if (hadCaret) inner[i].hasCaret = true;
+            }
+            if (inner[i].classes && inner[i].classes.indexOf('ML__selected') >= 0) {
+                for (let j = 0; j < inner[i].children.length; j++) {
+                    if (inner[i].children[j].delim) {
+                        const hadCaret = inner[i].hasCaret;
+                        inner[i].children[j] = this.bind(localContext, Delimiters.makeLeftRightDelim(
+                            'minner', inner[i].children[j].delim, innerHeight, innerDepth, localContext));
+                        if (hadCaret) inner[i].hasCaret = true;
+                    }
                 }
             }
         }
+        result  = result.concat(inner);
     }
-    result  = result.concat(inner);
 
     // Add the right delimiter to the end of the expression.
     if (this.rightDelim) {
@@ -1314,10 +1316,12 @@ MathAtom.prototype.decomposeEnclose = function(context) {
  * Return a representation of this, but decomposed in an array of Spans
  * 
  * @param {Context} context Font variant, size, color, etc...
+ * @param {Span[]} [phantomBase=null] If not null, the spans to use to 
+ * calculate the placement of the supsub
  * @return {Span[]}
  * @method MathAtom#decompose
  */
-MathAtom.prototype.decompose = function(context) {
+MathAtom.prototype.decompose = function(context, phantomBase) {
     console.assert(context instanceof Context.Context);
 
     let result = null;
@@ -1379,8 +1383,13 @@ MathAtom.prototype.decompose = function(context) {
         // STYLING
         //
      
-    } else if (this.type === 'msupsub') {
-        // The caret for this atom type is handle by its elements
+    } else if (this.type === 'msubsup') {
+        // The caret for this atom type is handled by its elements
+        result = makeOrd('\u200b');
+        if (phantomBase) {
+            result.height = phantomBase[0].height;
+            result.depth = phantomBase[0].depth;
+        }
 
     } else if (this.type === 'mord' || 
         this.type === 'minner' || this.type === 'mbin' ||
@@ -1406,7 +1415,7 @@ MathAtom.prototype.decompose = function(context) {
         if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'space') {
-        // A space litteral
+        // A space literal
         result = this.makeSpan(context, ' ');
         if (this.hasCaret) result.hasCaret = true;
 
@@ -1503,7 +1512,7 @@ MathAtom.prototype.decompose = function(context) {
             result[result.length - 1] = 
                 this.attachSupsub(context, lastSpan, lastSpan.type);
         } else {
-         result = [this.attachSupsub(context, result, result.type)];
+            result = [this.attachSupsub(context, result, result.type)];
         }
     }
 
@@ -1613,9 +1622,9 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
     }
 
     // Display the caret *following* the superscript and subscript, 
-    // so attach the caret to the 'msupsub' element.
+    // so attach the caret to the 'msubsup' element.
 
-    const supsubContainer = makeSpan(supsub, 'msupsub');
+    const supsubContainer = makeSpan(supsub, 'msubsup');
     if (this.hasCaret) {
         supsubContainer.hasCaret = true;
     }
@@ -1772,7 +1781,7 @@ MathAtom.prototype.makeSpan = function(context, body) {
 
     if (this.hasCaret) {
         // If this has a super/subscript, the caret will be attached
-        // to the 'msupsub' atom, so no need to have it here.
+        // to the 'msubsup' atom, so no need to have it here.
         if (!this.superscript && !this.subscript) {
             result = Span.makeSpanOfType(type, result);
             result.hasCaret = true;
@@ -2040,6 +2049,7 @@ function decompose(context, atoms) {
             let selection =  [];
             let selectionType = '';
             let selectionIsTight = false;
+            let phantomBase = null;
             for (let i = 0; i < atoms.length; i++) {
                 // Is this a binary operator ('+', '-', etc...) that potentially 
                 // needs to be adjusted to a unary operator?
@@ -2056,12 +2066,21 @@ function decompose(context, atoms) {
                     }
                 }
 
-                const span = atoms[i].decompose(context);
+                // If this is a scaffolding supsub, we'll use the 
+                // phantomBase from the previous atom to position the supsub.
+                // Otherwise, no need for the phantomBase
+                if (atoms[i].body !== '\u200b' ||
+                        (!atoms[i].superscript && !atoms[i].subscript)) {
+                    phantomBase = null;
+                }
+
+                const span = atoms[i].decompose(context, phantomBase);
                 if (span) {
                     // The result from decompose is always an array
                     console.assert(Array.isArray(span));
                     // Flatten it (i.e. [[a1, a2], b1, b2] -> [a1, a2, b1, b2]
                     const flat = [].concat.apply([], span);
+                    phantomBase = flat;
                     if (atoms[i].isSelected && !context.isSelected) {
                         selection = selection.concat(flat);
                         if (!selectionType) {

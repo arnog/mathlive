@@ -214,7 +214,7 @@ function spanToMarkup(span, indent) {
         for (let i = 0; i < span.length; i++) {
             result += spanToMarkup(span[i], indent);
         }
-    } else if (span.tag !== 'table') {
+    } else if (span && span.tag !== 'table') {
         result = '<br>' + indent;
         if (span.classes.includes('fontsize-ensurer')) {
             result += 'FONTSIZE-ENSURER';
@@ -247,7 +247,7 @@ function spanToMarkup(span, indent) {
                 result += spanToMarkup(span.children, indent + '▷');
             }
         }
-    } else {
+    } else if (span) {
         result += '<br>' + indent + 'table ' + span.array[0].length + '&times;' + span.array.length;
         for (let i = 0; i < span.array.length; i++) {
             for (let j = 0; j < span.array[i].length; j++) {
@@ -297,7 +297,8 @@ function mathlistToMarkup(mathlist, indent) {
             result += '<span class="type';
             result += mathlist.isSelected ? ' selected' : '';
             result += mathlist.hasCaret ? ' caret' : '';
-            result += '">' + mathlist.type + '</span>';
+            result += '">' + mathlist.type + 
+                (mathlist.hasCaret ? 'caret ' : '') + '</span>';
         }
         if (typeof mathlist.body === 'string' && mathlist.body.length > 0) {
             result += '&nbsp;<span class="value">';

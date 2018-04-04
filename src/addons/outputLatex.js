@@ -293,6 +293,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
         case 'first':
         case 'placeholder':
         case 'command':
+        case 'msubsup':
             break;  
 
         default:

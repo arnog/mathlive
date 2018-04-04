@@ -105,7 +105,7 @@ Parser.prototype.lastMathAtom = function() {
     if (this.mathList.length === 0 || 
         this.mathList[this.mathList.length - 1].type !== 'mop') {
         // ZERO WIDTH SPACE
-        const lastAtom = new MathAtom(this.parseMode, 'mord', '\u200b', 'main');
+        const lastAtom = new MathAtom(this.parseMode, 'msubsup', '\u200b', 'main');
         lastAtom.attributes = {
             "aria-hidden": true
         };
