@@ -47,7 +47,7 @@
  * This module contains the definitions of all the symbols and commands, for 
  * example `\alpha`, `\sin`, `\mathrm`.
  * There are a few exceptions with some "built-in" commands that require
- * speach parsing such as `\char`.
+ * special parsing such as `\char`.
  * @module definitions
  * @private
  */
@@ -772,13 +772,15 @@ const TEXT = '[text]';
 const COMMAND = '[command]';
 
 // Fonts
-const MAIN = 'main';
-const AMS = 'ams';
+const MAIN = 'main';        // The "main" KaTeX font (in fact one of several
+                            // depending on the math variant, size, etc...)
+const AMS = 'ams';          // Some symbols are not in the "main" KaTeX font
+                            // or have a different glyph available in the "AMS"
+                            // font (`\hbar` and `\hslash` for example).
 
 // Type
 const ORD = '[ord]';    // Either MATHORD or TEXTORD, depending on the mode
 const MATHORD = 'mord'; // Ordinary, e.g. '/'
-// const OP = 'mop';       // Big operator e.g. '\sum'
 const BIN = 'mbin';     // e.g. '+'
 const REL = 'mrel';     // e.g. '='
 const OPEN = 'mopen';   // e.g. '('
@@ -2827,14 +2829,14 @@ defineSymbol( '\\ldots', TEXT,  MAIN,  INNER, '\u2026', COMMON);    // >2,000
 defineSymbol( '\\ldots', MATH,  MAIN,  INNER, '\u2026', COMMON);    // >2,000
 defineSymbol( '\\cdots', MATH,  MAIN,  INNER, '\u22ef', COMMON);    // >2,000
 defineSymbol( '\\ddots', MATH,  MAIN,  INNER, '\u22f1', COMMON);    // >2,000
+defineSymbol( '\\mathellipsis', MATH,  MAIN,  INNER, '\u2026', 91);
+defineSymbol( '\\textellipsis', TEXT,  MAIN,  INNER, '\u2026', 12);
 defineSymbol( '\\vdots', MATH,  MAIN,  TEXTORD, '\u22ee', COMMON);    // >2,000
 defineSymbol( '\\ldotp', MATH,  MAIN,  PUNCT, '\u002e', 18);
 defineSymbol( ',', MATH, MAIN, PUNCT,  ',');
 defineSymbol( ';', MATH,  MAIN,  PUNCT, ';');
 defineSymbol( '--', TEXT,  MAIN,  TEXTORD, '\u2013');
 defineSymbol( '---', TEXT,  MAIN,  TEXTORD, '\u2014');
-defineSymbol( '\\mathellipsis', MATH,  MAIN,  INNER, '\u2026', 91);
-defineSymbol( '\\textellipsis', TEXT,  MAIN,  INNER, '\u2026', 12);
 
 
 category = 'Logical Operators';

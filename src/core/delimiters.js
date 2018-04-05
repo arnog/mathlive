@@ -469,7 +469,7 @@ function traverseSequence(delim, height, sequence, context) {
  * @param {string} type 'mopen' or 'mclose'
  * @param {string} delim
  * @param {number} height
- * @param {*} center
+ * @param {boolean} center
  * @param {Context.Context} context
  * @param {string[]} classes
  * @memberof module:delimiters

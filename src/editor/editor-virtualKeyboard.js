@@ -667,7 +667,7 @@ function latexToMarkup(latex, arg, mf) {
 
     const topStrut = Span.makeSpan('', 'ML__strut');
     topStrut.setStyle('height', base.height, 'em');
-    const bottomStrut = Span.makeSpan('', 'ML__strut ML__bottom');
+    const bottomStrut = Span.makeSpan('', 'ML__strut--bottom');
     bottomStrut.setStyle('height', base.height + base.depth, 'em');
     bottomStrut.setStyle('vertical-align', -base.depth, 'em');
     const wrapper = Span.makeSpan([topStrut, bottomStrut, base], 'ML__mathlive');

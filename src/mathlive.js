@@ -86,7 +86,7 @@ function toMarkup(text, mathstyle, format, macros) {
     topStrut.setStyle('height', base.height, 'em');
     const struts = [topStrut];
     if (base.depth !== 0) {
-        const bottomStrut = Span.makeSpan('', 'ML__strut ML__bottom');
+        const bottomStrut = Span.makeSpan('', 'ML__strut--bottom');
         bottomStrut.setStyle('height', base.height + base.depth, 'em');
         bottomStrut.setStyle('vertical-align', -base.depth, 'em');
         struts.push(bottomStrut);

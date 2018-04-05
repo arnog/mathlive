@@ -175,10 +175,10 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             result += `{${latexify(this.body, expandMacro)}}`;
             break;
 
-        case 'leftright':
-            result += '\\left' + (this.leftDelim || '.') + ' ';
+        case 'leftright':            
+            result += (this.inner ? '\\left' : '\\mleft') + (this.leftDelim || '.') + ' ';
             result += latexify(this.body, expandMacro);
-            result += '\\right' + (this.rightDelim || '.') + ' ';
+            result += (this.inner ? '\\right' : '\\mright') + (this.rightDelim || '.') + ' ';
             break;
 
         case 'delim':

@@ -369,7 +369,7 @@ MathField.prototype._pathFromPoint = function(x, y) {
     let result;
     // Try to find the deepest element that is near the point that was 
     // clicked on (the point could be outside of the element)
-    const nearest = nearestElementFromPoint(this.element, x, y);
+    const nearest = nearestElementFromPoint(this.field, x, y);
     const el = nearest.element;
     const id = el ? el.getAttribute('data-atom-id') : null;
 
@@ -1093,7 +1093,7 @@ MathField.prototype._render = function() {
     topStrut.setStyle('height', base.height, 'em');
     const struts = [topStrut];
     if (base.depth !== 0) {
-        const bottomStrut = Span.makeSpan('', 'ML__strut ML__bottom');
+        const bottomStrut = Span.makeSpan('', 'ML__strut--bottom');
         bottomStrut.setStyle('height', base.height + base.depth, 'em');
         bottomStrut.setStyle('vertical-align', -base.depth, 'em');
         struts.push(bottomStrut);

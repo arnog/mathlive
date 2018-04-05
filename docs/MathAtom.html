@@ -341,52 +341,53 @@ the atom</p>
 
             <span class="description last"><p>Type can be one of:</p>
 <ul>
-<li><strong>mord</strong>: ordinary symbol, e.g. <em>x</em>, <em>\alpha</em></li>
-<li><strong>textord</strong>: </li>
-<li><strong>mbin</strong>: binary operator: <em>+</em>, <em>*</em>, etc...</li>
-<li><strong>mrel</strong>: relational operator: <em>=</em>, <em>\ne</em>, etc...</li>
-<li><strong>mpunct</strong>: punctuation: <em>,</em>, <em>:</em>, etc...</li>
-<li><strong>mopen</strong>: opening fence: <em>(</em>, <em>\langle</em>, etc...</li>
-<li><strong>mclose</strong>: closing fence: <em>)</em>, <em>\rangle</em>, etc...</li>
-<li><strong>omp</strong>: (big) operators, <em>\sum</em>, <em>\cap</em>.</li>
-<li><strong>minner</strong>: special layout cases, overlap</li>
+<li><code>mord</code>: ordinary symbol, e.g. <code>x</code>, <code>\alpha</code></li>
+<li><code>textord</code>: ordinary characters used in text mode</li>
+<li><code>mop</code>: operators, including special functions, <code>\sin</code>, <code>\sum</code>, <code>\cap</code>.</li>
+<li><code>mbin</code>: binary operator: <code>+</code>, <code>*</code>, etc...</li>
+<li><code>mrel</code>: relational operator: <code>=</code>, <code>\ne</code>, etc...</li>
+<li><code>mpunct</code>: punctuation: <code>,</code>, <code>:</code>, etc...</li>
+<li><code>mopen</code>: opening fence: <code>(</code>, <code>\langle</code>, etc...</li>
+<li><code>mclose</code>: closing fence: <code>)</code>, <code>\rangle</code>, etc...</li>
+<li><code>minner</code>: special layout cases, overlap, <code>\left...\right</code></li>
 </ul>
 <p>In addition to these basic types, which correspond to the TeX atom types,
 some atoms represent more complex compounds, including:</p>
 <ul>
-<li><strong>space</strong> and <strong>spacing</strong>: blank space between atoms</li>
-<li><strong>mathstyle</strong>: to change the math style used: <strong>display</strong> or <strong>text</strong>. 
+<li><code>space</code> and <code>spacing</code>: blank space between atoms</li>
+<li><code>mathstyle</code>: to change the math style used: <code>display</code> or <code>text</code>. 
 The layout rules are different for each, the latter being more compact and 
 intended to be incorporated with surrounding non-math text.</li>
-<li><strong>font</strong>: to change the font used. Used by <code>\mathbb</code>, <code>\mathbb</code>, etc...</li>
-<li><strong>sizing</strong>: to change the size of the font used</li>
-<li><strong>color</strong>: to change the foreground color</li>
-<li><strong>rule</strong>: a line, for the <code>\rule</code> command</li>
-<li><strong>line</strong>: used by <code>\overline</code> and <code>\underline</code> commands</li>
-<li><strong>box</strong>: to draw a border around an expression and change its background color</li>
-<li><strong>overlap</strong>: display a symbol <em>over</em> another</li>
-<li><strong>overunder</strong>: displays an annotation above or below a symbol</li>
-<li><strong>group</strong>: a simple group of atoms</li>
-<li><strong>root</strong>: a group, which has no parent</li>
-<li><strong>array</strong>: a group, which has children arranged in columns and rows. Used
+<li><code>root</code>: a group, which has no parent (only one per formula)</li>
+<li><code>group</code>: a simple group of atoms, for example from a <code>{...}</code></li>
+<li><code>font</code>: set the font used. Used by <code>\mathbb</code>, <code>\mathbb</code>, etc...</li>
+<li><code>sizing</code>: set the size of the font used</li>
+<li><code>color</code>: set the foreground color</li>
+<li><code>rule</code>: draw a line, for the <code>\rule</code> command</li>
+<li><code>line</code>: used by <code>\overline</code> and <code>\underline</code> commands</li>
+<li><code>box</code>: a border drawn around an expression and change its background color</li>
+<li><code>overlap</code>: display a symbol <em>over</em> another</li>
+<li><code>overunder</code>: displays an annotation above or below a symbol</li>
+<li><code>array</code>: a group, which has children arranged in rows. Used
 by environments such as <code>matrix</code>, <code>cases</code>, etc...</li>
-<li><strong>genfrac</strong>: a generalized fraction: a numerator and denominator, separated
+<li><code>genfrac</code>: a generalized fraction: a numerator and denominator, separated
 by an optional line, and surrounded by optional fences</li>
-<li><strong>surd</strong>: a surd, aka root</li>
-<li><strong>leftright</strong>: used by the <code>\left</code> and <code>\right</code> commands</li>
-<li><strong>delim</strong>: some delimiter</li>
-<li><strong>sizeddelim</strong>: a delimiter that can grow</li>
+<li><code>surd</code>: a surd, aka root</li>
+<li><code>leftright</code>: used by the <code>\left</code> and <code>\right</code> commands</li>
+<li><code>delim</code>: some delimiter</li>
+<li><code>sizeddelim</code>: a delimiter that can grow</li>
 </ul>
 <p>The following types are used by the editor:</p>
 <ul>
-<li><strong>command</strong> indicate a command being entered. The text is displayed in 
+<li><code>command</code> indicate a command being entered. The text is displayed in 
 blue in the editor.</li>
-<li><strong>error</strong>: indicate a command that is unknown, for example <code>\xyzy</code>. The text
-is displayed with a dotted red underline in the editor.</li>
-<li><strong>placeholder</strong>: indicate a temporary item. Placeholders are displayed 
-as a pill (rounded box) in the editor.</li>
-<li><strong>first</strong>: a special, empty, atom put as the first atom in math lists in 
-order to more easily represent the cursor position. They are not displayed.</li>
+<li><code>error</code>: indicate a command that is unknown, for example <code>\xyzy</code>. The text
+is displayed with a wavy red underline in the editor.</li>
+<li><code>placeholder</code>: indicate a temporary item. Placeholders are displayed 
+as a dashed square in the editor.</li>
+<li><code>first</code>: a special, empty, atom put as the first atom in math lists in 
+order to be able to position the caret before the first element. Aside from
+the caret, they display nothing.</li>
 </ul>
                 
             </span>
@@ -566,7 +567,36 @@ order to more easily represent the cursor position. They are not displayed.</li>
             
 
             <span class="description last"><p>if true, this atom does not let its 
-children be selected. Used by the enclose anotations, for example.</p>
+children be selected. Used by the <code>\enclose</code> annotations, for example.</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>skipBoundary</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>if true, when the caret reaches the 
+first position in this element's body, it automatically moves to the
+outside of the element. Conversely, when the caret reaches the position
+right after this element, it automatically moves to the last position 
+inside this element.</p>
                 
             </span>
         </div>
@@ -927,7 +957,7 @@ can be retrieved from the span later on (e.g. when the span is clicked on)</p>
 
     
         <span class="tag-source">
-        <a href="core_mathAtom.js.html#line1624">Source</a>
+        <a href="core_mathAtom.js.html#line1639">Source</a>
         </span>
     
 
@@ -1109,7 +1139,7 @@ calculate the placement of the supsub</p>
 
     
         <span class="tag-source">
-        <a href="core_mathAtom.js.html#line1302">Source</a>
+        <a href="core_mathAtom.js.html#line1317">Source</a>
         </span>
     
 
@@ -1203,7 +1233,7 @@ also be set to 'auto', which indicates it should use the current mathstyle</p>
 
     
         <span class="tag-source">
-        <a href="core_mathAtom.js.html#line512">Source</a>
+        <a href="core_mathAtom.js.html#line525">Source</a>
         </span>
     
 
@@ -1295,7 +1325,7 @@ those cases.</p>
 
     
         <span class="tag-source">
-        <a href="core_mathAtom.js.html#line668">Source</a>
+        <a href="core_mathAtom.js.html#line681">Source</a>
         </span>
     
 
@@ -1383,7 +1413,7 @@ those cases.</p>
 
     
         <span class="tag-source">
-        <a href="core_mathAtom.js.html#line906">Source</a>
+        <a href="core_mathAtom.js.html#line921">Source</a>
         </span>
     
 
@@ -1471,7 +1501,7 @@ those cases.</p>
 
     
         <span class="tag-source">
-        <a href="core_mathAtom.js.html#line960">Source</a>
+        <a href="core_mathAtom.js.html#line975">Source</a>
         </span>
     
 
@@ -1579,7 +1609,7 @@ is true.</p>
 
     
         <span class="tag-source">
-        <a href="core_mathAtom.js.html#line222">Source</a>
+        <a href="core_mathAtom.js.html#line235">Source</a>
         </span>
     
 
@@ -1742,7 +1772,7 @@ equal to the type ('mbin', 'inner', 'spacing', etc...)</p>
 
     
         <span class="tag-source">
-        <a href="core_mathAtom.js.html#line1645">Source</a>
+        <a href="core_mathAtom.js.html#line1660">Source</a>
         </span>
     
 

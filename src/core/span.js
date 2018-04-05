@@ -850,7 +850,7 @@ function makeVlist(context, elements, pos, posData) {
     // const topStrut = makeSpan('', 'ML__strut');
     // topStrut.setStyle('height', base.height, 'em');
     // topStrut.setStyle('top', -base.height + base.depth, 'em');
-    // const bottomStrut = makeSpan('', 'ML__strut ML__bottom');
+    // const bottomStrut = makeSpan('', 'ML__strut--bottom');
     // bottomStrut.setStyle('height', Math.max(currPos, base.height) - base.depth, 'em');
     // bottomStrut.setStyle('top', -base.height, 'em');
     // bottomStrut.setStyle('vertical-align', -base.depth, 'em');

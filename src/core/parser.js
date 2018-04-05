@@ -873,30 +873,35 @@ Parser.prototype.scanDelim = function() {
  * @private
  */
 Parser.prototype.scanLeftRight = function() {
-    if (this.parseCommand('right')) {
+    if (this.parseCommand('right') || this.parseCommand('mright')) {
         // We have an unbalanced left/right (there's a \right, but no \left)
         const result = new MathAtom(this.parseMode, 'leftright');
         result.rightDelim = this.scanDelim() || '.';
         return result;
     }
 
-    if (!this.parseCommand('left')) return null;
+    let close = 'right';
+    if (!this.parseCommand('left')) {
+        if (!this.parseCommand('mleft')) return null;
+        close = 'mright';
+    }
     
     const leftDelim = this.scanDelim() || '.';
 
     const savedMathList = this.swapMathList([]);
-    while(!this.end() && !this.parseCommand('right')) {
+    while(!this.end() && !this.parseCommand(close)) {
         this.parseAtom();
     }
     
-    // If we've reached the end and there was no '\right' or 
-    // there isn't a valid delimited after '\right', we'll 
-    // consider the '\right' missing and set the rightDelim to undefined
+    // If we've reached the end and there was no `\right` or 
+    // there isn't a valid delimiter after `\right`, we'll 
+    // consider the `\right` missing and set the `rightDelim` to undefined
     const rightDelim = this.scanDelim();
 
     const result = new MathAtom(this.parseMode, 'leftright');
     result.leftDelim = leftDelim;
     result.rightDelim = rightDelim;
+    result.inner = close === 'right';
     result.body = this.swapMathList(savedMathList);
 
     return result;

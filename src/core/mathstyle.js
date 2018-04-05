@@ -101,7 +101,7 @@ Mathstyle.prototype.cramp = function() {
  * @private
  */
 Mathstyle.prototype.cls = function() {
-    return sizeNames[this.size] + (this.cramped ? ' cramped' : ' uncramped');
+    return sizeNames[this.size];
 };
 
 
@@ -113,9 +113,6 @@ Mathstyle.prototype.cls = function() {
 Mathstyle.prototype.adjustTo = function(newStyle) {
     let result = ADJUST_NAMES[this.size][newStyle.size];
     if (result.length > 0) result = ' ' + result;
-    if (this.cramped !== newStyle.cramped) {
-        result += this.cramped ? ' cramped' : ' uncramped';
-    }
     return result;
 };
 

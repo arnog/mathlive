@@ -153,7 +153,7 @@ EditableMathlist.prototype.adjustPlaceholder = function() {
         } else if (this.parent().type === 'overunder' && relation === 'body') {
             placeholder = 'base';
         } else if (relation === 'underscript' || relation === 'overscript') {
-            placeholder = 'anotation';
+            placeholder = 'annotation';
         }
         if (placeholder) {
             // ◌ ⬚

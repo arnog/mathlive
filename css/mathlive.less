@@ -1,9 +1,9 @@
 @import "__fonts.less";
 
-@monospace: 'VT323', 'Glass TTY VT220', 'PR Number 3', 'vt220-mod', 'Roboto Mono', 'Source Code Pro', Menlo, "Bitstream Vera Sans Mono", 
-    "DejaVu Sans Mono", Monaco, Consolas, Courier, monospace;
+@monospace: 'Source Code Pro', Consolas, 'Roboto Mono', Menlo, 'Bitstream Vera Sans Mono',
+    'DejaVu Sans Mono', Monaco, Courier, monospace;
 @system: -apple-system, BlinkMacSystemFont, Roboto, Oxygen-Sans, Ubuntu, Cantarell,
-    "Droid Sans", "Helvetica Neue", sans-serif;
+    'Droid Sans', 'Helvetica Neue', sans-serif;
 @math_main: KaTeX_Main;
 @math_math: KaTeX_Math;
 
@@ -117,11 +117,9 @@
 
     .reset-scriptscriptstyle.textstyle { font-size: 2em; }
     .reset-scriptscriptstyle.scriptstyle { font-size: 1.4em; }
-
     .style-wrap {
         position: relative;
     }
-
     .vlist {
         display: inline-flex;
         flex-flow: column;
@@ -325,27 +323,25 @@
 
         .sqrt-line {
             width: 100%;
-            margin-bottom: 1px;
 
             &:before {
                 border-bottom-style: solid;
-                border-bottom-width: 1px; 
-                min-height: 1px;    /* There's a bug since Chrome 62 where 
+                border-bottom-width: .04em; 
+                min-height: 0.5px;    /* There's a bug since Chrome 62 where 
                 sub-pixel border lines don't draw at some zoom 
                 levels (110%, 90%). Setting the min-height seems to work around it.
                 */
-                content: "";
+                content: " ";
                 display: block;
                 margin-top: -0.1em;
             }
 
-            // &:after {
-            //     border-bottom-style: dash;
-            //     border-bottom-width: 0.04em;
-            //     content: "";
-            //     display: block;
-            //     margin-top: -0.1em;
-            // }
+            &:after {
+                border-bottom-width: 1px;
+                content: " ";
+                display: block;
+                margin-top: -0.1em;
+            }
         }
 
         > .root {

@@ -115,50 +115,51 @@ const toEm = FontMetricsModule.toEm;
  * @return {MathAtom}
  * @property {string} mode `'display'`, `'command'`, etc...
  * @property {string} type - Type can be one of:
- * - **mord**: ordinary symbol, e.g. _x_, _\alpha_
- * - **textord**: 
- * - **mbin**: binary operator: _+_, _*_, etc...
- * - **mrel**: relational operator: _=_, _\ne_, etc...
- * - **mpunct**: punctuation: _,_, _:_, etc...
- * - **mopen**: opening fence: _(_, _\langle_, etc...
- * - **mclose**: closing fence: _)_, _\rangle_, etc...
- * - **omp**: (big) operators, _\sum_, _\cap_.
- * - **minner**: special layout cases, overlap
+ * - `mord`: ordinary symbol, e.g. `x`, `\alpha`
+ * - `textord`: ordinary characters used in text mode
+ * - `mop`: operators, including special functions, `\sin`, `\sum`, `\cap`.
+ * - `mbin`: binary operator: `+`, `*`, etc...
+ * - `mrel`: relational operator: `=`, `\ne`, etc...
+ * - `mpunct`: punctuation: `,`, `:`, etc...
+ * - `mopen`: opening fence: `(`, `\langle`, etc...
+ * - `mclose`: closing fence: `)`, `\rangle`, etc...
+ * - `minner`: special layout cases, overlap, `\left...\right`
  * 
  * In addition to these basic types, which correspond to the TeX atom types,
  * some atoms represent more complex compounds, including:
- * - **space** and **spacing**: blank space between atoms
- * - **mathstyle**: to change the math style used: **display** or **text**. 
+ * - `space` and `spacing`: blank space between atoms
+ * - `mathstyle`: to change the math style used: `display` or `text`. 
  * The layout rules are different for each, the latter being more compact and 
  * intended to be incorporated with surrounding non-math text.
- * - **font**: to change the font used. Used by `\mathbb`, `\mathbb`, etc...
- * - **sizing**: to change the size of the font used
- * - **color**: to change the foreground color
- * - **rule**: a line, for the `\rule` command
- * - **line**: used by `\overline` and `\underline` commands
- * - **box**: to draw a border around an expression and change its background color
- * - **overlap**: display a symbol _over_ another
- * - **overunder**: displays an annotation above or below a symbol
- * - **group**: a simple group of atoms
- * - **root**: a group, which has no parent
- * - **array**: a group, which has children arranged in columns and rows. Used
+ * - `root`: a group, which has no parent (only one per formula)
+ * - `group`: a simple group of atoms, for example from a `{...}`
+ * - `font`: set the font used. Used by `\mathbb`, `\mathbb`, etc...
+ * - `sizing`: set the size of the font used
+ * - `color`: set the foreground color
+ * - `rule`: draw a line, for the `\rule` command
+ * - `line`: used by `\overline` and `\underline` commands
+ * - `box`: a border drawn around an expression and change its background color
+ * - `overlap`: display a symbol _over_ another
+ * - `overunder`: displays an annotation above or below a symbol
+ * - `array`: a group, which has children arranged in rows. Used
  * by environments such as `matrix`, `cases`, etc...
- * - **genfrac**: a generalized fraction: a numerator and denominator, separated
+ * - `genfrac`: a generalized fraction: a numerator and denominator, separated
  * by an optional line, and surrounded by optional fences
- * - **surd**: a surd, aka root
- * - **leftright**: used by the `\left` and `\right` commands
- * - **delim**: some delimiter
- * - **sizeddelim**: a delimiter that can grow
+ * - `surd`: a surd, aka root
+ * - `leftright`: used by the `\left` and `\right` commands
+ * - `delim`: some delimiter
+ * - `sizeddelim`: a delimiter that can grow
  * 
  * The following types are used by the editor:
- * - **command** indicate a command being entered. The text is displayed in 
+ * - `command` indicate a command being entered. The text is displayed in 
  * blue in the editor.
- * - **error**: indicate a command that is unknown, for example `\xyzy`. The text
- * is displayed with a dotted red underline in the editor.
- * - **placeholder**: indicate a temporary item. Placeholders are displayed 
- * as a pill (rounded box) in the editor.
- * - **first**: a special, empty, atom put as the first atom in math lists in 
- * order to more easily represent the cursor position. They are not displayed.
+ * - `error`: indicate a command that is unknown, for example `\xyzy`. The text
+ * is displayed with a wavy red underline in the editor.
+ * - `placeholder`: indicate a temporary item. Placeholders are displayed 
+ * as a dashed square in the editor.
+ * - `first`: a special, empty, atom put as the first atom in math lists in 
+ * order to be able to position the caret before the first element. Aside from
+ * the caret, they display nothing.
  * 
  * @property {string} fontFamily
  * @property {string|MathAtom[]} body
@@ -167,7 +168,12 @@ const toEm = FontMetricsModule.toEm;
  * @property {MathAtom[]} numer
  * @property {MathAtom[]} denom
  * @property {boolean} captureSelection if true, this atom does not let its 
- * children be selected. Used by the enclose anotations, for example.
+ * children be selected. Used by the `\enclose` annotations, for example.
+ * @property {boolean} skipBoundary if true, when the caret reaches the 
+ * first position in this element's body, it automatically moves to the
+ * outside of the element. Conversely, when the caret reaches the position
+ * right after this element, it automatically moves to the last position 
+ * inside this element.
  * @class MathAtom
  * @global
  * @private
@@ -196,7 +202,7 @@ function MathAtom(mode, type, body, fontFamily, extras) {
     if (this.type !== 'textord' &amp;&amp; this.fontFamily === 'main' &amp;&amp; 
         typeof this.body === 'string' &amp;&amp; this.body.length === 1) {
 
-        if (/[A-Za-z]/.test(this.body) || GREEK_REGEX.test(this.body)) {
+        if (AUTO_ITALIC_REGEX.test(this.body)) {
             // Auto italicize alphabetic and lowercase greek symbols 
             // in math mode (European style, American style would not 
             // italicize greek letters, but it's TeX's default behavior)
@@ -221,7 +227,12 @@ function MathAtom(mode, type, body, fontFamily, extras) {
 
 
 MathAtom.prototype.getInitialBaseElement = function () {
+    // if (this.type === 'leftright') {
+    //     return this;
+    // }
+
     let result = this;
+
     if (Array.isArray(this.body) &amp;&amp; this.body.length > 0) {
         for (let i = 0; i &lt; this.body.length; i++) {
             if (this.body[i].type !== 'first') {
@@ -235,6 +246,8 @@ MathAtom.prototype.getInitialBaseElement = function () {
 }
 
 MathAtom.prototype.getFinalBaseElement = function () {
+    // if (this.type === 'leftright') return this;
+
     if (Array.isArray(this.body) &amp;&amp; this.body.length > 0) {
         return this.body[this.body.length - 1].getFinalBaseElement();
     }
@@ -746,6 +759,10 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
  * @method MathAtom#decomposeLeftright
   */
 MathAtom.prototype.decomposeLeftright = function(context) {
+    // The scope of the context is this group, so make a copy of it
+    // so that any changes to it will be discarded when finished 
+    // with this group.
+    const localContext = context.clone();
 
     if (!this.body) {
         // No body, only a delimiter
@@ -759,11 +776,6 @@ MathAtom.prototype.decomposeLeftright = function(context) {
         }
         return null;
     }
-
-    // The scope of the context is this group, so make a copy of it
-    // so that any changes to it will be discarded when finished 
-    // with this group.
-    const localContext = context.clone();
 
     const inner = decompose(localContext, this.body);
     const mathstyle = localContext.mathstyle;
@@ -811,27 +823,30 @@ MathAtom.prototype.decomposeLeftright = function(context) {
 
     // Add the right delimiter to the end of the expression.
     if (this.rightDelim) {
-        if (this.rightDelim === '?') {
+        let delim = this.rightDelim;
+        if (delim === '?') {
             // Use a placeholder delimiter matching the open delimiter
-            let delim = {'(':')', '{':'}', '[':']', '\\lbrace':'\\rbrace',
+            delim = {'(':')', '{':'}', '[':']', '\\lbrace':'\\rbrace',
                 '\\langle':'\\rangle', '\\lfloor': '\\rfloor', '\\lceil':'\\rceil',
                 '\\vert':'\\vert', '\\lvert':'\\rvert', '\\Vert':'\\Vert',
                 '\\lVert':'\\rVert', '\\lbrack':'\\rbrack', 
                 '\\ulcorner':'\\urcorner', '\\llcorner':'\\lrcorner',
                 '\\lgroup': '\\rgroup', '\\lmoustache':'\\rmoustache'}[this.leftDelim];
             delim = delim || this.leftDelim;
-            localContext.color = 'rgba(0, 0, 0, .3)';
-            const rightDelimAtom = this.bind(localContext, Delimiters.makeLeftRightDelim('mclose',
-               delim, innerHeight, innerDepth, localContext));
-            
-            result.push(rightDelimAtom);
-        } else {
-            result.push(this.bind(localContext, Delimiters.makeLeftRightDelim('mclose',
-               this.rightDelim, innerHeight, innerDepth, localContext)));
+            localContext.color = 'rgba(0, 0, 0, .3)';            
         }
+        result.push(this.bind(localContext, Delimiters.makeLeftRightDelim('mclose',
+            delim, innerHeight, innerDepth, localContext)));
     }
 
-    return makeInner(result, mathstyle.cls());
+    // If the `inner` flag is set, return the `inner` element (that's the 
+    // behavior for the regular `\left...\right`
+    if (this.inner) return makeInner(result, mathstyle.cls());
+
+    // Otherwise, include a `\mathopen{}...\mathclose{}`. That's the 
+    // behavior for `\mleft...\mright`, which allows for tighter spacing
+    // for example in `\sin\mleft(x\mright)`
+    return result;
 }
 
 
@@ -1779,7 +1794,7 @@ MathAtom.prototype.makeSpan = function(context, body) {
             result.classes += ' mainit';
         } else if (fontName === 'Math-Italic') {
             result.classes += ' mathit';
-        } else if (fontFamily) {
+        } else if (fontName !== 'Main-Regular' &amp;&amp; fontFamily) {
             result.classes += ' ' + fontFamily;
         }
     }
@@ -1986,6 +2001,9 @@ const FONT_NAME = {
 
 const GREEK_REGEX = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5/;
 
+// TeX by default auto-italicize latin letters and lowercase greek letters
+const AUTO_ITALIC_REGEX = /[A-Za-z]|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5/;
+
 
 /**
  * Given a font family ('mathbf', 'mathit'...) return a corresponding
@@ -2016,7 +2034,7 @@ function getFontName(symbol, fontFamily) {
         if (/[0-9]/.test(symbol) || symbol === '\\imath' ||
             symbol === '\\jmath' || symbol === '\\pounds' ) {
             result = 'Main-Italic'
-        } else if (/[A-Za-z]/.test(symbol) || GREEK_REGEX.test(symbol)) {
+        } else if (AUTO_ITALIC_REGEX.test(symbol)) {
             result = 'Math-Italic';
         } else {
             result = 'Main-Regular';
@@ -2173,6 +2191,17 @@ function decompose(context, atoms) {
                 // atom linearly.
                 previousType = atoms[i].getFinalBaseElement().type;
                 nextType = i &lt; atoms.length - 1 ? atoms[i + 1].getInitialBaseElement().type : 'none';
+                // if (previousType === 'leftright' &amp;&amp; !atoms[i].inner) {
+                //     previousType = 'mclose';
+                // } else if (previousType === 'leftright' &amp;&amp; atoms[i].inner) {
+                //     previousType = 'inner';
+                // }
+                // if (nextType === 'leftright' &amp;&amp; !atoms[i].inner) {
+                //     nextType = 'mopen';
+                // } else if (nextType === 'leftright' &amp;&amp; atoms[i].inner) {
+                //     nextType = 'inner';
+                // }
+
             }
             // Is there a leftover selection?
             if (selection.length > 0) {
