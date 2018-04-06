@@ -511,10 +511,10 @@ MathAtom.prototype.decomposeArray = function(context) {
     const innerDepth = Span.depth(inner);
 
     return makeOrd([
-        this.bind(Delimiters.makeLeftRightDelim(context, 
+        this.bind(context, Delimiters.makeLeftRightDelim( 
             'mopen', this.lFence, innerHeight, innerDepth, context)),
         inner,
-        this.bind(Delimiters.makeLeftRightDelim(context, 
+        this.bind(context, Delimiters.makeLeftRightDelim( 
             'mclose', this.rFence, innerHeight, innerDepth, context))
         ]);
 }

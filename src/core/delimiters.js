@@ -484,10 +484,6 @@ function makeCustomSizedDelim(type, delim, height, center, context, classes) {
         delim = '\\langle';
     } else if (delim === '>' || delim === '\\gt') {
         delim = '\\rangle';
-    } else if (delim === '\\]') {
-        delim = ']';
-    } else if (delim === '\\}') {
-        delim = '}';
     }
 
     // Decide what sequence to use

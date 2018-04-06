@@ -89,11 +89,12 @@ const MACROS = {
 
 
 const RIGHT_DELIM = {
-    '(':    ')',
-    '{':    '}',
-    '[':    ']',
-    '|':    '|',
+    '(':        ')',
+    '{':        '}',
+    '[':        ']',
+    '|':        '|',
     '\\lbrace': '\\rbrace',
+    '\\{':      '\\}',
     '\\langle': '\\rangle',
     '\\lfloor': '\\rfloor',
     '\\lceil':  '\\rceil',

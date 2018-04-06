@@ -59,7 +59,9 @@ const PRONUNCIATION = {
     '\\cdots':      ' dot dot dot ',
 
     '\\lbrace':		'left brace',
+    '\\{':		    'left brace',
     '\\rbrace':		'right brace',
+    '\\}':		    'right brace',
     '\\langle':		'left angle bracket',
     '\\rangle':		'right angle bracket',
     '\\lfloor':		'left floor',
