@@ -949,9 +949,16 @@ EditableMathlist.prototype.next = function() {
         'underscript': 'subscript',
         'subscript': 'superscript'
     }
+
+    if (this.parent().skipBoundary && 
+        this.anchorOffset() === this.siblings().length - 2) {
+        this.setSelection(this.anchorOffset() + 1, 0);
+    }
+
+
     if (this.anchorOffset() === this.siblings().length - 1) {
-        // We've reached the end of these siblings.
-        // Is there another set of siblings to consider?
+        // We've reached the end of this list.
+        // Is there another list to consider?
         let relation = NEXT_RELATION[this.relation()];
         while (relation && !this.setSelection(0, 0, relation)) {
             relation = NEXT_RELATION[relation];
@@ -1004,21 +1011,24 @@ EditableMathlist.prototype.next = function() {
     // its sub-elements
     if (!anchor.captureSelection) {
         let relation;
+        const firstOffset = 0;
         if (anchor.array) {
             relation = 'cell0';
-            this.path.push({relation:relation, offset: 0});
-            this.setSelection(0, 0 , relation);
+            this.path.push({relation:relation, offset: firstOffset});
+            this.setSelection(firstOffset, 0 , relation);
             return;
         }
         relation = 'body';
         while (relation) {
            if (Array.isArray(anchor[relation])) {
-                this.path.push({relation:relation, offset: 0});
+                this.path.push({relation:relation, offset: firstOffset});
                 this.insertFirstAtom();
+                if (anchor.skipBoundary) this.next();
                 return;
             }
             relation = NEXT_RELATION[relation];
         }
+
     }
 }
 
@@ -1034,6 +1044,11 @@ EditableMathlist.prototype.previous = function() {
         'subscript': 'underscript',
         'superscript': 'subscript'
     }
+    if (this.parent().skipBoundary && 
+        this.anchorOffset() === 1) {
+        this.setSelection(0, 0);
+    }
+
     if (this.anchorOffset() < 1) {
         // We've reached the first of these siblings.
         // Is there another set of siblings to consider?
@@ -1042,7 +1057,7 @@ EditableMathlist.prototype.previous = function() {
         while (relation && !this.setSelection(-1, 0 , relation)) {
             relation = PREVIOUS_RELATION[relation];
         }
-        // Ignore the body of the subsup scafolding.
+        // Ignore the body of the subsup scaffolding.
         if (relation === 'body' && this.parent() && this.parent().type === 'msubsup') {
             relation = null;
         }
@@ -1113,6 +1128,10 @@ EditableMathlist.prototype.previous = function() {
     // There wasn't a component to navigate to, so...
     // Still some siblings to go through: move on to the previous one.
     this.setSelection(this.anchorOffset() - 1);
+
+    if (this.sibling(0) && this.sibling(0).skipBoundary) {
+        this.previous();
+    }
 }
 
 EditableMathlist.prototype.move = function(dist, options) {

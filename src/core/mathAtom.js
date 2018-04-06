@@ -1368,6 +1368,7 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
 
     } else if (this.type === 'line') {
         result = this.decomposeLine(context);
+        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'overunder') {
         result = this.decomposeOverunder(context);
@@ -1379,6 +1380,7 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
         // See https://www.tug.org/TUGboat/tb22-4/tb72perlS.pdf
         // and https://tex.stackexchange.com/questions/98785/what-are-the-different-kinds-of-vertical-spacing-and-horizontal-spacing-commands
         result = this.decomposeOverlap(context);
+        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'rule') {
         result = this.decomposeRule(context);
@@ -1459,6 +1461,7 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
 
     } else if (this.type === 'color') {
         result = this.decomposeColor(context);
+        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'sizing') {
         this.applySizing(context);
@@ -1468,6 +1471,7 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
 
     } else if (this.type === 'box') {
         result = this.decomposeBox(context);
+        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'enclose') {
         result = this.decomposeEnclose(context);

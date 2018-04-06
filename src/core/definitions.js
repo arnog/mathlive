@@ -199,6 +199,7 @@ function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
             category: category,         // To group items when generating the documentation
             fontFamily: fontFamily,
             type: type === ORD ? TEXTORD : type,
+            skipBoundary: true, 
             body: value,
             frequency: frequency
         };
@@ -209,6 +210,7 @@ function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
             category: category,         // To group items when generating the documentation
             fontFamily: fontFamily,
             type: type === ORD ? MATHORD : type,
+            skipBoundary: true, 
             value: value,
             frequency: frequency
         };
@@ -1449,6 +1451,7 @@ defineFunction('\\textcolor', '{:color}{content:auto}', null,
         return { 
             type: 'color',
             textcolor: args[0],
+            skipBoundary: true,
             body: args[1]
         };
     }
@@ -1458,22 +1461,26 @@ defineFunction('\\textcolor', '{:color}{content:auto}', null,
 
 // An overline
 defineFunction('\\overline', '{:auto}', null, function(name, args) {
-    return { type: 'line', position: 'overline', body: args[0], };
+    return { 
+        type: 'line', 
+        position: 'overline', 
+        skipBoundary: true,
+        body: args[0], };
 });
     frequency(COMMON, '\\overline');   // > 2,000
 
 defineFunction('\\underline', '{:auto}', null, function(name, args) {
-    return { type: 'line', position: 'underline', body: args[0], };
+    return { type: 'line', position: 'underline', skipBoundary: true, body: args[0], };
 });
     frequency(COMMON, '\\underline');   // > 2,000
 
 defineFunction('\\overset', '{annotation:auto}{symbol:auto}', null, function(name, args) {
-    return { type: 'overunder', overscript: args[0], body: args[1]};
+    return { type: 'overunder', overscript: args[0], skipBoundary: true, body: args[1]};
 });
     frequency(COMMON, '\\overset');   // > 2,000
 
 defineFunction('\\underset', '{annotation:auto}{symbol:auto}', null, function(name, args) {
-    return { type: 'overunder', underscript: args[0], body: args[1]};
+    return { type: 'overunder', underscript: args[0], skipBoundary: true, body: args[1]};
 });
     frequency(COMMON, '\\underset');   // > 2,000
 
@@ -1482,6 +1489,7 @@ defineFunction(['\\stackrel', '\\stackbin'], '{annotation:auto}{symbol:auto}', n
     return { 
         type: 'overunder', 
         overscript: args[0], 
+        skipBoundary: true, 
         body: args[1],
         mathtype: name === '\\stackrel' ? 'mrel' : 'mbin',
     };
@@ -1492,22 +1500,22 @@ defineFunction(['\\stackrel', '\\stackbin'], '{annotation:auto}{symbol:auto}', n
 
 
 defineFunction('\\rlap', '{:text}', null, function(name, args) {
-    return { type: 'overlap', align: 'right', body: args[0], };
+    return { type: 'overlap', align: 'right', skipBoundary: true, body: args[0], };
 });
     frequency(270, '\\rlap');
 
 defineFunction('\\llap', '{:text}', null, function(name, args) {
-    return { type: 'overlap', align: 'left', body: args[0], };
+    return { type: 'overlap', align: 'left', skipBoundary: true, body: args[0], };
 });
     frequency(18, '\\llap');
 
 defineFunction('\\mathrlap', '{:auto}', null, function(name, args) {
-    return { type: 'overlap', align: 'right', body: args[0], };
+    return { type: 'overlap', align: 'right', skipBoundary: true, body: args[0], };
 });
     frequency(CRYPTIC, '\\mathrlap');
 
 defineFunction('\\mathllap', '{:auto}', null, function(name, args) {
-    return { type: 'overlap', align: 'left', body: args[0], };
+    return { type: 'overlap', align: 'left', skipBoundary: true, body: args[0], };
 });
     frequency(CRYPTIC, '\\mathllap');
 
@@ -1526,6 +1534,7 @@ defineFunction('\\boxed', '{content:math}', null,
         return { 
             type: 'box',
             framecolor: 'black',
+            skipBoundary: true,
             body: args[0]
         }
     }
@@ -1537,6 +1546,7 @@ defineFunction('\\colorbox', '{background-color:color}{content:auto}', null,
         return { 
             type: 'box',
             backgroundcolor: args[0],
+            skipBoundary: true,
             body: args[1]
         }
     }
@@ -1551,6 +1561,7 @@ defineFunction('\\fcolorbox', '{frame-color:color}{background-color:color}{conte
             type: 'box',
             framecolor: args[0],
             backgroundcolor: args[1],
+            skipBoundary: true,
             body: args[2]
         }
     }
@@ -1574,11 +1585,13 @@ defineFunction('\\bbox', '[:bbox]{body:auto}', null,
                 padding: args[0].padding,
                 border: args[0].border,
                 backgroundcolor: args[0].backgroundcolor,
+                skipBoundary: true,
                 body: args[1]
             }
         }
         return { 
             type: 'box',
+            skipBoundary: true,
             body: args[1]
         }
     }
@@ -1769,6 +1782,7 @@ defineFunction([
     return {
         type: 'font',
         font: funcName.slice(1),
+        skipBoundary: true,
         body: args[0],
         captureSelection: true
     };
@@ -1790,6 +1804,7 @@ defineFunction([
 defineFunction(['\\mbox'], '{text:text}', {allowedInText: true}, function(name, args) {
     return {
         type: 'font',
+        skipBoundary: true, 
         body: args[0],
         font: 'mathrm'
     };
@@ -1805,6 +1820,7 @@ defineFunction([
 ], '{text:text}', {allowedInText: true}, function(name, args) {
     return {
         type: 'font',
+        skipBoundary: true,
         body: args[0],
         font: { '\\text': null, '\\textrm': 'mathrm', '\\textup': 'mathrm', 
                 '\\textnormal': 'mathrm', 
@@ -2825,6 +2841,7 @@ defineFunction([
 ], '{operator:string}', null, function(name, args) {
     const result = { 
         type: 'mop', 
+        skipBoundary: true, 
         body: args[0],
         isFunction: true
     };
@@ -2986,6 +3003,7 @@ defineFunction([
                             // supsub attachment and will delegate
                             // it to the decomposeAccent 
                             // (any non-null value would do)
+        skipBoundary: true, 
         body: args[0],
     };
 });

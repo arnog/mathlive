@@ -1519,6 +1519,7 @@ defineFunction('\\textcolor', '{:color}{content:auto}', null,
         return { 
             type: 'color',
             textcolor: args[0],
+            skipBoundary: true,
             body: args[1]
         };
     }
