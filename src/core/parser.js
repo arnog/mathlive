@@ -1327,6 +1327,7 @@ Parser.prototype.scanToken = function() {
         if (info) {
             result = new MathAtom(this.parseMode,  info.type, 
                 info.value || token.value, info.fontFamily);
+            result.isFunction = info.isFunction;
         } else {
             // console.warn('Unknown literal "' + token.value + 
             //     '" (U+' + ('000000' + token.value.charCodeAt(0).toString(16)).substr(-6) + ')');

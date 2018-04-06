@@ -439,7 +439,7 @@ MathField.prototype._pathFromPoint = function(x, y) {
     let result;
     // Try to find the deepest element that is near the point that was 
     // clicked on (the point could be outside of the element)
-    const nearest = nearestElementFromPoint(this.element, x, y);
+    const nearest = nearestElementFromPoint(this.field, x, y);
     const el = nearest.element;
     const id = el ? el.getAttribute('data-atom-id') : null;
 
@@ -1006,7 +1006,7 @@ MathField.prototype._onTypedText = function(text, options) {
         this.pasteInProgress = false;
         // This call was made in response to a paste event.
         // Interpret `text` as a 'smart' expression (could be LaTeX, could be UnicodeMath)
-        this.mathlist.insert(text);
+        this.mathlist.insert(text, {smartFence: this.config.smartFence});
 
     } else {
         // Decompose the string into an array of graphemes. 

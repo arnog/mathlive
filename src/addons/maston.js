@@ -1198,7 +1198,7 @@ function parseExpression(expr, options) {
             // Some operators (',' and ';' for example) convert into a function
             // even if there's only two arguments. They're super associative...
             let fn = SUPER_ASSOCIATIVE_FUNCTION[opName];
-            if (fn && lhs.fn !== fn) {
+            if (fn && lhs && lhs.fn !== fn) {
                 // Only promote them if the lhs is not already the same function.
                 // If it is, we'll combine it below.
                 const arg = [];

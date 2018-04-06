@@ -8,6 +8,10 @@ is made, either standalone characters (`(`) or `\left...\right`. This feature
 is on by default and can be turned off with `config.smartFence`. <br>Option-9 
 and Option-0, as well as `\(` and `\)` will override the setting and insert
 a plain old parenthesis.
+- `\mleft...\mright`. Similar to `\left...\right` (i.e. grow in height depending
+on its content) but with vertical spacing before and after similar to `\mathopen`
+and `\mathclose`. Used automatically by smart fences after a function such
+as `\sin` or `f`.
 - Haptic and audio feedback for the virtual keyboard.<br>Haptic feedback is available on 
 Android only. <br> Two new config options to control it. `config.keypressVibration`,
 which is on by default, control the haptic feedback. `config.keypressSound`

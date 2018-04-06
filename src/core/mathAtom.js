@@ -754,7 +754,7 @@ MathAtom.prototype.decomposeLeftright = function(context) {
         let delim = this.rightDelim;
         if (delim === '?') {
             // Use a placeholder delimiter matching the open delimiter
-            delim = {'(':')', '{':'}', '[':']', '\\lbrace':'\\rbrace',
+            delim = {'(':')', '\\{':'\\}', '\\[':'\\]', '\\lbrace':'\\rbrace',
                 '\\langle':'\\rangle', '\\lfloor': '\\rfloor', '\\lceil':'\\rceil',
                 '\\vert':'\\vert', '\\lvert':'\\rvert', '\\Vert':'\\Vert',
                 '\\lVert':'\\rVert', '\\lbrack':'\\rbrack', 

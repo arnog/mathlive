@@ -246,8 +246,6 @@ MathAtom.prototype.getInitialBaseElement = function () {
 }
 
 MathAtom.prototype.getFinalBaseElement = function () {
-    // if (this.type === 'leftright') return this;
-
     if (Array.isArray(this.body) &amp;&amp; this.body.length > 0) {
         return this.body[this.body.length - 1].getFinalBaseElement();
     }
@@ -1420,7 +1418,13 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
         
     } else if (this.type === 'leftright') {
         result = this.decomposeLeftright(context);
-        if (this.hasCaret) result.hasCaret = true;
+        if (this.hasCaret) {
+            if (Array.isArray(result)) {
+                result[result.length - 1].hasCaret = true;
+            } else {
+                result.hasCaret = true;
+            }
+        }
 
     } else if (this.type === 'delim') {
         result = makeSpan('', '');

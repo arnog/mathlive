@@ -947,7 +947,7 @@ MathField.prototype._onTypedText = function(text, options) {
         // modifier, the country flags emojis or compound emojis such as the 
         // professional emojis, including the David Bowie emoji.
         const graphemes = GraphemeSplitter.splitGraphemes(text);
-        for (const c of graphemes) {
+        for (let c of graphemes) {
             this._showKeystroke(c);
 
             if (this.mathlist.parseMode() === 'command') {
@@ -986,6 +986,21 @@ MathField.prototype._onTypedText = function(text, options) {
                     shortcut = Shortcuts.match(prefix + c, this.config);
                     count -= 1;
                 }
+
+                if (shortcut === '\\{') {
+                    shortcut = null;
+                    c = '{';
+                } else if (shortcut === '\\[') {
+                    shortcut = null;
+                    c = '[';
+                } else if (shortcut === '\\}') {
+                    shortcut = null;
+                    c = '}';
+                } else if (shortcut === '\\]') {
+                    shortcut = null;
+                    c = ']';
+                }
+
 
                 if (shortcut) {
                     const savedState = this.undoManager.save();

@@ -1620,12 +1620,6 @@ EditableMathlist.prototype.insert = function(s, options) {
     if (this.config.onContentDidChange && !this.contentIsChanging) this.config.onContentDidChange();
 }
 
-function isFunction(atom) {
-    if (atom.type === 'mop') return true;
-    if (atom.type === 'mord' && (atom.body === 'f' || atom.body === 'g')) return true
-
-    return false;
-}
 
 
 /**
@@ -1647,6 +1641,10 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
          }
     }
 
+    if (fence === '{') fence = '\\lbrace';
+    if (fence === '[') fence = '\\lbrack';
+    if (fence === '}') fence = '\\rbrace';
+    if (fence === ']') fence = '\\rbrack';
 
     const rDelim = Definitions.RIGHT_DELIM[fence];
     if (rDelim) {
@@ -1654,24 +1652,16 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
         let s = '';
         const collapsed = this.isCollapsed();
         
-        if (isFunction(this.sibling(0))) {
+        if (this.sibling(0).isFunction) {
             // We're before a function (e.g. `\sin`)
             // This is an argument list. Use `\mleft...\mright'.
-            s = '\\mleft' + fence + '#0\\mright';
+            s = '\\mleft' + fence + '\\mright';
         } else {
-            s = '\\left' + fence + '#0\\right';
+            s = '\\left' + fence + '\\right';
         }
         s += (collapsed ? '?' : rDelim);
 
-        // Is our left sibling a function?
-        // If so, bracket the expression with \mathopen{}...\mathclose{} to 
-        // adjust the spacing
-        // const leftSibling = this.sibling(0);
-        // if (leftSibling && leftSibling.type === 'mop') {
-        //     s = '\\mathopen{}' + s + '\\mathclose{}'
-        // }
-
-        this.insert(s, {placeholder:''});
+        this.insert(s);
         if (collapsed) this.move(-1);
         return true;
     }

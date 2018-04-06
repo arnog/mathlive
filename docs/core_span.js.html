@@ -756,7 +756,7 @@ function makePunct(content, classes) {
 
 function makeStyleWrap(type, children, fromStyle, toStyle, classes) {
     classes = classes || '';
-    // classes += ' style-wrap ';
+    classes += ' style-wrap ';
 
     const result = makeHlist(children, classes + fromStyle.adjustTo(toStyle));
     result.type = type;
