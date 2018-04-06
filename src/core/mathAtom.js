@@ -1105,8 +1105,6 @@ MathAtom.prototype.applySizing = function(context) {
 
     context.size = this.size;
     context.sizeMultiplier = fontSize;
-
-    return [];
 }
 
 
@@ -1328,51 +1326,35 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
 
     if (this.type === 'group' || this.type === 'root') {
         result = this.decomposeGroup(context);
-        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'array') {
         result = this.decomposeArray(context);
-        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'genfrac') {
         result = this.decomposeGenfrac(context);
-        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'surd') {
         result = this.decomposeSurd(context);
-        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'accent') {
         result = this.decomposeAccent(context);
-        if (this.hasCaret) result.hasCaret = true;
         
     } else if (this.type === 'leftright') {
         result = this.decomposeLeftright(context);
-        if (this.hasCaret) {
-            if (Array.isArray(result)) {
-                result[result.length - 1].hasCaret = true;
-            } else {
-                result.hasCaret = true;
-            }
-        }
 
     } else if (this.type === 'delim') {
         result = makeSpan('', '');
         result.delim = this.delim;
-        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'sizeddelim') {
-        result = Delimiters.makeSizedDelim(
-                this.cls, this.delim, this.size, context);
-        if (this.hasCaret) result.hasCaret = true;
+        result = this.bind(context, Delimiters.makeSizedDelim(
+                this.cls, this.delim, this.size, context));
 
     } else if (this.type === 'line') {
         result = this.decomposeLine(context);
-        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'overunder') {
         result = this.decomposeOverunder(context);
-        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'overlap') {
         // For llap (18), rlap (270), clap (0)
@@ -1380,7 +1362,6 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
         // See https://www.tug.org/TUGboat/tb22-4/tb72perlS.pdf
         // and https://tex.stackexchange.com/questions/98785/what-are-the-different-kinds-of-vertical-spacing-and-horizontal-spacing-commands
         result = this.decomposeOverlap(context);
-        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'rule') {
         result = this.decomposeRule(context);
@@ -1416,16 +1397,13 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
 
     } else if (this.type === 'mop') {
         result = this.decomposeOp(context);
-        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'font') {
         result = this.decomposeFont(context);
-        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'space') {
         // A space literal
         result = this.makeSpan(context, ' ');
-        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'spacing') {
         // A spacing command (\quad, etc...)
@@ -1457,11 +1435,9 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
                 '!': 'negativethinspace'}[this.body] || 'quad'
             result = makeSpan('\u200b', 'mspace ' + spacingCls);
         }
-        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'color') {
         result = this.decomposeColor(context);
-        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'sizing') {
         this.applySizing(context);
@@ -1471,11 +1447,9 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
 
     } else if (this.type === 'box') {
         result = this.decomposeBox(context);
-        if (this.hasCaret) result.hasCaret = true;
 
     } else if (this.type === 'enclose') {
         result = this.decomposeEnclose(context);
-        if (this.hasCaret) result.hasCaret = true;
 
 
     } else if (this.type === 'esc' || this.type === 'command' || 
@@ -1511,8 +1485,15 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
 
     if (!result) return result;
 
-    // console.assert(!Array.isArray(result));
-    // At this point, result is a single Span
+    if (this.hasCaret && this.type !== 'styling' &&
+        this.type !== 'msubsup' && this.type !== 'command' &&
+        this.type !== 'placeholder' && this.type !== 'first') {
+        if (Array.isArray(result)) {
+            result[result.length - 1].hasCaret = true;
+        } else {
+            result.hasCaret = true;
+        }
+    }
 
     // Finally, attach any necessary superscript, subscripts
     if (!this.limits && (this.superscript || this.subscript)) {
