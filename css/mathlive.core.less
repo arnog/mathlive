@@ -33,7 +33,8 @@
     display: inline-block;
 }
 
-.ML__caret {
+.ML__caret:after {
+    content: '';
     border: none;
     border-radius: 0;
     border-right: 2px solid @primary;
@@ -42,12 +43,15 @@
 
     animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
+
+
 .ML__command.ML__caret {
-    border: none;
-    margin-right: 0;
 
     &:after {
+        border: none;
+        margin-right: 0;
         content: '_';
+        margin-right: -1ex;
         color: @primary;
         animation: ML__caret-command-blink 1.05s step-end forwards infinite;
     }
