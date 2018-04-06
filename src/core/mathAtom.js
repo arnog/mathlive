@@ -631,12 +631,19 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
         // created in CSS
         mid.height = ruleWidth;
         
-        frac = makeVlist(newContext,
-            [
-                numerReset, -numShift,
-                mid, ruleWidth / 2 - axisHeight,
-                denomReset, denomShift,
-            ], 'individualShift')
+        const elements = [];
+        if (numerReset) {
+            elements.push(numerReset);
+            elements.push(-numShift);
+        }
+        elements.push(mid);
+        elements.push(ruleWidth / 2 - axisHeight);
+        if (denomReset) {
+            elements.push(denomReset);
+            elements.push(denomShift);
+        }
+
+        frac = makeVlist(newContext, elements, 'individualShift')
     }
 
     // Add a 'mfrac' class to provide proper context for 
