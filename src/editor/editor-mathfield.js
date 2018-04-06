@@ -936,7 +936,7 @@ MathField.prototype._onTypedText = function(text, options) {
         this.pasteInProgress = false;
         // This call was made in response to a paste event.
         // Interpret `text` as a 'smart' expression (could be LaTeX, could be UnicodeMath)
-        this.mathlist.insert(text);
+        this.mathlist.insert(text, {smartFence: this.config.smartFence});
 
     } else {
         // Decompose the string into an array of graphemes. 

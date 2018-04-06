@@ -820,6 +820,32 @@ Parser.prototype.scanGroup = function() {
     return result;
 }
 
+
+Parser.prototype.scanSmartFence = function() {
+    this.parseToken('space');
+    if (!this.parseLiteral('(')) return null;
+
+    // We've found an open paren... Convert to a `\mleft...\mright`
+    const result = new MathAtom(this.parseMode, 'leftright');
+    result.leftDelim = '(';
+    result.inner = false;   // It's a `\mleft`, not a `\left`
+
+    const savedMathList = this.swapMathList([]);
+    let nestLevel = 1;
+    while(!this.end() && nestLevel !== 0) {
+        if (this.hasLiteral('(')) nestLevel += 1;
+        if (this.hasLiteral(')')) nestLevel -= 1;
+        if (nestLevel !== 0) this.parseAtom();
+    }
+    if (nestLevel === 0) this.parseLiteral(')');
+
+    result.rightDelim = nestLevel === 0 ? ')' : '?';
+    result.body = this.swapMathList(savedMathList);
+
+    return result;
+}
+
+
 /**
  * Scan a delimiter, e.g. '(', '|', '\vert', '\ulcorner'
  * 
@@ -1284,6 +1310,14 @@ Parser.prototype.scanToken = function() {
                                 info.fontFamily);
                     }
                     result.latex = '\\' + token.value + ' ';
+                    if (result.isFunction && this.smartFence) {
+                        // The atom was a function that may be followed by 
+                        // an argument, like `\sin(`
+                        const smartFence = this.scanSmartFence();
+                        if (smartFence) {
+                            result = [result, smartFence];
+                        }
+                    }
                 }
             }
         }
@@ -1301,6 +1335,15 @@ Parser.prototype.scanToken = function() {
                 token.value, 'main');
         }
         result.latex = Definitions.matchCodepoint(token.value);
+
+        if (info && info.isFunction && this.smartFence) {
+            // The atom was a function that may be followed by 
+            // an argument, like `f(`.
+            const smartFence = this.scanSmartFence();
+            if (smartFence) {
+                result = [result, smartFence];
+            }
+        }
 
     } else if (token.type === '#') {
         // Parameter token in an implicit group (not as a parameter)
@@ -1422,14 +1465,18 @@ Parser.prototype.parseAtom = function() {
  * @param {string} [parseMode='math']
  * @param {Array.<string>} [args={}] - If there are any placeholder tokens, e.g. 
  * `#0`, `#1`, etc... they will be replaced by the value provided by `args`.
- * @param {*} [macros] Dictionary defining macros
+ * @param {*} [macro={}] Dictionary defining macros
+ * @param {boolean} [smartFence=false] If true, promote plain fences, e.g. `(`,
+ * as `\left...\right` or `\mleft...\mright`
  * @return {Array.<MathAtom>}
  * @private
  */
-function parseTokens(tokens, parseMode, args, macros) {
+function parseTokens(tokens, parseMode, args, macros, smartFence) {
     let mathlist = [];
     const parser = new Parser(tokens, args, macros);
     parser.parseMode = parseMode || 'math';  // other possible values: 'text', 'color', etc...
+    if (smartFence) parser.smartFence = true;
+
     while(!parser.end()) {
         mathlist = mathlist.concat(parser.scanImplicitGroup());
     }

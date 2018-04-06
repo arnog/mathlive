@@ -1481,6 +1481,10 @@ function removeParen(list) {
  *    * `'auto'`: the string is interpreted as a latex fragment or command) 
  * (default)
  *    * `'latex'`: the string is interpreted strictly as a latex fragment
+ * 
+ * @param {string} options.smartFence - If true, promote plain fences, e.g. `(`,
+ * as `\left...\right` or `\mleft...\mright`
+ * 
  * @method EditableMathlist#insert
  */
 EditableMathlist.prototype.insert = function(s, options) {
@@ -1566,7 +1570,7 @@ EditableMathlist.prototype.insert = function(s, options) {
 
             mathlist = ParserModule.parseTokens(
                 Lexer.tokenize(Definitions.unicodeStringToLatex(s)), 
-                parseMode, args, options.macros);
+                    parseMode, args, options.macros, options.smartFence);
 
             // Simplify result.
             // If it's a fraction with a parenthesized numerator or denominator
@@ -1577,7 +1581,8 @@ EditableMathlist.prototype.insert = function(s, options) {
             }
         }
     } else if (options.format === 'latex') {
-        mathlist = ParserModule.parseTokens(Lexer.tokenize(s), parseMode, args, options.macros);
+        mathlist = ParserModule.parseTokens(
+            Lexer.tokenize(s), parseMode, args, options.macros, options.smartFence);
     }
 
     // Insert the mathlist at the position following the anchor
@@ -1615,6 +1620,13 @@ EditableMathlist.prototype.insert = function(s, options) {
     if (this.config.onContentDidChange && !this.contentIsChanging) this.config.onContentDidChange();
 }
 
+function isFunction(atom) {
+    if (atom.type === 'mop') return true;
+    if (atom.type === 'mord' && (atom.body === 'f' || atom.body === 'g')) return true
+
+    return false;
+}
+
 
 /**
  * Insert a smart fence '(', '{', '[', etc...
@@ -1635,12 +1647,21 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
          }
     }
 
+
     const rDelim = Definitions.RIGHT_DELIM[fence];
     if (rDelim) {
         // We have a valid open fence as input
+        let s = '';
         const collapsed = this.isCollapsed();
         
-        const s = '\\left' + fence + '#0\\right' + (collapsed ? '?' : rDelim);
+        if (isFunction(this.sibling(0))) {
+            // We're before a function (e.g. `\sin`)
+            // This is an argument list. Use `\mleft...\mright'.
+            s = '\\mleft' + fence + '#0\\mright';
+        } else {
+            s = '\\left' + fence + '#0\\right';
+        }
+        s += (collapsed ? '?' : rDelim);
 
         // Is our left sibling a function?
         // If so, bracket the expression with \mathopen{}...\mathclose{} to 
@@ -1705,7 +1726,7 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
         }
 
         // Is our grand-parent a 'leftright'?
-        // If \left(\frac{1}{x|}\right? with the caret at |
+        // If `\left(\frac{1}{x|}\right?` with the caret at `|`
         // go up to the 'leftright' and apply it there instead
         const grandparent = this.ancestor(2);
         if (grandparent && grandparent.type === 'leftright' && 

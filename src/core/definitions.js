@@ -723,6 +723,11 @@ function getInfo(symbol, parseMode, macros) {
         info = a[symbol];
     }
 
+    // Special case `f` and `g` to be recognized as functions.
+    if (info && info.type === 'mord' && (info.value === 'f' || info.value === 'g')) {
+        info.isFunction = true;
+    }
+
     return info;
 }
 
@@ -1346,6 +1351,7 @@ defineFunction([
         type: 'mop',
         limits: 'nolimits',
         symbol: false,
+        isFunction: true,
         body: name.slice(1),
         fontFamily: 'mainrm'
     };
@@ -1377,6 +1383,7 @@ defineFunction([
         type: 'mop',
         limits: 'nolimits',
         symbol: false,
+        isFunction: true,
         body: name.slice(1),
         fontFamily: 'mainrm'
     };
@@ -1388,12 +1395,23 @@ frequency(COMMON, '\\dim');
 frequency(COMMON, '\\ker', '\\deg');     // >2,000
 
 
-defineFunction(['\\lim', '\\det', '\\mod', '\\max', '\\min'], 
+defineFunction(['\\lim', '\\mod'], 
     '', {fontFamily:'mainrm'}, function(name) {
     return {
         type: 'mop',
         limits: 'limits',
         symbol: false,
+        body: name.slice(1),
+        fontFamily: 'mainrm'
+    };
+})
+defineFunction(['\\det', '\\max', '\\min'], 
+    '', {fontFamily:'mainrm'}, function(name) {
+    return {
+        type: 'mop',
+        limits: 'limits',
+        symbol: false,
+        isFunction: true,
         body: name.slice(1),
         fontFamily: 'mainrm'
     };
@@ -2797,6 +2815,7 @@ defineFunction([
     };
     if (name === '\\mathop') {
         result.limits = 'nolimits';
+        result.isFunction = true;
     }
     return result;
 })
@@ -2804,7 +2823,11 @@ defineFunction([
 defineFunction([
     '\\operatorname', '\\operatorname*'
 ], '{operator:string}', null, function(name, args) {
-    const result = { type: 'mop', body: args[0] };
+    const result = { 
+        type: 'mop', 
+        body: args[0],
+        isFunction: true
+    };
 
     if (name === '\\operatorname') {
         result.limits = 'nolimits'
