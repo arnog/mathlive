@@ -1,8 +1,6 @@
-
-
 /**
- * This module contains the definition of a data structure representing a
- * math list that can be edited. It is an in-memory representation of a 
+ * This module contains the definition of a data structure representing a list 
+ * of math atoms that can be edited. It is an in-memory representation of a 
  * mathematical expression whose elements, math atoms, can be removed,
  * inserted or re-arranged. In addition, the data structure keeps track 
  * of a selection, which can be either an insertion point — the selection is 
@@ -103,9 +101,9 @@ EditableMathlist.prototype.filter = function(cb, dir) {
             result.push(this.toString());
         }
         if (dir >= 0) {
-            this.next();
+            this.next({iterateAll: true});
         } else {
-            this.previous();
+            this.previous({iterateAll: true});
         }
         console.assert(this.anchor());
     } while (initialPath !== MathPath.pathToString(this.path));
@@ -939,7 +937,9 @@ EditableMathlist.prototype.setSelection = function(offset, extent, relation) {
  * @method EditableMathlist#next
  * @private
  */
-EditableMathlist.prototype.next = function() {
+EditableMathlist.prototype.next = function(options) {
+    options = options || {};
+
     const NEXT_RELATION = {
         'body': 'numer',
         'numer': 'denom',
@@ -950,7 +950,7 @@ EditableMathlist.prototype.next = function() {
         'subscript': 'superscript'
     }
 
-    if (this.parent().skipBoundary && 
+    if (!options.iterateAll && this.parent().skipBoundary && 
         this.anchorOffset() === this.siblings().length - 2) {
         this.setSelection(this.anchorOffset() + 1, 0);
     }
@@ -1023,7 +1023,7 @@ EditableMathlist.prototype.next = function() {
            if (Array.isArray(anchor[relation])) {
                 this.path.push({relation:relation, offset: firstOffset});
                 this.insertFirstAtom();
-                if (anchor.skipBoundary) this.next();
+                if (!options.iterateAll && anchor.skipBoundary) this.next();
                 return;
             }
             relation = NEXT_RELATION[relation];
@@ -1034,7 +1034,9 @@ EditableMathlist.prototype.next = function() {
 
 
 
-EditableMathlist.prototype.previous = function() {
+EditableMathlist.prototype.previous = function(options) {
+    options = options || {};
+    
     const PREVIOUS_RELATION = {
         'numer': 'body',
         'denom': 'numer',
@@ -1044,7 +1046,7 @@ EditableMathlist.prototype.previous = function() {
         'subscript': 'underscript',
         'superscript': 'subscript'
     }
-    if (this.parent().skipBoundary && 
+    if (!options.iterateAll && this.parent().skipBoundary && 
         this.anchorOffset() === 1) {
         this.setSelection(0, 0);
     }
@@ -1129,7 +1131,7 @@ EditableMathlist.prototype.previous = function() {
     // Still some siblings to go through: move on to the previous one.
     this.setSelection(this.anchorOffset() - 1);
 
-    if (this.sibling(0) && this.sibling(0).skipBoundary) {
+    if (!options.iterateAll && this.sibling(0) && this.sibling(0).skipBoundary) {
         this.previous();
     }
 }

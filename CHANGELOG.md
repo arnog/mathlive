@@ -35,6 +35,9 @@ deletes remove the closing fence, not the whole expression. Same for root,
 fractions, and other groups. When at the beginning of a denominator, pressing
 delete will remove the fraction, but keep numerator and denominator, etc...
 - When using the command virtual keyboard, switch to command mode as necessary.
+- Added `MathAtom.skipBoundary`. When true, navigating into/out of the atom 
+the last/first element will be skipped. For example, with `\textcolor{}` this
+implements a behavior similar to word processors.
 
 ### Code Maintenance and Performance
 - Moved operator precedence and canonical names from Definitions to MASTON.

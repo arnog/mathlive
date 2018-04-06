@@ -1081,7 +1081,7 @@ EditableMathlist.prototype.next = function() {
     // its sub-elements
     if (!anchor.captureSelection) {
         let relation;
-        const firstOffset = anchor.skipBoundary ? 1 : 0;
+        const firstOffset = 0;
         if (anchor.array) {
             relation = 'cell0';
             this.path.push({relation:relation, offset: firstOffset});
@@ -1093,10 +1093,12 @@ EditableMathlist.prototype.next = function() {
            if (Array.isArray(anchor[relation])) {
                 this.path.push({relation:relation, offset: firstOffset});
                 this.insertFirstAtom();
+                if (anchor.skipBoundary) this.next();
                 return;
             }
             relation = NEXT_RELATION[relation];
         }
+
     }
 }
 
