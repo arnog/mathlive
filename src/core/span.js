@@ -324,10 +324,6 @@ Span.prototype.toMarkup = function(hskip) {
 
         const classes = this.classes.split(' ');
 
-        if (this.hasCaret) {
-            classes.push('ML__caret');
-        }
-
         // Add the type (mbin, mrel, etc...) if specified
         if (this.type) {
             classes.push({
@@ -335,6 +331,10 @@ Span.prototype.toMarkup = function(hskip) {
                 'placeholder': 'ML__placeholder',
                 'error': 'ML__error'
             }[this.type] || '');
+        }
+
+        if (this.type === 'command' && this.hasCaret) {
+            classes.push('ML__caret');
         }
 
         // Remove duplicate and empty classes
@@ -397,6 +397,10 @@ Span.prototype.toMarkup = function(hskip) {
     // Collapse 'empty' spans
     if (result === '<span>\u200b</span>') {
         result = '';
+    }
+
+    if (this.hasCaret && this.type !== 'command') {
+        result = '<span class="ML__caret">' + result + '</span>';
     }
 
     return result;    

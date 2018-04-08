@@ -36,25 +36,25 @@
 .ML__caret:after {
     content: '';
     border: none;
-    border-radius: 0;
+    border-radius: 2px;
     border-right: 2px solid @primary;
     margin-right: -2px;
+    position: relative;
+    left: -1px;
     // z-index: 1;
 
     animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
 
 
-.ML__command.ML__caret {
-
-    &:after {
-        border: none;
-        margin-right: 0;
-        content: '_';
-        margin-right: -1ex;
-        color: @primary;
-        animation: ML__caret-command-blink 1.05s step-end forwards infinite;
-    }
+.ML__command.ML__caret:after {
+    border: none;
+    margin-right: 0;
+    content: '_';
+    margin-right: -1ex;
+    position: relative;
+    color: @primary;
+    animation: ML__caret-command-blink 1.05s step-end forwards infinite;
 }
 
 @keyframes  ML__caret-command-blink {

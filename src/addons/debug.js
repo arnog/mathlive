@@ -298,7 +298,7 @@ function mathlistToMarkup(mathlist, indent) {
             result += mathlist.isSelected ? ' selected' : '';
             result += mathlist.hasCaret ? ' caret' : '';
             result += '">' + mathlist.type + 
-                (mathlist.hasCaret ? 'caret ' : '') + '</span>';
+                (mathlist.hasCaret ? ' caret ' : '') + '</span>';
         }
         if (typeof mathlist.body === 'string' && mathlist.body.length > 0) {
             result += '&nbsp;<span class="value">';
