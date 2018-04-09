@@ -389,7 +389,7 @@ function toMathML(input, initial, final, options) {
         mathML: '',
         lastType: ''
     };
-    final = final || input.length;
+    final = final || (input ? input.length : 0);
 
     if (typeof input === 'number' || typeof input === 'boolean') {
         result.mathML = input.toString();

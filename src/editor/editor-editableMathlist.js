@@ -86,7 +86,7 @@ EditableMathlist.prototype.filter = function(cb, dir) {
     const suppressed = this.suppressSelectionChangeNotifications;
     this.suppressSelectionChangeNotifications = true;
 
-    dir = dir === +1 ? +1 : -1;
+    dir = dir < 0 ? -1 : +1;
 
     const result = [];
     const originalExtent = this.extent;
@@ -97,6 +97,7 @@ EditableMathlist.prototype.filter = function(cb, dir) {
     }
     const initialPath = MathPath.pathToString(this.path);
     do {
+        console.assert(this.anchor(), MathPath.pathToString(this.path));
         if (cb.bind(this)(this.path, this.anchor())) {
             result.push(this.toString());
         }
@@ -105,7 +106,6 @@ EditableMathlist.prototype.filter = function(cb, dir) {
         } else {
             this.previous({iterateAll: true});
         }
-        console.assert(this.anchor());
     } while (initialPath !== MathPath.pathToString(this.path));
 
     this.extent = originalExtent;
@@ -582,7 +582,7 @@ function atomContains(atom, target) {
         if (atom === target) return true;
 
         if (['body', 'numer', 'denom', 
-            'offset', 'subscript', 'superscript', 
+            'index', 'subscript', 'superscript', 
             'underscript', 'overscript']
             .some(function(value) { 
                 return value === target || atomContains(atom[value], target)
@@ -950,13 +950,12 @@ EditableMathlist.prototype.next = function(options) {
         'subscript': 'superscript'
     }
 
-    if (!options.iterateAll && this.parent().skipBoundary && 
-        this.anchorOffset() === this.siblings().length - 2) {
-        this.setSelection(this.anchorOffset() + 1, 0);
-    }
-
 
     if (this.anchorOffset() === this.siblings().length - 1) {
+        this.adjustPlaceholder();
+
+        this.selectionWillChange();
+
         // We've reached the end of this list.
         // Is there another list to consider?
         let relation = NEXT_RELATION[this.relation()];
@@ -964,26 +963,24 @@ EditableMathlist.prototype.next = function(options) {
             relation = NEXT_RELATION[relation];
         }
         // We found a new relation/set of siblings...
-        if (relation) return;
+        if (relation) {
+            this.selectionDidChange();
+            return;
+        }
 
-        this.adjustPlaceholder();
-
-        this.selectionWillChange();
 
         // No more siblings, check if we have a sibling cell in an array
         if (this.relation().startsWith('cell')) {
-            let cellIndex = parseInt(this.relation().match(/cell([0-9]*)$/)[1]) + 1;
             const maxCellCount = arrayCellCount(this.parent());
-            while (!relation && cellIndex < maxCellCount) {
-                relation = 'cell' + cellIndex;
-                if (!this.setSelection(0, 0, relation)) {
-                    relation = undefined;
-                    cellIndex += 1;
+            let cellIndex = parseInt(this.relation().match(/cell([0-9]*)$/)[1]) + 1;
+            while (cellIndex < maxCellCount) {
+                if (this.setSelection(0, 0, 'cell' + cellIndex)) {
+                    this.selectionDidChange();
+                    return;
                 }
+                cellIndex += 1;
             }
         }
-
-        if (relation) return;
 
         // No more siblings, go up to the parent.
         if (this.path.length === 1) {
@@ -995,7 +992,13 @@ EditableMathlist.prototype.next = function(options) {
                 this.path[0].offset = 0;
             }
         } else {
+            // We've reached the end of the siblings. If we're a group
+            // with skipBoundary, when exiting, move one past the next atom
+            const skip = !options.iterateAll && this.parent().skipBoundary;
             this.path.pop();
+            if (skip) {
+                this.next();
+            }
         }
 
         this.selectionDidChange();
@@ -1011,24 +1014,22 @@ EditableMathlist.prototype.next = function(options) {
     // its sub-elements
     if (!anchor.captureSelection) {
         let relation;
-        const firstOffset = 0;
         if (anchor.array) {
             relation = 'cell0';
-            this.path.push({relation:relation, offset: firstOffset});
-            this.setSelection(firstOffset, 0 , relation);
+            this.path.push({relation:relation, offset: 0});
+            this.setSelection(0, 0 , relation);
             return;
         }
         relation = 'body';
         while (relation) {
            if (Array.isArray(anchor[relation])) {
-                this.path.push({relation:relation, offset: firstOffset});
+                this.path.push({relation:relation, offset: 0});
                 this.insertFirstAtom();
                 if (!options.iterateAll && anchor.skipBoundary) this.next();
                 return;
             }
             relation = NEXT_RELATION[relation];
         }
-
     }
 }
 
@@ -1046,11 +1047,9 @@ EditableMathlist.prototype.previous = function(options) {
         'subscript': 'underscript',
         'superscript': 'subscript'
     }
-    if (!options.iterateAll && this.parent().skipBoundary && 
-        this.anchorOffset() === 1) {
-        this.setSelection(0, 0);
+    if (!options.iterateAll && this.anchorOffset() === 1 && this.parent() && this.parent().skipBoundary) {
+        this.setSelection(0);
     }
-
     if (this.anchorOffset() < 1) {
         // We've reached the first of these siblings.
         // Is there another set of siblings to consider?
@@ -1073,16 +1072,15 @@ EditableMathlist.prototype.previous = function(options) {
         // No more siblings, check if we have a sibling cell in an array
         if (this.relation().startsWith('cell')) {
             let cellIndex = parseInt(this.relation().match(/cell([0-9]*)$/)[1]) - 1;
-            while (!relation && cellIndex >= 0) {
-                relation = 'cell' + cellIndex;
-                if (!this.setSelection(-1, 0, relation)) {
-                    relation = undefined;
-                    cellIndex -= 1;
+            while ( cellIndex >= 0) {
+                if (this.setSelection(-1, 0, 'cell' + cellIndex)) {
+                    this.selectionDidChange();
+                    return;
                 }
+                cellIndex -= 1;
             }
         }
 
-        if (relation) return;
 
         // No more siblings, go up to the parent.
         if (this.path.length === 1) {
@@ -2367,6 +2365,171 @@ EditableMathlist.prototype.addColumnAfter_ = function() {
 EditableMathlist.prototype.addColumnBefore_ = function() { 
     // @todo
 }
+
+
+function filterAtomsForStyle(atoms, style) {
+    if (!atoms) return null;
+    let result;
+    if (Array.isArray(atoms)) {
+        if (atoms.length === 1) {
+            return filterAtomsForStyle(atoms[0], style);
+        }
+        result = [];
+        for (const atom of atoms) {
+            const filter = filterAtomsForStyle(atom, style);
+            if (Array.isArray(filter)) {
+                result = result.concat(filter);
+            } else {
+                result.push(filter);
+            }
+        }
+        if (result.length === 0) return null;
+    } else {
+        if ((style.color && atoms.type === 'color') ||
+            (style.backgroundColor && atoms.type === 'box')) {
+            if (atoms.body[0].type === 'first') {
+                atoms.body.shift();
+            }
+            result = filterAtomsForStyle(atoms.body, style);
+        } else {
+            atoms.body = filterAtomsForStyle(atoms.body, style);
+            atoms.superscript = filterAtomsForStyle(atoms.superscript, style);
+            atoms.subscript = filterAtomsForStyle(atoms.subscript, style);
+            atoms.index = filterAtomsForStyle(atoms.index, style);
+            atoms.denom = filterAtomsForStyle(atoms.denom, style);
+            atoms.numer = filterAtomsForStyle(atoms.numer, style);
+            atoms.array = filterAtomsForStyle(atoms.array, style);
+            result = atoms;
+        }
+    }
+    return result;
+}
+
+
+
+/**
+ * @method EditableMathlist#applyStyle
+ */
+
+EditableMathlist.prototype._applyStyle = function(style) {
+    let selection = null;
+    const isCollapsed = this.isCollapsed();
+    const selectionDirection = this.startOffset() === this.anchorOffset() ? +1 : -1;
+
+    if (!isCollapsed) {
+        // If the selection is the entire content of a style atom, select the
+        // atom instead.
+        const parent = this.parent();
+        if (parent && (parent.type === 'box' || parent.type === 'color')) {
+            if (this.startOffset() <= 1 && this.endOffset() === this.siblings().length) {
+                this.path.pop();
+                this.setSelection(this.startOffset(), 1);
+            }
+        }
+
+        selection = this.extractContents();
+        if (selection.length === 1 && 
+            ((style.color && 
+                selection[0].type === 'color' && 
+                selection[0].textcolor === style.color) ||
+            (style.backgroundColor && 
+                selection[0].type === 'box' &&
+                selection[0].backgroundcolor === style.backgroundColor) )) {
+            // The selection is already with this style.
+            // Toggle it
+            selection = selection[0].body;
+            if (selection[0].type === 'first') {
+                selection.shift();
+            }
+            Array.prototype.splice.apply(this.siblings(), 
+                [this.startOffset(), 1].concat(selection));
+            this.setSelection(this.startOffset(), selection ? selection.length : 0);
+            return;
+        }   
+        // Otherwise, remove existing style
+        selection = filterAtomsForStyle(selection, style);
+        if (!Array.isArray(selection)) selection = [selection];
+        this.siblings().splice(this.startOffset(), 
+            this.endOffset() - this.startOffset());
+        // then apply this style.
+    }
+
+    if (style.color) {
+        const styleAtom = new MathAtom.MathAtom(this.parseMode(), 'color', selection);
+        styleAtom.latex = '\\textcolor';
+        styleAtom.textcolor = style.color;
+        styleAtom.skipBoundary = true;
+        if (!styleAtom.body) {
+            styleAtom.body = [new MathAtom.MathAtom(this.parseMode, 'first', null)]
+        } else if (styleAtom.body[0].type !== 'first') {
+            styleAtom.body.unshift(new MathAtom.MathAtom(this.parseMode, 'first', null))
+        }
+        const removeStyle = style.color === 'transparent' ||
+            style.color === 'black' || style.color === '#000' || style.color === '#000000' || 
+            (this.parent() && this.parent().type === 'color' && this.parent().textcolor === style.color);
+        if (isCollapsed && this.parent() && this.parent().type === 'color') {
+            this.path.pop();
+            this.setSelection(this.startOffset(), 0);
+            if (removeStyle) {
+                return;
+            }
+            this.siblings().splice(this.startOffset() +  1 , 0, styleAtom);
+        } else if (!isCollapsed && removeStyle) {
+            if (this.parent() && this.parent().type === 'color') {
+                styleAtom.textcolor = '#000';
+                this.siblings().splice(this.startOffset(), 0, styleAtom);
+            } else {
+                if (selection.length > 0 && selection[0].type === 'first') {
+                    selection.shift();
+                }      
+                Array.prototype.splice.apply(this.siblings(), [this.startOffset(), 0].concat(selection));
+                this.setSelection(this.startOffset(), selection.length);
+                return;
+            }
+        } else {
+            this.siblings().splice(this.startOffset() + (isCollapsed ? 1 : 0), 0, styleAtom);
+        }
+
+
+        selection = [this.sibling(0)];
+    }
+
+
+    if (style.backgroundColor) {
+        const styleAtom = new MathAtom.MathAtom(this.parseMode(), 'box', selection);
+        styleAtom.latex = '\\colorbox';
+        styleAtom.backgroundcolor = style.backgroundColor;
+        styleAtom.skipBoundary = true;
+        if (!styleAtom.body) {
+            styleAtom.body = [new MathAtom.MathAtom(this.parseMode, 'first', null)]
+        } else if (styleAtom.body[0].type !== 'first') {
+            styleAtom.body.unshift(new MathAtom.MathAtom(this.parseMode, 'first', null))
+        }
+        if (isCollapsed && this.parent() && this.parent().type === 'box') {
+            const parentSameColor = style.backgroundColor === 'transparent' ||
+                style.backgroundColor === 'white' || style.backgroundColor === '#fff' ||
+                style.backgroundColor === '#ffffff' || 
+                this.parent().backgroundcolor === style.backgroundColor;
+            this.path.pop();
+            this.setSelection(this.startOffset(), 0);
+            if (parentSameColor) {
+                return;
+            }
+            this.siblings().splice(this.startOffset() +  1 , 0, styleAtom);
+        } else {
+            this.siblings().splice(this.startOffset() + (isCollapsed ? 1 : 0), 0, styleAtom);
+        }
+    }
+    if (isCollapsed) {
+        this.setSelection(this.startOffset() + 1, 0);
+        this.path.push({relation:'body', offset: 0});
+        this.setSelection(0, 0);
+        this.insertFirstAtom();
+    } else {
+        this.setExtent(selectionDirection);
+    }
+}
+
 
 function getSpeechOptions() {
     return {

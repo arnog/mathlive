@@ -120,14 +120,6 @@ Span.prototype.updateDimensions = function() {
     this.height = height;
     this.depth = depth;
     this.maxFontSize = maxFontSize;
-
-    // Width is expensive to calculate, and so is only computed on demand 
-    // (and cached)
-    // If this property is set, it's a cached value. Invalidate it.
-    if (typeof this._clientWidth !== 'undefined') {
-        delete this._clientWidth;
-        delete this._clientHeight
-    }
 }
 
 
@@ -756,7 +748,7 @@ function makeHlist(children, classes) {
  * @private
  */
 function makeVlist(context, elements, pos, posData) {
-    let depth = 0;
+    let listDepth = 0;
     let currPos = 0;
     pos = pos || 'shift';
     posData = posData || 0;
@@ -777,9 +769,9 @@ function makeVlist(context, elements, pos, posData) {
     }
 
     if (pos === 'shift') {
-        depth = -elements[0].depth - posData;
+        listDepth = -elements[0].depth - posData;
     } else if (pos === 'bottom') {
-        depth = -posData;
+        listDepth = -posData;
     } else if (pos === 'top') {
         let bottom = posData;
         for (const element of elements) {
@@ -791,7 +783,7 @@ function makeVlist(context, elements, pos, posData) {
                 bottom -= element;
             } 
         }
-        depth = bottom;
+        listDepth = bottom;
     } else if (pos === 'individualShift') {
         // Individual adjustment to each elements.
         // The elements list is made up of a Span followed
@@ -801,8 +793,8 @@ function makeVlist(context, elements, pos, posData) {
 
         // Add in kerns to the list of elements to get each element to be
         // shifted to the correct specified shift
-        depth = -originalElements[1] - originalElements[0].depth;
-        currPos = depth;
+        listDepth = -originalElements[1] - originalElements[0].depth;
+        currPos = listDepth;
         for (let i = 2; i < originalElements.length; i += 2) {
             const diff = -originalElements[i + 1] - currPos -
                 originalElements[i].depth;
@@ -829,7 +821,7 @@ function makeVlist(context, elements, pos, posData) {
     const fontSizer = makeFontSizer(context, maxFontSize);
 
     const newElements = [];
-    currPos = depth;
+    currPos = listDepth;
     for (const element of elements) {
         if (element instanceof Span) {
             const shift = -element.depth - currPos;
@@ -844,35 +836,32 @@ function makeVlist(context, elements, pos, posData) {
         }
     }
 
-    // Add a strut to force the height of the enclosing element
-    // const strut = makeSpan('', 'ML__strut');
-    // strut.height = currPos + depth;
-    // strut.setStyle('height', currPos + depth, 'em');
-    // newElements.push(strut);
-    // const base = makeSpan(newElements);
-
-    // const topStrut = makeSpan('', 'ML__strut');
-    // topStrut.setStyle('height', base.height, 'em');
-    // topStrut.setStyle('top', -base.height + base.depth, 'em');
-    // const bottomStrut = makeSpan('', 'ML__strut--bottom');
-    // bottomStrut.setStyle('height', Math.max(currPos, base.height) - base.depth, 'em');
-    // bottomStrut.setStyle('top', -base.height, 'em');
-    // bottomStrut.setStyle('vertical-align', -base.depth, 'em');
-
-    // newElements.push(topStrut);
-    // newElements.push(bottomStrut);
-
     const result = makeSpan(newElements, 'vlist');
     // Fix the final height and depth, in case there were kerns at the ends
     // since makeSpan won't take that into account.
-    result.height = Math.max(-currPos, result.height || 0);
-    result.depth = Math.max(depth, result.depth || 0);
+    result.height = Math.max(-currPos, height(result) || 0);
+    result.depth = Math.max(listDepth, depth(result) || 0);
 
     return result;
 }
 
+// function makeStrut(base, strutHeight, strutDepth) {
+//     const bottomStrut = makeSpan('', 'ML__strut--bottom');
+//     if (strutHeight !== undefined) {
+//         bottomStrut.setStyle('height', strutHeight + strutDepth, 'em');
+//         bottomStrut.setStyle('vertical-align', -strutDepth, 'em');
+//     } else {
+//         bottomStrut.setStyle('height', height(base) + depth(base), 'em');
+//         bottomStrut.setStyle('vertical-align', -depth(base), 'em');
+//     }
+//     bottomStrut.setStyle('border', '1px solid green');
 
-
+//     if (Array.isArray(base)) {
+//         base.push(bottomStrut);
+//         return base;
+//     }
+//     return [base, bottomStrut];
+// }
 // Export the public interface for this module
 return { 
     coalesce,
@@ -890,6 +879,8 @@ return {
     makeVlist,
     makeHlist,
     makeStyleWrap,
+
+    // makeStrut,
 
     makeSVG,
 

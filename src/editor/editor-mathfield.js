@@ -1775,6 +1775,9 @@ MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
             if (altKey.latex) {
                 markup += ' data-latex="' + altKey.latex.replace(/"/g, '&quot;') + '"';
             }
+            if (altKey.content) {
+                markup += ' data-content="' + altKey.content.replace(/"/g, '&quot;') + '"';
+            }
             if (altKey.insert) {
                 markup += ' data-insert="' + altKey.insert.replace(/"/g, '&quot;') + '"';
             }
@@ -2040,6 +2043,11 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
                 this.virtualKeyboardVisible, 
                 this.virtualKeyboard);
     }
+}
+
+MathField.prototype.applyStyle_ = function(style) {
+    this.undoManager.snapshot();
+    this.mathlist._applyStyle(style);
 }
 
 MathField.prototype.hasFocus = function() {

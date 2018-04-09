@@ -4,12 +4,13 @@ define([
     'mathlive/core/span', 
     'mathlive/core/lexer', 
     'mathlive/core/parser', 
+    'mathlive/core/color', 
     'mathlive/editor/editor-popover', 
     'mathlive/editor/editor-keyboard', 
     'mathlive/editor/editor-shortcuts', 
     'mathlive/addons/outputLatex'], 
     function(Definitions, MathAtom, Span, Lexer, ParserModule, 
-        Popover, Keyboard, Shortcuts, 
+        Color, Popover, Keyboard, Shortcuts, 
 // eslint-disable-next-line no-unused-vars
     OutputLatex) {
 
@@ -302,8 +303,6 @@ const ALT_KEYS_BASE = {
         {latex: '\\unicode{"203A}\\qquad\\unicode{"2039}', insert: '\\qquad', aside:'2 em'}
     ],
 
-
-
     // @todo could also delete to end
     'delete': [{label: '<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>', 
                 command: '"deleteAll"' }],
@@ -338,8 +337,8 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys='sqrt' data-insert='\\sqrt{#0}' data-latex='\\sqrt{#0}'></li>
             </ul>
             <ul>
-                <li class='keycap tex' data-insert='\\le '>&#x2264;</li>
-                <li class='keycap tex' data-insert='\\ge '>&#x2265;</li>
+                <li class='keycap tex' data-alt-keys='(' >(</li>
+                <li class='keycap tex' data-alt-keys=')' >)</li>
                 <li class='separator w5'></li>
                 <row name='numpad-3'/>
                 <li class='separator w5'></li>
@@ -348,8 +347,8 @@ const LAYERS = {
                 <li class='action font-glyph bottom right' data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'>&#x232b;</li></ul>
             </ul>
             <ul>
-                <li class='keycap tex' data-alt-keys='(' >(</li>
-                <li class='keycap tex' data-alt-keys=')' >)</li>
+                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"#cc2428"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#cc2428'></span><aside>text</aside></li>
+                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"#fff590"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590'></span><aside>highlight</aside></li>
                 <li class='separator w5'></li>
                 <row name='numpad-4'/>
                 <li class='separator w5'></li>
@@ -759,6 +758,8 @@ function makeKeycap(mf, elList, chainedCommand) {
         } else if (el.innerHTML === '' && el.getAttribute('data-insert')) {
             el.innerHTML = latexToMarkup(el.getAttribute('data-insert').replace(/&quot;/g, '"'), 
                     {'?':'{\\color{#555}{\\tiny \\char"2B1A}}'}, mf);
+        } else if (el.getAttribute('data-content')) {
+            el.innerHTML = el.getAttribute('data-content').replace(/&quot;/g, '"');
         }
         if (el.getAttribute('data-aside')) {
             el.innerHTML += '<aside>' + el.getAttribute('data-aside').replace(/&quot;/g, '"') + '</aside>';
@@ -1012,6 +1013,23 @@ function make(mf, theme) {
     markup += '<div class="alternate-keys"></div>';
 
     // Auto-populate the ALT_KEYS table
+    ALT_KEYS_BASE['foreground-color'] = [];
+    for (const color of Color.LINE_COLORS) {
+        ALT_KEYS_BASE['foreground-color'].push({
+            classes: 'small-button',
+            content: '<span style="border-radius:50%;width:32px;height:32px; background:' + color + '"></span>', 
+            command:'["applyStyle",{"color":"' + color + '"}]'
+        });
+    }
+    ALT_KEYS_BASE['background-color'] = [];
+    for (const color of Color.AREA_COLORS) {
+        ALT_KEYS_BASE['background-color'].push({
+            classes: 'small-button',
+            content: '<span style="border-radius:50%;width:32px;height:32px; background:' + color + '"></span>', 
+            command:'["applyStyle",{"backgroundColor":"' + color + '"}]'
+        });
+    }
+
     ALT_KEYS = {};
     ALT_KEYS = Object.assign({}, ALT_KEYS_BASE);
     for (const key in ALT_KEYS) {
@@ -1019,6 +1037,9 @@ function make(mf, theme) {
             ALT_KEYS[key] = ALT_KEYS[key].slice();
         }
     }
+
+
+
     const upperAlpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const lowerAlpha = 'abcdefghijklmnopqrstuvwxyz';
     const digits = '0123456789';

@@ -1084,10 +1084,9 @@ function parsePrimary(expr, options) {
     } else if (atom.type === 'sizing') {
        expr.index += 1;
        return parsePrimary(expr, options); 
-    } else if (atom.type === 'group') {
-        // This includes macros
-       expr.index += 1;
-       expr.ast = atom.toAST(options); 
+    } else {
+        expr.index += 1;
+        expr.ast = atom.toAST(options);
     }
 
 
@@ -1296,13 +1295,13 @@ function escapeText(s) {
 MathAtom.MathAtom.prototype.toAST = function(options) {
     const MATH_VARIANTS = {
         'mathrm':   'normal',
-        'mathbb': 'double-struck',
-        'mathbf': 'bold',
-        'mathcal': 'script',
+        'mathbb':   'double-struck',
+        'mathbf':   'bold',
+        'mathcal':  'script',
         'mathfrak': 'fraktur',
-        'mathscr': 'script',
-        'mathsf': 'sans-serif',
-        'mathtt': 'monospace'
+        'mathscr':  'script',
+        'mathsf':   'sans-serif',
+        'mathtt':   'monospace'
     };
     // TODO: See https://www.w3.org/TR/MathML2/chapter6.html#chars.letter-like-tables
 
@@ -1433,8 +1432,8 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
             break;
 
         case 'color':
-            break;
         case 'box':
+            result = parse(this.body, options);
             break;
 
         case 'enclose':
@@ -1466,6 +1465,37 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
     return result;
 }
 
+
+// function filterPresentationAtoms(atoms) {
+//     if (!atoms) return null;
+//     let result;
+//     if (Array.isArray(atoms)) {
+//         result = [];
+//         for (const atom of atoms) {
+//             const filter = filterPresentationAtoms(atom);
+//             if (filter) {
+//                 result = result.concat(filter);
+//             }
+//         }
+//         if (result.length === 0) return null;
+//     } else {
+//         if (atoms.type === 'first' || atoms.type === 'color' || atoms.type === 'box' || 
+//                 atoms.type === 'sizing' || atoms.type === 'spacing') {
+//             result = filterPresentationAtoms(atoms.body);
+//         } else {
+//             atoms.body = filterPresentationAtoms(atoms.body);
+//             atoms.superscript = filterPresentationAtoms(atoms.superscript);
+//             atoms.subscript = filterPresentationAtoms(atoms.subscript);
+//             atoms.index = filterPresentationAtoms(atoms.index);
+//             atoms.denom = filterPresentationAtoms(atoms.denom);
+//             atoms.numer = filterPresentationAtoms(atoms.numer);
+//             atoms.array = filterPresentationAtoms(atoms.array);
+//             result = [atoms];
+//         }
+//     }
+//     return result;
+// }
+
 /**
  * 
  * @param {*} atoms an array of atoms
@@ -1473,7 +1503,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
  */
 function parse(atoms, options) {
 
-    return parseExpression({atoms: atoms}, options).ast;
+    return parseExpression({atoms: (atoms)}, options).ast;
 }
 
 MathAtom.toAST = function(atoms, options) {

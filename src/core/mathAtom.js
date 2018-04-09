@@ -786,22 +786,17 @@ MathAtom.prototype.decomposeLeftright = function(context) {
 
 
 MathAtom.prototype.decomposeSurd = function(context) {
-    // Square roots are handled in the TeXbook pg. 443, Rule 11.
+    // See the TeXbook pg. 443, Rule 11.
+    // http://www.ctex.org/documents/shredder/src/texbook.pdf
     const mathstyle = context.mathstyle;
 
     // First, we do the same steps as in overline to build the inner group
     // and line
     const inner = decompose(context.cramp(), this.body)
-    // const inner = decompose(context, this.body)
 
     const ruleWidth = FONTMETRICS.defaultRuleThickness /
         mathstyle.sizeMultiplier;
 
-    const line = makeSpan('',
-        context.mathstyle.adjustTo(Mathstyle.TEXT) + ' sqrt-line');
-
-    line.height = ruleWidth;
-    line.maxFontSize = 1.0;
 
     let phi = ruleWidth;
     if (mathstyle.id < Mathstyle.TEXT.id) {
@@ -831,6 +826,10 @@ MathAtom.prototype.decomposeSurd = function(context) {
     delim.setTop((delim.height - Span.height(inner)) - 
                     (lineClearance + ruleWidth));
 
+    const line = makeSpan('',
+        context.mathstyle.adjustTo(Mathstyle.TEXT) + ' sqrt-line');
+    line.height = ruleWidth;
+
     // We add a special case here, because even when `inner` is empty, we
     // still get a line. So, we use a simple heuristic to decide if we
     // should omit the body entirely. (note this doesn't work for something
@@ -844,7 +843,7 @@ MathAtom.prototype.decomposeSurd = function(context) {
     }
 
     if (!this.index) {
-        return makeOrd([delim, body], 'sqrt');
+        return this.bind(context, makeOrd([delim, body], 'sqrt'));
     }
     // Handle the optional root index
 
@@ -868,7 +867,8 @@ MathAtom.prototype.decomposeSurd = function(context) {
     // Add a class surrounding it so we can add on the appropriate
     // kerning
 
-    return makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt');
+    return this.bind(context, 
+        makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt'));
  }
 
 MathAtom.prototype.decomposeAccent = function(context) {
@@ -1120,16 +1120,13 @@ MathAtom.prototype.decomposeColor = function(context) {
     // A color operation
     if (this.color) {
         context.color = this.color;
-    } else {
+    } else if (this.body) {
         result = makeOrd(decompose(context, this.body));
 
         if (this.textcolor) result.setStyle('color', this.textcolor);
         if (this.backgroundcolor) result.setStyle('background-color', this.backgroundcolor);
 
-        // Make sure that the span takes the full height of the enclosed children
-        // otherwise the background color will not completely cover it.
-        result.setStyle('padding-top', Span.height(result) - Span.depth(result), 'em');
-        result.setStyle('padding-bottom', Span.depth(result), 'em');
+        result = this.bind(context, result);
     }
 
     return result;
@@ -1140,21 +1137,15 @@ MathAtom.prototype.decomposeBox = function(context) {
     const result = makeOrd(decompose(context, this.body));
 
     const padding = this.padding ? this.padding : FONTMETRICS.fboxsep;
-
-    // Make sure that the span takes the full height of the enclosed children
-    // otherwise the background color will not completely cover it.
-    result.setStyle('padding-top', Span.height(result) - Span.depth(result) + padding, 'em');
-    result.setStyle('padding-bottom', Span.depth(result) + padding, 'em');
+    result.setStyle('padding', padding, 'em');
 
     if (this.backgroundcolor) result.setStyle('background-color', this.backgroundcolor);
     if (this.framecolor) result.setStyle('border', FONTMETRICS.fboxrule + 'em solid ' + this.framecolor);
     if (this.border) result.setStyle('border', this.border);
-    result.setStyle('padding-left', padding, 'em');
-    result.setStyle('padding-right', padding, 'em');
 
     result.setStyle('display', 'inline-block');
 
-    return result;
+    return this.bind(context, result);
 }
 
 MathAtom.prototype.decomposeEnclose = function(context) {
@@ -2153,7 +2144,7 @@ function decompose(context, atoms) {
     }
     
 
-    if (!result) return result;
+    if (!result || result.length === 0) return null;
 
     console.assert(Array.isArray(result) && result.length > 0);
 

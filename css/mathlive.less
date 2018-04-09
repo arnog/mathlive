@@ -474,8 +474,8 @@
         // Highlight color defined in https://www.w3.org/TR/REC-CSS2/ui.html
         background: Highlight !important;
         background: #b4d5fe !important;
-        color: HighlightText;
-        border-color: HighlightText;
+        // color: HighlightText;
+        // border-color: HighlightText;
     }
 
     &.ML__blurred .ML__selected {
@@ -680,6 +680,7 @@
             max-width: 320px;
         }
 
+
         background-color: white;
         text-align: center;
         border-radius: 6px;
@@ -738,6 +739,15 @@
                 }
                 &.small {
                     font-size: 18px;
+                }
+                &.small-button {
+                    width: 42px;
+                    height: 42px;
+                    margin: 2px;
+                    background: #fbfbfb;
+                    &:hover {
+                        background: #e5e5e5;
+                    }
                 }
                 &.box > div, &.box > span {
                     border: 1px dashed rgba(0, 0, 0, .24);
