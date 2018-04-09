@@ -17,10 +17,11 @@ define([
     'mathlive/core/mathAtom', 
     'mathlive/core/parser', 
     'mathlive/core/span', 
+    'mathlive/core/definitions',
     'mathlive/editor/editor-mathfield',
     'mathlive/addons/auto-render',
     ], 
-    function(Lexer, MathAtom, ParserModule, Span, MathField, AutoRender) {
+    function(Lexer, MathAtom, ParserModule, Span, Definitions, MathField, AutoRender) {
 
 /**
  * Convert a LaTeX string to a string of HTML markup.
@@ -41,7 +42,7 @@ define([
  * @return {string}
  * @function module:mathlive#latexToMarkup
  */
-function toMarkup(text, mathstyle, format) {
+function toMarkup(text, mathstyle, format, macros) {
     mathstyle = mathstyle || 'displaystyle'
     //
     // 1. Tokenize the text
@@ -54,7 +55,7 @@ function toMarkup(text, mathstyle, format) {
     //    a tree of high-level MathAtom, e.g. 'genfrac'.
     //
 
-    const mathlist = ParserModule.parseTokens(tokens);
+    const mathlist = ParserModule.parseTokens(tokens, 'math', null, macros);
 
     if (format === 'mathlist') return mathlist;
 
@@ -85,7 +86,7 @@ function toMarkup(text, mathstyle, format) {
     topStrut.setStyle('height', base.height, 'em');
     const struts = [topStrut];
     if (base.depth !== 0) {
-        const bottomStrut = Span.makeSpan('', 'ML__strut ML__bottom');
+        const bottomStrut = Span.makeSpan('', 'ML__strut--bottom');
         bottomStrut.setStyle('height', base.height + base.depth, 'em');
         bottomStrut.setStyle('vertical-align', -base.depth, 'em');
         struts.push(bottomStrut);
@@ -116,17 +117,20 @@ function toMarkup(text, mathstyle, format) {
 /**
  * Convert a DOM element into an editable math field.
  * 
- * @param {Element|string} element An HTML DOM element, for example as obtained 
+ * @param {HTMLElement|string} element An HTML DOM element, for example as obtained 
  * by `.getElementById()` or a string representing the ID of a DOM element.
  * 
- * @param {Object} [config]
+ * @param {Object<string, *>} [config]
  * 
  * @param {string} [config.namespace=''] - Namespace that is added to `data-`
  * attributes to avoid collisions with other libraries. It is empty by default.
  * The namespace should be a string of lowercase letters.
  * 
  * @param {function} [config.substituteTextArea] - A function that returns a 
- * focusable element that can be used to capture text input.
+ * focusable element that can be used to capture text input. This can be
+ * useful when a `<textarea>` element would be undesirable. Note that by default
+ * on mobile devices the TextArea is automatically replaced with a `<span>` to
+ * prevent the device virtual keyboard from being displayed.
  * 
  * @param {mathfieldCallback} [config.onFocus] - Invoked when the mathfield has 
  * gained focus
@@ -141,16 +145,18 @@ function toMarkup(text, mathstyle, format) {
  * @param {boolean} [config.overrideDefaultInlineShortcuts=false] - If true 
  * the default inline shortcuts (e.g. 'p' + 'i' = 'π') are ignored.
  * 
- * @param {Object} [config.inlineShortcuts] - A map of shortcuts → replacement 
+ * @param {Object.<string, string>} [config.inlineShortcuts] - A map of shortcuts → replacement 
  * value. For example `{ 'pi': '\\pi'}`. If `overrideDefaultInlineShortcuts` is 
  * false, these shortcuts are applied after any default ones, and can therefore 
  * override them.
  * 
+ * @param {boolean} [config.smartFence=true] - If true, when an open fence is
+ * entered via `typedText()` it will generate a contextually appropriate markup,
+ * for example using `\left...\right` if applicable. If false, the literal 
+ * value of the character will be inserted instead.
+ * 
  * @param {string} [config.virtualKeyboardToggleGlyph] - If specified, the markup 
  * to be used to display the virtual keyboard toggle glyph.
- * 
- * @param {boolean} [config.overrideDefaultCommands=false] - If true, the default 
- * commands displayed in the command bar are ignored.
  * 
  * @param {string} [config.virtualKeyboardMode=''] - If `'manual'`, pressing the 
  * command bar toggle will display a virtual keyboard instead of the command bar.
@@ -162,9 +168,13 @@ function toMarkup(text, mathstyle, format) {
  * @param {string} [config.virtualKeyboards='all'] - A space separated list of
  * the keyboards that should be available. The keyboard `'all'` is synonym with:
  * 
- * * `'numeric'`, `'latin'`, `'greek'`, `'functions'` and `'command'`
+ * * `'numeric'`, `'roman'`, `'greek'`, `'functions'` and `'command'`
  * 
  * The keyboards will be displayed in the order indicated.
+ * 
+ * @param {string} [config.virtualKeyboardRomanLayout='qwerty'] - The 
+ * arrangement of the keys for the layers of the roman virtual keyboard.
+ * One of `'qwerty'`, `'azerty'`, '`qwertz'`, '`dvorak`' or '`colemak`'.
  * 
  * @param {Object} [config.customVirtualKeyboardLayers] - Some additional
  * custom virtual keyboard layers. A keyboard is made up of one or more 
@@ -193,9 +203,17 @@ function toMarkup(text, mathstyle, format) {
  * based on the device it's running on. The two supported themes are 
  * 'material' and 'apple' (the default).
  * 
- * @param {Array} [config.commands] - An array of commands to display in the 
- * command bar. If `overrideDefaultCommands` is false, these commands will 
- * supplement the default commands, otherwise they replace them.
+ * @param {boolean} [config.keypressVibration='on'] When a key on the virtual 
+ * keyboard is pressed, produce a short haptic feedback.
+ * 
+ * @param {boolean} [config.keypressSound=''] When a key on the virtual 
+ * keyboard is pressed, produce a short audio feedback. The value should be 
+ * either a URL to a sound file or an object with the following keys:
+ *    * `delete` URL to a sound file played when the delete key is pressed
+ *    * `return` ... when the return/tab key is pressed
+ *    * `spacebar` ... when the spacebar is pressed
+ *    * `default` ... when any other key is pressed. This key is required, the 
+ * others are optional. If they are missing, this sound is played as well.
  * 
  * @param {mathfieldWithDirectionCallback} [config.onMoveOutOf] - A handler 
  * called when keyboard navigation would cause the insertion point to leave the
@@ -244,6 +262,12 @@ function toMarkup(text, mathstyle, format) {
  * @param {mathfieldCallback} [config.onSelectionDidChange] - A handler called 
  * just after the selection has been changed.
  *  
+ * @param {mathfieldCallback} [config.onVirtualKeyboardToggle] - A handler  
+ * called after the virtual keyboard visibility has changed. The first argument
+ * is true if the virtual keyboard is visible, the second argument is a DOM
+ * element containing the virtual keyboard, which can be used to determine its
+ * size (and therefore the portion of the screen it obscures) 
+ *  
  * @return {MathField}
  * 
  * @function module:mathlive#makeMathField
@@ -272,15 +296,18 @@ function toSpeakableText() {
  * @return {string}
  * @function module:mathlive#latexToMathML
  */
-function toMathML(latex) {
+function toMathML(latex, options) {
     if (!MathAtom.toMathML) {
         console.log('The MathML module is not loaded.');
         return '';
     }
+    options = options || {macros:{}};
+    Object.assign(options.macros, Definitions.MACROS);
 
-    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex));
+    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex),
+        'math', null, options.macros);
 
-    return MathAtom.toMathML(mathlist);
+    return MathAtom.toMathML(mathlist, options);
 }
 
 /**
@@ -288,15 +315,18 @@ function toMathML(latex) {
  * @return {string}
  * @function module:mathlive#latexToAST
  */
-function latexToAST(latex) {
+function latexToAST(latex, options) {
     if (!MathAtom.toAST) {
         console.log('The AST module is not loaded.');
         return '';
     }
+    options = options || {macros:{}};
+    Object.assign(options.macros, Definitions.MACROS);
 
-    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex));
+    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex), 
+        'math', null, options.macros);
 
-    return MathAtom.toAST(mathlist);
+    return MathAtom.toAST(mathlist, options);
 }
 
 
@@ -347,10 +377,10 @@ function getElement(element) {
  * the ID an element.
  * @param {Object} [options]
  * 
- * @param {string} [config.namespace=''] - Namespace that is added to `data-`
+ * @param {string} [options.namespace=''] - Namespace that is added to `data-`
  * attributes to avoid collisions with other libraries. It is empty by default.
  * The namespace should be a string of lowercase letters.
- * 
+ * @param {object[]} [options.macros={}] - Custom macros
  * @param {string[]} options.skipTags an array of tag names whose content will
  *  not be scanned for delimiters
  * @param {string} [options.ignoreClass='tex2jax_ignore'] a string used as a 

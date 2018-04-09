@@ -6,8 +6,8 @@
 
 
 .ML__mathlive {
-    font: 400 1em @math_main,times new roman,serif;
-    line-height: 1.2;
+    font: 400 1em @math_main,'times new roman',serif;
+    line-height: normal;
     white-space: nowrap;
     text-shadow: none;
     user-select: none;
@@ -29,28 +29,32 @@
     display: inline-block;
 }
 
-.ML__strut {
+.ML__strut, .ML__strut--bottom {
     display: inline-block;
 }
 
-.ML__caret {
+.ML__caret:after {
+    content: '';
     border: none;
-    border-radius: 0;
+    border-radius: 2px;
     border-right: 2px solid @primary;
     margin-right: -2px;
+    position: relative;
+    left: -1px;
     // z-index: 1;
 
     animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
-.ML__command.ML__caret {
+
+
+.ML__command.ML__caret:after {
     border: none;
     margin-right: 0;
-
-    &:after {
-        content: '_';
-        color: @primary;
-        animation: ML__caret-command-blink 1.05s step-end forwards infinite;
-    }
+    content: '_';
+    margin-right: -1ex;
+    position: relative;
+    color: @primary;
+    animation: ML__caret-command-blink 1.05s step-end forwards infinite;
 }
 
 @keyframes  ML__caret-command-blink {

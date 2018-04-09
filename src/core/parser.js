@@ -105,7 +105,7 @@ Parser.prototype.lastMathAtom = function() {
     if (this.mathList.length === 0 || 
         this.mathList[this.mathList.length - 1].type !== 'mop') {
         // ZERO WIDTH SPACE
-        const lastAtom = new MathAtom(this.parseMode, 'mord', '\u200b', 'main');
+        const lastAtom = new MathAtom(this.parseMode, 'msubsup', '\u200b', 'main');
         lastAtom.attributes = {
             "aria-hidden": true
         };
@@ -164,7 +164,8 @@ Parser.prototype.hasInfixCommand = function() {
     const index = this.index;
     if (index < this.tokens.length && 
         this.tokens[index].type === 'command') {
-        const info = Definitions.getInfo('\\' + this.tokens[index].value, this.parseMode);
+        const info = Definitions.getInfo('\\' + this.tokens[index].value, 
+            this.parseMode, this.macros);
         return info && info.infix;
     }
     return false;
@@ -353,7 +354,8 @@ Parser.prototype.scanString = function() {
             // if it encounters any command when expecting a string.
             // We're a bit more lax.
             const token = this.get();
-            const info = Definitions.getInfo('\\' + token.value, this.parseMode);
+            const info = Definitions.getInfo('\\' + token.value, 
+                this.parseMode, this.macros);
             // If parseMode is 'math', info.type will never be 'textord'
             // Otherwise, info.type will never be 'mord'
             if (info && (info.type === 'mord' || info.type === 'textord') && info.value) {
@@ -777,7 +779,8 @@ Parser.prototype.scanImplicitGroup = function(done) {
         // it had when we encountered the infix. However, since all infix are
         // only defined in 'math' mode, we can use the 'math' constant 
         // for the parseMode
-        const info = Definitions.getInfo('\\' + infix.value, 'math');
+        const info = Definitions.getInfo('\\' + infix.value, 
+            'math', this.macros);
         if (info) {
             result =  [new MathAtom(
                 this.parseMode, info.type || 'mop', 
@@ -817,6 +820,32 @@ Parser.prototype.scanGroup = function() {
     return result;
 }
 
+
+Parser.prototype.scanSmartFence = function() {
+    this.parseToken('space');
+    if (!this.parseLiteral('(')) return null;
+
+    // We've found an open paren... Convert to a `\mleft...\mright`
+    const result = new MathAtom(this.parseMode, 'leftright');
+    result.leftDelim = '(';
+    result.inner = false;   // It's a `\mleft`, not a `\left`
+
+    const savedMathList = this.swapMathList([]);
+    let nestLevel = 1;
+    while(!this.end() && nestLevel !== 0) {
+        if (this.hasLiteral('(')) nestLevel += 1;
+        if (this.hasLiteral(')')) nestLevel -= 1;
+        if (nestLevel !== 0) this.parseAtom();
+    }
+    if (nestLevel === 0) this.parseLiteral(')');
+
+    result.rightDelim = nestLevel === 0 ? ')' : '?';
+    result.body = this.swapMathList(savedMathList);
+
+    return result;
+}
+
+
 /**
  * Scan a delimiter, e.g. '(', '|', '\vert', '\ulcorner'
  * 
@@ -837,7 +866,7 @@ Parser.prototype.scanDelim = function() {
     } else if (token.type === 'literal') {
         delim = token.value;
     }
-    const info = Definitions.getInfo(delim, 'math');
+    const info = Definitions.getInfo(delim, 'math', this.macros);
     if (!info) return null;
 
     if (info.type === 'mopen' || info.type === 'mclose') {
@@ -846,7 +875,9 @@ Parser.prototype.scanDelim = function() {
 
     // Some symbols are not of type mopen/mclose, but are still 
     // valid delimiters...
-    if (['|', '<', '>', '\\vert', '\\Vert', '\\|', '\\surd', 
+    // '?' is a special delimiter used as a 'placeholder'
+    // (when the closing delimiter is displayed greyed out)
+    if (['?', '|', '<', '>', '\\vert', '\\Vert', '\\|', '\\surd', 
         '\\uparrow', '\\downarrow', '\\Uparrow', '\\Downarrow', 
         '\\updownarrow', '\\Updownarrow', 
         '\\mid', '\\mvert', '\\mVert'].includes(delim)) {
@@ -868,30 +899,35 @@ Parser.prototype.scanDelim = function() {
  * @private
  */
 Parser.prototype.scanLeftRight = function() {
-    if (this.parseCommand('right')) {
+    if (this.parseCommand('right') || this.parseCommand('mright')) {
         // We have an unbalanced left/right (there's a \right, but no \left)
         const result = new MathAtom(this.parseMode, 'leftright');
         result.rightDelim = this.scanDelim() || '.';
         return result;
     }
 
-    if (!this.parseCommand('left')) return null;
+    let close = 'right';
+    if (!this.parseCommand('left')) {
+        if (!this.parseCommand('mleft')) return null;
+        close = 'mright';
+    }
     
     const leftDelim = this.scanDelim() || '.';
 
     const savedMathList = this.swapMathList([]);
-    while(!this.end() && !this.parseCommand('right')) {
+    while(!this.end() && !this.parseCommand(close)) {
         this.parseAtom();
     }
     
-    // If we've reached the end and there was no '\right' or 
-    // there isn't a valid delimited after '\right', we'll 
-    // consider the '\right' missing and set the rightDelim to undefined
+    // If we've reached the end and there was no `\right` or 
+    // there isn't a valid delimiter after `\right`, we'll 
+    // consider the `\right` missing and set the `rightDelim` to undefined
     const rightDelim = this.scanDelim();
 
     const result = new MathAtom(this.parseMode, 'leftright');
     result.leftDelim = leftDelim;
     result.rightDelim = rightDelim;
+    result.inner = close === 'right';
     result.body = this.swapMathList(savedMathList);
 
     return result;
@@ -1190,7 +1226,10 @@ Parser.prototype.scanToken = function() {
 
     } else if (token.type === 'command') {
         // RENDER COMMAND
-        if (token.value === 'char') {
+        if (token.value === 'placeholder') {
+            result = new MathAtom(this.parseMode, 'placeholder', this.scanArg('string'));
+            
+        } else if (token.value === 'char') {
             // \char has a special syntax and requires a non-braced integer 
             // argument
             let codepoint = Math.floor(this.scanNumber(true));
@@ -1217,7 +1256,8 @@ Parser.prototype.scanToken = function() {
             result = this.scanMacro(token.value);
 
             if (!result) {
-                const info = Definitions.getInfo('\\' + token.value, this.parseMode);
+                const info = Definitions.getInfo('\\' + token.value, 
+                    this.parseMode, this.macros);
                 const args = [];
 
                 // Parse the arguments
@@ -1245,8 +1285,6 @@ Parser.prototype.scanToken = function() {
                             } else {
                                 args.push(this.placeholder());
                             }
-                            // @todo should check for greediness of argument here 
-                            // (should be < greediness of command)
                         }
                     }
             }
@@ -1272,15 +1310,24 @@ Parser.prototype.scanToken = function() {
                                 info.fontFamily);
                     }
                     result.latex = '\\' + token.value + ' ';
+                    if (result.isFunction && this.smartFence) {
+                        // The atom was a function that may be followed by 
+                        // an argument, like `\sin(`
+                        const smartFence = this.scanSmartFence();
+                        if (smartFence) {
+                            result = [result, smartFence];
+                        }
+                    }
                 }
             }
         }
 
     } else if (token.type === 'literal') {
-        const info = Definitions.getInfo(token.value, this.parseMode);
+        const info = Definitions.getInfo(token.value, this.parseMode, this.macros);
         if (info) {
             result = new MathAtom(this.parseMode,  info.type, 
                 info.value || token.value, info.fontFamily);
+            result.isFunction = info.isFunction;
         } else {
             // console.warn('Unknown literal "' + token.value + 
             //     '" (U+' + ('000000' + token.value.charCodeAt(0).toString(16)).substr(-6) + ')');
@@ -1289,6 +1336,15 @@ Parser.prototype.scanToken = function() {
                 token.value, 'main');
         }
         result.latex = Definitions.matchCodepoint(token.value);
+
+        if (info && info.isFunction && this.smartFence) {
+            // The atom was a function that may be followed by 
+            // an argument, like `f(`.
+            const smartFence = this.scanSmartFence();
+            if (smartFence) {
+                result = [result, smartFence];
+            }
+        }
 
     } else if (token.type === '#') {
         // Parameter token in an implicit group (not as a parameter)
@@ -1327,21 +1383,20 @@ Parser.prototype.scanMacro = function(macro) {
     if (typeof this.macros[macro] === 'string') {
         def = this.macros[macro];
         // Let's see if there are arguments in the definition.
-        if (/(^|[^\\])#0/.test(def)) argCount = 1;
-        if (/(^|[^\\])#1/.test(def)) argCount = 2;
-        if (/(^|[^\\])#2/.test(def)) argCount = 3;
-        if (/(^|[^\\])#3/.test(def)) argCount = 4;
-        if (/(^|[^\\])#4/.test(def)) argCount = 5;
-        if (/(^|[^\\])#5/.test(def)) argCount = 6;
-        if (/(^|[^\\])#6/.test(def)) argCount = 7;
-        if (/(^|[^\\])#7/.test(def)) argCount = 8;
-        if (/(^|[^\\])#8/.test(def)) argCount = 9;
-        if (/(^|[^\\])#9/.test(def)) argCount = 10;
+        if (/(^|[^\\])#1/.test(def)) argCount = 1;
+        if (/(^|[^\\])#2/.test(def)) argCount = 2;
+        if (/(^|[^\\])#3/.test(def)) argCount = 3;
+        if (/(^|[^\\])#4/.test(def)) argCount = 4;
+        if (/(^|[^\\])#5/.test(def)) argCount = 5;
+        if (/(^|[^\\])#6/.test(def)) argCount = 6;
+        if (/(^|[^\\])#7/.test(def)) argCount = 7;
+        if (/(^|[^\\])#8/.test(def)) argCount = 8;
+        if (/(^|[^\\])#9/.test(def)) argCount = 9;
     } else {
         def = this.macros[macro].def;
         argCount = (this.macros[macro].args || 0);
     }
-    for (let i = 0; i < argCount; i++) {
+    for (let i = 1; i <= argCount; i++) {
         args[i] = this.scanArg();
     }
 
@@ -1359,10 +1414,12 @@ Parser.prototype.scanMacro = function(macro) {
     atom.latex = '\\' + macro;
 
     let argString = '';
-    for (let i = 0; i < argCount; i++) {
+    for (let i = 1; i <= argCount; i++) {
         argString += '{';
-        for (let j = 0; j < args[i].length; j++) {
-            argString += args[i][j].latex;
+        if (Array.isArray(args[i])) {
+            for (let j = 0; j < args[i].length; j++) {
+                argString += args[i][j].latex;
+            }
         }
         argString += '}';
     }
@@ -1409,14 +1466,18 @@ Parser.prototype.parseAtom = function() {
  * @param {string} [parseMode='math']
  * @param {Array.<string>} [args={}] - If there are any placeholder tokens, e.g. 
  * `#0`, `#1`, etc... they will be replaced by the value provided by `args`.
- * @param {*} [macros] Dictionary defining macros
+ * @param {*} [macro={}] Dictionary defining macros
+ * @param {boolean} [smartFence=false] If true, promote plain fences, e.g. `(`,
+ * as `\left...\right` or `\mleft...\mright`
  * @return {Array.<MathAtom>}
  * @private
  */
-function parseTokens(tokens, parseMode, args, macros) {
+function parseTokens(tokens, parseMode, args, macros, smartFence) {
     let mathlist = [];
     const parser = new Parser(tokens, args, macros);
     parser.parseMode = parseMode || 'math';  // other possible values: 'text', 'color', etc...
+    if (smartFence) parser.smartFence = true;
+
     while(!parser.end()) {
         mathlist = mathlist.concat(parser.scanImplicitGroup());
     }

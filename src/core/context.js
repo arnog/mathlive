@@ -14,7 +14,7 @@ define(['mathlive/core/mathstyle'], function(Mathstyle) {
  * 
  * 
  * A scope is defined by:
- * - an explicit groupe enclosed in braces `{...}`
+ * - an explicit group enclosed in braces `{...}`
  * - a semi-simple group enclosed in `\bgroup...\endgroup`
  * - an environment delimited by `\begin{<envname>}...\end{<envname>}`
  * 
@@ -31,6 +31,7 @@ define(['mathlive/core/mathstyle'], function(Mathstyle) {
  * should be rendered in a selected state
  * @property {string} parentMathstyle
  * @property {number} parentSize
+ * @property {object} macros A macros dictionary
  * 
  * @class Context
  * @global
@@ -45,6 +46,7 @@ function Context(data) {
     this.font = data.font;
     this.generateID = data.generateID;
     this.isSelected = data.isSelected;
+    this.macros = data.macros || {};
 
     if (typeof data.parentMathstyle === 'undefined') {
         this.parentMathstyle = this.mathstyle;
@@ -70,6 +72,7 @@ Context.prototype.clone = function() {
     const result = new Context(this);
     result.parentMathstyle = this.mathstyle;
     result.parentSize = this.size;
+    result.macros = this.macros;
     return result;
 }
 

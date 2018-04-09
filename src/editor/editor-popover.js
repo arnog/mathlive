@@ -181,8 +181,8 @@ const NOTES = {
     '\\setminus':   'set substraction',
     '\\stackrel':   'relation with symbol above',
     '\\stackbin':   'operator with symbol above',
-    '\\underset':   'symbol with anotation below',
-    '\\overset':    'symbol with anotation above',
+    '\\underset':   'symbol with annotation below',
+    '\\overset':    'symbol with annotation above',
     '\\hslash':     ['h-bar', 'Planck constant'],
     '\\gtrsim':     'greater than or <br>similar to',
     '\\propto':     'proportional to',
@@ -190,7 +190,7 @@ const NOTES = {
 
     '\\!':          ['negative thin space', '(-3 mu)'],
     '\\ ':          ['space', '(6 mu)'],
-    '\\,':          ['thin space<', '(3 mu)'],
+    '\\,':          ['thin space', '(3 mu)'],
     '\\:':          ['medium space', '(4 mu)'],
     '\\;':          ['thick space', '(5 mu)'],
     '\\quad':       ['1 em space', '(18 mu)'],
@@ -201,6 +201,8 @@ const NOTES = {
     '\\pm':         'plus or minus',
     '\\Im':         'Imaginary part of',
     '\\Re':         'Real part of',
+    '\\gothicCapitalR': 'Real part of',
+    '\\gothicCapitalI': 'Imaginary part part of',
     '\\differentialD':     'differential d',
     '\\aleph':          ['aleph', 'infinite cardinal',
                         '<a target="_blank" href="https://en.wikipedia.org/wiki/Cardinal_number">Wikipedia <big>&#x203A;</big></a>'
@@ -338,15 +340,20 @@ function getNote(symbol) {
 
 
 
-function latexToMarkup(latex) {
-    const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', null, Definitions.MACROS);
-    const spans = MathAtom.decompose({mathstyle: 'displaystyle'}, parse);
+function latexToMarkup(latex, mf) {
+    const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', null, mf.config.macros);
+    const spans = MathAtom.decompose(
+        {
+            mathstyle: 'displaystyle', 
+            macros: mf.config.macros
+        }, 
+        parse);
     
     const base = Span.makeSpan(spans, 'ML__base');
 
     const topStrut = Span.makeSpan('', 'ML__strut');
     topStrut.setStyle('height', base.height, 'em');
-    const bottomStrut = Span.makeSpan('', 'ML__strut ML__bottom');
+    const bottomStrut = Span.makeSpan('', 'ML__strut--bottom');
     bottomStrut.setStyle('height', base.height + base.depth, 'em');
     bottomStrut.setStyle('vertical-align', -base.depth, 'em');
     const wrapper = Span.makeSpan([topStrut, bottomStrut, base], 'ML__mathlive');
@@ -361,7 +368,7 @@ function showPopoverWithLatex(mf, latex, displayArrows) {
     }
 
     const command = latex;
-    const command_markup = latexToMarkup(SAMPLES[command] || latex);
+    const command_markup = latexToMarkup(SAMPLES[command] || latex, mf);
     const command_note = getNote(command);
     const command_shortcuts = Shortcuts.stringify(
         Shortcuts.getShortcutsForCommand(command)) || '';

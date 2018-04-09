@@ -42,10 +42,10 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
     const command = this.latex ? this.latex.trim() : null;
     switch(this.type) {
         case 'group':
-            result += this.latexOpen || '';
+            result += this.latexOpen || '{';
             result += expandMacro ? latexify(this.body, true) : 
                 (this.latex || latexify(this.body, false)); 
-            result += this.latexClose || '';
+            result += this.latexClose || '}';
             break;
 
         case 'array':
@@ -106,9 +106,19 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             break;
 
         case 'leftright':
-            if (this.leftDelim) result += '\\left' + this.leftDelim + ' ';
-            result += latexify(this.body, expandMacro);
-            if (this.rightDelim) result += '\\right' + this.rightDelim + ' ';
+            if (this.inner) {
+                result += (this.inner ? '\\left' : '\\mleft') + (this.leftDelim || '.');
+                if (this.leftDelim.length > 1) result += ' ';
+                result += latexify(this.body, expandMacro);
+                result += (this.inner ? '\\right' : '\\mright') + (this.rightDelim || '.');
+                if (this.rightDelim.length > 1) result += ' ';
+            } else {
+                result += (this.leftDelim || '');
+                if (this.leftDelim.length > 1) result += ' ';
+                result += latexify(this.body, expandMacro);
+                result += (this.rightDelim === '?' || this.rightDelim === '.') ? '' : this.rightDelim;
+                if (this.rightDelim.length > 1) result += ' ';
+            }
             break;
 
         case 'delim':
@@ -148,6 +158,10 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 command === '\\mathpunct' || command === '\\mathord' || 
                 command === '\\mathinner') {
                 result += command + '{' + latexify(this.body, expandMacro) + '}';
+            } else if (command === '\\unicode') {
+                result += '\\unicode{"';
+                result += ('000000' + this.body.charCodeAt(0).toString(16)).toUpperCase().substr(-6);
+                result += '}';
             } else if (this.latex || typeof this.body === 'string') {
                 // Not ZERO-WIDTH
                 if (this.latex && this.latex[0] === '\\') {
@@ -286,9 +300,13 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             result += this.latex;
             break;
 
-        case 'first':
         case 'placeholder':
+            result += '\\placeholder{' + (this.value || '') + '}';
+            break;
+
+        case 'first':
         case 'command':
+        case 'msubsup':
             break;  
 
         default:

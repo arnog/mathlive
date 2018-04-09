@@ -22,18 +22,49 @@ define([], function() {
  * @memberof module:color
  */
 const MATHEMATICA_COLORS = {
-    'm0': '#3f3d99',
-    'm1': '#993d71',
-    'm2': '#998b3d',
-    'm3': '#3d9956',
-    'm4': '#3d5a99',
-    'm5': '#993d90',
-    'm6': '#996d3d',
-    'm7': '#43993d',
-    'm8': '#3d7999',
-    'm9': '#843d99'
+    'm0': '#3f3d99',        // strong blue
+    'm1': '#993d71',        // strong cerise
+    'm2': '#998b3d',        // strong gold
+    'm3': '#3d9956',        // malachite green
+    'm4': '#3d5a99',        // strong cobalt blue
+    'm5': '#993d90',        // strong orchid
+    'm6': '#996d3d',        // strong orange
+    'm7': '#43993d',        // strong sap green
+    'm8': '#3d7999',        // cornflower blue
+    'm9': '#843d99'         // mulberry
 }
 
+/* Area colors are most appropriate to color a large aread */
+const AREA_COLORS = [
+    '#d35d60',      // red
+    '#7293cb',      // cobalt blue
+    '#e1974d',      // orange
+    '#84bb5d',      // pistachio
+    '#9066a7',      // purple
+    '#aD6a58',      // vermilion
+    '#f5a4ce',      // pale rose
+    '#fff590',      // pale gold
+    '#212121',      // Black
+    '#818787',      // dark grey
+    '#d4d5d2',      // light grey
+    '#ffffff'       // white
+]
+
+/* Line colors are most appropriate to color as a stroke color */
+const LINE_COLORS = [
+    '#cc2428',      // red
+    '#3769b1',      // cobalt blue
+    '#da7e30',      // orange
+    '#409852',      // malachite green
+    '#6b4c9a',      // blue violet
+    '#922426',      // red
+    '#e7298a',      // brilliant rose
+    '#ffe907',      // vivid gold
+    '#000000',
+    '#525055',
+    '#adafaa',
+    '#ffffff',
+]
 
 /** 
  * 68 colors (+ white) known to dvips used in LaTeX.
@@ -386,6 +417,8 @@ function stringToColor(s) {
 // Export the public interface for this module
 return { 
     stringToColor,
+    AREA_COLORS,
+    LINE_COLORS,
     // NAMED_COLORS,
     // MATHEMATICA_COLORS
 }

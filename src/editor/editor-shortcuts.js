@@ -174,8 +174,8 @@ const KEYBOARD_SHORTCUTS = {
     'math:Alt-Digit5':           ['insert', '\\infty'],      // "%" key
     'math:Alt-Digit6':           ['insert', '\\wedge'],      // "^" key
     'math:Alt-Shift-Digit6':     ['insert', '\\vee'],        // "^" key
-    'math:Alt-Digit9':           ['insert', '\\left( #0 \\right)'],      // "(" key
-    // 'Alt-Digit0':       '\\right)',      // ")" key
+    'math:Alt-Digit9':           ['insert', '('],            // "(" key, override smartFence
+    'math:Alt-Digit0':           ['insert', ')'],            // ")" key, override smartFence
     'math:Alt-keyD':             ['insert', '\\differentialD'],
     'math:Alt-Shift-KeyD':       ['insert', '\\partial'],
     'math:Slash':                ['insert', '\\frac{#@}{#?}'],
@@ -256,6 +256,7 @@ const INLINE_SHORTCUTS = {
     '>=':                   '\\ge',                 //ASCIIMath
     '<=':                   '\\le',                 //ASCIIMath
     '!=':                   '\\ne',
+    '?=':                   '\\questeq',
     '≈':                    '\\approx',
     '~~':                   '\\approx',             // ASCIIMath
     '÷':                    '\\div',

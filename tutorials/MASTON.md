@@ -1,12 +1,17 @@
 # The MASTON Format
 
-The **Math Abstract Syntax Tree Object Notation** is a lightweight data interchange format for mathematical notation.
+The **Math Abstract Syntax Tree Object Notation** is a lightweight data 
+interchange format for mathematical notation.
 
 It is human-readable, while being easy for computers to generate and parse.
 
-It is built on the JSON [1] format. Its focus is on interoperability between software programs to facilitate the exchange of mathematical data, as well as the building of complex software through software components communicating with a common format.
+It is built on the JSON [1] format. Its focus is on interoperability between 
+software programs to facilitate the exchange of mathematical data, as well as 
+the building of complex software through software components communicating with 
+a common format.
 
-It is not suitable for a visual representation of arbitrary mathematical notations, and as such is not a replacement for LaTeX or MathML.
+It is not suitable for a visual representation of arbitrary mathematical 
+notations, and as such is not a replacement for LaTeX or MathML.
 
 ## Examples
 
@@ -30,18 +35,45 @@ In MASTON:
 {"lhs":{"lhs":63,"op":"/","rhs":25},"op":"*","rhs":{"lhs":{"lhs":17,"op":"+","rhs":{"lhs":15,"op":"*","rhs":{"fn":"sqrt","arg":5}}},"op":"/","rhs":{"lhs":7,"op":"+","rhs":{"lhs":15,"op":"*","rhs":{"fn":"sqrt","arg":5}}}}}
 ```
 
+## Design Goals
+
+### Definitions
+* **producer** software that generates a MASTON data structure
+* **consumer** software that parses and acts on a MASTON data structure
+
+### Goals
+- Easy to consume, even if that's at the expense of complexity to generate.
+- Extensibility. It should be possible to add information to the data structure
+that can help its interpretation or its rendition. This information should be
+optional and can be ignored by any consumer.
+
+### Non-goals
+- Be suitable as an internal data structure
+- Be suitable as a display format
+- Capture complete semantic information with no ambiguity and in a self-sufficient manner.
+
+
 ## Encoding
 
-A MASTON expression is encoded as a JSON object. The root element is an &langle;expression&rangle;, which contains other elements according to the grammar below.
+A MASTON expression is an [abstract syntax tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) 
+encoded as a JSON object. 
+
+The root element is an &langle;expression&rangle;, with child nodes according 
+to the grammar below.
+
+
 
 ### Native Numbers
 
 A native number is encoded following the JSON grammar, with two extensions:
-* support for arbitrary precision numbers. The number of digits included may be more than supported by consuming software. The software can handle this situation by either reading only as many digits as can be supported internally or by treating it as an error.
-* support for explicit fractions. These numbers can be used to represent exact fractional quantities.
+* support for arbitrary precision numbers. The number of digits included may be
+ more than supported by consuming software. The software can handle this 
+ situation by either reading only as many digits as can be supported internally 
+ or by treating it as an error.
 * support for `NaN` and `infinity`
 
-&langle;native-number&rangle; := `'"NaN"'` | &langle;native-infinity&rangle; | [`'-'`] &langle;native-int&rangle; [ &langle;native-frac&rangle;] [ &langle;native-exp&rangle; ]
+&langle;native-number&rangle; := `'"NaN"'` | &langle;native-infinity&rangle; | 
+    [`'-'`] &langle;native-int&rangle; [ &langle;native-frac&rangle;] [ &langle;native-exp&rangle; ]
 
 &langle;native-infinity&rangle; := `'"'` [`'+'` | `'-'`] `'infinity'` `'"'`
 
@@ -51,22 +83,24 @@ A native number is encoded following the JSON grammar, with two extensions:
 
 &langle;native-exp&rangle; := [`'e'` | `'E'`] [`'+'` | `'-'`] (`'0'` - `'9'` )*
 
-&langle;native-fraction&rangle; := [`'+'` | `'-'`] (`'0'` - `'9'`)* `'/'` (`'0'` - `'9'`)*
-
 ### Native Strings
 Native strings are a sequence of Unicode characters.
 
 As per JSON, any Unicode character may be escaped using a `\u` escape sequence.
 
-Compliant MATSON producing software should not generate character entities in strings. However, when consuming a MATSON format, the following character entities may be recognize in a string:
+MATSON producing software should not generate character entities in 
+strings.
 
- Entity             | Value   | Unicode   
- -------------      |:-------|----------:
- &CapitalDifferentialD;              | \&CapitalDifferentialD;       | U+2145
- &DifferentialD;              | \&DifferentialD;       | U+2146
- &ExponentialE;              | \&ExponentialE;       | U+2147
- &ImaginaryI;              | \&ImaginaryI;       | U+2148
+Whenever applicable, a specific Unicode symbol should be used.
 
+For example, the set of complex numbers should be represented with U+2102 ℂ,
+not with U+0043 C and a math variant styling attribute.
+
+See [Unicode Chapter 22 - Symbols](http://www.unicode.org/versions/Unicode10.0.0/ch22.pdf)
+
+> When used with markup languages—for example, with Mathematical Markup Language
+> (MathML)—the characters are expected to be used directly, instead of indirectly via
+> entity references or by composing them from base letters and style markup.
 
 ### Optional keys
 All elements may have the following keys:
@@ -77,9 +111,15 @@ All elements may have the following keys:
 * `class`: A CSS class to be associated with a representation of this element
 * `id`: A CSS id to be associated with a representation of this element
 * `style`: A CSS style string
+* `wikidata`: A short string indicating an entry in a wikibase. For example, 
+    `"Q2111"`
+* `wikibase`: A base URL for the wikidata key. A full URL can be produced 
+by concatenating this key with the wikidata key. This key applies to 
+this element and all its children. The default value is "https://www.wikidata.org/wiki/"
 
 ### Key order
-The order of the keys in an element is not significant. That is, all these expressions are equivalent:
+The order of the keys in an element is not significant. That is, all these 
+expressions are equivalent:
 
 ```JSON
    {"lhs":1, "op":"+", "rhs":2}
@@ -104,7 +144,8 @@ The order of the keys in an element is not significant. That is, all these expre
 A native number or an object with the following key
 * `num`: &langle;native-number&rangle; or &langle;native-string&rangle;
 
-**Note:** When only the `num` key is present a shortcut may be used by replacing the element with the number. That is, both representations are equivalent:
+**Note:** When only the `num` key is present a shortcut may be used by 
+replacing the element with the number. That is, both representations are equivalent:
 ```JSON
    {"lhs":{"num":1}, "op":"+", "rhs":{"num":2}}
    {"lhs":1, "op":"+", "rhs":2}
@@ -130,8 +171,8 @@ The following values are recommended:
  Vector             | &#9676;&#x20d7; | U+20d7    |
  Bar                | &#9676;&#x00af; | U+00af    | Mean, complex conjugate, set complement.
  Hat                | &#9676;&#x005e; | U+005e    | Unit vector, estimator
- Dot                | &#9676;&#x02d9; | U+02d9 | Derivative with respect to time
- Double dot         | &#9676;&#x00a8; | U+00a8 | Second derivative with respect to time.
+ Dot                | &#9676;&#x02d9; | U+02d9    | Derivative with respect to time
+ Double dot         | &#9676;&#x00a8; | U+00a8    | Second derivative with respect to time.
  Acute              | &#9676;&#x00b4; | U+00b4 | 
  Grave              | &#9676;&#x0060; | U+0060 | 
  Tilde              | &#9676;&#x007e; | U+007e | 
@@ -160,6 +201,8 @@ When using common functions, the following values are recommended:
  Co-tangent (cot, ctg, cotg, ctn) | `cotangent`
  Hyperbolic tangent (th, tan) | `tanh`
 
+Note that for inverse functions, no assumptions is made about the branch 
+cuts of those functions. The interpretation is left up to the consuming software.
 
 
 ### &langle;operator&rangle;

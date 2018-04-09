@@ -1,9 +1,9 @@
 @import "__fonts.less";
 
-@monospace: 'VT323', 'Glass TTY VT220', 'PR Number 3', 'vt220-mod', 'Roboto Mono', 'Source Code Pro', Menlo, "Bitstream Vera Sans Mono", 
-    "DejaVu Sans Mono", Monaco, Consolas, Courier, monospace;
+@monospace: 'Source Code Pro', Consolas, 'Roboto Mono', Menlo, 'Bitstream Vera Sans Mono',
+    'DejaVu Sans Mono', Monaco, Courier, monospace;
 @system: -apple-system, BlinkMacSystemFont, Roboto, Oxygen-Sans, Ubuntu, Cantarell,
-    "Droid Sans", "Helvetica Neue", sans-serif;
+    'Droid Sans', 'Helvetica Neue', sans-serif;
 @math_main: KaTeX_Main;
 @math_math: KaTeX_Math;
 
@@ -117,11 +117,9 @@
 
     .reset-scriptscriptstyle.textstyle { font-size: 2em; }
     .reset-scriptscriptstyle.scriptstyle { font-size: 1.4em; }
-
     .style-wrap {
         position: relative;
     }
-
     .vlist {
         display: inline-flex;
         flex-flow: column;
@@ -137,7 +135,7 @@
         }
     }
 
-    .msupsub {
+    .msubsup {
         text-align: left;
     }
 
@@ -325,27 +323,25 @@
 
         .sqrt-line {
             width: 100%;
-            margin-bottom: 1px;
 
             &:before {
                 border-bottom-style: solid;
-                border-bottom-width: 1px; 
-                min-height: 1px;    /* There's a bug since Chrome 62 where 
+                border-bottom-width: .04em; 
+                min-height: 0.5px;    /* There's a bug since Chrome 62 where 
                 sub-pixel border lines don't draw at some zoom 
                 levels (110%, 90%). Setting the min-height seems to work around it.
                 */
-                content: "";
+                content: " ";
                 display: block;
                 margin-top: -0.1em;
             }
 
-            // &:after {
-            //     border-bottom-style: dash;
-            //     border-bottom-width: 0.04em;
-            //     content: "";
-            //     display: block;
-            //     margin-top: -0.1em;
-            // }
+            &:after {
+                border-bottom-width: 1px;
+                content: " ";
+                display: block;
+                margin-top: -0.1em;
+            }
         }
 
         > .root {
@@ -478,8 +474,8 @@
         // Highlight color defined in https://www.w3.org/TR/REC-CSS2/ui.html
         background: Highlight !important;
         background: #b4d5fe !important;
-        color: HighlightText;
-        border-color: HighlightText;
+        // color: HighlightText;
+        // border-color: HighlightText;
     }
 
     &.ML__blurred .ML__selected {
@@ -492,8 +488,7 @@
 
 .ML__command {
     font-family: @monospace;
-    font-size: 20px;
-    letter-spacing: -.05em;
+    letter-spacing: -.1em;
     font-weight: 400;
 
     color: @primary;
@@ -681,6 +676,11 @@
     div.alternate-keys {
         visibility: hidden;
         max-width: 286px;
+        @media only screen and (max-height : 412px)  {  // 412 is the height of the Google Pixel in landscape mode
+            max-width: 320px;
+        }
+
+
         background-color: white;
         text-align: center;
         border-radius: 6px;
@@ -717,6 +717,12 @@
                 
                 height: 70px;
                 width: 70px;
+
+                @media only screen and (max-height : 412px)  {
+                    font-size: 24px;
+                    height: 50px;
+                    width: 50px;
+                }
                 box-sizing: border-box;
                 margin: 0;
                 background: transparent;
@@ -733,6 +739,15 @@
                 }
                 &.small {
                     font-size: 18px;
+                }
+                &.small-button {
+                    width: 42px;
+                    height: 42px;
+                    margin: 2px;
+                    background: #fbfbfb;
+                    &:hover {
+                        background: #e5e5e5;
+                    }
                 }
                 &.box > div, &.box > span {
                     border: 1px dashed rgba(0, 0, 0, .24);
@@ -859,89 +874,7 @@
             }
         }
     }
-    // div.functions-list {
-    //     border: 0;
-    //     border-collapse: separate;
-    //     clear: both;
-    //     margin: 0;
-    //     padding: 0;
-    //     display: flex;
-    //     flex-flow: row;
-    //     align-items: flex-start;
-    //     max-height: 220px;
-    //     width: 100vw;
-    //     @media only screen and (max-width : 767px) {
-    //         max-height: 172px;
-    //     }
 
-    //     display: flex;
-    //     justify-content: center;
-    //     // flex-flow: row wrap;
-    //     // align-content: flex-start;
-    //     // max-height: 100%;
-    //     // width: 150px;
-    //     overflow-x: scroll;
-
-    //     section {
-    //         padding-right: 24px;
-
-    //         // flex: 1;
-    //         h3 {
-    //             padding: 0;
-    //             margin: 0;
-    //             font-family: @system;
-    //             font-size: 16px;
-    //             color: #000;
-    //             border: 1px solid red;
-    //         }
-    //         div.functions_section_content {
-    //             display: flex;
-    //             flex-flow: column;
-    //             ul {
-    //                 margin: 0;
-    //                 padding: 0;
-    //                 list-style: none;
-    //                 display: flex;
-    //                 flex-flow: column wrap;
-    //                 max-height: 220px;
-    //                 li {
-    //                     display: flex;
-    //                     justify-content: center;
-    //                     flex-flow: column;
-    //                     height: 40px;
-    //                     box-sizing: border-box;
-    //                     width: 33px;        // 25%;
-    //                     min-width: 70px;
-    //                     padding: 8px 0;
-    //                     margin-right: 4px;
-    //                     margin-bottom: 4px;
-    //                     vertical-align: top;
-    //                     text-align: center;
-    //                     float: left;
-
-    //                     color: #000;
-    //                     font-size: 20px;
-    //                     background: white;
-    //                     border: 1px solid #e5e6e9;
-    //                     border-bottom-color: #8d8f92;
-    //                     border-radius: 5px;
-    //                     pointer-events: all;
-
-    //                     // // Waves effect
-    //                     // display: inline-block;
-    //                     position: relative;
-    //                     overflow: hidden;
-    //                     user-select: none;
-    //                     -webkit-tap-highlight-color: transparent;
-    //                     // vertical-align: middle;
-    //                     z-index: 1;
-    //                     transition: .14s cubic-bezier(.4, 0, .2, 1);
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    // }
     /* Keyboard layouts are made or rows of keys... */
     div.rows {
         border: 0;
@@ -1056,7 +989,7 @@
                 }
 
                 &.tex-math {font-size: 25px;}
-                &.tt {font-size: 30px;}
+                // &.tt {font-size: 30px;}
                 &:hover, &.pressed {
                     // box-shadow: inset 0 0 1px 1px #8d8f92;
                     background: #e5e5e5;
@@ -1358,20 +1291,10 @@ div#ML__keyboard.material  {
 }
 
 .ML__placeholder {
-    padding-left: .12em;
-    padding-right: .12em;
-
-    &.ML__caret {
-        border: none;
-        border-radius: 0;
-        border-right: 2px solid @primary;
-        margin-right: -2px;
-        z-index: 1;
-        animation: blink 1.05s step-end forwards infinite;
-
-        padding-left: 0;
-        padding-right: 0;
-    }
+    padding-left: 1ex;
+    padding-right: 1ex;
+    font-size: 75%;
+    opacity: .7;
 }
 
 

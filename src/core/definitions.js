@@ -47,7 +47,7 @@
  * This module contains the definitions of all the symbols and commands, for 
  * example `\alpha`, `\sin`, `\mathrm`.
  * There are a few exceptions with some "built-in" commands that require
- * speach parsing such as `\char`.
+ * special parsing such as `\char`.
  * @module definitions
  * @private
  */
@@ -72,10 +72,43 @@ const FUNCTIONS = {};
 const ENVIRONMENTS = {};
 
 const MACROS = {
-    'iff':    '\\;\u27fa\\;',         //>2,000 Note: additional spaces around the arrows
-// @todo definemacro?
-    'nicefrac': '^{#0}\\!\\!/\\!_{#1}'
+    'iff':      '\\;\u27fa\\;',         //>2,000 Note: additional spaces around the arrows
+    'nicefrac': '^{#1}\\!\\!/\\!_{#2}',
+
+    // From bracket.sty, Diract notation
+    'bra':      '\\mathinner{\\langle{#1}|}',
+    'ket':      '\\mathinner{|{#1}\\rangle}',
+    'braket':   '\\mathinner{\\langle{#1}\\rangle}',
+    'set':      '\\mathinner{\\lbrace #1 \\rbrace}',
+    'Bra':      '\\left\\langle #1\\right|',
+    'Ket':      '\\left|#1\\right\\rangle',
+    'Braket':   '\\left\\langle{#1}\\right\\rangle',
+    'Set':      '\\left\\lbrace #1 \\right\\rbrace',
+
 };
+
+
+const RIGHT_DELIM = {
+    '(':        ')',
+    '{':        '}',
+    '[':        ']',
+    '|':        '|',
+    '\\lbrace': '\\rbrace',
+    '\\{':      '\\}',
+    '\\langle': '\\rangle',
+    '\\lfloor': '\\rfloor',
+    '\\lceil':  '\\rceil',
+    '\\vert':   '\\vert',
+    '\\lvert':  '\\rvert',
+    '\\Vert':   '\\Vert',
+    '\\lVert':  '\\rVert',
+    '\\lbrack': '\\rbrack',
+    '\\ulcorner':   '\\urcorner',
+    '\\llcorner':   '\\lrcorner',
+    '\\lgroup': '\\rgroup',
+    '\\lmoustache': '\\rmoustache'
+}
+
 
 // Frequency of a symbol.
 // String constants corresponding to frequency values, 
@@ -153,7 +186,9 @@ function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
     
     console.assert(fontFamily === 'main' || fontFamily === 'ams' ||
         fontFamily === 'mathrm' || fontFamily === 'mathbb' || 
-        fontFamily === 'mathscr' || Array.isArray(fontFamily),
+        fontFamily === 'mathfrak' || fontFamily === 'mathcal' || 
+        fontFamily === 'mathscr' || 
+        Array.isArray(fontFamily),
         "Unknown font family " + fontFamily + " for " + latexName);
 
     // Convert a frequency constant to a numerical value
@@ -165,6 +200,7 @@ function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
             category: category,         // To group items when generating the documentation
             fontFamily: fontFamily,
             type: type === ORD ? TEXTORD : type,
+            skipBoundary: true, 
             body: value,
             frequency: frequency
         };
@@ -175,6 +211,7 @@ function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
             category: category,         // To group items when generating the documentation
             fontFamily: fontFamily,
             type: type === ORD ? MATHORD : type,
+            skipBoundary: true, 
             value: value,
             frequency: frequency
         };
@@ -224,6 +261,53 @@ function defineSymbolRange(from, to, mode, fontFamily, type, frequency) {
     }
 }
 
+
+const CODEPOINT_SHORTCUTS = { 
+    0x00b7: '\\cdot',
+    0x00bc: '\\frac{1}{4}',
+    0x00bd: '\\frac{1}{2}',
+    0x00be: '\\frac{3}{4}',
+    0x2070: '^{0}',
+    0x2071: '^{i}',
+    0x00b9: '^{1}',
+    0x00b2: '^{2}',
+    0x00b3: '^{3}',
+    0x2074: '^{4}',
+    0x2075: '^{5}',
+    0x2076: '^{6}',
+    0x2077: '^{7}',
+    0x2078: '^{8}',
+    0x2079: '^{9}',
+    0x207a: '^{+}',
+    0x207b: '^{-}',
+    0x207c: '^{=}',
+    0x207f: '^{n}',
+
+    0x2080: '_{0}',
+    0x2081: '_{1}',
+    0x2082: '_{2}',
+    0x2083: '_{3}',
+    0x2084: '_{4}',
+    0x2085: '_{5}',
+    0x2086: '_{6}',
+    0x2087: '_{7}',
+    0x2088: '_{8}',
+    0x2089: '_{9}',
+    0x208A: '_{+}',
+    0x208B: '_{-}',
+    0x208C: '_{=}',
+    0x2090: '_{a}',
+    0x2091: '_{e}',
+    0x2092: '_{o}',
+    0x2093: '_{x}',
+
+    0x2102: '\\C',
+    0x2115: '\\N',
+    0x2119: '\\P',
+    0x211A: '\\Q',
+    0x211D: '\\R',
+    0x2124: '\\Z',
+    };
 /**
  * Given a character, return a LaTeX expression matching its Unicode codepoint.
  * The return string is in the ASCII range.
@@ -241,55 +325,14 @@ function matchCodepoint(s) {
     // Some symbols map to multiple codepoints. 
     // Some symbols are 'pseudosuperscript'. Convert them to a super(or sub)script.
     // Map their alternative codepoints here.
-    let result = { 
-        0x00b7: '\\cdot',
-        0x00bc: '\\frac{1}{4}',
-        0x00bd: '\\frac{1}{2}',
-        0x00be: '\\frac{3}{4}',
-        0x2070: '^{0}',
-        0x2071: '^{i}',
-        0x00b9: '^{1}',
-        0x00b2: '^{2}',
-        0x00b3: '^{3}',
-        0x2074: '^{4}',
-        0x2075: '^{5}',
-        0x2076: '^{6}',
-        0x2077: '^{7}',
-        0x2078: '^{8}',
-        0x2079: '^{9}',
-        0x207a: '^{+}',
-        0x207b: '^{-}',
-        0x207c: '^{=}',
-        0x207f: '^{n}',
-
-        0x2080: '_{0}',
-        0x2081: '_{1}',
-        0x2082: '_{2}',
-        0x2083: '_{3}',
-        0x2084: '_{4}',
-        0x2085: '_{5}',
-        0x2086: '_{6}',
-        0x2087: '_{7}',
-        0x2088: '_{8}',
-        0x2089: '_{9}',
-        0x208A: '_{+}',
-        0x208B: '_{-}',
-        0x208C: '_{=}',
-        0x2090: '_{a}',
-        0x2091: '_{e}',
-        0x2092: '_{o}',
-        0x2093: '_{x}',
-
-        0x2115: '\\N',
-        0x2124: '\\Z'
-        }[s];
+    let result = CODEPOINT_SHORTCUTS[s];
     if (result) return result;
 
     if (codepoint > 32 && codepoint < 127) return s;
 
     for (const p in MATH_SYMBOLS) {
         if (MATH_SYMBOLS.hasOwnProperty(p)) {
-            if (MATH_SYMBOLS[p].value === s) {
+            if (MATH_SYMBOLS[p].value === s || MATH_SYMBOLS[p].body === s) {
                 result = p;
                 if (p[0] === '\\') result += ' ';
             }
@@ -307,6 +350,204 @@ function matchCodepoint(s) {
     }
     return result;
 }
+
+
+
+/**
+ * Given a Unicode character returns {char:, variant:, style} corresponding 
+ * to this codepoint. `variant` is optional and is one of 'mathbb', 
+ * 'mathfrak', 'mathcal', 'mathscr', 'mathsf' and 'mathtt'
+ * This maps characters such as "blackboard uppercase C" to 
+ * {char: 'C', variant: 'mathbb', style:}
+ * @param {string} char 
+ */
+
+/* Some symbols in the MATHEMATICAL ALPHANUMERICAL SYMBOLS blocked had 
+   been previously defined in other blocks. Remap them */
+const MATH_LETTER_EXCEPTIONS = {
+    0x1d455: 0x0210e,
+    0x1D49D: 0x0212C,
+    0x1D4A0: 0x02130,
+    0x1D4A1: 0x02131,
+    0x1D4A3: 0x0210B,
+    0x1D4A4: 0x02110,
+    0x1D4A7: 0x02112,
+    0x1D4A8: 0x02133,
+    0x1D4AD: 0x0211B,
+    0x1D4BA: 0x0212F,
+    0x1D4BC: 0x0210A,
+    0x1D4C4: 0x02134,
+    0x1D506: 0x0212D,
+    0x1D50B: 0x0210C,
+    0x1D50C: 0x02111,
+    0x1D515: 0x0211C,
+    0x1D51D: 0x02128,
+    0x1D53A: 0x02102,
+    0x1D53F: 0x0210D,
+    0x1D545: 0x02115,
+    0x1D547: 0x02119,
+    0x1D548: 0x0211A,
+    0x1D549: 0x0211D,
+    0x1D551: 0x02124,
+}
+
+
+const MATH_UNICODE_BLOCKS = [
+    { start: 0x1D400, len: 26, offset: 65, style: 'bold' },
+    { start: 0x1D41A, len: 26, offset: 97, style: 'bold' },
+    { start: 0x1D434, len: 26, offset: 65, style: 'italic' },
+    { start: 0x1D44E, len: 26, offset: 97, style: 'italic' },
+    { start: 0x1D468, len: 26, offset: 65, style: 'bolditalic'},
+    { start: 0x1D482, len: 26, offset: 97, style: 'bolditalic'},
+
+    { start: 0x1D49c, len: 26, offset: 65, variant: 'mathcal'},
+    { start: 0x1D4b6, len: 26, offset: 97, variant: 'mathcal'},
+    { start: 0x1D4d0, len: 26, offset: 65, variant: 'mathcal', style: 'bold'},
+    { start: 0x1D4ea, len: 26, offset: 97, variant: 'mathcal', style: 'bold'},
+
+    { start: 0x1D504, len: 26, offset: 65, variant: 'mathfrak'},
+    { start: 0x1D51e, len: 26, offset: 97, variant: 'mathfrak'},
+    { start: 0x1D56c, len: 26, offset: 65, variant: 'mathfrak', style: 'bold'},
+    { start: 0x1D586, len: 26, offset: 97, variant: 'mathfrak', style: 'bold'},
+ 
+    { start: 0x1D538, len: 26, offset: 65, variant: 'mathbb'},
+    { start: 0x1D552, len: 26, offset: 97, variant: 'mathbb'},
+
+    { start: 0x1D5A0, len: 26, offset: 65, variant: 'mathsf'},
+    { start: 0x1D5BA, len: 26, offset: 97, variant: 'mathsf'},
+    { start: 0x1D5D4, len: 26, offset: 65, variant: 'mathsf', style: 'bold'},
+    { start: 0x1D5EE, len: 26, offset: 97, variant: 'mathsf', style: 'bold'},
+    { start: 0x1D608, len: 26, offset: 65, variant: 'mathsf', style: 'italic'},
+    { start: 0x1D622, len: 26, offset: 97, variant: 'mathsf', style: 'italic'},
+    { start: 0x1D63c, len: 26, offset: 65, variant: 'mathsf', style: 'bolditalic'},
+    { start: 0x1D656, len: 26, offset: 97, variant: 'mathsf', style: 'bolditalic'},
+    
+    { start: 0x1D670, len: 26, offset: 65, variant: 'mathtt'},
+    { start: 0x1D68A, len: 26, offset: 97, variant: 'mathtt'},
+
+    { start: 0x1D6A8, len: 25, offset: 0x391, style: 'bold'},
+    { start: 0x1D6C2, len: 25, offset: 0x3B1, style: 'bold'},
+    { start: 0x1D6E2, len: 25, offset: 0x391, style: 'italic'},
+    { start: 0x1D6FC, len: 25, offset: 0x3B1, style: 'italic'},
+    { start: 0x1D71C, len: 25, offset: 0x391, style: 'bolditalic'},
+    { start: 0x1D736, len: 25, offset: 0x3B1, style: 'bolditalic'},
+    { start: 0x1D756, len: 25, offset: 0x391, variant: 'mathsf', style: 'bold'},
+    { start: 0x1D770, len: 25, offset: 0x3B1, variant: 'mathsf', style: 'bold'},
+    { start: 0x1D790, len: 25, offset: 0x391, variant: 'mathsf', style: 'bolditalic'},
+    { start: 0x1D7AA, len: 25, offset: 0x3B1, variant: 'mathsf', style: 'bolditalic'},
+
+
+    { start: 0x1D7CE, len: 10, offset: 48, variant: '', style: 'bold' },
+    { start: 0x1D7D8, len: 10, offset: 48, variant: 'mathbb' },
+    { start: 0x1D7E3, len: 10, offset: 48, variant: 'mathsf' },
+    { start: 0x1D7Ec, len: 10, offset: 48, variant: 'mathsf', style: 'bold' },
+    { start: 0x1D7F6, len: 10, offset: 48, variant: 'mathtt'},
+]
+
+
+function unicodeToMathVariant(char) {
+    let codepoint = char;
+    if (typeof char === 'string') codepoint = char.codePointAt(0);
+    if ((codepoint < 0x1d400 || codepoint > 0x1d7ff) &&
+        (codepoint < 0x2100 || codepoint > 0x214f)) {
+            return {char:char};
+    }
+
+    // Handle the 'gap' letters by converting them back into their logical range
+    for (const c in MATH_LETTER_EXCEPTIONS) {
+        if (MATH_LETTER_EXCEPTIONS.hasOwnProperty(c)) {
+            if (MATH_LETTER_EXCEPTIONS[c] === codepoint) {
+                codepoint = c;
+                break;
+            }
+        }
+    }
+
+
+    for (let i = 0; i < MATH_UNICODE_BLOCKS.length; i++) {
+        if (codepoint >= MATH_UNICODE_BLOCKS[i].start && 
+            codepoint < MATH_UNICODE_BLOCKS[i].start + MATH_UNICODE_BLOCKS[i].len) {
+                return {
+                    char: String.fromCodePoint(codepoint - MATH_UNICODE_BLOCKS[i].start + MATH_UNICODE_BLOCKS[i].offset),
+                    variant: MATH_UNICODE_BLOCKS[i].variant,
+                    style: MATH_UNICODE_BLOCKS[i].style,
+                }
+        }
+    }
+
+    return {char:char};
+}
+
+/**
+ * Given a character and variant ('mathbb', 'mathcal', etc...) 
+ * return the corresponding unicode character (a string)
+ * @param {string} char 
+ * @param {string} variant 
+ */
+function mathVariantToUnicode(char, variant, style) {
+    if (!/[A-Za-z0-9]/.test(char)) return char;
+
+    const codepoint = char.codePointAt(0);
+    
+    for (let i = 0; i < MATH_UNICODE_BLOCKS.length; i++) {
+        if (!variant || MATH_UNICODE_BLOCKS[i].variant === variant) {
+            if (!style || MATH_UNICODE_BLOCKS[i].style === style) {
+                if (codepoint >= MATH_UNICODE_BLOCKS[i].offset && 
+                    codepoint < MATH_UNICODE_BLOCKS[i].offset + MATH_UNICODE_BLOCKS[i].len) {
+                        return String.fromCodePoint(
+                                MATH_UNICODE_BLOCKS[i].start + 
+                                codepoint - MATH_UNICODE_BLOCKS[i].offset);
+                }
+            }
+        }
+    }
+
+    return char;
+}
+
+
+
+function codepointToLatex(cp) {
+    if (CODEPOINT_SHORTCUTS[cp]) return CODEPOINT_SHORTCUTS[cp];
+
+    let result;
+    // const s = String.fromCodePoint(cp);
+    // for (const p in MATH_SYMBOLS) {
+    //     if (MATH_SYMBOLS.hasOwnProperty(p)) {
+    //         if (MATH_SYMBOLS[p].value === s || MATH_SYMBOLS[p].body === s) {
+    //             result = p;
+    //             if (p[0] === '\\') result += ' ';
+    //             return result;
+    //         }
+    //     }
+    // }
+
+    const v = unicodeToMathVariant(cp);
+    if (!v.style && !v.variant) return String.fromCodePoint(cp);
+    result =  v.char;
+    if (v.variant) {
+        result = '\\' + v.variant + '{' + result + '}';
+    }
+    if (v.style === 'bold') {
+        result = '\\mathbf{' + result + '}';
+    } else if (v.style === 'italic') {
+        result = '\\mathit{' + result + '}';
+    } else if (v.style === 'bolditalic') {
+        result = '\\mathbf{\\mathit{' + result + '}}';
+    }
+    return '\\mathord{' + result + '}';
+}
+
+
+
+function unicodeStringToLatex(s) {
+    let result = '';
+    for (const cp of s) {
+        result += codepointToLatex(cp.codePointAt(0));
+    }
+    return result;
+}
+
 
 
 /**
@@ -402,11 +643,12 @@ function getEnvironmentInfo(name) {
 /**
  * @param {string} symbol    A command (e.g. '\alpha') or a character (e.g. 'a')
  * @param {string} parseMode One of 'math', 'text', 'string', 'color', 'dimen', etc...
+ * @param {object} macros A macros dictionary
  * @return {any} An info structure about the symbol, or null
  * @memberof module:definitions
  * @private
  */
-function getInfo(symbol, parseMode) {
+function getInfo(symbol, parseMode, macros) {
     if (symbol.length === 0) return null;
 
     let info = null;
@@ -430,6 +672,43 @@ function getInfo(symbol, parseMode) {
         }
 
         if (!info) {
+            // Maybe it's a macro
+            const command = symbol.slice(1);
+            if (macros[command]) {
+                let def = macros[command];
+                if (typeof def === 'object') {
+                    def = def.def;
+                }
+                let argCount = 0;
+                // Let's see if there are arguments in the definition.
+                if (/(^|[^\\])#1/.test(def)) argCount = 1;
+                if (/(^|[^\\])#2/.test(def)) argCount = 2;
+                if (/(^|[^\\])#3/.test(def)) argCount = 3;
+                if (/(^|[^\\])#4/.test(def)) argCount = 4;
+                if (/(^|[^\\])#5/.test(def)) argCount = 5;
+                if (/(^|[^\\])#6/.test(def)) argCount = 6;
+                if (/(^|[^\\])#7/.test(def)) argCount = 7;
+                if (/(^|[^\\])#8/.test(def)) argCount = 8;
+                if (/(^|[^\\])#9/.test(def)) argCount = 9;
+                info = {
+                    type: 'group',
+                    allowedInText: false,
+                    params: [],
+                    infix: false
+                }
+                while (argCount >= 1) {
+                    info.params.push({
+                        optional: false,
+                        type: 'math',
+                        defaultValue: null,
+                        placeholder: null
+                    });
+                    argCount -= 1;
+                }
+            }
+        }
+
+        if (!info) {
             // No luck so far, return some error info...
             info = { 
                     type: 'error',
@@ -445,6 +724,11 @@ function getInfo(symbol, parseMode) {
         if (parseMode === 'text') a = TEXT_SYMBOLS;
 
         info = a[symbol];
+    }
+
+    // Special case `f` and `g` to be recognized as functions.
+    if (info && info.type === 'mord' && (info.value === 'f' || info.value === 'g')) {
+        info.isFunction = true;
     }
 
     return info;
@@ -496,13 +780,15 @@ const TEXT = '[text]';
 const COMMAND = '[command]';
 
 // Fonts
-const MAIN = 'main';
-const AMS = 'ams';
+const MAIN = 'main';        // The "main" KaTeX font (in fact one of several
+                            // depending on the math variant, size, etc...)
+const AMS = 'ams';          // Some symbols are not in the "main" KaTeX font
+                            // or have a different glyph available in the "AMS"
+                            // font (`\hbar` and `\hslash` for example).
 
 // Type
 const ORD = '[ord]';    // Either MATHORD or TEXTORD, depending on the mode
 const MATHORD = 'mord'; // Ordinary, e.g. '/'
-// const OP = 'mop';       // Big operator e.g. '\sum'
 const BIN = 'mbin';     // e.g. '+'
 const REL = 'mrel';     // e.g. '='
 const OPEN = 'mopen';   // e.g. '('
@@ -647,7 +933,6 @@ function defineEnvironment(names, params, options, parser) {
  * '[index=2]{indicand}' defines two params, one optional, one required
  
  * @param {Object} options   
- * - greediness
  * - infix
  * - allowedInText
  * @param {function} handler 
@@ -676,7 +961,6 @@ function defineFunction(names, params, options, handler) {
         // {optional, type, defaultValue, placeholder}
         params: parsedParams,
 
-        greediness: options.greediness || 1,
         allowedInText: !!options.allowedInText,
         infix: !!options.infix,
         handler: handler
@@ -1070,6 +1354,7 @@ defineFunction([
         type: 'mop',
         limits: 'nolimits',
         symbol: false,
+        isFunction: true,
         body: name.slice(1),
         fontFamily: 'mainrm'
     };
@@ -1101,6 +1386,7 @@ defineFunction([
         type: 'mop',
         limits: 'nolimits',
         symbol: false,
+        isFunction: true,
         body: name.slice(1),
         fontFamily: 'mainrm'
     };
@@ -1112,12 +1398,23 @@ frequency(COMMON, '\\dim');
 frequency(COMMON, '\\ker', '\\deg');     // >2,000
 
 
-defineFunction(['\\lim', '\\det', '\\mod', '\\max', '\\min'], 
+defineFunction(['\\lim', '\\mod'], 
     '', {fontFamily:'mainrm'}, function(name) {
     return {
         type: 'mop',
         limits: 'limits',
         symbol: false,
+        body: name.slice(1),
+        fontFamily: 'mainrm'
+    };
+})
+defineFunction(['\\det', '\\max', '\\min'], 
+    '', {fontFamily:'mainrm'}, function(name) {
+    return {
+        type: 'mop',
+        limits: 'limits',
+        symbol: false,
+        isFunction: true,
         body: name.slice(1),
         fontFamily: 'mainrm'
     };
@@ -1155,6 +1452,7 @@ defineFunction('\\textcolor', '{:color}{content:auto}', null,
         return { 
             type: 'color',
             textcolor: args[0],
+            skipBoundary: true,
             body: args[1]
         };
     }
@@ -1164,22 +1462,26 @@ defineFunction('\\textcolor', '{:color}{content:auto}', null,
 
 // An overline
 defineFunction('\\overline', '{:auto}', null, function(name, args) {
-    return { type: 'line', position: 'overline', body: args[0], };
+    return { 
+        type: 'line', 
+        position: 'overline', 
+        skipBoundary: true,
+        body: args[0], };
 });
     frequency(COMMON, '\\overline');   // > 2,000
 
 defineFunction('\\underline', '{:auto}', null, function(name, args) {
-    return { type: 'line', position: 'underline', body: args[0], };
+    return { type: 'line', position: 'underline', skipBoundary: true, body: args[0], };
 });
     frequency(COMMON, '\\underline');   // > 2,000
 
 defineFunction('\\overset', '{annotation:auto}{symbol:auto}', null, function(name, args) {
-    return { type: 'overunder', overscript: args[0], body: args[1]};
+    return { type: 'overunder', overscript: args[0], skipBoundary: true, body: args[1]};
 });
     frequency(COMMON, '\\overset');   // > 2,000
 
 defineFunction('\\underset', '{annotation:auto}{symbol:auto}', null, function(name, args) {
-    return { type: 'overunder', underscript: args[0], body: args[1]};
+    return { type: 'overunder', underscript: args[0], skipBoundary: true, body: args[1]};
 });
     frequency(COMMON, '\\underset');   // > 2,000
 
@@ -1188,6 +1490,7 @@ defineFunction(['\\stackrel', '\\stackbin'], '{annotation:auto}{symbol:auto}', n
     return { 
         type: 'overunder', 
         overscript: args[0], 
+        skipBoundary: true, 
         body: args[1],
         mathtype: name === '\\stackrel' ? 'mrel' : 'mbin',
     };
@@ -1198,22 +1501,22 @@ defineFunction(['\\stackrel', '\\stackbin'], '{annotation:auto}{symbol:auto}', n
 
 
 defineFunction('\\rlap', '{:text}', null, function(name, args) {
-    return { type: 'overlap', align: 'right', body: args[0], };
+    return { type: 'overlap', align: 'right', skipBoundary: true, body: args[0], };
 });
     frequency(270, '\\rlap');
 
 defineFunction('\\llap', '{:text}', null, function(name, args) {
-    return { type: 'overlap', align: 'left', body: args[0], };
+    return { type: 'overlap', align: 'left', skipBoundary: true, body: args[0], };
 });
     frequency(18, '\\llap');
 
 defineFunction('\\mathrlap', '{:auto}', null, function(name, args) {
-    return { type: 'overlap', align: 'right', body: args[0], };
+    return { type: 'overlap', align: 'right', skipBoundary: true, body: args[0], };
 });
     frequency(CRYPTIC, '\\mathrlap');
 
 defineFunction('\\mathllap', '{:auto}', null, function(name, args) {
-    return { type: 'overlap', align: 'left', body: args[0], };
+    return { type: 'overlap', align: 'left', skipBoundary: true, body: args[0], };
 });
     frequency(CRYPTIC, '\\mathllap');
 
@@ -1232,6 +1535,7 @@ defineFunction('\\boxed', '{content:math}', null,
         return { 
             type: 'box',
             framecolor: 'black',
+            skipBoundary: true,
             body: args[0]
         }
     }
@@ -1243,6 +1547,7 @@ defineFunction('\\colorbox', '{background-color:color}{content:auto}', null,
         return { 
             type: 'box',
             backgroundcolor: args[0],
+            skipBoundary: true,
             body: args[1]
         }
     }
@@ -1257,6 +1562,7 @@ defineFunction('\\fcolorbox', '{frame-color:color}{background-color:color}{conte
             type: 'box',
             framecolor: args[0],
             backgroundcolor: args[1],
+            skipBoundary: true,
             body: args[2]
         }
     }
@@ -1280,11 +1586,13 @@ defineFunction('\\bbox', '[:bbox]{body:auto}', null,
                 padding: args[0].padding,
                 border: args[0].border,
                 backgroundcolor: args[0].backgroundcolor,
+                skipBoundary: true,
                 body: args[1]
             }
         }
         return { 
             type: 'box',
+            skipBoundary: true,
             body: args[1]
         }
     }
@@ -1468,14 +1776,16 @@ defineFunction([
 
     // aliases
     '\\Bbb', '\\bold', '\\frak', '\\boldsymbol', '\\bm'
-    ], '{text:math}', {greediness: 2}, function(funcName, args) {
+    ], '{text:math}', {}, function(funcName, args) {
     if (funcName in FONT_ALIASES) {
         funcName = FONT_ALIASES[funcName];
     }
     return {
         type: 'font',
         font: funcName.slice(1),
-        body: args[0]
+        skipBoundary: true,
+        body: args[0],
+        captureSelection: true
     };
 });
     frequency(SUPERCOMMON, '\\mathbb');
@@ -1492,9 +1802,10 @@ defineFunction([
 
 
 // Rough synomym for \text{}
-defineFunction(['\\mbox'], '{text:text}', {greediness: 2, allowedInText: true}, function(name, args) {
+defineFunction(['\\mbox'], '{text:text}', {allowedInText: true}, function(name, args) {
     return {
         type: 'font',
+        skipBoundary: true, 
         body: args[0],
         font: 'mathrm'
     };
@@ -1507,9 +1818,10 @@ defineFunction([
 
     // toggle
     '\\emph', '\\em',
-], '{text:text}', {greediness: 2, allowedInText: true}, function(name, args) {
+], '{text:text}', {allowedInText: true}, function(name, args) {
     return {
         type: 'font',
+        skipBoundary: true,
         body: args[0],
         font: { '\\text': null, '\\textrm': 'mathrm', '\\textup': 'mathrm', 
                 '\\textnormal': 'mathrm', 
@@ -1548,7 +1860,7 @@ defineFunction([
     '\\frac', '\\dfrac', '\\tfrac',
     '\\cfrac',
     '\\binom', '\\dbinom', '\\tbinom'
-], '{numerator}{denominator}', {greediness: 2}, function(name, args) {
+], '{numerator}{denominator}', {}, function(name, args) {
     const result = { 
         type: 'genfrac',
         numer: args[0],
@@ -1624,7 +1936,7 @@ defineFunction([
     '\\over' /* 21 */ , 
     '\\atop' /* 12 */, 
     '\\choose' /* 1968 */    
-], '', {greediness: 2, infix: true}, 
+], '', {infix: true}, 
         function(name, args) {
     const numer = args[0];
     const denom = args[1];
@@ -1664,7 +1976,7 @@ defineFunction([
     '\\overwithdelims' /* 21 */ , 
     '\\atopwithdelims' /* COMMON */, 
     
-], '{left-delim:delim}{right-delim:delim}', {greediness: 2, infix: true}, 
+], '{left-delim:delim}{right-delim:delim}', {infix: true}, 
         function(name, args) {
     return {
         type: 'genfrac',
@@ -1690,7 +2002,7 @@ defineFunction('\\slashed'
 */
 
 category = 'Fractions';
-defineFunction(['\\pdiff'], '{numerator}{denominator}' , {greediness: 2}, function(funcname, args) {
+defineFunction(['\\pdiff'], '{numerator}{denominator}' , {}, function(funcname, args) {
     return {
         type: 'genfrac',
         numer: args[0],
@@ -1752,7 +2064,10 @@ defineFunction([
 });
 
 // No limits, symbols
-defineFunction(['\\int', '\\iint', '\\iiint', '\\oint'], '', {}, function(name) {
+defineFunction(['\\int', '\\iint', '\\iiint', '\\oint', '\\oiint', 
+    '\\oiiint', '\\intclockwise', '\\varointclockwise', 
+    '\\ointctrclockwise', '\\intctrclockwise'
+], '', {}, function(name) {
     return {
         type: 'mop',
         limits: 'nolimits',
@@ -1762,6 +2077,12 @@ defineFunction(['\\int', '\\iint', '\\iiint', '\\oint'], '', {}, function(name) 
             'iint': '\u222c', 
             'iiint': '\u222d', 
             'oint': '\u222e', 
+            'oiint': '\u222f', 
+            'oiiint': '\u2230', 
+            'intclockwise': '\u2231',
+            'varointclockwise': '\u2232',
+            'ointctrclockwise': '\u2233',
+            'intctrclockwise': '\u2a11',
             }[name.slice(1)],
     };
 });
@@ -1873,10 +2194,10 @@ defineSymbol( '\\scriptCapitalE', MATH,  'mathscr',  MATHORD, 'E');    // NOTE: 
 defineSymbol( '\\scriptCapitalH', MATH,  'mathscr',  MATHORD, 'H');    // NOTE: Not TeX?
 defineSymbol( '\\scriptCapitalL', MATH,  'mathscr',  MATHORD, 'L');    // NOTE: Not TeX?
 
-defineSymbol( '\\gothicCapitalC', MATH,  'main',  MATHORD, '\u212D');    // NOTE: Not TeX?
-defineSymbol( '\\gothicCapitalH', MATH,  'main',  MATHORD, '\u210c');    // NOTE: Not TeX?
-defineSymbol( '\\gothicCapitalI', MATH,  'main',  MATHORD, '\u2111');    // NOTE: Not TeX?
-defineSymbol( '\\gothicCapitalR', MATH,  'main',  MATHORD, '\u211C');    // NOTE: Not TeX?
+defineSymbol( '\\gothicCapitalC', MATH,  'mathfrak',  MATHORD, 'C');    // NOTE: Not TeX?
+defineSymbol( '\\gothicCapitalH', MATH,  'mathfrak',  MATHORD, 'H');    // NOTE: Not TeX?
+defineSymbol( '\\gothicCapitalI', MATH,  'mathfrak',  MATHORD, 'I');    // NOTE: Not TeX?
+defineSymbol( '\\gothicCapitalR', MATH,  'mathfrak',  MATHORD, 'R');    // NOTE: Not TeX?
 
 
 defineSymbol( '\\pounds', MATH,  MAIN,  MATHORD, '\u00a3', 509);
@@ -2188,6 +2509,9 @@ defineSymbol( '\\geq', MATH,  MAIN,  REL, '\u2265', COMMON);     // >2,000
 defineSymbol( '\\ll', MATH,  MAIN,  REL, '\u226a');
 defineSymbol( '\\gg', MATH,  MAIN,  REL, '\u226b', COMMON);   // >2,000
 defineSymbol( '\\coloneq', MATH,  MAIN,  REL, '\u2254', 5);
+defineSymbol( '\\measeq', MATH,  MAIN,  REL, '\u225D');     // MEASSURED BY
+defineSymbol( '\\eqdef', MATH,  MAIN,  REL, '\u225E');
+defineSymbol( '\\questeq', MATH,  MAIN,  REL, '\u225F');    // QUESTIONED EQUAL TO
 
 
 defineSymbol( ':', MATH,  MAIN,  REL, ':');
@@ -2451,7 +2775,7 @@ defineSymbol( '\\!', MATH,  MAIN,  SPACING, null);
 defineSymbol( '\\,', MATH, MAIN,  SPACING,  null);
 defineSymbol( '\\:', MATH,  MAIN,  SPACING, null);
 defineSymbol( '\\;', MATH,  MAIN,  SPACING, null);
-// defineSymbol( '\\enspace', MATH,  MAIN,  SPACING, null, 672);
+defineSymbol( '\\enskip', MATH,  MAIN,  SPACING, null);
 // \enspace is a TeX command (not LaTeX) equivalent to a \skip
 defineSymbol( '\\enspace', MATH,  MAIN,  SPACING, null, 672);
 defineSymbol( '\\quad', MATH,  MAIN,  SPACING, null, COMMON);    // >2,000
@@ -2503,10 +2827,12 @@ defineFunction([
             '\\mathinner': 'minner'
         }[name],
         body: getSimpleString(args[0]) || args[0],
-        fontFamily: 'mainrm'        
+        captureSelection: true,     // Do not let children be selected
+
     };
     if (name === '\\mathop') {
         result.limits = 'nolimits';
+        result.isFunction = true;
     }
     return result;
 })
@@ -2514,7 +2840,12 @@ defineFunction([
 defineFunction([
     '\\operatorname', '\\operatorname*'
 ], '{operator:string}', null, function(name, args) {
-    const result = { type: 'mop', body: args[0] };
+    const result = { 
+        type: 'mop', 
+        skipBoundary: true, 
+        body: args[0],
+        isFunction: true
+    };
 
     if (name === '\\operatorname') {
         result.limits = 'nolimits'
@@ -2539,14 +2870,14 @@ defineSymbol( '\\ldots', TEXT,  MAIN,  INNER, '\u2026', COMMON);    // >2,000
 defineSymbol( '\\ldots', MATH,  MAIN,  INNER, '\u2026', COMMON);    // >2,000
 defineSymbol( '\\cdots', MATH,  MAIN,  INNER, '\u22ef', COMMON);    // >2,000
 defineSymbol( '\\ddots', MATH,  MAIN,  INNER, '\u22f1', COMMON);    // >2,000
+defineSymbol( '\\mathellipsis', MATH,  MAIN,  INNER, '\u2026', 91);
+defineSymbol( '\\textellipsis', TEXT,  MAIN,  INNER, '\u2026', 12);
 defineSymbol( '\\vdots', MATH,  MAIN,  TEXTORD, '\u22ee', COMMON);    // >2,000
 defineSymbol( '\\ldotp', MATH,  MAIN,  PUNCT, '\u002e', 18);
 defineSymbol( ',', MATH, MAIN, PUNCT,  ',');
 defineSymbol( ';', MATH,  MAIN,  PUNCT, ';');
 defineSymbol( '--', TEXT,  MAIN,  TEXTORD, '\u2013');
 defineSymbol( '---', TEXT,  MAIN,  TEXTORD, '\u2014');
-defineSymbol( '\\mathellipsis', MATH,  MAIN,  INNER, '\u2026', 91);
-defineSymbol( '\\textellipsis', TEXT,  MAIN,  INNER, '\u2026', 12);
 
 
 category = 'Logical Operators';
@@ -2673,6 +3004,7 @@ defineFunction([
                             // supsub attachment and will delegate
                             // it to the decomposeAccent 
                             // (any non-null value would do)
+        skipBoundary: true, 
         body: args[0],
     };
 });
@@ -2749,321 +3081,28 @@ defineSymbol('\\AA', TEXT + MATH, MAIN, TEXTORD, '\u00c5');    // LATIN CAPITAL 
 
 
 
-
-
-const CANONICAL_NAMES = {
-    // CONSTANTS
-    '\\imaginaryI': '\u2148',
-    '\\imaginaryJ': '\u2149',
-    '\\pi':         'π',
-    '\\exponentialE':          '\u212f',
-
-    // ARITHMETIC
-    '﹢':        '+',        // SMALL PLUS SIGN
-    '＋':        '+',        // FULL WIDTH PLUS SIGN
-    '−':        '-',        // MINUS SIGN
-    '-':        '-',        // HYPHEN-MINUS
-    '﹣':        '-',        // SMALL HYPHEN-MINUS
-    '－':        '-',        // FULLWIDTH HYPHEN-MINUS
-    '\\times':  '*',
-    '⨉':        '*',        // N-ARY TIMES OPERATOR U+
-    '️✖':        '*',        // MULTIPLICATION SYMBOL
-    '️×':        '*',        // MULTIPLICATION SIGN
-    '.':        '*',
-    '÷':        '/',        // DIVISION SIGN
-    // '/':        '/',        // SOLIDUS
-    '⁄':        '/',        // FRACTION SLASH
-    '／':        '/',        // FULLWIDTH SOLIDUS
-    '!':        'factorial',
-    '️\\pm':     'plusminus',        // PLUS-MINUS SIGN
-    '\\mp':     'minusplus',         // MINUS-PLUS SIGN
-
-    '\\land':   'and',
-    '\\wedge':  'and',
-    '\\lor':    'or',
-    '\\vee':    'or',
-    '\\oplus':  'xor',
-    '\\veebar': 'xor',
-    '\\lnot':   'not',
-    '\\neg':    'not',
-
-    '\\nabla':  'nabla',
-    '\\circ':   'circle',
-    // '\\oplus':  'oplus',
-    '\\ominus': 'ominus',
-    '\\odot':   'odot',
-    '\\otimes': 'otimes',
-
-    '\\zeta':   'Zeta',
-    '\\Gamma':  'Gamma',
-    '\\min':    'min',
-    '\\max':    'max',
-    '\\mod':    'mod',
-    '\\lim':    'lim',  // BIG OP
-    '\\sum':    'sum',
-    '\\prod':   'prod',
-    '\\int':    'integral',
-    '\\iint':   'integral2',
-    '\\iiint':  'integral3',
-
-    '\\Re': 'Re',
-    '\\Im': 'Im',
-
-    '\\binom':  'binom',
-
-    '\\partial': 'partial',
-    '\\differentialD': 'differentialD',
-    '\\capitalDifferentialD': 'capitalDifferentialD',
-    '\\Finv':   'Finv',
-    '\\Game':   'Game',
-    '\\wp':     'wp',
-    '\\ast':    'ast',
-    '\\star':   'star',
-    '\\asymp':  'asymp'
-}
-
-const FUNCTION_TEMPLATE = {
-    // TRIGONOMETRY
-    'sin':      '\\sin%_%^ %',
-    'cos':      '\\cos%_%^ %',
-    'tan':      '\\tan%_%^ %',
-    'cot':      '\\cot%_%^ %',
-    'sec':      '\\sec%_%^ %',
-    'csc':      '\\csc%_%^ %',
-
-    'sinh':     '\\sinh %',
-    'cosh':     '\\cosh %',
-    'tanh':     '\\tanh %',
-    'csch':     '\\csch %',
-    'sech':     '\\sech %',
-    'coth':     '\\coth %',
-
-    'arcsin':      '\\arcsin %',
-    'arccos':      '\\arccos %',
-    'arctan':      '\\arctan %',
-    'arccot':      '\\arcctg %',        // Check
-    'arcsec':      '\\arcsec %',
-    'arccsc':      '\\arccsc %',
-
-    'arsinh':     '\\arsinh %',
-    'arcosh':     '\\arcosh %',
-    'artanh':     '\\artanh %',
-    'arcsch':     '\\arcsch %',
-    'arsech':     '\\arsech %',
-    'arcoth':     '\\arcoth %',
-
-    // LOGARITHMS
-    'ln':       '\\ln%_%^ %',     // Natural logarithm
-    'log':      '\\log%_%^ %',    // General logarithm, e.g. log_10
-    'lg':       '\\lg %',     // Common, base-10, logarithm
-    'lb':       '\\lb %',     // Binary, base-2, logarithm
-
-    // Big operator
-    'sum':      '\\sum%_%^ %',
-
-    // OTHER
-    'Zeta':     '\\zeta%_%^ %', // Riemann Zeta function
-    'Gamma':    '\\Gamma %',    // Gamma function, such that Gamma(n) = (n - 1)!
-    'min':      '\\min%_%^ %',
-    'max':      '\\max%_%^ %',
-    'mod':      '\\mod%_%^ %',
-    'lim':      '\\lim%_%^ %',      // BIG OP
-    'binom':    '\\binom %',
-    'nabla':    '\\nabla %',
-    'curl':     '\\nabla\\times %',
-    'div':      '\\nabla\\cdot %',
-    'floor':    '\\lfloor % \\rfloor%_%^',
-    'ceil':     '\\lceil % \\rceil%_%^',
-    'abs':      '\\vert % \\vert%_%^',
-    'norm':     '\\lVert % \\rVert%_%^',
-    'ucorner':  '\\ulcorner % \\urcorner%_%^',
-    'lcorner':  '\\llcorner % \\lrcorner%_%^',
-    'angle':    '\\langle % \\rangle%_%^',
-    'group':    '\\lgroup % \\rgroup%_%^',
-    'moustache':'\\lmoustache % \\rmoustache%_%^',
-    'brace':    '\\lbrace % \\rbrace%_%^',
-    'sqrt':     '\\sqrt[%^]{%}',
-    'lcm':      '\\mathop{lcm}%',
-    'gcd':      '\\mathop{gcd}%',
-    'erf':      '\\mathop{erf}%',
-    'erfc':     '\\mathop{erfc}%',
-    'randomReal': '\\mathop{randomReal}%',
-    'randomInteger': '\\mathop{randomInteger}%',
-    
-
-    // Arithmetic operators
-    '*':        '%0 \\times %1',
-
-    // Logic operators
-    'and':      '%0 \\land %1',
-    'or':       '%0 \\lor %1',
-    'xor':      '%0 \\oplus %1',
-    'not':      '%0 \\lnot %1',
-
-    // Other operators
-    'circle':   '%0 \\circ %1',
-    'ast':      '%0 \\ast %1',
-    'star':     '%0 \\star %1',
-    'asymp':    '%0 \\asymp %1',
-    '/':        '\\frac{%0}{%1}',
-    'Re':       '\\Re{%}',
-    'Im':       '\\Im{%}',
-    'factorial': '%!',
-    'factorial2': '%!!',
-}
-
-
-const OP_PRECEDENCE = {
-    // '^':    6, Not an actual operator
-    'not':   8,
-
-    'and':   7,
-    'or':    7,
-    'xor':    7,
-
-    'circle':   6,
-    'ominus': 6,
-    'odot': 6,
-    'otimes': 6,
-    'nabla': 6,
-    'curl':     6,
-    'div':      6,
-    'partial': 6,
-    'differentialD': 6,
-    'capitalDifferentialD': 6,
-
-    'mod':  5,
-
-    'ast':  5,
-    'star': 5,
-    '*':    5,
-    '.':    5,
-    '/':    5,
-    '%':    5,
-
-    '+':    4,
-    '-':    4,
-
-    'asymp': 3,
-    '=':    3,
-
-    ',':    2,
-    ';':    1
-}
-
-/**
- * 
- * @param {string} latex, for example '\\times'
- * @return {string} the canonical name for the input, for example '*'
- */
-function getCanonicalName(latex) {
-    latex = (latex || '').trim();
-    let result = CANONICAL_NAMES[latex];
-    if (!result) {
-        if (latex.charAt(0) === '\\') {
-            const info = getInfo(latex, 'math');
-            if (info && info.type !== 'error') {
-                result = info.value || latex.slice(1);
-            } else {
-                result = latex.slice(1);
-            }
-        } else {
-            result = latex;
-        }
-    }
-    return result;
-}
-
-
-/**
- * 
- * @param {string} name function or operator canonical name
- * @return {string}
- */
-function getLatexTemplateForOperator(name) {
-    let result = FUNCTION_TEMPLATE[name];
-    if (!result) {
-        result = '%0 \\mathbin{' + name + '} %1';
-    }
-
-    return result;
-}
-
-/**
- * 
- * @param {string} name symbol name
- * @return {string}
- */
-function getLatexForSymbol(name) {
-    let result = FUNCTION_TEMPLATE[name];
-    if (result) {
-        return result.replace('%1', '').replace('%0', '').replace('%', '');
-    }
-    const info = getInfo('\\' + name, 'math');
-    if (info && info.type !== 'error' && 
-        (!info.fontFamily || info.fontFamily === 'main' || info.fontFamily === 'ams')) {
-        result = '\\' + name;
-    }
-
-    return result;
-}
-
-/**
- * 
- * @param {string} name function canonical name
- * @return {string}
- */
-function getLatexTemplateForFunction(name) {
-    let result = FUNCTION_TEMPLATE[name];
-    if (!result) {
-        result = name.length > 1 ? '\\mathop{' + name + '} %' : (name + ' %');
-    }
-
-    return result;
-}
-
-/**
- * Given a canonical name, return its precedence
- * @param {string} canonicalName, for example "and"
- * @return {number}
- */
-function getPrecedence(canonicalName) {
-    return canonicalName ? (OP_PRECEDENCE[canonicalName] || -1) : -1;
-}
-
-function isFunction(canonicalName) {
-    let t = FUNCTION_TEMPLATE[canonicalName];
-    if (!t) return false;
-    t = t.replace('%0', '').replace('%1', '');
-    if (/%/.test(t)) return true;
-    return false;
-}
-
 return {
-    matchCodepoint: matchCodepoint,
-    matchSymbol: matchSymbol,
-    matchFunction: matchFunction,
-    getInfo: getInfo,
-    getValue: getValue,
-    getFontName: getFontName,
-    getEnvironmentInfo: getEnvironmentInfo,
-    suggest: suggest,
-    FREQUENCY_VALUE: FREQUENCY_VALUE,
-    TEXT_SYMBOLS: TEXT_SYMBOLS,
-    MATH_SYMBOLS: MATH_SYMBOLS,
-    COMMAND_SYMBOLS: COMMAND_SYMBOLS,
-    ENVIRONMENTS: ENVIRONMENTS,
+    matchCodepoint,
+    matchSymbol,
+    matchFunction,
+    unicodeToMathVariant,
+    mathVariantToUnicode,
+    codepointToLatex,
+    unicodeStringToLatex,
+    getInfo,
+    getValue,
+    getFontName,
+    getEnvironmentInfo,
+    suggest,
+    FREQUENCY_VALUE,
+    TEXT_SYMBOLS,
+    MATH_SYMBOLS,
+    COMMAND_SYMBOLS,
+    ENVIRONMENTS,
 
-    FUNCTIONS: FUNCTIONS,
-    MACROS: MACROS,
-
-    getPrecedence: getPrecedence,
-    getCanonicalName: getCanonicalName,
-    getLatexForSymbol: getLatexForSymbol,
-    getLatexTemplateForOperator: getLatexTemplateForOperator, 
-    getLatexTemplateForFunction: getLatexTemplateForFunction,
-    isFunction: isFunction
-
+    RIGHT_DELIM,
+    FUNCTIONS,
+    MACROS,
 }
 
 })

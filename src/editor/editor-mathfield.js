@@ -38,6 +38,8 @@ define([
 */
 
 
+const HAPTIC_FEEDBACK_DURATION = 3; // in ms
+const AUDIO_FEEDBACK_VOLUME = 0.5; // from 0.0 to 1.0
 
 function on(el, selectors, listener, options) {
     selectors = selectors.split(' ');
@@ -172,7 +174,11 @@ function MathField(element, config) {
     this.field = this.element.children[iChild].children[0];
     this.virtualKeyboardToggleDOMNode = this.element.children[iChild++].children[1];
     this._attachButtonHandlers(this.virtualKeyboardToggleDOMNode, 
-        {default: 'toggleVirtualKeyboard', alt: 'toggleVirtualKeyboardAlt'}
+        {
+            default: 'toggleVirtualKeyboard', 
+            alt: 'toggleVirtualKeyboardAlt',
+            shift: 'toggleVirtualKeyboardShift'
+        }
     );
     this.popover = this.element.children[iChild++];
     this.keystrokeCaption = this.element.children[iChild++];
@@ -231,6 +237,8 @@ function MathField(element, config) {
         MathField.prototype._onContentDidChange.bind(this);
     localConfig.announceChange = 
         MathField.prototype._announceChange.bind(this);
+    localConfig.smartFence = this.config.smartFence;
+    localConfig.macros = this.config.macros;
 
     this.mathlist = new EditableMathlist.EditableMathlist(localConfig);
 
@@ -361,7 +369,7 @@ MathField.prototype._pathFromPoint = function(x, y) {
     let result;
     // Try to find the deepest element that is near the point that was 
     // clicked on (the point could be outside of the element)
-    const nearest = nearestElementFromPoint(this.element, x, y);
+    const nearest = nearestElementFromPoint(this.field, x, y);
     const el = nearest.element;
     const id = el ? el.getAttribute('data-atom-id') : null;
 
@@ -399,6 +407,10 @@ MathField.prototype._pathFromPoint = function(x, y) {
     return result;
 }
 
+let lastTouchEndTouch;
+let lastTouchEndTimestamp;
+let tapCount = 0;
+
 MathField.prototype._onPointerDown = function(evt) {
     let anchor;
     function endPointerTracking(evt) {
@@ -435,6 +447,19 @@ MathField.prototype._onPointerDown = function(evt) {
         if (this.textarea.focus) this.textarea.focus();
     }
 
+    // Calculate the tap count (if this is a touch event)
+    if (evt.touches) {
+        if (lastTouchEndTouch && Math.abs(lastTouchEndTouch.pageX - evt.touches[0].pageX) < 5 && 
+            Math.abs(lastTouchEndTouch.pageY - evt.touches[0].pageY) < 5 && 
+            Date.now() < lastTouchEndTimestamp + 500) {
+            tapCount += 1;
+        } else {
+            lastTouchEndTouch = evt.touches[0];
+            tapCount = 1;
+        }
+        lastTouchEndTimestamp = Date.now();
+    }
+
     const bounds = this.element.getBoundingClientRect();
     const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
     const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
@@ -465,16 +490,16 @@ MathField.prototype._onPointerDown = function(evt) {
 
             // evt.details contains the number of consecutive clicks 
             // for double-click, triple-click, etc...
-            if (evt.detail === 2 || evt.detail === 3) {
+            if (evt.detail === 2 || evt.detail === 3 || (tapCount > 1)) {
                 off(this.field, 'touchmove', onPointerMove);
                 off(this.field, 'touchend', endPointerTracking);
                 off(window, 'mousemove', onPointerMove);
                 off(window, 'mouseup blur', endPointerTracking);
                 trackingPointer = false;
-                if (evt.detail === 3) {
+                if (evt.detail === 3 || tapCount === 3) {
                     // This is a triple-click
                     this.mathlist.selectAll_();
-                } else if (evt.detail === 2) {
+                } else if (evt.detail === 2 || tapCount === 2) {
                     // This is a double-click
                     this.mathlist.selectGroup_();
                 }
@@ -495,6 +520,8 @@ MathField.prototype._onPointerDown = function(evt) {
                 }
             }
         }
+    } else {
+        lastTouchEndTouch = null;
     }
 
 
@@ -647,7 +674,7 @@ MathField.prototype._announceChange = function(command, oldMathlist, atomsToSpea
         this.ariaLiveText.textContent = ariaLiveChangeHack + spokenText;
         this.accessibleNode.innerHTML = 
             '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
-                MathAtom.toMathML(this.mathlist.root) +
+                MathAtom.toMathML(this.mathlist.root, this.config) +
             '</math>';
 
         this.textarea.setAttribute('aria-label', 'after: ' + spokenText)
@@ -778,6 +805,46 @@ MathField.prototype.perform = function(command) {
 }
 
 /**
+ * Perform a command, but:
+ * * focus the mathfield
+ * * provide haptic and audio feedback
+ * This is used by the virtual keyboard when command keys (delete, arrows, etc..)
+ * are pressed.
+ * @param {string} command 
+ */
+MathField.prototype.performWithFeedback_ = function(command) {
+
+    this.focus();
+
+    if (this.config.keypressVibration && navigator.vibrate) {
+        navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
+    }
+
+
+    if (command === 'moveToNextPlaceholder' || 
+        command === 'moveToPreviousPlaceholder' ||
+        command === 'complete') {
+        if (this.returnKeypressSound) this.returnKeypressSound.play();
+        else if (this.keypressSound) this.keypressSound.play();
+    } else if (command === 'deletePreviousChar' || 
+        command === 'deleteNextChar' ||
+        command === 'deletePreviousWord' ||
+        command === 'deleteNextWord' ||
+        command === 'deleteToGroupStart' ||
+        command === 'deleteToGroupEnd' ||
+        command === 'deleteToMathFieldStart' ||
+        command === 'deleteToMathFieldEnd') {
+            if (this.deleteKeypressSound) this.deleteKeypressSound.play();
+            else if (this.keypressSound) this.keypressSound.play();    
+    } else if (this.keypressSound) {
+        this.keypressSound.play();
+    }
+
+    this.perform(command);
+}
+
+
+/**
  * @param {string} keystroke
  * @param {Event} evt - optional, an Event corresponding to the keystroke
  * @method MathField#_onKeystroke
@@ -831,9 +898,32 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
  * an input method. As a result, `text` can be a sequence of characters to
  * be inserted.
  * @param {string} text
+ * @param {object} options 
+ * @param {boolean} options.focus - If true, the mathfield will be focused
+ * @param {boolean} options.feedback - If true, provide audio and haptic feedback
+ * @param {boolean} options.commandMode - If true, switch to command mode if
+ * necessary, then insert text
  */
-MathField.prototype._onTypedText = function(text) {
-    // Remove any error indicator on the current command sequence (if there is one)
+MathField.prototype._onTypedText = function(text, options) {
+    options = options || {};
+
+    // Focus, then provide audio and haptic feedback
+    if (options.focus) this.focus();
+    if (options.feedback) {
+         if (this.config.keypressVibration && navigator.vibrate) {
+            navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
+        }
+        if (this.keypressSound) this.keypressSound.play();
+    }
+
+    if (options.commandMode) {
+        if (this.mathlist.parseMode() !== 'command') {
+            this.enterCommandMode_();
+        }
+    }
+
+    // Remove any error indicator on the current command sequence 
+    // (if there is one)
     this.mathlist.decorateCommandStringAroundInsertionPoint(false);
 
     // Insert the specified text at the current insertion point.
@@ -845,19 +935,19 @@ MathField.prototype._onTypedText = function(text) {
     if (this.pasteInProgress) {
         this.pasteInProgress = false;
         // This call was made in response to a paste event.
-        // Interpret `text` as a LaTeX expression
-        this.mathlist.insert(text);
+        // Interpret `text` as a 'smart' expression (could be LaTeX, could be UnicodeMath)
+        this.mathlist.insert(text, {smartFence: this.config.smartFence});
 
     } else {
-        // Decompose the string into an array of graphemes. This is necessary
-        // to correctly process what would be visually perceived by a human 
-        // as a single glyph (a grapheme) but which is actually composed of 
-        // multiple Unicode codepoints. This is the case in particular for 
-        // emojis, such as emojis with a skin tone modifier, the country flags
-        // emojis or compound emojis such as the professional emojis, including
-        // the David Bowie emoji.
+        // Decompose the string into an array of graphemes. 
+        // This is necessary to correctly process what would be visually 
+        // perceived by a human as a single glyph (a grapheme) but which is 
+        // actually composed of multiple Unicode codepoints. This is the case 
+        // in particular for some emojis, such as those with a skin tone 
+        // modifier, the country flags emojis or compound emojis such as the 
+        // professional emojis, including the David Bowie emoji.
         const graphemes = GraphemeSplitter.splitGraphemes(text);
-        for (const c of graphemes) {
+        for (let c of graphemes) {
             this._showKeystroke(c);
 
             if (this.mathlist.parseMode() === 'command') {
@@ -889,13 +979,28 @@ MathField.prototype._onTypedText = function(text) {
                 let count = this.mathlist.startOffset();
                 let shortcut;
                 // Try to find the longest matching shortcut possible
-                while (!shortcut && count > 0) {
+                while (!shortcut && count >= 0) {
                     // Note that 'count' is a number of atoms
                     // An atom can be more than one character (for example '\sin')
                     const prefix = this.mathlist.extractCharactersBeforeInsertionPoint(count);
                     shortcut = Shortcuts.match(prefix + c, this.config);
                     count -= 1;
                 }
+
+                if (shortcut === '\\{') {
+                    shortcut = null;
+                    c = '{';
+                } else if (shortcut === '\\[') {
+                    shortcut = null;
+                    c = '[';
+                } else if (shortcut === '\\}') {
+                    shortcut = null;
+                    c = '}';
+                } else if (shortcut === '\\]') {
+                    shortcut = null;
+                    c = ']';
+                }
+
 
                 if (shortcut) {
                     const savedState = this.undoManager.save();
@@ -909,14 +1014,14 @@ MathField.prototype._onTypedText = function(text) {
 
                     // Revert to before inserting the character
                     // (restore doesn't change the undo stack)
-                    this.undoManager.restore(savedState);
+                    this.undoManager.restore(savedState, this.config);
 
                     // Remove the atoms from the prefix string
-                    this.mathlist.delete(-count - 1);
+                    this.mathlist._deleteAtoms(-count - 1);
 
                     // Insert the substitute
                     this.mathlist.insert(shortcut, {format: 'latex'});
-                    this._announceChange("replacement");        
+                    this._announceChange('replacement');
                 } 
                 
                 if (!shortcut) {
@@ -933,13 +1038,14 @@ MathField.prototype._onTypedText = function(text) {
                         this.perform(selector);
                     } else {
                         this.undoManager.snapshot();
-                        this.mathlist.insert(c);
+                        if (!this.mathlist._insertSmartFence(c)) {
+                            this.mathlist.insert(c);
+                        }
                     }
                 }
             }
         }
     }
-
 
     // Render the mathlist
     this._render();
@@ -949,6 +1055,8 @@ MathField.prototype._onTypedText = function(text) {
     // position of the caret calculated
     Popover.showPopoverWithLatex(this, popoverText, displayArrows);
 }
+
+
 
 /**
  * Call `render()` to re-layout the field and generate the updated DOM.
@@ -978,7 +1086,8 @@ MathField.prototype._render = function() {
     const spans = MathAtom.decompose(
         {
             mathstyle: 'displaystyle', 
-            generateID: true
+            generateID: true,
+            macros: this.config.macros
         }, this.mathlist.root.body);
 
 
@@ -999,7 +1108,7 @@ MathField.prototype._render = function() {
     topStrut.setStyle('height', base.height, 'em');
     const struts = [topStrut];
     if (base.depth !== 0) {
-        const bottomStrut = Span.makeSpan('', 'ML__strut ML__bottom');
+        const bottomStrut = Span.makeSpan('', 'ML__strut--bottom');
         bottomStrut.setStyle('height', base.height + base.depth, 'em');
         bottomStrut.setStyle('vertical-align', -base.depth, 'em');
         struts.push(bottomStrut);
@@ -1028,7 +1137,7 @@ MathField.prototype._render = function() {
     // Probably want to generate content on fly depending on what to speak
     this.accessibleNode.innerHTML = 
        "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
-           MathAtom.toMathML(this.mathlist.root) +
+           MathAtom.toMathML(this.mathlist.root, this.config) +
        "</math>";
     //this.ariaLiveText.textContent = "";
 
@@ -1074,7 +1183,7 @@ MathField.prototype._onCopy = function() {
  * Return a textual representation of the mathfield.
  * @param {string} [format='latex']. One of 
  *    * `'latex'`
- *    * `'expandedLatex'` : all macros are recursively expanded to their definition
+ *    * `'latex-expanded'` : all macros are recursively expanded to their definition
  *    * `'spoken'`
  *    * `'mathML'`
  * or `'mathML'`.
@@ -1084,12 +1193,13 @@ MathField.prototype._onCopy = function() {
 MathField.prototype.text = function(format) {
     format = format || 'latex';
     let result = '';
-    if (format === 'latex' || format === 'expandedLatex') {
-        result = this.mathlist.root.toLatex(format === 'expandedLatex');
+    if (format === 'latex' || format === 'latex-expanded') {
+        result = this.mathlist.root.toLatex(format === 'expanded');
     } else if (format === 'mathML') {
-            result = this.mathlist.root.toMathML();
+            result = this.mathlist.root.toMathML(this.config);
     } else if (format === 'spoken') {
-        result = MathAtom.toSpeakableText(this.mathlist.root, {markup:true});
+        const options = Object.assign({markup:true}, this.config);
+        result = MathAtom.toSpeakableText(this.mathlist.root, options);
     }
 
     return result;
@@ -1099,7 +1209,7 @@ MathField.prototype.text = function(format) {
  * Return a textual representation of the selection in the mathfield.
  * @param {string} [format='latex']. One of 
  *    * `'latex'`
- *    * `'expandedLatex'` : all macros are recursively expanded to their definition
+ *    * `'latex-expanded'` : all macros are recursively expanded to their definition
  *    * `'spoken'`
  *    * `'mathML'`
  * @return {string}
@@ -1110,20 +1220,21 @@ MathField.prototype.selectedText = function(format) {
     let result = '';
     const selection = this.mathlist.extractContents();
     if (selection) {
-        if (format === 'latex' || format === 'expandedLatex') {
+        if (format === 'latex' || format === 'latex-expanded') {
             
             for (const atom of selection) {
-                result += atom.toLatex(format === 'expandedLatex');
+                result += atom.toLatex(format === 'latex-expanded');
             }
 
         } else if (format === 'mathML') {
             
             for (const atom of selection) {
-                result += atom.toMathML();
+                result += atom.toMathML(this.config);
             }
 
         } else if (format === 'spoken') {
-            result = MathAtom.toSpeakableText(selection, {markup:true})
+            const options = Object.assign({markup:true}, this.config);
+            result = MathAtom.toSpeakableText(selection, options)
         }
     }
 
@@ -1209,11 +1320,11 @@ MathField.prototype.el = function() {
 }
 
 MathField.prototype.undo_ = MathField.prototype.undo = function() {
-    this.undoManager.undo();
+    this.undoManager.undo(this.config);
 }
 
 MathField.prototype.redo_ = MathField.prototype.redo = function() {
-    this.undoManager.redo();
+    this.undoManager.redo(this.config);
 }
 
 
@@ -1248,7 +1359,7 @@ MathField.prototype.enterCommandMode_ = function() {
     }
 
     this.undoManager.snapshot();
-    this.mathlist.insert('\u0027');
+    this.mathlist.insert('\u001b');
 }
 
 
@@ -1275,10 +1386,10 @@ MathField.prototype.pasteFromClipboard_ = function() {
 
 /**
  * This function can be invoked as a selector with `perform()` or called explicitly.
- * It will insert the specified block of latex at the current selection point,
+ * It will insert the specified block of text at the current selection point,
  * according to the insertion mode specified. After the insertion, the 
  * selection will be set according to the selectionMode.
- * @param {string} latex
+ * @param {string} s - The text to be inserted
  * @param {string} options.selectionMode - Describes where the selection 
  * will be after the insertion:
  *    * `'placeholder'`: the selection will be the first available placeholder 
@@ -1295,12 +1406,20 @@ MathField.prototype.pasteFromClipboard_ = function() {
  *    * `'latex'`: the string is interpreted strictly as a latex fragment
  * 
  * @param {boolean} options.focus - If true, the mathfield will be focused
+ * @param {boolean} options.feedback - If true, provide audio and haptic feedback
  * @method MathField#insert
  */
 MathField.prototype.insert_ = 
 MathField.prototype.insert = function(s, options) {
     if (typeof s === 'string' && s.length > 0) {
-        if (options && options.focus) this.focus();
+        options = options || {};
+        if (options.focus) this.focus();
+        if (options.feedback) {
+            if (this.config.keypressVibration && navigator.vibrate) {
+                navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
+            }
+            if (this.keypressSound) this.keypressSound.play();
+        }
         this.undoManager.snapshot();
         this.mathlist.insert(s, options);
     }
@@ -1318,25 +1437,30 @@ MathField.prototype.complete_ = function() {
 
     const command = this.mathlist.extractCommandStringAroundInsertionPoint();
     if (command) {
-        const mode = 'math'; // @todo this.mathlist.parseMode();
-        let match = Definitions.matchFunction(mode, command);
-        if (!match) {
-            match = Definitions.matchSymbol(mode, command);
-        }
-        if (match) {
-            const mathlist = ParserModule.parseTokens(
-                    Lexer.tokenize(match.latexName), mode, null, Definitions.MACROS);
-
-            this.mathlist.spliceCommandStringAroundInsertionPoint(mathlist);
+        if (command === '\\(' || command === '\\)') {
+            this.mathlist.spliceCommandStringAroundInsertionPoint([]);
+            this.mathlist.insert(command.slice(1));
         } else {
-            // This wasn't a simple function or symbol.
-            // Interpret the input as LaTeX code
-            const mathlist = ParserModule.parseTokens(
-                    Lexer.tokenize(command), mode, null, Definitions.MACROS);
-            if (mathlist) {
+            const mode = 'math'; // @todo this.mathlist.parseMode();
+            let match = Definitions.matchFunction(mode, command);
+            if (!match) {
+                match = Definitions.matchSymbol(mode, command);
+            }
+            if (match) {
+                const mathlist = ParserModule.parseTokens(
+                        Lexer.tokenize(match.latexName), mode, null, this.config.macros);
+
                 this.mathlist.spliceCommandStringAroundInsertionPoint(mathlist);
-            } else {            
-                this.mathlist.decorateCommandStringAroundInsertionPoint(true);
+            } else {
+                // This wasn't a simple function or symbol.
+                // Interpret the input as LaTeX code
+                const mathlist = ParserModule.parseTokens(
+                        Lexer.tokenize(command), mode, null, this.config.macros);
+                if (mathlist) {
+                    this.mathlist.spliceCommandStringAroundInsertionPoint(mathlist);
+                } else {            
+                    this.mathlist.decorateCommandStringAroundInsertionPoint(true);
+                }
             }
         }
         this._announceChange("replacement"); 
@@ -1473,6 +1597,7 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
     let pressHoldElement;
     let touchID;
     let syntheticTarget;    // Target while touch move
+    let pressAndHoldTimer;
 
     on(el, 'mousedown touchstart', function(ev) {
         if (ev.type !== 'mousedown' || ev.buttons === 1) {
@@ -1498,7 +1623,8 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
             const pressAndHoldStartCommand = el.getAttribute('data-' + that.config.namespace + 'command-pressAndHoldStart');
             if (pressAndHoldStartCommand) {
                 pressHoldElement = el;
-                window.setTimeout(function() {
+                if (pressAndHoldTimer) clearTimeout(pressAndHoldTimer);
+                pressAndHoldTimer = window.setTimeout(function() {
                     if (el.classList.contains('pressed')) {
                         that.perform(JSON.parse(pressAndHoldStartCommand));
                     }
@@ -1636,25 +1762,30 @@ MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
         // Width 3
         altContainer.style.width = '146px';
     }
+    // Reset container height
+    altContainer.style.height = 'auto';
 
 
     let markup = '';
     for (const altKey of altKeys) {
         markup += '<li';
         if (typeof altKey === 'string') {
-            markup += ' data-latex="' + altKey + '"';
+            markup += ' data-latex="' + altKey.replace(/"/g, '&quot;') + '"';
         } else {
             if (altKey.latex) {
-                markup += ' data-latex="' + altKey.latex + '"';
+                markup += ' data-latex="' + altKey.latex.replace(/"/g, '&quot;') + '"';
+            }
+            if (altKey.content) {
+                markup += ' data-content="' + altKey.content.replace(/"/g, '&quot;') + '"';
             }
             if (altKey.insert) {
-                markup += ' data-insert="' + altKey.insert + '"';
+                markup += ' data-insert="' + altKey.insert.replace(/"/g, '&quot;') + '"';
             }
             if (altKey.command) {
-                markup += " data-command='" + altKey.command + "'";
+                markup += " data-command='" + altKey.command.replace(/"/g, '&quot;') + "'";
             }
             if (altKey.aside) {
-                markup += ' data-aside="' + altKey.aside + '"';
+                markup += ' data-aside="' + altKey.aside.replace(/"/g, '&quot;') + '"';
             }
             if (altKey.classes) {
                 markup += ' data-classes="' + altKey.classes + '"';
@@ -1667,6 +1798,7 @@ MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
         markup += '</li>';
     }
     markup = '<ul>' + markup + '</ul>';
+    
     altContainer.innerHTML = markup;
 
     VirtualKeyboard.makeKeycap(this, 
@@ -1676,7 +1808,21 @@ MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
         'div.keyboard-layer.visible div.rows ul li[data-alt-keys="' + keycap + '"]');
     const position = keycapEl.getBoundingClientRect();
     if (position) {
-        altContainer.style.top = (position.top - altContainer.clientHeight + 5).toString() + 'px';
+        if (position.top - altContainer.clientHeight < 0) {
+            // altContainer.style.maxWidth = '320px';  // Up to six columns
+            altContainer.style.width = 'auto';
+            if (altKeys.length <= 6) {
+                altContainer.style.height = '56px';     // 1 row
+            } else if (altKeys.length <= 12) {
+                altContainer.style.height = '108px';    // 2 rows
+            } else {
+                altContainer.style.height = '205px';    // 3 rows
+            }
+            altContainer.style.top = (position.top - altContainer.clientHeight + 5) + 'px';
+
+        } else {
+            altContainer.style.top = (position.top - altContainer.clientHeight + 5).toString() + 'px';
+        }
         altContainer.style.left = Math.max(0, 
             Math.min(window.innerWidth - altContainer.offsetWidth,
             ((position.left + position.right - altContainer.offsetWidth) / 2) )) + 'px';
@@ -1716,7 +1862,6 @@ MathField.prototype.switchKeyboardLayer_ = function(layer) {
         }
 
         this.showVirtualKeyboard_();
-        const layers = this.virtualKeyboard.getElementsByClassName('keyboard-layer');
 
         // If the alternate keys panel was visible, hide it
         this.hideAlternateKeys_();
@@ -1725,6 +1870,7 @@ MathField.prototype.switchKeyboardLayer_ = function(layer) {
         // restore our state before switching to a new layer.
         this.unshiftKeyboardLayer_();
 
+        const layers = this.virtualKeyboard.getElementsByClassName('keyboard-layer');
         // Search for the requested layer
         let found = false;
         for (let i = 0; i < layers.length; i++) {
@@ -1823,7 +1969,7 @@ MathField.prototype.insertAndUnshiftKeyboardLayer_ = function(c) {
     this.unshiftKeyboardLayer_();
 }
 
-/* Toggle the command bar, but switch to the alternate theme if available */
+/* Toggle the virtual keyboard, but switch to the alternate theme if available */
 MathField.prototype.toggleVirtualKeyboardAlt_ = function() {
     let hadAltTheme = false;
     if (this.virtualKeyboard) {
@@ -1833,6 +1979,29 @@ MathField.prototype.toggleVirtualKeyboardAlt_ = function() {
         this.virtualKeyboard = null;
     }
     this.showVirtualKeyboard_(hadAltTheme ? '' : 'material');
+}
+
+/* Toggle the virtual keyboard, but switch another keyboard layout */
+MathField.prototype.toggleVirtualKeyboardShift_ = function() {
+    this.config.virtualKeyboardLayout = {
+        'qwerty': 'azerty',
+        'azerty': 'qwertz',
+        'qwertz': 'dvorak',
+        'dvorak': 'colemak',
+        'colemak': 'qwerty'
+    }[this.config.virtualKeyboardLayout];
+
+    let layer = this.virtualKeyboard ? 
+        this.virtualKeyboard.querySelector('div.keyboard-layer.visible') : null;
+    layer = layer ? layer.id : '';
+
+    if (this.virtualKeyboard) {
+        this.virtualKeyboard.remove();
+        delete this.virtualKeyboard;
+        this.virtualKeyboard = null;
+    }
+    this.showVirtualKeyboard_();
+    if (layer) this.switchKeyboardLayer_(layer);
 }
 
 MathField.prototype.showVirtualKeyboard_ = function(theme) {
@@ -1868,6 +2037,17 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
     } else if (this.virtualKeyboard) {
         this.virtualKeyboard.classList.remove('visible');
     }
+
+    if (typeof this.config.onVirtualKeyboardToggle === 'function') {
+        this.config.onVirtualKeyboardToggle(
+                this.virtualKeyboardVisible, 
+                this.virtualKeyboard);
+    }
+}
+
+MathField.prototype.applyStyle_ = function(style) {
+    this.undoManager.snapshot();
+    this.mathlist._applyStyle(style);
 }
 
 MathField.prototype.hasFocus = function() {
@@ -1925,9 +2105,16 @@ MathField.prototype.typedText = function(text) {
     this._onTypedText(text);
 }
 
-MathField.prototype.typedText_ = function(text) {
-    this.focus();
-    return this._onTypedText(text);
+
+/**
+ * 
+ * @param {string} text 
+ * @param {object} options 
+ * @param {boolean} options.focus - If true, the mathfield will be focused
+ * @param {boolean} options.feedback - If true, provide audio and haptic feedback
+ */
+MathField.prototype.typedText_ = function(text, options) {
+    return this._onTypedText(text, options);
 }
 
 
@@ -1940,10 +2127,14 @@ MathField.prototype.typedText_ = function(text) {
 MathField.prototype.config = function(conf) {
     // Copy the values from `config` to `def`
     this.config = Object.assign({
+        smartFence: true,
         overrideDefaultInlineShortcuts: false,
         virtualKeyboard: '',
+        virtualKeyboardLayout: 'qwerty',
         namespace: ''
     }, conf);
+
+    this.config.macros = Object.assign({}, Definitions.MACROS, this.config.macros);
 
     // Validate the namespace (used for `data-` attributes)
     if (!/^[a-z]*[-]?$/.test(this.config.namespace)) {
@@ -1951,6 +2142,40 @@ MathField.prototype.config = function(conf) {
     }
     if (!/-$/.test(this.config.namespace)) {
         this.config.namespace += '-';
+    }
+
+    // Possible keypress sound feedback
+    this.keypressSound = undefined;
+    this.spacebarKeypressSound = undefined;
+    this.returnKeypressSound = undefined;
+    this.deleteKeypressSound = undefined;
+    if (this.config.keypressSound) {
+        if (typeof this.config.keypressSound === 'string') {
+            this.keypressSound = new Audio(this.config.keypressSound);
+            this.keypressSound.volume = AUDIO_FEEDBACK_VOLUME;
+            this.spacebarKeypressSound = this.keypressSound;
+            this.returnKeypressSound = this.keypressSound;
+            this.deleteKeypressSound = this.keypressSound;
+        } else {
+            console.assert(this.config.keypressSound.default);
+            this.keypressSound = new Audio(this.config.keypressSound.default);
+            this.keypressSound.volume = AUDIO_FEEDBACK_VOLUME;
+            this.spacebarKeypressSound = this.keypressSound;
+            this.returnKeypressSound = this.keypressSound;
+            this.deleteKeypressSound = this.keypressSound;
+            if (this.config.keypressSound.spacebar) {
+                this.spacebarKeypressSound = new Audio(this.config.keypressSound.spacebar);
+                this.spacebarKeypressSound.volume = AUDIO_FEEDBACK_VOLUME;
+            } 
+            if (this.config.keypressSound.return) {
+                this.returnKeypressSound = new Audio(this.config.keypressSound.return);
+                this.returnKeypressSound.volume = AUDIO_FEEDBACK_VOLUME;
+            } 
+            if (this.config.keypressSound.delete) {
+                this.deleteKeypressSound = new Audio(this.config.keypressSound.delete);
+                this.deleteKeypressSound.volume = AUDIO_FEEDBACK_VOLUME;
+            } 
+        }
     }
 
 }

@@ -59,7 +59,9 @@ const PRONUNCIATION = {
     '\\cdots':      ' dot dot dot ',
 
     '\\lbrace':		'left brace',
+    '\\{':		    'left brace',
     '\\rbrace':		'right brace',
+    '\\}':		    'right brace',
     '\\langle':		'left angle bracket',
     '\\rangle':		'right angle bracket',
     '\\lfloor':		'left floor',
@@ -313,6 +315,15 @@ MathAtom.toSpeakableFragment = function(atom, options) {
             case 'mclose':
             case 'textord':
             {
+                const command = atom.latex ? atom.latex.trim() : '' ;
+                if (command === '\\mathbin' || command === '\\mathrel' || 
+                    command === '\\mathopen' || command === '\\mathclose' || 
+                    command === '\\mathpunct' || command === '\\mathord' || 
+                    command === '\\mathinner') {
+                    result = MathAtom.toSpeakableFragment(atom.body, options);
+                    break;
+                }   
+
                 let atomValue = atom.body;
                 let latexValue = atom.latex;
                 if (atom.type === 'delim' || atom.type === 'sizeddelim') {

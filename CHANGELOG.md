@@ -1,3 +1,149 @@
+
+
+### Major New Features
+- Smart Fences. When a fence ("(", "{", etc...) is inserted, a matching 
+closing fence is automatically inserted, displayed as a greyed out placeholder.<br>
+The Latex code inserted will vary depending on the context where the insertion
+is made, either standalone characters (`(`) or `\left...\right`. This feature
+is on by default and can be turned off with `config.smartFence`. <br>Option-9 
+and Option-0, as well as `\(` and `\)` will override the setting and insert
+a plain old parenthesis.
+- `\mleft...\mright`. Similar to `\left...\right` (i.e. grow in height depending
+on its content) but with vertical spacing before and after similar to `\mathopen`
+and `\mathclose`. Used automatically by smart fences after a function such
+as `\sin` or `f`.
+- Haptic and audio feedback for the virtual keyboard.<br>Haptic feedback is available on 
+Android only. <br> Two new config options to control it. `config.keypressVibration`,
+which is on by default, control the haptic feedback. `config.keypressSound`
+control the audio feedback (off by default). Specify the URL to a sound file 
+to be played when a key on the virtual keyboard is pressed, or an object with 
+a `delete`, `return`, `spacebar` and `default` (required) keys to specify
+different sounds for those keys.
+
+### Other New Features
+- When a fraction is inserted, for example by pressing '/', the items before
+the insertion point are considered as potential numerator. This now include 
+parenthesized expressions and roots. In the case of parenthesized expressions,
+the parentheses are removed before being adoped for the numerator.
+- MASTON: Use Unicode to represent math-variant letters (e.g. ℂ)
+- Convert math-variant letters encoded in Unicode to Latex when pasting (e.g. ℂ
+becomes `\C`, 𝕰 becomes `\mathord{\mathbf{\mathfrak{E}}}`
+- MASTON: Commutativity support. a + b + c -> add(a, b, c)
+- MASTON: Right and left-associativity support ('=' and '=>' are right associative)
+- Improvements to the delete behavior: when to the right of a `\left...\right`
+deletes remove the closing fence, not the whole expression. Same for root,
+fractions, and other groups. When at the beginning of a denominator, pressing
+delete will remove the fraction, but keep numerator and denominator, etc...
+- When using the command virtual keyboard, switch to command mode as necessary.
+- Added `MathAtom.skipBoundary`. When true, navigating into/out of the atom 
+the last/first element will be skipped. For example, with `\textcolor{}` this
+implements a behavior similar to word processors.
+
+### Code Maintenance and Performance
+- Moved operator precedence and canonical names from Definitions to MASTON.
+
+## 0.21 (March 30, 2018)
+### Major New Features
+- Basic support for Latex macros. Macros can be defined with `MathField.config({macros:'...')` 
+- Display alternate keys when a key on the virtual
+keyboard is held down.
+- Support for AZERTY, QWERTZ, Dvorak and Colemak virtual keyboards. Can be 
+setup with `MathField.config({virtualKeyboardLayout:'...')`. Also, shift 
+clicking on the keyboard icon toggles between layouts.
+
+### Other New Features
+- Toggle the virtual keyboard layer when the shift
+key is pressed
+- New `onVirtualKeyboardToogle` handler will get called when the visibility of 
+the virtual keyboard changes. Useful to scroll into view important content that 
+might be obscured by the keyboard.
+- Some common functions added as inline shortcuts:
+`limsup`, `liminf`, `argmin`, `argmax`, `bessel`, `mean`, `median`, `fft`.
+- Added `\rd` command (synonym with `\differentialD` and used by Proof Wiki)
+- Added a format option (`latex-expanded`) to `MathField.text()` and `MathField.selectedText()` to return Latex with macros expanded.
+- Removed restrictions on charset in `text`
+- Support shift + arrows to extend the selection with the virtual keyboard
+
+
+### Bug Fixes
+- More accurate operator precedence. Follow the [MathML](www.w3.org/TR/MathML3/appendixc.html) recommendation, except for arrows that are given a way too high priority in MathML.
+- Correctly output to Latex the `\unicode` command
+- When undoing, correctly restore the selection
+- Improved behavior when inserting superscript and
+subscript on a selected item
+- Fixed handling of unbalanced `\left`...`\right` sequences
+- Correctly output the minus sign to Latex (as U+002D not as U+2212)
+- Fixed some cases where the layout would shift by a couple of pixels as you 
+navigated into the expression
+
+### Code Maintenance and Performance
+- Use `.test()` instead of `.match()` whenever possible
+- Eliminated `.value` and `.children` in Math Atoms. It's only `.body` now.
+- Avoid unnecessary rendering while tracking the pointer
+- Refactored the Popover code into `Popover.js`
+- Moved some content from `Definitions.js` and into `Popover.js`
+
+
+## 0.20 (March 24, 2018)
+### Major New Features
+- Virtual keyboards with multi-touch support
+- BREAKING CHANGE: the command bar is no longer supported. Use virtual keyboards instead.
+
+### Other New Features
+- Added support for wide layouts to virtual keyboard. If space is available, up 
+to four more columns of keys can be displayed.
+- Added Copy button to virtual keyboard
+- Allow 'space' in command mode
+- MASTON: improved parsing of numbers
+- Handle Unicode pseudo-superscript characters as exponents
+
+## 0.19 (March 19, 2018)
+### Majore New Features
+- MASTON: first implementation
+- Support selecting cells in arrays
+
+### Other New Features
+- MASTON: handle complex numbers and modulo
+- Added option for styling of keyboard glyph
+- Improved output to Latex for arrays
+- Additional trig and long functions (`\lb`, `\arsinh`, `\arcosh`, `\artanh`, 
+`\arcsech`, `\arccsh`, `\arcsec`, `\arccsc`)
+- MathML: more robust handling of complex `<mo>`
+- MathML: improved handling of fences
+- Improved Latex output
+
+### Bug Fixes
+- Correctly handle latex output for the `\char` command
+- Correctly handle invalid Unicode code points in the `\char` command
+- Correctly output MathML for extended Unicode characters and `\char` command
+- Correctly handle selection in sparse arrays
+- Correct spacing issue of selected items
+- Fixed #17: correctly extend the selection when the anchor is at the end of 
+the selection
+- The caret would not blink in empty supsub
+- The last character of the selection would not be copied on the clipboard
+- MathML: don't insert `&invisibleTimes;` for factorial, but *do* insert it 
+before a fence.
+- Going up from a numerator longer than the denominator could hang.
+- MathML and Latex output: better handling of `\Big` (etc...) delimiters
+- MathML: do not render `\text` as `<mi>`
+- Latex output: handle the `\math...` (`\mathop`, `\mathbin`...) family of functions
+- Properly parse custom operators
+- Commands with multiple keyboard shortcuts would not display correctly in the Popover panel
+
+
+### Code Maintenance and Performance
+- Reduce the amount of markup generated, avoid generating markup for empty spans.
+- Updated fonts from KaTeX
+
+
+## 0.18 (March 4, 2018)
+### Bug Fixes
+- Fixed issue where `\underset` annotation was not selectable
+### Code Maintenance and Performance
+- Reverted back to WebPack 3
+- Simplified CSS and streamlined markup for `vlist` spans.
+
 ## 0.0.17 (February 27, 2018)
 ### New Features
 - Improved accessibility support (major contribution from Neil Soiffer)
