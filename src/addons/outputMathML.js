@@ -78,16 +78,16 @@ function scanIdentifier(stream, final, options) {
 
         if (superscript >= 0 && subscript >= 0) {
             mathML = '<msubsup>' + body;
-            mathML += toMathML(stream.atoms[subscript].subscript, options).mathML;
-            mathML += toMathML(stream.atoms[superscript].superscript, options).mathML;
+            mathML += toMathML(stream.atoms[subscript].subscript, 0, 0, options).mathML;
+            mathML += toMathML(stream.atoms[superscript].superscript, 0, 0, options).mathML;
             mathML += '</msubsup>';            
         } else if (superscript >= 0) {
             mathML = '<msup>' + body;
-            mathML += toMathML(stream.atoms[superscript].superscript, options).mathML;
+            mathML += toMathML(stream.atoms[superscript].superscript, 0, 0, options).mathML;
             mathML += '</msup>';            
         } else if (subscript >= 0) {
             mathML = '<msub>' + body;
-            mathML += toMathML(stream.atoms[subscript].subscript, options).mathML;
+            mathML += toMathML(stream.atoms[subscript].subscript, 0, 0, options).mathML;
             mathML += '</msub>';            
         } else {
             mathML = body;
@@ -179,16 +179,16 @@ function parseSubsup(base, stream, options) {
 
     if (atom.superscript && atom.subscript) {
         mathML = '<msubsup>' + base;
-        mathML += toMathML(atom.subscript, options).mathML;
-        mathML += toMathML(atom.superscript, options).mathML;
+        mathML += toMathML(atom.subscript, 0, 0, options).mathML;
+        mathML += toMathML(atom.superscript, 0, 0, options).mathML;
         mathML += '</msubsup>';
     } else if (atom.superscript) {
         mathML = '<msup>' + base;
-        mathML += toMathML(atom.superscript, options).mathML;
+        mathML += toMathML(atom.superscript, 0, 0, options).mathML;
         mathML += '</msup>';
     } else if (atom.subscript) {
         mathML = '<msub>' + base;
-        mathML += toMathML(atom.subscript, options).mathML;
+        mathML += toMathML(atom.subscript, 0, 0, options).mathML;
         mathML += '</msub>';
     }
 
@@ -232,7 +232,7 @@ function scanNumber(stream, final, options) {
 
         if (superscript >= 0) {
             mathML = '<msup>' + mathML;
-            mathML +=  toMathML(stream.atoms[superscript].superscript, options).mathML;
+            mathML +=  toMathML(stream.atoms[superscript].superscript, 0, 0, options).mathML;
             mathML += '</msup>';
         }
     
@@ -327,18 +327,18 @@ function scanOperator(stream, final, options) {
             if (atom.superscript && atom.subscript) {
                 // Both superscript and subscript
                 mathML += (atom.limits !== 'nolimits' ? '<munderover>' : '<msubsup>') + op;
-                mathML += toMathML(atom.subscript, options).mathML;
-                mathML += toMathML(atom.superscript, options).mathML;
+                mathML += toMathML(atom.subscript, 0, 0, options).mathML;
+                mathML += toMathML(atom.superscript, 0, 0, options).mathML;
                 mathML += (atom.limits !== 'nolimits' ? '</munderover>' : '</msubsup>');
             } else if (atom.superscript) {
                 // Superscript only
                 mathML += (atom.limits !== 'nolimits' ? '<mover>' : '<msup>') + op;
-                mathML += toMathML(atom.superscript, options).mathML;
+                mathML += toMathML(atom.superscript, 0, 0, options).mathML;
                 mathML += (atom.limits !== 'nolimits' ? '</mover>' : '</msup>');
             } else {
                 // Subscript only
                 mathML += (atom.limits !== 'nolimits' ? '<munder>' : '<msub>') + op;
-                mathML += toMathML(atom.subscript, options).mathML;
+                mathML += toMathML(atom.subscript, 0, 0, options).mathML;
                 mathML += (atom.limits !== 'nolimits' ? '</munder>' : '</msub>');
             }
             lastType = 'mo';
@@ -522,7 +522,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
     switch(this.type) {
         case 'group':
         case 'root':
-            result = toMathML(this.body, options).mathML;
+            result = toMathML(this.body, 0, 0, options).mathML;
             break;
 
         case 'array':
@@ -548,7 +548,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
             for (row = 0; row < this.array.length; row++) {
                 result += '<mtr>';
                 for (col = 0; col < this.array[row].length; col++) {
-                    result += '<mtd>' + toMathML(this.array[row][col], options).mathML + '</mtd>';
+                    result += '<mtd>' + toMathML(this.array[row][col], 0, 0, options).mathML + '</mtd>';
                 }
                 result += '</mtr>';
             }
@@ -573,14 +573,14 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
             }
             if (this.hasBarLine) {
                 result += '<mfrac>';
-                result += toMathML(this.numer, options).mathML || '<mi>&nbsp;</mi>';
-                result += toMathML(this.denom, options).mathML || '<mi>&nbsp;</mi>';
+                result += toMathML(this.numer, 0, 0, options).mathML || '<mi>&nbsp;</mi>';
+                result += toMathML(this.denom, 0, 0, options).mathML || '<mi>&nbsp;</mi>';
                 result += '</mfrac>';
             } else {
                 // No bar line, i.e. \choose, etc...
                 result += '<mtable>';
-                result += '<mtr>' + toMathML(this.numer, options).mathML + '</mtr>';
-                result += '<mtr>' + toMathML(this.denom, options).mathML + '</mtr>';
+                result += '<mtr>' + toMathML(this.numer, 0, 0, options).mathML + '</mtr>';
+                result += '<mtr>' + toMathML(this.denom, 0, 0, options).mathML + '</mtr>';
                 result += '</mtable>';
             }
             if (this.rightDelim && this.rightDelim !== '.') {
@@ -594,12 +594,12 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
         case 'surd':
             if (this.index) {
                 result += '<mroot>';
-                result += toMathML(this.body, options).mathML;
-                result += toMathML(this.index, options).mathML;
+                result += toMathML(this.body, 0, 0, options).mathML;
+                result += toMathML(this.index, 0, 0, options).mathML;
                 result += '</mroot>';
             } else {
                 result += '<msqrt>';
-                result += toMathML(this.body, options).mathML;
+                result += toMathML(this.body, 0, 0, options).mathML;
                 result += '</msqrt>';
             }
             break;
@@ -610,7 +610,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
             if (this.leftDelim && this.leftDelim !== '.') {
                 result += '<mo>' + (SPECIAL_OPERATORS[this.leftDelim] || this.leftDelim) + '</mo>';
             }
-            if (this.body) result += toMathML(this.body, options).mathML;
+            if (this.body) result += toMathML(this.body, 0, 0, options).mathML;
             if (this.rightDelim && this.rightDelim !== '.') {
                 result += '<mo>' + (SPECIAL_OPERATORS[this.rightDelim] || this.rightDelim) + '</mo>';
             }
@@ -643,7 +643,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
 
         case 'accent':
             result += '<mover accent="true">';
-            result += toMathML(this.body, options).mathML;
+            result += toMathML(this.body, 0, 0, options).mathML;
             result += '<mo>' + (SPECIAL_OPERATORS[command] || this.accent) + '</mo>';
             result += '</mover>'
             break;
@@ -678,17 +678,17 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
             }
             
             if (overscript && underscript) {
-                result += '<munderover' + variant + '>' + toMathML(body, options).mathML;
-                result += toMathML(underscript, options).mathML;
-                result += toMathML(overscript, options).mathML;
+                result += '<munderover' + variant + '>' + toMathML(body, 0, 0, options).mathML;
+                result += toMathML(underscript, 0, 0, options).mathML;
+                result += toMathML(overscript, 0, 0, options).mathML;
                 result += '</munderover>';
             } else if (overscript) {
                 result += '<mover' + variant + '>' + toMathML(body, options).mathML;
-                result += toMathML(overscript, options).mathML;
+                result += toMathML(overscript, 0, 0, options).mathML;
                 result += '</mover>';
             } else if (underscript) {
                 result += '<munder' + variant + '>' + toMathML(body, options).mathML;
-                result += toMathML(underscript, options).mathML;
+                result += toMathML(underscript, 0, 0, options).mathML;
                 result += '</munder>';
             }
             break;
@@ -746,7 +746,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
         case 'color':
             if (this.textcolor) {
                 result += '<mstyle color="' + Color.stringToColor(this.textcolor) + '">'; 
-                result += toMathML(this.body, options).mathML;
+                result += toMathML(this.body, 0, 0, options).mathML;
                 result += '</mstyle>';
             }
             break;
@@ -767,7 +767,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
             if (this.backgroundcolor) {
                 result += ' mathbackground="' + Color.stringToColor(this.backgroundcolor) + '"';
             }
-            result += '>' + toMathML(this.body, options).mathML + '</menclose>';
+            result += '>' + toMathML(this.body, 0, 0, options).mathML + '</menclose>';
             break;
 
         case 'spacing':
@@ -783,7 +783,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
                     sep = ' ';
                 }
             }
-            result += '">' + toMathML(this.body, options).mathML + '</menclose>';
+            result += '">' + toMathML(this.body, 0, 0, options).mathML + '</menclose>';
             break;
 
         case 'sizing':
@@ -799,7 +799,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
 
 
 MathAtom.toMathML = function(atoms, options) {
-    return toMathML(atoms, options).mathML;
+    return toMathML(atoms, 0, 0, options).mathML;
 }
 
 
