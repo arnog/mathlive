@@ -44,8 +44,8 @@ function Context(data) {
     this.size = data.size;
     this.phantom = data.phantom;
     this.font = data.font;
-    this.generateID = data.generateID;
-    this.isSelected = data.isSelected;
+    this.generateID = data.generateID !== undefined ? data.generateID : false;
+    this.isSelected = data.isSelected !== undefined ? data.isSelected : false;
     this.macros = data.macros || {};
 
     if (typeof data.parentMathstyle === 'undefined') {

@@ -277,7 +277,7 @@ MathAtom.prototype.decomposeGroup = function(context) {
 }
 
 /**
- * Used in decomposeArray to create a column separator span.
+ * Used in `decomposeArray` to create a column separator span.
  * 
  * @param {number} width 
  * @memberof module:mathAtom
@@ -305,6 +305,8 @@ function makeColOfRepeatingElements(context, body, offset, elem) {
     }
     return makeVlist(context, col, 'individualShift');
 }
+
+
 
 MathAtom.prototype.decomposeArray = function(context) {
     // See http://tug.ctan.org/macros/latex/base/ltfsstrc.dtx
@@ -371,13 +373,11 @@ MathAtom.prototype.decomposeArray = function(context) {
         const outrow = [];
         for (let c = 0; c < inrow.length; ++c) {
             const localContext = context.withMathstyle(this.mathstyle || 'auto');
-            const cell = decompose(localContext, inrow[c]);
-            if (cell) {
-                const elt = [makeOrd(null)].concat(cell);
-                depth = Math.max(depth, Span.depth(elt));
-                height = Math.max(height, Span.height(elt));
-                outrow.push(elt);
-            }
+            const cell = decompose(localContext, inrow[c]) || [];
+            const elt = [makeOrd(null)].concat(cell);
+            depth = Math.max(depth, Span.depth(elt));
+            height = Math.max(height, Span.height(elt));
+            outrow.push(elt);
         }
         
         let jot = r === nr - 1 ? 0 : (this.jot || 0);
