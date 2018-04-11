@@ -1073,11 +1073,21 @@ MathField.prototype._render = function() {
     //
     this.mathlist.root.forEach( a => { 
             a.hasCaret = false;
-            a.isSelected = this.mathlist.contains(a);
+            a.isSelected = false;
         } );
+
     const hasFocus = this.hasFocus();
-    if (hasFocus && this.mathlist.isCollapsed()) {
+    const isCollapsed = this.mathlist.isCollapsed();
+    if (hasFocus && isCollapsed) {
         this.mathlist.anchor().hasCaret = true;
+    }
+    if (!isCollapsed) {
+        const siblings = this.mathlist.siblings()
+        const firstOffset = this.mathlist.startOffset();
+        const lastOffset = this.mathlist.endOffset();
+        for (let i = firstOffset; i < lastOffset; i++) {
+            siblings[i].forEach(a => { a.isSelected = true; });
+        }
     }
 
     //

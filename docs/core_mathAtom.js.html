@@ -269,6 +269,8 @@ MathAtom.prototype.forEach = function (cb) {
 
     if (Array.isArray(this.body)) {
         for (const atom of this.body) if (atom) atom.forEach(cb);
+    } else if (this.body) {
+        cb(this.body);
     }
     if (this.superscript) {
         for (const atom of this.superscript) if (atom) atom.forEach(cb);
@@ -289,7 +291,7 @@ MathAtom.prototype.forEach = function (cb) {
         for (const atom of this.denom) if (atom) atom.forEach(cb);
     }
     if (this.index) {
-        for (const atom of this.index) atom.forEach(cb);
+        for (const atom of this.index) if (atom) atom.forEach(cb);
     }
     if (this.array) {
         for (const row of this.array) {
@@ -988,7 +990,7 @@ MathAtom.prototype.decomposeAccent = function(context) {
     // Shift the accent over by the skew. Note we shift by twice the skew
     // because we are centering the accent, so by adding 2*skew to the left,
     // we shift it to the right by 1*skew.
-    accentBody.children[1].children[1].setLeft(2 * skew);
+    accentBody.children[1].setLeft(2 * skew);
 
     return makeOrd(accentBody, 'accent');
 }  
@@ -1204,16 +1206,28 @@ MathAtom.prototype.decomposeColor = function(context) {
 
 
 MathAtom.prototype.decomposeBox = function(context) {
-    const result = makeOrd(decompose(context, this.body));
-
+    // The padding extends outside of the base
     const padding = this.padding ? this.padding : FONTMETRICS.fboxsep;
+    const base = makeOrd(decompose(context, this.body));
+    base.setStyle('position', 'relative');
+    base.setStyle('top', 2 * padding, 'em');
+
+    const result = makeOrd(base);
     result.setStyle('padding', padding, 'em');
 
     if (this.backgroundcolor) result.setStyle('background-color', this.backgroundcolor);
     if (this.framecolor) result.setStyle('border', FONTMETRICS.fboxrule + 'em solid ' + this.framecolor);
     if (this.border) result.setStyle('border', this.border);
 
+    result.height = base.height;
+    result.depth = base.depth;
+
     result.setStyle('display', 'inline-block');
+    result.setStyle('height', result.height + result.depth , 'em');
+    result.setStyle('vertical-align', 0 , 'em');
+    result.setStyle('position', 'relative');
+    result.setStyle('top', -2 * padding, 'em');
+    result.setStyle('left', -padding, 'em');
 
     return this.bind(context, result);
 }
@@ -1657,7 +1671,7 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
         // Account for that by shifting the subscript back the appropriate
         // amount. Note we only do this when the nucleus is a single symbol.
         if (this.symbol) {
-            supsub.children[1].children[0].setLeft(-Span.italic(nucleus));
+            supsub.children[0].setLeft(-Span.italic(nucleus));
         }
 
     } else if (submid &amp;&amp; !supmid) {
@@ -1931,8 +1945,8 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
         // that we are supposed to shift the limits by 1/2 of the slant,
         // but since we are centering the limits adding a full slant of
         // margin will shift by 1/2 that.
-        result.children[1].children[0].setLeft(-slant);
-        result.children[1].children[2].setLeft(slant);
+        result.children[0].setLeft(-slant);
+        result.children[2].setLeft(slant);
 
     } else if (below &amp;&amp; !above) {
         const top = Span.height(nucleus) - nucleusShift;
@@ -1945,7 +1959,7 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
         ], 'top', top);
 
         // See comment above about slants
-        result.children[1].children[0].setLeft(-slant);
+        result.children[0].setLeft(-slant);
     } else if (!below &amp;&amp; above) {
         const bottom = Span.depth(nucleus) + nucleusShift;
 
@@ -1955,7 +1969,7 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
         ], 'bottom', bottom);
 
         // See comment above about slants
-        result.children[1].children[1].setLeft(slant);
+        result.children[1].setLeft(slant);
     }
 
     return Span.makeSpanOfType(type, result, 'op-limits');

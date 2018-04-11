@@ -355,12 +355,17 @@ Span.prototype.toMarkup = function(hskip) {
         let previousType = 'none';
         for (const child of this.children) {
             let spacing = 0;
-            let type = child.type !== 'textord' ? child.type : 'mord';
-            if (type === 'first') type = 'none';
-            if (child.isTight) { 
-                spacing = (INTER_ATOM_TIGHT_SPACING[previousType + '+' + type] || 0) / 18;
-            } else {
-                spacing = (INTER_ATOM_SPACING[previousType + '+' + type] || 0) / 18;
+            if (previousType) {
+                let type = child.type;
+                if (type) {
+                    if (type === 'textord') type = 'mord';
+                    if (type === 'first') type = 'none';
+                    if (child.isTight) { 
+                        spacing = (INTER_ATOM_TIGHT_SPACING[previousType + '+' + type] || 0) / 18;
+                    } else {
+                        spacing = (INTER_ATOM_SPACING[previousType + '+' + type] || 0) / 18;
+                    }
+                }
             }
             body += child.toMarkup(spacing);
             previousType = lastSpanType(child);
@@ -898,20 +903,11 @@ function makeVlist(context, elements, pos, posData) {
         if (typeof element === 'number') {
             // It's a kern adjustment
             currPos += element; 
-            // const kernEl = makeSpan();
-            // kernEl.height = -element;
-            // kernEl.depth = 0;
-            // kernEl.setStyle('height', -element, 'em');
-            // newElements.push(kernEl);
         } else {
             const shift = -element.depth - currPos;
             currPos += element.height + element.depth;
-            // const childWrap = fontSizer ? makeSpan([fontSizer, element]) : element;
             const childWrap = makeSpan([fontSizer, element]);
             childWrap.setTop(shift);
-            // childWrap.height = element.height + element.depth;
-            // childWrap.depth = 0;
-            // childWrap.setStyle('height', element.height + element.depth, 'em');
             newElements.push(childWrap);
 
         }
@@ -923,31 +919,31 @@ function makeVlist(context, elements, pos, posData) {
     result.height = Math.max(-currPos, height(result) || 0);
     result.depth = Math.max(listDepth, depth(result) || 0);
 
-    return makeOrd(makeStrut(result));
+    return result;
 }
 
-function makeStrut(base, strutHeight, strutDepth) {
-    const bottomStrut = makeSpan('', 'ML__strut--bottom');
-    if (strutHeight !== undefined) {
-        bottomStrut.setStyle('height', strutHeight + strutDepth, 'em');
-        if (strutDepth) {
-           bottomStrut.setStyle('vertical-align', -strutDepth, 'em');
-        }
-    } else {
-        const baseDepth = depth(base);
-        bottomStrut.setStyle('height', height(base) + baseDepth, 'em');
-        if (baseDepth) {
-            bottomStrut.setStyle('vertical-align', -baseDepth, 'em');
-        }
-    }
-    // bottomStrut.setStyle('border', '1px solid green');
+// function makeStrut(base, strutHeight, strutDepth) {
+//     const bottomStrut = makeSpan('', 'ML__strut--bottom');
+//     if (strutHeight !== undefined) {
+//         bottomStrut.setStyle('height', strutHeight + strutDepth, 'em');
+//         if (strutDepth) {
+//            bottomStrut.setStyle('vertical-align', -strutDepth, 'em');
+//         }
+//     } else {
+//         // const baseDepth = depth(base);
+//         // bottomStrut.setStyle('height', height(base) + baseDepth, 'em');
+//         // if (baseDepth) {
+//         //     bottomStrut.setStyle('vertical-align', -baseDepth, 'em');
+//         // }
+//     }
+//     // bottomStrut.setStyle('border', '1px solid green');
 
-    if (Array.isArray(base)) {
-        base.unshift(bottomStrut);
-        return base;
-    }
-    return [bottomStrut, base];
-}
+//     if (Array.isArray(base)) {
+//         base.unshift(bottomStrut);
+//         return base;
+//     }
+//     return [bottomStrut, base];
+// }
 
 // Export the public interface for this module
 return { 
@@ -967,7 +963,7 @@ return {
     makeHlist,
     makeStyleWrap,
 
-    makeStrut,
+    // makeStrut,
 
     makeSVG,
 

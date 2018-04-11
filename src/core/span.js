@@ -285,12 +285,17 @@ Span.prototype.toMarkup = function(hskip) {
         let previousType = 'none';
         for (const child of this.children) {
             let spacing = 0;
-            let type = child.type !== 'textord' ? child.type : 'mord';
-            if (type === 'first') type = 'none';
-            if (child.isTight) { 
-                spacing = (INTER_ATOM_TIGHT_SPACING[previousType + '+' + type] || 0) / 18;
-            } else {
-                spacing = (INTER_ATOM_SPACING[previousType + '+' + type] || 0) / 18;
+            if (previousType) {
+                let type = child.type;
+                if (type) {
+                    if (type === 'textord') type = 'mord';
+                    if (type === 'first') type = 'none';
+                    if (child.isTight) { 
+                        spacing = (INTER_ATOM_TIGHT_SPACING[previousType + '+' + type] || 0) / 18;
+                    } else {
+                        spacing = (INTER_ATOM_SPACING[previousType + '+' + type] || 0) / 18;
+                    }
+                }
             }
             body += child.toMarkup(spacing);
             previousType = lastSpanType(child);
