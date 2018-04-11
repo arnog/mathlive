@@ -1476,8 +1476,10 @@ function filterPresentationAtoms(atoms) {
             result = result.concat(filter);
         }
     } else {
-        if (atoms.type === 'first' || atoms.type === 'color' || atoms.type === 'box' || 
-                atoms.type === 'sizing' || atoms.type === 'spacing') {
+        if (atoms.type === 'spacing') {
+            return [];
+        } else if (atoms.type === 'first' || atoms.type === 'color' || atoms.type === 'box' || 
+                atoms.type === 'sizing') {
             result = filterPresentationAtoms(atoms.body);
         } else {
             if (atoms.body) {
