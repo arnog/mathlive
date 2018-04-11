@@ -121,13 +121,13 @@
         position: relative;
     }
     .vlist {
-        display: inline-flex;
-        flex-flow: column;
+        display: inline-block;
 
         > span {
             display: block;
             height: 0;
             position: relative;
+            line-height: 1;
 
             > span {
                 display: inline-block;
@@ -423,13 +423,13 @@
     }
 
     .op-limits {
-        > .vlist > span {
+        > span> .vlist > span {
             text-align: center;
         }
     }
 
     .accent {
-        > .vlist > span {
+        > span > .vlist > span {
             text-align: center;
         }
 
@@ -456,15 +456,15 @@
             display: inline-block;
         }
 
-        .col-align-c > .vlist {
+        .col-align-c > span > .vlist  {
             text-align: center;
         }
 
-        .col-align-l > .vlist {
+        .col-align-l > span > .vlist {
             text-align: left;
         }
 
-        .col-align-r > .vlist {
+        .col-align-r > span > .vlist{
             text-align: right;
         }
     }
@@ -474,12 +474,14 @@
         // Highlight color defined in https://www.w3.org/TR/REC-CSS2/ui.html
         background: Highlight !important;
         background: #b4d5fe !important;
+        display: inline-block;
         // color: HighlightText;
         // border-color: HighlightText;
     }
 
     &.ML__blurred .ML__selected {
         background: #ccc;
+        display: inline-block;
     }
 
 

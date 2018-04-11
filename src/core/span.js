@@ -111,10 +111,12 @@ Span.prototype.updateDimensions = function() {
     let maxFontSize = 0;
     if (this.children) {
         for (const child of this.children) {
-            console.assert(!isNaN(child.height));
-            if (child.height > height) height = child.height;
-            if (child.depth > depth) depth = child.depth;
-            if (child.maxFontSize > maxFontSize) maxFontSize = child.maxFontSize;
+            if (child) {
+                console.assert(!isNaN(child.height));
+                if (child.height > height) height = child.height;
+                if (child.depth > depth) depth = child.depth;
+                if (child.maxFontSize > maxFontSize) maxFontSize = child.maxFontSize;
+            }
         }
     }
     this.height = height;
@@ -823,16 +825,16 @@ function makeVlist(context, elements, pos, posData) {
     const newElements = [];
     currPos = listDepth;
     for (const element of elements) {
-        if (element instanceof Span) {
+        if (typeof element === 'number') {
+            // It's a kern adjustment
+            currPos += element; 
+        } else {
             const shift = -element.depth - currPos;
             currPos += element.height + element.depth;
             const childWrap = makeSpan([fontSizer, element]);
             childWrap.setTop(shift);
-
             newElements.push(childWrap);
-        } else {
-            // It's a kern adjustment, as an integer
-            currPos += element; 
+
         }
     }
 
@@ -849,19 +851,25 @@ function makeVlist(context, elements, pos, posData) {
 //     const bottomStrut = makeSpan('', 'ML__strut--bottom');
 //     if (strutHeight !== undefined) {
 //         bottomStrut.setStyle('height', strutHeight + strutDepth, 'em');
-//         bottomStrut.setStyle('vertical-align', -strutDepth, 'em');
+//         if (strutDepth) {
+//            bottomStrut.setStyle('vertical-align', -strutDepth, 'em');
+//         }
 //     } else {
-//         bottomStrut.setStyle('height', height(base) + depth(base), 'em');
-//         bottomStrut.setStyle('vertical-align', -depth(base), 'em');
+//         // const baseDepth = depth(base);
+//         // bottomStrut.setStyle('height', height(base) + baseDepth, 'em');
+//         // if (baseDepth) {
+//         //     bottomStrut.setStyle('vertical-align', -baseDepth, 'em');
+//         // }
 //     }
-//     bottomStrut.setStyle('border', '1px solid green');
+//     // bottomStrut.setStyle('border', '1px solid green');
 
 //     if (Array.isArray(base)) {
-//         base.push(bottomStrut);
+//         base.unshift(bottomStrut);
 //         return base;
 //     }
-//     return [base, bottomStrut];
+//     return [bottomStrut, base];
 // }
+
 // Export the public interface for this module
 return { 
     coalesce,

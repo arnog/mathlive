@@ -1536,35 +1536,48 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
 }
 
 
-// function filterPresentationAtoms(atoms) {
-//     if (!atoms) return null;
-//     let result;
-//     if (Array.isArray(atoms)) {
-//         result = [];
-//         for (const atom of atoms) {
-//             const filter = filterPresentationAtoms(atom);
-//             if (filter) {
-//                 result = result.concat(filter);
-//             }
-//         }
-//         if (result.length === 0) return null;
-//     } else {
-//         if (atoms.type === 'first' || atoms.type === 'color' || atoms.type === 'box' || 
-//                 atoms.type === 'sizing' || atoms.type === 'spacing') {
-//             result = filterPresentationAtoms(atoms.body);
-//         } else {
-//             atoms.body = filterPresentationAtoms(atoms.body);
-//             atoms.superscript = filterPresentationAtoms(atoms.superscript);
-//             atoms.subscript = filterPresentationAtoms(atoms.subscript);
-//             atoms.index = filterPresentationAtoms(atoms.index);
-//             atoms.denom = filterPresentationAtoms(atoms.denom);
-//             atoms.numer = filterPresentationAtoms(atoms.numer);
-//             atoms.array = filterPresentationAtoms(atoms.array);
-//             result = [atoms];
-//         }
-//     }
-//     return result;
-// }
+function filterPresentationAtoms(atoms) {
+    if (!atoms) return [];
+    let result;
+    if (Array.isArray(atoms)) {
+        result = [];
+        for (const atom of atoms) {
+            const filter = filterPresentationAtoms(atom);
+            result = result.concat(filter);
+        }
+    } else {
+        if (atoms.type === 'spacing') {
+            return [];
+        } else if (atoms.type === 'first' || atoms.type === 'color' || atoms.type === 'box' || 
+                atoms.type === 'sizing') {
+            result = filterPresentationAtoms(atoms.body);
+        } else {
+            if (atoms.body) {
+                atoms.body = filterPresentationAtoms(atoms.body);
+            }
+            if (atoms.superscript) {
+                atoms.superscript = filterPresentationAtoms(atoms.superscript);
+            }
+            if (atoms.subscript) {
+                atoms.subscript = filterPresentationAtoms(atoms.subscript);
+            }
+            if (atoms.index) {
+                atoms.index = filterPresentationAtoms(atoms.index);
+            }
+            if (atoms.denom) {
+                atoms.denom = filterPresentationAtoms(atoms.denom);
+            }
+            if (atoms.numer) {
+                atoms.numer = filterPresentationAtoms(atoms.numer);
+            }
+            if (atoms.array) {
+                atoms.array = filterPresentationAtoms(atoms.array);
+            }
+            result = [atoms];
+        }
+    }
+    return result;
+}
 
 /**
  * 
@@ -1573,7 +1586,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
  */
 function parse(atoms, options) {
 
-    return parseExpression({atoms: (atoms)}, options).ast;
+    return parseExpression({atoms: filterPresentationAtoms(atoms)}, options).ast;
 }
 
 MathAtom.toAST = function(atoms, options) {

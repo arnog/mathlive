@@ -347,7 +347,7 @@ MathAtom.prototype.decomposeGroup = function(context) {
 }
 
 /**
- * Used in decomposeArray to create a column separator span.
+ * Used in `decomposeArray` to create a column separator span.
  * 
  * @param {number} width 
  * @memberof module:mathAtom
@@ -375,6 +375,8 @@ function makeColOfRepeatingElements(context, body, offset, elem) {
     }
     return makeVlist(context, col, 'individualShift');
 }
+
+
 
 MathAtom.prototype.decomposeArray = function(context) {
     // See http://tug.ctan.org/macros/latex/base/ltfsstrc.dtx
@@ -441,13 +443,11 @@ MathAtom.prototype.decomposeArray = function(context) {
         const outrow = [];
         for (let c = 0; c &lt; inrow.length; ++c) {
             const localContext = context.withMathstyle(this.mathstyle || 'auto');
-            const cell = decompose(localContext, inrow[c]);
-            if (cell) {
-                const elt = [makeOrd(null)].concat(cell);
-                depth = Math.max(depth, Span.depth(elt));
-                height = Math.max(height, Span.height(elt));
-                outrow.push(elt);
-            }
+            const cell = decompose(localContext, inrow[c]) || [];
+            const elt = [makeOrd(null)].concat(cell);
+            depth = Math.max(depth, Span.depth(elt));
+            height = Math.max(height, Span.height(elt));
+            outrow.push(elt);
         }
         
         let jot = r === nr - 1 ? 0 : (this.jot || 0);
@@ -988,7 +988,7 @@ MathAtom.prototype.decomposeAccent = function(context) {
     // Shift the accent over by the skew. Note we shift by twice the skew
     // because we are centering the accent, so by adding 2*skew to the left,
     // we shift it to the right by 1*skew.
-    accentBody.children[1].setLeft(2 * skew);
+    accentBody.children[1].children[1].setLeft(2 * skew);
 
     return makeOrd(accentBody, 'accent');
 }  
@@ -1657,7 +1657,7 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
         // Account for that by shifting the subscript back the appropriate
         // amount. Note we only do this when the nucleus is a single symbol.
         if (this.symbol) {
-            supsub.children[0].setLeft(-Span.italic(nucleus));
+            supsub.children[1].children[0].setLeft(-Span.italic(nucleus));
         }
 
     } else if (submid &amp;&amp; !supmid) {
@@ -1931,8 +1931,8 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
         // that we are supposed to shift the limits by 1/2 of the slant,
         // but since we are centering the limits adding a full slant of
         // margin will shift by 1/2 that.
-        result.children[0].setLeft(-slant);
-        result.children[2].setLeft(slant);
+        result.children[1].children[0].setLeft(-slant);
+        result.children[1].children[2].setLeft(slant);
 
     } else if (below &amp;&amp; !above) {
         const top = Span.height(nucleus) - nucleusShift;
@@ -1945,7 +1945,7 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
         ], 'top', top);
 
         // See comment above about slants
-        result.children[0].setLeft(-slant);
+        result.children[1].children[0].setLeft(-slant);
     } else if (!below &amp;&amp; above) {
         const bottom = Span.depth(nucleus) + nucleusShift;
 
@@ -1955,7 +1955,7 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
         ], 'bottom', bottom);
 
         // See comment above about slants
-        result.children[1].setLeft(slant);
+        result.children[1].children[1].setLeft(slant);
     }
 
     return Span.makeSpanOfType(type, result, 'op-limits');

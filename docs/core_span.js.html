@@ -181,10 +181,12 @@ Span.prototype.updateDimensions = function() {
     let maxFontSize = 0;
     if (this.children) {
         for (const child of this.children) {
-            console.assert(!isNaN(child.height));
-            if (child.height > height) height = child.height;
-            if (child.depth > depth) depth = child.depth;
-            if (child.maxFontSize > maxFontSize) maxFontSize = child.maxFontSize;
+            if (child) {
+                console.assert(!isNaN(child.height));
+                if (child.height > height) height = child.height;
+                if (child.depth > depth) depth = child.depth;
+                if (child.maxFontSize > maxFontSize) maxFontSize = child.maxFontSize;
+            }
         }
     }
     this.height = height;
@@ -893,16 +895,25 @@ function makeVlist(context, elements, pos, posData) {
     const newElements = [];
     currPos = listDepth;
     for (const element of elements) {
-        if (element instanceof Span) {
+        if (typeof element === 'number') {
+            // It's a kern adjustment
+            currPos += element; 
+            // const kernEl = makeSpan();
+            // kernEl.height = -element;
+            // kernEl.depth = 0;
+            // kernEl.setStyle('height', -element, 'em');
+            // newElements.push(kernEl);
+        } else {
             const shift = -element.depth - currPos;
             currPos += element.height + element.depth;
+            // const childWrap = fontSizer ? makeSpan([fontSizer, element]) : element;
             const childWrap = makeSpan([fontSizer, element]);
             childWrap.setTop(shift);
-
+            // childWrap.height = element.height + element.depth;
+            // childWrap.depth = 0;
+            // childWrap.setStyle('height', element.height + element.depth, 'em');
             newElements.push(childWrap);
-        } else {
-            // It's a kern adjustment, as an integer
-            currPos += element; 
+
         }
     }
 
@@ -912,26 +923,32 @@ function makeVlist(context, elements, pos, posData) {
     result.height = Math.max(-currPos, height(result) || 0);
     result.depth = Math.max(listDepth, depth(result) || 0);
 
-    return result;
+    return makeOrd(makeStrut(result));
 }
 
-// function makeStrut(base, strutHeight, strutDepth) {
-//     const bottomStrut = makeSpan('', 'ML__strut--bottom');
-//     if (strutHeight !== undefined) {
-//         bottomStrut.setStyle('height', strutHeight + strutDepth, 'em');
-//         bottomStrut.setStyle('vertical-align', -strutDepth, 'em');
-//     } else {
-//         bottomStrut.setStyle('height', height(base) + depth(base), 'em');
-//         bottomStrut.setStyle('vertical-align', -depth(base), 'em');
-//     }
-//     bottomStrut.setStyle('border', '1px solid green');
+function makeStrut(base, strutHeight, strutDepth) {
+    const bottomStrut = makeSpan('', 'ML__strut--bottom');
+    if (strutHeight !== undefined) {
+        bottomStrut.setStyle('height', strutHeight + strutDepth, 'em');
+        if (strutDepth) {
+           bottomStrut.setStyle('vertical-align', -strutDepth, 'em');
+        }
+    } else {
+        const baseDepth = depth(base);
+        bottomStrut.setStyle('height', height(base) + baseDepth, 'em');
+        if (baseDepth) {
+            bottomStrut.setStyle('vertical-align', -baseDepth, 'em');
+        }
+    }
+    // bottomStrut.setStyle('border', '1px solid green');
 
-//     if (Array.isArray(base)) {
-//         base.push(bottomStrut);
-//         return base;
-//     }
-//     return [base, bottomStrut];
-// }
+    if (Array.isArray(base)) {
+        base.unshift(bottomStrut);
+        return base;
+    }
+    return [bottomStrut, base];
+}
+
 // Export the public interface for this module
 return { 
     coalesce,
@@ -950,7 +967,7 @@ return {
     makeHlist,
     makeStyleWrap,
 
-    // makeStrut,
+    makeStrut,
 
     makeSVG,
 

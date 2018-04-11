@@ -199,6 +199,8 @@ MathAtom.prototype.forEach = function (cb) {
 
     if (Array.isArray(this.body)) {
         for (const atom of this.body) if (atom) atom.forEach(cb);
+    } else if (this.body) {
+        cb(this.body);
     }
     if (this.superscript) {
         for (const atom of this.superscript) if (atom) atom.forEach(cb);
@@ -219,7 +221,7 @@ MathAtom.prototype.forEach = function (cb) {
         for (const atom of this.denom) if (atom) atom.forEach(cb);
     }
     if (this.index) {
-        for (const atom of this.index) atom.forEach(cb);
+        for (const atom of this.index) if (atom) atom.forEach(cb);
     }
     if (this.array) {
         for (const row of this.array) {
@@ -1134,16 +1136,28 @@ MathAtom.prototype.decomposeColor = function(context) {
 
 
 MathAtom.prototype.decomposeBox = function(context) {
-    const result = makeOrd(decompose(context, this.body));
-
+    // The padding extends outside of the base
     const padding = this.padding ? this.padding : FONTMETRICS.fboxsep;
+    const base = makeOrd(decompose(context, this.body));
+    base.setStyle('position', 'relative');
+    base.setStyle('top', 2 * padding, 'em');
+
+    const result = makeOrd(base);
     result.setStyle('padding', padding, 'em');
 
     if (this.backgroundcolor) result.setStyle('background-color', this.backgroundcolor);
     if (this.framecolor) result.setStyle('border', FONTMETRICS.fboxrule + 'em solid ' + this.framecolor);
     if (this.border) result.setStyle('border', this.border);
 
+    result.height = base.height;
+    result.depth = base.depth;
+
     result.setStyle('display', 'inline-block');
+    result.setStyle('height', result.height + result.depth , 'em');
+    result.setStyle('vertical-align', 0 , 'em');
+    result.setStyle('position', 'relative');
+    result.setStyle('top', -2 * padding, 'em');
+    result.setStyle('left', -padding, 'em');
 
     return this.bind(context, result);
 }
