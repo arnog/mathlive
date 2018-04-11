@@ -450,6 +450,9 @@ function toMo(atom) {
 function toString(atoms) {
     if (!atoms) return '';
     if (typeof atoms === 'string') return xmlEscape(atoms);
+    if (!Array.isArray(atoms) && typeof atoms.body === 'string') {
+        return xmlEscape(atoms.body);
+    }
     let result = '';
     for (const atom of atoms) {
         if (typeof atom.body === 'string') {
