@@ -874,13 +874,12 @@ function makeVlist(context, elements, pos, posData) {
         currPos = listDepth;
         for (let i = 2; i &lt; originalElements.length; i += 2) {
             const diff = -originalElements[i + 1] - currPos -
-                originalElements[i].depth;
-            const kern = diff -
-                (originalElements[i - 2].height +
-                 originalElements[i - 2].depth);
- 
+                originalElements[i].depth; 
             currPos = currPos + diff;
 
+            const kern = diff -
+                (originalElements[i - 2].height + originalElements[i - 2].depth);
+ 
             elements.push(kern);
             elements.push(originalElements[i]);
         }
@@ -909,15 +908,14 @@ function makeVlist(context, elements, pos, posData) {
             const childWrap = makeSpan([fontSizer, element]);
             childWrap.setTop(shift);
             newElements.push(childWrap);
-
         }
     }
 
     const result = makeSpan(newElements, 'vlist');
     // Fix the final height and depth, in case there were kerns at the ends
     // since makeSpan won't take that into account.
-    result.height = Math.max(-currPos, height(result) || 0);
     result.depth = Math.max(listDepth, depth(result) || 0);
+    result.height = Math.max(-currPos, height(result) || 0);
 
     return result;
 }

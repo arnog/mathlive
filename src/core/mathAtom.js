@@ -23,8 +23,6 @@ const makeHlist = Span.makeHlist;
 const makeVlist = Span.makeVlist;
 const FONTMETRICS = FontMetricsModule.metrics;
 const getCharacterMetrics = FontMetricsModule.getCharacterMetrics;
-// const toPx = FontMetricsModule.toPx;
-const toEm = FontMetricsModule.toEm;
 
 
 
