@@ -197,7 +197,7 @@ MathAtom.prototype.forEach = function (cb) {
 
     if (Array.isArray(this.body)) {
         for (const atom of this.body) if (atom) atom.forEach(cb);
-    } else if (this.body) {
+    } else if (this.body && typeof this.body === 'object') {
         cb(this.body);
     }
     if (this.superscript) {
