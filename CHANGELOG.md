@@ -1,6 +1,8 @@
-
+## 0.22 (April 11, 2018)
 
 ### Major New Features
+- Support for styling in the virtual keyboard UI: the text and highlihgt 
+color can be adjusted to emphasize a portion of a formula
 - Smart Fences. When a fence ("(", "{", etc...) is inserted, a matching 
 closing fence is automatically inserted, displayed as a greyed out placeholder.<br>
 The Latex code inserted will vary depending on the context where the insertion
@@ -39,8 +41,15 @@ delete will remove the fraction, but keep numerator and denominator, etc...
 the last/first element will be skipped. For example, with `\textcolor{}` this
 implements a behavior similar to word processors.
 
+### Bug fixes
+- Fixed #63: improved displayed of `\enclose` over stacked atoms such as 
+fractions and `\overset`
+- Fixed issue with selecting sparse arrays
+- Make `\bigl` et al. properly selectable
+
 ### Code Maintenance and Performance
 - Moved operator precedence and canonical names from Definitions to MASTON.
+- Improved rendering performance by eliminating hotspots through profiling.
 
 ## 0.21 (March 30, 2018)
 ### Major New Features
