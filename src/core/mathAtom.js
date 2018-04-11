@@ -678,10 +678,10 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
             'mclose', this.rightDelim, delimSize, true,
             context.withMathstyle(mathstyle));
 
-    const result = this.bind(context, makeOrd([leftDelim, frac, rightDelim], 
+    const result = makeOrd([leftDelim, frac, rightDelim], 
         ((context.parentSize !== context.size) ? 
-            ('sizing reset-' + context.parentSize + ' ' + context.size) : 'genfrac')));
-    return result;
+            ('sizing reset-' + context.parentSize + ' ' + context.size) : 'genfrac'));
+    return this.bind(context, result);
 }
 
 
@@ -1136,13 +1136,13 @@ MathAtom.prototype.decomposeColor = function(context) {
 
 
 MathAtom.prototype.decomposeBox = function(context) {
-    // The padding extends outside of the base
-    const padding = this.padding ? this.padding : FONTMETRICS.fboxsep;
     const base = makeOrd(decompose(context, this.body));
     base.setStyle('position', 'relative');
-    base.setStyle('top', 2 * padding, 'em');
 
     const result = makeOrd(base);
+
+    // The padding extends outside of the base
+    const padding = this.padding ? this.padding : FONTMETRICS.fboxsep;
     result.setStyle('padding', padding, 'em');
 
     if (this.backgroundcolor) result.setStyle('background-color', this.backgroundcolor);
@@ -1153,65 +1153,62 @@ MathAtom.prototype.decomposeBox = function(context) {
     result.depth = base.depth;
 
     result.setStyle('display', 'inline-block');
-    result.setStyle('height', result.height + result.depth , 'em');
-    result.setStyle('vertical-align', 0 , 'em');
     result.setStyle('position', 'relative');
-    result.setStyle('top', -2 * padding, 'em');
+    result.setStyle('height', result.height + result.depth , 'em');
     result.setStyle('left', -padding, 'em');
 
     return this.bind(context, result);
 }
 
 MathAtom.prototype.decomposeEnclose = function(context) {
-    const body = makeOrd(decompose(context, this.body));
-    const padding = this.padding === 'auto' ? .2 : this.padding; // em
-    // Make sure that the span takes the full height of the enclosed children
+    const base = makeOrd(decompose(context, this.body));
+    const result = makeOrd(base);
 
-    if (Span.height(body) >= 1.0) {
-        // If the body is short (i.e. a single line of digits, characters)
-        // use no vertical padding, it looks better.
-        body.setStyle('padding-top', Span.height(body) - Span.depth(body) + padding, 'em');
-        body.setStyle('padding-bottom', Span.depth(body) - padding, 'em');
-    }
-    body.setStyle('padding-left', padding, 'em');
-    body.setStyle('padding-right', padding, 'em');
-
-    if (this.backgroundcolor && this.backgroundcolor !== 'transparent') {
-        body.setStyle('background-color', this.backgroundcolor);
-    }
+    result.height = base.height;
+    result.depth = base.depth;
 
     // Account for the padding
-    body.height += padding + toEm(this.strokeWidth, 'px');
-    body.depth += padding + toEm(this.strokeWidth, 'px');
+    const padding = this.padding === 'auto' ? .2 : this.padding; // em
+    result.setStyle('padding', padding, 'em');
+
+    result.setStyle('display', 'inline-block');
+    result.setStyle('position', 'relative');
+    result.setStyle('height', result.height + result.depth , 'em');
+    result.setStyle('left', -padding , 'em');
+
+    if (this.backgroundcolor && this.backgroundcolor !== 'transparent') {
+        result.setStyle('background-color', this.backgroundcolor);
+    }
+
 
     let svg = '';
 
-    if (this.notation.box) body.setStyle('border', this.borderStyle);
+    if (this.notation.box) result.setStyle('border', this.borderStyle);
 
     if (this.notation.actuarial) {
-        body.setStyle('border-top', this.borderStyle);
-        body.setStyle('border-right', this.borderStyle);
+        result.setStyle('border-top', this.borderStyle);
+        result.setStyle('border-right', this.borderStyle);
     }
 
     if (this.notation.madruwb) {
-        body.setStyle('border-bottom', this.borderStyle);
-        body.setStyle('border-right', this.borderStyle);
+        result.setStyle('border-bottom', this.borderStyle);
+        result.setStyle('border-right', this.borderStyle);
     }
 
     if (this.notation.roundedbox) {
-        body.setStyle('border-radius', (Span.height(body) + Span.depth(body)) / 2, 'em');
-        body.setStyle('border', this.borderStyle);        
+        result.setStyle('border-radius', (Span.height(result) + Span.depth(result)) / 2, 'em');
+        result.setStyle('border', this.borderStyle);        
     }
 
     if (this.notation.circle) {
-        body.setStyle('border-radius', '50%');
-        body.setStyle('border', this.borderStyle);        
+        result.setStyle('border-radius', '50%');
+        result.setStyle('border', this.borderStyle);        
     }
 
-    if (this.notation.top) body.setStyle('border-top', this.borderStyle);
-    if (this.notation.left) body.setStyle('border-left', this.borderStyle);
-    if (this.notation.right) body.setStyle('border-right', this.borderStyle);
-    if (this.notation.bottom) body.setStyle('border-bottom', this.borderStyle);
+    if (this.notation.top) result.setStyle('border-top', this.borderStyle);
+    if (this.notation.left) result.setStyle('border-left', this.borderStyle);
+    if (this.notation.right) result.setStyle('border-right', this.borderStyle);
+    if (this.notation.bottom) result.setStyle('border-bottom', this.borderStyle);
 
     if (this.notation.horizontalstrike) {
         svg += '<line x1="3%"  y1="50%" x2="97%" y2="50%"';
@@ -1317,9 +1314,9 @@ MathAtom.prototype.decomposeEnclose = function(context) {
                 svgStyle = 'filter: drop-shadow(' + this.shadow + ')';
             }
         }
-        return Span.makeSVG(body, svg, svgStyle);
+        return Span.makeSVG(result, svg, svgStyle);
     }
-    return body;
+    return result;
 }
 
 /**
