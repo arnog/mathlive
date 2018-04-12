@@ -1084,7 +1084,7 @@ function parsePrimary(expr, options) {
     } else if (atom.type === 'sizing') {
        expr.index += 1;
        return parsePrimary(expr, options); 
-    } else {
+    } else if (atom.type === 'group') {
         expr.index += 1;
         expr.ast = atom.toAST(options);
     }
@@ -1454,11 +1454,11 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
         case 'mathstyle':
             break;
         default: 
-            console.log('Unhandled atom ' + this.type + ' - ' + this.body);
-            
+            result = undefined;
+            console.log('Unhandled atom ' + this.type + ' - ' + this.body);            
     }
 
-    if (variant) {
+    if (variant && result) {
         result.variant = variant;
     }
 
