@@ -2426,7 +2426,7 @@ function filterAtomsForStyle(atoms, style) {
                 atoms.body.shift();
             }
             result = filterAtomsForStyle(atoms.body, style);
-        } else {
+        } else if (typeof atoms === 'object') {
             atoms.body = filterAtomsForStyle(atoms.body, style);
             atoms.superscript = filterAtomsForStyle(atoms.superscript, style);
             atoms.subscript = filterAtomsForStyle(atoms.subscript, style);
@@ -2434,6 +2434,8 @@ function filterAtomsForStyle(atoms, style) {
             atoms.denom = filterAtomsForStyle(atoms.denom, style);
             atoms.numer = filterAtomsForStyle(atoms.numer, style);
             atoms.array = filterAtomsForStyle(atoms.array, style);
+            result = atoms;
+        } else {
             result = atoms;
         }
     }

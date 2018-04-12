@@ -2092,7 +2092,7 @@ function decompose(context, atoms) {
                             }
                             if (selectionType === 'array') selectionType = 'mopen';
                             if (selectionType === 'leftright') selectionType = 'minner';
-                            if (/^(first|accent|surd|genfrac|textord|font|placeholder)$/.test(selectionType)) {
+                            if (/^(first|accent|surd|genfrac|textord|font|placeholder|box|color)$/.test(selectionType)) {
                                 selectionType = 'mord';
                             }
                             selectionIsTight = atoms[i].isTight;
