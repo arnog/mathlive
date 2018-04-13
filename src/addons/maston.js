@@ -726,6 +726,8 @@ function parsePostfix(expr, options) {
         return expr;
     }
     
+    const savedPrec = expr.minPrec;
+    expr.minPrec = 0;
     let atom = expr.atoms[expr.index];
 
     if (!ldelim) {
@@ -753,6 +755,7 @@ function parsePostfix(expr, options) {
                 expr.ast = {
                     fn: DELIM_FUNCTION[ldelim + rdelim] || (ldelim + rdelim),
                     arg: expr.ast};
+                expr.minPrec = savedPrec;
                 return expr;
             }
         }
@@ -802,7 +805,8 @@ function parsePostfix(expr, options) {
     } else {
         return undefined;
     }
-
+    
+    expr.minPrec = savedPrec;
     return expr;
 }
 
@@ -1482,25 +1486,25 @@ function filterPresentationAtoms(atoms) {
                 atoms.type === 'sizing') {
             result = filterPresentationAtoms(atoms.body);
         } else {
-            if (atoms.body) {
+            if (atoms.body && Array.isArray(atoms.body)) {
                 atoms.body = filterPresentationAtoms(atoms.body);
             }
-            if (atoms.superscript) {
+            if (atoms.superscript && Array.isArray(atoms.superscript)) {
                 atoms.superscript = filterPresentationAtoms(atoms.superscript);
             }
-            if (atoms.subscript) {
+            if (atoms.subscript && Array.isArray(atoms.subscript)) {
                 atoms.subscript = filterPresentationAtoms(atoms.subscript);
             }
-            if (atoms.index) {
+            if (atoms.index && Array.isArray(atoms.index)) {
                 atoms.index = filterPresentationAtoms(atoms.index);
             }
-            if (atoms.denom) {
+            if (atoms.denom && Array.isArray(atoms.denom)) {
                 atoms.denom = filterPresentationAtoms(atoms.denom);
             }
-            if (atoms.numer) {
+            if (atoms.numer && Array.isArray(atoms.numer)) {
                 atoms.numer = filterPresentationAtoms(atoms.numer);
             }
-            if (atoms.array) {
+            if (atoms.array && Array.isArray(atoms.array)) {
                 atoms.array = filterPresentationAtoms(atoms.array);
             }
             result = [atoms];
