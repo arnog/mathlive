@@ -796,6 +796,8 @@ function parsePostfix(expr, options) {
         return expr;
     }
     
+    const savedPrec = expr.minPrec;
+    expr.minPrec = 0;
     let atom = expr.atoms[expr.index];
 
     if (!ldelim) {
@@ -823,6 +825,7 @@ function parsePostfix(expr, options) {
                 expr.ast = {
                     fn: DELIM_FUNCTION[ldelim + rdelim] || (ldelim + rdelim),
                     arg: expr.ast};
+                expr.minPrec = savedPrec;
                 return expr;
             }
         }
@@ -872,7 +875,8 @@ function parsePostfix(expr, options) {
     } else {
         return undefined;
     }
-
+    
+    expr.minPrec = savedPrec;
     return expr;
 }
 
@@ -1154,7 +1158,7 @@ function parsePrimary(expr, options) {
     } else if (atom.type === 'sizing') {
        expr.index += 1;
        return parsePrimary(expr, options); 
-    } else {
+    } else if (atom.type === 'group') {
         expr.index += 1;
         expr.ast = atom.toAST(options);
     }
@@ -1524,11 +1528,11 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
         case 'mathstyle':
             break;
         default: 
-            console.log('Unhandled atom ' + this.type + ' - ' + this.body);
-            
+            result = undefined;
+            console.log('Unhandled atom ' + this.type + ' - ' + this.body);            
     }
 
-    if (variant) {
+    if (variant &amp;&amp; result) {
         result.variant = variant;
     }
 
@@ -1552,25 +1556,25 @@ function filterPresentationAtoms(atoms) {
                 atoms.type === 'sizing') {
             result = filterPresentationAtoms(atoms.body);
         } else {
-            if (atoms.body) {
+            if (atoms.body &amp;&amp; Array.isArray(atoms.body)) {
                 atoms.body = filterPresentationAtoms(atoms.body);
             }
-            if (atoms.superscript) {
+            if (atoms.superscript &amp;&amp; Array.isArray(atoms.superscript)) {
                 atoms.superscript = filterPresentationAtoms(atoms.superscript);
             }
-            if (atoms.subscript) {
+            if (atoms.subscript &amp;&amp; Array.isArray(atoms.subscript)) {
                 atoms.subscript = filterPresentationAtoms(atoms.subscript);
             }
-            if (atoms.index) {
+            if (atoms.index &amp;&amp; Array.isArray(atoms.index)) {
                 atoms.index = filterPresentationAtoms(atoms.index);
             }
-            if (atoms.denom) {
+            if (atoms.denom &amp;&amp; Array.isArray(atoms.denom)) {
                 atoms.denom = filterPresentationAtoms(atoms.denom);
             }
-            if (atoms.numer) {
+            if (atoms.numer &amp;&amp; Array.isArray(atoms.numer)) {
                 atoms.numer = filterPresentationAtoms(atoms.numer);
             }
-            if (atoms.array) {
+            if (atoms.array &amp;&amp; Array.isArray(atoms.array)) {
                 atoms.array = filterPresentationAtoms(atoms.array);
             }
             result = [atoms];

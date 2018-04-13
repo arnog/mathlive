@@ -137,7 +137,7 @@ entity references or by composing them from base letters and style markup.</p>
 <li><code>comment</code>: A human readable string to annotate an expression, since JSON does not allow comments in its encoding</li>
 <li><code>error</code>: A human readable string that can be used to indicate a syntax error or other problem when parsing or evaluating an expression.</li>
 <li><code>latex</code>: A visual representation in LaTeX of the expression. This can be useful to preserve non-semantic details, for example parentheses in an expression.</li>
-<li>`mathml': A visual representation in MathML of the expression.</li>
+<li><code>mathml</code>: A visual representation in MathML of the expression.</li>
 <li><code>class</code>: A CSS class to be associated with a representation of this element</li>
 <li><code>id</code>: A CSS id to be associated with a representation of this element</li>
 <li><code>style</code>: A CSS style string</li>
@@ -272,10 +272,30 @@ replacing the element with the number. That is, both representations are equival
 <tr>
 <th>Name (and common synonyms)</th>
 <th style="text-align:left">Value</th>
-<th style="text-align:left">Argument</th>
+<th style="text-align:left">Comment</th>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td> Addition</td>
+<td style="text-align:left"><code>add</code></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td> Multiplication</td>
+<td style="text-align:left"><code>multiply</code></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td> List</td>
+<td style="text-align:left"><code>list</code></td>
+<td style="text-align:left">comma separated list</td>
+</tr>
+<tr>
+<td> List</td>
+<td style="text-align:left"><code>list2</code></td>
+<td style="text-align:left">semi-colon separated list</td>
+</tr>
 <tr>
 <td> Cosine</td>
 <td style="text-align:left"><code>cos</code></td>
@@ -314,7 +334,7 @@ hand side expression. The expressions are optional, for example:
 <code>a-b</code> and <code>-x</code>. Use a function when there is only a rhs input, for 
 example <code>Re()</code>.</p>
 <p>Operators can have additional input or modifiers displayed over and under them.</p>
-<p>For example the &quot;sum&quot; operator can have expressions indicating the 
+<p>For example the <code>sum</code> operator can have expressions indicating the 
 range and limits of the operator. The &quot;integral&quot; operator under and over can indicate the start and end of its range.</p>
 <ul>
 <li><code>op</code>: &langle;string&rangle;, the name of the operator</li>

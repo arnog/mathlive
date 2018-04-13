@@ -166,7 +166,7 @@ function toMathstyle(s) {
         'scriptscriptstyle': styles[SS]
     }
 
-    console.assert(STYLE_NAMES[s]);
+    console.assert(STYLE_NAMES[s], 'unknown style: "', s, '"');
     return STYLE_NAMES[s];
 }
 

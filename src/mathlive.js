@@ -43,7 +43,11 @@ define([
  * @function module:mathlive#latexToMarkup
  */
 function toMarkup(text, mathstyle, format, macros) {
-    mathstyle = mathstyle || 'displaystyle'
+    mathstyle = mathstyle || 'displaystyle';
+
+    console.assert(/displaystyle|textstyle|scriptstyle|scriptscriptstyle/.test(mathstyle), 
+        "Invalid style:", mathstyle);
+
     //
     // 1. Tokenize the text
     //
