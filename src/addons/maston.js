@@ -1167,7 +1167,7 @@ function parsePrimary(expr, options) {
 
 /**
  * Given an atom or an array of atoms, return their AST representation as 
- * a string.
+ * an object.
  * @param {Object} expr An expressions, including expr.atoms, expr.index, 
  * expr.minPrec the minimum precedence that this parser should parse
  * before returning; expr.lhs (optional); expr.ast, the resulting AST.
