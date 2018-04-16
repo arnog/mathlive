@@ -401,7 +401,7 @@ function toMathML(latex, options) {
 function latexToAST(latex, options) {
     if (!MathAtom.toAST) {
         console.log('The AST module is not loaded.');
-        return '';
+        return {};
     }
     options = options || {macros:{}};
     Object.assign(options.macros, Definitions.MACROS);
