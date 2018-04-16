@@ -296,7 +296,10 @@ function toSpeakableText() {
 }
 
 /**
- * @param {string} latex
+ * Convert a LaTeX string to a string of MathML markup.
+ * 
+ * @param {string} latex A string of valid LaTeX. It does not have to start
+ * with a mode token such as a `$$` or `\(`.
  * @return {string}
  * @function module:mathlive#latexToMathML
  */
@@ -315,8 +318,14 @@ function toMathML(latex, options) {
 }
 
 /**
- * @param {string} latex
- * @return {string}
+ * Convert a LaTeX string to an Abstract Syntax Tree
+ * 
+ * **See:** {@tutorial MASTON}
+ * 
+ * @param {string} latex A string of valid LaTeX. It does not have to start
+ * with a mode token such as a `$$` or `\(`.
+ * 
+ * @return {Object} The Abstract Syntax Tree as a JavaScript object.
  * @function module:mathlive#latexToAST
  */
 function latexToAST(latex, options) {

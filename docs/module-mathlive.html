@@ -187,11 +187,16 @@ public API.</p>
 
     
 
-    <h4 class="name" id="latexToAST">latexToAST<span class="signature">(latex<span class="signature-type">: string</span>)</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="latexToAST">latexToAST<span class="signature">(latex<span class="signature-type">: string</span>)</span><span class="type-signature"> &rarr;  Object</span><span class="type-signature"></span></h4>
 
     
 
 
+
+<div class="description">
+    <p>Convert a LaTeX string to an Abstract Syntax Tree</p>
+<p><strong>See:</strong> <a href="tutorial-MASTON.html">MASTON</a></p>
+</div>
 
 
 
@@ -227,6 +232,12 @@ public API.</p>
             
 
             
+                    <p class="description last">
+                        <p>A string of valid LaTeX. It does not have to start
+with a mode token such as a <code>$$</code> or <code>\(</code>.</p>
+                    </p>
+                    
+            
         </div>
 
     
@@ -242,11 +253,13 @@ public API.</p>
 <span class="param-desc">
     
         
-<span class="param-type">string</span>
+<span class="param-type">Object</span>
 
 
         &nbsp;&nbsp;
     
+    
+        <p>The Abstract Syntax Tree as a JavaScript object.</p>
     
 </span>
 
@@ -285,7 +298,7 @@ public API.</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line317">Source</a>
+        <a href="mathlive.js.html#line320">Source</a>
         </span>
     
 
@@ -541,6 +554,10 @@ used to construct the markup. Valid values include <code>'mathlist'</code> and <
 
 
 
+<div class="description">
+    <p>Convert a LaTeX string to a string of MathML markup.</p>
+</div>
+
 
 
 
@@ -574,6 +591,12 @@ used to construct the markup. Valid values include <code>'mathlist'</code> and <
 
             
 
+            
+                    <p class="description last">
+                        <p>A string of valid LaTeX. It does not have to start
+with a mode token such as a <code>$$</code> or <code>\(</code>.</p>
+                    </p>
+                    
             
         </div>
 
@@ -2259,7 +2282,7 @@ for details</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line337">Source</a>
+        <a href="mathlive.js.html#line346">Source</a>
         </span>
     
 
@@ -2750,7 +2773,7 @@ of delimiters that will trigger a render of the content in 'textstyle' or
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line374">Source</a>
+        <a href="mathlive.js.html#line383">Source</a>
         </span>
     
 
@@ -2942,7 +2965,7 @@ use the same namespace here.</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line431">Source</a>
+        <a href="mathlive.js.html#line440">Source</a>
         </span>
     
 
@@ -3154,7 +3177,7 @@ use the same namespace here.</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line458">Source</a>
+        <a href="mathlive.js.html#line467">Source</a>
         </span>
     
 
