@@ -173,7 +173,7 @@ people who will read it later.
 obscure constructs that may obfuscate the code to improve performance. For 
 example, RegEx are crazy fast in all modern browsers, and trying to roll out
 your own pattern matching will result in more code and less performance. 
-If you think something could be made faster, use [jsperf.com]`https://jsperf.com` to 
+If you think something could be made faster, use [jsperf.com](https://jsperf.com) to 
 try out options in various browsers and compare the results. You might be 
 surprised.
 * **Follow Postel's Law, the Robustness Principle** "Be conservative in what
