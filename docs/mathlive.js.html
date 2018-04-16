@@ -366,7 +366,10 @@ function toSpeakableText() {
 }
 
 /**
- * @param {string} latex
+ * Convert a LaTeX string to a string of MathML markup.
+ * 
+ * @param {string} latex A string of valid LaTeX. It does not have to start
+ * with a mode token such as a `$$` or `\(`.
  * @return {string}
  * @function module:mathlive#latexToMathML
  */
