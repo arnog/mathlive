@@ -5,7 +5,7 @@
 </h1>
 
 
-Welcome to MathLive, a Javascript library to render and edit math. 
+Welcome to MathLive, a JavaScript library to render and edit math. 
 
 It is fast, small and provides TeX-quality typesetting 
 with an easy to use interface for math editing. Try it at [mathlive.io](https://mathlive.io)!
