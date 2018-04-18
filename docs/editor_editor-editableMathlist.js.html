@@ -359,42 +359,52 @@ EditableMathlist.prototype.setRange = function(from, to) {
 
 /**
  * Convert an array index (scalar) to an array row/col.
- * @param {*} atom 
- * @param {*} index 
+ * @param {MathAtom} atom 
+ * @param {number} index 
  */
 function arrayColRow(atom, index) {
     let numCols = 1;
+    // 1. Figure out the number of columns
+    // (which is the most columns on any one row)
     for (const row of atom.array) {
         if (Array.isArray(row) &amp;&amp; row.length > numCols) numCols = row.length;
     }
-    return {row: Math.ceil((index + 1) / numCols) - 1, col: index % numCols};
+    // 2. Calculate the row and col based on the number of columns
+    return {
+        row: Math.ceil((index + 1) / numCols) - 1, 
+        col: index % numCols
+    };
 }
 
+/**
+ * Return the array cell corresponding to colrow or null (for example in 
+ * a sparse array)
+ * 
+ * @param {MathAtom} atom 
+ * @param {*} colrow 
+ */
 function arrayCell(atom, colrow) {
-    if (typeof colrow === 'number') colrow = arrayColRow(atom, colrow);
     let result;
     if (Array.isArray(atom.array)) {
+        if (typeof colrow === 'number') colrow = arrayColRow(atom, colrow);
         if (Array.isArray(atom.array[colrow.row])) {
-            let col = colrow.col;
-            while (!result &amp;&amp; col >= 0) {
-                result = atom.array[colrow.row][col];
-                col -= 1;
-            }
+            result = atom.array[colrow.row][colrow.col] || null;
         }
     }
-
     return result;
 }
 
+/**
+ * Total numbers of cells (include sparse cells) in the array.
+ * @param {MathAtom} atom 
+ */
 function arrayCellCount(atom) {
     let result = 0;
     if (Array.isArray(atom.array)) {
         let numRows = 0;
         let numCols = 1;
         for (const row of atom.array) {
-            // The array can be sparse, so only count rows that have some columns
-            if (row.length > 0 &amp;&amp; row[0].length > 0) numRows += 1;
-
+            numRows += 1;
             if (row.length > numCols) numCols = row.length;
         }
         result = numRows * numCols;      
@@ -1044,7 +1054,9 @@ EditableMathlist.prototype.next = function(options) {
             const maxCellCount = arrayCellCount(this.parent());
             let cellIndex = parseInt(this.relation().match(/cell([0-9]*)$/)[1]) + 1;
             while (cellIndex &lt; maxCellCount) {
-                if (this.setSelection(0, 0, 'cell' + cellIndex)) {
+                const cell = arrayCell(this.parent(), cellIndex);
+                // Some cells could be null (sparse array), so skip them
+                if (cell &amp;&amp; this.setSelection(0, 0, 'cell' + cellIndex)) {
                     this.selectionDidChange();
                     return;
                 }
@@ -1085,7 +1097,18 @@ EditableMathlist.prototype.next = function(options) {
     if (!anchor.captureSelection) {
         let relation;
         if (anchor.array) {
-            relation = 'cell0';
+            // Find the first non-empty cell in this array
+            let cellIndex = 0;
+            relation = '';
+            const maxCellCount = arrayCellCount(anchor);
+            while (!relation &amp;&amp; cellIndex &lt; maxCellCount) {
+                // Some cells could be null (sparse array), so skip them
+                if (arrayCell(anchor, cellIndex)) {
+                    relation = 'cell' + cellIndex.toString();
+                }
+                cellIndex += 1;
+            }
+            console.assert(relation);
             this.path.push({relation:relation, offset: 0});
             this.setSelection(0, 0 , relation);
             return;
@@ -1142,8 +1165,9 @@ EditableMathlist.prototype.previous = function(options) {
         // No more siblings, check if we have a sibling cell in an array
         if (this.relation().startsWith('cell')) {
             let cellIndex = parseInt(this.relation().match(/cell([0-9]*)$/)[1]) - 1;
-            while ( cellIndex >= 0) {
-                if (this.setSelection(-1, 0, 'cell' + cellIndex)) {
+            while (cellIndex >= 0) {
+                const cell = arrayCell(this.parent(), cellIndex);
+                if (cell &amp;&amp; this.setSelection(-1, 0, 'cell' + cellIndex)) {
                     this.selectionDidChange();
                     return;
                 }
@@ -1177,9 +1201,20 @@ EditableMathlist.prototype.previous = function(options) {
     if (!anchor.captureSelection) {
         let relation;
         if (anchor.array) {
-            relation = 'cell' + (arrayCellCount(anchor) - 1);
+            relation = '';
+            const maxCellCount = arrayCellCount(anchor);
+            let cellIndex = maxCellCount - 1;
+            while (!relation &amp;&amp; cellIndex &lt; maxCellCount) {
+                // Some cells could be null (sparse array), so skip them
+                if (arrayCell(anchor, cellIndex)) {
+                    relation = 'cell' + cellIndex.toString();
+                }
+                cellIndex -= 1;
+            }
+            cellIndex += 1;
+            console.assert(relation);
             this.path.push({relation:relation, 
-                offset: arrayCell(anchor, arrayCellCount(anchor) - 1).length - 1});
+                offset: arrayCell(anchor, cellIndex).length - 1});
             this.setSelection(-1, 0 , relation);
             return;
         }
@@ -2461,7 +2496,7 @@ function filterAtomsForStyle(atoms, style) {
                 atoms.body.shift();
             }
             result = filterAtomsForStyle(atoms.body, style);
-        } else {
+        } else if (typeof atoms === 'object') {
             atoms.body = filterAtomsForStyle(atoms.body, style);
             atoms.superscript = filterAtomsForStyle(atoms.superscript, style);
             atoms.subscript = filterAtomsForStyle(atoms.subscript, style);
@@ -2469,6 +2504,8 @@ function filterAtomsForStyle(atoms, style) {
             atoms.denom = filterAtomsForStyle(atoms.denom, style);
             atoms.numer = filterAtomsForStyle(atoms.numer, style);
             atoms.array = filterAtomsForStyle(atoms.array, style);
+            result = atoms;
+        } else {
             result = atoms;
         }
     }

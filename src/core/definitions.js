@@ -674,7 +674,7 @@ function getInfo(symbol, parseMode, macros) {
         if (!info) {
             // Maybe it's a macro
             const command = symbol.slice(1);
-            if (macros[command]) {
+            if (macros && macros[command]) {
                 let def = macros[command];
                 if (typeof def === 'object') {
                     def = def.def;

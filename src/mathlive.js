@@ -43,7 +43,11 @@ define([
  * @function module:mathlive#latexToMarkup
  */
 function toMarkup(text, mathstyle, format, macros) {
-    mathstyle = mathstyle || 'displaystyle'
+    mathstyle = mathstyle || 'displaystyle';
+
+    console.assert(/displaystyle|textstyle|scriptstyle|scriptscriptstyle/.test(mathstyle), 
+        "Invalid style:", mathstyle);
+
     //
     // 1. Tokenize the text
     //
@@ -292,7 +296,10 @@ function toSpeakableText() {
 }
 
 /**
- * @param {string} latex
+ * Convert a LaTeX string to a string of MathML markup.
+ * 
+ * @param {string} latex A string of valid LaTeX. It does not have to start
+ * with a mode token such as a `$$` or `\(`.
  * @return {string}
  * @function module:mathlive#latexToMathML
  */
@@ -311,14 +318,20 @@ function toMathML(latex, options) {
 }
 
 /**
- * @param {string} latex
- * @return {string}
+ * Convert a LaTeX string to an Abstract Syntax Tree
+ * 
+ * **See:** {@tutorial MASTON}
+ * 
+ * @param {string} latex A string of valid LaTeX. It does not have to start
+ * with a mode token such as a `$$` or `\(`.
+ * 
+ * @return {Object} The Abstract Syntax Tree as a JavaScript object.
  * @function module:mathlive#latexToAST
  */
 function latexToAST(latex, options) {
     if (!MathAtom.toAST) {
         console.log('The AST module is not loaded.');
-        return '';
+        return {};
     }
     options = options || {macros:{}};
     Object.assign(options.macros, Definitions.MACROS);

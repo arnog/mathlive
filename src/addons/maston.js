@@ -726,6 +726,8 @@ function parsePostfix(expr, options) {
         return expr;
     }
     
+    const savedPrec = expr.minPrec;
+    expr.minPrec = 0;
     let atom = expr.atoms[expr.index];
 
     if (!ldelim) {
@@ -753,6 +755,7 @@ function parsePostfix(expr, options) {
                 expr.ast = {
                     fn: DELIM_FUNCTION[ldelim + rdelim] || (ldelim + rdelim),
                     arg: expr.ast};
+                expr.minPrec = savedPrec;
                 return expr;
             }
         }
@@ -802,7 +805,8 @@ function parsePostfix(expr, options) {
     } else {
         return undefined;
     }
-
+    
+    expr.minPrec = savedPrec;
     return expr;
 }
 
@@ -1084,7 +1088,7 @@ function parsePrimary(expr, options) {
     } else if (atom.type === 'sizing') {
        expr.index += 1;
        return parsePrimary(expr, options); 
-    } else {
+    } else if (atom.type === 'group') {
         expr.index += 1;
         expr.ast = atom.toAST(options);
     }
@@ -1162,8 +1166,8 @@ function parsePrimary(expr, options) {
 }
 
 /**
- * Given an atom or an array of atoms, return their MathML representation as 
- * a string.
+ * Given an atom or an array of atoms, return their AST representation as 
+ * an object.
  * @param {Object} expr An expressions, including expr.atoms, expr.index, 
  * expr.minPrec the minimum precedence that this parser should parse
  * before returning; expr.lhs (optional); expr.ast, the resulting AST.
@@ -1454,11 +1458,11 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
         case 'mathstyle':
             break;
         default: 
-            console.log('Unhandled atom ' + this.type + ' - ' + this.body);
-            
+            result = undefined;
+            console.log('Unhandled atom ' + this.type + ' - ' + this.body);            
     }
 
-    if (variant) {
+    if (variant && result) {
         result.variant = variant;
     }
 
@@ -1466,35 +1470,48 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
 }
 
 
-// function filterPresentationAtoms(atoms) {
-//     if (!atoms) return null;
-//     let result;
-//     if (Array.isArray(atoms)) {
-//         result = [];
-//         for (const atom of atoms) {
-//             const filter = filterPresentationAtoms(atom);
-//             if (filter) {
-//                 result = result.concat(filter);
-//             }
-//         }
-//         if (result.length === 0) return null;
-//     } else {
-//         if (atoms.type === 'first' || atoms.type === 'color' || atoms.type === 'box' || 
-//                 atoms.type === 'sizing' || atoms.type === 'spacing') {
-//             result = filterPresentationAtoms(atoms.body);
-//         } else {
-//             atoms.body = filterPresentationAtoms(atoms.body);
-//             atoms.superscript = filterPresentationAtoms(atoms.superscript);
-//             atoms.subscript = filterPresentationAtoms(atoms.subscript);
-//             atoms.index = filterPresentationAtoms(atoms.index);
-//             atoms.denom = filterPresentationAtoms(atoms.denom);
-//             atoms.numer = filterPresentationAtoms(atoms.numer);
-//             atoms.array = filterPresentationAtoms(atoms.array);
-//             result = [atoms];
-//         }
-//     }
-//     return result;
-// }
+function filterPresentationAtoms(atoms) {
+    if (!atoms) return [];
+    let result;
+    if (Array.isArray(atoms)) {
+        result = [];
+        for (const atom of atoms) {
+            const filter = filterPresentationAtoms(atom);
+            result = result.concat(filter);
+        }
+    } else {
+        if (atoms.type === 'spacing') {
+            return [];
+        } else if (atoms.type === 'first' || atoms.type === 'color' || atoms.type === 'box' || 
+                atoms.type === 'sizing') {
+            result = filterPresentationAtoms(atoms.body);
+        } else {
+            if (atoms.body && Array.isArray(atoms.body)) {
+                atoms.body = filterPresentationAtoms(atoms.body);
+            }
+            if (atoms.superscript && Array.isArray(atoms.superscript)) {
+                atoms.superscript = filterPresentationAtoms(atoms.superscript);
+            }
+            if (atoms.subscript && Array.isArray(atoms.subscript)) {
+                atoms.subscript = filterPresentationAtoms(atoms.subscript);
+            }
+            if (atoms.index && Array.isArray(atoms.index)) {
+                atoms.index = filterPresentationAtoms(atoms.index);
+            }
+            if (atoms.denom && Array.isArray(atoms.denom)) {
+                atoms.denom = filterPresentationAtoms(atoms.denom);
+            }
+            if (atoms.numer && Array.isArray(atoms.numer)) {
+                atoms.numer = filterPresentationAtoms(atoms.numer);
+            }
+            if (atoms.array && Array.isArray(atoms.array)) {
+                atoms.array = filterPresentationAtoms(atoms.array);
+            }
+            result = [atoms];
+        }
+    }
+    return result;
+}
 
 /**
  * 
@@ -1503,7 +1520,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
  */
 function parse(atoms, options) {
 
-    return parseExpression({atoms: (atoms)}, options).ast;
+    return parseExpression({atoms: filterPresentationAtoms(atoms)}, options).ast;
 }
 
 MathAtom.toAST = function(atoms, options) {

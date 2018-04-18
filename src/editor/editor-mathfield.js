@@ -334,7 +334,6 @@ MathField.prototype._getCaretPosition = function() {
 function nearestElementFromPoint(el, x, y) {
     let result = { element: null };
     let considerChildren = true;
-    const r = el.getBoundingClientRect();
     if (!el.getAttribute('data-atom-id')) {
         // This element may not have a matching atom, but its children might
         result.distance = Number.POSITIVE_INFINITY;
@@ -342,6 +341,7 @@ function nearestElementFromPoint(el, x, y) {
         result.element = el;
 
         // Calculate the (square of the ) distance to the rectangle
+        const r = el.getBoundingClientRect();
         const dx = Math.max(r.left - x, 0, x - r.right);
         const dy = Math.max(r.top - y, 0, y - r.bottom);
         result.distance = dx * dx + dy * dy;
@@ -400,7 +400,8 @@ MathField.prototype._pathFromPoint = function(x, y) {
             const bounds = el.getBoundingClientRect();
             result = MathPath.pathFromString(atoms[0]).path;
             if (x < bounds.left + bounds.width / 2 && !el.classList.contains('ML__placeholder')) {
-                result[result.length - 1].offset -= 1;
+                result[result.length - 1].offset = 
+                    Math.max(0, result[result.length - 1].offset - 1);
             }
         }
     }
@@ -1073,11 +1074,21 @@ MathField.prototype._render = function() {
     //
     this.mathlist.root.forEach( a => { 
             a.hasCaret = false;
-            a.isSelected = this.mathlist.contains(a);
+            a.isSelected = false;
         } );
+
     const hasFocus = this.hasFocus();
-    if (hasFocus && this.mathlist.isCollapsed()) {
+    const isCollapsed = this.mathlist.isCollapsed();
+    if (hasFocus && isCollapsed) {
         this.mathlist.anchor().hasCaret = true;
+    }
+    if (!isCollapsed) {
+        const siblings = this.mathlist.siblings()
+        const firstOffset = this.mathlist.startOffset();
+        const lastOffset = this.mathlist.endOffset();
+        for (let i = firstOffset; i < lastOffset; i++) {
+            siblings[i].forEach(a => { a.isSelected = true; });
+        }
     }
 
     //

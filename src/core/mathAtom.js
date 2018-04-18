@@ -23,8 +23,6 @@ const makeHlist = Span.makeHlist;
 const makeVlist = Span.makeVlist;
 const FONTMETRICS = FontMetricsModule.metrics;
 const getCharacterMetrics = FontMetricsModule.getCharacterMetrics;
-// const toPx = FontMetricsModule.toPx;
-const toEm = FontMetricsModule.toEm;
 
 
 
@@ -199,6 +197,8 @@ MathAtom.prototype.forEach = function (cb) {
 
     if (Array.isArray(this.body)) {
         for (const atom of this.body) if (atom) atom.forEach(cb);
+    } else if (this.body && typeof this.body === 'object') {
+        cb(this.body);
     }
     if (this.superscript) {
         for (const atom of this.superscript) if (atom) atom.forEach(cb);
@@ -219,7 +219,7 @@ MathAtom.prototype.forEach = function (cb) {
         for (const atom of this.denom) if (atom) atom.forEach(cb);
     }
     if (this.index) {
-        for (const atom of this.index) atom.forEach(cb);
+        for (const atom of this.index) if (atom) atom.forEach(cb);
     }
     if (this.array) {
         for (const row of this.array) {
@@ -277,7 +277,7 @@ MathAtom.prototype.decomposeGroup = function(context) {
 }
 
 /**
- * Used in decomposeArray to create a column separator span.
+ * Used in `decomposeArray` to create a column separator span.
  * 
  * @param {number} width 
  * @memberof module:mathAtom
@@ -305,6 +305,8 @@ function makeColOfRepeatingElements(context, body, offset, elem) {
     }
     return makeVlist(context, col, 'individualShift');
 }
+
+
 
 MathAtom.prototype.decomposeArray = function(context) {
     // See http://tug.ctan.org/macros/latex/base/ltfsstrc.dtx
@@ -371,13 +373,11 @@ MathAtom.prototype.decomposeArray = function(context) {
         const outrow = [];
         for (let c = 0; c < inrow.length; ++c) {
             const localContext = context.withMathstyle(this.mathstyle || 'auto');
-            const cell = decompose(localContext, inrow[c]);
-            if (cell) {
-                const elt = [makeOrd(null)].concat(cell);
-                depth = Math.max(depth, Span.depth(elt));
-                height = Math.max(height, Span.height(elt));
-                outrow.push(elt);
-            }
+            const cell = decompose(localContext, inrow[c]) || [];
+            const elt = [makeOrd(null)].concat(cell);
+            depth = Math.max(depth, Span.depth(elt));
+            height = Math.max(height, Span.height(elt));
+            outrow.push(elt);
         }
         
         let jot = r === nr - 1 ? 0 : (this.jot || 0);
@@ -676,10 +676,10 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
             'mclose', this.rightDelim, delimSize, true,
             context.withMathstyle(mathstyle));
 
-    const result = this.bind(context, makeOrd([leftDelim, frac, rightDelim], 
+    const result = makeOrd([leftDelim, frac, rightDelim], 
         ((context.parentSize !== context.size) ? 
-            ('sizing reset-' + context.parentSize + ' ' + context.size) : 'genfrac')));
-    return result;
+            ('sizing reset-' + context.parentSize + ' ' + context.size) : 'genfrac'));
+    return this.bind(context, result);
 }
 
 
@@ -1134,8 +1134,12 @@ MathAtom.prototype.decomposeColor = function(context) {
 
 
 MathAtom.prototype.decomposeBox = function(context) {
-    const result = makeOrd(decompose(context, this.body));
+    const base = makeOrd(decompose(context, this.body));
+    base.setStyle('position', 'relative');
 
+    const result = makeOrd(base);
+
+    // The padding extends outside of the base
     const padding = this.padding ? this.padding : FONTMETRICS.fboxsep;
     result.setStyle('padding', padding, 'em');
 
@@ -1143,61 +1147,66 @@ MathAtom.prototype.decomposeBox = function(context) {
     if (this.framecolor) result.setStyle('border', FONTMETRICS.fboxrule + 'em solid ' + this.framecolor);
     if (this.border) result.setStyle('border', this.border);
 
+    result.height = base.height;
+    result.depth = base.depth;
+
     result.setStyle('display', 'inline-block');
+    result.setStyle('position', 'relative');
+    result.setStyle('height', result.height + result.depth , 'em');
+    result.setStyle('left', -padding, 'em');
 
     return this.bind(context, result);
 }
 
 MathAtom.prototype.decomposeEnclose = function(context) {
-    const body = makeOrd(decompose(context, this.body));
-    const padding = this.padding === 'auto' ? .2 : this.padding; // em
-    // Make sure that the span takes the full height of the enclosed children
+    const base = makeOrd(decompose(context, this.body));
+    const result = makeOrd(base);
 
-    if (Span.height(body) >= 1.0) {
-        // If the body is short (i.e. a single line of digits, characters)
-        // use no vertical padding, it looks better.
-        body.setStyle('padding-top', Span.height(body) - Span.depth(body) + padding, 'em');
-        body.setStyle('padding-bottom', Span.depth(body) - padding, 'em');
-    }
-    body.setStyle('padding-left', padding, 'em');
-    body.setStyle('padding-right', padding, 'em');
-
-    if (this.backgroundcolor && this.backgroundcolor !== 'transparent') {
-        body.setStyle('background-color', this.backgroundcolor);
-    }
+    result.height = base.height;
+    result.depth = base.depth;
 
     // Account for the padding
-    body.height += padding + toEm(this.strokeWidth, 'px');
-    body.depth += padding + toEm(this.strokeWidth, 'px');
+    const padding = this.padding === 'auto' ? .2 : this.padding; // em
+    result.setStyle('padding', padding, 'em');
+
+    result.setStyle('display', 'inline-block');
+    result.setStyle('position', 'relative');
+    result.setStyle('height', result.height + result.depth , 'em');
+    result.setStyle('left', -padding , 'em');
+
+    if (this.backgroundcolor && this.backgroundcolor !== 'transparent') {
+        result.setStyle('background-color', this.backgroundcolor);
+    }
+
 
     let svg = '';
 
-    if (this.notation.box) body.setStyle('border', this.borderStyle);
+    if (this.notation.box) result.setStyle('border', this.borderStyle);
 
     if (this.notation.actuarial) {
-        body.setStyle('border-top', this.borderStyle);
-        body.setStyle('border-right', this.borderStyle);
+        result.setStyle('border-top', this.borderStyle);
+        result.setStyle('border-right', this.borderStyle);
     }
 
     if (this.notation.madruwb) {
-        body.setStyle('border-bottom', this.borderStyle);
-        body.setStyle('border-right', this.borderStyle);
+        result.setStyle('border-bottom', this.borderStyle);
+        result.setStyle('border-right', this.borderStyle);
     }
 
     if (this.notation.roundedbox) {
-        body.setStyle('border-radius', (Span.height(body) + Span.depth(body)) / 2, 'em');
-        body.setStyle('border', this.borderStyle);        
+        result.setStyle('border-radius', (Span.height(result) + Span.depth(result)) / 2, 'em');
+        result.setStyle('border', this.borderStyle);        
     }
 
     if (this.notation.circle) {
-        body.setStyle('border-radius', '50%');
-        body.setStyle('border', this.borderStyle);        
+        result.setStyle('border-radius', '50%');
+        result.setStyle('border', this.borderStyle);        
     }
 
-    if (this.notation.top) body.setStyle('border-top', this.borderStyle);
-    if (this.notation.left) body.setStyle('border-left', this.borderStyle);
-    if (this.notation.right) body.setStyle('border-right', this.borderStyle);
-    if (this.notation.bottom) body.setStyle('border-bottom', this.borderStyle);
+    if (this.notation.top) result.setStyle('border-top', this.borderStyle);
+    if (this.notation.left) result.setStyle('border-left', this.borderStyle);
+    if (this.notation.right) result.setStyle('border-right', this.borderStyle);
+    if (this.notation.bottom) result.setStyle('border-bottom', this.borderStyle);
 
     if (this.notation.horizontalstrike) {
         svg += '<line x1="3%"  y1="50%" x2="97%" y2="50%"';
@@ -1303,9 +1312,9 @@ MathAtom.prototype.decomposeEnclose = function(context) {
                 svgStyle = 'filter: drop-shadow(' + this.shadow + ')';
             }
         }
-        return Span.makeSVG(body, svg, svgStyle);
+        return Span.makeSVG(result, svg, svgStyle);
     }
-    return body;
+    return result;
 }
 
 /**
@@ -2083,7 +2092,7 @@ function decompose(context, atoms) {
                             }
                             if (selectionType === 'array') selectionType = 'mopen';
                             if (selectionType === 'leftright') selectionType = 'minner';
-                            if (/^(first|accent|surd|genfrac|textord|font|placeholder)$/.test(selectionType)) {
+                            if (/^(first|accent|surd|genfrac|textord|font|placeholder|box|color)$/.test(selectionType)) {
                                 selectionType = 'mord';
                             }
                             selectionIsTight = atoms[i].isTight;

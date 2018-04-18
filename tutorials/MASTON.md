@@ -107,7 +107,7 @@ All elements may have the following keys:
 * `comment`: A human readable string to annotate an expression, since JSON does not allow comments in its encoding
 * `error`: A human readable string that can be used to indicate a syntax error or other problem when parsing or evaluating an expression.
 * `latex`: A visual representation in LaTeX of the expression. This can be useful to preserve non-semantic details, for example parentheses in an expression.
-* `mathml': A visual representation in MathML of the expression.
+* `mathml`: A visual representation in MathML of the expression.
 * `class`: A CSS class to be associated with a representation of this element
 * `id`: A CSS id to be associated with a representation of this element
 * `style`: A CSS style string
@@ -192,8 +192,12 @@ The `fn` key is the only one required.
 
 When using common functions, the following values are recommended:
 
- Name (and common synonyms) | Value       |Argument
+ Name (and common synonyms) | Value       | Comment
  -------------------------- |:------------|:----------
+ Addition                   | `add`       | 
+ Multiplication             | `multiply`  | 
+ List                       | `list`      | comma separated list
+ List                       | `list2`     | semi-colon separated list
  Cosine                     | `cos`       | angle in radians
  Sin                        | `sin`       | angle in radians
  Tangent (tan, tg)          | `tan`       | angle in radians
@@ -213,7 +217,7 @@ example `Re()`.
 
 Operators can have additional input or modifiers displayed over and under them.
 
-For example the "sum" operator can have expressions indicating the 
+For example the `sum` operator can have expressions indicating the 
 range and limits of the operator. The "integral" operator under and over can indicate the start and end of its range.
 
 * `op`: &langle;string&rangle;, the name of the operator
