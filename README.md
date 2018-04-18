@@ -17,7 +17,7 @@ style='margin:15px;'
 src="assets/screenshots/screenshot.jpg">
 
 
-MathLive is a Javascript library to render and edit math.
+MathLive is a JavaScript library to render and edit math.
 * Fast and small
 * <span style="font-family: Times, 'Times New Roman', serif">T<sub style="vertical-align:-0.5ex;margin-left: -0.1667em;margin-right: -0.125em;">E</sub></span>X-quality typesetting
 * Easy to use interface for math editing
