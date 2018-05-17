@@ -623,8 +623,8 @@ EditableMathlist.prototype.extractContents = function() {
     const firstOffset = this.startOffset();
     if (firstOffset < siblings.length) {
         // const lastOffset = Math.min(siblings.length, this.endOffset());
-        const endOffset = Math.min(siblings.length - 1, this.endOffset());
-        for (let i = firstOffset; i <= endOffset; i++) {
+        const endOffset = Math.min(siblings.length, this.endOffset());
+        for (let i = firstOffset; i < endOffset; i++) {
             result.push(siblings[i]);
         }
     }
