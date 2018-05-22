@@ -239,11 +239,12 @@ function scanElement(elem, options, latexToMarkup, latexToMathML) {
             // with the latex markup without creating additional wrappers.
             elem.textContent = '';
             elem.appendChild( createAccessibleMarkupPair(data[0].data, data[0].mathstyle, options, latexToMarkup, latexToMathML, true) );
+            return;
         } else if (data.length === 1 && data[0].type === 'text') {
             // This element only contained text with no math. No need to 
             // do anything.
-        }
-        return;
+            return;
+        } 
     }
 
     for (let i = 0; i < elem.childNodes.length; i++) {
