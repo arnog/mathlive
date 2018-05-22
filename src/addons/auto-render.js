@@ -1,5 +1,6 @@
 /* eslint no-console:0 */
-define(['mathlive/core/mathAtom'], function() {
+define(['mathlive/core/mathAtom', 'mathlive/core/definitions'], 
+    function(MathAtom, Definitions) {
 
 function findEndOfMath(delimiter, text, startIndex) {
     // Adapted from
@@ -333,6 +334,7 @@ function renderMathInElement(elem, options, latexToMarkup, latexToMathML) {
         options.ignoreClassPattern = new RegExp(options.ignoreClass);
         options.processClassPattern = new RegExp(options.processClass);
         options.processScriptTypePattern = new RegExp(options.processScriptType);
+        options.macros = Definitions.MACROS;
 
         // Validate the namespace (used for `data-` attributes)
         if (options.namespace) {
