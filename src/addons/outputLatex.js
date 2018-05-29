@@ -81,7 +81,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             break;
 
         case 'genfrac':
-            if (this.body === 'choose' || this.body === 'atop') {
+            if (/^(choose|atop|over)$/.test(this.body)) {
                 // Infix commands.
                 result += '{';
                 result += latexify(this.numer, expandMacro)
