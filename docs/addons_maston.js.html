@@ -565,11 +565,11 @@ const POSTFIX_FUNCTION = {
 }
 
 const ASSOCIATIVE_FUNCTION = {
-    '+':                    'add',
-    '-':                    'add',      // Substraction is add(), but it's
+    '+':                    '+',
+    '-':                    '+',      // Substraction is add(), but it's
                                         // handled specifically so that the 
                                         // argument is negated
-    '*':                    'multiply',
+    '*':                    '*',
 
     ',':                    'list',
     ';':                    'list2',
@@ -1222,10 +1222,10 @@ function parsePrimary(expr, options) {
                 }
             } else {
                 // Invisible times, e.g. '2x'
-                if (expr.ast.fn === 'multiply') {
+                if (expr.ast.fn === '*') {
                     expr.ast.arg.unshift(lhs);
                 } else if (expr.ast.op === '*') {
-                    expr.ast = {fn:'multiply', arg:[lhs, expr.ast.lhs, expr.ast.rhs]};
+                    expr.ast = {fn:'*', arg:[lhs, expr.ast.lhs, expr.ast.rhs]};
                 } else {
                     expr.ast = {lhs: lhs, op:'*', rhs: expr.ast};
                 }
@@ -1290,25 +1290,25 @@ function parseExpression(expr, options) {
                     if (lhs.lhs !== undefined) arg.push(lhs.lhs);
                     if (lhs.rhs !== undefined) arg.push(lhs.rhs);
                     if (rhs !== undefined) arg.push(negate(rhs));
-                    lhs = {fn:'add', arg:arg}
+                    lhs = {fn:'+', arg:arg}
                 } else if (lhs &amp;&amp; lhs.op === '-') {
                     // x-y - z      -> add(x, -y, -z)
                     const arg = [];
                     if (lhs.lhs !== undefined) arg.push(lhs.lhs);
                     if (lhs.rhs !== undefined) arg.push(negate(lhs.rhs));
                     if (rhs !== undefined) arg.push(negate(rhs));
-                    lhs = {fn:'add', arg:arg}
-                } else if (lhs &amp;&amp; lhs.fn === 'add') {
+                    lhs = {fn:'+', arg:arg}
+                } else if (lhs &amp;&amp; lhs.fn === '+') {
                     // add(x,y) - z -> add(x, y, -z)
                     if (rhs !== undefined) lhs.arg.push(negate(rhs));
                 } else {
                     lhs = {lhs: lhs, op: opName, rhs: rhs};
                 }
             } else {
-                // Is there a function (e.g. 'add') implementing the 
+                // Is there a function (e.g. '+') implementing the 
                 // associative version of this operator (e.g. '+')?
                 fn = ASSOCIATIVE_FUNCTION[opName];
-                if (fn === 'add' &amp;&amp; lhs &amp;&amp; lhs.op === '-') {
+                if (fn === '+' &amp;&amp; lhs &amp;&amp; lhs.op === '-') {
                     const arg = [];
                     if (lhs.lhs !== undefined) arg.push(lhs.lhs);
                     if (lhs.rhs !== undefined) arg.push(negate(lhs.rhs));
@@ -1604,6 +1604,9 @@ function parse(atoms, options) {
 
 function normalize(ast) {
     if (!ast) return ast;
+    if (ast.sup) {
+        ast.sup = normalize(ast.sup);
+    }
     if (ast.op) {
         if (ast.lhs &amp;&amp; ast.rhs) {
             // if (ast.op === '+') ast.op = 'add';
