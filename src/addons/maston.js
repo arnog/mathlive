@@ -1545,7 +1545,7 @@ function normalize(ast) {
             // if (ast.op === '/') ast.op = 'divide';
             return {fn:ast.op, arg:[normalize(ast.lhs), normalize(ast.rhs)]};
         }
-        return {fn:ast.op, arg:[normalize(ast.lhs)]};
+        return {fn:ast.op, arg:[normalize(ast.rhs)]};
     }
     if (ast.fn && Array.isArray(ast.arg)) {
         return {fn:ast.fn, arg:ast.arg.map(x => normalize(x))};
