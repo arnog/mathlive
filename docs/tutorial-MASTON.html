@@ -66,19 +66,35 @@ writeCookie('symbol-access', 'private')
     <h1 id="the-maston-format">The MASTON Format</h1>
 <p>The <strong>Math Abstract Syntax Tree Object Notation</strong> is a lightweight data 
 interchange format for mathematical notation.</p>
-<p>It is human-readable, while being easy for computers to generate and parse.</p>
+<p>It is human-readable, while being easy for machines to generate and parse.</p>
 <p>It is built on the JSON [1] format. Its focus is on interoperability between 
 software programs to facilitate the exchange of mathematical data, as well as 
-the building of complex software through software components communicating with 
+the building of complex software through the integration of software components communicating with 
 a common format.</p>
-<p>It is not suitable for a visual representation of arbitrary mathematical 
+<p>It is not suitable as a visual representation of arbitrary mathematical 
 notations, and as such is not a replacement for LaTeX or MathML.</p>
 <h2 id="examples">Examples</h2>
 <h3 id="euler-s-identity">Euler's Identity</h3>
 <p>In TeX</p>
 <pre class="prettyprint source lang-tex"><code>e^{\imaginaryI \pi }+1=0</code></pre><p>In MASTON:</p>
-<pre class="prettyprint source lang-JSON"><code>{&quot;lhs&quot;:{&quot;lhs&quot;:{&quot;sym&quot;:&quot;e&quot;,&quot;sup&quot;:{&quot;lhs&quot;:&quot;ⅈ&quot;,&quot;op&quot;:&quot;*&quot;,&quot;rhs&quot;:&quot;π&quot;}},&quot;op&quot;:&quot;+&quot;,&quot;rhs&quot;:1},&quot;op&quot;:&quot;=&quot;,&quot;rhs&quot;:0}</code></pre><h3 id="an-approximation-of-pi">An approximation of Pi</h3>
-<pre class="prettyprint source lang-tex"><code>\frac {63}{25}\times \frac {17+15\sqrt{5}}{7+15\sqrt{5}}</code></pre><pre class="prettyprint source lang-JSON"><code>{&quot;lhs&quot;:{&quot;lhs&quot;:63,&quot;op&quot;:&quot;/&quot;,&quot;rhs&quot;:25},&quot;op&quot;:&quot;*&quot;,&quot;rhs&quot;:{&quot;lhs&quot;:{&quot;lhs&quot;:17,&quot;op&quot;:&quot;+&quot;,&quot;rhs&quot;:{&quot;lhs&quot;:15,&quot;op&quot;:&quot;*&quot;,&quot;rhs&quot;:{&quot;fn&quot;:&quot;sqrt&quot;,&quot;arg&quot;:5}}},&quot;op&quot;:&quot;/&quot;,&quot;rhs&quot;:{&quot;lhs&quot;:7,&quot;op&quot;:&quot;+&quot;,&quot;rhs&quot;:{&quot;lhs&quot;:15,&quot;op&quot;:&quot;*&quot;,&quot;rhs&quot;:{&quot;fn&quot;:&quot;sqrt&quot;,&quot;arg&quot;:5}}}}}</code></pre><h2 id="design-goals">Design Goals</h2>
+<pre class="prettyprint source lang-JSON"><code>    {
+        &quot;fn&quot;:&quot;=&quot;,
+        &quot;arg&quot;:[{
+            &quot;fn&quot;:&quot;+&quot;,
+            &quot;arg&quot;:[
+                {
+                    &quot;sym&quot;:&quot;e&quot;,
+                    &quot;sup&quot;:{
+                        &quot;fn&quot;:&quot;*&quot;,
+                        &quot;arg&quot;:[&quot;ⅈ&quot;,&quot;π&quot;]
+                        }
+                },
+                1
+            ]
+        },
+        0]
+    }</code></pre><h3 id="an-approximation-of-pi">An approximation of Pi</h3>
+<pre class="prettyprint source lang-tex"><code>\frac {63}{25}\times \frac {17+15\sqrt{5}}{7+15\sqrt{5}}</code></pre><pre class="prettyprint source lang-JSON"><code>{&quot;fn&quot;:&quot;*&quot;,&quot;arg&quot;:[{&quot;fn&quot;:&quot;/&quot;,&quot;arg&quot;:[63,25]},{&quot;fn&quot;:&quot;/&quot;,&quot;arg&quot;:[{&quot;fn&quot;:&quot;+&quot;,&quot;arg&quot;:[17,{&quot;fn&quot;:&quot;*&quot;,&quot;arg&quot;:[15,{&quot;fn&quot;:&quot;sqrt&quot;,&quot;arg&quot;:5}]}]},{&quot;fn&quot;:&quot;+&quot;,&quot;arg&quot;:[7,{&quot;fn&quot;:&quot;*&quot;,&quot;arg&quot;:[15,{&quot;fn&quot;:&quot;sqrt&quot;,&quot;arg&quot;:5}]}]}]}]}</code></pre><h2 id="design-goals">Design Goals</h2>
 <h3 id="definitions">Definitions</h3>
 <ul>
 <li><strong>producer</strong> software that generates a MASTON data structure</li>
@@ -146,22 +162,30 @@ entity references or by composing them from base letters and style markup.</p>
 <li><code>wikibase</code>: A base URL for the wikidata key. A full URL can be produced 
 by concatenating this key with the wikidata key. This key applies to 
 this element and all its children. The default value is &quot;https://www.wikidata.org/wiki/&quot;</li>
+<li><code>openmathcd</code>: A base URL for an OpenMath content dictionary. This key applies to 
+this element and all its children. The default value is &quot;http://www.openmath.org/cd&quot;.</li>
+<li><code>openmathsymbol</code>: A short string indicating an entry in an OpenMath Content
+Dictionary. For example: <code>arith1/#abs</code>.</li>
 </ul>
 <h3 id="key-order">Key order</h3>
 <p>The order of the keys in an element is not significant. That is, all these 
 expressions are equivalent:</p>
-<pre class="prettyprint source lang-JSON"><code>   {&quot;lhs&quot;:1, &quot;op&quot;:&quot;+&quot;, &quot;rhs&quot;:2}
-   {&quot;op&quot;:&quot;+&quot;, &quot;lhs&quot;:1, &quot;rhs&quot;:2}
-   {&quot;rhs&quot;:2, &quot;op&quot;:&quot;+&quot;, &quot;lhs&quot;:1}</code></pre><h2 id="grammar">Grammar</h2>
+<pre class="prettyprint source lang-JSON"><code>   {&quot;fn&quot;:&quot;+&quot;, &quot;arg&quot;:[1, 2]}
+   {&quot;arg&quot;:[1, 2], &quot;fn&quot;:&quot;+&quot;}</code></pre><p>Howeve, the order of the elements in an array <em>is</em> significant. These two
+expressions are <em>not</em> equivalent:</p>
+<pre class="prettyprint source lang-JSON"><code>   {&quot;fn&quot;:&quot;-&quot;, &quot;arg&quot;:[3, 1]}
+   {&quot;fn&quot;:&quot;-&quot;, &quot;arg&quot;:[1, 3]}</code></pre><h2 id="grammar">Grammar</h2>
 <p>&langle;expression&rangle; := &langle;num&rangle; |
     &langle;complex&rangle; | 
-    &langle;range&rangle; |
-    &langle;string&rangle; |
     &langle;symbol&rangle; | 
-    &langle;operator&rangle; | 
     &langle;function&rangle; | 
+    &langle;group&rangle; |
+    &langle;range&rangle; |
     &langle;array&rangle; |
-    &langle;text&rangle;</p>
+    &langle;dictionary&rangle; |
+    &langle;text&rangle; |
+    &langle;block&rangle;</p>
+<p>An expression is an Abstract Syntax Tree. As such, there is no need to introduce parentheses or to resort to operator precedence in order to parse the expression correctly.</p>
 <h3 id="-langle-num-rangle-">&langle;num&rangle;</h3>
 <p>A native number or an object with the following key</p>
 <ul>
@@ -169,8 +193,8 @@ expressions are equivalent:</p>
 </ul>
 <p><strong>Note:</strong> When only the <code>num</code> key is present a shortcut may be used by 
 replacing the element with the number. That is, both representations are equivalent:</p>
-<pre class="prettyprint source lang-JSON"><code>   {&quot;lhs&quot;:{&quot;num&quot;:1}, &quot;op&quot;:&quot;+&quot;, &quot;rhs&quot;:{&quot;num&quot;:2}}
-   {&quot;lhs&quot;:1, &quot;op&quot;:&quot;+&quot;, &quot;rhs&quot;:2}</code></pre><h3 id="-langle-complex-rangle-">&langle;complex&rangle;</h3>
+<pre class="prettyprint source lang-JSON"><code>   {&quot;fn&quot;:&quot;+&quot;, &quot;arg&quot;:[{&quot;num&quot;:1}, {&quot;num&quot;:2}]}
+   {&quot;fn&quot;:&quot;+&quot;, &quot;arg&quot;:[1, 2]}</code></pre><h3 id="-langle-complex-rangle-">&langle;complex&rangle;</h3>
 <ul>
 <li><code>re</code>: &langle;native-number&rangle;</li>
 <li><code>im</code>: &langle;native-number&rangle;</li>
@@ -179,9 +203,78 @@ replacing the element with the number. That is, both representations are equival
 <p>A string or an object with the following keys</p>
 <ul>
 <li><code>sym</code>: &langle;native-string&rangle;</li>
+<li><code>type</code>: the data type of the symbol, as a string. See table below.</li>
 <li><code>index</code>: A 0-based index into a vector or array. An index can be a number or an array of numbers.</li>
 <li><code>accent</code>: &langle;string&rangle;, a single unicode character representing the accent to display over the symbol.</li>
 </ul>
+<h3 id="type">Type</h3>
+<p>The data type of a symbol can be used to refine the interpretation of operations performed upon it.</p>
+<table>
+<thead>
+<tr>
+<th>Data Type</th>
+<th style="text-align:left">Value</th>
+<th style="text-align:left">Meanings</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> Scalar</td>
+<td style="text-align:left"><code>scalar</code></td>
+<td style="text-align:left">scalar number</td>
+</tr>
+<tr>
+<td> Complex</td>
+<td style="text-align:left"><code>complex</code></td>
+<td style="text-align:left">complex number</td>
+</tr>
+<tr>
+<td> Vector</td>
+<td style="text-align:left"><code>vector</code></td>
+<td style="text-align:left">an element composed of n scalars or complex numbers</td>
+</tr>
+<tr>
+<td> Matrix</td>
+<td style="text-align:left"><code>matrix</code></td>
+<td style="text-align:left">an element composed of n vectors</td>
+</tr>
+<tr>
+<td> Function</td>
+<td style="text-align:left"><code>function</code></td>
+</tr>
+<tr>
+<td> String</td>
+<td style="text-align:left"><code>string</code></td>
+<td style="text-align:left">an array of characters</td>
+</tr>
+<tr>
+<td> Dictionary</td>
+<td style="text-align:left"><code>dictionary</code></td>
+<td style="text-align:left">a collection of key/value pairs</td>
+</tr>
+<tr>
+<td> Boolean</td>
+<td style="text-align:left"><code>boolean</code></td>
+<td style="text-align:left">true or false</td>
+</tr>
+<tr>
+<td> Table</td>
+<td style="text-align:left">`table</td>
+<td style="text-align:left">a two-dimensional array of cells. Each cell can be of a different type.</td>
+</tr>
+<tr>
+<td> Date</td>
+<td style="text-align:left"><code>date</code></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td> Duration</td>
+<td style="text-align:left"><code>duration</code></td>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+<h3 id="accent">Accent</h3>
 <p>An accent is a decoration over a symbol that provides the proper context to interpret the symbol or modifies it in some way. For example, an accent can indicate that a symbol is a vector, or to represent the mean, complex conjugate or complement of the symbol.</p>
 <p>The following values are recommended:</p>
 <table>
@@ -265,146 +358,177 @@ replacing the element with the number. That is, both representations are equival
 <li><code>sup</code>: &langle;expression&rangle;</li>
 <li><code>accent</code>: &langle;native-string&rangle;, a single unicode character representing the accent to display over the function. See the SYMBOL section for more details.</li>
 </ul>
-<p>The <code>fn</code> key is the only one required.</p>
+<p>The <code>fn</code> key is the only required key.</p>
 <p>When using common functions, the following values are recommended:</p>
 <table>
 <thead>
 <tr>
 <th>Name (and common synonyms)</th>
 <th style="text-align:left">Value</th>
+<th style="text-align:left">Arity</th>
 <th style="text-align:left">Comment</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td> Conjugate</td>
+<td style="text-align:left"><code>+</code></td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">Conjugate of the argument</td>
+</tr>
+<tr>
 <td> Addition</td>
-<td style="text-align:left"><code>add</code></td>
+<td style="text-align:left"><code>+</code></td>
+<td style="text-align:left">2</td>
 <td style="text-align:left"></td>
 </tr>
 <tr>
+<td> Signum</td>
+<td style="text-align:left"><code>*</code></td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">-1 if the argument is negative, 0 if it is zero, 1 if it is positive; more generally, the intersection of the unit circle with the line from the origin through the argument in the complex plane</td>
+</tr>
+<tr>
 <td> Multiplication</td>
-<td style="text-align:left"><code>multiply</code></td>
+<td style="text-align:left"><code>*</code></td>
+<td style="text-align:left">2</td>
 <td style="text-align:left"></td>
+</tr>
+<tr>
+<td> Reciprocal</td>
+<td style="text-align:left"><code>/</code></td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">The reciprocal of the argument</td>
+</tr>
+<tr>
+<td> Division</td>
+<td style="text-align:left"><code>/</code></td>
+<td style="text-align:left">2</td>
+<td style="text-align:left">The first argument divided  by the second argument</td>
+</tr>
+<tr>
+<td> Negate</td>
+<td style="text-align:left"><code>-</code></td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">Negate the argument</td>
+</tr>
+<tr>
+<td> Substraction</td>
+<td style="text-align:left"><code>-</code></td>
+<td style="text-align:left">2</td>
+<td style="text-align:left">Substract the second from the first.</td>
+</tr>
+<tr>
+<td> Exponential</td>
+<td style="text-align:left"><code>^</code></td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">e to the power of the argument.</td>
+</tr>
+<tr>
+<td> Power</td>
+<td style="text-align:left"><code>^</code></td>
+<td style="text-align:left">2</td>
+<td style="text-align:left">The first argument to the power of the second argument</td>
+</tr>
+<tr>
+<td> Square Root</td>
+<td style="text-align:left"><code>root</code></td>
+<td style="text-align:left">1</td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td> Root</td>
+<td style="text-align:left"><code>root</code></td>
+<td style="text-align:left">2</td>
+<td style="text-align:left">The second argument is the degree of the root</td>
+</tr>
+<tr>
+<td> Natural log</td>
+<td style="text-align:left"><code>ln</code></td>
+<td style="text-align:left">1</td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td> Logarithm</td>
+<td style="text-align:left"><code>ln</code></td>
+<td style="text-align:left">2</td>
+<td style="text-align:left">The second argument is the base.</td>
 </tr>
 <tr>
 <td> List</td>
 <td style="text-align:left"><code>list</code></td>
+<td style="text-align:left">n</td>
 <td style="text-align:left">comma separated list</td>
 </tr>
 <tr>
 <td> List</td>
 <td style="text-align:left"><code>list2</code></td>
+<td style="text-align:left">n</td>
 <td style="text-align:left">semi-colon separated list</td>
 </tr>
 <tr>
-<td> Cosine</td>
-<td style="text-align:left"><code>cos</code></td>
-<td style="text-align:left">angle in radians</td>
+<td> Floor</td>
+<td style="text-align:left"><code>floor</code></td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">The largest integer less than or equal to the argument</td>
 </tr>
 <tr>
-<td> Sin</td>
-<td style="text-align:left"><code>sin</code></td>
-<td style="text-align:left">angle in radians</td>
+<td> Minimum</td>
+<td style="text-align:left"><code>min</code></td>
+<td style="text-align:left">2, n</td>
+<td style="text-align:left">The smallest of the arguments</td>
 </tr>
 <tr>
-<td> Tangent (tan, tg)</td>
-<td style="text-align:left"><code>tan</code></td>
-<td style="text-align:left">angle in radians</td>
+<td> Ceiling</td>
+<td style="text-align:left"><code>ceiling</code></td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">The smallest integer greater than or equal to the argument</td>
 </tr>
 <tr>
-<td> Arctangent (arctan, arctg)</td>
-<td style="text-align:left"><code>arctangent</code></td>
-<td style="text-align:left">angle in radians</td>
+<td> Maximum</td>
+<td style="text-align:left"><code>max</code></td>
+<td style="text-align:left">2, n</td>
+<td style="text-align:left">The largest of the arguments</td>
 </tr>
 <tr>
-<td> Co-tangent (cot, ctg, cotg, ctn)</td>
-<td style="text-align:left"><code>cotangent</code></td>
+<td> Greatest Common Divisor</td>
+<td style="text-align:left"><code>gcd</code></td>
+<td style="text-align:left">2</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td> Hyperbolic tangent (th, tan)</td>
-<td style="text-align:left"><code>tanh</code></td>
+<td> Least Common Multiple</td>
+<td style="text-align:left"><code>lcm</code></td>
+<td style="text-align:left">2</td>
+<td style="text-align:left"></td>
 </tr>
 </tbody>
 </table>
+<h4 id="trigonometry">Trigonometry</h4>
 <p>Note that for inverse functions, no assumptions is made about the branch 
-cuts of those functions. The interpretation is left up to the consuming software.</p>
-<h3 id="-langle-operator-rangle-">&langle;operator&rangle;</h3>
-<p>The input of an operator is a left hand side expression and a right 
-hand side expression. The expressions are optional, for example: 
-<code>a-b</code> and <code>-x</code>. Use a function when there is only a rhs input, for 
-example <code>Re()</code>.</p>
-<p>Operators can have additional input or modifiers displayed over and under them.</p>
-<p>For example the <code>sum</code> operator can have expressions indicating the 
-range and limits of the operator. The &quot;integral&quot; operator under and over can indicate the start and end of its range.</p>
-<ul>
-<li><code>op</code>: &langle;string&rangle;, the name of the operator</li>
-<li><code>lhs</code>: &langle;expression&rangle;, the left hand side operand</li>
-<li><code>rhs</code>: &langle;expression&rangle;, the right hand side operand</li>
-<li><code>sup</code>: &langle;expression&rangle;</li>
-<li><code>sub</code>: &langle;expression&rangle;</li>
-<li><code>accent</code>: &langle;string&rangle;</li>
-</ul>
-<p>The <code>op</code> key, the name of the operator, is the only one required.</p>
-<p>The following values should be used to represent common operators:</p>
-<h4 id="arithmetic-operators">Arithmetic operators</h4>
-<table>
-<thead>
-<tr>
-<th>Operation</th>
-<th style="text-align:center">Name</th>
-<th style="text-align:right">Unicode</th>
-<th>Comment</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td> Add</td>
-<td style="text-align:center"><code>+</code></td>
-<td style="text-align:right">U+002B</td>
-<td></td>
-</tr>
-<tr>
-<td> Subtract</td>
-<td style="text-align:center"><code>-</code></td>
-<td style="text-align:right">U+002D</td>
-<td></td>
-</tr>
-<tr>
-<td> Multiply</td>
-<td style="text-align:center"><code>*</code></td>
-<td style="text-align:right">U+002A</td>
-<td></td>
-</tr>
-<tr>
-<td> Divide</td>
-<td style="text-align:center"><code>/</code></td>
-<td style="text-align:right">U+002F</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h4 id="logic-operators">Logic operators</h4>
-<table>
-<thead>
-<tr>
-<th>Operation</th>
-<th style="text-align:center">Name</th>
-<th style="text-align:right">Unicode</th>
-<th>Comment</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
+cuts of those functions. The interpretation is left up to the consuming software.
+ Name (and common synonyms) | Value       | Arity | Comment
+ -------------------------- |:------------|:------| :-------
+ Cosine                     | <code>cos</code>       | 1   | angle in radians
+ Sin                        | <code>sin</code>       | 1   | angle in radians
+ Tangent (tan, tg)          | <code>tan</code>       | 1   | angle in radians
+ Co-tangent (cot, ctg, cotg, ctn) | <code>cotangent</code> | 1| 
+ Secant                     | <code>sec</code>       | 1 | 
+ Cosecant                   | <code>csc</code>       | 1 | 
+ Arc cosine                 ' <code>acos</code>      | 1   | angle in radians
+ Arc sine                   ' <code>asin</code>      | 1   | angle in radians
+ Arctangent (arctan, arctg) | <code>atan</code>      | 1   | angle in radians
+ Arctangent (arctan, arctg) | <code>atan</code>      | 2   | See https://en.wikipedia.org/wiki/Atan2
+ Arc-cotangent              | <code>arccot</code> | 1 | 
+ Arc-secant                 | <code>arcsec</code> | 1 | 
+ Arc-cosecant               | <code>arccsc</code> | 1 |
+ Hyperbolic tangent (th, tan) | <code>tanh</code>  | 1 | </p>
 <h4 id="relational-operators">Relational operators</h4>
 <table>
 <thead>
 <tr>
 <th>Operation</th>
-<th style="text-align:center">Name</th>
+<th style="text-align:center">Value</th>
 <th style="text-align:right">Unicode</th>
 <th>Comment</th>
 </tr>
@@ -473,13 +597,27 @@ range and limits of the operator. The &quot;integral&quot; operator under and ov
 <li>identity: the right hand side expression is a syntactic derivation from the left hand size expression. For example, <code>1 + 1 :=: 2</code></li>
 </ul>
 <h4 id="big-operators">Big operators</h4>
-<p>Big operators, such as ∑, &quot;sum&quot;, and ∏, &quot;product&quot;, are represented as an operator with a <code>sup</code> and <code>sub</code> keys as necessary. </p>
+<p>Big operators, such as ∑, &quot;sum&quot;, and ∏, &quot;product&quot;, are represented as a function with the following arguments:</p>
+<ul>
+<li>first argument: body of the operation</li>
+<li>second argument (optional): inferior argument of the operation</li>
+<li>third argument (optional): superior argument of the operation</li>
+</ul>
+<p>For example:</p>
+<pre class="prettyprint source lang-tex"><code>\sum ^n_{i=0}i</code></pre><pre class="prettyprint source lang-json"><code>{
+    &quot;fn&quot;:&quot;sum&quot;,
+    &quot;arg&quot;:[
+        &quot;i&quot;, 
+        {&quot;fn&quot;:&quot;=&quot;,&quot;arg&quot;:[&quot;i&quot;, 0]},
+        &quot;n&quot;
+    ]
+}</code></pre><p>If necessary, an empty argument can be represented by an empty structure.</p>
 <p>The following values should be used to represent these common big operators:</p>
 <table>
 <thead>
 <tr>
 <th>Operation</th>
-<th style="text-align:left">Op</th>
+<th style="text-align:left">Value</th>
 <th style="text-align:left">Comment</th>
 </tr>
 </thead>
@@ -566,11 +704,12 @@ range and limits of the operator. The &quot;integral&quot; operator under and ov
 </tr>
 </tbody>
 </table>
+<h4 id="other-functions">Other functions</h4>
 <table>
 <thead>
 <tr>
 <th>Operation</th>
-<th style="text-align:left">Op</th>
+<th style="text-align:left">Value</th>
 <th style="text-align:left">Comment</th>
 </tr>
 </thead>
@@ -587,10 +726,6 @@ range and limits of the operator. The &quot;integral&quot; operator under and ov
 </tr>
 </tbody>
 </table>
-<h3 id="-langle-text-rangle-">&langle;text&rangle;</h3>
-<ul>
-<li><code>text</code>: &langle;native-string&rangle;</li>
-</ul>
 <h3 id="-langle-group-rangle-">&langle;group&rangle;</h3>
 <ul>
 <li><code>group</code>:  &langle;expression&rangle;</li>
@@ -606,7 +741,7 @@ range and limits of the operator. The &quot;integral&quot; operator under and ov
 <li><code>range_end</code>: &langle;expression&rangle;</li>
 <li><code>range_step</code>: &langle;expression&rangle;</li>
 </ul>
-<p>The <code>start</code> key is the only one required. If absent, <code>end</code> is assumed to be <code>infinity</code>. If absent, <code>step</code> is assumed ot be <code>1</code>.</p>
+<p>The <code>range_start</code> key is the only one required. If absent, <code>range_end</code> is assumed to be <code>infinity</code>. If absent, <code>range_step</code> is assumed to be <code>1</code>.</p>
 <h3 id="-langle-array-rangle-">&langle;array&rangle;</h3>
 <ul>
 <li><code>rows</code>: array of &langle;expression&rangle;</li>
@@ -619,7 +754,7 @@ range and limits of the operator. The &quot;integral&quot; operator under and ov
 <li><code>keys</code>: object mapping keys to values</li>
 </ul>
 <p>Example:</p>
-<pre class="prettyprint source lang-JSON"><code>{keys:{a:1, b:&quot;one&quot;}}</code></pre><p>defines the following dictionary:</p>
+<pre class="prettyprint source lang-JSON"><code>{keys:{&quot;a&quot;:1, &quot;b&quot;:&quot;one&quot;}}</code></pre><p>defines the following dictionary:</p>
 <table>
 <thead>
 <tr>
@@ -638,6 +773,35 @@ range and limits of the operator. The &quot;integral&quot; operator under and ov
 </tr>
 </tbody>
 </table>
+<h3 id="-langle-text-rangle-">&langle;text&rangle;</h3>
+<ul>
+<li><code>text</code>: &langle;native-string&rangle;</li>
+<li><code>format</code>: &quot;plain&quot; | &quot;markdown&quot; | &quot;html&quot;. This key is optional and its default value is <code>plain</code></li>
+</ul>
+<p>The <code>text</code> key is the only one required. </p>
+<h3 id="-langle-block-rangle-">&langle;block&rangle;</h3>
+<ul>
+<li><code>block</code>: array of &langle;expression&rangle;</li>
+<li><code>conditions</code>: array of &langle;expression&rangle;</li>
+</ul>
+<p>A sequence of expressions, such as in a system of equations or a piecewise definition.</p>
+<p>The <code>block</code> key is the only one required.</p>
+<p>Example: piecewise definition of absolute value.</p>
+<pre class="prettyprint source lang-text"><code>\begin{cases}x & \mbox{if }x\ge 0 \\ -x & \mbox{if }x&lt;0 \end{cases}</code></pre><pre class="prettyprint source lang-json"><code>{&quot;block&quot;:[
+    &quot;x&quot;,
+    {fn:&quot;-&quot;,arg:&quot;x&quot;}
+],
+&quot;conditions&quot;:[
+    {fn:&quot;>=&quot;,arg:[&quot;x&quot;,0]},
+    {fn:&quot;&lt;&quot;,arg:[&quot;x&quot;,0]},
+]}</code></pre><h3 id="open-questions">OPEN QUESTIONS</h3>
+<ol>
+<li>How should exponents be represented? I.e. <code>x^2</code> or <code>A^\dagger</code>. They could literally be represented with a <code>sup</code> attribute, or as an explicit function, i.e. <code>fn:'pow'</code> or <code>fn:'transjugate'</code></li>
+<li>Clarify how to represent variants for multiplications, e.g. <code>a \times b</code>, <code>a . b</code>, <code>a * b</code>, <code>ab</code>, etc...</li>
+<li>How to encode logarithm and exponential (see 1.)</li>
+<li>What should the effect of n-ary versions of divide, substract? One option is to apply a left-reduce to the arguments.</li>
+<li>How should accents (i.e. arrow over symbol) be encoded? As an additional property? As a function? How about other stylistic variant (i.e. bold symbol, fraktur, blackboard, etc...)</li>
+</ol>
 <h3 id="references">REFERENCES</h3>
 <p>[1] https://www.json.org/</p>
 </article>

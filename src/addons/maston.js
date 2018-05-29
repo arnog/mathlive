@@ -495,11 +495,11 @@ const POSTFIX_FUNCTION = {
 }
 
 const ASSOCIATIVE_FUNCTION = {
-    '+':                    'add',
-    '-':                    'add',      // Substraction is add(), but it's
+    '+':                    '+',
+    '-':                    '+',      // Substraction is add(), but it's
                                         // handled specifically so that the 
                                         // argument is negated
-    '*':                    'multiply',
+    '*':                    '*',
 
     ',':                    'list',
     ';':                    'list2',
@@ -1085,6 +1085,9 @@ function parsePrimary(expr, options) {
                 expr.ast = fn;
             }
         }
+    } else if (atom.type === 'array') {
+       expr.index += 1;
+       expr.ast = atom.toAST(options); 
     } else if (atom.type === 'sizing') {
        expr.index += 1;
        return parsePrimary(expr, options); 
@@ -1149,10 +1152,10 @@ function parsePrimary(expr, options) {
                 }
             } else {
                 // Invisible times, e.g. '2x'
-                if (expr.ast.fn === 'multiply') {
+                if (expr.ast.fn === '*') {
                     expr.ast.arg.unshift(lhs);
                 } else if (expr.ast.op === '*') {
-                    expr.ast = {fn:'multiply', arg:[lhs, expr.ast.lhs, expr.ast.rhs]};
+                    expr.ast = {fn:'*', arg:[lhs, expr.ast.lhs, expr.ast.rhs]};
                 } else {
                     expr.ast = {lhs: lhs, op:'*', rhs: expr.ast};
                 }
@@ -1217,25 +1220,25 @@ function parseExpression(expr, options) {
                     if (lhs.lhs !== undefined) arg.push(lhs.lhs);
                     if (lhs.rhs !== undefined) arg.push(lhs.rhs);
                     if (rhs !== undefined) arg.push(negate(rhs));
-                    lhs = {fn:'add', arg:arg}
+                    lhs = {fn:'+', arg:arg}
                 } else if (lhs && lhs.op === '-') {
                     // x-y - z      -> add(x, -y, -z)
                     const arg = [];
                     if (lhs.lhs !== undefined) arg.push(lhs.lhs);
                     if (lhs.rhs !== undefined) arg.push(negate(lhs.rhs));
                     if (rhs !== undefined) arg.push(negate(rhs));
-                    lhs = {fn:'add', arg:arg}
-                } else if (lhs && lhs.fn === 'add') {
+                    lhs = {fn:'+', arg:arg}
+                } else if (lhs && lhs.fn === '+') {
                     // add(x,y) - z -> add(x, y, -z)
                     if (rhs !== undefined) lhs.arg.push(negate(rhs));
                 } else {
                     lhs = {lhs: lhs, op: opName, rhs: rhs};
                 }
             } else {
-                // Is there a function (e.g. 'add') implementing the 
+                // Is there a function (e.g. '+') implementing the 
                 // associative version of this operator (e.g. '+')?
                 fn = ASSOCIATIVE_FUNCTION[opName];
-                if (fn === 'add' && lhs && lhs.op === '-') {
+                if (fn === '+' && lhs && lhs.op === '-') {
                     const arg = [];
                     if (lhs.lhs !== undefined) arg.push(lhs.lhs);
                     if (lhs.rhs !== undefined) arg.push(negate(lhs.rhs));
@@ -1452,6 +1455,12 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
             // result += '">' + toAST(this.body).mathML + '</menclose>';
             break;
 
+        case 'array': 
+            if (this.env.name === 'cardinality') {
+                result = {fn:'card', arg:[parse(this.array, options)]};
+            }
+            break;
+
         case 'spacing':
         case 'space':
         case 'sizing':
@@ -1523,8 +1532,36 @@ function parse(atoms, options) {
     return parseExpression({atoms: filterPresentationAtoms(atoms)}, options).ast;
 }
 
+function normalize(ast) {
+    if (!ast) return ast;
+    if (ast.sup) {
+        ast.sup = normalize(ast.sup);
+    }
+    if (ast.op) {
+        if (ast.lhs && ast.rhs) {
+            // if (ast.op === '+') ast.op = 'add';
+            // if (ast.op === '*') ast.op = 'multiply';
+            // if (ast.op === '-') ast.op = 'substract';
+            // if (ast.op === '/') ast.op = 'divide';
+            return {fn:ast.op, arg:[normalize(ast.lhs), normalize(ast.rhs)]};
+        }
+        return {fn:ast.op, arg:[normalize(ast.lhs)]};
+    }
+    if (ast.fn && Array.isArray(ast.arg)) {
+        return {fn:ast.fn, arg:ast.arg.map(x => normalize(x))};
+    }
+    if (ast.fn) {
+        return {fn:ast.fn, arg:normalize(ast.arg)};
+    }
+    if (ast.group) {
+        return {group: normalize(ast.group)};
+    }
+
+    return ast;
+}
+
 MathAtom.toAST = function(atoms, options) {
-    return parse(atoms, options);
+    return normalize(parse(atoms, options));
 }
 
 /**
