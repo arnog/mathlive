@@ -1,0 +1,186 @@
+<!DOCTYPE html><html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <title>MathLive Example with mathjs</title>
+
+    <link rel="stylesheet" href="../../dist/mathlive.core.css">
+    <link rel="stylesheet" href="../../dist/mathlive.css">
+    <style>
+        body {
+            font-family: sans-serif;
+            color: #444;
+            background-color: #f9f9f9;
+        }
+        main {
+            max-width: 820px;
+            margin: auto;
+        }
+        .mathfield {
+            border: 1px solid #ddd;
+            padding:5px;
+            margin: 10px 0 10px 0;
+            border-radius:5px;
+            background-color: #fff;
+        }
+        #output {
+            padding:5px;
+            margin: 200px 0 10px 0;
+            border-radius:5px;
+            border: 1px solid #000;
+
+            font-family: "Source Code Pro", Menlo, "Bitstream Vera Sans Mono", Monaco, Courier, "Andale Mono", monospace;
+            color: #f0c674;
+            background: #35434e;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h2>MathLive Example with mathjs</h2>
+        <div class="mathfield" id='mf' >2\pi</div>
+        <div id='output'></div>
+    </main>
+
+
+<script src="../../dist/mathlive.js"></script>
+<script src="../../../vendor/math.min.js"></script>
+<script>
+    (function() {
+    const mf = MathLive.makeMathField('mf', {
+        onContentDidChange: updateOutput
+    });
+
+
+function applySuperscriptAsPower(mjs, maston, config) {
+    let result = mjs;
+    if (typeof maston === 'object' && maston.sup !== undefined) {
+        result = new window.math.expression.node.FunctionNode(
+            'pow', [result, mastonToMathjs(maston.sup, config)]);
+    }
+    return result;
+}
+
+
+/**
+ * Return a mathjs node tree corresponding to the MASTON object
+ * @param {Object} ast 
+ */
+function mastonToMathjs(maston, config) {
+    let result;
+    if (maston === undefined) return undefined;
+
+    if (typeof maston === 'number' || maston.num !== undefined) {
+        let n = typeof maston === 'number' ? maston : maston.num;
+
+        // Convert to BigNum if required
+        if (config.number === 'BigNumber') n = window.math.bignumber(n);
+
+        result = new window.math.expression.node.ConstantNode(n);
+
+        // Apply the superscript as an operation
+        result = applySuperscriptAsPower(result, maston, config);
+
+    } else if (typeof maston === 'string' || maston.sym !== undefined) {
+        const BUILT_IN_CONSTANTS = {
+            'π':        window.math.pi,
+            '\u03c4':   window.math.tau,         // GREEK SMALL LETTER TAU
+            '\u212f':   window.math.e,           // ℯ SCRIPT SMALL E
+            '\u2147':   window.math.e,           // ⅇ DOUBLE-STRUCK ITALIC SMALL E 
+            'e':        window.math.e,
+            '\u03d5':   window.math.phi,         //  GREEK SMALL LETTER PHI
+            '\u2148':   window.math.i,           // ⅈ DOUBLE-STRUCK ITALIC SMALL I
+            '\u2149':   window.math.i,           // ⅉ DOUBLE-STRUCK ITALIC SMALL J
+            'i':        window.math.i,           // 
+        }
+        const symbol = typeof maston === 'string' ? maston : maston.sym;
+        if (BUILT_IN_CONSTANTS[symbol]) {
+            result = new window.math.expression.node.ConstantNode(BUILT_IN_CONSTANTS[symbol]);
+        } else {
+            result = new window.math.expression.node.SymbolNode(MASTON.asSymbol(maston));
+        }
+        result = applySuperscriptAsPower(result, maston, config);
+
+    } else if (maston.op !== undefined) {
+        if (maston.lhs !== undefined && maston.rhs !== undefined) {
+            const OPERATOR_FUNCTIONS = {
+                '+':    'add',
+                '-':    'subtract',
+                '*':    'multiply',
+                '/':    'divide',
+                // '.*': 'dotMultiply',
+                // './': 'dotDivide',
+                '%': 'mod',
+                'mod': 'mod'
+            };
+            const args = [mastonToMathjs(maston.lhs, config), mastonToMathjs(maston.rhs, config)];
+            result = new window.math.expression.node.OperatorNode(
+                maston.op, OPERATOR_FUNCTIONS[maston.op], args);
+        } else if (maston.rhs !== undefined) {
+            const UNARY_OPERATOR_FUNCTIONS = {
+                '-': 'unaryMinus',
+                '+': 'unaryPlus',
+                // '~': 'bitNot',
+                // 'not': 'not'
+            };
+            result = new window.math.expression.node.OperatorNode(
+                maston.op, UNARY_OPERATOR_FUNCTIONS[maston.op], 
+                    [mastonToMathjs(maston.rhs, config)]);
+        }
+    
+    } else if (maston.fn) {
+        if (maston.fn === 'log' || 
+            (maston.fn === 'ln' && maston.fn.sub !== undefined)) {
+            result = new window.math.expression.node.FunctionNode(
+                'log', getMathjsArgsWithSub(maston, config));
+            
+        } else if (maston.fn === 'lb') {
+            const args = getMathjsArgs(maston, config);
+            args.push(new window.math.expression.node.ConstantNode(window.math.bignumber(2)));
+            result = new window.math.expression.node.FunctionNode('log', args);
+
+        } else if (maston.fn === 'lg') {
+            result = new window.math.expression.node.FunctionNode(
+                new window.math.expression.node.SymbolNode('log10'),
+                getMathjsArgs(maston, config));
+
+        } else {
+            const fnName = {
+                '+':    'add',
+                '-':    'subtract',
+                '*':    'multiply',
+                '/':    'divide',                
+                'randomReal':       'random',
+                'randomInteger':    'randomInt',
+                'Gamma':            'gamma',
+                'Re':               're',
+                'Im':               'im',
+                'binom':            'composition',
+                'ucorner':          'ceil',
+                'lcorner':          'floor',
+                'arccos':           'acos', 
+                'arcsin':           'asin',
+                'arctan':           'atan',
+                'arcosh':           'acosh',
+                'arsinh': '         asinh'}[maston.fn] || maston.fn;
+
+                result = new window.math.expression.node.FunctionNode(
+                    fnName, getMathjsArgs(maston, config));
+        }
+
+    } else if (maston.group) {
+        result = applySuperscriptAsPower(
+            mastonToMathjs(maston.group, config), maston, config);
+    }
+
+    return result;
+}
+
+    function updateOutput(mathfield) {
+        const ast = MathLive.latexToAST(mathfield.latex());
+        document.getElementById('output').innerHTML = JSON.stringify(mastonToMathjs(ast, {}).eval());
+        // document.getElementById('output').innerHTML = JSON.stringify(ast);
+    }
+    })();
+</script>
+
+</body></html>
