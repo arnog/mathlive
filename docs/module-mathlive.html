@@ -298,7 +298,7 @@ with a mode token such as a <code>$$</code> or <code>\(</code>.</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line320">Source</a>
+        <a href="mathlive.js.html#line349">Source</a>
         </span>
     
 
@@ -656,7 +656,7 @@ with a mode token such as a <code>$$</code> or <code>\(</code>.</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line298">Source</a>
+        <a href="mathlive.js.html#line326">Source</a>
         </span>
     
 
@@ -758,7 +758,7 @@ with a mode token such as a <code>$$</code> or <code>\(</code>.</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line286">Source</a>
+        <a href="mathlive.js.html#line314">Source</a>
         </span>
     
 
@@ -1609,6 +1609,224 @@ others are optional. If they are missing, this sound is played as well.</li>
 
         <div class="signature">
             
+                <span class="name"><code>config.plonkSound</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+                    <span class="attribute">optional</span>
+                
+
+                
+
+                
+                </span>
+            
+
+            
+                <span class="default">= ''</span>
+            
+
+            
+                    <p class="description last">
+                        <p>Path to a URL to a sound file
+which will be played to provide feedback when a command has no effect,
+for example when pressing the spacebar at the root level.</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>config.textToSpeechRules</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+                    <span class="attribute">optional</span>
+                
+
+                
+
+                
+                </span>
+            
+
+            
+                <span class="default">= 'mathlive'</span>
+            
+
+            
+                    <p class="description last">
+                        <p>Specify which 
+set of text to speech rules to use. A value of <code>mathlive</code> indicates that 
+the simple rules built into MathLive should be used. A value of <code>sre</code>
+indicates that the Speech Rule Engine from Volker Sorge should be used. 
+Note that SRE is not included or loaded by MathLive and for this option to
+work SRE should be loaded separately.</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>config.textToSpeechMarkup</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+                    <span class="attribute">optional</span>
+                
+
+                
+
+                
+                </span>
+            
+
+            
+                <span class="default">= ''</span>
+            
+
+            
+                    <p class="description last">
+                        <p>The markup syntax to use 
+for the output of conversion to spoken text. Possible values are <code>ssml</code> for 
+the SSML markup or <code>mac</code> for the MacOS markup (e.g. <code>[[ltr]]</code>)</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>config.textToSpeechRulesOptions</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+                    <span class="attribute">optional</span>
+                
+
+                
+
+                
+                </span>
+            
+
+            
+                <span class="default">= {}</span>
+            
+
+            
+                    <p class="description last">
+                        <p>A set of value/pair that can
+be used to configure the speech rule engine. Which options are available
+depends on the speech rule engine in use. There are no options available with
+MathLive's built-in engine. The options for the SRE engine are documented 
+[here]{@link:https://github.com/zorkow/speech-rule-engine}</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>config.speechEngine</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+                    <span class="attribute">optional</span>
+                
+
+                
+
+                
+                </span>
+            
+
+            
+                <span class="default">= 'local'</span>
+            
+
+            
+                    <p class="description last">
+                        <p>Indicates which speech engine
+to use for speech output. Use <code>local</code> to use the OS-specific TTS engine.
+Use <code>google</code> for the Google Text-to-Speech cloud API. Set 
+<code>config.speechEngineToken</code> to your Google API token, <code>config.speechEngineVoice</code>
+to the Google <code>voice</code> configuration structure, and <code>config.speechEngineAudioConfig</code>
+to the Google <code>audioConfig</code> configuration structure.</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
                 <span class="name"><code>config.onMoveOutOf</code></span>
             
 
@@ -2282,7 +2500,7 @@ for details</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line346">Source</a>
+        <a href="mathlive.js.html#line375">Source</a>
         </span>
     
 
@@ -2773,7 +2991,7 @@ of delimiters that will trigger a render of the content in 'textstyle' or
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line383">Source</a>
+        <a href="mathlive.js.html#line412">Source</a>
         </span>
     
 
@@ -2965,7 +3183,7 @@ use the same namespace here.</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line440">Source</a>
+        <a href="mathlive.js.html#line469">Source</a>
         </span>
     
 
@@ -3177,7 +3395,7 @@ use the same namespace here.</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line467">Source</a>
+        <a href="mathlive.js.html#line496">Source</a>
         </span>
     
 

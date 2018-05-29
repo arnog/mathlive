@@ -133,22 +133,21 @@ function MathField(element, config) {
             markup += '<span></span>';
         }
     }
-    markup += '<span class="ML__fieldcontainer" aria-hidden="true">' +
+    markup += '<span class="ML__fieldcontainer">' +
             '<span class="ML__fieldcontainer--field"></span>';
 
     // Only display the virtual keyboard toggle if the virtual keyboard mode is
     // 'manual'
     if (this.config.virtualKeyboardMode === 'manual') {
-        markup += `<span class="ML__virtualKeyboardToggle"
-                    role="button" tabindex="0" aria-label="Toggle Virtual Keyboard" 
-                    >`;
+        markup += `<button class="ML__virtualKeyboardToggle" data-tooltip="Toggle Virtual Keyboard">`;
                     // data-tooltip='Toggle Virtual Keyboard'
         if (this.config.virtualKeyboardToggleGlyph) {
             markup += this.config.virtualKeyboardToggleGlyph;
         } else {
             markup += `<span style="width: 21px; margin-top: 5px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M528 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h480c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm16 336c0 8.823-7.177 16-16 16H48c-8.823 0-16-7.177-16-16V112c0-8.823 7.177-16 16-16h480c8.823 0 16 7.177 16 16v288zM168 268v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-336 80v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm384 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zM120 188v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-96 152v-8c0-6.627-5.373-12-12-12H180c-6.627 0-12 5.373-12 12v8c0 6.627 5.373 12 12 12h216c6.627 0 12-5.373 12-12z"/></svg></span>`;
         }
-        markup += '</span>';
+        markup += '<span class="sr-only">Toggle Virtual Keyboard.</span>';
+        markup += '</button>';
     } else {
         markup += '<span ></span>';
     }
@@ -158,9 +157,9 @@ function MathField(element, config) {
         <div class="ML__popover" aria-hidden="true"></div>
         <div class="ML__keystrokecaption" aria-hidden="true"></div>
         <div class="ML__HiddenAccessibleMath">
+            <span aria-live="assertive" aria-atomic="true"></span>
             <span></span>
-            <span aria-live="assertive" aria-atomic="true"> math </span>
-        '</div>
+        </div>
     `;
 
     this.element.innerHTML = markup;
@@ -182,8 +181,8 @@ function MathField(element, config) {
     );
     this.popover = this.element.children[iChild++];
     this.keystrokeCaption = this.element.children[iChild++];
-    this.accessibleNode = this.element.children[iChild].children[0];
-    this.ariaLiveText = this.element.children[iChild++].children[1];
+    this.ariaLiveText = this.element.children[iChild].children[0];
+    this.accessibleNode = this.element.children[iChild++].children[1];
  
     // The keystroke caption panel and the command bar are 
     // initially hidden
@@ -198,6 +197,8 @@ function MathField(element, config) {
     this.blurred = true;
     on(window, 'focus', this._onFocus.bind(this));
     on(window, 'blur', this._onBlur.bind(this));
+    on(this.element, 'focus', this._onFocus.bind(this));
+    on(this.element, 'blur', this._onBlur.bind(this));
 
     // Capture clipboard events
     on(this.textarea, 'cut', this._onCut.bind(this));
@@ -213,6 +214,7 @@ function MathField(element, config) {
         focus:          this._onFocus.bind(this),
         blur:           this._onBlur.bind(this),
     })
+
 
 
     // Delegate mouse and touch events
@@ -235,12 +237,10 @@ function MathField(element, config) {
         MathField.prototype._onContentWillChange.bind(this);
         localConfig.onContentDidChange = 
         MathField.prototype._onContentDidChange.bind(this);
-    localConfig.announceChange = 
-        MathField.prototype._announceChange.bind(this);
     localConfig.smartFence = this.config.smartFence;
     localConfig.macros = this.config.macros;
 
-    this.mathlist = new EditableMathlist.EditableMathlist(localConfig);
+    this.mathlist = new EditableMathlist.EditableMathlist(localConfig, this._announce.bind(this));
 
     // Prepare to manage undo/redo
     this.undoManager = new Undo.UndoManager(this.mathlist);
@@ -597,7 +597,7 @@ MathField.prototype._onContentDidChange = function() {
 /* Returns the speech text of the next atom after the selection or
  *   an 'end of' phrasing based on what structure we are at the end of
  */
-function nextAtomSpeechText(oldMathlist, mathlist) {
+MathField.prototype._nextAtomSpeechText = function(oldMathlist) {
     function relation(parent, leaf) {
         const EXPR_NAME = {
         //    'array': 'should not happen',
@@ -612,13 +612,14 @@ function nextAtomSpeechText(oldMathlist, mathlist) {
         const PARENT_NAME = {
             'enclose': 'cross out', // FIX -- should base on type of enclose
             'leftright': 'fence',
-            'surd': 'square root'
+            'surd': 'square root',
+            'root': 'math field'
         }
         return (leaf.relation === 'body' ? PARENT_NAME[parent.type] : EXPR_NAME[leaf.relation]);
     }
 
     const oldPath = oldMathlist ? oldMathlist.path : [];
-    const path = mathlist.path;
+    const path = this.mathlist.path;
     const leaf = path[path.length - 1];
     let result = '';
 
@@ -626,18 +627,18 @@ function nextAtomSpeechText(oldMathlist, mathlist) {
         result += 'out of ' + relation(oldMathlist.parent(), oldPath[oldPath.length - 1]) + '; ';
         oldPath.pop(); 
     }
-    if (!mathlist.isCollapsed()) {
-        return MathAtom.toSpeakableText(mathlist.extractContents());
+    if (!this.mathlist.isCollapsed()) {
+        return MathAtom.toSpeakableText(this.mathlist.extractContents(), this.config);
     }
 
     // announce start of denominator, etc
-    const relationName = relation(mathlist.parent(), leaf);
+    const relationName = relation(this.mathlist.parent(), leaf);
     if (leaf.offset === 0) {
-        result += relationName ? 'start of ' + relationName + ': ' : 'unknown';
+        result += (relationName ? 'start of ' + relationName : 'unknown') + ': ';
     }
-    const atom = mathlist.sibling(Math.max(1, mathlist.extent));
+    const atom = this.mathlist.sibling(Math.max(1, this.mathlist.extent));
     if (atom) {
-        result += MathAtom.toSpeakableText(atom);
+        result += MathAtom.toSpeakableText(atom, this.config);
     } else if (leaf.offset !== 0) { // don't say both start and end
         result += relationName ? 'end of ' + relationName : 'unknown';
     }
@@ -645,40 +646,40 @@ function nextAtomSpeechText(oldMathlist, mathlist) {
 }
 
 /**
- * Set the aria-live region to announce the change and the following character/notation
- * E.g, "in numerator, x"
+ * Announce a change in selection or content via the aria-live region.
  * @param {string} command the command that invoked the change 
  * @param {object} oldMathlist [null] the previous value of mathlist before the change 
  * @param {object} array [null] or atom: atomsToSpeak the command that invoked the change 
  */
-MathField.prototype._announceChange = function(command, oldMathlist, atomsToSpeak) {
+MathField.prototype._announce = function(command, oldMathlist, atomsToSpeak) {
 //** Fix: the focus is the end of the selection, so it is before where we want it
-    // aria-live regions are only spoken when it changes; force a change by 
-    // alternately using nonbreaking space or narrow nonbreaking space
-    const ariaLiveChangeHack = /\u00a0/.test(this.ariaLiveText.textContent) ? 
-        ' \u202f ' : ' \u00a0 ';
+
+    let liveText = '';
     // const command = moveAmount > 0 ? "right" : "left";
-    if (command === 'delete') {
-        this.ariaLiveText.textContent = 'deleted: ' + ariaLiveChangeHack + MathAtom.toSpeakableText(atomsToSpeak);
+    
+    if (command === 'plonk') {
+        // Use this sound to indicate (minor) errors, for 
+        // example when a command has no effect.
+        if (this.plonkSound) this.plonkSound.play().catch(err => console.log(err));
+    } else if (command === 'delete') {
+        liveText = 'deleted: ' + MathAtom.toSpeakableText(atomsToSpeak, this.config);
     //*** FIX: could also be moveUp or moveDown -- do something different like provide context???
     } else if (command === 'focus' || /move/.test(command)) {
         //*** FIX -- should be xxx selected/unselected */
-        this.ariaLiveText.textContent = ariaLiveChangeHack +
-                    (this.mathlist.isCollapsed() ? '' : 'selected: ') +
-                    nextAtomSpeechText(oldMathlist, this.mathlist);
+        liveText = (this.mathlist.isCollapsed() ? '' : 'selected: ') +
+                    this._nextAtomSpeechText(oldMathlist);
     } else if (command === 'replacement') {
         // announce the contents
-        this.ariaLiveText.textContent = ariaLiveChangeHack + MathAtom.toSpeakableText(this.mathlist.sibling(0));
+        liveText = MathAtom.toSpeakableText(this.mathlist.sibling(0), this.config);
     } else if (command === 'line') {
         // announce the current line -- currently that's everything
-        const spokenText = MathAtom.toSpeakableText(this.mathlist.root);
-        this.ariaLiveText.textContent = ariaLiveChangeHack + spokenText;
+        liveText = MathAtom.toSpeakableText(this.mathlist.root, this.config);
         this.accessibleNode.innerHTML = 
             '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
                 MathAtom.toMathML(this.mathlist.root, this.config) +
             '</math>';
 
-        this.textarea.setAttribute('aria-label', 'after: ' + spokenText)
+        this.textarea.setAttribute('aria-label', 'after: ' + liveText)
 
         /*** FIX -- testing hack for setting braille ***/
         // this.accessibleNode.focus();
@@ -688,9 +689,14 @@ MathField.prototype._announceChange = function(command, oldMathlist, atomsToSpea
         //     console.log("after sleep");
         // });
     } else {
-        this.ariaLiveText.textContent = ariaLiveChangeHack + command + " " + 
-            (atomsToSpeak ? MathAtom.toSpeakableText(atomsToSpeak) : "");        
+        liveText = command + " " + 
+            (atomsToSpeak ? MathAtom.toSpeakableText(atomsToSpeak, this.config) : "");        
     }
+    // aria-live regions are only spoken when it changes; force a change by 
+    // alternately using nonbreaking space or narrow nonbreaking space
+    const ariaLiveChangeHack = /\u00a0/.test(this.ariaLiveText.textContent) ? 
+        ' \u202f ' : ' \u00a0 ';
+    this.ariaLiveText.textContent = liveText + ariaLiveChangeHack;
 }
 
 MathField.prototype._onFocus = function() {
@@ -1022,7 +1028,7 @@ MathField.prototype._onTypedText = function(text, options) {
 
                     // Insert the substitute
                     this.mathlist.insert(shortcut, {format: 'latex'});
-                    this._announceChange('replacement');
+                    this._announce('replacement');
                 } 
                 
                 if (!shortcut) {
@@ -1181,8 +1187,13 @@ MathField.prototype._onCut = function() {
     return true;
 }
 
-MathField.prototype._onCopy = function() {
-    return true;
+MathField.prototype._onCopy = function(e) {
+    e.clipboardData.setData('text/plain', this.text('latex-expanded'));
+    e.clipboardData.setData('application/json', this.text('json'));
+    e.clipboardData.setData('application/xml', this.text('mathML'));
+
+    // Prevent the current document selection from being written to the clipboard.
+    e.preventDefault();
 }
 
 
@@ -1209,8 +1220,9 @@ MathField.prototype.text = function(format) {
     } else if (format === 'mathML') {
             result = this.mathlist.root.toMathML(this.config);
     } else if (format === 'spoken') {
-        const options = Object.assign({markup:true}, this.config);
-        result = MathAtom.toSpeakableText(this.mathlist.root, options);
+        result = MathAtom.toSpeakableText(this.mathlist.root, this.config);
+    } else if (format === 'json') {
+        result = JSON.stringify(MathAtom.toAST(this.mathlist.root.body, this.config));
     }
 
     return result;
@@ -1244,8 +1256,7 @@ MathField.prototype.selectedText = function(format) {
             }
 
         } else if (format === 'spoken') {
-            const options = Object.assign({markup:true}, this.config);
-            result = MathAtom.toSpeakableText(selection, options)
+            result = MathAtom.toSpeakableText(selection, this.config)
         }
     }
 
@@ -1474,7 +1485,7 @@ MathField.prototype.complete_ = function() {
                 }
             }
         }
-        this._announceChange("replacement"); 
+        this._announce('replacement');
     }
 }
 
@@ -1613,7 +1624,7 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
     on(el, 'mousedown touchstart', function(ev) {
         if (ev.type !== 'mousedown' || ev.buttons === 1) {
             // The primary button was pressed or the screen was tapped.
-            ev.stopPropagation(); 
+            ev.stopPropagation();
             ev.preventDefault();
 
             el.classList.add('pressed');
@@ -1684,7 +1695,7 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
         }
     });
 
-    on(el, 'mouseup touchend', function(ev) {
+    on(el, 'mouseup touchend click', function(ev) {
         if (syntheticTarget) {
             ev.stopPropagation();
             ev.preventDefault();
@@ -1695,6 +1706,14 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
         }
         el.classList.remove('pressed');
         el.classList.add('active');
+        if (ev.type === 'click' && (ev.clientX !== 0 || ev.clientY !== 0)) {
+            // This is a click event triggered by a mouse interaction
+            // (and not a keyboard interaction)
+            // Ignore it, we'll handle the mouseup (or touchend) instead.
+            ev.stopPropagation();
+            ev.preventDefault();
+            return;            
+        }
 
         // Since we want the active state to be visible for a while,
         // use a timer to remove it after a short delay
@@ -2070,7 +2089,7 @@ MathField.prototype.focus = function() {
         // The textarea may be a span (on mobile, for example), so check that
         // it has a select() before calling it.
         if (this.textarea.select) this.textarea.select();
-        this._announceChange('line');
+        this._announce('line');
         this._render();
     }
 }
@@ -2142,7 +2161,7 @@ MathField.prototype.config = function(conf) {
         overrideDefaultInlineShortcuts: false,
         virtualKeyboard: '',
         virtualKeyboardLayout: 'qwerty',
-        namespace: ''
+        namespace: '',
     }, conf);
 
     this.config.macros = Object.assign({}, Definitions.MACROS, this.config.macros);
@@ -2189,6 +2208,10 @@ MathField.prototype.config = function(conf) {
         }
     }
 
+    if (this.config.plonkSound) {
+        this.plonkSound = new Audio('sounds/plonk.wav');
+        this.plonkSound.volume = AUDIO_FEEDBACK_VOLUME;
+    }
 }
 
 return {

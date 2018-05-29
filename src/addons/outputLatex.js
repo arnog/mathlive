@@ -107,17 +107,17 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
 
         case 'leftright':
             if (this.inner) {
-                result += (this.inner ? '\\left' : '\\mleft') + (this.leftDelim || '.');
-                if (this.leftDelim.length > 1) result += ' ';
+                result += '\\left' + (this.leftDelim || '.');
+                if (this.leftDelim && this.leftDelim.length > 1) result += ' ';
                 result += latexify(this.body, expandMacro);
-                result += (this.inner ? '\\right' : '\\mright') + (this.rightDelim || '.');
-                if (this.rightDelim.length > 1) result += ' ';
+                result += '\\right' + (this.rightDelim || '.');
+                if (this.rightDelim && this.rightDelim.length > 1) result += ' ';
             } else {
                 result += (this.leftDelim || '');
-                if (this.leftDelim.length > 1) result += ' ';
+                if (this.leftDelim && this.leftDelim.length > 1) result += ' ';
                 result += latexify(this.body, expandMacro);
                 result += (this.rightDelim === '?' || this.rightDelim === '.') ? '' : this.rightDelim;
-                if (this.rightDelim.length > 1) result += ' ';
+                if (this.rightDelim && this.rightDelim.length > 1) result += ' ';
             }
             break;
 

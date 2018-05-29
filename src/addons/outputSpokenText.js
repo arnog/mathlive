@@ -11,7 +11,7 @@ const PRONUNCIATION = {
     '\\mu':         ' mew ',
     '\\sigma':      ' sigma ',
     '\\pi':         ' pie ',
-    '\\imaginaryI':   ' eye ',
+    '\\imaginaryI':  ' eye ',
 
     '\\sum':        ' Summation ',
     '\\prod':       ' Product ',
@@ -31,13 +31,13 @@ const PRONUNCIATION = {
     '\\cos':        ' cosine ',
     '\u200b':       '',
     '\u2212':       ' minus ',
-    '\\colon':      '[[slnc 150]] such that [[slnc 200]]',
-    '\\hbar':       'etch bar',
+    '\\colon':      ' [[slnc 150]] such that [[slnc 200]] ',
+    '\\hbar':       ' etch bar ',
     '\\iff':         ' if and only if ',
     '\\land':       ' and ',
     '\\lor':        ' or ',
     '\\neg':        ' not ',
-    '\\div':        'divided by',
+    '\\div':        ' divided by ',
     
     '\\forall':     ' for all ',
     '\\exists':     ' there exists ',
@@ -57,6 +57,8 @@ const PRONUNCIATION = {
     '\\partial':    ' partial derivative of ',
 
     '\\cdots':      ' dot dot dot ',
+
+    '\\Rightarrow': ' implies ',
 
     '\\lbrace':		'left brace',
     '\\{':		    'left brace',
@@ -80,7 +82,7 @@ const PRONUNCIATION = {
 function getSpokenName(latex) {
     let result = Popover.NOTES[latex];
     if (!result && latex.charAt(0) === '\\') {
-        result = latex.replace('\\', '');
+        result = ' ' + latex.replace('\\', '') + ' ';
     }
 
     // If we got more than one result (from NOTES), 
@@ -152,10 +154,6 @@ function atomicValue(mathlist) {
 // https://developer.apple.com/library/content/documentation/UserExperience/Conceptual/SpeechSynthesisProgrammingGuide/FineTuning/FineTuning.html#//apple_ref/doc/uid/TP40004365-CH5-SW3
 
 // https://pdfs.semanticscholar.org/8887/25b82b8dbb45dd4dd69b36a65f092864adb0.pdf
-
-MathAtom.MathAtom.prototype.toSpeakableText = function(atom) {
-    return MathAtom.toSpeakableFragment(atom, {markup: false});
-}
 
 MathAtom.toSpeakableFragment = function(atom, options) {
     function letter(c) {
@@ -369,8 +367,13 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                             sub = sub.trim();
                             result += ' The summation from ' + sub + ' to  [[slnc 150]]' + sup + ' of [[slnc 150]]';
                             supsubHandled = true;
+                    } else if (atom.subscript) {
+                            let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
+                            sub = sub.trim();
+                            result += ' The summation from ' + sub + ' of [[slnc 150]]';
+                            supsubHandled = true;
                         } else {
-                            result += ' The summation  of';
+                            result += ' The summation of';
                         }
                     } else if (trimLatex === '\\prod') {
                         if (atom.superscript && atom.subscript) {
@@ -379,6 +382,11 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                             let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
                             sub = sub.trim();
                             result += ' The product from ' + sub + ' to ' + sup + ' of [[slnc 150]]';
+                            supsubHandled = true;
+                        } else if (atom.subscript) {
+                            let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
+                            sub = sub.trim();
+                            result += ' The product from ' + sub + ' of [[slnc 150]]';
                             supsubHandled = true;
                         } else {
                             result += ' The product  of ';
@@ -486,23 +494,41 @@ MathAtom.toSpeakableFragment = function(atom, options) {
 MathAtom.toSpeakableText = function(atoms, options) {
     if (!options) {
         options = {
-            markup: false
+            textToSpeechMarkup: false,
+            textToSpeechRules: 'mathlive'
         }
     }
+
+    if (window.sre && options.textToSpeechRules === 'sre') {
+        const mathML = MathAtom.toMathML(atoms);
+        if (mathML) {
+            if (options.textToSpeechMarkup) {
+                options.textToSpeechRulesOptions = options.textToSpeechRulesOptions || {};
+                options.textToSpeechRulesOptions.markup = options.textToSpeechMarkup;
+            }
+            if (options.textToSpeechRulesOptions) {
+                window.sre.System.getInstance().setupEngine(options.textToSpeechRulesOptions);
+            }
+            return window.sre.System.getInstance().toSpeech(mathML);
+        }
+        return '';
+        // return window.sre.toSpeech(MathAtom.toMathML(atoms));
+    }
+
     let result = '';
-    if (options.markup === 'ssml') {
+    if (options.textToSpeechMarkup === 'ssml') {
         result = `<!-- ?xml version="1.0"? -->
 <speak xmlns="http://www.w3.org/2001/10/synthesis"
 version="1.0"><p><s xml:lang="en-US">`;
-    } else if (options.markup) {
+    } else if (options.textToSpeechMarkup === 'mac') {
         if (platform('mac') === '!mac') {
-            options.markup = false;
+            options.textToSpeechMarkup = '';
         }
     }
 
     result += MathAtom.toSpeakableFragment(atoms, options);
 
-    if (options.markup === 'ssml') {
+    if (options.textToSpeechMarkup === 'ssml') {
         result += '</s></p></speak>';
     }
     return result;

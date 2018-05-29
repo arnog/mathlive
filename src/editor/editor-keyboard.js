@@ -247,12 +247,12 @@ function delegateKeyboardEvents(textarea, handlers) {
         if (text.length > 0) handlers.paste(text);
     }
 
-    function onCopy() {
-        if (handlers.copy) handlers.copy();
+    function onCopy(e) {
+        if (handlers.copy) handlers.copy(e);
     }
 
-    function onCut() {
-        if (handlers.cut) handlers.cut();
+    function onCut(e) {
+        if (handlers.cut) handlers.cut(e);
     }
 
     function onBlur() {

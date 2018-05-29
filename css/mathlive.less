@@ -30,6 +30,17 @@
 // The mu (mathematical unit) is defined by TeX as 1/18 em
 @mu: 1.0/18.0em;
 
+.sr-only {
+    border: 0;
+    height: 1px;
+    width: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute !important;
+    clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+    clip: rect(1px, 1px, 1px, 1px);
+}
 
 
 .ML__mathlive {
@@ -567,7 +578,7 @@
                                     // give ourselves a delay before showing
         border-bottom-left-radius: 2px;
         border-bottom-right-radius: 2px;
-        transform: scale(1)
+        transform: scale(1);        
     }
 }
 
@@ -1325,10 +1336,18 @@ div#ML__keyboard.material  {
 
 
 
-.ML__virtualKeyboardToggle:hover, 
 .ML__virtualKeyboardToggle.pressed {
     background: #f7f7f7;
 }
+
+.ML__virtualKeyboardToggle:focus {
+    outline: none;
+    border-radius: 50%;
+    border: 2px solid @primary;
+    
+    background: #f7f7f7;
+}
+
 
 .ML__virtualKeyboardToggle.active:hover, 
 .ML__virtualKeyboardToggle.active {

@@ -120,6 +120,10 @@ to make sure it doesn't show. */
         delay the generation of click events when the user taps the screen." */
     touch-action: none;
 }
+.ML__fieldcontainer:focus {
+    outline: 2px solid #0066ce;
+    outline-offset: 3px;
+}
 
 /* This is the actual field content (formula) */
 .ML__fieldcontainer--field {
@@ -153,6 +157,7 @@ to make sure it doesn't show. */
 
     width: 34px;
     height: 34px;
+    padding: 0;
     margin-right: 4px;
     cursor: pointer;
     box-sizing: border-box;
@@ -164,6 +169,7 @@ to make sure it doesn't show. */
     fill: @primary;
 
     &:hover {
+        background: #f7f7f7;
         border-radius: 50%;
         border: 1px solid #f0f0f0;
         box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);

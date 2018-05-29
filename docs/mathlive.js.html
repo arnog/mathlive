@@ -289,6 +289,34 @@ function toMarkup(text, mathstyle, format, macros) {
  *    * `default` ... when any other key is pressed. This key is required, the 
  * others are optional. If they are missing, this sound is played as well.
  * 
+ * @param {string} [config.plonkSound=''] Path to a URL to a sound file
+ * which will be played to provide feedback when a command has no effect,
+ * for example when pressing the spacebar at the root level.
+ * 
+ * @param {string} [config.textToSpeechRules='mathlive'] Specify which 
+ * set of text to speech rules to use. A value of `mathlive` indicates that 
+ * the simple rules built into MathLive should be used. A value of `sre`
+ * indicates that the Speech Rule Engine from Volker Sorge should be used. 
+ * Note that SRE is not included or loaded by MathLive and for this option to
+ * work SRE should be loaded separately. 
+ * 
+ * @param {string} [config.textToSpeechMarkup=''] The markup syntax to use 
+ * for the output of conversion to spoken text. Possible values are `ssml` for 
+ * the SSML markup or `mac` for the MacOS markup (e.g. `[[ltr]]`)
+ * 
+ * @param {*} [config.textToSpeechRulesOptions={}] A set of value/pair that can
+ * be used to configure the speech rule engine. Which options are available
+ * depends on the speech rule engine in use. There are no options available with
+ * MathLive's built-in engine. The options for the SRE engine are documented 
+ * [here]{@link:https://github.com/zorkow/speech-rule-engine}
+ * 
+ * @param {string} [config.speechEngine='local'] Indicates which speech engine
+ * to use for speech output. Use `local` to use the OS-specific TTS engine.
+ * Use `google` for the Google Text-to-Speech cloud API. Set 
+ * `config.speechEngineToken` to your Google API token, `config.speechEngineVoice`
+ * to the Google `voice` configuration structure, and `config.speechEngineAudioConfig`
+ * to the Google `audioConfig` configuration structure.
+ * 
  * @param {mathfieldWithDirectionCallback} [config.onMoveOutOf] - A handler 
  * called when keyboard navigation would cause the insertion point to leave the
  * mathfield.
@@ -357,12 +385,12 @@ function makeMathField(element, config) {
  * @return {string}
  * @function module:mathlive#latexToSpeakableText
  */
-function toSpeakableText() {
+function toSpeakableText(atoms, options) {
     if (!MathAtom.toSpeakableText) {
         console.log('The SpokenText module is not loaded.');
         return;
     }
-    MathAtom.toSpeakableText();
+    MathAtom.toSpeakableText(atoms, options);
 }
 
 /**
@@ -379,6 +407,7 @@ function toMathML(latex, options) {
         return '';
     }
     options = options || {macros:{}};
+    options.macros = options.macros || {};
     Object.assign(options.macros, Definitions.MACROS);
 
     const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex),

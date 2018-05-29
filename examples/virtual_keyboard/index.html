@@ -250,10 +250,6 @@
         if (typeof ast === 'number') return ast;
         if (ast.num !== undefined) return evaluate(ast.num);
         if (typeof ast === 'string') {
-            const m = ast.match(/([+-]?[0-9]+)\/([0-9]+)/);
-            if (m) {
-                return m[1] / m[2];
-            }
             if (ast === 'π') {
                 return Math.PI;
             }

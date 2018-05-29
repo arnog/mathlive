@@ -195,8 +195,7 @@ function scanIdentifier(stream, final, options) {
 function isSuperscriptAtom(stream) {
     return stream.index &lt; stream.atoms.length &amp;&amp; 
         stream.atoms[stream.index].superscript &amp;&amp; 
-        stream.atoms[stream.index].type === 'mord' &amp;&amp;
-        stream.atoms[stream.index].body === '\u200b';
+        stream.atoms[stream.index].type === 'msubsup'
 }
 
 
@@ -204,8 +203,7 @@ function isSuperscriptAtom(stream) {
 function isSubscriptAtom(stream) {
     return stream.index &lt; stream.atoms.length &amp;&amp; 
         stream.atoms[stream.index].subscript &amp;&amp; 
-        stream.atoms[stream.index].type === 'mord' &amp;&amp;
-        stream.atoms[stream.index].body === '\u200b';
+        stream.atoms[stream.index].type === 'msubsup'
 }
 
 

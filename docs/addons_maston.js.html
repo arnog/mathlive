@@ -1155,6 +1155,9 @@ function parsePrimary(expr, options) {
                 expr.ast = fn;
             }
         }
+    } else if (atom.type === 'array') {
+       expr.index += 1;
+       expr.ast = atom.toAST(options); 
     } else if (atom.type === 'sizing') {
        expr.index += 1;
        return parsePrimary(expr, options); 
@@ -1522,6 +1525,12 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
             // result += '">' + toAST(this.body).mathML + '&lt;/menclose>';
             break;
 
+        case 'array': 
+            if (this.env.name === 'cardinality') {
+                result = {fn:'card', arg:[parse(this.array, options)]};
+            }
+            break;
+
         case 'spacing':
         case 'space':
         case 'sizing':
@@ -1593,8 +1602,33 @@ function parse(atoms, options) {
     return parseExpression({atoms: filterPresentationAtoms(atoms)}, options).ast;
 }
 
+function normalize(ast) {
+    if (!ast) return ast;
+    if (ast.op) {
+        if (ast.lhs &amp;&amp; ast.rhs) {
+            // if (ast.op === '+') ast.op = 'add';
+            // if (ast.op === '*') ast.op = 'multiply';
+            // if (ast.op === '-') ast.op = 'substract';
+            // if (ast.op === '/') ast.op = 'divide';
+            return {fn:ast.op, arg:[normalize(ast.lhs), normalize(ast.rhs)]};
+        }
+        return {fn:ast.op, arg:[normalize(ast.lhs)]};
+    }
+    if (ast.fn &amp;&amp; Array.isArray(ast.arg)) {
+        return {fn:ast.fn, arg:ast.arg.map(x => normalize(x))};
+    }
+    if (ast.fn) {
+        return {fn:ast.fn, arg:normalize(ast.arg)};
+    }
+    if (ast.group) {
+        return {group: normalize(ast.group)};
+    }
+
+    return ast;
+}
+
 MathAtom.toAST = function(atoms, options) {
-    return parse(atoms, options);
+    return normalize(parse(atoms, options));
 }
 
 /**
