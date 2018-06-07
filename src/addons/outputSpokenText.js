@@ -6,34 +6,64 @@ define(['mathlive/core/mathAtom',
     'mathlive/editor/editor-popover'], 
     function(MathAtom, Definitions, Popover) {
 
+// Markup
+// Two common flavor of markups: SSML and 'mac'. The latter is only available
+// when using the native TTS synthesizer on Mac OS.
+// Use SSML in the production rules below. The markup will either be striped
+// off or replaced with the 'mac' markup as necessary.
+//
+// SSML                                             Mac
+// ----                                             ----
+// <emphasis>WORD</emphasis>                        [[emph +]]WORD
+// <break time="150ms"/>                            [[slc 150]]
+// <say-as interpret-as="character">A</say-as>      [[char LTRL] A [[char NORM]]
+
+// https://developer.apple.com/library/content/documentation/UserExperience/Conceptual/SpeechSynthesisProgrammingGuide/FineTuning/FineTuning.html#//apple_ref/doc/uid/TP40004365-CH5-SW3
+
+// https://pdfs.semanticscholar.org/8887/25b82b8dbb45dd4dd69b36a65f092864adb0.pdf
+
+// "<audio src='non_existing_file.au'>File could not be played.</audio>"
+
+// "I am now <prosody rate='+0.06'>speaking 6% faster.</prosody>"
+
+
+
 const PRONUNCIATION = {
     '\\alpha':      ' alpha ',
     '\\mu':         ' mew ',
     '\\sigma':      ' sigma ',
     '\\pi':         ' pie ',
-    '\\imaginaryI':  ' eye ',
+    '\\imaginaryI': ' eye ',
 
     '\\sum':        ' Summation ',
     '\\prod':       ' Product ',
 
-    '|':            ' Vertical bar',
-    '(':            ' Open paren [[slnc 150]]',
-    ')':            ' [[slnc 150]] Close paren',
-    '=':            ' [[slnc 150]] equals ',
-    '\\lt':         ' [[slnc 150]] is less than ',
-    '\\le':         ' [[slnc 150]] is less than or equal to ',
-    '\\gt':         ' [[slnc 150]] is greater than ',
-    '\\ge':         ' [[slnc 150]] is greater than or equal to ',
-    '\\geq':        ' [[slnc 150]]is greater than or equal to ',
-    '\\leq':        ' [[slnc 150]]is less than or equal to ',
+
+    ';':            ' <break time="150ms"/> semi-colon <break time="150ms"/>',
+    ',':            ' <break time="150ms"/> comma  <break time="150ms"/>',
+    '|':            ' <break time="150ms"/>Vertical bar<break time="150ms"/>',
+    '(':            ' <break time="150ms"/>Open paren. <break time="150ms"/>',
+    ')':            '. <break time="150ms"/> Close paren. <break time="150ms"/>',
+    '=':            ' equals ',
+    '<':            ' is less than ',
+    '\\lt':         ' is less than ',
+    '<=':           ' is less than or equal to ',
+    '\\le':         ' is less than or equal to ',
+    '\\gt':         ' is greater than ',
+    '>':            ' is greater than ',
+    '\\ge':         ' is greater than or equal to ',
+    '\\geq':        ' is greater than or equal to ',
+    '\\leq':        ' is less than or equal to ',
     '!':            ' factorial ',
     '\\sin':        ' sine ',
     '\\cos':        ' cosine ',
     '\u200b':       '',
     '\u2212':       ' minus ',
-    '\\colon':      ' [[slnc 150]] such that [[slnc 200]] ',
+    ':':            ' <break time="150ms"/> such that <break time="200ms"/> ',
+    '\\colon':      ' <break time="150ms"/> such that <break time="200ms"/> ',
     '\\hbar':       ' etch bar ',
-    '\\iff':         ' if and only if ',
+    '\\iff':        ' <break time="200ms"/>if, and only if, <break time="200ms"/>',
+    '\\Longleftrightarrow': '<break time="200ms"/>if, and only if, <break time="200ms"/>',
     '\\land':       ' and ',
     '\\lor':        ' or ',
     '\\neg':        ' not ',
@@ -45,10 +75,10 @@ const PRONUNCIATION = {
 
     '\\in':         ' element of ',
 
-    '\\N':          ' the set [[char LTRL]]n[[char NORM]]',
-    '\\C':          ' the set [[char LTRL]]c[[char NORM]]',
-    '\\Z':          ' the set [[char LTRL]]z[[char NORM]]',
-    '\\Q':          ' the set [[char LTRL]]q[[char NORM]]',
+    '\\N':          ' the set <break time="150ms"/><say-as interpret-as="character">n</say-as>',
+    '\\C':          ' the set <break time="150ms"/><say-as interpret-as="character">c</say-as>',
+    '\\Z':          ' the set <break time="150ms"/><say-as interpret-as="character">z</say-as>',
+    '\\Q':          ' the set <break time="150ms"/><say-as interpret-as="character">q</say-as>',
 
     '\\infty':      ' infinity ',
 
@@ -60,22 +90,24 @@ const PRONUNCIATION = {
 
     '\\Rightarrow': ' implies ',
 
-    '\\lbrace':		'left brace',
-    '\\{':		    'left brace',
-    '\\rbrace':		'right brace',
-    '\\}':		    'right brace',
-    '\\langle':		'left angle bracket',
-    '\\rangle':		'right angle bracket',
-    '\\lfloor':		'left floor',
-    '\\rfloor':		'right floor',
-    '\\lceil':		'left ceiling',
-    '\\rceil':		'right ceiling',
-    '\\vert':		'vertical bar',
-    '\\mvert':		'divides',
-    '\\lvert':		'left vertical bar',
-    '\\rvert':		'right vertical bar',
-    '\\lbrack':		'left bracket',
-    '\\rbrack':		'right bracket',    
+    '\\lbrace':		'<break time="150ms"/>open brace<break time="150ms"/>',
+    '\\{':		    '<break time="150ms"/>open brace<break time="150ms"/>',
+    '\\rbrace':		'<break time="150ms"/>close brace<break time="150ms"/>',
+    '\\}':		    '<break time="150ms"/>close brace<break time="150ms"/>',
+    '\\langle':		'<break time="150ms"/>left angle bracket<break time="150ms"/>',
+    '\\rangle':		'<break time="150ms"/>right angle bracket<break time="150ms"/>',
+    '\\lfloor':		'<break time="150ms"/>open floor<break time="150ms"/>',
+    '\\rfloor':		'<break time="150ms"/>close floor<break time="150ms"/>',
+    '\\lceil':		'<break time="150ms"/>open ceiling<break time="150ms"/>',
+    '\\rceil':		'<break time="150ms"/>close ceiling<break time="150ms"/>',
+    '\\vert':		'<break time="150ms"/>vertical bar<break time="150ms"/>',
+    '\\mvert':		'<break time="150ms"/>divides<break time="150ms"/>',
+    '\\lvert':		'<break time="150ms"/>left vertical bar<break time="150ms"/>',
+    '\\rvert':		'<break time="150ms"/>right vertical bar<break time="150ms"/>',
+    // '\\lbrack':		'left bracket',
+    // '\\rbrack':		'right bracket',    
+    '\\lbrack':     ' <break time="150ms"/> open square bracket <break time="150ms"/>',
+    '\\rbrack':     ' <break time="150ms"/> close square bracket <break time="150ms"/>',
 }
 
 
@@ -143,22 +175,12 @@ function atomicValue(mathlist) {
 
 
 
-// See https://pdfs.semanticscholar.org/8887/25b82b8dbb45dd4dd69b36a65f092864adb0.pdf
 
-// "<audio src='non_existing_file.au'>File could not be played.</audio>"
-
-// "I am now <prosody rate='+0.06'>speaking 6% faster.</prosody>"
-
-// https://stackoverflow.com/questions/16635653/ssml-using-chrome-tts
-
-// https://developer.apple.com/library/content/documentation/UserExperience/Conceptual/SpeechSynthesisProgrammingGuide/FineTuning/FineTuning.html#//apple_ref/doc/uid/TP40004365-CH5-SW3
-
-// https://pdfs.semanticscholar.org/8887/25b82b8dbb45dd4dd69b36a65f092864adb0.pdf
 
 MathAtom.toSpeakableFragment = function(atom, options) {
     function letter(c) {
         let result = '';
-        if (!options.markup) {
+        if (!options.textToSpeechMarkup) {
             if (/[a-z]/.test(c)) {
                 result += " '" + c.toUpperCase() + "'";
             } else if (/[A-Z]/.test(c)) {
@@ -168,7 +190,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
             }
         } else {
             if (/[a-z]/.test(c)) {
-                result += ' [[char LTRL]]' + c + '[[char NORM]]';
+                result += ' <say-as interpret-as="character">' + c + '</say-as>';
             } else if (/[A-Z]/.test(c)) {
                 result += 'capital ' + c.toLowerCase() + '';
             } else {
@@ -179,17 +201,17 @@ MathAtom.toSpeakableFragment = function(atom, options) {
     }
 
     function emph(s) {
-        // if (options.markup === 'ssml') {
-        // } else 
-        if (options.markup) {
-            return '[[emph +]]' + s;
-        }
-        return s;
+        return '<emphasis>' + s + '</emphasis>';
     }
 
     if (!atom) return '';
 
     let result = '';
+
+    if (atom.id && options.speechMode === 'math') {
+        result += '<mark name="' + atom.id.toString() + '"/>';        
+    }
+
     if (Array.isArray(atom)) {
         for (let i = 0; i < atom.length; i++) {
             if (i < atom.length - 2 &&  
@@ -204,7 +226,6 @@ MathAtom.toSpeakableFragment = function(atom, options) {
             }
         }
     } else {
-        const markup = typeof options.markup === 'undefined' ? false : options.markup;
         let numer = '';
         let denom = '';
         let body = '';
@@ -230,7 +251,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                         '3/5':      ' three fifths ',
                         '4/5':      ' four fifths ',
                         '1/6':      ' one sixth ',
-                        '5/6':      ' five sixts ',
+                        '5/6':      ' five sixths ',
                         '1/8':      ' one eight ',
                         '3/8':      ' three eights ',
                         '5/8':      ' five eights ',
@@ -243,9 +264,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                         '8/9':      ' eight ninths ',
                         // '1/10':     ' one tenth ',
                         // '1/12':     ' one twelfth ',
-                        'x/2':     ' half [[char LTRL]] X [[char NORM]] ',
-                        // '/2':     ' half [[char LTRL]] X [[char NORM]] ',
-                        // 'x/3':     ' a third of [[char LTRL]] X [[char NORM]] ',
+                        // 'x/2':     ' <say-as interpret-as="character">X</say-as> over 2',
                     };
                     const commonFraction = COMMON_FRACTIONS[
                         atomicValue(atom.numer) + '/' + atomicValue(atom.denom)];
@@ -255,7 +274,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                         result += numer + ' over ' + denom + ' ';
                     }
                 } else {
-                    result += ' The fraction [[slnc 200]]' + numer + ', over [[slnc 150]]' + denom + ', End fraction';
+                    result += ' The fraction <break time="150ms"/>' + numer + ', over <break time="150ms"/>' + denom + '.<break time="150ms"/> End fraction.<break time="150ms"/>';
                 }
 
                 break;
@@ -264,28 +283,29 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                 
                 if (!atom.index) {
                     if (isAtomic(atom.body)) {
-                        result += ' square root of ' + body + ' , ';
+                        result += ' The square root of ' + body + ' , ';
                     } else {
-                        result += ' The square root of ' + body + ', End square root';
+                        result += ' The square root of <break time="200ms"/>' + body + '. <break time="200ms"/> End square root';
                     }
                 } else {
                     let index = MathAtom.toSpeakableFragment(atom.index, options);
                     index = index.trim();
-                    if (index === '3') {
-                        result += ' The cube root of ' + body + ', End cube root';
-                    } else if (index === 'n') {
-                        result += ' The nth root of ' + body + ', End root';
+                    const index2 = index.replace(/<mark([^/]*)\/>/g, '')
+                    if (index2 === '3') {
+                        result += ' The cube root of <break time="200ms"/>' + body + '. <break time="200ms"/> End cube root';
+                    } else if (index2 === 'n') {
+                        result += ' The nth root of <break time="200ms"/>' + body + '. <break time="200ms"/> End root';
                     } else {
-                        result += ' root with index: ' + index + ', of :' + body + ', End root';
+                        result += ' The root with index: <break time="200ms"/>' + index + ', of <break time="200ms"/>' + body + '. <break time="200ms"/> End root';
                     }
                 }
                 break;
             case 'accent':
                 break;
             case 'leftright':
-                result += atom.leftDelim;
+                result += PRONUNCIATION[atom.leftDelim] || atom.leftDelim;
                 result += MathAtom.toSpeakableFragment(atom.body, options);
-                result +=  atom.rightDelim;
+                result += PRONUNCIATION[atom.rightDelim] || atom.rightDelim;
                 break;
             case 'line':
                 // @todo
@@ -327,11 +347,11 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                 if (atom.type === 'delim' || atom.type === 'sizeddelim') {
                     atomValue = latexValue = atom.delim;
                 }
-                if (options.mode === 'text') {
+                if (options.speechMode === 'text') {
                     result += atomValue;
                 } else {
                     if (atom.type === 'mbin') {
-                        result += '[[slnc 150]]';
+                        result += '<break time="150ms"/>';
                     }
 
                     if (atomValue) {
@@ -349,7 +369,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                         result += MathAtom.toSpeakableFragment(atom.body, options);
                     }
                     if (atom.type === 'mbin') {
-                        result += '[[slnc 150]]';
+                        result += '<break time="150ms"/>';
                     }
                 }
                 break;
@@ -365,12 +385,12 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                             sup = sup.trim();
                             let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
                             sub = sub.trim();
-                            result += ' The summation from ' + sub + ' to  [[slnc 150]]' + sup + ' of [[slnc 150]]';
+                            result += ' The summation from <break time="200ms"/>' + sub + '<break time="200ms"/> to  <break time="200ms"/>' + sup + '<break time="200ms"/> of <break time="150ms"/>';
                             supsubHandled = true;
                     } else if (atom.subscript) {
                             let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
                             sub = sub.trim();
-                            result += ' The summation from ' + sub + ' of [[slnc 150]]';
+                            result += ' The summation from <break time="200ms"/>' + sub + '<break time="200ms"/> of <break time="150ms"/>';
                             supsubHandled = true;
                         } else {
                             result += ' The summation of';
@@ -381,12 +401,12 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                             sup = sup.trim();
                             let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
                             sub = sub.trim();
-                            result += ' The product from ' + sub + ' to ' + sup + ' of [[slnc 150]]';
+                            result += ' The product from <break time="200ms"/>' + sub + '<break time="200ms"/> to <break time="200ms"/>' + sup + '<break time="200ms"/> of <break time="150ms"/>';
                             supsubHandled = true;
                         } else if (atom.subscript) {
                             let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
                             sub = sub.trim();
-                            result += ' The product from ' + sub + ' of [[slnc 150]]';
+                            result += ' The product from <break time="200ms"/>' + sub + '<break time="200ms"/> of <break time="150ms"/>';
                             supsubHandled = true;
                         } else {
                             result += ' The product  of ';
@@ -397,10 +417,10 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                             sup = sup.trim();
                             let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
                             sub = sub.trim();
-                            result += ' The integral from ' + emph(sub) + ' to ' + emph(sup) + ' [[slnc 200]] of ';
+                            result += ' The integral from <break time="200ms"/>' + emph(sub) + '<break time="200ms"/> to <break time="200ms"/>' + emph(sup) + ' <break time="200ms"/> of ';
                             supsubHandled = true;
                         } else {
-                            result += ' integral ';
+                            result += ' The integral of <break time="200ms"/> ';
                         }
                     } else if (typeof atom.body === 'string') {
                         const value = PRONUNCIATION[atom.body] || 
@@ -420,11 +440,11 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                 }
                 break;
             case 'font':
-                options.mode = 'text';
-                result += '[[slnc 150]]';
+                options.speechMode = 'text';
+                result += '<break time="200ms"/>';
                 result += MathAtom.toSpeakableFragment(atom.body, options);
-                result += '[[slnc 150]]';
-                options.mode = 'math';
+                result += '<break time="200ms"/>';
+                options.speechMode = 'math';
                 break;
 
             case 'enclose':
@@ -450,18 +470,25 @@ MathAtom.toSpeakableFragment = function(atom, options) {
         if (!supsubHandled && atom.superscript) {
             let sup = MathAtom.toSpeakableFragment(atom.superscript, options);
             sup = sup.trim();
+            const sup2 = sup.replace(/<[^>]*>/g, '');
             if (isAtomic(atom.superscript)) {
-                if (sup === '\u2032') {
+                if (sup2 === '\u2032') {
                     result += ' prime ';
-                } else if (sup === '2') {
+                } else if (sup2 === '2') {
                     result += ' squared ';
-                } else if (sup === '3') {
+                } else if (sup2 === '3') {
                     result += ' cubed ';                
-                } else {
+                } else if (isNaN(parseInt(sup2))) {
                     result += ' to the ' + sup + '; ';
+                } else {
+                    result += ' to the <say-as interpret-as="ordinal">' + sup2 + '</say-as> power; ';
                 }
             } else {
-                result += ' raised to the [[pbas +4]]' + sup + ' [[pbas -4]] power. ';
+                if (isNaN(parseInt(sup2))) {
+                    result += ' raised to the ' + sup + '; ';
+                } else {
+                    result += ' raised to the <say-as interpret-as="ordinal">' + sup2 + '</say-as> power; ';
+                }
             }
         }
         if (!supsubHandled && atom.subscript) {
@@ -472,12 +499,6 @@ MathAtom.toSpeakableFragment = function(atom, options) {
             } else {
                 result += ' subscript ' + sub + ' End subscript. ';
             }
-        }
-        // If no markup was requested, remove any that we may have
-        if (markup === 'ssml') {
-            // @todo: convert VoiceOver markup to SSML
-        } else if (!markup) {
-            result = result.replace(/\[\[[^\]]*\]\]/g, '');
         }
     }
 
@@ -494,10 +515,11 @@ MathAtom.toSpeakableFragment = function(atom, options) {
 MathAtom.toSpeakableText = function(atoms, options) {
     if (!options) {
         options = {
-            textToSpeechMarkup: false,
+            textToSpeechMarkup: '',     // no markup
             textToSpeechRules: 'mathlive'
         }
     }
+    options.speechMode = 'math';
 
     if (window.sre && options.textToSpeechRules === 'sre') {
         const mathML = MathAtom.toMathML(atoms);
@@ -515,21 +537,32 @@ MathAtom.toSpeakableText = function(atoms, options) {
         // return window.sre.toSpeech(MathAtom.toMathML(atoms));
     }
 
-    let result = '';
-    if (options.textToSpeechMarkup === 'ssml') {
-        result = `<!-- ?xml version="1.0"? -->
-<speak xmlns="http://www.w3.org/2001/10/synthesis"
-version="1.0"><p><s xml:lang="en-US">`;
-    } else if (options.textToSpeechMarkup === 'mac') {
-        if (platform('mac') === '!mac') {
-            options.textToSpeechMarkup = '';
-        }
-    }
-
-    result += MathAtom.toSpeakableFragment(atoms, options);
+    let result = MathAtom.toSpeakableFragment(atoms, options);
 
     if (options.textToSpeechMarkup === 'ssml') {
-        result += '</s></p></speak>';
+        result = `<?xml version="1.0"?><speak version="1.1" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">` + 
+        '<amazon:auto-breaths>' +
+        '<prosody rate="medium">' +
+        '<p><s>' +
+        result + 
+        '</s></p>' +
+        '</prosody>' + 
+        '</amazon:auto-breaths>' +
+        '</speak>';
+    } else if (options.textToSpeechMarkup === 'mac' && platform('mac') === 'mac') {
+        // Convert SSML to Mac markup
+        result = result.replace(/<mark([^/]*)\/>/g, '')
+            .replace(/<emphasis>/g, '[[emph+]]')
+            .replace(/<\/emphasis>/g, '')
+            .replace(/<break time="([0-9]*)ms"\/>/g, '[[slc $1]]')
+            .replace(/<say-as[^>]*>/g, '')
+            .replace(/<\/say-as>/g, '');
+    } else {
+        // If no markup was requested, or 'mac' markup, but we're not on a mac,
+        // remove any that we may have
+        // Strip out the SSML markup
+        result = result.replace(/<[^>]*>/g, '')
+                .replace(/\s{2,}/g, ' ');
     }
     return result;
 

@@ -100,7 +100,7 @@ function spanToString(span, indent) {
         } else {
             result += '[\n';
             for (let i = 0; i < span.length; i++) {
-                result += spanToString(span[i], '\t' + indent);
+                result += spanToString(span[i], '\t' + indent + i + ',');
                 result += i < span.length - 1 ? ',\n' : '\n';
             }
             result += indent + ']\n';

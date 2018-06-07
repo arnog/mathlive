@@ -1,0 +1,158 @@
+<!DOCTYPE html><html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <title>MathLive Basic Example</title>
+    <meta name="google" content="notranslate">
+
+    <link rel="stylesheet" href="../../dist/mathlive.core.css">
+    <link rel="stylesheet" href="../../dist/mathlive.css">
+    <style>
+        body {
+            font-family: sans-serif;
+            color: #444;
+            background-color: #f9f9f9;
+        }
+        main {
+            max-width: 820px;
+            margin: auto;
+        }
+        .mathfield {
+            border: 1px solid #ddd;
+            padding:5px;
+            margin: 10px 0 10px 0;
+            border-radius:5px;
+            background-color: #fff;
+            box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2),
+            0px 4px 5px 0px rgba(0, 0, 0, 0.14),
+            0px 1px 10px 0px rgba(0, 0, 0, 0.12); 
+        }
+        #output {
+            padding:32px;
+            border-radius:4px;
+            border: 1px solid #ddd;
+
+            font-family: "Source Code Pro", Menlo, "Bitstream Vera Sans Mono", Monaco, Courier, "Andale Mono", monospace;
+            color: #333;
+            background: #fafafa;
+            /* box-shadow:  0px 1px 3px 0px rgba(0, 0, 0, 0.2),
+            0px 1px 1px 0px rgba(0, 0, 0, 0.14),
+            0px 2px 1px -1px rgba(0, 0, 0, 0.12); */
+            box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2),
+            0px 4px 5px 0px rgba(0, 0, 0, 0.14),
+            0px 1px 10px 0px rgba(0, 0, 0, 0.12); 
+            }
+        .toolbar {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+        }
+        button {
+            background: none;
+            border:	1px solid rgba(0, 0, 0, .12);
+            border-radius: 4px;
+            color: #0066ce;
+            fill: #0066ce;
+            position: relative;
+            height: 36px;
+            line-height: 36px;
+            margin: 0 18px 0 0;
+            min-width: 64px;
+            padding: 0 16px;
+            display: inline-block;
+            overflow: hidden;
+            will-change: box-shadow;
+            transition: box-shadow .2s cubic-bezier(.4,0,1,1),background-color .2s cubic-bezier(.4,0,.2,1),color .2s cubic-bezier(.4,0,.2,1);
+            outline: none;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            vertical-align: middle;
+            user-select: none;
+
+            font-size: 16px;
+            text-transform: uppercase;
+            box-shadow:  0px 1px 5px 0px rgba(0, 0, 0, 0.2),
+                0px 2px 2px 0px rgba(0, 0, 0, 0.14),
+                0px 3px 1px -2px rgba(0, 0, 0, 0.12); 
+            }
+        button:first-child {
+            margin-left: 0;
+        }
+        button:hover {
+            background-color: rgba(0,0,0,0.08);
+        }
+        button:active {
+            background-color: white;
+        }
+        button.primary {
+            color: white;
+            fill: white;
+            background: #0066ce;
+        }
+
+        button.primary:hover {
+            background-color: rgba(0,102,206,0.58);
+        }
+        button.primary:active {
+            color: #0066ce;
+            fill: #0066ce;
+            background-color: white;
+        }
+    </style>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.249.1.min.js"></script>
+    <script>
+        AWS.config.region = 'eu-west-1';
+        AWS.config.accessKeyId = '<YOUR-KEY>';
+        AWS.config.secretAccessKey = '<YOUR-SECRET>';
+    </script>
+</head>
+<body>
+    <main>
+        <h2>MathLive Speech Example</h2>
+        <div class="mathfield" id='mf' >f(x)=\sin(x^2+\frac{\pi}{2})</div>
+        <div id='output'></div>
+        <!-- <div class='toolbar'>
+            <input type='checkbox'>
+                Synchronize speech
+            </input>
+        </div> -->
+        <div class='toolbar'>
+            <button class='primary' onclick='mf.perform("speakAll")'>
+                <span class='icon'>
+                    <svg style="width: 24px;height: 24px;transform: translate(0, 4px);margin-right: 8px;">
+                        <g display="inline">
+                        <circle cx="9" cy="9" r="4"/>
+                        <path d="M9,15c-2.67,0-8,1.34-8,4v2h16v-2C17,16.34,11.67,15,9,15z"/>
+                        <path d="M15.08,7.05c0.84,1.18,0.84,2.71,0,3.89l1.68,1.69c2.02-2.02,2.02-5.07,0-7.27L15.08,7.05z"/>
+                        <path d="M20.07,2l-1.63,1.63c2.77,3.02,2.77,7.56,0,10.74L20.07,16C23.97,12.11,23.98,6.05,20.07,2z"/>
+                        </g>
+                    </svg>
+                </span>
+                <span>Speak</span>
+            </button>
+        </div>
+    </main>
+
+
+<script src="../../dist/mathlive.js"></script>
+<script>
+    const mf = MathLive.makeMathField('mf', {
+        onContentDidChange: mf => document.getElementById('output').textContent = mf.text('spoken'),
+        
+        textToSpeechRules: 'sre',
+        textToSpeechRulesOptions: {
+            domain: 'mathspeak', // or 'chromevox'
+            ruleset: 'mathspeak-brief',   // mathspeak-default, mathspeak-brief, mathspeak-sbrief, chromevox-short, chromevox-default
+            // domain: 'chromevox', // mathspeak or 'chromevox'
+            // ruleset: 'chromevox-default',   
+            // mathspeak-default, mathspeak-brief, mathspeak-sbrief, chromevox-short, chromevox-default, chromevox-alternative
+        },
+
+        textToSpeechMarkup: 'ssml',     // 'ssml' or 'mac' or ''
+
+        speechEngine: 'amazon',         // 'amazon' or 'local'
+        speechEngineVoice: 'Matthew',
+    });
+</script>
+
+</body></html>

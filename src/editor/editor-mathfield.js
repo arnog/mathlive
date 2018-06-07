@@ -709,7 +709,7 @@ MathField.prototype._onFocus = function() {
             this.showVirtualKeyboard_();
         }
         Popover.updatePopoverPosition(this);
-        this._render();
+        // this._render();
         if (this.config.onFocus) this.config.onFocus(this);
     }
 }
@@ -804,8 +804,6 @@ MathField.prototype.perform = function(command) {
     if (result) {
         // Render the mathlist
         this._render();
-
-        this.scrollIntoView_();
     }
 
     return result;
@@ -883,8 +881,6 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
         this.mathlist.insert(shortcut);
         // Render the mathlist
         this._render();
-
-        this.scrollIntoView_();
     }
 
     // Keystroke has been handled, if it wasn't caught in the default
@@ -1085,10 +1081,9 @@ MathField.prototype._render = function() {
 
     const hasFocus = this.hasFocus();
     const isCollapsed = this.mathlist.isCollapsed();
-    if (hasFocus && isCollapsed) {
-        this.mathlist.anchor().hasCaret = true;
-    }
-    if (!isCollapsed) {
+    if (isCollapsed) {
+        this.mathlist.anchor().hasCaret = hasFocus;
+    } else {
         const siblings = this.mathlist.siblings()
         const firstOffset = this.mathlist.startOffset();
         const lastOffset = this.mathlist.endOffset();
@@ -1117,8 +1112,7 @@ MathField.prototype._render = function() {
     base.attributes = {
         // Hint to screen readers to not attempt to read this span
         // They should use instead the 'aria-label' below.
-        'aria-hidden': 'true',
-        'role': 'none presentation'
+        'aria-hidden': 'true'
     }
 
     const topStrut = Span.makeSpan('', 'ML__strut')
@@ -1135,19 +1129,7 @@ MathField.prototype._render = function() {
     wrapper.classes += hasFocus ? ' ML__focused' : ' ML__blurred';
 
     //
-    // 4. Decorate with a spoken text version for accessibility
-    // We only want the label to speak when focused into.
-    // After that, it should be blank to avoid it being spoken after a char is typed.
-    //
-
-    wrapper.attributes = {
-        // Accessibility: make sure this text span is taken into account
-        // and read by screen readers, since it's intended to replace
-        // the base span.
-    };
-
-    //
-    // 5. Generate markup and set the accessibility to reflect that
+    // 4. Generate markup and accessible node
     //
 
     this.field.innerHTML = wrapper.toMarkup();
@@ -1160,13 +1142,35 @@ MathField.prototype._render = function() {
 
 
     //
-    // 6. Stop event propagation, and scroll cursor into view
+    // 6. Scroll view
     //
 
-    // evt.preventDefault();
     this.scrollIntoView_();
 }
 
+/**
+ * Highlight the span corresponding to the specified atomID
+ * This is used for TTS with synchronized highlighting
+ * 
+ * @param {string} atomID 
+ * 
+ */
+MathField.prototype._highlightAtom = function(atomID, node) {
+    if (!node) node = this.field;
+    if (node.dataset.atomId && atomID !== node.dataset.atomId) {
+        console.log(node.dataset.atomId, ' != ', atomID);
+    }
+    if (node.dataset.atomId === atomID) {
+        node.classList.add('highlight');
+    } else {
+        node.classList.remove('highlight');
+    }
+    if (node.children) {
+        Array.from(node.children).forEach(x => {
+            this._highlightAtom(atomID, x);
+        });
+    }
+}
 
 MathField.prototype._onPaste = function() {
     // Make note we're in the process of pasting. The subsequent call to 
@@ -2213,6 +2217,252 @@ MathField.prototype.config = function(conf) {
         this.plonkSound.volume = AUDIO_FEEDBACK_VOLUME;
     }
 }
+
+
+
+
+MathField.prototype._speakWithSynchronizedHighlighting = function(text) {
+    if (this.config.speechEngine !== 'amazon') {
+        console.log('Use Amazon TTS Engine for synchronized highlighting');
+        this._speak(text);
+        return;
+    }
+    if (!window.AWS) {
+        console.log('AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk');
+        return;
+    }
+    const polly = new window.AWS.Polly({apiVersion: '2016-06-10'});
+
+    const params = {
+        OutputFormat: 'json',
+        VoiceId: this.config.speechEngineVoice || 'Joanna',
+        Text: text,
+        TextType: 'ssml',
+        SpeechMarkTypes: ['ssml']
+    };
+
+    let marks;
+    let currentMark = '';
+    const that = this;
+
+    // Request the mark points
+    polly.synthesizeSpeech(params, function(err, data) {
+        if (err) {
+            console.log('polly.synthesizeSpeech() error:', err, err.stack);
+        } else {
+            if (data && data.AudioStream) {
+                const response = new TextDecoder('utf-8').decode(new Uint8Array(data.AudioStream));
+                marks = response.split('\n').map(x => x ? JSON.parse(x) : {});
+                console.log(marks);
+
+                // Request the audio
+                params.OutputFormat = 'mp3';
+                params.SpeechMarkTypes = [];
+                polly.synthesizeSpeech(params, function(err, data) {
+                    if (err) {
+                        console.log('polly.synthesizeSpeech() error:', err, err.stack);
+                    } else {
+                        if (data && data.AudioStream) {
+                            const uInt8Array = new Uint8Array(data.AudioStream);
+                            const blob = new Blob([uInt8Array.buffer], {type: 'audio/mpeg'});
+                            const url = URL.createObjectURL(blob);
+
+                            const audioElement = new Audio(url);
+                            audioElement.addEventListener('timeupdate', () => {
+                                let value = '';
+                                let match = Number.POSITIVE_INFINITY;
+                                const target = audioElement.currentTime * 1000;
+                                // Find the smallest element which is bigger than the current time
+                                for (const mark of marks) {
+                                    if (mark.time >= target && mark.time < match) {
+                                        match = mark.time;
+                                        value = mark.value;
+                                    }
+                                }
+                                if (currentMark !== value) {
+                                    currentMark = value;
+                                    that._highlightAtom(currentMark, that.field);
+                                    console.log(currentMark);
+                                }
+                            });
+                            audioElement.play();
+                        } else {
+                            console.log('polly.synthesizeSpeech():' + data);
+                        }
+                    }
+                });
+            } else {
+                console.log('polly.synthesizeSpeech():' + data);
+            }
+        }
+    });
+}
+
+
+
+
+MathField.prototype._speak = function(text) {
+    if (!this.config.speechEngine || this.config.speechEngine === 'local') {
+        // On ChromeOS: chrome.accessibilityFeatures.spokenFeedback
+        // See also https://developer.chrome.com/apps/tts
+        const utterance = new SpeechSynthesisUtterance(text);
+        window.speechSynthesis.speak(utterance);
+    } else if (this.config.speechEngine === 'amazon') {
+        if (!window.AWS) {
+            console.log('AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk');
+        } else {
+            const polly = new window.AWS.Polly({apiVersion: '2016-06-10'});
+            const params = {
+                OutputFormat: 'mp3',
+                VoiceId: this.config.speechEngineVoice || 'Joanna',
+                // SampleRate: '16000',
+                Text: text,
+                TextType: 'ssml',
+                // SpeechMarkTypes: ['ssml]'
+            };
+            polly.synthesizeSpeech(params, function(err, data) {
+                if (err) {
+                    console.log('polly.synthesizeSpeech() error:', err, err.stack);
+                } else {
+                    if (data && data.AudioStream) {
+                        const uInt8Array = new Uint8Array(data.AudioStream);
+                        const blob = new Blob([uInt8Array.buffer], {type: 'audio/mpeg'});
+                        const url = URL.createObjectURL(blob);
+
+                        const audioElement = new Audio(url);
+                        audioElement.play();
+                    } else {
+                        console.log('polly.synthesizeSpeech():' + data);
+                    }
+                }
+            });
+
+            // Can call AWS.Request() on the result of synthesizeSpeech()
+        }
+    } else if (this.config.speechEngine === 'google') {
+        // @todo: implement support for Google Text-to-Speech API,
+        // using config.speechEngineToken, config.speechEngineVoice and 
+        // config.speechEngineAudioConfig
+
+// curl -H "Authorization: Bearer "$(gcloud auth application-default print-access-token) \
+//   -H "Content-Type: application/json; charset=utf-8" \
+//   --data "{
+//     'input':{
+//       'text':'Android is a mobile operating system developed by Google,
+//          based on the Linux kernel and designed primarily for
+//          touchscreen mobile devices such as smartphones and tablets.'
+//     },
+//     'voice':{
+//       'languageCode':'en-gb',
+//       'name':'en-GB-Standard-A',
+//       'ssmlGender':'FEMALE'
+//     },
+//     'audioConfig':{
+//       'audioEncoding':'MP3'
+//     }
+//   }" "https://texttospeech.googleapis.com/v1beta1/text:synthesize" > synthesize-text.txt
+    }
+}
+
+/**
+ * @method EditableMathlist#speakSelection_
+ */
+MathField.prototype.speakSelection_ = function() {
+    let text = "Nothing selected.";
+    if (!this.isCollapsed()) {
+        text = MathAtom.toSpeakableText(this.extractContents(), this.config)
+    }
+    this._speak(text);
+}
+
+/**
+ * @method EditableMathlist#speakSelectionWithSynchronizedHighlighting_
+ */
+MathField.prototype.speakSelectionWithSynchronizedHighlighting_ = function() {
+    if (!this.mathlist.isCollapsed()) {
+        const options = this.config;
+        options.textToSpeechMarkup = 'ssml';
+        const text = MathAtom.toSpeakableText(this.mathlist.extractContents(), options)
+        this._speakWithSynchronizedHighlighting(text);
+    } else {
+        this._speak("Nothing selected.");
+    }
+}
+
+
+/**
+ * @method EditableMathlist#speakParent_
+ */
+MathField.prototype.speakParent_ = function() { 
+    let text = 'No parent.';
+    const parent = this.mathlist.parent();
+    if (parent && parent.type !== 'root') {
+        text = MathAtom.toSpeakableText(this.mathlist.parent(), this.config);
+    }
+    this._speak(text);
+}
+
+/**
+ * @method EditableMathlist#speakRightSibling_
+ */
+MathField.prototype.speakRightSibling_ = function() { 
+    let text = 'At the end.';
+    const siblings = this.mathlist.siblings();
+    const first = this.mathlist.startOffset() + 1;
+    if (first < siblings.length - 1) {
+        const adjSiblings = [];
+        for (let i = first; i <= siblings.length - 1; i++) {
+            adjSiblings.push(siblings[i]);
+        }
+        text = MathAtom.toSpeakableText(adjSiblings, this.config);
+    }
+    this._speak(text);
+}
+
+/**
+ * @method EditableMathlist#speakLeftSibling_
+ */
+MathField.prototype.speakLeftSibling_ = function() { 
+    let text = 'At the beginning.';
+    const siblings = this.mathlist.siblings();
+    const last = this.mathlist.isCollapsed() ? this.mathlist.startOffset() : this.mathlist.startOffset() - 1;
+    if (last >= 1) {
+        const adjSiblings = [];
+        for (let i = 1; i <= last; i++) {
+            adjSiblings.push(siblings[i]);
+        }
+        text = MathAtom.toSpeakableText(adjSiblings, this.config);
+    }
+    this._speak(text);
+}
+
+
+/**
+ * @method EditableMathlist#speakGroup_
+ */
+MathField.prototype.speakGroup_ = function() { 
+    this._speak(MathAtom.toSpeakableText(this.mathlist.siblings(), this.config));
+}
+
+/**
+ * @method EditableMathlist#speakAll_
+ */
+MathField.prototype.speakAll_ = function() {
+    this._speak(MathAtom.toSpeakableText(this.mathlist.root, this.config));
+}
+
+/**
+ * @method EditableMathlist#speakAllWithSynchronizedHighlighting_
+ */
+MathField.prototype.speakAllWithSynchronizedHighlighting_ = function() {
+    const options = this.config;
+    options.textToSpeechMarkup = 'ssml';
+    const text = MathAtom.toSpeakableText(this.mathlist.root, options)
+    this._speakWithSynchronizedHighlighting(text);
+}
+
+
+
 
 return {
     MathField: MathField

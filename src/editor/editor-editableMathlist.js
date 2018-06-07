@@ -385,7 +385,8 @@ EditableMathlist.prototype.ancestor = function(ancestor) {
                 const firstAtom = new MathAtom.MathAtom(result.parseMode, 'first', null);
                 result[segment.relation].unshift(firstAtom);
             }
-            result = result[segment.relation][segment.offset];
+            const offset = Math.min(segment.offset, result[segment.relation].length - 1);
+            result = result[segment.relation][offset];
         }
     }
 
@@ -2603,92 +2604,6 @@ EditableMathlist.prototype._applyStyle = function(style) {
     } else {
         this.setExtent(selectionDirection);
     }
-}
-
-
-
-EditableMathlist.prototype._speak = function(text) {
-    if (!this.config.speechEngine || this.config.speechEngine === 'local') {
-        // On ChromeOS: chrome.accessibilityFeatures.spokenFeedback
-        const utterance = new SpeechSynthesisUtterance(text);
-        window.speechSynthesis.speak(utterance);
-    } else if (this.config.speechEngine === 'google') {
-        // @todo: implement support for Google Text-to-Speech API,
-        // using config.speechEngineToken, config.speechEngineVoice and 
-        // config.speechEngineAudioConfig
-    }
-}
-
-/**
- * @method EditableMathlist#speakSelection_
- */
-EditableMathlist.prototype.speakSelection_ = function() {
-    let text = "Nothing selected.";
-    if (!this.isCollapsed()) {
-        text = MathAtom.toSpeakableText(this.extractContents(), this.config)
-    }
-    this._speak(text);
-}
-
-/**
- * @method EditableMathlist#speakParent_
- */
-EditableMathlist.prototype.speakParent_ = function() { 
-    let text = 'No parent.';
-    const parent = this.parent();
-    if (parent && parent.type !== 'root') {
-        text = MathAtom.toSpeakableText(this.parent(), this.config);
-    }
-    this._speak(text);
-}
-
-/**
- * @method EditableMathlist#speakRightSibling_
- */
-EditableMathlist.prototype.speakRightSibling_ = function() { 
-    let text = 'At the end.';
-    const siblings = this.siblings();
-    const first = this.startOffset() + 1;
-    if (first < siblings.length - 1) {
-        const adjSiblings = [];
-        for (let i = first; i <= siblings.length - 1; i++) {
-            adjSiblings.push(siblings[i]);
-        }
-        text = MathAtom.toSpeakableText(adjSiblings, this.config);
-    }
-    this._speak(text);
-}
-
-/**
- * @method EditableMathlist#speakLeftSibling_
- */
-EditableMathlist.prototype.speakLeftSibling_ = function() { 
-    let text = 'At the beginning.';
-    const siblings = this.siblings();
-    const last = this.isCollapsed() ? this.startOffset() : this.startOffset() - 1;
-    if (last >= 1) {
-        const adjSiblings = [];
-        for (let i = 1; i <= last; i++) {
-            adjSiblings.push(siblings[i]);
-        }
-        text = MathAtom.toSpeakableText(adjSiblings, this.config);
-    }
-    this._speak(text);
-}
-
-
-/**
- * @method EditableMathlist#speakGroup_
- */
-EditableMathlist.prototype.speakGroup_ = function() { 
-    this._speak(MathAtom.toSpeakableText(this.siblings(), this.config));
-}
-
-/**
- * @method EditableMathlist#speakAll_
- */
-EditableMathlist.prototype.speakAll_ = function() { 
-    this._speak(MathAtom.toSpeakableText(this.root, this.config));
 }
 
 

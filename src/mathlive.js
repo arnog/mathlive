@@ -242,10 +242,13 @@ function toMarkup(text, mathstyle, format, macros) {
  * 
  * @param {string} [config.speechEngine='local'] Indicates which speech engine
  * to use for speech output. Use `local` to use the OS-specific TTS engine.
- * Use `google` for the Google Text-to-Speech cloud API. Set 
- * `config.speechEngineToken` to your Google API token, `config.speechEngineVoice`
- * to the Google `voice` configuration structure, and `config.speechEngineAudioConfig`
- * to the Google `audioConfig` configuration structure.
+ * Use `amazon` for Amazon Text-to-Speech cloud API. You must include the AWS 
+ * API library and configure it with your API key before use. See the 'speech' 
+ * example project for more details.
+ * 
+ * @param {string} [config.speechEngineVoice=''] Indicates the voice to use with
+ *  the speech engine. This is dependent on the speech engine. For Amazon Polly, 
+ * see here: https://docs.aws.amazon.com/polly/latest/dg/voicelist.html
  * 
  * @param {mathfieldWithDirectionCallback} [config.onMoveOutOf] - A handler 
  * called when keyboard navigation would cause the insertion point to leave the

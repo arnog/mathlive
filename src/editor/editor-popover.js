@@ -269,7 +269,7 @@ const NOTES = {
                         ],
 
     '\\Longrightarrow': 'implies',
-    '\\Longleftrightarrow': 'if and only iff',
+    '\\Longleftrightarrow': 'if, and only if,',
 
     '\\prec':           'predeces',
     '\\preceq':         'predeces or is equal to',
