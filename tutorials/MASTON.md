@@ -181,8 +181,12 @@ replacing the element with the number. That is, both representations are equival
 ```
 
 ### &langle;complex&rangle;
-* `re`: &langle;native-number&rangle;
-* `im`: &langle;native-number&rangle;
+* `re`: &langle;native-number&rangle;, 0 by default.
+* `im`: &langle;native-number&rangle;, 0 by default.
+
+One of the keys `re` or `im` must be present.
+
+Note that `{re:1}` is a complex number with a null imaginary part.
 
 ### &langle;symbol&rangle;
 
@@ -206,7 +210,7 @@ The data type of a symbol can be used to refine the interpretation of operations
  String             | `string`        | an array of characters
  Dictionary         | `dictionary`    | a collection of key/value pairs
  Boolean            | `boolean`       | true or false
- Table              | `table         | a two-dimensional array of cells. Each cell can be of a different type.
+ Table              | `table`         | a two-dimensional array of cells. Each cell can be of a different type.
  Date               | `date`          | 
  Duration           | `duration`      |
 
@@ -243,35 +247,56 @@ When using common functions, the following values are recommended:
 
  Name (and common synonyms) | Value       | Arity | Comment
  -------------------------- |:------------|:------| :-------
- Conjugate                  | `+`         | 1   | Conjugate of the argument
- Addition                   | `+`         | 2 |
- Signum                     | `*`         | 1  | -1 if the argument is negative, 0 if it is zero, 1 if it is positive; more generally, the intersection of the unit circle with the line from the origin through the argument in the complex plane
- Multiplication             | `*`         | 2   | 
- Reciprocal                 | `/`         | 1   | The reciprocal of the argument
- Division                   | `/`         | 2   | The first argument divided  by the second argument
- Negate                     | `-`         | 1   | Negate the argument
- Substraction               | `-`         | 2   | Substract the second from the first.
- Exponential                | `^`         | 1   | e to the power of the argument.
- Power                      | `^`         | 2   | The first argument to the power of the second argument
- Square Root                | `root`      | 1   | 
- Root                       | `root`      | 2   | The second argument is the degree of the root
- Natural log                | `ln`        | 1   | 
- Logarithm                  | `ln`        | 2   | The second argument is the base.
- List                       | `list`      | n   | comma separated list
- List                       | `list2`     | n   | semi-colon separated list
- Floor                      | `floor`     | 1 | The largest integer less than or equal to the argument
- Minimum                    | `min`       | 2, n | The smallest of the arguments
- Ceiling                    | `ceiling`   | 1 | The smallest integer greater than or equal to the argument
- Maximum                    | `max`       | 2, n | The largest of the arguments
- Greatest Common Divisor    | `gcd`       | 2 | 
- Least Common Multiple      | `lcm`       | 2 | 
+ Addition                   | `+`         | 2     |
+ Signum                     | `*`         | 1     | -1 if the argument is negative, 0 if it is zero, 1 if it is positive; more generally, the intersection of the unit circle with the line from the origin through the argument in the complex plane
+ Multiplication             | `*`         | 2     | 
+ Reciprocal                 | `/`         | 1     | The reciprocal of the argument
+ Division                   | `/`         | 2     | The first argument divided  by the second argument
+ Negate                     | `-`         | 1     | Negate the argument
+ Substraction               | `-`         | 2     | Substract the second from the first.
+ Exponential                | `^`         | 1     | e to the power of the argument.
+ Power                      | `^`         | 2     | The first argument to the power of the second argument
+ Square Root                | `root`      | 1     | 
+ Root                       | `root`      | 2     | The second argument is the degree of the root
+ Natural log                | `ln`        | 1     | 
+ Logarithm                  | `ln`        | 2     | The second argument is the base.
+ List                       | `list`      | n     | comma separated list
+ List                       | `list2`     | n     | semi-colon separated list
+ Absolute value             | `abs`       |       |
+ Floor                      | `floor`     | 1     | The largest integer less than or equal to the argument
+ Minimum                    | `min`       | 2, n  | The smallest of the arguments
+ Ceiling                    | `ceiling`   | 1     | The smallest integer greater than or equal to the argument
+ Maximum                    | `max`       | 2, n  | The largest of the arguments
+ Greatest Common Divisor    | `gcd`       | 2     | 
+ Least Common Multiple      | `lcm`       | 2     | 
+ Function composition       | `compose`   | 2, n  | 
+
+#### Complex Arithmetic
+
+  Name                       | Value       | Arity | Comment
+ -------------------------- |:------------|:------| :-------
+ Conjugate                  | `+`         | 1     | Conjugate of the argument
+ Real                       | `real`      | 1     |
+ Imaginary                  | `imaginary` | 1     |
+ Argument                   | `arg`       | 1     |
+
+
+#### Logic
+
+ Name                       | Value       | Arity | Comment
+ -------------------------- |:------------|:------| :-------
+ Implies                    | 
+ Logical equivalence        | 
+ For All (universal quantifier) | `forall` | 
+ There Exists (existential quantifier) | `exists` | 
+ There Does Not Exists
 
 
 #### Trigonometry
 
-
 Note that for inverse functions, no assumptions is made about the branch 
 cuts of those functions. The interpretation is left up to the consuming software.
+
  Name (and common synonyms) | Value       | Arity | Comment
  -------------------------- |:------------|:------| :-------
  Cosine                     | `cos`       | 1   | angle in radians
@@ -280,8 +305,8 @@ cuts of those functions. The interpretation is left up to the consuming software
  Co-tangent (cot, ctg, cotg, ctn) | `cotangent` | 1| 
  Secant                     | `sec`       | 1 | 
  Cosecant                   | `csc`       | 1 | 
- Arc cosine                 ' `acos`      | 1   | angle in radians
- Arc sine                   ' `asin`      | 1   | angle in radians
+ Arc cosine                 | `acos`      | 1   | angle in radians
+ Arc sine                   | `asin`      | 1   | angle in radians
  Arctangent (arctan, arctg) | `atan`      | 1   | angle in radians
  Arctangent (arctan, arctg) | `atan`      | 2   | See https://en.wikipedia.org/wiki/Atan2
  Arc-cotangent              | `arccot` | 1 | 
@@ -356,10 +381,31 @@ The following values should be used to represent these common big operators:
 
 
 #### Other functions
- Operation          | Value                | Comment
+ Operation          | Value             | Comment
  -------------      |:------------------|:----------
  Factorial          | `factorial`       | `!`
  Double factorial   | `factorial2`      | `!!`
+
+Additional functions can be specified using an OpenMath content dictionary. For example, Euler's gamma function:
+
+```json
+{
+    fn: "gamma",
+    openmathsymbol: "hypergeo0#gamma",
+    arg: 1
+}
+```
+
+If an `openmathsymbol` key is present it overrides the value of the `fn` key as far as the semantic of the operation is concerned. However, the `fn` key can still be used to display information about this expression to a user. For example:
+
+```json
+{
+    fn: "\u0393",
+    openmathsymbol: "hypergeo0#gamma",
+    arg: 1
+}
+```
+where `\u0393` is the Unicode character `GREEK CAPITAL LETTER GAMMA` Γ.
 
 
 
@@ -371,12 +417,13 @@ The following values should be used to represent these common big operators:
 
 The `group` key is the only one required.
 
-This element is used when a `sup`, `sub` or `accent` need to be applied to an expression, as in `(x+1)^2`.
+This element is used when a `sup`, `sub` or `accent` needs to be applied to an expression, as in `(x+1)^2`.
 
 ### &langle;range&rangle;
 * `range_start`: &langle;expression&rangle;
 * `range_end`: &langle;expression&rangle;
 * `range_step`: &langle;expression&rangle;
+* `closure`: "open" | "closed" | "open-closed" | "closed-open", default "closed"
 
 The `range_start` key is the only one required. If absent, `range_end` is assumed to be `infinity`. If absent, `range_step` is assumed to be `1`.
 
@@ -426,9 +473,11 @@ Example: piecewise definition of absolute value.
 ],
 "conditions":[
     {fn:">=",arg:["x",0]},
-    {fn:"<",arg:["x",0]},
+    {fn:"<",arg:["x",0]}
 ]}
 ```
+
+**Design note**: having the block and conditions in separate keys is britle. Consider using `if` nodes, e.g. `{if:{fn:">=",arg:["x",0]}, then:"x"}`
 
 ### OPEN QUESTIONS
 1. How should exponents be represented? I.e. `x^2` or `A^\dagger`. They could literally be represented with a `sup` attribute, or as an explicit function, i.e. `fn:'pow'` or `fn:'transjugate'`
@@ -436,6 +485,9 @@ Example: piecewise definition of absolute value.
 3. How to encode logarithm and exponential (see 1.)
 4. What should the effect of n-ary versions of divide, substract? One option is to apply a left-reduce to the arguments.
 5. How should accents (i.e. arrow over symbol) be encoded? As an additional property? As a function? How about other stylistic variant (i.e. bold symbol, fraktur, blackboard, etc...)
+6. Should there be a node type to represent conditions, i.e. expressions whose value is a boolean.
+7. For functions defined with an openmath identifier, the value of the `fn` key could be the openmath identifier, i.e. `fn:"hypergeo0#gamma"`
 
 ### REFERENCES
-[1] https://www.json.org/
+1. https://www.json.org/
+2. http://www.openmath.org/cd
