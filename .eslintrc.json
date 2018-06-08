@@ -45,7 +45,7 @@
         "guard-for-in": "warn",
         // "max-len": "warn",
         "new-cap": 1,
-        "no-bitwise": 1,
+        "no-bitwise": "off",
         "no-console": "off",
         "no-else-return": 1,
         "no-eval": 2,
