@@ -1060,6 +1060,19 @@ MathField.prototype._onTypedText = function(text, options) {
 }
 
 
+/**
+ * Return a hash (32-bit integer) representing the content of the mathfield
+ * (but not the selection state)
+ */
+MathField.prototype._hash = function() {
+    let result = 0;
+    const str = this.mathlist.root.toLatex(false);
+    for (let i = 0; i < str.length; i++) {
+        result = result * 31 + str.charCodeAt(i);
+        result = result & result;   // Force it to a 32-bit number
+    }
+    return result;
+}
 
 /**
  * Call `render()` to re-layout the field and generate the updated DOM.
@@ -1098,7 +1111,7 @@ MathField.prototype._render = function() {
     const spans = MathAtom.decompose(
         {
             mathstyle: 'displaystyle', 
-            generateID: true,
+            generateID: {seed: this._hash()},
             macros: this.config.macros
         }, this.mathlist.root.body);
 
@@ -1155,20 +1168,21 @@ MathField.prototype._render = function() {
  * @param {string} atomID 
  * 
  */
-MathField.prototype._highlightAtom = function(atomID, node) {
-    if (!node) node = this.field;
-    if (node.dataset.atomId && atomID !== node.dataset.atomId) {
-        console.log(node.dataset.atomId, ' != ', atomID);
-    }
-    if (node.dataset.atomId === atomID) {
+MathField.prototype._highlightAtom = function(node, atomID) {
+    if (!atomID || node.dataset.atomId === atomID) {
         node.classList.add('highlight');
+        if (node.children) {
+            Array.from(node.children).forEach(x => {
+                this._highlightAtom(x);
+            });
+        }
     } else {
         node.classList.remove('highlight');
-    }
-    if (node.children) {
-        Array.from(node.children).forEach(x => {
-            this._highlightAtom(atomID, x);
-        });
+        if (node.children) {
+            Array.from(node.children).forEach(x => {
+                this._highlightAtom(x, atomID);
+            });
+        }
     }
 }
 
@@ -1225,6 +1239,16 @@ MathField.prototype.text = function(format) {
             result = this.mathlist.root.toMathML(this.config);
     } else if (format === 'spoken') {
         result = MathAtom.toSpeakableText(this.mathlist.root, this.config);
+    } else if (format === 'spoken-text') {
+        const save = this.config.textToSpeechMarkup;
+        this.config.textToSpeechMarkup = '';
+        result = MathAtom.toSpeakableText(this.mathlist.root, this.config);
+        this.config.textToSpeechMarkup = save;
+    } else if (format === 'spoken-ssml') {
+        const save = this.config.textToSpeechMarkup;
+        this.config.textToSpeechMarkup = 'ssml';
+        result = MathAtom.toSpeakableText(this.mathlist.root, this.config);
+        this.config.textToSpeechMarkup = save;
     } else if (format === 'json') {
         result = JSON.stringify(MathAtom.toAST(this.mathlist.root.body, this.config));
     }
@@ -2253,7 +2277,6 @@ MathField.prototype._speakWithSynchronizedHighlighting = function(text) {
             if (data && data.AudioStream) {
                 const response = new TextDecoder('utf-8').decode(new Uint8Array(data.AudioStream));
                 marks = response.split('\n').map(x => x ? JSON.parse(x) : {});
-                console.log(marks);
 
                 // Request the audio
                 params.OutputFormat = 'mp3';
@@ -2270,24 +2293,22 @@ MathField.prototype._speakWithSynchronizedHighlighting = function(text) {
                             const audioElement = new Audio(url);
                             audioElement.addEventListener('timeupdate', () => {
                                 let value = '';
-                                let match = Number.POSITIVE_INFINITY;
                                 const target = audioElement.currentTime * 1000;
                                 // Find the smallest element which is bigger than the current time
                                 for (const mark of marks) {
-                                    if (mark.time >= target && mark.time < match) {
-                                        match = mark.time;
+                                    if (mark.time < target) {
                                         value = mark.value;
                                     }
                                 }
                                 if (currentMark !== value) {
                                     currentMark = value;
-                                    that._highlightAtom(currentMark, that.field);
-                                    console.log(currentMark);
+                                    that._highlightAtom(that.field, currentMark);
+                                    // console.log(currentMark);
                                 }
                             });
                             audioElement.play();
                         } else {
-                            console.log('polly.synthesizeSpeech():' + data);
+                            // console.log('polly.synthesizeSpeech():' + data);
                         }
                     }
                 });

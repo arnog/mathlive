@@ -271,7 +271,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                     if (commonFraction) {
                         result = commonFraction;
                     } else {
-                        result += numer + ' over ' + denom + ' ';
+                        result += numer + ' over ' + denom;
                     }
                 } else {
                     result += ' The fraction <break time="150ms"/>' + numer + ', over <break time="150ms"/>' + denom + '.<break time="150ms"/> End fraction.<break time="150ms"/>';

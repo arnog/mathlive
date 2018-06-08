@@ -1,14 +1,14 @@
 <!DOCTYPE html><html lang="en-US">
 <head>
     <meta charset="utf-8">
-    <title>MathLive Basic Example</title>
+    <title>MathLive Speech Example</title>
     <meta name="google" content="notranslate">
 
     <link rel="stylesheet" href="../../dist/mathlive.core.css">
     <link rel="stylesheet" href="../../dist/mathlive.css">
     <style>
         body {
-            font-family: sans-serif;
+            font-family: Roboto, sans-serif;
             color: #444;
             background-color: #f9f9f9;
         }
@@ -18,10 +18,12 @@
         }
         .mathfield {
             border: 1px solid #ddd;
-            padding:5px;
+            padding:32px;
+            font-size: 32px;
+            color: #99d;
+            background: beige;
             margin: 10px 0 10px 0;
             border-radius:5px;
-            background-color: #fff;
             box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2),
             0px 4px 5px 0px rgba(0, 0, 0, 0.14),
             0px 1px 10px 0px rgba(0, 0, 0, 0.12); 
@@ -40,7 +42,12 @@
             box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2),
             0px 4px 5px 0px rgba(0, 0, 0, 0.14),
             0px 1px 10px 0px rgba(0, 0, 0, 0.12); 
-            }
+        }
+        #output-ssml {
+            margin-top: 1em;
+            padding-top: 1em;
+            border-top: 1px solid #ddd;
+        }
         .toolbar {
             margin-top: 15px;
             display: flex;
@@ -70,6 +77,7 @@
             user-select: none;
 
             font-size: 16px;
+            letter-spacing: 0.08929em;
             text-transform: uppercase;
             box-shadow:  0px 1px 5px 0px rgba(0, 0, 0, 0.2),
                 0px 2px 2px 0px rgba(0, 0, 0, 0.14),
@@ -104,20 +112,25 @@
         AWS.config.region = 'eu-west-1';
         AWS.config.accessKeyId = '<YOUR-KEY>';
         AWS.config.secretAccessKey = '<YOUR-SECRET>';
+        AWS.config.accessKeyId = 'AKIAIRV4H6LMPQ2AQC4A';
+        AWS.config.secretAccessKey = 'mq9HF2UVTt0X0NkD2MJDOO1ZGkb5D7SPRPg4zGBq';
     </script>
 </head>
 <body>
     <main>
         <h2>MathLive Speech Example</h2>
         <div class="mathfield" id='mf' >f(x)=\sin(x^2+\frac{\pi}{2})</div>
-        <div id='output'></div>
+        <div id='output'>
+            <div id='output-text'></div>
+            <div id='output-ssml'></div>
+        </div>
         <!-- <div class='toolbar'>
             <input type='checkbox'>
                 Synchronize speech
             </input>
         </div> -->
         <div class='toolbar'>
-            <button class='primary' onclick='mf.perform("speakAll")'>
+            <button class='primary' onclick='mf.perform("speakAllWithSynchronizedHighlighting")'>
                 <span class='icon'>
                     <svg style="width: 24px;height: 24px;transform: translate(0, 4px);margin-right: 8px;">
                         <g display="inline">
@@ -128,7 +141,7 @@
                         </g>
                     </svg>
                 </span>
-                <span>Speak</span>
+                <span>Read Aloud</span>
             </button>
         </div>
     </main>
@@ -137,7 +150,10 @@
 <script src="../../dist/mathlive.js"></script>
 <script>
     const mf = MathLive.makeMathField('mf', {
-        onContentDidChange: mf => document.getElementById('output').textContent = mf.text('spoken'),
+        onContentDidChange: mf => {
+            document.getElementById('output-text').textContent = mf.text('spoken-text');
+            document.getElementById('output-ssml').textContent = mf.text('spoken-ssml');
+        },
         
         textToSpeechRules: 'sre',
         textToSpeechRulesOptions: {

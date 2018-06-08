@@ -1641,12 +1641,17 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
  */
 MathAtom.prototype.bind = function(context, span) {
     if (context.generateID && this.type !== 'first' && this.body !== '\u200b') {
-        this.id = Date.now().toString(36).slice(-2) + 
-            Math.floor(Math.random() * 0x186a0).toString(36);
+        if (typeof context.generateID === 'boolean') {
+            this.id = Date.now().toString(36).slice(-2) + 
+                Math.floor(Math.random() * 0x186a0).toString(36);
+        } else {
+            this.id = context.generateID.seed.toString(36);
+            context.generateID.seed += 1;
+        }
 
         if (!span.attributes) span.attributes = {};
         
-        span.attributes['data-atom-id'] =  this.id;
+        span.attributes['data-atom-id'] = this.id;
     }
     return span;
 }
