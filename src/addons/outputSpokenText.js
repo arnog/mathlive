@@ -161,6 +161,17 @@ function isAtomic(mathlist) {
     return count === 1;
 }
 
+function atomicID(mathlist) {
+    if (mathlist && Array.isArray(mathlist)) {
+        for (const atom of mathlist) {
+            if (atom.type !== 'first') {
+                return atom.id;
+            }
+        }
+    }
+    return null;
+}
+
 function atomicValue(mathlist) {
     let result = '';
     if (mathlist && Array.isArray(mathlist)) {
@@ -468,10 +479,14 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                 
         }
         if (!supsubHandled && atom.superscript) {
+
             let sup = MathAtom.toSpeakableFragment(atom.superscript, options);
             sup = sup.trim();
             const sup2 = sup.replace(/<[^>]*>/g, '');
             if (isAtomic(atom.superscript)) {
+                if (options.speechMode === 'math') {
+                    result += '<mark name="' + atomicID(atom.superscript).toString() + '"/>';        
+                }
                 if (sup2 === '\u2032') {
                     result += ' prime ';
                 } else if (sup2 === '2') {
@@ -540,13 +555,17 @@ MathAtom.toSpeakableText = function(atoms, options) {
     let result = MathAtom.toSpeakableFragment(atoms, options);
 
     if (options.textToSpeechMarkup === 'ssml') {
+        let prosody = '';
+        if (options.speechEngineRate) {
+            prosody = '<prosody rate="' + options.speechEngineRate + '">'
+        }
         result = `<?xml version="1.0"?><speak version="1.1" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">` + 
         '<amazon:auto-breaths>' +
-        '<prosody rate="medium">' +
+        prosody +
         '<p><s>' +
         result + 
         '</s></p>' +
-        '</prosody>' + 
+        (prosody ? '</prosody>' : '') + 
         '</amazon:auto-breaths>' +
         '</speak>';
     } else if (options.textToSpeechMarkup === 'mac' && platform('mac') === 'mac') {

@@ -27,7 +27,9 @@ define(['mathlive/core/mathstyle'], function(Mathstyle) {
  * @property {string} font
  * @property {boolean} generateID - If true, unique IDs should be generated for each span
  * so they can be tracked by to an atom. Can also be an object with a `seed` field to
- * generate a specific range of IDs.
+ * generate a specific range of IDs. Optionally, if a `groupNumbers` property 
+ * is set to true, an additional span will enclose strings of digits. This is 
+ * used by read aloud to properly pronounce (and highlight) numbers in expressions.
  * @property {boolean} isSelected - If true, items rendered in this context
  * should be rendered in a selected state
  * @property {string} parentMathstyle

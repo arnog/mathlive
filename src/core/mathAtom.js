@@ -1632,6 +1632,18 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
 }
 
 
+function makeID(context) {
+    let result;
+    if (typeof context.generateID === 'boolean' && context.generateID) {
+        result = Date.now().toString(36).slice(-2) + 
+            Math.floor(Math.random() * 0x186a0).toString(36);
+    } else if (typeof context.generateID !== 'boolean') {
+        result = context.generateID.seed.toString(36);
+        context.generateID.seed += 1;
+    }
+    return result;
+}
+
 /**
  * Add an ID attribute to both the span and this atom so that the atom
  * can be retrieved from the span later on (e.g. when the span is clicked on)
@@ -1641,17 +1653,11 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
  */
 MathAtom.prototype.bind = function(context, span) {
     if (context.generateID && this.type !== 'first' && this.body !== '\u200b') {
-        if (typeof context.generateID === 'boolean') {
-            this.id = Date.now().toString(36).slice(-2) + 
-                Math.floor(Math.random() * 0x186a0).toString(36);
-        } else {
-            this.id = context.generateID.seed.toString(36);
-            context.generateID.seed += 1;
+        this.id = makeID(context);
+        if (this.id) {
+            if (!span.attributes) span.attributes = {};
+            span.attributes['data-atom-id'] = this.id;
         }
-
-        if (!span.attributes) span.attributes = {};
-        
-        span.attributes['data-atom-id'] = this.id;
     }
     return span;
 }
@@ -2009,6 +2015,8 @@ function getFontName(symbol, fontFamily) {
 }
 
 
+
+
 /**
  * Return a list of spans equivalent to atoms.
  * A span is the most elementary type possible, for example 'text'
@@ -2032,6 +2040,12 @@ function decompose(context, atoms) {
 
         context = new Context.Context(context);
     }
+
+    // In most cases we want to display selection, 
+    // except if the generateID.groupNumbers flag is set which is used for 
+    // read aloud.
+    const displaySelection = !context.generateID || !context.generateID.groupNumbers;
+
     let result = [];
     if (Array.isArray(atoms)) {
         if (atoms.length === 0) {
@@ -2039,7 +2053,7 @@ function decompose(context, atoms) {
 
         } else if (atoms.length === 1) {
             result = atoms[0].decompose(context);
-            if (atoms[0].isSelected && result) {
+            if (displaySelection && atoms[0].isSelected && result) {
                 const isTight = result.isTight;
                 let type = result.type;
                 if (type === 'placeholder') type = 'mord';
@@ -2053,6 +2067,7 @@ function decompose(context, atoms) {
             let previousType = 'none';
             let nextType = atoms[1].type;
             let selection =  [];
+            let digitString = [];
             let selectionType = '';
             let selectionIsTight = false;
             let phantomBase = null;
@@ -2080,6 +2095,7 @@ function decompose(context, atoms) {
                     phantomBase = null;
                 }
 
+
                 const span = atoms[i].decompose(context, phantomBase);
                 if (span) {
                     // The result from decompose is always an array
@@ -2087,7 +2103,31 @@ function decompose(context, atoms) {
                     // Flatten it (i.e. [[a1, a2], b1, b2] -> [a1, a2, b1, b2]
                     const flat = [].concat.apply([], span);
                     phantomBase = flat;
-                    if (atoms[i].isSelected && !context.isSelected) {
+
+
+                    // If this is a digit, keep track of it
+
+                    if (atoms[i].type === 'mord' && 
+                        '0123456789,.'.indexOf(atoms[i].latex) >= 0) {
+                        digitString = digitString.concat(flat);
+                    }
+                    if ((atoms[i].type !== 'mord' || 
+                        '0123456789,.'.indexOf(atoms[i].latex) < 0 ||
+                        atoms[i].superscript || 
+                        atoms[i].subscript) && digitString.length > 0) {
+                        // Done with digits, and we were tracking a string of digits
+                        if (context.generateID && context.generateID.groupNumbers) {
+                            // Generate an extra span around strings of digits.
+                            const span = Span.makeSpanOfType('mord', digitString);
+                            if (!span.attributes) span.attributes = {};
+                            span.attributes['data-atom-id'] = makeID(context);
+                            result.push(span);
+                        }
+                        digitString = [];
+                    }
+
+
+                    if (displaySelection && atoms[i].isSelected && !context.isSelected) {
                         selection = selection.concat(flat);
                         if (!selectionType) {
                             selectionType = atoms[i].type;

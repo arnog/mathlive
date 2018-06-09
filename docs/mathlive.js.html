@@ -320,6 +320,11 @@ function toMarkup(text, mathstyle, format, macros) {
  *  the speech engine. This is dependent on the speech engine. For Amazon Polly, 
  * see here: https://docs.aws.amazon.com/polly/latest/dg/voicelist.html
  * 
+ * @param {string} [config.speechEngineRate=''] Sets the speed of the selected 
+ * voice. One of `x-slow, slow, medium, fast,x-fast` or a value as a percentage.
+ * For example `200%` to indicate a speaking rate twice the default rate. Range
+ * is `20%` to `200%`
+ * 
  * @param {mathfieldWithDirectionCallback} [config.onMoveOutOf] - A handler 
  * called when keyboard navigation would cause the insertion point to leave the
  * mathfield.
@@ -373,6 +378,19 @@ function toMarkup(text, mathstyle, format, macros) {
  * element containing the virtual keyboard, which can be used to determine its
  * size (and therefore the portion of the screen it obscures) 
  *  
+ * @param {mathfieldCallback} [config.onReadAloudStatus] - A handler called 
+ * when the status of read aloud changes. The first argument is a string denoting
+ * the status, one of `playing` sent when reading begins, `done` when reading 
+ * has been completed, `paused` when reading has been temporarily paused by the 
+ * user.
+ *  
+ * @param {*} [config.handleSpeak] - A callback invoked to produce speech from 
+ * a string.
+ * 
+ * @param {*} [config.handleReadAloud] - A callback invoked to produce speech 
+ * and highlight the relevant atoms in an equation. The input is SSML markup
+ * with appropriate `&lt;mark>` tags.
+ * 
  * @return {MathField}
  * 
  * @function module:mathlive#makeMathField
@@ -381,7 +399,10 @@ function makeMathField(element, config) {
     if (!MathField) {
         throw Error('The MathField module is not loaded.');
     }
-    return new MathField.MathField(getElement(element), config)
+    config = config || {};
+    config.handleSpeak = config.handleSpeak || speak;
+    config.handleReadAloud = config.handleReadAloud || readAloud;
+    return new MathField.MathField(getElement(element), config);
 }
 
 /**
@@ -445,6 +466,231 @@ function latexToAST(latex, options) {
 }
 
 
+
+/**
+ * Highlight the span corresponding to the specified atomID
+ * This is used for TTS with synchronized highlighting (read aloud)
+ * 
+ * @param {string} atomID 
+ * 
+ */
+function highlightAtomID(node, atomID) {
+    if (!atomID || node.dataset.atomId === atomID) {
+        node.classList.add('highlight');
+        if (node.children) {
+            Array.from(node.children).forEach(x => {
+                highlightAtomID(x);
+            });
+        }
+    } else {
+        node.classList.remove('highlight');
+        if (node.children) {
+            Array.from(node.children).forEach(x => {
+                highlightAtomID(x, atomID);
+            });
+        }
+    }
+}
+
+function speak(text, config) {
+    if (!config &amp;&amp; window &amp;&amp; window.mathlive) {
+        config = window.mathlive.config;
+    }
+    config = config || {};
+
+    if (!config.speechEngine || config.speechEngine === 'local') {
+        // On ChromeOS: chrome.accessibilityFeatures.spokenFeedback
+        // See also https://developer.chrome.com/apps/tts
+        const utterance = new SpeechSynthesisUtterance(text);
+        if (window) {
+            window.speechSynthesis.speak(utterance);
+        } else {
+            console.log('Speak: ', text);
+        }
+    } else if (config.speechEngine === 'amazon') {
+        if (!window || !window.AWS) {
+            console.log('AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk');
+        } else {
+            const polly = new window.AWS.Polly({apiVersion: '2016-06-10'});
+            const params = {
+                OutputFormat: 'mp3',
+                VoiceId: config.speechEngineVoice || 'Joanna',
+                // SampleRate: '16000',
+                Text: text,
+                TextType: 'ssml',
+                // SpeechMarkTypes: ['ssml]'
+            };
+            polly.synthesizeSpeech(params, function(err, data) {
+                if (err) {
+                    console.log('polly.synthesizeSpeech() error:', err, err.stack);
+                } else {
+                    if (data &amp;&amp; data.AudioStream) {
+                        const uInt8Array = new Uint8Array(data.AudioStream);
+                        const blob = new Blob([uInt8Array.buffer], {type: 'audio/mpeg'});
+                        const url = URL.createObjectURL(blob);
+
+                        const audioElement = new Audio(url);
+                        audioElement.play();
+                    } else {
+                        console.log('polly.synthesizeSpeech():' + data);
+                    }
+                }
+            });
+
+            // Can call AWS.Request() on the result of synthesizeSpeech()
+        }
+    } else if (config.speechEngine === 'google') {
+        console.log('The Google speech engine is not supported yet. Please come again.');
+        // @todo: implement support for Google Text-to-Speech API,
+        // using config.speechEngineToken, config.speechEngineVoice and 
+        // config.speechEngineAudioConfig
+
+// curl -H "Authorization: Bearer "$(gcloud auth application-default print-access-token) \
+//   -H "Content-Type: application/json; charset=utf-8" \
+//   --data "{
+//     'input':{
+//       'text':'Android is a mobile operating system developed by Google,
+//          based on the Linux kernel and designed primarily for
+//          touchscreen mobile devices such as smartphones and tablets.'
+//     },
+//     'voice':{
+//       'languageCode':'en-gb',
+//       'name':'en-GB-Standard-A',
+//       'ssmlGender':'FEMALE'
+//     },
+//     'audioConfig':{
+//       'audioEncoding':'MP3'
+//     }
+//   }" "https://texttospeech.googleapis.com/v1beta1/text:synthesize" > synthesize-text.txt
+    }
+}
+
+function readAloud(element, text, config) {
+    if (!window) {
+        return;
+    }
+    if (!config &amp;&amp; window.mathlive) {
+        config = window.mathlive.config;
+    }
+    config = config || {};
+
+    if (config.speechEngine !== 'amazon') {
+        console.log('Use Amazon TTS Engine for synchronized highlighting');
+        if (config.handleSpeak) config.handleSpeak(text);
+        return;
+    }
+    if (!window.AWS) {
+        console.log('AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk');
+        return;
+    }
+    const polly = new window.AWS.Polly({apiVersion: '2016-06-10'});
+
+    const params = {
+        OutputFormat: 'json',
+        VoiceId: config.speechEngineVoice || 'Joanna',
+        Text: text,
+        TextType: 'ssml',
+        SpeechMarkTypes: ['ssml']
+    };
+
+    let marks;
+    let currentMark = '';
+
+    window.mathlive = window.mathlive || {};
+    window.mathlive.readAloudElement = element;
+
+    // Request the mark points
+    polly.synthesizeSpeech(params, function(err, data) {
+        if (err) {
+            console.log('polly.synthesizeSpeech() error:', err, err.stack);
+        } else {
+            if (data &amp;&amp; data.AudioStream) {
+                const response = new TextDecoder('utf-8').decode(new Uint8Array(data.AudioStream));
+                marks = response.split('\n').map(x => x ? JSON.parse(x) : {});
+
+                // Request the audio
+                params.OutputFormat = 'mp3';
+                params.SpeechMarkTypes = [];
+                polly.synthesizeSpeech(params, function(err, data) {
+                    if (err) {
+                        console.log('polly.synthesizeSpeech() error:', err, err.stack);
+                    } else {
+                        if (data &amp;&amp; data.AudioStream) {
+                            const uInt8Array = new Uint8Array(data.AudioStream);
+                            const blob = new Blob([uInt8Array.buffer], {type: 'audio/mpeg'});
+                            const url = URL.createObjectURL(blob);
+
+                            if (!window.mathlive.readAloudAudio) {
+                                window.mathlive.readAloudAudio = new Audio();
+                                window.mathlive.readAloudAudio.addEventListener('timeupdate', () => {
+                                    let value = '';
+                                    const target = window.mathlive.readAloudAudio.currentTime * 1000;
+                                    // Find the smallest element which is bigger than the current time
+                                    for (const mark of marks) {
+                                        if (mark.time &lt; target) {
+                                            value = mark.value;
+                                        }
+                                    }
+                                    if (currentMark !== value) {
+                                        currentMark = value;
+                                        highlightAtomID(window.mathlive.readAloudElement, currentMark);
+                                        // console.log(currentMark);
+                                    }
+                                });
+                            } else {
+                                window.mathlive.readAloudAudio.pause();
+                            }
+
+                            window.mathlive.readAloudAudio.src = url;
+                            window.mathlive.readAloudAudio.play();
+                        } else {
+                            // console.log('polly.synthesizeSpeech():' + data);
+                        }
+                    }
+                });
+            } else {
+                console.log('polly.synthesizeSpeech():' + data);
+            }
+        }
+    });
+}
+
+
+function readAloudStatus() {
+    if (!window) return 'unavailable';
+    window.mathlive = window.mathlive || {};
+
+    if (!window.mathlive.readAloudAudio) return 'ready';
+    if (window.mathlive.readAloudAudio.paused) return 'paused';
+    if (!window.mathlive.readAloudAudio.ended) return 'playing';
+
+    return 'ready';
+}
+
+function pauseReadAloud() {
+    if (!window) return;
+    window.mathlive = window.mathlive || {};
+    if (window.mathlive.readAloudAudio) {
+        window.mathlive.readAloudAudio.pause();
+    }
+}
+
+function resumeReadAloud() {
+    if (!window) return;
+    window.mathlive = window.mathlive || {};
+    if (window.mathlive.readAloudAudio) {
+        window.mathlive.readAloudAudio.play();
+    }
+}
+
+function rewindReadAloud() {
+
+}
+
+function forwardReadAloud() {
+
+}
+
 /**
  * Transform all the elements in the document body that contain LaTeX code 
  * into typeset math.
@@ -489,7 +735,7 @@ function getElement(element) {
  * **See:** {@tutorial USAGE_GUIDE}
  * 
  * @param {Element|string} element An HTML DOM element, or a string containing
- * the ID an element.
+ * the ID of an element.
  * @param {Object} [options]
  * 
  * @param {string} [options.namespace=''] - Namespace that is added to `data-`
@@ -512,6 +758,8 @@ function getElement(element) {
  * ```javascript
  *      elem.innerHTML = elem.dataset.originalContent;
  * ```
+ * @param {boolean} [options.readAloud=false] if true, generate markup that can
+ * be read aloud later using MathLive.readAloud()
  * @param {boolean} options.TeX.processEnvironments if false, math expression 
  * that start with `\begin{` will not automatically be rendered. (true by default)
  * @param {Array} options.TeX.delimiters.inline
@@ -527,6 +775,8 @@ function renderMathInElement(element, options) {
     }
     AutoRender.renderMathInElement(getElement(element), options, toMarkup, toMathML);
 }
+
+
 
 function validateNamespace(options) {
     if (options.namespace) {
@@ -601,7 +851,13 @@ return {
     renderMathInDocument: renderMathInDocument,
     renderMathInElement: renderMathInElement,
     revertToOriginalContent: revertToOriginalContent,
-    getOriginalContent: getOriginalContent
+    getOriginalContent: getOriginalContent,
+    readAloud: readAloud,
+    readAloudStatus: readAloudStatus,
+    pauseReadAloud: pauseReadAloud,
+    resumeReadAloud: resumeReadAloud,
+    rewindReadAloud: rewindReadAloud,
+    forwardReadAloud: forwardReadAloud
 }
 
 

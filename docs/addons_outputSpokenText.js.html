@@ -231,6 +231,17 @@ function isAtomic(mathlist) {
     return count === 1;
 }
 
+function atomicID(mathlist) {
+    if (mathlist &amp;&amp; Array.isArray(mathlist)) {
+        for (const atom of mathlist) {
+            if (atom.type !== 'first') {
+                return atom.id;
+            }
+        }
+    }
+    return null;
+}
+
 function atomicValue(mathlist) {
     let result = '';
     if (mathlist &amp;&amp; Array.isArray(mathlist)) {
@@ -538,10 +549,14 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                 
         }
         if (!supsubHandled &amp;&amp; atom.superscript) {
+
             let sup = MathAtom.toSpeakableFragment(atom.superscript, options);
             sup = sup.trim();
             const sup2 = sup.replace(/&lt;[^>]*>/g, '');
             if (isAtomic(atom.superscript)) {
+                if (options.speechMode === 'math') {
+                    result += '&lt;mark name="' + atomicID(atom.superscript).toString() + '"/>';        
+                }
                 if (sup2 === '\u2032') {
                     result += ' prime ';
                 } else if (sup2 === '2') {
@@ -610,13 +625,17 @@ MathAtom.toSpeakableText = function(atoms, options) {
     let result = MathAtom.toSpeakableFragment(atoms, options);
 
     if (options.textToSpeechMarkup === 'ssml') {
+        let prosody = '';
+        if (options.speechEngineRate) {
+            prosody = '&lt;prosody rate="' + options.speechEngineRate + '">'
+        }
         result = `&lt;?xml version="1.0"?>&lt;speak version="1.1" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">` + 
         '&lt;amazon:auto-breaths>' +
-        '&lt;prosody rate="medium">' +
+        prosody +
         '&lt;p>&lt;s>' +
         result + 
         '&lt;/s>&lt;/p>' +
-        '&lt;/prosody>' + 
+        prosody ? '&lt;/prosody>' : '' + 
         '&lt;/amazon:auto-breaths>' +
         '&lt;/speak>';
     } else if (options.textToSpeechMarkup === 'mac' &amp;&amp; platform('mac') === 'mac') {
