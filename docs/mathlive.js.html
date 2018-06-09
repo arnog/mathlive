@@ -723,7 +723,7 @@ function playReadAloud(token) {
             window.mathlive.readAloudMarks = window.mathlive.readAloudMarks || [];
             for (const mark of window.mathlive.readAloudMarks) {
                 if (mark.value === token) {
-                    timeIndex = mark.time;
+                    timeIndex = mark.time / 1000;
                 }
             }
         }
