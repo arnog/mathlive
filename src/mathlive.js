@@ -396,6 +396,14 @@ function latexToAST(latex, options) {
 }
 
 
+function removeHighlight(node) {
+    node.classList.remove('highlight');
+    if (node.children) {
+        Array.from(node.children).forEach(x => {
+            removeHighlight(x);
+        });
+    }
+}
 
 /**
  * Highlight the span corresponding to the specified atomID
@@ -529,6 +537,8 @@ function readAloud(element, text, config) {
     window.mathlive = window.mathlive || {};
     window.mathlive.readAloudElement = element;
 
+    const status = config.onReadAloudStatus || window.mathlive.onReadAloudStatus;
+
     // Request the mark points
     polly.synthesizeSpeech(params, function(err, data) {
         if (err) {
@@ -552,6 +562,10 @@ function readAloud(element, text, config) {
 
                             if (!window.mathlive.readAloudAudio) {
                                 window.mathlive.readAloudAudio = new Audio();
+                                window.mathlive.readAloudAudio.addEventListener('ended', () => {
+                                    if (status) status('ended');
+                                    removeHighlight(window.mathlive.readAloudElement);
+                                });
                                 window.mathlive.readAloudAudio.addEventListener('timeupdate', () => {
                                     let value = '';
                                     const target = window.mathlive.readAloudAudio.currentTime * 1000;
@@ -572,6 +586,9 @@ function readAloud(element, text, config) {
                             }
 
                             window.mathlive.readAloudAudio.src = url;
+                            if (status) {
+                                status('playing');
+                            }
                             window.mathlive.readAloudAudio.play();
                         } else {
                             // console.log('polly.synthesizeSpeech():' + data);
@@ -601,6 +618,9 @@ function pauseReadAloud() {
     if (!window) return;
     window.mathlive = window.mathlive || {};
     if (window.mathlive.readAloudAudio) {
+        if (window.mathlive.onReadAloudStatus) {
+            window.mathlive.onReadAloudStatus('paused');
+        }
         window.mathlive.readAloudAudio.pause();
     }
 }
@@ -609,6 +629,9 @@ function resumeReadAloud() {
     if (!window) return;
     window.mathlive = window.mathlive || {};
     if (window.mathlive.readAloudAudio) {
+        if (window.mathlive.onReadAloudStatus) {
+            window.mathlive.onReadAloudStatus('playing');
+        }
         window.mathlive.readAloudAudio.play();
     }
 }
