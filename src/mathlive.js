@@ -547,6 +547,13 @@ function readAloud(element, text, config) {
             if (data && data.AudioStream) {
                 const response = new TextDecoder('utf-8').decode(new Uint8Array(data.AudioStream));
                 marks = response.split('\n').map(x => x ? JSON.parse(x) : {});
+                window.mathlive.readAloudTokens = [];
+                for (const mark of marks) {
+                    if (mark.value) {
+                        window.mathlive.readAloudTokens.push(mark.value);
+                    }
+                }
+                window.mathlive.readAloudMarks = marks;
 
                 // Request the audio
                 params.OutputFormat = 'mp3';
@@ -576,6 +583,7 @@ function readAloud(element, text, config) {
                                         }
                                     }
                                     if (currentMark !== value) {
+                                        window.mathlive.readAloudCurrentToken = value;
                                         currentMark = value;
                                         highlightAtomID(window.mathlive.readAloudElement, currentMark);
                                         // console.log(currentMark);
@@ -636,12 +644,25 @@ function resumeReadAloud() {
     }
 }
 
-function rewindReadAloud() {
-
-}
-
-function forwardReadAloud() {
-
+function playReadAloud(token) {
+    if (!window) return;
+    window.mathlive = window.mathlive || {};
+    if (window.mathlive.readAloudAudio) {
+        let timeIndex = 0;
+        if (token) {
+            window.mathlive.readAloudMarks = window.mathlive.readAloudMarks || [];
+            for (const mark of window.mathlive.readAloudMarks) {
+                if (mark.value === token) {
+                    timeIndex = mark.time;
+                }
+            }
+        }
+        window.mathlive.readAloudAudio.currentTime = timeIndex;
+        if (window.mathlive.onReadAloudStatus) {
+            window.mathlive.onReadAloudStatus('playing');
+        }
+        window.mathlive.readAloudAudio.play();
+    }
 }
 
 /**
@@ -809,8 +830,7 @@ return {
     readAloudStatus: readAloudStatus,
     pauseReadAloud: pauseReadAloud,
     resumeReadAloud: resumeReadAloud,
-    rewindReadAloud: rewindReadAloud,
-    forwardReadAloud: forwardReadAloud
+    playReadAloud: playReadAloud
 }
 
 
