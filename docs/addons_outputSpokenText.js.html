@@ -635,7 +635,7 @@ MathAtom.toSpeakableText = function(atoms, options) {
         '&lt;p>&lt;s>' +
         result + 
         '&lt;/s>&lt;/p>' +
-        prosody ? '&lt;/prosody>' : '' + 
+        (prosody ? '&lt;/prosody>' : '') + 
         '&lt;/amazon:auto-breaths>' +
         '&lt;/speak>';
     } else if (options.textToSpeechMarkup === 'mac' &amp;&amp; platform('mac') === 'mac') {
