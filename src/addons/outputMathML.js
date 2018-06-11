@@ -40,6 +40,13 @@ function xmlEscape(str) {
         .replace(/>/g, '&gt;');
 }
 
+function makeID(id, options) {
+    if (!id || !options.generateID) return '';
+    // Note: the 'extid' attribute is recognized by SRE as an attribute
+    // to be passed to SSML as a <mark> tag.
+    return ' extid="' + id + '"';
+}
+
 
 function scanIdentifier(stream, final, options) {
     let result = false;
@@ -100,7 +107,7 @@ function scanIdentifier(stream, final, options) {
             mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
         }
 
-        if (body === '<mi>f</mi>' || body === '<mi>g</mi>') {
+        if (body.endsWith('>f</mi>') || body.endsWith('>g</mi>')) {
             mathML += '<mo> &ApplyFunction; </mo>';
             stream.lastType = 'applyfunction';
         } else {
@@ -203,6 +210,7 @@ function parseSubsup(base, stream, options) {
 function scanNumber(stream, final, options) {
     let result = false;
     final = final || stream.atoms.length;
+    const initial = stream.index;
     let mathML = '';
 
     let superscript = indexOfSuperscriptInNumber(stream);
@@ -221,7 +229,7 @@ function scanNumber(stream, final, options) {
 
     if (mathML.length > 0) {
         result = true;
-        mathML = '<mn>' + mathML + '</mn>';
+        mathML = '<mn' + makeID(stream.atoms[initial].id, options) + '>' + mathML + '</mn>';
 
         if (superscript < 0 && isSuperscriptAtom(stream)) {
             superscript = stream.index;
@@ -230,7 +238,7 @@ function scanNumber(stream, final, options) {
 
         if (superscript >= 0) {
             mathML = '<msup>' + mathML;
-            mathML +=  toMathML(stream.atoms[superscript].superscript, 0, 0, options).mathML;
+            mathML += toMathML(stream.atoms[superscript].superscript, 0, 0, options).mathML;
             mathML += '</msup>';
         }
     
@@ -269,12 +277,12 @@ function scanFence(stream, final, options) {
         if (found) {
             // TODO: could add attribute indicating it's a fence (fence=true)
             mathML = '<mrow>';
-            mathML += toMo(stream.atoms[openIndex]);
+            mathML += toMo(stream.atoms[openIndex], options);
     
             mathML += toMathML(stream.atoms, openIndex + 1, closeIndex, options).mathML;
     
             // TODO: could add attribute indicating it's a fence (fence=true)
-            mathML += toMo(stream.atoms[closeIndex]);
+            mathML += toMo(stream.atoms[closeIndex], options);
             mathML += '</mrow>';
 
             if (stream.lastType === 'mi' || 
@@ -321,7 +329,7 @@ function scanOperator(stream, final, options) {
 
         if (atom.limits && (atom.superscript || atom.subscript)) {
             // Operator with limits, e.g. \sum
-            const op = toMo(atom);
+            const op = toMo(atom, options);
             if (atom.superscript && atom.subscript) {
                 // Both superscript and subscript
                 mathML += (atom.limits !== 'nolimits' ? '<munderover>' : '<msubsup>') + op;
@@ -342,7 +350,7 @@ function scanOperator(stream, final, options) {
             lastType = 'mo';
 
         } else {
-            const op = toMo(stream.atoms[stream.index]);
+            const op = toMo(stream.atoms[stream.index], options);
             mathML += op;
             if (!/^<mo>(.*)<\/mo>$/.test(op)) {
                 mathML += '<mo> &ApplyFunction; </mo>';
@@ -434,12 +442,12 @@ function toMathML(input, initial, final, options) {
     return result;
 }
 
-function toMo(atom) {
+function toMo(atom, options) {
     let result = '';
     if (atom) {
-        result = toString(atom.body);
-        if (result) {
-            result = '<mo>' + result + '</mo>';
+        const body = toString(atom.body);
+        if (body) {
+            result = '<mo' + makeID(atom.id, options) + '>' + body + '</mo>';
         }
     }
     return result;
@@ -570,7 +578,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
                 result += '<mrow>';
             }
             if (this.leftDelim && this.leftDelim !== '.') {
-                result += '<mo>' + (SPECIAL_OPERATORS[this.leftDelim] || this.leftDelim) + '</mo>';
+                result += '<mo' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[this.leftDelim] || this.leftDelim) + '</mo>';
             }
             if (this.hasBarLine) {
                 result += '<mfrac>';
@@ -579,13 +587,13 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
                 result += '</mfrac>';
             } else {
                 // No bar line, i.e. \choose, etc...
-                result += '<mtable>';
+                result += '<mtable' + makeID(this.id, options) + '>';
                 result += '<mtr>' + toMathML(this.numer, 0, 0, options).mathML + '</mtr>';
                 result += '<mtr>' + toMathML(this.denom, 0, 0, options).mathML + '</mtr>';
                 result += '</mtable>';
             }
             if (this.rightDelim && this.rightDelim !== '.') {
-                result += '<mo>' + (SPECIAL_OPERATORS[this.rightDelim] || this.rightDelim) + '</mo>';
+                result += '<mo' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[this.rightDelim] || this.rightDelim) + '</mo>';
             }
             if (this.leftDelim || this.rightDelim) {
                 result += '</mrow>';
@@ -594,12 +602,12 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
 
         case 'surd':
             if (this.index) {
-                result += '<mroot>';
+                result += '<mroot' + makeID(this.id, options) + '>';
                 result += toMathML(this.body, 0, 0, options).mathML;
                 result += toMathML(this.index, 0, 0, options).mathML;
                 result += '</mroot>';
             } else {
-                result += '<msqrt>';
+                result += '<msqrt' + makeID(this.id, options) + '>';
                 result += toMathML(this.body, 0, 0, options).mathML;
                 result += '</msqrt>';
             }
@@ -609,18 +617,18 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
             // TODO: could add fence=true attribute
             result = '<mrow>';
             if (this.leftDelim && this.leftDelim !== '.') {
-                result += '<mo>' + (SPECIAL_OPERATORS[this.leftDelim] || this.leftDelim) + '</mo>';
+                result += '<mo' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[this.leftDelim] || this.leftDelim) + '</mo>';
             }
             if (this.body) result += toMathML(this.body, 0, 0, options).mathML;
             if (this.rightDelim && this.rightDelim !== '.') {
-                result += '<mo>' + (SPECIAL_OPERATORS[this.rightDelim] || this.rightDelim) + '</mo>';
+                result += '<mo' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[this.rightDelim] || this.rightDelim) + '</mo>';
             }
             result += '</mrow>';
             break;
 
         case 'sizeddelim':
         case 'delim':
-            result += '<mo separator="true">' + (SPECIAL_OPERATORS[this.delim] || this.delim) + '</mo>';
+            result += '<mo separator="true"' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[this.delim] || this.delim) + '</mo>';
             break;
 
         
@@ -629,7 +637,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
                 command === '\\textsf' || command === '\\texttt' ||
                 command === '\\textnormal' || command === '\\textbf' ||
                 command === '\\textit') {
-                result += '<mtext' + variant + '>';
+                result += '<mtext' + variant + makeID(this.id, options) + '>';
                 // Replace first and last space in text with a &nbsp; to ensure they 
                 // are actually displayed (content surrounded by a tag gets trimmed)
                 // TODO: alternative: use <mspace>
@@ -643,7 +651,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
             break;
 
         case 'accent':
-            result += '<mover accent="true">';
+            result += '<mover accent="true"' + makeID(this.id, options) + '>';
             result += toMathML(this.body, 0, 0, options).mathML;
             result += '<mo>' + (SPECIAL_OPERATORS[command] || this.accent) + '</mo>';
             result += '</mover>'
@@ -679,16 +687,16 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
             }
             
             if (overscript && underscript) {
-                result += '<munderover' + variant + '>' + toMathML(body, 0, 0, options).mathML;
+                result += '<munderover' + variant + makeID(this.id, options) + '>' + toMathML(body, 0, 0, options).mathML;
                 result += toMathML(underscript, 0, 0, options).mathML;
                 result += toMathML(overscript, 0, 0, options).mathML;
                 result += '</munderover>';
             } else if (overscript) {
-                result += '<mover' + variant + '>' + toMathML(body, options).mathML;
+                result += '<mover' + variant + makeID(this.id, options) + '>' + toMathML(body, options).mathML;
                 result += toMathML(overscript, 0, 0, options).mathML;
                 result += '</mover>';
             } else if (underscript) {
-                result += '<munder' + variant + '>' + toMathML(body, options).mathML;
+                result += '<munder' + variant + makeID(this.id, options) + '>' + toMathML(body, options).mathML;
                 result += toMathML(underscript, 0, 0, options).mathML;
                 result += '</munder>';
             }
@@ -712,7 +720,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
                     result = this.latex;
                 }
             }
-            result = '<mi' + variant + '>' + xmlEscape(result) + '</mi>';
+            result = '<mi' + variant + makeID(this.id, options) + '>' + xmlEscape(result + '</mi>';
             break;
 
         case 'mbin':
@@ -721,32 +729,35 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
         case 'minner':
             if (command && SPECIAL_IDENTIFIERS[command]) {
                 // Some 'textord' are actually identifiers. Check them here.
-                result = '<mi>' + SPECIAL_IDENTIFIERS[command] + '</mi>';
+                result = '<mi' + makeID(this.id, options) + '>' + SPECIAL_IDENTIFIERS[command] + '</mi>';
             } else if (command && SPECIAL_OPERATORS[command]) {
-                result = '<mo>' + SPECIAL_OPERATORS[command] + '</mo>';
+                result = '<mo' + makeID(this.id, options) + '>' + SPECIAL_OPERATORS[command] + '</mo>';
             } else {
-                result = toMo(this);
+                result = toMo(this, options);
             }
             break;
 
         case 'mpunct':
-            result = '<mo separator="true">' + (SPECIAL_OPERATORS[command] || command) + '</mo>';
+            result = '<mo separator="true"' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[command] || command) + '</mo>';
             break;
  
         case 'mop':
             if (this.body !== '\u200b') {
                 // Not ZERO-WIDTH
+                result = '<mo' + makeID(this.id, options) + '>';
                 if (command === '\\operatorname') {
-                    result += '<mo>' + this.body + '</mo>';
+                    result += this.body;
                 } else {
-                    result += '<mo>' + command || this.body + '</mo>';
+                    result += command || this.body;
                 }
+                result += '</mo>';
             }    
             break;
 
         case 'color':
             if (this.textcolor) {
-                result += '<mstyle color="' + Color.stringToColor(this.textcolor) + '">'; 
+                result += '<mstyle color="' + Color.stringToColor(this.textcolor) + '"';
+                result +=  makeID(this.id, options) + '>'; 
                 result += toMathML(this.body, 0, 0, options).mathML;
                 result += '</mstyle>';
             }
@@ -768,7 +779,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
             if (this.backgroundcolor) {
                 result += ' mathbackground="' + Color.stringToColor(this.backgroundcolor) + '"';
             }
-            result += '>' + toMathML(this.body, 0, 0, options).mathML + '</menclose>';
+            result += makeID(this.id, options) + '>' + toMathML(this.body, 0, 0, options).mathML + '</menclose>';
             break;
 
         case 'spacing':
@@ -784,7 +795,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
                     sep = ' ';
                 }
             }
-            result += '">' + toMathML(this.body, 0, 0, options).mathML + '</menclose>';
+            result += makeID(this.id, options) + '">' + toMathML(this.body, 0, 0, options).mathML + '</menclose>';
             break;
 
         case 'sizing':
