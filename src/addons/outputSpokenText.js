@@ -537,11 +537,16 @@ MathAtom.toSpeakableText = function(atoms, options) {
     options.speechMode = 'math';
 
     if (window.sre && options.textToSpeechRules === 'sre') {
-        const mathML = MathAtom.toMathML(atoms);
+        options.generateID = true;
+        const mathML = MathAtom.toMathML(atoms, options);
         if (mathML) {
             if (options.textToSpeechMarkup) {
                 options.textToSpeechRulesOptions = options.textToSpeechRulesOptions || {};
                 options.textToSpeechRulesOptions.markup = options.textToSpeechMarkup;
+                if (options.textToSpeechRulesOptions.markup === 'ssml') {
+                    options.textToSpeechRulesOptions.markup = 'arno';
+                }
+                options.textToSpeechRulesOptions.rate = options.speechEngineRate;
             }
             if (options.textToSpeechRulesOptions) {
                 window.sre.System.getInstance().setupEngine(options.textToSpeechRulesOptions);
