@@ -352,6 +352,9 @@ function toSpeakableText(atoms, options) {
  * 
  * @param {string} latex A string of valid LaTeX. It does not have to start
  * with a mode token such as a `$$` or `\(`.
+ * @param {object} options
+ * @param {boolean} [options.generateID=false] - If true, add an `extid` attribute
+ * to the MathML nodes with a value corresponding with the a matching atomID.
  * @return {string}
  * @function module:mathlive#latexToMathML
  */
@@ -415,14 +418,14 @@ function removeHighlight(node) {
 function highlightAtomID(node, atomID) {
     if (!atomID || node.dataset.atomId === atomID) {
         node.classList.add('highlight');
-        if (node.children) {
+        if (node.children && node.children.length > 0) {
             Array.from(node.children).forEach(x => {
                 highlightAtomID(x);
             });
         }
     } else {
         node.classList.remove('highlight');
-        if (node.children) {
+        if (node.children && node.children.length > 0) {
             Array.from(node.children).forEach(x => {
                 highlightAtomID(x, atomID);
             });
@@ -503,6 +506,14 @@ function speak(text, config) {
     }
 }
 
+/**
+ * Start a Read Aloud operation (reading with synchronized highlighting.
+ * 
+ * @param {DOMElement} element - The DOM element to highlight
+ * @param {string} text - The text to speak
+ * @param {object} config 
+ * @function module:mathlive#readAloud
+ */
 function readAloud(element, text, config) {
     if (!window) {
         return;
@@ -560,7 +571,7 @@ function readAloud(element, text, config) {
                 params.SpeechMarkTypes = [];
                 polly.synthesizeSpeech(params, function(err, data) {
                     if (err) {
-                        console.log('polly.synthesizeSpeech() error:', err, err.stack);
+                        console.log('polly.synthesizeSpeech(', text , ') error:', err, err.stack);
                     } else {
                         if (data && data.AudioStream) {
                             const uInt8Array = new Uint8Array(data.AudioStream);
@@ -571,7 +582,14 @@ function readAloud(element, text, config) {
                                 window.mathlive.readAloudAudio = new Audio();
                                 window.mathlive.readAloudAudio.addEventListener('ended', () => {
                                     if (status) status('ended');
-                                    removeHighlight(window.mathlive.readAloudElement);
+                                    if (window.mathlive.readAloudMathField) {
+                                        window.mathlive.readAloudMathField._render();
+                                        window.mathlive.readAloudElement = null;
+                                        window.mathlive.readAloudMathField = null;
+                                        window.mathlive.readAloudTokens = [];
+                                    } else {
+                                        removeHighlight(window.mathlive.readAloudElement);
+                                    }
                                 });
                                 window.mathlive.readAloudAudio.addEventListener('timeupdate', () => {
                                     let value = '';
@@ -584,8 +602,12 @@ function readAloud(element, text, config) {
                                     }
                                     if (currentMark !== value) {
                                         window.mathlive.readAloudCurrentToken = value;
-                                        currentMark = value;
-                                        highlightAtomID(window.mathlive.readAloudElement, currentMark);
+                                        if (value && value === window.mathlive.readAloudFinalToken) {
+                                            window.mathlive.readAloudAudio.pause();
+                                        } else {
+                                            currentMark = value;
+                                            highlightAtomID(window.mathlive.readAloudElement, currentMark);
+                                        }
                                         // console.log(currentMark);
                                     }
                                 });
@@ -610,7 +632,14 @@ function readAloud(element, text, config) {
     });
 }
 
-
+/**
+ * Return the status of a Read Aloud operation (reading with synchronized 
+ * highlighting). Possible values include:
+ * - `ready`
+ * - `playing`
+ * - `paused`
+ * @function module:mathlive#readAloudStatus
+ */
 function readAloudStatus() {
     if (!window) return 'unavailable';
     window.mathlive = window.mathlive || {};
@@ -622,6 +651,10 @@ function readAloudStatus() {
     return 'ready';
 }
 
+/**
+ * If a Read Aloud operation is in progress, stop it.
+ * @function module:mathlive#pauseReadAloud
+ */
 function pauseReadAloud() {
     if (!window) return;
     window.mathlive = window.mathlive || {};
@@ -633,6 +666,10 @@ function pauseReadAloud() {
     }
 }
 
+/**
+ * If a Read Aloud operation is paused, resume it
+ * @function module:mathlive#resumeReadAloud
+ */
 function resumeReadAloud() {
     if (!window) return;
     window.mathlive = window.mathlive || {};
@@ -644,16 +681,31 @@ function resumeReadAloud() {
     }
 }
 
-function playReadAloud(token) {
+/**
+ * If a Read Aloud operation is in progress, read from a specified token
+ * 
+ * @param {string} token 
+ * @param {number?} count 
+ * @function module:mathlive#playReadAloud
+ */
+function playReadAloud(token, count) {
     if (!window) return;
     window.mathlive = window.mathlive || {};
     if (window.mathlive.readAloudAudio) {
         let timeIndex = 0;
+        window.mathlive.readAloudFinalToken = null;
         if (token) {
             window.mathlive.readAloudMarks = window.mathlive.readAloudMarks || [];
             for (const mark of window.mathlive.readAloudMarks) {
                 if (mark.value === token) {
                     timeIndex = mark.time / 1000;
+                }
+            }
+            let tokenIndex = window.mathlive.readAloudTokens.indexOf(token);
+            if (tokenIndex >= 0) {
+                tokenIndex += count;
+                if (tokenIndex < window.mathlive.readAloudTokens.length) {
+                    window.mathlive.readAloudFinalToken = tokenIndex;
                 }
             }
         }
@@ -664,6 +716,7 @@ function playReadAloud(token) {
         window.mathlive.readAloudAudio.play();
     }
 }
+
 
 /**
  * Transform all the elements in the document body that contain LaTeX code 

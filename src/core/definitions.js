@@ -1238,6 +1238,18 @@ defineEnvironment(['gather', 'gathered'], '', {}, function() {
     };
 });
 
+// defineEnvironment('cardinality', '', {}, function() {
+//     const result = {};
+
+//     result.mathstyle = 'textstyle';
+//     result.lFence = '|';
+//     result.rFence = '|';
+
+//     return result;
+// }); 
+
+
+
 defineEnvironment(['matrix', 'pmatrix', 'bmatrix', 'Bmatrix', 'vmatrix', 
     'Vmatrix', 'smallmatrix', 'matrix*', 'pmatrix*', 'bmatrix*', 'Bmatrix*', 'vmatrix*', 
     'Vmatrix*', 'smallmatrix*'], '[columns:colspec]', {}, function(name, args) {

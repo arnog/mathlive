@@ -28,7 +28,7 @@ const KEYBOARDS = {
         layers: ['lower-roman', 'upper-roman', 'symbols']
     },
     'greek': {
-        tooltip: 'Greek letters',
+        tooltip: 'Greek Letters',
         layer: 'lower-greek',
         label: '&alpha;&beta;&gamma;',
         classes: 'tex-math',
@@ -208,6 +208,13 @@ const ALT_KEYS_BASE = {
     'accents': ['\\bar{#@}', '\\vec{#@}', '\\hat{#@}', '\\check{#@}',
         '\\dot{#@}', '\\ddot{#@}', '\\mathring{#@}', '\\breve{#@}',
         '\\acute{#@}', '\\tilde{#@}', '\\grave{#@}'],
+    // 'absnorm': [{latex:'\\lVert #@ \\rVert', aside:'norm'},
+    //     {latex:'\\lvert #@ \\rvert', aside:'determinant'},
+    //     {latex:'\\begin{cardinality} #@ \\end{cardinality}', aside:'cardinality'},
+    //     {latex:'\\lvert #@ \\rvert', aside:'length'},
+    //     {latex:'\\lvert #@ \\rvert', aside:'order'},
+    
+    // ],
     'A':        [{latex:'\\aleph', aside:'aleph'},
                 {latex:'\\forall', aside:'for all'},
     ],
@@ -439,7 +446,7 @@ const LAYERS = {
                 <li class='keycap tex' data-insert='\\supseteq '>&#x2287;</li>
                 <li class='keycap tex' data-alt-keys='accents' data-insert='\\vec{#@}' data-latex='\\vec{#?}' data-aside='vector'></li>
                 <li class='keycap tex' data-alt-keys='accents' data-insert='\\bar{#@}' data-latex='\\bar{#?}' data-aside='bar'></li>
-                <li class='keycap tex' data-insert='\\lVert #0 \\rVert '><span>&#x2225;<span style='color:#ddd'>o</span>&#x2225;</span><aside>norm</aside></li>
+                <li class='keycap tex' data-alt-keys='absnorm' data-insert='\\lvert #@ \\rvert ' data-latex='\\lvert #? \\rvert' data-aside='abs'></li>
                 <li class='keycap tex' data-insert='\\ast '>&#x2217;<aside>asterisk</aside></li>
                 
                 <li class='action font-glyph bottom right w15' 
@@ -744,7 +751,7 @@ function makeKeyboardToolbar(mf, keyboardIDs, currentKeyboard) {
         </div>
     `;
 
-    return "<div class='keyboard-toolbar'>" + result + "</div>";
+    return "<div class='keyboard-toolbar' role='toolbar'>" + result + "</div>";
 }
 
 

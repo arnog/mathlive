@@ -227,6 +227,7 @@ const extraCharacterMap = {
  * @private
  */
 const getCharacterMetrics = function(character, fontName) {
+    if (fontName === 'mathbb') fontName = 'AMS-Regular';
     console.assert(character.length === 1);
     console.assert(metricMap[fontName], 'Unknown font "' + fontName + '"');
 

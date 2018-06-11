@@ -1638,8 +1638,12 @@ function makeID(context) {
         result = Date.now().toString(36).slice(-2) + 
             Math.floor(Math.random() * 0x186a0).toString(36);
     } else if (typeof context.generateID !== 'boolean') {
-        result = context.generateID.seed.toString(36);
-        context.generateID.seed += 1;
+        if (context.generateID.overrideID) {
+            result = context.generateID.overrideID;
+        } else {
+            result = context.generateID.seed.toString(36);
+            context.generateID.seed += 1;
+        }
     }
     return result;
 }
@@ -2067,7 +2071,7 @@ function decompose(context, atoms) {
             let previousType = 'none';
             let nextType = atoms[1].type;
             let selection =  [];
-            let digitString = [];
+            let digitStringID = null;
             let selectionType = '';
             let selectionIsTight = false;
             let phantomBase = null;
@@ -2095,8 +2099,16 @@ function decompose(context, atoms) {
                     phantomBase = null;
                 }
 
-
+                if (context.generateID.groupNumbers && 
+                    atoms[i].type === 'mord' && 
+                    '0123456789,.'.indexOf(atoms[i].latex) >= 0 && 
+                    digitStringID) {
+                    context.generateID.overrideID = digitStringID;
+                }
                 const span = atoms[i].decompose(context, phantomBase);
+                if (context.generateID) {
+                    context.generateID.overrideID = null;
+                }
                 if (span) {
                     // The result from decompose is always an array
                     console.assert(Array.isArray(span));
@@ -2104,26 +2116,21 @@ function decompose(context, atoms) {
                     const flat = [].concat.apply([], span);
                     phantomBase = flat;
 
-
                     // If this is a digit, keep track of it
-
-                    if (atoms[i].type === 'mord' && 
-                        '0123456789,.'.indexOf(atoms[i].latex) >= 0) {
-                        digitString = digitString.concat(flat);
-                    }
-                    if ((atoms[i].type !== 'mord' || 
-                        '0123456789,.'.indexOf(atoms[i].latex) < 0 ||
-                        atoms[i].superscript || 
-                        atoms[i].subscript) && digitString.length > 0) {
-                        // Done with digits, and we were tracking a string of digits
-                        if (context.generateID && context.generateID.groupNumbers) {
-                            // Generate an extra span around strings of digits.
-                            const span = Span.makeSpanOfType('mord', digitString);
-                            if (!span.attributes) span.attributes = {};
-                            span.attributes['data-atom-id'] = makeID(context);
-                            result.push(span);
+                    if (context.generateID && context.generateID.groupNumbers) {
+                        if (atoms[i].type === 'mord' && 
+                            '0123456789,.'.indexOf(atoms[i].latex) >= 0) {
+                            if (!digitStringID) {
+                                digitStringID = atoms[i].id;
+                            }
                         }
-                        digitString = [];
+                        if ((atoms[i].type !== 'mord' || 
+                            '0123456789,.'.indexOf(atoms[i].latex) < 0 ||
+                            atoms[i].superscript || 
+                            atoms[i].subscript) && digitStringID) {
+                            // Done with digits
+                            digitStringID = null;
+                        }
                     }
 
 
@@ -2174,6 +2181,7 @@ function decompose(context, atoms) {
                 // }
 
             }
+
             // Is there a leftover selection?
             if (selection.length > 0) {
                 const span = Span.makeSpanOfType(

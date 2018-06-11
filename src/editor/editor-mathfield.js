@@ -84,7 +84,7 @@ function off(el, selectors, listener, options) {
  */
 function MathField(element, config) {
     // Setup default config options
-    this.config(config || {});
+    this.setConfig(config || {});
 
     this.element = element;
 
@@ -771,9 +771,10 @@ MathField.prototype._showKeystroke = function(keystroke) {
  * @method MathField#perform
  */
 MathField.prototype.perform = function(command) {
-    let result = false;
+    let handled = false;
     let selector;
     let args = [];
+    let dirty = false;
     if (Array.isArray(command)) {
         selector =  command[0] + '_';
         args = command.slice(1);
@@ -789,24 +790,23 @@ MathField.prototype.perform = function(command) {
         }
 
         this.mathlist[selector](...args);
-
-        result = true;
+        dirty = true;
+        handled = true;
     } else if (typeof this[selector] === 'function') {
         if (['complete_'].includes(selector)) {
             this.undoManager.snapshot();
         }
         
-        this[selector](...args);
-
-        result = true;
+        dirty = this[selector](...args);
+        handled = true;
     } 
 
-    if (result) {
-        // Render the mathlist
+    // Render the mathlist
+    if (dirty) {
         this._render();
     }
 
-    return result;
+    return handled;
 }
 
 /**
@@ -845,7 +845,7 @@ MathField.prototype.performWithFeedback_ = function(command) {
         this.keypressSound.play();
     }
 
-    this.perform(command);
+    return this.perform(command);
 }
 
 
@@ -1084,9 +1084,16 @@ MathField.prototype._hash = function() {
  * @method MathField#render
  * @private
  */
-MathField.prototype._render = function() {
+MathField.prototype._render = function(renderOptions) {
+    renderOptions = renderOptions || {};
+    
     //
-    // 1. Update selection state and blinking cursor (caret)
+    // 1. Stop and reset read aloud state
+    //
+    if (!window.mathlive) window.mathlive = {};
+
+    //
+    // 2. Update selection state and blinking cursor (caret)
     //
     this.mathlist.root.forEach( a => { 
             a.hasCaret = false;
@@ -1107,7 +1114,7 @@ MathField.prototype._render = function() {
     }
 
     //
-    // 2. Create spans corresponding to the updated mathlist
+    // 3. Create spans corresponding to the updated mathlist
     //
     const spans = MathAtom.decompose(
         {
@@ -1119,7 +1126,7 @@ MathField.prototype._render = function() {
                 // The `groupNumbers` flag indicates that extra spans should be generated
                 // to represent group of atoms, for example, a span to group 
                 // consecutive digits to represent a number.
-                // groupNumbers: true,
+                groupNumbers: renderOptions.forHighlighting,
             },
             macros: this.config.macros
         }, this.mathlist.root.body);
@@ -1127,7 +1134,7 @@ MathField.prototype._render = function() {
 
 
     //
-    // 3. Construct struts around the spans
+    // 4. Construct struts around the spans
     //
 
     const base = Span.makeSpan(spans, 'ML__base');
@@ -1151,7 +1158,7 @@ MathField.prototype._render = function() {
     wrapper.classes += hasFocus ? ' ML__focused' : ' ML__blurred';
 
     //
-    // 4. Generate markup and accessible node
+    // 5. Generate markup and accessible node
     //
 
     this.field.innerHTML = wrapper.toMarkup();
@@ -1356,23 +1363,28 @@ MathField.prototype.el = function() {
 
 MathField.prototype.undo_ = MathField.prototype.undo = function() {
     this.undoManager.undo(this.config);
+    return true;
 }
 
 MathField.prototype.redo_ = MathField.prototype.redo = function() {
     this.undoManager.redo(this.config);
+    return true;
 }
 
 
 MathField.prototype.scrollIntoView_ = MathField.prototype.scrollIntoView = function() {
     // @todo
+    return false;
 }
 
 MathField.prototype.scrollToStart_ = MathField.prototype.scrollToStart = function() {
     // @todo
+    return true;
 }
 
 MathField.prototype.scrollToEnd_ = MathField.prototype.scrollToEnd = function() {
     // @todo
+    return true;
 }
 
 /**
@@ -1395,6 +1407,7 @@ MathField.prototype.enterCommandMode_ = function() {
 
     this.undoManager.snapshot();
     this.mathlist.insert('\u001b');
+    return true;
 }
 
 
@@ -1406,16 +1419,19 @@ MathField.prototype.copyToClipboard_ = function() {
         this.select();
     }
     document.execCommand('copy');
+    return false;
 }
 
 MathField.prototype.cutToClipboard_ = function() {
     this.focus();
     document.execCommand('cut');
+    return true;
 }
 
 MathField.prototype.pasteFromClipboard_ = function() {
     this.focus();
     document.execCommand('paste');
+    return true;
 }
 
 
@@ -1457,7 +1473,9 @@ MathField.prototype.insert = function(s, options) {
         }
         this.undoManager.snapshot();
         this.mathlist.insert(s, options);
+        return true;
     }
+    return false;
 }
 
 
@@ -1499,7 +1517,9 @@ MathField.prototype.complete_ = function() {
             }
         }
         this._announce('replacement');
+        return true;
     }
+    return false;
 }
 
 
@@ -1528,6 +1548,7 @@ MathField.prototype.nextSuggestion_ = function() {
     // The modulo of the suggestionIndex is used to determine which suggestion
     // to display, so no need to worry about rolling over.
     this._updateSuggestion();
+    return false;
 }
 
 MathField.prototype.previousSuggestion_ = function() {
@@ -1542,6 +1563,7 @@ MathField.prototype.previousSuggestion_ = function() {
         this.suggestionIndex = suggestions.length - 1;
     }
     this._updateSuggestion();
+    return false;
 }
 
 
@@ -1554,6 +1576,7 @@ MathField.prototype.toggleKeystrokeCaption_ = function() {
     } else {
         vb.style.visibility = 'hidden';
     }
+    return false;
 }
 
 /**
@@ -1788,7 +1811,7 @@ MathField.prototype._makeButton = function(label, cls, ariaLabel, command) {
  */
 MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
     let altContainer = this.virtualKeyboard.getElementsByClassName('alternate-keys');
-    if (!altContainer || altContainer.length === 0) return;
+    if (!altContainer || altContainer.length === 0) return false;
 
     altContainer = altContainer[0];
 
@@ -1871,6 +1894,7 @@ MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
             ((position.left + position.right - altContainer.offsetWidth) / 2) )) + 'px';
         altContainer.classList.add('visible');
     }
+    return false;
 }
 
 
@@ -1878,11 +1902,10 @@ MathField.prototype.hideAlternateKeys_ = function() {
     let altContainer = this.virtualKeyboard.getElementsByClassName('alternate-keys');
     if (altContainer && altContainer.length > 0) {
         altContainer = altContainer[0];
-    } else {
-        return;
+        altContainer.classList.remove('visible');
+        altContainer.innerHTML = '';
     }
-    altContainer.classList.remove('visible');
-    altContainer.innerHTML = '';
+    return false;
 }
 
 /**
@@ -1892,7 +1915,7 @@ MathField.prototype.hideAlternateKeys_ = function() {
  */
 MathField.prototype.performAlternateKeys_ = function(command) {
     this.hideAlternateKeys_();
-    this.perform(command);
+    return this.perform(command);
 }
 
 
@@ -1937,6 +1960,7 @@ MathField.prototype.switchKeyboardLayer_ = function(layer) {
 
         this.focus();
     }
+    return true;
 }
 
 
@@ -1979,6 +2003,7 @@ MathField.prototype.shiftKeyboardLayer_ = function() {
             }
         }
     }
+    return false;
 }
 
 
@@ -2005,11 +2030,13 @@ MathField.prototype.unshiftKeyboardLayer_ = function() {
             }
         }
     }
+    return false;
 }
 
 MathField.prototype.insertAndUnshiftKeyboardLayer_ = function(c) {
     this.insert_(c);
     this.unshiftKeyboardLayer_();
+    return true;
 }
 
 /* Toggle the virtual keyboard, but switch to the alternate theme if available */
@@ -2022,6 +2049,7 @@ MathField.prototype.toggleVirtualKeyboardAlt_ = function() {
         this.virtualKeyboard = null;
     }
     this.showVirtualKeyboard_(hadAltTheme ? '' : 'material');
+    return false;
 }
 
 /* Toggle the virtual keyboard, but switch another keyboard layout */
@@ -2045,16 +2073,19 @@ MathField.prototype.toggleVirtualKeyboardShift_ = function() {
     }
     this.showVirtualKeyboard_();
     if (layer) this.switchKeyboardLayer_(layer);
+    return false;
 }
 
 MathField.prototype.showVirtualKeyboard_ = function(theme) {
     this.virtualKeyboardVisible = false;
-    this.toggleVirtualKeyboard_(theme)
+    this.toggleVirtualKeyboard_(theme);
+    return false;
 }
 
 MathField.prototype.hideVirtualKeyboard_ = function() {
     this.virtualKeyboardVisible = true;
-    this.toggleVirtualKeyboard_()
+    this.toggleVirtualKeyboard_();
+    return false;
 }
 
 MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
@@ -2086,11 +2117,13 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
                 this.virtualKeyboardVisible, 
                 this.virtualKeyboard);
     }
+    return false;
 }
 
 MathField.prototype.applyStyle_ = function(style) {
     this.undoManager.snapshot();
     this.mathlist._applyStyle(style);
+    return false;
 }
 
 MathField.prototype.hasFocus = function() {
@@ -2165,17 +2198,20 @@ MathField.prototype.typedText_ = function(text, options) {
  * @param {Object} [conf] See `MathLive.config()` for details
  * 
 
- * @method MathField#config
+ * @method MathField#setConfig
  */
-MathField.prototype.config = function(conf) {
+MathField.prototype.setConfig = function(conf) {
     // Copy the values from `config` to `def`
-    this.config = Object.assign({
-        smartFence: true,
-        overrideDefaultInlineShortcuts: false,
-        virtualKeyboard: '',
-        virtualKeyboardLayout: 'qwerty',
-        namespace: '',
-    }, conf);
+    if (!this.config) {
+        this.config = {
+            smartFence: true,
+            overrideDefaultInlineShortcuts: false,
+            virtualKeyboard: '',
+            virtualKeyboardLayout: 'qwerty',
+            namespace: '',
+        }
+    }
+    this.config = Object.assign(this.config, conf);
 
     this.config.macros = Object.assign({}, Definitions.MACROS, this.config.macros);
 
@@ -2250,6 +2286,7 @@ MathField.prototype.speakSelection_ = function() {
         text = MathAtom.toSpeakableText(this.extractContents(), this.config)
     }
     this._speak(text);
+    return false;
 }
 
 /**
@@ -2257,6 +2294,8 @@ MathField.prototype.speakSelection_ = function() {
  */
 MathField.prototype.speakSelectionWithSynchronizedHighlighting_ = function() {
     if (!this.mathlist.isCollapsed()) {
+        window.mathlive.readAloudMathField = this;
+        this._render({forHighlighting: true});
         const options = this.config;
         options.textToSpeechMarkup = 'ssml';
         const text = MathAtom.toSpeakableText(this.mathlist.extractContents(), options)
@@ -2264,6 +2303,7 @@ MathField.prototype.speakSelectionWithSynchronizedHighlighting_ = function() {
     } else {
         this._speak("Nothing selected.");
     }
+    return false;
 }
 
 
@@ -2277,6 +2317,7 @@ MathField.prototype.speakParent_ = function() {
         text = MathAtom.toSpeakableText(this.mathlist.parent(), this.config);
     }
     this._speak(text);
+    return false;
 }
 
 /**
@@ -2294,6 +2335,7 @@ MathField.prototype.speakRightSibling_ = function() {
         text = MathAtom.toSpeakableText(adjSiblings, this.config);
     }
     this._speak(text);
+    return false;
 }
 
 /**
@@ -2311,6 +2353,7 @@ MathField.prototype.speakLeftSibling_ = function() {
         text = MathAtom.toSpeakableText(adjSiblings, this.config);
     }
     this._speak(text);
+    return false;
 }
 
 
@@ -2319,6 +2362,7 @@ MathField.prototype.speakLeftSibling_ = function() {
  */
 MathField.prototype.speakGroup_ = function() { 
     this._speak(MathAtom.toSpeakableText(this.mathlist.siblings(), this.config));
+    return false;
 }
 
 /**
@@ -2326,16 +2370,20 @@ MathField.prototype.speakGroup_ = function() {
  */
 MathField.prototype.speakAll_ = function() {
     this._speak(MathAtom.toSpeakableText(this.mathlist.root, this.config));
+    return false;
 }
 
 /**
  * @method EditableMathlist#speakAllWithSynchronizedHighlighting_
  */
 MathField.prototype.speakAllWithSynchronizedHighlighting_ = function() {
+    window.mathlive.readAloudMathField = this;
+    this._render({forHighlighting: true});
     const options = this.config;
     options.textToSpeechMarkup = 'ssml';
     const text = MathAtom.toSpeakableText(this.mathlist.root, options)
     this._speakWithSynchronizedHighlighting(text);
+    return false;
 }
 
 

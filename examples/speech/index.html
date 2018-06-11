@@ -4,8 +4,12 @@
     <title>MathLive Speech Example</title>
     <meta name="google" content="notranslate">
 
-    <link rel="stylesheet" href="../../dist/mathlive.core.css">
-    <link rel="stylesheet" href="../../dist/mathlive.css">
+    <!-- <link rel="stylesheet" href="../../dist/mathlive.core.css">
+    <link rel="stylesheet" href="../../dist/mathlive.css"> -->
+
+    <link rel="stylesheet" href="../../../mathlive/css/mathlive.core.css">
+    <link rel="stylesheet" href="../../../mathlive/css/mathlive.css">
+
     <style>
         body {
             font-family: Roboto, sans-serif;
@@ -16,12 +20,15 @@
             max-width: 820px;
             margin: auto;
         }
-        .mathfield {
-            border: 1px solid #ddd;
-            padding:32px;
+
+        .mathfield, .equation {
             font-size: 32px;
             color: #99d;
             background: beige;
+            padding:32px;
+        }
+        .mathfield {
+            border: 1px solid #ddd;
             margin: 10px 0 10px 0;
             border-radius:5px;
             box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2),
@@ -89,10 +96,10 @@
         button:hover {
             background-color: rgba(0,0,0,0.08);
         }
-        button:active {
+        button:active{
             background-color: white;
         }
-        button.primary {
+        button.primary, button.active {
             color: white;
             fill: white;
             background: #0066ce;
@@ -106,20 +113,46 @@
             fill: #0066ce;
             background-color: white;
         }
+        button.round {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+        }
+
+        .icon.label {
+            width: 32px;
+            height: 32px;
+            margin-left: 16px;
+            margin-right: 16px;
+            fill: #666;
+        }
+
     </style>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.249.1.min.js"></script>
     <script>
-        AWS.config.region = 'eu-west-1';
-        AWS.config.accessKeyId = '<YOUR-KEY>';
-        AWS.config.secretAccessKey = '<YOUR-SECRET>';
-        AWS.config.accessKeyId = 'AKIAIRV4H6LMPQ2AQC4A';
-        AWS.config.secretAccessKey = 'mq9HF2UVTt0X0NkD2MJDOO1ZGkb5D7SPRPg4zGBq';
+        if (window.AWS) {
+            AWS.config.region = 'eu-west-1';
+            AWS.config.accessKeyId = 'AKIAI2AYJBWXBA5Q5BLQ';
+            AWS.config.secretAccessKey = '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';
+        }
     </script>
+    <script src="../../../vendor/sre_browser.js"></script>
+    <script src="index.js"></script>
 </head>
 <body>
     <main>
-        <h2>MathLive Speech Example</h2>
-        <div class="mathfield" id='mf' >f(x)=\sin(x^2+\frac{\pi}{2})</div>
+        <h2>How to Solve Quadratic Equations </h2>
+        <p>Quadratic equations polynomial equation in a single variable where 
+            the highest exponent of the variable is 2:</p>
+        <div class='equation'>$$ax^2+bx+c=0$$</div>
+
+        <p>Identify the values of $$a$$, $$b$$, and c in the quadratic equation. 
+            The variable $$a$$ is the coefficient of the $$x^2$$ term, $$b$$ is the 
+            coefficient of the $$x$$ term, and $$c$$ is the constant. For the 
+            equation $$3x^2 -5x - 8 = 0$$, $$a = 3$$, $$b = -5$$, and $$c = -8$$. 
+        </p>
+
+        <div class="mathfield" id='mf' >x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}</div>
         <div id='output'>
             <div id='output-text'></div>
             <div id='output-ssml'></div>
@@ -129,36 +162,134 @@
                 Synchronize speech
             </input>
         </div> -->
-        <div class='toolbar'>
-            <button class='primary' onclick='mf.perform("speakAllWithSynchronizedHighlighting")'>
-                <span class='icon'>
-                    <svg style="width: 24px;height: 24px;transform: translate(0, 4px);margin-right: 8px;">
-                        <g display="inline">
-                        <circle cx="9" cy="9" r="4"/>
-                        <path d="M9,15c-2.67,0-8,1.34-8,4v2h16v-2C17,16.34,11.67,15,9,15z"/>
-                        <path d="M15.08,7.05c0.84,1.18,0.84,2.71,0,3.89l1.68,1.69c2.02-2.02,2.02-5.07,0-7.27L15.08,7.05z"/>
-                        <path d="M20.07,2l-1.63,1.63c2.77,3.02,2.77,7.56,0,10.74L20.07,16C23.97,12.11,23.98,6.05,20.07,2z"/>
-                        </g>
-                    </svg>
-                </span>
-                <span>Read Aloud</span>
-            </button>
+        <div id='ready-toolbar' class='toolbar'>
+            <div>
+                <button class='primary' onclick='mf.perform("speakAllWithSynchronizedHighlighting");'>
+                    <span class='icon'>
+                        <svg style="width: 24px;height: 24px;transform: translate(0, 4px);margin-right: 8px;">
+                            <g display="inline">
+                            <circle cx="9" cy="9" r="4"/>
+                            <path d="M9,15c-2.67,0-8,1.34-8,4v2h16v-2C17,16.34,11.67,15,9,15z"/>
+                            <path d="M15.08,7.05c0.84,1.18,0.84,2.71,0,3.89l1.68,1.69c2.02-2.02,2.02-5.07,0-7.27L15.08,7.05z"/>
+                            <path d="M20.07,2l-1.63,1.63c2.77,3.02,2.77,7.56,0,10.74L20.07,16C23.97,12.11,23.98,6.05,20.07,2z"/>
+                            </g>
+                        </svg>
+                    </span>
+                    <span>Read Aloud</span>
+                </button>
+            </div>
         </div>
+
+        <div id='playing-toolbar' class='toolbar' style='display:none'>
+            <div id='playing-buttons'>
+                <!-- <button class='round' onclick="repeat(2)"> Say Again (x2) </button> -->
+                <button class='round' onclick="repeat()"> 
+                    <span class='icon'>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <path d="M0 0h24v24H0z" fill="none"/>
+    <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+</svg>
+                    </span>
+                </button>
+                <button class='round' onclick="pauseResume()">
+                    <span class='icon'>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M9 16h2V8H9v8zm3-14C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm1-4h2V8h-2v8z"/>
+                        </svg>
+                    </span>
+                </button>
+            </div>
+            <!-- <button onclick="speak_goto()"> Go To </button> -->
+            <!-- <button id="stop_button" onclick="javascript:speak_stop()"> Stop </button>
+            <button id="next_button" onclick="javascript:speak_next()"> Next </button> -->
+        </div>
+
+        <div style='margin-top:64px; margin-bottom:48px'></div>
+
+        <div class='toolbar'>
+            <button id='speed1' class='round' onclick='setSpeed(1)'>
+                <span class='icon' style='vertical-align:sub'>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 46.75 100 66.5625" enable-background="new 0 46.75 100 53.25" xml:space="preserve"><path d="M76.109,63.794C63.108,58.887,55.414,49.958,44.5,49.959c-0.674,0-1.362,0.034-2.062,0.105  c-23.745,2.412-22.256,22.258-31.911,29.742c-3.438,2.664,10.356,8.296,25.79,8.296c2.884,0,5.827-0.197,8.724-0.646  C62.019,84.82,81.515,65.833,76.109,63.794z"/><path d="M9.089,84.865c-0.592,0.2-1.308,0.445-2.205,0.732c-3.65,1.17-5.986,3.217-5.99,4.08  c-0.008,1.777,10.735,1.619,16.461,0.401c1.31-0.278,2.056-0.53,2.407-0.772c-0.701-0.177-1.394-0.361-2.069-0.559  C13.134,87.42,10.565,86.041,9.089,84.865z"/><path d="M67.293,80.778c-2.369,1.722-5.67,3.886-9.519,5.78c0.004,0.126,0.387,0.51,0.901,2.112  c0.516,1.602,0.709,4.247,0.697,6.376c-0.01,1.922,1.186,1.734,2.336,2.322c1.288,0.658,5.207,0.687,9.421,0.463  c1.479-0.08,1.993-0.064,1.771-2.506C72.08,86.279,67.293,80.778,67.293,80.778z"/><path d="M21.71,89.756c-0.032,0.072-0.065,0.144-0.092,0.224c-0.736,2.194-1.252,6.973,1.456,7.658  c2.871,0.727,6.245,0.651,9.602,0.58c1.003-0.021,1.96-0.794,2.208-1.68c0.562-2.015,0.255-3.9-0.903-5.271  C29.828,91.123,25.63,90.602,21.71,89.756z"/><path d="M96.99,62.582c-2.499-4.76-9.429-4.381-13.347-1.776c-1.353,0.899-2.45,2.095-3.509,3.328  c0.1,0.497,0.126,1.024,0.068,1.575c-0.452,4.361-6.274,9.768-9.865,12.718c0,0,0,0,0.001,0c0.675,0.5,2.824,1.24,3.807,1.305  c5.936,0.397,11.193-0.3,16.545-3.021C95.457,74.286,99.827,67.985,96.99,62.582z M88.61,67.001c-1.22,0-2.208-0.988-2.208-2.208  s0.988-2.208,2.208-2.208c1.219,0,2.208,0.988,2.208,2.208S89.829,67.001,88.61,67.001z"/></svg>            </button>
+            <button id='speed2' class='round'  onclick='setSpeed(2)'>
+                <span class='icon'>
+                </span>
+            </button>
+            <button id='speed3' class='round'  onclick='setSpeed(3)'>
+                <span class='icon'>
+                </span>
+            </button>
+            <button id='speed4' class='round'  onclick='setSpeed(4)'>
+                <span class='icon'>
+                </span>
+            </button>
+            <button id='speed5' class='round'  onclick='setSpeed(5)'>
+                <span class='icon'>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 106.25" version="1.1" x="0px" y="0px"><g stroke="none" stroke-width="1" fill-rule="evenodd"><g><path d="M60.1164483,76.5101184 C60.1164483,77.7869765 61.1184016,79.097951 62.3543737,79.4324469 L72.798828,82.2590697 C74.9502082,82.841306 76.9428079,85.1218308 77.229578,87.3473934 L77.4381368,88.9659749 L61.2268002,86.7611761 C59.0007748,86.4584288 55.762595,85.1122528 53.9830021,83.7528954 L30.0193357,65.4480423 C18.6673757,64.6909954 9.4627489,56.133214 7.77382209,45.1160791 L4.34635739,45.1647777 C1.94608449,45.1988816 -1.83318034e-16,43.2833095 -1.07537429e-17,40.8862227 L12.0835739,27.3645101 C17.4743573,21.3386402 23.6068695,17.4194231 31.6593886,17.4194231 C32.7498041,17.4194231 33.8233498,17.4912885 34.8755022,17.6305187 C36.0956627,17.7349159 37.3050822,17.9433886 38.4888396,18.2605754 C54.0954993,22.4423673 65.570761,42.6024939 65.570761,42.6024939 C66.516058,44.0861571 68.636741,45.6806441 70.3388841,46.136732 L71.0643059,46.3311082 C72.7686884,46.7877961 75.036606,46.0402598 76.1348435,44.6627794 L79.3667959,40.6090557 L69.0683577,35.5886404 C54.9830017,29.5 58.824985,11.8109045 58.824985,11.8109045 C58.9924242,10.7260817 59.7843012,10.4649372 60.587326,11.2216236 L82.7393229,32.0953411 L64.7779732,12.0675015 C65.0289152,8.20500861 68.1652109,7 68.1652109,7 L85.5324488,34.7272898 L86.921334,36.0360295 L96.0521825,42.4677019 C98.138955,43.9376022 99.8625925,47.2144004 99.8888571,49.7773535 L100.007257,61.3310185 L99.3236978,61.8899026 C97.5857982,63.3108255 94.5445704,63.6651439 92.5224884,62.6881932 L89.3807164,61.1702742 C86.2103299,59.6385304 81.4523901,60.2321429 78.7512966,62.4950512 L69.6842316,70.0912108 C68.6969982,70.9182902 67.3970043,71.7079683 65.972973,72.3860195 C65.450814,57.828347 59.4984737,45.9574271 46.7248907,37.1161254 C45.6127483,36.4326524 43.9592431,38.4195836 44.7777067,39.1109172 C56.0407574,49.2817354 60.1164483,60.3235994 60.1164483,74.5177084 L60.1164483,76.5101184 Z M95.0509461,53.9162538 C96.1764172,53.9162538 97.0887918,53.0084656 97.0887918,51.8886521 C97.0887918,50.7688386 96.1764172,49.8610504 95.0509461,49.8610504 C93.925475,49.8610504 93.0131004,50.7688386 93.0131004,51.8886521 C93.0131004,53.0084656 93.925475,53.9162538 95.0509461,53.9162538 L95.0509461,53.9162538 Z M19.9417759,92 L19.9417759,89.8393536 C19.9417758,87.5932185 21.6918837,85.2820263 23.828826,84.6248277 C23.828826,84.6248277 35.0800582,81.8619915 38.1368268,76.9378159 C38.1368268,76.9378159 46.7248911,83.7447645 46.7248911,83.7447645 C34.7889374,89.6827409 19.9417759,92 19.9417759,92 L19.9417759,92 Z" sketch:type="MSShapeGroup"/></g></g></svg>                
+                </span>
+            </button>
+
+        </div>
+
+        <div class='toolbar'>
+            <div class='icon label'>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 46.75 100 66.5625" enable-background="new 0 46.75 100 53.25" xml:space="preserve"><path d="M76.109,63.794C63.108,58.887,55.414,49.958,44.5,49.959c-0.674,0-1.362,0.034-2.062,0.105  c-23.745,2.412-22.256,22.258-31.911,29.742c-3.438,2.664,10.356,8.296,25.79,8.296c2.884,0,5.827-0.197,8.724-0.646  C62.019,84.82,81.515,65.833,76.109,63.794z"/><path d="M9.089,84.865c-0.592,0.2-1.308,0.445-2.205,0.732c-3.65,1.17-5.986,3.217-5.99,4.08  c-0.008,1.777,10.735,1.619,16.461,0.401c1.31-0.278,2.056-0.53,2.407-0.772c-0.701-0.177-1.394-0.361-2.069-0.559  C13.134,87.42,10.565,86.041,9.089,84.865z"/><path d="M67.293,80.778c-2.369,1.722-5.67,3.886-9.519,5.78c0.004,0.126,0.387,0.51,0.901,2.112  c0.516,1.602,0.709,4.247,0.697,6.376c-0.01,1.922,1.186,1.734,2.336,2.322c1.288,0.658,5.207,0.687,9.421,0.463  c1.479-0.08,1.993-0.064,1.771-2.506C72.08,86.279,67.293,80.778,67.293,80.778z"/><path d="M21.71,89.756c-0.032,0.072-0.065,0.144-0.092,0.224c-0.736,2.194-1.252,6.973,1.456,7.658  c2.871,0.727,6.245,0.651,9.602,0.58c1.003-0.021,1.96-0.794,2.208-1.68c0.562-2.015,0.255-3.9-0.903-5.271  C29.828,91.123,25.63,90.602,21.71,89.756z"/><path d="M96.99,62.582c-2.499-4.76-9.429-4.381-13.347-1.776c-1.353,0.899-2.45,2.095-3.509,3.328  c0.1,0.497,0.126,1.024,0.068,1.575c-0.452,4.361-6.274,9.768-9.865,12.718c0,0,0,0,0.001,0c0.675,0.5,2.824,1.24,3.807,1.305  c5.936,0.397,11.193-0.3,16.545-3.021C95.457,74.286,99.827,67.985,96.99,62.582z M88.61,67.001c-1.22,0-2.208-0.988-2.208-2.208  s0.988-2.208,2.208-2.208c1.219,0,2.208,0.988,2.208,2.208S89.829,67.001,88.61,67.001z"/></svg>
+            </div>
+            <div>
+                <input type="range" min="1" max="5" value="3" class="slider" id="speed-slider"
+                    oninput="setSpeed(this.value)"
+                >
+            </div>
+            <span class='icon label'>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 106.25" version="1.1" x="0px" y="0px"><g stroke="none" stroke-width="1" fill-rule="evenodd"><g><path d="M60.1164483,76.5101184 C60.1164483,77.7869765 61.1184016,79.097951 62.3543737,79.4324469 L72.798828,82.2590697 C74.9502082,82.841306 76.9428079,85.1218308 77.229578,87.3473934 L77.4381368,88.9659749 L61.2268002,86.7611761 C59.0007748,86.4584288 55.762595,85.1122528 53.9830021,83.7528954 L30.0193357,65.4480423 C18.6673757,64.6909954 9.4627489,56.133214 7.77382209,45.1160791 L4.34635739,45.1647777 C1.94608449,45.1988816 -1.83318034e-16,43.2833095 -1.07537429e-17,40.8862227 L12.0835739,27.3645101 C17.4743573,21.3386402 23.6068695,17.4194231 31.6593886,17.4194231 C32.7498041,17.4194231 33.8233498,17.4912885 34.8755022,17.6305187 C36.0956627,17.7349159 37.3050822,17.9433886 38.4888396,18.2605754 C54.0954993,22.4423673 65.570761,42.6024939 65.570761,42.6024939 C66.516058,44.0861571 68.636741,45.6806441 70.3388841,46.136732 L71.0643059,46.3311082 C72.7686884,46.7877961 75.036606,46.0402598 76.1348435,44.6627794 L79.3667959,40.6090557 L69.0683577,35.5886404 C54.9830017,29.5 58.824985,11.8109045 58.824985,11.8109045 C58.9924242,10.7260817 59.7843012,10.4649372 60.587326,11.2216236 L82.7393229,32.0953411 L64.7779732,12.0675015 C65.0289152,8.20500861 68.1652109,7 68.1652109,7 L85.5324488,34.7272898 L86.921334,36.0360295 L96.0521825,42.4677019 C98.138955,43.9376022 99.8625925,47.2144004 99.8888571,49.7773535 L100.007257,61.3310185 L99.3236978,61.8899026 C97.5857982,63.3108255 94.5445704,63.6651439 92.5224884,62.6881932 L89.3807164,61.1702742 C86.2103299,59.6385304 81.4523901,60.2321429 78.7512966,62.4950512 L69.6842316,70.0912108 C68.6969982,70.9182902 67.3970043,71.7079683 65.972973,72.3860195 C65.450814,57.828347 59.4984737,45.9574271 46.7248907,37.1161254 C45.6127483,36.4326524 43.9592431,38.4195836 44.7777067,39.1109172 C56.0407574,49.2817354 60.1164483,60.3235994 60.1164483,74.5177084 L60.1164483,76.5101184 Z M95.0509461,53.9162538 C96.1764172,53.9162538 97.0887918,53.0084656 97.0887918,51.8886521 C97.0887918,50.7688386 96.1764172,49.8610504 95.0509461,49.8610504 C93.925475,49.8610504 93.0131004,50.7688386 93.0131004,51.8886521 C93.0131004,53.0084656 93.925475,53.9162538 95.0509461,53.9162538 L95.0509461,53.9162538 Z M19.9417759,92 L19.9417759,89.8393536 C19.9417758,87.5932185 21.6918837,85.2820263 23.828826,84.6248277 C23.828826,84.6248277 35.0800582,81.8619915 38.1368268,76.9378159 C38.1368268,76.9378159 46.7248911,83.7447645 46.7248911,83.7447645 C34.7889374,89.6827409 19.9417759,92 19.9417759,92 L19.9417759,92 Z" sketch:type="MSShapeGroup"/></g></g></svg>
+            </span>
+        </div>
+
     </main>
 
 
-<script src="../../dist/mathlive.js"></script>
+<!-- <script src="../../dist/mathlive.js"></script> -->
 <script>
-    const mf = MathLive.makeMathField('mf', {
+    var require = {
+        baseUrl: './',
+        paths: {
+            "mathlive": "../../../mathlive/js"
+        },
+    };
+    var updateCodeSection;
+</script>
+<script src="../../../vendor/require.js"></script>
+<script> 
+    let mf;
+    require(['mathlive/mathlive'], function(MathLive) {
+    window.MathLive = MathLive;
+    MathLive.renderMathInDocument({ignoreClass: "mathfield"});
+
+    mf = MathLive.makeMathField('mf', {
         onContentDidChange: mf => {
             document.getElementById('output-text').textContent = mf.text('spoken-text');
             document.getElementById('output-ssml').textContent = mf.text('spoken-ssml');
+            // const latex = mf.latex();
+            // console.log(MathLive.latexToAST(latex));
+
+        },
+
+        onReadAloudStatus: status => {
+            if (status === 'ready' || status === 'ended') {
+                document.getElementById('playing-toolbar').style.display = 'none';
+                document.getElementById('ready-toolbar').style.display = 'flex';
+            }
+            if (status === 'playing') {
+                document.getElementById('playing-toolbar').style.display = 'flex';
+                document.getElementById('ready-toolbar').style.display = 'none';
+            }
+            console.log(status);
         },
         
         textToSpeechRules: 'sre',
         textToSpeechRulesOptions: {
-            domain: 'mathspeak', // or 'chromevox'
-            ruleset: 'mathspeak-brief',   // mathspeak-default, mathspeak-brief, mathspeak-sbrief, chromevox-short, chromevox-default
+            domain: 'clearspeak', // 'mathspeak' or 'chromevox' or 'clearspeak'
+            style: 'default',   // mathspeak-default, mathspeak-brief, mathspeak-sbrief, chromevox-short, chromevox-default
             // domain: 'chromevox', // mathspeak or 'chromevox'
             // ruleset: 'chromevox-default',   
             // mathspeak-default, mathspeak-brief, mathspeak-sbrief, chromevox-short, chromevox-default, chromevox-alternative
@@ -170,6 +301,60 @@
         speechEngineVoice: 'Matthew',
         speechEngineRate: '75%'
     });
+
+    setSpeed(3);
+
+
+
+});
+
+function pauseResume() {
+    if (!window.mathlive) {
+        mf.perform("speakAllWithSynchronizedHighlighting");
+        return;
+    }
+
+    if (window.mathlive.readAloudAudio.paused) {
+        var token = window.mathlive.readAloudCurrentToken;
+        if (window.mathlive.readAloudAudio.ended) {
+            token = window.mathlive.readAloudTokens[0];
+        }
+        MathLive.playReadAloud(token, 2);
+    } else {
+        MathLive.pauseReadAloud();
+    }
+}
+
+
+function repeat(count) {
+    if (!window.mathlive) {
+        mf.perform("speakAllWithSynchronizedHighlighting");
+        return;
+    }
+    count = count || 1;
+
+    var tokenIndex = 
+        window.mathlive.readAloudTokens.indexOf(window.mathlive.readAloudCurrentToken) - count;
+
+    if (tokenIndex < 0) {
+        tokenIndex = 0;
+    }
+    MathLive.playReadAloud(window.mathlive.readAloudTokens[tokenIndex]);
+}
+
+function setSpeed(speed) {
+    document.getElementById('speed1').classList.remove('active');
+    document.getElementById('speed2').classList.remove('active');
+    document.getElementById('speed3').classList.remove('active');
+    document.getElementById('speed4').classList.remove('active');
+    document.getElementById('speed5').classList.remove('active');
+    document.getElementById('speed' + speed).classList.add('active');
+
+    mf.setConfig({
+        speechEngineRate: [ '', '50%', '75%', '100%', '125%', '200%'
+            ][speed]
+    })
+}
 </script>
 
 </body></html>

@@ -207,8 +207,8 @@ const KEYBOARD_SHORTCUTS = {
     'mac:Ctrl-Meta-Right':      'speakRightSibling',
     '!mac:Ctrl-Alt-Right':      'speakRightSibling',
     
-    'mac:Ctrl-Meta-Shift-Down': 'speakSelection',
-    '!mac:Ctrl-Alt-Shift-Down': 'speakSelection',
+    'mac:Ctrl-Meta-Shift-Down': 'speakAllWithSynchronizedHighlighting',
+    '!mac:Ctrl-Alt-Shift-Down': 'speakAllWithSynchronizedHighlighting',
 }
 
 /**

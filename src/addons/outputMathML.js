@@ -720,7 +720,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
                     result = this.latex;
                 }
             }
-            result = '<mi' + variant + makeID(this.id, options) + '>' + xmlEscape(result + '</mi>';
+            result = '<mi' + variant + makeID(this.id, options) + '>' + xmlEscape(result) + '</mi>';
             break;
 
         case 'mbin':
