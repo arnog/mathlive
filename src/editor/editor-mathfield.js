@@ -1161,7 +1161,7 @@ MathField.prototype._render = function(renderOptions) {
     // 5. Generate markup and accessible node
     //
 
-    this.field.innerHTML = wrapper.toMarkup();
+    this.field.innerHTML = wrapper.toMarkup(0, this.config.horizontalSpacingScale);
     // Probably want to generate content on fly depending on what to speak
     this.accessibleNode.innerHTML = 
        "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +

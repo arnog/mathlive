@@ -126,6 +126,9 @@ function toMarkup(text, mathstyle, format, macros) {
  * 
  * @param {Object<string, *>} [config]
  * 
+ * @param {number} [config.horizontalSpacingScale=1.0] - Scaling factor to be 
+ * applied to horizontal spacing between elements. 
+ * 
  * @param {string} [config.namespace=''] - Namespace that is added to `data-`
  * attributes to avoid collisions with other libraries. It is empty by default.
  * The namespace should be a string of lowercase letters.
