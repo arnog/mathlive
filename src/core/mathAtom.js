@@ -1170,7 +1170,7 @@ MathAtom.prototype.decomposeEnclose = function(context) {
     result.setStyle('padding', padding, 'em');
 
     result.setStyle('display', 'inline-block');
-    result.setStyle('position', 'relative');
+    // result.setStyle('position', 'relative');
     result.setStyle('height', result.height + result.depth , 'em');
     result.setStyle('left', -padding , 'em');
 
