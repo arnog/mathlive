@@ -1534,28 +1534,33 @@ function parse(atoms, options) {
 
 function normalize(ast) {
     if (!ast) return ast;
-    if (ast.sup) {
-        ast.sup = normalize(ast.sup);
-    }
-    if (ast.op) {
-        if (ast.lhs && ast.rhs) {
-            // if (ast.op === '+') ast.op = 'add';
-            // if (ast.op === '*') ast.op = 'multiply';
-            // if (ast.op === '-') ast.op = 'substract';
-            // if (ast.op === '/') ast.op = 'divide';
-            return {fn:ast.op, arg:[normalize(ast.lhs), normalize(ast.rhs)]};
+    if (typeof ast === 'string') return ast;
+    if (typeof ast === 'number') return ast;
+    if (typeof ast === 'object') {
+        if (ast.sup) {
+            ast.sup = normalize(ast.sup);
         }
-        return {fn:ast.op, arg:[normalize(ast.rhs)]};
+        if (ast.op) {
+            if (ast.lhs && ast.rhs) {
+                // if (ast.op === '+') ast.op = 'add';
+                // if (ast.op === '*') ast.op = 'multiply';
+                // if (ast.op === '-') ast.op = 'substract';
+                // if (ast.op === '/') ast.op = 'divide';
+                return {fn:ast.op, arg:[normalize(ast.lhs), normalize(ast.rhs)]};
+            }
+            return {fn:ast.op, arg:[normalize(ast.rhs)]};
+        }
+        if (ast.fn && Array.isArray(ast.arg)) {
+            return {fn:ast.fn, arg:ast.arg.map(x => normalize(x))};
+        }
+        if (ast.fn) {
+            return {fn:ast.fn, arg:normalize(ast.arg)};
+        }
+        if (ast.group) {
+            return {group: normalize(ast.group)};
+        }    
     }
-    if (ast.fn && Array.isArray(ast.arg)) {
-        return {fn:ast.fn, arg:ast.arg.map(x => normalize(x))};
-    }
-    if (ast.fn) {
-        return {fn:ast.fn, arg:normalize(ast.arg)};
-    }
-    if (ast.group) {
-        return {group: normalize(ast.group)};
-    }
+
 
     return ast;
 }
