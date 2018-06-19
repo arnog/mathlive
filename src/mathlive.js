@@ -597,7 +597,8 @@ function readAloud(element, text, config) {
                                 window.mathlive.readAloudAudio.addEventListener('timeupdate', () => {
                                     let value = '';
                                     const target = window.mathlive.readAloudAudio.currentTime * 1000;
-                                    // Find the smallest element which is bigger than the current time
+                                     const marks = window.mathlive.readAloudMarks;
+                                   // Find the smallest element which is bigger than the current time
                                     for (const mark of marks) {
                                         if (mark.time < target) {
                                             value = mark.value;
