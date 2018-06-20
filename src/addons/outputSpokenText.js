@@ -164,12 +164,12 @@ function isAtomic(mathlist) {
 function atomicID(mathlist) {
     if (mathlist && Array.isArray(mathlist)) {
         for (const atom of mathlist) {
-            if (atom.type !== 'first') {
-                return atom.id;
+            if (atom.type !== 'first' && atom.id) {
+                return atom.id.toString();
             }
         }
     }
-    return null;
+    return '';
 }
 
 function atomicValue(mathlist) {
@@ -301,7 +301,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                 } else {
                     let index = MathAtom.toSpeakableFragment(atom.index, options);
                     index = index.trim();
-                    const index2 = index.replace(/<mark([^/]*)\/>/g, '')
+                    const index2 = index.replace(/<mark(?[^/]*)\/>/g, '')
                     if (index2 === '3') {
                         result += ' The cube root of <break time="200ms"/>' + body + '. <break time="200ms"/> End cube root';
                     } else if (index2 === 'n') {
@@ -485,7 +485,10 @@ MathAtom.toSpeakableFragment = function(atom, options) {
             const sup2 = sup.replace(/<[^>]*>/g, '');
             if (isAtomic(atom.superscript)) {
                 if (options.speechMode === 'math') {
-                    result += '<mark name="' + atomicID(atom.superscript).toString() + '"/>';        
+                    const id = atomicID(atom.superscript);
+                    if (id) {
+                        result += '<mark name="' + id + '"/>';        
+                    }
                 }
                 if (sup2 === '\u2032') {
                     result += ' prime ';
