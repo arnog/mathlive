@@ -301,7 +301,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                 } else {
                     let index = MathAtom.toSpeakableFragment(atom.index, options);
                     index = index.trim();
-                    const index2 = index.replace(/<mark(?[^/]*)\/>/g, '')
+                    const index2 = index.replace(/<mark([^/]*)\/>/g, '')
                     if (index2 === '3') {
                         result += ' The cube root of <break time="200ms"/>' + body + '. <break time="200ms"/> End cube root';
                     } else if (index2 === 'n') {
