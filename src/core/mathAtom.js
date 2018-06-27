@@ -1169,7 +1169,7 @@ MathAtom.prototype.decomposeEnclose = function(context) {
     const padding = this.padding === 'auto' ? .2 : this.padding; // em
     result.setStyle('padding', padding, 'em');
 
-    result.setStyle('display', 'inline-block');
+    // result.setStyle('display', 'inline-block');
     // result.setStyle('position', 'relative');
     result.setStyle('height', result.height + result.depth , 'em');
     result.setStyle('left', -padding , 'em');
