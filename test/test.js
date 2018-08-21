@@ -488,6 +488,11 @@ test('DECORATIONS', function (t) {
     t.end();
 });
 
+test('HTML classes', function (t) {
+    hasClass(t, '\\class{my-cool-class}{1}', 0, 'my-cool-class');
+    t.end();
+});
+
 ////////////////////////////////////////////////////////////////////////////////
 test('OVER/UNDERLINE', function (t) {
     t.ok(toSpan("a\\overline{x}b"));

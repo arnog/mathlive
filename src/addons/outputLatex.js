@@ -198,6 +198,11 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             }
             break;
 
+        case 'class':
+            result += command;
+            result += '{' + this.htmlClass + '}{' + latexify(this.body, expandMacro) + '}';
+            break;
+
         case 'box':
             if (command === '\\bbox') {
                 result += command;
