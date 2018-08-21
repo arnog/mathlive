@@ -262,6 +262,9 @@ MathAtom.prototype.filter = function (cb) {
     return result;
 }
 
+MathAtom.prototype.decomposeClass = function(context) {
+    return makeSpan(decompose(context, this.body), this.htmlClass);
+}
 
 MathAtom.prototype.decomposeGroup = function(context) {
     // The scope of the context is this group, so make a copy of it
@@ -1482,6 +1485,9 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
             result = this.makeSpan(context, '\u200b');
             result.hasCaret = true;
         }
+
+    } else if (this.type === 'class') {
+        result = this.decomposeClass(context);
 
     } else {
         //

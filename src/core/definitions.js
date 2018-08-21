@@ -1472,6 +1472,18 @@ defineFunction('\\textcolor', '{:color}{content:auto}', null,
     frequency(3, '\\textcolor');
 
 
+defineFunction('\\class', '{cl:string}{content:auto}', null,
+    function (name, args) {
+        return {
+            type: 'class',
+            htmlClass: args[0],
+            skipBoundary: true,
+            body: args[1]
+        };
+    }
+)
+frequency(3, '\\class');
+
 // An overline
 defineFunction('\\overline', '{:auto}', null, function(name, args) {
     return { 
