@@ -545,9 +545,6 @@ function readAloud(element, text, config) {
         SpeechMarkTypes: ['ssml']
     };
 
-    let marks;
-    let currentMark = '';
-
     window.mathlive = window.mathlive || {};
     window.mathlive.readAloudElement = element;
 
@@ -560,14 +557,14 @@ function readAloud(element, text, config) {
         } else {
             if (data && data.AudioStream) {
                 const response = new TextDecoder('utf-8').decode(new Uint8Array(data.AudioStream));
-                marks = response.split('\n').map(x => x ? JSON.parse(x) : {});
+                window.mathlive.readAloudMarks = response.split('\n').map(x => x ? JSON.parse(x) : {});
                 window.mathlive.readAloudTokens = [];
-                for (const mark of marks) {
+                for (const mark of window.mathlive.readAloudMarks) {
                     if (mark.value) {
                         window.mathlive.readAloudTokens.push(mark.value);
                     }
                 }
-                window.mathlive.readAloudMarks = marks;
+                window.mathlive.readAloudCurrentMark = '';
 
                 // Request the audio
                 params.OutputFormat = 'mp3';
@@ -590,29 +587,33 @@ function readAloud(element, text, config) {
                                         window.mathlive.readAloudElement = null;
                                         window.mathlive.readAloudMathField = null;
                                         window.mathlive.readAloudTokens = [];
+                                        window.mathlive.readAloudMarks = [];
+                                        window.mathlive.readAloudCurrentMark = '';
                                     } else {
                                         removeHighlight(window.mathlive.readAloudElement);
                                     }
                                 });
                                 window.mathlive.readAloudAudio.addEventListener('timeupdate', () => {
                                     let value = '';
-                                    const target = window.mathlive.readAloudAudio.currentTime * 1000;
-                                     const marks = window.mathlive.readAloudMarks;
-                                   // Find the smallest element which is bigger than the current time
-                                    for (const mark of marks) {
+                                    // The target, the atom we're looking for, is the one matching the current audio
+                                    // plus 100 ms. By anticipating it a little bit, it feels more natural, otherwise it
+                                    // feels like the highlighting is trailing the audio.
+                                    const target = window.mathlive.readAloudAudio.currentTime * 1000 + 100;
+
+                                    // Find the smallest element which is bigger than the target time
+                                    for (const mark of window.mathlive.readAloudMarks) {
                                         if (mark.time < target) {
                                             value = mark.value;
                                         }
                                     }
-                                    if (currentMark !== value) {
+                                    if (window.mathlive.readAloudCurrentMark !== value) {
                                         window.mathlive.readAloudCurrentToken = value;
                                         if (value && value === window.mathlive.readAloudFinalToken) {
                                             window.mathlive.readAloudAudio.pause();
                                         } else {
-                                            currentMark = value;
-                                            highlightAtomID(window.mathlive.readAloudElement, currentMark);
+                                            window.mathlive.readAloudCurrentMark = value;
+                                            highlightAtomID(window.mathlive.readAloudElement, window.mathlive.readAloudCurrentMark);
                                         }
-                                        // console.log(currentMark);
                                     }
                                 });
                             } else {

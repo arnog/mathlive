@@ -234,12 +234,12 @@ function isAtomic(mathlist) {
 function atomicID(mathlist) {
     if (mathlist &amp;&amp; Array.isArray(mathlist)) {
         for (const atom of mathlist) {
-            if (atom.type !== 'first') {
-                return atom.id;
+            if (atom.type !== 'first' &amp;&amp; atom.id) {
+                return atom.id.toString();
             }
         }
     }
-    return null;
+    return '';
 }
 
 function atomicValue(mathlist) {
@@ -555,7 +555,10 @@ MathAtom.toSpeakableFragment = function(atom, options) {
             const sup2 = sup.replace(/&lt;[^>]*>/g, '');
             if (isAtomic(atom.superscript)) {
                 if (options.speechMode === 'math') {
-                    result += '&lt;mark name="' + atomicID(atom.superscript).toString() + '"/>';        
+                    const id = atomicID(atom.superscript);
+                    if (id) {
+                        result += '&lt;mark name="' + id + '"/>';        
+                    }
                 }
                 if (sup2 === '\u2032') {
                     result += ' prime ';
