@@ -161,9 +161,9 @@ entity references or by composing them from base letters and style markup.</p>
   <code>&quot;Q2111&quot;</code></li>
 <li><code>wikibase</code>: A base URL for the wikidata key. A full URL can be produced 
 by concatenating this key with the wikidata key. This key applies to 
-this element and all its children. The default value is &quot;https://www.wikidata.org/wiki/&quot;</li>
+this element and all its children. The default value is &quot;https://<a href="http://www.wikidata.org/wiki/&quot;">www.wikidata.org/wiki/&quot;</a></li>
 <li><code>openmathcd</code>: A base URL for an OpenMath content dictionary. This key applies to 
-this element and all its children. The default value is &quot;http://www.openmath.org/cd&quot;.</li>
+this element and all its children. The default value is &quot;http://<a href="http://www.openmath.org/cd&quot;">www.openmath.org/cd&quot;</a>.</li>
 <li><code>openmathsymbol</code>: A short string indicating an entry in an OpenMath Content
 Dictionary. For example: <code>arith1/#abs</code>.</li>
 </ul>
@@ -186,7 +186,7 @@ expressions are <em>not</em> equivalent:</p>
     &langle;text&rangle; |
     &langle;block&rangle;</p>
 <p>An expression is an Abstract Syntax Tree. As such, there is no need to introduce parentheses or to resort to operator precedence in order to parse the expression correctly.</p>
-<h3 id="-langle-num-rangle-">&langle;num&rangle;</h3>
+<h3 id="num">&langle;num&rangle;</h3>
 <p>A native number or an object with the following key</p>
 <ul>
 <li><code>num</code>: &langle;native-number&rangle; or &langle;native-string&rangle;</li>
@@ -194,14 +194,14 @@ expressions are <em>not</em> equivalent:</p>
 <p><strong>Note:</strong> When only the <code>num</code> key is present a shortcut may be used by 
 replacing the element with the number. That is, both representations are equivalent:</p>
 <pre class="prettyprint source lang-JSON"><code>   {&quot;fn&quot;:&quot;+&quot;, &quot;arg&quot;:[{&quot;num&quot;:1}, {&quot;num&quot;:2}]}
-   {&quot;fn&quot;:&quot;+&quot;, &quot;arg&quot;:[1, 2]}</code></pre><h3 id="-langle-complex-rangle-">&langle;complex&rangle;</h3>
+   {&quot;fn&quot;:&quot;+&quot;, &quot;arg&quot;:[1, 2]}</code></pre><h3 id="complex">&langle;complex&rangle;</h3>
 <ul>
 <li><code>re</code>: &langle;native-number&rangle;, 0 by default.</li>
 <li><code>im</code>: &langle;native-number&rangle;, 0 by default.</li>
 </ul>
 <p>One of the keys <code>re</code> or <code>im</code> must be present.</p>
 <p>Note that <code>{re:1}</code> is a complex number with a null imaginary part.</p>
-<h3 id="-langle-symbol-rangle-">&langle;symbol&rangle;</h3>
+<h3 id="symbol">&langle;symbol&rangle;</h3>
 <p>A string or an object with the following keys</p>
 <ul>
 <li><code>sym</code>: &langle;native-string&rangle;</li>
@@ -351,7 +351,7 @@ replacing the element with the number. That is, both representations are equival
 </tr>
 </tbody>
 </table>
-<h3 id="-langle-function-rangle-">&langle;function&rangle;</h3>
+<h3 id="function">&langle;function&rangle;</h3>
 <ul>
 <li><code>fn</code>: &langle;native-string&rangle;, the name of the function.</li>
 <li><code>arg</code>: &langle;expression&rangle; | array of &langle;expression&rangle;, the arguments to the function. If there's a single argument, it should be represented as an expression. If there's more than one, they should be represented as an array of expressions.</li>
@@ -894,7 +894,7 @@ cuts of those functions. The interpretation is left up to the consuming software
     openmathsymbol: &quot;hypergeo0#gamma&quot;,
     arg: 1
 }</code></pre><p>where <code>\u0393</code> is the Unicode character <code>GREEK CAPITAL LETTER GAMMA</code> Γ.</p>
-<h3 id="-langle-group-rangle-">&langle;group&rangle;</h3>
+<h3 id="group">&langle;group&rangle;</h3>
 <ul>
 <li><code>group</code>:  &langle;expression&rangle;</li>
 <li><code>sup</code>:    &langle;expression&rangle;</li>
@@ -903,7 +903,7 @@ cuts of those functions. The interpretation is left up to the consuming software
 </ul>
 <p>The <code>group</code> key is the only one required.</p>
 <p>This element is used when a <code>sup</code>, <code>sub</code> or <code>accent</code> needs to be applied to an expression, as in <code>(x+1)^2</code>.</p>
-<h3 id="-langle-range-rangle-">&langle;range&rangle;</h3>
+<h3 id="range">&langle;range&rangle;</h3>
 <ul>
 <li><code>range_start</code>: &langle;expression&rangle;</li>
 <li><code>range_end</code>: &langle;expression&rangle;</li>
@@ -911,14 +911,14 @@ cuts of those functions. The interpretation is left up to the consuming software
 <li><code>closure</code>: &quot;open&quot; | &quot;closed&quot; | &quot;open-closed&quot; | &quot;closed-open&quot;, default &quot;closed&quot;</li>
 </ul>
 <p>The <code>range_start</code> key is the only one required. If absent, <code>range_end</code> is assumed to be <code>infinity</code>. If absent, <code>range_step</code> is assumed to be <code>1</code>.</p>
-<h3 id="-langle-array-rangle-">&langle;array&rangle;</h3>
+<h3 id="array">&langle;array&rangle;</h3>
 <ul>
 <li><code>rows</code>: array of &langle;expression&rangle;</li>
 <li><code>fence</code>: &langle;native-string&rangle;</li>
 <li><code>index</code>: A 0-based index into the vector or array. An index can be a number or an array of numbers.</li>
 </ul>
 <p>The <code>rows</code> key is the only one required.</p>
-<h3 id="-langle-dictionary-rangle-">&langle;dictionary&rangle;</h3>
+<h3 id="dictionary">&langle;dictionary&rangle;</h3>
 <ul>
 <li><code>keys</code>: object mapping keys to values</li>
 </ul>
@@ -942,13 +942,13 @@ cuts of those functions. The interpretation is left up to the consuming software
 </tr>
 </tbody>
 </table>
-<h3 id="-langle-text-rangle-">&langle;text&rangle;</h3>
+<h3 id="text">&langle;text&rangle;</h3>
 <ul>
 <li><code>text</code>: &langle;native-string&rangle;</li>
 <li><code>format</code>: &quot;plain&quot; | &quot;markdown&quot; | &quot;html&quot;. This key is optional and its default value is <code>plain</code></li>
 </ul>
 <p>The <code>text</code> key is the only one required. </p>
-<h3 id="-langle-block-rangle-">&langle;block&rangle;</h3>
+<h3 id="block">&langle;block&rangle;</h3>
 <ul>
 <li><code>block</code>: array of &langle;expression&rangle;</li>
 <li><code>conditions</code>: array of &langle;expression&rangle;</li>
@@ -976,8 +976,8 @@ cuts of those functions. The interpretation is left up to the consuming software
 </ol>
 <h3 id="references">REFERENCES</h3>
 <ol>
-<li>https://www.json.org/</li>
-<li>http://www.openmath.org/cd</li>
+<li>https://<a href="http://www.json.org/">www.json.org/</a></li>
+<li>http://<a href="http://www.openmath.org/cd">www.openmath.org/cd</a></li>
 </ol>
 </article>
 

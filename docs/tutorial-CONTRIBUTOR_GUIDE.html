@@ -120,7 +120,8 @@ $ npm run clean
 # Clean, build, then transpile, minimize and bundle to `dist/`.
 # The `dist/` folder will contain the `.js`, `.css` and font files necessary to 
 # use MathLive. The `docs/` folder will also be updated.
-$ npm run dist</code></pre><p>During development, it is recommended that you keep the <code>npm run dev</code> 
+$ npm run dist
+</code></pre><p>During development, it is recommended that you keep the <code>npm run dev</code> 
 command running in a terminal window while you make the necessary changes
 to the source files of the project in your favorite editor. When you 
 save a file, if any problem with your code is detected (linting 
@@ -140,7 +141,8 @@ use the following commands:</p>
 $ npm version major | minor | patch |
 
 # Do a full build (code, docs, test), then publish the package to npmjs.com
-$ npm publish</code></pre><p><strong>Note on versioning</strong> Use the <a href="http://semver.org/">semver</a> convention for 
+$ npm publish
+</code></pre><p><strong>Note on versioning</strong> Use the <a href="http://semver.org/">semver</a> convention for 
 versions:</p>
 <ul>
 <li><code>npm version patch</code>: bug fixes and other minor changes. Last number of the 
@@ -352,7 +354,7 @@ edited (the math atom tree).</p>
 <h3 id="span">Span</h3>
 <p>A span is an object that is used to represent an element displayed in 
 a web page:
-a symbol such as <em>x</em> or <em>=</em>, an open brace, a line separating the numerator 
+a symbol such as _x_ or _=_, an open brace, a line separating the numerator 
 and denominator of a fraction, etc...</p>
 <p>The basic layout strategy is to calculate the vertical placement of the spans and 
 position them accordingly, while letting the HTML rendering engine position
@@ -365,12 +367,12 @@ displayed on the page.</p>
 of its graphical representation. </p>
 <p>It can be of one of the following types:</p>
 <ul>
-<li><strong>ord</strong>: ordinary symbol, e.g. <em>x</em>, <em>\alpha</em></li>
-<li><strong>bin</strong>: binary operator: <em>+</em>, <em>*</em>, etc...</li>
-<li><strong>rel</strong>: relational operator: <em>=</em>, <em>\ne</em>, etc...</li>
-<li><strong>punct</strong>: punctuation: <em>,</em>, <em>:</em>, etc...</li>
-<li><strong>open</strong>: opening fence: <em>(</em>, <em>\langle</em>, etc...</li>
-<li><strong>close</strong>: closing fence: <em>)</em>, <em>\rangle</em>, etc...</li>
+<li><strong>ord</strong>: ordinary symbol, e.g. _x_, <em>\alpha</em></li>
+<li><strong>bin</strong>: binary operator: _+_, _*_, etc...</li>
+<li><strong>rel</strong>: relational operator: _=_, <em>\ne</em>, etc...</li>
+<li><strong>punct</strong>: punctuation: _,_, _:_, etc...</li>
+<li><strong>open</strong>: opening fence: _(_, <em>\langle</em>, etc...</li>
+<li><strong>close</strong>: closing fence: _)_, <em>\rangle</em>, etc...</li>
 <li><strong>op</strong>: (big) operators, <em>\sum</em>, <em>\cap</em>.</li>
 <li><strong>inner</strong>: special layout cases, overlap</li>
 <li><strong>accent</strong>: a diacritic mark above a symbol</li>

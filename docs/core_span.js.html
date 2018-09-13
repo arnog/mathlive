@@ -341,13 +341,15 @@ function lastSpanType(span) {
 /**
  * Generate the HTML markup to represent this span.
  * 
- * @param {?number} - If a value is provided, it will be added (in ems) to the 
+ * @param {?number} hskip - If a value is provided, it will be added (in ems) to the 
  * left margin.
+ * @param {?number} hscale - If a value is provided, the margins are scaled by 
+ * this factor. 
  * @return {string} HTML markup
  * @method module:span.Span#toMarkup
  * @private
  */
-Span.prototype.toMarkup = function(hskip) {
+Span.prototype.toMarkup = function(hskip, hscale) {
     hskip = hskip || 0;
     let result = '';
     let body = this.body || '';
@@ -365,9 +367,10 @@ Span.prototype.toMarkup = function(hskip) {
                     } else {
                         spacing = (INTER_ATOM_SPACING[previousType + '+' + type] || 0) / 18;
                     }
+                    if (hscale) spacing = hscale * spacing;
                 }
             }
-            body += child.toMarkup(spacing);
+            body += child.toMarkup(spacing, hscale);
             previousType = lastSpanType(child);
         }
     }

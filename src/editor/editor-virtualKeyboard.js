@@ -1,18 +1,19 @@
 define([
-    'mathlive/core/definitions', 
+    
     'mathlive/core/mathAtom', 
     'mathlive/core/span', 
     'mathlive/core/lexer', 
     'mathlive/core/parser', 
     'mathlive/core/color', 
+    'mathlive/core/definitions', 
+    'mathlive/addons/outputLatex',
     'mathlive/editor/editor-popover', 
     'mathlive/editor/editor-keyboard', 
     'mathlive/editor/editor-shortcuts', 
-    'mathlive/addons/outputLatex'], 
-    function(Definitions, MathAtom, Span, Lexer, ParserModule, 
-        Color, Popover, Keyboard, Shortcuts, 
+    ], 
+    function(MathAtom, Span, Lexer, ParserModule, Color, 
 // eslint-disable-next-line no-unused-vars
-    OutputLatex) {
+    Definitions, OutputLatex, Popover, Keyboard, Shortcuts) {
 
 const KEYBOARDS = {
     'numeric': {
