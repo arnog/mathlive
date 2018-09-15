@@ -786,7 +786,7 @@ MathField.prototype.perform = function(command) {
         if (['delete_', 'transpose_', 'deleteToMathFieldEnd_',
             'deleteToGroupEnd_', 'deleteToGroupStart_', 'deletePreviousWord_',
             'deleteNextWord_', 'deletePreviousChar_', 'deleteNextChar_'].includes(selector)) {
-            this.undoManager.snapshot();
+            this.undoManager.snapshot(this.options);
         }
 
         this.mathlist[selector](...args);
@@ -794,7 +794,7 @@ MathField.prototype.perform = function(command) {
         handled = true;
     } else if (typeof this[selector] === 'function') {
         if (['complete_'].includes(selector)) {
-            this.undoManager.snapshot();
+            this.undoManager.snapshot(this.options);
         }
         
         dirty = this[selector](...args);
@@ -1013,7 +1013,7 @@ MathField.prototype._onTypedText = function(text, options) {
                     this.mathlist.insert(c);
 
                     // Create a snapshot with the inserted character
-                    this.undoManager.snapshot();
+                    this.undoManager.snapshot(this.options);
 
                     // Revert to before inserting the character
                     // (restore doesn't change the undo stack)
@@ -1040,7 +1040,7 @@ MathField.prototype._onTypedText = function(text, options) {
                     if (selector) {
                         this.perform(selector);
                     } else {
-                        this.undoManager.snapshot();
+                        this.undoManager.snapshot(this.options);
                         if (!this.mathlist._insertSmartFence(c)) {
                             this.mathlist.insert(c);
                         }
@@ -1335,7 +1335,7 @@ MathField.prototype.selectionAtEnd = function() {
  */
 MathField.prototype.latex = function(text) {
     if (text) {
-        this.undoManager.snapshot();
+        this.undoManager.snapshot(this.options);
         this.mathlist.insert(text, {
             insertionMode: 'replaceAll',
             selectionMode: 'after',
@@ -1405,7 +1405,7 @@ MathField.prototype.enterCommandMode_ = function() {
         this.switchKeyboardLayer_('lower-command');
     }
 
-    this.undoManager.snapshot();
+    this.undoManager.snapshot(this.options);
     this.mathlist.insert('\u001b');
     return true;
 }
@@ -1471,7 +1471,7 @@ MathField.prototype.insert = function(s, options) {
             }
             if (this.keypressSound) this.keypressSound.play();
         }
-        this.undoManager.snapshot();
+        this.undoManager.snapshot(this.options);
         this.mathlist.insert(s, options);
         return true;
     }
@@ -2121,7 +2121,7 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
 }
 
 MathField.prototype.applyStyle_ = function(style) {
-    this.undoManager.snapshot();
+    this.undoManager.snapshot(this.options);
     this.mathlist._applyStyle(style);
     return false;
 }

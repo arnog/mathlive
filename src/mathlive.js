@@ -305,6 +305,14 @@ function toMarkup(text, mathstyle, format, macros) {
  * @param {mathfieldCallback} [config.onSelectionDidChange] - A handler called 
  * just after the selection has been changed.
  *  
+ * @param {mathfieldCallback} [config.onUndoStateWillChange] - A handler called 
+ * before a change in the undo stack state. The single parameter is a string 
+ * indication what caused the state change: `undo`, `redo` or `snapshot`.
+ *  
+ * @param {mathfieldCallback} [config.onUndoStateDidChange] - A handler called 
+ * after a change in the undo stack state. The single parameter is a string 
+ * indication what caused the state change: `undo`, `redo` or `snapshot`.
+ *  
  * @param {mathfieldCallback} [config.onVirtualKeyboardToggle] - A handler  
  * called after the virtual keyboard visibility has changed. The first argument
  * is true if the virtual keyboard is visible, the second argument is a DOM

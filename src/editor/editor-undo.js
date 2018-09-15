@@ -48,8 +48,14 @@ UndoManager.prototype.canRedo = function() {
  */
 UndoManager.prototype.undo = function(options) {
     if (this.canUndo()) {
+        if (options && options.onUndoStateWillChange) {
+            options.onUndoStateWillChange('undo');
+        }
         this.restore(this.stack[this.index], options);
         this.index -= 1;
+        if (options && options.onUndoStateDidChange) {
+            options.onUndoStateDidChange('undo');
+        }
     }
 }
 
@@ -61,8 +67,14 @@ UndoManager.prototype.undo = function(options) {
  */
 UndoManager.prototype.redo = function(options) {
     if (this.canRedo()) {
+        if (options && options.onUndoStateWillChange) {
+            options.onUndoStateWillChange('redo');
+        }
         this.index += 1;
         this.restore(this.stack[this.index], options);
+        if (options && options.onUndoStateDidChange) {
+            options.onUndoStateDidChange('redo');
+        }
     }
 }
 
@@ -74,7 +86,10 @@ UndoManager.prototype.redo = function(options) {
  * @instance
  * @private
  */
-UndoManager.prototype.snapshot = function() {
+UndoManager.prototype.snapshot = function(options) {
+    if (options && options.onUndoStateWillChange) {
+        options.onUndoStateWillChange('snapshot');
+    }
     // Drop any entries that are part of the redo stack
     this.stack.splice(this.index + 1, this.stack.length - this.index - 1);
 
@@ -90,6 +105,9 @@ UndoManager.prototype.snapshot = function() {
     // oldest one.
     if (this.stack.length > this.maximumDepth) {
         this.stack.shift();
+    }
+    if (options && options.onUndoStateDidChange) {
+        options.onUndoStateDidChange('snapshot');
     }
 }
 
