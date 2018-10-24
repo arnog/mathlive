@@ -1472,7 +1472,14 @@ MathField.prototype.insert = function(s, options) {
             if (this.keypressSound) this.keypressSound.play();
         }
         this.undoManager.snapshot(this.options);
-        this.mathlist.insert(s, options);
+        if (s === '\\\\') {
+            // This string is interpreted as an "insert row after" command
+            this.mathlist.addRowAfter_();
+        } else if (s === '&') {
+            this.mathlist.addColumnAfter_();
+        } else {
+            this.mathlist.insert(s, options);
+        }
         return true;
     }
     return false;

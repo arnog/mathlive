@@ -295,6 +295,27 @@ EditableMathlist.prototype.setRange = function(from, to) {
     return this.setPath(commonAncestor, extent + 1);
 }
 
+/**
+ * Convert am array row/col into an array index.
+ * @param {MathAtom} atom 
+ * @param {*} rowCol 
+ * @return {number} 
+ */
+function arrayIndex(atom, rowCol) {
+    let result = 0;
+
+    if (Array.isArray(atom.array)) {
+        for (let i = 0; i < rowCol.row; i++) {
+            for (let j = 0; j < atom.array[i].length; j++) {
+                result += 1;
+            }
+        }
+        result += rowCol.col;
+    }
+
+    return result;
+}
+
 
 /**
  * Convert an array index (scalar) to an array row/col.
@@ -302,18 +323,20 @@ EditableMathlist.prototype.setRange = function(from, to) {
  * @param {number} index 
  */
 function arrayColRow(atom, index) {
-    let numCols = 1;
-    // 1. Figure out the number of columns
-    // (which is the most columns on any one row)
-    for (const row of atom.array) {
-        if (Array.isArray(row) && row.length > numCols) numCols = row.length;
+    const result = {row: 0, col: 0};
+    while (index > 0) {
+        result.col += 1;
+        if (!atom.array[result.row] || result.col >= atom.array[result.row].length) {
+            result.col = 0;
+            result.row += 1;
+        }
+        index -= 1;
     }
-    // 2. Calculate the row and col based on the number of columns
-    return {
-        row: Math.ceil((index + 1) / numCols) - 1, 
-        col: index % numCols
-    };
+
+    return result;
 }
+
+
 
 /**
  * Return the array cell corresponding to colrow or null (for example in 
@@ -2413,31 +2436,74 @@ EditableMathlist.prototype.moveAfterParent_ = function() {
     }
 }
 
+
+
+/**
+ * Internal primitive to add a column/row in a matrix
+ * @method EditableMathlist#_addCell
+ */
+EditableMathlist.prototype._addCell = function(where) {
+    // This command is only applicable if we're in an array
+    const parent = this.parent();
+    if (parent && parent.type === 'array' && Array.isArray(parent.array)) {
+        const relation = this.relation();
+        if (relation.startsWith('cell')) {
+            const colRow = arrayColRow(parent, 
+                parseInt(relation.match(/cell([0-9]*)$/)[1]));
+
+            if (where === 'after row' || 
+                where === 'before row') {
+                // Insert a row
+                colRow.col = 0;
+                colRow.row = colRow.row + (where === 'after row' ? 1 : 0);
+
+                parent.array.splice(colRow.row, 0, [[]]);
+            } else {
+                // Insert a column
+                colRow.col += (where === 'after column' ? 1 : 0);
+                parent.array[colRow.row].splice(colRow.col, 0, []);
+            }
+
+            const cellIndex = arrayIndex(parent, colRow);
+
+            this.selectionWillChange();
+            this.path.pop();
+            this.path.push({
+                    relation: 'cell' + cellIndex.toString(), 
+                    offset: 0});
+            this.insertFirstAtom();
+            this.selectionDidChange();
+        }
+    }
+}
+
+
+
 /**
  * @method EditableMathlist#addRowAfter_
  */
 EditableMathlist.prototype.addRowAfter_ = function() { 
-    // @todo
+    this._addCell('after row');
 }
 /**
  * @method EditableMathlist#addRowBefore_
  */
 EditableMathlist.prototype.addRowBefore_ = function() { 
-    // @todo
+    this._addCell('before row');
 }
 
 /**
  * @method EditableMathlist#addColumnAfter_
  */
 EditableMathlist.prototype.addColumnAfter_ = function() { 
-    // @todo
+    this._addCell('after column');
 }
 
 /**
  * @method EditableMathlist#addColumnBefore_
  */
 EditableMathlist.prototype.addColumnBefore_ = function() { 
-    // @todo
+    this._addCell('before column');
 }
 
 
