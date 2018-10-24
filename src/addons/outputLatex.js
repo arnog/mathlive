@@ -309,6 +309,11 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
         case 'msubsup':
             break;  
 
+        case 'error':
+            result += this.latex;
+            break;
+
+
         default:
             console.log('unknown atom type "' + this.type + '"');
             break;
