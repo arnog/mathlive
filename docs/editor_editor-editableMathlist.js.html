@@ -1011,7 +1011,7 @@ EditableMathlist.prototype.setSelection = function(offset, extent, relation) {
     if (offset &lt; 0) {
         offset = siblingsCount + offset;
     }
-    offset = Math.max(0, Math.min(offset, siblingsCount - 1));
+    offset = Math.max(0, Math.min(offset, siblingsCount));
 
     const oldOffset = this.path[this.path.length - 1].offset;
     const offsetChanged = oldOffset !== offset;
