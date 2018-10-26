@@ -1,51 +1,48 @@
 
 /**
- * 
- * The functions in this module are the main entry points to the MathLive 
+ *
+ * The functions in this module are the main entry points to the MathLive
  * public API.
- * 
+ *
  * To invoke these functions, use the global MathLive object. For example:
  * ```javascript
  * const markup = MathLive.toMarkup('e^{i\\pi}+1=0');
  * ```
- * 
+ *
  * @module mathlive
  */
 
-define([
-    'mathlive/core/lexer', 
-    'mathlive/core/mathAtom', 
-    'mathlive/core/parser', 
-    'mathlive/core/span', 
-    'mathlive/core/definitions',
-    'mathlive/editor/editor-mathfield',
-    'mathlive/addons/auto-render',
-    ], 
-    function(Lexer, MathAtom, ParserModule, Span, Definitions, MathField, AutoRender) {
+import Lexer from './core/lexer';
+import MathAtom from './core/mathAtom';
+import ParserModule from './core/parser';
+import Span from './core/span';
+import Definitions from './core/definitions';
+import MathField from './editor/editor-mathfield';
+import AutoRender from './addons/auto-render';
 
 /**
  * Convert a LaTeX string to a string of HTML markup.
- * 
- * @param {string} text A string of valid LaTeX. It does not have to start 
+ *
+ * @param {string} text A string of valid LaTeX. It does not have to start
  * with a mode token such as `$$` or `\(`.
- * 
+ *
  * @param {string} displayMode If `'displaystyle'` the "display" mode of TeX
- * is used to typeset the formula. Most appropriate for formulas that are 
+ * is used to typeset the formula. Most appropriate for formulas that are
  * displayed in a standalone block. If `'textstyle'` is used, the "text" mode
- * of TeX is used, which is most appropriate when displaying math "inline" 
+ * of TeX is used, which is most appropriate when displaying math "inline"
  * with other text.
- * 
- * @param {string} [format='html'] For debugging purposes, this function 
+ *
+ * @param {string} [format='html'] For debugging purposes, this function
  * can also return a text representation of internal data structures
  * used to construct the markup. Valid values include `'mathlist'` and `'span'`
- * 
+ *
  * @return {string}
  * @function module:mathlive#latexToMarkup
  */
 function toMarkup(text, mathstyle, format, macros) {
     mathstyle = mathstyle || 'displaystyle';
 
-    console.assert(/displaystyle|textstyle|scriptstyle|scriptscriptstyle/.test(mathstyle), 
+    console.assert(/displaystyle|textstyle|scriptstyle|scriptscriptstyle/.test(mathstyle),
         "Invalid style:", mathstyle);
 
     //
@@ -72,9 +69,9 @@ function toMarkup(text, mathstyle, format, macros) {
     let spans = MathAtom.decompose({mathstyle: mathstyle}, mathlist);
 
 
-    // 
+    //
     // 4. Simplify by coalescing adjacent nodes
-    //    for example, from <span>1</span><span>2</span> 
+    //    for example, from <span>1</span><span>2</span>
     //    to <span>12</span>
     //
     spans = Span.coalesce(spans);
@@ -94,12 +91,12 @@ function toMarkup(text, mathstyle, format, macros) {
         bottomStrut.setStyle('height', base.height + base.depth, 'em');
         bottomStrut.setStyle('vertical-align', -base.depth, 'em');
         struts.push(bottomStrut);
-    } 
+    }
     struts.push(base);
     const wrapper = Span.makeSpan(struts, 'ML__mathlive');
 
 
-    // 
+    //
     // 6. Generate markup
     //
 
@@ -120,80 +117,80 @@ function toMarkup(text, mathstyle, format, macros) {
 
 /**
  * Convert a DOM element into an editable math field.
- * 
- * @param {HTMLElement|string} element An HTML DOM element, for example as obtained 
+ *
+ * @param {HTMLElement|string} element An HTML DOM element, for example as obtained
  * by `.getElementById()` or a string representing the ID of a DOM element.
- * 
+ *
  * @param {Object<string, *>} [config]
- * 
- * @param {number} [config.horizontalSpacingScale=1.0] - Scaling factor to be 
- * applied to horizontal spacing between elements. 
- * 
+ *
+ * @param {number} [config.horizontalSpacingScale=1.0] - Scaling factor to be
+ * applied to horizontal spacing between elements.
+ *
  * @param {string} [config.namespace=''] - Namespace that is added to `data-`
  * attributes to avoid collisions with other libraries. It is empty by default.
  * The namespace should be a string of lowercase letters.
- * 
- * @param {function} [config.substituteTextArea] - A function that returns a 
+ *
+ * @param {function} [config.substituteTextArea] - A function that returns a
  * focusable element that can be used to capture text input. This can be
  * useful when a `<textarea>` element would be undesirable. Note that by default
  * on mobile devices the TextArea is automatically replaced with a `<span>` to
  * prevent the device virtual keyboard from being displayed.
- * 
- * @param {mathfieldCallback} [config.onFocus] - Invoked when the mathfield has 
+ *
+ * @param {mathfieldCallback} [config.onFocus] - Invoked when the mathfield has
  * gained focus
- * 
- * @param {mathfieldCallback} [config.onBlur] - Invoked when the mathfield has 
+ *
+ * @param {mathfieldCallback} [config.onBlur] - Invoked when the mathfield has
  * lost focus
- * 
+ *
  * @param {mathfieldCallback} [config.onKeystroke] - Invoked when a keystroke is
  * about to be processed. First argument is a string describing the keystroke,
  * the second is the keyboard event. Return false to stop handling of the event.
- * 
- * @param {boolean} [config.overrideDefaultInlineShortcuts=false] - If true 
+ *
+ * @param {boolean} [config.overrideDefaultInlineShortcuts=false] - If true
  * the default inline shortcuts (e.g. 'p' + 'i' = 'π') are ignored.
- * 
- * @param {Object.<string, string>} [config.inlineShortcuts] - A map of shortcuts → replacement 
- * value. For example `{ 'pi': '\\pi'}`. If `overrideDefaultInlineShortcuts` is 
- * false, these shortcuts are applied after any default ones, and can therefore 
+ *
+ * @param {Object.<string, string>} [config.inlineShortcuts] - A map of shortcuts → replacement
+ * value. For example `{ 'pi': '\\pi'}`. If `overrideDefaultInlineShortcuts` is
+ * false, these shortcuts are applied after any default ones, and can therefore
  * override them.
- * 
+ *
  * @param {boolean} [config.smartFence=true] - If true, when an open fence is
  * entered via `typedText()` it will generate a contextually appropriate markup,
- * for example using `\left...\right` if applicable. If false, the literal 
+ * for example using `\left...\right` if applicable. If false, the literal
  * value of the character will be inserted instead.
- * 
- * @param {string} [config.virtualKeyboardToggleGlyph] - If specified, the markup 
+ *
+ * @param {string} [config.virtualKeyboardToggleGlyph] - If specified, the markup
  * to be used to display the virtual keyboard toggle glyph.
- * 
- * @param {string} [config.virtualKeyboardMode=''] - If `'manual'`, pressing the 
+ *
+ * @param {string} [config.virtualKeyboardMode=''] - If `'manual'`, pressing the
  * command bar toggle will display a virtual keyboard instead of the command bar.
- * If `'onfocus'`, the virtual keyboard will be displayed whenever the field is 
- * focused. In that case, the command bar toggle is not displayed. 
- * When this setting is not empty, `config.overrideDefaultCommands` and 
+ * If `'onfocus'`, the virtual keyboard will be displayed whenever the field is
+ * focused. In that case, the command bar toggle is not displayed.
+ * When this setting is not empty, `config.overrideDefaultCommands` and
  * `config.commands` are ignored.
- * 
+ *
  * @param {string} [config.virtualKeyboards='all'] - A space separated list of
  * the keyboards that should be available. The keyboard `'all'` is synonym with:
- * 
+ *
  * * `'numeric'`, `'roman'`, `'greek'`, `'functions'` and `'command'`
- * 
+ *
  * The keyboards will be displayed in the order indicated.
- * 
- * @param {string} [config.virtualKeyboardRomanLayout='qwerty'] - The 
+ *
+ * @param {string} [config.virtualKeyboardRomanLayout='qwerty'] - The
  * arrangement of the keys for the layers of the roman virtual keyboard.
  * One of `'qwerty'`, `'azerty'`, '`qwertz'`, '`dvorak`' or '`colemak`'.
- * 
+ *
  * @param {Object} [config.customVirtualKeyboardLayers] - Some additional
- * custom virtual keyboard layers. A keyboard is made up of one or more 
+ * custom virtual keyboard layers. A keyboard is made up of one or more
  * layers (think of the main layer and the shift layer on a hardware keyboard).
- * Each key in this object define a new keyboard layer (or replace an existing 
+ * Each key in this object define a new keyboard layer (or replace an existing
  * one). The value of the key should be some HTML markup.
- * 
- * @param {Object} [config.customVirtualKeyboards] - An object describing 
+ *
+ * @param {Object} [config.customVirtualKeyboards] - An object describing
  * additional keyboards. Each key in the object is an ID for a separate keyboard.
  * The key should have a value made up of an object with the following keys:
  *    * tooltip: a string label describing the keyboard.
- *    * label: a string, displayed in the keyboard switcher to identify this 
+ *    * label: a string, displayed in the keyboard switcher to identify this
  *           keyboard
  *    * layers: an array of strings, the ID of the layers used by this keyboard.
  *     These layers should be defined using `customVirtualKeyboardLayers`.
@@ -201,139 +198,139 @@ function toMarkup(text, mathstyle, format, macros) {
  * Possible values are 'tex' to use a TeX font to display the label.
  *    * layer: optional, the ID of the layer to switch to when the label of this
  * keyboard is clicked on in the keyboard switcher.
- *    * command: optional, a selector to perform when the label is clicked. 
+ *    * command: optional, a selector to perform when the label is clicked.
  * Either the `command` or `layer` key must be present.
- * 
- * 
+ *
+ *
  * @param {boolean} [config.virtualKeyboardTheme=''] - The visual theme used
  * for the virtual keyboard. If empty, the theme will switch automatically
- * based on the device it's running on. The two supported themes are 
+ * based on the device it's running on. The two supported themes are
  * 'material' and 'apple' (the default).
- * 
- * @param {boolean} [config.keypressVibration='on'] When a key on the virtual 
+ *
+ * @param {boolean} [config.keypressVibration='on'] When a key on the virtual
  * keyboard is pressed, produce a short haptic feedback.
- * 
- * @param {boolean} [config.keypressSound=''] When a key on the virtual 
- * keyboard is pressed, produce a short audio feedback. The value should be 
+ *
+ * @param {boolean} [config.keypressSound=''] When a key on the virtual
+ * keyboard is pressed, produce a short audio feedback. The value should be
  * either a URL to a sound file or an object with the following keys:
  *    * `delete` URL to a sound file played when the delete key is pressed
  *    * `return` ... when the return/tab key is pressed
  *    * `spacebar` ... when the spacebar is pressed
- *    * `default` ... when any other key is pressed. This key is required, the 
+ *    * `default` ... when any other key is pressed. This key is required, the
  * others are optional. If they are missing, this sound is played as well.
- * 
+ *
  * @param {string} [config.plonkSound=''] Path to a URL to a sound file
  * which will be played to provide feedback when a command has no effect,
  * for example when pressing the spacebar at the root level.
- * 
- * @param {string} [config.textToSpeechRules='mathlive'] Specify which 
- * set of text to speech rules to use. A value of `mathlive` indicates that 
+ *
+ * @param {string} [config.textToSpeechRules='mathlive'] Specify which
+ * set of text to speech rules to use. A value of `mathlive` indicates that
  * the simple rules built into MathLive should be used. A value of `sre`
- * indicates that the Speech Rule Engine from Volker Sorge should be used. 
+ * indicates that the Speech Rule Engine from Volker Sorge should be used.
  * Note that SRE is not included or loaded by MathLive and for this option to
- * work SRE should be loaded separately. 
- * 
- * @param {string} [config.textToSpeechMarkup=''] The markup syntax to use 
- * for the output of conversion to spoken text. Possible values are `ssml` for 
+ * work SRE should be loaded separately.
+ *
+ * @param {string} [config.textToSpeechMarkup=''] The markup syntax to use
+ * for the output of conversion to spoken text. Possible values are `ssml` for
  * the SSML markup or `mac` for the MacOS markup (e.g. `[[ltr]]`)
- * 
+ *
  * @param {*} [config.textToSpeechRulesOptions={}] A set of value/pair that can
  * be used to configure the speech rule engine. Which options are available
  * depends on the speech rule engine in use. There are no options available with
- * MathLive's built-in engine. The options for the SRE engine are documented 
+ * MathLive's built-in engine. The options for the SRE engine are documented
  * [here]{@link:https://github.com/zorkow/speech-rule-engine}
- * 
+ *
  * @param {string} [config.speechEngine='local'] Indicates which speech engine
  * to use for speech output. Use `local` to use the OS-specific TTS engine.
- * Use `amazon` for Amazon Text-to-Speech cloud API. You must include the AWS 
- * API library and configure it with your API key before use. See the 'speech' 
+ * Use `amazon` for Amazon Text-to-Speech cloud API. You must include the AWS
+ * API library and configure it with your API key before use. See the 'speech'
  * example project for more details.
- * 
+ *
  * @param {string} [config.speechEngineVoice=''] Indicates the voice to use with
- *  the speech engine. This is dependent on the speech engine. For Amazon Polly, 
+ *  the speech engine. This is dependent on the speech engine. For Amazon Polly,
  * see here: https://docs.aws.amazon.com/polly/latest/dg/voicelist.html
- * 
- * @param {string} [config.speechEngineRate=''] Sets the speed of the selected 
+ *
+ * @param {string} [config.speechEngineRate=''] Sets the speed of the selected
  * voice. One of `x-slow, slow, medium, fast,x-fast` or a value as a percentage.
  * For example `200%` to indicate a speaking rate twice the default rate. Range
  * is `20%` to `200%`
- * 
- * @param {mathfieldWithDirectionCallback} [config.onMoveOutOf] - A handler 
+ *
+ * @param {mathfieldWithDirectionCallback} [config.onMoveOutOf] - A handler
  * called when keyboard navigation would cause the insertion point to leave the
  * mathfield.
- * 
+ *
  * By default, the insertion point will wrap around.
- * 
- * @param {mathfieldWithDirectionCallback} [config.onTabOutOf] - A handler called when 
+ *
+ * @param {mathfieldWithDirectionCallback} [config.onTabOutOf] - A handler called when
  * pressing tab (or shift-tab) would cause the insertion point to leave the mathfield.
- * 
+ *
  * By default, the insertion point jumps to the next point of interest.
- * 
- * @param {mathfieldWithDirectionCallback} [config.onDeleteOutOf] - A handler called when 
+ *
+ * @param {mathfieldWithDirectionCallback} [config.onDeleteOutOf] - A handler called when
  * deleting an item would cause the insertion point to leave the mathfield.
- * 
+ *
  * By default, nothing happens. @todo Not implemented yet.
- * 
- * @param {mathfieldWithDirectionCallback} [config.onSelectOutOf] - A handler called when 
- * the selection is extended so that it would cause the insertion point to 
+ *
+ * @param {mathfieldWithDirectionCallback} [config.onSelectOutOf] - A handler called when
+ * the selection is extended so that it would cause the insertion point to
  * leave the mathfield.
- * 
+ *
  * By default, nothing happens. @todo Not implemented yet.
- * 
- * @param {mathfieldCallback} [config.onUpOutOf] - A handler called when 
+ *
+ * @param {mathfieldCallback} [config.onUpOutOf] - A handler called when
  * the up arrow key is pressed with no element to navigate to.
- * 
+ *
  * By default, nothing happens. @todo Not implemented yet.
- * 
- * @param {mathfieldCallback} [config.onDownOutOf] - A handler called when 
+ *
+ * @param {mathfieldCallback} [config.onDownOutOf] - A handler called when
  * the up down key is pressed with no element to navigate to.
- * 
+ *
  * By default, nothing happens. @todo Not implemented yet.
- * 
- * @param {mathfieldCallback} [config.onEnter] - A handler called when 
+ *
+ * @param {mathfieldCallback} [config.onEnter] - A handler called when
  * the enter/return key is pressed and it is not otherwise handled. @todo
- * 
- * @param {mathfieldCallback} [config.onContentWillChange] - A handler called 
+ *
+ * @param {mathfieldCallback} [config.onContentWillChange] - A handler called
  * just before the content is about to be changed.
- * 
- * @param {mathfieldCallback} [config.onContentDidChange] - A handler called 
+ *
+ * @param {mathfieldCallback} [config.onContentDidChange] - A handler called
  * just after the content has been changed.
- * 
- * @param {mathfieldCallback} [config.onSelectionWillChange] - A handler called 
+ *
+ * @param {mathfieldCallback} [config.onSelectionWillChange] - A handler called
  * just before the selection is about to be changed.
- * 
- * @param {mathfieldCallback} [config.onSelectionDidChange] - A handler called 
+ *
+ * @param {mathfieldCallback} [config.onSelectionDidChange] - A handler called
  * just after the selection has been changed.
- *  
- * @param {mathfieldCallback} [config.onUndoStateWillChange] - A handler called 
- * before a change in the undo stack state. The single parameter is a string 
+ *
+ * @param {mathfieldCallback} [config.onUndoStateWillChange] - A handler called
+ * before a change in the undo stack state. The single parameter is a string
  * indication what caused the state change: `undo`, `redo` or `snapshot`.
- *  
- * @param {mathfieldCallback} [config.onUndoStateDidChange] - A handler called 
- * after a change in the undo stack state. The single parameter is a string 
+ *
+ * @param {mathfieldCallback} [config.onUndoStateDidChange] - A handler called
+ * after a change in the undo stack state. The single parameter is a string
  * indication what caused the state change: `undo`, `redo` or `snapshot`.
- *  
- * @param {mathfieldCallback} [config.onVirtualKeyboardToggle] - A handler  
+ *
+ * @param {mathfieldCallback} [config.onVirtualKeyboardToggle] - A handler
  * called after the virtual keyboard visibility has changed. The first argument
  * is true if the virtual keyboard is visible, the second argument is a DOM
  * element containing the virtual keyboard, which can be used to determine its
- * size (and therefore the portion of the screen it obscures) 
- *  
- * @param {mathfieldCallback} [config.onReadAloudStatus] - A handler called 
+ * size (and therefore the portion of the screen it obscures)
+ *
+ * @param {mathfieldCallback} [config.onReadAloudStatus] - A handler called
  * when the status of read aloud changes. The first argument is a string denoting
- * the status, one of `playing` sent when reading begins, `done` when reading 
- * has been completed, `paused` when reading has been temporarily paused by the 
+ * the status, one of `playing` sent when reading begins, `done` when reading
+ * has been completed, `paused` when reading has been temporarily paused by the
  * user.
- *  
- * @param {*} [config.handleSpeak] - A callback invoked to produce speech from 
+ *
+ * @param {*} [config.handleSpeak] - A callback invoked to produce speech from
  * a string.
- * 
- * @param {*} [config.handleReadAloud] - A callback invoked to produce speech 
+ *
+ * @param {*} [config.handleReadAloud] - A callback invoked to produce speech
  * and highlight the relevant atoms in an equation. The input is SSML markup
  * with appropriate `<mark>` tags.
- * 
+ *
  * @return {MathField}
- * 
+ *
  * @function module:mathlive#makeMathField
  */
 function makeMathField(element, config) {
@@ -360,7 +357,7 @@ function toSpeakableText(atoms, options) {
 
 /**
  * Convert a LaTeX string to a string of MathML markup.
- * 
+ *
  * @param {string} latex A string of valid LaTeX. It does not have to start
  * with a mode token such as a `$$` or `\(`.
  * @param {object} options
@@ -386,12 +383,12 @@ function toMathML(latex, options) {
 
 /**
  * Convert a LaTeX string to an Abstract Syntax Tree
- * 
+ *
  * **See:** {@tutorial MASTON}
- * 
+ *
  * @param {string} latex A string of valid LaTeX. It does not have to start
  * with a mode token such as a `$$` or `\(`.
- * 
+ *
  * @return {Object} The Abstract Syntax Tree as a JavaScript object.
  * @function module:mathlive#latexToAST
  */
@@ -403,7 +400,7 @@ function latexToAST(latex, options) {
     options = options || {macros:{}};
     Object.assign(options.macros, Definitions.MACROS);
 
-    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex), 
+    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex),
         'math', null, options.macros);
 
     return MathAtom.toAST(mathlist, options);
@@ -422,9 +419,9 @@ function removeHighlight(node) {
 /**
  * Highlight the span corresponding to the specified atomID
  * This is used for TTS with synchronized highlighting (read aloud)
- * 
- * @param {string} atomID 
- * 
+ *
+ * @param {string} atomID
+ *
  */
 function highlightAtomID(node, atomID) {
     if (!atomID || node.dataset.atomId === atomID) {
@@ -494,7 +491,7 @@ function speak(text, config) {
     } else if (config.speechEngine === 'google') {
         console.log('The Google speech engine is not supported yet. Please come again.');
         // @todo: implement support for Google Text-to-Speech API,
-        // using config.speechEngineToken, config.speechEngineVoice and 
+        // using config.speechEngineToken, config.speechEngineVoice and
         // config.speechEngineAudioConfig
 
 // curl -H "Authorization: Bearer "$(gcloud auth application-default print-access-token) \
@@ -519,10 +516,10 @@ function speak(text, config) {
 
 /**
  * Start a Read Aloud operation (reading with synchronized highlighting.
- * 
+ *
  * @param {DOMElement} element - The DOM element to highlight
  * @param {string} text - The text to speak
- * @param {object} config 
+ * @param {object} config
  * @function module:mathlive#readAloud
  */
 function readAloud(element, text, config) {
@@ -646,7 +643,7 @@ function readAloud(element, text, config) {
 }
 
 /**
- * Return the status of a Read Aloud operation (reading with synchronized 
+ * Return the status of a Read Aloud operation (reading with synchronized
  * highlighting). Possible values include:
  * - `ready`
  * - `playing`
@@ -696,9 +693,9 @@ function resumeReadAloud() {
 
 /**
  * If a Read Aloud operation is in progress, read from a specified token
- * 
- * @param {string} token 
- * @param {number?} count 
+ *
+ * @param {string} token
+ * @param {number?} count
  * @function module:mathlive#playReadAloud
  */
 function playReadAloud(token, count) {
@@ -732,12 +729,12 @@ function playReadAloud(token, count) {
 
 
 /**
- * Transform all the elements in the document body that contain LaTeX code 
+ * Transform all the elements in the document body that contain LaTeX code
  * into typeset math.
- * 
+ *
  * **See:** {@tutorial USAGE_GUIDE}
- * 
- * @param {Object} [options] See [`renderMathInElement()`]{@link module:mathlive#renderMathInElement} 
+ *
+ * @param {Object} [options] See [`renderMathInElement()`]{@link module:mathlive#renderMathInElement}
  * for details
  * @function module:mathlive#renderMathInDocument
  */
@@ -769,42 +766,42 @@ function getElement(element) {
 }
 
 /**
- * Transform all the children of `element`, recursively, that contain LaTeX code 
+ * Transform all the children of `element`, recursively, that contain LaTeX code
  * into typeset math.
- * 
+ *
  * **See:** {@tutorial USAGE_GUIDE}
- * 
+ *
  * @param {Element|string} element An HTML DOM element, or a string containing
  * the ID of an element.
  * @param {Object} [options]
- * 
+ *
  * @param {string} [options.namespace=''] - Namespace that is added to `data-`
  * attributes to avoid collisions with other libraries. It is empty by default.
  * The namespace should be a string of lowercase letters.
  * @param {object[]} [options.macros={}] - Custom macros
  * @param {string[]} options.skipTags an array of tag names whose content will
  *  not be scanned for delimiters
- * @param {string} [options.ignoreClass='tex2jax_ignore'] a string used as a 
- * regular expression of class names of elements whose content will not be 
+ * @param {string} [options.ignoreClass='tex2jax_ignore'] a string used as a
+ * regular expression of class names of elements whose content will not be
  * scanned for delimiters
  * @param {string} [options.processClass='tex2jax_process']   a string used as a
- * regular expression of class names of elements whose content **will** be 
- * scanned for delimiters,  even if their tag name or parent class name would 
+ * regular expression of class names of elements whose content **will** be
+ * scanned for delimiters,  even if their tag name or parent class name would
  * have prevented them from doing so.
- * @param {boolean} [options.preserveOriginalContent=true] if true, store the 
- * original textual content of the element in a `data-original-content` 
- * attribute. This value can be accessed for example to restore the element to 
+ * @param {boolean} [options.preserveOriginalContent=true] if true, store the
+ * original textual content of the element in a `data-original-content`
+ * attribute. This value can be accessed for example to restore the element to
  * its original value:
  * ```javascript
  *      elem.innerHTML = elem.dataset.originalContent;
  * ```
  * @param {boolean} [options.readAloud=false] if true, generate markup that can
  * be read aloud later using MathLive.readAloud()
- * @param {boolean} options.TeX.processEnvironments if false, math expression 
+ * @param {boolean} options.TeX.processEnvironments if false, math expression
  * that start with `\begin{` will not automatically be rendered. (true by default)
  * @param {Array} options.TeX.delimiters.inline
- * @param {Array} options.TeX.delimiters.display `TeX.delimiters.display` arrays 
- * of delimiters that will trigger a render of the content in 'textstyle' or 
+ * @param {Array} options.TeX.delimiters.display `TeX.delimiters.display` arrays
+ * of delimiters that will trigger a render of the content in 'textstyle' or
  * 'displaystyle', respectively.
  * @function module:mathlive#renderMathInElement
  */
@@ -830,17 +827,17 @@ function validateNamespace(options) {
 }
 
 /**
- * 
- * @param {string|Element|MathField} element 
+ *
+ * @param {string|Element|MathField} element
  * @param {Object} [options={}]
- * @param {string} options.namespace The namespace used for the `data-` 
+ * @param {string} options.namespace The namespace used for the `data-`
  * attributes. If you used a namespace with `renderMathInElement`, you must
  * use the same namespace here.
  * @function module:mathlive#revertToOriginalContent
  */
 function revertToOriginalContent(element, options) {
     element = getElement(element);
-    
+
     // element is a pair: accessible span, math -- set it to the math part
     element = element.children[1];
 
@@ -848,8 +845,8 @@ function revertToOriginalContent(element, options) {
         element.revertToOriginalContent();
     } else {
         options = options || {};
-        validateNamespace(options); 
-        element.innerHTML = element.getAttribute('data-' + 
+        validateNamespace(options);
+        element.innerHTML = element.getAttribute('data-' +
             (options.namespace || '') + 'original-content');
     }
 }
@@ -857,10 +854,10 @@ function revertToOriginalContent(element, options) {
 
 
 /**
- * 
- * @param {string|Element|MathField} element 
+ *
+ * @param {string|Element|MathField} element
  * @param {Object} [options={}]
- * @param {string} options.namespace The namespace used for the `data-` 
+ * @param {string} options.namespace The namespace used for the `data-`
  * attributes. If you used a namespace with `renderMathInElement`, you must
  * use the same namespace here.
  * @return {string} the original content of the element.
@@ -876,13 +873,13 @@ function getOriginalContent(element, options) {
         return element.originalContent;
     }
     options = options || {};
-    validateNamespace(options); 
-    return element.getAttribute('data-' + 
+    validateNamespace(options);
+    return element.getAttribute('data-' +
         (options.namespace || '') + 'original-content');
 }
 
 
-return {
+export default {
     latexToMarkup: toMarkup,
     latexToSpeakableText: toSpeakableText,
     latexToMathML: toMathML,
@@ -900,4 +897,4 @@ return {
 }
 
 
-})
+

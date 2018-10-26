@@ -44,20 +44,20 @@
 
 
 /**
- * This module contains the definitions of all the symbols and commands, for 
+ * This module contains the definitions of all the symbols and commands, for
  * example `\alpha`, `\sin`, `\mathrm`.
  * There are a few exceptions with some "built-in" commands that require
  * special parsing such as `\char`.
  * @module definitions
  * @private
  */
-define(['mathlive/core/fontMetrics'], function(FontMetrics) {
+import FontMetrics from './fontMetrics';
 
 
 
 
 /**
- * To organize the symbols when generating the documentation, we 
+ * To organize the symbols when generating the documentation, we
  * keep track of a category that gets assigned to each symbol.
  * @private
  */
@@ -111,7 +111,7 @@ const RIGHT_DELIM = {
 
 
 // Frequency of a symbol.
-// String constants corresponding to frequency values, 
+// String constants corresponding to frequency values,
 // which are the number of results returned by latexsearch.com
 // When the precise number is known, it is provided. Otherwise,
 // the following constants are used to denote an estimate.
@@ -144,7 +144,7 @@ const FREQUENCY_VALUE = {
  * The argument list is a frequency value, followed by one or more symbol strings
  * For example:
  *  frequency(COMMON , '\\sin', '\\cos')
- * @param {string|number} value The frequency as a string constant, 
+ * @param {string|number} value The frequency as a string constant,
  * or a numeric value [0...2000]
  * @param {?}
  * @memberof module:definitions
@@ -172,22 +172,22 @@ function frequency(value, ...symbols) {
 
 
 /**
- * 
+ *
  * @param {string} latexName    The common LaTeX command for this symbol
- * @param {(string|string[])} mode         
- * @param {string} fontFamily 
- * @param {string} type 
- * @param {string} value 
+ * @param {(string|string[])} mode
+ * @param {string} fontFamily
+ * @param {string} type
+ * @param {string} value
  * @param {(number|string)} [frequency]
  * @memberof module:definitions
  * @private
  */
 function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
-    
+
     console.assert(fontFamily === 'main' || fontFamily === 'ams' ||
-        fontFamily === 'mathrm' || fontFamily === 'mathbb' || 
-        fontFamily === 'mathfrak' || fontFamily === 'mathcal' || 
-        fontFamily === 'mathscr' || 
+        fontFamily === 'mathrm' || fontFamily === 'mathbb' ||
+        fontFamily === 'mathfrak' || fontFamily === 'mathcal' ||
+        fontFamily === 'mathscr' ||
         Array.isArray(fontFamily),
         "Unknown font family " + fontFamily + " for " + latexName);
 
@@ -200,7 +200,7 @@ function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
             category: category,         // To group items when generating the documentation
             fontFamily: fontFamily,
             type: type === ORD ? TEXTORD : type,
-            skipBoundary: true, 
+            skipBoundary: true,
             body: value,
             frequency: frequency
         };
@@ -211,7 +211,7 @@ function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
             category: category,         // To group items when generating the documentation
             fontFamily: fontFamily,
             type: type === ORD ? MATHORD : type,
-            skipBoundary: true, 
+            skipBoundary: true,
             value: value,
             frequency: frequency
         };
@@ -229,10 +229,10 @@ function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
  * Define a set of single-character symbols and all their attributes.
  * The value associated with the symbol is the symbol itself.
  * @param {string} string a string of single character symbols
- * @param {string} mode 
- * @param {string} fontFamily 
- * @param {string} type 
- * @param {(string|number)} [frequency] 
+ * @param {string} mode
+ * @param {string} fontFamily
+ * @param {string} type
+ * @param {(string|number)} [frequency]
  * @memberof module:definitions
  * @private
  */
@@ -247,10 +247,10 @@ function defineSymbols(string, mode, fontFamily, type, frequency) {
  * Define a set of single-character symbols as a range of Unicode codepoints
  * @param {number} from First Unicode codepoint
  * @param {number} to Last Unicode codepoint
- * @param {string} mode 
- * @param {string} fontFamily 
- * @param {string} type 
- * @param {(string|number)} [frequency] 
+ * @param {string} mode
+ * @param {string} fontFamily
+ * @param {string} type
+ * @param {(string|number)} [frequency]
  * @memberof module:definitions
  * @private
  */
@@ -262,7 +262,7 @@ function defineSymbolRange(from, to, mode, fontFamily, type, frequency) {
 }
 
 
-const CODEPOINT_SHORTCUTS = { 
+const CODEPOINT_SHORTCUTS = {
     0x00b7: '\\cdot',
     0x00bc: '\\frac{1}{4}',
     0x00bd: '\\frac{1}{2}',
@@ -312,7 +312,7 @@ const CODEPOINT_SHORTCUTS = {
  * Given a character, return a LaTeX expression matching its Unicode codepoint.
  * The return string is in the ASCII range.
  * If there is a matching symbol (e.g. \alpha) it is returned.
- * If there is no matching symbol and it is outside the ASCII range, an 
+ * If there is no matching symbol and it is outside the ASCII range, an
  * expression with \char is returned.
  * @param {string} s
  * @return {string}
@@ -322,7 +322,7 @@ const CODEPOINT_SHORTCUTS = {
 function matchCodepoint(s) {
     const codepoint = s.codePointAt(0);
 
-    // Some symbols map to multiple codepoints. 
+    // Some symbols map to multiple codepoints.
     // Some symbols are 'pseudosuperscript'. Convert them to a super(or sub)script.
     // Map their alternative codepoints here.
     let result = CODEPOINT_SHORTCUTS[s];
@@ -342,7 +342,7 @@ function matchCodepoint(s) {
     // No symbol was found, return a \char command
     if (!result) {
         if (codepoint < 32 || codepoint >= 127) {
-            result = '\\char"' + 
+            result = '\\char"' +
                     ('000000' + codepoint.toString(16)).toUpperCase().substr(-6)
         } else {
             result = s;
@@ -354,15 +354,15 @@ function matchCodepoint(s) {
 
 
 /**
- * Given a Unicode character returns {char:, variant:, style} corresponding 
- * to this codepoint. `variant` is optional and is one of 'mathbb', 
+ * Given a Unicode character returns {char:, variant:, style} corresponding
+ * to this codepoint. `variant` is optional and is one of 'mathbb',
  * 'mathfrak', 'mathcal', 'mathscr', 'mathsf' and 'mathtt'
- * This maps characters such as "blackboard uppercase C" to 
+ * This maps characters such as "blackboard uppercase C" to
  * {char: 'C', variant: 'mathbb', style:}
- * @param {string} char 
+ * @param {string} char
  */
 
-/* Some symbols in the MATHEMATICAL ALPHANUMERICAL SYMBOLS blocked had 
+/* Some symbols in the MATHEMATICAL ALPHANUMERICAL SYMBOLS blocked had
    been previously defined in other blocks. Remap them */
 const MATH_LETTER_EXCEPTIONS = {
     0x1d455: 0x0210e,
@@ -409,7 +409,7 @@ const MATH_UNICODE_BLOCKS = [
     { start: 0x1D51e, len: 26, offset: 97, variant: 'mathfrak'},
     { start: 0x1D56c, len: 26, offset: 65, variant: 'mathfrak', style: 'bold'},
     { start: 0x1D586, len: 26, offset: 97, variant: 'mathfrak', style: 'bold'},
- 
+
     { start: 0x1D538, len: 26, offset: 65, variant: 'mathbb'},
     { start: 0x1D552, len: 26, offset: 97, variant: 'mathbb'},
 
@@ -421,7 +421,7 @@ const MATH_UNICODE_BLOCKS = [
     { start: 0x1D622, len: 26, offset: 97, variant: 'mathsf', style: 'italic'},
     { start: 0x1D63c, len: 26, offset: 65, variant: 'mathsf', style: 'bolditalic'},
     { start: 0x1D656, len: 26, offset: 97, variant: 'mathsf', style: 'bolditalic'},
-    
+
     { start: 0x1D670, len: 26, offset: 65, variant: 'mathtt'},
     { start: 0x1D68A, len: 26, offset: 97, variant: 'mathtt'},
 
@@ -465,7 +465,7 @@ function unicodeToMathVariant(char) {
 
 
     for (let i = 0; i < MATH_UNICODE_BLOCKS.length; i++) {
-        if (codepoint >= MATH_UNICODE_BLOCKS[i].start && 
+        if (codepoint >= MATH_UNICODE_BLOCKS[i].start &&
             codepoint < MATH_UNICODE_BLOCKS[i].start + MATH_UNICODE_BLOCKS[i].len) {
                 return {
                     char: String.fromCodePoint(codepoint - MATH_UNICODE_BLOCKS[i].start + MATH_UNICODE_BLOCKS[i].offset),
@@ -479,23 +479,23 @@ function unicodeToMathVariant(char) {
 }
 
 /**
- * Given a character and variant ('mathbb', 'mathcal', etc...) 
+ * Given a character and variant ('mathbb', 'mathcal', etc...)
  * return the corresponding unicode character (a string)
- * @param {string} char 
- * @param {string} variant 
+ * @param {string} char
+ * @param {string} variant
  */
 function mathVariantToUnicode(char, variant, style) {
     if (!/[A-Za-z0-9]/.test(char)) return char;
 
     const codepoint = char.codePointAt(0);
-    
+
     for (let i = 0; i < MATH_UNICODE_BLOCKS.length; i++) {
         if (!variant || MATH_UNICODE_BLOCKS[i].variant === variant) {
             if (!style || MATH_UNICODE_BLOCKS[i].style === style) {
-                if (codepoint >= MATH_UNICODE_BLOCKS[i].offset && 
+                if (codepoint >= MATH_UNICODE_BLOCKS[i].offset &&
                     codepoint < MATH_UNICODE_BLOCKS[i].offset + MATH_UNICODE_BLOCKS[i].len) {
                         return String.fromCodePoint(
-                                MATH_UNICODE_BLOCKS[i].start + 
+                                MATH_UNICODE_BLOCKS[i].start +
                                 codepoint - MATH_UNICODE_BLOCKS[i].offset);
                 }
             }
@@ -551,9 +551,9 @@ function unicodeStringToLatex(s) {
 
 
 /**
- * 
- * @param {string} mode 
- * @param {string} s 
+ *
+ * @param {string} mode
+ * @param {string} s
  * @return {Object}
  * @memberof module:definitions
  * @private
@@ -613,7 +613,7 @@ function matchSymbol(mode, s) {
 
 function getFontName(mode, symbol) {
     const a = mode === 'math' ? MATH_SYMBOLS : TEXT_SYMBOLS;
-    return a[symbol] && a[symbol].fontFamily === 'ams' ? 
+    return a[symbol] && a[symbol].fontFamily === 'ams' ?
         'AMS-Regular' : 'Main-Regular';
 }
 
@@ -634,7 +634,7 @@ function getEnvironmentInfo(name) {
             colFormat: [],
             leftFence: '.',
             rightFence: '.',
-            // arrayStretch: 1,            
+            // arrayStretch: 1,
         };
     }
     return result;
@@ -663,7 +663,7 @@ function getInfo(symbol, parseMode, macros) {
             // That's a valid function, but it's not allowed in non-math mode,
             // and we're in non-math mode
             return null;
-        } 
+        }
 
         if (!info) {
             // It wasn't a function, maybe it's a symbol?
@@ -710,7 +710,7 @@ function getInfo(symbol, parseMode, macros) {
 
         if (!info) {
             // No luck so far, return some error info...
-            info = { 
+            info = {
                     type: 'error',
                     params: [],
                     allowedInText: false,
@@ -738,7 +738,7 @@ function getInfo(symbol, parseMode, macros) {
  * Return an array of suggestion for completing string 's'.
  * For example, for 'si', it could return ['sin', 'sinh', 'sim', 'simeq', 'sigma']
  * Infix operators are excluded, since they are deprecated commands.
- * @param {string} s 
+ * @param {string} s
  * @return {string[]}
  * @memberof module:definitions
  * @private
@@ -763,13 +763,13 @@ function suggest(s) {
         }
     }
 
-    result.sort( function(a, b) { 
+    result.sort( function(a, b) {
         if (a.frequency === b.frequency) {
             return b.match.length - a.match.length;
         }
         return (b.frequency || 0) - (a.frequency || 0);
     });
-    
+
     return result;
 }
 
@@ -813,18 +813,18 @@ const COMMANDLITERAL = 'command'; // Not in TeX. Values in a command sequence (e
 
 /**
  * An argument template has the following syntax:
- * 
+ *
  * <placeholder>:<type>=<default>
- * 
+ *
  * where
  * - <placeholder> is a string whose value is displayed when the argument
  *   is missing
  * - <type> is one of 'string', 'color', 'dimen', 'auto', 'text', 'math'
  * - <default> is the default value if none is provided for an optional
  * parameter
- * 
- * @param {string} argTemplate 
- * @param {boolean} isOptional 
+ *
+ * @param {string} argTemplate
+ * @param {boolean} isOptional
  * @memberof module:definitions
  * @private
  */
@@ -835,7 +835,7 @@ function parseParamTemplateArgument(argTemplate, isOptional) {
     let placeholder = null;
 
     if (r) {
-        console.assert(isOptional, 
+        console.assert(isOptional,
             "Can't provide a default value for required parameters");
         defaultValue = r[1];
     }
@@ -883,14 +883,14 @@ function parseParamTemplate(paramTemplate) {
 }
 
 /**
- * Define one or more environments to be used with 
+ * Define one or more environments to be used with
  *         \begin{<env-name>}...\end{<env-name>}.
- * 
- * @param {string|string[]} names 
- * @param {string} params The number and type of required and optional parameters. 
- * @param {Object} options   
- * - 
- * @param {function(*)} parser 
+ *
+ * @param {string|string[]} names
+ * @param {string} params The number and type of required and optional parameters.
+ * @param {Object} options
+ * -
+ * @param {function(*)} parser
  * @memberof module:definitions
  * @private
  */
@@ -898,7 +898,7 @@ function defineEnvironment(names, params, options, parser) {
     if (typeof names === 'string') names = [names];
     if (!options) options = {};
     const parsedParams = parseParamTemplate(params);
-    
+
     // Set default values of functions
     const data = {
         // 'category' is a global variable keeping track of the
@@ -926,16 +926,16 @@ function defineEnvironment(names, params, options, parser) {
 
 /**
  * Define one of more functions.
- * 
- * @param {string|string[]} names 
- * @param {string} params The number and type of required and optional parameters. 
+ *
+ * @param {string|string[]} names
+ * @param {string} params The number and type of required and optional parameters.
  * For example: '{}' defines a single mandatory parameter
  * '[index=2]{indicand}' defines two params, one optional, one required
- 
- * @param {Object} options   
+
+ * @param {Object} options
  * - infix
  * - allowedInText
- * @param {function} handler 
+ * @param {function} handler
  * @memberof module:definitions
  * @private
  */
@@ -979,12 +979,12 @@ category = 'Environments';
 <column> ::= <line>('l'|'c'|'r')
 <line> ::= '|' | '||' | ''
 
-'math', 
+'math',
                 frequency 0
-'displaymath', 
+'displaymath',
                 frequency 8
 
-'array',        {columns:text} 
+'array',        {columns:text}
                 cells are textstyle math
                 no fence
 
@@ -1003,27 +1003,27 @@ category = 'Environments';
 
 'theorem'       text mode. Prepends in bold 'Theorem <counter>', then body in italics.
 
- 
- 'multline'     single column 
+
+ 'multline'     single column
                 first row left aligned, last right aligned, others centered
-                last line has an eqn. 
-                no output if inside an equation 
- 
+                last line has an eqn.
+                no output if inside an equation
+
  'gather'       at most two columns
                 first column centered, second column right aligned
                 frequency 1
 
- 'align'        multiple columns, 
+ 'align'        multiple columns,
                 alternating rl
                 there is some 'space' (additional column?) between each pair
                 each line is numbered (except when inside an equation environment)
                 there is an implicit {} at the beginning of left columns
 
- 'aligned'      must be in equation environment 
+ 'aligned'      must be in equation environment
                 frequency: COMMON
                 @{}r@{}l@{\quad}@{}r@{}l@{}
 
-'alignedat' 
+'alignedat'
 From AMSMath:
 ---The alignedat environment was changed to take two arguments rather
 than one: a mandatory argument (as formerly) specifying the number of
@@ -1038,19 +1038,19 @@ automatically, and therefore the use of alignedat is deprecated.
                 no space between column pairs (unlike align)
                 there is an implicit {} at the beginning of left columns
                 frequency: 0
- 
+
  'flalign'      multiple columns
                 alternate rl
                 third column further away than align...?
                 frequency: 0
 
-'split'         must be in an equation environment, 
+'split'         must be in an equation environment,
                 two columns, additional columns are interpreted as line breaks
                 firs column is right aligned, second column is left aligned
                 entire construct is numbered
                 frequency: 0
 
-'gathered'      single columm, 
+'gathered'      single columm,
                 centered
                 may need to be in equation environment?
                 frequency: COMMON
@@ -1092,21 +1092,21 @@ automatically, and therefore the use of alignedat is deprecated.
     // and http://www.ele.uri.edu/faculty/vetter/Other-stuff/latex/Mathmode.pdf
 
 /*
-The star at the end of the name of a displayed math environment causes that 
+The star at the end of the name of a displayed math environment causes that
 the formula lines won't be numbered. Otherwise they would automatically get a number.
 
-The only difference between align and equation is the spacing of the formulas. 
+The only difference between align and equation is the spacing of the formulas.
 You should attempt to use equation when possible, and align when you have multi-line formulas.
 Equation will have space before/after < 1em if line before/after is short enough.
 
-Also: equation throws an error when you have an & inside the environment, 
+Also: equation throws an error when you have an & inside the environment,
 so look out for that when converting between the two.
 
 
 
-Whereas align produces a structure whose width is the full line width, aligned 
-gives a width that is the actual width of the contents, thus it can be used as 
-a component in a containing expression, e.g. for putting the entire alignment 
+Whereas align produces a structure whose width is the full line width, aligned
+gives a width that is the actual width of the contents, thus it can be used as
+a component in a containing expression, e.g. for putting the entire alignment
 in a parenthesis
 */
 defineEnvironment('math', '', {frequency: 0}, function() {
@@ -1135,7 +1135,7 @@ defineEnvironment('array', '{columns:colspec}', {
 }, function(name, args) {
     return {
         colFormat: args[0],
-        mathstyle: 'textstyle',        
+        mathstyle: 'textstyle',
     };
 });
 
@@ -1246,12 +1246,12 @@ defineEnvironment(['gather', 'gathered'], '', {}, function() {
 //     result.rFence = '|';
 
 //     return result;
-// }); 
+// });
 
 
 
-defineEnvironment(['matrix', 'pmatrix', 'bmatrix', 'Bmatrix', 'vmatrix', 
-    'Vmatrix', 'smallmatrix', 'matrix*', 'pmatrix*', 'bmatrix*', 'Bmatrix*', 'vmatrix*', 
+defineEnvironment(['matrix', 'pmatrix', 'bmatrix', 'Bmatrix', 'vmatrix',
+    'Vmatrix', 'smallmatrix', 'matrix*', 'pmatrix*', 'bmatrix*', 'Bmatrix*', 'vmatrix*',
     'Vmatrix*', 'smallmatrix*'], '[columns:colspec]', {}, function(name, args) {
 // From amstex.sty:
 // \def\matrix{\hskip -\arraycolsep\array{*\c@MaxMatrixCols c}}
@@ -1303,12 +1303,12 @@ defineEnvironment(['matrix', 'pmatrix', 'bmatrix', 'Bmatrix', 'vmatrix',
             result.lFence = '.';
             result.rFence = '.';
             break;
-        default:        
+        default:
     }
 
-    result.colFormat = args[0] || [{align:'c'}, {align:'c'}, {align:'c'}, 
-        {align:'c'}, {align:'c'}, {align:'c'}, 
-        {align:'c'}, {align:'c'}, {align:'c'}, 
+    result.colFormat = args[0] || [{align:'c'}, {align:'c'}, {align:'c'},
+        {align:'c'}, {align:'c'}, {align:'c'},
+        {align:'c'}, {align:'c'}, {align:'c'},
         {align:'c'}];
 
     return result;
@@ -1336,7 +1336,7 @@ defineEnvironment('cases', '', {}, function() {
         colFormat: [
             { align: 'l', } ,
             { gap: 1, } ,
-            { align: 'l', } 
+            { align: 'l', }
         ]
     }
 });
@@ -1358,9 +1358,9 @@ category = 'Trigonometry';
 defineFunction([
     '\\arcsin', '\\arccos', '\\arctan', '\\arctg', '\\arcctg',
     '\\arg', '\\ch', '\\cos', '\\cosec', '\\cosh', '\\cot', '\\cotg',
-    '\\coth', '\\csc', '\\ctg', '\\cth', 
+    '\\coth', '\\csc', '\\ctg', '\\cth',
     '\\sec', '\\sin',
-    '\\sinh', '\\sh', '\\tan', '\\tanh', '\\tg', '\\th',], 
+    '\\sinh', '\\sh', '\\tan', '\\tanh', '\\tg', '\\th',],
     '', {fontFamily:'mainrm'}, function(name) {
     return {
         type: 'mop',
@@ -1375,14 +1375,14 @@ defineFunction([
 frequency(SUPERCOMMON, '\\cos', '\\sin', '\\tan');
 
 
-frequency(UNCOMMON, '\\arcsin', '\\arccos', '\\arctan', '\\arctg', '\\arcctg', 
+frequency(UNCOMMON, '\\arcsin', '\\arccos', '\\arctan', '\\arctg', '\\arcctg',
     '\\arcsec', '\\arccsc');
 
-frequency(UNCOMMON, '\\arsinh', '\\arccosh', '\\arctanh', 
+frequency(UNCOMMON, '\\arsinh', '\\arccosh', '\\arctanh',
     '\\arcsech', '\\arccsch');
 
 frequency(UNCOMMON, '\\arg', '\\ch', '\\cosec', '\\cosh', '\\cot', '\\cotg',
-    '\\coth', '\\csc', '\\ctg', '\\cth', 
+    '\\coth', '\\csc', '\\ctg', '\\cth',
     '\\lg', '\\lb', '\\sec',
     '\\sinh', '\\sh', '\\tanh', '\\tg', '\\th');
 
@@ -1391,8 +1391,8 @@ frequency(UNCOMMON, '\\arg', '\\ch', '\\cosec', '\\cosh', '\\cot', '\\cotg',
 category = 'Functions';
 
 defineFunction([
-    '\\deg', '\\dim', '\\exp', '\\hom', '\\ker', 
-    '\\lb', '\\lg', '\\ln', '\\log'], 
+    '\\deg', '\\dim', '\\exp', '\\hom', '\\ker',
+    '\\lb', '\\lg', '\\ln', '\\log'],
     '', {fontFamily:'mainrm'}, function(name) {
     return {
         type: 'mop',
@@ -1410,7 +1410,7 @@ frequency(COMMON, '\\dim');
 frequency(COMMON, '\\ker', '\\deg');     // >2,000
 
 
-defineFunction(['\\lim', '\\mod'], 
+defineFunction(['\\lim', '\\mod'],
     '', {fontFamily:'mainrm'}, function(name) {
     return {
         type: 'mop',
@@ -1420,7 +1420,7 @@ defineFunction(['\\lim', '\\mod'],
         fontFamily: 'mainrm'
     };
 })
-defineFunction(['\\det', '\\max', '\\min'], 
+defineFunction(['\\det', '\\max', '\\min'],
     '', {fontFamily:'mainrm'}, function(name) {
     return {
         type: 'mop',
@@ -1441,7 +1441,7 @@ frequency(COMMON, '\\max');
 category = 'Decoration';
 
 // A box of the width and height
-defineFunction('\\rule', '[raise:dimen]{width:dimen}{thickness:dimen}', null, 
+defineFunction('\\rule', '[raise:dimen]{width:dimen}{thickness:dimen}', null,
 function(name, args) {
     return {
         type: 'rule',
@@ -1451,17 +1451,17 @@ function(name, args) {
     };
 });
 
-defineFunction('\\color', '{:color}', null, 
+defineFunction('\\color', '{:color}', null,
     function(name, args) {
-        return { 
+        return {
             type: 'color',
             color: args[0],
         };
     }
 )
-defineFunction('\\textcolor', '{:color}{content:auto}', null, 
+defineFunction('\\textcolor', '{:color}{content:auto}', null,
     function(name, args) {
-        return { 
+        return {
             type: 'color',
             textcolor: args[0],
             skipBoundary: true,
@@ -1474,9 +1474,9 @@ defineFunction('\\textcolor', '{:color}{content:auto}', null,
 
 // An overline
 defineFunction('\\overline', '{:auto}', null, function(name, args) {
-    return { 
-        type: 'line', 
-        position: 'overline', 
+    return {
+        type: 'line',
+        position: 'overline',
         skipBoundary: true,
         body: args[0], };
 });
@@ -1497,12 +1497,12 @@ defineFunction('\\underset', '{annotation:auto}{symbol:auto}', null, function(na
 });
     frequency(COMMON, '\\underset');   // > 2,000
 
-defineFunction(['\\stackrel', '\\stackbin'], '{annotation:auto}{symbol:auto}', null, 
+defineFunction(['\\stackrel', '\\stackbin'], '{annotation:auto}{symbol:auto}', null,
     function(name, args) {
-    return { 
-        type: 'overunder', 
-        overscript: args[0], 
-        skipBoundary: true, 
+    return {
+        type: 'overunder',
+        overscript: args[0],
+        skipBoundary: true,
         body: args[1],
         mathtype: name === '\\stackrel' ? 'mrel' : 'mbin',
     };
@@ -1542,9 +1542,9 @@ defineFunction('\\mathllap', '{:auto}', null, function(name, args) {
 // - \fbox: sets content in 'auto' mode (frequency 777)
 // - \framebox[<width>][<alignment>]{<content>} (<alignment> := 'c'|'t'|'b' (center, top, bottom) (frequency 28)
 // @todo
-defineFunction('\\boxed', '{content:math}', null, 
+defineFunction('\\boxed', '{content:math}', null,
     function(name, args) {
-        return { 
+        return {
             type: 'box',
             framecolor: 'black',
             skipBoundary: true,
@@ -1554,9 +1554,9 @@ defineFunction('\\boxed', '{content:math}', null,
 )
     frequency(1236, '\\boxed');
 
-defineFunction('\\colorbox', '{background-color:color}{content:auto}', null, 
+defineFunction('\\colorbox', '{background-color:color}{content:auto}', null,
     function(name, args) {
-        return { 
+        return {
             type: 'box',
             backgroundcolor: args[0],
             skipBoundary: true,
@@ -1568,9 +1568,9 @@ defineFunction('\\colorbox', '{background-color:color}{content:auto}', null,
 
 
 
-defineFunction('\\fcolorbox', '{frame-color:color}{background-color:color}{content:auto}', null, 
+defineFunction('\\fcolorbox', '{frame-color:color}{background-color:color}{content:auto}', null,
     function(name, args) {
-        return { 
+        return {
             type: 'box',
             framecolor: args[0],
             backgroundcolor: args[1],
@@ -1585,15 +1585,15 @@ defineFunction('\\fcolorbox', '{frame-color:color}{background-color:color}{conte
 // \bbox, MathJax extension
 // The first argument is a CSS border property shorthand, e.g.
 // \bbox[red], \bbox[5px,border:2px solid red]
-// The MathJax syntax is 
+// The MathJax syntax is
 // arglist ::= <arg>[,<arg>[,<arg>]]
 // arg ::= [<background:color>|<padding:dimen>|<style>]
 // style ::= 'border:' <string>
 
-defineFunction('\\bbox', '[:bbox]{body:auto}', null, 
+defineFunction('\\bbox', '[:bbox]{body:auto}', null,
     function(name, args) {
         if (args[0]) {
-            return { 
+            return {
                 type: 'box',
                 padding: args[0].padding,
                 border: args[0].border,
@@ -1602,7 +1602,7 @@ defineFunction('\\bbox', '[:bbox]{body:auto}', null,
                 body: args[1]
             }
         }
-        return { 
+        return {
             type: 'box',
             skipBoundary: true,
             body: args[1]
@@ -1613,13 +1613,13 @@ defineFunction('\\bbox', '[:bbox]{body:auto}', null,
 
 
 // \enclose, a MathJax extension mapping to the MathML `menclose` tag.
-// The first argument is a comma delimited list of notations, as defined 
+// The first argument is a comma delimited list of notations, as defined
 // here: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/menclose
 // The second, optional, specifies the style to use for the notations.
-defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null, 
+defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
     function(name, args) {
         let notations =  args[0] || [];
-        const result = { 
+        const result = {
             type: 'enclose',
             strokeColor: 'currentColor',
             strokeWidth: 1,
@@ -1634,7 +1634,7 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
         // Extract info from style string
         if (args[1]) {
             // Split the string by comma delimited sub-strings, ignoring commas
-            // that may be inside (). For example"x, rgb(a, b, c)" would return 
+            // that may be inside (). For example"x, rgb(a, b, c)" would return
             // ['x', 'rgb(a, b, c)']
             const styles = args[1].split(/,(?![^(]*\)(?:(?:[^(]*\)){2})*[^"]*$)/);
             for (const s of styles) {
@@ -1667,7 +1667,7 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
                 result.svgStrokeStyle = '1,5';
             }
         }
-        result.borderStyle = result.strokeWidth + 'px ' + 
+        result.borderStyle = result.strokeWidth + 'px ' +
             result.strokeStyle + ' ' + result.strokeColor;
 
         // Normalize the list of notations.
@@ -1690,9 +1690,9 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
 
     frequency(CRYPTIC, '\\enclose');
 
-defineFunction('\\cancel', '{body:auto}', null, 
+defineFunction('\\cancel', '{body:auto}', null,
     function(name, args) {
-        return { 
+        return {
             type: 'enclose',
             strokeColor: 'currentColor',
             strokeWidth: 1,
@@ -1707,9 +1707,9 @@ defineFunction('\\cancel', '{body:auto}', null,
     }
 )
 
-defineFunction('\\bcancel', '{body:auto}', null, 
+defineFunction('\\bcancel', '{body:auto}', null,
     function(name, args) {
-        return { 
+        return {
             type: 'enclose',
             strokeColor: 'currentColor',
             strokeWidth: 1,
@@ -1724,9 +1724,9 @@ defineFunction('\\bcancel', '{body:auto}', null,
     }
 )
 
-defineFunction('\\xcancel', '{body:auto}', null, 
+defineFunction('\\xcancel', '{body:auto}', null,
     function(name, args) {
-        return { 
+        return {
             type: 'enclose',
             strokeColor: 'currentColor',
             strokeWidth: 1,
@@ -1746,12 +1746,12 @@ defineFunction('\\xcancel', '{body:auto}', null,
 
 
 // defineFunction([
-    // '\\tiny', '\\scriptsize', '\\footnotesize', '\\small', 
+    // '\\tiny', '\\scriptsize', '\\footnotesize', '\\small',
     // '\\normalsize',
     // '\\large', '\\Large', '\\LARGE', '\\huge', '\\Huge'
-// ], '', null, 
+// ], '', null,
 //     function(name, args) {
-//         return { 
+//         return {
 //             type: '',
 //             size: name;
 //         }
@@ -1817,7 +1817,7 @@ defineFunction([
 defineFunction(['\\mbox'], '{text:text}', {allowedInText: true}, function(name, args) {
     return {
         type: 'font',
-        skipBoundary: true, 
+        skipBoundary: true,
         body: args[0],
         font: 'mathrm'
     };
@@ -1835,10 +1835,10 @@ defineFunction([
         type: 'font',
         skipBoundary: true,
         body: args[0],
-        font: { '\\text': null, '\\textrm': 'mathrm', '\\textup': 'mathrm', 
-                '\\textnormal': 'mathrm', 
-                '\\textsf': 'mathsf', '\\texttt': 'mathtt', 
-                '\\textbf': 'mathbf', '\\textit': 'textit', 
+        font: { '\\text': null, '\\textrm': 'mathrm', '\\textup': 'mathrm',
+                '\\textnormal': 'mathrm',
+                '\\textsf': 'mathsf', '\\texttt': 'mathtt',
+                '\\textbf': 'mathbf', '\\textit': 'textit',
                 '\\emph': 'emph', '\\em': 'emph'}[name],
     };
 });
@@ -1856,7 +1856,7 @@ frequency(49, '\\em');
 category = 'Operators';
 
 // Root
-defineFunction('\\sqrt', '[index:auto]{radicand:auto}', null, 
+defineFunction('\\sqrt', '[index:auto]{radicand:auto}', null,
 function(name, args) {
     return {
         type: 'surd',
@@ -1873,7 +1873,7 @@ defineFunction([
     '\\cfrac',
     '\\binom', '\\dbinom', '\\tbinom'
 ], '{numerator}{denominator}', {}, function(name, args) {
-    const result = { 
+    const result = {
         type: 'genfrac',
         numer: args[0],
         denom: args[1],
@@ -1941,14 +1941,14 @@ defineFunction([
 // '\\overwithdelims' /* {leftdelim}{rightdelim} w/ barline 15 */,
 // '\\atopwithdelims' /* {leftdelim}{rightdelim} no barline 0 */,
 // '\\atop' /* nodelims, no barline 0 */,
-// '\\brack', '\\brace' like \choose, but 
+// '\\brack', '\\brace' like \choose, but
 //      with braces and brackets fences. 0 usage in latexsearch */
 
 defineFunction([
-    '\\over' /* 21 */ , 
-    '\\atop' /* 12 */, 
-    '\\choose' /* 1968 */    
-], '', {infix: true}, 
+    '\\over' /* 21 */ ,
+    '\\atop' /* 12 */,
+    '\\choose' /* 1968 */
+], '', {infix: true},
         function(name, args) {
     const numer = args[0];
     const denom = args[1];
@@ -1985,10 +1985,10 @@ defineFunction([
     frequency(1968, '\\choose');
 
 defineFunction([
-    '\\overwithdelims' /* 21 */ , 
-    '\\atopwithdelims' /* COMMON */, 
-    
-], '{left-delim:delim}{right-delim:delim}', {infix: true}, 
+    '\\overwithdelims' /* 21 */ ,
+    '\\atopwithdelims' /* COMMON */,
+
+], '{left-delim:delim}{right-delim:delim}', {infix: true},
         function(name, args) {
     return {
         type: 'genfrac',
@@ -1999,7 +1999,7 @@ defineFunction([
         rightDelim: args[3],
         mathstyle: 'auto'
     };
-});    
+});
     frequency(15, '\\overwithdelims');
     frequency(COMMON, '\\atopwithdelims');
 
@@ -2010,7 +2010,7 @@ defineFunction([
 
 // Slashed package
 /*
-defineFunction('\\slashed' 
+defineFunction('\\slashed'
 */
 
 category = 'Fractions';
@@ -2047,9 +2047,9 @@ category = 'Variable Sized Symbols'
 // Limits, symbols
 defineFunction([
     '\\sum', '\\prod', '\\bigcup', '\\bigcap',
-    '\\coprod', '\\bigvee', '\\bigwedge', '\\biguplus', 
+    '\\coprod', '\\bigvee', '\\bigwedge', '\\biguplus',
     '\\bigotimes',
-    '\\bigoplus', '\\bigodot', '\\bigsqcup', '\\smallint', '\\intop', 
+    '\\bigoplus', '\\bigodot', '\\bigsqcup', '\\smallint', '\\intop',
 ],  '', {}, function(name) {
     return {
         type: 'mop',
@@ -2057,27 +2057,27 @@ defineFunction([
         symbol: true,
         fontFamily: 'main',
         body: {
-            'coprod': '\u2210', 
-            'bigvee': '\u22c1', 
-            'bigwedge': '\u22c0', 
-            'biguplus': '\u2a04', 
-            'bigcap': '\u22c2', 
-            'bigcup': '\u22c3', 
-            'intop': '\u222b', 
-            'prod': '\u220f', 
-            'sum': '\u2211', 
-            'bigotimes': '\u2a02', 
-            'bigoplus': '\u2a01', 
-            'bigodot': '\u2a00', 
-            'bigsqcup': '\u2a06', 
-            'smallint': '\u222b', 
+            'coprod': '\u2210',
+            'bigvee': '\u22c1',
+            'bigwedge': '\u22c0',
+            'biguplus': '\u2a04',
+            'bigcap': '\u22c2',
+            'bigcup': '\u22c3',
+            'intop': '\u222b',
+            'prod': '\u220f',
+            'sum': '\u2211',
+            'bigotimes': '\u2a02',
+            'bigoplus': '\u2a01',
+            'bigodot': '\u2a00',
+            'bigsqcup': '\u2a06',
+            'smallint': '\u222b',
             }[name.slice(1)],
     };
 });
 
 // No limits, symbols
-defineFunction(['\\int', '\\iint', '\\iiint', '\\oint', '\\oiint', 
-    '\\oiiint', '\\intclockwise', '\\varointclockwise', 
+defineFunction(['\\int', '\\iint', '\\iiint', '\\oint', '\\oiint',
+    '\\oiiint', '\\intclockwise', '\\varointclockwise',
     '\\ointctrclockwise', '\\intctrclockwise'
 ], '', {}, function(name) {
     return {
@@ -2085,12 +2085,12 @@ defineFunction(['\\int', '\\iint', '\\iiint', '\\oint', '\\oiint',
         limits: 'nolimits',
         symbol: true,
         body: {
-            'int': '\u222b', 
-            'iint': '\u222c', 
-            'iiint': '\u222d', 
-            'oint': '\u222e', 
-            'oiint': '\u222f', 
-            'oiiint': '\u2230', 
+            'int': '\u222b',
+            'iint': '\u222c',
+            'iiint': '\u222d',
+            'oint': '\u222e',
+            'oiint': '\u222f',
+            'oiiint': '\u2230',
             'intclockwise': '\u2231',
             'varointclockwise': '\u2232',
             'ointctrclockwise': '\u2233',
@@ -2143,7 +2143,7 @@ defineSymbol( '\\differencedelta', MATH,  MAIN,  REL, '\u2206', COMMON);
 
 category = 'Letters and Letter Like Forms';
 
-defineFunction(['\\unicode'], '{charcode:number}', null, 
+defineFunction(['\\unicode'], '{charcode:number}', null,
 function(name, args) {
     let codepoint = parseInt(args[0]);
     if (isNaN(codepoint)) codepoint = 0x2753; // BLACK QUESTION MARK
@@ -2798,7 +2798,7 @@ defineFunction([
     // \hspace* inserts a non-breakable space, but since we don't line break...
     // it's the same as \hspace.
 ], '{width:skip}', null, function(name, args) {
-    return { 
+    return {
         type: 'spacing',
         width: args[0] || 0
     }
@@ -2806,9 +2806,9 @@ defineFunction([
 
 
 /**
- * If possible, i.e. if they are all simple atoms, return a string made up of 
+ * If possible, i.e. if they are all simple atoms, return a string made up of
  * their body
- * @param {object[]} atoms 
+ * @param {object[]} atoms
  */
 function getSimpleString(atoms) {
     let result = '';
@@ -2824,10 +2824,10 @@ function getSimpleString(atoms) {
 }
 
 defineFunction([
-    '\\mathop', '\\mathbin', '\\mathrel', '\\mathopen', 
+    '\\mathop', '\\mathbin', '\\mathrel', '\\mathopen',
     '\\mathclose', '\\mathpunct', '\\mathord', '\\mathinner'
 ], '{:auto}', null, function(name, args) {
-    const result = { 
+    const result = {
         type: {
             '\\mathop': 'mop',
             '\\mathbin': 'mbin',
@@ -2852,9 +2852,9 @@ defineFunction([
 defineFunction([
     '\\operatorname', '\\operatorname*'
 ], '{operator:string}', null, function(name, args) {
-    const result = { 
-        type: 'mop', 
-        skipBoundary: true, 
+    const result = {
+        type: 'mop',
+        skipBoundary: true,
         body: args[0],
         isFunction: true
     };
@@ -2994,8 +2994,8 @@ category = 'Accents';
 // defineSymbol( '\\grave', MATH,  MAIN,  ACCENT, '\u0060', 735);
 
 defineFunction([
-    '\\acute', '\\grave', '\\dot', '\\ddot', '\\mathring', 
-    '\\tilde', '\\bar', '\\breve', '\\check', '\\hat', '\\vec', 
+    '\\acute', '\\grave', '\\dot', '\\ddot', '\\mathring',
+    '\\tilde', '\\bar', '\\breve', '\\check', '\\hat', '\\vec',
 ], '{body:auto}', null, function(name, args) {
     return {
         type: 'accent',
@@ -3014,9 +3014,9 @@ defineFunction([
         }[name],
         limits: 'accent',   // This will suppress the regular
                             // supsub attachment and will delegate
-                            // it to the decomposeAccent 
+                            // it to the decomposeAccent
                             // (any non-null value would do)
-        skipBoundary: true, 
+        skipBoundary: true,
         body: args[0],
     };
 });
@@ -3093,7 +3093,7 @@ defineSymbol('\\AA', TEXT + MATH, MAIN, TEXTORD, '\u00c5');    // LATIN CAPITAL 
 
 
 
-return {
+export default {
     matchCodepoint,
     matchSymbol,
     matchFunction,
@@ -3117,4 +3117,3 @@ return {
     MACROS,
 }
 
-})

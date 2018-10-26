@@ -2,18 +2,16 @@
 /*global define:false*/
 
 /**
- * 
+ *
  * See {@linkcode MathAtom}
  * @module mathAtom
  * @private
  */
-define([
-    'mathlive/core/mathstyle', 
-    'mathlive/core/context', 
-    'mathlive/core/fontMetrics', 
-    'mathlive/core/span', 
-    'mathlive/core/delimiters'],
-    function(Mathstyle, Context, FontMetricsModule, Span, Delimiters) {
+import Mathstyle from './mathstyle';
+import Context from './context';
+import FontMetricsModule from './fontMetrics';
+import Span from './span';
+import Delimiters from './delimiters';
 
 
 const makeSpan = Span.makeSpan;
@@ -28,17 +26,17 @@ const getCharacterMetrics = FontMetricsModule.getCharacterMetrics;
 
 
 /**
- * An atom is an object encapsulating an elementary mathematical unit, 
+ * An atom is an object encapsulating an elementary mathematical unit,
  * independent of its graphical representation.
- * 
+ *
  * It keeps track of the content, while the dimensions, position and style
  * are tracked by Span objects which are created by the `decompose()` functions.
- *  
- * @param {string} mode 
- * @param {string} type 
- * @param {string|MathAtom[]} body 
+ *
+ * @param {string} mode
+ * @param {string} type
+ * @param {string|MathAtom[]} body
  * @param {?string} [fontFamily="main"]
- * @param {?Object} [extras=null] A set of additional properties to append to 
+ * @param {?Object} [extras=null] A set of additional properties to append to
  * the atom
  * @return {MathAtom}
  * @property {string} mode `'display'`, `'command'`, etc...
@@ -52,12 +50,12 @@ const getCharacterMetrics = FontMetricsModule.getCharacterMetrics;
  * - `mopen`: opening fence: `(`, `\langle`, etc...
  * - `mclose`: closing fence: `)`, `\rangle`, etc...
  * - `minner`: special layout cases, overlap, `\left...\right`
- * 
+ *
  * In addition to these basic types, which correspond to the TeX atom types,
  * some atoms represent more complex compounds, including:
  * - `space` and `spacing`: blank space between atoms
- * - `mathstyle`: to change the math style used: `display` or `text`. 
- * The layout rules are different for each, the latter being more compact and 
+ * - `mathstyle`: to change the math style used: `display` or `text`.
+ * The layout rules are different for each, the latter being more compact and
  * intended to be incorporated with surrounding non-math text.
  * - `root`: a group, which has no parent (only one per formula)
  * - `group`: a simple group of atoms, for example from a `{...}`
@@ -77,30 +75,30 @@ const getCharacterMetrics = FontMetricsModule.getCharacterMetrics;
  * - `leftright`: used by the `\left` and `\right` commands
  * - `delim`: some delimiter
  * - `sizeddelim`: a delimiter that can grow
- * 
+ *
  * The following types are used by the editor:
- * - `command` indicate a command being entered. The text is displayed in 
+ * - `command` indicate a command being entered. The text is displayed in
  * blue in the editor.
  * - `error`: indicate a command that is unknown, for example `\xyzy`. The text
  * is displayed with a wavy red underline in the editor.
- * - `placeholder`: indicate a temporary item. Placeholders are displayed 
+ * - `placeholder`: indicate a temporary item. Placeholders are displayed
  * as a dashed square in the editor.
- * - `first`: a special, empty, atom put as the first atom in math lists in 
+ * - `first`: a special, empty, atom put as the first atom in math lists in
  * order to be able to position the caret before the first element. Aside from
  * the caret, they display nothing.
- * 
+ *
  * @property {string} fontFamily
  * @property {string|MathAtom[]} body
  * @property {MathAtom[]} superscript
  * @property {MathAtom[]} subscript
  * @property {MathAtom[]} numer
  * @property {MathAtom[]} denom
- * @property {boolean} captureSelection if true, this atom does not let its 
+ * @property {boolean} captureSelection if true, this atom does not let its
  * children be selected. Used by the `\enclose` annotations, for example.
- * @property {boolean} skipBoundary if true, when the caret reaches the 
+ * @property {boolean} skipBoundary if true, when the caret reaches the
  * first position in this element's body, it automatically moves to the
  * outside of the element. Conversely, when the caret reaches the position
- * right after this element, it automatically moves to the last position 
+ * right after this element, it automatically moves to the last position
  * inside this element.
  * @class MathAtom
  * @global
@@ -125,14 +123,14 @@ function MathAtom(mode, type, body, fontFamily, extras) {
 
     // Determine which font family to use.
     // Note that the type, fontFamily and body could have been overridden
-    // by 'extras', so don't check against the parameter ('type') but 
+    // by 'extras', so don't check against the parameter ('type') but
     // the value in the object ('this.type').
-    if (this.type !== 'textord' && this.fontFamily === 'main' && 
+    if (this.type !== 'textord' && this.fontFamily === 'main' &&
         typeof this.body === 'string' && this.body.length === 1) {
 
         if (AUTO_ITALIC_REGEX.test(this.body)) {
-            // Auto italicize alphabetic and lowercase greek symbols 
-            // in math mode (European style, American style would not 
+            // Auto italicize alphabetic and lowercase greek symbols
+            // in math mode (European style, American style would not
             // italicize greek letters, but it's TeX's default behavior)
             this.fontFamily = 'mathit';
         }
@@ -234,7 +232,7 @@ MathAtom.prototype.forEach = function (cb) {
  * Iterate over all the child atoms of this atom, this included,
  * and return an array of all the atoms for which the predicate callback
  * is true.
- * 
+ *
  * @return {MathAtom[]}
  * @method MathAtom#filter
  */
@@ -243,7 +241,7 @@ MathAtom.prototype.filter = function (cb) {
     if (cb(this)) result.push(this);
 
     for (const relation of ['body', 'superscript', 'subscript',
-        'overscript', 'underscript', 
+        'overscript', 'underscript',
         'numer', 'denom', 'index']) {
         if (Array.isArray(this[relation])) {
             for (const atom of this[relation]) {
@@ -265,11 +263,11 @@ MathAtom.prototype.filter = function (cb) {
 
 MathAtom.prototype.decomposeGroup = function(context) {
     // The scope of the context is this group, so make a copy of it
-    // so that any changes to it will be discarded when finished 
+    // so that any changes to it will be discarded when finished
     // with this group.
 
     // Note that the mathstyle property is optional and could be undefined
-    // If that's the case, withMathstyle() returns a clone of the 
+    // If that's the case, withMathstyle() returns a clone of the
     // context with the same mathstyle.
     const localContext = context.withMathstyle(this.mathstyle);
 
@@ -278,8 +276,8 @@ MathAtom.prototype.decomposeGroup = function(context) {
 
 /**
  * Used in `decomposeArray` to create a column separator span.
- * 
- * @param {number} width 
+ *
+ * @param {number} width
  * @memberof module:mathAtom
  * @private
  */
@@ -317,11 +315,11 @@ MathAtom.prototype.decomposeArray = function(context) {
         colFormat = [{align:'l'}];
     }
     if (!colFormat) {
-        colFormat = [{align:'l'}, {align:'l'}, {align:'l'}, 
-        {align:'l'}, {align:'l'}, {align:'l'}, {align:'l'}, {align:'l'}, 
+        colFormat = [{align:'l'}, {align:'l'}, {align:'l'},
+        {align:'l'}, {align:'l'}, {align:'l'}, {align:'l'}, {align:'l'},
         {align:'l'}, {align:'l'}]
     }
-    
+
     // Fold the array so that there are no more columns of content than
     // there are columns prescribed by the column format.
     const array = [];
@@ -341,10 +339,10 @@ MathAtom.prototype.decomposeArray = function(context) {
             array.push(newRow);
         }
     }
-    
+
 
     // If the last row is empty, ignore it.
-    if (array[array.length - 1].length === 1 && 
+    if (array[array.length - 1].length === 1 &&
         array[array.length - 1][0].length === 0) {
         array.pop();
     }
@@ -356,7 +354,7 @@ MathAtom.prototype.decomposeArray = function(context) {
     // Default \arraystretch from lttab.dtx
     const arraystretch = this.arraystretch || 1;
     const arrayskip = arraystretch * FONTMETRICS.baselineskip;
-    const arstrutHeight = 0.7 * arrayskip; 
+    const arstrutHeight = 0.7 * arrayskip;
     const arstrutDepth = 0.3 * arrayskip;  // \@arstrutbox in lttab.dtx
 
     let totalHeight = 0;
@@ -379,10 +377,10 @@ MathAtom.prototype.decomposeArray = function(context) {
             height = Math.max(height, Span.height(elt));
             outrow.push(elt);
         }
-        
+
         let jot = r === nr - 1 ? 0 : (this.jot || 0);
         if (this.rowGaps && this.rowGaps[r]) {
-            jot = this.rowGaps[r]; 
+            jot = this.rowGaps[r];
             if (jot > 0) { // \@argarraycr
                 jot += arstrutDepth;
                 if (depth < jot) {
@@ -436,7 +434,7 @@ MathAtom.prototype.decomposeArray = function(context) {
         } else if (colDesc.align && currentContentCol < contentCols.length) {
             // If an alignment is specified, insert a column of content
             if (prevColContent) {
-                // If no gap was provided, insert a default gap between 
+                // If no gap was provided, insert a default gap between
                 // consecutive columns of content
                 cols.push(makeColGap(2 * FONTMETRICS.arraycolsep));
             } else if (prevColRule || firstColumn) {
@@ -444,7 +442,7 @@ MathAtom.prototype.decomposeArray = function(context) {
                 // add a smaller gap
                 cols.push(makeColGap(FONTMETRICS.arraycolsep));
             }
-            cols.push(makeSpan(contentCols[currentContentCol], 
+            cols.push(makeSpan(contentCols[currentContentCol],
                 'col-align-' + colDesc.align));
 
             currentContentCol++;
@@ -472,7 +470,7 @@ MathAtom.prototype.decomposeArray = function(context) {
             separator.setStyle('height', totalHeight, 'em');
         // result.setTop((1 - context.mathstyle.sizeMultiplier) *
         //     context.mathstyle.metrics.axisHeight);
-            separator.setStyle('margin-top', 
+            separator.setStyle('margin-top',
                 3 * context.mathstyle.metrics.axisHeight - offset, 'em');
             separator.setStyle('vertical-align', 'top');
             // separator.setStyle('display', 'inline-block');
@@ -496,14 +494,14 @@ MathAtom.prototype.decomposeArray = function(context) {
         cols.push(makeColGap(FONTMETRICS.arraycolsep));
     }
 
-    if ((!this.lFence || this.lFence === '.') && 
+    if ((!this.lFence || this.lFence === '.') &&
         (!this.rFence || this.rFence === '.')) {
         // There are no delimiters around the array, just return what
         // we've built so far.
         return makeOrd(cols, 'mtable');
     }
 
-    // There is at least one delimiter. Wrap the core of the array with 
+    // There is at least one delimiter. Wrap the core of the array with
     // appropriate left and right delimiters
     // const inner = makeSpan(makeSpan(cols, 'mtable'), 'mord');
     const inner = makeSpan(cols, 'mtable');
@@ -511,10 +509,10 @@ MathAtom.prototype.decomposeArray = function(context) {
     const innerDepth = Span.depth(inner);
 
     return makeOrd([
-        this.bind(context, Delimiters.makeLeftRightDelim( 
+        this.bind(context, Delimiters.makeLeftRightDelim(
             'mopen', this.lFence, innerHeight, innerDepth, context)),
         inner,
-        this.bind(context, Delimiters.makeLeftRightDelim( 
+        this.bind(context, Delimiters.makeLeftRightDelim(
             'mclose', this.rFence, innerHeight, innerDepth, context))
         ]);
 }
@@ -522,19 +520,19 @@ MathAtom.prototype.decomposeArray = function(context) {
 
 /**
  * GENFRAC -- Generalized fraction
- * 
+ *
  * Decompose fractions, binomials, and in general anything made
  * of two expressions on top of each other, optionally separated by a bar,
  * and optionally surrounded by fences (parentheses, brackets, etc...)
- * 
+ *
  * Depending on the type of fraction the mathstyle is either
  * display math or inline math (which is indicated by 'textstyle'). This value can
  * also be set to 'auto', which indicates it should use the current mathstyle
- * 
+ *
  * @method MathAtom#decomposeGenfrac
  */
 MathAtom.prototype.decomposeGenfrac = function(context) {
-    const mathstyle = this.mathstyle === 'auto' ? 
+    const mathstyle = this.mathstyle === 'auto' ?
         context.mathstyle : Mathstyle.toMathstyle(this.mathstyle);
     const newContext = context.withMathstyle(mathstyle);
 
@@ -542,7 +540,7 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
     if (this.numerPrefix) {
         numer.push(makeOrd(this.numerPrefix, 'mathrm'));
     }
-    const numeratorStyle = this.continuousFraction ? 
+    const numeratorStyle = this.continuousFraction ?
         mathstyle : mathstyle.fracNum();
     numer = numer.concat(decompose(
         newContext.withMathstyle(numeratorStyle), this.numer));
@@ -553,7 +551,7 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
     if (this.denomPrefix) {
         denom.push(makeOrd(this.denomPrefix, 'mathrm'));
     }
-    const denominatorStyle = this.continuousFraction ? 
+    const denominatorStyle = this.continuousFraction ?
         mathstyle : mathstyle.fracDen();
     denom = denom.concat(decompose(
         newContext.withMathstyle(denominatorStyle), this.denom));
@@ -601,8 +599,8 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
         }
 
         frac = makeVlist(
-                newContext, 
-                [numerReset, -numShift, denomReset, denomShift], 
+                newContext,
+                [numerReset, -numShift, denomReset, denomShift],
                 'individualShift'
         );
     } else {
@@ -625,12 +623,12 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
         }
 
         const mid = makeSpan('',
-            /* newContext.mathstyle.adjustTo(Mathstyle.TEXT) + */ ' frac-line');        
+            /* newContext.mathstyle.adjustTo(Mathstyle.TEXT) + */ ' frac-line');
             // @todo: do we really need to reset the size?
         // Manually set the height of the line because its height is
         // created in CSS
         mid.height = ruleWidth;
-        
+
         const elements = [];
         if (numerReset) {
             elements.push(numerReset);
@@ -646,7 +644,7 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
         frac = makeVlist(newContext, elements, 'individualShift')
     }
 
-    // Add a 'mfrac' class to provide proper context for 
+    // Add a 'mfrac' class to provide proper context for
     // other css selectors (such as 'frac-line')
     frac.classes += ' mfrac';
 
@@ -656,15 +654,15 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
     frac.depth *= mathstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
 
     // if (!this.leftDelim && !this.rightDelim) {
-    //     return makeOrd(frac, 
-    //         context.parentMathstyle.adjustTo(mathstyle) + 
-    //         ((context.parentSize !== context.size) ? 
+    //     return makeOrd(frac,
+    //         context.parentMathstyle.adjustTo(mathstyle) +
+    //         ((context.parentSize !== context.size) ?
     //             (' sizing reset-' + context.parentSize + ' ' + context.size) : ''));
     // }
 
     // Rule 15e of Appendix G
-    const delimSize = mathstyle.size === Mathstyle.DISPLAY.size ? 
-        mathstyle.metrics.delim1 : 
+    const delimSize = mathstyle.size === Mathstyle.DISPLAY.size ?
+        mathstyle.metrics.delim1 :
         mathstyle.metrics.delim2;
 
     // Optional delimiters
@@ -676,26 +674,26 @@ MathAtom.prototype.decomposeGenfrac = function(context) {
             'mclose', this.rightDelim, delimSize, true,
             context.withMathstyle(mathstyle));
 
-    const result = makeOrd([leftDelim, frac, rightDelim], 
-        ((context.parentSize !== context.size) ? 
+    const result = makeOrd([leftDelim, frac, rightDelim],
+        ((context.parentSize !== context.size) ?
             ('sizing reset-' + context.parentSize + ' ' + context.size) : 'genfrac'));
     return this.bind(context, result);
 }
 
 
  /**
-  *  \left....\right 
-  * 
+  *  \left....\right
+  *
   * Note that we can encounter malformed \left...\right, for example
-  * a \left without a matching \right or vice versa. In that case, the 
-  * leftDelim (resp. rightDelim) will be undefined. We still need to handle 
+  * a \left without a matching \right or vice versa. In that case, the
+  * leftDelim (resp. rightDelim) will be undefined. We still need to handle
   * those cases.
   *
  * @method MathAtom#decomposeLeftright
   */
 MathAtom.prototype.decomposeLeftright = function(context) {
     // The scope of the context is this group, so make a copy of it
-    // so that any changes to it will be discarded when finished 
+    // so that any changes to it will be discarded when finished
     // with this group.
     const localContext = context.clone();
 
@@ -733,7 +731,7 @@ MathAtom.prototype.decomposeLeftright = function(context) {
     }
 
     if (inner) {
-        // Replace the delim (\middle) spans with proper ones now that we know 
+        // Replace the delim (\middle) spans with proper ones now that we know
         // the height/depth
         for (let i = 0; i < inner.length; i++) {
             if (inner[i].delim) {
@@ -764,21 +762,21 @@ MathAtom.prototype.decomposeLeftright = function(context) {
             delim = {'(':')', '\\{':'\\}', '\\[':'\\]', '\\lbrace':'\\rbrace',
                 '\\langle':'\\rangle', '\\lfloor': '\\rfloor', '\\lceil':'\\rceil',
                 '\\vert':'\\vert', '\\lvert':'\\rvert', '\\Vert':'\\Vert',
-                '\\lVert':'\\rVert', '\\lbrack':'\\rbrack', 
+                '\\lVert':'\\rVert', '\\lbrack':'\\rbrack',
                 '\\ulcorner':'\\urcorner', '\\llcorner':'\\lrcorner',
                 '\\lgroup': '\\rgroup', '\\lmoustache':'\\rmoustache'}[this.leftDelim];
             delim = delim || this.leftDelim;
-            localContext.color = 'rgba(0, 0, 0, .3)';            
+            localContext.color = 'rgba(0, 0, 0, .3)';
         }
         result.push(this.bind(localContext, Delimiters.makeLeftRightDelim('mclose',
             delim, innerHeight, innerDepth, localContext)));
     }
 
-    // If the `inner` flag is set, return the `inner` element (that's the 
+    // If the `inner` flag is set, return the `inner` element (that's the
     // behavior for the regular `\left...\right`
     if (this.inner) return makeInner(result, mathstyle.cls());
 
-    // Otherwise, include a `\mathopen{}...\mathclose{}`. That's the 
+    // Otherwise, include a `\mathopen{}...\mathclose{}`. That's the
     // behavior for `\mleft...\mright`, which allows for tighter spacing
     // for example in `\sin\mleft(x\mright)`
     return result;
@@ -823,7 +821,7 @@ MathAtom.prototype.decomposeSurd = function(context) {
     }
 
     // Shift the delimiter so that its top lines up with the top of the line
-    delim.setTop((delim.height - Span.height(inner)) - 
+    delim.setTop((delim.height - Span.height(inner)) -
                     (lineClearance + ruleWidth));
 
     const line = makeSpan('',
@@ -850,7 +848,7 @@ MathAtom.prototype.decomposeSurd = function(context) {
     // The index is always in scriptscript style
     const newcontext = context.withMathstyle(Mathstyle.SCRIPTSCRIPT);
 
-    const root = makeSpan(decompose(newcontext, this.index), 
+    const root = makeSpan(decompose(newcontext, this.index),
         mathstyle.adjustTo(Mathstyle.SCRIPTSCRIPT));
 
     // Figure out the height and depth of the inner part
@@ -867,7 +865,7 @@ MathAtom.prototype.decomposeSurd = function(context) {
     // Add a class surrounding it so we can add on the appropriate
     // kerning
 
-    return this.bind(context, 
+    return this.bind(context,
         makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt'));
  }
 
@@ -880,7 +878,7 @@ MathAtom.prototype.decomposeAccent = function(context) {
     if (this.superscript || this.subscript) {
         // If there is a supsub attached to the accent
         // apply it to the base.
-        // Note this does not give the same result as TeX when there 
+        // Note this does not give the same result as TeX when there
         // are stacked accents, e.g. \vec{\breve{\hat{\acute{...}}}}^2
 
         base = this.attachSupsub(context, makeOrd(base), 'mord');
@@ -895,7 +893,7 @@ MathAtom.prototype.decomposeAccent = function(context) {
     if (Array.isArray(this.body) && this.body.length === 1 && this.body[0].isCharacterBox()) {
         skew = Span.skew(base);
     }
-    
+
     // calculate the amount of space between the body and the accent
     const clearance = Math.min(Span.height(base), mathstyle.metrics.xHeight);
 
@@ -921,11 +919,11 @@ MathAtom.prototype.decomposeAccent = function(context) {
     accentBody.children[1].setLeft(2 * skew);
 
     return makeOrd(accentBody, 'accent');
-}  
+}
 
 /**
  * \overline and \underline
- * 
+ *
  * @method MathAtom#decomposeLine
  */
 MathAtom.prototype.decomposeLine = function(context) {
@@ -935,7 +933,7 @@ MathAtom.prototype.decomposeLine = function(context) {
     const ruleWidth = FONTMETRICS.defaultRuleThickness /
         mathstyle.sizeMultiplier;
 
-    const line = makeSpan('', context.mathstyle.adjustTo(Mathstyle.TEXT) + 
+    const line = makeSpan('', context.mathstyle.adjustTo(Mathstyle.TEXT) +
         ' ' + this.position + '-line');
     line.height = ruleWidth;
     line.maxFontSize = 1.0;
@@ -945,7 +943,7 @@ MathAtom.prototype.decomposeLine = function(context) {
         vlist = makeVlist(context, [inner, 3 * ruleWidth, line, ruleWidth]);
     } else {
         const innerSpan = makeSpan(inner);
-        vlist = makeVlist(context, [ruleWidth, line, 3 * ruleWidth, innerSpan], 
+        vlist = makeVlist(context, [ruleWidth, line, 3 * ruleWidth, innerSpan],
             'top', Span.height(innerSpan));
     }
 
@@ -960,14 +958,14 @@ MathAtom.prototype.decomposeOverunder = function(context) {
         context.mathstyle.adjustTo(annotationStyle.mathstyle)) : null;
     const below = this.underscript ? makeSpan(decompose(annotationStyle, this.underscript),
         context.mathstyle.adjustTo(annotationStyle.mathstyle)) : null;
-    
+
     return makeStack(context, base, 0, 0, above, below, this.mathtype || 'mrel');
 }
 
 MathAtom.prototype.decomposeOverlap = function(context) {
     const inner = makeSpan(decompose(context, this.body), 'inner');
 
-    return makeOrd([inner, makeSpan('', 'fix')], 
+    return makeOrd([inner, makeSpan('', 'fix')],
         (this.align === 'left' ? 'llap' : 'rlap'));
 }
 
@@ -982,7 +980,7 @@ MathAtom.prototype.decomposeRule = function(context) {
 
     const result = makeOrd('', 'rule');
 
-    let shift = this.shift && !isNaN(this.shift) ? this.shift : 0; 
+    let shift = this.shift && !isNaN(this.shift) ? this.shift : 0;
     shift =  shift / mathstyle.sizeMultiplier;
     const width = (this.width) / mathstyle.sizeMultiplier;
     const height = (this.height) / mathstyle.sizeMultiplier;
@@ -1080,8 +1078,8 @@ MathAtom.prototype.decomposeOp = function(context) {
 
     if (this.superscript || this.subscript) {
         const limits = this.limits || 'auto';
-        if (this.alwaysHandleSupSub || 
-            limits === 'limits' || 
+        if (this.alwaysHandleSupSub ||
+            limits === 'limits' ||
             (limits === 'auto' && mathstyle.size === Mathstyle.DISPLAY.size)) {
             return this.attachLimits(context, base, baseShift, slant);
         }
@@ -1195,12 +1193,12 @@ MathAtom.prototype.decomposeEnclose = function(context) {
 
     if (this.notation.roundedbox) {
         result.setStyle('border-radius', (Span.height(result) + Span.depth(result)) / 2, 'em');
-        result.setStyle('border', this.borderStyle);        
+        result.setStyle('border', this.borderStyle);
     }
 
     if (this.notation.circle) {
         result.setStyle('border-radius', '50%');
-        result.setStyle('border', this.borderStyle);        
+        result.setStyle('border', this.borderStyle);
     }
 
     if (this.notation.top) result.setStyle('border-top', this.borderStyle);
@@ -1274,7 +1272,7 @@ MathAtom.prototype.decomposeEnclose = function(context) {
     // }
     // if (this.notation.phasorangle) {
     //     svg += '<path d="';
-    //     svg += `M ${h / 2},1 L1,${h} L${w},${h} "`; 
+    //     svg += `M ${h / 2},1 L1,${h} L${w},${h} "`;
     //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
     //     if (this.svgStrokeStyle) {
     //         svg += ' stroke-linecap="round"';
@@ -1284,7 +1282,7 @@ MathAtom.prototype.decomposeEnclose = function(context) {
     // }
     // if (this.notation.radical) {
     //     svg += '<path d="';
-    //     svg += `M 0,${.6 * h} L1,${h} L${emToPx(padding) * 2},1 "`; 
+    //     svg += `M 0,${.6 * h} L1,${h} L${emToPx(padding) * 2},1 "`;
     //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
     //     if (this.svgStrokeStyle) {
     //         svg += ' stroke-linecap="round"';
@@ -1294,7 +1292,7 @@ MathAtom.prototype.decomposeEnclose = function(context) {
     // }
     // if (this.notation.longdiv) {
     //     svg += '<path d="';
-    //     svg += `M ${w} 1 L1 1 a${emToPx(padding)} ${h / 2}, 0, 0, 1, 1 ${h} "`; 
+    //     svg += `M ${w} 1 L1 1 a${emToPx(padding)} ${h / 2}, 0, 0, 1, 1 ${h} "`;
     //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
     //     if (this.svgStrokeStyle) {
     //         svg += ' stroke-linecap="round"';
@@ -1319,9 +1317,9 @@ MathAtom.prototype.decomposeEnclose = function(context) {
 
 /**
  * Return a representation of this, but decomposed in an array of Spans
- * 
+ *
  * @param {Context} context Font variant, size, color, etc...
- * @param {Span[]} [phantomBase=null] If not null, the spans to use to 
+ * @param {Span[]} [phantomBase=null] If not null, the spans to use to
  * calculate the placement of the supsub
  * @return {Span[]}
  * @method MathAtom#decompose
@@ -1345,7 +1343,7 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
 
     } else if (this.type === 'accent') {
         result = this.decomposeAccent(context);
-        
+
     } else if (this.type === 'leftright') {
         result = this.decomposeLeftright(context);
 
@@ -1378,7 +1376,7 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
         //
         // STYLING
         //
-     
+
     } else if (this.type === 'msubsup') {
         // The caret for this atom type is handled by its elements
         result = makeOrd('\u200b');
@@ -1387,7 +1385,7 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
             result.depth = phantomBase[0].depth;
         }
 
-    } else if (this.type === 'mord' || 
+    } else if (this.type === 'mord' ||
         this.type === 'minner' || this.type === 'mbin' ||
         this.type === 'mrel' || this.type === 'mpunct' ||
         this.type === 'mopen' || this.type === 'mclose' ||
@@ -1414,7 +1412,7 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
 
     } else if (this.type === 'spacing') {
         // A spacing command (\quad, etc...)
-        
+
         if (this.body === '\u200b') {
             // ZERO-WIDTH SPACE
             result = this.makeSpan(context, '\u200b');
@@ -1427,7 +1425,7 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
         } else if (this.width) {
             result = makeSpan('\u200b', 'mspace ');
             if (this.width > 0) {
-                result.setWidth(this.width);            
+                result.setWidth(this.width);
             } else {
                 result.setStyle('margin-left', this.width, 'em');
             }
@@ -1459,7 +1457,7 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
         result = this.decomposeEnclose(context);
 
 
-    } else if (this.type === 'esc' || this.type === 'command' || 
+    } else if (this.type === 'esc' || this.type === 'command' ||
         this.type === 'error' ) {
         result = this.makeSpan(context, this.body);
         result.classes = '';        // Override fonts and other attributes.
@@ -1474,9 +1472,9 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
         result = this.makeSpan(context, '⬚');
 
     } else if (this.type === 'first') {
-        // the `first` pseudo-type is used as a placeholder as 
-        // the first element in a children list. This makes 
-        // managing the list, and the caret selection, easier. 
+        // the `first` pseudo-type is used as a placeholder as
+        // the first element in a children list. This makes
+        // managing the list, and the caret selection, easier.
         // ZERO-WIDTH SPACE
         if (this.hasCaret) {
             result = this.makeSpan(context, '\u200b');
@@ -1508,7 +1506,7 @@ MathAtom.prototype.decompose = function(context, phantomBase) {
         // in the atom decomposition (e.g. decomposeOp, decomposeAccent)
         if (Array.isArray(result)) {
             const lastSpan = result[result.length - 1];
-            result[result.length - 1] = 
+            result[result.length - 1] =
                 this.attachSupsub(context, lastSpan, lastSpan.type);
         } else {
             result = [this.attachSupsub(context, result, result.type)];
@@ -1524,7 +1522,7 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
     // If no superscript or subscript, nothing to do.
     if (!this.superscript && !this.subscript) return nucleus;
 
-    // Superscript and subscripts are discussed in the TeXbook 
+    // Superscript and subscripts are discussed in the TeXbook
     // on page 445-446, rules 18(a-f).
     // TeX:14859-14945
 
@@ -1568,7 +1566,7 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
 
 
     let supsub = null;
-    
+
     if (submid && supmid) {
         // Rule 18e
         supShift = Math.max(
@@ -1620,7 +1618,7 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
         supsub.children[0].setRight(scriptspace);
     }
 
-    // Display the caret *following* the superscript and subscript, 
+    // Display the caret *following* the superscript and subscript,
     // so attach the caret to the 'msubsup' element.
 
     const supsubContainer = makeSpan(supsub, 'msubsup');
@@ -1635,7 +1633,7 @@ MathAtom.prototype.attachSupsub = function(context, nucleus, type) {
 function makeID(context) {
     let result;
     if (typeof context.generateID === 'boolean' && context.generateID) {
-        result = Date.now().toString(36).slice(-2) + 
+        result = Date.now().toString(36).slice(-2) +
             Math.floor(Math.random() * 0x186a0).toString(36);
     } else if (typeof context.generateID !== 'boolean') {
         if (context.generateID.overrideID) {
@@ -1669,9 +1667,9 @@ MathAtom.prototype.bind = function(context, span) {
 
 
 /**
- * Create a span with the specified body and with a class attribute 
+ * Create a span with the specified body and with a class attribute
  * equal to the type ('mbin', 'inner', 'spacing', etc...)
- * 
+ *
  * @param {Context} context
  * @param {(string|Span[])} body
  * @return {Span}
@@ -1684,15 +1682,15 @@ MathAtom.prototype.makeSpan = function(context, body) {
     //
     // 1. Determine the font family (i.e. 'amsrm', 'mathit', 'mathcal', etc...)
     //
-    
+
     // The font family is determined by:
     // - the font family associated with this atom (optional). For example,
-    // some atoms such as some functions ('\sin', '\cos', etc...) or some 
+    // some atoms such as some functions ('\sin', '\cos', etc...) or some
     // symbols ('\Z') have an explicit font family.
     // - the font family in the current rendering context, represented by the
     // `context.font` argument. This can also be null.
 
-    // In general, the font from the rendering context overrides the 
+    // In general, the font from the rendering context overrides the
     // atom's font family
     let fontFamily = context.font || this.fontFamily;
 
@@ -1717,7 +1715,7 @@ MathAtom.prototype.makeSpan = function(context, body) {
 
     let fontName = 'Main-Regular';  // Default font
     if (fontFamily) {
-        // Use either the calculated font name or, if the font does not 
+        // Use either the calculated font name or, if the font does not
         // include the symbol, the original font associated with this symbol.
         fontName = getFontName(body, fontFamily);
         if (!fontName && this.fontFamily) {
@@ -1787,9 +1785,9 @@ MathAtom.prototype.makeSpan = function(context, body) {
 
     result.setStyle('color', context.getColor());
     result.setStyle('background-color', context.getBackgroundColor());
-    
+
     // To retrieve the atom from a span, for example when the span is clicked
-    // on, attach a randomly generated ID to the span and associate it 
+    // on, attach a randomly generated ID to the span and associate it
     // with the atom.
     this.bind(context, result);
 
@@ -1807,12 +1805,12 @@ MathAtom.prototype.makeSpan = function(context, body) {
 
 
 
-MathAtom.prototype.attachLimits = 
+MathAtom.prototype.attachLimits =
     function(context, nucleus, nucleusShift, slant) {
 
-    const limitAbove = this.superscript ? makeSpan(decompose(context.sup(), this.superscript), 
+    const limitAbove = this.superscript ? makeSpan(decompose(context.sup(), this.superscript),
         context.mathstyle.adjustTo(context.mathstyle.sup())) : null;
-    const limitBelow = this.subscript ? makeSpan(decompose(context.sub(), this.subscript), 
+    const limitBelow = this.subscript ? makeSpan(decompose(context.sub(), this.subscript),
         context.mathstyle.adjustTo(context.mathstyle.sub())) : null;
 
     return makeStack(context, nucleus, nucleusShift, slant,
@@ -1828,16 +1826,16 @@ MathAtom.prototype.attachLimits =
 /**
  * Combine a nucleus with an atom above and an atom below. Used to form
  * limits and used by \stackrel.
- * 
- * @param {Context} context 
+ *
+ * @param {Context} context
  * @param {Span} nucleus The base over and under which the atoms will
  * be placed.
- * @param {integer} nucleusShift The vertical shift of the nucleus from 
+ * @param {integer} nucleusShift The vertical shift of the nucleus from
  * the baseline.
- * @param {integer} slant For operators that have a slant, such as \int, 
+ * @param {integer} slant For operators that have a slant, such as \int,
  * indicate by how much to horizontally offset the above and below atoms
- * @param {Span} above 
- * @param {Span} below 
+ * @param {Span} above
+ * @param {Span} below
  * @param {string} type The type ('mop', 'mrel', etc...) of the result
  * @return {Span}
  * @memberof module:mathAtom
@@ -1867,7 +1865,7 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
     }
 
     let result = null;
-    
+
     if (below && above) {
         const bottom = FONTMETRICS.bigOpSpacing5 +
             Span.height(below) + Span.depth(below) +
@@ -1958,8 +1956,8 @@ const AUTO_ITALIC_REGEX = /[A-Za-z]|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|
  */
 function getFontName(symbol, fontFamily) {
     // If this is not a single char, just do a simple fontFamily -> fontName mapping
-    if (typeof symbol !== 'string' || 
-        symbol.length > 1 || 
+    if (typeof symbol !== 'string' ||
+        symbol.length > 1 ||
         symbol === '\u200b') {
         return FONT_NAME[fontFamily] || fontFamily;
     }
@@ -1970,7 +1968,7 @@ function getFontName(symbol, fontFamily) {
 
     let result = '';
     if (fontFamily === 'mathit') {
-        // Some characters do not exist in the Math-Italic font, 
+        // Some characters do not exist in the Math-Italic font,
         // use Main-Italic instead
         if (/[0-9]/.test(symbol) || symbol === '\\imath' ||
             symbol === '\\jmath' || symbol === '\\pounds' ) {
@@ -2026,7 +2024,7 @@ function getFontName(symbol, fontFamily) {
  * A span is the most elementary type possible, for example 'text'
  * or 'vlist', while the input atoms may be more abstract and complex,
  * such as 'genfrac'
- * 
+ *
  * @param {Context} context Font family, variant, size, color, etc...
  * @param {(MathAtom|MathAtom[])} atoms
  * @return {Span[]}
@@ -2045,8 +2043,8 @@ function decompose(context, atoms) {
         context = new Context.Context(context);
     }
 
-    // In most cases we want to display selection, 
-    // except if the generateID.groupNumbers flag is set which is used for 
+    // In most cases we want to display selection,
+    // except if the generateID.groupNumbers flag is set which is used for
     // read aloud.
     const displaySelection = !context.generateID || !context.generateID.groupNumbers;
 
@@ -2076,22 +2074,22 @@ function decompose(context, atoms) {
             let selectionIsTight = false;
             let phantomBase = null;
             for (let i = 0; i < atoms.length; i++) {
-                // Is this a binary operator ('+', '-', etc...) that potentially 
+                // Is this a binary operator ('+', '-', etc...) that potentially
                 // needs to be adjusted to a unary operator?
-                // When preceded by a mbin, mopen, mrel, mpunct, mop or 
+                // When preceded by a mbin, mopen, mrel, mpunct, mop or
                 // when followed by a mrel, mclose or mpunct
-                // or if preceded or followed by no sibling, a 'mbin' becomes a 
+                // or if preceded or followed by no sibling, a 'mbin' becomes a
                 // 'mord'
                 if (atoms[i].type === 'mbin') {
                     if (['first', 'none', 'mrel', 'mpunct', 'mopen', 'mbin', 'mop']
-                            .includes(previousType) || 
+                            .includes(previousType) ||
                         ['none', 'mrel', 'mpunct', 'mclose']
                             .includes(nextType)) {
                         atoms[i].type = 'mord';
                     }
                 }
 
-                // If this is a scaffolding supsub, we'll use the 
+                // If this is a scaffolding supsub, we'll use the
                 // phantomBase from the previous atom to position the supsub.
                 // Otherwise, no need for the phantomBase
                 if (atoms[i].body !== '\u200b' ||
@@ -2099,9 +2097,9 @@ function decompose(context, atoms) {
                     phantomBase = null;
                 }
 
-                if (context.generateID.groupNumbers && 
-                    atoms[i].type === 'mord' && 
-                    '0123456789,.'.indexOf(atoms[i].latex) >= 0 && 
+                if (context.generateID.groupNumbers &&
+                    atoms[i].type === 'mord' &&
+                    '0123456789,.'.indexOf(atoms[i].latex) >= 0 &&
                     digitStringID) {
                     context.generateID.overrideID = digitStringID;
                 }
@@ -2118,15 +2116,15 @@ function decompose(context, atoms) {
 
                     // If this is a digit, keep track of it
                     if (context.generateID && context.generateID.groupNumbers) {
-                        if (atoms[i].type === 'mord' && 
+                        if (atoms[i].type === 'mord' &&
                             '0123456789,.'.indexOf(atoms[i].latex) >= 0) {
                             if (!digitStringID) {
                                 digitStringID = atoms[i].id;
                             }
                         }
-                        if ((atoms[i].type !== 'mord' || 
+                        if ((atoms[i].type !== 'mord' ||
                             '0123456789,.'.indexOf(atoms[i].latex) < 0 ||
-                            atoms[i].superscript || 
+                            atoms[i].superscript ||
                             atoms[i].subscript) && digitStringID) {
                             // Done with digits
                             digitStringID = null;
@@ -2204,7 +2202,7 @@ function decompose(context, atoms) {
             result = [span];
         }
     }
-    
+
 
     if (!result || result.length === 0) return null;
 
@@ -2265,11 +2263,11 @@ function makeRoot(parseMode, body) {
 
 
 // Export the public interface for this module
-return { 
+export default {
     MathAtom,
     decompose,
     makeRoot
 }
 
 
-})
+

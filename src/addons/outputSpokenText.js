@@ -1,10 +1,9 @@
 
 
 
-define(['mathlive/core/mathAtom', 
-    'mathlive/core/definitions', 
-    'mathlive/editor/editor-popover'], 
-    function(MathAtom, Definitions, Popover) {
+import MathAtom from '../core/mathAtom';
+import Definitions from '../core/definitions';
+import Popover from '../editor/editor-popover';
 
 // Markup
 // Two common flavor of markups: SSML and 'mac'. The latter is only available
@@ -68,7 +67,7 @@ const PRONUNCIATION = {
     '\\lor':        ' or ',
     '\\neg':        ' not ',
     '\\div':        ' divided by ',
-    
+
     '\\forall':     ' for all ',
     '\\exists':     ' there exists ',
     '\\nexists':    ' there does not exists ',
@@ -105,7 +104,7 @@ const PRONUNCIATION = {
     '\\lvert':		'<break time="150ms"/>left vertical bar<break time="150ms"/>',
     '\\rvert':		'<break time="150ms"/>right vertical bar<break time="150ms"/>',
     // '\\lbrack':		'left bracket',
-    // '\\rbrack':		'right bracket',    
+    // '\\rbrack':		'right bracket',
     '\\lbrack':     ' <break time="150ms"/> open square bracket <break time="150ms"/>',
     '\\rbrack':     ' <break time="150ms"/> close square bracket <break time="150ms"/>',
 }
@@ -117,7 +116,7 @@ function getSpokenName(latex) {
         result = ' ' + latex.replace('\\', '') + ' ';
     }
 
-    // If we got more than one result (from NOTES), 
+    // If we got more than one result (from NOTES),
     // pick the first one.
     if (Array.isArray(result)) {
         result = result[0];
@@ -220,14 +219,14 @@ MathAtom.toSpeakableFragment = function(atom, options) {
     let result = '';
 
     if (atom.id && options.speechMode === 'math') {
-        result += '<mark name="' + atom.id.toString() + '"/>';        
+        result += '<mark name="' + atom.id.toString() + '"/>';
     }
 
     if (Array.isArray(atom)) {
         let isInDigitRun = false;             // need to group sequence of digits
         for (let i = 0; i < atom.length; i++) {
-            if (i < atom.length - 2 &&  
-                atom[i].type === 'mopen' && 
+            if (i < atom.length - 2 &&
+                atom[i].type === 'mopen' &&
                 atom[i + 2].type === 'mclose' &&
                 atom[i + 1].type === 'mord') {
                 result += ' of ';
@@ -302,7 +301,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                 break;
             case 'surd':
                 body = MathAtom.toSpeakableFragment(atom.body, options);
-                
+
                 if (!atom.index) {
                     if (isAtomic(atom.body)) {
                         result += ' The square root of ' + body + ' , ';
@@ -356,13 +355,13 @@ MathAtom.toSpeakableFragment = function(atom, options) {
             case 'textord':
             {
                 const command = atom.latex ? atom.latex.trim() : '' ;
-                if (command === '\\mathbin' || command === '\\mathrel' || 
-                    command === '\\mathopen' || command === '\\mathclose' || 
-                    command === '\\mathpunct' || command === '\\mathord' || 
+                if (command === '\\mathbin' || command === '\\mathrel' ||
+                    command === '\\mathopen' || command === '\\mathclose' ||
+                    command === '\\mathpunct' || command === '\\mathord' ||
                     command === '\\mathinner') {
                     result = MathAtom.toSpeakableFragment(atom.body, options);
                     break;
-                }   
+                }
 
                 let atomValue = atom.body;
                 let latexValue = atom.latex;
@@ -377,14 +376,14 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                     }
 
                     if (atomValue) {
-                        const value = PRONUNCIATION[atomValue] || 
+                        const value = PRONUNCIATION[atomValue] ||
                             (latexValue ? PRONUNCIATION[latexValue.trim()] : '');
                         if (value) {
                             result += ' ' + value;
                         } else {
-                            const spokenName = latexValue ? 
+                            const spokenName = latexValue ?
                                 getSpokenName(latexValue.trim()) : '';
-                            
+
                             result += spokenName ? spokenName : letter(atomValue);
                         }
                     } else {
@@ -445,7 +444,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                             result += ' The integral of <break time="200ms"/> ';
                         }
                     } else if (typeof atom.body === 'string') {
-                        const value = PRONUNCIATION[atom.body] || 
+                        const value = PRONUNCIATION[atom.body] ||
                             PRONUNCIATION[atom.latex.trim()];
                         if (value) {
                             result += value;
@@ -471,7 +470,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
 
             case 'enclose':
                 body = MathAtom.toSpeakableFragment(atom.body, options);
-                
+
                 if (isAtomic(atom.body)) {
                     result += ' crossed out ' + body + ' , ';
                 } else {
@@ -487,7 +486,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
             case 'box':
                 // @todo
                 break;
-                
+
         }
         if (!supsubHandled && atom.superscript) {
 
@@ -498,7 +497,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                 if (options.speechMode === 'math') {
                     const id = atomicID(atom.superscript);
                     if (id) {
-                        result += '<mark name="' + id + '"/>';        
+                        result += '<mark name="' + id + '"/>';
                     }
                 }
                 if (sup2 === '\u2032') {
@@ -506,7 +505,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                 } else if (sup2 === '2') {
                     result += ' squared ';
                 } else if (sup2 === '3') {
-                    result += ' cubed ';                
+                    result += ' cubed ';
                 } else if (isNaN(parseInt(sup2))) {
                     result += ' to the ' + sup + '; ';
                 } else {
@@ -578,13 +577,13 @@ MathAtom.toSpeakableText = function(atoms, options) {
         if (options.speechEngineRate) {
             prosody = '<prosody rate="' + options.speechEngineRate + '">'
         }
-        result = `<?xml version="1.0"?><speak version="1.1" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">` + 
+        result = `<?xml version="1.0"?><speak version="1.1" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">` +
         '<amazon:auto-breaths>' +
         prosody +
         '<p><s>' +
-        result + 
+        result +
         '</s></p>' +
-        (prosody ? '</prosody>' : '') + 
+        (prosody ? '</prosody>' : '') +
         '</amazon:auto-breaths>' +
         '</speak>';
     } else if (options.textToSpeechMarkup === 'mac' && platform('mac') === 'mac') {
@@ -607,5 +606,5 @@ MathAtom.toSpeakableText = function(atoms, options) {
 }
 
 // Export the public interface for this module
-return {}
-})
+export default {}
+

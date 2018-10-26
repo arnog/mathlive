@@ -1,13 +1,11 @@
 
 
-define(['mathlive/core/definitions', 
-    'mathlive/core/mathAtom', 
-    'mathlive/core/lexer', 
-    'mathlive/core/parser', 
-    'mathlive/core/span', 
-    'mathlive/editor/editor-shortcuts', 
-], 
-    function(Definitions, MathAtom, Lexer, ParserModule, Span, Shortcuts) {
+import Definitions from '../core/definitions';
+import MathAtom from '../core/mathAtom';
+import Lexer from '../core/lexer';
+import ParserModule from '../core/parser';
+import Span from '../core/span';
+import Shortcuts from './editor-shortcuts';
 
 
 
@@ -99,7 +97,7 @@ const SAMPLES = {
 
 // A textual description of a LaTeX command.
 // The value can be either a single string, or an array of string
-// in order to provide alternatives or additional context. 
+// in order to provide alternatives or additional context.
 // In that case, the first string in the array should be appropriate
 // to be spoken for accessibility.
 const NOTES = {
@@ -255,7 +253,7 @@ const NOTES = {
     '\\oplus':          ['direct sum', '(of modules)'],
     '\\lb':             'base-2 logarithm',
     '\\lg':             'base-10 logarithm',
-    '\\wp':             ['Weierstrass P', 
+    '\\wp':             ['Weierstrass P',
                         '<a target="_blank" href="https://en.wikipedia.org/wiki/Weierstrass%27s_elliptic_functions">Wikipedia <big>&#x203A;</big></a>'
                         ],
     '\\wr':             ['wreath product',
@@ -290,7 +288,7 @@ const NOTES = {
 
     '\\implies':        ['implies', 'logical consequence'],
     '\\impliedby':      ['implied by', 'logical consequence'],
-    
+
     '\\surd':           ['surd', 'root of', 'checkmark'],
     '\\ltimes':         ['semi direct product',
                         '<a target="_blank" href="https://en.wikipedia.org/wiki/Semidirect_product">Wikipedia <big>&#x203A;</big></a>'
@@ -310,12 +308,12 @@ const NOTES = {
 
     '\\simeq':          'is group isomorphic with',
     '\\vartriangleleft':   [
-                        'is a normal subgroup of', 
+                        'is a normal subgroup of',
                         'is an ideal ring of'
                         ],
 
     '\\circ':           ['circle', 'ring', 'function composition'],
-    
+
     '\\rlap':           ['overlap right',
                             '\\rlap{x}o'],
     '\\llap':           ['overlap left',
@@ -344,11 +342,11 @@ function latexToMarkup(latex, mf) {
     const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', null, mf.config.macros);
     const spans = MathAtom.decompose(
         {
-            mathstyle: 'displaystyle', 
+            mathstyle: 'displaystyle',
             macros: mf.config.macros
-        }, 
+        },
         parse);
-    
+
     const base = Span.makeSpan(spans, 'ML__base');
 
     const topStrut = Span.makeSpan('', 'ML__strut');
@@ -373,17 +371,17 @@ function showPopoverWithLatex(mf, latex, displayArrows) {
     const command_shortcuts = Shortcuts.stringify(
         Shortcuts.getShortcutsForCommand(command)) || '';
 
-    let template = displayArrows ? 
+    let template = displayArrows ?
         '<div class="ML__popover_prev-shortcut" role="button" aria-label="Previous suggestion"><span><span>&#x25B2;</span></span></div>' : '';
     template += '<span class="ML__popover_content">';
-    template += '<div class="ML__popover_command" role="button" >' + 
+    template += '<div class="ML__popover_command" role="button" >' +
         command_markup + '</div>';
     if (command_note) {
-        template += '<div class="ML__popover_note">' + 
+        template += '<div class="ML__popover_note">' +
             command_note + '</div>';
     }
     if (command_shortcuts) {
-        template += '<div class="ML__popover_shortcut">' + 
+        template += '<div class="ML__popover_shortcut">' +
             command_shortcuts + '</div>';
     }
     template += '</span>';
@@ -394,8 +392,8 @@ function showPopoverWithLatex(mf, latex, displayArrows) {
     if (el && el.length > 0) {
         mf._attachButtonHandlers(el[0], 'complete');
     }
-    
-    
+
+
     el = mf.popover.getElementsByClassName('ML__popover_prev-shortcut');
     if (el && el.length > 0) {
         mf._attachButtonHandlers(el[0], 'previousSuggestion');
@@ -412,9 +410,9 @@ function updatePopoverPosition(mf, options) {
     // If the popover pane is visible...
     if (mf.popover.classList.contains('ML__popover_visible')) {
         if (options && options.deferred) {
-            // Call ourselves again later, typically after the 
+            // Call ourselves again later, typically after the
             // rendering/layout of the DOM has been completed
-            setTimeout(updatePopoverPosition.bind(null, mf), 0);    
+            setTimeout(updatePopoverPosition.bind(null, mf), 0);
         } else {
             if (mf.blurred || !mf.mathlist.anchor() || mf.mathlist.anchor().type !== 'command') {
                 hidePopover(mf);
@@ -423,7 +421,7 @@ function updatePopoverPosition(mf, options) {
                 const position = mf._getCaretPosition();
                 if (position) {
                     // and position the popover right below the caret
-                    mf.popover.style.left = 
+                    mf.popover.style.left =
                         (position.x - mf.popover.offsetWidth / 2) + 'px';
                     mf.popover.style.top = (position.y + 5) + 'px';
                 }
@@ -446,12 +444,12 @@ function showPopover(mf, markup) {
 
 
 function hidePopover(mf) {
-    mf.popover.classList.remove('ML__popover_visible');    
+    mf.popover.classList.remove('ML__popover_visible');
 }
 
 
 
-return {
+export default {
     getNote,
     SAMPLES,
     NOTES,
@@ -462,4 +460,4 @@ return {
 }
 
 
-})
+

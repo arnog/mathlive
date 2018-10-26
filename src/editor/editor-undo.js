@@ -1,7 +1,6 @@
 
 
-define([], 
-    function() {
+
 
 /**
  * 
@@ -143,9 +142,9 @@ UndoManager.prototype.restore = function (state, options) {
 
 
 
-return {
+export default {
     UndoManager: UndoManager
 }
 
 
-})
+

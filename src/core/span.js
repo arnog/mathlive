@@ -6,8 +6,7 @@
  * @private
  */
 
-define(['mathlive/core/fontMetrics'],
-    function(FontMetrics) {
+import FontMetrics from './fontMetrics';
 
 const NUMBER_FORMATTER = new Intl.NumberFormat('en-US', {
     useGrouping: false,
@@ -18,7 +17,7 @@ const NUMBER_FORMATTER = new Intl.NumberFormat('en-US', {
  * Return a string made up of the concatenated arguments.
  * Each arguments can be either a string, which is unchanged,
  * or a number, which is converted to a string with at most 5 fractional digits.
- * 
+ *
  * @param {...string} args
  * @return {string}
  * @memberof module:span
@@ -52,7 +51,7 @@ function toString() {
  * It is composed of an optional body of text and an optional list
  * of children (other spans). Each span can be decorated with
  * CSS classes and style attributes.
- * 
+ *
  * @param {string|Span|Span[]} content the items 'contained' by this node
  * @param {string} classes list of classes attributes associated with this node
  * @return {void}
@@ -60,9 +59,9 @@ function toString() {
  * @global
  * @memberof module:span
  * @property {string} type - For example, `'command'`, `'mrel'`, etc...
- * @property {string} classes - A string of space separated CSS classes 
+ * @property {string} classes - A string of space separated CSS classes
  * associated with this element
- * @property {Span[]} children - An array, potentially empty, of spans which 
+ * @property {Span[]} children - An array, potentially empty, of spans which
  * this span encloses
  * @property {string} body - Content of this span. Can be empty.
  * @property {Object} style - A set of key/value pairs specifying CSS properties
@@ -89,7 +88,7 @@ function Span(content, classes) {
     }
 
     // STYLE
-    // CSS style, as an array of key value pairs. 
+    // CSS style, as an array of key value pairs.
     // Use this.setStyle() to modify it.
     this.style = null;
 
@@ -101,7 +100,7 @@ function Span(content, classes) {
  * Update the dimensions of this node based on its children:
  * - height: distance from bottom to top
  * - depth: distance from bottom to baseline
- * - maxFontSize:  
+ * - maxFontSize:
  * @method module:span.Span#updateDimensions
  * @private
  */
@@ -129,7 +128,7 @@ Span.prototype.updateDimensions = function() {
 /**
  * Set the value of a CSS property associated with this span.
  * For example, setStyle('border-right', 5.6, 'em');
- * 
+ *
  * @param {string} prop the CSS property to set
  * @param {Object} value a series of strings and numbers that will be concatenated.
  * @return {string}
@@ -176,7 +175,7 @@ Span.prototype.setWidth = function(width) {
 
 Span.prototype.addMarginRight = function(margin) {
     if (margin && margin !== 0) {
-        if (!this.style && 
+        if (!this.style &&
             !/qquad|quad|enspace|thickspace|mediumspace|thinspace|negativethinspace/.test(this.classes)) {
             // Attempt to use a class instead of an explicit margin
             const cls = {
@@ -203,7 +202,7 @@ Span.prototype.addMarginRight = function(margin) {
 /**
  * Return HTML markup representing this span, its style, classes and
  * children.
- * 
+ *
  * @param {number} [hskip] amount of whitespace to insert before this element
  * This is used to adjust the inter-spacing between spans of different types,
  * e.g. 'bin' and 'rel', according to the TeX rules.
@@ -246,7 +245,7 @@ const INTER_ATOM_SPACING = {
 }
 
 /**
- * 
+ *
  * @alias module:span.INTER_ATOM_TIGHT_SPACING
  * @private
  */
@@ -270,11 +269,11 @@ function lastSpanType(span) {
 
 /**
  * Generate the HTML markup to represent this span.
- * 
- * @param {?number} hskip - If a value is provided, it will be added (in ems) to the 
+ *
+ * @param {?number} hskip - If a value is provided, it will be added (in ems) to the
  * left margin.
- * @param {?number} hscale - If a value is provided, the margins are scaled by 
- * this factor. 
+ * @param {?number} hscale - If a value is provided, the margins are scaled by
+ * this factor.
  * @return {string} HTML markup
  * @method module:span.Span#toMarkup
  * @private
@@ -292,7 +291,7 @@ Span.prototype.toMarkup = function(hskip, hscale) {
                 if (type) {
                     if (type === 'textord') type = 'mord';
                     if (type === 'first') type = 'none';
-                    if (child.isTight) { 
+                    if (child.isTight) {
                         spacing = (INTER_ATOM_TIGHT_SPACING[previousType + '+' + type] || 0) / 18;
                     } else {
                         spacing = (INTER_ATOM_SPACING[previousType + '+' + type] || 0) / 18;
@@ -318,7 +317,7 @@ Span.prototype.toMarkup = function(hskip, hscale) {
 
         if (this.attributes) {
             for (const attribute in this.attributes) {
-                if (this.attributes.hasOwnProperty(attribute)) {  
+                if (this.attributes.hasOwnProperty(attribute)) {
                     result += ' ' + attribute + '="' + this.attributes[attribute] + '"';
                 }
             }
@@ -374,7 +373,7 @@ Span.prototype.toMarkup = function(hskip, hscale) {
         }
         result += '>';
 
-        // If there is some SVG markup associated with this span, 
+        // If there is some SVG markup associated with this span,
         // include it now
         if (this.svgOverlay) {
             result += body;     // @todo maybe safe encode here...? (< >)
@@ -405,20 +404,20 @@ Span.prototype.toMarkup = function(hskip, hscale) {
         result = '<span class="ML__caret">' + result + '</span>';
     }
 
-    return result;    
+    return result;
 }
 
 
 /**
  * Can this span be coalesced with 'span'?
- * This is used to 'coalesce' (i.e. group together) a series of spans that are 
+ * This is used to 'coalesce' (i.e. group together) a series of spans that are
  * identical except for their value, and to avoid generating redundant spans.
  * That is: '12' ->
  *      "<span class='mord mathrm'>12</span>"
  * rather than:
  *      "<span class='mord mathrm'>1</span><span class='mord mathrm'>2</span>"
  * @param {Span} span
- * @return {boolean} 
+ * @return {boolean}
  * @method module:span.Span#tryCoalesceWith
  * @private
  */
@@ -429,7 +428,7 @@ Span.prototype.tryCoalesceWith = function(span) {
     if (this.type !== span.type) return false;
 
     // Don't coalesce consecutive errors or placeholders
-    if (this.type === 'error' || this.type === 'placeholder' || 
+    if (this.type === 'error' || this.type === 'placeholder' ||
         this.type === 'command') return false;
 
     // If this span or the candidate span have children, we can't
@@ -444,7 +443,7 @@ Span.prototype.tryCoalesceWith = function(span) {
 
     if (thisStyleCount !== spanStyleCount) return false;
 
-    // For the purpose of our comparison,  
+    // For the purpose of our comparison,
     // any 'empty' classes (whitespace)
     const classes = this.classes.trim().replace(/\s+/g, ' ')
         .split(' ');
@@ -463,7 +462,7 @@ Span.prototype.tryCoalesceWith = function(span) {
     spanClasses.sort();
 
     for (let i = 0; i < classes.length; i++) {
-        // Don't coalesce vertical separators 
+        // Don't coalesce vertical separators
         // (used in column formating with {l||r} for example
         if (classes[i] === 'vertical-separator') return false;
         if (classes[i] !== spanClasses[i]) return false;
@@ -473,7 +472,7 @@ Span.prototype.tryCoalesceWith = function(span) {
     // If the styles are different, can't coalesce
     if (this.style && span.style) {
         for (const style in this.style) {
-            if (this.style.hasOwnProperty(style) && 
+            if (this.style.hasOwnProperty(style) &&
                 span.style.hasOwnProperty(style)) {
                 if (this.style[style] !== span.style[style]) return false;
             }
@@ -487,7 +486,7 @@ Span.prototype.tryCoalesceWith = function(span) {
     this.height = Math.max(this.height, span.height);
     this.depth = Math.max(this.depth, span.depth);
 
-    // The italic correction for the coalesced spans is the 
+    // The italic correction for the coalesced spans is the
     // italic correction of the last span.
     this.italic = span.italic;
 
@@ -497,7 +496,7 @@ Span.prototype.tryCoalesceWith = function(span) {
 /**
  * Attempts to coalesce (merge) spans, for example consecutive text spans.
  * Return a new tree with coalesced spans.
- * 
+ *
  * @param {Span[]} spans
  * @return {Span[]} coalesced tree
  * @memberof module:span
@@ -512,7 +511,7 @@ function coalesce(spans) {
     for (let i = 1; i < spans.length; i++) {
         if (!result[result.length - 1].tryCoalesceWith(spans[i])) {
             spans[i].children = coalesce(spans[i].children);
-            result.push(spans[i]); 
+            result.push(spans[i]);
         }
     }
     return result;
@@ -591,10 +590,10 @@ function makeSpan(content, classes) {
 
 
 /**
- * 
- * @param {string} fontFamily 
- * @param {string} symbol 
- * @param {string} classes 
+ *
+ * @param {string} fontFamily
+ * @param {string} symbol
+ * @param {string} classes
  * @memberof module:span
  * @private
  */
@@ -617,7 +616,7 @@ function makeSymbol(fontFamily, symbol, classes) {
  * Makes an element placed in each of the vlist elements to ensure that each
  * element has the same max font size. To do this, we create a zero-width space
  * with the correct font size.
-//  * Note: without this, even when fontSize = 0, the fraction bar is no 
+//  * Note: without this, even when fontSize = 0, the fraction bar is no
 //  * longer positioned correctly
  * @return {Span}
  * @memberof module:span
@@ -628,29 +627,29 @@ function makeFontSizer(context, fontSize) {
     const fontSizeInner = new Span('\u200b');    // ZERO WIDTH SPACE
 
     if (fontSizeAdjustment !== 1) {
-        fontSizeInner.setStyle('font-size', 
-            fontSizeAdjustment, 
+        fontSizeInner.setStyle('font-size',
+            fontSizeAdjustment,
             (fontSizeAdjustment > 0) ? 'em' : '');
         fontSizeInner.attributes = {
             "aria-hidden": true
         }
     }
 
-    if (context.size !== 'size5') { 
-        return new Span(fontSizeInner, 
+    if (context.size !== 'size5') {
+        return new Span(fontSizeInner,
             'fontsize-ensurer reset-' + context.size + ' size5');
-    } 
+    }
     return (fontSizeAdjustment !== 0) ? fontSizeInner : null;
 }
 
 /**
- * 
- * @param {string} type One of 'mbin', 'mop', 'mord', 'mrel' 'mclose', 
+ *
+ * @param {string} type One of 'mbin', 'mop', 'mord', 'mrel' 'mclose',
  * 'mpunct', 'minner'
  * @param {string|Span[]} content A string or an array of other Spans
  * @param {string} classes CSS classes decorating this span
  * See https://tex.stackexchange.com/questions/81752/
- * for a thorough description of the TeXt atom type and their relevance to 
+ * for a thorough description of the TeXt atom type and their relevance to
  * proper kerning.
  * @memberof module:span
  * @private
@@ -708,9 +707,9 @@ function makeStyleWrap(type, children, fromStyle, toStyle, classes) {
 
 /**
  * Add some SVG markup to be overlaid on top of the span
- * 
- * @param {Span} body 
- * @param {string} svgMarkup 
+ *
+ * @param {Span} body
+ * @param {string} svgMarkup
  */
 function makeSVG(body, svgMarkup, svgStyle) {
     body.svgOverlay = svgMarkup;
@@ -719,9 +718,9 @@ function makeSVG(body, svgMarkup, svgStyle) {
 }
 
 /**
- * 
- * @param {Span|Span[]} children 
- * @param {string} classes 
+ *
+ * @param {Span|Span[]} children
+ * @param {string} classes
  * @memberof module:span
  * @private
  */
@@ -742,16 +741,16 @@ function makeHlist(children, classes) {
 /**
  * Create a new span of type `vlist`, a set of vertically stacked items
  * @param {Context} context
- * @param {Array.<(number|Span)>} elements 
+ * @param {Array.<(number|Span)>} elements
  * An array of Span and integer. The integer can be either some kerning information
  * or the value of an individual shift of the preceding child if in 'individualShift' mode
- * @param {string} pos The method that will be used to position the elements in the vlist. 
- * 
+ * @param {string} pos The method that will be used to position the elements in the vlist.
+ *
  * One of:
  * - `"individualShift"`: each child must be followed by a number indicating how much to shift it (i.e. moved downwards)
  * - `"top"`: posData specifies the topmost point of the vlist (>0 move up)
  * - `"bottom"`: posData specifies the bottommost point of the vlist (>0 move down)
- * - `"shift"`: the baseline of the vlist will be positioned posData away from the baseline 
+ * - `"shift"`: the baseline of the vlist will be positioned posData away from the baseline
  * of the first child. (>0 moves down)
  * @param {number} posData
  * @memberof module:span
@@ -763,8 +762,8 @@ function makeVlist(context, elements, pos, posData) {
     pos = pos || 'shift';
     posData = posData || 0;
 
-    // Normalize the elements so that they're all either a number or 
-    // a single span. If a child is an array of spans, 
+    // Normalize the elements so that they're all either a number or
+    // a single span. If a child is an array of spans,
     // wrap it in a span
     for (let i = 0; i < elements.length; i++) {
         if (Array.isArray(elements[i])) {
@@ -791,7 +790,7 @@ function makeVlist(context, elements, pos, posData) {
             } else {
                 // It's a kern adjustment
                 bottom -= element;
-            } 
+            }
         }
         listDepth = bottom;
     } else if (pos === 'individualShift') {
@@ -807,12 +806,12 @@ function makeVlist(context, elements, pos, posData) {
         currPos = listDepth;
         for (let i = 2; i < originalElements.length; i += 2) {
             const diff = -originalElements[i + 1] - currPos -
-                originalElements[i].depth; 
+                originalElements[i].depth;
             currPos = currPos + diff;
 
             const kern = diff -
                 (originalElements[i - 2].height + originalElements[i - 2].depth);
- 
+
             elements.push(kern);
             elements.push(originalElements[i]);
         }
@@ -834,7 +833,7 @@ function makeVlist(context, elements, pos, posData) {
     for (const element of elements) {
         if (typeof element === 'number') {
             // It's a kern adjustment
-            currPos += element; 
+            currPos += element;
         } else {
             const shift = -element.depth - currPos;
             currPos += element.height + element.depth;
@@ -877,7 +876,7 @@ function makeVlist(context, elements, pos, posData) {
 // }
 
 // Export the public interface for this module
-return { 
+export default {
     coalesce,
     makeSpan,
     makeOp,
@@ -904,4 +903,4 @@ return {
     italic
 }
 
-})
+

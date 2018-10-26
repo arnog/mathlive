@@ -58,6 +58,7 @@
   "bugs": "https://github.com/arnog/mathlive/issues/",
   "devDependencies": {
     "autoprefixer": "^9.1.2",
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
     "babel-preset-env": "^1.7.0",
@@ -80,5 +81,6 @@
     "tape": "^4.9.1",
     "tape-watch": "^2.3.0",
     "webpack": "^3.12.0"
-  }
+  },
+  "dependencies": {}
 }

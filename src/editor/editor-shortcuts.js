@@ -3,7 +3,7 @@
  * @module editor/shortcuts
  * @private
  */
-define([], function() {
+
 
 
 /**
@@ -776,7 +776,7 @@ function stringify(shortcuts, join) {
     return result;
 }
 
-return {
+export default {
     INLINE : INLINE_SHORTCUTS,
     KEYBOARD: KEYBOARD_SHORTCUTS,
     match: match,
@@ -785,5 +785,5 @@ return {
     stringify: stringify,
 }
 
-})
+
 

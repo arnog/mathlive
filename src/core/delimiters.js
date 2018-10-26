@@ -23,8 +23,10 @@
  * @private
  */
 
-define(['mathlive/core/definitions', 'mathlive/core/span', 'mathlive/core/mathstyle', 'mathlive/core/fontMetrics'],
-    function(Definitions, Span, Mathstyle, FontMetrics) {
+import Definitions from './definitions';
+import Span from './span';
+import Mathstyle from './mathstyle';
+import FontMetrics from './fontMetrics';
 
 const makeSymbol = Span.makeSymbol;
 const makeStyleWrap = Span.makeStyleWrap;
@@ -41,7 +43,7 @@ const makeVlist = Span.makeVlist;
  * @private
  */
 function makeSmallDelim(type, delim, style, center, context, classes) {
-    const text = makeSymbol(Definitions.getFontName('math', delim), 
+    const text = makeSymbol(Definitions.getFontName('math', delim),
         Definitions.getValue('math', delim));
 
     const span = makeStyleWrap(type, text, context.mathstyle, style, classes);
@@ -62,7 +64,7 @@ function makeSmallDelim(type, delim, style, center, context, classes) {
  * @private
  */
 function makeLargeDelim(type, delim, size, center, context, classes) {
-    const inner = makeSymbol('Size' + size + '-Regular', 
+    const inner = makeSymbol('Size' + size + '-Regular',
         Definitions.getValue('math', delim));
 
     const result = makeStyleWrap( type,
@@ -95,7 +97,7 @@ function makeInner(symbol, font) {
 
     // @todo: revisit if all this wrapping is needed or if the spans could
     // be simplified
-    const inner = makeSpan(makeSymbol(font, 
+    const inner = makeSpan(makeSymbol(font,
         Definitions.getValue('math', symbol)), 'delimsizinginner' + sizeClass);
 
     return inner;
@@ -125,7 +127,7 @@ function makeStackedDelim(type, delim, heightTotal, center, context,
     // repeats of the arrows
     if (delim === '\\vert' || delim === '\\lvert' || delim === '\\rvert' || delim === '\\mvert' || delim === '\\mid') {
         repeat = top = bottom = '\u2223';
-    } else if (delim === '\\Vert' || delim === '\\lVert' || 
+    } else if (delim === '\\Vert' || delim === '\\lVert' ||
                 delim === '\\rVert' || delim === '\\mVert' || delim === '\\|') {
         repeat = top = bottom = '\u2225';
     } else if (delim === '\\uparrow') {
@@ -292,7 +294,7 @@ function makeStackedDelim(type, delim, heightTotal, center, context,
     // Finally, build the vlist
     const inner = makeVlist(context, inners, 'bottom', depth);
     inner.setStyle('color', context.color);
-    
+
     return makeStyleWrap(type, makeSpan(inner, 'delimsizing mult'),
         context.mathstyle, Mathstyle.TEXT, classes);
 }
@@ -338,7 +340,7 @@ function makeSizedDelim(type, delim, size, context, classes) {
         return makeNullFence(type, context, classes);
         // return makeSpan('', classes);
     }
-    
+
     // < and > turn into \langle and \rangle in delimiters
     if (delim === '<' || delim === '\\lt') {
         delim = '\\langle';
@@ -435,7 +437,7 @@ function traverseSequence(delim, height, sequence, context) {
         }
 
         const metrics = FontMetrics.getCharacterMetrics(
-                delim, 
+                delim,
                 delimTypeToFont(sequence[i]));
         if (!metrics) {
             // If we don't have metrics info for this character,
@@ -465,7 +467,7 @@ function traverseSequence(delim, height, sequence, context) {
 /**
  * Make a delimiter of a given height+depth, with optional centering. Here, we
  * traverse the sequences, and create a delimiter that the sequence tells us to.
- * 
+ *
  * @param {string} type 'mopen' or 'mclose'
  * @param {string} delim
  * @param {number} height
@@ -497,7 +499,7 @@ function makeCustomSizedDelim(type, delim, height, center, context, classes) {
     }
 
     // Look through the sequence
-    const delimType = traverseSequence(Definitions.getValue('math', delim), 
+    const delimType = traverseSequence(Definitions.getValue('math', delim),
         height, sequence, context);
 
     // Depending on the sequence element we decided on, call the appropriate
@@ -508,7 +510,7 @@ function makeCustomSizedDelim(type, delim, height, center, context, classes) {
     } else if (delimType.type === 'large') {
         return makeLargeDelim(type, delim, delimType.size, center, context,
                               classes);
-    } 
+    }
     console.assert(delimType.type === 'stack');
     return makeStackedDelim(type, delim, height, center, context, classes);
 }
@@ -562,18 +564,18 @@ function makeLeftRightDelim(type, delim, height, depth, context, classes) {
 }
 
 /**
- * 
- * @param {*} context 
+ *
+ * @param {*} context
  * @param {string} [type] either 'mopen', 'mclose' or null
  * @memberof module:delimiters
  * @private
  */
 function makeNullFence(type, context, classes) {
-    return Span.makeSpanOfType(type, '', 
+    return Span.makeSpanOfType(type, '',
         'sizing' +                                           // @todo not useful, redundant with 'nulldelimiter'
         // 'reset-' + context.size, 'size5',                 // @todo: that seems like a lot of resizing... do we need both?
-        context.mathstyle.adjustTo(Mathstyle.TEXT) +     
-                                                            
+        context.mathstyle.adjustTo(Mathstyle.TEXT) +
+
         ' nulldelimiter '            // The null delimiter has a width, specified by class 'nulldelimiter'
         + (classes || '')
     );
@@ -581,11 +583,11 @@ function makeNullFence(type, context, classes) {
 
 
 // Export the public interface for this module
-return { 
+export default {
     makeSizedDelim,
     makeCustomSizedDelim,
     makeLeftRightDelim
 }
 
 
-})
+

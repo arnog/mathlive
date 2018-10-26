@@ -2,7 +2,7 @@
 /*global define:false*/
 /* jshint undef: false, unused: false, esversion: 6, esnext: true */
 
-define([], function() {
+
 
 /**
  * 
@@ -380,7 +380,7 @@ function mathlistToMarkup(mathlist, indent) {
 
 
 // Export the public interface for this module
-return { 
+export default { 
     mathlistToMarkup: mathlistToMarkup,
     spanToMarkup: spanToMarkup,
 
@@ -395,4 +395,4 @@ return {
 }
 
 
-})
+
