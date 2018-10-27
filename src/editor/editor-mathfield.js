@@ -72,7 +72,7 @@ function off(el, selectors, listener, options) {
  * ```
  *  
  * @param {Element} element 
- * @param {Object} config - See [`MathLive.makeMathField()`]{@link MathLive#makeMathField} for details
+ * @param {Object} config - See [`MathLive.makeMathField()`]{@link module:mathlive#makeMathField} for details
  * @property {Element} element - The DOM element this mathfield is attached to.
  * @property {Object} config - A key/value/pair object that includes options
  * customizing the behavior of the mathfield
@@ -2202,7 +2202,7 @@ MathField.prototype.typedText_ = function(text, options) {
 
 
 /**
- * @param {Object} [conf] See `MathLive.config()` for details
+ * @param {Object} config - See [`MathLive.makeMathField()`]{@link module:mathlive#makeMathField} for details
  * 
 
  * @method MathField#setConfig
