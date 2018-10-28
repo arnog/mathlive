@@ -1,6 +1,6 @@
 
 
-import Definitions from '../core/definitions';
+import Definitions from '../core/definitions'; // eslint-disable-line no-unused-vars
 import MathAtom from '../core/mathAtom';
 import Lexer from '../core/lexer';
 import ParserModule from '../core/parser';

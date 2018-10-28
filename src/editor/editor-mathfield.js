@@ -17,10 +17,10 @@ import Shortcuts from './editor-shortcuts';
 import Popover from './editor-popover';
 import VirtualKeyboard from './editor-virtualKeyboard';
 import GraphemeSplitter from '../core/grapheme-splitter';
-import OutputLatex from '../addons/outputLatex';
-import OutputMathML from '../addons/outputMathML';
-import MASTON from '../addons/maston';
-import OutputSpokenText from '../addons/outputSpokenText';
+import OutputLatex from '../addons/outputLatex'; // eslint-disable-line no-unused-vars
+import OutputMathML from '../addons/outputMathML'; // eslint-disable-line no-unused-vars
+import MASTON from '../addons/maston'; // eslint-disable-line no-unused-vars
+import OutputSpokenText from '../addons/outputSpokenText'; // eslint-disable-line no-unused-vars
 
 /*
     Note:

@@ -3,11 +3,11 @@ import Span from '../core/span';
 import Lexer from '../core/lexer';
 import ParserModule from '../core/parser';
 import Color from '../core/color';
-import Definitions from '../core/definitions';
-import OutputLatex from '../addons/outputLatex';
-import Popover from './editor-popover';
-import Keyboard from './editor-keyboard';
-import Shortcuts from './editor-shortcuts';
+import Definitions from '../core/definitions'; // eslint-disable-line no-unused-vars
+import OutputLatex from '../addons/outputLatex'; // eslint-disable-line no-unused-vars
+import Popover from './editor-popover'; // eslint-disable-line no-unused-vars
+import Keyboard from './editor-keyboard'; // eslint-disable-line no-unused-vars
+import Shortcuts from './editor-shortcuts'; // eslint-disable-line no-unused-vars
 
 const KEYBOARDS = {
     'numeric': {

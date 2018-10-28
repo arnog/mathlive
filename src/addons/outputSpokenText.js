@@ -2,7 +2,7 @@
 
 
 import MathAtom from '../core/mathAtom';
-import Definitions from '../core/definitions';
+import Definitions from '../core/definitions'; // eslint-disable-line no-unused-vars
 import Popover from '../editor/editor-popover';
 
 // Markup
