@@ -25,7 +25,7 @@
     "start": "npm run watch",
     "dev": "npm run watch",
     "lint": "eslint src/",
-    "test": "tape test/*",
+    "test": "tape -r babel-register test/*",
     "watch-test": "npm test && tape-watch test/* --watch",
     "coverage": "nyc node ./test/test.js && nyc report",
     "prepare": "npm run dist",
