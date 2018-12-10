@@ -379,12 +379,11 @@ Span.prototype.toMarkup = function(hskip, hscale) {
         if (this.svgOverlay) {
             result += body;     // @todo maybe safe encode here...? (< >)
             result += '<svg ';
-            // result += ` width="${this.clientWidth()}px"`;
-            // result += ` height="${this.clientHeight()}px"`;
-            result += ' width="100%" height="100%"';
-            result += 'style="position:absolute;left:0;top:0;width:100%;height:100%;z-index:2;"';
+            result += 'style="position:absolute;left:0;bottom:0;right:0;width:100%;height:100%;z-index:2;';
+            result += 'top:' + (1 - this.height) + 'em;'
+            result += '"';
             if (this.svgStyle) {
-                result += ' style="filter: drop-shadow(0 0 .5px rgba(255, 255, 255, .7)) drop-shadow(1px 1px 2px #333);"';
+                result += ' style="' + this.svgStyle + '"';
             }
             result += '>';
             result += this.svgOverlay;
