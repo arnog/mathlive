@@ -1,6 +1,6 @@
 /* eslint no-console:0 */
-define(['mathlive/core/mathAtom', 'mathlive/core/definitions'], 
-    function(MathAtom, Definitions) {
+import MathAtom from '../core/mathAtom'; // eslint-disable-line no-unused-vars
+import Definitions from '../core/definitions';
 
 function findEndOfMath(delimiter, text, startIndex) {
     // Adapted from
@@ -132,10 +132,10 @@ function createAccessibleNode(latex, latexToMathML, options) {
     try {
         span.innerHTML = "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
                             latexToMathML(latex, options) +
-                         "</math>";   
+                         "</math>";
     } catch (e) {
         console.error( 'Could not convert\'' + latex + '\' to accessible format with ', e );
-        span.innerText = latex;   
+        span.innerText = latex;
     }
     span.setAttribute('class', 'ML__HiddenAccessibleMath');
     return span;
@@ -181,7 +181,7 @@ function createAccessibleMarkupPair(text, mathstyle, options, latexToMarkup, lat
     const fragment = document.createDocumentFragment();
     fragment.appendChild(createAccessibleNode(text, latexToMathML, options));
     fragment.appendChild(markupNode);
-    return fragment;    
+    return fragment;
 }
 
 function scanText(text, options, latexToMarkup, latexToMathML) {
@@ -211,7 +211,7 @@ function scanText(text, options, latexToMarkup, latexToMathML) {
 }
 
 function scanElement(elem, options, latexToMarkup, latexToMathML) {
-    const originalContent = elem.getAttribute('data-' + options.namespace + 
+    const originalContent = elem.getAttribute('data-' + options.namespace +
         'original-content');
     if (originalContent) {
         const mathstyle = elem.getAttribute('data-' + options.namespace + 'mathstyle');
@@ -222,8 +222,8 @@ function scanElement(elem, options, latexToMarkup, latexToMathML) {
         }
         return;
     }
-        
-    
+
+
     if (elem.childNodes.length === 1 && elem.childNodes[0].nodeType === 3) {
         // This is a node with textual content only. Perhaps an opportunity
         // to simplify and avoid creating extra nested elements...
@@ -242,10 +242,10 @@ function scanElement(elem, options, latexToMarkup, latexToMathML) {
             elem.appendChild( createAccessibleMarkupPair(data[0].data, data[0].mathstyle, options, latexToMarkup, latexToMathML, true) );
             return;
         } else if (data.length === 1 && data[0].type === 'text') {
-            // This element only contained text with no math. No need to 
+            // This element only contained text with no math. No need to
             // do anything.
             return;
-        } 
+        }
     }
 
     for (let i = 0; i < elem.childNodes.length; i++) {
@@ -261,14 +261,14 @@ function scanElement(elem, options, latexToMarkup, latexToMathML) {
         } else if (childNode.nodeType === 1) {
             // An element node
             const tag = childNode.nodeName.toLowerCase();
-            if (tag === 'script' && 
+            if (tag === 'script' &&
                 options.processScriptTypePattern.test(childNode.type)) {
                 let style = 'displaystyle';
                 for (const l of  childNode.type.split(';')) {
                     const v = l.split('=');
                     if (v[0].toLowerCase() === 'mode') {
                         if (v[1].toLoweCase() === 'display') {
-                            style = 'displaystyle'; 
+                            style = 'displaystyle';
                         } else {
                             style = 'textstyle';
                         }
@@ -276,14 +276,14 @@ function scanElement(elem, options, latexToMarkup, latexToMathML) {
                     }
                 }
 
-                const span = createAccessibleMarkupPair(childNode.textContent, 
+                const span = createAccessibleMarkupPair(childNode.textContent,
                     style, options, latexToMarkup, latexToMathML, true)
                 childNode.parentNode.replaceChild(span, childNode);
             } else {
                 // Element node
-                const shouldRender = 
+                const shouldRender =
                     options.processClassPattern.test(childNode.className) ||
-                    !(options.skipTags.includes(tag) || 
+                    !(options.skipTags.includes(tag) ||
                         options.ignoreClassPattern.test(childNode.className));
 
                 if (shouldRender) {
@@ -300,7 +300,7 @@ const defaultOptions = {
     namespace: '',
 
     // Name of tags whose content will not be scanned for math delimiters
-    skipTags: ['noscript', 'style', 'textarea', 'pre', 'code', 
+    skipTags: ['noscript', 'style', 'textarea', 'pre', 'code',
         'annotation', 'annotation-xml'],
 
     // <script> tags of the following types will be processed. Others, ignored.
@@ -314,7 +314,7 @@ const defaultOptions = {
     // be processed when they appear inside ones that are ignored.
     processClass: "tex2jax_process",
 
-    // Indicate whether to preserve or discard the original content of the 
+    // Indicate whether to preserve or discard the original content of the
     // elements being rendered in a 'data-original-content' attribute.
     preserveOriginalContent: true,
 
@@ -356,7 +356,7 @@ function renderMathInElement(elem, options, latexToMarkup, latexToMathML) {
     }
 }
 
-    return {
+    export default {
         renderMathInElement: renderMathInElement,
     }
-})
+

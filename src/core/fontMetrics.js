@@ -7,7 +7,7 @@
  * @module fontMetrics
  * @private
  */
-define(['mathlive/core/fontMetricsData'], function(metricMap) {
+import metricMap from './fontMetricsData';
 
 // This metricMap contains a mapping from font name and character code to character
 // metrics, including height, depth, italic correction, and skew (kern from the
@@ -27,7 +27,7 @@ const cjkRegex =
 
 
 /**
- * 
+ *
  * In TeX, there are actually three sets of dimensions, one for each of
  * textstyle, scriptstyle, and scriptscriptstyle.  These are provided in the
  * the arrays below, in that order.
@@ -241,7 +241,7 @@ const getCharacterMetrics = function(character, fontName) {
     const metrics = metricMap[fontName][ch];
 
     if (!metrics) {
-        // console.warn( 
+        // console.warn(
         //     'No metrics for ' +
         //     '"' + character + '" (U+' + ('000000' + ch.toString(16)).substr(-6) + ')' +
         //     ' in font "' + fontName + '"');
@@ -269,10 +269,10 @@ const getCharacterMetrics = function(character, fontName) {
 
 
 /**
- * 
+ *
  * @param {number|string} value If value is a string, it may be suffixed
  * with a unit, which will override the `unit` paramter
- * @param {string} unit 
+ * @param {string} unit
  * @param {number} precision
  */
 function convertDimenToEm(value, unit, precision) {
@@ -325,7 +325,7 @@ function convertDimenToPx(value, unit) {
     return convertDimenToEm(value, unit) * (4.0 / 3.0) * metrics.ptPerEm;
 }
 
-return {
+export default {
     toEm : convertDimenToEm,
     toPx : convertDimenToPx,
     metrics: metrics,
@@ -334,4 +334,3 @@ return {
     cjkRegex: cjkRegex,
     hangulRegex: hangulRegex
 }
-})

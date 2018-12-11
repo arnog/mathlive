@@ -1,11 +1,10 @@
-define(['mathlive/core/mathAtom'],
-    function(MathAtom) {
+import MathAtom from '../core/mathAtom';
 
 
 /**
  * Give an atom or an array of atoms, return a LaTeX string representation
  * @return {string}
- * @param {string|MathAtom|MathAtom[]} value 
+ * @param {string|MathAtom|MathAtom[]} value
  * @private
  */
 function latexify(value, expandMacro) {
@@ -28,10 +27,10 @@ function latexify(value, expandMacro) {
 
 /**
  * Return a LaTeX representation of the atom
- * 
+ *
  * @param {boolean} expandMacro - If true, macros are fully expanded. This will
  * no longer round-trip.
- * 
+ *
  * @return {string}
  */
 MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
@@ -43,8 +42,8 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
     switch(this.type) {
         case 'group':
             result += this.latexOpen || '{';
-            result += expandMacro ? latexify(this.body, true) : 
-                (this.latex || latexify(this.body, false)); 
+            result += expandMacro ? latexify(this.body, true) :
+                (this.latex || latexify(this.body, false));
             result += this.latexClose || '}';
             break;
 
@@ -153,9 +152,9 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
         case 'mopen':
         case 'mclose':
         case 'textord':
-            if (command === '\\mathbin' || command === '\\mathrel' || 
-                command === '\\mathopen' || command === '\\mathclose' || 
-                command === '\\mathpunct' || command === '\\mathord' || 
+            if (command === '\\mathbin' || command === '\\mathrel' ||
+                command === '\\mathopen' || command === '\\mathclose' ||
+                command === '\\mathpunct' || command === '\\mathord' ||
                 command === '\\mathinner') {
                 result += command + '{' + latexify(this.body, expandMacro) + '}';
             } else if (command === '\\unicode') {
@@ -178,7 +177,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             if (this.body !== '\u200b') {
                 // Not ZERO-WIDTH
                 if (command === '\\mathop' || command === '\\operatorname') {
-                    result += command + '{' + latexify(this.body, expandMacro) + '}';                    
+                    result += command + '{' + latexify(this.body, expandMacro) + '}';
                 } else {
                     result += this.latex || this.body;
                 }
@@ -244,7 +243,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 result += '{';
                 let sep = '';
                 for (const notation in this.notation) {
-                    if (this.notation.hasOwnProperty(notation) && 
+                    if (this.notation.hasOwnProperty(notation) &&
                         this.notation[notation]) {
                         result += sep + notation;
                         sep = ' ';
@@ -284,14 +283,14 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             break;
 
         case 'sizing':
-            result =  {'size1': '\\tiny ', 
-                'size2': '\\scriptsize ', 
+            result =  {'size1': '\\tiny ',
+                'size2': '\\scriptsize ',
                 'size3': '\\footnotesize ',
-                'size4': '\\small ', 
+                'size4': '\\small ',
                 'size5': '\\normalsize ',
-                'size6': '\\large ', 
-                'size7': '\\Large ', 
-                'size8': '\\LARGE ', 
+                'size6': '\\large ',
+                'size7': '\\Large ',
+                'size8': '\\LARGE ',
                 'size9': '\\huge ',
                 'size10': '\\Huge '}[this.size] || '';
             break;
@@ -307,7 +306,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
         case 'first':
         case 'command':
         case 'msubsup':
-            break;  
+            break;
 
         case 'error':
             result += this.latex;
@@ -317,7 +316,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
         default:
             console.log('unknown atom type "' + this.type + '"');
             break;
-            
+
     }
     if (this.superscript) {
         const sup = latexify(this.superscript, expandMacro);
@@ -340,8 +339,8 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
 
 
 // Export the public interface for this module
-return { 
+export default {
 }
 
 
-})
+

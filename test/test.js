@@ -17,37 +17,23 @@
 //      $ nyc report --reporter html
 //      $ open ./coverage/index.html
 
-const requirejs = require('requirejs');
-requirejs.config({
-    baseUrl: __dirname + '/../',
-    paths: {
-        mathlive: 'src'
-    },
-
-    //Pass the top-level main.js/index.js require
-    //function to requirejs so that node modules
-    //are loaded relative to the top-level JS file.
-    nodeRequire: require
-});
-
-// requirejs(['../mathlive/js/addons/debug', 'mathlive/mathlive'],
-requirejs(['mathlive/addons/debug', 'mathlive/mathlive'],
-function   (MathLiveDebug, MathLive) {
+import MathLiveDebug from '../src/addons/debug';
+import MathLive from '../src/mathlive';
 
 const test = require('tape');
 
 // function getProp(s, symbol, prop) {
-//     if (typeof s === 'string') s = toSpan(s);    
+//     if (typeof s === 'string') s = toSpan(s);
 //     return MathLiveDebug.getProp(s, symbol, prop);
 // }
 
 function getStyle(s, symbol, prop) {
-    if (typeof s === 'string') s = toSpan(s);    
+    if (typeof s === 'string') s = toSpan(s);
     return MathLiveDebug.getStyle(s, symbol, prop);
 }
 
 function getType(s, symbol) {
-    if (typeof s === 'string') s = toSpan(s);    
+    if (typeof s === 'string') s = toSpan(s);
     return MathLiveDebug.getType(s, symbol);
 }
 
@@ -70,14 +56,14 @@ function hasClass(t, s, symbol, cls, msg) {
     }
 
     const result = MathLiveDebug.hasClass(span, symbol, cls);
-    
+
     let symbolString = '"' + symbol + '"';
     if (Array.isArray(symbol)) {
         symbolString = '[' + symbol.toString() + ']';
     }
 
-    t.ok(result, result ? msg : msg + 
-        '. Classes for ' + symbolString + ' = \'' + 
+    t.ok(result, result ? msg : msg +
+        '. Classes for ' + symbolString + ' = \'' +
         MathLiveDebug.getClasses(span, symbol) +
          '\'\n ' + spanToString(s, true) + ' ');
 }
@@ -92,14 +78,14 @@ function notHasClass(t, s, symbol, cls, msg) {
     }
 
     const result = !MathLiveDebug.hasClass(span, symbol, cls);
-    
+
     let symbolString = '"' + symbol + '"';
     if (Array.isArray(symbol)) {
         symbolString = '[' + symbol.toString() + ']';
     }
 
-    t.ok(result, result ? msg : msg + 
-        ". Classes for " + symbolString + " = \"" + 
+    t.ok(result, result ? msg : msg +
+        ". Classes for " + symbolString + " = \"" +
         MathLiveDebug.getClasses(span, symbol) +
          "\"\n" + spanToString(s, true) + " ");
 }
@@ -158,7 +144,7 @@ test('CHARACTERS', function (t) {
     equalSpan(t, '\\char74', 'J', '\\char command with decimal argument');
     equalSpan(t, '\\char "004A', 'J', '\\char command with whitespace');
 
-    // \unicode, a MathJax extension 
+    // \unicode, a MathJax extension
     // (MathJax also accepts optional width, height and font arguments which we don't support)
     equalSpan(t, '\\unicode{"004A}', 'J', '\\unicode command');
     equalSpan(t, '\\unicode{x004A}', 'J', '\\unicode command with "x" prefix');
@@ -175,7 +161,7 @@ test('CHARACTERS', function (t) {
 
 function isTextOrd(t, symbols) {
     for (const symbol of symbols) {
-        hasClass(t, '\\text{' + symbol + '}', 0, 'textord', 
+        hasClass(t, '\\text{' + symbol + '}', 0, 'textord',
             symbol + ' is allowed');
     }
 }
@@ -187,17 +173,17 @@ test('TEXT MODE', function (t) {
     equalSpan(t, '\\text{a b   }', '\\text{a   b }', "Multiple-white space are collapsed");
 
     // TeX doesn't allow Greek letters, but we do.
-    // hasClass(t, '\\text{\\alpha}', 0, 'error', 
+    // hasClass(t, '\\text{\\alpha}', 0, 'error',
     //     "Greek letters are not allowed :(");
 
     // isTextOrd(t, ['\\#', '\\&', '\\euro', '\\maltese', '\\{', '\\}',
-    //     '\\$', '\\%', '\\_', 
+    //     '\\$', '\\%', '\\_',
     //     '`', '\'', '``', '\'\'', '\degree', '0123456789!@*()-=+[]\";:?/.,',
-    //     '\u0410\u0411', '“”', 
+    //     '\u0410\u0411', '“”',
     //     '\\AA', '\\aa', '\\j', '\\i', '\\ss', '\\ae'
     // ]);
 
-    // @todo: this fails (they're inner)    
+    // @todo: this fails (they're inner)
     // isTextOrd(t, ['\\ldots', '\\textellipsis']);
 
 
@@ -242,7 +228,7 @@ test('INFIX COMMANDS', function (t) {
 
 ////////////////////////////////////////////////////////////////////////////////
 test('FUNCTIONAL ARGUMENTS', function (t) {
-    equalSpan(t, '\\frac1a', '\\frac{1}{a}', 
+    equalSpan(t, '\\frac1a', '\\frac{1}{a}',
         'Single char arguments');
 
     equalSpan(t, '\\frac a b', '\\frac{a}{b}',
@@ -278,16 +264,16 @@ test('PARSING MODE', function (t) {
 
 ////////////////////////////////////////////////////////////////////////////////
 test('FONTS', function (t) {
-    hasClass(t, '\\alpha + x - 1 - \\Gamma', 'x', 'mathit', 
+    hasClass(t, '\\alpha + x - 1 - \\Gamma', 'x', 'mathit',
         "Variables in roman letters are italicized");
-    notHasClass(t, '\\alpha + x - 1 - \\Gamma', '1', 'mathit', 
+    notHasClass(t, '\\alpha + x - 1 - \\Gamma', '1', 'mathit',
         "Numbers are not italicized");
-    hasClass(t, '\\alpha + x - 1 - \\Gamma', 'α', 'mathit', 
+    hasClass(t, '\\alpha + x - 1 - \\Gamma', 'α', 'mathit',
         "Lowercase greek letters are italicized");
-    notHasClass(t, '\\alpha + x - 1 - \\Gamma', 'Γ', 'mathit', 
+    notHasClass(t, '\\alpha + x - 1 - \\Gamma', 'Γ', 'mathit',
         "Uppercase greek letters are not italicized");
 
-    notHasClass(t, '\\mathfrak{\\sin}', 'sin', 'mathfrak', 
+    notHasClass(t, '\\mathfrak{\\sin}', 'sin', 'mathfrak',
         "Functions in \\mathfrak should be in roman");
 
 //  formula.insertText("\\mathrm{\\nexists}");      // nexists should use amsrm
@@ -314,10 +300,10 @@ test('BINARY OPERATORS', function (t) {
     t.equal(getType('=+b', '+'), 'mord', "Unary operator should be 'mord'");
     t.equal(getType('\\sin+b', '+'), 'mord', "Unary operator should be 'mord'");
     t.equal(getType(', +b', '+'), 'mord', "Unary operator should be 'mord'");
-    
-    t.equal(getType('\\textcolor{red}{a}+b', '+'), 'mbin', 
+
+    t.equal(getType('\\textcolor{red}{a}+b', '+'), 'mbin',
         "Color should not affect binary operators demotion");
-    t.equal(getType('\\textcolor{red}{a=}+b', '+'), 'mord', 
+    t.equal(getType('\\textcolor{red}{a=}+b', '+'), 'mord',
         "Color should not affect binary operators demotion");
 
     t.equal(getType('a^2+b', '+'), 'mbin', "Operator before a superscript should be 'mbin'");
@@ -353,7 +339,7 @@ test('SUBSCRIPT, SUPERSCRIPTS AND LIMITS', function (t) {
     // equalSpan(t, 'a^x^y', 'a^{xy}', 'Extraneous ^ are ignored');
     // equalSpan(t, 'a_x^a_y', 'a^{a}_{xy}', 'Extraneous _ are ignored');
 
-    // equalSpan(t, '^x', '\\char"200B^x', 
+    // equalSpan(t, '^x', '\\char"200B^x',
     //     'Superscript with no nucleus are valid');
 
     // equalSpan(t, "f\'", 'f^{\\prime}', 'Prime (\\\') behave as superscripts');
@@ -373,16 +359,16 @@ test('FRACTIONS', function (t) {
     t.ok(toSpan("\\[ 1 + \\frac{q^2}{(1-q)}+\\frac{q^6}{(1-q)(1-q^2)}+\\cdots = \\prod_{j=0}^{\\infty}\\frac{1}{(1-q^{5j+2})(1-q^{5j+3})}, \\quad\\quad \\text{for $|q|<1$}. \\]"));
 
     t.ok(toSpan("\\binom{n}{k}"));
-    t.ok(toSpan("\\dbinom{n}{k}"), 
+    t.ok(toSpan("\\dbinom{n}{k}"),
         'Display math mode binomial');
-    t.ok(toSpan("\\tbinom{n}{k}"), 
+    t.ok(toSpan("\\tbinom{n}{k}"),
         'Inline (text) math mode binomial');
 
-    equalSpan(t, 'n \\choose k', '\\binom{n}{k}', 
+    equalSpan(t, 'n \\choose k', '\\binom{n}{k}',
         'Infix \choose command');
 
     // @todo: a better rest...
-    t.ok(toSpan('\\pdiff{f(x)}{x}'), 
+    t.ok(toSpan('\\pdiff{f(x)}{x}'),
         'Partial differential');
 
 
@@ -391,7 +377,7 @@ test('FRACTIONS', function (t) {
 
 function hasSize(t, size) {
     hasClass(t, 'a' + size + '{b c}d', 'a', 'rule', 'Sizing ' + size);
-    
+
 }
 ////////////////////////////////////////////////////////////////////////////////
 test('SIZING AND MATH STYLE', function (t) {
@@ -401,7 +387,7 @@ test('SIZING AND MATH STYLE', function (t) {
     // hasClass(t, '\\rule{1em}{2em}', 0, 'rule', 'Simple rule');
     // '{a\LARGE b c}d'
 
-     
+
     // hasClass(t, '\\binom12 \\textstyle \\binom34 \\scriptstyle \\binom56 \\displaystyle \\binom78 \\scriptstyle \\binom90',
     //     [1, 1, 0, 1], 'reset-textstyle');
     // hasClass(t, '\\binom12 \\textstyle \\binom34 \\scriptstyle \\binom56 \\displaystyle \\binom78 \\scriptstyle \\binom90',
@@ -438,7 +424,7 @@ test('RULE AND DIMENSIONS', function (t) {
     equalSpan(t, '\\rule{+10em}{+  10 em}', '\\rule{10em}{10em}', "Initial plus sign");
     equalSpan(t, '\\rule{\'12em}{10em}', '\\rule{10em}{10em}', "Dimension in octal");
     equalSpan(t, '\\rule{\'12.9999em}{10em}', '\\rule{10pt}{10em}', "The decimal portion of an octal number should be ignored. Default unit is 'pt'");
-    
+
     // However, TeX doesn't parse it either...  Actually, TeX doesn't even parse "a2em
     // For TeX, hex digits have to be uppercase. Interestingly, TeX cannot parse
     // '\\rule{\"A EM}{10em}' (the AE confuses it)
@@ -453,26 +439,26 @@ test('RULE AND DIMENSIONS', function (t) {
 
 ////////////////////////////////////////////////////////////////////////////////
 test('DECORATIONS', function (t) {
-    t.equal(getStyle('\\bbox{1+x}', 0, 'border'), undefined, 
+    t.equal(getStyle('\\bbox{1+x}', 0, 'border'), undefined,
         'Default \\bbox');
 
-    t.equal(getStyle('\\bbox[border:solid 1px red]{1+x}', 0, 'border'),'solid 1px red', 
+    t.equal(getStyle('\\bbox[border:solid 1px red]{1+x}', 0, 'border'),'solid 1px red',
         '\\bbox with custom border');
 
-    // t.equal(getStyle('\\bbox[4em]{1+x}', 0, 'padding-left'),'4em', 
+    // t.equal(getStyle('\\bbox[4em]{1+x}', 0, 'padding-left'),'4em',
     //     '\\bbox with margin');
 
-    t.equal(getStyle('\\bbox[yellow]{1+x}', 0, 'background-color'),'#fff200', 
+    t.equal(getStyle('\\bbox[yellow]{1+x}', 0, 'background-color'),'#fff200',
         '\\bbox with background color');
 
-    t.equal(getStyle('\\bbox[ yellow , border: 1px solid red, 4 em ]{1+x}', 0, 
-        'border'),'1px solid red', 
+    t.equal(getStyle('\\bbox[ yellow , border: 1px solid red, 4 em ]{1+x}', 0,
+        'border'),'1px solid red',
         '\\bbox with border, margin and background');
-    t.equal(getStyle('\\bbox[ yellow , border: 1px solid red, 4 em ]{1+x}', 0, 
-        'background-color'),'#fff200', 
+    t.equal(getStyle('\\bbox[ yellow , border: 1px solid red, 4 em ]{1+x}', 0,
+        'background-color'),'#fff200',
         '\\bbox with border, margin and background');
-    // t.equal(getStyle('\\bbox[ yellow , border: 1px solid red, 4 em ]{1+x}', 0, 
-    //     'margin-left'),'4em', 
+    // t.equal(getStyle('\\bbox[ yellow , border: 1px solid red, 4 em ]{1+x}', 0,
+    //     'margin-left'),'4em',
     //     '\\bbox with border, margin and background');
 
     hasClass(t, '\\rlap{x}o', 0, 'rlap', '\\rlap');
@@ -507,30 +493,30 @@ test('KERN', function (t) {
 
 function testDelimiter(t, openDel, closeDel, msg) {
     // Regular sized delimiters
-    t.equal(getType("\\left" + openDel + " x + 1" + "\\right" + closeDel, [0,0]), 
+    t.equal(getType("\\left" + openDel + " x + 1" + "\\right" + closeDel, [0,0]),
         'mopen', "Open delimiter " + openDel + (msg ? ' ' + msg : ''));
-    t.equal(getType("\\left" + openDel + " x + 1" + "\\right" + closeDel, [0,4]), 
+    t.equal(getType("\\left" + openDel + " x + 1" + "\\right" + closeDel, [0,4]),
         'mclose', "Close delimiter " + closeDel + (msg ? ' ' + msg : ''));
-    // t.notEqual(getType("\\left" + openDel + " x + 1" + "\\right" + closeDel, [0,0]), 
+    // t.notEqual(getType("\\left" + openDel + " x + 1" + "\\right" + closeDel, [0,0]),
     //     'nulldelimiter', "Open delimiter " + openDel + (msg ? ' ' + msg : ''));
-    // t.notEqual(getType((t, "\\left" + openDel + " x + 1" + "\\right" + closeDel, [0,4]), 
+    // t.notEqual(getType((t, "\\left" + openDel + " x + 1" + "\\right" + closeDel, [0,4]),
     //     'nulldelimiter', "Close delimiter " + closeDel + (msg ? ' ' + msg : ''));
 
     // Delimiters with large expression
-    t.equal(getType("\\left" + openDel + " x \\frac{\\frac34}{\\frac57}" + "\\right" + closeDel, [0,0]), 
+    t.equal(getType("\\left" + openDel + " x \\frac{\\frac34}{\\frac57}" + "\\right" + closeDel, [0,0]),
         'mopen', "Large open delimiter " + openDel + (msg ? ' ' + msg : ''));
-    t.equal(getType("\\left" + openDel + " x \\frac{\\frac34}{\\frac57}" + "\\right" + closeDel, [0,3]), 
+    t.equal(getType("\\left" + openDel + " x \\frac{\\frac34}{\\frac57}" + "\\right" + closeDel, [0,3]),
         'mclose', "Large close delimiter " + closeDel + (msg ? ' ' + msg : ''));
-    // t.notEqual(getType("\\left" + openDel + " x \\frac{\\frac34}{\\frac57}" + "\\right" + closeDel, [0,0]), 
+    // t.notEqual(getType("\\left" + openDel + " x \\frac{\\frac34}{\\frac57}" + "\\right" + closeDel, [0,0]),
     //     'nulldelimiter', "Large open delimiter " + openDel + (msg ? ' ' + msg : ''));
-    // t.notEqual(getType("\\left" + openDel + " x \\frac{\\frac34}{\\frac57}" + "\\right" + closeDel, [0,3]), 
+    // t.notEqual(getType("\\left" + openDel + " x \\frac{\\frac34}{\\frac57}" + "\\right" + closeDel, [0,3]),
     //     'nulldelimiter', "Large close delimiter " + closeDel + (msg ? ' ' + msg : ''));
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 test('LEFT/RIGHT', function (t) {
-    // equalSpan(t, '\\left(a\\right)', '\\left{(}a\\right{)}', 
+    // equalSpan(t, '\\left(a\\right)', '\\left{(}a\\right{)}',
     //     '\\left\\right with unbraced arguments');
 
 
@@ -539,48 +525,48 @@ test('LEFT/RIGHT', function (t) {
 
     t.equal(getType('\\left(\\frac12\\right)', [0, 0]), 'mopen');
 
-    hasClass(t, '\\left.\\frac12\\right.', [0, 0], 'nulldelimiter', 
+    hasClass(t, '\\left.\\frac12\\right.', [0, 0], 'nulldelimiter',
         "Opening null delimiter");
-    hasClass(t, '\\left.\\frac12\\right.', [0, 1, 2], 'nulldelimiter', 
+    hasClass(t, '\\left.\\frac12\\right.', [0, 1, 2], 'nulldelimiter',
         "Closing null delimiter");
 
     testDelimiter(t, '[', ']', "Square brackets");
 
-    testDelimiter(t, '\\lfloor', '\\rfloor', 
+    testDelimiter(t, '\\lfloor', '\\rfloor',
         "Delimiters as commands");
 
-    hasClass(t, '\\left a\\frac12\\right0', [0, 0], 'nulldelimiter', 
+    hasClass(t, '\\left a\\frac12\\right0', [0, 0], 'nulldelimiter',
         "Invalid opening delimiter");
 
-    hasClass(t, '\\left a\\frac12\\right0', [0, 1, 2], 'nulldelimiter', 
+    hasClass(t, '\\left a\\frac12\\right0', [0, 1, 2], 'nulldelimiter',
         "Invalid closing delimiter");
 
-    t.equal(getType('\\left\\ulcorner\\frac12\\right\\urcorner', [0, 0]), 'mopen', 
+    t.equal(getType('\\left\\ulcorner\\frac12\\right\\urcorner', [0, 0]), 'mopen',
         "AMS open delimiter");
 
-    t.equal(getType('\\left\\uparrow\\frac12\\right\\Downarrow', [0, 0]), 'mopen', 
+    t.equal(getType('\\left\\uparrow\\frac12\\right\\Downarrow', [0, 0]), 'mopen',
         "Symbols that can be used as a delimiter, even though it's neither a 'mopen' or 'mclose'");
 
 
-    t.equal(getType('\\left\\uparrow\\frac{\\frac34}{2}\\right\\vert', [0, 0]), 'mopen', 
+    t.equal(getType('\\left\\uparrow\\frac{\\frac34}{2}\\right\\vert', [0, 0]), 'mopen',
         "'Always stacking' delimiters");
 
-    t.equal(getType('\\left\\uparrow\\frac{\\frac{\\frac57}{\\frac95}}{2}\\right\\vert', [0, 0]), 'mopen', 
+    t.equal(getType('\\left\\uparrow\\frac{\\frac{\\frac57}{\\frac95}}{2}\\right\\vert', [0, 0]), 'mopen',
         "'Always stacking' delimiters (very large)");
 
-    t.equal(getType('{\\tiny\\left\\uparrow x\\right\\vert}', [0, 0, 0]), 'mopen', 
+    t.equal(getType('{\\tiny\\left\\uparrow x\\right\\vert}', [0, 0, 0]), 'mopen',
         "'Always stacking' delimiters (very small)");
 
-    t.equal(getType('\\left\\lfloor\\frac{\\frac34}{2}\\right\\rfloor', [0, 0]), 'mopen', 
+    t.equal(getType('\\left\\lfloor\\frac{\\frac34}{2}\\right\\rfloor', [0, 0]), 'mopen',
         "'Stack large' delimiters (large)");
 
-    t.equal(getType('\\left\\lfloorx\\right\\rfloor', [0, 0]), 'mopen', 
+    t.equal(getType('\\left\\lfloorx\\right\\rfloor', [0, 0]), 'mopen',
         "'Stack large' delimiters (small)");
 
-    t.equal(getType('\\left\\langle\\frac{\\frac34}{2}\\right\\rangle', [0, 0]), 'mopen', 
+    t.equal(getType('\\left\\langle\\frac{\\frac34}{2}\\right\\rangle', [0, 0]), 'mopen',
         "'Stack never' delimiters (large)");
 
-    t.equal(getType('\\left<\\frac{\\frac34}{2}\\right>', [0, 0]), 'mopen', 
+    t.equal(getType('\\left<\\frac{\\frac34}{2}\\right>', [0, 0]), 'mopen',
         "Synonyms for \\langle and \\rangle: < & >");
 
     hasClass(t, '\\left x\\frac{\\frac34}{2}\\right x', [0, 0], 'nulldelimiter',
@@ -622,23 +608,23 @@ function testSizingDelimiter(t, openCmd, closeCmd, midCmd, ordCmd, msg) {
     // Regular sized delimiters
 
 
-    t.equal(getType(openCmd + '\\lbrack x' + 
+    t.equal(getType(openCmd + '\\lbrack x' +
         midCmd + '\\vert y ' +
         ordCmd + '\\Vert z' +
-        closeCmd + '\\rbrack', 0), 
+        closeCmd + '\\rbrack', 0),
         'mopen', 'Open sizing ' + openCmd + msg);
 
 
         t.equal(getType(openCmd + '\\lbrack x' + closeCmd + '\\rbrack', 2),
          'mclose', 'Close sizing ' + openCmd + msg);
 
-    t.equal(getType(openCmd + '< x' + 
+    t.equal(getType(openCmd + '< x' +
         midCmd + '\\vert y ' +
         ordCmd + '\\Vert z' +
         closeCmd + '>', 0),
          'mopen', 'Open sizing with < ' + openCmd + msg);
 
-    t.equal(getType(openCmd + '< x' + closeCmd + '>', 2), 
+    t.equal(getType(openCmd + '< x' + closeCmd + '>', 2),
         'mclose', 'Close sizing with > ' + openCmd + msg);
 
 }
@@ -662,23 +648,23 @@ test('ENVIRONMENTS', function (t) {
     equalSpan(t, '\\begin{array}a\\end{xyz}', '\\begin{array}a\\end{array}', 'Mismatched \\begin and \\end');
     equalSpan(t, '\\begin{array}a', '\\begin{array}a\\end{array}', 'Missing \\end');
 
-    t.ok(toSpan('\\begin{\\alpha}\\end{\\alpha}'), 
+    t.ok(toSpan('\\begin{\\alpha}\\end{\\alpha}'),
         'Environment name with symbol');
-    t.ok(toSpan('\\begin{1732}\\end{1732}'), 
+    t.ok(toSpan('\\begin{1732}\\end{1732}'),
         'Environment name with digits');
-    t.ok(toSpan('\\begin{.}\\end{.}'), 
+    t.ok(toSpan('\\begin{.}\\end{.}'),
         'Environment name with non alphanumeric char');
-    t.ok(toSpan('\\begin{(}\\end{(}'), 
+    t.ok(toSpan('\\begin{(}\\end{(}'),
         'Environment name with non alphanumeric char');
 
-    // t.notok(toSpan('\\begin{\\frac{1}{2}}\\end{\\frac{1}{2}}'), 
+    // t.notok(toSpan('\\begin{\\frac{1}{2}}\\end{\\frac{1}{2}}'),
     //     'Environment name with function');
 
     // Environment names with spaces (multiple spaces = 1 space)
 
     // t.ok(toSpan('\\begin{a}x\\begin{b}y\\end{b}z\\end{a}'), 'Nested environments');
 
-    // // 
+    // //
     // t.ok(toSpan('\\begin{a}a&b\\c&d\\end{a}'), 'Simple 2x2 matrix');
 
     t.end();
@@ -732,9 +718,9 @@ test('COLORS', function (t) {
 // formula.insertText("\\textcolor{rgb(240, 10, 200)}{\\blacksquare}");
 // formula.insertText("\\textcolor{#33d}{\\blacksquare}");
 // formula.insertText("\\textcolor{#3130da}{\\blacksquare}");
-// formula.insertText("a+\\backgroundcolor{#f00}{\\frac1{\\frac{a+1}{b+c}}}"); 
+// formula.insertText("a+\\backgroundcolor{#f00}{\\frac1{\\frac{a+1}{b+c}}}");
 // formula.insertText("a+\\backgroundcolor{#f00}{\\frac{\\frac{\\frac{1}{2}}{c}}{\\frac{a+1}{b+c}}}");
-// formula.insertText("a+\\backgroundcolor{#f00}{\\frac{\\frac{\\frac{1}{2}}{c}}{a}");   
+// formula.insertText("a+\\backgroundcolor{#f00}{\\frac{\\frac{\\frac{1}{2}}{c}}{a}");
 
 
     t.equal(getStyle('\\textcolor{white}{x}', 0, 'color'),'#ffffff', 'Named colors');
@@ -767,23 +753,23 @@ test('COLORS', function (t) {
 
     equalSpan(t, "\\textcolor{-green!40!yellow}{x}", '\\textcolor{#662bdf}{x}', 'Complementary color');
 
-// formula.insertText("a+\\backgroundcolor{#f00}{\\frac1{\\frac{a+1}{b+c}}}"); 
+// formula.insertText("a+\\backgroundcolor{#f00}{\\frac1{\\frac{a+1}{b+c}}}");
 // formula.insertText("a+\\backgroundcolor{#f00}{\\frac{\\frac{\\frac{1}{2}}{c}}{\\frac{a+1}{b+c}}}");
-// formula.insertText("a+\\backgroundcolor{#f00}{\\frac{\\frac{\\frac{1}{2}}{c}}{a}");   
+// formula.insertText("a+\\backgroundcolor{#f00}{\\frac{\\frac{\\frac{1}{2}}{c}}{a}");
 
 // a{b\\color c}d}
     let f = 'a{b\\color{#f00} c}d';
-    t.ok(getStyle(f, 'a', 'color') === null && 
-        getStyle(f, 'b', 'color') === null && 
-        getStyle(f, 'c', 'color') === '#ff0000' && 
-        getStyle(f, 'd', 'color') === null, 
+    t.ok(getStyle(f, 'a', 'color') === null &&
+        getStyle(f, 'b', 'color') === null &&
+        getStyle(f, 'c', 'color') === '#ff0000' &&
+        getStyle(f, 'd', 'color') === null,
         '\\color applies to all elements following it in the same explicit group');
 
     f = 'a\\left(b\\color{#f00} c\\right)d';
-    t.ok(getStyle(f, 'a', 'color') === null && 
-        getStyle(f, 'b', 'color') === null && 
-        getStyle(f, 'c', 'color') === '#ff0000' && 
-        getStyle(f, 'd', 'color') === null, 
+    t.ok(getStyle(f, 'a', 'color') === null &&
+        getStyle(f, 'b', 'color') === null &&
+        getStyle(f, 'c', 'color') === '#ff0000' &&
+        getStyle(f, 'd', 'color') === null,
         '\\color applies to all elements following it in the same explicit group');
 
     t.ok(toSpan('{\\color{apricot}\\blacksquare}{\\color{aquamarine}\\blacksquare}{\\color{bittersweet}\\blacksquare}{\\color{black}\\blacksquare}{\\color{blue}\\blacksquare}{\\color{blueGreen}\\blacksquare}{\\color{blueviolet}\\blacksquare}{\\color{brickred}\\blacksquare}{\\color{brown}\\blacksquare}{\\color{burntorange}\\blacksquare}{\\color{cadetblue}\\blacksquare}{\\color{carnationpink}\\blacksquare}{\\color{cerulean}\\blacksquare}{\\color{cornflowerblue}\\blacksquare}{\\color{cyan}\\blacksquare}{\\color{dandelion}\\blacksquare}{\\color{darkorchid}\\blacksquare}{\\color{emerald}\\blacksquare}{\\color{forestgreen}\\blacksquare}{\\color{fuchsia}\\blacksquare}{\\color{goldenrod}\\blacksquare}{\\color{gray}\\blacksquare}{\\color{green}\\blacksquare}{\\color{greenyellow}\\blacksquare}{\\color{junglegreen}\\blacksquare}{\\color{lavender}\\blacksquare}{\\color{limegreen}\\blacksquare}{\\color{magenta}\\blacksquare}{\\color{mahogany}\\blacksquare}{\\color{maroon}\\blacksquare}{\\color{melon}\\blacksquare}{\\color{midnightblue}\\blacksquare}{\\color{mulberry}\\blacksquare}{\\color{navyblue}\\blacksquare}{\\color{olivegreen}\\blacksquare}{\\color{orange}\\blacksquare}{\\color{orangered}\\blacksquare}{\\color{orchid}\\blacksquare}{\\color{peach}\\blacksquare}{\\color{periwinkle}\\blacksquare}{\\color{pinegreen}\\blacksquare}{\\color{plum}\\blacksquare}{\\color{processblue}\\blacksquare}{\\color{purple}\\blacksquare}{\\color{rawsienna}\\blacksquare}{\\color{red}\\blacksquare}{\\color{redorange}\\blacksquare}{\\color{redviolet}\\blacksquare}{\\color{rhodamine}\\blacksquare}{\\color{royalblue}\\blacksquare}{\\color{royalpurple}\\blacksquare}{\\color{rubinered}\\blacksquare}{\\color{salmon}\\blacksquare}{\\color{seagreen}\\blacksquare}{\\color{sepia}\\blacksquare}{\\color{skyblue}\\blacksquare}{\\color{springgreen}\\blacksquare}{\\color{tan}\\blacksquare}{\\color{tealblue}\\blacksquare}{\\color{thistle}\\blacksquare}{\\color{turquoise}\\blacksquare}{\\color{violet}\\blacksquare}{\\color{violetred}\\blacksquare}{\\color{white}\\blacksquare}{\\color{wildstrawberry}\\blacksquare}{\\color{yellow}\\blacksquare}{\\color{yellowgreen}\\blacksquare}{\\color{yelloworange}\\blacksquare}'));
@@ -791,4 +777,4 @@ test('COLORS', function (t) {
     t.end();
 });
 
-});
+//});

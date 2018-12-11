@@ -1,10 +1,7 @@
-define([
-    'mathlive/core/lexer', 
-    'mathlive/core/mathAtom', 
-    'mathlive/core/parser', 
-    'mathlive/core/definitions',
-],
-    function(Lexer, MathAtom, ParserModule, Definitions) {
+import Lexer from '../core/lexer';
+import MathAtom from '../core/mathAtom';
+import ParserModule from '../core/parser';
+import Definitions from '../core/definitions';
 
 const CANONICAL_NAMES = {
     // CONSTANTS
@@ -179,7 +176,7 @@ const FUNCTION_TEMPLATE = {
     'erfc':     '\\mathop{erfc}%',
     'randomReal': '\\mathop{randomReal}%',
     'randomInteger': '\\mathop{randomInteger}%',
-    
+
 
     // Arithmetic operators
     '*':        '%0 \\times %1',
@@ -284,7 +281,7 @@ const OP_PRECEDENCE = {
     // @todo and equality and neg operators
     'elementof':            240,    // \in
     '!elementof':           240,    // \notin
-    // 
+    //
     'exists':                230,
     '!exists':               230,
     'forall':                230,
@@ -304,9 +301,9 @@ const OP_PRECEDENCE = {
     // '...':               100,
 
     // Conditional (?:)
-    
 
-    // Assignement    
+
+    // Assignement
     ':=':                80,       // MathML had 260 (same with U+2254 COLON EQUALS)
 
     'therefore':                70,
@@ -315,8 +312,8 @@ const OP_PRECEDENCE = {
     // Arrows
     // Note: MathML had 270 for the arrows, but this
     // would not work for (a = b => b = a)
-    // See also https://en.wikipedia.org/wiki/Logical_connective#Order_of_precedence 
-    // for a suggested precedence (note that in this page lower precedence 
+    // See also https://en.wikipedia.org/wiki/Logical_connective#Order_of_precedence
+    // for a suggested precedence (note that in this page lower precedence
     // has the opposite meaning as what we use)
     'shortLogicalImplies': 52,  // ->
     'shortImplies':     51,     // =>
@@ -350,14 +347,14 @@ function getPrecedence(canonicalName) {
 function getAssociativity(canonicalName) {
     if (/=|=>/.test(canonicalName)) {
         return 'right';
-    } 
+    }
     return 'left';
 }
 
 
 
 /**
- * 
+ *
  * @param {string} name function canonical name
  * @return {string}
  */
@@ -371,7 +368,7 @@ function getLatexTemplateForFunction(name) {
 }
 
 /**
- * 
+ *
  * @param {string} name symbol name
  * @return {string}
  */
@@ -381,7 +378,7 @@ function getLatexForSymbol(name) {
         return result.replace('%1', '').replace('%0', '').replace('%', '');
     }
     const info = Definitions.getInfo('\\' + name, 'math');
-    if (info && info.type !== 'error' && 
+    if (info && info.type !== 'error' &&
         (!info.fontFamily || info.fontFamily === 'main' || info.fontFamily === 'ams')) {
         result = '\\' + name;
     }
@@ -390,7 +387,7 @@ function getLatexForSymbol(name) {
 }
 
 /**
- * 
+ *
  * @param {string} name function or operator canonical name
  * @return {string}
  */
@@ -417,7 +414,7 @@ function isFunction(canonicalName) {
 
 
 /**
- * 
+ *
  * @param {string} latex, for example '\\times'
  * @return {string} the canonical name for the input, for example '*'
  */
@@ -443,14 +440,14 @@ function getCanonicalName(latex) {
 /**
  * Return the operator precedence of the atom
  * or -1 if not an operator
- * @param {*} atom 
+ * @param {*} atom
  * @return {number}
  */
 function opPrec(atom) {
     if (!atom) return null;
     const name = getCanonicalName(getString(atom));
     const result = {
-        prec: getPrecedence(name), 
+        prec: getPrecedence(name),
         assoc: getAssociativity(name)
     }
     if (result.prec <= 0) return null
@@ -497,7 +494,7 @@ const POSTFIX_FUNCTION = {
 const ASSOCIATIVE_FUNCTION = {
     '+':                    '+',
     '-':                    '+',      // Substraction is add(), but it's
-                                        // handled specifically so that the 
+                                        // handled specifically so that the
                                         // argument is negated
     '*':                    '*',
 
@@ -525,8 +522,8 @@ const SUPER_ASSOCIATIVE_FUNCTION = {
 
 function getString(atom) {
     if (atom.latex && atom.latex !== '\\mathop ' && atom.latex !== '\\mathbin ' &&
-        atom.latex !== '\\mathrel ' && atom.latex !== '\\mathopen ' && 
-        atom.latex !== '\\mathpunct ' && atom.latex !== '\\mathord ' && 
+        atom.latex !== '\\mathrel ' && atom.latex !== '\\mathopen ' &&
+        atom.latex !== '\\mathpunct ' && atom.latex !== '\\mathord ' &&
         atom.latex !== '\\mathinner ' && atom.type !== 'font') {
         return atom.latex.trim();
     }
@@ -547,7 +544,7 @@ function getString(atom) {
 }
 
 /**
- * 
+ *
  * @param {Object} expr -- Abstract Syntax Tree object
  * @return {string} -- A string, the symbol, or undefined
  */
@@ -566,7 +563,7 @@ function asSymbol(expr) {
 
 
 /**
- * 
+ *
  * @param {Object} num -- Abstract Syntax Tree object
  * @return {number} -- A Javascript number, the value of the AST or NaN
  */
@@ -585,15 +582,15 @@ function asMachineNumber(num) {
 }
 
 function isNumber(expr) {
-    return typeof expr === 'number' || 
+    return typeof expr === 'number' ||
         (expr !== undefined && expr.num !== undefined);
 }
 
 /**
  * Return true if the current atom is of the specified type and value.
- * @param {Object} expr 
- * @param {string} type 
- * @param {string} value 
+ * @param {Object} expr
+ * @param {string} type
+ * @param {string} value
  */
 function isAtom(expr, type, value) {
     let result = false;
@@ -612,7 +609,7 @@ function isAtom(expr, type, value) {
 /**
  * Return the negative of the expression. Usually {op:'-', lhs:expr}
  * but for numbers, the negated number
- * @param {*} expr 
+ * @param {*} expr
  */
 function negate(expr) {
     if (typeof expr === 'number') {
@@ -627,10 +624,10 @@ function negate(expr) {
 
 /**
  * Parse for a possible sup/sub at the current token location.
- * Handles both sup/sub attached directly to the current atom 
+ * Handles both sup/sub attached directly to the current atom
  * as well as "empty" atoms with a sup/sub following the current
  * atom.
- * @param {Object} expr 
+ * @param {Object} expr
  */
 function parseSupsub(expr, options) {
     let atom = expr.atoms[expr.index - 1];
@@ -652,9 +649,9 @@ function parseSupsub(expr, options) {
 
     if (atom) {
         if (typeof expr.ast === 'string') {
-            expr.ast = {sym: expr.ast};            
+            expr.ast = {sym: expr.ast};
         } else if (typeof expr.ast === 'number') {
-            expr.ast = {num: expr.ast};            
+            expr.ast = {num: expr.ast};
         } else if (!expr.ast.group && !expr.ast.fn && !expr.ast.sym) {
             expr.ast = {group: expr.ast};
         }
@@ -681,9 +678,9 @@ function parsePostfix(expr, options) {
         expr.index += 1;
         // It's a superscript Unicode char (e.g. ⁰¹²³⁴⁵⁶⁷⁸⁹ⁱ⁺⁻⁼...)
         if (typeof expr.ast === 'string') {
-            expr.ast = {sym: expr.ast};            
+            expr.ast = {sym: expr.ast};
         } else if (typeof expr.ast === 'number') {
-            expr.ast = {num: expr.ast};            
+            expr.ast = {num: expr.ast};
         } else if (!expr.ast.group && !expr.ast.fn && !expr.ast.sym) {
             expr.ast = {group: expr.ast};
         }
@@ -711,13 +708,13 @@ function parsePostfix(expr, options) {
  * - as a matching pair of regular characters: '(a)'
  * - a as 'leftright' expression: '\left(a\right)'
  * - as a matching pair of 'sizeddelim': '\Bigl(a\Bigr)
- * 
+ *
  * Note that the '\delim' command is only used for delimiters in the middle
  * of a \left\right pair and not to represent pair-matched delimiters.
- * 
+ *
  * This function handles all three cases
- * 
- */ 
+ *
+ */
  function parseDelim(expr, ldelim, rdelim, options) {
     expr.index = expr.index || 0;
 
@@ -725,7 +722,7 @@ function parsePostfix(expr, options) {
         expr.ast = undefined;
         return expr;
     }
-    
+
     const savedPrec = expr.minPrec;
     expr.minPrec = 0;
     let atom = expr.atoms[expr.index];
@@ -781,7 +778,7 @@ function parsePostfix(expr, options) {
                 expr = parseSupsub(expr, options);
                 expr = parsePostfix(expr, options);
             } // TODO: else, syntax error?
-    
+
     } else if (atom.type === 'sizeddelim' && atom.delim === ldelim) {
         expr.index += 1;    // Skip the open delim
         expr = parseExpression(expr, options);
@@ -792,10 +789,10 @@ function parsePostfix(expr, options) {
             expr = parsePostfix(expr, options);
         } // TODO: else, syntax error?
 
-    } else if (atom.type === 'leftright' && 
-        atom.leftDelim === ldelim && 
+    } else if (atom.type === 'leftright' &&
+        atom.leftDelim === ldelim &&
         (atom.rightDelim === '?' || atom.rightDelim === rdelim)) {
-        // This atom type includes the content of the parenthetical expression 
+        // This atom type includes the content of the parenthetical expression
         // in its body
         expr.ast = parse(atom.body, options);
         expr.index += 1;
@@ -805,13 +802,13 @@ function parsePostfix(expr, options) {
     } else {
         return undefined;
     }
-    
+
     expr.minPrec = savedPrec;
     return expr;
 }
 
 
-/** 
+/**
  * Some symbols are made up of two consecutive characters.
  * Handle them here. Return undefined if not a digraph.
  * TODO: other digraphs:
@@ -821,7 +818,7 @@ function parsePostfix(expr, options) {
  * =:
  * °C U+2103
  * °F U+2109
- * 
+ *
 */
 function parseDigraph(expr) {
     expr.index = expr.index || 0;
@@ -829,7 +826,7 @@ function parseDigraph(expr) {
     if (expr.atoms.length === 0 || expr.index >= expr.atoms.length) {
         return undefined;
     }
-    
+
     if (isAtom(expr, 'textord', '\\nabla')) {
         expr.index += 1;
         if (isAtom(expr, 'mbin', '\\times')) {
@@ -838,7 +835,7 @@ function parseDigraph(expr) {
             return expr;
         } else if (isAtom(expr, 'mbin', '\\cdot')) {
             expr.index += 1;
-            expr.ast = 'div';  
+            expr.ast = 'div';
             return expr;
         }
         expr.index -= 1;
@@ -858,7 +855,7 @@ function parseDigraph(expr) {
 
 function parsePrimary(expr, options) {
 
-    // <primary> := ('-'|'+) <primary> | <number> | '(' <expression> ')' | <symbol> 
+    // <primary> := ('-'|'+) <primary> | <number> | '(' <expression> ')' | <symbol>
 
      expr.index = expr.index || 0;
      expr.ast = undefined;
@@ -866,7 +863,7 @@ function parsePrimary(expr, options) {
     if (expr.atoms.length === 0 || expr.index >= expr.atoms.length) {
         return expr;
     }
-    
+
     let atom = expr.atoms[expr.index];
     const val = getCanonicalName(getString(atom));
 
@@ -903,8 +900,8 @@ function parsePrimary(expr, options) {
         while (expr.index < expr.atoms.length && !done && (isAtom(expr, 'spacing') ||
                 (
                     (
-                        isAtom(expr, 'mord') || 
-                        isAtom(expr, 'mpunct', ',') || 
+                        isAtom(expr, 'mord') ||
+                        isAtom(expr, 'mpunct', ',') ||
                         isAtom(expr, 'mbin')
                     ) &&
                         pat.indexOf(expr.atoms[expr.index].latex) >= 0
@@ -925,17 +922,17 @@ function parsePrimary(expr, options) {
                 }
                 num += digit === ',' ? '' : digit;
                 if (atom.superscript !== undefined || atom.underscript !== undefined) {
-                    done = true; 
+                    done = true;
                 } else {
                     expr.index += 1;
-                }                
+                }
             }
         }
         expr.ast = parseFloat(num);
 
         // This was a number. Is it followed by a fraction, e.g. 2 1/2
         atom = expr.atoms[expr.index];
-        if (atom && atom.type === 'genfrac' && 
+        if (atom && atom.type === 'genfrac' &&
             (expr.ast.num !== undefined || !isNaN(expr.ast))) {
             // Add an invisible plus, i.e. 2 1/2 = 2 + 1/2
             const lhs = expr.ast;
@@ -946,11 +943,11 @@ function parsePrimary(expr, options) {
             // \nicefrac macro, add an invisible plus
             const lhs = expr.ast;
             expr = parsePrimary(expr, options);
-            expr.ast = {lhs: lhs, op:'+', rhs: expr.ast};            
+            expr.ast = {lhs: lhs, op:'+', rhs: expr.ast};
         }
         expr = parseSupsub(expr, options);
         expr = parsePostfix(expr, options);
-        
+
     } else if (atom.type === 'genfrac' || atom.type === 'surd') {
         expr.index += 1;
         expr.ast = atom.toAST(options);
@@ -959,7 +956,7 @@ function parsePrimary(expr, options) {
 
     } else if (atom.type === 'font') {
         expr.ast = atom.toAST(options);
-        if (expr.ast.sym && expr.ast.variant === 'normal' && 
+        if (expr.ast.sym && expr.ast.variant === 'normal' &&
             isFunction(expr.ast.sym)) {
             // This is a function (for example used with \\mathrm{foo}
             expr.ast = {fn: expr.ast.sym};
@@ -969,7 +966,7 @@ function parsePrimary(expr, options) {
             expr.index += 1;  // Skip the function name
             fn.arg = parsePrimary(expr, options).ast;
             expr.ast = fn;
-            
+
         } else {
             // It's an identifier of some kind...
             if (atom.superscript === undefined) {
@@ -1006,7 +1003,7 @@ function parsePrimary(expr, options) {
         expr = parsePostfix(expr, options);
 
     } else if (atom.type === 'textord') {
-        // Note that 'textord' can also be operators, and are handled as such 
+        // Note that 'textord' can also be operators, and are handled as such
         // in parseExpression()
         if (!isOperator(atom)) {
             // This doesn't look like a textord operator
@@ -1017,14 +1014,14 @@ function parsePrimary(expr, options) {
                     // It's a function
                     expr.ast = {fn: name};
                     expr = parseSupsub(expr, options);
-        
+
                     const fn = expr.ast;
                     expr.index += 1;  // Skip the function name
                     fn.arg = parsePrimary(expr, options).ast;
                     expr.ast = fn;
-                        
+
                     expr = parsePostfix(expr, options);
-                            
+
                 } else {
                     // It was a symbol...
                     expr.ast = atom.toAST(options);
@@ -1046,7 +1043,7 @@ function parsePrimary(expr, options) {
             expr = parseSupsub(expr, options);
 
             if (expr.ast.sup) {
-                // There was an exponent with the function. 
+                // There was an exponent with the function.
                 if (expr.ast.sup === -1 || (expr.ast.sup.op === '-' && expr.ast.sup.rhs === 1)) {
                     // This is the inverse function
                     const INVERSE_FUNCTION = {
@@ -1087,10 +1084,10 @@ function parsePrimary(expr, options) {
         }
     } else if (atom.type === 'array') {
        expr.index += 1;
-       expr.ast = atom.toAST(options); 
+       expr.ast = atom.toAST(options);
     } else if (atom.type === 'sizing') {
        expr.index += 1;
-       return parsePrimary(expr, options); 
+       return parsePrimary(expr, options);
     } else if (atom.type === 'group') {
         expr.index += 1;
         expr.ast = atom.toAST(options);
@@ -1099,18 +1096,18 @@ function parsePrimary(expr, options) {
 
     if (expr.ast === undefined) {
         // Parse either a group of paren, and return their content as the result
-        // or a pair of delimiters, and return them as a function applied 
+        // or a pair of delimiters, and return them as a function applied
         // to their content, i.e. "|x|" -> {fn: "||", arg: "x"}
         const delim = parseDelim(expr, '(', ')', options) || parseDelim(expr, null, null, options);
         if (delim) {
             expr = delim;
         } else {
             if (!isOperator(atom)) {
-                // This is not an operator (if it is, it may be an operator 
+                // This is not an operator (if it is, it may be an operator
                 // dealing with an empty lhs. It's possible.
                 // Couldn't interpret the expression. Output an error.
                 expr.ast = {text: '?'};
-                expr.ast.error = 'Unexpected token ' + 
+                expr.ast.error = 'Unexpected token ' +
                     "'" + atom.type + "' = " + atom.body + ' = ' + atom.latex;
                 expr.index += 1;    // Skip the unexpected token, and attempt to continue
             }
@@ -1118,11 +1115,11 @@ function parsePrimary(expr, options) {
     }
 
     atom = expr.atoms[expr.index];
-    if (atom && (atom.type === 'mord' || 
-            atom.type === 'surd' || 
-            atom.type === 'mop' || 
-            atom.type === 'mopen' || 
-            atom.type === 'sizeddelim' || 
+    if (atom && (atom.type === 'mord' ||
+            atom.type === 'surd' ||
+            atom.type === 'mop' ||
+            atom.type === 'mopen' ||
+            atom.type === 'sizeddelim' ||
             atom.type === 'leftright')) {
         if (atom.type === 'sizeddelim') {
             for (const d in Definitions.RIGHT_DELIM) {
@@ -1143,7 +1140,7 @@ function parsePrimary(expr, options) {
         expr = parsePrimary(expr, options);
        if (expr && expr.ast) {
             if (isFunction(lhs)) {
-                // A function followed by a list -> the list becomes the 
+                // A function followed by a list -> the list becomes the
                 // argument to the function
                 if (expr.ast.fn === 'list2' || expr.ast.fn === 'list') {
                     expr.ast = {fn: lhs, arg: expr.ast.arg};
@@ -1169,9 +1166,9 @@ function parsePrimary(expr, options) {
 }
 
 /**
- * Given an atom or an array of atoms, return their AST representation as 
+ * Given an atom or an array of atoms, return their AST representation as
  * an object.
- * @param {Object} expr An expressions, including expr.atoms, expr.index, 
+ * @param {Object} expr An expressions, including expr.atoms, expr.index,
  * expr.minPrec the minimum precedence that this parser should parse
  * before returning; expr.lhs (optional); expr.ast, the resulting AST.
  * @return {Object} the expr object, updated
@@ -1182,7 +1179,7 @@ function parseExpression(expr, options) {
     expr.ast = undefined;
     if (expr.atoms.length === 0 || expr.index >= expr.atoms.length) return expr;
     expr.minPrec = expr.minPrec || 0;
-    
+
     let lhs = parsePrimary(expr, options).ast;
 
     let done = false;
@@ -1235,7 +1232,7 @@ function parseExpression(expr, options) {
                     lhs = {lhs: lhs, op: opName, rhs: rhs};
                 }
             } else {
-                // Is there a function (e.g. '+') implementing the 
+                // Is there a function (e.g. '+') implementing the
                 // associative version of this operator (e.g. '+')?
                 fn = ASSOCIATIVE_FUNCTION[opName];
                 if (fn === '+' && lhs && lhs.op === '-') {
@@ -1280,7 +1277,7 @@ function toString(atoms) {
 
 /**
  * Return a string escaped as necessary to comply with the JSON format
- * @param {string} s 
+ * @param {string} s
  * @return {string}
  */
 function escapeText(s) {
@@ -1296,7 +1293,7 @@ function escapeText(s) {
 
 /**
  * Return an AST representation of a single atom
- * 
+ *
  * @return {Object}
  */
 MathAtom.MathAtom.prototype.toAST = function(options) {
@@ -1344,7 +1341,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
                         'math', null, options.macros);
 
                     result.op = '/';
-                    result.rhs = parse(rhs, options);                    
+                    result.rhs = parse(rhs, options);
                 } else {
                     result.op = '/';
                 }
@@ -1403,12 +1400,12 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
             } else {
                 sym = getCanonicalName(getString(this));
                 if (sym.length > 0 && sym.charAt(0) === '\\') {
-                    // This is an identifier with no special handling. 
+                    // This is an identifier with no special handling.
                     // Use the Unicode value if outside ASCII range
                     if (typeof this.body === 'string') {
                         // TODO: consider making this an option?
                         // if (this.body.charCodeAt(0) > 255) {
-                        //     sym = '&#x' + ('000000' + 
+                        //     sym = '&#x' + ('000000' +
                         //         this.body.charCodeAt(0).toString(16)).substr(-4) + ';';
                         // } else {
                             sym = this.body;
@@ -1446,7 +1443,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
         case 'enclose':
             // result = '<menclose notation="';
             // for (const notation in this.notation) {
-            //     if (this.notation.hasOwnProperty(notation) && 
+            //     if (this.notation.hasOwnProperty(notation) &&
             //         this.notation[notation]) {
             //         result += sep + notation;
             //         sep = ' ';
@@ -1455,7 +1452,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
             // result += '">' + toAST(this.body).mathML + '</menclose>';
             break;
 
-        case 'array': 
+        case 'array':
             if (this.env.name === 'cardinality') {
                 result = {fn:'card', arg:[parse(this.array, options)]};
             }
@@ -1466,9 +1463,9 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
         case 'sizing':
         case 'mathstyle':
             break;
-        default: 
+        default:
             result = undefined;
-            console.log('Unhandled atom ' + this.type + ' - ' + this.body);            
+            console.log('Unhandled atom ' + this.type + ' - ' + this.body);
     }
 
     if (variant && result) {
@@ -1491,7 +1488,7 @@ function filterPresentationAtoms(atoms) {
     } else {
         if (atoms.type === 'spacing') {
             return [];
-        } else if (atoms.type === 'first' || atoms.type === 'color' || atoms.type === 'box' || 
+        } else if (atoms.type === 'first' || atoms.type === 'color' || atoms.type === 'box' ||
                 atoms.type === 'sizing') {
             result = filterPresentationAtoms(atoms.body);
         } else {
@@ -1523,7 +1520,7 @@ function filterPresentationAtoms(atoms) {
 }
 
 /**
- * 
+ *
  * @param {*} atoms an array of atoms
  * @return  {string}
  */
@@ -1558,7 +1555,7 @@ function normalize(ast) {
         }
         if (ast.group) {
             return {group: normalize(ast.group)};
-        }    
+        }
     }
 
 
@@ -1570,7 +1567,7 @@ MathAtom.toAST = function(atoms, options) {
 }
 
 /**
- * 
+ *
  * @param {string} fence -- The fence to validate
  * @param {string} -- Default values, in case no fence is provided
  * @return {string} -- A valid fence
@@ -1578,7 +1575,7 @@ MathAtom.toAST = function(atoms, options) {
 function validateFence(fence, defaultFence) {
     let result = fence || defaultFence;
 
-    // Make sure there are some default values, even if no default fence was 
+    // Make sure there are some default values, even if no default fence was
     // provided.
     // A fence can be up to three characters:
     // - open fence
@@ -1596,13 +1593,13 @@ function validateFence(fence, defaultFence) {
  * Return a formatted mantissa:
  * 1234567 -> 123 456 7...
  * 1233333 -> 12(3)
- * @param {*} m 
- * @param {*} config 
+ * @param {*} m
+ * @param {*} config
  */
 function formatMantissa(m, config) {
     const originalLength = m.length;
-    // The last digit may have been rounded, if it exceeds the precison, 
-    // which could throw off the 
+    // The last digit may have been rounded, if it exceeds the precison,
+    // which could throw off the
     // repeating pattern detection. Ignore it.
     m = m.substr(0, config.precision - 2);
 
@@ -1620,8 +1617,8 @@ function formatMantissa(m, config) {
                         return offset.replace(/(\d{3})/g, '$1' + config.groupSeparator);
                     }
                     return offset.replace(/(\d{3})/g, '$1' + config.groupSeparator) +
-                        config.beginRepeatingDigits + 
-                        cycle.replace(/(\d{3})/g, '$1' + config.groupSeparator) + 
+                        config.beginRepeatingDigits +
+                        cycle.replace(/(\d{3})/g, '$1' + config.groupSeparator) +
                         config.endRepeatingDigits;
                 }
             }
@@ -1634,7 +1631,7 @@ function formatMantissa(m, config) {
 }
 
  /**
- * 
+ *
  * @param {Object|number} num -- A number element, or a number or a bignumber or a fraction
  * @return {string} -- A LaTeX representation of the AST
  */
@@ -1656,13 +1653,13 @@ function numberAsLatex(num, config) {
             }
             if (num.indexOf('.') >= 0) {
                 // if (num.length - 1 < config.precision) {
-                //     // 
+                //     //
                 //     return sign + formatMantissa(num, config);
                 // }
                 const m = num.match(/(\d*).(\d*)/);
                 const base = m[1];
                 const mantissa = m[2];
-                
+
                 if (base === '0') {
                     let p = 2;  // Index of the first non-zero digit after the decimal
                     while (num[p] === '0' && p < num.length - 1) {
@@ -1788,7 +1785,7 @@ function numberAsLatex(num, config) {
 
 
  /**
- * 
+ *
  * @param {Object} ast -- Abstract Syntax Tree object
  * @return {string} -- A LaTeX representation of the AST
  */
@@ -1842,12 +1839,12 @@ function asLatex(ast, options) {
                 result = numberAsLatex(ast.re, config);
             }
             if (Math.abs(ast.im) > 1e-14) {
-                const im = asMachineNumber(ast.im); 
+                const im = asMachineNumber(ast.im);
                 if (Math.abs(ast.re) > 1e-14) {
                     result += im > 0 ? '+' : '';
                     wrap = true;
                 }
-                result += (Math.abs(im) !== 1 ? 
+                result += (Math.abs(im) !== 1 ?
                     numberAsLatex(ast.im, config) : '') + '\\imaginaryI ';
             }
             if (wrap) {
@@ -1874,7 +1871,7 @@ function asLatex(ast, options) {
                 const fence = validateFence(ast.fence, '(),');
                 result = fence[0] + result + fence[1];
             }
-    
+
             result += '^{' + asLatex(ast.arg[1], config) + '}';
         } else {
             const fn = getLatexTemplateForFunction(ast.fn);
@@ -1895,7 +1892,7 @@ function asLatex(ast, options) {
                 if (fence[1] !== '.') argstring += fence[1];
             } else if (ast.arg !== undefined) {
                 // The parenthesis may be option...
-                if (typeof ast.arg === 'number' || 
+                if (typeof ast.arg === 'number' ||
                     typeof ast.arg === 'string' ||
                     ast.arg.num !== undefined ||
                     ast.arg.sym !== undefined ||
@@ -1905,7 +1902,7 @@ function asLatex(ast, options) {
                     argstring = asLatex(ast.arg, config);
 
                 } else {
-                    // A complex expression, use parentheses if the arguments 
+                    // A complex expression, use parentheses if the arguments
                     // are the last element of the function template.
                     // For example, for abs()... |%|, parenthesis are not necessary.
                     if (fn[fn.length - 1] === '%') {
@@ -1960,7 +1957,7 @@ function asLatex(ast, options) {
                 'sans-serif': 'mathsf',
                 'monospace': 'mathtt'
             };
-            result = '\\' + MATH_VARIANTS[ast.variant] + 
+            result = '\\' + MATH_VARIANTS[ast.variant] +
                 '{' + result + '}';
         }
         if (ast.sup) result += '^{' + asLatex(ast.sup, config) + '}';
@@ -1980,7 +1977,7 @@ function asLatex(ast, options) {
             if (ast.lhs && ast.lhs.op && getPrecedence(ast.lhs.op) < getPrecedence(ast.op)) {
                 lhs = '(' + lhs + ')';
             }
-            
+
             rhs = asLatex(ast.rhs, config);
             if (ast.rhs && ast.rhs.op && getPrecedence(ast.rhs.op) < getPrecedence(ast.op)) {
                 rhs = '(' + rhs + ')';
@@ -2003,7 +2000,7 @@ function asLatex(ast, options) {
         // TODO
     }
 
-    // If there was an error attached to this node, 
+    // If there was an error attached to this node,
     // display it on a red background
     if (ast.error) {
         result = '\\bbox[#F56165]{' + result + '}';
@@ -2014,7 +2011,7 @@ function asLatex(ast, options) {
 
 
 // Export the public interface for this module
-return { 
+export default {
     asLatex,
     asMachineNumber,
     isNumber,
@@ -2022,4 +2019,4 @@ return {
 }
 
 
-})
+

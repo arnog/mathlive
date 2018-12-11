@@ -5,7 +5,7 @@
  * @module editor/keyboard
  * @private
  */
-define([], function() {
+
 
   const KEY_NAMES = {
     'Escape': 'Esc',
@@ -299,10 +299,10 @@ function hasSelection(textarea) {
     return textarea.selectionStart !== textarea.selectionEnd;
 }
 
-return {
+export default {
     delegateKeyboardEvents: delegateKeyboardEvents,
     select: delegateKeyboardEvents.select,
 };
 
-});
+
 

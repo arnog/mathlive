@@ -11,7 +11,7 @@
  * @private
  */
 
-define(['mathlive/core/fontMetrics'], function(FontMetrics){ 
+import FontMetrics from './fontMetrics';
 
 const sigmas = FontMetrics.sigmas;
 
@@ -30,9 +30,9 @@ for (i = 0; i < 3; i++) {
 
 /**
  * @property {number} id unique id for the style
- * @property {number} size (which is the same for cramped and uncramped version 
+ * @property {number} size (which is the same for cramped and uncramped version
  * of a style)
- * @property {number}  size multiplier, which gives the size difference between 
+ * @property {number}  size multiplier, which gives the size difference between
  * a style and textstyle.
  * @property {boolean}  cramped flag
  * @memberof module:mathstyle
@@ -149,7 +149,7 @@ const styles = [
 
 /**
  * Maps a string (or a Mathstyle) to an actual Mathstyle object.
- * @param {(Mathstyle|string)} s 
+ * @param {(Mathstyle|string)} s
  * @return {Mathstyle}
  * @memberof module:mathstyle
  * @private
@@ -161,8 +161,8 @@ function toMathstyle(s) {
 
     const STYLE_NAMES = {
         'displaystyle': styles[D],
-        'textstyle': styles[T], 
-        'scriptstyle': styles[S], 
+        'textstyle': styles[T],
+        'scriptstyle': styles[S],
         'scriptscriptstyle': styles[SS]
     }
 
@@ -182,31 +182,31 @@ const sizeNames = [
 
 
 const ADJUST_NAMES = [
-    [   
-        '', // 'reset-textstyle displaystyle textstyle', 
-        '', // 'reset-textstyle textstyle', 
-        'reset-textstyle scriptstyle', 
+    [
+        '', // 'reset-textstyle displaystyle textstyle',
+        '', // 'reset-textstyle textstyle',
+        'reset-textstyle scriptstyle',
         'reset-textstyle scriptscriptstyle'
     ],
 
-    [   
-        'reset-textstyle displaystyle textstyle', 
-        '',        // 'reset-textstyle textstyle', 
-        'reset-textstyle scriptstyle', 
+    [
+        'reset-textstyle displaystyle textstyle',
+        '',        // 'reset-textstyle textstyle',
+        'reset-textstyle scriptstyle',
         'reset-textstyle scriptscriptstyle'
     ],
 
-    [   
-        'reset-scriptstyle textstyle displaystyle', 
-        'reset-scriptstyle textstyle', 
-        '', // 'reset-scriptstyle scriptstyle', 
+    [
+        'reset-scriptstyle textstyle displaystyle',
+        'reset-scriptstyle textstyle',
+        '', // 'reset-scriptstyle scriptstyle',
         'reset-scriptstyle scriptscriptstyle'
     ],
 
-    [   
-        'reset-scriptscriptstyle textstyle displaystyle', 
-        'reset-scriptscriptstyle textstyle', 
-        'reset-scriptscriptstyle scriptstyle', 
+    [
+        'reset-scriptscriptstyle textstyle displaystyle',
+        'reset-scriptscriptstyle textstyle',
+        'reset-scriptscriptstyle scriptstyle',
         '' // 'reset-scriptscriptstyle scriptscriptstyle'
     ],
 ];
@@ -219,9 +219,9 @@ const fracNum = [T, Tc, S, Sc, SS, SSc, SS, SSc];
 const fracDen = [Tc, Tc, Sc, Sc, SSc, SSc, SSc, SSc];
 const cramp = [Dc, Dc, Tc, Tc, Sc, Sc, SSc, SSc];
 
-// We only export some of the styles. Also, we don't export the `Mathstyle` 
+// We only export some of the styles. Also, we don't export the `Mathstyle`
 // class so no more styles can be generated.
-return {
+export default {
     DISPLAY: styles[D],
     TEXT: styles[T],
     SCRIPT: styles[S],
@@ -231,4 +231,3 @@ return {
 
 
 
-})

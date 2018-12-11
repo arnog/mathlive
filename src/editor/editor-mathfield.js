@@ -4,33 +4,27 @@
  * @module editor/mathfield
  * @private
  */
-define([
-    'mathlive/core/definitions', 
-    'mathlive/core/mathAtom', 
-    'mathlive/core/lexer', 
-    'mathlive/core/parser', 
-    'mathlive/core/span', 
-    'mathlive/editor/editor-editableMathlist', 
-    'mathlive/editor/editor-mathpath', 
-    'mathlive/editor/editor-keyboard', 
-    'mathlive/editor/editor-undo', 
-    'mathlive/editor/editor-shortcuts', 
-    'mathlive/editor/editor-popover', 
-    'mathlive/editor/editor-virtualKeyboard',
-    'mathlive/core/grapheme-splitter',
-    'mathlive/addons/outputLatex', 
-    'mathlive/addons/outputMathML', 
-    'mathlive/addons/maston', 
-    'mathlive/addons/outputSpokenText'], 
-    function(Definitions, MathAtom, Lexer, ParserModule, Span, 
-    EditableMathlist, MathPath, Keyboard, Undo, Shortcuts, Popover, 
-    VirtualKeyboard, GraphemeSplitter,
-// eslint-disable-next-line no-unused-vars
-    OutputLatex, OutputMathML, MASTON, OutputSpokenText) {
+import Definitions from '../core/definitions';
+import MathAtom from '../core/mathAtom';
+import Lexer from '../core/lexer';
+import ParserModule from '../core/parser';
+import Span from '../core/span';
+import EditableMathlist from './editor-editableMathlist';
+import MathPath from './editor-mathpath';
+import Keyboard from './editor-keyboard';
+import Undo from './editor-undo';
+import Shortcuts from './editor-shortcuts';
+import Popover from './editor-popover';
+import VirtualKeyboard from './editor-virtualKeyboard';
+import GraphemeSplitter from '../core/grapheme-splitter';
+import OutputLatex from '../addons/outputLatex'; // eslint-disable-line no-unused-vars
+import OutputMathML from '../addons/outputMathML'; // eslint-disable-line no-unused-vars
+import MASTON from '../addons/maston'; // eslint-disable-line no-unused-vars
+import OutputSpokenText from '../addons/outputSpokenText'; // eslint-disable-line no-unused-vars
 
-/* 
-    Note: 
-    The OutputLatex, OutputMathML, MASTON and OutputSpokenText  modules are required, 
+/*
+    Note:
+    The OutputLatex, OutputMathML, MASTON and OutputSpokenText  modules are required,
     even though they are not referenced directly.
 
     They modify the MathAtom class, adding toLatex(), toMathML() and
@@ -62,10 +56,10 @@ function off(el, selectors, listener, options) {
  * **Note**
  * - Method names that _begin with_ an underbar `_` are private and meant
  * to be used only by the implementation of the class.
- * - Method names that _end with_ an underbar `_` are selectors. They can 
+ * - Method names that _end with_ an underbar `_` are selectors. They can
  * be invoked by calling the `perform()` function of a `MathField` object. Note
  * that the selector name does not include the underbar.
- * 
+ *
  * For example:
  * ```
  *    mf.perform('selectAll');
@@ -109,15 +103,15 @@ function MathField(element, config) {
         if (/android|ipad|ipod|iphone/i.test(navigator.userAgent)) {
             // On Android or iOS, don't use a textarea, which has the side effect of
             // bringing up the OS virtual keyboard
-            markup += `<span class='ML__textarea'> 
+            markup += `<span class='ML__textarea'>
                 <span class='ML__textarea--textarea'
-                    tabindex="0" role="textbox" 
+                    tabindex="0" role="textbox"
                     style='display:inline-block;height:1px;width:1px' >
                 </span>
             </span>`;
         } else {
             markup += '<span class="ML__textarea">' +
-                '<textarea class="ML__textarea--textarea" autocapitalize="off" autocomplete="off" ' + 
+                '<textarea class="ML__textarea--textarea" autocapitalize="off" autocomplete="off" ' +
                 'autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="-1">' +
                 '</textarea>' +
             '</span>';
@@ -127,8 +121,8 @@ function MathField(element, config) {
         if (typeof this.config.substituteTextArea === 'string') {
             markup += this.config.substituteTextArea;
         } else {
-            // We don't really need this one, but we keep it here so that the 
-            // indexes below remain the same whether a substituteTextArea is 
+            // We don't really need this one, but we keep it here so that the
+            // indexes below remain the same whether a substituteTextArea is
             // provided or not.
             markup += '<span></span>';
         }
@@ -151,7 +145,7 @@ function MathField(element, config) {
         markup += '<span ></span>';
     }
     markup += '</span>';
-    
+
     markup += `
         <div class="ML__popover" aria-hidden="true"></div>
         <div class="ML__keystrokecaption" aria-hidden="true"></div>
@@ -171,9 +165,9 @@ function MathField(element, config) {
     }
     this.field = this.element.children[iChild].children[0];
     this.virtualKeyboardToggleDOMNode = this.element.children[iChild++].children[1];
-    this._attachButtonHandlers(this.virtualKeyboardToggleDOMNode, 
+    this._attachButtonHandlers(this.virtualKeyboardToggleDOMNode,
         {
-            default: 'toggleVirtualKeyboard', 
+            default: 'toggleVirtualKeyboard',
             alt: 'toggleVirtualKeyboardAlt',
             shift: 'toggleVirtualKeyboardShift'
         }
@@ -182,13 +176,13 @@ function MathField(element, config) {
     this.keystrokeCaption = this.element.children[iChild++];
     this.ariaLiveText = this.element.children[iChild].children[0];
     this.accessibleNode = this.element.children[iChild++].children[1];
- 
-    // The keystroke caption panel and the command bar are 
+
+    // The keystroke caption panel and the command bar are
     // initially hidden
     this.keystrokeCaptionVisible = false;
     this.virtualKeyboardVisible = false;
 
-    // This index indicates which of the suggestions available to 
+    // This index indicates which of the suggestions available to
     // display in the popover panel
     this.suggestionIndex = 0;
 
@@ -217,7 +211,7 @@ function MathField(element, config) {
 
 
     // Delegate mouse and touch events
-    on(this.element, 'touchstart mousedown', this._onPointerDown.bind(this), 
+    on(this.element, 'touchstart mousedown', this._onPointerDown.bind(this),
         {passive: false, capture: false});
 
     // Request notification for when the window is resized (
@@ -228,13 +222,13 @@ function MathField(element, config) {
 
     // Override some handlers in the config
     const localConfig = Object.assign({}, config);
-    localConfig.onSelectionDidChange = 
+    localConfig.onSelectionDidChange =
         MathField.prototype._onSelectionDidChange.bind(this);
-    localConfig.onSelectionWillChange = 
+    localConfig.onSelectionWillChange =
         MathField.prototype._onSelectionWillChange.bind(this);
-    localConfig.onContentWillChange = 
+    localConfig.onContentWillChange =
         MathField.prototype._onContentWillChange.bind(this);
-        localConfig.onContentDidChange = 
+        localConfig.onContentDidChange =
         MathField.prototype._onContentDidChange.bind(this);
     localConfig.smartFence = this.config.smartFence;
     localConfig.macros = this.config.macros;
@@ -250,7 +244,7 @@ function MathField(element, config) {
         this.latex(elementText);
     }
 
-    // If fonts get loaded (which could happen as a result of the first pass 
+    // If fonts get loaded (which could happen as a result of the first pass
     // rendering done in .latex()), render again.
     if (document && document.fonts) {
         const that = this;
@@ -259,11 +253,11 @@ function MathField(element, config) {
 }
 
 /**
- * Revert this math field to its original content. After this method has been 
+ * Revert this math field to its original content. After this method has been
  * called, no other methods can be called on the MathField object. To turn the
- * element back into a MathField, call `MathLive.makeMathField()` on the 
+ * element back into a MathField, call `MathLive.makeMathField()` on the
  * element again to get a new math field object.
- * 
+ *
  * @method MathField#revertToOriginalContent
  */
 MathField.prototype.revertToOriginalContent = function() {
@@ -287,8 +281,8 @@ MathField.prototype.revertToOriginalContent = function() {
 
 /**
  * Utility function that returns the element which has the caret
- * 
- * @param {DomElement} el 
+ *
+ * @param {DomElement} el
  * @private
  */
 function _findElementWithCaret(el) {
@@ -306,7 +300,7 @@ function _findElementWithCaret(el) {
 
 /**
  * Return the (x,y) client coordinates of the caret
- * 
+ *
  * @method MathField#_getCaretPosition
  * @private
  */
@@ -315,7 +309,7 @@ MathField.prototype._getCaretPosition = function() {
     if (caret) {
         const bounds = caret.getBoundingClientRect();
         return {
-            x: bounds.right + window.scrollX, 
+            x: bounds.right + window.scrollX,
             y: bounds.bottom + window.scrollY };
     }
     return null;
@@ -324,9 +318,9 @@ MathField.prototype._getCaretPosition = function() {
 
 /**
  * Return a tuple of an element and a distance from point (x, y)
- * @param {Element} el 
- * @param {number} x 
- * @param {number} y 
+ * @param {Element} el
+ * @param {number} x
+ * @param {number} y
  * @function module:editor/mathfield#nearestElementFromPoint
  * @private
  */
@@ -345,7 +339,7 @@ function nearestElementFromPoint(el, x, y) {
         const dy = Math.max(r.top - y, 0, y - r.bottom);
         result.distance = dx * dx + dy * dy;
 
-        // Only consider children if the target is inside the (horizontal) bounds of 
+        // Only consider children if the target is inside the (horizontal) bounds of
         // of the element.
         // This avoid searching the numerator/denominator when a fraction
         // is the last element in the formula.
@@ -366,23 +360,23 @@ function nearestElementFromPoint(el, x, y) {
 
 MathField.prototype._pathFromPoint = function(x, y) {
     let result;
-    // Try to find the deepest element that is near the point that was 
+    // Try to find the deepest element that is near the point that was
     // clicked on (the point could be outside of the element)
     const nearest = nearestElementFromPoint(this.field, x, y);
     const el = nearest.element;
     const id = el ? el.getAttribute('data-atom-id') : null;
 
     if (id) {
-        // Let's find the atom that has a matching ID with the element that 
+        // Let's find the atom that has a matching ID with the element that
         // was clicked on (or near)
         const atoms = this.mathlist.filter(function(path, atom) {
-            // If the atom allows children to be selected, match only if 
+            // If the atom allows children to be selected, match only if
             // the ID of  the atom matches the one we're looking for.
             if (!atom.captureSelection) {
-                return atom.id === id; 
+                return atom.id === id;
             }
-            // If the atom does not allow children to be selected 
-            // (captureSelection === true), the element matches if any of 
+            // If the atom does not allow children to be selected
+            // (captureSelection === true), the element matches if any of
             // its children has an ID that matches.
             return atom.filter(function(childAtom) {
                 return childAtom.id === id;
@@ -394,12 +388,12 @@ MathField.prototype._pathFromPoint = function(x, y) {
             // Set the result to the path to this atom
 
             // If the point clicked is to the left of the vertical midline,
-            // adjust the path to *before* the atom (i.e. after the 
+            // adjust the path to *before* the atom (i.e. after the
             // preceding atom)
             const bounds = el.getBoundingClientRect();
             result = MathPath.pathFromString(atoms[0]).path;
             if (x < bounds.left + bounds.width / 2 && !el.classList.contains('ML__placeholder')) {
-                result[result.length - 1].offset = 
+                result[result.length - 1].offset =
                     Math.max(0, result[result.length - 1].offset - 1);
             }
         }
@@ -449,8 +443,8 @@ MathField.prototype._onPointerDown = function(evt) {
 
     // Calculate the tap count (if this is a touch event)
     if (evt.touches) {
-        if (lastTouchEndTouch && Math.abs(lastTouchEndTouch.pageX - evt.touches[0].pageX) < 5 && 
-            Math.abs(lastTouchEndTouch.pageY - evt.touches[0].pageY) < 5 && 
+        if (lastTouchEndTouch && Math.abs(lastTouchEndTouch.pageX - evt.touches[0].pageX) < 5 &&
+            Math.abs(lastTouchEndTouch.pageY - evt.touches[0].pageY) < 5 &&
             Date.now() < lastTouchEndTimestamp + 500) {
             tapCount += 1;
         } else {
@@ -471,7 +465,7 @@ MathField.prototype._onPointerDown = function(evt) {
         off(this.field, 'touchend touchleave', endPointerTracking);
         off(window, 'mousemove', onPointerMove);
         off(window, 'mouseup blur', endPointerTracking);
-        
+
         // If a mouse button other than the main one was pressed, return
         if (evt.buttons && evt.buttons !== 1) return;
 
@@ -488,7 +482,7 @@ MathField.prototype._onPointerDown = function(evt) {
             // The selection has changed, so we'll need to re-render
             dirty = true;
 
-            // evt.details contains the number of consecutive clicks 
+            // evt.details contains the number of consecutive clicks
             // for double-click, triple-click, etc...
             if (evt.detail === 2 || evt.detail === 3 || (tapCount > 1)) {
                 off(this.field, 'touchmove', onPointerMove);
@@ -508,7 +502,7 @@ MathField.prototype._onPointerDown = function(evt) {
                     trackingPointer = true;
                     on(window, 'blur', endPointerTracking);
                     if (evt.touches) {
-                        // To receive the subsequent touchmove/touch, need to 
+                        // To receive the subsequent touchmove/touch, need to
                         // listen to this evt.target.
                         // This was a touch event
                         on(evt.target, 'touchend', endPointerTracking);
@@ -527,7 +521,7 @@ MathField.prototype._onPointerDown = function(evt) {
 
     if (dirty) this._render();
 
-    // Prevent the browser from handling, in particular when this is a 
+    // Prevent the browser from handling, in particular when this is a
     // touch event prevent the synthetic mouseDown event from being generated
     evt.preventDefault();
 }
@@ -624,7 +618,7 @@ MathField.prototype._nextAtomSpeechText = function(oldMathlist) {
 
     while (oldPath.length > path.length) {
         result += 'out of ' + relation(oldMathlist.parent(), oldPath[oldPath.length - 1]) + '; ';
-        oldPath.pop(); 
+        oldPath.pop();
     }
     if (!this.mathlist.isCollapsed()) {
         return MathAtom.toSpeakableText(this.mathlist.extractContents(), this.config);
@@ -646,18 +640,18 @@ MathField.prototype._nextAtomSpeechText = function(oldMathlist) {
 
 /**
  * Announce a change in selection or content via the aria-live region.
- * @param {string} command the command that invoked the change 
- * @param {object} oldMathlist [null] the previous value of mathlist before the change 
- * @param {object} array [null] or atom: atomsToSpeak the command that invoked the change 
+ * @param {string} command the command that invoked the change
+ * @param {object} oldMathlist [null] the previous value of mathlist before the change
+ * @param {object} array [null] or atom: atomsToSpeak the command that invoked the change
  */
 MathField.prototype._announce = function(command, oldMathlist, atomsToSpeak) {
 //** Fix: the focus is the end of the selection, so it is before where we want it
 
     let liveText = '';
     // const command = moveAmount > 0 ? "right" : "left";
-    
+
     if (command === 'plonk') {
-        // Use this sound to indicate (minor) errors, for 
+        // Use this sound to indicate (minor) errors, for
         // example when a command has no effect.
         if (this.plonkSound) this.plonkSound.play().catch(err => console.log(err));
     } else if (command === 'delete') {
@@ -673,7 +667,7 @@ MathField.prototype._announce = function(command, oldMathlist, atomsToSpeak) {
     } else if (command === 'line') {
         // announce the current line -- currently that's everything
         liveText = MathAtom.toSpeakableText(this.mathlist.root, this.config);
-        this.accessibleNode.innerHTML = 
+        this.accessibleNode.innerHTML =
             '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
                 MathAtom.toMathML(this.mathlist.root, this.config) +
             '</math>';
@@ -688,12 +682,12 @@ MathField.prototype._announce = function(command, oldMathlist, atomsToSpeak) {
         //     console.log("after sleep");
         // });
     } else {
-        liveText = command + " " + 
-            (atomsToSpeak ? MathAtom.toSpeakableText(atomsToSpeak, this.config) : "");        
+        liveText = command + " " +
+            (atomsToSpeak ? MathAtom.toSpeakableText(atomsToSpeak, this.config) : "");
     }
-    // aria-live regions are only spoken when it changes; force a change by 
+    // aria-live regions are only spoken when it changes; force a change by
     // alternately using nonbreaking space or narrow nonbreaking space
-    const ariaLiveChangeHack = /\u00a0/.test(this.ariaLiveText.textContent) ? 
+    const ariaLiveChangeHack = /\u00a0/.test(this.ariaLiveText.textContent) ?
         ' \u202f ' : ' \u00a0 ';
     this.ariaLiveText.textContent = liveText + ariaLiveChangeHack;
     // this.textarea.setAttribute('aria-label', liveText + ariaLiveChangeHack);
@@ -747,8 +741,8 @@ MathField.prototype._showKeystroke = function(keystroke) {
         const bounds = this.element.getBoundingClientRect();
         vb.style.left = bounds.left + 'px';
         vb.style.top = (bounds.top - 56) + 'px';
-        vb.innerHTML += '<span>' + 
-            (Shortcuts.stringify(keystroke) || keystroke) + 
+        vb.innerHTML += '<span>' +
+            (Shortcuts.stringify(keystroke) || keystroke) +
             '</span>';
         vb.style.visibility = 'visible';
         setTimeout(function() {
@@ -796,10 +790,10 @@ MathField.prototype.perform = function(command) {
         if (['complete_'].includes(selector)) {
             this.undoManager.snapshot(this.options);
         }
-        
+
         dirty = this[selector](...args);
         handled = true;
-    } 
+    }
 
     // Render the mathlist
     if (dirty) {
@@ -815,7 +809,7 @@ MathField.prototype.perform = function(command) {
  * * provide haptic and audio feedback
  * This is used by the virtual keyboard when command keys (delete, arrows, etc..)
  * are pressed.
- * @param {string} command 
+ * @param {string} command
  */
 MathField.prototype.performWithFeedback_ = function(command) {
 
@@ -826,12 +820,12 @@ MathField.prototype.performWithFeedback_ = function(command) {
     }
 
 
-    if (command === 'moveToNextPlaceholder' || 
+    if (command === 'moveToNextPlaceholder' ||
         command === 'moveToPreviousPlaceholder' ||
         command === 'complete') {
         if (this.returnKeypressSound) this.returnKeypressSound.play();
         else if (this.keypressSound) this.keypressSound.play();
-    } else if (command === 'deletePreviousChar' || 
+    } else if (command === 'deletePreviousChar' ||
         command === 'deleteNextChar' ||
         command === 'deletePreviousWord' ||
         command === 'deleteNextWord' ||
@@ -840,7 +834,7 @@ MathField.prototype.performWithFeedback_ = function(command) {
         command === 'deleteToMathFieldStart' ||
         command === 'deleteToMathFieldEnd') {
             if (this.deleteKeypressSound) this.deleteKeypressSound.play();
-            else if (this.keypressSound) this.keypressSound.play();    
+            else if (this.keypressSound) this.keypressSound.play();
     } else if (this.keypressSound) {
         this.keypressSound.play();
     }
@@ -865,13 +859,13 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
         }
         return false;
     }
-    
-    const shortcut = Shortcuts.matchKeystroke(this.mathlist.parseMode(), 
+
+    const shortcut = Shortcuts.matchKeystroke(this.mathlist.parseMode(),
         keystroke);
 
     if (!shortcut) return true;
 
-    // Remove any error indicator (wavy underline) on the current command sequence 
+    // Remove any error indicator (wavy underline) on the current command sequence
     // (if there are any)
     this.mathlist.decorateCommandStringAroundInsertionPoint(false);
 
@@ -901,7 +895,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
  * an input method. As a result, `text` can be a sequence of characters to
  * be inserted.
  * @param {string} text
- * @param {object} options 
+ * @param {object} options
  * @param {boolean} options.focus - If true, the mathfield will be focused
  * @param {boolean} options.feedback - If true, provide audio and haptic feedback
  * @param {boolean} options.commandMode - If true, switch to command mode if
@@ -925,7 +919,7 @@ MathField.prototype._onTypedText = function(text, options) {
         }
     }
 
-    // Remove any error indicator on the current command sequence 
+    // Remove any error indicator on the current command sequence
     // (if there is one)
     this.mathlist.decorateCommandStringAroundInsertionPoint(false);
 
@@ -942,12 +936,12 @@ MathField.prototype._onTypedText = function(text, options) {
         this.mathlist.insert(text, {smartFence: this.config.smartFence});
 
     } else {
-        // Decompose the string into an array of graphemes. 
-        // This is necessary to correctly process what would be visually 
-        // perceived by a human as a single glyph (a grapheme) but which is 
-        // actually composed of multiple Unicode codepoints. This is the case 
-        // in particular for some emojis, such as those with a skin tone 
-        // modifier, the country flags emojis or compound emojis such as the 
+        // Decompose the string into an array of graphemes.
+        // This is necessary to correctly process what would be visually
+        // perceived by a human as a single glyph (a grapheme) but which is
+        // actually composed of multiple Unicode codepoints. This is the case
+        // in particular for some emojis, such as those with a skin tone
+        // modifier, the country flags emojis or compound emojis such as the
         // professional emojis, including the David Bowie emoji.
         const graphemes = GraphemeSplitter.splitGraphemes(text);
         for (let c of graphemes) {
@@ -970,13 +964,13 @@ MathField.prototype._onTypedText = function(text, options) {
                     this.mathlist.insert(c);
                     if (suggestions[0].match !== command + c) {
 
-                        this.mathlist.insertSuggestion(suggestions[0].match, 
+                        this.mathlist.insertSuggestion(suggestions[0].match,
                             -suggestions[0].match.length + command.length + 1);
                     }
                     popoverText = suggestions[0].match;
                 }
             } else if (this.mathlist.parseMode() === 'math') {
-                // Inline shortcuts (i.e. 'p' + 'i' = '\pi') only apply in 
+                // Inline shortcuts (i.e. 'p' + 'i' = '\pi') only apply in
                 // `math` parseMode
 
                 let count = this.mathlist.startOffset();
@@ -1008,7 +1002,7 @@ MathField.prototype._onTypedText = function(text, options) {
                 if (shortcut) {
                     const savedState = this.undoManager.save();
 
-                    // To enable the substitution to be undoable, 
+                    // To enable the substitution to be undoable,
                     // insert the character before applying the substitution
                     this.mathlist.insert(c);
 
@@ -1025,8 +1019,8 @@ MathField.prototype._onTypedText = function(text, options) {
                     // Insert the substitute
                     this.mathlist.insert(shortcut, {format: 'latex'});
                     this._announce('replacement');
-                } 
-                
+                }
+
                 if (!shortcut) {
                     // Some characters are mapped to commands. Handle them here.
                     // This is important to handle synthetic text input and
@@ -1054,7 +1048,7 @@ MathField.prototype._onTypedText = function(text, options) {
     this._render();
 
     // Since the location of the popover depends on the position of the caret
-    // only show the popover after the formula has been rendered and the 
+    // only show the popover after the formula has been rendered and the
     // position of the caret calculated
     Popover.showPopoverWithLatex(this, popoverText, displayArrows);
 }
@@ -1076,17 +1070,17 @@ MathField.prototype._hash = function() {
 
 /**
  * Lay-out the math field and generate the DOM.
- * 
+ *
  * This is usually done automatically, but if the font-size, or other geometric
  * attributes are modified, outside of MathLive, this function may need to be
  * called explicitly.
- * 
+ *
  * @method MathField#render
  * @private
  */
 MathField.prototype._render = function(renderOptions) {
     renderOptions = renderOptions || {};
-    
+
     //
     // 1. Stop and reset read aloud state
     //
@@ -1095,7 +1089,7 @@ MathField.prototype._render = function(renderOptions) {
     //
     // 2. Update selection state and blinking cursor (caret)
     //
-    this.mathlist.root.forEach( a => { 
+    this.mathlist.root.forEach( a => {
             a.hasCaret = false;
             a.isSelected = false;
         } );
@@ -1118,13 +1112,13 @@ MathField.prototype._render = function(renderOptions) {
     //
     const spans = MathAtom.decompose(
         {
-            mathstyle: 'displaystyle', 
+            mathstyle: 'displaystyle',
             generateID: {
-                // Using the hash as a seed for the ID 
+                // Using the hash as a seed for the ID
                 // keeps the IDs the same until the content of the field changes.
                 seed: this._hash(),
                 // The `groupNumbers` flag indicates that extra spans should be generated
-                // to represent group of atoms, for example, a span to group 
+                // to represent group of atoms, for example, a span to group
                 // consecutive digits to represent a number.
                 groupNumbers: renderOptions.forHighlighting,
             },
@@ -1152,7 +1146,7 @@ MathField.prototype._render = function(renderOptions) {
         bottomStrut.setStyle('height', base.height + base.depth, 'em');
         bottomStrut.setStyle('vertical-align', -base.depth, 'em');
         struts.push(bottomStrut);
-    } 
+    }
     struts.push(base);
     const wrapper = Span.makeSpan(struts, 'ML__mathlive');
     wrapper.classes += hasFocus ? ' ML__focused' : ' ML__blurred';
@@ -1163,7 +1157,7 @@ MathField.prototype._render = function(renderOptions) {
 
     this.field.innerHTML = wrapper.toMarkup(0, this.config.horizontalSpacingScale);
     // Probably want to generate content on fly depending on what to speak
-    this.accessibleNode.innerHTML = 
+    this.accessibleNode.innerHTML =
        "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
            MathAtom.toMathML(this.mathlist.root, this.config) +
        "</math>";
@@ -1179,20 +1173,20 @@ MathField.prototype._render = function(renderOptions) {
 
 
 MathField.prototype._onPaste = function() {
-    // Make note we're in the process of pasting. The subsequent call to 
+    // Make note we're in the process of pasting. The subsequent call to
     // onTypedText() will take care of interpreting the clipboard content
     this.pasteInProgress = true;
     return true;
 }
 
 MathField.prototype._onCut = function() {
-    // Clearing the selection will have the side effect of clearing the 
-    // content of the textarea. However, the textarea value is what will 
+    // Clearing the selection will have the side effect of clearing the
+    // content of the textarea. However, the textarea value is what will
     // be copied to the clipboard, so defer the clearing of the selection
     // to later, after the cut operation has been handled.
     setTimeout(function() {
         this.clearSelection();
-        this._render(); 
+        this._render();
     }.bind(this), 0);
     return true;
 }
@@ -1213,7 +1207,7 @@ MathField.prototype._onCopy = function(e) {
 
 /**
  * Return a textual representation of the mathfield.
- * @param {string} [format='latex']. One of 
+ * @param {string} [format='latex']. One of
  *    * `'latex'`
  *    * `'latex-expanded'` : all macros are recursively expanded to their definition
  *    * `'spoken'`
@@ -1250,7 +1244,7 @@ MathField.prototype.text = function(format) {
 
 /**
  * Return a textual representation of the selection in the mathfield.
- * @param {string} [format='latex']. One of 
+ * @param {string} [format='latex']. One of
  *    * `'latex'`
  *    * `'latex-expanded'` : all macros are recursively expanded to their definition
  *    * `'spoken'`
@@ -1264,13 +1258,13 @@ MathField.prototype.selectedText = function(format) {
     const selection = this.mathlist.extractContents();
     if (selection) {
         if (format === 'latex' || format === 'latex-expanded') {
-            
+
             for (const atom of selection) {
                 result += atom.toLatex(format === 'latex-expanded');
             }
 
         } else if (format === 'mathML') {
-            
+
             for (const atom of selection) {
                 result += atom.toMathML(this.config);
             }
@@ -1295,8 +1289,8 @@ MathField.prototype.selectionIsCollapsed = function() {
 }
 
 /**
- * Return the depth of the selection group. If the selection is at the root level, 
- * returns 0. If the selection is a portion of the numerator of a fraction 
+ * Return the depth of the selection group. If the selection is at the root level,
+ * returns 0. If the selection is a portion of the numerator of a fraction
  * which is at the root level, return 1. Note that in that case, the numerator
  * would be the "selection group".
  * @return {integer}
@@ -1325,9 +1319,9 @@ MathField.prototype.selectionAtEnd = function() {
 }
 
 /**
- * If `text` is not empty, sets the content of the mathfield to the 
+ * If `text` is not empty, sets the content of the mathfield to the
  * text interpreted as a LaTeX expression.
- * If `text` is empty (or omitted), return the content of the mahtfield as a 
+ * If `text` is empty (or omitted), return the content of the mahtfield as a
  * LaTeX expression.
  * @param {string} text
  * @return {string}
@@ -1346,7 +1340,7 @@ MathField.prototype.latex = function(text) {
     }
 
     // Return the content as LaTeX
-    // (The result might be different than the optional input, 
+    // (The result might be different than the optional input,
     // for example it may have been simplified or some commands ignored)
     return this.mathlist.root.toLatex();
 }
@@ -1388,7 +1382,7 @@ MathField.prototype.scrollToEnd_ = MathField.prototype.scrollToEnd = function() 
 }
 
 /**
- * 
+ *
  * @method MathField#enterCommandMode_
  * @private
  */
@@ -1413,7 +1407,7 @@ MathField.prototype.enterCommandMode_ = function() {
 
 MathField.prototype.copyToClipboard_ = function() {
     this.focus();
-    // If the selection is empty, select the entire field before 
+    // If the selection is empty, select the entire field before
     // copying it.
     if (this.mathlist.isCollapsed()) {
         this.select();
@@ -1438,29 +1432,29 @@ MathField.prototype.pasteFromClipboard_ = function() {
 /**
  * This function can be invoked as a selector with `perform()` or called explicitly.
  * It will insert the specified block of text at the current selection point,
- * according to the insertion mode specified. After the insertion, the 
+ * according to the insertion mode specified. After the insertion, the
  * selection will be set according to the selectionMode.
  * @param {string} s - The text to be inserted
- * @param {string} options.selectionMode - Describes where the selection 
+ * @param {string} options.selectionMode - Describes where the selection
  * will be after the insertion:
- *    * `'placeholder'`: the selection will be the first available placeholder 
+ *    * `'placeholder'`: the selection will be the first available placeholder
  * in the item that has been inserted) (default)
- *    * `'after'`: the selection will be an insertion point after the item that 
- * has been inserted), 
- *    * `'before'`: the selection will be an insertion point before 
+ *    * `'after'`: the selection will be an insertion point after the item that
+ * has been inserted),
+ *    * `'before'`: the selection will be an insertion point before
  * the item that has been inserted) or 'item' (the item that was inserted will
  * be selected).
- * 
+ *
  * @param {string} options.format - The format of the string `s`:
- *    * `'auto'`: the string is interpreted as a latex fragment or command) 
+ *    * `'auto'`: the string is interpreted as a latex fragment or command)
  * (default)
  *    * `'latex'`: the string is interpreted strictly as a latex fragment
- * 
+ *
  * @param {boolean} options.focus - If true, the mathfield will be focused
  * @param {boolean} options.feedback - If true, provide audio and haptic feedback
  * @method MathField#insert
  */
-MathField.prototype.insert_ = 
+MathField.prototype.insert_ =
 MathField.prototype.insert = function(s, options) {
     if (typeof s === 'string' && s.length > 0) {
         options = options || {};
@@ -1487,7 +1481,7 @@ MathField.prototype.insert = function(s, options) {
 
 
 /**
- * Completes an operation in progress, for example when in command mode, 
+ * Completes an operation in progress, for example when in command mode,
  * interpret the command
  * @method MathField#complete_
  * @private
@@ -1518,7 +1512,7 @@ MathField.prototype.complete_ = function() {
                         Lexer.tokenize(command), mode, null, this.config.macros);
                 if (mathlist) {
                     this.mathlist.spliceCommandStringAroundInsertionPoint(mathlist);
-                } else {            
+                } else {
                     this.mathlist.decorateCommandStringAroundInsertionPoint(true);
                 }
             }
@@ -1595,22 +1589,22 @@ MathField.prototype.toggleKeystrokeCaption_ = function() {
  * - an object, with the following keys:
  *    * 'default': command performed on up, with a down + up sequence with no
  *      delay between down and up
- *    * 'alt', 'shift', 'altshift' keys: command performed on up with 
+ *    * 'alt', 'shift', 'altshift' keys: command performed on up with
  *      one of these modifiers pressed
  *    * 'pressed': command performed on 'down'
- *    * 'pressAndHoldStart': command performed after a tap/down followed by a 
+ *    * 'pressAndHoldStart': command performed after a tap/down followed by a
  * delay (optional)
  *    * 'pressAndHoldEnd': command performed on up, if there was a delay
  *     between down and up, if absent, 'default' is performed
  * The value of the keys specify which selector (string
- * or array) to perform depending on the keyboard state when the button is 
+ * or array) to perform depending on the keyboard state when the button is
  * pressed.
  *
- * The 'pressed' and 'active' classes will get added to 
+ * The 'pressed' and 'active' classes will get added to
  * the element, as the :hover and :active pseudo-classes are not reliable
  * (at least on Chrome Android).
- * 
- * @param {*} el 
+ *
+ * @param {*} el
  * @param {*} command
  */
 MathField.prototype._attachButtonHandlers = function(el, command) {
@@ -1619,41 +1613,41 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
     if (typeof command === 'object' && (command.default || command.pressed)) {
         // Attach the default (no modifiers pressed) command to the element
         if (command.default) {
-            el.setAttribute('data-' + this.config.namespace + 'command', 
+            el.setAttribute('data-' + this.config.namespace + 'command',
                 JSON.stringify(command.default));
         }
         if (command.alt) {
-            el.setAttribute('data-' + this.config.namespace + 'command-alt', 
+            el.setAttribute('data-' + this.config.namespace + 'command-alt',
                 JSON.stringify(command.alt));
         }
         if (command.altshift) {
-            el.setAttribute('data-' + this.config.namespace + 'command-altshift', 
+            el.setAttribute('data-' + this.config.namespace + 'command-altshift',
                 JSON.stringify(command.altshift));
         }
         if (command.shift) {
-            el.setAttribute('data-' + this.config.namespace + 'command-shift', 
+            el.setAttribute('data-' + this.config.namespace + 'command-shift',
                 JSON.stringify(command.shift));
         }
-        // .pressed: command to perform when the button is pressed (i.e. 
-        // on mouse down/touch). Otherwise the command is performed when 
+        // .pressed: command to perform when the button is pressed (i.e.
+        // on mouse down/touch). Otherwise the command is performed when
         // the button is released
         if (command.pressed) {
-            el.setAttribute('data-' + this.config.namespace + 'command-pressed', 
+            el.setAttribute('data-' + this.config.namespace + 'command-pressed',
                 JSON.stringify(command.pressed));
         }
         if (command.pressAndHoldStart) {
-            el.setAttribute('data-' + this.config.namespace + 'command-pressAndHoldStart', 
+            el.setAttribute('data-' + this.config.namespace + 'command-pressAndHoldStart',
                 JSON.stringify(command.pressAndHoldStart));
         }
         if (command.pressAndHoldEnd) {
-            el.setAttribute('data-' + this.config.namespace + 'command-pressAndHoldEnd', 
+            el.setAttribute('data-' + this.config.namespace + 'command-pressAndHoldEnd',
                 JSON.stringify(command.pressAndHoldEnd));
         }
     } else {
-        // We need to turn the command into a string to attach it to the dataset 
-        // associated with the button (the command could be an array made of a 
+        // We need to turn the command into a string to attach it to the dataset
+        // associated with the button (the command could be an array made of a
         // selector and one or more parameters)
-        el.setAttribute('data-' + this.config.namespace + 'command', 
+        el.setAttribute('data-' + this.config.namespace + 'command',
             JSON.stringify(command));
     }
 
@@ -1676,7 +1670,7 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
             // Record the ID of the primary touch point for tracking on touchmove
             if (ev.type === 'touchstart') touchID = ev.changedTouches[0].identifier;
 
-            // Parse the JSON to get the command (and its optional arguments) 
+            // Parse the JSON to get the command (and its optional arguments)
             // and perform it immediately
             const command = el.getAttribute('data-' + that.config.namespace + 'command-pressed');
             if (command) {
@@ -1700,7 +1694,7 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
     }, {passive: false, capture: false});
     on (el, 'mouseleave touchcancel', function() {
         el.classList.remove('pressed');
-        // let command = el.getAttribute('data-' + that.config.namespace + 
+        // let command = el.getAttribute('data-' + that.config.namespace +
         //     'command-pressAndHoldEnd');
         // const now = Date.now();
         // if (command && now > pressHoldStart + 300) {
@@ -1710,7 +1704,7 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
     on (el, 'touchmove', function(ev) {
         // Unlike with mouse tracking, touch tracking only sends events
         // to the target that was originally tapped on. For consistency,
-        // we want to mimic the behavior of the mouse interaction by 
+        // we want to mimic the behavior of the mouse interaction by
         // tracking the touch events and dispatching them to potential targets
         ev.preventDefault();
         for (let i = 0; i < ev.changedTouches.length; i++) {
@@ -1755,40 +1749,40 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
             // Ignore it, we'll handle the mouseup (or touchend) instead.
             ev.stopPropagation();
             ev.preventDefault();
-            return;            
+            return;
         }
 
         // Since we want the active state to be visible for a while,
         // use a timer to remove it after a short delay
         window.setTimeout(function(){ el.classList.remove('active'); }, 150);
 
-        let command = el.getAttribute('data-' + that.config.namespace + 
+        let command = el.getAttribute('data-' + that.config.namespace +
             'command-pressAndHoldEnd');
         const now = Date.now();
-        // If the button has not been pressed for very long or if we were 
+        // If the button has not been pressed for very long or if we were
         // not the button that started the press and hold, don't consider
         // it a press-and-hold.
         if (el !== pressHoldElement || now < pressHoldStart + 300) {
             command = undefined;
         }
         if (!command && ev.altKey && ev.shiftKey) {
-            command = el.getAttribute('data-' + that.config.namespace + 
+            command = el.getAttribute('data-' + that.config.namespace +
                 'command-altshift');
         }
         if (!command && ev.altKey) {
-            command = el.getAttribute('data-' + that.config.namespace + 
+            command = el.getAttribute('data-' + that.config.namespace +
                 'command-alt');
         }
         if (!command && ev.shiftKey) {
-            command = el.getAttribute('data-' + that.config.namespace + 
+            command = el.getAttribute('data-' + that.config.namespace +
                 'command-shift');
         }
         if (!command) {
-            command = el.getAttribute('data-' + that.config.namespace + 
+            command = el.getAttribute('data-' + that.config.namespace +
                 'command');
         }
         if (command) {
-            // Parse the JSON to get the command (and its optional arguments) 
+            // Parse the JSON to get the command (and its optional arguments)
             // and perform it
             that.perform(JSON.parse(command));
         }
@@ -1814,7 +1808,7 @@ MathField.prototype._makeButton = function(label, cls, ariaLabel, command) {
 /**
  * Alternate options are displayed when a key on the virtual keyboard is pressed
  * and held.
- * 
+ *
  */
 MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
     let altContainer = this.virtualKeyboard.getElementsByClassName('alternate-keys');
@@ -1865,16 +1859,16 @@ MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
             }
         }
 
-        markup += '>';        
+        markup += '>';
         markup += altKey.label || '';
 
         markup += '</li>';
     }
     markup = '<ul>' + markup + '</ul>';
-    
+
     altContainer.innerHTML = markup;
 
-    VirtualKeyboard.makeKeycap(this, 
+    VirtualKeyboard.makeKeycap(this,
         altContainer.querySelectorAll('li'), 'performAlternateKeys');
 
     const keycapEl = this.virtualKeyboard.querySelector(
@@ -1896,7 +1890,7 @@ MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
         } else {
             altContainer.style.top = (position.top - altContainer.clientHeight + 5).toString() + 'px';
         }
-        altContainer.style.left = Math.max(0, 
+        altContainer.style.left = Math.max(0,
             Math.min(window.innerWidth - altContainer.offsetWidth,
             ((position.left + position.right - altContainer.offsetWidth) / 2) )) + 'px';
         altContainer.classList.add('visible');
@@ -1917,7 +1911,7 @@ MathField.prototype.hideAlternateKeys_ = function() {
 
 /**
  * The command invoked when an alternate key is pressed.
- * We need to hide the Alternate Keys panel, then perform the 
+ * We need to hide the Alternate Keys panel, then perform the
  * command.
  */
 MathField.prototype.performAlternateKeys_ = function(command) {
@@ -1971,8 +1965,8 @@ MathField.prototype.switchKeyboardLayer_ = function(layer) {
 }
 
 
-/** 
- * Temporarily change the labels and the command of the keys 
+/**
+ * Temporarily change the labels and the command of the keys
  * (for example when a modifier key is held down.)
  */
 MathField.prototype.shiftKeyboardLayer_ = function() {
@@ -1995,14 +1989,14 @@ MathField.prototype.shiftKeyboardLayer_ = function() {
                     keycap.setAttribute('data-unshifted-command', command);
                     const shiftedCommand = keycap.getAttribute('data-shifted-command');
                     if (shiftedCommand) {
-                        keycap.setAttribute('data-' + this.config.namespace + 'command', 
+                        keycap.setAttribute('data-' + this.config.namespace + 'command',
                             shiftedCommand);
                     } else {
                         const commandObj = JSON.parse(command);
                         if (Array.isArray(commandObj)) {
                             commandObj[1] = commandObj[1].toUpperCase()
                         }
-                        keycap.setAttribute('data-' + this.config.namespace + 'command', 
+                        keycap.setAttribute('data-' + this.config.namespace + 'command',
                             JSON.stringify(commandObj));
                     }
                 }
@@ -2015,10 +2009,10 @@ MathField.prototype.shiftKeyboardLayer_ = function() {
 
 
 
-/** 
+/**
  * Restore the key labels and commands to the state before a modifier key
  * was pressed.
- * 
+ *
  */
 MathField.prototype.unshiftKeyboardLayer_ = function() {
     const keycaps = this.virtualKeyboard.querySelectorAll(
@@ -2032,7 +2026,7 @@ MathField.prototype.unshiftKeyboardLayer_ = function() {
             }
             const command = keycap.getAttribute('data-unshifted-command');
             if (command) {
-                keycap.setAttribute('data-' + this.config.namespace + 'command', 
+                keycap.setAttribute('data-' + this.config.namespace + 'command',
                     command);
             }
         }
@@ -2069,7 +2063,7 @@ MathField.prototype.toggleVirtualKeyboardShift_ = function() {
         'colemak': 'qwerty'
     }[this.config.virtualKeyboardLayout];
 
-    let layer = this.virtualKeyboard ? 
+    let layer = this.virtualKeyboard ?
         this.virtualKeyboard.querySelector('div.keyboard-layer.visible') : null;
     layer = layer ? layer.id : '';
 
@@ -2121,7 +2115,7 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
 
     if (typeof this.config.onVirtualKeyboardToggle === 'function') {
         this.config.onVirtualKeyboardToggle(
-                this.virtualKeyboardVisible, 
+                this.virtualKeyboardVisible,
                 this.virtualKeyboard);
     }
     return false;
@@ -2171,7 +2165,7 @@ MathField.prototype.clearSelection = function() {
  * @method MathField#keystroke
  */
 MathField.prototype.keystroke = function(keys, evt) {
-    // This is the public API, while onKeystroke is the 
+    // This is the public API, while onKeystroke is the
     // internal handler
     return this._onKeystroke(keys, evt);
 }
@@ -2183,16 +2177,16 @@ MathField.prototype.keystroke = function(keys, evt) {
  * @method MathField#typedText
  */
 MathField.prototype.typedText = function(text) {
-    // This is the public API, while onTypedText is the 
+    // This is the public API, while onTypedText is the
     // internal handler
     this._onTypedText(text);
 }
 
 
 /**
- * 
- * @param {string} text 
- * @param {object} options 
+ *
+ * @param {string} text
+ * @param {object} options
  * @param {boolean} options.focus - If true, the mathfield will be focused
  * @param {boolean} options.feedback - If true, provide audio and haptic feedback
  */
@@ -2204,7 +2198,6 @@ MathField.prototype.typedText_ = function(text, options) {
 /**
  * @param {Object} config - See [`MathLive.makeMathField()`]{@link module:mathlive#makeMathField} for details
  * 
-
  * @method MathField#setConfig
  */
 MathField.prototype.setConfig = function(conf) {
@@ -2252,15 +2245,15 @@ MathField.prototype.setConfig = function(conf) {
             if (this.config.keypressSound.spacebar) {
                 this.spacebarKeypressSound = new Audio(this.config.keypressSound.spacebar);
                 this.spacebarKeypressSound.volume = AUDIO_FEEDBACK_VOLUME;
-            } 
+            }
             if (this.config.keypressSound.return) {
                 this.returnKeypressSound = new Audio(this.config.keypressSound.return);
                 this.returnKeypressSound.volume = AUDIO_FEEDBACK_VOLUME;
-            } 
+            }
             if (this.config.keypressSound.delete) {
                 this.deleteKeypressSound = new Audio(this.config.keypressSound.delete);
                 this.deleteKeypressSound.volume = AUDIO_FEEDBACK_VOLUME;
-            } 
+            }
         }
     }
 
@@ -2317,7 +2310,7 @@ MathField.prototype.speakSelectionWithSynchronizedHighlighting_ = function() {
 /**
  * @method EditableMathlist#speakParent_
  */
-MathField.prototype.speakParent_ = function() { 
+MathField.prototype.speakParent_ = function() {
     let text = 'No parent.';
     const parent = this.mathlist.parent();
     if (parent && parent.type !== 'root') {
@@ -2330,7 +2323,7 @@ MathField.prototype.speakParent_ = function() {
 /**
  * @method EditableMathlist#speakRightSibling_
  */
-MathField.prototype.speakRightSibling_ = function() { 
+MathField.prototype.speakRightSibling_ = function() {
     let text = 'At the end.';
     const siblings = this.mathlist.siblings();
     const first = this.mathlist.startOffset() + 1;
@@ -2348,7 +2341,7 @@ MathField.prototype.speakRightSibling_ = function() {
 /**
  * @method EditableMathlist#speakLeftSibling_
  */
-MathField.prototype.speakLeftSibling_ = function() { 
+MathField.prototype.speakLeftSibling_ = function() {
     let text = 'At the beginning.';
     const siblings = this.mathlist.siblings();
     const last = this.mathlist.isCollapsed() ? this.mathlist.startOffset() : this.mathlist.startOffset() - 1;
@@ -2367,7 +2360,7 @@ MathField.prototype.speakLeftSibling_ = function() {
 /**
  * @method EditableMathlist#speakGroup_
  */
-MathField.prototype.speakGroup_ = function() { 
+MathField.prototype.speakGroup_ = function() {
     this._speak(MathAtom.toSpeakableText(this.mathlist.siblings(), this.config));
     return false;
 }
@@ -2396,11 +2389,11 @@ MathField.prototype.speakAllWithSynchronizedHighlighting_ = function() {
 
 
 
-return {
+export default {
     MathField: MathField
 }
 
 
-})
+
 
 

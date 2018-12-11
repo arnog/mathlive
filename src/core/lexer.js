@@ -9,19 +9,19 @@
  * ## Reference
  * TeX source code:
  * {@link  http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web|Tex.web}
- * 
+ *
  * For a list of standard TeX macros, see:
  * {@link ftp://tug.ctan.org/pub/tex-archive/systems/knuth/dist/lib/plain.tex|plain.tex}
 */
 
 
-define(['mathlive/core/grapheme-splitter'], function(GraphemeSplitter) {
+import GraphemeSplitter from './grapheme-splitter';
 
 
 /**
- * 
+ *
  * A token can be of type:
- *  - `literal`: the value is the character this token represents. This can be 
+ *  - `literal`: the value is the character this token represents. This can be
  * a combination of Unicode codepoints, for example for emojis.
  *  - `^` and `_`: superscript and subscript commands.
  *  - command: a command such as \sin
@@ -33,7 +33,7 @@ define(['mathlive/core/grapheme-splitter'], function(GraphemeSplitter) {
  *  - `commandliteral`: a-zA-Z for special commands (esc sequence, etc...)
  *  - `placeholder`: a placeholder value meant to be replaced by some actual value
  *  - `space`: one or more space characters (including tab, etc...)
- * 
+ *
  *  See: [TeX:289](http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web)
  * @property {string} value
  * @property {string} type
@@ -48,7 +48,7 @@ function Token(type, value) {
 }
 
 /**
- * @param {string} s 
+ * @param {string} s
  * @class Lexer
  * @global
  * @private
@@ -67,8 +67,8 @@ Lexer.prototype.end = function() {
     return this.pos >= this.s.length;
 }
 
-/** 
- * Return the next char and advance 
+/**
+ * Return the next char and advance
  * @return {string}
  * @method Lexer#get
  */
@@ -98,9 +98,9 @@ Lexer.prototype.scan = function(regEx) {
     // this.s can either be a string, if it's made up only of ASCII chars
     // or an array of graphemes, if it's more complicated.
     if (typeof this.s === 'string') {
-        result = regEx.exec(this.s.slice(this.pos)); 
+        result = regEx.exec(this.s.slice(this.pos));
     } else {
-        result = regEx.exec(this.s.slice(this.pos).join('')); 
+        result = regEx.exec(this.s.slice(this.pos).join(''));
     }
     if (result) {
         this.pos += result[0].length;
@@ -112,13 +112,13 @@ Lexer.prototype.scan = function(regEx) {
 
 /**
  * Return true if next char is white space. Does not advance.
- * Note that browsers are inconsistent in their definitions of the 
+ * Note that browsers are inconsistent in their definitions of the
  * `\s` metacharacter, so use an explicit string match instead.
- * 
+ *
  * - Chrome:      `[ \t\n\v\f\r\u00A0]`
  * - Firefox:     `[ \t\n\v\f\r\u00A0\u2028\u2029]`
  * - IE:          `[ \t\n\v\f\r]`
- * 
+ *
  * See [Stackoverflow](http://stackoverflow.com/questions/6073637/)
  * @method Lexer#isWhiteSpace
  * @private
@@ -164,7 +164,7 @@ Lexer.prototype.skipWhiteSpace = function() {
 
 /**
  * Return a single token, or null, created from the lexer.
- * 
+ *
  * @returns {Token}
  * @method Lexer#makeToken
  * @private
@@ -205,10 +205,10 @@ Lexer.prototype.makeToken = function() {
         result = new Token(this.get());
 
     } else if (this.peek() === '#') {
-        // This could be either a param token, or a literal # (used for 
+        // This could be either a param token, or a literal # (used for
         // colorspecs, for example). A param token is a '#' followed by
-        // - a digit 0-9 followed by a non-alpha, non-digit 
-        // - or '?'. 
+        // - a digit 0-9 followed by a non-alpha, non-digit
+        // - or '?'.
         // Otherwise, it's a literal '#'.
         this.get();
         if (!this.end()) {
@@ -262,11 +262,11 @@ Lexer.prototype.makeToken = function() {
     } else if (this.peek() === '\u001b') {   // ESCAPE character
         result = new Token('esc', this.get());
 
-    // Is it a mode switch? 
+    // Is it a mode switch?
     } else if (this.peek() === '$') {
         this.get();
         if (this.peek() === '$') {
-            // $$ 
+            // $$
             this.get();
             result = new Token('$$');
         } else {
@@ -283,7 +283,7 @@ Lexer.prototype.makeToken = function() {
 
 /**
  * Create Tokens from a stream of LaTeX
- * 
+ *
  * @param {string} s - A string o LaTeX. It can include comments (with the `%`
  * marker) and multiple lines.
  * @return {Token[]}
@@ -322,11 +322,11 @@ function tokenize(s) {
 
 
 
-return {
+export default {
     tokenize
 }
 
 
 
 
-})
+

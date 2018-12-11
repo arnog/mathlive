@@ -8,7 +8,7 @@ var splitter = new GraphemeSplitter();
 var graphemes = splitter.splitGraphemes(string); 
 
 */
-define([], function() {
+
 	const CR = 0,
 		LF = 1,
 		Control = 2,
@@ -1511,10 +1511,10 @@ define([], function() {
 		return Other;
 	}
 
-    return {
+    export default {
         splitGraphemes,
         countGraphemes,
         nextBreak
     }
-})
+
 

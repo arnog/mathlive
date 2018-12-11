@@ -1,19 +1,13 @@
-define([
-    
-    'mathlive/core/mathAtom', 
-    'mathlive/core/span', 
-    'mathlive/core/lexer', 
-    'mathlive/core/parser', 
-    'mathlive/core/color', 
-    'mathlive/core/definitions', 
-    'mathlive/addons/outputLatex',
-    'mathlive/editor/editor-popover', 
-    'mathlive/editor/editor-keyboard', 
-    'mathlive/editor/editor-shortcuts', 
-    ], 
-    function(MathAtom, Span, Lexer, ParserModule, Color, 
-// eslint-disable-next-line no-unused-vars
-    Definitions, OutputLatex, Popover, Keyboard, Shortcuts) {
+import MathAtom from '../core/mathAtom';
+import Span from '../core/span';
+import Lexer from '../core/lexer';
+import ParserModule from '../core/parser';
+import Color from '../core/color';
+import Definitions from '../core/definitions'; // eslint-disable-line no-unused-vars
+import OutputLatex from '../addons/outputLatex'; // eslint-disable-line no-unused-vars
+import Popover from './editor-popover'; // eslint-disable-line no-unused-vars
+import Keyboard from './editor-keyboard'; // eslint-disable-line no-unused-vars
+import Shortcuts from './editor-shortcuts'; // eslint-disable-line no-unused-vars
 
 const KEYBOARDS = {
     'numeric': {
@@ -44,7 +38,7 @@ const KEYBOARDS = {
     },
     'command': {
         tooltip: 'LaTeX Command Mode',
-        // For the command keyboard, perform a command rather than 
+        // For the command keyboard, perform a command rather than
         // doing a simple layer switch, as we want to enter command mode
         // when the keyboard is activated
         command: 'enterCommandMode',
@@ -94,30 +88,30 @@ const ALT_KEYS_BASE = {
     '2': ['\\frac{1}{2}', {latex: '#?^2', insert: '#@^2' }],
     '3': ['\\frac{1}{3}', {latex: '#?^3', insert: '#@^3' }],
     '.': [
-        ',',  ';', '\\colon',  {latex:':', aside:'ratio'}, 
-        {latex:'\\cdotp', aside:'center dot', classes:'box'}, 
-        {latex:'\\cdots', aside:'center ellipsis', classes:'box'}, 
-        {latex:'\\ldotp', aside:'low dot', classes:'box'} , 
-        {latex:'\\ldots', aside:'low ellipsis', classes:'box'} , 
-        {latex:'\\vdots', aside:'', classes:'box'} , 
-        {latex:'\\ddots', aside:'', classes:'box'} , 
-        '\\odot', '\\oslash', '\\circledcirc', 
-        
+        ',',  ';', '\\colon',  {latex:':', aside:'ratio'},
+        {latex:'\\cdotp', aside:'center dot', classes:'box'},
+        {latex:'\\cdots', aside:'center ellipsis', classes:'box'},
+        {latex:'\\ldotp', aside:'low dot', classes:'box'} ,
+        {latex:'\\ldots', aside:'low ellipsis', classes:'box'} ,
+        {latex:'\\vdots', aside:'', classes:'box'} ,
+        {latex:'\\ddots', aside:'', classes:'box'} ,
+        '\\odot', '\\oslash', '\\circledcirc',
+
     ],
 
     '*': [
-        '\\cdot', '\\ast', '\\star', '\\bigstar', 
+        '\\cdot', '\\ast', '\\star', '\\bigstar',
         '\\ltimes', '\\rtimes', '\\rightthreetimes','\\leftthreetimes',
         '\\intercal', '\\prod', {latex:'\\prod_{n\\mathop=0}^{\\infty}', classes:'small'},
     ],
 
     '+': [
-        '\\pm', '\\mp', 
-        '\\sum', {latex:'\\sum_{n\\mathop=0}^{\\infty}', classes:'small'}, 
+        '\\pm', '\\mp',
+        '\\sum', {latex:'\\sum_{n\\mathop=0}^{\\infty}', classes:'small'},
         '\\dotplus', '\\oplus'
     ],
     '-': [
-        '\\pm', '\\mp', 
+        '\\pm', '\\mp',
         '\\ominus', '\\vert #0  \\vert'
     ],
 
@@ -125,49 +119,49 @@ const ALT_KEYS_BASE = {
 
     '(':[
         '\\left( #0\\right)', '\\left[ #0\\right]', '\\left\\{ #0\\right\\}', '\\left\\langle #0\\right\\rangle',
-        '\\lfloor',    '\\llcorner',    '(',            '\\lbrack',         
+        '\\lfloor',    '\\llcorner',    '(',            '\\lbrack',
         '\\lvert',     '\\lVert',       '\\lgroup',     '\\langle',
         '\\lceil',     '\\ulcorner',    '\\lmoustache', '\\lbrace',
     ],
 
     ')':[
-        '\\rfloor',    '\\lrcorner',    ')',            '\\rbrack',      
+        '\\rfloor',    '\\lrcorner',    ')',            '\\rbrack',
         '\\rvert',     '\\rVert',       '\\rgroup',     '\\rangle',
         '\\rceil',     '\\urcorner',    '\\rmoustache', '\\rbrace',
     ],
-        
-    '=': [  
-        '\\cong',       '\\asymp', '\\equiv', 
-        '\\differencedelta',    '\\varpropto',  
+
+    '=': [
+        '\\cong',       '\\asymp', '\\equiv',
+        '\\differencedelta',    '\\varpropto',
         '\\thickapprox', '\\approxeq', '\\thicksim', '\\backsim', '\\eqsim', '\\simeq',
-        '\\Bumpeq', '\\bumpeq', '\\doteq', '\\Doteq', 
+        '\\Bumpeq', '\\bumpeq', '\\doteq', '\\Doteq',
         '\\fallingdotseq', '\\risingdotseq', '\\coloneq', '\\eqcirc', '\\circeq',
-        '\\triangleq', '\\between', 
+        '\\triangleq', '\\between',
     ],
 
-    '!=': [  
-        '\\neq', '\\ncong',    '',  
-        '\\nsim', 
+    '!=': [
+        '\\neq', '\\ncong',    '',
+        '\\nsim',
     ],
 
-    '<': [  
-        '\\leq', '\\leqq', '\\lneqq', '\\ll', '\\nless', '\\nleq', 
+    '<': [
+        '\\leq', '\\leqq', '\\lneqq', '\\ll', '\\nless', '\\nleq',
         '\\precsim', '\\lesssim', '\\lessgtr', '\\prec', '\\preccurlyeq', '\\lessdot',
-        '\\nprec', 
+        '\\nprec',
     ],
 
     '>': [
-        '\\geq', '\\geqq', '\\gneqq', '\\gg', '\\ngtr', '\\ngeq', 
-        '\\succsim', '\\gtrsim', '\\gtrless', '\\succ', '\\succcurlyeq', '\\gtrdot', 
+        '\\geq', '\\geqq', '\\gneqq', '\\gg', '\\ngtr', '\\ngeq',
+        '\\succsim', '\\gtrsim', '\\gtrless', '\\succ', '\\succcurlyeq', '\\gtrdot',
         '\\nsucc'
      ],
 
-    'set': [    
-        '\\in', '\\owns', 
+    'set': [
+        '\\in', '\\owns',
         '\\subset', '\\nsubset', '\\supset', '\\nsupset'
     ],
 
-    '!set': [   
+    '!set': [
         '\\notin', '\\backepsilon'
     ],
 
@@ -175,8 +169,8 @@ const ALT_KEYS_BASE = {
     'supset': [],
 
     'infinity': ['\\aleph_0', '\\aleph_1', '\\omega', '\\mathfrak{m}'],
-    
-    
+
+
     'numeric-pi': ['\\prod', '\\theta', '\\rho',
         '\\sin', '\\cos', '\\tan'
     ],
@@ -194,7 +188,7 @@ const ALT_KEYS_BASE = {
             {latex:'\\int_{#?}^{#?}', classes:'small'},
             {latex:'\\int', classes:'small'},
             {latex:'\\smallint', classes:'small'},
-            {latex:'\\iint', classes:'small'}, 
+            {latex:'\\iint', classes:'small'},
             {latex:'\\iiint', classes:'small'},
             {latex:'\\oint', classes:'small'},
             {latex: '\\dfrac{\\rd}{\\rd x}',  classes:'small'},
@@ -214,7 +208,7 @@ const ALT_KEYS_BASE = {
     //     {latex:'\\begin{cardinality} #@ \\end{cardinality}', aside:'cardinality'},
     //     {latex:'\\lvert #@ \\rvert', aside:'length'},
     //     {latex:'\\lvert #@ \\rvert', aside:'order'},
-    
+
     // ],
     'A':        [{latex:'\\aleph', aside:'aleph'},
                 {latex:'\\forall', aside:'for all'},
@@ -227,13 +221,13 @@ const ALT_KEYS_BASE = {
     'c':        [{latex:'\\C', aside:'set of complex numbers'}],
     'd':        [{latex:'\\daleth', aside:'daleth'}],
     'D':        [{latex:'\\daleth', aside:'daleth'}],
-    'e':        [{latex:'\\exponentialE', aside:'exponential e'}, 
+    'e':        [{latex:'\\exponentialE', aside:'exponential e'},
                 {latex:'\\exists', aside:'there is'},
                 {latex:'\\nexists', aside:'there isn’t'},
     ],
     'g':        [{latex:'\\gimel', aside:'gimel'}],
     'G':        [{latex:'\\gimel', aside:'gimel'}],
-    'h':        [{latex:'\\hbar',  aside:'h bar'}, 
+    'h':        [{latex:'\\hbar',  aside:'h bar'},
                     {latex: '\\hslash', aside:'h slash'}
     ],
     'i':        [{latex:'\\imaginaryI', aside:'imaginary i'}],
@@ -245,8 +239,8 @@ const ALT_KEYS_BASE = {
     'r':        [{latex:'\\R', aside:'set of real numbers'}],
     'z':        [{latex:'\\Z', aside:'set of integers'}],
 
-    'x-var': ['y', 'z', 't', 'r', 
-            {latex:'f(#?)', classes:'small'}, {latex:'g(#?)', classes:'small'}, 'x^2', 'x^n', 
+    'x-var': ['y', 'z', 't', 'r',
+            {latex:'f(#?)', classes:'small'}, {latex:'g(#?)', classes:'small'}, 'x^2', 'x^n',
             'x_n', 'x_{n+1}', 'x_i', 'x_{i+1}'],
     'n-var': ['i', 'j', 'p', 'k', 'a', 'u'],
     'ii': ['\\Re', '\\Im', '\\imaginaryJ', '\\Vert #0 \\Vert'],
@@ -254,7 +248,7 @@ const ALT_KEYS_BASE = {
     'logic': [
         {latex:'\\exists', aside:'there is'},
         {latex:'\\nexists', aside:'there isn’t'},
-        
+
         {latex:'\\ni', aside:'such that'},
         {latex:'\\Colon', aside:'such that'},
 
@@ -279,18 +273,18 @@ const ALT_KEYS_BASE = {
         // {latex:'\\barwedge', aside:'bar wedge'},
         // {latex:'\\curlyvee', aside:'curly vee'},
         // {latex:'\\veebar', aside:'vee bar'},
-        
+
         {latex:'\\therefore', aside:'therefore'},
         {latex:'\\because', aside:'because'},
 
         {latex:'^\\biconditional', aside:'biconditional'},
-        
-        '\\leftrightarrow', '\\Leftrightarrow', '\\to', 
-        '\\models', '\\vdash', '\\gets', '\\dashv', 
+
+        '\\leftrightarrow', '\\Leftrightarrow', '\\to',
+        '\\models', '\\vdash', '\\gets', '\\dashv',
         '\\roundimplies'],
 
-    'set-operators': 
-        ['\\cap', '\\cup', '\\setminus', '\\smallsetminus', 
+    'set-operators':
+        ['\\cap', '\\cup', '\\setminus', '\\smallsetminus',
         '\\complement'],
 
     'set-relations': [
@@ -301,18 +295,18 @@ const ALT_KEYS_BASE = {
     ],
 
     'space': [
-        {latex: '\\char"203A\\!\\char"2039', insert: '\\!', aside:'negative thin space<br>⁻³⧸₁₈ em'}, 
-        {latex: '\\unicode{"203A}\\,\\unicode{"2039}', insert: '\\,', aside:'thin space<br>³⧸₁₈ em'}, 
-        {latex: '\\unicode{"203A}\\:\\unicode{"2039}', insert: '\\:', aside:'medium space<br>⁴⧸₁₈ em'}, 
-        {latex: '\\unicode{"203A}\\;\\unicode{"2039}', insert: '\\;', aside:'thick space<br>⁵⧸₁₈ em'}, 
-        {latex: '\\unicode{"203A}\\ \\unicode{"2039}', insert: '\\ ', aside:'⅓ em'}, 
-        {latex: '\\unicode{"203A}\\enspace\\unicode{"2039}', insert: '\\enspace', aside:'½ em'}, 
-        {latex: '\\unicode{"203A}\\quad\\unicode{"2039}', insert: '\\quad', aside:'1 em'}, 
+        {latex: '\\char"203A\\!\\char"2039', insert: '\\!', aside:'negative thin space<br>⁻³⧸₁₈ em'},
+        {latex: '\\unicode{"203A}\\,\\unicode{"2039}', insert: '\\,', aside:'thin space<br>³⧸₁₈ em'},
+        {latex: '\\unicode{"203A}\\:\\unicode{"2039}', insert: '\\:', aside:'medium space<br>⁴⧸₁₈ em'},
+        {latex: '\\unicode{"203A}\\;\\unicode{"2039}', insert: '\\;', aside:'thick space<br>⁵⧸₁₈ em'},
+        {latex: '\\unicode{"203A}\\ \\unicode{"2039}', insert: '\\ ', aside:'⅓ em'},
+        {latex: '\\unicode{"203A}\\enspace\\unicode{"2039}', insert: '\\enspace', aside:'½ em'},
+        {latex: '\\unicode{"203A}\\quad\\unicode{"2039}', insert: '\\quad', aside:'1 em'},
         {latex: '\\unicode{"203A}\\qquad\\unicode{"2039}', insert: '\\qquad', aside:'2 em'}
     ],
 
     // @todo could also delete to end
-    'delete': [{label: '<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>', 
+    'delete': [{label: '<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>',
                 command: '"deleteAll"' }],
 
     // @todo Tab: could turn on speech, visible keyboard...
@@ -422,7 +416,7 @@ const LAYERS = {
                 <li class='keycap w15' data-insert='\\ulcorner#0\\urcorner '><span><sup>&#x250c;</sup><span><span style='color:#ddd'>o</span><sup>&#x2510;</sup></span><aside>ceil</aside></li>
                 <li class='keycap tex' data-alt-keys='nabla' data-insert='\\nabla '>&#x2207;<aside>nabla</aside></li>
                 <li class='keycap tex' data-alt-keys='infinity' data-insert='\\infty '>&#x221e;</li>
-                    
+
             </ul>
             <ul>
                 <row name='numpad-2' class='if-wide'/>
@@ -449,8 +443,8 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys='accents' data-insert='\\bar{#@}' data-latex='\\bar{#?}' data-aside='bar'></li>
                 <li class='keycap tex' data-alt-keys='absnorm' data-insert='\\lvert #@ \\rvert ' data-latex='\\lvert #? \\rvert' data-aside='abs'></li>
                 <li class='keycap tex' data-insert='\\ast '>&#x2217;<aside>asterisk</aside></li>
-                
-                <li class='action font-glyph bottom right w15' 
+
+                <li class='action font-glyph bottom right w15'
                     data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
                     data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'
@@ -499,7 +493,7 @@ const LAYERS = {
                 <li class='keycap tex' data-insert='\\beta '><i>&beta;</i></li>
                 <li class='keycap tex' data-insert='\\nu '><i>&nu;</i></li>
                 <li class='keycap tex' data-insert='\\mu '><i>&mu;</i></li>
-                <li class='action font-glyph bottom right w15' 
+                <li class='action font-glyph bottom right w15'
                     data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
                     data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'
@@ -597,7 +591,7 @@ const LAYERS = {
                 <li class='keycap tt'>?</li>
                 <li class='keycap tt'>'</li>
                 <li class='keycap tt'>"</li>
-                <li class='action font-glyph bottom right' 
+                <li class='action font-glyph bottom right'
                     data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
                     data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'
@@ -662,14 +656,14 @@ const LAYERS = {
 function latexToMarkup(latex, arg, mf) {
     // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
     latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
-    
-    const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math', 
+
+    const parse = ParserModule.parseTokens(Lexer.tokenize(latex), 'math',
         arg, mf.config.macros);
     const spans = MathAtom.decompose({
             mathstyle: 'displaystyle',
             macros: mf.config.macros
         }, parse);
-    
+
     const base = Span.makeSpan(spans, 'ML__base');
 
     const topStrut = Span.makeSpan('', 'ML__strut');
@@ -692,7 +686,7 @@ function makeKeyboardToolbar(mf, keyboardIDs, currentKeyboard) {
     const keyboardList = keyboardIDs.replace(/\s+/g, ' ').split(' ');
     if (keyboardList.length > 1) {
         const keyboards = Object.assign({}, KEYBOARDS, mf.config.customVirtualKeyboards || {});
-        
+
         for (const keyboard of keyboardList) {
             if (!keyboards[keyboard]) {
                 console.error('Unknown virtual keyboard "' + keyboard + '"');
@@ -715,7 +709,7 @@ function makeKeyboardToolbar(mf, keyboardIDs, currentKeyboard) {
                 result += "data-tooltip='" + keyboards[keyboard].tooltip + "' ";
                 result += "data-placement='top' data-delay='1s'";
             }
-            
+
             if (keyboard !== currentKeyboard) {
                 if (keyboards[keyboard].command) {
                     result += "data-command='\"" + keyboards[keyboard].command + "\"'";
@@ -734,17 +728,17 @@ function makeKeyboardToolbar(mf, keyboardIDs, currentKeyboard) {
     // The right hand side of the toolbar, with the copy/undo/redo commands
     result += `
         <div class='right'>
-            <div class='action' 
+            <div class='action'
                 data-command='"copyToClipboard"'
                 data-tooltip='Copy to Clipboard' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-copy' /></svg>
             </div>
-            <div class='action disabled' 
+            <div class='action disabled'
                 data-command='"undo"'
                 data-tooltip='Undo' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-undo' /></svg>
             </div>
-            <div class='action disabled' 
+            <div class='action disabled'
                 data-command='"redo"'
                 data-tooltip='Redo' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-redo' /></svg>
@@ -764,7 +758,7 @@ function makeKeycap(mf, elList, chainedCommand) {
             el.innerHTML = latexToMarkup(el.getAttribute('data-latex').replace(/&quot;/g, '"'),
                     {'?':'{\\color{#555}{\\tiny \\char"2B1A}}'}, mf);
         } else if (el.innerHTML === '' && el.getAttribute('data-insert')) {
-            el.innerHTML = latexToMarkup(el.getAttribute('data-insert').replace(/&quot;/g, '"'), 
+            el.innerHTML = latexToMarkup(el.getAttribute('data-insert').replace(/&quot;/g, '"'),
                     {'?':'{\\color{#555}{\\tiny \\char"2B1A}}'}, mf);
         } else if (el.getAttribute('data-content')) {
             el.innerHTML = el.getAttribute('data-content').replace(/&quot;/g, '"');
@@ -780,7 +774,7 @@ function makeKeycap(mf, elList, chainedCommand) {
         if (key) key = key.replace(/&quot;/g, '"');
         if (key && SHIFTED_KEYS[key]) {
             el.setAttribute('data-shifted', SHIFTED_KEYS[key].label);
-            el.setAttribute('data-shifted-command', 
+            el.setAttribute('data-shifted-command',
                 JSON.stringify(['insertAndUnshiftKeyboardLayer', SHIFTED_KEYS[key].insert]));
         }
 
@@ -789,10 +783,10 @@ function makeKeycap(mf, elList, chainedCommand) {
         if (el.getAttribute('data-command')) {
             handlers = JSON.parse(el.getAttribute('data-command'));
         } else if (el.getAttribute('data-insert')) {
-            handlers = ['insert', el.getAttribute('data-insert'), 
+            handlers = ['insert', el.getAttribute('data-insert'),
                 {focus:true, feedback:true}];
         } else if (el.getAttribute('data-latex')) {
-            handlers = ['insert', el.getAttribute('data-latex'), 
+            handlers = ['insert', el.getAttribute('data-latex'),
                 {focus:true, feedback:true}];
         } else {
             handlers = ['typedText', el.getAttribute('data-key') || el.textContent,
@@ -821,8 +815,8 @@ function makeKeycap(mf, elList, chainedCommand) {
 
 /**
  * Expand the shortcut tags (e.g. <row>) inside a layer.
- * @param {*} mf 
- * @param {*} layer 
+ * @param {*} mf
+ * @param {*} layer
  */
 function expandLayerMarkup(mf, layer) {
     const ROWS = {
@@ -875,10 +869,10 @@ function expandLayerMarkup(mf, layer) {
                 'upper-2': 'ARSTDHNEIO',
                 'upper-3': '^ZXCVBKM~'
         },
-        
+
 
     }
-    const layout = ROWS[mf.config.virtualKeyboardLayout] ? 
+    const layout = ROWS[mf.config.virtualKeyboardLayout] ?
         ROWS[mf.config.virtualKeyboardLayout] : ROWS['qwerty'];
 
     let result = layer;
@@ -886,12 +880,12 @@ function expandLayerMarkup(mf, layer) {
 
     result = result.replace(/<arrows\/>/g, `
         <li class='action' data-command='["performWithFeedback","moveToPreviousChar"]'
-            data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>' 
+            data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>'
             data-shifted-command='["performWithFeedback","extendToPreviousChar"]'>
             <svg><use xlink:href='#svg-arrow-left' /></svg>
         </li>
         <li class='action' data-command='["performWithFeedback","moveToNextChar"]'
-            data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>' 
+            data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>'
             data-shifted-command='["performWithFeedback","extendToNextChar"]'>
             <svg><use xlink:href='#svg-arrow-right' /></svg>
         </li>
@@ -920,7 +914,7 @@ function expandLayerMarkup(mf, layer) {
                 if (cls) cls = ' ' + cls;
                 if (c === '~') {
                     row += `<li class='action font-glyph bottom right `;
-                    row += keys.length - 
+                    row += keys.length -
                         ((keys.match(/ /g) || []).length / 2) === 10 ? 'w10' : 'w15';
                     row += `' data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
                         data-shifted-command='"deleteAll"'
@@ -932,7 +926,7 @@ function expandLayerMarkup(mf, layer) {
                     row += "<li class='separator w5'></li>";
                 } else if (c === '^') {
                     // Shift key
-                    row += `<li class='shift modifier font-glyph bottom left w15 layer-switch' data-layer='` + 
+                    row += `<li class='shift modifier font-glyph bottom left w15 layer-switch' data-layer='` +
                         attributes['shift-layer'] + `'>&#x21e7;</li>`;
                 } else if (c === '/') {
                     row += "<li class='keycap" + cls + "' data-alt-keys='/' data-insert='\\frac{#0}{#?}'>&divide;</li>";
@@ -960,25 +954,25 @@ function expandLayerMarkup(mf, layer) {
 }
 
 /**
- * Construct a virtual keyboard element based on the config options in the 
+ * Construct a virtual keyboard element based on the config options in the
  * mathfield and an optional theme.
- * @param {Object} mf 
- * @param {string} theme 
+ * @param {Object} mf
+ * @param {string} theme
  * @result {} A DOM element
  */
 function make(mf, theme) {
-    const svgIcons = 
+    const svgIcons =
         `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
 
             <symbol id="svg-command" viewBox="0 0 640 512">
-                <path d="M34.495 36.465l211.051 211.05c4.686 4.686 4.686 12.284 0 16.971L34.495 475.535c-4.686 4.686-12.284 4.686-16.97 0l-7.071-7.07c-4.686-4.686-4.686-12.284 0-16.971L205.947 256 10.454 60.506c-4.686-4.686-4.686-12.284 0-16.971l7.071-7.07c4.686-4.687 12.284-4.687 16.97 0zM640 468v-10c0-6.627-5.373-12-12-12H300c-6.627 0-12 5.373-12 12v10c0 6.627 5.373 12 12 12h328c6.627 0 12-5.373 12-12z"/>  
+                <path d="M34.495 36.465l211.051 211.05c4.686 4.686 4.686 12.284 0 16.971L34.495 475.535c-4.686 4.686-12.284 4.686-16.97 0l-7.071-7.07c-4.686-4.686-4.686-12.284 0-16.971L205.947 256 10.454 60.506c-4.686-4.686-4.686-12.284 0-16.971l7.071-7.07c4.686-4.687 12.284-4.687 16.97 0zM640 468v-10c0-6.627-5.373-12-12-12H300c-6.627 0-12 5.373-12 12v10c0 6.627 5.373 12 12 12h328c6.627 0 12-5.373 12-12z"/>
             </symbol>
 
             <symbol id="svg-undo" viewBox="0 0 512 512">
                 <path d="M20 8h10c6.627 0 12 5.373 12 12v110.625C85.196 57.047 165.239 7.715 256.793 8.001 393.18 8.428 504.213 120.009 504 256.396 503.786 393.181 392.834 504 256 504c-63.926 0-122.202-24.187-166.178-63.908-5.113-4.618-5.354-12.561-.482-17.433l7.069-7.069c4.503-4.503 11.749-4.714 16.482-.454C150.782 449.238 200.935 470 256 470c117.744 0 214-95.331 214-214 0-117.744-95.331-214-214-214-82.862 0-154.737 47.077-190.289 116H180c6.627 0 12 5.373 12 12v10c0 6.627-5.373 12-12 12H20c-6.627 0-12-5.373-12-12V20c0-6.627 5.373-12 12-12z"/>
             </symbol>
             <symbol id="svg-redo" viewBox="0 0 512 512">
-                <path d="M492 8h-10c-6.627 0-12 5.373-12 12v110.625C426.804 57.047 346.761 7.715 255.207 8.001 118.82 8.428 7.787 120.009 8 256.396 8.214 393.181 119.166 504 256 504c63.926 0 122.202-24.187 166.178-63.908 5.113-4.618 5.354-12.561.482-17.433l-7.069-7.069c-4.503-4.503-11.749-4.714-16.482-.454C361.218 449.238 311.065 470 256 470c-117.744 0-214-95.331-214-214 0-117.744 95.331-214 214-214 82.862 0 154.737 47.077 190.289 116H332c-6.627 0-12 5.373-12 12v10c0 6.627 5.373 12 12 12h160c6.627 0 12-5.373 12-12V20c0-6.627-5.373-12-12-12z"/>      
+                <path d="M492 8h-10c-6.627 0-12 5.373-12 12v110.625C426.804 57.047 346.761 7.715 255.207 8.001 118.82 8.428 7.787 120.009 8 256.396 8.214 393.181 119.166 504 256 504c63.926 0 122.202-24.187 166.178-63.908 5.113-4.618 5.354-12.561.482-17.433l-7.069-7.069c-4.503-4.503-11.749-4.714-16.482-.454C361.218 449.238 311.065 470 256 470c-117.744 0-214-95.331-214-214 0-117.744 95.331-214 214-214 82.862 0 154.737 47.077 190.289 116H332c-6.627 0-12 5.373-12 12v10c0 6.627 5.373 12 12 12h160c6.627 0 12-5.373 12-12V20c0-6.627-5.373-12-12-12z"/>
             </symbol>
             <symbol id="svg-arrow-left" viewBox="0 0 192 512">
                 <path d="M25.1 247.5l117.8-116c4.7-4.7 12.3-4.7 17 0l7.1 7.1c4.7 4.7 4.7 12.3 0 17L64.7 256l102.2 100.4c4.7 4.7 4.7 12.3 0 17l-7.1 7.1c-4.7 4.7-12.3 4.7-17 0L25 264.5c-4.6-4.7-4.6-12.3.1-17z"/>
@@ -996,7 +990,7 @@ function make(mf, theme) {
                 <path d="M166.9 264.5l-117.8 116c-4.7 4.7-12.3 4.7-17 0l-7.1-7.1c-4.7-4.7-4.7-12.3 0-17L127.3 256 25.1 155.6c-4.7-4.7-4.7-12.3 0-17l7.1-7.1c4.7-4.7 12.3-4.7 17 0l117.8 116c4.6 4.7 4.6 12.3-.1 17zm128-17l-117.8-116c-4.7-4.7-12.3-4.7-17 0l-7.1 7.1c-4.7 4.7-4.7 12.3 0 17L255.3 256 153.1 356.4c-4.7 4.7-4.7 12.3 0 17l7.1 7.1c4.7 4.7 12.3 4.7 17 0l117.8-116c4.6-4.7 4.6-12.3-.1-17z"/>
             </symbol>
             <symbol id="svg-angle-double-left" viewBox="0 0 320 512">
-                <path d="M153.1 247.5l117.8-116c4.7-4.7 12.3-4.7 17 0l7.1 7.1c4.7 4.7 4.7 12.3 0 17L192.7 256l102.2 100.4c4.7 4.7 4.7 12.3 0 17l-7.1 7.1c-4.7 4.7-12.3 4.7-17 0L153 264.5c-4.6-4.7-4.6-12.3.1-17zm-128 17l117.8 116c4.7 4.7 12.3 4.7 17 0l7.1-7.1c4.7-4.7 4.7-12.3 0-17L64.7 256l102.2-100.4c4.7-4.7 4.7-12.3 0-17l-7.1-7.1c-4.7-4.7-12.3-4.7-17 0L25 247.5c-4.6 4.7-4.6 12.3.1 17z"/>            
+                <path d="M153.1 247.5l117.8-116c4.7-4.7 12.3-4.7 17 0l7.1 7.1c4.7 4.7 4.7 12.3 0 17L192.7 256l102.2 100.4c4.7 4.7 4.7 12.3 0 17l-7.1 7.1c-4.7 4.7-12.3 4.7-17 0L153 264.5c-4.6-4.7-4.6-12.3.1-17zm-128 17l117.8 116c4.7 4.7 12.3 4.7 17 0l7.1-7.1c4.7-4.7 4.7-12.3 0-17L64.7 256l102.2-100.4c4.7-4.7 4.7-12.3 0-17l-7.1-7.1c-4.7-4.7-12.3-4.7-17 0L25 247.5c-4.6 4.7-4.6 12.3.1 17z"/>
             </symbol>
             <symbol id="svg-trash" viewBox="0 0 448 512">
                 <path d="M336 64l-33.6-44.8C293.3 7.1 279.1 0 264 0h-80c-15.1 0-29.3 7.1-38.4 19.2L112 64H24C10.7 64 0 74.7 0 88v2c0 3.3 2.7 6 6 6h26v368c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V96h26c3.3 0 6-2.7 6-6v-2c0-13.3-10.7-24-24-24h-88zM184 32h80c5 0 9.8 2.4 12.8 6.4L296 64H152l19.2-25.6c3-4 7.8-6.4 12.8-6.4zm200 432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V96h320v368zm-176-44V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12zm-80 0V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12zm160 0V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12z"/>
@@ -1026,7 +1020,7 @@ function make(mf, theme) {
     for (const color of Color.LINE_COLORS) {
         ALT_KEYS_BASE['foreground-color'].push({
             classes: 'small-button',
-            content: '<span style="border-radius:50%;width:32px;height:32px; background:' + color + '"></span>', 
+            content: '<span style="border-radius:50%;width:32px;height:32px; background:' + color + '"></span>',
             command:'["applyStyle",{"color":"' + color + '"}]'
         });
     }
@@ -1034,7 +1028,7 @@ function make(mf, theme) {
     for (const color of Color.AREA_COLORS) {
         ALT_KEYS_BASE['background-color'].push({
             classes: 'small-button',
-            content: '<span style="border-radius:50%;width:32px;height:32px; background:' + color + '"></span>', 
+            content: '<span style="border-radius:50%;width:32px;height:32px; background:' + color + '"></span>',
             command:'["applyStyle",{"backgroundColor":"' + color + '"}]'
         });
     }
@@ -1124,7 +1118,7 @@ function make(mf, theme) {
     for (let i = 0; i < 10; i++) {
         const key = digits[i];
         if (!ALT_KEYS[key]) ALT_KEYS[key] = [];
-        // The mathbb font does not appear to include digits, 
+        // The mathbb font does not appear to include digits,
         // although it's supposed to.
         // ALT_KEYS[key].push({
         //         latex: '\\underset{\\textsf{\\footnotesize blackboard}}{\\mathbb{' + key + '}}',
@@ -1171,7 +1165,7 @@ function make(mf, theme) {
             console.error('Unknown virtual keyboard "' + keyboard + '"');
             break;
         }
-        // Add the default layer to the list of layers, 
+        // Add the default layer to the list of layers,
         // and make sure the list of layers is uniquified.
         let keyboardLayers = keyboards[keyboard].layers || [];
         if (keyboards[keyboard].layer) {
@@ -1186,9 +1180,9 @@ function make(mf, theme) {
             }
             markup += `<div class='keyboard-layer' id='` + layer + `'>`;
             markup += makeKeyboardToolbar(mf, keyboardIDs, keyboard);
-            const layerMarkup = typeof layers[layer] === 'function' ? 
+            const layerMarkup = typeof layers[layer] === 'function' ?
                 layers[layer]() : layers[layer];
-            // A layer can contain 'shortcuts' (i.e. <row> tags) that need to 
+            // A layer can contain 'shortcuts' (i.e. <row> tags) that need to
             // be expanded
             markup += expandLayerMarkup(mf, layerMarkup);
             markup += '</div>';
@@ -1214,14 +1208,14 @@ function make(mf, theme) {
         if (elList[i].classList.contains('shift')) {
             // This is a potential press-and-hold layer switch
             mf._attachButtonHandlers(elList[i], {
-                // When the modifier is initially pressed, we will shift the labels 
+                // When the modifier is initially pressed, we will shift the labels
                 // (if available)
                 pressed: ['shiftKeyboardLayer', 'shift'],
 
                 // If the key is released before a delay, we switch to the target layer
                 default: ['switchKeyboardLayer', elList[i].getAttribute('data-layer')],
 
-                // If the key is released after a longer delay, we restore the 
+                // If the key is released after a longer delay, we restore the
                 // shifted labels
                 pressAndHoldEnd: 'unshiftKeyboardLayer',
             });
@@ -1237,7 +1231,7 @@ function make(mf, theme) {
     result.getElementsByClassName('keyboard-layer')[0].classList.add('visible');
 
     // Listen to know when the mouse has been released without being
-    // captured to remove the alternate keys panel and the shifted state of the 
+    // captured to remove the alternate keys panel and the shifted state of the
     // keyboard.
     window.addEventListener('mouseup', function() {
         mf.hideAlternateKeys_();
@@ -1262,10 +1256,9 @@ function make(mf, theme) {
 
 
 
-return {
+export default {
     make,
     makeKeycap
 }
 
 
-})

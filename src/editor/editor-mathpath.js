@@ -2,8 +2,7 @@
  * @module editor/mathpath
  * @private
  */
-define([], 
-    function() {
+
 
 
 
@@ -122,7 +121,7 @@ function clone(path) {
     return pathFromString(pathToString(path)).path;
 }
 
-return {
+export default {
     pathFromString,
     pathToString,
     pathDistance,
@@ -132,4 +131,4 @@ return {
 }
 
 
-})
+
