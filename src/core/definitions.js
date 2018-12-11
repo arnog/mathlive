@@ -2154,7 +2154,8 @@ function(name, args) {
     }
 });
 
-
+defineSymbol( '?', MATH,  MAIN,  TEXTORD, '?');
+defineSymbol( '!', MATH,  MAIN,  TEXTORD, '!');
 
 defineSymbol( '\\nabla', MATH,  MAIN,  TEXTORD, '\u2207', SUPERCOMMON);
 defineSymbol( '\\partial', MATH,  MAIN,  TEXTORD, '\u2202', SUPERCOMMON); // >2,000
@@ -2438,8 +2439,6 @@ defineSymbol( '(', MATH,  MAIN,  OPEN, '(');
 defineSymbol( ')', MATH,  MAIN,  CLOSE, ')');
 defineSymbol( '[', MATH,  MAIN,  OPEN, '[');
 defineSymbol( ']', MATH,  MAIN,  CLOSE, ']');
-defineSymbol( '?', MATH,  MAIN,  TEXTORD, '?');
-defineSymbol( '!', MATH,  MAIN,  TEXTORD, '!');
 
 defineSymbol( '\\ulcorner', MATH,  AMS,  OPEN, '\u250c', 296);
 defineSymbol( '\\urcorner', MATH,  AMS,  CLOSE, '\u2510', 310);
@@ -2456,6 +2455,9 @@ defineSymbol( '\\rmoustache', MATH,  MAIN,  CLOSE, '\u23b1', CRYPTIC);
 defineFunction(['\\middle'], '{:delim}', {}, function(name, args) {
     return {type: 'delim', delim: args[0]};
 });
+
+
+category = 'Sizing';
 
 // Extra data needed for the delimiter handler down below
 const delimiterSizes = {
