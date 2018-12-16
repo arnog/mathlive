@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en-US">
 <head>
     <meta charset="utf-8">
-    <title>MathLive Example with mathjs</title>
+    <title>MathLive Example. Calculating with mathjs</title>
 
     <link rel="stylesheet" href="../../dist/mathlive.core.css">
     <link rel="stylesheet" href="../../dist/mathlive.css">
@@ -24,30 +24,35 @@
         }
         #output {
             padding:5px;
-            margin: 200px 0 10px 0;
             border-radius:5px;
-            border: 1px solid #000;
 
             font-family: "Source Code Pro", Menlo, "Bitstream Vera Sans Mono", Monaco, Courier, "Andale Mono", monospace;
-            color: #f0c674;
-            background: #35434e;
         }
     </style>
 </head>
 <body>
     <main>
-        <h2>MathLive Example with mathjs</h2>
+        <h2>MathLive Example</h2>
+        <h3>Calculating with mathjs</h3>
         <div class="mathfield" id='mf' >2\pi</div>
         <div id='output'></div>
     </main>
 
 
 <script src="../../dist/mathlive.js"></script>
-<script src="../../../vendor/math.min.js"></script>
+<script src="math.min.js"></script>
 <script>
     (function() {
     const mf = MathLive.makeMathField('mf', {
-        onContentDidChange: updateOutput
+        onContentDidChange: mathfield => {
+            try {
+                const ast = MathLive.latexToAST(mathfield.latex());
+                document.getElementById('output').innerHTML = JSON.stringify(mastonToMathjs(ast, {}).eval());
+                // document.getElementById('output').innerHTML = JSON.stringify(ast);
+            } catch(e) {
+                document.getElementById('output').innerHTML = '😕';
+            }
+        }
     });
 
 
@@ -60,6 +65,30 @@ function applySuperscriptAsPower(mjs, maston, config) {
     return result;
 }
 
+function getMathjsArgs(maston, config) {    
+    let result = [];
+    if (Array.isArray(maston.arg)) {
+        for (let index = 0; index < maston.arg.length; index++) {
+            result.push(mastonToMathjs(maston.arg[index], config));
+        }
+    } else {
+        result = [mastonToMathjs(maston.arg, config)];
+    }
+    return result;
+}
+
+
+/**
+ * Return an array of arguments, with the sub if present as the last argument.
+ */
+function getMathjsArgsWithSub(maston, config) {
+    const result = getMathjsArgs(maston, config);
+    if (maston.sub !== undefined) {
+        result.push(mastonToMathjs(maston.sub, config));
+    }
+
+    return result;
+}
 
 /**
  * Return a mathjs node tree corresponding to the MASTON object
@@ -175,11 +204,6 @@ function mastonToMathjs(maston, config) {
     return result;
 }
 
-    function updateOutput(mathfield) {
-        const ast = MathLive.latexToAST(mathfield.latex());
-        document.getElementById('output').innerHTML = JSON.stringify(mastonToMathjs(ast, {}).eval());
-        // document.getElementById('output').innerHTML = JSON.stringify(ast);
-    }
     })();
 </script>
 

@@ -160,7 +160,7 @@
         </div> -->
         <div id='ready-toolbar' class='toolbar'>
             <div>
-                <button class='primary' onclick='mf.perform("speakAllWithSynchronizedHighlighting");'>
+                <button class='primary' id='start-button'>
                     <span class='icon'>
                         <svg style="width: 24px;height: 24px;transform: translate(0, 4px);margin-right: 8px;">
                             <g display="inline">
@@ -178,7 +178,7 @@
 
         <div id='playing-toolbar' class='toolbar' style='display:none'>
             <div id='playing-buttons'>
-                <button class='round' onclick="repeat()"> 
+                <button class='round' id='repeat-button'> 
                     <span class='icon'>
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
     <path d="M0 0h24v24H0z" fill="none"/>
@@ -186,7 +186,7 @@
 </svg>
                     </span>
                 </button>
-                <button class='round' onclick="pauseResume()">
+                <button class='round' id='pause-button'>
                     <span class='icon'>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                             <path d="M0 0h24v24H0z" fill="none"/>
@@ -205,9 +205,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 46.75 100 66.5625" enable-background="new 0 46.75 100 53.25" xml:space="preserve"><path d="M76.109,63.794C63.108,58.887,55.414,49.958,44.5,49.959c-0.674,0-1.362,0.034-2.062,0.105  c-23.745,2.412-22.256,22.258-31.911,29.742c-3.438,2.664,10.356,8.296,25.79,8.296c2.884,0,5.827-0.197,8.724-0.646  C62.019,84.82,81.515,65.833,76.109,63.794z"/><path d="M9.089,84.865c-0.592,0.2-1.308,0.445-2.205,0.732c-3.65,1.17-5.986,3.217-5.99,4.08  c-0.008,1.777,10.735,1.619,16.461,0.401c1.31-0.278,2.056-0.53,2.407-0.772c-0.701-0.177-1.394-0.361-2.069-0.559  C13.134,87.42,10.565,86.041,9.089,84.865z"/><path d="M67.293,80.778c-2.369,1.722-5.67,3.886-9.519,5.78c0.004,0.126,0.387,0.51,0.901,2.112  c0.516,1.602,0.709,4.247,0.697,6.376c-0.01,1.922,1.186,1.734,2.336,2.322c1.288,0.658,5.207,0.687,9.421,0.463  c1.479-0.08,1.993-0.064,1.771-2.506C72.08,86.279,67.293,80.778,67.293,80.778z"/><path d="M21.71,89.756c-0.032,0.072-0.065,0.144-0.092,0.224c-0.736,2.194-1.252,6.973,1.456,7.658  c2.871,0.727,6.245,0.651,9.602,0.58c1.003-0.021,1.96-0.794,2.208-1.68c0.562-2.015,0.255-3.9-0.903-5.271  C29.828,91.123,25.63,90.602,21.71,89.756z"/><path d="M96.99,62.582c-2.499-4.76-9.429-4.381-13.347-1.776c-1.353,0.899-2.45,2.095-3.509,3.328  c0.1,0.497,0.126,1.024,0.068,1.575c-0.452,4.361-6.274,9.768-9.865,12.718c0,0,0,0,0.001,0c0.675,0.5,2.824,1.24,3.807,1.305  c5.936,0.397,11.193-0.3,16.545-3.021C95.457,74.286,99.827,67.985,96.99,62.582z M88.61,67.001c-1.22,0-2.208-0.988-2.208-2.208  s0.988-2.208,2.208-2.208c1.219,0,2.208,0.988,2.208,2.208S89.829,67.001,88.61,67.001z"/></svg>
             </div>
             <div>
-                <input type="range" min="1" max="5" value="3" class="slider" id="speed-slider"
-                    oninput="setSpeed(this.value)"
-                >
+                <input type="range" min="1" max="5" value="3" class="slider" id="speed-slider">
             </div>
             <span class='icon label'>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 106.25" version="1.1" x="0px" y="0px"><g stroke="none" stroke-width="1" fill-rule="evenodd"><g><path d="M60.1164483,76.5101184 C60.1164483,77.7869765 61.1184016,79.097951 62.3543737,79.4324469 L72.798828,82.2590697 C74.9502082,82.841306 76.9428079,85.1218308 77.229578,87.3473934 L77.4381368,88.9659749 L61.2268002,86.7611761 C59.0007748,86.4584288 55.762595,85.1122528 53.9830021,83.7528954 L30.0193357,65.4480423 C18.6673757,64.6909954 9.4627489,56.133214 7.77382209,45.1160791 L4.34635739,45.1647777 C1.94608449,45.1988816 -1.83318034e-16,43.2833095 -1.07537429e-17,40.8862227 L12.0835739,27.3645101 C17.4743573,21.3386402 23.6068695,17.4194231 31.6593886,17.4194231 C32.7498041,17.4194231 33.8233498,17.4912885 34.8755022,17.6305187 C36.0956627,17.7349159 37.3050822,17.9433886 38.4888396,18.2605754 C54.0954993,22.4423673 65.570761,42.6024939 65.570761,42.6024939 C66.516058,44.0861571 68.636741,45.6806441 70.3388841,46.136732 L71.0643059,46.3311082 C72.7686884,46.7877961 75.036606,46.0402598 76.1348435,44.6627794 L79.3667959,40.6090557 L69.0683577,35.5886404 C54.9830017,29.5 58.824985,11.8109045 58.824985,11.8109045 C58.9924242,10.7260817 59.7843012,10.4649372 60.587326,11.2216236 L82.7393229,32.0953411 L64.7779732,12.0675015 C65.0289152,8.20500861 68.1652109,7 68.1652109,7 L85.5324488,34.7272898 L86.921334,36.0360295 L96.0521825,42.4677019 C98.138955,43.9376022 99.8625925,47.2144004 99.8888571,49.7773535 L100.007257,61.3310185 L99.3236978,61.8899026 C97.5857982,63.3108255 94.5445704,63.6651439 92.5224884,62.6881932 L89.3807164,61.1702742 C86.2103299,59.6385304 81.4523901,60.2321429 78.7512966,62.4950512 L69.6842316,70.0912108 C68.6969982,70.9182902 67.3970043,71.7079683 65.972973,72.3860195 C65.450814,57.828347 59.4984737,45.9574271 46.7248907,37.1161254 C45.6127483,36.4326524 43.9592431,38.4195836 44.7777067,39.1109172 C56.0407574,49.2817354 60.1164483,60.3235994 60.1164483,74.5177084 L60.1164483,76.5101184 Z M95.0509461,53.9162538 C96.1764172,53.9162538 97.0887918,53.0084656 97.0887918,51.8886521 C97.0887918,50.7688386 96.1764172,49.8610504 95.0509461,49.8610504 C93.925475,49.8610504 93.0131004,50.7688386 93.0131004,51.8886521 C93.0131004,53.0084656 93.925475,53.9162538 95.0509461,53.9162538 L95.0509461,53.9162538 Z M19.9417759,92 L19.9417759,89.8393536 C19.9417758,87.5932185 21.6918837,85.2820263 23.828826,84.6248277 C23.828826,84.6248277 35.0800582,81.8619915 38.1368268,76.9378159 C38.1368268,76.9378159 46.7248911,83.7447645 46.7248911,83.7447645 C34.7889374,89.6827409 19.9417759,92 19.9417759,92 L19.9417759,92 Z" sketch:type="MSShapeGroup"/></g></g></svg>
@@ -217,61 +215,56 @@
     </main>
 
 
-<!-- <script src="../../dist/mathlive.js"></script> -->
-<script> 
-    var require = {
-        baseUrl: './',
-        paths: {
-            "mathlive": "../../src"
-        },
-    };
-    var updateCodeSection;
-</script>
-<script src="../with_requirejs/vendor/require.js"></script>
-<script> 
-    let mf;
-    require(['mathlive/mathlive'], function(MathLive) {
-    window.MathLive = MathLive;
-    MathLive.renderMathInDocument({ignoreClass: "mathfield"});
+<script type='module'> 
+import MathLive from '../../dist/mathlive.mjs';
+window.MathLive = MathLive;
+MathLive.renderMathInDocument({ignoreClass: "mathfield"});
 
-    mf = MathLive.makeMathField('mf', {
-        onContentDidChange: mf => {
-            document.getElementById('output-text').textContent = mf.text('spoken-text');
-            document.getElementById('output-ssml').textContent = mf.text('spoken-ssml');
-            // const latex = mf.latex();
-            // console.log(MathLive.latexToAST(latex));
+document.getElementById('start-button').addEventListener('click', () => {mf.perform("speakAllWithSynchronizedHighlighting")});
+document.getElementById('repeat-button').addEventListener('click', repeat);
+document.getElementById('pause-button').addEventListener('click', pauseResume);
+document.getElementById('speed-slider').addEventListener('input', function() {
+        setSpeed(this.value);
+});
 
-        },
+const mf = MathLive.makeMathField('mf', {
+    onContentDidChange: mf => {
+        document.getElementById('output-text').textContent = mf.text('spoken-text');
+        document.getElementById('output-ssml').textContent = mf.text('spoken-ssml');
+        // const latex = mf.latex();
+        // console.log(MathLive.latexToAST(latex));
 
-        onReadAloudStatus: status => {
-            if (status === 'ready' || status === 'ended') {
-                document.getElementById('playing-toolbar').style.display = 'none';
-                document.getElementById('ready-toolbar').style.display = 'flex';
-            }
-            if (status === 'playing') {
-                document.getElementById('playing-toolbar').style.display = 'flex';
-                document.getElementById('ready-toolbar').style.display = 'none';
-            }
-            console.log(status);
-        },
-        
-        textToSpeechRules: '',
-        textToSpeechRulesOptions: {
-            domain: 'clearspeak', // 'mathspeak' or 'chromevox' or 'clearspeak'
-            style: 'default',   // mathspeak-default, mathspeak-brief, mathspeak-sbrief, chromevox-short, chromevox-default
-            // domain: 'chromevox', // mathspeak or 'chromevox'
-            // ruleset: 'chromevox-default',   
-            // mathspeak-default, mathspeak-brief, mathspeak-sbrief, chromevox-short, chromevox-default, chromevox-alternative
-        },
+    },
 
-        textToSpeechMarkup: 'ssml',     // 'ssml' or 'mac' or ''
+    onReadAloudStatus: (mf, status) => {
+        if (status === 'ready' || status === 'ended') {
+            document.getElementById('playing-toolbar').style.display = 'none';
+            document.getElementById('ready-toolbar').style.display = 'flex';
+        }
+        if (status === 'playing') {
+            document.getElementById('playing-toolbar').style.display = 'flex';
+            document.getElementById('ready-toolbar').style.display = 'none';
+        }
+        console.log(status);
+    },
+    
+    textToSpeechRules: '',
+    textToSpeechRulesOptions: {
+        domain: 'clearspeak', // 'mathspeak' or 'chromevox' or 'clearspeak'
+        style: 'default',   // mathspeak-default, mathspeak-brief, mathspeak-sbrief, chromevox-short, chromevox-default
+        // domain: 'chromevox', // mathspeak or 'chromevox'
+        // ruleset: 'chromevox-default',   
+        // mathspeak-default, mathspeak-brief, mathspeak-sbrief, chromevox-short, chromevox-default, chromevox-alternative
+    },
 
-        speechEngine: 'amazon',         // 'amazon' or 'local'
-        speechEngineVoice: 'Matthew',
-        speechEngineRate: '75%'
-    });
+    textToSpeechMarkup: 'ssml',     // 'ssml' or 'mac' or ''
 
-    setSpeed(3);
+    speechEngine: 'amazon',         // 'amazon' or 'local'
+    speechEngineVoice: 'Matthew',
+    speechEngineRate: '75%'
+});
+
+setSpeed(3);
 
 
 function pauseResume() {
@@ -314,7 +307,6 @@ function setSpeed(speed) {
             ][speed]
     })
 }
-});
 </script>
 
 </body></html>

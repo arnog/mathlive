@@ -1,6 +1,6 @@
 /* eslint no-console:0 */
-import MathAtom from '../core/mathAtom'; // eslint-disable-line no-unused-vars
-import Definitions from '../core/definitions';
+import MathAtom from '../core/mathAtom.js'; // eslint-disable-line no-unused-vars
+import Definitions from '../core/definitions.js';
 
 function findEndOfMath(delimiter, text, startIndex) {
     // Adapted from

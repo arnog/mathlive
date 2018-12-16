@@ -51,7 +51,7 @@
  * @module definitions
  * @private
  */
-import FontMetrics from './fontMetrics';
+import FontMetrics from './fontMetrics.js';
 
 
 

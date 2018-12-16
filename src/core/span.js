@@ -6,7 +6,7 @@
  * @private
  */
 
-import FontMetrics from './fontMetrics';
+import FontMetrics from './fontMetrics.js';
 
 const NUMBER_FORMATTER = new Intl.NumberFormat('en-US', {
     useGrouping: false,

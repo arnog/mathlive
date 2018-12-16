@@ -7,11 +7,11 @@
  * @module mathAtom
  * @private
  */
-import Mathstyle from './mathstyle';
-import Context from './context';
-import FontMetricsModule from './fontMetrics';
-import Span from './span';
-import Delimiters from './delimiters';
+import Mathstyle from './mathstyle.js';
+import Context from './context.js';
+import FontMetricsModule from './fontMetrics.js';
+import Span from './span.js';
+import Delimiters from './delimiters.js';
 
 
 const makeSpan = Span.makeSpan;
@@ -1148,7 +1148,6 @@ MathAtom.prototype.decomposeBox = function(context) {
     result.height = base.height;
     result.depth = base.depth;
 
-    result.setStyle('display', 'inline-block');
     result.setStyle('position', 'relative');
     result.setStyle('height', result.height + result.depth , 'em');
     result.setStyle('left', -padding, 'em');
@@ -1158,17 +1157,13 @@ MathAtom.prototype.decomposeBox = function(context) {
 
 MathAtom.prototype.decomposeEnclose = function(context) {
     const base = makeOrd(decompose(context, this.body));
-    const result = makeOrd(base);
-
-    result.height = base.height;
-    result.depth = base.depth;
+    const result = base;
 
     // Account for the padding
     const padding = this.padding === 'auto' ? .2 : this.padding; // em
     result.setStyle('padding', padding, 'em');
 
     result.setStyle('display', 'inline-block');
-    // result.setStyle('position', 'relative');
     result.setStyle('height', result.height + result.depth , 'em');
     result.setStyle('left', -padding , 'em');
 
@@ -1830,9 +1825,9 @@ MathAtom.prototype.attachLimits =
  * @param {Context} context
  * @param {Span} nucleus The base over and under which the atoms will
  * be placed.
- * @param {integer} nucleusShift The vertical shift of the nucleus from
+ * @param {number} nucleusShift The vertical shift of the nucleus from 
  * the baseline.
- * @param {integer} slant For operators that have a slant, such as \int,
+ * @param {number} slant For operators that have a slant, such as \int, 
  * indicate by how much to horizontally offset the above and below atoms
  * @param {Span} above
  * @param {Span} below

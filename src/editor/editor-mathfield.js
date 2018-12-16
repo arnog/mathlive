@@ -4,23 +4,23 @@
  * @module editor/mathfield
  * @private
  */
-import Definitions from '../core/definitions';
-import MathAtom from '../core/mathAtom';
-import Lexer from '../core/lexer';
-import ParserModule from '../core/parser';
-import Span from '../core/span';
-import EditableMathlist from './editor-editableMathlist';
-import MathPath from './editor-mathpath';
-import Keyboard from './editor-keyboard';
-import Undo from './editor-undo';
-import Shortcuts from './editor-shortcuts';
-import Popover from './editor-popover';
-import VirtualKeyboard from './editor-virtualKeyboard';
-import GraphemeSplitter from '../core/grapheme-splitter';
-import OutputLatex from '../addons/outputLatex'; // eslint-disable-line no-unused-vars
-import OutputMathML from '../addons/outputMathML'; // eslint-disable-line no-unused-vars
-import MASTON from '../addons/maston'; // eslint-disable-line no-unused-vars
-import OutputSpokenText from '../addons/outputSpokenText'; // eslint-disable-line no-unused-vars
+import Definitions from '../core/definitions.js';
+import MathAtom from '../core/mathAtom.js';
+import Lexer from '../core/lexer.js';
+import ParserModule from '../core/parser.js';
+import Span from '../core/span.js';
+import EditableMathlist from './editor-editableMathlist.js';
+import MathPath from './editor-mathpath.js';
+import Keyboard from './editor-keyboard.js';
+import Undo from './editor-undo.js';
+import Shortcuts from './editor-shortcuts.js';
+import Popover from './editor-popover.js';
+import VirtualKeyboard from './editor-virtualKeyboard.js';
+import GraphemeSplitter from '../core/grapheme-splitter.js';
+import OutputLatex from '../addons/outputLatex.js'; // eslint-disable-line no-unused-vars
+import OutputMathML from '../addons/outputMathML.js'; // eslint-disable-line no-unused-vars
+import MASTON from '../addons/maston.js'; // eslint-disable-line no-unused-vars
+import OutputSpokenText from '../addons/outputSpokenText.js'; // eslint-disable-line no-unused-vars
 
 /*
     Note:
@@ -73,6 +73,7 @@ function off(el, selectors, listener, options) {
  * @property {string} id - A unique ID identifying this mathfield
  * @property {boolean} keystrokeCaptionVisible - True if the keystroke caption
  * panel is visible
+ * @property {boolean} virtualKeyboardVisible
  * @class
  * @global
  */
@@ -224,16 +225,13 @@ function MathField(element, config) {
     const localConfig = Object.assign({}, config);
     localConfig.onSelectionDidChange =
         MathField.prototype._onSelectionDidChange.bind(this);
-    localConfig.onSelectionWillChange =
-        MathField.prototype._onSelectionWillChange.bind(this);
-    localConfig.onContentWillChange =
-        MathField.prototype._onContentWillChange.bind(this);
-        localConfig.onContentDidChange =
+    localConfig.onContentDidChange =
         MathField.prototype._onContentDidChange.bind(this);
+    localConfig.onAnnounce = _onAnnounce;
     localConfig.smartFence = this.config.smartFence;
     localConfig.macros = this.config.macros;
 
-    this.mathlist = new EditableMathlist.EditableMathlist(localConfig, this._announce.bind(this));
+    this.mathlist = new EditableMathlist.EditableMathlist(localConfig, this);
 
     // Prepare to manage undo/redo
     this.undoManager = new Undo.UndoManager(this.mathlist);
@@ -554,22 +552,12 @@ MathField.prototype._onSelectionDidChange = function() {
     Popover.updatePopoverPosition(this, {deferred:true});
 
     // Invoke client handlers, if provided.
-    if (this.config.onSelectionDidChange) {
+    if (typeof this.config.onSelectionDidChange === 'function') {
         this.config.onSelectionDidChange(this);
     }
 }
 
-MathField.prototype._onSelectionWillChange = function() {
-    if (this.config.onSelectionWillChange) {
-        this.config.onSelectionWillChange(this);
-    }
-}
 
-MathField.prototype._onContentWillChange = function() {
-    if (this.config.onContentWillChange) {
-        this.config.onContentWillChange(this);
-    }
-}
 
 MathField.prototype._onContentDidChange = function() {
     if (this.undoManager.canRedo()) {
@@ -582,7 +570,7 @@ MathField.prototype._onContentDidChange = function() {
     } else {
         this.element.classList.remove('can-undo');
     }
-    if (this.config.onContentDidChange) {
+    if (typeof this.config.onContentDidChange === 'function') {
         this.config.onContentDidChange(this);
     }
 }
@@ -640,11 +628,12 @@ MathField.prototype._nextAtomSpeechText = function(oldMathlist) {
 
 /**
  * Announce a change in selection or content via the aria-live region.
+ * @param {object} target typically, a MathField
  * @param {string} command the command that invoked the change
  * @param {object} oldMathlist [null] the previous value of mathlist before the change
  * @param {object} array [null] or atom: atomsToSpeak the command that invoked the change
  */
-MathField.prototype._announce = function(command, oldMathlist, atomsToSpeak) {
+ function _onAnnounce(target, command, oldMathlist, atomsToSpeak) {
 //** Fix: the focus is the end of the selection, so it is before where we want it
 
     let liveText = '';
@@ -653,43 +642,43 @@ MathField.prototype._announce = function(command, oldMathlist, atomsToSpeak) {
     if (command === 'plonk') {
         // Use this sound to indicate (minor) errors, for
         // example when a command has no effect.
-        if (this.plonkSound) this.plonkSound.play().catch(err => console.log(err));
+        if (target.plonkSound) target.plonkSound.play().catch(err => console.log(err));
     } else if (command === 'delete') {
-        liveText = 'deleted: ' + MathAtom.toSpeakableText(atomsToSpeak, this.config);
+        liveText = 'deleted: ' + MathAtom.toSpeakableText(atomsToSpeak, target.config);
     //*** FIX: could also be moveUp or moveDown -- do something different like provide context???
     } else if (command === 'focus' || /move/.test(command)) {
         //*** FIX -- should be xxx selected/unselected */
-        liveText = (this.mathlist.isCollapsed() ? '' : 'selected: ') +
-                    this._nextAtomSpeechText(oldMathlist);
+        liveText = (target.mathlist.isCollapsed() ? '' : 'selected: ') +
+                    target._nextAtomSpeechText(oldMathlist);
     } else if (command === 'replacement') {
         // announce the contents
-        liveText = MathAtom.toSpeakableText(this.mathlist.sibling(0), this.config);
+        liveText = MathAtom.toSpeakableText(target.mathlist.sibling(0), target.config);
     } else if (command === 'line') {
         // announce the current line -- currently that's everything
-        liveText = MathAtom.toSpeakableText(this.mathlist.root, this.config);
-        this.accessibleNode.innerHTML =
+        liveText = MathAtom.toSpeakableText(target.mathlist.root, target.config);
+        target.accessibleNode.innerHTML =
             '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
-                MathAtom.toMathML(this.mathlist.root, this.config) +
+                MathAtom.toMathML(target.mathlist.root, target.config) +
             '</math>';
 
-        this.textarea.setAttribute('aria-label', 'after: ' + liveText)
+        target.textarea.setAttribute('aria-label', 'after: ' + liveText)
 
         /*** FIX -- testing hack for setting braille ***/
-        // this.accessibleNode.focus();
+        // target.accessibleNode.focus();
         // console.log("before sleep");
         // sleep(1000).then(() => {
-        //     this.textarea.focus();
+        //     target.textarea.focus();
         //     console.log("after sleep");
         // });
     } else {
         liveText = command + " " +
-            (atomsToSpeak ? MathAtom.toSpeakableText(atomsToSpeak, this.config) : "");
+            (atomsToSpeak ? MathAtom.toSpeakableText(atomsToSpeak, target.config) : "");
     }
     // aria-live regions are only spoken when it changes; force a change by
     // alternately using nonbreaking space or narrow nonbreaking space
-    const ariaLiveChangeHack = /\u00a0/.test(this.ariaLiveText.textContent) ?
+    const ariaLiveChangeHack = /\u00a0/.test(target.ariaLiveText.textContent) ?
         ' \u202f ' : ' \u00a0 ';
-    this.ariaLiveText.textContent = liveText + ariaLiveChangeHack;
+    target.ariaLiveText.textContent = liveText + ariaLiveChangeHack;
     // this.textarea.setAttribute('aria-label', liveText + ariaLiveChangeHack);
 }
 
@@ -849,10 +838,10 @@ MathField.prototype.performWithFeedback_ = function(command) {
  * @method MathField#_onKeystroke
  * @private
  */
-MathField.prototype._onKeystroke = function(keystroke, evt) {
+MathField.prototype._onKeystroke = function(target, keystroke, evt) {
 
     // Give a chance to the custom keystroke handler to intercept the event
-    if (this.config.onKeystroke && !this.config.onKeystroke(keystroke, evt)) {
+    if (this.config.onKeystroke && !this.config.onKeystroke(this, keystroke, evt)) {
         if (evt) {
             evt.preventDefault();
             evt.stopPropagation();
@@ -1018,7 +1007,7 @@ MathField.prototype._onTypedText = function(text, options) {
 
                     // Insert the substitute
                     this.mathlist.insert(shortcut, {format: 'latex'});
-                    this._announce('replacement');
+                    _onAnnounce(this, 'replacement');
                 }
 
                 if (!shortcut) {
@@ -1212,7 +1201,6 @@ MathField.prototype._onCopy = function(e) {
  *    * `'latex-expanded'` : all macros are recursively expanded to their definition
  *    * `'spoken'`
  *    * `'mathML'`
- * or `'mathML'`.
  * @return {string}
  * @method MathField#text
  */
@@ -1293,7 +1281,7 @@ MathField.prototype.selectionIsCollapsed = function() {
  * returns 0. If the selection is a portion of the numerator of a fraction
  * which is at the root level, return 1. Note that in that case, the numerator
  * would be the "selection group".
- * @return {integer}
+ * @return {number}
  * @method MathField#selectionDepth
  */
 MathField.prototype.selectionDepth = function() {
@@ -1517,7 +1505,7 @@ MathField.prototype.complete_ = function() {
                 }
             }
         }
-        this._announce('replacement');
+        _onAnnounce(this, 'replacement');
         return true;
     }
     return false;
@@ -2115,8 +2103,9 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
 
     if (typeof this.config.onVirtualKeyboardToggle === 'function') {
         this.config.onVirtualKeyboardToggle(
-                this.virtualKeyboardVisible,
-                this.virtualKeyboard);
+            this,
+            this.virtualKeyboardVisible, 
+            this.virtualKeyboard);
     }
     return false;
 }
@@ -2136,7 +2125,7 @@ MathField.prototype.focus = function() {
         // The textarea may be a span (on mobile, for example), so check that
         // it has a select() before calling it.
         if (this.textarea.select) this.textarea.select();
-        this._announce('line');
+        _onAnnounce(this, 'line');
         this._render();
     }
 }
@@ -2278,7 +2267,7 @@ MathField.prototype._speak = function(text) {
 }
 
 /**
- * @method EditableMathlist#speakSelection_
+ * @method MathField#speakSelection_
  */
 MathField.prototype.speakSelection_ = function() {
     let text = "Nothing selected.";
@@ -2290,7 +2279,7 @@ MathField.prototype.speakSelection_ = function() {
 }
 
 /**
- * @method EditableMathlist#speakSelectionWithSynchronizedHighlighting_
+ * @method MathField#speakSelectionWithSynchronizedHighlighting_
  */
 MathField.prototype.speakSelectionWithSynchronizedHighlighting_ = function() {
     if (!this.mathlist.isCollapsed()) {
@@ -2308,7 +2297,7 @@ MathField.prototype.speakSelectionWithSynchronizedHighlighting_ = function() {
 
 
 /**
- * @method EditableMathlist#speakParent_
+ * @method MathField#speakParent_
  */
 MathField.prototype.speakParent_ = function() {
     let text = 'No parent.';
@@ -2321,7 +2310,7 @@ MathField.prototype.speakParent_ = function() {
 }
 
 /**
- * @method EditableMathlist#speakRightSibling_
+ * @method MathField#speakRightSibling_
  */
 MathField.prototype.speakRightSibling_ = function() {
     let text = 'At the end.';
@@ -2339,7 +2328,7 @@ MathField.prototype.speakRightSibling_ = function() {
 }
 
 /**
- * @method EditableMathlist#speakLeftSibling_
+ * @method MathField#speakLeftSibling_
  */
 MathField.prototype.speakLeftSibling_ = function() {
     let text = 'At the beginning.';
@@ -2358,7 +2347,7 @@ MathField.prototype.speakLeftSibling_ = function() {
 
 
 /**
- * @method EditableMathlist#speakGroup_
+ * @method MathField#speakGroup_
  */
 MathField.prototype.speakGroup_ = function() {
     this._speak(MathAtom.toSpeakableText(this.mathlist.siblings(), this.config));
@@ -2366,7 +2355,7 @@ MathField.prototype.speakGroup_ = function() {
 }
 
 /**
- * @method EditableMathlist#speakAll_
+ * @method MathField#speakAll_
  */
 MathField.prototype.speakAll_ = function() {
     this._speak(MathAtom.toSpeakableText(this.mathlist.root, this.config));
@@ -2374,7 +2363,7 @@ MathField.prototype.speakAll_ = function() {
 }
 
 /**
- * @method EditableMathlist#speakAllWithSynchronizedHighlighting_
+ * @method MathField#speakAllWithSynchronizedHighlighting_
  */
 MathField.prototype.speakAllWithSynchronizedHighlighting_ = function() {
     window.mathlive.readAloudMathField = this;

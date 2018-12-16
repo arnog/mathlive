@@ -1,5 +1,5 @@
 
-import Mathstyle from './mathstyle';
+import Mathstyle from './mathstyle.js';
 
 /**
  * This class contains the rendering context of the current parse level.

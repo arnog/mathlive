@@ -8,7 +8,7 @@
 
 /**
  * The index of this array is a keystroke combination as returned by the key
- * field of a Javascript keyboard event as documented here:
+ * field of a JavaScript keyboard event as documented here:
  * https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
  * except for:
  * - `Escape`         → `Esc`
@@ -541,8 +541,8 @@ const MATHEMATICA_COMMANDS = {
 /**
  * This function is used to resolve inline shortcuts.
  * 
- * @param {string} s candidate inline shortcuts (e.g. `'2+pi'`)
- * @return {string} null if no matching shortcut, the value of the shortcut 
+ * @param {string} s - candidate inline shortcuts (e.g. `'2+pi'`)
+ * @return {string} - null if no matching shortcut, the value of the shortcut 
  * otherwise
  * @memberof module:editor/shortcuts
  * @private
@@ -698,7 +698,7 @@ function getShortcutsForCommand(command) {
 /**
  * Return a human readable representation of an array of shortcut strings
  * @param {Object<string,string>} shortcuts 
- * @param {string} join optional, string in between each shortcut representation
+ * @param {?string} join - optional, string in between each shortcut representation
  * @memberof module:editor/shortcuts
  * @private
  */
@@ -777,8 +777,8 @@ function stringify(shortcuts, join) {
 }
 
 export default {
-    INLINE : INLINE_SHORTCUTS,
-    KEYBOARD: KEYBOARD_SHORTCUTS,
+    // INLINE : INLINE_SHORTCUTS,
+    // KEYBOARD: KEYBOARD_SHORTCUTS,
     match: match,
     matchKeystroke: matchKeystroke,
     getShortcutsForCommand: getShortcutsForCommand,

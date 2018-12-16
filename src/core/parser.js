@@ -3,11 +3,11 @@
  * @private
  */
 
-import Definitions from './definitions';
-import Color from './color';
-import FontMetrics from './fontMetrics';
-import Lexer from './lexer';
-import MathAtomModule from './mathAtom';
+import Definitions from './definitions.js';
+import Color from './color.js';
+import FontMetrics from './fontMetrics.js';
+import Lexer from './lexer.js';
+import MathAtomModule from './mathAtom.js';
 
 const MathAtom = MathAtomModule.MathAtom;
 

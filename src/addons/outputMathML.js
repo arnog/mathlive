@@ -1,5 +1,5 @@
-import MathAtom from '../core/mathAtom';
-import Color from '../core/color';
+import MathAtom from '../core/mathAtom.js';
+import Color from '../core/color.js';
 
 
 const SPECIAL_OPERATORS = {

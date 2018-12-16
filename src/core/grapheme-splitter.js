@@ -1,5 +1,5 @@
 /*
-Breaks a Javascript string into individual user-perceived "characters" 
+Breaks a JavaScript string into individual user-perceived "characters" 
 called extended grapheme clusters by implementing the Unicode UAX-29 standard, version 8.0.0
 
 Usage:

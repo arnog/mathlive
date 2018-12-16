@@ -1,4 +1,4 @@
-import MathAtom from '../core/mathAtom';
+import MathAtom from '../core/mathAtom.js';
 
 
 /**

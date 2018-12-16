@@ -1,7 +1,7 @@
-import Lexer from '../core/lexer';
-import MathAtom from '../core/mathAtom';
-import ParserModule from '../core/parser';
-import Definitions from '../core/definitions';
+import Lexer from '../core/lexer.js';
+import MathAtom from '../core/mathAtom.js';
+import ParserModule from '../core/parser.js';
+import Definitions from '../core/definitions.js';
 
 const CANONICAL_NAMES = {
     // CONSTANTS
@@ -565,7 +565,7 @@ function asSymbol(expr) {
 /**
  *
  * @param {Object} num -- Abstract Syntax Tree object
- * @return {number} -- A Javascript number, the value of the AST or NaN
+ * @return {number} -- A JavaScript number, the value of the AST or NaN
  */
 function asMachineNumber(num) {
     let result = undefined;

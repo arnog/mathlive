@@ -25,7 +25,7 @@ To get started developing:
 $ git clone https://github.com/arnog/mathlive && cd mathlive
 $ npm install
 ```
-The `npm install` command installs in the `mathlive/` directory all the Node
+The `npm install` command installs in the `mathlive/node_modules` directory all the Node
  modules necessary to build and test the MathLive library and its documentation.
 
 Depending on your system setup, you may need to run as admin, in which case
@@ -46,7 +46,7 @@ $ npm run dev
 # Run test scripts
 $ npm test
 
-# Lint Javascript files
+# Lint JavaScript files
 $ npm run lint
 
 # Calculate the code coverage and output to build/coverage/
@@ -58,7 +58,7 @@ $ npm run docs
 # Clean up (deletes) the contents of the `build/`, `dist/` and `docs/` directories
 $ npm run clean
 
-# Clean, build, then transpile, minimize and bundle to `dist/`.
+# Clean, build, then minimize and bundle to `dist/`.
 # The `dist/` folder will contain the `.js`, `.css` and font files necessary to 
 # use MathLive. The `docs/` folder will also be updated.
 $ npm run dist
@@ -108,16 +108,16 @@ Increment the first number, e.g. `1.3.56` → `2.0.0`
 ## Code Structure
 The MathLive library consists of the following key directories:
 * `css/` the stylesheets and fonts used by MathLive
-* `src/core` the core Javascript code needed to render math. This module depends
+* `src/core` the core JavaScript code needed to render math. This module depends
  on the `css/` module.
-* `src/editor` the Javascript code needed for the editor. This module depends
+* `src/editor` the JavaScript code needed for the editor. This module depends
 on the `src/core` module.
 * `src/addons` some optional modules that provide additional functionality
 
 You can include only the files you need. For example, if you only
 need to display math, you can skip `src/editor/` and `src/addons`.
 
-In addition, the `build/` and `dist/` directories contain optimized 
+In addition, the `dist/` directories contain optimized 
 output generated from the `css/` and `src/` directories:
 * the `build/` directory contains intermediary build results. These
 intermediary results can be used for debugging during development, but are
@@ -138,8 +138,9 @@ intermediated files generated as part of the build process.
 
 ## Language and Coding Style
 
-MathLive is written in Javascript, using the [ES2016 dialect](https://www.ecma-international.org/ecma-262/7.0/). This 
+MathLive is written in JavaScript, using the [ES2016 dialect](https://www.ecma-international.org/ecma-262/7.0/). This 
 includes in particular these features:
+* native modules (`import` and `export`)
 * `let` and `const` instead of `var`
 * block-scoped variables and functions
 * `Array.prototype.includes()`
@@ -159,10 +160,7 @@ utility functions to be separated from methods that use them.
 * rest/spread
 * generators
 
-Before publishing, [Babel](https://babeljs.io) transpiles the code so it can 
-run on recent browsers, even if they don't support all the ES2016 features yet. 
-The code is also optimized for performance and minimized to reduce the load 
-time.
+The code is minified and bundled to reduce the load time.
 
 The code base attempts to follow these general guidelines:
 

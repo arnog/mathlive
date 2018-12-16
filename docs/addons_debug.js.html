@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>core/fontMetrics.js - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>addons/debug.js - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -56,7 +56,7 @@ writeCookie('symbol-access', 'private')
 
 <main id="main">
     
-        <h1 class="page-title">core/fontMetrics.js</h1>
+        <h1 class="page-title">addons/debug.js</h1>
     
 
     
@@ -68,342 +68,404 @@ writeCookie('symbol-access', 'private')
         <article>
             <pre class="prettyprint source linenums">
             
-            <code>/* eslint no-unused-vars:0 */
-/**
- * This module contains metrics regarding fonts and individual symbols. The sigma
- * and xi variables, as well as the metricMap map contain data extracted from
- * TeX, TeX font metrics, and the TTF files. These data are then exposed via the
- * `metrics` variable and the getCharacterMetrics function.
- * @module fontMetrics
- * @private
- */
-import metricMap from './fontMetricsData.js';
+            <code>/*global require:false*/
+/*global define:false*/
+/* jshint undef: false, unused: false, esversion: 6, esnext: true */
 
-// This metricMap contains a mapping from font name and character code to character
-// metrics, including height, depth, italic correction, and skew (kern from the
-// character to the corresponding \skewchar)
-// This map is generated via `make metrics`. It should not be changed manually.
-
-const hangulRegex = /[\uAC00-\uD7AF]/;
-
-// This regex combines
-// - Hiragana: [\u3040-\u309F]
-// - Katakana: [\u30A0-\u30FF]
-// - CJK ideograms: [\u4E00-\u9FAF]
-// - Hangul syllables: [\uAC00-\uD7AF]
-// Notably missing are half width Katakana and Romaji glyphs.
-const cjkRegex =
-    /[\u3040-\u309F]|[\u30A0-\u30FF]|[\u4E00-\u9FAF]|[\uAC00-\uD7AF]/;
 
 
 /**
- *
- * In TeX, there are actually three sets of dimensions, one for each of
- * textstyle, scriptstyle, and scriptscriptstyle.  These are provided in the
- * the arrays below, in that order.
- *
- * The font metrics are stored in fonts cmsy10, cmsy7, and cmsy5 respectively.
- * This was determined by running the following script:
- *``` bash
-      latex -interaction=nonstopmode \
-      '\documentclass{article}\usepackage{amsmath}\begin{document}' \
-      '$a$ \expandafter\show\the\textfont2' \
-      '\expandafter\show\the\scriptfont2' \
-      '\expandafter\show\the\scriptscriptfont2' \
-      '\stop'
-  ```
- * The metrics themselves were retrieved using the following commands:
- * ``` bash
-      tftopl cmsy10
-      tftopl cmsy7
-      tftopl cmsy5
-    ```
- *
- * The output of each of these commands is quite lengthy.  The only part we
- * care about is the FONTDIMEN section. Each value is measured in EMs.
- * @memberof module:fontMetrics
+ * 
+ * @param {Span[]} spans 
+ * @param {string|number|number[]} symbol specify which span to consider. 
+ * If a string, a span whose body match the string
+ * If a number, the nth span in the list
+ * If an array, each element in the array indicate the nth child to traverse
  */
-const SIGMAS = {
-    slant: [0.250, 0.250, 0.250],       // sigma1
-    space: [0.000, 0.000, 0.000],       // sigma2
-    stretch: [0.000, 0.000, 0.000],     // sigma3
-    shrink: [0.000, 0.000, 0.000],      // sigma4
-    xHeight: [0.431, 0.431, 0.431],     // sigma5
-    quad: [1.000, 1.171, 1.472],        // sigma6
-    extraSpace: [0.000, 0.000, 0.000],  // sigma7
-    num1: [0.677, 0.732, 0.925],        // sigma8
-    num2: [0.394, 0.384, 0.387],        // sigma9
-    num3: [0.444, 0.471, 0.504],        // sigma10
-    denom1: [0.686, 0.752, 1.025],      // sigma11
-    denom2: [0.345, 0.344, 0.532],      // sigma12
-    sup1: [0.413, 0.503, 0.504],        // sigma13
-    sup2: [0.363, 0.431, 0.404],        // sigma14
-    sup3: [0.289, 0.286, 0.294],        // sigma15
-    sub1: [0.150, 0.143, 0.200],        // sigma16
-    sub2: [0.247, 0.286, 0.400],        // sigma17
-    supDrop: [0.386, 0.353, 0.494],     // sigma18
-    subDrop: [0.050, 0.071, 0.100],     // sigma19
-    delim1: [2.390, 1.700, 1.980],      // sigma20
-    delim2: [1.010, 1.157, 1.420],      // sigma21
-    axisHeight: [0.250, 0.250, 0.250],  // sigma22
-};
+function getSymbol(spans, symbol) {
+    if (!spans) return null;
+    let childSymbol = null;
 
-// These font metrics are extracted from TeX by using
-// \font\a=cmex10
-// \showthe\fontdimenX\a
-// where X is the corresponding variable number. These correspond to the font
-// parameters of the extension fonts (family 3). See the TeXbook, page 441.
-const xi1 = 0;
-const xi2 = 0;
-const xi3 = 0;
-const xi4 = 0;
-const xi5 = 0.431;
-const xi6 = 1;
-const xi7 = 0;
-const xi8 = 0.04;
-const xi9 = 0.111;
-const xi10 = 0.166;
-const xi11 = 0.2;
-const xi12 = 0.6;
-const xi13 = 0.1;
-
-// This value determines how large a pt is, for metrics which are defined in
-// terms of pts.
-// This value is also used in katex.less; if you change it make sure the values
-// match.
-const ptPerEm = 10.0;
-
-// The space between adjacent `|` columns in an array definition. From
-// article.cls.txt:455
-const doubleRuleSep = 2.0 / ptPerEm;
-
-/**
- * This is just a mapping from common names to real metrics
- */
-const metrics = {
-    defaultRuleThickness: xi8,
-    bigOpSpacing1: xi9,
-    bigOpSpacing2: xi10,
-    bigOpSpacing3: xi11,
-    bigOpSpacing4: xi12,
-    bigOpSpacing5: xi13,
-    ptPerEm: ptPerEm,
-    pxPerEm: ptPerEm * 4.0 / 3.0,   // A CSS pt is fixed at 1.333px
-    doubleRuleSep: 2.0 / ptPerEm,
-    arraycolsep: 5.0 / ptPerEm,
-    baselineskip: 12.0 / ptPerEm,
-    arrayrulewidth: 0.4 / ptPerEm,
-    fboxsep: 3 / ptPerEm,               // From letter.dtx:1626
-    fboxrule: 0.4 / ptPerEm,               // From letter.dtx:1627
-};
-
-
-// These are very rough approximations.  We default to Times New Roman which
-// should have Latin-1 and Cyrillic characters, but may not depending on the
-// operating system.  The metrics do not account for extra height from the
-// accents.  In the case of Cyrillic characters which have both ascenders and
-// descenders we prefer approximations with ascenders, primarily to prevent
-// the fraction bar or root line from intersecting the glyph.
-// TODO(kevinb) allow union of multiple glyph metrics for better accuracy.
-const extraCharacterMap = {
-    '\u00a0': '\u0020',     // NON-BREAKING SPACE is like space
-    '\u200b': '\u0020',     // ZERO WIDTH SPACE is like space
-    // Latin-1
-    'Å': 'A',
-    'Ç': 'C',
-    'Ð': 'D',
-    'Þ': 'o',
-    'å': 'a',
-    'ç': 'c',
-    'ð': 'd',
-    'þ': 'o',
-
-
-    // Cyrillic
-    'А': 'A',
-    'Б': 'B',
-    'В': 'B',
-    'Г': 'F',
-    'Д': 'A',
-    'Е': 'E',
-    'Ж': 'K',
-    'З': '3',
-    'И': 'N',
-    'Й': 'N',
-    'К': 'K',
-    'Л': 'N',
-    'М': 'M',
-    'Н': 'H',
-    'О': 'O',
-    'П': 'N',
-    'Р': 'P',
-    'С': 'C',
-    'Т': 'T',
-    'У': 'y',
-    'Ф': 'O',
-    'Х': 'X',
-    'Ц': 'U',
-    'Ч': 'h',
-    'Ш': 'W',
-    'Щ': 'W',
-    'Ъ': 'B',
-    'Ы': 'X',
-    'Ь': 'B',
-    'Э': '3',
-    'Ю': 'X',
-    'Я': 'R',
-    'а': 'a',
-    'б': 'b',
-    'в': 'a',
-    'г': 'r',
-    'д': 'y',
-    'е': 'e',
-    'ж': 'm',
-    'з': 'e',
-    'и': 'n',
-    'й': 'n',
-    'к': 'n',
-    'л': 'n',
-    'м': 'm',
-    'н': 'n',
-    'о': 'o',
-    'п': 'n',
-    'р': 'p',
-    'с': 'c',
-    'т': 'o',
-    'у': 'y',
-    'ф': 'b',
-    'х': 'x',
-    'ц': 'n',
-    'ч': 'n',
-    'ш': 'w',
-    'щ': 'w',
-    'ъ': 'a',
-    'ы': 'm',
-    'ь': 'a',
-    'э': 'e',
-    'ю': 'm',
-    'я': 'r',
-
-};
-
-/**
- * This function is a convenience function for looking up information in the
- * metricMap table. It takes a character as a string, and a font name.
- *
- * Note: the `width` property may be undefined if fontMetricsData.js wasn't
- * built using `Make extended_metrics`.
- * @memberof module:fontMetrics
- * @private
- */
-const getCharacterMetrics = function(character, fontName) {
-    if (fontName === 'mathbb') fontName = 'AMS-Regular';
-    console.assert(character.length === 1);
-    console.assert(metricMap[fontName], 'Unknown font "' + fontName + '"');
-
-    let ch = character.charCodeAt(0);
-
-    if (character[0] in extraCharacterMap) {
-        ch = extraCharacterMap[character[0]].charCodeAt(0);
-    } else if (cjkRegex.test(character[0])) {
-        ch = 'M'.charCodeAt(0);
+    if (Array.isArray(symbol)) {
+        childSymbol = symbol.slice();  // Clone the array
+        symbol = childSymbol.shift();   // Get the first element and remove it from the array
     }
-    const metrics = metricMap[fontName][ch];
 
-    if (!metrics) {
-        // console.warn(
-        //     'No metrics for ' +
-        //     '"' + character + '" (U+' + ('000000' + ch.toString(16)).substr(-6) + ')' +
-        //     ' in font "' + fontName + '"');
-        // Assume default values.
-        // depth + height should be less than 1.0 em
-        return {
-            depth: .20,
-            height: .70,
-            italic: 0,
-            skew: 0
+    let result = null;
+    if (typeof symbol === 'number' &amp;&amp; symbol &lt; spans.length) {
+        if (childSymbol &amp;&amp; childSymbol.length > 0) {
+            return getSymbol(spans[symbol].children, childSymbol);
         }
-    }
-
-    if (metrics) {
-        return {
-            depth: metrics[0],
-            height: metrics[1],
-            italic: metrics[2],
-            skew: metrics[3]
+        return spans[symbol];
+    } else if (typeof symbol === 'string') {
+        for (let i = 0; i &lt; spans.length; i++) {
+            // Does this span match the symbol we're looking for?
+            if (spans[i].body === symbol) {
+                if (childSymbol &amp;&amp; childSymbol.length > 0) {
+                    return getSymbol(spans[i].children, childSymbol);
+                }
+                return spans[i];
+            }
+            // If not, try its children
+            result = getSymbol(spans[i].children, symbol);
+            if (result) return result;
         }
+        return result;
     }
+    return null;
+}
 
+function getProp(spans, symbol, prop) {
+    const s = getSymbol(spans, symbol);
+    if (s) return s[prop];
+    return null;
+}
+
+/**
+ * Return the type ('mbin', etc...) of a span
+ * @param {Span[]} spans 
+ * @param {string} symbol 
+ * @return string}
+ */
+function getType(spans, symbol) {
+    const s = getSymbol(spans, symbol);
+    if (s) return s.type;
+    return null;
+}
+
+function getStyle(spans, symbol, prop) {
+    const s = getSymbol(spans, symbol);
+    if (s &amp;&amp; s.style) return s.style[prop];
+    return null;
+}
+
+function getClasses(spans, symbol) {
+    const s = getSymbol(spans, symbol);
+    if (s) return s.classes || '';
     return null;
 }
 
 
-/**
- *
- * @param {number|string} value If value is a string, it may be suffixed
- * with a unit, which will override the `unit` paramter
- * @param {string} unit
- * @param {number} precision
- */
-function convertDimenToEm(value, unit, precision) {
-    if (typeof value === 'string') {
-        const m = value.match(/([0-9.]*)\s*([a-z]*)/);
-        if (!m) {
-            value = parseFloat(value);
+function hasClass(spans, symbol, cls) {
+    let classes = getClasses(spans, symbol);
+    if (!classes) return false;
+    classes = classes.split(' ');
+    for (let j = 0; j &lt; classes.length; j++) {
+        if (classes[j] === cls) return true;
+    }
+    return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+function spanToString(span, indent) {
+    indent = indent || '';
+
+    let result = '';
+    if (Array.isArray(span)) {
+        if (span.length === 0) {
+            result += '[]\n';
         } else {
-            value = parseFloat(m[1]);
-            unit = m[2].toLowerCase();
+            result += '[\n';
+            for (let i = 0; i &lt; span.length; i++) {
+                result += spanToString(span[i], '\t' + indent + i + ',');
+                result += i &lt; span.length - 1 ? ',\n' : '\n';
+            }
+            result += indent + ']\n';
+        }
+    } else {
+        result = indent + '{\n';
+        if (span.type) {
+            result += indent + 'type:"' + span.type + '",\n';
+        }
+        if (span.body &amp;&amp; span.body.length > 0) {
+            result += indent + 'body:"' + span.body + '",\n';
+        }
+        if (span.classes &amp;&amp; span.classes.length > 0) {
+            result += indent + 'classes:"' + span.classes + '",\n';
+        }
+        if (span.style) {
+            for (const s in span.style) {
+                if (span.style.hasOwnProperty(s)) {
+                    result += indent + s + ':"';
+                    result += span.style[s] + '",\n';
+                }
+            }
+        }
+        if (span.children &amp;&amp; span.children.length > 0) {
+            result += indent + 'children:' + spanToString(span.children, indent);
+        }
+        result += indent + '}';
+    }
+    return result;
+}
+
+function mathlistPropToString(mathlist, prop, indent) {
+    const value = mathlist[prop];
+    if (typeof value === 'string') {
+        return indent + prop + ':"' + value + '",\n';
+    } else if (typeof value === 'boolean') {
+        return indent + prop + ':' + value + ',\n';
+    } else if (typeof value === 'number') {
+        return indent + prop + ':' + value + ',\n';
+    } else if (Array.isArray(value)) {
+        return indent + prop + ':' + mathlistToString(value, indent + '\t') + ',\n';
+    }
+    return '';
+}
+
+function mathlistToString(mathlist, indent) {
+    if (!mathlist) return ''; 
+
+    indent = indent || '';
+    let result = '';
+    if (Array.isArray(mathlist)) {
+        if (mathlist.length === 0) return '';
+        result += '[\n';
+        for (let i = 0; i &lt; mathlist.length; i++) {
+            result += mathlistToString(mathlist[i], indent + '\t') + ',\n';
+        }
+        result += indent + ']\n';
+    } else {
+        result = indent + '{\n';
+        result += mathlistPropToString(mathlist, 'type', indent);
+        result += mathlistPropToString(mathlist, 'value', indent);
+
+        result += mathlistPropToString(mathlist, 'fontFamily', indent);
+
+        // Type 'genfrac'
+        result += mathlistPropToString(mathlist, 'hasBarLine', indent);
+        result += mathlistPropToString(mathlist, 'leftDelim', indent);
+        result += mathlistPropToString(mathlist, 'rightDelim', indent);
+        result += mathlistPropToString(mathlist, 'numer', indent);
+        result += mathlistPropToString(mathlist, 'denom', indent);
+
+        // Type...?
+        result += mathlistPropToString(mathlist, 'limits', indent);
+        result += mathlistPropToString(mathlist, 'symbol', indent);
+
+        // Type 'color'
+        result += mathlistPropToString(mathlist, 'color', indent);
+        result += mathlistPropToString(mathlist, 'textcolor', indent);
+        result += mathlistPropToString(mathlist, 'backgroundcolor', indent);
+        result += mathlistPropToString(mathlist, 'framecolor', indent);
+
+        // Type 'line'
+        result += mathlistPropToString(mathlist, 'position', indent);
+
+        // Type 'mathstyle'
+        result += mathlistPropToString(mathlist, 'mathstyle', indent);
+
+        // Common
+        result += mathlistPropToString(mathlist, 'superscript', indent);
+        result += mathlistPropToString(mathlist, 'subscript', indent);
+        result += mathlistPropToString(mathlist, 'body', indent);
+
+        result += mathlistPropToString(mathlist, 'array', indent);
+
+        result += indent + '}';
+    }
+    return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+function spanToMarkup(span, indent) {
+    indent = indent || '';
+    // if (indent.length === 0) {
+    //     result += '&lt;table>';
+    // }
+    let result = '';
+    if (Array.isArray(span)) {
+        for (let i = 0; i &lt; span.length; i++) {
+            result += spanToMarkup(span[i], indent);
+        }
+    } else if (span &amp;&amp; span.tag !== 'table') {
+        result = '&lt;br>' + indent;
+        if (span.classes.includes('fontsize-ensurer')) {
+            result += 'FONTSIZE-ENSURER';
+        } else {
+            if (span.type) {
+                result += '&lt;span class="type">' + span.type + '&lt;/span>';
+            }
+            if (span.body &amp;&amp; span.body.length > 0) {
+                result += '&lt;span class="value">' + span.body + '&lt;/span>';
+            }
+            if (span.classes &amp;&amp; span.classes.length > 0) {
+                result += '&amp;nbsp;&lt;span class="classes">' + span.classes + '&lt;/span>';
+            }
+            if (span.isTight) {
+                result += '&amp;nbsp;&lt;span class="stylevalue"> tight &lt;/span>';
+            }
+            if (span.hasCaret) {
+                result += '&amp;nbsp;&lt;span class="stylevalue"> hasCaret &lt;/span>';
+            }
+
+            if (span.style) {
+                for (const s in span.style) {
+                    if (span.style.hasOwnProperty(s)) {
+                        result += '&amp;nbsp;&lt;span class="styleprop">' + s + ':&lt;/span>';
+                        result += '&lt;span class="stylevalue"> ' + span.style[s] + '&lt;/span>;&amp;nbsp;';
+                    }
+                }
+            }
+            if (span.children) {
+                result += spanToMarkup(span.children, indent + '▷');
+            }
+        }
+    } else if (span) {
+        result += '&lt;br>' + indent + 'table ' + span.array[0].length + '&amp;times;' + span.array.length;
+        for (let i = 0; i &lt; span.array.length; i++) {
+            for (let j = 0; j &lt; span.array[i].length; j++) {
+                result += '&lt;br>' + indent + '[' + (i + 1) + ', ' + (j + 1) + '] ';
+                result += spanToMarkup(span.array[i][j], '');
+            }
         }
     }
+    return result;
+}
 
-    // If the units are missing, TeX assumes 'pt'
-    let f = 1;
-    if (unit === 'pt') {
-        f = 1;
-    } else if (unit === 'mm') {
-        f = 7227 / 2540;
-    } else if (unit === 'cm') {
-        f = 7227 / 254;
-    } else if (unit === 'ex') {
-        f = 35271 / 8192;
-    } else if (unit === 'px') {
-        f = 3.0 / 4.0;
-    } else if (unit === 'em') {
-        f = metrics.ptPerEm;
-    } else if (unit === 'bp') {
-        f = 803 / 800;
-    } else if (unit === 'dd') {
-        f = 1238 / 1157;
-    } else if (unit === 'pc') {
-        f = 12;
-    } else if (unit === 'in') {
-        f = 72.27;
-    } else if (unit === 'mu') {
-        f = 10 / 18;
+function mathListColorToMarkup(mathlist, propname) {
+    let result = '';
+    if (mathlist[propname]) {
+        result += '&lt;span class="styleprop">' + propname + '=&lt;/span>'; 
+        result += '&lt;span style="font-size:2em;vertical-align:middle;color:' + mathlist[propname] + '">&amp;#9632;&lt;/span>';    
+        result += '&lt;span class="stylevalue">';
+        result += mathlist[propname];
+        result += '&lt;/span>';
     }
+    return result;
+}
 
-    if (precision) {
-        const factor = Math.pow(10, precision);
-        return Math.round((value / metrics.ptPerEm) * f * factor) / factor;
+function mathListPropToMarkup(mathlist, propname) {
+    let result = '';
+    if (mathlist[propname]) {
+        result += '&lt;span class="styleprop">' + propname + '=&lt;/span>'; 
+        result += '&lt;span class="stylevalue">';
+        result += mathlist[propname]
+        result += '&lt;/span>" ';
     }
-
-    return (value / metrics.ptPerEm) * f;
+    return result;
 }
 
-function convertDimenToPx(value, unit) {
-    // if (unit === 'px') return value;
-    return convertDimenToEm(value, unit) * (4.0 / 3.0) * metrics.ptPerEm;
+function mathlistToMarkup(mathlist, indent) {
+    if (!mathlist) return ''; 
+
+    indent = indent || '';
+    let result = '';
+    if (Array.isArray(mathlist)) {
+        for (let i = 0; i &lt; mathlist.length; i++) {
+            result += mathlistToMarkup(mathlist[i], i + '.' + indent);
+        }
+    } else {
+        result = '&lt;br>' + indent;
+        if (mathlist.type) {
+            result += '&lt;span class="type';
+            result += mathlist.isSelected ? ' selected' : '';
+            result += mathlist.hasCaret ? ' caret' : '';
+            result += '">' + mathlist.type + 
+                (mathlist.hasCaret ? ' caret ' : '') + '&lt;/span>';
+        }
+        if (typeof mathlist.body === 'string' &amp;&amp; mathlist.body.length > 0) {
+            result += '&amp;nbsp;&lt;span class="value">';
+            result += mathlist.body;
+            if (mathlist.body.charCodeAt(0) &lt; 32 
+                || mathlist.body.charCodeAt(0) > 127) {
+                result += '&amp;nbsp;U+' + ('000000' + 
+                    mathlist.body.charCodeAt(0).toString(16)).substr(-6);
+            }
+            result += '&lt;/span>&amp;nbsp;';
+        }
+        if (mathlist.fontFamily === 'mathrm') {
+            result += '&lt;span style="opacity:.2">';
+            result += mathListPropToMarkup(mathlist, 'fontFamily');
+            result += '&lt;/span>';
+        } else {
+            result += mathListPropToMarkup(mathlist, 'fontFamily');
+        }
+        // Type 'genfrac'
+        result += mathListPropToMarkup(mathlist, 'hasBarLine');
+        result += mathListPropToMarkup(mathlist, 'leftDelim');
+        result += mathListPropToMarkup(mathlist, 'rightDelim');
+        result += mathListPropToMarkup(mathlist, 'continuousFraction');
+
+        // Type...?
+        result += mathListPropToMarkup(mathlist, 'limits');
+        result += mathListPropToMarkup(mathlist, 'symbol');
+
+        // Type 'color'
+        result += mathListColorToMarkup(mathlist, 'color');
+        result += mathListColorToMarkup(mathlist, 'textcolor');
+        result += mathListColorToMarkup(mathlist, 'backgroundcolor');
+        result += mathListColorToMarkup(mathlist, 'framecolor');
+
+        // Type 'mathstyle'
+        result += mathListPropToMarkup(mathlist, 'mathstyle');
+
+        // Type 'sizeddelim'
+        result += mathListPropToMarkup(mathlist, 'size');
+        result += mathListPropToMarkup(mathlist, 'cls');
+        result += mathListPropToMarkup(mathlist, 'delim');
+
+        // Type 'rule'
+        result += mathListPropToMarkup(mathlist, 'shift');
+        result += mathListPropToMarkup(mathlist, 'width');
+        result += mathListPropToMarkup(mathlist, 'height');
+
+        // Type 'line'
+        result += mathListPropToMarkup(mathlist, 'position');
+
+        // Type 'font'
+        result += mathListPropToMarkup(mathlist, 'font');
+        
+        // Type 'overunder'
+        result += mathlistToMarkup(mathlist.overscript, indent + '↑');
+        result += mathlistToMarkup(mathlist.underscript, indent + '↓');
+
+        result += mathlistToMarkup(mathlist.superscript, indent + '↑');
+        result += mathlistToMarkup(mathlist.subscript, indent + '↓');
+        result += mathlistToMarkup(mathlist.body, indent + '▶');
+        result += mathlistToMarkup(mathlist.numer, indent + '\u25B2');
+        result += mathlistToMarkup(mathlist.denom, indent + '\u25Bc');
+
+        if (mathlist.array) {
+            for (let i = 0; i &lt; mathlist.array.length; i++) {
+                result += '&lt;br>' + indent + '\u2317 row ' + (i + 1) + '/' + mathlist.array.length;
+                for (let j = 0; j &lt; mathlist.array[i].length; j++) {
+                    result += mathlistToMarkup(mathlist.array[i][j], indent + '\u2317\u232A');
+                }
+            }
+        }
+    }
+    return result;
 }
 
-export default {
-    toEm : convertDimenToEm,
-    toPx : convertDimenToPx,
-    metrics: metrics,
-    sigmas: SIGMAS,
-    getCharacterMetrics: getCharacterMetrics,
-    cjkRegex: cjkRegex,
-    hangulRegex: hangulRegex
+
+
+
+
+
+// Export the public interface for this module
+export default { 
+    mathlistToMarkup: mathlistToMarkup,
+    spanToMarkup: spanToMarkup,
+
+    mathlistToString: mathlistToString,
+    spanToString: spanToString,
+    
+    hasClass: hasClass,
+    getClasses: getClasses,
+    getProp: getProp,
+    getStyle: getStyle,
+    getType: getType
 }
+
+
+
 </code></pre>
         </article>
     </section>

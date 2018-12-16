@@ -7,7 +7,7 @@
  * @module fontMetrics
  * @private
  */
-import metricMap from './fontMetricsData';
+import metricMap from './fontMetricsData.js';
 
 // This metricMap contains a mapping from font name and character code to character
 // metrics, including height, depth, italic correction, and skew (kern from the

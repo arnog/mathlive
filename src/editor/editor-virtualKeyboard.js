@@ -1,13 +1,13 @@
-import MathAtom from '../core/mathAtom';
-import Span from '../core/span';
-import Lexer from '../core/lexer';
-import ParserModule from '../core/parser';
-import Color from '../core/color';
-import Definitions from '../core/definitions'; // eslint-disable-line no-unused-vars
-import OutputLatex from '../addons/outputLatex'; // eslint-disable-line no-unused-vars
-import Popover from './editor-popover'; // eslint-disable-line no-unused-vars
-import Keyboard from './editor-keyboard'; // eslint-disable-line no-unused-vars
-import Shortcuts from './editor-shortcuts'; // eslint-disable-line no-unused-vars
+import MathAtom from '../core/mathAtom.js';
+import Span from '../core/span.js';
+import Lexer from '../core/lexer.js';
+import ParserModule from '../core/parser.js';
+import Color from '../core/color.js';
+import '../core/definitions.js';
+import '../addons/outputLatex.js';
+import './editor-popover.js';
+import './editor-keyboard.js';
+import './editor-shortcuts.js';
 
 const KEYBOARDS = {
     'numeric': {

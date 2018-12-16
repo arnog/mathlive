@@ -47,13 +47,13 @@ UndoManager.prototype.canRedo = function() {
  */
 UndoManager.prototype.undo = function(options) {
     if (this.canUndo()) {
-        if (options && options.onUndoStateWillChange) {
-            options.onUndoStateWillChange('undo');
+        if (options && typeof options.onUndoStateWillChange === 'function') {
+            options.onUndoStateWillChange(this.mathlist.target, 'undo');
         }
         this.restore(this.stack[this.index], options);
         this.index -= 1;
-        if (options && options.onUndoStateDidChange) {
-            options.onUndoStateDidChange('undo');
+        if (options && typeof options.onUndoStateDidChange === 'function') {
+            options.onUndoStateDidChange(this.mathlist.target, 'undo');
         }
     }
 }
@@ -66,13 +66,13 @@ UndoManager.prototype.undo = function(options) {
  */
 UndoManager.prototype.redo = function(options) {
     if (this.canRedo()) {
-        if (options && options.onUndoStateWillChange) {
-            options.onUndoStateWillChange('redo');
+        if (options && options.onUndoStateWillChange === 'function') {
+            options.onUndoStateWillChange(this.mathlist.target, 'redo');
         }
         this.index += 1;
         this.restore(this.stack[this.index], options);
-        if (options && options.onUndoStateDidChange) {
-            options.onUndoStateDidChange('redo');
+        if (options && typeof options.onUndoStateDidChange === 'function') {
+            options.onUndoStateDidChange(this.mathlist.target, 'redo');
         }
     }
 }
@@ -86,8 +86,8 @@ UndoManager.prototype.redo = function(options) {
  * @private
  */
 UndoManager.prototype.snapshot = function(options) {
-    if (options && options.onUndoStateWillChange) {
-        options.onUndoStateWillChange('snapshot');
+    if (options && options.onUndoStateWillChange === 'function') {
+        options.onUndoStateWillChange(this.mathlist.target, 'snapshot');
     }
     // Drop any entries that are part of the redo stack
     this.stack.splice(this.index + 1, this.stack.length - this.index - 1);
@@ -105,8 +105,8 @@ UndoManager.prototype.snapshot = function(options) {
     if (this.stack.length > this.maximumDepth) {
         this.stack.shift();
     }
-    if (options && options.onUndoStateDidChange) {
-        options.onUndoStateDidChange('snapshot');
+    if (options && typeof options.onUndoStateDidChange === 'function') {
+        options.onUndoStateDidChange(this.mathlist.target, 'snapshot');
     }
 }
 

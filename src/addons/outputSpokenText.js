@@ -1,9 +1,9 @@
 
 
 
-import MathAtom from '../core/mathAtom';
-import Definitions from '../core/definitions'; // eslint-disable-line no-unused-vars
-import Popover from '../editor/editor-popover';
+import MathAtom from '../core/mathAtom.js';
+import Definitions from '../core/definitions.js'; // eslint-disable-line no-unused-vars
+import Popover from '../editor/editor-popover.js';
 
 // Markup
 // Two common flavor of markups: SSML and 'mac'. The latter is only available

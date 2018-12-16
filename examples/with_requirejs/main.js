@@ -1,6 +1,6 @@
 
-define(['jquery', 'mathlive/mathlive'], 
-    function($, MathLive) {
+define(['mathlive/mathlive'], 
+    function(MathLive) {
     // Render all the static math in the document
     MathLive.renderMathInDocument({ignoreClass: "mathfield"});
 

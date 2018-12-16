@@ -23,10 +23,10 @@
  * @private
  */
 
-import Definitions from './definitions';
-import Span from './span';
-import Mathstyle from './mathstyle';
-import FontMetrics from './fontMetrics';
+import Definitions from './definitions.js';
+import Span from './span.js';
+import Mathstyle from './mathstyle.js';
+import FontMetrics from './fontMetrics.js';
 
 const makeSymbol = Span.makeSymbol;
 const makeStyleWrap = Span.makeStyleWrap;

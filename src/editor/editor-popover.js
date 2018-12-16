@@ -1,11 +1,11 @@
 
 
-import Definitions from '../core/definitions'; // eslint-disable-line no-unused-vars
-import MathAtom from '../core/mathAtom';
-import Lexer from '../core/lexer';
-import ParserModule from '../core/parser';
-import Span from '../core/span';
-import Shortcuts from './editor-shortcuts';
+import Definitions from '../core/definitions.js'; // eslint-disable-line no-unused-vars
+import MathAtom from '../core/mathAtom.js';
+import Lexer from '../core/lexer.js';
+import ParserModule from '../core/parser.js';
+import Span from '../core/span.js';
+import Shortcuts from './editor-shortcuts.js';
 
 
 

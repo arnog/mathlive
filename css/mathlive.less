@@ -28,7 +28,7 @@
 
 
 // The mu (mathematical unit) is defined by TeX as 1/18 em
-@mu: 1.0/18.0em;
+@mu: 1/18em;
 
 .sr-only {
     border: 0;
@@ -367,8 +367,8 @@
         > .root {
             // These values are taken from the definition of `\r@@t`,
             // `\mkern 5mu` and `\mkern -10mu`.
-            margin-left: 5*@mu;
-            margin-right: -10*@mu;
+            margin-left: 5*(@mu);
+            margin-right: -10*(@mu);
         }
     }
 

@@ -11,7 +11,7 @@
  * @private
  */
 
-import FontMetrics from './fontMetrics';
+import FontMetrics from './fontMetrics.js';
 
 const sigmas = FontMetrics.sigmas;
 

@@ -21,7 +21,7 @@ MathLive is a JavaScript library to render and edit math.
 * Fast and small
 * <span style="font-family: Times, 'Times New Roman', serif">T<sub style="vertical-align:-0.5ex;margin-left: -0.1667em;margin-right: -0.125em;">E</sub></span>X-quality typesetting
 * Easy to use interface for math editing
-* Works great on desktop and on mobile devices thanks to a extensive set of virtual keyboards. 
+* Works great on desktop and on mobile devices thanks to an extensive set of virtual keyboards. 
 * Comprehensive APIs, including generation of <span style="font-family: Times, 'Times New Roman', serif">L<sup style="letter-spacing: 1px;font-size: 0.85em;vertical-align: 0.15em;margin-left: -0.36em;margin-right: -0.15em">A</sup>T<sub style="vertical-align:-0.5ex;margin-left: -0.1667em;margin-right: -0.125em;">E</sub>X</span>, **MathML** and **Abstract Syntax Tree (MASTON)**
 * And it is easy to customize to your needs! Try it at [mathlive.io](https://mathlive.io)!
 
@@ -53,7 +53,7 @@ MathLive is a JavaScript library to render and edit math.
 
 ### To display math
 You can use MathLive to simply render math equations by 
-[adding a few lines to your web page](USAGE_GUIDE.md). 
+[adding a few lines to your web page](tutorials/USAGE_GUIDE.md). 
 
 ```html
 <!doctype html><html lang="en-US">
@@ -64,10 +64,10 @@ You can use MathLive to simply render math equations by
 </head>
 <body>
     <h1>Euler's Identity</h1>
-    <p>$$e^{i\pi} + 1 = 0$$</p>
+    <p>$$e^{i\pi} + 1 = 0$$</p> 
 
-    <script src="mathlive.js"></script>
-    <script>
+    <script type='module'> 
+        import MathLive from 'dist/mathlive.mjs';
         MathLive.renderMathInDocument();
     </script>
 </body>
@@ -88,12 +88,10 @@ including extracting its content, inserting placeholders and more.
     <link rel="stylesheet" href="mathlive/mathlive.css">
 </head>
 <body>
-    <div id='mathfield'>
-        f(x)=
-    </div>
+    <div id='mathfield'>f(x)=</div>
 
-    <script src="mathlive/mathlive.js"></script>
-    <script>
+    <script type='module'> 
+        import MathLive from 'dist/mathlive.mjs';
         const mathfield = MathLive.makeMathField('mathfield');
     </script>
 </body>
@@ -109,12 +107,12 @@ has all the details.
 * Want to contribute some code for an issue or a feature? Read the 
 [Contributor Guide](tutorials/CONTRIBUTOR_GUIDE.md) and the 
 [docs](http://docs.mathlive.io). Looking for inspiration? Pick one of
-those open issues for [beginners](https://github.com/arnog/mathlive/labels/BEGINNER)
+the [good first issues](https://github.com/arnog/mathlive/labels/good%20first%20issue)
 
 ## More Questions?
 
 * Join our Slack channel at https://mathlive.slack.com. 
-* Drop a line to arno@arno.org or tweet [@arnog](https://twitter.com/arnog).
+* Drop a line to arno@arno.org or [/u/real_arnog](https://www.reddit.com/user/real_arnog)
 
 ## License
 

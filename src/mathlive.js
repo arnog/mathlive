@@ -12,13 +12,13 @@
  * @module mathlive
  */
 
-import Lexer from './core/lexer';
-import MathAtom from './core/mathAtom';
-import ParserModule from './core/parser';
-import Span from './core/span';
-import Definitions from './core/definitions';
-import MathField from './editor/editor-mathfield';
-import AutoRender from './addons/auto-render';
+import Lexer from './core/lexer.js';
+import MathAtom from './core/mathAtom.js';
+import ParserModule from './core/parser.js';
+import Span from './core/span.js';
+import Definitions from './core/definitions.js';
+import MathField from './editor/editor-mathfield.js';
+import AutoRender from './addons/auto-render.js';
 
 /**
  * Convert a LaTeX string to a string of HTML markup.
@@ -103,24 +103,14 @@ function toMarkup(text, mathstyle, format, macros) {
     return wrapper.toMarkup();
 }
 
-/**
- * @callback module:mathlive.mathfieldCallback
- * @param {Mathfield}
- *
- * @callback module:mathlive.mathfieldWithDirectionCallback
- * @param {Mathfield}
- * @param {number} direction
- * @return {boolean} False to suppress default behavior.
- */
-
 
 
 /**
  * Convert a DOM element into an editable math field.
- *
- * @param {HTMLElement|string} element An HTML DOM element, for example as obtained
- * by `.getElementById()` or a string representing the ID of a DOM element.
- *
+ * 
+ * @param {HTMLElement|string} element An HTML DOM element, for example as obtained 
+ * by `.getElementById()`, or a string representing the ID of a DOM element.
+ * 
  * @param {Object<string, *>} [config]
  *
  * @param {number} [config.horizontalSpacingScale=1.0] - Scaling factor to be
@@ -136,30 +126,68 @@ function toMarkup(text, mathstyle, format, macros) {
  * on mobile devices the TextArea is automatically replaced with a `<span>` to
  * prevent the device virtual keyboard from being displayed.
  *
- * @param {mathfieldCallback} [config.onFocus] - Invoked when the mathfield has
+ * @param {function(mathfield)} [config.onFocus] - Invoked when the mathfield has
  * gained focus
  *
- * @param {mathfieldCallback} [config.onBlur] - Invoked when the mathfield has
+ * @param {function(mathfield)} [config.onBlur] - Invoked when the mathfield has
  * lost focus
- *
- * @param {mathfieldCallback} [config.onKeystroke] - Invoked when a keystroke is
- * about to be processed. First argument is a string describing the keystroke,
- * the second is the keyboard event. Return false to stop handling of the event.
+ * 
+ * @param {function(mathfield, keystroke:string, ev:Event):boolean} [config.onKeystroke] - Invoked when a keystroke is
+ * about to be processed. 
+ * - `keystroke` is a string describing the keystroke
+ * - `ev` is the keyboard event. 
+ * 
+ * Return false to stop handling of the event.
  *
  * @param {boolean} [config.overrideDefaultInlineShortcuts=false] - If true
  * the default inline shortcuts (e.g. 'p' + 'i' = 'π') are ignored.
- *
- * @param {Object.<string, string>} [config.inlineShortcuts] - A map of shortcuts → replacement
- * value. For example `{ 'pi': '\\pi'}`. If `overrideDefaultInlineShortcuts` is
- * false, these shortcuts are applied after any default ones, and can therefore
- * override them.
- *
+ * 
+ * @param {Object.<string, string>} [config.inlineShortcuts] - A map of 
+ * shortcuts → replacement value. For example `{ 'pi': '\\pi'}`. 
+ * If `overrideDefaultInlineShortcuts` is false, these shortcuts are applied 
+ * after any default ones, and can therefore override them.
+ * 
+ * @param {number} [config.inlineShortcutTimeout=0] - Maximum time, in milliseconds, 
+ * between consecutive characters for them to be considered part of the same 
+ * shortcut sequence. 
+ * 
+ * A value of 0 is the same as infinity: any consecutive 
+ * character will be candidate for an inline shortcut, regardless of the 
+ * interval between this character and the previous one. 
+ * 
+ * A value of 250 will indicate that the maximum interval between two 
+ * characters to be considered part of the same inline shortcut sequence is 
+ * 1/4 of a second.
+ * 
+ * This is useful to enter "+-" as a sequence of two characters, while also 
+ * supporting the "±" shortcut with the same sequence.
+ * The first result can be entered by pausing slightly between the first and 
+ * second character if this option is set to a value of 250 or so.
+ * 
+ * @param {number|string} [config.inlineShortcutConversionDelay=0] - Time, in 
+ * milliseconds, before an inline shortcut is converted. 
+ * 
+ * If the value is 0, the inline shortcut is converted as soon as it is 
+ * recognized. This can cause issues if there are overlapping shortcuts. 
+ * For example, if there is a 'del' shortcut, the 'delta' shortcut would never 
+ * get triggered. 
+ * 
+ * Setting a small value, for example 250 ms, ensures that the longer shortcut 
+ * can be typed without triggering the first one. 
+ * 
+ * The value can also be set to 'auto', in which case the delay is 0 if the 
+ * shortcut sequence is unambiguous and a small delay otherwise.
+ * 
  * @param {boolean} [config.smartFence=true] - If true, when an open fence is
  * entered via `typedText()` it will generate a contextually appropriate markup,
  * for example using `\left...\right` if applicable. If false, the literal
  * value of the character will be inserted instead.
- *
- * @param {string} [config.virtualKeyboardToggleGlyph] - If specified, the markup
+ * 
+ * @param {boolean} [config.ignoreSpacebarInMathMode=true] - If true, when the 
+ * spacebar is pressed, no space is inserted. If false, a space is inserted
+ * when the spacebar is pressed.
+ * 
+ * @param {string} [config.virtualKeyboardToggleGlyph] - If specified, the markup 
  * to be used to display the virtual keyboard toggle glyph.
  *
  * @param {string} [config.virtualKeyboardMode=''] - If `'manual'`, pressing the
@@ -190,8 +218,8 @@ function toMarkup(text, mathstyle, format, macros) {
  * additional keyboards. Each key in the object is an ID for a separate keyboard.
  * The key should have a value made up of an object with the following keys:
  *    * tooltip: a string label describing the keyboard.
- *    * label: a string, displayed in the keyboard switcher to identify this
- *           keyboard
+ *    * label: a string, displayed in the keyboard switcher to identify this 
+ *      keyboard
  *    * layers: an array of strings, the ID of the layers used by this keyboard.
  *     These layers should be defined using `customVirtualKeyboardLayers`.
  *    * classes: a string, the classes to be added to the label for this keyboard
@@ -206,12 +234,13 @@ function toMarkup(text, mathstyle, format, macros) {
  * for the virtual keyboard. If empty, the theme will switch automatically
  * based on the device it's running on. The two supported themes are
  * 'material' and 'apple' (the default).
- *
- * @param {boolean} [config.keypressVibration='on'] When a key on the virtual
- * keyboard is pressed, produce a short haptic feedback.
- *
- * @param {boolean} [config.keypressSound=''] When a key on the virtual
- * keyboard is pressed, produce a short audio feedback. The value should be
+ * 
+ * @param {boolean} [config.keypressVibration='on'] When a key on the virtual 
+ * keyboard is pressed, produce a short haptic feedback, if the device supports
+ * it.
+ * 
+ * @param {boolean} [config.keypressSound=''] When a key on the virtual 
+ * keyboard is pressed, produce a short audio feedback. The value should be 
  * either a URL to a sound file or an object with the following keys:
  *    * `delete` URL to a sound file played when the delete key is pressed
  *    * `return` ... when the return/tab key is pressed
@@ -229,9 +258,9 @@ function toMarkup(text, mathstyle, format, macros) {
  * indicates that the Speech Rule Engine from Volker Sorge should be used.
  * Note that SRE is not included or loaded by MathLive and for this option to
  * work SRE should be loaded separately.
- *
- * @param {string} [config.textToSpeechMarkup=''] The markup syntax to use
- * for the output of conversion to spoken text. Possible values are `ssml` for
+ * 
+ * @param {string} [config.textToSpeechMarkup=''] The markup syntax to use 
+ * for the output of conversion to spoken text. Possible values are `ssml` for 
  * the SSML markup or `mac` for the MacOS markup (e.g. `[[ltr]]`)
  *
  * @param {*} [config.textToSpeechRulesOptions={}] A set of value/pair that can
@@ -255,74 +284,64 @@ function toMarkup(text, mathstyle, format, macros) {
  * For example `200%` to indicate a speaking rate twice the default rate. Range
  * is `20%` to `200%`
  *
- * @param {mathfieldWithDirectionCallback} [config.onMoveOutOf] - A handler
- * called when keyboard navigation would cause the insertion point to leave the
- * mathfield.
+ * @param {function(mathfield, direction:string):boolean} [config.onMoveOutOf] - A handler
+ * invoked when keyboard navigation would cause the insertion point to leave the
+ * mathfield. 
+ * 
+ * The argument indicates the direction of the navigation, either 
+ * `"forward"` or `"backward"`. 
+ * 
+ * Return `false` to prevent the move, `true` to
+ * wrap around to the start of the field.
  *
  * By default, the insertion point will wrap around.
  *
- * @param {mathfieldWithDirectionCallback} [config.onTabOutOf] - A handler called when
+ * @param {function(mathfield, direction:string)} [config.onTabOutOf] - A handler invoked when
  * pressing tab (or shift-tab) would cause the insertion point to leave the mathfield.
+ * 
+ * The argument indicates the direction of the navigation, either 
+ * `"forward"` or `"backward"`. 
  *
- * By default, the insertion point jumps to the next point of interest.
+ * By default, the insertion point jumps to the next/previous focussable element.
  *
- * @param {mathfieldWithDirectionCallback} [config.onDeleteOutOf] - A handler called when
- * deleting an item would cause the insertion point to leave the mathfield.
- *
- * By default, nothing happens. @todo Not implemented yet.
- *
- * @param {mathfieldWithDirectionCallback} [config.onSelectOutOf] - A handler called when
- * the selection is extended so that it would cause the insertion point to
- * leave the mathfield.
- *
- * By default, nothing happens. @todo Not implemented yet.
- *
- * @param {mathfieldCallback} [config.onUpOutOf] - A handler called when
- * the up arrow key is pressed with no element to navigate to.
- *
- * By default, nothing happens. @todo Not implemented yet.
- *
- * @param {mathfieldCallback} [config.onDownOutOf] - A handler called when
- * the up down key is pressed with no element to navigate to.
- *
- * By default, nothing happens. @todo Not implemented yet.
- *
- * @param {mathfieldCallback} [config.onEnter] - A handler called when
- * the enter/return key is pressed and it is not otherwise handled. @todo
- *
- * @param {mathfieldCallback} [config.onContentWillChange] - A handler called
+ * @param {function(mathfield)} [config.onContentWillChange] - A handler invoked
  * just before the content is about to be changed.
  *
- * @param {mathfieldCallback} [config.onContentDidChange] - A handler called
+ * @param {function(mathfield)} [config.onContentDidChange] - A handler invoked
  * just after the content has been changed.
  *
- * @param {mathfieldCallback} [config.onSelectionWillChange] - A handler called
+ * @param {function(mathfield)} [config.onSelectionWillChange] - A handler invoked
  * just before the selection is about to be changed.
  *
- * @param {mathfieldCallback} [config.onSelectionDidChange] - A handler called
+ * @param {function(mathfield)} [config.onSelectionDidChange] - A handler invoked
  * just after the selection has been changed.
  *
- * @param {mathfieldCallback} [config.onUndoStateWillChange] - A handler called
- * before a change in the undo stack state. The single parameter is a string
- * indication what caused the state change: `undo`, `redo` or `snapshot`.
+ * @param {function(mathfield, command:string)} [config.onUndoStateWillChange] - A handler invoked
+ * before a change in the undo stack state. The `command` argument is a string
+ * indication what caused the state change: `"undo"`, `"redo"` or `"snapshot"`.
  *
- * @param {mathfieldCallback} [config.onUndoStateDidChange] - A handler called
- * after a change in the undo stack state. The single parameter is a string
- * indication what caused the state change: `undo`, `redo` or `snapshot`.
+ * @param {function(mathfield, command:string)} [config.onUndoStateDidChange] - A handler invoked
+ * after a change in the undo stack state. The `command` argument is a string
+ * indication what caused the state change: `"undo"`, `"redo"` or `"snapshot"`.
  *
- * @param {mathfieldCallback} [config.onVirtualKeyboardToggle] - A handler
- * called after the virtual keyboard visibility has changed. The first argument
- * is true if the virtual keyboard is visible, the second argument is a DOM
+ * @param {function(mathfield, visible:boolean, keyboard:HTMLDivElement)} [config.onVirtualKeyboardToggle] - A handler
+ * invoked after the virtual keyboard visibility has changed. 
+ * 
+ * The `visible` argument is true if the virtual keyboard is visible.
+ * 
+ * The second argument is a DOM
  * element containing the virtual keyboard, which can be used to determine its
- * size (and therefore the portion of the screen it obscures)
+ * size, and therefore the portion of the screen it obscures.
  *
- * @param {mathfieldCallback} [config.onReadAloudStatus] - A handler called
- * when the status of read aloud changes. The first argument is a string denoting
- * the status, one of `playing` sent when reading begins, `done` when reading
- * has been completed, `paused` when reading has been temporarily paused by the
- * user.
+ * @param {function(mathfield, status:string)} [config.onReadAloudStatus] - A handler invoked
+ * when the status of read aloud changes. 
+ * 
+ * The `status` argument is a string denoting the status:
+ * - `"playing"` when reading begins
+ * - `"done"` when reading has been completed,
+ * - `"paused"` when reading has been temporarily paused by the user
  *
- * @param {*} [config.handleSpeak] - A callback invoked to produce speech from
+ * @param {function(string, config:object)} [config.handleSpeak] - A callback invoked to produce speech from
  * a string.
  *
  * @param {*} [config.handleReadAloud] - A callback invoked to produce speech
@@ -341,18 +360,6 @@ function makeMathField(element, config) {
     config.handleSpeak = config.handleSpeak || speak;
     config.handleReadAloud = config.handleReadAloud || readAloud;
     return new MathField.MathField(getElement(element), config);
-}
-
-/**
- * @return {string}
- * @function module:mathlive#latexToSpeakableText
- */
-function toSpeakableText(atoms, options) {
-    if (!MathAtom.toSpeakableText) {
-        console.log('The SpokenText module is not loaded.');
-        return;
-    }
-    MathAtom.toSpeakableText(atoms, options);
 }
 
 /**
@@ -515,8 +522,8 @@ function speak(text, config) {
 }
 
 /**
- * Start a Read Aloud operation (reading with synchronized highlighting.
- *
+ * Start a Read Aloud operation (reading with synchronized highlighting).
+ * 
  * @param {DOMElement} element - The DOM element to highlight
  * @param {string} text - The text to speak
  * @param {object} config
@@ -586,7 +593,7 @@ function readAloud(element, text, config) {
                             if (!window.mathlive.readAloudAudio) {
                                 window.mathlive.readAloudAudio = new Audio();
                                 window.mathlive.readAloudAudio.addEventListener('ended', () => {
-                                    if (status) status('ended');
+                                    if (status) status(window.mathlive.readAloudMathField, 'ended');
                                     if (window.mathlive.readAloudMathField) {
                                         window.mathlive.readAloudMathField._render();
                                         window.mathlive.readAloudElement = null;
@@ -627,7 +634,7 @@ function readAloud(element, text, config) {
 
                             window.mathlive.readAloudAudio.src = url;
                             if (status) {
-                                status('playing');
+                                status(window.mathlive.readAloudMathField, 'playing');
                             }
                             window.mathlive.readAloudAudio.play();
                         } else {
@@ -670,7 +677,7 @@ function pauseReadAloud() {
     window.mathlive = window.mathlive || {};
     if (window.mathlive.readAloudAudio) {
         if (window.mathlive.onReadAloudStatus) {
-            window.mathlive.onReadAloudStatus('paused');
+            window.mathlive.onReadAloudStatus(window.mathlive.readAloudMathField, 'paused');
         }
         window.mathlive.readAloudAudio.pause();
     }
@@ -685,7 +692,7 @@ function resumeReadAloud() {
     window.mathlive = window.mathlive || {};
     if (window.mathlive.readAloudAudio) {
         if (window.mathlive.onReadAloudStatus) {
-            window.mathlive.onReadAloudStatus('playing');
+            window.mathlive.onReadAloudStatus(window.mathlive.readAloudMathField, 'playing');
         }
         window.mathlive.readAloudAudio.play();
     }
@@ -721,7 +728,7 @@ function playReadAloud(token, count) {
         }
         window.mathlive.readAloudAudio.currentTime = timeIndex;
         if (window.mathlive.onReadAloudStatus) {
-            window.mathlive.onReadAloudStatus('playing');
+            window.mathlive.onReadAloudStatus(window.mathlive.readAloudMathField, 'playing');
         }
         window.mathlive.readAloudAudio.play();
     }
@@ -878,23 +885,23 @@ function getOriginalContent(element, options) {
         (options.namespace || '') + 'original-content');
 }
 
-
-export default {
+const MathLive = {
     latexToMarkup: toMarkup,
-    latexToSpeakableText: toSpeakableText,
     latexToMathML: toMathML,
-    latexToAST: latexToAST,
-    makeMathField: makeMathField,
-    renderMathInDocument: renderMathInDocument,
-    renderMathInElement: renderMathInElement,
-    revertToOriginalContent: revertToOriginalContent,
-    getOriginalContent: getOriginalContent,
-    readAloud: readAloud,
-    readAloudStatus: readAloudStatus,
-    pauseReadAloud: pauseReadAloud,
-    resumeReadAloud: resumeReadAloud,
-    playReadAloud: playReadAloud
-}
+    latexToAST,
+    makeMathField,
+    renderMathInDocument,
+    renderMathInElement,
+    revertToOriginalContent,
+    getOriginalContent,
+    readAloud,
+    readAloudStatus,
+    pauseReadAloud,
+    resumeReadAloud,
+    playReadAloud
+};
+
+export default MathLive;
 
 
 

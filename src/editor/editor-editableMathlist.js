@@ -11,11 +11,11 @@
  * @module editor/editableMathlist
  * @private
  */
-import Definitions from '../core/definitions';
-import MathAtom from '../core/mathAtom';
-import Lexer from '../core/lexer';
-import ParserModule from '../core/parser';
-import MathPath from './editor-mathpath';
+import Definitions from '../core/definitions.js';
+import MathAtom from '../core/mathAtom.js';
+import Lexer from '../core/lexer.js';
+import ParserModule from '../core/parser.js';
+import MathPath from './editor-mathpath.js';
 
 
 /**
@@ -34,8 +34,8 @@ import MathPath from './editor-mathpath';
  * ```
  *
  * @param {Object} config
- * @param {function} announce - A callback invoked when there is some spoken
- * feedback available.
+ * @param {Object} target - A target object passed as the first argument of 
+ * callback functions. Typically, a MathField.
  * @property {Array.<MathAtom>} root - The root element of the math expression.
  * @property {Array.<Object>} path - The path to the element that is the
  * anchor for the selection.
@@ -51,28 +51,28 @@ import MathPath from './editor-mathpath';
  * @global
  * @memberof module:editor/editableMathlist
  */
-function EditableMathlist(config, announce) {
+function EditableMathlist(config, target) {
     this.root = MathAtom.makeRoot();
     this.path = [{relation: 'body', offset: 0}];
     this.extent = 0;
 
     this.config = Object.assign({}, config);
-    this.announce = announce;
+    this.target = target;
 
     this.contentIsChanging = false;
     this.suppressSelectionChangeNotifications = false;
 }
 
 function clone(mathlist) {
-    const result = Object.assign(new EditableMathlist(mathlist.config), mathlist);
+    const result = Object.assign(new EditableMathlist(mathlist.config, mathlist.target), mathlist);
     result.path = MathPath.clone(mathlist.path);
     return result;
 }
 
 
 EditableMathlist.prototype._announce = function(command, mathlist, atoms) {
-    if (typeof this.announce === 'function') {
-        this.announce(command, mathlist, atoms);
+    if (typeof this.config.onAnnounce === 'function') {
+        this.onAnnounce(this.target, command, mathlist, atoms);
     }
 }
 
@@ -170,14 +170,14 @@ EditableMathlist.prototype.adjustPlaceholder = function() {
 }
 
 EditableMathlist.prototype.selectionWillChange = function() {
-    if (!this.suppressSelectionChangeNotifications) {
-        if (this.config.onSelectionWillChange) this.config.onSelectionWillChange();
+    if (typeof this.config.onSelectionWillChange === 'function' && !this.suppressSelectionChangeNotifications) {
+        this.config.onSelectionWillChange(this.target);
     }
 }
 
 EditableMathlist.prototype.selectionDidChange = function() {
-    if (!this.suppressSelectionChangeNotifications) {
-        if (this.config.onSelectionDidChange) this.config.onSelectionDidChange();
+    if (typeof this.config.onSelectionDidChange === 'function' && !this.suppressSelectionChangeNotifications) {
+        this.config.onSelectionDidChange(this.target);
     }
 }
 
@@ -1034,9 +1034,9 @@ EditableMathlist.prototype.next = function(options) {
         // No more siblings, go up to the parent.
         if (this.path.length === 1) {
             // Invoke handler and perform default if they return true.
-            if (this.suppressSelectionChangeNotifications ||
-                !this.config.onMoveOutOf ||
-                this.config.onMoveOutOf(this, +1)) {
+            if (this.suppressSelectionChangeNotifications || 
+                !this.config.onMoveOutOf || 
+                this.config.onMoveOutOf(this, 'forward')) {
                 // We're at the root, so loop back
                 this.path[0].offset = 0;
             }
@@ -1146,9 +1146,9 @@ EditableMathlist.prototype.previous = function(options) {
         // No more siblings, go up to the parent.
         if (this.path.length === 1) {
             // Invoke handler and perform default if they return true.
-            if (this.suppressSelectionChangeNotifications ||
-                !this.config.onMoveOutOf ||
-                this.config.onMoveOutOf(this, -1)) {
+            if (this.suppressSelectionChangeNotifications || 
+                !this.config.onMoveOutOf || 
+                this.config.onMoveOutOf.bind(this)(-1)) {
                 // We're at the root, so loop back
                 this.path[0].offset = this.root.body.length - 1;
             }
@@ -1493,31 +1493,29 @@ EditableMathlist.prototype.leap = function(dir, callHandler) {
     if (placeholders.length === 0) {
         if (callHandler) {
             if (this.config.onTabOutOf) {
-                this.config.onTabOutOf(this, dir);
-            } else {
-                if (document.activeElement) {
-                    const focussableElements = `a[href]:not([disabled]),
-                        button:not([disabled]),
-                        textarea:not([disabled]),
-                        input[type=text]:not([disabled]),
-                        select:not([disabled]),
-                        [contentEditable="true"],
-                        [tabindex]:not([disabled]):not([tabindex="-1"])`;
-                    // Get all the potentially focusable elements
-                    // and exclude (1) those that are invisible (width and height = 0)
-                    // (2) not the active element
-                    // (3) the ancestor of the active element
+                this.config.onTabOutOf(this.target, dir > 0 ? 'forward' : 'backward');
+            } else if (document.activeElement) {
+                const focussableElements = `a[href]:not([disabled]),
+                    button:not([disabled]),
+                    textarea:not([disabled]),
+                    input[type=text]:not([disabled]),
+                    select:not([disabled]),
+                    [contentEditable="true"],
+                    [tabindex]:not([disabled]):not([tabindex="-1"])`;
+                // Get all the potentially focusable elements
+                // and exclude (1) those that are invisible (width and height = 0)
+                // (2) not the active element
+                // (3) the ancestor of the active element
 
-                    const focussable = Array.prototype.filter.call(document.querySelectorAll(focussableElements),  element =>
-                        ((element.offsetWidth > 0 || element.offsetHeight > 0) &&
-                        !element.contains(document.activeElement)) ||
-                        element === document.activeElement
-                    );
-                    let index = focussable.indexOf(document.activeElement) + dir;
-                    if (index < 0) index = focussable.length - 1;
-                    if (index >= focussable.length) index = 0;
-                    focussable[index].focus();
-                }
+                const focussable = Array.prototype.filter.call(document.querySelectorAll(focussableElements),  element =>
+                    ((element.offsetWidth > 0 || element.offsetHeight > 0) &&
+                    !element.contains(document.activeElement)) ||
+                    element === document.activeElement
+                );
+                let index = focussable.indexOf(document.activeElement) + dir;
+                if (index < 0) index = focussable.length - 1;
+                if (index >= focussable.length) index = 0;
+                focussable[index].focus();
             }
         }
         return false;
@@ -1597,7 +1595,9 @@ function removeParen(list) {
  */
 EditableMathlist.prototype.insert = function(s, options) {
     // Dispatch notifications
-    if (this.config.onContentWillChange && !this.contentIsChanging) this.config.onContentWillChange();
+    if (typeof this.config.onContentWillChange === 'function' && !this.contentIsChanging) {
+        this.config.onContentWillChange(this.target);
+    }
     const contentWasChanging = this.contentIsChanging;
     this.contentIsChanging = true;
 
@@ -1725,7 +1725,9 @@ EditableMathlist.prototype.insert = function(s, options) {
 
     // Dispatch notifications
     this.contentIsChanging = contentWasChanging;
-    if (this.config.onContentDidChange && !this.contentIsChanging) this.config.onContentDidChange();
+    if (typeof this.config.onContentDidChange === 'function' && !this.contentIsChanging) {
+        this.config.onContentDidChange(this.target);
+    }
 }
 
 
@@ -1932,7 +1934,9 @@ EditableMathlist.prototype.delete = function(count) {
  */
 EditableMathlist.prototype.delete_ = function(dir) {
     // Dispatch notifications
-    if (this.config.onContentWillChange && !this.contentIsChanging) this.config.onContentWillChange();
+    if (typeof this.config.onContentWillChange === 'function' && !this.contentIsChanging) {
+        this.config.onContentWillChange(this.target);
+    }
     const contentWasChanging = this.contentIsChanging;
     this.contentIsChanging = true;
 
@@ -2047,7 +2051,9 @@ EditableMathlist.prototype.delete_ = function(dir) {
     }
     // Dispatch notifications
     this.contentIsChanging = contentWasChanging;
-    if (this.config.onContentDidChange && !this.contentIsChanging) this.config.onContentDidChange();
+    if (typeof this.config.onContentDidChange === 'function' && !this.contentIsChanging) {
+        this.config.onContentDidChange(this.target);
+    }
 }
 
 

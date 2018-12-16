@@ -42,13 +42,14 @@
     </main>
 
 
-<script src="../../dist/mathlive.js"></script>
-<script> 
+<script type='module'> 
+    import MathLive from '../../dist/mathlive.mjs';
     const mf = MathLive.makeMathField('mf', {
         onContentDidChange: mf => {
             document.getElementById('output').innerHTML = mf.latex();
         }
     });
+
 </script>
 
 </body></html>
