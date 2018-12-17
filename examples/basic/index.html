@@ -43,16 +43,12 @@
 
 
 <script src="../../dist/mathlive.js"></script>
-<script>
-    (function() {
+<script> 
     const mf = MathLive.makeMathField('mf', {
-        onContentDidChange: updateOutput
+        onContentDidChange: mf => {
+            document.getElementById('output').innerHTML = mf.latex();
+        }
     });
-
-    function updateOutput(mathfield) {
-        document.getElementById('output').innerHTML = mathfield.latex();
-    }
-    })();
 </script>
 
 </body></html>

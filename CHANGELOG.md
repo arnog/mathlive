@@ -1,7 +1,108 @@
+## 0.24
+
+### Breaking Changes
+- Several handlers had some inconsistent signatures, or in some cases passed
+invalid values as their arguments. This has been fixed, but it 
+required changing the signature of some handlers. For consistency, the first 
+argument of the handlers now refers to the mathfield to which it applies.
+
+```javascript
+    MathLive.makeMathField('input', {
+        onContentDidChange: mf => {
+            document.getElementById('output').innerHTML = mf.latex();
+        }
+    });
+```
+
+Keep in mind that arrow functions lexically bind their context, so `this` 
+actually refers to the originating context (not to the mathfield).
+
+The affected handlers are:
+- `onFocus`
+- `onBlur`
+- `onKeystroke`
+- `onMoveOutOf`
+- `onTabOutOf`
+- `onContentWillChange`
+- `onContentDidChange`
+- `onSelectionWillChange`
+- `onSelectionDidChange`
+- `onUndoStateWillChange`
+- `onUndoStateDidChange`
+- `onVirtualKeyboardToggle`
+- `onReadAloudStatus`
+
+It is recommended that you check if you use any of those handlers and 
+validate their signatures.
+
+### Major New Features
+- Support for native JavaScript modules, contributed by 
+Jason Boxman (https://github.com/jboxman). Thanks, Jason!
+
+The previous method, using a `<script>` tag, is still supported:
+```html
+    <script src="../../dist/mathlive.js"></script>
+```
+but it is recommended to use native JavaScript modules:
+```html
+    <script type='module'> 
+        import MathLive from '../../dist/mathlive.mjs';
+    </script>
+```
+(note the `.mjs` extension indicating this is a JavaScript module).
+
+A few caveats about using modules:
+- JavaScript modules are automatically in strict mode
+- To use JavaScript modules you need to be in your own module. With a `<script>`
+tag, this is indicated by adding the `type='module'` attribute. The code inside
+a module is not leaked to the global scope, the module has its own scope. As a
+result, functions defined inside the module (inside your `<script>` tag) will
+not be visible outside the module. You will need to either attach them to a 
+global object (such as `window`) or in the case of even handlers, attach them
+to the relevant element, using `addEventListener`.
+
+See `examples/basic/index.esm.html` for a complete example.
+
+If you were previously loading the non-minified version, that is the raw sources,
+which can be useful to debug issues, you need to use modules to load them, while
+you may have used `requirejs` previously. The sources are now included in the 
+distribution for this purpose.
+
+Instead of:
+```javascript
+    define(['mathlive/src/mathlive'], function(MathLive) {
+        MathLive.makeMathField(/*...*/);
+    }
+```
+use:
+```javascript
+    import MathLive from '../../dist/src/mathlive.js';
+    MathLive.makeMathField(/*...*/);
+```
+- Support for SRE (Speech Rule Engine) from Volker Sorge. Optional, and needs
+to be installed separately.
+- Improved text to speech support, including karaoke mode (read aloud with 
+synchronized highlighting)
+- New configuration setting to control the spacing between elements, 
+`horizontalSpacingScale`. Supplying a value > 1.0 can improve readability for 
+some users.
+- Added notifications when undo state change, `onUndoStateWillChange` and 
+`onUndoStateDidChange`
+- Added support for correctly inserting rows and columns in arrays.
+
+### Other Improvements
+- Fixes in MASTON
+- Improved cross-browser accessibility support
+- Fix MathML output for superscripts
+- Fix issue #75 (autoconvert would fail in some cases)
+- Fix issue #114. Incorrect selection when shift-select at the end.
+- Fix issue #78. Cross-out positioning issue
+
+
 ## 0.22 (April 11, 2018)
 
 ### Major New Features
-- Support for styling in the virtual keyboard UI: the text and highlihgt 
+- Support for styling in the virtual keyboard UI: the text and highlight 
 color can be adjusted to emphasize a portion of a formula
 - Smart Fences. When a fence ("(", "{", etc...) is inserted, a matching 
 closing fence is automatically inserted, displayed as a greyed out placeholder.<br>

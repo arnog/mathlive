@@ -17,7 +17,7 @@ The format of the output can be configured using the `textToSpeechMarkup` config
 The Amazon TTS engine supports SSML, and it is recommended to use this option for the highest quality.
 
 To use Volker Sorge's SRE:
-1. Include the browser version of the SRE Javascript file in your project. You can download it on [GitHub](https://github.com/zorkow/speech-rule-engine)
+1. Include the browser version of the SRE JavaScript file in your project. You can download it on [GitHub](https://github.com/zorkow/speech-rule-engine)
 2. Set the `textToSpeechRules` configuration key to `'sre'`.
 
 You can configure SRE by setting the `textToSpeechRulesOptions` configuration key. For example:
@@ -37,7 +37,7 @@ To use the local (built-in, OS specific) TTS engine, set the `speechEngine` conf
 There is great variation between platforms (and browsers) on the quality of the TTS engine. However, it can be used even when offline, while the Amazon TTS engine offers higher quality and better consistency, but it does require a network connection.
 
 ### Using Amazon Polly TTS Engine
-1. Include the AWS SDK for Javascript in your app. See [here for details](https://aws.amazon.com/sdk-for-browser/). 
+1. Include the AWS SDK for JavaScript in your app. See [here for details](https://aws.amazon.com/sdk-for-browser/). 
 This may be as simple as adding this:
 ```html
 <head>

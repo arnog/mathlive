@@ -14,7 +14,7 @@ regular stylesheet, but you will need both to display correctly formulas.
 <link rel="stylesheet" href="../../dist/mathlive.css">
 ```
 
-## Load the Javascript library
+## Load the JavaScript library
 Preferably at the end of your page, before the `</body>` tag, to avoid 
 blocking rendering.
 

@@ -1,0 +1,4434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"><title>Global - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    
+        <link rel="stylesheet" href="http://mathlive.io/sprint15/mathlive/mathlive.core.css" type="text/css"><link rel="stylesheet" href="http://mathlive.io/sprint15/mathlive/mathlive.css" type="text/css">
+    
+
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700|Source+Sans+Pro:400,400i,700,900" rel="stylesheet">
+    <style>pre.prettyprint{background: #35434e;}</style>
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow-night.css">
+
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/custom.css">
+</head>
+<body>
+
+
+<div class="forkme"><a href="https://github.com/arnog/mathlive"><img style="position: absolute; top: 0; right: 0; border: 0; z-index:1;" src="https://camo.githubusercontent.com/52760788cde945287fbb584134c4cbc2bc36f904/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"></a></div>
+
+
+<section role="navigation">
+    <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+    <label for="nav-trigger" class="navicon-button x">
+        <div class="navicon"></div>
+    </label>
+
+    <label for="nav-trigger" class="overlay"></label>
+
+    <nav id="nav">
+        <h3 class="group-title home"><a href="index.html">MathLive Docs</a></h3><input class="search" placeholder="Search" type="text"><div class="list"><h3 class="group-title">Tutorials</h3><ul><li><a href="tutorial-CONTRIBUTOR_GUIDE.html">Contributor Guide</a><ul></ul></li><li><a href="tutorial-MASTON.html">MASTON</a><ul></ul></li><li><a href="tutorial-USAGE_GUIDE.html">Usage Guide</a><ul><li><a href="tutorial-EXAMPLES.html">Examples</a></li><li><a href="tutorial-COMMANDS_REFERENCE.html">Commands Reference</a></li></ul></li></ul><h3 class="group-title">Modules</h3><ul><li class="private"><a href="module-color.html" class="className">color</a><ul class='methods private'><li data-type='method' class='private'><a href="module-color.html#.stringToColor" class="methodName">stringToColor</a></li></ul></li><li class="private"><a href="module-definitions.html" class="className">definitions</a><ul class='methods private'><li data-type='method' class='private'><a href="module-definitions.html#.defineEnvironment" class="methodName">defineEnvironment</a></li><li data-type='method' class='private'><a href="module-definitions.html#.defineFunction" class="methodName">defineFunction</a></li><li data-type='method' class='private'><a href="module-definitions.html#.defineSymbol" class="methodName">defineSymbol</a></li><li data-type='method' class='private'><a href="module-definitions.html#.defineSymbolRange" class="methodName">defineSymbolRange</a></li><li data-type='method' class='private'><a href="module-definitions.html#.defineSymbols" class="methodName">defineSymbols</a></li><li data-type='method' class='private'><a href="module-definitions.html#.frequency" class="methodName">frequency</a></li><li data-type='method' class='private'><a href="module-definitions.html#.getInfo" class="methodName">getInfo</a></li><li data-type='method' class='private'><a href="module-definitions.html#.matchCodepoint" class="methodName">matchCodepoint</a></li><li data-type='method' class='private'><a href="module-definitions.html#.matchFunction" class="methodName">matchFunction</a></li><li data-type='method' class='private'><a href="module-definitions.html#.parseParamTemplateArgument" class="methodName">parseParamTemplateArgument</a></li><li data-type='method' class='private'><a href="module-definitions.html#.suggest" class="methodName">suggest</a></li><li data-type='method' class='private'><a href="module-definitions.html#~getSimpleString" class="methodName">getSimpleString</a></li><li data-type='method' class='private'><a href="module-definitions.html#~mathVariantToUnicode" class="methodName">mathVariantToUnicode</a></li></ul></li><li class="private"><a href="module-delimiters.html" class="className">delimiters</a><ul class='methods private'><li data-type='method' class='private'><a href="module-delimiters.html#.makeCustomSizedDelim" class="methodName">makeCustomSizedDelim</a></li><li data-type='method' class='private'><a href="module-delimiters.html#.makeInner" class="methodName">makeInner</a></li><li data-type='method' class='private'><a href="module-delimiters.html#.makeLargeDelim" class="methodName">makeLargeDelim</a></li><li data-type='method' class='private'><a href="module-delimiters.html#.makeLeftRightDelim" class="methodName">makeLeftRightDelim</a></li><li data-type='method' class='private'><a href="module-delimiters.html#.makeNullFence" class="methodName">makeNullFence</a></li><li data-type='method' class='private'><a href="module-delimiters.html#.makeSizedDelim" class="methodName">makeSizedDelim</a></li><li data-type='method' class='private'><a href="module-delimiters.html#.makeSmallDelim" class="methodName">makeSmallDelim</a></li><li data-type='method' class='private'><a href="module-delimiters.html#.makeStackedDelim" class="methodName">makeStackedDelim</a></li><li data-type='method' class='private'><a href="module-delimiters.html#.traverseSequence" class="methodName">traverseSequence</a></li><li data-type='method' class='private'><a href="module-delimiters.html#~delimTypeToFont" class="methodName">delimTypeToFont</a></li></ul></li><li class="private"><a href="module-editor_editableMathlist.html" class="className">editor/editableMathlist</a><ul class='methods private'><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~arrayCell" class="methodName">arrayCell</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~arrayCellCount" class="methodName">arrayCellCount</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~arrayColRow" class="methodName">arrayColRow</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~arrayIndex" class="methodName">arrayIndex</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~atomContains" class="methodName">atomContains</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~getString" class="methodName">getString</a></li></ul></li><li class="private"><a href="module-editor_keyboard.html" class="className">editor/keyboard</a><ul class='methods private'><li data-type='method' class='private'><a href="module-editor_keyboard.html#.delegateKeyboardEvents" class="methodName">delegateKeyboardEvents</a></li><li data-type='method' class='private'><a href="module-editor_keyboard.html#.keyboardEventToString" class="methodName">keyboardEventToString</a></li></ul></li><li class="private"><a href="module-editor_mathfield.html" class="className">editor/mathfield</a><ul class='methods private'><li data-type='method' class='private'><a href="module-editor_mathfield.html#nearestElementFromPoint" class="methodName">nearestElementFromPoint</a></li><li data-type='method' class='private'><a href="module-editor_mathfield.html#~_findElementWithCaret" class="methodName">_findElementWithCaret</a></li><li data-type='method' class='private'><a href="module-editor_mathfield.html#~_onAnnounce" class="methodName">_onAnnounce</a></li></ul></li><li class="private"><a href="module-editor_mathpath.html" class="className">editor/mathpath</a><ul class='methods private'><li data-type='method' class='private'><a href="module-editor_mathpath.html#.pathCommonAncestor" class="methodName">pathCommonAncestor</a></li><li data-type='method' class='private'><a href="module-editor_mathpath.html#.pathDistance" class="methodName">pathDistance</a></li><li data-type='method' class='private'><a href="module-editor_mathpath.html#.pathFromString" class="methodName">pathFromString</a></li><li data-type='method' class='private'><a href="module-editor_mathpath.html#.pathToString" class="methodName">pathToString</a></li></ul></li><li class="private"><a href="module-editor_shortcuts.html" class="className">editor/shortcuts</a><ul class='methods private'><li data-type='method' class='private'><a href="module-editor_shortcuts.html#.match" class="methodName">match</a></li><li data-type='method' class='private'><a href="module-editor_shortcuts.html#.matchKeystroke" class="methodName">matchKeystroke</a></li><li data-type='method' class='private'><a href="module-editor_shortcuts.html#.platform" class="methodName">platform</a></li><li data-type='method' class='private'><a href="module-editor_shortcuts.html#.stringify" class="methodName">stringify</a></li></ul></li><li class="private"><a href="module-fontMetrics.html" class="className">fontMetrics</a><ul class='methods private'><li data-type='method' class='private'><a href="module-fontMetrics.html#.getCharacterMetrics" class="methodName">getCharacterMetrics</a></li><li data-type='method' class='private'><a href="module-fontMetrics.html#~convertDimenToEm" class="methodName">convertDimenToEm</a></li></ul></li><li class="private"><a href="module-lexer.html" class="className">lexer</a><ul class='methods private'><li data-type='method' class='private'><a href="module-lexer.html#.tokenize" class="methodName">tokenize</a></li></ul></li><li class="private"><a href="module-mathAtom.html" class="className">mathAtom</a><ul class='methods private'><li data-type='method' class='private'><a href="module-mathAtom.html#.decompose" class="methodName">decompose</a></li><li data-type='method' class='private'><a href="module-mathAtom.html#.getFontName" class="methodName">getFontName</a></li><li data-type='method' class='private'><a href="module-mathAtom.html#.makeColGap" class="methodName">makeColGap</a></li><li data-type='method' class='private'><a href="module-mathAtom.html#.makeColOfRepeatingElements" class="methodName">makeColOfRepeatingElements</a></li><li data-type='method' class='private'><a href="module-mathAtom.html#.makeStack" class="methodName">makeStack</a></li></ul></li><li><a href="module-mathlive.html" class="className">mathlive</a><ul class='methods'><li data-type='method'><a href="module-mathlive.html#latexToAST" class="methodName">latexToAST</a></li><li data-type='method'><a href="module-mathlive.html#latexToMarkup" class="methodName">latexToMarkup</a></li><li data-type='method'><a href="module-mathlive.html#latexToMathML" class="methodName">latexToMathML</a></li><li data-type='method'><a href="module-mathlive.html#makeMathField" class="methodName">makeMathField</a></li><li data-type='method'><a href="module-mathlive.html#pauseReadAloud" class="methodName">pauseReadAloud</a></li><li data-type='method'><a href="module-mathlive.html#playReadAloud" class="methodName">playReadAloud</a></li><li data-type='method'><a href="module-mathlive.html#readAloud" class="methodName">readAloud</a></li><li data-type='method'><a href="module-mathlive.html#readAloudStatus" class="methodName">readAloudStatus</a></li><li data-type='method'><a href="module-mathlive.html#renderMathInDocument" class="methodName">renderMathInDocument</a></li><li data-type='method'><a href="module-mathlive.html#renderMathInElement" class="methodName">renderMathInElement</a></li><li data-type='method'><a href="module-mathlive.html#resumeReadAloud" class="methodName">resumeReadAloud</a></li><li data-type='method'><a href="module-mathlive.html#revertToOriginalContent" class="methodName">revertToOriginalContent</a></li><li data-type='method'><a href="module-mathlive.html#revertToOriginalContent" class="methodName">revertToOriginalContent</a></li><li data-type='method'><a href="module-mathlive.html#~highlightAtomID" class="methodName">highlightAtomID</a></li></ul></li><li class="private"><a href="module-mathstyle.html" class="className">mathstyle</a><ul class='methods private'><li data-type='method' class='private'><a href="module-mathstyle.html#.toMathstyle" class="methodName">toMathstyle</a></li></ul></li><li class="private"><a href="module-span.html" class="className">span</a><ul class='methods private'><li data-type='method' class='private'><a href="module-span.html#.coalesce" class="methodName">coalesce</a></li><li data-type='method' class='private'><a href="module-span.html#.makeFontSizer" class="methodName">makeFontSizer</a></li><li data-type='method' class='private'><a href="module-span.html#.makeHlist" class="methodName">makeHlist</a></li><li data-type='method' class='private'><a href="module-span.html#.makeSpan" class="methodName">makeSpan</a></li><li data-type='method' class='private'><a href="module-span.html#.makeSpanOfType" class="methodName">makeSpanOfType</a></li><li data-type='method' class='private'><a href="module-span.html#.makeSymbol" class="methodName">makeSymbol</a></li><li data-type='method' class='private'><a href="module-span.html#.makeVlist" class="methodName">makeVlist</a></li><li data-type='method' class='private'><a href="module-span.html#.toString" class="methodName">toString</a></li><li data-type='method' class='private'><a href="module-span.html#~makeSVG" class="methodName">makeSVG</a></li></ul></li></ul><h3 class="group-title">Classes</h3><ul><li class="private"><a href="Context.html" class="className">Context</a><ul class='methods private'><li data-type='method' class='private'><a href="Context.html#clone" class="methodName">clone</a></li><li data-type='method' class='private'><a href="Context.html#cloneWith" class="methodName">cloneWith</a></li><li data-type='method' class='private'><a href="Context.html#getBackgroundColor" class="methodName">getBackgroundColor</a></li><li data-type='method' class='private'><a href="Context.html#getColor" class="methodName">getColor</a></li><li data-type='method' class='private'><a href="Context.html#setMathstyle" class="methodName">setMathstyle</a></li><li data-type='method' class='private'><a href="Context.html#withMathstyle" class="methodName">withMathstyle</a></li></ul></li><li><a href="EditableMathlist.html" class="className">EditableMathlist</a><ul class='methods'><li data-type='method'><a href="EditableMathlist.html#_addCell" class="methodName">_addCell</a></li><li data-type='method'><a href="EditableMathlist.html#_deleteAtoms" class="methodName">_deleteAtoms</a></li><li data-type='method'><a href="EditableMathlist.html#addColumnAfter_" class="methodName">addColumnAfter_</a></li><li data-type='method'><a href="EditableMathlist.html#addColumnBefore_" class="methodName">addColumnBefore_</a></li><li data-type='method'><a href="EditableMathlist.html#addRowAfter_" class="methodName">addRowAfter_</a></li><li data-type='method'><a href="EditableMathlist.html#addRowBefore_" class="methodName">addRowBefore_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#ancestor" class="methodName">ancestor</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#anchor" class="methodName">anchor</a></li><li data-type='method'><a href="EditableMathlist.html#applyStyle" class="methodName">applyStyle</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#commandOffsets" class="methodName">commandOffsets</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#commitCommandStringBeforeInsertionPoint" class="methodName">commitCommandStringBeforeInsertionPoint</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#contains" class="methodName">contains</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#decorateCommandStringAroundInsertionPoint" class="methodName">decorateCommandStringAroundInsertionPoint</a></li><li data-type='method'><a href="EditableMathlist.html#delete" class="methodName">delete</a></li><li data-type='method'><a href="EditableMathlist.html#delete_" class="methodName">delete_</a></li><li data-type='method'><a href="EditableMathlist.html#deleteAll_" class="methodName">deleteAll_</a></li><li data-type='method'><a href="EditableMathlist.html#deleteNextChar_" class="methodName">deleteNextChar_</a></li><li data-type='method'><a href="EditableMathlist.html#deleteNextWord_" class="methodName">deleteNextWord_</a></li><li data-type='method'><a href="EditableMathlist.html#deletePreviousChar_" class="methodName">deletePreviousChar_</a></li><li data-type='method'><a href="EditableMathlist.html#deletePreviousWord_" class="methodName">deletePreviousWord_</a></li><li data-type='method'><a href="EditableMathlist.html#deleteToGroupEnd_" class="methodName">deleteToGroupEnd_</a></li><li data-type='method'><a href="EditableMathlist.html#deleteToGroupStart_" class="methodName">deleteToGroupStart_</a></li><li data-type='method'><a href="EditableMathlist.html#deleteToMathFieldEnd_" class="methodName">deleteToMathFieldEnd_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#endOffset" class="methodName">endOffset</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extend" class="methodName">extend</a></li><li data-type='method'><a href="EditableMathlist.html#extendDown_" class="methodName">extendDown_</a></li><li data-type='method'><a href="EditableMathlist.html#extendToGroupEnd_" class="methodName">extendToGroupEnd_</a></li><li data-type='method'><a href="EditableMathlist.html#extendToGroupStart_" class="methodName">extendToGroupStart_</a></li><li data-type='method'><a href="EditableMathlist.html#extendToMathFieldEnd_" class="methodName">extendToMathFieldEnd_</a></li><li data-type='method'><a href="EditableMathlist.html#extendToMathFieldStart_" class="methodName">extendToMathFieldStart_</a></li><li data-type='method'><a href="EditableMathlist.html#extendToNextBoundary_" class="methodName">extendToNextBoundary_</a></li><li data-type='method'><a href="EditableMathlist.html#extendToNextChar_" class="methodName">extendToNextChar_</a></li><li data-type='method'><a href="EditableMathlist.html#extendToNextWord_" class="methodName">extendToNextWord_</a></li><li data-type='method'><a href="EditableMathlist.html#extendToPreviousBoundary_" class="methodName">extendToPreviousBoundary_</a></li><li data-type='method'><a href="EditableMathlist.html#extendToPreviousChar_" class="methodName">extendToPreviousChar_</a></li><li data-type='method'><a href="EditableMathlist.html#extendToPreviousWord_" class="methodName">extendToPreviousWord_</a></li><li data-type='method'><a href="EditableMathlist.html#extendUp_" class="methodName">extendUp_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extractCharactersBeforeInsertionPoint" class="methodName">extractCharactersBeforeInsertionPoint</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extractCommandStringAroundInsertionPoint" class="methodName">extractCommandStringAroundInsertionPoint</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extractContents" class="methodName">extractContents</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extractContentsOrdInGroupBeforeInsertionPoint" class="methodName">extractContentsOrdInGroupBeforeInsertionPoint</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#filter" class="methodName">filter</a></li><li data-type='method'><a href="EditableMathlist.html#insert" class="methodName">insert</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#insertFirstAtom" class="methodName">insertFirstAtom</a></li><li data-type='method'><a href="EditableMathlist.html#isCollapsed" class="methodName">isCollapsed</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#jump" class="methodName">jump</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#leap" class="methodName">leap</a></li><li data-type='method'><a href="EditableMathlist.html#moveAfterParent_" class="methodName">moveAfterParent_</a></li><li data-type='method'><a href="EditableMathlist.html#moveBeforeParent_" class="methodName">moveBeforeParent_</a></li><li data-type='method'><a href="EditableMathlist.html#moveDown_" class="methodName">moveDown_</a></li><li data-type='method'><a href="EditableMathlist.html#moveToGroupEnd_" class="methodName">moveToGroupEnd_</a></li><li data-type='method'><a href="EditableMathlist.html#moveToGroupStart_" class="methodName">moveToGroupStart_</a></li><li data-type='method'><a href="EditableMathlist.html#moveToMathFieldEnd_" class="methodName">moveToMathFieldEnd_</a></li><li data-type='method'><a href="EditableMathlist.html#moveToMathFieldStart_" class="methodName">moveToMathFieldStart_</a></li><li data-type='method'><a href="EditableMathlist.html#moveToNextChar_" class="methodName">moveToNextChar_</a></li><li data-type='method'><a href="EditableMathlist.html#moveToNextPlaceholder_" class="methodName">moveToNextPlaceholder_</a></li><li data-type='method'><a href="EditableMathlist.html#moveToNextWord_" class="methodName">moveToNextWord_</a></li><li data-type='method'><a href="EditableMathlist.html#moveToOpposite_" class="methodName">moveToOpposite_</a></li><li data-type='method'><a href="EditableMathlist.html#moveToPreviousChar_" class="methodName">moveToPreviousChar_</a></li><li data-type='method'><a href="EditableMathlist.html#moveToPreviousPlaceholder_" class="methodName">moveToPreviousPlaceholder_</a></li><li data-type='method'><a href="EditableMathlist.html#moveToPreviousWord_" class="methodName">moveToPreviousWord_</a></li><li data-type='method'><a href="EditableMathlist.html#moveToSubscript_" class="methodName">moveToSubscript_</a></li><li data-type='method'><a href="EditableMathlist.html#moveToSuperscript_" class="methodName">moveToSuperscript_</a></li><li data-type='method'><a href="EditableMathlist.html#moveUp_" class="methodName">moveUp_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#next" class="methodName">next</a></li><li data-type='method'><a href="EditableMathlist.html#selectAll_" class="methodName">selectAll_</a></li><li data-type='method'><a href="EditableMathlist.html#selectGroup_" class="methodName">selectGroup_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#setExtent" class="methodName">setExtent</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#setRange" class="methodName">setRange</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#setSelection" class="methodName">setSelection</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#sibling" class="methodName">sibling</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#siblings" class="methodName">siblings</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#skip" class="methodName">skip</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#startOffset" class="methodName">startOffset</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#toString" class="methodName">toString</a></li><li data-type='method'><a href="EditableMathlist.html#transpose_" class="methodName">transpose_</a></li></ul></li><li class="private"><a href="Lexer.html" class="className">Lexer</a><ul class='methods private'><li data-type='method' class='private'><a href="Lexer.html#end" class="methodName">end</a></li><li data-type='method' class='private'><a href="Lexer.html#get" class="methodName">get</a></li><li data-type='method' class='private'><a href="Lexer.html#isWhiteSpace" class="methodName">isWhiteSpace</a></li><li data-type='method' class='private'><a href="Lexer.html#makeToken" class="methodName">makeToken</a></li><li data-type='method' class='private'><a href="Lexer.html#peek" class="methodName">peek</a></li><li data-type='method' class='private'><a href="Lexer.html#scan" class="methodName">scan</a></li></ul></li><li class="private"><a href="MathAtom.html" class="className">MathAtom</a><ul class='methods private'><li data-type='method' class='private'><a href="MathAtom.html#.toSpeakableText" class="methodName">toSpeakableText</a></li><li data-type='method' class='private'><a href="MathAtom.html#bind" class="methodName">bind</a></li><li data-type='method' class='private'><a href="MathAtom.html#decompose" class="methodName">decompose</a></li><li data-type='method' class='private'><a href="MathAtom.html#decomposeGenfrac" class="methodName">decomposeGenfrac</a></li><li data-type='method' class='private'><a href="MathAtom.html#decomposeLeftright" class="methodName">decomposeLeftright</a></li><li data-type='method' class='private'><a href="MathAtom.html#decomposeLine" class="methodName">decomposeLine</a></li><li data-type='method' class='private'><a href="MathAtom.html#decomposeRule" class="methodName">decomposeRule</a></li><li data-type='method' class='private'><a href="MathAtom.html#filter" class="methodName">filter</a></li><li data-type='method' class='private'><a href="MathAtom.html#makeSpan" class="methodName">makeSpan</a></li></ul></li><li><a href="MathField.html" class="className">MathField</a><ul class='methods'><li data-type='method' class='private'><a href="MathField.html#_getCaretPosition" class="methodName">_getCaretPosition</a></li><li data-type='method' class='private'><a href="MathField.html#_onKeystroke" class="methodName">_onKeystroke</a></li><li data-type='method' class='private'><a href="MathField.html#complete_" class="methodName">complete_</a></li><li data-type='method'><a href="MathField.html#el" class="methodName">el</a></li><li data-type='method' class='private'><a href="MathField.html#enterCommandMode_" class="methodName">enterCommandMode_</a></li><li data-type='method'><a href="MathField.html#insert" class="methodName">insert</a></li><li data-type='method'><a href="MathField.html#keystroke" class="methodName">keystroke</a></li><li data-type='method'><a href="MathField.html#latex" class="methodName">latex</a></li><li data-type='method'><a href="MathField.html#perform" class="methodName">perform</a></li><li data-type='method'><a href="MathField.html#perform" class="methodName">perform</a></li><li data-type='method' class='private'><a href="MathField.html#render" class="methodName">render</a></li><li data-type='method'><a href="MathField.html#revertToOriginalContent" class="methodName">revertToOriginalContent</a></li><li data-type='method'><a href="MathField.html#selectedText" class="methodName">selectedText</a></li><li data-type='method'><a href="MathField.html#selectionAtEnd" class="methodName">selectionAtEnd</a></li><li data-type='method'><a href="MathField.html#selectionAtStart" class="methodName">selectionAtStart</a></li><li data-type='method'><a href="MathField.html#selectionDepth" class="methodName">selectionDepth</a></li><li data-type='method'><a href="MathField.html#selectionIsCollapsed" class="methodName">selectionIsCollapsed</a></li><li data-type='method'><a href="MathField.html#setConfig" class="methodName">setConfig</a></li><li data-type='method'><a href="MathField.html#speakAll_" class="methodName">speakAll_</a></li><li data-type='method'><a href="MathField.html#speakAllWithSynchronizedHighlighting_" class="methodName">speakAllWithSynchronizedHighlighting_</a></li><li data-type='method'><a href="MathField.html#speakGroup_" class="methodName">speakGroup_</a></li><li data-type='method'><a href="MathField.html#speakLeftSibling_" class="methodName">speakLeftSibling_</a></li><li data-type='method'><a href="MathField.html#speakParent_" class="methodName">speakParent_</a></li><li data-type='method'><a href="MathField.html#speakRightSibling_" class="methodName">speakRightSibling_</a></li><li data-type='method'><a href="MathField.html#speakSelection_" class="methodName">speakSelection_</a></li><li data-type='method'><a href="MathField.html#speakSelectionWithSynchronizedHighlighting_" class="methodName">speakSelectionWithSynchronizedHighlighting_</a></li><li data-type='method'><a href="MathField.html#text" class="methodName">text</a></li><li data-type='method'><a href="MathField.html#typedText" class="methodName">typedText</a></li></ul></li><li class="private"><a href="module-mathstyle.Mathstyle.html" class="className">Mathstyle</a></li><li class="private"><a href="Parser.html" class="className">Parser</a><ul class='methods private'><li data-type='method' class='private'><a href="Parser.html#end" class="methodName">end</a></li><li data-type='method' class='private'><a href="Parser.html#hasLiteral" class="methodName">hasLiteral</a></li><li data-type='method' class='private'><a href="Parser.html#hasLiteralPattern" class="methodName">hasLiteralPattern</a></li><li data-type='method' class='private'><a href="Parser.html#hasToken" class="methodName">hasToken</a></li><li data-type='method' class='private'><a href="Parser.html#lastMathAtom" class="methodName">lastMathAtom</a></li><li data-type='method' class='private'><a href="Parser.html#parseAtom" class="methodName">parseAtom</a></li><li data-type='method' class='private'><a href="Parser.html#parseKeyword" class="methodName">parseKeyword</a></li><li data-type='method' class='private'><a href="Parser.html#parseLimits" class="methodName">parseLimits</a></li><li data-type='method' class='private'><a href="Parser.html#parseSupSub" class="methodName">parseSupSub</a></li><li data-type='method' class='private'><a href="Parser.html#parseToken" class="methodName">parseToken</a></li><li data-type='method' class='private'><a href="Parser.html#placeholder" class="methodName">placeholder</a></li><li data-type='method' class='private'><a href="Parser.html#scanArg" class="methodName">scanArg</a></li><li data-type='method' class='private'><a href="Parser.html#scanColor" class="methodName">scanColor</a></li><li data-type='method' class='private'><a href="Parser.html#scanDelim" class="methodName">scanDelim</a></li><li data-type='method' class='private'><a href="Parser.html#scanDimen" class="methodName">scanDimen</a></li><li data-type='method' class='private'><a href="Parser.html#scanEnvironment" class="methodName">scanEnvironment</a></li><li data-type='method' class='private'><a href="Parser.html#scanGroup" class="methodName">scanGroup</a></li><li data-type='method' class='private'><a href="Parser.html#scanImplicitGroup" class="methodName">scanImplicitGroup</a></li><li data-type='method' class='private'><a href="Parser.html#scanLeftRight" class="methodName">scanLeftRight</a></li><li data-type='method' class='private'><a href="Parser.html#scanMacro" class="methodName">scanMacro</a></li><li data-type='method' class='private'><a href="Parser.html#scanModeSet" class="methodName">scanModeSet</a></li><li data-type='method' class='private'><a href="Parser.html#scanModeShift" class="methodName">scanModeShift</a></li><li data-type='method' class='private'><a href="Parser.html#scanNumber" class="methodName">scanNumber</a></li><li data-type='method' class='private'><a href="Parser.html#scanString" class="methodName">scanString</a></li><li data-type='method' class='private'><a href="Parser.html#scanToken" class="methodName">scanToken</a></li></ul></li><li class="private"><a href="Span.html" class="className">Span</a></li><li class="private"><a href="Token.html" class="className">Token</a></li><li class="private"><a href="UndoManager.html" class="className">UndoManager</a><ul class='methods private'><li data-type='method' class='private'><a href="UndoManager.html#canRedo" class="methodName">canRedo</a></li><li data-type='method' class='private'><a href="UndoManager.html#canUndo" class="methodName">canUndo</a></li><li data-type='method' class='private'><a href="UndoManager.html#redo" class="methodName">redo</a></li><li data-type='method' class='private'><a href="UndoManager.html#restore" class="methodName">restore</a></li><li data-type='method' class='private'><a href="UndoManager.html#save" class="methodName">save</a></li><li data-type='method' class='private'><a href="UndoManager.html#snapshot" class="methodName">snapshot</a></li><li data-type='method' class='private'><a href="UndoManager.html#undo" class="methodName">undo</a></li></ul></li></ul><h3>Globals</h3><ul><li><a href="global.html#asLatex">asLatex</a></li><li><a href="global.html#asMachineNumber">asMachineNumber</a></li><li><a href="global.html#asSymbol">asSymbol</a></li><li><a href="global.html#escapeText">escapeText</a></li><li><a href="global.html#expandLayerMarkup">expandLayerMarkup</a></li><li><a href="global.html#formatMantissa">formatMantissa</a></li><li><a href="global.html#getCanonicalName">getCanonicalName</a></li><li><a href="global.html#getLatexForSymbol">getLatexForSymbol</a></li><li><a href="global.html#getLatexTemplateForFunction">getLatexTemplateForFunction</a></li><li><a href="global.html#getLatexTemplateForOperator">getLatexTemplateForOperator</a></li><li><a href="global.html#getPrecedence">getPrecedence</a></li><li><a href="global.html#getSymbol">getSymbol</a></li><li><a href="global.html#getType">getType</a></li><li><a href="global.html#isAtom">isAtom</a></li><li><a href="global.html#isSuperscriptAtom">isSuperscriptAtom</a></li><li><a href="global.html#latexify">latexify</a></li><li><a href="global.html#make">make</a></li><li><a href="global.html#makeKeyboardToolbar">makeKeyboardToolbar</a></li><li><a href="global.html#negate">negate</a></li><li><a href="global.html#numberAsLatex">numberAsLatex</a></li><li><a href="global.html#opPrec">opPrec</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseDelim">parseDelim</a></li><li><a href="global.html#parseDigraph">parseDigraph</a></li><li><a href="global.html#parseExpression">parseExpression</a></li><li><a href="global.html#parsePostfix">parsePostfix</a></li><li><a href="global.html#parseSupsub">parseSupsub</a></li><li><a href="global.html#parseTokens">parseTokens</a></li><li><a href="global.html#toMathML">toMathML</a></li><li><a href="global.html#validateFence">validateFence</a></li></ul><div class="checkbox"><input id="toggle-private" type="checkbox" onclick="
+if (!document.getElementById('toggle-private').checked) {
+document.documentElement.classList.add('no-private')
+writeCookie('symbol-access', 'no-private')
+} else {
+document.documentElement.classList.remove('no-private')
+writeCookie('symbol-access', 'private')
+}
+"><label for="toggle-private">Include Private Symbols</label></div></div>
+        <footer role="contentInfo">
+            Made with <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>. 
+            
+        </footer>
+    </nav>
+</section>
+
+<main id="main">
+    
+        <h1 class="page-title">Global</h1>
+    
+
+    
+
+
+
+
+<section class="container">
+
+<header>
+    
+        <h2>
+        
+        </h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="asLatex">asLatex<span class="signature">(ast<span class="signature-type">: Object</span>)</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>ast</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <ul>
+<li>Abstract Syntax Tree object</li>
+</ul>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>-- A LaTeX representation of the AST</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line1792">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="asMachineNumber">asMachineNumber<span class="signature">(num<span class="signature-type">: Object</span>)</span><span class="type-signature"> &rarr;  number</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>num</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <ul>
+<li>Abstract Syntax Tree object</li>
+</ul>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">number</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>-- A JavaScript number, the value of the AST or NaN</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line570">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="asSymbol">asSymbol<span class="signature">(expr<span class="signature-type">: Object</span>)</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>expr</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <ul>
+<li>Abstract Syntax Tree object</li>
+</ul>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>-- A string, the symbol, or undefined</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line551">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="escapeText">escapeText<span class="signature">(s<span class="signature-type">: string</span>)</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return a string escaped as necessary to comply with the JSON format</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>s</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line1283">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="expandLayerMarkup">expandLayerMarkup<span class="signature">(mf<span class="signature-type">: *</span>, layer<span class="signature-type">: *</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Expand the shortcut tags (e.g. <row>) inside a layer.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>mf</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>layer</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-virtualKeyboard.js.html#line821">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="formatMantissa">formatMantissa<span class="signature">(m<span class="signature-type">: *</span>, config<span class="signature-type">: *</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return a formatted mantissa:
+1234567 -&gt; 123 456 7...
+1233333 -&gt; 12(3)</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>m</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>config</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line1599">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="getCanonicalName">getCanonicalName<span class="signature">(latex,<span class="signature-type">: string</span>)</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>latex,</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>for example '\times'</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>the canonical name for the input, for example '*'</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line421">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="getLatexForSymbol">getLatexForSymbol<span class="signature">(name<span class="signature-type">: string</span>)</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>name</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>symbol name</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line375">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="getLatexTemplateForFunction">getLatexTemplateForFunction<span class="signature">(name<span class="signature-type">: string</span>)</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>name</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>function canonical name</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line361">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="getLatexTemplateForOperator">getLatexTemplateForOperator<span class="signature">(name<span class="signature-type">: string</span>)</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>name</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>function or operator canonical name</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line394">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="getPrecedence">getPrecedence<span class="signature">(canonicalName,<span class="signature-type">: string</span>)</span><span class="type-signature"> &rarr;  number</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Given a canonical name, return its precedence</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>canonicalName,</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>for example &quot;and&quot;</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">number</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line343">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="getSymbol">getSymbol<span class="signature">(spans<span class="signature-type">: Array.&lt;<a href="Span.html">Span</a>></span>, symbol<span class="signature-type">: string,number,Array.&lt;number></span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>spans</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Array.&lt;<a href="Span.html">Span</a>></span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>symbol</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">number</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>specify which span to consider. 
+If a string, a span whose body match the string
+If a number, the nth span in the list
+If an array, each element in the array indicate the nth child to traverse</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_debug.js.html#line15">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="getType">getType<span class="signature">(spans<span class="signature-type">: Array.&lt;<a href="Span.html">Span</a>></span>, symbol<span class="signature-type">: string</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return the type ('mbin', etc...) of a span</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>spans</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Array.&lt;<a href="Span.html">Span</a>></span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>symbol</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+    
+        <p>string}</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_debug.js.html#line60">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="isAtom">isAtom<span class="signature">(expr<span class="signature-type">: Object</span>, type<span class="signature-type">: string</span>, value<span class="signature-type">: string</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return true if the current atom is of the specified type and value.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>expr</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>type</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>value</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line595">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="isSuperscriptAtom">isSuperscriptAtom<span class="signature">(stream<span class="signature-type">: *</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return true if the current atom is a standalone superscript atom
+i.e. an atom with no content, except of a superscript.
+Superscripts can be encoded either as an attribute on the last atom
+or as a standalone, empty, atom following the one to which it applies.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>stream</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_outputMathML.js.html#line132">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="latexify">latexify<span class="signature">(value<span class="signature-type">: string,<a href="MathAtom.html">MathAtom</a>,Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>)</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"><span class="attrib">private</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Give an atom or an array of atoms, return a LaTeX string representation</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>value</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type"><a href="MathAtom.html">MathAtom</a></span>
+|
+
+<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_outputLatex.js.html#line10">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="make">make<span class="signature">(mf<span class="signature-type">: Object</span>, theme<span class="signature-type">: string</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Construct a virtual keyboard element based on the config options in the
+mathfield and an optional theme.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>mf</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>theme</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-virtualKeyboard.js.html#line963">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="makeKeyboardToolbar">makeKeyboardToolbar<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return a markup string for the keyboard toolbar for the specified layer.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-virtualKeyboard.js.html#line683">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="negate">negate<span class="signature">(expr<span class="signature-type">: *</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return the negative of the expression. Usually {op:'-', lhs:expr}
+but for numbers, the negated number</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>expr</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line614">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="numberAsLatex">numberAsLatex<span class="signature">(num<span class="signature-type">: Object,number</span>)</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>num</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Object</span>
+|
+
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <ul>
+<li>A number element, or a number or a bignumber or a fraction</li>
+</ul>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>-- A LaTeX representation of the AST</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line1638">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="opPrec">opPrec<span class="signature">(atom<span class="signature-type">: *</span>)</span><span class="type-signature"> &rarr;  number</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return the operator precedence of the atom
+or -1 if not an operator</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>atom</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">number</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line446">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="parse">parse<span class="signature">(atoms<span class="signature-type">: *</span>)</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>atoms</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>an array of atoms</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line1527">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="parseDelim">parseDelim<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Delimiters can be expressed:</p>
+<ul>
+<li>as a matching pair of regular characters: '(a)'</li>
+<li>a as 'leftright' expression: '\left(a\right)'</li>
+<li>as a matching pair of 'sizeddelim': '\Bigl(a\Bigr)</li>
+</ul>
+<p>Note that the '\delim' command is only used for delimiters in the middle
+of a \left\right pair and not to represent pair-matched delimiters.</p>
+<p>This function handles all three cases</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line718">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="parseDigraph">parseDigraph<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Some symbols are made up of two consecutive characters.
+Handle them here. Return undefined if not a digraph.
+TODO: other digraphs:
+:=
+++
+**
+=:
+°C U+2103
+°F U+2109</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line823">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="parseExpression">parseExpression<span class="signature">(expr<span class="signature-type">: Object</span>)</span><span class="type-signature"> &rarr;  Object</span><span class="type-signature"><span class="attrib">private</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Given an atom or an array of atoms, return their AST representation as
+an object.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>expr</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>An expressions, including expr.atoms, expr.index,
+expr.minPrec the minimum precedence that this parser should parse
+before returning; expr.lhs (optional); expr.ast, the resulting AST.</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">Object</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>the expr object, updated</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line1177">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="parsePostfix">parsePostfix<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Parse postfix operators, such as &quot;!&quot; (factorial)</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line669">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="parseSupsub">parseSupsub<span class="signature">(expr<span class="signature-type">: Object</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Parse for a possible sup/sub at the current token location.
+Handles both sup/sub attached directly to the current atom
+as well as &quot;empty&quot; atoms with a sup/sub following the current
+atom.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>expr</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line632">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="parseTokens">parseTokens<span class="signature">(tokens<span class="signature-type">: Array.&lt;<a href="Token.html">Token</a>></span>, parseMode<span class="signature-attributes">opt</span><span class="signature-type">: string</span>, args<span class="signature-attributes">opt</span><span class="signature-type">: Array.&lt;string></span>, macro<span class="signature-attributes">opt</span><span class="signature-type">: *</span>, smartFence<span class="signature-attributes">opt</span><span class="signature-type">: boolean</span>)</span><span class="type-signature"> &rarr;  Array.&lt;<a href="MathAtom.html">MathAtom</a>></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Given an array of tokens returned by the lexer, return a corresponding
+math list (array of atoms).</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>tokens</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Array.&lt;<a href="Token.html">Token</a>></span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>parseMode</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+                    <span class="attribute">optional</span>
+                
+
+                
+
+                
+                </span>
+            
+
+            
+                <span class="default">= 'math'</span>
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>args</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+                    <span class="attribute">optional</span>
+                
+
+                
+
+                
+                </span>
+            
+
+            
+                <span class="default">= {}</span>
+            
+
+            
+                    <p class="description last">
+                        <p>If there are any placeholder tokens, e.g.
+<code>#0</code>, <code>#1</code>, etc... they will be replaced by the value provided by <code>args</code>.</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>macro</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+                    <span class="attribute">optional</span>
+                
+
+                
+
+                
+                </span>
+            
+
+            
+                <span class="default">= {}</span>
+            
+
+            
+                    <p class="description last">
+                        <p>Dictionary defining macros</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>smartFence</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+                    <span class="attribute">optional</span>
+                
+
+                
+
+                
+                </span>
+            
+
+            
+                <span class="default">= false</span>
+            
+
+            
+                    <p class="description last">
+                        <p>If true, promote plain fences, e.g. <code>(</code>,
+as <code>\left...\right</code> or <code>\mleft...\mright</code></p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="core_parser.js.html#line1476">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="toMathML">toMathML<span class="signature">(input<span class="signature-type">: string,<a href="MathAtom.html">MathAtom</a>,Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>, initial<span class="signature-type">: number</span>, final<span class="signature-type">: number</span>)</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"><span class="attrib">private</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Given an atom or an array of atoms, return their MathML representation as
+a string.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>input</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type"><a href="MathAtom.html">MathAtom</a></span>
+|
+
+<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>initial</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>index of the input to start conversion from</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>final</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>last index of the input to stop conversion to</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_outputMathML.js.html#line391">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="validateFence">validateFence<span class="signature">(fence<span class="signature-type">: string</span>, --<span class="signature-type">: string</span>)</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>fence</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <ul>
+<li>The fence to validate</li>
+</ul>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>--</code></span>
+            
+
+            <span class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>Default values, in case no fence is provided</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>-- A valid fence</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="addons_maston.js.html#line1575">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</main>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="scripts/namis.search.jquery.js"></script>
+<script>
+    function readCookie(a) {
+        var b = document.cookie.match('(^|;)\\s*' + a + '\\s*=\\s*([^;]+)');
+        return b ? b.pop() : '';
+    }
+    function writeCookie(a, v) {
+		var date = new Date();
+		date.setTime(date.getTime()+(30*24*60*60*1000));
+    	document.cookie = a + "=" + v + "; expires=" + date.toUTCString() + "; path=/";
+    }
+
+    var cookie = readCookie('symbol-access');
+    if (cookie === 'no-private') {
+        document.documentElement.classList.add('no-private');
+    }
+    
+   document.getElementById('toggle-private').checked = 
+    !document.documentElement.classList.contains('no-private');
+
+
+    prettyPrint();
+    (function($){
+        $('#nav').search(['className', 'methodName']);
+    })(jQuery);
+</script>
+<script src="scripts/linenumber.js"></script>
+
+
+    <script src="http://mathlive.io/sprint15/mathlive/mathlive.js"></script><script>if (MathLive) {MathLive.renderMathInDocument();}</script>
+
+
+</body>
+</html>

@@ -1,4 +1,4 @@
-This guide describes how to use the MathLive Javascript library with your own
+This guide describes how to use the MathLive JavaScript library with your own
 web content. 
 
 To contribute to the MathLive project, see the {@tutorial CONTRIBUTOR_GUIDE}.
@@ -17,14 +17,19 @@ dependency on other libraries (not even jQuery!) and you do not need to
 download or install anything else.
 
 The `dist/` directory contains the following:
-- `mathlive.js` The MathLive Javascript library. It is an optimized and minified 
-Javascript file which exports the [`MathLive`]{@link module:mathlive} 
+- `mathlive.mjs` The MathLive JavaScript library as a native JavaScript module. 
+It is an optimized and minified JavaScript file which exports the [`MathLive`]{@link module:mathlive} 
 module which gives access to the MathLive API.
+- `mathlive.js` Same as `mathlive.mjs` but as a UMD (Universal Module Definition)
+file which can be imported using a module loader such as requirejs.
 - `mathlive-core.css` The minimal amount of CSS to display math with MathLive.
 - `mathlive.css` The rest of the CSS you need to display math. You can load
 this file lazily to improve your page load time.
 - `fonts/` A directory of fonts used by MathLive. Credit for those fonts goes to
 the KaTeX project.
+- `src/` The source code for MathLive, as native JavaScript modules. Can be 
+useful for debugging, but in general `mathlive.mjs` will be sufficient (you only 
+need one or the other).
 
 ### From NPM
 ```bash
@@ -40,12 +45,14 @@ to account for your directory structure.
 <!doctype html><html lang="en-US">
 <head>
     ...
-    <link rel="stylesheet" href="mathlive.core.css">
-    <link rel="stylesheet" href="mathlive.css">
+    <link rel="stylesheet" href="dist/mathlive.core.css">
+    <link rel="stylesheet" href="dist/mathlive.css">
 </head>
 <body>
     ...
-   <script src="mathlive.js"></script>
+    <script type='module'> 
+        import MathLive from 'dist/mathlive.mjs';
+    </script>
 </body>
 </html>
 ```
@@ -59,13 +66,10 @@ Call [`MathLive.renderMathInDocument()`]{@link module:mathlive#renderMathInDocum
  in the document.
 
 ```html
-    ...
-    <script src="mathlive.js"></script>
-    <script>
+    <script type='module'> 
+        import MathLive from 'dist/mathlive.mjs';
         MathLive.renderMathInDocument();
     </script>
-</body>
-</html>
 ```
 
 By default, any LaTeX code that is enclosed with the following delimiters
@@ -96,7 +100,6 @@ provided, the display style is used.
     \left( x - \frac{-b + \sqrt {b^2-4ac}}{2a} \right) 
     \left( x - \frac{-b - \sqrt {b^2-4ac}}{2a} \right)
 </script>
-
 ```
 
 Elements with the following tags will be ignored for conversion: 
@@ -153,7 +156,7 @@ respectively.
 
 
 
-## Using the Math Editor with Javascript
+## Using the Math Editor with JavaScript
 
 To transform an existing HTML element into a math field, call 
 [`MathLive.makeMathField(element, options)`]{@link module:mathlive#makeMathField}. 
@@ -169,17 +172,17 @@ For example:
     <meta charset="utf-8">
     <title>MathLive Sample</title>
 
-    <link rel="stylesheet" href="mathlive.core.css">
-    <link rel="stylesheet" href="mathlive.css">
-    <script src="mathlive.js"></script>
+    <link rel="stylesheet" href="dist/mathlive.core.css">
+    <link rel="stylesheet" href="dist/mathlive.css">
 </head>
 <body>
     <div id='mathfield' style='border: 1px solid #999;padding:5px;'>
         f(x)=
     </div>
-<script>
-    const mathfield = MathLive.makeMathField(document.getElementById('mathfield'));
-</script>
+    <script type='module'> 
+        import MathLive from 'dist/mathlive.mjs';
+        const mathfield = MathLive.makeMathField(document.getElementById('mathfield'));
+    </script>
 </body>
 </html>
 ```

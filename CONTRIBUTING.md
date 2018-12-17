@@ -3,7 +3,7 @@
 There are many ways you can get involved with MathLive. Contributing to 
 an open source project is fun and rewarding.
 
-## Contributings Issues
+## Contributing Issues
 
 If you're running into some problems using MathLive or something doesn't 
 behave the way you think it should, please file an issue in GitHub.
@@ -44,17 +44,17 @@ the browser, the OS, or the laws of physics.
 ### Can I help fix a bug?
 
 Sure! Have a look at the issue report, and make sure no one is already 
-working on it. If the issue is tagged _fix in progress_, someone is already
-on it. Otherwise, add a comment in the issue indicating you'd like to work on
+working on it. If the issue is assigned to someone, they're on it! 
+Otherwise, add a comment in the issue indicating you'd like to work on
 resolving the issue and go for it! See the [Contributor Guide](CONTRIBUTOR_GUIDE.md) for coding guidelines.
 
 
-## Contributings Test Cases
+## Contributing Test Cases
 
 The `test/` folder contains test cases that are used to make sure that 
 bugs are not introduced as new features are added (regression). 
 
-If you'd like to revise or add some new test cases, that can be very helpful
+Adding or updating test cases can be very helpful
 to improve MathLive's quality. Submit an issue indicating what you'd like
 to work on, and a pull request when you have it ready. Test cases should 
 follow the TAP (Test Anything Protocol) format.
