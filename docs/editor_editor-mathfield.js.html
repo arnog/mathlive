@@ -772,8 +772,8 @@ MathField.prototype._onFocus = function() {
             this.showVirtualKeyboard_();
         }
         Popover.updatePopoverPosition(this);
-        // this._render();
         if (this.config.onFocus) this.config.onFocus(this);
+        this._render();
     }
 }
 

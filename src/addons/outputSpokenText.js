@@ -1,9 +1,6 @@
-
-
-
 import MathAtom from '../core/mathAtom.js';
-import Definitions from '../core/definitions.js'; // eslint-disable-line no-unused-vars
 import Popover from '../editor/editor-popover.js';
+import '../core/definitions.js';
 
 // Markup
 // Two common flavor of markups: SSML and 'mac'. The latter is only available
@@ -295,7 +292,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                         result += numer + ' over ' + denom;
                     }
                 } else {
-                    result += ' The fraction <break time="150ms"/>' + numer + ', over <break time="150ms"/>' + denom + '.<break time="150ms"/> End fraction.<break time="150ms"/>';
+                    result += ' the fraction <break time="150ms"/>' + numer + ', over <break time="150ms"/>' + denom + '.<break time="150ms"/> End fraction.<break time="150ms"/>';
                 }
 
                 break;
@@ -304,20 +301,20 @@ MathAtom.toSpeakableFragment = function(atom, options) {
 
                 if (!atom.index) {
                     if (isAtomic(atom.body)) {
-                        result += ' The square root of ' + body + ' , ';
+                        result += ' the square root of ' + body + ' , ';
                     } else {
-                        result += ' The square root of <break time="200ms"/>' + body + '. <break time="200ms"/> End square root';
+                        result += ' the square root of <break time="200ms"/>' + body + '. <break time="200ms"/> End square root';
                     }
                 } else {
                     let index = MathAtom.toSpeakableFragment(atom.index, options);
                     index = index.trim();
                     const index2 = index.replace(/<mark([^/]*)\/>/g, '')
                     if (index2 === '3') {
-                        result += ' The cube root of <break time="200ms"/>' + body + '. <break time="200ms"/> End cube root';
+                        result += ' the cube root of <break time="200ms"/>' + body + '. <break time="200ms"/> End cube root';
                     } else if (index2 === 'n') {
-                        result += ' The nth root of <break time="200ms"/>' + body + '. <break time="200ms"/> End root';
+                        result += ' the nth root of <break time="200ms"/>' + body + '. <break time="200ms"/> End root';
                     } else {
-                        result += ' The root with index: <break time="200ms"/>' + index + ', of <break time="200ms"/>' + body + '. <break time="200ms"/> End root';
+                        result += ' the root with index: <break time="200ms"/>' + index + ', of <break time="200ms"/>' + body + '. <break time="200ms"/> End root';
                     }
                 }
                 break;
@@ -406,15 +403,15 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                             sup = sup.trim();
                             let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
                             sub = sub.trim();
-                            result += ' The summation from <break time="200ms"/>' + sub + '<break time="200ms"/> to  <break time="200ms"/>' + sup + '<break time="200ms"/> of <break time="150ms"/>';
+                            result += ' the summation from <break time="200ms"/>' + sub + '<break time="200ms"/> to  <break time="200ms"/>' + sup + '<break time="200ms"/> of <break time="150ms"/>';
                             supsubHandled = true;
                     } else if (atom.subscript) {
                             let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
                             sub = sub.trim();
-                            result += ' The summation from <break time="200ms"/>' + sub + '<break time="200ms"/> of <break time="150ms"/>';
+                            result += ' the summation from <break time="200ms"/>' + sub + '<break time="200ms"/> of <break time="150ms"/>';
                             supsubHandled = true;
                         } else {
-                            result += ' The summation of';
+                            result += ' the summation of';
                         }
                     } else if (trimLatex === '\\prod') {
                         if (atom.superscript && atom.subscript) {
@@ -422,15 +419,15 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                             sup = sup.trim();
                             let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
                             sub = sub.trim();
-                            result += ' The product from <break time="200ms"/>' + sub + '<break time="200ms"/> to <break time="200ms"/>' + sup + '<break time="200ms"/> of <break time="150ms"/>';
+                            result += ' the product from <break time="200ms"/>' + sub + '<break time="200ms"/> to <break time="200ms"/>' + sup + '<break time="200ms"/> of <break time="150ms"/>';
                             supsubHandled = true;
                         } else if (atom.subscript) {
                             let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
                             sub = sub.trim();
-                            result += ' The product from <break time="200ms"/>' + sub + '<break time="200ms"/> of <break time="150ms"/>';
+                            result += ' the product from <break time="200ms"/>' + sub + '<break time="200ms"/> of <break time="150ms"/>';
                             supsubHandled = true;
                         } else {
-                            result += ' The product  of ';
+                            result += ' the product  of ';
                         }
                     } else if (trimLatex === '\\int') {
                         if (atom.superscript && atom.subscript) {
@@ -438,10 +435,10 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                             sup = sup.trim();
                             let sub = MathAtom.toSpeakableFragment(atom.subscript, options);
                             sub = sub.trim();
-                            result += ' The integral from <break time="200ms"/>' + emph(sub) + '<break time="200ms"/> to <break time="200ms"/>' + emph(sup) + ' <break time="200ms"/> of ';
+                            result += ' the integral from <break time="200ms"/>' + emph(sub) + '<break time="200ms"/> to <break time="200ms"/>' + emph(sup) + ' <break time="200ms"/> of ';
                             supsubHandled = true;
                         } else {
-                            result += ' The integral of <break time="200ms"/> ';
+                            result += ' the integral of <break time="200ms"/> ';
                         }
                     } else if (typeof atom.body === 'string') {
                         const value = PRONUNCIATION[atom.body] ||
@@ -474,7 +471,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                 if (isAtomic(atom.body)) {
                     result += ' crossed out ' + body + ' , ';
                 } else {
-                    result += ' crossed out ' + body + ' End cross out';
+                    result += ' crossed out ' + body + '. End cross out';
                 }
                 break;
 
@@ -525,7 +522,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
             if (isAtomic(atom.subscript)) {
                 result += ' sub ' + sub;
             } else {
-                result += ' subscript ' + sub + ' End subscript. ';
+                result += ' subscript ' + sub + '. End subscript. ';
             }
         }
     }

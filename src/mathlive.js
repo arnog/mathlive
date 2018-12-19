@@ -756,9 +756,9 @@ function renderMathInDocument(options) {
     // Ask to be notified when fonts are loaded, and re-render.
     // There are rare cases where the layout needs to be recomputed after
     // fonts are loaded, e.g. the \compose command.
-    if (document.fonts) {
-        document.fonts.ready.then(() => renderMathInElement(document.body, options, toMarkup, toMathML));
-    }
+    // if (document.fonts) {
+    //     document.fonts.ready.then(() => renderMathInElement(document.body, options, toMarkup, toMathML));
+    // }
 }
 
 function getElement(element) {

@@ -619,7 +619,7 @@ MathField.prototype._nextAtomSpeechText = function(oldMathlist) {
         oldPath.pop();
     }
     if (!this.mathlist.isCollapsed()) {
-        return MathAtom.toSpeakableText(this.mathlist.extractContents(), this.config);
+        return speakableText(this, '', this.mathlist.extractContents());
     }
 
     // announce start of denominator, etc
@@ -629,11 +629,18 @@ MathField.prototype._nextAtomSpeechText = function(oldMathlist) {
     }
     const atom = this.mathlist.sibling(Math.max(1, this.mathlist.extent));
     if (atom) {
-        result += MathAtom.toSpeakableText(atom, this.config);
+        result += speakableText(this, '', atom);
     } else if (leaf.offset !== 0) { // don't say both start and end
         result += relationName ? 'end of ' + relationName : 'unknown';
     }
     return result;
+}
+
+
+function speakableText(mathfield, prefix, atoms) {
+    const config = Object.assign({}, mathfield.config);
+    config.textToSpeechMarkup = '';
+    return prefix + MathAtom.toSpeakableText(atoms, config);
 }
 
 /**
@@ -654,7 +661,7 @@ MathField.prototype._nextAtomSpeechText = function(oldMathlist) {
         // example when a command has no effect.
         if (target.plonkSound) target.plonkSound.play().catch(err => console.log(err));
     } else if (command === 'delete') {
-        liveText = 'deleted: ' + MathAtom.toSpeakableText(atomsToSpeak, target.config);
+        liveText = speakableText(target, 'deleted: ', atomsToSpeak);
     //*** FIX: could also be moveUp or moveDown -- do something different like provide context???
     } else if (command === 'focus' || /move/.test(command)) {
         //*** FIX -- should be xxx selected/unselected */
@@ -662,10 +669,10 @@ MathField.prototype._nextAtomSpeechText = function(oldMathlist) {
                     target._nextAtomSpeechText(oldMathlist);
     } else if (command === 'replacement') {
         // announce the contents
-        liveText = MathAtom.toSpeakableText(target.mathlist.sibling(0), target.config);
+        liveText = speakableText(target, '', target.mathlist.sibling(0));
     } else if (command === 'line') {
         // announce the current line -- currently that's everything
-        liveText = MathAtom.toSpeakableText(target.mathlist.root, target.config);
+        liveText = speakableText(target, '', target.mathlist.root);
         target.accessibleNode.innerHTML =
             '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
                 MathAtom.toMathML(target.mathlist.root, target.config) +
@@ -681,8 +688,7 @@ MathField.prototype._nextAtomSpeechText = function(oldMathlist) {
         //     console.log("after sleep");
         // });
     } else {
-        liveText = command + " " +
-            (atomsToSpeak ? MathAtom.toSpeakableText(atomsToSpeak, target.config) : "");
+        liveText = atomsToSpeak ? speakableText(target, command + " ", atomsToSpeak) : command;
     }
     // aria-live regions are only spoken when it changes; force a change by
     // alternately using nonbreaking space or narrow nonbreaking space
@@ -702,8 +708,8 @@ MathField.prototype._onFocus = function() {
             this.showVirtualKeyboard_();
         }
         Popover.updatePopoverPosition(this);
-        // this._render();
         if (this.config.onFocus) this.config.onFocus(this);
+        this._render();
     }
 }
 
