@@ -630,7 +630,6 @@ function getEnvironmentInfo(name) {
             parser: null,
             mathstyle: 'displaystyle',
             tabular: true,
-            maxColumns: 10,
             colFormat: [],
             leftFence: '.',
             rightFence: '.',
@@ -916,7 +915,6 @@ function defineEnvironment(names, params, options, parser) {
         mathstyle: 'displaystyle',
 
         tabular: options.tabular || true,
-        maxColumns: options.maxColumns || 10,
         colFormat: options.colFormat || [],
     };
     for (const name of names) {

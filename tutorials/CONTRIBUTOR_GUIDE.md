@@ -88,7 +88,7 @@ use the following commands:
 # Increase the version number of the library
 # Only do this before making a new public distribution
 # After doing this, you can `npm publish`
-$ npm version major | minor | patch |
+$ npm version major | minor | patch
 
 # Do a full build (code, docs, test), then publish the package to npmjs.com
 $ npm publish

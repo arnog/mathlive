@@ -108,7 +108,18 @@ const AUDIO_FEEDBACK_VOLUME = 0.5; // from 0.0 to 1.0
 function on(el, selectors, listener, options) {
     selectors = selectors.split(' ');
     for (const sel of selectors) {
-        el.addEventListener(sel, listener, options);
+        const m = sel.match(/(.*):(.*)/);
+        if (m) {
+            const options2 = options || [];
+            if (m[2] === 'active') {
+                options2.passive = false;
+            } else {
+                options2[m[2]] = true;
+            }
+            el.addEventListener(m[1], listener, options2);
+        } else {
+            el.addEventListener(sel, listener, options);
+        }
     }
 }
 
@@ -282,8 +293,7 @@ function MathField(element, config) {
 
 
     // Delegate mouse and touch events
-    on(this.element, 'touchstart mousedown', this._onPointerDown.bind(this),
-        {passive: false, capture: false});
+    on(this.element, 'touchstart:active mousedown', this._onPointerDown.bind(this));
 
     // Request notification for when the window is resized (
     // or the device switched from portrait to landscape) to adjust
@@ -908,7 +918,7 @@ MathField.prototype.performWithFeedback_ = function(command) {
  * @method MathField#_onKeystroke
  * @private
  */
-MathField.prototype._onKeystroke = function(target, keystroke, evt) {
+MathField.prototype._onKeystroke = function(keystroke, evt) {
 
     // Give a chance to the custom keystroke handler to intercept the event
     if (this.config.onKeystroke &amp;&amp; !this.config.onKeystroke(this, keystroke, evt)) {
@@ -1716,7 +1726,7 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
     let syntheticTarget;    // Target while touch move
     let pressAndHoldTimer;
 
-    on(el, 'mousedown touchstart', function(ev) {
+    on(el, 'mousedown touchstart:passive', function(ev) {
         if (ev.type !== 'mousedown' || ev.buttons === 1) {
             // The primary button was pressed or the screen was tapped.
             ev.stopPropagation();
@@ -1749,7 +1759,7 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
             }
 
         }
-    }, {passive: false, capture: false});
+    });
     on (el, 'mouseleave touchcancel', function() {
         el.classList.remove('pressed');
         // let command = el.getAttribute('data-' + that.config.namespace +
@@ -1759,7 +1769,7 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
         //     that.perform(JSON.parse(command));
         // }
     });
-    on (el, 'touchmove', function(ev) {
+    on (el, 'touchmove:passive', function(ev) {
         // Unlike with mouse tracking, touch tracking only sends events
         // to the target that was originally tapped on. For consistency,
         // we want to mimic the behavior of the mouse interaction by
@@ -2157,7 +2167,7 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
             this.virtualKeyboard = VirtualKeyboard.make(this, theme);
 
             // Let's make sure that tapping on the keyboard focuses the field
-            on(this.virtualKeyboard, 'touchstart mousedown', function(evt) {
+            on(this.virtualKeyboard, 'touchstart:passive mousedown', function(evt) {
                 that.focus();
                 evt.preventDefault();
             });

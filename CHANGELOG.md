@@ -1,4 +1,4 @@
-## 0.24
+## 0.24 (December 16, 2018)
 
 ### Breaking Changes
 - Several handlers had some inconsistent signatures, or in some cases passed

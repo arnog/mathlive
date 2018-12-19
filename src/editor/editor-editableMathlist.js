@@ -72,7 +72,7 @@ function clone(mathlist) {
 
 EditableMathlist.prototype._announce = function(command, mathlist, atoms) {
     if (typeof this.config.onAnnounce === 'function') {
-        this.onAnnounce(this.target, command, mathlist, atoms);
+        this.config.onAnnounce(this.target, command, mathlist, atoms);
     }
 }
 

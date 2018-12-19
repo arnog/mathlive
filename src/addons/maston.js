@@ -1415,11 +1415,11 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
             }
             result = escapeText(Definitions.mathVariantToUnicode(
                     sym, this.fontFamily || this.font));
-            // if (variant) {
-            //     result.sym = escapeText(sym);
-            // } else {
-            //     result = escapeText(sym);       // Shortcut: symbol as string
-            // }
+            if (variant && variant !== 'normal') {
+                result.sym = escapeText(sym);
+            } else {
+                result = escapeText(sym);       // Shortcut: symbol as string
+            }
             break;
 
         // case 'mbin':
@@ -1468,7 +1468,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
             console.log('Unhandled atom ' + this.type + ' - ' + this.body);
     }
 
-    if (variant && result) {
+    if (result && variant && variant !== 'normal') {
         result.variant = variant;
     }
 
