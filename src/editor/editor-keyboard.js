@@ -14,8 +14,8 @@
     'ArrowUp': 'Up',
     'ArrowRight': 'Right',
     'ArrowDown': 'Down',
-    'Delete': 'Del',
-  };
+    'Delete': 'Del'
+};
 
   const VIRTUAL_KEY_NAMES = {
       'q'           : 'KeyQ',

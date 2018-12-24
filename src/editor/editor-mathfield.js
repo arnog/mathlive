@@ -865,8 +865,39 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
         return false;
     }
 
-    const shortcut = Shortcuts.matchKeystroke(this.mathlist.parseMode(),
-        keystroke);
+    let shortcut;
+
+    // Check if the keystroke, in context with the previous characters,
+    // would match a long shortcut (i.e. '~~')
+    if (this.mathlist.parseMode() === 'math') {
+        let count = this.mathlist.startOffset();
+        // Try to find the longest matching shortcut possible
+        while (!shortcut && count >= 0) {
+            let char;
+            if (evt.key === 'Unidentified') {
+                // On Android, the evt.key seems to always be Unidentified. 
+                // Get the value entered in the event target
+                if (evt.target) {
+                    char = evt.target.value;
+                }
+            }
+            char = char || evt.key || evt.code;
+            // Note that 'count' is a number of atoms
+            // An atom can be more than one character (for example '\sin')
+            const prefix = this.mathlist.extractCharactersBeforeInsertionPoint(count);
+            shortcut = Shortcuts.match(prefix + char, this.config);
+            count -= 1;
+        }
+        // Remove the atoms from the prefix string
+        this.mathlist._deleteAtoms(-count - 1);
+    }
+
+    // If this wasn't a long (multi-character) shortcut, try a single-character
+    // shortcut
+    if (!shortcut) {
+        shortcut = Shortcuts.matchKeystroke(this.mathlist.parseMode(),
+            keystroke);
+    }
 
     if (!shortcut) return true;
 

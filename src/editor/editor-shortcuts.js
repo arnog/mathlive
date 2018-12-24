@@ -185,6 +185,7 @@ const KEYBOARD_SHORTCUTS = {
     'math:Alt-NumpadDivide':     ['insert', '\\frac{#?}{#@}'],
     'math:Alt-KeyO':             ['insert', '\\emptyset'],
     'math:Alt-Shift-KeyO':       ['insert', '\\varnothing'],
+    'math:Shift-Backquote':      ['insert', '\\~'],
 
     // Accessibility
     'Alt-Shift-KeyK':           'toggleKeystrokeCaption',
@@ -244,7 +245,8 @@ const REVERSE_KEYBOARD_SHORTCUTS = {
     '\\partial':                'Alt-Shift-KeyD',
     '\\frac':                   'Slash',
     '\\emptyset':               'Alt-KeyO',
-    '\\varnothing':             'Alt-Shift-KeyO'
+    '\\varnothing':             'Alt-Shift-KeyO',
+    '\\~':                      '~'
 
 }
 

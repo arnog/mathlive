@@ -2634,6 +2634,10 @@ defineSymbol( '\\circeq', MATH,  AMS,  REL, '\u2257', 31);
 defineSymbol( '\\lessdot', MATH,  AMS,  BIN, '\u22d6', 88);
 defineSymbol( '\\gtrdot', MATH,  AMS,  BIN, '\u22d7', 45);
 
+// In TeX, '~' is a spacing command (non-breaking space). 
+// However, '~' is used as an ASCII Math shortctut character, so define a \\~
+// command which maps to the '~' character
+defineSymbol( '\\~', MATH,  MAIN,  REL, '~');
 
 
 category = 'Logic';
