@@ -186,6 +186,7 @@ const KEYBOARD_SHORTCUTS = {
     'math:Alt-KeyO':             ['insert', '\\emptyset'],
     'math:Alt-Shift-KeyO':       ['insert', '\\varnothing'],
     'math:Shift-Backquote':      ['insert', '\\~'],
+    'math:Alt-Shift-Slash':      ['insert', '\\/'],
 
     // Accessibility
     'Alt-Shift-KeyK':           'toggleKeystrokeCaption',
