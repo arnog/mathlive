@@ -65,6 +65,7 @@ function off(el, selectors, listener, options) {
 
 /**
  * **Note**
+ * - Method names that begin with `$` are public.
  * - Method names that _begin with_ an underbar `_` are private and meant
  * to be used only by the implementation of the class.
  * - Method names that _end with_ an underbar `_` are selectors. They can
@@ -75,7 +76,7 @@ function off(el, selectors, listener, options) {
  * ```
  *    mf.perform('selectAll');
  * ```
- *  
+ * 
  * @param {Element} element 
  * @param {Object} config - See [`MathLive.makeMathField()`]{@link module:mathlive#makeMathField} for details
  * @property {Element} element - The DOM element this mathfield is attached to.
@@ -93,6 +94,7 @@ function MathField(element, config) {
     this.setConfig(config || {});
 
     this.element = element;
+    element.mathfield = this;
 
     // Save existing content
     this.originalContent = element.innerHTML;
@@ -266,9 +268,10 @@ function MathField(element, config) {
  * element back into a MathField, call `MathLive.makeMathField()` on the
  * element again to get a new math field object.
  *
- * @method MathField#revertToOriginalContent
+ * @method MathField#$revertToOriginalContent
  */
-MathField.prototype.revertToOriginalContent = function() {
+MathField.prototype.revertToOriginalContent = 
+MathField.prototype.$revertToOriginalContent = function() {
     this.element.innerHTML = this.originalContent;
     delete this.accessibleNode;
     delete this.ariaLiveText;
@@ -766,10 +769,12 @@ MathField.prototype._showKeystroke = function(keystroke) {
  * @method MathField#perform
  */
 /**
- * @param {string} command - A selector
- * @method MathField#perform
+ * @param {string|string[]} command - A selector, or an array whose first element
+ * is a selector, and whose subsequent elements are arguments to the selector
+ * @method MathField#$perform
  */
-MathField.prototype.perform = function(command) {
+MathField.prototype.perform = 
+MathField.prototype.$perform = function(command) {
     let handled = false;
     let selector;
     let args = [];
@@ -785,7 +790,7 @@ MathField.prototype.perform = function(command) {
         if (['delete_', 'transpose_', 'deleteToMathFieldEnd_',
             'deleteToGroupEnd_', 'deleteToGroupStart_', 'deletePreviousWord_',
             'deleteNextWord_', 'deletePreviousChar_', 'deleteNextChar_'].includes(selector)) {
-            this.undoManager.snapshot(this.options);
+            this.undoManager.snapshot(this.config);
         }
 
         this.mathlist[selector](...args);
@@ -793,7 +798,7 @@ MathField.prototype.perform = function(command) {
         handled = true;
     } else if (typeof this[selector] === 'function') {
         if (['complete_'].includes(selector)) {
-            this.undoManager.snapshot(this.options);
+            this.undoManager.snapshot(this.config);
         }
 
         dirty = this[selector](...args);
@@ -888,8 +893,10 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
             shortcut = Shortcuts.match(prefix + char, this.config);
             count -= 1;
         }
-        // Remove the atoms from the prefix string
-        this.mathlist._deleteAtoms(-count - 1);
+        if (shortcut) {
+            // Remove the atoms from the prefix string
+            this.mathlist._deleteAtoms(-count - 1);
+        }
     }
 
     // If this wasn't a long (multi-character) shortcut, try a single-character
@@ -1043,7 +1050,7 @@ MathField.prototype._onTypedText = function(text, options) {
                     this.mathlist.insert(c);
 
                     // Create a snapshot with the inserted character
-                    this.undoManager.snapshot(this.options);
+                    this.undoManager.snapshot(this.config);
 
                     // Revert to before inserting the character
                     // (restore doesn't change the undo stack)
@@ -1070,7 +1077,7 @@ MathField.prototype._onTypedText = function(text, options) {
                     if (selector) {
                         this.perform(selector);
                     } else {
-                        this.undoManager.snapshot(this.options);
+                        this.undoManager.snapshot(this.config);
                         if (!this.mathlist._insertSmartFence(c)) {
                             this.mathlist.insert(c);
                         }
@@ -1249,15 +1256,16 @@ MathField.prototype._onCopy = function(e) {
  *    * `'spoken'`
  *    * `'mathML'`
  * @return {string}
- * @method MathField#text
+ * @method MathField#$text
  */
-MathField.prototype.text = function(format) {
+MathField.prototype.text = 
+MathField.prototype.$text = function(format) {
     format = format || 'latex';
     let result = '';
     if (format === 'latex' || format === 'latex-expanded') {
-        result = this.mathlist.root.toLatex(format === 'expanded');
+        result = this.mathlist.root.toLatex(format === 'latex-expanded');
     } else if (format === 'mathML') {
-            result = this.mathlist.root.toMathML(this.config);
+        result = this.mathlist.root.toMathML(this.config);
     } else if (format === 'spoken') {
         result = MathAtom.toSpeakableText(this.mathlist.root, this.config);
     } else if (format === 'spoken-text') {
@@ -1285,9 +1293,10 @@ MathField.prototype.text = function(format) {
  *    * `'spoken'`
  *    * `'mathML'`
  * @return {string}
- * @method MathField#selectedText
+ * @method MathField#$selectedText
  */
-MathField.prototype.selectedText = function(format) {
+MathField.prototype.selectedText = 
+MathField.prototype.$selectedText = function(format) {
     format = format || 'latex';
     let result = '';
     const selection = this.mathlist.extractContents();
@@ -1317,9 +1326,10 @@ MathField.prototype.selectedText = function(format) {
  * Return true if the length of the selection is 0, that is, if it is a single
  * insertion point.
  * @return {boolean}
- * @method MathField#selectionIsCollapsed
+ * @method MathField#$selectionIsCollapsed
  */
-MathField.prototype.selectionIsCollapsed = function() {
+MathField.prototype.selectionIsCollapsed = 
+MathField.prototype.$selectionIsCollapsed = function() {
     return this.mathlist.isCollapsed();
 }
 
@@ -1329,18 +1339,20 @@ MathField.prototype.selectionIsCollapsed = function() {
  * which is at the root level, return 1. Note that in that case, the numerator
  * would be the "selection group".
  * @return {number}
- * @method MathField#selectionDepth
+ * @method MathField#$selectionDepth
  */
-MathField.prototype.selectionDepth = function() {
+MathField.prototype.selectionDepth = 
+MathField.prototype.$selectionDepth = function() {
     return this.mathlist.path.length;
 }
 
 /**
  * Return true if the selection starts at the beginning of the selection group.
  * @return {boolean}
- * @method MathField#selectionAtStart
+ * @method MathField#$selectionAtStart
  */
-MathField.prototype.selectionAtStart = function() {
+MathField.prototype.selectionAtStart = 
+MathField.prototype.$selectionAtStart = function() {
     return this.mathlist.startOffset() === 0;
 }
 
@@ -1349,7 +1361,8 @@ MathField.prototype.selectionAtStart = function() {
  * @return {boolean}
  * @method MathField#selectionAtEnd
  */
-MathField.prototype.selectionAtEnd = function() {
+MathField.prototype.selectionAtEnd = 
+MathField.prototype.$selectionAtEnd = function() {
     return this.mathlist.endOffset() >= this.mathlist.siblings().length - 1;
 }
 
@@ -1359,24 +1372,34 @@ MathField.prototype.selectionAtEnd = function() {
  * If `text` is empty (or omitted), return the content of the mahtfield as a
  * LaTeX expression.
  * @param {string} text
+ * 
+ * @param {Object} options
+ * @param {boolean} options.suppressContentChangeNotifications - If true, the
+ * handlers for the contentWillChange and contentDidChange notifications will 
+ * not be invoked. Default `false`.
+ * 
  * @return {string}
- * @method MathField#latex
+ * @method MathField#$latex
  */
-MathField.prototype.latex = function(text) {
+MathField.prototype.latex = 
+MathField.prototype.$latex = function(text, options) {
     if (text) {
-        this.undoManager.snapshot(this.options);
-        this.mathlist.insert(text, {
-            insertionMode: 'replaceAll',
-            selectionMode: 'after',
-            format: 'latex'
-        });
-        this._render();
+        const oldValue = this.mathlist.root.toLatex();
+        if (text !== oldValue) {
+            options = options || {};
+            this.undoManager.snapshot(this.config);
+            this.mathlist.insert(text, {
+                insertionMode: 'replaceAll',
+                selectionMode: 'after',
+                format: 'latex',
+                suppressContentChangeNotifications: options.suppressContentChangeNotifications
+            });
+            this._render();
+        }
         return text;
     }
 
     // Return the content as LaTeX
-    // (The result might be different than the optional input,
-    // for example it may have been simplified or some commands ignored)
     return this.mathlist.root.toLatex();
 }
 
@@ -1384,9 +1407,10 @@ MathField.prototype.latex = function(text) {
 /**
  * Return the DOM element associated with this mathfield.
  * @return {Element}
- * @method MathField#el
+ * @method MathField#$el
  */
-MathField.prototype.el = function() {
+MathField.prototype.el = 
+MathField.prototype.$el = function() {
     return this.element;
 }
 
@@ -1434,7 +1458,7 @@ MathField.prototype.enterCommandMode_ = function() {
         this.switchKeyboardLayer_('lower-command');
     }
 
-    this.undoManager.snapshot(this.options);
+    this.undoManager.snapshot(this.config);
     this.mathlist.insert('\u001b');
     return true;
 }
@@ -1487,10 +1511,11 @@ MathField.prototype.pasteFromClipboard_ = function() {
  *
  * @param {boolean} options.focus - If true, the mathfield will be focused
  * @param {boolean} options.feedback - If true, provide audio and haptic feedback
- * @method MathField#insert
+ * @method MathField#$insert
  */
 MathField.prototype.insert_ =
-MathField.prototype.insert = function(s, options) {
+MathField.prototype.insert = 
+MathField.prototype.$insert = function(s, options) {
     if (typeof s === 'string' && s.length > 0) {
         options = options || {};
         if (options.focus) this.focus();
@@ -1500,7 +1525,7 @@ MathField.prototype.insert = function(s, options) {
             }
             if (this.keypressSound) this.keypressSound.play();
         }
-        this.undoManager.snapshot(this.options);
+        this.undoManager.snapshot(this.config);
         if (s === '\\\\') {
             // This string is interpreted as an "insert row after" command
             this.mathlist.addRowAfter_();
@@ -2158,16 +2183,18 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
 }
 
 MathField.prototype.applyStyle_ = function(style) {
-    this.undoManager.snapshot(this.options);
+    this.undoManager.snapshot(this.config);
     this.mathlist._applyStyle(style);
     return false;
 }
 
-MathField.prototype.hasFocus = function() {
+MathField.prototype.hasFocus = 
+MathField.prototype.$hasFocus = function() {
     return document.hasFocus() && document.activeElement === this.textarea;
 }
 
-MathField.prototype.focus = function() {
+MathField.prototype.focus = 
+MathField.prototype.$focus = function() {
     if (!this.hasFocus()) {
         // The textarea may be a span (on mobile, for example), so check that
         // it has a select() before calling it.
@@ -2177,18 +2204,21 @@ MathField.prototype.focus = function() {
     }
 }
 
-MathField.prototype.blur = function() {
+MathField.prototype.blur = 
+MathField.prototype.$blur = function() {
     if (this.hasFocus()) {
         this.textarea.blur();
         this._render();
     }
 }
 
-MathField.prototype.select = function() {
+MathField.prototype.select = 
+MathField.prototype.$select = function() {
     this.mathlist.selectAll_();
 }
 
-MathField.prototype.clearSelection = function() {
+MathField.prototype.clearSelection = 
+MathField.prototype.$clearSelection = function() {
     this.mathlist.delete_();
 }
 
@@ -2198,9 +2228,10 @@ MathField.prototype.clearSelection = function() {
  * example `'Alt-KeyU'`.
  * See https://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
  * @param {Event} evt
- * @method MathField#keystroke
+ * @method MathField#$keystroke
  */
-MathField.prototype.keystroke = function(keys, evt) {
+MathField.prototype.keystroke = 
+MathField.prototype.$keystroke = function(keys, evt) {
     // This is the public API, while onKeystroke is the
     // internal handler
     return this._onKeystroke(keys, evt);
@@ -2210,9 +2241,10 @@ MathField.prototype.keystroke = function(keys, evt) {
 /**
  * Simulate a user typing the keys indicated by text.
  * @param {string} text - A sequence of one or more characters.
- * @method MathField#typedText
+ * @method MathField#$typedText
  */
-MathField.prototype.typedText = function(text) {
+MathField.prototype.typedText = 
+MathField.prototype.$typedText = function(text) {
     // This is the public API, while onTypedText is the
     // internal handler
     this._onTypedText(text);
@@ -2234,10 +2266,10 @@ MathField.prototype.typedText_ = function(text, options) {
 /**
  * @param {Object} config - See [`MathLive.makeMathField()`]{@link module:mathlive#makeMathField} for details
  * 
- * @method MathField#setConfig
+ * @method MathField#$setConfig
  */
-MathField.prototype.setConfig = function(conf) {
-    // Copy the values from `config` to `def`
+MathField.prototype.setConfig = 
+MathField.prototype.$setConfig = function(conf) {
     if (!this.config) {
         this.config = {
             smartFence: true,
