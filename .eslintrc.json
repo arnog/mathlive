@@ -9,7 +9,7 @@
     },
 
     "parserOptions": {
-        "ecmaVersion": 2016,
+        "ecmaVersion": 2018,
         "sourceType": "module",
         "ecmaFeatures": {
             "jsx": false
@@ -28,7 +28,7 @@
         "no-this-before-super": "warn",
         // "no-undef": "warn",
         "no-unreachable": "warn",
-        // "no-unused-vars": "warn",
+        "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
         "constructor-super": "warn",
 
         "block-scoped-var": "error",
