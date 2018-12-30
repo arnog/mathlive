@@ -776,11 +776,15 @@ MathField.prototype.$perform = function(command) {
     let args = [];
     let dirty = false;
     if (Array.isArray(command)) {
-        selector =  command[0] + '_';
+        selector =  command[0];
         args = command.slice(1);
     } else {
-        selector = command + '_';
+        selector = command;
     }
+    // Convert kebab case (like-this) to camel case (likeThis).
+    selector = selector.replace(/-\w/g, (m) => m[1].toUpperCase() );
+
+    selector += '_';
 
     if (typeof this.mathlist[selector] === 'function') {
         if (['delete_', 'transpose_', 'deleteToMathFieldEnd_',
@@ -818,13 +822,14 @@ MathField.prototype.$perform = function(command) {
  * @param {string} command
  */
 MathField.prototype.performWithFeedback_ = function(command) {
-
     this.focus();
 
     if (this.config.keypressVibration && navigator.vibrate) {
         navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
     }
 
+    // Convert kebab case to camel case.
+    command = command.replace(/-\w/g, (m) => m[1].toUpperCase() );
 
     if (command === 'moveToNextPlaceholder' ||
         command === 'moveToPreviousPlaceholder' ||
