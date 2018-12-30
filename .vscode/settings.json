@@ -1,0 +1,7 @@
+{
+    "eslint.provideLintTask": true,
+    "eslint.options": {
+        "configFile":".eslintrc.json"
+    },
+    "cSpell.allowCompoundWords": true
+}

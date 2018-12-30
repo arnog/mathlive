@@ -765,10 +765,6 @@ MathField.prototype._showKeystroke = function(keystroke) {
 }
 
 /**
- * @param {string|Array.<string>} command - A selector and its parameters
- * @method MathField#perform
- */
-/**
  * @param {string|string[]} command - A selector, or an array whose first element
  * is a selector, and whose subsequent elements are arguments to the selector
  * @method MathField#$perform

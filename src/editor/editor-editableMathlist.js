@@ -59,7 +59,7 @@ function EditableMathlist(config, target) {
     this.config = Object.assign({}, config);
     this.target = target;
 
-    this.contentIsChanging = false;
+    this.suppressContentChangeNotifications = false;
     this.suppressSelectionChangeNotifications = false;
 }
 
@@ -691,12 +691,22 @@ EditableMathlist.prototype.extractContents = function() {
  * replacements for example, so we make a best attempt at getting a string
  * version of the atom. Some atom types are effectively 'hard' barriers
  * in the string because they're not obvious to translate to a string.
- * We don't want them to be transparent, so we map them to '\ufffd'.
- * For example, '+\sqrt{2}-' should not trigger a replacement of '-='
+ * We don't want them to be transparent, so we map them to 
+ * '\ufffd' (REPLACEMENT CHARACTER).
+ * 
+ * For example, '-\sqrt{2}=' should not trigger a replacement of '-='
+ * 
  * @param {*} atom
  */
 function getString(atom) {
     if (!atom) return '';
+    if (Array.isArray(atom)) {
+        let result = '';
+        for (const subAtom of atom) {
+            result += getString(subAtom);
+        }
+        return result;
+    }
     if (atom.type === 'array' || atom.type === 'surd' || atom.type === 'rule' ||
         atom.type === 'overunder' || atom.type === 'box' ||
         atom.type === 'enclose' || atom.type === 'placeholder' || atom.type === 'command') {
@@ -707,7 +717,7 @@ function getString(atom) {
         return '(' + getString(atom.numer) + ')/(' + getString(atom.denom) + ')';
     }
     if (atom.type === 'leftright') {
-        return atom.leftDelim + getString(atom.body) + atom.rightDelim;
+        return (atom.leftDelim || '') + getString(atom.body) + (atom.rightDelim || '');
     }
     if (atom.type === 'delim' || atom.type === 'sizeddelim') {
         return atom.delim;
@@ -1591,17 +1601,26 @@ function removeParen(list) {
  * @param {string} options.smartFence - If true, promote plain fences, e.g. `(`,
  * as `\left...\right` or `\mleft...\mright`
  *
+ * @param {boolean} options.suppressContentChangeNotifications - If true, the
+ * handlers for the contentWillChange and contentDidChange notifications will 
+ * not be invoked. Default `false`.
+ * 
  * @method EditableMathlist#insert
  */
 EditableMathlist.prototype.insert = function(s, options) {
+    options = options || {};
+    const suppressedContentChangeNotifications = this.suppressContentChangeNotifications;
+    if (options.suppressContentChangeNotifications) {
+        this.suppressContentChangeNotifications = true;
+    }
     // Dispatch notifications
-    if (typeof this.config.onContentWillChange === 'function' && !this.contentIsChanging) {
+    if (typeof this.config.onContentWillChange === 'function' && 
+        !options.suppressContentChangeNotifications) {
         this.config.onContentWillChange(this.target);
     }
-    const contentWasChanging = this.contentIsChanging;
-    this.contentIsChanging = true;
+    const contentWasChanging = this.suppressContentChangeNotifications;
+    this.suppressContentChangeNotifications = true;
 
-    options = options || {};
 
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
     if (!options.selectionMode) options.selectionMode = 'placeholder';
@@ -1724,10 +1743,12 @@ EditableMathlist.prototype.insert = function(s, options) {
     }
 
     // Dispatch notifications
-    this.contentIsChanging = contentWasChanging;
-    if (typeof this.config.onContentDidChange === 'function' && !this.contentIsChanging) {
+    this.suppressContentChangeNotifications = contentWasChanging;
+    if (typeof this.config.onContentDidChange === 'function' && !this.suppressContentChangeNotifications) {
         this.config.onContentDidChange(this.target);
     }
+
+    this.suppressContentChangeNotifications = suppressedContentChangeNotifications;
 }
 
 
@@ -1934,11 +1955,11 @@ EditableMathlist.prototype.delete = function(count) {
  */
 EditableMathlist.prototype.delete_ = function(dir) {
     // Dispatch notifications
-    if (typeof this.config.onContentWillChange === 'function' && !this.contentIsChanging) {
+    if (typeof this.config.onContentWillChange === 'function' && !this.suppressContentChangeNotifications) {
         this.config.onContentWillChange(this.target);
     }
-    const contentWasChanging = this.contentIsChanging;
-    this.contentIsChanging = true;
+    const contentWasChanging = this.suppressContentChangeNotifications;
+    this.suppressContentChangeNotifications = true;
 
     dir = dir || 0;
     dir = dir < 0 ? -1 : (dir > 0 ? +1 : dir);
@@ -2050,8 +2071,8 @@ EditableMathlist.prototype.delete_ = function(dir) {
         }
     }
     // Dispatch notifications
-    this.contentIsChanging = contentWasChanging;
-    if (typeof this.config.onContentDidChange === 'function' && !this.contentIsChanging) {
+    this.suppressContentChangeNotifications = contentWasChanging;
+    if (typeof this.config.onContentDidChange === 'function' && !this.suppressContentChangeNotifications) {
         this.config.onContentDidChange(this.target);
     }
 }

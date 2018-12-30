@@ -97,6 +97,7 @@ const KEYBOARD_SHORTCUTS = {
 
     'math:Esc':                 'enterCommandMode',
     'math:Backslash':           'enterCommandMode',
+    'math:IntlBackslash':       'enterCommandMode',
     'command:Spacebar':         'complete',
     'command:Esc':              'complete',
     'command:Tab':              'complete',
@@ -180,8 +181,12 @@ const KEYBOARD_SHORTCUTS = {
     'math:Alt-Shift-KeyD':       ['insert', '\\partial'],
     'math:Slash':                ['insert', '\\frac{#@}{#?}'],
     'math:Alt-Slash':            ['insert', '\\frac{#?}{#@}'],
+    'math:NumpadDivide':         ['insert', '\\frac{#@}{#?}'],
+    'math:Alt-NumpadDivide':     ['insert', '\\frac{#?}{#@}'],
     'math:Alt-KeyO':             ['insert', '\\emptyset'],
     'math:Alt-Shift-KeyO':       ['insert', '\\varnothing'],
+    'math:Shift-Backquote':      ['insert', '\\~'],
+    'math:Alt-Shift-Slash':      ['insert', '\\/'],
 
     // Accessibility
     'Alt-Shift-KeyK':           'toggleKeystrokeCaption',
@@ -241,7 +246,8 @@ const REVERSE_KEYBOARD_SHORTCUTS = {
     '\\partial':                'Alt-Shift-KeyD',
     '\\frac':                   'Slash',
     '\\emptyset':               'Alt-KeyO',
-    '\\varnothing':             'Alt-Shift-KeyO'
+    '\\varnothing':             'Alt-Shift-KeyO',
+    '\\~':                      '~'
 
 }
 

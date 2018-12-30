@@ -14,8 +14,8 @@
     'ArrowUp': 'Up',
     'ArrowRight': 'Right',
     'ArrowDown': 'Down',
-    'Delete': 'Del',
-  };
+    'Delete': 'Del'
+};
 
   const VIRTUAL_KEY_NAMES = {
       'q'           : 'KeyQ',
@@ -208,8 +208,8 @@ function delegateKeyboardEvents(textarea, handlers) {
             deadKey = false;
         }
         if (!compositionInProgress && 
-            e.code !== 'ControlLeft' &&
-            e.code !== 'MetaLeft') {
+            e.code !== 'CapsLock' && 
+            !/(Control|Meta|Alt|Shift)(Right|Left)/.test(e.code)) {
             keydownEvent = e;
             keypressEvent = null;
             return handlers.keystroke(keyboardEventToString(e), e);

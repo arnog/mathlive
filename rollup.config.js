@@ -22,8 +22,29 @@ export default [{
   ],
   output:
     {
-        // JavaScript native module
+      // JavaScript native module
       file: 'dist/mathlive.mjs',
+      format: 'es',
+      sourcemap: true
+    }
+},
+{
+  input: 'src/vue-mathlive.js',
+  plugins: [terser({
+      sourcemap: false,
+      compress: {
+          drop_console: true,
+          drop_debugger: true,
+          ecma: 6,
+          module: true,
+          warnings: true
+      }
+    })
+  ],
+  output:
+    {
+      // JavaScript native module
+      file: 'dist/vue-mathlive.mjs',
       format: 'es'
     }
 },
