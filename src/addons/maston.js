@@ -1107,8 +1107,13 @@ function parsePrimary(expr, options) {
                 // dealing with an empty lhs. It's possible.
                 // Couldn't interpret the expression. Output an error.
                 expr.ast = {text: '?'};
-                expr.ast.error = 'Unexpected token ' +
-                    "'" + atom.type + "' = " + atom.body + ' = ' + atom.latex;
+                if (atom.type === 'placeholder') {
+                    expr.ast.error = 'Placeholder ' + "'" + atom.body + "'";
+                } else {
+                    expr.ast.error = 'Unexpected token ' + "'" + atom.type + "'";
+                    if (atom.body) expr.ast.error += ' = ' + atom.body;
+                    if (atom.latex) expr.ast.error += ' = ' + atom.latex;
+                }
                 expr.index += 1;    // Skip the unexpected token, and attempt to continue
             }
         }
@@ -1865,7 +1870,14 @@ function asLatex(ast, options) {
         if (ast.sub) result += '_{' + asLatex(ast.sub, config) + '}';
 
     } else if (ast.fn) {
-        if (ast.fn === 'pow' && Array.isArray(ast.arg) && ast.arg.length >= 2) {
+        if (ast.fn === 'list' || ast.fn === 'list2') {
+            const a = [];
+            for (const exp of ast.arg) {
+                a.push(asLatex(exp, config));
+            }
+
+            result = a.join(ast.fn === 'list2' ? '; ' : ', ');
+        } else if (ast.fn === 'pow' && Array.isArray(ast.arg) && ast.arg.length >= 2) {
             result = asLatex(ast.arg[0], config);
             if (!isNumber(ast.arg[0]) && !asSymbol(ast.arg[0])) {
                 const fence = validateFence(ast.fence, '(),');
