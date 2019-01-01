@@ -662,7 +662,10 @@ function speakableText(mathfield, prefix, atoms) {
     if (command === 'plonk') {
         // Use this sound to indicate (minor) errors, for
         // example when a command has no effect.
-        if (target.plonkSound) target.plonkSound.play().catch(err => console.log(err));
+        if (target.plonkSound) {
+            target.plonkSound.load();
+            target.plonkSound.play().catch(err => console.log(err));
+        }
     } else if (command === 'delete') {
         liveText = speakableText(target, 'deleted: ', atomsToSpeak);
     //*** FIX: could also be moveUp or moveDown -- do something different like provide context???
@@ -834,8 +837,13 @@ MathField.prototype.performWithFeedback_ = function(command) {
     if (command === 'moveToNextPlaceholder' ||
         command === 'moveToPreviousPlaceholder' ||
         command === 'complete') {
-        if (this.returnKeypressSound) this.returnKeypressSound.play();
-        else if (this.keypressSound) this.keypressSound.play();
+        if (this.returnKeypressSound) {
+            this.returnKeypressSound.load();
+            this.returnKeypressSound.play();
+        } else if (this.keypressSound) {
+            this.keypressSound.load();
+            this.keypressSound.play();
+        }
     } else if (command === 'deletePreviousChar' ||
         command === 'deleteNextChar' ||
         command === 'deletePreviousWord' ||
@@ -844,9 +852,15 @@ MathField.prototype.performWithFeedback_ = function(command) {
         command === 'deleteToGroupEnd' ||
         command === 'deleteToMathFieldStart' ||
         command === 'deleteToMathFieldEnd') {
-            if (this.deleteKeypressSound) this.deleteKeypressSound.play();
-            else if (this.keypressSound) this.keypressSound.play();
+            if (this.deleteKeypressSound) {
+                this.deleteKeypressSound.load();
+                this.deleteKeypressSound.play();
+            } else if (this.keypressSound) {
+                this.keypressSound.load();
+                this.keypressSound.play();
+            }
     } else if (this.keypressSound) {
+        this.keypressSound.load();
         this.keypressSound.play();
     }
 
@@ -954,7 +968,10 @@ MathField.prototype._onTypedText = function(text, options) {
          if (this.config.keypressVibration && navigator.vibrate) {
             navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
         }
-        if (this.keypressSound) this.keypressSound.play();
+        if (this.keypressSound) {
+            this.keypressSound.load();            
+            this.keypressSound.play();
+        }
     }
 
     if (options.commandMode) {
@@ -1524,7 +1541,10 @@ MathField.prototype.$insert = function(s, options) {
             if (this.config.keypressVibration && navigator.vibrate) {
                 navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
             }
-            if (this.keypressSound) this.keypressSound.play();
+            if (this.keypressSound) {
+                this.keypressSound.load();
+                this.keypressSound.play();
+            }
         }
         this.undoManager.snapshot(this.config);
         if (s === '\\\\') {
@@ -2299,35 +2319,47 @@ MathField.prototype.$setConfig = function(conf) {
     this.deleteKeypressSound = undefined;
     if (this.config.keypressSound) {
         if (typeof this.config.keypressSound === 'string') {
-            this.keypressSound = new Audio(this.config.keypressSound);
+            this.keypressSound = new Audio();
+            this.keypressSound.preload = 'none';
+            this.keypressSound.src = this.config.keypressSound;
             this.keypressSound.volume = AUDIO_FEEDBACK_VOLUME;
             this.spacebarKeypressSound = this.keypressSound;
             this.returnKeypressSound = this.keypressSound;
             this.deleteKeypressSound = this.keypressSound;
         } else {
             console.assert(this.config.keypressSound.default);
-            this.keypressSound = new Audio(this.config.keypressSound.default);
+            this.keypressSound = new Audio();
+            this.keypressSound.preload = 'none';
+            this.keypressSound.src = this.config.keypressSound.default;
             this.keypressSound.volume = AUDIO_FEEDBACK_VOLUME;
             this.spacebarKeypressSound = this.keypressSound;
             this.returnKeypressSound = this.keypressSound;
             this.deleteKeypressSound = this.keypressSound;
             if (this.config.keypressSound.spacebar) {
-                this.spacebarKeypressSound = new Audio(this.config.keypressSound.spacebar);
+                this.spacebarKeypressSound = new Audio();
+                this.spacebarKeypressSound.preload = 'none';
+                this.spacebarKeypressSound.src = this.config.keypressSound.spacebar;
                 this.spacebarKeypressSound.volume = AUDIO_FEEDBACK_VOLUME;
             }
             if (this.config.keypressSound.return) {
-                this.returnKeypressSound = new Audio(this.config.keypressSound.return);
+                this.returnKeypressSound = new Audio();
+                this.returnKeypressSound.preload = 'none';
+                this.returnKeypressSound.src = this.config.keypressSound.return;
                 this.returnKeypressSound.volume = AUDIO_FEEDBACK_VOLUME;
             }
             if (this.config.keypressSound.delete) {
-                this.deleteKeypressSound = new Audio(this.config.keypressSound.delete);
+                this.deleteKeypressSound = new Audio();
+                this.deleteKeypressSound.preload = 'none';
+                this.deleteKeypressSound.src = this.config.keypressSound.delete;
                 this.deleteKeypressSound.volume = AUDIO_FEEDBACK_VOLUME;
             }
         }
     }
 
     if (this.config.plonkSound) {
-        this.plonkSound = new Audio('sounds/plonk.wav');
+        this.plonkSound = new Audio();
+        this.plonkSound.preload = 'none';
+        this.plonkSound.src = this.config.plonkSound;
         this.plonkSound.volume = AUDIO_FEEDBACK_VOLUME;
     }
 }
