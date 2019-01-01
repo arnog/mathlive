@@ -1,9 +1,31 @@
-
 /**
  * @module editor/shortcuts
  * @private
  */
 
+
+/*
+
+INLINE SHORTCUTS
+- Add option to trigger command mode with "\" (or emit \backslash")
+- Keep a "buffer" of keystrokes
+- Clear the buffer after an interval following the last keystroke
+- On each new keystroke, 
+    - check if the buffer + the new keystroke matches the begining of a shortcut
+        - if it matches exactly one, insert substitution.
+        - else if it matches multiple (of different length), wait a bit
+            - if the character is "_" or "^", insert a command mode "_" or "^" 
+
+
+KEYBOARD SHORTCUTS
+- Could be chorded, or multiple ("ctrl+k ctrl+k")
+- conditions in a "when" field?
+- Should use "+" as separator
+- Also, "ctrl", "shift" (lowercase)
+- Also, "a" instead of "KeyA" (key value vs key code, i.e. "/" and "?" and "[Slash]"
+- Allow "[KeyA]" as well
+
+*/
 
 
 /**
@@ -15,7 +37,7 @@
  * - `LeftArrow`...   → `Left/Right/Up/Down`
  * - `Delete`         → `Del`
  * - `Escape`         → `Esc`
- * - ' '            → `Spacebar`
+ * - ' '              → `Spacebar`
  * 
  * The modifiers are specified before the main key, in the following order:
  * 1. `Ctrl`
@@ -220,7 +242,7 @@ const KEYBOARD_SHORTCUTS = {
  * Most commands can be associated to their keyboard shortcuts from the 
  * KEYBOARD_SHORTCUTS table above, for example 'speakSelection' -> 'Ctrl-KeyR'
  * However, those that contain complex commands are more ambiguous.
- * For example, '\sqrt' -> 'math-Alt-KeyV'. This table provides the reverse
+ * For example, '\sqrt' -> 'math:Alt-KeyV'. This table provides the reverse
  * mapping for those more complex commands. It is used when displaying 
  * keyboard shortcuts for specific commands in the popover.
  * @memberof module:editor/shortcuts
@@ -259,53 +281,17 @@ const REVERSE_KEYBOARD_SHORTCUTS = {
  * @memberof module:editor/shortcuts
  */
 const INLINE_SHORTCUTS = {
-    '>=':                   '\\ge',                 //ASCIIMath
-    '<=':                   '\\le',                 //ASCIIMath
-    '!=':                   '\\ne',
     '?=':                   '\\questeq',
     '≈':                    '\\approx',
-    '~~':                   '\\approx',             // ASCIIMath
     '÷':                    '\\div',
-    '-:':                   '\\div',                // ASCIIMath
     '¬':                    '\\neg',
-    '+-':                   '\\pm',                 // ASCIIMath
-    '-=':                   '\\equiv',              // ASCIIMath
-    '~=':                   '\\cong',               // ASCIIMath
     ':=':                   '\\coloneq',
     '::':                   '\\Colon',
     '(:':                   '\\langle',
     ':)':                   '\\rangle',
-    '-<':                   '\\prec',               // ASCIIMath
-    '-<=':                  '\\preceq',             // ASCIIMath
-    // '>-':                   '\\succ',               // ASCIIMath
-    '>-=':                  '\\succeq',             // ASCIIMath
-    'prop':                 '\\propto',             // ASCIIMath
-    ':.':                   '\\therefore',          // ASCIIMath
-    '**':                  '\\star',               // ASCIIMath
-    'xx':                   '\\times',              // ASCIIMath
-    '@':                    '\\circ',               // ASCIIMath
-    'diamond':              '\\diamond',            // ASCIIMath
-    'square':               '\\square',             // ASCIIMath
-    'iff':                  '\\iff',                // ASCIIMath
 
 
-    'alpha':                '\\alpha',            // ASCIIMath
-    'beta':                 '\\beta',            // ASCIIMath
-    'gamma':                '\\gamma',            // ASCIIMath
-    'Gamma':                '\\Gamma',            // ASCIIMath
-    'delta':                '\\delta',            // ASCIIMath
-    'Delta':                '\\Delta',            // ASCIIMath
-    'chi':                  '\\chi',            // ASCIIMath
-    'epsilon':              '\\epsilon',            // ASCIIMath
-    'varepsilon':           '\\varepsilon',            // ASCIIMath
-    'eta':                  '\\eta',            // ASCIIMath
-    'iota':                 '\\iota',            // ASCIIMath
-    'kappa':                '\\kappa',            // ASCIIMath
-    'lambda':               '\\lambda',            // ASCIIMath
-    'Lambda':               '\\Lambda',            // ASCIIMath
-    'mu':                   '\\mu',            // ASCIIMath
     'µ':                    '\\mu',        // @TODO: or micro?
-    // 'nu':                   '\\nu',            // ASCIIMath
     'pi':                   '\\pi',
     'π':                    '\\pi',
     'Pi':                   '\\Pi',
@@ -333,27 +319,16 @@ const INLINE_SHORTCUTS = {
     'ee':                   '\\exponentialE',
     'nabla':                '\\nabla',
 
-    'oo':                   '\\infty',       // ASCIIMath
     '\u221e':               '\\infty',         // @TODO: doesn't work
     // '&infin;': '\\infty',
     // '&#8734;': '\\infty',
 
     '∑':                    '\\sum',
-    'sum':                  '\\sum_{#?}^{#?}',       // ASCIIMath
-    'prod':                 '\\prod_{#?}^{#?}',       // ASCIIMath
     '∆':                    '\\diffd',     // @TODO: most common?
-    'grad':                 '\\nabla',       // ASCIIMath
     '∂':                    '\\differentialD',
-    'del':                  '\\partial',       // ASCIIMath
     '√':                    '\\sqrt',
     'sqrt':                 '\\sqrt',
     '∫':                    '\\int',
-    'aleph':                '\\aleph',       // ASCIIMath
-
-    'nn':                   '\\cap',            // ASCIIMath
-    'nnn':                  '\\bigcap',         // ASCIIMath
-    'uu':                   '\\cup',            // ASCIIMath
-    'uuu':                  '\\bigcup',         // ASCIIMath
     
     // 'arg': '\\arg',
     'sin':                  '\\sin',
@@ -401,10 +376,6 @@ const INLINE_SHORTCUTS = {
     '!EE':                  '\\nexists',
     // 'in':                   '\\in',
     '!in':                  '\\notin',
-    'sub':                  '\\subset',     // ASCIIMath
-    'sup':                  '\\supset',     // ASCIIMath
-    'sube':                 '\\subseteq',     // ASCIIMath
-    'supe':                 '\\supseteq',     // ASCIIMath
 
 
     '&&':                   '\\land',
@@ -412,7 +383,7 @@ const INLINE_SHORTCUTS = {
     '...':                  '\\ldots',          // In general, use \ldots
     '+...':                 '+\\cdots',         // ... but use \cdots after + ...
     '-...':                 '-\\cdots',         // ... - and ...
-    '->...':                '\to\\cdots',       // ->
+    '->...':                '\\to\\cdots',       // ->
 
     '->':                   '\\to',
     '∣−>':                  '\\mapsto',
@@ -426,22 +397,11 @@ const INLINE_SHORTCUTS = {
     '<->':                  '\\leftrightarrow',
     '<<':                   '\\ll',
     '>>':                   '\\gg',
-    'uarr':                  '\\uparrow',            // ASCIIMath
-    'darr':                  '\\downarrow',            // ASCIIMath
-    'rarr':                  '\\rightarrow',            // ASCIIMath
-    'rArr':                  '\\Rightarrow',            // ASCIIMath
-    'larr':                  '\\leftarrow',            // ASCIIMath
-    'lArr':                  '\\Leftarrow',            // ASCIIMath
-    'harr':                  '\\leftrightarrow',            // ASCIIMath
-    'hArr':                  '\\Leftrightarrow',            // ASCIIMath
 
     '(.)':                  '\\odot',
-    'o.':                   '\\odot',                // ASCIIMath
     '(+)':                  '\\oplus',      
-    'o+':                   '\\oplus',                 // ASCIIMath
     // '(/)':                  '\\oslash',
     '(*)':                  '\\otimes',
-    'ox':                   '\\otimes',            // ASCIIMath
 
     '||':                   '\\Vert',               // || 
     '{':                    '\\{',
@@ -449,6 +409,96 @@ const INLINE_SHORTCUTS = {
 
     '(–)':                  '\\ominus',
     // '(-)':                  '\\circleddash',
+
+    //
+    // ASCIIIMath
+    //
+
+    // Binary operation symbols
+    '**':                   '\\ast',
+    '***':                  '\\star',
+    '//':                   '\\slash',
+    '\\\\':                 '\\backslash',
+    'setminus':             '\\backslash',
+    'xx':                   '\\times',
+    '|><':                  '\\ltimes',
+    '><|':                  '\\rtimes',
+    '|><|':                 '\\bowtie',
+    '-:':                   '\\div',
+    'divide':               '\\div',
+    '@':                    '\\circ',
+    'o+':                   '\\oplus',
+    'ox':                   '\\otimes',
+    'o.':                   '\\odot',
+    'sum':                  '\\sum_{#?}^{#?}',
+    'prod':                 '\\prod_{#?}^{#?}',
+    '^^':                   '\\wedge',
+    '^^^':                  '\\bigwedge',
+    'vv':                   '\\vee',
+    'vvv':                  '\\bigvee',
+    'nn':                   '\\cap',
+    'nnn':                  '\\bigcap',
+    'uu':                   '\\cup',
+    'uuu':                  '\\bigcup',
+
+    // Binary relation symbols
+    '!=':                   '\\ne',
+    '>=':                   '\\ge',
+    '<=':                   '\\le',
+    '~~':                   '\\approx', 
+    '+-':                   '\\pm',
+    '-=':                   '\\equiv',
+    '~=':                   '\\cong',
+    '-<':                   '\\prec',
+    '-<=':                  '\\preceq',
+    // '>-':                   '\\succ',
+    '>-=':                  '\\succeq', 
+    'prop':                 '\\propto', 
+    ':.':                   '\\therefore',
+    'diamond':              '\\diamond',
+    'square':               '\\square',
+    'iff':                  '\\iff',
+
+    '_|_':                   '\\bot',
+
+
+    'sub':                  '\\subset',
+    'sup':                  '\\supset',
+    'sube':                 '\\subseteq',
+    'supe':                 '\\supseteq',
+    'uarr':                 '\\uparrow',
+    'darr':                 '\\downarrow',
+    'rarr':                 '\\rightarrow',
+    'rArr':                 '\\Rightarrow',
+    'larr':                 '\\leftarrow',
+    'lArr':                 '\\Leftarrow',
+    'harr':                 '\\leftrightarrow',
+    'hArr':                 '\\Leftrightarrow',
+    'aleph':                '\\aleph',
+
+    'grad':                 '\\nabla',
+    'del':                  '\\partial',
+    'oo':                   '\\infty',
+
+    // Greek letters
+    'alpha':                '\\alpha',
+    'beta':                 '\\beta',
+    'gamma':                '\\gamma',
+    'Gamma':                '\\Gamma',
+    'delta':                '\\delta',
+    'Delta':                '\\Delta',
+    'chi':                  '\\chi',
+    'epsilon':              '\\epsilon',
+    'varepsilon':           '\\varepsilon',
+    'eta':                  '\\eta',
+    'iota':                 '\\iota',
+    'kappa':                '\\kappa',
+    'lambda':               '\\lambda',
+    'Lambda':               '\\Lambda',
+    'mu':                   '\\mu',
+    // 'nu':                   '\\nu',
+
+
 };
 
 /* 
@@ -526,6 +576,8 @@ const MATHEMATICA_COMMANDS = {
     'SupersetEqual':         '\\supseteq',
     'NotSubset':             '\\nsubset',
     'NotSuperset':           '\\nsupset',
+
+
 
     'Not':                   '\\neg',
     'And':                   '\\land',
@@ -698,7 +750,7 @@ function getShortcutsForCommand(command) {
         }
     }
 
-    return result;
+    return stringify(result);
 }
 
 /**
@@ -787,8 +839,7 @@ export default {
     // KEYBOARD: KEYBOARD_SHORTCUTS,
     match: match,
     matchKeystroke: matchKeystroke,
-    getShortcutsForCommand: getShortcutsForCommand,
-    stringify: stringify,
+    getShortcutsForCommand: getShortcutsForCommand
 }
 
 

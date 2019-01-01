@@ -1778,8 +1778,8 @@ MathAtom.prototype.makeSpan = function(context, body) {
 
     result.setRight(result.italic); // Italic correction
 
-    result.setStyle('color', context.getColor());
-    result.setStyle('background-color', context.getBackgroundColor());
+    if (context.color) result.setStyle('color', context.getColor());
+    if (context.backgroundcolor) result.setStyle('background-color', context.getBackgroundColor());
 
     // To retrieve the atom from a span, for example when the span is clicked
     // on, attach a randomly generated ID to the span and associate it

@@ -717,7 +717,9 @@ function getString(atom) {
         return '(' + getString(atom.numer) + ')/(' + getString(atom.denom) + ')';
     }
     if (atom.type === 'leftright') {
-        return (atom.leftDelim || '') + getString(atom.body) + (atom.rightDelim || '');
+        return (atom.leftDelim || '') + 
+            getString(atom.body) + 
+            (atom.rightDelim === '?' ? '' : (atom.rightDelim || ''));
     }
     if (atom.type === 'delim' || atom.type === 'sizeddelim') {
         return atom.delim;

@@ -256,10 +256,10 @@ function MathField(element, config) {
 
     // If fonts get loaded (which could happen as a result of the first pass
     // rendering done in .latex()), render again.
-    if (document && document.fonts) {
-        const that = this;
-        document.fonts.ready.then(() => that._render());
-    }
+    // if (document && document.fonts) {
+    //     const that = this;
+    //     document.fonts.ready.then(() => that._render());
+    // }
 }
 
 /**

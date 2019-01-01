@@ -3104,7 +3104,6 @@ export default {
     matchFunction,
     unicodeToMathVariant,
     mathVariantToUnicode,
-    codepointToLatex,
     unicodeStringToLatex,
     getInfo,
     getValue,

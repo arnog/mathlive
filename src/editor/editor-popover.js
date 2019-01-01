@@ -368,8 +368,7 @@ function showPopoverWithLatex(mf, latex, displayArrows) {
     const command = latex;
     const command_markup = latexToMarkup(SAMPLES[command] || latex, mf);
     const command_note = getNote(command);
-    const command_shortcuts = Shortcuts.stringify(
-        Shortcuts.getShortcutsForCommand(command)) || '';
+    const command_shortcuts = Shortcuts.getShortcutsForCommand(command);
 
     let template = displayArrows ?
         '<div class="ML__popover_prev-shortcut" role="button" aria-label="Previous suggestion"><span><span>&#x25B2;</span></span></div>' : '';

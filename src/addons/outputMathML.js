@@ -444,11 +444,9 @@ function toMathML(input, initial, final, options) {
 
 function toMo(atom, options) {
     let result = '';
-    if (atom) {
-        const body = toString(atom.body);
-        if (body) {
-            result = '<mo' + makeID(atom.id, options) + '>' + body + '</mo>';
-        }
+    const body = toString(atom.body);
+    if (body) {
+        result = '<mo' + makeID(atom.id, options) + '>' + body + '</mo>';
     }
     return result;
 }

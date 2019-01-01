@@ -280,6 +280,7 @@ function lastSpanType(span) {
  */
 Span.prototype.toMarkup = function(hskip, hscale) {
     hskip = hskip || 0;
+    hscale = hscale || 1.0;
     let result = '';
     let body = this.body || '';
     if (this.children) {
@@ -296,7 +297,7 @@ Span.prototype.toMarkup = function(hskip, hscale) {
                     } else {
                         spacing = (INTER_ATOM_SPACING[previousType + '+' + type] || 0) / 18;
                     }
-                    if (hscale) spacing = hscale * spacing;
+                    spacing = hscale * spacing;
                 }
             }
             body += child.toMarkup(spacing, hscale);
