@@ -839,10 +839,10 @@ MathField.prototype.performWithFeedback_ = function(command) {
         command === 'complete') {
         if (this.returnKeypressSound) {
             this.returnKeypressSound.load();
-            this.returnKeypressSound.play();
+            this.returnKeypressSound.play().catch(err => console.log(err));;
         } else if (this.keypressSound) {
             this.keypressSound.load();
-            this.keypressSound.play();
+            this.keypressSound.play().catch(err => console.log(err));;
         }
     } else if (command === 'deletePreviousChar' ||
         command === 'deleteNextChar' ||
@@ -854,14 +854,14 @@ MathField.prototype.performWithFeedback_ = function(command) {
         command === 'deleteToMathFieldEnd') {
             if (this.deleteKeypressSound) {
                 this.deleteKeypressSound.load();
-                this.deleteKeypressSound.play();
+                this.deleteKeypressSound.play().catch(err => console.log(err));;
             } else if (this.keypressSound) {
                 this.keypressSound.load();
-                this.keypressSound.play();
+                this.keypressSound.play().catch(err => console.log(err));;
             }
     } else if (this.keypressSound) {
         this.keypressSound.load();
-        this.keypressSound.play();
+        this.keypressSound.play().catch(err => console.log(err));;
     }
 
     return this.perform(command);
@@ -970,7 +970,7 @@ MathField.prototype._onTypedText = function(text, options) {
         }
         if (this.keypressSound) {
             this.keypressSound.load();            
-            this.keypressSound.play();
+            this.keypressSound.play().catch(err => console.log(err));
         }
     }
 
