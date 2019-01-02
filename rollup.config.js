@@ -25,7 +25,7 @@ export default [{
       // JavaScript native module
       file: 'dist/mathlive.mjs',
       format: 'es',
-      sourcemap: true
+      sourcemap: false
     }
 },
 {
@@ -44,6 +44,7 @@ export default [{
   output:
     {
       // JavaScript native module
+      sourcemap: false,
       file: 'dist/vue-mathlive.mjs',
       format: 'es'
     }
@@ -64,6 +65,7 @@ export default [{
   output:
     {
         // UMD file, suitable for <script>, require(), etc...
+      sourcemap: false,
       file: 'dist/mathlive.js',
       format: 'umd',
       name: 'MathLive'
