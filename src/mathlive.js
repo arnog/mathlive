@@ -486,7 +486,7 @@ function speak(text, config) {
                         const url = URL.createObjectURL(blob);
 
                         const audioElement = new Audio(url);
-                        audioElement.play().catch(err => console.log(err));;
+                        audioElement.play().catch(err => console.log(err));
                     } else {
                         console.log('polly.synthesizeSpeech():' + data);
                     }
