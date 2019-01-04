@@ -61,7 +61,9 @@
 
 
 .ML__mathlive {
-
+    --highlight: #b4d5fe;
+    // --highlight: Highlight;
+    --highlight-inactive: #ccc;
     /*** ***/
 
     .mathit {
@@ -509,21 +511,36 @@
 
     &.ML__focused .ML__selected {
         // Highlight color defined in https://www.w3.org/TR/REC-CSS2/ui.html
-        background: Highlight !important;
-        background: #b4d5fe !important;
+        background: var(--highlight) !important;
         display: inline-block;
         // color: HighlightText;
         // border-color: HighlightText;
     }
 
     &.ML__blurred .ML__selected {
-        background: #ccc;
+        background: var(--highlight-inactive);
         display: inline-block;
     }
 
 
 
 }
+
+@media (prefers-color-scheme: dark) {
+    .ML__mathlive {
+        --primary: @primary;
+        --highlight: #4b79af;
+        --highlight-inactive: #505056;
+    }
+}
+
+body.dark .ML__mathlive {
+    --primary: @primary;
+    --highlight: #4b79af;
+    --highlight-inactive: #aaaacc;
+}
+
+
 
 .ML__command {
     font-family: @monospace;
@@ -661,6 +678,27 @@
 
 
 #ML__keyboard {
+    --keyboard-background: rgba(209, 213, 217, .9);
+    --keyboard-text: #000;
+    --keyboard-text-active: @primary;
+    --keyboard-background-border: #ddd;
+    --keycap-background: white;
+    --keycap-background-active: #e5e5e5;
+    --keycap-background-border: #e5e6e9;
+    --keycap-background-border-bottom: #8d8f92;
+    --keycap-text: #000;
+    --keycap-text-active: #fff;
+    --keycap-secondary-text: #000;
+
+    --keycap-modifier-background: #b9bdc7;
+    --keycap-modifier-border: #c5c9d0;
+    --keycap-modifier-border-bottom: #989da6;
+
+
+    --keyboard-alternate-background: #fff;
+    --keyboard-alternate-background-active: #e5e5e5;
+    --keyboard-alternate-text: #000;
+
     position: fixed;
     left: 0;
     padding-top: 5px;
@@ -682,8 +720,8 @@
     }
 
     backdrop-filter: grayscale(50%);
-    background-color: rgba(209, 213, 217, .9);
-    border: 1px solid #ddd;
+    background-color: var(--keyboard-background);
+    border: 1px solid var(--keyboard-background-border);
 
     font-family: @system;
     font-size: 16px;
@@ -719,8 +757,7 @@
             max-width: 320px;
         }
 
-
-        background-color: white;
+        background-color: var(--keyboard-alternate-background);
         text-align: center;
         border-radius: 6px;
         // padding: 8px 8px;
@@ -768,13 +805,13 @@
                 border: 1px solid transparent; // #e5e6e9;
                 border-radius: 5px;
                 pointer-events: all;
-                color: #000;
-                fill: #000;
+                color: var(--keyboard-alternate-text);
+                fill: var(--keyboard-alternate-text);
                 &:hover, &.pressed, &.active {
-                    shadow-box: @shadow3;
-                    background: #e5e5e5;
-                    color: @primary;
-                    fill: @primary;
+                    box-shadow: @shadow3;
+                    background: var(--keyboard-alternate-background-active);
+                    color: var(--keyboard-text-active);
+                    fill: var(--keyboard-text-active);
                 }
                 &.small {
                     font-size: 18px;
@@ -785,7 +822,7 @@
                     margin: 2px;
                     background: #fbfbfb;
                     &:hover {
-                        background: #e5e5e5;
+                        background: var(--keyboard-alternate-background-active);
                     }
                 }
                 &.box > div, &.box > span {
@@ -868,7 +905,8 @@
         div div {
             /* "button" in the toolbar */
             pointer-events: all;
-            color: #000;
+            color: var(--keyboard-text);
+            fill: var(--keyboard-text);
             background: 0;
             font-size: 110%;
             padding: 4px 15px;
@@ -885,7 +923,7 @@
             border-bottom: 2px solid transparent;
 
             &.disabled, &.disabled:hover, &.disabled.pressed {
-                color: #000;
+                color: var(--keyboard-text);
                 opacity: .2;
             }
 
@@ -901,13 +939,13 @@
                 font-size: 90%;
             }
             &:hover, &:active, &.pressed, &.active {
-                color: @primary;
-                fill: @primary;
+                color: var(--keyboard-text-active);
+                fill: var(--keyboard-text-active);
             }
             &.selected {
-                color: @primary;
-                fill: @primary;
-                border-bottom: 2px solid @primary;
+                color: var(--keyboard-text-active);
+                fill: var(--keyboard-text-active);
+                border-bottom: 2px solid var(--keyboard-text-active);
                 margin-bottom: 8px;
                 padding-bottom: 0;
             }
@@ -948,11 +986,12 @@
                 text-align: center;
                 float: left;
 
-                color: #000;
+                color: var(--keycap-text);
+                fill: var(--keycap-text);
                 font-size: 20px;
-                background: white;
-                border: 1px solid #e5e6e9;
-                border-bottom-color: #8d8f92;
+                background: var(--keycap-background);
+                border: 1px solid var(--keycap-background-border);
+                border-bottom-color: var(--keycap-background-border-bottom);
                 border-radius: 5px;
                 pointer-events: all;
 
@@ -962,7 +1001,7 @@
                 }
 
                 &.small {font-size: 16px;}
-                &.tt {color: @primary;}
+                &.tt {color: var(--keyboard-text-active);}
 
                 /* For the alignment of the text on some modifiers (e.g. shift) */
                 &.bottom {
@@ -1031,20 +1070,20 @@
                 // &.tt {font-size: 30px;}
                 &:hover, &.pressed {
                     // box-shadow: inset 0 0 1px 1px #8d8f92;
-                    background: #e5e5e5;
-                    color: @primary;
-                    fill: @primary;
+                    background: var(--keycap-background-active);
+                    color: var(--keyboard-text-active);
+                    fill: var(--keyboard-text-active);
                 }
                 &.keycap:active, &.keycap.active, &.action:active, &.action.active {
                     transform: translateY(-20px) scale(1.4, 1.4);
                     z-index: 100;
-                    color: @primary;
-                    fill: @primary;
+                    color: var(--keyboard-text-active);
+                    fill: var(--keyboard-text-active);
                 }
                 &.modifier:active, &.modifier.active {
-                    background: @primary;
-                    color: white;
-                    fill: white;
+                    background: var(--keyboard-text-active);
+                    color: var(--keycap-text-active);
+                    fill: var(--keycap-text-active);
                 }
                 &.action.font-glyph, &.modifier.font-glyph {
                     font-size: 18px;
@@ -1075,14 +1114,14 @@
                     }
                 }
                 &.modifier, &.action {
-                    background-color: #b9bdc7;
-                    border-color: #c5c9d0;
-                    border-bottom-color: #989da6;
+                    background-color: var(--keycap-modifier-background);
+                    border-color: var(--keycap-modifier-border);
+                    border-bottom-color: var(--keycap-modifier-border-bottom);
                     font-size: 65%;
                     font-weight: 100;
                 }
                 &.modifier.selected, &.action.selected {
-                    color: @primary;
+                    color: var(--keyboard-text-active);
                     &:hover, &:active, &.pressed, &.active {
                         color: white;
                     }
@@ -1172,15 +1211,70 @@
         }
     }
 }
+@media (prefers-color-scheme: dark) {
+    #ML__keyboard {
+        --hue: 206;
+        --keyboard-background: hsl(var(--hue),19%,38%);
+        --keyboard-text: #f0f0f0;
+        --keyboard-text-active: hsl(var(--hue), 100%, 60%);
+        --keyboard-background-border: hsl(0,0%,20%);
+        --keycap-background: hsl(var(--hue), 25%, 39%);
+        --keycap-background-active: hsl(var(--hue), 35%, 42%);
+        --keycap-background-border: hsl(var(--hue), 25%, 35%);
+        --keycap-background-border-bottom: hsl(206, 35%, 40%);
+        --keycap-text: hsl(0,0%,81.6%);
+        --keycap-text-active: #000;
+        --keycap-secondary-text: #fff;
+
+        --keycap-modifier-background: hsl(var(--hue), 35%, 40%);
+        --keycap-modifier-border: hsl(var(--hue), 35%, 35%);
+        --keycap-modifier-border-bottom: hsl(var(--hue), 35%, 42%);
+
+        --keyboard-alternate-background: hsl(var(--hue),19%,38%);
+        --keyboard-alternate-background-active: hsl(var(--hue),35%,42%);
+        --keyboard-alternate-text: hsl(0,0%,82%);
+    }
+}
+    /* Same as the media query, but with a class */
+    body.dark #ML__keyboard {
+        --hue: 206;
+        --keyboard-background: hsl(var(--hue),19%,38%);
+        --keyboard-text: #f0f0f0;
+        --keyboard-text-active: hsl(var(--hue), 100%, 60%);
+        --keyboard-background-border: hsl(0,0%,20%);
+        --keycap-background: hsl(var(--hue), 25%, 39%);
+        --keycap-background-active: hsl(var(--hue), 35%, 42%);
+        --keycap-background-border: hsl(var(--hue), 25%, 35%);
+        --keycap-background-border-bottom: hsl(206, 35%, 40%);
+        --keycap-text: hsl(0,0%,81.6%);
+        --keycap-text-active: #000;
+        --keycap-secondary-text: #fff;
+
+        --keycap-modifier-background: hsl(var(--hue), 35%, 40%);
+        --keycap-modifier-border: hsl(var(--hue), 35%, 35%);
+        --keycap-modifier-border-bottom: hsl(var(--hue), 35%, 42%);
+
+        --keyboard-alternate-background: hsl(var(--hue),19%,38%);
+        --keyboard-alternate-background-active: hsl(var(--hue),35%,42%);
+        --keyboard-alternate-text: hsl(0,0%,82%);;
+    }
 
 
 /* The 'material' theme for the virtual keyboard */
 div#ML__keyboard.material  {
+    --keyboard-background: rgba(209, 213, 217, .9);
+    --keyboard-background-border: #ddd;
+    --keycap-background: transparent;
+    --keycap-background-active: #cccfd1;
+    --keycap-background-border: transparent;
+
+    --keyboard-alternate-background: #efefef;
+    --keyboard-alternate-text: #000;
+
     font-family: Roboto, sans-serif;
-    background-color:#f7f7f7;
 
     div.alternate-keys {
-        background: #efefef;
+        background: var(--keyboard-alternate-background);
         border: 1px solid transparent;
         border-radius: 5px;
         box-shadow: @shadow4;
@@ -1191,8 +1285,6 @@ div#ML__keyboard.material  {
             color: white;
             fill: white;
         }
-
-
     }
 
     div.keyboard-toolbar {
@@ -1215,8 +1307,8 @@ div#ML__keyboard.material  {
         background: transparent;
         border: 1px solid transparent;
         border-radius: 5px;
-        color: #000;
-        fill: #000;
+        color: var(--keycap-text);
+        fill: var(--keycap-text);
 
         &.tt {
             color: @material-primary;
@@ -1238,15 +1330,15 @@ div#ML__keyboard.material  {
         }
         &:not([data-key=' ']):hover {
             border: 1px solid transparent;
-            background: #cccfd1;
+            background: var(--keycap-background-active);
             box-shadow: none;
         }
         &:not([data-key=' ']).pressed, 
         &:not([data-key=' ']).active,
         &:not([data-key=' ']):active,  {
-            background: #efefef;
-            color: #000;
-            fill: #000;
+            background: var(--keyboard-alternate-background);
+            color: var(--keyboard-alternate-text);
+            fill: var(--keyboard-alternate-text);
             box-shadow: @shadow3;
             @media only screen and (max-width : 767px) {
                 box-shadow: @shadow3;
@@ -1284,13 +1376,15 @@ div#ML__keyboard.material  {
         transition: none;
         &.selected {
             color: @material-primary;
+            fill: @material-primary;
             border-radius: 0;
             border-bottom: 2px solid @material-primary;
         }
         &:hover, &:active, &.active, &.pressed {
             border: 0;
-            color: @material-primary;
-            background: #cccfd1;
+            color: var(--keycap-text);
+            fill: var(--keycap-text);
+            background: var(--keycap-background-active);
             box-shadow: none;
         }
     }
@@ -1300,13 +1394,15 @@ div#ML__keyboard.material  {
         // transition: .28s cubic-bezier(.4, 0, .2, 1);
         &.selected, &.selected {
             color: @material-primary;
+            fill: @material-primary;
             border-radius: 0;
             border-bottom: 2px solid @material-primary;
         }
         &:hover, &:active, &.pressed, &.active {
             border: 0;
             color: @material-primary;
-            background: #cccfd1;
+            fill: @material-primary;
+            background: var(--keycap-background-active);
             box-shadow: none;
         }
 
@@ -1314,11 +1410,60 @@ div#ML__keyboard.material  {
 };
 
 
+@media (prefers-color-scheme: dark) {
+    div#ML__keyboard.material {
+        --hue: 198;
+        --keyboard-background: hsl(var(--hue),19%,18%);
+        --keyboard-text: #d4d6d7;
+        --keyboard-text-active: @material-primary;
+        --keyboard-background-border: hsl(0,0%,20%);
+        --keycap-background: hsl(var(--hue), 25%, 39%);
+        --keycap-background-active: @material-primary;
+        --keycap-background-border: transparent;
+        --keycap-background-border-bottom: transparent;
+        --keycap-text: hsl(0,0%,81.6%);
+        --keycap-text-active: #d4d6d7;
+        --keycap-secondary-text: @material-primary;
+
+        --keycap-modifier-background: hsl(var(--hue), 35%, 40%);
+        --keycap-modifier-border: hsl(var(--hue), 35%, 35%);
+        --keycap-modifier-border-bottom: hsl(var(--hue), 35%, 42%);
+
+
+        --keyboard-alternate-background: hsl(var(--hue),8%,2%);
+        --keyboard-alternate-background-active: hsl(var(--hue),35%,42%);
+        --keyboard-alternate-text: hsl(0,0%,82%);
+    }
+}
+body.dark div#ML__keyboard.material {
+    --hue: 198;
+    --keyboard-background: hsl(var(--hue),19%,18%);
+    --keyboard-text: #d4d6d7;
+    --keyboard-text-active: @material-primary;
+    --keyboard-background-border: hsl(0,0%,20%);
+    --keycap-background: hsl(var(--hue), 25%, 39%);
+    --keycap-background-active: @material-primary;
+    --keycap-background-border: transparent;
+    --keycap-background-border-bottom: transparent;
+    --keycap-text: hsl(0,0%,81.6%);
+    --keycap-text-active: #d4d6d7;
+    --keycap-secondary-text: @material-primary;
+
+    --keycap-modifier-background: hsl(var(--hue), 35%, 40%);
+    --keycap-modifier-border: hsl(var(--hue), 35%, 35%);
+    --keycap-modifier-border-bottom: hsl(var(--hue), 35%, 42%);
+
+
+    --keyboard-alternate-background: hsl(var(--hue),8%,2%);
+    --keyboard-alternate-background-active: hsl(var(--hue),35%,42%);
+    --keyboard-alternate-text: hsl(0,0%,82%);
+}
+
 
 .ML__error {
     // Wavy pattern
     background-image: radial-gradient(ellipse at center, 
-        #cd0030,rgba(76,41,41,0) 70%);
+        hsl(341,100%,40%),hsla(341,30%,23%) 70%);
 
     background-repeat: repeat-x;
     background-size: 3px 3px;
