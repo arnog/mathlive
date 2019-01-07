@@ -77,7 +77,7 @@ function makeLargeDelim(type, delim, size, center, context, classes) {
             context.mathstyle.metrics.axisHeight);
     }
     result.setStyle('color', context.color);
-    if (typeof context.opacity === 'number') span.setStyle('opacity', context.opacity);
+    if (typeof context.opacity === 'number') result.setStyle('opacity', context.opacity);
 
     return result;
 }
