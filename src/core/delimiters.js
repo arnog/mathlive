@@ -53,6 +53,7 @@ function makeSmallDelim(type, delim, style, center, context, classes) {
             context.mathstyle.metrics.axisHeight);
     }
     span.setStyle('color', context.color);
+    if (typeof context.opacity === 'number') span.setStyle('opacity', context.opacity);
 
     return span;
 }
@@ -76,6 +77,7 @@ function makeLargeDelim(type, delim, size, center, context, classes) {
             context.mathstyle.metrics.axisHeight);
     }
     result.setStyle('color', context.color);
+    if (typeof context.opacity === 'number') span.setStyle('opacity', context.opacity);
 
     return result;
 }
@@ -294,6 +296,7 @@ function makeStackedDelim(type, delim, heightTotal, center, context,
     // Finally, build the vlist
     const inner = makeVlist(context, inners, 'bottom', depth);
     inner.setStyle('color', context.color);
+    if (typeof context.opacity === 'number') inner.setStyle('opacity', context.opacity);
 
     return makeStyleWrap(type, makeSpan(inner, 'delimsizing mult'),
         context.mathstyle, Mathstyle.TEXT, classes);
