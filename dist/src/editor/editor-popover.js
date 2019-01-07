@@ -269,19 +269,19 @@ const NOTES = {
     '\\Longrightarrow': 'implies',
     '\\Longleftrightarrow': 'if, and only if,',
 
-    '\\prec':           'predeces',
-    '\\preceq':         'predeces or is equal to',
-    '\\succ':           'succedes',
-    '\\succeq':         'succedes or is equal to',
+    '\\prec':           'precedes',
+    '\\preceq':         'precedes or is equal to',
+    '\\succ':           'succeedes',
+    '\\succeq':         'succeedes or is equal to',
     '\\perp':           ['is perpendicular to', 'is independent of'],
 
     '\\models':         ['entails',
-                        'double-tunrstile, models',
+                        'double-turnstyle, models',
                         'is a semantic consequence of',
                         '<a target="_blank" href="https://en.wikipedia.org/wiki/Double_turnstile">Wikipedia <big>&#x203A;</big></a>'
                         ],
     '\\vdash':          ['satisfies',
-                        'tunrstile, assertion sign',
+                        'turnstyle, assertion sign',
                         'syntactic inference',
                         '<a target="_blank" href="https://en.wikipedia.org/wiki/Turnstile_(symbol)">Wikipedia <big>&#x203A;</big></a>'
     ],
@@ -371,20 +371,20 @@ function showPopoverWithLatex(mf, latex, displayArrows) {
     const command_shortcuts = Shortcuts.getShortcutsForCommand(command);
 
     let template = displayArrows ?
-        '<div class="ML__popover_prev-shortcut" role="button" aria-label="Previous suggestion"><span><span>&#x25B2;</span></span></div>' : '';
-    template += '<span class="ML__popover_content">';
-    template += '<div class="ML__popover_command" role="button" >' +
+        '<div class="ML__popover__prev-shortcut" role="button" aria-label="Previous suggestion"><span><span>&#x25B2;</span></span></div>' : '';
+    template += '<span class="ML__popover__content">';
+    template += '<div class="ML__popover__command" role="button" >' +
         command_markup + '</div>';
     if (command_note) {
-        template += '<div class="ML__popover_note">' +
+        template += '<div class="ML__popover__note">' +
             command_note + '</div>';
     }
     if (command_shortcuts) {
-        template += '<div class="ML__popover_shortcut">' +
+        template += '<div class="ML__popover__shortcut">' +
             command_shortcuts + '</div>';
     }
     template += '</span>';
-    template += displayArrows ? '<div class="ML__popover_next-shortcut" role="button" aria-label="Next suggestion"><span><span>&#x25BC;</span></span></div>' : '';
+    template += displayArrows ? '<div class="ML__popover__next-shortcut" role="button" aria-label="Next suggestion"><span><span>&#x25BC;</span></span></div>' : '';
     showPopover(mf, template);
 
     let el = mf.popover.getElementsByClassName('ML__popover_content');
@@ -393,12 +393,12 @@ function showPopoverWithLatex(mf, latex, displayArrows) {
     }
 
 
-    el = mf.popover.getElementsByClassName('ML__popover_prev-shortcut');
+    el = mf.popover.getElementsByClassName('ML__popover__prev-shortcut');
     if (el && el.length > 0) {
         mf._attachButtonHandlers(el[0], 'previousSuggestion');
     }
 
-    el = mf.popover.getElementsByClassName('ML__popover_next-shortcut');
+    el = mf.popover.getElementsByClassName('ML__popover__next-shortcut');
     if (el && el.length > 0) {
         mf._attachButtonHandlers(el[0], 'nextSuggestion');
     }
@@ -407,7 +407,7 @@ function showPopoverWithLatex(mf, latex, displayArrows) {
 
 function updatePopoverPosition(mf, options) {
     // If the popover pane is visible...
-    if (mf.popover.classList.contains('ML__popover_visible')) {
+    if (mf.popover.classList.contains('ML__popover--visible')) {
         if (options && options.deferred) {
             // Call ourselves again later, typically after the
             // rendering/layout of the DOM has been completed
@@ -438,12 +438,12 @@ function showPopover(mf, markup) {
         mf.popover.style.top = (position.y + 5) + 'px';
     }
 
-    mf.popover.classList.add('ML__popover_visible');
+    mf.popover.classList.add('ML__popover--visible');
 }
 
 
 function hidePopover(mf) {
-    mf.popover.classList.remove('ML__popover_visible');
+    mf.popover.classList.remove('ML__popover--visible');
 }
 
 

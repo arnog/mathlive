@@ -86,7 +86,7 @@ The textual content of the element is used as the initial value of the editor.
 
 ### Selectors
 Selectors can be passed to `perform()` to execute various commands. They can 
-also be associated with keys in virtual keyboard or with keyboard shorcuts.
+also be associated with keys in virtual keyboard or with keyboard shortcuts.
 
 | Name                 | Description               |
 | --------------------- | ------------------------- |

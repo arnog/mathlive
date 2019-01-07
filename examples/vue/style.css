@@ -32,7 +32,7 @@ button {
     border:	1px solid rgba(0, 0, 0, .12);
     border-radius: 4px;
     color: #0066ce;
-    fill: #0066ce;
+    fill: currentColor;
     position: relative;
     height: 36px;
     line-height: 36px;

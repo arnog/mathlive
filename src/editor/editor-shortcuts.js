@@ -790,8 +790,8 @@ function stringify(shortcuts, join) {
                 keyboardShortcut.split('-') : [keyboardShortcut];
             let shortcutString = '';
             for (const modifier of modifiers) {
-                if (shortcutString.length > 0) {
-                    shortcutString += '<span class="ML__shortcut_join">+</span>';
+                if (!useSymbol && shortcutString.length > 0) {
+                    shortcutString += '<span class="ML__shortcut-join">+</span>';
                 }
                 if (modifier.substr(0, 3) === 'Key') {
                     shortcutString += modifier.substr(3, 1);
@@ -800,17 +800,40 @@ function stringify(shortcuts, join) {
                 } else {
                     shortcutString += {
                         'Meta':         useSymbol ? '\u2318' : 'meta',
-                        'Shift':        useSymbol ? '\u21E7' : 'shift',
+                        'Shift':        useSymbol ? '\u21e7' : 'shift',
                         'Alt':          useSymbol ? '\u2325' : 'alt',
                         'Ctrl':         useSymbol ? '\u2303' : 'control',
                         '\n':           useSymbol ? '\u23ce' : 'return',
                         'Return':       useSymbol ? '\u23ce' : 'return',
-                        'Enter':        useSymbol ? '\u23ce' : 'return',
+                        'Enter':        useSymbol ? '\u2324' : 'enter',
                         'Tab':          useSymbol ? '\u21e5' : 'tab',
-                        'Esc':          useSymbol ? '\u241b' : 'return',
+                        // 'Esc':          useSymbol ? '\u238b' : 'esc',
+                        'Esc':          'esc',
                         'Backspace':    useSymbol ? '\u232b' : 'backspace',
+                        'Del':          useSymbol ? '\u2326' : 'del',
+                        'PageUp':       useSymbol ? '\u21de' : 'page up',
+                        'PageDown':     useSymbol ? '\u21df' : 'page down',
+                        'Home':         useSymbol ? '\u2912' : 'home',
+                        'End':          useSymbol ? '\u2913' : 'end',
+                        'Spacebar':     'space',
+                        'Semicolon':    ';',
+                        'Period':       '.',
+                        'Comma':        ',',
+                        'Minus':        '-',
+                        'Equal':        '=',
+                        'Quote':        '\'',
+                        'BracketLeft':  '{',
+                        'BracketRight': '}',
                         'Backslash':    '\\',
+                        'IntlBackslash':    '\\',
+                        'Backquote':    '`',
                         'Slash':        '/',
+                        'NumPadMultiply': '*',
+                        'NumPadDivide': '/',
+                        'NumPadSubstract': '-',
+                        'NumPadAdd':    '+',
+                        'NumPadDecimal':    '.',
+                        'NumPadComma':    ',',
                         'Left':         '\u21E0',
                         'Up':           '\u21E1',
                         'Right':        '\u21E2',
@@ -837,9 +860,10 @@ function stringify(shortcuts, join) {
 export default {
     // INLINE : INLINE_SHORTCUTS,
     // KEYBOARD: KEYBOARD_SHORTCUTS,
-    match: match,
-    matchKeystroke: matchKeystroke,
-    getShortcutsForCommand: getShortcutsForCommand
+    stringify,
+    match,
+    matchKeystroke,
+    getShortcutsForCommand
 }
 
 

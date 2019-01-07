@@ -3,5 +3,9 @@
     "eslint.options": {
         "configFile":".eslintrc.json"
     },
-    "cSpell.allowCompoundWords": true
+    "cSpell.allowCompoundWords": true,
+    "cSpell.words": [
+        "grapheme",
+        "mathrm"
+    ]
 }

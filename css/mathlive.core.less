@@ -1,5 +1,3 @@
-@primary: #0066ce;
-
 @system: -apple-system,BlinkMacSystemFont,Roboto,Oxygen-Sans,Ubuntu,Cantarell,
     "Droid Sans","Helvetica Neue",sans-serif;
 @math_main: KaTeX_Main;
@@ -47,7 +45,7 @@
     content: '';
     border: none;
     border-radius: 2px;
-    border-right: 2px solid @primary;
+    border-right: 2px solid var(--caret);
     margin-right: -2px;
     position: relative;
     left: -1px;
@@ -63,7 +61,7 @@
     content: '_';
     margin-right: -1ex;
     position: relative;
-    color: @primary;
+    color: var(--caret);
     animation: ML__caret-command-blink 1.05s step-end forwards infinite;
 }
 
@@ -74,14 +72,14 @@
 
 
 @keyframes  ML__caret-blink {
-    from, to    { border-color: @primary; }
+    from, to    { border-color: var(--caret); }
     50%         { border-color: transparent; }
 }
 
 /* Style for the invisible textarea element which is used
 to capture keyboard events. We're just trying really hard 
 to make sure it doesn't show. */
-.ML__textarea--textarea {
+.ML__textarea__textarea {
     transform: scale(0);
     resize: none;
     /* user-select: text;   Not sure it's needed  */
@@ -119,23 +117,55 @@ to make sure it doesn't show. */
     /* "Disabling double-tap to zoom removes the need for browsers to 
         delay the generation of click events when the user taps the screen." */
     touch-action: none;
+    width: 100%;
+
+    --hue: 212;
+    --highlight: hsl(var(--hue),97%,85%);
+    // --highlight: Highlight;         // Highlight color defined in https://www.w3.org/TR/REC-CSS2/ui.html
+    //                                 // It has been deprectated in https://www.w3.org/TR/css-color-3/ :(
+    // --on-highlight: HighlightText;
+    --caret: var(--highlight);
+    --highlight-inactive: #ccc;
+    --primary: hsl(var(--hue), 40%, 50%);
+
+    --secondary: hsl(var(--hue),19%,26%);
+    --on-secondary: hsl(var(--hue),19%,26%);    
 }
+
+@media (prefers-color-scheme: dark) {
+    body:not([theme="light"]) .ML__fieldcontainer {
+        --highlight: hsl(var(--hue), 40%, 49%);
+        --highlight-inactive: hsl(var(--hue), 10%, 35%);
+        --secondary: hsl(var(--hue),25%,35%);
+        --on-secondary: hsl(0,0%,98%);
+    }
+}
+
+body[theme="dark"] .ML__fieldcontainer {
+    --highlight: hsl(var(--hue), 40%, 49%);
+    --highlight-inactive: hsl(var(--hue), 10%, 35%);
+    --secondary: hsl(var(--hue),25%,35%);
+    --on-secondary: hsl(0,0%,98%);
+}
+
 .ML__fieldcontainer:focus {
-    outline: 2px solid #0066ce;
+    outline: 2px solid var(--primary);
     outline-offset: 3px;
 }
 
 /* This is the actual field content (formula) */
-.ML__fieldcontainer--field {
+.ML__fieldcontainer__field {
     align-self: center;
 }
 
 /* The element that displays the keys as the user type them */
-.ML__keystrokecaption {
+.ML__keystroke-caption {
     visibility: hidden;
     /*min-width: 160px;*/
     /*background-color: rgba(97, 97, 200, .95);*/
-    background: rgba(255, 255, 255, 0.8);
+    background: var(--secondary);
+    border-color: var(--secondary-border);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
     text-align: center;
     border-radius: 6px;
     padding: 16px;
@@ -145,9 +175,28 @@ to make sure it doesn't show. */
     display: flex;
     flex-direction: row;
     justify-content: center;
+
+    // For keystroke caption
+    --keystroke: white;
+    --on-keystroke: #555;
+    --keystroke-border: #f7f7f7;
+}
+@media (prefers-color-scheme: dark) {
+    body:not([theme="light"]) .ML__keystroke-caption {
+        --keystroke: hsl(var(--hue), 50%, 30%);
+        --on-keystroke: hsl(0, 0%, 98%);
+        --keystroke-border: hsl(var(--hue), 50%, 25%);
+    }
 }
 
-.ML__virtualKeyboardToggle {
+body[theme="dark"] .ML__keystroke-caption {
+    --keystroke: hsl(var(--hue), 50%, 30%);
+    --on-keystroke: hsl(0, 0%, 98%);
+    --keystroke-border: hsl(var(--hue), 50%, 25%);
+}
+
+
+.ML__virtual-keyboard-toggle {
     display: flex;
     align-self: center;
     align-items: center;
@@ -165,14 +214,16 @@ to make sure it doesn't show. */
     border-radius: 50%;
     border: 1px solid transparent;
     transition: background 0.2s cubic-bezier(.64,.09,.08,1);
-    color: @primary;
-    fill: @primary;
+    color: var(--primary);
+    fill: currentColor;
     background: transparent;
 
     &:hover {
-        background: rgba(255, 255, 255, .7);
+        background: hsl(var(--hue),25%,35%);
+        color: hsl(0,0%,98%);
+        fill: currentColor;
         border-radius: 50%;
-        border: 1px solid rgba(255, 255, 255, .9);
+        // border: 1px solid rgba(255, 255, 255, .9);
         box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
     }
 }

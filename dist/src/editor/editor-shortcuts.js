@@ -791,7 +791,7 @@ function stringify(shortcuts, join) {
             let shortcutString = '';
             for (const modifier of modifiers) {
                 if (shortcutString.length > 0) {
-                    shortcutString += '<span class="ML__shortcut_join">+</span>';
+                    shortcutString += '<span class="ML__shortcut-join">+</span>';
                 }
                 if (modifier.substr(0, 3) === 'Key') {
                     shortcutString += modifier.substr(3, 1);
@@ -837,9 +837,10 @@ function stringify(shortcuts, join) {
 export default {
     // INLINE : INLINE_SHORTCUTS,
     // KEYBOARD: KEYBOARD_SHORTCUTS,
-    match: match,
-    matchKeystroke: matchKeystroke,
-    getShortcutsForCommand: getShortcutsForCommand
+    stringify,
+    match,
+    matchKeystroke,
+    getShortcutsForCommand
 }
 
 
