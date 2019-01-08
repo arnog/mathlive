@@ -124,7 +124,7 @@ to make sure it doesn't show. */
     // --highlight: Highlight;         // Highlight color defined in https://www.w3.org/TR/REC-CSS2/ui.html
     //                                 // It has been deprectated in https://www.w3.org/TR/css-color-3/ :(
     // --on-highlight: HighlightText;
-    --caret: var(--highlight);
+    --caret: hsl(var(--hue), 40%, 49%);
     --highlight-inactive: #ccc;
     --primary: hsl(var(--hue), 40%, 50%);
 
@@ -136,6 +136,7 @@ to make sure it doesn't show. */
     body:not([theme="light"]) .ML__fieldcontainer {
         --highlight: hsl(var(--hue), 40%, 49%);
         --highlight-inactive: hsl(var(--hue), 10%, 35%);
+        --caret: hsl(var(--hue),97%,85%);
         --secondary: hsl(var(--hue),25%,35%);
         --on-secondary: hsl(0,0%,98%);
     }
@@ -144,6 +145,7 @@ to make sure it doesn't show. */
 body[theme="dark"] .ML__fieldcontainer {
     --highlight: hsl(var(--hue), 40%, 49%);
     --highlight-inactive: hsl(var(--hue), 10%, 35%);
+    --caret: hsl(var(--hue),97%,85%);
     --secondary: hsl(var(--hue),25%,35%);
     --on-secondary: hsl(0,0%,98%);
 }

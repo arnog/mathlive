@@ -695,7 +695,6 @@ function startsWithString(s, config) {
             });
         }
     }
-    console.log('starts with ' + s + '=' + result);
     return result;
 }
 
@@ -712,29 +711,16 @@ function startsWithString(s, config) {
 function forString(s, config) {
     let result = [];
 
-    // Some common substitutions use characters that may have been replaced 
-    // already. Attempt to convert them back to their original form.
-    // Useful for things like '&lt;-' where the '-' becomes a \u2212.
-    const s2 = s; 
-    // s.replace(/\u2212/g, '-').
-    //     replace(/\u2217/g, '*').replace(/\u22c6/g, '**').
-    //     replace(/\u2223/g, '|').replace(/\u2192/g, '->').
-    //     replace(/\u2264/g, '&lt;=').replace(/\u2a7d/g, '&lt;=').
-    //     replace(/\u2265/g, '>=').replace(/\u2a7e/g, '>=').
-    //     replace(/\u2282/g, 'sub').replace(/\u2283/g, 'sup').
-    //     replace(/\u2229/g, 'nn').replace(/\u222a/g, 'uu');
-        
-
     const skipDefaultShortcuts = config &amp;&amp; config.overrideDefaultInlineShortcuts;
     if (!skipDefaultShortcuts) {
-        result = INLINE_SHORTCUTS[s] || INLINE_SHORTCUTS[s2];
+        result = INLINE_SHORTCUTS[s];
     }
 
     const customInlineShortcuts = config &amp;&amp; config.inlineShortcuts ? 
         config.inlineShortcuts : null;
     let customResult;
     if (customInlineShortcuts) {
-        customResult = customInlineShortcuts[s] || customInlineShortcuts[s2];
+        customResult = customInlineShortcuts[s];
     }
     
     return customResult || result;
