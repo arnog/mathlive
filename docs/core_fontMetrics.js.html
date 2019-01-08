@@ -306,7 +306,7 @@ const getCharacterMetrics = function(character, fontName) {
     if (character[0] in extraCharacterMap) {
         ch = extraCharacterMap[character[0]].charCodeAt(0);
     } else if (cjkRegex.test(character[0])) {
-        ch = 'M'.charCodeAt(0);
+        ch = 77; // 'M'.charCodeAt(0);
     }
     const metrics = metricMap[fontName][ch];
 

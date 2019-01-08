@@ -111,144 +111,148 @@ import Mathstyle from './mathstyle.js';
  * @global
  * @private
  */
-function Context(data) {
-    this.mathstyle = Mathstyle.toMathstyle(data.mathstyle);
-    this.color = data.color;
-    this.opacity = data.opacity;
-    this.backgroundcolor = data.backgroundcolor;
-    this.size = data.size;
-    this.phantom = data.phantom;
-    this.font = data.font;
-    this.generateID = data.generateID !== undefined ? data.generateID : false;
-    this.isSelected = data.isSelected !== undefined ? data.isSelected : false;
-    this.macros = data.macros || {};
-
-    if (typeof data.parentMathstyle === 'undefined') {
-        this.parentMathstyle = this.mathstyle;
-    } else {
-        this.parentMathstyle = data.parentMathstyle;
+class Context {
+    constructor(data) {
+        this.mathstyle = Mathstyle.toMathstyle(data.mathstyle);
+        this.color = data.color;
+        this.opacity = data.opacity;
+        this.backgroundcolor = data.backgroundcolor;
+        this.size = data.size;
+        this.phantom = data.phantom;
+        this.font = data.font;
+        this.generateID = data.generateID !== undefined ? data.generateID : false;
+        this.isSelected = data.isSelected !== undefined ? data.isSelected : false;
+        this.macros = data.macros || {};
+        if (typeof data.parentMathstyle === 'undefined') {
+            this.parentMathstyle = this.mathstyle;
+        } else {
+            this.parentMathstyle = data.parentMathstyle;
+        }
+        if (typeof data.parentSize === 'undefined') {
+            this.parentSize = this.size;
+        } else {
+            this.parentSize = data.parentSize;
+        }
     }
-
-    if (typeof data.parentSize === 'undefined') {
-        this.parentSize = this.size;
-    } else {
-        this.parentSize = data.parentSize;
+    /**
+     * Returns a new context with the same properties as 'this'.
+     * @return {Context}
+     * @memberof Context
+     * @instance
+     * @private
+     */
+    clone() {
+        const result = new Context(this);
+        result.parentMathstyle = this.mathstyle;
+        result.parentSize = this.size;
+        result.macros = this.macros;
+        return result;
+    }
+    /**
+     * Create a new context, identical to this object, except for the given
+     * property/value pair.
+     * @param {string} property
+     * @param {*} value
+     * @return {Context}
+     * @memberof Context
+     * @instance
+     * @private
+     */
+    cloneWith(property, value) {
+        const result = this.clone();
+        result[property] = value;
+        return result;
+    }
+    /**
+     * Change the mathstyle of this context
+     * @param {string} value - `'auto'` to indicate that the mathstyle should in
+     * fact not be changed. This is used when specifying the mathstyle for some
+     * environments.
+     * @memberof Context
+     * @instance
+     * @private
+     */
+    setMathstyle(value) {
+        if (value &amp;&amp; value !== 'auto') {
+            this.mathstyle = Mathstyle.toMathstyle(value);
+        }
+    }
+    /**
+     * Return a clone context with the specified mathstyle
+     * @param {string} value
+     * @memberof Context
+     * @instance
+     * @private
+     */
+    withMathstyle(value) {
+        const result = this.clone();
+        result.setMathstyle(value);
+        return result;
+    }
+    fontFamily(value) {
+        const result = this.clone();
+        result.font = value;
+        return result;
+    }
+    cramp() {
+        return this.cloneWith('mathstyle', this.mathstyle.cramp());
+    }
+    sup() {
+        return this.cloneWith('mathstyle', this.mathstyle.sup());
+    }
+    sub() {
+        return this.cloneWith('mathstyle', this.mathstyle.sup());
+    }
+    fracDen() {
+        return this.cloneWith('mathstyle', this.mathstyle.fracDen());
+    }
+    fracNum() {
+        return this.cloneWith('mathstyle', this.mathstyle.fracNum());
+    }
+    /**
+     * Gets the CSS (foreground) color in effect
+     * @return {string} An hexadecimal color string, e.g. "#cd0030", or `'transparent'`
+     * @memberof Context
+     * @instance
+     * @private
+     */
+    getColor() {
+        if (this.phantom) {
+            return 'transparent';
+        }
+        return this.color;
+    }
+    /**
+     * Gets the CSS background color in effect
+     * @return {string} An hexadecimal color string, e.g. "#cd0030", or `'transparent'`
+     * @memberof Context
+     * @instance
+     * @private
+     */
+    getBackgroundColor() {
+        if (this.phantom) {
+            return 'transparent';
+        }
+        return this.backgroundcolor;
     }
 }
 
-/**
- * Returns a new context with the same properties as 'this'.
- * @return {Context}
- * @memberof Context
- * @instance
- * @private
- */
-Context.prototype.clone = function() {
-    const result = new Context(this);
-    result.parentMathstyle = this.mathstyle;
-    result.parentSize = this.size;
-    result.macros = this.macros;
-    return result;
-}
 
 
-/**
- * Create a new context, identical to this object, except for the given
- * property/value pair.
- * @param {string} property
- * @param {*} value
- * @return {Context}
- * @memberof Context
- * @instance
- * @private
- */
-Context.prototype.cloneWith = function(property, value) {
-    const result = this.clone();
-    result[property] = value;
-    return result;
-}
 
 
-/**
- * Change the mathstyle of this context
- * @param {string} value - `'auto'` to indicate that the mathstyle should in
- * fact not be changed. This is used when specifying the mathstyle for some
- * environments.
- * @memberof Context
- * @instance
- * @private
- */
-Context.prototype.setMathstyle = function(value) {
-    if (value &amp;&amp; value !== 'auto') {
-        this.mathstyle = Mathstyle.toMathstyle(value);
-    }
-}
-
-/**
- * Return a clone context with the specified mathstyle
- * @param {string} value
- * @memberof Context
- * @instance
- * @private
- */
-Context.prototype.withMathstyle = function(value) {
-    const result = this.clone();
-    result.setMathstyle(value);
-    return result;
-}
 
 
-Context.prototype.fontFamily = function(value) {
-    const result = this.clone();
-    result.font = value;
-    return result;
-}
 
 
-Context.prototype.cramp = function() {
-    return this.cloneWith('mathstyle', this.mathstyle.cramp());
-}
-
-Context.prototype.sup = function() {
-    return this.cloneWith('mathstyle', this.mathstyle.sup());
-}
-
-Context.prototype.sub = function() {
-    return this.cloneWith('mathstyle', this.mathstyle.sup());
-}
-
-Context.prototype.fracDen = function() {
-    return this.cloneWith('mathstyle', this.mathstyle.fracDen());
-}
-
-Context.prototype.fracNum = function() {
-    return this.cloneWith('mathstyle', this.mathstyle.fracNum());
-}
 
 
-/**
- * Gets the CSS (foreground) color in effect
- * @return {string} An hexadecimal color string, e.g. "#cd0030", or `'transparent'`
- * @memberof Context
- * @instance
- * @private
- */
-Context.prototype.getColor = function() {
-    if (this.phantom) return 'transparent';
-    return this.color;
-}
 
-/**
- * Gets the CSS background color in effect
- * @return {string} An hexadecimal color string, e.g. "#cd0030", or `'transparent'`
- * @memberof Context
- * @instance
- * @private
- */
-Context.prototype.getBackgroundColor = function() {
-    if (this.phantom) return 'transparent';
-    return this.backgroundcolor;
-}
+
+
+
+
+
 
 
 export default {
