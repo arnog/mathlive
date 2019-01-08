@@ -625,7 +625,6 @@ function startsWithString(s, config) {
             });
         }
     }
-    console.log('starts with ' + s + '=' + result);
     return result;
 }
 
@@ -651,7 +650,7 @@ function forString(s, config) {
         config.inlineShortcuts : null;
     let customResult;
     if (customInlineShortcuts) {
-        customResult = customInlineShortcuts[s] || customInlineShortcuts[s2];
+        customResult = customInlineShortcuts[s];
     }
     
     return customResult || result;
