@@ -86,6 +86,10 @@ function off(el, selectors, listener, options) {
  * @property {boolean} keystrokeCaptionVisible - True if the keystroke caption
  * panel is visible
  * @property {boolean} virtualKeyboardVisible
+ * @property {string} inlineShortcutBuffer The last few keystrokes, to look out
+ * for inline shortcuts
+ * @property {object[]} inlineShortcutStates The saved state for each of the 
+ * past keystrokes
  * @class
  * @global
  */
@@ -196,6 +200,10 @@ function MathField(element, config) {
     this.keystrokeCaptionVisible = false;
     this.virtualKeyboardVisible = false;
 
+    this.inlineShortcutBuffer = '';
+    this.inlineShortcutStates = [];
+    this.inlineShortcutBufferResetTimer = null;
+
     // This index indicates which of the suggestions available to
     // display in the popover panel
     this.suggestionIndex = 0;
@@ -289,6 +297,10 @@ MathField.prototype.$revertToOriginalContent = function() {
     off(window, 'resize', this._onResize.bind(this));
 }
 
+MathField.prototype._resetInlineShortcutBuffer = function() {
+    this.inlineShortcutBuffer = '';
+    this.inlineShortcutStates = [];
+}
 
 /**
  * Utility function that returns the element which has the caret
@@ -445,6 +457,9 @@ MathField.prototype._onPointerDown = function(evt) {
     const that = this;
     let trackingPointer = false;
     let dirty = false;
+
+    // Clicking or tapping the field will cancel out the inline shortcut buffer
+    this._resetInlineShortcutBuffer();
 
     // Focus the math field
     if (!this.hasFocus()) {
@@ -666,6 +681,8 @@ function speakableText(mathfield, prefix, atoms) {
             target.plonkSound.load();
             target.plonkSound.play().catch(err => console.log(err));
         }
+        // As a side effect, reset the inline shortcut buffer
+        target._resetInlineShortcutBuffer();
     } else if (command === 'delete') {
         liveText = speakableText(target, 'deleted: ', atomsToSpeak);
     //*** FIX: could also be moveUp or moveDown -- do something different like provide context???
@@ -714,6 +731,7 @@ MathField.prototype._onFocus = function() {
             this.showVirtualKeyboard_();
         }
         Popover.updatePopoverPosition(this);
+        this._resetInlineShortcutBuffer();
         if (this.config.onFocus) this.config.onFocus(this);
         this._render();
     }
@@ -727,6 +745,7 @@ MathField.prototype._onBlur = function() {
             this.hideVirtualKeyboard_();
         }
         Popover.updatePopoverPosition(this);
+        this._resetInlineShortcutBuffer();
         this._render();
         if (this.config.onBlur) this.config.onBlur(this);
     }
@@ -783,6 +802,7 @@ MathField.prototype._showKeystroke = function(keystroke) {
  */
 MathField.prototype.perform = 
 MathField.prototype.$perform = function(command) {
+    if (!command) return false;
     let handled = false;
     let selector;
     let args = [];
@@ -799,10 +819,15 @@ MathField.prototype.$perform = function(command) {
     selector += '_';
 
     if (typeof this.mathlist[selector] === 'function') {
-        if (['delete_', 'transpose_', 'deleteToMathFieldEnd_',
-            'deleteToGroupEnd_', 'deleteToGroupStart_', 'deletePreviousWord_',
-            'deleteNextWord_', 'deletePreviousChar_', 'deleteNextChar_'].includes(selector)) {
+        if (/^(delete_|transpose_|deleteToMathFieldEnd_|deleteToGroupEnd_|deleteToGroupStart_|deletePreviousWord_|deleteNextWord_|deletePreviousChar_|deleteNextChar_)$/.test(selector)) {
             this.undoManager.snapshot(this.config);
+            if (this.selectionIsCollapsed() && selector === 'deletePreviousChar_') {
+                this.inlineShortcutBuffer = this.inlineShortcutBuffer.substring(0, this.inlineShortcutBuffer.length - 1);
+                this.inlineShortcutStates.pop();
+            } else {
+                this.inlineShortcutBuffer = '';
+                this.inlineShortcutStates = [];
+            } 
         }
 
         this.mathlist[selector](...args);
@@ -884,9 +909,13 @@ MathField.prototype.performWithFeedback_ = function(command) {
  * @private
  */
 MathField.prototype._onKeystroke = function(keystroke, evt) {
+    // 1. Display the keystroke in the keystroke panel (if visible)
     this._showKeystroke(keystroke);
 
-    // Give a chance to the custom keystroke handler to intercept the event
+    // 2. Reset the timer for the inline shortcut buffer reset
+    clearTimeout(this.inlineShortcutBufferResetTimer);
+
+    // 3. Give a chance to the custom keystroke handler to intercept the event
     if (this.config.onKeystroke && !this.config.onKeystroke(this, keystroke, evt)) {
         if (evt) {
             evt.preventDefault();
@@ -895,55 +924,103 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
         return false;
     }
 
+    // 4. Let's try to find a matching shortcut or command
     let shortcut;
+    let shortcutStateIndex;
+    let selector;
+    let resetInlineShortcutBuffer = false;
 
-    // Check if the keystroke, in context with the previous characters,
+    // 4.1 Check if the keystroke, prefixed with the previously typed keystrokes,
     // would match a long shortcut (i.e. '~~')
-    if (this.mathlist.parseMode() === 'math') {
-        let count = this.mathlist.startOffset();
-        // Try to find the longest matching shortcut possible
-        while (!shortcut && count >= 0) {
-            let char;
-            if (evt.key === 'Unidentified') {
-                // On Android, the evt.key seems to always be Unidentified. 
-                // Get the value entered in the event target
-                if (evt.target) {
-                    char = evt.target.value;
+    // Ignore the key if command or control is pressed (it may be a shortcut, 
+    // see 4.2)
+    if (!evt.ctrlKey && !evt.metaKey && this.mathlist.parseMode() === 'math') {
+        const c = Shortcuts.eventToChar(evt);
+        // The Backspace key will be handled as a delete command later (3.2)
+        if (c !== 'Backspace') {
+            if (!c || c.length > 1) {
+                // It was a non-alpha character (PageUp, End, etc...)
+                this._resetInlineShortcutBuffer();
+            } else {
+                // Find the longest substring that matches a shortcut
+                const candidate = this.inlineShortcutBuffer + c;
+                let i = 0;
+                while (!shortcut && i <= candidate.length) {
+                    shortcut = Shortcuts.forString(candidate.slice(i), this.config);
+                    i += 1;
+                }
+                shortcutStateIndex = i - 1;
+                this.inlineShortcutBuffer += c;
+                this.inlineShortcutStates.push(this.undoManager.save());
+                if (Shortcuts.startsWithString(candidate, this.config).length <= 1) {
+                    resetInlineShortcutBuffer = true;
+                } else {
+                    if (this.config.inlineShortcutTimeout) {
+                        // Set a timer to reset the shortcut buffer
+                        clearTimeout(this.inlineShortcutBufferResetTimer);
+                        this.inlineShortcutBufferResetTimer = setTimeout(_ => {
+                            this._resetInlineShortcutBuffer();
+                        }, this.config.inlineShortcutTimeout);
+                    }
                 }
             }
-            char = char || evt.key || evt.code;
-            // Note that 'count' is a number of atoms
-            // An atom can be more than one character (for example '\sin')
-            const prefix = this.mathlist.extractCharactersBeforeInsertionPoint(count);
-            shortcut = Shortcuts.match(prefix + char, this.config);
-            count -= 1;
-        }
-        if (shortcut) {
-            // Remove the atoms from the prefix string
-            this.mathlist._deleteAtoms(-count - 1);
+        } else {
+            // If we're in the middle of a potential inline shortcut, treat 
+            // Backspace as Undo. This deals with the case "pi<backspace>i"
+            if (this.mathlist.isCollapsed() && this.inlineShortcutBuffer.length > 0) {
+                selector = 'undo';
+            }
         }
     }
 
-    // If this wasn't a long (multi-character) shortcut, try a single-character
-    // shortcut
-    if (!shortcut) {
-        shortcut = Shortcuts.matchKeystroke(this.mathlist.parseMode(),
+    // 4.2 Check if this matches a keystroke shortcut
+    // Need to check this **after** checking for inline shortcut because
+    // shift+backquote is a keystroke that inserts "\~"", but "~~" is a 
+    // shortcut for "\approx" and needs to have priority over shift+backquote
+    if (!shortcut && !selector) {
+        selector = Shortcuts.selectorForKeystroke(this.mathlist.parseMode(),
             keystroke);
     }
 
-    if (!shortcut) return true;
 
-    // Remove any error indicator (wavy underline) on the current command sequence
-    // (if there are any)
+    // No shortcut :( We're done.
+    if (!shortcut && !selector) return true;
+
+    // 5. Perform the action matching this shortcut
+
+    // 5.1 Remove any error indicator (wavy underline) on the current command 
+    // sequence (if there are any)
     this.mathlist.decorateCommandStringAroundInsertionPoint(false);
 
-    if (!this.perform(shortcut)) {
-        this.mathlist.insert(shortcut);
-        // Render the mathlist
-        this._render();
+    // 5.2 Perform the selector or insert the shortcut
+    if (!this.perform(selector)) {
+        if (shortcut) {
+            this.undoManager.snapshot(this.config);
+
+            // To enable the substitution to be undoable,
+            // insert the character before applying the substitution
+            this.mathlist.insert(Shortcuts.eventToChar(evt));
+
+            // Create a snapshot with the inserted character
+            this.undoManager.snapshot(this.config);
+
+            // Revert to the state before the beginning of the shortcut
+            // (restore doesn't change the undo stack)
+            this.undoManager.restore(this.inlineShortcutStates[shortcutStateIndex], this.config);
+
+            // Insert the substitute
+            this.mathlist.insert(shortcut, {format: 'latex'});
+            this._render();
+            _onAnnounce(this, 'replacement');
+
+            // If we're done with the shortcuts (found a unique one), reset it.
+            if (resetInlineShortcutBuffer) {
+                this._resetInlineShortcutBuffer();
+            }
+        }
     }
 
-    // Keystroke has been handled, if it wasn't caught in the default
+    // 5.3 Keystroke has been handled, if it wasn't caught in the default
     // case, so prevent propagation
     if (evt) {
         evt.preventDefault();
@@ -1001,7 +1078,8 @@ MathField.prototype._onTypedText = function(text, options) {
     if (this.pasteInProgress) {
         this.pasteInProgress = false;
         // This call was made in response to a paste event.
-        // Interpret `text` as a 'smart' expression (could be LaTeX, could be UnicodeMath)
+        // Interpret `text` as a 'smart' expression (could be LaTeX, could be 
+        // UnicodeMath)
         this.mathlist.insert(text, {smartFence: this.config.smartFence});
 
     } else {
@@ -1013,7 +1091,7 @@ MathField.prototype._onTypedText = function(text, options) {
         // modifier, the country flags emojis or compound emojis such as the
         // professional emojis, including the David Bowie emoji.
         const graphemes = GraphemeSplitter.splitGraphemes(text);
-        for (let c of graphemes) {
+        for (const c of graphemes) {
             if (this.mathlist.parseMode() === 'command') {
                 this.mathlist.removeSuggestion();
                 this.suggestionIndex = 0;
@@ -1030,7 +1108,6 @@ MathField.prototype._onTypedText = function(text, options) {
                 } else {
                     this.mathlist.insert(c);
                     if (suggestions[0].match !== command + c) {
-
                         this.mathlist.insertSuggestion(suggestions[0].match,
                             -suggestions[0].match.length + command.length + 1);
                     }
@@ -1040,55 +1117,56 @@ MathField.prototype._onTypedText = function(text, options) {
                 // Inline shortcuts (i.e. 'p' + 'i' = '\pi') only apply in
                 // `math` parseMode
 
-                let count = this.mathlist.startOffset();
-                let shortcut;
-                // Try to find the longest matching shortcut possible
-                while (!shortcut && count >= 0) {
-                    // Note that 'count' is a number of atoms
-                    // An atom can be more than one character (for example '\sin')
-                    const prefix = this.mathlist.extractCharactersBeforeInsertionPoint(count);
-                    shortcut = Shortcuts.match(prefix + c, this.config);
-                    count -= 1;
-                }
+                // let count = this.mathlist.startOffset();
+                // let shortcut;
+                // // Try to find the longest matching shortcut possible
+                // while (!shortcut && count >= 0) {
+                //     // Note that 'count' is a number of atoms
+                //     // An atom can be more than one character (for example '\sin')
+                //     const prefix = this.mathlist.extractCharactersBeforeInsertionPoint(count);
+                //     shortcut = Shortcuts.forString(prefix + c, this.config);
+                //     count -= 1;
+                // }
 
-                if (shortcut === '\\{') {
-                    shortcut = null;
-                    c = '{';
-                } else if (shortcut === '\\[') {
-                    shortcut = null;
-                    c = '[';
-                } else if (shortcut === '\\}') {
-                    shortcut = null;
-                    c = '}';
-                } else if (shortcut === '\\]') {
-                    shortcut = null;
-                    c = ']';
-                }
+                // if (shortcut === '\\{') {
+                //     shortcut = null;
+                //     c = '{';
+                // } else if (shortcut === '\\[') {
+                //     shortcut = null;
+                //     c = '[';
+                // } else if (shortcut === '\\}') {
+                //     shortcut = null;
+                //     c = '}';
+                // } else if (shortcut === '\\]') {
+                //     shortcut = null;
+                //     c = ']';
+                // }
 
 
-                if (shortcut) {
-                    const savedState = this.undoManager.save();
+                // if (shortcut) {
+                //     const savedState = this.undoManager.save();
 
-                    // To enable the substitution to be undoable,
-                    // insert the character before applying the substitution
-                    this.mathlist.insert(c);
+                //     // To enable the substitution to be undoable,
+                //     // insert the character before applying the substitution
+                //     this.mathlist.insert(c);
 
-                    // Create a snapshot with the inserted character
-                    this.undoManager.snapshot(this.config);
+                //     // Create a snapshot with the inserted character
+                //     this.undoManager.snapshot(this.config);
 
-                    // Revert to before inserting the character
-                    // (restore doesn't change the undo stack)
-                    this.undoManager.restore(savedState, this.config);
+                //     // Revert to before inserting the character
+                //     // (restore doesn't change the undo stack)
+                //     this.undoManager.restore(savedState, this.config);
 
-                    // Remove the atoms from the prefix string
-                    this.mathlist._deleteAtoms(-count - 1);
+                //     // Remove the atoms from the prefix string
+                //     this.mathlist._deleteAtoms(-count - 1);
 
-                    // Insert the substitute
-                    this.mathlist.insert(shortcut, {format: 'latex'});
-                    _onAnnounce(this, 'replacement');
-                }
+                //     // Insert the substitute
+                //     this.mathlist.insert(shortcut, {format: 'latex'});
+                //     _onAnnounce(this, 'replacement');
+                // }
 
-                if (!shortcut) {
+                // if (!shortcut) 
+                {
                     // Some characters are mapped to commands. Handle them here.
                     // This is important to handle synthetic text input and
                     // non-US keyboards, on which, fop example, the '^' key is
