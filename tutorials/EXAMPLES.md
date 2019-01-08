@@ -10,3 +10,5 @@ using text to speech and synchronized highlighting.
 - [`examples/virtual_keyboard/`]{@link https://github.com/arnog/mathlive/tree/master/examples/virtual_keyboard} 
 provides a simple example on how to customize the virtual keyboard by implementing
 a keyboard mimicking the HP-15C calculator
+- [`examples/vue/`]{@link https://github.com/arnog/mathlive/tree/master/examples/vue} 
+example using the MathLive Vue.js wrapper 

@@ -386,7 +386,7 @@ const INLINE_SHORTCUTS = {
     '->...':                '\\to\\cdots',       // ->
 
     '->':                   '\\to',
-    '∣−>':                  '\\mapsto',
+    '|->':                  '\\mapsto',
     '-->':                  '\\longrightarrow',
 //    '<-':                   '\\leftarrow',
     '<--':                  '\\longleftarrow',
@@ -407,7 +407,7 @@ const INLINE_SHORTCUTS = {
     '{':                    '\\{',
     '}':                    '\\}',
 
-    '(–)':                  '\\ominus',
+    '(-)':                  '\\ominus',
     // '(-)':                  '\\circleddash',
 
     //
@@ -595,29 +595,64 @@ const MATHEMATICA_COMMANDS = {
 };
 */
 
+/**
+ * Return an array of potential shortcuts
+ * @param {string} s 
+ * @param {object} config 
+ * @return {string[]}
+ */
+function startsWithString(s, config) {
+    const result = [];
+
+    for (let i = 0; i <= s.length - 1; i++) {
+        const s2 = s.slice(i);
+        const skipDefaultShortcuts = config && config.overrideDefaultInlineShortcuts;
+        if (!skipDefaultShortcuts) {
+            Object.keys(INLINE_SHORTCUTS).forEach(key => {
+                if (key.startsWith(s2) && !result.includes(key)) {
+                    result.push(key);
+                }
+            });
+        }
+
+        const customInlineShortcuts = config && config.inlineShortcuts ? 
+            config.inlineShortcuts : null;
+        if (customInlineShortcuts) {
+            Object.keys(customInlineShortcuts).forEach(key => {
+                if (key.startsWith(s2)) {
+                    result.push(key);
+                }
+            });
+        }
+    }
+    console.log('starts with ' + s + '=' + result);
+    return result;
+}
+
 
 /**
  * This function is used to resolve inline shortcuts.
  * 
  * @param {string} s - candidate inline shortcuts (e.g. `'2+pi'`)
- * @return {string} - null if no matching shortcut, the value of the shortcut 
- * otherwise
+ * @param {object} config 
+ * @return {string[]} - An array of strings matching the 
  * @memberof module:editor/shortcuts
  * @private
  */
-function match(s, config) {
-    let result = null;
+function forString(s, config) {
+    let result = [];
 
     // Some common substitutions use characters that may have been replaced 
     // already. Attempt to convert them back to their original form.
     // Useful for things like '<-' where the '-' becomes a \u2212.
-    const s2 = s.replace(/\u2212/g, '-').
-        replace(/\u2217/g, '*').replace(/\u22c6/g, '**').
-        replace(/\u2223/g, '|').replace(/\u2192/g, '->').
-        replace(/\u2264/g, '<=').replace(/\u2a7d/g, '<=').
-        replace(/\u2265/g, '>=').replace(/\u2a7e/g, '>=').
-        replace(/\u2282/g, 'sub').replace(/\u2283/g, 'sup').
-        replace(/\u2229/g, 'nn').replace(/\u222a/g, 'uu');
+    const s2 = s; 
+    // s.replace(/\u2212/g, '-').
+    //     replace(/\u2217/g, '*').replace(/\u22c6/g, '**').
+    //     replace(/\u2223/g, '|').replace(/\u2192/g, '->').
+    //     replace(/\u2264/g, '<=').replace(/\u2a7d/g, '<=').
+    //     replace(/\u2265/g, '>=').replace(/\u2a7e/g, '>=').
+    //     replace(/\u2282/g, 'sub').replace(/\u2283/g, 'sup').
+    //     replace(/\u2229/g, 'nn').replace(/\u222a/g, 'uu');
         
 
     const skipDefaultShortcuts = config && config.overrideDefaultInlineShortcuts;
@@ -674,14 +709,15 @@ function platform(p) {
 }
 
 /**
- * Return the command matching the keystroke.
+ * Return the selector matching the keystroke.
  * 
  * @param {string} mode
  * @param {string} keystroke
+ * @return {string}
  * @memberof module:editor/shortcuts
  * @private
  */
-function matchKeystroke(mode, keystroke) {
+function selectorForKeystroke(mode, keystroke) {
     for (const c of [
         platform('mac') + ':' + mode + ':' + keystroke,
         platform('win') + ':' + mode + ':' + keystroke,
@@ -705,7 +741,7 @@ function matchKeystroke(mode, keystroke) {
         }
     }
 
-    return null;
+    return '';
 }
 
 function commandToString(command) {
@@ -718,7 +754,7 @@ function commandToString(command) {
     return result;
 }
 
-function getShortcutsForCommand(command) {
+function forCommand(command) {
     let result = [];
 
     if (typeof command === 'string') {
@@ -741,7 +777,7 @@ function getShortcutsForCommand(command) {
             replace('$', '\\$').
             replace('^', '\\^')
         + '([^*a-zA-Z]|$)');
-    for (const shortcut in KEYBOARD_SHORTCUTS) {
+    for (const shortcut in KEYBOARD_SHORTCUTS) { 
         if (KEYBOARD_SHORTCUTS.hasOwnProperty(shortcut)) {
             if (regex.test(commandToString(KEYBOARD_SHORTCUTS[shortcut]))) {
                 const m = shortcut.match(/:([^:]*)$/);
@@ -790,7 +826,7 @@ function stringify(shortcuts, join) {
                 keyboardShortcut.split('-') : [keyboardShortcut];
             let shortcutString = '';
             for (const modifier of modifiers) {
-                if (shortcutString.length > 0) {
+                if (!useSymbol && shortcutString.length > 0) {
                     shortcutString += '<span class="ML__shortcut-join">+</span>';
                 }
                 if (modifier.substr(0, 3) === 'Key') {
@@ -800,17 +836,42 @@ function stringify(shortcuts, join) {
                 } else {
                     shortcutString += {
                         'Meta':         useSymbol ? '\u2318' : 'meta',
-                        'Shift':        useSymbol ? '\u21E7' : 'shift',
+                        'Shift':        useSymbol ? '\u21e7' : 'shift',
                         'Alt':          useSymbol ? '\u2325' : 'alt',
                         'Ctrl':         useSymbol ? '\u2303' : 'control',
                         '\n':           useSymbol ? '\u23ce' : 'return',
                         'Return':       useSymbol ? '\u23ce' : 'return',
-                        'Enter':        useSymbol ? '\u23ce' : 'return',
+                        'Enter':        useSymbol ? '\u2324' : 'enter',
                         'Tab':          useSymbol ? '\u21e5' : 'tab',
-                        'Esc':          useSymbol ? '\u241b' : 'return',
+                        // 'Esc':          useSymbol ? '\u238b' : 'esc',
+                        'Esc':          'esc',
+
                         'Backspace':    useSymbol ? '\u232b' : 'backspace',
+                        'Del':          useSymbol ? '\u2326' : 'del',
+                        'PageUp':       useSymbol ? '\u21de' : 'page up',
+                        'PageDown':     useSymbol ? '\u21df' : 'page down',
+                        'Home':         useSymbol ? '\u2912' : 'home',
+                        'End':          useSymbol ? '\u2913' : 'end',
+                        'Spacebar':     'space',
+                        'Semicolon':    ';',
+                        'Period':       '.',
+                        'Comma':        ',',
+                        'Minus':        '-',
+                        'Equal':        '=',
+                        'Quote':        '\'',
+                        'BracketLeft':  '[',
+                        'BracketRight': ']',
                         'Backslash':    '\\',
+                        'IntlBackslash':    '\\',
+                        'Backquote':    '`',
                         'Slash':        '/',
+                        'NumPadMultiply': '*',
+                        'NumPadDivide': '/',
+                        'NumPadSubstract': '-',
+                        'NumPadAdd':    '+',
+                        'NumPadDecimal':    '.',
+                        'NumPadComma':    ',',
+                        'Help':         'help',
                         'Left':         '\u21E0',
                         'Up':           '\u21E1',
                         'Right':        '\u21E2',
@@ -834,13 +895,29 @@ function stringify(shortcuts, join) {
     return result;
 }
 
+function eventToChar(evt) {
+    let result;
+    if (evt.key === 'Unidentified') {
+        // On Android, the evt.key seems to always be 'Unidentified'.
+        // Get the value entered in the event target
+        if (evt.target) {
+            result = evt.target.value;
+        }
+    }
+    result = result || evt.key || evt.code;
+    if (/^(Return|Enter|Tab|Escape|Delete|PageUp|PageDown|Home|End|Help|ArrowLeft|ArrowRight|ArrowUp|ArrowDown)$/.test(result)) {
+        result = '';
+    }
+    return result;
+}
+
 export default {
-    // INLINE : INLINE_SHORTCUTS,
-    // KEYBOARD: KEYBOARD_SHORTCUTS,
     stringify,
-    match,
-    matchKeystroke,
-    getShortcutsForCommand
+    eventToChar,
+    startsWithString,
+    forString, 
+    selectorForKeystroke,
+    forCommand
 }
 
 

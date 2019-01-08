@@ -766,7 +766,7 @@ MathAtom.prototype.decomposeLeftright = function(context) {
                 '\\ulcorner':'\\urcorner', '\\llcorner':'\\lrcorner',
                 '\\lgroup': '\\rgroup', '\\lmoustache':'\\rmoustache'}[this.leftDelim];
             delim = delim || this.leftDelim;
-            localContext.color = 'rgba(0, 0, 0, .3)';
+            localContext.opacity = .5;
         }
         result.push(this.bind(localContext, Delimiters.makeLeftRightDelim('mclose',
             delim, innerHeight, innerDepth, localContext)));
@@ -1780,6 +1780,7 @@ MathAtom.prototype.makeSpan = function(context, body) {
 
     if (context.color) result.setStyle('color', context.getColor());
     if (context.backgroundcolor) result.setStyle('background-color', context.getBackgroundColor());
+    if (typeof context.opacity === 'number') result.setStyle('opacity', context.opacity);
 
     // To retrieve the atom from a span, for example when the span is clicked
     // on, attach a randomly generated ID to the span and associate it

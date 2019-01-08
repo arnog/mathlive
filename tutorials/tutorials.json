@@ -1,16 +1,21 @@
 {
-     "USAGE_GUIDE": {
+    "USAGE_GUIDE": {
         "title": "Usage Guide",
-        "children": {
-            "EXAMPLES": {
-                "title": "Examples"
-            },
-            "COMMANDS_REFERENCE": {
-                "title": "Commands Reference"
-            }
-        }
+        "children": [ "EXAMPLES", "CONFIG", "SELECTORS", "COMMANDS_REFERENCE" ]
     },
-     "CONTRIBUTOR_GUIDE": {
-         "title": "Contributor Guide"
-     }
+    "CONTRIBUTOR_GUIDE": {
+        "title": "Contributor Guide"
+    },
+    "EXAMPLES": {
+        "title": "Examples"
+    },
+    "COMMANDS_REFERENCE": {
+        "title": "Commands Reference"
+    },
+    "CONFIG": {
+        "title": "Configuration options"
+    },
+    "SELECTORS": {
+        "title": "Selectors for perform()"
+    }
  }

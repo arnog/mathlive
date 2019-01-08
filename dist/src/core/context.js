@@ -21,6 +21,7 @@ import Mathstyle from './mathstyle.js';
  * @property {string} mathstyle `'text'` (aka 'inline'), `'display'`,
  * `'script'` or `'scriptscript'`
  * @property {string} color
+ * @property {number} opacity
  * @property {string} backgroundcolor
  * @property {number} size
  * @property {boolean} phantom
@@ -43,6 +44,7 @@ import Mathstyle from './mathstyle.js';
 function Context(data) {
     this.mathstyle = Mathstyle.toMathstyle(data.mathstyle);
     this.color = data.color;
+    this.opacity = data.opacity;
     this.backgroundcolor = data.backgroundcolor;
     this.size = data.size;
     this.phantom = data.phantom;
