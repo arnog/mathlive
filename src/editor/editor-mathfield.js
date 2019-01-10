@@ -1490,12 +1490,12 @@ MathField.prototype.$latex = function(text, options) {
         if (text !== oldValue) {
             options = options || {};
             this.undoManager.snapshot(this.config);
-            this.mathlist.insert(text, {
+            this.mathlist.insert(text, Object.assign({
                 insertionMode: 'replaceAll',
                 selectionMode: 'after',
                 format: 'latex',
                 suppressContentChangeNotifications: options.suppressContentChangeNotifications
-            });
+            }, this.config));
             this._render();
         }
         return text;
