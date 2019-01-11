@@ -1207,12 +1207,34 @@ function make(mf, theme) {
                             if (col.key) {
                                 tempLayer += ` data-key="${col.key}"`;
                             }
+
                             if (col.command) {
                                 tempLayer += ` data-command='"${col.command}"'`;
                             }
                             if (col.insert) {
                                 tempLayer += ` data-insert="${col.insert}"`;
                             }
+
+                            if (col.latex) {
+                                tempLayer += ` data-latex="${col.latex}"`;
+                            }
+
+                            if (col.aside) {
+                                tempLayer += ` data-aside="${col.aside}"`;
+                            }
+
+                            if (col.altKeys) {
+                                tempLayer += ` data-alt-keys="${col.altKeys}"`;
+                            }
+
+                            if (col.shifted) {
+                                tempLayer += ` data-shifted="${col.shifted}"`;
+                            }
+
+                            if (col.shiftedCommand) {
+                                tempLayer += ` data-shifted-command="${col.shiftedCommand}"`;
+                            }
+
                             tempLayer += `>${col.label ? col.label : ''}</li>`;
                         }
                         tempLayer += `</ul>`;
