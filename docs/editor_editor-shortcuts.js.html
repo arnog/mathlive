@@ -351,56 +351,40 @@ const REVERSE_KEYBOARD_SHORTCUTS = {
  * @memberof module:editor/shortcuts
  */
 const INLINE_SHORTCUTS = {
-    '?=':                   '\\questeq',
-    '≈':                    '\\approx',
-    '÷':                    '\\div',
-    '¬':                    '\\neg',
-    ':=':                   '\\coloneq',
-    '::':                   '\\Colon',
-    '(:':                   '\\langle',
-    ':)':                   '\\rangle',
-
-
-    'µ':                    '\\mu',        // @TODO: or micro?
+    // Greek letters
+    'alpha':                '\\alpha',
+    'delta':                '\\delta',
+    'Delta':                '\\Delta',
     'pi':                   '\\pi',
     'π':                    '\\pi',
     'Pi':                   '\\Pi',
-    'phi':                  '\\phi',
-    'Phi':                  '\\Phi',
-    'varphi':               '\\varphi',
-    'psi':                  '\\psi',
-    'Psi':                  '\\Psi',
-    'rho':                  '\\rho',
-    'tau':                  '\\tau',
-    'sigma':                '\\sigma',
-    'Sigma':                '\\Sigma',
     'theta':                '\\theta',
     'Theta':                '\\Theta',
-    'vartheta':             '\\vartheta',
-    'upsilon':              '\\upsilon',
-    // 'xi':                   '\\xi',
-    'Xi':                   '\\Xi',
-    'zeta':                 '\\zeta',
-    'omega':                '\\omega',
-    'Ω':                    '\\omega',     // @TODO: or ohm?
 
+    // Letter-like
     'ii':                   '\\imaginaryI',
     'jj':                   '\\imaginaryJ',
     'ee':                   '\\exponentialE',
     'nabla':                '\\nabla',
+    'grad':                 '\\nabla',
+    'del':                  '\\partial',
 
     '\u221e':               '\\infty',         // @TODO: doesn't work
     // '&amp;infin;': '\\infty',
     // '&amp;#8734;': '\\infty',
+    'oo':                   '\\infty',
 
+    // Big operators
     '∑':                    '\\sum',
-    '∆':                    '\\diffd',     // @TODO: most common?
-    '∂':                    '\\differentialD',
+    'sum':                  '\\sum_{#?}^{#?}',
+    'prod':                 '\\prod_{#?}^{#?}',
     '√':                    '\\sqrt',
     'sqrt':                 '\\sqrt',
     '∫':                    '\\int',
-    
-    // 'arg': '\\arg',
+    '∆':                    '\\differentialD',     // @TODO: is \\diffD most common?
+    '∂':                    '\\differentialD',
+
+    // Functions
     'sin':                  '\\sin',
     'cos':                  '\\cos',
     'tan':                  '\\tan',
@@ -409,6 +393,81 @@ const INLINE_SHORTCUTS = {
     'ln':                   '\\ln',
     'exp':                  '\\exp',
     'lim':                  '\\lim_{#?}',
+
+    // Logic
+    'AA':                   '\\forall',
+    'EE':                   '\\exists',
+    '!EE':                  '\\nexists',
+    '&amp;&amp;':                   '\\land',
+    'in':                   '\\in',
+    '!in':                  '\\notin',
+
+    // Sets
+    'NN':                   '\\N',        // Natural numbers
+    'ZZ':                   '\\Z',        // Integers
+    'QQ':                   '\\Q',        // Rational numbers
+    'RR':                   '\\R',        // Real numbers
+    'CC':                   '\\C',        // Complex numbers
+    'PP':                   '\\P',        // Prime numbers
+
+    // Operators
+    'xx':                   '\\times',
+    '+-':                   '\\pm',
+
+    // Relational operators
+    '!=':                   '\\ne',
+    '>=':                   '\\ge',
+    '&lt;=':                   '\\le',
+    '~~':                   '\\approx', 
+
+    // More operators
+    '?=':                   '\\questeq',
+    '≈':                    '\\approx',
+    '÷':                    '\\div',
+    '¬':                    '\\neg',
+    ':=':                   '\\coloneq',
+    '::':                   '\\Colon',
+
+    // Fences
+    '(:':                   '\\langle',
+    ':)':                   '\\rangle',
+
+    // More Greek letters
+    'beta':                 '\\beta',
+    'chi':                  '\\chi',
+    'epsilon':              '\\epsilon',
+    'varepsilon':           '\\varepsilon',
+    'eta':                  '\\eta',
+    'gamma':                '\\gamma',
+    'Gamma':                '\\Gamma',
+    'iota':                 '\\iota',
+    'kappa':                '\\kappa',
+    'lambda':               '\\lambda',
+    'Lambda':               '\\Lambda',
+    'mu':                   '\\mu',
+    'nu':                   '\\nu',
+    'µ':                    '\\mu',        // @TODO: or micro?
+    'phi':                  '\\phi',
+    'Phi':                  '\\Phi',
+    'varphi':               '\\varphi',
+    'psi':                  '\\psi',
+    'Psi':                  '\\Psi',
+    'rho':                  '\\rho',
+    'sigma':                '\\sigma',
+    'Sigma':                '\\Sigma',
+    'tau':                  '\\tau',
+    'vartheta':             '\\vartheta',
+    'upsilon':              '\\upsilon',
+    'xi':                   '\\xi',
+    'Xi':                   '\\Xi',
+    'zeta':                 '\\zeta',
+    'omega':                '\\omega',
+    'Omega':                '\\Omega',
+    'Ω':                    '\\omega',     // @TODO: or ohm?
+
+
+    // MORE FUNCTIONS
+    // 'arg': '\\arg',
     'liminf':               '\\mathop{lim~inf}\\limits_{#?}',
     'limsup':               '\\mathop{lim~sup}\\limits_{#?}',
     'argmin':               '\\mathop{arg~min}\\limits_{#?}',
@@ -428,27 +487,20 @@ const INLINE_SHORTCUTS = {
     'randomReal':           '\\mathop{randomReal}',
     'randomInteger':        '\\mathop{randomInteger}',
 
-    'km':                   '\\mathop{km}', // Unit: kilometer
+    // UNITS
+    'mm':                   '\\mathop{mm}',         // millimeter
+    'cm':                   '\\mathop{cm}',         // centimeter
+    'km':                   '\\mathop{km}',         // kilometer
+    'kg':                   '\\mathop{kg}',         // kilogram
     
 
-    'NN':                   '\\N',        // Natural numbers
-    'ZZ':                   '\\Z',        // Integers
-    'QQ':                   '\\Q',        // Rational numbers
-    'RR':                   '\\R',        // Real numbers
-    'CC':                   '\\C',        // Complex numbers
-    'PP':                   '\\P',        // Prime numbers
-
+    // More Logic
     'forall':               '\\forall',
-    'AA':                   '\\forall',
-    '!exists':              '\\nexists', // TODO: conflicts with 'exists'
     'exists':               '\\exists',
-    'EE':                   '\\exists',
-    '!EE':                  '\\nexists',
-    // 'in':                   '\\in',
-    '!in':                  '\\notin',
+    '!exists':              '\\nexists',
+    ':.':                   '\\therefore',
 
 
-    '&amp;&amp;':                   '\\land',
     // '||':                   '\\lor',
     '...':                  '\\ldots',          // In general, use \ldots
     '+...':                 '+\\cdots',         // ... but use \cdots after + ...
@@ -470,27 +522,27 @@ const INLINE_SHORTCUTS = {
 
     '(.)':                  '\\odot',
     '(+)':                  '\\oplus',      
-    // '(/)':                  '\\oslash',
+    '(/)':                  '\\oslash',
     '(*)':                  '\\otimes',
 
-    '||':                   '\\Vert',               // || 
+    '||':                   '\\Vert',
     '{':                    '\\{',
     '}':                    '\\}',
 
     '(-)':                  '\\ominus',
     // '(-)':                  '\\circleddash',
 
+/*
     //
     // ASCIIIMath
     //
-
     // Binary operation symbols
+    '*':                    '\\cdot',
     '**':                   '\\ast',
     '***':                  '\\star',
     '//':                   '\\slash',
     '\\\\':                 '\\backslash',
     'setminus':             '\\backslash',
-    'xx':                   '\\times',
     '|>&lt;':                  '\\ltimes',
     '>&lt;|':                  '\\rtimes',
     '|>&lt;|':                 '\\bowtie',
@@ -500,8 +552,6 @@ const INLINE_SHORTCUTS = {
     'o+':                   '\\oplus',
     'ox':                   '\\otimes',
     'o.':                   '\\odot',
-    'sum':                  '\\sum_{#?}^{#?}',
-    'prod':                 '\\prod_{#?}^{#?}',
     '^^':                   '\\wedge',
     '^^^':                  '\\bigwedge',
     'vv':                   '\\vee',
@@ -512,25 +562,21 @@ const INLINE_SHORTCUTS = {
     'uuu':                  '\\bigcup',
 
     // Binary relation symbols
-    '!=':                   '\\ne',
-    '>=':                   '\\ge',
-    '&lt;=':                   '\\le',
-    '~~':                   '\\approx', 
-    '+-':                   '\\pm',
     '-=':                   '\\equiv',
     '~=':                   '\\cong',
+    'lt':                   '&lt;',
+    'lt=':                  '\\leq',
+    'gt':                   '>',
+    'gt=':                  '\\geq',
     '-&lt;':                   '\\prec',
+    '-lt':                  '\\prec',
     '-&lt;=':                  '\\preceq',
     // '>-':                   '\\succ',
     '>-=':                  '\\succeq', 
     'prop':                 '\\propto', 
-    ':.':                   '\\therefore',
     'diamond':              '\\diamond',
     'square':               '\\square',
     'iff':                  '\\iff',
-
-    '_|_':                   '\\bot',
-
 
     'sub':                  '\\subset',
     'sup':                  '\\supset',
@@ -546,29 +592,27 @@ const INLINE_SHORTCUTS = {
     'hArr':                 '\\Leftrightarrow',
     'aleph':                '\\aleph',
 
-    'grad':                 '\\nabla',
-    'del':                  '\\partial',
-    'oo':                   '\\infty',
+    // Logic
+    'and':                  '\\land',
+    'or':                   '\\lor',
+    'not':                  '\\neg',
+    '_|_':                   '\\bot',
+    'TT':                   '\\top',
+    '|--':                  '\\vdash',
+    '|==':                  '\\models',
+    
+    // Other functions
+    '|__':                  '\\lfloor',
+    '__|':                  '\\rfloor',
 
-    // Greek letters
-    'alpha':                '\\alpha',
-    'beta':                 '\\beta',
-    'gamma':                '\\gamma',
-    'Gamma':                '\\Gamma',
-    'delta':                '\\delta',
-    'Delta':                '\\Delta',
-    'chi':                  '\\chi',
-    'epsilon':              '\\epsilon',
-    'varepsilon':           '\\varepsilon',
-    'eta':                  '\\eta',
-    'iota':                 '\\iota',
-    'kappa':                '\\kappa',
-    'lambda':               '\\lambda',
-    'Lambda':               '\\Lambda',
-    'mu':                   '\\mu',
-    // 'nu':                   '\\nu',
+    '|~':                   '\\lceiling',
+    '~|':                   '\\rceiling',
 
-
+    // Arrows
+    '>->':                   '\\rightarrowtail',
+    '->>':                   '\\twoheadrightarrow',
+    '>->>':                  '\\twoheadrightarrowtail'
+*/
 };
 
 /* 

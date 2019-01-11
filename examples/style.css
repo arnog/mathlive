@@ -1,0 +1,234 @@
+* {
+    line-height: 1.2;
+    margin: 0;
+}
+
+html {
+    fill: currentColor;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    --hue: 210;
+    --on-primary: hsl(var(--hue), 0%,95%);
+    --primary: hsl(var(--hue), 40%, 50%);
+    --surface: #fafafa;        
+    --surface-border: #fff;
+    --on-surface: hsl(var(--hue),19%,26%);
+
+    --secondary-surface: hsl(0, 0%, 99.5%);
+    --secondary-surface-border: hsl(0, 0%, 93%);
+    --link: hsl(var(--hue), 100%, 40%);
+
+    --editable: #fff;
+    --editable-border: #ddd;
+    --on-editable: #333;
+
+    background: var(--surface);
+    color: var(--on-surface);
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: .7;
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+h3 {
+    font-weight: 600;
+    line-height: .7;
+    margin-top: 3em;
+    margin-bottom: 2em;
+}
+
+h4 {
+    margin-top: 2em;
+    margin-bottom: 1.5em;
+}
+
+ h3 strong, h4 strong {
+    color: var(--primary);
+ }
+
+h4 {
+    font-weight: 400;
+}
+/* h2, h3 {
+    background: linear-gradient(#eee, #333);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+} */
+main {
+    padding-top: 3rem;
+    width: 640px;
+    display: flex;
+    align-items: flex-start;
+    /* justify-content: left; */
+    flex-flow: column wrap;
+    margin: auto;
+    /* width: min-content; */
+}
+main > div {
+    width: 100%;
+}
+
+main > div.frame {
+    margin-top: 2em;
+    padding-left: 1em;
+    padding-right: 1em;
+    width: calc(100% - 2em);
+    margin-bottom: 4em;
+    background: var(--secondary-surface);
+    border: 1px solid var(--secondary-surface-border);
+    border-radius: 8px;
+}
+
+kbd {
+  font-family: Consolas, Monaco, 'Andale Mono', monospace;
+  background: #f4f4f4;
+  color: #333;
+  padding: 1px 5px;
+  border-radius: 5px;
+}
+
+.links {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 1em;
+    padding-bottom: 2em;
+    width: 100%;
+    font-size: 24px;
+}
+
+.output {
+    font-family: "Source Code Pro", Menlo, "Bitstream Vera Sans Mono", Monaco, Courier, "Andale Mono", monospace;
+    color: #f0c674;
+
+    background: #35434e;
+
+    padding:5px;
+    margin: 10px 0 10px 0;
+    border-radius:5px;
+    border: 1px solid #333;
+
+
+    min-height: 1em;
+    padding-top: .5em;
+    padding-bottom: .5em;
+}
+
+.mathfield {
+    border: 1px solid var(--editable-border);
+    padding:5px;
+    margin: 10px 0 10px 0;
+    border-radius:5px;
+    background: var(--editable);
+    color: var(--on-editable);
+}
+
+.fa-w-24 {
+    width: 24px;
+    vertical-align: -5px;
+}
+
+/* .github-icon-before:before {
+    width: 1em;
+    display: inline-block;
+    vertical-align: -3px;
+    margin-right: .5ex;
+    content: url(icons.svg#svg-github);
+} */
+
+a, a:visited, a:active {
+    text-decoration: none;
+    color: var(--link);
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+header {
+    background-color: var(--primary);
+    height: 130px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    box-shadow: 16px 6px 24px rgba(0, 0, 0, .2);
+
+}
+
+header h1 {
+    font-family: 'Futura', 'Open Sans', -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+    font-size: 3rem;
+    color: var(--on-primary);
+    text-transform: uppercase;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1024px;
+    letter-spacing: -.04ex;
+    text-rendering: optimizeLegibility;
+    line-height: .9;
+    width: 640px;
+    text-align: left;
+    font-weight: 600;
+    letter-spacing: 0.004em;
+    margin: auto;
+}
+
+footer {
+    margin-top: 5em;
+    margin-bottom: 5em;
+    text-align: center;
+
+    display: flex;
+    justify-content: center;
+    flex-flow: column wrap;
+}
+
+footer a, footer a:visited, footer a:active {
+    font-size: 18px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+@media only screen and (max-width: 512px) {
+    header {
+        height: 100px;
+    }
+
+    header h1 {
+        max-width: 320px;
+        width: auto;
+        font-size: 2rem;
+    }
+
+    .examples {
+        width: 320px; 
+    }
+}
+
+@media (prefers-color-scheme: dark) { 
+    body {
+        --surface: hsl(var(--hue),19%,26%);
+        --surface-border: hsl(0,0%,20%);
+        --on-surface: hsl(0,0%,98%);
+        --primary: hsl(var(--hue), 100%, 50%);
+
+        --secondary-surface: hsl(0, 0%, 19%, 0.3);
+        --secondary-surface-border: hsl(0, 0%, 22%);
+        --link: hsl(var(--hue), 100%, 63%);
+
+        --editable: #333;
+        --editable-border: hsl(0,0%,13%);;
+        --on-editable: #fff;
+    }
+    h2, h3 {
+        color: hsl(var(--hue), 20%, 90%);
+    }
+}

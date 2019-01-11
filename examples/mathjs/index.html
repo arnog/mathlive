@@ -2,46 +2,37 @@
 <head>
     <meta charset="utf-8">
     <title>MathLive Example. Calculating with mathjs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../style.css">
 
-    <link rel="stylesheet" href="../../dist/mathlive.core.css">
-    <link rel="stylesheet" href="../../dist/mathlive.css">
-    <style>
-        body {
-            font-family: sans-serif;
-            color: #444;
-            background-color: #f9f9f9;
-        }
-        main {
-            max-width: 820px;
-            margin: auto;
-        }
-        .mathfield {
-            border: 1px solid #ddd;
-            padding:5px;
-            margin: 10px 0 10px 0;
-            border-radius:5px;
-            background-color: #fff;
-        }
-        #output {
-            padding:5px;
-            border-radius:5px;
-
-            font-family: "Source Code Pro", Menlo, "Bitstream Vera Sans Mono", Monaco, Courier, "Andale Mono", monospace;
-        }
-    </style>
+    <link rel="stylesheet" href="../../mathlive/mathlive.core.css">
+    <link rel="stylesheet" href="../../mathlive/mathlive.css">
 </head>
 <body>
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="svg-angle-right" viewBox="0 0 192 512">
+            <path fill="currentColor" d="M187.8 264.5L41 412.5c-4.7 4.7-12.3 4.7-17 0L4.2 392.7c-4.7-4.7-4.7-12.3 0-17L122.7 256 4.2 136.3c-4.7-4.7-4.7-12.3 0-17L24 99.5c4.7-4.7 12.3-4.7 17 0l146.8 148c4.7 4.7 4.7 12.3 0 17z"></path>
+        </symbol>
+    </svg>
+
+    <header>
+        <h1>Calculating with mathjs</h1>
+    </header>
+
+
     <main>
-        <h2>MathLive Example</h2>
-        <h3>Calculating with mathjs</h3>
         <div class="mathfield" id='mf' >2\pi</div>
-        <div id='output'></div>
+        <div class='output' id='output'></div>
     </main>
 
+    <footer>
+        <a href="../">More examples&nbsp;<svg class="fa-w-24" height="24px"><use xlink:href="../icons.svg#angle-right" /></svg></a>
+        <a href="/">Return to the homepage&nbsp;<svg class="fa-w-24" height="24px"><use xlink:href="../icons.svg#angle-right" /></svg></a>
+    </footer>
 
-<script src="../../dist/mathlive.js"></script>
 <script src="math.min.js"></script>
-<script>
+<script type='module'> 
+    import MathLive from '../../mathlive/mathlive.mjs';
     (function() {
     const mf = MathLive.makeMathField('mf', {
         onContentDidChange: mathfield => {

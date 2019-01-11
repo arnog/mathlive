@@ -30,7 +30,7 @@
     "clean": "rimraf build dist docs",
     "build-js": "echo '\\033[0;32mESLint...\\033[0m' && eslint src/ -c .eslintrc.json",
     "watch-js": "esw -w src/",
-    "build-css": "echo '\\033[0;32mCompile .less...\\033[0m' && lessc css/mathlive.core.less build/mathlive.core.css && lessc css/mathlive.less build/mathlive.css ",
+    "build-css": "echo '\\033[0;32mCompile .less...\\033[0m' && lessc css/mathlive.core.less build/mathlive.core.css && lessc css/mathlive.less build/mathlive.css && postcss build/*.css -d dist",
     "watch-css": "chokidar 'css/*.less' -c 'npm run build-css -s'",
     "build": "npm-run-all -p build-css build-js docs",
     "watch": "npm-run-all -p watch-css watch-js watch-docs watch-test",

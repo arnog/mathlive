@@ -4,8 +4,8 @@
     <title>MathLive Speech Example</title>
     <meta name="google" content="notranslate">
 
-    <link rel="stylesheet" href="../../dist/mathlive.core.css">
-    <link rel="stylesheet" href="../../dist/mathlive.css">
+    <link rel="stylesheet" href="../../mathlive/mathlive.core.css">
+    <link rel="stylesheet" href="../../mathlive/mathlive.css">
 
     <style>
         body {
@@ -124,6 +124,22 @@
             fill: #666;
         }
 
+        #AWS-warning {
+            max-width: 820px;
+            margin: auto;
+            display: none;
+            background: #cc3300;
+            color: #ffcc00;
+            padding: 1em;
+        }
+        #AWS-warning h1 {
+            font-size: 18px;
+        }
+
+        #AWS-warning p {
+            font-size: 14px;
+        }
+
     </style>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.249.1.min.js"></script>
     <script>
@@ -136,6 +152,13 @@
     <!-- <script src="../../../vendor/sre_browser.js"></script> -->
 </head>
 <body>
+    <section id='AWS-warning'>
+        <h1>No valid AWS keys detected.</h1>
+        <p>This example uses the Amazon AWS speech synthesizer. To use it, the
+             source code must be modified to use valid AWS keys.</p>
+        <p>See <a href='https://docs.aws.amazon.com/general/latest/gr/aws-security-credentials.html'>AWS 
+        Security Credentials</a> for how to obtain your own AWS keys (it's free!).</p>
+    </section>
     <main>
         <h2>How to Solve Quadratic Equations </h2>
         <p>Quadratic equations polynomial equation in a single variable where 
@@ -216,11 +239,17 @@
 
 
 <script type='module'> 
-import MathLive from '../../dist/mathlive.mjs';
+import MathLive from '../../mathlive/mathlive.mjs';
 window.MathLive = MathLive;
 MathLive.renderMathInDocument({ignoreClass: "mathfield"});
 
-document.getElementById('start-button').addEventListener('click', () => {mf.perform("speakAllWithSynchronizedHighlighting")});
+document.getElementById('start-button').addEventListener('click', () => {
+    try {
+        mf.perform("speakAllWithSynchronizedHighlighting")
+    } catch (e) {
+        console.log(e);
+    }
+});
 document.getElementById('repeat-button').addEventListener('click', repeat);
 document.getElementById('pause-button').addEventListener('click', pauseResume);
 document.getElementById('speed-slider').addEventListener('input', function() {
@@ -268,19 +297,23 @@ setSpeed(3);
 
 
 function pauseResume() {
-    if (!window.mathlive) {
-        mf.perform("speakAllWithSynchronizedHighlighting");
-        return;
-    }
-
-    if (window.mathlive.readAloudAudio.paused) {
-        var token = window.mathlive.readAloudCurrentToken;
-        if (window.mathlive.readAloudAudio.ended) {
-            token = window.mathlive.readAloudTokens[0];
+    try {
+        if (!window.mathlive) {
+            mf.perform("speakAllWithSynchronizedHighlighting");
+            return;
         }
-        MathLive.playReadAloud(token, 2);
-    } else {
-        MathLive.pauseReadAloud();
+
+        if (window.mathlive.readAloudAudio.paused) {
+            var token = window.mathlive.readAloudCurrentToken;
+            if (window.mathlive.readAloudAudio.ended) {
+                token = window.mathlive.readAloudTokens[0];
+            }
+            MathLive.playReadAloud(token, 2);
+        } else {
+            MathLive.pauseReadAloud();
+        }
+    } catch(e) {
+        console.log(e);
     }
 }
 
@@ -307,6 +340,19 @@ function setSpeed(speed) {
             ][speed]
     })
 }
+
+// Validate the AWS key
+
+
+if (!window.AWS || !/(?<![A-Z0-9])[A-Z0-9]{20}(?![A-Z0-9])/.test(AWS.config.accessKeyId)) {
+    document.getElementById('AWS-warning').style.display = 'block';
+}
+
+if (!window.AWS || !/(?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{40}(?![A-Za-z0-9/+=])/.test(AWS.config.secretAccessKey)) {
+    document.getElementById('AWS-warning').style.display = 'block';
+}
+
+
 </script>
 
 </body></html>

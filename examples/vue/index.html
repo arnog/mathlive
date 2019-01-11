@@ -1,17 +1,19 @@
 <!DOCTYPE html><html lang="en-US">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="../../dist/mathlive.core.css">
-    <link rel="stylesheet" href="../../dist/mathlive.css">
+    <link rel="stylesheet" href="../../mathlive/mathlive.core.css">
+    <link rel="stylesheet" href="../../mathlive/mathlive.css">
 </head>
 <body>
 
 <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 
 <script type='module'> 
-    import MathLive from "../../src/mathlive.js";
+    import MathLive from "../../mathlive/src/mathlive.js";
     // import Mathfield from "../../dist/vue-mathlive.mjs";
-    import Mathfield from "../../src/vue-mathlive.js";
+    import Mathfield from "../../mathlive/vue-mathlive.mjs";
 
     Vue.use(Mathfield, MathLive);
     // The default tag for mathfields is <mathlive-mathfield>
@@ -44,8 +46,16 @@
         }
     });
 </script>
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="svg-angle-right" viewBox="0 0 192 512">
+            <path fill="currentColor" d="M187.8 264.5L41 412.5c-4.7 4.7-12.3 4.7-17 0L4.2 392.7c-4.7-4.7-4.7-12.3 0-17L122.7 256 4.2 136.3c-4.7-4.7-4.7-12.3 0-17L24 99.5c4.7-4.7 12.3-4.7 17 0l146.8 148c4.7 4.7 4.7 12.3 0 17z"></path>
+        </symbol>
+    </svg>
+
+    <header>
+        <h1>MathLive with Vue.js</h1>
+    </header>
     <main>
-        <h2>MathLive with Vue.js</h2>
         <mathlive-mathfield 
             id='mf' 
             ref="mathfield" 
@@ -54,13 +64,19 @@
             :on-keystroke="displayKeystroke"
             v-model="formula">f(x)=</mathlive-mathfield>
         <div>
-            <label>Keystroke:&nbsp;</label><span>{{keystroke}}</span>
+            <label>Keystroke:&nbsp;</label><kbd>{{keystroke}}</kbd>
         </div>
         <div class="output">LaTeX: {{formula}}</div>
         <div class="output">Spoken text: {{asSpokenText()}}</div>
-        <button v-on:click="sayIt">Say It</button>
-        <button v-on:click="setIt">Set It</button>
+        <div>
+            <button v-on:click="sayIt">Say It</button>
+            <button v-on:click="setIt">Set It</button>
+        </div>
     </main>
+    <footer>
+        <a href="../">More examples&nbsp;<svg class="fa-w-24" height="24px"><use xlink:href="#svg-angle-right" /></svg></a>
+        <a href="/">Return to the homepage&nbsp;<svg class="fa-w-24" height="24px"><use xlink:href="#svg-angle-right" /></svg></a>
+    </footer>
 </body>
 </html>
 
