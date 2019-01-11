@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en-US">
+<!DOCTYPE html>
+<html lang="en-US">
 <head>
     <meta charset="utf-8">
     <title>MathLive Four Operation Calculator</title>
@@ -11,18 +12,21 @@
             color: #444;
             background-color: #f9f9f9;
         }
+
         main {
             max-width: 820px;
             margin: auto;
         }
+
         .mathfield {
             font-size: 32px;
             border: 1px solid #ddd;
-            padding:5px;
+            padding: 5px;
             margin: 10px 0 10px 0;
-            border-radius:5px;
+            border-radius: 5px;
             background-color: #fff;
         }
+
         #result {
             background: #ddd;
             padding: 1em;
@@ -31,10 +35,11 @@
             border: 1px solid #c5c5c5;
 
         }
+
         #output {
-            padding:1em;
+            padding: 1em;
             margin: 2em 0 10px 0;
-            border-radius:5px;
+            border-radius: 5px;
             border: 1px solid #000;
 
             font-family: "Source Code Pro", Menlo, "Bitstream Vera Sans Mono", Monaco, Courier, "Andale Mono", monospace;
@@ -44,22 +49,213 @@
     </style>
 </head>
 <body>
-    <main>
-        <h1>MathLive Four Function Calculator</h1>
-        <div class="mathfield" id='mf' ></div>
-        <div id='result'></div>
-        <div id='output'></div>
-    </main>
+<main>
+    <h1>MathLive Four Function Calculator</h1>
+    <div class="mathfield" id='mf'></div>
+    <div id='result'></div>
+    <div id='output'></div>
+</main>
 
 
 <script src="../../dist/mathlive.js"></script>
 <script>
-    (function() {
-    const mf = MathLive.makeMathField('mf', {
-        onContentDidChange: updateOutput,
-        virtualKeyboardMode: 'manual',
-        customVirtualKeyboardLayers: {
-        'four-op': `
+    (function () {
+        const mf = MathLive.makeMathField('mf', {
+            onContentDidChange: updateOutput,
+            virtualKeyboardMode: 'manual',
+            customVirtualKeyboardLayers: {
+                'json': {
+                    "styles": "div#ML__keyboard div.json-backdrop > div > div > ul> li.keycap.btn{color:#fff;background:#37454F;border: 1px solid #37454F}",
+                    "backdrop": "json-backdrop",
+                    "container": "json-container",
+                    "rows": [
+                        [
+                            {
+                                "class": "keycap btn",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": "7"
+                            },
+                            {
+                                "class": "keycap btn",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": "8"
+                            },
+                            {
+                                "class": "keycap btn",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": "9"
+                            },
+                            {
+                                "class": "keycap",
+                                "dataInsert": "\\frac{#0}{#?}",
+                                "command": "",
+                                "label": "&divide;"
+                            },
+                            {
+                                "class": "separator",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": ""
+                            },
+                            {
+                                "class": "separator w20",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": ""
+                            }
+                        ],
+                        [
+                            {
+                                "class": "keycap btn",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": "4"
+                            },
+                            {
+                                "class": "keycap btn",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": "5"
+                            },
+                            {
+                                "class": "keycap btn",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": "6"
+                            },
+                            {
+                                "class": "keycap",
+                                "dataInsert": "\\times ",
+                                "command": "",
+                                "label": "&times;"
+                            },
+                            {
+                                "class": "separator",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": ""
+                            },
+                            {
+                                "class": "separator w20",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": ""
+                            }
+                        ],
+                        [
+                            {
+                                "class": "keycap btn",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": "1"
+                            },
+                            {
+                                "class": "keycap",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": "2"
+                            },
+                            {
+                                "class": "keycap",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": "3"
+                            },
+                            {
+                                "class": "keycap",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": "-"
+                            },
+                            {
+                                "class": "separator w15",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": ""
+                            },
+                            {
+                                "class": "action font-glyph bottom right w15",
+                                "insert": "",
+                                "key": "",
+                                "command": "deletePreviousChar",
+                                "label": "&#x232b;"
+                            }
+                        ],
+                        [
+                            {
+                                "class": "keycap btn",
+                                "insert": "",
+                                "key": "0",
+                                "command": "",
+                                "label": "0"
+                            },
+                            {
+                                "class": "keycap",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": "."
+                            },
+                            {
+                                "class": "keycap",
+                                "insert": "\\pi ",
+                                "key": "",
+                                "command": "",
+                                "label": "<aside class='above tex'>" +
+                                    "<i>x</i>&thinsp;!</aside>" +
+                                    "<span>,</span>" +
+                                    "<aside class='below'>TEST</aside>"
+                            },
+                            {
+                                "class": "keycap",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": "+"
+                            },
+                            {
+                                "class": "action",
+                                "insert": "",
+                                "key": "",
+                                "command": "moveToPreviousChar",
+                                "label": "<svg><use xlink:href='#svg-arrow-left' /></svg>"
+                            },
+                            {
+                                "class": "action",
+                                "insert": "",
+                                "key": "",
+                                "command": "moveToNextChar",
+                                "label": "<svg><use xlink:href='#svg-arrow-right' /></svg>"
+                            },
+                            {
+                                "class": "action",
+                                "insert": "",
+                                "key": "",
+                                "command": "moveToNextPlaceholder",
+                                "label": "<svg><use xlink:href='#svg-tab' /></svg>"
+                            }
+                        ]
+                    ]
+                },
+                'four-op': `
                 <div class='rows'>
                     <ul><li class='keycap'>7</li>
                         <li class='keycap' >8</li>
@@ -92,7 +288,7 @@
                     </ul>
                 </div>
             </div>`,
-        'hp': `
+                'hp': `
             <style>
                 .calculator-backdrop {
                     width: 768px;
@@ -211,71 +407,77 @@
                     </div>
                 </div>
             </div>`,
-        },
-        customVirtualKeyboards: {
-            'hp': {
-                tooltip: 'hp15c',
-                layer: 'hp',
-                label: 'hp',
-                classes: '',
-                layers: ['hp']
             },
-            'basic': {
-                label: 'Basic',
-                tooltip: 'Four Operation Keyboard',
-                layer: 'four-op'
+            customVirtualKeyboards: {
+                'hp': {
+                    tooltip: 'hp15c',
+                    layer: 'hp',
+                    label: 'hp',
+                    classes: '',
+                    layers: ['hp']
+                },
+                'basic': {
+                    label: 'Basic',
+                    tooltip: 'Four Operation Keyboard',
+                    layer: 'four-op'
+                },
+                'json': {
+                    label: 'json',
+                    tooltip: 'json keyboard',
+                    layer: 'json'
+                },
             },
-        },
-        virtualKeyboards: 'hp basic',
-    });
-    
-    function escapeHtml (string) {
-        const ENTITIES = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#39;',
-            '/': '&#x2F;',
-            '`': '&#x60;',
-            '=': '&#x3D;',
-        };
-        return String(string).replace(/[&<>"'`=/]/g, function (s) {
-            return ENTITIES[s];
+            virtualKeyboards: 'hp basic json',
         });
-    }
 
-    function evaluate(ast) {
-        if (ast === undefined) return NaN;
-        if (typeof ast === 'number') return ast;
-        if (ast.num !== undefined) return evaluate(ast.num);
-        if (typeof ast === 'string') {
-            if (ast === 'π') {
-                return Math.PI;
+        function escapeHtml(string) {
+            const ENTITIES = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;',
+                '/': '&#x2F;',
+                '`': '&#x60;',
+                '=': '&#x3D;',
+            };
+            return String(string).replace(/[&<>"'`=/]/g, function (s) {
+                return ENTITIES[s];
+            });
+        }
+
+        function evaluate(ast) {
+            if (ast === undefined) return NaN;
+            if (typeof ast === 'number') return ast;
+            if (ast.num !== undefined) return evaluate(ast.num);
+            if (typeof ast === 'string') {
+                if (ast === 'π') {
+                    return Math.PI;
+                }
+                return parseFloat(ast);
             }
-            return parseFloat(ast);
+            if (ast.op === '*') {
+                return evaluate(ast.lhs) * evaluate(ast.rhs);
+            } else if (ast.op === '/') {
+                return evaluate(ast.lhs) / evaluate(ast.rhs);
+            } else if (ast.op === '-') {
+                return evaluate(ast.lhs) - evaluate(ast.rhs);
+            } else if (ast.op === '+') {
+                return evaluate(ast.lhs) + evaluate(ast.rhs);
+            }
+            return NaN;
         }
-        if (ast.op === '*') {
-            return evaluate(ast.lhs) * evaluate(ast.rhs);
-        } else if (ast.op === '/') {
-            return evaluate(ast.lhs) / evaluate(ast.rhs);
-        } else if (ast.op === '-') {
-            return evaluate(ast.lhs) - evaluate(ast.rhs);
-        } else if (ast.op === '+') {
-            return evaluate(ast.lhs) + evaluate(ast.rhs);
+
+        function updateOutput(mathfield) {
+            const ast = MathLive.latexToAST(mathfield.latex());
+
+            document.getElementById('result').innerHTML = evaluate(ast).toString();
+
+            document.getElementById('output').innerHTML =
+                escapeHtml(JSON.stringify(ast))
         }
-        return NaN;
-    }
-
-    function updateOutput(mathfield) {
-        const ast = MathLive.latexToAST(mathfield.latex());
-
-        document.getElementById('result').innerHTML = evaluate(ast).toString();
-
-        document.getElementById('output').innerHTML = 
-            escapeHtml(JSON.stringify(ast))
-    }
     })();
 </script>
 
-</body></html>
+</body>
+</html>
