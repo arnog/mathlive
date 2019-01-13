@@ -258,18 +258,18 @@ function delegateKeyboardEvents(textarea, handlers) {
     function onBlur() {
         keydownEvent = null;
         keypressEvent = null;
-        if (handlers.blur) handlers.blur();
+        // if (handlers.blur) handlers.blur();
     }
     function onFocus() {
-        if (handlers.focus) {
-            // Invoking focus() can have a side effect of temporarily bluring 
-            // the text area, causing the blur handler to be invoked.
-            // Prevent this by temporarily turning it off.
-            const savedBlur = handlers.blur;
-            handlers.blur = null;
-            handlers.focus();
-            handlers.blur = savedBlur;
-        }
+        // if (handlers.focus) {
+        //     // Invoking focus() can have a side effect of temporarily bluring 
+        //     // the text area, causing the blur handler to be invoked.
+        //     // Prevent this by temporarily turning it off.
+        //     const savedBlur = handlers.blur;
+        //     handlers.blur = null;
+        //     handlers.focus();
+        //     handlers.blur = savedBlur;
+        // }
     }
 
     const target = textarea || handlers.container;
@@ -307,9 +307,41 @@ function hasSelection(textarea) {
     return textarea.selectionStart !== textarea.selectionEnd;
 }
 
+
+function eventToChar(evt) {
+    let result;
+    if (evt.key === 'Unidentified') {
+        // On Android, the evt.key seems to always be 'Unidentified'.
+        // Get the value entered in the event target
+        if (evt.target) {
+            result = evt.target.value;
+        }
+    }
+    result = result || evt.key || evt.code;
+    if (/^(Return|Enter|Tab|Escape|Delete|PageUp|PageDown|Home|End|Help|ArrowLeft|ArrowRight|ArrowUp|ArrowDown)$/.test(result)) {
+        result = '';
+    }
+    return result;
+}
+
+function charToEvent(c) {
+    const result = {
+        key: c,
+        metaKey: false,
+        ctrlKey: false,
+        altKey: false,
+        shiftKey: false
+    };
+
+    return result;
+}
+
 export default {
     delegateKeyboardEvents: delegateKeyboardEvents,
     select: delegateKeyboardEvents.select,
+    keyboardEventToString,
+    eventToChar,
+    charToEvent
 };
 
 

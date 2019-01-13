@@ -300,6 +300,7 @@ MathField.prototype.$revertToOriginalContent = function() {
 MathField.prototype._resetInlineShortcutBuffer = function() {
     this.inlineShortcutBuffer = '';
     this.inlineShortcutStates = [];
+    clearTimeout(this.inlineShortcutBufferResetTimer);
 }
 
 /**
@@ -458,15 +459,6 @@ MathField.prototype._onPointerDown = function(evt) {
     let trackingPointer = false;
     let dirty = false;
 
-    // Clicking or tapping the field will cancel out the inline shortcut buffer
-    this._resetInlineShortcutBuffer();
-
-    // Focus the math field
-    if (!this.hasFocus()) {
-        dirty = true;
-        if (this.textarea.focus) this.textarea.focus();
-    }
-
     // Calculate the tap count (if this is a touch event)
     if (evt.touches) {
         if (lastTouchEndTouch && Math.abs(lastTouchEndTouch.pageX - evt.touches[0].pageX) < 5 &&
@@ -485,6 +477,15 @@ MathField.prototype._onPointerDown = function(evt) {
     const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
     if (x > bounds.left && x < bounds.right &&
         y > bounds.top && y < bounds.bottom) {
+
+        // Focus the math field
+        if (!this.hasFocus()) {
+            dirty = true;
+            if (this.textarea.focus) this.textarea.focus();
+        }
+
+        // Clicking or tapping the field will cancel out the inline shortcut buffer
+        this._resetInlineShortcutBuffer();
 
         // This should not be necessary, but just in case we got in a weird state...
         off(this.field, 'touchmove', onPointerMove);
@@ -724,14 +725,14 @@ function speakableText(mathfield, prefix, atoms) {
 MathField.prototype._onFocus = function() {
     if (this.blurred) {
         this.blurred = false;
+
         // The textarea may be a span (on mobile, for example), so check that
-        // it has a select() before calling it.
-        if (this.textarea.select) this.textarea.select();
+        // it has a focus() before calling it.
+        if (this.textarea.focus) this.textarea.focus();
         if (this.config.virtualKeyboardMode === 'onfocus') {
             this.showVirtualKeyboard_();
         }
         Popover.updatePopoverPosition(this);
-        this._resetInlineShortcutBuffer();
         if (this.config.onFocus) this.config.onFocus(this);
         this._render();
     }
@@ -745,7 +746,6 @@ MathField.prototype._onBlur = function() {
             this.hideVirtualKeyboard_();
         }
         Popover.updatePopoverPosition(this);
-        this._resetInlineShortcutBuffer();
         this._render();
         if (this.config.onBlur) this.config.onBlur(this);
     }
@@ -917,7 +917,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
 
     // 3. Give a chance to the custom keystroke handler to intercept the event
     if (this.config.onKeystroke && !this.config.onKeystroke(this, keystroke, evt)) {
-        if (evt) {
+        if (evt && evt.preventDefault) {
             evt.preventDefault();
             evt.stopPropagation();
         }
@@ -934,8 +934,8 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
     // would match a long shortcut (i.e. '~~')
     // Ignore the key if command or control is pressed (it may be a shortcut, 
     // see 4.2)
-    if (!evt.ctrlKey && !evt.metaKey && this.mathlist.parseMode() === 'math') {
-        const c = Shortcuts.eventToChar(evt);
+    if ((!evt || (!evt.ctrlKey && !evt.metaKey)) && this.mathlist.parseMode() === 'math') {
+        const c = Keyboard.eventToChar(evt);
         // The Backspace key will be handled as a delete command later (3.2)
         if (c !== 'Backspace') {
             if (!c || c.length > 1) {
@@ -999,7 +999,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
 
             // To enable the substitution to be undoable,
             // insert the character before applying the substitution
-            this.mathlist.insert(Shortcuts.eventToChar(evt));
+            this.mathlist.insert(Keyboard.eventToChar(evt));
 
             // Create a snapshot with the inserted character
             this.undoManager.snapshot(this.config);
@@ -1022,7 +1022,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
 
     // 5.3 Keystroke has been handled, if it wasn't caught in the default
     // case, so prevent propagation
-    if (evt) {
+    if (evt && evt.preventDefault) {
         evt.preventDefault();
         evt.stopPropagation();
     }
@@ -1041,6 +1041,8 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
  * @param {object} options
  * @param {boolean} options.focus - If true, the mathfield will be focused
  * @param {boolean} options.feedback - If true, provide audio and haptic feedback
+ * @param {boolean} options.simulateKeystroke - If true, generate some synthetic
+ * keystrokes (useful to trigger inline shortcuts, for example)
  * @param {boolean} options.commandMode - If true, switch to command mode if
  * necessary, then insert text
  */
@@ -1068,6 +1070,15 @@ MathField.prototype._onTypedText = function(text, options) {
     // Remove any error indicator on the current command sequence
     // (if there is one)
     this.mathlist.decorateCommandStringAroundInsertionPoint(false);
+
+    if (options.simulateKeystroke) {
+        // for (const c of text) {
+        const c = text.charAt(0);
+        const ev = Keyboard.charToEvent(c);
+        if (!this.$keystroke(Keyboard.keyboardEventToString(ev), ev)) return;
+        // }
+    }
+
 
     // Insert the specified text at the current insertion point.
     // If the selection is not collapsed, the content will be deleted first.
@@ -1114,75 +1125,21 @@ MathField.prototype._onTypedText = function(text, options) {
                     popoverText = suggestions[0].match;
                 }
             } else if (this.mathlist.parseMode() === 'math') {
-                // Inline shortcuts (i.e. 'p' + 'i' = '\pi') only apply in
-                // `math` parseMode
-
-                // let count = this.mathlist.startOffset();
-                // let shortcut;
-                // // Try to find the longest matching shortcut possible
-                // while (!shortcut && count >= 0) {
-                //     // Note that 'count' is a number of atoms
-                //     // An atom can be more than one character (for example '\sin')
-                //     const prefix = this.mathlist.extractCharactersBeforeInsertionPoint(count);
-                //     shortcut = Shortcuts.forString(prefix + c, this.config);
-                //     count -= 1;
-                // }
-
-                // if (shortcut === '\\{') {
-                //     shortcut = null;
-                //     c = '{';
-                // } else if (shortcut === '\\[') {
-                //     shortcut = null;
-                //     c = '[';
-                // } else if (shortcut === '\\}') {
-                //     shortcut = null;
-                //     c = '}';
-                // } else if (shortcut === '\\]') {
-                //     shortcut = null;
-                //     c = ']';
-                // }
-
-
-                // if (shortcut) {
-                //     const savedState = this.undoManager.save();
-
-                //     // To enable the substitution to be undoable,
-                //     // insert the character before applying the substitution
-                //     this.mathlist.insert(c);
-
-                //     // Create a snapshot with the inserted character
-                //     this.undoManager.snapshot(this.config);
-
-                //     // Revert to before inserting the character
-                //     // (restore doesn't change the undo stack)
-                //     this.undoManager.restore(savedState, this.config);
-
-                //     // Remove the atoms from the prefix string
-                //     this.mathlist._deleteAtoms(-count - 1);
-
-                //     // Insert the substitute
-                //     this.mathlist.insert(shortcut, {format: 'latex'});
-                //     _onAnnounce(this, 'replacement');
-                // }
-
-                // if (!shortcut) 
-                {
-                    // Some characters are mapped to commands. Handle them here.
-                    // This is important to handle synthetic text input and
-                    // non-US keyboards, on which, fop example, the '^' key is
-                    // not mapped to  'Shift-Digit6'.
-                    const selector = {
-                        '^': 'moveToSuperscript',
-                        '_': 'moveToSubscript',
-                        ' ': 'moveAfterParent'
-                    }[c];
-                    if (selector) {
-                        this.perform(selector);
-                    } else {
-                        this.undoManager.snapshot(this.config);
-                        if (!this.mathlist._insertSmartFence(c)) {
-                            this.mathlist.insert(c);
-                        }
+                // Some characters are mapped to commands. Handle them here.
+                // This is important to handle synthetic text input and
+                // non-US keyboards, on which, fop example, the '^' key is
+                // not mapped to  'Shift-Digit6'.
+                const selector = {
+                    '^': 'moveToSuperscript',
+                    '_': 'moveToSubscript',
+                    ' ': 'moveAfterParent'
+                }[c];
+                if (selector) {
+                    this.perform(selector);
+                } else {
+                    this.undoManager.snapshot(this.config);
+                    if (!this.mathlist._insertSmartFence(c)) {
+                        this.mathlist.insert(c);
                     }
                 }
             }
@@ -1490,12 +1447,12 @@ MathField.prototype.$latex = function(text, options) {
         if (text !== oldValue) {
             options = options || {};
             this.undoManager.snapshot(this.config);
-            this.mathlist.insert(text, Object.assign({
+            this.mathlist.insert(text, Object.assign(this.config, {
                 insertionMode: 'replaceAll',
                 selectionMode: 'after',
                 format: 'latex',
                 suppressContentChangeNotifications: options.suppressContentChangeNotifications
-            }, this.config));
+            }));
             this._render();
         }
         return text;
@@ -1816,7 +1773,6 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
         if (ev.type !== 'mousedown' || ev.buttons === 1) {
             // The primary button was pressed or the screen was tapped.
             ev.stopPropagation();
-            ev.preventDefault();
 
             el.classList.add('pressed');
             pressHoldStart = Date.now();
@@ -2023,10 +1979,10 @@ MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
     altContainer.innerHTML = markup;
 
     VirtualKeyboard.makeKeycap(this,
-        altContainer.querySelectorAll('li'), 'performAlternateKeys');
+        altContainer.getElementsByTagName('li'), 'performAlternateKeys');
 
     const keycapEl = this.virtualKeyboard.querySelector(
-        'div.keyboard-layer.visible div.rows ul li[data-alt-keys="' + keycap + '"]');
+        'div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' + keycap + '"]');
     const position = keycapEl.getBoundingClientRect();
     if (position) {
         if (position.top - altContainer.clientHeight < 0) {
@@ -2047,7 +2003,7 @@ MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
         altContainer.style.left = Math.max(0,
             Math.min(window.innerWidth - altContainer.offsetWidth,
             ((position.left + position.right - altContainer.offsetWidth) / 2) )) + 'px';
-        altContainer.classList.add('visible');
+        altContainer.classList.add('is-visible');
     }
     return false;
 }
@@ -2057,7 +2013,7 @@ MathField.prototype.hideAlternateKeys_ = function() {
     let altContainer = this.virtualKeyboard.getElementsByClassName('alternate-keys');
     if (altContainer && altContainer.length > 0) {
         altContainer = altContainer[0];
-        altContainer.classList.remove('visible');
+        altContainer.classList.remove('is-visible');
         altContainer.innerHTML = '';
     }
     return false;
@@ -2106,9 +2062,9 @@ MathField.prototype.switchKeyboardLayer_ = function(layer) {
         if (found) {
             for (let i = 0; i < layers.length; i++) {
                 if (layers[i].id === layer) {
-                    layers[i].classList.add('visible');
+                    layers[i].classList.add('is-visible');
                 } else {
-                    layers[i].classList.remove('visible');
+                    layers[i].classList.remove('is-visible');
                 }
             }
         }
@@ -2125,7 +2081,7 @@ MathField.prototype.switchKeyboardLayer_ = function(layer) {
  */
 MathField.prototype.shiftKeyboardLayer_ = function() {
     const keycaps = this.virtualKeyboard.querySelectorAll(
-        'div.keyboard-layer.visible .rows .keycap, div.keyboard-layer.visible .rows .action');
+        'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action');
     if (keycaps) {
         for (let i = 0; i < keycaps.length; i++) {
             const keycap = keycaps[i];
@@ -2170,7 +2126,7 @@ MathField.prototype.shiftKeyboardLayer_ = function() {
  */
 MathField.prototype.unshiftKeyboardLayer_ = function() {
     const keycaps = this.virtualKeyboard.querySelectorAll(
-        'div.keyboard-layer.visible .rows .keycap, div.keyboard-layer.visible .rows .action');
+        'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action');
     if (keycaps) {
         for (let i = 0; i < keycaps.length; i++) {
             const keycap = keycaps[i];
@@ -2218,7 +2174,7 @@ MathField.prototype.toggleVirtualKeyboardShift_ = function() {
     }[this.config.virtualKeyboardLayout];
 
     let layer = this.virtualKeyboard ?
-        this.virtualKeyboard.querySelector('div.keyboard-layer.visible') : null;
+        this.virtualKeyboard.querySelector('div.keyboard-layer.is-visible') : null;
     layer = layer ? layer.id : '';
 
     if (this.virtualKeyboard) {
@@ -2247,24 +2203,23 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
     this.virtualKeyboardVisible = !this.virtualKeyboardVisible;
     if (this.virtualKeyboardVisible) {
         if (this.virtualKeyboard) {
-            this.virtualKeyboard.classList.add('visible');
+            this.virtualKeyboard.classList.add('is-visible');
         } else {
             // Construct the virtual keyboard
             this.virtualKeyboard = VirtualKeyboard.make(this, theme);
 
             // Let's make sure that tapping on the keyboard focuses the field
-            on(this.virtualKeyboard, 'touchstart:passive mousedown', function(evt) {
+            on(this.virtualKeyboard, 'touchstart:passive mousedown', function() {
                 that.focus();
-                evt.preventDefault();
             });
             this.element.appendChild(this.virtualKeyboard);
         }
         // For the transition effect to work, the property has to be changed
         // after the insertion in the DOM. Use setTimeout
         const that = this;
-        window.setTimeout(function() { that.virtualKeyboard.classList.add('visible'); }, 1);
+        window.setTimeout(function() { that.virtualKeyboard.classList.add('is-visible'); }, 1);
     } else if (this.virtualKeyboard) {
-        this.virtualKeyboard.classList.remove('visible');
+        this.virtualKeyboard.classList.remove('is-visible');
     }
 
     if (typeof this.config.onVirtualKeyboardToggle === 'function') {
@@ -2291,18 +2246,18 @@ MathField.prototype.focus =
 MathField.prototype.$focus = function() {
     if (!this.hasFocus()) {
         // The textarea may be a span (on mobile, for example), so check that
-        // it has a select() before calling it.
-        if (this.textarea.select) this.textarea.select();
+        // it has a focus() before calling it.
+        if (this.textarea.focus) this.textarea.focus();
         _onAnnounce(this, 'line');
-        this._render();
     }
 }
 
 MathField.prototype.blur = 
 MathField.prototype.$blur = function() {
     if (this.hasFocus()) {
-        this.textarea.blur();
-        this._render();
+        if (this.textarea.blur) {
+            this.textarea.blur();
+        }
     }
 }
 
@@ -2322,6 +2277,7 @@ MathField.prototype.$clearSelection = function() {
  * example `'Alt-KeyU'`.
  * See https://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
  * @param {Event} evt
+ * @return {boolean} 
  * @method MathField#$keystroke
  */
 MathField.prototype.keystroke = 
@@ -2351,6 +2307,8 @@ MathField.prototype.$typedText = function(text) {
  * @param {object} options
  * @param {boolean} options.focus - If true, the mathfield will be focused
  * @param {boolean} options.feedback - If true, provide audio and haptic feedback
+ * @param {boolean} options.simulateKeystroke - If true, generate some synthetic
+ * keystrokes (useful to trigger inline shortcuts, for example)
  */
 MathField.prototype.typedText_ = function(text, options) {
     return this._onTypedText(text, options);

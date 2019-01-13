@@ -3,31 +3,6 @@
  * @private
  */
 
-
-/*
-
-INLINE SHORTCUTS
-- Add option to trigger command mode with "\" (or emit \backslash")
-- Keep a "buffer" of keystrokes
-- Clear the buffer after an interval following the last keystroke
-- On each new keystroke, 
-    - check if the buffer + the new keystroke matches the begining of a shortcut
-        - if it matches exactly one, insert substitution.
-        - else if it matches multiple (of different length), wait a bit
-            - if the character is "_" or "^", insert a command mode "_" or "^" 
-
-
-KEYBOARD SHORTCUTS
-- Could be chorded, or multiple ("ctrl+k ctrl+k")
-- conditions in a "when" field?
-- Should use "+" as separator
-- Also, "ctrl", "shift" (lowercase)
-- Also, "a" instead of "KeyA" (key value vs key code, i.e. "/" and "?" and "[Slash]"
-- Allow "[KeyA]" as well
-
-*/
-
-
 /**
  * The index of this array is a keystroke combination as returned by the key
  * field of a JavaScript keyboard event as documented here:
@@ -71,25 +46,36 @@ KEYBOARD SHORTCUTS
  * @type {Object<string,string>}
  */
 const KEYBOARD_SHORTCUTS = {
-    'Backspace':                'deletePreviousChar',
-    'Alt-Backspace':            'deleteNextChar',
+    'Left':                     'moveToPreviousChar',
+    'Right':                    'moveToNextChar',
+    'Up':                       'moveUp',
+    'Down':                     'moveDown',
 
-    'Del':                      'deleteNextChar',
+    'Shift-Left':               'extendToPreviousChar',
+    'Shift-Right':              'extendToNextChar',
+    'Shift-Up':                 'extendUp',
+    'Shift-Down':               'extendDown',
+
+    'Backspace':                'deletePreviousChar',
     'Alt-Del':                  'deletePreviousChar',
 
-    'Left':                     'moveToPreviousChar',
-    'Shift-Left':               'extendToPreviousChar',
-    'Ctrl-Left':                'moveToGroupStart',
-    'Ctrl-Shift-Left':          'extendToGroupStart',
-    'Alt-Left':                 'moveToPreviousWord',
-    'Alt-Shift-Left':           'extendToPreviousWord',
+    'Del':                      'deleteNextChar',
+    'Alt-Backspace':            'deleteNextChar',
 
-    'Right':                    'moveToNextChar',
-    'Ctrl-Right':               'moveToGroupEnd',
-    'Ctrl-Shift-Right':         'extendToGroupEnd',
-    'Shift-Right':              'extendToNextChar',
+    'Alt-Left':                 'moveToPreviousWord',
     'Alt-Right':                'moveToNextWord',
+
+    'Alt-Shift-Left':           'extendToPreviousWord',
     'Alt-Shift-Right':          'extendToNextWord',
+
+    'Ctrl-Left':                'moveToGroupStart',
+    'Ctrl-Right':               'moveToGroupEnd',
+
+    'Ctrl-Shift-Left':          'extendToGroupStart',
+    'Ctrl-Shift-Right':         'extendToGroupEnd',
+
+    'Spacebar':                 'moveAfterParent',
+    'Shift-Spacebar':           'moveBeforeParent',
 
     'Home':                     'moveToMathFieldStart',
     'mac:Meta-Left':            'moveToMathFieldStart',
@@ -100,14 +86,6 @@ const KEYBOARD_SHORTCUTS = {
     'mac:Meta-Right':           'moveToMathFieldEnd',
     'Shift-End':                'extendToMathFieldEnd',
     'mac:Meta-Shift-Right':     'extendToMathFieldEnd',
-
-    'Up':                       'moveUp',
-    'Shift-Up':                 'extendUp',
-    'Down':                     'moveDown',
-    'Shift-Down':               'extendDown',
-
-    'Shift-Spacebar':           'moveBeforeParent',
-    'Spacebar':                 'moveAfterParent',
 
     'PageUp':                   'moveToGroupStart',
     'PageDown':                 'moveToGroupEnd',
@@ -120,56 +98,63 @@ const KEYBOARD_SHORTCUTS = {
     'math:Esc':                 'enterCommandMode',
     'math:Backslash':           'enterCommandMode',
     'math:IntlBackslash':       'enterCommandMode',
+
     'command:Spacebar':         'complete',
     'command:Esc':              'complete',
     'command:Tab':              'complete',
-    'ios:command:Tab':          'nextSuggestion',
     'command:Return':           'complete',
     'command:Enter':            'complete',
     'command:Shift-Esc':        'complete',     // Some keyboards can't generate 
             // this combination, for example in 60% keyboards it is mapped to ~
     'command:Down':             'nextSuggestion',
+    'ios:command:Tab':          'nextSuggestion',
     'command:Up':               'previousSuggestion',
 
     '!mac:math:Ctrl-KeyA':      'selectAll',
     'mac:math:Meta-KeyA':       'selectAll',
-    '!mac:Ctrl-KeyZ':           'undo',
-    'mac:Meta-KeyZ':            'undo',
-    '!mac:Ctrl-KeyY':           'redo',             // ARIA recommendation
-    'mac:Meta-Shift-KeyY':      'redo',
-    '!mac:Ctrl-Shift-KeyZ':     'redo',
-    'mac:Meta-Shift-KeyZ':      'redo',
 
     // Rare keys on some extended keyboards
     'Cut':                      'cut',
     'Copy':                     'copy',
     'Paste':                    'paste',
-    'Undo':                     'undo',
-    'Redo':                     'redo',
     'Clear':                    'delete',
+
+    '!mac:Ctrl-KeyZ':           'undo',
+    'mac:Meta-KeyZ':            'undo',
+    'Undo':                     'undo',
+    '!mac:Ctrl-KeyY':           'redo',             // ARIA recommendation
+    'mac:Meta-Shift-KeyY':      'redo',
+    '!mac:Ctrl-Shift-KeyZ':     'redo',
+    'mac:Meta-Shift-KeyZ':      'redo',
+    'Redo':                     'redo',
+
     'EraseEof':                 'deleteToGroupEnd',
 
 
     // EMACS/MACOS BINDINGS
     'mac:Ctrl-KeyB':            'moveToPreviousChar',
-    'mac:Ctrl-Shift-KeyB':      'extendToPreviousChar',
     'mac:Ctrl-KeyF':            'moveToNextChar',
-    'mac:Ctrl-Shift-KeyF':      'extendToNextChar',
-    'mac:Ctrl-Alt-KeyB':        'moveToPreviousWord',
-    'mac:Ctrl-Shift-Alt-KeyB':  'extendToPreviousWord',
-    'mac:Ctrl-Alt-KeyF':        'moveToNextWord',
-    'mac:Ctrl-Shift-Alt-KeyF':  'extendToNextWord',
-    'mac:Ctrl-KeyA':            'moveToMathFieldStart',    
-    'mac:Ctrl-Shift-KeyA':      'extendToMathFieldStart',    
-    'mac:Ctrl-KeyE':            'moveToMathFieldEnd',
-    'mac:Ctrl-Shift-KeyE':      'extendToMathFieldEnd',
     'mac:Ctrl-KeyP':            'moveUp',
+    'mac:Ctrl-KeyN':            'moveDown',
+    'mac:Ctrl-KeyA':            'moveToMathFieldStart',    
+    'mac:Ctrl-KeyE':            'moveToMathFieldEnd',
+
+    'mac:Ctrl-Shift-KeyB':      'extendToPreviousChar',
+    'mac:Ctrl-Shift-KeyF':      'extendToNextChar',
     'mac:Ctrl-Shift-KeyP':      'extendUp',
-    'mac:Ctrl-KeyN':            'extendDown',
+    'mac:Ctrl-Shift-KeyN':      'extendDown',
+    'mac:Ctrl-Shift-KeyA':      'extendToMathFieldStart',    
+    'mac:Ctrl-Shift-KeyE':      'extendToMathFieldEnd',
+    'mac:Ctrl-Alt-KeyB':        'moveToPreviousWord',
+    'mac:Ctrl-Alt-KeyF':        'moveToNextWord',
+    'mac:Ctrl-Shift-Alt-KeyB':  'extendToPreviousWord',
+    'mac:Ctrl-Shift-Alt-KeyF':  'extendToNextWord',
+
     'mac:Ctrl-KeyH':            'deletePreviousChar',
     'mac:Ctrl-KeyD':            'deleteNextChar',
     'mac:Ctrl-KeyL':            'scrollIntoView',
     'mac:Ctrl-KeyT':            'transpose',
+
 
     // WOLFRAM MATHEMATICA BINDINGS
     'math:Ctrl-Digit2':          ['insert', '\\sqrt{#0}'],
@@ -183,13 +168,17 @@ const KEYBOARD_SHORTCUTS = {
 
     // MATHLIVE BINDINGS
     'math:Alt-KeyQ':             ['insert', '\\theta'],
-    'math:Alt-KeyV':             ['insert', '\\sqrt{#0}'],
     'math:Alt-KeyP':             ['insert', '\\pi'],
-    'math:Alt-Shift-KeyP':       ['insert', '\\prod_{i=#?}^{#?}'],
+    'math:Alt-KeyV':             ['insert', '\\sqrt{#0}'],
     'math:Alt-KeyW':             ['insert', '\\sum_{i=#?}^{#?}'],
     'math:Alt-KeyB':             ['insert', '\\int_{#?}^{#?}'],
     'math:Alt-KeyU':             ['insert', '\\cup'],
     'math:Alt-KeyN':             ['insert', '\\cap'],
+    'math:Alt-KeyO':             ['insert', '\\emptyset'],
+    'math:Alt-KeyD':             ['insert', '\\differentialD'],
+    'math:Alt-Shift-KeyO':       ['insert', '\\varnothing'],
+    'math:Alt-Shift-KeyD':       ['insert', '\\partial'],
+    'math:Alt-Shift-KeyP':       ['insert', '\\prod_{i=#?}^{#?}'],
     'math:Alt-Shift-KeyU':       ['insert', '\\bigcup'],
     'math:Alt-Shift-KeyN':       ['insert', '\\bigcap'],
     'math:Alt-Shift-KeyA':       ['insert', '\\forall'],
@@ -199,14 +188,10 @@ const KEYBOARD_SHORTCUTS = {
     'math:Alt-Shift-Digit6':     ['insert', '\\vee'],        // "^" key
     'math:Alt-Digit9':           ['insert', '('],            // "(" key, override smartFence
     'math:Alt-Digit0':           ['insert', ')'],            // ")" key, override smartFence
-    'math:Alt-keyD':             ['insert', '\\differentialD'],
-    'math:Alt-Shift-KeyD':       ['insert', '\\partial'],
     'math:Slash':                ['insert', '\\frac{#@}{#?}'],
     'math:Alt-Slash':            ['insert', '\\frac{#?}{#@}'],
     'math:NumpadDivide':         ['insert', '\\frac{#@}{#?}'],
     'math:Alt-NumpadDivide':     ['insert', '\\frac{#?}{#@}'],
-    'math:Alt-KeyO':             ['insert', '\\emptyset'],
-    'math:Alt-Shift-KeyO':       ['insert', '\\varnothing'],
     'math:Shift-Backquote':      ['insert', '\\~'],
     'math:Alt-Shift-Slash':      ['insert', '\\/'],
 
@@ -281,56 +266,40 @@ const REVERSE_KEYBOARD_SHORTCUTS = {
  * @memberof module:editor/shortcuts
  */
 const INLINE_SHORTCUTS = {
-    '?=':                   '\\questeq',
-    '≈':                    '\\approx',
-    '÷':                    '\\div',
-    '¬':                    '\\neg',
-    ':=':                   '\\coloneq',
-    '::':                   '\\Colon',
-    '(:':                   '\\langle',
-    ':)':                   '\\rangle',
-
-
-    'µ':                    '\\mu',        // @TODO: or micro?
+    // Greek letters
+    'alpha':                '\\alpha',
+    'delta':                '\\delta',
+    'Delta':                '\\Delta',
     'pi':                   '\\pi',
     'π':                    '\\pi',
     'Pi':                   '\\Pi',
-    'phi':                  '\\phi',
-    'Phi':                  '\\Phi',
-    'varphi':               '\\varphi',
-    'psi':                  '\\psi',
-    'Psi':                  '\\Psi',
-    'rho':                  '\\rho',
-    'tau':                  '\\tau',
-    'sigma':                '\\sigma',
-    'Sigma':                '\\Sigma',
     'theta':                '\\theta',
     'Theta':                '\\Theta',
-    'vartheta':             '\\vartheta',
-    'upsilon':              '\\upsilon',
-    // 'xi':                   '\\xi',
-    'Xi':                   '\\Xi',
-    'zeta':                 '\\zeta',
-    'omega':                '\\omega',
-    'Ω':                    '\\omega',     // @TODO: or ohm?
 
+    // Letter-like
     'ii':                   '\\imaginaryI',
     'jj':                   '\\imaginaryJ',
     'ee':                   '\\exponentialE',
     'nabla':                '\\nabla',
+    'grad':                 '\\nabla',
+    'del':                  '\\partial',
 
     '\u221e':               '\\infty',         // @TODO: doesn't work
     // '&infin;': '\\infty',
     // '&#8734;': '\\infty',
+    'oo':                   '\\infty',
 
+    // Big operators
     '∑':                    '\\sum',
-    '∆':                    '\\diffd',     // @TODO: most common?
-    '∂':                    '\\differentialD',
+    'sum':                  '\\sum_{#?}^{#?}',
+    'prod':                 '\\prod_{#?}^{#?}',
     '√':                    '\\sqrt',
     'sqrt':                 '\\sqrt',
     '∫':                    '\\int',
-    
-    // 'arg': '\\arg',
+    '∆':                    '\\differentialD',     // @TODO: is \\diffD most common?
+    '∂':                    '\\differentialD',
+
+    // Functions
     'sin':                  '\\sin',
     'cos':                  '\\cos',
     'tan':                  '\\tan',
@@ -339,6 +308,88 @@ const INLINE_SHORTCUTS = {
     'ln':                   '\\ln',
     'exp':                  '\\exp',
     'lim':                  '\\lim_{#?}',
+
+    // Logic
+    'AA':                   '\\forall',
+    'EE':                   '\\exists',
+    '!EE':                  '\\nexists',
+    '&&':                   '\\land',
+    'in':                   '\\in',
+    '!in':                  '\\notin',
+
+    // Sets
+    'NN':                   '\\N',        // Natural numbers
+    'ZZ':                   '\\Z',        // Integers
+    'QQ':                   '\\Q',        // Rational numbers
+    'RR':                   '\\R',        // Real numbers
+    'CC':                   '\\C',        // Complex numbers
+    'PP':                   '\\P',        // Prime numbers
+
+    // Operators
+    'xx':                   '\\times',
+    '+-':                   '\\pm',
+
+    // Relational operators
+    '!=':                   '\\ne',
+    '>=':                   '\\ge',
+    '<=':                   '\\le',
+    '<<':                   '\\ll',
+    '>>':                   '\\gg',
+    '~~':                   '\\approx', 
+
+    // More operators
+    '≈':                    '\\approx',
+    '?=':                   '\\questeq',
+    '÷':                    '\\div',
+    '¬':                    '\\neg',
+    ':=':                   '\\coloneq',
+    '::':                   '\\Colon',
+
+    // Fences
+    '(:':                   '\\langle',
+    ':)':                   '\\rangle',
+
+    // More Greek letters
+    'beta':                 '\\beta',
+    'chi':                  '\\chi',
+    'epsilon':              '\\epsilon',
+    'varepsilon':           '\\varepsilon',
+    'eta':                  '\\eta',
+    'gamma':                '\\gamma',
+    'Gamma':                '\\Gamma',
+    'iota':                 '\\iota',
+    'kappa':                '\\kappa',
+    'lambda':               '\\lambda',
+    'Lambda':               '\\Lambda',
+    'mu':                   '\\mu',
+    'nu':                   '\\nu',
+    'µ':                    '\\mu',        // @TODO: or micro?
+    'phi':                  '\\phi',
+    'Phi':                  '\\Phi',
+    'varphi':               '\\varphi',
+    'psi':                  '\\psi',
+    'Psi':                  '\\Psi',
+    'rho':                  '\\rho',
+    'sigma':                '\\sigma',
+    'Sigma':                '\\Sigma',
+    'tau':                  '\\tau',
+    'vartheta':             '\\vartheta',
+    'upsilon':              '\\upsilon',
+    'xi':                   '\\xi',
+    'Xi':                   '\\Xi',
+    'zeta':                 '\\zeta',
+    'omega':                '\\omega',
+    'Omega':                '\\Omega',
+    'Ω':                    '\\omega',     // @TODO: or ohm?
+
+    // More Logic
+    'forall':               '\\forall',
+    'exists':               '\\exists',
+    '!exists':              '\\nexists',
+    ':.':                   '\\therefore',
+
+    // MORE FUNCTIONS
+    // 'arg': '\\arg',
     'liminf':               '\\mathop{lim~inf}\\limits_{#?}',
     'limsup':               '\\mathop{lim~sup}\\limits_{#?}',
     'argmin':               '\\mathop{arg~min}\\limits_{#?}',
@@ -358,27 +409,15 @@ const INLINE_SHORTCUTS = {
     'randomReal':           '\\mathop{randomReal}',
     'randomInteger':        '\\mathop{randomInteger}',
 
-    'km':                   '\\mathop{km}', // Unit: kilometer
+    // UNITS
+    'mm':                   '\\mathop{mm}',         // millimeter
+    'cm':                   '\\mathop{cm}',         // centimeter
+    'km':                   '\\mathop{km}',         // kilometer
+    'kg':                   '\\mathop{kg}',         // kilogram
     
 
-    'NN':                   '\\N',        // Natural numbers
-    'ZZ':                   '\\Z',        // Integers
-    'QQ':                   '\\Q',        // Rational numbers
-    'RR':                   '\\R',        // Real numbers
-    'CC':                   '\\C',        // Complex numbers
-    'PP':                   '\\P',        // Prime numbers
-
-    'forall':               '\\forall',
-    'AA':                   '\\forall',
-    '!exists':              '\\nexists', // TODO: conflicts with 'exists'
-    'exists':               '\\exists',
-    'EE':                   '\\exists',
-    '!EE':                  '\\nexists',
-    // 'in':                   '\\in',
-    '!in':                  '\\notin',
 
 
-    '&&':                   '\\land',
     // '||':                   '\\lor',
     '...':                  '\\ldots',          // In general, use \ldots
     '+...':                 '+\\cdots',         // ... but use \cdots after + ...
@@ -395,32 +434,30 @@ const INLINE_SHORTCUTS = {
 // '<=': '\\Leftarrow',     // CONFLICTS WITH LESS THAN OR EQUAL
     '<=>':                  '\\Leftrightarrow',
     '<->':                  '\\leftrightarrow',
-    '<<':                   '\\ll',
-    '>>':                   '\\gg',
 
     '(.)':                  '\\odot',
     '(+)':                  '\\oplus',      
-    // '(/)':                  '\\oslash',
+    '(/)':                  '\\oslash',
     '(*)':                  '\\otimes',
-
-    '||':                   '\\Vert',               // || 
-    '{':                    '\\{',
-    '}':                    '\\}',
-
     '(-)':                  '\\ominus',
     // '(-)':                  '\\circleddash',
 
+    '||':                   '\\Vert',
+    '{':                    '\\{',
+    '}':                    '\\}',
+
+
+/*
     //
     // ASCIIIMath
     //
-
     // Binary operation symbols
+    '*':                    '\\cdot',
     '**':                   '\\ast',
     '***':                  '\\star',
     '//':                   '\\slash',
     '\\\\':                 '\\backslash',
     'setminus':             '\\backslash',
-    'xx':                   '\\times',
     '|><':                  '\\ltimes',
     '><|':                  '\\rtimes',
     '|><|':                 '\\bowtie',
@@ -430,8 +467,6 @@ const INLINE_SHORTCUTS = {
     'o+':                   '\\oplus',
     'ox':                   '\\otimes',
     'o.':                   '\\odot',
-    'sum':                  '\\sum_{#?}^{#?}',
-    'prod':                 '\\prod_{#?}^{#?}',
     '^^':                   '\\wedge',
     '^^^':                  '\\bigwedge',
     'vv':                   '\\vee',
@@ -442,25 +477,21 @@ const INLINE_SHORTCUTS = {
     'uuu':                  '\\bigcup',
 
     // Binary relation symbols
-    '!=':                   '\\ne',
-    '>=':                   '\\ge',
-    '<=':                   '\\le',
-    '~~':                   '\\approx', 
-    '+-':                   '\\pm',
     '-=':                   '\\equiv',
     '~=':                   '\\cong',
+    'lt':                   '<',
+    'lt=':                  '\\leq',
+    'gt':                   '>',
+    'gt=':                  '\\geq',
     '-<':                   '\\prec',
+    '-lt':                  '\\prec',
     '-<=':                  '\\preceq',
     // '>-':                   '\\succ',
     '>-=':                  '\\succeq', 
     'prop':                 '\\propto', 
-    ':.':                   '\\therefore',
     'diamond':              '\\diamond',
     'square':               '\\square',
     'iff':                  '\\iff',
-
-    '_|_':                   '\\bot',
-
 
     'sub':                  '\\subset',
     'sup':                  '\\supset',
@@ -476,29 +507,27 @@ const INLINE_SHORTCUTS = {
     'hArr':                 '\\Leftrightarrow',
     'aleph':                '\\aleph',
 
-    'grad':                 '\\nabla',
-    'del':                  '\\partial',
-    'oo':                   '\\infty',
+    // Logic
+    'and':                  '\\land',
+    'or':                   '\\lor',
+    'not':                  '\\neg',
+    '_|_':                   '\\bot',
+    'TT':                   '\\top',
+    '|--':                  '\\vdash',
+    '|==':                  '\\models',
+    
+    // Other functions
+    '|__':                  '\\lfloor',
+    '__|':                  '\\rfloor',
 
-    // Greek letters
-    'alpha':                '\\alpha',
-    'beta':                 '\\beta',
-    'gamma':                '\\gamma',
-    'Gamma':                '\\Gamma',
-    'delta':                '\\delta',
-    'Delta':                '\\Delta',
-    'chi':                  '\\chi',
-    'epsilon':              '\\epsilon',
-    'varepsilon':           '\\varepsilon',
-    'eta':                  '\\eta',
-    'iota':                 '\\iota',
-    'kappa':                '\\kappa',
-    'lambda':               '\\lambda',
-    'Lambda':               '\\Lambda',
-    'mu':                   '\\mu',
-    // 'nu':                   '\\nu',
+    '|~':                   '\\lceil',
+    '~|':                   '\\rceil',
 
-
+    // Arrows
+    '>->':                   '\\rightarrowtail',
+    '->>':                   '\\twoheadrightarrow',
+    '>->>':                  '\\twoheadrightarrowtail'
+*/
 };
 
 /* 
@@ -821,7 +850,7 @@ function stringify(shortcuts, join) {
                     shortcutString += modifier.substr(5, 1);
                 } else {
                     shortcutString += {
-                        'Meta':         useSymbol ? '\u2318' : 'meta',
+                        'Meta':         useSymbol ? '\u2318' : 'command',
                         'Shift':        useSymbol ? '\u21e7' : 'shift',
                         'Alt':          useSymbol ? '\u2325' : 'alt',
                         'Ctrl':         useSymbol ? '\u2303' : 'control',
@@ -851,12 +880,12 @@ function stringify(shortcuts, join) {
                         'IntlBackslash':    '\\',
                         'Backquote':    '`',
                         'Slash':        '/',
-                        'NumPadMultiply': '*',
-                        'NumPadDivide': '/',
-                        'NumPadSubstract': '-',
-                        'NumPadAdd':    '+',
-                        'NumPadDecimal':    '.',
-                        'NumPadComma':    ',',
+                        'NumpadMultiply': '* &#128290;',
+                        'NumpadDivide': '/ &#128290;',  // Numeric keypad
+                        'NumpadSubstract': '- &#128290;',
+                        'NumpadAdd':    '+ &#128290;',
+                        'NumpadDecimal':    '. &#128290;',
+                        'NumpadComma':    ', &#128290;',
                         'Help':         'help',
                         'Left':         '\u21E0',
                         'Up':           '\u21E1',
@@ -881,25 +910,10 @@ function stringify(shortcuts, join) {
     return result;
 }
 
-function eventToChar(evt) {
-    let result;
-    if (evt.key === 'Unidentified') {
-        // On Android, the evt.key seems to always be 'Unidentified'.
-        // Get the value entered in the event target
-        if (evt.target) {
-            result = evt.target.value;
-        }
-    }
-    result = result || evt.key || evt.code;
-    if (/^(Return|Enter|Tab|Escape|Delete|PageUp|PageDown|Home|End|Help|ArrowLeft|ArrowRight|ArrowUp|ArrowDown)$/.test(result)) {
-        result = '';
-    }
-    return result;
-}
-
 export default {
+    KEYBOARD_SHORTCUTS,
+    INLINE_SHORTCUTS,
     stringify,
-    eventToChar,
     startsWithString,
     forString, 
     selectorForKeystroke,

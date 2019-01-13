@@ -218,9 +218,17 @@ EditableMathlist.prototype.setPath = function(selection, extent) {
 
         this.path = MathPath.clone(selection.path);
 
-        console.assert(this.siblings().length >= this.anchorOffset());
 
-        this.setExtent(selection.extent);
+        if (this.siblings().length < this.anchorOffset()) {
+            // The new path is out of bounds.
+            // Reset the path to something valid
+            console.log('invalid selection: ' + this.toString() + ' for ' + this.root.toLatex());
+
+            this.path = [{relation: 'body', offset: 0}];
+            this.extent = 0;
+        } else {
+           this.setExtent(selection.extent);
+        }
 
         this.selectionDidChange();
     }

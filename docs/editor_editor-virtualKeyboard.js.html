@@ -860,7 +860,7 @@ function makeKeycap(mf, elList, chainedCommand) {
                 {focus:true, feedback:true}];
         } else {
             handlers = ['typedText', el.getAttribute('data-key') || el.textContent,
-                {focus:true, feedback:true}];
+                {focus:true, feedback:true, simulateKeystroke:true}];
         }
         if (chainedCommand) {
             handlers = [chainedCommand, handlers];
@@ -1298,7 +1298,7 @@ function make(mf, theme) {
     }
 
     // Select the first keyboard as the initial one.
-    result.getElementsByClassName('keyboard-layer')[0].classList.add('visible');
+    result.getElementsByClassName('keyboard-layer')[0].classList.add('is-visible');
 
     // Listen to know when the mouse has been released without being
     // captured to remove the alternate keys panel and the shifted state of the

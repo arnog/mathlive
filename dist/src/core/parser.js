@@ -275,7 +275,6 @@ class Parser {
         if (!hasKeyword) {
             this.index = savedIndex;
         }
-        console.log(value + '-' + keyword);
         return hasKeyword;
     }
     /**

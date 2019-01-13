@@ -73,31 +73,6 @@ writeCookie('symbol-access', 'private')
  * @private
  */
 
-
-/*
-
-INLINE SHORTCUTS
-- Add option to trigger command mode with "\" (or emit \backslash")
-- Keep a "buffer" of keystrokes
-- Clear the buffer after an interval following the last keystroke
-- On each new keystroke, 
-    - check if the buffer + the new keystroke matches the begining of a shortcut
-        - if it matches exactly one, insert substitution.
-        - else if it matches multiple (of different length), wait a bit
-            - if the character is "_" or "^", insert a command mode "_" or "^" 
-
-
-KEYBOARD SHORTCUTS
-- Could be chorded, or multiple ("ctrl+k ctrl+k")
-- conditions in a "when" field?
-- Should use "+" as separator
-- Also, "ctrl", "shift" (lowercase)
-- Also, "a" instead of "KeyA" (key value vs key code, i.e. "/" and "?" and "[Slash]"
-- Allow "[KeyA]" as well
-
-*/
-
-
 /**
  * The index of this array is a keystroke combination as returned by the key
  * field of a JavaScript keyboard event as documented here:
@@ -141,25 +116,36 @@ KEYBOARD SHORTCUTS
  * @type {Object&lt;string,string>}
  */
 const KEYBOARD_SHORTCUTS = {
-    'Backspace':                'deletePreviousChar',
-    'Alt-Backspace':            'deleteNextChar',
+    'Left':                     'moveToPreviousChar',
+    'Right':                    'moveToNextChar',
+    'Up':                       'moveUp',
+    'Down':                     'moveDown',
 
-    'Del':                      'deleteNextChar',
+    'Shift-Left':               'extendToPreviousChar',
+    'Shift-Right':              'extendToNextChar',
+    'Shift-Up':                 'extendUp',
+    'Shift-Down':               'extendDown',
+
+    'Backspace':                'deletePreviousChar',
     'Alt-Del':                  'deletePreviousChar',
 
-    'Left':                     'moveToPreviousChar',
-    'Shift-Left':               'extendToPreviousChar',
-    'Ctrl-Left':                'moveToGroupStart',
-    'Ctrl-Shift-Left':          'extendToGroupStart',
-    'Alt-Left':                 'moveToPreviousWord',
-    'Alt-Shift-Left':           'extendToPreviousWord',
+    'Del':                      'deleteNextChar',
+    'Alt-Backspace':            'deleteNextChar',
 
-    'Right':                    'moveToNextChar',
-    'Ctrl-Right':               'moveToGroupEnd',
-    'Ctrl-Shift-Right':         'extendToGroupEnd',
-    'Shift-Right':              'extendToNextChar',
+    'Alt-Left':                 'moveToPreviousWord',
     'Alt-Right':                'moveToNextWord',
+
+    'Alt-Shift-Left':           'extendToPreviousWord',
     'Alt-Shift-Right':          'extendToNextWord',
+
+    'Ctrl-Left':                'moveToGroupStart',
+    'Ctrl-Right':               'moveToGroupEnd',
+
+    'Ctrl-Shift-Left':          'extendToGroupStart',
+    'Ctrl-Shift-Right':         'extendToGroupEnd',
+
+    'Spacebar':                 'moveAfterParent',
+    'Shift-Spacebar':           'moveBeforeParent',
 
     'Home':                     'moveToMathFieldStart',
     'mac:Meta-Left':            'moveToMathFieldStart',
@@ -170,14 +156,6 @@ const KEYBOARD_SHORTCUTS = {
     'mac:Meta-Right':           'moveToMathFieldEnd',
     'Shift-End':                'extendToMathFieldEnd',
     'mac:Meta-Shift-Right':     'extendToMathFieldEnd',
-
-    'Up':                       'moveUp',
-    'Shift-Up':                 'extendUp',
-    'Down':                     'moveDown',
-    'Shift-Down':               'extendDown',
-
-    'Shift-Spacebar':           'moveBeforeParent',
-    'Spacebar':                 'moveAfterParent',
 
     'PageUp':                   'moveToGroupStart',
     'PageDown':                 'moveToGroupEnd',
@@ -190,56 +168,63 @@ const KEYBOARD_SHORTCUTS = {
     'math:Esc':                 'enterCommandMode',
     'math:Backslash':           'enterCommandMode',
     'math:IntlBackslash':       'enterCommandMode',
+
     'command:Spacebar':         'complete',
     'command:Esc':              'complete',
     'command:Tab':              'complete',
-    'ios:command:Tab':          'nextSuggestion',
     'command:Return':           'complete',
     'command:Enter':            'complete',
     'command:Shift-Esc':        'complete',     // Some keyboards can't generate 
             // this combination, for example in 60% keyboards it is mapped to ~
     'command:Down':             'nextSuggestion',
+    'ios:command:Tab':          'nextSuggestion',
     'command:Up':               'previousSuggestion',
 
     '!mac:math:Ctrl-KeyA':      'selectAll',
     'mac:math:Meta-KeyA':       'selectAll',
-    '!mac:Ctrl-KeyZ':           'undo',
-    'mac:Meta-KeyZ':            'undo',
-    '!mac:Ctrl-KeyY':           'redo',             // ARIA recommendation
-    'mac:Meta-Shift-KeyY':      'redo',
-    '!mac:Ctrl-Shift-KeyZ':     'redo',
-    'mac:Meta-Shift-KeyZ':      'redo',
 
     // Rare keys on some extended keyboards
     'Cut':                      'cut',
     'Copy':                     'copy',
     'Paste':                    'paste',
-    'Undo':                     'undo',
-    'Redo':                     'redo',
     'Clear':                    'delete',
+
+    '!mac:Ctrl-KeyZ':           'undo',
+    'mac:Meta-KeyZ':            'undo',
+    'Undo':                     'undo',
+    '!mac:Ctrl-KeyY':           'redo',             // ARIA recommendation
+    'mac:Meta-Shift-KeyY':      'redo',
+    '!mac:Ctrl-Shift-KeyZ':     'redo',
+    'mac:Meta-Shift-KeyZ':      'redo',
+    'Redo':                     'redo',
+
     'EraseEof':                 'deleteToGroupEnd',
 
 
     // EMACS/MACOS BINDINGS
     'mac:Ctrl-KeyB':            'moveToPreviousChar',
-    'mac:Ctrl-Shift-KeyB':      'extendToPreviousChar',
     'mac:Ctrl-KeyF':            'moveToNextChar',
-    'mac:Ctrl-Shift-KeyF':      'extendToNextChar',
-    'mac:Ctrl-Alt-KeyB':        'moveToPreviousWord',
-    'mac:Ctrl-Shift-Alt-KeyB':  'extendToPreviousWord',
-    'mac:Ctrl-Alt-KeyF':        'moveToNextWord',
-    'mac:Ctrl-Shift-Alt-KeyF':  'extendToNextWord',
-    'mac:Ctrl-KeyA':            'moveToMathFieldStart',    
-    'mac:Ctrl-Shift-KeyA':      'extendToMathFieldStart',    
-    'mac:Ctrl-KeyE':            'moveToMathFieldEnd',
-    'mac:Ctrl-Shift-KeyE':      'extendToMathFieldEnd',
     'mac:Ctrl-KeyP':            'moveUp',
+    'mac:Ctrl-KeyN':            'moveDown',
+    'mac:Ctrl-KeyA':            'moveToMathFieldStart',    
+    'mac:Ctrl-KeyE':            'moveToMathFieldEnd',
+
+    'mac:Ctrl-Shift-KeyB':      'extendToPreviousChar',
+    'mac:Ctrl-Shift-KeyF':      'extendToNextChar',
     'mac:Ctrl-Shift-KeyP':      'extendUp',
-    'mac:Ctrl-KeyN':            'extendDown',
+    'mac:Ctrl-Shift-KeyN':      'extendDown',
+    'mac:Ctrl-Shift-KeyA':      'extendToMathFieldStart',    
+    'mac:Ctrl-Shift-KeyE':      'extendToMathFieldEnd',
+    'mac:Ctrl-Alt-KeyB':        'moveToPreviousWord',
+    'mac:Ctrl-Alt-KeyF':        'moveToNextWord',
+    'mac:Ctrl-Shift-Alt-KeyB':  'extendToPreviousWord',
+    'mac:Ctrl-Shift-Alt-KeyF':  'extendToNextWord',
+
     'mac:Ctrl-KeyH':            'deletePreviousChar',
     'mac:Ctrl-KeyD':            'deleteNextChar',
     'mac:Ctrl-KeyL':            'scrollIntoView',
     'mac:Ctrl-KeyT':            'transpose',
+
 
     // WOLFRAM MATHEMATICA BINDINGS
     'math:Ctrl-Digit2':          ['insert', '\\sqrt{#0}'],
@@ -253,13 +238,17 @@ const KEYBOARD_SHORTCUTS = {
 
     // MATHLIVE BINDINGS
     'math:Alt-KeyQ':             ['insert', '\\theta'],
-    'math:Alt-KeyV':             ['insert', '\\sqrt{#0}'],
     'math:Alt-KeyP':             ['insert', '\\pi'],
-    'math:Alt-Shift-KeyP':       ['insert', '\\prod_{i=#?}^{#?}'],
+    'math:Alt-KeyV':             ['insert', '\\sqrt{#0}'],
     'math:Alt-KeyW':             ['insert', '\\sum_{i=#?}^{#?}'],
     'math:Alt-KeyB':             ['insert', '\\int_{#?}^{#?}'],
     'math:Alt-KeyU':             ['insert', '\\cup'],
     'math:Alt-KeyN':             ['insert', '\\cap'],
+    'math:Alt-KeyO':             ['insert', '\\emptyset'],
+    'math:Alt-KeyD':             ['insert', '\\differentialD'],
+    'math:Alt-Shift-KeyO':       ['insert', '\\varnothing'],
+    'math:Alt-Shift-KeyD':       ['insert', '\\partial'],
+    'math:Alt-Shift-KeyP':       ['insert', '\\prod_{i=#?}^{#?}'],
     'math:Alt-Shift-KeyU':       ['insert', '\\bigcup'],
     'math:Alt-Shift-KeyN':       ['insert', '\\bigcap'],
     'math:Alt-Shift-KeyA':       ['insert', '\\forall'],
@@ -269,14 +258,10 @@ const KEYBOARD_SHORTCUTS = {
     'math:Alt-Shift-Digit6':     ['insert', '\\vee'],        // "^" key
     'math:Alt-Digit9':           ['insert', '('],            // "(" key, override smartFence
     'math:Alt-Digit0':           ['insert', ')'],            // ")" key, override smartFence
-    'math:Alt-keyD':             ['insert', '\\differentialD'],
-    'math:Alt-Shift-KeyD':       ['insert', '\\partial'],
     'math:Slash':                ['insert', '\\frac{#@}{#?}'],
     'math:Alt-Slash':            ['insert', '\\frac{#?}{#@}'],
     'math:NumpadDivide':         ['insert', '\\frac{#@}{#?}'],
     'math:Alt-NumpadDivide':     ['insert', '\\frac{#?}{#@}'],
-    'math:Alt-KeyO':             ['insert', '\\emptyset'],
-    'math:Alt-Shift-KeyO':       ['insert', '\\varnothing'],
     'math:Shift-Backquote':      ['insert', '\\~'],
     'math:Alt-Shift-Slash':      ['insert', '\\/'],
 
@@ -418,11 +403,13 @@ const INLINE_SHORTCUTS = {
     '!=':                   '\\ne',
     '>=':                   '\\ge',
     '&lt;=':                   '\\le',
+    '&lt;&lt;':                   '\\ll',
+    '>>':                   '\\gg',
     '~~':                   '\\approx', 
 
     // More operators
-    '?=':                   '\\questeq',
     '≈':                    '\\approx',
+    '?=':                   '\\questeq',
     '÷':                    '\\div',
     '¬':                    '\\neg',
     ':=':                   '\\coloneq',
@@ -465,6 +452,11 @@ const INLINE_SHORTCUTS = {
     'Omega':                '\\Omega',
     'Ω':                    '\\omega',     // @TODO: or ohm?
 
+    // More Logic
+    'forall':               '\\forall',
+    'exists':               '\\exists',
+    '!exists':              '\\nexists',
+    ':.':                   '\\therefore',
 
     // MORE FUNCTIONS
     // 'arg': '\\arg',
@@ -494,11 +486,6 @@ const INLINE_SHORTCUTS = {
     'kg':                   '\\mathop{kg}',         // kilogram
     
 
-    // More Logic
-    'forall':               '\\forall',
-    'exists':               '\\exists',
-    '!exists':              '\\nexists',
-    ':.':                   '\\therefore',
 
 
     // '||':                   '\\lor',
@@ -517,20 +504,18 @@ const INLINE_SHORTCUTS = {
 // '&lt;=': '\\Leftarrow',     // CONFLICTS WITH LESS THAN OR EQUAL
     '&lt;=>':                  '\\Leftrightarrow',
     '&lt;->':                  '\\leftrightarrow',
-    '&lt;&lt;':                   '\\ll',
-    '>>':                   '\\gg',
 
     '(.)':                  '\\odot',
     '(+)':                  '\\oplus',      
     '(/)':                  '\\oslash',
     '(*)':                  '\\otimes',
+    '(-)':                  '\\ominus',
+    // '(-)':                  '\\circleddash',
 
     '||':                   '\\Vert',
     '{':                    '\\{',
     '}':                    '\\}',
 
-    '(-)':                  '\\ominus',
-    // '(-)':                  '\\circleddash',
 
 /*
     //
@@ -605,8 +590,8 @@ const INLINE_SHORTCUTS = {
     '|__':                  '\\lfloor',
     '__|':                  '\\rfloor',
 
-    '|~':                   '\\lceiling',
-    '~|':                   '\\rceiling',
+    '|~':                   '\\lceil',
+    '~|':                   '\\rceil',
 
     // Arrows
     '>->':                   '\\rightarrowtail',
@@ -935,7 +920,7 @@ function stringify(shortcuts, join) {
                     shortcutString += modifier.substr(5, 1);
                 } else {
                     shortcutString += {
-                        'Meta':         useSymbol ? '\u2318' : 'meta',
+                        'Meta':         useSymbol ? '\u2318' : 'command',
                         'Shift':        useSymbol ? '\u21e7' : 'shift',
                         'Alt':          useSymbol ? '\u2325' : 'alt',
                         'Ctrl':         useSymbol ? '\u2303' : 'control',
@@ -965,12 +950,12 @@ function stringify(shortcuts, join) {
                         'IntlBackslash':    '\\',
                         'Backquote':    '`',
                         'Slash':        '/',
-                        'NumPadMultiply': '*',
-                        'NumPadDivide': '/',
-                        'NumPadSubstract': '-',
-                        'NumPadAdd':    '+',
-                        'NumPadDecimal':    '.',
-                        'NumPadComma':    ',',
+                        'NumpadMultiply': '* &amp;#128290;',
+                        'NumpadDivide': '/ &amp;#128290;',  // Numeric keypad
+                        'NumpadSubstract': '- &amp;#128290;',
+                        'NumpadAdd':    '+ &amp;#128290;',
+                        'NumpadDecimal':    '. &amp;#128290;',
+                        'NumpadComma':    ', &amp;#128290;',
                         'Help':         'help',
                         'Left':         '\u21E0',
                         'Up':           '\u21E1',
@@ -995,25 +980,10 @@ function stringify(shortcuts, join) {
     return result;
 }
 
-function eventToChar(evt) {
-    let result;
-    if (evt.key === 'Unidentified') {
-        // On Android, the evt.key seems to always be 'Unidentified'.
-        // Get the value entered in the event target
-        if (evt.target) {
-            result = evt.target.value;
-        }
-    }
-    result = result || evt.key || evt.code;
-    if (/^(Return|Enter|Tab|Escape|Delete|PageUp|PageDown|Home|End|Help|ArrowLeft|ArrowRight|ArrowUp|ArrowDown)$/.test(result)) {
-        result = '';
-    }
-    return result;
-}
-
 export default {
+    KEYBOARD_SHORTCUTS,
+    INLINE_SHORTCUTS,
     stringify,
-    eventToChar,
     startsWithString,
     forString, 
     selectorForKeystroke,

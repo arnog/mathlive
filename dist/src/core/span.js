@@ -328,22 +328,27 @@ Span.prototype.toMarkup = function(hskip, hscale) {
 
         // Add the type (mbin, mrel, etc...) if specified
         if (this.type) {
-            classes.push({
-                'command': 'ML__command',
-                'placeholder': 'ML__placeholder',
-                'error': 'ML__error'
-            }[this.type] || '');
+            if (/command|placeholder|error/.test(this.type)) {
+                classes.push({
+                    'command': 'ML__command',
+                    'placeholder': 'ML__placeholder',
+                    'error': 'ML__error'
+                }[this.type]);
+            }
+            if (this.hasCaret && this.type === 'command') {
+                classes.push('ML__caret');
+            }
         }
 
-        if (this.type === 'command' && this.hasCaret) {
-            classes.push('ML__caret');
-        }
 
         // Remove duplicate and empty classes
         // and 'mathrm' which is a no-op
-        const classList = classes.filter(function (x, e, a) {
+        let classList = classes;
+        if (classes.length > 1) {
+            classList = classes.filter(function (x, e, a) {
                 return x.length > 0 && x !== 'mathrm' && a.indexOf(x) === e;
             }).join(' ');
+        }
 
         if (classList.length > 0) {
             result += ' class="' + classList + '"';

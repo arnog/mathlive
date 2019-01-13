@@ -614,38 +614,38 @@
 }
 
 
-@keyframes tooltipFadeIn {
-  0% {
-    opacity: 0;
-    border-bottom-left-radius: 50%;
-    border-bottom-right-radius: 50%;
-    // margin-top: 0;
-    transform: scale(0.5)
-  }
-  100% {
-    opacity: .9;
-    border-bottom-left-radius: 2px;
-    border-bottom-right-radius: 2px;
-    // margin-top: 6px;
-    transform: scale(1)
-  }
-}
-@keyframes tooltipFadeOut {
-  0% {
-    opacity: 0.9;
-    border-bottom-left-radius: 2px;
-    border-bottom-right-radius: 2px;
-    // margin-top: 0;
-    transform: scale(1)
-  }
-  100% {
-    opacity: 0;
-    border-bottom-left-radius: 50%;
-    border-bottom-right-radius: 50%;
-    // margin-top: 6px;
-    transform: scale(.5)
-  }
-}
+// @keyframes tooltipFadeIn {
+//   0% {
+//     opacity: 0;
+//     border-bottom-left-radius: 50%;
+//     border-bottom-right-radius: 50%;
+//     // margin-top: 0;
+//     transform: scale(0.5)
+//   }
+//   100% {
+//     opacity: .9;
+//     border-bottom-left-radius: 2px;
+//     border-bottom-right-radius: 2px;
+//     // margin-top: 6px;
+//     transform: scale(1)
+//   }
+// }
+// @keyframes tooltipFadeOut {
+//   0% {
+//     opacity: 0.9;
+//     border-bottom-left-radius: 2px;
+//     border-bottom-right-radius: 2px;
+//     // margin-top: 0;
+//     transform: scale(1)
+//   }
+//   100% {
+//     opacity: 0;
+//     border-bottom-left-radius: 50%;
+//     border-bottom-right-radius: 50%;
+//     // margin-top: 6px;
+//     transform: scale(.5)
+//   }
+// }
 
 
 .can-redo [data-command="\"redo\""] {
@@ -657,7 +657,7 @@
 
 
 #ML__keyboard {
-    --keyboard-background: rgba(209, 213, 217, .9);
+    --keyboard-background: rgba(209, 213, 217, .95);
     --keyboard-text: #000;
     --keyboard-text-active: var(--primary);
     --keyboard-background-border: #ddd;
@@ -680,19 +680,20 @@
 
     position: fixed;
     left: 0;
-    padding-top: 5px;
+    bottom: -267px;
     width: 100vw;
     z-index: 100;
 
-    // To make the keyboard visible, add the .visible class
-    // This will slide in and fade in the keyboard
-    transition: .28s cubic-bezier(0.0, 0.0, 0.2, 1);    // Deceleration curve
-    
-    bottom: -267px;
+    padding-top: 5px;
+
+    transform: translate(0, 0); 
     opacity: 0;
     visibility: hidden;
-    &.visible {
-        bottom: 0;
+    // To make the keyboard visible, add the .is-visible class
+    // This will slide in and fade in the keyboard
+    transition: .28s cubic-bezier(0.0, 0.0, 0.2, 1);    // Deceleration curve
+    &.is-visible {
+        transform: translate(0, -267px); 
         opacity: 1;
         visibility: visible;
         transition: .28s cubic-bezier(0.4, 0.0, 1, 1); // Acceleration curve
@@ -753,7 +754,7 @@
 
         transition: none;
 
-        &.visible {
+        &.is-visible {
             visibility: visible;
         }
         ul {
@@ -837,7 +838,7 @@
 
     div.keyboard-layer {
         display: none;
-        &.visible { 
+        &.is-visible { 
             display: flex; 
             flex-flow: column;
         }
@@ -1497,9 +1498,9 @@ body[theme="dark"] div#ML__keyboard.material {
 }
     
 
-.ML__popover--visible {
+div.ML__popover.is-visible {
     visibility: visible;
-    animation: ML__fadeIn cubic-bezier(0.0, 0.0, 0.2, 1) .15s;
+    animation: ML__fade-in cubic-bezier(0.0, 0.0, 0.2, 1) .15s;
 }
 @keyframes ML__fade-in {
     from {opacity: 0;}

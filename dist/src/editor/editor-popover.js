@@ -407,7 +407,7 @@ function showPopoverWithLatex(mf, latex, displayArrows) {
 
 function updatePopoverPosition(mf, options) {
     // If the popover pane is visible...
-    if (mf.popover.classList.contains('ML__popover--visible')) {
+    if (mf.popover.classList.contains('is-visible')) {
         if (options && options.deferred) {
             // Call ourselves again later, typically after the
             // rendering/layout of the DOM has been completed
@@ -438,12 +438,12 @@ function showPopover(mf, markup) {
         mf.popover.style.top = (position.y + 5) + 'px';
     }
 
-    mf.popover.classList.add('ML__popover--visible');
+    mf.popover.classList.add('is-visible');
 }
 
 
 function hidePopover(mf) {
-    mf.popover.classList.remove('ML__popover--visible');
+    mf.popover.classList.remove('is-visible');
 }
 
 
