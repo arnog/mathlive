@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en-US">
+<!DOCTYPE html>
+<html lang="en-US">
 <head>
     <meta charset="utf-8">
     <title>MathLive Four Operation Calculator</title>
@@ -25,14 +26,143 @@
         <a href="/">Return to the homepage&nbsp;<svg class="fa-w-24" height="24px"><use xlink:href="../icons.svg#angle-right" /></svg></a>
     </footer>
 
-<script src="../../mathlive/mathlive.js"></script>
-<script>
-    (function() {
-    const mf = MathLive.makeMathField('mf', {
-        onContentDidChange: updateOutput,
-        virtualKeyboardMode: 'manual',
-        customVirtualKeyboardLayers: {
-        'four-op': `
+<!-- <script src="../../mathlive/src/mathlive.js"></script> -->
+<script type='module'> 
+    import MathLive from '../../mathlive/mathlive.mjs';
+    (function () {
+        const mf = MathLive.makeMathField('mf', {
+            onContentDidChange: updateOutput,
+            virtualKeyboardMode: 'manual',
+            customVirtualKeyboardLayers: {
+                'json': {
+                    "styles": "div#ML__keyboard div.json-backdrop > div > div > ul> li.keycap.btn{color:#fff;background:#37454F;border: 1px solid #37454F}",
+                    "backdrop": "json-backdrop",
+                    "container": "json-container",
+                    "rows": [
+                        [
+                            {
+                                "class": "keycap",
+                                "label": "7",
+                            },
+                            {
+                                "class": "keycap",
+                                "label": "8"
+                            },
+                            {
+                                "class": "keycap",
+                                "label": "9"
+                            },
+                            {
+                                "class": "keycap btn",
+                                "insert": "\\frac{#0}{#?}",
+                                "label": "&divide;"
+                            },
+                            {
+                                "class": "separator",
+                            },
+                            {
+                                "class": "separator w20",
+                            }
+                        ],
+                        [
+                            {
+                                "class": "keycap",
+                                "label": "4"
+                            },
+                            {
+                                "class": "keycap",
+                                "label": "5"
+                            },
+                            {
+                                "class": "keycap",
+                                "label": "6"
+                            },
+                            {
+                                "class": "keycap btn",
+                                "insert": "\\times ",
+                                "latex": "\\times "
+                            },
+                            {
+                                "class": "separator",
+                            },
+                            {
+                                "class": "separator w20",
+                            }
+                        ],
+                        [
+                            {
+                                "class": "keycap",
+                                "label": "1"
+                            },
+                            {
+                                "class": "keycap",
+                                "label": "2"
+                            },
+                            {
+                                "class": "keycap",
+                                "label": "3"
+                            },
+                            {
+                                "class": "keycap btn",
+                                "label": "-"
+                            },
+                            {
+                                "class": "separator w15",
+                            },
+                            {
+                                "class": "action font-glyph bottom right w15",
+                                "command": "deletePreviousChar",
+                                "label": "&#x232b;"
+                            }
+                        ],
+                        [
+                            {
+                                "class": "keycap",
+                                "insert": "",
+                                "key": "0",
+                                "command": "",
+                                "label": "0"
+                            },
+                            {
+                                "class": "keycap",
+                                "insert": "",
+                                "key": "",
+                                "command": "",
+                                "label": "."
+                            },
+                            {
+                                "class": "keycap",
+                                "insert": "\\pi ",
+                                "key": "",
+                                "command": "",
+                                "label": "<aside class='above tex'>" +
+                                    "<i>x</i>&thinsp;!</aside>" +
+                                    "<span>π</span>" +
+                                    "<aside class='below'>3.14</aside>"
+                            },
+                            {
+                                "class": "keycap btn",
+                                "label": "+"
+                            },
+                            {
+                                "class": "action",
+                                "command": "moveToPreviousChar",
+                                "label": "<svg><use xlink:href='#svg-arrow-left' /></svg>"
+                            },
+                            {
+                                "class": "action",
+                                "command": "moveToNextChar",
+                                "label": "<svg><use xlink:href='#svg-arrow-right' /></svg>"
+                            },
+                            {
+                                "class": "action",
+                                "command": "moveToNextPlaceholder",
+                                "label": "<svg><use xlink:href='#svg-tab' /></svg>"
+                            }
+                        ]
+                    ]
+                },
+                'four-op': `
                 <div class='rows'>
                     <ul><li class='keycap'>7</li>
                         <li class='keycap' >8</li>
@@ -65,7 +195,7 @@
                     </ul>
                 </div>
             </div>`,
-        'hp': `
+                'hp': `
             <style>
                 .calculator-backdrop {
                     width: 768px;
@@ -184,39 +314,44 @@
                     </div>
                 </div>
             </div>`,
-        },
-        customVirtualKeyboards: {
-            'hp': {
-                tooltip: 'hp15c',
-                layer: 'hp',
-                label: 'hp',
-                classes: '',
-                layers: ['hp']
             },
-            'basic': {
-                label: 'Basic',
-                tooltip: 'Four Operation Keyboard',
-                layer: 'four-op'
+            customVirtualKeyboards: {
+                'hp': {
+                    tooltip: 'hp15c',
+                    layer: 'hp',
+                    label: 'hp',
+                    classes: '',
+                    layers: ['hp']
+                },
+                'basic': {
+                    label: 'Basic',
+                    tooltip: 'Four Operation Keyboard',
+                    layer: 'four-op'
+                },
+                'json': {
+                    label: 'json',
+                    tooltip: 'json keyboard',
+                    layer: 'json'
+                },
             },
-        },
-        virtualKeyboards: 'hp basic',
-    });
-    
-    function escapeHtml (string) {
-        const ENTITIES = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#39;',
-            '/': '&#x2F;',
-            '`': '&#x60;',
-            '=': '&#x3D;',
-        };
-        return String(string).replace(/[&<>"'`=/]/g, function (s) {
-            return ENTITIES[s];
+            virtualKeyboards: 'hp basic json',
         });
-    }
+
+        function escapeHtml(string) {
+            const ENTITIES = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;',
+                '/': '&#x2F;',
+                '`': '&#x60;',
+                '=': '&#x3D;',
+            };
+            return String(string).replace(/[&<>"'`=/]/g, function (s) {
+                return ENTITIES[s];
+            });
+        }
 
     function evaluate(ast) {
         if (ast === undefined) return NaN;
@@ -245,10 +380,11 @@
         const result = evaluate(ast);
         document.getElementById('result').innerHTML = typeof result !== 'undefined' ? result.toString() : '';
 
-        document.getElementById('output').innerHTML = 
-            escapeHtml(JSON.stringify(ast))
-    }
+            document.getElementById('output').innerHTML =
+                escapeHtml(JSON.stringify(ast))
+        }
     })();
 </script>
 
-</body></html>
+</body>
+</html>

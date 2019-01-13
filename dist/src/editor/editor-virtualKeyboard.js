@@ -1178,6 +1178,80 @@ function make(mf, theme) {
                 console.error('Unknown virtual keyboard layer: "' + layer + '"');
                 break;
             }
+
+            if (typeof layers[layer] === 'object') {
+                // Process JSON layer to web element based layer.
+
+                let tempLayer = ``;
+                if (layers[layer].styles) {
+                    tempLayer += `<style>${layers[layer].styles}</style>`
+                }
+
+                if (layers[layer].backdrop) {
+                    tempLayer += `<div class='${layers[layer].backdrop}'>`
+                }
+
+                if (layers[layer].container) {
+                    tempLayer += `<div class='${layers[layer].container}'>`
+                }
+
+                if (layers[layer].rows) {
+                    tempLayer += `<div class='rows'>`;
+                    for (const row of layers[layer].rows) {
+                        tempLayer += `<ul>`;
+                        for (const col of row) {
+                            tempLayer += `<li`;
+                            if (col.class) {
+                                tempLayer += ` class="${col.class}"`;
+                            }
+                            if (col.key) {
+                                tempLayer += ` data-key="${col.key}"`;
+                            }
+
+                            if (col.command) {
+                                tempLayer += ` data-command='"${col.command}"'`;
+                            }
+                            if (col.insert) {
+                                tempLayer += ` data-insert="${col.insert}"`;
+                            }
+
+                            if (col.latex) {
+                                tempLayer += ` data-latex="${col.latex}"`;
+                            }
+
+                            if (col.aside) {
+                                tempLayer += ` data-aside="${col.aside}"`;
+                            }
+
+                            if (col.altKeys) {
+                                tempLayer += ` data-alt-keys="${col.altKeys}"`;
+                            }
+
+                            if (col.shifted) {
+                                tempLayer += ` data-shifted="${col.shifted}"`;
+                            }
+
+                            if (col.shiftedCommand) {
+                                tempLayer += ` data-shifted-command="${col.shiftedCommand}"`;
+                            }
+
+                            tempLayer += `>${col.label ? col.label : ''}</li>`;
+                        }
+                        tempLayer += `</ul>`;
+                    }
+                    tempLayer += `</div>`;
+
+                    if (layers[layer].container) {
+                        tempLayer += `</div'>`
+                    }
+
+                    if (layers[layer].backdrop) {
+                        tempLayer += `</div'>`
+                    }
+                }
+                layers[layer] = tempLayer;
+            }
+
             markup += `<div class='keyboard-layer' id='` + layer + `'>`;
             markup += makeKeyboardToolbar(mf, keyboardIDs, keyboard);
             const layerMarkup = typeof layers[layer] === 'function' ?

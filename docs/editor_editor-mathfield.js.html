@@ -982,8 +982,6 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
     // 1. Display the keystroke in the keystroke panel (if visible)
     this._showKeystroke(keystroke);
 
-    console.log(this.inlineShortcutBuffer);
-
     // 2. Reset the timer for the inline shortcut buffer reset
     clearTimeout(this.inlineShortcutBufferResetTimer);
 
