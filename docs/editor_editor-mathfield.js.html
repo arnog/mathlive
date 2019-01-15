@@ -889,14 +889,13 @@ MathField.prototype.$perform = function(command) {
     selector += '_';
 
     if (typeof this.mathlist[selector] === 'function') {
-        if (/^(delete_|transpose_|deleteToMathFieldEnd_|deleteToGroupEnd_|deleteToGroupStart_|deletePreviousWord_|deleteNextWord_|deletePreviousChar_|deleteNextChar_)$/.test(selector)) {
+        if (/^(delete|transpose|deleteToMathFieldEnd|deleteToGroupEnd|deleteToGroupStart|deletePreviousWord|deleteNextWord|deletePreviousChar|deleteNextChar)_$/.test(selector)) {
             this.undoManager.snapshot(this.config);
             if (this.selectionIsCollapsed() &amp;&amp; selector === 'deletePreviousChar_') {
                 this.inlineShortcutBuffer = this.inlineShortcutBuffer.substring(0, this.inlineShortcutBuffer.length - 1);
                 this.inlineShortcutStates.pop();
             } else {
-                this.inlineShortcutBuffer = '';
-                this.inlineShortcutStates = [];
+                this._resetInlineShortcutBuffer();
             } 
         }
 
@@ -904,12 +903,21 @@ MathField.prototype.$perform = function(command) {
         dirty = true;
         handled = true;
     } else if (typeof this[selector] === 'function') {
-        if (['complete_'].includes(selector)) {
+        if (selector === 'complete_') {
             this.undoManager.snapshot(this.config);
         }
 
         dirty = this[selector](...args);
+
+
         handled = true;
+    }
+
+    // If the command changed the selection so that it is no longer 
+    // collapsed, or if it was an editing command, reset the inline
+    // shortcut buffer
+    if (!this.mathlist.isCollapsed() || /^(transpose|paste|((move|extent).*))_$/.test(selector)) {
+        this._resetInlineShortcutBuffer();
     }
 
     // Render the mathlist

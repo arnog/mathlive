@@ -177,6 +177,9 @@ function createAccessibleMarkupPair(text, mathstyle, options, latexToMarkup, lat
     if (markupNode === null) {
         return null;
     }
+    if (!options.renderAccessibleContent) {
+        return markupNode;
+    }
 
     const fragment = document.createDocumentFragment();
     fragment.appendChild(createAccessibleNode(text, latexToMathML, options));
@@ -230,7 +233,7 @@ function scanElement(elem, options, latexToMarkup, latexToMathML) {
         const text = elem.childNodes[0].textContent;
         if (options.TeX.processEnvironments && /^\s*\\begin/.test(text)) {
             elem.textContent = '';
-            elem.appendChild( createAccessibleMarkupPair(originalContent, undefined, options, latexToMarkup, true) );
+            elem.appendChild( createAccessibleMarkupPair(text, undefined, options, latexToMarkup, latexToMathML, true) );
             return;
         }
 
@@ -318,6 +321,8 @@ const defaultOptions = {
     // elements being rendered in a 'data-original-content' attribute.
     preserveOriginalContent: true,
 
+    renderAccessibleContent: true,
+
     TeX: {
         disabled: false,
         processEnvironments : true,
@@ -330,7 +335,7 @@ const defaultOptions = {
 
 function renderMathInElement(elem, options, latexToMarkup, latexToMathML) {
     try {
-        options = Object.assign({}, defaultOptions);
+        options = Object.assign({}, defaultOptions, options);
         options.ignoreClassPattern = new RegExp(options.ignoreClass);
         options.processClassPattern = new RegExp(options.processClass);
         options.processScriptTypePattern = new RegExp(options.processScriptType);

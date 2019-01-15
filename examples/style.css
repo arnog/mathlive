@@ -36,6 +36,7 @@ h2 {
     line-height: .7;
     padding-top: 1em;
     padding-bottom: 1em;
+    border: none;
 }
 h3 {
     font-weight: 600;
@@ -135,24 +136,32 @@ kbd {
     vertical-align: -5px;
 }
 
-/* .github-icon-before:before {
-    width: 1em;
-    display: inline-block;
-    vertical-align: -3px;
-    margin-right: .5ex;
-    content: url(icons.svg#svg-github);
-} */
-
 a, a:visited, a:active {
     text-decoration: none;
     color: var(--link);
+    border-radius: 1em;
+    border: 1px solid transparent;
+}
+
+.links a {
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.links a:visited:hover, .links a:hover {
+    border: 1px solid var(--secondary-surface-border);
+    background: var(--surface);
 }
 
 a:hover {
     text-decoration: underline;
 }
+.links a:hover {
+    text-decoration: none;
+}
 
-header {
+body > header {
     background-color: var(--primary);
     height: 130px;
     display: flex;
@@ -165,7 +174,7 @@ header {
 
 header h1 {
     font-family: 'Futura', 'Open Sans', -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
-    font-size: 3rem;
+    /* font-size: 3rem; */
     color: var(--on-primary);
     text-transform: uppercase;
     margin-left: auto;

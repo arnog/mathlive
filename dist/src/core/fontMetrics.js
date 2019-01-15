@@ -228,6 +228,12 @@ const extraCharacterMap = {
  */
 const getCharacterMetrics = function(character, fontName) {
     if (fontName === 'mathbb') fontName = 'AMS-Regular';
+    if (fontName === 'mathcal') fontName = 'Caligraphic-Regular';
+    if (fontName === 'mathfrak') fontName = 'Fraktur-Regular';
+    if (fontName === 'mathscr') fontName = 'Script-Regular';
+    if (fontName === 'mathss') fontName = 'SansSerif-Regular';
+    if (fontName === 'mathtt') fontName = 'Typewriter-Regular';
+    if (fontName === 'mathsf') fontName = 'Main-Regular';
     console.assert(character.length === 1);
     console.assert(metricMap[fontName], 'Unknown font "' + fontName + '"');
 

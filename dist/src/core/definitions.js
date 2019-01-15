@@ -594,16 +594,16 @@ function matchSymbol(mode, s) {
                 }
             }
 
-            if (a[p].fullName && s === '\\[' + a[p].fullName + ']') {
-                result = {
-                    latexName: p,
-                    fontFamily: a[p].fontFamily,
-                    value: a[p].value,
-                    type: a[p].type,
-                    match: '\\[' + a[p].fullName + ']'
-                };
-                break;
-            }
+            // if (a[p].fullName && s === '\\[' + a[p].fullName + ']') {
+            //     result = {
+            //         latexName: p,
+            //         fontFamily: a[p].fontFamily,
+            //         value: a[p].value,
+            //         type: a[p].type,
+            //         match: '\\[' + a[p].fullName + ']'
+            //     };
+            //     break;
+            // }
         }
     }
 
@@ -1669,7 +1669,7 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
             result.strokeStyle + ' ' + result.strokeColor;
 
         // Normalize the list of notations.
-        notations = notations.split(/[, ]/).
+        notations = notations.toString().split(/[, ]/).
             filter(v => v.length > 0).map(v => v.toLowerCase());
         result.notation = {};
         for (const notation of notations) {

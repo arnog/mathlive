@@ -898,7 +898,7 @@ class MathAtom {
             result = makeOrd(decompose(context, this.body));
             if (this.textcolor) result.setStyle('color', this.textcolor);
             if (this.backgroundcolor) result.setStyle('background-color', this.backgroundcolor);
-            result = this.bind(WebGLRenderingContext, result);
+            result = this.bind(context, result);
         }
         return result;
     }
