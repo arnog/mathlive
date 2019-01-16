@@ -148,6 +148,14 @@ function MathField(element, config) {
     markup += '<span class="ML__fieldcontainer">' +
             '<span class="ML__fieldcontainer__field"></span>';
 
+    // If no value is specified for the virtualKeyboardMode, use 
+    // `onfocus` on touch-capable devices and `off` otherwise.
+    if (!this.config.virtualKeyboardMode) {
+        this.config.virtualKeyboardMode = 
+            (window.matchMedia && window.matchMedia("(any-pointer: coarse)").matches
+) ? 'onfocus' : 'off';
+    }
+
     // Only display the virtual keyboard toggle if the virtual keyboard mode is
     // 'manual'
     if (this.config.virtualKeyboardMode === 'manual') {
@@ -2047,7 +2055,7 @@ MathField.prototype.performAlternateKeys_ = function(command) {
 
 
 MathField.prototype.switchKeyboardLayer_ = function(layer) {
-    if (this.config.virtualKeyboardMode) {
+    if (this.config.virtualKeyboardMode !== 'off') {
 
         if (layer !== 'lower-command' && layer !== 'upper-command' && layer !== 'symbols-command') {
             // If we switch to a non-command keyboard layer, first exit command mode.

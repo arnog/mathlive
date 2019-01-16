@@ -167,6 +167,7 @@ EditableMathlist.prototype.filter = function(cb, dir) {
 
     const result = [];
     const originalExtent = this.extent;
+    const originalPath = this.path.slice(0);
     if (dir >= 0) {
         this.collapseForward();
     } else {
@@ -175,7 +176,7 @@ EditableMathlist.prototype.filter = function(cb, dir) {
     const initialPath = MathPath.pathToString(this.path);
     do {
         console.assert(this.anchor(), MathPath.pathToString(this.path));
-        if (cb.bind(this)(this.path, this.anchor())) {
+        if (this.anchor() &amp;&amp; cb.bind(this)(this.path, this.anchor())) {
             result.push(this.toString());
         }
         if (dir >= 0) {
@@ -186,6 +187,7 @@ EditableMathlist.prototype.filter = function(cb, dir) {
     } while (initialPath !== MathPath.pathToString(this.path));
 
     this.extent = originalExtent;
+    this.path = originalPath;
 
     this.suppressSelectionChangeNotifications = suppressed;
 
@@ -302,6 +304,7 @@ EditableMathlist.prototype.setPath = function(selection, extent) {
 
         this.selectionDidChange();
     }
+        console.assert(this.anchor(), MathPath.pathToString(this.path));
 
     return pathChanged || extentChanged;
 }
@@ -428,6 +431,11 @@ function arrayCell(atom, colrow) {
         if (Array.isArray(atom.array[colrow.row])) {
             result = atom.array[colrow.row][colrow.col] || null;
         }
+    }
+    // If the 'first' math atom is missing, insert it
+    if (result &amp;&amp; (result.length === 0 || result[0].type !== 'first')) {
+        const firstAtom = new MathAtom.MathAtom(atom.parseMode, 'first', null);
+        result.unshift(firstAtom);
     }
     return result;
 }
@@ -632,6 +640,7 @@ EditableMathlist.prototype.setExtent = function(extent) {
     // const anchorOffset = this.anchorOffset();
     // extent = Math.max(-anchorOffset,
     //         Math.min(extent, this.siblings().length - anchorOffset));
+    if (extent !== 0 ) console.log('extent = ' + extent);
     this.extent = extent;
 }
 
@@ -1136,7 +1145,7 @@ EditableMathlist.prototype.next = function(options) {
             const skip = !options.iterateAll &amp;&amp; this.parent().skipBoundary;
             this.path.pop();
             if (skip) {
-                this.next();
+                this.next(options);
             }
         }
 
@@ -1149,9 +1158,13 @@ EditableMathlist.prototype.next = function(options) {
 
     // If the new anchor is a compound atom, dive into its components
     const anchor = this.anchor();
+    if (!anchor) {
+        console.log('uh?');
+    }
+    console.assert(anchor);
     // Only dive in if the atom allows capture of the selection by
     // its sub-elements
-    if (!anchor.captureSelection) {
+    if (anchor &amp;&amp; !anchor.captureSelection) {
         let relation;
         if (anchor.array) {
             // Find the first non-empty cell in this array
@@ -1175,7 +1188,7 @@ EditableMathlist.prototype.next = function(options) {
            if (Array.isArray(anchor[relation])) {
                 this.path.push({relation:relation, offset: 0});
                 this.insertFirstAtom();
-                if (!options.iterateAll &amp;&amp; anchor.skipBoundary) this.next();
+                if (!options.iterateAll &amp;&amp; anchor.skipBoundary) this.next(options);
                 return;
             }
             relation = NEXT_RELATION[relation];
@@ -1292,7 +1305,7 @@ EditableMathlist.prototype.previous = function(options) {
     this.setSelection(this.anchorOffset() - 1);
 
     if (!options.iterateAll &amp;&amp; this.sibling(0) &amp;&amp; this.sibling(0).skipBoundary) {
-        this.previous();
+        this.previous(options);
     }
 }
 

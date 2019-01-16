@@ -338,30 +338,32 @@ or 'option' layer that provides additional symbols.</p>
 <p>The virtual keyboards can be customized using the following keys in the <code>config</code>
 parameter of <code>makeMathField</code>.</p>
 <ul>
-<li><p><code>virtualKeyboardMode</code> If no value is specified, the default value is <code>manual</code>
-on desktop and <code>auto</code> on mobile.</p>
-<ul>
-<li>If <code>'manual'</code>, pressing the keyboard toggle will display a virtual 
-keyboard </li>
-<li>If <code>'onfocus'</code>, the virtual keyboard will be displayed whenever the field is focused. In that case, the command bar toggle is not displayed. </li>
+<li><code>'manual'</code>: pressing the virtual keyboard toggle button will show or hide
+the virtual keyboard. If hidden, the virtual keyboard is not shown when the 
+field is focused until the toggle button is pressed.</li>
+<li><code>'onfocus'</code>: the virtual keyboard will be displayed whenever the field is
+focused and hidden when the field loses focus. In that case, the virtual 
+keyboard toggle button is not displayed.</li>
+<li><code>'off'</code>: the virtual keyboard toggle button is not displayed, and the
+virtual keyboard is never triggered.</li>
 </ul>
+<p>If the setting is empty, it will default to <code>'onfocus'</code> on touch-capable 
+devices and to <code>'off'</code> otherwise.</p>
 <ul>
-<li><code>virtualKeyboards</code> - If <code>'all'</code>, all the virtual keyboards will be made
+<li><p><code>virtualKeyboards</code> - If <code>'all'</code>, all the virtual keyboards will be made
 available. Otherwise, this should be a space separated list of the 
-keyboards that should be made available. The supported keyboards are:<ul>
+keyboards that should be made available. The supported keyboards are:</p>
+<ul>
 <li><code>'numeric'</code></li>
 <li><code>'roman'</code></li>
 <li><code>'greek'</code></li>
 <li><code>'functions'</code></li>
 <li><code>'command'</code></li>
 </ul>
-</li>
-</ul>
 <p>The keyboards will be displayed in the order indicated.</p>
-<ul>
-<li><code>virtualKeyboardTheme</code> - The visual theme of the virtual keyboard. If empty, the theme will switch automatically based on the device it's running on. 
-The two supported themes are  <code>material</code> and <code>apple</code>.</li>
-</ul>
+</li>
+<li><p><code>virtualKeyboardTheme</code> - The visual theme of the virtual keyboard. If empty, the theme will switch automatically based on the device it's running on. 
+The two supported themes are  <code>material</code> and <code>apple</code>.</p>
 </li>
 </ul>
 </article>

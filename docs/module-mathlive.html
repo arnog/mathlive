@@ -298,7 +298,7 @@ with a mode token such as a <code>$$</code> or <code>\(</code>.</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line391">Source</a>
+        <a href="mathlive.js.html#line398">Source</a>
         </span>
     
 
@@ -727,7 +727,7 @@ to the MathML nodes with a value corresponding with the a matching atomID.</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line365">Source</a>
+        <a href="mathlive.js.html#line372">Source</a>
         </span>
     
 
@@ -1400,7 +1400,8 @@ when the spacebar is pressed.</p>
             
                     <p class="description last">
                         <p>If specified, the markup 
-to be used to display the virtual keyboard toggle glyph.</p>
+to be used to display the virtual keyboard toggle glyph. If none is specified
+a default keyboard icon is used.</p>
                     </p>
                     
             
@@ -1440,12 +1441,18 @@ to be used to display the virtual keyboard toggle glyph.</p>
 
             
                     <p class="description last">
-                        <p>If <code>'manual'</code>, pressing the
-command bar toggle will display a virtual keyboard instead of the command bar.
-If <code>'onfocus'</code>, the virtual keyboard will be displayed whenever the field is
-focused. In that case, the command bar toggle is not displayed.
-When this setting is not empty, <code>config.overrideDefaultCommands</code> and
-<code>config.commands</code> are ignored.</p>
+                        <ul>
+<li><code>'manual'</code>: pressing the virtual keyboard toggle button will show or hide
+the virtual keyboard. If hidden, the virtual keyboard is not shown when the 
+field is focused until the toggle button is pressed.</li>
+<li><code>'onfocus'</code>: the virtual keyboard will be displayed whenever the field is
+focused and hidden when the field loses focus. In that case, the virtual 
+keyboard toggle button is not displayed.</li>
+<li><code>'off'</code>: the virtual keyboard toggle button is not displayed, and the
+virtual keyboard is never triggered.</li>
+</ul>
+<p>If the setting is empty, it will default to <code>'onfocus'</code> on touch-capable 
+devices and to <code>'off'</code> otherwise.</p>
                     </p>
                     
             
@@ -2710,7 +2717,7 @@ with appropriate <code>&lt;mark&gt;</code> tags.</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line671">Source</a>
+        <a href="mathlive.js.html#line678">Source</a>
         </span>
     
 
@@ -2861,7 +2868,7 @@ with appropriate <code>&lt;mark&gt;</code> tags.</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line701">Source</a>
+        <a href="mathlive.js.html#line708">Source</a>
         </span>
     
 
@@ -3035,7 +3042,7 @@ with appropriate <code>&lt;mark&gt;</code> tags.</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line524">Source</a>
+        <a href="mathlive.js.html#line531">Source</a>
         </span>
     
 
@@ -3129,7 +3136,7 @@ highlighting). Possible values include:</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line652">Source</a>
+        <a href="mathlive.js.html#line659">Source</a>
         </span>
     
 
@@ -3265,7 +3272,7 @@ for details</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line738">Source</a>
+        <a href="mathlive.js.html#line745">Source</a>
         </span>
     
 
@@ -3797,7 +3804,7 @@ of delimiters that will trigger a render of the content in 'textstyle' or
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line775">Source</a>
+        <a href="mathlive.js.html#line782">Source</a>
         </span>
     
 
@@ -3885,7 +3892,7 @@ of delimiters that will trigger a render of the content in 'textstyle' or
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line686">Source</a>
+        <a href="mathlive.js.html#line693">Source</a>
         </span>
     
 
@@ -4077,7 +4084,7 @@ use the same namespace here.</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line836">Source</a>
+        <a href="mathlive.js.html#line843">Source</a>
         </span>
     
 
@@ -4289,7 +4296,7 @@ use the same namespace here.</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line863">Source</a>
+        <a href="mathlive.js.html#line870">Source</a>
         </span>
     
 
@@ -4408,7 +4415,7 @@ This is used for TTS with synchronized highlighting (read aloud)</p>
 
     
         <span class="tag-source">
-        <a href="mathlive.js.html#line433">Source</a>
+        <a href="mathlive.js.html#line440">Source</a>
         </span>
     
 
