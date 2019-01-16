@@ -966,7 +966,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
                     if (this.config.inlineShortcutTimeout) {
                         // Set a timer to reset the shortcut buffer
                         clearTimeout(this.inlineShortcutBufferResetTimer);
-                        this.inlineShortcutBufferResetTimer = setTimeout(_ => {
+                        this.inlineShortcutBufferResetTimer = setTimeout(() => {
                             this._resetInlineShortcutBuffer();
                         }, this.config.inlineShortcutTimeout);
                     }
@@ -1197,7 +1197,15 @@ MathField.prototype._render = function(renderOptions) {
     if (!window.mathlive) window.mathlive = {};
 
     //
-    // 2. Update selection state and blinking cursor (caret)
+    // 2. Validate selection
+    //
+    if (!this.mathlist.anchor()) {
+        console.log('Invalid selection. Resetting it.' + MathPath.pathToString(this.mathlist.path));
+        this.mathlist.path = [{relation: 'body', offset: 0}];
+    }
+
+    //
+    // 3. Update selection state and blinking cursor (caret)
     //
     this.mathlist.root.forEach( a => {
             a.hasCaret = false;
@@ -1218,7 +1226,7 @@ MathField.prototype._render = function(renderOptions) {
     }
 
     //
-    // 3. Create spans corresponding to the updated mathlist
+    // 4. Create spans corresponding to the updated mathlist
     //
     const spans = MathAtom.decompose(
         {
@@ -1238,7 +1246,7 @@ MathField.prototype._render = function(renderOptions) {
 
 
     //
-    // 4. Construct struts around the spans
+    // 5. Construct struts around the spans
     //
 
     const base = Span.makeSpan(spans, 'ML__base');
@@ -1262,7 +1270,7 @@ MathField.prototype._render = function(renderOptions) {
     wrapper.classes += hasFocus ? ' ML__focused' : ' ML__blurred';
 
     //
-    // 5. Generate markup and accessible node
+    // 6. Generate markup and accessible node
     //
 
     this.field.innerHTML = wrapper.toMarkup(0, this.config.horizontalSpacingScale);
@@ -1275,7 +1283,7 @@ MathField.prototype._render = function(renderOptions) {
 
 
     //
-    // 6. Scroll view
+    // 7. Scroll view
     //
 
     this.scrollIntoView_();
