@@ -63,20 +63,18 @@ writeCookie('symbol-access', 'private')
 
 
 <article>
-    <h4 id="horizontalspacingscale">horizontalSpacingScale</h4>
-<p>@param {number} [config.horizontalSpacingScale=1.0] - Scaling factor to be
-applied to horizontal spacing between elements.</p>
-<h4 id="namespace">namespace</h4>
-<p>@param {string} [config.namespace=''] - Namespace that is added to <code>data-</code>
-attributes to avoid collisions with other libraries. It is empty by default.
-The namespace should be a string of lowercase letters.</p>
-<h4 id="substitutetextarea">substituteTextArea</h4>
+    <h3 id="horizontalspacingscale-number-1-0"><strong>horizontalSpacingScale</strong> :number=1.0</h3>
+<p>Scaling factor to be applied to horizontal spacing between elements.</p>
+<h3 id="namespace-string-"><strong>namespace</strong>  : string=''</h3>
+<p>Namespace that is added to <code>data-</code> attributes to avoid collisions with other libraries. It is empty by default.</p>
+<p>The namespace should be a string of lowercase letters.</p>
+<h3 id="substitutetextarea">substituteTextArea</h3>
 <p>@param {function} [config.substituteTextArea] - A function that returns a
 focusable element that can be used to capture text input. This can be
 useful when a <code>&lt;textarea&gt;</code> element would be undesirable. Note that by default
 on mobile devices the TextArea is automatically replaced with a <code>&lt;span&gt;</code> to
 prevent the device virtual keyboard from being displayed.</p>
-<h4 id="onfocus">onFocus</h4>
+<h3 id="onfocus">onFocus</h3>
 <p>@param {function(mathfield)} [config.onFocus] - Invoked when the mathfield has gained focus</p>
 <p>@param {function(mathfield)} [config.onBlur] - Invoked when the mathfield has
 lost focus</p>
@@ -125,13 +123,21 @@ spacebar is pressed, no space is inserted. If false, a space is inserted
 when the spacebar is pressed.</p>
 <p>@param {string} [config.virtualKeyboardToggleGlyph] - If specified, the markup 
 to be used to display the virtual keyboard toggle glyph.</p>
-<p>@param {string} [config.virtualKeyboardMode=''] - If <code>'manual'</code>, pressing the
-command bar toggle will display a virtual keyboard instead of the command bar.
-If <code>'onfocus'</code>, the virtual keyboard will be displayed whenever the field is
-focused. In that case, the command bar toggle is not displayed.
-When this setting is not empty, <code>config.overrideDefaultCommands</code> and
-<code>config.commands</code> are ignored.</p>
-<p>@param {string} [config.virtualKeyboards='all'] - A space separated list of
+<h3 id="config-virtualkeyboardmode-string-"><strong>config.virtualKeyboardMode</strong>: string=''</h3>
+<ul>
+<li><code>'manual'</code>: pressing the virtual keyboard toggle button will show or hide
+the virtual keyboard. If hidden, the virtual keyboard is not shown when the 
+field is focused until the toggle button is pressed.</li>
+<li><code>'onfocus'</code>: the virtual keyboard will be displayed whenever the field is
+focused and hidden when the field loses focus. In that case, the virtual 
+keyboard toggle button is not displayed.</li>
+<li><code>'off'</code>: the virtual keyboard toggle button is not displayed, and the
+virtual keyboard is never triggered.</li>
+</ul>
+<p>If the setting is empty, it will default to <code>'onfocus'</code> on touch-capable 
+devices and to <code>'off'</code> otherwise.</p>
+<h3 id="config-virtualkeyboards-all-"><strong>config.virtualKeyboards</strong> ='all'</h3>
+<p>A space separated list of
 the keyboards that should be available. The keyboard <code>'all'</code> is synonym with:</p>
 <p><code>'numeric'</code>, <code>'roman'</code>, <code>'greek'</code>, <code>'functions'</code> and <code>'command'</code></p>
 <p>The keyboards will be displayed in the order indicated.</p>

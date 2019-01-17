@@ -326,11 +326,17 @@ or 'option' layer that provides additional symbols.
 The virtual keyboards can be customized using the following keys in the `config`
 parameter of `makeMathField`.
 
-* `virtualKeyboardMode` If no value is specified, the default value is `manual`
-on desktop and `auto` on mobile.
-   * If `'manual'`, pressing the keyboard toggle will display a virtual 
-   keyboard 
-   * If `'onfocus'`, the virtual keyboard will be displayed whenever the field is focused. In that case, the command bar toggle is not displayed. 
+- `'manual'`: pressing the virtual keyboard toggle button will show or hide
+ the virtual keyboard. If hidden, the virtual keyboard is not shown when the 
+ field is focused until the toggle button is pressed.
+- `'onfocus'`: the virtual keyboard will be displayed whenever the field is
+ focused and hidden when the field loses focus. In that case, the virtual 
+ keyboard toggle button is not displayed.
+- `'off'`: the virtual keyboard toggle button is not displayed, and the
+ virtual keyboard is never triggered.
+ 
+If the setting is empty, it will default to `'onfocus'` on touch-capable 
+devices and to `'off'` otherwise.
  
  * `virtualKeyboards` - If `'all'`, all the virtual keyboards will be made
  available. Otherwise, this should be a space separated list of the 

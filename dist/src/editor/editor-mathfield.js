@@ -148,6 +148,14 @@ function MathField(element, config) {
     markup += '<span class="ML__fieldcontainer">' +
             '<span class="ML__fieldcontainer__field"></span>';
 
+    // If no value is specified for the virtualKeyboardMode, use 
+    // `onfocus` on touch-capable devices and `off` otherwise.
+    if (!this.config.virtualKeyboardMode) {
+        this.config.virtualKeyboardMode = 
+            (window.matchMedia && window.matchMedia("(any-pointer: coarse)").matches
+) ? 'onfocus' : 'off';
+    }
+
     // Only display the virtual keyboard toggle if the virtual keyboard mode is
     // 'manual'
     if (this.config.virtualKeyboardMode === 'manual') {
@@ -966,7 +974,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
                     if (this.config.inlineShortcutTimeout) {
                         // Set a timer to reset the shortcut buffer
                         clearTimeout(this.inlineShortcutBufferResetTimer);
-                        this.inlineShortcutBufferResetTimer = setTimeout(_ => {
+                        this.inlineShortcutBufferResetTimer = setTimeout(() => {
                             this._resetInlineShortcutBuffer();
                         }, this.config.inlineShortcutTimeout);
                     }
@@ -1197,7 +1205,15 @@ MathField.prototype._render = function(renderOptions) {
     if (!window.mathlive) window.mathlive = {};
 
     //
-    // 2. Update selection state and blinking cursor (caret)
+    // 2. Validate selection
+    //
+    if (!this.mathlist.anchor()) {
+        console.log('Invalid selection. Resetting it.' + MathPath.pathToString(this.mathlist.path));
+        this.mathlist.path = [{relation: 'body', offset: 0}];
+    }
+
+    //
+    // 3. Update selection state and blinking cursor (caret)
     //
     this.mathlist.root.forEach( a => {
             a.hasCaret = false;
@@ -1218,7 +1234,7 @@ MathField.prototype._render = function(renderOptions) {
     }
 
     //
-    // 3. Create spans corresponding to the updated mathlist
+    // 4. Create spans corresponding to the updated mathlist
     //
     const spans = MathAtom.decompose(
         {
@@ -1238,7 +1254,7 @@ MathField.prototype._render = function(renderOptions) {
 
 
     //
-    // 4. Construct struts around the spans
+    // 5. Construct struts around the spans
     //
 
     const base = Span.makeSpan(spans, 'ML__base');
@@ -1262,7 +1278,7 @@ MathField.prototype._render = function(renderOptions) {
     wrapper.classes += hasFocus ? ' ML__focused' : ' ML__blurred';
 
     //
-    // 5. Generate markup and accessible node
+    // 6. Generate markup and accessible node
     //
 
     this.field.innerHTML = wrapper.toMarkup(0, this.config.horizontalSpacingScale);
@@ -1275,7 +1291,7 @@ MathField.prototype._render = function(renderOptions) {
 
 
     //
-    // 6. Scroll view
+    // 7. Scroll view
     //
 
     this.scrollIntoView_();
@@ -2039,7 +2055,7 @@ MathField.prototype.performAlternateKeys_ = function(command) {
 
 
 MathField.prototype.switchKeyboardLayer_ = function(layer) {
-    if (this.config.virtualKeyboardMode) {
+    if (this.config.virtualKeyboardMode !== 'off') {
 
         if (layer !== 'lower-command' && layer !== 'upper-command' && layer !== 'symbols-command') {
             // If we switch to a non-command keyboard layer, first exit command mode.

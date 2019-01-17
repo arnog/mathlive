@@ -1,20 +1,19 @@
-#### horizontalSpacingScale
-@param {number} [config.horizontalSpacingScale=1.0] - Scaling factor to be
-applied to horizontal spacing between elements.
+### **horizontalSpacingScale** :number=1.0
+Scaling factor to be applied to horizontal spacing between elements.
 
-#### namespace 
-@param {string} [config.namespace=''] - Namespace that is added to `data-`
-attributes to avoid collisions with other libraries. It is empty by default.
+### **namespace**  : string=''
+Namespace that is added to `data-` attributes to avoid collisions with other libraries. It is empty by default.
+
 The namespace should be a string of lowercase letters.
 
-#### substituteTextArea
+### substituteTextArea
 @param {function} [config.substituteTextArea] - A function that returns a
 focusable element that can be used to capture text input. This can be
 useful when a `<textarea>` element would be undesirable. Note that by default
 on mobile devices the TextArea is automatically replaced with a `<span>` to
 prevent the device virtual keyboard from being displayed.
 
-#### onFocus
+### onFocus
 @param {function(mathfield)} [config.onFocus] - Invoked when the mathfield has gained focus
 
 @param {function(mathfield)} [config.onBlur] - Invoked when the mathfield has
@@ -78,14 +77,22 @@ when the spacebar is pressed.
 @param {string} [config.virtualKeyboardToggleGlyph] - If specified, the markup 
 to be used to display the virtual keyboard toggle glyph.
 
-@param {string} [config.virtualKeyboardMode=''] - If `'manual'`, pressing the
-command bar toggle will display a virtual keyboard instead of the command bar.
-If `'onfocus'`, the virtual keyboard will be displayed whenever the field is
-focused. In that case, the command bar toggle is not displayed.
-When this setting is not empty, `config.overrideDefaultCommands` and
-`config.commands` are ignored.
+### **config.virtualKeyboardMode**: string=''
+- `'manual'`: pressing the virtual keyboard toggle button will show or hide
+ the virtual keyboard. If hidden, the virtual keyboard is not shown when the 
+ field is focused until the toggle button is pressed.
+- `'onfocus'`: the virtual keyboard will be displayed whenever the field is
+ focused and hidden when the field loses focus. In that case, the virtual 
+ keyboard toggle button is not displayed.
+- `'off'`: the virtual keyboard toggle button is not displayed, and the
+ virtual keyboard is never triggered.
+ 
+If the setting is empty, it will default to `'onfocus'` on touch-capable 
+devices and to `'off'` otherwise.
 
-@param {string} [config.virtualKeyboards='all'] - A space separated list of
+
+### **config.virtualKeyboards** ='all'
+A space separated list of
 the keyboards that should be available. The keyboard `'all'` is synonym with:
 
 `'numeric'`, `'roman'`, `'greek'`, `'functions'` and `'command'`
