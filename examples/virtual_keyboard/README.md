@@ -97,8 +97,8 @@ Full button JSON example:
 
 There are three modes of keyboard that can be set
 
-```
-    "virtualKeyboardMode": "manual",
-    "virtualKeyboardMode": "onfocus",
-    "virtualKeyboardMode": "off",
-```
+`"virtualKeyboardMode": "manual"` will add button to hide/show keyboard 
+`"virtualKeyboardMode": "onfocus"` will open keyboard when editor field is focused
+`"virtualKeyboardMode": "off"` will disable keyboard
+
+
