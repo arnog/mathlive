@@ -7,28 +7,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="../style.css">
 
-    <link rel="stylesheet" href="../../dist/mathlive.core.css">
-    <link rel="stylesheet" href="../../dist/mathlive.css">
+    <link rel="stylesheet" href="../../mathlive/mathlive.core.css">
+    <link rel="stylesheet" href="../../mathlive/mathlive.css">
 </head>
 <body>
-    <header>
-        <h1>MathLive Four Function Calculator</h1>
-    </header>
-    <main>
-        Press the Virtual Keyboard icon to show a some custom virtual keyboards.
-        <div class="mathfield" id='mf' ></div>
-        <div class='output' id='result'></div>
-        <div class='output' id='output'></div>
-    </main>
+<header>
+    <h1>MathLive Four Function Calculator</h1>
+</header>
+<main>
+    Press the Virtual Keyboard icon to show a some custom virtual keyboards.
+    <div class="mathfield" id='mf' ></div>
+    <div class='output' id='result'></div>
+    <div class='output' id='output'></div>
+</main>
 
-    <footer>
-        <a href="../">More examples&nbsp;<svg class="fa-w-24" height="24px"><use xlink:href="../icons.svg#angle-right" /></svg></a>
-        <a href="/">Return to the homepage&nbsp;<svg class="fa-w-24" height="24px"><use xlink:href="../icons.svg#angle-right" /></svg></a>
-    </footer>
+<footer>
+    <a href="../">More examples&nbsp;<svg class="fa-w-24" height="24px"><use xlink:href="../icons.svg#angle-right" /></svg></a>
+    <a href="/">Return to the homepage&nbsp;<svg class="fa-w-24" height="24px"><use xlink:href="../icons.svg#angle-right" /></svg></a>
+</footer>
 
 <!-- <script src="../../mathlive/src/mathlive.js"></script> -->
-<script type='module'> 
-    import MathLive from '../../dist/mathlive.mjs';
+<script type='module'>
+    import MathLive from '../../mathlive/mathlive.mjs';
     (function () {
         const mf = MathLive.makeMathField('mf', {
             onContentDidChange: updateOutput,
@@ -242,8 +242,8 @@
                     background-repeat: no-repeat;
                     width: 78px;
                     max-width: 78px;
-                    height: 78px;                    
-                    
+                    height: 78px;
+
                     padding: 0;
                     color: #b1afaf;
                     text-shadow: 0 1px 0px rgba(0, 0, 0, .5);
@@ -328,13 +328,13 @@
                     tooltip: 'Four Operation Keyboard',
                     layer: 'four-op'
                 },
-                'kjson': {
+                'json': {
                     label: 'json',
                     tooltip: 'json keyboard',
                     layer: 'json'
                 },
             },
-            virtualKeyboards: 'hp basic kjson',
+            virtualKeyboards: 'hp basic json',
         });
 
         function escapeHtml(string) {
@@ -353,32 +353,32 @@
             });
         }
 
-    function evaluate(ast) {
-        if (ast === undefined) return NaN;
-        if (typeof ast === 'number') return ast;
-        if (ast.num !== undefined) return evaluate(ast.num);
-        if (typeof ast === 'string') {
-            if (ast === 'π') {
-                return Math.PI;
+        function evaluate(ast) {
+            if (ast === undefined) return NaN;
+            if (typeof ast === 'number') return ast;
+            if (ast.num !== undefined) return evaluate(ast.num);
+            if (typeof ast === 'string') {
+                if (ast === 'π') {
+                    return Math.PI;
+                }
+                return parseFloat(ast);
             }
-            return parseFloat(ast);
+            if (ast.fn === '*') {
+                return ast.arg.reduce((acc, val) => acc * evaluate(val));
+            } else if (ast.fn === '/') {
+                return evaluate(ast.arg[0]) / evaluate(ast.arg[1]);
+            } else if (ast.fn === '-') {
+                return evaluate(ast.arg[0]) - evaluate(ast.arg[1]);
+            } else if (ast.fn === '+') {
+                return ast.arg.reduce((acc, val) => acc + val);
+            }
+            return NaN;
         }
-        if (ast.fn === '*') {
-            return ast.arg.reduce((acc, val) => acc * evaluate(val));
-        } else if (ast.fn === '/') {
-            return evaluate(ast.arg[0]) / evaluate(ast.arg[1]);
-        } else if (ast.fn === '-') {
-            return evaluate(ast.arg[0]) - evaluate(ast.arg[1]);
-        } else if (ast.fn === '+') {
-            return ast.arg.reduce((acc, val) => acc + val);
-        }
-        return NaN;
-    }
 
-    function updateOutput(mathfield) {
-        const ast = MathLive.latexToAST(mathfield.latex());
-        const result = evaluate(ast);
-        document.getElementById('result').innerHTML = typeof result !== 'undefined' ? result.toString() : '';
+        function updateOutput(mathfield) {
+            const ast = MathLive.latexToAST(mathfield.latex());
+            const result = evaluate(ast);
+            document.getElementById('result').innerHTML = typeof result !== 'undefined' ? result.toString() : '';
 
             document.getElementById('output').innerHTML =
                 escapeHtml(JSON.stringify(ast))
