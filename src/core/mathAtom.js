@@ -916,7 +916,6 @@ class MathAtom {
         result.depth = base.depth;
         result.setStyle('position', 'relative');
         result.setStyle('height', result.height + result.depth, 'em');
-        result.setStyle('left', -padding, 'em');
         return this.bind(context, result);
     }
     decomposeEnclose(context) {
