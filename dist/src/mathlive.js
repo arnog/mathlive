@@ -875,7 +875,7 @@ function revertToOriginalContent(element, options) {
  * attributes. If you used a namespace with `renderMathInElement`, you must
  * use the same namespace here.
  * @return {string} the original content of the element.
- * @function module:mathlive#revertToOriginalContent
+ * @function module:mathlive#getOriginalContent
  */
 function getOriginalContent(element, options) {
     element = getElement(element);

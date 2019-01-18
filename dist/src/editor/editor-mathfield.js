@@ -40,7 +40,7 @@ function on(el, selectors, listener, options) {
     for (const sel of selectors) {
         const m = sel.match(/(.*):(.*)/);
         if (m) {
-            const options2 = options || [];
+            const options2 = options || {};
             if (m[2] === 'active') {
                 options2.passive = false;
             } else {
@@ -56,7 +56,18 @@ function on(el, selectors, listener, options) {
 function off(el, selectors, listener, options) {
     selectors = selectors.split(' ');
     for (const sel of selectors) {
-        el.removeEventListener(sel, listener, options);
+        const m = sel.match(/(.*):(.*)/);
+        if (m) {
+            const options2 = options || {};
+            if (m[2] === 'active') {
+                options2.passive = false;
+            } else {
+                options2[m[2]] = true;
+            }
+            el.removeEventListener(m[1], listener, options2);
+        } else {
+            el.removeEventListener(sel, listener, options);
+        }
     }
 }
 
@@ -218,15 +229,15 @@ function MathField(element, config) {
 
     // Focus/blur state
     this.blurred = true;
-    on(window, 'focus', this._onFocus.bind(this));
-    on(window, 'blur', this._onBlur.bind(this));
-    on(this.element, 'focus', this._onFocus.bind(this));
-    on(this.element, 'blur', this._onBlur.bind(this));
+    on(window, 'focus', this);
+    on(window, 'blur', this);
+    on(this.element, 'focus', this);
+    on(this.element, 'blur', this);
 
     // Capture clipboard events
-    on(this.textarea, 'cut', this._onCut.bind(this));
-    on(this.textarea, 'copy', this._onCopy.bind(this));
-    on(this.textarea, 'paste', this._onPaste.bind(this));
+    on(this.textarea, 'cut', this);
+    on(this.textarea, 'copy', this);
+    on(this.textarea, 'paste', this);
 
     // Delegate keyboard events
     Keyboard.delegateKeyboardEvents(this.textarea, {
@@ -241,12 +252,12 @@ function MathField(element, config) {
 
 
     // Delegate mouse and touch events
-    on(this.element, 'touchstart:active mousedown', this._onPointerDown.bind(this));
+    on(this.element, 'touchstart:active mousedown', this);
 
     // Request notification for when the window is resized (
     // or the device switched from portrait to landscape) to adjust
     // the UI (popover, etc...)
-    on(window, 'resize', this._onResize.bind(this));
+    on(window, 'resize', this);
 
 
     // Override some handlers in the config
@@ -279,6 +290,30 @@ function MathField(element, config) {
 }
 
 /**
+ * handleEvent is a function invoked when an event registered with an
+ * object instead of a function is emitted. 
+ * The name is defined by addEventListener() and cannot be changed.
+ * This pattern is used to be able to release bound event handlers, 
+ * (event handlers that need access to `this`) as the bind() function
+ * would create a new function that would have to be kept track off
+ * to be able to properly remove the event handler later.
+ */
+MathField.prototype.handleEvent = function(evt) {
+    switch(evt.type) {
+        case 'focus': this._onFocus(evt); break;
+        case 'blur': this._onBlur(evt); break;
+        case 'touchstart': this._onPointerDown(evt); break;
+        case 'mousedown': this._onPointerDown(evt); break;
+        case 'resize': this._onResize(evt); break;
+        case 'cut': this._onCut(evt); break;
+        case 'copy': this._onCopy(evt); break;
+        case 'paste': this._onPaste(evt); break;
+        default: console.log('unexpected event type', evt.type);
+    }
+}
+
+
+/**
  * Revert this math field to its original content. After this method has been
  * called, no other methods can be called on the MathField object. To turn the
  * element back into a MathField, call `MathLive.makeMathField()` on the
@@ -289,9 +324,13 @@ function MathField(element, config) {
 MathField.prototype.revertToOriginalContent = 
 MathField.prototype.$revertToOriginalContent = function() {
     this.element.innerHTML = this.originalContent;
+    this.element.mathfield = null;
     delete this.accessibleNode;
     delete this.ariaLiveText;
     delete this.field;
+    off(this.textarea, 'cut', this);
+    off(this.textarea, 'copy', this);
+    off(this.textarea, 'paste', this);
     this.textarea.remove();
     delete this.textarea;
     this.virtualKeyboardToggleDOMNode.remove()
@@ -301,8 +340,12 @@ MathField.prototype.$revertToOriginalContent = function() {
     delete this.keystrokeCaption;
     // this.virtualKeyboard.remove();
     delete this.virtualKeyboard;
-    off(this.element, 'touchstart mousedown', this._onPointerDown.bind(this));
-    off(window, 'resize', this._onResize.bind(this));
+    off(this.element, 'touchstart:active mousedown', this);
+    off(this.element, 'focus', this);
+    off(this.element, 'blur', this);
+    off(window, 'resize', this);
+    off(window, 'focus', this);
+    off(window, 'blur', this);
 }
 
 MathField.prototype._resetInlineShortcutBuffer = function() {
@@ -482,6 +525,12 @@ MathField.prototype._onPointerDown = function(evt) {
         lastTouchEndTimestamp = Date.now();
     }
 
+    // This should not be necessary, but just in case we got in a weird state...
+    off(this.field, 'touchmove', onPointerMove);
+    off(this.field, 'touchend touchleave', endPointerTracking);
+    off(window, 'mousemove', onPointerMove);
+    off(window, 'mouseup blur', endPointerTracking);
+
     const bounds = this.element.getBoundingClientRect();
     const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
     const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
@@ -496,12 +545,6 @@ MathField.prototype._onPointerDown = function(evt) {
 
         // Clicking or tapping the field will cancel out the inline shortcut buffer
         this._resetInlineShortcutBuffer();
-
-        // This should not be necessary, but just in case we got in a weird state...
-        off(this.field, 'touchmove', onPointerMove);
-        off(this.field, 'touchend touchleave', endPointerTracking);
-        off(window, 'mousemove', onPointerMove);
-        off(window, 'mouseup blur', endPointerTracking);
 
         // If a mouse button other than the main one was pressed, return
         if (evt.buttons && evt.buttons !== 1) return;
