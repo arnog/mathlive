@@ -973,15 +973,9 @@ EditableMathlist.prototype.setSelection = function(offset, extent, relation) {
 
     const oldExtent = this.extent;
     if (extent === 'end') {
-        extent = siblingsCount - offset ;
-        if (extent === 0) {
-            offset -= 1;
-        }
+        extent = siblingsCount - offset - 1;
     } else if (extent === 'start') {
         extent = -offset;
-        if (extent === 0) {
-            offset -= 1;
-        }
     }
     this.setExtent(extent);
     const extentChanged = this.extent !== oldExtent;
@@ -995,10 +989,6 @@ EditableMathlist.prototype.setSelection = function(offset, extent, relation) {
         offset = siblingsCount + offset;
     }
     offset = Math.max(0, Math.min(offset, siblingsCount - 1));
-    // if (extent === -1) {
-    //     console.log(extent, offset, siblingsCount);
-    //     offset += 1;
-    // }
 
     const oldOffset = this.path[this.path.length - 1].offset;
     const offsetChanged = oldOffset !== offset;
