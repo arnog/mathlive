@@ -697,6 +697,7 @@ EditableMathlist.prototype.contains = function(atom) {
  * @private
  */
 EditableMathlist.prototype.extractContents = function() {
+    if (this.isCollapsed()) return null;
     const result = [];
     const siblings = this.siblings()
     const firstOffset = this.startOffset() + 1;
@@ -1489,14 +1490,12 @@ EditableMathlist.prototype.jumpToMathFieldBoundary = function(dir, options) {
         // Don't change the anchor, but update the extent
         if (dir < 0) {
             if (path[0].offset > 0) {
-                // path[0].offset++;
                 extent = -path[0].offset;
             } else {
                 // @todo exit left extend
             }
         } else {
             if (path[0].offset < this.siblings().length - 1) {
-                path[0].offset++;
                 extent = this.siblings().length - path[0].offset;
             } else {
                 // @todo exit right extend
@@ -1570,7 +1569,7 @@ EditableMathlist.prototype.leap = function(dir, callHandler) {
 
     // Set the selection to the next placeholder
     this.setPath(placeholders[0]);
-    if (this.anchor().type === 'placeholder') this.setExtent(1);
+    if (this.anchor().type === 'placeholder') this.setExtent(-1);
     this._announce('move', oldPath);
     return true;
 }
