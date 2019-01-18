@@ -880,9 +880,9 @@ class MathAtom {
             result = decompose(context, this.body);
             // Add a bolding or italicizing class to the decomposed atoms
             if (this.font === 'textit') {
-                result.forEach(span => { span.classes += 'mathit'; });
+                result.forEach(span => { span.classes += ' mathit'; });
             } else if (this.font === 'textbf') {
-                result.forEach(span => { span.classes += 'mathbf'; });
+                result.forEach(span => { span.classes += ' mathbf'; });
             }
         } else {
             result = decompose(context.fontFamily(this.font), this.body);
@@ -1873,10 +1873,8 @@ function decompose(context, atoms) {
                 // or if preceded or followed by no sibling, a 'mbin' becomes a
                 // 'mord'
                 if (atoms[i].type === 'mbin') {
-                    if (['first', 'none', 'mrel', 'mpunct', 'mopen', 'mbin', 'mop']
-                            .includes(previousType) ||
-                        ['none', 'mrel', 'mpunct', 'mclose']
-                            .includes(nextType)) {
+                    if (/first|none|mrel|mpunct|mopen|mbin|mop/.test(previousType) ||
+                        /none|mrel|mpunct|mclose/.test(nextType)) {
                         atoms[i].type = 'mord';
                     }
                 }

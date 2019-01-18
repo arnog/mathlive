@@ -105,7 +105,7 @@ EditableMathlist.prototype.filter = function(cb, dir) {
     const initialPath = MathPath.pathToString(this.path);
     do {
         console.assert(this.anchor(), MathPath.pathToString(this.path));
-        if (cb.bind(this)(this.path, this.anchor())) {
+        if (this.anchor() && cb.bind(this)(this.path, this.anchor())) {
             result.push(this.toString());
         }
         if (dir >= 0) {
@@ -121,6 +121,29 @@ EditableMathlist.prototype.filter = function(cb, dir) {
 
     return result;
 }
+
+/**
+ * Enumerator
+ * @param {function} cb - A callback called for each atom in the mathlist.
+ */
+EditableMathlist.prototype.forEach = function(cb) {
+    this.root.forEach(cb);
+}
+
+/**
+ * 
+ * @param {function} cb - A callback called for each selected atom in the 
+ * mathlist.
+ */
+EditableMathlist.prototype.forEachSelected = function(cb) {
+    const siblings = this.siblings()
+    const firstOffset = this.startOffset() + 1;
+    const lastOffset = this.endOffset() + 1;
+    for (let i = firstOffset; i < lastOffset; i++) {
+        if (siblings[i] && siblings[i].type !== 'first') siblings[i].forEach(cb);
+    }
+}
+
 
 
 /**
@@ -258,13 +281,8 @@ EditableMathlist.prototype.setRange = function(from, to) {
 
     if (distance === 1) {
         // They're siblings, set an extent
-        const extent = to[to.length - 1].offset - from[from.length - 1].offset;
-        const path = MathPath.clone(from);
-        path[path.length - 1] = {
-            relation : path[path.length - 1].relation,
-            offset : path[path.length - 1].offset + 1,
-        }
-        return this.setPath(path, extent);
+        const extent = (to[to.length - 1].offset - from[from.length - 1].offset);
+        return this.setPath(MathPath.clone(from), extent);
     }
 
     // They're neither identical, not siblings.
@@ -274,31 +292,36 @@ EditableMathlist.prototype.setRange = function(from, to) {
     const ancestorDepth = commonAncestor.length;
     if (from.length === ancestorDepth || to.length === ancestorDepth ||
         from[ancestorDepth].relation !== to[ancestorDepth].relation) {
-        return this.setPath(commonAncestor, 1);
+        return this.setPath(commonAncestor, -1);
     }
 
     commonAncestor.push(from[ancestorDepth]);
     commonAncestor = MathPath.clone(commonAncestor);
 
-    let extent = to[ancestorDepth].offset - from[ancestorDepth].offset;
+    let extent = to[ancestorDepth].offset - from[ancestorDepth].offset + 1;
 
     if (extent <= 0) {
         if (to.length > ancestorDepth + 1) {
+            // axb/c+y -> select from y to x
             commonAncestor[ancestorDepth].relation = to[ancestorDepth].relation;
             commonAncestor[ancestorDepth].offset = to[ancestorDepth].offset;
-            extent = -extent;
+            commonAncestor[commonAncestor.length - 1].offset -=  1;
+            extent = -extent + 2;
         } else {
+            // x+(ayb/c) -> select from y to x
             commonAncestor[ancestorDepth].relation = to[ancestorDepth].relation;
-            commonAncestor[ancestorDepth].offset = to[ancestorDepth].offset + 1;
-            extent = -extent - 1;
+            commonAncestor[ancestorDepth].offset = to[ancestorDepth].offset;
+            extent = -extent + 1;
         }
-    } else if (to.length > from.length) {
-        commonAncestor = MathPath.clone(commonAncestor);
-        commonAncestor[commonAncestor.length - 1].offset +=  1;
+    } else if (to.length <= from.length) {
+        // axb/c+y -> select from x to y
+        commonAncestor[commonAncestor.length - 1].offset -=  1;
+    } else {
+        // last case: x+(ayb/c) -> select from x to y
         extent -= 1;
     }
 
-    return this.setPath(commonAncestor, extent + 1);
+    return this.setPath(commonAncestor, extent);
 }
 
 /**
@@ -358,6 +381,11 @@ function arrayCell(atom, colrow) {
         if (Array.isArray(atom.array[colrow.row])) {
             result = atom.array[colrow.row][colrow.col] || null;
         }
+    }
+    // If the 'first' math atom is missing, insert it
+    if (result && (result.length === 0 || result[0].type !== 'first')) {
+        const firstAtom = new MathAtom.MathAtom(atom.parseMode, 'first', null);
+        result.unshift(firstAtom);
     }
     return result;
 }
@@ -435,7 +463,8 @@ EditableMathlist.prototype.anchor = function() {
         const cellIndex = parseInt(this.relation().match(/cell([0-9]*)$/)[1]);
         return arrayCell(this.parent(), cellIndex)[this.anchorOffset()];
     }
-    return this.siblings()[this.anchorOffset()];
+    const siblings = this.siblings();
+    return siblings[Math.min(siblings.length - 1, this.anchorOffset())];
 }
 
 
@@ -472,8 +501,7 @@ EditableMathlist.prototype.focusOffset = function() {
  * @private
  */
 EditableMathlist.prototype.startOffset = function() {
-    return Math.min(this.path[this.path.length - 1].offset,
-                    this.path[this.path.length - 1].offset + this.extent);
+    return Math.min(this.focusOffset(), this.anchorOffset());
 }
 
 /**
@@ -484,8 +512,7 @@ EditableMathlist.prototype.startOffset = function() {
  * @private
  */
 EditableMathlist.prototype.endOffset = function() {
-    return Math.max(this.path[this.path.length - 1].offset,
-                    this.path[this.path.length - 1].offset + this.extent);
+    return Math.max(this.focusOffset(), this.anchorOffset());
 }
 
 /**
@@ -559,27 +586,20 @@ EditableMathlist.prototype.isCollapsed = function() {
  * @private
  */
 EditableMathlist.prototype.setExtent = function(extent) {
-    // const anchorOffset = this.anchorOffset();
-    // extent = Math.max(-anchorOffset,
-    //         Math.min(extent, this.siblings().length - anchorOffset));
     this.extent = extent;
 }
 
 EditableMathlist.prototype.collapseForward = function() {
-    if (this.isCollapsed()) return false;
+    if (this.extent === 0) return false;
 
-    // this.setSelection(
-    //     Math.max(this.anchorOffset() - 2, this.focusOffset() - 2));
-    this.setSelection(
-        Math.max(this.anchorOffset(), this.focusOffset()) - 1);
+    this.setSelection(this.endOffset());
     return true;
 }
 
 EditableMathlist.prototype.collapseBackward = function() {
-    if (this.isCollapsed()) return false;
+    if (this.extent === 0) return false;
 
-    this.setSelection(
-        Math.min(this.anchorOffset(), this.focusOffset()));
+    this.setSelection(this.startOffset());
     return true;
 }
 
@@ -592,7 +612,7 @@ EditableMathlist.prototype.collapseBackward = function() {
  * @method EditableMathlist#selectGroup_
  */
 EditableMathlist.prototype.selectGroup_ = function() {
-    this.setSelection(1, 'end');
+    this.setSelection(0, 'end');
 }
 
 
@@ -602,7 +622,7 @@ EditableMathlist.prototype.selectGroup_ = function() {
  */
 EditableMathlist.prototype.selectAll_ = function() {
     this.path = [{relation: 'body', offset: 0}];
-    this.setSelection(1, 'end');
+    this.setSelection(0, 'end');
 }
 
 
@@ -677,17 +697,14 @@ EditableMathlist.prototype.contains = function(atom) {
  * @private
  */
 EditableMathlist.prototype.extractContents = function() {
-    if (this.isCollapsed()) return null;
-
     const result = [];
-    const siblings = this.siblings();
-    const firstOffset = this.startOffset();
-    if (firstOffset < siblings.length) {
-        const endOffset = this.endOffset();
-        for (let i = firstOffset; i < endOffset; i++) {
-            result.push(siblings[i]);
-        }
+    const siblings = this.siblings()
+    const firstOffset = this.startOffset() + 1;
+    const lastOffset = this.endOffset() + 1;
+    for (let i = firstOffset; i < lastOffset; i++) {
+        if (siblings[i] && siblings[i].type !== 'first') result.push(siblings[i]);
     }
+
     return result;
 }
 
@@ -924,6 +941,9 @@ EditableMathlist.prototype.extractContentsOrdInGroupBeforeInsertionPoint = funct
  * @private
  */
 EditableMathlist.prototype.setSelection = function(offset, extent, relation) {
+    offset = offset || 0;
+    extent = extent || 0;
+
     // If no relation ("children", "superscript", etc...) is specified
     // keep the current relation
     const oldRelation = this.path[this.path.length - 1].relation;
@@ -937,35 +957,20 @@ EditableMathlist.prototype.setSelection = function(offset, extent, relation) {
         (arrayRelation && !parent.array)) return false;
 
     const relationChanged = relation !== oldRelation;
-
-    offset = offset || 0;
-
     // Temporarily set the path to the potentially new relation to get the
     // right siblings
     this.path[this.path.length - 1].relation = relation;
 
     // Invoking siblings() will have the side-effect of adding the 'first'
     // atom if necessary
+    // ... and we want the siblings with the potentially new relation...
     const siblings = this.siblings();
     const siblingsCount = siblings.length;
 
     // Restore the relation
     this.path[this.path.length - 1].relation = oldRelation;
 
-    // Calculate the new offset, and make sure it is in range
-    // (setSelection can be called with an offset that greater than
-    // the number of children, for example when doing an up from a
-    // numerator to a smaller denominator, e.g. "1/(x+1)".
-    if (offset < 0) {
-        offset = siblingsCount + offset;
-    }
-    offset = Math.max(0, Math.min(offset, siblingsCount));
-
-    const oldOffset = this.path[this.path.length - 1].offset;
-    const offsetChanged = oldOffset !== offset;
-
     const oldExtent = this.extent;
-    extent = extent || 0;
     if (extent === 'end') {
         extent = siblingsCount - offset ;
         if (extent === 0) {
@@ -980,6 +985,22 @@ EditableMathlist.prototype.setSelection = function(offset, extent, relation) {
     this.setExtent(extent);
     const extentChanged = this.extent !== oldExtent;
     this.setExtent(oldExtent);
+
+    // Calculate the new offset, and make sure it is in range
+    // (setSelection can be called with an offset that greater than
+    // the number of children, for example when doing an up from a
+    // numerator to a smaller denominator, e.g. "1/(x+1)".
+    if (offset < 0) {
+        offset = siblingsCount + offset;
+    }
+    offset = Math.max(0, Math.min(offset, siblingsCount - 1));
+    // if (extent === -1) {
+    //     console.log(extent, offset, siblingsCount);
+    //     offset += 1;
+    // }
+
+    const oldOffset = this.path[this.path.length - 1].offset;
+    const offsetChanged = oldOffset !== offset;
 
     if (relationChanged || offsetChanged || extentChanged) {
         if (relationChanged) {
@@ -1066,7 +1087,7 @@ EditableMathlist.prototype.next = function(options) {
             const skip = !options.iterateAll && this.parent().skipBoundary;
             this.path.pop();
             if (skip) {
-                this.next();
+                this.next(options);
             }
         }
 
@@ -1081,7 +1102,7 @@ EditableMathlist.prototype.next = function(options) {
     const anchor = this.anchor();
     // Only dive in if the atom allows capture of the selection by
     // its sub-elements
-    if (!anchor.captureSelection) {
+    if (anchor && !anchor.captureSelection) {
         let relation;
         if (anchor.array) {
             // Find the first non-empty cell in this array
@@ -1105,7 +1126,7 @@ EditableMathlist.prototype.next = function(options) {
            if (Array.isArray(anchor[relation])) {
                 this.path.push({relation:relation, offset: 0});
                 this.insertFirstAtom();
-                if (!options.iterateAll && anchor.skipBoundary) this.next();
+                if (!options.iterateAll && anchor.skipBoundary) this.next(options);
                 return;
             }
             relation = NEXT_RELATION[relation];
@@ -1222,7 +1243,7 @@ EditableMathlist.prototype.previous = function(options) {
     this.setSelection(this.anchorOffset() - 1);
 
     if (!options.iterateAll && this.sibling(0) && this.sibling(0).skipBoundary) {
-        this.previous();
+        this.previous(options);
     }
 }
 
@@ -1236,9 +1257,9 @@ EditableMathlist.prototype.move = function(dist, options) {
         this.extend(dist, options);
     } else {
         const oldPath = clone(this);
-        const previousParent = this.parent();
-        const previousRelation = this.relation();
-        const previousSiblings = this.siblings();
+        // const previousParent = this.parent();
+        // const previousRelation = this.relation();
+        // const previousSiblings = this.siblings();
 
         if (dist > 0) {
             if (this.collapseForward()) dist--;
@@ -1247,19 +1268,20 @@ EditableMathlist.prototype.move = function(dist, options) {
                 dist--;
             }
         } else if (dist < 0) {
-            this.collapseBackward();
+            if (this.collapseBackward()) dist++;
             while (dist !== 0) {
                 this.previous();
                 dist++;
             }
         }
 
+        // ** @todo: can't do that without updating the path.
         // If the siblings list we left was empty, remove the relation
-        if (previousSiblings.length <= 1) {
-            if (['superscript', 'subscript', 'index'].includes(previousRelation)) {
-                previousParent[previousRelation] = null;
-            }
-        }
+        // if (previousSiblings.length <= 1) {
+        //     if (['superscript', 'subscript', 'index'].includes(previousRelation)) {
+        //         previousParent[previousRelation] = null;
+        //     }
+        // }
         this._announce('move', oldPath);
     }
 }
@@ -1272,8 +1294,11 @@ EditableMathlist.prototype.up = function(options) {
 
     if (this.relation() === 'denom') {
         if (extend) {
+            this.selectionWillChange();
             this.path.pop();
+            this.path[this.path.length - 1].offset -= 1;
             this.setExtent(1);
+            this.selectionDidChange();
         } else {
             this.setSelection(this.anchorOffset(), 0, 'numer');
         }
@@ -1291,8 +1316,11 @@ EditableMathlist.prototype.down = function(options) {
 
     if (this.relation() === 'numer') {
         if (extend) {
+            this.selectionWillChange();
             this.path.pop();
+            this.path[this.path.length - 1].offset -= 1;
             this.setExtent(1);
+            this.selectionDidChange();
         } else {
             this.setSelection(this.anchorOffset(), 0, 'denom');
         }
@@ -1315,54 +1343,44 @@ EditableMathlist.prototype.extend = function(dist) {
     let extent = 0;
     const oldPath = clone(this);
 
-    // If the selection is collapsed, the anchor indicates where
-    // the *following* item should be inserted, so move to that item
-    // and start selecting
-    if (this.isCollapsed()) {
-        offset += 1;
-    }
-
     extent = this.extent + dist;
 
-    // If the selection collapses, need to readjust where the anchor starts
-    if (extent === 0) {
-        offset -= 1;
-    }
-
     const newFocusOffset = offset + extent;
-    if (newFocusOffset <= 0) {
+    if (newFocusOffset < 0 && extent !== 0) {
         // We're trying to extend beyond the first element.
         // Go up to the parent.
         if (this.path.length > 1) {
+            this.selectionWillChange();
             this.path.pop();
-            offset = this.path[this.path.length - 1].offset + 1;
-            extent = -1;
-        } else {
-            // @todo exit left extend
-            // offset -= 1;
-            if (this.isCollapsed()) {
-                offset -= 1;
-            }
-            extent -= dist;
+            // this.path[this.path.length - 1].offset -= 1;
+            this.setExtent(-1);
+            this.selectionDidChange();
+            this._announce('move', oldPath);
+            return; 
         }
+        // @todo exit left extend
+        // If we're at the very beginning, nothing to do.
+        offset = this.path[this.path.length - 1].offset;
+        extent = this.extent;
 
-    } else if (newFocusOffset > this.siblings().length) {
+    } else if (newFocusOffset >= this.siblings().length) {
         // We're trying to extend beyond the last element.
         // Go up to the parent
         if (this.path.length > 1) {
+            this.selectionWillChange();
             this.path.pop();
-            offset = this.anchorOffset();
-            extent = 1;
-        } else {
-            // @todo exit right extend
-            if (this.isCollapsed()) {
-                offset -= 1;
-            }
-            extent -= 1;
+            this.path[this.path.length - 1].offset -= 1;
+            this.setExtent(1);
+            this.selectionDidChange();
+            this._announce('move', oldPath);
+            return; 
         }
-
+        // @todo exit right extend
+        if (this.isCollapsed()) {
+            offset -= 1;
+        }
+        extent -= 1;
     }
-
     this.setSelection(offset, extent);
     this._announce('move', oldPath);
 }
@@ -1641,8 +1659,7 @@ EditableMathlist.prototype.insert = function(s, options) {
     let mathlist;
 
     // Save the content of the selection, if any
-    const args = {};
-    args[0] = this.extractContents();
+    const args = [this.extractContents()];
 
     // If a placeholder was specified, use it
     if (options.placeholder !== undefined) {
@@ -1650,7 +1667,7 @@ EditableMathlist.prototype.insert = function(s, options) {
     }
 
     // Delete any selected items
-    if (options.insertionMode === 'replaceSelection') {
+    if (options.insertionMode === 'replaceSelection' && !this.isCollapsed()) {
         this.delete_();
     } else if (options.insertionMode === 'replaceAll') {
         // Remove all the children of root, save for the 'first' atom
@@ -1980,8 +1997,8 @@ EditableMathlist.prototype.delete_ = function(dir) {
 
     if (!this.isCollapsed()) {
         // There is a selection extent. Delete all the atoms within it.
-        const first = this.startOffset();
-        const last = this.endOffset();
+        const first = this.startOffset() + 1;
+        const last = this.endOffset() + 1;
 
         this._announce('deleted', null, siblings.slice(first, last));
         siblings.splice(first, last - first);
@@ -2626,7 +2643,7 @@ EditableMathlist.prototype._applyStyle = function(style) {
         // Otherwise, remove existing style
         selection = filterAtomsForStyle(selection, style);
         if (!Array.isArray(selection)) selection = [selection];
-        this.siblings().splice(this.startOffset(),
+        this.siblings().splice(this.startOffset() + 1,
             this.endOffset() - this.startOffset());
         // then apply this style.
     }
@@ -2637,9 +2654,9 @@ EditableMathlist.prototype._applyStyle = function(style) {
         styleAtom.textcolor = style.color;
         styleAtom.skipBoundary = true;
         if (!styleAtom.body) {
-            styleAtom.body = [new MathAtom.MathAtom(this.parseMode, 'first', null)]
+            styleAtom.body = [new MathAtom.MathAtom(this.parseMode(), 'first', null)]
         } else if (styleAtom.body[0].type !== 'first') {
-            styleAtom.body.unshift(new MathAtom.MathAtom(this.parseMode, 'first', null))
+            styleAtom.body.unshift(new MathAtom.MathAtom(this.parseMode(), 'first', null))
         }
         const removeStyle = style.color === 'transparent' ||
             style.color === 'black' || style.color === '#000' || style.color === '#000000' ||
@@ -2678,9 +2695,9 @@ EditableMathlist.prototype._applyStyle = function(style) {
         styleAtom.backgroundcolor = style.backgroundColor;
         styleAtom.skipBoundary = true;
         if (!styleAtom.body) {
-            styleAtom.body = [new MathAtom.MathAtom(this.parseMode, 'first', null)]
+            styleAtom.body = [new MathAtom.MathAtom(this.parseMode(), 'first', null)]
         } else if (styleAtom.body[0].type !== 'first') {
-            styleAtom.body.unshift(new MathAtom.MathAtom(this.parseMode, 'first', null))
+            styleAtom.body.unshift(new MathAtom.MathAtom(this.parseMode(), 'first', null))
         }
         if (isCollapsed && this.parent() && this.parent().type === 'box') {
             const parentSameColor = style.backgroundColor === 'transparent' ||

@@ -66,12 +66,11 @@ h4 {
 main {
     padding-top: 3rem;
     width: 640px;
+    max-width: 100vw;
     display: flex;
     align-items: flex-start;
-    /* justify-content: left; */
     flex-flow: column wrap;
     margin: auto;
-    /* width: min-content; */
 }
 main > div {
     width: 100%;
@@ -104,6 +103,12 @@ kbd {
     width: 100%;
     font-size: 24px;
 }
+@media (max-width: 512px) {
+    .links {
+        font-size: 16px;
+    }
+}
+
 
 .output {
     font-family: "Source Code Pro", Menlo, "Bitstream Vera Sans Mono", Monaco, Courier, "Andale Mono", monospace;

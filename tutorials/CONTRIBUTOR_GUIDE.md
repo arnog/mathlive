@@ -145,19 +145,21 @@ includes in particular these features:
 * block-scoped variables and functions
 * `Array.prototype.includes()`
 * `Object.assign()`
-* arrow functions (to a limited extent, there appears to be issues with transpilers)
+* arrow functions (`() => {}`)
 * template strings
-* `for...of` iterators
+* `for (...of...)` iterators
 * string searching `String.startsWith()`, `String.endsWith()`
 * number formatting
 
+Some features have been partially adopted, and the codebase should get 
+cleaned up whenever the opportunity arises:
+* classes.
+* rest/spread
+
 Features that have not been adopted include:
-* classes. The syntax doesn't seem to offer that much benefit and forces 
-utility functions to be separated from methods that use them.
 * getters/setters: would probably be a good idea
 * destructuring: probably some opportunities to simplify some code
 * default parameters: would clean up some code
-* rest/spread
 * generators
 
 The code is minified and bundled to reduce the load time.
@@ -171,7 +173,7 @@ people who will read it later.
 obscure constructs that may obfuscate the code to improve performance. For 
 example, RegEx are crazy fast in all modern browsers, and trying to roll out
 your own pattern matching will result in more code and less performance. 
-If you think something could be made faster, use [jsperf.com](https://jsperf.com) to 
+If you think something could be made faster, use [http://jsben.ch/](https://http://jsben.ch/) to 
 try out options in various browsers and compare the results. You might be 
 surprised.
 * **Follow Postel's Law, the Robustness Principle** "Be conservative in what
@@ -192,6 +194,12 @@ single-quoted string. Using backtick (template strings)for multiline
     s = `hello:
 world`;
  ```
+* Use camelCase for variables and function names, PascalCase for Objects and Classes and UPPERCASE for constants. Use underscore-prefixed arguments for unused arguments, 
+```javascript
+bar.filter((element, _, array) => { console.log(array, element); });
+// or
+bar.filter((element, _index, array) => { console.log(array, element); });
+```
 * **Typecheck** using `typeof v === 'string'`, `typeof v === 'number'`, etc... 
 Use `Array.isArray(v)` to check for arrays.
 * **Conditional evaluation.** Use conditional evaluation shortcuts when applicable
@@ -200,6 +208,7 @@ for example, use `if (string)` instead of `if (string !== '')`
 **`result`**
 * **Avoid boolean as arguments.** Instead, use an `options` object with 
 key/value pairs spelling out the meaning of the boolean. 
+
 Don't do:
 ```javascript
     f(true);
@@ -215,7 +224,7 @@ Do:
 If the function `f` returns `null`, `undefined` or an empty string, 
 `m` will have the value `d`
 * **Braces for control structures** should always be used, except for short
-`if` statement, for example `if (done) return;`
+`if` statement that can fit on one line, for example `if (done) return;`
 * **Avoid method chaining.** Method chaining is a programming style where a 
 method returns the `this` object so that it can be called again. For example 
 `div.css('color', 'white').height(50).width(50)`.
@@ -236,9 +245,12 @@ as part of the public API, such as `MathLive` and `MathField`.
 
 * variables and function names that begin with `_` are private and should not
  be used.
-* functions that end in `_` are selectors and should not be invoked directly.
+* functions that end in `_` are selectors and should not be invoked directly by 
+a client of the MathLive library (they can be called internally).
 Instead, a `MathField.perform()` call should be made. Note that the perform call
-does not include the `_`, so you would call `MathField.perform('selectAll')`.
+does not include the `_`, so you would call `mathfield.$perform('selectAll')`.
+Also note that `$perform` accepts both CamelCase and kebab-case, so `mathfield.$perform('select-all')` is valid as well.
+* functions that begin with `$` are public.
 * functions that neither begin nor end with an `_` are public and can be called
 directly.
 

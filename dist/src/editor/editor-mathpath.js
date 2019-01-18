@@ -100,7 +100,7 @@ function pathDistance(p, q) {
         done = done || 
             !(p[i].relation === q[i].relation && 
             p[i].offset === q[i].offset);
-     }
+    }
     if (i === p.length && i === q.length) {
         // They're identical
         result = 0;     

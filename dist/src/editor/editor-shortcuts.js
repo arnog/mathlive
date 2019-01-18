@@ -293,7 +293,6 @@ const INLINE_SHORTCUTS = {
     '∑':                    '\\sum',
     'sum':                  '\\sum_{#?}^{#?}',
     'prod':                 '\\prod_{#?}^{#?}',
-    '√':                    '\\sqrt',
     'sqrt':                 '\\sqrt',
     '∫':                    '\\int',
     '∆':                    '\\differentialD',     // @TODO: is \\diffD most common?
