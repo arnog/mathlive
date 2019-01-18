@@ -191,20 +191,23 @@ includes in particular these features:</p>
 <li>block-scoped variables and functions</li>
 <li><code>Array.prototype.includes()</code></li>
 <li><code>Object.assign()</code></li>
-<li>arrow functions (to a limited extent, there appears to be issues with transpilers)</li>
+<li>arrow functions (<code>() =&gt; {}</code>)</li>
 <li>template strings</li>
-<li><code>for...of</code> iterators</li>
+<li><code>for (...of...)</code> iterators</li>
 <li>string searching <code>String.startsWith()</code>, <code>String.endsWith()</code></li>
 <li>number formatting</li>
 </ul>
+<p>Some features have been partially adopted, and the codebase should get 
+cleaned up whenever the opportunity arises:</p>
+<ul>
+<li>classes.</li>
+<li>rest/spread</li>
+</ul>
 <p>Features that have not been adopted include:</p>
 <ul>
-<li>classes. The syntax doesn't seem to offer that much benefit and forces 
-utility functions to be separated from methods that use them.</li>
 <li>getters/setters: would probably be a good idea</li>
 <li>destructuring: probably some opportunities to simplify some code</li>
 <li>default parameters: would clean up some code</li>
-<li>rest/spread</li>
 <li>generators</li>
 </ul>
 <p>The code is minified and bundled to reduce the load time.</p>
@@ -217,7 +220,7 @@ people who will read it later.</li>
 obscure constructs that may obfuscate the code to improve performance. For 
 example, RegEx are crazy fast in all modern browsers, and trying to roll out
 your own pattern matching will result in more code and less performance. 
-If you think something could be made faster, use <a href="https://jsperf.com">jsperf.com</a> to 
+If you think something could be made faster, use <a href="https://http://jsben.ch/">http://jsben.ch/</a> to 
 try out options in various browsers and compare the results. You might be 
 surprised.</li>
 <li><strong>Follow Postel's Law, the Robustness Principle</strong> &quot;Be conservative in what
@@ -236,6 +239,9 @@ quotes is OK.<pre class="prettyprint source lang-javascript"><code>  let s = 'he
   s = 'hello, &quot;world&quot;';
   s = `hello:
 world`;</code></pre></li>
+<li>Use camelCase for variables and function names, PascalCase for Objects and Classes and UPPERCASE for constants. Use underscore-prefixed arguments for unused arguments, <pre class="prettyprint source lang-javascript"><code>bar.filter((element, _, array) => { console.log(array, element); });
+// or
+bar.filter((element, _index, array) => { console.log(array, element); });</code></pre></li>
 <li><strong>Typecheck</strong> using <code>typeof v === 'string'</code>, <code>typeof v === 'number'</code>, etc... 
 Use <code>Array.isArray(v)</code> to check for arrays.</li>
 <li><strong>Conditional evaluation.</strong> Use conditional evaluation shortcuts when applicable
@@ -243,12 +249,15 @@ for example, use <code>if (string)</code> instead of <code>if (string !== '')</c
 <li>The variable holding the return value of a function is usually named 
 <strong><code>result</code></strong></li>
 <li><strong>Avoid boolean as arguments.</strong> Instead, use an <code>options</code> object with 
-key/value pairs spelling out the meaning of the boolean. 
-Don't do:<pre class="prettyprint source lang-javascript"><code>  f(true);</code></pre>Do: <pre class="prettyprint source lang-javascript"><code>  f({reverse: true})</code></pre></li>
+key/value pairs spelling out the meaning of the boolean. </li>
+</ul>
+<p>Don't do:</p>
+<pre class="prettyprint source lang-javascript"><code>    f(true);</code></pre><p>Do: </p>
+<pre class="prettyprint source lang-javascript"><code>    f({reverse: true})</code></pre><ul>
 <li><strong>Use <code>||</code> for default values.</strong> For example <pre class="prettyprint source lang-javascript"><code>  m = f(n) || d;</code></pre>If the function <code>f</code> returns <code>null</code>, <code>undefined</code> or an empty string, 
 <code>m</code> will have the value <code>d</code></li>
 <li><strong>Braces for control structures</strong> should always be used, except for short
-<code>if</code> statement, for example <code>if (done) return;</code></li>
+<code>if</code> statement that can fit on one line, for example <code>if (done) return;</code></li>
 <li><strong>Avoid method chaining.</strong> Method chaining is a programming style where a 
 method returns the <code>this</code> object so that it can be called again. For example 
 <code>div.css('color', 'white').height(50).width(50)</code>.</li>
@@ -265,9 +274,12 @@ as part of the public API, such as <code>MathLive</code> and <code>MathField</co
 <ul>
 <li>variables and function names that begin with <code>_</code> are private and should not
 be used.</li>
-<li>functions that end in <code>_</code> are selectors and should not be invoked directly.
+<li>functions that end in <code>_</code> are selectors and should not be invoked directly by 
+a client of the MathLive library (they can be called internally).
 Instead, a <code>MathField.perform()</code> call should be made. Note that the perform call
-does not include the <code>_</code>, so you would call <code>MathField.perform('selectAll')</code>.</li>
+does not include the <code>_</code>, so you would call <code>mathfield.$perform('selectAll')</code>.
+Also note that <code>$perform</code> accepts both CamelCase and kebab-case, so <code>mathfield.$perform('select-all')</code> is valid as well.</li>
+<li>functions that begin with <code>$</code> are public.</li>
 <li>functions that neither begin nor end with an <code>_</code> are public and can be called
 directly.</li>
 </ul>

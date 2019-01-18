@@ -471,7 +471,7 @@ MathField.prototype._pathFromPoint = function(x, y) {
     if (id) {
         // Let's find the atom that has a matching ID with the element that
         // was clicked on (or near)
-        const atoms = this.mathlist.filter(function(path, atom) {
+        const atoms = this.mathlist.filter(function(_path, atom) {
             // If the atom allows children to be selected, match only if
             // the ID of  the atom matches the one we're looking for.
             if (!atom.captureSelection) {
@@ -509,6 +509,10 @@ let tapCount = 0;
 
 MathField.prototype._onPointerDown = function(evt) {
     let anchor;
+    const that = this;
+    let trackingPointer = false;
+    let dirty = false;
+
     function endPointerTracking(evt) {
         off(that.field, 'touchmove', onPointerMove);
         off(that.field, 'touchend touchleave', endPointerTracking);
@@ -519,6 +523,7 @@ MathField.prototype._onPointerDown = function(evt) {
         evt.preventDefault();
         evt.stopPropagation();
     }
+
     function onPointerMove(moveEvt) {
         const x = moveEvt.touches ? moveEvt.touches[0].clientX : moveEvt.clientX;
         const y = moveEvt.touches ? moveEvt.touches[0].clientY : moveEvt.clientY;
@@ -533,12 +538,9 @@ MathField.prototype._onPointerDown = function(evt) {
         moveEvt.preventDefault();
         moveEvt.stopPropagation();
     }
-    const that = this;
-    let trackingPointer = false;
-    let dirty = false;
 
     // Calculate the tap count (if this is a touch event)
-    if (evt.touches) {
+    if (evt.touches &amp;&amp; evt.touches.length === 1) {
         if (lastTouchEndTouch &amp;&amp; Math.abs(lastTouchEndTouch.pageX - evt.touches[0].pageX) &lt; 5 &amp;&amp;
             Math.abs(lastTouchEndTouch.pageY - evt.touches[0].pageY) &lt; 5 &amp;&amp;
             Date.now() &lt; lastTouchEndTimestamp + 500) {
@@ -589,7 +591,7 @@ MathField.prototype._onPointerDown = function(evt) {
 
             // evt.details contains the number of consecutive clicks
             // for double-click, triple-click, etc...
-            if (evt.detail === 2 || evt.detail === 3 || (tapCount > 1)) {
+            if (evt.detail === 2 || evt.detail === 3 || tapCount > 1) {
                 off(this.field, 'touchmove', onPointerMove);
                 off(this.field, 'touchend', endPointerTracking);
                 off(window, 'mousemove', onPointerMove);
@@ -610,11 +612,11 @@ MathField.prototype._onPointerDown = function(evt) {
                         // To receive the subsequent touchmove/touch, need to
                         // listen to this evt.target.
                         // This was a touch event
-                        on(evt.target, 'touchend', endPointerTracking);
                         on(evt.target, 'touchmove', onPointerMove);
+                        on(evt.target, 'touchend', endPointerTracking);
                     } else {
-                        on(window, 'mouseup', endPointerTracking);
                         on(window, 'mousemove', onPointerMove);
+                        on(window, 'mouseup', endPointerTracking);
                     }
                 }
             }
@@ -637,12 +639,9 @@ MathField.prototype._onSelectionDidChange = function() {
 
     // If the selection is not collapsed, put it in the textarea
     // This will allow cut/copy to work.
-    const mathlist = this.mathlist.extractContents();
-    if (mathlist &amp;&amp; !this.mathlist.isCollapsed()) {
-        let result = '';
-        for (const atom of mathlist) {
-            result += atom.toLatex();
-        }
+    let result = '';
+    this.mathlist.forEachSelected(atom => { result += atom.toLatex(); });
+    if (result) {
         this.textarea.value = result;
         // The textarea may be a span (on mobile, for example), so check that
         // it has a select() before calling it.
@@ -656,7 +655,7 @@ MathField.prototype._onSelectionDidChange = function() {
 
     // Defer the updating of the popover position: we'll need the tree to be
     // re-rendered first to get an updated caret position
-    Popover.updatePopoverPosition(this, {deferred:true});
+    Popover.updatePopoverPosition(this, {deferred: true});
 
     // Invoke client handlers, if provided.
     if (typeof this.config.onSelectionDidChange === 'function') {
@@ -1285,22 +1284,16 @@ MathField.prototype._render = function(renderOptions) {
     //
     // 3. Update selection state and blinking cursor (caret)
     //
-    this.mathlist.root.forEach( a => {
+    this.mathlist.forEach( a => {
             a.hasCaret = false;
             a.isSelected = false;
         } );
 
     const hasFocus = this.hasFocus();
-    const isCollapsed = this.mathlist.isCollapsed();
-    if (isCollapsed) {
+    if (this.mathlist.isCollapsed()) {
         this.mathlist.anchor().hasCaret = hasFocus;
     } else {
-        const siblings = this.mathlist.siblings()
-        const firstOffset = this.mathlist.startOffset();
-        const lastOffset = this.mathlist.endOffset();
-        for (let i = firstOffset; i &lt; lastOffset; i++) {
-            siblings[i].forEach(a => { a.isSelected = true; });
-        }
+        this.mathlist.forEachSelected( a => { a.isSelected = true } );
     }
 
     //
@@ -1320,8 +1313,6 @@ MathField.prototype._render = function(renderOptions) {
             },
             macros: this.config.macros
         }, this.mathlist.root.body);
-
-
 
     //
     // 5. Construct struts around the spans
@@ -1344,8 +1335,8 @@ MathField.prototype._render = function(renderOptions) {
         struts.push(bottomStrut);
     }
     struts.push(base);
-    const wrapper = Span.makeSpan(struts, 'ML__mathlive');
-    wrapper.classes += hasFocus ? ' ML__focused' : ' ML__blurred';
+    const wrapper = Span.makeSpan(struts, 
+        'ML__mathlive' + (hasFocus ? ' ML__focused' : ' ML__blurred'));
 
     //
     // 6. Generate markup and accessible node
@@ -1388,14 +1379,60 @@ MathField.prototype._onCut = function() {
 }
 
 MathField.prototype._onCopy = function(e) {
-    e.clipboardData.setData('text/plain', this.text('latex-expanded'));
-    e.clipboardData.setData('application/json', this.text('json'));
-    e.clipboardData.setData('application/xml', this.text('mathML'));
+    if (this.mathlist.isCollapsed()) {
+        e.clipboardData.setData('text/plain', this.text('latex-expanded'));
+        e.clipboardData.setData('application/json', this.text('json'));
+        e.clipboardData.setData('application/xml', this.text('mathML'));
+    } else {
+        e.clipboardData.setData('text/plain', this.selectedText('latex-expanded'));
+        e.clipboardData.setData('application/json', this.selectedText('json'));
+        e.clipboardData.setData('application/xml', this.selectedText('mathML'));
+    }
 
     // Prevent the current document selection from being written to the clipboard.
     e.preventDefault();
 }
 
+
+MathField.prototype.formatMathlist = function(atoms, format) {
+    if (!Array.isArray(atoms)) atoms = [atoms];
+    format = format || 'latex';
+    let result = '';
+    if (format === 'latex' || format === 'latex-expanded') {
+        for (const atom of atoms) {
+            result += atom.toLatex(format === 'latex-expanded');
+        }
+    } else if (format === 'mathML') {
+        for (const atom of atoms) {
+            result += atom.toMathML(this.config);
+        }
+    } else if (format === 'spoken') {
+        for (const atom of atoms) {
+            result += MathAtom.toSpeakableText(atom, this.config);
+        }
+    } else if (format === 'spoken-text') {
+        const save = this.config.textToSpeechMarkup;
+        this.config.textToSpeechMarkup = '';
+        for (const atom of atoms) {
+            result += MathAtom.toSpeakableText(atom, this.config);
+        }
+        this.config.textToSpeechMarkup = save;
+    } else if (format === 'spoken-ssml') {
+        const save = this.config.textToSpeechMarkup;
+        this.config.textToSpeechMarkup = 'ssml';
+        for (const atom of atoms) {
+            result += MathAtom.toSpeakableText(atom, this.config);
+        }
+        this.config.textToSpeechMarkup = save;
+    } else if (format === 'json') {
+        const json = [];
+        for (const atom of atoms) {
+            json.push(MathAtom.toAST(atom, this.config));
+        }
+        result = JSON.stringify(json);
+    }
+    return result;
+}
 
 //
 // PUBLIC API
@@ -1407,35 +1444,16 @@ MathField.prototype._onCopy = function(e) {
  *    * `'latex'`
  *    * `'latex-expanded'` : all macros are recursively expanded to their definition
  *    * `'spoken'`
+ *    * `'spoken-text'`
+ *    * `'spoken-ssml'`
  *    * `'mathML'`
+ *    * `'json'`
  * @return {string}
  * @method MathField#$text
  */
 MathField.prototype.text = 
 MathField.prototype.$text = function(format) {
-    format = format || 'latex';
-    let result = '';
-    if (format === 'latex' || format === 'latex-expanded') {
-        result = this.mathlist.root.toLatex(format === 'latex-expanded');
-    } else if (format === 'mathML') {
-        result = this.mathlist.root.toMathML(this.config);
-    } else if (format === 'spoken') {
-        result = MathAtom.toSpeakableText(this.mathlist.root, this.config);
-    } else if (format === 'spoken-text') {
-        const save = this.config.textToSpeechMarkup;
-        this.config.textToSpeechMarkup = '';
-        result = MathAtom.toSpeakableText(this.mathlist.root, this.config);
-        this.config.textToSpeechMarkup = save;
-    } else if (format === 'spoken-ssml') {
-        const save = this.config.textToSpeechMarkup;
-        this.config.textToSpeechMarkup = 'ssml';
-        result = MathAtom.toSpeakableText(this.mathlist.root, this.config);
-        this.config.textToSpeechMarkup = save;
-    } else if (format === 'json') {
-        result = JSON.stringify(MathAtom.toAST(this.mathlist.root.body, this.config));
-    }
-
-    return result;
+    return this.formatMathlist(this.mathlist.root, format);
 }
 
 /**
@@ -1444,34 +1462,16 @@ MathField.prototype.$text = function(format) {
  *    * `'latex'`
  *    * `'latex-expanded'` : all macros are recursively expanded to their definition
  *    * `'spoken'`
+ *    * `'spoken-text'`
+ *    * `'spoken-ssml'`
  *    * `'mathML'`
+ *    * `'json'`
  * @return {string}
  * @method MathField#$selectedText
  */
 MathField.prototype.selectedText = 
 MathField.prototype.$selectedText = function(format) {
-    format = format || 'latex';
-    let result = '';
-    const selection = this.mathlist.extractContents();
-    if (selection) {
-        if (format === 'latex' || format === 'latex-expanded') {
-
-            for (const atom of selection) {
-                result += atom.toLatex(format === 'latex-expanded');
-            }
-
-        } else if (format === 'mathML') {
-
-            for (const atom of selection) {
-                result += atom.toMathML(this.config);
-            }
-
-        } else if (format === 'spoken') {
-            result = MathAtom.toSpeakableText(selection, this.config)
-        }
-    }
-
-    return result;
+    return this.formatMathlist(this.mathlist.extractContents(), format);
 }
 
 
@@ -2089,11 +2089,8 @@ MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
             } else {
                 altContainer.style.height = '205px';    // 3 rows
             }
-            altContainer.style.top = (position.top - altContainer.clientHeight + 5) + 'px';
-
-        } else {
-            altContainer.style.top = (position.top - altContainer.clientHeight + 5).toString() + 'px';
         }
+        altContainer.style.top = (position.top - altContainer.clientHeight + 5).toString() + 'px';
         altContainer.style.left = Math.max(0,
             Math.min(window.innerWidth - altContainer.offsetWidth,
             ((position.left + position.right - altContainer.offsetWidth) / 2) )) + 'px';
@@ -2328,7 +2325,7 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
 MathField.prototype.applyStyle_ = function(style) {
     this.undoManager.snapshot(this.config);
     this.mathlist._applyStyle(style);
-    return false;
+    return true;
 }
 
 MathField.prototype.hasFocus = 
