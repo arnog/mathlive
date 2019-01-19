@@ -157,7 +157,7 @@ function createMarkupNode(text, options, mathstyle, latexToMarkup, createNodeOnF
     }
 
     try {
-        span.innerHTML = latexToMarkup(text, mathstyle || 'displaystyle', options.macros);
+        span.innerHTML = latexToMarkup(text, mathstyle || 'displaystyle', 'html', options.macros);
      } catch (e) {
         console.error( 'Could not parse\'' + text + '\' with ', e );
         if (createNodeOnFailure) {
