@@ -8,11 +8,6 @@
 
 import FontMetrics from './fontMetrics.js';
 
-const NUMBER_FORMATTER = new Intl.NumberFormat('en-US', {
-    useGrouping: false,
-    maximumSignificantDigits: 5
-});
-
 /**
  * Return a string made up of the concatenated arguments.
  * Each arguments can be either a string, which is unchanged,
@@ -30,7 +25,7 @@ function toString() {
     // The forEach construct below works.
     Array.from(arguments).forEach(function(arg) {
         if (typeof arg === 'number') {
-            result += NUMBER_FORMATTER.format(arg);
+            result += Math.floor(1e5 * arg) / 1e5;
         } else if (typeof arg === 'string') {
             result += arg;
         } else if (Array.isArray(arg)) {
