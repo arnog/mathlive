@@ -25,7 +25,10 @@ const NUMBER_FORMATTER = new Intl.NumberFormat('en-US', {
  */
 function toString() {
     let result = '';
-    for (const arg of arguments) {
+    // Note: IE11 (even transpiled for with Babel) does not deal well with 
+    // for(... of arguments) (because arguments is an iteratable, not an array)
+    // The forEach construct below works.
+    Array.from(arguments).forEach(function(arg) {
         if (typeof arg === 'number') {
             result += NUMBER_FORMATTER.format(arg);
         } else if (typeof arg === 'string') {
@@ -37,7 +40,7 @@ function toString() {
         } else if (arg) {
             result += arg.toString();
         }
-    }
+    });
     return result;
 }
 
