@@ -385,7 +385,7 @@ function toMathML(latex, options) {
         console.log('The MathML module is not loaded.');
         return '';
     }
-    options = options || {macros:{}};
+    options = options || {};
     options.macros = options.macros || {};
     Object.assign(options.macros, Definitions.MACROS);
 
@@ -411,7 +411,8 @@ function latexToAST(latex, options) {
         console.log('The AST module is not loaded.');
         return {};
     }
-    options = options || {macros:{}};
+    options = options || {};
+    options.macros = options.macros || {};
     Object.assign(options.macros, Definitions.MACROS);
 
     const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex),
@@ -455,7 +456,8 @@ function latexToSpeakableText(latex, options) {
         console.log('The outputSpokenText module is not loaded.');
         return "";
     }
-    options = options || {macros:{}};
+    options = options || {};
+    options.macros = options.macros || {};
     Object.assign(options.macros, Definitions.MACROS);
 
     const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex),
