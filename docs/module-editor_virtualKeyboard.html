@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>span - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>editor/virtualKeyboard - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -56,7 +56,7 @@ writeCookie('symbol-access', 'private')
 
 <main id="main">
     
-        <h1 class="page-title">span</h1>
+        <h1 class="page-title">editor/virtualKeyboard</h1>
     
 
     
@@ -92,131 +92,6 @@ writeCookie('symbol-access', 'private')
     
 
     
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<div class='member'>
-<h4 class="name" id=".INTER_ATOM_SPACING">INTER_ATOM_SPACING<span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span><span class="attrib">constant</span></span></h4>
-
-
-
-
-<div class="description">
-    <p>Return HTML markup representing this span, its style, classes and
-children.</p>
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="core_span.js.html#line210">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-</div>
-        
-            
-<div class='member'>
-<h4 class="name" id=".INTER_ATOM_TIGHT_SPACING">INTER_ATOM_TIGHT_SPACING<span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span><span class="attrib">constant</span></span></h4>
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="core_span.js.html#line250">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-</div>
-        
-    
 
     
         <h3 class="subsection-title">Methods</h3>
@@ -227,15 +102,14 @@ children.</p>
 
     
 
-    <h4 class="name" id=".coalesce">coalesce<span class="signature">(spans<span class="signature-type">: Array.&lt;<a href="Span.html">Span</a>></span>)</span><span class="type-signature"> &rarr;  Array.&lt;<a href="Span.html">Span</a>></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
+    <h4 class="name" id="~expandLayerMarkup">expandLayerMarkup<span class="signature">(mf<span class="signature-type">: *</span>, layer<span class="signature-type">: *</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Attempts to coalesce (merge) spans, for example consecutive text spans.
-Return a new tree with coalesced spans.</p>
+    <p>Expand the shortcut tags (e.g. <row>) inside a layer.</p>
 </div>
 
 
@@ -255,260 +129,13 @@ Return a new tree with coalesced spans.</p>
 
         <div class="signature">
             
-                <span class="name"><code>spans</code></span>
+                <span class="name"><code>mf</code></span>
             
 
             <span class="type">
             
                 
-<span class="param-type">Array.&lt;<a href="Span.html">Span</a>></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-</div>
-
-    
-
-    
-    
-        &rarr; 
-    
-            
-<span class="param-desc">
-    
-        
-<span class="param-type">Array.&lt;<a href="Span.html">Span</a>></span>
-
-
-        &nbsp;&nbsp;
-    
-    
-        <p>coalesced tree</p>
-    
-</span>
-
-
-
-        
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="core_span.js.html#line508">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method private'>
-
-    
-
-    <h4 class="name" id=".makeFontSizer">makeFontSizer<span class="signature">()</span><span class="type-signature"> &rarr;  <a href="Span.html">Span</a></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Makes an element placed in each of the vlist elements to ensure that each
-element has the same max font size. To do this, we create a zero-width space
-with the correct font size.
-//  <em> Note: without this, even when fontSize = 0, the fraction bar is no
-//  </em> longer positioned correctly</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-
-    
-    
-        &rarr; 
-    
-            
-<span class="param-desc">
-    
-        
-<span class="param-type"><a href="Span.html">Span</a></span>
-
-
-        &nbsp;&nbsp;
-    
-    
-</span>
-
-
-
-        
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="core_span.js.html#line628">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method private'>
-
-    
-
-    <h4 class="name" id=".makeHlist">makeHlist<span class="signature">(children<span class="signature-type">: <a href="Span.html">Span</a>,Array.&lt;<a href="Span.html">Span</a>></span>, classes<span class="signature-type">: string</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
-
-    
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>children</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type"><a href="Span.html">Span</a></span>
-|
-
-<span class="param-type">Array.&lt;<a href="Span.html">Span</a>></span>
+<span class="param-type">*</span>
 
 
             
@@ -525,13 +152,13 @@ with the correct font size.
 
         <div class="signature">
             
-                <span class="name"><code>classes</code></span>
+                <span class="name"><code>layer</code></span>
             
 
             <span class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">*</span>
 
 
             
@@ -582,860 +209,7 @@ with the correct font size.
 
     
         <span class="tag-source">
-        <a href="core_span.js.html#line730">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method private'>
-
-    
-
-    <h4 class="name" id=".makeSpan">makeSpan<span class="signature">(content<span class="signature-type">: string,<a href="Span.html">Span</a>,Array.&lt;<a href="Span.html">Span</a>></span>, classes<span class="signature-type">: string</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Make an element made of a sequence of children with classes</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>content</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">string</span>
-|
-
-<span class="param-type"><a href="Span.html">Span</a></span>
-|
-
-<span class="param-type">Array.&lt;<a href="Span.html">Span</a>></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>the items 'contained' by this node</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>classes</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>list of classes attributes associated with this node</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-</div>
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="core_span.js.html#line581">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method private'>
-
-    
-
-    <h4 class="name" id=".makeSpanOfType">makeSpanOfType<span class="signature">(type<span class="signature-type">: string</span>, content<span class="signature-type">: string,Array.&lt;<a href="Span.html">Span</a>></span>, classes<span class="signature-type">: string</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
-
-    
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>type</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>One of 'mbin', 'mop', 'mord', 'mrel' 'mclose',
-'mpunct', 'minner'</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>content</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">string</span>
-|
-
-<span class="param-type">Array.&lt;<a href="Span.html">Span</a>></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>A string or an array of other Spans</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>classes</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>CSS classes decorating this span
-See https://tex.stackexchange.com/questions/81752/
-for a thorough description of the TeXt atom type and their relevance to
-proper kerning.</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-</div>
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="core_span.js.html#line660">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method private'>
-
-    
-
-    <h4 class="name" id=".makeSymbol">makeSymbol<span class="signature">(fontFamily<span class="signature-type">: string</span>, symbol<span class="signature-type">: string</span>, classes<span class="signature-type">: string</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
-
-    
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>fontFamily</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>symbol</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>classes</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-</div>
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="core_span.js.html#line603">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method private'>
-
-    
-
-    <h4 class="name" id=".makeVlist">makeVlist<span class="signature">(context<span class="signature-type">: <a href="Context.html">Context</a></span>, elements<span class="signature-type">: Array.&lt;(number|<a href="Span.html">Span</a>)></span>, pos<span class="signature-type">: string</span>, posData<span class="signature-type">: number</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Create a new span of type <code>vlist</code>, a set of vertically stacked items</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>context</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type"><a href="Context.html">Context</a></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>elements</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">Array.&lt;(number|<a href="Span.html">Span</a>)></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>An array of Span and integer. The integer can be either some kerning information
-or the value of an individual shift of the preceding child if in 'individualShift' mode</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>pos</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>The method that will be used to position the elements in the vlist.</p>
-<p>One of:</p>
-<ul>
-<li><code>&quot;individualShift&quot;</code>: each child must be followed by a number indicating how much to shift it (i.e. moved downwards)</li>
-<li><code>&quot;top&quot;</code>: posData specifies the topmost point of the vlist (&gt;0 move up)</li>
-<li><code>&quot;bottom&quot;</code>: posData specifies the bottommost point of the vlist (&gt;0 move down)</li>
-<li><code>&quot;shift&quot;</code>: the baseline of the vlist will be positioned posData away from the baseline
-of the first child. (&gt;0 moves down)</li>
-</ul>
-                    </p>
-                    
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>posData</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-</div>
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="core_span.js.html#line762">Source</a>
-        </span>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method private'>
-
-    
-
-    <h4 class="name" id=".toString">toString<span class="signature">(&hellip;args<span class="signature-type">: string</span>)</span><span class="type-signature"> &rarr;  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Return a string made up of the concatenated arguments.
-Each arguments can be either a string, which is unchanged,
-or a number, which is converted to a string with at most 5 fractional digits.</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>args</code></span>
-            
-
-            <span class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-                <span class="attributes">
-                
-
-                
-
-                
-                    <span class="attribute">repeatable</span>
-                
-                </span>
-            
-
-            
-
-            
-        </div>
-
-    
-</div>
-
-    
-
-    
-    
-        &rarr; 
-    
-            
-<span class="param-desc">
-    
-        
-<span class="param-type">string</span>
-
-
-        &nbsp;&nbsp;
-    
-    
-</span>
-
-
-
-        
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="tag-source">
-        <a href="core_span.js.html#line21">Source</a>
+        <a href="editor_editor-virtualKeyboard.js.html#line827">Source</a>
         </span>
     
 
@@ -1469,14 +243,15 @@ or a number, which is converted to a string with at most 5 fractional digits.</p
 
     
 
-    <h4 class="name" id="~makeSVG">makeSVG<span class="signature">(body<span class="signature-type">: <a href="Span.html">Span</a></span>, svgMarkup<span class="signature-type">: string</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">inner</span></span></h4>
+    <h4 class="name" id="~make">make<span class="signature">(mf<span class="signature-type">: Object</span>, theme<span class="signature-type">: string</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">inner</span></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Add some SVG markup to be overlaid on top of the span</p>
+    <p>Construct a virtual keyboard element based on the config options in the
+mathfield and an optional theme.</p>
 </div>
 
 
@@ -1496,13 +271,13 @@ or a number, which is converted to a string with at most 5 fractional digits.</p
 
         <div class="signature">
             
-                <span class="name"><code>body</code></span>
+                <span class="name"><code>mf</code></span>
             
 
             <span class="type">
             
                 
-<span class="param-type"><a href="Span.html">Span</a></span>
+<span class="param-type">Object</span>
 
 
             
@@ -1519,7 +294,7 @@ or a number, which is converted to a string with at most 5 fractional digits.</p
 
         <div class="signature">
             
-                <span class="name"><code>svgMarkup</code></span>
+                <span class="name"><code>theme</code></span>
             
 
             <span class="type">
@@ -1576,7 +351,95 @@ or a number, which is converted to a string with at most 5 fractional digits.</p
 
     
         <span class="tag-source">
-        <a href="core_span.js.html#line717">Source</a>
+        <a href="editor_editor-virtualKeyboard.js.html#line969">Source</a>
+        </span>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~makeKeyboardToolbar">makeKeyboardToolbar<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return a markup string for the keyboard toolbar for the specified layer.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="tag-source">
+        <a href="editor_editor-virtualKeyboard.js.html#line688">Source</a>
         </span>
     
 

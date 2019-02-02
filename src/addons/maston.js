@@ -1,3 +1,11 @@
+/**
+ * This module contains some color dictionaries and algorithms to 
+ * parse a string into a hex RGB color value.s
+ * @summary   Parsing of color strings.
+ * @module Maston
+ * @private
+ */
+
 import Lexer from '../core/lexer.js';
 import MathAtom from '../core/mathAtom.js';
 import ParserModule from '../core/parser.js';
@@ -566,6 +574,7 @@ function asSymbol(expr) {
  *
  * @param {Object} num -- Abstract Syntax Tree object
  * @return {number} -- A JavaScript number, the value of the AST or NaN
+ * @private
  */
 function asMachineNumber(num) {
     let result = undefined;

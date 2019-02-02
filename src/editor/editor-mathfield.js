@@ -1485,7 +1485,7 @@ MathField.prototype.$selectionAtStart = function() {
 /**
  * Return true if the selection extends to the end of the selection group.
  * @return {boolean}
- * @method MathField#selectionAtEnd
+ * @method MathField#$selectionAtEnd
  */
 MathField.prototype.selectionAtEnd = 
 MathField.prototype.$selectionAtEnd = function() {

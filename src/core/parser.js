@@ -1,5 +1,6 @@
 
 /**
+ * @module core/parseKeyword
  * @private
  */
 
@@ -1226,24 +1227,6 @@ class Parser {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const SIZING_COMMANDS = [
     'tiny', 'scriptsize', 'footnotesize', 'small',
     'normalsize',
@@ -1253,45 +1236,6 @@ const SIZING_COMMANDS = [
 const MATHSTYLE_COMMANDS = [
     'displaystyle', 'textstyle', 'scriptstyle', 'scriptscriptstyle',
 ]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

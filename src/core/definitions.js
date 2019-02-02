@@ -237,7 +237,7 @@ function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
  * @private
  */
 function defineSymbols(string, mode, fontFamily, type, frequency) {
-    for(let i = 0; i < string.length; i++) {
+    for (let i = 0; i < string.length; i++) {
         const ch = string.charAt(i);
         defineSymbol(ch, mode, fontFamily, type, ch, frequency);
     }
@@ -255,7 +255,7 @@ function defineSymbols(string, mode, fontFamily, type, frequency) {
  * @private
  */
 function defineSymbolRange(from, to, mode, fontFamily, type, frequency) {
-    for(let i = from; i <= to; i++) {
+    for (let i = from; i <= to; i++) {
         const ch = String.fromCodePoint(i);
         defineSymbol(ch, mode, fontFamily, type, ch, frequency);
     }

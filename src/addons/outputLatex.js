@@ -1,3 +1,8 @@
+/**
+ * @module addons/outputLatex
+ * @private
+ */
+
 import MathAtom from '../core/mathAtom.js';
 
 

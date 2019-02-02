@@ -1,3 +1,11 @@
+/**
+ * Give an atom or an array of atoms, return a MathML representation of it
+ * @return {string}
+ * @param {string|MathAtom|MathAtom[]} value
+ * @module addons/outputMathML
+ * @private
+ */
+
 import MathAtom from '../core/mathAtom.js';
 import Color from '../core/color.js';
 

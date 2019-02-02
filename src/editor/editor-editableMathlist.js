@@ -49,6 +49,7 @@ import MathPath from './editor-mathpath.js';
  * that doesn't change the path instead.
  * @class
  * @global
+ * @private
  * @memberof module:editor/editableMathlist
  */
 function EditableMathlist(config, target) {
@@ -1928,6 +1929,7 @@ EditableMathlist.prototype.insertSuggestion = function(s, l) {
 /**
  * Delete sibling atoms
  * @method EditableMathlist#_deleteAtoms
+ * @private
  */
 EditableMathlist.prototype._deleteAtoms = function(count) {
     if (count > 0) {
@@ -2482,6 +2484,7 @@ EditableMathlist.prototype.moveAfterParent_ = function() {
 /**
  * Internal primitive to add a column/row in a matrix
  * @method EditableMathlist#_addCell
+ * @private
  */
 EditableMathlist.prototype._addCell = function(where) {
     // This command is only applicable if we're in an array

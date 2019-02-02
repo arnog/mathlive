@@ -1,3 +1,7 @@
+/**
+ * @module editor/virtualKeyboard
+ * @private
+ */
 import MathAtom from '../core/mathAtom.js';
 import Span from '../core/span.js';
 import Lexer from '../core/lexer.js';
@@ -679,6 +683,7 @@ function latexToMarkup(latex, arg, mf) {
 
 /**
  * Return a markup string for the keyboard toolbar for the specified layer.
+ * @private
  */
 function makeKeyboardToolbar(mf, keyboardIDs, currentKeyboard) {
     // The left hand side of the toolbar has a list of all the available keyboards
@@ -817,6 +822,7 @@ function makeKeycap(mf, elList, chainedCommand) {
  * Expand the shortcut tags (e.g. <row>) inside a layer.
  * @param {*} mf
  * @param {*} layer
+ * @private
  */
 function expandLayerMarkup(mf, layer) {
     const ROWS = {
