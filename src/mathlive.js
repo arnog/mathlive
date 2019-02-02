@@ -6,7 +6,7 @@
  *
  * To invoke these functions, use the global MathLive object. For example:
  * ```javascript
- * const markup = MathLive.toMarkup('e^{i\\pi}+1=0');
+ * const markup = MathLive.latexToMarkup('e^{i\\pi}+1=0');
  * ```
  *
  * @module mathlive
@@ -26,7 +26,7 @@ import AutoRender from './addons/auto-render.js';
  * @param {string} text A string of valid LaTeX. It does not have to start
  * with a mode token such as `$$` or `\(`.
  *
- * @param {string} displayMode If `'displaystyle'` the "display" mode of TeX
+ * @param {string} mathstyle If `'displaystyle'` the "display" mode of TeX
  * is used to typeset the formula. Most appropriate for formulas that are
  * displayed in a standalone block. If `'textstyle'` is used, the "text" mode
  * of TeX is used, which is most appropriate when displaying math "inline"
@@ -418,6 +418,50 @@ function latexToAST(latex, options) {
         'math', null, options.macros);
 
     return MathAtom.toAST(mathlist, options);
+}
+
+
+
+/**
+ * Convert a LaTeX string to a textual representation ready to be spoken
+ *
+ * @param {string} latex A string of valid LaTeX. It does not have to start
+ * with a mode token such as a `$$` or `\(`.
+ * 
+ * @param {object} options -
+ * 
+ * @param {string} [options.textToSpeechRules='mathlive'] Specify which
+ * set of text to speech rules to use. A value of `mathlive` indicates that
+ * the simple rules built into MathLive should be used. A value of `sre`
+ * indicates that the Speech Rule Engine from Volker Sorge should be used.
+ * Note that SRE is not included or loaded by MathLive and for this option to
+ * work SRE should be loaded separately.
+ * 
+ * @param {string} [options.textToSpeechMarkup=''] The markup syntax to use 
+ * for the output of conversion to spoken text. Possible values are `ssml` for 
+ * the SSML markup or `mac` for the MacOS markup (e.g. `[[ltr]]`)
+ *
+ * @param {*} [options.textToSpeechRulesOptions={}] A set of value/pair that can
+ * be used to configure the speech rule engine. Which options are available
+ * depends on the speech rule engine in use. There are no options available with
+ * MathLive's built-in engine. The options for the SRE engine are documented
+ * [here]{@link:https://github.com/zorkow/speech-rule-engine}
+
+ * @return {string} The Abstract Syntax Tree as a JavaScript object.
+ * @function module:mathlive#latexToSpeakableText
+ */
+function latexToSpeakableText(latex, options) {
+    if (!MathAtom.toSpeakableText) {
+        console.log('The outputSpokenText module is not loaded.');
+        return "";
+    }
+    options = options || {macros:{}};
+    Object.assign(options.macros, Definitions.MACROS);
+
+    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex),
+        'math', null, options.macros);
+
+    return MathAtom.toSpeakableText(mathlist, options);
 }
 
 
@@ -895,6 +939,7 @@ function getOriginalContent(element, options) {
 const MathLive = {
     latexToMarkup: toMarkup,
     latexToMathML: toMathML,
+    latexToSpeakableText,
     latexToAST,
     makeMathField,
     renderMathInDocument,
