@@ -1,6 +1,3 @@
-/*global require:false*/
-/*global define:false*/
-
 /**
  * @module core/span
  * @private

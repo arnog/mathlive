@@ -1,48 +1,3 @@
-/*global require:false*/
-/*global define:false*/
-/* eslint max-len: 0 */
-
-// TODO
-// Some missing greek letters, but see https://reference.wolfram.com/language/tutorial/LettersAndLetterLikeForms.html
-// koppa, stigma, Sampi
-// See https://tex.stackexchange.com/questions/231878/accessing-archaic-greek-koppa-in-the-birkmult-document-class
-// Capital Alpha, etc...
-// Colon (ratio) (2236)
-// Function names can have '*' in them
-
-// Review:
-// https://en.wikipedia.org/wiki/Help:Displaying_a_formula
-
-// https://reference.wolfram.com/language/tutorial/LettersAndLetterLikeForms.html
-// ftp://ftp.dante.de/tex-archive/info/symbols/comprehensive/symbols-a4.pdf
-
-// Media Wiki Reference
-// https://en.wikipedia.org/wiki/Help:Displaying_a_formula
-
-// MathJax Reference
-// http://docs.mathjax.org/en/latest/tex.html#supported-latex-commands
-// http://www.onemathematicalcat.org/MathJaxDocumentation/TeXSyntax.htm
-
-// LaTeX Reference
-// http://ctan.sharelatex.com/tex-archive/info/latex2e-help-texinfo/latex2e.html
-
-// iBooks Author/Pages
-// https://support.apple.com/en-au/HT202501
-
-// Mathematica Reference
-// https://reference.wolfram.com/language/tutorial/NamesOfSymbolsAndMathematicalObjects.html
-// https://reference.wolfram.com/language/guide/MathematicalTypesetting.html
-/*
-    * @todo \sb (equivalent to _) $\mathfrak{sl}\sb 2$ frequency 184
-    * @todo \sp (equivalent to ^) $\mathfrak{sl}\sp 2$ frequency 274
-    * \intertext    frequency 0
-
-
-    See http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/mathtools/mathtools.pdf
-
-*/
-
-
 /**
  * This module contains the definitions of all the symbols and commands, for
  * example `\alpha`, `\sin`, `\mathrm`.
@@ -52,8 +7,6 @@
  * @private
  */
 import FontMetrics from './fontMetrics.js';
-
-
 
 
 /**
@@ -3121,3 +3074,44 @@ export default {
     MACROS,
 }
 
+
+
+// TODO
+// Some missing greek letters, but see https://reference.wolfram.com/language/tutorial/LettersAndLetterLikeForms.html
+// koppa, stigma, Sampi
+// See https://tex.stackexchange.com/questions/231878/accessing-archaic-greek-koppa-in-the-birkmult-document-class
+// Capital Alpha, etc...
+// Colon (ratio) (2236)
+// Function names can have '*' in them
+
+// Review:
+// https://en.wikipedia.org/wiki/Help:Displaying_a_formula
+
+// https://reference.wolfram.com/language/tutorial/LettersAndLetterLikeForms.html
+// ftp://ftp.dante.de/tex-archive/info/symbols/comprehensive/symbols-a4.pdf
+
+// Media Wiki Reference
+// https://en.wikipedia.org/wiki/Help:Displaying_a_formula
+
+// MathJax Reference
+// http://docs.mathjax.org/en/latest/tex.html#supported-latex-commands
+// http://www.onemathematicalcat.org/MathJaxDocumentation/TeXSyntax.htm
+
+// LaTeX Reference
+// http://ctan.sharelatex.com/tex-archive/info/latex2e-help-texinfo/latex2e.html
+
+// iBooks Author/Pages
+// https://support.apple.com/en-au/HT202501
+
+// Mathematica Reference
+// https://reference.wolfram.com/language/tutorial/NamesOfSymbolsAndMathematicalObjects.html
+// https://reference.wolfram.com/language/guide/MathematicalTypesetting.html
+/*
+    * @todo \sb (equivalent to _) $\mathfrak{sl}\sb 2$ frequency 184
+    * @todo \sp (equivalent to ^) $\mathfrak{sl}\sp 2$ frequency 274
+    * \intertext    frequency 0
+
+
+    See http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/mathtools/mathtools.pdf
+
+*/

@@ -404,6 +404,8 @@ nav ul a, nav ul a:active {
 }
 
 section[role="navigation"] {
+	position: fixed;
+	top: 0;
 	padding: 0;
 	height: 100vh;
 	width: 320px;
