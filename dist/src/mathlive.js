@@ -3,7 +3,7 @@
  *
  * This modules exports the MathLive entry points.
  *
- * @module MathLive
+ * @module mathlive
  * @example
  * // To invoke the functions in this module, import the MathLive module. 
  * 

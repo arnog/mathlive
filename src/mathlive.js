@@ -3,7 +3,7 @@
  *
  * This modules exports the MathLive entry points.
  *
- * @module MathLive
+ * @module mathlive
  * @example
  * // To invoke the functions in this module, import the MathLive module. 
  * 
@@ -38,7 +38,7 @@ import AutoRender from './addons/auto-render.js';
  * used to construct the markup. Valid values include `'mathlist'` and `'span'`
  *
  * @return {string}
- * @function module:MathLive#latexToMarkup
+ * @function module:mathlive#latexToMarkup
  */
 function toMarkup(text, mathstyle, format, macros) {
     mathstyle = mathstyle || 'displaystyle';
@@ -131,7 +131,7 @@ function toMarkup(text, mathstyle, format, macros) {
  * MathLive.makeMathField('equation');
  * ```
  * 
- * @function module:MathLive#makeMathField
+ * @function module:mathlive#makeMathField
  */
 function makeMathField(element, config) {
     if (!MathField) {
@@ -152,7 +152,7 @@ function makeMathField(element, config) {
  * @param {boolean} [options.generateID=false] - If true, add an `extid` attribute
  * to the MathML nodes with a value matching the `atomID`.
  * @return {string}
- * @function module:MathLive#latexToMathML
+ * @function module:mathlive#latexToMathML
  */
 function toMathML(latex, options) {
     if (!MathAtom.toMathML) {
@@ -178,7 +178,7 @@ function toMathML(latex, options) {
  * with a mode token such as a `$$` or `\(`.
  *
  * @return {object} The Abstract Syntax Tree as a JavaScript object.
- * @function module:MathLive#latexToAST
+ * @function module:mathlive#latexToAST
  */
 function latexToAST(latex, options) {
     if (!MathAtom.toAST) {
@@ -228,7 +228,7 @@ function latexToAST(latex, options) {
  * the SRE engine are documented [here]{@link:https://github.com/zorkow/speech-rule-engine}
 
  * @return {string} The spoken representation of the input LaTeX.
- * @function module:MathLive#latexToSpeakableText
+ * @function module:mathlive#latexToSpeakableText
  * @example
  * console.log(MathLive.latexToSpeakableText('\\frac{1}{2}'));
  * // ➡︎'half'
@@ -364,7 +364,7 @@ function speak(text, config) {
  * @param {string} text - The text to speak
  * @param {object} config
  * @private
- * @function module:MathLive#readAloud
+ * @function module:mathlive#readAloud
  */
 function readAloud(element, text, config) {
     if (!window) {
@@ -498,7 +498,7 @@ function readAloud(element, text, config) {
  * 
  * **See** {@linkcode module:editor-mathfield#speakAllWithSynchronizedHighlighting speakAllWithSynchronizedHighlighting}
  * @return {string}
- * @function module:MathLive#readAloudStatus
+ * @function module:mathlive#readAloudStatus
  */
 function readAloudStatus() {
     if (!window) return 'unavailable';
@@ -515,7 +515,7 @@ function readAloudStatus() {
  * If a Read Aloud operation is in progress, stop it.
  * 
  * **See** {@linkcode module:editor/mathfield#speakAllWithSynchronizedHighlighting speakAllWithSynchronizedHighlighting}
- * @function module:MathLive#pauseReadAloud
+ * @function module:mathlive#pauseReadAloud
  */
 function pauseReadAloud() {
     if (!window) return;
@@ -532,7 +532,7 @@ function pauseReadAloud() {
  * If a Read Aloud operation is paused, resume it
  * 
  * **See** {@linkcode module:editor-mathfield#speakAllWithSynchronizedHighlighting speakAllWithSynchronizedHighlighting}
- * @function module:MathLive#resumeReadAloud
+ * @function module:mathlive#resumeReadAloud
  */
 function resumeReadAloud() {
     if (!window) return;
@@ -552,7 +552,7 @@ function resumeReadAloud() {
  *
  * @param {string} token
  * @param {number} [count]
- * @function module:MathLive#playReadAloud
+ * @function module:mathlive#playReadAloud
  */
 function playReadAloud(token, count) {
     if (!window) return;
@@ -591,11 +591,11 @@ function playReadAloud(token, count) {
  * **Note:** This is a very expensive call, as it needs to parse the entire 
  * DOM tree to determine which elements need to be processed. In most cases 
  * this should only be called once per document, once the DOM has been loaded.
- * To render a specific element, use {@linkcode module:MathLive#renderMathInElement renderMathInElement()}
+ * To render a specific element, use {@linkcode module:mathlive#renderMathInElement renderMathInElement()}
  *
  * **See:** {@tutorial USAGE_GUIDE}
  *
- * @param {object} [options={}] See {@linkcode module:MathLive#renderMathInElement renderMathInElement()}
+ * @param {object} [options={}] See {@linkcode module:mathlive#renderMathInElement renderMathInElement()}
  * for details
  * @example
  * import MathLive from 'dist/mathlive.mjs';
@@ -678,7 +678,7 @@ function getElement(element) {
  * @param {Array} options.TeX.delimiters.display arrays
  * of delimiters that will trigger a render of the content in 'textstyle' or
  * 'displaystyle', respectively.
- * @function module:MathLive#renderMathInElement
+ * @function module:mathlive#renderMathInElement
  */
 function renderMathInElement(element, options) {
     if (!AutoRender) {
@@ -708,7 +708,7 @@ function validateNamespace(options) {
  * @param {string} options.namespace The namespace used for the `data-`
  * attributes. If you used a namespace with `renderMathInElement`, you must
  * use the same namespace here.
- * @function module:MathLive#revertToOriginalContent
+ * @function module:mathlive#revertToOriginalContent
  */
 function revertToOriginalContent(element, options) {
     element = getElement(element);
@@ -729,8 +729,8 @@ function revertToOriginalContent(element, options) {
 
 
 /**
- * After calling {@linkcode module:MathLive#renderMathInElement renderMathInElement}
- * or {@linkcode module:MathLive#makeMathField makeMathField} the original content
+ * After calling {@linkcode module:mathlive#renderMathInElement renderMathInElement}
+ * or {@linkcode module:mathlive#makeMathField makeMathField} the original content
  * can be retrived by calling this function.
  * 
  * Given the following markup:
@@ -754,7 +754,7 @@ function revertToOriginalContent(element, options) {
  * If you used a namespace with `renderMathInElement`, you must
  * use the same namespace here.
  * @return {string} the original content of the element.
- * @function module:MathLive#getOriginalContent
+ * @function module:mathlive#getOriginalContent
  */
 function getOriginalContent(element, options) {
     element = getElement(element);
