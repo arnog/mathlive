@@ -1,10 +1,7 @@
 {
     "USAGE_GUIDE": {
-        "title": "Usage Guide",
+        "title": "Usage Guide/Start Here",
         "children": [ "EXAMPLES", "CONFIG", "SELECTORS", "COMMANDS_REFERENCE" ]
-    },
-    "CONTRIBUTOR_GUIDE": {
-        "title": "Contributor Guide"
     },
     "EXAMPLES": {
         "title": "Examples"
@@ -17,5 +14,11 @@
     },
     "SELECTORS": {
         "title": "Selectors for perform()"
+    },
+    "CONTRIBUTOR_GUIDE": {
+        "title": "Contributor Guide"
+    },
+    "MASTON": {
+        "title": "MASTON"
     }
  }

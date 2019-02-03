@@ -1,3 +1,7 @@
+:root {
+	--monospace-font: 'IBM Plex Mono', 'Source Code Pro', monospace;
+}
+
 /** fix pretty-print tommorrow night 80 */
 .prettyprint {
 	padding-left: 0;
@@ -50,7 +54,7 @@ body {
     --secondary: #f2f2f2;
     --on-secondary: hsl(var(--hue),19%,26%);
     --secondary-border: hsl(0,0%,91%);
-    --on-surface: hsl(var(--hue),19%,26%);
+    --on-surface: hsl(var(--hue),10%,50%);
     --on-surface-dimmed: hsla(var(--hue),19%,26%, 0.4);
     --link: hsl(var(--hue),40%,49%);;
     --primary: hsl(var(--hue), 40%, 50%);
@@ -158,20 +162,21 @@ h4 {
 	box-shadow: none;
 }
 
+.param {
+	font-family: inherit;
+}
 
 .param div.signature {
+	font-family: inherit;
 	padding-left: 0;
 	margin-bottom: 20px;
 }
 
-.type-signature {
-	color: var(--on-surface-dimmed);
+.param div.signature .default {
+	font-family: var(--monospace-font);
+	font-size: 14px;
 }
 
-.type-signature .attrib {
-	background: var(--secondary);
-	border: 1px solid var(--surface-border);
-}
 
 .description p {
 	margin-left: 0;
@@ -189,7 +194,6 @@ h4 {
 
 h1, h2, h3, h4, h5, h6 {
 	font-family: 'Source Sans Pro', sans-serif;
-	-webkit-font-smoothing: antialiased;
 }
 
 article h2 {
@@ -228,7 +232,7 @@ a, a:active, a code, a:active code {
 	color: var(--link);
 }
 tt, code, kbd, samp {
-	font-family: 'Source Code Pro', monospace;
+	font-family: var(--monospace-font);
 	font-size: 0.8em;
   	background: rgba(128, 128, 128, .05);
 	color: var(--on-surface);
@@ -244,46 +248,60 @@ article h3 tt, article h3 code, article h3 kbd, article h3 samp {
 .details {
 	font-size: .85em;
 	color: var(--on-surface-dimmed);
-	background: var(--surface-contrast));
+	background: var(--surface-contrast);
 }
 .param-type {
-	font-family: 'Source Code Pro', monospace;
+	font-family: var(--monospace-font);
 	font-size: 14px;
-	/*font-size: 0.8em;*/
-  	background: rgba(128, 128, 128, .05);
+	color: #b294bb;
+  	/* background: rgba(128, 128, 128, .05);
 	border: 1px solid rgba(0, 0, 0, .08);
-	color: var(on-surface-dimmed);
+	color: var(on-surface-dimmed); */
 	text-shadow: none;
-	padding: 4px 7px;
-	border-radius: 3px;
+	padding: 4px 0 4px 7px;
+	/* border-radius: 3px; */
 	white-space: nowrap;
 	vertical-align: baseline;
 }
-.name, .signature {
-	font-family: 'Source Sans Pro', monospace;
-	/*font-size: 14px;*/
+.member > h4.name, .method > h4.name {
+	font-family: var(--monospace-font);
+	color: var(--on-secondary);
+	font-size: 14px;
+	font-weight: bold;
+}
+h4.name > .signature,  h4.name > .type-signature {
+	font-family: var(--monospace-font);
+	font-weight: normal;
+	color: inherit;
+}
+h4.name > .signature > .signature-type, 
+h4.name > .signature > .type-signature {
+	color: #b294bb;
+}
+.type-signature .attrib {
+	background: var(--secondary);
+	border: 1px solid var(--surface-border);
+}
+h4.name > .signature > .signature-attributes {
+	color: #b294bb;
+	font-family: var(--monospace-font);
+	font-size: 100%;
+	font-style: normal;
+	font-weight: bold;
 }
 .name code {
 	margin-bottom: 5px;
 	border: none;
-	font-family: 'Source Sans Pro', monospace;
-	font-size: 17px;
+	font-family: var(--monospace-font);
+	font-weight: bold;
+	font-size: 14px;
 	line-height: 20px;
-	color: var(--on-surface);
+	color: var(--on-secondary);
 	background: transparent;
 }
 .attributes span.attribute {
-	display: inline;
-	font-family: 'Source Code Pro', monospace;
-	font-size: 11.844px;
-	background-color: var(--surface-contrast);
-	color: var(--on-surface-dimmed);
-	text-shadow: none;
-	padding: 4px 7px;
-	border-radius: 3px;
-	white-space: nowrap;
-	vertical-align: baseline;
-	font-style: italic;
+	font-family: var(--monospace-font);
+	font-weight: bold;
 }
 
 #nav {
@@ -387,6 +405,11 @@ nav ul a, nav ul a:active {
 
 section[role="navigation"] {
 	padding: 0;
+	height: 100vh;
+	width: 320px;
+	overflow: scroll;
+	overscroll-behavior: none;
+	border-right: 1px solid var(--secondary-border);
 }
 
 section {
@@ -440,10 +463,6 @@ section.source {
 
 .prettyprint.linenums li.selected, .prettyprint.linenums li.selected *{
    background-color: rgba(244, 222, 54, 0.33);
-}
-.name{
-	color: var(--primary);
-	font-weight: bold;
 }
 nav ul li a, nav ul li a:active, nav ul li ul li a, nav ul li ul li a:active {
 	border-radius: 0 25px 25px 0;

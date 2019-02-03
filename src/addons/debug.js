@@ -1,8 +1,8 @@
-/*global require:false*/
-/*global define:false*/
-/* jshint undef: false, unused: false, esversion: 6, esnext: true */
-
 /**
+ * This module contains utilities to debug mathlive internal data structures.
+ * 
+ * It is also used by the automated test suite.
+ * 
  * @module addons/debug
  * @private
  */
@@ -10,7 +10,7 @@
 
 /**
  * 
- * @param {Span[]} spans 
+ * @param {object[]} spans 
  * @param {string|number|number[]} symbol specify which span to consider. 
  * If a string, a span whose body match the string
  * If a number, the nth span in the list

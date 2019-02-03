@@ -1,10 +1,18 @@
 /**
  * This file contains information and classes for the various kinds of styles
- * used in TeX. It provides a generic `Mathstyle` class, which holds information
- * about a specific style. It then provides instances of all the different kinds
+ * used in TeX, such as:
+ * - `textstyle`: used for math that is displayed inline
+ * - `scriptstyle`: used for math displayed in a superscript or subscript
+ * - `scriptscriptstyle`: used for math displayed in the superscript or subscript
+ * of a superscript or subscript.
+ * 
+ * It provides a generic {@linkcode module:core/mathstyle#Mathstyle Mathstyle} 
+ * class which holds information about a specific style. 
+ * 
+ * It also provides instances of all the different kinds
  * of styles possible, and provides functions to move between them and get
  * information about them.
- * @module mathstyle
+ * @module core/mathstyle
  * @private
  */
 
@@ -32,8 +40,8 @@ for (i = 0; i < 3; i++) {
  * @property {number}  size multiplier, which gives the size difference between
  * a style and textstyle.
  * @property {boolean}  cramped flag
- * @memberof module:mathstyle
- * @class
+ * @memberof module:core/mathstyle
+ * @class module:core/mathstyle#Mathstyle
  * @private
  */
 class Mathstyle {

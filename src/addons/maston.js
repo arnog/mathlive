@@ -1,8 +1,9 @@
 /**
- * This module contains some color dictionaries and algorithms to 
- * parse a string into a hex RGB color value.s
- * @summary   Parsing of color strings.
- * @module Maston
+ * This module parses and outputs an Abstract Syntax Tree representing the 
+ * formula using the {@tutorial MASTON} format. 
+ * 
+ * To use it, use the {@linkcode MathAtom#toAST Atom.toAST()}  method.
+ * @module addons/maston
  * @private
  */
 
@@ -311,7 +312,7 @@ const OP_PRECEDENCE = {
     // Conditional (?:)
 
 
-    // Assignement
+    // Assignment
     ':=':                80,       // MathML had 260 (same with U+2254 COLON EQUALS)
 
     'therefore':                70,
@@ -448,7 +449,7 @@ function getCanonicalName(latex) {
 /**
  * Return the operator precedence of the atom
  * or -1 if not an operator
- * @param {*} atom
+ * @param {object} atom
  * @return {number}
  */
 function opPrec(atom) {
@@ -553,8 +554,8 @@ function getString(atom) {
 
 /**
  *
- * @param {Object} expr -- Abstract Syntax Tree object
- * @return {string} -- A string, the symbol, or undefined
+ * @param {object} expr - Abstract Syntax Tree object
+ * @return {string} A string, the symbol, or undefined
  */
 function asSymbol(expr) {
     let result = expr;
@@ -572,8 +573,8 @@ function asSymbol(expr) {
 
 /**
  *
- * @param {Object} num -- Abstract Syntax Tree object
- * @return {number} -- A JavaScript number, the value of the AST or NaN
+ * @param {object} num - Abstract Syntax Tree object
+ * @return {number} A JavaScript number, the value of the AST or NaN
  * @private
  */
 function asMachineNumber(num) {
@@ -597,7 +598,7 @@ function isNumber(expr) {
 
 /**
  * Return true if the current atom is of the specified type and value.
- * @param {Object} expr
+ * @param {object} expr
  * @param {string} type
  * @param {string} value
  */
@@ -636,7 +637,7 @@ function negate(expr) {
  * Handles both sup/sub attached directly to the current atom
  * as well as "empty" atoms with a sup/sub following the current
  * atom.
- * @param {Object} expr
+ * @param {object} expr
  */
 function parseSupsub(expr, options) {
     let atom = expr.atoms[expr.index - 1];
@@ -1182,10 +1183,10 @@ function parsePrimary(expr, options) {
 /**
  * Given an atom or an array of atoms, return their AST representation as
  * an object.
- * @param {Object} expr An expressions, including expr.atoms, expr.index,
+ * @param {object} expr An expressions, including expr.atoms, expr.index,
  * expr.minPrec the minimum precedence that this parser should parse
  * before returning; expr.lhs (optional); expr.ast, the resulting AST.
- * @return {Object} the expr object, updated
+ * @return {object} the expr object, updated
  * @private
  */
 function parseExpression(expr, options) {
@@ -1308,7 +1309,8 @@ function escapeText(s) {
 /**
  * Return an AST representation of a single atom
  *
- * @return {Object}
+ * @return {object}
+ * @method MathAtom#toAST
  */
 MathAtom.MathAtom.prototype.toAST = function(options) {
     const MATH_VARIANTS = {
@@ -1582,9 +1584,9 @@ MathAtom.toAST = function(atoms, options) {
 
 /**
  *
- * @param {string} fence -- The fence to validate
- * @param {string} -- Default values, in case no fence is provided
- * @return {string} -- A valid fence
+ * @param {string} fence - The fence to validate
+ * @param {string} - Default values, in case no fence is provided
+ * @return {string} - A valid fence
  */
 function validateFence(fence, defaultFence) {
     let result = fence || defaultFence;
@@ -1646,8 +1648,8 @@ function formatMantissa(m, config) {
 
  /**
  *
- * @param {Object|number} num -- A number element, or a number or a bignumber or a fraction
- * @return {string} -- A LaTeX representation of the AST
+ * @param {Object|number} num - A number element, or a number or a bignumber or a fraction
+ * @return {string} A LaTeX representation of the AST
  */
 function numberAsLatex(num, config) {
     let result = '';
@@ -1800,8 +1802,8 @@ function numberAsLatex(num, config) {
 
  /**
  *
- * @param {Object} ast -- Abstract Syntax Tree object
- * @return {string} -- A LaTeX representation of the AST
+ * @param {object} ast - Abstract Syntax Tree object
+ * @return {string} A LaTeX representation of the AST
  */
 function asLatex(ast, options) {
     const config = Object.assign({

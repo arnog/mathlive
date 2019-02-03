@@ -1,7 +1,7 @@
 /**
  *
- * See {@linkcode MathAtom}
- * @module mathAtom
+ * See also the class {@linkcode MathAtom}
+ * @module core/mathatom
  * @private
  */
 import Mathstyle from './mathstyle.js';
@@ -96,7 +96,7 @@ const FONTMETRICS = FontMetricsModule.metrics;
  * outside of the element. Conversely, when the caret reaches the position
  * right after this element, it automatically moves to the last position
  * inside this element.
- * @class MathAtom
+ * @class module:core/mathatom#MathAtom
  * @global
  * @private
  */
@@ -1749,7 +1749,7 @@ function getFontName(symbol, fontFamily) {
  * @param {Context} context Font family, variant, size, color, etc...
  * @param {(MathAtom|MathAtom[])} atoms
  * @return {Span[]}
- * @memberof module:mathAtom
+ * @memberof module:core/mathatom
  * @private
  */
 function decompose(context, atoms) {
@@ -1968,6 +1968,17 @@ function decompose(context, atoms) {
 
     return result;
 }
+
+
+/**
+ * Return an atom suitable for use as the root of a formula.
+ *
+ * @param {string} parseMode
+ * @param {MathAtom[]} body
+ * @return {MathAtom[]}
+ * @memberof module:core/mathatom
+ * @private
+ */
 
 function makeRoot(parseMode, body) {
     parseMode = parseMode || 'math';

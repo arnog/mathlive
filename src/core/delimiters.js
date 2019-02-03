@@ -19,7 +19,7 @@
  * delimiter which surrounds an expression of a given height an depth. It is
  * used in `\left` and `\right`.
  * @summary   Handling of delimiters surrounds symbols.
- * @module delimiters
+ * @module core/delimiters
  * @private
  */
 

@@ -4,7 +4,7 @@
  * and xi variables, as well as the metricMap map contain data extracted from
  * TeX, TeX font metrics, and the TTF files. These data are then exposed via the
  * `metrics` variable and the getCharacterMetrics function.
- * @module fontMetrics
+ * @module core/fontMetrics
  * @private
  */
 import metricMap from './fontMetricsData.js';

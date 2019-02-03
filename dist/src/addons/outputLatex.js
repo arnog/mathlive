@@ -1,3 +1,12 @@
+/**
+ * This module outputs a formula to LaTeX.
+ * 
+ * To use it, use the {@linkcode MathAtom#toLatex Atom.toLatex()}  method.
+ * 
+ * @module addons/outputLatex
+ * @private
+ */
+
 import MathAtom from '../core/mathAtom.js';
 
 
@@ -26,12 +35,13 @@ function latexify(value, expandMacro) {
 
 
 /**
- * Return a LaTeX representation of the atom
+ * Return a LaTeX representation of the atom.
  *
  * @param {boolean} expandMacro - If true, macros are fully expanded. This will
  * no longer round-trip.
  *
  * @return {string}
+ * @method MathAtom#toLatex
  */
 MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
     expandMacro = expandMacro === undefined ? false : expandMacro;

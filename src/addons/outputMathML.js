@@ -1,7 +1,9 @@
 /**
- * Give an atom or an array of atoms, return a MathML representation of it
- * @return {string}
- * @param {string|MathAtom|MathAtom[]} value
+ * 
+ * This module outputs a formula to MathML.
+ * 
+ * To use it, use the {@linkcode MathAtom#toMathML Atom.toMathML()}  method.
+ * 
  * @module addons/outputMathML
  * @private
  */

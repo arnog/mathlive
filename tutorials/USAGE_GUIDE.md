@@ -18,7 +18,7 @@ download or install anything else.
 
 The `dist/` directory contains the following:
 - `mathlive.mjs` The MathLive JavaScript library as a native JavaScript module. 
-It is an optimized and minified JavaScript file which exports the [`MathLive`]{@link module:mathlive} 
+It is an optimized and minified JavaScript file which exports the {@linkcode module:MathLive MathLive} 
 module which gives access to the MathLive API.
 - `mathlive.js` Same as `mathlive.mjs` but as a UMD (Universal Module Definition)
 file which can be imported using a module loader such as requirejs.
@@ -61,7 +61,7 @@ to account for your directory structure.
 
 ## Rendering Math Automatically
 
-Call [`MathLive.renderMathInDocument()`]{@link module:mathlive#renderMathInDocument} 
+Call {@linkcode module:MathLive#renderMathInDocument MathLive.renderMathInDocument()} 
  at the end of your document, or in a `onload` handler to render math contained 
  in the document.
 
@@ -106,7 +106,7 @@ Elements with the following tags will be ignored for conversion:
 `noscript`, `style`, `textarea`, `pre`, `code`, `annotation` and `annotation-xml`.
 
 If you dynamically generate content, call 
-[`MathLive.renderMathInElement(element)`]{@link module:mathlive#renderMathInElement} 
+{@linkcode module:MathLive#renderMathInElement MathLive.renderMathInElement(element)} 
 to render your element after the page has been loaded. This is a recursive
 call that will be applied to `element` and all its children.
 
@@ -116,8 +116,8 @@ been rendered, in which case they will be rendered again. This is useful
 if something in the environment changes that could require the layout to be 
 updated.
 
-The [`MathLive.renderMathInElement()`]{@link module:mathlive#renderMathInElement} and 
-[`MathLive.renderMathInDocument()`]{@link module:mathlive#renderMathInDocument} 
+The {@linkcode module:mathlive#renderMathInElement MathLive.renderMathInElement()} and 
+{@linkcode module:mathlive#renderMathInDocument MathLive.renderMathInDocument()} 
 functions take an optional `options` object which can be used to customize their 
 behavior:
 
@@ -159,7 +159,8 @@ respectively.
 ## Using the Math Editor with JavaScript
 
 To transform an existing HTML element into a math field, call 
-[`MathLive.makeMathField(element, options)`]{@link module:mathlive#makeMathField}. 
+{@linkcode module:mathlive#makeMathField MathLive.makeMathField(element, options)}. 
+
 Think of this original element as a placeholder. Typically, a `<div>` would 
 be appropriate. If the element contains some LaTeX text, it will be used as the
  initial value of the math field.
@@ -191,21 +192,21 @@ You can control the math field using the public member functions of `MathField`,
 that is, functions that do not contain an `_` at the beginning or end of their name.
 Here's a short list for some common operations:
 
-* `el()` the DOM element associated with this math field
-* `text(format)` return a textual representation of the content of the math 
+* `$el()` the DOM element associated with this math field
+* `$text(format)` return a textual representation of the content of the math 
 field, `format` can be either `"latex"` (default), `"spoken"` or `"mathML"`.
-* `.insert(content, options)` insert the specified content at the current 
+* `$insert(content, options)` insert the specified content at the current 
 insertion point. With `options` it is possible to specify the insertion mode,
 as well as what will be selected after the insertion. If the content contains
 a `#?` a placeholder will be indicated in its stead. The `#0` sequence will
 be replaced by the item currently selected (or a placeholder if nothing is 
 selected)
-* `config()` customize how the math field behaves, as well as provide 
+* `$setConfig()` customize how the math field behaves, as well as provide 
 notification handlers, for example when the selection changes, or when 
 navigation exists the math field.
-* `select()` select all the items in the math field
-* `clearSelection()` deletes the selection
-* `perform()` executes a command such as moving the insertion point. Typically
+* `$select()` select all the items in the math field
+* `$clearSelection()` deletes the selection
+* `$perform()` executes a command such as moving the insertion point. Typically
 invoked in response to a user action, such as pressing a keyboard shortcut
 or pushing a button. The command will be undoable. See the list of available
 commands in the **Selectors** section below.
@@ -216,15 +217,17 @@ User initiated commands that control the math field can be dispatched using
 the [`perform()`]{@link MathField#perform} commands. Commands are identified by 
 a string called the **selector**. Most commands take no parameters. When a 
 command does have a parameter, an array made up of the selector and the 
-commands arguments can be passed to [`perform()`]{@link MathField#perform}. 
+commands arguments can be passed to [`MathField.$perform()`]{@link MathField#$perform}. 
 For example:
 
 ``` javascript
-   mf.perform(['insert', '(#0)']);
+   mf.$perform(['insert', '(#0)']);
 ```
 
 will insert an open and close parenthesis around the selection (the `#0`
 sequence is replaced with the current selection).
+
+See {@tutorial SELECTORS} for a complete list.
 
 ### Editing
 * `insert`. This selector takes two arguments. The first one is required and 

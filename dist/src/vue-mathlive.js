@@ -67,7 +67,7 @@ export default {
         config: {
             deep: true,
             handler: function(config) {
-                this.$el.mathfield.setConfig(config)
+                this.$el.mathfield.$setConfig(config)
             }
         },
     },

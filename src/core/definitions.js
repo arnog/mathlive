@@ -48,7 +48,7 @@
  * example `\alpha`, `\sin`, `\mathrm`.
  * There are a few exceptions with some "built-in" commands that require
  * special parsing such as `\char`.
- * @module definitions
+ * @module core/definitions
  * @private
  */
 import FontMetrics from './fontMetrics.js';

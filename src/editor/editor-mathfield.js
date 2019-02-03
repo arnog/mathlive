@@ -1,5 +1,6 @@
 
 /**
+ * 
  * See {@linkcode MathField}
  * @module editor/mathfield
  * @private
@@ -75,12 +76,15 @@ function off(el, selectors, listener, options) {
 
 
 /**
+ * To create a mathfield, you would typically use {@linkcode module:MathLive#makeMathField MathLive.makeMathField()}
+ * instead of invoking directly this constructor.
+ * 
  * **Note**
  * - Method names that begin with `$` are public.
  * - Method names that _begin with_ an underbar `_` are private and meant
  * to be used only by the implementation of the class.
  * - Method names that _end with_ an underbar `_` are selectors. They can
- * be invoked by calling the `perform()` function of a `MathField` object. Note
+ * be invoked by calling [`MathField.$perform()`]{@link MathField#$perform}. Note
  * that the selector name does not include the underbar.
  *
  * For example:
@@ -88,15 +92,17 @@ function off(el, selectors, listener, options) {
  *    mf.perform('selectAll');
  * ```
  * 
- * @param {Element} element 
- * @param {Object} config - See [`MathLive.makeMathField()`]{@link module:mathlive#makeMathField} for details
+ * @param {Element} element - The DOM element that this mathfield is attached to.
+ * Note that `element.mathfield` is this object.
+ * @param {object} config - See {@linkcode module:MathLive#makeMathField MathLive.makeMathField()} for details
  * @property {Element} element - The DOM element this mathfield is attached to.
- * @property {Object} config - A key/value/pair object that includes options
- * customizing the behavior of the mathfield
+ * @property {Object.<string, any>} config - A set of key/value pairs that can
+ * be used to customize the behavior of the mathfield
  * @property {string} id - A unique ID identifying this mathfield
  * @property {boolean} keystrokeCaptionVisible - True if the keystroke caption
  * panel is visible
- * @property {boolean} virtualKeyboardVisible
+ * @property {boolean} virtualKeyboardVisible - True if the virtual keyboard is 
+ * visible
  * @property {string} inlineShortcutBuffer The last few keystrokes, to look out
  * for inline shortcuts
  * @property {object[]} inlineShortcutStates The saved state for each of the 
@@ -106,7 +112,7 @@ function off(el, selectors, listener, options) {
  */
 function MathField(element, config) {
     // Setup default config options
-    this.setConfig(config || {});
+    this.$setConfig(config || {});
 
     this.element = element;
     element.mathfield = this;
@@ -718,6 +724,8 @@ function speakableText(mathfield, prefix, atoms) {
  * @param {string} command the command that invoked the change
  * @param {object} oldMathlist [null] the previous value of mathlist before the change
  * @param {object} array [null] or atom: atomsToSpeak the command that invoked the change
+ * @method MathField#_onAnnounce
+ * @private
  */
  function _onAnnounce(target, command, oldMathlist, atomsToSpeak) {
 //** Fix: the focus is the end of the selection, so it is before where we want it
@@ -847,7 +855,15 @@ MathField.prototype._showKeystroke = function(keystroke) {
 
 /**
  * @param {string|string[]} command - A selector, or an array whose first element
- * is a selector, and whose subsequent elements are arguments to the selector
+ * is a selector, and whose subsequent elements are arguments to the selector.
+ * Note that selectors do not include a final "_". They can be passed either 
+ * in camelCase or kebab-case. So:
+ * ```javascript
+ * mf.$perform('selectAll');
+ * mf.$perform('select-all');
+ * ```
+ * both calls are valid and invoke the same selector.
+ * 
  * @method MathField#$perform
  */
 MathField.prototype.perform = 
@@ -1532,6 +1548,8 @@ MathField.prototype.$latex = function(text, options) {
 
 /**
  * Return the DOM element associated with this mathfield.
+ * 
+ * Note that `this.$el().mathfield = this`
  * @return {Element}
  * @method MathField#$el
  */
@@ -1615,11 +1633,15 @@ MathField.prototype.pasteFromClipboard_ = function() {
 
 
 /**
- * This function can be invoked as a selector with `perform()` or called explicitly.
- * It will insert the specified block of text at the current selection point,
- * according to the insertion mode specified. After the insertion, the
- * selection will be set according to the selectionMode.
+ * This method can be invoked as a selector with {@linkcode MathField#$perform $perform("insert")}
+ * or called explicitly.
+ * 
+ * It will insert the specified block of text at the current insertion point,
+ * according to the insertion mode specified. 
+ * 
+ * After the insertion, the selection will be set according to the `selectionMode`.
  * @param {string} s - The text to be inserted
+ * @param {Object.<string, any>} [options={}]
  * @param {string} options.selectionMode - Describes where the selection
  * will be after the insertion:
  *    * `'placeholder'`: the selection will be the first available placeholder
@@ -1635,7 +1657,8 @@ MathField.prototype.pasteFromClipboard_ = function() {
  * (default)
  *    * `'latex'`: the string is interpreted strictly as a latex fragment
  *
- * @param {boolean} options.focus - If true, the mathfield will be focused
+ * @param {boolean} options.focus - If true, the mathfield will be focused after 
+ * the insertion
  * @param {boolean} options.feedback - If true, provide audio and haptic feedback
  * @method MathField#$insert
  */
@@ -2337,9 +2360,11 @@ MathField.prototype.$clearSelection = function() {
 
 
 /**
- * @param {string} keys - A string representation of a key combination. For
- * example `'Alt-KeyU'`.
- * See https://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
+ * @param {string} keys - A string representation of a key combination. 
+ * 
+ * For example `'Alt-KeyU'`.
+ * 
+ * See [W3C UIEvents](https://www.w3.org/TR/uievents/#code-virtual-keyboards)
  * @param {Event} evt
  * @return {boolean} 
  * @method MathField#$keystroke
@@ -2368,7 +2393,7 @@ MathField.prototype.$typedText = function(text) {
 /**
  *
  * @param {string} text
- * @param {object} options
+ * @param {Object.<string, any>} [options={}]
  * @param {boolean} options.focus - If true, the mathfield will be focused
  * @param {boolean} options.feedback - If true, provide audio and haptic feedback
  * @param {boolean} options.simulateKeystroke - If true, generate some synthetic
@@ -2380,7 +2405,10 @@ MathField.prototype.typedText_ = function(text, options) {
 
 
 /**
- * @param {Object} config - See [`MathLive.makeMathField()`]{@link module:mathlive#makeMathField} for details
+ * 
+ * Update the configuration options for this mathfield.
+ * 
+ * @param {Object<string, *>} [config={}] See {@tutorial CONFIG} for details.
  * 
  * @method MathField#$setConfig
  */

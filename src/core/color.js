@@ -4,7 +4,7 @@
  * This module contains some color dictionaries and algorithms to 
  * parse a string into a hex RGB color value.s
  * @summary   Parsing of color strings.
- * @module color
+ * @module core/color
  * @private
  */
 

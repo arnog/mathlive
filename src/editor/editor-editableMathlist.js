@@ -24,7 +24,7 @@ import MathPath from './editor-mathpath.js';
  * - Method names that _begin with_ an underbar `_` are private and meant
  * to be used only by the implementation of the class.
  * - Method names that _end with_ an underbar `_` are selectors. They can
- * be invoked by calling the `perform()` function of a `MathField` object.
+ * be invoked by calling [`MathField.$perform()`]{@link MathField#$perform}.
  * They will be dispatched to an instance of `MathEditableList` as necessary.
  * Note that the selector name does not include the underbar.
  *

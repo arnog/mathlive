@@ -14,7 +14,6 @@
     "templates": {
         "cleverLinks": false,
         "monospaceLinks": false,
-        "outputSourceFiles": true,
         "linenums": true,
         "sourceCodeTheme": "dark",
         "sourceCodeBackground": "#35434e",
@@ -34,6 +33,7 @@
     },
     "opts": {
         "access": "all",
+        "outputSourceFiles": false,
         "template": "node_modules/sutro-jsdoc-theme",
         "encoding": "utf8",
         "recurse": true,

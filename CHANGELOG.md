@@ -154,11 +154,11 @@ fractions and `\overset`
 
 ## 0.21 (March 30, 2018)
 ### Major New Features
-- Basic support for Latex macros. Macros can be defined with `MathField.config({macros:'...')` 
+- Basic support for Latex macros. Macros can be defined with `MathField.$setConfig({macros:'...')` 
 - Display alternate keys when a key on the virtual
 keyboard is held down.
 - Support for AZERTY, QWERTZ, Dvorak and Colemak virtual keyboards. Can be 
-setup with `MathField.config({virtualKeyboardLayout:'...')`. Also, shift 
+setup with `MathField.$setConfig({virtualKeyboardLayout:'...')`. Also, shift 
 clicking on the keyboard icon toggles between layouts.
 
 ### Other New Features
@@ -300,7 +300,7 @@ selection.
 - Made `\backslash` work in text mode, for example when an argument of `\rlap{}`
 - Added `MathField.revertToOriginalContent()` when a math field is no longer 
 needed for an element
-- Added customization of the command bar. See `MathField.config()` and 
+- Added customization of the command bar. See `MathField.$setConfig()` and 
 `config.commands`
 - Added `MathLive.revertToOriginalContent()` and `MathLive.getOriginalContent()`
 - Added optional namespacing of `data-` attributes

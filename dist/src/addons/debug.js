@@ -1,16 +1,21 @@
-/*global require:false*/
-/*global define:false*/
-/* jshint undef: false, unused: false, esversion: 6, esnext: true */
-
+/**
+ * This module contains utilities to debug mathlive internal data structures.
+ * 
+ * It is also used by the automated test suite.
+ * 
+ * @module addons/debug
+ * @private
+ */
 
 
 /**
  * 
- * @param {Span[]} spans 
+ * @param {object[]} spans 
  * @param {string|number|number[]} symbol specify which span to consider. 
  * If a string, a span whose body match the string
  * If a number, the nth span in the list
  * If an array, each element in the array indicate the nth child to traverse
+ * @private
  */
 function getSymbol(spans, symbol) {
     if (!spans) return null;
@@ -55,8 +60,9 @@ function getProp(spans, symbol, prop) {
  * Return the type ('mbin', etc...) of a span
  * @param {Span[]} spans 
  * @param {string} symbol 
- * @return string}
- */
+ * @return {string}
+ * @private
+*/
 function getType(spans, symbol) {
     const s = getSymbol(spans, symbol);
     if (s) return s.type;

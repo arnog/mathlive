@@ -2,7 +2,7 @@
 /*global define:false*/
 
 /**
- * @module span
+ * @module core/span
  * @private
  */
 
@@ -15,7 +15,7 @@ import FontMetrics from './fontMetrics.js';
  *
  * @param {...string} args
  * @return {string}
- * @memberof module:span
+ * @memberof module:core/span
  * @private
  */
 function toString() {
@@ -54,8 +54,7 @@ function toString() {
  * @param {string} classes list of classes attributes associated with this node
  * @return {void}
  * @class
- * @global
- * @memberof module:span
+ * @memberof module:core/span
  * @property {string} type - For example, `'command'`, `'mrel'`, etc...
  * @property {string} classes - A string of space separated CSS classes
  * associated with this element
@@ -99,7 +98,7 @@ function Span(content, classes) {
  * - height: distance from bottom to top
  * - depth: distance from bottom to baseline
  * - maxFontSize:
- * @method module:span.Span#updateDimensions
+ * @method module:core/span.Span#updateDimensions
  * @private
  */
 Span.prototype.updateDimensions = function() {
@@ -130,7 +129,7 @@ Span.prototype.updateDimensions = function() {
  * @param {string} prop the CSS property to set
  * @param {Object} value a series of strings and numbers that will be concatenated.
  * @return {string}
- * @method module:span.Span#setStyle
+ * @method module:core/span.Span#setStyle
  * @private
  */
 Span.prototype.setStyle = function(prop, ...value) {
@@ -204,7 +203,7 @@ Span.prototype.addMarginRight = function(margin) {
  * @param {number} [hskip] amount of whitespace to insert before this element
  * This is used to adjust the inter-spacing between spans of different types,
  * e.g. 'bin' and 'rel', according to the TeX rules.
- * @alias module:span.INTER_ATOM_SPACING
+ * @alias module:core/span.INTER_ATOM_SPACING
  * @private
  */
 const INTER_ATOM_SPACING = {
@@ -244,7 +243,7 @@ const INTER_ATOM_SPACING = {
 
 /**
  *
- * @alias module:span.INTER_ATOM_TIGHT_SPACING
+ * @alias module:core/span.INTER_ATOM_TIGHT_SPACING
  * @private
  */
 const INTER_ATOM_TIGHT_SPACING = {
@@ -273,7 +272,7 @@ function lastSpanType(span) {
  * @param {?number} hscale - If a value is provided, the margins are scaled by
  * this factor.
  * @return {string} HTML markup
- * @method module:span.Span#toMarkup
+ * @method module:core/span.Span#toMarkup
  * @private
  */
 Span.prototype.toMarkup = function(hskip, hscale) {
@@ -421,7 +420,7 @@ Span.prototype.toMarkup = function(hskip, hscale) {
  *      "<span class='mord mathrm'>1</span><span class='mord mathrm'>2</span>"
  * @param {Span} span
  * @return {boolean}
- * @method module:span.Span#tryCoalesceWith
+ * @method module:core/span.Span#tryCoalesceWith
  * @private
  */
 Span.prototype.tryCoalesceWith = function(span) {
@@ -502,7 +501,7 @@ Span.prototype.tryCoalesceWith = function(span) {
  *
  * @param {Span[]} spans
  * @return {Span[]} coalesced tree
- * @memberof module:span
+ * @memberof module:core/span
  * @private
  */
 function coalesce(spans) {
@@ -575,7 +574,7 @@ function italic(spans) {
  * Make an element made of a sequence of children with classes
  * @param {(string|Span|Span[])} content the items 'contained' by this node
  * @param {string} classes list of classes attributes associated with this node
- * @memberof module:span
+ * @memberof module:core/span
  * @private
  */
 function makeSpan(content, classes) {
@@ -597,7 +596,7 @@ function makeSpan(content, classes) {
  * @param {string} fontFamily
  * @param {string} symbol
  * @param {string} classes
- * @memberof module:span
+ * @memberof module:core/span
  * @private
  */
 function makeSymbol(fontFamily, symbol, classes) {
@@ -622,7 +621,7 @@ function makeSymbol(fontFamily, symbol, classes) {
 //  * Note: without this, even when fontSize = 0, the fraction bar is no
 //  * longer positioned correctly
  * @return {Span}
- * @memberof module:span
+ * @memberof module:core/span
  * @private
  */
 function makeFontSizer(context, fontSize) {
@@ -654,7 +653,7 @@ function makeFontSizer(context, fontSize) {
  * See https://tex.stackexchange.com/questions/81752/
  * for a thorough description of the TeXt atom type and their relevance to
  * proper kerning.
- * @memberof module:span
+ * @memberof module:core/span
  * @private
  */
 function makeSpanOfType(type, content, classes) {
@@ -724,7 +723,7 @@ function makeSVG(body, svgMarkup, svgStyle) {
  *
  * @param {Span|Span[]} children
  * @param {string} classes
- * @memberof module:span
+ * @memberof module:core/span
  * @private
  */
 function makeHlist(children, classes) {
@@ -756,7 +755,7 @@ function makeHlist(children, classes) {
  * - `"shift"`: the baseline of the vlist will be positioned posData away from the baseline
  * of the first child. (>0 moves down)
  * @param {number} posData
- * @memberof module:span
+ * @memberof module:core/span
  * @private
  */
 function makeVlist(context, elements, pos, posData) {

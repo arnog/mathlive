@@ -1,5 +1,5 @@
 /**
- * @module lexer
+ * @module core/lexer
  * @private
  */
 /**
@@ -34,8 +34,7 @@ import GraphemeSplitter from './grapheme-splitter.js';
  *  See: [TeX:289](http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web)
  * @property {string} value
  * @property {string} type
- * @class Token
- * @global
+ * @class module:core/lexer#Token
  * @private
  */
 class Token {
@@ -47,9 +46,13 @@ class Token {
 }
 
 /**
- * @param {string} s
+ * Given a LaTeX expression represented as a character string, 
+ * the Lexer class will scan and return Tokens for the lexical 
+ * units in the string.
+ * 
+ * @param {string} s A string of LaTeX
  * @class Lexer
- * @global
+ * @class module:core/lexer#Lexer
  * @private
  */
 class Lexer {
@@ -59,7 +62,7 @@ class Lexer {
     }
     /**
      * @return {boolean} True if we reached the end of the stream
-     * @method Lexer#end
+     * @method module:core/lexer#Lexer#end
      * @private
      */
     end() {
@@ -68,7 +71,7 @@ class Lexer {
     /**
      * Return the next char and advance
      * @return {string}
-     * @method Lexer#get
+     * @method module:core/lexer#Lexer#get
      */
     get() {
         return this.pos < this.s.length ? this.s[this.pos++] : null;
@@ -76,7 +79,7 @@ class Lexer {
     /**
      * Return the next char, but do not advance
      * @return {string}
-     * @method Lexer#peek
+     * @method module:core/lexer#Lexer#peek
      * @private
      */
     peek() {
@@ -86,7 +89,7 @@ class Lexer {
      * Return the next substring matching regEx and advance.
      * @param {RegEx} regEx
      * @return {?string}
-     * @method Lexer#scan
+     * @method module:core/lexer#Lexer#scan
      * @private
      */
     scan(regEx) {
@@ -114,7 +117,7 @@ class Lexer {
      * - IE:          `[ \t\n\v\f\r]`
      *
      * See [Stackoverflow](http://stackoverflow.com/questions/6073637/)
-     * @method Lexer#isWhiteSpace
+     * @method module:core/lexer#Lexer#isWhiteSpace
      * @private
      */
     isWhiteSpace() {
@@ -141,7 +144,7 @@ class Lexer {
     /***
      * Advance until non-white-space char.
      * Returns number of chars skipped.
-     * @method Lexer#skipWhiteSpace
+     * @method module:core/lexer#Lexer#skipWhiteSpace
      * @private
      */
     skipWhiteSpace() {
@@ -155,7 +158,7 @@ class Lexer {
      * Return a single token, or null, created from the lexer.
      *
      * @returns {Token}
-     * @method Lexer#makeToken
+     * @method module:core/lexer#Lexer#makeToken
      * @private
      */
     makeToken() {
@@ -275,7 +278,7 @@ class Lexer {
  * @param {string} s - A string o LaTeX. It can include comments (with the `%`
  * marker) and multiple lines.
  * @return {Token[]}
- * @memberof module:lexer
+ * @memberof module:core/lexer
  * @private
  */
 function tokenize(s) {

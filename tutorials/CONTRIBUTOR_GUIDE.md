@@ -247,9 +247,12 @@ as part of the public API, such as `MathLive` and `MathField`.
  be used.
 * functions that end in `_` are selectors and should not be invoked directly by 
 a client of the MathLive library (they can be called internally).
-Instead, a `MathField.perform()` call should be made. Note that the perform call
-does not include the `_`, so you would call `mathfield.$perform('selectAll')`.
-Also note that `$perform` accepts both CamelCase and kebab-case, so `mathfield.$perform('select-all')` is valid as well.
+Instead, a [`MathField.$perform()`]{@link MathField#$perform} call should be 
+made. Note that the perform call does not include the `_`, so you would call 
+`mathfield.$perform('selectAll')`.
+
+Also note that `$perform` accepts both CamelCase and kebab-case, so 
+`mathfield.$perform('select-all')` is valid as well.
 * functions that begin with `$` are public.
 * functions that neither begin nor end with an `_` are public and can be called
 directly.
