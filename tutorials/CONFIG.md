@@ -114,20 +114,23 @@ If `undo`, the last typed character is removed and the conversion undone.
 ---
 **`config.smartFence=true`**:`boolean`
 
-If true, when an open fence is
+If `true`, when an open fence is
 entered via `typedText()` it will generate a contextually appropriate markup,
 for example using `\left...\right` if applicable. 
 
-If false, the literal value of the character will be inserted instead.
+If `false`, the literal value of the character will be inserted instead.
 
+---
+**`config.removeExtraneousParentheses=true`**:`boolean`
+
+If `true`, extra parentheses around a numerator or denominator are removed automatically.
 
 ---
 **`config.ignoreSpacebarInMathMode=true`**:`boolean`
 
-If true, when the 
-spacebar is pressed, no space is inserted. 
+If `true`, when the spacebar is pressed, no space is inserted. 
 
-If false, a space is inserted when the spacebar is pressed.
+If `false`, a space is inserted when the spacebar is pressed.
 
 
 ---

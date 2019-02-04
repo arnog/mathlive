@@ -2429,6 +2429,7 @@ MathField.prototype.$setConfig = function(conf) {
     if (!this.config) {
         this.config = {
             smartFence: true,
+            removeExtraneousParentheses: false,
             inlineShortcutBackspaceCommand: 'undo',
             overrideDefaultInlineShortcuts: false,
             virtualKeyboard: '',

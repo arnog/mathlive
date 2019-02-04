@@ -140,15 +140,17 @@ conversion, the entire shortcut is deleted.</p>
 <p>If <code>undo</code>, the last typed character is removed and the conversion undone.</p>
 <hr>
 <p><strong><code>config.smartFence=true</code></strong>:<code>boolean</code></p>
-<p>If true, when an open fence is
+<p>If <code>true</code>, when an open fence is
 entered via <code>typedText()</code> it will generate a contextually appropriate markup,
 for example using <code>\left...\right</code> if applicable. </p>
-<p>If false, the literal value of the character will be inserted instead.</p>
+<p>If <code>false</code>, the literal value of the character will be inserted instead.</p>
+<hr>
+<p><strong><code>config.removeExtraneousParentheses=true</code></strong>:<code>boolean</code></p>
+<p>If <code>true</code>, extra parentheses around a numerator or denominator are removed automatically.</p>
 <hr>
 <p><strong><code>config.ignoreSpacebarInMathMode=true</code></strong>:<code>boolean</code></p>
-<p>If true, when the 
-spacebar is pressed, no space is inserted. </p>
-<p>If false, a space is inserted when the spacebar is pressed.</p>
+<p>If <code>true</code>, when the spacebar is pressed, no space is inserted. </p>
+<p>If <code>false</code>, a space is inserted when the spacebar is pressed.</p>
 <hr>
 <p><strong><code>config.virtualKeyboardToggleGlyph</code></strong>:<code>string</code></p>
 <p>If specified, the markup 

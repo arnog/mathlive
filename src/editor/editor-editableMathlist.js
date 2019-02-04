@@ -1719,7 +1719,9 @@ EditableMathlist.prototype.insert = function(s, options) {
             // Simplify result.
             // If it's a fraction with a parenthesized numerator or denominator
             // remove the parentheses.
-            if (mathlist.length === 1 && mathlist[0].type === 'genfrac') {
+            if (mathlist.length === 1 && 
+                mathlist[0].type === 'genfrac' && 
+                this.config.removeExtraneousParentheses) {
                 mathlist[0].numer = removeParen(mathlist[0].numer);
                 mathlist[0].denom = removeParen(mathlist[0].denom);
             }
@@ -1788,7 +1790,6 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
             return true;
          }
     }
-
     if (fence === '{') fence = '\\lbrace';
     if (fence === '[') fence = '\\lbrack';
     if (fence === '}') fence = '\\rbrace';
