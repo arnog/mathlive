@@ -779,7 +779,6 @@ function speakableText(mathfield, prefix, atoms) {
         ' \u202f ' : ' \u00a0 ';
     target.ariaLiveText.textContent = liveText + ariaLiveChangeHack;
     // this.textarea.setAttribute('aria-label', liveText + ariaLiveChangeHack);
-    console.log('announce: ', liveText);
 }
 
 
@@ -1051,8 +1050,10 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
         } else {
             // If we're in the middle of a potential inline shortcut, treat 
             // Backspace as Undo. This deals with the case "pi<backspace>i"
-            if (this.mathlist.isCollapsed() && this.inlineShortcutBuffer.length > 0) {
-                selector = 'undo';
+            if (this.config.inlineShortcutBackspaceCommand !== 'delete' && 
+                    this.mathlist.isCollapsed() && 
+                    this.inlineShortcutBuffer.length > 0) {
+                selector = this.config.inlineShortcutBackspaceCommand;
                 this._announce('delete');
             }
         }
@@ -2428,6 +2429,7 @@ MathField.prototype.$setConfig = function(conf) {
     if (!this.config) {
         this.config = {
             smartFence: true,
+            inlineShortcutBackspaceCommand: 'undo',
             overrideDefaultInlineShortcuts: false,
             virtualKeyboard: '',
             virtualKeyboardLayout: 'qwerty',

@@ -111,12 +111,10 @@ opportunity to provide accessible feedback on navigation and editing operations.
 <code>ARIA-live</code> region to provide descriptive feedback of the editing operations.</p>
 <hr>
 <p><strong><code>config.overrideDefaultInlineShortcuts=false</code></strong>:<code>boolean</code></p>
-<p>If true
-the default inline shortcuts (e.g. <code>p</code> + <code>i</code> = <code>π</code>) are ignored.</p>
+<p>If <code>true</code> the default inline shortcuts (e.g. <code>p</code> + <code>i</code> = <code>π</code>) are ignored.</p>
 <hr>
 <p><strong><code>config.inlineShortcuts</code></strong>:<code>Object.&lt;string, string&gt;</code></p>
-<p>A map of 
-shortcuts → replacement value. </p>
+<p>A map of shortcuts → replacement value. </p>
 <p>For example <code>{ 'pi': '\\pi'}</code>. 
 If <code>overrideDefaultInlineShortcuts</code> is false, these shortcuts are applied 
 after any default ones, and can therefore override them.</p>
@@ -135,6 +133,11 @@ characters to be considered part of the same inline shortcut sequence is
 supporting the &quot;±&quot; shortcut with the same sequence.
 The first result can be entered by pausing slightly between the first and 
 second character if this option is set to a value of 250 or so.</p>
+<hr>
+<p><strong><code>config.inlineShortcutBackspaceCommand='undo'</code></strong>:<code>boolean</code></p>
+<p>If <code>delete</code> when the backspace key is pressed after an inline shortcut
+conversion, the entire shortcut is deleted.</p>
+<p>If <code>undo</code>, the last typed character is removed and the conversion undone.</p>
 <hr>
 <p><strong><code>config.smartFence=true</code></strong>:<code>boolean</code></p>
 <p>If true, when an open fence is

@@ -70,15 +70,13 @@ If no function is provided, a default implementation is used which uses an
 ---
 **`config.overrideDefaultInlineShortcuts=false`**:`boolean`
 
-If true
-the default inline shortcuts (e.g. `p` + `i` = `π`) are ignored.
+If `true` the default inline shortcuts (e.g. `p` + `i` = `π`) are ignored.
 
 
 ---
 **`config.inlineShortcuts`**:`Object.<string, string>`
 
-A map of 
-shortcuts → replacement value. 
+A map of shortcuts → replacement value. 
 
 For example `{ 'pi': '\\pi'}`. 
 If `overrideDefaultInlineShortcuts` is false, these shortcuts are applied 
@@ -105,6 +103,13 @@ supporting the "±" shortcut with the same sequence.
 The first result can be entered by pausing slightly between the first and 
 second character if this option is set to a value of 250 or so.
 
+---
+**`config.inlineShortcutBackspaceCommand='undo'`**:`boolean`
+
+If `delete` when the backspace key is pressed after an inline shortcut
+conversion, the entire shortcut is deleted.
+
+If `undo`, the last typed character is removed and the conversion undone.
 
 ---
 **`config.smartFence=true`**:`boolean`
