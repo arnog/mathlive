@@ -35,21 +35,21 @@ keyboard capture
 
 
 ---
-**`config.onFocus`**:`function(mathfield)`
+**`config.onFocus`**:`function(mathfield:MathField)`
 
 Invoked when the mathfield has
 gained focus
 
 
 ---
-**`config.onBlur`**:`function(mathfield)`
+**`config.onBlur`**:`function(mathfield:MathField)`
 
 Invoked when the mathfield has
 lost focus
 
 
 ---
-**`config.onKeystroke`**:`function(mathfield, keystroke:string, ev:Event):boolean`
+**`config.onKeystroke`**:`function(mathfield:MathField, keystroke:string, ev:Event):boolean`
 
 
 Invoked when a keystroke is about to be processed. 
@@ -58,6 +58,14 @@ Invoked when a keystroke is about to be processed.
 
 Return `false` to stop the handling of the event.
 
+---
+**`config.onAnnounce`**: `function(mathfield:MathField, command: string, before: atoms[], after: atoms[])`
+
+Invoked when a command has modified the selection or content. This is an 
+opportunity to provide accessible feedback on navigation and editing operations.
+
+If no function is provided, a default implementation is used which uses an 
+`ARIA-live` region to provide descriptive feedback of the editing operations.
 
 ---
 **`config.overrideDefaultInlineShortcuts=false`**:`boolean`
