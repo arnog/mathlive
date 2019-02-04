@@ -1,7 +1,7 @@
 /**
  * This module outputs a formula to LaTeX.
  * 
- * To use it, use the {@linkcode MathAtom#toLatex Atom.toLatex()}  method.
+ * To use it, use the {@linkcode MathAtom#toLatex MathAtom.toLatex()}  method.
  * 
  * @module addons/outputLatex
  * @private

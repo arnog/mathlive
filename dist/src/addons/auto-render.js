@@ -125,23 +125,23 @@ function splitWithDelimiters(text, delimiters) {
 }
 
 
-function createAccessibleNode(latex, latexToMathML, options) {
+function createMathMLNode(latex, options) {
     // Create a node for AT (Assistive Technology, e.g. screen reader) to speak, etc.
     // This node has a style that makes it be invisible to display but is seen by AT
     const span = document.createElement('span');
     try {
         span.innerHTML = "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
-                            latexToMathML(latex, options) +
+                            options.renderToMathML(latex, options) +
                          "</math>";
     } catch (e) {
-        console.error( 'Could not convert\'' + latex + '\' to accessible format with ', e );
+        console.error( 'Could not convert\'' + latex + '\' to MathML with ', e );
         span.innerText = latex;
     }
-    span.setAttribute('class', 'ML__HiddenAccessibleMath');
+    span.className = 'sr-only';
     return span;
 }
 
-function createMarkupNode(text, options, mathstyle, latexToMarkup, createNodeOnFailure) {
+function createMarkupNode(text, options, mathstyle, createNodeOnFailure) {
     // Create a node for displaying math.
     //   This is slightly ugly because in the case of failure to create the markup,
     //   sometimes a text node is desired and sometimes not.
@@ -157,7 +157,7 @@ function createMarkupNode(text, options, mathstyle, latexToMarkup, createNodeOnF
     }
 
     try {
-        span.innerHTML = latexToMarkup(text, mathstyle || 'displaystyle', 'html', options.macros);
+        span.innerHTML = options.renderToMarkup(text, mathstyle || 'displaystyle', 'html', options.macros);
      } catch (e) {
         console.error( 'Could not parse\'' + text + '\' with ', e );
         if (createNodeOnFailure) {
@@ -169,31 +169,37 @@ function createMarkupNode(text, options, mathstyle, latexToMarkup, createNodeOnF
     return span;
 }
 
-function createAccessibleMarkupPair(text, mathstyle, options, latexToMarkup, latexToMathML, createNodeOnFailure) {
+function createAccessibleMarkupPair(text, mathstyle, options, createNodeOnFailure) {
     // Create a math node (a span with an accessible component and a visual component)
     // If there is an error in parsing the latex, 'createNodeOnFailure' controls whether
     //   'null' is returned or an accessible node with the text used.
-    const markupNode = createMarkupNode(text, options, mathstyle, latexToMarkup, createNodeOnFailure);
-    if (markupNode === null) {
-        return null;
-    }
-    if (!options.renderAccessibleContent) {
-        return markupNode;
+    const markupNode = createMarkupNode(text, options, mathstyle, createNodeOnFailure);
+
+    if (markupNode && /\b(mathml|speakable-text)\b/i.test(options.renderAccessibleContent)) {
+        const fragment = document.createDocumentFragment();
+        if (/\bmathml\b/i.test(options.renderAccessibleContent) && options.renderToMathML) {
+            fragment.appendChild(createMathMLNode(text, options));
+        }
+        if (/\bspeakable-text\b/i.test(options.renderAccessibleContent) && options.renderToSpeakableText) {
+            const span = document.createElement('span');
+            span.innerHTML =  options.renderToSpeakableText(text, options);
+            span.className = 'sr-only';
+            fragment.appendChild(span);
+        }
+        fragment.appendChild(markupNode);
+        return fragment;
     }
 
-    const fragment = document.createDocumentFragment();
-    fragment.appendChild(createAccessibleNode(text, latexToMathML, options));
-    fragment.appendChild(markupNode);
-    return fragment;
+    return markupNode;
 }
 
-function scanText(text, options, latexToMarkup, latexToMathML) {
+function scanText(text, options) {
     // If the text starts with '\begin'...
     // (this is a MathJAX behavior)
     let fragment = null;
     if (options.TeX.processEnvironments && /^\s*\\begin/.test(text)) {
         fragment = document.createDocumentFragment();
-        fragment.appendChild(createAccessibleMarkupPair(text, undefined, options, latexToMarkup, latexToMathML, true));
+        fragment.appendChild(createAccessibleMarkupPair(text, undefined, options, true));
     } else {
         const data = splitWithDelimiters(text, options.TeX.delimiters);
         if (data.length === 1 && data[0].type === 'text') {
@@ -206,19 +212,19 @@ function scanText(text, options, latexToMarkup, latexToMathML) {
             if (data[i].type === 'text') {
                 fragment.appendChild(document.createTextNode(data[i].data));
             } else {
-                fragment.appendChild(createAccessibleMarkupPair(data[i].data, data[i].mathstyle, options, latexToMarkup, latexToMathML, true));
+                fragment.appendChild(createAccessibleMarkupPair(data[i].data, data[i].mathstyle, options, true));
             }
         }
     }
     return fragment;
 }
 
-function scanElement(elem, options, latexToMarkup, latexToMathML) {
+function scanElement(elem, options) {
     const originalContent = elem.getAttribute('data-' + options.namespace +
         'original-content');
     if (originalContent) {
         const mathstyle = elem.getAttribute('data-' + options.namespace + 'mathstyle');
-        const span = createAccessibleMarkupPair(originalContent, mathstyle, options, latexToMarkup, latexToMathML, false);
+        const span = createAccessibleMarkupPair(originalContent, mathstyle, options, false);
         if (span != null) {
             elem.textContent = '';
             elem.appendChild(span);
@@ -233,7 +239,7 @@ function scanElement(elem, options, latexToMarkup, latexToMathML) {
         const text = elem.childNodes[0].textContent;
         if (options.TeX.processEnvironments && /^\s*\\begin/.test(text)) {
             elem.textContent = '';
-            elem.appendChild( createAccessibleMarkupPair(text, undefined, options, latexToMarkup, latexToMathML, true) );
+            elem.appendChild( createAccessibleMarkupPair(text, undefined, options, true) );
             return;
         }
 
@@ -242,7 +248,7 @@ function scanElement(elem, options, latexToMarkup, latexToMathML) {
             // The entire content is a math expression: we can replace the content
             // with the latex markup without creating additional wrappers.
             elem.textContent = '';
-            elem.appendChild( createAccessibleMarkupPair(data[0].data, data[0].mathstyle, options, latexToMarkup, latexToMathML, true) );
+            elem.appendChild( createAccessibleMarkupPair(data[0].data, data[0].mathstyle, options, true) );
             return;
         } else if (data.length === 1 && data[0].type === 'text') {
             // This element only contained text with no math. No need to
@@ -256,7 +262,7 @@ function scanElement(elem, options, latexToMarkup, latexToMathML) {
         if (childNode.nodeType === 3) {
             // A text node
             // Look for math mode delimiters inside the text
-            const frag = scanText(childNode.textContent, options, latexToMarkup, latexToMathML);
+            const frag = scanText(childNode.textContent, options);
             if (frag) {
                 i += frag.childNodes.length - 1;
                 elem.replaceChild(frag, childNode);
@@ -280,7 +286,7 @@ function scanElement(elem, options, latexToMarkup, latexToMathML) {
                 }
 
                 const span = createAccessibleMarkupPair(childNode.textContent,
-                    style, options, latexToMarkup, latexToMathML, true)
+                    style, options, true)
                 childNode.parentNode.replaceChild(span, childNode);
             } else {
                 // Element node
@@ -290,7 +296,7 @@ function scanElement(elem, options, latexToMarkup, latexToMathML) {
                         options.ignoreClassPattern.test(childNode.className));
 
                 if (shouldRender) {
-                    scanElement(childNode, options, latexToMarkup, latexToMathML);
+                    scanElement(childNode, options);
                 }
             }
         }
@@ -321,7 +327,8 @@ const defaultOptions = {
     // elements being rendered in a 'data-original-content' attribute.
     preserveOriginalContent: true,
 
-    renderAccessibleContent: true,
+    // Indicate the format to use to render accessible content
+    renderAccessibleContent: 'mathml',
 
     TeX: {
         disabled: false,
@@ -333,7 +340,7 @@ const defaultOptions = {
     }
 }
 
-function renderMathInElement(elem, options, latexToMarkup, latexToMathML) {
+function renderMathInElement(elem, options) {
     try {
         options = Object.assign({}, defaultOptions, options);
         options.ignoreClassPattern = new RegExp(options.ignoreClass);
@@ -351,7 +358,7 @@ function renderMathInElement(elem, options, latexToMarkup, latexToMathML) {
             }
         }
 
-        scanElement(elem, options, latexToMarkup, latexToMathML);
+        scanElement(elem, options);
     } catch(e) {
         if (e instanceof Error) {
             console.error('renderMathInElement(): ' + e.message);
@@ -362,6 +369,6 @@ function renderMathInElement(elem, options, latexToMarkup, latexToMathML) {
 }
 
     export default {
-        renderMathInElement: renderMathInElement,
+        renderMathInElement,
     }
 

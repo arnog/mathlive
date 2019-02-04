@@ -9,7 +9,7 @@
 /**
  * 
  * @memberof module:editor/mathpath
- * @param {Object} path 
+ * @param {object} path 
  * @param {number} extent
  * @return {string}
  * @private
@@ -30,7 +30,7 @@ function pathToString(path, extent) {
  * 
  * @memberof module:editor/mathpath
  * @param {string} string 
- * @return {Object}
+ * @return {object}
  * @private
  */
 function pathFromString(string) {

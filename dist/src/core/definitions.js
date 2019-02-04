@@ -77,7 +77,7 @@ const COMMON = 'COMMON';
 const SUPERCOMMON = 'SUPERCOMMON';
 
 /**
- * @type {object.<string, number>}
+ * @type {Object.<string, number>}
  * @private
  */
 const FREQUENCY_VALUE = {
@@ -99,7 +99,7 @@ const FREQUENCY_VALUE = {
  *  frequency(COMMON , '\\sin', '\\cos')
  * @param {string|number} value The frequency as a string constant,
  * or a numeric value [0...2000]
- * @param {?}
+ * @param {...string}
  * @memberof module:definitions
  * @private
  */
@@ -507,7 +507,7 @@ function unicodeStringToLatex(s) {
  *
  * @param {string} mode
  * @param {string} s
- * @return {Object}
+ * @return {object}
  * @memberof module:definitions
  * @private
  */
@@ -840,7 +840,7 @@ function parseParamTemplate(paramTemplate) {
  *
  * @param {string|string[]} names
  * @param {string} params The number and type of required and optional parameters.
- * @param {Object} options
+ * @param {object} options
  * -
  * @param {function(*)} parser
  * @memberof module:definitions
@@ -883,7 +883,7 @@ function defineEnvironment(names, params, options, parser) {
  * For example: '{}' defines a single mandatory parameter
  * '[index=2]{indicand}' defines two params, one optional, one required
 
- * @param {Object} options
+ * @param {object} options
  * - infix
  * - allowedInText
  * @param {function} handler

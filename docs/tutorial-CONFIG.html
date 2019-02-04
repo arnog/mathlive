@@ -88,21 +88,27 @@ to prevent the device virtual keyboard from being displayed.</p>
 <p>This function provides the option of substituting the DOM element used for 
 keyboard capture</p>
 <hr>
-<p><strong><code>config.onFocus</code></strong>:<code>function(mathfield)</code></p>
+<p><strong><code>config.onFocus</code></strong>:<code>function(mathfield:MathField)</code></p>
 <p>Invoked when the mathfield has
 gained focus</p>
 <hr>
-<p><strong><code>config.onBlur</code></strong>:<code>function(mathfield)</code></p>
+<p><strong><code>config.onBlur</code></strong>:<code>function(mathfield:MathField)</code></p>
 <p>Invoked when the mathfield has
 lost focus</p>
 <hr>
-<p><strong><code>config.onKeystroke</code></strong>:<code>function(mathfield, keystroke:string, ev:Event):boolean</code></p>
+<p><strong><code>config.onKeystroke</code></strong>:<code>function(mathfield:MathField, keystroke:string, ev:Event):boolean</code></p>
 <p>Invoked when a keystroke is about to be processed. </p>
 <ul>
 <li><code>keystroke</code>: a string describing the keystroke</li>
 <li><code>ev</code>: the native keyboard event. </li>
 </ul>
 <p>Return <code>false</code> to stop the handling of the event.</p>
+<hr>
+<p><strong><code>config.onAnnounce</code></strong>: <code>function(mathfield:MathField, command: string, before: atoms[], after: atoms[])</code></p>
+<p>Invoked when a command has modified the selection or content. This is an 
+opportunity to provide accessible feedback on navigation and editing operations.</p>
+<p>If no function is provided, a default implementation is used which uses an 
+<code>ARIA-live</code> region to provide descriptive feedback of the editing operations.</p>
 <hr>
 <p><strong><code>config.overrideDefaultInlineShortcuts=false</code></strong>:<code>boolean</code></p>
 <p>If true

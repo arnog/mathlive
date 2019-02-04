@@ -192,7 +192,7 @@ function MathField(element, config) {
     markup += `
         <div class="ML__popover" aria-hidden="true"></div>
         <div class="ML__keystroke-caption" aria-hidden="true"></div>
-        <div class="ML__HiddenAccessibleMath">
+        <div class="sr-only">
             <span aria-live="assertive" aria-atomic="true"></span>
             <span></span>
         </div>
@@ -272,7 +272,7 @@ function MathField(element, config) {
         MathField.prototype._onSelectionDidChange.bind(this);
     localConfig.onContentDidChange =
         MathField.prototype._onContentDidChange.bind(this);
-    localConfig.onAnnounce = _onAnnounce;
+    localConfig.onAnnounce = this.config.onAnnounce;
     localConfig.smartFence = this.config.smartFence;
     localConfig.macros = this.config.macros;
 
@@ -720,16 +720,17 @@ function speakableText(mathfield, prefix, atoms) {
 
 /**
  * Announce a change in selection or content via the aria-live region.
+ * This is the default implementation for this function. It can be overridden
+ * via `config.onAnnounce`
  * @param {object} target typically, a MathField
  * @param {string} command the command that invoked the change
- * @param {object} oldMathlist [null] the previous value of mathlist before the change
- * @param {object} array [null] or atom: atomsToSpeak the command that invoked the change
+ * @param {Atom[]} [oldMathlist=[]] the previous value of mathlist before the change
+ * @param {Atom[]} [atomsToSpeak=[] ] 
  * @method MathField#_onAnnounce
  * @private
  */
  function _onAnnounce(target, command, oldMathlist, atomsToSpeak) {
 //** Fix: the focus is the end of the selection, so it is before where we want it
-
     let liveText = '';
     // const command = moveAmount > 0 ? "right" : "left";
 
@@ -778,7 +779,16 @@ function speakableText(mathfield, prefix, atoms) {
         ' \u202f ' : ' \u00a0 ';
     target.ariaLiveText.textContent = liveText + ariaLiveChangeHack;
     // this.textarea.setAttribute('aria-label', liveText + ariaLiveChangeHack);
+    console.log('announce: ', liveText);
 }
+
+
+MathField.prototype._announce = function(command, mathlist, atoms) {
+    if (typeof this.config.onAnnounce === 'function') {
+        this.config.onAnnounce(this, command, mathlist, atoms);
+    }
+}
+
 
 MathField.prototype._onFocus = function() {
     if (this.blurred) {
@@ -1043,6 +1053,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
             // Backspace as Undo. This deals with the case "pi<backspace>i"
             if (this.mathlist.isCollapsed() && this.inlineShortcutBuffer.length > 0) {
                 selector = 'undo';
+                this._announce('delete');
             }
         }
     }
@@ -1085,7 +1096,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
             // Insert the substitute
             this.mathlist.insert(shortcut, {format: 'latex'});
             this._render();
-            _onAnnounce(this, 'replacement');
+            this._announce('replacement');
 
             // If we're done with the shortcuts (found a unique one), reset it.
             if (resetInlineShortcutBuffer) {
@@ -1515,7 +1526,7 @@ MathField.prototype.$selectionAtEnd = function() {
  * LaTeX expression.
  * @param {string} text
  * 
- * @param {Object} options
+ * @param {Object.<string, any>} options
  * @param {boolean} options.suppressContentChangeNotifications - If true, the
  * handlers for the contentWillChange and contentDidChange notifications will 
  * not be invoked. Default `false`.
@@ -1729,7 +1740,7 @@ MathField.prototype.complete_ = function() {
                 }
             }
         }
-        _onAnnounce(this, 'replacement');
+        this._announce('replacement');
         return true;
     }
     return false;
@@ -1805,8 +1816,8 @@ MathField.prototype.previousSuggestion_ = function() {
  * the element, as the :hover and :active pseudo-classes are not reliable
  * (at least on Chrome Android).
  *
- * @param {*} el
- * @param {*} command
+ * @param {Element} el
+ * @param {object|string} command
  */
 MathField.prototype._attachButtonHandlers = function(el, command) {
     const that = this;
@@ -2335,7 +2346,7 @@ MathField.prototype.$focus = function() {
         // The textarea may be a span (on mobile, for example), so check that
         // it has a focus() before calling it.
         if (this.textarea.focus) this.textarea.focus();
-        _onAnnounce(this, 'line');
+        this._announce('line');
     }
 }
 
@@ -2408,7 +2419,7 @@ MathField.prototype.typedText_ = function(text, options) {
  * 
  * Update the configuration options for this mathfield.
  * 
- * @param {Object<string, *>} [config={}] See {@tutorial CONFIG} for details.
+ * @param {Object<string, any>} [config={}] See {@tutorial CONFIG} for details.
  * 
  * @method MathField#$setConfig
  */
@@ -2424,6 +2435,8 @@ MathField.prototype.$setConfig = function(conf) {
         }
     }
     this.config = Object.assign(this.config, conf);
+
+    this.config.onAnnounce = conf.onAnnounce || _onAnnounce;
 
     this.config.macros = Object.assign({}, Definitions.MACROS, this.config.macros);
 

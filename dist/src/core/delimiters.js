@@ -568,7 +568,7 @@ function makeLeftRightDelim(type, delim, height, depth, context, classes) {
 
 /**
  *
- * @param {*} context
+ * @param {Context} context
  * @param {string} [type] either 'mopen', 'mclose' or null
  * @memberof module:delimiters
  * @private

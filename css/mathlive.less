@@ -48,15 +48,14 @@
 @mu: 1/18em;
 
 .sr-only {
-    border: 0;
-    clip: rect(0 0 0 0);
-    height: auto;
-    margin: 0;
-    overflow: hidden;
-    padding: 0;
     position: absolute;
     width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
     white-space: nowrap;
+    border: 0;
 }
 
 
@@ -507,7 +506,7 @@
     &.ML__focused .ML__selected {
         background: var(--highlight) !important;
         color: var(--on-highlight);
-        display: inline-block;
+        // display: inline-block;
         // color: HighlightText;
         // border-color: HighlightText;
     }
@@ -694,6 +693,7 @@
     transition: .28s cubic-bezier(0.0, 0.0, 0.2, 1);    // Deceleration curve
     &.is-visible {
         transform: translate(0, -267px); 
+        // bottom: -267px;
         opacity: 1;
         visibility: visible;
         transition: .28s cubic-bezier(0.4, 0.0, 1, 1); // Acceleration curve

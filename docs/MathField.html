@@ -2466,14 +2466,16 @@ insertion point.</p>
 
     
 
-    <h4 class="name" id="_onAnnounce">_onAnnounce<span class="signature">(target<span class="signature-type">: object</span>, command<span class="signature-type">: string</span>, oldMathlist<span class="signature-type">: object</span>, array<span class="signature-type">: object</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="_onAnnounce">_onAnnounce<span class="signature">(target<span class="signature-type">: object</span>, command<span class="signature-type">: string</span>, oldMathlist<span class="signature-attributes">?</span><span class="signature-type">: Atom[]</span>, atomsToSpeak<span class="signature-attributes">?</span><span class="signature-type">: Atom[]</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Announce a change in selection or content via the aria-live region.</p>
+    <p>Announce a change in selection or content via the aria-live region.
+This is the default implementation for this function. It can be overridden
+via <code>config.onAnnounce</code></p>
 </div>
 
 
@@ -2555,19 +2557,29 @@ insertion point.</p>
             <span class="type">
             
                 : 
-<span class="param-type">object</span>
+<span class="param-type">Atom[]</span>
 
 
             
             </span>
 
             
+                <span class="attributes">
+                
 
+                
+
+                
+                </span>
+            
+
+            
+                <span class="default">= []</span>
             
 
             
                     <p class="description last">
-                        <p>[null] the previous value of mathlist before the change</p>
+                        <p>the previous value of mathlist before the change</p>
                     </p>
                     
             
@@ -2577,27 +2589,32 @@ insertion point.</p>
 
         <div class="signature">
             
-                <span class="name"><code>array</code></span>
+                <span class="name"><code>atomsToSpeak</code></span>
             
 
             <span class="type">
             
                 : 
-<span class="param-type">object</span>
+<span class="param-type">Atom[]</span>
 
 
             
             </span>
 
             
+                <span class="attributes">
+                
 
+                
+
+                
+                </span>
             
 
             
-                    <p class="description last">
-                        <p>[null] or atom: atomsToSpeak the command that invoked the change</p>
-                    </p>
-                    
+                <span class="default">= []</span>
+            
+
             
         </div>
 
