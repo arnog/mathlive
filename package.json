@@ -71,7 +71,9 @@
   "contributors": [
     "Louis Larpin (lilfaf.github.io)",
     "Neil Soiffer (https://github.com/NSoiffer)",
-    "Jason Boxman (https://github.com/jboxman)"
+    "Jason Boxman (https://github.com/jboxman)",
+    "Synergy Codes (https://www.synergycodes.com/)",
+    "Rafał Piekarski (https://github.com/rpdiss)"
   ],
   "bugs": "https://github.com/arnog/mathlive/issues/",
   "devDependencies": {

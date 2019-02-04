@@ -1,3 +1,52 @@
+## 0.26 (Feb 4, 2019)
+
+### Breaking Changes
+- Public method now start with `$`. This convention is also used, for example, 
+by the Vue.js project. For now, aliases exist that begin with '_' (the previous
+convention), however you are encourage to migrate as soon as possible. The 
+function that are affected are: `_el()`, `_insert()`, `_keystroke()`, `_latex()`,
+ `_perform()`, `_revertToOriginalContent()`, `_selectedText()`, 
+ `_selectionAtEnd()`, `_selectionAtStart()`, `_selectionDepth()`, 
+ `_selectionIsCollapsed()`, `_setConfig()`, `_text()`, `_typedText()` (this was initially implemented in 0.25)
+
+### Major New Features
+- Support for dark mode. Triggered automatically by the browser or
+by setting `theme="dark"` on the `<body>` tag.
+- New implementation for inline shortcuts. Now support complex inline 
+shortcuts including `_`, `(` and other keys.
+- Virtual Keyboards can now be described using a JSON data structure. Contribution from @rpdiss. Thanks!
+- New `MathLive.toSpeakableText()` function
+- New `config.onAnnounce` handler
+
+
+### Other Improvements
+- The `$perform()` function now accepts selector both in camelCase
+or kebab-case.
+- Improved display of some keys in the keyboard caption panel
+- New logo!
+- Improved documentation, including adding pages for keyboard shortcuts,
+examples, macros, selectors and config options.
+- Better support for IE11 via transpiling (thanks @synergycodes!)
+
+### Bug fixes
+- #103 - Fixed issues where the math path could become invalid. Also made the 
+code more resilient to invalid paths.
+- #128 - Properly cleanup event handlers on destruction
+
+### Codebase Health and Performance
+- Some minor optimizations and performance improvements, including
+lazy loading of sounds and some other resources.
+- Moved some modules to classes.
+
+## 0.25 (December 29, 2018)
+
+### Major New Features
+- A Vue.js wrapper and example is available in `examples/vue`
+
+### Bug fixes
+- #104 - Numeric keypard "/" was ignored.
+- #91 - Handling of '~' as an operator and a shortcut.
+
 ## 0.24 (December 16, 2018)
 
 ### Breaking Changes
