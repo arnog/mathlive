@@ -81,7 +81,7 @@ writeCookie('symbol-access', 'private')
     
         
             <div class="description"><p>This module outputs a formula to MathML.</p>
-<p>To use it, use the <code>Atom.toMathML()</code>  method.</p></div>
+<p>To use it, use the <code>MathAtom.toMathML()</code>  method.</p></div>
         
 
         
@@ -183,7 +183,7 @@ writeCookie('symbol-access', 'private')
 
     
 
-    <h4 class="name" id="~isSuperscriptAtom">isSuperscriptAtom<span class="signature">(stream<span class="signature-type">: *</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">inner</span></span></h4>
+    <h4 class="name" id="~isSuperscriptAtom">isSuperscriptAtom<span class="signature">(stream<span class="signature-type">: object</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">inner</span></span></h4>
 
     
 
@@ -219,7 +219,7 @@ or as a standalone, empty, atom following the one to which it applies.</p>
             <span class="type">
             
                 : 
-<span class="param-type">*</span>
+<span class="param-type">object</span>
 
 
             
@@ -300,7 +300,7 @@ or as a standalone, empty, atom following the one to which it applies.</p>
 
     
 
-    <h4 class="name" id="~toMathML">toMathML<span class="signature">(input<span class="signature-type">: string | <a href="MathAtom.html">MathAtom</a> | Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>, initial<span class="signature-type">: number</span>, final<span class="signature-type">: number</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+    <h4 class="name" id="~toMathML">toMathML<span class="signature">(input<span class="signature-type">: string | <a href="MathAtom.html">MathAtom</a> | MathAtom[]</span>, initial<span class="signature-type">: number</span>, final<span class="signature-type">: number</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
 
     
 
@@ -340,7 +340,7 @@ a string.</p>
 <span class="param-type"><a href="MathAtom.html">MathAtom</a></span>
 |
 
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+<span class="param-type">MathAtom[]</span>
 
 
             

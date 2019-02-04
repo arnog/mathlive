@@ -82,7 +82,7 @@ writeCookie('symbol-access', 'private')
         
             <div class="description"><p>This module parses and outputs an Abstract Syntax Tree representing the 
 formula using the <a href="tutorial-MASTON.html">MASTON</a> format. </p>
-<p>To use it, use the <a href="MathAtom.html#toAST"><code>Atom.toAST()</code></a>  method.</p></div>
+<p>To use it, use the <a href="MathAtom.html#toAST"><code>MathAtom.toAST()</code></a>  method.</p></div>
         
 
         
@@ -721,7 +721,7 @@ formula using the <a href="tutorial-MASTON.html">MASTON</a> format. </p>
 
     
 
-    <h4 class="name" id="~formatMantissa">formatMantissa<span class="signature">(m<span class="signature-type">: *</span>, config<span class="signature-type">: *</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">inner</span></span></h4>
+    <h4 class="name" id="~formatMantissa">formatMantissa<span class="signature">(m<span class="signature-type">: string</span>, config<span class="signature-type">: [string]:any</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">inner</span></span></h4>
 
     
 
@@ -756,7 +756,7 @@ formula using the <a href="tutorial-MASTON.html">MASTON</a> format. </p>
             <span class="type">
             
                 : 
-<span class="param-type">*</span>
+<span class="param-type">string</span>
 
 
             
@@ -779,7 +779,7 @@ formula using the <a href="tutorial-MASTON.html">MASTON</a> format. </p>
             <span class="type">
             
                 : 
-<span class="param-type">*</span>
+<span class="param-type">[string]:any</span>
 
 
             
@@ -1691,7 +1691,7 @@ formula using the <a href="tutorial-MASTON.html">MASTON</a> format. </p>
 
     
 
-    <h4 class="name" id="~negate">negate<span class="signature">(expr<span class="signature-type">: *</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">inner</span></span></h4>
+    <h4 class="name" id="~negate">negate<span class="signature">(expr<span class="signature-type">: [string]:any</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">inner</span></span></h4>
 
     
 
@@ -1725,7 +1725,7 @@ but for numbers, the negated number</p>
             <span class="type">
             
                 : 
-<span class="param-type">*</span>
+<span class="param-type">[string]:any</span>
 
 
             
@@ -2077,7 +2077,7 @@ or -1 if not an operator</p>
 
     
 
-    <h4 class="name" id="~parse">parse<span class="signature">(atoms<span class="signature-type">: *</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">inner</span></span></h4>
+    <h4 class="name" id="~parse">parse<span class="signature">(atoms<span class="signature-type">: Atoms[]</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">inner</span></span></h4>
 
     
 
@@ -2106,7 +2106,7 @@ or -1 if not an operator</p>
             <span class="type">
             
                 : 
-<span class="param-type">*</span>
+<span class="param-type">Atoms[]</span>
 
 
             
@@ -2116,11 +2116,6 @@ or -1 if not an operator</p>
 
             
 
-            
-                    <p class="description last">
-                        <p>an array of atoms</p>
-                    </p>
-                    
             
         </div>
 

@@ -87,7 +87,7 @@ writeCookie('symbol-access', 'private')
 
     
 
-    <h4 class="name" id="Span">new Span<span class="signature">(content<span class="signature-type">: string | Span | Array.&lt;Span></span>, classes<span class="signature-type">: string</span>)</span><span class="type-signature">:  void</span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="Span">new Span<span class="signature">(content<span class="signature-type">: string | Span | Span[]</span>, classes<span class="signature-type">: string</span>)</span><span class="type-signature">:  void</span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
@@ -129,7 +129,7 @@ CSS classes and style attributes.</p>
 <span class="param-type">Span</span>
 |
 
-<span class="param-type">Array.&lt;Span></span>
+<span class="param-type">Span[]</span>
 
 
             
@@ -269,7 +269,7 @@ associated with this element</p>
             <span class="type">
             
                 : 
-<span class="param-type">Array.&lt;Span></span>
+<span class="param-type">Span[]</span>
 
 
             
@@ -320,7 +320,7 @@ this span encloses</p>
             <span class="type">
             
                 : 
-<span class="param-type">Object</span>
+<span class="param-type">[string]:any</span>
 
 
             
@@ -467,7 +467,7 @@ associated with this element.</p>
 
     
 
-    <h4 class="name" id="setStyle">setStyle<span class="signature">(prop<span class="signature-type">: string</span>, value<span class="signature-type">: Object</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="setStyle">setStyle<span class="signature">(prop<span class="signature-type">: string</span>, &hellip;value<span class="signature-type">: string | number</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
@@ -529,12 +529,25 @@ For example, setStyle('border-right', 5.6, 'em');</p>
             <span class="type">
             
                 : 
-<span class="param-type">Object</span>
+<span class="param-type">string</span>
+|
+
+<span class="param-type">number</span>
 
 
             
             </span>
 
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                    <span class="attribute">repeatable</span>
+                
+                </span>
             
 
             

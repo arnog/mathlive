@@ -85,7 +85,7 @@ writeCookie('symbol-access', 'private')
 
     
 
-    <h4 class="name" id="MathAtom">new MathAtom<span class="signature">(mode<span class="signature-type">: string</span>, type<span class="signature-type">: string</span>, body<span class="signature-type">: string | Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>, fontFamily<span class="signature-attributes">?, nullable</span><span class="signature-type">: string</span>, extras<span class="signature-attributes">?, nullable</span><span class="signature-type">: Object</span>)</span><span class="type-signature">:  <a href="MathAtom.html">MathAtom</a></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="MathAtom">new MathAtom<span class="signature">(mode<span class="signature-type">: string</span>, type<span class="signature-type">: string</span>, body<span class="signature-type">: string | MathAtom[]</span>, fontFamily<span class="signature-attributes">?</span><span class="signature-type">: string</span>, extras<span class="signature-attributes">?</span><span class="signature-type">: [string]:any</span>)</span><span class="type-signature">:  <a href="MathAtom.html">MathAtom</a></span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
@@ -170,7 +170,7 @@ are tracked by Span objects which are created by the <code>decompose()</code> fu
 <span class="param-type">string</span>
 |
 
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+<span class="param-type">MathAtom[]</span>
 
 
             
@@ -204,8 +204,6 @@ are tracked by Span objects which are created by the <code>decompose()</code> fu
                 
 
                 
-                    <span class="attribute">nullable</span>
-                
 
                 
                 </span>
@@ -228,7 +226,7 @@ are tracked by Span objects which are created by the <code>decompose()</code> fu
             <span class="type">
             
                 : 
-<span class="param-type">Object</span>
+<span class="param-type">[string]:any</span>
 
 
             
@@ -239,15 +237,13 @@ are tracked by Span objects which are created by the <code>decompose()</code> fu
                 
 
                 
-                    <span class="attribute">nullable</span>
-                
 
                 
                 </span>
             
 
             
-                <span class="default">= null</span>
+                <span class="default">= {}</span>
             
 
             
@@ -429,7 +425,7 @@ the caret, they display nothing.</li>
 <span class="param-type">string</span>
 |
 
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+<span class="param-type">MathAtom[]</span>
 
 
             
@@ -454,7 +450,7 @@ the caret, they display nothing.</li>
             <span class="type">
             
                 : 
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+<span class="param-type">MathAtom[]</span>
 
 
             
@@ -479,7 +475,7 @@ the caret, they display nothing.</li>
             <span class="type">
             
                 : 
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+<span class="param-type">MathAtom[]</span>
 
 
             
@@ -504,7 +500,7 @@ the caret, they display nothing.</li>
             <span class="type">
             
                 : 
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+<span class="param-type">MathAtom[]</span>
 
 
             
@@ -529,7 +525,7 @@ the caret, they display nothing.</li>
             <span class="type">
             
                 : 
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+<span class="param-type">MathAtom[]</span>
 
 
             
@@ -680,7 +676,7 @@ inside this element.</p>
 
     
 
-    <h4 class="name" id=".toSpeakableText">toSpeakableText<span class="signature">(atoms<span class="signature-attributes">?</span><span class="signature-type">: Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>, options<span class="signature-attributes">?</span><span class="signature-type">: Object.&lt;string, any></span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">static</span></span></h4>
+    <h4 class="name" id=".toSpeakableText">toSpeakableText<span class="signature">(atoms<span class="signature-attributes">?</span><span class="signature-type">: MathAtom[]</span>, options<span class="signature-attributes">?</span><span class="signature-type">: [string]:any</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">static</span></span></h4>
 
     
 
@@ -709,7 +705,7 @@ inside this element.</p>
             <span class="type">
             
                 : 
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+<span class="param-type">MathAtom[]</span>
 
 
             
@@ -746,7 +742,7 @@ If omitted, <code>this</code> is used.</p>
             <span class="type">
             
                 : 
-<span class="param-type">Object.&lt;string, any></span>
+<span class="param-type">[string]:any</span>
 
 
             
@@ -973,7 +969,7 @@ can be retrieved from the span later on (e.g. when the span is clicked on)</p>
 
     
 
-    <h4 class="name" id="decompose">decompose<span class="signature">(context<span class="signature-type">: <a href="Context.html">Context</a></span>, phantomBase<span class="signature-attributes">?</span><span class="signature-type">: Array.&lt;Span></span>)</span><span class="type-signature">:  Array.&lt;Span></span><span class="type-signature"></span></h4>
+    <h4 class="name" id="decompose">decompose<span class="signature">(context<span class="signature-type">: <a href="Context.html">Context</a></span>, phantomBase<span class="signature-attributes">?</span><span class="signature-type">: Span[]</span>)</span><span class="type-signature">:  Span[]</span><span class="type-signature"></span></h4>
 
     
 
@@ -1034,7 +1030,7 @@ can be retrieved from the span later on (e.g. when the span is clicked on)</p>
             <span class="type">
             
                 : 
-<span class="param-type">Array.&lt;Span></span>
+<span class="param-type">Span[]</span>
 
 
             
@@ -1076,7 +1072,7 @@ calculate the placement of the supsub</p>
 <span class="param-desc">
     
         : 
-<span class="param-type">Array.&lt;Span></span>
+<span class="param-type">Span[]</span>
 
 
         &nbsp;&nbsp;
@@ -1495,7 +1491,7 @@ those cases.</p>
 
     
 
-    <h4 class="name" id="filter">filter<span class="signature">()</span><span class="type-signature">:  Array.&lt;<a href="MathAtom.html">MathAtom</a>></span><span class="type-signature"></span></h4>
+    <h4 class="name" id="filter">filter<span class="signature">()</span><span class="type-signature">:  MathAtom[]</span><span class="type-signature"></span></h4>
 
     
 
@@ -1526,7 +1522,7 @@ is true.</p>
 <span class="param-desc">
     
         : 
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+<span class="param-type">MathAtom[]</span>
 
 
         &nbsp;&nbsp;
@@ -1599,7 +1595,7 @@ is true.</p>
 
     
 
-    <h4 class="name" id="makeSpan">makeSpan<span class="signature">(context<span class="signature-type">: <a href="Context.html">Context</a></span>, body<span class="signature-type">: string | Array.&lt;Span></span>)</span><span class="type-signature">:  Span</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="makeSpan">makeSpan<span class="signature">(context<span class="signature-type">: <a href="Context.html">Context</a></span>, body<span class="signature-type">: string | Span[]</span>)</span><span class="type-signature">:  Span</span><span class="type-signature"></span></h4>
 
     
 
@@ -1659,7 +1655,7 @@ equal to the type ('mbin', 'inner', 'spacing', etc...)</p>
 <span class="param-type">string</span>
 |
 
-<span class="param-type">Array.&lt;Span></span>
+<span class="param-type">Span[]</span>
 
 
             

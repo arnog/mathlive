@@ -982,7 +982,7 @@ to the MathML nodes with a value matching the <code>atomID</code>.</p>
 
     
 
-    <h4 class="name" id="latexToSpeakableText">latexToSpeakableText<span class="signature">(latex<span class="signature-type">: string</span>, options<span class="signature-type">: Object.&lt;string, any></span>)</span><span class="type-signature">:  string</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="latexToSpeakableText">latexToSpeakableText<span class="signature">(latex<span class="signature-type">: string</span>, options<span class="signature-type">: [string]:any</span>)</span><span class="type-signature">:  string</span><span class="type-signature"></span></h4>
 
     
 
@@ -1044,7 +1044,7 @@ with a mode token such as a <code>$$</code> or <code>\(</code>.</p>
             <span class="type">
             
                 : 
-<span class="param-type">Object.&lt;string, any></span>
+<span class="param-type">[string]:any</span>
 
 
             
@@ -1156,7 +1156,7 @@ the SSML markup or <code>mac</code> for the MacOS markup (e.g. <code>[[ltr]]</co
             <span class="type">
             
                 : 
-<span class="param-type">Object.&lt;string, any></span>
+<span class="param-type">[string]:any</span>
 
 
             
@@ -1288,7 +1288,7 @@ the SRE engine are documented [here]{@link:https://github.com/zorkow/speech-rule
 
     
 
-    <h4 class="name" id="makeMathField">makeMathField<span class="signature">(element<span class="signature-type">: Element | string</span>, config<span class="signature-attributes">?</span><span class="signature-type">: Object.&lt;string, *></span>)</span><span class="type-signature">:  <a href="MathField.html">MathField</a></span><span class="type-signature"></span></h4>
+    <h4 class="name" id="makeMathField">makeMathField<span class="signature">(element<span class="signature-type">: Element | string</span>, config<span class="signature-attributes">?</span><span class="signature-type">: [string]:any</span>)</span><span class="type-signature">:  <a href="MathField.html">MathField</a></span><span class="type-signature"></span></h4>
 
     
 
@@ -1356,7 +1356,7 @@ by <code>document.getElementById()</code>, or the ID of a DOM element as a strin
             <span class="type">
             
                 : 
-<span class="param-type">Object.&lt;string, *></span>
+<span class="param-type">[string]:any</span>
 
 
             
@@ -1988,7 +1988,7 @@ highlighting). </p>
 
     
 
-    <h4 class="name" id="renderMathInElement">renderMathInElement<span class="signature">(element<span class="signature-type">: Element | string</span>, options<span class="signature-attributes">?</span><span class="signature-type">: object</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+    <h4 class="name" id="renderMathInElement">renderMathInElement<span class="signature">(element<span class="signature-type">: Element | string</span>, options<span class="signature-attributes">?</span><span class="signature-type">: object</span>, renderToMarkup<span class="signature-attributes">?</span><span class="signature-type">: function</span>, renderToMathML<span class="signature-attributes">?</span><span class="signature-type">: function</span>, renderToSpeakableText<span class="signature-attributes">?</span><span class="signature-type">: function</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
 
     
 
@@ -2129,7 +2129,7 @@ attributes to avoid collisions with other libraries. </p>
             <span class="type">
             
                 : 
-<span class="param-type">Array.&lt;object></span>
+<span class="param-type">object[]</span>
 
 
             
@@ -2167,7 +2167,7 @@ attributes to avoid collisions with other libraries. </p>
             <span class="type">
             
                 : 
-<span class="param-type">Array.&lt;string></span>
+<span class="param-type">string[]</span>
 
 
             
@@ -2321,6 +2321,51 @@ indicated type will be processed while others will be ignored.</p>
 
         <div class="signature">
             
+                <span class="name"><code>options.renderAccessibleContent</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+                <span class="default">= 'mathml'</span>
+            
+
+            
+                    <p class="description last">
+                        <p>The format(s) in 
+which to render the math for screen readers:</p>
+<ul>
+<li><code>'mathml'</code> MathML</li>
+<li><code>'speakable-text'</code> Spoken representation</li>
+</ul>
+<p>You can pass an empty string to turn off the rendering of accessible content.</p>
+<p>You can pass multiple values separated by spaces, e.g <code>'mathml speakable-text'</code></p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
                 <span class="name"><code>options.preserveOriginalContent</code></span>
             
 
@@ -2447,16 +2492,32 @@ that start with <code>\begin{</code> will not automatically be rendered.</p>
             <span class="type">
             
                 : 
-<span class="param-type">Array</span>
+<span class="param-type">Array.&lt;Array.&lt;string>></span>
 
 
             
             </span>
 
             
+                <span class="attributes">
+                
 
+                
+
+                
+                </span>
             
 
+            
+                <span class="default">= [['\\(','\\)']]</span>
+            
+
+            
+                    <p class="description last">
+                        <p>arrays
+of delimiter pairs that will trigger a render of the content in 'textstyle'</p>
+                    </p>
+                    
             
         </div>
 
@@ -2470,21 +2531,31 @@ that start with <code>\begin{</code> will not automatically be rendered.</p>
             <span class="type">
             
                 : 
-<span class="param-type">Array</span>
+<span class="param-type">Array.&lt;Array.&lt;string>></span>
 
 
             
             </span>
 
             
+                <span class="attributes">
+                
 
+                
+
+                
+                </span>
+            
+
+            
+                <span class="default">= [['$$', '$$'], ['\\[', '\\]']]</span>
             
 
             
                     <p class="description last">
                         <p>arrays
-of delimiters that will trigger a render of the content in 'textstyle' or
-'displaystyle', respectively.</p>
+of delimiter pairs that will trigger a render of the content in
+'displaystyle'.</p>
                     </p>
                     
             
@@ -2493,6 +2564,117 @@ of delimiters that will trigger a render of the content in 'textstyle' or
     
 </div>
 
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>renderToMarkup</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">function</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>a function that will convert any LaTeX found to
+HTML markup. This is only useful to override the default MathLive renderer</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>renderToMathML</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">function</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>a function that will convert any LaTeX found to
+MathML markup.</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>renderToSpeakableText</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">function</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>a function that will convert any LaTeX found to
+speakable text markup.</p>
+                    </p>
                     
             
         </div>
@@ -2650,7 +2832,7 @@ of delimiters that will trigger a render of the content in 'textstyle' or
 
     
 
-    <h4 class="name" id="revertToOriginalContent">revertToOriginalContent<span class="signature">(element<span class="signature-type">: string | Element | <a href="MathField.html">MathField</a></span>, options<span class="signature-attributes">?</span><span class="signature-type">: Object</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+    <h4 class="name" id="revertToOriginalContent">revertToOriginalContent<span class="signature">(element<span class="signature-type">: string | Element | <a href="MathField.html">MathField</a></span>, options<span class="signature-attributes">?</span><span class="signature-type">: [string]:any</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
 
     
 
@@ -2708,7 +2890,7 @@ of delimiters that will trigger a render of the content in 'textstyle' or
             <span class="type">
             
                 : 
-<span class="param-type">Object</span>
+<span class="param-type">[string]:any</span>
 
 
             

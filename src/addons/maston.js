@@ -2,7 +2,7 @@
  * This module parses and outputs an Abstract Syntax Tree representing the 
  * formula using the {@tutorial MASTON} format. 
  * 
- * To use it, use the {@linkcode MathAtom#toAST Atom.toAST()}  method.
+ * To use it, use the {@linkcode MathAtom#toAST MathAtom.toAST()}  method.
  * @module addons/maston
  * @private
  */
@@ -619,7 +619,7 @@ function isAtom(expr, type, value) {
 /**
  * Return the negative of the expression. Usually {op:'-', lhs:expr}
  * but for numbers, the negated number
- * @param {*} expr
+ * @param {Object.<string, any>} expr
  */
 function negate(expr) {
     if (typeof expr === 'number') {
@@ -1537,7 +1537,7 @@ function filterPresentationAtoms(atoms) {
 
 /**
  *
- * @param {*} atoms an array of atoms
+ * @param {Atoms[]} atoms 
  * @return  {string}
  */
 function parse(atoms, options) {
@@ -1609,8 +1609,8 @@ function validateFence(fence, defaultFence) {
  * Return a formatted mantissa:
  * 1234567 -> 123 456 7...
  * 1233333 -> 12(3)
- * @param {*} m
- * @param {*} config
+ * @param {string} m
+ * @param {Object.<string, any>} config
  */
 function formatMantissa(m, config) {
     const originalLength = m.length;

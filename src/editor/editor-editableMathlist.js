@@ -33,15 +33,15 @@ import MathPath from './editor-mathpath.js';
  *    mf.perform('selectAll');
  * ```
  *
- * @param {Object} config
- * @param {Object} target - A target object passed as the first argument of 
+ * @param {Object.<string, any>} config
+ * @param {Element} target - A target object passed as the first argument of 
  * callback functions. Typically, a MathField.
- * @property {Array.<MathAtom>} root - The root element of the math expression.
- * @property {Array.<Object>} path - The path to the element that is the
+ * @property {MathAtom[]} root - The root element of the math expression.
+ * @property {Object[]} path - The path to the element that is the
  * anchor for the selection.
  * @property {number} extent - Number of atoms in the selection. `0` if the
  * selection is collapsed.
- * @property {Object} config
+ * @property {Object.<string, any>} config
  * @property {boolean} suppressSelectionChangeNotifications - If true,
  * the handlers for notification change won't be called. @todo This is an
  * inelegant solution to deal with iterating the expression, which has the
@@ -208,7 +208,7 @@ EditableMathlist.prototype.selectionDidChange = function() {
 
 /**
  *
- * @param {*} selection
+ * @param {string|Array} selection
  * @param {number} extent the length of the selection
  * @return {boolean} true if the path has actually changed
  */
@@ -328,7 +328,7 @@ EditableMathlist.prototype.setRange = function(from, to) {
 /**
  * Convert am array row/col into an array index.
  * @param {MathAtom} atom
- * @param {*} rowCol
+ * @param {object} rowCol
  * @return {number}
  */
 function arrayIndex(atom, rowCol) {
@@ -372,8 +372,8 @@ function arrayColRow(atom, index) {
  * Return the array cell corresponding to colrow or null (for example in
  * a sparse array)
  *
- * @param {MathAtom} atom
- * @param {*} colrow
+ * @param {MathAtom|MathAtom[]} atom
+ * @param {any} colrow
  */
 function arrayCell(atom, colrow) {
     let result;
@@ -723,7 +723,7 @@ EditableMathlist.prototype.extractContents = function() {
  * 
  * For example, '-\sqrt{2}=' should not trigger a replacement of '-='
  * 
- * @param {*} atom
+ * @param {MathAtom} atom
  */
 function getString(atom) {
     if (!atom) return '';
@@ -803,7 +803,7 @@ EditableMathlist.prototype.extractCharactersBeforeInsertionPoint = function(coun
  * point, or null.
  * - `start` is the first atom which is of type `command`
  * - `end` is after the last atom of type `command`
- * @return {Object}
+ * @return {object}
  * @method EditableMathlist#commandOffsets
  * @private
  */
@@ -1386,7 +1386,7 @@ EditableMathlist.prototype.extend = function(dist) {
  * If `extend` is true, the selection will be extended. Otherwise, it is
  * collapsed, then moved.
  * @param {number} dir +1 to skip forward, -1 to skip back
- * @param {Object} options
+ * @param {Object.<string, any>} options
  * @method EditableMathlist#skip
  * @private
  */
@@ -1592,7 +1592,7 @@ function removeParen(list) {
 
 /**
  * @param {string} s
- * @param {Object} options
+ * @param {Object.<string, any>} options
  * @param {string} options.insertionMode -
  *    * 'replaceSelection' (default)
  *    * 'replaceAll'

@@ -142,7 +142,7 @@ function keyboardEventToString(evt) {
  * @param {Element} textarea A `TextArea` element that will capture the keyboard
  * events. While this element will usually be a `TextArea`, it could be any
  * element that is focusable and can receive keyboard events.
- * @param {Object} handlers
+ * @param {Object.<string, any>} handlers
  * @param {Element} [handlers.container]
  * @param {function} handlers.keystroke invoked on a key down event, including 
  * for special keys such as ESC, arrow keys, tab, etc... and their variants 

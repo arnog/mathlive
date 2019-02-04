@@ -85,7 +85,7 @@ writeCookie('symbol-access', 'private')
 
     
 
-    <h4 class="name" id="EditableMathlist">new EditableMathlist<span class="signature">(config<span class="signature-type">: Object</span>, target<span class="signature-type">: Object</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="EditableMathlist">new EditableMathlist<span class="signature">(config<span class="signature-type">: [string]:any</span>, target<span class="signature-type">: Element</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
@@ -128,7 +128,7 @@ Note that the selector name does not include the underbar.</li>
             <span class="type">
             
                 : 
-<span class="param-type">Object</span>
+<span class="param-type">[string]:any</span>
 
 
             
@@ -151,7 +151,7 @@ Note that the selector name does not include the underbar.</li>
             <span class="type">
             
                 : 
-<span class="param-type">Object</span>
+<span class="param-type">Element</span>
 
 
             
@@ -195,7 +195,7 @@ callback functions. Typically, a MathField.</p>
             <span class="type">
             
                 : 
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+<span class="param-type">MathAtom[]</span>
 
 
             
@@ -220,7 +220,7 @@ callback functions. Typically, a MathField.</p>
             <span class="type">
             
                 : 
-<span class="param-type">Array.&lt;Object></span>
+<span class="param-type">Object[]</span>
 
 
             
@@ -272,7 +272,7 @@ selection is collapsed.</p>
             <span class="type">
             
                 : 
-<span class="param-type">Object</span>
+<span class="param-type">[string]:any</span>
 
 
             
@@ -1190,7 +1190,7 @@ after the focus.</p>
 
     
 
-    <h4 class="name" id="commandOffsets">commandOffsets<span class="signature">()</span><span class="type-signature">:  Object</span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="commandOffsets">commandOffsets<span class="signature">()</span><span class="type-signature">:  object</span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
@@ -1224,7 +1224,7 @@ point, or null.</p>
 <span class="param-desc">
     
         : 
-<span class="param-type">Object</span>
+<span class="param-type">object</span>
 
 
         &nbsp;&nbsp;
@@ -3919,7 +3919,7 @@ may be greater than this argument. It could also be smaller.</li>
 
     
 
-    <h4 class="name" id="extractContents">extractContents<span class="signature">()</span><span class="type-signature">:  Array.&lt;<a href="MathAtom.html">MathAtom</a>></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="extractContents">extractContents<span class="signature">()</span><span class="type-signature">:  MathAtom[]</span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
@@ -3944,7 +3944,7 @@ may be greater than this argument. It could also be smaller.</li>
 <span class="param-desc">
     
         : 
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+<span class="param-type">MathAtom[]</span>
 
 
         &nbsp;&nbsp;
@@ -4118,7 +4118,7 @@ selection is collapsed</p>
 
     
 
-    <h4 class="name" id="filter">filter<span class="signature">(cb<span class="signature-type">: function</span>, dir<span class="signature-type">: number</span>)</span><span class="type-signature">:  Array.&lt;<a href="MathAtom.html">MathAtom</a>></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="filter">filter<span class="signature">(cb<span class="signature-type">: function</span>, dir<span class="signature-type">: number</span>)</span><span class="type-signature">:  MathAtom[]</span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
@@ -4213,7 +4213,7 @@ path. Return true to include the designated atom in the result.</p>
 <span class="param-desc">
     
         : 
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+<span class="param-type">MathAtom[]</span>
 
 
         &nbsp;&nbsp;
@@ -4288,7 +4288,7 @@ path. Return true to include the designated atom in the result.</p>
 
     
 
-    <h4 class="name" id="insert">insert<span class="signature">(s<span class="signature-type">: string</span>, options<span class="signature-type">: Object</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+    <h4 class="name" id="insert">insert<span class="signature">(s<span class="signature-type">: string</span>, options<span class="signature-type">: [string]:any</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
 
     
 
@@ -4340,7 +4340,7 @@ path. Return true to include the designated atom in the result.</p>
             <span class="type">
             
                 : 
-<span class="param-type">Object</span>
+<span class="param-type">[string]:any</span>
 
 
             
@@ -6762,7 +6762,7 @@ the selection is a superscript or subscript, the group is the supsub.</p>
 
     
 
-    <h4 class="name" id="setRange">setRange<span class="signature">(from<span class="signature-type">: Array.&lt;string></span>, to<span class="signature-type">: Array.&lt;string></span>)</span><span class="type-signature">:  boolean</span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="setRange">setRange<span class="signature">(from<span class="signature-type">: string[]</span>, to<span class="signature-type">: string[]</span>)</span><span class="type-signature">:  boolean</span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
@@ -6795,7 +6795,7 @@ the selection is a superscript or subscript, the group is the supsub.</p>
             <span class="type">
             
                 : 
-<span class="param-type">Array.&lt;string></span>
+<span class="param-type">string[]</span>
 
 
             
@@ -6818,7 +6818,7 @@ the selection is a superscript or subscript, the group is the supsub.</p>
             <span class="type">
             
                 : 
-<span class="param-type">Array.&lt;string></span>
+<span class="param-type">string[]</span>
 
 
             
@@ -7237,7 +7237,7 @@ the selection is a superscript or subscript, the group is the supsub.</p>
 
     
 
-    <h4 class="name" id="siblings">siblings<span class="signature">()</span><span class="type-signature">:  Array.&lt;<a href="MathAtom.html">MathAtom</a>></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="siblings">siblings<span class="signature">()</span><span class="type-signature">:  MathAtom[]</span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
@@ -7262,7 +7262,7 @@ the selection is a superscript or subscript, the group is the supsub.</p>
 <span class="param-desc">
     
         : 
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+<span class="param-type">MathAtom[]</span>
 
 
         &nbsp;&nbsp;
@@ -7337,7 +7337,7 @@ the selection is a superscript or subscript, the group is the supsub.</p>
 
     
 
-    <h4 class="name" id="skip">skip<span class="signature">(dir<span class="signature-type">: number</span>, options<span class="signature-type">: Object</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="skip">skip<span class="signature">(dir<span class="signature-type">: number</span>, options<span class="signature-type">: [string]:any</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
@@ -7402,7 +7402,7 @@ collapsed, then moved.</p>
             <span class="type">
             
                 : 
-<span class="param-type">Object</span>
+<span class="param-type">[string]:any</span>
 
 
             

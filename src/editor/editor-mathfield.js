@@ -192,7 +192,7 @@ function MathField(element, config) {
     markup += `
         <div class="ML__popover" aria-hidden="true"></div>
         <div class="ML__keystroke-caption" aria-hidden="true"></div>
-        <div class="ML__HiddenAccessibleMath">
+        <div class="sr-only">
             <span aria-live="assertive" aria-atomic="true"></span>
             <span></span>
         </div>
@@ -1515,7 +1515,7 @@ MathField.prototype.$selectionAtEnd = function() {
  * LaTeX expression.
  * @param {string} text
  * 
- * @param {Object} options
+ * @param {Object.<string, any>} options
  * @param {boolean} options.suppressContentChangeNotifications - If true, the
  * handlers for the contentWillChange and contentDidChange notifications will 
  * not be invoked. Default `false`.
@@ -1805,8 +1805,8 @@ MathField.prototype.previousSuggestion_ = function() {
  * the element, as the :hover and :active pseudo-classes are not reliable
  * (at least on Chrome Android).
  *
- * @param {*} el
- * @param {*} command
+ * @param {Element} el
+ * @param {object|string} command
  */
 MathField.prototype._attachButtonHandlers = function(el, command) {
     const that = this;
@@ -2408,7 +2408,7 @@ MathField.prototype.typedText_ = function(text, options) {
  * 
  * Update the configuration options for this mathfield.
  * 
- * @param {Object<string, *>} [config={}] See {@tutorial CONFIG} for details.
+ * @param {Object<string, any>} [config={}] See {@tutorial CONFIG} for details.
  * 
  * @method MathField#$setConfig
  */

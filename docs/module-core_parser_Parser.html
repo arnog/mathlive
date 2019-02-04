@@ -87,7 +87,7 @@ writeCookie('symbol-access', 'private')
 
     
 
-    <h4 class="name" id="Parser">new Parser<span class="signature">(tokens<span class="signature-type">: Array.&lt;InputToken></span>, args<span class="signature-attributes">?</span><span class="signature-type">: Object</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="Parser">new Parser<span class="signature">(tokens<span class="signature-type">: InputToken[]</span>, args<span class="signature-attributes">?</span><span class="signature-type">: [string]</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
@@ -120,7 +120,7 @@ writeCookie('symbol-access', 'private')
             <span class="type">
             
                 : 
-<span class="param-type">Array.&lt;InputToken></span>
+<span class="param-type">InputToken[]</span>
 
 
             
@@ -148,7 +148,7 @@ writeCookie('symbol-access', 'private')
             <span class="type">
             
                 : 
-<span class="param-type">Object</span>
+<span class="param-type">[string]</span>
 
 
             
@@ -169,7 +169,7 @@ writeCookie('symbol-access', 'private')
             
                     <p class="description last">
                         <p>An optional list of arguments. <code>#n</code> tokens will be
-substituted with the corresponding element in the args array. This is used
+substituted with the corresponding element in the args object. This is used
 when parsing macros.</p>
                     </p>
                     
@@ -201,7 +201,7 @@ when parsing macros.</p>
             <span class="type">
             
                 : 
-<span class="param-type">Object</span>
+<span class="param-type">[string]:string</span>
 
 
             
@@ -234,7 +234,7 @@ when parsing macros.</p>
             <span class="type">
             
                 : 
-<span class="param-type">Array.&lt;InputToken></span>
+<span class="param-type">InputToken[]</span>
 
 
             
@@ -265,7 +265,7 @@ when parsing macros.</p>
             <span class="type">
             
                 : 
-<span class="param-type">Object</span>
+<span class="param-type">[string]</span>
 
 
             
@@ -296,7 +296,7 @@ when parsing macros.</p>
             <span class="type">
             
                 : 
-<span class="param-type">Object</span>
+<span class="param-type">[string]:string</span>
 
 
             
@@ -364,7 +364,7 @@ the macro, with the following keys:</p>
             <span class="type">
             
                 : 
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+<span class="param-type">MathAtom[]</span>
 
 
             
@@ -1951,7 +1951,7 @@ group (i.e. <code>{}</code>).</p>
 
     
 
-    <h4 class="name" id="scanImplicitGroup">scanImplicitGroup<span class="signature">(done<span class="signature-attributes">?</span><span class="signature-type">: function</span>)</span><span class="type-signature">:  Array.&lt;<a href="MathAtom.html">MathAtom</a>></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="scanImplicitGroup">scanImplicitGroup<span class="signature">(done<span class="signature-attributes">?</span><span class="signature-type">: function</span>)</span><span class="type-signature">:  MathAtom[]</span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
@@ -2027,7 +2027,7 @@ end of an implicit group</p>
 <span class="param-desc">
     
         : 
-<span class="param-type">Array.&lt;<a href="MathAtom.html">MathAtom</a>></span>
+<span class="param-type">MathAtom[]</span>
 
 
         &nbsp;&nbsp;
@@ -2415,7 +2415,7 @@ Will also terminate on ']'</p>
 
     
 
-    <h4 class="name" id="scanToken">scanToken<span class="signature">()</span><span class="type-signature">:  Array.MathAtom | <a href="MathAtom.html">MathAtom</a></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="scanToken">scanToken<span class="signature">()</span><span class="type-signature">:  MathAtom[] | <a href="MathAtom.html">MathAtom</a></span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
@@ -2440,7 +2440,7 @@ Will also terminate on ']'</p>
 <span class="param-desc">
     
         : 
-<span class="param-type">Array.MathAtom</span>
+<span class="param-type">MathAtom[]</span>
 |
 
 <span class="param-type"><a href="MathAtom.html">MathAtom</a></span>

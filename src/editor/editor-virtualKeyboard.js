@@ -820,8 +820,8 @@ function makeKeycap(mf, elList, chainedCommand) {
 
 /**
  * Expand the shortcut tags (e.g. <row>) inside a layer.
- * @param {*} mf
- * @param {*} layer
+ * @param {object} mf
+ * @param {string} layer
  * @private
  */
 function expandLayerMarkup(mf, layer) {
@@ -962,7 +962,7 @@ function expandLayerMarkup(mf, layer) {
 /**
  * Construct a virtual keyboard element based on the config options in the
  * mathfield and an optional theme.
- * @param {Object} mf
+ * @param {object} mf
  * @param {string} theme
  * @result {} A DOM element
  */

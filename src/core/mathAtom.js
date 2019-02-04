@@ -31,8 +31,8 @@ const FONTMETRICS = FontMetricsModule.metrics;
  * @param {string} mode
  * @param {string} type
  * @param {string|MathAtom[]} body
- * @param {?string} [fontFamily="main"]
- * @param {?Object} [extras=null] A set of additional properties to append to
+ * @param {string} [fontFamily="main"]
+ * @param {Object.<string, any>} [extras={}] A set of additional properties to append to
  * the atom
  * @return {MathAtom}
  * @property {string} mode `'display'`, `'command'`, etc...

@@ -116,7 +116,7 @@ function toMarkup(text, mathstyle, format, macros) {
  * @param {Element|string} element A DOM element, for example as obtained 
  * by `document.getElementById()`, or the ID of a DOM element as a string.
  * 
- * @param {Object<string, *>} [config={}] See {@tutorial CONFIG} for details.
+ * @param {Object<string, any>} [config={}] See {@tutorial CONFIG} for details.
  *
  *
  * @return {MathField}
@@ -226,12 +226,11 @@ function latexToAST(latex, options) {
  * Which options are available depends on the speech rule engine in use. There 
  * are no options available with MathLive's built-in engine. The options for 
  * the SRE engine are documented [here]{@link:https://github.com/zorkow/speech-rule-engine}
-
  * @return {string} The spoken representation of the input LaTeX.
- * @function module:mathlive#latexToSpeakableText
  * @example
  * console.log(MathLive.latexToSpeakableText('\\frac{1}{2}'));
  * // ➡︎'half'
+ * @function module:mathlive#latexToSpeakableText
  */
 function latexToSpeakableText(latex, options) {
     if (!MathAtom.toSpeakableText) {
@@ -605,12 +604,7 @@ function playReadAloud(token, count) {
  * 
  */
 function renderMathInDocument(options) {
-    if (!AutoRender) {
-        console.log('The AutoRender module is not loaded.');
-        return;
-    }
-
-    AutoRender.renderMathInElement(document.body, options, toMarkup, toMathML);
+    renderMathInElement(document.body, options);
 }
 
 function getElement(element) {
@@ -660,6 +654,16 @@ function getElement(element) {
  * @param {string} [options.processScriptType="math/tex"] `<script>` tags of the 
  * indicated type will be processed while others will be ignored.
 
+ * 
+ * @param {string} [options.renderAccessibleContent='mathml'] The format(s) in 
+ * which to render the math for screen readers:
+ * - `'mathml'` MathML
+ * - `'speakable-text'` Spoken representation
+ * 
+ * You can pass an empty string to turn off the rendering of accessible content.
+ * 
+ * You can pass multiple values separated by spaces, e.g `'mathml speakable-text'`
+ * 
  * @param {boolean} [options.preserveOriginalContent=true] if true, store the
  * original textual content of the element in a `data-original-content`
  * attribute. This value can be accessed for example to restore the element to
@@ -673,19 +677,36 @@ function getElement(element) {
  * @param {boolean} [options.TeX.processEnvironments=true] if false, math expression
  * that start with `\begin{` will not automatically be rendered.
  * 
- * @param {Array} options.TeX.delimiters.inline
+ * @param {string[][]} [options.TeX.delimiters.inline=[['\\(','\\)']] ] arrays
+ * of delimiter pairs that will trigger a render of the content in 'textstyle'
  *
- * @param {Array} options.TeX.delimiters.display arrays
- * of delimiters that will trigger a render of the content in 'textstyle' or
- * 'displaystyle', respectively.
+ * @param {string[][]} [options.TeX.delimiters.display=[['$$', '$$'], ['\\[', '\\]']] ] arrays
+ * of delimiter pairs that will trigger a render of the content in
+ * 'displaystyle'.
+ * 
+ * @param {function} [renderToMarkup] a function that will convert any LaTeX found to
+ * HTML markup. This is only useful to override the default MathLive renderer
+ * 
+ * @param {function} [renderToMathML] a function that will convert any LaTeX found to
+ * MathML markup.
+ * 
+ * @param {function} [renderToSpeakableText] a function that will convert any LaTeX found to
+ * speakable text markup.
+ * 
  * @function module:mathlive#renderMathInElement
  */
+
 function renderMathInElement(element, options) {
     if (!AutoRender) {
         console.log('The AutoRender module is not loaded.');
         return;
     }
-    AutoRender.renderMathInElement(getElement(element), options, toMarkup, toMathML);
+    options = options || {};
+    options.renderToMarkup = options.renderToMarkup || toMarkup;
+    options.renderToMathML = options.renderToMathML || toMathML;
+    options.renderToSpeakableText = options.renderToSpeakableText || latexToSpeakableText;
+    options.macros = options.macros || Definitions.MACROS;
+    AutoRender.renderMathInElement(getElement(element), options);
 }
 
 
@@ -704,7 +725,7 @@ function validateNamespace(options) {
 /**
  *
  * @param {string|Element|MathField} element
- * @param {Object} [options={}]
+ * @param {Object.<string, any>} [options={}]
  * @param {string} options.namespace The namespace used for the `data-`
  * attributes. If you used a namespace with `renderMathInElement`, you must
  * use the same namespace here.

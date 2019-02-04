@@ -82,7 +82,7 @@ class Context {
      * Create a new context, identical to this object, except for the given
      * property/value pair.
      * @param {string} property
-     * @param {*} value
+     * @param {any} value
      * @return {Context}
      * @memberof Context
      * @instance

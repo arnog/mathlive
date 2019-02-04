@@ -188,7 +188,7 @@ then said to be <em>collapsed</em> — or a range of atoms.</p>
 
     
 
-    <h4 class="name" id="~arrayCell">arrayCell<span class="signature">(atom<span class="signature-type">: <a href="MathAtom.html">MathAtom</a></span>, colrow<span class="signature-type">: *</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">inner</span></span></h4>
+    <h4 class="name" id="~arrayCell">arrayCell<span class="signature">(atom<span class="signature-type">: <a href="MathAtom.html">MathAtom</a> | MathAtom[]</span>, colrow<span class="signature-type">: any</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">inner</span></span></h4>
 
     
 
@@ -223,6 +223,9 @@ a sparse array)</p>
             
                 : 
 <span class="param-type"><a href="MathAtom.html">MathAtom</a></span>
+|
+
+<span class="param-type">MathAtom[]</span>
 
 
             
@@ -245,7 +248,7 @@ a sparse array)</p>
             <span class="type">
             
                 : 
-<span class="param-type">*</span>
+<span class="param-type">any</span>
 
 
             
@@ -577,7 +580,7 @@ a sparse array)</p>
 
     
 
-    <h4 class="name" id="~arrayIndex">arrayIndex<span class="signature">(atom<span class="signature-type">: <a href="MathAtom.html">MathAtom</a></span>, rowCol<span class="signature-type">: *</span>)</span><span class="type-signature">:  number</span><span class="type-signature"><span class="attrib">inner</span></span></h4>
+    <h4 class="name" id="~arrayIndex">arrayIndex<span class="signature">(atom<span class="signature-type">: <a href="MathAtom.html">MathAtom</a></span>, rowCol<span class="signature-type">: object</span>)</span><span class="type-signature">:  number</span><span class="type-signature"><span class="attrib">inner</span></span></h4>
 
     
 
@@ -633,7 +636,7 @@ a sparse array)</p>
             <span class="type">
             
                 : 
-<span class="param-type">*</span>
+<span class="param-type">object</span>
 
 
             
@@ -886,7 +889,7 @@ children of <code>atom</code> contains the target</p>
 
     
 
-    <h4 class="name" id="~getString">getString<span class="signature">(atom<span class="signature-type">: *</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">inner</span></span></h4>
+    <h4 class="name" id="~getString">getString<span class="signature">(atom<span class="signature-type">: <a href="MathAtom.html">MathAtom</a></span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">inner</span></span></h4>
 
     
 
@@ -925,7 +928,7 @@ We don't want them to be transparent, so we map them to
             <span class="type">
             
                 : 
-<span class="param-type">*</span>
+<span class="param-type"><a href="MathAtom.html">MathAtom</a></span>
 
 
             

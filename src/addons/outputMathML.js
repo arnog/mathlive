@@ -2,7 +2,7 @@
  * 
  * This module outputs a formula to MathML.
  * 
- * To use it, use the {@linkcode MathAtom#toMathML Atom.toMathML()}  method.
+ * To use it, use the {@linkcode MathAtom#toMathML MathAtom.toMathML()}  method.
  * 
  * @module addons/outputMathML
  * @private
@@ -137,7 +137,7 @@ function scanIdentifier(stream, final, options) {
  * i.e. an atom with no content, except of a superscript.
  * Superscripts can be encoded either as an attribute on the last atom
  * or as a standalone, empty, atom following the one to which it applies.
- * @param {*} stream
+ * @param {object} stream
  */
 function isSuperscriptAtom(stream) {
     return stream.index < stream.atoms.length &&

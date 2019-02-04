@@ -58,7 +58,7 @@ function toString() {
  * @property {Span[]} children - An array, potentially empty, of spans which
  * this span encloses
  * @property {string} body - Content of this span. Can be empty.
- * @property {Object} style - A set of key/value pairs specifying CSS properties
+ * @property {Object.<string, any>} style - A set of key/value pairs specifying CSS properties
  * associated with this element.
  * @property {number} height - The measurement from baseline to top, in em.
  * @property {number} depth - The measurement from baseline to bottom, in em.
@@ -124,7 +124,7 @@ Span.prototype.updateDimensions = function() {
  * For example, setStyle('border-right', 5.6, 'em');
  *
  * @param {string} prop the CSS property to set
- * @param {Object} value a series of strings and numbers that will be concatenated.
+ * @param {...(string|number)} value a series of strings and numbers that will be concatenated.
  * @return {string}
  * @method module:core/span.Span#setStyle
  * @private
