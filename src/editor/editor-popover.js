@@ -434,9 +434,9 @@ function updatePopoverPosition(mf, options) {
         if (options && options.deferred) {
             // Call ourselves again later, typically after the
             // rendering/layout of the DOM has been completed
-            setTimeout(updatePopoverPosition.bind(null, mf), 0);
+            window.requestAnimationFrame(() => updatePopoverPosition(mf));
         } else {
-            if (mf.blurred || !mf.mathlist.anchor() || mf.mathlist.anchor().type !== 'command') {
+            if (!mf.mathlist.anchor() || mf.mathlist.anchor().type !== 'command') {
                 hidePopover(mf);
             } else {
                 // ... get the caret position

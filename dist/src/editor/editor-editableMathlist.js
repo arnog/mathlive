@@ -222,7 +222,9 @@ EditableMathlist.prototype.setPath = function(selection, extent) {
         const oldPath = this.path;
         this.path = newPath;
         if (extent === 0 && this.anchor().type === 'placeholder') {
-            extent = 1;             // select the placeholder
+            // select the placeholder
+            newPath[newPath.length - 1].offset = 0;
+            extent = 1;             
         }
         selection = {
             path: newPath,
@@ -1510,6 +1512,13 @@ EditableMathlist.prototype.leap = function(dir, callHandler) {
     callHandler = callHandler || true;
 
     const oldPath = clone(this);
+    this.move(dir);
+
+    if (this.anchor().type === 'placeholder') {
+        // If we're already at a placeholder, move by one more (the placeholder
+        // is right after the insertion point)
+        this.move(dir);
+    }
     // Candidate placeholders are atom of type 'placeholder'
     // or empty children list (except for the root: if the root is empty,
     // it is not a valid placeholder)
@@ -1548,15 +1557,6 @@ EditableMathlist.prototype.leap = function(dir, callHandler) {
         }
         return false;
     }
-
-    this.move(dir);
-
-    if (this.anchor().type === 'placeholder') {
-        // If we're already at a placeholder, move by one more (the placeholder
-        // is right after the insertion point)
-        this.move(dir);
-    }
-
 
     // Set the selection to the next placeholder
     this.setPath(placeholders[0]);
@@ -1673,9 +1673,9 @@ EditableMathlist.prototype.insert = function(s, options) {
     // Delete any placeholders before or after the insertion point
     const siblings = this.siblings();
     const firstOffset = this.startOffset();
-    if (firstOffset + 1 < siblings.length && siblings[firstOffset + 1].type === 'placeholder') {
+    if (firstOffset + 1 < siblings.length && siblings[firstOffset + 1] && siblings[firstOffset + 1].type === 'placeholder') {
         this.delete_(1);
-    } else if (firstOffset > 0 && siblings[firstOffset].type === 'placeholder') {
+    } else if (firstOffset > 0 && siblings[firstOffset] && siblings[firstOffset].type === 'placeholder') {
         this.delete_(-1);
     }
 

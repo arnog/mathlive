@@ -1673,9 +1673,9 @@ EditableMathlist.prototype.insert = function(s, options) {
     // Delete any placeholders before or after the insertion point
     const siblings = this.siblings();
     const firstOffset = this.startOffset();
-    if (firstOffset + 1 < siblings.length && siblings[firstOffset + 1].type === 'placeholder') {
+    if (firstOffset + 1 < siblings.length && siblings[firstOffset + 1] && siblings[firstOffset + 1].type === 'placeholder') {
         this.delete_(1);
-    } else if (firstOffset > 0 && siblings[firstOffset].type === 'placeholder') {
+    } else if (firstOffset > 0 && siblings[firstOffset] && siblings[firstOffset].type === 'placeholder') {
         this.delete_(-1);
     }
 

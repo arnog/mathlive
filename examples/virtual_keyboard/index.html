@@ -35,7 +35,7 @@
             virtualKeyboardMode: 'manual',
             customVirtualKeyboardLayers: {
                 'json': {
-                    "styles": "div#ML__keyboard div.json-backdrop > div > div > ul> li.keycap.btn{color:#fff;background:#37454F;border: 1px solid #37454F}",
+                    "styles": "div.ML__keyboard div.json-backdrop > div > div > ul> li.keycap.btn{color:#fff;background:#37454F;border: 1px solid #37454F}",
                     "backdrop": "json-backdrop",
                     "container": "json-container",
                     "rows": [
@@ -218,20 +218,20 @@
                     box-shadow: 0 4px 5px rgba(0, 0, 0, .5);
                     margin-bottom: 20px;
                 }
-                #ML__keyboard div.rows.calculator {
+                .ML__keyboard div.rows.calculator {
                     background: #1e1e1e;
                     width: 450px;
                     border-radius: 2px;
                     border: 4px solid #cdcdcd;
                     border-bottom: 12px solid #cdcdcd
                 }
-                #ML__keyboard div.rows.calculator ul {
+                .ML__keyboard div.rows.calculator ul {
                     height: 78px;
                     margin: 0;
                 }
-                div#ML__keyboard div div.rows.calculator ul li.btn,
-                div#ML__keyboard div div.rows.calculator ul li.btn:hover,
-                div#ML__keyboard.material div div.rows.calculator ul li.keycap:not([data-key=' ']):hover {
+                div.ML__keyboard div div.rows.calculator ul li.btn,
+                div.ML__keyboard div div.rows.calculator ul li.btn:hover,
+                div.ML__keyboard.material div div.rows.calculator ul li.keycap:not([data-key=' ']):hover {
                     background: url(btn.png);
                     background-size: 70px;
                     border: 0;
@@ -249,24 +249,24 @@
                     text-shadow: 0 1px 0px rgba(0, 0, 0, .5);
                     box-shadow: none;
                 }
-                #ML__keyboard div.rows.calculator ul li.btn aside.above {
+                .ML__keyboard div.rows.calculator ul li.btn aside.above {
                     color: #d97845;
                     font-size: 16px;
                     margin-bottom: 5px;
                     opacity: .9;
                 }
-                #ML__keyboard div.rows.calculator ul li.btn span {
+                .ML__keyboard div.rows.calculator ul li.btn span {
                     margin-bottom: 10px;
                 }
-                #ML__keyboard div.rows.calculator ul li.btn aside.below {
+                .ML__keyboard div.rows.calculator ul li.btn aside.below {
                     color: rgb(49,113,173);
                     font-size: 14px;
                     font-weight: 600;
                     margin-top: -5px;
                     opacity: .8;
                 }
-                div#ML__keyboard div div.rows.calculator ul li.btn:hover:active,
-                div#ML__keyboard div div.rows.calculator ul li.btn:active {
+                div.ML__keyboard div div.rows.calculator ul li.btn:hover:active,
+                div.ML__keyboard div div.rows.calculator ul li.btn:active {
                     background: url(btn-pressed.png);
                     background-position-y: 2px;
                     background-position-x: 5px;
@@ -276,10 +276,10 @@
                     // clip: rect(0px,70px,80px,0px);
                     overflow: hidden;
                 }
-                div#ML__keyboard div div.rows.calculator ul li.btn:hover:active aside.below,
-                div#ML__keyboard div div.rows.calculator ul li.btn:active aside.below,
-                div#ML__keyboard div div.rows.calculator ul li.btn:hover:active > span,
-                div#ML__keyboard div div.rows.calculator ul li.btn:active > span  {
+                div.ML__keyboard div div.rows.calculator ul li.btn:hover:active aside.below,
+                div.ML__keyboard div div.rows.calculator ul li.btn:active aside.below,
+                div.ML__keyboard div div.rows.calculator ul li.btn:hover:active > span,
+                div.ML__keyboard div div.rows.calculator ul li.btn:active > span  {
                     position: relative;
                     top: 2px;
                 }

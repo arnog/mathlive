@@ -72,7 +72,32 @@ function off(el, selectors, listener, options) {
     }
 }
 
+function getSharedElement(id, cls) {
+    let result = document.getElementById(id);
+    if (result) {
+        result.setAttribute('data-refcount', 
+            parseInt(result.getAttribute('data-refcount')) + 1);
+    } else {
+        result = document.createElement('div');
+        result.setAttribute('aria-hidden', 'true');
+        result.setAttribute('data-refcount', '1');
+        result.className = cls;
+        result.id = id;
+        document.body.appendChild(result);
+    }
+    return result;
+}
 
+function releaseSharedElement(el) {
+    if (!el) return null;
+    const refcount = parseInt(el.getAttribute('data-refcount'));
+    if (!refcount || refcount === 1) {
+        el.remove();
+    } else {
+        el.setAttribute('data-refcount', refcount - 1);
+    }
+    return el;
+}
 
 
 /**
@@ -190,8 +215,6 @@ function MathField(element, config) {
     markup += '</span>';
 
     markup += `
-        <div class="ML__popover" aria-hidden="true"></div>
-        <div class="ML__keystroke-caption" aria-hidden="true"></div>
         <div class="sr-only">
             <span aria-live="assertive" aria-atomic="true"></span>
             <span></span>
@@ -215,10 +238,13 @@ function MathField(element, config) {
             shift: 'toggleVirtualKeyboardShift'
         }
     );
-    this.popover = this.element.children[iChild++];
-    this.keystrokeCaption = this.element.children[iChild++];
     this.ariaLiveText = this.element.children[iChild].children[0];
     this.accessibleNode = this.element.children[iChild++].children[1];
+
+    // Some panels are shared amongst instances of mathfield
+    // (there's a single instance in the document)
+    this.popover = getSharedElement('mathlive-popover-panel', 'ML__popover');
+    this.keystrokeCaption = getSharedElement('mathlive-keystroke-caption-panel', 'ML__keystroke-caption');
 
     // The keystroke caption panel and the command bar are
     // initially hidden
@@ -310,7 +336,11 @@ MathField.prototype.handleEvent = function(evt) {
         case 'blur': this._onBlur(evt); break;
         case 'touchstart': this._onPointerDown(evt); break;
         case 'mousedown': this._onPointerDown(evt); break;
-        case 'resize': this._onResize(evt); break;
+        case 'resize': {
+            if (this._resizeTimer) window.cancelAnimationFrame(this._resizeTimer);
+            this._resizeTimer = window.requestAnimationFrame( () => this._onResize());
+            break;
+        }
         case 'cut': this._onCut(evt); break;
         case 'copy': this._onCopy(evt); break;
         case 'paste': this._onPaste(evt); break;
@@ -341,11 +371,11 @@ MathField.prototype.$revertToOriginalContent = function() {
     delete this.textarea;
     this.virtualKeyboardToggleDOMNode.remove()
     delete this.virtualKeyboardToggleDOMNode;
-    this.popover.remove();
-    delete this.popover;
-    delete this.keystrokeCaption;
-    // this.virtualKeyboard.remove();
-    delete this.virtualKeyboard;
+    delete releaseSharedElement(this.popover);
+    delete releaseSharedElement(this.keystrokeCaption);
+    delete releaseSharedElement(this.virtualKeyboard);
+    delete releaseSharedElement(document.getElementById('mathlive-alternate-keys-panel'));
+    
     off(this.element, 'touchstart:active mousedown', this);
     off(this.element, 'focus', this);
     off(this.element, 'blur', this);
@@ -819,7 +849,6 @@ MathField.prototype._onBlur = function() {
 }
 
 MathField.prototype._onResize = function() {
-
     this.element.classList.remove('ML__isNarrowWidth', 'ML__isWideWidth', 'ML__isExtendedWidth');
     if (window.innerWidth >= 1024) {
         this.element.classList.add('ML__isExtendedWidth');
@@ -2033,10 +2062,10 @@ MathField.prototype._makeButton = function(label, cls, ariaLabel, command) {
  *
  */
 MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
-    let altContainer = this.virtualKeyboard.getElementsByClassName('alternate-keys');
-    if (!altContainer || altContainer.length === 0) return false;
-
-    altContainer = altContainer[0];
+    const altContainer = getSharedElement('mathlive-alternate-keys-panel', 'ML__keyboard alternate-keys');
+    if (this.virtualKeyboard.classList.contains('material')) {
+        altContainer.classList.add('material');
+    }
 
     if (altKeys.length >= 7) {
         // Width 4
@@ -2108,10 +2137,11 @@ MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
                 altContainer.style.height = '205px';    // 3 rows
             }
         }
-        altContainer.style.top = (position.top - altContainer.clientHeight + 5).toString() + 'px';
-        altContainer.style.left = Math.max(0,
+        const top = (position.top - altContainer.clientHeight + 5).toString() + 'px';
+        const left = Math.max(0,
             Math.min(window.innerWidth - altContainer.offsetWidth,
             ((position.left + position.right - altContainer.offsetWidth) / 2) )) + 'px';
+        altContainer.style.transform = 'translate(' + left + ',' + top + ')'
         altContainer.classList.add('is-visible');
     }
     return false;
@@ -2119,11 +2149,11 @@ MathField.prototype.showAlternateKeys_ = function(keycap, altKeys) {
 
 
 MathField.prototype.hideAlternateKeys_ = function() {
-    let altContainer = this.virtualKeyboard.getElementsByClassName('alternate-keys');
-    if (altContainer && altContainer.length > 0) {
-        altContainer = altContainer[0];
+    const altContainer = document.getElementById('mathlive-alternate-keys-panel');
+    if (altContainer) {
         altContainer.classList.remove('is-visible');
         altContainer.innerHTML = '';
+        delete releaseSharedElement(altContainer);
     }
     return false;
 }
@@ -2321,7 +2351,7 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
             on(this.virtualKeyboard, 'touchstart:passive mousedown', function() {
                 that.focus();
             });
-            this.element.appendChild(this.virtualKeyboard);
+            document.body.appendChild(this.virtualKeyboard);
         }
         // For the transition effect to work, the property has to be changed
         // after the insertion in the DOM. Use setTimeout

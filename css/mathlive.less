@@ -655,7 +655,7 @@
 }
 
 
-#ML__keyboard {
+.ML__keyboard {
     --keyboard-background: rgba(209, 213, 217, .95);
     --keyboard-text: #000;
     --keyboard-text-active: var(--primary);
@@ -681,7 +681,7 @@
     left: 0;
     bottom: -267px;
     width: 100vw;
-    z-index: 100;
+    z-index: 105;
 
     padding-top: 5px;
 
@@ -691,12 +691,12 @@
     // To make the keyboard visible, add the .is-visible class
     // This will slide in and fade in the keyboard
     transition: .28s cubic-bezier(0.0, 0.0, 0.2, 1);    // Deceleration curve
+    transition-property: transform, opacity;
     &.is-visible {
         transform: translate(0, -267px); 
-        // bottom: -267px;
         opacity: 1;
         visibility: visible;
-        transition: .28s cubic-bezier(0.4, 0.0, 1, 1); // Acceleration curve
+        transition-timing-function: cubic-bezier(0.4, 0.0, 1, 1); // Acceleration curve
     }
 
     backdrop-filter: grayscale(50%);
@@ -730,7 +730,7 @@
     }
 
     /* This is the element that displays alternate keys on press+hold */
-    div.alternate-keys {
+    &.alternate-keys {
         visibility: hidden;
         max-width: 286px;
         @media only screen and (max-height : 412px)  {  // 412 is the height of the Google Pixel in landscape mode
@@ -740,9 +740,12 @@
         background-color: var(--keyboard-alternate-background);
         text-align: center;
         border-radius: 6px;
-        // padding: 8px 8px;
         position: fixed;
-        z-index: 101;   // Keyboard is at 100, need to be above it.
+        bottom: auto;               // Override the value from ML__keyboard
+        top: 0;                     // "
+        box-sizing: content-box;    // "
+        transform: none;            // "
+        z-index: 106;               // Above the keyboard (105)
     
         display: flex;
         flex-direction: row;
@@ -750,7 +753,6 @@
         align-content: center;
     
         box-shadow: @shadow4;
-
 
         transition: none;
 
@@ -764,7 +766,7 @@
             display: flex;
             flex-flow: row wrap-reverse;
             justify-content: center;
-            li {        // Alternate Keys
+            & > li {        // Alternate Keys
                 display: flex;
                 flex-flow: column;
                 align-items: center;
@@ -836,14 +838,14 @@
     }
     
 
-    div.keyboard-layer {
+    & > div.keyboard-layer {
         display: none;
         &.is-visible { 
             display: flex; 
             flex-flow: column;
         }
     }
-    div.keyboard-toolbar {
+    & > div > div.keyboard-toolbar {
         align-self: center;
         display: flex;
         flex-flow: row;
@@ -870,17 +872,17 @@
                 width: 17px;
             }
         }
-        div.left {
+        & > .left {
             justify-content: flex-start;
             display: flex;
             flex-flow: row;
         }
-        div.right {
+        & > .right {
             justify-content: flex-end;
             display: flex;
             flex-flow: row;
         }
-        div div {
+        & > div > div {
             /* "button" in the toolbar */
             display: flex;
             align-items: baseline;
@@ -933,7 +935,7 @@
     }
 
     /* Keyboard layouts are made or rows of keys... */
-    div.rows {
+    & > div > .rows {
         border: 0;
         border-collapse: separate;
         clear: both;
@@ -941,7 +943,7 @@
         display: flex;
         flex-flow: column;
         align-items: center;
-        ul {
+        & > ul {
             list-style: none;
             height: 40px;
             margin: 0 0 3px 0;
@@ -949,7 +951,7 @@
 
 
             
-            li {
+            & > li {
                 /* Key widths. A standard key is 10 units wide (w10) */
                 /* The formula for wn = n * w10 / 10 + (n -1) * margin-right */
                 display: flex;
@@ -1026,11 +1028,11 @@
                         }
                     }
                }
-                &.w0 {width: 0;}
-                &.w5 {width: 16px;}
-                &.w15 {width: 52px;}
-                &.w20 {width: 70px;}
-                &.w50 {width: 178px;}
+                & > .w0 {width: 0;}
+                & > .w5 {width: 16px;}
+                & > .w15 {width: 52px;}
+                & > .w20 {width: 70px;}
+                & > .w50 {width: 178px;}
                 /* Extra spacing between two adjacent keys */
                 &.separator {
                     background: transparent;
@@ -1128,67 +1130,67 @@
         }
         /* iPhone 5 */
         @media only screen and (max-width : 320px)  {
-            ul { 
-                li {
+            & > ul { 
+                & > li {
                     width: 29px;
                     margin-right: 2px;
                 }
-                li.w5 { width: 13.5px; }
-                li.w15 { width: 44.5px; }
-                li.w20 { width: 60px; }
-                li.w50 { width: 153px; }
+                & > .w5 { width: 13.5px; }
+                & > .w15 { width: 44.5px; }
+                & > .w20 { width: 60px; }
+                & > .w50 { width: 153px; }
             }
         }
         /* Pixel, iPhone 6,7,8+ */
         @media only screen and (min-width : 414px) and (max-width : 768px)  {
-            ul { 
-                li {
+            & > ul { 
+                & > li {
                     width: 37px;
                     margin-right: 3px;
                 }
-                li.w5 { width: 17px; }
-                li.w15 { width: 57px; }
-                li.w20 { width: 77px; }
-                li.w50 { width: 197px; }
+                & > .w5 { width: 17px; }
+                & > .w15 { width: 57px; }
+                & > .w20 { width: 77px; }
+                & > .w50 { width: 197px; }
             }
         }
         /* Tablet size */
         @media only screen and (min-width : 768px) and (max-width : 1024px)  {
-            ul { 
+            & > ul { 
                 height: 52px; 
-                li {
+                & > li {
                     height: 52px;
                     width: 51px;
                     margin-right: 4px;
                 }
-                li.w5 { width: 23.5px; }
-                li.w15 { width: 78.5px; }
-                li.w20 { width: 106px; }
-                li.w50 { width: 271px; }
+                & > .w5 { width: 23.5px; }
+                & > .w15 { width: 78.5px; }
+                & > .w20 { width: 106px; }
+                & > .w50 { width: 271px; }
             }
         }
         /* Desktop size */
         @media only screen and (min-width : 1025px)  {
-            ul { 
+            & > ul { 
                 height: 52px; 
-                li {
+                & > li {
                     height: 52px;
                     width: 66px;
                     margin-right: 6px;
                 }
-                li.modifier, li.action {
+                & > .modifier, & > .action {
                     font-size: 80%;
                 }
-                li.w5 { width: 30px; }
-                li.w15 { width: 102px; }
-                li.w20 { width: 138px; }
-                li.w50 { width: 354px; }
+                & > .w5 { width: 30px; }
+                & > .w15 { width: 102px; }
+                & > .w20 { width: 138px; }
+                & > .w50 { width: 354px; }
             }
         }
     }
 }
 @media (prefers-color-scheme: dark) {
-    body:not([theme="light"]) #ML__keyboard {
+    body:not([theme="light"]) .ML__keyboard {
         --hue: 206;
         --keyboard-background: hsl(var(--hue),19%,38%);
         --keyboard-text: #f0f0f0;
@@ -1212,7 +1214,7 @@
     }
 }
     /* Same as the media query, but with a class */
-    body[theme="dark"] #ML__keyboard {
+    body[theme="dark"] .ML__keyboard {
         --hue: 206;
         --keyboard-background: hsl(var(--hue),19%,38%);
         --keyboard-text: #f0f0f0;
@@ -1237,7 +1239,7 @@
 
 
 /* The 'material' theme for the virtual keyboard */
-div#ML__keyboard.material  {
+div.ML__keyboard.material  {
     --keyboard-background: rgba(209, 213, 217, .9);
     --keyboard-background-border: #ddd;
     --keycap-background: transparent;
@@ -1249,7 +1251,7 @@ div#ML__keyboard.material  {
 
     font-family: Roboto, sans-serif;
 
-    div.alternate-keys {
+    &.alternate-keys {
         background: var(--keyboard-alternate-background);
         border: 1px solid transparent;
         border-radius: 5px;
@@ -1263,15 +1265,15 @@ div#ML__keyboard.material  {
         }
     }
 
-    div.keyboard-toolbar {
-        div div {
+    .keyboard-toolbar {
+        & > div > div {
             font-size: 16px;
         }
         div div:hover, div div:active, div.div.active, div.div.pressed {
             color: @material-primary;
             fill: currentColor;
         }
-        div div.selected {
+        & > div > .selected {
             color: @material-primary;
             fill: currentColor;
             border-bottom: 2px solid @material-primary;
@@ -1279,7 +1281,7 @@ div#ML__keyboard.material  {
             padding-bottom: 0;
         }
     }
-    div div.rows ul li.keycap {
+    div > .rows > ul > .keycap {
         background: transparent;
         border: 1px solid transparent;
         border-radius: 5px;
@@ -1384,7 +1386,7 @@ div#ML__keyboard.material  {
 
 
 @media (prefers-color-scheme: dark) {
-    body:not([theme="light"]) div#ML__keyboard.material {
+    body:not([theme="light"]) div.ML__keyboard.material {
         --hue: 198;
         --keyboard-background: hsl(var(--hue),19%,18%);
         --keyboard-text: #d4d6d7;
@@ -1408,7 +1410,7 @@ div#ML__keyboard.material  {
         --keyboard-alternate-text: hsl(0,0%,82%);
     }
 }
-body[theme="dark"] div#ML__keyboard.material {
+body[theme="dark"] div.ML__keyboard.material {
     --hue: 198;
     --keyboard-background: hsl(var(--hue),19%,18%);
     --keyboard-text: #d4d6d7;

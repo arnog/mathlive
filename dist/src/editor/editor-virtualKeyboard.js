@@ -1018,9 +1018,6 @@ function make(mf, theme) {
 
     let markup = svgIcons;
 
-    // Add an element to hold the alternate keys displayed on press+hold
-    markup += '<div class="alternate-keys"></div>';
-
     // Auto-populate the ALT_KEYS table
     ALT_KEYS_BASE['foreground-color'] = [];
     for (const color of Color.LINE_COLORS) {
@@ -1270,7 +1267,7 @@ function make(mf, theme) {
     }
 
     const result = document.createElement('div');
-    result.id = 'ML__keyboard';
+    result.className = 'ML__keyboard';
     if (theme) {
         result.classList.add(theme);
     } else if (mf.config.virtualKeyboardTheme) {
