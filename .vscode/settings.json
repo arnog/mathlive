@@ -8,5 +8,6 @@
         "assistive",
         "grapheme",
         "mathrm"
-    ]
+    ],
+    "search.usePCRE2": true
 }

@@ -731,10 +731,7 @@ class Parser {
         // valid delimiters...
         // '?' is a special delimiter used as a 'placeholder'
         // (when the closing delimiter is displayed greyed out)
-        if (['?', '|', '<', '>', '\\vert', '\\Vert', '\\|', '\\surd',
-            '\\uparrow', '\\downarrow', '\\Uparrow', '\\Downarrow',
-            '\\updownarrow', '\\Updownarrow',
-            '\\mid', '\\mvert', '\\mVert'].includes(delim)) {
+        if (/^(\?|\||<|>|\\vert|\\Vert|\\\||\\surd|\\uparrow|\\downarrow|\\Uparrow|\\Downarrow|\\updownarrow|\\Updownarrow|\\mid|\\mvert|\\mVert)$/.test(delim)) {
             return delim;
         }
         return null;

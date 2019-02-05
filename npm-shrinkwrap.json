@@ -8251,8 +8251,9 @@
       }
     },
     "sutro-jsdoc-theme": {
-      "version": "github:arnog/sutro-jsdoc-theme#033d7fb0a824a1c7420d44a95c5dd8aebbadcf0a",
-      "from": "github:arnog/sutro-jsdoc-theme",
+      "version": "1.1.0",
+      "resolved": "https://registry.npmjs.org/sutro-jsdoc-theme/-/sutro-jsdoc-theme-1.1.0.tgz",
+      "integrity": "sha512-cugCCZydeF61KrNECj2UDWklGGLy6etUSprNHuFNk/yi5cRm8z0Vq3kcqCwVwdD/AM+cewVBppgUIJNbtB3uIQ==",
       "dev": true
     },
     "svgo": {

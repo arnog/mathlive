@@ -1815,10 +1815,15 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
         return true;
     }
     // We did not have a valid open fence. Maybe it's a close fence?
+    // Note that '.' is the universal closing fence, so it will match anything
     let lDelim;
-    for (const delim  in Definitions.RIGHT_DELIM) {
-        if (Definitions.RIGHT_DELIM.hasOwnProperty(delim)) {
-            if (fence === Definitions.RIGHT_DELIM[delim]) lDelim = delim;
+    if (fence === '.') { 
+        lDelim = '.';   // Could be any value, just means we've found a match
+    } else {
+        for (const delim  in Definitions.RIGHT_DELIM) {
+            if (Definitions.RIGHT_DELIM.hasOwnProperty(delim)) {
+                if (fence === Definitions.RIGHT_DELIM[delim]) lDelim = delim;
+            }
         }
     }
     if (lDelim) {

@@ -896,7 +896,9 @@ MathField.prototype.$perform = function(command) {
     if (typeof this.mathlist[selector] === 'function') {
         if (/^(delete|transpose|deleteToMathFieldEnd|deleteToGroupEnd|deleteToGroupStart|deletePreviousWord|deleteNextWord|deletePreviousChar|deleteNextChar)_$/.test(selector)) {
             this.undoManager.snapshot(this.config);
-            if (this.selectionIsCollapsed() && selector === 'deletePreviousChar_') {
+            if (this.selectionIsCollapsed() && 
+                selector === 'deletePreviousChar_' && 
+                this.config.inlineShortcutBackspaceCommand === 'undo') {
                 this.inlineShortcutBuffer = this.inlineShortcutBuffer.substring(0, this.inlineShortcutBuffer.length - 1);
                 this.inlineShortcutStates.pop();
             } else {
@@ -913,7 +915,6 @@ MathField.prototype.$perform = function(command) {
         }
 
         dirty = this[selector](...args);
-
 
         handled = true;
     }
@@ -1078,8 +1079,15 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
     // sequence (if there are any)
     this.mathlist.decorateCommandStringAroundInsertionPoint(false);
 
-    // 5.2 Perform the selector or insert the shortcut
-    if (!this.perform(selector)) {
+    // 5.2 If we have a `moveAfterParent` selector (usually triggered with 
+    // `spacebar), and we're at the end of a smart fence, close the fence with 
+    // an empty (.) right delimiter
+    if (selector === 'moveAfterParent' && this.mathlist._insertSmartFence('.')) {
+        selector = '';
+        this._render(); // Re-render the closed smartfence
+    }
+    if (selector && !this.perform(selector)) {
+        // Perform the selector or insert the shortcut
         if (shortcut) {
             this.undoManager.snapshot(this.config);
 
@@ -1094,8 +1102,10 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
             // (restore doesn't change the undo stack)
             this.undoManager.restore(this.inlineShortcutStates[shortcutStateIndex], this.config);
 
-            // Insert the substitute
-            this.mathlist.insert(shortcut, {format: 'latex'});
+            // Insert the substitute, possibly as a smart fence
+            if (!this.mathlist._insertSmartFence(shortcut)) {
+                this.mathlist.insert(shortcut, {format: 'latex'});
+            }
             this._render();
             this._announce('replacement');
 
