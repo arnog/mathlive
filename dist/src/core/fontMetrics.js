@@ -234,8 +234,8 @@ const getCharacterMetrics = function(character, fontName) {
     if (fontName === 'mathss') fontName = 'SansSerif-Regular';
     if (fontName === 'mathtt') fontName = 'Typewriter-Regular';
     if (fontName === 'mathsf') fontName = 'Main-Regular';
-    console.assert(character.length === 1);
-    console.assert(metricMap[fontName], 'Unknown font "' + fontName + '"');
+    // console.assert(character.length === 1);
+    // console.assert(metricMap[fontName], 'Unknown font "' + fontName + '"');
 
     let ch = character.charCodeAt(0);
 
@@ -254,6 +254,7 @@ const getCharacterMetrics = function(character, fontName) {
         // Assume default values.
         // depth + height should be less than 1.0 em
         return {
+            defaultMetrics: true,
             depth: .20,
             height: .70,
             italic: 0,

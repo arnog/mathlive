@@ -221,6 +221,18 @@ function makeStackedDelim(type, delim, heightTotal, center, context,
         bottom = '\u23b7';
         repeat = '\ue000';
         font = 'Size4-Regular';
+    } else if (delim === '\\ulcorner') {
+        top = '\u250c';
+        repeat = bottom = ' ';
+    } else if (delim === '\\urcorner') {
+        top = '\u2510';
+        repeat = bottom = ' ';
+    } else if (delim === '\\llcorner') {
+        bottom = '\u2514';
+        repeat = top = ' ';
+    } else if (delim === '\\lrcorner') {
+        top = '\u2518';
+        repeat = top = ' ';
     }
 
     // Get the metrics of the four sections
@@ -442,10 +454,10 @@ function traverseSequence(delim, height, sequence, context) {
         const metrics = FontMetrics.getCharacterMetrics(
                 delim,
                 delimTypeToFont(sequence[i]));
-        if (!metrics) {
+        if (metrics.defaultMetrics) {
             // If we don't have metrics info for this character,
             // assume we'll construct as a small delimiter
-            return {type: 'small', style: Mathstyle.SCRIPT};
+            return {type: 'small', mathstyle: Mathstyle.SCRIPT};
         }
         let heightDepth = metrics.height + metrics.depth;
 

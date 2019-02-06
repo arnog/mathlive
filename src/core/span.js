@@ -10,31 +10,27 @@ import FontMetrics from './fontMetrics.js';
  * Each arguments can be either a string, which is unchanged,
  * or a number, which is converted to a string with at most 5 fractional digits.
  *
- * @param {...string} args
+ * @param {(Array.<any>|string|number)} arg
  * @return {string}
  * @memberof module:core/span
  * @private
  */
-function toString() {
+function toString(arg) {
     let result = '';
-    // Note: IE11 (even transpiled for with Babel) does not deal well with 
-    // for(... of arguments) (because arguments is an iteratable, not an array)
-    // The forEach construct below works.
-    Array.from(arguments).forEach(function(arg) {
-        if (typeof arg === 'number') {
-            result += Math.floor(1e5 * arg) / 1e5;
-        } else if (typeof arg === 'string') {
-            result += arg;
-        } else if (Array.isArray(arg)) {
-            for (const elem of arg) {
-                result += toString(elem);
-            }
-        } else if (arg) {
-            result += arg.toString();
+    if (typeof arg === 'number') {
+        result += Math.floor(1e5 * arg) / 1e5;
+    } else if (typeof arg === 'string') {
+        result += arg;
+    } else if (Array.isArray(arg)) {
+        for (const elem of arg) {
+            result += toString(elem);
         }
-    });
+    } else if (arg) {
+        result += arg.toString();
+    }
     return result;
 }
+
 
 
 //----------------------------------------------------------------------------
@@ -352,10 +348,10 @@ Span.prototype.toMarkup = function(hskip, hscale) {
         if (hskip) {
             if (!this.style) this.style = {};
             if (!this.style['margin-left']) {
-                this.style['margin-left'] = toString(hskip, 'em');
+                this.style['margin-left'] = toString(hskip) + 'em';
             } else {
                 this.style['margin-left'] = toString(
-                    (parseInt(this.style['margin-left']) + hskip), 'em');
+                    (parseFloat(this.style['margin-left']) + hskip)) + 'em';
             }
         }
 

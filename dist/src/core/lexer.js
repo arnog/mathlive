@@ -284,20 +284,12 @@ class Lexer {
 function tokenize(s) {
     const result = [];
     const lines = s.toString().split(/\r?\n/);
-    let stream = '';
+    let stream =  '';
     for (const line of lines) {
         // Remove everything after a % (comment marker)
         // (but \% should be preserved...)
-        // @todo there's probably a better way of doing this using s.split(regex)
-        let previousChar = '';
-        for (let i = 0; i < line.length; i++) {
-            const c = line.charAt(i);
-            if (c === '%' && previousChar !== '\\') {
-                break;
-            }
-            stream += c;
-            previousChar = c;
-        }
+        const m = line.match(/((?:\\%)|[^%])*/);
+        if (m) stream += m[0];
     }
 
     const lex = new Lexer(stream);
