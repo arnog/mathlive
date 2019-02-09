@@ -1,11 +1,13 @@
 * {
-    line-height: 1.2;
+    /* line-height: 1.2; */
     margin: 0;
 }
 
 html {
     fill: currentColor;
-    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+        "Droid Sans", "Helvetica Neue", sans-serif;
     height: 100%;
     width: 100%;
 }
@@ -178,7 +180,10 @@ body > header {
 }
 
 header h1 {
-    font-family: 'Futura', 'Open Sans', -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+    font-family: 'Futura', 'Open Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+        "Droid Sans", "Helvetica Neue", sans-serif;
+
     /* font-size: 3rem; */
     color: var(--on-primary);
     text-transform: uppercase;

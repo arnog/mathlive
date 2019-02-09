@@ -164,7 +164,7 @@ const styles = [
 function toMathstyle(s) {
     if (!s) return s;
 
-    if (s instanceof Mathstyle) return s;
+    if (typeof s === 'object') return s;
 
     const STYLE_NAMES = {
         'displaystyle': styles[D],
@@ -233,7 +233,7 @@ export default {
     TEXT: styles[T],
     SCRIPT: styles[S],
     SCRIPTSCRIPT: styles[SS],
-    toMathstyle: toMathstyle
+    toMathstyle
 }
 
 

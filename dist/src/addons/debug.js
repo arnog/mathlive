@@ -69,6 +69,20 @@ function getType(spans, symbol) {
     return null;
 }
 
+/**
+ * Return the tag ('span', 'var', etc...) of a span
+ * @param {Span[]} spans 
+ * @param {string} symbol 
+ * @return {string}
+ * @private
+*/
+function getTag(spans, symbol) {
+    const s = getSymbol(spans, symbol);
+    if (s) return s.tag;
+    return null;
+}
+
+
 function getStyle(spans, symbol, prop) {
     const s = getSymbol(spans, symbol);
     if (s && s.style) return s.style[prop];
@@ -387,17 +401,18 @@ function mathlistToMarkup(mathlist, indent) {
 
 // Export the public interface for this module
 export default { 
-    mathlistToMarkup: mathlistToMarkup,
-    spanToMarkup: spanToMarkup,
+    mathlistToMarkup,
+    spanToMarkup,
 
-    mathlistToString: mathlistToString,
-    spanToString: spanToString,
+    mathlistToString,
+    spanToString,
     
-    hasClass: hasClass,
-    getClasses: getClasses,
-    getProp: getProp,
-    getStyle: getStyle,
-    getType: getType
+    hasClass,
+    getClasses,
+    getProp,
+    getStyle,
+    getType,
+    getTag
 }
 
 

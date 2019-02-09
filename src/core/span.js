@@ -234,6 +234,30 @@ const INTER_ATOM_SPACING = {
     'mpunct+minner':        3
 }
 
+
+// See https://www.w3.org/TR/2000/WD-MathML2-20000328/chapter6.html 
+// 6.1.4 Non-Marking Characters
+const SPACING_CHARACTER = [
+    '\u200b',            // 0/18 ZERO-WIDTH SPACE
+    '\u200a',            // 1/18 HAIR SPACE
+    '\u200a\u200a',      // 2/18
+    '\u2009',            // 3/18 THIN SPACE
+    '\u205f',            // 4/18 MEDIUM MATHEMATICAL SPACE
+    '\u205f\u200a',      // 5/18 MEDIUM MATHEMATICAL SPACE + HAIR SPACE
+    '\u2004',            // 6/18 THREE-PER-EM SPACE   1/3em
+    '',
+    '',
+    '\u2002'             // 9/18 EN SPACE 1/2em = 9/18
+];
+const NEGATIVE_SPACING_CHARACTER = [
+    '',
+    '\u200a\u2063',     // -1/18
+    '',
+    '\u2009\u2063',     // -3/18
+    '\u205f\u2063',     // -4/18
+    '\u2005\u2063'      // -5/18
+];
+
 /**
  *
  * @alias module:core/span.INTER_ATOM_TIGHT_SPACING
@@ -260,9 +284,9 @@ function lastSpanType(span) {
 /**
  * Generate the HTML markup to represent this span.
  *
- * @param {?number} hskip - If a value is provided, it will be added (in ems) to the
- * left margin.
- * @param {?number} hscale - If a value is provided, the margins are scaled by
+ * @param {number} [hskip=0] - Space (in mu, 1/18em) to leave on the left side
+ * of the span. Implemented as a Unicode character if possible, a margin-left otherwise.
+ * @param {number} [hscale=1.0] - If a value is provided, the margins are scaled by
  * this factor.
  * @return {string} HTML markup
  * @method module:core/span.Span#toMarkup
@@ -283,11 +307,11 @@ Span.prototype.toMarkup = function(hskip, hscale) {
                     if (type === 'textord') type = 'mord';
                     if (type === 'first') type = 'none';
                     if (child.isTight) {
-                        spacing = (INTER_ATOM_TIGHT_SPACING[previousType + '+' + type] || 0) / 18;
+                        spacing = (INTER_ATOM_TIGHT_SPACING[previousType + '+' + type] || 0);
                     } else {
-                        spacing = (INTER_ATOM_SPACING[previousType + '+' + type] || 0) / 18;
+                        spacing = (INTER_ATOM_SPACING[previousType + '+' + type] || 0);
                     }
-                    spacing = hscale * spacing;
+                    spacing = Math.floor(hscale * spacing);
                 }
             }
             body += child.toMarkup(spacing, hscale);
@@ -333,11 +357,13 @@ Span.prototype.toMarkup = function(hskip, hscale) {
 
         // Remove duplicate and empty classes
         // and 'mathrm' which is a no-op
-        let classList = classes;
+        let classList = '';
         if (classes.length > 1) {
             classList = classes.filter(function (x, e, a) {
                 return x.length > 0 && x !== 'mathrm' && a.indexOf(x) === e;
             }).join(' ');
+        } else {
+            classList = classes[0];
         }
 
         if (classList.length > 0) {
@@ -346,12 +372,20 @@ Span.prototype.toMarkup = function(hskip, hscale) {
 
         // If a `hskip` value was provided, add it to the margin-left
         if (hskip) {
-            if (!this.style) this.style = {};
-            if (!this.style['margin-left']) {
-                this.style['margin-left'] = toString(hskip) + 'em';
-            } else {
+            if (this.style && this.style['margin-left']) {
+                // There was already a margin, add to it
                 this.style['margin-left'] = toString(
-                    (parseFloat(this.style['margin-left']) + hskip)) + 'em';
+                    (parseFloat(this.style['margin-left']) + hskip / 18)) + 'em';
+            } else {
+                // No margin yet. Can we encode it as a Unicode space?
+                if (hskip < 0 && NEGATIVE_SPACING_CHARACTER[-hskip]) {
+                    body = NEGATIVE_SPACING_CHARACTER[-hskip] + body;
+                } else if (SPACING_CHARACTER[hskip]) { 
+                    body = SPACING_CHARACTER[hskip] + body;
+                } else {
+                    if (!this.style) this.style = {};
+                    this.style['margin-left'] = toString(hskip / 18) + 'em';
+                }
             }
         }
 
@@ -387,7 +421,9 @@ Span.prototype.toMarkup = function(hskip, hscale) {
             result += body;     // @todo maybe safe encode here...? (< >)
         }
 
-        result += '</' + tag + '>';
+        // Note: We can't omit the tag, even if it has no class and no style,
+        // as some layouts (vlist) depends on the presence of the tag to function
+        result = result + '</' + tag + '>';
     }
 
     // Collapse 'empty' spans
