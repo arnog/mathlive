@@ -1067,7 +1067,17 @@ class MathAtom {
     decompose(context, phantomBase) {
         console.assert(context instanceof Context.Context);
         let result = null;
-        if (this.type === 'group' || this.type === 'root') {
+        if (this.type === 'mord' || 
+            /minner|mbin|mrel|mpunct|mopen|mclose|textord/.test(this.type)) {
+            // Any of those atoms can be made up of either a simple string
+            // or a list of children.
+            if (typeof this.body === 'string') {
+                result = this.makeSpan(context, this.body);
+            } else {
+                result = this.makeSpan(context, decompose(context, this.body));
+            }
+            result.type = this.type;
+        } else if (this.type === 'group' || this.type === 'root') {
             result = this.decomposeGroup(context);
         } else if (this.type === 'array') {
             result = this.decomposeArray(context);
@@ -1107,19 +1117,6 @@ class MathAtom {
                 result.height = phantomBase[0].height;
                 result.depth = phantomBase[0].depth;
             }
-        } else if (this.type === 'mord' ||
-            this.type === 'minner' || this.type === 'mbin' ||
-            this.type === 'mrel' || this.type === 'mpunct' ||
-            this.type === 'mopen' || this.type === 'mclose' ||
-            this.type === 'textord') {
-            // Any of those atoms can be made up of either a simple string
-            // or a list of children.
-            if (typeof this.body === 'string') {
-                result = this.makeSpan(context, this.body);
-            } else {
-                result = this.makeSpan(context, decompose(context, this.body));
-            }
-            result.type = this.type;
         } else if (this.type === 'mop') {
             result = this.decomposeOp(context);
         } else if (this.type === 'font') {

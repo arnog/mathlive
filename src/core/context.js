@@ -167,24 +167,6 @@ class Context {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export default {
-    Context: Context
-    }
+    Context
+}
