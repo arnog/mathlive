@@ -1115,7 +1115,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
         selector = '';
         this._render(); // Re-render the closed smartfence
     }
-    if (selector && !this.perform(selector)) {
+    if ((selector && !this.perform(selector)) || shortcut) {
         // Perform the selector or insert the shortcut
         if (shortcut) {
             this.undoManager.snapshot(this.config);
