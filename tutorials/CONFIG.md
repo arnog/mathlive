@@ -104,14 +104,6 @@ The first result can be entered by pausing slightly between the first and
 second character if this option is set to a value of 250 or so.
 
 ---
-**`config.inlineShortcutBackspaceCommand='undo'`**:`boolean`
-
-If `delete` when the backspace key is pressed after an inline shortcut
-conversion, the entire shortcut is deleted.
-
-If `undo`, the last typed character is removed and the conversion undone.
-
----
 **`config.smartFence=true`**:`boolean`
 
 If `true`, when an open fence is
