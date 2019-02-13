@@ -1809,7 +1809,7 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
     if (rDelim && !(parent && (parent.type === 'leftright' && parent.leftDelim === '|'))) {
         // We have a valid open fence as input
         let s = '';
-        const collapsed = this.isCollapsed();
+        const collapsed = this.isCollapsed() || this.anchor().type === 'placeholder';
 
         if (this.sibling(0).isFunction) {
             // We're before a function (e.g. `\sin`)
