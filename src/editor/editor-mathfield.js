@@ -1101,7 +1101,11 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
     // 5.2 If we have a `moveAfterParent` selector (usually triggered with 
     // `spacebar), and we're at the end of a smart fence, close the fence with 
     // an empty (.) right delimiter
-    if (selector === 'moveAfterParent' && this.mathlist._insertSmartFence('.')) {
+    const parent = this.mathlist.parent();
+    if (selector === 'moveAfterParent' && parent && 
+        parent.type === 'leftright' && 
+        this.mathlist.endOffset() === this.mathlist.siblings().length - 1 &&
+        this.mathlist._insertSmartFence('.')) {
         selector = '';
         this._render(); // Re-render the closed smartfence
     }
