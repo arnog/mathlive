@@ -883,6 +883,11 @@ EditableMathlist.prototype.commitCommandStringBeforeInsertionPoint = function() 
 EditableMathlist.prototype.spliceCommandStringAroundInsertionPoint = function(mathlist) {
     const command = this.commandOffsets();
     if (command) {
+        // Dispatch notifications
+        if (typeof this.config.onContentWillChange === 'function' && 
+            !this.suppressContentChangeNotifications) {
+            this.config.onContentWillChange(this.target);
+        }
         Array.prototype.splice.apply(this.siblings(),
             [command.start, command.end - command.start].concat(mathlist));
 
@@ -900,6 +905,11 @@ EditableMathlist.prototype.spliceCommandStringAroundInsertionPoint = function(ma
 
         if (newPlaceholders.length === 0 || !this.leap(+1, false)) {
             this.setSelection(command.start + mathlist.length - 1);
+        }
+
+        // Dispatch notifications
+        if (typeof this.config.onContentDidChange === 'function' && !this.suppressContentChangeNotifications) {
+            this.config.onContentDidChange(this.target);
         }
     }
 }
