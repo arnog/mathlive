@@ -2576,7 +2576,7 @@ MathField.prototype.speakSelectionWithSynchronizedHighlighting_ = function() {
         window.mathlive.readAloudMathField = this;
         this._render({forHighlighting: true});
         const options = this.config;
-        options.textToSpeechMarkup = 'ssml';
+        options.textToSpeechMarkup = (window.sre && options.textToSpeechRules === 'sre') ? 'ssml_step' : 'ssml';
         const text = MathAtom.toSpeakableText(this.mathlist.extractContents(), options)
         this._speakWithSynchronizedHighlighting(text);
     } else {
@@ -2659,7 +2659,7 @@ MathField.prototype.speakAllWithSynchronizedHighlighting_ = function() {
     window.mathlive.readAloudMathField = this;
     this._render({forHighlighting: true});
     const options = this.config;
-    options.textToSpeechMarkup = 'ssml';
+    options.textToSpeechMarkup = (window.sre && options.textToSpeechRules === 'sre') ? 'ssml_step' : 'ssml';
     const text = MathAtom.toSpeakableText(this.mathlist.root, options)
     this._speakWithSynchronizedHighlighting(text);
     return false;
