@@ -11,9 +11,17 @@
 class UndoManager {
     constructor(mathlist) {
         this.mathlist = mathlist;
+        this.maximumDepth = 1000;
+        this.record = false;
+        this.canCoalesce = false;
+        this.reset();
+    }
+    reset() {
         this.stack = [];
         this.index = -1;
-        this.maximumDepth = 1000;
+    }
+    startRecording() {
+        this.record = true;
     }
     /**
      *
@@ -23,7 +31,7 @@ class UndoManager {
      * @private
      */
     canUndo() {
-        return this.index >= 0;
+        return this.index > 0;
     }
     /**
      *
@@ -46,11 +54,12 @@ class UndoManager {
             if (options && typeof options.onUndoStateWillChange === 'function') {
                 options.onUndoStateWillChange(this.mathlist.target, 'undo');
             }
-            this.restore(this.stack[this.index], options);
+            this.restore(this.stack[this.index - 1], options);
             this.index -= 1;
             if (options && typeof options.onUndoStateDidChange === 'function') {
                 options.onUndoStateDidChange(this.mathlist.target, 'undo');
             }
+            this.canCoalesce = false;
         }
     }
     /**
@@ -69,6 +78,18 @@ class UndoManager {
             if (options && typeof options.onUndoStateDidChange === 'function') {
                 options.onUndoStateDidChange(this.mathlist.target, 'redo');
             }
+            this.canCoalesce = false;
+        }
+    }
+    /**
+     * 
+     * @memberof UndoManager
+     * @instance
+     * @private
+     */
+    pop() {
+        if (this.canUndo()) {
+            this.index -= 1;
         }
     }
     /**
@@ -79,6 +100,8 @@ class UndoManager {
      * @private
      */
     snapshot(options) {
+        if (!this.record) return;
+
         if (options && options.onUndoStateWillChange === 'function') {
             options.onUndoStateWillChange(this.mathlist.target, 'snapshot');
         }
@@ -89,6 +112,7 @@ class UndoManager {
             latex: this.mathlist.root.toLatex(),
             selection: this.mathlist.toString()
         });
+
         this.index++;
         // If we've reached the maximum number of undo operations, forget the 
         // oldest one.
@@ -98,6 +122,18 @@ class UndoManager {
         if (options && typeof options.onUndoStateDidChange === 'function') {
             options.onUndoStateDidChange(this.mathlist.target, 'snapshot');
         }
+        this.canCoalesce = false;
+    }
+    /**
+     * 
+     * @param {Object.<any>} options 
+     */
+    snapshotAndCoalesce(options) {
+        if (this.canCoalesce) {
+            this.pop();
+        }
+        this.snapshot(options);
+        this.canCoalesce = true;
     }
     /**
      * Return an object capturing the state of the content and selection of the

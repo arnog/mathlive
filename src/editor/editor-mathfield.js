@@ -313,12 +313,9 @@ function MathField(element, config) {
         this.latex(elementText);
     }
 
-    // If fonts get loaded (which could happen as a result of the first pass
-    // rendering done in .latex()), render again.
-    // if (document && document.fonts) {
-    //     const that = this;
-    //     document.fonts.ready.then(() => that._render());
-    // }
+    // Now start recording potentially undoable actions
+    this.undoManager.startRecording();
+    this.undoManager.snapshot(this.config);
 }
 
 /**
@@ -923,11 +920,9 @@ MathField.prototype.$perform = function(command) {
     selector += '_';
 
     if (typeof this.mathlist[selector] === 'function') {
-        if (/^(delete|transpose|deleteToMathFieldEnd|deleteToGroupEnd|deleteToGroupStart|deletePreviousWord|deleteNextWord|deletePreviousChar|deleteNextChar)_$/.test(selector)) {
-            this.undoManager.snapshot(this.config);
+        if (/^(delete|transpose|add)/.test(selector)) {
             if (this.selectionIsCollapsed() && 
-                selector === 'deletePreviousChar_' && 
-                this.config.inlineShortcutBackspaceCommand === 'undo') {
+                selector === 'deletePreviousChar_') {
                 this.inlineShortcutBuffer = this.inlineShortcutBuffer.substring(0, this.inlineShortcutBuffer.length - 1);
                 this.inlineShortcutStates.pop();
             } else {
@@ -935,14 +930,18 @@ MathField.prototype.$perform = function(command) {
             } 
         }
 
+        if (/^(delete|transpose|add)/.test(selector) && this.mathlist.parseMode() !== 'command') {
+            // Update the undo state to account for the current selection
+            this.undoManager.pop();
+            this.undoManager.snapshot(this.config);
+        }
         this.mathlist[selector](...args);
+        if (/^(delete|transpose|add)/.test(selector) && this.mathlist.parseMode() !== 'command') {
+            this.undoManager.snapshot(this.config);
+        }
         dirty = true;
         handled = true;
     } else if (typeof this[selector] === 'function') {
-        if (selector === 'complete_') {
-            this.undoManager.snapshot(this.config);
-        }
-
         dirty = this[selector](...args);
 
         handled = true;
@@ -951,7 +950,7 @@ MathField.prototype.$perform = function(command) {
     // If the command changed the selection so that it is no longer 
     // collapsed, or if it was an editing command, reset the inline
     // shortcut buffer
-    if (!this.mathlist.isCollapsed() || /^(transpose|paste|((move|extent).*))_$/.test(selector)) {
+    if (!this.mathlist.isCollapsed() || /^(transpose|paste|complete|((move|extend).*))_$/.test(selector)) {
         this._resetInlineShortcutBuffer();
     }
 
@@ -1077,15 +1076,6 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
                     }
                 }
             }
-        } else {
-            // If we're in the middle of a potential inline shortcut, treat 
-            // Backspace as Undo. This deals with the case "pi<backspace>i"
-            if (this.config.inlineShortcutBackspaceCommand !== 'delete' && 
-                    this.mathlist.isCollapsed() && 
-                    this.inlineShortcutBuffer.length > 0) {
-                selector = this.config.inlineShortcutBackspaceCommand;
-                this._announce('delete');
-            }
         }
     }
 
@@ -1118,14 +1108,12 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
     if ((selector && !this.perform(selector)) || shortcut) {
         // Perform the selector or insert the shortcut
         if (shortcut) {
-            this.undoManager.snapshot(this.config);
-
             // To enable the substitution to be undoable,
             // insert the character before applying the substitution
             this.mathlist.insert(Keyboard.eventToChar(evt));
 
             // Create a snapshot with the inserted character
-            this.undoManager.snapshot(this.config);
+            this.undoManager.snapshotAndCoalesce(this.config);
 
             // Revert to the state before the beginning of the shortcut
             // (restore doesn't change the undo stack)
@@ -1135,6 +1123,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
             if (!this.mathlist._insertSmartFence(shortcut)) {
                 this.mathlist.insert(shortcut, {format: 'latex'});
             }
+            this.undoManager.snapshot(this.config);
             this._render();
             this._announce('replacement');
 
@@ -1262,13 +1251,16 @@ MathField.prototype._onTypedText = function(text, options) {
                 if (selector) {
                     this.perform(selector);
                 } else {
-                    this.undoManager.snapshot(this.config);
                     if (!this.mathlist._insertSmartFence(c)) {
                         this.mathlist.insert(c);
                     }
                 }
             }
         }
+    }
+
+    if (this.mathlist.parseMode() !== 'command') {
+        this.undoManager.snapshotAndCoalesce(this.config);
     }
 
     // Render the mathlist
@@ -1580,13 +1572,13 @@ MathField.prototype.$latex = function(text, options) {
         const oldValue = this.mathlist.root.toLatex();
         if (text !== oldValue) {
             options = options || {};
-            this.undoManager.snapshot(this.config);
             this.mathlist.insert(text, Object.assign(this.config, {
                 insertionMode: 'replaceAll',
                 selectionMode: 'after',
                 format: 'latex',
                 suppressContentChangeNotifications: options.suppressContentChangeNotifications
             }));
+            this.undoManager.snapshot(this.config);
             this._render();
         }
         return text;
@@ -1610,11 +1602,15 @@ MathField.prototype.$el = function() {
 }
 
 MathField.prototype.undo_ = MathField.prototype.undo = function() {
+    this.complete_();
+
+    // Undo to the previous state
     this.undoManager.undo(this.config);
     return true;
 }
 
 MathField.prototype.redo_ = MathField.prototype.redo = function() {
+    this.complete_();
     this.undoManager.redo(this.config);
     return true;
 }
@@ -1653,7 +1649,6 @@ MathField.prototype.enterCommandMode_ = function() {
         this.switchKeyboardLayer_('lower-command');
     }
 
-    this.undoManager.snapshot(this.config);
     this.mathlist.insert('\u001b');
     return true;
 }
@@ -1728,7 +1723,6 @@ MathField.prototype.$insert = function(s, options) {
                 this.keypressSound.play();
             }
         }
-        this.undoManager.snapshot(this.config);
         if (s === '\\\\') {
             // This string is interpreted as an "insert row after" command
             this.mathlist.addRowAfter_();
@@ -1737,6 +1731,7 @@ MathField.prototype.$insert = function(s, options) {
         } else {
             this.mathlist.insert(s, options);
         }
+        this.undoManager.snapshot(this.config);
         return true;
     }
     return false;
@@ -1780,6 +1775,7 @@ MathField.prototype.complete_ = function() {
                 }
             }
         }
+        this.undoManager.snapshot(this.config);
         this._announce('replacement');
         return true;
     }
@@ -2371,8 +2367,8 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
 }
 
 MathField.prototype.applyStyle_ = function(style) {
-    this.undoManager.snapshot(this.config);
     this.mathlist._applyStyle(style);
+    this.undoManager.snapshot(this.config);
     return true;
 }
 
@@ -2470,7 +2466,6 @@ MathField.prototype.$setConfig = function(conf) {
         this.config = {
             smartFence: true,
             removeExtraneousParentheses: false,
-            inlineShortcutBackspaceCommand: 'undo',
             overrideDefaultInlineShortcuts: false,
             virtualKeyboard: '',
             virtualKeyboardLayout: 'qwerty',
