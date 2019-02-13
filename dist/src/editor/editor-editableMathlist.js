@@ -883,6 +883,11 @@ EditableMathlist.prototype.commitCommandStringBeforeInsertionPoint = function() 
 EditableMathlist.prototype.spliceCommandStringAroundInsertionPoint = function(mathlist) {
     const command = this.commandOffsets();
     if (command) {
+        // Dispatch notifications
+        if (typeof this.config.onContentWillChange === 'function' && 
+            !this.suppressContentChangeNotifications) {
+            this.config.onContentWillChange(this.target);
+        }
         Array.prototype.splice.apply(this.siblings(),
             [command.start, command.end - command.start].concat(mathlist));
 
@@ -900,6 +905,11 @@ EditableMathlist.prototype.spliceCommandStringAroundInsertionPoint = function(ma
 
         if (newPlaceholders.length === 0 || !this.leap(+1, false)) {
             this.setSelection(command.start + mathlist.length - 1);
+        }
+
+        // Dispatch notifications
+        if (typeof this.config.onContentDidChange === 'function' && !this.suppressContentChangeNotifications) {
+            this.config.onContentDidChange(this.target);
         }
     }
 }
@@ -1799,7 +1809,7 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
     if (rDelim && !(parent && (parent.type === 'leftright' && parent.leftDelim === '|'))) {
         // We have a valid open fence as input
         let s = '';
-        const collapsed = this.isCollapsed();
+        const collapsed = this.isCollapsed() || this.anchor().type === 'placeholder';
 
         if (this.sibling(0).isFunction) {
             // We're before a function (e.g. `\sin`)
