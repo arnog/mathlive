@@ -950,7 +950,7 @@ MathField.prototype.$perform = function(command) {
     // If the command changed the selection so that it is no longer 
     // collapsed, or if it was an editing command, reset the inline
     // shortcut buffer
-    if (!this.mathlist.isCollapsed() || /^(transpose|paste|complete|((move|extend).*))_$/.test(selector)) {
+    if (!this.mathlist.isCollapsed() || /^(transpose|paste|complete|((moveToNextChar|moveToPreviousChar|extend).*))_$/.test(selector)) {
         this._resetInlineShortcutBuffer();
     }
 
@@ -1056,8 +1056,9 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
             } else {
                 // Find the longest substring that matches a shortcut
                 const candidate = this.inlineShortcutBuffer + c;
+                console.log("candidate ", candidate);
                 let i = 0;
-                while (!shortcut && i <= candidate.length) {
+                while (!shortcut && i < candidate.length) {
                     shortcut = Shortcuts.forString(candidate.slice(i), this.config);
                     i += 1;
                 }
