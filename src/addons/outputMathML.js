@@ -337,7 +337,7 @@ function scanOperator(stream, final, options) {
     } else if (stream.index < final && atom.type === 'mop') {
         // mathML += '<mrow>';
 
-        if (atom.limits && (atom.superscript || atom.subscript)) {
+        if ((atom.limits === 'limits') && (atom.superscript || atom.subscript)) {
             // Operator with limits, e.g. \sum
             const op = toMo(atom, options);
             if (atom.superscript && atom.subscript) {
@@ -362,6 +362,13 @@ function scanOperator(stream, final, options) {
         } else {
             const op = toMo(stream.atoms[stream.index], options);
             mathML += op;
+            stream.index += 1;
+            if (parseSubsup(mathML, stream, options)) {
+                result = true;
+                stream.lastType = '';
+                mathML = '';
+            }
+            stream.index -= 1;
             if (!/^<mo>(.*)<\/mo>$/.test(op)) {
                 mathML += '<mo> &ApplyFunction; </mo>';
                 // mathML += scanArgument(stream);
