@@ -1,5 +1,5 @@
 These configuration options can be passed to {@linkcode module:MathLive#makeMathField MathLive.makeMathField()}
-or {@linkcode module:editor/mathfield#MathField#setConfig MathField.setConfig()}.
+or {@linkcode module:editor/mathfield#MathField#setConfig MathField.$setConfig()}.
 
 ---
 **`config.horizontalSpacingScale=1.0`**:`number`

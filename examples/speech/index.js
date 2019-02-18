@@ -56,14 +56,9 @@ function select_text_in_element(element) {
     }
 }
 
-// function extend_to_next_level() {
-//     let old_selection = mf.selectedText();
-//     console.log(mf.perform("moveToSuperscript"))
-//     console.log(old_selection === mf.selectedText())
-// }
 
 function speak_all() {
-    mf.perform("speakAllWithSynchronizedHighlighting");
+    mf.$perform("speakAllWithSynchronizedHighlighting");
 }
 
 function speak_pause_resume() {

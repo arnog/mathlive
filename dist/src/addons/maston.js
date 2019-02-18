@@ -1563,17 +1563,17 @@ function normalize(ast) {
             }
             return {fn:ast.op, arg:[normalize(ast.rhs)]};
         }
-        if (ast.fn && Array.isArray(ast.arg)) {
-            return {fn:ast.fn, arg:ast.arg.map(x => normalize(x))};
-        }
         if (ast.fn) {
-            return {fn:ast.fn, arg:normalize(ast.arg)};
+            if (Array.isArray(ast.arg)) {
+                ast.arg = ast.arg.map(x => normalize(x));
+            } else {
+                ast.arg = normalize(ast.arg);
+            }
         }
         if (ast.group) {
-            return {group: normalize(ast.group)};
+            ast.group = normalize(ast.group);
         }
     }
-
 
     return ast;
 }
@@ -1616,7 +1616,7 @@ function formatMantissa(m, config) {
     const originalLength = m.length;
     // The last digit may have been rounded, if it exceeds the precison,
     // which could throw off the
-    // repeating pattern detection. Ignore it.
+    // repeating pattern detection. Ignore   it.
     m = m.substr(0, config.precision - 2);
 
     for (let i = 0; i < m.length - 16; i++) {

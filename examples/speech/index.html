@@ -245,7 +245,7 @@ MathLive.renderMathInDocument({ignoreClass: "mathfield"});
 
 document.getElementById('start-button').addEventListener('click', () => {
     try {
-        mf.perform("speakAllWithSynchronizedHighlighting")
+        mf.$perform("speakAllWithSynchronizedHighlighting")
     } catch (e) {
         console.log(e);
     }
@@ -258,10 +258,8 @@ document.getElementById('speed-slider').addEventListener('input', function() {
 
 const mf = MathLive.makeMathField('mf', {
     onContentDidChange: mf => {
-        document.getElementById('output-text').textContent = mf.text('spoken-text');
-        document.getElementById('output-ssml').textContent = mf.text('spoken-ssml');
-        // const latex = mf.latex();
-        // console.log(MathLive.latexToAST(latex));
+        document.getElementById('output-text').textContent = mf.$text('spoken-text');
+        document.getElementById('output-ssml').textContent = mf.$text('spoken-ssml');
 
     },
 
@@ -299,7 +297,7 @@ setSpeed(3);
 function pauseResume() {
     try {
         if (!window.mathlive) {
-            mf.perform("speakAllWithSynchronizedHighlighting");
+            mf.$perform("speakAllWithSynchronizedHighlighting");
             return;
         }
 
@@ -320,7 +318,7 @@ function pauseResume() {
 
 function repeat(count) {
     if (!window.mathlive) {
-        mf.perform("speakAllWithSynchronizedHighlighting");
+        mf.$perform("speakAllWithSynchronizedHighlighting");
         return;
     }
     count = count || 1;

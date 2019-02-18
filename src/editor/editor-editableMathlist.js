@@ -30,7 +30,7 @@ import MathPath from './editor-mathpath.js';
  *
  * For example:
  * ```
- *    mf.perform('selectAll');
+ *    mf.$perform('selectAll');
  * ```
  *
  * @param {Object.<string, any>} config
@@ -207,7 +207,7 @@ EditableMathlist.prototype.selectionDidChange = function() {
 
 EditableMathlist.prototype.contentWillChange = function() {
     if (typeof this.config.onContentWillChange === 'function' && !this.suppressContentChangeNotifications) {
-        this.config.contentWillChange(this.target);
+        this.config.onContentWillChange(this.target);
     }
 }
 

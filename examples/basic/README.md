@@ -78,7 +78,7 @@ math field, and displaying it in an output element.
 ```javascript
     const mf = MathLive.makeMathField('mf', {
         onContentDidChange: mf => {
-            document.getElementById('output').innerHTML = mf.latex();
+            document.getElementById('output').innerHTML = mf.$latex();
         }
     });
 ```

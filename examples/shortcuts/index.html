@@ -182,7 +182,7 @@
         inlineShortcutTimeout: 1500,
         
         onContentDidChange: mf => {
-            document.getElementById('mf2__output').innerHTML = mf.latex();
+            document.getElementById('mf2__output').innerHTML = mf.$latex();
         }
     });
 
@@ -191,13 +191,13 @@
             document.getElementById('mf3__keystroke').innerHTML = 
                 'keystroke = "' + key + '"<br>event = ' + keyboardEventToString(ev);
             if (key === 'Spacebar') {
-                mf.insert('\\ ');
+                mf.$insert('\\ ');
                 return false;
             }
             return true;
         },
         onContentDidChange: mf => {
-            document.getElementById('mf3__output').innerHTML = mf.latex();
+            document.getElementById('mf3__output').innerHTML = mf.$latex();
         }
 
     });

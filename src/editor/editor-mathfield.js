@@ -114,7 +114,7 @@ function releaseSharedElement(el) {
  *
  * For example:
  * ```
- *    mf.perform('selectAll');
+ *    mf.$perform('selectAll');
  * ```
  * 
  * @param {Element} element - The DOM element that this mathfield is attached to.
@@ -310,7 +310,7 @@ function MathField(element, config) {
     // If there was some content in the element, use it for the initial
     // value of the mathfield
     if (elementText.length > 0) {
-        this.latex(elementText);
+        this.$latex(elementText);
     }
 
     // Now start recording potentially undoable actions
@@ -1416,13 +1416,13 @@ MathField.prototype._onCut = function() {
 
 MathField.prototype._onCopy = function(e) {
     if (this.mathlist.isCollapsed()) {
-        e.clipboardData.setData('text/plain', this.text('latex-expanded'));
-        e.clipboardData.setData('application/json', this.text('json'));
-        e.clipboardData.setData('application/xml', this.text('mathML'));
+        e.clipboardData.setData('text/plain', this.$text('latex-expanded'));
+        e.clipboardData.setData('application/json', this.$text('json'));
+        e.clipboardData.setData('application/xml', this.$text('mathML'));
     } else {
-        e.clipboardData.setData('text/plain', this.selectedText('latex-expanded'));
-        e.clipboardData.setData('application/json', this.selectedText('json'));
-        e.clipboardData.setData('application/xml', this.selectedText('mathML'));
+        e.clipboardData.setData('text/plain', this.$selectedText('latex-expanded'));
+        e.clipboardData.setData('application/json', this.$selectedText('json'));
+        e.clipboardData.setData('application/xml', this.$selectedText('mathML'));
     }
 
     // Prevent the current document selection from being written to the clipboard.

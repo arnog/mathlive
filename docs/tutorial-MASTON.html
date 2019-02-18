@@ -196,7 +196,9 @@ expressions are <em>not</em> equivalent:</p>
 <p><strong>Note:</strong> When only the <code>num</code> key is present a shortcut may be used by 
 replacing the element with the number. That is, both representations are equivalent:</p>
 <pre class="prettyprint source lang-JSON"><code>   {&quot;fn&quot;:&quot;+&quot;, &quot;arg&quot;:[{&quot;num&quot;:1}, {&quot;num&quot;:2}]}
-   {&quot;fn&quot;:&quot;+&quot;, &quot;arg&quot;:[1, 2]}</code></pre><h3 id="complex">&langle;complex&rangle;</h3>
+   {&quot;fn&quot;:&quot;+&quot;, &quot;arg&quot;:[1, 2]}</code></pre><p>The &langle;native-string&rangle; can be used to expressed mathematical constants,
+such as <code>&quot;e&quot;</code>.</p>
+<h3 id="complex">&langle;complex&rangle;</h3>
 <ul>
 <li><code>re</code>: &langle;native-number&rangle;, 0 by default.</li>
 <li><code>im</code>: &langle;native-number&rangle;, 0 by default.</li>
@@ -965,7 +967,7 @@ cuts of those functions. The interpretation is left up to the consuming software
 &quot;conditions&quot;:[
     {fn:&quot;>=&quot;,arg:[&quot;x&quot;,0]},
     {fn:&quot;&lt;&quot;,arg:[&quot;x&quot;,0]}
-]}</code></pre><p><strong>Design note</strong>: having the block and conditions in separate keys is britle. Consider using <code>if</code> nodes, e.g. <code>{if:{fn:&quot;&gt;=&quot;,arg:[&quot;x&quot;,0]}, then:&quot;x&quot;}</code></p>
+]}</code></pre><p><strong>Design note</strong>: having the block and conditions in separate keys is brittle. Consider using <code>if</code> nodes, e.g. <code>{if:{fn:&quot;&gt;=&quot;,arg:[&quot;x&quot;,0]}, then:&quot;x&quot;}</code></p>
 <h3 id="open-questions">OPEN QUESTIONS</h3>
 <ol>
 <li>How should exponents be represented? I.e. <code>x^2</code> or <code>A^\dagger</code>. They could literally be represented with a <code>sup</code> attribute, or as an explicit function, i.e. <code>fn:'pow'</code> or <code>fn:'transjugate'</code></li>

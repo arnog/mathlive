@@ -180,6 +180,9 @@ replacing the element with the number. That is, both representations are equival
    {"fn":"+", "arg":[1, 2]}
 ```
 
+The &langle;native-string&rangle; can be used to expressed mathematical constants,
+such as `"e"`.
+
 ### &langle;complex&rangle;
 * `re`: &langle;native-number&rangle;, 0 by default.
 * `im`: &langle;native-number&rangle;, 0 by default.
@@ -303,16 +306,16 @@ cuts of those functions. The interpretation is left up to the consuming software
  Sin                        | `sin`       | 1   | angle in radians
  Tangent (tan, tg)          | `tan`       | 1   | angle in radians
  Co-tangent (cot, ctg, cotg, ctn) | `cotangent` | 1| 
- Secant                     | `sec`       | 1 | 
- Cosecant                   | `csc`       | 1 | 
+ Secant                     | `sec`       | 1   | 
+ Cosecant                   | `csc`       | 1   | 
  Arc cosine                 | `acos`      | 1   | angle in radians
  Arc sine                   | `asin`      | 1   | angle in radians
  Arctangent (arctan, arctg) | `atan`      | 1   | angle in radians
  Arctangent (arctan, arctg) | `atan`      | 2   | See https://en.wikipedia.org/wiki/Atan2
- Arc-cotangent              | `arccot` | 1 | 
- Arc-secant                 | `arcsec` | 1 | 
- Arc-cosecant               | `arccsc` | 1 |
- Hyperbolic tangent (th, tan) | `tanh`  | 1 | 
+ Arc-cotangent              | `arccot`    | 1   | 
+ Arc-secant                 | `arcsec`    | 1   | 
+ Arc-cosecant               | `arccsc`    | 1   |
+ Hyperbolic tangent (th, tan) | `tanh`    | 1   | 
 
 
 #### Relational operators
@@ -320,14 +323,14 @@ cuts of those functions. The interpretation is left up to the consuming software
  Operation              | Value     | Unicode   | Comment
  -------------          |:---------:|----------:|---
  Equal to               | `=`       | U+003D    |
- Definition/assignment  | `:=`    | U+003D    | Used with `a := 5` or `f(x) := sin(x)`
+ Definition/assignment  | `:=`      | U+003D    | Used with `a := 5` or `f(x) := sin(x)`
  Identity               | `:=:`     | U+003D    | Used with `1 + 1 :=: 2`
- Approximately equal to | `≈`   | ≈ U+2248    |
+ Approximately equal to | `≈`       | ≈ U+2248  |
  Not equal to           | `≠`       | U+2260    |
  Less than              | `<`       | U+003C    |
- Less than or equal to  | `<=`   | ≤ U+2264    |
+ Less than or equal to  | `<=`      | ≤ U+2264  |
  Greater than           | `>`       | U+003C    |
- Greater than or equal to | `>=` | ≥ U+2265    |
+ Greater than or equal to | `>=`    | ≥ U+2265  |
 
 There are three semantically distinct use for "equal to" which are often all represented with `=` in mathematical notation:
 * conditional equality: the expression is true when the left hand side and the right hand side are equal, for example when defining a curve representin the unit circle: `x^2 + y^2 = 1`
@@ -381,6 +384,7 @@ The following values should be used to represent these common big operators:
 
 
 #### Other functions
+
  Operation          | Value             | Comment
  -------------      |:------------------|:----------
  Factorial          | `factorial`       | `!`
@@ -477,7 +481,7 @@ Example: piecewise definition of absolute value.
 ]}
 ```
 
-**Design note**: having the block and conditions in separate keys is britle. Consider using `if` nodes, e.g. `{if:{fn:">=",arg:["x",0]}, then:"x"}`
+**Design note**: having the block and conditions in separate keys is brittle. Consider using `if` nodes, e.g. `{if:{fn:">=",arg:["x",0]}, then:"x"}`
 
 ### OPEN QUESTIONS
 1. How should exponents be represented? I.e. `x^2` or `A^\dagger`. They could literally be represented with a `sup` attribute, or as an explicit function, i.e. `fn:'pow'` or `fn:'transjugate'`

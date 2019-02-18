@@ -376,7 +376,7 @@
         }
 
         function updateOutput(mathfield) {
-            const ast = MathLive.latexToAST(mathfield.latex());
+            const ast = MathLive.latexToAST(mathfield.$latex());
             const result = evaluate(ast);
             document.getElementById('result').innerHTML = typeof result !== 'undefined' ? result.toString() : '';
 

@@ -554,7 +554,7 @@ MathAtom.toSpeakableText = function(atoms, options) {
                 options.textToSpeechRulesOptions = options.textToSpeechRulesOptions || {};
                 options.textToSpeechRulesOptions.markup = options.textToSpeechMarkup;
                 if (options.textToSpeechRulesOptions.markup === 'ssml') {
-                    options.textToSpeechRulesOptions.markup = 'arno';
+                    options.textToSpeechRulesOptions.markup = 'ssml_step';
                 }
                 options.textToSpeechRulesOptions.rate = options.speechEngineRate;
             }
