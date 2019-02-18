@@ -1576,7 +1576,7 @@ MathField.prototype.$latex = function(text, options) {
         const oldValue = this.mathlist.root.toLatex();
         if (text !== oldValue) {
             options = options || {};
-            this.mathlist.insert(text, Object.assign(this.config, {
+            this.mathlist.insert(text, Object.assign({}, this.config, {
                 insertionMode: 'replaceAll',
                 selectionMode: 'after',
                 format: 'latex',
