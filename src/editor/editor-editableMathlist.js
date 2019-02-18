@@ -205,6 +205,18 @@ EditableMathlist.prototype.selectionDidChange = function() {
     }
 }
 
+EditableMathlist.prototype.contentWillChange = function() {
+    if (typeof this.config.onContentWillChange === 'function' && !this.suppressContentChangeNotifications) {
+        this.config.contentWillChange(this.target);
+    }
+}
+
+EditableMathlist.prototype.contentDidChange = function() {
+    if (typeof this.config.onContentDidChange === 'function' && !this.suppressContentChangeNotifications) {
+        this.config.onContentDidChange(this.target);
+    }
+}
+
 
 /**
  *
@@ -884,10 +896,8 @@ EditableMathlist.prototype.spliceCommandStringAroundInsertionPoint = function(ma
     const command = this.commandOffsets();
     if (command) {
         // Dispatch notifications
-        if (typeof this.config.onContentWillChange === 'function' && 
-            !this.suppressContentChangeNotifications) {
-            this.config.onContentWillChange(this.target);
-        }
+        this.contentWillChange();
+
         Array.prototype.splice.apply(this.siblings(),
             [command.start, command.end - command.start].concat(mathlist));
 
@@ -908,9 +918,7 @@ EditableMathlist.prototype.spliceCommandStringAroundInsertionPoint = function(ma
         }
 
         // Dispatch notifications
-        if (typeof this.config.onContentDidChange === 'function' && !this.suppressContentChangeNotifications) {
-            this.config.onContentDidChange(this.target);
-        }
+        this.contentDidChange();
     }
 }
 
@@ -1642,10 +1650,7 @@ EditableMathlist.prototype.insert = function(s, options) {
         this.suppressContentChangeNotifications = true;
     }
     // Dispatch notifications
-    if (typeof this.config.onContentWillChange === 'function' && 
-        !options.suppressContentChangeNotifications) {
-        this.config.onContentWillChange(this.target);
-    }
+    this.contentWillChange();
     const contentWasChanging = this.suppressContentChangeNotifications;
     this.suppressContentChangeNotifications = true;
 
@@ -1773,9 +1778,7 @@ EditableMathlist.prototype.insert = function(s, options) {
 
     // Dispatch notifications
     this.suppressContentChangeNotifications = contentWasChanging;
-    if (typeof this.config.onContentDidChange === 'function' && !this.suppressContentChangeNotifications) {
-        this.config.onContentDidChange(this.target);
-    }
+    this.contentDidChange();
 
     this.suppressContentChangeNotifications = suppressedContentChangeNotifications;
 }
@@ -1844,8 +1847,10 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
         // update the parent
         if (parent && parent.type === 'leftright' &&
                 this.endOffset() === this.siblings().length - 1) {
+            this.contentWillChange();
             parent.rightDelim = fence;
             this.move(+1);
+            this.contentDidChange();
             return true;
         }
 
@@ -1857,16 +1862,19 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
             if (siblings[i].type === 'leftright') break;
         }
         if (i >= 0) {
+            this.contentWillChange();
             siblings[i].rightDelim = fence;
             siblings[i].body = siblings[i].body.concat(siblings.slice(i + 1, this.endOffset() + 1));
             siblings.splice(i + 1, this.endOffset() - i);
             this.setSelection(i);
+            this.contentDidChange();
             return true;
         }
 
         // If we're inside a 'leftright', but not the last atom,
         // adjust the body (put everything after the insertion point outside)
         if (parent && parent.type === 'leftright') {
+            this.contentWillChange();
             parent.rightDelim = fence;
 
             const tail = siblings.slice(this.endOffset() + 1);
@@ -1875,6 +1883,7 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
 
             Array.prototype.splice.apply(this.siblings(),
                 [this.endOffset() + 1, 0].concat(tail));
+            this.contentDidChange();
 
             return true;
         }
@@ -1989,9 +1998,7 @@ EditableMathlist.prototype.delete = function(count) {
  */
 EditableMathlist.prototype.delete_ = function(dir) {
     // Dispatch notifications
-    if (typeof this.config.onContentWillChange === 'function' && !this.suppressContentChangeNotifications) {
-        this.config.onContentWillChange(this.target);
-    }
+    this.contentWillChange();
     const contentWasChanging = this.suppressContentChangeNotifications;
     this.suppressContentChangeNotifications = true;
 
@@ -2106,9 +2113,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
     }
     // Dispatch notifications
     this.suppressContentChangeNotifications = contentWasChanging;
-    if (typeof this.config.onContentDidChange === 'function' && !this.suppressContentChangeNotifications) {
-        this.config.onContentDidChange(this.target);
-    }
+    this.contentDidChange();
 }
 
 
