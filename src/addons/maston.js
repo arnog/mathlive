@@ -689,6 +689,8 @@ function parseSupsub(expr, options) {
                     }
                 } else if (/['\u2033]|\\doubleprime/.test(getString(atom.superscript))) {
                     expr.ast.sup = '\u2033'; // DOUBLE-PRIME
+                } else {
+                    expr.ast.sup = parse(atom.superscript, options);
                 }
             } else {
                 expr.ast.sup = parse(atom.superscript, options);
