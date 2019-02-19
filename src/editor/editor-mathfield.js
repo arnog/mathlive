@@ -1056,7 +1056,6 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
             } else {
                 // Find the longest substring that matches a shortcut
                 const candidate = this.inlineShortcutBuffer + c;
-                console.log("candidate ", candidate);
                 let i = 0;
                 while (!shortcut && i < candidate.length) {
                     shortcut = Shortcuts.forString(candidate.slice(i), this.config);

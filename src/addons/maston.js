@@ -410,6 +410,9 @@ function getLatexTemplateForOperator(name) {
 }
 
 function isFunction(canonicalName) {
+    if (typeof canonicalName === 'object' && canonicalName.sym) {
+        canonicalName = canonicalName.sym;
+    }
     if (canonicalName === 'f' || canonicalName === 'g') return true;
     let t = FUNCTION_TEMPLATE[canonicalName];
     if (!t) return false;
@@ -530,6 +533,13 @@ const SUPER_ASSOCIATIVE_FUNCTION = {
 }
 
 function getString(atom) {
+    if (Array.isArray(atom)) {
+        let result = '';
+        for (const subAtom of atom) {
+            result += getString(subAtom);
+        }
+        return result;
+    }
     if (atom.latex && atom.latex !== '\\mathop ' && atom.latex !== '\\mathbin ' &&
         atom.latex !== '\\mathrel ' && atom.latex !== '\\mathopen ' &&
         atom.latex !== '\\mathpunct ' && atom.latex !== '\\mathord ' &&
@@ -640,19 +650,20 @@ function negate(expr) {
  * @param {object} expr
  */
 function parseSupsub(expr, options) {
-    let atom = expr.atoms[expr.index - 1];
+    let atom = expr.atoms[expr.index];
 
     // Is there a supsub directly on this atom?
     if (!atom || !(atom.superscript || atom.subscript)) {
         atom = null;
     }
 
+
     // Is the following atom a subsup atom?
     if (!atom) {
+        expr.index = expr.index + 1;
         atom = expr.atoms[expr.index];
-        if (isAtom(expr, 'msubsup') && (atom.superscript || atom.subscript)) {
-            expr.index += 1;
-        } else {
+        if (!atom || !isAtom(expr, 'msubsup') || !(atom.superscript || atom.subscript)) {
+            expr.index -= 1;
             atom = null;
         }
     }
@@ -666,7 +677,23 @@ function parseSupsub(expr, options) {
             expr.ast = {group: expr.ast};
         }
         if (atom.subscript) expr.ast.sub = parse(atom.subscript, options);
-        if (atom.superscript) expr.ast.sup = parse(atom.superscript, options);
+        if (atom.superscript) {
+            if (isAtom(expr, 'msubsup')) {
+                if (/['\u2032]|\\prime/.test(getString(atom.superscript))) {
+                    expr.index += 1;
+                    if (isAtom(expr, 'msubsup') && /['\u2032]|\\prime/.test(getString(atom.superscript))) {
+                        expr.ast.sup = '\u2033'; // DOUBLE-PRIME
+                    } else {
+                        expr.ast.sup = '\u2032'; // PRIME
+                        expr.index -= 1;
+                    }
+                } else if (/['\u2033]|\\doubleprime/.test(getString(atom.superscript))) {
+                    expr.ast.sup = '\u2033'; // DOUBLE-PRIME
+                }
+            } else {
+                expr.ast.sup = parse(atom.superscript, options);
+            }
+        }
     }
 
     return expr;
@@ -703,9 +730,9 @@ function parsePostfix(expr, options) {
         }
 
     } else if (atom && atom.type === 'textord' && POSTFIX_FUNCTION[atom.latex.trim()]) {
-        expr.index += 1;
         expr.ast = {fn: POSTFIX_FUNCTION[atom.latex.trim()], arg: lhs};
         expr = parseSupsub(expr, options);
+        expr.index += 1;
         expr = parsePostfix(expr, options);
     }
     return expr;
@@ -979,9 +1006,6 @@ function parsePrimary(expr, options) {
 
         } else {
             // It's an identifier of some kind...
-            if (atom.superscript === undefined) {
-                expr.index += 1;
-            }
             expr = parseSupsub(expr, options);
         }
         expr = parsePostfix(expr, options);
@@ -989,10 +1013,9 @@ function parsePrimary(expr, options) {
     } else if (atom.type === 'mord') {
         // A 'mord' but not a number, either an identifier ('x') or a function
         // ('\\Zeta')
-        const name = getCanonicalName(getString(atom));
-        if (isFunction(name) && !isOperator(atom)) {
+        if (isFunction(validateFence) && !isOperator(atom)) {
             // A function
-            expr.ast = {fn: name};
+            expr.ast = {fn: val};
             expr = parseSupsub(expr, options);
 
             const fn = expr.ast;
@@ -1005,10 +1028,8 @@ function parsePrimary(expr, options) {
         } else {
             // An identifier
             expr.ast = atom.toAST(options);
-            if (atom.superscript === undefined) {
-                expr.index += 1;
-            }
             expr = parseSupsub(expr);
+            expr.index += 1;
         }
         expr = parsePostfix(expr, options);
 
@@ -1019,10 +1040,9 @@ function parsePrimary(expr, options) {
             // This doesn't look like a textord operator
             if (!Definitions.RIGHT_DELIM[atom.latex.trim()]) {
                 // Not an operator, not a fence, it's a symbol or a function
-                const name = getCanonicalName(getString(atom));
-                if (isFunction(name)) {
+                if (isFunction(val)) {
                     // It's a function
-                    expr.ast = {fn: name};
+                    expr.ast = {fn: val};
                     expr = parseSupsub(expr, options);
 
                     const fn = expr.ast;
@@ -1046,10 +1066,9 @@ function parsePrimary(expr, options) {
 
     } else if (atom.type === 'mop') {
         // Could be a function or an operator.
-        const name = getCanonicalName(getString(atom));
-        if (isFunction(name) && !isOperator(atom)) {
+        if (isFunction(val) && !isOperator(atom)) {
             expr.index += 1;
-            expr.ast = {fn: name};
+            expr.ast = {fn: val};
             expr = parseSupsub(expr, options);
 
             if (expr.ast.sup) {
@@ -1561,7 +1580,9 @@ function normalize(ast) {
                 // if (ast.op === '/') ast.op = 'divide';
                 return {fn:ast.op, arg:[normalize(ast.lhs), normalize(ast.rhs)]};
             }
-            return {fn:ast.op, arg:[normalize(ast.rhs)]};
+            return ast.rhs ? 
+                {fn:ast.op, arg:[normalize(ast.rhs)]} : 
+                {fn:ast.op, arg:[normalize(ast.lhs)]};
         }
         if (ast.fn) {
             if (Array.isArray(ast.arg)) {

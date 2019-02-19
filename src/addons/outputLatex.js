@@ -329,8 +329,13 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
 
     }
     if (this.superscript) {
-        const sup = latexify(this.superscript, expandMacro);
+        let sup = latexify(this.superscript, expandMacro);
         if (sup.length === 1) {
+            if (sup === '\u2032') {     // PRIME
+                sup = '\\prime ';
+            } else if (sup === '\u2033') {      // DOUBLE-PRIME
+                sup = '\\doubleprime ';
+            }
             result += '^' + sup;
         } else {
             result += '^{' + sup + '}';
