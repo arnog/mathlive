@@ -172,6 +172,7 @@ const NOTES = {
     '\\bar':        'bar',
 
     '\\prime':      'prime',
+    '\\doubleprime':'double prime',
     '\\varnothing': 'empty set',
     '\\emptyset':   'empty set',
     '\\subseteq':   'subset of or <br>equal to',
