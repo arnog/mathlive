@@ -188,6 +188,8 @@ const KEYBOARD_SHORTCUTS = {
     'math:Alt-Shift-Digit6':     ['insert', '\\vee'],        // "^" key
     'math:Alt-Digit9':           ['insert', '('],            // "(" key, override smartFence
     'math:Alt-Digit0':           ['insert', ')'],            // ")" key, override smartFence
+    'math:Alt-Shift-Backslash':  ['insert', '|'],            // "|" key, override smartFence
+    'math:Alt-Backslash':        ['insert', '\\backslash'],   // "|" key, override command mode
     'math:Slash':                ['insert', '\\frac{#@}{#?}'],
     'math:Alt-Slash':            ['insert', '\\frac{#?}{#@}'],
     'math:NumpadDivide':         ['insert', '\\frac{#@}{#?}'],
@@ -266,6 +268,9 @@ const REVERSE_KEYBOARD_SHORTCUTS = {
  * @memberof module:editor/shortcuts
  */
 const INLINE_SHORTCUTS = {
+    // Primes
+    "''":                 '^{\\doubleprime}',
+
     // Greek letters
     'alpha':                '\\alpha',
     'delta':                '\\delta',
