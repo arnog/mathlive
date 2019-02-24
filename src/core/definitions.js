@@ -447,9 +447,10 @@ function mathVariantToUnicode(char, variant, style) {
             if (!style || MATH_UNICODE_BLOCKS[i].style === style) {
                 if (codepoint >= MATH_UNICODE_BLOCKS[i].offset &&
                     codepoint < MATH_UNICODE_BLOCKS[i].offset + MATH_UNICODE_BLOCKS[i].len) {
-                        return String.fromCodePoint(
+                        const result =
                                 MATH_UNICODE_BLOCKS[i].start +
-                                codepoint - MATH_UNICODE_BLOCKS[i].offset);
+                                codepoint - MATH_UNICODE_BLOCKS[i].offset;
+                        return String.fromCodePoint(MATH_LETTER_EXCEPTIONS[result] || result);
                 }
             }
         }
