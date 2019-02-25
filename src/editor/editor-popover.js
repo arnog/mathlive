@@ -200,7 +200,7 @@ const NOTES = {
     '\\iff':        'if and only if',
     '\\ln':         'natural logarithm',
     '\\boldsymbol': 'bold',
-    '\\setminus':   'set substraction',
+    '\\setminus':   'set subtraction',
     '\\stackrel':   'relation with symbol above',
     '\\stackbin':   'operator with symbol above',
     '\\underset':   'symbol with annotation below',
