@@ -1430,41 +1430,32 @@ MathField.prototype._onCopy = function(e) {
 }
 
 
-MathField.prototype.formatMathlist = function(atoms, format) {
-    if (!Array.isArray(atoms)) atoms = [atoms];
+MathField.prototype.formatMathlist = function(root, format) {
     format = format || 'latex';
     let result = '';
     if (format === 'latex' || format === 'latex-expanded') {
-        for (const atom of atoms) {
-            result += atom.toLatex(format === 'latex-expanded');
-        }
+        result = root.toLatex(format === 'latex-expanded');
+
     } else if (format === 'mathML') {
-        for (const atom of atoms) {
-            result += atom.toMathML(this.config);
-        }
+        result = root.toMathML(this.config);
+
     } else if (format === 'spoken') {
-        for (const atom of atoms) {
-            result += MathAtom.toSpeakableText(atom, this.config);
-        }
+        result = MathAtom.toSpeakableText(root, this.config);
+
     } else if (format === 'spoken-text') {
         const save = this.config.textToSpeechMarkup;
         this.config.textToSpeechMarkup = '';
-        for (const atom of atoms) {
-            result += MathAtom.toSpeakableText(atom, this.config);
-        }
+        result = MathAtom.toSpeakableText(root, this.config);
         this.config.textToSpeechMarkup = save;
+
     } else if (format === 'spoken-ssml') {
         const save = this.config.textToSpeechMarkup;
         this.config.textToSpeechMarkup = 'ssml';
-        for (const atom of atoms) {
-            result += MathAtom.toSpeakableText(atom, this.config);
-        }
+        result = MathAtom.toSpeakableText(root, this.config);
         this.config.textToSpeechMarkup = save;
+
     } else if (format === 'json') {
-        const json = [];
-        for (const atom of atoms) {
-            json.push(MathAtom.toAST(atom, this.config));
-        }
+        const json = MathAtom.toAST(root, this.config);
         result = JSON.stringify(json);
     }
     return result;
@@ -1507,7 +1498,9 @@ MathField.prototype.$text = function(format) {
  */
 MathField.prototype.selectedText = 
 MathField.prototype.$selectedText = function(format) {
-    return this.formatMathlist(this.mathlist.extractContents(), format);
+    const atoms = this.mathlist.extractContents();
+    const root = MathAtom.makeRoot('math', atoms);
+    return this.formatMathlist(root, format);
 }
 
 
