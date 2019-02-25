@@ -886,7 +886,7 @@ function stringify(shortcuts, join) {
                         'Slash':        '/',
                         'NumpadMultiply': '* &#128290;',
                         'NumpadDivide': '/ &#128290;',  // Numeric keypad
-                        'NumpadSubstract': '- &#128290;',
+                        'NumpadSubtract': '- &#128290;',
                         'NumpadAdd':    '+ &#128290;',
                         'NumpadDecimal':    '. &#128290;',
                         'NumpadComma':    ', &#128290;',
