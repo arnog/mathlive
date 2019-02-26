@@ -1,4 +1,3 @@
-
 // This file contains unit test suites for MathLive.
 // To run it:
 //
@@ -19,6 +18,9 @@
 
 import MathLiveDebug from '../src/addons/debug';
 import MathLive from '../src/mathlive';
+import MASTON from '../src/addons/maston';
+
+
 
 const test = require('tape');
 
@@ -96,6 +98,17 @@ function equalSpan(t, formula1, formula2, msg) {
     return t.equal(s1, s2, '$' + formula1  + '$ ' + msg);
 }
 
+function mathJSON(latex) {
+    return JSON.stringify(MathLive.latexToAST(latex));
+}
+
+function equalMathJSON(t, latex, json, comment) {
+    t.equal(mathJSON(latex), json, "Latex -> JSON: " + comment);
+    const latexJSON = MASTON.asLatex(json).replace(/\\, /g, '').replace(/\\imaginaryI/g, 'i').trim();
+    t.equal(latexJSON, latex, "JSON->Latex: " + comment);
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 test('BASIC PARSING', function (t) {
     t.ok(toSpan(''), 'Empty formula should parse');
@@ -159,12 +172,12 @@ test('CHARACTERS', function (t) {
 });
 
 
-function isTextOrd(t, symbols) {
-    for (const symbol of symbols) {
-        hasClass(t, '\\text{' + symbol + '}', 0, 'textord',
-            symbol + ' is allowed');
-    }
-}
+// function isTextOrd(t, symbols) {
+//     for (const symbol of symbols) {
+//         hasClass(t, '\\text{' + symbol + '}', 0, 'textord',
+//             symbol + ' is allowed');
+//     }
+// }
 
 ////////////////////////////////////////////////////////////////////////////////
 test('TEXT MODE', function (t) {
@@ -365,7 +378,7 @@ test('FRACTIONS', function (t) {
         'Inline (text) math mode binomial');
 
     equalSpan(t, 'n \\choose k', '\\binom{n}{k}',
-        'Infix \choose command');
+        'Infix \\choose command');
 
     // @todo: a better rest...
     t.ok(toSpan('\\pdiff{f(x)}{x}'),
@@ -375,10 +388,10 @@ test('FRACTIONS', function (t) {
     t.end();
 });
 
-function hasSize(t, size) {
-    hasClass(t, 'a' + size + '{b c}d', 'a', 'rule', 'Sizing ' + size);
+// function hasSize(t, size) {
+//     hasClass(t, 'a' + size + '{b c}d', 'a', 'rule', 'Sizing ' + size);
+// }
 
-}
 ////////////////////////////////////////////////////////////////////////////////
 test('SIZING AND MATH STYLE', function (t) {
     t.ok(toSpan("\\text{a \\tiny x y}b"));
@@ -428,7 +441,7 @@ test('RULE AND DIMENSIONS', function (t) {
     // However, TeX doesn't parse it either...  Actually, TeX doesn't even parse "a2em
     // For TeX, hex digits have to be uppercase. Interestingly, TeX cannot parse
     // '\\rule{\"A EM}{10em}' (the AE confuses it)
-    equalSpan(t, '\\rule{\"A em}{10em}', '\\rule{10em}{10em}', "Dimension in hexadecimal");
+    equalSpan(t, '\\rule{"A em}{10em}', '\\rule{10em}{10em}', "Dimension in hexadecimal");
 
     // @todo: rule with color
 
@@ -777,4 +790,132 @@ test('COLORS', function (t) {
     t.end();
 });
 
-//});
+test('MATH JSON', function (t) {
+    
+    equalMathJSON(t, '', undefined, 'Empty expression');
+    equalMathJSON(t, '7', '{"num":"7"}', 'Number (single digit integer)');
+    equalMathJSON(t, '-7', '{"num":"-7"}', 'Negative integer');
+    equalMathJSON(t, '+7', '{"fn":"add","arg":[{"num":"7"}]}', 'Unary plus');
+    equalMathJSON(t, '-x', '{"fn":"negate","arg":[{"sym":"x"}]}', 'Unary minus');
+    equalMathJSON(t, '+x', '{"fn":"add","arg":[{"sym":"x"}]}', 'Unary plus');
+    equalMathJSON(t, '279479', '{"num":"279479"}', 'Number (multi-digit integer)');
+    equalMathJSON(t, '3.1415', '{"num":"3.1415"}', 'Number (real)');
+    equalMathJSON(t, '-67', '{"num":"-67"}', 'Number (negative integer)');
+    equalMathJSON(t, '-67.354658', '{"num":"-67.354658"}', 'Number (negative real)');
+    t.equal(mathJSON('-23.45e5'), '{"num":"-2345000"}', 'Number (negative real, scientific)');
+    t.equal(mathJSON('-23.45e-11'), '{"num":"-2.345e-10"}', 'Number (negative real, scientific, negative exponent)');
+    t.equal(mathJSON('-2.345\\cdot  10^{-10}'), '{"num":"-2.345e-10"}', 'Number (negative real, scientific, alternative)');
+
+    equalMathJSON(t, '2i', '{"num":{"im":"2"}}', 'Imaginary part of a complex number');
+    equalMathJSON(t, '1+2i', '{"num":{"re":"1","im":"2"}}', 'Imaginary and real part of a complex number');
+    equalMathJSON(t, '-1-2i', '{"num":{"re":"-1","im":"-2"}}', 'Negative imaginary and real part of a complex number');
+    equalMathJSON(t, '2i  + 1', '{"fn":"add","arg":[{"num":{"im":"2"}},{"num":"1"}]}', 'Imaginary and real part of a complex number, reversed');
+    equalMathJSON(t, '\\frac{1}{5}i  + \\frac{1}{2}', 
+        '{"fn":"add","arg":[{"fn":"multiply","arg":[{"fn":"divide","arg":[{"num":"1"},{"num":"5"}]},{"num":{"im":"1"}}]},{"fn":"divide","arg":[{"num":"1"},{"num":"2"}]}]}',
+        'Imaginary and real part of a complex number, fractionals');
+
+
+
+    equalMathJSON(t, '1 + 2', '{"fn":"add","arg":[{"num":"1"},{"num":"2"}]}', 'Addition of numbers');
+    equalMathJSON(t, '1 + x', '{"fn":"add","arg":[{"num":"1"},{"sym":"x"}]}', 'Addition of number and identifier');
+    equalMathJSON(t, '1 + 2 + 3 + x', '{"fn":"add","arg":[{"num":"1"},{"num":"2"},{"num":"3"},{"sym":"x"}]}', 'Addition of multiple quantities');
+    t.equal(mathJSON('2 * 4'), '{"fn":"multiply","arg":[{"num":"2"},{"num":"4"}]}', 'Multiplication of two numbers');
+    t.equal(mathJSON('2*3*4'), 
+        '{"fn":"multiply","arg":[{"num":"2"},{"num":"3"},{"num":"4"}]}', 
+        'Multiplication of three numbers');
+    t.equal(mathJSON('2 \\cdot 3 \\times 4'), 
+        '{"fn":"multiply","arg":[{"num":"2"},{"num":"3"},{"num":"4"}]}', 
+        'Multiplication of numbers (alternate operators)');
+    t.equal(mathJSON( '2 * 4 * x * 7'), '{"fn":"multiply","arg":[{"num":"2"},{"num":"4"},{"sym":"x"},{"num":"7"}]}', 'Multiplication of multiple quantities');
+
+    equalMathJSON(t, '7 - 5', '{"fn":"subtract","arg":[{"num":"7"},{"num":"5"}]}', 'subtraction of numbers');
+    equalMathJSON(t, '7 - x', '{"fn":"subtract","arg":[{"num":"7"},{"sym":"x"}]}', 'subtraction of number and identifier');
+    equalMathJSON(t, '7-5-3', '{"fn":"add","arg":[{"num":"7"},{"num":"-5"},{"num":"-3"}]}', 'subtraction of multiple numbers');
+
+    equalMathJSON(t, 'a-b-c', '{"fn":"add","arg":[{"sym":"a"},{"fn":"negate","arg":[{"sym":"b"}]},{"fn":"negate","arg":[{"sym":"c"}]}]}', 'subtraction of multiple identifiers');
+
+    equalMathJSON(t, 'x = y = z', '{"fn":"equal","arg":[{"sym":"x"},{"sym":"y"},{"sym":"z"}]}', 'Associative equality');
+
+    equalMathJSON(t, 'x < y < z', '{"fn":"less-than","arg":[{"fn":"less-than","arg":[{"sym":"x"},{"sym":"y"}]},{"sym":"z"}]}', 'Non-associative inequality');
+
+    equalMathJSON(t, '7-5-2 + 8 + 2-1', '{"fn":"add","arg":[{"num":"7"},{"num":"-5"},{"num":"-2"},{"num":"8"},{"num":"2"},{"num":"-1"}]}', 'subtraction and addition');
+
+    equalMathJSON(t, '2(x + 1)', 
+        '{"fn":"multiply","arg":[{"num":"2"},{"fn":"add","arg":[{"sym":"x"},{"num":"1"}]}]}', 
+        'Implicit multiplication of group');
+
+    equalMathJSON(t, '\\frac{12}{17}', '{"fn":"divide","arg":[{"num":"12"},{"num":"17"}]}', 'Fraction');
+
+    equalMathJSON(t, '2^{5}', '{"num":"2","sup":{"num":"5"}}', 'Superscript (simple))');
+    equalMathJSON(t, '2^{-2}', '{"num":"2","sup":{"num":"-2"}}', 'Superscript (negative) of number');
+    equalMathJSON(t, '(1 + 2)^{3}', 
+        '{"group":{"fn":"add","arg":[{"num":"1"},{"num":"2"}]},"sup":{"num":"3"}}', 
+        'Superscript of group');
+    equalMathJSON(t, '(1 + 2)^{3 + 4}', 
+        '{"group":{"fn":"add","arg":[{"num":"1"},{"num":"2"}]},"sup":{"fn":"add","arg":[{"num":"3"},{"num":"4"}]}}', 
+        'Superscript of group');
+    t.equal(mathJSON('\\left(1+2\\right)^{3}'), 
+        '{"group":{"fn":"add","arg":[{"num":"1"},{"num":"2"}]},"sup":{"num":"3"}}', 
+        'Superscript of group with leftright');
+    equalMathJSON(t, '2^{0.5}', '{"num":"2","sup":{"num":"0.5"}}', 'Superscript (real) of number');
+    equalMathJSON(t, '2^{\\frac{1}{2}}', '{"num":"2","sup":{"fn":"divide","arg":[{"num":"1"},{"num":"2"}]}}', 'Superscript (fraction) of number');
+    equalMathJSON(t, '(2 \\times 4)^{2}', 
+        '{"group":{"fn":"multiply","arg":[{"num":"2"},{"num":"4"}]},"sup":{"num":"2"}}', 
+        'Square of implicit function');
+    equalMathJSON(t, '(2i )^{2}', 
+        '{"group":{"num":{"im":"2"}},"sup":{"num":"2"}}', 
+        'Square of implicit function (complex)');
+    equalMathJSON(t, '(2i  + 1)^{2}', 
+        '{"group":{"fn":"add","arg":[{"num":{"im":"2"}},{"num":"1"}]},"sup":{"num":"2"}}', 
+        'Square of complex');
+
+    equalMathJSON(t, '\\N', '{"sym":"\u2115"}', 'Set N');
+
+    equalMathJSON(t, 'n!', '{"fn":"factorial","arg":[{"sym":"n"}]}', 'Factorial');
+    equalMathJSON(t, 'n + 3!', '{"fn":"add","arg":[{"sym":"n"},{"fn":"factorial","arg":[{"num":"3"}]}]}', 'Factorial');
+
+
+    equalMathJSON(t, 'x', '{"sym":"x"}', 'Identifier');
+    equalMathJSON(t, '2x', '{"fn":"multiply","arg":[{"num":"2"},{"sym":"x"}]}', 'Implicit multiplication (invisible times)');
+    equalMathJSON(t, '\\frac{x}{7}', '{"fn":"divide","arg":[{"sym":"x"},{"num":"7"}]}', 'Division of identifier');
+    // equalMathJSON(t, '(x+1)3', '', 'Implicit multiplication of group');
+    equalMathJSON(t, 'x^{4}', '{"sym":"x","sup":{"num":"4"}}', 'Superscript of identifier');
+    equalMathJSON(t, '2^{x + 1}', '{"num":"2","sup":{"fn":"add","arg":[{"sym":"x"},{"num":"1"}]}}', 'Superscript of expression');
+    equalMathJSON(t, '2x^{3}', '{"fn":"multiply","arg":[{"num":"2"},{"sym":"x","sup":{"num":"3"}}]}', 'Implicit multiplication with superscript');
+    equalMathJSON(t, '2x^{3} + 3x^{2} + 19x', '{"fn":"add","arg":[{"fn":"multiply","arg":[{"num":"2"},{"sym":"x","sup":{"num":"3"}}]},{"fn":"multiply","arg":[{"num":"3"},{"sym":"x","sup":{"num":"2"}}]},{"fn":"multiply","arg":[{"num":"19"},{"sym":"x"}]}]}', 'Polynomial');
+    equalMathJSON(t, 'x_{2}', '{"sym":"x","sub":{"num":"2"}}', 'Identifier with subscript');
+
+    equalMathJSON(t, '\\sin x', '{"fn":"sin","arg":[{"sym":"x"}]}', 'Simple function');
+    equalMathJSON(t, '\\sin x + 1', '{"fn":"add","arg":[{"fn":"sin","arg":[{"sym":"x"}]},{"num":"1"}]}', 'Simple function with expression argument');
+    equalMathJSON(t, 'f (x)', '{"fn":"f","arg":[{"sym":"x"}]}', 'Function application');
+    equalMathJSON(t, 'f^{\\prime} (x)', '{"fn":"f","sup":{"sym":"′"},"arg":[{"sym":"x"}]}', 'Function prime');
+
+    equalMathJSON(t, '\\sum_{k = 1}^{n} b_{k}', '{"fn":"sum","sub":{"fn":"equal","arg":[{"sym":"k"},{"num":"1"}]},"sup":{"sym":"n"},"arg":[{"sym":"b","sub":{"sym":"k"}}]}', 'Sum');
+
+    equalMathJSON(t, 'x^{2} + 3x|_{x = 1}', 
+        '{"fn":"bind","arg":[{"fn":"add","arg":[{"sym":"x","sup":{"num":"2"}},{"fn":"multiply","arg":[{"num":"3"},{"sym":"x"}]}]},{"sym":"x"},{"num":"1"}]}',
+        'Bind polynomial with number');
+
+    equalMathJSON(t, 'x^{2} + 3x|_{x = y}', 
+        '{"fn":"bind","arg":[{"fn":"add","arg":[{"sym":"x","sup":{"num":"2"}},{"fn":"multiply","arg":[{"num":"3"},{"sym":"x"}]}]},{"sym":"x"},{"sym":"y"}]}',
+        'Bind polynomial with identifier');
+
+    equalMathJSON(t, 'x^{2} + 3x|_{x = x^{2} + x}', 
+        '{"fn":"bind","arg":[{"fn":"add","arg":[{"sym":"x","sup":{"num":"2"}},{"fn":"multiply","arg":[{"num":"3"},{"sym":"x"}]}]},{"sym":"x"},{"fn":"add","arg":[{"sym":"x","sup":{"num":"2"}},{"sym":"x"}]}]}',
+        'Bind polynomial with expression');
+
+    t.equal(mathJSON('x^2+3x|_1'), 
+        '{"fn":"bind","arg":[{"fn":"add","arg":[{"sym":"x","sup":{"num":"2"}},{"fn":"multiply","arg":[{"num":"3"},{"sym":"x"}]}]},{"sym":"x"},{"num":"1"}]}',
+        'Bind polynomial with implicit identifier');
+
+    equalMathJSON(t, 'x^{2} + 3x|_{y = 1, x = 2}', 
+        '{"fn":"bind","arg":[{"fn":"add","arg":[{"sym":"x","sup":{"num":"2"}},{"fn":"multiply","arg":[{"num":"3"},{"sym":"x"}]}]},{"sym":"y"},{"num":"1"},{"sym":"x"},{"num":"2"}]}',
+        'Bind polynomial with multiple identifiers');
+
+    // equalMathJSON(t, 'x^{2} + 3x|_{x = 1, 2, 3}', 
+    //     '{"fn":"bind","arg":[{"fn":"add","arg":[{"sym":"x","sup":{"num":"2"}},{"fn":"multiply","arg":[{"num":"3"},{"sym":"x"}]}]},{"sym":"x"},{"num":"1"}]}',
+    //     'Bind polynomial with list');
+
+
+    t.end();
+});
