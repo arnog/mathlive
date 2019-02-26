@@ -254,6 +254,10 @@ const CODEPOINT_SHORTCUTS = {
     0x2092: '_{o}',
     0x2093: '_{x}',
 
+    0x2032: '\\prime',
+    0x2033: '\\doubleprime',
+    0x2220: '\\angle',
+
     0x2102: '\\C',
     0x2115: '\\N',
     0x2119: '\\P',
