@@ -430,7 +430,7 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys='subset' data-insert='\\subset '>&#x2282;</li>
                 <li class='keycap tex' data-alt-keys='supset' data-insert='\\supset '>&#x2283;</li>
                 <li class='keycap tex' data-key='!' data-alt-keys='!'>!<aside>factorial</aside></li>
-                <li class='keycap' data-insert='^\\prime '><span><sup><span><span style='color:#ddd'>o</span>&#x2032</sup></span><aside>prime</aside></li>
+                <li class='keycap' data-insert='^{\\prime} '><span><sup><span><span style='color:#ddd'>o</span>&#x2032</sup></span><aside>prime</aside></li>
                 <li class='keycap w15' data-insert='\\llcorner#0\\lrcorner '><span><sub>&#x2514;</sub><span style='color:#ddd'>o</span><sub>&#x2518;</sub></span><aside>floor</aside></li>
                 <li class='keycap tex' data-insert='\\partial '>&#x2202;<aside>partial<br>derivative</aside></li>
                 <li class='keycap tex' data-insert='\\emptyset '>&#x2205;<aside>empty set</aside></li>
