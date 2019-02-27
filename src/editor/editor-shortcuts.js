@@ -412,6 +412,8 @@ const INLINE_SHORTCUTS = {
     'gcd':                  '\\mathop{gcd}',
     'randomReal':           '\\mathop{randomReal}',
     'randomInteger':        '\\mathop{randomInteger}',
+    'Re':                   '\\mathop{Re}',
+    'Im':                   '\\mathop{Im}',
 
     // UNITS
     'mm':                   '\\mathop{mm}',         // millimeter
