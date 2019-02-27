@@ -104,7 +104,7 @@ function mathJSON(latex) {
 
 function equalMathJSON(t, latex, json, comment) {
     t.equal(mathJSON(latex), json, "Latex -> JSON: " + comment);
-    const latexJSON = MASTON.asLatex(json).replace(/\\, /g, '').replace(/\\imaginaryI/g, 'i').trim();
+    const latexJSON = MASTON.asLatex(json, {precision: 100}).replace(/\\, /g, '').replace(/\\imaginaryI/g, 'i').trim();
     t.equal(latexJSON, latex, "JSON->Latex: " + comment);
 }
 
@@ -796,6 +796,12 @@ test('MATH JSON', function (t) {
     equalMathJSON(t, '7', '{"num":"7"}', 'Number (single digit integer)');
     equalMathJSON(t, '-7', '{"num":"-7"}', 'Negative integer');
     equalMathJSON(t, '+7', '{"fn":"add","arg":[{"num":"7"}]}', 'Unary plus');
+    equalMathJSON(t, '123456789012345678901234567890', 
+        '{"num":"123456789012345678901234567890"}', 
+        'Big number');
+    equalMathJSON(t, '123456789012345678901234567890.12345678909876543210123456789', 
+        '{"num":"123456789012345678901234567890.12345678909876543210123456789"}', 
+        'Big number, decimal');
     equalMathJSON(t, '-x', '{"fn":"negate","arg":[{"sym":"x"}]}', 'Unary minus');
     equalMathJSON(t, '+x', '{"fn":"add","arg":[{"sym":"x"}]}', 'Unary plus');
     equalMathJSON(t, '279479', '{"num":"279479"}', 'Number (multi-digit integer)');
@@ -836,7 +842,9 @@ test('MATH JSON', function (t) {
 
     equalMathJSON(t, 'x = y = z', '{"fn":"equal","arg":[{"sym":"x"},{"sym":"y"},{"sym":"z"}]}', 'Associative equality');
 
-    equalMathJSON(t, 'x < y < z', '{"fn":"less-than","arg":[{"fn":"less-than","arg":[{"sym":"x"},{"sym":"y"}]},{"sym":"z"}]}', 'Non-associative inequality');
+    equalMathJSON(t, 'x < y < z', 
+        '{"fn":"lt","arg":[{"fn":"lt","arg":[{"sym":"x"},{"sym":"y"}]},{"sym":"z"}]}', 
+        'Non-associative inequality');
 
     equalMathJSON(t, '7-5-2 + 8 + 2-1', '{"fn":"add","arg":[{"num":"7"},{"num":"-5"},{"num":"-2"},{"num":"8"},{"num":"2"},{"num":"-1"}]}', 'subtraction and addition');
 
@@ -869,7 +877,23 @@ test('MATH JSON', function (t) {
         '{"group":{"fn":"add","arg":[{"num":{"im":"2"}},{"num":"1"}]},"sup":{"num":"2"}}', 
         'Square of complex');
 
+    t.equal(mathJSON('\\sqrt{3}x'), 
+        '{"fn":"multiply","arg":[{"fn":"sqrt","arg":[{"num":"3"}]},{"sym":"x"}]}', 
+        'Square root implicitly multiplied by identifier');
+
+    t.equal(mathJSON('\\sqrt{3}i'), 
+        '{"fn":"multiply","arg":[{"fn":"sqrt","arg":[{"num":"3"}]},{"num":{"im":"1"}}]}', 
+        'Square root implicitly multiplied by imaginary unit');
+
+    t.equal(mathJSON('\\cos ^{-1}x'), 
+        '{"fn":"arccos","arg":[{"sym":"x"}]}', 
+        'arccos');
+
+
     equalMathJSON(t, '\\N', '{"sym":"\u2115"}', 'Set N');
+    
+    equalMathJSON(t, '\\sin x^{2}', '{"fn":"sin","arg":[{"sym":"x","sup":{"num":"2"}}]}', 'sin of x square');
+    equalMathJSON(t, '\\sin \\theta ^{2}', '{"fn":"sin","arg":[{"sym":"θ","sup":{"num":"2"}}]}', 'sin of theta square');
 
     equalMathJSON(t, 'n!', '{"fn":"factorial","arg":[{"sym":"n"}]}', 'Factorial');
     equalMathJSON(t, 'n + 3!', '{"fn":"add","arg":[{"sym":"n"},{"fn":"factorial","arg":[{"num":"3"}]}]}', 'Factorial');
@@ -911,11 +935,46 @@ test('MATH JSON', function (t) {
     equalMathJSON(t, 'x^{2} + 3x|_{y = 1, x = 2}', 
         '{"fn":"bind","arg":[{"fn":"add","arg":[{"sym":"x","sup":{"num":"2"}},{"fn":"multiply","arg":[{"num":"3"},{"sym":"x"}]}]},{"sym":"y"},{"num":"1"},{"sym":"x"},{"num":"2"}]}',
         'Bind polynomial with multiple identifiers');
+    
+    t.equal(mathJSON('\\sin (\\theta ^{2})|_{\\theta = \\pi  }'), 
+        '{"fn":"bind","arg":[{"fn":"sin","arg":[{"sym":"θ","sup":{"num":"2"}}]},{"sym":"θ"},{"sym":"π"}]}',
+        'Bind with sin and paren around argument');
+
+    equalMathJSON(t, '\\sqrt{x}|_{x = 2}', 
+        '{"fn":"bind","arg":[{"fn":"sqrt","arg":[{"sym":"x"}]},{"sym":"x"},{"num":"2"}]}',
+        'Bind with square root');
+
+    equalMathJSON(t, '\\ln_{10} (10^{2})', 
+        '{"fn":"ln","sub":{"num":"10"},"arg":[{"num":"10","sup":{"num":"2"}}]}',
+        'ln10');
+
 
     // equalMathJSON(t, 'x^{2} + 3x|_{x = 1, 2, 3}', 
     //     '{"fn":"bind","arg":[{"fn":"add","arg":[{"sym":"x","sup":{"num":"2"}},{"fn":"multiply","arg":[{"num":"3"},{"sym":"x"}]}]},{"sym":"x"},{"num":"1"}]}',
     //     'Bind polynomial with list');
 
+    t.equal(mathJSON('|-1|'), 
+        '{"fn":"abs","arg":[{"num":"-1"}]}',
+        'absolute value');
+
+    equalMathJSON(t, '\\left| -1 \\right|', 
+        '{"fn":"abs","arg":[{"num":"-1"}]}',
+        'absolute value with leftright');
+
+    equalMathJSON(t, '\\lceil 100\\mathop{randomReal}() \\rceil',
+        '{"fn":"ceil","arg":[{"fn":"multiply","arg":[{"num":"100"},{"fn":"randomReal"}]}]}',
+        'function with empty argument list');
 
     t.end();
 });
+
+
+// cos(|x| + |y|)
+
+// \left(x^2+3y^2\right)e^{-x^2-y^2}
+// \left(x^2+3y^2\right)\cdot  e^{-x^2-y^2}
+
+// ((x-0.2)*\sin(1/(x-0.2))+x+0.8)*(10*(x-0.1)^2+0.9)
+
+// \sin(\pi*x/5)-\tan(x*2)
+// \sin \pi  \cdot  \frac {x}{5}-\tan 2x

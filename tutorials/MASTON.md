@@ -7,8 +7,8 @@ It is human-readable, while being easy for machines to generate and parse.
 
 It is built on the JSON [1] format. Its focus is on interoperability between 
 software programs to facilitate the exchange of mathematical data, as well as 
-the building of complex software through the integration of software components communicating with 
-a common format.
+the building of complex software through the integration of software components 
+communicating with a common format.
 
 It is not suitable as a visual representation of arbitrary mathematical 
 notations, and as such is not a replacement for LaTeX or MathML.
@@ -21,23 +21,23 @@ In TeX
 e^{\imaginaryI \pi }+1=0
 ```
 In MASTON:
-```JSON
+```json
     {
-        "fn":"=",
+        "fn":"equal",
         "arg":[{
-            "fn":"+",
+            "fn":"add",
             "arg":[
                 {
                     "sym":"e",
                     "sup":{
-                        "fn":"*",
-                        "arg":["ⅈ","π"]
+                        "fn":"multiply",
+                        "arg":[{"sym": "ⅈ"},{sym:"π"}]
                         }
                 },
-                1
+                {"num": "1"}
             ]
         },
-        0]
+        "num": "0"]
     }
 ```
 
@@ -48,7 +48,26 @@ In MASTON:
 ```
 
 ```JSON
-{"fn":"*","arg":[{"fn":"/","arg":[63,25]},{"fn":"/","arg":[{"fn":"+","arg":[17,{"fn":"*","arg":[15,{"fn":"sqrt","arg":5}]}]},{"fn":"+","arg":[7,{"fn":"*","arg":[15,{"fn":"sqrt","arg":5}]}]}]}]}
+{"fn":"multiply",
+    "arg":[
+        {"fn":"divide","arg":[{"num":"63"},{"num":"25"}]},
+        {"fn":"divide","arg":[
+            {"fn":"add","arg":[
+                {"num":"17"},
+                {"fn":"multiply","arg":[{"num":"15"},{"fn":"sqrt","arg":[{"num":"5"}]}]}
+            ]},
+            {"fn":"add","arg":[
+                {"num":"7"},
+                {"fn":"multiply","arg":[
+                    {"num":"15"},
+                    {"fn":"sqrt","arg":[
+                        {"num":"5"}
+                    ]}
+                ]}
+            ]}
+        ]}
+    ]
+}
 ```
 
 ## Design Goals
@@ -72,42 +91,42 @@ optional and can be ignored by any consumer.
 ## Encoding
 
 A MASTON expression is an [abstract syntax tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) 
-encoded as a JSON object. 
+encoded as a JSON object.
 
-The root element is an &langle;expression&rangle;, with child nodes according 
+The root element is an `expression`, with child nodes according 
 to the grammar below.
 
 
+### Basic Number
 
-### Native Numbers
-
-A native number is encoded following the JSON grammar, with two extensions:
-* support for arbitrary precision numbers. The number of digits included may be
- more than supported by consuming software. The software can handle this 
- situation by either reading only as many digits as can be supported internally 
- or by treating it as an error.
+A basic number is encoded following the JSON grammar, with the following extensions:
+* support for arbitrary precision numbers. JavaScript and many other languages
+only support limited precision numbers, generally 53-bit integers (about 15 digits).
+Therefore to support arbitrary precision, numbers should always be represented 
+as a quoted string.
 * support for `NaN` and `infinity`
 
-&langle;native-number&rangle; := `'"NaN"'` | &langle;native-infinity&rangle; | 
-    [`'-'`] &langle;native-int&rangle; [ &langle;native-frac&rangle;] [ &langle;native-exp&rangle; ]
+`basic-number` := `'"NaN"'` | `infinity` | `'"'` [`'-'`] `int` [ `frac`] [ `exp` ]`'"'`
 
-&langle;native-infinity&rangle; := `'"'` [`'+'` | `'-'`] `'infinity'` `'"'`
+`infinity` := `'"'` [`'+'` | `'-'`] `'Infinity'` `'"'`
 
-&langle;native-int&rangle; := `'0'` | [ `'1'` - `'9'` ]*
+`int` := `'0'` | [ `'0'` - `'9'` ]*
 
-&langle;native-frac&rangle; := `'.'` (`'0'` - `'9'`)*
+`frac` := `'.'` (`'0'` - `'9'`)*
 
-&langle;native-exp&rangle; := [`'e'` | `'E'`] [`'+'` | `'-'`] (`'0'` - `'9'` )*
+`exp` := [`'e'` | `'E'`] [`'+'` | `'-'`] (`'0'` - `'9'` )*
 
 ### Native Strings
 Native strings are a sequence of Unicode characters.
 
-As per JSON, any Unicode character may be escaped using a `\u` escape sequence.
-
 MATSON producing software should not generate character entities in 
 strings.
 
-Whenever applicable, a specific Unicode symbol should be used.
+As per JSON, any Unicode character may be escaped using a `\u` escape sequence.
+
+In the canonical form, any non-ASCII character must be encoded with a `\u` escape sequence.
+
+In the canonical form, whenever applicable, a specific Unicode symbol should be used.
 
 For example, the set of complex numbers should be represented with U+2102 ℂ,
 not with U+0043 C and a math variant styling attribute.
@@ -119,89 +138,80 @@ See [Unicode Chapter 22 - Symbols](http://www.unicode.org/versions/Unicode10.0.0
 > entity references or by composing them from base letters and style markup.
 
 ### Optional keys
-All elements may have the following keys:
+
+All nodes may have the following keys:
 * `comment`: A human readable string to annotate an expression, since JSON does not allow comments in its encoding
 * `error`: A human readable string that can be used to indicate a syntax error or other problem when parsing or evaluating an expression.
 * `latex`: A visual representation in LaTeX of the expression. This can be useful to preserve non-semantic details, for example parentheses in an expression.
 * `mathml`: A visual representation in MathML of the expression.
-* `class`: A CSS class to be associated with a representation of this element
-* `id`: A CSS id to be associated with a representation of this element
+* `class`: A CSS class to be associated with a representation of this node
+* `id`: A CSS id to be associated with a representation of this node
 * `style`: A CSS style string
 * `wikidata`: A short string indicating an entry in a wikibase. For example, 
     `"Q2111"`
 * `wikibase`: A base URL for the wikidata key. A full URL can be produced 
 by concatenating this key with the wikidata key. This key applies to 
-this element and all its children. The default value is "https://www.wikidata.org/wiki/"
+this node and all its children. The default value is "https://www.wikidata.org/wiki/"
 * `openmathcd`: A base URL for an OpenMath content dictionary. This key applies to 
-this element and all its children. The default value is "http://www.openmath.org/cd".
+this node and all its children. The default value is "http://www.openmath.org/cd".
 * `openmathsymbol`: A short string indicating an entry in an OpenMath Content
 Dictionary. For example: `arith1/#abs`.
 
 ### Key order
-The order of the keys in an element is not significant. That is, all these 
-expressions are equivalent:
+The order of the keys in a node is not significant. 
+
+All these expressions are equivalent:
 
 ```JSON
-   {"fn":"+", "arg":[1, 2]}
-   {"arg":[1, 2], "fn":"+"}
+   {"fn":"add", "arg":[1, 2]}
+   {"arg":[1, 2], "fn":"add"}
 ```
 
-Howeve, the order of the elements in an array *is* significant. These two
-expressions are *not* equivalent:
+However, the order of the elements in an array *is* significant. 
+
+These two expressions are *not* equivalent:
 ```JSON
-   {"fn":"-", "arg":[3, 1]}
-   {"fn":"-", "arg":[1, 3]}
+   {"fn":"divide", "arg":[3, 1]}
+   {"fn":"divide", "arg":[1, 3]}
 ```
 
 ## Grammar
 
-&langle;expression&rangle; := &langle;num&rangle; |
-    &langle;complex&rangle; | 
-    &langle;symbol&rangle; | 
-    &langle;function&rangle; | 
-    &langle;group&rangle; |
-    &langle;range&rangle; |
-    &langle;array&rangle; |
-    &langle;dictionary&rangle; |
-    &langle;text&rangle; |
-    &langle;block&rangle;
+An expression is an Abstract Syntax Tree. As such, there is no need to 
+introduce parentheses or to resort to operator precedence in order to parse 
+the expression correctly.
 
-An expression is an Abstract Syntax Tree. As such, there is no need to introduce parentheses or to resort to operator precedence in order to parse the expression correctly.
+An expression is made up of a tree of nodes. The type of each node is 
+indicated by the presence of a specific key, for example `sym` for the 
+"symbol" node or `fn` for the "function" node.
 
-### &langle;num&rangle; 
+`expression` := `num` |
+    `symbol` | 
+    `function` | 
+    `group` |
+    `text` |
 
-A native number or an object with the following key
-* `num`: &langle;native-number&rangle; or &langle;native-string&rangle;
+### `num` 
 
-**Note:** When only the `num` key is present a shortcut may be used by 
-replacing the element with the number. That is, both representations are equivalent:
-```JSON
-   {"fn":"+", "arg":[{"num":1}, {"num":2}]}
-   {"fn":"+", "arg":[1, 2]}
-```
+An object with the following key:
+* `num`: `basic-number` | `complex-number`
 
-The &langle;native-string&rangle; can be used to expressed mathematical constants,
-such as `"e"`.
+`complex-number` := { "re": `basic-number`, "im": `basic-number`}
 
-### &langle;complex&rangle;
-* `re`: &langle;native-number&rangle;, 0 by default.
-* `im`: &langle;native-number&rangle;, 0 by default.
+### `symbol`
 
-One of the keys `re` or `im` must be present.
-
-Note that `{re:1}` is a complex number with a null imaginary part.
-
-### &langle;symbol&rangle;
-
-A string or an object with the following keys
-* `sym`: &langle;native-string&rangle;
-* `type`: the data type of the symbol, as a string. See table below.
+An object with the following keys
+* `sym`: `native-string`
+* `type`: native-string`, the data type of the symbol. See table below.
 * `index`: A 0-based index into a vector or array. An index can be a number or an array of numbers.
-* `accent`: &langle;string&rangle;, a single unicode character representing the accent to display over the symbol.
+* `accent`: `string`, a modifier applied to a symbol, such as "hat" or "bar".
 
-### Type
+The `sym` key is the only required key.
 
-The data type of a symbol can be used to refine the interpretation of operations performed upon it.
+#### Type
+
+The data type of a symbol can be used to refine the interpretation of operations 
+performed upon it.
 
  Data Type          | Value           |  Meanings
  -------------      |:--------------- |:----------
@@ -217,8 +227,11 @@ The data type of a symbol can be used to refine the interpretation of operations
  Date               | `date`          | 
  Duration           | `duration`      |
 
-### Accent
-An accent is a decoration over a symbol that provides the proper context to interpret the symbol or modifies it in some way. For example, an accent can indicate that a symbol is a vector, or to represent the mean, complex conjugate or complement of the symbol.
+#### Accent
+An accent is a decoration over a symbol that provides the proper context to 
+interpret the symbol or modifies it in some way. For example, an accent can 
+indicate that a symbol is a vector, or to represent the mean, complex conjugate 
+or complement of the symbol.
 
 The following values are recommended:
 
@@ -229,54 +242,57 @@ The following values are recommended:
  Hat                | &#9676;&#x005e; | U+005e    | Unit vector, estimator
  Dot                | &#9676;&#x02d9; | U+02d9    | Derivative with respect to time
  Double dot         | &#9676;&#x00a8; | U+00a8    | Second derivative with respect to time.
- Acute              | &#9676;&#x00b4; | U+00b4 | 
- Grave              | &#9676;&#x0060; | U+0060 | 
- Tilde              | &#9676;&#x007e; | U+007e | 
- Breve              | &#9676;&#x02d8; | U+02d8 | 
- Check              | &#9676;&#x02c7; | U+02c7 | 
+ Acute              | &#9676;&#x00b4; | U+00b4    | 
+ Grave              | &#9676;&#x0060; | U+0060    | 
+ Tilde              | &#9676;&#x007e; | U+007e    | 
+ Breve              | &#9676;&#x02d8; | U+02d8    | 
+ Check              | &#9676;&#x02c7; | U+02c7    | 
 
 
-### &langle;function&rangle;
-* `fn`: &langle;native-string&rangle;, the name of the function.
-* `arg`: &langle;expression&rangle; | array of &langle;expression&rangle;, the arguments to the function. If there's a single argument, it should be represented as an expression. If there's more than one, they should be represented as an array of expressions.
-* `fence`: &langle;string&rangle;, one to three characters indicating the delimiters used for the expression. The first character is the opening delimiter, the second character, if present, is the closing delimiter. The third character, if present, is the delimiters separating the arguments. If no value is provided for this key, the default value `(),` is used. The character `.` can be used to indicate the absence of a delimiter, for example `..;`.
-* `sub`: &langle;expression&rangle;
-* `sup`: &langle;expression&rangle;
-* `accent`: &langle;native-string&rangle;, a single unicode character representing the accent to display over the function. See the SYMBOL section for more details.
+### `function`
+* `fn`: `native-string`, the name of the function.
+* `arg`: array of `expression`, the arguments to the function.
+* `fence`: `string`, one to three characters indicating the delimiters used for the expression. The first character is the opening delimiter, the second character, if present, is the closing delimiter. The third character, if present, is the delimiters separating the arguments. If no value is provided for this key, the default value `(),` is used. The character `.` can be used to indicate the absence of a delimiter, for example `..;`.
+* `sub`: `expression`
+* `sup`: `expression`
+* `accent`: `native-string`, a single unicode character representing the accent
+ to display over the function. See the SYMBOL section for more details.
 
 The `fn` key is the only required key.
 
 When using common functions, the following values are recommended:
 
- Name (and common synonyms) | Value       | Arity | Comment
- -------------------------- |:------------|:------| :-------
- Addition                   | `+`         | 2     |
- Signum                     | `*`         | 1     | -1 if the argument is negative, 0 if it is zero, 1 if it is positive; more generally, the intersection of the unit circle with the line from the origin through the argument in the complex plane
- Multiplication             | `*`         | 2     | 
- Reciprocal                 | `/`         | 1     | The reciprocal of the argument
- Division                   | `/`         | 2     | The first argument divided  by the second argument
- Negate                     | `-`         | 1     | Negate the argument
- Substraction               | `-`         | 2     | Substract the second from the first.
- Exponential                | `^`         | 1     | e to the power of the argument.
- Power                      | `^`         | 2     | The first argument to the power of the second argument
- Square Root                | `root`      | 1     | 
- Root                       | `root`      | 2     | The second argument is the degree of the root
- Natural log                | `ln`        | 1     | 
- Logarithm                  | `ln`        | 2     | The second argument is the base.
- List                       | `list`      | n     | comma separated list
- List                       | `list2`     | n     | semi-colon separated list
- Absolute value             | `abs`       |       |
- Floor                      | `floor`     | 1     | The largest integer less than or equal to the argument
- Minimum                    | `min`       | 2, n  | The smallest of the arguments
- Ceiling                    | `ceiling`   | 1     | The smallest integer greater than or equal to the argument
- Maximum                    | `max`       | 2, n  | The largest of the arguments
- Greatest Common Divisor    | `gcd`       | 2     | 
- Least Common Multiple      | `lcm`       | 2     | 
- Function composition       | `compose`   | 2, n  | 
+ Name (and common synonyms) | Arity | Comment
+ -------------------------- |:------| :-------
+`add`                       | 2+     |
+`subtract`                  | 2      | Subtract the second from the first.
+`multiply`                  | 2+     | 
+`divide`                    | 2     | The first argument divided  by the second argument
+ `negate`                   | 1     | Negate the argument
+ `list`                     | 1+     | comma separated list
+ `list2`                    | 1+     | semi-colon separated list
+
+ Name (and common synonyms) | Arity | Comment
+ -------------------------- |:------| :-------
+ Signum                     | 1     | -1 if the argument is negative, 0 if it is zero, 1 if it is positive; more generally, the intersection of the unit circle with the line from the origin through the argument in the complex plane
+ Exponential                | 1     | e to the power of the argument.
+ Power                      | 2     | The first argument to the power of the second argument
+ Square Root                | 1     | 
+ Root                       | 2     | The second argument is the degree of the root
+ Natural log                | 1     | 
+ Logarithm                  | 2     | The second argument is the base.
+`abs`                      | 1     | Absolute value
+`min`       | 2, n  | The smallest of the arguments
+`max`       | 2, n  | The largest of the arguments
+`floor`     | 1     | The largest integer less than or equal to the argument
+`ceiling`   | 1     | The smallest integer greater than or equal to the argument
+`gcd`       | 2     |  Greatest Common Divisor
+`lcm`       | 2     |  Least Common Multiple
+ `compose`   | 2, n  | 
 
 #### Complex Arithmetic
 
-  Name                       | Value       | Arity | Comment
+  Name                      | Value       | Arity | Comment
  -------------------------- |:------------|:------| :-------
  Conjugate                  | `+`         | 1     | Conjugate of the argument
  Real                       | `real`      | 1     |
@@ -333,13 +349,14 @@ cuts of those functions. The interpretation is left up to the consuming software
  Greater than or equal to | `>=`    | ≥ U+2265  |
 
 There are three semantically distinct use for "equal to" which are often all represented with `=` in mathematical notation:
-* conditional equality: the expression is true when the left hand side and the right hand side are equal, for example when defining a curve representin the unit circle: `x^2 + y^2 = 1`
-* definition or assignment: the symbol (or expression) on the left hand side is defined by the expression on the right hand side. For example `f(x) := sin x`, `a = 5`
-* identity: the right hand side expression is a syntactic derivation from the left hand size expression. For example, `1 + 1 :=: 2`
+* **conditional equality**: the expression is true when the left hand side and the right hand side are equal, for example when defining a curve representing the unit circle: `x^2 + y^2 = 1`
+* **definition** or assignment: the symbol (or expression) on the left hand side is defined by the expression on the right hand side. For example `f(x) := sin x`, `a := 5`
+* **identity**: the right hand side expression is a syntactic derivation from the left hand size expression. For example, `1 + 1 :=: 2`
 
 #### Big operators
 
-Big operators, such as ∑, "sum", and ∏, "product", are represented as a function with the following arguments:
+Big operators, such as ∑, "sum", and ∏, "product", are represented as a function
+ with the following arguments:
 * first argument: body of the operation
 * second argument (optional): inferior argument of the operation
 * third argument (optional): superior argument of the operation
@@ -382,6 +399,48 @@ The following values should be used to represent these common big operators:
  U plus             | `union_plus`      | U+2a04
  O dot              | `odot`            | U+2a00
 
+#### Special Functions
+
+These functions represent higher order data structures and operations common
+in algebraic manipulation systems.
+
+* **bind** first argument is an expression, argument 2n is an identifier, 
+argument 2n+1 is the value the identifier should be replaced with. 
+
+Argument 2n+1 can be a number, an expression, an array representing a list of
+values, or a range. If an array or a range, the result is an array of expression.
+
+For example:
+````json
+{   "fn":"bind", 
+    "arg": [
+        {"fn":"+","arg":[{"sym":"x","sup":2},{"fn":"*","arg":[2,"x"]}]},
+        "x",
+        "1"
+    ]
+}
+```
+
+would replace the `x`in the expression with `1`.
+
+* **solve** first argument is an expression. Return an array of identifier and
+their value. The first argument can be an array representing a system of equations.
+
+
+* **range** first argument is the start of the range, second argument is the end
+of the third. The third argument is optional and represent the step between 
+elements of the range. If none is provided, the step is 1.
+
+* **`block`** the arguments are a list of expressions, such as in a system of 
+equations.
+
+* **`case`** the arguments are a list of conditional expressions, such as in a 
+piecewise definition of a function. Arguments 2n-1 are the expression, and 2n 
+are the condition. The last condition is optional and the last value is 
+applied if no other condition match.
+
+
+
 
 #### Other functions
 
@@ -389,6 +448,7 @@ The following values should be used to represent these common big operators:
  -------------      |:------------------|:----------
  Factorial          | `factorial`       | `!`
  Double factorial   | `factorial2`      | `!!`
+
 
 Additional functions can be specified using an OpenMath content dictionary. For example, Euler's gamma function:
 
@@ -413,75 +473,41 @@ where `\u0393` is the Unicode character `GREEK CAPITAL LETTER GAMMA` Γ.
 
 
 
-### &langle;group&rangle;
-* `group`:  &langle;expression&rangle;
-* `sup`:    &langle;expression&rangle;
-* `sub`:    &langle;expression&rangle;
-* `accent`: &langle;string&rangle;
+### `group`
+* `group`:  `expression`
+* `sup`:    `expression`
+* `sub`:    `expression`
+* `accent`: `string`
 
 The `group` key is the only one required.
 
 This element is used when a `sup`, `sub` or `accent` needs to be applied to an expression, as in `(x+1)^2`.
-
-### &langle;range&rangle;
-* `range_start`: &langle;expression&rangle;
-* `range_end`: &langle;expression&rangle;
-* `range_step`: &langle;expression&rangle;
-* `closure`: "open" | "closed" | "open-closed" | "closed-open", default "closed"
-
-The `range_start` key is the only one required. If absent, `range_end` is assumed to be `infinity`. If absent, `range_step` is assumed to be `1`.
-
-### &langle;array&rangle;
-* `rows`: array of &langle;expression&rangle;
-* `fence`: &langle;native-string&rangle;
-* `index`: A 0-based index into the vector or array. An index can be a number or an array of numbers.
-
-The `rows` key is the only one required.
-
-### &langle;dictionary&rangle;
-* `keys`: object mapping keys to values
-
-Example:
-```JSON
-{keys:{"a":1, "b":"one"}}
-```
-defines the following dictionary:
-
- Key          | Value
- -------------|:------------------
- `a`          | `1`
- `b`          | `"one"`
  
-### &langle;text&rangle;
-* `text`: &langle;native-string&rangle;
+### `text`
+* `text`: `native-string`
 * `format`: "plain" | "markdown" | "html". This key is optional and its default value is `plain`
 
 The `text` key is the only one required. 
 
-### &langle;block&rangle;
-* `block`: array of &langle;expression&rangle;
-* `conditions`: array of &langle;expression&rangle;
 
-A sequence of expressions, such as in a system of equations or a piecewise definition.
+### Forms
 
-The `block` key is the only one required.
+There are several 'flavors' of MASTON, called "form":
+- **canonical form**: easy to process, although it can be a bit
+more verbose and more difficult for humans to read.
+- **compact**: makes use of shortcuts that makes it more succinct and 
+easier for humans to read
 
-Example: piecewise definition of absolute value.
-```text
-\begin{cases}x & \mbox{if }x\ge 0 \\ -x & \mbox{if }x<0 \end{cases}
-```
-```json
-{"block":[
-    "x",
-    {fn:"-",arg:"x"}
-],
-"conditions":[
-    {fn:">=",arg:["x",0]},
-    {fn:"<",arg:["x",0]}
-]}
-```
+The two forms are strictly equivalent and any valid MASTON can be converted to
+one of these two forms. Note that a valid expression can make use of some of 
+the conventions from both forms. There valid expressions are called "semi-normal".
 
-**Design note**: having the block and conditions in separate keys is brittle. Consider using `if` nodes, e.g. `{if:{fn:">=",arg:["x",0]}, then:"x"}`
+### CANONICAL FORM
+
+
+### COMPACT FORM
+
+
 
 ### OPEN QUESTIONS
 1. How should exponents be represented? I.e. `x^2` or `A^\dagger`. They could literally be represented with a `sup` attribute, or as an explicit function, i.e. `fn:'pow'` or `fn:'transjugate'`
