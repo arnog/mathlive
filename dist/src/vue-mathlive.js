@@ -59,7 +59,7 @@ export default {
             // update the mathfield to stay in sync, but don't send back content
             // change notifications, to avoid infinite loops.
             if (newValue !== oldValue) {
-                this.$el.mathfield.$latex(newValue, {
+                this.$el.mathfield.latex(newValue, {
                     suppressContentChangeNotifications: true
                 });
             }
@@ -85,7 +85,7 @@ export default {
                     // When the mathfield is updated, notify the model.
                     // The initial input value is generated from the <slot>
                     // content, so it may need to be updated.
-                    vm.$emit('input', vm.$el.mathfield.$latex());
+                    vm.$emit('input', vm.$el.mathfield.latex());
                 },
                 // Those asynchronous notification handlers are translated to events
                 onFocus: _ => { vm.$emit('focus'); },

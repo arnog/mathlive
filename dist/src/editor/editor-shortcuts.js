@@ -188,6 +188,8 @@ const KEYBOARD_SHORTCUTS = {
     'math:Alt-Shift-Digit6':     ['insert', '\\vee'],        // "^" key
     'math:Alt-Digit9':           ['insert', '('],            // "(" key, override smartFence
     'math:Alt-Digit0':           ['insert', ')'],            // ")" key, override smartFence
+    'math:Alt-Shift-Backslash':  ['insert', '|'],            // "|" key, override smartFence
+    'math:Alt-Backslash':        ['insert', '\\backslash'],   // "|" key, override command mode
     'math:Slash':                ['insert', '\\frac{#@}{#?}'],
     'math:Alt-Slash':            ['insert', '\\frac{#?}{#@}'],
     'math:NumpadDivide':         ['insert', '\\frac{#@}{#?}'],
@@ -266,6 +268,9 @@ const REVERSE_KEYBOARD_SHORTCUTS = {
  * @memberof module:editor/shortcuts
  */
 const INLINE_SHORTCUTS = {
+    // Primes
+    "''":                 '^{\\doubleprime}',
+
     // Greek letters
     'alpha':                '\\alpha',
     'delta':                '\\delta',
@@ -407,6 +412,8 @@ const INLINE_SHORTCUTS = {
     'gcd':                  '\\mathop{gcd}',
     'randomReal':           '\\mathop{randomReal}',
     'randomInteger':        '\\mathop{randomInteger}',
+    'Re':                   '\\mathop{Re}',
+    'Im':                   '\\mathop{Im}',
 
     // UNITS
     'mm':                   '\\mathop{mm}',         // millimeter
@@ -881,7 +888,7 @@ function stringify(shortcuts, join) {
                         'Slash':        '/',
                         'NumpadMultiply': '* &#128290;',
                         'NumpadDivide': '/ &#128290;',  // Numeric keypad
-                        'NumpadSubstract': '- &#128290;',
+                        'NumpadSubtract': '- &#128290;',
                         'NumpadAdd':    '+ &#128290;',
                         'NumpadDecimal':    '. &#128290;',
                         'NumpadComma':    ', &#128290;',

@@ -100,7 +100,23 @@ function scanIdentifier(stream, final, options) {
             mathML += '</msubsup>';
         } else if (superscript >= 0) {
             mathML = '<msup>' + body;
-            mathML += toMathML(stream.atoms[superscript].superscript, 0, 0, options).mathML;
+            if (isSuperscriptAtom(stream)) {
+                // There's another superscript after this one. Maybe double-prime?
+                const sup = toMathML(stream.atoms[superscript].superscript, 0, 0, options).mathML;
+
+                const sup2 = toMathML(stream.atoms[superscript + 1].superscript, 0, 0, options).mathML;
+                if ((sup === '<mi>\u2032</mi>' || sup === '<mi>&#x2032;</mi>') && 
+                    (sup2 === '<mi>\u2032</mi>' || sup2 === '<mi>&#x2032;</mi>')) {
+                    mathML += '<mi>&#x2033;</mi>';
+                } else if (sup === '<mi>\u2032</mi>' || sup === '<mi>&#x2032;</mi>') {
+                    mathML += '<mi>&#x2032;</mi>';
+                } else {
+                    mathML += sup;
+                }
+
+            } else {
+                mathML += toMathML(stream.atoms[superscript].superscript, 0, 0, options).mathML;
+            }
             mathML += '</msup>';
         } else if (subscript >= 0) {
             mathML = '<msub>' + body;

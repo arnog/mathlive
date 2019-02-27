@@ -254,6 +254,10 @@ const CODEPOINT_SHORTCUTS = {
     0x2092: '_{o}',
     0x2093: '_{x}',
 
+    0x2032: '\\prime',
+    0x2033: '\\doubleprime',
+    0x2220: '\\angle',
+
     0x2102: '\\C',
     0x2115: '\\N',
     0x2119: '\\P',
@@ -281,13 +285,14 @@ function matchCodepoint(s) {
     let result = CODEPOINT_SHORTCUTS[s];
     if (result) return result;
 
-    if (codepoint > 32 && codepoint < 127) return s;
+    if (codepoint > 32 && codepoint < 127) return String.fromCodePoint(codepoint);
 
     for (const p in MATH_SYMBOLS) {
         if (MATH_SYMBOLS.hasOwnProperty(p)) {
             if (MATH_SYMBOLS[p].value === s || MATH_SYMBOLS[p].body === s) {
                 result = p;
                 if (p[0] === '\\') result += ' ';
+                break;
             }
         }
     }
@@ -315,7 +320,7 @@ function matchCodepoint(s) {
  * @param {string} char
  */
 
-/* Some symbols in the MATHEMATICAL ALPHANUMERICAL SYMBOLS blocked had
+/* Some symbols in the MATHEMATICAL ALPHANUMERICAL SYMBOLS block had
    been previously defined in other blocks. Remap them */
 const MATH_LETTER_EXCEPTIONS = {
     0x1d455: 0x0210e,
@@ -447,9 +452,10 @@ function mathVariantToUnicode(char, variant, style) {
             if (!style || MATH_UNICODE_BLOCKS[i].style === style) {
                 if (codepoint >= MATH_UNICODE_BLOCKS[i].offset &&
                     codepoint < MATH_UNICODE_BLOCKS[i].offset + MATH_UNICODE_BLOCKS[i].len) {
-                        return String.fromCodePoint(
+                        const result =
                                 MATH_UNICODE_BLOCKS[i].start +
-                                codepoint - MATH_UNICODE_BLOCKS[i].offset);
+                                codepoint - MATH_UNICODE_BLOCKS[i].offset;
+                        return String.fromCodePoint(MATH_LETTER_EXCEPTIONS[result] || result);
                 }
             }
         }
@@ -461,22 +467,13 @@ function mathVariantToUnicode(char, variant, style) {
 
 
 function codepointToLatex(cp) {
+    // Codepoint shortcuts have priority over variants
+    // That is, "\N" vs "\mathbb{N}"
     if (CODEPOINT_SHORTCUTS[cp]) return CODEPOINT_SHORTCUTS[cp];
 
     let result;
-    // const s = String.fromCodePoint(cp);
-    // for (const p in MATH_SYMBOLS) {
-    //     if (MATH_SYMBOLS.hasOwnProperty(p)) {
-    //         if (MATH_SYMBOLS[p].value === s || MATH_SYMBOLS[p].body === s) {
-    //             result = p;
-    //             if (p[0] === '\\') result += ' ';
-    //             return result;
-    //         }
-    //     }
-    // }
-
     const v = unicodeToMathVariant(cp);
-    if (!v.style && !v.variant) return String.fromCodePoint(cp);
+    if (!v.style && !v.variant) return matchCodepoint(String.fromCodePoint(cp));
     result =  v.char;
     if (v.variant) {
         result = '\\' + v.variant + '{' + result + '}';

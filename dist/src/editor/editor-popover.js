@@ -172,6 +172,7 @@ const NOTES = {
     '\\bar':        'bar',
 
     '\\prime':      'prime',
+    '\\doubleprime':'double prime',
     '\\varnothing': 'empty set',
     '\\emptyset':   'empty set',
     '\\subseteq':   'subset of or <br>equal to',
@@ -199,7 +200,7 @@ const NOTES = {
     '\\iff':        'if and only if',
     '\\ln':         'natural logarithm',
     '\\boldsymbol': 'bold',
-    '\\setminus':   'set substraction',
+    '\\setminus':   'set subtraction',
     '\\stackrel':   'relation with symbol above',
     '\\stackbin':   'operator with symbol above',
     '\\underset':   'symbol with annotation below',

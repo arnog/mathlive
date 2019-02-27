@@ -27,6 +27,7 @@ const CANONICAL_NAMES = {
     '﹣':               '-',        // SMALL HYPHEN-MINUS
     '－':               '-',        // FULLWIDTH HYPHEN-MINUS
     '\\times':          '*',
+    '\\cdot':           '*',
     '⨉':                '*',        // N-ARY TIMES OPERATOR U+
     '️✖':                '*',        // MULTIPLICATION SYMBOL
     '️×':                '*',        // MULTIPLICATION SIGN
@@ -117,45 +118,69 @@ const CANONICAL_NAMES = {
 
 }
 
+const OP_NAME = {
+    '+':            'add',
+    '*':            'multiply',
+    '-':            'subtract',
+    '/':            'divide',
+    '=':            'equal',
+    ':=':           'assign',
+    '<':            'lt',
+    '>':            'gt',
+    '<=':           'lte',
+    '>=':           'gte',
+    '≤':            'lte',
+    '≥':            'gte',
+}
+
 
 const FUNCTION_TEMPLATE = {
+    'equal':                    '%0 = %1',
+    'unequal':                  '%0 \\ne %1',
+    'assign':                   '%0 := %1',
+    'lt':                       '%0 < %1',
+    'gt':                       '%0 > %1',
+    'lte':                      '%0 \\le %1',
+    'gte':                      '%0 \\ge %1',
+
     // TRIGONOMETRY
-    'sin':      '\\sin%_%^ %',
-    'cos':      '\\cos%_%^ %',
-    'tan':      '\\tan%_%^ %',
-    'cot':      '\\cot%_%^ %',
-    'sec':      '\\sec%_%^ %',
-    'csc':      '\\csc%_%^ %',
+    'sin':                      '\\sin%_%^ %0',
+    'cos':                      '\\cos%_%^ %0',
+    'tan':                      '\\tan%_%^ %0',
+    'cot':                      '\\cot%_%^ %0',
+    'sec':                      '\\sec%_%^ %0',
+    'csc':                      '\\csc%_%^ %0',
 
-    'sinh':     '\\sinh %',
-    'cosh':     '\\cosh %',
-    'tanh':     '\\tanh %',
-    'csch':     '\\csch %',
-    'sech':     '\\sech %',
-    'coth':     '\\coth %',
+    'sinh':                     '\\sinh %0',
+    'cosh':                     '\\cosh %0',
+    'tanh':                     '\\tanh %0',
+    'csch':                     '\\csch %0',
+    'sech':                     '\\sech %0',
+    'coth':                     '\\coth %0',
 
-    'arcsin':      '\\arcsin %',
-    'arccos':      '\\arccos %',
-    'arctan':      '\\arctan %',
-    'arccot':      '\\arcctg %',        // Check
-    'arcsec':      '\\arcsec %',
-    'arccsc':      '\\arccsc %',
+    'arcsin':                   '\\arcsin %0',
+    'arccos':                   '\\arccos %0',
+    'arctan':                   '\\arctan %0',
+    'arccot':                   '\\arcctg %0',        // Check
+    'arcsec':                   '\\arcsec %0',
+    'arccsc':                   '\\arccsc %0',
 
-    'arsinh':     '\\arsinh %',
-    'arcosh':     '\\arcosh %',
-    'artanh':     '\\artanh %',
-    'arcsch':     '\\arcsch %',
-    'arsech':     '\\arsech %',
-    'arcoth':     '\\arcoth %',
+    'arsinh':                   '\\arsinh %0',
+    'arcosh':                   '\\arcosh %0',
+    'artanh':                   '\\artanh %0',
+    'arcsch':                   '\\arcsch %0',
+    'arsech':                   '\\arsech %0',
+    'arcoth':                   '\\arcoth %0',
 
     // LOGARITHMS
-    'ln':       '\\ln%_%^ %',     // Natural logarithm
-    'log':      '\\log%_%^ %',    // General logarithm, e.g. log_10
-    'lg':       '\\lg %',     // Common, base-10, logarithm
-    'lb':       '\\lb %',     // Binary, base-2, logarithm
+    'ln':                       '\\ln%_%^ %',     // Natural logarithm
+    'log':                      '\\log%_%^ %',    // General logarithm, e.g. log_10
+    'lg':                       '\\lg %',     // Common, base-10, logarithm
+    'lb':                       '\\lb %',     // Binary, base-2, logarithm
 
     // Big operator
-    'sum':      '\\sum%_%^ %',
+    'sum':                      '\\sum%_%^ %0',
+    'prod':                     '\\prod%_%^ %0',
 
     // OTHER
     'Zeta':     '\\zeta%_%^ %', // Riemann Zeta function
@@ -166,19 +191,20 @@ const FUNCTION_TEMPLATE = {
     'lim':      '\\lim%_%^ %',      // BIG OP
     'binom':    '\\binom %',
     'nabla':    '\\nabla %',
-    'curl':     '\\nabla\\times %',
-    'div':      '\\nabla\\cdot %',
-    'floor':    '\\lfloor % \\rfloor%_%^',
-    'ceil':     '\\lceil % \\rceil%_%^',
-    'abs':      '\\vert % \\vert%_%^',
-    'norm':     '\\lVert % \\rVert%_%^',
-    'ucorner':  '\\ulcorner % \\urcorner%_%^',
-    'lcorner':  '\\llcorner % \\lrcorner%_%^',
-    'angle':    '\\langle % \\rangle%_%^',
-    'group':    '\\lgroup % \\rgroup%_%^',
-    'moustache':'\\lmoustache % \\rmoustache%_%^',
-    'brace':    '\\lbrace % \\rbrace%_%^',
-    'sqrt':     '\\sqrt[%^]{%}',
+    'curl':     '\\nabla\\times %0',
+    'div':      '\\nabla\\cdot %0',
+    'floor':    '\\lfloor %0 \\rfloor%_%^',
+    'ceil':     '\\lceil %0 \\rceil%_%^',
+    'abs':      '\\left| %0 \\right|%_%^',
+    'norm':     '\\lVert %0 \\rVert%_%^',
+    'ucorner':  '\\ulcorner %0 \\urcorner%_%^',
+    'lcorner':  '\\llcorner %0 \\lrcorner%_%^',
+    'angle':    '\\langle %0 \\rangle%_%^',
+    'group':    '\\lgroup %0 \\rgroup%_%^',
+    'moustache':'\\lmoustache %0 \\rmoustache%_%^',
+    'brace':    '\\lbrace %0 \\rbrace%_%^',
+    'sqrt[]':   '\\sqrt[%^]{%0}',       // Template used when there's an index
+    'sqrt':     '\\sqrt{%0}',
     'lcm':      '\\mathop{lcm}%',
     'gcd':      '\\mathop{gcd}%',
     'erf':      '\\mathop{erf}%',
@@ -186,9 +212,6 @@ const FUNCTION_TEMPLATE = {
     'randomReal': '\\mathop{randomReal}%',
     'randomInteger': '\\mathop{randomInteger}%',
 
-
-    // Arithmetic operators
-    '*':        '%0 \\times %1',
 
     // Logic operators
     'and':      '%0 \\land %1',
@@ -202,10 +225,10 @@ const FUNCTION_TEMPLATE = {
     'star':     '%0 \\star %1',
     'asymp':    '%0 \\asymp %1',
     '/':        '\\frac{%0}{%1}',
-    'Re':       '\\Re{%}',
-    'Im':       '\\Im{%}',
-    'factorial': '%!',
-    'factorial2': '%!!',
+    'Re':       '\\Re{%0}',
+    'Im':       '\\Im{%0}',
+    'factorial': '%0!',
+    'factorial2': '%0!!',
 }
 
 
@@ -247,7 +270,6 @@ const OP_PRECEDENCE = {
     'ast':                  390,
     '.':                    390,
 
-
     'oplus':                300,    // also logical XOR... @todo
     'ominus':               300,
 
@@ -271,6 +293,8 @@ const OP_PRECEDENCE = {
     // Unit conversion
     'to':                   262,    // Not in MathLM
     'in':                   262,    // Not in MathML
+
+    '|':                    261,    // Not in MathML    (bind is the |_ operator)
 
 
     // Relational
@@ -344,6 +368,12 @@ const OP_PRECEDENCE = {
     ';':                30
 }
 
+
+function getArg(ast, index) {
+    return Array.isArray(ast.arg) ? ast.arg[index] : undefined;
+}
+
+
 /**
  * Given a canonical name, return its precedence
  * @param {string} canonicalName, for example "and"
@@ -370,7 +400,7 @@ function getAssociativity(canonicalName) {
 function getLatexTemplateForFunction(name) {
     let result = FUNCTION_TEMPLATE[name];
     if (!result) {
-        result = name.length > 1 ? '\\mathop{' + name + '} %' : (name + ' %');
+        result = name.length > 1 ? '\\mathop{' + name + '}%^%_ %' : (name + '%^%_ %');
     }
 
     return result;
@@ -391,33 +421,23 @@ function getLatexForSymbol(name) {
         (!info.fontFamily || info.fontFamily === 'main' || info.fontFamily === 'ams')) {
         result = '\\' + name;
     }
-
-    return result;
-}
-
-/**
- *
- * @param {string} name function or operator canonical name
- * @return {string}
- */
-function getLatexTemplateForOperator(name) {
-    let result = FUNCTION_TEMPLATE[name];
     if (!result) {
-        result = '%0 \\mathbin{' + name + '} %1';
-    }
+        result = Definitions.unicodeStringToLatex(name);
+    }        
 
     return result;
 }
 
-function isFunction(canonicalName) {
+
+function isFunction(canonicalName) {        
     if (canonicalName === 'f' || canonicalName === 'g') return true;
-    let t = FUNCTION_TEMPLATE[canonicalName];
+
+    const t = FUNCTION_TEMPLATE[canonicalName];
     if (!t) return false;
-    // %0 and %1 are the lhs and rhs arguments. Remove those from the template
-    t = t.replace('%0', '').replace('%1', '');
-    // If we're left with a plain %, it's the argument list, and therefore
-    // this is a function.
-    if (/%/.test(t)) return true;
+
+    // A plain "%" is a placeholder for an argument list, indicating a function
+    if (/%[^01_^]?/.test(t)) return true;
+
     return false;
 }
 
@@ -469,26 +489,26 @@ function isOperator(atom) {
 
 
 const DELIM_FUNCTION = {
-    '\\lfloor\\rfloor': 'floor',
-    '\\lceil\\rceil': 'ceil',
-    '\\vert\\vert': 'abs',
-    '\\lvert\\rvert': 'abs',
-    '||': 'abs',
-    '\\Vert\\Vert': 'norm',
-    '\\lVert\\rVert': 'norm',
-    '\\ulcorner\\urcorner': 'ucorner',
-    '\\llcorner\\lrcorner': 'lcorner',
-    '\\langle\\rangle': 'angle',
-    '\\lgroup\\rgroup': 'group',
+    '\\lfloor\\rfloor':         'floor',
+    '\\lceil\\rceil':           'ceil',
+    '\\vert\\vert':             'abs',
+    '\\lvert\\rvert':           'abs',
+    '||':                       'abs',
+    '\\Vert\\Vert':             'norm',
+    '\\lVert\\rVert':           'norm',
+    '\\ulcorner\\urcorner':     'ucorner',
+    '\\llcorner\\lrcorner':     'lcorner',
+    '\\langle\\rangle':         'angle',
+    '\\lgroup\\rgroup':         'group',
     '\\lmoustache\\rmoustache': 'moustache',
-    '\\lbrace\\rbrace': 'brace'
+    '\\lbrace\\rbrace':         'brace'
 }
 
 const POSTFIX_FUNCTION = {
     '!':                    'factorial',
     '\\dag':                'dagger',
     '\\dagger':             'dagger',
-    '\\ddager':             'dagger2',
+    '\\ddagger':            'dagger2',
     '\\maltese':            'maltese',
     '\\backprime':          'backprime',
     '\\backdoubleprime':    'backprime2',
@@ -501,11 +521,13 @@ const POSTFIX_FUNCTION = {
 }
 
 const ASSOCIATIVE_FUNCTION = {
-    '+':                    '+',
-    '-':                    '+',      // Substraction is add(), but it's
+    '+':                    'add',
+    '-':                    'add',      // Subtraction is add(), but it's
                                         // handled specifically so that the
                                         // argument is negated
-    '*':                    '*',
+    '*':                    'multiply',
+
+    '=':                    'equal',
 
     ',':                    'list',
     ';':                    'list2',
@@ -530,6 +552,13 @@ const SUPER_ASSOCIATIVE_FUNCTION = {
 }
 
 function getString(atom) {
+    if (Array.isArray(atom)) {
+        let result = '';
+        for (const subAtom of atom) {
+            result += getString(subAtom);
+        }
+        return result;
+    }
     if (atom.latex && atom.latex !== '\\mathop ' && atom.latex !== '\\mathbin ' &&
         atom.latex !== '\\mathrel ' && atom.latex !== '\\mathopen ' &&
         atom.latex !== '\\mathpunct ' && atom.latex !== '\\mathord ' &&
@@ -557,43 +586,59 @@ function getString(atom) {
  * @param {object} expr - Abstract Syntax Tree object
  * @return {string} A string, the symbol, or undefined
  */
-function asSymbol(expr) {
-    let result = expr;
-    if (typeof result !== 'string') {
-        result = expr !== undefined ? expr.sym : undefined;
-    }
-    if (result) {
-        const latex = getLatexForSymbol(result);
-        result = latex || result;
-    }
-    return result;
+function asSymbol(node) {
+    return typeof node.sym === 'string' ? (getLatexForSymbol(node.sym) || node.sym) : '';
 }
 
 
 
 /**
  *
- * @param {object} num - Abstract Syntax Tree object
+ * @param {object} node - Abstract Syntax Tree node
  * @return {number} A JavaScript number, the value of the AST or NaN
  * @private
  */
-function asMachineNumber(num) {
-    let result = undefined;
-    if (num !== undefined) {
-        if (num.num !== undefined) {
-            if (num.num.toString().match(/^[+-]?[0-9]*[.]?[0-9]*[eE]?[+-]?[0-9]?$/)) {
-                result = parseFloat(num.num);
-            }
-        } else if (typeof num === 'number') {
-            result = parseFloat(num);
+function asMachineNumber(node) {
+    return parseFloat(node.num);
+}
+
+function isNumber(node) {
+    return typeof node === 'object' && typeof node.num !== 'undefined';
+}
+
+function numberRe(node) {
+    let result = 0;
+    if (isNumber(node)) {
+        if (typeof node.num === 'object') {
+            result = typeof node.num.re !== 'undefined' ? parseFloatToPrecision(node.num.re) : 0;
+        } else {
+            result = parseFloat(node.num); 
         }
     }
     return result;
 }
 
-function isNumber(expr) {
-    return typeof expr === 'number' ||
-        (expr !== undefined && expr.num !== undefined);
+function numberIm(node) {
+    let result = 0;
+    if (isNumber(node)) {
+        if (typeof node.num === 'object') {
+            result = typeof node.num.im !== 'undefined' ? parseFloatToPrecision(node.num.im) : 0;
+        }
+    }
+    return result;
+}
+
+
+function isComplexWithRealAndImaginary(node) {
+    return numberRe(node) !== 0 && numberIm(node) !== 0;
+}
+
+function hasSup(node) {
+    return node && typeof node.sup !== 'undefined';
+}
+
+function hasSub(node) {
+    return node && typeof node.sub !== 'undefined';
 }
 
 /**
@@ -617,56 +662,119 @@ function isAtom(expr, type, value) {
 
 
 /**
- * Return the negative of the expression. Usually {op:'-', lhs:expr}
- * but for numbers, the negated number
- * @param {Object.<string, any>} expr
+ * 
+ * @param {string} functionName 
+ * @param {object} params 
  */
-function negate(expr) {
-    if (typeof expr === 'number') {
-        return -expr;
-    } else if (expr && typeof expr.num === 'number') {
-        expr.num = -expr.num;
-        return expr;
+function wrapFn(functionName, ...params) {
+    const result = {fn: functionName};
+    if (params) {
+        const args = [];
+        for (const arg of params) {
+            if (arg) args.push(arg);
+        }
+        if (args.length > 0) result.arg = args;
     }
-    return {op:'-', lhs:expr};
+    return result;
 }
 
+function wrapNum(num) {
+    if (typeof num === 'number') {
+        return {num: num.toString() }
+    } else if (typeof num === 'string') {
+        return {num: num}
+    } else if (typeof num === 'object') {
+        // This is a complex number
+        console.assert(typeof num.re === 'string' || typeof num.im === 'string');
+        return {num: num};
+    }
+    return undefined;
+}
 
 /**
- * Parse for a possible sup/sub at the current token location.
- * Handles both sup/sub attached directly to the current atom
- * as well as "empty" atoms with a sup/sub following the current
- * atom.
+ * Return the negative of the expression. Usually {fn:'negate', arg}
+ * but for numbers, the negated number
+ * @param {object} node
+ */
+function negate(node) {
+    if (isNumber(node)) {
+        const re = numberRe(node);
+        const im = numberIm(node);
+        if (im !== 0) {
+            if (re !== 0) {
+                node.num.re = (-re).toString();
+            }
+            node.num.im = (-im).toString();
+        } else {
+            node.num = (-re).toString();
+        }
+        return node;
+    }
+    return wrapFn('negate', node);
+}
+
+function nextIsSupsub(expr) {
+    const atom = expr.atoms[expr.index + 1];
+    return atom && atom.type === 'msubsup';
+}
+
+/**
+ * Parse for a possible sup/sub attached directly to the current atom
+ * or to a following 'msubsup' atom.
+ * After the call, the index points to the next atom to process.
  * @param {object} expr
  */
 function parseSupsub(expr, options) {
-    let atom = expr.atoms[expr.index - 1];
+    let atom = expr.atoms[expr.index];
 
     // Is there a supsub directly on this atom?
-    if (!atom || !(atom.superscript || atom.subscript)) {
+    if (atom && (typeof atom.superscript !== 'undefined' || typeof atom.subscript !== 'undefined')) {
+        // Move to the following atom
+        expr.index += 1;
+    } else {
         atom = null;
     }
 
-    // Is the following atom a subsup atom?
+    // If this atom didn't have a sup/sub,
+    // is the following atom a subsup atom?
     if (!atom) {
-        atom = expr.atoms[expr.index];
-        if (isAtom(expr, 'msubsup') && (atom.superscript || atom.subscript)) {
-            expr.index += 1;
-        } else {
+        atom = expr.atoms[expr.index + 1];
+        if (!atom || atom.type !== 'msubsup' || !(atom.superscript || atom.subscript)) {
             atom = null;
+        } else {
+            // Yes. Skip the current atom and the supsub
+            expr.index += 2;
         }
     }
 
     if (atom) {
-        if (typeof expr.ast === 'string') {
-            expr.ast = {sym: expr.ast};
-        } else if (typeof expr.ast === 'number') {
-            expr.ast = {num: expr.ast};
-        } else if (!expr.ast.group && !expr.ast.fn && !expr.ast.sym) {
-            expr.ast = {group: expr.ast};
+        if (typeof atom.subscript !== 'undefined') {
+            expr.ast.sub = parse(atom.subscript, options);
         }
-        if (atom.subscript) expr.ast.sub = parse(atom.subscript, options);
-        if (atom.superscript) expr.ast.sup = parse(atom.superscript, options);
+        if (typeof atom.superscript !== 'undefined') {
+            if (atom.type === 'msubsup') {
+                if (/['\u2032]|\\prime/.test(getString(atom.superscript))) {
+                    expr.index += 1;
+                    atom = expr.atoms[expr.index + 1];
+                    if (atom && atom.type === 'msubsup' && /['\u2032]|\\prime/.test(getString(atom.superscript))) {
+                        expr.ast.sup = '\u2033'; // DOUBLE-PRIME
+                    } else {
+                        expr.ast.sup = '\u2032'; // PRIME
+                        expr.index -= 1;
+                    }
+                } else if (/['\u2033]|\\doubleprime/.test(getString(atom.superscript))) {
+                    expr.ast.sup = '\u2033'; // DOUBLE-PRIME
+                } else if (expr.ast) {
+                    expr.ast.sup = parse(atom.superscript, options);
+                }
+            } else {
+                expr.ast.sup = parse(atom.superscript, options);
+            }
+        }
+    } else {
+        // Didn't find a supsup either on this atom and there was no 'msubsup'
+        // Time to move on to the next atom.
+        expr.index += 1;
     }
 
     return expr;
@@ -681,30 +789,29 @@ function parsePostfix(expr, options) {
     const lhs = expr.ast;
     const digraph = parseDigraph(expr);
     if (digraph) {
-        expr.ast = {op: digraph.ast, lhs: lhs};
+        expr.ast = wrapFn(digraph.ast, lhs);
         expr = parseSupsub(expr, options);
         expr = parsePostfix(expr, options);
-    } else if (atom && atom.latex && atom.latex.match(/\^{.*}/)) {
-        expr.index += 1;
-        // It's a superscript Unicode char (e.g. ⁰¹²³⁴⁵⁶⁷⁸⁹ⁱ⁺⁻⁼...)
-        if (typeof expr.ast === 'string') {
-            expr.ast = {sym: expr.ast};
-        } else if (typeof expr.ast === 'number') {
-            expr.ast = {num: expr.ast};
-        } else if (!expr.ast.group && !expr.ast.fn && !expr.ast.sym) {
-            expr.ast = {group: expr.ast};
-        }
-        const sup = atom.latex.match(/\^{(.*)}/)[1];
-        const n = parseInt(sup);
-        if (!isNaN(n)) {
-            expr.ast.sup = n;
-        } else {
-            expr.ast.sup = sup;
-        }
+    // } else if (atom && atom.latex && atom.latex.match(/\^{.*}/)) {
+    //     expr.index += 1;
+    //     // It's a superscript Unicode char (e.g. ⁰¹²³⁴⁵⁶⁷⁸⁹ⁱ⁺⁻⁼...)
+    //     if (typeof expr.ast === 'string') {
+    //         expr.ast = {sym: expr.ast};
+    //     } else if (typeof expr.ast === 'number') {
+    //         expr.ast = wrapNum(expr.ast);
+    //     } else if (!expr.ast.group && !expr.ast.fn && !expr.ast.sym) {
+    //         expr.ast = {group: expr.ast};
+    //     }
+    //     const sup = atom.latex.match(/\^{(.*)}/)[1];
+    //     const n = parseInt(sup);
+    //     if (!isNaN(n)) {
+    //         expr.ast.sup = n;
+    //     } else {
+    //         expr.ast.sup = sup;
+    //     }
 
     } else if (atom && atom.type === 'textord' && POSTFIX_FUNCTION[atom.latex.trim()]) {
-        expr.index += 1;
-        expr.ast = {fn: POSTFIX_FUNCTION[atom.latex.trim()], arg: lhs};
+        expr.ast = wrapFn(POSTFIX_FUNCTION[atom.latex.trim()], lhs);
         expr = parseSupsub(expr, options);
         expr = parsePostfix(expr, options);
     }
@@ -751,11 +858,23 @@ function parsePostfix(expr, options) {
             pairedDelim = false;
             ldelim = atom.leftDelim;
             rdelim = atom.rightDelim;
+            // If we have an unclosed smart fence, assume the right delim is
+            // matching the left delim
+            if (rdelim === '?') rdelim = Definitions.RIGHT_DELIM[ldelim];
         } else if (atom.type === 'textord') {
             ldelim = atom.latex.trim();
             rdelim = Definitions.RIGHT_DELIM[ldelim];
         }
         if (ldelim && rdelim) {
+            if (ldelim === '|' && rdelim === '|') {
+                // Check if this could be a ||x|| instead of |x|
+                const atom = expr.atoms[expr.index + 1];
+                if (atom && atom.type === 'textord' && atom.latex === '|') {
+                    // Yes, it's a ||x||
+                    ldelim = '\\lVert';
+                    rdelim = '\\rVert';
+                }
+            }
             expr = parseDelim(expr, ldelim, rdelim);
             if (expr) {
                 if (pairedDelim) expr.index += 1;
@@ -774,7 +893,10 @@ function parsePostfix(expr, options) {
         expr = parseExpression(expr, options);
         atom = expr.atoms[expr.index];
         if (atom && atom.type === 'mclose' && getString(atom) === rdelim) {
-            expr.index += 1;
+            if (nextIsSupsub(expr)) {
+                // Wrap in a group if we have an upcoming superscript or subscript
+                expr.ast = {group: expr.ast};
+            }
             expr = parseSupsub(expr, options);
             expr = parsePostfix(expr, options);
         } // TODO: else, syntax error?
@@ -788,6 +910,23 @@ function parsePostfix(expr, options) {
                 expr = parseSupsub(expr, options);
                 expr = parsePostfix(expr, options);
             } // TODO: else, syntax error?
+
+    } else if (ldelim === '\\lVert' && atom.type === 'textord' && atom.latex === '|') {
+        atom = expr.atoms[expr.index + 1];
+        if (atom && atom.type === 'textord' && atom.latex === '|') {
+            // This is an opening ||
+            expr.index += 2;    // Skip the open delim
+            expr = parseExpression(expr, options);
+            atom = expr.atoms[expr.index];
+            const atom2 = expr.atoms[expr.index + 1];
+            if (atom && atom.type === 'textord' && atom.latex === '|' && 
+                atom2 && atom2.type === 'textord' && atom2.latex === '|') {
+                // This was a closing ||
+                expr.index += 2;
+                expr = parseSupsub(expr, options);
+                expr = parsePostfix(expr, options);
+            }
+        }
 
     } else if (atom.type === 'sizeddelim' && atom.delim === ldelim) {
         expr.index += 1;    // Skip the open delim
@@ -805,6 +944,10 @@ function parsePostfix(expr, options) {
         // This atom type includes the content of the parenthetical expression
         // in its body
         expr.ast = parse(atom.body, options);
+        if (nextIsSupsub(expr)) {
+            // Wrap in a group if we have an upcoming superscript or subscript
+            expr.ast = {group: expr.ast};
+        }
         expr.index += 1;
         expr = parseSupsub(expr, options);
         expr = parsePostfix(expr, options);
@@ -879,34 +1022,31 @@ function parsePrimary(expr, options) {
 
     const digraph = parseDigraph(expr);
     if (digraph) {
-        // expr = parseSupsub(expr, options);
-        const fn = {op: expr.ast};
-        fn.lhs = parsePrimary(expr, options).ast;
-        expr.ast = fn;
+        expr.ast = wrapFn(expr.ast, parsePrimary(expr, options).ast);
 
-    } else if (atom.type === 'mbin' && (val === '-' || val === '+')) {
-        // Prefix + or - sign
-        expr.index += 1;  // Skip the '+' or '-' symbol
-        atom = expr.atoms[expr.index];
+    } else if (atom.type === 'root') {
+        expr.index = 0;
+        expr.atoms = atom.body;
+        return parsePrimary(expr, options);
+
+    } else if (atom.type === 'mbin' && val === '-') {
+        // Prefix - sign
+        expr.index += 1;  // Skip the '-' symbol
         expr = parsePrimary(expr, options);
-        if (atom && '0123456789.'.indexOf(atom.latex) >= 0) {
-            if (expr.ast.num && typeof expr.ast.num === 'number') {
-                expr.ast.num = val === '-' ? -expr.ast.num : expr.ast.num;
-            } else if (typeof expr.ast === 'number') {
-                expr.ast = val === '-' ? -expr.ast : expr.ast;
-            } else {
-                expr.ast = {op: val, rhs: expr.ast};
-            }
-        } else {
-            expr.ast = {op: val, rhs: expr.ast};
-        }
+        expr.ast = negate(expr.ast);
+
+    } else if (atom.type === 'mbin' && val === '+') {
+        // Prefix + sign
+        expr.index += 1;  // Skip the '-' symbol
+        expr = parsePrimary(expr, options);
+        expr.ast = wrapFn('add', expr.ast);
 
     } else if ((atom.type === 'mord' && '0123456789.'.indexOf(atom.latex) >= 0)
          || isAtom(expr, 'mpunct', ',')) {
         // Looks like a number
         let num = '';
         let done = false;
-        let pat = '0123456789.eEdD';
+        let pat = /^[0-9.eEdD]$/;
         while (expr.index < expr.atoms.length && !done && (isAtom(expr, 'spacing') ||
                 (
                     (
@@ -914,52 +1054,58 @@ function parsePrimary(expr, options) {
                         isAtom(expr, 'mpunct', ',') ||
                         isAtom(expr, 'mbin')
                     ) &&
-                        pat.indexOf(expr.atoms[expr.index].latex) >= 0
+                        pat.test(expr.atoms[expr.index].latex)
                     )
                 )
             ) {
             if (expr.atoms[expr.index].type === 'spacing') {
                 expr.index += 1;
+            } else if (typeof expr.atoms[expr.index].superscript !== 'undefined' || 
+                typeof expr.atoms[expr.index].subscript !== 'undefined') {
+                done = true;
             } else {
                 let digit = expr.atoms[expr.index].latex;
                 if (digit === 'd' || digit === 'D') {
                     digit = 'e';
-                    pat = '0123456789.+-'
+                    pat = /^[0-9+-.]$/;
                 } else if (digit === 'e' || digit === 'E') {
-                    pat = '0123456789.+-'
-                } else if (pat === '0123456789.+-') {
-                    pat = '0123456789';
+                    if (nextIsSupsub(expr)) {
+                        digit = '';
+                        expr.index -= 1;
+                        done = true;
+                    } else {
+                        digit = 'E';
+                        pat = /^[0-9+-.]$/
+                    }
+                } else if (pat === /^[0-9+-.]$/) {
+                    pat = /^[0-9]$/;
                 }
                 num += digit === ',' ? '' : digit;
-                if (atom.superscript !== undefined || atom.underscript !== undefined) {
-                    done = true;
-                } else {
-                    expr.index += 1;
-                }
+                expr.index += 1;
             }
         }
-        expr.ast = parseFloat(num);
+        expr.ast = wrapNum(num);
 
         // This was a number. Is it followed by a fraction, e.g. 2 1/2
         atom = expr.atoms[expr.index];
-        if (atom && atom.type === 'genfrac' &&
-            (expr.ast.num !== undefined || !isNaN(expr.ast))) {
+        if (atom && atom.type === 'genfrac' && !isNaN(expr.ast.num)) {
             // Add an invisible plus, i.e. 2 1/2 = 2 + 1/2
             const lhs = expr.ast;
             expr = parsePrimary(expr, options);
-            expr.ast = {lhs: lhs, op:'+', rhs: expr.ast};
+            expr.ast = wrapFn('add', lhs, expr.ast);
         }
         if (atom && atom.type === 'group' && atom.latex && atom.latex.startsWith('\\nicefrac')) {
             // \nicefrac macro, add an invisible plus
             const lhs = expr.ast;
             expr = parsePrimary(expr, options);
-            expr.ast = {lhs: lhs, op:'+', rhs: expr.ast};
+            expr.ast = wrapFn('add', lhs, expr.ast);
         }
-        expr = parseSupsub(expr, options);
+        if (atom && atom.type === 'msubsup') {
+            expr = parseSupsub(expr, options);
+        }
         expr = parsePostfix(expr, options);
 
     } else if (atom.type === 'genfrac' || atom.type === 'surd') {
-        expr.index += 1;
         expr.ast = atom.toAST(options);
         expr = parseSupsub(expr, options);
         expr = parsePostfix(expr, options);
@@ -979,24 +1125,21 @@ function parsePrimary(expr, options) {
 
         } else {
             // It's an identifier of some kind...
-            if (atom.superscript === undefined) {
-                expr.index += 1;
-            }
             expr = parseSupsub(expr, options);
         }
         expr = parsePostfix(expr, options);
 
-    } else if (atom.type === 'mord') {
-        // A 'mord' but not a number, either an identifier ('x') or a function
-        // ('\\Zeta')
-        const name = getCanonicalName(getString(atom));
-        if (isFunction(name) && !isOperator(atom)) {
+    } else if (atom.type === 'mord' || atom.type === 'mbin') {
+        // A 'mord' but not a number: either an identifier ('x') or 
+        // a function ('\\Zeta')
+        if (isFunction(val) && !isOperator(atom)) {
             // A function
-            expr.ast = {fn: name};
+            const skip = !nextIsSupsub(expr);
+            expr.ast = {fn: val};
             expr = parseSupsub(expr, options);
 
             const fn = expr.ast;
-            expr.index += 1;  // Skip the function name
+            if (skip) expr.index += 1;  // Skip the function name
             fn.arg = parsePrimary(expr, options).ast;
             if (fn.arg && (fn.arg.fn === 'list2' || fn.arg.fn === 'list')) {
                 fn.arg = fn.arg.arg;
@@ -1005,10 +1148,15 @@ function parsePrimary(expr, options) {
         } else {
             // An identifier
             expr.ast = atom.toAST(options);
-            if (atom.superscript === undefined) {
-                expr.index += 1;
+            if (expr.ast.sym === 'i' || expr.ast.sym === 'ⅈ') {
+                // It's 'i', the imaginary unit
+                expr.ast = wrapNum({im: "1"});
             }
+            // const skip = !nextIsSupsub(expr);
             expr = parseSupsub(expr);
+            // if (skip) {
+            //     expr.index += 1;  // Skip the identifier name
+            // }
         }
         expr = parsePostfix(expr, options);
 
@@ -1019,10 +1167,9 @@ function parsePrimary(expr, options) {
             // This doesn't look like a textord operator
             if (!Definitions.RIGHT_DELIM[atom.latex.trim()]) {
                 // Not an operator, not a fence, it's a symbol or a function
-                const name = getCanonicalName(getString(atom));
-                if (isFunction(name)) {
+                if (isFunction(val)) {
                     // It's a function
-                    expr.ast = {fn: name};
+                    expr.ast = {fn: val};
                     expr = parseSupsub(expr, options);
 
                     const fn = expr.ast;
@@ -1035,7 +1182,7 @@ function parsePrimary(expr, options) {
                 } else {
                     // It was a symbol...
                     expr.ast = atom.toAST(options);
-                    if (atom.superscript === undefined) {
+                    if (typeof atom.superscript === 'undefined') {
                         expr.index += 1;
                     }
                     expr = parseSupsub(expr, options);
@@ -1046,16 +1193,14 @@ function parsePrimary(expr, options) {
 
     } else if (atom.type === 'mop') {
         // Could be a function or an operator.
-        const name = getCanonicalName(getString(atom));
-        if (isFunction(name) && !isOperator(atom)) {
-            expr.index += 1;
-            expr.ast = {fn: name};
+        if (isFunction(val) && !isOperator(atom)) {
+            expr.ast = {fn: val};
             expr = parseSupsub(expr, options);
 
-            if (expr.ast.sup) {
+            if (hasSup(expr.ast)) {
                 // There was an exponent with the function.
-                if (expr.ast.sup === -1 || (expr.ast.sup.op === '-' && expr.ast.sup.rhs === 1)) {
-                    // This is the inverse function
+                if (asMachineNumber(expr.ast.sup) === -1) {
+                    // This may be an inverse function
                     const INVERSE_FUNCTION = {
                         'sin' : 'arcsin',
                         'cos':  'arccos',
@@ -1089,6 +1234,10 @@ function parsePrimary(expr, options) {
             } else {
                 const fn = expr.ast;
                 fn.arg = parsePrimary(expr, options).ast;
+                if (fn.arg && (fn.arg.fn === 'list2' || fn.arg.fn === 'list')) {
+                    fn.arg = fn.arg.arg;
+                }
+
                 expr.ast = fn;
             }
         }
@@ -1101,6 +1250,8 @@ function parsePrimary(expr, options) {
     } else if (atom.type === 'group') {
         expr.index += 1;
         expr.ast = atom.toAST(options);
+    } else if (atom.type === 'mclose') {
+        return expr;
     }
 
 
@@ -1111,21 +1262,24 @@ function parsePrimary(expr, options) {
         const delim = parseDelim(expr, '(', ')', options) || parseDelim(expr, null, null, options);
         if (delim) {
             expr = delim;
-        } else {
-            if (!isOperator(atom)) {
-                // This is not an operator (if it is, it may be an operator
-                // dealing with an empty lhs. It's possible.
-                // Couldn't interpret the expression. Output an error.
+        } else if (!isOperator(atom)) {
+            // This is not an operator (if it is, it may be an operator
+            // dealing with an empty lhs. It's possible.
+            // Couldn't interpret the expression. Output an error.
+            if (atom.type === 'placeholder') {
+                // Default value for a placeholder is 0
+                // (except for the denominator of a 'genfrac')
+                expr.ast = wrapNum(0);
+            } else {
                 expr.ast = {text: '?'};
-                if (atom.type === 'placeholder') {
-                    expr.ast.error = 'Placeholder ' + "'" + atom.body + "'";
-                } else {
-                    expr.ast.error = 'Unexpected token ' + "'" + atom.type + "'";
-                    if (atom.body) expr.ast.error += ' = ' + atom.body;
-                    if (atom.latex) expr.ast.error += ' = ' + atom.latex;
+                expr.ast.error = 'Unexpected token ' + "'" + atom.type + "'";
+                if (atom.latex) {
+                    expr.ast.latex = atom.latex;
+                } else if (atom.body && atom.toLatex) {
+                    expr.ast.latex = atom.toLatex();
                 }
-                expr.index += 1;    // Skip the unexpected token, and attempt to continue
             }
+            expr.index += 1;    // Skip the unexpected token, and attempt to continue
         }
     }
 
@@ -1152,24 +1306,32 @@ function parsePrimary(expr, options) {
             return expr;
         }
         const lhs = expr.ast;
+        expr.ast = {};
         expr = parsePrimary(expr, options);
-       if (expr && expr.ast) {
-            if (isFunction(lhs)) {
-                // A function followed by a list -> the list becomes the
-                // argument to the function
+        if (expr && expr.ast && lhs) {
+            if (isFunction(lhs.fn) && 
+                typeof lhs.arg === 'undefined' || 
+                (Array.isArray(lhs.arg) && lhs.arg.length === 0)) {
+                // A function with no arguments followed by a list -> 
+                // the list becomes the argument to the function
                 if (expr.ast.fn === 'list2' || expr.ast.fn === 'list') {
-                    expr.ast = {fn: lhs, arg: expr.ast.arg};
+                    expr.ast = wrapFn(lhs.fn, expr.ast.arg);
                 } else {
-                    expr.ast = {fn: lhs, arg: expr.ast};
+                    // A function "f(x)" or "√x" followed by something else:
+                    // implicit multiply
+                    expr.ast = wrapFn('multiply', lhs, expr.ast);
                 }
             } else {
                 // Invisible times, e.g. '2x'
-                if (expr.ast.fn === '*') {
+                if (expr.ast.fn === 'multiply') {
                     expr.ast.arg.unshift(lhs);
-                } else if (expr.ast.op === '*') {
-                    expr.ast = {fn:'*', arg:[lhs, expr.ast.lhs, expr.ast.rhs]};
+                } else if (typeof expr.ast.num === 'object' && expr.ast.num.im === '1' && 
+                    isNumber(lhs) && 
+                    typeof expr.ast.sup === 'undefined') {
+                    // Imaginary number, i.e. "3i"
+                    expr.ast = wrapNum({im: lhs.num});
                 } else {
-                    expr.ast = {lhs: lhs, op:'*', rhs: expr.ast};
+                    expr.ast = wrapFn('multiply', lhs, expr.ast);
                 }
             }
         } else {
@@ -1211,63 +1373,105 @@ function parseExpression(expr, options) {
                 expr.minPrec = prec;
             }
             expr.index += 1;
-            const rhs = parseExpression(expr, options).ast;
-
-            // Some operators (',' and ';' for example) convert into a function
-            // even if there's only two arguments. They're super associative...
-            let fn = SUPER_ASSOCIATIVE_FUNCTION[opName];
-            if (fn && lhs && lhs.fn !== fn) {
-                // Only promote them if the lhs is not already the same function.
-                // If it is, we'll combine it below.
-                const arg = [];
-                if (lhs !== undefined) arg.push(lhs);
-                lhs = {fn: fn, arg:arg};
-            }
-
-            // Promote substraction to an addition
-            if (opName === '-') {
-                if (lhs && lhs.op === '+') {
-                    // x+y - z      -> add(x, y, -z)
-                    const arg = [];
-                    if (lhs.lhs !== undefined) arg.push(lhs.lhs);
-                    if (lhs.rhs !== undefined) arg.push(lhs.rhs);
-                    if (rhs !== undefined) arg.push(negate(rhs));
-                    lhs = {fn:'+', arg:arg}
-                } else if (lhs && lhs.op === '-') {
-                    // x-y - z      -> add(x, -y, -z)
-                    const arg = [];
-                    if (lhs.lhs !== undefined) arg.push(lhs.lhs);
-                    if (lhs.rhs !== undefined) arg.push(negate(lhs.rhs));
-                    if (rhs !== undefined) arg.push(negate(rhs));
-                    lhs = {fn:'+', arg:arg}
-                } else if (lhs && lhs.fn === '+') {
-                    // add(x,y) - z -> add(x, y, -z)
-                    if (rhs !== undefined) lhs.arg.push(negate(rhs));
+            if (opName === '|') {
+                if (typeof atom.subscript !== 'undefined' || 
+                    (expr.atoms[expr.index] && 
+                    typeof expr.atoms[expr.index].subscript !== 'undefined' &&
+                    expr.atoms[expr.index].type === 'msubsup')
+                        ) {
+                    // Bind is a special function. It doesn't have a rhs, and 
+                    // its argument is a subscript.
+                    expr.ast = {};
+                    const sub_arg = parseSupsub(expr, options).ast.sub;
+                    lhs = wrapFn('bind', lhs);
+                    if (sub_arg && sub_arg.fn === 'equal') {
+                        // This is a subscript of the form "x=..."
+                        lhs.arg.push(getArg(sub_arg, 0));
+                        lhs.arg.push(getArg(sub_arg, 1));
+                    } else if (sub_arg && (sub_arg.fn === 'list' || sub_arg.fn === 'list2')) {
+                        // Form: "x=0;n=3;z=5"
+                        let currentSym = {sym: "x"};
+                        for (let i = 0; i < sub_arg.arg.length; i++) {
+                            if (sub_arg.arg[i].fn === 'equal') {
+                                currentSym = getArg(sub_arg.arg[i], 0);
+                                lhs.arg.push(currentSym);
+                                lhs.arg.push(getArg(sub_arg.arg[i], 1));
+                            } else {
+                                lhs.arg.push(currentSym);
+                                lhs.arg.push(sub_arg.arg[i]);
+                            }
+                        }
+                    } else if (sub_arg) {
+                        // Default identifier if none provided
+                        lhs.arg.push({sym: "x"});
+                        lhs.arg.push(sub_arg);
+                    }
                 } else {
-                    lhs = {lhs: lhs, op: opName, rhs: rhs};
+                    // That was a "|", but not with a subscript after, so 
+                    // it's the end of the expression, might be a right fence.
+                    done = true;
                 }
+
             } else {
-                // Is there a function (e.g. '+') implementing the
-                // associative version of this operator (e.g. '+')?
-                fn = ASSOCIATIVE_FUNCTION[opName];
-                if (fn === '+' && lhs && lhs.op === '-') {
-                    const arg = [];
-                    if (lhs.lhs !== undefined) arg.push(lhs.lhs);
-                    if (lhs.rhs !== undefined) arg.push(negate(lhs.rhs));
-                    if (rhs !== undefined) arg.push(rhs);
-                    lhs = {fn: fn, arg:arg};
-                } else if (fn && lhs && lhs.op === opName) {
-                    // x+y + z -> add(x, y, z)
-                    const arg = [];
-                    if (lhs.lhs !== undefined) arg.push(lhs.lhs);
-                    if (lhs.rhs !== undefined) arg.push(lhs.rhs);
-                    if (rhs !== undefined) arg.push(rhs);
-                    lhs = {fn: fn, arg:arg};
-                } else if (fn && lhs && lhs.fn === fn) {
-                    // add(x,y) + z -> add(x, y, z)
-                    if (rhs !== undefined) lhs.arg.push(rhs);
+                const rhs = parseExpression(expr, options).ast;
+
+                // Some operators (',' and ';' for example) convert into a function
+                // even if there's only two arguments. They're super associative...
+                let fn = SUPER_ASSOCIATIVE_FUNCTION[opName];
+                if (fn && lhs && lhs.fn !== fn) {
+                    // Only promote them if the lhs is not already the same function.
+                    // If it is, we'll combine it below.
+                    lhs = wrapFn(fn, lhs);
+                }
+
+                // Promote subtraction to an addition
+                if (opName === '-') {
+                    if (lhs && lhs.fn === 'add') {
+                        // add(x,y) - z -> add(x, y, -z)
+                        if (rhs !== undefined) lhs.arg.push(negate(rhs));
+                    } else if (lhs && lhs.fn === 'subtract') {
+                        // x-y - z      -> add(x, -y, -z)
+                        lhs = wrapFn('add', getArg(lhs, 0), negate(getArg(lhs, 1)), negate(rhs));
+                    } else if (isNumber(lhs) &&  !hasSup(lhs) && 
+                        isNumber(rhs) && !hasSup(rhs) && 
+                        (typeof rhs.num.re === 'undefined' || rhs.num.re === '0') && 
+                        typeof rhs.num.im !== 'undefined') {
+                        lhs = {num: {
+                            re: lhs.num,
+                            im: (-parseFloat(rhs.num.im)).toString()
+                        }};
+                    } else {
+                        lhs = wrapFn('subtract', lhs, rhs);
+                    }
                 } else {
-                    lhs = {lhs: lhs, op: opName, rhs: rhs};
+                    // Is there a function (e.g. 'add') implementing the
+                    // associative version of this operator (e.g. '+')?
+                    fn = ASSOCIATIVE_FUNCTION[opName];
+                    if (fn === 'add' && lhs && lhs.fn === 'subtract') {
+                        // subtract(x, y) + z -> add(x, -y, z)
+                        lhs = wrapFn('add', getArg(lhs, 0), negate(getArg(lhs, 1)), rhs);
+                    } else if (fn && lhs && lhs.fn === fn) {
+                        // add(x,y) + z -> add(x, y, z)
+                        if (typeof rhs !== 'undefined') lhs.arg.push(rhs);
+                    } else if (fn && rhs && rhs.fn === fn) {
+                        // x =   y = z -> equal(x, y, z)
+                        rhs.arg.unshift(lhs);
+                        lhs = rhs;
+                    } else if (fn === 'multiply' && 
+                        isNumber(lhs) && !hasSup(lhs) && 
+                        rhs && asMachineNumber(rhs) === 10 && isNumber(rhs.sup)){
+                        // n * 10^m
+                        lhs = wrapNum(asMachineNumber(lhs) * Math.pow(10, asMachineNumber(rhs.sup)));
+                    } else if ((fn === 'add') && 
+                        isNumber(lhs) && !hasSup(lhs) && 
+                        rhs && numberIm(rhs) !== 0 && !hasSup(rhs)) {
+                            lhs = {num: {
+                                re: lhs.num,
+                                im: rhs.num.im
+                            }};
+                    } else {
+                        lhs = wrapFn(fn || OP_NAME[opName] || opName, lhs, rhs);
+                    }
                 }
             }
         }
@@ -1329,7 +1533,8 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
     let sym = '';
     let m;
     let lhs, rhs;
-    const variant = MATH_VARIANTS[this.fontFamily || this.font];
+    let variant = MATH_VARIANTS[this.fontFamily || this.font];
+    let variantSym;
 
     const command = this.latex ? this.latex.trim() : null;
     switch(this.type) {
@@ -1346,7 +1551,6 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
                     }
                     lhs = ParserModule.parseTokens(Lexer.tokenize(lhs),
                         'math', null, options.macros);
-                    result.lhs = parse(lhs, options);
 
                     if (m[2].length === 1) {
                         rhs = m[2];
@@ -1356,10 +1560,9 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
                     rhs = ParserModule.parseTokens(Lexer.tokenize(rhs),
                         'math', null, options.macros);
 
-                    result.op = '/';
-                    result.rhs = parse(rhs, options);
+                    result = wrapFn('divide', parse(lhs, options), parse(rhs, options));
                 } else {
-                    result.op = '/';
+                    result.fn = 'divide';
                 }
             } else {
                 result.group = parse(this.body, options);
@@ -1367,21 +1570,20 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
             break;
 
         case 'genfrac':
-            lhs = parse(this.numer, options);
-            rhs = parse(this.denom, options);
-            result.lhs = lhs;
-            result.op = '/';
-            result.rhs = rhs;
+            // If there's no denominator, or a placeholder, use "1" as the value
+            result = wrapFn('divide', 
+                parse(this.numer, options), 
+                this.denom && this.denom[0] && this.denom[0].type === 'placeholder' ? 
+                    wrapNum(1) : parse(this.denom, options));
             break;
 
         case 'surd':
             if (this.index) {
-                result.fn = 'pow';
-                result.arg = [parse(this.body, options)];
-                result.arg[1] = {lhs: 1, op: '/', rhs: parse(this.index, options)};
+                result = wrapFn('pow', 
+                    parse(this.body, options), 
+                    wrapFn('divide', 1, parse(this.index, options)));
             } else {
-                result.fn = 'sqrt';
-                result.arg = parse(this.body, options);
+                result = wrapFn('sqrt', parse(this.body, options));
             }
             break;
 
@@ -1409,6 +1611,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
 
         case 'mord':
         case 'textord':
+        case 'mbin':
             // Check to see if it's a \char command
             m = !command ? undefined : command.match(/[{]?\\char"([0-9abcdefABCDEF]*)[}]?/);
             if (m) {
@@ -1429,17 +1632,16 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
                     }
                 }
             }
-            result = escapeText(Definitions.mathVariantToUnicode(
-                    sym, this.fontFamily || this.font));
-            if (variant && variant !== 'normal') {
-                result.sym = escapeText(sym);
+            variantSym = escapeText(
+                Definitions.mathVariantToUnicode(sym, this.fontFamily || this.font)
+                );
+            if (variantSym !== sym) {
+                result = {sym: variantSym}; 
+                variant = 'normal';
             } else {
-                result = escapeText(sym);       // Shortcut: symbol as string
+                result = {sym: sym}; 
             }
             break;
-
-        // case 'mbin':
-        // break;
 
         // case 'mpunct':
         //     result = '<mo separator="true">' + command + '</mo>';
@@ -1470,7 +1672,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
 
         case 'array':
             if (this.env.name === 'cardinality') {
-                result = {fn:'card', arg:[parse(this.array, options)]};
+                result = wrapFn('card', parse(this.array, options));
             }
             break;
 
@@ -1545,33 +1747,53 @@ function parse(atoms, options) {
     return parseExpression({atoms: filterPresentationAtoms(atoms)}, options).ast;
 }
 
-function normalize(ast) {
-    if (!ast) return ast;
-    if (typeof ast === 'string') return ast;
-    if (typeof ast === 'number') return ast;
-    if (typeof ast === 'object') {
-        if (ast.sup) {
-            ast.sup = normalize(ast.sup);
+function convertToCanonicalForm(ast) {
+    // An undefined ast is already in canonical form
+    if (typeof ast === 'undefined') return ast;
+
+    if (typeof ast === 'string') {
+        // A native string is a shortcut for a symbol
+        return {sym: ast};
+    } else if (typeof ast === 'number') {
+        // A native number is a shortcut for a number
+        return wrapNum(ast);
+    } else if (typeof ast === 'object') {
+        if (hasSup(ast)) {
+            ast.sup = convertToCanonicalForm(ast.sup);
         }
-        if (ast.op) {
-            if (ast.lhs && ast.rhs) {
-                // if (ast.op === '+') ast.op = 'add';
-                // if (ast.op === '*') ast.op = 'multiply';
-                // if (ast.op === '-') ast.op = 'substract';
-                // if (ast.op === '/') ast.op = 'divide';
-                return {fn:ast.op, arg:[normalize(ast.lhs), normalize(ast.rhs)]};
+        if (hasSub(ast)) {
+            ast.sub = convertToCanonicalForm(ast.sub);
+        }
+        if (typeof ast.op === 'string') {
+            // An "op" object is a shortcut for a function with one or two arguments
+            let fn = OP_NAME[ast.op] || ast.op;
+
+            if (typeof ast.lhs !== 'undefined' && typeof ast.rhs !== 'undefined') {
+                return {
+                    fn: fn, 
+                    arg:[convertToCanonicalForm(ast.lhs), 
+                        convertToCanonicalForm(ast.rhs)]
+                };
+            } else if (typeof ast.lhs !== 'undefined') {
+                if (fn === 'subtract') fn = 'negate';
+                return {
+                    fn: fn, 
+                    arg:[convertToCanonicalForm(ast.lhs)]
+                };
             }
-            return {fn:ast.op, arg:[normalize(ast.rhs)]};
-        }
-        if (ast.fn) {
+            return {
+                fn: fn, 
+                arg:[convertToCanonicalForm(ast.rhs)]
+            };
+        } else if (ast.fn) {
             if (Array.isArray(ast.arg)) {
-                ast.arg = ast.arg.map(x => normalize(x));
-            } else {
-                ast.arg = normalize(ast.arg);
+                ast.arg = ast.arg.map(x => convertToCanonicalForm(x));
+            } else if (ast.arg) {
+                // If a single argument, convert to an array
+                ast.arg = [convertToCanonicalForm(ast.arg)];
             }
-        }
-        if (ast.group) {
-            ast.group = normalize(ast.group);
+        } else if (ast.group) {
+            ast.group = convertToCanonicalForm(ast.group);
         }
     }
 
@@ -1579,27 +1801,28 @@ function normalize(ast) {
 }
 
 MathAtom.toAST = function(atoms, options) {
-    return normalize(parse(atoms, options));
+    return convertToCanonicalForm(parse(atoms, options));
 }
 
 /**
  *
- * @param {string} fence - The fence to validate
- * @param {string} - Default values, in case no fence is provided
- * @return {string} - A valid fence
+ * @param {string} fence - The fence to wrap around the arguments
+ * @return {string} - A string wrapped in the fence
  */
-function validateFence(fence, defaultFence) {
-    let result = fence || defaultFence;
-
-    // Make sure there are some default values, even if no default fence was
-    // provided.
-    // A fence can be up to three characters:
-    // - open fence
-    // - close fence
-    // - middle fence
-    // '.' indicate and empty, invisible fence.
-
-    result += '...';
+function wrapFence(fence) {
+    const args = Array.prototype.slice.call(arguments);
+    args.shift();
+    fence = fence || '.. ';
+    let result = '';
+    if (args.length > 0) {
+        if (fence[0] !== '.') result += fence[0];
+        let sep = '';
+        for (const arg of args) {
+            result += sep + arg;
+            sep = fence[2];
+        }
+        if (fence[1] !== '.') result += fence[1];
+    }
 
     return result;
 }
@@ -1646,9 +1869,14 @@ function formatMantissa(m, config) {
     return  m.replace(/(\d{3})/g, '$1' + config.groupSeparator);
 }
 
+function parseFloatToPrecision(num) {
+    return parseFloat(parseFloat(num).toPrecision(15))
+}
+
  /**
  *
- * @param {Object|number} num - A number element, or a number or a bignumber or a fraction
+ * @param {string|number} num - A number, represented as a string (e.g. "-12.45"
+ *  particularly useful for arbitrary precision numbers) or a number (-12.45)
  * @return {string} A LaTeX representation of the AST
  */
 function numberAsLatex(num, config) {
@@ -1656,11 +1884,10 @@ function numberAsLatex(num, config) {
 
     if (typeof config.precision === 'number') {
         if (typeof num === 'number') {
-            num = parseFloat(num.toFixed(Math.min(20, config.precision)));
-        } else if (typeof num === 'string' && num.indexOf('/') >= 0) {
-            // It's a fraction. We can ignore the precision
+            num = parseFloatToPrecision(num);
         } else {
             let sign = '';
+            let exponent = '';
             if (num[0] === '-') {
                 sign = '-';
                 num = num.substr(1);
@@ -1668,24 +1895,25 @@ function numberAsLatex(num, config) {
                 num = num.substr(1);
             }
             if (num.indexOf('.') >= 0) {
-                // if (num.length - 1 < config.precision) {
-                //     //
-                //     return sign + formatMantissa(num, config);
-                // }
-                const m = num.match(/(\d*).(\d*)/);
+                const m = num.match(/(\d*).(\d*)([e|E]([-+]?[0-9]*))?/);
                 const base = m[1];
-                const mantissa = m[2];
+                const mantissa = m[2].substring(0, 
+                    Math.min(config.precision - base.length, m[2].length));
+                exponent = m[4] || '';
 
                 if (base === '0') {
-                    let p = 2;  // Index of the first non-zero digit after the decimal
-                    while (num[p] === '0' && p < num.length - 1) {
+                    let p = 0;  // Index of the first non-zero digit after the decimal
+                    while (mantissa[p] === '0' && p < mantissa.length) {
                         p += 1;
                     }
                     let r = '';
-                    if (p <= 6) {
+                    if (p <= 4) {
                         r = '0' + config.decimalMarker;
-                        r += num.substr(2, p - 2);
+                        r += mantissa.substr(0, p);
                         r += formatMantissa(num.substr(r.length), config);
+                    } else if (p + 1 >= config.precision) {
+                        r = '0';
+                        sign = '';
                     } else {
                         r = num[p];
                         const f = formatMantissa(num.substr(p + 1), config);
@@ -1693,15 +1921,17 @@ function numberAsLatex(num, config) {
                             r += config.decimalMarker + f;
                         }
                     }
-                    if (num.length - 1 > config.precision && !r.endsWith('}') && !r.endsWith('\\ldots')) {
-                        r += '\\ldots';
-                    }
-                    if (p > 6) {
-                        r += config.exponentProduct;
-                        if (config.exponentMarker) {
-                            r += config.exponentMarker + (1 - p).toString();
-                        } else {
-                            r += '10^{' + (1 - p).toString() + '}';
+                    if (r !== '0') {
+                        if (num.length - 1 > config.precision && !r.endsWith('}') && !r.endsWith('\\ldots')) {
+                            r += '\\ldots';
+                        }
+                        if (p > 4) {
+                            r += config.exponentProduct;
+                            if (config.exponentMarker) {
+                                r += config.exponentMarker + (1 - p).toString();
+                            } else {
+                                r += '10^{' + (1 - p).toString() + '}';
+                            }
                         }
                     }
                     num = r;
@@ -1710,9 +1940,9 @@ function numberAsLatex(num, config) {
                     const f = formatMantissa(mantissa, config);
                     if (f) {
                         num += config.decimalMarker + f;
-                        if (num.length - 1 > config.precision && !num.endsWith('}') && !num.endsWith('\\ldots')) {
-                            num += '\\ldots';
-                        }
+                        // if (num.length - 1 > config.precision && !num.endsWith('}') && !num.endsWith('\\ldots')) {
+                        //     num += '\\ldots';
+                        // }
                     }
                 }
             } else if (num.length > config.precision) {
@@ -1739,7 +1969,18 @@ function numberAsLatex(num, config) {
             } else {
                 num = num.replace(/\B(?=(\d{3})+(?!\d))/g, config.groupSeparator);
             }
-            return sign + num;
+
+            if (exponent) {
+                // There is an exponent...
+                if (config.exponentMarker) {
+                    exponent = config.exponentMarker + exponent;
+                } else {
+                    exponent = config.exponentProduct + ' 10^{' + exponent + '}';
+                }
+            }
+
+
+            return sign + num + exponent;
         }
     }
     if (config.scientificNotation === 'engineering') {
@@ -1802,7 +2043,7 @@ function numberAsLatex(num, config) {
 
  /**
  *
- * @param {object} ast - Abstract Syntax Tree object
+ * @param {object} ast - Abstract Syntax Tree object (in canonical form)
  * @return {string} A LaTeX representation of the AST
  */
 function asLatex(ast, options) {
@@ -1821,67 +2062,140 @@ function asLatex(ast, options) {
 
     let result = '';
 
-    if (ast === undefined) return '';
+    if (typeof ast === 'undefined') return '';
+    if (typeof ast === 'string') {
+        ast = JSON.parse(ast);
+    }
 
     if (ast.latex) {
         // If ast.latex key is present, use it to render the element
         result = ast.latex;
 
-    } else if (ast.num !== undefined && ast.num.match(/([+-]?[0-9]+)\/([0-9]+)/)) {
-        result = numberAsLatex(ast.num, config);
-        if (ast.sup) result += '^{' + asLatex(ast.sup, config) + '}';
-        if (ast.sub) result += '_{' + asLatex(ast.sub, config) + '}';
-
     } else if (isNumber(ast)) {
-        const val = typeof ast === 'number' ? ast : ast.num;
-        if (isNaN(val)) {
-            result = '\\text{NaN}';
-        } else if (val === -Infinity) {
+        const val = asMachineNumber(ast);
+        if (val === -Infinity) {
             result = '-\\infty ';
         } else if (val === Infinity) {
             result = '\\infty ';
-        } else {
-            result = numberAsLatex(ast.num || ast, config);
-        }
-        if (ast.sup) result += '^{' + asLatex(ast.sup, config) + '}';
-        if (ast.sub) result += '_{' + asLatex(ast.sub, config) + '}';
-
-    } else if (ast.re !== undefined || ast.im !== undefined ) {
-        let wrap = false;
-        if (Math.abs(ast.im) <= 1e-14 && Math.abs(ast.re) <= 1e-14) {
-            result = '0';
-        } else {
-            if (ast.re && Math.abs(ast.re) > 1e-14) {
-                result = numberAsLatex(ast.re, config);
-            }
-            if (Math.abs(ast.im) > 1e-14) {
-                const im = asMachineNumber(ast.im);
-                if (Math.abs(ast.re) > 1e-14) {
-                    result += im > 0 ? '+' : '';
-                    wrap = true;
+        } else if (typeof ast.num === 'object' && (typeof ast.num.re === 'string' || typeof ast.num.im === 'string')) {
+            const re = numberRe(ast);
+            const im = numberIm(ast);
+            if (isNaN(re) || isNaN(im)) {
+                result = '\\text{NaN}';
+            } else if (Math.abs(im) <= Number.EPSILON && Math.abs(re) <= Number.EPSILON) {
+                result = '0';
+            } else {
+                if (Math.abs(re) > Number.EPSILON) {
+                    result = numberAsLatex(re, config);
                 }
-                result += (Math.abs(im) !== 1 ?
-                    numberAsLatex(ast.im, config) : '') + '\\imaginaryI ';
+                if (Math.abs(im) > Number.EPSILON) {
+                    if (Math.abs(re) > Number.EPSILON) {
+                        result += im > 0 ? '+' : '';
+                    }
+                    result += (Math.abs(im) !== 1 ?
+                        numberAsLatex(im, config) : '') + '\\imaginaryI ';
+                }
             }
-            if (wrap) {
-                const fence = validateFence(ast.fence, '(),');
-                result = fence[0] + result + fence[1];
-            }
+        } else if (isNaN(val)) {
+            result = '\\text{NaN}';
+        } else {
+            result = numberAsLatex(ast.num, config);
         }
-        if (ast.sup) result += '^{' + asLatex(ast.sup, config) + '}';
-        if (ast.sub) result += '_{' + asLatex(ast.sub, config) + '}';
-
+        if (hasSup(ast)) result += '^{' + asLatex(ast.sup, config) + '}';
+        if (hasSub(ast)) result += '_{' + asLatex(ast.sub, config) + '}';
+    
     } else if (ast.group) {
-        result = asLatex(ast.group);
+        result = asLatex(ast.group, config);
         if (!isNumber(ast.group) && !asSymbol(ast.group)) {
-            const fence = validateFence(ast.fence, '(),');
-            result = fence[0] + result + fence[1];
+            result = wrapFence(ast.fence || '(),', result);
+        } else if (numberIm(ast.group) !== 0) {
+            result = wrapFence(ast.fence || '(),', result);
         }
-        if (ast.sup) result += '^{' + asLatex(ast.sup, config) + '}';
-        if (ast.sub) result += '_{' + asLatex(ast.sub, config) + '}';
+        if (hasSup(ast)) result += '^{' + asLatex(ast.sup, config) + '}';
+        if (hasSub(ast)) result += '_{' + asLatex(ast.sub, config) + '}';
 
     } else if (ast.fn) {
-        if (ast.fn === 'list' || ast.fn === 'list2') {
+        if (ast.fn === 'bind') {
+            result = asLatex(getArg(ast, 0), config) + '|_{';
+            if (ast.arg && ast.arg.length === 2) {
+                result += asLatex(getArg(ast, 1));
+            } else {
+                let sep = '';
+                for (let i = 1; i < ast.arg.length; i += 2) {
+                    result += sep + 
+                        asLatex(getArg(ast, i)) + 
+                        ' = ' + 
+                        asLatex(getArg(ast, i + 1));
+                    sep = ', ';
+                }
+            }
+            result += '}';
+
+        } else if (ast.fn === 'divide') {
+            result = '\\frac{' + asLatex(getArg(ast, 0), config) + '}{' + asLatex(getArg(ast, 1), config) + '}';
+
+        } else if (ast.fn === 'negate') {
+            result = '-' + asLatex(getArg(ast, 0), config);
+
+        } else if (ast.fn === 'subtract') {
+            result = asLatex(getArg(ast, 0), config) + ' - ' + asLatex(getArg(ast, 1), config);
+
+        } else if ((ast.fn === 'add' || ast.fn === 'multiply') && 
+            Array.isArray(ast.arg)) {
+            const a = [];
+            for (const exp of ast.arg) {
+                if (exp.fn === 'add' || exp.fn === 'subtract') {
+                    a.push(wrapFence('() ', asLatex(exp, config)));
+                } else if (isComplexWithRealAndImaginary(exp)) {
+                    // Complex numbers that have both a real and imaginary part
+                    // should be wrapped in parentheses
+                    a.push(wrapFence('() ', asLatex(exp, config)));
+                } else if (hasSup(ast) && !(numberIm(exp) === 0 || numberIm(exp) === 1)) {
+                    // Wrap with parentheses if there's an exponent
+                    // and the imaginary part is neither 0 nor 1
+                    a.push(wrapFence('() ', asLatex(exp, config)));
+                } else {
+                    a.push(asLatex(exp, config));
+                }
+            }
+            if (ast.fn === 'multiply') {
+                if (ast.arg && ast.arg.length === 2 &&
+                    (isNumber(ast.arg[0]) || ast.arg[0].fn === 'divide') && 
+                    (!isNumber(ast.arg[1]) || (numberRe(ast.arg[1]) === 0 && numberIm(ast.arg[1]) === 1))
+                ) {
+                    // Invisible times: 
+                    // (number or fraction) * not a number
+                    // or (number or fraction) * imaginary unit
+                    result = a[0] + a[1];
+                } else {
+                    result = a.join(' \\times ');
+                }
+            } else {
+                // Addition (and subtraction)
+                if (ast.arg && ast.arg.length === 1) {
+                    if (ast.arg[0].fn === 'negate' ||
+                        (isNumber(ast.arg[0]) && asMachineNumber(ast.arg[0]) < 0)) {
+                        // a[0] has a negative sign
+                        result = a[0];
+                    } else {
+                        // Single non-negative element, add a '+' in front
+                        result = '+' + a[0];
+                    }
+                } else {
+                    result = a[0];
+                    for (let i = 1; i < ast.arg.length; i++) {
+                        if (ast.arg[i].fn === 'negate' ||
+                            (isNumber(ast.arg[i]) && asMachineNumber(ast.arg[i]) < 0)) {
+                            // a[i] already has a negative sign, so we can do an 
+                            // implicit add
+                            result += a[i];
+                        } else {
+                            result += ' + ' + a[i];
+                        }
+                    }
+                }
+            }
+        } else if (ast.fn === 'list' || ast.fn === 'list2') {
             const a = [];
             for (const exp of ast.arg) {
                 a.push(asLatex(exp, config));
@@ -1889,73 +2203,66 @@ function asLatex(ast, options) {
 
             result = a.join(ast.fn === 'list2' ? '; ' : ', ');
         } else if (ast.fn === 'pow' && Array.isArray(ast.arg) && ast.arg.length >= 2) {
-            result = asLatex(ast.arg[0], config);
-            if (!isNumber(ast.arg[0]) && !asSymbol(ast.arg[0])) {
-                const fence = validateFence(ast.fence, '(),');
-                result = fence[0] + result + fence[1];
+            result = asLatex(getArg(ast, 0), config);
+            if (!isNumber(getArg(ast, 0)) && !asSymbol(getArg(ast, 0))) {
+                result = wrapFence(ast.fence || '(),', result);
             }
 
-            result += '^{' + asLatex(ast.arg[1], config) + '}';
+            result += '^{' + asLatex(getArg(ast, 1), config) + '}';
+        } else if (ast.fn === 'equal' && ast.arg && ast.arg.length > 2) {
+            result = ast.arg.map(x => asLatex(x, config)).join(' = ');
+
         } else {
             const fn = getLatexTemplateForFunction(ast.fn);
+            result = fn;
             let argstring = '';
-            const optionalParen = ast.fn.match(/^(factorial(2)?|(((ar|arc)?(sin|cos|tan|cot|sec|csc)h?)|ln|log|lb))$/);
-            if (Array.isArray(ast.arg) || !optionalParen) {
-                let sep = '';
-                const fence = validateFence(ast.fence, '(),');
-                if (fence[0] !== '.') argstring += fence[0];
-                if (Array.isArray(ast.arg)) {
-                    for (const arg of ast.arg) {
-                        argstring += sep + asLatex(arg, config);
-                        sep = ', ';
-                    }
-                } else if (ast.arg) {
-                    argstring += asLatex(ast.arg, config);
-                }
-                if (fence[1] !== '.') argstring += fence[1];
-            } else if (ast.arg !== undefined) {
-                // The parenthesis may be option...
-                if (typeof ast.arg === 'number' ||
-                    typeof ast.arg === 'string' ||
-                    ast.arg.num !== undefined ||
-                    ast.arg.sym !== undefined ||
-                    ast.arg.op === '/' ||
-                    ast.arg.fn === 'sqrt') {
-                    // A simple argument, no need for parentheses
-                    argstring = asLatex(ast.arg, config);
+            const parenRequired = /%(?![01_^])/.test(fn) && Array.isArray(ast.arg) && ast.arg.length > 1;
+            if (parenRequired) {
+                // Parenthesis are required if argument list is longer than 1
+                result += wrapFence(ast.fence || '(),', 
+                    ...ast.arg.map(x => asLatex(x, config)));
 
-                } else {
-                    // A complex expression, use parentheses if the arguments
-                    // are the last element of the function template.
-                    // For example, for abs()... |%|, parenthesis are not necessary.
-                    if (fn[fn.length - 1] === '%') {
-                        const fence = validateFence(ast.fence, '(),');
-                        argstring += fence[0];
-                        argstring += asLatex(ast.arg, config);
-                        argstring += fence[1];
-                    } else {
-                        argstring = asLatex(ast.arg, config);
-                    }
+            } else if (Array.isArray(ast.arg) && ast.arg.length > 0) {
+                // The parenthesis may be optional...
+                const arg0 = asLatex(getArg(ast, 0), config);
+                const arg1 = asLatex(getArg(ast, 1), config);
+                const argsn = [...ast.arg];
+                if (/%0/.test(fn)) {
+                    result = result.replace('%0', arg0);
+                    argsn.shift();
                 }
+                if (/%1/.test(fn)) {
+                    result = result.replace('%1', arg1);
+                    argsn.shift();
+                }
+
+                if (argsn.length > 0) {
+                    argstring = wrapFence(ast.fence || '(),', 
+                        ...argsn.map(x => asLatex(x, config)));
+                }
+            } else {
+                // Empty argument list
+                argstring = wrapFence(ast.fence || '(),', '');
             }
 
-            result = fn;
-            if (ast.over || ast.sup) {
-                result = result.replace('%^','^{' + asLatex(ast.over || ast.sup, config) + '}');
+            if (hasSup(ast)) {
+                result = result.replace('%^','^{' + asLatex(ast.sup, config) + '}');
             } else {
                 result = result.replace('%^','');
             }
-            if (ast.under || ast.sub) {
-                result = result.replace('%_','_{' + asLatex(ast.under || ast.sub, config) + '}');
+            if (hasSub(ast)) {
+                result = result.replace('%_','_{' + asLatex(ast.sub, config) + '}');
             } else {
                 result = result.replace('%_','');
             }
 
-            // Insert the arguments in the function template
-            result = result.replace('%', argstring);
+            // Insert the arguments in the function template (%)
+            result = result.replace(/%(?![01_^])/, argstring);
+            // If there are any placeholders left, remove them
+            result = result.replace('%0', '').replace('%1', '');
         }
 
-    } else if (ast.sym !== undefined || typeof ast === 'string') {
+    } else if (typeof ast.sym === 'string') {
         result = asSymbol(ast);
         // Is it a Unicode value?
         let m = result.match(/^&#x([0-9a-f]+);$/i);
@@ -1969,63 +2276,31 @@ function asLatex(ast, options) {
         }
 
         // Is there a variant info attached to it?
-        if (ast.variant) {
+        if (typeof ast.variant === 'string') {
             const MATH_VARIANTS = {
-                'normal':   'mathrm',
-                'double-struck': 'mathbb',
-                'bold': 'mathbf',
+                'normal':           'mathrm',
+                'double-struck':    'mathbb',
+                'bold':             'mathbf',
                 // 'script': 'mathcal',
-                'fraktur': 'mathfrak',
-                'script': 'mathscr',
-                'sans-serif': 'mathsf',
-                'monospace': 'mathtt'
+                'fraktur':          'mathfrak',
+                'script':           'mathscr',
+                'sans-serif':       'mathsf',
+                'monospace':        'mathtt'
             };
             result = '\\' + MATH_VARIANTS[ast.variant] +
                 '{' + result + '}';
         }
-        if (ast.sup) result += '^{' + asLatex(ast.sup, config) + '}';
-        if (ast.sub) result += '_{' + asLatex(ast.sub, config) + '}';
+        if (hasSup(ast)) result += '^{' + asLatex(ast.sup, config) + '}';
+        if (hasSub(ast)) result += '_{' + asLatex(ast.sub, config) + '}';
 
-    } else if (ast.op) {
-        if (ast.op === '/') {
-            result = '\\frac{' + asLatex(ast.lhs, config) + '}{' + asLatex(ast.rhs, config) + '}';
-            if (ast.sup || ast.sub) {
-                result = '(' + result + ')';
-                if (ast.sup) result += '^{' + asLatex(ast.sup, config) + '}';
-                if (ast.sub) result += '_{' + asLatex(ast.sub, config) + '}';
-            }
-        } else {
-            let lhs, rhs;
-            lhs = asLatex(ast.lhs, config);
-            if (ast.lhs && ast.lhs.op && getPrecedence(ast.lhs.op) < getPrecedence(ast.op)) {
-                lhs = '(' + lhs + ')';
-            }
-
-            rhs = asLatex(ast.rhs, config);
-            if (ast.rhs && ast.rhs.op && getPrecedence(ast.rhs.op) < getPrecedence(ast.op)) {
-                rhs = '(' + rhs + ')';
-            }
-
-            if (ast.op === '*') {
-                result = '%0 ' + config.product + ' %1';
-            } else {
-                result = getLatexTemplateForOperator(ast.op);
-            }
-            result = result.replace('%^', ast.sup ? '^{' + asLatex(ast.sup, config) + '}' : '');
-            result = result.replace('%_', ast.sub ? '_{' + asLatex(ast.sub, config) + '}' : '');
-            result = result.replace('%0', lhs).replace('%1', rhs).replace('%', lhs);
-        }
-
-    } else if (ast.text) {
+    } else if (typeof ast.text === 'string') {
         result = '\\text{' + ast.text + '}';
 
-    } else if (ast.array) {
-        // TODO
     }
 
     // If there was an error attached to this node,
     // display it on a red background
-    if (ast.error) {
+    if (typeof ast.error === 'string') {
         result = '\\bbox[#F56165]{' + result + '}';
     }
 

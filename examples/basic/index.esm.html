@@ -15,6 +15,7 @@
     <main>
         <div class="mathfield" id='mf' >f(x)=</div>
         <div class='output' id='output'></div>
+        <div class='output' id='mathml'></div>
     </main>
 
     <footer>
@@ -29,8 +30,10 @@
         onFocus: mf => {
             console.log('focusing', mf);
         },
+        generateID: true,
         onContentDidChange: mf => {
             document.getElementById('output').innerHTML = mf.$latex();
+            document.getElementById('mathml').textContent = mf.$text('mathML');
         }
     });
 </script>
