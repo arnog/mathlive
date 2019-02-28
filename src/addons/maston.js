@@ -1134,12 +1134,10 @@ function parsePrimary(expr, options) {
         // a function ('\\Zeta')
         if (isFunction(val) && !isOperator(atom)) {
             // A function
-            const skip = !nextIsSupsub(expr);
             expr.ast = {fn: val};
             expr = parseSupsub(expr, options);
 
             const fn = expr.ast;
-            if (skip) expr.index += 1;  // Skip the function name
             fn.arg = parsePrimary(expr, options).ast;
             if (fn.arg && (fn.arg.fn === 'list2' || fn.arg.fn === 'list')) {
                 fn.arg = fn.arg.arg;
