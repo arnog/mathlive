@@ -90,19 +90,17 @@ class Parser {
         return index < this.tokens.length ? this.tokens[index] : null;
     }
     /**
-     * Return the last atom of the math list.
-     * If force is true (or undefined) and the list is empty, a new empty
-     * atom is created and returned as the result.
+     * Return the last atom of the math list
+     * If there isn't one, insert a `msubsup` and return it.
      * @method Parser#lastMathAtom
      */
     lastMathAtom() {
-        if (this.mathList.length === 0 ||
-            this.mathList[this.mathList.length - 1].type !== 'mop') {
+        const lastType = this.mathList.length === 0 ? 'none' : 
+            this.mathList[this.mathList.length - 1].type;
+        if (lastType !== 'mop' && lastType !== 'msubsup') {
             // ZERO WIDTH SPACE
             const lastAtom = new MathAtom(this.parseMode, 'msubsup', '\u200b', 'main');
-            lastAtom.attributes = {
-                "aria-hidden": true
-            };
+            lastAtom.attributes = { 'aria-hidden': true };
             this.mathList.push(lastAtom);
         }
         return this.mathList[this.mathList.length - 1];
