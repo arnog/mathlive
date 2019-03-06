@@ -948,7 +948,6 @@ function parsePostfix(expr, options) {
             // Wrap in a group if we have an upcoming superscript or subscript
             expr.ast = {group: expr.ast};
         }
-        expr.index += 1;
         expr = parseSupsub(expr, options);
         expr = parsePostfix(expr, options);
 

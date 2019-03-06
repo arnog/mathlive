@@ -862,6 +862,9 @@ test('MATH JSON', function (t) {
     equalMathJSON(t, '(1 + 2)^{3 + 4}', 
         '{"group":{"fn":"add","arg":[{"num":"1"},{"num":"2"}]},"sup":{"fn":"add","arg":[{"num":"3"},{"num":"4"}]}}', 
         'Superscript of group');
+    t.equal(mathJSON('(x)=0'), 
+        '{"fn":"equal","arg":[{"sym":"x"},{"num":"0"}]}', 
+        'Group followed by operator');
     t.equal(mathJSON('\\left(1+2\\right)^{3}'), 
         '{"group":{"fn":"add","arg":[{"num":"1"},{"num":"2"}]},"sup":{"num":"3"}}', 
         'Superscript of group with leftright');
@@ -965,16 +968,23 @@ test('MATH JSON', function (t) {
         '{"fn":"ceil","arg":[{"fn":"multiply","arg":[{"num":"100"},{"fn":"randomReal"}]}]}',
         'function with empty argument list');
 
+    equalMathJSON(t, 'f (x) = \\sin x', 
+        '{"fn":"equal","arg":[{"fn":"f","arg":[{"sym":"x"}]},{"fn":"sin","arg":[{"sym":"x"}]}]}',
+        'function definition');
+
     t.end();
 });
 
 
-// cos(|x| + |y|)
+// \cos(|x| + |y|)
+
+// \cos (|\frac {x}{5}|+|\frac {y}{5}|)
+
+// -----------------------------------------------------------
+// Resolved:
 
 // \left(x^2+3y^2\right)e^{-x^2-y^2}
 // \left(x^2+3y^2\right)\cdot  e^{-x^2-y^2}
-
-// ((x-0.2)*\sin(1/(x-0.2))+x+0.8)*(10*(x-0.1)^2+0.9)
 
 // \sin(\pi*x/5)-\tan(x*2)
 // \sin \pi  \cdot  \frac {x}{5}-\tan 2x
