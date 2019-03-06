@@ -1166,13 +1166,14 @@ EditableMathlist.prototype.previous = function(options) {
     if (this.anchorOffset() < 1) {
         // We've reached the first of these siblings.
         // Is there another set of siblings to consider?
-        let relation;
-        relation = PREVIOUS_RELATION[this.relation()];
+        let relation = PREVIOUS_RELATION[this.relation()];
         while (relation && !this.setSelection(-1, 0 , relation)) {
             relation = PREVIOUS_RELATION[relation];
         }
-        // Ignore the body of the subsup scaffolding.
-        if (relation === 'body' && this.parent() && this.parent().type === 'msubsup') {
+        // Ignore the body of the subsup scaffolding and of 
+        // 'mop' atoms (for example, \sum): their body is not editable.
+        const parentType = this.parent() ? this.parent().type : 'none';
+        if (relation === 'body' && (parentType === 'msubsup' || parentType === 'mop')) {
             relation = null;
         }
         // We found a new relation/set of siblings...
