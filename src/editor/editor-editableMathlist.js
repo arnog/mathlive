@@ -1827,7 +1827,7 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
         }
         s += (collapsed ? '?' : rDelim);
 
-        this.insert(s);
+        this.insert(s, { format: 'latex' });
         if (collapsed) this.move(-1);
         return true;
     }
@@ -2966,8 +2966,8 @@ function parseMathArgument(s, config) {
             // It's a string of digits or a string of letters
             rest = s.substring(m[1].length);
             match = paddedShortcut(m[1], config);
-        } else {
-            // It's a LaTeX command
+        } else if (!/^\\(left|right)/.test(s)) {
+            // It's a LaTeX command (but not a \left\right)
             m = s.match(/^(\\[a-zA-Z]+)/);
             if (m) {
                 rest = s.substring(m[1].length);

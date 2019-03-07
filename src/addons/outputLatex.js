@@ -122,7 +122,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 result += '\\right' + (this.rightDelim || '.');
                 if (this.rightDelim && this.rightDelim.length > 1) result += ' ';
             } else {
-                result += (this.leftDelim || '');
+                result += this.leftDelim === '.' ? '' : (this.leftDelim || '');
                 if (this.leftDelim && this.leftDelim.length > 1) result += ' ';
                 result += latexify(this.body, expandMacro);
                 result += (this.rightDelim === '?' || this.rightDelim === '.') ? '' : this.rightDelim;
