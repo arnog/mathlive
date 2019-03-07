@@ -640,7 +640,7 @@ function startsWithString(s, config) {
     const result = [];
 
     for (let i = 0; i <= s.length - 1; i++) {
-        const s2 = s.slice(i);
+        const s2 = s.substring(i);
         const skipDefaultShortcuts = config && config.overrideDefaultInlineShortcuts;
         if (!skipDefaultShortcuts) {
             Object.keys(INLINE_SHORTCUTS).forEach(key => {
@@ -667,14 +667,14 @@ function startsWithString(s, config) {
 /**
  * This function is used to resolve inline shortcuts.
  * 
- * @param {string} s - candidate inline shortcuts (e.g. `'2+pi'`)
+ * @param {string} s - candidate inline shortcuts (e.g. `'pi'`)
  * @param {object} config 
- * @return {string[]} - An array of strings matching the 
+ * @return {string} - A replacement string matching the shortcut (e.g. `'\pi'`)
  * @memberof module:editor/shortcuts
  * @private
  */
 function forString(s, config) {
-    let result = [];
+    let result = '';
 
     const skipDefaultShortcuts = config && config.overrideDefaultInlineShortcuts;
     if (!skipDefaultShortcuts) {
