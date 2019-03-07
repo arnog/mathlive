@@ -2778,10 +2778,21 @@ EditableMathlist.prototype._applyStyle = function(style) {
  * @param {string} s 
  */
 function parseMathString(s, config) {
-    // Nothing to do if a single character
-    // This prevents interfering with typing...
     if (!s) return '';
+
+    // Nothing to do if a single character
     if (s.length <= 1) return s;
+
+    if (/\\/.test(s) && /{|}/.test(s)) {
+        // If the string includes a '\' and a '{' or a '}'
+        // it's probably a LaTeX string
+        // (that's not completely true, it could be a UnicodeMath string, since
+        // UnicodeMath supports some LaTeX commands. However, we need to pick
+        // one in order to correctly interpret {} (which are argument delimiters
+        // in LaTeX, and are fences in UnicodeMath)
+        return s;
+    }
+
 
     // Replace double-backslash (coming from JavaScript) to a single one
     s = s.replace(/\\\\/g, '\\');
@@ -2906,25 +2917,6 @@ function parseMathString(s, config) {
             done = true;
         }
     }
-
-
-    // Square roots |\u221a
-    // cube roots: U+221B, \cbrt
-    // ^4 roots: U+221C, \qdrt      -> getOperand: either a string, or ()
-        // if operand has the form n&rest, n is the index
-        // also \root n \of 
-    // done = false;
-    // while (!done) {
-    //     const m = s.match(/(.*)(?:sqrt)\((.*)\)(.*)/u);
-    //     if (m) {
-    //         s = m[1] + '\\sqrt{' + m[2] + '}' + m[3];
-    //     } else {
-    //         done = true;
-    //     }
-    // }
-
-    // abs() -> |x|, 
-    // floor, ceil
 
     return s;
 }
