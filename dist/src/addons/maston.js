@@ -1190,7 +1190,7 @@ function parsePrimary(expr, options) {
 
     } else if (atom.type === 'mop') {
         // Could be a function or an operator.
-        if (isFunction(val) && !isOperator(atom)) {
+        if ((atom.latex === '\\mathop ' || isFunction(val)) && !isOperator(atom)) {
             expr.ast = {fn: val};
             expr = parseSupsub(expr, options);
 
