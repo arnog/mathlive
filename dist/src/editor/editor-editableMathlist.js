@@ -261,7 +261,8 @@ EditableMathlist.prototype.setPath = function(selection, extent) {
         if (this.siblings().length < this.anchorOffset()) {
             // The new path is out of bounds.
             // Reset the path to something valid
-            console.log('invalid selection: ' + this.toString() + ' for ' + this.root.toLatex());
+            console.warn('Invalid selection: ' + this.toString() + 
+                ' in "' + this.root.toLatex() + '"');
 
             this.path = [{relation: 'body', offset: 0}];
             this.extent = 0;
@@ -2619,6 +2620,22 @@ function filterAtomsForStyle(atoms, style) {
 
 
 /**
+ * Apply a style (color, background) to the selection or at the insertion point.
+ * 
+ * If the style is already applied to the selection, remove it. If the selection
+ * has the style partially applied (i.e. only some sections), remove it from 
+ * those sections, and apply it to the entire selection.
+ * 
+ * The current version of the code only deals with color and backgroundColor, 
+ * but it could be extended to deal with other attributes such as fontWeight \
+ * (bold/normal), fontStyle (italic, normal) or fontFamily 
+ * (script, roman, sans, etc...).
+ * 
+ * In the case of bold and italic, there are two variants available, and the
+ * proper one need to be used: \mathbf{} on content in math mode and \textbf{}
+ * for content in text mode.
+ * 
+ * 
  * @method EditableMathlist#applyStyle
  */
 
@@ -2731,6 +2748,13 @@ EditableMathlist.prototype._applyStyle = function(style) {
             this.siblings().splice(this.startOffset() + (isCollapsed ? 1 : 0), 0, styleAtom);
         }
     }
+
+    if (style.fontWeight) {
+        /*
+            @todo: handle other style categories here.
+        */
+    }
+
     if (isCollapsed) {
         this.setSelection(this.startOffset() + 1, 0);
         this.path.push({relation:'body', offset: 0});

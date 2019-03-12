@@ -156,7 +156,7 @@ function makeMathField(element, config) {
  */
 function toMathML(latex, options) {
     if (!MathAtom.toMathML) {
-        console.log('The MathML module is not loaded.');
+        console.warn('The MathML module is not loaded.');
         return '';
     }
     options = options || {};
@@ -182,7 +182,7 @@ function toMathML(latex, options) {
  */
 function latexToAST(latex, options) {
     if (!MathAtom.toAST) {
-        console.log('The AST module is not loaded.');
+        console.warn('The AST module is not loaded.');
         return {};
     }
     options = options || {};
@@ -234,7 +234,7 @@ function latexToAST(latex, options) {
  */
 function latexToSpeakableText(latex, options) {
     if (!MathAtom.toSpeakableText) {
-        console.log('The outputSpokenText module is not loaded.');
+        console.warn('The outputSpokenText module is not loaded.');
         return "";
     }
     options = options || {};
@@ -299,7 +299,7 @@ function speak(text, config) {
         }
     } else if (config.speechEngine === 'amazon') {
         if (!window || !window.AWS) {
-            console.log('AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk');
+            console.warn('AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk');
         } else {
             const polly = new window.AWS.Polly({apiVersion: '2016-06-10'});
             const params = {
@@ -312,7 +312,7 @@ function speak(text, config) {
             };
             polly.synthesizeSpeech(params, function(err, data) {
                 if (err) {
-                    console.log('polly.synthesizeSpeech() error:', err, err.stack);
+                    console.warn('polly.synthesizeSpeech() error:', err, err.stack);
                 } else {
                     if (data && data.AudioStream) {
                         const uInt8Array = new Uint8Array(data.AudioStream);
@@ -330,7 +330,7 @@ function speak(text, config) {
             // Can call AWS.Request() on the result of synthesizeSpeech()
         }
     } else if (config.speechEngine === 'google') {
-        console.log('The Google speech engine is not supported yet. Please come again.');
+        console.warn('The Google speech engine is not supported yet. Please come again.');
         // @todo: implement support for Google Text-to-Speech API,
         // using config.speechEngineToken, config.speechEngineVoice and
         // config.speechEngineAudioConfig
@@ -375,12 +375,12 @@ function readAloud(element, text, config) {
     config = config || {};
 
     if (config.speechEngine !== 'amazon') {
-        console.log('Use Amazon TTS Engine for synchronized highlighting');
+        console.warn('Use Amazon TTS Engine for synchronized highlighting');
         if (config.handleSpeak) config.handleSpeak(text);
         return;
     }
     if (!window.AWS) {
-        console.log('AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk');
+        console.warn('AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk');
         return;
     }
     const polly = new window.AWS.Polly({apiVersion: '2016-06-10'});
@@ -401,7 +401,7 @@ function readAloud(element, text, config) {
     // Request the mark points
     polly.synthesizeSpeech(params, function(err, data) {
         if (err) {
-            console.log('polly.synthesizeSpeech() error:', err, err.stack);
+            console.warn('polly.synthesizeSpeech() error:', err, err.stack);
         } else {
             if (data && data.AudioStream) {
                 const response = new TextDecoder('utf-8').decode(new Uint8Array(data.AudioStream));
@@ -419,7 +419,7 @@ function readAloud(element, text, config) {
                 params.SpeechMarkTypes = [];
                 polly.synthesizeSpeech(params, function(err, data) {
                     if (err) {
-                        console.log('polly.synthesizeSpeech(', text , ') error:', err, err.stack);
+                        console.warn('polly.synthesizeSpeech(', text , ') error:', err, err.stack);
                     } else {
                         if (data && data.AudioStream) {
                             const uInt8Array = new Uint8Array(data.AudioStream);
@@ -698,7 +698,7 @@ function getElement(element) {
 
 function renderMathInElement(element, options) {
     if (!AutoRender) {
-        console.log('The AutoRender module is not loaded.');
+        console.warn('The AutoRender module is not loaded.');
         return;
     }
     options = options || {};

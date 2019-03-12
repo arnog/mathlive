@@ -1116,6 +1116,20 @@ after the focus.</p>
 
 
 
+<div class="description">
+    <p>Apply a style (color, background) to the selection or at the insertion point.</p>
+<p>If the style is already applied to the selection, remove it. If the selection
+has the style partially applied (i.e. only some sections), remove it from 
+those sections, and apply it to the entire selection.</p>
+<p>The current version of the code only deals with color and backgroundColor, 
+but it could be extended to deal with other attributes such as fontWeight \
+(bold/normal), fontStyle (italic, normal) or fontFamily 
+(script, roman, sans, etc...).</p>
+<p>In the case of bold and italic, there are two variants available, and the
+proper one need to be used: \mathbf{} on content in math mode and \textbf{}
+for content in text mode.</p>
+</div>
+
 
 
 

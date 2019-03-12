@@ -809,7 +809,7 @@ function makeKeycap(mf, elList, chainedCommand) {
                     pressAndHoldEnd: 'hideAlternateKeys'
                 }
             } else {
-                console.log('Unknown alt key set: "' + el.getAttribute('data-alt-keys'));
+                console.warn('Unknown alt key set: "' + el.getAttribute('data-alt-keys'));
             }
         }
 
@@ -913,7 +913,7 @@ function expandLayerMarkup(mf, layer) {
         let keys = layout[attributes['name']];
         if (!keys) keys = ROWS['qwerty'][attributes['name']];
         if (!keys) {
-            console.log('Unknown roman keyboard row: ' + attributes['name']);
+            console.warn('Unknown roman keyboard row: ' + attributes['name']);
         } else {
             for (const c of keys) {
                 let cls = attributes['class'] || '';

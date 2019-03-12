@@ -324,7 +324,8 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
 
 
         default:
-            console.log('unknown atom type "' + this.type + '"');
+            console.warn('Unexpected atom type "' + this.type + 
+                '" in "' + (this.latex || this.value) + '"');
             break;
 
     }
