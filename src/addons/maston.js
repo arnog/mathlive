@@ -1145,15 +1145,7 @@ function parsePrimary(expr, options) {
         } else {
             // An identifier
             expr.ast = atom.toAST(options);
-            if (expr.ast.sym === 'i' || expr.ast.sym === 'ⅈ') {
-                // It's 'i', the imaginary unit
-                expr.ast = wrapNum({im: "1"});
-            }
-            // const skip = !nextIsSupsub(expr);
             expr = parseSupsub(expr);
-            // if (skip) {
-            //     expr.index += 1;  // Skip the identifier name
-            // }
         }
         expr = parsePostfix(expr, options);
 
@@ -1447,9 +1439,16 @@ function parseExpression(expr, options) {
                     if (fn === 'add' && lhs && lhs.fn === 'subtract') {
                         // subtract(x, y) + z -> add(x, -y, z)
                         lhs = wrapFn('add', getArg(lhs, 0), negate(getArg(lhs, 1)), rhs);
-                    } else if (fn && lhs && lhs.fn === fn) {
+                    } else if (fn && lhs && lhs.fn === fn && !hasSup(lhs)) {
                         // add(x,y) + z -> add(x, y, z)
-                        if (typeof rhs !== 'undefined') lhs.arg.push(rhs);
+                        if (typeof rhs !== 'undefined') {
+                            if (rhs.fn === fn && !hasSup(rhs)) {
+                                // add(x, y) = add (a, b)
+                                lhs.arg = [...lhs.arg, ...rhs.arg];
+                            } else {
+                                lhs.arg.push(rhs);
+                            }
+                        }
                     } else if (fn && rhs && rhs.fn === fn) {
                         // x =   y = z -> equal(x, y, z)
                         rhs.arg.unshift(lhs);
@@ -1680,7 +1679,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
             break;
         default:
             result = undefined;
-            console.log('Unhandled atom ' + this.type + ' - ' + this.body);
+            console.warn('Unhandled atom "' + this.type + '" in "' + (this.latex || this.body) + '"');
     }
 
     if (result && variant && variant !== 'normal') {
