@@ -341,7 +341,7 @@ MathField.prototype.handleEvent = function(evt) {
         case 'cut': this._onCut(evt); break;
         case 'copy': this._onCopy(evt); break;
         case 'paste': this._onPaste(evt); break;
-        default: console.log('unexpected event type', evt.type);
+        default: console.warn('Unexpected event type', evt.type);
     }
 }
 
@@ -766,7 +766,7 @@ function speakableText(mathfield, prefix, atoms) {
         // example when a command has no effect.
         if (target.plonkSound) {
             target.plonkSound.load();
-            target.plonkSound.play().catch(err => console.log(err));
+            target.plonkSound.play().catch(err => console.warn(err));
         }
         // As a side effect, reset the inline shortcut buffer
         target._resetInlineShortcutBuffer();
@@ -985,10 +985,10 @@ MathField.prototype.performWithFeedback_ = function(command) {
         command === 'complete') {
         if (this.returnKeypressSound) {
             this.returnKeypressSound.load();
-            this.returnKeypressSound.play().catch(err => console.log(err));
+            this.returnKeypressSound.play().catch(err => console.warn(err));
         } else if (this.keypressSound) {
             this.keypressSound.load();
-            this.keypressSound.play().catch(err => console.log(err));
+            this.keypressSound.play().catch(err => console.warn(err));
         }
     } else if (command === 'deletePreviousChar' ||
         command === 'deleteNextChar' ||
@@ -1000,14 +1000,14 @@ MathField.prototype.performWithFeedback_ = function(command) {
         command === 'deleteToMathFieldEnd') {
             if (this.deleteKeypressSound) {
                 this.deleteKeypressSound.load();
-                this.deleteKeypressSound.play().catch(err => console.log(err));
+                this.deleteKeypressSound.play().catch(err => console.warn(err));
             } else if (this.keypressSound) {
                 this.keypressSound.load();
-                this.keypressSound.play().catch(err => console.log(err));
+                this.keypressSound.play().catch(err => console.warn(err));
             }
     } else if (this.keypressSound) {
         this.keypressSound.load();
-        this.keypressSound.play().catch(err => console.log(err));
+        this.keypressSound.play().catch(err => console.warn(err));
     }
 
     return this.perform(command);
@@ -1175,7 +1175,7 @@ MathField.prototype._onTypedText = function(text, options) {
         }
         if (this.keypressSound) {
             this.keypressSound.load();            
-            this.keypressSound.play().catch(err => console.log(err));
+            this.keypressSound.play().catch(err => console.warn(err));
         }
     }
 
@@ -1313,7 +1313,7 @@ MathField.prototype._render = function(renderOptions) {
     // 2. Validate selection
     //
     if (!this.mathlist.anchor()) {
-        console.log('Invalid selection. Resetting it.' + MathPath.pathToString(this.mathlist.path));
+        console.warn('Invalid selection, resetting it. ' + MathPath.pathToString(this.mathlist.path));
         this.mathlist.path = [{relation: 'body', offset: 0}];
     }
 

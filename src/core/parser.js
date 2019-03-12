@@ -1138,7 +1138,8 @@ class Parser {
                 }
             }
         } else {
-            console.warn('Unexpected token type "' + token.type + '"');
+            console.warn('Unexpected token type "' + token.type + 
+                '" in "' + (this.latex || this.value) + '"');
         }
         return result;
     }
