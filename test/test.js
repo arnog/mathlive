@@ -104,7 +104,7 @@ function mathJSON(latex) {
 
 function equalMathJSON(t, latex, json, comment) {
     t.equal(mathJSON(latex), json, "Latex -> JSON: " + comment);
-    const latexJSON = MASTON.asLatex(json, {precision: 100}).replace(/\\, /g, '').replace(/\\imaginaryI/g, 'i').trim();
+    const latexJSON = MASTON.asLatex(json, {precision: 100}).replace(/\\, /g, '').trim();
     t.equal(latexJSON, latex, "JSON->Latex: " + comment);
 }
 
@@ -812,11 +812,11 @@ test('MATH JSON', function (t) {
     t.equal(mathJSON('-23.45e-11'), '{"num":"-2.345e-10"}', 'Number (negative real, scientific, negative exponent)');
     t.equal(mathJSON('-2.345\\cdot  10^{-10}'), '{"num":"-2.345e-10"}', 'Number (negative real, scientific, alternative)');
 
-    equalMathJSON(t, '2i', '{"num":{"im":"2"}}', 'Imaginary part of a complex number');
-    equalMathJSON(t, '1+2i', '{"num":{"re":"1","im":"2"}}', 'Imaginary and real part of a complex number');
-    equalMathJSON(t, '-1-2i', '{"num":{"re":"-1","im":"-2"}}', 'Negative imaginary and real part of a complex number');
-    equalMathJSON(t, '2i  + 1', '{"fn":"add","arg":[{"num":{"im":"2"}},{"num":"1"}]}', 'Imaginary and real part of a complex number, reversed');
-    equalMathJSON(t, '\\frac{1}{5}i  + \\frac{1}{2}', 
+    equalMathJSON(t, '2\\imaginaryI', '{"num":{"im":"2"}}', 'Imaginary part of a complex number');
+    equalMathJSON(t, '1+2\\imaginaryI', '{"num":{"re":"1","im":"2"}}', 'Imaginary and real part of a complex number');
+    equalMathJSON(t, '-1-2\\imaginaryI', '{"num":{"re":"-1","im":"-2"}}', 'Negative imaginary and real part of a complex number');
+    equalMathJSON(t, '2\\imaginaryI  + 1', '{"fn":"add","arg":[{"num":{"im":"2"}},{"num":"1"}]}', 'Imaginary and real part of a complex number, reversed');
+    equalMathJSON(t, '\\frac{1}{5}\\imaginaryI  + \\frac{1}{2}', 
         '{"fn":"add","arg":[{"fn":"multiply","arg":[{"fn":"divide","arg":[{"num":"1"},{"num":"5"}]},{"num":{"im":"1"}}]},{"fn":"divide","arg":[{"num":"1"},{"num":"2"}]}]}',
         'Imaginary and real part of a complex number, fractionals');
 
@@ -873,10 +873,10 @@ test('MATH JSON', function (t) {
     equalMathJSON(t, '(2 \\times 4)^{2}', 
         '{"group":{"fn":"multiply","arg":[{"num":"2"},{"num":"4"}]},"sup":{"num":"2"}}', 
         'Square of implicit function');
-    equalMathJSON(t, '(2i )^{2}', 
+    equalMathJSON(t, '(2\\imaginaryI )^{2}', 
         '{"group":{"num":{"im":"2"}},"sup":{"num":"2"}}', 
         'Square of implicit function (complex)');
-    equalMathJSON(t, '(2i  + 1)^{2}', 
+    equalMathJSON(t, '(2\\imaginaryI  + 1)^{2}', 
         '{"group":{"fn":"add","arg":[{"num":{"im":"2"}},{"num":"1"}]},"sup":{"num":"2"}}', 
         'Square of complex');
 
@@ -885,8 +885,8 @@ test('MATH JSON', function (t) {
         'Square root implicitly multiplied by identifier');
 
     t.equal(mathJSON('\\sqrt{3}i'), 
-        '{"fn":"multiply","arg":[{"fn":"sqrt","arg":[{"num":"3"}]},{"num":{"im":"1"}}]}', 
-        'Square root implicitly multiplied by imaginary unit');
+        '{"fn":"multiply","arg":[{"fn":"sqrt","arg":[{"num":"3"}]},{"sym":"i"}]}', 
+        'Square root implicitly multiplied by i, not interpreted as the imaginary unit');
 
     t.equal(mathJSON('\\cos ^{-1}x'), 
         '{"fn":"arccos","arg":[{"sym":"x"}]}', 
@@ -971,6 +971,10 @@ test('MATH JSON', function (t) {
     equalMathJSON(t, 'f (x) = \\sin x', 
         '{"fn":"equal","arg":[{"fn":"f","arg":[{"sym":"x"}]},{"fn":"sin","arg":[{"sym":"x"}]}]}',
         'function definition');
+
+    // equalMathJSON(t, '\\cdot x', 
+    //     '',
+    //     'unary operator');
 
     t.end();
 });

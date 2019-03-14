@@ -1145,6 +1145,10 @@ function parsePrimary(expr, options) {
         } else {
             // An identifier
             expr.ast = atom.toAST(options);
+            if (expr.ast.sym === 'ⅈ') {
+                // It's 'i', the imaginary unit
+                expr.ast = wrapNum({im: "1"});
+            }
             expr = parseSupsub(expr);
         }
         expr = parsePostfix(expr, options);
