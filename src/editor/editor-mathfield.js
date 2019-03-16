@@ -441,14 +441,14 @@ function nearestElementFromPoint(el, x, y) {
     } else {
         result.element = el;
 
-        // Calculate the (square of the ) distance to the rectangle
+        // Calculate the (square of the) distance to the rectangle
         const r = el.getBoundingClientRect();
-        const dx = Math.max(r.left - x, 0, x - r.right);
-        const dy = Math.max(r.top - y, 0, y - r.bottom);
+        const dx = Math.max(r.left - x, x - r.right);
+        const dy = Math.max(r.top - y, y - r.bottom);
         result.distance = dx * dx + dy * dy;
 
-        // Only consider children if the target is inside the (horizontal) bounds of
-        // of the element.
+        // Only consider children if the target is inside the (horizontal) 
+        // bounds of the element.
         // This avoid searching the numerator/denominator when a fraction
         // is the last element in the formula.
         considerChildren = x >= r.left && x <= r.right;
@@ -486,9 +486,7 @@ MathField.prototype._pathFromPoint = function(x, y) {
             // If the atom does not allow children to be selected
             // (captureSelection === true), the element matches if any of
             // its children has an ID that matches.
-            return atom.filter(function(childAtom) {
-                return childAtom.id === id;
-            }).length > 0;
+            return atom.filter(childAtom => childAtom.id === id).length > 0;
         });
 
         if (atoms && atoms.length > 0) {
@@ -534,11 +532,10 @@ MathField.prototype._onPointerDown = function(evt) {
         const x = moveEvt.touches ? moveEvt.touches[0].clientX : moveEvt.clientX;
         const y = moveEvt.touches ? moveEvt.touches[0].clientY : moveEvt.clientY;
         const focus = that._pathFromPoint(x, y);
-        if (anchor && focus) {
-            if (that.mathlist.setRange(anchor, focus)) {
-                // Re-render if the range has actually changed
-                setTimeout(that._render.bind(that), 0);
-            }
+        if (anchor && focus && that.mathlist.setRange(anchor, focus)) {
+            // Re-render if the range has actually changed
+            // setTimeout(that._render.bind(that), 0);
+            requestAnimationFrame(that._render.bind(that));
         }
         // Prevent synthetic mouseMove event when this is a touch event
         moveEvt.preventDefault();
