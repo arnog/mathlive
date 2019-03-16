@@ -1857,7 +1857,7 @@ function decompose(context, atoms) {
                                 if (base) selectionType = base.type;
                             }
                             if (selectionType === 'array') selectionType = 'mopen';
-                            if (selectionType === 'leftright') selectionType = 'minner';
+                            if (selectionType === 'leftright') selectionType = 'mopen';
                             if (/^(first|accent|surd|genfrac|textord|font|placeholder|box|color)$/.test(selectionType)) {
                                 selectionType = 'mord';
                             }
