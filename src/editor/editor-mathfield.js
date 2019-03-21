@@ -18,6 +18,7 @@ import Shortcuts from './editor-shortcuts.js';
 import Popover from './editor-popover.js';
 import VirtualKeyboard from './editor-virtualKeyboard.js';
 import GraphemeSplitter from '../core/grapheme-splitter.js';
+import { i18n } from './i18n.js';
 import OutputLatex from '../addons/outputLatex.js'; // eslint-disable-line no-unused-vars
 import OutputMathML from '../addons/outputMathML.js'; // eslint-disable-line no-unused-vars
 import MASTON from '../addons/maston.js'; // eslint-disable-line no-unused-vars
@@ -119,7 +120,7 @@ function releaseSharedElement(el) {
  * 
  * @param {Element} element - The DOM element that this mathfield is attached to.
  * Note that `element.mathfield` is this object.
- * @param {object} config - See {@linkcode module:MathLive#makeMathField MathLive.makeMathField()} for details
+ * @param {object} config - See {@tutorial CONFIG} for details
  * @property {Element} element - The DOM element this mathfield is attached to.
  * @property {Object.<string, any>} config - A set of key/value pairs that can
  * be used to customize the behavior of the mathfield
@@ -201,7 +202,7 @@ function MathField(element, config) {
     // Only display the virtual keyboard toggle if the virtual keyboard mode is
     // 'manual'
     if (this.config.virtualKeyboardMode === 'manual') {
-        markup += `<button class="ML__virtual-keyboard-toggle" data-tooltip="Toggle Virtual Keyboard">`;
+        markup += `<button class="ML__virtual-keyboard-toggle" data-tooltip="${i18n('tooltip.toggle virtual keyboard')}">`;
                     // data-tooltip='Toggle Virtual Keyboard'
         if (this.config.virtualKeyboardToggleGlyph) {
             markup += this.config.virtualKeyboardToggleGlyph;
@@ -643,7 +644,7 @@ MathField.prototype._onSelectionDidChange = function() {
     // If the selection is not collapsed, put it in the textarea
     // This will allow cut/copy to work.
     let result = '';
-    this.mathlist.forEachSelected(atom => { result += atom.toLatex(); });
+    this.mathlist.forEachSelected(atom => { result += atom.toLatex() });
     if (result) {
         this.textarea.value = result;
         // The textarea may be a span (on mobile, for example), so check that
@@ -918,7 +919,7 @@ MathField.prototype.$perform = function(command) {
 
     if (typeof this.mathlist[selector] === 'function') {
         if (/^(delete|transpose|add)/.test(selector)) {
-            if (this.selectionIsCollapsed() && 
+            if (this.mathlist.isCollapsed() && 
                 selector === 'deletePreviousChar_') {
                 this.inlineShortcutBuffer = this.inlineShortcutBuffer.substring(0, this.inlineShortcutBuffer.length - 1);
                 this.inlineShortcutStates.pop();
@@ -1457,6 +1458,9 @@ MathField.prototype.formatMathlist = function(root, format) {
     }
     return result;
 }
+
+
+
 
 //
 // PUBLIC API
@@ -2365,7 +2369,6 @@ MathField.prototype.applyStyle_ = function(style) {
     this.undoManager.snapshot(this.config);
     return true;
 }
-
 MathField.prototype.hasFocus = 
 MathField.prototype.$hasFocus = function() {
     return document.hasFocus() && document.activeElement === this.textarea;
@@ -2480,6 +2483,10 @@ MathField.prototype.$setConfig = function(conf) {
         this.config.namespace += '-';
     }
 
+    // Localization strings override (or localizations for new locales)
+    i18n.locale = this.config.locale || i18n.locale;
+    i18n.merge(this.config.strings);
+
     // Possible keypress sound feedback
     this.keypressSound = undefined;
     this.spacebarKeypressSound = undefined;
@@ -2551,8 +2558,8 @@ MathField.prototype._speak = function(text) {
  */
 MathField.prototype.speakSelection_ = function() {
     let text = "Nothing selected.";
-    if (!this.isCollapsed()) {
-        text = MathAtom.toSpeakableText(this.extractContents(), this.config)
+    if (!this.mathlist.isCollapsed()) {
+        text = MathAtom.toSpeakableText(this.mathlist.extractContents(), this.config)
     }
     this._speak(text);
     return false;

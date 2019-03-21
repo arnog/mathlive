@@ -7,41 +7,38 @@ import Span from '../core/span.js';
 import Lexer from '../core/lexer.js';
 import ParserModule from '../core/parser.js';
 import Color from '../core/color.js';
-import '../core/definitions.js';
 import '../addons/outputLatex.js';
-import './editor-popover.js';
-import './editor-keyboard.js';
-import './editor-shortcuts.js';
+import { i18n } from './i18n.js';
 
 const KEYBOARDS = {
     'numeric': {
-        tooltip: 'Numeric',
+        tooltip: i18n('tooltip.Numeric'),
         layer: 'math',
         label: '123',
         layers: ['math']
     },
     'roman': {
-        tooltip: 'Symbols and Roman Letters',
+        tooltip: i18n('Symbols and Roman Letters'),
         layer: 'lower-roman',
         label: 'ABC',
         layers: ['lower-roman', 'upper-roman', 'symbols']
     },
     'greek': {
-        tooltip: 'Greek Letters',
+        tooltip: i18n('Greek Letters'),
         layer: 'lower-greek',
         label: '&alpha;&beta;&gamma;',
         classes: 'tex-math',
         layers: ['lower-greek', 'upper-greek']
     },
     'functions': {
-        tooltip: 'Functions',
+        tooltip: i18n('Functions'),
         layer: 'functions',
         label: '<i>f</i>&thinsp;()',
         classes: 'tex',
         layers: ['functions']
     },
     'command': {
-        tooltip: 'LaTeX Command Mode',
+        tooltip: i18n('LaTeX Command Mode'),
         // For the command keyboard, perform a command rather than
         // doing a simple layer switch, as we want to enter command mode
         // when the keyboard is activated
@@ -735,17 +732,17 @@ function makeKeyboardToolbar(mf, keyboardIDs, currentKeyboard) {
         <div class='right'>
             <div class='action'
                 data-command='"copyToClipboard"'
-                data-tooltip='Copy to Clipboard' data-placement='top' data-delay='1s'>
+                data-tooltip='${i18n('tooltip.copy to clipboard')}' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-copy' /></svg>
             </div>
             <div class='action disabled'
                 data-command='"undo"'
-                data-tooltip='Undo' data-placement='top' data-delay='1s'>
+                data-tooltip='${i18n('tooltip.undo')}' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-undo' /></svg>
             </div>
             <div class='action disabled'
                 data-command='"redo"'
-                data-tooltip='Redo' data-placement='top' data-delay='1s'>
+                data-tooltip='${i18n('tooltip.redo')}' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-redo' /></svg>
             </div>
         </div>
