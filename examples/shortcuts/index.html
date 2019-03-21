@@ -25,7 +25,7 @@
         </div>
 
         <h2>Custom inline shortcuts</h2>
-        <p>This field has been configured with a set of MathASCII inline shortcuts.
+        <p>This field has been configured with a set of ASCIIMath inline shortcuts.
         Type <kbd>-=</kbd> again.
         </p>
         <div>
@@ -58,7 +58,7 @@
     import MathLive from '../../mathlive/src/mathlive.js';
 
     function stringOrUndefined(v) {
-        if (typeof v === 'undefined') {
+        if (v === undefined) {
             return '<i>undefined</i>';
         } else if (typeof v === 'string') {
             return '"' + v + '"';

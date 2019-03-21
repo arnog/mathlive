@@ -72,12 +72,12 @@ Note that some operations, such as clicking to change the selection, or losing
 the focus on the mathfield, will automatically timeout the shortcuts.
 
 
-### MathASCII Inline Shortcuts
-[MathASCII](https://github.com/asciimath/asciimathml/blob/master/ASCIIMathML.js) defines a series of shortcuts that can be typed with ASCII characters to 
+### ASCIIMath Inline Shortcuts
+[ASCIIMath](https://github.com/asciimath/asciimathml/blob/master/ASCIIMathML.js) defines a series of shortcuts that can be typed with ASCII characters to 
 represent mathematical symbols and expressions.
 
-The most common MathASCII shortcuts are part of the default inline shortcuts.
-To support additional MathASCII shortcuts, add them to the `inlineShortcuts` 
+The most common ASCIIMath shortcuts are part of the default inline shortcuts.
+To support additional ASCIIMath shortcuts, add them to the `inlineShortcuts` 
 setting.
 
 ```javascript
