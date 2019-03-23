@@ -1342,13 +1342,13 @@ MathField.prototype._render = function(renderOptions) {
     // 3. Update selection state and blinking cursor (caret)
     //
     this.mathlist.forEach( a => {
-            a.hasCaret = false;
+            a.caret = '';
             a.isSelected = false;
         } );
 
     const hasFocus = this.hasFocus();
     if (this.mathlist.isCollapsed()) {
-        this.mathlist.anchor().hasCaret = hasFocus;
+        this.mathlist.anchor().caret = hasFocus ? this.mode : '';
     } else {
         this.mathlist.forEachSelected( a => { a.isSelected = true } );
     }
@@ -2418,9 +2418,9 @@ MathField.prototype.applyStyle_ = function(style) {
         // Switch from math and text mode
         if (this.mathlist.isCollapsed()) {
             if (this.mode === 'text') {
-                this.switchMode_('math', '“', '');
+                this.switchMode_('math');
             } else {
-                this.switchMode_('text', '', '”');
+                this.switchMode_('text');
             }
 
         } else {

@@ -349,8 +349,8 @@ Span.prototype.toMarkup = function(hskip, hscale) {
                     'error': 'ML__error'
                 }[this.type]);
             }
-            if (this.hasCaret && this.type === 'command') {
-                classes.push('ML__caret');
+            if (this.caret && this.type === 'command') {
+                classes.push('ML__command-caret');
             }
         }
         
@@ -431,8 +431,12 @@ Span.prototype.toMarkup = function(hskip, hscale) {
         result = '';
     }
 
-    if (this.hasCaret && this.type !== 'command') {
-        result = '<span class="ML__caret">' + result + '</span>';
+    if (this.caret && this.type !== 'command') {
+        if (this.caret === 'text') {
+            result = result + '<span class="ML__text-caret"></span>';
+        } else {
+            result = result + '<span class="ML__caret"></span>';
+        }
     }
 
     return result;

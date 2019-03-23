@@ -33,6 +33,7 @@
 .ML__base {
     display: inline-block;
     position: relative;
+    cursor: text;
 }
 
 .ML__strut, .ML__strut--bottom {
@@ -47,16 +48,26 @@
     margin-right: -2px;
     position: relative;
     left: -1px;
-    // z-index: 1;
 
     animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
 
+.ML__text-caret:after {
+    content: '';
+    border: none;
+    border-radius: 1px;
+    border-right: 1px solid var(--caret);
+    margin-right: -1px;
+    position: relative;
+    left: 0;
 
-.ML__command.ML__caret:after {
+    animation: ML__caret-blink 1.05s step-end forwards infinite;
+}
+
+.ML__command-caret:after {
+    content: '_';
     border: none;
     margin-right: 0;
-    content: '_';
     margin-right: -1ex;
     position: relative;
     color: var(--caret);
@@ -68,7 +79,9 @@
     white-space: pre;
 }
 
-
+.ML__focused .ML__text {
+    background: hsla(var(--hue), 40%, 50%, .1);
+}
 
 @keyframes  ML__caret-command-blink {
     from, to    { opacity: 1; }
