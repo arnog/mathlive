@@ -353,7 +353,7 @@ Span.prototype.toMarkup = function(hskip, hscale) {
                 classes.push('ML__caret');
             }
         }
-
+        
 
         // Remove duplicate and empty classes
         // and 'mathrm' which is a no-op

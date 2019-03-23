@@ -68,6 +68,21 @@ writeCookie('symbol-access', 'private')
     <p>These configuration options can be passed to <code>MathLive.makeMathField()</code>
 or <code>MathField.$setConfig()</code>.</p>
 <hr>
+<p><strong><code>config.locale</code></strong>:<code>string</code></p>
+<p>The locale (language + region) to use for string localization.</p>
+<p>If not is provided, the locale of the browser is used.</p>
+<hr>
+<p><strong><code>config.strings</code></strong>:<code>object</code></p>
+<p>An object whose keys are a locale string, and whose values are an object of 
+string identifier to localized string. </p>
+<p>Example:</p>
+<pre class="prettyprint source"><code>{
+   'fr-CA': {
+      'tooltip.undo': 'Annuler',
+      'tooltip.redo': 'Refaire',
+   }
+}</code></pre><p>This will override the default localized strings.</p>
+<hr>
 <p><strong><code>config.horizontalSpacingScale=1.0</code></strong>:<code>number</code></p>
 <p>Scaling factor to be
 applied to horizontal spacing between elements of the formula. With a value 
@@ -80,13 +95,16 @@ attributes to avoid collisions with other libraries. </p>
 <p>The namespace should be a string of lowercase letters.</p>
 <hr>
 <p><strong><code>config.substituteTextArea</code></strong>:<code>function</code></p>
-<p>A function that returns a
-focusable element that can be used to capture text input. </p>
+<p>A function that returns a focusable element that can be used to capture text input. </p>
 <p>An (invisible) DOM element is used to capture the keyboard events. By default,
 this element is a <code>&lt;textarea&gt;</code> on desktop and a <code>&lt;span&gt;</code> on mobile devices,
 to prevent the device virtual keyboard from being displayed.</p>
 <p>This function provides the option of substituting the DOM element used for 
 keyboard capture</p>
+<hr>
+<p><strong><code>config.defaultMode</code></strong>:<code>string</code></p>
+<p>One of <code>&quot;math&quot;</code> or <code>&quot;text&quot;</code>. Indicate the input mode that the mathfield
+will be in when created.</p>
 <hr>
 <p><strong><code>config.onFocus</code></strong>:<code>function(mathfield:MathField)</code></p>
 <p>Invoked when the mathfield has

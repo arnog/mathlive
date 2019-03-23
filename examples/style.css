@@ -127,6 +127,9 @@ kbd {
     min-height: 1em;
     padding-top: .5em;
     padding-bottom: .5em;
+
+    word-break: break-word;
+    white-space: pre-wrap;
 }
 
 .mathfield {

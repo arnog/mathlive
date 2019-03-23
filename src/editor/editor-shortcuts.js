@@ -74,8 +74,8 @@ const KEYBOARD_SHORTCUTS = {
     'Ctrl-Shift-Left':          'extendToGroupStart',
     'Ctrl-Shift-Right':         'extendToGroupEnd',
 
-    'Spacebar':                 'moveAfterParent',
-    'Shift-Spacebar':           'moveBeforeParent',
+    'math:Spacebar':                 'moveAfterParent',
+    'math:Shift-Spacebar':           'moveBeforeParent',
 
     'Home':                     'moveToMathFieldStart',
     'mac:Meta-Left':            'moveToMathFieldStart',
@@ -110,8 +110,8 @@ const KEYBOARD_SHORTCUTS = {
     'ios:command:Tab':          'nextSuggestion',
     'command:Up':               'previousSuggestion',
 
-    '!mac:math:Ctrl-KeyA':      'selectAll',
-    'mac:math:Meta-KeyA':       'selectAll',
+    '!mac:Ctrl-KeyA':      'selectAll',
+    'mac:Meta-KeyA':       'selectAll',
 
     // Rare keys on some extended keyboards
     'Cut':                      'cut',
@@ -155,6 +155,8 @@ const KEYBOARD_SHORTCUTS = {
     'mac:Ctrl-KeyL':            'scrollIntoView',
     'mac:Ctrl-KeyT':            'transpose',
 
+    'math:Shift-Quote':         ['switch-mode', 'text', '', '“'],
+    'text:Shift-Quote':         ['switch-mode', 'math', '”', ''],
 
     // WOLFRAM MATHEMATICA BINDINGS
     'math:Ctrl-Digit2':          ['insert', '\\sqrt{#0}'],

@@ -18,7 +18,8 @@ import Shortcuts from './editor-shortcuts.js';
 import Popover from './editor-popover.js';
 import VirtualKeyboard from './editor-virtualKeyboard.js';
 import GraphemeSplitter from '../core/grapheme-splitter.js';
-import { i18n } from './i18n.js';
+import { toASCIIMath } from './outputASCIIMath.js';
+import { l10n } from './l10n.js';
 import OutputLatex from '../addons/outputLatex.js'; // eslint-disable-line no-unused-vars
 import OutputMathML from '../addons/outputMathML.js'; // eslint-disable-line no-unused-vars
 import MASTON from '../addons/maston.js'; // eslint-disable-line no-unused-vars
@@ -202,7 +203,7 @@ function MathField(element, config) {
     // Only display the virtual keyboard toggle if the virtual keyboard mode is
     // 'manual'
     if (this.config.virtualKeyboardMode === 'manual') {
-        markup += `<button class="ML__virtual-keyboard-toggle" data-tooltip="${i18n('tooltip.toggle virtual keyboard')}">`;
+        markup += `<button class="ML__virtual-keyboard-toggle" data-tooltip="${l10n('tooltip.toggle virtual keyboard')}">`;
                     // data-tooltip='Toggle Virtual Keyboard'
         if (this.config.virtualKeyboardToggleGlyph) {
             markup += this.config.virtualKeyboardToggleGlyph;
@@ -259,6 +260,15 @@ function MathField(element, config) {
     // This index indicates which of the suggestions available to
     // display in the popover panel
     this.suggestionIndex = 0;
+
+    // The input mode (text, math, command)
+    // While mathlist.parseMode() represent the mode of the current selection,
+    // this.mode is the mode chosen by the user. It indicates the mode the 
+    // next character typed will be interpreted in. 
+    // It is often identical to mathlist.parseMode() since changing the selection
+    // changes the mode, but sometimes it is not, for example when a user 
+    // enters a mode changing command.
+    this.mode = config.defaultMode || 'math';
 
     // Focus/blur state
     this.blurred = true;
@@ -657,6 +667,9 @@ MathField.prototype._onSelectionDidChange = function() {
         this.textarea.setAttribute('aria-label', '');
     }
 
+    // Update the mode
+    this.mode = this.mathlist.parseMode();
+
     // Defer the updating of the popover position: we'll need the tree to be
     // re-rendered first to get an updated caret position
     Popover.updatePopoverPosition(this, {deferred: true});
@@ -928,13 +941,13 @@ MathField.prototype.$perform = function(command) {
             } 
         }
 
-        if (/^(delete|transpose|add)/.test(selector) && this.mathlist.parseMode() !== 'command') {
+        if (/^(delete|transpose|add)/.test(selector) && this.mode !== 'command') {
             // Update the undo state to account for the current selection
             this.undoManager.pop();
             this.undoManager.snapshot(this.config);
         }
         this.mathlist[selector](...args);
-        if (/^(delete|transpose|add)/.test(selector) && this.mathlist.parseMode() !== 'command') {
+        if (/^(delete|transpose|add)/.test(selector) && this.mode !== 'command') {
             this.undoManager.snapshot(this.config);
         }
         dirty = true;
@@ -1044,7 +1057,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
     // would match a long shortcut (i.e. '~~')
     // Ignore the key if command or control is pressed (it may be a shortcut, 
     // see 4.2)
-    if ((!evt || (!evt.ctrlKey && !evt.metaKey)) && this.mathlist.parseMode() === 'math') {
+    if ((!evt || (!evt.ctrlKey && !evt.metaKey)) && this.mode === 'math') {
         const c = Keyboard.eventToChar(evt);
         // The Backspace key will be handled as a delete command later (3.2)
         if (c !== 'Backspace') {
@@ -1082,8 +1095,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
     // shift+backquote is a keystroke that inserts "\~"", but "~~" is a 
     // shortcut for "\approx" and needs to have priority over shift+backquote
     if (!shortcut && !selector) {
-        selector = Shortcuts.selectorForKeystroke(this.mathlist.parseMode(),
-            keystroke);
+        selector = Shortcuts.selectorForKeystroke(this.mode, keystroke);
     }
 
 
@@ -1104,22 +1116,32 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
         parent.type === 'leftright' && 
         this.mathlist.endOffset() === this.mathlist.siblings().length - 1 &&
         this.mathlist._insertSmartFence('.')) {
+            // Pressing the space bar (moveAfterParent selector) when at the end 
+            // of a potential smartfence will close it as a semi-open fence
         selector = '';
         this._render(); // Re-render the closed smartfence
     }
+
+    // 5.3 If there's a selector, perform it.
     if ((selector && !this.perform(selector)) || shortcut) {
-        // Perform the selector or insert the shortcut
+
+        // // 5.4 insert the shortcut
         if (shortcut) {
-            // To enable the substitution to be undoable,
-            // insert the character before applying the substitution
-            this.mathlist.insert(Keyboard.eventToChar(evt));
+            // If the shortcut is a mandatory escape sequence (\}, etc...) 
+            // don't make it undoable, this would result in syntactically incorrect
+            // formulas
+            if (!/^(\\{|\\}|\\[|\\]|\\@|\\#|\\$|\\%|\\^|\\_|\\backslash)$/.test(shortcut)) {
+                // To enable the substitution to be undoable,
+                // insert the character before applying the substitution
+                this.mathlist.insert(Keyboard.eventToChar(evt));
 
-            // Create a snapshot with the inserted character
-            this.undoManager.snapshotAndCoalesce(this.config);
+                // Create a snapshot with the inserted character
+                this.undoManager.snapshotAndCoalesce(this.config);
 
-            // Revert to the state before the beginning of the shortcut
-            // (restore doesn't change the undo stack)
-            this.undoManager.restore(this.inlineShortcutStates[shortcutStateIndex], this.config);
+                // Revert to the state before the beginning of the shortcut
+                // (restore doesn't change the undo stack)
+                this.undoManager.restore(this.inlineShortcutStates[shortcutStateIndex], this.config);
+            }
 
             // Insert the substitute, possibly as a smart fence
             if (!this.mathlist._insertSmartFence(shortcut)) {
@@ -1136,7 +1158,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
         }
     }
 
-    // 5.3 Keystroke has been handled, if it wasn't caught in the default
+    // 6. Keystroke has been handled, if it wasn't caught in the default
     // case, so prevent propagation
     if (evt && evt.preventDefault) {
         evt.preventDefault();
@@ -1177,10 +1199,8 @@ MathField.prototype._onTypedText = function(text, options) {
         }
     }
 
-    if (options.commandMode) {
-        if (this.mathlist.parseMode() !== 'command') {
-            this.enterCommandMode_();
-        }
+    if (options.commandMode && this.mode !== 'command') {
+        this.enterCommandMode_();
     }
 
     // Remove any error indicator on the current command sequence
@@ -1219,7 +1239,7 @@ MathField.prototype._onTypedText = function(text, options) {
         // professional emojis, including the David Bowie emoji.
         const graphemes = GraphemeSplitter.splitGraphemes(text);
         for (const c of graphemes) {
-            if (this.mathlist.parseMode() === 'command') {
+            if (this.mode === 'command') {
                 this.mathlist.removeSuggestion();
                 this.suggestionIndex = 0;
                 const command = this.mathlist.extractCommandStringAroundInsertionPoint();
@@ -1240,7 +1260,7 @@ MathField.prototype._onTypedText = function(text, options) {
                     }
                     popoverText = suggestions[0].match;
                 }
-            } else if (this.mathlist.parseMode() === 'math') {
+            } else if (this.mode === 'math') {
                 // Some characters are mapped to commands. Handle them here.
                 // This is important to handle synthetic text input and
                 // non-US keyboards, on which, fop example, the '^' key is
@@ -1254,14 +1274,17 @@ MathField.prototype._onTypedText = function(text, options) {
                     this.perform(selector);
                 } else {
                     if (!this.mathlist._insertSmartFence(c)) {
-                        this.mathlist.insert(c);
+                        this.mathlist.insert(c, { mode: 'math' });
                     }
                 }
+            } else if (this.mode === 'text') {
+                this.mathlist.insert(c, { mode: 'text' });
+
             }
         }
     }
 
-    if (this.mathlist.parseMode() !== 'command') {
+    if (this.mode !== 'command') {
         this.undoManager.snapshotAndCoalesce(this.config);
     }
 
@@ -1455,6 +1478,9 @@ MathField.prototype.formatMathlist = function(root, format) {
     } else if (format === 'json') {
         const json = MathAtom.toAST(root, this.config);
         result = JSON.stringify(json);
+    
+    } else if (format === 'ASCIIMath') {
+        result = toASCIIMath(root, this.config);
     }
     return result;
 }
@@ -1547,6 +1573,15 @@ MathField.prototype.$selectionAtStart = function() {
 MathField.prototype.selectionAtEnd = 
 MathField.prototype.$selectionAtEnd = function() {
     return this.mathlist.endOffset() >= this.mathlist.siblings().length - 1;
+}
+
+
+/**
+ *  True if the entire group is selected
+ * */
+MathField.prototype.groupIsSelected = function() {
+    return this.mathlist.startOffset() === 0 && 
+        this.mathlist.endOffset() >= this.mathlist.siblings().length - 1;
 }
 
 /**
@@ -1727,12 +1762,24 @@ MathField.prototype.$insert = function(s, options) {
         } else if (s === '&') {
             this.mathlist.addColumnAfter_();
         } else {
-            this.mathlist.insert(s, options);
+            this.mathlist.insert(s, { mode: this.mode, ...options });
         }
         this.undoManager.snapshot(this.config);
         return true;
     }
     return false;
+}
+
+
+MathField.prototype.switchMode_ = function(mode, prefix, suffix) {
+    if (prefix) {
+        this.insert(prefix, { format: 'latex' });
+    }
+    this.mode = mode;
+    if (suffix) {
+        this.insert(suffix, { format: 'latex' });
+    }
+    this._render();
 }
 
 
@@ -1751,7 +1798,9 @@ MathField.prototype.complete_ = function() {
             this.mathlist.spliceCommandStringAroundInsertionPoint([]);
             this.mathlist.insert(command.slice(1));
         } else {
-            const mode = 'math'; // @todo this.mathlist.parseMode();
+            // We'll use the mode of the atom before the command
+            const mode = this.mathlist.siblings()[this.mathlist.commandOffsets().start - 1].mode;
+
             let match = Definitions.matchFunction(mode, command);
             if (!match) {
                 match = Definitions.matchSymbol(mode, command);
@@ -2365,10 +2414,49 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
 }
 
 MathField.prototype.applyStyle_ = function(style) {
-    this.mathlist._applyStyle(style);
+    if (style.mode) {
+        // Switch from math and text mode
+        if (this.mathlist.isCollapsed()) {
+            if (this.mode === 'text') {
+                this.switchMode_('math', '“', '');
+            } else {
+                this.switchMode_('text', '', '”');
+            }
+
+        } else {
+            // Convert the selection from one mode to another
+            let convertedSelection;
+            const selection = this.mathlist.extractContents();
+            const targetMode = selection[0].mode === 'math' ? 'text' : 'math';
+            if (targetMode === 'text') { 
+                convertedSelection = this.$selectedText('ASCIIMath')
+            } else {
+                convertedSelection = this.$selectedText('text')
+            }
+            this.insert(convertedSelection, {
+                mode: targetMode,
+                format: targetMode === 'math' ? 'auto' : 'text'
+            });
+
+            this.mode = targetMode;
+
+            if (this.groupIsSelected()) {
+                // The entire group was selected. Adjust parent mode if 
+                // appropriate
+                const parent = this.mathlist.parent();
+                if (parent && (parent.type === 'group' || parent.type === 'root')) {
+                    parent.mode = targetMode;
+                }
+            }
+
+        }
+    } else {
+        this.mathlist._applyStyle(style);
+    }
     this.undoManager.snapshot(this.config);
     return true;
 }
+
 MathField.prototype.hasFocus = 
 MathField.prototype.$hasFocus = function() {
     return document.hasFocus() && document.activeElement === this.textarea;
@@ -2484,8 +2572,8 @@ MathField.prototype.$setConfig = function(conf) {
     }
 
     // Localization strings override (or localizations for new locales)
-    i18n.locale = this.config.locale || i18n.locale;
-    i18n.merge(this.config.strings);
+    l10n.locale = this.config.locale || l10n.locale;
+    l10n.merge(this.config.strings);
 
     // Possible keypress sound feedback
     this.keypressSound = undefined;

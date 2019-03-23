@@ -137,12 +137,23 @@ EditableMathlist.prototype.forEach = function(cb) {
  * @param {function} cb - A callback called for each selected atom in the 
  * mathlist.
  */
-EditableMathlist.prototype.forEachSelected = function(cb) {
+EditableMathlist.prototype.forEachSelected = function(cb, options) {
+    options = options || {};
+    options.recursive = typeof options.recursive !== 'undefined' ? 
+        options.recursive : false
     const siblings = this.siblings()
     const firstOffset = this.startOffset() + 1;
     const lastOffset = this.endOffset() + 1;
-    for (let i = firstOffset; i < lastOffset; i++) {
-        if (siblings[i] && siblings[i].type !== 'first') siblings[i].forEach(cb);
+    if (options.recursive) {
+        for (let i = firstOffset; i < lastOffset; i++) {
+            if (siblings[i] && siblings[i].type !== 'first') {
+                siblings[i].forEach(cb);
+            }
+        }
+    } else {
+        for (let i = firstOffset; i < lastOffset; i++) {
+            cb(siblings[i])
+        }
     }
 }
 
@@ -1589,11 +1600,13 @@ EditableMathlist.prototype.leap = function(dir, callHandler) {
 
 
 EditableMathlist.prototype.parseMode = function() {
-    const context = this.anchor();
-    if (context) {
-        if (context.type === 'commandliteral' ||
-            context.type === 'esc' ||
-            context.type === 'command') return 'command';
+    const anchor = this.anchor();
+    if (anchor) {
+        if (anchor.type === 'commandliteral' ||
+            anchor.type === 'esc' ||
+            anchor.type === 'command') return 'command';
+        if (anchor.mode) return anchor.mode;
+        if (this.parent().mode) return this.parent().mode;
     }
     return 'math';
 }
@@ -1634,7 +1647,7 @@ function removeParen(list) {
  *
  * @param {string} options.format - The format of the string `s`:
  *    * `'auto'`: the string is interpreted as a latex fragment or command or 
- * MathASCII (default)
+ * ASCIIMath (default)
  *    * `'latex'`: the string is interpreted strictly as a latex fragment
  *
  * @param {string} options.smartFence - If true, promote plain fences, e.g. `(`,
@@ -1663,7 +1676,7 @@ EditableMathlist.prototype.insert = function(s, options) {
     if (!options.format) options.format = 'auto';
     options.macros = options.macros || this.config.macros;
 
-    const parseMode = this.parseMode();
+    const parseMode = options.mode || this.parseMode();
     let mathlist;
 
     // Save the content of the selection, if any
@@ -1697,7 +1710,7 @@ EditableMathlist.prototype.insert = function(s, options) {
         this.delete_(-1);
     }
 
-    if (options.format === 'auto') {
+    if (parseMode !== 'text' && options.format === 'auto') {
         if (parseMode === 'command') {
             // Short-circuit the tokenizer and parser if in command mode
             mathlist = [];
@@ -1746,9 +1759,25 @@ EditableMathlist.prototype.insert = function(s, options) {
                 mathlist[0].denom = removeParen(mathlist[0].denom);
             }
         }
+
     } else if (options.format === 'latex') {
         mathlist = ParserModule.parseTokens(
             Lexer.tokenize(s), parseMode, args, options.macros, options.smartFence);
+
+    } else if (parseMode === 'text' || options.format === 'text') {
+        // Map special TeX characters to alternatives
+        s = s.replace(/\\/g, '\\backslash');
+        s = s.replace(/{/g, '\\{');
+        s = s.replace(/}/g, '\\}');
+        s = s.replace(/#/g, '\\#');
+        s = s.replace(/%/g, '\\%');
+        s = s.replace(/&/g, '\\&');
+        s = s.replace(/_/g, '\\_');
+        s = s.replace(/\$/g, '\\$');
+        s = s.replace(/\^/g, '\\char"00005E');
+
+        mathlist = ParserModule.parseTokens(
+            Lexer.tokenize(s), 'text', args, options.macros, false);
     }
 
     // Insert the mathlist at the position following the anchor
@@ -1757,6 +1786,7 @@ EditableMathlist.prototype.insert = function(s, options) {
 
     // If needed, make sure there's a first atom in the siblings list
     this.insertFirstAtom();
+
 
     // Update the anchor's location
     if (options.selectionMode === 'placeholder') {
@@ -1808,10 +1838,10 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
             return true;
          }
     }
-    if (fence === '{') fence = '\\lbrace';
-    if (fence === '[') fence = '\\lbrack';
-    if (fence === '}') fence = '\\rbrace';
-    if (fence === ']') fence = '\\rbrack';
+    if (fence === '{' || fence === '\\{') fence = '\\lbrace';
+    if (fence === '}' || fence === '\\}') fence = '\\rbrace';
+    if (fence === '[' || fence === '\\[') fence = '\\lbrack';
+    if (fence === ']' || fence === '\\]') fence = '\\rbrack';
 
     const rDelim = Definitions.RIGHT_DELIM[fence];
     if (rDelim && !(parent && (parent.type === 'leftright' && parent.leftDelim === '|'))) {
@@ -1833,15 +1863,10 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
         return true;
     }
     // We did not have a valid open fence. Maybe it's a close fence?
-    // Note that '.' is the universal closing fence, so it will match anything
     let lDelim;
-    if (fence === '.') { 
-        lDelim = '.';   // Could be any value, just means we've found a match
-    } else {
-        for (const delim  in Definitions.RIGHT_DELIM) {
-            if (Definitions.RIGHT_DELIM.hasOwnProperty(delim)) {
-                if (fence === Definitions.RIGHT_DELIM[delim]) lDelim = delim;
-            }
+    for (const delim in Definitions.RIGHT_DELIM) {
+        if (Definitions.RIGHT_DELIM.hasOwnProperty(delim)) {
+            if (fence === Definitions.RIGHT_DELIM[delim]) lDelim = delim;
         }
     }
     if (lDelim) {
@@ -2619,6 +2644,7 @@ function filterAtomsForStyle(atoms, style) {
 
 
 
+
 /**
  * Apply a style (color, background) to the selection or at the insertion point.
  * 
@@ -2682,6 +2708,8 @@ EditableMathlist.prototype._applyStyle = function(style) {
         // then apply this style.
     }
 
+    // OK, we now have the atoms on which to apply the selection in `selection`
+
     if (style.color) {
         const styleAtom = new MathAtom.MathAtom(this.parseMode(), 'color', selection);
         styleAtom.latex = '\\textcolor';
@@ -2717,7 +2745,6 @@ EditableMathlist.prototype._applyStyle = function(style) {
         } else {
             this.siblings().splice(this.startOffset() + (isCollapsed ? 1 : 0), 0, styleAtom);
         }
-
 
         selection = [this.sibling(0)];
     }
@@ -2770,7 +2797,7 @@ EditableMathlist.prototype._applyStyle = function(style) {
 
 /**
  * Attempts to parse and interpret a string in an unknown format, possibly
- * MathASCII and return a canonical LaTeX string.
+ * ASCIIMath and return a canonical LaTeX string.
  * 
  * The format recognized are one of these variations:
  * - ASCIIMath: Only supports a subset 

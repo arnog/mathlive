@@ -11,16 +11,41 @@ import MathAtom from '../core/mathAtom.js';
 
 
 /**
- * Give an atom or an array of atoms, return a LaTeX string representation
+ * Given an atom or an array of atoms, return a LaTeX string representation
  * @return {string}
  * @param {string|MathAtom|MathAtom[]} value
  * @private
  */
 function latexify(value, expandMacro) {
     let result = '';
-    if (Array.isArray(value)) {
-        for (const child of value) {
-            result += latexify(child, expandMacro);
+    if (Array.isArray(value) && value.length > 0) {
+        if (value[0].mode === 'text') {
+            // Check if there's a series of text atom
+            let i = 0;
+            while (value[i] && value[i].mode === 'text') {
+                i++;
+            }
+            if (!value[i]) {
+                // The entire list was text mode
+                result += '\\text{';
+                value.forEach(x => { result += latexify(x, expandMacro) } );
+                result += '}';
+            } else {
+                // Some of the list is not text, split it
+                result += latexify(value.slice(0, i), expandMacro);
+                result += latexify(value.slice(i, value.length), expandMacro)
+            }
+        } else {
+            let i = 0;
+            while (value[i] && value[i].mode !== 'text') {
+                i++;
+            }
+            if (!value[i]) {
+                value.forEach(x => { result += latexify(x, expandMacro) } );
+            } else {
+                result += latexify(value.slice(0, i), expandMacro);
+                result += latexify(value.slice(i, value.length), expandMacro);
+            }
         }
     } else if (typeof value === 'number' || typeof value === 'boolean') {
         result = value.toString();

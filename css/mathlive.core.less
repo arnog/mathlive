@@ -63,6 +63,13 @@
     animation: ML__caret-command-blink 1.05s step-end forwards infinite;
 }
 
+/* Text mode */
+.ML__text {
+    white-space: pre;
+}
+
+
+
 @keyframes  ML__caret-command-blink {
     from, to    { opacity: 1; }
     50%         { opacity: 0; }
@@ -149,42 +156,6 @@ body[theme="dark"] .ML__fieldcontainer {
     align-self: center;
 }
 
-/* The element that displays the keys as the user type them */
-.ML__keystroke-caption {
-    visibility: hidden;
-    /*min-width: 160px;*/
-    /*background-color: rgba(97, 97, 200, .95);*/
-    background: var(--secondary);
-    border-color: var(--secondary-border);
-    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-    text-align: center;
-    border-radius: 6px;
-    padding: 16px;
-    position: absolute;
-    z-index: 1;
-
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-
-    // For keystroke caption
-    --keystroke: white;
-    --on-keystroke: #555;
-    --keystroke-border: #f7f7f7;
-}
-@media (prefers-color-scheme: dark) {
-    body:not([theme="light"]) .ML__keystroke-caption {
-        --keystroke: hsl(var(--hue), 50%, 30%);
-        --on-keystroke: hsl(0, 0%, 98%);
-        --keystroke-border: hsl(var(--hue), 50%, 25%);
-    }
-}
-
-body[theme="dark"] .ML__keystroke-caption {
-    --keystroke: hsl(var(--hue), 50%, 30%);
-    --on-keystroke: hsl(0, 0%, 98%);
-    --keystroke-border: hsl(var(--hue), 50%, 25%);
-}
 
 
 .ML__virtual-keyboard-toggle {

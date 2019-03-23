@@ -63,7 +63,11 @@
 .ML__mathlive {
     .mathit {
         font-family: @math_math;
-        font-style: italic;
+        /* The @math_math (KaTeX_Math) font is italic 
+            by default, so the font-style below is only 
+            useful when a fallback font is used
+        */
+        font-style: italic;        
     }
 
     .mathrm {
@@ -502,26 +506,19 @@
             text-align: right;
         }
     }
-
-
-    &.ML__focused .ML__selected {
-        background: var(--highlight) !important;
-        color: var(--on-highlight);
-        // display: inline-block;
-        // color: HighlightText;
-        // border-color: HighlightText;
-    }
-
-    &.ML__blurred .ML__selected {
-        background: var(--highlight-inactive);
-        display: inline-block;
-    }
-
-
-
 }
 
 
+.ML__focused .ML__selected {
+    background: var(--highlight) !important;
+    color: var(--on-highlight);
+    display:inline-block;
+}
+
+.ML__blurred .ML__selected {
+    background: var(--highlight-inactive);
+    display:inline-block;
+}
 
 
 .ML__command {
@@ -543,6 +540,42 @@
 }
 
 
+/* The element that displays the keys as the user type them */
+.ML__keystroke-caption {
+    visibility: hidden;
+    /*min-width: 160px;*/
+    /*background-color: rgba(97, 97, 200, .95);*/
+    background: var(--secondary);
+    border-color: var(--secondary-border);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    text-align: center;
+    border-radius: 6px;
+    padding: 16px;
+    position: absolute;
+    z-index: 1;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+
+    // For keystroke caption
+    --keystroke: white;
+    --on-keystroke: #555;
+    --keystroke-border: #f7f7f7;
+}
+@media (prefers-color-scheme: dark) {
+    body:not([theme="light"]) .ML__keystroke-caption {
+        --keystroke: hsl(var(--hue), 50%, 30%);
+        --on-keystroke: hsl(0, 0%, 98%);
+        --keystroke-border: hsl(var(--hue), 50%, 25%);
+    }
+}
+
+body[theme="dark"] .ML__keystroke-caption {
+    --keystroke: hsl(var(--hue), 50%, 30%);
+    --on-keystroke: hsl(0, 0%, 98%);
+    --keystroke-border: hsl(var(--hue), 50%, 25%);
+}
 
 /* Add an attribute 'data-tooltip' to automatically show a 
    tooltip over a element on hover. 
@@ -1314,7 +1347,7 @@ div.ML__keyboard.material  {
         }
         &:not([data-key=' ']).pressed, 
         &:not([data-key=' ']).active,
-        &:not([data-key=' ']):active,  {
+        &:not([data-key=' ']):active  {
             background: var(--keyboard-alternate-background);
             color: var(--keyboard-alternate-text);
             box-shadow: @shadow3;
@@ -1337,7 +1370,7 @@ div.ML__keyboard.material  {
             }
         }
         &:last-child:active, 
-        &:last-child.active, {
+        &:last-child.active {
             @media only screen and (max-width : 767px) {
                 margin-right: 0;
                 margin-left: 14px;

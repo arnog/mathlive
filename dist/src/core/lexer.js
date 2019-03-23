@@ -141,19 +141,6 @@ class Lexer {
             - \uFEFF ZERO WITH NON-BREAKING SPACE
         */
     }
-    /***
-     * Advance until non-white-space char.
-     * Returns number of chars skipped.
-     * @method module:core/lexer#Lexer#skipWhiteSpace
-     * @private
-     */
-    skipWhiteSpace() {
-        const savedPos = this.pos;
-        while (!this.end() && this.isWhiteSpace()) {
-            this.get();
-        }
-        return this.pos - savedPos;
-    }
     /**
      * Return a single token, or null, created from the lexer.
      *
@@ -164,8 +151,12 @@ class Lexer {
     makeToken() {
         // If we've reached the end, exit
         if (this.end()) return null;
-        // Skip white space
-        if (this.skipWhiteSpace() > 0) return new Token('space');
+        // Handle white space
+        // Note that in text mode, spaces are significant and can't be coalesced.
+        if (this.isWhiteSpace()) {
+            this.get();
+            return new Token('space');
+        }
         let result = null;
         // Is it a command?
         if (this.peek() === '\\') {

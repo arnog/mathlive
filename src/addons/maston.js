@@ -667,7 +667,7 @@ function isAtom(expr, type, value) {
  * @param {object} params 
  */
 function wrapFn(functionName, ...params) {
-    const result = {fn: functionName};
+    const result = { fn: functionName };
     if (params) {
         const args = [];
         for (const arg of params) {
@@ -692,7 +692,7 @@ function wrapNum(num) {
 }
 
 /**
- * Return the negative of the expression. Usually {fn:'negate', arg}
+ * Return the negative of the expression. Usually { fn:'negate', arg }
  * but for numbers, the negated number
  * @param {object} node
  */
@@ -757,13 +757,13 @@ function parseSupsub(expr, options) {
                     expr.index += 1;
                     atom = expr.atoms[expr.index + 1];
                     if (atom && atom.type === 'msubsup' && /['\u2032]|\\prime/.test(getString(atom.superscript))) {
-                        expr.ast.sup = '\u2033'; // DOUBLE-PRIME
+                        expr.ast.sup = {sym: '\u2033'}; // DOUBLE-PRIME
                     } else {
-                        expr.ast.sup = '\u2032'; // PRIME
+                        expr.ast.sup = {sym: '\u2032'}; // PRIME
                         expr.index -= 1;
                     }
                 } else if (/['\u2033]|\\doubleprime/.test(getString(atom.superscript))) {
-                    expr.ast.sup = '\u2033'; // DOUBLE-PRIME
+                    expr.ast.sup = {sym: '\u2033'}; // DOUBLE-PRIME
                 } else if (expr.ast) {
                     expr.ast.sup = parse(atom.superscript, options);
                 }
@@ -880,7 +880,7 @@ function parsePostfix(expr, options) {
                 if (pairedDelim) expr.index += 1;
                 expr.ast = {
                     fn: DELIM_FUNCTION[ldelim + rdelim] || (ldelim + rdelim),
-                    arg: expr.ast};
+                    arg: [expr.ast]};
                 expr.minPrec = savedPrec;
                 return expr;
             }
@@ -1007,7 +1007,8 @@ function parseDigraph(expr) {
 
 function parsePrimary(expr, options) {
 
-    // <primary> := ('-'|'+) <primary> | <number> | '(' <expression> ')' | <symbol>
+    // <primary> := ('-'|'+) <primary> | <number> | 
+    //              '(' <expression> ')' | <symbol> | <text>
 
      expr.index = expr.index || 0;
      expr.ast = undefined;
@@ -1017,6 +1018,19 @@ function parsePrimary(expr, options) {
     }
 
     let atom = expr.atoms[expr.index];
+
+    if (atom.mode === 'text') {
+        // Text mode atom...
+        let text = '';
+        while (expr.atoms[expr.index] && expr.atoms[expr.index].mode === 'text') {
+            text += expr.atoms[expr.index].body;
+            expr.index += 1;
+        }
+        expr.ast = wrapFn('text', text);
+
+        return expr;
+    }
+
     const val = getCanonicalName(getString(atom));
 
     const digraph = parseDigraph(expr);
@@ -1036,11 +1050,11 @@ function parsePrimary(expr, options) {
 
     } else if (atom.type === 'mbin' && val === '+') {
         // Prefix + sign
-        expr.index += 1;  // Skip the '-' symbol
+        expr.index += 1;  // Skip the '+' symbol
         expr = parsePrimary(expr, options);
         expr.ast = wrapFn('add', expr.ast);
 
-    } else if ((atom.type === 'mord' && '0123456789.'.indexOf(atom.latex) >= 0)
+    } else if ((atom.type === 'mord' && /^[0-9.]$/.test(atom.latex))
          || isAtom(expr, 'mpunct', ',')) {
         // Looks like a number
         let num = '';
@@ -1105,6 +1119,7 @@ function parsePrimary(expr, options) {
         expr = parsePostfix(expr, options);
 
     } else if (atom.type === 'genfrac' || atom.type === 'surd') {
+        // A fraction or a square/cube root
         expr.ast = atom.toAST(options);
         expr = parseSupsub(expr, options);
         expr = parsePostfix(expr, options);
@@ -1114,12 +1129,12 @@ function parsePrimary(expr, options) {
         if (expr.ast.sym && expr.ast.variant === 'normal' &&
             isFunction(expr.ast.sym)) {
             // This is a function (for example used with \\mathrm{foo}
-            expr.ast = {fn: expr.ast.sym};
+            expr.ast = { fn: expr.ast.sym };
             expr = parseSupsub(expr, options);
 
             const fn = expr.ast;
             expr.index += 1;  // Skip the function name
-            fn.arg = parsePrimary(expr, options).ast;
+            fn.arg = [parsePrimary(expr, options).ast];
             expr.ast = fn;
 
         } else {
@@ -1133,13 +1148,15 @@ function parsePrimary(expr, options) {
         // a function ('\\Zeta')
         if (isFunction(val) && !isOperator(atom)) {
             // A function
-            expr.ast = {fn: val};
+            expr.ast = { fn: val };
             expr = parseSupsub(expr, options);
 
             const fn = expr.ast;
-            fn.arg = parsePrimary(expr, options).ast;
-            if (fn.arg && (fn.arg.fn === 'list2' || fn.arg.fn === 'list')) {
+            const arg = parsePrimary(expr, options).ast;
+            if (arg && /^(list0|list|list2)$/.test(arg.fn)) {
                 fn.arg = fn.arg.arg;
+            } else if (arg) {
+                fn.arg = [arg]
             }
             expr.ast = fn;
         } else {
@@ -1162,12 +1179,12 @@ function parsePrimary(expr, options) {
                 // Not an operator, not a fence, it's a symbol or a function
                 if (isFunction(val)) {
                     // It's a function
-                    expr.ast = {fn: val};
+                    expr.ast = { fn: val };
                     expr = parseSupsub(expr, options);
 
                     const fn = expr.ast;
                     expr.index += 1;  // Skip the function name
-                    fn.arg = parsePrimary(expr, options).ast;
+                    fn.arg = [parsePrimary(expr, options).ast];
                     expr.ast = fn;
 
                     expr = parsePostfix(expr, options);
@@ -1187,48 +1204,42 @@ function parsePrimary(expr, options) {
     } else if (atom.type === 'mop') {
         // Could be a function or an operator.
         if ((atom.latex === '\\mathop ' || isFunction(val)) && !isOperator(atom)) {
-            expr.ast = {fn: val};
+            expr.ast = { fn: val };
             expr = parseSupsub(expr, options);
 
             if (hasSup(expr.ast)) {
                 // There was an exponent with the function.
-                if (asMachineNumber(expr.ast.sup) === -1) {
-                    // This may be an inverse function
-                    const INVERSE_FUNCTION = {
-                        'sin' : 'arcsin',
-                        'cos':  'arccos',
-                        'tan':  'arctan',
-                        'cot':  'arccot',
-                        'sec':  'arcsec',
-                        'csc':  'arccsc',
-                        'sinh': 'arsinh',
-                        'cosh': 'arcosh',
-                        'tanh': 'artanh',
-                        'csch': 'arcsch',
-                        'sech': 'arsech',
-                        'coth': 'arcoth'
-                    };
-                    if (INVERSE_FUNCTION[expr.ast.fn]) {
-                        const fn = {fn: INVERSE_FUNCTION[expr.ast.fn]};
-                        fn.arg = parsePrimary(expr, options).ast;
-                        expr.ast = fn;
-                    } else {
-                        const fn = expr.ast;
-                        fn.arg = parsePrimary(expr, options).ast;
-                        expr.ast = fn;
-                    }
+                // This may be an inverse function
+                const INVERSE_FUNCTION = {
+                    'sin' : 'arcsin',
+                    'cos':  'arccos',
+                    'tan':  'arctan',
+                    'cot':  'arccot',
+                    'sec':  'arcsec',
+                    'csc':  'arccsc',
+                    'sinh': 'arsinh',
+                    'cosh': 'arcosh',
+                    'tanh': 'artanh',
+                    'csch': 'arcsch',
+                    'sech': 'arsech',
+                    'coth': 'arcoth'
+                };
+                if (asMachineNumber(expr.ast.sup) === -1 && INVERSE_FUNCTION[val]) {
+                    expr.ast = wrapFn(INVERSE_FUNCTION[val], parsePrimary(expr, options).ast);
                 } else {
                     // Keep the exponent, add the argument
                     const fn = expr.ast;
-                    fn.arg = parsePrimary(expr, options).ast;
+                    fn.arg = [parsePrimary(expr, options).ast];
                     expr.ast = fn;
                 }
 
             } else {
                 const fn = expr.ast;
-                fn.arg = parsePrimary(expr, options).ast;
-                if (fn.arg && (fn.arg.fn === 'list2' || fn.arg.fn === 'list')) {
-                    fn.arg = fn.arg.arg;
+                const arg = parsePrimary(expr, options).ast;
+                if (arg && /^(list0|list|list2)$/.test(arg.fn)) {
+                    fn.arg = arg.arg;
+                } else if (arg) {
+                    fn.arg = [arg]
                 }
 
                 expr.ast = fn;
@@ -1237,12 +1248,15 @@ function parsePrimary(expr, options) {
     } else if (atom.type === 'array') {
        expr.index += 1;
        expr.ast = atom.toAST(options);
+
     } else if (atom.type === 'sizing') {
        expr.index += 1;
        return parsePrimary(expr, options);
+
     } else if (atom.type === 'group') {
         expr.index += 1;
         expr.ast = atom.toAST(options);
+
     } else if (atom.type === 'mclose') {
         return expr;
     }
@@ -1743,65 +1757,12 @@ function filterPresentationAtoms(atoms) {
  * @return  {string}
  */
 function parse(atoms, options) {
-
     return parseExpression({atoms: filterPresentationAtoms(atoms)}, options).ast;
 }
 
-function convertToCanonicalForm(ast) {
-    // An undefined ast is already in canonical form
-    if (typeof ast === 'undefined') return ast;
-
-    if (typeof ast === 'string') {
-        // A native string is a shortcut for a symbol
-        return {sym: ast};
-    } else if (typeof ast === 'number') {
-        // A native number is a shortcut for a number
-        return wrapNum(ast);
-    } else if (typeof ast === 'object') {
-        if (hasSup(ast)) {
-            ast.sup = convertToCanonicalForm(ast.sup);
-        }
-        if (hasSub(ast)) {
-            ast.sub = convertToCanonicalForm(ast.sub);
-        }
-        if (typeof ast.op === 'string') {
-            // An "op" object is a shortcut for a function with one or two arguments
-            let fn = OP_NAME[ast.op] || ast.op;
-
-            if (typeof ast.lhs !== 'undefined' && typeof ast.rhs !== 'undefined') {
-                return {
-                    fn: fn, 
-                    arg:[convertToCanonicalForm(ast.lhs), 
-                        convertToCanonicalForm(ast.rhs)]
-                };
-            } else if (typeof ast.lhs !== 'undefined') {
-                if (fn === 'subtract') fn = 'negate';
-                return {
-                    fn: fn, 
-                    arg:[convertToCanonicalForm(ast.lhs)]
-                };
-            }
-            return {
-                fn: fn, 
-                arg:[convertToCanonicalForm(ast.rhs)]
-            };
-        } else if (ast.fn) {
-            if (Array.isArray(ast.arg)) {
-                ast.arg = ast.arg.map(x => convertToCanonicalForm(x));
-            } else if (ast.arg) {
-                // If a single argument, convert to an array
-                ast.arg = [convertToCanonicalForm(ast.arg)];
-            }
-        } else if (ast.group) {
-            ast.group = convertToCanonicalForm(ast.group);
-        }
-    }
-
-    return ast;
-}
 
 MathAtom.toAST = function(atoms, options) {
-    return convertToCanonicalForm(parse(atoms, options));
+    return parse(atoms, options);
 }
 
 /**
@@ -2062,7 +2023,7 @@ function asLatex(ast, options) {
 
     let result = '';
 
-    if (typeof ast === 'undefined') return '';
+    if (ast === undefined) return '';
     if (typeof ast === 'string') {
         ast = JSON.parse(ast);
     }

@@ -154,7 +154,7 @@ function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
             fontFamily: fontFamily,
             type: type === ORD ? TEXTORD : type,
             skipBoundary: true,
-            body: value,
+            value: value,
             frequency: frequency
         };
     }

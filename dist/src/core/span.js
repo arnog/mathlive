@@ -354,6 +354,10 @@ Span.prototype.toMarkup = function(hskip, hscale) {
             }
         }
 
+        if (this.mode === 'text') {
+            classes.push('ML__text');
+        }
+
 
         // Remove duplicate and empty classes
         // and 'mathrm' which is a no-op

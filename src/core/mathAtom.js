@@ -119,7 +119,7 @@ class MathAtom {
         // Note that the type, fontFamily and body could have been overridden
         // by 'extras', so don't check against the parameter ('type') but
         // the value in the object ('this.type').
-        if (this.type !== 'textord' && this.fontFamily === 'main' &&
+        if (this.mode === 'math' && this.fontFamily === 'main' &&
             typeof this.body === 'string' && this.body.length === 1) {
             if (AUTO_ITALIC_REGEX.test(this.body)) {
                 // Auto italicize alphabetic and lowercase greek symbols
@@ -1067,8 +1067,7 @@ class MathAtom {
     decompose(context, phantomBase) {
         console.assert(context instanceof Context.Context);
         let result = null;
-        if (this.type === 'mord' || 
-            /minner|mbin|mrel|mpunct|mopen|mclose|textord/.test(this.type)) {
+        if (/mord|minner|mbin|mrel|mpunct|mopen|mclose|textord/.test(this.type)) {
             // Any of those atoms can be made up of either a simple string
             // or a list of children.
             if (typeof this.body === 'string') {
@@ -1414,6 +1413,7 @@ class MathAtom {
         //
         // 5. Set other attributes
         //
+        if (this.mode === 'text') result.classes += ' ML__text';
         if (context.mathstyle.isTight()) result.isTight = true;
         result.setRight(result.italic); // Italic correction
         if (context.color) result.setStyle('color', context.getColor());

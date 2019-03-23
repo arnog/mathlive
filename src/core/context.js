@@ -147,10 +147,7 @@ class Context {
      * @private
      */
     getColor() {
-        if (this.phantom) {
-            return 'transparent';
-        }
-        return this.color;
+        return this.phantom ? 'transparent' : this.color;
     }
     /**
      * Gets the CSS background color in effect
@@ -160,10 +157,7 @@ class Context {
      * @private
      */
     getBackgroundColor() {
-        if (this.phantom) {
-            return 'transparent';
-        }
-        return this.backgroundcolor;
+        return this.phantom ? 'transparent' : this.backgroundcolor;
     }
 }
 

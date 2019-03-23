@@ -7,41 +7,38 @@ import Span from '../core/span.js';
 import Lexer from '../core/lexer.js';
 import ParserModule from '../core/parser.js';
 import Color from '../core/color.js';
-import '../core/definitions.js';
 import '../addons/outputLatex.js';
-import './editor-popover.js';
-import './editor-keyboard.js';
-import './editor-shortcuts.js';
+import { l10n } from './l10n.js';
 
 const KEYBOARDS = {
     'numeric': {
-        tooltip: 'Numeric',
+        tooltip: 'keyboard.tooltip.numeric',
         layer: 'math',
         label: '123',
         layers: ['math']
     },
     'roman': {
-        tooltip: 'Symbols and Roman Letters',
+        tooltip: 'keyboard.tooltip.roman',
         layer: 'lower-roman',
         label: 'ABC',
         layers: ['lower-roman', 'upper-roman', 'symbols']
     },
     'greek': {
-        tooltip: 'Greek Letters',
+        tooltip: 'keyboard.tooltip.greek',
         layer: 'lower-greek',
         label: '&alpha;&beta;&gamma;',
         classes: 'tex-math',
         layers: ['lower-greek', 'upper-greek']
     },
     'functions': {
-        tooltip: 'Functions',
+        tooltip: 'keyboard.tooltip.functions',
         layer: 'functions',
         label: '<i>f</i>&thinsp;()',
         classes: 'tex',
         layers: ['functions']
     },
     'command': {
-        tooltip: 'LaTeX Command Mode',
+        tooltip: 'keyboard.tooltip.command',
         // For the command keyboard, perform a command rather than
         // doing a simple layer switch, as we want to enter command mode
         // when the keyboard is activated
@@ -353,8 +350,8 @@ const LAYERS = {
                 <li class='action font-glyph bottom right' data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'>&#x232b;</li></ul>
             </ul>
             <ul>
-                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"#cc2428"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#cc2428'></span><aside>text</aside></li>
-                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"#fff590"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590'></span><aside>highlight</aside></li>
+                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"#cc2428"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428'></span></li>
+                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"#fff590"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590'></span></li>
                 <li class='separator w5'></li>
                 <row name='numpad-4'/>
                 <li class='separator w5'></li>
@@ -691,6 +688,7 @@ function makeKeyboardToolbar(mf, keyboardIDs, currentKeyboard) {
     const keyboardList = keyboardIDs.replace(/\s+/g, ' ').split(' ');
     if (keyboardList.length > 1) {
         const keyboards = Object.assign({}, KEYBOARDS, mf.config.customVirtualKeyboards || {});
+        
 
         for (const keyboard of keyboardList) {
             if (!keyboards[keyboard]) {
@@ -711,7 +709,7 @@ function makeKeyboardToolbar(mf, keyboardIDs, currentKeyboard) {
             result += (keyboards[keyboard].classes || '') + "'";
 
             if (keyboards[keyboard].tooltip) {
-                result += "data-tooltip='" + keyboards[keyboard].tooltip + "' ";
+                result += "data-tooltip='" + l10n(keyboards[keyboard].tooltip) + "' ";
                 result += "data-placement='top' data-delay='1s'";
             }
 
@@ -735,17 +733,17 @@ function makeKeyboardToolbar(mf, keyboardIDs, currentKeyboard) {
         <div class='right'>
             <div class='action'
                 data-command='"copyToClipboard"'
-                data-tooltip='Copy to Clipboard' data-placement='top' data-delay='1s'>
+                data-tooltip='${l10n('tooltip.copy to clipboard')}' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-copy' /></svg>
             </div>
             <div class='action disabled'
                 data-command='"undo"'
-                data-tooltip='Undo' data-placement='top' data-delay='1s'>
+                data-tooltip='${l10n('tooltip.undo')}' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-undo' /></svg>
             </div>
             <div class='action disabled'
                 data-command='"redo"'
-                data-tooltip='Redo' data-placement='top' data-delay='1s'>
+                data-tooltip='${l10n('tooltip.redo')}' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-redo' /></svg>
             </div>
         </div>
@@ -1023,7 +1021,7 @@ function make(mf, theme) {
     for (const color of Color.LINE_COLORS) {
         ALT_KEYS_BASE['foreground-color'].push({
             classes: 'small-button',
-            content: '<span style="border-radius:50%;width:32px;height:32px; background:' + color + '"></span>',
+            content: '<span style="border-radius:50%;width:32px;height:32px; border: 2px solid ' + color + '"></span>',
             command:'["applyStyle",{"color":"' + color + '"}]'
         });
     }
