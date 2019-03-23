@@ -2,6 +2,33 @@ These configuration options can be passed to {@linkcode module:MathLive#makeMath
 or {@linkcode module:editor/mathfield#MathField#setConfig MathField.$setConfig()}.
 
 ---
+**`config.locale`**:`string`
+
+The locale (language + region) to use for string localization.
+
+If not is provided, the locale of the browser is used.
+
+
+---
+**`config.strings`**:`object`
+
+An object whose keys are a locale string, and whose values are an object of 
+string identifier to localized string. 
+
+Example:
+```
+{
+   'fr-CA': {
+      'tooltip.undo': 'Annuler',
+      'tooltip.redo': 'Refaire',
+   }
+}
+```
+
+This will override the default localized strings.
+
+
+---
 **`config.horizontalSpacingScale=1.0`**:`number`
 
 Scaling factor to be
@@ -23,8 +50,7 @@ The namespace should be a string of lowercase letters.
 ---
 **`config.substituteTextArea`**:`function`
 
-A function that returns a
-focusable element that can be used to capture text input. 
+A function that returns a focusable element that can be used to capture text input. 
 
 An (invisible) DOM element is used to capture the keyboard events. By default,
 this element is a `<textarea>` on desktop and a `<span>` on mobile devices,
@@ -33,6 +59,11 @@ to prevent the device virtual keyboard from being displayed.
 This function provides the option of substituting the DOM element used for 
 keyboard capture
 
+---
+**`config.defaultMode`**:`string`
+
+One of `"math"` or `"text"`. Indicate the input mode that the mathfield
+will be in when created.
 
 ---
 **`config.onFocus`**:`function(mathfield:MathField)`
