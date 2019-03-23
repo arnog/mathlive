@@ -181,9 +181,10 @@ test('CHARACTERS', function (t) {
 
 ////////////////////////////////////////////////////////////////////////////////
 test('TEXT MODE', function (t) {
-    t.equal(getType('\\text{ }', [0, 0]), 'textord', "Spaces are preserved.");
+    t.equal(getType('\\text{ }', [0]), 'textord', "Spaces are preserved.");
 
-    equalSpan(t, '\\text{a b   }', '\\text{a   b }', "Multiple-white space are collapsed");
+    // TeX collapses white space in tex mode into one. We preserve them.
+    // equalSpan(t, '\\text{a b   }', '\\text{a   b }', "Multiple-white space are collapsed");
 
     // TeX doesn't allow Greek letters, but we do.
     // hasClass(t, '\\text{\\alpha}', 0, 'error',
