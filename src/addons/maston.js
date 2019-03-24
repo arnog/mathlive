@@ -125,12 +125,18 @@ const OP_NAME = {
     '/':            'divide',
     '=':            'equal',
     ':=':           'assign',
+    '!=':           'ne',
     '<':            'lt',
     '>':            'gt',
-    '<=':           'lte',
-    '>=':           'gte',
-    '≤':            'lte',
-    '≥':            'gte',
+    '<=':           'le',
+    '>=':           'ge',
+    '≤':            'le',
+    '≥':            'ge',
+    '>>':           'gg',
+    '<<':           'll',
+    '**':           'pow',
+    '++':           'increment',
+    '--':           'decrement',
 }
 
 
@@ -140,8 +146,8 @@ const FUNCTION_TEMPLATE = {
     'assign':                   '%0 := %1',
     'lt':                       '%0 < %1',
     'gt':                       '%0 > %1',
-    'lte':                      '%0 \\le %1',
-    'gte':                      '%0 \\ge %1',
+    'le':                       '%0 \\le %1',
+    'ge':                       '%0 \\ge %1',
 
     // TRIGONOMETRY
     'sin':                      '\\sin%_%^ %0',
@@ -245,6 +251,8 @@ const OP_PRECEDENCE = {
     'differentialD':        740,    // not in MathML
     'capitalDifferentialD': 740,    // not in MathML
 
+    '**':                   720,    // not in MathML
+
     'odot':                 710,
 
     // Logical not
@@ -304,8 +312,9 @@ const OP_PRECEDENCE = {
     'approx':               247,
     '<':                    245,
     '>':                    243,
+    '>=':                   242,
     '≥':                    242,
-    '≤':                    241,
+    '<=':                   241,
 
     // Set operator
     'complement':           240,
@@ -337,6 +346,7 @@ const OP_PRECEDENCE = {
 
 
     // Assignment
+    'assign':            80,       
     ':=':                80,       // MathML had 260 (same with U+2254 COLON EQUALS)
 
     'therefore':                70,
@@ -475,11 +485,8 @@ function getCanonicalName(latex) {
 function opPrec(atom) {
     if (!atom) return null;
     const name = getCanonicalName(getString(atom));
-    const result = {
-        prec: getPrecedence(name),
-        assoc: getAssociativity(name)
-    }
-    if (result.prec <= 0) return null
+    const result = [getPrecedence(name), getAssociativity(name)];
+    if (result[0] <= 0) return null
     return result;
 }
 
@@ -785,32 +792,30 @@ function parseSupsub(expr, options) {
  * Parse postfix operators, such as "!" (factorial)
  */
 function parsePostfix(expr, options) {
-    const atom = expr.atoms[expr.index];
     const lhs = expr.ast;
-    const digraph = parseDigraph(expr);
-    if (digraph) {
-        expr.ast = wrapFn(digraph.ast, lhs);
+    if (nextIsDigraph(expr, '!!')) {
+        expr.index += 1;
+        expr.ast = wrapFn('factorial2', lhs);
         expr = parseSupsub(expr, options);
         expr = parsePostfix(expr, options);
-    // } else if (atom && atom.latex && atom.latex.match(/\^{.*}/)) {
-    //     expr.index += 1;
-    //     // It's a superscript Unicode char (e.g. ⁰¹²³⁴⁵⁶⁷⁸⁹ⁱ⁺⁻⁼...)
-    //     if (typeof expr.ast === 'string') {
-    //         expr.ast = {sym: expr.ast};
-    //     } else if (typeof expr.ast === 'number') {
-    //         expr.ast = wrapNum(expr.ast);
-    //     } else if (!expr.ast.group && !expr.ast.fn && !expr.ast.sym) {
-    //         expr.ast = {group: expr.ast};
-    //     }
-    //     const sup = atom.latex.match(/\^{(.*)}/)[1];
-    //     const n = parseInt(sup);
-    //     if (!isNaN(n)) {
-    //         expr.ast.sup = n;
-    //     } else {
-    //         expr.ast.sup = sup;
-    //     }
-
-    } else if (atom && atom.type === 'textord' && POSTFIX_FUNCTION[atom.latex.trim()]) {
+        return expr;
+    }
+    if (nextIsDigraph(expr, '++')) {
+        expr.index += 1;
+        expr.ast = wrapFn('increment', lhs);
+        expr = parseSupsub(expr, options);
+        expr = parsePostfix(expr, options);
+        return expr;
+    }
+    if (nextIsDigraph(expr, '--')) {
+        expr.index += 1;
+        expr.ast = wrapFn('decrement', lhs);
+        expr = parseSupsub(expr, options);
+        expr = parsePostfix(expr, options);
+        return expr;
+    }
+    const atom = expr.atoms[expr.index];
+    if (atom && POSTFIX_FUNCTION[atom.latex.trim()]) {
         expr.ast = wrapFn(POSTFIX_FUNCTION[atom.latex.trim()], lhs);
         expr = parseSupsub(expr, options);
         expr = parsePostfix(expr, options);
@@ -960,6 +965,17 @@ function parsePostfix(expr, options) {
 }
 
 
+function nextIsDigraph(expr, digraph) {
+    expr.index = expr.index || 0;
+
+    if (expr.atoms.length <= 1 || expr.index >= expr.atoms.length - 1) {
+        return false;
+    }
+
+    return digraph === getString(expr.atoms[expr.index]) + 
+        getString(expr.atoms[expr.index + 1]);
+}
+
 /**
  * Some symbols are made up of two consecutive characters.
  * Handle them here. Return undefined if not a digraph.
@@ -975,7 +991,7 @@ function parsePostfix(expr, options) {
 function parseDigraph(expr) {
     expr.index = expr.index || 0;
 
-    if (expr.atoms.length === 0 || expr.index >= expr.atoms.length) {
+    if (expr.atoms.length <= 1 || expr.index >= expr.atoms.length - 1) {
         return undefined;
     }
 
@@ -991,14 +1007,14 @@ function parseDigraph(expr) {
             return expr;
         }
         expr.index -= 1;
-    } else if (isAtom(expr, 'textord', '!')) {
-        expr.index += 1;
-        if (isAtom(expr, 'textord', '!')) {
+    } else {
+        const digraph = expr.atoms[expr.index].latex + 
+            expr.atoms[expr.index + 1].latex;
+        const result = /^(>=|<=|>>|<<|:=|!=|\*\*|\+\+|--)$/.test(digraph) ? digraph : '';
+        if (result) {
             expr.index += 1;
-            expr.ast = 'factorial2';
-            return expr;
         }
-        expr.index -= 1;
+        return result;
     }
 
     return undefined;
@@ -1370,10 +1386,17 @@ function parseExpression(expr, options) {
     const minPrec = expr.minPrec;
     while (!done) {
         const atom = expr.atoms[expr.index];
-        done = !atom || !isOperator(atom) || opPrec(atom).prec < minPrec;
+        const digraph = parseDigraph(expr);
+        done = !digraph && !isOperator(atom);
+        let prec, assoc;
         if (!done) {
-            const opName = getCanonicalName(getString(atom));
-            const {prec, assoc} = opPrec(atom);
+            [prec, assoc] = digraph ? 
+                [getPrecedence(digraph), getAssociativity(digraph)] : 
+                opPrec(atom);
+            done = prec < minPrec
+        }
+        if (!done) {
+            const opName = digraph || getCanonicalName(getString(atom));
             if (assoc === 'left') {
                 expr.minPrec = prec + 1;
             } else {
@@ -1391,11 +1414,11 @@ function parseExpression(expr, options) {
                     expr.ast = {};
                     const sub_arg = parseSupsub(expr, options).ast.sub;
                     lhs = wrapFn('bind', lhs);
-                    if (sub_arg && sub_arg.fn === 'equal') {
+                    if (sub_arg && sub_arg.fn === 'equal' && lhs.arg) {
                         // This is a subscript of the form "x=..."
                         lhs.arg.push(getArg(sub_arg, 0));
                         lhs.arg.push(getArg(sub_arg, 1));
-                    } else if (sub_arg && (sub_arg.fn === 'list' || sub_arg.fn === 'list2')) {
+                    } else if (sub_arg && lhs.arg && (sub_arg.fn === 'list' || sub_arg.fn === 'list2')) {
                         // Form: "x=0;n=3;z=5"
                         let currentSym = {sym: "x"};
                         for (let i = 0; i < sub_arg.arg.length; i++) {
@@ -1433,7 +1456,7 @@ function parseExpression(expr, options) {
 
                 // Promote subtraction to an addition
                 if (opName === '-') {
-                    if (lhs && lhs.fn === 'add') {
+                    if (lhs && lhs.arg && lhs.fn === 'add') {
                         // add(x,y) - z -> add(x, y, -z)
                         if (rhs !== undefined) lhs.arg.push(negate(rhs));
                     } else if (lhs && lhs.fn === 'subtract') {
@@ -1463,12 +1486,12 @@ function parseExpression(expr, options) {
                             if (rhs.fn === fn && !hasSup(rhs)) {
                                 // add(x, y) = add (a, b)
                                 lhs.arg = [...lhs.arg, ...rhs.arg];
-                            } else {
+                            } else if (lhs.arg) {
                                 lhs.arg.push(rhs);
                             }
                         }
-                    } else if (fn && rhs && rhs.fn === fn) {
-                        // x =   y = z -> equal(x, y, z)
+                    } else if (fn && rhs && rhs.arg && rhs.fn === fn) {
+                        // x =    y = z -> equal(x, y, z)
                         rhs.arg.unshift(lhs);
                         lhs = rhs;
                     } else if (fn === 'multiply' && 

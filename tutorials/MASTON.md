@@ -22,23 +22,23 @@ e^{\imaginaryI \pi }+1=0
 ```
 In MASTON:
 ```json
-    {
-        "fn":"equal",
-        "arg":[{
-            "fn":"add",
-            "arg":[
-                {
-                    "sym":"e",
+{
+    "fn":"equal",
+    "arg":[{
+        "fn":"add",
+            "arg":[{
+                "sym":"e",
                     "sup":{
                         "fn":"multiply",
                         "arg":[{"sym": "ⅈ"},{sym:"π"}]
-                        }
+                    }
                 },
                 {"num": "1"}
             ]
         },
-        "num": "0"]
-    }
+        "num": "0"
+    ]
+}
 ```
 
 
@@ -101,7 +101,7 @@ to the grammar below.
 
 A basic number is encoded following the JSON grammar, with the following extensions:
 * support for arbitrary precision numbers. JavaScript and many other languages
-only support limited precision numbers, generally 53-bit integers (about 15 digits).
+only support limited precision numbers, generally 52-bit integers (about 15 digits).
 Therefore to support arbitrary precision, numbers should always be represented 
 as a quoted string.
 * support for `NaN` and `infinity`
@@ -117,6 +117,7 @@ as a quoted string.
 `exp` := [`'e'` | `'E'`] [`'+'` | `'-'`] (`'0'` - `'9'` )*
 
 ### Native Strings
+
 Native strings are a sequence of Unicode characters.
 
 MATSON producing software should not generate character entities in 
@@ -124,9 +125,7 @@ strings.
 
 As per JSON, any Unicode character may be escaped using a `\u` escape sequence.
 
-In the canonical form, any non-ASCII character must be encoded with a `\u` escape sequence.
-
-In the canonical form, whenever applicable, a specific Unicode symbol should be used.
+Whenever applicable, a specific Unicode symbol should be used.
 
 For example, the set of complex numbers should be represented with U+2102 ℂ,
 not with U+0043 C and a math variant styling attribute.
@@ -140,9 +139,12 @@ See [Unicode Chapter 22 - Symbols](http://www.unicode.org/versions/Unicode10.0.0
 ### Optional keys
 
 All nodes may have the following keys:
+* `sub`: `expression`, a subscript
+* `sup`: `expression`, a superscript
 * `comment`: A human readable string to annotate an expression, since JSON does not allow comments in its encoding
 * `error`: A human readable string that can be used to indicate a syntax error or other problem when parsing or evaluating an expression.
-* `latex`: A visual representation in LaTeX of the expression. This can be useful to preserve non-semantic details, for example parentheses in an expression.
+* `latex`: A visual representation in LaTeX of the expression. This can be useful to preserve non-semantic details, for example parentheses in an expression or 
+styling attributes.
 * `mathml`: A visual representation in MathML of the expression.
 * `class`: A CSS class to be associated with a representation of this node
 * `id`: A CSS id to be associated with a representation of this node
@@ -157,22 +159,23 @@ this node and all its children. The default value is "http://www.openmath.org/cd
 * `openmathsymbol`: A short string indicating an entry in an OpenMath Content
 Dictionary. For example: `arith1/#abs`.
 
+
 ### Key order
 The order of the keys in a node is not significant. 
 
 All these expressions are equivalent:
 
 ```JSON
-   {"fn":"add", "arg":[1, 2]}
-   {"arg":[1, 2], "fn":"add"}
+   {"fn":"add", "arg":[{num:"1"}, {num:"2"}]}
+   {"arg":[{num:"1"}, {num:"2"}], "fn":"add"}
 ```
 
 However, the order of the elements in an array *is* significant. 
 
 These two expressions are *not* equivalent:
 ```JSON
-   {"fn":"divide", "arg":[3, 1]}
-   {"fn":"divide", "arg":[1, 3]}
+   {"fn":"divide", "arg":[{num:"3"}, {num:"1"}]}
+   {"fn":"divide", "arg":[{num:"3"}, {num:"1"}]}
 ```
 
 ## Grammar
@@ -181,26 +184,26 @@ An expression is an Abstract Syntax Tree. As such, there is no need to
 introduce parentheses or to resort to operator precedence in order to parse 
 the expression correctly.
 
-An expression is made up of a tree of nodes. The type of each node is 
-indicated by the presence of a specific key, for example `sym` for the 
-"symbol" node or `fn` for the "function" node.
+The type of each node is indicated by the presence of a specific key, for example `sym` for the "symbol" node or `fn` for the "function" node.
 
-`expression` := `num` |
+There are five types of nodes:
+
+`expression` := `number` |
     `symbol` | 
     `function` | 
     `group` |
     `text` |
 
-### `num` 
+### `number` 
 
-An object with the following key:
+A node with the following key:
 * `num`: `basic-number` | `complex-number`
 
 `complex-number` := { "re": `basic-number`, "im": `basic-number`}
 
 ### `symbol`
 
-An object with the following keys
+A node with the following keys
 * `sym`: `native-string`
 * `type`: native-string`, the data type of the symbol. See table below.
 * `index`: A 0-based index into a vector or array. An index can be a number or an array of numbers.
@@ -228,6 +231,7 @@ performed upon it.
  Duration           | `duration`      |
 
 #### Accent
+
 An accent is a decoration over a symbol that provides the proper context to 
 interpret the symbol or modifies it in some way. For example, an accent can 
 indicate that a symbol is a vector, or to represent the mean, complex conjugate 
@@ -250,6 +254,7 @@ The following values are recommended:
 
 
 ### `function`
+
 * `fn`: `native-string`, the name of the function.
 * `arg`: array of `expression`, the arguments to the function.
 * `fence`: `string`, one to three characters indicating the delimiters used for the expression. The first character is the opening delimiter, the second character, if present, is the closing delimiter. The third character, if present, is the delimiters separating the arguments. If no value is provided for this key, the default value `(),` is used. The character `.` can be used to indicate the absence of a delimiter, for example `..;`.
@@ -265,8 +270,8 @@ When using common functions, the following values are recommended:
  Name (and common synonyms) | Arity | Comment
  -------------------------- |:------| :-------
 `add`                       | 2+     |
-`subtract`                  | 2      | Subtract the second from the first.
 `multiply`                  | 2+     | 
+`subtract`                  | 2      | Subtract the second from the first.
 `divide`                    | 2     | The first argument divided  by the second argument
  `negate`                   | 1     | Negate the argument
  `list`                     | 1+     | comma separated list
@@ -336,22 +341,29 @@ cuts of those functions. The interpretation is left up to the consuming software
 
 #### Relational operators
 
- Operation              | Value     | Unicode   | Comment
- -------------          |:---------:|----------:|---
- Equal to               | `=`       | U+003D    |
- Definition/assignment  | `:=`      | U+003D    | Used with `a := 5` or `f(x) := sin(x)`
- Identity               | `:=:`     | U+003D    | Used with `1 + 1 :=: 2`
- Approximately equal to | `≈`       | ≈ U+2248  |
- Not equal to           | `≠`       | U+2260    |
- Less than              | `<`       | U+003C    |
- Less than or equal to  | `<=`      | ≤ U+2264  |
- Greater than           | `>`       | U+003C    |
- Greater than or equal to | `>=`    | ≥ U+2265  |
+ Operation              | Value     |  Comment
+ -------------          |:---------:|---
+ Equal to               | `equal`   | General purpose equality
+ Less than              | `lt`      |
+ Less than or equal to  | `le`      | 
+ Greater than           | `gt`      |
+ Greater than or equal to | `ge`    | 
+ Much less than         | `ll`      | `x ≪ y`
+ Much greater than      | `gg`      | `y ≫ x`
+ Definition/assignment  | `assign`  | Used with `a := 5` or `f(x) := sin(x)`
+ Identity               | `:=:`     | Used with `1 + 1 :=: 2`
+ Approximately equal to | `approx`  | Used with `π ≈ 3.14`
+ Not equal to           | `ne`      |
+ Similar to             | `sim`     | `2 ~ 5`
+ Congruent to           | `cong`     | `A ≅ B` 
 
 There are three semantically distinct use for "equal to" which are often all represented with `=` in mathematical notation:
 * **conditional equality**: the expression is true when the left hand side and the right hand side are equal, for example when defining a curve representing the unit circle: `x^2 + y^2 = 1`
 * **definition** or assignment: the symbol (or expression) on the left hand side is defined by the expression on the right hand side. For example `f(x) := sin x`, `a := 5`
 * **identity**: the right hand side expression is a syntactic derivation from the left hand size expression. For example, `1 + 1 :=: 2`
+
+When a more specific version cannot be determined from the context, the 
+general purpose `equal` function should be used.
 
 #### Big operators
 
@@ -369,9 +381,9 @@ For example:
 {
     "fn":"sum",
     "arg":[
-        "i", 
+        {sym: "i"}, 
         {"fn":"=","arg":["i", 0]},
-        "n"
+        {sym: "n"}
     ]
 }
 ```
@@ -489,23 +501,6 @@ This element is used when a `sup`, `sub` or `accent` needs to be applied to an e
 
 The `text` key is the only one required. 
 
-
-### Forms
-
-There are several 'flavors' of MASTON, called "form":
-- **canonical form**: easy to process, although it can be a bit
-more verbose and more difficult for humans to read.
-- **compact**: makes use of shortcuts that makes it more succinct and 
-easier for humans to read
-
-The two forms are strictly equivalent and any valid MASTON can be converted to
-one of these two forms. Note that a valid expression can make use of some of 
-the conventions from both forms. There valid expressions are called "semi-normal".
-
-### CANONICAL FORM
-
-
-### COMPACT FORM
 
 
 
