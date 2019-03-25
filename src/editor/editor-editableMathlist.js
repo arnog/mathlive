@@ -934,23 +934,30 @@ EditableMathlist.prototype.spliceCommandStringAroundInsertionPoint = function(ma
 
 /**
  * @return {string}
- * @method EditableMathlist#extractContentsOrdInGroupBeforeInsertionPoint
+ * @method EditableMathlist#extractArgBeforeInsertionPoint
  * @private
  */
-EditableMathlist.prototype.extractContentsOrdInGroupBeforeInsertionPoint = function() {
+EditableMathlist.prototype.extractArgBeforeInsertionPoint = function() {
     const result = [];
     const siblings = this.siblings();
 
     if (siblings.length <= 1) return [];
 
     let i = this.startOffset();
-    while (i >= 1 && (siblings[i].type === 'mord' ||
-        siblings[i].type === 'surd'     ||
-        siblings[i].type === 'leftright' ||
-        siblings[i].type === 'font'
-        )) {
-        result.unshift(siblings[i]);
-        i--
+    if (siblings[i].mode === 'text') {
+        while (i >= 1 && siblings[i].mode === 'text') {
+            result.unshift(siblings[i]);
+            i--
+        }
+    } else {
+        while (i >= 1 && (siblings[i].type === 'mord' ||
+            siblings[i].type === 'surd'     ||
+            siblings[i].type === 'leftright' ||
+            siblings[i].type === 'font'
+            )) {
+            result.unshift(siblings[i]);
+            i--
+        }
     }
 
     return result;
@@ -1778,20 +1785,23 @@ EditableMathlist.prototype.insert = function(s, options) {
                         symbol.value, 'main'));
                 }
             }
+
         } else if (s === '\u001b') {
+            // Insert an 'esc' character triggers the command mode
             mathlist = [new MathAtom.MathAtom('command', 'command', '\\', 'main')];
+
         } else {
             s = parseMathString(s, this.config);
 
-            // If we're inserting a latex fragment that includes a #@ argument
-            // substitute the preceding `mord` atoms for it.
             if (args[0]) {
                 // There was a selection, we'll use it for #@
                 s = s.replace(/(^|[^\\])#@/g, '$1#0');
 
             } else if (/(^|[^\\])#@/.test(s)) {
+                // If we're inserting a latex fragment that includes a #@ argument
+                // substitute the preceding `mord` or text mode atoms for it.
                 s = s.replace(/(^|[^\\])#@/g, '$1#0');
-                args[0] = this.extractContentsOrdInGroupBeforeInsertionPoint();
+                args[0] = this.extractArgBeforeInsertionPoint();
                 // Delete the implicit argument
                 this._deleteAtoms(-args[0].length);
                 // If the implicit argument was empty, remove it from the args list.
