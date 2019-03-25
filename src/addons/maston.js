@@ -1044,7 +1044,7 @@ function parseDigraph(expr) {
 function parsePrimary(expr, options) {
 
     // <primary> := ('-'|'+) <primary> | <number> | 
-    //              '(' <expression> ')' | <symbol> | <text>
+    //              '(' <expression> ')' | <symbol> | <text> (<expression>)
 
      expr.index = expr.index || 0;
      expr.ast = undefined;
@@ -1054,18 +1054,6 @@ function parsePrimary(expr, options) {
     }
 
     let atom = expr.atoms[expr.index];
-
-    if (atom.mode === 'text') {
-        // Text mode atom...
-        let text = '';
-        while (expr.atoms[expr.index] && expr.atoms[expr.index].mode === 'text') {
-            text += expr.atoms[expr.index].body;
-            expr.index += 1;
-        }
-        expr.ast = wrapFn('text', text);
-
-        return expr;
-    }
 
     const val = getCanonicalName(getString(atom));
 
@@ -1407,7 +1395,7 @@ function parseExpression(expr, options) {
     while (!done) {
         const atom = expr.atoms[expr.index];
         const digraph = parseDigraph(expr);
-        done = !digraph && !isOperator(atom);
+        done = !atom || atom.mode === 'text' || (!digraph && !isOperator(atom));
         let prec, assoc;
         if (!done) {
             [prec, assoc] = digraph ? 
@@ -1533,7 +1521,6 @@ function parseExpression(expr, options) {
             }
         }
     }
-
     expr.ast = lhs;
     return expr;
 }
@@ -1794,13 +1781,46 @@ function filterPresentationAtoms(atoms) {
     return result;
 }
 
+
 /**
- *
+ * Parse a sequence of text zone and math zones:
+ * <sentence> := ((<text>) <expression>)+
+ * @param {object} expr 
+ * @return  {object}
+ */
+function parseSentence(expr, options) {
+    expr.index = expr.index || 0;
+    expr.ast = undefined;
+
+    const zones = [];
+    // Iterate while we have atoms to look at
+    while (expr.atoms[expr.index]) {
+        if (expr.atoms[expr.index].mode === 'text') {
+            // Text mode atom...
+            let text = '';
+            while (expr.atoms[expr.index] && expr.atoms[expr.index].mode === 'text') {
+                text += expr.atoms[expr.index].body;
+                expr.index += 1;
+            }
+            zones.push(wrapFn('text', text));
+        } else {
+            zones.push(parseExpression(expr, options).ast);
+        }
+    }
+
+    if (zones.length > 1) {
+        return wrapFn('list0', zones);
+    }
+
+    return zones[0] || undefined;
+}
+
+/**
  * @param {Atoms[]} atoms 
- * @return  {string}
+ * @return  {object}
  */
 function parse(atoms, options) {
-    return parseExpression({atoms: filterPresentationAtoms(atoms)}, options).ast;
+    return parseSentence({atoms: filterPresentationAtoms(atoms)}, options);
 }
 
 

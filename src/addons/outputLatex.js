@@ -125,7 +125,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 result += '}';
             } else {
                 // @todo: deal with fracs delimiters
-                result += this.latex;
+                result += command;
                 result += `{${latexify(this.numer, expandMacro)}}{${latexify(this.denom, expandMacro)}}`;
             }
             break;
@@ -200,12 +200,12 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             } else if (this.latex || typeof this.body === 'string') {
                 // Not ZERO-WIDTH
                 if (this.latex && this.latex[0] === '\\') {
-                    result += this.latex;
+                    result += command;
                     if (/[a-zA-Z0-9]$/.test(this.latex)) {
                         result += ' ';
                     }
-                } else if (this.latex) {
-                    result += this.latex;
+                } else if (command) {
+                    result += command;
                 } else {
                     result += this.body !== '\u200b' ? this.body : '';
                 }
