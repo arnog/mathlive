@@ -712,9 +712,9 @@ function suggest(s) {
         }
     }
 
-    result.sort( function(a, b) {
+    result.sort( (a, b)  => {
         if (a.frequency === b.frequency) {
-            return b.match.length - a.match.length;
+            return a.match.length - b.match.length;
         }
         return (b.frequency || 0) - (a.frequency || 0);
     });
