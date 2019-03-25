@@ -40,6 +40,10 @@ const CANONICAL_NAMES = {
     '\\mp':             'minusplus', // MINUS-PLUS SIGN
     '\\ne':             '!=',
     '\\coloneq':        ':=',
+    '\\questeq':        '?=',
+    '\\approx':         'approx',
+    '\\cong':           'congruent',
+    '\\sim':            'similar',
     '\\pm':             'plusminus',    // PLUS-MINUS SIGN
 
     '\\land':           'and',
@@ -120,6 +124,7 @@ const CANONICAL_NAMES = {
 
 }
 
+// The OP_NAME table maps a canonical name to a function name
 const OP_NAME = {
     '+':            'add',
     '*':            'multiply',
@@ -128,6 +133,10 @@ const OP_NAME = {
     '=':            'equal',
     ':=':           'assign',
     '!=':           'ne',
+    '?=':           'questeq',
+    'approx':       'approx',
+    'congruent':    'congruent',
+    'similar':       'similar',
     '<':            'lt',
     '>':            'gt',
     '<=':           'le',
@@ -142,9 +151,14 @@ const OP_NAME = {
 }
 
 
+// The FUNCTION_TEMPLATE table maps a canonical name to a LaTeX template
 const FUNCTION_TEMPLATE = {
     'equal':                    '%0 = %1',
     'ne':                       '%0 \\ne %1',
+    'questeq':                  '%0 \\questeq %1',
+    'approx':                   '%0 \\approx %1',
+    'congruent':                '%0 \\cong %1',
+    'similar':                  '%0 \\sim %1',
     'assign':                   '%0 := %1',
     'lt':                       '%0 < %1',
     'gt':                       '%0 > %1',
@@ -244,7 +258,10 @@ const FUNCTION_TEMPLATE = {
 
 
 // From www.w3.org/TR/MathML3/appendixc.html
-
+// The keys of OP_PRECEDENCE are "canonical names" 
+// (the values of the CANONICAL_NAMES table above, e.g. "?=")
+// Those are different from the latex names (e.g. \\questeq)
+// and from the function names (e.g. "questeq")
 const OP_PRECEDENCE = {
     'degree':               880,
     'nabla':                740,
@@ -308,8 +325,11 @@ const OP_PRECEDENCE = {
 
 
     // Relational
+    'congruent':            265,
     '=':                    260,
     '!=':                   255,
+    '?=':                   255,
+    'similar':              250,    // tilde operator in MathML
 
     'approx':               247,
     '<':                    245,

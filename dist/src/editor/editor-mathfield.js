@@ -1239,12 +1239,12 @@ MathField.prototype._onTypedText = function(text, options) {
 
     } else {
         // Decompose the string into an array of graphemes.
-        // This is necessary to correctly process what would be visually
-        // perceived by a human as a single glyph (a grapheme) but which is
-        // actually composed of multiple Unicode codepoints. This is the case
-        // in particular for some emojis, such as those with a skin tone
-        // modifier, the country flags emojis or compound emojis such as the
-        // professional emojis, including the David Bowie emoji.
+        // This is necessary to correctly process what is displayed as a single
+        // glyph (a grapheme) but which is composed of multiple Unicode 
+        // codepoints. This is the case in particular for some emojis, such as
+        // those with a skin tone modifier, the country flags emojis or 
+        // compound emojis such as the professional emojis, including the
+        // David Bowie emoji: 👨🏻‍🎤
         const graphemes = GraphemeSplitter.splitGraphemes(text);
         for (const c of graphemes) {
             if (this.mode === 'command') {
@@ -1279,9 +1279,30 @@ MathField.prototype._onTypedText = function(text, options) {
                     ' ': 'moveAfterParent'
                 }[c];
                 if (selector) {
+                    if (selector === 'moveToSuperscript') {
+                        if (this._superscriptDepth() >= this.config.scriptDepth[1]) {
+                            this._announce('plonk');
+                            return;
+                        }
+                    } else if (selector === 'moveToSubscript') {
+                        if (this._subscriptDepth() >= this.config.scriptDepth[0]) {
+                            this._announce('plonk');
+                            return;
+                        }
+                    }
                     this.perform(selector);
                 } else {
-                    if (!this.mathlist._insertSmartFence(c)) {
+                    if (this.config.smartSuperscript && 
+                        this.mathlist.relation() === 'superscript' &&
+                        /[0-9]/.test(c) && 
+                        this.mathlist.siblings().filter(x => x.type !== 'first').length === 0) { 
+                            // We are inserting a digit into an empty superscript
+                            // If smartSuperscript is on, insert the digit, and 
+                            // exit the superscript.
+                            this.mathlist.insert(c, { mode: 'math' });
+                            this.mathlist.moveAfterParent_();
+
+                    } else if (!this.mathlist._insertSmartFence(c)) {
                         this.mathlist.insert(c, { mode: 'math' });
                     }
                 }
@@ -1522,12 +1543,12 @@ MathField.prototype.$text = function(format) {
     return this.formatMathlist(this.mathlist.root, format);
 }
 
-/**©†
+/**
  * Return a textual representation of the selection in the mathfield.
  * @param {string} [format='latex']. One of
  *    * `'latex'`
  *    * `'latex-expanded'` : all macros are recursively expanded to their definition
- *    * `'spoken'`©1454
+ *    * `'spoken'`
  *    * `'spoken-text'`
  *    * `'spoken-ssml'`
  *    * `'mathML'`
@@ -1567,6 +1588,47 @@ MathField.prototype.selectionDepth =
 MathField.prototype.$selectionDepth = function() {
     return this.mathlist.path.length;
 }
+
+MathField.prototype._superscriptDepth = function() {
+    let result = 0;
+    let i = 0;
+    let atom = this.mathlist.ancestor(i);
+    let wasSuperscript = false;
+    while (atom) {
+        if (atom.superscript || atom.subscript) {
+            result += 1;
+        }
+        if (atom.superscript) {
+            wasSuperscript = true;
+        } else if (atom.subscript) {
+            wasSuperscript = false;
+        }
+        i += 1;
+        atom = this.mathlist.ancestor(i);
+    }
+    return wasSuperscript ? result : 0;
+}
+
+MathField.prototype._subscriptDepth = function() {
+    let result = 0;
+    let i = 0;
+    let atom = this.mathlist.ancestor(i);
+    let wasSubscript = false;
+    while (atom) {
+        if (atom.superscript || atom.subscript) {
+            result += 1;
+        }
+        if (atom.superscript) {
+            wasSubscript = false;
+        } else if (atom.subscript) {
+            wasSubscript = true;
+        }
+        i += 1;
+        atom = this.mathlist.ancestor(i);
+    }
+    return wasSubscript ? result : 0;
+}
+
 
 /**
  * Return true if the selection starts at the beginning of the selection group.
@@ -2577,6 +2639,8 @@ MathField.prototype.$setConfig = function(conf) {
     if (!this.config) {
         this.config = {
             smartFence: true,
+            smartSuperscript: true,
+            scriptDepth: [Infinity, Infinity],
             removeExtraneousParentheses: true,
             overrideDefaultInlineShortcuts: false,
             virtualKeyboard: '',
@@ -2585,6 +2649,10 @@ MathField.prototype.$setConfig = function(conf) {
         }
     }
     this.config = {...this.config, ...conf};
+    if (!Array.isArray(this.config.scriptDepth)) {
+        const depth = parseInt(this.config.scriptDepth);
+        this.config.scriptDepth = [depth, depth];
+    }
 
     if (typeof this.config.removeExtraneousParentheses === 'undefined') {
         this.config.removeExtraneousParentheses = true;

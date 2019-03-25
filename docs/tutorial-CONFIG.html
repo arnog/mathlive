@@ -158,6 +158,27 @@ entered via <code>typedText()</code> it will generate a contextually appropriate
 for example using <code>\left...\right</code> if applicable. </p>
 <p>If <code>false</code>, the literal value of the character will be inserted instead.</p>
 <hr>
+<p><strong><code>config.smartSuperscript=true</code></strong>:<code>boolean</code></p>
+<p>If <code>true</code>, when a digit is entered in an empty superscript, the cursor 
+leaps automatically out of the superscript. This makes entry of common
+polynomials easier and faster. If entering other characters (for example &quot;n+1&quot;)
+the navigation out of the superscript must be done manually (by using the cursor
+keys or the spacebar to leap to the next insertion point).</p>
+<p>If <code>false</code>, the navigation out of the superscript must always be done manually.</p>
+<hr>
+<p><strong><code>config.scriptDepth=Infinity</code></strong>:<code>number</code></p>
+<p>This controls how many levels of subscript/superscript can be entered.
+For example, if <code>scriptDepth</code> is &quot;1&quot;, there can be one level of superscript or
+subscript. Attempting to enter a superscript while inside a superscript will be 
+rejected. Setting a value of 0 will prevent entry of any superscript or subscript
+(but not limits for sum, integrals, etc...)</p>
+<p>This can make it easier to enter equations that fit what's expected for the 
+domain where the mathfield is used.</p>
+<p>To control the depth of superscript and subscript indepdently, provide an array:
+the first element indicate the maximum depth for subscript and the second element
+the depth of superscript. Thus, a value of <code>[0, 1]</code> would supress the entry of 
+subscripts, and allow one level of superscripts.</p>
+<hr>
 <p><strong><code>config.removeExtraneousParentheses=true</code></strong>:<code>boolean</code></p>
 <p>If <code>true</code>, extra parentheses around a numerator or denominator are removed automatically.</p>
 <hr>

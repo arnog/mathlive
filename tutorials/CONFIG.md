@@ -144,6 +144,35 @@ for example using `\left...\right` if applicable.
 If `false`, the literal value of the character will be inserted instead.
 
 ---
+**`config.smartSuperscript=true`**:`boolean`
+
+If `true`, when a digit is entered in an empty superscript, the cursor 
+leaps automatically out of the superscript. This makes entry of common
+polynomials easier and faster. If entering other characters (for example "n+1")
+the navigation out of the superscript must be done manually (by using the cursor
+keys or the spacebar to leap to the next insertion point).
+
+If `false`, the navigation out of the superscript must always be done manually.
+
+
+---
+**`config.scriptDepth=Infinity`**:`number`
+
+This controls how many levels of subscript/superscript can be entered.
+For example, if `scriptDepth` is "1", there can be one level of superscript or
+subscript. Attempting to enter a superscript while inside a superscript will be 
+rejected. Setting a value of 0 will prevent entry of any superscript or subscript
+(but not limits for sum, integrals, etc...)
+
+This can make it easier to enter equations that fit what's expected for the 
+domain where the mathfield is used.
+
+To control the depth of superscript and subscript indepdently, provide an array:
+the first element indicate the maximum depth for subscript and the second element
+the depth of superscript. Thus, a value of `[0, 1]` would supress the entry of 
+subscripts, and allow one level of superscripts.
+
+---
 **`config.removeExtraneousParentheses=true`**:`boolean`
 
 If `true`, extra parentheses around a numerator or denominator are removed automatically.
