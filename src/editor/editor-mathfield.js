@@ -2543,8 +2543,8 @@ MathField.prototype.applyStyle_ = function(style) {
         }
     } else {
         this.mathlist._applyStyle(style);
+        this.undoManager.snapshot(this.config);
     }
-    this.undoManager.snapshot(this.config);
     return true;
 }
 
