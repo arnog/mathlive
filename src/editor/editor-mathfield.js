@@ -1125,7 +1125,19 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
         this._render(); // Re-render the closed smartfence
     }
 
-    // 5.3 If there's a selector, perform it.
+    // 5.3 If this is the Spacebar and we're just before or right after 
+    // a text zone, insert the space inside the text zone
+    if (this.mode === 'math' && keystroke === 'Spacebar') {
+        const nextSibling = this.mathlist.sibling(1);
+        const previousSibling = this.mathlist.sibling(-1);
+        if (nextSibling && nextSibling.mode === 'text') {
+            this.mathlist.insert(' ', { mode: 'text' });
+        } else if (previousSibling && previousSibling.mode === 'text') {
+            this.mathlist.insert(' ', { mode: 'text' });
+        } 
+    }
+
+    // 5.4 If there's a selector, perform it.
     if ((selector && !this.perform(selector)) || shortcut) {
 
         // // 5.4 insert the shortcut
