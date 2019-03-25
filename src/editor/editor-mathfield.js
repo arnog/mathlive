@@ -1902,8 +1902,9 @@ MathField.prototype.complete_ = function() {
             this.mathlist.spliceCommandStringAroundInsertionPoint([]);
             this.mathlist.insert(command.slice(1), {mode: this.mode});
         } else {
-            // We'll use the mode of the atom before the command
-            const mode = this.mathlist.siblings()[this.mathlist.commandOffsets().start - 1].mode;
+            // We'll assume we want to insert in math mode
+            // (commands are only available in math mode)
+            const mode = 'math'
 
             let match = Definitions.matchFunction(mode, command);
             if (!match) {

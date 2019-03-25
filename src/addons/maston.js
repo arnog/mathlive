@@ -1199,7 +1199,7 @@ function parsePrimary(expr, options) {
         // in parseExpression()
         if (!isOperator(atom)) {
             // This doesn't look like a textord operator
-            if (!Definitions.RIGHT_DELIM[atom.latex.trim()]) {
+            if (!Definitions.RIGHT_DELIM[atom.latex ? atom.latex.trim() : atom.body]) {
                 // Not an operator, not a fence, it's a symbol or a function
                 if (isFunction(val)) {
                     // It's a function
