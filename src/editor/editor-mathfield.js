@@ -406,7 +406,9 @@ MathField.prototype._resetInlineShortcutBuffer = function() {
  * @private
  */
 function _findElementWithCaret(el) {
-    if (el.classList.contains('ML__caret')) {
+    if (el.classList.contains('ML__caret') || 
+        el.classList.contains('ML__text-caret') ||
+        el.classList.contains('ML__command-caret')) {
         return el;
     }
     let result;
