@@ -627,13 +627,77 @@ EditableMathlist.prototype.collapseBackward = function() {
 
 
 /**
+ * Return true if the atom could be a part of a number
+ * i.e. "-12354.568"
+ * @param {object} atom 
+ */
+function isNumber(atom) {
+    if (!atom) return false;
+    return (atom.type === 'mord' && /[0-9.]/.test(atom.body)) ||
+        (atom.type === 'mpunct' && atom.body === ',');
+}
+
+/**
  * Select all the atoms in the current group, that is all the siblings.
  * When the selection is in a numerator, the group is the numerator. When
  * the selection is a superscript or subscript, the group is the supsub.
+ * When the selection is in a text zone, the "group" is a word
  * @method EditableMathlist#selectGroup_
  */
 EditableMathlist.prototype.selectGroup_ = function() {
-    this.setSelection(0, 'end');
+    const siblings = this.siblings();
+    if (this.anchorMode() === 'text') {
+        // Word boundaries for Cyrillic, Polish, French, German, Italian
+        // and Spanish. We use \p{L} (Unicode property escapes: "Letter")
+        // but Firefox doesn't support it 
+        // (https://bugzilla.mozilla.org/show_bug.cgi?id=1361876). Booo...
+        // See also https://stackoverflow.com/questions/26133593/using-regex-to-match-international-unicode-alphanumeric-characters-in-javascript
+        const WORD_REGEX = 
+            navigator && /firefox/i.test(navigator.userAgent) ?
+                /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒäöüßÄÖÜẞàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚáéíñóúüÁÉÍÑÓÚÜ]/ :
+                /\p{L}/u;                
+        let start = this.startOffset();
+        let end = this.endOffset();
+        // 
+        while (siblings[start] && siblings[start].mode === 'text' &&
+            WORD_REGEX.test(siblings[start].body)) {
+            start -= 1;
+        }
+        while (siblings[end] && siblings[end].mode === 'text' &&
+            WORD_REGEX.test(siblings[end].body)) {
+            end += 1;
+        }
+        end -= 1;
+        if (start >= end) {
+            // No word found.
+            // Select the entire text zone
+            start = this.startOffset();
+            end = this.endOffset();
+            while (siblings[start] && siblings[start].mode === 'text') {
+                start -= 1;
+            }
+            while (siblings[end] && siblings[end].mode === 'text') {
+                end += 1;
+            }
+            end -= 1;
+        }
+
+        this.setSelection(start, end - start);
+    } else {
+        // In a math zone, select all the sibling nodes
+        if (this.sibling(0).type === 'mord' && /[0-9,.]/.test(this.sibling(0).body)) {
+            // In a number, select all the digits
+            let start = this.startOffset();
+            let end = this.endOffset();
+            // 
+            while (isNumber(siblings[start])) start -= 1;
+            while (isNumber(siblings[end])) end += 1;
+            end -= 1;
+            this.setSelection(start, end - start);
+        } else {
+            this.setSelection(0, 'end');
+        }
+    }
 }
 
 
