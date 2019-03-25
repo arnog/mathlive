@@ -589,11 +589,7 @@ EditableMathlist.prototype.siblings = function() {
  * @private
  */
 EditableMathlist.prototype.sibling = function(offset) {
-    const siblingOffset = this.startOffset() + offset;
-    const siblings = this.siblings();
-    if (siblingOffset < 0 || siblingOffset > siblings.length) return null;
-
-    return siblings[siblingOffset]
+    return this.siblings()[this.startOffset() + offset]
 }
 
 
@@ -1604,15 +1600,15 @@ EditableMathlist.prototype.leap = function(dir, callHandler) {
 
 
 EditableMathlist.prototype.anchorMode = function() {
-    const anchor = this.anchor();
+    const anchor = this.isCollapsed() ? this.anchor() : this.sibling(1);
     if (anchor) {
         if (anchor.type === 'commandliteral' ||
             anchor.type === 'esc' ||
             anchor.type === 'command') return 'command';
         if (anchor.mode) return anchor.mode;
-        const parent = this.parent();
-        if (parent && parent.mode) return parent.mode;
     }
+    const parent = this.parent();
+    if (parent && parent.mode) return parent.mode;
     return '';
 }
 
@@ -1620,7 +1616,7 @@ EditableMathlist.prototype.anchorMode = function() {
 function removeParen(list) {
     if (!list) return undefined;
 
-    if (list && list.length === 1 && list[0].type === 'leftright' &&
+    if (list.length === 1 && list[0].type === 'leftright' &&
         list[0].leftDelim === '(') {
         list = list[0].body;
     }
