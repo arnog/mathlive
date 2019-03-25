@@ -73,7 +73,8 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
     let result = '';
     let col, row = 0;
     let i = 0;
-    const command = this.latex ? this.latex.trim() : null;
+    const m = !this.latex ? null : this.latex.match(/^(\\[^{\s0-9]+)/);
+    const command = m ? m[1] : null;
     switch(this.type) {
         case 'group':
             result += this.latexOpen || '{';
@@ -199,7 +200,10 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             } else if (this.latex || typeof this.body === 'string') {
                 // Not ZERO-WIDTH
                 if (this.latex && this.latex[0] === '\\') {
-                    result += this.latex + ' ';
+                    result += this.latex;
+                    if (/[a-zA-Z0-9]$/.test(this.latex)) {
+                        result += ' ';
+                    }
                 } else if (this.latex) {
                     result += this.latex;
                 } else {

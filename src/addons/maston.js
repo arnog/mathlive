@@ -37,8 +37,10 @@ const CANONICAL_NAMES = {
     '⁄':                 '/',        // FRACTION SLASH
     '／':                '/',        // FULLWIDTH SOLIDUS
     '!':                'factorial',
-    '️\\pm':             'plusminus', // PLUS-MINUS SIGN
     '\\mp':             'minusplus', // MINUS-PLUS SIGN
+    '\\ne':             '!=',
+    '\\coloneq':        ':=',
+    '\\pm':             'plusminus',    // PLUS-MINUS SIGN
 
     '\\land':           'and',
     '\\wedge':          'and',
@@ -142,7 +144,7 @@ const OP_NAME = {
 
 const FUNCTION_TEMPLATE = {
     'equal':                    '%0 = %1',
-    'unequal':                  '%0 \\ne %1',
+    'ne':                       '%0 \\ne %1',
     'assign':                   '%0 := %1',
     'lt':                       '%0 < %1',
     'gt':                       '%0 > %1',
@@ -461,7 +463,7 @@ function getCanonicalName(latex) {
     latex = (latex || '').trim();
     let result = CANONICAL_NAMES[latex];
     if (!result) {
-        if (latex.charAt(0) === '\\') {
+        if (/^\\[^{}]+$/.test(latex)) {
             const info = Definitions.getInfo(latex, 'math', {});
             if (info && info.type !== 'error') {
                 result = info.value || latex.slice(1);
@@ -566,10 +568,8 @@ function getString(atom) {
         }
         return result;
     }
-    if (atom.latex && atom.latex !== '\\mathop ' && atom.latex !== '\\mathbin ' &&
-        atom.latex !== '\\mathrel ' && atom.latex !== '\\mathopen ' &&
-        atom.latex !== '\\mathpunct ' && atom.latex !== '\\mathord ' &&
-        atom.latex !== '\\mathinner ' && atom.type !== 'font') {
+    if (atom.latex && atom.type !== 'font' && 
+        !/^\\math(op|bin|rel|open|punct|ord|inner)/.test(atom.latex)) {
         return atom.latex.trim();
     }
     if (atom.type === 'leftright') {
@@ -815,7 +815,7 @@ function parsePostfix(expr, options) {
         return expr;
     }
     const atom = expr.atoms[expr.index];
-    if (atom && POSTFIX_FUNCTION[atom.latex.trim()]) {
+    if (atom && atom.latex && POSTFIX_FUNCTION[atom.latex.trim()]) {
         expr.ast = wrapFn(POSTFIX_FUNCTION[atom.latex.trim()], lhs);
         expr = parseSupsub(expr, options);
         expr = parsePostfix(expr, options);
@@ -1219,7 +1219,7 @@ function parsePrimary(expr, options) {
 
     } else if (atom.type === 'mop') {
         // Could be a function or an operator.
-        if ((atom.latex === '\\mathop ' || isFunction(val)) && !isOperator(atom)) {
+        if ((/^\\mathop/.test(atom.latex) || isFunction(val)) && !isOperator(atom)) {
             expr.ast = { fn: val };
             expr = parseSupsub(expr, options);
 

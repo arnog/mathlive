@@ -99,6 +99,9 @@ const KEYBOARD_SHORTCUTS = {
     'math:Backslash':           'enterCommandMode',
     'math:IntlBackslash':       'enterCommandMode',
 
+    'math:Alt-Equal':           ['apply-style', {mode: 'text'}],
+    'text:Alt-Equal':           ['apply-style', {mode: 'math'}],
+
     'command:Spacebar':         'complete',
     'command:Esc':              'complete',
     'command:Tab':              'complete',

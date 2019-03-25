@@ -1,61 +1,109 @@
 const SPECIAL_IDENTIFIERS = {
+    '\u2212':       '-',  // MINUS SIGN
+    '-':            '-', 
+    '\\alpha':      'alpha',
+    '\\beta':       'beta',
+    '\\gamma':      'gamma',
+    '\\delta':      'delta',
+    '\\epsilon':    'epsilon',
+    '\\varepsilon': 'varepsilon',
+    '\\zeta':       'zeta',
+    '\\eta':        'eta',
+    '\\theta':      'theta',
+    '\\vartheta':   'vartheta',
+    '\\iota':       'iota',
+    '\\kappa':      'kappa',
+    '\\lambda':     'lambda',
+    '\\mu':         'mu',
+    '\\nu':         'nu',
+    '\\xi':         'xi',
+    '\\pi':         'pi',
+    '\\rho':        'rho',
+    '\\sigma':      'sigma',
+    '\\tau':        'tau',
+    '\\upsilon':    'upsilon',
+    '\\phi':        'phi',
+    '\\varphi':     'varphi',
+    '\\chi':        'chi',
+    '\\psi':        'psi',
+    '\\omega':      'omega',
+    '\\Gamma':      'Gamma',
+    '\\Delta':      'Delta',
+    '\\Theta':      'Theta',
+    '\\Lambda':     'Lambda',
+    '\\Xi':         'Xi',
+    '\\Pi':         'Pi',
+    '\\Sigma':      'Sigma',
+    '\\Phi':        'Phi',
+    '\\Psi':        'Psi',
+    '\\Omega':      'Omega',
 };
 
 const SPECIAL_OPERATORS = {
+    '\\pm': '+-',
+    '\\times': 'xx',
+    '\\colon': ':',
+    '\\vert': '|',
+    '\\Vert': '||',
+    '\\mid': '|',
+    '\\lbrace': '{',
+    '\\rbrace': '}',
+    '\\langle': '(:',
+    '\\rangle': ':)',
+    // '\\lfloor': '\u230a',
+    // '\\rfloor': '\u230b',
+    // '\\lceil': '\u2308',
+    // '\\rceil': '\u2309',
+
+    // '\\vec': '&#x20d7;',
+    // '\\acute': '&#x00b4;',
+    // '\\grave': '&#x0060;',
+    // '\\dot': '&#x02d9;',
+    // '\\ddot': '&#x00a8;',
+    // '\\tilde': '&#x007e;',
+    // '\\bar': '&#x00af;',
+    // '\\breve': '&#x02d8;',
+    // '\\check': '&#x02c7;',
+    // '\\hat': '&#x005e;'
 };
 
 export function toASCIIMath(atom, options){
+    if (!atom) return '';
     if (Array.isArray(atom)) {
-        return atom.map(x => toASCIIMath(x, options)).join('');
+        let result = '';
+        if (atom.length === 0) return '';
+        if (atom[0].type === 'first') atom.shift();
+        if (atom[0].mode === 'text') {
+            // Text mode... put it in (ASCII) quotes
+            let i = 0;
+            result = '"';
+            while (atom[i] && atom[i].mode === 'text') {
+                result += atom[i].body;
+                i++;
+            }
+            result += '"' + toASCIIMath(atom.slice(i), options);
+        } else {
+            let i = 0;
+            while (atom[i] && atom[i].mode === 'math') {
+                result += toASCIIMath(atom[i], options);
+                i++;
+            }
+            result += toASCIIMath(atom.slice(i), options);
+        }
+        return result.trim();
     }
 
     let result = '';
     const command = atom.latex ? atom.latex.trim() : null;
     let m;
+
     switch(atom.type) {
         case 'group':
         case 'root':
             result = toASCIIMath(atom.body, options);
-            // @todo convert sup, sub
             break;
 
         case 'array':
-            // if ((atom.lFence && atom.lFence !== '.') ||
-            //     (atom.rFence && atom.rFence !== '.')) {
-            //     result += '<mrow>';
-            //     if ((atom.lFence && atom.lFence !== '.')) {
-            //         result += '<mo>' + (SPECIAL_OPERATORS[atom.lFence] || atom.lFence) + '</mo>';
-            //     }
-            // }
-            // result += '<mtable';
-            // if (atom.colFormat) {
-            //     result += ' columnalign="';
-            //     for (i = 0; i < atom.colFormat.length; i++) {
-            //         if (atom.colFormat[i].align) {
-            //             result += {l:'left', c:'center', r:'right'}[atom.colFormat[i].align] + ' ';
-            //         }
-            //     }
-            //     result += '"';
-            // }
-
-            // result += '>';
-            // for (row = 0; row < atom.array.length; row++) {
-            //     result += '<mtr>';
-            //     for (col = 0; col < atom.array[row].length; col++) {
-            //         result += '<mtd>' + toMathML(atom.array[row][col], 0, 0, options).mathML + '</mtd>';
-            //     }
-            //     result += '</mtr>';
-            // }
-
-            // result += '</mtable>';
-
-            // if ((atom.lFence && atom.lFence !== '.') ||
-            //     (atom.rFence && atom.rFence !== '.')) {
-            //     if ((atom.rFence && atom.rFence !== '.')) {
-            //         result += '<mo>' + (SPECIAL_OPERATORS[atom.lFence] || atom.rFence) + '</mo>';
-            //     }
-            //     result += '</mrow>';
-            // }
             break;
 
         case 'genfrac':
@@ -100,28 +148,9 @@ export function toASCIIMath(atom, options){
 
 
         case 'font':
-            // if (command === '\\text' || command === '\\textrm' ||
-            //     command === '\\textsf' || command === '\\texttt' ||
-            //     command === '\\textnormal' || command === '\\textbf' ||
-            //     command === '\\textit') {
-            //     result += '<mtext' + variant + makeID(atom.id, options) + '>';
-            //     // Replace first and last space in text with a &nbsp; to ensure they
-            //     // are actually displayed (content surrounded by a tag gets trimmed)
-            //     // TODO: alternative: use <mspace>
-            //     result += toString(atom.body).
-            //         replace(/^\s/, '&nbsp;').
-            //         replace(/\s$/, '&nbsp;');
-            //     result += '</mtext>';
-            // } else {
-            //     result += '<mi' + variant + '>' + toString(atom.body) + '</mi>';
-            // }
             break;
 
         case 'accent':
-            // result += '<mover accent="true"' + makeID(atom.id, options) + '>';
-            // result += toMathML(atom.body, 0, 0, options).mathML;
-            // result += '<mo>' + (SPECIAL_OPERATORS[command] || atom.accent) + '</mo>';
-            // result += '</mover>'
             break;
 
         case 'line':
@@ -129,63 +158,22 @@ export function toASCIIMath(atom, options){
             break;
 
         case 'overunder':
-            // overscript = atom.overscript;
-            // underscript = atom.underscript;
-            // if (overscript && underscript) {
-            //     body = atom.body;
-            // } else if (overscript) {
-            //     body = atom.body;
-            //     if (atom.body[0] && atom.body[0].underscript) {
-            //         underscript = atom.body[0].underscript;
-            //         body = atom.body[0].body;
-            //     } else if (atom.body[0] && atom.body[0].type === 'first' && atom.body[1] && atom.body[1].underscript) {
-            //         underscript = atom.body[1].underscript;
-            //         body = atom.body[1].body;
-            //     }
-            // } else if (underscript) {
-            //     body = atom.body;
-            //     if (atom.body[0] && atom.body[0].overscript) {
-            //         overscript = atom.body[0].overscript;
-            //         body = atom.body[0].body;
-            //     } else if (atom.body[0] && atom.body[0].type === 'first' && atom.body[1] && atom.body[1].overscript) {
-            //         overscript = atom.body[1].overscript;
-            //         body = atom.body[1].body;
-            //     }
-            // }
 
-            // if (overscript && underscript) {
-            //     result += '<munderover' + variant + makeID(atom.id, options) + '>' + toMathML(body, 0, 0, options).mathML;
-            //     result += toMathML(underscript, 0, 0, options).mathML;
-            //     result += toMathML(overscript, 0, 0, options).mathML;
-            //     result += '</munderover>';
-            // } else if (overscript) {
-            //     result += '<mover' + variant + makeID(atom.id, options) + '>' + toMathML(body, options).mathML;
-            //     result += toMathML(overscript, 0, 0, options).mathML;
-            //     result += '</mover>';
-            // } else if (underscript) {
-            //     result += '<munder' + variant + makeID(atom.id, options) + '>' + toMathML(body, options).mathML;
-            //     result += toMathML(underscript, 0, 0, options).mathML;
-            //     result += '</munder>';
-            // }
             break;
 
         case 'mord':
             // @todo, deal with some special identifiers: \alpha, etc...
             result = SPECIAL_IDENTIFIERS[command] || command || 
                 (typeof atom.body === 'string' ? atom.body : '');
+            if (result[0] === '\\') result += '';
             m = command ? command.match(/[{]?\\char"([0-9abcdefABCDEF]*)[}]?/) : null;
             if (m) {
                 // It's a \char command
-                result = '&#x' + m[1] + ';'
-                // @todo: convert to unicode fromCharCode(parseInt('0x' + ...))
+                result = String.fromCharCode(parseInt('0x' + m[1]))
             } else if (result.length > 0 && result.charAt(0) === '\\') {
                 // atom is an identifier with no special handling. Use the
                 // Unicode value
-                if (typeof atom.body === 'string' && atom.body.charCodeAt(0) > 255) {
-                    result = '&#x' + ('000000' +
-                        atom.body.charCodeAt(0).toString(16)).substr(-4) + ';';
-                // @todo: convert to unicode fromCharCode(parseInt('0x' + ...))
-                } else if (typeof atom.body === 'string') {
+                if (typeof atom.body === 'string') {
                     result = atom.body.charAt(0);
                 } else {
                     result = atom.latex;
@@ -208,6 +196,11 @@ export function toASCIIMath(atom, options){
             }
             break;
 
+        case 'mopen':
+        case 'mclose':
+            result += atom.body;
+            break;
+
         case 'mpunct':
             result = SPECIAL_OPERATORS[command] || command;
             break;
@@ -219,53 +212,25 @@ export function toASCIIMath(atom, options){
                 if (command === '\\operatorname') {
                     result += atom.body;
                 } else {
-                    result += command || atom.body;
+                    result += atom.body || command;
                 }
+                result += ' ';
             }
             break;
 
         case 'color':
-            // if (atom.textcolor) {
-            //     result += '<mstyle color="' + Color.stringToColor(atom.textcolor) + '"';
-            //     result +=  makeID(atom.id, options) + '>';
-            //     result += toMathML(atom.body, 0, 0, options).mathML;
-            //     result += '</mstyle>';
-            // }
             break;
 
         case 'mathstyle':
-            // TODO: mathstyle is a switch. Need to figure out its scope to properly wrap it around a <mstyle> tag
-            // if (atom.mathstyle === 'displaystyle') {
-            //     result += '<mstyle displaystyle="true">';
-            //     result += '</mstyle>';
-            // } else {
-            //     result += '<mstyle displaystyle="false">';
-            //     result += '</mstyle>';
-            // };
             break;
 
         case 'box':
-            // result = '<menclose notation="box"';
-            // if (atom.backgroundcolor) {
-            //     result += ' mathbackground="' + Color.stringToColor(atom.backgroundcolor) + '"';
-            // }
-            // result += makeID(atom.id, options) + '>' + toMathML(atom.body, 0, 0, options).mathML + '</menclose>';
             break;
 
         case 'spacing':
-            // result += '<mspace width="' + (SPACING[command] || 0) + 'em"/>';
             break;
 
         case 'enclose':
-            // result = '<menclose notation="';
-            // for (const notation in atom.notation) {
-            //     if (atom.notation.hasOwnProperty(notation) &&
-            //         atom.notation[notation]) {
-            //         result += sep + notation;
-            //         sep = ' ';
-            //     }
-            // }
-            // result += makeID(atom.id, options) + '">' + toMathML(atom.body, 0, 0, options).mathML + '</menclose>';
             break;
 
         case 'sizing':
@@ -276,6 +241,27 @@ export function toASCIIMath(atom, options){
             break;
 
     }
+    // Subscripts before superscripts (according to the ASCIIMath spec)
+    if (atom.subscript) {
+        result += '_';
+        const arg = toASCIIMath(atom.subscript, options);
+        if (arg.length > 1 && !/^(-)?\d+(\.\d*)?$/.test(arg)) {
+            result += '(' + arg + ')'
+        } else {
+            result += arg;
+        }
+    }
+
+    if (atom.superscript) {
+        result += '^';
+        const arg = toASCIIMath(atom.superscript, options);
+        if (arg.length > 1 && !/^(-)?\d+(\.\d*)?$/.test(arg)) {
+            result += '(' + arg + ')'
+        } else {
+            result += arg;
+        }
+    }
+
     return result;
 }
 

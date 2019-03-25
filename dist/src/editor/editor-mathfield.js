@@ -262,10 +262,10 @@ function MathField(element, config) {
     this.suggestionIndex = 0;
 
     // The input mode (text, math, command)
-    // While mathlist.parseMode() represent the mode of the current selection,
+    // While mathlist.anchorMode() represent the mode of the current selection,
     // this.mode is the mode chosen by the user. It indicates the mode the 
     // next character typed will be interpreted in. 
-    // It is often identical to mathlist.parseMode() since changing the selection
+    // It is often identical to mathlist.anchorMode() since changing the selection
     // changes the mode, but sometimes it is not, for example when a user 
     // enters a mode changing command.
     this.mode = config.defaultMode || 'math';
@@ -304,7 +304,7 @@ function MathField(element, config) {
 
 
     // Override some handlers in the config
-    const localConfig = Object.assign({}, config);
+    const localConfig = {...config};
     localConfig.onSelectionDidChange =
         MathField.prototype._onSelectionDidChange.bind(this);
     localConfig.onContentDidChange =
@@ -312,6 +312,7 @@ function MathField(element, config) {
     localConfig.onAnnounce = this.config.onAnnounce;
     localConfig.smartFence = this.config.smartFence;
     localConfig.macros = this.config.macros;
+    localConfig.removeExtraneousParentheses = this.config.removeExtraneousParentheses;
 
     this.mathlist = new EditableMathlist.EditableMathlist(localConfig, this);
 
@@ -668,7 +669,7 @@ MathField.prototype._onSelectionDidChange = function() {
     }
 
     // Update the mode
-    this.mode = this.mathlist.parseMode();
+    this.mode = this.mathlist.anchorMode() || this.config.defaultMode;
 
     // Defer the updating of the popover position: we'll need the tree to be
     // re-rendered first to get an updated caret position
@@ -732,7 +733,7 @@ MathField.prototype._nextAtomSpeechText = function(oldMathlist) {
         oldPath.pop();
     }
     if (!this.mathlist.isCollapsed()) {
-        return speakableText(this, '', this.mathlist.extractContents());
+        return speakableText(this, '', this.mathlist.getSelectedAtoms());
     }
 
     // announce start of denominator, etc
@@ -1133,19 +1134,23 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
             if (!/^(\\{|\\}|\\[|\\]|\\@|\\#|\\$|\\%|\\^|\\_|\\backslash)$/.test(shortcut)) {
                 // To enable the substitution to be undoable,
                 // insert the character before applying the substitution
-                this.mathlist.insert(Keyboard.eventToChar(evt));
+                this.mathlist.insert(Keyboard.eventToChar(evt), {
+                    suppressContentChangeNotifications: true,
+                    mode: this.mode
+                });
 
                 // Create a snapshot with the inserted character
                 this.undoManager.snapshotAndCoalesce(this.config);
 
                 // Revert to the state before the beginning of the shortcut
                 // (restore doesn't change the undo stack)
-                this.undoManager.restore(this.inlineShortcutStates[shortcutStateIndex], this.config);
+                this.undoManager.restore(this.inlineShortcutStates[shortcutStateIndex], 
+                    {...this.config, suppressContentChangeNotifications: true });
             }
 
             // Insert the substitute, possibly as a smart fence
             if (!this.mathlist._insertSmartFence(shortcut)) {
-                this.mathlist.insert(shortcut, {format: 'latex'});
+                this.mathlist.insert(shortcut, {format: 'latex', mode: this.mode});
             }
             this.undoManager.snapshot(this.config);
             this._render();
@@ -1227,7 +1232,10 @@ MathField.prototype._onTypedText = function(text, options) {
         // This call was made in response to a paste event.
         // Interpret `text` as a 'smart' expression (could be LaTeX, could be 
         // UnicodeMath)
-        this.mathlist.insert(text, {smartFence: this.config.smartFence});
+        this.mathlist.insert(text, {
+            smartFence: this.config.smartFence, 
+            mode: 'math'
+        });
 
     } else {
         // Decompose the string into an array of graphemes.
@@ -1246,14 +1254,14 @@ MathField.prototype._onTypedText = function(text, options) {
                 const suggestions = Definitions.suggest(command + c);
                 displayArrows = suggestions.length > 1;
                 if (suggestions.length === 0) {
-                    this.mathlist.insert(c);
+                    this.mathlist.insert(c, {mode: 'command'});
                     if (/^\\[a-zA-Z\\*]+$/.test(command + c)) {
                         // This looks like a command name, but not a known one
                         this.mathlist.decorateCommandStringAroundInsertionPoint(true);
                     }
                     Popover.hidePopover(this);
                 } else {
-                    this.mathlist.insert(c);
+                    this.mathlist.insert(c, {mode: 'command'});
                     if (suggestions[0].match !== command + c) {
                         this.mathlist.insertSuggestion(suggestions[0].match,
                             -suggestions[0].match.length + command.length + 1);
@@ -1342,13 +1350,13 @@ MathField.prototype._render = function(renderOptions) {
     // 3. Update selection state and blinking cursor (caret)
     //
     this.mathlist.forEach( a => {
-            a.hasCaret = false;
+            a.caret = '';
             a.isSelected = false;
         } );
 
     const hasFocus = this.hasFocus();
     if (this.mathlist.isCollapsed()) {
-        this.mathlist.anchor().hasCaret = hasFocus;
+        this.mathlist.anchor().caret = hasFocus ? this.mode : '';
     } else {
         this.mathlist.forEachSelected( a => { a.isSelected = true } );
     }
@@ -1481,7 +1489,11 @@ MathField.prototype.formatMathlist = function(root, format) {
     
     } else if (format === 'ASCIIMath') {
         result = toASCIIMath(root, this.config);
+
+    } else {
+        console.warn('Unknown format :', format);
     }
+
     return result;
 }
 
@@ -1510,12 +1522,12 @@ MathField.prototype.$text = function(format) {
     return this.formatMathlist(this.mathlist.root, format);
 }
 
-/**
+/**©†
  * Return a textual representation of the selection in the mathfield.
  * @param {string} [format='latex']. One of
  *    * `'latex'`
  *    * `'latex-expanded'` : all macros are recursively expanded to their definition
- *    * `'spoken'`
+ *    * `'spoken'`©1454
  *    * `'spoken-text'`
  *    * `'spoken-ssml'`
  *    * `'mathML'`
@@ -1525,8 +1537,9 @@ MathField.prototype.$text = function(format) {
  */
 MathField.prototype.selectedText = 
 MathField.prototype.$selectedText = function(format) {
-    const atoms = this.mathlist.extractContents();
-    const root = MathAtom.makeRoot('math', atoms);
+    const atoms = this.mathlist.getSelectedAtoms();
+    if (!atoms) return '';
+    const root = MathAtom.makeRoot(atoms[0].mode, atoms);
     return this.formatMathlist(root, format);
 }
 
@@ -1609,6 +1622,7 @@ MathField.prototype.$latex = function(text, options) {
                 insertionMode: 'replaceAll',
                 selectionMode: 'after',
                 format: 'latex',
+                mode: 'math',
                 suppressContentChangeNotifications: options.suppressContentChangeNotifications
             }));
             this.undoManager.snapshot(this.config);
@@ -1682,7 +1696,7 @@ MathField.prototype.enterCommandMode_ = function() {
         this.switchKeyboardLayer_('lower-command');
     }
 
-    this.mathlist.insert('\u001b');
+    this.mathlist.insert('\u001b', {mode: 'math'});
     return true;
 }
 
@@ -1720,16 +1734,18 @@ MathField.prototype.pasteFromClipboard_ = function() {
  * 
  * After the insertion, the selection will be set according to the `selectionMode`.
  * @param {string} s - The text to be inserted
+ * 
  * @param {Object.<string, any>} [options={}]
+ * 
  * @param {string} options.selectionMode - Describes where the selection
  * will be after the insertion:
  *    * `'placeholder'`: the selection will be the first available placeholder
- * in the item that has been inserted) (default)
+ * in the item that has been inserted (default)
  *    * `'after'`: the selection will be an insertion point after the item that
- * has been inserted),
+ * has been inserted,
  *    * `'before'`: the selection will be an insertion point before
- * the item that has been inserted) or 'item' (the item that was inserted will
- * be selected).
+ * the item that has been inserted
+ *    * `'item'`: the item that was inserted will be selected
  *
  * @param {string} options.format - The format of the string `s`:
  *    * `'auto'`: the string is interpreted as a latex fragment or command)
@@ -1738,7 +1754,12 @@ MathField.prototype.pasteFromClipboard_ = function() {
  *
  * @param {boolean} options.focus - If true, the mathfield will be focused after 
  * the insertion
+ * 
  * @param {boolean} options.feedback - If true, provide audio and haptic feedback
+ * 
+ * @param {string} options.mode - 'text' or 'math'. If empty, the current mode
+ * is used (default)
+ * 
  * @method MathField#$insert
  */
 MathField.prototype.insert_ =
@@ -1772,12 +1793,19 @@ MathField.prototype.$insert = function(s, options) {
 
 
 MathField.prototype.switchMode_ = function(mode, prefix, suffix) {
+    this._resetInlineShortcutBuffer();
     if (prefix) {
-        this.insert(prefix, { format: 'latex' });
+        this.insert(prefix, { 
+            format: 'latex', 
+            mode: {'math':'text', 'text':'math'}[mode]
+        });
     }
     this.mode = mode;
     if (suffix) {
-        this.insert(suffix, { format: 'latex' });
+        this.insert(suffix, {             
+            format: 'latex', 
+            mode: mode
+        });
     }
     this._render();
 }
@@ -1796,7 +1824,7 @@ MathField.prototype.complete_ = function() {
     if (command) {
         if (command === '\\(' || command === '\\)') {
             this.mathlist.spliceCommandStringAroundInsertionPoint([]);
-            this.mathlist.insert(command.slice(1));
+            this.mathlist.insert(command.slice(1), {mode: this.mode});
         } else {
             // We'll use the mode of the atom before the command
             const mode = this.mathlist.siblings()[this.mathlist.commandOffsets().start - 1].mode;
@@ -2414,28 +2442,27 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
 }
 
 MathField.prototype.applyStyle_ = function(style) {
+    this._resetInlineShortcutBuffer();
     if (style.mode) {
-        // Switch from math and text mode
+        // It's a mode ('text', 'math') change
         if (this.mathlist.isCollapsed()) {
-            if (this.mode === 'text') {
-                this.switchMode_('math', '“', '');
-            } else {
-                this.switchMode_('text', '', '”');
-            }
+            // Nothing selected, simply toggle the mode that 
+            // will be applied to the next insertion
+            this.switchMode_(this.mode === 'math' ? 'text' : 'math');
 
         } else {
             // Convert the selection from one mode to another
-            let convertedSelection;
-            const selection = this.mathlist.extractContents();
-            const targetMode = selection[0].mode === 'math' ? 'text' : 'math';
-            if (targetMode === 'text') { 
-                convertedSelection = this.$selectedText('ASCIIMath')
-            } else {
-                convertedSelection = this.$selectedText('text')
+            const targetMode = 
+                (this.mathlist.anchorMode() || this.config.default) === 'math' ?
+                    'text' : 'math';
+            let convertedSelection = this.$selectedText('ASCIIMath');
+            if (targetMode === 'math' && /^"[^"]+"$/.test(convertedSelection)) {
+                convertedSelection = convertedSelection.substring(1, convertedSelection.length - 1);
             }
             this.insert(convertedSelection, {
                 mode: targetMode,
-                format: targetMode === 'math' ? 'auto' : 'text'
+                selectionMode: 'item',
+                format: targetMode === 'text' ? 'text' : 'ASCIIMath'
             });
 
             this.mode = targetMode;
@@ -2550,14 +2577,18 @@ MathField.prototype.$setConfig = function(conf) {
     if (!this.config) {
         this.config = {
             smartFence: true,
-            removeExtraneousParentheses: false,
+            removeExtraneousParentheses: true,
             overrideDefaultInlineShortcuts: false,
             virtualKeyboard: '',
             virtualKeyboardLayout: 'qwerty',
             namespace: '',
         }
     }
-    this.config = Object.assign(this.config, conf);
+    this.config = {...this.config, ...conf};
+
+    if (typeof this.config.removeExtraneousParentheses === 'undefined') {
+        this.config.removeExtraneousParentheses = true;
+    }
 
     this.config.onAnnounce = conf.onAnnounce || _onAnnounce;
 
@@ -2647,7 +2678,7 @@ MathField.prototype._speak = function(text) {
 MathField.prototype.speakSelection_ = function() {
     let text = "Nothing selected.";
     if (!this.mathlist.isCollapsed()) {
-        text = MathAtom.toSpeakableText(this.mathlist.extractContents(), this.config)
+        text = MathAtom.toSpeakableText(this.mathlist.getSelectedAtoms(), this.config)
     }
     this._speak(text);
     return false;
@@ -2662,7 +2693,7 @@ MathField.prototype.speakSelectionWithSynchronizedHighlighting_ = function() {
         this._render({forHighlighting: true});
         const options = this.config;
         options.textToSpeechMarkup = (window.sre && options.textToSpeechRules === 'sre') ? 'ssml_step' : 'ssml';
-        const text = MathAtom.toSpeakableText(this.mathlist.extractContents(), options)
+        const text = MathAtom.toSpeakableText(this.mathlist.getSelectedAtoms(), options)
         this._speakWithSynchronizedHighlighting(text);
     } else {
         this._speak("Nothing selected.");

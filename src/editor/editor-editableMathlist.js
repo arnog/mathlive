@@ -412,8 +412,7 @@ function arrayCell(atom, colrow) {
     }
     // If the 'first' math atom is missing, insert it
     if (result && (result.length === 0 || result[0].type !== 'first')) {
-        const firstAtom = new MathAtom.MathAtom(atom.parseMode, 'first', null);
-        result.unshift(firstAtom);
+        result.unshift(makeFirstAtom());
     }
     return result;
 }
@@ -467,8 +466,7 @@ EditableMathlist.prototype.ancestor = function(ancestor) {
             // Make sure the 'first' atom has been inserted, otherwise
             // the segment.offset might be invalid
             if (result[segment.relation].length === 0 || result[segment.relation][0].type !== 'first') {
-                const firstAtom = new MathAtom.MathAtom(result.parseMode, 'first', null);
-                result[segment.relation].unshift(firstAtom);
+                result[segment.relation].unshift(makeFirstAtom());
             }
             const offset = Math.min(segment.offset, result[segment.relation].length - 1);
             result = result[segment.relation][offset];
@@ -575,8 +573,7 @@ EditableMathlist.prototype.siblings = function() {
 
     // If the 'first' math atom is missing, insert it
     if (siblings.length === 0 || siblings[0].type !== 'first') {
-        const firstAtom = new MathAtom.MathAtom(this.parent().parseMode, 'first', null);
-        siblings.unshift(firstAtom);
+        siblings.unshift(makeFirstAtom());
     }
 
     return siblings;
@@ -721,10 +718,10 @@ EditableMathlist.prototype.contains = function(atom) {
 /**
  * @return {MathAtom[]} The currently selected atoms, or `null` if the
  * selection is collapsed
- * @method EditableMathlist#extractContents
+ * @method EditableMathlist#getSelectedAtoms
  * @private
  */
-EditableMathlist.prototype.extractContents = function() {
+EditableMathlist.prototype.getSelectedAtoms = function() {
     if (this.isCollapsed()) return null;
     const result = [];
     const siblings = this.siblings()
@@ -1599,16 +1596,17 @@ EditableMathlist.prototype.leap = function(dir, callHandler) {
 
 
 
-EditableMathlist.prototype.parseMode = function() {
+EditableMathlist.prototype.anchorMode = function() {
     const anchor = this.anchor();
     if (anchor) {
         if (anchor.type === 'commandliteral' ||
             anchor.type === 'esc' ||
             anchor.type === 'command') return 'command';
         if (anchor.mode) return anchor.mode;
-        if (this.parent().mode) return this.parent().mode;
+        const parent = this.parent();
+        if (parent && parent.mode) return parent.mode;
     }
-    return 'math';
+    return '';
 }
 
 
@@ -1621,6 +1619,57 @@ function removeParen(list) {
     }
 
     return list;
+}
+
+
+
+/**
+ * If it's a fraction with a parenthesized numerator or denominator
+ * remove the parentheses
+ * */
+EditableMathlist.prototype.simplifyParen = function(atoms) {
+    if (atoms && this.config.removeExtraneousParentheses) {
+        atoms.forEach(atom => {
+            if (atom.type === 'genfrac') {
+                this.simplifyParen(atom.numer);
+                this.simplifyParen(atom.denom);
+                atom.numer = removeParen(atom.numer);
+                atom.denom = removeParen(atom.denom);
+            }
+            if (atom.superscript) {
+                this.simplifyParen(atom.superscript);
+                atom.superscript = removeParen(atom.superscript);
+            }
+            if (atom.subscript) {
+                this.simplifyParen(atom.subscript);
+                atom.subscript = removeParen(atom.subscript);
+            }
+            if (atom.underscript) {
+                this.simplifyParen(atom.underscript);
+                atom.underscript = removeParen(atom.underscript);
+            }
+            if (atom.overscript) {
+                this.simplifyParen(atom.overscript);
+                atom.overscript = removeParen(atom.overscript);
+            }
+            if (atom.index) {
+                this.simplifyParen(atom.index);
+                atom.index = removeParen(atom.index);
+            }
+            if (atom.type === 'surd') {
+                this.simplifyParen(atom.body);
+                atom.body = removeParen(atom.body);
+            } else if (atom.body && Array.isArray(atom.body)) {
+                this.simplifyParen(atom.body);
+            }
+        
+            if (atom.array) {
+                for (let i = arrayCellCount(atom); i >= 0; i--) {
+                    this.simplifyParen(arrayCell(atom, i))
+                }
+            }
+        });
+    }
 }
 
 
@@ -1676,11 +1725,11 @@ EditableMathlist.prototype.insert = function(s, options) {
     if (!options.format) options.format = 'auto';
     options.macros = options.macros || this.config.macros;
 
-    const parseMode = options.mode || this.parseMode();
+    const anchorMode = options.mode || this.anchorMode();
     let mathlist;
 
     // Save the content of the selection, if any
-    const args = [this.extractContents()];
+    const args = [this.getSelectedAtoms()];
 
     // If a placeholder was specified, use it
     if (options.placeholder !== undefined) {
@@ -1710,8 +1759,16 @@ EditableMathlist.prototype.insert = function(s, options) {
         this.delete_(-1);
     }
 
-    if (parseMode !== 'text' && options.format === 'auto') {
-        if (parseMode === 'command') {
+    if (anchorMode === 'math' && options.format === 'ASCIIMath') {
+        s = parseMathString(s, {...this.config, format: 'ASCIIMath'});
+        mathlist = ParserModule.parseTokens(
+            Lexer.tokenize(Definitions.unicodeStringToLatex(s)),
+                'math', null, options.macros, false);
+        // Simplify result.
+        this.simplifyParen(mathlist);
+
+    } else if (anchorMode !== 'text' && options.format === 'auto') {
+        if (anchorMode === 'command') {
             // Short-circuit the tokenizer and parser if in command mode
             mathlist = [];
             for (const c of s) {
@@ -1747,26 +1804,19 @@ EditableMathlist.prototype.insert = function(s, options) {
 
             mathlist = ParserModule.parseTokens(
                 Lexer.tokenize(Definitions.unicodeStringToLatex(s)),
-                    parseMode, args, options.macros, options.smartFence);
+                    anchorMode, args, options.macros, options.smartFence);
 
             // Simplify result.
-            // If it's a fraction with a parenthesized numerator or denominator
-            // remove the parentheses.
-            if (mathlist.length === 1 && 
-                mathlist[0].type === 'genfrac' && 
-                this.config.removeExtraneousParentheses) {
-                mathlist[0].numer = removeParen(mathlist[0].numer);
-                mathlist[0].denom = removeParen(mathlist[0].denom);
-            }
+            this.simplifyParen(mathlist);
         }
 
     } else if (options.format === 'latex') {
         mathlist = ParserModule.parseTokens(
-            Lexer.tokenize(s), parseMode, args, options.macros, options.smartFence);
+            Lexer.tokenize(s), anchorMode, args, options.macros, options.smartFence);
 
-    } else if (parseMode === 'text' || options.format === 'text') {
+    } else if (anchorMode === 'text' || options.format === 'text') {
         // Map special TeX characters to alternatives
-        s = s.replace(/\\/g, '\\backslash');
+        s = s.replace(/\\/g, '\\backslash ');
         s = s.replace(/{/g, '\\{');
         s = s.replace(/}/g, '\\}');
         s = s.replace(/#/g, '\\#');
@@ -1774,7 +1824,7 @@ EditableMathlist.prototype.insert = function(s, options) {
         s = s.replace(/&/g, '\\&');
         s = s.replace(/_/g, '\\_');
         s = s.replace(/\$/g, '\\$');
-        s = s.replace(/\^/g, '\\char"00005E');
+        s = s.replace(/\^/g, '\\^{}');
 
         mathlist = ParserModule.parseTokens(
             Lexer.tokenize(s), 'text', args, options.macros, false);
@@ -1808,7 +1858,7 @@ EditableMathlist.prototype.insert = function(s, options) {
     } else if (options.selectionMode === 'after') {
         this.setSelection(this.anchorOffset() + mathlist.length);
     } else if (options.selectionMode === 'item') {
-        this.setSelection(this.anchorOffset() + 1, mathlist.length);
+        this.setSelection(this.anchorOffset(), mathlist.length);
     }
 
     // Dispatch notifications
@@ -2403,8 +2453,7 @@ EditableMathlist.prototype.moveToSuperscript_ = function() {
     this.collapseForward();
     if (!this.anchor().superscript) {
         if (this.anchor().subscript) {
-            this.anchor().superscript =
-                [new MathAtom.MathAtom(this.parent().parseMode, 'first', null)];
+            this.anchor().superscript = [makeFirstAtom()];
         } else {
             const sibling = this.sibling(1);
             if (sibling && sibling.superscript) {
@@ -2413,17 +2462,15 @@ EditableMathlist.prototype.moveToSuperscript_ = function() {
             } else if (sibling && sibling.subscript) {
                 this.path[this.path.length - 1].offset += 1;
     //            this.setSelection(this.anchorOffset() + 1);
-                this.anchor().superscript =
-                    [new MathAtom.MathAtom(this.parent().parseMode, 'first', null)];
+                this.anchor().superscript = [makeFirstAtom()];
             } else {
                 this.siblings().splice(
                     this.anchorOffset() + 1,
                     0,
-                    new MathAtom.MathAtom(this.parent().parseMode, 'msubsup', '\u200b'));
+                    new MathAtom.MathAtom(this.parent().anchorMode, 'msubsup', '\u200b'));
                 this.path[this.path.length - 1].offset += 1;
     //            this.setSelection(this.anchorOffset() + 1);
-                this.anchor().superscript =
-                    [new MathAtom.MathAtom(this.parent().parseMode, 'first', null)];
+                this.anchor().superscript = [makeFirstAtom()];
             }
         }
     }
@@ -2440,8 +2487,7 @@ EditableMathlist.prototype.moveToSubscript_ = function() {
     this.collapseForward();
     if (!this.anchor().subscript) {
         if (this.anchor().superscript) {
-            this.anchor().subscript =
-                [new MathAtom.MathAtom(this.parent().parseMode, 'first', null)];
+            this.anchor().subscript = [makeFirstAtom()];
         } else {
             const sibling = this.sibling(1);
             if (sibling && sibling.subscript) {
@@ -2450,17 +2496,15 @@ EditableMathlist.prototype.moveToSubscript_ = function() {
             } else if (sibling && sibling.superscript) {
                 this.path[this.path.length - 1].offset += 1;
                 // this.setSelection(this.anchorOffset() + 1);
-                this.anchor().subscript =
-                    [new MathAtom.MathAtom(this.parent().parseMode, 'first', null)];
+                this.anchor().subscript = [makeFirstAtom()];
             } else {
                 this.siblings().splice(
                     this.anchorOffset() + 1,
                     0,
-                    new MathAtom.MathAtom(this.parent().parseMode, 'msubsup', '\u200b'));
+                    new MathAtom.MathAtom(this.parent().anchorMode, 'msubsup', '\u200b'));
                 this.path[this.path.length - 1].offset += 1;
                 // this.setSelection(this.anchorOffset() + 1);
-                this.anchor().subscript =
-                    [new MathAtom.MathAtom(this.parent().parseMode, 'first', null)];
+                this.anchor().subscript = [makeFirstAtom()];
             }
         }
     }
@@ -2495,8 +2539,7 @@ EditableMathlist.prototype.moveToOpposite_ = function() {
     if (!this.parent()[oppositeRelation]) {
         // Don't have children of the opposite relation yet
         // Add them
-        this.parent()[oppositeRelation] =
-            [new MathAtom.MathAtom(this.parent().parseMode, 'first', null)];
+        this.parent()[oppositeRelation] = [makeFirstAtom()];
     }
 
     this.setSelection(1, 'end', oppositeRelation);
@@ -2681,7 +2724,7 @@ EditableMathlist.prototype._applyStyle = function(style) {
             }
         }
 
-        selection = this.extractContents();
+        selection = this.getSelectedAtoms();
         if (selection.length === 1 &&
             ((style.color &&
                 selection[0].type === 'color' &&
@@ -2711,14 +2754,14 @@ EditableMathlist.prototype._applyStyle = function(style) {
     // OK, we now have the atoms on which to apply the selection in `selection`
 
     if (style.color) {
-        const styleAtom = new MathAtom.MathAtom(this.parseMode(), 'color', selection);
+        const styleAtom = new MathAtom.MathAtom(this.anchorMode(), 'color', selection);
         styleAtom.latex = '\\textcolor';
         styleAtom.textcolor = style.color;
         styleAtom.skipBoundary = true;
         if (!styleAtom.body) {
-            styleAtom.body = [new MathAtom.MathAtom(this.parseMode(), 'first', null)]
+            styleAtom.body = [new MathAtom.MathAtom(this.anchorMode(), 'first', null)]
         } else if (styleAtom.body[0].type !== 'first') {
-            styleAtom.body.unshift(new MathAtom.MathAtom(this.parseMode(), 'first', null))
+            styleAtom.body.unshift(makeFirstAtom())
         }
         const removeStyle = style.color === 'transparent' ||
             style.color === 'black' || style.color === '#000' || style.color === '#000000' ||
@@ -2751,14 +2794,14 @@ EditableMathlist.prototype._applyStyle = function(style) {
 
 
     if (style.backgroundColor) {
-        const styleAtom = new MathAtom.MathAtom(this.parseMode(), 'box', selection);
+        const styleAtom = new MathAtom.MathAtom(this.anchorMode(), 'box', selection);
         styleAtom.latex = '\\colorbox';
         styleAtom.backgroundcolor = style.backgroundColor;
         styleAtom.skipBoundary = true;
         if (!styleAtom.body) {
-            styleAtom.body = [new MathAtom.MathAtom(this.parseMode(), 'first', null)]
+            styleAtom.body = [makeFirstAtom()]
         } else if (styleAtom.body[0].type !== 'first') {
-            styleAtom.body.unshift(new MathAtom.MathAtom(this.parseMode(), 'first', null))
+            styleAtom.body.unshift(makeFirstAtom())
         }
         if (isCollapsed && this.parent() && this.parent().type === 'box') {
             const parentSameColor = style.backgroundColor === 'transparent' ||
@@ -2828,13 +2871,18 @@ EditableMathlist.prototype._applyStyle = function(style) {
  *  \\frac{1}{2} \\sin x
  * @param {string} s 
  */
-function parseMathString(s, config) {
+export function parseMathString(s, config) {
     if (!s) return '';
 
     // Nothing to do if a single character
     if (s.length <= 1) return s;
 
-    if (/\\/.test(s) && /{|}/.test(s)) {
+    // Replace double-backslash (coming from JavaScript) to a single one
+    if (!config || config.format !== 'ASCIIMath') {
+        s = s.replace(/\\\\/g, '\\');
+    }
+
+    if ((!config || config.format !== 'ASCIIMath') && /\\/.test(s) && /{|}/.test(s)) {
         // If the string includes a '\' and a '{' or a '}'
         // it's probably a LaTeX string
         // (that's not completely true, it could be a UnicodeMath string, since
@@ -2845,8 +2893,6 @@ function parseMathString(s, config) {
     }
 
 
-    // Replace double-backslash (coming from JavaScript) to a single one
-    s = s.replace(/\\\\/g, '\\');
 
     s = s.replace(/\u2061/gu, '');       // Remove function application
     s = s.replace(/\u3016/gu, '{');     // WHITE LENTICULAR BRACKET (grouping)
@@ -2857,14 +2903,20 @@ function parseMathString(s, config) {
     s = s.replace(/([^\\])cosx/g,       '$1\\cos x ');  // common typo
     s = s.replace(/\u2013/g,            '-');      // EN-DASH, sometimes used as a minus sign
 
+    return parseMathExpression(s, config)
+}
+
+
+function parseMathExpression(s, config) {
+    if (!s) return '';
     let done = false;
     let m;
 
-    if (!done && s[0] === '^' || s[0] === '_') {
+    if (!done && (s[0] === '^' || s[0] === '_')) {
         // Superscript and subscript
-        m = parseMathArgument(s.substr(1), config);
-        s = s[0] + '{' + parseMathString(m.match, config) + '}';
-        s += parseMathString(m.rest, config);
+        m = parseMathArgument(s.substr(1), {...config, noWrap: true});
+        s = s[0] + '{' + m.match + '}';
+        s += parseMathExpression(m.rest, config);
         done = true;
     }
 
@@ -2872,14 +2924,9 @@ function parseMathString(s, config) {
         m = s.match(/^(sqrt|\u221a)(.*)/);
         if (m) {
             // Square root
-            m = parseMathArgument(m[2], config);
-            const m2 = m.match.match(/(.*)&(.*)/);
-            if (m2) {
-                s = '\\sqrt[' + m2[1] + ']{' + parseMathString(m2[2], config) + '}';
-            } else {
-                s = '\\sqrt{' + parseMathString(m.match, config) + '}';
-            }
-            s += parseMathString(m.rest, config);
+            m = parseMathArgument(m[2], {...config, noWrap: true});
+            s = '\\sqrt{' + m.match + '}';
+            s += parseMathExpression(m.rest, config);
             done = true;
         }
     }
@@ -2888,9 +2935,9 @@ function parseMathString(s, config) {
         m = s.match(/^(\\cbrt|\u221b)(.*)/);
         if (m) {
             // Cube root
-            m = parseMathArgument(m[2], config);
-            s = '\\sqrt[3]{' + parseMathString(m.match, config) + '}';
-            s += parseMathString(m.rest, config);
+            m = parseMathArgument(m[2], {...config, noWrap: true});
+            s = '\\sqrt[3]{' + m.match + '}';
+            s += parseMathExpression(m.rest, config);
             done = true;
         }
     }
@@ -2899,89 +2946,110 @@ function parseMathString(s, config) {
         m = s.match(/^abs(.*)/);
         if (m) {
             // Absolute value
-            m = parseMathArgument(m[1], config);
-            s = '\\left|' + parseMathString(m.match, config) + '\\right|';
-            s += parseMathString(m.rest, config);
+            m = parseMathArgument(m[1], {...config, noWrap: true});
+            s = '\\left|' + m.match + '\\right|';
+            s += parseMathExpression(m.rest, config);
             done = true;
         }
     }
 
     if (!done) {
-        m = s.match(/^"(.*)"(.*)/);
+        m = s.match(/^["”“](.*?)["”“](.*)/);
         if (m) {
             // Quoted text
-            s = "\\text{ " + m[1] + ' }';
-            s += parseMathString(m[2], config);
+            s = "\\text{" + m[1] + '}';
+            s += parseMathExpression(m[2], config);
             done = true;
         }
     }
-
+    
     if (!done) {
-        m = parseMathArgument(s, config);
-        if (m.match && m.rest[0] === '/') {
-            // Fraction
-            const m2 = parseMathArgument(m.rest.substr(1), config);
-            if (m2.match) {
-                s = '\\frac{' + parseMathString(m.match, config) + 
-                    '}{' + parseMathString(m2.match, config) + 
-                    '}' + parseMathString(m2.rest, config);
-            }
-            done = true;
-        } else if (m.match && /\(|\{|\[/.test(s[0])) {
-            const lFence = {'(' : '(', '{' : '\\{', '[' : '\\lbrack '}[s[0]] || '.';
-            const rFence = {'(' : ')', '{' : '\\}', '[' : '\\rbrack '}[s[0]] || '.';
-            s = '\\left' + lFence + parseMathString(m.match, config) + 
-                '\\right' + rFence + parseMathString(m.rest, config);
-            done = true;
-        } else if (m.match) {
-            s = m.match;
-            s += parseMathString(m.rest, config);
-            done = true;
-        }
-    }
-
-    if (!done) {
-        m = s.match(/^(\s+)(.*)/);
-        // Whitespace
-        if (m) {
-            s = ' ' + parseMathString(m[2], config);
-            done = true;
-        }
-    }
-
-    if (!done) {
-        m = s.match(/^([^a-zA-Z({[_^\\\s]+)(.*)/);
+        m = s.match(/^([^a-zA-Z({[_^\\\s"]+)(.*)/);
         // A string of symbols...
+        // Could be a binary or relational operator, etc...
         if (m) {
             s = paddedShortcut(m[1], config);
-            s += parseMathString(m[2], config);
+            s += parseMathExpression(m[2], config);
             done = true;
         }
+    }
+
+    if (!done && /^(f|g|h)[^a-zA-Z]/.test(s)) {
+        // This could be a function...
+        m = parseMathArgument(s.substring(1), config);
+        s = s[0];
+        s += m.match;
+        s += parseMathExpression(m.rest, config);
+        done = true;
     }
 
     if (!done) {
         m = s.match(/^([a-zA-Z]+)(.*)/);
         if (m) {
             // Some alphabetical string...
-            s = m[1];
-            s += parseMathString(m[2], config);
+            // Could be a function name (sin) or symbol name (alpha)
+            s = paddedShortcut(m[1], config);
+            s += parseMathExpression(m[2], config);
             done = true;
         }
     }
 
+
+    if (!done) {
+        m = parseMathArgument(s, {...config, noWrap: true});
+        if (m.match && m.rest[0] === '/') {
+            // Fraction
+            const m2 = parseMathArgument(m.rest.substr(1), {...config, noWrap: true});
+            if (m2.match) {
+                s = '\\frac{' + m.match + '}{' + m2.match + '}' + 
+                    parseMathExpression(m2.rest, config);
+            }
+            done = true;
+        } else if (m.match && /^(\(|\{|\[)$/.test(s[0])) {
+            // A group
+
+            s = '\\left' + s[0] + m.match + 
+                '\\right' + {'(':')', '{':'}', '[':']'}[s[0]] +
+                parseMathExpression(m.rest, config);
+            done = true;
+        } else if (m.match) {
+            s = m.match;
+            s += parseMathExpression(m.rest, config);
+            done = true;
+        }
+    }
+
+    if (!done) {
+        m = s.match(/^(\s+)(.*)$/);
+        // Whitespace
+        if (m) {
+            s = ' ' + parseMathExpression(m[2], config);
+            done = true;
+        }
+    }
+
+
+
     return s;
 }
+
+
 
 /**
  * Parse a math argument, as defined by ASCIIMath and UnicodeMath:
  * - Either an expression fenced in (), {} or []
- * - a sequence of digits
- * - a sequence of [a-zA-Z] letters
- * - a LaTeX command (\pi)
+ * - a number (- sign, digits, decimal point, digits)
+ * - a single [a-zA-Z] letter (an identifier)
+ * - a multi-letter shortcut (e.g., pi)
+ * - a LaTeX command (\pi) (for UnicodeMath)
  * @param {string} s 
+ * @return {object}
+ * - match: the parsed (and converted) portion of the string that is an argument
+ * - rest: the raw, unconverted, rest of the string
  */
 function parseMathArgument(s, config) {
     let match = '';
+    s = s.trim();
     let rest = s;
     const lFence = s.charAt(0);
     const rFence = {'(' : ')', '{' : '}', '[' : ']'}[lFence];
@@ -2996,7 +3064,13 @@ function parseMathArgument(s, config) {
         }
         if (level === 0) {
             // We've found the matching closing fence
-            match = s.substring(1, i - 1);
+            if (config.noWrap && lFence === '(' && rFence === ')') {
+                match = parseMathExpression(s.substring(1, i - 1), config); 
+            } else {
+                match = '\\mleft' + lFence + 
+                    parseMathExpression(s.substring(1, i - 1), config) + 
+                    '\\mright' + rFence; 
+            }
             rest = s.substring(i);
         } else {
             // Unbalanced fence...
@@ -3004,12 +3078,30 @@ function parseMathArgument(s, config) {
             rest = '';
         }
     } else {
-        let m = s.match(/^([0-9]+|[a-zA-Z]+)/);
+        let m = s.match(/^([a-zA-Z]+)/);
         if (m) {
-            // It's a string of digits or a string of letters
-            rest = s.substring(m[1].length);
-            match = paddedShortcut(m[1], config);
-        } else if (!/^\\(left|right)/.test(s)) {
+            // It's a string of letter, maybe a shortcut
+            let shortcut = Shortcuts.forString(s, config);
+            if (shortcut) {
+                shortcut = shortcut.replace('_{#?}', '');
+                shortcut = shortcut.replace('^{#?}', '');
+                return { match: shortcut, rest: s.substring(shortcut.length) }
+            }
+        }
+
+        m = s.match(/^([a-zA-Z])/);
+        if (m) {
+            // It's a single letter
+            return { match: m[1], rest: s.substring(1) };
+        }
+
+        m = s.match(/^(-)?\d+(\.\d*)?/);
+        if (m) {
+            // It's a number
+            return { match: m[0], rest: s.substring(m[0].length) }
+        }
+        
+        if (!/^\\(left|right)/.test(s)) {
             // It's a LaTeX command (but not a \left\right)
             m = s.match(/^(\\[a-zA-Z]+)/);
             if (m) {
@@ -3034,6 +3126,12 @@ function paddedShortcut(s, config) {
     return result;
 }
 
+
+function makeFirstAtom() {
+    return new MathAtom.MathAtom('', 'first', null);
+}
+
 export default {
-    EditableMathlist: EditableMathlist
+    EditableMathlist,
+    parseMathString
 }

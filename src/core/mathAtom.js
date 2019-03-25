@@ -1982,7 +1982,7 @@ function makeRoot(parseMode, body) {
     const result =  new MathAtom(parseMode, 'root', null);
     result.body = body || [];
     if (result.body.length === 0 || result.body[0].type !== 'first') {
-        result.body.unshift(new MathAtom(parseMode, 'first', null));
+        result.body.unshift(new MathAtom('', 'first', null));
     }
     return result;
 }

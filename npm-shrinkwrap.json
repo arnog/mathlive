@@ -8628,14 +8628,22 @@
       }
     },
     "rollup": {
-      "version": "1.7.0",
-      "resolved": "https://registry.npmjs.org/rollup/-/rollup-1.7.0.tgz",
-      "integrity": "sha512-hjuWSCgoQsFSTsmsNP4AH1l1kfkFqW82gW00V9nL81Zr3JtnKn3rvxh18jUAAEMb7qNoHj21PR5SqbK2mhBgMg==",
+      "version": "1.7.2",
+      "resolved": "https://registry.npmjs.org/rollup/-/rollup-1.7.2.tgz",
+      "integrity": "sha512-HdbjbHsvoLDwJU/lWEyktVlLdXR7mtnNxRnzaDb+fiNiboAxDYCpwLz1zLGI3+k890PacAptSGrqJLJnABMKJg==",
       "dev": true,
       "requires": {
         "@types/estree": "0.0.39",
-        "@types/node": "^11.9.5",
+        "@types/node": "^11.11.6",
         "acorn": "^6.1.1"
+      },
+      "dependencies": {
+        "@types/node": {
+          "version": "11.11.6",
+          "resolved": "https://registry.npmjs.org/@types/node/-/node-11.11.6.tgz",
+          "integrity": "sha512-Exw4yUWMBXM3X+8oqzJNRqZSwUAaS4+7NdvHqQuFi/d+synz++xmX3QIf+BFqneW8N31R8Ky+sikfZUXq07ggQ==",
+          "dev": true
+        }
       }
     },
     "rollup-plugin-copy": {

@@ -595,16 +595,16 @@ class MathAtom {
             // the height/depth
             for (let i = 0; i < inner.length; i++) {
                 if (inner[i].delim) {
-                    const hadCaret = inner[i].hasCaret;
+                    const savedCaret = inner[i].caret;
                     inner[i] = this.bind(localContext, Delimiters.makeLeftRightDelim('minner', inner[i].delim, innerHeight, innerDepth, localContext));
-                    if (hadCaret) inner[i].hasCaret = true;
+                    if (savedCaret) inner[i].caret = savedCaret;
                 }
                 if (inner[i].classes && inner[i].classes.indexOf('ML__selected') >= 0) {
                     for (let j = 0; j < inner[i].children.length; j++) {
                         if (inner[i].children[j].delim) {
-                            const hadCaret = inner[i].hasCaret;
+                            const savedCaret = inner[i].caret;
                             inner[i].children[j] = this.bind(localContext, Delimiters.makeLeftRightDelim('minner', inner[i].children[j].delim, innerHeight, innerDepth, localContext));
-                            if (hadCaret) inner[i].hasCaret = true;
+                            if (savedCaret) inner[i].caret = savedCaret;
                         }
                     }
                 }
@@ -1180,9 +1180,9 @@ class MathAtom {
             // the first element in a children list. This makes
             // managing the list, and the caret selection, easier.
             // ZERO-WIDTH SPACE
-            if (this.hasCaret) {
+            if (this.caret) {
                 result = this.makeSpan(context, '\u200b');
-                result.hasCaret = true;
+                result.caret = this.caret;
             }
         } else {
             //
@@ -1191,13 +1191,13 @@ class MathAtom {
             console.assert(false, 'Unknown MathAtom type: "' + this.type + '"');
         }
         if (!result) return result;
-        if (this.hasCaret && this.type !== 'styling' &&
+        if (this.caret && this.type !== 'styling' &&
             this.type !== 'msubsup' && this.type !== 'command' &&
             this.type !== 'placeholder' && this.type !== 'first') {
             if (Array.isArray(result)) {
-                result[result.length - 1].hasCaret = true;
+                result[result.length - 1].caret = this.caret;
             } else {
-                result.hasCaret = true;
+                result.caret = this.caret;
             }
         }
         // Finally, attach any necessary superscript, subscripts
@@ -1294,8 +1294,8 @@ class MathAtom {
         // Display the caret *following* the superscript and subscript,
         // so attach the caret to the 'msubsup' element.
         const supsubContainer = makeSpan(supsub, 'msubsup');
-        if (this.hasCaret) {
-            supsubContainer.hasCaret = true;
+        if (this.caret) {
+            supsubContainer.caret = this.caret;
         }
         return Span.makeSpanOfType(type, [nucleus, supsubContainer]);
     }
@@ -1413,6 +1413,7 @@ class MathAtom {
         //
         // 5. Set other attributes
         //
+        if (this.mode === 'text') result.classes += ' ML__text';
         if (context.mathstyle.isTight()) result.isTight = true;
         result.setRight(result.italic); // Italic correction
         if (context.color) result.setStyle('color', context.getColor());
@@ -1422,11 +1423,11 @@ class MathAtom {
         // on, attach a randomly generated ID to the span and associate it
         // with the atom.
         this.bind(context, result);
-        if (this.hasCaret) {
+        if (this.caret) {
             // If this has a super/subscript, the caret will be attached
             // to the 'msubsup' atom, so no need to have it here.
             if (!this.superscript && !this.subscript) {
-                result.hasCaret = true;
+                result.caret = this.caret;
                 if (context.mathstyle.isTight()) result.isTight = true;
             }
         }
@@ -1981,7 +1982,7 @@ function makeRoot(parseMode, body) {
     const result =  new MathAtom(parseMode, 'root', null);
     result.body = body || [];
     if (result.body.length === 0 || result.body[0].type !== 'first') {
-        result.body.unshift(new MathAtom(parseMode, 'first', null));
+        result.body.unshift(new MathAtom('', 'first', null));
     }
     return result;
 }

@@ -95,7 +95,7 @@
     "nyc": "^13.3.0",
     "postcss-cli": "^6.1.2",
     "rimraf": "^2.6.3",
-    "rollup": "^1.7.0",
+    "rollup": "^1.7.2",
     "rollup-plugin-copy": "^0.2.3",
     "rollup-plugin-terser": "^4.0.4",
     "sutro-jsdoc-theme": "^1.0",

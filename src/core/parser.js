@@ -1055,7 +1055,9 @@ class Parser {
                 if (!result) {
                     const info = Definitions.getInfo('\\' + token.value, this.parseMode, this.macros);
                     const args = [];
+                    let argString = '';
                     // Parse the arguments
+                    let mandatoryParamsCount = 0;
                     if (info && info.params) {
                         for (const param of info.params) {
                             // Parse an argument
@@ -1065,6 +1067,7 @@ class Parser {
                                 // args.push(arg ? arg : param.defaultValue); @todo defaultvalue
                                 args.push(arg);
                             } else {
+                                mandatoryParamsCount += 1;
                                 // If it's not present, scanArg returns null.
                                 // Add a placeholder instead.
                                 const arg = this.scanArg(param.type);
@@ -1078,6 +1081,9 @@ class Parser {
                                     args.push([new MathAtom(this.parseMode, 'placeholder', param.placeholder)]);
                                 } else {
                                     args.push(this.placeholder());
+                                }
+                                if (param.type !== 'math' && typeof arg === 'string') {
+                                    argString += arg
                                 }
                             }
                         }
@@ -1099,7 +1105,12 @@ class Parser {
                         } else {
                             result = new MathAtom(this.parseMode, info.type || 'mop', info.value || token.value, info.fontFamily);
                         }
-                        result.latex = '\\' + token.value + ' ';
+                        result.latex = '\\' + token.value;
+                        if (argString || mandatoryParamsCount > 0) {
+                            result.latex += '{' + argString + '}'
+                        } else {
+                            result.latex += ' ';
+                        }
                         if (result.isFunction && this.smartFence) {
                             // The atom was a function that may be followed by
                             // an argument, like `\sin(`

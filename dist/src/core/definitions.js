@@ -2780,7 +2780,7 @@ function getSimpleString(atoms) {
 defineFunction([
     '\\mathop', '\\mathbin', '\\mathrel', '\\mathopen',
     '\\mathclose', '\\mathpunct', '\\mathord', '\\mathinner'
-], '{:auto}', null, function(name, args) {
+], '{:string}', null, function(name, args) {
     const result = {
         type: {
             '\\mathop': 'mop',
@@ -3045,6 +3045,53 @@ defineSymbol('\\i', TEXT + MATH, MAIN, TEXTORD, '\u0131');     // LATIN SMALL LE
 defineSymbol('\\j', TEXT + MATH, MAIN, TEXTORD, '\u0237');     // LATIN SMALL LETTER DOTLESS J
 defineSymbol('\\aa', TEXT + MATH, MAIN, TEXTORD, '\u00e5');    // LATIN SMALL LETTER A WITH RING ABOVE
 defineSymbol('\\AA', TEXT + MATH, MAIN, TEXTORD, '\u00c5');    // LATIN CAPITAL LETTER A WITH RING ABOVE
+
+defineFunction('\\^', '{:string}',
+    {fontFamily:'mainrm', allowedInText: true}, 
+    function(name, args) {
+    return {
+        type: 'textord',
+        limits: 'nolimits',
+        symbol: true,
+        isFunction: false,
+        body: args[0] ? 
+            ({'a':'â','e':'ê','i':'î','o':'ô','u':'û',
+            'A':'Â','E':'Ê','I':'Î','O':'Ô','U':'Û'}[args[0]] || '\u005e') :
+            '\u005e',
+        fontFamily: 'mainrm'
+    };
+})
+
+defineFunction("\\'", '{:string}', 
+    {fontFamily:'mainrm', allowedInText: true}, 
+    function(name, args) {
+    return {
+        type: 'textord',
+        limits: 'nolimits',
+        symbol: true,
+        isFunction: false,
+        body: args[0] ? 
+            ({'a':'á','e':'é','i':'í','o':'ó','u':'ú',
+            'A':'Á','E':'É','I':'Í','O':'Ó','U':'Ú'}[args[0]] || '\u005e') :
+            '\u005e',
+        fontFamily: 'mainrm'
+    };
+})
+
+defineFunction('\\˜', '{:string}', 
+    {fontFamily:'mainrm', allowedInText: true}, 
+    function(name, args) {
+    return {
+        type: 'textord',
+        limits: 'nolimits',
+        symbol: true,
+        isFunction: false,
+        body: args[0] ? 
+            ({'n':'ñ', 'N':'Ñ', 'a':'ã', 'o':'õ', 'A':'Ã', 'O':'Õ'}[args[0]] || '\u00B4') :
+            '\u00B4',
+        fontFamily: 'mainrm'
+    };
+})
 
 
 

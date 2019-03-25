@@ -7,6 +7,23 @@
  * @private
  */
 
+import { toASCIIMath } from '../editor/outputASCIIMath.js';
+import Lexer from '../core/lexer.js';
+import ParserModule from '../core/parser.js';
+import { parseMathString } from '../editor/editor-editableMathlist.js';
+
+export function latexToAsciiMath(latex, mode) {
+    mode = mode || 'math';
+
+    const mathlist = ParserModule.parseTokens(
+        Lexer.tokenize(latex), mode, null, null);
+
+    return toASCIIMath(mathlist);
+}
+
+export function asciiMathToLatex(ascii) {
+    return parseMathString(ascii, {format: 'ASCIIMath'});
+}
 
 /**
  * 
@@ -251,8 +268,8 @@ function spanToMarkup(span, indent) {
             if (span.isTight) {
                 result += '&nbsp;<span class="stylevalue"> tight </span>';
             }
-            if (span.hasCaret) {
-                result += '&nbsp;<span class="stylevalue"> hasCaret </span>';
+            if (span.caret) {
+                result += '&nbsp;<span class="stylevalue"> caret </span>';
             }
 
             if (span.style) {
@@ -316,9 +333,9 @@ function mathlistToMarkup(mathlist, indent) {
         if (mathlist.type) {
             result += '<span class="type';
             result += mathlist.isSelected ? ' selected' : '';
-            result += mathlist.hasCaret ? ' caret' : '';
+            result += mathlist.caret ? ' caret' : '';
             result += '">' + mathlist.type + 
-                (mathlist.hasCaret ? ' caret ' : '') + '</span>';
+                (mathlist.caret ? ' caret ' : '') + '</span>';
         }
         if (typeof mathlist.body === 'string' && mathlist.body.length > 0) {
             result += '&nbsp;<span class="value">';
@@ -412,7 +429,10 @@ export default {
     getProp,
     getStyle,
     getType,
-    getTag
+    getTag,
+
+    latexToAsciiMath,
+    asciiMathToLatex,
 }
 
 

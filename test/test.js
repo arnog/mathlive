@@ -19,6 +19,7 @@
 import MathLiveDebug from '../src/addons/debug';
 import MathLive from '../src/mathlive';
 import MASTON from '../src/addons/maston';
+import { toASCIIMath } from '../src/editor/outputASCIIMath.js';
 
 
 
@@ -106,6 +107,13 @@ function equalMathJSON(t, latex, json, comment) {
     t.equal(mathJSON(latex), json, "Latex -> JSON: " + comment);
     const latexJSON = MASTON.asLatex(json, {precision: 100}).replace(/\\, /g, '').trim();
     t.equal(latexJSON, latex, "JSON->Latex: " + comment);
+}
+
+function equalASCIIMath(t, latex, ascii, comment) {
+
+    t.equal(MathLiveDebug.latexToAsciiMath(latex), ascii, "Latex -> Math ASCII: " + comment);
+
+    t.equal(MathLiveDebug.asciiMathToLatex(ascii), latex, "Math ASCII -> Latex: " + comment);
 }
 
 
@@ -976,6 +984,62 @@ test('MATH JSON', function (t) {
     // equalMathJSON(t, '\\cdot x', 
     //     '',
     //     'unary operator');
+
+    t.end();
+});
+
+
+////////////////////////////////////////////////////////////////////////////////
+test('ASCII MATH', function (t) {
+    equalASCIIMath(t, '123', '123', 'Integer');
+    equalASCIIMath(t, '-123.456', '-123.456', 'Negative float');
+    equalASCIIMath(t, '-123.456e9', '-123.456e9', 'Scientific notation');
+    equalASCIIMath(t, 'x', 'x', 'Identifier');
+    equalASCIIMath(t, '-x', '-x', 'Negated identifier');
+
+    equalASCIIMath(t, 'npq', 'npq', 'Implicitly multipied identifiers');
+    equalASCIIMath(t, '2npq', '2npq', 'Implicitly multipied identifiers and number');
+
+    t.equal(MathLiveDebug.latexToAsciiMath("(x)"), "(x)", "Latex -> Math ASCII: Simple group");
+    t.equal(MathLiveDebug.asciiMathToLatex("(x)"), "\\left(x\\right)", "Math ASCII -> Latex: Simple group");
+
+    t.equal(MathLiveDebug.latexToAsciiMath("(x + 1)"), "(x+1)", "Latex -> Math ASCII: Group expression");
+    t.equal(MathLiveDebug.asciiMathToLatex("(x + 1)"), "\\left(x +1\\right)", "Math ASCII -> Latex: Group expression");
+
+    equalASCIIMath(t, 'f\\mleft(x\\mright)=\\sin x', 'f(x)=sin x', 'Function definition');
+
+    equalASCIIMath(t, 'x^{2}', 'x^2', 'One digit superscript');
+    equalASCIIMath(t, 'x^{234}', 'x^234', 'Multiple digits superscript');
+    equalASCIIMath(t, 'x^{-234.56}', 'x^-234.56', 'Negative, float superscript');
+    equalASCIIMath(t, 'x^{-234.56}+1', 'x^-234.56+1', 'Negative, float superscript, followed by operation');
+    equalASCIIMath(t, 'x^{n}+1', 'x^n+1', 'Single letter superscript, followed by operation');
+    equalASCIIMath(t, 'x^{npq}+1', 'x^(npq)+1', 'Multiple letters superscript, followed by operation');
+    equalASCIIMath(t, 'x^{n+2}', 'x^(n+2)', 'Superscript expression');
+
+    equalASCIIMath(t, 'x_{2}', 'x_2', 'One digit subscript');
+    equalASCIIMath(t, 'x_{234}', 'x_234', 'Multiple digits subscript');
+    equalASCIIMath(t, 'x_{-234.56}', 'x_-234.56', 'Negative, float subscript');
+    equalASCIIMath(t, 'x_{-234.56}+1', 'x_-234.56+1', 'Negative, float subscript, followed by operation');
+    equalASCIIMath(t, 'x_{n}+1', 'x_n+1', 'Single letter subscript, followed by operation');
+    equalASCIIMath(t, 'x_{npq}+1', 'x_(npq)+1', 'Multiple letters subscript, followed by operation');
+    equalASCIIMath(t, 'x_{n+2}', 'x_(n+2)', 'Subscript expression');
+
+    equalASCIIMath(t, 'x_{n+2}^{m+3}', 'x_(n+2)^(m+3)', 'Subscript followed by superscript');
+
+    equalASCIIMath(t, '\\frac{1}{2}', '(1)/(2)', 'Simple fraction');
+    equalASCIIMath(t, '\\frac{x+1}{x-1}', '(x+1)/(x-1)', 'Fraction expression');
+
+    equalASCIIMath(t, '\\sqrt{2}', 'sqrt(2)', 'Simple square root');
+    equalASCIIMath(t, '\\sqrt{x+1}', 'sqrt(x+1)', 'Square root expression');
+
+    equalASCIIMath(t, '\\alpha +1', 'alpha+1', 'Greek letters');
+    equalASCIIMath(t, '\\Gamma +1', 'Gamma+1', 'Greek letters');
+    equalASCIIMath(t, '\\frac{\\pi }{2\\pi }', '(pi)/(2pi)', 'Greek letters in expression');
+
+    equalASCIIMath(t, '\\text{if }x>0', '"if "x>0', 'Text in simple expression');
+    equalASCIIMath(t, '\\text{if }x>0\\text{ then }f\\mleft(x\\mright)=x^{2}', '"if "x>0" then "f(x)=x^2', 'Text in expression');
+
+
 
     t.end();
 });
