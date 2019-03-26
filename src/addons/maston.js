@@ -1804,7 +1804,10 @@ function parseSentence(expr, options) {
             }
             zones.push(wrapFn('text', text));
         } else {
-            zones.push(parseExpression(expr, options).ast);
+            const z = parseExpression(expr, options).ast;
+            // Something went wrong in parsing the expression...
+            if (!z) return undefined;
+            zones.push(z);
         }
     }
 
