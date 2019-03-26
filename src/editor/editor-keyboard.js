@@ -169,18 +169,13 @@ function delegateKeyboardEvents(textarea, handlers) {
     let compositionInProgress = false;
     let deadKey = false;
 
-    // const noop = function() {};
-
     // This callback is invoked after a keyboard event has been processed
     // by the textarea
-    // let callback = noop;
     let callbackTimeoutID;
 
     function defer(cb) {
-        // callback = cb;
         clearTimeout(callbackTimeoutID);
         callbackTimeoutID = setTimeout(function() {
-            // callback = noop;
             clearTimeout(callbackTimeoutID);
             cb();
         });
@@ -198,7 +193,10 @@ function delegateKeyboardEvents(textarea, handlers) {
     }
 
     function onKeydown(e) {
-        if ((e.key === 'Dead' || e.key === 'Unidentified') || e.keyCode === 229) {
+        const allowDeadKey = typeof handlers.allowDeadKey === 'function' && 
+            handlers.allowDeadKey();
+        if (!allowDeadKey && 
+            ((e.key === 'Dead' || e.key === 'Unidentified') || e.keyCode === 229)) {
             deadKey = true;
             compositionInProgress = false;
             // This sequence seems to cancel dead keys
@@ -281,7 +279,7 @@ function delegateKeyboardEvents(textarea, handlers) {
     target.addEventListener('copy', onCopy, true);
     target.addEventListener('cut', onCut, true);
     target.addEventListener('blur', onBlur, true);
-    target.addEventListener('focus', onFocus, true);
+    // target.addEventListener('focus', onFocus, true);
     target.addEventListener('compositionstart', 
         () => { compositionInProgress = true }, true);
     target.addEventListener('compositionend', 
@@ -309,6 +307,7 @@ function hasSelection(textarea) {
 
 
 function eventToChar(evt) {
+    if (!evt) return '';
     let result;
     if (evt.key === 'Unidentified') {
         // On Android, the evt.key seems to always be 'Unidentified'.
