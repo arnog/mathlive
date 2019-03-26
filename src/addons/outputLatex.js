@@ -19,6 +19,11 @@ import MathAtom from '../core/mathAtom.js';
 function latexify(value, expandMacro) {
     let result = '';
     if (Array.isArray(value) && value.length > 0) {
+        if (value[0].type === 'first') {
+            // Remove the 'first' atom, if present
+            value = value.slice(1);
+            if (value.length === 0) return '';
+        }
         if (value[0].mode === 'text') {
             // Check if there's a series of text atom
             let i = 0;
@@ -202,7 +207,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             } else if (this.latex || typeof this.body === 'string') {
                 // Not ZERO-WIDTH
                 if (this.latex && this.latex[0] === '\\') {
-                    result += command;
+                    result += command || this.latex;
                     if (/[a-zA-Z0-9]$/.test(this.latex)) {
                         result += ' ';
                     }
