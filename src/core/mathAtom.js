@@ -1636,7 +1636,13 @@ const FONT_NAME = {
     'mainrm':       'Main-Regular',
     'mathrm':       'Main-Regular',
     'mathbf':       'Main-Bold',
-    // Note; 'mathit' is handled separately in getFontName
+    // Note: italic is complicated and generally handled separately
+    // in getFontName(), but this is for the cases where we need to 
+    // pick a font for a whole string (as opposed to a single char)
+    // for example when using \mathop{abcd}
+    'mathit':       'Math-Italic',
+    'mainit':       'Main-Italic',
+
     'amsrm':        'AMS-Regular',     // pseudo-fontFamily to select AMS-Regular
     'mathbb':       'AMS-Regular',
     'mathcal':      'Caligraphic-Regular',
@@ -1646,9 +1652,9 @@ const FONT_NAME = {
     'mathtt':       'Typewriter-Regular',
 
 
-    'textrm': 'Main-Regular',
-    'textit': 'Main-Italic',
-    'textbf': 'Main-Bold',
+    'textrm':       'Main-Regular',
+    'textit':       'Main-Italic',
+    'textbf':       'Main-Bold',
 };
 
 const GREEK_REGEX = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5/;
@@ -1672,7 +1678,8 @@ function getFontName(symbol, fontFamily) {
     if (typeof symbol !== 'string' ||
         symbol.length > 1 ||
         symbol === '\u200b') {
-        return FONT_NAME[fontFamily] || fontFamily;
+        return fontFamily === 'mathit' ? 'Math-Italic' : 
+            FONT_NAME[fontFamily] || fontFamily;
     }
 
     console.assert(symbol && typeof symbol === 'string');
@@ -1683,8 +1690,7 @@ function getFontName(symbol, fontFamily) {
     if (fontFamily === 'mathit') {
         // Some characters do not exist in the Math-Italic font,
         // use Main-Italic instead
-        if (/[0-9]/.test(symbol) || symbol === '\\imath' ||
-            symbol === '\\jmath' || symbol === '\\pounds' ) {
+        if (/[0-9]|\\imath|\\jmath|\\pounds/.test(symbol)) {
             result = 'Main-Italic'
         } else if (AUTO_ITALIC_REGEX.test(symbol)) {
             result = 'Math-Italic';

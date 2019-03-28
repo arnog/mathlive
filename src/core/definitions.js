@@ -2731,7 +2731,7 @@ defineFunction([
         }[name],
         body: getSimpleString(args[0]) || args[0],
         captureSelection: true,     // Do not let children be selected
-
+        fontFamily: 'mathit'
     };
     if (name === '\\mathop') {
         result.limits = 'nolimits';
