@@ -453,6 +453,13 @@ A handler invoked
 after a change in the undo stack state. The `command` argument is a string
 indication what caused the state change: `"undo"`, `"redo"` or `"snapshot"`.
 
+---
+**`config.onModeChange`**:`function(mathfield, mode:string)`
+
+A handler invoked when the mode has changed. 
+
+The `mode` argument is the new mode, `"math"`, `"text"` or `"command"`.
+
 
 ---
 **`config.onVirtualKeyboardToggle`**:`function(mathfield, visible:boolean, keyboard:HTMLDivElement)`

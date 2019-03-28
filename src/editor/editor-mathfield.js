@@ -674,7 +674,13 @@ MathField.prototype._onSelectionDidChange = function() {
     }
 
     // Update the mode
-    this.mode = this.mathlist.anchorMode() || this.config.defaultMode;
+    {
+        const previousMode = this.mode;
+        this.mode = this.mathlist.anchorMode() || this.config.defaultMode;
+        if (this.mode !== previousMode && typeof this.config.onModeChange === 'function') {
+            this.config.onModeChange(this, this.mode)
+        }
+    }
 
     // Defer the updating of the popover position: we'll need the tree to be
     // re-rendered first to get an updated caret position
@@ -1056,6 +1062,7 @@ MathField.prototype.convertLastAtomsToText_ = function(count, until) {
             atom.type = 'textord';
             atom.mode = 'text';
             atom.fontFamily = 'main';
+            atom.latex = atom.body;
         }
         i -= 1;
         count -= 1;
@@ -1122,10 +1129,10 @@ MathField.prototype.removeIsolatedSpace_ = function() {
         // We need to adjust the selection after doing some surgery on the atoms list
         // But we don't want to receive selection notification changes 
         // which could have a side effect of changing the mode :(
-        const save = this.mathlist.suppressSelectionChangeNotifications;
-        this.mathlist.suppressSelectionChangeNotifications = true;
+        const save = this.mathlist.suppressChangeNotifications;
+        this.mathlist.suppressChangeNotifications = true;
         this.mathlist.setSelection(this.mathlist.anchorOffset() - 1);
-        this.mathlist.suppressSelectionChangeNotifications = save;
+        this.mathlist.suppressChangeNotifications = save;
     }
 }
 
@@ -1182,16 +1189,6 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
                 // switch to 'math'
                 return true;
             }
-
-            if (/[0-9+\-=><*|]$/.test(c)) {
-                // If this new character looks like a number,
-                // or a relational operator (=, <, >)
-                // or a "*" or "|"
-                // (note that <=, >=, etc... are handled separately as shortcuts)
-                // switch to 'math'
-                return true;
-            }
-
 
             // If this is a closing matching fence
             // switch to 'math' mode
@@ -1259,6 +1256,16 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
                 return true;
             }
 
+            // The tests above can look behind and change what had previously
+            // been entered. Now, let's just look at the typed character.
+            if (/[0-9+\-=><*|]$/.test(c)) {
+                // If this new character looks like a number,
+                // or a relational operator (=, <, >)
+                // or a "*" or "|"
+                // (note that <=, >=, etc... are handled separately as shortcuts)
+                // switch to 'math'
+                return true;
+            }
 
 
             // /(?<match>[0-9>=<+-/()]+)$/
@@ -1370,6 +1377,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
     // since if we switch to math mode, we may want to apply the shortcut
     // e.g. "slope = rise/run"
     if (this.config.smartMode) {
+        const previousMode = this.mode;
         if (shortcut) {
             // If we found a shortcut (e.g. "alpha"),
             // switch to math mode and insert it.
@@ -1377,6 +1385,10 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
         } else if (this.smartMode_(keystroke, evt)) {
             this.mode = {'math':'text', 'text':'math'}[this.mode];
             selector = '';
+        }
+        // Notify of mode change
+        if (this.mode !== previousMode && typeof this.config.onModeChange === 'function') {
+            this.config.onModeChange(this, this.mode)
         }
     }
 
@@ -1434,7 +1446,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
                 // To enable the substitution to be undoable,
                 // insert the character before applying the substitution
                 this.mathlist.insert(Keyboard.eventToChar(evt), {
-                    suppressContentChangeNotifications: true,
+                    suppressChangeNotifications: true,
                     mode: this.mode
                 });
                 const saveMode = this.mode;
@@ -1445,7 +1457,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
                 // Revert to the state before the beginning of the shortcut
                 // (restore doesn't change the undo stack)
                 this.undoManager.restore(this.keystrokeBufferStates[stateIndex], 
-                    {...this.config, suppressContentChangeNotifications: true });
+                    {...this.config, suppressChangeNotifications: true });
                 this.mode = saveMode;
             }
 
@@ -1973,7 +1985,7 @@ MathField.prototype.groupIsSelected = function() {
  * @param {string} text
  * 
  * @param {Object.<string, any>} options
- * @param {boolean} options.suppressContentChangeNotifications - If true, the
+ * @param {boolean} options.suppressChangeNotifications - If true, the
  * handlers for the contentWillChange and contentDidChange notifications will 
  * not be invoked. Default `false`.
  * 
@@ -1991,7 +2003,7 @@ MathField.prototype.$latex = function(text, options) {
                 selectionMode: 'after',
                 format: 'latex',
                 mode: 'math',
-                suppressContentChangeNotifications: options.suppressContentChangeNotifications
+                suppressChangeNotifications: options.suppressChangeNotifications
             }));
             this.undoManager.snapshot(this.config);
             this._render();
@@ -2176,6 +2188,10 @@ MathField.prototype.switchMode_ = function(mode, prefix, suffix) {
             mode: mode
         });
     }
+    // Notify of mode change
+    if (typeof this.config.onModeChange === 'function') {
+        this.config.onModeChange(this, this.mode)
+    }
     this._render();
 }
 
@@ -2190,12 +2206,14 @@ MathField.prototype.switchMode_ = function(mode, prefix, suffix) {
 MathField.prototype.complete_ = function(escape) {
     if (escape === undefined) escape = false;
     Popover.hidePopover(this);
+    if (escape) {
+        this.mathlist.spliceCommandStringAroundInsertionPoint(null);
+        return true;
+    }
 
     const command = this.mathlist.extractCommandStringAroundInsertionPoint();
     if (command) {
-        if (escape) {
-            this.mathlist.spliceCommandStringAroundInsertionPoint(null);
-        } else if (command === '\\(' || command === '\\)') {
+        if (command === '\\(' || command === '\\)') {
             this.mathlist.spliceCommandStringAroundInsertionPoint([]);
             this.mathlist.insert(command.slice(1), {mode: this.mode});
         } else {
@@ -2822,6 +2840,7 @@ MathField.prototype.applyStyle_ = function(style) {
 
         } else {
             // Convert the selection from one mode to another
+            const previousMode = this.mode;
             const targetMode = 
                 (this.mathlist.anchorMode() || this.config.default) === 'math' ?
                     'text' : 'math';
@@ -2844,6 +2863,11 @@ MathField.prototype.applyStyle_ = function(style) {
                 if (parent && (parent.type === 'group' || parent.type === 'root')) {
                     parent.mode = targetMode;
                 }
+            }
+
+            // Notify of mode change
+            if (this.mode !== previousMode && typeof this.config.onModeChange === 'function') {
+                this.config.onModeChange(this, this.mode)
             }
 
         }

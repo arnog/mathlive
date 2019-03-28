@@ -43,11 +43,8 @@ import Shortcuts from './editor-shortcuts.js';
  * @property {number} extent - Number of atoms in the selection. `0` if the
  * selection is collapsed.
  * @property {Object.<string, any>} config
- * @property {boolean} suppressSelectionChangeNotifications - If true,
- * the handlers for notification change won't be called. @todo This is an
- * inelegant solution to deal with iterating the expression, which has the
- * side effect of temporarily changing the path. We should have an iterator
- * that doesn't change the path instead.
+ * @property {boolean} suppressChangeNotifications - If true,
+ * the handlers for notification change won't be called.
  * @class
  * @global
  * @private
@@ -58,11 +55,10 @@ function EditableMathlist(config, target) {
     this.path = [{relation: 'body', offset: 0}];
     this.extent = 0;
 
-    this.config = Object.assign({}, config);
+    this.config = {...config};
     this.target = target;
 
-    this.suppressContentChangeNotifications = false;
-    this.suppressSelectionChangeNotifications = false;
+    this.suppressChangeNotifications = false;
 }
 
 function clone(mathlist) {
@@ -92,8 +88,8 @@ EditableMathlist.prototype._announce = function(command, mathlist, atoms) {
  * @private
  */
 EditableMathlist.prototype.filter = function(cb, dir) {
-    const suppressed = this.suppressSelectionChangeNotifications;
-    this.suppressSelectionChangeNotifications = true;
+    const suppressed = this.suppressChangeNotifications;
+    this.suppressChangeNotifications = true;
 
     dir = dir < 0 ? -1 : +1;
 
@@ -119,7 +115,7 @@ EditableMathlist.prototype.filter = function(cb, dir) {
 
     this.extent = originalExtent;
 
-    this.suppressSelectionChangeNotifications = suppressed;
+    this.suppressChangeNotifications = suppressed;
 
     return result;
 }
@@ -206,25 +202,25 @@ EditableMathlist.prototype.adjustPlaceholder = function() {
 }
 
 EditableMathlist.prototype.selectionWillChange = function() {
-    if (typeof this.config.onSelectionWillChange === 'function' && !this.suppressSelectionChangeNotifications) {
+    if (typeof this.config.onSelectionWillChange === 'function' && !this.suppressChangeNotifications) {
         this.config.onSelectionWillChange(this.target);
     }
 }
 
 EditableMathlist.prototype.selectionDidChange = function() {
-    if (typeof this.config.onSelectionDidChange === 'function' && !this.suppressSelectionChangeNotifications) {
+    if (typeof this.config.onSelectionDidChange === 'function' && !this.suppressChangeNotifications) {
         this.config.onSelectionDidChange(this.target);
     }
 }
 
 EditableMathlist.prototype.contentWillChange = function() {
-    if (typeof this.config.onContentWillChange === 'function' && !this.suppressContentChangeNotifications) {
+    if (typeof this.config.onContentWillChange === 'function' && !this.suppressChangeNotifications) {
         this.config.onContentWillChange(this.target);
     }
 }
 
 EditableMathlist.prototype.contentDidChange = function() {
-    if (typeof this.config.onContentDidChange === 'function' && !this.suppressContentChangeNotifications) {
+    if (typeof this.config.onContentDidChange === 'function' && !this.suppressChangeNotifications) {
         this.config.onContentDidChange(this.target);
     }
 }
@@ -884,9 +880,7 @@ EditableMathlist.prototype.spliceCommandStringAroundInsertionPoint = function(ma
 
         if (!mathlist) {
             this.siblings().splice(command.start, command.end - command.start);
-            this.setExtent(0);
-            this.path[this.path.length - 1].offset = command.start - 1;
-            this.setSelection(command.start - 1);
+            this.setSelection(command.start - 1, 0);
 
         } else {
             Array.prototype.splice.apply(this.siblings(),
@@ -1085,7 +1079,7 @@ EditableMathlist.prototype.next = function(options) {
         // No more siblings, go up to the parent.
         if (this.path.length === 1) {
             // Invoke handler and perform default if they return true.
-            if (this.suppressSelectionChangeNotifications || 
+            if (this.suppressChangeNotifications || 
                 !this.config.onMoveOutOf || 
                 this.config.onMoveOutOf(this, 'forward')) {
                 // We're at the root, so loop back
@@ -1198,7 +1192,7 @@ EditableMathlist.prototype.previous = function(options) {
         // No more siblings, go up to the parent.
         if (this.path.length === 1) {
             // Invoke handler and perform default if they return true.
-            if (this.suppressSelectionChangeNotifications || 
+            if (this.suppressChangeNotifications || 
                 !this.config.onMoveOutOf || 
                 this.config.onMoveOutOf.bind(this)(-1)) {
                 // We're at the root, so loop back
@@ -1690,22 +1684,22 @@ EditableMathlist.prototype.simplifyParen = function(atoms) {
  * @param {string} options.smartFence - If true, promote plain fences, e.g. `(`,
  * as `\left...\right` or `\mleft...\mright`
  *
- * @param {boolean} options.suppressContentChangeNotifications - If true, the
- * handlers for the contentWillChange and contentDidChange notifications will 
- * not be invoked. Default `false`.
+ * @param {boolean} options.suppressChangeNotifications - If true, the
+ * handlers for the contentWillChange, contentDidChange, selectionWillChange and
+ * selectionDidChange notifications will not be invoked. Default `false`.
  * 
  * @method EditableMathlist#insert
  */
 EditableMathlist.prototype.insert = function(s, options) {
     options = options || {};
-    const suppressedContentChangeNotifications = this.suppressContentChangeNotifications;
-    if (options.suppressContentChangeNotifications) {
-        this.suppressContentChangeNotifications = true;
+    const suppressChangeNotifications = this.suppressChangeNotifications;
+    if (options.suppressChangeNotifications) {
+        this.suppressChangeNotifications = true;
     }
     // Dispatch notifications
     this.contentWillChange();
-    const contentWasChanging = this.suppressContentChangeNotifications;
-    this.suppressContentChangeNotifications = true;
+    const contentWasChanging = this.suppressChangeNotifications;
+    this.suppressChangeNotifications = true;
 
 
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
@@ -1833,6 +1827,9 @@ EditableMathlist.prototype.insert = function(s, options) {
     // If needed, make sure there's a first atom in the siblings list
     this.insertFirstAtom();
 
+    // Prepare to dispatch notifications
+    // (for selection changes, then content change)
+    this.suppressChangeNotifications = contentWasChanging;
 
     // Update the anchor's location
     if (options.selectionMode === 'placeholder') {
@@ -1857,11 +1854,9 @@ EditableMathlist.prototype.insert = function(s, options) {
         this.setSelection(this.anchorOffset(), mathlist.length);
     }
 
-    // Dispatch notifications
-    this.suppressContentChangeNotifications = contentWasChanging;
     this.contentDidChange();
 
-    this.suppressContentChangeNotifications = suppressedContentChangeNotifications;
+    this.suppressChangeNotifications = suppressChangeNotifications;
 }
 
 
@@ -2080,8 +2075,8 @@ EditableMathlist.prototype.delete = function(count) {
 EditableMathlist.prototype.delete_ = function(dir) {
     // Dispatch notifications
     this.contentWillChange();
-    const contentWasChanging = this.suppressContentChangeNotifications;
-    this.suppressContentChangeNotifications = true;
+    const contentWasChanging = this.suppressChangeNotifications;
+    this.suppressChangeNotifications = true;
 
     dir = dir || 0;
     dir = dir < 0 ? -1 : (dir > 0 ? +1 : dir);
@@ -2193,7 +2188,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
         }
     }
     // Dispatch notifications
-    this.suppressContentChangeNotifications = contentWasChanging;
+    this.suppressChangeNotifications = contentWasChanging;
     this.contentDidChange();
 }
 

@@ -60,7 +60,7 @@ export default {
             // change notifications, to avoid infinite loops.
             if (newValue !== oldValue) {
                 this.$el.mathfield.latex(newValue, {
-                    suppressContentChangeNotifications: true
+                    suppressChangeNotifications: true
                 });
             }
         },
