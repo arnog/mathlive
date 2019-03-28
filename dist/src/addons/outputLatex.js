@@ -19,6 +19,11 @@ import MathAtom from '../core/mathAtom.js';
 function latexify(value, expandMacro) {
     let result = '';
     if (Array.isArray(value) && value.length > 0) {
+        if (value[0].type === 'first') {
+            // Remove the 'first' atom, if present
+            value = value.slice(1);
+            if (value.length === 0) return '';
+        }
         if (value[0].mode === 'text') {
             // Check if there's a series of text atom
             let i = 0;
@@ -125,7 +130,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 result += '}';
             } else {
                 // @todo: deal with fracs delimiters
-                result += this.latex;
+                result += command;
                 result += `{${latexify(this.numer, expandMacro)}}{${latexify(this.denom, expandMacro)}}`;
             }
             break;
@@ -193,6 +198,8 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 command === '\\mathpunct' || command === '\\mathord' ||
                 command === '\\mathinner') {
                 result += command + '{' + latexify(this.body, expandMacro) + '}';
+            } else if (command === '\\char"') {
+                result += this.latex + ' ';
             } else if (command === '\\unicode') {
                 result += '\\unicode{"';
                 result += ('000000' + this.body.charCodeAt(0).toString(16)).toUpperCase().substr(-6);
@@ -204,8 +211,8 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                     if (/[a-zA-Z0-9]$/.test(this.latex)) {
                         result += ' ';
                     }
-                } else if (this.latex) {
-                    result += this.latex;
+                } else if (command) {
+                    result += command;
                 } else {
                     result += this.body !== '\u200b' ? this.body : '';
                 }

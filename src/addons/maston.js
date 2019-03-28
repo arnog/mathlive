@@ -440,7 +440,7 @@ function getLatexTemplateForFunction(name) {
 
 /**
  *
- * @param {string} name symbol name
+ * @param {string} name symbol name, e.g. "alpha"
  * @return {string}
  */
 function getLatexForSymbol(name) {
@@ -449,12 +449,12 @@ function getLatexForSymbol(name) {
         return result.replace('%1', '').replace('%0', '').replace('%', '');
     }
     const info = Definitions.getInfo('\\' + name, 'math');
-    if (info && info.type !== 'error' &&
+    if (info &&
         (!info.fontFamily || info.fontFamily === 'main' || info.fontFamily === 'ams')) {
         result = '\\' + name;
     }
     if (!result) {
-        result = Definitions.unicodeStringToLatex(name);
+        result = Definitions.unicodeStringToLatex('math', name);
     }        
 
     return result;
@@ -485,7 +485,7 @@ function getCanonicalName(latex) {
     if (!result) {
         if (/^\\[^{}]+$/.test(latex)) {
             const info = Definitions.getInfo(latex, 'math', {});
-            if (info && info.type !== 'error') {
+            if (info) {
                 result = info.value || latex.slice(1);
             } else {
                 result = latex.slice(1);
@@ -1178,7 +1178,7 @@ function parsePrimary(expr, options) {
             const fn = expr.ast;
             const arg = parsePrimary(expr, options).ast;
             if (arg && /^(list0|list|list2)$/.test(arg.fn)) {
-                fn.arg = fn.arg.arg;
+                fn.arg = fn.arg ? fn.arg.arg : undefined;
             } else if (arg) {
                 fn.arg = [arg]
             }
@@ -1283,6 +1283,11 @@ function parsePrimary(expr, options) {
 
     } else if (atom.type === 'mclose') {
         return expr;
+
+    } else if (atom.type === 'error') {
+        expr.index += 1;
+        expr.ast = { error: atom.latex };
+        return expr;
     }
 
 
@@ -1356,11 +1361,10 @@ function parsePrimary(expr, options) {
                 // Invisible times, e.g. '2x'
                 if (expr.ast.fn === 'multiply') {
                     expr.ast.arg.unshift(lhs);
-                } else if (typeof expr.ast.num === 'object' && expr.ast.num.im === '1' && 
-                    isNumber(lhs) && 
-                    typeof expr.ast.sup === 'undefined') {
+                } else if (numberIm(lhs) === 0 && numberRe(lhs) !== 0 && 
+                    numberIm(expr.ast) === 1 && numberRe(expr.ast) === 0) {
                     // Imaginary number, i.e. "3i"
-                    expr.ast = wrapNum({im: lhs.num});
+                    expr.ast = wrapNum({im: numberRe(lhs).toString()});
                 } else {
                     expr.ast = wrapFn('multiply', lhs, expr.ast);
                 }

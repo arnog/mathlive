@@ -90,6 +90,7 @@ class UndoManager {
     pop() {
         if (this.canUndo()) {
             this.index -= 1;
+            this.stack.pop();
         }
     }
     /**
@@ -153,13 +154,14 @@ class UndoManager {
     */
     restore(state, options) {
         // Restore the content
-        this.mathlist.insert(state.latex, Object.assign({
+        this.mathlist.insert(state ? state.latex : '', {
             insertionMode: 'replaceAll',
             selectionMode: 'after',
-            format: 'latex'
-        }, options));
+            format: 'latex',
+            ...options
+        });
         // Restore the selection
-        this.mathlist.setPath(state.selection);
+        this.mathlist.setPath(state ? state.selection : [{relation: 'body', offset: 0}]);
     }
 }
 

@@ -307,8 +307,8 @@ test('FONTS', function (t) {
 
 ////////////////////////////////////////////////////////////////////////////////
 test('ERRORS', function (t) {
-    t.equal(getType('\\xyz', 'xyz'), 'error', "Unknown commands should be 'error'");
-    t.equal(getType('\\xyz\\zyx', 'zyx'), 'error', "Consecutive unknown commands should not coalesce");
+    t.equal(getType('\\xyz', '\\xyz'), 'error', "Unknown commands should be 'error'");
+    t.equal(getType('\\xyz\\zyx', '\\zyx'), 'error', "Consecutive unknown commands should not coalesce");
     t.end();
 });
 
@@ -667,9 +667,11 @@ test('ENVIRONMENTS', function (t) {
     // t.ok(toSpan('\\begin{a}\\end'), '\\begin with argument, \\end with no argument');
     // t.ok(toSpan('\\begin{a}\\end{x}'), '\\begin with argument, \\end with mismatched argument');
 
+
     equalSpan(t, '\\begin{array}a\\end{xyz}', '\\begin{array}a\\end{array}', 'Mismatched \\begin and \\end');
     equalSpan(t, '\\begin{array}a', '\\begin{array}a\\end{array}', 'Missing \\end');
 
+    // A legal environment name consist only of letters and "*"
     t.ok(toSpan('\\begin{\\alpha}\\end{\\alpha}'),
         'Environment name with symbol');
     t.ok(toSpan('\\begin{1732}\\end{1732}'),
@@ -828,6 +830,7 @@ test('MATH JSON', function (t) {
     equalMathJSON(t, '\\frac{1}{5}\\imaginaryI  + \\frac{1}{2}', 
         '{"fn":"add","arg":[{"fn":"multiply","arg":[{"fn":"divide","arg":[{"num":"1"},{"num":"5"}]},{"num":{"im":"1"}}]},{"fn":"divide","arg":[{"num":"1"},{"num":"2"}]}]}',
         'Imaginary and real part of a complex number, fractionals');
+    equalMathJSON(t, '\\imaginaryI \\imaginaryI', '{"fn":"multiply","arg":[{"num":{"im":"1"}},{"num":{"im":"1"}}]}', 'Imaginary unit multiplied by itself');
 
 
 
@@ -905,7 +908,7 @@ test('MATH JSON', function (t) {
     equalMathJSON(t, '\\N', '{"sym":"\u2115"}', 'Set N');
     
     equalMathJSON(t, '\\sin x^{2}', '{"fn":"sin","arg":[{"sym":"x","sup":{"num":"2"}}]}', 'sin of x square');
-    equalMathJSON(t, '\\sin \\theta ^{2}', '{"fn":"sin","arg":[{"sym":"θ","sup":{"num":"2"}}]}', 'sin of theta square');
+    equalMathJSON(t, '\\sin \\theta^{2}', '{"fn":"sin","arg":[{"sym":"θ","sup":{"num":"2"}}]}', 'sin of theta square');
 
     equalMathJSON(t, 'n!', '{"fn":"factorial","arg":[{"sym":"n"}]}', 'Factorial');
     equalMathJSON(t, 'n + 3!', '{"fn":"add","arg":[{"sym":"n"},{"fn":"factorial","arg":[{"num":"3"}]}]}', 'Factorial');

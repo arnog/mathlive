@@ -50,15 +50,17 @@ class Context {
         this.size = data.size;
         this.phantom = data.phantom;
         this.font = data.font;
+        this.fontWeight = data.fontWeight || 'normal';
+        this.fontVariant = data.fontWeight || 'normal';
         this.generateID = data.generateID !== undefined ? data.generateID : false;
         this.isSelected = data.isSelected !== undefined ? data.isSelected : false;
         this.macros = data.macros || {};
-        if (typeof data.parentMathstyle === 'undefined') {
+        if (data.parentMathstyle === undefined) {
             this.parentMathstyle = this.mathstyle;
         } else {
             this.parentMathstyle = data.parentMathstyle;
         }
-        if (typeof data.parentSize === 'undefined') {
+        if (data.parentSize === undefined) {
             this.parentSize = this.size;
         } else {
             this.parentSize = data.parentSize;

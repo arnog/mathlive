@@ -589,11 +589,7 @@ EditableMathlist.prototype.siblings = function() {
  * @private
  */
 EditableMathlist.prototype.sibling = function(offset) {
-    const siblingOffset = this.startOffset() + offset;
-    const siblings = this.siblings();
-    if (siblingOffset < 0 || siblingOffset > siblings.length) return null;
-
-    return siblings[siblingOffset]
+    return this.siblings()[this.startOffset() + offset]
 }
 
 
@@ -631,13 +627,77 @@ EditableMathlist.prototype.collapseBackward = function() {
 
 
 /**
+ * Return true if the atom could be a part of a number
+ * i.e. "-12354.568"
+ * @param {object} atom 
+ */
+function isNumber(atom) {
+    if (!atom) return false;
+    return (atom.type === 'mord' && /[0-9.]/.test(atom.body)) ||
+        (atom.type === 'mpunct' && atom.body === ',');
+}
+
+/**
  * Select all the atoms in the current group, that is all the siblings.
  * When the selection is in a numerator, the group is the numerator. When
  * the selection is a superscript or subscript, the group is the supsub.
+ * When the selection is in a text zone, the "group" is a word
  * @method EditableMathlist#selectGroup_
  */
 EditableMathlist.prototype.selectGroup_ = function() {
-    this.setSelection(0, 'end');
+    const siblings = this.siblings();
+    if (this.anchorMode() === 'text') {
+        // Word boundaries for Cyrillic, Polish, French, German, Italian
+        // and Spanish. We use \p{L} (Unicode property escapes: "Letter")
+        // but Firefox doesn't support it 
+        // (https://bugzilla.mozilla.org/show_bug.cgi?id=1361876). Booo...
+        // See also https://stackoverflow.com/questions/26133593/using-regex-to-match-international-unicode-alphanumeric-characters-in-javascript
+        const WORD_REGEX = 
+            navigator && /firefox/i.test(navigator.userAgent) ?
+                /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒäöüßÄÖÜẞàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚáéíñóúüÁÉÍÑÓÚÜ]/ :
+                new RegExp("\\p{Letter}", 'u');
+        let start = this.startOffset();
+        let end = this.endOffset();
+        // 
+        while (siblings[start] && siblings[start].mode === 'text' &&
+            WORD_REGEX.test(siblings[start].body)) {
+            start -= 1;
+        }
+        while (siblings[end] && siblings[end].mode === 'text' &&
+            WORD_REGEX.test(siblings[end].body)) {
+            end += 1;
+        }
+        end -= 1;
+        if (start >= end) {
+            // No word found.
+            // Select the entire text zone
+            start = this.startOffset();
+            end = this.endOffset();
+            while (siblings[start] && siblings[start].mode === 'text') {
+                start -= 1;
+            }
+            while (siblings[end] && siblings[end].mode === 'text') {
+                end += 1;
+            }
+            end -= 1;
+        }
+
+        this.setSelection(start, end - start);
+    } else {
+        // In a math zone, select all the sibling nodes
+        if (this.sibling(0).type === 'mord' && /[0-9,.]/.test(this.sibling(0).body)) {
+            // In a number, select all the digits
+            let start = this.startOffset();
+            let end = this.endOffset();
+            // 
+            while (isNumber(siblings[start])) start -= 1;
+            while (isNumber(siblings[end])) end += 1;
+            end -= 1;
+            this.setSelection(start, end - start);
+        } else {
+            this.setSelection(0, 'end');
+        }
+    }
 }
 
 
@@ -736,92 +796,6 @@ EditableMathlist.prototype.getSelectedAtoms = function() {
 
 
 
-
-/**
- * Return a 'string' version of the atom. This is used when matching auto-inline
- * replacements for example, so we make a best attempt at getting a string
- * version of the atom. Some atom types are effectively 'hard' barriers
- * in the string because they're not obvious to translate to a string.
- * We don't want them to be transparent, so we map them to 
- * '\ufffd' (REPLACEMENT CHARACTER).
- * 
- * For example, '-\sqrt{2}=' should not trigger a replacement of '-='
- * 
- * @param {MathAtom} atom
- */
-function getString(atom) {
-    if (!atom) return '';
-    if (Array.isArray(atom)) {
-        let result = '';
-        for (const subAtom of atom) {
-            result += getString(subAtom);
-        }
-        return result;
-    }
-    if (atom.type === 'array' || atom.type === 'surd' || atom.type === 'rule' ||
-        atom.type === 'overunder' || atom.type === 'box' ||
-        atom.type === 'enclose' || atom.type === 'placeholder' || atom.type === 'command') {
-        // Don't decompose these.
-        return '\ufffd';
-    }
-    if (atom.type === 'genfrac') {
-        return '(' + getString(atom.numer) + ')/(' + getString(atom.denom) + ')';
-    }
-    if (atom.type === 'leftright') {
-        return (atom.leftDelim || '') + 
-            getString(atom.body) + 
-            (atom.rightDelim === '?' ? '' : (atom.rightDelim || ''));
-    }
-    if (atom.type === 'delim' || atom.type === 'sizeddelim') {
-        return atom.delim;
-    }
-    if (atom.type === 'spacing' || atom.type === 'space') {
-        return ' '; // a single space
-    }
-    if (atom.type === 'mathstyle' || atom.type === 'sizing' || atom.type === 'first') {
-        return '';
-    }
-    // 'group', 'root', 'line', 'overlap', 'font', 'accent',
-    // 'mord', 'minner', 'mbin', 'mrel', 'mpunct', 'mopen', 'mclose',
-    // 'textord', 'mop', 'color',
-    if (typeof atom.body === 'string') {
-        return atom.body;
-    }
-    if (Array.isArray(atom.body)) {
-        let result = '';
-        for (const subAtom of atom.body) {
-            result += getString(subAtom);
-        }
-        return result;
-    }
-
-    return '';
-}
-
-/**
- * @param {number} count -- The number of atoms back we should return. Note
- * that since an atom can map to multiple characters, the length of the string
- * may be greater than this argument. It could also be smaller.
- * @return {string}
- * @method EditableMathlist#extractCharactersBeforeInsertionPoint
- * @private
- */
-EditableMathlist.prototype.extractCharactersBeforeInsertionPoint = function(count) {
-    const siblings = this.siblings();
-    if (siblings.length <= 1) return '';
-
-    // Going backwards, accumulate
-    let result = '';
-    let offset = this.startOffset();
-    while (offset >= 1 && count > 0) {
-        result = getString(siblings[offset]) + result;
-        count -= 1;
-        offset -= 1;
-    }
-    return result;
-}
-
-
 /**
  * Return a `{start:, end:}` for the offsets of the command around the insertion
  * point, or null.
@@ -908,23 +882,30 @@ EditableMathlist.prototype.spliceCommandStringAroundInsertionPoint = function(ma
         // Dispatch notifications
         this.contentWillChange();
 
-        Array.prototype.splice.apply(this.siblings(),
-            [command.start, command.end - command.start].concat(mathlist));
+        if (!mathlist) {
+            this.siblings().splice(command.start, command.end - command.start);
+            this.setExtent(0);
+            this.path[this.path.length - 1].offset = command.start - 1;
+            this.setSelection(command.start - 1);
 
-        let newPlaceholders = [];
-        for (const atom of mathlist) {
-            newPlaceholders = newPlaceholders.concat(atom.filter(
-                atom => atom.type === 'placeholder'));
-        }
-        this.setExtent(0);
+        } else {
+            Array.prototype.splice.apply(this.siblings(),
+                [command.start, command.end - command.start].concat(mathlist));
+            let newPlaceholders = [];
+            for (const atom of mathlist) {
+                newPlaceholders = newPlaceholders.concat(atom.filter(
+                    atom => atom.type === 'placeholder'));
+            }
+            this.setExtent(0);
 
-        // Set the anchor offset to a reasonable value that can be used by
-        // leap(). In particular, the current offset value may be invalid
-        // if the length of the mathlist is shorter than the name of the command
-        this.path[this.path.length - 1].offset = command.start - 1;
+            // Set the anchor offset to a reasonable value that can be used by
+            // leap(). In particular, the current offset value may be invalid
+            // if the length of the mathlist is shorter than the name of the command
+            this.path[this.path.length - 1].offset = command.start - 1;
 
-        if (newPlaceholders.length === 0 || !this.leap(+1, false)) {
-            this.setSelection(command.start + mathlist.length - 1);
+            if (newPlaceholders.length === 0 || !this.leap(+1, false)) {
+                this.setSelection(command.start + mathlist.length - 1);
+            }
         }
 
         // Dispatch notifications
@@ -934,23 +915,30 @@ EditableMathlist.prototype.spliceCommandStringAroundInsertionPoint = function(ma
 
 /**
  * @return {string}
- * @method EditableMathlist#extractContentsOrdInGroupBeforeInsertionPoint
+ * @method EditableMathlist#extractArgBeforeInsertionPoint
  * @private
  */
-EditableMathlist.prototype.extractContentsOrdInGroupBeforeInsertionPoint = function() {
+EditableMathlist.prototype.extractArgBeforeInsertionPoint = function() {
     const result = [];
     const siblings = this.siblings();
 
     if (siblings.length <= 1) return [];
 
     let i = this.startOffset();
-    while (i >= 1 && (siblings[i].type === 'mord' ||
-        siblings[i].type === 'surd'     ||
-        siblings[i].type === 'leftright' ||
-        siblings[i].type === 'font'
-        )) {
-        result.unshift(siblings[i]);
-        i--
+    if (siblings[i].mode === 'text') {
+        while (i >= 1 && siblings[i].mode === 'text') {
+            result.unshift(siblings[i]);
+            i--
+        }
+    } else {
+        while (i >= 1 && (siblings[i].type === 'mord' ||
+            siblings[i].type === 'surd'     ||
+            siblings[i].type === 'leftright' ||
+            siblings[i].type === 'font'
+            )) {
+            result.unshift(siblings[i]);
+            i--
+        }
     }
 
     return result;
@@ -1597,15 +1585,15 @@ EditableMathlist.prototype.leap = function(dir, callHandler) {
 
 
 EditableMathlist.prototype.anchorMode = function() {
-    const anchor = this.anchor();
+    const anchor = this.isCollapsed() ? this.anchor() : this.sibling(1);
     if (anchor) {
         if (anchor.type === 'commandliteral' ||
             anchor.type === 'esc' ||
             anchor.type === 'command') return 'command';
         if (anchor.mode) return anchor.mode;
-        const parent = this.parent();
-        if (parent && parent.mode) return parent.mode;
     }
+    const parent = this.parent();
+    if (parent && parent.mode) return parent.mode;
     return '';
 }
 
@@ -1613,7 +1601,7 @@ EditableMathlist.prototype.anchorMode = function() {
 function removeParen(list) {
     if (!list) return undefined;
 
-    if (list && list.length === 1 && list[0].type === 'leftright' &&
+    if (list.length === 1 && list[0].type === 'leftright' &&
         list[0].leftDelim === '(') {
         list = list[0].body;
     }
@@ -1762,8 +1750,7 @@ EditableMathlist.prototype.insert = function(s, options) {
     if (anchorMode === 'math' && options.format === 'ASCIIMath') {
         s = parseMathString(s, {...this.config, format: 'ASCIIMath'});
         mathlist = ParserModule.parseTokens(
-            Lexer.tokenize(Definitions.unicodeStringToLatex(s)),
-                'math', null, options.macros, false);
+            Lexer.tokenize(s), 'math', null, options.macros, false);
         // Simplify result.
         this.simplifyParen(mathlist);
 
@@ -1772,26 +1759,28 @@ EditableMathlist.prototype.insert = function(s, options) {
             // Short-circuit the tokenizer and parser if in command mode
             mathlist = [];
             for (const c of s) {
-                const symbol = Definitions.matchSymbol('command', c);
-                if (symbol) {
+                if (Definitions.COMMAND_MODE_CHARACTERS.test(c)) {
                     mathlist.push(new MathAtom.MathAtom('command', 'command',
-                        symbol.value, 'main'));
+                        c, 'main'));
                 }
             }
+
         } else if (s === '\u001b') {
+            // Insert an 'esc' character triggers the command mode
             mathlist = [new MathAtom.MathAtom('command', 'command', '\\', 'main')];
+
         } else {
             s = parseMathString(s, this.config);
 
-            // If we're inserting a latex fragment that includes a #@ argument
-            // substitute the preceding `mord` atoms for it.
             if (args[0]) {
                 // There was a selection, we'll use it for #@
                 s = s.replace(/(^|[^\\])#@/g, '$1#0');
 
             } else if (/(^|[^\\])#@/.test(s)) {
+                // If we're inserting a latex fragment that includes a #@ argument
+                // substitute the preceding `mord` or text mode atoms for it.
                 s = s.replace(/(^|[^\\])#@/g, '$1#0');
-                args[0] = this.extractContentsOrdInGroupBeforeInsertionPoint();
+                args[0] = this.extractArgBeforeInsertionPoint();
                 // Delete the implicit argument
                 this._deleteAtoms(-args[0].length);
                 // If the implicit argument was empty, remove it from the args list.
@@ -1803,8 +1792,7 @@ EditableMathlist.prototype.insert = function(s, options) {
             }
 
             mathlist = ParserModule.parseTokens(
-                Lexer.tokenize(Definitions.unicodeStringToLatex(s)),
-                    anchorMode, args, options.macros, options.smartFence);
+                Lexer.tokenize(s), anchorMode, args, options.macros, options.smartFence);
 
             // Simplify result.
             this.simplifyParen(mathlist);
@@ -1816,15 +1804,23 @@ EditableMathlist.prototype.insert = function(s, options) {
 
     } else if (anchorMode === 'text' || options.format === 'text') {
         // Map special TeX characters to alternatives
-        s = s.replace(/\\/g, '\\backslash ');
-        s = s.replace(/{/g, '\\{');
-        s = s.replace(/}/g, '\\}');
+        // Must do this one first, since other replacements include backslash
+        s = s.replace(/\\/g, '\\textbackslash');    
+                            
+
         s = s.replace(/#/g, '\\#');
+        s = s.replace(/\$/g, '\\$');
         s = s.replace(/%/g, '\\%');
         s = s.replace(/&/g, '\\&');
+        // s = s.replace(/:/g, '\\colon');     // text colon?
+        // s = s.replace(/\[/g, '\\lbrack');
+        // s = s.replace(/]/g, '\\rbrack');
         s = s.replace(/_/g, '\\_');
-        s = s.replace(/\$/g, '\\$');
-        s = s.replace(/\^/g, '\\^{}');
+        s = s.replace(/{/g, '\\textbraceleft');
+        s = s.replace(/}/g, '\\textbraceright');
+        s = s.replace(/\^/g, '\\textasciicircum');
+        s = s.replace(/˜/g, '\\textasciitilde'); 
+        s = s.replace(/£/g, '\\textsterling');
 
         mathlist = ParserModule.parseTokens(
             Lexer.tokenize(s), 'text', args, options.macros, false);
@@ -1900,15 +1896,16 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
         const collapsed = this.isCollapsed() || this.anchor().type === 'placeholder';
 
         if (this.sibling(0).isFunction) {
-            // We're before a function (e.g. `\sin`)
-            // This is an argument list. Use `\mleft...\mright'.
+            // We're before a function (e.g. `\sin`, or 'f'):  this is an 
+            // argument list. 
+            // Use `\mleft...\mright'.
             s = '\\mleft' + fence + '\\mright';
         } else {
             s = '\\left' + fence + '\\right';
         }
         s += (collapsed ? '?' : rDelim);
 
-        this.insert(s, { format: 'latex' });
+        this.insert(s, { mode: 'math', format: 'latex' });
         if (collapsed) this.move(-1);
         return true;
     }
@@ -1980,7 +1977,7 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
 
         // Meh... We couldn't find a matching open fence. Just insert the
         // closing fence as a regular character
-        this.insert(fence);
+        this.insert(fence, { mode: 'math', format: 'latex' });
         return true;
     }
 

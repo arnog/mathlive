@@ -74,8 +74,8 @@ const KEYBOARD_SHORTCUTS = {
     'Ctrl-Shift-Left':          'extendToGroupStart',
     'Ctrl-Shift-Right':         'extendToGroupEnd',
 
-    'math:Spacebar':                 'moveAfterParent',
-    'math:Shift-Spacebar':           'moveBeforeParent',
+    'math:Spacebar':            'moveAfterParent',
+    'math:Shift-Spacebar':      'moveBeforeParent',
 
     'Home':                     'moveToMathFieldStart',
     'mac:Meta-Left':            'moveToMathFieldStart',
@@ -95,6 +95,11 @@ const KEYBOARD_SHORTCUTS = {
     'math:Shift-Tab':           'moveToPreviousPlaceholder',
     'math:Shift-F8':            'moveToPreviousPlaceholder',    // Visual Studio
 
+    'text:Tab':                 'moveToNextPlaceholder',
+    'text:F8':                  'moveToNextPlaceholder',    // Visual Studio
+    'text:Shift-Tab':           'moveToPreviousPlaceholder',
+    'text:Shift-F8':            'moveToPreviousPlaceholder',    // Visual Studio
+
     'math:Esc':                 'enterCommandMode',
     'math:Backslash':           'enterCommandMode',
     'math:IntlBackslash':       'enterCommandMode',
@@ -103,7 +108,7 @@ const KEYBOARD_SHORTCUTS = {
     'text:Alt-Equal':           ['apply-style', {mode: 'math'}],
 
     'command:Spacebar':         'complete',
-    'command:Esc':              'complete',
+    'command:Esc':              ['complete', true], // true -> discard the command
     'command:Tab':              'complete',
     'command:Return':           'complete',
     'command:Enter':            'complete',
@@ -168,8 +173,13 @@ const KEYBOARD_SHORTCUTS = {
     'math:Ctrl-Minus':           'moveToSubscript',
     'math:Alt-BracketLeft':      ['insert', '\\left[ #0 \\right]'],
     'math:Alt-Shift-BracketLeft':  ['insert', '\\left{ #0 \\right}'],
-    'math:Ctrl-Enter':           'addRowAfter',
-    'math:Ctrl-Comma':           'addColumnAfter',
+    'math:Return':               'addRowAfter',
+    'math:Enter':                'addRowAfter',
+    'math:Ctrl-Comma':           'addColumnAfter',      
+    // Excel shortcuts:
+    // Shift-space: select entire row, ctrl+space: select an entire column
+    // ctrl+shift++ or ctrl+numpad+
+    // ctrl+- to delete a row or columns
 
     // MATHLIVE BINDINGS
     'math:Alt-KeyQ':             ['insert', '\\theta'],
@@ -304,7 +314,7 @@ const INLINE_SHORTCUTS = {
     'sum':                  '\\sum_{#?}^{#?}',
     'prod':                 '\\prod_{#?}^{#?}',
     'sqrt':                 '\\sqrt',
-    '∫':                    '\\int',
+    // '∫':                    '\\int',             // There's a alt-B command for this
     '∆':                    '\\differentialD',     // @TODO: is \\diffD most common?
     '∂':                    '\\differentialD',
 
@@ -317,6 +327,12 @@ const INLINE_SHORTCUTS = {
     'ln':                   '\\ln',
     'exp':                  '\\exp',
     'lim':                  '\\lim_{#?}',
+
+    // Differentials
+    // According to ISO31/XI (ISO 80000-2), differentials should be upright
+    'dx':                   '\\differentialD x',
+    'dy':                   '\\differentialD y',
+    'dt':                   '\\differentialD t',
 
     // Logic
     'AA':                   '\\forall',

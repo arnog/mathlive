@@ -18,7 +18,6 @@ let category = '';
 
 const TEXT_SYMBOLS = {};
 const MATH_SYMBOLS = {};
-const COMMAND_SYMBOLS = {};
 
 const FUNCTIONS = {};
 
@@ -149,31 +148,21 @@ function defineSymbol(latexName, mode, fontFamily, type, value, frequency) {
 
     if (mode.includes(TEXT)) {
         TEXT_SYMBOLS[latexName] = {
-            symbol: true,
-            category: category,         // To group items when generating the documentation
-            fontFamily: fontFamily,
             type: type === ORD ? TEXTORD : type,
-            skipBoundary: true,
+            fontFamily: fontFamily,
             value: value,
+            category: category,         // To group items when generating the documentation
             frequency: frequency
         };
     }
     if (mode.includes(MATH)) {
         MATH_SYMBOLS[latexName] = {
-            symbol: true,
-            category: category,         // To group items when generating the documentation
-            fontFamily: fontFamily,
             type: type === ORD ? MATHORD : type,
-            skipBoundary: true,
+            fontFamily: fontFamily,
             value: value,
+            category: category,         // To group items when generating the documentation
             frequency: frequency
         };
-    }
-    if (mode.includes(COMMAND)) {
-        COMMAND_SYMBOLS[latexName] = {
-            fontFamily: fontFamily,
-            type: type,
-            value: value};
     }
 }
 
@@ -267,46 +256,38 @@ const CODEPOINT_SHORTCUTS = {
     };
 /**
  * Given a character, return a LaTeX expression matching its Unicode codepoint.
- * The return string is in the ASCII range.
  * If there is a matching symbol (e.g. \alpha) it is returned.
- * If there is no matching symbol and it is outside the ASCII range, an
- * expression with \char is returned.
- * @param {string} s
+ * @param {string} parseMode
+ * @param {number} cp
  * @return {string}
  * @memberof module:definitions
  * @private
  */
-function matchCodepoint(s) {
-    const codepoint = s.codePointAt(0);
+function matchCodepoint(parseMode, cp) {
+    const s = String.fromCodePoint(cp);
 
     // Some symbols map to multiple codepoints.
     // Some symbols are 'pseudosuperscript'. Convert them to a super(or sub)script.
     // Map their alternative codepoints here.
-    let result = CODEPOINT_SHORTCUTS[s];
-    if (result) return result;
+    if (parseMode === 'math' && CODEPOINT_SHORTCUTS[s]) return CODEPOINT_SHORTCUTS[s];
 
-    if (codepoint > 32 && codepoint < 127) return String.fromCodePoint(codepoint);
+    // Don't map 'simple' code point.
+    // For example "C" maps to \doubleStruckCapitalC, not the desired "C"
+    if (cp > 32 && cp < 127) return s;
 
-    for (const p in MATH_SYMBOLS) {
-        if (MATH_SYMBOLS.hasOwnProperty(p)) {
-            if (MATH_SYMBOLS[p].value === s || MATH_SYMBOLS[p].body === s) {
+    let result = '';
+    const table = {'math': MATH_SYMBOLS, 'text': TEXT_SYMBOLS}[parseMode];
+    for (const p in table) {
+        if (table.hasOwnProperty(p)) {
+            if (table[p].value === s) {
                 result = p;
-                if (p[0] === '\\') result += ' ';
+                // if (p[0] === '\\') result += ' ';
                 break;
             }
         }
     }
 
-    // No symbol was found, return a \char command
-    if (!result) {
-        if (codepoint < 32 || codepoint >= 127) {
-            result = '\\char"' +
-                    ('000000' + codepoint.toString(16)).toUpperCase().substr(-6)
-        } else {
-            result = s;
-        }
-    }
-    return result;
+    return result || s;
 }
 
 
@@ -466,15 +447,16 @@ function mathVariantToUnicode(char, variant, style) {
 
 
 
-function codepointToLatex(cp) {
+function codepointToLatex(parseMode, cp) {
     // Codepoint shortcuts have priority over variants
     // That is, "\N" vs "\mathbb{N}"
-    if (CODEPOINT_SHORTCUTS[cp]) return CODEPOINT_SHORTCUTS[cp];
+    if (parseMode === 'text') return String.fromCodePoint(cp);
 
     let result;
+    if (CODEPOINT_SHORTCUTS[cp]) return CODEPOINT_SHORTCUTS[cp];
     const v = unicodeToMathVariant(cp);
-    if (!v.style && !v.variant) return matchCodepoint(String.fromCodePoint(cp));
-    result =  v.char;
+    if (!v.style && !v.variant) return matchCodepoint(parseMode, cp);
+    result = v.char;
     if (v.variant) {
         result = '\\' + v.variant + '{' + result + '}';
     }
@@ -485,15 +467,15 @@ function codepointToLatex(cp) {
     } else if (v.style === 'bolditalic') {
         result = '\\mathbf{\\mathit{' + result + '}}';
     }
-    return '\\mathord{' + result + '}';
+    return '\\mathord{' + result + '}';    
 }
 
 
 
-function unicodeStringToLatex(s) {
+function unicodeStringToLatex(parseMode, s) {
     let result = '';
     for (const cp of s) {
-        result += codepointToLatex(cp.codePointAt(0));
+        result += codepointToLatex(parseMode, cp.codePointAt(0));
     }
     return result;
 }
@@ -503,62 +485,24 @@ function unicodeStringToLatex(s) {
 /**
  *
  * @param {string} mode
- * @param {string} s
- * @return {object}
+ * @param {string} command
+ * @return {boolean} True if command is allowed in the mode
+ * (note that command can also be a single character, e.g. "a")
  * @memberof module:definitions
  * @private
  */
-function matchFunction(mode, s) {
-    let result = null;
-    for (const p in FUNCTIONS) {
-        if (FUNCTIONS.hasOwnProperty(p)) {
-            if (s === p && (mode !== 'text' || FUNCTIONS[p].allowedInText)) {
-                if (!result || result.value.length < p.length) {
-                    result = {
-                        latexName: p,
-                        value: p.slice(1)
-                    };
-                }
-            }
-        }
-    }
-    return result;
-}
-
-function matchSymbol(mode, s) {
-    const a = mode === 'text' ? TEXT_SYMBOLS : (mode === 'command' ? COMMAND_SYMBOLS : MATH_SYMBOLS);
-    let result = null;
-    for (const p in a) {
-        if (a.hasOwnProperty(p)) {
-            const candidate = p;
-
-            if (s === candidate) {
-                if (!result || result.match.length < candidate.length) {
-                    result = {
-                        latexName: p,
-                        fontFamily: a[p].fontFamily,
-                        value: a[p].value,
-                        type: a[p].type,
-                        match: candidate
-                    }
-                }
-            }
-
-            // if (a[p].fullName && s === '\\[' + a[p].fullName + ']') {
-            //     result = {
-            //         latexName: p,
-            //         fontFamily: a[p].fontFamily,
-            //         value: a[p].value,
-            //         type: a[p].type,
-            //         match: '\\[' + a[p].fullName + ']'
-            //     };
-            //     break;
-            // }
-        }
+function commandAllowed(mode, command) {
+    if (FUNCTIONS[command] && (mode !== 'text' || FUNCTIONS[command].allowedInText)) {
+        return true;
     }
 
-    return result;
+    if ({'text': TEXT_SYMBOLS, 'math': MATH_SYMBOLS}[mode][command]) {
+        return true;
+    }
+
+    return false;
 }
+
 
 
 function getFontName(mode, symbol) {
@@ -591,13 +535,14 @@ function getEnvironmentInfo(name) {
 
 /**
  * @param {string} symbol    A command (e.g. '\alpha') or a character (e.g. 'a')
- * @param {string} parseMode One of 'math', 'text', 'string', 'color', 'dimen', etc...
+ * @param {string} parseMode One of 'math' or 'text'
  * @param {object} macros A macros dictionary
- * @return {any} An info structure about the symbol, or null
+ * @return {object} An info structure about the symbol, or null
  * @memberof module:definitions
  * @private
  */
 function getInfo(symbol, parseMode, macros) {
+
     if (symbol.length === 0) return null;
 
     let info = null;
@@ -616,8 +561,11 @@ function getInfo(symbol, parseMode, macros) {
 
         if (!info) {
             // It wasn't a function, maybe it's a symbol?
-            const a = parseMode === 'math' ? MATH_SYMBOLS : TEXT_SYMBOLS;
-            info = a[symbol];
+            const table = {
+                'text': TEXT_SYMBOLS, 
+                'math': MATH_SYMBOLS
+            }[parseMode];
+            info = table[symbol];
         }
 
         if (!info) {
@@ -656,27 +604,18 @@ function getInfo(symbol, parseMode, macros) {
                 }
             }
         }
-
-        if (!info) {
-            // No luck so far, return some error info...
-            info = {
-                    type: 'error',
-                    params: [],
-                    allowedInText: false,
-                    infix: false,
-            }
-        }
-
     } else {
-        let a = MATH_SYMBOLS;
-        if (parseMode === 'command') a = COMMAND_SYMBOLS;
-        if (parseMode === 'text') a = TEXT_SYMBOLS;
+        const table = {
+            'text': TEXT_SYMBOLS, 
+            'math': MATH_SYMBOLS
+        }[parseMode];
 
-        info = a[symbol];
+        info = table[symbol];
     }
 
-    // Special case `f` and `g` to be recognized as functions.
-    if (info && info.type === 'mord' && (info.value === 'f' || info.value === 'g')) {
+    // Special case `f`, `g` and `h` are recognized as functions.
+    if (info && info.type === 'mord' && 
+        (info.value === 'f' || info.value === 'g' || info.value === 'h')) {
         info.isFunction = true;
     }
 
@@ -712,9 +651,9 @@ function suggest(s) {
         }
     }
 
-    result.sort( function(a, b) {
+    result.sort( (a, b)  => {
         if (a.frequency === b.frequency) {
-            return b.match.length - a.match.length;
+            return a.match.length - b.match.length;
         }
         return (b.frequency || 0) - (a.frequency || 0);
     });
@@ -726,7 +665,6 @@ function suggest(s) {
 // Modes
 const MATH = '[math]';
 const TEXT = '[text]';
-const COMMAND = '[command]';
 
 // Fonts
 const MAIN = 'main';        // The "main" KaTeX font (in fact one of several
@@ -749,7 +687,6 @@ const TEXTORD = 'textord';
 
 // const ACCENT = 'accent';
 const SPACING = 'spacing';
-const COMMANDLITERAL = 'command'; // Not in TeX. Values in a command sequence (e.g. ESC + ...)
 
 
 
@@ -3008,17 +2945,24 @@ defineSymbols('0123456789/@.', MATH, MAIN, MATHORD);
 // List of characters allowed when in TEXT mode (e.g. inside a \text{})
 defineSymbols('0123456789!@*()-=+[]";:?/.,', TEXT, MAIN, TEXTORD);
 
-// List of characters allowed to be entered when in COMMAND mode:
-defineSymbols("0123456789!@*()-=+{}[]\\';:?/.,~<>`|'$%#&^_\" ", COMMAND, MAIN, COMMANDLITERAL);
 
 // a-z
 defineSymbolRange(0x0041, 0x005A, MATH, MAIN, MATHORD);
-defineSymbolRange(0x0041, 0x005A, COMMAND, MAIN, COMMANDLITERAL);
 
 // A-Z
 defineSymbolRange(0x0061, 0x007A, MATH, MAIN, MATHORD);
-defineSymbolRange(0x0061, 0x007A, COMMAND, MAIN, COMMANDLITERAL);
 
+// Body-text symbols
+// See http://ctan.mirrors.hoobly.com/info/symbols/comprehensive/symbols-a4.pdf, p14
+defineSymbol('\\textasciicircum', TEXT, MAIN, TEXTORD, '^');
+defineSymbol('\\textasciitilde', TEXT, MAIN, TEXTORD, '˜');
+defineSymbol('\\textasteriskcentered', TEXT, MAIN, TEXTORD, '*');
+defineSymbol('\\textbackslash', TEXT, MAIN, TEXTORD, '\\');
+defineSymbol('\\textbraceleft', TEXT, MAIN, TEXTORD, '{');
+defineSymbol('\\textbraceright', TEXT, MAIN, TEXTORD, '}');
+defineSymbol('\\textbullet', TEXT, MAIN, TEXTORD, '•');
+defineSymbol('\\textdollar', TEXT, MAIN, TEXTORD, '$');
+defineSymbol('\\textsterling', TEXT, MAIN, TEXTORD, '£');
 
 // Unicode versions of some characters
 defineSymbol('–', TEXT, MAIN, TEXTORD, '\u2013');   // EN DASH
@@ -3028,6 +2972,8 @@ defineSymbol('’', TEXT, MAIN, TEXTORD, '\u2019');   // RIGHT SINGLE QUOTATION 
 defineSymbol('“', TEXT, MAIN, TEXTORD, '\u201C');   // LEFT DOUBLE QUOTATION MARK
 defineSymbol('”', TEXT, MAIN, TEXTORD, '\u201D');   // RIGHT DOUBLE QUOTATION MARK
 defineSymbol('"', TEXT, MAIN, TEXTORD, '\u201D');   // DOUBLE PRIME
+
+
 
 // From plain.tex
 category = 'Others';
@@ -3056,11 +3002,28 @@ defineFunction('\\^', '{:string}',
         isFunction: false,
         body: args[0] ? 
             ({'a':'â','e':'ê','i':'î','o':'ô','u':'û',
-            'A':'Â','E':'Ê','I':'Î','O':'Ô','U':'Û'}[args[0]] || '\u005e') :
-            '\u005e',
+            'A':'Â','E':'Ê','I':'Î','O':'Ô','U':'Û'}[args[0]] || '^') :
+            '^',
         fontFamily: 'mainrm'
     };
 })
+
+defineFunction("\\`", '{:string}', 
+    {fontFamily:'mainrm', allowedInText: true}, 
+    function(name, args) {
+    return {
+        type: 'textord',
+        limits: 'nolimits',
+        symbol: true,
+        isFunction: false,
+        body: args[0] ? 
+            ({'a':'à','e':'è','i':'ì','o':'ò','u':'ù',
+            'A':'À','E':'È','I':'Ì','O':'Ò','U':'Ù'}[args[0]] || '`') :
+            '`',
+        fontFamily: 'mainrm'
+    };
+})
+
 
 defineFunction("\\'", '{:string}', 
     {fontFamily:'mainrm', allowedInText: true}, 
@@ -3093,12 +3056,26 @@ defineFunction('\\˜', '{:string}',
     };
 })
 
+defineFunction('\\c', '{:string}', 
+    {fontFamily:'mainrm', allowedInText: true}, 
+    function(name, args) {
+    return {
+        type: 'textord',
+        limits: 'nolimits',
+        symbol: true,
+        isFunction: false,
+        body: args[0] ? 
+            ({'c':'ç', 'C':'Ç'}[args[0]] || '') :
+            '',
+        fontFamily: 'mainrm'
+    };
+})
 
+const COMMAND_MODE_CHARACTERS = /[a-zA-Z0-9!@*()-=+{}[\]\\';:?/.,~<>`|'$%#&^_" ]/;
 
 export default {
     matchCodepoint,
-    matchSymbol,
-    matchFunction,
+    commandAllowed,
     unicodeToMathVariant,
     mathVariantToUnicode,
     unicodeStringToLatex,
@@ -3110,12 +3087,13 @@ export default {
     FREQUENCY_VALUE,
     TEXT_SYMBOLS,
     MATH_SYMBOLS,
-    COMMAND_SYMBOLS,
     ENVIRONMENTS,
 
     RIGHT_DELIM,
     FUNCTIONS,
     MACROS,
+
+    COMMAND_MODE_CHARACTERS
 }
 
 

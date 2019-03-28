@@ -1068,13 +1068,8 @@ class MathAtom {
         console.assert(context instanceof Context.Context);
         let result = null;
         if (/mord|minner|mbin|mrel|mpunct|mopen|mclose|textord/.test(this.type)) {
-            // Any of those atoms can be made up of either a simple string
-            // or a list of children.
-            if (typeof this.body === 'string') {
-                result = this.makeSpan(context, this.body);
-            } else {
-                result = this.makeSpan(context, decompose(context, this.body));
-            }
+            // The body of these atom types is always a string
+            result = this.makeSpan(context, this.body);
             result.type = this.type;
         } else if (this.type === 'group' || this.type === 'root') {
             result = this.decomposeGroup(context);

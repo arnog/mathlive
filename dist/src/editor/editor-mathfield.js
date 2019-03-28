@@ -1,4 +1,3 @@
-
 /**
  * 
  * See {@linkcode MathField}
@@ -130,9 +129,9 @@ function releaseSharedElement(el) {
  * panel is visible
  * @property {boolean} virtualKeyboardVisible - True if the virtual keyboard is 
  * visible
- * @property {string} inlineShortcutBuffer The last few keystrokes, to look out
+ * @property {string} keystrokeBuffer The last few keystrokes, to look out
  * for inline shortcuts
- * @property {object[]} inlineShortcutStates The saved state for each of the 
+ * @property {object[]} keystrokeBufferStates The saved state for each of the 
  * past keystrokes
  * @class
  * @global
@@ -253,9 +252,9 @@ function MathField(element, config) {
     this.keystrokeCaptionVisible = false;
     this.virtualKeyboardVisible = false;
 
-    this.inlineShortcutBuffer = '';
-    this.inlineShortcutStates = [];
-    this.inlineShortcutBufferResetTimer = null;
+    this.keystrokeBuffer = '';
+    this.keystrokeBufferStates = [];
+    this.keystrokeBufferResetTimer = null;
 
     // This index indicates which of the suggestions available to
     // display in the popover panel
@@ -269,6 +268,7 @@ function MathField(element, config) {
     // changes the mode, but sometimes it is not, for example when a user 
     // enters a mode changing command.
     this.mode = config.defaultMode || 'math';
+    this.smartModeSuppressed = false;
 
     // Focus/blur state
     this.blurred = true;
@@ -285,11 +285,12 @@ function MathField(element, config) {
     // Delegate keyboard events
     Keyboard.delegateKeyboardEvents(this.textarea, {
         container:      this.element,
+        allowDeadKey:   () => this.mode === 'text',
         typedText:      this._onTypedText.bind(this),
         paste:          this._onPaste.bind(this),
         keystroke:      this._onKeystroke.bind(this),
-        focus:          this._onFocus.bind(this),
-        blur:           this._onBlur.bind(this),
+        // focus:          this._onFocus.bind(this),
+        // blur:           this._onBlur.bind(this),
     })
 
 
@@ -393,10 +394,10 @@ MathField.prototype.$revertToOriginalContent = function() {
     off(window, 'blur', this);
 }
 
-MathField.prototype._resetInlineShortcutBuffer = function() {
-    this.inlineShortcutBuffer = '';
-    this.inlineShortcutStates = [];
-    clearTimeout(this.inlineShortcutBufferResetTimer);
+MathField.prototype._resetKeystrokeBuffer = function() {
+    this.keystrokeBuffer = '';
+    this.keystrokeBufferStates = [];
+    clearTimeout(this.keystrokeBufferResetTimer);
 }
 
 /**
@@ -406,7 +407,9 @@ MathField.prototype._resetInlineShortcutBuffer = function() {
  * @private
  */
 function _findElementWithCaret(el) {
-    if (el.classList.contains('ML__caret')) {
+    if (el.classList.contains('ML__caret') || 
+        el.classList.contains('ML__text-caret') ||
+        el.classList.contains('ML__command-caret')) {
         return el;
     }
     let result;
@@ -585,8 +588,10 @@ MathField.prototype._onPointerDown = function(evt) {
             if (this.textarea.focus) this.textarea.focus();
         }
 
-        // Clicking or tapping the field will cancel out the inline shortcut buffer
-        this._resetInlineShortcutBuffer();
+        // Clicking or tapping the field resets the keystroke buffer and 
+        // smart mode
+        this._resetKeystrokeBuffer();
+        this.smartModeSuppressed = false;
 
         // If a mouse button other than the main one was pressed, return
         if (evt.buttons && evt.buttons !== 1) return;
@@ -780,8 +785,8 @@ function speakableText(mathfield, prefix, atoms) {
             target.plonkSound.load();
             target.plonkSound.play().catch(err => console.warn(err));
         }
-        // As a side effect, reset the inline shortcut buffer
-        target._resetInlineShortcutBuffer();
+        // As a side effect, reset the keystroke buffer
+        target._resetKeystrokeBuffer();
     } else if (command === 'delete') {
         liveText = speakableText(target, 'deleted: ', atomsToSpeak);
     //*** FIX: could also be moveUp or moveDown -- do something different like provide context???
@@ -935,10 +940,10 @@ MathField.prototype.$perform = function(command) {
         if (/^(delete|transpose|add)/.test(selector)) {
             if (this.mathlist.isCollapsed() && 
                 selector === 'deletePreviousChar_') {
-                this.inlineShortcutBuffer = this.inlineShortcutBuffer.substring(0, this.inlineShortcutBuffer.length - 1);
-                this.inlineShortcutStates.pop();
+                this.keystrokeBuffer = this.keystrokeBuffer.slice(0, -1);
+                this.keystrokeBufferStates.pop();
             } else {
-                this._resetInlineShortcutBuffer();
+                this._resetKeystrokeBuffer();
             } 
         }
 
@@ -963,7 +968,7 @@ MathField.prototype.$perform = function(command) {
     // collapsed, or if it was an editing command, reset the inline
     // shortcut buffer
     if (!this.mathlist.isCollapsed() || /^(transpose|paste|complete|((moveToNextChar|moveToPreviousChar|extend).*))_$/.test(selector)) {
-        this._resetInlineShortcutBuffer();
+        this._resetKeystrokeBuffer();
     }
 
     // Render the mathlist
@@ -1026,6 +1031,274 @@ MathField.prototype.performWithFeedback_ = function(command) {
 }
 
 
+
+/**
+ * Convert the atoms before the anchor to 'text' mode
+ * @param {number} count - how many atoms back to look at
+ * @param {function} until - callback to indicate when to stop
+ */
+MathField.prototype.convertLastAtomsToText_ = function(count, until) {
+    if (typeof count === 'function') {
+        until = count;
+        count = Infinity;
+    }
+    if (count === undefined) count = Infinity;
+    let i = 0;
+    let done = false;
+    this.mathlist.contentWillChange();
+    while (!done) {
+        const atom = this.mathlist.sibling(i);
+        done = count === 0 || !atom || atom.mode !== 'math' || 
+            !/mord|textord|mpunct/.test(atom.type) ||
+            atom.superscript || atom.subscript || 
+            (until && !until(atom));
+        if (!done) {
+            atom.type = 'textord';
+            atom.mode = 'text';
+            atom.fontFamily = 'main';
+        }
+        i -= 1;
+        count -= 1;
+    }
+    this.mathlist.contentDidChange();
+}
+
+/**
+ * Convert the atoms before the anchor to 'math' mode 'mord'
+ * @param {number} count - how many atoms back to look at
+ * @param {function} until - callback to indicate when to stop
+ */
+MathField.prototype.convertLastAtomsToMath_ = function(count, until) {
+    if (typeof count === 'function') {
+        until = count;
+        count = Infinity;
+    }
+    if (count === undefined) count = Infinity;
+
+    this.mathlist.contentWillChange();
+
+    let i = 0;
+    let done = false;
+    while (!done) {
+        const atom = this.mathlist.sibling(i);
+        done = count === 0 || !atom || atom.mode !== 'text' || 
+            atom.body === ' ' ||
+            (until && !until(atom));
+        if (!done) {
+            atom.type = 'mord';
+            atom.mode = 'math';
+            atom.fontFamily = 'mathit';
+        }
+        i -= 1;
+        count -= 1;
+    }
+
+    this.removeIsolatedSpace_();
+
+    this.mathlist.contentDidChange();
+}
+
+/**
+ * Going backwards from the anchor, if a text zone consisting of a single
+ * space character is found (i.e. it is surrounded by math zone), 
+ * remove it.
+ */
+MathField.prototype.removeIsolatedSpace_ = function() {
+    let i = 0;
+    while (this.mathlist.sibling(i) && this.mathlist.sibling(i).mode === 'math') {
+        i -= 1;
+    }
+
+    // If the atom before the last one converted is a
+    // text mode space, preceded by a math mode atom,
+    // remove the space
+    if (this.mathlist.sibling(i) && 
+        this.mathlist.sibling(i).mode === 'text' && 
+        this.mathlist.sibling(i).body === ' ' && (
+            !this.mathlist.sibling(i - 1) || 
+            this.mathlist.sibling(i - 1).mode === 'math'
+    )) {
+        this.mathlist.siblings().splice(i - 1, 1);
+        // We need to adjust the selection after doing some surgery on the atoms list
+        // But we don't want to receive selection notification changes 
+        // which could have a side effect of changing the mode :(
+        const save = this.mathlist.suppressSelectionChangeNotifications;
+        this.mathlist.suppressSelectionChangeNotifications = true;
+        this.mathlist.setSelection(this.mathlist.anchorOffset() - 1);
+        this.mathlist.suppressSelectionChangeNotifications = save;
+    }
+}
+
+
+/**
+ * Return the characters before anchor that could potentially be turned
+ * into text mode.
+ * This excludes things like 'mop' (e.g. \sin)
+ * @return {string}
+ * @method MathField#getTextBeforeAnchor_
+ * @private
+ */
+MathField.prototype.getTextBeforeAnchor_ = function() {
+    // Going backwards, accumulate
+    let result = '';
+    let i = 0;
+    let done = false;
+    while (!done) {
+        const atom = this.mathlist.sibling(i);
+        done = !atom || !/mord|textord|mpunct/.test(atom.type);
+        if (!done) {
+            result = atom.body + result;
+        }
+        i -= 1;
+    }
+    return result;
+}
+
+
+/**
+ * Consider whether to switch mode give the content before the anchor
+ * and the character being input
+ * 
+ * @param {string} keystroke
+ * @param {Event} evt - a Event corresponding to the keystroke
+ * @method MathField#smartMode_
+ * @return {boolean} true if the mode should change
+ * @private
+ */
+MathField.prototype.smartMode_ = function(keystroke, evt) {
+    if (this.smartModeSuppressed) return false;
+    if (this.mathlist.endOffset() < this.mathlist.siblings().length - 1) return false;
+    if (!evt || evt.ctrlKey || evt.metaKey) return false;
+    const c = Keyboard.eventToChar(evt);
+    if (c.length > 1) return false;   // Backspace, Left, etc...
+    if (this.mathlist.isCollapsed()) {
+        const context = this.getTextBeforeAnchor_() + c;
+        if (this.mode === 'text') {
+            // We're in text mode. Should we switch to math?
+
+            if (keystroke === 'Esc' || /[/^_\\]/.test(c)) {
+                // If this is a command for a fraction, superscript or subscript,
+                // of the '\' command mode key
+                // switch to 'math'
+                return true;
+            }
+
+            if (/[0-9+\-=><*|]$/.test(c)) {
+                // If this new character looks like a number,
+                // or a relational operator (=, <, >)
+                // or a "*" or "|"
+                // (note that <=, >=, etc... are handled separately as shortcuts)
+                // switch to 'math'
+                return true;
+            }
+
+
+            // If this is a closing matching fence
+            // switch to 'math' mode
+            const lFence = {')' : '(', '}' : '{', ']' : '['}[c];
+            if (lFence && this.mathlist.parent() && 
+                this.mathlist.parent().type === 'leftright' &&
+                this.mathlist.parent().leftDelim === lFence) {
+                return true;
+            }
+
+
+            if (/(^|[^a-zA-Z])(a|I)[ ]$/.test(context)) {
+                // Single letters that are valid words in the current language
+                // Do nothing. @todo: localization
+                return false;
+            }
+
+            if (/(^|[^a-zA-Z])[a-zA-Z][ ]$/.test(context)) {
+                // An isolated letter, followed by a space:
+                // Convert the letter to math, stay in text mode.
+                this.convertLastAtomsToMath_(1);
+                return false;
+            }
+
+            if (/\.\S$/.test(context)) {
+                // A period followed by something other than space
+                // We thought this was a text period, but turns out it's not
+                // Turn it into a \cdot
+                const atom = this.mathlist.sibling(0);
+                atom.body = '⋅';        // centered dot
+                atom.fontFamily = 'mathrm';
+                atom.latex = '\\cdot';
+                atom.mode = 'math';
+                atom.type = 'mord';
+
+                return true;
+            }
+
+            if (/(^|\s)[a-zA-Z][^a-zA-Z]$/.test(context)) {
+                // Single letter (x), followed by a non-letter (>, =...)
+                this.convertLastAtomsToMath_(1);
+                return true;
+            }
+
+            if (/\.[0-9]$/.test(context)) {
+                // If the new character is a digit, 
+                // and it was preceded by a dot (which may have been converted
+                // to text)
+                // turn the dot back into 'math'
+                this.convertLastAtomsToMath_(1);
+                return true;
+            }
+
+            if (/[(][0-9+\-.]$/.test(context)) {
+                // An open paren followed by a number
+                // Turn the paren back to math and switch.
+                this.convertLastAtomsToMath_(1);
+                return true;
+            }
+
+            if (/[(][a-z][,;]$/.test(context)) {
+                // An open paren followed by a single letter, then a "," or ";"
+                // Turn the paren back and letter to math and switch.
+                this.convertLastAtomsToMath_(2);
+                return true;
+            }
+
+
+
+            // /(?<match>[0-9>=<+-/()]+)$/
+
+        } else {
+            // We're in math mode. Should we switch to text?
+            if (keystroke === 'Spacebar') {
+                this.convertLastAtomsToText_(a => /[a-z][:,;.]$/.test(a.body));
+                return true;
+            }
+            if (/[a-zA-Z]{3,}$/.test(context) && !/dxd$/.test(context)) {
+                // A sequence of three characters
+                // (except for some exceptions)
+                // Convert them to text.
+                this.convertLastAtomsToText_(a => 
+                    /[a-zA-Z:,;.]/.test(a.body));
+                return true;
+            }
+            if (/(^|\W)(if|If)$/i.test(context)) {
+                // @todo localization
+                this.convertLastAtomsToText_(1);
+                return true;
+            }
+            if (/\?|\./.test(c)) {
+                // If the last character is a period or question mark, 
+                // turn it to 'text'
+                return true;
+            }
+        }
+    } else {
+        // There is a selection
+        // @todo handle some keys: /, ^
+    }
+    return false;
+}
+
+
+
+
+
 /**
  * @param {string} keystroke
  * @param {Event} evt - optional, an Event corresponding to the keystroke
@@ -1036,8 +1309,8 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
     // 1. Display the keystroke in the keystroke panel (if visible)
     this._showKeystroke(keystroke);
 
-    // 2. Reset the timer for the inline shortcut buffer reset
-    clearTimeout(this.inlineShortcutBufferResetTimer);
+    // 2. Reset the timer for the keystroke buffer reset
+    clearTimeout(this.keystrokeBufferResetTimer);
 
     // 3. Give a chance to the custom keystroke handler to intercept the event
     if (this.config.onKeystroke && !this.config.onKeystroke(this, keystroke, evt)) {
@@ -1050,40 +1323,40 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
 
     // 4. Let's try to find a matching shortcut or command
     let shortcut;
-    let shortcutStateIndex;
+    let stateIndex;
     let selector;
-    let resetInlineShortcutBuffer = false;
+    let resetKeystrokeBuffer = false;
 
     // 4.1 Check if the keystroke, prefixed with the previously typed keystrokes,
     // would match a long shortcut (i.e. '~~')
     // Ignore the key if command or control is pressed (it may be a shortcut, 
-    // see 4.2)
-    if ((!evt || (!evt.ctrlKey && !evt.metaKey)) && this.mode === 'math') {
+    // see 4.3)
+    if (this.mode !== 'command' && (!evt || (!evt.ctrlKey && !evt.metaKey))) {
         const c = Keyboard.eventToChar(evt);
         // The Backspace key will be handled as a delete command later (3.2)
+        // const c = Keyboard.eventToChar(evt);
         if (c !== 'Backspace') {
             if (!c || c.length > 1) {
                 // It was a non-alpha character (PageUp, End, etc...)
-                this._resetInlineShortcutBuffer();
+                this._resetKeystrokeBuffer();
             } else {
                 // Find the longest substring that matches a shortcut
-                const candidate = this.inlineShortcutBuffer + c;
+                const candidate = this.keystrokeBuffer + c;
                 let i = 0;
                 while (!shortcut && i < candidate.length) {
                     shortcut = Shortcuts.forString(candidate.slice(i), this.config);
                     i += 1;
                 }
-                shortcutStateIndex = i - 1;
-                this.inlineShortcutBuffer += c;
-                this.inlineShortcutStates.push(this.undoManager.save());
+                stateIndex = i - 1;
+                this.keystrokeBuffer += c;
+                this.keystrokeBufferStates.push(this.undoManager.save());
                 if (Shortcuts.startsWithString(candidate, this.config).length <= 1) {
-                    resetInlineShortcutBuffer = true;
+                    resetKeystrokeBuffer = true;
                 } else {
                     if (this.config.inlineShortcutTimeout) {
                         // Set a timer to reset the shortcut buffer
-                        clearTimeout(this.inlineShortcutBufferResetTimer);
-                        this.inlineShortcutBufferResetTimer = setTimeout(() => {
-                            this._resetInlineShortcutBuffer();
+                        this.keystrokeBufferResetTimer = setTimeout(() => {
+                            this._resetKeystrokeBuffer();
                         }, this.config.inlineShortcutTimeout);
                     }
                 }
@@ -1091,14 +1364,29 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
         }
     }
 
-    // 4.2 Check if this matches a keystroke shortcut
-    // Need to check this **after** checking for inline shortcut because
+
+    // 4.2. Should we switch mode?
+    // Need to check this before determing if there's a valid shortcut
+    // since if we switch to math mode, we may want to apply the shortcut
+    // e.g. "slope = rise/run"
+    if (this.config.smartMode) {
+        if (shortcut) {
+            // If we found a shortcut (e.g. "alpha"),
+            // switch to math mode and insert it.
+            this.mode = 'math'
+        } else if (this.smartMode_(keystroke, evt)) {
+            this.mode = {'math':'text', 'text':'math'}[this.mode];
+            selector = '';
+        }
+    }
+
+    // 4.3 Check if this matches a keystroke shortcut
+    // Need to check this **after** checking for inline shortcuts because
     // shift+backquote is a keystroke that inserts "\~"", but "~~" is a 
     // shortcut for "\approx" and needs to have priority over shift+backquote
     if (!shortcut && !selector) {
         selector = Shortcuts.selectorForKeystroke(this.mode, keystroke);
     }
-
 
     // No shortcut :( We're done.
     if (!shortcut && !selector) return true;
@@ -1123,10 +1411,21 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
         this._render(); // Re-render the closed smartfence
     }
 
-    // 5.3 If there's a selector, perform it.
+    // 5.3 If this is the Spacebar and we're just before or right after 
+    // a text zone, insert the space inside the text zone
+    if (this.mode === 'math' && keystroke === 'Spacebar') {
+        const nextSibling = this.mathlist.sibling(1);
+        const previousSibling = this.mathlist.sibling(-1);
+        if ((nextSibling && nextSibling.mode === 'text') || 
+            (previousSibling && previousSibling.mode === 'text')) {
+            this.mathlist.insert(' ', { mode: 'text' });
+        } 
+    }
+
+    // 5.4 If there's a selector, perform it.
     if ((selector && !this.perform(selector)) || shortcut) {
 
-        // // 5.4 insert the shortcut
+        // // 6.5 insert the shortcut
         if (shortcut) {
             // If the shortcut is a mandatory escape sequence (\}, etc...) 
             // don't make it undoable, this would result in syntactically incorrect
@@ -1138,27 +1437,34 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
                     suppressContentChangeNotifications: true,
                     mode: this.mode
                 });
+                const saveMode = this.mode;
 
                 // Create a snapshot with the inserted character
                 this.undoManager.snapshotAndCoalesce(this.config);
 
                 // Revert to the state before the beginning of the shortcut
                 // (restore doesn't change the undo stack)
-                this.undoManager.restore(this.inlineShortcutStates[shortcutStateIndex], 
+                this.undoManager.restore(this.keystrokeBufferStates[stateIndex], 
                     {...this.config, suppressContentChangeNotifications: true });
+                this.mode = saveMode;
             }
 
             // Insert the substitute, possibly as a smart fence
             if (!this.mathlist._insertSmartFence(shortcut)) {
                 this.mathlist.insert(shortcut, {format: 'latex', mode: this.mode});
             }
+
+            // Check if as a result of the substitution there is now an isolated
+            // (text mode) space (surrounded by math). In which case, remove it.
+            this.removeIsolatedSpace_();
+
             this.undoManager.snapshot(this.config);
             this._render();
             this._announce('replacement');
 
             // If we're done with the shortcuts (found a unique one), reset it.
-            if (resetInlineShortcutBuffer) {
-                this._resetInlineShortcutBuffer();
+            if (resetKeystrokeBuffer) {
+                this._resetKeystrokeBuffer();
             }
         }
     }
@@ -1855,7 +2161,8 @@ MathField.prototype.$insert = function(s, options) {
 
 
 MathField.prototype.switchMode_ = function(mode, prefix, suffix) {
-    this._resetInlineShortcutBuffer();
+    this._resetKeystrokeBuffer();
+    this.smartModeSuppressed = true;
     if (prefix) {
         this.insert(prefix, { 
             format: 'latex', 
@@ -1874,30 +2181,31 @@ MathField.prototype.switchMode_ = function(mode, prefix, suffix) {
 
 
 /**
- * Completes an operation in progress, for example when in command mode,
- * interpret the command
+ * When in command mode, insert the select command and return to math mode
+ * If escape is true, the command is discared.
+ * @param {boolean} escape if true, the command is discarded
  * @method MathField#complete_
  * @private
  */
-MathField.prototype.complete_ = function() {
+MathField.prototype.complete_ = function(escape) {
+    if (escape === undefined) escape = false;
     Popover.hidePopover(this);
 
     const command = this.mathlist.extractCommandStringAroundInsertionPoint();
     if (command) {
-        if (command === '\\(' || command === '\\)') {
+        if (escape) {
+            this.mathlist.spliceCommandStringAroundInsertionPoint(null);
+        } else if (command === '\\(' || command === '\\)') {
             this.mathlist.spliceCommandStringAroundInsertionPoint([]);
             this.mathlist.insert(command.slice(1), {mode: this.mode});
         } else {
-            // We'll use the mode of the atom before the command
-            const mode = this.mathlist.siblings()[this.mathlist.commandOffsets().start - 1].mode;
+            // We'll assume we want to insert in math mode
+            // (commands are only available in math mode)
+            const mode = 'math'
 
-            let match = Definitions.matchFunction(mode, command);
-            if (!match) {
-                match = Definitions.matchSymbol(mode, command);
-            }
-            if (match) {
+            if (Definitions.commandAllowed(mode, command)) {
                 const mathlist = ParserModule.parseTokens(
-                        Lexer.tokenize(match.latexName), mode, null, this.config.macros);
+                        Lexer.tokenize(command), mode, null, this.config.macros);
 
                 this.mathlist.spliceCommandStringAroundInsertionPoint(mathlist);
             } else {
@@ -2504,7 +2812,7 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
 }
 
 MathField.prototype.applyStyle_ = function(style) {
-    this._resetInlineShortcutBuffer();
+    this._resetKeystrokeBuffer();
     if (style.mode) {
         // It's a mode ('text', 'math') change
         if (this.mathlist.isCollapsed()) {
@@ -2519,7 +2827,7 @@ MathField.prototype.applyStyle_ = function(style) {
                     'text' : 'math';
             let convertedSelection = this.$selectedText('ASCIIMath');
             if (targetMode === 'math' && /^"[^"]+"$/.test(convertedSelection)) {
-                convertedSelection = convertedSelection.substring(1, convertedSelection.length - 1);
+                convertedSelection = convertedSelection.slice(1, -1);
             }
             this.insert(convertedSelection, {
                 mode: targetMode,
@@ -2541,8 +2849,8 @@ MathField.prototype.applyStyle_ = function(style) {
         }
     } else {
         this.mathlist._applyStyle(style);
+        this.undoManager.snapshot(this.config);
     }
-    this.undoManager.snapshot(this.config);
     return true;
 }
 

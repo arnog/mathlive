@@ -301,25 +301,18 @@ class Parser {
                 done = true;
             } else if (this.hasToken('literal')) {
                 result += this.get().value;
-                done = this.end();
             } else if (this.skipWhitespace()) {
                 result += ' ';
-                done = this.end();
             } else if (this.hasToken('command')) {
                 // TeX will give a 'Missing \endcsname inserted' error
                 // if it encounters any command when expecting a string.
                 // We're a bit more lax.
                 const token = this.get();
-                const info = Definitions.getInfo('\\' + token.value, this.parseMode, this.macros);
-                // If parseMode is 'math', info.type will never be 'textord'
-                // Otherwise, info.type will never be 'mord'
-                if (info && (info.type === 'mord' || info.type === 'textord') && info.value) {
-                    result += info.value;
-                }
-                done = this.end();
+                result += token.value;
             } else {
                 done = true;
             }
+            done = done || this.end();
         }
         return result;
     }
@@ -662,8 +655,11 @@ class Parser {
             // for the parseMode
             const info = Definitions.getInfo('\\' + infix.value, 'math', this.macros);
             if (info) {
-                result = [new MathAtom(this.parseMode, info.type || 'mop', info.value || infix.value, info.fontFamily, info.handler ?
-                    info.handler('\\' + infix.value, [prefix, suffix]) :
+                result = [new MathAtom(this.parseMode, 
+                    info.type, 
+                    info.value || infix.value, // Functions don't have
+                    info.fontFamily, 
+                    info.handler ? info.handler('\\' + infix.value, [prefix, suffix]) :
                     null)];
             } else {
                 result = [new MathAtom(this.parseMode, 'mop', infix.value, '', null)];
@@ -1104,12 +1100,13 @@ class Parser {
                             result = new MathAtom(this.parseMode, info.type, null, info.fontFamily, info.handler('\\' + token.value, args));
                         } else {
                             result = new MathAtom(this.parseMode, info.type || 'mop', info.value || token.value, info.fontFamily);
+                            if (info.skipBoundary) {
+                                result.skipBoundary = true;
+                            }
                         }
                         result.latex = '\\' + token.value;
                         if (argString || mandatoryParamsCount > 0) {
                             result.latex += '{' + argString + '}'
-                        } else {
-                            result.latex += ' ';
                         }
                         if (result.isFunction && this.smartFence) {
                             // The atom was a function that may be followed by
@@ -1119,6 +1116,12 @@ class Parser {
                                 result = [result, smartFence];
                             }
                         }
+                    }
+                    if (!info) {
+                        // An unknown command
+                        result = new MathAtom(this.parseMode, 'error', '\\' + token.value, 'main');
+                        result.latex = '\\' + token.value;
+
                     }
                 }
             }
@@ -1130,11 +1133,10 @@ class Parser {
                     result.isFunction = true;
                 }
             } else {
-                // console.warn('Unknown literal "' + token.value +
-                //     '" (U+' + ('000000' + token.value.charCodeAt(0).toString(16)).substr(-6) + ')');
                 result = new MathAtom(this.parseMode, this.parseMode === 'math' ? 'mord' : 'textord', token.value, 'main');
             }
-            result.latex = Definitions.matchCodepoint(token.value);
+            result.latex = Definitions.matchCodepoint(this.parseMode, 
+                token.value.codePointAt(0));
             if (info && info.isFunction && this.smartFence) {
                 // The atom was a function that may be followed by
                 // an argument, like `f(`.
@@ -1163,7 +1165,7 @@ class Parser {
             }
         } else {
             console.warn('Unexpected token type "' + token.type + 
-                '" in "' + (this.latex || this.value) + '"');
+                '", value ="' + token.value + '"');
         }
         return result;
     }
@@ -1215,7 +1217,7 @@ class Parser {
             }
             argString += '}';
         }
-        atom.latex += argString ? argString : ' ';
+        atom.latex += argString ? argString : '';
         return atom;
     }
     /**

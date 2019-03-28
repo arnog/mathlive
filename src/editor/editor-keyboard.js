@@ -258,17 +258,17 @@ function delegateKeyboardEvents(textarea, handlers) {
         keypressEvent = null;
         // if (handlers.blur) handlers.blur();
     }
-    function onFocus() {
-        // if (handlers.focus) {
-        //     // Invoking focus() can have a side effect of temporarily bluring 
-        //     // the text area, causing the blur handler to be invoked.
-        //     // Prevent this by temporarily turning it off.
-        //     const savedBlur = handlers.blur;
-        //     handlers.blur = null;
-        //     handlers.focus();
-        //     handlers.blur = savedBlur;
-        // }
-    }
+    // function onFocus() {
+    //     // if (handlers.focus) {
+    //     //     // Invoking focus() can have a side effect of temporarily bluring 
+    //     //     // the text area, causing the blur handler to be invoked.
+    //     //     // Prevent this by temporarily turning it off.
+    //     //     const savedBlur = handlers.blur;
+    //     //     handlers.blur = null;
+    //     //     handlers.focus();
+    //     //     handlers.blur = savedBlur;
+    //     // }
+    // }
 
     const target = textarea || handlers.container;
 

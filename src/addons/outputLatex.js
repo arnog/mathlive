@@ -199,7 +199,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 command === '\\mathinner') {
                 result += command + '{' + latexify(this.body, expandMacro) + '}';
             } else if (command === '\\char"') {
-                result += '{' + this.latex + '}';
+                result += this.latex + ' ';
             } else if (command === '\\unicode') {
                 result += '\\unicode{"';
                 result += ('000000' + this.body.charCodeAt(0).toString(16)).toUpperCase().substr(-6);
@@ -207,7 +207,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             } else if (this.latex || typeof this.body === 'string') {
                 // Not ZERO-WIDTH
                 if (this.latex && this.latex[0] === '\\') {
-                    result += command || this.latex;
+                    result += this.latex;
                     if (/[a-zA-Z0-9]$/.test(this.latex)) {
                         result += ' ';
                     }
