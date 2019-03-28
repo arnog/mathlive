@@ -2710,14 +2710,14 @@ function getSimpleString(atoms) {
         } else {
             success = false;
         }
-    }
+    } 
     return success ? result : '';
 }
 
 defineFunction([
     '\\mathop', '\\mathbin', '\\mathrel', '\\mathopen',
     '\\mathclose', '\\mathpunct', '\\mathord', '\\mathinner'
-], '{:string}', null, function(name, args) {
+], '{:auto}', null, function(name, args) {
     const result = {
         type: {
             '\\mathop': 'mop',
@@ -2955,7 +2955,7 @@ defineSymbolRange(0x0061, 0x007A, MATH, MAIN, MATHORD);
 // Body-text symbols
 // See http://ctan.mirrors.hoobly.com/info/symbols/comprehensive/symbols-a4.pdf, p14
 defineSymbol('\\textasciicircum', TEXT, MAIN, TEXTORD, '^');
-defineSymbol('\\textasciitilde', TEXT, MAIN, TEXTORD, '˜');
+defineSymbol('\\textasciitilde', TEXT, MAIN, TEXTORD, '~');
 defineSymbol('\\textasteriskcentered', TEXT, MAIN, TEXTORD, '*');
 defineSymbol('\\textbackslash', TEXT, MAIN, TEXTORD, '\\');
 defineSymbol('\\textbraceleft', TEXT, MAIN, TEXTORD, '{');
@@ -3041,7 +3041,7 @@ defineFunction("\\'", '{:string}',
     };
 })
 
-defineFunction('\\˜', '{:string}', 
+defineFunction('\\~', '{:string}', 
     {fontFamily:'mainrm', allowedInText: true}, 
     function(name, args) {
     return {

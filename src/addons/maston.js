@@ -227,12 +227,12 @@ const FUNCTION_TEMPLATE = {
     'brace':    '\\lbrace %0 \\rbrace%_%^',
     'sqrt[]':   '\\sqrt[%^]{%0}',       // Template used when there's an index
     'sqrt':     '\\sqrt{%0}',
-    'lcm':      '\\mathop{lcm}%',
-    'gcd':      '\\mathop{gcd}%',
-    'erf':      '\\mathop{erf}%',
-    'erfc':     '\\mathop{erfc}%',
-    'randomReal': '\\mathop{randomReal}%',
-    'randomInteger': '\\mathop{randomInteger}%',
+    'lcm':      '\\operatorname{lcm}%',
+    'gcd':      '\\operatorname{gcd}%',
+    'erf':      '\\operatorname{erf}%',
+    'erfc':     '\\operatorname{erfc}%',
+    'randomReal': '\\operatorname{randomReal}%',
+    'randomInteger': '\\operatorname{randomInteger}%',
 
 
     // Logic operators
@@ -432,7 +432,7 @@ function getAssociativity(canonicalName) {
 function getLatexTemplateForFunction(name) {
     let result = FUNCTION_TEMPLATE[name];
     if (!result) {
-        result = name.length > 1 ? '\\mathop{' + name + '}%^%_ %' : (name + '%^%_ %');
+        result = name.length > 1 ? '\\operatorname{' + name + '}%^%_ %' : (name + '%^%_ %');
     }
 
     return result;
@@ -1227,8 +1227,9 @@ function parsePrimary(expr, options) {
 
     } else if (atom.type === 'mop') {
         // Could be a function or an operator.
-        if ((/^\\mathop/.test(atom.latex) || isFunction(val)) && !isOperator(atom)) {
-            expr.ast = { fn: val };
+        if ((/^\\(mathop|operatorname|operatorname\*)/.test(atom.latex) || isFunction(val)) && 
+            !isOperator(atom)) {
+            expr.ast = { fn: atom.body };
             expr = parseSupsub(expr, options);
 
             if (hasSup(expr.ast)) {

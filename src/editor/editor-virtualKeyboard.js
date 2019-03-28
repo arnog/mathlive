@@ -616,22 +616,22 @@ const LAYERS = {
                 <li class='fnbutton' data-insert='\\sin^{-1}'></li>
                 <li class='fnbutton' data-insert='\\ln'></li>
                 <li class='fnbutton' data-insert='\\exponentialE^{#?}'></li>
-                <li class='bigfnbutton' data-insert='\\mathop{lcm}(#?)' data-latex='\\mathop{lcm}()'></li>
-                <li class='bigfnbutton' data-insert='\\mathop{ceil}(#?)' data-latex='\\mathop{ceil}()'></li>
+                <li class='bigfnbutton' data-insert='\\operatorname{lcm}(#?)' data-latex='\\operatorname{lcm}()'></li>
+                <li class='bigfnbutton' data-insert='\\operatorname{ceil}(#?)' data-latex='\\operatorname{ceil}()'></li>
                 <li class='bigfnbutton' data-insert='\\lim_{n\\to\\infty}'></li>
                 <li class='bigfnbutton' data-insert='\\int'></li>
-                <li class='bigfnbutton' data-insert='\\mathop{abs}(#?)' data-latex='\\mathop{abs}()'></li>
+                <li class='bigfnbutton' data-insert='\\operatorname{abs}(#?)' data-latex='\\operatorname{abs}()'></li>
             </ul>
             <ul><li class='separator'></li>
                 <li class='fnbutton' data-insert='\\cos'></li>
                 <li class='fnbutton' data-insert='\\cos^{-1}'></li>
                 <li class='fnbutton' data-insert='\\ln_{10}'></li>
                 <li class='fnbutton' data-insert='10^{#?}'></li>
-                <li class='bigfnbutton' data-insert='\\mathop{gcd}(#?)' data-latex='\\mathop{gcd}()'></li>
-                <li class='bigfnbutton' data-insert='\\mathop{floor}(#?)' data-latex='\\mathop{floor}()'></li>
+                <li class='bigfnbutton' data-insert='\\operatorname{gcd}(#?)' data-latex='\\operatorname{gcd}()'></li>
+                <li class='bigfnbutton' data-insert='\\operatorname{floor}(#?)' data-latex='\\operatorname{floor}()'></li>
                 <li class='bigfnbutton' data-insert='\\sum_{n\\mathop=0}^{\\infty}'></li>
                 <li class='bigfnbutton' data-insert='\\int_{0}^{\\infty}'></li>
-                <li class='bigfnbutton' data-insert='\\mathop{sign}(#?)' data-latex='\\mathop{sign}()'></li>
+                <li class='bigfnbutton' data-insert='\\operatorname{sign}(#?)' data-latex='\\operatorname{sign}()'></li>
             </ul>
             <ul><li class='separator'></li>
                 <li class='fnbutton' data-insert='\\tan'></li>
@@ -639,7 +639,7 @@ const LAYERS = {
                 <li class='fnbutton' data-insert='\\log_{#?}'></li>
                 <li class='fnbutton' data-insert='\\sqrt[#?]{#0}'></li>
                 <li class='bigfnbutton' data-insert='#0 \\mod' data-latex='\\mod'></li>
-                <li class='bigfnbutton' data-insert='\\mathop{round}(#?) ' data-latex='\\mathop{round}()'></li>
+                <li class='bigfnbutton' data-insert='\\operatorname{round}(#?) ' data-latex='\\operatorname{round}()'></li>
                 <li class='bigfnbutton' data-insert='\\prod_{n\\mathop=0}^{\\infty}' data-latex='{\\tiny \\prod_{n=0}^{\\infty}}'></li>
                 <li class='bigfnbutton' data-insert='\\frac{\\differentialD #0}{\\differentialD x}'></li>
                 <li class='action font-glyph bottom right' data-command='["performWithFeedback","deletePreviousChar"]'>&#x232b;</li></ul>
