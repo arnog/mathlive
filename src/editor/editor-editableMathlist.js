@@ -1909,6 +1909,7 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
         if (collapsed) this.move(-1);
         return true;
     }
+
     // We did not have a valid open fence. Maybe it's a close fence?
     let lDelim;
     for (const delim in Definitions.RIGHT_DELIM) {
@@ -1932,11 +1933,12 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
         }
 
         // If we have a 'leftright' sibling to our left
+        // with an indeterminate right fence,
         // move what's between us and the 'leftright' inside the leftright
         const siblings = this.siblings();
         let i;
         for (i = this.endOffset(); i >= 0; i--) {
-            if (siblings[i].type === 'leftright') break;
+            if (siblings[i].type === 'leftright' && siblings[i].rightDelim === '?') break;
         }
         if (i >= 0) {
             this.contentWillChange();
@@ -1949,8 +1951,9 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
         }
 
         // If we're inside a 'leftright', but not the last atom,
+        // and the 'leftright' right delim is indeterminate
         // adjust the body (put everything after the insertion point outside)
-        if (parent && parent.type === 'leftright') {
+        if (parent && parent.type === 'leftright' && parent.rightDelim === '?') {
             this.contentWillChange();
             parent.rightDelim = fence;
 
@@ -1970,6 +1973,7 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
         // go up to the 'leftright' and apply it there instead
         const grandparent = this.ancestor(2);
         if (grandparent && grandparent.type === 'leftright' &&
+            grandparent.rightDelim === '?' &&
             this.endOffset() === siblings.length - 1) {
             this.move(1);
             return this._insertSmartFence(fence);
