@@ -101,6 +101,7 @@ EditableMathlist.prototype.filter = function(cb, dir) {
         iter.collapseForward();
     } else {
         iter.collapseBackward();
+        iter.move(1);
     }
     const initialAnchor = iter.anchor();
     do {
@@ -1579,14 +1580,21 @@ EditableMathlist.prototype.leap = function(dir, callHandler) {
 
 EditableMathlist.prototype.anchorMode = function() {
     const anchor = this.isCollapsed() ? this.anchor() : this.sibling(1);
+    let result;
     if (anchor) {
         if (anchor.type === 'commandliteral' ||
             anchor.type === 'esc' ||
             anchor.type === 'command') return 'command';
-        if (anchor.mode) return anchor.mode;
+        result = anchor.mode;
     }
-
-    return this.parent().mode;
+    let i = 1;
+    let ancestor = this.ancestor(i)
+    while (!result && ancestor) {
+        if (ancestor) result = ancestor.mode;
+        i += 1;
+        ancestor = this.ancestor(i)
+    }
+    return result;
 }
 
 
@@ -2458,7 +2466,7 @@ EditableMathlist.prototype.moveToSuperscript_ = function() {
     //            this.setSelection(this.anchorOffset() + 1);
                 this.anchor().superscript = [makeFirstAtom()];
             } else {
-                if (this.anchor().limits === 'nolimits') {
+                if (this.anchor().limits !== 'limits') {
                     this.siblings().splice(
                         this.anchorOffset() + 1,
                         0,
