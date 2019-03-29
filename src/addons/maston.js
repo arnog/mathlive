@@ -1229,7 +1229,8 @@ function parsePrimary(expr, options) {
         // Could be a function or an operator.
         if ((/^\\(mathop|operatorname|operatorname\*)/.test(atom.latex) || isFunction(val)) && 
             !isOperator(atom)) {
-            expr.ast = { fn: atom.body };
+
+            expr.ast = { fn: /^\\(mathop|operatorname|operatorname\*)/.test(atom.latex) ? atom.body : val};
             expr = parseSupsub(expr, options);
 
             if (hasSup(expr.ast)) {

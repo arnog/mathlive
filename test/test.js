@@ -976,7 +976,7 @@ test('MATH JSON', function (t) {
         '{"fn":"abs","arg":[{"num":"-1"}]}',
         'absolute value with leftright');
 
-    equalMathJSON(t, '\\lceil 100\\mathop{randomReal}() \\rceil',
+    equalMathJSON(t, '\\lceil 100\\operatorname{randomReal}() \\rceil',
         '{"fn":"ceil","arg":[{"fn":"multiply","arg":[{"num":"100"},{"fn":"randomReal"}]}]}',
         'function with empty argument list');
 
