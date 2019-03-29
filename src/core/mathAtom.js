@@ -146,11 +146,10 @@ class MathAtom {
         // }
         let result = this;
         if (Array.isArray(this.body) && this.body.length > 0) {
-            for (let i = 0; i < this.body.length; i++) {
-                if (this.body[i].type !== 'first') {
-                    result = this.body[i].getInitialBaseElement();
-                    break;
-                }
+            if (this.body[0].type !== 'first') {
+                result = this.body[0].getInitialBaseElement();
+            } else if (this.body[1]) {
+                result = this.body[1].getInitialBaseElement();
             }
         }
         return result;
@@ -588,7 +587,7 @@ class MathAtom {
         innerDepth = Span.depth(inner) * mathstyle.sizeMultiplier;
         // Add the left delimiter to the beginning of the expression
         if (this.leftDelim) {
-            result.push(this.bind(localContext, Delimiters.makeLeftRightDelim('mopen', this.leftDelim, innerHeight, innerDepth, localContext)));
+            result.push(Delimiters.makeLeftRightDelim('mopen', this.leftDelim, innerHeight, innerDepth, localContext));
         }
         if (inner) {
             // Replace the delim (\middle) spans with proper ones now that we know
@@ -596,17 +595,10 @@ class MathAtom {
             for (let i = 0; i < inner.length; i++) {
                 if (inner[i].delim) {
                     const savedCaret = inner[i].caret;
-                    inner[i] = this.bind(localContext, Delimiters.makeLeftRightDelim('minner', inner[i].delim, innerHeight, innerDepth, localContext));
-                    if (savedCaret) inner[i].caret = savedCaret;
-                }
-                if (inner[i].classes && inner[i].classes.indexOf('ML__selected') >= 0) {
-                    for (let j = 0; j < inner[i].children.length; j++) {
-                        if (inner[i].children[j].delim) {
-                            const savedCaret = inner[i].caret;
-                            inner[i].children[j] = this.bind(localContext, Delimiters.makeLeftRightDelim('minner', inner[i].children[j].delim, innerHeight, innerDepth, localContext));
-                            if (savedCaret) inner[i].caret = savedCaret;
-                        }
-                    }
+                    const savedSelected = /ML__selected/.test(inner[i].classes);
+                    inner[i] = Delimiters.makeLeftRightDelim('minner', inner[i].delim, innerHeight, innerDepth, localContext);
+                    inner[i].caret = savedCaret;
+                    inner[i].selected(savedSelected);
                 }
             }
             result = result.concat(inner);
@@ -1774,13 +1766,8 @@ function decompose(context, atoms) {
 
         } else if (atoms.length === 1) {
             result = atoms[0].decompose(context);
-            if (displaySelection && atoms[0].isSelected && result) {
-                const isTight = result.isTight;
-                let type = result.type;
-                if (type === 'placeholder') type = 'mord';
-                result = Span.makeSpanOfType(type, result, 'ML__selected');
-                result.isTight = isTight;
-                result = [result];
+            if (result && displaySelection && atoms[0].isSelected) {
+                result.forEach(x => x.selected(true));
             }
             console.assert(!result || Array.isArray(result));
 
@@ -1789,12 +1776,11 @@ function decompose(context, atoms) {
             let nextType = atoms[1].type;
             let selection =  [];
             let digitStringID = null;
-            let selectionType = '';
-            let selectionIsTight = false;
             let phantomBase = null;
             for (let i = 0; i < atoms.length; i++) {
                 // Is this a binary operator ('+', '-', etc...) that potentially
                 // needs to be adjusted to a unary operator?
+                // 
                 // When preceded by a mbin, mopen, mrel, mpunct, mop or
                 // when followed by a mrel, mclose or mpunct
                 // or if preceded or followed by no sibling, a 'mbin' becomes a
@@ -1814,10 +1800,10 @@ function decompose(context, atoms) {
                     phantomBase = null;
                 }
 
-                if (context.generateID.groupNumbers &&
+                if (context.generateID.groupNumbers && 
+                    digitStringID &&
                     atoms[i].type === 'mord' &&
-                    '0123456789,.'.indexOf(atoms[i].latex) >= 0 &&
-                    digitStringID) {
+                    /[0-9,.]/.test(atoms[i].latex)) {
                     context.generateID.overrideID = digitStringID;
                 }
                 const span = atoms[i].decompose(context, phantomBase);
@@ -1826,7 +1812,6 @@ function decompose(context, atoms) {
                 }
                 if (span) {
                     // The result from decompose is always an array
-                    console.assert(Array.isArray(span));
                     // Flatten it (i.e. [[a1, a2], b1, b2] -> [a1, a2, b1, b2]
                     const flat = [].concat.apply([], span);
                     phantomBase = flat;
@@ -1834,13 +1819,13 @@ function decompose(context, atoms) {
                     // If this is a digit, keep track of it
                     if (context.generateID && context.generateID.groupNumbers) {
                         if (atoms[i].type === 'mord' &&
-                            '0123456789,.'.indexOf(atoms[i].latex) >= 0) {
+                            /[0-9,.]/.test(atoms[i].latex)) {
                             if (!digitStringID) {
                                 digitStringID = atoms[i].id;
                             }
                         }
                         if ((atoms[i].type !== 'mord' ||
-                            '0123456789,.'.indexOf(atoms[i].latex) < 0 ||
+                            /[0-9,.]/.test(atoms[i].latex) ||
                             atoms[i].superscript ||
                             atoms[i].subscript) && digitStringID) {
                             // Done with digits
@@ -1849,31 +1834,15 @@ function decompose(context, atoms) {
                     }
 
 
-                    if (displaySelection && atoms[i].isSelected && !context.isSelected) {
+                    if (displaySelection && atoms[i].isSelected) {
                         selection = selection.concat(flat);
-                        if (!selectionType) {
-                            selectionType = atoms[i].type;
-                            if (selectionType === 'group') {
-                                const base = atoms[i].getInitialBaseElement();
-                                if (base) selectionType = base.type;
-                            }
-                            if (selectionType === 'array') selectionType = 'mopen';
-                            if (selectionType === 'leftright') selectionType = 'mopen';
-                            if (/^(first|accent|surd|genfrac|textord|font|placeholder|box|color)$/.test(selectionType)) {
-                                selectionType = 'mord';
-                            }
-                            selectionIsTight = atoms[i].isTight;
-                        }
+                        selection.forEach(x => x.selected(true));
                     } else {
                         if (selection.length > 0) {
                             // There was a selection, but we're out of it now
-                            // Insert the selection
-                            const span = Span.makeSpanOfType(
-                                    selectionType, selection, 'ML__selected');
-                            span.isTight = selectionIsTight;
-                            result.push(span);
+                            // Append the selection
+                            result = [...result, ...selection];
                             selection = [];
-                            selectionType = '';
                         }
                         result = result.concat(flat);
                     }
@@ -1883,40 +1852,20 @@ function decompose(context, atoms) {
                 // use getFinal...() and getInitial...() to get the closest
                 // atom linearly.
                 previousType = atoms[i].getFinalBaseElement().type;
-                nextType = i < atoms.length - 1 ? atoms[i + 1].getInitialBaseElement().type : 'none';
-                // if (previousType === 'leftright' && !atoms[i].inner) {
-                //     previousType = 'mclose';
-                // } else if (previousType === 'leftright' && atoms[i].inner) {
-                //     previousType = 'inner';
-                // }
-                // if (nextType === 'leftright' && !atoms[i].inner) {
-                //     nextType = 'mopen';
-                // } else if (nextType === 'leftright' && atoms[i].inner) {
-                //     nextType = 'inner';
-                // }
-
+                nextType = atoms[i + 1] ? atoms[i + 1].getInitialBaseElement().type : 'none';
             }
 
             // Is there a leftover selection?
             if (selection.length > 0) {
-                const span = Span.makeSpanOfType(
-                    selectionType, selection, 'ML__selected');
-                span.isTight = selectionIsTight;
-                result.push(span);
+                result = [...result, ...selection];
                 selection = [];
-                selectionType = '';
             }
         }
     } else if (atoms) {
         // This is a single atom, decompose it
         result = atoms.decompose(context);
-        if (atoms.isSelected && !context.isSelected) {
-            let type = result.type;
-            if (type === 'placeholder') type = 'mord';
-            const span = Span.makeSpanOfType(type, result, 'ML__selected');
-            span.isTight = result.isTight;
-
-            result = [span];
+        if (result && displaySelection && atoms.isSelected) {
+            result.forEach(x => x.selected(true));
         }
     }
 

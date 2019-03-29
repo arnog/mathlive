@@ -307,7 +307,11 @@ const INLINE_SHORTCUTS = {
     '\u221e':               '\\infty',         // @TODO: doesn't work
     // '&infin;': '\\infty',
     // '&#8734;': '\\infty',
-    'oo':                   '\\infty',
+    'oo':                   {
+                                mode: 'math',
+                                after: 'digit+symbol+fence',
+                                value: '\\infty',
+                            },
 
     // Big operators
     '∑':                    '\\sum',
@@ -339,7 +343,17 @@ const INLINE_SHORTCUTS = {
     'EE':                   '\\exists',
     '!EE':                  '\\nexists',
     '&&':                   '\\land',
-    'in':                   '\\in',
+    // The shortcut for the greek letter "xi" is interfering with "x in"
+    'xin':                   {
+                                mode: 'math',
+                                after: 'space+letter+digit+symbol+fence',
+                                value: 'x \\in',
+                            },
+    'in':                   {
+                                mode: 'math',
+                                after: 'space+letter+digit+symbol+fence',
+                                value: '\\in',
+                            },
     '!in':                  '\\notin',
 
     // Sets
@@ -415,34 +429,41 @@ const INLINE_SHORTCUTS = {
 
     // MORE FUNCTIONS
     // 'arg': '\\arg',
-    'liminf':               '\\mathop{lim~inf}\\limits_{#?}',
-    'limsup':               '\\mathop{lim~sup}\\limits_{#?}',
-    'argmin':               '\\mathop{arg~min}\\limits_{#?}',
-    'argmax':               '\\mathop{arg~max}\\limits_{#?}',
+    'liminf':               '\\operatorname*{lim~inf}_{#?}',
+    'limsup':               '\\operatorname*{lim~sup}_{#?}',
+    'argmin':               '\\operatorname*{arg~min}_{#?}',
+    'argmax':               '\\operatorname*{arg~max}_{#?}',
     'det':                  '\\det',
     'mod':                  '\\mod',
     'max':                  '\\max',
     'min':                  '\\min',
-    'erf':                  '\\mathop{erf}',
-    'erfc':                 '\\mathop{erfc}',
-    'bessel':               '\\mathop{bessel}',
-    'mean':                 '\\mathop{mean}',
-    'median':               '\\mathop{median}',
-    'fft':                  '\\mathop{fft}',
-    'lcm':                  '\\mathop{lcm}',
-    'gcd':                  '\\mathop{gcd}',
-    'randomReal':           '\\mathop{randomReal}',
-    'randomInteger':        '\\mathop{randomInteger}',
-    'Re':                   '\\mathop{Re}',
-    'Im':                   '\\mathop{Im}',
+    'erf':                  '\\operatorname{erf}',
+    'erfc':                 '\\operatorname{erfc}',
+    'bessel':               '\\operatorname{bessel}',
+    'mean':                 '\\operatorname{mean}',
+    'median':               '\\operatorname{median}',
+    'fft':                  '\\operatorname{fft}',
+    'lcm':                  '\\operatorname{lcm}',
+    'gcd':                  '\\operatorname{gcd}',
+    'randomReal':           '\\operatorname{randomReal}',
+    'randomInteger':        '\\operatorname{randomInteger}',
+    'Re':                   '\\operatorname{Re}',
+    'Im':                   '\\operatorname{Im}',
 
     // UNITS
-    'mm':                   '\\mathop{mm}',         // millimeter
-    'cm':                   '\\mathop{cm}',         // centimeter
-    'km':                   '\\mathop{km}',         // kilometer
-    'kg':                   '\\mathop{kg}',         // kilogram
-    
-
+    'mm':                   {  ifAfter: 'number', 
+                                value:  '\\operatorname{mm}',         // millimeter
+                            },
+    'cm':                   {  ifAfter: 'number', 
+                                value:  '\\operatorname{cm}',         // centimeter
+                            },
+    'km':                   {  ifAfter: 'number', 
+                                value:  '\\operatorname{km}',         // kilometer
+                            },
+    'kg':                   {  ifAfter: 'number', 
+                                value:  '\\operatorname{kg}',         // kilogram
+                            },
+                            
 
 
     // '||':                   '\\lor',
@@ -557,99 +578,6 @@ const INLINE_SHORTCUTS = {
 */
 };
 
-/* 
-const MATHEMATICA_COMMANDS = {
-    'NotEqual':             '\\ne',
-    'LessEqual':            '\\le',
-    'GreaterEqual':         '\\ge',
-    'TildeFullEqual':       '\\cong',
-    'TildeTilde':           '\\approx',
-    'TildeEqual':           '\\simeq',
-    'SuchThat':             '\\backepsilon',
-    'RightTee':             '\\vdash',
-    'LeftTee':              '\\dashv',
-    'Therefore':            '\\therefore',
-    'Because':              '\\because',
-    'Implies':              '\\implies',
-    'RoundImplies':         '\\roundimplies',
-    'PlusMinus':            '\\pm',
-    'MinusPlus':            '\\mp',
-    'Times':                '\\times',
-    'Divide':               '\\div',
-    'Infinity':             '\\infty',
-    'Prime':                '\\prime',
-    'DoublePrime':          '\\doubleprime',
-
-    'Alpha':                '\\alpha',
-    'Beta':                 '\\beta',
-    'Delta':                '\\delta',
-    'Gamma':                '\\gamma',
-    'Epsilon':              '\\epsilon',
-    'CurlyEpsilon':         '\\varepsilon',
-    'Zeta':                 '\\zeta',
-    'Eta':                  '\\eta',
-    'Theta':                '\\theta',
-    'Iota':                 '\\iota',
-    'Kappa':                '\\kappa',
-    'CurlyKappa':           '\\varkappa',
-    'Lambda':               '\\lambda',
-    'Mu':                   '\\mu',
-    'Nu':                   '\\nu',
-    'Xi':                   '\\xi',
-    'Omicron':              '\\omicron',
-    'Pi':                   '\\pi',
-    'CurlyPi':              '\\varpi',
-    'Rho':                  '\\rho',
-    'Sigma':                '\\sigma',
-    'FinalSigma':           '\\varsigma',
-    'Tau':                  '\\tau',
-    'Phi':                  '\\phi',
-    'CurlyPhi':             '\\varphi',
-    'Upsilon':              '\\upsilon',
-    'Chi':                  '\\chi',
-    'Psi':                  '\\psi',
-    'Omega':                '\\omega',
-    'CapitalGamma':         '\\Gamma',
-    'CapitalDelta':         '\\Delta',
-    'CapitalTheta':         '\\Theta',
-    'CapitalLambda':        '\\Lambda',
-    'CapitalPi':            '\\Pi',
-    'CapitalSigma':         '\\Sigma',
-    'CapitalUpsilon':       '\\Upsilon',
-    'CapitalPhi':           '\\Phi',
-    'CapitalPsi':           '\\Psi',
-    'CapitalOmega':         '\\Omega',
-    'Digamma':              '\\digamma',
-
-    'EmptySet':             '\\emptyset',
-
-    'Element':               '\\in',
-    'NotElement':            '\\notin',
-    'ReverseElement':        '\\ni',
-    'Subset':                '\\subset',
-    'Superset':              '\\superset',
-    'SubsetEqual':           '\\subseteq',
-    'SupersetEqual':         '\\supseteq',
-    'NotSubset':             '\\nsubset',
-    'NotSuperset':           '\\nsupset',
-
-
-
-    'Not':                   '\\neg',
-    'And':                   '\\land',
-    'Or':                    '\\lor',
-    'Nand':                  '\\barwedge',
-    'Xor':                   '\\veebar',
-    'Nor':                   '\\nor',
-
-    'Square':                '\\square',
-    'SmallCircle':           '\\circ',
-    'CirclePlus':            '\\oplus',
-    'CircleTimes':           '\\otimes',
-
-    'Degree':                '\\degree'
-};
-*/
 
 /**
  * Return an array of potential shortcuts
@@ -686,27 +614,120 @@ function startsWithString(s, config) {
 
 
 /**
+ * 
+ * @param {object[]} siblings atoms preceding this potential shortcut
+ * @param {string} shortcut 
+ */
+function validateShortcut(siblings, shortcut) {
+    // If it's a simple shortcut (no conditional), it's valid
+    if (typeof shortcut === 'string') return shortcut
+
+    // If we have no context, we assume all the shortcuts are valid
+    if (!siblings) return shortcut ? shortcut.value : undefined;
+    
+// first
+    // 'nothing'
+// placeholder
+    // 'nothing'
+// surd
+    //
+// supsub
+    // atom before?
+// genfrac
+    // 
+// textord or mord
+    // f, g, h (isFunction = true)  'function'
+    // [a-zA-Z]+greek+cyrillic      'letter'
+    // [0-9]                        'digit'
+// mbin                             'binop'     
+// mrel                             'relop'
+// mop
+    // sin (isFunction = true)      'function'
+// minner
+// mpunct
+// array
+    // 
+// mopen
+    // 'openfence'
+// leftright mclose
+    // 'closefence'
+// group, accent, overlap. overunder
+    // type of last atom of body
+
+// box  -- group style
+
+// mathstyle
+// sizing
+// color
+// font
+
+
+    let letter = false;
+    let digit = false;
+    let space = false;
+    let number = false;
+    let symbol = false;
+    let fence = false;
+    let text = false;
+    let nothing = false;
+    const sibling = siblings[siblings.length - 1];
+    nothing = !sibling;         // start of a group
+    if (sibling) {
+        text = sibling.mode === 'text';
+        letter = !text && sibling.type === 'mord' && /[a-zA-Z]+$/.test(sibling.body);
+        space = false; // /\s$/.test(context);
+        digit = !text && sibling.type === 'mord' && /[0-9]+$/.test(sibling.body);
+        number = digit;
+        symbol = /mrel|mop|leftright|genfrac/.test(sibling.type);
+        fence = /mopen|mclose/.test(sibling.type);
+    }
+
+    if (typeof shortcut === 'object') {
+        console.log('considering ' + shortcut.value + ' if after ' + shortcut.ifAfter);
+        // If this is a complex shortcut with conditions, consider them now
+        if (    (/text/.test(shortcut.ifAfter) && text) ||
+                (/letter/.test(shortcut.ifAfter) && letter) ||
+                (/space/.test(shortcut.ifAfter) && space) ||
+                (/digit/.test(shortcut.ifAfter) && digit) ||
+                (/number/.test(shortcut.ifAfter) && number) ||
+                (/symbol/.test(shortcut.ifAfter) && symbol) ||
+                (/nothing/.test(shortcut.ifAfter) && nothing) ||
+                (/fence/.test(shortcut.ifAfter) && fence)){
+            shortcut = shortcut.value;
+        } else {
+            console.log('rejected');
+            shortcut = null;
+        }
+    }
+
+    return shortcut;
+}
+
+/**
  * This function is used to resolve inline shortcuts.
  * 
+ * @param {string} context - atoms preceding the candidate, potentially used
+ * to reduce which shortcuts are applicable. If 'null', no restrictions are 
+ * applied.
  * @param {string} s - candidate inline shortcuts (e.g. `'pi'`)
  * @param {object} config 
  * @return {string} - A replacement string matching the shortcut (e.g. `'\pi'`)
  * @memberof module:editor/shortcuts
  * @private
  */
-function forString(s, config) {
+function forString(context, s, config) {
     let result = '';
 
     const skipDefaultShortcuts = config && config.overrideDefaultInlineShortcuts;
     if (!skipDefaultShortcuts) {
-        result = INLINE_SHORTCUTS[s];
+        result = validateShortcut(context, INLINE_SHORTCUTS[s]);
     }
 
     const customInlineShortcuts = config && config.inlineShortcuts ? 
         config.inlineShortcuts : null;
     let customResult;
     if (customInlineShortcuts) {
-        customResult = customInlineShortcuts[s];
+        customResult = validateShortcut(context, customInlineShortcuts[s]);
     }
     
     return customResult || result;

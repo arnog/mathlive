@@ -55,7 +55,7 @@ function EditableMathlist(config, target) {
     this.path = [{relation: 'body', offset: 0}];
     this.extent = 0;
 
-    this.config = {...config};
+    this.config = config ? {...config} : {};
     this.target = target;
 
     this.suppressChangeNotifications = false;
@@ -88,34 +88,31 @@ EditableMathlist.prototype._announce = function(command, mathlist, atoms) {
  * @private
  */
 EditableMathlist.prototype.filter = function(cb, dir) {
-    const suppressed = this.suppressChangeNotifications;
-    this.suppressChangeNotifications = true;
-
     dir = dir < 0 ? -1 : +1;
 
     const result = [];
-    const originalExtent = this.extent;
+
+    const iter = new EditableMathlist();
+    iter.path = MathPath.clone(this.path);
+    iter.extent = this.extent;
+    iter.root = this.root;
+
     if (dir >= 0) {
-        this.collapseForward();
+        iter.collapseForward();
     } else {
-        this.collapseBackward();
+        iter.collapseBackward();
     }
-    const initialPath = MathPath.pathToString(this.path);
+    const initialAnchor = iter.anchor();
     do {
-        console.assert(this.anchor(), MathPath.pathToString(this.path));
-        if (this.anchor() && cb.bind(this)(this.path, this.anchor())) {
-            result.push(this.toString());
+        if (cb.bind(iter)(iter.path, iter.anchor())) {
+            result.push(iter.toString());
         }
         if (dir >= 0) {
-            this.next({iterateAll: true});
+            iter.next({iterateAll: true});
         } else {
-            this.previous({iterateAll: true});
+            iter.previous({iterateAll: true});
         }
-    } while (initialPath !== MathPath.pathToString(this.path));
-
-    this.extent = originalExtent;
-
-    this.suppressChangeNotifications = suppressed;
+    } while (initialAnchor !== iter.anchor());
 
     return result;
 }
@@ -142,13 +139,15 @@ EditableMathlist.prototype.forEachSelected = function(cb, options) {
     const lastOffset = this.endOffset() + 1;
     if (options.recursive) {
         for (let i = firstOffset; i < lastOffset; i++) {
-            if (siblings[i] && siblings[i].type !== 'first') {
+            if (siblings[i].type !== 'first') {
                 siblings[i].forEach(cb);
             }
         }
     } else {
         for (let i = firstOffset; i < lastOffset; i++) {
-            cb(siblings[i])
+            if (siblings[i].type !== 'first') {
+                cb(siblings[i])
+            }
         }
     }
 }
@@ -965,8 +964,8 @@ EditableMathlist.prototype.setSelection = function(offset, extent, relation) {
 
     // If the relation is invalid, exit and return false
     const parent = this.parent();
-    const arrayRelation = relation.startsWith('cell');
     if (!parent && relation !== 'body') return false;
+    const arrayRelation = relation.startsWith('cell');
     if ((!arrayRelation && !parent[relation]) ||
         (arrayRelation && !parent.array)) return false;
 
@@ -1046,17 +1045,17 @@ EditableMathlist.prototype.next = function(options) {
     if (this.anchorOffset() === this.siblings().length - 1) {
         this.adjustPlaceholder();
 
-        this.selectionWillChange();
-
         // We've reached the end of this list.
         // Is there another list to consider?
         let relation = NEXT_RELATION[this.relation()];
-        while (relation && !this.setSelection(0, 0, relation)) {
+        const parent = this.parent();
+        while (relation && !parent[relation]) {
             relation = NEXT_RELATION[relation];
         }
+
         // We found a new relation/set of siblings...
         if (relation) {
-            this.selectionDidChange();
+            this.setSelection(0, 0, relation);
             return;
         }
 
@@ -1483,7 +1482,7 @@ EditableMathlist.prototype.jumpToMathFieldBoundary = function(dir, options) {
     dir = dir < 0 ? -1 : +1;
 
     const oldPath = clone(this);
-    const path = [this.path[0]];
+    const path = [{relation: "body", offset: this.path[0].offset}];
     let extent;
 
     if (!extend) {
@@ -1500,7 +1499,7 @@ EditableMathlist.prototype.jumpToMathFieldBoundary = function(dir, options) {
             }
         } else {
             if (path[0].offset < this.siblings().length - 1) {
-                extent = this.siblings().length - path[0].offset;
+                extent = this.siblings().length - 1 - path[0].offset;
             } else {
                 // @todo exit right extend
             }
@@ -1586,9 +1585,8 @@ EditableMathlist.prototype.anchorMode = function() {
             anchor.type === 'command') return 'command';
         if (anchor.mode) return anchor.mode;
     }
-    const parent = this.parent();
-    if (parent && parent.mode) return parent.mode;
-    return '';
+
+    return this.parent().mode;
 }
 
 
@@ -1813,7 +1811,7 @@ EditableMathlist.prototype.insert = function(s, options) {
         s = s.replace(/{/g, '\\textbraceleft');
         s = s.replace(/}/g, '\\textbraceright');
         s = s.replace(/\^/g, '\\textasciicircum');
-        s = s.replace(/˜/g, '\\textasciitilde'); 
+        s = s.replace(/~/g, '\\textasciitilde'); 
         s = s.replace(/£/g, '\\textsterling');
 
         mathlist = ParserModule.parseTokens(
@@ -1873,7 +1871,7 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
     const parent = this.parent();
 
     // We're inserting a middle punctuation, for example as in {...|...}
-    if (parent && (parent.type === 'leftright' && parent.leftDelim !== '|')) {
+    if (parent.type === 'leftright' && parent.leftDelim !== '|') {
         if (/\||\\vert|\\Vert|\\mvert|\\mid/.test(fence)) {
             this.insert('\\,\\middle' + fence + '\\, ');
             return true;
@@ -1885,7 +1883,7 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
     if (fence === ']' || fence === '\\]') fence = '\\rbrack';
 
     const rDelim = Definitions.RIGHT_DELIM[fence];
-    if (rDelim && !(parent && (parent.type === 'leftright' && parent.leftDelim === '|'))) {
+    if (rDelim && !(parent.type === 'leftright' && parent.leftDelim === '|')) {
         // We have a valid open fence as input
         let s = '';
         const collapsed = this.isCollapsed() || this.anchor().type === 'placeholder';
@@ -2460,12 +2458,14 @@ EditableMathlist.prototype.moveToSuperscript_ = function() {
     //            this.setSelection(this.anchorOffset() + 1);
                 this.anchor().superscript = [makeFirstAtom()];
             } else {
-                this.siblings().splice(
-                    this.anchorOffset() + 1,
-                    0,
-                    new MathAtom.MathAtom(this.parent().anchorMode, 'msubsup', '\u200b'));
-                this.path[this.path.length - 1].offset += 1;
-    //            this.setSelection(this.anchorOffset() + 1);
+                if (this.anchor().limits === 'nolimits') {
+                    this.siblings().splice(
+                        this.anchorOffset() + 1,
+                        0,
+                        new MathAtom.MathAtom(this.parent().anchorMode, 'msubsup', '\u200b'));
+                    this.path[this.path.length - 1].offset += 1;
+        //            this.setSelection(this.anchorOffset() + 1);
+                }
                 this.anchor().superscript = [makeFirstAtom()];
             }
         }
@@ -2494,12 +2494,14 @@ EditableMathlist.prototype.moveToSubscript_ = function() {
                 // this.setSelection(this.anchorOffset() + 1);
                 this.anchor().subscript = [makeFirstAtom()];
             } else {
-                this.siblings().splice(
-                    this.anchorOffset() + 1,
-                    0,
-                    new MathAtom.MathAtom(this.parent().anchorMode, 'msubsup', '\u200b'));
-                this.path[this.path.length - 1].offset += 1;
-                // this.setSelection(this.anchorOffset() + 1);
+                if (this.anchor().limits === 'nolimits') {
+                    this.siblings().splice(
+                        this.anchorOffset() + 1,
+                        0,
+                        new MathAtom.MathAtom(this.parent().anchorMode, 'msubsup', '\u200b'));
+                    this.path[this.path.length - 1].offset += 1;
+                    // this.setSelection(this.anchorOffset() + 1);
+                }
                 this.anchor().subscript = [makeFirstAtom()];
             }
         }
@@ -2875,7 +2877,7 @@ export function parseMathString(s, config) {
 
     // Replace double-backslash (coming from JavaScript) to a single one
     if (!config || config.format !== 'ASCIIMath') {
-        s = s.replace(/\\\\/g, '\\');
+        s = s.replace(/\\\\([^\s\n])/g, '\\$1');
     }
 
     if ((!config || config.format !== 'ASCIIMath') && /\\/.test(s) && /{|}/.test(s)) {
@@ -3077,7 +3079,7 @@ function parseMathArgument(s, config) {
         let m = s.match(/^([a-zA-Z]+)/);
         if (m) {
             // It's a string of letter, maybe a shortcut
-            let shortcut = Shortcuts.forString(s, config);
+            let shortcut = Shortcuts.forString(null, s, config);
             if (shortcut) {
                 shortcut = shortcut.replace('_{#?}', '');
                 shortcut = shortcut.replace('^{#?}', '');
@@ -3111,7 +3113,7 @@ function parseMathArgument(s, config) {
 }
 
 function paddedShortcut(s, config) {
-    let result = Shortcuts.forString(s, config);
+    let result = Shortcuts.forString(null, s, config);
     if (result) {
         result = result.replace('_{#?}', '');
         result = result.replace('^{#?}', '');

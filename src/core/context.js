@@ -53,7 +53,6 @@ class Context {
         this.fontWeight = data.fontWeight || 'normal';
         this.fontVariant = data.fontWeight || 'normal';
         this.generateID = data.generateID !== undefined ? data.generateID : false;
-        this.isSelected = data.isSelected !== undefined ? data.isSelected : false;
         this.macros = data.macros || {};
         if (data.parentMathstyle === undefined) {
             this.parentMathstyle = this.mathstyle;

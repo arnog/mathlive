@@ -64,8 +64,6 @@ function Span(content, classes) {
     // CLASSES
     this.classes = classes || '';
 
-    console.assert(typeof this.classes === 'string');
-
     // CONTENT
     if (Array.isArray(content)) {
         // Check if isArray first, since an array is also an object
@@ -114,6 +112,18 @@ Span.prototype.updateDimensions = function() {
 }
 
 
+Span.prototype.selected = function(isSelected) {
+    if (isSelected && !/ML__selected/.test(this.classes)) {
+        if (this.classes.length > 0) this.classes += ' ';
+        this.classes += 'ML__selected';
+    }
+    if (!isSelected && /ML__selected/.test(this.classes)) {
+        this.classes = this.classes.replace('ML__selected', '');
+    }
+    if (this.children) {
+        this.children.forEach(x => x.selected(isSelected));
+    }
+}
 
 /**
  * Set the value of a CSS property associated with this span.
@@ -273,9 +283,6 @@ const INTER_ATOM_TIGHT_SPACING = {
 
 function lastSpanType(span) {
     let result = span.type;
-    if (span.classes.indexOf('ML__selected') !== -1) {
-        result = span.children[span.children.length - 1].type;
-    }
     if (result === 'first') return 'none';
     if (result === 'textord') return 'mord';
     return result;

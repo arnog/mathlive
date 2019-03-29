@@ -944,13 +944,7 @@ MathField.prototype.$perform = function(command) {
 
     if (typeof this.mathlist[selector] === 'function') {
         if (/^(delete|transpose|add)/.test(selector)) {
-            if (this.mathlist.isCollapsed() && 
-                selector === 'deletePreviousChar_') {
-                this.keystrokeBuffer = this.keystrokeBuffer.slice(0, -1);
-                this.keystrokeBufferStates.pop();
-            } else {
-                this._resetKeystrokeBuffer();
-            } 
+            this._resetKeystrokeBuffer();
         }
 
         if (/^(delete|transpose|add)/.test(selector) && this.mode !== 'command') {
@@ -1340,7 +1334,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
     // see 4.3)
     if (this.mode !== 'command' && (!evt || (!evt.ctrlKey && !evt.metaKey))) {
         const c = Keyboard.eventToChar(evt);
-        // The Backspace key will be handled as a delete command later (3.2)
+        // The Backspace key will be handled as a delete command later (5.4)
         // const c = Keyboard.eventToChar(evt);
         if (c !== 'Backspace') {
             if (!c || c.length > 1) {
@@ -1351,7 +1345,12 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
                 const candidate = this.keystrokeBuffer + c;
                 let i = 0;
                 while (!shortcut && i < candidate.length) {
-                    shortcut = Shortcuts.forString(candidate.slice(i), this.config);
+                    const siblings = this.keystrokeBufferStates[i] ? ParserModule.parseTokens(
+                        Lexer.tokenize(this.keystrokeBufferStates[i].latex), 
+                        this.config.default, null, this.config.macros) : 
+                        this.mathlist.siblings();
+                    shortcut = Shortcuts.forString(siblings,
+                        candidate.slice(i), this.config);
                     i += 1;
                 }
                 stateIndex = i - 1;
@@ -1461,6 +1460,10 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
                 this.mode = saveMode;
             }
 
+            this.mathlist.contentWillChange();
+            const save = this.mathlist.suppressChangeNotifications;
+            this.mathlist.suppressChangeNotifications = true;
+
             // Insert the substitute, possibly as a smart fence
             if (!this.mathlist._insertSmartFence(shortcut)) {
                 this.mathlist.insert(shortcut, {format: 'latex', mode: this.mode});
@@ -1469,6 +1472,9 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
             // Check if as a result of the substitution there is now an isolated
             // (text mode) space (surrounded by math). In which case, remove it.
             this.removeIsolatedSpace_();
+
+            this.mathlist.suppressChangeNotifications = save;
+            this.mathlist.contentDidChange();
 
             this.undoManager.snapshot(this.config);
             this._render();
@@ -1697,7 +1703,7 @@ MathField.prototype._render = function(renderOptions) {
     if (this.mathlist.isCollapsed()) {
         this.mathlist.anchor().caret = hasFocus ? this.mode : '';
     } else {
-        this.mathlist.forEachSelected( a => { a.isSelected = true } );
+        this.mathlist.forEachSelected( a => { a.isSelected = true });
     }
 
     //
@@ -1716,7 +1722,7 @@ MathField.prototype._render = function(renderOptions) {
                 groupNumbers: renderOptions.forHighlighting,
             },
             macros: this.config.macros
-        }, this.mathlist.root.body);
+        }, this.mathlist.root);
 
     //
     // 5. Construct struts around the spans
@@ -1739,24 +1745,52 @@ MathField.prototype._render = function(renderOptions) {
         struts.push(bottomStrut);
     }
     struts.push(base);
-    const wrapper = Span.makeSpan(struts, 
-        'ML__mathlive' + (hasFocus ? ' ML__focused' : ' ML__blurred'));
+    const wrapper = Span.makeSpan(struts, 'ML__mathlive');
 
     //
     // 6. Generate markup and accessible node
     //
 
     this.field.innerHTML = wrapper.toMarkup(0, this.config.horizontalSpacingScale);
-    // Probably want to generate content on fly depending on what to speak
+    this.field.classList.toggle('ML__focused', hasFocus);
+    // Probably want to generate content on the fly depending on what to speak
     this.accessibleNode.innerHTML =
        "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
            MathAtom.toMathML(this.mathlist.root, this.config) +
        "</math>";
     //this.ariaLiveText.textContent = "";
 
+    //
+    // 7. Calculate selection rectangle
+    //
+
+    const selectedNodes = this.field.querySelectorAll('.ML__selected');
+    if (selectedNodes && selectedNodes.length > 0) {
+        const selectionRect = { top: Infinity, bottom: -Infinity, left: Infinity, right: -Infinity };
+        // Calculate the union of the bounds of all the selected spans
+        selectedNodes.forEach(node => {
+            if (node.classList.contains('ML__selected')) {
+                const bounds = node.getBoundingClientRect();
+                if (bounds.left < selectionRect.left) selectionRect.left = bounds.left;
+                if (bounds.right > selectionRect.right) selectionRect.right = bounds.right;
+                if (bounds.bottom > selectionRect.bottom) selectionRect.bottom = bounds.bottom;
+                if (bounds.top < selectionRect.top) selectionRect.top = bounds.top;
+            }
+        });
+        const fieldRect = this.field.getBoundingClientRect();
+        const selectionElement = document.createElement('div');
+        selectionElement.classList.add('ML__selection');
+        selectionElement.style.position = 'absolute';
+        selectionElement.style.left = (selectionRect.left - fieldRect.left) + 'px';
+        selectionElement.style.top = (selectionRect.top - fieldRect.top) + 'px';
+        selectionElement.style.width = (selectionRect.right - selectionRect.left) + 'px';
+        selectionElement.style.height = (selectionRect.bottom - selectionRect.top) + 'px';
+        this.field.insertBefore(selectionElement, this.field.childNodes[0])
+    }
+
 
     //
-    // 7. Scroll view
+    // 8. Scroll view
     //
 
     this.scrollIntoView_();

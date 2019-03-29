@@ -509,16 +509,19 @@
 }
 
 
-.ML__focused .ML__selected {
-    background: var(--highlight) !important;
-    color: var(--on-highlight);
-    display:inline-block;
+.ML__selection {
+    background: var(--highlight-inactive);
+    border-radius: 4px;
+    box-sizing: border-box;
+    // display:inline-block;
 }
 
-.ML__blurred .ML__selected {
-    background: var(--highlight-inactive);
-    display:inline-block;
+.ML__focused .ML__selection {
+    background: var(--highlight) !important;
+    color: var(--on-highlight);
+    // display:inline-block;
 }
+
 
 
 .ML__command {
