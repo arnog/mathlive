@@ -781,7 +781,7 @@ EditableMathlist.prototype.selectGroup_ = function() {
         end -= 1;
         if (start >= end) {
             // No word found. Select a single character
-            this.setSelection(this.startOffset(), 1);
+            this.setSelection(this.endOffset() - 1,  1);
             return;
         }
 
