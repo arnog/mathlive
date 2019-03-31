@@ -304,11 +304,18 @@ class Parser {
             } else if (this.skipWhitespace()) {
                 result += ' ';
             } else if (this.hasToken('command')) {
-                // TeX will give a 'Missing \endcsname inserted' error
-                // if it encounters any command when expecting a string.
-                // We're a bit more lax.
                 const token = this.get();
-                result += token.value;
+                if (token.value === 'space') {
+                    // The 'space' command is the ~
+                    // which can be used for example in operator names, i.e.
+                    // \operatorname{lim~inf}. It's interpreted as a nbs
+                    result += '\u00a0';     // NO-BREAK SPACE
+                } else {
+                    // TeX will give a 'Missing \endcsname inserted' error
+                    // if it encounters any command when expecting a string.
+                    // We're a bit more lax.
+                    result += token.value;
+                }
             } else {
                 done = true;
             }

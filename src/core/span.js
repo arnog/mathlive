@@ -282,7 +282,7 @@ const INTER_ATOM_TIGHT_SPACING = {
 }
 
 function lastSpanType(span) {
-    let result = span.type;
+    const result = span.type;
     if (result === 'first') return 'none';
     if (result === 'textord') return 'mord';
     return result;

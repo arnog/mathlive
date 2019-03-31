@@ -2710,14 +2710,14 @@ function getSimpleString(atoms) {
         } else {
             success = false;
         }
-    }
+    } 
     return success ? result : '';
 }
 
 defineFunction([
     '\\mathop', '\\mathbin', '\\mathrel', '\\mathopen',
     '\\mathclose', '\\mathpunct', '\\mathord', '\\mathinner'
-], '{:string}', null, function(name, args) {
+], '{:auto}', null, function(name, args) {
     const result = {
         type: {
             '\\mathop': 'mop',
@@ -2731,7 +2731,7 @@ defineFunction([
         }[name],
         body: getSimpleString(args[0]) || args[0],
         captureSelection: true,     // Do not let children be selected
-
+        fontFamily: 'mathit'
     };
     if (name === '\\mathop') {
         result.limits = 'nolimits';
@@ -2955,7 +2955,7 @@ defineSymbolRange(0x0061, 0x007A, MATH, MAIN, MATHORD);
 // Body-text symbols
 // See http://ctan.mirrors.hoobly.com/info/symbols/comprehensive/symbols-a4.pdf, p14
 defineSymbol('\\textasciicircum', TEXT, MAIN, TEXTORD, '^');
-defineSymbol('\\textasciitilde', TEXT, MAIN, TEXTORD, '˜');
+defineSymbol('\\textasciitilde', TEXT, MAIN, TEXTORD, '~');
 defineSymbol('\\textasteriskcentered', TEXT, MAIN, TEXTORD, '*');
 defineSymbol('\\textbackslash', TEXT, MAIN, TEXTORD, '\\');
 defineSymbol('\\textbraceleft', TEXT, MAIN, TEXTORD, '{');
@@ -3041,7 +3041,7 @@ defineFunction("\\'", '{:string}',
     };
 })
 
-defineFunction('\\˜', '{:string}', 
+defineFunction('\\~', '{:string}', 
     {fontFamily:'mainrm', allowedInText: true}, 
     function(name, args) {
     return {
@@ -3073,6 +3073,21 @@ defineFunction('\\c', '{:string}',
 
 const COMMAND_MODE_CHARACTERS = /[a-zA-Z0-9!@*()-=+{}[\]\\';:?/.,~<>`|'$%#&^_" ]/;
 
+// Word boundaries for Cyrillic, Polish, French, German, Italian
+// and Spanish. We use \p{L} (Unicode property escapes: "Letter")
+// but Firefox doesn't support it 
+// (https://bugzilla.mozilla.org/show_bug.cgi?id=1361876). Booo...
+// See also https://stackoverflow.com/questions/26133593/using-regex-to-match-international-unicode-alphanumeric-characters-in-javascript
+const LETTER = 
+    typeof navigator !== 'undefined' && /firefox/i.test(navigator.userAgent) ?
+        /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒäöüßÄÖÜẞàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚáéíñóúüÁÉÍÑÓÚÜ]/ :
+        new RegExp("\\p{Letter}", 'u');
+
+const LETTER_AND_DIGITS = 
+    typeof navigator !== 'undefined'  && /firefox/i.test(navigator.userAgent) ?
+        /[0-9a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒäöüßÄÖÜẞàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚáéíñóúüÁÉÍÑÓÚÜ]/ :
+        new RegExp("[0-9\\p{Letter}]", 'u');
+
 export default {
     matchCodepoint,
     commandAllowed,
@@ -3093,7 +3108,9 @@ export default {
     FUNCTIONS,
     MACROS,
 
-    COMMAND_MODE_CHARACTERS
+    COMMAND_MODE_CHARACTERS,
+    LETTER,
+    LETTER_AND_DIGITS
 }
 
 

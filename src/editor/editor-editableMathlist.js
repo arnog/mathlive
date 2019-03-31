@@ -284,28 +284,152 @@ EditableMathlist.prototype.setPath = function(selection, extent) {
 }
 
 
+EditableMathlist.prototype.wordBoundary = function(path, dir) {
+    dir = dir < 0 ? -1 : +1;
+
+    const iter = new EditableMathlist();
+    iter.path = MathPath.clone(path);
+    iter.root = this.root;
+
+    let i = 0;
+    while (iter.sibling(i) && iter.sibling(i).mode === 'text' &&
+            Definitions.LETTER_AND_DIGITS.test(iter.sibling(i).body)) {
+        i += dir;
+    }
+    if (!iter.sibling(i)) i -= dir;
+    iter.path[iter.path.length - 1].offset += i;
+    return iter.path;
+}
+
+
+/**
+ * Calculates the offset of the "next word".
+ * This is inspired by the behavior of text editors on macOS, namely:
+    blue   yellow
+      ^-                
+         ^-------       
+ * That is:
+
+ * (1) If starts with an alphanumerical character, find the first alphanumerical
+ * character which is followed by a non-alphanumerical character
+ * 
+ * The behavior regarding non-alphanumeric characters is less consistent.
+ * Here's the behavior we use:
+ * 
+ *   +=-()_:”     blue
+ * ^---------   
+ *   +=-()_:”     blue
+ *      ^---------
+ *   +=-()_:”blue
+ *      ^--------
+ * 
+ * (2) If starts in whitespace, skip whitespace, then find first non-whitespace*
+ *    followed by whitespace
+ * (*) Pages actually uses the character class of the first non-whitespace 
+ * encountered.
+ * 
+ * (3) If starts in a non-whitespace, non alphanumerical character, find the first 
+ *      whitespace
+ * 
+ */
+EditableMathlist.prototype.wordBoundaryOffset = function(offset, dir) {
+    dir = dir < 0 ? -1 : +1;
+
+    const siblings = this.siblings();
+    if (!siblings[offset]) return offset;
+    if (siblings[offset].mode !== 'text') return offset;
+
+    let result;
+    if (Definitions.LETTER_AND_DIGITS.test(siblings[offset].body)) {
+        // (1) We start with an alphanumerical character
+        let i = offset;
+        let match;
+        do {
+            match = siblings[i].mode === 'text' && 
+                Definitions.LETTER_AND_DIGITS.test(siblings[i].body);
+            i += dir;
+        } while (siblings[i] && match);
+        result = siblings[i] ? (i - 2 * dir) : i - dir;
+
+    } else if (/\s/.test(siblings[offset].body)) {
+        // (2) We start with whitespace
+
+        // Skip whitespace
+        let i = offset;
+        while (siblings[i] && siblings[i].mode === 'text' && 
+                /\s/.test(siblings[i].body)) {
+            i += dir;
+        }
+        if (!siblings[i]) {
+            // We've reached the end
+            result = i - dir;
+        } else {
+            let match = true;
+            do {
+                match = siblings[i].mode === 'text' && 
+                    !/\s/.test(siblings[i].body);
+                i += dir;
+            } while (siblings[i] && match);
+        result = siblings[i] ? (i - 2 * dir) : i - dir;
+        }
+
+    } else {
+        // (3) 
+        let i = offset;
+        // Skip non-whitespace
+        while (siblings[i] && siblings[i].mode === 'text' && 
+                !/\s/.test(siblings[i].body)) {
+            i += dir;
+        }
+        result = siblings[i] ? i : i - dir;
+        let match = true;
+        while (siblings[i] && match) {
+            match = siblings[i].mode === 'text' && /\s/.test(siblings[i].body);
+            if (match) result = i;
+            i += dir;
+        }
+        result = siblings[i] ? (i - 2 * dir) : i - dir;
+    }
+
+    return result - (dir > 0 ? 0 : 1);
+}
 
 /**
  * Extend the selection between `from` and `to` nodes
  *
  * @param {string[]} from
  * @param {string[]} to
+ * @param {object} options
+ * - options.extendToWordBoundary
  * @method EditableMathlist#setRange
  * @return {boolean} true if the range was actually changed
  * @private
  */
-EditableMathlist.prototype.setRange = function(from, to) {
+EditableMathlist.prototype.setRange = function(from, to, options) {
+    options = options || {};
     // Measure the 'distance' between `from` and `to`
     const distance = MathPath.pathDistance(from, to);
     if (distance === 0) {
         // `from` and `to` are equal.
+
+        if (options.extendToWordBoundary) {
+            from = this.wordBoundary(from, -1);
+            to = this.wordBoundary(to, +1);
+            return this.setRange(from, to);
+        }
+
         // Set the path to a collapsed insertion point
-        return this.setPath(from, 0);
+        return this.setPath(MathPath.clone(from), 0);
     }
 
     if (distance === 1) {
-        // They're siblings, set an extent
         const extent = (to[to.length - 1].offset - from[from.length - 1].offset);
+        if (options.extendToWordBoundary) {
+            from = this.wordBoundary(from, extent < 0 ? + 1 : -1);
+            to = this.wordBoundary(to, extent < 0 ? -1 : +1);
+            return this.setRange(from, to);
+        }
+        // They're siblings, set an extent
         return this.setPath(MathPath.clone(from), extent);
     }
 
@@ -321,6 +445,7 @@ EditableMathlist.prototype.setRange = function(from, to) {
 
     commonAncestor.push(from[ancestorDepth]);
     commonAncestor = MathPath.clone(commonAncestor);
+
 
     let extent = to[ancestorDepth].offset - from[ancestorDepth].offset + 1;
 
@@ -340,8 +465,7 @@ EditableMathlist.prototype.setRange = function(from, to) {
     } else if (to.length <= from.length) {
         // axb/c+y -> select from x to y
         commonAncestor[commonAncestor.length - 1].offset -=  1;
-    } else {
-        // last case: x+(ayb/c) -> select from x to y
+    } else if (to.length > from.length) {
         extent -= 1;
     }
 
@@ -637,45 +761,28 @@ function isNumber(atom) {
  * Select all the atoms in the current group, that is all the siblings.
  * When the selection is in a numerator, the group is the numerator. When
  * the selection is a superscript or subscript, the group is the supsub.
- * When the selection is in a text zone, the "group" is a word
+ * When the selection is in a text zone, the "group" is a word.
  * @method EditableMathlist#selectGroup_
  */
 EditableMathlist.prototype.selectGroup_ = function() {
     const siblings = this.siblings();
     if (this.anchorMode() === 'text') {
-        // Word boundaries for Cyrillic, Polish, French, German, Italian
-        // and Spanish. We use \p{L} (Unicode property escapes: "Letter")
-        // but Firefox doesn't support it 
-        // (https://bugzilla.mozilla.org/show_bug.cgi?id=1361876). Booo...
-        // See also https://stackoverflow.com/questions/26133593/using-regex-to-match-international-unicode-alphanumeric-characters-in-javascript
-        const WORD_REGEX = 
-            navigator && /firefox/i.test(navigator.userAgent) ?
-                /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒäöüßÄÖÜẞàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚáéíñóúüÁÉÍÑÓÚÜ]/ :
-                new RegExp("\\p{Letter}", 'u');
         let start = this.startOffset();
         let end = this.endOffset();
         // 
         while (siblings[start] && siblings[start].mode === 'text' &&
-            WORD_REGEX.test(siblings[start].body)) {
+            Definitions.LETTER_AND_DIGITS.test(siblings[start].body)) {
             start -= 1;
         }
         while (siblings[end] && siblings[end].mode === 'text' &&
-            WORD_REGEX.test(siblings[end].body)) {
+            Definitions.LETTER_AND_DIGITS.test(siblings[end].body)) {
             end += 1;
         }
         end -= 1;
         if (start >= end) {
-            // No word found.
-            // Select the entire text zone
-            start = this.startOffset();
-            end = this.endOffset();
-            while (siblings[start] && siblings[start].mode === 'text') {
-                start -= 1;
-            }
-            while (siblings[end] && siblings[end].mode === 'text') {
-                end += 1;
-            }
-            end -= 1;
+            // No word found. Select a single character
+            this.setSelection(this.startOffset(), 1);
+            return;
         }
 
         this.setSelection(start, end - start);
@@ -1409,44 +1516,62 @@ EditableMathlist.prototype.skip = function(dir, options) {
     dir = dir < 0 ? -1 : +1;
 
     const oldPath = clone(this);
+
     const siblings = this.siblings();
     const focus = this.focusOffset();
-    let offset = focus + (dir > 0 ? 1 : 0);
-    offset = Math.max(0, Math.min(offset, siblings.length - 1));
-    const type = siblings[offset].type;
-    if ((offset === 0 && dir < 0) ||
-        (offset === siblings.length - 1 && dir > 0)) {
-        // If we've reached the end, just moved out of the list
+    let offset = focus + dir;
+    if (extend) offset = Math.min(Math.max(0, offset), siblings.length - 1);
+    if (offset < 0 || offset >= siblings.length) {
+        // If we've reached the end, just move out of the list
         this.move(dir, options);
         return;
-    } else if ((type === 'mopen' && dir > 0) ||
-                (type === 'mclose' && dir < 0)) {
-        // We're right before (or after) an opening (or closing)
-        // fence. Skip to the balanced element (in level, but not necessarily in
-        // fence symbol).
-        let level = type === 'mopen' ? 1 : -1;
-        offset += dir > 0 ? 1 : -1;
-        while (offset >= 0 && offset < siblings.length && level !== 0) {
-            if (siblings[offset].type === 'mopen') {
-                level += 1;
-            } else if (siblings[offset].type === 'mclose') {
-                level -= 1;
-            }
-            offset += dir;
+    } 
+    if (siblings[offset] && siblings[offset].mode === 'text') {
+        // We're in a text zone, skip word by word
+        offset = this.wordBoundaryOffset(offset, dir);
+        if (offset < 0 && !extend) {
+            this.setSelection(0);
+            return;
         }
-        if (level !== 0) {
-            // We did not find a balanced element. Just move a little.
-            offset = focus + dir;
+        if (offset > siblings.length) {
+            this.setSelection(siblings.length - 1);
+            this.move(dir, options);
+            return;
         }
-        if (dir > 0) offset = offset - 1;
     } else {
-        while (offset >= 0 && offset < siblings.length && siblings[offset].type === type) {
-            offset += dir;
+        const type = siblings[offset] ? siblings[offset].type : '';
+        if ((type === 'mopen' && dir > 0) ||
+                    (type === 'mclose' && dir < 0)) {
+            // We're right before (or after) an opening (or closing)
+            // fence. Skip to the balanced element (in level, but not necessarily in
+            // fence symbol).
+            let level = type === 'mopen' ? 1 : -1;
+            offset += dir > 0 ? 1 : -1;
+            while (offset >= 0 && offset < siblings.length && level !== 0) {
+                if (siblings[offset].type === 'mopen') {
+                    level += 1;
+                } else if (siblings[offset].type === 'mclose') {
+                    level -= 1;
+                }
+                offset += dir;
+            }
+            if (level !== 0) {
+                // We did not find a balanced element. Just move a little.
+                offset = focus + dir;
+            }
+            if (dir > 0) offset = offset - 1;
+        } else {
+            while (siblings[offset] && siblings[offset].mode === 'math' &&
+                    siblings[offset].type === type) {
+                offset += dir;
+            }
+            offset -= (dir > 0 ? 1 : 0);
         }
-        offset -= (dir > 0 ? 1 : 0);
     }
+
     if (extend) {
-        this.extend(offset - focus);
+        const anchor = this.anchorOffset();
+        this.setSelection(anchor, offset - anchor);
     } else {
         this.setSelection(offset);
     }

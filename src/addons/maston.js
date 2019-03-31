@@ -1078,8 +1078,7 @@ function parsePrimary(expr, options) {
         expr = parsePrimary(expr, options);
         expr.ast = wrapFn('add', expr.ast);
 
-    } else if ((atom.type === 'mord' && /^[0-9.]$/.test(atom.latex))
-         || isAtom(expr, 'mpunct', ',')) {
+    } else if (atom.type === 'mord' && /^[0-9.]$/.test(atom.latex)) {
         // Looks like a number
         let num = '';
         let done = false;
@@ -1121,7 +1120,7 @@ function parsePrimary(expr, options) {
                 expr.index += 1;
             }
         }
-        expr.ast = wrapNum(num);
+        expr.ast = num ? wrapNum(num) : undefined;
 
         // This was a number. Is it followed by a fraction, e.g. 2 1/2
         atom = expr.atoms[expr.index];

@@ -193,10 +193,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
         case 'mopen':
         case 'mclose':
         case 'textord':
-            if (command === '\\mathbin' || command === '\\mathrel' ||
-                command === '\\mathopen' || command === '\\mathclose' ||
-                command === '\\mathpunct' || command === '\\mathord' ||
-                command === '\\mathinner') {
+            if (/^\\(mathbin|mathrel|mathopen|mathclose|mathpunct|mathord|mathinner)/.test(command)) {
                 result += command + '{' + latexify(this.body, expandMacro) + '}';
             } else if (command === '\\char"') {
                 result += this.latex + ' ';
@@ -222,7 +219,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
         case 'mop':
             if (this.body !== '\u200b') {
                 // Not ZERO-WIDTH
-                if (command === '\\mathop' || command === '\\operatorname') {
+                if (/^\\(mathop|operatorname)/.test(command)) {
                     result += command + '{' + latexify(this.body, expandMacro) + '}';
                 } else {
                     result += this.latex || this.body;

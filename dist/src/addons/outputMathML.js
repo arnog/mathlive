@@ -185,7 +185,7 @@ function indexOfSuperscriptInNumber(stream) {
     }
 
     if (found) {
-        result = i;
+        result = i - 1;
     }
 
     return result;

@@ -155,6 +155,7 @@ class UndoManager {
     restore(state, options) {
         // Restore the content
         this.mathlist.insert(state ? state.latex : '', {
+            mode: 'math',
             insertionMode: 'replaceAll',
             selectionMode: 'after',
             format: 'latex',

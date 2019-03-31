@@ -481,7 +481,17 @@ function nearestElementFromPoint(el, x, y) {
     return result;
 }
 
-MathField.prototype._pathFromPoint = function(x, y) {
+/**
+ * @param {number} x 
+ * @param {number} y 
+ * @param {object} options
+ * @param {boolean} options.bias  if 0, the midpoint of the bounding box
+ * is considered to return the sibling. If <0, the left sibling is 
+ * favored, if >0, the right sibling
+ */
+MathField.prototype._pathFromPoint = function(x, y, options) {
+    options = options || {};
+    options.bias = options.bias || 0; 
     let result;
     // Try to find the deepest element that is near the point that was
     // clicked on (the point could be outside of the element)
@@ -492,7 +502,7 @@ MathField.prototype._pathFromPoint = function(x, y) {
     if (id) {
         // Let's find the atom that has a matching ID with the element that
         // was clicked on (or near)
-        const atoms = this.mathlist.filter(function(_path, atom) {
+        const paths = this.mathlist.filter(function(_path, atom) {
             // If the atom allows children to be selected, match only if
             // the ID of  the atom matches the one we're looking for.
             if (!atom.captureSelection) {
@@ -504,18 +514,25 @@ MathField.prototype._pathFromPoint = function(x, y) {
             return atom.filter(childAtom => childAtom.id === id).length > 0;
         });
 
-        if (atoms && atoms.length > 0) {
+        if (paths && paths.length > 0) {
             // (There should be exactly one atom that matches this ID...)
             // Set the result to the path to this atom
 
-            // If the point clicked is to the left of the vertical midline,
-            // adjust the path to *before* the atom (i.e. after the
-            // preceding atom)
-            const bounds = el.getBoundingClientRect();
-            result = MathPath.pathFromString(atoms[0]).path;
-            if (x < bounds.left + bounds.width / 2 && !el.classList.contains('ML__placeholder')) {
+            result = MathPath.pathFromString(paths[0]).path;
+
+            if (options.bias === 0) {
+                // If the point clicked is to the left of the vertical midline,
+                // adjust the path to *before* the atom (i.e. after the
+                // preceding atom)
+                const bounds = el.getBoundingClientRect();
+                if (x < bounds.left + bounds.width / 2 && !el.classList.contains('ML__placeholder')) {
+                    result[result.length - 1].offset =
+                        Math.max(0, result[result.length - 1].offset - 1);
+                }
+            } else if (options.bias < 0) {
                 result[result.length - 1].offset =
-                    Math.max(0, result[result.length - 1].offset - 1);
+                    Math.min(this.mathlist.siblings().length - 1, Math.max(0, 
+                        result[result.length - 1].offset + options.bias));
             }
         }
     }
@@ -530,6 +547,7 @@ MathField.prototype._onPointerDown = function(evt) {
     let anchor;
     const that = this;
     let trackingPointer = false;
+    let trackingWords = false;
     let dirty = false;
 
     function endPointerTracking(evt) {
@@ -543,18 +561,27 @@ MathField.prototype._onPointerDown = function(evt) {
         evt.stopPropagation();
     }
 
-    function onPointerMove(moveEvt) {
-        const x = moveEvt.touches ? moveEvt.touches[0].clientX : moveEvt.clientX;
-        const y = moveEvt.touches ? moveEvt.touches[0].clientY : moveEvt.clientY;
-        const focus = that._pathFromPoint(x, y);
-        if (anchor && focus && that.mathlist.setRange(anchor, focus)) {
+    function onPointerMove(evt) {
+        const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
+        const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
+        let actualAnchor = anchor;
+
+        if (evt.touches && evt.touches.length === 2) {
+            actualAnchor = that._pathFromPoint(
+                evt.touches[1].clientX, evt.touches[1].clientY, {bias: 0});
+        }
+
+        const focus = that._pathFromPoint(x, y, 
+            {bias: x <= anchorX ? (x === anchorX ? 0 : -1) : +1});
+
+        if (focus && that.mathlist.setRange(actualAnchor, focus, 
+            {extendToWordBoundary: trackingWords})) {
             // Re-render if the range has actually changed
-            // setTimeout(that._render.bind(that), 0);
             requestAnimationFrame(that._render.bind(that));
         }
         // Prevent synthetic mouseMove event when this is a touch event
-        moveEvt.preventDefault();
-        moveEvt.stopPropagation();
+        evt.preventDefault();
+        evt.stopPropagation();
     }
 
     // Calculate the tap count (if this is a touch event)
@@ -576,11 +603,11 @@ MathField.prototype._onPointerDown = function(evt) {
     off(window, 'mousemove', onPointerMove);
     off(window, 'mouseup blur', endPointerTracking);
 
+    const anchorX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+    const anchorY = evt.touches ? evt.touches[0].clientY : evt.clientY;
     const bounds = this.element.getBoundingClientRect();
-    const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
-    const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
-    if (x > bounds.left && x < bounds.right &&
-        y > bounds.top && y < bounds.bottom) {
+    if (anchorX >= bounds.left && anchorX <= bounds.right &&
+        anchorY >= bounds.top && anchorY <= bounds.bottom) {
 
         // Focus the math field
         if (!this.hasFocus()) {
@@ -596,8 +623,9 @@ MathField.prototype._onPointerDown = function(evt) {
         // If a mouse button other than the main one was pressed, return
         if (evt.buttons && evt.buttons !== 1) return;
 
-        anchor = this._pathFromPoint(x, y);
+        anchor = this._pathFromPoint(anchorX, anchorY, {bias: 0});
         if (anchor) {
+
             if (evt.shiftKey) {
                 // Extend the selection if the shift-key is down
                 this.mathlist.setRange(this.mathlist.path, anchor);
@@ -611,7 +639,7 @@ MathField.prototype._onPointerDown = function(evt) {
 
             // evt.details contains the number of consecutive clicks
             // for double-click, triple-click, etc...
-            if (evt.detail === 2 || evt.detail === 3 || tapCount > 1) {
+            if (evt.detail === 3 || tapCount > 2) {
                 off(this.field, 'touchmove', onPointerMove);
                 off(this.field, 'touchend', endPointerTracking);
                 off(window, 'mousemove', onPointerMove);
@@ -620,9 +648,6 @@ MathField.prototype._onPointerDown = function(evt) {
                 if (evt.detail === 3 || tapCount === 3) {
                     // This is a triple-click
                     this.mathlist.selectAll_();
-                } else if (evt.detail === 2 || tapCount === 2) {
-                    // This is a double-click
-                    this.mathlist.selectGroup_();
                 }
             } else {
                 if (!trackingPointer) {
@@ -637,6 +662,11 @@ MathField.prototype._onPointerDown = function(evt) {
                     } else {
                         on(window, 'mousemove', onPointerMove);
                         on(window, 'mouseup', endPointerTracking);
+                    }
+                    if (evt.detail === 2 || tapCount === 2) {
+                        // This is a double-click
+                        trackingWords = true;
+                        this.mathlist.selectGroup_();
                     }
                 }
             }
@@ -1119,7 +1149,9 @@ MathField.prototype.removeIsolatedSpace_ = function() {
             !this.mathlist.sibling(i - 1) || 
             this.mathlist.sibling(i - 1).mode === 'math'
     )) {
+        this.mathlist.contentWillChange();
         this.mathlist.siblings().splice(i - 1, 1);
+        this.mathlist.contentDidChange();
         // We need to adjust the selection after doing some surgery on the atoms list
         // But we don't want to receive selection notification changes 
         // which could have a side effect of changing the mode :(
@@ -1224,6 +1256,7 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
             if (/(^|\s)[a-zA-Z][^a-zA-Z]$/.test(context)) {
                 // Single letter (x), followed by a non-letter (>, =...)
                 this.convertLastAtomsToMath_(1);
+                this.removeIsolatedSpace_();
                 return true;
             }
 
@@ -1240,6 +1273,7 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
                 // An open paren followed by a number
                 // Turn the paren back to math and switch.
                 this.convertLastAtomsToMath_(1);
+                this.removeIsolatedSpace_();
                 return true;
             }
 
@@ -1247,6 +1281,7 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
                 // An open paren followed by a single letter, then a "," or ";"
                 // Turn the paren back and letter to math and switch.
                 this.convertLastAtomsToMath_(2);
+                this.removeIsolatedSpace_();
                 return true;
             }
 
@@ -1258,6 +1293,7 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
                 // or a "*" or "|"
                 // (note that <=, >=, etc... are handled separately as shortcuts)
                 // switch to 'math'
+                this.removeIsolatedSpace_();
                 return true;
             }
 

@@ -481,7 +481,17 @@ function nearestElementFromPoint(el, x, y) {
     return result;
 }
 
-MathField.prototype._pathFromPoint = function(x, y) {
+/**
+ * @param {number} x 
+ * @param {number} y 
+ * @param {object} options
+ * @param {boolean} options.bias  if 0, the midpoint of the bounding box
+ * is considered to return the sibling. If <0, the left sibling is 
+ * favored, if >0, the right sibling
+ */
+MathField.prototype._pathFromPoint = function(x, y, options) {
+    options = options || {};
+    options.bias = options.bias || 0; 
     let result;
     // Try to find the deepest element that is near the point that was
     // clicked on (the point could be outside of the element)
@@ -492,7 +502,7 @@ MathField.prototype._pathFromPoint = function(x, y) {
     if (id) {
         // Let's find the atom that has a matching ID with the element that
         // was clicked on (or near)
-        const atoms = this.mathlist.filter(function(_path, atom) {
+        const paths = this.mathlist.filter(function(_path, atom) {
             // If the atom allows children to be selected, match only if
             // the ID of  the atom matches the one we're looking for.
             if (!atom.captureSelection) {
@@ -504,18 +514,25 @@ MathField.prototype._pathFromPoint = function(x, y) {
             return atom.filter(childAtom => childAtom.id === id).length > 0;
         });
 
-        if (atoms && atoms.length > 0) {
+        if (paths && paths.length > 0) {
             // (There should be exactly one atom that matches this ID...)
             // Set the result to the path to this atom
 
-            // If the point clicked is to the left of the vertical midline,
-            // adjust the path to *before* the atom (i.e. after the
-            // preceding atom)
-            const bounds = el.getBoundingClientRect();
-            result = MathPath.pathFromString(atoms[0]).path;
-            if (x < bounds.left + bounds.width / 2 && !el.classList.contains('ML__placeholder')) {
+            result = MathPath.pathFromString(paths[0]).path;
+
+            if (options.bias === 0) {
+                // If the point clicked is to the left of the vertical midline,
+                // adjust the path to *before* the atom (i.e. after the
+                // preceding atom)
+                const bounds = el.getBoundingClientRect();
+                if (x < bounds.left + bounds.width / 2 && !el.classList.contains('ML__placeholder')) {
+                    result[result.length - 1].offset =
+                        Math.max(0, result[result.length - 1].offset - 1);
+                }
+            } else if (options.bias < 0) {
                 result[result.length - 1].offset =
-                    Math.max(0, result[result.length - 1].offset - 1);
+                    Math.min(this.mathlist.siblings().length - 1, Math.max(0, 
+                        result[result.length - 1].offset + options.bias));
             }
         }
     }
@@ -530,6 +547,7 @@ MathField.prototype._onPointerDown = function(evt) {
     let anchor;
     const that = this;
     let trackingPointer = false;
+    let trackingWords = false;
     let dirty = false;
 
     function endPointerTracking(evt) {
@@ -543,18 +561,27 @@ MathField.prototype._onPointerDown = function(evt) {
         evt.stopPropagation();
     }
 
-    function onPointerMove(moveEvt) {
-        const x = moveEvt.touches ? moveEvt.touches[0].clientX : moveEvt.clientX;
-        const y = moveEvt.touches ? moveEvt.touches[0].clientY : moveEvt.clientY;
-        const focus = that._pathFromPoint(x, y);
-        if (anchor && focus && that.mathlist.setRange(anchor, focus)) {
+    function onPointerMove(evt) {
+        const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
+        const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
+        let actualAnchor = anchor;
+
+        if (evt.touches && evt.touches.length === 2) {
+            actualAnchor = that._pathFromPoint(
+                evt.touches[1].clientX, evt.touches[1].clientY, {bias: 0});
+        }
+
+        const focus = that._pathFromPoint(x, y, 
+            {bias: x <= anchorX ? (x === anchorX ? 0 : -1) : +1});
+
+        if (focus && that.mathlist.setRange(actualAnchor, focus, 
+            {extendToWordBoundary: trackingWords})) {
             // Re-render if the range has actually changed
-            // setTimeout(that._render.bind(that), 0);
             requestAnimationFrame(that._render.bind(that));
         }
         // Prevent synthetic mouseMove event when this is a touch event
-        moveEvt.preventDefault();
-        moveEvt.stopPropagation();
+        evt.preventDefault();
+        evt.stopPropagation();
     }
 
     // Calculate the tap count (if this is a touch event)
@@ -576,11 +603,11 @@ MathField.prototype._onPointerDown = function(evt) {
     off(window, 'mousemove', onPointerMove);
     off(window, 'mouseup blur', endPointerTracking);
 
+    const anchorX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+    const anchorY = evt.touches ? evt.touches[0].clientY : evt.clientY;
     const bounds = this.element.getBoundingClientRect();
-    const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
-    const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
-    if (x > bounds.left && x < bounds.right &&
-        y > bounds.top && y < bounds.bottom) {
+    if (anchorX >= bounds.left && anchorX <= bounds.right &&
+        anchorY >= bounds.top && anchorY <= bounds.bottom) {
 
         // Focus the math field
         if (!this.hasFocus()) {
@@ -596,8 +623,9 @@ MathField.prototype._onPointerDown = function(evt) {
         // If a mouse button other than the main one was pressed, return
         if (evt.buttons && evt.buttons !== 1) return;
 
-        anchor = this._pathFromPoint(x, y);
+        anchor = this._pathFromPoint(anchorX, anchorY, {bias: 0});
         if (anchor) {
+
             if (evt.shiftKey) {
                 // Extend the selection if the shift-key is down
                 this.mathlist.setRange(this.mathlist.path, anchor);
@@ -611,7 +639,7 @@ MathField.prototype._onPointerDown = function(evt) {
 
             // evt.details contains the number of consecutive clicks
             // for double-click, triple-click, etc...
-            if (evt.detail === 2 || evt.detail === 3 || tapCount > 1) {
+            if (evt.detail === 3 || tapCount > 2) {
                 off(this.field, 'touchmove', onPointerMove);
                 off(this.field, 'touchend', endPointerTracking);
                 off(window, 'mousemove', onPointerMove);
@@ -620,9 +648,6 @@ MathField.prototype._onPointerDown = function(evt) {
                 if (evt.detail === 3 || tapCount === 3) {
                     // This is a triple-click
                     this.mathlist.selectAll_();
-                } else if (evt.detail === 2 || tapCount === 2) {
-                    // This is a double-click
-                    this.mathlist.selectGroup_();
                 }
             } else {
                 if (!trackingPointer) {
@@ -637,6 +662,11 @@ MathField.prototype._onPointerDown = function(evt) {
                     } else {
                         on(window, 'mousemove', onPointerMove);
                         on(window, 'mouseup', endPointerTracking);
+                    }
+                    if (evt.detail === 2 || tapCount === 2) {
+                        // This is a double-click
+                        trackingWords = true;
+                        this.mathlist.selectGroup_();
                     }
                 }
             }
@@ -674,7 +704,13 @@ MathField.prototype._onSelectionDidChange = function() {
     }
 
     // Update the mode
-    this.mode = this.mathlist.anchorMode() || this.config.defaultMode;
+    {
+        const previousMode = this.mode;
+        this.mode = this.mathlist.anchorMode() || this.config.defaultMode;
+        if (this.mode !== previousMode && typeof this.config.onModeChange === 'function') {
+            this.config.onModeChange(this, this.mode)
+        }
+    }
 
     // Defer the updating of the popover position: we'll need the tree to be
     // re-rendered first to get an updated caret position
@@ -938,13 +974,7 @@ MathField.prototype.$perform = function(command) {
 
     if (typeof this.mathlist[selector] === 'function') {
         if (/^(delete|transpose|add)/.test(selector)) {
-            if (this.mathlist.isCollapsed() && 
-                selector === 'deletePreviousChar_') {
-                this.keystrokeBuffer = this.keystrokeBuffer.slice(0, -1);
-                this.keystrokeBufferStates.pop();
-            } else {
-                this._resetKeystrokeBuffer();
-            } 
+            this._resetKeystrokeBuffer();
         }
 
         if (/^(delete|transpose|add)/.test(selector) && this.mode !== 'command') {
@@ -1056,6 +1086,7 @@ MathField.prototype.convertLastAtomsToText_ = function(count, until) {
             atom.type = 'textord';
             atom.mode = 'text';
             atom.fontFamily = 'main';
+            atom.latex = atom.body;
         }
         i -= 1;
         count -= 1;
@@ -1118,14 +1149,16 @@ MathField.prototype.removeIsolatedSpace_ = function() {
             !this.mathlist.sibling(i - 1) || 
             this.mathlist.sibling(i - 1).mode === 'math'
     )) {
+        this.mathlist.contentWillChange();
         this.mathlist.siblings().splice(i - 1, 1);
+        this.mathlist.contentDidChange();
         // We need to adjust the selection after doing some surgery on the atoms list
         // But we don't want to receive selection notification changes 
         // which could have a side effect of changing the mode :(
-        const save = this.mathlist.suppressSelectionChangeNotifications;
-        this.mathlist.suppressSelectionChangeNotifications = true;
+        const save = this.mathlist.suppressChangeNotifications;
+        this.mathlist.suppressChangeNotifications = true;
         this.mathlist.setSelection(this.mathlist.anchorOffset() - 1);
-        this.mathlist.suppressSelectionChangeNotifications = save;
+        this.mathlist.suppressChangeNotifications = save;
     }
 }
 
@@ -1183,16 +1216,6 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
                 return true;
             }
 
-            if (/[0-9+\-=><*|]$/.test(c)) {
-                // If this new character looks like a number,
-                // or a relational operator (=, <, >)
-                // or a "*" or "|"
-                // (note that <=, >=, etc... are handled separately as shortcuts)
-                // switch to 'math'
-                return true;
-            }
-
-
             // If this is a closing matching fence
             // switch to 'math' mode
             const lFence = {')' : '(', '}' : '{', ']' : '['}[c];
@@ -1233,6 +1256,7 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
             if (/(^|\s)[a-zA-Z][^a-zA-Z]$/.test(context)) {
                 // Single letter (x), followed by a non-letter (>, =...)
                 this.convertLastAtomsToMath_(1);
+                this.removeIsolatedSpace_();
                 return true;
             }
 
@@ -1249,6 +1273,7 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
                 // An open paren followed by a number
                 // Turn the paren back to math and switch.
                 this.convertLastAtomsToMath_(1);
+                this.removeIsolatedSpace_();
                 return true;
             }
 
@@ -1256,9 +1281,21 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
                 // An open paren followed by a single letter, then a "," or ";"
                 // Turn the paren back and letter to math and switch.
                 this.convertLastAtomsToMath_(2);
+                this.removeIsolatedSpace_();
                 return true;
             }
 
+            // The tests above can look behind and change what had previously
+            // been entered. Now, let's just look at the typed character.
+            if (/[0-9+\-=><*|]$/.test(c)) {
+                // If this new character looks like a number,
+                // or a relational operator (=, <, >)
+                // or a "*" or "|"
+                // (note that <=, >=, etc... are handled separately as shortcuts)
+                // switch to 'math'
+                this.removeIsolatedSpace_();
+                return true;
+            }
 
 
             // /(?<match>[0-9>=<+-/()]+)$/
@@ -1333,7 +1370,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
     // see 4.3)
     if (this.mode !== 'command' && (!evt || (!evt.ctrlKey && !evt.metaKey))) {
         const c = Keyboard.eventToChar(evt);
-        // The Backspace key will be handled as a delete command later (3.2)
+        // The Backspace key will be handled as a delete command later (5.4)
         // const c = Keyboard.eventToChar(evt);
         if (c !== 'Backspace') {
             if (!c || c.length > 1) {
@@ -1344,7 +1381,12 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
                 const candidate = this.keystrokeBuffer + c;
                 let i = 0;
                 while (!shortcut && i < candidate.length) {
-                    shortcut = Shortcuts.forString(candidate.slice(i), this.config);
+                    const siblings = this.keystrokeBufferStates[i] ? ParserModule.parseTokens(
+                        Lexer.tokenize(this.keystrokeBufferStates[i].latex), 
+                        this.config.default, null, this.config.macros) : 
+                        this.mathlist.siblings();
+                    shortcut = Shortcuts.forString(siblings,
+                        candidate.slice(i), this.config);
                     i += 1;
                 }
                 stateIndex = i - 1;
@@ -1370,6 +1412,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
     // since if we switch to math mode, we may want to apply the shortcut
     // e.g. "slope = rise/run"
     if (this.config.smartMode) {
+        const previousMode = this.mode;
         if (shortcut) {
             // If we found a shortcut (e.g. "alpha"),
             // switch to math mode and insert it.
@@ -1377,6 +1420,10 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
         } else if (this.smartMode_(keystroke, evt)) {
             this.mode = {'math':'text', 'text':'math'}[this.mode];
             selector = '';
+        }
+        // Notify of mode change
+        if (this.mode !== previousMode && typeof this.config.onModeChange === 'function') {
+            this.config.onModeChange(this, this.mode)
         }
     }
 
@@ -1434,7 +1481,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
                 // To enable the substitution to be undoable,
                 // insert the character before applying the substitution
                 this.mathlist.insert(Keyboard.eventToChar(evt), {
-                    suppressContentChangeNotifications: true,
+                    suppressChangeNotifications: true,
                     mode: this.mode
                 });
                 const saveMode = this.mode;
@@ -1445,9 +1492,13 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
                 // Revert to the state before the beginning of the shortcut
                 // (restore doesn't change the undo stack)
                 this.undoManager.restore(this.keystrokeBufferStates[stateIndex], 
-                    {...this.config, suppressContentChangeNotifications: true });
+                    {...this.config, suppressChangeNotifications: true });
                 this.mode = saveMode;
             }
+
+            this.mathlist.contentWillChange();
+            const save = this.mathlist.suppressChangeNotifications;
+            this.mathlist.suppressChangeNotifications = true;
 
             // Insert the substitute, possibly as a smart fence
             if (!this.mathlist._insertSmartFence(shortcut)) {
@@ -1457,6 +1508,9 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
             // Check if as a result of the substitution there is now an isolated
             // (text mode) space (surrounded by math). In which case, remove it.
             this.removeIsolatedSpace_();
+
+            this.mathlist.suppressChangeNotifications = save;
+            this.mathlist.contentDidChange();
 
             this.undoManager.snapshot(this.config);
             this._render();
@@ -1685,7 +1739,7 @@ MathField.prototype._render = function(renderOptions) {
     if (this.mathlist.isCollapsed()) {
         this.mathlist.anchor().caret = hasFocus ? this.mode : '';
     } else {
-        this.mathlist.forEachSelected( a => { a.isSelected = true } );
+        this.mathlist.forEachSelected( a => { a.isSelected = true });
     }
 
     //
@@ -1704,7 +1758,7 @@ MathField.prototype._render = function(renderOptions) {
                 groupNumbers: renderOptions.forHighlighting,
             },
             macros: this.config.macros
-        }, this.mathlist.root.body);
+        }, this.mathlist.root);
 
     //
     // 5. Construct struts around the spans
@@ -1727,24 +1781,52 @@ MathField.prototype._render = function(renderOptions) {
         struts.push(bottomStrut);
     }
     struts.push(base);
-    const wrapper = Span.makeSpan(struts, 
-        'ML__mathlive' + (hasFocus ? ' ML__focused' : ' ML__blurred'));
+    const wrapper = Span.makeSpan(struts, 'ML__mathlive');
 
     //
     // 6. Generate markup and accessible node
     //
 
     this.field.innerHTML = wrapper.toMarkup(0, this.config.horizontalSpacingScale);
-    // Probably want to generate content on fly depending on what to speak
+    this.field.classList.toggle('ML__focused', hasFocus);
+    // Probably want to generate content on the fly depending on what to speak
     this.accessibleNode.innerHTML =
        "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
            MathAtom.toMathML(this.mathlist.root, this.config) +
        "</math>";
     //this.ariaLiveText.textContent = "";
 
+    //
+    // 7. Calculate selection rectangle
+    //
+
+    const selectedNodes = this.field.querySelectorAll('.ML__selected');
+    if (selectedNodes && selectedNodes.length > 0) {
+        const selectionRect = { top: Infinity, bottom: -Infinity, left: Infinity, right: -Infinity };
+        // Calculate the union of the bounds of all the selected spans
+        selectedNodes.forEach(node => {
+            if (node.classList.contains('ML__selected')) {
+                const bounds = node.getBoundingClientRect();
+                if (bounds.left < selectionRect.left) selectionRect.left = bounds.left;
+                if (bounds.right > selectionRect.right) selectionRect.right = bounds.right;
+                if (bounds.bottom > selectionRect.bottom) selectionRect.bottom = bounds.bottom;
+                if (bounds.top < selectionRect.top) selectionRect.top = bounds.top;
+            }
+        });
+        const fieldRect = this.field.getBoundingClientRect();
+        const selectionElement = document.createElement('div');
+        selectionElement.classList.add('ML__selection');
+        selectionElement.style.position = 'absolute';
+        selectionElement.style.left = (selectionRect.left - fieldRect.left) + 'px';
+        selectionElement.style.top = (selectionRect.top - fieldRect.top) + 'px';
+        selectionElement.style.width = (selectionRect.right - selectionRect.left) + 'px';
+        selectionElement.style.height = (selectionRect.bottom - selectionRect.top) + 'px';
+        this.field.insertBefore(selectionElement, this.field.childNodes[0])
+    }
+
 
     //
-    // 7. Scroll view
+    // 8. Scroll view
     //
 
     this.scrollIntoView_();
@@ -1973,7 +2055,7 @@ MathField.prototype.groupIsSelected = function() {
  * @param {string} text
  * 
  * @param {Object.<string, any>} options
- * @param {boolean} options.suppressContentChangeNotifications - If true, the
+ * @param {boolean} options.suppressChangeNotifications - If true, the
  * handlers for the contentWillChange and contentDidChange notifications will 
  * not be invoked. Default `false`.
  * 
@@ -1991,7 +2073,7 @@ MathField.prototype.$latex = function(text, options) {
                 selectionMode: 'after',
                 format: 'latex',
                 mode: 'math',
-                suppressContentChangeNotifications: options.suppressContentChangeNotifications
+                suppressChangeNotifications: options.suppressChangeNotifications
             }));
             this.undoManager.snapshot(this.config);
             this._render();
@@ -2176,6 +2258,10 @@ MathField.prototype.switchMode_ = function(mode, prefix, suffix) {
             mode: mode
         });
     }
+    // Notify of mode change
+    if (typeof this.config.onModeChange === 'function') {
+        this.config.onModeChange(this, this.mode)
+    }
     this._render();
 }
 
@@ -2190,12 +2276,14 @@ MathField.prototype.switchMode_ = function(mode, prefix, suffix) {
 MathField.prototype.complete_ = function(escape) {
     if (escape === undefined) escape = false;
     Popover.hidePopover(this);
+    if (escape) {
+        this.mathlist.spliceCommandStringAroundInsertionPoint(null);
+        return true;
+    }
 
     const command = this.mathlist.extractCommandStringAroundInsertionPoint();
     if (command) {
-        if (escape) {
-            this.mathlist.spliceCommandStringAroundInsertionPoint(null);
-        } else if (command === '\\(' || command === '\\)') {
+        if (command === '\\(' || command === '\\)') {
             this.mathlist.spliceCommandStringAroundInsertionPoint([]);
             this.mathlist.insert(command.slice(1), {mode: this.mode});
         } else {
@@ -2822,6 +2910,7 @@ MathField.prototype.applyStyle_ = function(style) {
 
         } else {
             // Convert the selection from one mode to another
+            const previousMode = this.mode;
             const targetMode = 
                 (this.mathlist.anchorMode() || this.config.default) === 'math' ?
                     'text' : 'math';
@@ -2844,6 +2933,11 @@ MathField.prototype.applyStyle_ = function(style) {
                 if (parent && (parent.type === 'group' || parent.type === 'root')) {
                     parent.mode = targetMode;
                 }
+            }
+
+            // Notify of mode change
+            if (this.mode !== previousMode && typeof this.config.onModeChange === 'function') {
+                this.config.onModeChange(this, this.mode)
             }
 
         }
