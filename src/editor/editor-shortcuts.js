@@ -299,7 +299,12 @@ const INLINE_SHORTCUTS = {
     // Letter-like
     'ii':                   '\\imaginaryI',
     'jj':                   '\\imaginaryJ',
-    'ee':                   '\\exponentialE',
+    'ee':                   {
+                                mode: 'math',
+                                after: 'digit+symbol+fence',
+                                value: '\\exponentialE',
+                            },
+
     'nabla':                '\\nabla',
     'grad':                 '\\nabla',
     'del':                  '\\partial',
