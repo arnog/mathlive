@@ -45,6 +45,11 @@ const KEYBOARDS = {
         command: 'enterCommandMode',
         label: `<svg><use xlink:href='#svg-command' /></svg>`,
         layers: ['lower-command', 'upper-command', 'symbols-command']
+    },
+    'style': {
+        tooltip: 'keyboard.tooltip.style',
+        layer: 'style',
+        label: '<b>b</b><i>i</i>𝔹',
     }
 }
 
@@ -650,6 +655,36 @@ const LAYERS = {
                 <li class='fnbutton' data-insert='_{#?} ' data-latex='x_{#?} '></li>
                 <li class='keycap w20 ' data-key=' '>&nbsp;</li>
                 <arrows/>
+            </ul>
+        </div>`,
+    'style': `
+        <div class='rows'>
+            <ul>
+                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"#cc2428"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428'></span></li>
+                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"#fff590"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590'></span></li>
+            </ul>
+            <ul>
+                <li class='keycap' data-command='["applyStyle",{"series":"m"}]' data-latex='\\textmd{Ab}'></li>
+                <li class='keycap' data-command='["applyStyle",{"series":"b"}]' data-latex='\\textbf{Ab}'></li>
+                <li class='keycap' data-command='["applyStyle",{"series":"bx"}]' data-latex='\\textup{Ab}'></li>
+                <li class='keycap' data-command='["applyStyle",{"series":"sb"}]' data-latex='\\textup{Ab}'></li>
+                <li class='keycap' data-command='["applyStyle",{"series":"c"}]' data-latex='\\textup{Ab}'></li>
+            </ul>
+            <ul>
+                <li class='keycap' data-command='["applyStyle",{"shape":"up"}]' data-latex='\\textup{Ab}'></li>
+                <li class='keycap' data-command='["applyStyle",{"shape":"it"}]' data-latex='\\textit{Ab}'></li>
+                <li class='keycap' data-command='["applyStyle",{"shape":"sl"}]' data-latex='\\textsl{Ab}'></li>
+                <li class='keycap' data-command='["applyStyle",{"shape":"sc"}]' data-latex='\\textsc{Ab}'></li>
+            </ul>
+            <ul>
+                <li class='keycap' data-command='["applyStyle",{"fontFamily":"cmr"}]' data-latex='\\textrm{Az}'></li>
+                <li class='keycap' data-command='["applyStyle",{"fontFamily":"cmtt"}]' data-latex='\\texttt{Az}'></li>
+                <li class='keycap' data-command='["applyStyle",{"fontFamily":"cmss"}]' data-latex='\\textsf{Az}'></li>
+
+                <li class='keycap' data-command='["applyStyle",{"fontFamily":"bb"}]'  data-latex='\\mathbb{AZ}'></li>
+                <li class='keycap' data-command='["applyStyle",{"fontFamily":"scr"}]'  data-latex='\\mathscr{AZ}'></li>
+                <li class='keycap' data-command='["applyStyle",{"fontFamily":"cal"}]' data-latex='\\mathcal{A1}'></li>
+                <li class='keycap' data-command='["applyStyle",{"fontFamily":"frak"}]' data-latex='\\mathfrak{Az}'></li>
             </ul>
         </div>`,
 }

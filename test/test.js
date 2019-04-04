@@ -66,7 +66,7 @@ function hasClass(t, s, symbol, cls, msg) {
     }
 
     t.ok(result, result ? msg : msg +
-        '. Classes for ' + symbolString + ' = \'' +
+        '\n\r Classes for ' + symbolString + ': \'' +
         MathLiveDebug.getClasses(span, symbol) +
          '\'\n ' + spanToString(s, true) + ' ');
 }
@@ -88,7 +88,7 @@ function notHasClass(t, s, symbol, cls, msg) {
     }
 
     t.ok(result, result ? msg : msg +
-        ". Classes for " + symbolString + " = \"" +
+        "\nClasses for " + symbolString + ":\n \"" +
         MathLiveDebug.getClasses(span, symbol) +
          "\"\n" + spanToString(s, true) + " ");
 }
@@ -125,7 +125,7 @@ test('BASIC PARSING', function (t) {
     equalSpan(t, 'a % b ', 'a', 'Formula with comment and whitespace');
 
     t.equal(getType('x', 0), 'mord', 'Single letter variables are mord');
-    hasClass(t, 'x', 0, 'mathit', 'Single letter variables are italicized');
+    hasClass(t, 'x', 0, 'ML__mathit', 'Single letter variables are italicized');
 
     const ordString = '1234|/@.`abcdefgzABCDEFGZ';
     // const ordString = '1234|/@.\"`abcdefgzABCDEFGZ';
@@ -160,14 +160,16 @@ test('BASIC PARSING', function (t) {
 ////////////////////////////////////////////////////////////////////////////////
 test('CHARACTERS', function (t) {
     // TeX \char command
-    equalSpan(t, '\\char"004A', 'J', '\\char command with hex argument');
+    equalSpan(t, '\\char"4A', 'J', '\\char command with 2 hex digits');
+    equalSpan(t, '\\char"004A', 'J', '\\char command with 4 hex digits');
     equalSpan(t, '\\char\'0112', 'J', '\\char command with octal argument');
     equalSpan(t, '\\char74', 'J', '\\char command with decimal argument');
     equalSpan(t, '\\char "004A', 'J', '\\char command with whitespace');
 
     // \unicode, a MathJax extension
     // (MathJax also accepts optional width, height and font arguments which we don't support)
-    equalSpan(t, '\\unicode{"004A}', 'J', '\\unicode command');
+    equalSpan(t, '\\unicode{"4A}', 'J', '\\unicode command, 2 hex digits');
+    equalSpan(t, '\\unicode{"004A}', 'J', '\\unicode command, 4 hex digits');
     equalSpan(t, '\\unicode{x004A}', 'J', '\\unicode command with "x" prefix');
 
     // Latin extended characters
@@ -189,7 +191,9 @@ test('CHARACTERS', function (t) {
 
 ////////////////////////////////////////////////////////////////////////////////
 test('TEXT MODE', function (t) {
-    t.equal(getType('\\text{ }', [0]), 'textord', "Spaces are preserved.");
+    // t.equal(getType('\\text{ }', [0]), 'textord', "Spaces are preserved.");
+
+    hasClass(t, '\\text{ }', [0], 'ML__text', "Spaces are preserved.");
 
     // TeX collapses white space in tex mode into one. We preserve them.
     // equalSpan(t, '\\text{a b   }', '\\text{a   b }', "Multiple-white space are collapsed");
@@ -286,13 +290,13 @@ test('PARSING MODE', function (t) {
 
 ////////////////////////////////////////////////////////////////////////////////
 test('FONTS', function (t) {
-    hasClass(t, '\\alpha + x - 1 - \\Gamma', 'x', 'mathit',
+    hasClass(t, '\\alpha + x - 1 - \\Gamma', 'x', 'ML__mathit',
         "Variables in roman letters are italicized");
-    notHasClass(t, '\\alpha + x - 1 - \\Gamma', '1', 'mathit',
+    notHasClass(t, '\\alpha + x - 1 - \\Gamma', '1', 'ML__mathit',
         "Numbers are not italicized");
-    hasClass(t, '\\alpha + x - 1 - \\Gamma', 'α', 'mathit',
+    hasClass(t, '\\alpha + x - 1 - \\Gamma', 'α', 'ML__mathit',
         "Lowercase greek letters are italicized");
-    notHasClass(t, '\\alpha + x - 1 - \\Gamma', 'Γ', 'mathit',
+    notHasClass(t, '\\alpha + x - 1 - \\Gamma', 'Γ', 'ML__mathit',
         "Uppercase greek letters are not italicized");
 
     notHasClass(t, '\\mathfrak{\\sin}', 'sin', 'mathfrak',
@@ -484,14 +488,12 @@ test('DECORATIONS', function (t) {
     //     '\\bbox with border, margin and background');
 
     hasClass(t, '\\rlap{x}o', 0, 'rlap', '\\rlap');
-    t.equal(getType('\\rlap{x}o', [0, 0, 0]), 'textord', 'The argument of \\rlap is in text mode');
-    hasClass(t, '\\mathrlap{x}o', [0, 0, 0], 'mathit', 'The argument of \\mathrlap is in math mode');
+    hasClass(t, '\\rlap{x}o', [0, 0, 0], 'ML__text', 'The argument of \\rlap is in text mode');
+    hasClass(t, '\\mathrlap{x}o', [0, 0, 0], 'ML__mathit', 'The argument of \\mathrlap is in math mode');
 
     hasClass(t, '\\llap{x}o', 0, 'llap', '\\llap');
-    t.equal(getType('\\llap{x}o', [0, 0, 0]), 'textord', 'The argument of \\llap is in text mode');
-
-
-    hasClass(t, '\\mathllap{x}o', [0, 0, 0], 'mathit', 'The argument of \\mathllap is in math mode');
+    hasClass(t, '\\llap{x}o', [0, 0, 0], 'ML__text', 'The argument of \\llap is in text mode');
+    hasClass(t, '\\mathllap{x}o', [0, 0, 0], 'ML__mathit', 'The argument of \\mathllap is in math mode');
 
     t.end();
 });
@@ -507,7 +509,11 @@ test('OVER/UNDERLINE', function (t) {
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-test('KERN', function (t) {
+test('SPACING AND KERN', function (t) {
+    t.ok(toSpan("a\\hskip 3em b"));
+    t.ok(toSpan("a\\kern 3em b"));
+    t.ok(toSpan("a\\hspace{3em} b"));
+    equalSpan(t, 'a\\hskip 3em b', 'a\\hspace{3em} b', "\\hskip and \\hspace");
 
     t.end();
 });
@@ -691,6 +697,12 @@ test('ENVIRONMENTS', function (t) {
     // //
     // t.ok(toSpan('\\begin{a}a&b\\c&d\\end{a}'), 'Simple 2x2 matrix');
 
+    // \cr should be interpreted as end of column
+    // \begin{matrix}
+    // \color{red}a & b \cr
+    // c & d
+    // \end{matrix}
+
     t.end();
 });
 
@@ -794,7 +806,7 @@ test('COLORS', function (t) {
         getStyle(f, 'b', 'color') === null &&
         getStyle(f, 'c', 'color') === '#ff0000' &&
         getStyle(f, 'd', 'color') === null,
-        '\\color applies to all elements following it in the same explicit group');
+        '\\color applies to all elements following it in the same leftright group');
 
     t.ok(toSpan('{\\color{apricot}\\blacksquare}{\\color{aquamarine}\\blacksquare}{\\color{bittersweet}\\blacksquare}{\\color{black}\\blacksquare}{\\color{blue}\\blacksquare}{\\color{blueGreen}\\blacksquare}{\\color{blueviolet}\\blacksquare}{\\color{brickred}\\blacksquare}{\\color{brown}\\blacksquare}{\\color{burntorange}\\blacksquare}{\\color{cadetblue}\\blacksquare}{\\color{carnationpink}\\blacksquare}{\\color{cerulean}\\blacksquare}{\\color{cornflowerblue}\\blacksquare}{\\color{cyan}\\blacksquare}{\\color{dandelion}\\blacksquare}{\\color{darkorchid}\\blacksquare}{\\color{emerald}\\blacksquare}{\\color{forestgreen}\\blacksquare}{\\color{fuchsia}\\blacksquare}{\\color{goldenrod}\\blacksquare}{\\color{gray}\\blacksquare}{\\color{green}\\blacksquare}{\\color{greenyellow}\\blacksquare}{\\color{junglegreen}\\blacksquare}{\\color{lavender}\\blacksquare}{\\color{limegreen}\\blacksquare}{\\color{magenta}\\blacksquare}{\\color{mahogany}\\blacksquare}{\\color{maroon}\\blacksquare}{\\color{melon}\\blacksquare}{\\color{midnightblue}\\blacksquare}{\\color{mulberry}\\blacksquare}{\\color{navyblue}\\blacksquare}{\\color{olivegreen}\\blacksquare}{\\color{orange}\\blacksquare}{\\color{orangered}\\blacksquare}{\\color{orchid}\\blacksquare}{\\color{peach}\\blacksquare}{\\color{periwinkle}\\blacksquare}{\\color{pinegreen}\\blacksquare}{\\color{plum}\\blacksquare}{\\color{processblue}\\blacksquare}{\\color{purple}\\blacksquare}{\\color{rawsienna}\\blacksquare}{\\color{red}\\blacksquare}{\\color{redorange}\\blacksquare}{\\color{redviolet}\\blacksquare}{\\color{rhodamine}\\blacksquare}{\\color{royalblue}\\blacksquare}{\\color{royalpurple}\\blacksquare}{\\color{rubinered}\\blacksquare}{\\color{salmon}\\blacksquare}{\\color{seagreen}\\blacksquare}{\\color{sepia}\\blacksquare}{\\color{skyblue}\\blacksquare}{\\color{springgreen}\\blacksquare}{\\color{tan}\\blacksquare}{\\color{tealblue}\\blacksquare}{\\color{thistle}\\blacksquare}{\\color{turquoise}\\blacksquare}{\\color{violet}\\blacksquare}{\\color{violetred}\\blacksquare}{\\color{white}\\blacksquare}{\\color{wildstrawberry}\\blacksquare}{\\color{yellow}\\blacksquare}{\\color{yellowgreen}\\blacksquare}{\\color{yelloworange}\\blacksquare}'));
 

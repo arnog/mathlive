@@ -457,13 +457,6 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                     }
                 }
                 break;
-            case 'font':
-                options.speechMode = 'text';
-                result += '<break time="200ms"/>';
-                result += MathAtom.toSpeakableFragment(atom.body, options);
-                result += '<break time="200ms"/>';
-                options.speechMode = 'math';
-                break;
 
             case 'enclose':
                 body = MathAtom.toSpeakableFragment(atom.body, options);
@@ -477,7 +470,6 @@ MathAtom.toSpeakableFragment = function(atom, options) {
 
             case 'space':
             case 'spacing':
-            case 'color':
             case 'sizing':
             case 'mathstyle':
             case 'box':

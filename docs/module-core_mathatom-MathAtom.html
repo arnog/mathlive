@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>Token - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>MathAtom - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -58,7 +58,7 @@ writeCookie('symbol-access', 'private')
 
 <main id="main">
     
-        <h1 class="page-title">Token</h1>
+        <h1 class="page-title">MathAtom</h1>
     
 
     
@@ -71,9 +71,9 @@ writeCookie('symbol-access', 'private')
 <header>
     
         <h2>
-            <span class="ancestors"><a href="module-core_lexer.html">core/lexer</a>#</span>
+            <span class="ancestors"><a href="module-core_mathatom.html">core/mathatom</a>~</span>
         
-        Token
+        MathAtom
         </h2>
         
     
@@ -83,33 +83,15 @@ writeCookie('symbol-access', 'private')
     <div class="container-overview">
     
         
-<div class='method private'>
+<div class='method'>
 
     
 
-    <h4 class="name" id="Token">new Token<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="MathAtom">new MathAtom<span class="signature">(mode<span class="signature-type">: string</span>, type<span class="signature-type">: string</span>, body<span class="signature-type">: string | Array</span>, extras<span class="signature-type">: object</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
 
     
 
 
-
-<div class="description">
-    <p>A token can be of type:</p>
-<ul>
-<li><code>literal</code>: the value is the character this token represents. This can be
-a combination of Unicode codepoints, for example for emojis.</li>
-<li><code>^</code> and <code>_</code>: superscript and subscript commands.</li>
-<li><code>command</code>: a command such as <code>\sin</code> or <code>\text</code> or <code>\alpha</code></li>
-<li><code>{</code> and <code>}</code>: begin and end group (use for arguments of commands and for grouping)</li>
-<li><p><code>#</code>: parameter</p>
-</li>
-<li><p><code>placeholder</code>: a placeholder value meant to be replaced by some actual value</p>
-</li>
-<li><p><code>space</code>: one or more space characters (including tab, etc...)</p>
-<p>See: <a href="http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web">TeX:289</a></p>
-</li>
-</ul>
-</div>
 
 
 
@@ -121,22 +103,14 @@ a combination of Unicode codepoints, for example for emojis.</li>
     
 
     
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
 
     
 
-    
-
-
-    <h5 class="subsection-title">Properties</h5>
-
-    
-
-
-    
-
-        <div class="property">
+        <div class="signature">
             
-                <span class="name"><code>value</code></span>
+                <span class="name"><code>mode</code></span>
             
 
             <span class="type">
@@ -152,14 +126,12 @@ a combination of Unicode codepoints, for example for emojis.</li>
 
             
 
-            <span class="description last">
-                
-            </span>
+            
         </div>
 
     
 
-        <div class="property">
+        <div class="signature">
             
                 <span class="name"><code>type</code></span>
             
@@ -177,14 +149,66 @@ a combination of Unicode codepoints, for example for emojis.</li>
 
             
 
-            <span class="description last">
-                
-            </span>
+            
         </div>
 
     
 
+        <div class="signature">
+            
+                <span class="name"><code>body</code></span>
+            
 
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+|
+
+<span class="param-type">Array</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>extras</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
 
 
 <dl class="details">

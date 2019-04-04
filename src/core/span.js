@@ -97,14 +97,11 @@ Span.prototype.updateDimensions = function() {
     let depth = 0;
     let maxFontSize = 0;
     if (this.children) {
-        for (const child of this.children) {
-            if (child) {
-                console.assert(!isNaN(child.height));
-                if (child.height > height) height = child.height;
-                if (child.depth > depth) depth = child.depth;
-                if (child.maxFontSize > maxFontSize) maxFontSize = child.maxFontSize;
-            }
-        }
+        this.children.forEach( x => {
+            if (x.height > height) height = x.height;
+            if (x.depth > depth) depth = x.depth;
+            if (x.maxFontSize > maxFontSize) maxFontSize = x.maxFontSize;
+        });
     }
     this.height = height;
     this.depth = depth;
@@ -124,6 +121,128 @@ Span.prototype.selected = function(isSelected) {
         this.children.forEach(x => x.selected(isSelected));
     }
 }
+
+
+/**
+ * @param {object} style A style specification with the following
+ * (all optionals) properties, which use the TeX terminology:
+ * 
+ * - fontFamily: cmr, cmss, cmtt, cmsy (symbols), cmex (large symbols), 
+ *  ptm (times), phv (helvetica), pcr (courier)
+ * - fontSeries: m (medium), b (bold), bx (bold extended), sb (semi-bold), c (condensed)
+ * - fontShape:          italic, oblique, "roman": n (normal, upright), it, sl, sc
+ * - color:
+ * - background:
+ */
+Span.prototype.applyStyle = function(style) {
+    if (!style) return;
+
+    if (style.color) {
+        if (style.color !== 'none') {
+            this.setStyle('color', style.color);
+        } else {
+            this.setStyle('color', '');
+        }
+    }
+    if (style.background) {
+        if (style.background !== 'none') {
+            this.setStyle('background-color', style.background);
+        } else {
+            this.setStyle('background-color', '');
+        }
+    }
+
+    // Determine the appropriate font (and font-related classes)
+    //
+    // 1. Determine the font family (i.e. 'amsrm', 'mathit', 'mathcal', etc...)
+    //
+    // The font family is determined by:
+    // - the base font family associated with this atom (optional). For example,
+    // some atoms such as some functions ('\sin', '\cos', etc...) or some
+    // symbols ('\Z') have an explicit font family.
+    // - the font family that has been explicitly applied to this atom.
+
+    let fontFamily = style.baseFontFamily || style.fontFamily || style.autoFontFamily;
+
+    //
+    // 2. Determine the (fully qualified) font name associated with this fontFamily
+    //
+    let fontName = 'Main-Regular'; // Default font
+    if (fontFamily) {
+        // Use either the calculated font name or, if the font does not
+        // include the symbol, the original font associated with this symbol.
+        fontName = getFontName(this.body, fontFamily);
+        if (!fontName && this.fontFamily) {
+            fontFamily = this.fontFamily;
+            fontName = getFontName(this.body, fontFamily) || fontFamily;
+        }
+    }
+
+    if (style.fontShape) {
+        this.classes += ' ' + {
+            'it': 'ML__it', 
+            'sl': 'ML__shape_sl',     // slanted
+            'sc': 'ML__shape_sc',     // small caps
+            'ol': 'ML__shape_ol'      // outline
+        }[style.fontShape] || '';
+    }
+    if (style.fontSeries) {
+        const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
+        if (m) {
+            this.classes += ' ' + {
+                'ul': 'ML__series_ul',
+                'el': 'ML__series_el',
+                'l': 'ML__series_l',
+                'sl': 'ML__series_sl',
+                'm': '',            // medium (default)
+                'sb': 'ML__series_sb', 
+                'b': 'ML__bold', 
+                'eb': 'ML__series_eb', 
+                'ub': 'ML__series_ub', 
+            }[m[1] || ''] || '';
+            this.classes += ' ' + {
+                'uc': 'ML__series_uc',
+                'ec': 'ML__series_ec',
+                'c': 'ML__series_c',
+                'sc': 'ML__series_sc',
+                'n':    '',         // normal (default)
+                'sx': 'ML__series_sx', 
+                'x': 'ML__series_x', 
+                'ex': 'ML__series_ex', 
+                'ux': 'ML__series_ux', 
+            }[m[2] || ''] || '';
+        }
+    }
+
+    if (FONT_CLASS[fontFamily]) {
+        this.classes += ' ' + FONT_CLASS[fontFamily];
+    } else {
+        // Not a well-known family. Use a style.
+        this.setStyle('font-family', fontFamily);
+    }
+
+    //
+    // 3. Get the metrics information
+    //
+    if (this.body && this.body.length > 0 && fontName) {
+        this.height = 0;
+        this.depth = 0;
+        this.skew = 0;
+        this.italic = 0;
+        for (let i = 0; i < this.body.length; i++) {
+            const metrics = FontMetrics.getCharacterMetrics(this.body.charAt(i), fontName);
+            // If we were able to get metrics info for this character, store it.
+            if (metrics) {
+                this.height = Math.max(this.height, metrics.height);
+                this.depth = Math.max(this.depth, metrics.depth);
+                this.skew = metrics.skew;
+                this.italic = metrics.italic;
+            }
+        }
+    }
+
+}
+
 
 /**
  * Set the value of a CSS property associated with this span.
@@ -916,6 +1035,96 @@ function makeVlist(context, elements, pos, posData) {
 //     }
 //     return [bottomStrut, base];
 // }
+
+
+
+//----------------------------------------------------------------------------
+// FONTS
+//----------------------------------------------------------------------------
+
+// Map an abstract 'fontFamily' to an actual font name
+const FONT_NAME = {
+    'ams':          'AMS-Regular',     // pseudo-fontFamily to select AMS-Regular
+    'bb':           'AMS-Regular',
+    'cal':          'Caligraphic-Regular',
+    'frak':         'Fraktur-Regular',
+    'scr':          'Script-Regular',
+    'cmr':          'Main-Regular',
+    'cmss':         'SansSerif-Regular',
+    'cmtt':         'Typewriter-Regular',
+    'math':         'Math-Regular',
+    'mathrm':       'Main-Regular',
+    'mainrm':       'Main-Regular',
+
+    'mathit':       'Math-Regular',
+    'mathbf':       'Main-Bold',
+    'mathbfit':     'Math-Bold',
+};
+
+const FONT_CLASS = {
+    'ams':          'ML__ams',
+    'bb':           'ML__bb',
+    'cal':          'ML__cal',
+    'frak':         'ML__frak',
+    'scr':          'ML__script',
+    'cmr':          'ML__mathrm',
+    'cmss':         'ML__sans',
+    'cmtt':         'ML__tt',
+    'math':         'ML__mathit',
+
+    'main':         'ML__mathrm',
+    'mathrm':       'ML__mathrm',
+    'mainrm':       'ML__mathrm',
+
+    'mathit':       'ML__mathit',
+    'mathbf':       'ML__mathbf',
+    'mathbfit':     'ML__mathbfit',
+}
+
+
+
+/**
+ * Given a font family ('mathbf', 'mathit'...) return a corresponding
+ * font name. If the font does not support the specified symbol
+ * return an alternate font or null if none could be determined.
+ * @param {(string|Span[])} symbol the character for which we're seeking the font
+ * @param {string} fontFamily such as 'mathbf', 'mathfrak', etc...
+ * @return {string} a font name
+ * @memberof module:mathAtom
+ * @private
+ */
+function getFontName(symbol, fontFamily) {
+    // If this is not a single char, just do a simple fontFamily -> fontName mapping
+    if (typeof symbol !== 'string' ||
+        symbol.length > 1 ||
+        symbol === '\u200b') {
+        return FONT_NAME[fontFamily];
+    }
+
+    // This is a single character. Do some remapping as necessary.
+
+    // If symbol is not in the repertoire of the font,
+    // return null.
+    if (fontFamily === 'bb' || fontFamily === 'scr') {
+        // These fonts only support [A-Z ]
+        if (!/^[A-Z ]$/.test(symbol)) return null;
+
+    } else if (fontFamily === 'cal') {
+        // Only supports uppercase latin and digits
+        if (!/^[0-9A-Z ]$/.test(symbol)) return null;
+
+    } else if (fontFamily === 'frak') {
+        if (!/^[0-9A-Za-z ]$|^[!"#$%&'()*+,\-./:;=?[]^’‘]$/.test(symbol)) {
+            return null;
+        }
+    } else if (fontFamily === 'cmtt' || fontFamily === 'cmss') {
+        if (!/^[0-9A-Za-z ]$|^[!"&'()*+,\-./:;=?@[]^_~\u0131\u0237\u0393\u0394\u0398\u039b\u039e\u03A0\u03A3\u03A5\u03A8\u03a9’‘]$/.test(symbol)) {
+            return null;
+        }
+    }
+
+    return FONT_NAME[fontFamily];
+}
 
 // Export the public interface for this module
 export default {

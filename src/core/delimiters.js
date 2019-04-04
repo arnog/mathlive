@@ -43,8 +43,7 @@ const makeVlist = Span.makeVlist;
  * @private
  */
 function makeSmallDelim(type, delim, style, center, context, classes) {
-    const text = makeSymbol(Definitions.getFontName('math', delim),
-        Definitions.getValue('math', delim));
+    const text = makeSymbol('AMS-Regular', Definitions.getValue('math', delim));
 
     const span = makeStyleWrap(type, text, context.mathstyle, style, classes);
 
@@ -119,7 +118,7 @@ function makeStackedDelim(type, delim, heightTotal, center, context,
     let middle;
     let repeat;
     let bottom;
-    top = repeat = bottom = delim;
+    top = repeat = bottom = Definitions.getValue('math', delim);
     middle = null;
     // Also keep track of what font the delimiters are in
     let font = 'Size1-Regular';

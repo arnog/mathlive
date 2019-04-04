@@ -18,7 +18,10 @@ const makeHlist = Span.makeHlist;
 const makeVlist = Span.makeVlist;
 const FONTMETRICS = FontMetricsModule.metrics;
 
+const GREEK_REGEX = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5/;
 
+// TeX by default auto-italicize latin letters and lowercase greek letters
+const AUTO_ITALIC_REGEX = /^([A-Za-z]|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5)$/;
 
 
 /**
@@ -101,45 +104,55 @@ const FONTMETRICS = FontMetricsModule.metrics;
  * @private
  */
 class MathAtom {
-    constructor(mode, type, body, fontFamily, extras) {
+    /**
+     * 
+     * @param {string} mode 
+     * @param {string} type 
+     * @param {string|Array} body 
+     * @param {object} extras 
+     */
+    constructor(mode, type, body, style) {
+        if (type === 'textord') {
+            console.log(type);
+        }
         this.mode = mode;
         this.type = type;
         this.body = body;
-        this.fontFamily = fontFamily;
+
         // Append all the properties in extras to this
-        // This can override the type, value, etc...
-        if (extras) {
-            for (const p in extras) {
-                if (extras.hasOwnProperty(p)) {
-                    this[p] = extras[p];
-                }
-            }
+        // This can override the mode, type and body
+        this.applyStyle(style);
+    }
+
+    applyStyle(style) {
+        // @todo: adjust font family
+        Object.assign(this, style);
+
+        if (this.fontFamily === 'none') {
+            this.fontFamily = '';
         }
-        // Determine which font family to use.
-        // Note that the type, fontFamily and body could have been overridden
-        // by 'extras', so don't check against the parameter ('type') but
-        // the value in the object ('this.type').
-        if (this.mode === 'math' && this.fontFamily === 'main' &&
-            typeof this.body === 'string' && this.body.length === 1) {
-            if (AUTO_ITALIC_REGEX.test(this.body)) {
+
+        if (this.mode === 'math') {
+            const symbol = typeof this.body === 'string' ? this.body : '';
+            this.autoFontFamily = 'main';
+            if (AUTO_ITALIC_REGEX.test(symbol)) {
                 // Auto italicize alphabetic and lowercase greek symbols
-                // in math mode (European style, American style would not
+                // in math mode (European style: American style would not
                 // italicize greek letters, but it's TeX's default behavior)
-                this.fontFamily = 'mathit';
+                this.autoFontFamily = 'math';
+            } else if (/[0-9]|\\imath|\\jmath|\\pounds/.test(symbol)) {
+                // Some characters do not exist in the Math font,
+                // use cmr instead
+                this.autoFontFamily = 'cmr';
+            } else if (!GREEK_REGEX.test(symbol) && this.baseFontFamily === 'math') {
+                // @todo if this.shape !== 'it'?
+                this.autoFontFamily = 'cmr';
             }
-        }
-        if (this.type === 'textord' && this.fontFamily === 'main') {
-            this.fontFamily = 'mathrm';
-        }
-        // if (!italic && type === 'textord' && (mode === 'displaymath' || mode === 'inlinemath')) {
-        //     fontFamily = 'mathit';  // This is important to get \prime to render correctly
-        // }
-        if (this.fontFamily === 'main') {
-            this.fontFamily = 'mathrm';
-        } else if (fontFamily === 'ams') {
-            this.fontFamily = 'amsrm';
+        } else {
+            this.autoFontFamily = '';
         }
     }
+
     getInitialBaseElement() {
         // if (this.type === 'leftright') {
         //     return this;
@@ -154,21 +167,29 @@ class MathAtom {
         }
         return result;
     }
+
+
     getFinalBaseElement() {
         if (Array.isArray(this.body) && this.body.length > 0) {
             return this.body[this.body.length - 1].getFinalBaseElement();
         }
         return this;
     }
+
+
     isCharacterBox() {
         const base = this.getInitialBaseElement();
         return /minner|mbin|mrel|mpunct|mopen|mclose|textord/.test(base.type);
     }
+
+
     forEach(cb) {
         cb(this);
         if (Array.isArray(this.body)) {
             for (const atom of this.body) if (atom) atom.forEach(cb);
         } else if (this.body && typeof this.body === 'object') {
+            // Note: body can be null, for example 'first' or 'rule'
+            // (and null is an object)
             cb(this.body);
         }
         if (this.superscript) {
@@ -200,6 +221,8 @@ class MathAtom {
             }
         }
     }
+
+
     /**
      * Iterate over all the child atoms of this atom, this included,
      * and return an array of all the atoms for which the predicate callback
@@ -229,6 +252,8 @@ class MathAtom {
         }
         return result;
     }
+
+
     decomposeGroup(context) {
         // The scope of the context is this group, so make a copy of it
         // so that any changes to it will be discarded when finished
@@ -239,6 +264,8 @@ class MathAtom {
         const localContext = context.withMathstyle(this.mathstyle);
         return makeOrd(decompose(localContext, this.body));
     }
+
+
     decomposeArray(context) {
         // See http://tug.ctan.org/macros/latex/base/ltfsstrc.dtx
         // and http://tug.ctan.org/macros/latex/base/lttab.dtx
@@ -422,8 +449,10 @@ class MathAtom {
             this.bind(context, Delimiters.makeLeftRightDelim('mclose', this.rFence, innerHeight, innerDepth, context))
         ]);
     }
+
+
     /**
-     * GENFRAC -- Generalized fraction
+     * Gengrac -- Generalized fraction
      *
      * Decompose fractions, binomials, and in general anything made
      * of two expressions on top of each other, optionally separated by a bar,
@@ -508,6 +537,7 @@ class MathAtom {
             }
             const mid = makeSpan('',
             /* newContext.mathstyle.adjustTo(Mathstyle.TEXT) + */ ' frac-line');
+            mid.applyStyle(this);
             // @todo: do we really need to reset the size?
             // Manually set the height of the line because its height is
             // created in CSS
@@ -549,6 +579,8 @@ class MathAtom {
             ('sizing reset-' + context.parentSize + ' ' + context.size) : 'genfrac'));
         return this.bind(context, result);
     }
+
+
     /**
       *  \left....\right
       *
@@ -629,6 +661,8 @@ class MathAtom {
         // for example in `\sin\mleft(x\mright)`
         return result;
     }
+
+
     decomposeSurd(context) {
         // See the TeXbook pg. 443, Rule 11.
         // http://www.ctex.org/documents/shredder/src/texbook.pdf
@@ -646,19 +680,26 @@ class MathAtom {
         let lineClearance = ruleWidth + phi / 4;
         const innerHeight = (Span.height(inner) + Span.depth(inner)) * mathstyle.sizeMultiplier;
         const minDelimiterHeight = innerHeight + (lineClearance + ruleWidth);
+
         // Create a \surd delimiter of the required minimum size
         const delim = makeSpan(Delimiters.makeCustomSizedDelim('', '\\surd', minDelimiterHeight, false, context), 'sqrt-sign');
+        delim.applyStyle(this);
+
         const delimDepth = (delim.height + delim.depth) - ruleWidth;
+
         // Adjust the clearance based on the delimiter size
         if (delimDepth > Span.height(inner) + Span.depth(inner) + lineClearance) {
             lineClearance =
                 (lineClearance + delimDepth - Span.height(inner) - Span.depth(inner)) / 2;
         }
+
         // Shift the delimiter so that its top lines up with the top of the line
         delim.setTop((delim.height - Span.height(inner)) -
             (lineClearance + ruleWidth));
         const line = makeSpan('', context.mathstyle.adjustTo(Mathstyle.TEXT) + ' sqrt-line');
+        line.applyStyle(this);
         line.height = ruleWidth;
+
         // We add a special case here, because even when `inner` is empty, we
         // still get a line. So, we use a simple heuristic to decide if we
         // should omit the body entirely. (note this doesn't work for something
@@ -673,6 +714,7 @@ class MathAtom {
         if (!this.index) {
             return this.bind(context, makeOrd([delim, body], 'sqrt'));
         }
+
         // Handle the optional root index
         // The index is always in scriptscript style
         const newcontext = context.withMathstyle(Mathstyle.SCRIPTSCRIPT);
@@ -689,6 +731,8 @@ class MathAtom {
         // kerning
         return this.bind(context, makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt'));
     }
+
+
     decomposeAccent(context) {
         // Accents are handled in the TeXbook pg. 443, rule 12.
         const mathstyle = context.mathstyle;
@@ -729,6 +773,8 @@ class MathAtom {
         accentBody.children[1].setLeft(2 * skew);
         return makeOrd(accentBody, 'accent');
     }
+
+
     /**
      * \overline and \underline
      *
@@ -753,6 +799,8 @@ class MathAtom {
         }
         return makeOrd(vlist, this.position);
     }
+
+
     decomposeOverunder(context) {
         const base = decompose(context, this.body);
         const annotationStyle = context.withMathstyle('scriptstyle');
@@ -760,10 +808,14 @@ class MathAtom {
         const below = this.underscript ? makeSpan(decompose(annotationStyle, this.underscript), context.mathstyle.adjustTo(annotationStyle.mathstyle)) : null;
         return makeStack(context, base, 0, 0, above, below, this.mathtype || 'mrel');
     }
+
+
     decomposeOverlap(context) {
         const inner = makeSpan(decompose(context, this.body), 'inner');
         return makeOrd([inner, makeSpan('', 'fix')], (this.align === 'left' ? 'llap' : 'rlap'));
     }
+
+
     /**
      * \rule
      * @memberof MathAtom
@@ -785,32 +837,8 @@ class MathAtom {
         result.depth = -shift;
         return result;
     }
-    decomposeFont(context) {
-        let result = [];
-        if (this.font === 'emph') {
-            // This command will toggle italic. Need to check the current font
-            // @todo: this doesn't quite work. The \textit command can change the italic style,
-            // but this won't be reflected in the context (it simply add a class to the span).
-            // We'd need to way of tracking weight, style (shape) in context...
-            if (context.font === 'mathit') {
-                result = decompose(context.fontFamily('mathrm'), this.body);
-            } else {
-                result = decompose(context.fontFamily('textit'), this.body);
-            }
-        } else if (this.font === 'textit' || this.font === 'textbf') {
-            // The commands are additive
-            result = decompose(context, this.body);
-            // Add a bolding or italicizing class to the decomposed atoms
-            if (this.font === 'textit') {
-                result.forEach(span => { span.classes += ' mathit'; });
-            } else if (this.font === 'textbf') {
-                result.forEach(span => { span.classes += ' mathbf'; });
-            }
-        } else {
-            result = decompose(context.fontFamily(this.font), this.body);
-        }
-        return makeOrd(result);
-    }
+
+
     decomposeOp(context) {
         // Operators are handled in the TeXbook pg. 443-444, rule 13(a).
         const mathstyle = context.mathstyle;
@@ -864,6 +892,8 @@ class MathAtom {
         if (this.symbol) base.setTop(baseShift);
         return base;
     }
+
+
     applySizing(context) {
         // A sizing operation
         const fontSize = {
@@ -881,19 +911,8 @@ class MathAtom {
         context.size = this.size;
         context.sizeMultiplier = fontSize;
     }
-    decomposeColor(context) {
-        let result = null;
-        // A color operation
-        if (this.color) {
-            context.color = this.color;
-        } else if (this.body) {
-            result = makeOrd(decompose(context, this.body));
-            if (this.textcolor) result.setStyle('color', this.textcolor);
-            if (this.backgroundcolor) result.setStyle('background-color', this.backgroundcolor);
-            result = this.bind(context, result);
-        }
-        return result;
-    }
+
+
     decomposeBox(context) {
         const base = makeOrd(decompose(context, this.body));
         base.setStyle('position', 'relative');
@@ -910,6 +929,8 @@ class MathAtom {
         result.setStyle('height', result.height + result.depth, 'em');
         return this.bind(context, result);
     }
+
+
     decomposeEnclose(context) {
         const base = makeOrd(decompose(context, this.body));
         const result = base;
@@ -1047,6 +1068,8 @@ class MathAtom {
         }
         return result;
     }
+
+
     /**
      * Return a representation of this, but decomposed in an array of Spans
      *
@@ -1059,7 +1082,7 @@ class MathAtom {
     decompose(context, phantomBase) {
         console.assert(context instanceof Context.Context);
         let result = null;
-        if (/mord|minner|mbin|mrel|mpunct|mopen|mclose|textord/.test(this.type)) {
+        if (!this.type || /mord|minner|mbin|mrel|mpunct|mopen|mclose|textord/.test(this.type)) {
             // The body of these atom types is always a string
             result = this.makeSpan(context, this.body);
             result.type = this.type;
@@ -1105,8 +1128,6 @@ class MathAtom {
             }
         } else if (this.type === 'mop') {
             result = this.decomposeOp(context);
-        } else if (this.type === 'font') {
-            result = this.decomposeFont(context);
         } else if (this.type === 'space') {
             // A space literal
             result = this.makeSpan(context, ' ');
@@ -1140,8 +1161,6 @@ class MathAtom {
                 }[this.body] || 'quad';
                 result = makeSpan('\u200b', 'mspace ' + spacingCls);
             }
-        } else if (this.type === 'color') {
-            result = this.decomposeColor(context);
         } else if (this.type === 'sizing') {
             this.applySizing(context);
         } else if (this.type === 'mathstyle') {
@@ -1150,8 +1169,7 @@ class MathAtom {
             result = this.decomposeBox(context);
         } else if (this.type === 'enclose') {
             result = this.decomposeEnclose(context);
-        } else if (this.type === 'esc' || this.type === 'command' ||
-            this.type === 'error') {
+        } else if (this.type === 'command' || this.type === 'error') {
             result = this.makeSpan(context, this.body);
             result.classes = ''; // Override fonts and other attributes.
             if (this.error) {
@@ -1201,6 +1219,8 @@ class MathAtom {
         }
         return Array.isArray(result) ? result : [result];
     }
+
+
     attachSupsub(context, nucleus, type) {
         // If no superscript or subscript, nothing to do.
         if (!this.superscript && !this.subscript) return nucleus;
@@ -1286,6 +1306,15 @@ class MathAtom {
         }
         return Span.makeSpanOfType(type, [nucleus, supsubContainer]);
     }
+
+
+    attachLimits(context, nucleus, nucleusShift, slant) {
+        const limitAbove = this.superscript ? makeSpan(decompose(context.sup(), this.superscript), context.mathstyle.adjustTo(context.mathstyle.sup())) : null;
+        const limitBelow = this.subscript ? makeSpan(decompose(context.sub(), this.subscript), context.mathstyle.adjustTo(context.mathstyle.sub())) : null;
+        return makeStack(context, nucleus, nucleusShift, slant, limitAbove, limitBelow, 'mop');
+    }
+
+
     /**
      * Add an ID attribute to both the span and this atom so that the atom
      * can be retrieved from the span later on (e.g. when the span is clicked on)
@@ -1294,7 +1323,7 @@ class MathAtom {
      * @method MathAtom#bind
      */
     bind(context, span) {
-        if (context.generateID && this.type !== 'first' && this.body !== '\u200b') {
+        if (this.type !== 'first' && this.body !== '\u200b') {
             this.id = makeID(context);
             if (this.id) {
                 if (!span.attributes) span.attributes = {};
@@ -1303,6 +1332,8 @@ class MathAtom {
         }
         return span;
     }
+
+
     /**
      * Create a span with the specified body and with a class attribute
      * equal to the type ('mbin', 'inner', 'spacing', etc...)
@@ -1315,97 +1346,25 @@ class MathAtom {
     makeSpan(context, body) {
         const type = this.type === 'textord' ? 'mord' : this.type;
         const result = Span.makeSpanOfType(type, body);
-        //
-        // 1. Determine the font family (i.e. 'amsrm', 'mathit', 'mathcal', etc...)
-        //
-        // The font family is determined by:
-        // - the font family associated with this atom (optional). For example,
-        // some atoms such as some functions ('\sin', '\cos', etc...) or some
-        // symbols ('\Z') have an explicit font family.
-        // - the font family in the current rendering context, represented by the
-        // `context.font` argument. This can also be null.
-        // In general, the font from the rendering context overrides the
-        // atom's font family
-        let fontFamily = context.font || this.fontFamily;
-        // Exception:  if this.fontFamily === 'amsrm', always use 'amsrm' as the
-        // font family. Apply variants for bold/italic
-        if (this.fontFamily === 'amsrm') {
-            fontFamily = 'amsrm';
-            if (context.font === 'mathbf') {
-                result.setStyle('font-weight', 'bold');
-            } else if (context.font === 'mathit') {
-                result.setStyle('font-variant', 'italic');
-            }
-        } else if (type === 'mop') {
-            // If it's an operator (e.g. '\sin'), prefer the operator's font family
-            fontFamily = this.fontFamily || context.font;
-        }
-        //
-        // 2. Determine the font name associated with this fontFamily
-        //
-        let fontName = 'Main-Regular'; // Default font
-        if (fontFamily) {
-            // Use either the calculated font name or, if the font does not
-            // include the symbol, the original font associated with this symbol.
-            fontName = getFontName(body, fontFamily);
-            if (!fontName && this.fontFamily) {
-                fontFamily = this.fontFamily;
-                fontName = getFontName(body, fontFamily) || fontFamily;
-            }
-            if (!fontName && context.font) {
-                fontFamily = context.font;
-                fontName = getFontName(body, fontFamily) || fontFamily;
-            }
-            if (fontName === 'AMS-Regular') {
-                result.classes += ' amsrm';
-            } else if (fontName === 'Main-Italic') {
-                result.classes += ' mainit';
-            } else if (fontName === 'Math-Italic') {
-                result.classes += ' mathit';
-            } else if (fontName !== 'Main-Regular' && fontFamily) {
-                result.classes += ' ' + fontFamily;
-            }
-        }
-        if (!fontName) {
-            console.error('no fontname');
-        }
-        //
-        // 3. Get the metrics information
-        //
-        if (body && typeof body === 'string' && body.length > 0) {
-            result.height = 0;
-            result.depth = 0;
-            result.skew = 0;
-            result.italic = 0;
-            for (let i = 0; i < body.length; i++) {
-                const metrics = FontMetricsModule.getCharacterMetrics(body.charAt(i), fontName);
-                // If we were able to get metrics info for this character, store it.
-                if (metrics) {
-                    result.height = Math.max(result.height, metrics.height);
-                    result.depth = Math.max(result.depth, metrics.depth);
-                    result.skew = metrics.skew;
-                    result.italic = metrics.italic;
-                }
-            }
-            // The italic correction applies only in math mode
-            if (this.mode !== 'math') result.italic = 0;
-        }
-        //
-        // 4. Apply size correction
-        //
+
+        result.applyStyle(this); 
+
+        // Apply size correction
         if (context.parentSize !== context.size) {
             result.classes += ' sizing reset-' + context.parentSize;
             result.classes += ' ' + context.size;
         }
-        //
-        // 5. Set other attributes
-        //
+
+        // Set other attributes
+
         if (this.mode === 'text') result.classes += ' ML__text';
         if (context.mathstyle.isTight()) result.isTight = true;
+        // The italic correction applies only in math mode
+        if (this.mode !== 'math') result.italic = 0;
         result.setRight(result.italic); // Italic correction
-        if (context.color) result.setStyle('color', context.getColor());
-        if (context.backgroundcolor) result.setStyle('background-color', context.getBackgroundColor());
+
         if (typeof context.opacity === 'number') result.setStyle('opacity', context.opacity);
+
         // To retrieve the atom from a span, for example when the span is clicked
         // on, attach a randomly generated ID to the span and associate it
         // with the atom.
@@ -1420,11 +1379,7 @@ class MathAtom {
         }
         return result;
     }
-    attachLimits(context, nucleus, nucleusShift, slant) {
-        const limitAbove = this.superscript ? makeSpan(decompose(context.sup(), this.superscript), context.mathstyle.adjustTo(context.mathstyle.sup())) : null;
-        const limitBelow = this.subscript ? makeSpan(decompose(context.sub(), this.subscript), context.mathstyle.adjustTo(context.mathstyle.sub())) : null;
-        return makeStack(context, nucleus, nucleusShift, slant, limitAbove, limitBelow, 'mop');
-    }
+
 }
 
 
@@ -1618,116 +1573,6 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
     return Span.makeSpanOfType(type, result, 'op-limits');
 }
 
-//----------------------------------------------------------------------------
-// FONTS
-//----------------------------------------------------------------------------
-
-// Map an abstract 'fontFamily' to an actual font name
-const FONT_NAME = {
-    'main':         'Main-Regular',
-    'mainrm':       'Main-Regular',
-    'mathrm':       'Main-Regular',
-    'mathbf':       'Main-Bold',
-    // Note: italic is complicated and generally handled separately
-    // in getFontName(), but this is for the cases where we need to 
-    // pick a font for a whole string (as opposed to a single char)
-    // for example when using \mathop{abcd}
-    'mathit':       'Math-Italic',
-    'mainit':       'Main-Italic',
-
-    'amsrm':        'AMS-Regular',     // pseudo-fontFamily to select AMS-Regular
-    'mathbb':       'AMS-Regular',
-    'mathcal':      'Caligraphic-Regular',
-    'mathfrak':     'Fraktur-Regular',
-    'mathscr':      'Script-Regular',
-    'mathsf':       'SansSerif-Regular',
-    'mathtt':       'Typewriter-Regular',
-
-
-    'textrm':       'Main-Regular',
-    'textit':       'Main-Italic',
-    'textbf':       'Main-Bold',
-};
-
-const GREEK_REGEX = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5/;
-
-// TeX by default auto-italicize latin letters and lowercase greek letters
-const AUTO_ITALIC_REGEX = /[A-Za-z]|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5/;
-
-
-/**
- * Given a font family ('mathbf', 'mathit'...) return a corresponding
- * font name. If the font does not support the specified symbol
- * return an alternate font or null if none could be determined.
- * @param {(string|Span[])} symbol the character for which we're seeking the font
- * @param {string} fontFamily such as 'mathbf', 'mathfrak', etc...
- * @return {string} a font name
- * @memberof module:mathAtom
- * @private
- */
-function getFontName(symbol, fontFamily) {
-    // If this is not a single char, just do a simple fontFamily -> fontName mapping
-    if (typeof symbol !== 'string' ||
-        symbol.length > 1 ||
-        symbol === '\u200b') {
-        return fontFamily === 'mathit' ? 'Math-Italic' : 
-            FONT_NAME[fontFamily] || fontFamily;
-    }
-
-    console.assert(symbol && typeof symbol === 'string');
-
-    // This is a single character. Do some remapping as necessary.
-
-    let result = '';
-    if (fontFamily === 'mathit') {
-        // Some characters do not exist in the Math-Italic font,
-        // use Main-Italic instead
-        if (/[0-9]|\\imath|\\jmath|\\pounds/.test(symbol)) {
-            result = 'Main-Italic'
-        } else if (AUTO_ITALIC_REGEX.test(symbol)) {
-            result = 'Math-Italic';
-        } else {
-            result = 'Main-Regular';
-        }
-    } else if (fontFamily === 'mathrm') {
-        if (GREEK_REGEX.test(symbol)) {
-            result = 'Math-Regular';    // Hmmm... Math-Regular is actually an italic font!
-        } else {
-            result = 'Main-Regular';
-        }
-    } else if (fontFamily === 'mathbf') {
-        if (GREEK_REGEX.test(symbol)) {
-            result = 'Math-BoldItalic';
-        } else {
-            result = 'Main-Bold';
-        }
-    } else {
-        // If symbol is not in the repertoire of the font,
-        // return null.
-        if (fontFamily === 'mathbb' || fontFamily === 'mathscr') {
-            // These fonts only support [A-Z]
-            if (!/^[A-Z ]$/.test(symbol)) return null;
-
-        } else if (fontFamily === 'mathcal') {
-            // Only supports uppercase latin and digits
-            if (!/^[0-9A-Z ]$/.test(symbol)) return null;
-
-        } else if (fontFamily === 'mathfrak') {
-            if (!/^[0-9A-Za-z ]$|^[!"#$%&'()*+,\-./:;=?[]^’‘]$/.test(symbol)) {
-                return null;
-            }
-        } else if (fontFamily === 'mathtt' || fontFamily === 'texttt' || fontFamily === 'textsf' || fontFamily === 'mathsf') {
-            if (!/^[0-9A-Za-z ]$|^[!"&'()*+,\-./:;=?@[]^_~\u0131\u0237\u0393\u0394\u0398\u039b\u039e\u03A0\u03A3\u03A5\u03A8\u03a9’‘]$/.test(symbol)) {
-                return null;
-            }
-        }
-
-        result = FONT_NAME[fontFamily];
-    }
-    return result;
-}
-
-
 
 
 /**
@@ -1744,13 +1589,8 @@ function getFontName(symbol, fontFamily) {
  */
 function decompose(context, atoms) {
     if (!(context instanceof Context.Context)) {
-        // We can be passed either a Context object, or a simple object
-        // with some properties set.
-        // If those properties are not set, use default values..
-        if (context.generateID === undefined) context.generateID = false;
-        context.size = context.size || 'size5'; // medium size
-        context.mathstyle = context.mathstyle || 'displaystyle';
-
+        // We can be passed either a Context object, or 
+        // a simple object with some properties set.
         context = new Context.Context(context);
     }
 
@@ -1929,10 +1769,10 @@ function decompose(context, atoms) {
 
 function makeRoot(parseMode, body) {
     parseMode = parseMode || 'math';
-    const result =  new MathAtom(parseMode, 'root', null);
+    const result =  new MathAtom(parseMode, 'root');
     result.body = body || [];
     if (result.body.length === 0 || result.body[0].type !== 'first') {
-        result.body.unshift(new MathAtom('', 'first', null));
+        result.body.unshift(new MathAtom('', 'first'));
     }
     return result;
 }

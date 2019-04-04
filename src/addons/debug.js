@@ -214,9 +214,6 @@ function mathlistToString(mathlist, indent) {
         result += mathlistPropToString(mathlist, 'symbol', indent);
 
         // Type 'color'
-        result += mathlistPropToString(mathlist, 'color', indent);
-        result += mathlistPropToString(mathlist, 'textcolor', indent);
-        result += mathlistPropToString(mathlist, 'backgroundcolor', indent);
         result += mathlistPropToString(mathlist, 'framecolor', indent);
 
         // Type 'line'
@@ -365,9 +362,6 @@ function mathlistToMarkup(mathlist, indent) {
         result += mathListPropToMarkup(mathlist, 'symbol');
 
         // Type 'color'
-        result += mathListColorToMarkup(mathlist, 'color');
-        result += mathListColorToMarkup(mathlist, 'textcolor');
-        result += mathListColorToMarkup(mathlist, 'backgroundcolor');
         result += mathListColorToMarkup(mathlist, 'framecolor');
 
         // Type 'mathstyle'
@@ -385,9 +379,6 @@ function mathlistToMarkup(mathlist, indent) {
 
         // Type 'line'
         result += mathListPropToMarkup(mathlist, 'position');
-
-        // Type 'font'
-        result += mathListPropToMarkup(mathlist, 'font');
         
         // Type 'overunder'
         result += mathlistToMarkup(mathlist.overscript, indent + '↑');

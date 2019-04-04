@@ -19,17 +19,17 @@ import VirtualKeyboard from './editor-virtualKeyboard.js';
 import GraphemeSplitter from '../core/grapheme-splitter.js';
 import { toASCIIMath } from './outputASCIIMath.js';
 import { l10n } from './l10n.js';
-import OutputLatex from '../addons/outputLatex.js'; // eslint-disable-line no-unused-vars
-import OutputMathML from '../addons/outputMathML.js'; // eslint-disable-line no-unused-vars
-import MASTON from '../addons/maston.js'; // eslint-disable-line no-unused-vars
-import OutputSpokenText from '../addons/outputSpokenText.js'; // eslint-disable-line no-unused-vars
+import '../addons/outputLatex.js';
+import '../addons/outputMathML.js';
+import '../addons/maston.js';
+import '../addons/outputSpokenText.js';
 
 /*
     Note:
     The OutputLatex, OutputMathML, MASTON and OutputSpokenText  modules are required,
     even though they are not referenced directly.
 
-    They modify the MathAtom class, adding toLatex(), toMathML() and
+    They modify the MathAtom class, adding toLatex(), toAST(), toMathML() and
     toSpeakableText() respectively.
 */
 
@@ -269,6 +269,10 @@ function MathField(element, config) {
     // enters a mode changing command.
     this.mode = config.defaultMode || 'math';
     this.smartModeSuppressed = false;
+
+    // Current style (color, weight, italic, etc...) 
+    // Reflects the style to be applied on next insertion, if any
+    this.style = {};
 
     // Focus/blur state
     this.blurred = true;
@@ -712,6 +716,9 @@ MathField.prototype._onSelectionDidChange = function() {
         }
     }
 
+    // Reset the style
+    this.style = {};
+
     // Defer the updating of the popover position: we'll need the tree to be
     // re-rendered first to get an updated caret position
     Popover.updatePopoverPosition(this, {deferred: true});
@@ -1083,9 +1090,7 @@ MathField.prototype.convertLastAtomsToText_ = function(count, until) {
             atom.superscript || atom.subscript || 
             (until && !until(atom));
         if (!done) {
-            atom.type = 'textord';
-            atom.mode = 'text';
-            atom.fontFamily = 'main';
+            atom.applyStyle({mode:'text', type:''});
             atom.latex = atom.body;
         }
         i -= 1;
@@ -1116,9 +1121,7 @@ MathField.prototype.convertLastAtomsToMath_ = function(count, until) {
             atom.body === ' ' ||
             (until && !until(atom));
         if (!done) {
-            atom.type = 'mord';
-            atom.mode = 'math';
-            atom.fontFamily = 'mathit';
+            atom.applyStyle({mode:'math', type:'mord'});
         }
         i -= 1;
         count -= 1;
@@ -1178,7 +1181,9 @@ MathField.prototype.getTextBeforeAnchor_ = function() {
     let done = false;
     while (!done) {
         const atom = this.mathlist.sibling(i);
-        done = !atom || !/mord|textord|mpunct/.test(atom.type);
+        done = !(atom && 
+            ((atom.mode === 'text' && !atom.type) || 
+            (atom.mode === 'math' && /mord|textord|mpunct/.test(atom.type))));
         if (!done) {
             result = atom.body + result;
         }
@@ -1480,9 +1485,11 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
             if (!/^(\\{|\\}|\\[|\\]|\\@|\\#|\\$|\\%|\\^|\\_|\\backslash)$/.test(shortcut)) {
                 // To enable the substitution to be undoable,
                 // insert the character before applying the substitution
+                const style = {...this.mathlist.anchorStyle(), ...this.style};
                 this.mathlist.insert(Keyboard.eventToChar(evt), {
                     suppressChangeNotifications: true,
-                    mode: this.mode
+                    mode: this.mode,
+                    style: style
                 });
                 const saveMode = this.mode;
 
@@ -1502,7 +1509,12 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
 
             // Insert the substitute, possibly as a smart fence
             if (!this.mathlist._insertSmartFence(shortcut)) {
-                this.mathlist.insert(shortcut, {format: 'latex', mode: this.mode});
+                const style = {...this.mathlist.anchorStyle(), ...this.style};
+                this.mathlist.insert(shortcut, {
+                    format: 'latex', 
+                    mode: this.mode,
+                    style: style
+                });
             }
 
             // Check if as a result of the substitution there is now an isolated
@@ -1598,6 +1610,7 @@ MathField.prototype._onTypedText = function(text, options) {
         });
 
     } else {
+        const style = {...this.mathlist.anchorStyle(), ...this.style};
         // Decompose the string into an array of graphemes.
         // This is necessary to correctly process what is displayed as a single
         // glyph (a grapheme) but which is composed of multiple Unicode 
@@ -1659,15 +1672,15 @@ MathField.prototype._onTypedText = function(text, options) {
                             // We are inserting a digit into an empty superscript
                             // If smartSuperscript is on, insert the digit, and 
                             // exit the superscript.
-                            this.mathlist.insert(c, { mode: 'math' });
+                            this.mathlist.insert(c, { mode: 'math', style: style });
                             this.mathlist.moveAfterParent_();
 
                     } else if (!this.mathlist._insertSmartFence(c)) {
-                        this.mathlist.insert(c, { mode: 'math' });
+                        this.mathlist.insert(c, { mode: 'math', style: style });
                     }
                 }
             } else if (this.mode === 'text') {
-                this.mathlist.insert(c, { mode: 'text' });
+                this.mathlist.insert(c, { mode: 'text', style: style });
 
             }
         }
@@ -2899,6 +2912,70 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
     return false;
 }
 
+/**
+ * Apply a style (color, bold, italic, etc...).
+ * 
+ * If there is a selection, the style is applied to the selection
+ * 
+ * If the selection already has this style, remove it. If the selection
+ * has the style partially applied (i.e. only some sections), remove it from 
+ * those sections, and apply it to the entire selection.
+ * 
+ * If there is no selection, the style will apply to the next character typed.
+ * 
+ * @param {object} style  an object with the following properties. All the 
+ * properties are optional, but they can be combined.
+ * 
+ * @param {string} [style.mode=''] - Either `'math'` or `'text'`.
+ * @param {string} [style.color=''] - The text/fill color, as a CSS RGB value or
+ * a string for some 'well-known' colors, e.g. 'red', '#f00', etc...
+ * 
+ * @param {string} [style.backgroundColor=''] - The background color.
+ * 
+ * @param {string} [style.fontFamily=''] - The font family used to render text.
+ * This value can the name of a locally available font, or a CSS font stack, e.g.
+ * "Avenir", "Georgia, serif", etc...
+ * This can also be one of the following TeX-specific values:
+ * - 'cmr': Computer Modern Roman, serif
+ * - 'cmss': Computer Modern Sans-serif, latin characters only
+ * - 'cmtt': Typewriter, slab, latin characters only
+ * - 'cal': Calligraphic style, uppercase latin letters and digits only
+ * - 'frak': Fraktur, gothic, uppercase, lowercase and digits
+ * - 'bb': Blackboard bold, uppercase only
+ * - 'scr': Script style, uppercase only
+ * 
+ * @param {string} [style.fontSeries=''] - The font 'series', i.e. weight and 
+ * stretch. The following values can be combined, for example: "ebc": extra-bold,
+ * condensed. Aside from 'b', these attributes may not have visible effect if the 
+ * font family does not support this attribute:
+ * - 'ul' ultra-light weight
+ * - 'el': extra-light
+ * - 'l': light
+ * - 'sl': semi-light
+ * - 'm': medium (default)
+ * - 'sb': semi-bold
+ * - 'b': bold
+ * - 'eb': extra-bold
+ * - 'ub': ultra-bold
+ * - 'uc': ultra-condensed
+ * - 'ec': extra-condensed
+ * - 'c': condensed
+ * - 'sc': semi-condensed
+ * - 'n': normal (default)
+ * - 'sx': semi-expanded
+ * - 'x': expanded
+ * - 'ex': extra-expanded
+ * - 'ux': ultra-expanded
+ * 
+ * @param {string} [style.fontShape=''] - The font 'shape', i.e. italic.
+ * - 'it': italic
+ * - 'sl': slanted or oblique (often the same as italic)
+ * - 'sc': small caps
+ * - 'ol': outline
+ *  
+ * 
+ * */
+MathField.prototype.$applyStyle = 
 MathField.prototype.applyStyle_ = function(style) {
     this._resetKeystrokeBuffer();
     if (style.mode) {
@@ -2942,8 +3019,14 @@ MathField.prototype.applyStyle_ = function(style) {
 
         }
     } else {
-        this.mathlist._applyStyle(style);
-        this.undoManager.snapshot(this.config);
+        if (this.mathlist.isCollapsed()) {
+            // No selection, let's update the 'current' style
+            this.style = style;
+            // This style will be used the next type an atom is inserted
+        } else {
+            this.mathlist._applyStyle(style);
+            this.undoManager.snapshot(this.config);
+        }
     }
     return true;
 }

@@ -59,74 +59,94 @@
     border: 0;
 }
 
+.ML__mathit {
+    font-family: @math_math;
+    /* The @math_math (KaTeX_Math) font is italic 
+        by default, so the font-style below is only 
+        useful when a fallback font is used
+    */
+    font-style: italic;        
+}
+
+.ML__mathrm {
+    font-family: KaTeX_Main;
+    font-style: normal;
+}
+
+.ML__mathbf {
+    font-family: KaTeX_Main;
+    font-weight: bold;
+}
+
+.ML__mathbfit {
+    font-family: @math_math;
+    font-weight: bold;
+    font-style: italic;
+}
+
+.ML__ams {
+    font-family: KaTeX_AMS;
+}
+
+/* Blackboard */
+.ML__bb {
+    font-family: KaTeX_AMS;
+}
+
+.ML__cal {
+    font-family: KaTeX_Caligraphic;
+}
+
+.ML__frak {
+    font-family: KaTeX_Fraktur;
+}
+
+.ML__tt {
+    font-family: KaTeX_Typewriter;
+}
+
+.ML__script {
+    font-family: KaTeX_Script;
+}
+
+.ML__sans {
+    font-family: KaTeX_SansSerif;
+}
+
+.ML__main {
+    font-family: @math_main;
+    font-style: italic;
+}
+
+.ML__series_ul { font-weight: 100; }
+.ML__series_el { font-weight: 100; }
+.ML__series_l { font-weight: 200; }
+.ML__series_sl { font-weight: 300; }
+
+.ML__series_sb { font-weight: 500; }
+.ML__bold { font-weight: 700; }
+.ML__series_eb { font-weight: 800; }
+.ML__series_ub { font-weight: 900; }
+
+.ML__series_uc { font-stretch: ultra-condensed; }
+.ML__series_ec { font-stretch: extra-condensed; }
+.ML__series_c { font-stretch: condensed; }
+.ML__series_sc { font-stretch: semi-condensed; }
+.ML__series_sx { font-stretch: semi-expanded; }
+.ML__series_x { font-stretch: expanded; }
+.ML__series_ex { font-stretch: extra-expanded; }
+.ML__series_ux { font-stretch: ultra-expanded; }
+
+
+.ML__it { font-style: italic; }
+.ML__shape_ol { -webkit-text-stroke: 1px black; text-stroke: 1px black; color: transparent; }
+.ML__shape_sc { font-variant: small-caps; }
+.ML__shape_sl { font-style: oblique; }
+
+
+
 
 .ML__mathlive {
-    .mathit {
-        font-family: @math_math;
-        /* The @math_math (KaTeX_Math) font is italic 
-            by default, so the font-style below is only 
-            useful when a fallback font is used
-        */
-        font-style: italic;        
-    }
-
-    .mathrm {
-        font-style: normal;
-    }
-
-    .textit {
-        font-style: italic;
-    }
-
-
-    .mathbf {
-        font-family: KaTeX_Main;
-        font-weight: bold;
-    }
-
-    .amsrm {
-        font-family: KaTeX_AMS;
-    }
-
-    .amsbf {
-        font-family: KaTeX_AMS;
-        font-weight: bold;
-    }
-
-    .amsit {
-        font-family: KaTeX_AMS;
-        font-style: italic;
-    }
-
-    .mathbb {
-        font-family: KaTeX_AMS;
-    }
-
-    .mathcal {
-        font-family: KaTeX_Caligraphic;
-    }
-
-    .mathfrak {
-        font-family: KaTeX_Fraktur;
-    }
-
-    .mathtt {
-        font-family: KaTeX_Typewriter;
-    }
-
-    .mathscr {
-        font-family: KaTeX_Script;
-    }
-
-    .mathsf {
-        font-family: KaTeX_SansSerif;
-    }
-
-    .mainit {
-        font-family: @math_main;
-        font-style: italic;
-    }
-
     // Style used to highlight a portion of the expression when speaking
     // it with synchronized highlighting.
     // See https://www.w3.org/WAI/RD/2012/text-customization/r11
@@ -356,6 +376,7 @@
         display: inline-block;
 
         > .sqrt-sign {
+            font-family: KaTeX_Main;
             position: relative;
         }
 
@@ -972,7 +993,7 @@ body[theme="dark"] .ML__keystroke-caption {
     }
 
     /* Keyboard layouts are made or rows of keys... */
-    & > div > .rows {
+    & div .rows {
         border: 0;
         border-collapse: separate;
         clear: both;

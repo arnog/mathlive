@@ -264,7 +264,7 @@ MathLive is designed for the modern web. Supporting older browsers complicates
 the effort involved in building new features, but it is also an insecure 
 practice that should not be encouraged. 
 
-In this context, _modern_ means the latest two releases of Chrome, IE, Safari 
+In this context, _modern_ means the latest two releases of Chrome, Edge, Safari 
 and Firefox. Both desktop and mobile are supported.
 
 ## Accessibility - A11Y
@@ -491,11 +491,10 @@ So, you want to...
 ### Add a new LaTeX command?
 
 **(1)** Start with `core/definitions.js`. Add a new entry to the appropriate table 
-by calling `defineSymbol()` for commands that need to parameters, `defineFunction()` for commands that need some parameters or `defineEnvironment()` for environments, complex `\begin{}...\end{}` block.
+by calling `defineSymbol()` for commands that need no parameters, `defineFunction()` for commands that need some parameters or `defineEnvironment()` for environments, that is `\begin{}...\end{}` blocks.
 
 For functions, the handler function in the definition will be called by the parser at the right
-time. It's your chance to store data that will be used by the atoms to render
-the symbol later.
+time. It's your chance to return info that will be used by to render the atom.
 
 **(2)** If you can use the existing atom types, great. If needed, modify an 
 existing atom type to support what you want, including passing additional 

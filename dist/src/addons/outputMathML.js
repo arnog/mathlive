@@ -663,24 +663,6 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
             break;
 
 
-        case 'font':
-            if (command === '\\text' || command === '\\textrm' ||
-                command === '\\textsf' || command === '\\texttt' ||
-                command === '\\textnormal' || command === '\\textbf' ||
-                command === '\\textit') {
-                result += '<mtext' + variant + makeID(this.id, options) + '>';
-                // Replace first and last space in text with a &nbsp; to ensure they
-                // are actually displayed (content surrounded by a tag gets trimmed)
-                // TODO: alternative: use <mspace>
-                result += toString(this.body).
-                    replace(/^\s/, '&nbsp;').
-                    replace(/\s$/, '&nbsp;');
-                result += '</mtext>';
-            } else {
-                result += '<mi' + variant + '>' + toString(this.body) + '</mi>';
-            }
-            break;
-
         case 'accent':
             result += '<mover accent="true"' + makeID(this.id, options) + '>';
             result += toMathML(this.body, 0, 0, options).mathML;
@@ -782,15 +764,6 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
                     result += command || this.body;
                 }
                 result += '</mo>';
-            }
-            break;
-
-        case 'color':
-            if (this.textcolor) {
-                result += '<mstyle color="' + Color.stringToColor(this.textcolor) + '"';
-                result +=  makeID(this.id, options) + '>';
-                result += toMathML(this.body, 0, 0, options).mathML;
-                result += '</mstyle>';
             }
             break;
 

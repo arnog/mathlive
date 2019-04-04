@@ -1,3 +1,183 @@
+## 
+### Breaking Changes
+- Significant improvements to the syntax that MASTON/MathJSON recognizes. The output of MASTON/MathJSON has also been made more consistent, but may be different from what was previously returned.
+
+### Major New Features
+#### Text Mode (#153)
+It was previously possible to enter text in an equation using the `\text{}` command and its family. However, this feature was only suitable for advanced users, and had many limitations (text could not include spaces, for example).
+
+MathLive now support a dedicated text mode. To switch between math and text mode, use the 'alt/option+=' keyboard shortcut, or programmatically using `mf.$perform(['apply-style', {mode: 'math'}])`.
+If there is a selection it will be converted to the specified mode (math is converted to ASCII Math). If there's no selection, the next user input will be considered to be in the specified mode.
+
+To indicate the current mode, a (slightly) different cursor is used (it's thinner in text mode). The text zones are also displayed on a light gray background when the field is focused.
+
+A notification is invoked when the mode changes: `config.onModeChange(mf, mode)` with mode either `"text"`, `"math"` or `"command"`.
+
+#### Smart Mode
+If `config.smartMode = true`, during text input the field will switch automatically between 'math' and  'text' mode depending on what is typed and the context of the formula. If necessary, was was previously typed will be 'fixed' to account for the new info.
+
+For example, when typing "if x >0":
+- "i" -> math mode, imaginary unit
+- "if" -> text mode, english word "if"
+- "if x" -> all in text mode, maybe the next word is xylophone?
+- "if x >" -> "if" stays in text mode, but now "x >" is in math mode
+- "if x > 0" -> "if" in text mode, "x > 0" in math mode
+
+Smart Mode is off by default.
+
+Manually switching mode (by typing `alt/option+=`) will temporarily turn off smart mode.
+
+**Examples**
+- slope = rise/run
+- If x > 0, then f(x) = sin(x)
+- x^2 + sin (x) when x > 0
+- When x<0, x^{2n+1}<0
+- Graph x^2 -x+3 =0 for 0<=x<=5
+- Divide by x-3 and then add x^2-1 to both sides
+- Given g(x) = 4x – 3, when does g(x)=0?
+- Let D be the set {(x,y)|0<=x<=1 and 0<=y<=x}
+- \int_{the unit square} f(x,y) dx dy
+- For all n \in \N
+
+#### Styling
+It is now possible to apply styling (font family, bold, italic, color and background color). This information is rendered correctly across math and text mode, and preserved in the LaTeX output.
+
+The key to control styling is the `$applyStyle(style)` method:
+
+If there is a selection, the style is applied to the selection
+
+If the selection already has this style, remove it. If the selection
+has the style partially applied (i.e. only some sections), remove it from 
+those sections, and apply it to the entire selection.
+
+If there is no selection, the style will apply to the next character typed.
+
+- **style**  an object with the following properties. All the 
+properties are optional, but they can be combined.
+- **style.mode** - Either `'math'` or `'text'`.
+- **style.color** - The text/fill color, as a CSS RGB value or a string for some 'well-known' colors, e.g. 'red', '#f00', etc...
+- **style.backgroundColor** - The background color.
+- **style.fontFamily** - The font family used to render text.
+This value can the name of a locally available font, or a CSS font stack, e.g.
+"Avenir", "Georgia, serif", etc...
+This can also be one of the following TeX-specific values:
+    - `'cmr'`: Computer Modern Roman, serif
+    - `'cmss'`: Computer Modern Sans-serif, latin characters only
+    - `'cmtt'`: Typewriter, slab, latin characters only
+    - `'cal'`: Calligraphic style, uppercase latin letters and digits only
+    - `'frak'`: Fraktur, gothic, uppercase, lowercase and digits
+    - `'bb'`: Blackboard bold, uppercase only
+    - `'scr'`: Script style, uppercase only
+- **style.fontSeries** - The font 'series', i.e. weight and 
+stretch. The following values can be combined, for example: "ebc": extra-bold,
+condensed. Aside from `'b'`, these attributes may not have visible effect if the 
+font family does not support this attribute:
+    - `'ul'` ultra-light weight
+    - `'el'`: extra-light
+    - `'l'`: light
+    - `'sl'`: semi-light
+    - `'m'`: medium (default)
+    - `'sb'`: semi-bold
+    - `'b'`: bold
+    - `'eb'`: extra-bold
+    - `'ub'`: ultra-bold
+    - `'uc'`: ultra-condensed
+    - `'ec'`: extra-condensed
+    - `'c'`: condensed
+    - `'sc'`: semi-condensed
+    - `'n'`: normal (default)
+    - `'sx'`: semi-expanded
+    - `'x'`: expanded
+    - `'ex'`: extra-expanded
+    - `'ux'`: ultra-expanded
+- **style.fontShape** - The font 'shape', i.e. italic.
+    - `'it'`: italic
+    - `'sl'`: slanted or oblique (often the same as italic)
+    - `'sc'`: small caps
+    - `'ol'`: outline
+ 
+
+
+#### Contextual Inline Shortcuts
+
+Inline shortcuts can now be specified with some additional information that limits when they are applied. Previously, some shortcuts would get triggered too frequently, for example when typing "find", the "\in" shortcut would get triggered.
+
+Now, a shortcut can be defined with some conditions which must be true before the shortcut will be considered. It is still possible to define a shortcut unconditionally:
+
+```javascript
+    config.inlineShortcuts = {
+        'in': '\\in'
+    }
+```
+
+However, a shortcut can now be specified with an object:
+
+```javascript
+    config.inlineShortcuts = {
+        'in': {
+            mode: 'math',
+            after: 'space+letter+digit+symbol+fence',
+            value: '\\in',
+        },
+    }
+```
+
+The `value` key is required an indicate the shortcut substitution.
+
+The `mode` key, if present, indicate in which mode this shortcut should apply, either `'math'` or `'text'`. If they key is not present the shortcut apply in both modes.
+
+The `'after'` key, if present, indicate in what context the shortcut should apply. One or more values can be specified, separated by a '+' sign. If any of the values match, the shortcut will be applicable. Possible values are:
+- `'space'`
+
+
+
+
+#### Other Features
+- New visual appearance for selected elements.
+- `config.removeExtraneousParentheses` (true by default) extra parentheses, for example around a numerator or denominator are removed automatically. 
+Particularly useful when pasting content.
+- Improvements to clipboard handling, pasting and copying. Now supports pasting
+of ASCIIMath and UnicodeMath (from MS Word) and LaTeX.
+- #156: localization support, including French, Italian, Spanish, Polish and 
+Russian.
+- Support for output of ASCIIMath using `mf.$text('ASCIIMath')` and 
+`mf.$selectedText('ASCIIMath')` 
+- `config.smartSuperscript` If `true` (default), when a digit is entered in an empty 
+superscript, the cursor leaps automatically out of the superscript. This makes 
+entry of common polynomials easier and faster. 
+- `config.scriptDepth` Controls how many levels of subscript/superscript can 
+be entered. By restricting, this can help avoid unwanted entry of superscript
+and subscript. By default, there are no restrictions.
+
+
+### Other Improvements
+- While in command mode, pressing the `ESC` key exits command mode without inserting anything.
+- #132: Support for smart fence with `{}`, and `\langle`. 
+- Pressing the spacebar next to a closing smartfence will close it. Useful
+for semi-open fences.
+- Improved rendering performance by 8%
+- Updated SRE support
+- Improvements to undo/redo support. Fix #137, #139 and #140.
+- Significant improvements to the Abstract Syntax Tree generation 
+(MASTON/MathJSON), including #147
+- Shortcuts that override shortcuts and Smart Fence: `option/alt+|`, 
+`option/alt+\`. Also available are `option/alt+(` and `option/alt+)`
+- Improve visual blinking when selecting with the mouse to the left
+
+### Bug fixes
+- #133: Clicking on a placeholder selects it.
+- Fixed issue with positioning of Popover panel.
+- Correctly render `\ulcorner`, `\urcorner`, `\llcorner` and `\rrcorner`
+- #141: Improved interaction of placeholders and smart fences
+- #136: Close open smart fence with moveAfterParent only when at the closing 
+of a smart fence
+- #142: MathML output: supports sup/sub applied to a function
+- Improved handling of shortcuts.
+- #149: Fix handling of `\prime` and `\doubleprime`
+- #111: Fix issue where a subscript followed a superscript and were not 
+properly combined.
+- #118. Improved navigating out of inferior limits
+
 ## 0.26 (Feb 4, 2019)
 
 ### Breaking Changes

@@ -1034,8 +1034,7 @@ EditableMathlist.prototype.extractArgBeforeInsertionPoint = function() {
     } else {
         while (i >= 1 && (siblings[i].type === 'mord' ||
             siblings[i].type === 'surd'     ||
-            siblings[i].type === 'leftright' ||
-            siblings[i].type === 'font'
+            siblings[i].type === 'leftright'
             )) {
             result.unshift(siblings[i]);
             i--
@@ -1708,7 +1707,6 @@ EditableMathlist.prototype.anchorMode = function() {
     let result;
     if (anchor) {
         if (anchor.type === 'commandliteral' ||
-            anchor.type === 'esc' ||
             anchor.type === 'command') return 'command';
         result = anchor.mode;
     }
@@ -1716,6 +1714,39 @@ EditableMathlist.prototype.anchorMode = function() {
     let ancestor = this.ancestor(i)
     while (!result && ancestor) {
         if (ancestor) result = ancestor.mode;
+        i += 1;
+        ancestor = this.ancestor(i)
+    }
+    return result;
+}
+
+
+EditableMathlist.prototype.anchorStyle = function() {
+    const anchor = this.isCollapsed() ? this.anchor() : this.sibling(1);
+    let result = {};
+    if (anchor) {
+        if (anchor.type === 'commandliteral' ||
+            anchor.type === 'command') return {};
+        result = {
+            color: anchor.color,
+            backgroundColor: anchor.backgroundColor,
+            fontFamily: anchor.fontFamily,
+            fontShape: anchor.fontShape,
+            fontSeries: anchor.fontSeries,
+        };
+    }
+    let i = 1;
+    let ancestor = this.ancestor(i)
+    while (!result && ancestor) {
+        if (ancestor) {
+            result = {
+                color: ancestor.color,
+                backgroundColor: ancestor.backgroundColor,
+                fontFamily: ancestor.fontFamily,
+                fontShape: ancestor.fontShape,
+                fontSeries: ancestor.fontSeries,
+            };
+        }
         i += 1;
         ancestor = this.ancestor(i)
     }
@@ -1885,14 +1916,13 @@ EditableMathlist.prototype.insert = function(s, options) {
             mathlist = [];
             for (const c of s) {
                 if (Definitions.COMMAND_MODE_CHARACTERS.test(c)) {
-                    mathlist.push(new MathAtom.MathAtom('command', 'command',
-                        c, 'main'));
+                    mathlist.push(new MathAtom.MathAtom('command', 'command', c));
                 }
             }
 
         } else if (s === '\u001b') {
             // Insert an 'esc' character triggers the command mode
-            mathlist = [new MathAtom.MathAtom('command', 'command', '\\', 'main')];
+            mathlist = [new MathAtom.MathAtom('command', 'command', '\\')];
 
         } else {
             s = parseMathString(s, this.config);
@@ -1949,6 +1979,11 @@ EditableMathlist.prototype.insert = function(s, options) {
 
         mathlist = ParserModule.parseTokens(
             Lexer.tokenize(s), 'text', args, options.macros, false);
+    }
+
+    if (options.style) {
+        // Apply styling options to atoms
+        mathlist.forEach(x => x.applyStyle(options.style));
     }
 
     // Insert the mathlist at the position following the anchor
@@ -2146,7 +2181,7 @@ EditableMathlist.prototype.insertSuggestion = function(s, l) {
     // Make a mathlist from the string argument with the `suggestion` property set
     const subs = s.substr(l);
     for (const c of subs) {
-        const atom = new MathAtom.MathAtom('command', 'command', c, 'main');
+        const atom = new MathAtom.MathAtom('command', 'command', c);
         atom.suggestion = true;
         mathlist.push(atom);
     }
@@ -2776,194 +2811,64 @@ EditableMathlist.prototype.addColumnBefore_ = function() {
 }
 
 
-function filterAtomsForStyle(atoms, style) {
-    if (!atoms) return null;
-    let result;
-    if (Array.isArray(atoms)) {
-        if (atoms.length === 1) {
-            return filterAtomsForStyle(atoms[0], style);
-        }
-        result = [];
-        for (const atom of atoms) {
-            const filter = filterAtomsForStyle(atom, style);
-            if (Array.isArray(filter)) {
-                result = result.concat(filter);
-            } else {
-                result.push(filter);
-            }
-        }
-        if (result.length === 0) return null;
-    } else {
-        if ((style.color && atoms.type === 'color') ||
-            (style.backgroundColor && atoms.type === 'box')) {
-            if (atoms.body[0].type === 'first') {
-                atoms.body.shift();
-            }
-            result = filterAtomsForStyle(atoms.body, style);
-        } else if (typeof atoms === 'object') {
-            atoms.body = filterAtomsForStyle(atoms.body, style);
-            atoms.superscript = filterAtomsForStyle(atoms.superscript, style);
-            atoms.subscript = filterAtomsForStyle(atoms.subscript, style);
-            atoms.index = filterAtomsForStyle(atoms.index, style);
-            atoms.denom = filterAtomsForStyle(atoms.denom, style);
-            atoms.numer = filterAtomsForStyle(atoms.numer, style);
-            atoms.array = filterAtomsForStyle(atoms.array, style);
-            result = atoms;
-        } else {
-            result = atoms;
-        }
-    }
-    return result;
-}
-
-
-
 
 /**
- * Apply a style (color, background) to the selection or at the insertion point.
+ * Apply a style (color, background) to the selection.
  * 
  * If the style is already applied to the selection, remove it. If the selection
  * has the style partially applied (i.e. only some sections), remove it from 
  * those sections, and apply it to the entire selection.
  * 
- * The current version of the code only deals with color and backgroundColor, 
- * but it could be extended to deal with other attributes such as fontWeight \
- * (bold/normal), fontStyle (italic, normal) or fontFamily 
- * (script, roman, sans, etc...).
- * 
- * In the case of bold and italic, there are two variants available, and the
- * proper one need to be used: \mathbf{} on content in math mode and \textbf{}
- * for content in text mode.
- * 
- * 
  * @method EditableMathlist#applyStyle
  */
 
 EditableMathlist.prototype._applyStyle = function(style) {
-    let selection = null;
-    const isCollapsed = this.isCollapsed();
-    const selectionDirection = this.startOffset() === this.anchorOffset() ? +1 : -1;
+    // No selection, nothing to do.
+    if (this.isCollapsed()) return;
 
-    if (!isCollapsed) {
-        // If the selection is the entire content of a style atom, select the
-        // atom instead.
-        const parent = this.parent();
-        if (parent && (parent.type === 'box' || parent.type === 'color')) {
-            if (this.startOffset() <= 1 && this.endOffset() === this.siblings().length) {
-                this.path.pop();
-                this.setSelection(this.startOffset(), 1);
-            }
-        }
+    const that = this;
 
-        selection = this.getSelectedAtoms();
-        if (selection.length === 1 &&
-            ((style.color &&
-                selection[0].type === 'color' &&
-                selection[0].textcolor === style.color) ||
-            (style.backgroundColor &&
-                selection[0].type === 'box' &&
-                selection[0].backgroundcolor === style.backgroundColor) )) {
-            // The selection is already with this style.
-            // Toggle it
-            selection = selection[0].body;
-            if (selection[0].type === 'first') {
-                selection.shift();
-            }
-            Array.prototype.splice.apply(this.siblings(),
-                [this.startOffset(), 1].concat(selection));
-            this.setSelection(this.startOffset(), selection ? selection.length : 0);
-            return;
-        }
-        // Otherwise, remove existing style
-        selection = filterAtomsForStyle(selection, style);
-        if (!Array.isArray(selection)) selection = [selection];
-        this.siblings().splice(this.startOffset() + 1,
-            this.endOffset() - this.startOffset());
-        // then apply this style.
-    }
-
-    // OK, we now have the atoms on which to apply the selection in `selection`
-
-    if (style.color) {
-        const styleAtom = new MathAtom.MathAtom(this.anchorMode(), 'color', selection);
-        styleAtom.latex = '\\textcolor';
-        styleAtom.textcolor = style.color;
-        styleAtom.skipBoundary = true;
-        if (!styleAtom.body) {
-            styleAtom.body = [new MathAtom.MathAtom(this.anchorMode(), 'first', null)]
-        } else if (styleAtom.body[0].type !== 'first') {
-            styleAtom.body.unshift(makeFirstAtom())
-        }
-        const removeStyle = style.color === 'transparent' ||
-            style.color === 'black' || style.color === '#000' || style.color === '#000000' ||
-            (this.parent() && this.parent().type === 'color' && this.parent().textcolor === style.color);
-        if (isCollapsed && this.parent() && this.parent().type === 'color') {
-            this.path.pop();
-            this.setSelection(this.startOffset(), 0);
-            if (removeStyle) {
-                return;
-            }
-            this.siblings().splice(this.startOffset() +  1 , 0, styleAtom);
-        } else if (!isCollapsed && removeStyle) {
-            if (this.parent() && this.parent().type === 'color') {
-                styleAtom.textcolor = '#000';
-                this.siblings().splice(this.startOffset(), 0, styleAtom);
-            } else {
-                if (selection.length > 0 && selection[0].type === 'first') {
-                    selection.shift();
-                }
-                Array.prototype.splice.apply(this.siblings(), [this.startOffset(), 0].concat(selection));
-                this.setSelection(this.startOffset(), selection.length);
-                return;
-            }
-        } else {
-            this.siblings().splice(this.startOffset() + (isCollapsed ? 1 : 0), 0, styleAtom);
-        }
-
-        selection = [this.sibling(0)];
+    function everyStyle(property, value) {
+        let result = true;
+        that.forEachSelected(x => { 
+            result = result && x[property] === value
+        }, {recursive: true});
+        return result;
     }
 
 
-    if (style.backgroundColor) {
-        const styleAtom = new MathAtom.MathAtom(this.anchorMode(), 'box', selection);
-        styleAtom.latex = '\\colorbox';
-        styleAtom.backgroundcolor = style.backgroundColor;
-        styleAtom.skipBoundary = true;
-        if (!styleAtom.body) {
-            styleAtom.body = [makeFirstAtom()]
-        } else if (styleAtom.body[0].type !== 'first') {
-            styleAtom.body.unshift(makeFirstAtom())
-        }
-        if (isCollapsed && this.parent() && this.parent().type === 'box') {
-            const parentSameColor = style.backgroundColor === 'transparent' ||
-                style.backgroundColor === 'white' || style.backgroundColor === '#fff' ||
-                style.backgroundColor === '#ffffff' ||
-                this.parent().backgroundcolor === style.backgroundColor;
-            this.path.pop();
-            this.setSelection(this.startOffset(), 0);
-            if (parentSameColor) {
-                return;
-            }
-            this.siblings().splice(this.startOffset() +  1 , 0, styleAtom);
-        } else {
-            this.siblings().splice(this.startOffset() + (isCollapsed ? 1 : 0), 0, styleAtom);
-        }
+
+    if (style.color && everyStyle('color', style.color)) {
+        // If the selection already has this color, turn it off
+        style.color = 'none';
     }
 
-    if (style.fontWeight) {
-        /*
-            @todo: handle other style categories here.
-        */
+    if (style.backgroundColor && everyStyle('backgroundColor', style.backgroundColor)) {
+        // If the selection already has this color, turn it off
+        style.backgroundColor = 'none';
     }
 
-    if (isCollapsed) {
-        this.setSelection(this.startOffset() + 1, 0);
-        this.path.push({relation:'body', offset: 0});
-        this.setSelection(0, 0);
-        this.insertFirstAtom();
-    } else {
-        this.setExtent(selectionDirection);
+    if (style.fontFamily && everyStyle('fontFamily', style.fontFamily)) {
+        // If the selection already has this font family, turn it off
+        style.fontFamily = 'none';
     }
+
+
+    if (style.series) style.fontSeries = style.series;
+    if (style.fontSeries && everyStyle('fontSeries', style.fontSeries)) {
+        // If the selection already has this series (weight), turn it off
+        style.fontSeries = 'md';
+    }
+
+    if (style.shape) style.fontShape = style.shape;
+    if (style.fontShape && everyStyle('fontShape', style.fontShape)) {
+        // If the selection already has this shape (italic), turn it off
+        style.fontShape = 'up';
+    }
+
+    this.contentWillChange();
+    this.forEachSelected(x => x.applyStyle(style), {recursive: true});
+    this.contentDidChange();
 }
 
 
@@ -3259,7 +3164,7 @@ function paddedShortcut(s, config) {
 
 
 function makeFirstAtom() {
-    return new MathAtom.MathAtom('', 'first', null);
+    return new MathAtom.MathAtom('', 'first');
 }
 
 export default {

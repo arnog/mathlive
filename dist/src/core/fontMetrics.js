@@ -223,17 +223,23 @@ const extraCharacterMap = {
  *
  * Note: the `width` property may be undefined if fontMetricsData.js wasn't
  * built using `Make extended_metrics`.
+ * @param {string} character 
+ * @param {string} fontCode 
  * @memberof module:fontMetrics
  * @private
  */
-const getCharacterMetrics = function(character, fontName) {
-    if (fontName === 'mathbb') fontName = 'AMS-Regular';
-    if (fontName === 'mathcal') fontName = 'Caligraphic-Regular';
-    if (fontName === 'mathfrak') fontName = 'Fraktur-Regular';
-    if (fontName === 'mathscr') fontName = 'Script-Regular';
-    if (fontName === 'mathss') fontName = 'SansSerif-Regular';
-    if (fontName === 'mathtt') fontName = 'Typewriter-Regular';
-    if (fontName === 'mathsf') fontName = 'Main-Regular';
+const getCharacterMetrics = function(character, fontCode) {
+    const fontName = {
+        'cal': 'Caligraphic-Regular',
+        'ams': 'AMS-Regular',
+        'frak': 'Fraktur-Regular',
+        'bb': 'AMS-Regular',
+        'scr': 'Script-Regular',
+        'cmr': 'Main-Regular',
+        'cmtt': 'Typewriter-Regular',
+        'cmss': 'SansSerif-Regular'
+    }[fontCode] || fontCode;
+    
     // console.assert(character.length === 1);
     // console.assert(metricMap[fontName], 'Unknown font "' + fontName + '"');
 

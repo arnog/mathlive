@@ -440,13 +440,32 @@ function stringToColor(s) {
         ('00' + Math.round(blue).toString(16)).slice(-2);
 }
 
+function colorToString(color) {
+    let result = color.toUpperCase();
+
+    for (const c in NAMED_COLORS) {
+        if (NAMED_COLORS[c] === result) {
+            result = c;
+            break;
+        }
+    }
+
+    for (const c in MATHEMATICA_COLORS) {
+        if (MATHEMATICA_COLORS[c] === result) {
+            result = c;
+            break;
+        }
+    }
+
+    return result;
+}
+
 // Export the public interface for this module
 export default { 
     stringToColor,
+    colorToString,
     AREA_COLORS,
     LINE_COLORS,
-    // NAMED_COLORS,
-    // MATHEMATICA_COLORS
 }
 
 

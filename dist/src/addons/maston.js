@@ -448,10 +448,12 @@ function getLatexForSymbol(name) {
     if (result) {
         return result.replace('%1', '').replace('%0', '').replace('%', '');
     }
-    const info = Definitions.getInfo('\\' + name, 'math');
-    if (info &&
-        (!info.fontFamily || info.fontFamily === 'main' || info.fontFamily === 'ams')) {
-        result = '\\' + name;
+    if (name.length > 1) {
+        const info = Definitions.getInfo('\\' + name, 'math');
+        if (info &&
+            (!info.fontFamily || info.fontFamily === 'main' || info.fontFamily === 'ams')) {
+            result = '\\' + name;
+        }
     }
     if (!result) {
         result = Definitions.unicodeStringToLatex('math', name);
@@ -588,7 +590,7 @@ function getString(atom) {
         }
         return result;
     }
-    if (atom.latex && atom.type !== 'font' && 
+    if (atom.latex && 
         !/^\\math(op|bin|rel|open|punct|ord|inner)/.test(atom.latex)) {
         return atom.latex.trim();
     }
@@ -1147,25 +1149,6 @@ function parsePrimary(expr, options) {
         expr = parseSupsub(expr, options);
         expr = parsePostfix(expr, options);
 
-    } else if (atom.type === 'font') {
-        expr.ast = atom.toAST(options);
-        if (expr.ast.sym && expr.ast.variant === 'normal' &&
-            isFunction(expr.ast.sym)) {
-            // This is a function (for example used with \\mathrm{foo}
-            expr.ast = { fn: expr.ast.sym };
-            expr = parseSupsub(expr, options);
-
-            const fn = expr.ast;
-            expr.index += 1;  // Skip the function name
-            fn.arg = [parsePrimary(expr, options).ast];
-            expr.ast = fn;
-
-        } else {
-            // It's an identifier of some kind...
-            expr = parseSupsub(expr, options);
-        }
-        expr = parsePostfix(expr, options);
-
     } else if (atom.type === 'mord' || atom.type === 'mbin') {
         // A 'mord' but not a number: either an identifier ('x') or 
         // a function ('\\Zeta')
@@ -1531,18 +1514,6 @@ function parseExpression(expr, options) {
 }
 
 
-
-function toString(atoms) {
-    let result = '';
-    for (const atom of atoms) {
-        if (atom.type === 'textord' || atom.type === 'mord') {
-            result += atom.body;
-        }
-    }
-    return escapeText(result);
-}
-
-
 /**
  * Return a string escaped as necessary to comply with the JSON format
  * @param {string} s
@@ -1567,14 +1538,12 @@ function escapeText(s) {
  */
 MathAtom.MathAtom.prototype.toAST = function(options) {
     const MATH_VARIANTS = {
-        'mathrm':   'normal',
-        'mathbb':   'double-struck',
-        'mathbf':   'bold',
-        'mathcal':  'script',
-        'mathfrak': 'fraktur',
-        'mathscr':  'script',
-        'mathsf':   'sans-serif',
-        'mathtt':   'monospace'
+        'bb':       'double-struck',
+        'cal':      'script',
+        'scr':      'script',
+        'frak':     'fraktur',
+        'cmrss':    'sans-serif',
+        'cmrtt':    'monospace'
     };
     // TODO: See https://www.w3.org/TR/MathML2/chapter6.html#chars.letter-like-tables
 
@@ -1582,8 +1551,12 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
     let sym = '';
     let m;
     let lhs, rhs;
-    let variant = MATH_VARIANTS[this.fontFamily || this.font];
+    let variant = MATH_VARIANTS[this.baseFontFamily || this.fontFamily];
     let variantSym;
+
+    let style = '';
+    if (this.fontSeries === 'b') style += 'bold';
+    if (this.fontShape === 'it') style += 'italic';
 
     const command = this.latex ? this.latex.trim() : null;
     switch(this.type) {
@@ -1639,17 +1612,6 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
         case 'rule':
             break;
 
-        case 'font':
-            if (this.latex === '\\text ') {
-                result.text = toString(this.body);
-                if (this.toLatex) {
-                    result.latex = this.toLatex();
-                }
-            } else {
-                result.sym = toString(this.body);
-            }
-            break;
-
         case 'line':
         case 'overlap':
         case 'accent':
@@ -1682,9 +1644,11 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
                 }
             }
             variantSym = escapeText(
-                Definitions.mathVariantToUnicode(sym, this.fontFamily || this.font)
+                Definitions.mathVariantToUnicode(sym, variant, style)
                 );
             if (variantSym !== sym) {
+                // If there's a specific Unicode character matching this one
+                // no need to record a variant.
                 result = {sym: variantSym}; 
                 variant = 'normal';
             } else {
@@ -1702,7 +1666,6 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
         case 'mop':
             break;
 
-        case 'color':
         case 'box':
             result = parse(this.body, options);
             break;
@@ -1755,7 +1718,7 @@ function filterPresentationAtoms(atoms) {
     } else {
         if (atoms.type === 'spacing') {
             return [];
-        } else if (atoms.type === 'first' || atoms.type === 'color' || atoms.type === 'box' ||
+        } else if (atoms.type === 'first' || atoms.type === 'box' ||
                 atoms.type === 'sizing') {
             result = filterPresentationAtoms(atoms.body);
         } else {

@@ -147,9 +147,6 @@ export function toASCIIMath(atom, options){
             break;
 
 
-        case 'font':
-            break;
-
         case 'accent':
             break;
 
@@ -216,9 +213,6 @@ export function toASCIIMath(atom, options){
                 }
                 result += ' ';
             }
-            break;
-
-        case 'color':
             break;
 
         case 'mathstyle':

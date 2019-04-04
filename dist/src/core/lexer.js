@@ -21,13 +21,10 @@ import GraphemeSplitter from './grapheme-splitter.js';
  *  - `literal`: the value is the character this token represents. This can be
  * a combination of Unicode codepoints, for example for emojis.
  *  - `^` and `_`: superscript and subscript commands.
- *  - command: a command such as \sin
+ *  - `command`: a command such as `\sin` or `\text` or `\alpha`
  *  - `{` and `}`: begin and end group (use for arguments of commands and for grouping)
  *  - `#`: parameter
  *
- *  - `esc`: start of a special command. Followed by commandliteral tokens.
- *  - `backslash`: start of a special command. Followed by commandliteral tokens.
- *  - `commandliteral`: a-zA-Z for special commands (esc sequence, etc...)
  *  - `placeholder`: a placeholder value meant to be replaced by some actual value
  *  - `space`: one or more space characters (including tab, etc...)
  *
@@ -83,7 +80,7 @@ class Lexer {
      * @private
      */
     peek() {
-        return this.pos < this.s.length ? this.s[this.pos] : null;
+        return this.s[this.pos];
     }
     /**
      * Return the next substring matching regEx and advance.
@@ -109,37 +106,37 @@ class Lexer {
     }
     /**
      * Return true if next char is white space. Does not advance.
-     * Note that browsers are inconsistent in their definitions of the
-     * `\s` metacharacter, so use an explicit string match instead.
-     *
-     * - Chrome:      `[ \t\n\v\f\r\u00A0]`
-     * - Firefox:     `[ \t\n\v\f\r\u00A0\u2028\u2029]`
-     * - IE:          `[ \t\n\v\f\r]`
      *
      * See [Stackoverflow](http://stackoverflow.com/questions/6073637/)
      * @method module:core/lexer#Lexer#isWhiteSpace
      * @private
      */
     isWhiteSpace() {
-        return ' \f\n\r\t\v\u00A0\u2028\u2029'.indexOf(this.s[this.pos]) !== -1;
-        /*
-            - \t \u0009: tab (CHARACTER TABULATION)
-            - \n \u000A: linefeed (LINE FEED)
-            - \v \u000B: vertical tab (LINE TABULATION)
-            - \f \u000C: form feed (FORM FEED)
-            - \r \u000D: carriage return
-            - \u00A0: NON-BREAKING SPACE
-            - \u2028: LINE SEPARATOR
-            - \u2029: PARAGRAPH SEPARATOR
-    
-            Could be considered:
-            - \u1680 OGHAM SPACE MARK
-            - \u2000-\u200a spacing
-            - \u202f NARROW NO-BREAK SPACE
-            - \u205F MEDIUM MATHEMATICAL SPACE
-            - \u3000 IDEOGRAPHIC SPACE
-            - \uFEFF ZERO WITH NON-BREAKING SPACE
-        */
+        return /[ \f\n\r\t\v\xA0\u2028\u2029]/.test(this.s[this.pos]);
+/*
+    Note that browsers are inconsistent in their definitions of the
+    `\s` metacharacter, so we use an explicit pattern instead.
+
+    - IE:          `[ \f\n\r\t\v]`
+    - Chrome:      `[ \f\n\r\t\v\u00A0]`
+    - Firefox:     `[ \f\n\r\t\v\u00A0\u2028\u2029]`
+
+    - \f \u000C: form feed (FORM FEED)
+    - \n \u000A: linefeed (LINE FEED)
+    - \r \u000D: carriage return
+    - \t \u0009: tab (CHARACTER TABULATION)
+    - \v \u000B: vertical tab (LINE TABULATION)
+    - \u00A0: NON-BREAKING SPACE
+    - \u2028: LINE SEPARATOR
+    - \u2029: PARAGRAPH SEPARATOR
+
+    Could be considered:
+    - \u2000-\u200a spacing
+    - \u202f NARROW NO-BREAK SPACE
+    - \u205F MEDIUM MATHEMATICAL SPACE
+    - \u3000 IDEOGRAPHIC SPACE
+    - \uFEFF ZERO WITH NON-BREAKING SPACE
+*/
     }
     /**
      * Return a single token, or null, created from the lexer.
@@ -164,10 +161,6 @@ class Lexer {
             if (!this.end()) {
                 // A command is either a string of letters and asterisks...
                 let command = this.scan(/^[a-zA-Z*]+/);
-                if (!command) {
-                    // ... or a single non-letter character
-                    command = this.get();
-                }
                 // There are a few special commands that are handled here...
                 if (command === 'bgroup') {
                     // Begin group, synonym for opening brace
@@ -176,7 +169,11 @@ class Lexer {
                     // End group, synonym for closing brace
                     result = new Token('}');
                 } else {
-                    result = new Token('command', command);
+                    if (!command) {
+                        // ... or a single non-letter character
+                        command = this.get();
+                    }
+                   result = new Token('command', command);
                 }
             }
             // Is it a group start/end?
@@ -230,11 +227,8 @@ class Lexer {
             // Spacing
             this.get();
             result = new Token('command', 'space');
-            // Is it ESCAPE
-        } else if (this.peek() === '\u001b') { // ESCAPE character
-            result = new Token('esc', this.get());
-            // Is it a mode switch?
         } else if (this.peek() === '$') {
+            // Mode switch
             this.get();
             if (this.peek() === '$') {
                 // $$
@@ -255,14 +249,6 @@ class Lexer {
 
 
 
-
-
-
-
-
-
-
-
 /**
  * Create Tokens from a stream of LaTeX
  *
@@ -276,7 +262,10 @@ function tokenize(s) {
     const result = [];
     const lines = s.toString().split(/\r?\n/);
     let stream =  '';
+    let sep = '';
     for (const line of lines) {
+        stream += sep;
+        sep = ' ';
         // Remove everything after a % (comment marker)
         // (but \% should be preserved...)
         const m = line.match(/((?:\\%)|[^%])*/);
@@ -299,8 +288,3 @@ function tokenize(s) {
 export default {
     tokenize
 }
-
-
-
-
-
