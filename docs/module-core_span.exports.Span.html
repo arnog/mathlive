@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>core/definitions - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>exports.Span - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -58,7 +58,7 @@ writeCookie('symbol-access', 'private')
 
 <main id="main">
     
-        <h1 class="page-title">core/definitions</h1>
+        <h1 class="page-title">exports.Span</h1>
     
 
     
@@ -70,8 +70,16 @@ writeCookie('symbol-access', 'private')
 
 <header>
     
+        <h2>
+            <span class="ancestors"><a href="module-core_span.html">core/span</a>.</span>
         
-            
+        exports.Span
+        </h2>
+        
+            <div class="class-description"><p>A span is the most elementary element that can be rendered.
+It is composed of an optional body of text and an optional list
+of children (other spans). Each span can be decorated with
+CSS classes and style attributes.</p></div>
         
     
 </header>
@@ -80,32 +88,307 @@ writeCookie('symbol-access', 'private')
     <div class="container-overview">
     
         
-            <div class="description"><p>This module contains the definitions of all the symbols and commands, for
-example <code>\alpha</code>, <code>\sin</code>, <code>\mathrm</code>.
-There are a few exceptions with some &quot;built-in&quot; commands that require
-special parsing such as <code>\char</code>.</p></div>
-        
+<div class='method private'>
 
-        
+    
+    <h2>Constructor</h2>
+    
+
+    <h4 class="name" id="exports.Span">new exports.Span<span class="signature">(content<span class="signature-type">: string | Span | Span[]</span>, classes<span class="signature-type">: string</span>)</span><span class="type-signature">:  void</span><span class="type-signature"><span class="attrib">private</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
             
-<div class='method'>
+                <span class="name"><code>content</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+|
+
+<span class="param-type">Span</span>
+|
+
+<span class="param-type">Span[]</span>
 
 
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>the items 'contained' by this node</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>classes</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
 
 
+            
+            </span>
 
+            
 
+            
 
+            
+                    <p class="description last">
+                        <p>list of classes attributes associated with this node</p>
+                    </p>
+                    
+            
+        </div>
 
-
+    
+</div>
 
     
 
     
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">void</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
 
     
 
+
+    <h5 class="subsection-title">Properties</h5>
+
     
+
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>type</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>For example, <code>'command'</code>, <code>'mrel'</code>, etc...</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>classes</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>A string of space separated CSS classes
+associated with this element</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>children</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">Span[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>An array, potentially empty, of spans which
+this span encloses</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>body</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>Content of this span. Can be empty.</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>style</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">[string]:any</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>A set of key/value pairs specifying CSS properties
+associated with this element.</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>height</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>The measurement from baseline to top, in em.</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>depth</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>The measurement from baseline to bottom, in em.</p>
+                
+            </span>
+        </div>
+
+    
+
+
 
 
 <dl class="details">
@@ -160,7 +443,6 @@ special parsing such as <code>\char</code>.</p></div>
 
 </div>
 
-        
     
     </div>
 
@@ -175,391 +457,7 @@ special parsing such as <code>\char</code>.</p></div>
     
 
     
-        <h3 class="subsection-title">Members</h3>
 
-        
-            
-<div class='member'>
-<h4 class="name" id="~category">category<span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
-
-
-
-
-<div class="description">
-    <p>To organize the symbols when generating the documentation, we
-keep track of a category that gets assigned to each symbol.</p>
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-</div>
-        
-            
-<div class='member'>
-<h4 class="name" id="~FREQUENCY_VALUE">FREQUENCY_VALUE<span class="type-signature"> &rarr;[string]:number</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span><span class="attrib">constant</span></span></h4>
-
-
-
-
-
-
-    <h5>Type</h5>
-    <ul>
-        <li>
-            : 
-<span class="param-type">[string]:number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-</div>
-        
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-<div class='method'>
-
-    
-
-    <h4 class="name" id="~getSimpleString">getSimpleString<span class="signature">(atoms<span class="signature-type">: object[]</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">inner</span></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>If possible, i.e. if they are all simple atoms, return a string made up of
-their body</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>atoms</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">object[]</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-</div>
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method'>
-
-    
-
-    <h4 class="name" id="~mathVariantToUnicode">mathVariantToUnicode<span class="signature">(char<span class="signature-type">: string</span>, variant<span class="signature-type">: string</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">inner</span></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Given a character and variant ('bb', 'cal', etc...)
-return the corresponding unicode character (a string)</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>char</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>variant</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-</div>
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
     
 
     

@@ -90,19 +90,17 @@ function latexifyArray(prev, properties, atoms, expandMacro) {
                 suffix = '}';
             }
         } else if (prop === 'fontFamily' && atoms[0].fontFamily) {
-            if (atoms[0].fontFamily !== 'main') {
-                const command = {
-                    'cmr': 'textrm',
-                    'cmtt': 'texttt',
-                    'cmss': 'textsf'
-                }[atoms[0].fontFamily] || '';
-                if (!command) {
-                    prefix += '{\\fontfamily{' + atoms[0].fontFamily + '}';
-                    suffix = '}';
-                } else {
-                    prefix = '\\' + command + '{';
-                    suffix = '}';
-                }
+            const command = {
+                'cmr': 'textrm',
+                'cmtt': 'texttt',
+                'cmss': 'textsf'
+            }[atoms[0].fontFamily] || '';
+            if (!command) {
+                prefix += '{\\fontfamily{' + atoms[0].fontFamily + '}';
+                suffix = '}';
+            } else {
+                prefix = '\\' + command + '{';
+                suffix = '}';
             }
         }
     } else if (atoms[0].mode === 'math') {

@@ -451,7 +451,7 @@ function getLatexForSymbol(name) {
     if (name.length > 1) {
         const info = Definitions.getInfo('\\' + name, 'math');
         if (info &&
-            (!info.fontFamily || info.fontFamily === 'main' || info.fontFamily === 'ams')) {
+            (!info.fontFamily || info.fontFamily === 'cmr' || info.fontFamily === 'ams')) {
             result = '\\' + name;
         }
     }

@@ -14,7 +14,7 @@ import metricMap from './fontMetricsData.js';
 // character to the corresponding \skewchar)
 // This map is generated via `make metrics`. It should not be changed manually.
 
-const hangulRegex = /[\uAC00-\uD7AF]/;
+// const hangulRegex = /[\uAC00-\uD7AF]/;
 
 // This regex combines
 // - Hiragana: [\u3040-\u309F]
@@ -53,7 +53,7 @@ const cjkRegex =
  * care about is the FONTDIMEN section. Each value is measured in EMs.
  * @memberof module:fontMetrics
  */
-const SIGMAS = {
+export const SIGMAS = {
     slant: [0.250, 0.250, 0.250],       // sigma1
     space: [0.000, 0.000, 0.000],       // sigma2
     stretch: [0.000, 0.000, 0.000],     // sigma3
@@ -110,7 +110,7 @@ const doubleRuleSep = 2.0 / ptPerEm;
 /**
  * This is just a mapping from common names to real metrics
  */
-const metrics = {
+export const METRICS = {
     defaultRuleThickness: xi8,
     bigOpSpacing1: xi9,
     bigOpSpacing2: xi10,
@@ -312,7 +312,7 @@ function convertDimenToEm(value, unit, precision) {
     } else if (unit === 'px') {
         f = 3.0 / 4.0;
     } else if (unit === 'em') {
-        f = metrics.ptPerEm;
+        f = METRICS.ptPerEm;
     } else if (unit === 'bp') {
         f = 803 / 800;
     } else if (unit === 'dd') {
@@ -327,23 +327,21 @@ function convertDimenToEm(value, unit, precision) {
 
     if (precision) {
         const factor = Math.pow(10, precision);
-        return Math.round((value / metrics.ptPerEm) * f * factor) / factor;
+        return Math.round((value / METRICS.ptPerEm) * f * factor) / factor;
     }
 
-    return (value / metrics.ptPerEm) * f;
+    return (value / METRICS.ptPerEm) * f;
 }
 
 function convertDimenToPx(value, unit) {
     // if (unit === 'px') return value;
-    return convertDimenToEm(value, unit) * (4.0 / 3.0) * metrics.ptPerEm;
+    return convertDimenToEm(value, unit) * (4.0 / 3.0) * METRICS.ptPerEm;
 }
 
 export default {
     toEm : convertDimenToEm,
     toPx : convertDimenToPx,
-    metrics: metrics,
-    sigmas: SIGMAS,
-    getCharacterMetrics: getCharacterMetrics,
-    cjkRegex: cjkRegex,
-    hangulRegex: hangulRegex
+    METRICS,
+    SIGMAS,
+    getCharacterMetrics
 }

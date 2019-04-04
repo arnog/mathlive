@@ -5,6 +5,10 @@
 /node_modules
 /.nyc_output
 
+babel.babel
+TODO.md
+examples/basic/index.debug.html
+
 
 # OS generated files #
 ######################

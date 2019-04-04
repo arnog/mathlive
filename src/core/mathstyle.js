@@ -16,21 +16,19 @@
  * @private
  */
 
-import FontMetrics from './fontMetrics.js';
-
-const sigmas = FontMetrics.sigmas;
+import {SIGMAS} from './fontMetrics.js';
 
 const metrics = [{}, {}, {}]; /* textstyle, scriptstyle, scriptscriptstyle */
 let i;
-for (const key in sigmas) {
-    if (sigmas.hasOwnProperty(key)) {
+for (const key in SIGMAS) {
+    if (SIGMAS.hasOwnProperty(key)) {
         for (i = 0; i < 3; i++) {
-            metrics[i][key] = sigmas[key][i];
+            metrics[i][key] = SIGMAS[key][i];
         }
     }
 }
 for (i = 0; i < 3; i++) {
-    metrics[i].emPerEx = sigmas.xHeight[i] / sigmas.quad[i];
+    metrics[i].emPerEx = SIGMAS.xHeight[i] / SIGMAS.quad[i];
 }
 
 /**

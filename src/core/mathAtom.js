@@ -6,18 +6,15 @@
  */
 import Mathstyle from './mathstyle.js';
 import Context from './context.js';
-import FontMetricsModule from './fontMetrics.js';
+import {METRICS as FONTMETRICS} from './fontMetrics.js';
 import Span from './span.js';
 import Delimiters from './delimiters.js';
-
 
 const makeSpan = Span.makeSpan;
 const makeOrd = Span.makeOrd;
 const makeInner = Span.makeInner;
 const makeHlist = Span.makeHlist;
 const makeVlist = Span.makeVlist;
-const FONTMETRICS = FontMetricsModule.metrics;
-
 const GREEK_REGEX = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5/;
 
 // TeX by default auto-italicize latin letters and lowercase greek letters
@@ -41,7 +38,7 @@ const AUTO_ITALIC_REGEX = /^([A-Za-z]|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f
  * @property {string} mode `'display'`, `'command'`, etc...
  * @property {string} type - Type can be one of:
  * - `mord`: ordinary symbol, e.g. `x`, `\alpha`
- * - `textord`: ordinary characters used in text mode
+ * - `textord`: ordinary characters
  * - `mop`: operators, including special functions, `\sin`, `\sum`, `\cap`.
  * - `mbin`: binary operator: `+`, `*`, etc...
  * - `mrel`: relational operator: `=`, `\ne`, etc...
@@ -58,9 +55,7 @@ const AUTO_ITALIC_REGEX = /^([A-Za-z]|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f
  * intended to be incorporated with surrounding non-math text.
  * - `root`: a group, which has no parent (only one per formula)
  * - `group`: a simple group of atoms, for example from a `{...}`
- * - `font`: set the font used. Used by `\mathbb`, `\mathbb`, etc...
  * - `sizing`: set the size of the font used
- * - `color`: set the foreground color
  * - `rule`: draw a line, for the `\rule` command
  * - `line`: used by `\overline` and `\underline` commands
  * - `box`: a border drawn around an expression and change its background color
@@ -109,12 +104,9 @@ class MathAtom {
      * @param {string} mode 
      * @param {string} type 
      * @param {string|Array} body 
-     * @param {object} extras 
+     * @param {object} style 
      */
     constructor(mode, type, body, style) {
-        if (type === 'textord') {
-            console.log(type);
-        }
         this.mode = mode;
         this.type = type;
         this.body = body;
@@ -125,7 +117,6 @@ class MathAtom {
     }
 
     applyStyle(style) {
-        // @todo: adjust font family
         Object.assign(this, style);
 
         if (this.fontFamily === 'none') {
@@ -134,7 +125,7 @@ class MathAtom {
 
         if (this.mode === 'math') {
             const symbol = typeof this.body === 'string' ? this.body : '';
-            this.autoFontFamily = 'main';
+            this.autoFontFamily = 'cmr';
             if (AUTO_ITALIC_REGEX.test(symbol)) {
                 // Auto italicize alphabetic and lowercase greek symbols
                 // in math mode (European style: American style would not
@@ -142,21 +133,15 @@ class MathAtom {
                 this.autoFontFamily = 'math';
             } else if (/[0-9]|\\imath|\\jmath|\\pounds/.test(symbol)) {
                 // Some characters do not exist in the Math font,
-                // use cmr instead
-                this.autoFontFamily = 'cmr';
+                // use Main italic instead
+                this.autoFontFamily = 'mainit';
             } else if (!GREEK_REGEX.test(symbol) && this.baseFontFamily === 'math') {
-                // @todo if this.shape !== 'it'?
                 this.autoFontFamily = 'cmr';
             }
-        } else {
-            this.autoFontFamily = '';
         }
     }
 
     getInitialBaseElement() {
-        // if (this.type === 'leftright') {
-        //     return this;
-        // }
         let result = this;
         if (Array.isArray(this.body) && this.body.length > 0) {
             if (this.body[0].type !== 'first') {
@@ -1347,7 +1332,23 @@ class MathAtom {
         const type = this.type === 'textord' ? 'mord' : this.type;
         const result = Span.makeSpanOfType(type, body);
 
-        result.applyStyle(this); 
+        // The font family is determined by:
+        // - the base font family associated with this atom (optional). For example,
+        // some atoms such as some functions ('\sin', '\cos', etc...) or some
+        // symbols ('\Z') have an explicit font family. This overrides any 
+        // other font family
+        // - the user-specified font family that has been explicitly applied to 
+        // this atom
+        // - the font family automatically determined in math mode, for example
+        // which italicizes some characters, but which can be overridden
+
+        result.applyStyle({
+            color: this.color,
+            backgroundColor: this.backgroundColor,
+            fontFamily: this.baseFontFamily || this.fontFamily || this.autoFontFamily,
+            fontShape: this.fontShape,
+            fontSeries: this.fontSeries
+        }); 
 
         // Apply size correction
         if (context.parentSize !== context.size) {

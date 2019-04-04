@@ -15,7 +15,6 @@
     <main>
         <div class="mathfield" id='mf' >f(x)=</div>
         <div class='output' id='latex'></div>
-        <div class='output' id='mathml'></div>
         <div class='output' id='mathjson'></div>
     </main>
 
@@ -26,26 +25,18 @@
     </footer>
 
 <script type='module'> 
-    import MathLive from '../../mathlive/src/mathlive.js';
-    // import MathLiveDebug from '../../mathlive/src/addons/debug.js';
+    import MathLive from '../../mathlive/mathlive.mjs';
+
     const mf = MathLive.makeMathField('mf', {
-        // onFocus: mf => {
-        //     console.log('focusing', mf);
-        // },
-        // generateID: true,
+        smartMode: true,
+        virtualKeyboardMode: 'manual',
         onContentDidChange: mf => {
             const latex = mf.$latex();
-            document.getElementById('latex').innerHTML = latex;
+            document.getElementById('latex').innerHTML = escapeHtml(latex);
 
             const mathJSON = MathLive.latexToAST(latex);
             document.getElementById('mathjson').innerHTML = 
                 escapeHtml(JSON.stringify(mathJSON)) ;
-
-            document.getElementById('mathml').textContent = mf.$text('mathML');
-
-            // const sp = MathLive.latexToMarkup(latex, 'displaystyle', 'span')
-            // const result = MathLiveDebug.getType(sp, [0]);
-            // console.log(result);
         }
     });
     

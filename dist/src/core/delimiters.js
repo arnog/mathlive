@@ -548,7 +548,7 @@ function makeLeftRightDelim(type, delim, height, depth, context, classes) {
 
     // Taken from TeX source, tex.web, function make_left_right
     const delimiterFactor = 901;    // plain.tex:327
-    const delimiterShortfall = 5.0 / FontMetrics.metrics.ptPerEm;  // plain.tex:345
+    const delimiterShortfall = 5.0 / FontMetrics.METRICS.ptPerEm;  // plain.tex:345
 
     let delta2 = depth + axisHeight;
     let delta1 = height - axisHeight;

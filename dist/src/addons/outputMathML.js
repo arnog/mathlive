@@ -528,13 +528,12 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
     };
 
     const MATH_VARIANTS = {
-        'mathbb': 'double-struck',
-        'mathbf': 'bold',
-        'mathcal': 'script',
-        'mathfrak': 'fraktur',
-        'mathscr': 'script',
-        'mathsf': 'sans-serif',
-        'mathtt': 'monospace'
+        'cal': 'script', 
+        'frak': 'fraktur', 
+        'bb': 'double-struck',
+        'scr': 'script',
+        'cmtt': 'monospace',
+        'cmss': 'sans-serif'
     };
     const SPACING = {
         '\\!':          -3 / 18,

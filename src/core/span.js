@@ -32,11 +32,9 @@ function toString(arg) {
 }
 
 
-
 //----------------------------------------------------------------------------
 // SPAN
 //----------------------------------------------------------------------------
-
 /**
  * A span is the most elementary element that can be rendered.
  * It is composed of an optional body of text and an optional list
@@ -60,261 +58,488 @@ function toString(arg) {
  * @property {number} depth - The measurement from baseline to bottom, in em.
  * @private
  */
-function Span(content, classes) {
-    // CLASSES
-    this.classes = classes || '';
-
-    // CONTENT
-    if (Array.isArray(content)) {
-        // Check if isArray first, since an array is also an object
-        // Flatten it (i.e. [[a1, a2], b1, b2] -> [a1, a2, b1, b2]
-        this.children = [].concat.apply([], content);
-    } else if (typeof content === 'string') {
-        this.body = content;
-    } else if (content && typeof content === 'object') {
-        this.children = [content];
+export class Span {
+    constructor(content, classes) {
+        // CLASSES
+        this.classes = classes || '';
+        // CONTENT
+        if (Array.isArray(content)) {
+            // Check if isArray first, since an array is also an object
+            // Flatten it (i.e. [[a1, a2], b1, b2] -> [a1, a2, b1, b2]
+            this.children = [].concat.apply([], content);
+        } else if (typeof content === 'string') {
+            this.body = content;
+        } else if (content && typeof content === 'object') {
+            this.children = [content];
+        }
+        // STYLE
+        // CSS style, as an array of key value pairs.
+        // Use this.setStyle() to modify it.
+        this.style = null;
+        // Calculate the dimensions of this span based on its children
+        this.updateDimensions();
+    }
+    /**
+     * Update the dimensions of this node based on its children:
+     * - height: distance from bottom to top
+     * - depth: distance from bottom to baseline
+     * - maxFontSize:
+     * @method module:core/span.Span#updateDimensions
+     * @private
+     */
+    updateDimensions() {
+        let height = 0;
+        let depth = 0;
+        let maxFontSize = 0;
+        if (this.children) {
+            this.children.forEach(x => {
+                if (x.height > height) height = x.height;
+                if (x.depth > depth) depth = x.depth;
+                if (x.maxFontSize > maxFontSize) maxFontSize = x.maxFontSize;
+            });
+        }
+        this.height = height;
+        this.depth = depth;
+        this.maxFontSize = maxFontSize;
     }
 
-    // STYLE
-    // CSS style, as an array of key value pairs.
-    // Use this.setStyle() to modify it.
-    this.style = null;
 
-    // Calculate the dimensions of this span based on its children
-    this.updateDimensions();
-}
-
-/**
- * Update the dimensions of this node based on its children:
- * - height: distance from bottom to top
- * - depth: distance from bottom to baseline
- * - maxFontSize:
- * @method module:core/span.Span#updateDimensions
- * @private
- */
-Span.prototype.updateDimensions = function() {
-    let height = 0;
-    let depth = 0;
-    let maxFontSize = 0;
-    if (this.children) {
-        this.children.forEach( x => {
-            if (x.height > height) height = x.height;
-            if (x.depth > depth) depth = x.depth;
-            if (x.maxFontSize > maxFontSize) maxFontSize = x.maxFontSize;
-        });
-    }
-    this.height = height;
-    this.depth = depth;
-    this.maxFontSize = maxFontSize;
-}
-
-
-Span.prototype.selected = function(isSelected) {
-    if (isSelected && !/ML__selected/.test(this.classes)) {
-        if (this.classes.length > 0) this.classes += ' ';
-        this.classes += 'ML__selected';
-    }
-    if (!isSelected && /ML__selected/.test(this.classes)) {
-        this.classes = this.classes.replace('ML__selected', '');
-    }
-    if (this.children) {
-        this.children.forEach(x => x.selected(isSelected));
-    }
-}
-
-
-/**
- * @param {object} style A style specification with the following
- * (all optionals) properties, which use the TeX terminology:
- * 
- * - fontFamily: cmr, cmss, cmtt, cmsy (symbols), cmex (large symbols), 
- *  ptm (times), phv (helvetica), pcr (courier)
- * - fontSeries: m (medium), b (bold), bx (bold extended), sb (semi-bold), c (condensed)
- * - fontShape:          italic, oblique, "roman": n (normal, upright), it, sl, sc
- * - color:
- * - background:
- */
-Span.prototype.applyStyle = function(style) {
-    if (!style) return;
-
-    if (style.color) {
-        if (style.color !== 'none') {
-            this.setStyle('color', style.color);
-        } else {
-            this.setStyle('color', '');
+    selected(isSelected) {
+        if (isSelected && !/ML__selected/.test(this.classes)) {
+            if (this.classes.length > 0) this.classes += ' ';
+            this.classes += 'ML__selected';
+        }
+        if (!isSelected && /ML__selected/.test(this.classes)) {
+            this.classes = this.classes.replace('ML__selected', '');
+        }
+        if (this.children) {
+            this.children.forEach(x => x.selected(isSelected));
         }
     }
-    if (style.background) {
-        if (style.background !== 'none') {
-            this.setStyle('background-color', style.background);
-        } else {
-            this.setStyle('background-color', '');
-        }
-    }
-
-    // Determine the appropriate font (and font-related classes)
-    //
-    // 1. Determine the font family (i.e. 'amsrm', 'mathit', 'mathcal', etc...)
-    //
-    // The font family is determined by:
-    // - the base font family associated with this atom (optional). For example,
-    // some atoms such as some functions ('\sin', '\cos', etc...) or some
-    // symbols ('\Z') have an explicit font family.
-    // - the font family that has been explicitly applied to this atom.
-
-    let fontFamily = style.baseFontFamily || style.fontFamily || style.autoFontFamily;
-
-    //
-    // 2. Determine the (fully qualified) font name associated with this fontFamily
-    //
-    let fontName = 'Main-Regular'; // Default font
-    if (fontFamily) {
-        // Use either the calculated font name or, if the font does not
-        // include the symbol, the original font associated with this symbol.
-        fontName = getFontName(this.body, fontFamily);
-        if (!fontName && this.fontFamily) {
-            fontFamily = this.fontFamily;
-            fontName = getFontName(this.body, fontFamily) || fontFamily;
-        }
-    }
-
-    if (style.fontShape) {
-        this.classes += ' ' + {
-            'it': 'ML__it', 
-            'sl': 'ML__shape_sl',     // slanted
-            'sc': 'ML__shape_sc',     // small caps
-            'ol': 'ML__shape_ol'      // outline
-        }[style.fontShape] || '';
-    }
-    if (style.fontSeries) {
-        const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
-        if (m) {
-            this.classes += ' ' + {
-                'ul': 'ML__series_ul',
-                'el': 'ML__series_el',
-                'l': 'ML__series_l',
-                'sl': 'ML__series_sl',
-                'm': '',            // medium (default)
-                'sb': 'ML__series_sb', 
-                'b': 'ML__bold', 
-                'eb': 'ML__series_eb', 
-                'ub': 'ML__series_ub', 
-            }[m[1] || ''] || '';
-            this.classes += ' ' + {
-                'uc': 'ML__series_uc',
-                'ec': 'ML__series_ec',
-                'c': 'ML__series_c',
-                'sc': 'ML__series_sc',
-                'n':    '',         // normal (default)
-                'sx': 'ML__series_sx', 
-                'x': 'ML__series_x', 
-                'ex': 'ML__series_ex', 
-                'ux': 'ML__series_ux', 
-            }[m[2] || ''] || '';
-        }
-    }
-
-    if (FONT_CLASS[fontFamily]) {
-        this.classes += ' ' + FONT_CLASS[fontFamily];
-    } else {
-        // Not a well-known family. Use a style.
-        this.setStyle('font-family', fontFamily);
-    }
-
-    //
-    // 3. Get the metrics information
-    //
-    if (this.body && this.body.length > 0 && fontName) {
-        this.height = 0;
-        this.depth = 0;
-        this.skew = 0;
-        this.italic = 0;
-        for (let i = 0; i < this.body.length; i++) {
-            const metrics = FontMetrics.getCharacterMetrics(this.body.charAt(i), fontName);
-            // If we were able to get metrics info for this character, store it.
-            if (metrics) {
-                this.height = Math.max(this.height, metrics.height);
-                this.depth = Math.max(this.depth, metrics.depth);
-                this.skew = metrics.skew;
-                this.italic = metrics.italic;
+    /**
+     * @param {object} style A style specification with the following
+     * (all optionals) properties, which use the TeX terminology:
+     *
+     * - fontFamily: cmr, cmss, cmtt, cmsy (symbols), cmex (large symbols),
+     *  ptm (times), phv (helvetica), pcr (courier)
+     * - fontSeries: m (medium), b (bold), bx (bold extended), sb (semi-bold), c (condensed)
+     * - fontShape:          italic, oblique, "roman": n (normal, upright), it, sl, sc
+     * - color:
+     * - background:
+     */
+    applyStyle(style) {
+        if (!style) return;
+        if (style.color) {
+            if (style.color !== 'none') {
+                this.setStyle('color', style.color);
+            } else {
+                this.setStyle('color', '');
             }
         }
-    }
-
-}
-
-
-/**
- * Set the value of a CSS property associated with this span.
- * For example, setStyle('border-right', 5.6, 'em');
- *
- * @param {string} prop the CSS property to set
- * @param {...(string|number)} value a series of strings and numbers that will be concatenated.
- * @return {string}
- * @method module:core/span.Span#setStyle
- * @private
- */
-Span.prototype.setStyle = function(prop, ...value) {
-    const v = toString(value);
-    if (v.length > 0) {
-        if (!this.style) this.style = {};
-        this.style[prop] = v;
-    }
-}
-
-Span.prototype.setTop = function(top) {
-    if (top && top !== 0) {
-        if (!this.style) this.style = {};
-        this.style['top'] = toString(top) + 'em';
-        this.height -= top;
-        this.depth += top;
-    }
-}
-
-Span.prototype.setLeft = function(left) {
-    if (left && left !== 0) {
-        if (!this.style) this.style = {};
-        this.style['margin-left'] = toString(left) + 'em';
-    }
-}
-
-Span.prototype.setRight = function(right) {
-    if (right && right !== 0) {
-        if (!this.style) this.style = {};
-        this.style['margin-right'] = toString(right) + 'em';
-    }
-}
-
-Span.prototype.setWidth = function(width) {
-    if (width && width !== 0) {
-        if (!this.style) this.style = {};
-        this.style['width'] = toString(width) + 'em';
-    }
-}
-
-Span.prototype.addMarginRight = function(margin) {
-    if (margin && margin !== 0) {
-        if (!this.style &&
-            !/qquad|quad|enspace|thickspace|mediumspace|thinspace|negativethinspace/.test(this.classes)) {
-            // Attempt to use a class instead of an explicit margin
-            const cls = {
-                '2': 'qquad',
-                '1': 'quad',
-                '.5': 'enspace',
-                '0.277778': 'thickspace',
-                '0.222222': 'mediumspace',
-                '0.166667': 'thinspace',
-                '-0.166667': 'negativethinspace'}[margin.toString()];
-            if (cls) {
-                this.classes += ' rspace ' + cls;
-                return;
+        if (style.backgroundColor) {
+            if (style.backgroundColor !== 'none') {
+                this.setStyle('background-color', style.backgroundColor);
+            } else {
+                this.setStyle('background-color', '');
             }
         }
-        if (!this.style) this.style = {};
-        const currentMargin = parseFloat(this.style['margin-right'] || '0');
-        this.style['margin-right'] = toString(currentMargin + margin) + 'em'
+
+        // Determine the appropriate font (and font-related classes)
+        //
+        // 1. Determine the font family (i.e. 'amsrm', 'mathit', 'mathcal', etc...)
+        //
+
+        const fontFamily = style.fontFamily;
+        let fontName = 'Main-Regular'; // Default font
+        if (fontFamily) {
+            fontName = getFontName(this.body, fontFamily);
+        }
+
+        //
+        // 2. Determine the classes necessary to represent the series and shape
+        //
+
+        if (style.fontShape) {
+            this.classes += ' ' + {
+                'it': 'ML__it',
+                'sl': 'ML__shape_sl',     // slanted
+                'sc': 'ML__shape_sc',     // small caps
+                'ol': 'ML__shape_ol'      // outline
+            }[style.fontShape] || '';
+        }
+        if (style.fontSeries) {
+            const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
+            if (m) {
+                this.classes += ' ' + {
+                    'ul': 'ML__series_ul',
+                    'el': 'ML__series_el',
+                    'l': 'ML__series_l',
+                    'sl': 'ML__series_sl',
+                    'm': '',                // medium (default)
+                    'sb': 'ML__series_sb',
+                    'b': 'ML__bold',
+                    'eb': 'ML__series_eb',
+                    'ub': 'ML__series_ub',
+                }[m[1] || ''] || '';
+                this.classes += ' ' + {
+                    'uc': 'ML__series_uc',
+                    'ec': 'ML__series_ec',
+                    'c': 'ML__series_c',
+                    'sc': 'ML__series_sc',
+                    'n': '',                // normal (default)
+                    'sx': 'ML__series_sx',
+                    'x': 'ML__series_x',
+                    'ex': 'ML__series_ex',
+                    'ux': 'ML__series_ux',
+                }[m[2] || ''] || '';
+            }
+        }
+
+        if (FONT_CLASS[fontFamily]) {
+            this.classes += ' ' + FONT_CLASS[fontFamily];
+        } else {
+            // Not a well-known family. Use a style.
+            this.setStyle('font-family', fontFamily);
+        }
+
+        //
+        // 3. Get the metrics information
+        //
+        if (this.body && this.body.length > 0 && fontName) {
+            this.height = 0;
+            this.depth = 0;
+            this.skew = 0;
+            this.italic = 0;
+            for (let i = 0; i < this.body.length; i++) {
+                const metrics = FontMetrics.getCharacterMetrics(this.body.charAt(i), fontName);
+                // If we were able to get metrics info for this character, store it.
+                if (metrics) {
+                    this.height = Math.max(this.height, metrics.height);
+                    this.depth = Math.max(this.depth, metrics.depth);
+                    this.skew = metrics.skew;
+                    this.italic = metrics.italic;
+                }
+            }
+        }
+
+    }
+
+
+    /**
+     * Set the value of a CSS property associated with this span.
+     * For example, setStyle('border-right', 5.6, 'em');
+     *
+     * @param {string} prop the CSS property to set
+     * @param {...(string|number)} value a series of strings and numbers that will be concatenated.
+     * @return {string}
+     * @method module:core/span.Span#setStyle
+     * @private
+     */
+    setStyle(prop, ...value) {
+        const v = toString(value);
+        if (v.length > 0) {
+            if (!this.style) this.style = {};
+            this.style[prop] = v;
+        }
+    }
+
+    setTop(top) {
+        if (top && top !== 0) {
+            if (!this.style) this.style = {};
+            this.style['top'] = toString(top) + 'em';
+            this.height -= top;
+            this.depth += top;
+        }
+    }
+
+    setLeft(left) {
+        if (left && left !== 0) {
+            if (!this.style) this.style = {};
+            this.style['margin-left'] = toString(left) + 'em';
+        }
+    }
+    setRight(right) {
+        if (right && right !== 0) {
+            if (!this.style) this.style = {};
+            this.style['margin-right'] = toString(right) + 'em';
+        }
+    }
+    setWidth(width) {
+        if (width && width !== 0) {
+            if (!this.style) this.style = {};
+            this.style['width'] = toString(width) + 'em';
+        }
+    }
+
+    addMarginRight(margin) {
+        if (margin && margin !== 0) {
+            if (!this.style &&
+                !/qquad|quad|enspace|thickspace|mediumspace|thinspace|negativethinspace/.test(this.classes)) {
+                // Attempt to use a class instead of an explicit margin
+                const cls = {
+                    '2': 'qquad',
+                    '1': 'quad',
+                    '.5': 'enspace',
+                    '0.277778': 'thickspace',
+                    '0.222222': 'mediumspace',
+                    '0.166667': 'thinspace',
+                    '-0.166667': 'negativethinspace'
+                }[margin.toString()];
+                if (cls) {
+                    this.classes += ' rspace ' + cls;
+                    return;
+                }
+            }
+            if (!this.style) this.style = {};
+            const currentMargin = parseFloat(this.style['margin-right'] || '0');
+            this.style['margin-right'] = toString(currentMargin + margin) + 'em';
+        }
+    }
+    /**
+     * Generate the HTML markup to represent this span.
+     *
+     * @param {number} [hskip=0] - Space (in mu, 1/18em) to leave on the left side
+     * of the span. Implemented as a Unicode character if possible, a margin-left otherwise.
+     * @param {number} [hscale=1.0] - If a value is provided, the margins are scaled by
+     * this factor.
+     * @return {string} HTML markup
+     * @method module:core/span.Span#toMarkup
+     * @private
+     */
+    toMarkup(hskip, hscale) {
+        hskip = hskip || 0;
+        hscale = hscale || 1.0;
+        let result = '';
+        let body = this.body || '';
+        if (this.children) {
+            let previousType = 'none';
+            for (const child of this.children) {
+                let spacing = 0;
+                if (previousType) {
+                    let type = child.type;
+                    if (type) {
+                        if (type === 'textord') type = 'mord';
+                        if (type === 'first') type = 'none';
+                        if (child.isTight) {
+                            spacing = (INTER_ATOM_TIGHT_SPACING[previousType + '+' + type] || 0);
+                        } else {
+                            spacing = (INTER_ATOM_SPACING[previousType + '+' + type] || 0);
+                        }
+                        spacing = Math.floor(hscale * spacing);
+                    }
+                }
+                body += child.toMarkup(spacing, hscale);
+                previousType = lastSpanType(child);
+            }
+        }
+        const tag = this.tag || 'span';
+
+        if (tag.length === 0) {
+            result = body || '';
+        } else {
+            result = '<' + tag;
+
+            if (this.svgOverlay) {
+                if (!this.style) this.style = {};
+                this.style['position'] = 'relative';
+            }
+
+            if (this.attributes) {
+                for (const attribute in this.attributes) {
+                    if (this.attributes.hasOwnProperty(attribute)) {
+                        result += ' ' + attribute + '="' + this.attributes[attribute] + '"';
+                    }
+                }
+            }
+
+            const classes = this.classes.split(' ');
+
+            // Add the type (mbin, mrel, etc...) if specified
+            if (this.type) {
+                if (/command|placeholder|error/.test(this.type)) {
+                    classes.push({
+                        'command': 'ML__command',
+                        'placeholder': 'ML__placeholder',
+                        'error': 'ML__error'
+                    }[this.type]);
+                }
+                if (this.caret && this.type === 'command') {
+                    classes.push('ML__command-caret');
+                }
+            }
+
+
+            // Remove duplicate and empty classes
+            // and 'mathrm' which is a no-op
+            let classList = '';
+            if (classes.length > 1) {
+                classList = classes.filter(function (x, e, a) {
+                    return x.length > 0 && x !== 'mathrm' && a.indexOf(x) === e;
+                }).join(' ');
+            } else {
+                classList = classes[0];
+            }
+
+            if (classList.length > 0) {
+                result += ' class="' + classList + '"';
+            }
+
+            // If a `hskip` value was provided, add it to the margin-left
+            if (hskip) {
+                if (this.style && this.style['margin-left']) {
+                    // There was already a margin, add to it
+                    this.style['margin-left'] = 
+                        toString((parseFloat(this.style['margin-left']) + hskip / 18)) + 'em';
+                } else {
+                    // No margin yet. Can we encode it as a Unicode space?
+                    if (hskip < 0 && NEGATIVE_SPACING_CHARACTER[-hskip]) {
+                        body = NEGATIVE_SPACING_CHARACTER[-hskip] + body;
+                    } else if (SPACING_CHARACTER[hskip]) {
+                        body = SPACING_CHARACTER[hskip] + body;
+                    } else {
+                        if (!this.style) this.style = {};
+                        this.style['margin-left'] = toString(hskip / 18) + 'em';
+                    }
+                }
+            }
+
+            if (this.style) {
+                let styleString = '';
+                const isSelected = /ML__selected/.test(this.classes);
+                for (const style in this.style) {
+                    if (this.style.hasOwnProperty(style)) {
+                        // Render the style property, except the background
+                        // of selected spans
+                        if (style !== 'background-color' || !isSelected) {
+                            styleString += style + ':' + this.style[style] + ';';
+                        }
+                    }
+                }
+
+                if (styleString.length > 0) {
+                    result += ' style="' + styleString + '"';
+                }
+            }
+            result += '>';
+
+            // If there is some SVG markup associated with this span,
+            // include it now
+            if (this.svgOverlay) {
+                result += body; // @todo maybe safe encode here...? (< >)
+                result += '<svg ';
+                result += 'style="position:absolute;left:0;bottom:0;right:0;width:100%;height:100%;z-index:2;';
+                result += 'top:' + (1 - this.height) + 'em;';
+                result += '"';
+                if (this.svgStyle) {
+                    result += ' style="' + this.svgStyle + '"';
+                }
+                result += '>';
+                result += this.svgOverlay;
+                result += '</svg>';
+            } else {
+                result += body; // @todo maybe safe encode here...? (< >)
+            }
+
+            // Note: We can't omit the tag, even if it has no class and no style,
+            // as some layouts (vlist) depends on the presence of the tag to function
+            result = result + '</' + tag + '>';
+        }
+
+        // Collapse 'empty' spans
+        if (result === '<span>\u200b</span>') {
+            result = '';
+        }
+
+        if (this.caret && this.type !== 'command') {
+            if (this.caret === 'text') {
+                result = result + '<span class="ML__text-caret"></span>';
+            } else {
+                result = result + '<span class="ML__caret"></span>';
+            }
+        }
+
+        return result;
+    }
+
+
+    /**
+     * Can this span be coalesced with 'span'?
+     * This is used to 'coalesce' (i.e. group together) a series of spans that are
+     * identical except for their value, and to avoid generating redundant spans.
+     * That is: '12' ->
+     *      "<span class='mord mathrm'>12</span>"
+     * rather than:
+     *      "<span class='mord mathrm'>1</span><span class='mord mathrm'>2</span>"
+     * @param {Span} span
+     * @return {boolean}
+     * @method module:core/span.Span#tryCoalesceWith
+     * @private
+     */
+    tryCoalesceWith(span) {
+        if (this.tag !== span.tag) return false;
+        if (this.type !== span.type) return false;
+        // Don't coalesce consecutive errors or placeholders
+        if (this.type === 'error' || this.type === 'placeholder' ||
+            this.type === 'command') return false;
+        // If this span or the candidate span have children, we can't
+        // coalesce them, but we'll try to coalesce their children
+        const hasChildren = this.children && this.children.length > 0;
+        const spanHasChildren = span.children && span.children.length > 0;
+        if (hasChildren || spanHasChildren) return false;
+        // If they have a different number of styles, can't coalesce
+        const thisStyleCount = this.style ? this.style.length : 0;
+        const spanStyleCount = span.style ? span.style.length : 0;
+        if (thisStyleCount !== spanStyleCount) return false;
+        // For the purpose of our comparison,
+        // any 'empty' classes (whitespace)
+        const classes = this.classes.trim().replace(/\s+/g, ' ')
+            .split(' ');
+        const spanClasses = span.classes.trim().replace(/\s+/g, ' ')
+            .split(' ');
+        // If they have a different number of classes, can't coalesce
+        if (classes.length !== spanClasses.length) return false;
+        // OK, let's do the more expensive comparison now.
+        // If they have different classes, can't coalesce
+        classes.sort();
+        spanClasses.sort();
+        for (let i = 0; i < classes.length; i++) {
+            // Don't coalesce vertical separators
+            // (used in column formating with {l||r} for example
+            if (classes[i] === 'vertical-separator') return false;
+            if (classes[i] !== spanClasses[i]) return false;
+        }
+        // If the styles are different, can't coalesce
+        if (this.style && span.style) {
+            for (const style in this.style) {
+                if (this.style.hasOwnProperty(style) &&
+                    span.style.hasOwnProperty(style)) {
+                    if (this.style[style] !== span.style[style]) return false;
+                }
+            }
+        }
+        // OK, the attributes of those spans are compatible.
+        // Merge span into this
+        this.body += span.body;
+        this.height = Math.max(this.height, span.height);
+        this.depth = Math.max(this.depth, span.depth);
+        // The italic correction for the coalesced spans is the
+        // italic correction of the last span.
+        this.italic = span.italic;
+        return true;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -407,252 +632,8 @@ function lastSpanType(span) {
     return result;
 }
 
-/**
- * Generate the HTML markup to represent this span.
- *
- * @param {number} [hskip=0] - Space (in mu, 1/18em) to leave on the left side
- * of the span. Implemented as a Unicode character if possible, a margin-left otherwise.
- * @param {number} [hscale=1.0] - If a value is provided, the margins are scaled by
- * this factor.
- * @return {string} HTML markup
- * @method module:core/span.Span#toMarkup
- * @private
- */
-Span.prototype.toMarkup = function(hskip, hscale) {
-    hskip = hskip || 0;
-    hscale = hscale || 1.0;
-    let result = '';
-    let body = this.body || '';
-    if (this.children) {
-        let previousType = 'none';
-        for (const child of this.children) {
-            let spacing = 0;
-            if (previousType) {
-                let type = child.type;
-                if (type) {
-                    if (type === 'textord') type = 'mord';
-                    if (type === 'first') type = 'none';
-                    if (child.isTight) {
-                        spacing = (INTER_ATOM_TIGHT_SPACING[previousType + '+' + type] || 0);
-                    } else {
-                        spacing = (INTER_ATOM_SPACING[previousType + '+' + type] || 0);
-                    }
-                    spacing = Math.floor(hscale * spacing);
-                }
-            }
-            body += child.toMarkup(spacing, hscale);
-            previousType = lastSpanType(child);
-        }
-    }
-    const tag = this.tag || 'span';
-
-    if (tag.length === 0) {
-        result = body || '';
-    } else {
-        result = '<' + tag;
-
-        if (this.svgOverlay) {
-            if (!this.style) this.style = {};
-            this.style['position'] =  'relative';
-        }
-
-        if (this.attributes) {
-            for (const attribute in this.attributes) {
-                if (this.attributes.hasOwnProperty(attribute)) {
-                    result += ' ' + attribute + '="' + this.attributes[attribute] + '"';
-                }
-            }
-        }
-
-        const classes = this.classes.split(' ');
-
-        // Add the type (mbin, mrel, etc...) if specified
-        if (this.type) {
-            if (/command|placeholder|error/.test(this.type)) {
-                classes.push({
-                    'command': 'ML__command',
-                    'placeholder': 'ML__placeholder',
-                    'error': 'ML__error'
-                }[this.type]);
-            }
-            if (this.caret && this.type === 'command') {
-                classes.push('ML__command-caret');
-            }
-        }
-        
-
-        // Remove duplicate and empty classes
-        // and 'mathrm' which is a no-op
-        let classList = '';
-        if (classes.length > 1) {
-            classList = classes.filter(function (x, e, a) {
-                return x.length > 0 && x !== 'mathrm' && a.indexOf(x) === e;
-            }).join(' ');
-        } else {
-            classList = classes[0];
-        }
-
-        if (classList.length > 0) {
-            result += ' class="' + classList + '"';
-        }
-
-        // If a `hskip` value was provided, add it to the margin-left
-        if (hskip) {
-            if (this.style && this.style['margin-left']) {
-                // There was already a margin, add to it
-                this.style['margin-left'] = toString(
-                    (parseFloat(this.style['margin-left']) + hskip / 18)) + 'em';
-            } else {
-                // No margin yet. Can we encode it as a Unicode space?
-                if (hskip < 0 && NEGATIVE_SPACING_CHARACTER[-hskip]) {
-                    body = NEGATIVE_SPACING_CHARACTER[-hskip] + body;
-                } else if (SPACING_CHARACTER[hskip]) { 
-                    body = SPACING_CHARACTER[hskip] + body;
-                } else {
-                    if (!this.style) this.style = {};
-                    this.style['margin-left'] = toString(hskip / 18) + 'em';
-                }
-            }
-        }
-
-        if (this.style) {
-            let styleString = ''
-            for (const style in this.style) {
-                if (this.style.hasOwnProperty(style)) {
-                    styleString += style + ':' + this.style[style] + ';'
-                }
-            }
-
-            if (styleString.length > 0) {
-                result += ' style="' + styleString + '"';
-            }
-        }
-        result += '>';
-
-        // If there is some SVG markup associated with this span,
-        // include it now
-        if (this.svgOverlay) {
-            result += body;     // @todo maybe safe encode here...? (< >)
-            result += '<svg ';
-            result += 'style="position:absolute;left:0;bottom:0;right:0;width:100%;height:100%;z-index:2;';
-            result += 'top:' + (1 - this.height) + 'em;'
-            result += '"';
-            if (this.svgStyle) {
-                result += ' style="' + this.svgStyle + '"';
-            }
-            result += '>';
-            result += this.svgOverlay;
-            result += '</svg>';
-        } else {
-            result += body;     // @todo maybe safe encode here...? (< >)
-        }
-
-        // Note: We can't omit the tag, even if it has no class and no style,
-        // as some layouts (vlist) depends on the presence of the tag to function
-        result = result + '</' + tag + '>';
-    }
-
-    // Collapse 'empty' spans
-    if (result === '<span>\u200b</span>') {
-        result = '';
-    }
-
-    if (this.caret && this.type !== 'command') {
-        if (this.caret === 'text') {
-            result = result + '<span class="ML__text-caret"></span>';
-        } else {
-            result = result + '<span class="ML__caret"></span>';
-        }
-    }
-
-    return result;
-}
 
 
-/**
- * Can this span be coalesced with 'span'?
- * This is used to 'coalesce' (i.e. group together) a series of spans that are
- * identical except for their value, and to avoid generating redundant spans.
- * That is: '12' ->
- *      "<span class='mord mathrm'>12</span>"
- * rather than:
- *      "<span class='mord mathrm'>1</span><span class='mord mathrm'>2</span>"
- * @param {Span} span
- * @return {boolean}
- * @method module:core/span.Span#tryCoalesceWith
- * @private
- */
-Span.prototype.tryCoalesceWith = function(span) {
-
-    if (this.tag !== span.tag) return false;
-
-    if (this.type !== span.type) return false;
-
-    // Don't coalesce consecutive errors or placeholders
-    if (this.type === 'error' || this.type === 'placeholder' ||
-        this.type === 'command') return false;
-
-    // If this span or the candidate span have children, we can't
-    // coalesce them, but we'll try to coalesce their children
-    const hasChildren = this.children && this.children.length > 0;
-    const spanHasChildren = span.children && span.children.length > 0;
-    if (hasChildren || spanHasChildren) return false;
-
-    // If they have a different number of styles, can't coalesce
-    const thisStyleCount = this.style ? this.style.length : 0;
-    const spanStyleCount = span.style ? span.style.length : 0;
-
-    if (thisStyleCount !== spanStyleCount) return false;
-
-    // For the purpose of our comparison,
-    // any 'empty' classes (whitespace)
-    const classes = this.classes.trim().replace(/\s+/g, ' ')
-        .split(' ');
-    const spanClasses = span.classes.trim().replace(/\s+/g, ' ')
-        .split(' ');
-
-
-    // If they have a different number of classes, can't coalesce
-    if (classes.length !== spanClasses.length) return false;
-
-
-    // OK, let's do the more expensive comparison now.
-
-    // If they have different classes, can't coalesce
-    classes.sort();
-    spanClasses.sort();
-
-    for (let i = 0; i < classes.length; i++) {
-        // Don't coalesce vertical separators
-        // (used in column formating with {l||r} for example
-        if (classes[i] === 'vertical-separator') return false;
-        if (classes[i] !== spanClasses[i]) return false;
-    }
-
-
-    // If the styles are different, can't coalesce
-    if (this.style && span.style) {
-        for (const style in this.style) {
-            if (this.style.hasOwnProperty(style) &&
-                span.style.hasOwnProperty(style)) {
-                if (this.style[style] !== span.style[style]) return false;
-            }
-        }
-    }
-
-    // OK, the attributes of those spans are compatible.
-    // Merge span into this
-    this.body += span.body;
-
-    this.height = Math.max(this.height, span.height);
-    this.depth = Math.max(this.depth, span.depth);
-
-    // The italic correction for the coalesced spans is the
-    // italic correction of the last span.
-    this.italic = span.italic;
-
-    return true;
-}
 
 /**
  * Attempts to coalesce (merge) spans, for example consecutive text spans.
@@ -736,7 +717,7 @@ function italic(spans) {
  * @memberof module:core/span
  * @private
  */
-function makeSpan(content, classes) {
+export function makeSpan(content, classes) {
     if (Array.isArray(content)) {
         const c = [];
         for (const s of content) {
@@ -825,7 +806,7 @@ function makeOp(content, classes) {
     return makeSpanOfType('mop', content, classes);
 }
 
-function makeOrd(content, classes) {
+export function makeOrd(content, classes) {
     return makeSpanOfType('mord', content, classes);
 }
 
@@ -841,7 +822,7 @@ function makeOpen(content, classes) {
     return makeSpanOfType('mopen', content, classes);
 }
 
-function makeInner(content, classes) {
+export function makeInner(content, classes) {
     return makeSpanOfType('minner', content, classes);
 }
 
@@ -885,7 +866,7 @@ function makeSVG(body, svgMarkup, svgStyle) {
  * @memberof module:core/span
  * @private
  */
-function makeHlist(children, classes) {
+export function makeHlist(children, classes) {
     if (!classes || classes.length === 0) {
         // No decorations...
         if (children instanceof Span) {
@@ -917,7 +898,7 @@ function makeHlist(children, classes) {
  * @memberof module:core/span
  * @private
  */
-function makeVlist(context, elements, pos, posData) {
+export function makeVlist(context, elements, pos, posData) {
     let listDepth = 0;
     let currPos = 0;
     pos = pos || 'shift';
@@ -1044,7 +1025,7 @@ function makeVlist(context, elements, pos, posData) {
 
 // Map an abstract 'fontFamily' to an actual font name
 const FONT_NAME = {
-    'ams':          'AMS-Regular',     // pseudo-fontFamily to select AMS-Regular
+    'ams':          'AMS-Regular',
     'bb':           'AMS-Regular',
     'cal':          'Caligraphic-Regular',
     'frak':         'Fraktur-Regular',
@@ -1053,12 +1034,8 @@ const FONT_NAME = {
     'cmss':         'SansSerif-Regular',
     'cmtt':         'Typewriter-Regular',
     'math':         'Math-Regular',
-    'mathrm':       'Main-Regular',
-    'mainrm':       'Main-Regular',
+    'mainit':       'Main-Italic',
 
-    'mathit':       'Math-Regular',
-    'mathbf':       'Main-Bold',
-    'mathbfit':     'Math-Bold',
 };
 
 const FONT_CLASS = {
@@ -1071,20 +1048,13 @@ const FONT_CLASS = {
     'cmss':         'ML__sans',
     'cmtt':         'ML__tt',
     'math':         'ML__mathit',
-
-    'main':         'ML__mathrm',
-    'mathrm':       'ML__mathrm',
-    'mainrm':       'ML__mathrm',
-
-    'mathit':       'ML__mathit',
-    'mathbf':       'ML__mathbf',
-    'mathbfit':     'ML__mathbfit',
+    'mainit':       'ML__mainit',
 }
 
 
 
 /**
- * Given a font family ('mathbf', 'mathit'...) return a corresponding
+ * Given a font family ('frak', 'math'...) return a corresponding
  * font name. If the font does not support the specified symbol
  * return an alternate font or null if none could be determined.
  * @param {(string|Span[])} symbol the character for which we're seeking the font
