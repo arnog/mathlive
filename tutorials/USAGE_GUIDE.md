@@ -255,7 +255,7 @@ be selected).
 * `pasteFromClipboard`
 
 ### User Interface
-* `enterCommandMode`
+* `switchMode`
 * `complete` exit command mode and insert result
 * `nextSuggestion` and `previousSuggestion` when the popover panel is
 selected, display the next/previous suggestion

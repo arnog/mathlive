@@ -1063,7 +1063,7 @@ class Parser {
                     let argString = '';
 
                     // Parse the arguments
-                    let mandatoryParamsCount = 0;
+                    // let mandatoryParamsCount = 0;
                     // If explicitGroup is not empty, an explicit group is expected 
                     // to follow the command and will be parsed *after* the 
                     // command has been processed.
@@ -1084,7 +1084,7 @@ class Parser {
                             } else if (param.type.endsWith('*')) {
                                 explicitGroup = param.type.slice(0, -1);
                             } else {
-                                mandatoryParamsCount += 1;
+                                // mandatoryParamsCount += 1;
                                 // If it's not present, scanArg returns null.
                                 // Add a placeholder instead.
                                 const arg = this.scanArg(param.type);

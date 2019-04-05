@@ -2912,7 +2912,7 @@ via <code>config.onAnnounce</code></p>
 
     
 
-    <h4 class="name" id="complete_">complete_<span class="signature">(escape<span class="signature-type">: boolean</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="complete_">complete_<span class="signature">(options<span class="signature-type">: object</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
@@ -2940,7 +2940,30 @@ If escape is true, the command is discared.</p>
 
         <div class="signature">
             
-                <span class="name"><code>escape</code></span>
+                <span class="name"><code>options</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>options.discard</code></span>
             
 
             <span class="type">
@@ -2958,8 +2981,45 @@ If escape is true, the command is discared.</p>
 
             
                     <p class="description last">
-                        <p>if true, the command is discarded</p>
+                        <p>if true, the command is discarded and the 
+mode switched back to math</p>
                     </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>options.acceptSuggestion</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">boolean</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>if true, accept the suggestion to 
+complete the command. Otherwise, only use what has been entered so far.</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
                     
             
         </div>

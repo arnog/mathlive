@@ -615,6 +615,7 @@ function getInfo(symbol, parseMode, macros) {
  * @private
  */
 function suggest(s) {
+    if (s.length <= 1) return [];
     const result = [];
 
     // Iterate over items in the dictionary

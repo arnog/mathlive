@@ -78,7 +78,7 @@ The following selectors can be passed to [`MathField.$perform()`]{@link MathFiel
 | `addColumnBefore` | |
 | `scrollIntoView` | |
 | `scrollToStart` | |
-| `enterCommandMode` | |
+| `switchMode` | |
 | `complete` | |
 | `nextSuggestion` | |
 | `previousSuggestion` | |

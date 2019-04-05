@@ -412,7 +412,7 @@ function showPopoverWithLatex(mf, latex, displayArrows) {
 
     let el = mf.popover.getElementsByClassName('ML__popover_content');
     if (el && el.length > 0) {
-        mf._attachButtonHandlers(el[0], 'complete');
+        mf._attachButtonHandlers(el[0], ['complete', {acceptSuggestion:true}]);
     }
 
 

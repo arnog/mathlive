@@ -1577,7 +1577,7 @@ MathField.prototype._onTypedText = function(text, options) {
     }
 
     if (options.commandMode && this.mode !== 'command') {
-        this.enterCommandMode_();
+        this.switchMode_('command');
     }
 
     // Remove any error indicator on the current command sequence
@@ -2147,20 +2147,7 @@ MathField.prototype.scrollToEnd_ = MathField.prototype.scrollToEnd = function() 
  * @private
  */
 MathField.prototype.enterCommandMode_ = function() {
-    // Remove any error indicator on the current command sequence (if there is one)
-    this.mathlist.decorateCommandStringAroundInsertionPoint(false);
-
-    this.mathlist.removeSuggestion();
-    Popover.hidePopover(this);
-    this.suggestionIndex = 0;
-
-    // Switch to the command mode keyboard layer
-    if (this.virtualKeyboardVisible) {
-        this.switchKeyboardLayer_('lower-command');
-    }
-
-    this.mathlist.insert('\u001b', {mode: 'math'});
-    return true;
+    this.switchMode_('command');
 }
 
 
@@ -2286,7 +2273,22 @@ MathField.prototype.switchMode_ = function(mode, prefix, suffix) {
             mode: {'math':'text', 'text':'math'}[mode]
         });
     }
-    this.mode = mode;
+    // Remove any error indicator on the current command sequence (if there is one)
+    this.mathlist.decorateCommandStringAroundInsertionPoint(false);
+    if (mode === 'command') {
+        this.mathlist.removeSuggestion();
+        Popover.hidePopover(this);
+        this.suggestionIndex = 0;
+
+        // Switch to the command mode keyboard layer
+        if (this.virtualKeyboardVisible) {
+            this.switchKeyboardLayer_('lower-command');
+        }
+
+        this.mathlist.insert('\u001b', {mode: 'math'});
+    } else {
+        this.mode = mode;
+    }
     if (suffix) {
         this.insert(suffix, {             
             format: 'latex', 
@@ -2304,19 +2306,25 @@ MathField.prototype.switchMode_ = function(mode, prefix, suffix) {
 /**
  * When in command mode, insert the select command and return to math mode
  * If escape is true, the command is discared.
- * @param {boolean} escape if true, the command is discarded
+ * @param {object} options
+ * @param {boolean} options.discard if true, the command is discarded and the 
+ * mode switched back to math
+ * @param {boolean} options.acceptSuggestion if true, accept the suggestion to 
+ * complete the command. Otherwise, only use what has been entered so far. 
  * @method MathField#complete_
  * @private
  */
-MathField.prototype.complete_ = function(escape) {
-    if (escape === undefined) escape = false;
+MathField.prototype.complete_ = function(options) {
+    options = options || {};
     Popover.hidePopover(this);
-    if (escape) {
+    if (options.discard) {
         this.mathlist.spliceCommandStringAroundInsertionPoint(null);
+        this.switchMode_('math');
         return true;
     }
 
-    const command = this.mathlist.extractCommandStringAroundInsertionPoint();
+    const command = this.mathlist.extractCommandStringAroundInsertionPoint(
+        !options.acceptSuggestion);
     if (command) {
         if (command === '\\(' || command === '\\)') {
             this.mathlist.spliceCommandStringAroundInsertionPoint([]);

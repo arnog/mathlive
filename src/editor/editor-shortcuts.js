@@ -100,19 +100,18 @@ const KEYBOARD_SHORTCUTS = {
     'text:Shift-Tab':           'moveToPreviousPlaceholder',
     'text:Shift-F8':            'moveToPreviousPlaceholder',    // Visual Studio
 
-    'math:Esc':                 'enterCommandMode',
-    'math:Backslash':           'enterCommandMode',
-    'math:IntlBackslash':       'enterCommandMode',
+    'math:Esc':                 ['switch-mode', 'command'],
+    'math:Backslash':           ['switch-mode', 'command'],
+    'math:IntlBackslash':       ['switch-mode', 'command'],
 
     'math:Alt-Equal':           ['apply-style', {mode: 'text'}],
     'text:Alt-Equal':           ['apply-style', {mode: 'math'}],
 
-    'command:Spacebar':         'complete',
-    'command:Esc':              ['complete', true], // true -> discard the command
-    'command:Tab':              'complete',
+    'command:Esc':              ['complete', {discard: true}], // discard the command, insert nothing
+    'command:Tab':              ['complete', {acceptSuggestion: true}], // complete the suggestion
     'command:Return':           'complete',
     'command:Enter':            'complete',
-    'command:Shift-Esc':        'complete',     // Some keyboards can't generate 
+    'command:Shift-Esc':        ['complete', {discard: true}],     // Some keyboards can't generate 
             // this combination, for example in 60% keyboards it is mapped to ~
     'command:Down':             'nextSuggestion',
     'ios:command:Tab':          'nextSuggestion',

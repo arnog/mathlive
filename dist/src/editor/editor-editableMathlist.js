@@ -931,13 +931,15 @@ EditableMathlist.prototype.commandOffsets = function() {
  * @method EditableMathlist#extractCommandStringAroundInsertionPoint
  * @private
  */
-EditableMathlist.prototype.extractCommandStringAroundInsertionPoint = function() {
+EditableMathlist.prototype.extractCommandStringAroundInsertionPoint = 
+function(beforeInsertionPointOnly) {
     let result = '';
 
     const command = this.commandOffsets();
     if (command) {
+        const end = beforeInsertionPointOnly ? this.anchorOffset() + 1 : command.end;
         const siblings = this.siblings();
-        for (let i = command.start; i < command.end; i++) {
+        for (let i = command.start; i < end; i++) {
             // All these atoms are 'command' atom with a body that's
             // a single character
             result += siblings[i].body || '';
