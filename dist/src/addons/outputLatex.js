@@ -21,12 +21,12 @@ function findLongestRun(atoms, property, value) {
 
 /**
  * 
- * @param {MathAtom} prev the parent or predecessor of the atom list
+ * @param {MathAtom} parent the parent or predecessor of the atom list
  * @param {MathAtom[]} atoms the list of atoms to transform to LaTeX
  * @param {boolean} expandMacro true if macros should be expanded
  * @result {string} a LaTeX string
  */
-function latexifyArray(prev, properties, atoms, expandMacro) {
+function latexifyArray(parent, properties, atoms, expandMacro) {
     if (atoms.length === 0) return '';
 
     if (properties.length === 0) {
@@ -113,7 +113,7 @@ function latexifyArray(prev, properties, atoms, expandMacro) {
             if (atoms[0].fontShape === 'it') {
                 prefix = '\\mathit{';
                 suffix = '}';
-            } else if (atoms[0].fontShape === 'n') {
+            } else if (atoms[0].fontShape === 'n' && atoms[0].fontSeries !== 'b') {
                 prefix = '\\mathup{';
                 suffix = '}';
             }
@@ -139,15 +139,16 @@ function latexifyArray(prev, properties, atoms, expandMacro) {
         }
     }
 
-
-    if (prop === 'color' && atoms[0].color && atoms[0].color !== 'none') {
+    if (prop === 'color' && atoms[0].color &&
+         atoms[0].color !== 'none' &&
+         (!parent || parent.color !== atoms[0].color)) {
         prefix = '\\textcolor{' + Color.colorToString(atoms[0].color) + '}{';
         suffix = '}';
     }
 
     result += prefix;
 
-    result += latexifyArray(prev, 
+    result += latexifyArray(parent, 
         properties.slice(1), 
         atoms.slice(0, i), 
         expandMacro);
@@ -155,7 +156,7 @@ function latexifyArray(prev, properties, atoms, expandMacro) {
     result += suffix;
 
     // latexify the rest
-    result += latexifyArray(atoms[i], properties, atoms.slice(i), expandMacro);
+    result += latexifyArray(parent, properties, atoms.slice(i), expandMacro);
 
     return result;
 }
@@ -285,7 +286,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 result += this.leftDelim === '.' ? '' : (this.leftDelim || '');
                 if (this.leftDelim && this.leftDelim.length > 1) result += ' ';
                 result += latexify(this, this.body, expandMacro);
-                result += (this.rightDelim === '?' || this.rightDelim === '.') ? '' : this.rightDelim;
+                result += (!this.rightDelim || this.rightDelim === '?' || this.rightDelim === '.') ? '' : this.rightDelim;
                 if (this.rightDelim && this.rightDelim.length > 1) result += ' ';
             }
             break;
@@ -393,14 +394,27 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             break;
 
         case 'spacing':
+            // Three kinds of spacing commands:
+            // \hskip and \kern which take one implicit parameter
+            // \hspace and hspace* with take one *explicit* parameter
+            // \quad, etc... which take no parameters.
             result += command;
-            if (command !== '\\hskip' && command !== '\\kern') result += '{';
-            if (this.width) {
-                result += ' ' + this.width + 'em ';
+            if (command === '\\hspace' || command === '\\hspace*') {
+                result += '{';
+                if (this.width) {
+                    result += this.width + 'em';
+                } else {
+                    result += '0em'
+                }
+                result += '}';
             } else {
-                result += ' 0em ';
+                result += ' ';
+                if (this.width) {
+                    result += this.width + 'em ';
+                }
             }
-            if (command !== '\\hskip' && command !== '\\kern') result += '}';
+
+
             break;
 
         case 'enclose':

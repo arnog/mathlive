@@ -1322,7 +1322,7 @@ function(name, args) {
     };
 });
 
-defineFunction('\\color', '{:color}', null, (_name, args) => { 
+defineFunction('\\color', '{:color}', {allowedInText: true}, (_name, args) => { 
     return { color: args[0] }
 });
 
@@ -1330,7 +1330,7 @@ defineFunction('\\color', '{:color}', null, (_name, args) => {
 // From the xcolor package.
 // As per xcolor, this command does not set the mode to text 
 // (unlike what its name might suggest)
-defineFunction('\\textcolor', '{:color}{content:auto*}', null, (_name, args) => {
+defineFunction('\\textcolor', '{:color}{content:auto*}', {allowedInText: true}, (_name, args) => {
     return { color: args[0] };
 });
 
@@ -1419,7 +1419,7 @@ defineFunction('\\boxed', '{content:math}', null,
 )
     frequency(1236, '\\boxed');
 
-defineFunction('\\colorbox', '{background-color:color}{content:auto}', null,
+defineFunction('\\colorbox', '{background-color:color}{content:auto}', {allowedInText: true},
     function(name, args) {
         return {
             type: 'box',
@@ -1433,7 +1433,7 @@ defineFunction('\\colorbox', '{background-color:color}{content:auto}', null,
 
 
 
-defineFunction('\\fcolorbox', '{frame-color:color}{background-color:color}{content:auto}', null,
+defineFunction('\\fcolorbox', '{frame-color:color}{background-color:color}{content:auto}', {allowedInText: true},
     function(name, args) {
         return {
             type: 'box',
@@ -1455,7 +1455,7 @@ defineFunction('\\fcolorbox', '{frame-color:color}{background-color:color}{conte
 // arg ::= [<background:color>|<padding:dimen>|<style>]
 // style ::= 'border:' <string>
 
-defineFunction('\\bbox', '[:bbox]{body:auto}', null,
+defineFunction('\\bbox', '[:bbox]{body:auto}', {allowedInText: true},
     function(name, args) {
         if (args[0]) {
             return {
@@ -1506,7 +1506,7 @@ defineFunction('\\enclose', '{notation:string}[style:string]{body:auto}', null,
                 const shorthand = s.match(/\s*(\S+)\s+(\S+)\s+(.*)/);
                 if (shorthand) {
                     result.strokeWidth = FontMetrics.toPx(shorthand[1], 'px');
-                    if (isNaN(result.strokeWidth)) {
+                    if (!isFinite(result.strokeWidth)) {
                         result.strokeWidth = 1;
                     }
                     result.strokeStyle = shorthand[2];
@@ -1646,7 +1646,7 @@ defineFunction('\\bold', '', {allowedInText: true}, (_name, _args) => {
 });
 
 defineFunction(['\\mathbf', '\\boldsymbol'], '{:math*}', {allowedInText: true}, (_name, _args) => {
-    return { fontSeries: 'b' }
+    return { mode: 'math', fontSeries: 'b', fontShape: 'n' }
 });
 
 defineFunction('\\bfseries', '', {allowedInText: true}, (_name, _args) => {
@@ -1658,7 +1658,7 @@ defineFunction('\\textbf', '{:text*}', {allowedInText: true}, (_name, _args) => 
 });
 
 defineFunction('\\mathmd', '{:math*}', {allowedInText: true}, (_name, _args) => {
-    return { fontSeries: 'm' }
+    return { mode: 'math', fontSeries: 'm', fontShape: 'n' }
 });
 
 defineFunction('\\mdseries', '', {allowedInText: true}, (_name, _args) => {
@@ -1681,7 +1681,7 @@ defineFunction('\\it', '', {allowedInText: true}, (_name, _args) => {
 });
 
 defineFunction('\\mathit', '{:math*}', {allowedInText: true}, (_name, _args) => {
-    return { fontShape: 'it' }
+    return { mode: 'math', fontSeries: 'm', fontShape: 'it' }
 });
 
 defineFunction('\\upshape', '', {allowedInText: true}, (_name, _args) => {
@@ -1721,7 +1721,7 @@ defineFunction('\\fontfamily', '{:text}', {allowedInText: true}, (_name, args) =
 });
 
 defineFunction('\\mathrm', '{:math*}', {allowedInText: true}, (_name, _args) => {
-    return { fontFamily: 'cmr' }
+    return { mode: 'math', fontFamily: 'cmr', fontSeries: 'm', fontShape: 'n' }
 });
 
 defineFunction('\\rmfamily', '', {allowedInText: true}, (_name, _args) => {
@@ -1733,7 +1733,7 @@ defineFunction('\\textrm', '{:text*}', {allowedInText: true}, (_name, _args) => 
 });
 
 defineFunction('\\mathsf', '{:math*}', {allowedInText: true}, (_name, _args) => {
-    return { fontFamily: 'cmss' }
+    return { mode:'math', fontFamily: 'cmss', fontSeries: 'm', fontShape: 'n' }
 });
 
 defineFunction('\\sffamily', '', {allowedInText: true}, (_name, _args) => {
@@ -1745,7 +1745,7 @@ defineFunction('\\textsf', '{:text*}', {allowedInText: true}, (_name, _args) => 
 });
 
 defineFunction('\\mathtt', '{:math*}', {allowedInText: true}, (_name, _args) => {
-    return { fontFamily: 'cmtt' }
+    return { mode:'math', fontFamily: 'cmtt', fontSeries: 'm', fontShape: 'n' }
 });
 
 defineFunction('\\ttfamily', '', {allowedInText: true}, (_name, _args) => {
@@ -1757,7 +1757,7 @@ defineFunction('\\texttt', '{:text*}', {allowedInText: true}, (_name, _args) => 
 });
 
 defineFunction(['\\Bbb', '\\mathbb'], '{:math*}', {allowedInText: true}, (_name, _args) => {
-    return { fontFamily: 'bb' }
+    return { mode:'math', fontFamily: 'bb' }
 });
 
 defineFunction(['\\frak', '\\mathfrak'], '{:math*}', {allowedInText: true}, (_name, _args) => {
@@ -1765,11 +1765,11 @@ defineFunction(['\\frak', '\\mathfrak'], '{:math*}', {allowedInText: true}, (_na
 });
 
 defineFunction('\\mathcal', '{:math*}', {allowedInText: true}, (_name, _args) => {
-    return { fontFamily: 'cal' }
+    return { mode:'math', fontFamily: 'cal', fontSeries: 'm', fontShape: 'n' }
 });
 
 defineFunction('\\mathscr', '{:math*}', {allowedInText: true}, (_name, _args) => {
-    return { fontFamily: 'scr' }
+    return { mode:'math', fontFamily: 'scr', fontSeries: 'm', fontShape: 'n' }
 });
 
 
@@ -2126,6 +2126,7 @@ function(name, args) {
         body: String.fromCodePoint(codepoint)
     }
 });
+defineSymbol( '\\backslash',  MAIN,  MATHORD, '\\');
 
 defineSymbol( '?',  MAIN,  MATHORD, '?');
 defineSymbol( '!',  MAIN,  MATHORD, '!');

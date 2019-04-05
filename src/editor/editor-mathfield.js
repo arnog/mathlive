@@ -1250,7 +1250,7 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
                 // Turn it into a \cdot
                 const atom = this.mathlist.sibling(0);
                 atom.body = '⋅';        // centered dot
-                atom.fontFamily = 'mathrm';
+                atom.fontFamily = 'cmr';
                 atom.latex = '\\cdot';
                 atom.mode = 'math';
                 atom.type = 'mord';

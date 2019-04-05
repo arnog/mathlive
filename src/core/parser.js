@@ -582,9 +582,9 @@ class Parser {
         this.tabularMode = savedTabularMode;
         if (!env.tabular && newMathList.length === 0) return null;
         if (env.tabular && array.length === 0) return null;
-        const result = new MathAtom(this.parseMode, 'array', env.parser ? env.parser(envName, args, array) : {});
+        const result = new MathAtom(this.parseMode, 'array', newMathList, 
+            env.parser ? env.parser(envName, args, array) : {});
         result.array = array;
-        result.body = newMathList;
         result.rowGaps = rowGaps;
         result.env = env;
         result.env.name = envName;

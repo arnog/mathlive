@@ -31,8 +31,7 @@ const AUTO_ITALIC_REGEX = /^([A-Za-z]|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f
  * @param {string} mode
  * @param {string} type
  * @param {string|MathAtom[]} body
- * @param {string} [fontFamily="main"]
- * @param {Object.<string, any>} [extras={}] A set of additional properties to append to
+ * @param {Object.<string, any>} [style={}] A set of additional properties to append to
  * the atom
  * @return {MathAtom}
  * @property {string} mode `'display'`, `'command'`, etc...
@@ -81,19 +80,21 @@ const AUTO_ITALIC_REGEX = /^([A-Za-z]|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f
  * order to be able to position the caret before the first element. Aside from
  * the caret, they display nothing.
  *
- * @property {string} fontFamily
  * @property {string|MathAtom[]} body
  * @property {MathAtom[]} superscript
  * @property {MathAtom[]} subscript
  * @property {MathAtom[]} numer
  * @property {MathAtom[]} denom
+ * 
  * @property {boolean} captureSelection if true, this atom does not let its
  * children be selected. Used by the `\enclose` annotations, for example.
+ * 
  * @property {boolean} skipBoundary if true, when the caret reaches the
  * first position in this element's body, it automatically moves to the
  * outside of the element. Conversely, when the caret reaches the position
  * right after this element, it automatically moves to the last position
  * inside this element.
+ * 
  * @class module:core/mathatom#MathAtom
  * @global
  * @private
@@ -116,6 +117,16 @@ class MathAtom {
         this.applyStyle(style);
     }
 
+    getStyle() {
+        return {
+            color: this.phantom ? 'transparent' : this.color,
+            backgroundColor: this.phantom ? 'transparent' : this.backgroundColor,
+            fontFamily: this.baseFontFamily || this.fontFamily || this.autoFontFamily,
+            fontShape: this.fontShape,
+            fontSeries: this.fontSeries
+        }
+    }
+
     applyStyle(style) {
         Object.assign(this, style);
 
@@ -131,7 +142,7 @@ class MathAtom {
                 // in math mode (European style: American style would not
                 // italicize greek letters, but it's TeX's default behavior)
                 this.autoFontFamily = 'math';
-            } else if (/[0-9]|\\imath|\\jmath|\\pounds/.test(symbol)) {
+            } else if (/\\imath|\\jmath|\\pounds/.test(symbol)) {
                 // Some characters do not exist in the Math font,
                 // use Main italic instead
                 this.autoFontFamily = 'mainit';
@@ -240,13 +251,13 @@ class MathAtom {
 
 
     decomposeGroup(context) {
-        // The scope of the context is this group, so make a copy of it
+        // The scope of the context is this group, so clone it
         // so that any changes to it will be discarded when finished
         // with this group.
         // Note that the mathstyle property is optional and could be undefined
-        // If that's the case, withMathstyle() returns a clone of the
+        // If that's the case, clone() returns a clone of the
         // context with the same mathstyle.
-        const localContext = context.withMathstyle(this.mathstyle);
+        const localContext = context.clone({mathstyle: this.mathstyle});
         return makeOrd(decompose(localContext, this.body));
     }
 
@@ -305,7 +316,7 @@ class MathAtom {
             let depth = arstrutDepth; // to each row (via the template)
             const outrow = [];
             for (let c = 0; c < inrow.length; ++c) {
-                const localContext = context.withMathstyle(this.mathstyle || 'auto');
+                const localContext = context.clone({mathstyle: this.mathstyle});
                 const cell = decompose(localContext, inrow[c]) || [];
                 const elt = [makeOrd(null)].concat(cell);
                 depth = Math.max(depth, Span.depth(elt));
@@ -452,22 +463,22 @@ class MathAtom {
     decomposeGenfrac(context) {
         const mathstyle = this.mathstyle === 'auto' ?
             context.mathstyle : Mathstyle.toMathstyle(this.mathstyle);
-        const newContext = context.withMathstyle(mathstyle);
+        const newContext = context.clone({mathstyle: mathstyle});
         let numer = [];
         if (this.numerPrefix) {
-            numer.push(makeOrd(this.numerPrefix, 'mathrm'));
+            numer.push(makeOrd(this.numerPrefix));
         }
         const numeratorStyle = this.continuousFraction ?
             mathstyle : mathstyle.fracNum();
-        numer = numer.concat(decompose(newContext.withMathstyle(numeratorStyle), this.numer));
+        numer = numer.concat(decompose(newContext.clone({mathstyle: numeratorStyle}), this.numer));
         const numerReset = makeHlist(numer, context.mathstyle.adjustTo(numeratorStyle));
         let denom = [];
         if (this.denomPrefix) {
-            denom.push(makeOrd(this.denomPrefix, 'mathrm'));
+            denom.push(makeOrd(this.denomPrefix));
         }
         const denominatorStyle = this.continuousFraction ?
             mathstyle : mathstyle.fracDen();
-        denom = denom.concat(decompose(newContext.withMathstyle(denominatorStyle), this.denom));
+        denom = denom.concat(decompose(newContext.clone({mathstyle: denominatorStyle}), this.denom));
         const denomReset = makeHlist(denom, context.mathstyle.adjustTo(denominatorStyle));
         const ruleWidth = !this.hasBarLine ? 0 : FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
         // Rule 15b from Appendix G
@@ -522,7 +533,7 @@ class MathAtom {
             }
             const mid = makeSpan('',
             /* newContext.mathstyle.adjustTo(Mathstyle.TEXT) + */ ' frac-line');
-            mid.applyStyle(this);
+            mid.applyStyle(this.getStyle());
             // @todo: do we really need to reset the size?
             // Manually set the height of the line because its height is
             // created in CSS
@@ -558,8 +569,23 @@ class MathAtom {
             mathstyle.metrics.delim1 :
             mathstyle.metrics.delim2;
         // Optional delimiters
-        const leftDelim = Delimiters.makeCustomSizedDelim('mopen', this.leftDelim, delimSize, true, context.withMathstyle(mathstyle));
-        const rightDelim = Delimiters.makeCustomSizedDelim('mclose', this.rightDelim, delimSize, true, context.withMathstyle(mathstyle));
+        const leftDelim = Delimiters.makeCustomSizedDelim('mopen', 
+            this.leftDelim, 
+            delimSize, 
+            true, 
+            context.clone({mathstyle: mathstyle})
+        );
+        const rightDelim = Delimiters.makeCustomSizedDelim('mclose', 
+            this.rightDelim, 
+            delimSize, 
+            true, 
+            context.clone({mathstyle: mathstyle})
+        );
+        leftDelim.applyStyle(this.getStyle());
+        rightDelim.applyStyle(this.getStyle());
+
+
+
         const result = makeOrd([leftDelim, frac, rightDelim], ((context.parentSize !== context.size) ?
             ('sizing reset-' + context.parentSize + ' ' + context.size) : 'genfrac'));
         return this.bind(context, result);
@@ -668,7 +694,7 @@ class MathAtom {
 
         // Create a \surd delimiter of the required minimum size
         const delim = makeSpan(Delimiters.makeCustomSizedDelim('', '\\surd', minDelimiterHeight, false, context), 'sqrt-sign');
-        delim.applyStyle(this);
+        delim.applyStyle(this.getStyle());
 
         const delimDepth = (delim.height + delim.depth) - ruleWidth;
 
@@ -682,7 +708,7 @@ class MathAtom {
         delim.setTop((delim.height - Span.height(inner)) -
             (lineClearance + ruleWidth));
         const line = makeSpan('', context.mathstyle.adjustTo(Mathstyle.TEXT) + ' sqrt-line');
-        line.applyStyle(this);
+        line.applyStyle(this.getStyle());
         line.height = ruleWidth;
 
         // We add a special case here, because even when `inner` is empty, we
@@ -702,7 +728,7 @@ class MathAtom {
 
         // Handle the optional root index
         // The index is always in scriptscript style
-        const newcontext = context.withMathstyle(Mathstyle.SCRIPTSCRIPT);
+        const newcontext = context.clone({mathstyle: Mathstyle.SCRIPTSCRIPT});
         const root = makeSpan(decompose(newcontext, this.index), mathstyle.adjustTo(Mathstyle.SCRIPTSCRIPT));
         // Figure out the height and depth of the inner part
         const innerRootHeight = Math.max(delim.height, body.height);
@@ -788,7 +814,7 @@ class MathAtom {
 
     decomposeOverunder(context) {
         const base = decompose(context, this.body);
-        const annotationStyle = context.withMathstyle('scriptstyle');
+        const annotationStyle = context.clone({mathstyle: 'scriptstyle'});
         const above = this.overscript ? makeSpan(decompose(annotationStyle, this.overscript), context.mathstyle.adjustTo(annotationStyle.mathstyle)) : null;
         const below = this.underscript ? makeSpan(decompose(annotationStyle, this.underscript), context.mathstyle.adjustTo(annotationStyle.mathstyle)) : null;
         return makeStack(context, base, 0, 0, above, below, this.mathtype || 'mrel');
@@ -863,7 +889,7 @@ class MathAtom {
             // Otherwise, this is a text operator. Build the text from the
             // operator's name.
             console.assert(this.type === 'mop');
-            base = this.makeSpan(context.fontFamily('mainrm'), this.body);
+            base = this.makeSpan(context, this.body);
         }
         if (this.superscript || this.subscript) {
             const limits = this.limits || 'auto';
@@ -1342,13 +1368,7 @@ class MathAtom {
         // - the font family automatically determined in math mode, for example
         // which italicizes some characters, but which can be overridden
 
-        result.applyStyle({
-            color: this.color,
-            backgroundColor: this.backgroundColor,
-            fontFamily: this.baseFontFamily || this.fontFamily || this.autoFontFamily,
-            fontShape: this.fontShape,
-            fontSeries: this.fontSeries
-        }); 
+        result.applyStyle(this.getStyle()); 
 
         // Apply size correction
         if (context.parentSize !== context.size) {
@@ -1385,15 +1405,6 @@ class MathAtom {
 
 
 
-
-
-
-
-
-
-
-
-
 /**
  * Used in `decomposeArray` to create a column separator span.
  *
@@ -1425,36 +1436,6 @@ function makeColOfRepeatingElements(context, body, offset, elem) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function makeID(context) {
     let result;
     if (typeof context.generateID === 'boolean' && context.generateID) {
@@ -1470,10 +1451,6 @@ function makeID(context) {
     }
     return result;
 }
-
-
-
-
 
 
 

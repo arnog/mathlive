@@ -2918,7 +2918,7 @@ export function parseMathString(s, config) {
         s = s.replace(/\\\\([^\s\n])/g, '\\$1');
     }
 
-    if ((!config || config.format !== 'ASCIIMath') && /\\/.test(s) && /{|}/.test(s)) {
+    if ((!config || config.format !== 'ASCIIMath') && /\\/.test(s)) {
         // If the string includes a '\' and a '{' or a '}'
         // it's probably a LaTeX string
         // (that's not completely true, it could be a UnicodeMath string, since

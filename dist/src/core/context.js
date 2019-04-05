@@ -17,11 +17,8 @@ import Mathstyle from './mathstyle.js';
  *
  * @property {string} mathstyle `'text'` (aka 'inline'), `'display'`,
  * `'script'` or `'scriptscript'`
- * @property {string} backgroundcolor
- * @property {string} color
  * @property {number} opacity
  * @property {number} size
- * @property {boolean} phantom
  * @property {boolean|object} generateID - If true, unique IDs should be 
  * generated for each span so they can be mapped back to an atom. 
  * Can also be an object with a `seed` field to generate a specific range of 
@@ -41,18 +38,13 @@ class Context {
         this.macros = from.macros || {};
         this.generateID = from.generateID ? from.generateID : false;
 
-        this.phantom = from.phantom;
-
         this.mathstyle = Mathstyle.toMathstyle(from.mathstyle || 'displaystyle');
         this.size = from.size || 'size5';   // medium size
 
         this.parentMathstyle = from.parentMathstyle || this.mathstyle;
         this.parentSize = from.parentSize || this.size;
 
-        this.backgroundcolor = from.backgroundcolor;
-        this.color = from.color;
         this.opacity = from.opacity;
-        this.font = from.font;
     }
 
     /**
@@ -62,28 +54,25 @@ class Context {
      * @instance
      * @private
      */
-    clone() {
+    clone(override) {
         const result = new Context(this);
         result.parentMathstyle = this.mathstyle;
         result.parentSize = this.size;
         result.macros = this.macros;
+        if (override) {
+            // `'auto'` to indicate that the mathstyle should in
+            // fact not be changed. This is used when specifying the mathstyle for some
+            // environments.
+            if (override.mathstyle === 'auto' || !override.mathstyle) {
+                delete override.mathstyle;
+            }
+            Object.assign(this, override);
+            if (typeof override.mathstyle === 'string') this.mathstyle = Mathstyle.toMathstyle(override.mathstyle);
+        }
         return result;
     }
-    /**
-     * Create a new context, identical to this object, except for the given
-     * property/value pair.
-     * @param {string} property
-     * @param {any} value
-     * @return {Context}
-     * @memberof Context
-     * @instance
-     * @private
-     */
-    cloneWith(property, value) {
-        const result = this.clone();
-        result[property] = value;
-        return result;
-    }
+
+
     /**
      * Change the mathstyle of this context
      * @param {string} value - `'auto'` to indicate that the mathstyle should in
@@ -98,57 +87,14 @@ class Context {
             this.mathstyle = Mathstyle.toMathstyle(value);
         }
     }
-    /**
-     * Return a clone context with the specified mathstyle
-     * @param {string} value
-     * @memberof Context
-     * @instance
-     * @private
-     */
-    withMathstyle(value) {
-        const result = this.clone();
-        result.setMathstyle(value);
-        return result;
-    }
-    fontFamily(value) {
-        const result = this.clone();
-        result.font = value;
-        return result;
-    }
     cramp() {
-        return this.cloneWith('mathstyle', this.mathstyle.cramp());
+        return this.clone({'mathstyle': this.mathstyle.cramp()});
     }
     sup() {
-        return this.cloneWith('mathstyle', this.mathstyle.sup());
+        return this.clone({'mathstyle': this.mathstyle.sup()});
     }
     sub() {
-        return this.cloneWith('mathstyle', this.mathstyle.sup());
-    }
-    fracDen() {
-        return this.cloneWith('mathstyle', this.mathstyle.fracDen());
-    }
-    fracNum() {
-        return this.cloneWith('mathstyle', this.mathstyle.fracNum());
-    }
-    /**
-     * Gets the CSS (foreground) color in effect
-     * @return {string} An hexadecimal color string, e.g. "#cd0030", or `'transparent'`
-     * @memberof Context
-     * @instance
-     * @private
-     */
-    getColor() {
-        return this.phantom ? 'transparent' : this.color;
-    }
-    /**
-     * Gets the CSS background color in effect
-     * @return {string} An hexadecimal color string, e.g. "#cd0030", or `'transparent'`
-     * @memberof Context
-     * @instance
-     * @private
-     */
-    getBackgroundColor() {
-        return this.phantom ? 'transparent' : this.backgroundcolor;
+        return this.clone({'mathstyle': this.mathstyle.sup()});
     }
 }
 

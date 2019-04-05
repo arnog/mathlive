@@ -149,7 +149,11 @@ export class Span {
         // 1. Determine the font family (i.e. 'amsrm', 'mathit', 'mathcal', etc...)
         //
 
-        const fontFamily = style.fontFamily;
+        let fontFamily = style.fontFamily;
+        if (fontFamily === 'math' && style.fontShape === 'n') {
+            // 'math' is italic by default. If we need upright, switch to main.
+            fontFamily = 'cmr';
+        }
         let fontName = 'Main-Regular'; // Default font
         if (fontFamily) {
             fontName = getFontName(this.body, fontFamily);
@@ -370,11 +374,10 @@ export class Span {
 
 
             // Remove duplicate and empty classes
-            // and 'mathrm' which is a no-op
             let classList = '';
             if (classes.length > 1) {
                 classList = classes.filter(function (x, e, a) {
-                    return x.length > 0 && x !== 'mathrm' && a.indexOf(x) === e;
+                    return x.length > 0 && a.indexOf(x) === e;
                 }).join(' ');
             } else {
                 classList = classes[0];
