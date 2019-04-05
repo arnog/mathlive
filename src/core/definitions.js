@@ -2139,8 +2139,19 @@ defineSymbol( '\\imaginaryI',  MAIN,  MATHORD, 'i'); // NOTE: not a real TeX sym
 // NOTE: set in math as per ISO 80000-2:2009.
 defineSymbol( '\\imaginaryJ',  MAIN,  MATHORD, 'j'); // NOTE: not a real TeX symbol, but Mathematica
 // NOTE: set in math as per ISO 80000-2:2009.
-defineSymbol( '\\Re',  MAIN,  MATHORD, '\u211c', COMMON); // >2,000
-defineSymbol( '\\Im',  MAIN,  MATHORD, '\u2111', COMMON); // >2,000
+
+defineFunction(['\\Re', '\\Im'],
+    '', null, function(name) {
+    return {
+        type: 'mop',
+        limits: 'nolimits',
+        symbol: false,
+        isFunction: true,
+        body: {'\\Re': '\u211c', '\\Im': '\u2111'}[name],
+        baseFontFamily: 'frak'
+    };
+})
+
 
 defineSymbol( '\\hbar',  MAIN,  MATHORD, '\u210f', COMMON); // >2,000
 defineSymbol( '\\hslash',  AMS,  MATHORD, '\u210f', COMMON); // >2,000
