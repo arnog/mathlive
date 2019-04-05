@@ -355,8 +355,8 @@ const LAYERS = {
                 <li class='action font-glyph bottom right' data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'>&#x232b;</li></ul>
             </ul>
             <ul>
-                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"#cc2428"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428'></span></li>
-                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"#fff590"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590'></span></li>
+                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"#cc2428"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428; box-sizing: border-box'></span></li>
+                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"#fff590"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590; box-sizing: border-box'></span></li>
                 <li class='separator w5'></li>
                 <row name='numpad-4'/>
                 <li class='separator w5'></li>
@@ -1056,7 +1056,7 @@ function make(mf, theme) {
     for (const color of Color.LINE_COLORS) {
         ALT_KEYS_BASE['foreground-color'].push({
             classes: 'small-button',
-            content: '<span style="border-radius:50%;width:32px;height:32px; border: 2px solid ' + color + '"></span>',
+            content: '<span style="border-radius:50%;width:32px;height:32px; box-sizing: border-box; border: 3px solid ' + color + '"></span>',
             command:'["applyStyle",{"color":"' + color + '"}]'
         });
     }
