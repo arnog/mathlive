@@ -178,9 +178,14 @@ function latexify(parent, value, expandMacro) {
             if (value.length === 0) return '';
         }
 
-        result = latexifyArray(parent, 
-            ['mode', 'fontShape', 'fontSeries', 'color', 'backgroundColor', 'fontFamily'], 
-            value, expandMacro);
+        result = latexifyArray(parent, [
+            'mode', 
+            'fontShape', 
+            'fontSeries', 
+            'color', 
+            'backgroundColor', 
+            'fontFamily'
+            ], value, expandMacro);
 
     } else if (typeof value === 'number' || typeof value === 'boolean') {
         result = value.toString();
@@ -212,10 +217,18 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
     const command = m ? m[1] : null;
     switch(this.type) {
         case 'group':
-            result += this.latexOpen || '{';
+            result += this.latexOpen || ((this.cssId || this.cssClass) ? '' : '{');
+
+            if (this.cssId) result += '\\cssId{' + this.cssId + '}{';
+            if (this.cssClass) result += '\\class{' + this.cssClass + '}{';
+
             result += expandMacro ? latexify(this, this.body, true) :
                 (this.latex || latexify(this, this.body, false));
-            result += this.latexClose || '}';
+
+            if (this.cssId) result += '}';
+            if (this.cssClass) result += '}';
+
+            result += this.latexClose || ((this.cssId || this.cssClass) ? '' : '}');
             break;
 
         case 'array':

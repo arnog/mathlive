@@ -178,9 +178,14 @@ function latexify(parent, value, expandMacro) {
             if (value.length === 0) return '';
         }
 
-        result = latexifyArray(parent, 
-            ['mode', 'fontShape', 'fontSeries', 'color', 'backgroundColor', 'fontFamily'], 
-            value, expandMacro);
+        result = latexifyArray(parent, [
+            'mode', 
+            'fontShape', 
+            'fontSeries', 
+            'color', 
+            'backgroundColor', 
+            'fontFamily'
+            ], value, expandMacro);
 
     } else if (typeof value === 'number' || typeof value === 'boolean') {
         result = value.toString();
@@ -212,10 +217,18 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
     const command = m ? m[1] : null;
     switch(this.type) {
         case 'group':
-            result += this.latexOpen || '{';
+            result += this.latexOpen || ((this.cssId || this.cssClass) ? '' : '{');
+
+            if (this.cssId) result += '\\cssId{' + this.cssId + '}{';
+            if (this.cssClass) result += '\\class{' + this.cssClass + '}{';
+
             result += expandMacro ? latexify(this, this.body, true) :
                 (this.latex || latexify(this, this.body, false));
-            result += this.latexClose || '}';
+
+            if (this.cssId) result += '}';
+            if (this.cssClass) result += '}';
+
+            result += this.latexClose || ((this.cssId || this.cssClass) ? '' : '}');
             break;
 
         case 'array':
@@ -349,10 +362,23 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
         case 'mop':
             if (this.body !== '\u200b') {
                 // Not ZERO-WIDTH
-                if (/^\\(mathop|operatorname)/.test(command)) {
+                if (command === '\\mathop') {
+                    // The argument to mathop is math, therefor this.body can be an expression
                     result += command + '{' + latexify(this, this.body, expandMacro) + '}';
+                } else if (command === '\\operatorname') {
+                    // The argument to operator name is text, therefore this.body is a string
+                    result += command + '{' + this.body + '}';
                 } else {
-                    result += this.latex || this.body;
+                    if (this.latex && this.latex[0] === '\\') {
+                        result += this.latex;
+                        if (/[a-zA-Z0-9]$/.test(this.latex)) {
+                            result += ' ';
+                        }
+                    } else if (command) {
+                        result += command;
+                    } else {
+                        result += this.body !== '\u200b' ? (this.latex || this.body) : '';
+                    }
                 }
             }
             if (this.explicitLimits) {

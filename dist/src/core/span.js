@@ -49,6 +49,7 @@ function toString(arg) {
  * @property {string} type - For example, `'command'`, `'mrel'`, etc...
  * @property {string} classes - A string of space separated CSS classes
  * associated with this element
+ * @property {string} cssID - A CSS ID assigned to this span (optional)
  * @property {Span[]} children - An array, potentially empty, of spans which
  * this span encloses
  * @property {string} body - Content of this span. Can be empty.
@@ -162,6 +163,10 @@ export class Span {
         //
         // 2. Determine the classes necessary to represent the series and shape
         //
+
+        if (style.cssClass) {
+            this.classes += ' ' + style.cssClass;
+        }
 
         if (style.fontShape) {
             this.classes += ' ' + {
@@ -342,6 +347,10 @@ export class Span {
             result = body || '';
         } else {
             result = '<' + tag;
+
+            if (this.cssId) {
+                result += ' id="' + this.cssId + '" '
+            }
 
             if (this.svgOverlay) {
                 if (!this.style) this.style = {};

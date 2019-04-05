@@ -1377,13 +1377,13 @@ defineFunction(['\\stackrel', '\\stackbin'], '{annotation:auto}{symbol:auto}', n
 
 
 
-defineFunction('\\rlap', '{:text}', null, function(name, args) {
-    return { type: 'overlap', mode: 'text', align: 'right', skipBoundary: true, body: args[0], };
+defineFunction('\\rlap', '{:auto}', null, function(name, args) {
+    return { type: 'overlap', align: 'right', skipBoundary: true, body: args[0], };
 });
     frequency(270, '\\rlap');
 
-defineFunction('\\llap', '{:text}', null, function(name, args) {
-    return { type: 'overlap', mode: 'text', align: 'left', skipBoundary: true, body: args[0], };
+defineFunction('\\llap', '{:auto}', null, function(name, args) {
+    return { type: 'overlap', align: 'left', skipBoundary: true, body: args[0], };
 });
     frequency(18, '\\llap');
 
@@ -1627,6 +1627,8 @@ defineFunction('\\xcancel', '{body:auto}', null,
 
 category = 'Styling';
 
+
+
 // SERIES: weight
 defineFunction('\\fontseries', '{:text}', {allowedInText: true}, (_name, args) => {
     return { fontSeries: parseArgAsString(args[0]) }
@@ -1809,13 +1811,27 @@ defineFunction('\\text', '{:text*}', {allowedInText: true}, (_name, _args) => {
     return { }
 });
 
-defineFunction('\\em', '', {allowedInText: true}, (_name, _args) => {
-    return { fontEmphasis: true }
+
+/* A MathJax extension: assign a class to the element */
+defineFunction('\\class', '{name:text}{content:auto*}', {allowedInText: true}, (_name, args) => {
+    return { cssClass: parseArgAsString(args[0]) }
 });
 
-defineFunction('\\emph', '{:text*}', {allowedInText: true}, (_name, _args) => {
-    return { fontEmphasis: true }
+/* A MathJax extension: assign an ID to the element */
+defineFunction('\\cssId', '{id:text}{content:auto}', {allowedInText: true}, (_name, args) => {
+    return { cssId: parseArgAsString(args[0]), body: args[1], type: 'group' }
 });
+
+/* Note: in TeX, \em is restricted to text mode. We extend it to math */
+defineFunction('\\em', '', {allowedInText: true}, (_name, _args) => {
+    return { cssClass: 'ML__emph', type: 'group' }
+});
+
+/* Note: in TeX, \emph is restricted to text mode. We extend it to math */
+defineFunction('\\emph', '{:auto}', {allowedInText: true}, (_name, args) => {
+    return { cssClass: 'ML__emph', body: args[0], type: 'group', skipBoundary: true }
+});
+
 
 
 frequency(COMMON, '\\textrm');

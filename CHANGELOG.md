@@ -69,7 +69,7 @@ This can also be one of the following TeX-specific values:
     - `'bb'`: Blackboard bold, uppercase only
     - `'scr'`: Script style, uppercase only
 - **style.fontSeries** - The font 'series', i.e. weight and 
-stretch. The following values can be combined, for example: "ebc": extra-bold,
+stretch ("series" is TeX terminology). The following values can be combined, for example: "ebc": extra-bold,
 condensed. Aside from `'b'`, these attributes may not have visible effect if the 
 font family does not support this attribute:
     - `'ul'` ultra-light weight
@@ -90,7 +90,7 @@ font family does not support this attribute:
     - `'x'`: expanded
     - `'ex'`: extra-expanded
     - `'ux'`: ultra-expanded
-- **style.fontShape** - The font 'shape', i.e. italic.
+- **style.fontShape** - The font 'shape' (again, TeX terminology), i.e. italic or condensed.
     - `'it'`: italic
     - `'sl'`: slanted or oblique (often the same as italic)
     - `'sc'`: small caps
@@ -133,6 +133,15 @@ The `'after'` key, if present, indicate in what context the shortcut should appl
 
 
 #### Other Features
+- Support for `\emph` (emphasis) command, which can be used to (semantically) highlight an element. This command works both in text and math mode (it only works in text mode in TeX). For example: 
+`\emph{x}\text{is the unknown}`
+- Support for `\cssId` and `\class` commands. These are non-standard TeX commands which are supported by MathJax.
+    - `\cssId{id}{content}` Attaches an id attribute with value `id` to the output associated with content when it is included in the HTML page. This allows your CSS to style the element, or your javascript to locate it on the page.
+    - `\class{name}{content}` Attaches the CSS class `name` to the output associated with content when it is included in the HTML page. This allows your CSS to style the element.
+
+
+
+
 - New visual appearance for selected elements.
 - `config.removeExtraneousParentheses` (true by default) extra parentheses, for example around a numerator or denominator are removed automatically. 
 Particularly useful when pasting content.

@@ -123,7 +123,9 @@ class MathAtom {
             backgroundColor: this.phantom ? 'transparent' : this.backgroundColor,
             fontFamily: this.baseFontFamily || this.fontFamily || this.autoFontFamily,
             fontShape: this.fontShape,
-            fontSeries: this.fontSeries
+            fontSeries: this.fontSeries,
+            cssId: this.cssId,
+            cssClass: this.cssClass
         }
     }
 
@@ -149,6 +151,10 @@ class MathAtom {
             } else if (!GREEK_REGEX.test(symbol) && this.baseFontFamily === 'math') {
                 this.autoFontFamily = 'cmr';
             }
+        } else if (this.mode === 'text') {
+            this.type = '';
+            delete this.baseFontFamily;
+            delete this.autoFontFamily;
         }
     }
 
@@ -258,7 +264,13 @@ class MathAtom {
         // If that's the case, clone() returns a clone of the
         // context with the same mathstyle.
         const localContext = context.clone({mathstyle: this.mathstyle});
-        return makeOrd(decompose(localContext, this.body));
+        const span = makeOrd(decompose(localContext, this.body));
+        if (this.cssId) span.cssId = this.cssId;
+        span.applyStyle({
+            backgroundColor: this.backgroundColor, 
+            cssClass: this.cssClass
+        });
+        return span;
     }
 
 
@@ -603,20 +615,20 @@ class MathAtom {
      * @method MathAtom#decomposeLeftright
       */
     decomposeLeftright(context) {
+        if (!this.body) {
+            // No body, only a delimiter
+            if (this.leftDelim) {
+                return new MathAtom('math', 'mopen', this.leftDelim).decompose(context);
+            }
+            if (this.rightDelim) {
+                return new MathAtom('math', 'mclose', this.rightDelim).decompose(context);
+            }
+            return null;
+        }
         // The scope of the context is this group, so make a copy of it
         // so that any changes to it will be discarded when finished
         // with this group.
         const localContext = context.clone();
-        if (!this.body) {
-            // No body, only a delimiter
-            if (this.leftDelim) {
-                return this.bind(localContext, new MathAtom('math', 'mopen', this.leftDelim).decompose(context));
-            }
-            if (this.rightDelim) {
-                return this.bind(localContext, new MathAtom('math', 'mclose', this.rightDelim).decompose(context));
-            }
-            return null;
-        }
         const inner = decompose(localContext, this.body);
         const mathstyle = localContext.mathstyle;
         let innerHeight = 0;
@@ -630,7 +642,13 @@ class MathAtom {
         innerDepth = Span.depth(inner) * mathstyle.sizeMultiplier;
         // Add the left delimiter to the beginning of the expression
         if (this.leftDelim) {
-            result.push(Delimiters.makeLeftRightDelim('mopen', this.leftDelim, innerHeight, innerDepth, localContext));
+            result.push(Delimiters.makeLeftRightDelim(
+                'mopen', 
+                this.leftDelim, 
+                innerHeight, innerDepth, 
+                localContext
+            ));
+            result[result.length - 1].applyStyle(this.getStyle());
         }
         if (inner) {
             // Replace the delim (\middle) spans with proper ones now that we know
@@ -662,7 +680,12 @@ class MathAtom {
                 delim = delim || this.leftDelim;
                 localContext.opacity = .5;
             }
-            result.push(this.bind(localContext, Delimiters.makeLeftRightDelim('mclose', delim, innerHeight, innerDepth, localContext)));
+            result.push(Delimiters.makeLeftRightDelim('mclose', 
+                delim, 
+                innerHeight, innerDepth, 
+                localContext
+            ));
+            result[result.length - 1].applyStyle(this.getStyle());
         }
         // If the `inner` flag is set, return the `inner` element (that's the
         // behavior for the regular `\left...\right`
@@ -1094,8 +1117,13 @@ class MathAtom {
         console.assert(context instanceof Context.Context);
         let result = null;
         if (!this.type || /mord|minner|mbin|mrel|mpunct|mopen|mclose|textord/.test(this.type)) {
-            // The body of these atom types is always a string
-            result = this.makeSpan(context, this.body);
+            // The body of these atom types is *often* a string, but it can
+            // be a atom list (for example a command inside a \text{})
+            if (typeof this.body === 'string') {
+                result = this.makeSpan(context, this.body);
+            } else {
+                result = this.makeSpan(context, decompose(context, this.body));
+            }
             result.type = this.type;
         } else if (this.type === 'group' || this.type === 'root') {
             result = this.decomposeGroup(context);

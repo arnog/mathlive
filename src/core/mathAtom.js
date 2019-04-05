@@ -123,7 +123,9 @@ class MathAtom {
             backgroundColor: this.phantom ? 'transparent' : this.backgroundColor,
             fontFamily: this.baseFontFamily || this.fontFamily || this.autoFontFamily,
             fontShape: this.fontShape,
-            fontSeries: this.fontSeries
+            fontSeries: this.fontSeries,
+            cssId: this.cssId,
+            cssClass: this.cssClass
         }
     }
 
@@ -262,7 +264,13 @@ class MathAtom {
         // If that's the case, clone() returns a clone of the
         // context with the same mathstyle.
         const localContext = context.clone({mathstyle: this.mathstyle});
-        return makeOrd(decompose(localContext, this.body));
+        const span = makeOrd(decompose(localContext, this.body));
+        if (this.cssId) span.cssId = this.cssId;
+        span.applyStyle({
+            backgroundColor: this.backgroundColor, 
+            cssClass: this.cssClass
+        });
+        return span;
     }
 
 

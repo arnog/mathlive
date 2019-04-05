@@ -355,8 +355,8 @@ const LAYERS = {
                 <li class='action font-glyph bottom right' data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'>&#x232b;</li></ul>
             </ul>
             <ul>
-                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"#cc2428"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428'></span></li>
-                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"#fff590"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590'></span></li>
+                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"#cc2428"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428; box-sizing: border-box'></span></li>
+                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"#fff590"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590; box-sizing: border-box'></span></li>
                 <li class='separator w5'></li>
                 <row name='numpad-4'/>
                 <li class='separator w5'></li>
@@ -664,17 +664,20 @@ const LAYERS = {
                 <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"#fff590"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590'></span></li>
             </ul>
             <ul>
-                <li class='keycap' data-command='["applyStyle",{"series":"m"}]' data-latex='\\textmd{Ab}'></li>
-                <li class='keycap' data-command='["applyStyle",{"series":"b"}]' data-latex='\\textbf{Ab}'></li>
-                <li class='keycap' data-command='["applyStyle",{"series":"bx"}]' data-latex='\\textup{Ab}'></li>
-                <li class='keycap' data-command='["applyStyle",{"series":"sb"}]' data-latex='\\textup{Ab}'></li>
-                <li class='keycap' data-command='["applyStyle",{"series":"c"}]' data-latex='\\textup{Ab}'></li>
+                <li class='keycap' data-command='["applyStyle",{"series":"l"}]' data-latex='\\fontseries{l}\\text{Ab}'></li>
+                <li class='keycap' data-command='["applyStyle",{"series":"m"}]' data-latex='\\fontseries{m}\\text{Ab}'></li>
+                <li class='keycap' data-command='["applyStyle",{"series":"b"}]' data-latex='\\fontseries{b}\\text{Ab}'></li>
+                <li class='keycap' data-command='["applyStyle",{"series":"bx"}]' data-latex='\\fontseries{bx}\\text{Ab}'></li>
+                <li class='keycap' data-command='["applyStyle",{"series":"sb"}]' data-latex='\\fontseries{sb}\\text{Ab}'></li>
+                <li class='keycap' data-command='["applyStyle",{"series":"c"}]' data-latex='\\fontseries{c}\\text{Ab}'></li>
             </ul>
             <ul>
                 <li class='keycap' data-command='["applyStyle",{"shape":"up"}]' data-latex='\\textup{Ab}'></li>
                 <li class='keycap' data-command='["applyStyle",{"shape":"it"}]' data-latex='\\textit{Ab}'></li>
                 <li class='keycap' data-command='["applyStyle",{"shape":"sl"}]' data-latex='\\textsl{Ab}'></li>
                 <li class='keycap' data-command='["applyStyle",{"shape":"sc"}]' data-latex='\\textsc{Ab}'></li>
+                <li class='separator w5'></li>
+                <li class='keycap' data-insert='\\emph{#?} ' data-latex='\\text{\\emph{emph}}'></li>
             </ul>
             <ul>
                 <li class='keycap' data-command='["applyStyle",{"fontFamily":"cmr"}]' data-latex='\\textrm{Az}'></li>
@@ -822,10 +825,10 @@ function makeKeycap(mf, elList, chainedCommand) {
             handlers = JSON.parse(el.getAttribute('data-command'));
         } else if (el.getAttribute('data-insert')) {
             handlers = ['insert', el.getAttribute('data-insert'),
-                {focus:true, feedback:true}];
+                {focus:true, feedback:true, mode:'math', format:'latex', resetStyle:true}];
         } else if (el.getAttribute('data-latex')) {
             handlers = ['insert', el.getAttribute('data-latex'),
-                {focus:true, feedback:true}];
+                {focus:true, feedback:true, mode:'math', format:'latex', resetStyle:true}];
         } else {
             handlers = ['typedText', el.getAttribute('data-key') || el.textContent,
                 {focus:true, feedback:true, simulateKeystroke:true}];
@@ -1056,7 +1059,7 @@ function make(mf, theme) {
     for (const color of Color.LINE_COLORS) {
         ALT_KEYS_BASE['foreground-color'].push({
             classes: 'small-button',
-            content: '<span style="border-radius:50%;width:32px;height:32px; border: 2px solid ' + color + '"></span>',
+            content: '<span style="border-radius:50%;width:32px;height:32px; box-sizing: border-box; border: 3px solid ' + color + '"></span>',
             command:'["applyStyle",{"color":"' + color + '"}]'
         });
     }
@@ -1188,7 +1191,8 @@ function make(mf, theme) {
     if (!keyboardIDs) {
         keyboardIDs = 'all';
     }
-    keyboardIDs = keyboardIDs.replace(/\ball\b/i, 'numeric roman greek functions command')
+    keyboardIDs = keyboardIDs.replace(/\ball\b/i, 
+        'numeric roman greek functions command style')
 
     const layers = Object.assign({}, LAYERS, mf.config.customVirtualKeyboardLayers || {});
 

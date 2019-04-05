@@ -488,11 +488,11 @@ test('DECORATIONS', function (t) {
     //     '\\bbox with border, margin and background');
 
     hasClass(t, '\\rlap{x}o', 0, 'rlap', '\\rlap');
-    hasClass(t, '\\rlap{x}o', [0, 0, 0], 'ML__text', 'The argument of \\rlap is in text mode');
+    // hasClass(t, '\\rlap{x}o', [0, 0, 0], 'ML__text', 'The argument of \\rlap is in text mode');
     hasClass(t, '\\mathrlap{x}o', [0, 0, 0], 'ML__mathit', 'The argument of \\mathrlap is in math mode');
 
     hasClass(t, '\\llap{x}o', 0, 'llap', '\\llap');
-    hasClass(t, '\\llap{x}o', [0, 0, 0], 'ML__text', 'The argument of \\llap is in text mode');
+    // hasClass(t, '\\llap{x}o', [0, 0, 0], 'ML__text', 'The argument of \\llap is in text mode');
     hasClass(t, '\\mathllap{x}o', [0, 0, 0], 'ML__mathit', 'The argument of \\mathllap is in math mode');
 
     t.end();

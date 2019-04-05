@@ -351,7 +351,7 @@ const INLINE_SHORTCUTS = {
     // The shortcut for the greek letter "xi" is interfering with "x in"
     'xin':                   {
                                 mode: 'math',
-                                after: 'space+letter+digit+symbol+fence',
+                                after: 'nothing+space+letter+digit+symbol+fence',
                                 value: 'x \\in',
                             },
     'in':                   {
@@ -456,16 +456,16 @@ const INLINE_SHORTCUTS = {
     'Im':                   '\\operatorname{Im}',
 
     // UNITS
-    'mm':                   {  ifAfter: 'number', 
+    'mm':                   {  after: 'number', 
                                 value:  '\\operatorname{mm}',         // millimeter
                             },
-    'cm':                   {  ifAfter: 'number', 
+    'cm':                   {  after: 'number', 
                                 value:  '\\operatorname{cm}',         // centimeter
                             },
-    'km':                   {  ifAfter: 'number', 
+    'km':                   {  after: 'number', 
                                 value:  '\\operatorname{km}',         // kilometer
                             },
-    'kg':                   {  ifAfter: 'number', 
+    'kg':                   {  after: 'number', 
                                 value:  '\\operatorname{kg}',         // kilogram
                             },
                             
@@ -688,16 +688,16 @@ function validateShortcut(siblings, shortcut) {
     }
 
     if (typeof shortcut === 'object') {
-        console.log('considering ' + shortcut.value + ' if after ' + shortcut.ifAfter);
+        console.log('considering ' + shortcut.value + ' if after ' + shortcut.after);
         // If this is a complex shortcut with conditions, consider them now
-        if (    (/text/.test(shortcut.ifAfter) && text) ||
-                (/letter/.test(shortcut.ifAfter) && letter) ||
-                (/space/.test(shortcut.ifAfter) && space) ||
-                (/digit/.test(shortcut.ifAfter) && digit) ||
-                (/number/.test(shortcut.ifAfter) && number) ||
-                (/symbol/.test(shortcut.ifAfter) && symbol) ||
-                (/nothing/.test(shortcut.ifAfter) && nothing) ||
-                (/fence/.test(shortcut.ifAfter) && fence)){
+        if (    (/text/.test(shortcut.after) && text) ||
+                (/letter/.test(shortcut.after) && letter) ||
+                (/space/.test(shortcut.after) && space) ||
+                (/digit/.test(shortcut.after) && digit) ||
+                (/number/.test(shortcut.after) && number) ||
+                (/symbol/.test(shortcut.after) && symbol) ||
+                (/nothing/.test(shortcut.after) && nothing) ||
+                (/fence/.test(shortcut.after) && fence)){
             shortcut = shortcut.value;
         } else {
             console.log('rejected');

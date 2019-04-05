@@ -1141,8 +1141,8 @@ class Parser {
                             } else {
                                 result = new MathAtom(this.parseMode, 
                                     info.type, 
-                                    null, 
-                                    {...this.style, ...info.parse('\\' + token.value, args)});
+                                    explicitGroup ? this.scanArg(explicitGroup) : null, 
+                                    {...this.style, ...attributes});
                             }
                         } else {
                             const style = {...this.style};
@@ -1156,9 +1156,9 @@ class Parser {
                                 result.skipBoundary = true;
                             }
                         }
-                        if (result) {
+                        if (result && !/^(llap|rlap|class|cssId)$/.test(token.value)) {
                             result.latex = '\\' + token.value;
-                            if (argString || mandatoryParamsCount > 0) {
+                            if (argString /*|| mandatoryParamsCount > 0*/) {
                                 result.latex += '{' + argString + '}'
                             }
                             if (result.isFunction && this.smartFence) {

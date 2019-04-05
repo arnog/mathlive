@@ -194,7 +194,8 @@ EditableMathlist.prototype.adjustPlaceholder = function() {
         }
         if (placeholder) {
             // ◌ ⬚
-            const placeholderAtom = [new MathAtom.MathAtom('math', 'placeholder', '⬚')];
+            const placeholderAtom = [new MathAtom.MathAtom(
+                'math', 'placeholder', '⬚', this.anchorStyle())];
             Array.prototype.splice.apply(siblings, [1, 0].concat(placeholderAtom));
         }
 }
@@ -1723,8 +1724,8 @@ EditableMathlist.prototype.anchorMode = function() {
 
 EditableMathlist.prototype.anchorStyle = function() {
     const anchor = this.isCollapsed() ? this.anchor() : this.sibling(1);
-    let result = {};
-    if (anchor) {
+    let result;
+    if (anchor && anchor.type !== 'first') {
         if (anchor.type === 'commandliteral' ||
             anchor.type === 'command') return {};
         result = {
@@ -1814,6 +1815,32 @@ EditableMathlist.prototype.simplifyParen = function(atoms) {
             }
         });
     }
+}
+
+
+function applyStyleToUnstyledAtoms(atom, style) {
+    if (!atom || !style) return;
+    if (Array.isArray(atom)) {
+        // Apply styling options to each atom
+        atom.forEach(x => applyStyleToUnstyledAtoms(x, style));
+    } else if (typeof atom === 'object') {
+        if (!atom.color &&
+            !atom.backgroundColor && 
+            !atom.fontFamily &&
+            !atom.fontShape && 
+            !atom.fontSeries) {
+            atom.applyStyle(style);
+            applyStyleToUnstyledAtoms(atom.body, style);
+            applyStyleToUnstyledAtoms(atom.numer, style);
+            applyStyleToUnstyledAtoms(atom.denom, style);
+            applyStyleToUnstyledAtoms(atom.index, style);
+            applyStyleToUnstyledAtoms(atom.overscript, style);
+            applyStyleToUnstyledAtoms(atom.underscript, style);
+            applyStyleToUnstyledAtoms(atom.subscript, style);
+            applyStyleToUnstyledAtoms(atom.superscript, style);
+        }
+    }
+
 }
 
 
@@ -1960,7 +1987,7 @@ EditableMathlist.prototype.insert = function(s, options) {
     } else if (anchorMode === 'text' || options.format === 'text') {
         // Map special TeX characters to alternatives
         // Must do this one first, since other replacements include backslash
-        s = s.replace(/\\/g, '\\textbackslash');    
+        s = s.replace(/\\/g, '\\textbackslash ');
                             
 
         s = s.replace(/#/g, '\\#');
@@ -1971,20 +1998,21 @@ EditableMathlist.prototype.insert = function(s, options) {
         // s = s.replace(/\[/g, '\\lbrack');
         // s = s.replace(/]/g, '\\rbrack');
         s = s.replace(/_/g, '\\_');
-        s = s.replace(/{/g, '\\textbraceleft');
-        s = s.replace(/}/g, '\\textbraceright');
-        s = s.replace(/\^/g, '\\textasciicircum');
-        s = s.replace(/~/g, '\\textasciitilde'); 
-        s = s.replace(/£/g, '\\textsterling');
+        s = s.replace(/{/g, '\\textbraceleft ');
+        s = s.replace(/}/g, '\\textbraceright ');
+        s = s.replace(/\^/g, '\\textasciicircum ');
+        s = s.replace(/~/g, '\\textasciitilde '); 
+        s = s.replace(/£/g, '\\textsterling ');
 
         mathlist = ParserModule.parseTokens(
             Lexer.tokenize(s), 'text', args, options.macros, false);
     }
 
-    if (options.style) {
-        // Apply styling options to atoms
-        mathlist.forEach(x => x.applyStyle(options.style));
-    }
+    // Some atoms may already have a style (for example if there was an 
+    // argument, i.e. the selection, that this was applied to).
+    // So, don't apply style to atoms that are already styled, but *do* 
+    // apply it to newly created atoms that have no style yet.
+    applyStyleToUnstyledAtoms(mathlist, options.style);
 
     // Insert the mathlist at the position following the anchor
     Array.prototype.splice.apply(this.siblings(),
@@ -2033,7 +2061,7 @@ EditableMathlist.prototype.insert = function(s, options) {
  * @param {string} fence
  * @return {boolean}
  */
-EditableMathlist.prototype._insertSmartFence = function(fence) {
+EditableMathlist.prototype._insertSmartFence = function(fence, style) {
     if (!this.config.smartFence) return false;
 
     const parent = this.parent();
@@ -2041,7 +2069,7 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
     // We're inserting a middle punctuation, for example as in {...|...}
     if (parent.type === 'leftright' && parent.leftDelim !== '|') {
         if (/\||\\vert|\\Vert|\\mvert|\\mid/.test(fence)) {
-            this.insert('\\,\\middle' + fence + '\\, ');
+            this.insert('\\,\\middle' + fence + '\\, ', { mode: 'math', format: 'latex', style: style });
             return true;
          }
     }
@@ -2066,7 +2094,7 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
         }
         s += (collapsed ? '?' : rDelim);
 
-        this.insert(s, { mode: 'math', format: 'latex' });
+        this.insert(s, { mode: 'math', format: 'latex', style: style });
         if (collapsed) this.move(-1);
         return true;
     }
@@ -2137,12 +2165,12 @@ EditableMathlist.prototype._insertSmartFence = function(fence) {
             grandparent.rightDelim === '?' &&
             this.endOffset() === siblings.length - 1) {
             this.move(1);
-            return this._insertSmartFence(fence);
+            return this._insertSmartFence(fence, style);
         }
 
         // Meh... We couldn't find a matching open fence. Just insert the
         // closing fence as a regular character
-        this.insert(fence, { mode: 'math', format: 'latex' });
+        this.insert(fence, { mode: 'math', format: 'latex', style: style });
         return true;
     }
 
@@ -2630,7 +2658,11 @@ EditableMathlist.prototype.moveToSuperscript_ = function() {
                     this.siblings().splice(
                         this.anchorOffset() + 1,
                         0,
-                        new MathAtom.MathAtom(this.parent().anchorMode, 'msubsup', '\u200b'));
+                        new MathAtom.MathAtom(
+                            this.parent().anchorMode, 
+                            'msubsup', 
+                            '\u200b',
+                            this.anchorStyle()));
                     this.path[this.path.length - 1].offset += 1;
         //            this.setSelection(this.anchorOffset() + 1);
                 }
@@ -2666,7 +2698,11 @@ EditableMathlist.prototype.moveToSubscript_ = function() {
                     this.siblings().splice(
                         this.anchorOffset() + 1,
                         0,
-                        new MathAtom.MathAtom(this.parent().anchorMode, 'msubsup', '\u200b'));
+                        new MathAtom.MathAtom(
+                            this.parent().anchorMode, 
+                            'msubsup', 
+                            '\u200b',
+                            this.anchorStyle()));
                     this.path[this.path.length - 1].offset += 1;
                     // this.setSelection(this.anchorOffset() + 1);
                 }

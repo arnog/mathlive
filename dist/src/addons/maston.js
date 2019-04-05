@@ -1702,6 +1702,13 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
         result.variant = variant;
     }
 
+    if (result && typeof this.cssClass === 'string') {
+        result.class = this.cssClass;
+    }
+    if (result && typeof this.cssId === 'string') {
+        result.id = this.cssId;
+    }
+
     return result;
 }
 
