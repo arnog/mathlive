@@ -188,7 +188,7 @@ class Parser {
             return parseTokens(Lexer.tokenize(this.args['?']), this.parseMode, null, this.macros);
         }
         // U+2753 = BLACK QUESTION MARK ORNAMENT
-        return [new MathAtom(this.parseMode, 'placeholder', '?')];
+        return [new MathAtom(this.parseMode, 'placeholder', '?', this.style)];
     }
     hasImplicitCommand(commands) {
         if (this.index < this.tokens.length) {

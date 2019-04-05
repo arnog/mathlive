@@ -1090,7 +1090,7 @@ MathField.prototype.convertLastAtomsToText_ = function(count, until) {
             atom.superscript || atom.subscript || 
             (until && !until(atom));
         if (!done) {
-            atom.applyStyle({mode:'text', type:''});
+            atom.applyStyle({mode:'text'});
             atom.latex = atom.body;
         }
         i -= 1;
@@ -1508,8 +1508,8 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
             this.mathlist.suppressChangeNotifications = true;
 
             // Insert the substitute, possibly as a smart fence
-            if (!this.mathlist._insertSmartFence(shortcut)) {
-                const style = {...this.mathlist.anchorStyle(), ...this.style};
+            const style = {...this.mathlist.anchorStyle(), ...this.style};
+            if (!this.mathlist._insertSmartFence(shortcut, style)) {
                 this.mathlist.insert(shortcut, {
                     format: 'latex', 
                     mode: this.mode,
@@ -1675,7 +1675,7 @@ MathField.prototype._onTypedText = function(text, options) {
                             this.mathlist.insert(c, { mode: 'math', style: style });
                             this.mathlist.moveAfterParent_();
 
-                    } else if (!this.mathlist._insertSmartFence(c)) {
+                    } else if (!this.mathlist._insertSmartFence(c, style)) {
                         this.mathlist.insert(c, { mode: 'math', style: style });
                     }
                 }
@@ -2209,6 +2209,9 @@ MathField.prototype.pasteFromClipboard_ = function() {
  *    * `'before'`: the selection will be an insertion point before
  * the item that has been inserted
  *    * `'item'`: the item that was inserted will be selected
+ * 
+ * @param {string} options.mode - The mode (`'text'` or `'math'`) to use. Default
+ * is the current mode.
  *
  * @param {string} options.format - The format of the string `s`:
  *    * `'auto'`: the string is interpreted as a latex fragment or command)
@@ -2223,6 +2226,10 @@ MathField.prototype.pasteFromClipboard_ = function() {
  * @param {string} options.mode - 'text' or 'math'. If empty, the current mode
  * is used (default)
  * 
+ * @param {boolean} options.resetStyle - If true, the style after the insertion
+ * is the same as the style before (if false, the style after the 
+ * insertion is the style of the last inserted atom).
+ *
  * @method MathField#$insert
  */
 MathField.prototype.insert_ =
@@ -2230,7 +2237,9 @@ MathField.prototype.insert =
 MathField.prototype.$insert = function(s, options) {
     if (typeof s === 'string' && s.length > 0) {
         options = options || {};
+
         if (options.focus) this.focus();
+
         if (options.feedback) {
             if (this.config.keypressVibration && navigator.vibrate) {
                 navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
@@ -2240,13 +2249,26 @@ MathField.prototype.$insert = function(s, options) {
                 this.keypressSound.play();
             }
         }
+
+
         if (s === '\\\\') {
             // This string is interpreted as an "insert row after" command
             this.mathlist.addRowAfter_();
         } else if (s === '&') {
             this.mathlist.addColumnAfter_();
         } else {
-            this.mathlist.insert(s, { mode: this.mode, ...options });
+            const savedStyle = this.style;
+            if (!this.style.fontFamily) {
+                this.style.fontFamily = 'math';
+            }
+            this.mathlist.insert(s, { 
+                mode: this.mode, 
+                style: this.mathlist.anchorStyle(), 
+                ...options 
+            });
+            if (options.resetStyle) {
+                this.style = savedStyle;
+            }
         }
         this.undoManager.snapshot(this.config);
         return true;

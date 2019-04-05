@@ -349,10 +349,23 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
         case 'mop':
             if (this.body !== '\u200b') {
                 // Not ZERO-WIDTH
-                if (/^\\(mathop|operatorname)/.test(command)) {
+                if (command === '\\mathop') {
+                    // The argument to mathop is math, therefor this.body can be an expression
                     result += command + '{' + latexify(this, this.body, expandMacro) + '}';
+                } else if (command === '\\operatorname') {
+                    // The argument to operator name is text, therefore this.body is a string
+                    result += command + '{' + this.body + '}';
                 } else {
-                    result += this.latex || this.body;
+                    if (this.latex && this.latex[0] === '\\') {
+                        result += this.latex;
+                        if (/[a-zA-Z0-9]$/.test(this.latex)) {
+                            result += ' ';
+                        }
+                    } else if (command) {
+                        result += command;
+                    } else {
+                        result += this.body !== '\u200b' ? (this.latex || this.body) : '';
+                    }
                 }
             }
             if (this.explicitLimits) {
