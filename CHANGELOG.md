@@ -1,20 +1,25 @@
 ## 
 ### Breaking Changes
-- Significant improvements to the syntax that MASTON/MathJSON recognizes. The output of MASTON/MathJSON has also been made more consistent, but may be different from what was previously returned.
+- The syntax that MathJSON/MASTON can recognized has been significantly expanded. It also has been made more consistent, and in some cases it may be different than what was previously returned.
+- Future breaking change: the selector `enterCommandMode` will be deprecated and replaced by the more general `switchMode('command')`. The selector `switchMode('command')` is available in this release, and `enterCommandMode` is supported as well but it will be removed in a future release and you should migrate to `switchMode()` as soon as possible.
 
 ### Major New Features
 #### Text Mode (#153)
-It was previously possible to enter text in an equation using the `\text{}` command and its family. However, this feature was only suitable for advanced users, and had many limitations (text could not include spaces, for example).
+It was previously possible to enter text in an equation using the `\text{}` command and its family using the command mode. However, this feature was only suitable for advanced users, and had many limitations (text could not include spaces, for example).
 
-MathLive now support a dedicated text mode. To switch between math and text mode, use the 'alt/option+=' keyboard shortcut, or programmatically using `mf.$perform(['apply-style', {mode: 'math'}])`.
-If there is a selection it will be converted to the specified mode (math is converted to ASCII Math). If there's no selection, the next user input will be considered to be in the specified mode.
+MathLive now fully support a dedicated text mode. 
+
+To switch between math and text mode, use the `alt/option+=` keyboard shortcut, or programmatically using `mf.$perform(['apply-style', {mode: 'math'}])`.
+If there is a selection it will be converted to the specified mode (math is converted to ASCII Math). If there's no selection, the next user input will be considered to be in the specified mode. 
+
+The current mode can also be changed using `mf.$perform(['switch-mode', {mode: 'math'}])` without affecting the selection.
 
 To indicate the current mode, a (slightly) different cursor is used (it's thinner in text mode). The text zones are also displayed on a light gray background when the field is focused.
 
 A notification is invoked when the mode changes: `config.onModeChange(mf, mode)` with mode either `"text"`, `"math"` or `"command"`.
 
 #### Smart Mode
-If `config.smartMode = true`, during text input the field will switch automatically between 'math' and  'text' mode depending on what is typed and the context of the formula. If necessary, was was previously typed will be 'fixed' to account for the new info.
+If `config.smartMode = true`, during text input the field will switch automatically between 'math' and  'text' mode depending on what is typed and the context of the formula. If necessary, what was previously typed will be 'fixed' to account for the new info.
 
 For example, when typing "if x >0":
 - "i" -> math mode, imaginary unit
@@ -37,29 +42,27 @@ Manually switching mode (by typing `alt/option+=`) will temporarily turn off sma
 - Given g(x) = 4x – 3, when does g(x)=0?
 - Let D be the set {(x,y)|0<=x<=1 and 0<=y<=x}
 - \int_{the unit square} f(x,y) dx dy
-- For all n \in \N
+- For all n in NN
 
 #### Styling
-It is now possible to apply styling (font family, bold, italic, color and background color). This information is rendered correctly across math and text mode, and preserved in the LaTeX output.
+It is now possible to apply styling: font family, bold, italic, color and background color. This information is rendered correctly across math and text mode, and preserved in the LaTeX output.
 
 The key to control styling is the `$applyStyle(style)` method:
 
-If there is a selection, the style is applied to the selection
+If there is a selection, the style is applied to the selection.
 
-If the selection already has this style, remove it. If the selection
-has the style partially applied (i.e. only some sections), remove it from 
-those sections, and apply it to the entire selection.
+If the selection already has this style, it will be removed from it. If the selection has the style partially applied, i.e. only on some portions of the selection), it is removed from those sections, and applied to the entire selection.
 
 If there is no selection, the style will apply to the next character typed.
 
 - **style**  an object with the following properties. All the 
 properties are optional, but they can be combined.
-- **style.mode** - Either `'math'` or `'text'`.
+- **style.mode** - Either `'math'`, `'text'` or `'command'`
 - **style.color** - The text/fill color, as a CSS RGB value or a string for some 'well-known' colors, e.g. 'red', '#f00', etc...
 - **style.backgroundColor** - The background color.
 - **style.fontFamily** - The font family used to render text.
 This value can the name of a locally available font, or a CSS font stack, e.g.
-"Avenir", "Georgia, serif", etc...
+"Avenir", "Georgia, Times, serif", etc...
 This can also be one of the following TeX-specific values:
     - `'cmr'`: Computer Modern Roman, serif
     - `'cmss'`: Computer Modern Sans-serif, latin characters only
@@ -69,9 +72,7 @@ This can also be one of the following TeX-specific values:
     - `'bb'`: Blackboard bold, uppercase only
     - `'scr'`: Script style, uppercase only
 - **style.fontSeries** - The font 'series', i.e. weight and 
-stretch ("series" is TeX terminology). The following values can be combined, for example: "ebc": extra-bold,
-condensed. Aside from `'b'`, these attributes may not have visible effect if the 
-font family does not support this attribute:
+stretch ("series" is TeX terminology). The following values can be combined, for example: "ebc": extra-bold, condensed. These attributes may not have visible effect if the font family does not support this style:
     - `'ul'` ultra-light weight
     - `'el'`: extra-light
     - `'l'`: light
@@ -100,9 +101,9 @@ font family does not support this attribute:
 
 #### Contextual Inline Shortcuts
 
-Inline shortcuts can now be specified with some additional information that limits when they are applied. Previously, some shortcuts would get triggered too frequently, for example when typing "find", the "\in" shortcut would get triggered.
+Previously, some shortcuts would get triggered too frequently, for example when typing "find", the "\in" shortcut would get triggered.
 
-Now, a shortcut can be defined with some conditions which must be true before the shortcut will be considered. It is still possible to define a shortcut unconditionally:
+Now, a shortcut can be defined with some pre-conditions. It is still possible to define a shortcut unconditionally, and thus if you are using custom inline shortcuts, they do not need to be updated:
 
 ```javascript
     config.inlineShortcuts = {
@@ -124,7 +125,7 @@ However, a shortcut can now be specified with an object:
 
 The `value` key is required an indicate the shortcut substitution.
 
-The `mode` key, if present, indicate in which mode this shortcut should apply, either `'math'` or `'text'`. If they key is not present the shortcut apply in both modes.
+The `mode` key, if present, indicate in which mode this shortcut should apply, either `'math'` or `'text'`. If the key is not present the shortcut apply in both modes.
 
 The `'after'` key, if present, indicate in what context the shortcut should apply. One or more values can be specified, separated by a '+' sign. If any of the values match, the shortcut will be applicable. Possible values are:
 - `'space'`
@@ -133,34 +134,32 @@ The `'after'` key, if present, indicate in what context the shortcut should appl
 
 
 #### Other Features
+- Arrays, matrices and cases can now be edited. To create a a matrix, after a `(` or a `[`, type some content then `[RETURN]`: a second row will be added to the matrix. Similarly, typing `[RETURN]` after a `{` will create a cases statements.
+    - To insert a new row, type `[RETURN]`
+    - To insert a new column, type `alt/option+,` (comma), the Excel shortcut for this operation.
 - Support for `\emph` (emphasis) command, which can be used to (semantically) highlight an element. This command works both in text and math mode (it only works in text mode in TeX). For example: 
-`\emph{x}\text{is the unknown}`
+```tex
+\text{In the formula}\emph{x}+1=0\text{x is the \emph{unknown}}
+```
 - Support for `\cssId` and `\class` commands. These are non-standard TeX commands which are supported by MathJax.
     - `\cssId{id}{content}` Attaches an id attribute with value `id` to the output associated with content when it is included in the HTML page. This allows your CSS to style the element, or your javascript to locate it on the page.
     - `\class{name}{content}` Attaches the CSS class `name` to the output associated with content when it is included in the HTML page. This allows your CSS to style the element.
-
-
-
-
-- New visual appearance for selected elements.
 - `config.removeExtraneousParentheses` (true by default) extra parentheses, for example around a numerator or denominator are removed automatically. 
 Particularly useful when pasting content.
-- Improvements to clipboard handling, pasting and copying. Now supports pasting
-of ASCIIMath and UnicodeMath (from MS Word) and LaTeX.
-- #156: localization support, including French, Italian, Spanish, Polish and 
-Russian.
+- Improvements to clipboard handling, pasting and copying. Now supports pasting of ASCIIMath and UnicodeMath (from MS Word) and LaTeX.
 - Support for output of ASCIIMath using `mf.$text('ASCIIMath')` and 
 `mf.$selectedText('ASCIIMath')` 
-- `config.smartSuperscript` If `true` (default), when a digit is entered in an empty 
-superscript, the cursor leaps automatically out of the superscript. This makes 
-entry of common polynomials easier and faster. 
-- `config.scriptDepth` Controls how many levels of subscript/superscript can 
-be entered. By restricting, this can help avoid unwanted entry of superscript
-and subscript. By default, there are no restrictions.
+- `config.smartSuperscript` If `true` (default), when a digit is entered in an empty superscript, the cursor leaps automatically out of the superscript. This makes entry of common polynomials easier and faster. 
+- `config.scriptDepth` Controls how many levels of subscript/superscript can be entered. By restricting, this can help avoid unwanted entry of superscript and subscript. By default, there are no restrictions.
+- #156: localization support, including French, Italian, Spanish, Polish and Russian.
+- New visual appearance for selected elements.
 
 
 ### Other Improvements
-- While in command mode, pressing the `ESC` key exits command mode without inserting anything.
+- When in command mode (after pressing the '\' or 'ESC' key), pressing these keys will have the indicated effect:
+    - `[ESC]`: discards entry and return to math mode
+    - `[TAB]`: accept suggestion and enter it
+    - `[RETURN]`: enter characters typed so far, ignoring any suggestion.
 - #132: Support for smart fence with `{}`, and `\langle`. 
 - Pressing the spacebar next to a closing smartfence will close it. Useful
 for semi-open fences.
@@ -169,11 +168,10 @@ for semi-open fences.
 - Improvements to undo/redo support. Fix #137, #139 and #140.
 - Significant improvements to the Abstract Syntax Tree generation 
 (MASTON/MathJSON), including #147
-- Shortcuts that override shortcuts and Smart Fence: `option/alt+|`, 
-`option/alt+\`. Also available are `option/alt+(` and `option/alt+)`
-- Improve visual blinking when selecting with the mouse to the left
+- Keyboard shortcuts that override inline shortcuts and Smart Fence: `option/alt+|`, `option/alt+\`. Also available are `option/alt+(` and `option/alt+)`
 
-### Bug fixes
+### Bug Fixes
+- #155: A cases statement (or a matrix) can now be deleted. The rows and columns inside a cases statement (or a matrix) can also be deleted.
 - #133: Clicking on a placeholder selects it.
 - Fixed issue with positioning of Popover panel.
 - Correctly render `\ulcorner`, `\urcorner`, `\llcorner` and `\rrcorner`
@@ -186,6 +184,7 @@ of a smart fence
 - #111: Fix issue where a subscript followed a superscript and were not 
 properly combined.
 - #118. Improved navigating out of inferior limits
+- Improve visual blinking when selecting with the mouse to the left
 
 ## 0.26 (Feb 4, 2019)
 

@@ -474,22 +474,20 @@ EditableMathlist.prototype.setRange = function(from, to, options) {
 }
 
 /**
- * Convert am array row/col into an array index.
- * @param {MathAtom} atom
+ * Convert an array row/col into an array index.
+ * @param {MathAtom[][]} array
  * @param {object} rowCol
  * @return {number}
  */
-function arrayIndex(atom, rowCol) {
+function arrayIndex(array, rowCol) {
     let result = 0;
 
-    if (Array.isArray(atom.array)) {
-        for (let i = 0; i < rowCol.row; i++) {
-            for (let j = 0; j < atom.array[i].length; j++) {
-                result += 1;
-            }
+    for (let i = 0; i < rowCol.row; i++) {
+        for (let j = 0; j < array[i].length; j++) {
+            result += 1;
         }
-        result += rowCol.col;
     }
+    result += rowCol.col;
 
     return result;
 }
@@ -497,14 +495,21 @@ function arrayIndex(atom, rowCol) {
 
 /**
  * Convert an array index (scalar) to an array row/col.
- * @param {MathAtom} atom
- * @param {number} index
+ * @param {MathAtom[][]} array
+ * @param {number|string} index
+ * @return {object}
+ * - row: number
+ * - col: number
  */
-function arrayColRow(atom, index) {
+function arrayColRow(array, index) {
+    if (typeof index === 'string') {
+        const m = index.match(/cell([0-9]*)$/);
+        if (m) index = parseInt(m[1]);
+    }
     const result = {row: 0, col: 0};
     while (index > 0) {
         result.col += 1;
-        if (!atom.array[result.row] || result.col >= atom.array[result.row].length) {
+        if (!array[result.row] || result.col >= array[result.row].length) {
             result.col = 0;
             result.row += 1;
         }
@@ -520,16 +525,14 @@ function arrayColRow(atom, index) {
  * Return the array cell corresponding to colrow or null (for example in
  * a sparse array)
  *
- * @param {MathAtom|MathAtom[]} atom
- * @param {any} colrow
+ * @param {MathAtom[][]} array
+ * @param {number|string|object} colrow
  */
-function arrayCell(atom, colrow) {
+function arrayCell(array, colrow) {
+    if (typeof colrow !== 'object') colrow = arrayColRow(array, colrow);
     let result;
-    if (Array.isArray(atom.array)) {
-        if (typeof colrow === 'number') colrow = arrayColRow(atom, colrow);
-        if (Array.isArray(atom.array[colrow.row])) {
-            result = atom.array[colrow.row][colrow.col] || null;
-        }
+    if (Array.isArray(array[colrow.row])) {
+        result = array[colrow.row][colrow.col] || null;
     }
     // If the 'first' math atom is missing, insert it
     if (result && (result.length === 0 || result[0].type !== 'first')) {
@@ -540,18 +543,160 @@ function arrayCell(atom, colrow) {
 
 /**
  * Total numbers of cells (include sparse cells) in the array.
- * @param {MathAtom} atom
+ * @param {MathAtom[][]} array
  */
-function arrayCellCount(atom) {
+function arrayCellCount(array) {
     let result = 0;
-    if (Array.isArray(atom.array)) {
-        let numRows = 0;
-        let numCols = 1;
-        for (const row of atom.array) {
-            numRows += 1;
-            if (row.length > numCols) numCols = row.length;
+    let numRows = 0;
+    let numCols = 1;
+    for (const row of array) {
+        numRows += 1;
+        if (row.length > numCols) numCols = row.length;
+    }
+    result = numRows * numCols;
+    return result;
+}
+
+
+
+/**
+ * Join all the cells at the indicated row into a single mathlist
+ * @param {MathAtom[]} row 
+ * @param {string} separator 
+ * @param {object} style 
+ * @return {MathAtom[]}
+ */
+function arrayJoinColumns(row, separator, style) {
+    if (!row) return [];
+    if (!separator) separator = ',';
+    let result = [];
+    let sep;
+    for (let cell of row) {
+        if (cell && cell.length > 0 && cell[0].type === 'first') {
+            // Remove the 'first' atom, if present
+            cell = cell.slice(1);
         }
-        result = numRows * numCols;
+        if (cell && cell.length > 0) {
+            if (sep) {
+                result.push(sep);
+            } else {
+                sep = new MathAtom.MathAtom('math', 'mpunct', separator, style);
+            }
+            result = result.concat(cell);
+        }
+    }
+    return result;
+}
+
+/**
+ * Join all the rows into a single atom list
+ * @param {MathAtom} array 
+ * @param {strings} separators
+ * @param {object} style 
+ * @return {MathAtom[]}
+ */
+function arrayJoinRows(array, separators, style) {
+    if (!separators) separators = [';', ','];
+    let result = [];
+    let sep;
+    for (const row of array) {
+        if (sep) {
+            result.push(sep);
+        } else {
+            sep = new MathAtom.MathAtom('math', 'mpunct', separators[0], style);
+        }
+        result = result.concat(arrayJoinColumns(row, separators[1]));
+    }
+    return result;
+}
+
+/**
+ * Return the number of non-empty cells in that column
+ * @param {MathAtom} array 
+ * @param {number} col 
+ * @return {number}
+ */
+function arrayColumnCellCount(array, col) {
+    let result = 0;
+    const colRow = {col: col, row: 0};
+    while (colRow.row < array.length) {
+        const cell = arrayCell(array, colRow);
+        if (cell && cell.length > 0) {
+            let cellLen = cell.length;
+            if (cell[0].type === 'first') cellLen -= 1;
+            if (cellLen > 0) {
+                result += 1;
+            }
+        }
+        colRow.row += 1;
+    }
+    return result;
+}
+
+/**
+ * Remove the indicated column from the array
+ * @param {MathAtom} array 
+ * @param {number} col 
+ */
+function arrayRemoveColumn(array, col) {
+    let row = 0;
+    while (row < array.length) {
+        if (array[row][col]) {
+            array[row].splice(col, 1);
+        }
+        row += 1;
+    }
+}
+
+/**
+ * Remove the indicated row from the array
+ * @param {MathAtom} atom 
+ * @param {number} row 
+ */
+function arrayRemoveRow(array, row) {
+    array.splice(row, 1);
+}
+
+
+/**
+ * Return the first non-empty cell, row by row
+ * @param {MathAtom[][]} array 
+ * @return {string}
+ */
+function arrayFirstCellByRow(array) {
+    const colRow = {col: 0, row: 0};
+    while (colRow.row < array.length && !arrayCell(array, colRow)) {
+        colRow.row += 1;
+    }
+    return arrayCell(array, colRow) ? 'cell' + arrayIndex(array, colRow) : '';
+}
+
+/**
+ * Adjust colRow to point to the next/previous available row
+ * If no more rows, go to the next/previous column
+ * If no more columns, return null
+ * @param {MathAtom[][]} array 
+ * @param {object} colRow 
+ * @param {number} dir 
+ */
+function arrayAdjustRow(array, colRow, dir) {
+    const result = {...colRow};
+    result.row += dir;
+    if (result.row < 0) {
+        result.col += dir;
+        result.row = array.length - 1;
+        if (result.col < 0) return null;
+        while (result.row >= 0 && !arrayCell(array, result)) {
+            result.row -= 1;
+        }
+        if (result.row < 0) return null;
+    } else if (result.row >= array.length) {
+        result.col += dir;
+        result.row = 0;
+        while (result.row < array.length && !arrayCell(array, result)) {
+            result.row += 1;
+        }
+        if (result.row > array.length - 1) return null;
     }
     return result;
 }
@@ -577,9 +722,8 @@ EditableMathlist.prototype.ancestor = function(ancestor) {
     // Iterate over the path segments, selecting the appropriate
     for (let i = 0; i < (this.path.length - ancestor); i++) {
         const segment = this.path[i];
-        if (segment.relation.startsWith('cell')) {
-            const cellIndex = parseInt(segment.relation.match(/cell([0-9]*)$/)[1]);
-            result = arrayCell(result, cellIndex)[segment.offset];
+        if (result.array) {
+            result = arrayCell(result.array, segment.relation)[segment.offset];
         } else if (!result[segment.relation]) {
             // There is no such relation... (the path got out of sync with the tree)
             return null;
@@ -606,9 +750,8 @@ EditableMathlist.prototype.ancestor = function(ancestor) {
  * @private
  */
 EditableMathlist.prototype.anchor = function() {
-    if (this.relation().startsWith('cell')) {
-        const cellIndex = parseInt(this.relation().match(/cell([0-9]*)$/)[1]);
-        return arrayCell(this.parent(), cellIndex)[this.anchorOffset()];
+    if (this.parent().array) {
+        return arrayCell(this.parent().array, this.relation())[this.anchorOffset()];
     }
     const siblings = this.siblings();
     return siblings[Math.min(siblings.length - 1, this.anchorOffset())];
@@ -684,9 +827,8 @@ EditableMathlist.prototype.siblings = function() {
     if (this.path.length === 0) return [];
 
     let siblings;
-    if (this.relation().startsWith('cell')) {
-        const cellIndex = parseInt(this.relation().match(/cell([0-9]*)$/)[1]);
-        siblings = arrayCell(this.parent(), cellIndex);
+    if (this.parent().array) {
+        siblings = arrayCell(this.parent().array, this.relation());
     } else {
         siblings = this.parent()[this.relation()] || [];
         if (typeof siblings === 'string') siblings = [];
@@ -849,8 +991,8 @@ function atomContains(atom, target) {
                 return value === target || atomContains(atom[value], target)
             } )) return true;
         if (atom.array) {
-            for (let i = arrayCellCount(atom); i >= 0; i--) {
-                if (atomContains(arrayCell(atom, i), target)) {
+            for (let i = arrayCellCount(atom.array); i >= 0; i--) {
+                if (atomContains(arrayCell(atom.array, i), target)) {
                     return true;
                 }
             }
@@ -1171,11 +1313,11 @@ EditableMathlist.prototype.next = function(options) {
 
 
         // No more siblings, check if we have a sibling cell in an array
-        if (this.relation().startsWith('cell')) {
-            const maxCellCount = arrayCellCount(this.parent());
+        if (this.parent().array) {
+            const maxCellCount = arrayCellCount(this.parent().array);
             let cellIndex = parseInt(this.relation().match(/cell([0-9]*)$/)[1]) + 1;
             while (cellIndex < maxCellCount) {
-                const cell = arrayCell(this.parent(), cellIndex);
+                const cell = arrayCell(this.parent().array, cellIndex);
                 // Some cells could be null (sparse array), so skip them
                 if (cell && this.setSelection(0, 0, 'cell' + cellIndex)) {
                     this.selectionDidChange();
@@ -1221,10 +1363,10 @@ EditableMathlist.prototype.next = function(options) {
             // Find the first non-empty cell in this array
             let cellIndex = 0;
             relation = '';
-            const maxCellCount = arrayCellCount(anchor);
+            const maxCellCount = arrayCellCount(anchor.array);
             while (!relation && cellIndex < maxCellCount) {
                 // Some cells could be null (sparse array), so skip them
-                if (arrayCell(anchor, cellIndex)) {
+                if (arrayCell(anchor.array, cellIndex)) {
                     relation = 'cell' + cellIndex.toString();
                 }
                 cellIndex += 1;
@@ -1288,7 +1430,7 @@ EditableMathlist.prototype.previous = function(options) {
         if (this.relation().startsWith('cell')) {
             let cellIndex = parseInt(this.relation().match(/cell([0-9]*)$/)[1]) - 1;
             while (cellIndex >= 0) {
-                const cell = arrayCell(this.parent(), cellIndex);
+                const cell = arrayCell(this.parent().array, cellIndex);
                 if (cell && this.setSelection(-1, 0, 'cell' + cellIndex)) {
                     this.selectionDidChange();
                     return;
@@ -1324,11 +1466,11 @@ EditableMathlist.prototype.previous = function(options) {
         let relation;
         if (anchor.array) {
             relation = '';
-            const maxCellCount = arrayCellCount(anchor);
+            const maxCellCount = arrayCellCount(anchor.array);
             let cellIndex = maxCellCount - 1;
             while (!relation && cellIndex < maxCellCount) {
                 // Some cells could be null (sparse array), so skip them
-                if (arrayCell(anchor, cellIndex)) {
+                if (arrayCell(anchor.array, cellIndex)) {
                     relation = 'cell' + cellIndex.toString();
                 }
                 cellIndex -= 1;
@@ -1336,7 +1478,7 @@ EditableMathlist.prototype.previous = function(options) {
             cellIndex += 1;
             console.assert(relation);
             this.path.push({relation:relation,
-                offset: arrayCell(anchor, cellIndex).length - 1});
+                offset: arrayCell(anchor.array, cellIndex).length - 1});
             this.setSelection(-1, 0 , relation);
             return;
         }
@@ -1404,9 +1546,10 @@ EditableMathlist.prototype.up = function(options) {
     options = options || {extend: false};
     const extend = options.extend || false;
 
-    this.collapseForward();
+    this.collapseBackward();
+    const relation = this.relation();
 
-    if (this.relation() === 'denom') {
+    if (relation === 'denom') {
         if (extend) {
             this.selectionWillChange();
             this.path.pop();
@@ -1417,6 +1560,21 @@ EditableMathlist.prototype.up = function(options) {
             this.setSelection(this.anchorOffset(), 0, 'numer');
         }
         this._announce('moveUp');
+
+    } else if (this.parent().array) {
+        // In an array
+        let colRow = arrayColRow(this.parent().array, relation);
+        colRow = arrayAdjustRow(this.parent().array, colRow, -1);
+        if (colRow) {
+            this.path[this.path.length - 1].relation = 
+                'cell' + arrayIndex(this.parent().array, colRow);
+            this.setSelection(this.anchorOffset());
+
+            this._announce('moveUp');
+        } else {
+            this.move(-1, options);
+        }
+
     } else {
         this._announce('line');
     }
@@ -1427,8 +1585,8 @@ EditableMathlist.prototype.down = function(options) {
     const extend = options.extend || false;
 
     this.collapseForward();
-
-    if (this.relation() === 'numer') {
+    const relation = this.relation();
+    if (relation === 'numer') {
         if (extend) {
             this.selectionWillChange();
             this.path.pop();
@@ -1439,6 +1597,21 @@ EditableMathlist.prototype.down = function(options) {
             this.setSelection(this.anchorOffset(), 0, 'denom');
         }
         this._announce('moveDown');
+
+    } else if (this.parent().array) {
+        // In an array
+        let colRow = arrayColRow(this.parent().array, relation);
+        colRow = arrayAdjustRow(this.parent().array, colRow, +1);
+        if (colRow) {
+            this.path[this.path.length - 1].relation = 
+                'cell' + arrayIndex(this.parent().array, colRow);
+            this.setSelection(this.anchorOffset());
+
+            this._announce('moveDown');
+        } else {
+            this.move(+1, options);
+        }
+
     } else {
         this._announce('line');
     }
@@ -1811,8 +1984,8 @@ EditableMathlist.prototype.simplifyParen = function(atoms) {
             }
         
             if (atom.array) {
-                for (let i = arrayCellCount(atom); i >= 0; i--) {
-                    this.simplifyParen(arrayCell(atom, i))
+                for (let i = arrayCellCount(atom.array); i >= 0; i--) {
+                    this.simplifyParen(arrayCell(atom.array, i))
                 }
             }
         });
@@ -2243,7 +2416,6 @@ EditableMathlist.prototype._deleteAtoms = function(count) {
  */
 EditableMathlist.prototype.delete = function(count) {
     count = count || 0;
-
     if (count === 0) {
         this.delete_(0);
     } else if (count > 0) {
@@ -2279,6 +2451,63 @@ EditableMathlist.prototype.delete_ = function(dir) {
 
     this.removeSuggestion();
 
+    if (this.parent().array) {
+        if (dir < 0 && this.startOffset() === 0) {
+            const array = this.parent().array;
+            if (arrayFirstCellByRow(array) === this.relation()) {
+                // (1) First cell:
+                // delete array, replace it with linearized content
+                const atoms = arrayJoinRows(array);
+                this.path.pop();
+                this.siblings().splice(this.anchorOffset(), 1, ...atoms);
+                this.setSelection(this.anchorOffset() - 1, atoms.length);
+            } else {
+                const colRow = arrayColRow(array, this.relation());
+                if (colRow.col === 0) {
+                    // (2) First (non-empty) column (but not first row):
+
+                    // Move to the end of the last cell of the previous row
+                    const dest = arrayAdjustRow(array, colRow, -1);
+                    dest.col = array[dest.row].length - 1;
+
+                    this.path[this.path.length - 1].relation = 
+                        'cell' + arrayIndex(array, dest);
+                    const destLength = array[dest.row][dest.col].length;
+
+                    // (2.1) Linearize it and merge it with last cell of previous row
+                    // (note that atoms could be empty if there are no non-empty
+                    // cells left in the row)
+                    const atoms = arrayJoinColumns(array[colRow.row]);
+                    array[dest.row][dest.col] = 
+                        array[dest.row][dest.col].concat(atoms);
+                    this.setSelection(destLength - 1, atoms.length);
+
+                    // (2.2) Remove row
+                    arrayRemoveRow(array, colRow.row);
+
+                } else {
+                    // (3) Non-first column
+                    // (3.1) If column is empty, remove it
+                    if (arrayColumnCellCount(array, colRow.col) === 0) {
+                        arrayRemoveColumn(array, colRow.col);
+                        colRow.col -= 1;
+                        this.path[this.path.length - 1].relation = 
+                            'cell' + arrayIndex(array, colRow);
+                        const destCell = array[colRow.row][colRow.col];
+                        this.setSelection(destCell.length - 1, 0);
+
+                    }
+                    // (3.2) merge cell with cell in previous column
+                }
+            }
+
+            // Dispatch notifications
+            this.suppressChangeNotifications = contentWasChanging;
+            this.contentDidChange();
+            return;
+        } 
+    }
+
     const siblings = this.siblings();
 
     if (!this.isCollapsed()) {
@@ -2303,7 +2532,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
                     sibling.rightDelim = '?';
                     this.move(-1);
                 } else if (!sibling.captureSelection &&
-                    /^(group|array|genfrac|surd|leftright|font|overlap|overunder|color|box|mathstyle|sizing)$/.test(sibling.type)) {
+                    /^(group|array|genfrac|surd|leftright|overlap|overunder|box|mathstyle|sizing)$/.test(sibling.type)) {
                     this.move(-1);
                 } else {
                     this._announce('delete', null, siblings.slice(anchorOffset, anchorOffset + 1));
@@ -2354,7 +2583,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
             }
         } else if (dir > 0) {
             if (anchorOffset !== siblings.length - 1) {
-                if (/^(group|array|genfrac|surd|leftright|font|overlap|overunder|color|box|mathstyle|sizing)$/.test(this.sibling(1).type)) {
+                if (/^(group|array|genfrac|surd|leftright|overlap|overunder|box|mathstyle|sizing)$/.test(this.sibling(1).type)) {
                     this.move(+1);
                 } else {
                     this._announce('delete', null, siblings.slice(anchorOffset + 1, anchorOffset + 2));
@@ -2789,9 +3018,8 @@ EditableMathlist.prototype._addCell = function(where) {
     const parent = this.parent();
     if (parent && parent.type === 'array' && Array.isArray(parent.array)) {
         const relation = this.relation();
-        if (relation.startsWith('cell')) {
-            const colRow = arrayColRow(parent,
-                parseInt(relation.match(/cell([0-9]*)$/)[1]));
+        if (parent.array) {
+            const colRow = arrayColRow(parent.array, relation);
 
             if (where === 'after row' ||
                 where === 'before row') {
@@ -2806,7 +3034,7 @@ EditableMathlist.prototype._addCell = function(where) {
                 parent.array[colRow.row].splice(colRow.col, 0, []);
             }
 
-            const cellIndex = arrayIndex(parent, colRow);
+            const cellIndex = arrayIndex(parent.array, colRow);
 
             this.selectionWillChange();
             this.path.pop();
@@ -2819,18 +3047,43 @@ EditableMathlist.prototype._addCell = function(where) {
     }
 }
 
+EditableMathlist.prototype.convertParentToArray = function() {
+    const parent = this.parent();
+    if (parent.type === 'leftright') {
+        parent.type = 'array';
+        const envName = {'(': 'pmatrix', '\\lbrack': 'bmatrix', '\\lbrace': 'cases'}[parent.leftDelim] || 'matrix';
+        const env = Definitions.getEnvironmentInfo(envName);
+        const array = [[parent.body]];
+        if (env.parser) {
+            Object.assign(parent, env.parser(envName, [], array));
+        }
+        parent.tabularMode = env.tabular;
+        parent.parseMode = this.anchorMode();
+        parent.env = {...env};
+        parent.env.name = envName;
+        parent.array = array;
+        parent.rowGaps = [0];
+        delete parent.body;
+        this.path[this.path.length - 1].relation = 'cell0'
+    }
+    // Note: could also be a group, or we could be a subscript or an
+    // underscript (for multi-valued conditions on a \sum, for example)
+    // Or if at root, this could be a 'align*' environment
+}
 
 
 /**
  * @method EditableMathlist#addRowAfter_
  */
 EditableMathlist.prototype.addRowAfter_ = function() {
+    this.convertParentToArray();
     this._addCell('after row');
 }
 /**
  * @method EditableMathlist#addRowBefore_
  */
 EditableMathlist.prototype.addRowBefore_ = function() {
+    this.convertParentToArray();
     this._addCell('before row');
 }
 
@@ -2838,6 +3091,7 @@ EditableMathlist.prototype.addRowBefore_ = function() {
  * @method EditableMathlist#addColumnAfter_
  */
 EditableMathlist.prototype.addColumnAfter_ = function() {
+    this.convertParentToArray();
     this._addCell('after column');
 }
 
@@ -2845,6 +3099,7 @@ EditableMathlist.prototype.addColumnAfter_ = function() {
  * @method EditableMathlist#addColumnBefore_
  */
 EditableMathlist.prototype.addColumnBefore_ = function() {
+    this.convertParentToArray();
     this._addCell('before column');
 }
 

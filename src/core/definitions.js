@@ -509,8 +509,8 @@ function getEnvironmentInfo(name) {
             mathstyle: 'displaystyle',
             tabular: true,
             colFormat: [],
-            leftFence: '.',
-            rightFence: '.',
+            lFence: '.',
+            rFence: '.',
             // arrayStretch: 1,
         };
     }
@@ -847,6 +847,12 @@ category = 'Environments';
 'displaymath',
                 frequency 8
 
+'equation'      centered, numbered
+                frequency 8
+
+'subequations'   with an 'equation' environment, appends a letter to eq no
+                frequency 1
+
 'array',        {columns:text}
                 cells are textstyle math
                 no fence
@@ -858,33 +864,41 @@ category = 'Environments';
                 Each line has a eqno
                 frequency 7
 
-'equation',     centered, numbered
-                frequency 8
-
-'subequations'   with an 'equation' environment, appends a letter to eq no
-                frequency 1
 
 'theorem'       text mode. Prepends in bold 'Theorem <counter>', then body in italics.
 
-
- 'multline'     single column
+'multline'      single column
                 first row left aligned, last right aligned, others centered
-                last line has an eqn.
+                last line has an eqn. counter. multline* will omit the counter
                 no output if inside an equation
+                
 
- 'gather'       at most two columns
+'gather'        at most two columns
                 first column centered, second column right aligned
                 frequency 1
 
- 'align'        multiple columns,
+'gathered'      must be in equation environment
+                single column,
+                centered
+                frequency: COMMON
+                optional argument: [b], [t] to vertical align
+
+'align'        multiple columns,
                 alternating rl
                 there is some 'space' (additional column?) between each pair
                 each line is numbered (except when inside an equation environment)
                 there is an implicit {} at the beginning of left columns
 
- 'aligned'      must be in equation environment
+'aligned'      must be in equation environment
                 frequency: COMMON
                 @{}r@{}l@{\quad}@{}r@{}l@{}
+
+'split'         must be in an equation environment,
+                two columns, additional columns are interpreted as line breaks
+                first column is right aligned, second column is left aligned
+                entire construct is numbered (as opposed to 'align' where each line is numbered)
+                frequency: 0
+
 
 'alignedat'
 From AMSMath:
@@ -906,17 +920,6 @@ automatically, and therefore the use of alignedat is deprecated.
                 alternate rl
                 third column further away than align...?
                 frequency: 0
-
-'split'         must be in an equation environment,
-                two columns, additional columns are interpreted as line breaks
-                firs column is right aligned, second column is left aligned
-                entire construct is numbered
-                frequency: 0
-
-'gathered'      single columm,
-                centered
-                may need to be in equation environment?
-                frequency: COMMON
 
 
 'matrix'        at most 10 columns
@@ -957,6 +960,9 @@ automatically, and therefore the use of alignedat is deprecated.
 /*
 The star at the end of the name of a displayed math environment causes that
 the formula lines won't be numbered. Otherwise they would automatically get a number.
+
+\notag will also turn off the numbering.
+\shoveright and \shoveleft will force alignment of a line
 
 The only difference between align and equation is the spacing of the formulas.
 You should attempt to use equation when possible, and align when you have multi-line formulas.

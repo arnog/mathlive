@@ -1685,6 +1685,9 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
         case 'array':
             if (this.env.name === 'cardinality') {
                 result = wrapFn('card', parse(this.array, options));
+            } else if (/matrix|pmatrix|bmatrix/.test(this.env.name)) {
+                
+                result = wrapFn('array', parse(this.array, options));
             }
             break;
 

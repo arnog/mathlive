@@ -586,7 +586,7 @@ class Parser {
             env.parser ? env.parser(envName, args, array) : {});
         result.array = array;
         result.rowGaps = rowGaps;
-        result.env = env;
+        result.env = {...env};
         result.env.name = envName;
         return result;
     }
