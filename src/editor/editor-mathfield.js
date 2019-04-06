@@ -568,6 +568,16 @@ MathField.prototype._onPointerDown = function(evt) {
     function onPointerMove(evt) {
         const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
         const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
+
+        // Ignore events that are within small spatial and temporal bounds 
+        // of the pointer down
+        if (Date.now() < anchorTime + 500 && 
+            Math.abs(anchorX - x) < 5 && Math.abs(anchorY - y) < 5) {
+            evt.preventDefault();
+            evt.stopPropagation();
+            return;
+        }
+
         let actualAnchor = anchor;
 
         if (evt.touches && evt.touches.length === 2) {
@@ -577,6 +587,7 @@ MathField.prototype._onPointerDown = function(evt) {
 
         const focus = that._pathFromPoint(x, y, 
             {bias: x <= anchorX ? (x === anchorX ? 0 : -1) : +1});
+
 
         if (focus && that.mathlist.setRange(actualAnchor, focus, 
             {extendToWordBoundary: trackingWords})) {
@@ -609,6 +620,7 @@ MathField.prototype._onPointerDown = function(evt) {
 
     const anchorX = evt.touches ? evt.touches[0].clientX : evt.clientX;
     const anchorY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+    const anchorTime = Date.now();
     const bounds = this.element.getBoundingClientRect();
     if (anchorX >= bounds.left && anchorX <= bounds.right &&
         anchorY >= bounds.top && anchorY <= bounds.bottom) {
@@ -1779,6 +1791,9 @@ MathField.prototype._render = function(renderOptions) {
 
     const base = Span.makeSpan(spans, 'ML__base');
     base.attributes = {
+        // Sometimes Google Translate kicks in an attempts to 'translate' math
+        // This doesn't work very well, so turn off translate
+        'translate': 'no',
         // Hint to screen readers to not attempt to read this span
         // They should use instead the 'aria-label' below.
         'aria-hidden': 'true'
@@ -2173,6 +2188,7 @@ MathField.prototype.pasteFromClipboard_ = function() {
     document.execCommand('paste');
     return true;
 }
+
 
 
 /**
