@@ -15,7 +15,7 @@ const makeOrd = Span.makeOrd;
 const makeInner = Span.makeInner;
 const makeHlist = Span.makeHlist;
 const makeVlist = Span.makeVlist;
-const GREEK_REGEX = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5/;
+export const GREEK_REGEX = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5/;
 
 // TeX by default auto-italicize latin letters and lowercase greek letters
 const AUTO_ITALIC_REGEX = /^([A-Za-z]|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5)$/;
@@ -1789,7 +1789,8 @@ function makeRoot(parseMode, body) {
 export default {
     MathAtom,
     decompose,
-    makeRoot
+    makeRoot,
+    GREEK_REGEX
 }
 
 

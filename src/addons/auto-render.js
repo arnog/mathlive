@@ -135,7 +135,7 @@ function createMathMLNode(latex, options) {
                          "</math>";
     } catch (e) {
         console.error( 'Could not convert\'' + latex + '\' to MathML with ', e );
-        span.innerText = latex;
+        span.textContent = latex;
     }
     span.className = 'sr-only';
     return span;

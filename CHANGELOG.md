@@ -128,7 +128,20 @@ The `value` key is required an indicate the shortcut substitution.
 The `mode` key, if present, indicate in which mode this shortcut should apply, either `'math'` or `'text'`. If the key is not present the shortcut apply in both modes.
 
 The `'after'` key, if present, indicate in what context the shortcut should apply. One or more values can be specified, separated by a '+' sign. If any of the values match, the shortcut will be applicable. Possible values are:
-- `'space'`
+- `'space'`     A spacing command, such as `\quad`
+- `'nothing'`   The begining of a group
+- `'surd'`      A square root or n-th root
+- `'frac'`      A fraction
+- `'function'`  A function such as `\sin` or `f` 
+- `'letter'`    A letter, such as `x` or `n`
+- `'digit'`     `0` through `9`
+- `'binop'`     A binary operator, such as `+`
+- `'relop'`     A relational operator, such as `=`
+- `'punct'`     A punctuation mark, such as `,`
+- `'array'`     An array, such as a matrix or cases statement
+- `'openfence'` An opening fence, such as `(`
+- `'closefence'` A closing fence such as `}`
+- `'text'`      Some plain text
 
 
 

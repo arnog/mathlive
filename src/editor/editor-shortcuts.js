@@ -3,6 +3,8 @@
  * @private
  */
 
+import Definitions from '../core/definitions.js';
+
 /**
  * The index of this array is a keystroke combination as returned by the key
  * field of a JavaScript keyboard event as documented here:
@@ -300,7 +302,7 @@ const INLINE_SHORTCUTS = {
     'jj':                   '\\imaginaryJ',
     'ee':                   {
                                 mode: 'math',
-                                after: 'digit+symbol+fence',
+                                after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space',
                                 value: '\\exponentialE',
                             },
 
@@ -313,7 +315,7 @@ const INLINE_SHORTCUTS = {
     // '&#8734;': '\\infty',
     'oo':                   {
                                 mode: 'math',
-                                after: 'digit+symbol+fence',
+                                after: 'nothing+digit+frac+surd+binop+relop+punct+array+openfence+closefence+space',
                                 value: '\\infty',
                             },
 
@@ -350,12 +352,12 @@ const INLINE_SHORTCUTS = {
     // The shortcut for the greek letter "xi" is interfering with "x in"
     'xin':                   {
                                 mode: 'math',
-                                after: 'nothing+space+letter+digit+symbol+fence',
+                                after: 'nothing+text+relop+punct+openfence+space',
                                 value: 'x \\in',
                             },
     'in':                   {
                                 mode: 'math',
-                                after: 'space+letter+digit+symbol+fence',
+                                after: 'nothing+letter+closefence',
                                 value: '\\in',
                             },
     '!in':                  '\\notin',
@@ -455,16 +457,16 @@ const INLINE_SHORTCUTS = {
     'Im':                   '\\operatorname{Im}',
 
     // UNITS
-    'mm':                   {  after: 'number', 
+    'mm':                   {  after: 'digit', 
                                 value:  '\\operatorname{mm}',         // millimeter
                             },
-    'cm':                   {  after: 'number', 
+    'cm':                   {  after: 'digit', 
                                 value:  '\\operatorname{cm}',         // centimeter
                             },
-    'km':                   {  after: 'number', 
+    'km':                   {  after: 'digit', 
                                 value:  '\\operatorname{km}',         // kilometer
                             },
-    'kg':                   {  after: 'number', 
+    'kg':                   {  after: 'digit', 
                                 value:  '\\operatorname{kg}',         // kilogram
                             },
                             
@@ -629,77 +631,55 @@ function validateShortcut(siblings, shortcut) {
     // If we have no context, we assume all the shortcuts are valid
     if (!siblings) return shortcut ? shortcut.value : undefined;
     
-// first
-    // 'nothing'
-// placeholder
-    // 'nothing'
-// surd
-    //
-// supsub
-    // atom before?
-// genfrac
-    // 
-// textord or mord
-    // f, g, h (isFunction = true)  'function'
-    // [a-zA-Z]+greek+cyrillic      'letter'
-    // [0-9]                        'digit'
-// mbin                             'binop'     
-// mrel                             'relop'
-// mop
-    // sin (isFunction = true)      'function'
-// minner
-// mpunct
-// array
-    // 
-// mopen
-    // 'openfence'
-// leftright mclose
-    // 'closefence'
-// group, accent, overlap. overunder
-    // type of last atom of body
-
-// box  -- group style
-
-// mathstyle
-// sizing
-// color
-// font
-
-
+    let nothing = false;
     let letter = false;
     let digit = false;
-    let space = false;
-    let number = false;
-    let symbol = false;
-    let fence = false;
+    let isFunction = false;
+    let frac = false;
+    let surd = false;
+    let binop = false;
+    let relop = false;
+    let punct = false;
+    let array = false;
+    let openfence = false;
+    let closefence = false;
     let text = false;
-    let nothing = false;
+    let space = false;
     const sibling = siblings[siblings.length - 1];
-    nothing = !sibling;         // start of a group
+    nothing = !sibling || sibling.type === 'first';         // start of a group
     if (sibling) {
         text = sibling.mode === 'text';
-        letter = !text && sibling.type === 'mord' && /[a-zA-Z]+$/.test(sibling.body);
-        space = false; // /\s$/.test(context);
+        letter = !text && sibling.type === 'mord' && Definitions.LETTER.test(sibling.body);
         digit = !text && sibling.type === 'mord' && /[0-9]+$/.test(sibling.body);
-        number = digit;
-        symbol = /mrel|mop|leftright|genfrac/.test(sibling.type);
-        fence = /mopen|mclose/.test(sibling.type);
+        isFunction = !text && sibling.isFunction;
+        frac = sibling.type === 'genfrac';
+        surd = sibling.type === 'surd';
+        binop = sibling.type === 'mbin';
+        relop = sibling.type === 'mrel';
+        punct = sibling.type === 'mpunct' || sibling.type === 'minner';
+        array = sibling.array;
+        openfence = sibling.type === 'mopen';
+        closefence = sibling.type === 'mclose' || sibling.type === 'leftright';
     }
 
     if (typeof shortcut === 'object') {
-        console.log('considering ' + shortcut.value + ' if after ' + shortcut.after);
-        // If this is a complex shortcut with conditions, consider them now
-        if (    (/text/.test(shortcut.after) && text) ||
+        // If this is a conditional shortcut, consider the conditions now
+        if (    (/nothing/.test(shortcut.after) && nothing) ||
                 (/letter/.test(shortcut.after) && letter) ||
-                (/space/.test(shortcut.after) && space) ||
                 (/digit/.test(shortcut.after) && digit) ||
-                (/number/.test(shortcut.after) && number) ||
-                (/symbol/.test(shortcut.after) && symbol) ||
-                (/nothing/.test(shortcut.after) && nothing) ||
-                (/fence/.test(shortcut.after) && fence)){
+                (/function/.test(shortcut.after) && isFunction) ||
+                (/frac/.test(shortcut.after) && frac) ||
+                (/surd/.test(shortcut.after) && surd) ||
+                (/binop/.test(shortcut.after) && binop) ||
+                (/relop/.test(shortcut.after) && relop) ||
+                (/punct/.test(shortcut.after) && punct) ||
+                (/array/.test(shortcut.after) && array) ||
+                (/openfence/.test(shortcut.after) && openfence) ||
+                (/closefence/.test(shortcut.after) && closefence) ||
+                (/text/.test(shortcut.after) && text) ||
+                (/space/.test(shortcut.after) && space)){
             shortcut = shortcut.value;
         } else {
-            console.log('rejected');
             shortcut = null;
         }
     }
