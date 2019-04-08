@@ -36,7 +36,7 @@
         <h2>Custom keystroke handler</h2>
 
         <p>This field has been configured with a custom keystroke handler that 
-            intercepts the spacebar and inserts a "\ " (space) command.
+            intercepts the spacebar and inserts a <kbd>\space</kbd> command.
         </p>
         <div>
             <div class="mathfield" id='mf3' >f(x)=</div>
@@ -191,7 +191,7 @@
             document.getElementById('mf3__keystroke').innerHTML = 
                 'keystroke = "' + key + '"<br>event = ' + keyboardEventToString(ev);
             if (key === 'Spacebar') {
-                mf.$insert('\\ ');
+                mf.$insert('\\space');
                 return false;
             }
             return true;

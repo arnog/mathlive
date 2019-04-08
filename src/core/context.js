@@ -60,14 +60,16 @@ class Context {
         result.parentSize = this.size;
         result.macros = this.macros;
         if (override) {
-            // `'auto'` to indicate that the mathstyle should in
-            // fact not be changed. This is used when specifying the mathstyle for some
-            // environments.
+            // `'auto'` (or undefined) to indicate that the mathstyle should in
+            // fact not be changed. This is used when specifying the mathstyle 
+            // for some environments.
             if (override.mathstyle === 'auto' || !override.mathstyle) {
                 delete override.mathstyle;
             }
-            Object.assign(this, override);
-            if (typeof override.mathstyle === 'string') this.mathstyle = Mathstyle.toMathstyle(override.mathstyle);
+            Object.assign(result, override);
+            if (typeof override.mathstyle === 'string') {
+                result.mathstyle = Mathstyle.toMathstyle(override.mathstyle);
+            }
         }
         return result;
     }

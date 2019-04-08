@@ -592,7 +592,7 @@ MathField.prototype._onPointerDown = function(evt) {
         if (focus && that.mathlist.setRange(actualAnchor, focus, 
             {extendToWordBoundary: trackingWords})) {
             // Re-render if the range has actually changed
-            requestAnimationFrame(that._render.bind(that));
+            that._requestUpdate();
         }
         // Prevent synthetic mouseMove event when this is a touch event
         evt.preventDefault();
@@ -692,7 +692,7 @@ MathField.prototype._onPointerDown = function(evt) {
     }
 
 
-    if (dirty) this._render();
+    if (dirty) this._requestUpdate();
 
     // Prevent the browser from handling, in particular when this is a
     // touch event prevent the synthetic mouseDown event from being generated
@@ -900,7 +900,7 @@ MathField.prototype._onFocus = function() {
         }
         Popover.updatePopoverPosition(this);
         if (this.config.onFocus) this.config.onFocus(this);
-        this._render();
+        this._requestUpdate();
     }
 }
 
@@ -912,7 +912,7 @@ MathField.prototype._onBlur = function() {
             this.hideVirtualKeyboard_();
         }
         Popover.updatePopoverPosition(this);
-        this._render();
+        this._requestUpdate();
         if (this.config.onBlur) this.config.onBlur(this);
     }
 }
@@ -1021,9 +1021,7 @@ MathField.prototype.$perform = function(command) {
     }
 
     // Render the mathlist
-    if (dirty) {
-        this._render();
-    }
+    if (dirty) this._requestUpdate();
 
     return handled;
 }
@@ -1472,7 +1470,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
             // Pressing the space bar (moveAfterParent selector) when at the end 
             // of a potential smartfence will close it as a semi-open fence
         selector = '';
-        this._render(); // Re-render the closed smartfence
+        this._requestUpdate(); // Re-render the closed smartfence
     }
 
     // 5.3 If this is the Spacebar and we're just before or right after 
@@ -1537,7 +1535,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
             this.mathlist.contentDidChange();
 
             this.undoManager.snapshot(this.config);
-            this._render();
+            this._requestUpdate();
             this._announce('replacement');
 
             // If we're done with the shortcuts (found a unique one), reset it.
@@ -1703,7 +1701,7 @@ MathField.prototype._onTypedText = function(text, options) {
     }
 
     // Render the mathlist
-    this._render();
+    this._requestUpdate();
 
     // Since the location of the popover depends on the position of the caret
     // only show the popover after the formula has been rendered and the
@@ -1726,6 +1724,14 @@ MathField.prototype._hash = function() {
     return Math.abs(result);
 }
 
+
+MathField.prototype._requestUpdate = function() {
+    if (!this.dirty) {
+        this.dirty = true;
+        requestAnimationFrame(_ => this._render());
+    }
+}
+
 /**
  * Lay-out the math field and generate the DOM.
  *
@@ -1738,6 +1744,8 @@ MathField.prototype._hash = function() {
  */
 MathField.prototype._render = function(renderOptions) {
     renderOptions = renderOptions || {};
+
+    this.dirty = false;
 
     //
     // 1. Stop and reset read aloud state
@@ -1875,7 +1883,7 @@ MathField.prototype._onCut = function() {
     // to later, after the cut operation has been handled.
     setTimeout(function() {
         this.clearSelection();
-        this._render();
+        this._requestUpdate();
     }.bind(this), 0);
     return true;
 }
@@ -2104,7 +2112,7 @@ MathField.prototype.$latex = function(text, options) {
                 suppressChangeNotifications: options.suppressChangeNotifications
             }));
             this.undoManager.snapshot(this.config);
-            this._render();
+            this._requestUpdate();
         }
         return text;
     }
@@ -2274,6 +2282,7 @@ MathField.prototype.$insert = function(s, options) {
             }
         }
         this.undoManager.snapshot(this.config);
+        this._requestUpdate();
         return true;
     }
     return false;
@@ -2315,7 +2324,7 @@ MathField.prototype.switchMode_ = function(mode, prefix, suffix) {
     if (typeof this.config.onModeChange === 'function') {
         this.config.onModeChange(this, this.mode)
     }
-    this._render();
+    this._requestUpdate();
 }
 
 
@@ -2392,7 +2401,7 @@ MathField.prototype._updateSuggestion = function() {
         Popover.showPopoverWithLatex(this, suggestions[index].match, suggestions.length > 1);
     }
 
-    this._render();
+    this._requestUpdate();
 }
 
 MathField.prototype.nextSuggestion_ = function() {

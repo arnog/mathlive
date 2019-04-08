@@ -1,4 +1,4 @@
-## 
+## 0.27 (Apr 8, 2019)
 ### Breaking Changes
 - The syntax that MathJSON/MASTON can recognized has been significantly expanded. It also has been made more consistent, and in some cases it may be different than what was previously returned.
 - Future breaking change: the selector `enterCommandMode` will be deprecated and replaced by the more general `switchMode('command')`. The selector `switchMode('command')` is available in this release, and `enterCommandMode` is supported as well but it will be removed in a future release and you should migrate to `switchMode()` as soon as possible.
