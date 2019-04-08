@@ -44,6 +44,7 @@ const CANONICAL_NAMES = {
     '\\approx':         'approx',
     '\\cong':           'congruent',
     '\\sim':            'similar',
+    '\\equiv':          'equiv',
     '\\pm':             'plusminus',    // PLUS-MINUS SIGN
 
     '\\land':           'and',
@@ -137,6 +138,7 @@ const OP_NAME = {
     'approx':       'approx',
     'congruent':    'congruent',
     'similar':       'similar',
+    'equiv':        'equiv',
     '<':            'lt',
     '>':            'gt',
     '<=':           'le',
@@ -159,6 +161,7 @@ const FUNCTION_TEMPLATE = {
     'approx':                   '%0 \\approx %1',
     'congruent':                '%0 \\cong %1',
     'similar':                  '%0 \\sim %1',
+    'equiv':                    '%0 \\equiv %1',
     'assign':                   '%0 := %1',
     'lt':                       '%0 < %1',
     'gt':                       '%0 > %1',
@@ -326,6 +329,7 @@ const OP_PRECEDENCE = {
 
     // Relational
     'congruent':            265,
+    'equiv':                260,    // MathML: "identical to"
     '=':                    260,
     '!=':                   255,
     '?=':                   255,
@@ -1685,9 +1689,34 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
         case 'array':
             if (this.env.name === 'cardinality') {
                 result = wrapFn('card', parse(this.array, options));
-            } else if (/matrix|pmatrix|bmatrix/.test(this.env.name)) {
-                
-                result = wrapFn('array', parse(this.array, options));
+
+            } else if (/array|matrix|pmatrix|bmatrix/.test(this.env.name)) {                
+                result = { fn: 'array', args: [] };
+                for (const row of this.array) {
+                    result.args.push(row.map(cell => parse(cell, options)));
+                }
+
+            } else if (this.env.name === 'cases') {
+                result = { fn: 'cases', args: [] };
+                for (const row of this.array) {
+                    if (row[0]) {
+                        const statement = [];
+                        statement.push(parse(row[0], options));
+                        let condition = parse(row[1], options);
+                        if (condition) {
+                            if (condition.fn === 'text' && condition.arg) {
+                                if (/^(if|when|for)$/i.test(condition.arg[0].trim() )) {
+                                    condition = condition.arg.filter(
+                                        x => typeof x !== 'string')
+;
+                                }
+                            }
+                        }
+
+                        statement.push(condition || {});
+                        result.args.push(statement);
+                    }
+                }
             }
             break;
 
@@ -1751,7 +1780,8 @@ function filterPresentationAtoms(atoms) {
                 atoms.numer = filterPresentationAtoms(atoms.numer);
             }
             if (atoms.array && Array.isArray(atoms.array)) {
-                atoms.array = filterPresentationAtoms(atoms.array);
+                atoms.array = atoms.array.map(row => row.map(cell => 
+                    filterPresentationAtoms(cell)));
             }
             result = [atoms];
         }
@@ -1780,7 +1810,7 @@ function parseSentence(expr, options) {
                 text += expr.atoms[expr.index].body;
                 expr.index += 1;
             }
-            zones.push(wrapFn('text', text));
+            zones.push(text);
         } else {
             const z = parseExpression(expr, options).ast;
             // Something went wrong in parsing the expression...
@@ -1790,7 +1820,7 @@ function parseSentence(expr, options) {
     }
 
     if (zones.length > 1) {
-        return wrapFn('list0', zones);
+        return wrapFn('text', ...zones);
     }
 
     return zones[0] || undefined;

@@ -660,6 +660,7 @@ function validateShortcut(siblings, shortcut) {
         array = sibling.array;
         openfence = sibling.type === 'mopen';
         closefence = sibling.type === 'mclose' || sibling.type === 'leftright';
+        space = sibling.type === 'space';
     }
 
     if (typeof shortcut === 'object') {

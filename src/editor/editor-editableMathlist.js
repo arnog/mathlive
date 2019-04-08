@@ -1565,7 +1565,7 @@ EditableMathlist.prototype.up = function(options) {
         // In an array
         let colRow = arrayColRow(this.parent().array, relation);
         colRow = arrayAdjustRow(this.parent().array, colRow, -1);
-        if (colRow) {
+        if (colRow && arrayCell(colRow)) {
             this.path[this.path.length - 1].relation = 
                 'cell' + arrayIndex(this.parent().array, colRow);
             this.setSelection(this.anchorOffset());
@@ -1602,7 +1602,7 @@ EditableMathlist.prototype.down = function(options) {
         // In an array
         let colRow = arrayColRow(this.parent().array, relation);
         colRow = arrayAdjustRow(this.parent().array, colRow, +1);
-        if (colRow) {
+        if (colRow && arrayCell(colRow)) {
             this.path[this.path.length - 1].relation = 
                 'cell' + arrayIndex(this.parent().array, colRow);
             this.setSelection(this.anchorOffset());
