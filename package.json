@@ -60,7 +60,7 @@
   },
   "engines": {
     "npm": ">=6.7",
-    "node": ">=11.9"
+    "node": ">=10.0"
   },
   "browserslist": [
     "> 1%",
