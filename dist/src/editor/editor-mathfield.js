@@ -173,7 +173,7 @@ function MathField(element, config) {
         } else {
             markup += '<span class="ML__textarea">' +
                 '<textarea class="ML__textarea__textarea" autocapitalize="off" autocomplete="off" ' +
-                'autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="-1">' +
+                'autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="0">' +
                 '</textarea>' +
             '</span>';
         }
@@ -293,8 +293,8 @@ function MathField(element, config) {
         typedText:      this._onTypedText.bind(this),
         paste:          this._onPaste.bind(this),
         keystroke:      this._onKeystroke.bind(this),
-        // focus:          this._onFocus.bind(this),
-        // blur:           this._onBlur.bind(this),
+        focus:          this._onFocus.bind(this),
+        blur:           this._onBlur.bind(this),
     })
 
 
