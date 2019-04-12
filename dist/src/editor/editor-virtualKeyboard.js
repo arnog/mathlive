@@ -1292,7 +1292,7 @@ function make(mf, theme) {
                 layers[layer] = tempLayer;
             }
 
-            markup += `<div class='keyboard-layer' id='` + layer + `'>`;
+            markup += `<div tabindex="-1" class='keyboard-layer' id='` + layer + `'>`;
             markup += makeKeyboardToolbar(mf, keyboardIDs, keyboard);
             const layerMarkup = typeof layers[layer] === 'function' ?
                 layers[layer]() : layers[layer];
@@ -1342,7 +1342,18 @@ function make(mf, theme) {
     }
 
     // Select the first keyboard as the initial one.
-    result.getElementsByClassName('keyboard-layer')[0].classList.add('is-visible');
+    const layerElements = result.getElementsByClassName('keyboard-layer');
+    Array.from(layerElements).forEach(x => {
+        x.addEventListener('mousedown', evt => {
+            evt.preventDefault();
+            evt.stopPropagation();
+        });
+        x.addEventListener('touchstart', evt => {
+            evt.preventDefault();
+            evt.stopPropagation();
+        });
+    });
+    layerElements[0].classList.add('is-visible');
 
     // Listen to know when the mouse has been released without being
     // captured to remove the alternate keys panel and the shifted state of the

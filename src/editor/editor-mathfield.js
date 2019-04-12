@@ -276,8 +276,6 @@ function MathField(element, config) {
 
     // Focus/blur state
     this.blurred = true;
-    on(window, 'focus', this);
-    on(window, 'blur', this);
     on(this.element, 'focus', this);
     on(this.element, 'blur', this);
 
@@ -2511,6 +2509,7 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
         if (ev.type !== 'mousedown' || ev.buttons === 1) {
             // The primary button was pressed or the screen was tapped.
             ev.stopPropagation();
+            ev.preventDefault();
 
             el.classList.add('pressed');
             pressHoldStart = Date.now();

@@ -267,16 +267,7 @@ function delegateKeyboardEvents(textarea, handlers) {
     }
     function onFocus() {
         if (handlers.focus) {
-            // Invoking focus() can have a side effect of temporarily bluring 
-            // the text area, causing the blur handler to be invoked.
-            // Prevent this by temporarily turning it off.
-            const savedBlur = handlers.blur;
-            const savedFocus = handlers.focus;
-            handlers.blur = null;
-            handlers.focus = null;
-            savedFocus();
-            handlers.blur = savedBlur;
-            handlers.focus = savedFocus;
+            handlers.focus();
         }
     }
 
