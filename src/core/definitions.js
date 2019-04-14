@@ -3045,7 +3045,7 @@ defineFunction('\\^', '{:string}',
     {allowedInText: true}, 
     function(name, args) {
     return {
-        type: 'MATHORD',
+        type: 'mord',
         limits: 'nolimits',
         symbol: true,
         isFunction: false,
@@ -3061,7 +3061,7 @@ defineFunction("\\`", '{:string}',
     {allowedInText: true}, 
     function(name, args) {
     return {
-        type: 'MATHORD',
+        type: 'mord',
         limits: 'nolimits',
         symbol: true,
         isFunction: false,
@@ -3078,7 +3078,7 @@ defineFunction("\\'", '{:string}',
     {allowedInText: true}, 
     function(name, args) {
     return {
-        type: 'MATHORD',
+        type: 'mord',
         limits: 'nolimits',
         symbol: true,
         isFunction: false,
@@ -3094,7 +3094,7 @@ defineFunction('\\~', '{:string}',
     {allowedInText: true}, 
     function(name, args) {
     return {
-        type: 'MATHORD',
+        type: 'mord',
         limits: 'nolimits',
         symbol: true,
         isFunction: false,
@@ -3109,7 +3109,7 @@ defineFunction('\\c', '{:string}',
     {allowedInText: true}, 
     function(name, args) {
     return {
-        type: 'MATHORD',
+        type: 'mord',
         limits: 'nolimits',
         symbol: true,
         isFunction: false,
