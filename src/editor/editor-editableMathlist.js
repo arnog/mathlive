@@ -2933,7 +2933,7 @@ EditableMathlist.prototype.moveToSubscript_ = function() {
                 // this.setSelection(this.anchorOffset() + 1);
                 this.anchor().subscript = [makeFirstAtom()];
             } else {
-                if (this.anchor().limits === 'nolimits') {
+                if (this.anchor().limits !== 'limits') {
                     this.siblings().splice(
                         this.anchorOffset() + 1,
                         0,
