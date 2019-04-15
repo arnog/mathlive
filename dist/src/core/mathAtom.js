@@ -130,6 +130,9 @@ class MathAtom {
     }
 
     applyStyle(style) {
+        // Always apply the style, even if null. This will also set the 
+        // autoFontFamily, which account for auto-italic. This code path
+        // is used by \char.
         Object.assign(this, style);
 
         if (this.fontFamily === 'none') {
@@ -1775,8 +1778,7 @@ function decompose(context, atoms) {
 
 function makeRoot(parseMode, body) {
     parseMode = parseMode || 'math';
-    const result =  new MathAtom(parseMode, 'root');
-    result.body = body || [];
+    const result =  new MathAtom(parseMode, 'root', body || []);
     if (result.body.length === 0 || result.body[0].type !== 'first') {
         result.body.unshift(new MathAtom('', 'first'));
     }

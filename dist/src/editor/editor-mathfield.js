@@ -2267,9 +2267,6 @@ MathField.prototype.$insert = function(s, options) {
             this.mathlist.addColumnAfter_();
         } else {
             const savedStyle = this.style;
-            if (!this.style.fontFamily) {
-                this.style.fontFamily = 'math';
-            }
             this.mathlist.insert(s, { 
                 mode: this.mode, 
                 style: this.mathlist.anchorStyle(), 

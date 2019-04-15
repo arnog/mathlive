@@ -2933,7 +2933,7 @@ EditableMathlist.prototype.moveToSubscript_ = function() {
                 // this.setSelection(this.anchorOffset() + 1);
                 this.anchor().subscript = [makeFirstAtom()];
             } else {
-                if (this.anchor().limits === 'nolimits') {
+                if (this.anchor().limits !== 'limits') {
                     this.siblings().splice(
                         this.anchorOffset() + 1,
                         0,
@@ -2959,9 +2959,7 @@ EditableMathlist.prototype.moveToSubscript_ = function() {
  * - subscript: move to superscript, creating it if necessary
  * - numerator: move to denominator
  * - denominator: move to numerator
- * - otherwise: do nothing and return false
- * @return {boolean} True if the move was possible. False is there is no
- * opposite to move to, in which case the cursors is left unchanged.
+ * - otherwise: move to superscript
  * @method EditableMathlist#moveToOpposite_
  */
 EditableMathlist.prototype.moveToOpposite_ = function() {
@@ -2974,7 +2972,6 @@ EditableMathlist.prototype.moveToOpposite_ = function() {
     const oppositeRelation = OPPOSITE_RELATIONS[this.relation()];
     if (!oppositeRelation) {
         this.moveToSuperscript_();
-        return false;
     }
 
     if (!this.parent()[oppositeRelation]) {
@@ -2983,9 +2980,7 @@ EditableMathlist.prototype.moveToOpposite_ = function() {
         this.parent()[oppositeRelation] = [makeFirstAtom()];
     }
 
-    this.setSelection(1, 'end', oppositeRelation);
-
-    return true;
+    this.setSelection(0, 'end', oppositeRelation);
 }
 
 /**

@@ -5663,7 +5663,7 @@ the caret is positioned at the very beginning of the mathlist.</p>
 
     
 
-    <h4 class="name" id="moveToOpposite_">moveToOpposite_<span class="signature">()</span><span class="type-signature">:  boolean</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="moveToOpposite_">moveToOpposite_<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"></span></h4>
 
     
 
@@ -5676,7 +5676,7 @@ the caret is positioned at the very beginning of the mathlist.</p>
 <li>subscript: move to superscript, creating it if necessary</li>
 <li>numerator: move to denominator</li>
 <li>denominator: move to numerator</li>
-<li>otherwise: do nothing and return false</li>
+<li>otherwise: move to superscript</li>
 </ul>
 </div>
 
@@ -5692,27 +5692,6 @@ the caret is positioned at the very beginning of the mathlist.</p>
     
 
     
-    
-        &rarr; 
-    
-            
-<span class="param-desc">
-    
-        : 
-<span class="param-type">boolean</span>
-
-
-        &nbsp;&nbsp;
-    
-    
-        <p>True if the move was possible. False is there is no
-opposite to move to, in which case the cursors is left unchanged.</p>
-    
-</span>
-
-
-
-        
 
     
 
