@@ -130,8 +130,9 @@ class MathAtom {
     }
 
     applyStyle(style) {
-        if (!style) return;
-
+        // Always apply the style, even if null. This will also set the 
+        // autoFontFamily, which account for auto-italic. This code path
+        // is used by \char.
         Object.assign(this, style);
 
         if (this.fontFamily === 'none') {
