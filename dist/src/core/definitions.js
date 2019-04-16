@@ -2844,7 +2844,7 @@ defineFunction([
         }[name],
         body: getSimpleString(args[0]) || args[0],
         captureSelection: true,     // Do not let children be selected
-        baseFontFamily: 'cmr'
+        baseFontFamily: name === '\\mathop' ? 'math' : ''
     };
     if (name === '\\mathop') {
         result.limits = 'nolimits';
@@ -2860,7 +2860,8 @@ defineFunction([
         type: 'mop',
         skipBoundary: true,
         body: args[0],
-        isFunction: true
+        isFunction: true,
+        baseFontFamily: 'cmr'
     };
 
     if (name === '\\operatorname') {

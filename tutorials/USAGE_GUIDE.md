@@ -6,9 +6,30 @@ To contribute to the MathLive project, see the {@tutorial CONTRIBUTOR_GUIDE}.
 
 ## Getting Started
 
-Install MathLive from gitHub or from NPM.
+Install MathLive from a CDN, from NPM or from GitHub.
 
-### From GitHub
+### Using a CDN
+Using a CDN is the simplest approach, as it does not require any configuration:
+
+```html
+<head>
+    ...
+    <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.core.css">
+    <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.css">
+</head>
+<script src="https://unpkg.com/mathlive"></script>
+<div id='mathfield'>f(x)</div>
+<script>
+    MathLive.makeMathField('mathfield');
+</script>
+```
+
+### Using NPM
+```bash
+$ npm install --save mathlive
+```
+
+### Using GitHub
 
 You can find MathLive at [https://github.com/arnog/mathlive/](https://github.com/arnog/mathlive/)
 
@@ -31,10 +52,6 @@ the KaTeX project.
 useful for debugging, but in general `mathlive.mjs` will be sufficient (you only 
 need one or the other).
 
-### From NPM
-```bash
-$ npm install -g mathlive
-```
 
 ### Using MathLive in your project
 

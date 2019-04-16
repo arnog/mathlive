@@ -14,17 +14,17 @@ add a comment to an existing issue if you'd like.
 
 ### What happens after I file an issue?
 
-1. After a bug is filed, it will be _awaiting review_ (the issue will be untagged)
-2. After the bug has been triaged, it will be tagged _reviewed_
-3. Once a developer has started working on the bug, it will be tagged _fix in progress_. If the bug is a feature rather than a bug, it will be tagged _moved to backlog_
-4. Once a bug has been fixed, it will be tagged _fixed_
+1. After a bug is filed, it will be _awaiting review_
+2. After the bug has been triaged, it will be have one or more labels assigned to it.
+3. Once a developer has started working on the bug, the bug will be assigned to someone.
+4. Once a bug has been resolve, it is closed. You can still comment on closed bugs, or re-open them if necessary.
 
 In addition, issues can be tagged with the following:
 * _high priority_: Catastrophic issue that impacts many users
 * _medium priority_: Regression or issues that impact a significant number of users
 * _low priority_: Low severity (minor cosmetic issue) or very few users impacted
 * _no priority_: No plan to fix the issue, but we will consider a fix if someone offers a pull request
-* _starter bug_: This is an issue that would be a good candidate for someone 
+* _good first issue_: This is an issue that would be a good candidate for someone 
 who has little experience with the code base
 * _external_: This is an issue that has a dependency on an external component
 (typically, a browser)
@@ -33,12 +33,12 @@ change
 * _performance_: This issue affects perceived or measurable performance
 * _cleanup_: Resolving this issue would improve the code base maintainability
 without adding new functionality
-* _utr_: _unable to reproduce_ the bug, as reported, could not be replicated
+* _unable to reproduce_ the bug, as reported, could not be replicated
 by the developer. Additional information is necessary to continue investigating.
-* _nab_: _not a bug_: The behavior described in the issue report is actually
+* _not a bug_: The behavior described in the issue report is actually
 the intended behavior. This may be a usability issue, a documentation issue, 
 or a disagreement regarding what the behavior should be.
-* _fol_: _fact of life_: The issue cannot be resolved due to constraints of
+* _fact of life_: The issue cannot be resolved due to constraints of
 the browser, the OS, or the laws of physics.
 
 ### Can I help fix a bug?
@@ -65,6 +65,8 @@ follow the TAP (Test Anything Protocol) format.
 Use the [issue tracker](https://github.com/arnog/mathlive/issues) to submit
 requests for new features. First, have a look at what might already be there,
 and if you don't see anything that matches, write up a new issue.
+
+If you do see something similar to your idea, comment on it or add a 👍.
 
 ## Contributing Code
 

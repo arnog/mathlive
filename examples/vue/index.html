@@ -3,17 +3,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="../../mathlive/mathlive.core.css">
-    <link rel="stylesheet" href="../../mathlive/mathlive.css">
+    <link rel="stylesheet" href="/dist/mathlive.core.css">
+    <link rel="stylesheet" href="/dist/mathlive.css">
 </head>
 <body>
 
 <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 
 <script type='module'> 
-    import MathLive from "../../mathlive/src/mathlive.js";
+    import MathLive from "/dist/src/mathlive.js";
     // import Mathfield from "../../dist/vue-mathlive.mjs";
-    import Mathfield from "../../mathlive/vue-mathlive.mjs";
+    import Mathfield from "/dist/vue-mathlive.mjs";
 
     Vue.use(Mathfield, MathLive);
     // The default tag for mathfields is <mathlive-mathfield>

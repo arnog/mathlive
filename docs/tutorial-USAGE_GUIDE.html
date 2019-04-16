@@ -69,8 +69,20 @@ writeCookie('symbol-access', 'private')
 web content. </p>
 <p>To contribute to the MathLive project, see the <a href="tutorial-CONTRIBUTOR_GUIDE.html">Contributor Guide</a>.</p>
 <h2 id="getting-started">Getting Started</h2>
-<p>Install MathLive from gitHub or from NPM.</p>
-<h3 id="from-github">From GitHub</h3>
+<p>Install MathLive from a CDN, from NPM or from GitHub.</p>
+<h3 id="using-a-cdn">Using a CDN</h3>
+<p>Using a CDN is the simplest approach, as it does not require any configuration:</p>
+<pre class="prettyprint source lang-html"><code>&lt;head>
+    ...
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://unpkg.com/mathlive/dist/mathlive.core.css&quot;>
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://unpkg.com/mathlive/dist/mathlive.css&quot;>
+&lt;/head>
+&lt;script src=&quot;https://unpkg.com/mathlive&quot;>&lt;/script>
+&lt;div id='mathfield'>f(x)&lt;/div>
+&lt;script>
+    MathLive.makeMathField('mathfield');
+&lt;/script></code></pre><h3 id="using-npm">Using NPM</h3>
+<pre class="prettyprint source lang-bash"><code>$ npm install --save mathlive</code></pre><h3 id="using-github">Using GitHub</h3>
 <p>You can find MathLive at <a href="https://github.com/arnog/mathlive/">https://github.com/arnog/mathlive/</a></p>
 <p>The <code>dist/</code> directory contains all you need to use MathLive. MathLive has no 
 dependency on other libraries (not even jQuery!) and you do not need to 
@@ -91,8 +103,7 @@ the KaTeX project.</li>
 useful for debugging, but in general <code>mathlive.mjs</code> will be sufficient (you only 
 need one or the other).</li>
 </ul>
-<h3 id="from-npm">From NPM</h3>
-<pre class="prettyprint source lang-bash"><code>$ npm install -g mathlive</code></pre><h3 id="using-mathlive-in-your-project">Using MathLive in your project</h3>
+<h3 id="using-mathlive-in-your-project">Using MathLive in your project</h3>
 <p>Include the following in your web page. Adjust the <code>src</code> and <code>href</code> arguments 
 to account for your directory structure.</p>
 <pre class="prettyprint source lang-html"><code>&lt;!doctype html>&lt;html lang=&quot;en-US&quot;>
