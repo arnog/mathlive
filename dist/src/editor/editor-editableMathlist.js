@@ -3039,13 +3039,11 @@ EditableMathlist.prototype._addCell = function(where) {
 
             const cellIndex = arrayIndex(parent.array, colRow);
 
-            this.selectionWillChange();
             this.path.pop();
             this.path.push({
                     relation: 'cell' + cellIndex.toString(),
                     offset: 0});
             this.insertFirstAtom();
-            this.selectionDidChange();
         }
     }
 }
@@ -3079,31 +3077,39 @@ EditableMathlist.prototype.convertParentToArray = function() {
  * @method EditableMathlist#addRowAfter_
  */
 EditableMathlist.prototype.addRowAfter_ = function() {
+    this.contentWillChange();
     this.convertParentToArray();
     this._addCell('after row');
+    this.contentDidChange();
 }
 /**
  * @method EditableMathlist#addRowBefore_
  */
 EditableMathlist.prototype.addRowBefore_ = function() {
+    this.contentWillChange();
     this.convertParentToArray();
     this._addCell('before row');
+    this.contentDidChange();
 }
 
 /**
  * @method EditableMathlist#addColumnAfter_
  */
 EditableMathlist.prototype.addColumnAfter_ = function() {
+    this.contentWillChange();
     this.convertParentToArray();
     this._addCell('after column');
+    this.contentDidChange();
 }
 
 /**
  * @method EditableMathlist#addColumnBefore_
  */
 EditableMathlist.prototype.addColumnBefore_ = function() {
+    this.contentWillChange();
     this.convertParentToArray();
     this._addCell('before column');
+    this.contentDidChange();
 }
 
 
