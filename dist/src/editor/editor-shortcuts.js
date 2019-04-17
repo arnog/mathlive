@@ -499,6 +499,8 @@ const INLINE_SHORTCUTS = {
     '||':                   '\\Vert',
     '{':                    '\\{',
     '}':                    '\\}',
+    
+    '*':                    '\\cdot',
 
 
 /*
@@ -506,7 +508,6 @@ const INLINE_SHORTCUTS = {
     // ASCIIIMath
     //
     // Binary operation symbols
-    '*':                    '\\cdot',
     '**':                   '\\ast',
     '***':                  '\\star',
     '//':                   '\\slash',

@@ -59,15 +59,15 @@ You can use MathLive to simply render math equations by
 <!doctype html><html lang="en-US">
 <head>
     ...
-    <link rel="stylesheet" href="mathlive.core.css">
-    <link rel="stylesheet" href="mathlive.css">
+    <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.core.css">
+    <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.css">
+    <script src="https://unpkg.com/mathlive"></script>
 </head>
 <body>
     <h1>Euler's Identity</h1>
     <p>$$e^{i\pi} + 1 = 0$$</p> 
 
-    <script type='module'> 
-        import MathLive from 'dist/mathlive.mjs';
+    <script> 
         MathLive.renderMathInDocument();
     </script>
 </body>
@@ -84,19 +84,40 @@ including extracting its content, inserting placeholders and more.
 <!doctype html><html lang="en-US">
 <head>
     ...
-    <link rel="stylesheet" href="mathlive/mathlive.core.css">
-    <link rel="stylesheet" href="mathlive/mathlive.css">
+    <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.core.css">
+    <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.css">
 </head>
 <body>
     <div id='mathfield'>f(x)=</div>
 
     <script type='module'> 
-        import MathLive from 'dist/mathlive.mjs';
+        import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
         MathLive.makeMathField('mathfield');
     </script>
 </body>
 </html>
 ```
+
+### More examples
+
+More examples are available at https://mathlive.io/deploy/examples/
+
+
+### Installing MathLive
+
+The examples above use a CDN, which is the fastest and easiest way to get started.
+However, if you:
+- want to contribute to MathLive
+- use your own CDN
+- make some other changes to MathLive
+you can also install it locally in your project. 
+
+To do so:
+```bash
+$ npm install -s mathlive
+$ npm run start
+```
+This will make a local build of MathLive, run a local HTTP server and open a page with the examples in your browser.
 
 ## How You Can Help
 
