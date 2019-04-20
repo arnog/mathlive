@@ -29,6 +29,7 @@
 <!-- <script src="/dist/src/mathlive.js"></script> -->
 <script type='module'>
     import MathLive from '/dist/mathlive.mjs';
+    // import MathLive from '/src/mathlive.js';
     (function () {
         const mf = MathLive.makeMathField('mf', {
             onContentDidChange: updateOutput,
@@ -58,7 +59,9 @@
                                 "label": "&divide;"
                             },
                             {
-                                "class": "separator",
+                                "class": "keycap",
+                                "label": "italic",
+                                command: ['apply-style', {'shape': 'it'}]
                             },
                             {
                                 "class": "separator w20",
@@ -83,7 +86,9 @@
                                 "latex": "\\times "
                             },
                             {
-                                "class": "separator",
+                                "class": "keycap",
+                                "label": "bold",
+                                command: ['apply-style', {'series': 'b'}]
                             },
                             {
                                 "class": "separator w20",
