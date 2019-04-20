@@ -1261,10 +1261,6 @@ function parsePrimary(expr, options) {
        expr.index += 1;
        expr.ast = atom.toAST(options);
 
-    } else if (atom.type === 'sizing') {
-       expr.index += 1;
-       return parsePrimary(expr, options);
-
     } else if (atom.type === 'group') {
         expr.index += 1;
         expr.ast = atom.toAST(options);
@@ -1722,7 +1718,6 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
 
         case 'spacing':
         case 'space':
-        case 'sizing':
         case 'mathstyle':
             break;
         default:
@@ -1757,8 +1752,7 @@ function filterPresentationAtoms(atoms) {
     } else {
         if (atoms.type === 'spacing') {
             return [];
-        } else if (atoms.type === 'first' || atoms.type === 'box' ||
-                atoms.type === 'sizing') {
+        } else if (atoms.type === 'first' || atoms.type === 'box') {
             result = filterPresentationAtoms(atoms.body);
         } else {
             if (atoms.body && Array.isArray(atoms.body)) {

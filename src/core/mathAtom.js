@@ -20,6 +20,19 @@ export const GREEK_REGEX = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u0
 // TeX by default auto-italicize latin letters and lowercase greek letters
 const AUTO_ITALIC_REGEX = /^([A-Za-z]|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5)$/;
 
+// A table of size -> font size for the different sizing functions
+const SIZING_MULTIPLIER = {
+    size1: 0.5,
+    size2: 0.7,
+    size3: 0.8,
+    size4: 0.9,
+    size5: 1.0,
+    size6: 1.2,
+    size7: 1.44,
+    size8: 1.73,
+    size9: 2.07,
+    size10: 2.49,
+};
 
 /**
  * An atom is an object encapsulating an elementary mathematical unit,
@@ -124,6 +137,7 @@ class MathAtom {
             fontFamily: this.baseFontFamily || this.fontFamily || this.autoFontFamily,
             fontShape: this.fontShape,
             fontSeries: this.fontSeries,
+            fontSize: this.fontSize,
             cssId: this.cssId,
             cssClass: this.cssClass
         }
@@ -137,6 +151,10 @@ class MathAtom {
 
         if (this.fontFamily === 'none') {
             this.fontFamily = '';
+        }
+
+        if (this.fontSize) {
+            this.maxFontSize = SIZING_MULTIPLIER[this.fontSize] ;
         }
 
         if (this.mode === 'math') {
@@ -931,24 +949,6 @@ class MathAtom {
     }
 
 
-    applySizing(context) {
-        // A sizing operation
-        const fontSize = {
-            'size1': 0.5,
-            'size2': 0.7,
-            'size3': 0.8,
-            'size4': 0.9,
-            'size5': 1.0,
-            'size6': 1.2,
-            'size7': 1.44,
-            'size8': 1.73,
-            'size9': 2.07,
-            'size10': 2.49
-        }[this.size] * context.mathstyle.sizeMultiplier;
-        context.size = this.size;
-        context.sizeMultiplier = fontSize;
-    }
-
 
     decomposeBox(context) {
         const base = makeOrd(decompose(context, this.body));
@@ -1203,8 +1203,6 @@ class MathAtom {
                 }[this.body] || 'quad';
                 result = makeSpan('\u200b', 'mspace ' + spacingCls);
             }
-        } else if (this.type === 'sizing') {
-            this.applySizing(context);
         } else if (this.type === 'mathstyle') {
             context.setMathstyle(this.mathstyle);
         } else if (this.type === 'box') {
@@ -1399,13 +1397,20 @@ class MathAtom {
         // - the font family automatically determined in math mode, for example
         // which italicizes some characters, but which can be overridden
 
-        result.applyStyle(this.getStyle()); 
+        const style  = this.getStyle();
+        result.applyStyle(style); 
 
         // Apply size correction
-        if (context.parentSize !== context.size) {
+        const size = style ? style.fontSize : 'size5';
+        if (size !== context.parentSize) {
+            result.classes += ' sizing reset-' + context.parentSize;
+            result.classes += ' ' + size;
+
+        } else if (context.parentSize !== context.size) {
             result.classes += ' sizing reset-' + context.parentSize;
             result.classes += ' ' + context.size;
         }
+        result.maxFontSize = Math.max(result.maxFontSize, context.sizeMultiplier || 1.0);
 
         // Set other attributes
 
@@ -1723,20 +1728,6 @@ function decompose(context, atoms) {
 
     console.assert(Array.isArray(result) && result.length > 0);
 
-    // A table of size -> font size for the different sizing functions
-    const SIZING_MULTIPLIER = {
-        size1: 0.5,
-        size2: 0.7,
-        size3: 0.8,
-        size4: 0.9,
-        size5: 1.0,
-        size6: 1.2,
-        size7: 1.44,
-        size8: 1.73,
-        size9: 2.07,
-        size10: 2.49,
-    };
-
     // If the mathstyle changed between the parent and the current atom,
     // account for the size difference
     if (context.mathstyle !== context.parentMathstyle) {
@@ -1744,7 +1735,7 @@ function decompose(context, atoms) {
                 context.parentMathstyle.sizeMultiplier;
         for (const span of result) {
             console.assert(!Array.isArray(span));
-            console.assert(typeof span.height === 'number' && !isNaN(span.height));
+            console.assert(typeof span.height === 'number' && isFinite(span.height));
             span.height *= factor;
             span.depth *= factor;
         }
@@ -1756,7 +1747,7 @@ function decompose(context, atoms) {
                 SIZING_MULTIPLIER[context.parentSize];
         for (const span of result) {
             console.assert(!Array.isArray(span));
-            console.assert(typeof span.height === 'number' && !isNaN(span.height));
+            console.assert(typeof span.height === 'number' && isFinite(span.height));
             span.height *= factor;
             span.depth *= factor;
         }

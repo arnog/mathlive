@@ -470,7 +470,6 @@ MathAtom.toSpeakableFragment = function(atom, options) {
 
             case 'space':
             case 'spacing':
-            case 'sizing':
             case 'mathstyle':
             case 'box':
                 // @todo

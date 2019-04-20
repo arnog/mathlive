@@ -188,7 +188,9 @@ class Parser {
             return parseTokens(Lexer.tokenize(this.args['?']), this.parseMode, null, this.macros);
         }
         // U+2753 = BLACK QUESTION MARK ORNAMENT
-        return [new MathAtom(this.parseMode, 'placeholder', '?', this.style)];
+        const result = new MathAtom(this.parseMode, 'placeholder', '?', this.style);
+        result.captureSelection = true;
+        return [result];
     }
     hasImplicitCommand(commands) {
         if (this.index < this.tokens.length) {
@@ -620,25 +622,7 @@ class Parser {
         // if (this.index >= this.tokens.length) return true;
         // const token = this.tokens[this.index];
         while (!this.end() && !done(this.peek())) {
-            if (this.hasImplicitCommand(SIZING_COMMANDS)) {
-                // Implicit sizing command such as \Large, \small
-                // affect the tokens following them
-                // Note these commands are only appropriate in 'text' mode.
-                const atom = new MathAtom(this.parseMode, 'sizing');
-                atom.size = {
-                    'tiny': 'size1',
-                    'scriptsize': 'size2',
-                    'footnotesize': 'size3',
-                    'small': 'size4',
-                    'normalsize': 'size5',
-                    'large': 'size6',
-                    'Large': 'size7',
-                    'LARGE': 'size8',
-                    'huge': 'size9',
-                    'Huge': 'size10'
-                }[this.get().value];
-                this.mathList.push(atom);
-            } else if (this.hasImplicitCommand(MATHSTYLE_COMMANDS)) {
+            if (this.hasImplicitCommand(['displaystyle', 'textstyle', 'scriptstyle', 'scriptscriptstyle'])) {
                 // Implicit math style commands such as \displaystyle, \textstyle...
                 // Note these commands switch to math mode and a specific size
                 // \textsize is the mathstyle used for inlinemath, not for text
@@ -1027,10 +1011,12 @@ class Parser {
         } else if (token.type === 'placeholder') {
             // RENDER PLACEHOLDER
             result = new MathAtom(this.parseMode, 'placeholder', token.value);
+            result.captureSelection = true;
         } else if (token.type === 'command') {
             // RENDER COMMAND
             if (token.value === 'placeholder') {
-                result = new MathAtom(this.parseMode, 'placeholder', this.scanArg('string'));
+                result = new MathAtom(this.parseMode, 'placeholder', this.scanArg('string'), this.style);
+                result.captureSelection = true;
 
             } else if (token.value === 'char') {
                 // \char has a special syntax and requires a non-braced integer
@@ -1095,7 +1081,10 @@ class Parser {
                                 if (arg) {
                                     args.push(arg);
                                 } else if (param.placeholder) {
-                                    args.push([new MathAtom(this.parseMode, 'placeholder', param.placeholder)]);
+                                    const placeholder = new MathAtom(this.parseMode, 'placeholder', param.placeholder);
+                                    placeholder.captureSelection = true;
+
+                                    args.push([placeholder]);
                                 } else {
                                     args.push(this.placeholder());
                                 }
@@ -1308,18 +1297,6 @@ class Parser {
         return result !== null;
     }
 }
-
-
-
-const SIZING_COMMANDS = [
-    'tiny', 'scriptsize', 'footnotesize', 'small',
-    'normalsize',
-    'large', 'Large', 'LARGE', 'huge', 'Huge',
-];
-
-const MATHSTYLE_COMMANDS = [
-    'displaystyle', 'textstyle', 'scriptstyle', 'scriptscriptstyle',
-]
 
 
 

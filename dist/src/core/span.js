@@ -84,14 +84,14 @@ export class Span {
      * Update the dimensions of this node based on its children:
      * - height: distance from bottom to top
      * - depth: distance from bottom to baseline
-     * - maxFontSize:
+     * - maxFontSize: a size multiplier (typically set with commands such as \huge)
      * @method module:core/span.Span#updateDimensions
      * @private
      */
     updateDimensions() {
-        let height = 0;
-        let depth = 0;
-        let maxFontSize = 0;
+        let height = 0.0;
+        let depth = 0.0;
+        let maxFontSize = 0.0;
         if (this.children) {
             this.children.forEach(x => {
                 if (x.height > height) height = x.height;
@@ -125,6 +125,7 @@ export class Span {
      *  ptm (times), phv (helvetica), pcr (courier)
      * - fontSeries: m (medium), b (bold), bx (bold extended), sb (semi-bold), c (condensed)
      * - fontShape:          italic, oblique, "roman": n (normal, upright), it, sl, sc
+     * - fontSize: 'size1', 'size2'...
      * - color:
      * - background:
      */
@@ -215,10 +216,22 @@ export class Span {
         // 3. Get the metrics information
         //
         if (this.body && this.body.length > 0 && fontName) {
-            this.height = 0;
-            this.depth = 0;
-            this.skew = 0;
-            this.italic = 0;
+            this.height = 0.0;
+            this.depth = 0.0;
+            this.maxFontSize = {
+                size1: 0.5,
+                size2: 0.7,
+                size3: 0.8,
+                size4: 0.9,
+                size5: 1.0,
+                size6: 1.2,
+                size7: 1.44,
+                size8: 1.73,
+                size9: 2.07,
+                size10: 2.49,
+            }[style.fontSize] || 1.0;
+            this.skew = 0.0;
+            this.italic = 0.0;
             for (let i = 0; i < this.body.length; i++) {
                 const metrics = FontMetrics.getCharacterMetrics(this.body.charAt(i), fontName);
                 // If we were able to get metrics info for this character, store it.
@@ -534,6 +547,7 @@ export class Span {
         this.body += span.body;
         this.height = Math.max(this.height, span.height);
         this.depth = Math.max(this.depth, span.depth);
+        this.maxFontSize = Math.max(this.maxFontSize, span.maxFontSize);
         // The italic correction for the coalesced spans is the
         // italic correction of the last span.
         this.italic = span.italic;
@@ -974,7 +988,7 @@ export function makeVlist(context, elements, pos, posData) {
     }
 
     // Make the fontSizer
-    let maxFontSize = 0;
+    let maxFontSize = 1.0;
     for (const element of elements) {
         if (element instanceof Span) {
             maxFontSize = Math.max(maxFontSize, element.maxFontSize);

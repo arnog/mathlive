@@ -227,9 +227,6 @@ export function toASCIIMath(atom, options){
         case 'enclose':
             break;
 
-        case 'sizing':
-            break;
-
         case 'space':
             result = ' '
             break;

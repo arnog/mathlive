@@ -1352,11 +1352,10 @@ EditableMathlist.prototype.next = function(options) {
 
     // Still some siblings to go through. Move on to the next one.
     this.setSelection(this.anchorOffset() + 1);
-
-    // If the new anchor is a compound atom, dive into its components
     const anchor = this.anchor();
-    // Only dive in if the atom allows capture of the selection by
-    // its sub-elements
+
+    // Dive into its components, if the new anchor is a compound atom, 
+    // and allows capture of the selection by its sub-elements
     if (anchor && !anchor.captureSelection) {
         let relation;
         if (anchor.array) {
@@ -1917,6 +1916,7 @@ EditableMathlist.prototype.anchorStyle = function() {
             fontFamily: anchor.fontFamily,
             fontShape: anchor.fontShape,
             fontSeries: anchor.fontSeries,
+            fontSize: anchor.fontSize
         };
     }
     let i = 1;
@@ -1929,6 +1929,7 @@ EditableMathlist.prototype.anchorStyle = function() {
                 fontFamily: ancestor.fontFamily,
                 fontShape: ancestor.fontShape,
                 fontSeries: ancestor.fontSeries,
+                fontSize: ancestor.fontSize
             };
         }
         i += 1;
@@ -2011,7 +2012,8 @@ function applyStyleToUnstyledAtoms(atom, style) {
             !atom.backgroundColor && 
             !atom.fontFamily &&
             !atom.fontShape && 
-            !atom.fontSeries) {
+            !atom.fontSeries &&
+            !atom.fontSize) {
             atom.applyStyle(style);
             applyStyleToUnstyledAtoms(atom.body, style);
             applyStyleToUnstyledAtoms(atom.numer, style);
@@ -3159,13 +3161,19 @@ EditableMathlist.prototype._applyStyle = function(style) {
     if (style.series) style.fontSeries = style.series;
     if (style.fontSeries && everyStyle('fontSeries', style.fontSeries)) {
         // If the selection already has this series (weight), turn it off
-        style.fontSeries = 'md';
+        style.fontSeries = 'm';
     }
 
     if (style.shape) style.fontShape = style.shape;
     if (style.fontShape && everyStyle('fontShape', style.fontShape)) {
         // If the selection already has this shape (italic), turn it off
         style.fontShape = 'up';
+    }
+
+    if (style.size) style.fontSize = style.size;
+    if (style.fontSize && everyStyle('fontSize', style.fontSize)) {
+        // If the selection already has this size, reset it to default size
+        style.fontSize = 'size5';
     }
 
     this.contentWillChange();

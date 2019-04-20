@@ -89,6 +89,22 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
                 prefix = '\\text{';
                 suffix = '}';
             }
+        } else if (prop === 'fontSize' && atoms[0].fontSize) {
+            const command = {
+                'size1': 'tiny',
+                'size2': 'scriptsize',
+                'size3': 'footnotesize',
+                'size4': 'small',
+                'size5': 'normalsize',
+                'size6': 'large',
+                'size7': 'Large',
+                'size8': 'LARGE',
+                'size9': 'huge',
+                'size10': 'Huge'
+            }[atoms[0].fontSize] || '';
+            prefix = '{\\' + command + ' ';
+            suffix = '}';
+
         } else if (prop === 'fontFamily' && atoms[0].fontFamily) {
             const command = {
                 'cmr': 'textrm',
@@ -113,10 +129,28 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
             if (atoms[0].fontShape === 'it') {
                 prefix = '\\mathit{';
                 suffix = '}';
-            } else if (atoms[0].fontShape === 'n' && atoms[0].fontSeries !== 'b') {
+            } else if (atoms[0].fontShape === 'n' && 
+                !(atoms[0].fontSeries === 'b' || atoms[0].fontFamily === 'cmr')) {
                 prefix = '\\mathup{';
                 suffix = '}';
             }
+
+        } else if (prop === 'fontSize' && atoms[0].fontSize) {
+            const command = {
+                'size1': 'tiny',
+                'size2': 'scriptsize',
+                'size3': 'footnotesize',
+                'size4': 'small',
+                'size5': 'normalsize',
+                'size6': 'large',
+                'size7': 'Large',
+                'size8': 'LARGE',
+                'size9': 'huge',
+                'size10': 'Huge'
+            }[atoms[0].fontSize] || '';
+            prefix = '{\\' + command + ' ';
+            suffix = '}';
+
         } else if (prop === 'fontFamily' && atoms[0].fontFamily) {
             if (!/^(math|main|mainrm)$/.test(atoms[0].fontFamily)) {
                 const command = {
@@ -182,10 +216,14 @@ function latexify(parent, value, expandMacro) {
             'mode', 
             'fontShape', 
             'fontSeries', 
+            'fontSize',
             'color', 
             'backgroundColor', 
             'fontFamily'
             ], value, expandMacro);
+        if (result.startsWith('{') && result.endsWith('}')) {
+            result = result.slice(1, result.length - 1);
+        }
 
     } else if (typeof value === 'number' || typeof value === 'boolean') {
         result = value.toString();
@@ -486,19 +524,6 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
 
         case 'mathstyle':
             result += '\\' + this.mathstyle + ' ';
-            break;
-
-        case 'sizing':
-            result =  {'size1': '\\tiny ',
-                'size2': '\\scriptsize ',
-                'size3': '\\footnotesize ',
-                'size4': '\\small ',
-                'size5': '\\normalsize ',
-                'size6': '\\large ',
-                'size7': '\\Large ',
-                'size8': '\\LARGE ',
-                'size9': '\\huge ',
-                'size10': '\\Huge '}[this.size] || '';
             break;
 
         case 'space':
