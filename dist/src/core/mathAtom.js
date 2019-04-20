@@ -618,8 +618,9 @@ class MathAtom {
         rightDelim.applyStyle(this.getStyle());
 
 
+        const strut = Span.makeStrut([leftDelim, frac, rightDelim], frac.height, frac.depth);
 
-        const result = makeOrd([leftDelim, frac, rightDelim], ((context.parentSize !== context.size) ?
+        const result = makeOrd(strut, ((context.parentSize !== context.size) ?
             ('sizing reset-' + context.parentSize + ' ' + context.size) : 'genfrac'));
         return this.bind(context, result);
     }
@@ -952,19 +953,20 @@ class MathAtom {
 
     decomposeBox(context) {
         const base = makeOrd(decompose(context, this.body));
-        base.setStyle('position', 'relative');
-        const result = makeOrd(base);
+        base.setStyle('display', 'inline-block');
+
+        const result = makeOrd(Span.makeStrut(base, base.height, base.depth));
+
         // The padding extends outside of the base
         const padding = this.padding ? this.padding : FONTMETRICS.fboxsep;
         result.setStyle('padding', padding, 'em');
         if (this.backgroundcolor) result.setStyle('background-color', this.backgroundcolor);
         if (this.framecolor) result.setStyle('border', FONTMETRICS.fboxrule + 'em solid ' + this.framecolor);
         if (this.border) result.setStyle('border', this.border);
-        result.height = base.height;
-        result.depth = base.depth;
-        result.setStyle('position', 'relative');
-        result.setStyle('height', result.height + result.depth, 'em');
-        return this.bind(context, result);
+
+        result.setStyle('display', 'inline-block');
+
+        return result;
     }
 
 

@@ -91,7 +91,7 @@ export class Span {
     updateDimensions() {
         let height = 0.0;
         let depth = 0.0;
-        let maxFontSize = 0.0;
+        let maxFontSize = 1.0;
         if (this.children) {
             this.children.forEach(x => {
                 if (x.height > height) height = x.height;
@@ -452,8 +452,7 @@ export class Span {
             if (this.svgOverlay) {
                 result += body; // @todo maybe safe encode here...? (< >)
                 result += '<svg ';
-                result += 'style="position:absolute;left:0;bottom:0;right:0;width:100%;height:100%;z-index:2;';
-                result += 'top:' + (1 - this.height) + 'em;';
+                result += 'style="position:absolute;left:0;top:0;width:100%;height:100%;z-index:2;';
                 result += '"';
                 if (this.svgStyle) {
                     result += ' style="' + this.svgStyle + '"';
@@ -693,11 +692,7 @@ function coalesce(spans) {
 function height(spans) {
     if (!spans) return 0;
     if (Array.isArray(spans)) {
-        let result = 0;
-        for (const span of spans) {
-            result = Math.max(result, span.height);
-        }
-        return result;
+        return spans.reduce((acc, x) => Math.max(acc, x.height), 0);
     }
     return spans.height;
 }
@@ -705,11 +700,7 @@ function height(spans) {
 function depth(spans) {
     if (!spans) return 0;
     if (Array.isArray(spans)) {
-        let result = 0;
-        for (const span of spans) {
-            result = Math.max(result, span.depth);
-        }
-        return result;
+        return spans.reduce((acc, x) => Math.max(acc, x.depth), 0);
     }
     return spans.depth;
 }
@@ -887,23 +878,34 @@ function makeSVG(body, svgMarkup, svgStyle) {
 
 /**
  *
- * @param {Span|Span[]} children
+ * @param {Span|Span[]} spans
  * @param {string} classes
  * @memberof module:core/span
  * @private
  */
-export function makeHlist(children, classes) {
+export function makeHlist(spans, classes) {
     if (!classes || classes.length === 0) {
         // No decorations...
-        if (children instanceof Span) {
+        if (spans instanceof Span) {
             // A single span, use it as the output
-            return children;
-        } else if (Array.isArray(children) && children.length === 1) {
+            return spans;
+        } else if (Array.isArray(spans) && spans.length === 1) {
             // An array, with a single span, use the single span as the output
-            return children[0]
+            return spans[0]
         }
     }
-    return new Span(children, classes);
+    const result = new Span(spans, classes);
+
+    let multiplier = 1.0;
+    if (spans instanceof Span) {
+        multiplier = spans.maxFontSize;
+    } else {
+        multiplier = spans.reduce((acc, x) => Math.max(acc, x.maxFontSize), 0);
+    }
+    result.height *= multiplier;
+    result.depth *= multiplier;
+
+    return result;
 }
 
 /**
@@ -1020,28 +1022,23 @@ export function makeVlist(context, elements, pos, posData) {
     return result;
 }
 
-// function makeStrut(base, strutHeight, strutDepth) {
-//     const bottomStrut = makeSpan('', 'ML__strut--bottom');
-//     if (strutHeight !== undefined) {
-//         bottomStrut.setStyle('height', strutHeight + strutDepth, 'em');
-//         if (strutDepth) {
-//            bottomStrut.setStyle('vertical-align', -strutDepth, 'em');
-//         }
-//     } else {
-//         // const baseDepth = depth(base);
-//         // bottomStrut.setStyle('height', height(base) + baseDepth, 'em');
-//         // if (baseDepth) {
-//         //     bottomStrut.setStyle('vertical-align', -baseDepth, 'em');
-//         // }
-//     }
-//     // bottomStrut.setStyle('border', '1px solid green');
+function makeStrut(base, strutHeight, strutDepth) {
+    const topStrut = makeSpan('', 'ML__strut')
+    topStrut.setStyle('height', strutHeight, 'em');
 
-//     if (Array.isArray(base)) {
-//         base.unshift(bottomStrut);
-//         return base;
-//     }
-//     return [bottomStrut, base];
-// }
+    const bottomStrut = makeSpan('', 'ML__strut--bottom');
+    bottomStrut.setStyle('height', strutHeight + strutDepth, 'em');
+    if (strutDepth) {
+        bottomStrut.setStyle('vertical-align', -strutDepth, 'em');
+    }
+
+    if (Array.isArray(base)) {
+        base.unshift(topStrut);
+        base.unshift(bottomStrut);
+        return base;
+    }
+    return [topStrut, bottomStrut, base];
+}
 
 
 
@@ -1140,7 +1137,7 @@ export default {
     makeHlist,
     makeStyleWrap,
 
-    // makeStrut,
+    makeStrut,
 
     makeSVG,
 
