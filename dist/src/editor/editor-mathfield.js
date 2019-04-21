@@ -1982,7 +1982,7 @@ MathField.prototype.selectedText =
 MathField.prototype.$selectedText = function(format) {
     const atoms = this.mathlist.getSelectedAtoms();
     if (!atoms) return '';
-    const root = MathAtom.makeRoot(atoms[0].mode, atoms);
+    const root = MathAtom.makeRoot('math', atoms);
     return this.formatMathlist(root, format);
 }
 

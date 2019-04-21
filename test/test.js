@@ -468,19 +468,19 @@ test('DECORATIONS', function (t) {
     t.equal(getStyle('\\bbox{1+x}', 0, 'border'), undefined,
         'Default \\bbox');
 
-    t.equal(getStyle('\\bbox[border:solid 1px red]{1+x}', 0, 'border'),'solid 1px red',
+    t.equal(getStyle('\\bbox[border:solid 1px red]{1+x}', [0, 0], 'border'),'solid 1px red',
         '\\bbox with custom border');
 
     // t.equal(getStyle('\\bbox[4em]{1+x}', 0, 'padding-left'),'4em',
     //     '\\bbox with margin');
 
-    t.equal(getStyle('\\bbox[yellow]{1+x}', 0, 'background-color'),'#fff200',
+    t.equal(getStyle('\\bbox[yellow]{1+x}', [0, 0], 'background-color'),'#fff200',
         '\\bbox with background color');
 
-    t.equal(getStyle('\\bbox[ yellow , border: 1px solid red, 4 em ]{1+x}', 0,
+    t.equal(getStyle('\\bbox[ yellow , border: 1px solid red, 4 em ]{1+x}', [0, 0],
         'border'),'1px solid red',
         '\\bbox with border, margin and background');
-    t.equal(getStyle('\\bbox[ yellow , border: 1px solid red, 4 em ]{1+x}', 0,
+    t.equal(getStyle('\\bbox[ yellow , border: 1px solid red, 4 em ]{1+x}', [0, 0],
         'background-color'),'#fff200',
         '\\bbox with border, margin and background');
     // t.equal(getStyle('\\bbox[ yellow , border: 1px solid red, 4 em ]{1+x}', 0,

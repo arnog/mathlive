@@ -146,9 +146,20 @@ export class Span {
             }
         }
 
+        //
+        // 1. Add any custom style classes
+        //
+
+        if (style.cssClass) {
+            this.classes += ' ' + style.cssClass;
+        }
+
+        // If the body is null (for example for a line), we're done.
+        if (!this.body) return;
+
         // Determine the appropriate font (and font-related classes)
         //
-        // 1. Determine the font family (i.e. 'amsrm', 'mathit', 'mathcal', etc...)
+        // 2. Determine the font family (i.e. 'amsrm', 'mathit', 'mathcal', etc...)
         //
 
         let fontFamily = style.fontFamily;
@@ -162,25 +173,21 @@ export class Span {
         }
 
         //
-        // 2. Determine the classes necessary to represent the series and shape
+        // 3. Determine the classes necessary to represent the series and shape
         //
 
-        if (style.cssClass) {
-            this.classes += ' ' + style.cssClass;
-        }
-
         if (style.fontShape) {
-            this.classes += ' ' + {
+            this.classes += ' ' + ({
                 'it': 'ML__it',
                 'sl': 'ML__shape_sl',     // slanted
                 'sc': 'ML__shape_sc',     // small caps
                 'ol': 'ML__shape_ol'      // outline
-            }[style.fontShape] || '';
+            }[style.fontShape] || '');
         }
         if (style.fontSeries) {
             const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
             if (m) {
-                this.classes += ' ' + {
+                this.classes += ' ' + ({
                     'ul': 'ML__series_ul',
                     'el': 'ML__series_el',
                     'l': 'ML__series_l',
@@ -190,8 +197,8 @@ export class Span {
                     'b': 'ML__bold',
                     'eb': 'ML__series_eb',
                     'ub': 'ML__series_ub',
-                }[m[1] || ''] || '';
-                this.classes += ' ' + {
+                }[m[1] || ''] || '');
+                this.classes += ' ' + ({
                     'uc': 'ML__series_uc',
                     'ec': 'ML__series_ec',
                     'c': 'ML__series_c',
@@ -201,7 +208,7 @@ export class Span {
                     'x': 'ML__series_x',
                     'ex': 'ML__series_ex',
                     'ux': 'ML__series_ux',
-                }[m[2] || ''] || '';
+                }[m[2] || ''] || '');
             }
         }
 
@@ -243,7 +250,7 @@ export class Span {
                 }
             }
         }
-
+        
     }
 
 
@@ -1005,15 +1012,15 @@ export function makeVlist(context, elements, pos, posData) {
             // It's a kern adjustment
             currPos += element;
         } else {
-            const shift = -element.depth - currPos;
+            const wrap = makeSpan([fontSizer, element]);
+            wrap.setTop(-element.depth - currPos);
+            newElements.push(wrap);
             currPos += element.height + element.depth;
-            const childWrap = makeSpan([fontSizer, element]);
-            childWrap.setTop(shift);
-            newElements.push(childWrap);
         }
     }
 
     const result = makeSpan(newElements, 'vlist');
+
     // Fix the final height and depth, in case there were kerns at the ends
     // since makeSpan won't take that into account.
     result.depth = Math.max(listDepth, depth(result) || 0);
@@ -1022,23 +1029,34 @@ export function makeVlist(context, elements, pos, posData) {
     return result;
 }
 
-function makeStrut(base, strutHeight, strutDepth) {
-    const topStrut = makeSpan('', 'ML__strut')
-    topStrut.setStyle('height', strutHeight, 'em');
+// /**
+//  * 
+//  * @param {Span|Span[]} base 
+//  * @param {number} strutHeight 
+//  * @param {number} strutDepth 
+//  */
+// function makeStrut(base, strutHeight, strutDepth) {
+//     return [base];
+//     const topStrut = makeSpan(null, 'ML__strut');
+//     topStrut.height = strutHeight || 0;
+//     topStrut.depth = 0;
+//     topStrut.setStyle('height', strutHeight, 'em');
 
-    const bottomStrut = makeSpan('', 'ML__strut--bottom');
-    bottomStrut.setStyle('height', strutHeight + strutDepth, 'em');
-    if (strutDepth) {
-        bottomStrut.setStyle('vertical-align', -strutDepth, 'em');
-    }
+//     const bottomStrut = makeSpan(null, 'ML__strut--bottom');
+//     bottomStrut.height = strutHeight || 0;
+//     bottomStrut.depth = strutDepth || 0;
+//     bottomStrut.setStyle('height', strutHeight + strutDepth, 'em');
+//     if (strutDepth) {
+//         bottomStrut.setStyle('vertical-align', -strutDepth, 'em');
+//     }
 
-    if (Array.isArray(base)) {
-        base.unshift(topStrut);
-        base.unshift(bottomStrut);
-        return base;
-    }
-    return [topStrut, bottomStrut, base];
-}
+//     if (Array.isArray(base)) {
+//         base.unshift(topStrut);
+//         base.unshift(bottomStrut);
+//         return base;
+//     }
+//     return makeOrd([topStrut, bottomStrut, base]);
+// }
 
 
 
@@ -1137,7 +1155,7 @@ export default {
     makeHlist,
     makeStyleWrap,
 
-    makeStrut,
+    // makeStrut,
 
     makeSVG,
 

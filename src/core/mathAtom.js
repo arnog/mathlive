@@ -173,7 +173,9 @@ class MathAtom {
                 this.autoFontFamily = 'cmr';
             }
         } else if (this.mode === 'text') {
-            this.type = '';
+            // A root can be in text mode (root created when creating a representation
+            // of the selection, for copy/paste for example)
+            if (this.type !== 'root') this.type = '';
             delete this.baseFontFamily;
             delete this.autoFontFamily;
         }
@@ -385,6 +387,7 @@ class MathAtom {
                 }
                 elem.depth = row.depth;
                 elem.height = row.height;
+
                 col.push(elem);
                 col.push(row.pos - offset);
             }
@@ -564,7 +567,7 @@ class MathAtom {
                     clearance - ((axisHeight - 0.5 * ruleWidth) -
                         (denomHeight - denomShift));
             }
-            const mid = makeSpan('',
+            const mid = makeSpan(null,
             /* newContext.mathstyle.adjustTo(Mathstyle.TEXT) + */ ' frac-line');
             mid.applyStyle(this.getStyle());
             // @todo: do we really need to reset the size?
@@ -617,12 +620,9 @@ class MathAtom {
         leftDelim.applyStyle(this.getStyle());
         rightDelim.applyStyle(this.getStyle());
 
-
-        const strut = Span.makeStrut([leftDelim, frac, rightDelim], frac.height, frac.depth);
-
-        const result = makeOrd(strut, ((context.parentSize !== context.size) ?
-            ('sizing reset-' + context.parentSize + ' ' + context.size) : 'genfrac'));
-        return this.bind(context, result);
+        const result = makeOrd([leftDelim, frac, rightDelim], ((context.parentSize !== context.size) ?
+            ('sizing reset-' + context.parentSize + ' ' + context.size) : ''));
+        return result;
     }
 
 
@@ -752,7 +752,7 @@ class MathAtom {
         // Shift the delimiter so that its top lines up with the top of the line
         delim.setTop((delim.height - Span.height(inner)) -
             (lineClearance + ruleWidth));
-        const line = makeSpan('', context.mathstyle.adjustTo(Mathstyle.TEXT) + ' sqrt-line');
+        const line = makeSpan(null, context.mathstyle.adjustTo(Mathstyle.TEXT) + ' sqrt-line');
         line.applyStyle(this.getStyle());
         line.height = ruleWidth;
 
@@ -768,7 +768,7 @@ class MathAtom {
             body = makeVlist(context, [inner, lineClearance, line, ruleWidth]);
         }
         if (!this.index) {
-            return this.bind(context, makeOrd([delim, body], 'sqrt'));
+            return makeOrd([delim, body], 'sqrt');
         }
 
         // Handle the optional root index
@@ -785,7 +785,7 @@ class MathAtom {
         const rootVlist = makeVlist(context, [root], 'shift', -toShift);
         // Add a class surrounding it so we can add on the appropriate
         // kerning
-        return this.bind(context, makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt'));
+        return makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt');
     }
 
 
@@ -842,7 +842,7 @@ class MathAtom {
         const inner = decompose(context.cramp(), this.body);
         const ruleWidth = FONTMETRICS.defaultRuleThickness /
             mathstyle.sizeMultiplier;
-        const line = makeSpan('', context.mathstyle.adjustTo(Mathstyle.TEXT) +
+        const line = makeSpan(null, context.mathstyle.adjustTo(Mathstyle.TEXT) +
             ' ' + this.position + '-line');
         line.height = ruleWidth;
         line.maxFontSize = 1.0;
@@ -868,7 +868,7 @@ class MathAtom {
 
     decomposeOverlap(context) {
         const inner = makeSpan(decompose(context, this.body), 'inner');
-        return makeOrd([inner, makeSpan('', 'fix')], (this.align === 'left' ? 'llap' : 'rlap'));
+        return makeOrd([inner, makeSpan(null, 'fix')], (this.align === 'left' ? 'llap' : 'rlap'));
     }
 
 
@@ -953,20 +953,26 @@ class MathAtom {
 
     decomposeBox(context) {
         const base = makeOrd(decompose(context, this.body));
-        base.setStyle('display', 'inline-block');
-
-        const result = makeOrd(Span.makeStrut(base, base.height, base.depth));
+        const box = makeSpan();
+        box.setStyle('position', 'absolute');
+        box.setStyle('height', base.height + base.depth, 'em');
+        box.setStyle('width', '100%');
 
         // The padding extends outside of the base
         const padding = this.padding ? this.padding : FONTMETRICS.fboxsep;
-        result.setStyle('padding', padding, 'em');
-        if (this.backgroundcolor) result.setStyle('background-color', this.backgroundcolor);
-        if (this.framecolor) result.setStyle('border', FONTMETRICS.fboxrule + 'em solid ' + this.framecolor);
-        if (this.border) result.setStyle('border', this.border);
+        box.setStyle('padding', padding, 'em');
 
-        result.setStyle('display', 'inline-block');
+        box.setStyle('top', -padding - base.depth, 'em');
+        box.setStyle('left', -padding, 'em');
 
-        return result;
+        if (this.backgroundcolor) box.setStyle('background-color', this.backgroundcolor);
+        if (this.framecolor) box.setStyle('border', FONTMETRICS.fboxrule + 'em solid ' + this.framecolor);
+        if (this.border) box.setStyle('border', this.border);
+
+        const result = makeSpan([box, makeOrd(base)]);
+        result.setStyle('position', 'relative');
+
+         return result;
     }
 
 
@@ -1143,7 +1149,7 @@ class MathAtom {
         } else if (this.type === 'leftright') {
             result = this.decomposeLeftright(context);
         } else if (this.type === 'delim') {
-            result = makeSpan('', '');
+            result = makeSpan(null, '');
             result.delim = this.delim;
         } else if (this.type === 'sizeddelim') {
             result = this.bind(context, Delimiters.makeSizedDelim(this.cls, this.delim, this.size, context));
@@ -1403,7 +1409,7 @@ class MathAtom {
         result.applyStyle(style); 
 
         // Apply size correction
-        const size = style ? style.fontSize : 'size5';
+        const size = style && style.fontSize ? style.fontSize : 'size5';
         if (size !== context.parentSize) {
             result.classes += ' sizing reset-' + context.parentSize;
             result.classes += ' ' + size;
