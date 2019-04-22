@@ -20,6 +20,19 @@ export const GREEK_REGEX = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u0
 // TeX by default auto-italicize latin letters and lowercase greek letters
 const AUTO_ITALIC_REGEX = /^([A-Za-z]|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5)$/;
 
+// A table of size -> font size for the different sizing functions
+const SIZING_MULTIPLIER = {
+    size1: 0.5,
+    size2: 0.7,
+    size3: 0.8,
+    size4: 0.9,
+    size5: 1.0,
+    size6: 1.2,
+    size7: 1.44,
+    size8: 1.73,
+    size9: 2.07,
+    size10: 2.49,
+};
 
 /**
  * An atom is an object encapsulating an elementary mathematical unit,
@@ -124,6 +137,7 @@ class MathAtom {
             fontFamily: this.baseFontFamily || this.fontFamily || this.autoFontFamily,
             fontShape: this.fontShape,
             fontSeries: this.fontSeries,
+            fontSize: this.fontSize,
             cssId: this.cssId,
             cssClass: this.cssClass
         }
@@ -137,6 +151,10 @@ class MathAtom {
 
         if (this.fontFamily === 'none') {
             this.fontFamily = '';
+        }
+
+        if (this.fontSize) {
+            this.maxFontSize = SIZING_MULTIPLIER[this.fontSize] ;
         }
 
         if (this.mode === 'math') {
@@ -155,7 +173,9 @@ class MathAtom {
                 this.autoFontFamily = 'cmr';
             }
         } else if (this.mode === 'text') {
-            this.type = '';
+            // A root can be in text mode (root created when creating a representation
+            // of the selection, for copy/paste for example)
+            if (this.type !== 'root') this.type = '';
             delete this.baseFontFamily;
             delete this.autoFontFamily;
         }
@@ -367,6 +387,7 @@ class MathAtom {
                 }
                 elem.depth = row.depth;
                 elem.height = row.height;
+
                 col.push(elem);
                 col.push(row.pos - offset);
             }
@@ -546,7 +567,7 @@ class MathAtom {
                     clearance - ((axisHeight - 0.5 * ruleWidth) -
                         (denomHeight - denomShift));
             }
-            const mid = makeSpan('',
+            const mid = makeSpan(null,
             /* newContext.mathstyle.adjustTo(Mathstyle.TEXT) + */ ' frac-line');
             mid.applyStyle(this.getStyle());
             // @todo: do we really need to reset the size?
@@ -599,11 +620,9 @@ class MathAtom {
         leftDelim.applyStyle(this.getStyle());
         rightDelim.applyStyle(this.getStyle());
 
-
-
         const result = makeOrd([leftDelim, frac, rightDelim], ((context.parentSize !== context.size) ?
-            ('sizing reset-' + context.parentSize + ' ' + context.size) : 'genfrac'));
-        return this.bind(context, result);
+            ('sizing reset-' + context.parentSize + ' ' + context.size) : ''));
+        return result;
     }
 
 
@@ -733,7 +752,7 @@ class MathAtom {
         // Shift the delimiter so that its top lines up with the top of the line
         delim.setTop((delim.height - Span.height(inner)) -
             (lineClearance + ruleWidth));
-        const line = makeSpan('', context.mathstyle.adjustTo(Mathstyle.TEXT) + ' sqrt-line');
+        const line = makeSpan(null, context.mathstyle.adjustTo(Mathstyle.TEXT) + ' sqrt-line');
         line.applyStyle(this.getStyle());
         line.height = ruleWidth;
 
@@ -749,7 +768,7 @@ class MathAtom {
             body = makeVlist(context, [inner, lineClearance, line, ruleWidth]);
         }
         if (!this.index) {
-            return this.bind(context, makeOrd([delim, body], 'sqrt'));
+            return makeOrd([delim, body], 'sqrt');
         }
 
         // Handle the optional root index
@@ -766,7 +785,7 @@ class MathAtom {
         const rootVlist = makeVlist(context, [root], 'shift', -toShift);
         // Add a class surrounding it so we can add on the appropriate
         // kerning
-        return this.bind(context, makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt'));
+        return makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt');
     }
 
 
@@ -823,7 +842,7 @@ class MathAtom {
         const inner = decompose(context.cramp(), this.body);
         const ruleWidth = FONTMETRICS.defaultRuleThickness /
             mathstyle.sizeMultiplier;
-        const line = makeSpan('', context.mathstyle.adjustTo(Mathstyle.TEXT) +
+        const line = makeSpan(null, context.mathstyle.adjustTo(Mathstyle.TEXT) +
             ' ' + this.position + '-line');
         line.height = ruleWidth;
         line.maxFontSize = 1.0;
@@ -849,7 +868,7 @@ class MathAtom {
 
     decomposeOverlap(context) {
         const inner = makeSpan(decompose(context, this.body), 'inner');
-        return makeOrd([inner, makeSpan('', 'fix')], (this.align === 'left' ? 'llap' : 'rlap'));
+        return makeOrd([inner, makeSpan(null, 'fix')], (this.align === 'left' ? 'llap' : 'rlap'));
     }
 
 
@@ -931,40 +950,29 @@ class MathAtom {
     }
 
 
-    applySizing(context) {
-        // A sizing operation
-        const fontSize = {
-            'size1': 0.5,
-            'size2': 0.7,
-            'size3': 0.8,
-            'size4': 0.9,
-            'size5': 1.0,
-            'size6': 1.2,
-            'size7': 1.44,
-            'size8': 1.73,
-            'size9': 2.07,
-            'size10': 2.49
-        }[this.size] * context.mathstyle.sizeMultiplier;
-        context.size = this.size;
-        context.sizeMultiplier = fontSize;
-    }
-
 
     decomposeBox(context) {
         const base = makeOrd(decompose(context, this.body));
-        base.setStyle('position', 'relative');
-        const result = makeOrd(base);
+        const box = makeSpan();
+        box.setStyle('position', 'absolute');
+        box.setStyle('height', base.height + base.depth, 'em');
+        box.setStyle('width', '100%');
+
         // The padding extends outside of the base
         const padding = this.padding ? this.padding : FONTMETRICS.fboxsep;
-        result.setStyle('padding', padding, 'em');
-        if (this.backgroundcolor) result.setStyle('background-color', this.backgroundcolor);
-        if (this.framecolor) result.setStyle('border', FONTMETRICS.fboxrule + 'em solid ' + this.framecolor);
-        if (this.border) result.setStyle('border', this.border);
-        result.height = base.height;
-        result.depth = base.depth;
+        box.setStyle('padding', padding, 'em');
+
+        box.setStyle('top', -padding - base.depth, 'em');
+        box.setStyle('left', -padding, 'em');
+
+        if (this.backgroundcolor) box.setStyle('background-color', this.backgroundcolor);
+        if (this.framecolor) box.setStyle('border', FONTMETRICS.fboxrule + 'em solid ' + this.framecolor);
+        if (this.border) box.setStyle('border', this.border);
+
+        const result = makeSpan([box, makeOrd(base)]);
         result.setStyle('position', 'relative');
-        result.setStyle('height', result.height + result.depth, 'em');
-        return this.bind(context, result);
+
+         return result;
     }
 
 
@@ -1141,7 +1149,7 @@ class MathAtom {
         } else if (this.type === 'leftright') {
             result = this.decomposeLeftright(context);
         } else if (this.type === 'delim') {
-            result = makeSpan('', '');
+            result = makeSpan(null, '');
             result.delim = this.delim;
         } else if (this.type === 'sizeddelim') {
             result = this.bind(context, Delimiters.makeSizedDelim(this.cls, this.delim, this.size, context));
@@ -1203,8 +1211,6 @@ class MathAtom {
                 }[this.body] || 'quad';
                 result = makeSpan('\u200b', 'mspace ' + spacingCls);
             }
-        } else if (this.type === 'sizing') {
-            this.applySizing(context);
         } else if (this.type === 'mathstyle') {
             context.setMathstyle(this.mathstyle);
         } else if (this.type === 'box') {
@@ -1399,13 +1405,20 @@ class MathAtom {
         // - the font family automatically determined in math mode, for example
         // which italicizes some characters, but which can be overridden
 
-        result.applyStyle(this.getStyle()); 
+        const style  = this.getStyle();
+        result.applyStyle(style); 
 
         // Apply size correction
-        if (context.parentSize !== context.size) {
+        const size = style && style.fontSize ? style.fontSize : 'size5';
+        if (size !== context.parentSize) {
+            result.classes += ' sizing reset-' + context.parentSize;
+            result.classes += ' ' + size;
+
+        } else if (context.parentSize !== context.size) {
             result.classes += ' sizing reset-' + context.parentSize;
             result.classes += ' ' + context.size;
         }
+        result.maxFontSize = Math.max(result.maxFontSize, context.sizeMultiplier || 1.0);
 
         // Set other attributes
 
@@ -1723,20 +1736,6 @@ function decompose(context, atoms) {
 
     console.assert(Array.isArray(result) && result.length > 0);
 
-    // A table of size -> font size for the different sizing functions
-    const SIZING_MULTIPLIER = {
-        size1: 0.5,
-        size2: 0.7,
-        size3: 0.8,
-        size4: 0.9,
-        size5: 1.0,
-        size6: 1.2,
-        size7: 1.44,
-        size8: 1.73,
-        size9: 2.07,
-        size10: 2.49,
-    };
-
     // If the mathstyle changed between the parent and the current atom,
     // account for the size difference
     if (context.mathstyle !== context.parentMathstyle) {
@@ -1744,7 +1743,7 @@ function decompose(context, atoms) {
                 context.parentMathstyle.sizeMultiplier;
         for (const span of result) {
             console.assert(!Array.isArray(span));
-            console.assert(typeof span.height === 'number' && !isNaN(span.height));
+            console.assert(typeof span.height === 'number' && isFinite(span.height));
             span.height *= factor;
             span.depth *= factor;
         }
@@ -1756,7 +1755,7 @@ function decompose(context, atoms) {
                 SIZING_MULTIPLIER[context.parentSize];
         for (const span of result) {
             console.assert(!Array.isArray(span));
-            console.assert(typeof span.height === 'number' && !isNaN(span.height));
+            console.assert(typeof span.height === 'number' && isFinite(span.height));
             span.height *= factor;
             span.depth *= factor;
         }

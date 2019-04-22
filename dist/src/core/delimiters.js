@@ -29,7 +29,6 @@ import Mathstyle from './mathstyle.js';
 import FontMetrics from './fontMetrics.js';
 
 const makeSymbol = Span.makeSymbol;
-const makeStyleWrap = Span.makeStyleWrap;
 const makeSpan = Span.makeSpan;
 const makeVlist = Span.makeVlist;
 
@@ -45,7 +44,7 @@ const makeVlist = Span.makeVlist;
 function makeSmallDelim(type, delim, style, center, context, classes) {
     const text = makeSymbol('AMS-Regular', Definitions.getValue('math', delim));
 
-    const span = makeStyleWrap(type, text, context.mathstyle, style, classes);
+    const span = Span.makeStyleWrap(type, text, context.mathstyle, style, classes);
 
     if (center) {
         span.setTop((1 - context.mathstyle.sizeMultiplier / style.sizeMultiplier) *
@@ -67,7 +66,7 @@ function makeLargeDelim(type, delim, size, center, context, classes) {
     const inner = makeSymbol('Size' + size + '-Regular',
         Definitions.getValue('math', delim));
 
-    const result = makeStyleWrap( type,
+    const result = Span.makeStyleWrap( type,
             makeSpan(inner, 'delimsizing size' + size),
             context.mathstyle, Mathstyle.TEXT, classes);
 
@@ -309,7 +308,7 @@ function makeStackedDelim(type, delim, heightTotal, center, context,
     inner.setStyle('color', context.color);
     if (typeof context.opacity === 'number') inner.setStyle('opacity', context.opacity);
 
-    return makeStyleWrap(type, makeSpan(inner, 'delimsizing mult'),
+    return Span.makeStyleWrap(type, makeSpan(inner, 'delimsizing mult'),
         context.mathstyle, Mathstyle.TEXT, classes);
 }
 

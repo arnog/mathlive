@@ -1617,23 +1617,34 @@ defineFunction('\\xcancel', '{body:auto}', null,
 
 
 
-// defineFunction([
-    // '\\tiny', '\\scriptsize', '\\footnotesize', '\\small',
-    // '\\normalsize',
-    // '\\large', '\\Large', '\\LARGE', '\\huge', '\\Huge'
-// ], '', null,
-//     function(name, args) {
-//         return {
-//             type: '',
-//             size: name;
-//         }
-//     }
-// )
 
 
 
 category = 'Styling';
 
+// Size
+defineFunction([
+    '\\tiny', '\\scriptsize', '\\footnotesize', '\\small',
+    '\\normalsize',
+    '\\large', '\\Large', '\\LARGE', '\\huge', '\\Huge'
+], '', {allowedInText: true},
+    function(name, _args) {
+        return {
+            fontSize: {
+                'tiny': 'size1',
+                'scriptsize': 'size2',
+                'footnotesize': 'size3',
+                'small': 'size4',
+                'normalsize': 'size5',
+                'large': 'size6',
+                'Large': 'size7',
+                'LARGE': 'size8',
+                'huge': 'size9',
+                'Huge': 'size10'
+            }[name.slice(1)]
+        }
+    }
+)
 
 
 // SERIES: weight

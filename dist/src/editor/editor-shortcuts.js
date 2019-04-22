@@ -646,7 +646,12 @@ function validateShortcut(siblings, shortcut) {
     let closefence = false;
     let text = false;
     let space = false;
-    const sibling = siblings[siblings.length - 1];
+    let sibling = siblings[siblings.length - 1];
+    let index = siblings.length - 1;
+    while (sibling && sibling.type === 'msubsup') {
+        index -= 1;
+        sibling = siblings[index];
+    }
     nothing = !sibling || sibling.type === 'first';         // start of a group
     if (sibling) {
         text = sibling.mode === 'text';

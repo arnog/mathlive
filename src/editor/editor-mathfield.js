@@ -1982,7 +1982,7 @@ MathField.prototype.selectedText =
 MathField.prototype.$selectedText = function(format) {
     const atoms = this.mathlist.getSelectedAtoms();
     if (!atoms) return '';
-    const root = MathAtom.makeRoot(atoms[0].mode, atoms);
+    const root = MathAtom.makeRoot('math', atoms);
     return this.formatMathlist(root, format);
 }
 
@@ -3019,12 +3019,14 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
  * - 'ux': ultra-expanded
  * 
  * @param {string} [style.fontShape=''] - The font 'shape', i.e. italic.
+ * - 'up': upright
  * - 'it': italic
  * - 'sl': slanted or oblique (often the same as italic)
  * - 'sc': small caps
  * - 'ol': outline
  *  
- * 
+ * @param {string} [style.fontSize=''] - The font size:  'size1'...'size10'
+ * 'size5' is the default size
  * */
 MathField.prototype.$applyStyle = 
 MathField.prototype.applyStyle_ = function(style) {

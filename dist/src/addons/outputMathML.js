@@ -801,9 +801,6 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
             result += makeID(this.id, options) + '">' + toMathML(this.body, 0, 0, options).mathML + '</menclose>';
             break;
 
-        case 'sizing':
-            break;
-
         case 'space':
             result += '&nbsp;'
             break;

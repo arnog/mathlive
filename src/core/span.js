@@ -84,14 +84,14 @@ export class Span {
      * Update the dimensions of this node based on its children:
      * - height: distance from bottom to top
      * - depth: distance from bottom to baseline
-     * - maxFontSize:
+     * - maxFontSize: a size multiplier (typically set with commands such as \huge)
      * @method module:core/span.Span#updateDimensions
      * @private
      */
     updateDimensions() {
-        let height = 0;
-        let depth = 0;
-        let maxFontSize = 0;
+        let height = 0.0;
+        let depth = 0.0;
+        let maxFontSize = 1.0;
         if (this.children) {
             this.children.forEach(x => {
                 if (x.height > height) height = x.height;
@@ -125,6 +125,7 @@ export class Span {
      *  ptm (times), phv (helvetica), pcr (courier)
      * - fontSeries: m (medium), b (bold), bx (bold extended), sb (semi-bold), c (condensed)
      * - fontShape:          italic, oblique, "roman": n (normal, upright), it, sl, sc
+     * - fontSize: 'size1', 'size2'...
      * - color:
      * - background:
      */
@@ -145,9 +146,20 @@ export class Span {
             }
         }
 
+        //
+        // 1. Add any custom style classes
+        //
+
+        if (style.cssClass) {
+            this.classes += ' ' + style.cssClass;
+        }
+
+        // If the body is null (for example for a line), we're done.
+        if (!this.body) return;
+
         // Determine the appropriate font (and font-related classes)
         //
-        // 1. Determine the font family (i.e. 'amsrm', 'mathit', 'mathcal', etc...)
+        // 2. Determine the font family (i.e. 'amsrm', 'mathit', 'mathcal', etc...)
         //
 
         let fontFamily = style.fontFamily;
@@ -161,25 +173,21 @@ export class Span {
         }
 
         //
-        // 2. Determine the classes necessary to represent the series and shape
+        // 3. Determine the classes necessary to represent the series and shape
         //
 
-        if (style.cssClass) {
-            this.classes += ' ' + style.cssClass;
-        }
-
         if (style.fontShape) {
-            this.classes += ' ' + {
+            this.classes += ' ' + ({
                 'it': 'ML__it',
                 'sl': 'ML__shape_sl',     // slanted
                 'sc': 'ML__shape_sc',     // small caps
                 'ol': 'ML__shape_ol'      // outline
-            }[style.fontShape] || '';
+            }[style.fontShape] || '');
         }
         if (style.fontSeries) {
             const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
             if (m) {
-                this.classes += ' ' + {
+                this.classes += ' ' + ({
                     'ul': 'ML__series_ul',
                     'el': 'ML__series_el',
                     'l': 'ML__series_l',
@@ -189,8 +197,8 @@ export class Span {
                     'b': 'ML__bold',
                     'eb': 'ML__series_eb',
                     'ub': 'ML__series_ub',
-                }[m[1] || ''] || '';
-                this.classes += ' ' + {
+                }[m[1] || ''] || '');
+                this.classes += ' ' + ({
                     'uc': 'ML__series_uc',
                     'ec': 'ML__series_ec',
                     'c': 'ML__series_c',
@@ -200,7 +208,7 @@ export class Span {
                     'x': 'ML__series_x',
                     'ex': 'ML__series_ex',
                     'ux': 'ML__series_ux',
-                }[m[2] || ''] || '';
+                }[m[2] || ''] || '');
             }
         }
 
@@ -215,10 +223,22 @@ export class Span {
         // 3. Get the metrics information
         //
         if (this.body && this.body.length > 0 && fontName) {
-            this.height = 0;
-            this.depth = 0;
-            this.skew = 0;
-            this.italic = 0;
+            this.height = 0.0;
+            this.depth = 0.0;
+            this.maxFontSize = {
+                size1: 0.5,
+                size2: 0.7,
+                size3: 0.8,
+                size4: 0.9,
+                size5: 1.0,
+                size6: 1.2,
+                size7: 1.44,
+                size8: 1.73,
+                size9: 2.07,
+                size10: 2.49,
+            }[style.fontSize] || 1.0;
+            this.skew = 0.0;
+            this.italic = 0.0;
             for (let i = 0; i < this.body.length; i++) {
                 const metrics = FontMetrics.getCharacterMetrics(this.body.charAt(i), fontName);
                 // If we were able to get metrics info for this character, store it.
@@ -230,7 +250,7 @@ export class Span {
                 }
             }
         }
-
+        
     }
 
 
@@ -439,8 +459,7 @@ export class Span {
             if (this.svgOverlay) {
                 result += body; // @todo maybe safe encode here...? (< >)
                 result += '<svg ';
-                result += 'style="position:absolute;left:0;bottom:0;right:0;width:100%;height:100%;z-index:2;';
-                result += 'top:' + (1 - this.height) + 'em;';
+                result += 'style="position:absolute;left:0;top:0;width:100%;height:100%;z-index:2;';
                 result += '"';
                 if (this.svgStyle) {
                     result += ' style="' + this.svgStyle + '"';
@@ -534,6 +553,7 @@ export class Span {
         this.body += span.body;
         this.height = Math.max(this.height, span.height);
         this.depth = Math.max(this.depth, span.depth);
+        this.maxFontSize = Math.max(this.maxFontSize, span.maxFontSize);
         // The italic correction for the coalesced spans is the
         // italic correction of the last span.
         this.italic = span.italic;
@@ -679,11 +699,7 @@ function coalesce(spans) {
 function height(spans) {
     if (!spans) return 0;
     if (Array.isArray(spans)) {
-        let result = 0;
-        for (const span of spans) {
-            result = Math.max(result, span.height);
-        }
-        return result;
+        return spans.reduce((acc, x) => Math.max(acc, x.height), 0);
     }
     return spans.height;
 }
@@ -691,11 +707,7 @@ function height(spans) {
 function depth(spans) {
     if (!spans) return 0;
     if (Array.isArray(spans)) {
-        let result = 0;
-        for (const span of spans) {
-            result = Math.max(result, span.depth);
-        }
-        return result;
+        return spans.reduce((acc, x) => Math.max(acc, x.depth), 0);
     }
     return spans.depth;
 }
@@ -873,23 +885,34 @@ function makeSVG(body, svgMarkup, svgStyle) {
 
 /**
  *
- * @param {Span|Span[]} children
+ * @param {Span|Span[]} spans
  * @param {string} classes
  * @memberof module:core/span
  * @private
  */
-export function makeHlist(children, classes) {
+export function makeHlist(spans, classes) {
     if (!classes || classes.length === 0) {
         // No decorations...
-        if (children instanceof Span) {
+        if (spans instanceof Span) {
             // A single span, use it as the output
-            return children;
-        } else if (Array.isArray(children) && children.length === 1) {
+            return spans;
+        } else if (Array.isArray(spans) && spans.length === 1) {
             // An array, with a single span, use the single span as the output
-            return children[0]
+            return spans[0]
         }
     }
-    return new Span(children, classes);
+    const result = new Span(spans, classes);
+
+    let multiplier = 1.0;
+    if (spans instanceof Span) {
+        multiplier = spans.maxFontSize;
+    } else {
+        multiplier = spans.reduce((acc, x) => Math.max(acc, x.maxFontSize), 0);
+    }
+    result.height *= multiplier;
+    result.depth *= multiplier;
+
+    return result;
 }
 
 /**
@@ -974,7 +997,7 @@ export function makeVlist(context, elements, pos, posData) {
     }
 
     // Make the fontSizer
-    let maxFontSize = 0;
+    let maxFontSize = 1.0;
     for (const element of elements) {
         if (element instanceof Span) {
             maxFontSize = Math.max(maxFontSize, element.maxFontSize);
@@ -989,15 +1012,15 @@ export function makeVlist(context, elements, pos, posData) {
             // It's a kern adjustment
             currPos += element;
         } else {
-            const shift = -element.depth - currPos;
+            const wrap = makeSpan([fontSizer, element]);
+            wrap.setTop(-element.depth - currPos);
+            newElements.push(wrap);
             currPos += element.height + element.depth;
-            const childWrap = makeSpan([fontSizer, element]);
-            childWrap.setTop(shift);
-            newElements.push(childWrap);
         }
     }
 
     const result = makeSpan(newElements, 'vlist');
+
     // Fix the final height and depth, in case there were kerns at the ends
     // since makeSpan won't take that into account.
     result.depth = Math.max(listDepth, depth(result) || 0);
@@ -1006,27 +1029,33 @@ export function makeVlist(context, elements, pos, posData) {
     return result;
 }
 
+// /**
+//  * 
+//  * @param {Span|Span[]} base 
+//  * @param {number} strutHeight 
+//  * @param {number} strutDepth 
+//  */
 // function makeStrut(base, strutHeight, strutDepth) {
-//     const bottomStrut = makeSpan('', 'ML__strut--bottom');
-//     if (strutHeight !== undefined) {
-//         bottomStrut.setStyle('height', strutHeight + strutDepth, 'em');
-//         if (strutDepth) {
-//            bottomStrut.setStyle('vertical-align', -strutDepth, 'em');
-//         }
-//     } else {
-//         // const baseDepth = depth(base);
-//         // bottomStrut.setStyle('height', height(base) + baseDepth, 'em');
-//         // if (baseDepth) {
-//         //     bottomStrut.setStyle('vertical-align', -baseDepth, 'em');
-//         // }
+//     return [base];
+//     const topStrut = makeSpan(null, 'ML__strut');
+//     topStrut.height = strutHeight || 0;
+//     topStrut.depth = 0;
+//     topStrut.setStyle('height', strutHeight, 'em');
+
+//     const bottomStrut = makeSpan(null, 'ML__strut--bottom');
+//     bottomStrut.height = strutHeight || 0;
+//     bottomStrut.depth = strutDepth || 0;
+//     bottomStrut.setStyle('height', strutHeight + strutDepth, 'em');
+//     if (strutDepth) {
+//         bottomStrut.setStyle('vertical-align', -strutDepth, 'em');
 //     }
-//     // bottomStrut.setStyle('border', '1px solid green');
 
 //     if (Array.isArray(base)) {
+//         base.unshift(topStrut);
 //         base.unshift(bottomStrut);
 //         return base;
 //     }
-//     return [bottomStrut, base];
+//     return makeOrd([topStrut, bottomStrut, base]);
 // }
 
 

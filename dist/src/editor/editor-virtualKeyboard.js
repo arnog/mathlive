@@ -1249,7 +1249,13 @@ function make(mf, theme) {
                             }
 
                             if (col.command) {
-                                tempLayer += ` data-command='"${col.command}"'`;
+                                if (typeof col.command === 'string') {
+                                    tempLayer += ` data-command='"${col.command}"'`;
+                                } else {
+                                    tempLayer += ` data-command='`;
+                                    tempLayer += JSON.stringify(col.command);
+                                    tempLayer += `'`;
+                                }
                             }
                             if (col.insert) {
                                 tempLayer += ` data-insert="${col.insert}"`;
