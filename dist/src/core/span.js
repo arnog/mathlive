@@ -63,7 +63,6 @@ export class Span {
     constructor(content, classes) {
         // CLASSES
         this.classes = classes || '';
-        console.assert(!/undefined/.test(this.classes));
         // CONTENT
         if (Array.isArray(content)) {
             // Check if isArray first, since an array is also an object
@@ -251,8 +250,7 @@ export class Span {
                 }
             }
         }
-        console.assert(!/undefined/.test(this.classes));
-
+        
     }
 
 
