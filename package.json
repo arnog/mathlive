@@ -99,13 +99,12 @@
     "opn-cli": "^4.1.0",
     "postcss-cli": "^6.1.2",
     "rimraf": "^2.6.3",
-    "rollup": "^1.10.0",
+    "rollup": "^1.10.1",
     "rollup-plugin-copy": "^1.0.0",
     "rollup-plugin-terser": "^4.0.4",
     "sutro-jsdoc-theme": "^1.0",
     "tap-spec": "^5.0.0",
     "tape": "^4.10.1"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }

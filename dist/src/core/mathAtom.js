@@ -952,25 +952,43 @@ class MathAtom {
 
 
     decomposeBox(context) {
+        // Base is the main content "inside" the box
         const base = makeOrd(decompose(context, this.body));
+
+        // This span will represent the box (background and border)
+        // It's positioned to overlap the base
         const box = makeSpan();
         box.setStyle('position', 'absolute');
-        box.setStyle('height', base.height + base.depth, 'em');
-        box.setStyle('width', '100%');
 
         // The padding extends outside of the base
-        const padding = this.padding ? this.padding : FONTMETRICS.fboxsep;
-        box.setStyle('padding', padding, 'em');
+        const padding = typeof this.padding === 'number' ? this.padding : FONTMETRICS.fboxsep;
 
-        box.setStyle('top', -padding - base.depth, 'em');
+        box.setStyle('height', base.height + base.depth + 2 * padding, 'em');
+        if (padding !== 0) {
+            box.setStyle('width', 'calc(100% + ' + (2 * padding) + 'em)');
+        } else {
+            box.setStyle('width', '100%');
+        }
+
+        box.setStyle('top', -padding + base.depth, 'em');
         box.setStyle('left', -padding, 'em');
+        box.setStyle('z-index', '-1');  // Ensure the box is *behind* the base
 
         if (this.backgroundcolor) box.setStyle('background-color', this.backgroundcolor);
         if (this.framecolor) box.setStyle('border', FONTMETRICS.fboxrule + 'em solid ' + this.framecolor);
         if (this.border) box.setStyle('border', this.border);
 
+        // The result is a span that encloses the box and the base
         const result = makeSpan([box, makeOrd(base)]);
+        // Set its position as relative so that the box can be absolute positioned
+        // over the base
         result.setStyle('position', 'relative');
+
+        // The padding adds to the width and height of the pod
+        result.height = base.height + padding;
+        result.depth = base.depth + padding;
+        result.setLeft(padding);
+        result.setRight(padding);
 
          return result;
     }
