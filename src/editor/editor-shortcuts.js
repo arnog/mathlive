@@ -228,17 +228,31 @@ const KEYBOARD_SHORTCUTS = {
     "^@\UF703" = "noop:";
 }
 */
-    'mac:Ctrl-Meta-Up':         'speakParent',
-    '!mac:Ctrl-Alt-Up':         'speakParent',
-    'mac:Ctrl-Meta-Down':       'speakGroup',
-    '!mac:Ctrl-Alt-Down':       'speakGroup',
-    'mac:Ctrl-Meta-Left':       'speakLeftSibling',
-    '!mac:Ctrl-Alt-Left':       'speakLeftSibling',
-    'mac:Ctrl-Meta-Right':      'speakRightSibling',
-    '!mac:Ctrl-Alt-Right':      'speakRightSibling',
-    
-    'mac:Ctrl-Meta-Shift-Down': 'speakAllWithSynchronizedHighlighting',
-    '!mac:Ctrl-Alt-Shift-Down': 'speakAllWithSynchronizedHighlighting',
+    'mac:Ctrl-Meta-Up':           ['speak', 'parent', false],
+    '!mac:Ctrl-Alt-Up':           ['speak', 'parent', false],
+    'mac:Ctrl-Meta-Down':         ['speak', 'group', false],
+    '!mac:Ctrl-Alt-Down':         ['speak', 'group', false],
+    'mac:Ctrl-Meta-Left':         ['speak', 'left', false],
+    '!mac:Ctrl-Alt-Left':         ['speak', 'left', false],
+    'mac:Ctrl-Meta-Right':        ['speak', 'right', false],
+    '!mac:Ctrl-Alt-Right':        ['speak', 'right', false],
+    '!mac:Ctrl-Alt-Period':       ['speak', 'selection', false],
+    'mac:Ctrl-Meta-Period':       ['speak', 'selection', false],
+  
+    'mac:Ctrl-Meta-Shift-Up':     ['speak', 'parent', true],
+    '!mac:Ctrl-Alt-Shift-Up':     ['speak', 'parent', true],
+    'mac:Ctrl-Meta-Shift-Down':   ['speak', 'all', true],
+    '!mac:Ctrl-Alt-Shift-Down':   ['speak', 'all', true],
+    'mac:Ctrl-Meta-Shift-Left':   ['speak', 'left', true],
+    '!mac:Ctrl-Alt-Shift-Left':   ['speak', 'left', true],
+    'mac:Ctrl-Meta-Shift-Right':  ['speak', 'right', true],
+    '!mac:Ctrl-Alt-Shift-Right':  ['speak', 'right', true],
+    '!mac:Ctrl-Alt-Shift-Period': ['speak', 'selection', true],
+    'mac:Ctrl-Meta-Shift-Period': ['speak', 'selection', true],
+    // '!mac:Ctrl-Alt-Shift-Home': ['speak', 'start', true],
+    // 'mac:Ctrl-Alt-Shift-Home':  ['speak', 'start', true],
+    // '!mac:Ctrl-Alt-Shift-End':  ['speak', 'end', true],
+    // 'mac:Ctrl-Alt-Shift-End':   ['speak', 'end', true],
 }
 
 /**

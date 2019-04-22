@@ -3262,130 +3262,124 @@ MathField.prototype.$setConfig = function(conf) {
     }
 }
 
-
-
-
-MathField.prototype._speakWithSynchronizedHighlighting = function(text) {
-    if (!this.config.handleReadAloud) return;
-    this.config.handleReadAloud(this.field, text, this.config);
-}
-
-
-MathField.prototype._speak = function(text) {
-    if (!this.config.handleSpeak) return;
-    this.config.handleSpeak(text, this.config);
-}
-
 /**
- * @method MathField#speakSelection_
+ * 
+ * Speak some part of the expression, either with or without synchronized highlighting.
+ * 
+ * @param {string} amount (all, selection, left, right, group, parent)
+ * @param {boolean} withHighlighting - If true, synchronized highlighting of speech will happen (if possible)
+ * 
+ * @method MathField#speak_
  */
-MathField.prototype.speakSelection_ = function() {
-    let text = "Nothing selected.";
-    if (!this.mathlist.isCollapsed()) {
-        text = MathAtom.toSpeakableText(this.mathlist.getSelectedAtoms(), this.config)
+MathField.prototype.speak_ = function(amount, withHighlighting) {
+    const getAtoms = function(mathField, amount) {
+        let result = null;
+        switch (amount) {
+            case 'all':
+                result = mathField.mathlist.root;
+                break;
+            case 'selection':
+                if (!mathField.mathlist.isCollapsed()) {
+                    result = mathField.mathlist.getSelectedAtoms();
+                }
+                break;
+            case 'left': {
+                const siblings = mathField.mathlist.siblings();
+                const last = mathField.mathlist.startOffset() - (mathField.mathlist.isCollapsed() ? 0 : 1);
+                if (last >= 1) {
+                     result = [];
+                    for (let i = 1; i <= last; i++) {
+                        result.push(siblings[i]);
+                    }
+                }
+                break;
+            }
+            case 'right': {
+                const siblings = mathField.mathlist.siblings();
+                const first = mathField.mathlist.endOffset() + 1;
+                if (first < siblings.length - 1) {
+                    result = [];
+                    for (let i = first; i <= siblings.length - 1; i++) {
+                        result.push(siblings[i]);
+                    }
+                }
+                break;
+            }
+            case 'start':
+            case 'end':
+                // not yet implemented
+                break;
+            case 'group':
+                result = mathField.mathlist.siblings();
+                break;
+            case 'parent': {
+                const parent = mathField.mathlist.parent();
+                if (parent && parent.type !== 'root') {
+                    result = mathField.mathlist.parent();
+                }
+                break;
+            }
+            default:
+                console.log('unknown atom type "' + mathField.type + '"');
+                break;
+        }
+        return result;
     }
-    this._speak(text);
-    return false;
-}
 
-/**
- * @method MathField#speakSelectionWithSynchronizedHighlighting_
- */
-MathField.prototype.speakSelectionWithSynchronizedHighlighting_ = function() {
-    if (!this.mathlist.isCollapsed()) {
+    const getFailedSpeech = function (amount) {
+        let result = '';
+        switch(amount) {
+            case 'all':
+                console.log("Internal failure: speak all failed");
+                break;
+            case 'selection':
+                result = 'no selection';
+                break;
+            case 'left':
+                result = 'at start';
+                break;
+            case 'right':
+                result = 'at end';
+                break;
+            case 'group':
+                console.log("Internal failure: speak group failed");
+                break;
+            case 'parent':
+                result = 'no parent';
+                break;
+            default:
+                console.log('unknown atom type "' + amount + '"');
+                break;
+        }
+        return result;
+    }
+
+
+    const atoms = getAtoms(this, amount);
+    if (!atoms) {
+        this.config.handleSpeak ( getFailedSpeech(amount) );
+        return false;
+    }
+
+    const options = this.config;
+    if (withHighlighting) {
+        options.textToSpeechMarkup = (window.sre && options.textToSpeechRules === 'sre') ? 'ssml_step' : 'ssml';
+    }
+    const text = MathAtom.toSpeakableText(atoms, options)
+
+    if (withHighlighting) {
         window.mathlive.readAloudMathField = this;
         this._render({forHighlighting: true});
-        const options = this.config;
-        options.textToSpeechMarkup = (window.sre && options.textToSpeechRules === 'sre') ? 'ssml_step' : 'ssml';
-        const text = MathAtom.toSpeakableText(this.mathlist.getSelectedAtoms(), options)
-        this._speakWithSynchronizedHighlighting(text);
+        if (options.handleReadAloud) {
+            this.config.handleReadAloud(this.field, text, this.config);
+        }   
     } else {
-        this._speak("Nothing selected.");
-    }
-    return false;
-}
-
-
-/**
- * @method MathField#speakParent_
- */
-MathField.prototype.speakParent_ = function() {
-    let text = 'No parent.';
-    const parent = this.mathlist.parent();
-    if (parent && parent.type !== 'root') {
-        text = MathAtom.toSpeakableText(this.mathlist.parent(), this.config);
-    }
-    this._speak(text);
-    return false;
-}
-
-/**
- * @method MathField#speakRightSibling_
- */
-MathField.prototype.speakRightSibling_ = function() {
-    let text = 'At the end.';
-    const siblings = this.mathlist.siblings();
-    const first = this.mathlist.startOffset() + 1;
-    if (first < siblings.length - 1) {
-        const adjSiblings = [];
-        for (let i = first; i <= siblings.length - 1; i++) {
-            adjSiblings.push(siblings[i]);
+        if (this.config.handleSpeak) {
+            this.config.handleSpeak(text, options);
         }
-        text = MathAtom.toSpeakableText(adjSiblings, this.config);
     }
-    this._speak(text);
     return false;
 }
-
-/**
- * @method MathField#speakLeftSibling_
- */
-MathField.prototype.speakLeftSibling_ = function() {
-    let text = 'At the beginning.';
-    const siblings = this.mathlist.siblings();
-    const last = this.mathlist.isCollapsed() ? this.mathlist.startOffset() : this.mathlist.startOffset() - 1;
-    if (last >= 1) {
-        const adjSiblings = [];
-        for (let i = 1; i <= last; i++) {
-            adjSiblings.push(siblings[i]);
-        }
-        text = MathAtom.toSpeakableText(adjSiblings, this.config);
-    }
-    this._speak(text);
-    return false;
-}
-
-
-/**
- * @method MathField#speakGroup_
- */
-MathField.prototype.speakGroup_ = function() {
-    this._speak(MathAtom.toSpeakableText(this.mathlist.siblings(), this.config));
-    return false;
-}
-
-/**
- * @method MathField#speakAll_
- */
-MathField.prototype.speakAll_ = function() {
-    this._speak(MathAtom.toSpeakableText(this.mathlist.root, this.config));
-    return false;
-}
-
-/**
- * @method MathField#speakAllWithSynchronizedHighlighting_
- */
-MathField.prototype.speakAllWithSynchronizedHighlighting_ = function() {
-    window.mathlive.readAloudMathField = this;
-    this._render({forHighlighting: true});
-    const options = this.config;
-    options.textToSpeechMarkup = (window.sre && options.textToSpeechRules === 'sre') ? 'ssml_step' : 'ssml';
-    const text = MathAtom.toSpeakableText(this.mathlist.root, options)
-    this._speakWithSynchronizedHighlighting(text);
-    return false;
-}
-
-
 
 
 export default {
