@@ -97,7 +97,7 @@ l10n.strings = {
         "tooltip.copy to clipboard": "In die Zwischenablage kopieren",
         "tooltip.redo": "Wiederholen",
         "tooltip.toggle virtual keyboard": "Virtuelle Tastatur umschalten",
-        "tooltip.undo": "Rückgängig machen"
+        "tooltip.undo": "Widerrufen"
     },
     "es": {
         "keyboard.tooltip.functions": "Funciones",
@@ -127,8 +127,8 @@ l10n.strings = {
         "keyboard.tooltip.command": "Mode de commandes LaTeX",
         "keyboard.tooltip.numeric": "Numérique",
         "keyboard.tooltip.roman": "Lettres et symboles romains",
-        "tooltip.copy to clipboard": "Copier dans le Presse-papiers",
-        "tooltip.redo": "Refaire",
+        "tooltip.copy to clipboard": "Copier dans le presse-papiers",
+        "tooltip.redo": "Rétablir",
         "tooltip.toggle virtual keyboard": "Afficher/Masquer le clavier virtuel",
         "tooltip.undo": "Annuler"
     },
