@@ -3212,6 +3212,18 @@ MathField.prototype.$setConfig = function(conf) {
     l10n.locale = this.config.locale || l10n.locale;
     l10n.merge(this.config.strings);
 
+    this.config.virtualKeyboardLayout = conf.virtualKeyboardLayout || {
+        'fr': 'azerty',       // France
+        'be': 'azerty',       // Belgium
+        'al': 'qwertz',       // Albania
+        'ba': 'qwertz',       // Bosnia
+        'cz': 'qwertz',       // Czech
+        'de': 'qwertz',       // Germany
+        'hu': 'qwertz',       // Hungary
+        'sk': 'qwertz',       // Slovakia
+        'ch': 'qwertz',       // Switzerland
+    }[l10n.locale.substring(0, 2)] || 'qwerty';
+
     // Possible keypress sound feedback
     this.keypressSound = undefined;
     this.spacebarKeypressSound = undefined;
