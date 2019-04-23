@@ -184,9 +184,9 @@ styling attributes.</li>
   <code>&quot;Q2111&quot;</code></li>
 <li><code>wikibase</code>: A base URL for the wikidata key. A full URL can be produced 
 by concatenating this key with the wikidata key. This key applies to 
-this node and all its children. The default value is &quot;https://<a href="http://www.wikidata.org/wiki/&quot;">www.wikidata.org/wiki/&quot;</a></li>
+this node and all its children. The default value is &quot;https://www.wikidata.org/wiki/&quot;</li>
 <li><code>openmathcd</code>: A base URL for an OpenMath content dictionary. This key applies to 
-this node and all its children. The default value is &quot;http://<a href="http://www.openmath.org/cd&quot;">www.openmath.org/cd&quot;</a>.</li>
+this node and all its children. The default value is &quot;http://www.openmath.org/cd&quot;.</li>
 <li><code>openmathsymbol</code>: A short string indicating an entry in an OpenMath Content
 Dictionary. For example: <code>arith1/#abs</code>.</li>
 </ul>
@@ -208,13 +208,13 @@ the expression correctly.</p>
     <code>function</code> | 
     <code>group</code> |
     <code>text</code> |</p>
-<h3 id="number"><code>number</code></h3>
+<h3 id="-number-"><code>number</code></h3>
 <p>A node with the following key:</p>
 <ul>
 <li><code>num</code>: <code>basic-number</code> | <code>complex-number</code></li>
 </ul>
 <p><code>complex-number</code> := { &quot;re&quot;: <code>basic-number</code>, &quot;im&quot;: <code>basic-number</code>}</p>
-<h3 id="symbol"><code>symbol</code></h3>
+<h3 id="-symbol-"><code>symbol</code></h3>
 <p>A node with the following keys</p>
 <ul>
 <li><code>sym</code>: <code>native-string</code></li>
@@ -369,7 +369,7 @@ or complement of the symbol.</p>
 </tr>
 </tbody>
 </table>
-<h3 id="function"><code>function</code></h3>
+<h3 id="-function-"><code>function</code></h3>
 <ul>
 <li><code>fn</code>: <code>native-string</code>, the name of the function.</li>
 <li><code>arg</code>: array of <code>expression</code>, the arguments to the function.</li>
@@ -943,7 +943,7 @@ applied if no other condition match.</p>
     openmathsymbol: &quot;hypergeo0#gamma&quot;,
     arg: 1
 }</code></pre><p>where <code>\u0393</code> is the Unicode character <code>GREEK CAPITAL LETTER GAMMA</code> Γ.</p>
-<h3 id="group"><code>group</code></h3>
+<h3 id="-group-"><code>group</code></h3>
 <ul>
 <li><code>group</code>:  <code>expression</code></li>
 <li><code>sup</code>:    <code>expression</code></li>
@@ -952,7 +952,7 @@ applied if no other condition match.</p>
 </ul>
 <p>The <code>group</code> key is the only one required.</p>
 <p>This element is used when a <code>sup</code>, <code>sub</code> or <code>accent</code> needs to be applied to an expression, as in <code>(x+1)^2</code>.</p>
-<h3 id="text"><code>text</code></h3>
+<h3 id="-text-"><code>text</code></h3>
 <ul>
 <li><code>text</code>: <code>native-string</code></li>
 <li><code>format</code>: &quot;plain&quot; | &quot;markdown&quot; | &quot;html&quot;. This key is optional and its default value is <code>plain</code></li>
@@ -970,8 +970,8 @@ applied if no other condition match.</p>
 </ol>
 <h3 id="references">REFERENCES</h3>
 <ol>
-<li>https://<a href="http://www.json.org/">www.json.org/</a></li>
-<li>http://<a href="http://www.openmath.org/cd">www.openmath.org/cd</a></li>
+<li>https://www.json.org/</li>
+<li>http://www.openmath.org/cd</li>
 </ol>
 </article>
 
