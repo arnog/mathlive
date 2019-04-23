@@ -63,7 +63,6 @@ export class Span {
     constructor(content, classes) {
         // CLASSES
         this.classes = classes || '';
-        console.assert(!/undefined/.test(this.classes));
         // CONTENT
         if (Array.isArray(content)) {
             // Check if isArray first, since an array is also an object
@@ -251,8 +250,7 @@ export class Span {
                 }
             }
         }
-        console.assert(!/undefined/.test(this.classes));
-
+        
     }
 
 
@@ -283,12 +281,20 @@ export class Span {
         }
     }
 
+/**
+ * 
+ * @param {number} left 
+ */
     setLeft(left) {
         if (left && left !== 0) {
             if (!this.style) this.style = {};
             this.style['margin-left'] = toString(left) + 'em';
         }
     }
+/**
+ * 
+ * @param {number} right 
+ */
     setRight(right) {
         if (right && right !== 0) {
             if (!this.style) this.style = {};

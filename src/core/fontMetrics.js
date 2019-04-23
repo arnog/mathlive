@@ -290,7 +290,7 @@ const getCharacterMetrics = function(character, fontCode) {
  */
 function convertDimenToEm(value, unit, precision) {
     if (typeof value === 'string') {
-        const m = value.match(/([0-9.]*)\s*([a-z]*)/);
+        const m = value.match(/([-+]?[0-9.]*)\s*([a-zA-Z]+)/);
         if (!m) {
             value = parseFloat(value);
         } else {
@@ -300,32 +300,22 @@ function convertDimenToEm(value, unit, precision) {
     }
 
     // If the units are missing, TeX assumes 'pt'
-    let f = 1;
-    if (unit === 'pt') {
-        f = 1;
-    } else if (unit === 'mm') {
-        f = 7227 / 2540;
-    } else if (unit === 'cm') {
-        f = 7227 / 254;
-    } else if (unit === 'ex') {
-        f = 35271 / 8192;
-    } else if (unit === 'px') {
-        f = 3.0 / 4.0;
-    } else if (unit === 'em') {
-        f = METRICS.ptPerEm;
-    } else if (unit === 'bp') {
-        f = 803 / 800;
-    } else if (unit === 'dd') {
-        f = 1238 / 1157;
-    } else if (unit === 'pc') {
-        f = 12;
-    } else if (unit === 'in') {
-        f = 72.27;
-    } else if (unit === 'mu') {
-        f = 10 / 18;
-    }
+    const f = {
+        'pt': 1.0,
+        'mm': 7227 / 2540,
+        'cm': 7227 / 254,
+        'ex': 35271 / 8192,
+        'px': 3.0 / 4.0,
+        'em': METRICS.ptPerEm,
+        'bp': 803 / 800,
+        'dd': 1238 / 1157,
+        'pc': 12.0,
+        'in': 72.27,
+        'mu': 10 / 18,
 
-    if (precision) {
+    }[unit] || 1.0
+
+    if (isFinite(precision)) {
         const factor = Math.pow(10, precision);
         return Math.round((value / METRICS.ptPerEm) * f * factor) / factor;
     }
@@ -333,14 +323,9 @@ function convertDimenToEm(value, unit, precision) {
     return (value / METRICS.ptPerEm) * f;
 }
 
-function convertDimenToPx(value, unit) {
-    // if (unit === 'px') return value;
-    return convertDimenToEm(value, unit) * (4.0 / 3.0) * METRICS.ptPerEm;
-}
 
 export default {
     toEm : convertDimenToEm,
-    toPx : convertDimenToPx,
     METRICS,
     SIGMAS,
     getCharacterMetrics

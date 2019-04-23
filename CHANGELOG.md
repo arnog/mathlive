@@ -1,3 +1,21 @@
+## 0.28 (Apr 22, 2019)
+This release contains some small bug fixes and improvements.
+
+- Reduced Node version required (for dev builds) to Node LTS
+- Fixed some issues with focus state of mathfields, particularly with multiple mathfields on a page
+- Fixed an issue with some keys (such as /) on international keyboards (such as QWERTZ)
+- Made `moveToOpposite` correctly select the opposite superscript/subscript
+- Use the correct font for `\operatorname`, even for single character operators
+- Send content change notifications when array cells are created
+- Fixed a layout issue with upsized (`\huge`) content in fractions
+- More accurate layout for `box` atoms (with `\bbox`, `\colorbox`, `\boxed` and `\fcolorbox`)
+- Fixed an issue where units after an exponent were not recognized
+- Fixed an issue displaying virtual keyboard on narrow Android phones
+
+### New Features
+- Added support for applying size to the selection with `applyStyle({size:'size9'})` (default size is `size5`, smallest is `size1`, largest is `size10`).
+- Added support for `npm run start` which will start a local web server for ease of debugging (some features, such as using JavaScript native modules, require a local server)
+
 ## 0.27 (Apr 8, 2019)
 ### Breaking Changes
 - The syntax that MathJSON/MASTON can recognized has been significantly expanded. It also has been made more consistent, and in some cases it may be different than what was previously returned.

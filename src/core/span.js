@@ -281,12 +281,20 @@ export class Span {
         }
     }
 
+/**
+ * 
+ * @param {number} left 
+ */
     setLeft(left) {
         if (left && left !== 0) {
             if (!this.style) this.style = {};
             this.style['margin-left'] = toString(left) + 'em';
         }
     }
+/**
+ * 
+ * @param {number} right 
+ */
     setRight(right) {
         if (right && right !== 0) {
             if (!this.style) this.style = {};

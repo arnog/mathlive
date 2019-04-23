@@ -429,17 +429,20 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
         case 'box':
             if (command === '\\bbox') {
                 result += command;
-                if (this.padding || this.border || this.backgroundcolor) {
-                    let bboxParams = latexify(this, this.padding, expandMacro);
+                if (isFinite(this.padding) || 
+                    typeof this.border !== 'undefined' || 
+                    typeof this.backgroundcolor !== 'undefined') {
+                    const bboxParams = [];
+                    if (isFinite(this.padding)) {
+                        bboxParams.push(Math.floor(1e5 * this.padding) / 1e5 + 'em')
+                    }
                     if (this.border) {
-                        if (bboxParams) bboxParams += ',';
-                        bboxParams += 'border:' + latexify(this, this.border, expandMacro);
+                        bboxParams.push('border:' + this.border);
                     }
                     if (this.backgroundcolor) {
-                        if (bboxParams) bboxParams += ',';
-                        bboxParams += latexify(this, this.backgroundcolor, expandMacro);
+                        bboxParams.push(Color.colorToString(this.backgroundcolor));
                     }
-                    result += `[${bboxParams}]`;
+                    result += `[${bboxParams.join(',')}]`;
                 }
                 result += `{${latexify(this, this.body, expandMacro)}}`;
             } else if (command === '\\boxed') {
@@ -448,10 +451,10 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 // \\colorbox, \\fcolorbox
                 result += command;
                 if (this.framecolor) {
-                    result += `{${latexify(this, this.framecolor, expandMacro)}}`;
+                    result += `{${Color.colorToString(this.framecolor)}}`;
                 }
                 if (this.backgroundcolor) {
-                    result += `{${latexify(this, this.backgroundcolor, expandMacro)}}`;
+                    result += `{${Color.colorToString(this.backgroundcolor)}}`;
                 }
                 result += `{${latexify(this, this.body, expandMacro)}}`;
             }
@@ -499,7 +502,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 let style = '';
                 sep = '';
                 if (this.backgroundcolor && this.backgroundcolor !== 'transparent') {
-                    style += sep + 'mathbackground="' + this.backgroundcolor + '"';
+                    style += sep + 'mathbackground="' + Color.colorToString(this.backgroundcolor) + '"';
                     sep = ',';
                 }
                 if (this.shadow && this.shadow !== 'auto') {
@@ -510,7 +513,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                     style += sep + this.borderStyle;
                     sep = ',';
                 } else if (this.strokeColor && this.strokeColor !== 'currentColor') {
-                    style += sep + 'mathcolor="' + this.strokeColor + '"';
+                    style += sep + 'mathcolor="' + Color.colorToString(this.strokeColor) + '"';
                     sep = ',';
                 }
 
