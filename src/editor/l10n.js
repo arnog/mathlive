@@ -77,6 +77,17 @@ l10n.strings = {
         "tooltip.toggle virtual keyboard": "Toggle Virtual Keyboard",
         "tooltip.undo": "Undo"
     },
+    "ar": {
+      "keyboard.tooltip.functions": "مهام",
+      "keyboard.tooltip.greek": "حروف يونانية",
+      "keyboard.tooltip.command": "حالة تلقي الأوامر اللاتك",
+      "keyboard.tooltip.numeric": "الرقمية",
+      "keyboard.tooltip.roman": "رموز الاحرف الرومانية",
+      "tooltip.copy to clipboard": "نسخ إلى الحافظة",
+      "tooltip.redo": "الإعادة",
+      "tooltip.toggle virtual keyboard": "تبديل لوحة المفاتيح الإفتراضية",
+      "tooltip.undo": "إلغاء"
+    },
     "de": {
         "keyboard.tooltip.functions": "Funktionen",
         "keyboard.tooltip.greek": "Griechische Buchstaben",
@@ -98,6 +109,17 @@ l10n.strings = {
         "tooltip.redo": "Rehacer",
         "tooltip.toggle virtual keyboard": "Alternar teclado virtual",
         "tooltip.undo": "Deshacer"
+    },
+    "fa": {
+      "keyboard.tooltip.functions": "توابع",
+      "keyboard.tooltip.greek": "حروف یونانی",
+      "keyboard.tooltip.command": "حالت دستور لاتک",
+      "keyboard.tooltip.numeric": "عددی",
+      "keyboard.tooltip.roman": "علائم و حروف لاتین",
+      "tooltip.copy to clipboard": "کپی به کلیپبورد",
+      "tooltip.redo": "بازگشت به بعد",
+      "tooltip.toggle virtual keyboard": "نمایش/نهفتن کیبورد مجازی",
+      "tooltip.undo": "بازگشت به قبل"
     },
     "fr": {
         "keyboard.tooltip.functions": "Fonctions",
