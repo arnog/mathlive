@@ -3269,12 +3269,14 @@ MathField.prototype.$setConfig = function(conf) {
  * Speak some part of the expression, either with or without synchronized highlighting.
  * 
  * @param {string} amount (all, selection, left, right, group, parent)
- * @param {boolean} withHighlighting - If true, synchronized highlighting of speech will happen (if possible)
+ * @param {object} speakOptions 
+ * @param {boolean} speakOptions.withHighlighting - If true, synchronized highlighting of speech will happen (if possible)
  * 
  * @method MathField#speak_
  */
-MathField.prototype.speak_ = function(amount, withHighlighting) {
-    const getAtoms = function(mathField, amount) {
+MathField.prototype.speak_ = function(amount, speakOptions) {
+    speakOptions = speakOptions || {withHighlighting: false};
+    function getAtoms(mathField, amount) {
         let result = null;
         switch (amount) {
             case 'all':
@@ -3328,7 +3330,7 @@ MathField.prototype.speak_ = function(amount, withHighlighting) {
         return result;
     }
 
-    const getFailedSpeech = function (amount) {
+    function getFailedSpeech (amount) {
         let result = '';
         switch(amount) {
             case 'all':
@@ -3350,7 +3352,7 @@ MathField.prototype.speak_ = function(amount, withHighlighting) {
                 result = 'no parent';
                 break;
             default:
-                console.log('unknown atom type "' + amount + '"');
+                console.log('unknown speak_ param value: "' + amount + '"');
                 break;
         }
         return result;
@@ -3364,15 +3366,15 @@ MathField.prototype.speak_ = function(amount, withHighlighting) {
     }
 
     const options = this.config;
-    if (withHighlighting) {
+    if (speakOptions.withHighlighting) {
         options.textToSpeechMarkup = (window.sre && options.textToSpeechRules === 'sre') ? 'ssml_step' : 'ssml';
     }
     const text = MathAtom.toSpeakableText(atoms, options)
 
-    if (withHighlighting) {
+    if (speakOptions.withHighlighting) {
         window.mathlive.readAloudMathField = this;
         this._render({forHighlighting: true});
-        if (options.handleReadAloud) {
+        if (this.config.handleReadAloud) {
             this.config.handleReadAloud(this.field, text, this.config);
         }   
     } else {
