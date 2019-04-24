@@ -152,6 +152,21 @@ class MathAtom {
         if (this.fontFamily === 'none') {
             this.fontFamily = '';
         }
+        if (this.fontShape === 'auto') {
+            this.fontShape = '';
+        }
+        if (this.fontSeries === 'auto') {
+            this.fontSeries = '';
+        }
+        if (this.color === 'none') {
+            this.color = '';
+        }
+        if (this.backgroundColor === 'none') {
+            this.backgroundColor = '';
+        }
+        if (this.fontSize === 'auto') {
+            this.fontSize = '';
+        }
 
         if (this.fontSize) {
             this.maxFontSize = SIZING_MULTIPLIER[this.fontSize] ;

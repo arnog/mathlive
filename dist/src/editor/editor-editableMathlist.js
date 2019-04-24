@@ -3161,13 +3161,13 @@ EditableMathlist.prototype._applyStyle = function(style) {
     if (style.series) style.fontSeries = style.series;
     if (style.fontSeries && everyStyle('fontSeries', style.fontSeries)) {
         // If the selection already has this series (weight), turn it off
-        style.fontSeries = 'm';
+        style.fontSeries = 'auto';
     }
 
     if (style.shape) style.fontShape = style.shape;
     if (style.fontShape && everyStyle('fontShape', style.fontShape)) {
         // If the selection already has this shape (italic), turn it off
-        style.fontShape = 'up';
+        style.fontShape = 'auto';
     }
 
     if (style.size) style.fontSize = style.size;
@@ -3427,7 +3427,7 @@ function parseMathArgument(s, config) {
         let m = s.match(/^([a-zA-Z]+)/);
         if (m) {
             // It's a string of letter, maybe a shortcut
-            let shortcut = Shortcuts.forString(null, s, config);
+            let shortcut = Shortcuts.forString('math', null, s, config);
             if (shortcut) {
                 shortcut = shortcut.replace('_{#?}', '');
                 shortcut = shortcut.replace('^{#?}', '');
@@ -3461,7 +3461,7 @@ function parseMathArgument(s, config) {
 }
 
 function paddedShortcut(s, config) {
-    let result = Shortcuts.forString(null, s, config);
+    let result = Shortcuts.forString('math', null, s, config);
     if (result) {
         result = result.replace('_{#?}', '');
         result = result.replace('^{#?}', '');

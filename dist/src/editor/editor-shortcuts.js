@@ -285,30 +285,33 @@ const REVERSE_KEYBOARD_SHORTCUTS = {
  */
 const INLINE_SHORTCUTS = {
     // Primes
-    "''":                 '^{\\doubleprime}',
+    "''":                   { mode: 'math', value: '^{\\doubleprime}'},
 
     // Greek letters
     'alpha':                '\\alpha',
     'delta':                '\\delta',
     'Delta':                '\\Delta',
-    'pi':                   '\\pi',
+    'pi':                   { mode: 'math', value: '\\pi'},
+    'pi ':                  { mode: 'text', value: '\\pi '},
     'π':                    '\\pi',
     'Pi':                   '\\Pi',
     'theta':                '\\theta',
     'Theta':                '\\Theta',
 
     // Letter-like
-    'ii':                   '\\imaginaryI',
-    'jj':                   '\\imaginaryJ',
+    'ii':                   { after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text', 
+                                value: '\\imaginaryI' },
+    'jj':                   { after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text', 
+                                value: '\\imaginaryJ' },
     'ee':                   {
                                 mode: 'math',
-                                after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space',
+                                after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
                                 value: '\\exponentialE',
                             },
 
-    'nabla':                '\\nabla',
-    'grad':                 '\\nabla',
-    'del':                  '\\partial',
+    'nabla':                { mode: 'math', value: '\\nabla'},
+    'grad':                 { mode: 'math', value: '\\nabla'},
+    'del':                  { mode: 'math', value: '\\partial'},
 
     '\u221e':               '\\infty',         // @TODO: doesn't work
     // '&infin;': '\\infty',
@@ -320,23 +323,23 @@ const INLINE_SHORTCUTS = {
                             },
 
     // Big operators
-    '∑':                    '\\sum',
-    'sum':                  '\\sum_{#?}^{#?}',
-    'prod':                 '\\prod_{#?}^{#?}',
-    'sqrt':                 '\\sqrt',
+    '∑':                    { mode: 'math', value: '\\sum'},
+    'sum':                  { mode: 'math', value: '\\sum_{#?}^{#?}' },
+    'prod':                 { mode: 'math', value: '\\prod_{#?}^{#?}' },
+    'sqrt':                 { mode: 'math', value: '\\sqrt'},
     // '∫':                    '\\int',             // There's a alt-B command for this
-    '∆':                    '\\differentialD',     // @TODO: is \\diffD most common?
-    '∂':                    '\\differentialD',
+    '∆':                    { mode: 'math', value: '\\differentialD'},     // @TODO: is \\diffD most common?
+    '∂':                    { mode: 'math', value: '\\differentialD'},
 
     // Functions
-    'sin':                  '\\sin',
-    'cos':                  '\\cos',
-    'tan':                  '\\tan',
-    'tanh':                 '\\tanh',
-    'log':                  '\\log',
-    'ln':                   '\\ln',
-    'exp':                  '\\exp',
-    'lim':                  '\\lim_{#?}',
+    'sin':                  { mode: 'math', value: '\\sin'},
+    'cos':                  { mode: 'math', value: '\\cos'},
+    'tan':                  { mode: 'math', value: '\\tan'},
+    'tanh':                 { mode: 'math', value: '\\tanh'},
+    'log':                  { mode: 'math', value: '\\log'},
+    'ln':                   { mode: 'math', value: '\\ln'},
+    'exp':                  { mode: 'math', value: '\\exp'},
+    'lim':                  { mode: 'math', value: '\\lim_{#?}'},
 
     // Differentials
     // According to ISO31/XI (ISO 80000-2), differentials should be upright
@@ -345,10 +348,10 @@ const INLINE_SHORTCUTS = {
     'dt':                   '\\differentialD t',
 
     // Logic
-    'AA':                   '\\forall',
-    'EE':                   '\\exists',
-    '!EE':                  '\\nexists',
-    '&&':                   '\\land',
+    'AA':                   { mode: 'math', value: '\\forall'},
+    'EE':                   { mode: 'math', value: '\\exists'},
+    '!EE':                  { mode: 'math', value: '\\nexists'},
+    '&&':                   { mode: 'math', value: '\\land'},
     // The shortcut for the greek letter "xi" is interfering with "x in"
     'xin':                   {
                                 mode: 'math',
@@ -360,7 +363,7 @@ const INLINE_SHORTCUTS = {
                                 after: 'nothing+letter+closefence',
                                 value: '\\in',
                             },
-    '!in':                  '\\notin',
+    '!in':                  { mode: 'math', value: '\\notin'},
 
     // Sets
     'NN':                   '\\N',        // Natural numbers
@@ -399,29 +402,78 @@ const INLINE_SHORTCUTS = {
     'chi':                  '\\chi',
     'epsilon':              '\\epsilon',
     'varepsilon':           '\\varepsilon',
-    'eta':                  '\\eta',
+    'eta':                  { 
+                                mode: 'math',
+                                after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+                                value: '\\eta'
+                            },
+    'eta ':                 { 
+                                mode: 'text',
+                                after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+                                value: '\\eta '
+                            },
     'gamma':                '\\gamma',
     'Gamma':                '\\Gamma',
     'iota':                 '\\iota',
     'kappa':                '\\kappa',
     'lambda':               '\\lambda',
     'Lambda':               '\\Lambda',
-    'mu':                   '\\mu',
-    'nu':                   '\\nu',
+    'mu':                   {
+                                mode: 'math',
+                                after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+                                value: '\\mu'
+                            },
+    'mu ':                   {
+                                mode: 'text',
+                                after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+                                value: '\\mu '
+                            },
+    'nu':                   {
+                                mode: 'math',
+                                after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+                                value:'\\nu'
+                            },
+    'nu ':                   {
+                                mode: 'text',
+                                after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+                                value:'\\nu '
+                            },
     'µ':                    '\\mu',        // @TODO: or micro?
-    'phi':                  '\\phi',
-    'Phi':                  '\\Phi',
+    'phi':                  {
+                                after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+                                value: '\\phi'
+                            },
+    'Phi':                  {
+                                after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+                                value:'\\Phi'
+                            },
     'varphi':               '\\varphi',
-    'psi':                  '\\psi',
-    'Psi':                  '\\Psi',
-    'rho':                  '\\rho',
+    'psi':                  {
+                                after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+                                value: '\\psi'
+                            },
+    'Psi':                  {
+                                after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+                                value:'\\Psi'
+    },
+    'rho':                  {
+                                after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+                                value: '\\rho'
+    },
     'sigma':                '\\sigma',
     'Sigma':                '\\Sigma',
-    'tau':                  '\\tau',
+    'tau':                  {
+                                after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+                                value: '\\tau'
+    },
     'vartheta':             '\\vartheta',
     'upsilon':              '\\upsilon',
-    'xi':                   '\\xi',
-    'Xi':                   '\\Xi',
+    'xi':                   {
+                                after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+                                value:'\\xi'},
+    'Xi':                   {
+                                after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+                                value:'\\Xi'},
     'zeta':                 '\\zeta',
     'omega':                '\\omega',
     'Omega':                '\\Omega',
@@ -429,9 +481,18 @@ const INLINE_SHORTCUTS = {
 
     // More Logic
     'forall':               '\\forall',
-    'exists':               '\\exists',
-    '!exists':              '\\nexists',
-    ':.':                   '\\therefore',
+    'exists':               {
+                                mode: 'math',
+                                value:'\\exists'
+                            },
+    '!exists':              {
+                                mode: 'math',
+                                value: '\\nexists'
+                            },
+    ':.':                   {
+                                mode: 'math',
+                                value:'\\therefore'
+    },
 
     // MORE FUNCTIONS
     // 'arg': '\\arg',
@@ -440,33 +501,60 @@ const INLINE_SHORTCUTS = {
     'argmin':               '\\operatorname*{arg~min}_{#?}',
     'argmax':               '\\operatorname*{arg~max}_{#?}',
     'det':                  '\\det',
-    'mod':                  '\\mod',
-    'max':                  '\\max',
-    'min':                  '\\min',
+    'mod':                  {
+                                mode: 'math',
+                                value:'\\mod'},
+    'max':                  {
+                                mode: 'math',
+                                value:'\\max'},
+    'min':                  {
+                                mode: 'math',
+                                value:'\\min'},
     'erf':                  '\\operatorname{erf}',
     'erfc':                 '\\operatorname{erfc}',
-    'bessel':               '\\operatorname{bessel}',
-    'mean':                 '\\operatorname{mean}',
-    'median':               '\\operatorname{median}',
-    'fft':                  '\\operatorname{fft}',
-    'lcm':                  '\\operatorname{lcm}',
-    'gcd':                  '\\operatorname{gcd}',
+    'bessel':               {
+                                mode: 'math',
+                                value:'\\operatorname{bessel}'},
+    'mean':                 {
+                                mode: 'math',
+                                value: '\\operatorname{mean}'
+    },
+    'median':               {
+                                mode: 'math',
+                                value: '\\operatorname{median}'},
+    'fft':                  {
+                                mode: 'math',
+                                value:'\\operatorname{fft}'},
+    'lcm':                  {
+                                mode: 'math',
+                                value:'\\operatorname{lcm}'},
+    'gcd':                  {
+                                mode: 'math',
+                                value:'\\operatorname{gcd}'},
     'randomReal':           '\\operatorname{randomReal}',
     'randomInteger':        '\\operatorname{randomInteger}',
-    'Re':                   '\\operatorname{Re}',
-    'Im':                   '\\operatorname{Im}',
+    'Re':                   {
+                                mode: 'math',
+                                value:'\\operatorname{Re}'},
+    'Im':                   {
+                                mode: 'math',
+                                value:'\\operatorname{Im}'},
 
     // UNITS
-    'mm':                   {  after: 'digit', 
+    'mm':                   {   mode: 'math',
+                                after: 'nothing+digit', 
                                 value:  '\\operatorname{mm}',         // millimeter
                             },
-    'cm':                   {  after: 'digit', 
+    'cm':                   {   mode: 'math',
+                                after: 'nothing+digit', 
                                 value:  '\\operatorname{cm}',         // centimeter
                             },
-    'km':                   {  after: 'digit', 
+    'km':                   {   mode: 'math',
+                                after: 'nothing+digit', 
                                 value:  '\\operatorname{km}',         // kilometer
                             },
-    'kg':                   {  after: 'digit', 
+    'kg':                   {   mode: 'math',
+                                after: 'nothing+digit', 
                                 value:  '\\operatorname{kg}',         // kilogram
                             },
                             
@@ -622,12 +710,16 @@ function startsWithString(s, config) {
 
 /**
  * 
+ * @param {string} mode
  * @param {object[]} siblings atoms preceding this potential shortcut
  * @param {string} shortcut 
  */
-function validateShortcut(siblings, shortcut) {
+function validateShortcut(mode, siblings, shortcut) {
+    if (!shortcut) return shortcut
     // If it's a simple shortcut (no conditional), it's valid
     if (typeof shortcut === 'string') return shortcut
+
+    if (typeof shortcut.mode === 'string' && shortcut.mode !== mode) return null;
 
     // If we have no context, we assume all the shortcuts are valid
     if (!siblings) return shortcut ? shortcut.value : undefined;
@@ -648,7 +740,7 @@ function validateShortcut(siblings, shortcut) {
     let space = false;
     let sibling = siblings[siblings.length - 1];
     let index = siblings.length - 1;
-    while (sibling && sibling.type === 'msubsup') {
+    while (sibling && /msubsup|placeholder/.test(sibling.type)) {
         index -= 1;
         sibling = siblings[index];
     }
@@ -669,7 +761,7 @@ function validateShortcut(siblings, shortcut) {
         space = sibling.type === 'space';
     }
 
-    if (typeof shortcut === 'object') {
+    if (typeof shortcut.after !== 'undefined') {
         // If this is a conditional shortcut, consider the conditions now
         if (    (/nothing/.test(shortcut.after) && nothing) ||
                 (/letter/.test(shortcut.after) && letter) ||
@@ -685,18 +777,18 @@ function validateShortcut(siblings, shortcut) {
                 (/closefence/.test(shortcut.after) && closefence) ||
                 (/text/.test(shortcut.after) && text) ||
                 (/space/.test(shortcut.after) && space)){
-            shortcut = shortcut.value;
-        } else {
-            shortcut = null;
+            return shortcut.value;
         }
+        return null;
     }
 
-    return shortcut;
+    return shortcut.value;
 }
 
 /**
  * This function is used to resolve inline shortcuts.
  * 
+ * @param {string} mode
  * @param {string} context - atoms preceding the candidate, potentially used
  * to reduce which shortcuts are applicable. If 'null', no restrictions are 
  * applied.
@@ -706,19 +798,19 @@ function validateShortcut(siblings, shortcut) {
  * @memberof module:editor/shortcuts
  * @private
  */
-function forString(context, s, config) {
+function forString(mode, context, s, config) {
     let result = '';
 
     const skipDefaultShortcuts = config && config.overrideDefaultInlineShortcuts;
     if (!skipDefaultShortcuts) {
-        result = validateShortcut(context, INLINE_SHORTCUTS[s]);
+        result = validateShortcut(mode, context, INLINE_SHORTCUTS[s]);
     }
 
     const customInlineShortcuts = config && config.inlineShortcuts ? 
         config.inlineShortcuts : null;
     let customResult;
     if (customInlineShortcuts) {
-        customResult = validateShortcut(context, customInlineShortcuts[s]);
+        customResult = validateShortcut(mode, context, customInlineShortcuts[s]);
     }
     
     return customResult || result;

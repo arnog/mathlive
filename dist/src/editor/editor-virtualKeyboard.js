@@ -662,6 +662,10 @@ const LAYERS = {
             <ul>
                 <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"#cc2428"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428'></span></li>
                 <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"#fff590"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590'></span></li>
+                <li class='separator w5'></li>
+                <li class='keycap' data-command='["applyStyle",{"size":"size3"}]' data-latex='\\scriptsize\\text{small}'></li>
+                <li class='keycap' data-command='["applyStyle",{"size":"size5"}]' data-latex='\\scriptsize\\text{normal}'></li>
+                <li class='keycap' data-command='["applyStyle",{"size":"size9"}]' data-latex='\\huge\\text{big}'></li>
             </ul>
             <ul>
                 <li class='keycap' data-command='["applyStyle",{"series":"l"}]' data-latex='\\fontseries{l}\\text{Ab}'></li>
