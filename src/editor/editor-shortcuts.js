@@ -241,8 +241,8 @@ const KEYBOARD_SHORTCUTS = {
   
     'mac:Ctrl-Meta-Shift-Up':     ['speak', 'parent', true],
     '!mac:Ctrl-Alt-Shift-Up':     ['speak', 'parent', true],
-    'mac:Ctrl-Meta-Shift-Down':   ['speak', 'all', true],
-    '!mac:Ctrl-Alt-Shift-Down':   ['speak', 'all', true],
+    'mac:Ctrl-Meta-Shift-Down':   ['speak', 'group', true],
+    '!mac:Ctrl-Alt-Shift-Down':   ['speak', 'group', true],
     'mac:Ctrl-Meta-Shift-Left':   ['speak', 'left', true],
     '!mac:Ctrl-Alt-Shift-Left':   ['speak', 'left', true],
     'mac:Ctrl-Meta-Shift-Right':  ['speak', 'right', true],
