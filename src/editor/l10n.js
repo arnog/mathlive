@@ -38,7 +38,7 @@ l10n.merge = function(locale, strings) {
         l10n.locale = savedLocale;
     } else if (locale && !strings) {
         strings = locale;
-        for (const l of strings) {
+        for (const l in strings) {
             if (strings.hasOwnProperty(l)) {
                 l10n.merge(l, strings[l]);
             }

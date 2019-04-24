@@ -3100,6 +3100,8 @@ function validateStyle(style) {
  * - 'ux': ultra-expanded
  * 
  * @param {string} [style.shape=''] - The font 'shape', i.e. italic.
+ * - 'auto': italic or upright, depending on mode and letter (single letters are
+ * italic in math mode)
  * - 'up': upright
  * - 'it': italic
  * - 'sl': slanted or oblique (often the same as italic)
