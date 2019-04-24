@@ -1479,7 +1479,7 @@ function parseExpression(expr, options) {
                     } else if (fn && lhs && lhs.fn === fn && !hasSup(lhs)) {
                         // add(x,y) + z -> add(x, y, z)
                         if (typeof rhs !== 'undefined') {
-                            if (rhs.fn === fn && !hasSup(rhs)) {
+                            if (rhs.fn === fn && !hasSup(rhs) && rhs.arg) {
                                 // add(x, y) = add (a, b)
                                 lhs.arg = [...lhs.arg, ...rhs.arg];
                             } else if (lhs.arg) {

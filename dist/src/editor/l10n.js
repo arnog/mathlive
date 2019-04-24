@@ -2,20 +2,13 @@
 
 
 export function l10n(s) {
-    // Use the browser defined language as the default language,
-    // "english" if not running in a browser (node.js)
-    if (!l10n._locale) {
-        // Use the setter, which will load the necessary .json files.
-        l10n.locale = typeof navigator === 'undefined' ? 'en' : 
-            navigator.language.slice(0, 5);
-    }
 
-    const language = l10n._locale.substring(0, 2);
+    const language = l10n.locale.substring(0, 2);
 
     let result = '';
 
     // Attempt to find a match for the current locale
-    if (l10n.strings[l10n._locale]) result = l10n.strings[l10n._locale][s];
+    if (l10n.strings[l10n.locale]) result = l10n.strings[l10n.locale][s];
     // If none is found, attempt to find a match for the language
     if (!result && l10n.strings[language]) result = l10n.strings[language][s];
     // If none is found, try english
@@ -60,6 +53,13 @@ Object.defineProperty(l10n, 'locale', {
         l10n._locale = locale
     },
     get() {
+        // Use the browser defined language as the default language,
+        // "english" if not running in a browser (node.js)
+        if (!l10n._locale) {
+            // Use the setter, which will load the necessary .json files.
+            l10n._locale = typeof navigator === 'undefined' ? 'en' : 
+                navigator.language.slice(0, 5);
+        }
         return l10n._locale
     }
 });
@@ -97,7 +97,7 @@ l10n.strings = {
         "tooltip.copy to clipboard": "In die Zwischenablage kopieren",
         "tooltip.redo": "Wiederholen",
         "tooltip.toggle virtual keyboard": "Virtuelle Tastatur umschalten",
-        "tooltip.undo": "Rückgängig machen"
+        "tooltip.undo": "Widerrufen"
     },
     "es": {
         "keyboard.tooltip.functions": "Funciones",
@@ -127,8 +127,8 @@ l10n.strings = {
         "keyboard.tooltip.command": "Mode de commandes LaTeX",
         "keyboard.tooltip.numeric": "Numérique",
         "keyboard.tooltip.roman": "Lettres et symboles romains",
-        "tooltip.copy to clipboard": "Copier dans le Presse-papiers",
-        "tooltip.redo": "Refaire",
+        "tooltip.copy to clipboard": "Copier dans le presse-papiers",
+        "tooltip.redo": "Rétablir",
         "tooltip.toggle virtual keyboard": "Afficher/Masquer le clavier virtuel",
         "tooltip.undo": "Annuler"
     },
