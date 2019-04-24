@@ -219,10 +219,6 @@ class Lexer {
             //         result.value = next;
             //     }
             // }
-        } else if (this.peek() === '^') {
-            result = new Token(this.get());
-        } else if (this.peek() === '_') {
-            result = new Token(this.get());
         } else if (this.peek() === '~') {
             // Spacing
             this.get();

@@ -651,6 +651,9 @@ MathField.prototype._onPointerDown = function(evt) {
             // The selection has changed, so we'll need to re-render
             dirty = true;
 
+            // Reset any user-specified style
+            this.style = {};
+
             // evt.details contains the number of consecutive clicks
             // for double-click, triple-click, etc...
             if (evt.detail === 3 || tapCount > 2) {
@@ -725,9 +728,6 @@ MathField.prototype._onSelectionDidChange = function() {
             this.config.onModeChange(this, this.mode)
         }
     }
-
-    // Reset the style
-    this.style = {};
 
     // Defer the updating of the popover position: we'll need the tree to be
     // re-rendered first to get an updated caret position
@@ -1013,9 +1013,10 @@ MathField.prototype.$perform = function(command) {
 
     // If the command changed the selection so that it is no longer 
     // collapsed, or if it was an editing command, reset the inline
-    // shortcut buffer
+    // shortcut buffer and the user style
     if (!this.mathlist.isCollapsed() || /^(transpose|paste|complete|((moveToNextChar|moveToPreviousChar|extend).*))_$/.test(selector)) {
         this._resetKeystrokeBuffer();
+        this.style = {};
     }
 
     // Render the mathlist
@@ -1245,7 +1246,7 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
                 return false;
             }
 
-            if (/(^|[^a-zA-Z])[a-zA-Z][ ]$/.test(context)) {
+            if (/(^|[^a-zA-Z'’])[a-zA-Z][ ]$/.test(context)) {
                 // An isolated letter, followed by a space:
                 // Convert the letter to math, stay in text mode.
                 this.convertLastAtomsToMath_(1);
@@ -1398,7 +1399,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
                         Lexer.tokenize(this.keystrokeBufferStates[i].latex), 
                         this.config.default, null, this.config.macros) : 
                         this.mathlist.siblings();
-                    shortcut = Shortcuts.forString(siblings,
+                    shortcut = Shortcuts.forString(this.mode, siblings,
                         candidate.slice(i), this.config);
                     i += 1;
                 }
@@ -2964,6 +2965,86 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
 }
 
 /**
+ * Validate a style specification object
+ * @param {object} style 
+ */
+function validateStyle(style) {
+    const result = {};
+    if (typeof style.mode === 'string') {
+        result.mode = style.mode.toLowerCase();
+        console.assert(result.mode === 'math' || result.mode === 'text' || result.mode === 'command');
+    }
+
+    if (typeof style.color === 'string') {
+        result.color = style.color;
+    }
+
+    if (typeof style.backgroundColor === 'string') {
+        result.backgroundColor = style.backgroundColor;
+    }
+
+    if (typeof style.fontFamily === 'string') {
+        result.fontFamily = style.fontFamily;
+    }
+
+    if (typeof style.series === 'string') {
+        result.fontSeries = style.series;
+    }
+    if (typeof style.fontSeries === 'string') {
+        result.fontSeries = style.fontSeries.toLowerCase();
+    }
+    if (result.fontSeries) {
+        result.fontSeries = {
+            "bold": 'b',
+            "medium": 'm',
+            "normal": 'mn',
+        }[result.fontSeries] || result.fontSeries;
+    }
+
+    if (typeof style.shape === 'string') {
+        result.fontShape = style.shape;
+    }
+    if (typeof style.fontShape === 'string') {
+        result.fontShape = style.fontShape.toLowerCase();
+    }
+    if (result.fontShape) {
+        result.fontShape = {
+            "italic": 'it',
+            "up": 'n',
+            "upright": 'n',
+            "normal": 'n',
+        }[result.fontShape] || result.fontShape;
+    }
+
+    if (typeof style.size === 'string') {
+        result.fontSize = style.size;
+    } else if (typeof style.size === 'number') {
+        result.fontSize = 'size' + Math.min(0, Math.max(10, style.size));
+    }
+    if (typeof style.fontSize === 'string') {
+        result.fontSize = style.fontSize.toLowerCase();
+    }
+    if (result.fontSize) {
+        result.fontSize = {
+            'tiny': 'size1',
+            'scriptsize': 'size2',
+            'footnotesize': 'size3',
+            'small': 'size4',
+            'normal': 'size5',
+            'normalsize': 'size5',
+            'large': 'size6',
+            'Large': 'size7',
+            'LARGE': 'size8',
+            'huge': 'size9',
+            'Huge': 'size10'
+        }[result.fontSize] || result.fontSize;
+    }
+
+    return result;
+}
+
+
+/**
  * Apply a style (color, bold, italic, etc...).
  * 
  * If there is a selection, the style is applied to the selection
@@ -2977,7 +3058,7 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
  * @param {object} style  an object with the following properties. All the 
  * properties are optional, but they can be combined.
  * 
- * @param {string} [style.mode=''] - Either `'math'` or `'text'`.
+ * @param {string} [style.mode=''] - Either `'math'`, `'text'` or '`command`'
  * @param {string} [style.color=''] - The text/fill color, as a CSS RGB value or
  * a string for some 'well-known' colors, e.g. 'red', '#f00', etc...
  * 
@@ -2995,7 +3076,7 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
  * - 'bb': Blackboard bold, uppercase only
  * - 'scr': Script style, uppercase only
  * 
- * @param {string} [style.fontSeries=''] - The font 'series', i.e. weight and 
+ * @param {string} [style.series=''] - The font 'series', i.e. weight and 
  * stretch. The following values can be combined, for example: "ebc": extra-bold,
  * condensed. Aside from 'b', these attributes may not have visible effect if the 
  * font family does not support this attribute:
@@ -3018,25 +3099,27 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
  * - 'ex': extra-expanded
  * - 'ux': ultra-expanded
  * 
- * @param {string} [style.fontShape=''] - The font 'shape', i.e. italic.
+ * @param {string} [style.shape=''] - The font 'shape', i.e. italic.
  * - 'up': upright
  * - 'it': italic
  * - 'sl': slanted or oblique (often the same as italic)
  * - 'sc': small caps
  * - 'ol': outline
  *  
- * @param {string} [style.fontSize=''] - The font size:  'size1'...'size10'
+ * @param {string} [style.size=''] - The font size:  'size1'...'size10'
  * 'size5' is the default size
  * */
 MathField.prototype.$applyStyle = 
 MathField.prototype.applyStyle_ = function(style) {
     this._resetKeystrokeBuffer();
+    
+    style = validateStyle(style);
+
     if (style.mode) {
-        // It's a mode ('text', 'math') change
+        // There's a mode ('text', 'math', 'command') change
         if (this.mathlist.isCollapsed()) {
-            // Nothing selected, simply toggle the mode that 
-            // will be applied to the next insertion
-            this.switchMode_(this.mode === 'math' ? 'text' : 'math');
+            // Nothing selected
+            this.switchMode_(style.mode);
 
         } else {
             // Convert the selection from one mode to another
@@ -3071,16 +3154,34 @@ MathField.prototype.applyStyle_ = function(style) {
             }
 
         }
-    } else {
-        if (this.mathlist.isCollapsed()) {
-            // No selection, let's update the 'current' style
-            this.style = style;
-            // This style will be used the next type an atom is inserted
-        } else {
-            this.mathlist._applyStyle(style);
-            this.undoManager.snapshot(this.config);
+        delete style.mode;
+    } 
+
+    if (this.mathlist.isCollapsed()) {
+        // No selection, let's update the 'current' style
+        if (this.style.fontSeries && style.fontSeries === this.style.fontSeries) {
+            style.fontSeries = 'auto';
         }
+        if (style.fontShape && style.fontShape === this.style.fontShape) {
+            style.fontShape = 'auto';
+        }
+        if (style.color && style.color === this.style.color) {
+            style.color = 'none';
+        }
+        if (style.backgroundColor && style.backgroundColor === this.style.backgroundColor) {
+            style.backgroundColor = 'none';
+        }
+        if (style.fontSize && style.fontSize === this.style.fontSize) {
+            style.fontSize = 'auto';
+        }
+        this.style = {...this.style, ...style};
+        // This style will be used the next time an atom is inserted
+    } else {
+        // Change the style of the selection
+        this.mathlist._applyStyle(style);
+        this.undoManager.snapshot(this.config);
     }
+
     return true;
 }
 

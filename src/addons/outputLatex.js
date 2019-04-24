@@ -124,6 +124,9 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
             if (atoms[0].fontSeries === 'b') {
                 prefix = '\\mathbf{';
                 suffix = '}';
+            } else if (atoms[0].fontSeries && atoms[0].fontSeries !== 'n') {
+                prefix = '{\\fontSeries{' + atoms[0].fontSeries + '}';
+                suffix = '}';
             }
         } else if (prop === 'fontShape') {
             if (atoms[0].fontShape === 'it') {
@@ -132,6 +135,9 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
             } else if (atoms[0].fontShape === 'n' && 
                 !(atoms[0].fontSeries === 'b' || atoms[0].fontFamily === 'cmr')) {
                 prefix = '\\mathup{';
+                suffix = '}';
+            } else if (atoms[0].fontShape && atoms[0].fontShape !== 'n') {
+                prefix = '{\\fontShape{' + atoms[0].fontShape + '}';
                 suffix = '}';
             }
 
@@ -177,6 +183,13 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
          atoms[0].color !== 'none' &&
          (!parent || parent.color !== atoms[0].color)) {
         prefix = '\\textcolor{' + Color.colorToString(atoms[0].color) + '}{';
+        suffix = '}';
+    }
+
+    if (prop === 'backgroundColor' && atoms[0].backgroundColor &&
+         atoms[0].backgroundColor !== 'none' &&
+         (!parent || parent.backgroundColor !== atoms[0].backgroundColor)) {
+        prefix = '\\colorbox{' + Color.colorToString(atoms[0].backgroundColor) + '}{';
         suffix = '}';
     }
 
@@ -258,13 +271,18 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             result += this.latexOpen || ((this.cssId || this.cssClass) ? '' : '{');
 
             if (this.cssId) result += '\\cssId{' + this.cssId + '}{';
-            if (this.cssClass) result += '\\class{' + this.cssClass + '}{';
 
-            result += expandMacro ? latexify(this, this.body, true) :
-                (this.latex || latexify(this, this.body, false));
+            if (this.cssClass === 'ML__emph') {
+                result += '\\emph{' + latexify(this, this.body, expandMacro) + '}';
+            } else {
+                if (this.cssClass) result += '\\class{' + this.cssClass + '}{';
 
+                result += expandMacro ? latexify(this, this.body, true) :
+                    (this.latex || latexify(this, this.body, false));
+
+                if (this.cssClass) result += '}';
+            }
             if (this.cssId) result += '}';
-            if (this.cssClass) result += '}';
 
             result += this.latexClose || ((this.cssId || this.cssClass) ? '' : '}');
             break;
