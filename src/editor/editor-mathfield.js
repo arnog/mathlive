@@ -3287,7 +3287,7 @@ MathField.prototype.speak_ = function(amount, withHighlighting) {
                 break;
             case 'left': {
                 const siblings = mathField.mathlist.siblings();
-                const last = mathField.mathlist.startOffset() - (mathField.mathlist.isCollapsed() ? 0 : 1);
+                const last = mathField.mathlist.startOffset();
                 if (last >= 1) {
                      result = [];
                     for (let i = 1; i <= last; i++) {
@@ -3299,7 +3299,7 @@ MathField.prototype.speak_ = function(amount, withHighlighting) {
             case 'right': {
                 const siblings = mathField.mathlist.siblings();
                 const first = mathField.mathlist.endOffset() + 1;
-                if (first < siblings.length - 1) {
+                if (first <= siblings.length - 1) {
                     result = [];
                     for (let i = first; i <= siblings.length - 1; i++) {
                         result.push(siblings[i]);
@@ -3358,7 +3358,7 @@ MathField.prototype.speak_ = function(amount, withHighlighting) {
 
 
     const atoms = getAtoms(this, amount);
-    if (!atoms) {
+    if (atoms === null) {
         this.config.handleSpeak ( getFailedSpeech(amount) );
         return false;
     }
