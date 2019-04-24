@@ -740,7 +740,7 @@ function validateShortcut(mode, siblings, shortcut) {
     let space = false;
     let sibling = siblings[siblings.length - 1];
     let index = siblings.length - 1;
-    while (sibling && sibling.type === 'msubsup') {
+    while (sibling && /msubsup|placeholder/.test(sibling.type)) {
         index -= 1;
         sibling = siblings[index];
     }

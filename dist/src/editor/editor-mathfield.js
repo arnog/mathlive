@@ -1395,10 +1395,17 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
                 const candidate = this.keystrokeBuffer + c;
                 let i = 0;
                 while (!shortcut && i < candidate.length) {
-                    const siblings = this.keystrokeBufferStates[i] ? ParserModule.parseTokens(
-                        Lexer.tokenize(this.keystrokeBufferStates[i].latex), 
-                        this.config.default, null, this.config.macros) : 
-                        this.mathlist.siblings();
+                    let siblings;
+                    if (this.keystrokeBufferStates[i]) {
+                        const mathlist = new EditableMathlist.EditableMathlist();
+                        mathlist.root = MathAtom.makeRoot('math', ParserModule.parseTokens(
+                            Lexer.tokenize(this.keystrokeBufferStates[i].latex), 
+                            this.config.default, null, this.config.macros));
+                        mathlist.setPath(this.keystrokeBufferStates[i].selection);
+                        siblings = mathlist.siblings();
+                    } else {
+                        siblings = this.mathlist.siblings();
+                    }
                     shortcut = Shortcuts.forString(this.mode, siblings,
                         candidate.slice(i), this.config);
                     i += 1;
