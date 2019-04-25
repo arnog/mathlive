@@ -2062,10 +2062,18 @@ function applyStyleToUnstyledAtoms(atom, style) {
  * handlers for the contentWillChange, contentDidChange, selectionWillChange and
  * selectionDidChange notifications will not be invoked. Default `false`.
  * 
+ * @param {object} options.style
+ * 
  * @method EditableMathlist#insert
  */
 EditableMathlist.prototype.insert = function(s, options) {
     options = options || {};
+
+    // Try to insert a smart fence.
+    if (options.smartFence && this._insertSmartFence(s, options.style)) {
+        return;
+    }
+
     const suppressChangeNotifications = this.suppressChangeNotifications;
     if (options.suppressChangeNotifications) {
         this.suppressChangeNotifications = true;
@@ -2244,11 +2252,10 @@ EditableMathlist.prototype.insert = function(s, options) {
  * Insert a smart fence '(', '{', '[', etc...
  * If not handled (because `fence` wasn't a fence), return false.
  * @param {string} fence
+ * @param {object} style
  * @return {boolean}
  */
 EditableMathlist.prototype._insertSmartFence = function(fence, style) {
-    if (!this.config.smartFence) return false;
-
     const parent = this.parent();
 
     // We're inserting a middle punctuation, for example as in {...|...}
