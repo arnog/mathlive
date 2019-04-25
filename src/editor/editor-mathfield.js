@@ -1225,7 +1225,7 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
 
             if (keystroke === 'Esc' || /[/^_\\]/.test(c)) {
                 // If this is a command for a fraction, superscript or subscript,
-                // of the '\' command mode key
+                // or the '\' command mode key
                 // switch to 'math'
                 return true;
             }
@@ -1246,6 +1246,12 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
                 return false;
             }
 
+            if (/[$€£₤₺¥¤฿¢₡₧₨₹₩₱]/u.test(c)) {
+                // A currency symbol.
+                // Switch to math mode
+                return true;
+            }
+
             if (/(^|[^a-zA-Z'’])[a-zA-Z][ ]$/.test(context)) {
                 // An isolated letter, followed by a space:
                 // Convert the letter to math, stay in text mode.
@@ -1253,16 +1259,16 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
                 return false;
             }
 
-            if (/\.\S$/.test(context)) {
-                // A period followed by something other than space
+            if (/[^0-9]\.[^0-9\s]$/.test(context)) {
+                // A period followed by something other than space or a digit
+                // and not preceded by a digit.
                 // We thought this was a text period, but turns out it's not
                 // Turn it into a \cdot
+                this.convertLastAtomsToMath_(1);
                 const atom = this.mathlist.sibling(0);
                 atom.body = '⋅';        // centered dot
-                atom.fontFamily = 'cmr';
+                atom.autoFontFamily = 'cmr';
                 atom.latex = '\\cdot';
-                atom.mode = 'math';
-                atom.type = 'mord';
 
                 return true;
             }
@@ -1270,7 +1276,6 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
             if (/(^|\s)[a-zA-Z][^a-zA-Z]$/.test(context)) {
                 // Single letter (x), followed by a non-letter (>, =...)
                 this.convertLastAtomsToMath_(1);
-                this.removeIsolatedSpace_();
                 return true;
             }
 
@@ -1287,7 +1292,6 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
                 // An open paren followed by a number
                 // Turn the paren back to math and switch.
                 this.convertLastAtomsToMath_(1);
-                this.removeIsolatedSpace_();
                 return true;
             }
 
@@ -1295,7 +1299,6 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
                 // An open paren followed by a single letter, then a "," or ";"
                 // Turn the paren back and letter to math and switch.
                 this.convertLastAtomsToMath_(2);
-                this.removeIsolatedSpace_();
                 return true;
             }
 
