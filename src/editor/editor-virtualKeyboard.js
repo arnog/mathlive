@@ -666,6 +666,8 @@ const LAYERS = {
                 <li class='keycap' data-command='["applyStyle",{"size":"size3"}]' data-latex='\\scriptsize\\text{small}'></li>
                 <li class='keycap' data-command='["applyStyle",{"size":"size5"}]' data-latex='\\scriptsize\\text{normal}'></li>
                 <li class='keycap' data-command='["applyStyle",{"size":"size9"}]' data-latex='\\huge\\text{big}'></li>
+                <li class='separator w5'></li>
+                <li class='keycap' data-latex='\\langle' data-command='["insert", "\\\\langle", {"smartFence":true}]'></li>
             </ul>
             <ul>
                 <li class='keycap' data-command='["applyStyle",{"series":"l"}]' data-latex='\\fontseries{l}\\text{Ab}'></li>
@@ -1196,7 +1198,7 @@ function make(mf, theme) {
         keyboardIDs = 'all';
     }
     keyboardIDs = keyboardIDs.replace(/\ball\b/i, 
-        'numeric roman greek functions command')
+        'numeric roman greek functions command style')
 
     const layers = Object.assign({}, LAYERS, mf.config.customVirtualKeyboardLayers || {});
 

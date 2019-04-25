@@ -1472,6 +1472,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
     if (selector === 'moveAfterParent' && parent && 
         parent.type === 'leftright' && 
         this.mathlist.endOffset() === this.mathlist.siblings().length - 1 &&
+        this.config.smartFence && 
         this.mathlist._insertSmartFence('.')) {
             // Pressing the space bar (moveAfterParent selector) when at the end 
             // of a potential smartfence will close it as a semi-open fence
@@ -1525,13 +1526,12 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
 
             // Insert the substitute, possibly as a smart fence
             const style = {...this.mathlist.anchorStyle(), ...this.style};
-            if (!this.mathlist._insertSmartFence(shortcut, style)) {
-                this.mathlist.insert(shortcut, {
-                    format: 'latex', 
-                    mode: this.mode,
-                    style: style
-                });
-            }
+            this.mathlist.insert(shortcut, {
+                format: 'latex', 
+                mode: this.mode,
+                style: style,
+                smartFence: true
+            });
 
             // Check if as a result of the substitution there is now an isolated
             // (text mode) space (surrounded by math). In which case, remove it.
@@ -1691,8 +1691,12 @@ MathField.prototype._onTypedText = function(text, options) {
                             this.mathlist.insert(c, { mode: 'math', style: style });
                             this.mathlist.moveAfterParent_();
 
-                    } else if (!this.mathlist._insertSmartFence(c, style)) {
-                        this.mathlist.insert(c, { mode: 'math', style: style });
+                    } else {
+                        this.mathlist.insert(c, { 
+                            mode: 'math', 
+                            style: style, 
+                            smartFence: true 
+                        });
                     }
                 }
             } else if (this.mode === 'text') {
