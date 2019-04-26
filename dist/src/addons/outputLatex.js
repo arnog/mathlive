@@ -13,7 +13,8 @@ import Color from '../core/color.js';
 function findLongestRun(atoms, property, value) {
     let i = 0;
     while (atoms[i]) {
-        if (atoms[i].type !== 'mop' && atoms[i][property] !== value) break
+        if (atoms[i].type !== 'mop' && 
+            atoms[i][property] !== value) break
         i++;
     }
     return i;
