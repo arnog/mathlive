@@ -453,7 +453,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                     typeof this.backgroundcolor !== 'undefined') {
                     const bboxParams = [];
                     if (isFinite(this.padding)) {
-                        bboxParams.push(Math.floor(1e5 * this.padding) / 1e5 + 'em')
+                        bboxParams.push(Math.floor(1e2 * this.padding) / 1e2 + 'em')
                     }
                     if (this.border) {
                         bboxParams.push('border:' + this.border);
