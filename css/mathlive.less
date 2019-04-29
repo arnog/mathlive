@@ -1704,4 +1704,13 @@ div.ML__popover.is-visible {
     opacity: .5;
 }
 
-
+/* Styling for an element which is overlaid 
+to the left and right of the mathfield while 
+scrolling to prevent the capture of hover events */
+.ML__scroller {
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    height: 100vh;
+    width: 100vw;
+}

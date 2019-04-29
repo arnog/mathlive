@@ -18,7 +18,7 @@ import FontMetrics from './fontMetrics.js';
 function toString(arg) {
     let result = '';
     if (typeof arg === 'number') {
-        result += Math.floor(1e5 * arg) / 1e5;
+        result += Math.floor(1e2 * arg) / 1e2;
     } else if (typeof arg === 'string') {
         result += arg;
     } else if (Array.isArray(arg)) {

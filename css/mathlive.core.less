@@ -24,6 +24,7 @@
     user-select: none;
 
     width: min-content;
+    overflow: hidden;
 
     // Encourage browsers to consider allocating a hardware accelerated 
     // layer for this element.
@@ -119,7 +120,6 @@ to make sure it doesn't show. */
     flex-flow: row;
     justify-content: space-between;
     align-items: flex-end;
-    // overflow: scroll; /* Doesn't work yet (partial clip), because of incorrect height calculcations */ 
     min-height: 39px;       /* Need some room for the virtual keyboard toggle */
 
     /* Prevent the browser from trying to interpret touch gestures in the field */
@@ -168,6 +168,7 @@ body[theme="dark"] .ML__fieldcontainer {
 .ML__fieldcontainer__field {
     align-self: center;
     position: relative;
+    overflow: hidden;
 }
 
 
