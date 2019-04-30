@@ -594,6 +594,9 @@ MathField.prototype._onPointerDown = function(evt) {
     let trackingWords = false;
     let dirty = false;
 
+    // If a mouse button other than the main one was pressed, return
+    if (evt.buttons !== 1) return;
+
 
     function endPointerTracking(evt) {
         if (window.PointerEvent) {
@@ -638,8 +641,9 @@ MathField.prototype._onPointerDown = function(evt) {
         const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
         // Ignore events that are within small spatial and temporal bounds 
         // of the pointer down
+        const hysteresis = evt.pointerType === 'touch' ? 20 : 5;
         if (Date.now() < anchorTime + 500 && 
-            Math.abs(anchorX - x) < 5 && Math.abs(anchorY - y) < 5) {
+            Math.abs(anchorX - x) < hysteresis && Math.abs(anchorY - y) < hysteresis) {
             evt.preventDefault();
             evt.stopPropagation();
             return;
@@ -705,7 +709,7 @@ MathField.prototype._onPointerDown = function(evt) {
         let div = document.createElement('div');
         div.className = 'ML__scroller';
         this.element.appendChild(div);
-        div.style.left = (bounds.left - 200) + 'px';
+        div.style.left =  (bounds.left - 200) + 'px';
 
         div = document.createElement('div');
         div.className = 'ML__scroller';
@@ -724,8 +728,6 @@ MathField.prototype._onPointerDown = function(evt) {
         this._resetKeystrokeBuffer();
         this.smartModeSuppressed = false;
 
-        // If a mouse button other than the main one was pressed, return
-        if (evt.buttons !== 1) return;
 
         anchor = this._pathFromPoint(anchorX, anchorY, {bias: 0});
         if (anchor) {

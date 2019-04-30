@@ -1198,7 +1198,7 @@ function make(mf, theme) {
         keyboardIDs = 'all';
     }
     keyboardIDs = keyboardIDs.replace(/\ball\b/i, 
-        'numeric roman greek functions command style')
+        'numeric roman greek functions command')
 
     const layers = Object.assign({}, LAYERS, mf.config.customVirtualKeyboardLayers || {});
 
