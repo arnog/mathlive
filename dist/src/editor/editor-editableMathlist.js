@@ -1179,6 +1179,7 @@ EditableMathlist.prototype.extractArgBeforeInsertionPoint = function() {
     } else {
         while (i >= 1 && (siblings[i].type === 'mord' ||
             siblings[i].type === 'surd'     ||
+            siblings[i].type === 'msubsup'  ||
             siblings[i].type === 'leftright'
             )) {
             result.unshift(siblings[i]);

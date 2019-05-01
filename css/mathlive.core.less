@@ -24,7 +24,6 @@
     user-select: none;
 
     width: min-content;
-    overflow: hidden;
 
     // Encourage browsers to consider allocating a hardware accelerated 
     // layer for this element.
@@ -168,8 +167,10 @@ body[theme="dark"] .ML__fieldcontainer {
 .ML__fieldcontainer__field { 
     align-self: center;
     position: relative;
-    overflow: visible;
+    overflow: hidden;
     line-height: 0;
+    padding: 2px;
+    width: 100%;
 }
 
 
