@@ -18,7 +18,7 @@ import FontMetrics from './fontMetrics.js';
 function toString(arg) {
     let result = '';
     if (typeof arg === 'number') {
-        result += Math.floor(1e5 * arg) / 1e5;
+        result += Math.floor(1e2 * arg) / 1e2;
     } else if (typeof arg === 'string') {
         result += arg;
     } else if (Array.isArray(arg)) {
@@ -381,8 +381,9 @@ export class Span {
             }
 
             if (this.svgOverlay) {
-                if (!this.style) this.style = {};
-                this.style['position'] = 'relative';
+                this.setStyle('position', 'relative');
+                this.setStyle('height', this.height + this.depth, 'em');
+                this.setStyle('vertical-align', -this.depth, 'em');
             }
 
             if (this.attributes) {
@@ -465,9 +466,29 @@ export class Span {
             // If there is some SVG markup associated with this span,
             // include it now
             if (this.svgOverlay) {
-                result += body; // @todo maybe safe encode here...? (< >)
-                result += '<svg ';
-                result += 'style="position:absolute;left:0;top:0;width:100%;height:100%;z-index:2;';
+                result += '<span style="';
+                result += 'display: inline-block;';
+                result += 'height:' + (this.height + this.depth) + 'em;';
+                result += 'vertical-align:' + this.depth + 'em;';
+                result += '">';
+                result += body;
+                result += '</span>';
+                result += '<svg ';                
+                // result += 'style="position:absolute;left:0;top:0;width:100%;height:100%;z-index:2;';
+                result += 'style="position:absolute;';
+                result += 'overflow:overlay;';
+                result += 'height:' + (this.height + this.depth) + 'em;';
+                result += 'transform:translateY(' + Math.round(- FontMetrics.toPx(this.depth, 'em') + 2 * FontMetrics.toPx(this.style.padding)) + 'px);';
+                if (this.style && this.style.padding) {
+                    result += 'top:' + this.style.padding + ';';
+                    result += 'left:' + this.style.padding + ';';
+                    result += 'width:calc(100% - 2 * ' + this.style.padding + ' );';
+                } else {
+                    result += 'top:0;';
+                    result += 'left:0;';
+                    result += 'width:100%;';
+                }
+                result += 'z-index:2;';
                 result += '"';
                 if (this.svgStyle) {
                     result += ' style="' + this.svgStyle + '"';
@@ -476,7 +497,7 @@ export class Span {
                 result += this.svgOverlay;
                 result += '</svg>';
             } else {
-                result += body; // @todo maybe safe encode here...? (< >)
+                result += body;
             }
 
             // Note: We can't omit the tag, even if it has no class and no style,

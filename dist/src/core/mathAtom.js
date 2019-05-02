@@ -985,7 +985,7 @@ class MathAtom {
             box.setStyle('width', '100%');
         }
 
-        box.setStyle('top', -padding + base.depth, 'em');
+        box.setStyle('top', -padding, 'em');
         box.setStyle('left', -padding, 'em');
         box.setStyle('z-index', '-1');  // Ensure the box is *behind* the base
 
@@ -993,11 +993,16 @@ class MathAtom {
         if (this.framecolor) box.setStyle('border', FONTMETRICS.fboxrule + 'em solid ' + this.framecolor);
         if (this.border) box.setStyle('border', this.border);
 
+        base.setStyle('display', 'inline-block');
+        base.setStyle('height', base.height + base.depth, 'em');
+        base.setStyle('vertical-align', -base.depth + padding, 'em');
+
         // The result is a span that encloses the box and the base
-        const result = makeSpan([box, makeOrd(base)]);
+        const result = makeSpan([box, base]);
         // Set its position as relative so that the box can be absolute positioned
         // over the base
         result.setStyle('position', 'relative');
+        result.setStyle('vertical-align', -padding + base.depth, 'em');
 
         // The padding adds to the width and height of the pod
         result.height = base.height + padding;

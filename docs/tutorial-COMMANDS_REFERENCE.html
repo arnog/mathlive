@@ -68,17 +68,19 @@ writeCookie('symbol-access', 'private')
     <p>MathLive supports over 700 standard TeX and LaTeX commands and includes a few
 non-standard extensions which are documented here.</p>
 <h1 id="decorations">Decorations</h1>
-<h2 id="-enclose-cancel-bcancel-and-xcancel-"><code>\enclose</code>, <code>\cancel</code>, <code>\bcancel</code> and <code>\xcancel</code></h2>
+<h2 id="-enclose-cancel-bcancel-and-xcancel"><code>\enclose</code>, <code>\cancel</code>, <code>\bcancel</code> and <code>\xcancel</code></h2>
 <p>These commands render some decorating marks called <strong>notations</strong> on top of 
 their content. They can be used to highlight part of an expression, or 
 to indicate an expression has been canceled with a strike mark.</p>
 <blockquote>
 <p><strong>Note</strong> <code>\enclose</code> is an extension to LaTeX that follows the <code>&lt;menclose&gt;</code> definition
 of <a href="">MathML</a> and the LaTeX flavor defined by MathJax.</p>
+</blockquote>
+<blockquote>
 <p><strong>Note</strong> The <code>\cancel</code>, <code>\bcancel</code> and <code>\xcancel</code> commands are part of the 
 <a href="https://www.ctan.org/pkg/cancel">&quot;cancel&quot;</a> LaTeX package.</p>
 </blockquote>
-<h3 id="-enclose-"><code>\enclose</code></h3>
+<h3 id="-enclose"><code>\enclose</code></h3>
 <p>The <code>\enclose</code> command is the most flexible. It accepts three arguments, two 
 of which are required:</p>
 <pre class="prettyprint source lang-tex"><code>    \enclose{notation:text}[style:text]{body:math}</code></pre><ul>
@@ -112,7 +114,7 @@ follows the shorthand syntax of the CSS <code>border</code> property, for exampl
 </li>
 <li><code>body</code> a math expression that is &quot;enclosed&quot; by the specified notations</li>
 </ul>
-<h3 id="-cancel-bcancel-and-xcancel-"><code>\cancel</code>, <code>\bcancel</code> and <code>\xcancel</code></h3>
+<h3 id="-cancel-bcancel-and-xcancel"><code>\cancel</code>, <code>\bcancel</code> and <code>\xcancel</code></h3>
 <table>
 <thead>
 <tr>

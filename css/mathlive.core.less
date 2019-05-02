@@ -119,7 +119,6 @@ to make sure it doesn't show. */
     flex-flow: row;
     justify-content: space-between;
     align-items: flex-end;
-    // overflow: scroll; /* Doesn't work yet (partial clip), because of incorrect height calculcations */ 
     min-height: 39px;       /* Need some room for the virtual keyboard toggle */
 
     /* Prevent the browser from trying to interpret touch gestures in the field */
@@ -165,9 +164,13 @@ body[theme="dark"] .ML__fieldcontainer {
 }
 
 /* This is the actual field content (formula) */
-.ML__fieldcontainer__field {
+.ML__fieldcontainer__field { 
     align-self: center;
     position: relative;
+    overflow: hidden;
+    line-height: 0;
+    padding: 2px;
+    width: 100%;
 }
 
 

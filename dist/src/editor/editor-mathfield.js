@@ -151,7 +151,7 @@ function MathField(element, config) {
     // Additional elements used for UI.
     // They are retrieved in order a bit later, so they need to be kept in sync
     // 1.0/ The field, where the math equation will be displayed
-    // 1.1/ The widget to activate the command bar
+    // 1.1/ The virtual keyboard toggle
     // 2/ The popover panel which displays info in command mode
     // 3/ The keystroke caption panel (option+shift+K)
     // 4/ The virtual keyboard
@@ -231,6 +231,18 @@ function MathField(element, config) {
         this.textarea = this.element.children[iChild++].firstElementChild;
     }
     this.field = this.element.children[iChild].children[0];
+    // Listen to 'wheel' events to scroll (horizontally) the field when it overflows
+    this.field.addEventListener('wheel', ev => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        let wheelDelta = typeof ev.deltaX === 'undefined' ? ev.detail : -ev.deltaX;
+        if(!isFinite(wheelDelta)) wheelDelta = ev.wheelDelta / 10;
+        this.field.scroll({
+            top: 0,
+            left: this.field.scrollLeft - wheelDelta * 5
+        });
+    }, {passive: false});
+
     this.virtualKeyboardToggleDOMNode = this.element.children[iChild++].children[1];
     this._attachButtonHandlers(this.virtualKeyboardToggleDOMNode,
         {
@@ -298,7 +310,12 @@ function MathField(element, config) {
 
 
     // Delegate mouse and touch events
-    on(this.element, 'touchstart:active mousedown', this);
+    if (window.PointerEvent) {
+        // Use modern pointer events if available
+        on(this.field, 'pointerdown', this);
+    } else {
+        on(this.field, 'touchstart:active mousedown', this);
+    }
 
     // Request notification for when the window is resized (
     // or the device switched from portrait to landscape) to adjust
@@ -334,8 +351,8 @@ function MathField(element, config) {
 }
 
 /**
- * handleEvent is a function invoked when an event registered with an
- * object instead of a function is emitted. 
+ * handleEvent is a function invoked when an event is registered with an
+ * object instead ( see `addEventListener()` in `on()`)
  * The name is defined by addEventListener() and cannot be changed.
  * This pattern is used to be able to release bound event handlers, 
  * (event handlers that need access to `this`) as the bind() function
@@ -348,6 +365,7 @@ MathField.prototype.handleEvent = function(evt) {
         case 'blur': this._onBlur(evt); break;
         case 'touchstart': this._onPointerDown(evt); break;
         case 'mousedown': this._onPointerDown(evt); break;
+        case 'pointerdown': this._onPointerDown(evt); break;
         case 'resize': {
             if (this._resizeTimer) window.cancelAnimationFrame(this._resizeTimer);
             this._resizeTimer = window.requestAnimationFrame( () => this._onResize());
@@ -388,12 +406,11 @@ MathField.prototype.$revertToOriginalContent = function() {
     delete releaseSharedElement(this.virtualKeyboard);
     delete releaseSharedElement(document.getElementById('mathlive-alternate-keys-panel'));
     
+    off(this.element, 'pointerdown', this);
     off(this.element, 'touchstart:active mousedown', this);
     off(this.element, 'focus', this);
     off(this.element, 'blur', this);
     off(window, 'resize', this);
-    off(window, 'focus', this);
-    off(window, 'blur', this);
 }
 
 MathField.prototype._resetKeystrokeBuffer = function() {
@@ -440,6 +457,32 @@ MathField.prototype._getCaretPosition = function() {
     return null;
 }
 
+
+MathField.prototype._getSelectionBounds = function() {
+    const selectedNodes = this.field.querySelectorAll('.ML__selected');
+    if (selectedNodes && selectedNodes.length > 0) {
+        const selectionRect = { top: Infinity, bottom: -Infinity, left: Infinity, right: -Infinity };
+        // Calculate the union of the bounds of all the selected spans
+        selectedNodes.forEach(node => {
+            if (node.classList.contains('ML__selected')) {
+                const bounds = node.getBoundingClientRect();
+                if (bounds.left < selectionRect.left) selectionRect.left = bounds.left;
+                if (bounds.right > selectionRect.right) selectionRect.right = bounds.right;
+                if (bounds.bottom > selectionRect.bottom) selectionRect.bottom = bounds.bottom;
+                if (bounds.top < selectionRect.top) selectionRect.top = bounds.top;
+            }
+        });
+        const fieldRect = this.field.getBoundingClientRect();
+        const w = selectionRect.right - selectionRect.left;
+        const h = selectionRect.bottom - selectionRect.top;
+        selectionRect.left = Math.ceil(selectionRect.left - fieldRect.left + this.field.scrollLeft);
+        selectionRect.right = selectionRect.left + w;
+        selectionRect.top = Math.ceil(selectionRect.top - fieldRect.top);
+        selectionRect.bottom = selectionRect.top + h;
+        return selectionRect;
+    }
+    return null;
+}
 
 /**
  * Return a tuple of an element and a distance from point (x, y)
@@ -541,46 +584,86 @@ MathField.prototype._pathFromPoint = function(x, y, options) {
     return result;
 }
 
-let lastTouchEndTouch;
-let lastTouchEndTimestamp;
+let lastTap;
 let tapCount = 0;
 
 MathField.prototype._onPointerDown = function(evt) {
-    let anchor;
     const that = this;
+    let anchor;
     let trackingPointer = false;
     let trackingWords = false;
     let dirty = false;
 
+    // If a mouse button other than the main one was pressed, return
+    if (evt.buttons !== 1) return;
+
+
     function endPointerTracking(evt) {
-        off(that.field, 'touchmove', onPointerMove);
-        off(that.field, 'touchend touchleave', endPointerTracking);
-        off(window, 'mousemove', onPointerMove);
-        off(window, 'mouseup blur', endPointerTracking);
+        if (window.PointerEvent) {
+            off(that.field, 'pointermove', onPointerMove);
+            off(that.field, 'pointerend pointerleave pointercancel', endPointerTracking);
+            // off(window, 'pointermove', onPointerMove);
+            // off(window, 'pointerup blur', endPointerTracking);
+            that.field.releasePointerCapture(evt.pointerId);
+        } else {
+            off(that.field, 'touchmove', onPointerMove);
+            off(that.field, 'touchend touchleave', endPointerTracking);
+            off(window, 'mousemove', onPointerMove);
+            off(window, 'mouseup blur', endPointerTracking);
+        }
 
         trackingPointer = false;
+        clearInterval(scrollInterval);
+
+        that.element.querySelectorAll('.ML__scroller').forEach(x => 
+            x.parentNode.removeChild(x)
+        );
+
         evt.preventDefault();
         evt.stopPropagation();
     }
 
+    let scrollLeft = false;
+    let scrollRight = false;
+    const scrollInterval = setInterval(() => {
+        if (scrollLeft) {
+            that.field.scroll({top: 0, left: that.field.scrollLeft - 16});
+        } else if (scrollRight) {
+            that.field.scroll({top: 0, left: that.field.scrollLeft + 16});
+        }
+    }, 32);
+
+
+
+
     function onPointerMove(evt) {
         const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
         const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
-
         // Ignore events that are within small spatial and temporal bounds 
         // of the pointer down
+        const hysteresis = evt.pointerType === 'touch' ? 20 : 5;
         if (Date.now() < anchorTime + 500 && 
-            Math.abs(anchorX - x) < 5 && Math.abs(anchorY - y) < 5) {
+            Math.abs(anchorX - x) < hysteresis && Math.abs(anchorY - y) < hysteresis) {
             evt.preventDefault();
             evt.stopPropagation();
             return;
         }
 
+        const fieldBounds = that.field.getBoundingClientRect();
+        scrollRight = x > fieldBounds.right;
+        scrollLeft = x < fieldBounds.left;
+
         let actualAnchor = anchor;
 
-        if (evt.touches && evt.touches.length === 2) {
-            actualAnchor = that._pathFromPoint(
-                evt.touches[1].clientX, evt.touches[1].clientY, {bias: 0});
+        if (window.PointerEvent) {
+            if (!evt.isPrimary) {
+                actualAnchor = that._pathFromPoint(evt.clientX, evt.clientY, {bias: 0});
+            }
+        } else {
+            if (evt.touches && evt.touches.length === 2) {
+                actualAnchor = that._pathFromPoint(
+                    evt.touches[1].clientX, evt.touches[1].clientY, {bias: 0});
+            }
         }
 
         const focus = that._pathFromPoint(x, y, 
@@ -597,31 +680,42 @@ MathField.prototype._onPointerDown = function(evt) {
         evt.stopPropagation();
     }
 
-    // Calculate the tap count (if this is a touch event)
-    if (evt.touches && evt.touches.length === 1) {
-        if (lastTouchEndTouch && Math.abs(lastTouchEndTouch.pageX - evt.touches[0].pageX) < 5 &&
-            Math.abs(lastTouchEndTouch.pageY - evt.touches[0].pageY) < 5 &&
-            Date.now() < lastTouchEndTimestamp + 500) {
-            tapCount += 1;
-        } else {
-            lastTouchEndTouch = evt.touches[0];
-            tapCount = 1;
-        }
-        lastTouchEndTimestamp = Date.now();
-    }
-
-    // This should not be necessary, but just in case we got in a weird state...
-    off(this.field, 'touchmove', onPointerMove);
-    off(this.field, 'touchend touchleave', endPointerTracking);
-    off(window, 'mousemove', onPointerMove);
-    off(window, 'mouseup blur', endPointerTracking);
-
     const anchorX = evt.touches ? evt.touches[0].clientX : evt.clientX;
     const anchorY = evt.touches ? evt.touches[0].clientY : evt.clientY;
     const anchorTime = Date.now();
-    const bounds = this.element.getBoundingClientRect();
+
+    // Calculate the tap count 
+    if (lastTap && Math.abs(lastTap.x - anchorX) < 5 &&
+        Math.abs(lastTap.y - anchorY) < 5 &&
+        Date.now() < lastTap.time + 500) {
+        tapCount += 1;
+        lastTap.time = anchorTime;
+    } else {
+        lastTap = {
+            x: anchorX,
+            y: anchorY,
+            time: anchorTime
+        }
+        tapCount = 1;
+    }
+
+    const bounds = this.field.getBoundingClientRect();
     if (anchorX >= bounds.left && anchorX <= bounds.right &&
         anchorY >= bounds.top && anchorY <= bounds.bottom) {
+
+        // Create divs to block out pointer tracking to the left and right of 
+        // the math field (to avoid triggering the hover of the virtual 
+        // keyboard toggle, for example)
+        let div = document.createElement('div');
+        div.className = 'ML__scroller';
+        this.element.appendChild(div);
+        div.style.left =  (bounds.left - 200) + 'px';
+
+        div = document.createElement('div');
+        div.className = 'ML__scroller';
+        this.element.appendChild(div);
+        div.style.left = (bounds.right) + 'px';
+
 
         // Focus the math field
         if (!this.hasFocus()) {
@@ -634,8 +728,6 @@ MathField.prototype._onPointerDown = function(evt) {
         this._resetKeystrokeBuffer();
         this.smartModeSuppressed = false;
 
-        // If a mouse button other than the main one was pressed, return
-        if (evt.buttons && evt.buttons !== 1) return;
 
         anchor = this._pathFromPoint(anchorX, anchorY, {bias: 0});
         if (anchor) {
@@ -654,21 +746,22 @@ MathField.prototype._onPointerDown = function(evt) {
             // Reset any user-specified style
             this.style = {};
 
-            // evt.details contains the number of consecutive clicks
+            // evt.detail contains the number of consecutive clicks
             // for double-click, triple-click, etc...
+            // (note that evt.detail is not set when using pointerEvent)
             if (evt.detail === 3 || tapCount > 2) {
-                off(this.field, 'touchmove', onPointerMove);
-                off(this.field, 'touchend', endPointerTracking);
-                off(window, 'mousemove', onPointerMove);
-                off(window, 'mouseup blur', endPointerTracking);
-                trackingPointer = false;
+                endPointerTracking(evt);
                 if (evt.detail === 3 || tapCount === 3) {
                     // This is a triple-click
                     this.mathlist.selectAll_();
                 }
-            } else {
-                if (!trackingPointer) {
-                    trackingPointer = true;
+            } else if (!trackingPointer) {
+                trackingPointer = true;
+                if (window.PointerEvent) {
+                    on(that.field, 'pointermove', onPointerMove);
+                    on(that.field, 'pointerend pointercancel pointerup', endPointerTracking);
+                    that.field.setPointerCapture(evt.pointerId);
+                } else  {
                     on(window, 'blur', endPointerTracking);
                     if (evt.touches) {
                         // To receive the subsequent touchmove/touch, need to
@@ -680,16 +773,16 @@ MathField.prototype._onPointerDown = function(evt) {
                         on(window, 'mousemove', onPointerMove);
                         on(window, 'mouseup', endPointerTracking);
                     }
-                    if (evt.detail === 2 || tapCount === 2) {
-                        // This is a double-click
-                        trackingWords = true;
-                        this.mathlist.selectGroup_();
-                    }
+                }
+                if (evt.detail === 2 || tapCount === 2) {
+                    // This is a double-click
+                    trackingWords = true;
+                    this.mathlist.selectGroup_();
                 }
             }
         }
     } else {
-        lastTouchEndTouch = null;
+        lastTap = null;
     }
 
 
@@ -1554,7 +1647,10 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
         }
     }
 
-    // 6. Keystroke has been handled, if it wasn't caught in the default
+    // 6. Make sure the insertion point is scrolled into view
+    this.scrollIntoView();
+
+    // 7. Keystroke has been handled, if it wasn't caught in the default
     // case, so prevent propagation
     if (evt && evt.preventDefault) {
         evt.preventDefault();
@@ -1713,8 +1809,12 @@ MathField.prototype._onTypedText = function(text, options) {
         this.undoManager.snapshotAndCoalesce(this.config);
     }
 
+
     // Render the mathlist
     this._requestUpdate();
+
+    // Make sure the insertion point is visible
+    this.scrollIntoView();
 
     // Since the location of the popover depends on the position of the caret
     // only show the popover after the formula has been rendered and the
@@ -1849,36 +1949,17 @@ MathField.prototype._render = function(renderOptions) {
     // 7. Calculate selection rectangle
     //
 
-    const selectedNodes = this.field.querySelectorAll('.ML__selected');
-    if (selectedNodes && selectedNodes.length > 0) {
-        const selectionRect = { top: Infinity, bottom: -Infinity, left: Infinity, right: -Infinity };
-        // Calculate the union of the bounds of all the selected spans
-        selectedNodes.forEach(node => {
-            if (node.classList.contains('ML__selected')) {
-                const bounds = node.getBoundingClientRect();
-                if (bounds.left < selectionRect.left) selectionRect.left = bounds.left;
-                if (bounds.right > selectionRect.right) selectionRect.right = bounds.right;
-                if (bounds.bottom > selectionRect.bottom) selectionRect.bottom = bounds.bottom;
-                if (bounds.top < selectionRect.top) selectionRect.top = bounds.top;
-            }
-        });
-        const fieldRect = this.field.getBoundingClientRect();
+    const selectionRect = this._getSelectionBounds();
+    if (selectionRect) {
         const selectionElement = document.createElement('div');
         selectionElement.classList.add('ML__selection');
         selectionElement.style.position = 'absolute';
-        selectionElement.style.left = (selectionRect.left - fieldRect.left) + 'px';
-        selectionElement.style.top = (selectionRect.top - fieldRect.top) + 'px';
-        selectionElement.style.width = (selectionRect.right - selectionRect.left) + 'px';
-        selectionElement.style.height = (selectionRect.bottom - selectionRect.top) + 'px';
+        selectionElement.style.left = selectionRect.left + 'px';
+        selectionElement.style.top = selectionRect.top + 'px';
+        selectionElement.style.width = Math.ceil(selectionRect.right - selectionRect.left) + 'px';
+        selectionElement.style.height = Math.ceil(selectionRect.bottom - selectionRect.top - 1) + 'px';
         this.field.insertBefore(selectionElement, this.field.childNodes[0])
     }
-
-
-    //
-    // 8. Scroll view
-    //
-
-    this.scrollIntoView_();
 }
 
 
@@ -2163,18 +2244,47 @@ MathField.prototype.redo_ = MathField.prototype.redo = function() {
 
 
 MathField.prototype.scrollIntoView_ = MathField.prototype.scrollIntoView = function() {
-    // @todo
-    return false;
+    // If a render is pending, do it now to make sure we have correct layout
+    // and caret position
+    if (this.dirty) {
+        this._render();
+    }
+    let pos = this._getCaretPosition();
+    const fieldBounds = this.field.getBoundingClientRect();
+    if (!pos) {
+        const selectionBounds = this._getSelectionBounds();
+        if (selectionBounds) {
+            pos = {
+                x: selectionBounds.right + fieldBounds.left - this.field.scrollLeft,
+                y: selectionBounds.top  + fieldBounds.top - this.field.scrollTop
+            }
+        }
+    }
+    if (pos) {
+        const x = pos.x - window.scrollX;
+        if (x < fieldBounds.left) {
+            this.field.scroll({
+                top: 0,
+                left: x - fieldBounds.left + this.field.scrollLeft - 20,
+                behavior: 'smooth'
+            });
+        } else if (x > fieldBounds.right) {
+            this.field.scroll({
+                top: 0,
+                left: x - fieldBounds.right + this.field.scrollLeft + 20,
+                behavior: 'smooth'
+            });
+        }
+    }
 }
 
 MathField.prototype.scrollToStart_ = MathField.prototype.scrollToStart = function() {
-    // @todo
-    return true;
+    this.field.scroll(0, 0);
 }
 
 MathField.prototype.scrollToEnd_ = MathField.prototype.scrollToEnd = function() {
-    // @todo
-    return true;
+    const fieldBounds = this.field.getBoundingClientRect();
+    this.field.scroll(fieldBounds.left - window.scrollX, 0);
 }
 
 /**

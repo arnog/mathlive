@@ -323,9 +323,14 @@ function convertDimenToEm(value, unit, precision) {
     return (value / METRICS.ptPerEm) * f;
 }
 
+function convertDimenToPx(value, unit) {
+    return convertDimenToEm(value, unit) * (4.0 / 3.0) * METRICS.ptPerEm;
+}
+
 
 export default {
     toEm : convertDimenToEm,
+    toPx: convertDimenToPx,
     METRICS,
     SIGMAS,
     getCharacterMetrics

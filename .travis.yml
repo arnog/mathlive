@@ -1,9 +1,12 @@
 language: node_js
 node_js:
 - lts/*
+install:
+- npm ci
 cache:
   directories:
   - node_modules
+  - "$HOME/.npm"
 branches:
   only:
   - master
