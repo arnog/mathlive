@@ -40,7 +40,11 @@ $ npm run build
 
 # Auto re-build the project when a file changes.
 # Watch for changed files, and does "npm run build" and "npm run test"
-$ npm run dev
+# Run a local server to view the examples and do some simple debugging
+# Note that the use of native modules require a server (they do not work
+# with local files)
+# After running this command, visit http://localhost:8080/examples/ in a browser
+$ npm start
 
 # Run test scripts
 $ npm test
@@ -61,12 +65,6 @@ $ npm run clean
 # The `dist/` folder will contain the `.js`, `.css` and font files necessary to 
 # use MathLive. The `docs/` folder will also be updated.
 $ npm run dist
-
-# Run a local server to view the examples and do some simple debugging
-# Note that the use of native modules require a server (they do not work
-# with local files)
-# After running this command, visit http://localhost:8080/examples/ in a browser
-$ npm run start
 
 ```
 

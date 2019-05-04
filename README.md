@@ -115,7 +115,7 @@ you can also install it locally in your project.
 To do so:
 ```bash
 $ npm install -s mathlive
-$ npm run start
+$ npm start
 ```
 This will make a local build of MathLive, run a local HTTP server and open a page with the examples in your browser.
 
