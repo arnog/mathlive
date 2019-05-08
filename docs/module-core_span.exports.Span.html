@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>core/parser - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>exports.Span - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -58,7 +58,7 @@ writeCookie('symbol-access', 'private')
 
 <main id="main">
     
-        <h1 class="page-title">core/parser</h1>
+        <h1 class="page-title">exports.Span</h1>
     
 
     
@@ -70,6 +70,16 @@ writeCookie('symbol-access', 'private')
 
 <header>
     
+        <h2>
+            <span class="ancestors"><a href="module-core_span.html">core/span</a>.</span>
+        
+        exports.Span
+        </h2>
+        
+            <div class="class-description"><p>A span is the most elementary element that can be rendered.
+It is composed of an optional body of text and an optional list
+of children (other spans). Each span can be decorated with
+CSS classes and style attributes.</p></div>
         
     
 </header>
@@ -78,49 +88,17 @@ writeCookie('symbol-access', 'private')
     <div class="container-overview">
     
         
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="module-core_parser_Parser.html">Parser</a></dt>
-            <dd></dd>
-        </dl>
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
 <div class='method private'>
 
     
+    <h2>Constructor</h2>
+    
 
-    <h4 class="name" id="parseTokens">parseTokens<span class="signature">(tokens<span class="signature-type">: object[]</span>, parseMode<span class="signature-attributes">?</span><span class="signature-type">: string</span>, args<span class="signature-attributes">?</span><span class="signature-type">: string[]</span>, macro<span class="signature-attributes">?</span><span class="signature-type">: object</span>, smartFence<span class="signature-attributes">?</span><span class="signature-type">: boolean</span>)</span><span class="type-signature">:  object[]</span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="exports.Span">new exports.Span<span class="signature">(content<span class="signature-type">: string | Span | Span[]</span>, classes<span class="signature-type">: string</span>)</span><span class="type-signature">:  void</span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
 
-
-<div class="description">
-    <p>Given an array of tokens returned by the lexer, return a corresponding
-math list (array of atoms).</p>
-</div>
 
 
 
@@ -139,13 +117,19 @@ math list (array of atoms).</p>
 
         <div class="signature">
             
-                <span class="name"><code>tokens</code></span>
+                <span class="name"><code>content</code></span>
             
 
             <span class="type">
             
                 : 
-<span class="param-type">object[]</span>
+<span class="param-type">string</span>
+|
+
+<span class="param-type">Span</span>
+|
+
+<span class="param-type">Span[]</span>
 
 
             
@@ -156,13 +140,18 @@ math list (array of atoms).</p>
             
 
             
+                    <p class="description last">
+                        <p>the items 'contained' by this node</p>
+                    </p>
+                    
+            
         </div>
 
     
 
         <div class="signature">
             
-                <span class="name"><code>parseMode</code></span>
+                <span class="name"><code>classes</code></span>
             
 
             <span class="type">
@@ -175,133 +164,12 @@ math list (array of atoms).</p>
             </span>
 
             
-                <span class="attributes">
-                
 
-                
-
-                
-                </span>
-            
-
-            
-                <span class="default">= 'math'</span>
-            
-
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>args</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">string[]</span>
-
-
-            
-            </span>
-
-            
-                <span class="attributes">
-                
-
-                
-
-                
-                </span>
-            
-
-            
-                <span class="default">= {}</span>
             
 
             
                     <p class="description last">
-                        <p>If there are any placeholder tokens, e.g.
-<code>#0</code>, <code>#1</code>, etc... they will be replaced by the value provided by <code>args</code>.</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>macro</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">object</span>
-
-
-            
-            </span>
-
-            
-                <span class="attributes">
-                
-
-                
-
-                
-                </span>
-            
-
-            
-                <span class="default">= {}</span>
-            
-
-            
-                    <p class="description last">
-                        <p>Dictionary defining macros</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>smartFence</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">boolean</span>
-
-
-            
-            </span>
-
-            
-                <span class="attributes">
-                
-
-                
-
-                
-                </span>
-            
-
-            
-                <span class="default">= false</span>
-            
-
-            
-                    <p class="description last">
-                        <p>If true, promote plain fences, e.g. <code>(</code>,
-as <code>\left...\right</code> or <code>\mleft...\mright</code></p>
+                        <p>list of classes attributes associated with this node</p>
                     </p>
                     
             
@@ -320,13 +188,11 @@ as <code>\left...\right</code> or <code>\mleft...\mright</code></p>
 <span class="param-desc">
     
         : 
-<span class="param-type">object[]</span>
+<span class="param-type">void</span>
 
 
         &nbsp;&nbsp;
     
-    
-        <p>An array of MathAtom</p>
     
 </span>
 
@@ -335,6 +201,219 @@ as <code>\left...\right</code> or <code>\mleft...\mright</code></p>
         
 
     
+
+
+    <h5 class="subsection-title">Properties</h5>
+
+    
+
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>type</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>For example, <code>'command'</code>, <code>'mrel'</code>, etc...</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>classes</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>A string of space separated CSS classes
+associated with this element</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>cssID</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>A CSS ID assigned to this span (optional)</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>children</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">Span[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>An array, potentially empty, of spans which
+this span encloses</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>body</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>Content of this span. Can be empty.</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>style</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">[string]:any</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>A set of key/value pairs specifying CSS properties
+associated with this element.</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>height</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>The measurement from baseline to top, in em.</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>depth</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>The measurement from baseline to bottom, in em.</p>
+                
+            </span>
+        </div>
+
+    
+
+
 
 
 <dl class="details">
@@ -389,7 +468,21 @@ as <code>\left...\right</code> or <code>\mleft...\mright</code></p>
 
 </div>
 
-        
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
     
 
     

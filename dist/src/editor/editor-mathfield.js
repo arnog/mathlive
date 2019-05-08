@@ -464,13 +464,11 @@ MathField.prototype._getSelectionBounds = function() {
         const selectionRect = { top: Infinity, bottom: -Infinity, left: Infinity, right: -Infinity };
         // Calculate the union of the bounds of all the selected spans
         selectedNodes.forEach(node => {
-            if (node.classList.contains('ML__selected')) {
-                const bounds = node.getBoundingClientRect();
-                if (bounds.left < selectionRect.left) selectionRect.left = bounds.left;
-                if (bounds.right > selectionRect.right) selectionRect.right = bounds.right;
-                if (bounds.bottom > selectionRect.bottom) selectionRect.bottom = bounds.bottom;
-                if (bounds.top < selectionRect.top) selectionRect.top = bounds.top;
-            }
+            const bounds = node.getBoundingClientRect();
+            if (bounds.left < selectionRect.left) selectionRect.left = bounds.left;
+            if (bounds.right > selectionRect.right) selectionRect.right = bounds.right;
+            if (bounds.bottom > selectionRect.bottom) selectionRect.bottom = bounds.bottom;
+            if (bounds.top < selectionRect.top) selectionRect.top = bounds.top;
         });
         const fieldRect = this.field.getBoundingClientRect();
         const w = selectionRect.right - selectionRect.left;
@@ -1883,7 +1881,7 @@ MathField.prototype._render = function(renderOptions) {
 
     const hasFocus = this.hasFocus();
     if (this.mathlist.isCollapsed()) {
-        this.mathlist.anchor().caret = hasFocus ? this.mode : '';
+        this.mathlist.anchor().caret = (true || hasFocus) ? this.mode : '';
     } else {
         this.mathlist.forEachSelected( a => { a.isSelected = true });
     }

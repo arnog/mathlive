@@ -214,7 +214,7 @@ export class Span {
 
         if (FONT_CLASS[fontFamily]) {
             this.classes += ' ' + FONT_CLASS[fontFamily];
-        } else {
+        } else if (fontFamily) {
             // Not a well-known family. Use a style.
             this.setStyle('font-family', fontFamily);
         }
@@ -369,12 +369,15 @@ export class Span {
                 previousType = lastSpanType(child);
             }
         }
-        const tag = this.tag || 'span';
+        // Collapse 'empty' spans
+        if ((body === '\u200b' || !body) && 
+            (!this.classes || this.classes === 'ML__selected')) {
+            result = '';
 
-        if (tag.length === 0) {
-            result = body || '';
         } else {
-            result = '<' + tag;
+            // Note: We can't omit the tag, even if it has no class and no style,
+            // as some layouts (vlist) depends on the presence of the tag to function
+            result = '<span';
 
             if (this.cssId) {
                 result += ' id="' + this.cssId + '" '
@@ -500,15 +503,9 @@ export class Span {
                 result += body;
             }
 
-            // Note: We can't omit the tag, even if it has no class and no style,
-            // as some layouts (vlist) depends on the presence of the tag to function
-            result = result + '</' + tag + '>';
+            result = result + '</span>';
         }
 
-        // Collapse 'empty' spans
-        if (result === '<span>\u200b</span>') {
-            result = '';
-        }
 
         if (this.caret && this.type !== 'command') {
             if (this.caret === 'text') {

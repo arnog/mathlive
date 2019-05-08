@@ -749,8 +749,8 @@ class MathAtom {
         }
         // Calculate the clearance between the body and line
         let lineClearance = ruleWidth + phi / 4;
-        const innerHeight = (Span.height(inner) + Span.depth(inner)) * mathstyle.sizeMultiplier;
-        const minDelimiterHeight = innerHeight + (lineClearance + ruleWidth);
+        const innerTotalHeight = Math.max(2 * phi, (Span.height(inner) + Span.depth(inner)) * mathstyle.sizeMultiplier);
+        const minDelimiterHeight = innerTotalHeight + (lineClearance + ruleWidth);
 
         // Create a \surd delimiter of the required minimum size
         const delim = makeSpan(Delimiters.makeCustomSizedDelim('', '\\surd', minDelimiterHeight, false, context), 'sqrt-sign');
@@ -761,7 +761,7 @@ class MathAtom {
         // Adjust the clearance based on the delimiter size
         if (delimDepth > Span.height(inner) + Span.depth(inner) + lineClearance) {
             lineClearance =
-                (lineClearance + delimDepth - Span.height(inner) - Span.depth(inner)) / 2;
+                (lineClearance + delimDepth - (Span.height(inner) + Span.depth(inner))) / 2;
         }
 
         // Shift the delimiter so that its top lines up with the top of the line
@@ -771,17 +771,8 @@ class MathAtom {
         line.applyStyle(this.getStyle());
         line.height = ruleWidth;
 
-        // We add a special case here, because even when `inner` is empty, we
-        // still get a line. So, we use a simple heuristic to decide if we
-        // should omit the body entirely. (note this doesn't work for something
-        // like `\sqrt{\rlap{x}}`, but if someone is doing that they deserve for
-        // it not to work.
-        let body;
-        if (Span.height(inner) === 0 && Span.depth(inner) === 0) {
-            body = makeSpan();
-        } else {
-            body = makeVlist(context, [inner, lineClearance, line, ruleWidth]);
-        }
+        const body = makeVlist(context, [inner, lineClearance, line, ruleWidth]);
+
         if (!this.index) {
             return makeOrd([delim, body], 'sqrt');
         }
@@ -1271,10 +1262,7 @@ class MathAtom {
             // the first element in a children list. This makes
             // managing the list, and the caret selection, easier.
             // ZERO-WIDTH SPACE
-            if (this.caret) {
-                result = this.makeSpan(context, '\u200b');
-                result.caret = this.caret;
-            }
+            result = this.makeSpan(context, '\u200b');
         } else {
             //
             // DEFAULT
