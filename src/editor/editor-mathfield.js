@@ -1881,7 +1881,7 @@ MathField.prototype._render = function(renderOptions) {
 
     const hasFocus = this.hasFocus();
     if (this.mathlist.isCollapsed()) {
-        this.mathlist.anchor().caret = (true || hasFocus) ? this.mode : '';
+        this.mathlist.anchor().caret = hasFocus ? this.mode : '';
     } else {
         this.mathlist.forEachSelected( a => { a.isSelected = true });
     }
