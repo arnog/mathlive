@@ -1,3 +1,48 @@
+## 0.29 (May 9, 2019)
+
+### Major New Features
+- Scrollable mathfield. The mathfield now behaves like a text area: the content
+that does not fit withing the bounds of the mathfield will not overflow
+but will be scrollable. The scrolling can be done using the mouse wheel or 
+trackpad gestures, or by dragging while selecting. The AP
+
+### Improvements
+- When smartFence is on, and a new smart fence is inserted (by typing 
+`(` for example), the closing 'phantom' fence would be displayed immediately
+after the opening fence. The closing fence will now be inserted after
+the end of the expression.
+- The heuristics for determining implicit arguments, for example the implicit
+numerator when typing `/` have been improved. For example, typing `/` after
+`3 + 2sin x` will result in `3 + (2sin x)/(...)` instead of `3 + sin (x)/(...)`.
+- When `config.removeExtraneousParentheses` is true (default), if a frac is 
+inserted inside parentheses, the parens will be removed. So, if a `/` is typed 
+after `1` in `(1)` it will become `1/(...)`.
+- When smartMode is on, textual operators are eligible for conversion to text.
+Previously, if an inline shortcuts for `rad` was defined to `\operatorname{rad}`
+and 'radius' was typed, only `ius` would be turned to text.
+- Smartmode is now applied when there is a selection. That is, if some text is 
+selected and the `/` is pressed the selection will become the numerator. Previously
+the selection was deleted and replaced with an empty fraction
+- Improved layout of surds, particularly when the surd is empty
+- Made `\mathbb{}` et al. apply to the argument only, and not affect the style
+of following characters. Previously, if a `\mathbb{R}` was inserted, the following
+typed character would also be in Blackboard style.
+- Improved build system on Windows. That is, it now works.
+- Merge speak and readAloud APIs into one (contribution from Neil. Thanks Neil!)
+- Switched to using `npm ci` for CI builds. Even for local builds,
+it is recommended to use `npm ci` to ensure the correct version of the dependencies
+are installed.
+- In smartMode, the currency symbols are handled better. "One apple is $3.14" 
+will result in the "$" being in math mode.
+
+### Bug fixes
+- Fixed a crash when using smartFence with `sin(x^2/`
+- Fixed `alt+=` keyboard shortcut on Windows.
+- Fixed some layout issues with `box` and `enclose`
+- Smart Fences will now work when invoked from the virtual keyboard.
+- Fixed #177: custom localization strings are now handled correctly.
+- Fixed some issues toggling style when selection is empty.
+
 ## 0.28 (Apr 22, 2019)
 This release contains some small bug fixes and improvements.
 
