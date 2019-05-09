@@ -1186,7 +1186,8 @@ MathField.prototype.convertLastAtomsToText_ = function(count, until) {
     while (!done) {
         const atom = this.mathlist.sibling(i);
         done = count === 0 || !atom || atom.mode !== 'math' || 
-            !/mord|textord|mpunct/.test(atom.type) ||
+            !(/mord|textord|mpunct/.test(atom.type) || 
+                (atom.type === 'mop' && /[a-zA-Z]+/.test(atom.body))) ||
             atom.superscript || atom.subscript || 
             (until && !until(atom));
         if (!done) {
