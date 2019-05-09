@@ -1186,7 +1186,8 @@ MathField.prototype.convertLastAtomsToText_ = function(count, until) {
     while (!done) {
         const atom = this.mathlist.sibling(i);
         done = count === 0 || !atom || atom.mode !== 'math' || 
-            !/mord|textord|mpunct/.test(atom.type) ||
+            !(/mord|textord|mpunct/.test(atom.type) || 
+                (atom.type === 'mop' && /[a-zA-Z]+/.test(atom.body))) ||
             atom.superscript || atom.subscript || 
             (until && !until(atom));
         if (!done) {
@@ -1309,133 +1310,133 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
     if (!evt || evt.ctrlKey || evt.metaKey) return false;
     const c = Keyboard.eventToChar(evt);
     if (c.length > 1) return false;   // Backspace, Left, etc...
-    if (this.mathlist.isCollapsed()) {
-        const context = this.getTextBeforeAnchor_() + c;
-        if (this.mode === 'text') {
-            // We're in text mode. Should we switch to math?
-
-            if (keystroke === 'Esc' || /[/^_\\]/.test(c)) {
-                // If this is a command for a fraction, superscript or subscript,
-                // or the '\' command mode key
-                // switch to 'math'
-                return true;
-            }
-
-            // If this is a closing matching fence
-            // switch to 'math' mode
-            const lFence = {')' : '(', '}' : '{', ']' : '['}[c];
-            if (lFence && this.mathlist.parent() && 
-                this.mathlist.parent().type === 'leftright' &&
-                this.mathlist.parent().leftDelim === lFence) {
-                return true;
-            }
-
-
-            if (/(^|[^a-zA-Z])(a|I)[ ]$/.test(context)) {
-                // Single letters that are valid words in the current language
-                // Do nothing. @todo: localization
-                return false;
-            }
-
-            if (/[$€£₤₺¥¤฿¢₡₧₨₹₩₱]/u.test(c)) {
-                // A currency symbol.
-                // Switch to math mode
-                return true;
-            }
-
-            if (/(^|[^a-zA-Z'’])[a-zA-Z][ ]$/.test(context)) {
-                // An isolated letter, followed by a space:
-                // Convert the letter to math, stay in text mode.
-                this.convertLastAtomsToMath_(1);
-                return false;
-            }
-
-            if (/[^0-9]\.[^0-9\s]$/.test(context)) {
-                // A period followed by something other than space or a digit
-                // and not preceded by a digit.
-                // We thought this was a text period, but turns out it's not
-                // Turn it into a \cdot
-                this.convertLastAtomsToMath_(1);
-                const atom = this.mathlist.sibling(0);
-                atom.body = '⋅';        // centered dot
-                atom.autoFontFamily = 'cmr';
-                atom.latex = '\\cdot';
-
-                return true;
-            }
-
-            if (/(^|\s)[a-zA-Z][^a-zA-Z]$/.test(context)) {
-                // Single letter (x), followed by a non-letter (>, =...)
-                this.convertLastAtomsToMath_(1);
-                return true;
-            }
-
-            if (/\.[0-9]$/.test(context)) {
-                // If the new character is a digit, 
-                // and it was preceded by a dot (which may have been converted
-                // to text)
-                // turn the dot back into 'math'
-                this.convertLastAtomsToMath_(1);
-                return true;
-            }
-
-            if (/[(][0-9+\-.]$/.test(context)) {
-                // An open paren followed by a number
-                // Turn the paren back to math and switch.
-                this.convertLastAtomsToMath_(1);
-                return true;
-            }
-
-            if (/[(][a-z][,;]$/.test(context)) {
-                // An open paren followed by a single letter, then a "," or ";"
-                // Turn the paren back and letter to math and switch.
-                this.convertLastAtomsToMath_(2);
-                return true;
-            }
-
-            // The tests above can look behind and change what had previously
-            // been entered. Now, let's just look at the typed character.
-            if (/[0-9+\-=><*|]$/.test(c)) {
-                // If this new character looks like a number,
-                // or a relational operator (=, <, >)
-                // or a "*" or "|"
-                // (note that <=, >=, etc... are handled separately as shortcuts)
-                // switch to 'math'
-                this.removeIsolatedSpace_();
-                return true;
-            }
-
-
-            // /(?<match>[0-9>=<+-/()]+)$/
-
-        } else {
-            // We're in math mode. Should we switch to text?
-            if (keystroke === 'Spacebar') {
-                this.convertLastAtomsToText_(a => /[a-z][:,;.]$/.test(a.body));
-                return true;
-            }
-            if (/[a-zA-Z]{3,}$/.test(context) && !/dxd$/.test(context)) {
-                // A sequence of three characters
-                // (except for some exceptions)
-                // Convert them to text.
-                this.convertLastAtomsToText_(a => 
-                    /[a-zA-Z:,;.]/.test(a.body));
-                return true;
-            }
-            if (/(^|\W)(if|If)$/i.test(context)) {
-                // @todo localization
-                this.convertLastAtomsToText_(1);
-                return true;
-            }
-            if (/\?|\./.test(c)) {
-                // If the last character is a period or question mark, 
-                // turn it to 'text'
-                return true;
-            }
-        }
-    } else {
+    if (!this.mathlist.isCollapsed()) {
         // There is a selection
-        // @todo handle some keys: /, ^
+        if (this.mode === 'text') {
+            if (/[/_^]/.test(c)) return true;
+        }
+
+        return false;
+    }
+    const context = this.getTextBeforeAnchor_() + c;
+    if (this.mode === 'text') {
+        // We're in text mode. Should we switch to math?
+
+        if (keystroke === 'Esc' || /[/^_\\]/.test(c)) {
+            // If this is a command for a fraction, superscript or subscript,
+            // or the '\' command mode key
+            // switch to 'math'
+            return true;
+        }
+
+        // If this is a closing matching fence
+        // switch to 'math' mode
+        const lFence = {')' : '(', '}' : '{', ']' : '['}[c];
+        if (lFence && this.mathlist.parent() && 
+            this.mathlist.parent().type === 'leftright' &&
+            this.mathlist.parent().leftDelim === lFence) {
+            return true;
+        }
+
+
+        if (/(^|[^a-zA-Z])(a|I)[ ]$/.test(context)) {
+            // Single letters that are valid words in the current language
+            // Do nothing. @todo: localization
+            return false;
+        }
+
+        if (/[$€£₤₺¥¤฿¢₡₧₨₹₩₱]/u.test(c)) {
+            // A currency symbol.
+            // Switch to math mode
+            return true;
+        }
+
+        if (/(^|[^a-zA-Z'’])[a-zA-Z][ ]$/.test(context)) {
+            // An isolated letter, followed by a space:
+            // Convert the letter to math, stay in text mode.
+            this.convertLastAtomsToMath_(1);
+            return false;
+        }
+
+        if (/[^0-9]\.[^0-9\s]$/.test(context)) {
+            // A period followed by something other than space or a digit
+            // and not preceded by a digit.
+            // We thought this was a text period, but turns out it's not
+            // Turn it into a \cdot
+            this.convertLastAtomsToMath_(1);
+            const atom = this.mathlist.sibling(0);
+            atom.body = '⋅';        // centered dot
+            atom.autoFontFamily = 'cmr';
+            atom.latex = '\\cdot';
+
+            return true;
+        }
+
+        if (/(^|\s)[a-zA-Z][^a-zA-Z]$/.test(context)) {
+            // Single letter (x), followed by a non-letter (>, =...)
+            this.convertLastAtomsToMath_(1);
+            return true;
+        }
+
+        if (/\.[0-9]$/.test(context)) {
+            // If the new character is a digit, 
+            // and it was preceded by a dot (which may have been converted
+            // to text)
+            // turn the dot back into 'math'
+            this.convertLastAtomsToMath_(1);
+            return true;
+        }
+
+        if (/[(][0-9+\-.]$/.test(context)) {
+            // An open paren followed by a number
+            // Turn the paren back to math and switch.
+            this.convertLastAtomsToMath_(1);
+            return true;
+        }
+
+        if (/[(][a-z][,;]$/.test(context)) {
+            // An open paren followed by a single letter, then a "," or ";"
+            // Turn the paren back and letter to math and switch.
+            this.convertLastAtomsToMath_(2);
+            return true;
+        }
+
+        // The tests above can look behind and change what had previously
+        // been entered. Now, let's just look at the typed character.
+        if (/[0-9+\-=><*|]$/.test(c)) {
+            // If this new character looks like a number,
+            // or a relational operator (=, <, >)
+            // or a "*" or "|"
+            // (note that <=, >=, etc... are handled separately as shortcuts)
+            // switch to 'math'
+            this.removeIsolatedSpace_();
+            return true;
+        }
+
+    } else {
+        // We're in math mode. Should we switch to text?
+        if (keystroke === 'Spacebar') {
+            this.convertLastAtomsToText_(a => /[a-z][:,;.]$/.test(a.body));
+            return true;
+        }
+        if (/[a-zA-Z]{3,}$/.test(context) && !/dxd$/.test(context)) {
+            // A sequence of three characters
+            // (except for some exceptions)
+            // Convert them to text.
+            this.convertLastAtomsToText_(a => 
+                /[a-zA-Z:,;.]/.test(a.body));
+            return true;
+        }
+        if (/(^|\W)(if|If)$/i.test(context)) {
+            // @todo localization
+            this.convertLastAtomsToText_(1);
+            return true;
+        }
+        if (/\?|\./.test(c)) {
+            // If the last character is a period or question mark, 
+            // turn it to 'text'
+            return true;
+        }
     }
     return false;
 }
@@ -1881,7 +1882,7 @@ MathField.prototype._render = function(renderOptions) {
 
     const hasFocus = this.hasFocus();
     if (this.mathlist.isCollapsed()) {
-        this.mathlist.anchor().caret = (true || hasFocus) ? this.mode : '';
+        this.mathlist.anchor().caret = hasFocus ? this.mode : '';
     } else {
         this.mathlist.forEachSelected( a => { a.isSelected = true });
     }
