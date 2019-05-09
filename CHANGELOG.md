@@ -34,6 +34,7 @@ it is recommended to use `npm ci` to ensure the correct version of the dependenc
 are installed.
 - In smartMode, the currency symbols are handled better. "One apple is $3.14" 
 will result in the "$" being in math mode.
+- Switching to/from command mode will not suppress smart mode.
 
 ### Bug fixes
 - Fixed a crash when using smartFence with `sin(x^2/`
