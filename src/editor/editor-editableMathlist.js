@@ -2317,8 +2317,17 @@ EditableMathlist.prototype._insertSmartFence = function(fence, style) {
         }
         s += (collapsed ? '?' : rDelim);
 
+        let content = [];
+        if (collapsed) {
+            // content = this.siblings().slice(this.anchorOffset() + 1);
+            content = this.siblings().splice(this.anchorOffset() + 1, this.siblings().length);
+        }
         this.insert(s, { mode: 'math', format: 'latex', style: style });
-        if (collapsed) this.move(-1);
+        if (collapsed) {
+            // Move everything that was after the anchor into the leftright
+            this.sibling(0).body = content; 
+            this.move(-1);
+        }
         return true;
     }
 
