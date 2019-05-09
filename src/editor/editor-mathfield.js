@@ -2410,7 +2410,9 @@ MathField.prototype.$insert = function(s, options) {
 
 MathField.prototype.switchMode_ = function(mode, prefix, suffix) {
     this._resetKeystrokeBuffer();
-    this.smartModeSuppressed = true;
+    // Suppress (temporarily) smart mode if switching to/from text or math
+    // This prevents switching to/from command mode from supressing smart mode.
+    this.smartModeSuppressed = /text|math/.test(this.mode) && /text|math/.test(mode);
     if (prefix) {
         this.insert(prefix, { 
             format: 'latex', 
