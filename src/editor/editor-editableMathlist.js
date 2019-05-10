@@ -140,13 +140,13 @@ EditableMathlist.prototype.forEachSelected = function(cb, options) {
     const lastOffset = this.endOffset() + 1;
     if (options.recursive) {
         for (let i = firstOffset; i < lastOffset; i++) {
-            if (siblings[i].type !== 'first') {
+            if (siblings[i] && siblings[i].type !== 'first') {
                 siblings[i].forEach(cb);
             }
         }
     } else {
         for (let i = firstOffset; i < lastOffset; i++) {
-            if (siblings[i].type !== 'first') {
+            if (siblings[i] && siblings[i].type !== 'first') {
                 cb(siblings[i])
             }
         }
@@ -1118,7 +1118,9 @@ EditableMathlist.prototype.commitCommandStringBeforeInsertionPoint = function() 
         const siblings = this.siblings();
         const anchorOffset = this.anchorOffset() + 1;
         for (let i = command.start; i < anchorOffset; i++) {
-            siblings[i].suggestion = false;
+            if (siblings[i]) {
+                siblings[i].suggestion = false;
+            }
         }
     }
 }
