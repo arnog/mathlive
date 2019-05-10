@@ -153,6 +153,11 @@ class UndoManager {
      * This does not affect the undo stack.
     */
     restore(state, options) {
+        const wasSuppressing = this.mathlist.suppressChangeNotifications;
+        if (options.suppressChangeNotifications !== undefined) {
+            this.mathlist.suppressChangeNotifications = options.suppressChangeNotifications;
+        }
+        
         // Restore the content
         this.mathlist.insert(state ? state.latex : '', {
             mode: 'math',
@@ -161,8 +166,11 @@ class UndoManager {
             format: 'latex',
             ...options
         });
+
         // Restore the selection
         this.mathlist.setPath(state ? state.selection : [{relation: 'body', offset: 0}]);
+
+        this.mathlist.suppressChangeNotifications = wasSuppressing;
     }
 }
 
