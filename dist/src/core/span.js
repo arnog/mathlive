@@ -481,7 +481,7 @@ export class Span {
                 result += 'style="position:absolute;';
                 result += 'overflow:overlay;';
                 result += 'height:' + (this.height + this.depth) + 'em;';
-                result += 'transform:translateY(' + Math.round(- FontMetrics.toPx(this.depth, 'em') + 2 * FontMetrics.toPx(this.style.padding)) + 'px);';
+                result += 'transform:translateY(-' + Math.round(FontMetrics.toPx(this.depth, 'em') + FontMetrics.toPx(this.style.padding)) + 'px);';
                 if (this.style && this.style.padding) {
                     result += 'top:' + this.style.padding + ';';
                     result += 'left:' + this.style.padding + ';';
