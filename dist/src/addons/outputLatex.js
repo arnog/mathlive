@@ -235,9 +235,9 @@ function latexify(parent, value, expandMacro) {
             'backgroundColor', 
             'fontFamily'
             ], value, expandMacro);
-        if (result.startsWith('{') && result.endsWith('}')) {
-            result = result.slice(1, result.length - 1);
-        }
+        // if (result.startsWith('{') && result.endsWith('}')) {
+        //     result = result.slice(1, result.length - 1);
+        // }
 
     } else if (typeof value === 'number' || typeof value === 'boolean') {
         result = value.toString();

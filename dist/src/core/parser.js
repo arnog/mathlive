@@ -681,6 +681,8 @@ class Parser {
         const result = new MathAtom(this.parseMode, 'group');
         result.body = this.scanImplicitGroup(token => token.type === '}');
         this.parseToken('}');
+        result.latexOpen = '{';
+        result.latexClose = '}';
         return result;
     }
     scanSmartFence() {
