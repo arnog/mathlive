@@ -1,8 +1,9 @@
 ## Prerequisites
 
-* [ ] Did you check the [issue tracker](https://github.com/arnog/mathlive/issues) to see if this issue has already been reported?
+* [ ] New issue
+[Did you check the [issue tracker](https://github.com/arnog/mathlive/issues) to see if this issue has already been reported? If it has, you can +1 it to indicate your interest and be notified when it gets resolved.]
 
-For more information, see the `CONTRIBUTING` guide.
+[For more information, see the `CONTRIBUTING` guide.]
 
 ## Description
 [Description of the bug or feature.]
@@ -13,7 +14,7 @@ For more information, see the `CONTRIBUTING` guide.
 [What actually happened]
 
 [If there are any error messages, include the exact text shown, 
-or upload a screenshot]
+or upload a screenshot. Some error messages may displayed in the Javascript console.]
 
 ### Expected Behavior 
 [What you expected to happen]

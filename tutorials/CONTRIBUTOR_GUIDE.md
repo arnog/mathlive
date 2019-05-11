@@ -1,5 +1,6 @@
 This guide is for developers who want to contribute code to MathLive, 
 or who want to understand in more depth how MathLive works.
+
 If you simply want to use MathLive with your web content, see the {@tutorial USAGE_GUIDE}.
 
 ## Table of Contents
@@ -22,13 +23,14 @@ To get started developing:
 1. Install [Node.js](http://nodejs.org) on your dev machine
 3. In your shell, type:
 ```bash
-$ git clone https://github.com/arnog/mathlive && cd mathlive
-$ npm install
+$ git clone https://github.com/arnog/mathlive
+$ cd mathlive
+$ npm ci
 ```
-The `npm install` command installs in the `mathlive/node_modules` directory all the Node
+The `npm ci` command installs in the `mathlive/node_modules` directory all the Node
  modules necessary to build and test the MathLive library and its documentation.
 
-Depending on your system setup, you may need to run as admin, in which case use `sudo npm install` or equivalent.
+Depending on your system setup, you may need to run as admin, in which case use `sudo npm ci` or equivalent.
 
 Once the installation is successful, you can use the following commands:
 ```bash
@@ -40,7 +42,11 @@ $ npm run build
 
 # Auto re-build the project when a file changes.
 # Watch for changed files, and does "npm run build" and "npm run test"
-$ npm run dev
+# Run a local server to view the examples and do some simple debugging
+# Note that the use of native modules require a server (they do not work
+# with local files)
+# After running this command, visit http://localhost:8080/examples/ in a browser
+$ npm start
 
 # Run test scripts
 $ npm test
@@ -62,15 +68,9 @@ $ npm run clean
 # use MathLive. The `docs/` folder will also be updated.
 $ npm run dist
 
-# Run a local server to view the examples and do some simple debugging
-# Note that the use of native modules require a server (they do not work
-# with local files)
-# After running this command, visit http://localhost:8080/examples/ in a browser
-$ npm run start
-
 ```
 
-During development, it is recommended that you keep the `npm run dev` 
+During development, it is recommended that you keep the `npm start` 
 command running in a terminal window while you make the necessary changes
 to the source files of the project in your favorite editor. When you 
 save a file, if any problem with your code is detected (linting 
@@ -145,12 +145,12 @@ intermediated files generated as part of the build process.
 
 MathLive is written in JavaScript, using the [ES2016 dialect](https://www.ecma-international.org/ecma-262/7.0/). This 
 includes in particular these features:
-* native modules (`import` and `export`)
+* native modules: `import` and `export`
 * `let` and `const` instead of `var`
 * block-scoped variables and functions
 * `Array.prototype.includes()`
 * `Object.assign()`
-* arrow functions (`() => {}`)
+* arrow functions: `() => {}`
 * template strings
 * `for (...of...)` iterators
 * string searching `String.startsWith()`, `String.endsWith()`
@@ -158,8 +158,8 @@ includes in particular these features:
 
 Some features have been partially adopted, and the codebase should get 
 cleaned up whenever the opportunity arises:
-* classes.
-* rest/spread
+* classes
+* use of rest/spread
 
 Features that have not been adopted include:
 * getters/setters: would probably be a good idea
@@ -271,6 +271,10 @@ practice that should not be encouraged.
 
 In this context, _modern_ means the latest two releases of Chrome, Edge, Safari 
 and Firefox. Both desktop and mobile are supported.
+
+Note that the HTML quirks mode is not supported. This means that the host page 
+should use the strict mode, indicated by a `<!doctype html>` directive at the 
+top of the page.
 
 ## Accessibility - A11Y
 

@@ -22,8 +22,9 @@ const INTL_KEY = {
 }
 
 const KEY_NAMES = {
-    'Escape':       'Esc',
+    'Space':        'Spacebar',
     ' ':            'Spacebar',
+    'Escape':       'Esc',
     'ArrowLeft':    'Left',
     'ArrowUp':      'Up',
     'ArrowRight':   'Right',

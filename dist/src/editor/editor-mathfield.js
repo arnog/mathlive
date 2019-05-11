@@ -464,13 +464,11 @@ MathField.prototype._getSelectionBounds = function() {
         const selectionRect = { top: Infinity, bottom: -Infinity, left: Infinity, right: -Infinity };
         // Calculate the union of the bounds of all the selected spans
         selectedNodes.forEach(node => {
-            if (node.classList.contains('ML__selected')) {
-                const bounds = node.getBoundingClientRect();
-                if (bounds.left < selectionRect.left) selectionRect.left = bounds.left;
-                if (bounds.right > selectionRect.right) selectionRect.right = bounds.right;
-                if (bounds.bottom > selectionRect.bottom) selectionRect.bottom = bounds.bottom;
-                if (bounds.top < selectionRect.top) selectionRect.top = bounds.top;
-            }
+            const bounds = node.getBoundingClientRect();
+            if (bounds.left < selectionRect.left) selectionRect.left = bounds.left;
+            if (bounds.right > selectionRect.right) selectionRect.right = bounds.right;
+            if (bounds.bottom > selectionRect.bottom) selectionRect.bottom = bounds.bottom;
+            if (bounds.top < selectionRect.top) selectionRect.top = bounds.top;
         });
         const fieldRect = this.field.getBoundingClientRect();
         const w = selectionRect.right - selectionRect.left;
@@ -1188,7 +1186,8 @@ MathField.prototype.convertLastAtomsToText_ = function(count, until) {
     while (!done) {
         const atom = this.mathlist.sibling(i);
         done = count === 0 || !atom || atom.mode !== 'math' || 
-            !/mord|textord|mpunct/.test(atom.type) ||
+            !(/mord|textord|mpunct/.test(atom.type) || 
+                (atom.type === 'mop' && /[a-zA-Z]+/.test(atom.body))) ||
             atom.superscript || atom.subscript || 
             (until && !until(atom));
         if (!done) {
@@ -1311,133 +1310,133 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
     if (!evt || evt.ctrlKey || evt.metaKey) return false;
     const c = Keyboard.eventToChar(evt);
     if (c.length > 1) return false;   // Backspace, Left, etc...
-    if (this.mathlist.isCollapsed()) {
-        const context = this.getTextBeforeAnchor_() + c;
-        if (this.mode === 'text') {
-            // We're in text mode. Should we switch to math?
-
-            if (keystroke === 'Esc' || /[/^_\\]/.test(c)) {
-                // If this is a command for a fraction, superscript or subscript,
-                // or the '\' command mode key
-                // switch to 'math'
-                return true;
-            }
-
-            // If this is a closing matching fence
-            // switch to 'math' mode
-            const lFence = {')' : '(', '}' : '{', ']' : '['}[c];
-            if (lFence && this.mathlist.parent() && 
-                this.mathlist.parent().type === 'leftright' &&
-                this.mathlist.parent().leftDelim === lFence) {
-                return true;
-            }
-
-
-            if (/(^|[^a-zA-Z])(a|I)[ ]$/.test(context)) {
-                // Single letters that are valid words in the current language
-                // Do nothing. @todo: localization
-                return false;
-            }
-
-            if (/[$€£₤₺¥¤฿¢₡₧₨₹₩₱]/u.test(c)) {
-                // A currency symbol.
-                // Switch to math mode
-                return true;
-            }
-
-            if (/(^|[^a-zA-Z'’])[a-zA-Z][ ]$/.test(context)) {
-                // An isolated letter, followed by a space:
-                // Convert the letter to math, stay in text mode.
-                this.convertLastAtomsToMath_(1);
-                return false;
-            }
-
-            if (/[^0-9]\.[^0-9\s]$/.test(context)) {
-                // A period followed by something other than space or a digit
-                // and not preceded by a digit.
-                // We thought this was a text period, but turns out it's not
-                // Turn it into a \cdot
-                this.convertLastAtomsToMath_(1);
-                const atom = this.mathlist.sibling(0);
-                atom.body = '⋅';        // centered dot
-                atom.autoFontFamily = 'cmr';
-                atom.latex = '\\cdot';
-
-                return true;
-            }
-
-            if (/(^|\s)[a-zA-Z][^a-zA-Z]$/.test(context)) {
-                // Single letter (x), followed by a non-letter (>, =...)
-                this.convertLastAtomsToMath_(1);
-                return true;
-            }
-
-            if (/\.[0-9]$/.test(context)) {
-                // If the new character is a digit, 
-                // and it was preceded by a dot (which may have been converted
-                // to text)
-                // turn the dot back into 'math'
-                this.convertLastAtomsToMath_(1);
-                return true;
-            }
-
-            if (/[(][0-9+\-.]$/.test(context)) {
-                // An open paren followed by a number
-                // Turn the paren back to math and switch.
-                this.convertLastAtomsToMath_(1);
-                return true;
-            }
-
-            if (/[(][a-z][,;]$/.test(context)) {
-                // An open paren followed by a single letter, then a "," or ";"
-                // Turn the paren back and letter to math and switch.
-                this.convertLastAtomsToMath_(2);
-                return true;
-            }
-
-            // The tests above can look behind and change what had previously
-            // been entered. Now, let's just look at the typed character.
-            if (/[0-9+\-=><*|]$/.test(c)) {
-                // If this new character looks like a number,
-                // or a relational operator (=, <, >)
-                // or a "*" or "|"
-                // (note that <=, >=, etc... are handled separately as shortcuts)
-                // switch to 'math'
-                this.removeIsolatedSpace_();
-                return true;
-            }
-
-
-            // /(?<match>[0-9>=<+-/()]+)$/
-
-        } else {
-            // We're in math mode. Should we switch to text?
-            if (keystroke === 'Spacebar') {
-                this.convertLastAtomsToText_(a => /[a-z][:,;.]$/.test(a.body));
-                return true;
-            }
-            if (/[a-zA-Z]{3,}$/.test(context) && !/dxd$/.test(context)) {
-                // A sequence of three characters
-                // (except for some exceptions)
-                // Convert them to text.
-                this.convertLastAtomsToText_(a => 
-                    /[a-zA-Z:,;.]/.test(a.body));
-                return true;
-            }
-            if (/(^|\W)(if|If)$/i.test(context)) {
-                // @todo localization
-                this.convertLastAtomsToText_(1);
-                return true;
-            }
-            if (/\?|\./.test(c)) {
-                // If the last character is a period or question mark, 
-                // turn it to 'text'
-                return true;
-            }
-        }
-    } else {
+    if (!this.mathlist.isCollapsed()) {
         // There is a selection
-        // @todo handle some keys: /, ^
+        if (this.mode === 'text') {
+            if (/[/_^]/.test(c)) return true;
+        }
+
+        return false;
+    }
+    const context = this.getTextBeforeAnchor_() + c;
+    if (this.mode === 'text') {
+        // We're in text mode. Should we switch to math?
+
+        if (keystroke === 'Esc' || /[/^_\\]/.test(c)) {
+            // If this is a command for a fraction, superscript or subscript,
+            // or the '\' command mode key
+            // switch to 'math'
+            return true;
+        }
+
+        // If this is a closing matching fence
+        // switch to 'math' mode
+        const lFence = {')' : '(', '}' : '{', ']' : '['}[c];
+        if (lFence && this.mathlist.parent() && 
+            this.mathlist.parent().type === 'leftright' &&
+            this.mathlist.parent().leftDelim === lFence) {
+            return true;
+        }
+
+
+        if (/(^|[^a-zA-Z])(a|I)[ ]$/.test(context)) {
+            // Single letters that are valid words in the current language
+            // Do nothing. @todo: localization
+            return false;
+        }
+
+        if (/[$€£₤₺¥¤฿¢₡₧₨₹₩₱]/u.test(c)) {
+            // A currency symbol.
+            // Switch to math mode
+            return true;
+        }
+
+        if (/(^|[^a-zA-Z'’])[a-zA-Z][ ]$/.test(context)) {
+            // An isolated letter, followed by a space:
+            // Convert the letter to math, stay in text mode.
+            this.convertLastAtomsToMath_(1);
+            return false;
+        }
+
+        if (/[^0-9]\.[^0-9\s]$/.test(context)) {
+            // A period followed by something other than space or a digit
+            // and not preceded by a digit.
+            // We thought this was a text period, but turns out it's not
+            // Turn it into a \cdot
+            this.convertLastAtomsToMath_(1);
+            const atom = this.mathlist.sibling(0);
+            atom.body = '⋅';        // centered dot
+            atom.autoFontFamily = 'cmr';
+            atom.latex = '\\cdot';
+
+            return true;
+        }
+
+        if (/(^|\s)[a-zA-Z][^a-zA-Z]$/.test(context)) {
+            // Single letter (x), followed by a non-letter (>, =...)
+            this.convertLastAtomsToMath_(1);
+            return true;
+        }
+
+        if (/\.[0-9]$/.test(context)) {
+            // If the new character is a digit, 
+            // and it was preceded by a dot (which may have been converted
+            // to text)
+            // turn the dot back into 'math'
+            this.convertLastAtomsToMath_(1);
+            return true;
+        }
+
+        if (/[(][0-9+\-.]$/.test(context)) {
+            // An open paren followed by a number
+            // Turn the paren back to math and switch.
+            this.convertLastAtomsToMath_(1);
+            return true;
+        }
+
+        if (/[(][a-z][,;]$/.test(context)) {
+            // An open paren followed by a single letter, then a "," or ";"
+            // Turn the paren back and letter to math and switch.
+            this.convertLastAtomsToMath_(2);
+            return true;
+        }
+
+        // The tests above can look behind and change what had previously
+        // been entered. Now, let's just look at the typed character.
+        if (/[0-9+\-=><*|]$/.test(c)) {
+            // If this new character looks like a number,
+            // or a relational operator (=, <, >)
+            // or a "*" or "|"
+            // (note that <=, >=, etc... are handled separately as shortcuts)
+            // switch to 'math'
+            this.removeIsolatedSpace_();
+            return true;
+        }
+
+    } else {
+        // We're in math mode. Should we switch to text?
+        if (keystroke === 'Spacebar') {
+            this.convertLastAtomsToText_(a => /[a-z][:,;.]$/.test(a.body));
+            return true;
+        }
+        if (/[a-zA-Z]{3,}$/.test(context) && !/dxd$/.test(context)) {
+            // A sequence of three characters
+            // (except for some exceptions)
+            // Convert them to text.
+            this.convertLastAtomsToText_(a => 
+                /[a-zA-Z:,;.]/.test(a.body));
+            return true;
+        }
+        if (/(^|\W)(if|If)$/i.test(context)) {
+            // @todo localization
+            this.convertLastAtomsToText_(1);
+            return true;
+        }
+        if (/\?|\./.test(c)) {
+            // If the last character is a period or question mark, 
+            // turn it to 'text'
+            return true;
+        }
     }
     return false;
 }
@@ -2411,7 +2410,9 @@ MathField.prototype.$insert = function(s, options) {
 
 MathField.prototype.switchMode_ = function(mode, prefix, suffix) {
     this._resetKeystrokeBuffer();
-    this.smartModeSuppressed = true;
+    // Suppress (temporarily) smart mode if switching to/from text or math
+    // This prevents switching to/from command mode from supressing smart mode.
+    this.smartModeSuppressed = /text|math/.test(this.mode) && /text|math/.test(mode);
     if (prefix) {
         this.insert(prefix, { 
             format: 'latex', 
@@ -3503,130 +3504,126 @@ MathField.prototype.$setConfig = function(conf) {
     }
 }
 
-
-
-
-MathField.prototype._speakWithSynchronizedHighlighting = function(text) {
-    if (!this.config.handleReadAloud) return;
-    this.config.handleReadAloud(this.field, text, this.config);
-}
-
-
-MathField.prototype._speak = function(text) {
-    if (!this.config.handleSpeak) return;
-    this.config.handleSpeak(text, this.config);
-}
-
 /**
- * @method MathField#speakSelection_
+ * 
+ * Speak some part of the expression, either with or without synchronized highlighting.
+ * 
+ * @param {string} amount (all, selection, left, right, group, parent)
+ * @param {object} speakOptions 
+ * @param {boolean} speakOptions.withHighlighting - If true, synchronized highlighting of speech will happen (if possible)
+ * 
+ * @method MathField#speak_
  */
-MathField.prototype.speakSelection_ = function() {
-    let text = "Nothing selected.";
-    if (!this.mathlist.isCollapsed()) {
-        text = MathAtom.toSpeakableText(this.mathlist.getSelectedAtoms(), this.config)
+MathField.prototype.speak_ = function(amount, speakOptions) {
+    speakOptions = speakOptions || {withHighlighting: false};
+    function getAtoms(mathField, amount) {
+        let result = null;
+        switch (amount) {
+            case 'all':
+                result = mathField.mathlist.root;
+                break;
+            case 'selection':
+                if (!mathField.mathlist.isCollapsed()) {
+                    result = mathField.mathlist.getSelectedAtoms();
+                }
+                break;
+            case 'left': {
+                const siblings = mathField.mathlist.siblings();
+                const last = mathField.mathlist.startOffset();
+                if (last >= 1) {
+                     result = [];
+                    for (let i = 1; i <= last; i++) {
+                        result.push(siblings[i]);
+                    }
+                }
+                break;
+            }
+            case 'right': {
+                const siblings = mathField.mathlist.siblings();
+                const first = mathField.mathlist.endOffset() + 1;
+                if (first <= siblings.length - 1) {
+                    result = [];
+                    for (let i = first; i <= siblings.length - 1; i++) {
+                        result.push(siblings[i]);
+                    }
+                }
+                break;
+            }
+            case 'start':
+            case 'end':
+                // not yet implemented
+                break;
+            case 'group':
+                result = mathField.mathlist.siblings();
+                break;
+            case 'parent': {
+                const parent = mathField.mathlist.parent();
+                if (parent && parent.type !== 'root') {
+                    result = mathField.mathlist.parent();
+                }
+                break;
+            }
+            default:
+                console.log('unknown atom type "' + mathField.type + '"');
+                break;
+        }
+        return result;
     }
-    this._speak(text);
-    return false;
-}
 
-/**
- * @method MathField#speakSelectionWithSynchronizedHighlighting_
- */
-MathField.prototype.speakSelectionWithSynchronizedHighlighting_ = function() {
-    if (!this.mathlist.isCollapsed()) {
+    function getFailedSpeech (amount) {
+        let result = '';
+        switch(amount) {
+            case 'all':
+                console.log("Internal failure: speak all failed");
+                break;
+            case 'selection':
+                result = 'no selection';
+                break;
+            case 'left':
+                result = 'at start';
+                break;
+            case 'right':
+                result = 'at end';
+                break;
+            case 'group':
+                console.log("Internal failure: speak group failed");
+                break;
+            case 'parent':
+                result = 'no parent';
+                break;
+            default:
+                console.log('unknown speak_ param value: "' + amount + '"');
+                break;
+        }
+        return result;
+    }
+
+
+    const atoms = getAtoms(this, amount);
+    if (atoms === null) {
+        this.config.handleSpeak ( getFailedSpeech(amount) );
+        return false;
+    }
+
+    const options = this.config;
+    if (speakOptions.withHighlighting) {
+        options.textToSpeechMarkup = (window.sre && options.textToSpeechRules === 'sre') ? 'ssml_step' : 'ssml';
+    }
+    const text = MathAtom.toSpeakableText(atoms, options)
+
+    if (speakOptions.withHighlighting) {
         window.mathlive.readAloudMathField = this;
         this._render({forHighlighting: true});
-        const options = this.config;
-        options.textToSpeechMarkup = (window.sre && options.textToSpeechRules === 'sre') ? 'ssml_step' : 'ssml';
-        const text = MathAtom.toSpeakableText(this.mathlist.getSelectedAtoms(), options)
-        this._speakWithSynchronizedHighlighting(text);
+        if (this.config.handleReadAloud) {
+            this.config.handleReadAloud(this.field, text, this.config);
+        }   
     } else {
-        this._speak("Nothing selected.");
-    }
-    return false;
-}
-
-
-/**
- * @method MathField#speakParent_
- */
-MathField.prototype.speakParent_ = function() {
-    let text = 'No parent.';
-    const parent = this.mathlist.parent();
-    if (parent && parent.type !== 'root') {
-        text = MathAtom.toSpeakableText(this.mathlist.parent(), this.config);
-    }
-    this._speak(text);
-    return false;
-}
-
-/**
- * @method MathField#speakRightSibling_
- */
-MathField.prototype.speakRightSibling_ = function() {
-    let text = 'At the end.';
-    const siblings = this.mathlist.siblings();
-    const first = this.mathlist.startOffset() + 1;
-    if (first < siblings.length - 1) {
-        const adjSiblings = [];
-        for (let i = first; i <= siblings.length - 1; i++) {
-            adjSiblings.push(siblings[i]);
+        if (this.config.handleSpeak) {
+            this.config.handleSpeak(text, options);
         }
-        text = MathAtom.toSpeakableText(adjSiblings, this.config);
     }
-    this._speak(text);
     return false;
 }
-
-/**
- * @method MathField#speakLeftSibling_
- */
-MathField.prototype.speakLeftSibling_ = function() {
-    let text = 'At the beginning.';
-    const siblings = this.mathlist.siblings();
-    const last = this.mathlist.isCollapsed() ? this.mathlist.startOffset() : this.mathlist.startOffset() - 1;
-    if (last >= 1) {
-        const adjSiblings = [];
-        for (let i = 1; i <= last; i++) {
-            adjSiblings.push(siblings[i]);
-        }
-        text = MathAtom.toSpeakableText(adjSiblings, this.config);
-    }
-    this._speak(text);
-    return false;
-}
-
-
-/**
- * @method MathField#speakGroup_
- */
-MathField.prototype.speakGroup_ = function() {
-    this._speak(MathAtom.toSpeakableText(this.mathlist.siblings(), this.config));
-    return false;
-}
-
-/**
- * @method MathField#speakAll_
- */
-MathField.prototype.speakAll_ = function() {
-    this._speak(MathAtom.toSpeakableText(this.mathlist.root, this.config));
-    return false;
-}
-
-/**
- * @method MathField#speakAllWithSynchronizedHighlighting_
- */
-MathField.prototype.speakAllWithSynchronizedHighlighting_ = function() {
-    window.mathlive.readAloudMathField = this;
-    this._render({forHighlighting: true});
-    const options = this.config;
-    options.textToSpeechMarkup = (window.sre && options.textToSpeechRules === 'sre') ? 'ssml_step' : 'ssml';
-    const text = MathAtom.toSpeakableText(this.mathlist.root, options)
-    this._speakWithSynchronizedHighlighting(text);
-    return false;
-}
-
-
 
 
 export default {

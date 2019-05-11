@@ -9,13 +9,18 @@ export default [{
       compress: {
           drop_console: true,
           drop_debugger: true,
-          ecma: 6,
+          ecma: 8,
           module: true,
-          warnings: true
+          warnings: true,
+          passes: 2
       }
     }),
     copy({ 
       targets: ["css/fonts"],
+      verbose: true
+    }),
+    copy({ 
+      targets: ["src"],
       verbose: true
     })
   ],

@@ -235,9 +235,9 @@ function latexify(parent, value, expandMacro) {
             'backgroundColor', 
             'fontFamily'
             ], value, expandMacro);
-        if (result.startsWith('{') && result.endsWith('}')) {
-            result = result.slice(1, result.length - 1);
-        }
+        // if (result.startsWith('{') && result.endsWith('}')) {
+        //     result = result.slice(1, result.length - 1);
+        // }
 
     } else if (typeof value === 'number' || typeof value === 'boolean') {
         result = value.toString();
@@ -353,10 +353,10 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 result += '\\right' + (this.rightDelim || '.');
                 if (this.rightDelim && this.rightDelim.length > 1) result += ' ';
             } else {
-                result += this.leftDelim === '.' ? '' : (this.leftDelim || '');
+                result += '\\mleft' + (this.leftDelim || '.');
                 if (this.leftDelim && this.leftDelim.length > 1) result += ' ';
                 result += latexify(this, this.body, expandMacro);
-                result += (!this.rightDelim || this.rightDelim === '?' || this.rightDelim === '.') ? '' : this.rightDelim;
+                result += '\\mright' + (this.rightDelim || '.');
                 if (this.rightDelim && this.rightDelim.length > 1) result += ' ';
             }
             break;
