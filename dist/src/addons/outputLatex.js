@@ -133,9 +133,8 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
             if (atoms[0].fontShape === 'it') {
                 prefix = '\\mathit{';
                 suffix = '}';
-            } else if (atoms[0].fontShape === 'n' && 
-                !(atoms[0].fontSeries === 'b' || atoms[0].fontFamily === 'cmr')) {
-                prefix = '\\mathup{';
+            } else if (atoms[0].fontShape === 'n') {
+                prefix = '{\\upshape ';
                 suffix = '}';
             } else if (atoms[0].fontShape && atoms[0].fontShape !== 'n') {
                 prefix = '{\\fontShape{' + atoms[0].fontShape + '}';
