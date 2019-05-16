@@ -667,7 +667,6 @@ MathField.prototype._onPointerDown = function(evt) {
         const focus = that._pathFromPoint(x, y, 
             {bias: x <= anchorX ? (x === anchorX ? 0 : -1) : +1});
 
-
         if (focus && that.mathlist.setRange(actualAnchor, focus, 
             {extendToWordBoundary: trackingWords})) {
             // Re-render if the range has actually changed
@@ -1322,10 +1321,22 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
     if (this.mode === 'text') {
         // We're in text mode. Should we switch to math?
 
-        if (keystroke === 'Esc' || /[/^_\\]/.test(c)) {
-            // If this is a command for a fraction, superscript or subscript,
+        if (keystroke === 'Esc' || /[/\\]/.test(c)) {
+            // If this is a command for a fraction,
             // or the '\' command mode key
             // switch to 'math'
+            return true;
+        }
+
+        if (/[\^_]/.test(c)) {
+            // If this is a superscript or subscript
+            // switch to 'math'
+            if (/(^|\s)[a-zA-Z][^_]$/.test(context)) {
+                // If left hand context is a single letter,
+                // convert it to math
+                this.convertLastAtomsToMath_(1);
+            }
+
             return true;
         }
 
@@ -1419,7 +1430,7 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
             this.convertLastAtomsToText_(a => /[a-z][:,;.]$/.test(a.body));
             return true;
         }
-        if (/[a-zA-Z]{3,}$/.test(context) && !/dxd$/.test(context)) {
+        if (/[a-zA-Z]{3,}$/.test(context) && !/(dxd|abc|xyz|uvw)$/.test(context)) {
             // A sequence of three characters
             // (except for some exceptions)
             // Convert them to text.
@@ -1531,7 +1542,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
         const previousMode = this.mode;
         if (shortcut) {
             // If we found a shortcut (e.g. "alpha"),
-            // switch to math mode and insert it.
+            // switch to math mode and insert it
             this.mode = 'math'
         } else if (this.smartMode_(keystroke, evt)) {
             this.mode = {'math':'text', 'text':'math'}[this.mode];
@@ -1577,7 +1588,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
 
     // 5.3 If this is the Spacebar and we're just before or right after 
     // a text zone, insert the space inside the text zone
-    if (this.mode === 'math' && keystroke === 'Spacebar') {
+    if (this.mode === 'math' && keystroke === 'Spacebar' && !shortcut) {
         const nextSibling = this.mathlist.sibling(1);
         const previousSibling = this.mathlist.sibling(-1);
         if ((nextSibling && nextSibling.mode === 'text') || 
@@ -1631,6 +1642,12 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
             // Check if as a result of the substitution there is now an isolated
             // (text mode) space (surrounded by math). In which case, remove it.
             this.removeIsolatedSpace_();
+
+            // Switch (back) to text mode if the shortcut ended with a space
+            if (shortcut.endsWith(' ')) {
+                this.mode = 'text';
+                this.mathlist.insert(' ', {mode: 'text', style: style});
+            }
 
             this.mathlist.suppressChangeNotifications = save;
             this.mathlist.contentDidChange();
