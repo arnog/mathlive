@@ -467,7 +467,7 @@ EditableMathlist.prototype.setRange = function(from, to, options) {
         // axb/c+y -> select from x to y
         commonAncestor[commonAncestor.length - 1].offset -=  1;
     } else if (to.length > from.length) {
-        extent -= 1;
+        commonAncestor[ancestorDepth].offset -= 1;
     }
 
     return this.setPath(commonAncestor, extent);
