@@ -395,8 +395,8 @@ function showPopoverWithLatex(mf, latex, displayArrows) {
 
     let template = displayArrows ?
         '<div class="ML__popover__prev-shortcut" role="button" aria-label="Previous suggestion"><span><span>&#x25B2;</span></span></div>' : '';
-    template += '<span class="ML__popover__content">';
-    template += '<div class="ML__popover__command" role="button" >' +
+    template += '<span class="ML__popover__content" role="button">';
+    template += '<div class="ML__popover__command">' +
         command_markup + '</div>';
     if (command_note) {
         template += '<div class="ML__popover__note">' +
@@ -410,7 +410,7 @@ function showPopoverWithLatex(mf, latex, displayArrows) {
     template += displayArrows ? '<div class="ML__popover__next-shortcut" role="button" aria-label="Next suggestion"><span><span>&#x25BC;</span></span></div>' : '';
     showPopover(mf, template);
 
-    let el = mf.popover.getElementsByClassName('ML__popover_content');
+    let el = mf.popover.getElementsByClassName('ML__popover__content');
     if (el && el.length > 0) {
         mf._attachButtonHandlers(el[0], ['complete', {acceptSuggestion:true}]);
     }
