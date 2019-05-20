@@ -330,7 +330,6 @@ function MathField(element, config) {
     localConfig.onContentDidChange =
         MathField.prototype._onContentDidChange.bind(this);
     localConfig.onAnnounce = this.config.onAnnounce;
-    localConfig.smartFence = this.config.smartFence;
     localConfig.macros = this.config.macros;
     localConfig.removeExtraneousParentheses = this.config.removeExtraneousParentheses;
 
@@ -1810,7 +1809,7 @@ MathField.prototype._onTypedText = function(text, options) {
                         this.mathlist.insert(c, { 
                             mode: 'math', 
                             style: style, 
-                            smartFence: true 
+                            smartFence: this.config.smartFence 
                         });
                     }
                 }
