@@ -1179,7 +1179,7 @@ EditableMathlist.prototype.extractArgBeforeInsertionPoint = function() {
         }
     } else {
         while (i >= 1 && 
-            /mord|surd|msubsup|leftright|mop/.test(siblings[i].type)) {
+            /^(mord|surd|msubsup|leftright|mop)$/.test(siblings[i].type)) {
             result.unshift(siblings[i]);
             i--
         }
@@ -1962,7 +1962,8 @@ function removeParen(list) {
 EditableMathlist.prototype.simplifyParen = function(atoms) {
     if (atoms && this.config.removeExtraneousParentheses) {
         for (let i = 0; atoms[i]; i++) {
-            if (atoms[i].type === 'leftright' && atoms[i].leftDelim === '(') {
+            if (atoms[i].type === 'leftright' && 
+                atoms[i].leftDelim === '(') {
                 if (Array.isArray(atoms[i].body)) {
                     let genFracCount = 0;
                     let genFracIndex = 0;
