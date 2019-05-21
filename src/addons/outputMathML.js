@@ -69,7 +69,7 @@ function scanIdentifier(stream, final, options) {
 
     if (stream.index < final &&
         (atom.type === 'mord' || atom.type === 'textord') &&
-        '0123456789,.'.indexOf(atom.latex) < 0) {
+        '0123456789,.'.indexOf(atom.body) < 0) {
         body = atom.toMathML(options);
         if (atom.superscript) {
             superscript = stream.index;
@@ -128,6 +128,7 @@ function scanIdentifier(stream, final, options) {
 
         if ((stream.lastType === 'mi' ||
             stream.lastType === 'mn' ||
+            stream.lastType === 'mtext' ||
             stream.lastType === 'fence') &&
             !/^<mo>(.*)<\/mo>$/.test(mathML)) {
             mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
@@ -179,7 +180,7 @@ function indexOfSuperscriptInNumber(stream) {
     let found = false;
     while (i < stream.atoms.length && !done && !found) {
         done = stream.atoms[i].type !== 'mord' ||
-            '0123456789,.'.indexOf(stream.atoms[i].latex) < 0;
+            '0123456789,.'.indexOf(stream.atoms[i].body) < 0;
         found = !done && stream.atoms[i].superscript;
         i++
     }
@@ -232,6 +233,28 @@ function parseSubsup(base, stream, options) {
 }
 
 
+function scanText(stream, final, options) {
+    let result = false;
+    final = final || stream.atoms.length;
+    const initial = stream.index;
+    let mathML = '';
+    while (stream.index < final &&
+           stream.atoms[stream.index].mode === 'text'
+        ) {
+        mathML += stream.atoms[stream.index].body ? stream.atoms[stream.index].body : ' ';
+        stream.index += 1;
+    }
+
+    if (mathML.length > 0) {
+        result = true;
+        mathML = '<mtext' + makeID(stream.atoms[initial].id, options) + '>' + mathML + '</mtext>';
+
+        stream.mathML += mathML;
+        stream.lastType = 'mtext';
+    }
+
+    return result;
+}
 
 function scanNumber(stream, final, options) {
     let result = false;
@@ -246,9 +269,9 @@ function scanNumber(stream, final, options) {
 
     while (stream.index < final &&
         stream.atoms[stream.index].type === 'mord' &&
-        '0123456789,.'.indexOf(stream.atoms[stream.index].latex) >= 0
+        '0123456789,.'.indexOf(stream.atoms[stream.index].body) >= 0
     ) {
-        mathML += stream.atoms[stream.index].latex;
+        mathML += stream.atoms[stream.index].body;
         stream.index += 1;
     }
 
@@ -376,7 +399,11 @@ function scanOperator(stream, final, options) {
             lastType = 'mo';
 
         } else {
-            const op = toMo(stream.atoms[stream.index], options);
+            const atom = stream.atoms[stream.index];
+            const isUnit = atom.latex.indexOf('\\operatorname') === 0;
+            const op = isUnit ?
+                '<mi class="MathML-Unit"' + makeID(atom.id, options) + '>' + toString(atom.body) + '</mi>' :
+                toMo(atom, options);
             mathML += op;
             stream.index += 1;
             if (parseSubsup(mathML, stream, options)) {
@@ -385,12 +412,12 @@ function scanOperator(stream, final, options) {
                 mathML = '';
             }
             stream.index -= 1;
-            if (!/^<mo>(.*)<\/mo>$/.test(op)) {
+            if (!isUnit && !/^<mo>(.*)<\/mo>$/.test(op)) {
                 mathML += '<mo> &ApplyFunction; </mo>';
                 // mathML += scanArgument(stream);
                 lastType = 'applyfunction';
             } else {
-                lastType = 'mo';
+                lastType = isUnit ? 'mi' : 'mo';
             }
         }
         // mathML += '</mrow>';
@@ -440,7 +467,8 @@ function toMathML(input, initial, final, options) {
         let count = 0;
 
         while (result.index < final) {
-            if (scanNumber(result, final, options) ||
+            if (scanText(result, final, options) ||
+                scanNumber(result, final, options) ||
                 scanIdentifier(result, final, options) ||
                 scanOperator(result, final, options) ||
                 scanFence(result, final, options)) {
@@ -729,7 +757,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
                 } else if (typeof this.body === 'string') {
                     result = this.body.charAt(0);
                 } else {
-                    result = this.latex;
+                    result = this.body;
                 }
             }
             result = '<mi' + variant + makeID(this.id, options) + '>' + xmlEscape(result) + '</mi>';
