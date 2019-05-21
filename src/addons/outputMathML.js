@@ -512,7 +512,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
         '\\differentialD': '&#x2146;',
         '\\capitalDifferentialD': '&#x2145;',
         '\\alpha': '&#x03b1;',
-        '\\pi': '&@x03c0;',
+        '\\pi': '&#x03c0;',
         '\\infty' : '&#x221e;',
         '\\forall' : '&#x2200;',
         '\\nexists': '&#x2204;',
