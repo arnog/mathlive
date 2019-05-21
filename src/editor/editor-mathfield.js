@@ -816,6 +816,10 @@ MathField.prototype._onSelectionDidChange = function() {
         if (this.mode !== previousMode && typeof this.config.onModeChange === 'function') {
             this.config.onModeChange(this, this.mode)
         }
+        if (previousMode === 'command' && this.mode !== 'command') {
+            Popover.hidePopover(this);
+            this.mathlist.removeCommandString();
+        }
     }
 
     // Defer the updating of the popover position: we'll need the tree to be
@@ -998,7 +1002,7 @@ MathField.prototype._onBlur = function() {
         if (this.config.virtualKeyboardMode === 'onfocus') {
             this.hideVirtualKeyboard_();
         }
-        Popover.updatePopoverPosition(this);
+        this.complete_({discard: true});
         this._requestUpdate();
         if (this.config.onBlur) this.config.onBlur(this);
     }
@@ -1091,6 +1095,16 @@ MathField.prototype.$perform = function(command) {
         this.mathlist[selector](...args);
         if (/^(delete|transpose|add)/.test(selector) && this.mode !== 'command') {
             this.undoManager.snapshot(this.config);
+        }
+        if (/^(delete)/.test(selector) && this.mode === 'command') {
+            const command = this.mathlist.extractCommandStringAroundInsertionPoint();
+            const suggestions = Definitions.suggest(command);
+            if (suggestions.length === 0) {
+                Popover.hidePopover(this);
+            } else {
+                Popover.showPopoverWithLatex(this, 
+                    suggestions[0].match, suggestions.length > 1);
+            }
         }
         dirty = true;
         handled = true;
