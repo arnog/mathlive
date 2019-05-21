@@ -831,10 +831,10 @@ function makeKeycap(mf, elList, chainedCommand) {
             handlers = JSON.parse(el.getAttribute('data-command'));
         } else if (el.getAttribute('data-insert')) {
             handlers = ['insert', el.getAttribute('data-insert'),
-                {focus:true, feedback:true, mode:'math', format:'latex', resetStyle:true}];
+                {focus:true, feedback:true, mode:'math', format:'auto', resetStyle:true}];
         } else if (el.getAttribute('data-latex')) {
             handlers = ['insert', el.getAttribute('data-latex'),
-                {focus:true, feedback:true, mode:'math', format:'latex', resetStyle:true}];
+                {focus:true, feedback:true, mode:'math', format:'auto', resetStyle:true}];
         } else {
             handlers = ['typedText', el.getAttribute('data-key') || el.textContent,
                 {focus:true, feedback:true, simulateKeystroke:true}];

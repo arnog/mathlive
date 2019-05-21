@@ -13,8 +13,8 @@ import Color from '../core/color.js';
 
 
 const SPECIAL_OPERATORS = {
-    '\\pm': '&PlusMinus;',
-    '\\times': '&times;',
+    '\\pm': '&#x00b1;',
+    '\\times': '&#x00d7;',
     '\\colon': ':',
     '\\vert': '|',
     '\\Vert': '\u2225',
@@ -131,11 +131,11 @@ function scanIdentifier(stream, final, options) {
             stream.lastType === 'mtext' ||
             stream.lastType === 'fence') &&
             !/^<mo>(.*)<\/mo>$/.test(mathML)) {
-            mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
+            mathML = '<mo>&#x2062;</mo>' + mathML;      // INVISIBLE TIMES
         }
 
         if (body.endsWith('>f</mi>') || body.endsWith('>g</mi>')) {
-            mathML += '<mo> &ApplyFunction; </mo>';
+            mathML += '<mo>&#x2061;</mo>';              // APPLY FUNCTION
             stream.lastType = 'applyfunction';
         } else {
             stream.lastType = /^<mo>(.*)<\/mo>$/.test(mathML) ? 'mo' : 'mi';
@@ -338,7 +338,7 @@ function scanFence(stream, final, options) {
                 stream.lastType === 'mn' ||
                 stream.lastType === 'mfrac' ||
                 stream.lastType === 'fence') {
-                mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
+                mathML = '<mo>&#x2062;</mo>' + mathML;      // INVISIBLE TIMES
             }
             stream.index = closeIndex + 1;
 
@@ -413,7 +413,7 @@ function scanOperator(stream, final, options) {
             }
             stream.index -= 1;
             if (!isUnit && !/^<mo>(.*)<\/mo>$/.test(op)) {
-                mathML += '<mo> &ApplyFunction; </mo>';
+                mathML += '<mo>&#x2061;</mo>';      // APPLY FUNCTION
                 // mathML += scanArgument(stream);
                 lastType = 'applyfunction';
             } else {
@@ -424,7 +424,7 @@ function scanOperator(stream, final, options) {
 
         if ((stream.lastType === 'mi' || stream.lastType === 'mn') &&
             !/^<mo>(.*)<\/mo>$/.test(mathML)) {
-            mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
+            mathML = '<mo>&#x2062;</mo>' + mathML;      // INVISIBLE TIMES
         }
         stream.index += 1;
     }
@@ -535,16 +535,16 @@ function toString(atoms) {
  */
 MathAtom.MathAtom.prototype.toMathML = function(options) {
     const SPECIAL_IDENTIFIERS = {
-        '\\exponentialE': '&ExponentialE;',
-        '\\imaginaryI': '&ImaginaryI;',
-        '\\differentialD': '&DifferentialD;',
-        '\\capitalDifferentialD': '&CapitalDifferentialD;',
-        '\\alpha': '&alpha;',
-        '\\pi': '&pi;',
-        '\\infty' : '&infin;',
-        '\\forall' : '&forall;',
-        '\\nexists': '&nexists;',
-        '\\exists': '&exist;',
+        '\\exponentialE': '&#x02147;',
+        '\\imaginaryI': '&#x2148;',
+        '\\differentialD': '&#x2146;',
+        '\\capitalDifferentialD': '&#x2145;',
+        '\\alpha': '&#x03b1;',
+        '\\pi': '&#x03c0;',
+        '\\infty' : '&#x221e;',
+        '\\forall' : '&#x2200;',
+        '\\nexists': '&#x2204;',
+        '\\exists': '&#x2203;',
         '\\hbar': '\u210f',
         '\\cdotp': '\u22c5',
         '\\ldots': '\u2026',

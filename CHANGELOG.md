@@ -1,3 +1,15 @@
+## 0.29.1 (May 19, 2019)
+
+### Bug fixes
+- #201: the popover button was not responsive
+- #195: (partial fix) improve support for Edge (still requires Babelization)
+- Fixed an issue while dragging to select across elements of different depths
+- Fixed issue with smartMode for expressions including "x^2", "xyz" and "\pi"
+- Fixed an issue with styling, where the Latex output could sometimes include the non-existent `\mathup` command. The correct command is `\upshape`
+- Fixed issues with enclose layout
+- Avoid triggering spurious notifications while inserting an inline shortcut
+
+
 ## 0.29 (May 9, 2019)
 
 ### Major New Features
