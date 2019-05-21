@@ -35,6 +35,8 @@ const PRONUNCIATION = {
     '\\prod':       'Product ',
 
 
+    '+':            'plus ',
+    '-':            'minus ',
     ';':            '<break time="150ms"/> semi-colon <break time="150ms"/>',
     ',':            '<break time="150ms"/> comma  <break time="150ms"/>',
     '|':            '<break time="150ms"/>Vertical bar<break time="150ms"/>',
@@ -104,6 +106,15 @@ const PRONUNCIATION = {
     // '\\rbrack':		'right bracket',
     '\\lbrack':     '<break time="150ms"/> open square bracket <break time="150ms"/>',
     '\\rbrack':     '<break time="150ms"/> close square bracket <break time="150ms"/>',
+
+    // need to add code to detect singluar/plural. Until then spoken as plural since that is vastly more common
+    // note: need to worry about intervening &InvisibleTimes;.
+    // note: need to also do this when in numerator of fraction and number preceeds fraction
+    // note: need to do this for <msup>
+    'mm':           'millimeters',
+    'cm':           'centimeters',
+    'km':           'kilometers',
+    'kg':           'kilograms',
 }
 
 
@@ -231,9 +242,11 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                 i += 2;
             // '.' and ',' should only be allowed if prev/next entry is a digit
             // However, if that isn't the case, this still works because 'toSpeakableFragment' is called in either case.
-            } else if (atom[i].type === 'mord' && /[0123456789,.]/.test(atom[i].latex)) {
-                if (isInDigitRun) {
-                    result += atom[i].latex;
+        } else if (atom[i].mode === 'text') {
+            result += atom[i].body ? atom[i].body : ' ';
+        } else if (atom[i].type === 'mord' && /[0123456789,.]/.test(atom[i].body)) {
+            if (isInDigitRun) {
+                    result += atom[i].body;
                 } else {
                     isInDigitRun = true;
                     result += MathAtom.toSpeakableFragment(atom[i], options);
