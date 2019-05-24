@@ -186,8 +186,14 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
                     prefix += '{\\fontfamily{' + (atoms[0].fontFamily || atoms[0].baseFontFamily) + '}';
                     suffix = '}';
                 } else {
+                    if (/^\\operatorname{/.test(atoms[0].latex)) {
+                        return atoms[0].latex + latexifyArray(parent, properties, atoms.slice(i), expandMacro);
+                    }
                     prefix = '\\' + command + '{';
                     suffix = '}';
+                    // These command have an implicit fontSeries/fontShape, so
+                    // we're done checking properties now.
+                    properties = [];
                 }
             }
         }
@@ -241,12 +247,12 @@ function latexify(parent, value, expandMacro) {
 
         result = latexifyArray(parent, [
             'mode', 
-            'fontShape', 
-            'fontSeries', 
-            'fontSize',
             'color', 
             'backgroundColor', 
-            'fontFamily'
+            'fontSize',
+            'fontFamily',
+            'fontShape', 
+            'fontSeries', 
             ], value, expandMacro);
         // if (result.startsWith('{') && result.endsWith('}')) {
         //     result = result.slice(1, result.length - 1);
