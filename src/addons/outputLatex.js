@@ -12,10 +12,18 @@ import Color from '../core/color.js';
 
 function findLongestRun(atoms, property, value) {
     let i = 0;
-    while (atoms[i]) {
-        if (atoms[i].type !== 'mop' && 
-            atoms[i][property] !== value) break
-        i++;
+    if (property === 'fontFamily') {
+        while (atoms[i]) {
+            if (atoms[i].type !== 'mop' && 
+                (atoms[i].fontFamily || atoms[i].baseFontFamily) !== value) break
+            i++;
+        }
+    } else {
+        while (atoms[i]) {
+            if (atoms[i].type !== 'mop' && 
+                atoms[i][property] !== value) break
+            i++;
+        }
     }
     return i;
 }
@@ -40,8 +48,10 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
     let prefix = '';
     let suffix = '';
     const prop = properties[0];
+    let propValue = atoms[0][prop];
+    if (prop === 'fontFamily') propValue = atoms[0].fontFamily || atoms[0].baseFontFamily;
 
-    const i = findLongestRun(atoms, prop, atoms[0][prop]);
+    const i = findLongestRun(atoms, prop, propValue);
 
     if (atoms[0].mode === 'text') {
         if (prop === 'fontShape' && atoms[0].fontShape) {
@@ -78,7 +88,10 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
         } else if (prop === 'mode') {
             let allAtomsHaveShapeOrSeriesOrFontFamily = true;
             for (let j = 0; j < i; j++) {
-                if (!atoms[j].fontSeries && !atoms[j].fontShape && !atoms[j].fontFamily) {
+                if (!atoms[j].fontSeries && 
+                    !atoms[j].fontShape && 
+                    !atoms[j].fontFamily &&
+                    !atoms[j].baseFontFamily) {
                     allAtomsHaveShapeOrSeriesOrFontFamily = false;
                     break;
                 }
@@ -106,14 +119,15 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
             prefix = '{\\' + command + ' ';
             suffix = '}';
 
-        } else if (prop === 'fontFamily' && atoms[0].fontFamily) {
+        } else if (prop === 'fontFamily' && 
+            (atoms[0].fontFamily || atoms[0].baseFontFamily)) {
             const command = {
                 'cmr': 'textrm',
                 'cmtt': 'texttt',
                 'cmss': 'textsf'
-            }[atoms[0].fontFamily] || '';
+            }[atoms[0].fontFamily || atoms[0].baseFontFamily] || '';
             if (!command) {
-                prefix += '{\\fontfamily{' + atoms[0].fontFamily + '}';
+                prefix += '{\\fontfamily{' + (atoms[0].fontFamily || atoms[0].baseFontFamily) + '}';
                 suffix = '}';
             } else {
                 prefix = '\\' + command + '{';
@@ -157,8 +171,8 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
             prefix = '{\\' + command + ' ';
             suffix = '}';
 
-        } else if (prop === 'fontFamily' && atoms[0].fontFamily) {
-            if (!/^(math|main|mainrm)$/.test(atoms[0].fontFamily)) {
+        } else if (prop === 'fontFamily' && (atoms[0].fontFamily || atoms[0].baseFontFamily)) {
+            if (!/^(math|main|mainrm)$/.test(atoms[0].fontFamily || atoms[0].baseFontFamily)) {
                 const command = {
                     'cal': 'mathcal', 
                     'frak': 'mathfrak', 
@@ -167,9 +181,9 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
                     'cmr': 'mathrm',
                     'cmtt': 'mathtt',
                     'cmss': 'mathsf'
-                }[atoms[0].fontFamily] || '';
+                }[atoms[0].fontFamily || atoms[0].baseFontFamily] || '';
                 if (!command) {
-                    prefix += '{\\fontfamily{' + atoms[0].fontFamily + '}';
+                    prefix += '{\\fontfamily{' + (atoms[0].fontFamily || atoms[0].baseFontFamily) + '}';
                     suffix = '}';
                 } else {
                     prefix = '\\' + command + '{';
