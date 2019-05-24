@@ -704,6 +704,7 @@ class MathAtom {
         // Add the right delimiter to the end of the expression.
         if (this.rightDelim) {
             let delim = this.rightDelim;
+            let classes;
             if (delim === '?') {
                 // Use a placeholder delimiter matching the open delimiter
                 delim = {
@@ -715,12 +716,13 @@ class MathAtom {
                     '\\lgroup': '\\rgroup', '\\lmoustache': '\\rmoustache'
                 }[this.leftDelim];
                 delim = delim || this.leftDelim;
-                localContext.opacity = .5;
+                classes = 'ML__smart-fence__close'
             }
             result.push(Delimiters.makeLeftRightDelim('mclose', 
                 delim, 
                 innerHeight, innerDepth, 
-                localContext
+                localContext, 
+                classes
             ));
             result[result.length - 1].applyStyle(this.getStyle());
         }
