@@ -2045,9 +2045,12 @@ MathField.prototype.formatMathlist = function(root, format) {
         result = MathAtom.toSpeakableText(root, this.config);
         this.config.textToSpeechMarkup = save;
 
-    } else if (format === 'spoken-ssml') {
+    } else if (format === 'spoken-ssml' ||  format === 'spoken-ssml-withHighlighting') {
         const save = this.config.textToSpeechMarkup;
         this.config.textToSpeechMarkup = 'ssml';
+        if (format === 'spoken-ssml-withHighlighting') {
+            this.config.generateID = true;
+        }
         result = MathAtom.toSpeakableText(root, this.config);
         this.config.textToSpeechMarkup = save;
 
@@ -2080,7 +2083,8 @@ MathField.prototype.formatMathlist = function(root, format) {
  *    * `'spoken'`
  *    * `'spoken-text'`
  *    * `'spoken-ssml'`
- *    * `'mathML'`
+  *    * `spoken-ssml-withHighlighting`
+*    * `'mathML'`
  *    * `'json'`
  * @return {string}
  * @method MathField#$text
@@ -2098,6 +2102,7 @@ MathField.prototype.$text = function(format) {
  *    * `'spoken'`
  *    * `'spoken-text'`
  *    * `'spoken-ssml'`
+ *    * `spoken-ssml-withHighlighting`
  *    * `'mathML'`
  *    * `'json'`
  * @return {string}
@@ -3540,7 +3545,7 @@ MathField.prototype.$setConfig = function(conf) {
  * 
  * @param {string} amount (all, selection, left, right, group, parent)
  * @param {object} speakOptions 
- * @param {boolean} speakOptions.withHighlighting - If true, synchronized highlighting of speech will happen (if possible)
+ * @param {boolean} speakOptions.withHighlighting - If true, synchronized highlighting of speech will happen (if possible). Default is false.
  * 
  * @method MathField#speak_
  */
