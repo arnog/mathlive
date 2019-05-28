@@ -312,11 +312,14 @@ displays the keys being typed, including the shortcuts. Great for demos!
 * `addColumnAfter`, `addColumnBefore`
 
 ### Speech
-* `speakAll`
-* `speakSelection`
-* `speakParent`
-* `speakGroup`
-* `speakLeftSibling`, `speakRightSibling`
+* `speak` This selector takes two arguments. The first argument is a string that determines what should be spoken. The valid values are:
+  * `all`
+  * `left`
+  * `right`
+  * `selection`
+  * `parent`
+  * `group`
+The second parameter determines whether what is being spoken should be highlighted. It is an object: `{withHighlighting: boolean}` (default is false). Note: highlighting currently only works when connected to Amazon's AWS speech synthesizer.
 
 
 ## Virtual Keyboards

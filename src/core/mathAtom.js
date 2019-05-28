@@ -716,12 +716,12 @@ class MathAtom {
                     '\\lgroup': '\\rgroup', '\\lmoustache': '\\rmoustache'
                 }[this.leftDelim];
                 delim = delim || this.leftDelim;
-                classes = 'ML__smart-fence__close'
+                classes = 'ML__smart-fence__close';
             }
             result.push(Delimiters.makeLeftRightDelim('mclose', 
                 delim, 
                 innerHeight, innerDepth, 
-                localContext, 
+                localContext,
                 classes
             ));
             result[result.length - 1].applyStyle(this.getStyle());
