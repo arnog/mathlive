@@ -3636,8 +3636,11 @@ MathField.prototype.speak_ = function(amount, speakOptions) {
     }
 
     const options = this.config;
-    if (speakOptions.withHighlighting | options.speechEngine === 'amazon') {
+    if (speakOptions.withHighlighting || options.speechEngine === 'amazon') {
         options.textToSpeechMarkup = (window.sre && options.textToSpeechRules === 'sre') ? 'ssml_step' : 'ssml';
+        if (speakOptions.withHighlighting) {
+            options.generateID = true;
+        }
     }
     const text = MathAtom.toSpeakableText(atoms, options)
 

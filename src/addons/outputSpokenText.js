@@ -34,7 +34,8 @@ const PRONUNCIATION = {
     '\\sum':        'Summation ',
     '\\prod':       'Product ',
 
-
+    'a':            '<phoneme alphabet="ipa" ph="eɪ">a</phoneme>',
+    'A':            'capital <phoneme alphabet="ipa" ph="eɪ">A</phoneme>',
     '+':            'plus ',
     '-':            'minus ',
     ';':            '<break time="150ms"/> semi-colon <break time="150ms"/>',
