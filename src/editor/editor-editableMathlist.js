@@ -1967,7 +1967,7 @@ EditableMathlist.prototype.simplifyParen = function(atoms) {
                     let genFracCount = 0;
                     let genFracIndex = 0;
                     let nonGenFracCount = 0;
-                    for (let j = 0; atoms[i].body; j++) {
+                    for (let j = 0; atoms[i].body[j]; j++) {
                         if (atoms[i].body[j].type === 'genfrac') {
                             genFracCount++;
                             genFracIndex = j;
