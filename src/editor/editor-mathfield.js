@@ -1755,7 +1755,7 @@ MathField.prototype._onTypedText = function(text, options) {
                 this.mathlist.removeSuggestion();
                 this.suggestionIndex = 0;
                 const command = this.mathlist.extractCommandStringAroundInsertionPoint();
-                const suggestions = Definitions.suggest(command + c);
+                const suggestions = this._getSuggestions(command + c);
                 displayArrows = suggestions.length > 1;
                 if (suggestions.length === 0) {
                     this.mathlist.insert(c, {mode: 'command'});
@@ -2521,12 +2521,19 @@ MathField.prototype.complete_ = function(options) {
     return false;
 }
 
+MathField.prototype._getSuggestions = function(command) {
+    const suggestions = Definitions.suggest(command);
+    if (!this.config.suggestionWhitelist) {
+        return suggestions;
+    }
+    return suggestions.filter(s => this.config.suggestionWhitelist.includes(s.match));
+}
 
 MathField.prototype._updateSuggestion = function() {
     this.mathlist.positionInsertionPointAfterCommitedCommand();
     this.mathlist.removeSuggestion();
     const command = this.mathlist.extractCommandStringAroundInsertionPoint();
-    const suggestions = Definitions.suggest(command);
+    const suggestions = this._getSuggestions(command);
     if (suggestions.length === 0) {
         Popover.hidePopover(this);
         this.mathlist.decorateCommandStringAroundInsertionPoint(true);
@@ -2558,7 +2565,7 @@ MathField.prototype.previousSuggestion_ = function() {
         // Not very efficient, but simple.
         this.mathlist.removeSuggestion();
         const command = this.mathlist.extractCommandStringAroundInsertionPoint();
-        const suggestions = Definitions.suggest(command);
+        const suggestions = this._getSuggestions(command);
         this.suggestionIndex = suggestions.length - 1;
     }
     this._updateSuggestion();
