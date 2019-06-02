@@ -86,9 +86,9 @@
   "bugs": "https://github.com/arnog/mathlive/issues/",
   "devDependencies": {
     "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.4",
+    "@babel/core": "^7.4.5",
     "@babel/polyfill": "^7.4.4",
-    "@babel/preset-env": "^7.4.4",
+    "@babel/preset-env": "^7.4.5",
     "@babel/register": "^7.4.4",
     "autoprefixer": "^9.5.1",
     "chokidar-cli": "^1.2.2",
@@ -108,7 +108,7 @@
     "rollup-plugin-terser": "^4.0.4",
     "sutro-jsdoc-theme": "^1.0",
     "tap-spec": "^5.0.0",
-    "tape": "^4.10.1"
+    "tape": "^4.10.2"
   },
   "dependencies": {}
 }
