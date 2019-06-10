@@ -232,6 +232,11 @@ function MathField(element, config) {
     } else {
         this.textarea = this.element.children[iChild++].firstElementChild;
     }
+
+    if (this.config.textareaId) {
+        this.textarea.id = this.config.textareaId;
+    }
+
     this.field = this.element.children[iChild].children[0];
     // Listen to 'wheel' events to scroll (horizontally) the field when it overflows
     this.field.addEventListener('wheel', ev => {
