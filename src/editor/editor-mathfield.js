@@ -148,6 +148,8 @@ function MathField(element, config) {
     let elementText = this.element.textContent;
     if (elementText) elementText = elementText.trim();
 
+    element.classList.add('ML__mathfield');
+
     // Additional elements used for UI.
     // They are retrieved in order a bit later, so they need to be kept in sync
     // 1.0/ The field, where the math equation will be displayed
@@ -595,7 +597,6 @@ MathField.prototype._onPointerDown = function(evt) {
     // If a mouse button other than the main one was pressed, return
     if (evt.buttons !== 1) return;
 
-
     function endPointerTracking(evt) {
         if (window.PointerEvent) {
             off(that.field, 'pointermove', onPointerMove);
@@ -700,20 +701,6 @@ MathField.prototype._onPointerDown = function(evt) {
     if (anchorX >= bounds.left && anchorX <= bounds.right &&
         anchorY >= bounds.top && anchorY <= bounds.bottom) {
 
-        // Create divs to block out pointer tracking to the left and right of 
-        // the math field (to avoid triggering the hover of the virtual 
-        // keyboard toggle, for example)
-        let div = document.createElement('div');
-        div.className = 'ML__scroller';
-        this.element.appendChild(div);
-        div.style.left =  (bounds.left - 200) + 'px';
-
-        div = document.createElement('div');
-        div.className = 'ML__scroller';
-        this.element.appendChild(div);
-        div.style.left = (bounds.right) + 'px';
-
-
         // Focus the math field
         if (!this.hasFocus()) {
             dirty = true;
@@ -725,9 +712,23 @@ MathField.prototype._onPointerDown = function(evt) {
         this._resetKeystrokeBuffer();
         this.smartModeSuppressed = false;
 
-
         anchor = this._pathFromPoint(anchorX, anchorY, {bias: 0});
         if (anchor) {
+
+            // Create divs to block out pointer tracking to the left and right of 
+            // the math field (to avoid triggering the hover of the virtual 
+            // keyboard toggle, for example)
+            let div = document.createElement('div');
+            div.className = 'ML__scroller';
+            this.element.appendChild(div);
+            div.style.left = '-200px';
+            div.style.top = -bounds.top + 'px';
+
+            div = document.createElement('div');
+            div.className = 'ML__scroller';
+            this.element.appendChild(div);
+            div.style.left = bounds.width + 'px';
+            div.style.top = -bounds.top + 'px';
 
             if (evt.shiftKey) {
                 // Extend the selection if the shift-key is down
