@@ -173,7 +173,9 @@
 
         <div class="mathfield" id='mf' >x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}</div>
         <div id='output'>
+            <h3>Spoken Text</h3>
             <div id='output-text'></div>
+            <h3>SSML version of Spoken Text</h3>
             <div id='output-ssml'></div>
         </div>
         <!-- <div class='toolbar'>
@@ -245,7 +247,7 @@ MathLive.renderMathInDocument({ignoreClass: "mathfield"});
 
 document.getElementById('start-button').addEventListener('click', () => {
     try {
-        mf.$perform("speakAllWithSynchronizedHighlighting")
+        mf.$perform(["speak", "all", {withHighlighting: true}])
     } catch (e) {
         console.log(e);
     }
@@ -257,6 +259,7 @@ document.getElementById('speed-slider').addEventListener('input', function() {
 });
 
 const mf = MathLive.makeMathField('mf', {
+    speechEngine: 'amazon',
     onContentDidChange: mf => {
         document.getElementById('output-text').textContent = mf.$text('spoken-text');
         document.getElementById('output-ssml').textContent = mf.$text('spoken-ssml');
@@ -297,7 +300,7 @@ setSpeed(3);
 function pauseResume() {
     try {
         if (!window.mathlive) {
-            mf.$perform("speakAllWithSynchronizedHighlighting");
+            mf.$perform(["speak", "all", {withHighlighting: true}]);
             return;
         }
 
@@ -318,7 +321,7 @@ function pauseResume() {
 
 function repeat(count) {
     if (!window.mathlive) {
-        mf.$perform("speakAllWithSynchronizedHighlighting");
+        mf.$perform(["speak", "all", {withHighlighting: true}]);
         return;
     }
     count = count || 1;

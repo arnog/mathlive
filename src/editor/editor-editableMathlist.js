@@ -1074,7 +1074,7 @@ EditableMathlist.prototype.commandOffsets = function() {
  * @private
  */
 EditableMathlist.prototype.extractCommandStringAroundInsertionPoint = 
-function(beforeInsertionPointOnly) {
+    function(beforeInsertionPointOnly) {
     let result = '';
 
     const command = this.commandOffsets();
@@ -1161,6 +1161,47 @@ EditableMathlist.prototype.spliceCommandStringAroundInsertionPoint = function(ma
     }
 }
 
+function removeCommandStringFromAtom(atom) {
+    if (!atom) return;
+    if (Array.isArray(atom)) {
+        for (let i = atom.length - 1; i >= 0; i--) {
+            if (atom[i].type === 'command') {
+                atom.splice(i, 1);
+                // i += 1;
+            } else {
+                removeCommandStringFromAtom(atom[i]);
+            }
+        }
+         return;
+    }
+
+    removeCommandStringFromAtom(atom.body);
+    removeCommandStringFromAtom(atom.superscript);
+    removeCommandStringFromAtom(atom.subscript);
+    removeCommandStringFromAtom(atom.underscript);
+    removeCommandStringFromAtom(atom.overscript);
+    removeCommandStringFromAtom(atom.numer);
+    removeCommandStringFromAtom(atom.denom);
+    removeCommandStringFromAtom(atom.index);
+
+    if (atom.array) {
+        for (let j = arrayCellCount(atom.array); j >= 0; j--) {
+            removeCommandStringFromAtom(arrayCell(atom.array, j));
+        }
+    }
+}
+
+EditableMathlist.prototype.removeCommandString = function() {
+    this.contentWillChange();
+    const contentWasChanging = this.suppressChangeNotifications;
+    this.suppressChangeNotifications = true;
+
+    removeCommandStringFromAtom(this.root.body);
+
+    this.suppressChangeNotifications = contentWasChanging;
+    this.contentDidChange();
+}
+
 /**
  * @return {string}
  * @method EditableMathlist#extractArgBeforeInsertionPoint
@@ -1179,7 +1220,7 @@ EditableMathlist.prototype.extractArgBeforeInsertionPoint = function() {
         }
     } else {
         while (i >= 1 && 
-            /mord|surd|msubsup|leftright|mop/.test(siblings[i].type)) {
+            /^(mord|surd|msubsup|leftright|mop)$/.test(siblings[i].type)) {
             result.unshift(siblings[i]);
             i--
         }
@@ -1962,7 +2003,8 @@ function removeParen(list) {
 EditableMathlist.prototype.simplifyParen = function(atoms) {
     if (atoms && this.config.removeExtraneousParentheses) {
         for (let i = 0; atoms[i]; i++) {
-            if (atoms[i].type === 'leftright' && atoms[i].leftDelim === '(') {
+            if (atoms[i].type === 'leftright' && 
+                atoms[i].leftDelim === '(') {
                 if (Array.isArray(atoms[i].body)) {
                     let genFracCount = 0;
                     let genFracIndex = 0;
@@ -2502,6 +2544,7 @@ EditableMathlist.prototype.delete = function(count) {
 EditableMathlist.prototype.delete_ = function(dir) {
     // Dispatch notifications
     this.contentWillChange();
+    this.selectionWillChange();
     const contentWasChanging = this.suppressChangeNotifications;
     this.suppressChangeNotifications = true;
 
@@ -2562,6 +2605,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
 
             // Dispatch notifications
             this.suppressChangeNotifications = contentWasChanging;
+            this.selectionDidChange();
             this.contentDidChange();
             return;
         } 
@@ -2673,6 +2717,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
     }
     // Dispatch notifications
     this.suppressChangeNotifications = contentWasChanging;
+    this.selectionDidChange();
     this.contentDidChange();
 }
 
