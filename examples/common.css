@@ -476,7 +476,7 @@ div#content > header h1, div#content > header h2 {
     text-transform: uppercase;
     padding-left:1rem;
     padding-right:1rem;
-    margin-left: auto;
+    margin-left: 40px;
     margin-right: auto;
     letter-spacing: -.04ex;
     text-rendering: optimizeLegibility;
