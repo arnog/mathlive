@@ -343,11 +343,17 @@ displays the keys being typed, including the shortcuts. Great for demos!</li>
 </ul>
 <h3 id="speech">Speech</h3>
 <ul>
-<li><code>speakAll</code></li>
-<li><code>speakSelection</code></li>
-<li><code>speakParent</code></li>
-<li><code>speakGroup</code></li>
-<li><code>speakLeftSibling</code>, <code>speakRightSibling</code></li>
+<li><code>speak</code> This selector takes two arguments. The first argument is a string that determines what should be spoken. The valid values are:
+<ul>
+<li><code>all</code></li>
+<li><code>left</code></li>
+<li><code>right</code></li>
+<li><code>selection</code></li>
+<li><code>parent</code></li>
+<li><code>group</code>
+The second parameter determines whether what is being spoken should be highlighted. It is an object: <code>{withHighlighting: boolean}</code> (default is false). Note: highlighting currently only works when connected to Amazon's AWS speech synthesizer.</li>
+</ul>
+</li>
 </ul>
 <h2 id="virtual-keyboards">Virtual Keyboards</h2>
 <p>Entry of expressions can be accomplished using a standard keyboard. In addition
