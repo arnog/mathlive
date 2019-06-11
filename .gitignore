@@ -4,6 +4,8 @@
 /out
 /node_modules
 /.nyc_output
+/dist
+/docs
 
 babel.babel
 TODO.md
