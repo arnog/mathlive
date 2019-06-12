@@ -1030,8 +1030,8 @@ class Parser {
                 result = new MathAtom(this.parseMode, 
                     this.parseMode === 'math' ? 'mord' : '', 
                     String.fromCodePoint(codepoint));
-                result.latex = '{\\char"' +
-                    ('000000' + codepoint.toString(16)).toUpperCase().substr(-6) + '}';
+                result.latex = '\\char"' +
+                    ('000000' + codepoint.toString(16)).toUpperCase().substr(-6) + '';
 
             } else if (token.value === 'hskip' || token.value === 'kern') {
                 // \hskip and \kern have a special syntax and requires a non-braced
