@@ -668,9 +668,9 @@ class Parser {
     /**
      * Parse a group enclosed in a pair of braces: `{...}`.
      *
-     * Return either a group MathAtom or null if not a group.
-     *
-     * Return a group MathAtom with an empty body if an empty
+     * Returns either a group MathAtom, null if not a group.
+     * Returns the group contents MathAtom array if the group was just for formatting.
+     * Returns a group MathAtom with an empty body if an empty
      * group (i.e. `{}`).
      * @return {MathAtom}
      * @method module:core/parser#Parser#scanGroup
@@ -678,9 +678,30 @@ class Parser {
      */
     scanGroup() {
         if (!this.parseToken('{')) return null;
-        const result = new MathAtom(this.parseMode, 'group');
-        result.body = this.scanImplicitGroup(token => token.type === '}');
+        const formatCommands = [
+            'fontseries',
+            'upshape',
+            'fontShape',
+            'tiny',
+            'scriptsize',
+            'footnotesize',
+            'small',
+            'normalsize',
+            'large',
+            'Large',
+            'LARGE',
+            'huge',
+            'Huge',
+            'fontfamily'
+        ];
+        const isFormatGroup = formatCommands.some(c => this.hasCommand(c));
+        const body = this.scanImplicitGroup(token => token.type === '}');
         this.parseToken('}');
+        if (isFormatGroup) {
+            return body;
+        }
+        const result = new MathAtom(this.parseMode, 'group');
+        result.body = body;
         result.latexOpen = '{';
         result.latexClose = '}';
         return result;
