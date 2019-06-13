@@ -668,10 +668,9 @@ class Parser {
     /**
      * Parse a group enclosed in a pair of braces: `{...}`.
      *
-     * Returns either a group MathAtom, null if not a group.
-     * Returns the group contents MathAtom array if the group was just for formatting.
-     * Returns a group MathAtom with an empty body if an empty
-     * group (i.e. `{}`).
+     * Return a group MathAtom, a MathAtom array, or null if not a group.
+     * Returns a MathAtom array if the group was used only for formatting.
+     * Returns a group MathAtom with an empty body if an empty group (i.e. `{}`).
      * @return {MathAtom}
      * @method module:core/parser#Parser#scanGroup
      * @private
