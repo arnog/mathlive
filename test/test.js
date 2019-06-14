@@ -582,7 +582,7 @@ test('LEFT/RIGHT', function (t) {
     t.equal(getType('\\left\\uparrow\\frac{\\frac{\\frac57}{\\frac95}}{2}\\right\\vert', [0, 0]), 'mopen',
         "'Always stacking' delimiters (very large)");
 
-    t.equal(getType('{\\tiny\\left\\uparrow x\\right\\vert}', [0, 0, 0]), 'mopen',
+    t.equal(getType('\\left\\uparrow\\tiny x\\right\\vert', [0, 0]), 'mopen',
         "'Always stacking' delimiters (very small)");
 
     t.equal(getType('\\left\\lfloor\\frac{\\frac34}{2}\\right\\rfloor', [0, 0]), 'mopen',
