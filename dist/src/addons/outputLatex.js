@@ -372,10 +372,10 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 result += '\\right' + (this.rightDelim || '.');
                 if (this.rightDelim && this.rightDelim.length > 1) result += ' ';
             } else {
-                result += '\\mleft' + (this.leftDelim || '.');
+                result += this.leftDelim === '.' ? '' : '\\mleft' + (this.leftDelim || '.');
                 if (this.leftDelim && this.leftDelim.length > 1) result += ' ';
                 result += latexify(this, this.body, expandMacro);
-                result += '\\mright' + (this.rightDelim || '.');
+                result += (!this.rightDelim || this.rightDelim === '?' || this.rightDelim === '.') ? '' : '\\mright' + (this.rightDelim || '.');
                 if (this.rightDelim && this.rightDelim.length > 1) result += ' ';
             }
             break;

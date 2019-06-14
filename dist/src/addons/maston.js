@@ -1088,7 +1088,7 @@ function parsePrimary(expr, options) {
         // Looks like a number
         let num = '';
         let done = false;
-        let pat = /^[0-9.eEdD]$/;
+        let pat = /^[0-9.eE]$/;
         while (expr.index < expr.atoms.length && !done && (isAtom(expr, 'spacing') ||
                 (
                     (
@@ -1107,10 +1107,7 @@ function parsePrimary(expr, options) {
                 done = true;
             } else {
                 let digit = expr.atoms[expr.index].latex;
-                if (digit === 'd' || digit === 'D') {
-                    digit = 'e';
-                    pat = /^[0-9+-.]$/;
-                } else if (digit === 'e' || digit === 'E') {
+               if (digit === 'e' || digit === 'E') {
                     if (nextIsSupsub(expr)) {
                         digit = '';
                         expr.index -= 1;

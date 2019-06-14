@@ -1886,9 +1886,9 @@ example: <code>'dimension'</code>, <code>'color'</code>, <code>'text'</code>, et
 
 <div class="description">
     <p>Parse a group enclosed in a pair of braces: <code>{...}</code>.</p>
-<p>Return either a group MathAtom or null if not a group.</p>
-<p>Return a group MathAtom with an empty body if an empty
-group (i.e. <code>{}</code>).</p>
+<p>Return a group MathAtom, a MathAtom array, or null if not a group.
+Returns a MathAtom array if the group was used only for formatting.
+Returns a group MathAtom with an empty body if an empty group (i.e. <code>{}</code>).</p>
 </div>
 
 

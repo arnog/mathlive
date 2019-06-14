@@ -668,19 +668,39 @@ class Parser {
     /**
      * Parse a group enclosed in a pair of braces: `{...}`.
      *
-     * Return either a group MathAtom or null if not a group.
-     *
-     * Return a group MathAtom with an empty body if an empty
-     * group (i.e. `{}`).
+     * Return a group MathAtom, a MathAtom array, or null if not a group.
+     * Returns a MathAtom array if the group was used only for formatting.
+     * Returns a group MathAtom with an empty body if an empty group (i.e. `{}`).
      * @return {MathAtom}
      * @method module:core/parser#Parser#scanGroup
      * @private
      */
     scanGroup() {
         if (!this.parseToken('{')) return null;
-        const result = new MathAtom(this.parseMode, 'group');
-        result.body = this.scanImplicitGroup(token => token.type === '}');
+        const formatCommands = [
+            'fontseries',
+            'upshape',
+            'fontShape',
+            'tiny',
+            'scriptsize',
+            'footnotesize',
+            'small',
+            'normalsize',
+            'large',
+            'Large',
+            'LARGE',
+            'huge',
+            'Huge',
+            'fontfamily'
+        ];
+        const isFormatGroup = formatCommands.some(c => this.hasCommand(c));
+        const body = this.scanImplicitGroup(token => token.type === '}');
         this.parseToken('}');
+        if (isFormatGroup) {
+            return body;
+        }
+        const result = new MathAtom(this.parseMode, 'group');
+        result.body = body;
         result.latexOpen = '{';
         result.latexClose = '}';
         return result;
@@ -1030,8 +1050,8 @@ class Parser {
                 result = new MathAtom(this.parseMode, 
                     this.parseMode === 'math' ? 'mord' : '', 
                     String.fromCodePoint(codepoint));
-                result.latex = '{\\char"' +
-                    ('000000' + codepoint.toString(16)).toUpperCase().substr(-6) + '}';
+                result.latex = '\\char"' +
+                    ('000000' + codepoint.toString(16)).toUpperCase().substr(-6) + '';
 
             } else if (token.value === 'hskip' || token.value === 'kern') {
                 // \hskip and \kern have a special syntax and requires a non-braced
