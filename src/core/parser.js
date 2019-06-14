@@ -680,7 +680,7 @@ class Parser {
         const formatCommands = [
             'fontseries',
             'upshape',
-            'fontShape',
+            'fontshape',
             'tiny',
             'scriptsize',
             'footnotesize',

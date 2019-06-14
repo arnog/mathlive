@@ -140,7 +140,7 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
                 prefix = '\\mathbf{';
                 suffix = '}';
             } else if (atoms[0].fontSeries && atoms[0].fontSeries !== 'n') {
-                prefix = '{\\fontSeries{' + atoms[0].fontSeries + '}';
+                prefix = '{\\fontseries{' + atoms[0].fontSeries + '}';
                 suffix = '}';
             }
         } else if (prop === 'fontShape') {
@@ -151,7 +151,7 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
                 prefix = '{\\upshape ';
                 suffix = '}';
             } else if (atoms[0].fontShape && atoms[0].fontShape !== 'n') {
-                prefix = '{\\fontShape{' + atoms[0].fontShape + '}';
+                prefix = '{\\fontshape{' + atoms[0].fontShape + '}';
                 suffix = '}';
             }
 
