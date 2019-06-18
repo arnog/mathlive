@@ -1796,7 +1796,7 @@ equal to the type ('mbin', 'inner', 'spacing', etc...)</p>
 
     
 
-    <h4 class="name" id="toLatex">toLatex<span class="signature">(expandMacro<span class="signature-type">: boolean</span>)</span><span class="type-signature">:  string</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="toLatex">toLatex<span class="signature">(options<span class="signature-type">: object</span>)</span><span class="type-signature">:  string</span><span class="type-signature"></span></h4>
 
     
 
@@ -1823,7 +1823,30 @@ equal to the type ('mbin', 'inner', 'spacing', etc...)</p>
 
         <div class="signature">
             
-                <span class="name"><code>expandMacro</code></span>
+                <span class="name"><code>options</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>options.expandMacro</code></span>
             
 
             <span class="type">
@@ -1844,6 +1867,41 @@ equal to the type ('mbin', 'inner', 'spacing', etc...)</p>
                         <p>If true, macros are fully expanded. This will
 no longer round-trip.</p>
                     </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>options.outputStyles</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">boolean</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>If false, will not output any font, color, or style related commands.</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
                     
             
         </div>

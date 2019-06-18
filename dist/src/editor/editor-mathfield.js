@@ -2228,16 +2228,19 @@ MathField.prototype.groupIsSelected = function() {
  * @param {boolean} options.suppressChangeNotifications - If true, the
  * handlers for the contentWillChange and contentDidChange notifications will 
  * not be invoked. Default `false`.
- * 
+ * @param {boolean} options.outputStyles - If false, will not output any font, color, or style related commands.
+
  * @return {string}
  * @method MathField#$latex
  */
 MathField.prototype.latex = 
 MathField.prototype.$latex = function(text, options) {
+    options = options || {
+        outputStyles: true
+    };
     if (text) {
-        const oldValue = this.mathlist.root.toLatex();
+        const oldValue = this.mathlist.root.toLatex(options);
         if (text !== oldValue) {
-            options = options || {};
             this.mathlist.insert(text, Object.assign({}, this.config, {
                 insertionMode: 'replaceAll',
                 selectionMode: 'after',
@@ -2252,7 +2255,7 @@ MathField.prototype.$latex = function(text, options) {
     }
 
     // Return the content as LaTeX
-    return this.mathlist.root.toLatex();
+    return this.mathlist.root.toLatex(options);
 }
 
 

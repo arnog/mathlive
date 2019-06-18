@@ -32,16 +32,16 @@ function findLongestRun(atoms, property, value) {
  * 
  * @param {MathAtom} parent the parent or predecessor of the atom list
  * @param {MathAtom[]} atoms the list of atoms to transform to LaTeX
- * @param {boolean} expandMacro true if macros should be expanded
+ * @param {object} options
  * @result {string} a LaTeX string
  */
-function latexifyArray(parent, properties, atoms, expandMacro) {
+function latexifyArray(parent, properties, atoms, options) {
     if (atoms.length === 0) return '';
 
     if (properties.length === 0) {
         // We've (recursively) checked:
         // all the atoms have the same properties
-        return atoms.map(x => x.toLatex(expandMacro)).join('');
+        return atoms.map(x => x.toLatex(options)).join('');
     }
 
     let result = '';
@@ -140,7 +140,7 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
                 prefix = '\\mathbf{';
                 suffix = '}';
             } else if (atoms[0].fontSeries && atoms[0].fontSeries !== 'n') {
-                prefix = '{\\fontSeries{' + atoms[0].fontSeries + '}';
+                prefix = '{\\fontseries{' + atoms[0].fontSeries + '}';
                 suffix = '}';
             }
         } else if (prop === 'fontShape') {
@@ -151,7 +151,7 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
                 prefix = '{\\upshape ';
                 suffix = '}';
             } else if (atoms[0].fontShape && atoms[0].fontShape !== 'n') {
-                prefix = '{\\fontShape{' + atoms[0].fontShape + '}';
+                prefix = '{\\fontshape{' + atoms[0].fontShape + '}';
                 suffix = '}';
             }
 
@@ -187,7 +187,7 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
                     suffix = '}';
                 } else {
                     if (/^\\operatorname{/.test(atoms[0].latex)) {
-                        return atoms[0].latex + latexifyArray(parent, properties, atoms.slice(i), expandMacro);
+                        return atoms[0].latex + latexifyArray(parent, properties, atoms.slice(i), options);
                     }
                     prefix = '\\' + command + '{';
                     suffix = '}';
@@ -218,12 +218,12 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
     result += latexifyArray(parent, 
         properties.slice(1), 
         atoms.slice(0, i), 
-        expandMacro);
+        options);
 
     result += suffix;
 
     // latexify the rest
-    result += latexifyArray(parent, properties, atoms.slice(i), expandMacro);
+    result += latexifyArray(parent, properties, atoms.slice(i), options);
 
     return result;
 }
@@ -236,7 +236,7 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
  * @param {string|MathAtom|MathAtom[]} value
  * @private
  */
-function latexify(parent, value, expandMacro) {
+function latexify(parent, value, options) {
     let result = '';
     if (Array.isArray(value) && value.length > 0) {
         if (value[0].type === 'first') {
@@ -245,7 +245,7 @@ function latexify(parent, value, expandMacro) {
             if (value.length === 0) return '';
         }
 
-        result = latexifyArray(parent, [
+        let properties = [
             'mode', 
             'color', 
             'backgroundColor', 
@@ -253,7 +253,13 @@ function latexify(parent, value, expandMacro) {
             'fontFamily',
             'fontShape', 
             'fontSeries', 
-            ], value, expandMacro);
+        ]
+        if (!options.outputStyles) {
+            properties = properties.slice(0, 1)
+        }
+
+        result = latexifyArray(parent, properties, value, options);
+
         // if (result.startsWith('{') && result.endsWith('}')) {
         //     result = result.slice(1, result.length - 1);
         // }
@@ -263,7 +269,7 @@ function latexify(parent, value, expandMacro) {
     } else if (typeof value === 'string') {
         result = value.replace(/\s/g, '~');
     } else if (value && typeof value.toLatex === 'function') {
-        result = value.toLatex(expandMacro);
+        result = value.toLatex(options);
     }
     return result;
 }
@@ -273,14 +279,19 @@ function latexify(parent, value, expandMacro) {
 /**
  * Return a LaTeX representation of the atom.
  *
- * @param {boolean} expandMacro - If true, macros are fully expanded. This will
+ * @param {object} options
+ * @param {boolean} options.expandMacro - If true, macros are fully expanded. This will
  * no longer round-trip.
+ * @param {boolean} options.outputStyles - If false, will not output any font, color, or style related commands.
  *
  * @return {string}
  * @method MathAtom#toLatex
  */
-MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
-    expandMacro = expandMacro === undefined ? false : expandMacro;
+MathAtom.MathAtom.prototype.toLatex = function(options) {
+    options = options || {
+        expandMacro: false,
+        outputStyles: true
+    };
     let result = '';
     let col, row = 0;
     let i = 0;
@@ -288,23 +299,23 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
     const command = m ? m[1] : null;
     switch(this.type) {
         case 'group':
-            result += this.latexOpen || ((this.cssId || this.cssClass) ? '' : '{');
+            result += this.latexOpen || ((this.cssId || this.cssClass) && options.outputStyles ? '' : '{');
 
-            if (this.cssId) result += '\\cssId{' + this.cssId + '}{';
+            if (this.cssId && options.outputStyles) result += '\\cssId{' + this.cssId + '}{';
 
-            if (this.cssClass === 'ML__emph') {
-                result += '\\emph{' + latexify(this, this.body, expandMacro) + '}';
+            if (this.cssClass === 'ML__emph' && options.outputStyles) {
+                result += '\\emph{' + latexify(this, this.body, options) + '}';
             } else {
-                if (this.cssClass) result += '\\class{' + this.cssClass + '}{';
+                if (this.cssClass && options.outputStyles) result += '\\class{' + this.cssClass + '}{';
 
-                result += expandMacro ? latexify(this, this.body, true) :
-                    (this.latex || latexify(this, this.body, false));
+                result += options.expandMacro ? latexify(this, this.body, options) :
+                    (this.latex || latexify(this, this.body, options));
 
                 if (this.cssClass) result += '}';
             }
-            if (this.cssId) result += '}';
+            if (this.cssId && options.outputStyles) result += '}';
 
-            result += this.latexClose || ((this.cssId || this.cssClass) ? '' : '}');
+            result += this.latexClose || ((this.cssId || this.cssClass) && options.outputStyles ? '' : '}');
             break;
 
         case 'array':
@@ -325,7 +336,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             for (row = 0; row < this.array.length; row++) {
                 for (col = 0; col < this.array[row].length; col++) {
                     if (col > 0) result += ' & ';
-                    result += latexify(this, this.array[row][col], expandMacro);
+                    result += latexify(this, this.array[row][col], options);
                 }
                 // Adds a separator between rows (but not after the last row)
                 if (row < this.array.length - 1) {
@@ -336,21 +347,21 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             break;
 
         case 'root':
-            result = latexify(this, this.body, expandMacro);
+            result = latexify(this, this.body, options);
             break;
 
         case 'genfrac':
             if (/^(choose|atop|over)$/.test(this.body)) {
                 // Infix commands.
                 result += '{';
-                result += latexify(this, this.numer, expandMacro)
+                result += latexify(this, this.numer, options)
                 result += '\\' + this.body + ' ';
-                result += latexify(this, this.denom, expandMacro);
+                result += latexify(this, this.denom, options);
                 result += '}';
             } else {
                 // @todo: deal with fracs delimiters
                 result += command;
-                result += `{${latexify(this, this.numer, expandMacro)}}{${latexify(this, this.denom, expandMacro)}}`;
+                result += `{${latexify(this, this.numer, options)}}{${latexify(this, this.denom, options)}}`;
             }
             break;
 
@@ -358,23 +369,23 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             result += '\\sqrt';
             if (this.index) {
                 result += '[';
-                result += latexify(this, this.index, expandMacro);
+                result += latexify(this, this.index, options);
                 result += ']';
             }
-            result += `{${latexify(this, this.body, expandMacro)}}`;
+            result += `{${latexify(this, this.body, options)}}`;
             break;
 
         case 'leftright':
             if (this.inner) {
                 result += '\\left' + (this.leftDelim || '.');
                 if (this.leftDelim && this.leftDelim.length > 1) result += ' ';
-                result += latexify(this, this.body, expandMacro);
+                result += latexify(this, this.body, options);
                 result += '\\right' + (this.rightDelim || '.');
                 if (this.rightDelim && this.rightDelim.length > 1) result += ' ';
             } else {
                 result += this.leftDelim === '.' ? '' : '\\mleft' + (this.leftDelim || '.');
                 if (this.leftDelim && this.leftDelim.length > 1) result += ' ';
-                result += latexify(this, this.body, expandMacro);
+                result += latexify(this, this.body, options);
                 result += (!this.rightDelim || this.rightDelim === '?' || this.rightDelim === '.') ? '' : '\\mright' + (this.rightDelim || '.');
                 if (this.rightDelim && this.rightDelim.length > 1) result += ' ';
             }
@@ -388,19 +399,19 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
         case 'rule':
             result += command;
             if (this.shift) {
-                result += `[${latexify(this, this.shift, expandMacro)}em]`;
+                result += `[${latexify(this, this.shift, options)}em]`;
             }
-            result += `{${latexify(this, this.width, expandMacro)}em}{${latexify(this, this.height, expandMacro)}em}`;
+            result += `{${latexify(this, this.width, options)}em}{${latexify(this, this.height, options)}em}`;
             break;
 
         case 'line':
         case 'overlap':
         case 'accent':
-            result += `${command}{${latexify(this, this.body, expandMacro)}}`;
+            result += `${command}{${latexify(this, this.body, options)}}`;
             break;
 
         case 'overunder':
-            result += `${command}{${latexify(this, this.overscript || this.underscript, expandMacro)}}{${latexify(parent, this.body, expandMacro)}}`;
+            result += `${command}{${latexify(this, this.overscript || this.underscript, options)}}{${latexify(parent, this.body, options)}}`;
             break;
 
         case 'mord':
@@ -413,7 +424,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
         case 'textord':
         case '':        // mode = text
             if (/^\\(mathbin|mathrel|mathopen|mathclose|mathpunct|mathord|mathinner)/.test(command)) {
-                result += command + '{' + latexify(this, this.body, expandMacro) + '}';
+                result += command + '{' + latexify(this, this.body, options) + '}';
             } else if (command === '\\char"') {
                 result += this.latex + ' ';
             } else if (command === '\\unicode') {
@@ -440,7 +451,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 // Not ZERO-WIDTH
                 if (command === '\\mathop') {
                     // The argument to mathop is math, therefor this.body can be an expression
-                    result += command + '{' + latexify(this, this.body, expandMacro) + '}';
+                    result += command + '{' + latexify(this, this.body, options) + '}';
                 } else if (command === '\\operatorname') {
                     // The argument to operator name is text, therefore this.body is a string
                     result += command + '{' + this.body + '}';
@@ -482,9 +493,9 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                     }
                     result += `[${bboxParams.join(',')}]`;
                 }
-                result += `{${latexify(this, this.body, expandMacro)}}`;
+                result += `{${latexify(this, this.body, options)}}`;
             } else if (command === '\\boxed') {
-                result += `\\boxed{${latexify(this, this.body, expandMacro)}}`;
+                result += `\\boxed{${latexify(this, this.body, options)}}`;
             } else {
                 // \\colorbox, \\fcolorbox
                 result += command;
@@ -494,7 +505,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 if (this.backgroundcolor) {
                     result += `{${Color.colorToString(this.backgroundcolor)}}`;
                 }
-                result += `{${latexify(this, this.body, expandMacro)}}`;
+                result += `{${latexify(this, this.body, options)}}`;
             }
             break;
 
@@ -560,7 +571,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                     result += `[${style}]`;
                 }
             }
-            result += `{${latexify(this, this.body, expandMacro)}}`;
+            result += `{${latexify(this, this.body, options)}}`;
             break;
 
         case 'mathstyle':
@@ -592,7 +603,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
 
     }
     if (this.superscript) {
-        let sup = latexify(this, this.superscript, expandMacro);
+        let sup = latexify(this, this.superscript, options);
         if (sup.length === 1) {
             if (sup === '\u2032') {     // PRIME
                 sup = '\\prime ';
@@ -605,7 +616,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
         }
     }
     if (this.subscript) {
-        const sub = latexify(this, this.subscript, expandMacro);
+        const sub = latexify(this, this.subscript, options);
         if (sub.length === 1) {
             result += '_' + sub;
         } else {
