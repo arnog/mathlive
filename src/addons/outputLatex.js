@@ -282,7 +282,7 @@ function latexify(parent, value, options) {
  * @param {object} options
  * @param {boolean} options.expandMacro - If true, macros are fully expanded. This will
  * no longer round-trip.
- * @param {booleam} options.outputStyles - If false, will not output any font, color, or style related commands.
+ * @param {boolean} options.outputStyles - If false, will not output any font, color, or style related commands.
  *
  * @return {string}
  * @method MathAtom#toLatex

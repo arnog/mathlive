@@ -2228,7 +2228,7 @@ MathField.prototype.groupIsSelected = function() {
  * @param {boolean} options.suppressChangeNotifications - If true, the
  * handlers for the contentWillChange and contentDidChange notifications will 
  * not be invoked. Default `false`.
- * @param {booleam} options.outputStyles - If false, will not output any font, color, or style related commands.
+ * @param {boolean} options.outputStyles - If false, will not output any font, color, or style related commands.
 
  * @return {string}
  * @method MathField#$latex
