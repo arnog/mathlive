@@ -1265,6 +1265,10 @@ function parsePrimary(expr, options) {
     } else if (atom.type === 'mclose') {
         return expr;
 
+    } else if (atom.type === 'variable') {
+        expr.index += 1;
+        expr.ast = atom.toAST(options);
+
     } else if (atom.type === 'error') {
         expr.index += 1;
         expr.ast = { error: atom.latex };
@@ -1677,6 +1681,10 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
             //     }
             // }
             // result += '">' + toAST(this.body).mathML + '</menclose>';
+            break;
+
+        case 'variable':
+            result = { variable: parse(this.body, options) };
             break;
 
         case 'array':

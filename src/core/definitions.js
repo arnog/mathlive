@@ -1616,7 +1616,14 @@ defineFunction('\\xcancel', '{body:auto}', null,
     frequency(CRYPTIC, '\\cancel', '\\bcancel', '\\xcancel');
 
 
-
+defineFunction('\\variable', '{content:math}', null, function(name, args) {
+    return {
+        type: 'variable',
+        skipBoundary: true,
+        body: args[0]
+    }
+});
+    frequency(COMMON, '\\variable');
 
 
 

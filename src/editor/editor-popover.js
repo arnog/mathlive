@@ -115,6 +115,8 @@ const SAMPLES = {
 
     '\\rlap':           '\\rlap{x}o',
     '\\llap':           'o\\llap{/}',
+
+    '\\variable':       '\\variable{\\unicode{"2B1A}}',
 };
 
 // A textual description of a LaTeX command.
@@ -348,6 +350,8 @@ const NOTES = {
     '\\bullet':         'bullet',
 
     '\\lim':            'limit',
+
+    '\\variable':       'variable',
 };
 
 function getNote(symbol) {
