@@ -81,6 +81,7 @@ const SIZING_MULTIPLIER = {
  * - `leftright`: used by the `\left` and `\right` commands
  * - `delim`: some delimiter
  * - `sizeddelim`: a delimiter that can grow
+ * - `variable`: indicate a variable symbol
  *
  * The following types are used by the editor:
  * - `command` indicate a command being entered. The text is displayed in
@@ -1145,6 +1146,17 @@ class MathAtom {
         return result;
     }
 
+    decomposeVariable(context) {
+        const localContext = context.clone({mathstyle: this.mathstyle});
+        const span = makeOrd(decompose(localContext, this.body));
+        if (this.cssId) span.cssId = this.cssId;
+        span.applyStyle({
+            backgroundColor: this.backgroundColor, 
+            cssClass: this.cssClass
+        });
+        span.classes += ' ML__variable';
+        return span;
+    }
 
     /**
      * Return a representation of this, but decomposed in an array of Spans
@@ -1248,6 +1260,8 @@ class MathAtom {
             result = this.decomposeBox(context);
         } else if (this.type === 'enclose') {
             result = this.decomposeEnclose(context);
+        }  else if (this.type === 'variable') {
+            result = this.decomposeVariable(context);
         } else if (this.type === 'command' || this.type === 'error') {
             result = this.makeSpan(context, this.body);
             result.classes = ''; // Override fonts and other attributes.

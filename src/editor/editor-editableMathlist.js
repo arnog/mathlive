@@ -1914,6 +1914,7 @@ EditableMathlist.prototype.leap = function(dir, callHandler) {
                 focussable[index].focus();
             }
         }
+        this.suppressChangeNotifications = savedSuppressChangeNotifications;
         return false;
     }
 
@@ -2612,6 +2613,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
     }
 
     const siblings = this.siblings();
+    const parent = this.parent();
 
     if (!this.isCollapsed()) {
         // There is a selection extent. Delete all the atoms within it.
@@ -2695,7 +2697,10 @@ EditableMathlist.prototype.delete_ = function(dir) {
             } else {
                 // We're at the end of the sibling list, delete what comes next
                 const relation = this.relation();
-                if (relation === 'numer') {
+                if (parent.type === 'root' && parent.body.length === 1) {
+                    this.suppressChangeNotifications = contentWasChanging;
+                    return;
+                } else if (relation === 'numer') {
                     const numer = this.parent().numer.filter(atom =>
                         atom.type !== 'placeholder' && atom.type !== 'first');
                     const denom = this.parent().denom.filter(atom =>

@@ -591,6 +591,10 @@ MathAtom.MathAtom.prototype.toLatex = function(options) {
         case 'msubsup':
             break;
 
+        case 'variable':
+            result += `\\variable{${latexify(this, this.body, options)}}`;
+            break;
+
         case 'error':
             result += this.latex;
             break;
