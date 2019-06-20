@@ -1617,6 +1617,9 @@ defineFunction('\\xcancel', '{body:auto}', null,
 
 
 defineFunction('\\variable', '{:math}', null, function(name, args) {
+    if (!args[0] || !args[0][0] || args[0][0].type === 'placeholder') {
+        return {}
+    }
     return {
         type: 'variable',
         captureSelection: true,
