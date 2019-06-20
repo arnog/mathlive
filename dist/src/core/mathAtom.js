@@ -224,40 +224,40 @@ class MathAtom {
     }
 
 
-    forEach(cb) {
-        cb(this);
+    forEach(cb, parent) {
+        cb(this, parent);
         if (Array.isArray(this.body)) {
-            for (const atom of this.body) if (atom) atom.forEach(cb);
+            for (const atom of this.body) if (atom) atom.forEach(cb, this);
         } else if (this.body && typeof this.body === 'object') {
             // Note: body can be null, for example 'first' or 'rule'
             // (and null is an object)
-            cb(this.body);
+            cb(this.body, this);
         }
         if (this.superscript) {
-            for (const atom of this.superscript) if (atom) atom.forEach(cb);
+            for (const atom of this.superscript) if (atom) atom.forEach(cb, this);
         }
         if (this.subscript) {
-            for (const atom of this.subscript) if (atom) atom.forEach(cb);
+            for (const atom of this.subscript) if (atom) atom.forEach(cb, this);
         }
         if (this.overscript) {
-            for (const atom of this.overscript) if (atom) atom.forEach(cb);
+            for (const atom of this.overscript) if (atom) atom.forEach(cb, this);
         }
         if (this.underscript) {
-            for (const atom of this.underscript) if (atom) atom.forEach(cb);
+            for (const atom of this.underscript) if (atom) atom.forEach(cb, this);
         }
         if (this.numer) {
-            for (const atom of this.numer) if (atom) atom.forEach(cb);
+            for (const atom of this.numer) if (atom) atom.forEach(cb, this);
         }
         if (this.denom) {
-            for (const atom of this.denom) if (atom) atom.forEach(cb);
+            for (const atom of this.denom) if (atom) atom.forEach(cb, this);
         }
         if (this.index) {
-            for (const atom of this.index) if (atom) atom.forEach(cb);
+            for (const atom of this.index) if (atom) atom.forEach(cb, this);
         }
         if (this.array) {
             for (const row of this.array) {
                 for (const cell of row) {
-                    for (const atom of cell) atom.forEach(cb);
+                    for (const atom of cell) atom.forEach(cb, this);
                 }
             }
         }
