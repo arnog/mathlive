@@ -742,7 +742,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
             }
             break;
 
-        case 'mord':
+        case 'mord': {
             result = SPECIAL_IDENTIFIERS[command] || command || (typeof this.body === 'string' ? this.body : '');
             m = command ? command.match(/[{]?\\char"([0-9abcdefABCDEF]*)[}]?/) : null;
             if (m) {
@@ -760,9 +760,10 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
                     result = this.body;
                 }
             }
-            result = '<mi' + variant + makeID(this.id, options) + '>' + xmlEscape(result) + '</mi>';
+            const tag = /\d/.test(result) ? 'mn' : 'mi';
+            result = '<' + tag + variant + makeID(this.id, options) + '>' + xmlEscape(result) + '</' + tag + '>';
             break;
-
+        }
         case 'mbin':
         case 'mrel':
         case 'textord':
