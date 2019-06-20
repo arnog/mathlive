@@ -1266,8 +1266,9 @@ function parsePrimary(expr, options) {
         return expr;
 
     } else if (atom.type === 'variable') {
-        expr.index += 1;
         expr.ast = atom.toAST(options);
+        expr = parseSupsub(expr, options);
+        expr = parsePostfix(expr, options);
 
     } else if (atom.type === 'error') {
         expr.index += 1;
@@ -1684,7 +1685,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
             break;
 
         case 'variable':
-            result = { variable: parse(this.body, options) };
+            result.variable = parse(this.body, options);
             break;
 
         case 'array':
@@ -1708,8 +1709,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
                             if (condition.fn === 'text' && condition.arg) {
                                 if (/^(if|when|for)$/i.test(condition.arg[0].trim() )) {
                                     condition = condition.arg.filter(
-                                        x => typeof x !== 'string')
-;
+                                        x => typeof x !== 'string');
                                 }
                             }
                         }
