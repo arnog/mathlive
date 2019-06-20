@@ -116,7 +116,7 @@ const SAMPLES = {
     '\\rlap':           '\\rlap{x}o',
     '\\llap':           'o\\llap{/}',
 
-    '\\variable':       '\\variable{\\unicode{"2B1A}}',
+    '\\variable':       '\\variable{x}',
 };
 
 // A textual description of a LaTeX command.
