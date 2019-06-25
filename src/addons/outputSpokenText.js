@@ -540,15 +540,16 @@ MathAtom.toSpeakableFragment = function(atom, options) {
 /**
  * @param {MathAtom[]}  [atoms] The atoms to represent as speakable text.
  * If omitted, `this` is used.
- * @param {Object.<string, any>} [options]
+ * @param {Object.<string, any>} [speechOptions]
 */
-MathAtom.toSpeakableText = function(atoms, options) {
-    if (!options) {
-        options = {
+MathAtom.toSpeakableText = function(atoms, speechOptions) {
+    if (!speechOptions) {
+        speechOptions = {
             textToSpeechMarkup: '',     // no markup
             textToSpeechRules: 'mathlive'
         }
     }
+    const options = JSON.parse(JSON.stringify(speechOptions));    // deep copy
     options.speechMode = 'math';
 
     if (window.sre && options.textToSpeechRules === 'sre') {
@@ -569,7 +570,6 @@ MathAtom.toSpeakableText = function(atoms, options) {
             return window.sre.System.getInstance().toSpeech(mathML);
         }
         return '';
-        // return window.sre.toSpeech(MathAtom.toMathML(atoms));
     }
 
     let result = MathAtom.toSpeakableFragment(atoms, options);
