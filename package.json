@@ -39,7 +39,7 @@
     "watch": "npm-run-all -p watch-*",
     "http-server": "http-server ./ -c-1 --cors='*'",
     "open": "open-cli http://localhost:8080/examples/",
-    "start": "npm-run-all -p watch-css http-server",
+    "start": "npm-run-all -p watch-css http-server open",
     "lint": "eslint src/ -c .eslintrc.json",
     "pretest": "echo Test...",
     "test": "tape -r @babel/register test/* | tap-spec",
