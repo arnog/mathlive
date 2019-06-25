@@ -1914,6 +1914,7 @@ EditableMathlist.prototype.leap = function(dir, callHandler) {
                 focussable[index].focus();
             }
         }
+        this.suppressChangeNotifications = savedSuppressChangeNotifications;
         return false;
     }
 
