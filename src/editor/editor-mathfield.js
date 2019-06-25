@@ -3643,7 +3643,7 @@ MathField.prototype.speak_ = function(amount, speakOptions) {
         return false;
     }
 
-    const options = Object.assign({}, this.config);
+    const options = {... this.config};
     if (speakOptions.withHighlighting || options.speechEngine === 'amazon') {
         options.textToSpeechMarkup = (window.sre && options.textToSpeechRules === 'sre') ? 'ssml_step' : 'ssml';
         if (speakOptions.withHighlighting) {

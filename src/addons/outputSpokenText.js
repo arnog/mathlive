@@ -543,13 +543,10 @@ MathAtom.toSpeakableFragment = function(atom, options) {
  * @param {Object.<string, any>} [speechOptions]
 */
 MathAtom.toSpeakableText = function(atoms, speechOptions) {
-    if (!speechOptions) {
-        speechOptions = {
-            textToSpeechMarkup: '',     // no markup
-            textToSpeechRules: 'mathlive'
-        }
-    }
-    const options = JSON.parse(JSON.stringify(speechOptions));    // deep copy
+    const options = speechOptions ? JSON.parse(JSON.stringify(speechOptions)) : {
+        textToSpeechMarkup: '',     // no markup
+        textToSpeechRules: 'mathlive'
+    };  
     options.speechMode = 'math';
 
     if (window.sre && options.textToSpeechRules === 'sre') {
