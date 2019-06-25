@@ -937,14 +937,13 @@ function forCommand(command) {
             replace('$', '\\$').
             replace('^', '\\^')
         + '([^*a-zA-Z]|$)');
-    for (const shortcut in KEYBOARD_SHORTCUTS) { 
-        if (KEYBOARD_SHORTCUTS.hasOwnProperty(shortcut)) {
+    Object.keys(KEYBOARD_SHORTCUTS).forEach(shortcut  => {
             if (regex.test(commandToString(KEYBOARD_SHORTCUTS[shortcut]))) {
                 const m = shortcut.match(/:([^:]*)$/);
                 if (m) result.push(m[1]);
             }
         }
-    }
+    );
 
     return stringify(result);
 }

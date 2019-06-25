@@ -153,7 +153,11 @@ writeCookie('symbol-access', 'private')
 
     
         
-    <pre class="prettyprint"><code>// To invoke the functions in this module, import the MathLive module. import MathLive from 'dist/mathlive.mjs';const markup = MathLive.latexToMarkup('e^{i\\pi}+1=0');</code></pre>
+    <pre class="prettyprint"><code>// To invoke the functions in this module, import the MathLive module. 
+
+import MathLive from 'dist/mathlive.mjs';
+
+const markup = MathLive.latexToMarkup('e^{i\\pi}+1=0');</code></pre>
 
     
 
@@ -1276,7 +1280,8 @@ the SRE engine are documented [here]{@link:https://github.com/zorkow/speech-rule
 
     
         
-    <pre class="prettyprint"><code>console.log(MathLive.latexToSpeakableText('\\frac{1}{2}'));// ➡︎'half'</code></pre>
+    <pre class="prettyprint"><code>console.log(MathLive.latexToSpeakableText('\\frac{1}{2}'));
+// ➡︎'half'</code></pre>
 
     
 
@@ -3265,7 +3270,10 @@ for details</p>
 
     
         
-    <pre class="prettyprint"><code>import MathLive from 'dist/mathlive.mjs';document.addEventListener("load", () => {     MathLive.renderMathInDocument();});</code></pre>
+    <pre class="prettyprint"><code>import MathLive from 'dist/mathlive.mjs';
+document.addEventListener("load", () => { 
+    MathLive.renderMathInDocument();
+});</code></pre>
 
     
 

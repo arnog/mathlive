@@ -905,6 +905,7 @@ MathField.prototype._nextAtomSpeechText = function(oldMathlist) {
 function speakableText(mathfield, prefix, atoms) {
     const config = Object.assign({}, mathfield.config);
     config.textToSpeechMarkup = '';
+    config.textToSpeechRulesOptions.markup = 'none';
     return prefix + MathAtom.toSpeakableText(atoms, config);
 }
 
@@ -2040,19 +2041,21 @@ MathField.prototype.formatMathlist = function(root, format) {
         result = MathAtom.toSpeakableText(root, this.config);
 
     } else if (format === 'spoken-text') {
-        const save = this.config.textToSpeechMarkup;
+        const saveTextToSpeechMarkup = this.config.textToSpeechMarkup;
         this.config.textToSpeechMarkup = '';
         result = MathAtom.toSpeakableText(root, this.config);
-        this.config.textToSpeechMarkup = save;
+        this.config.textToSpeechMarkup = saveTextToSpeechMarkup;
 
     } else if (format === 'spoken-ssml' ||  format === 'spoken-ssml-withHighlighting') {
-        const save = this.config.textToSpeechMarkup;
+        const saveTextToSpeechMarkup = this.config.textToSpeechMarkup;
+        const saveGenerateID = this.config.generateID;
         this.config.textToSpeechMarkup = 'ssml';
         if (format === 'spoken-ssml-withHighlighting') {
             this.config.generateID = true;
         }
         result = MathAtom.toSpeakableText(root, this.config);
-        this.config.textToSpeechMarkup = save;
+        this.config.textToSpeechMarkup = saveTextToSpeechMarkup;
+        this.config.generateID = saveGenerateID;
 
     } else if (format === 'json') {
         const json = MathAtom.toAST(root, this.config);
@@ -3640,7 +3643,7 @@ MathField.prototype.speak_ = function(amount, speakOptions) {
         return false;
     }
 
-    const options = this.config;
+    const options = {... this.config};
     if (speakOptions.withHighlighting || options.speechEngine === 'amazon') {
         options.textToSpeechMarkup = (window.sre && options.textToSpeechRules === 'sre') ? 'ssml_step' : 'ssml';
         if (speakOptions.withHighlighting) {

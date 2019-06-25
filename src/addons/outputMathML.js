@@ -821,7 +821,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
         case 'enclose':
             result = '<menclose notation="';
             for (const notation in this.notation) {
-                if (this.notation.hasOwnProperty(notation) &&
+                if (Object.prototype.hasOwnProperty.call(this.notation, notation) &&
                     this.notation[notation]) {
                     result += sep + notation;
                     sep = ' ';
