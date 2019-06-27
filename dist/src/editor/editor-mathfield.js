@@ -905,6 +905,7 @@ MathField.prototype._nextAtomSpeechText = function(oldMathlist) {
 function speakableText(mathfield, prefix, atoms) {
     const config = Object.assign({}, mathfield.config);
     config.textToSpeechMarkup = '';
+    config.textToSpeechRulesOptions = config.textToSpeechRulesOptions || {};
     config.textToSpeechRulesOptions.markup = 'none';
     return prefix + MathAtom.toSpeakableText(atoms, config);
 }
