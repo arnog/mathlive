@@ -2087,8 +2087,8 @@ MathField.prototype.formatMathlist = function(root, format) {
  *    * `'spoken'`
  *    * `'spoken-text'`
  *    * `'spoken-ssml'`
-  *    * `spoken-ssml-withHighlighting`
-*    * `'mathML'`
+ *    * `spoken-ssml-withHighlighting`
+ *    * `'mathML'`
  *    * `'json'`
  * @return {string}
  * @method MathField#$text
