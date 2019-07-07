@@ -37,7 +37,7 @@
     "watch-css": "chokidar \"css/*.less\" --initial -c \"npm run build-css -s\"",
     "build": "npm-run-all -p build-css build-js rollup",
     "watch": "npm-run-all -p watch-*",
-    "http-server": "http-server ./examples -c-1 --cors='*' -s -o",
+    "http-server": "http-server . -c-1 --cors='*' -o http://localhost:8080/examples/index.html",
     "start": "npm-run-all -p watch-js watch-css http-server",
     "lint": "eslint src/ -c .eslintrc.json",
     "pretest": "echo Test...",
