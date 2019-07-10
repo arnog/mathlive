@@ -1104,7 +1104,7 @@ MathField.prototype.$perform = function(command) {
         }
         if (/^(delete)/.test(selector) && this.mode === 'command') {
             const command = this.mathlist.extractCommandStringAroundInsertionPoint();
-            const suggestions = this._getSuggestions(command)
+            const suggestions = this._getSuggestions(command);
             if (suggestions.length === 0) {
                 Popover.hidePopover(this);
             } else {
