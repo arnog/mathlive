@@ -2549,11 +2549,14 @@ MathField.prototype.complete_ = function(options) {
 }
 
 MathField.prototype._getSuggestions = function(command) {
-    const suggestions = Definitions.suggest(command);
-    if (!this.config.suggestionWhitelist) {
-        return suggestions;
+    let suggestions = Definitions.suggest(command);
+    if (this.config.suggestionWhitelist) {
+        suggestions = suggestions.filter(s => this.config.suggestionWhitelist.includes(s.match));
     }
-    return suggestions.filter(s => this.config.suggestionWhitelist.includes(s.match));
+    if (this.config.suggestionBlacklist) {
+        suggestions = suggestions.filter(s => !this.config.suggestionBlacklist.includes(s.match));
+    }
+    return suggestions;
 }
 
 MathField.prototype._updateSuggestion = function() {
