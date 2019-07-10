@@ -2238,7 +2238,7 @@ MathField.prototype.$latex = function(text, options) {
     options = options || {
         outputStyles: true
     };
-    if (text) {
+    if (typeof text !== 'undefined') {
         const oldValue = this.mathlist.root.toLatex(options);
         if (text !== oldValue) {
             this.mathlist.insert(text, Object.assign({}, this.config, {
