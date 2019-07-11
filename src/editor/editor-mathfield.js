@@ -1104,7 +1104,7 @@ MathField.prototype.$perform = function(command) {
         }
         if (/^(delete)/.test(selector) && this.mode === 'command') {
             const command = this.mathlist.extractCommandStringAroundInsertionPoint();
-            const suggestions = Definitions.suggest(command);
+            const suggestions = this._getSuggestions(command);
             if (suggestions.length === 0) {
                 Popover.hidePopover(this);
             } else {
@@ -2238,7 +2238,7 @@ MathField.prototype.$latex = function(text, options) {
     options = options || {
         outputStyles: true
     };
-    if (text) {
+    if (typeof text !== 'undefined') {
         const oldValue = this.mathlist.root.toLatex(options);
         if (text !== oldValue) {
             this.mathlist.insert(text, Object.assign({}, this.config, {
@@ -2549,11 +2549,14 @@ MathField.prototype.complete_ = function(options) {
 }
 
 MathField.prototype._getSuggestions = function(command) {
-    const suggestions = Definitions.suggest(command);
-    if (!this.config.suggestionWhitelist) {
-        return suggestions;
+    let suggestions = Definitions.suggest(command);
+    if (this.config.suggestionWhitelist) {
+        suggestions = suggestions.filter(s => this.config.suggestionWhitelist.includes(s.match));
     }
-    return suggestions.filter(s => this.config.suggestionWhitelist.includes(s.match));
+    if (this.config.suggestionBlacklist) {
+        suggestions = suggestions.filter(s => !this.config.suggestionBlacklist.includes(s.match));
+    }
+    return suggestions;
 }
 
 MathField.prototype._updateSuggestion = function() {
