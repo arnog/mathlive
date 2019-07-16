@@ -157,7 +157,7 @@ function createMarkupNode(text, options, mathstyle, createNodeOnFailure) {
     }
 
     try {
-        span.innerHTML = options.renderToMarkup(text, mathstyle || 'displaystyle', 'html', options.macros);
+        span.innerHTML = options.renderToMarkup(text, mathstyle || 'displaystyle', 'html', options.macros, options.onCreateMathlist);
      } catch (e) {
         console.error( 'Could not parse\'' + text + '\' with ', e );
         if (createNodeOnFailure) {
