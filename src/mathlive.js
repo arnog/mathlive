@@ -46,7 +46,7 @@ function toMathlist(latex, macros) {
  * @return {string}
  * @function module:mathlive#latexToMarkup
  */
-function toMarkup(text, mathstyle, format, macros) {
+function toMarkup(text, mathstyle, format, macros, onCreateMathlist) {
     mathstyle = mathstyle || 'displaystyle';
 
     console.assert(/displaystyle|textstyle|scriptstyle|scriptscriptstyle/.test(mathstyle),
@@ -62,9 +62,11 @@ function toMarkup(text, mathstyle, format, macros) {
     //
     const mathlist = toMathlist(text, macros);
 
+    if (onCreateMathlist) {
+        onCreateMathlist(mathlist);
+    }
+
     if (format === 'mathlist') return mathlist;
-
-
 
     //
     // 3. Transform the math atoms into elementary spans
