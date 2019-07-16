@@ -21,6 +21,12 @@ import Definitions from './core/definitions.js';
 import MathField from './editor/editor-mathfield.js';
 import AutoRender from './addons/auto-render.js';
 
+function toMathlist(latex, macros) {
+    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex),
+        'math', null, macros);
+    return mathlist;
+}
+
 /**
  * Convert a LaTeX string to a string of HTML markup.
  *
@@ -40,7 +46,7 @@ import AutoRender from './addons/auto-render.js';
  * @return {string}
  * @function module:mathlive#latexToMarkup
  */
-function toMarkup(text, mathstyle, format, macros) {
+function toMarkup(text, mathstyle, format, macros, onCreateMathlist) {
     mathstyle = mathstyle || 'displaystyle';
 
     console.assert(/displaystyle|textstyle|scriptstyle|scriptscriptstyle/.test(mathstyle),
@@ -49,19 +55,18 @@ function toMarkup(text, mathstyle, format, macros) {
     //
     // 1. Tokenize the text
     //
-    const tokens = Lexer.tokenize(text);
-
     //
     // 2. Parse each token in the formula
     //    Turn the list of tokens in the formula into
     //    a tree of high-level MathAtom, e.g. 'genfrac'.
     //
+    const mathlist = toMathlist(text, macros);
 
-    const mathlist = ParserModule.parseTokens(tokens, 'math', null, macros);
+    if (onCreateMathlist) {
+        onCreateMathlist(mathlist);
+    }
 
     if (format === 'mathlist') return mathlist;
-
-
 
     //
     // 3. Transform the math atoms into elementary spans
@@ -163,8 +168,7 @@ function toMathML(latex, options) {
     options.macros = options.macros || {};
     Object.assign(options.macros, Definitions.MACROS);
 
-    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex),
-        'math', null, options.macros);
+    const mathlist = toMathlist(latex, options.macros)
 
     return MathAtom.toMathML(mathlist, options);
 }
@@ -189,8 +193,7 @@ function latexToAST(latex, options) {
     options.macros = options.macros || {};
     Object.assign(options.macros, Definitions.MACROS);
 
-    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex),
-        'math', null, options.macros);
+    const mathlist = toMathlist(latex, options.macros)
 
     return MathAtom.toAST(mathlist, options);
 }
@@ -793,6 +796,7 @@ function getOriginalContent(element, options) {
 }
 
 const MathLive = {
+    latexToMathlist: toMathlist,
     latexToMarkup: toMarkup,
     latexToMathML: toMathML,
     latexToSpeakableText,
@@ -806,7 +810,8 @@ const MathLive = {
     readAloudStatus,
     pauseReadAloud,
     resumeReadAloud,
-    playReadAloud
+    playReadAloud,
+    MathAtom
 };
 
 export default MathLive;
