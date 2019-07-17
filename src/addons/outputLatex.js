@@ -189,8 +189,10 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
                     if (/^\\operatorname{/.test(atoms[0].latex)) {
                         return atoms[0].latex + latexifyArray(parent, properties, atoms.slice(i), expandMacro);
                     }
-                    prefix = '\\' + command + '{';
-                    suffix = '}';
+                    if (!atoms[0].isFunction) {
+                        prefix = '\\' + command + '{';
+                        suffix = '}';
+                    }
                     // These command have an implicit fontSeries/fontShape, so
                     // we're done checking properties now.
                     properties = [];
