@@ -3454,7 +3454,7 @@ MathField.prototype.$setConfig = function(conf) {
         }
     }
     this.config = {...this.config, ...conf};
-    if (!Array.isArray(this.config.scriptDepth)) {
+    if (this.config.scriptDepth !== undefined && !Array.isArray(this.config.scriptDepth)) {
         const depth = parseInt(this.config.scriptDepth);
         this.config.scriptDepth = [depth, depth];
     }

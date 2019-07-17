@@ -167,9 +167,9 @@ rejected. Setting a value of 0 will prevent entry of any superscript or subscrip
 This can make it easier to enter equations that fit what's expected for the 
 domain where the mathfield is used.
 
-To control the depth of superscript and subscript indepdently, provide an array:
+To control the depth of superscript and subscript independently, provide an array:
 the first element indicate the maximum depth for subscript and the second element
-the depth of superscript. Thus, a value of `[0, 1]` would supress the entry of 
+the depth of superscript. Thus, a value of `[0, 1]` would suppress the entry of 
 subscripts, and allow one level of superscripts.
 
 ---
