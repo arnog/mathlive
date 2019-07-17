@@ -386,7 +386,6 @@ MathField.prototype.handleEvent = function(evt) {
  *
  * @method MathField#$revertToOriginalContent
  */
-MathField.prototype.revertToOriginalContent = 
 MathField.prototype.$revertToOriginalContent = function() {
     this.element.innerHTML = this.originalContent;
     this.element.mathfield = null;
@@ -714,7 +713,7 @@ MathField.prototype._onPointerDown = function(evt) {
 
 
         // Focus the math field
-        if (!this.hasFocus()) {
+        if (!this.$hasFocus()) {
             dirty = true;
             if (this.textarea.focus) this.textarea.focus();
         }
@@ -801,7 +800,7 @@ MathField.prototype._onSelectionDidChange = function() {
         this.textarea.value = result;
         // The textarea may be a span (on mobile, for example), so check that
         // it has a select() before calling it.
-        if (this.hasFocus() && this.textarea.select) {
+        if (this.$hasFocus() && this.textarea.select) {
             this.textarea.select();
         }
     } else {
@@ -1066,7 +1065,6 @@ MathField.prototype._showKeystroke = function(keystroke) {
  * 
  * @method MathField#$perform
  */
-MathField.prototype.perform = 
 MathField.prototype.$perform = function(command) {
     if (!command) return false;
     let handled = false;
@@ -1178,7 +1176,7 @@ MathField.prototype.performWithFeedback_ = function(command) {
         this.keypressSound.play().catch(err => console.warn(err));
     }
 
-    return this.perform(command);
+    return this.$perform(command);
 }
 
 
@@ -1613,7 +1611,7 @@ MathField.prototype._onKeystroke = function(keystroke, evt) {
     }
 
     // 5.4 If there's a selector, perform it.
-    if ((selector && !this.perform(selector)) || shortcut) {
+    if ((selector && !this.$perform(selector)) || shortcut) {
 
         // // 6.5 insert the shortcut
         if (shortcut) {
@@ -1711,7 +1709,7 @@ MathField.prototype._onTypedText = function(text, options) {
     options = options || {};
 
     // Focus, then provide audio and haptic feedback
-    if (options.focus) this.focus();
+    if (options.focus) this.$focus();
     if (options.feedback) {
          if (this.config.keypressVibration && navigator.vibrate) {
             navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
@@ -1809,7 +1807,7 @@ MathField.prototype._onTypedText = function(text, options) {
                             return;
                         }
                     }
-                    this.perform(selector);
+                    this.$perform(selector);
                 } else {
                     if (this.config.smartSuperscript && 
                         this.mathlist.relation() === 'superscript' &&
@@ -1912,7 +1910,7 @@ MathField.prototype._render = function(renderOptions) {
             a.isSelected = false;
         } );
 
-    const hasFocus = this.hasFocus();
+    const hasFocus = this.$hasFocus();
     if (this.mathlist.isCollapsed()) {
         this.mathlist.anchor().caret = hasFocus ? this.mode : '';
     } else {
@@ -2007,7 +2005,7 @@ MathField.prototype._onCut = function() {
     // be copied to the clipboard, so defer the clearing of the selection
     // to later, after the cut operation has been handled.
     setTimeout(function() {
-        this.clearSelection();
+        this.$clearSelection();
         this._requestUpdate();
     }.bind(this), 0);
     return true;
@@ -2093,7 +2091,6 @@ MathField.prototype.formatMathlist = function(root, format) {
  * @return {string}
  * @method MathField#$text
  */
-MathField.prototype.text = 
 MathField.prototype.$text = function(format) {
     return this.formatMathlist(this.mathlist.root, format);
 }
@@ -2112,7 +2109,6 @@ MathField.prototype.$text = function(format) {
  * @return {string}
  * @method MathField#$selectedText
  */
-MathField.prototype.selectedText = 
 MathField.prototype.$selectedText = function(format) {
     const atoms = this.mathlist.getSelectedAtoms();
     if (!atoms) return '';
@@ -2127,7 +2123,6 @@ MathField.prototype.$selectedText = function(format) {
  * @return {boolean}
  * @method MathField#$selectionIsCollapsed
  */
-MathField.prototype.selectionIsCollapsed = 
 MathField.prototype.$selectionIsCollapsed = function() {
     return this.mathlist.isCollapsed();
 }
@@ -2140,7 +2135,6 @@ MathField.prototype.$selectionIsCollapsed = function() {
  * @return {number}
  * @method MathField#$selectionDepth
  */
-MathField.prototype.selectionDepth = 
 MathField.prototype.$selectionDepth = function() {
     return this.mathlist.path.length;
 }
@@ -2191,7 +2185,6 @@ MathField.prototype._subscriptDepth = function() {
  * @return {boolean}
  * @method MathField#$selectionAtStart
  */
-MathField.prototype.selectionAtStart = 
 MathField.prototype.$selectionAtStart = function() {
     return this.mathlist.startOffset() === 0;
 }
@@ -2201,7 +2194,6 @@ MathField.prototype.$selectionAtStart = function() {
  * @return {boolean}
  * @method MathField#$selectionAtEnd
  */
-MathField.prototype.selectionAtEnd = 
 MathField.prototype.$selectionAtEnd = function() {
     return this.mathlist.endOffset() >= this.mathlist.siblings().length - 1;
 }
@@ -2230,7 +2222,6 @@ MathField.prototype.groupIsSelected = function() {
  * @return {string}
  * @method MathField#$latex
  */
-MathField.prototype.latex = 
 MathField.prototype.$latex = function(text, options) {
     if (text) {
         const oldValue = this.mathlist.root.toLatex();
@@ -2261,7 +2252,6 @@ MathField.prototype.$latex = function(text, options) {
  * @return {Element}
  * @method MathField#$el
  */
-MathField.prototype.el = 
 MathField.prototype.$el = function() {
     return this.element;
 }
@@ -2336,24 +2326,24 @@ MathField.prototype.enterCommandMode_ = function() {
 
 
 MathField.prototype.copyToClipboard_ = function() {
-    this.focus();
+    this.$focus();
     // If the selection is empty, select the entire field before
     // copying it.
     if (this.mathlist.isCollapsed()) {
-        this.select();
+        this.$select();
     }
     document.execCommand('copy');
     return false;
 }
 
 MathField.prototype.cutToClipboard_ = function() {
-    this.focus();
+    this.$focus();
     document.execCommand('cut');
     return true;
 }
 
 MathField.prototype.pasteFromClipboard_ = function() {
-    this.focus();
+    this.$focus();
     document.execCommand('paste');
     return true;
 }
@@ -2405,12 +2395,11 @@ MathField.prototype.pasteFromClipboard_ = function() {
  * @method MathField#$insert
  */
 MathField.prototype.insert_ =
-MathField.prototype.insert = 
 MathField.prototype.$insert = function(s, options) {
     if (typeof s === 'string' && s.length > 0) {
         options = options || {};
 
-        if (options.focus) this.focus();
+        if (options.focus) this.$focus();
 
         if (options.feedback) {
             if (this.config.keypressVibration && navigator.vibrate) {
@@ -2453,7 +2442,7 @@ MathField.prototype.switchMode_ = function(mode, prefix, suffix) {
     // This prevents switching to/from command mode from supressing smart mode.
     this.smartModeSuppressed = /text|math/.test(this.mode) && /text|math/.test(mode);
     if (prefix) {
-        this.insert(prefix, { 
+        this.$insert(prefix, { 
             format: 'latex', 
             mode: {'math':'text', 'text':'math'}[mode]
         });
@@ -2475,7 +2464,7 @@ MathField.prototype.switchMode_ = function(mode, prefix, suffix) {
         this.mode = mode;
     }
     if (suffix) {
-        this.insert(suffix, {             
+        this.$insert(suffix, {             
             format: 'latex', 
             mode: mode
         });
@@ -2683,7 +2672,7 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
             // and perform it immediately
             const command = el.getAttribute('data-' + that.config.namespace + 'command-pressed');
             if (command) {
-                that.perform(JSON.parse(command));
+                that.$perform(JSON.parse(command));
             }
 
             // If there is a `press and hold start` command, perform it
@@ -2694,7 +2683,7 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
                 if (pressAndHoldTimer) clearTimeout(pressAndHoldTimer);
                 pressAndHoldTimer = window.setTimeout(function() {
                     if (el.classList.contains('pressed')) {
-                        that.perform(JSON.parse(pressAndHoldStartCommand));
+                        that.$perform(JSON.parse(pressAndHoldStartCommand));
                     }
                 }, 300);
             }
@@ -2707,7 +2696,7 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
         //     'command-pressAndHoldEnd');
         // const now = Date.now();
         // if (command && now > pressHoldStart + 300) {
-        //     that.perform(JSON.parse(command));
+        //     that.$perform(JSON.parse(command));
         // }
     });
     on (el, 'touchmove:passive', function(ev) {
@@ -2793,7 +2782,7 @@ MathField.prototype._attachButtonHandlers = function(el, command) {
         if (command) {
             // Parse the JSON to get the command (and its optional arguments)
             // and perform it
-            that.perform(JSON.parse(command));
+            that.$perform(JSON.parse(command));
         }
         ev.stopPropagation();
         ev.preventDefault();
@@ -2923,7 +2912,7 @@ MathField.prototype.hideAlternateKeys_ = function() {
  */
 MathField.prototype.performAlternateKeys_ = function(command) {
     this.hideAlternateKeys_();
-    return this.perform(command);
+    return this.$perform(command);
 }
 
 
@@ -2966,7 +2955,7 @@ MathField.prototype.switchKeyboardLayer_ = function(layer) {
             }
         }
 
-        this.focus();
+        this.$focus();
     }
     return true;
 }
@@ -3107,7 +3096,7 @@ MathField.prototype.toggleVirtualKeyboard_ = function(theme) {
 
             // Let's make sure that tapping on the keyboard focuses the field
             on(this.virtualKeyboard, 'touchstart:passive mousedown', function() {
-                that.focus();
+                that.$focus();
             });
             document.body.appendChild(this.virtualKeyboard);
         }
@@ -3275,8 +3264,7 @@ function validateStyle(style) {
  * @param {string} [style.size=''] - The font size:  'size1'...'size10'
  * 'size5' is the default size
  * */
-MathField.prototype.$applyStyle = 
-MathField.prototype.applyStyle_ = function(style) {
+MathField.prototype.$applyStyle = function(style) {
     this._resetKeystrokeBuffer();
     
     style = validateStyle(style);
@@ -3297,7 +3285,7 @@ MathField.prototype.applyStyle_ = function(style) {
             if (targetMode === 'math' && /^"[^"]+"$/.test(convertedSelection)) {
                 convertedSelection = convertedSelection.slice(1, -1);
             }
-            this.insert(convertedSelection, {
+            this.$insert(convertedSelection, {
                 mode: targetMode,
                 selectionMode: 'item',
                 format: targetMode === 'text' ? 'text' : 'ASCIIMath'
@@ -3351,14 +3339,12 @@ MathField.prototype.applyStyle_ = function(style) {
     return true;
 }
 
-MathField.prototype.hasFocus = 
 MathField.prototype.$hasFocus = function() {
     return document.hasFocus() && document.activeElement === this.textarea;
 }
 
-MathField.prototype.focus = 
 MathField.prototype.$focus = function() {
-    if (!this.hasFocus()) {
+    if (!this.$hasFocus()) {
         // The textarea may be a span (on mobile, for example), so check that
         // it has a focus() before calling it.
         if (this.textarea.focus) this.textarea.focus();
@@ -3366,21 +3352,18 @@ MathField.prototype.$focus = function() {
     }
 }
 
-MathField.prototype.blur = 
 MathField.prototype.$blur = function() {
-    if (this.hasFocus()) {
+    if (this.$hasFocus()) {
         if (this.textarea.blur) {
             this.textarea.blur();
         }
     }
 }
 
-MathField.prototype.select = 
 MathField.prototype.$select = function() {
     this.mathlist.selectAll_();
 }
 
-MathField.prototype.clearSelection = 
 MathField.prototype.$clearSelection = function() {
     this.mathlist.delete_();
 }
@@ -3396,7 +3379,6 @@ MathField.prototype.$clearSelection = function() {
  * @return {boolean} 
  * @method MathField#$keystroke
  */
-MathField.prototype.keystroke = 
 MathField.prototype.$keystroke = function(keys, evt) {
     // This is the public API, while onKeystroke is the
     // internal handler
@@ -3409,7 +3391,6 @@ MathField.prototype.$keystroke = function(keys, evt) {
  * @param {string} text - A sequence of one or more characters.
  * @method MathField#$typedText
  */
-MathField.prototype.typedText = 
 MathField.prototype.$typedText = function(text) {
     // This is the public API, while onTypedText is the
     // internal handler
@@ -3439,7 +3420,6 @@ MathField.prototype.typedText_ = function(text, options) {
  * 
  * @method MathField#$setConfig
  */
-MathField.prototype.setConfig = 
 MathField.prototype.$setConfig = function(conf) {
     if (!this.config) {
         this.config = {
