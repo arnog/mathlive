@@ -1447,8 +1447,7 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
             // A sequence of three characters
             // (except for some exceptions)
             // Convert them to text.
-            this.convertLastAtomsToText_(a => 
-                /[a-zA-Z:,;.]/.test(a.body));
+            this.convertLastAtomsToText_(a => /[a-zA-Z:,;.]/.test(a.body));
             return true;
         }
         if (/(^|\W)(if|If)$/i.test(context)) {
@@ -1456,6 +1455,15 @@ MathField.prototype.smartMode_ = function(keystroke, evt) {
             this.convertLastAtomsToText_(1);
             return true;
         }
+        if (/(\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5){3,}$/u.test(context) && 
+            !/(αβγ)$/.test(context)) {
+            // A sequence of three *greek* characters
+            // (except for one exception)
+            // Convert them to text.
+            this.convertLastAtomsToText_(a => /(:|,|;|.|\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5)/u.test(a.body));
+            return true;
+        }
+
         if (/\?|\./.test(c)) {
             // If the last character is a period or question mark, 
             // turn it to 'text'
