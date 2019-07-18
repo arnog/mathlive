@@ -637,7 +637,7 @@ class MathAtom {
 
         const result = makeOrd([leftDelim, frac, rightDelim], ((context.parentSize !== context.size) ?
             ('sizing reset-' + context.parentSize + ' ' + context.size) : ''));
-        return result;
+        return this.bind(context, result);
     }
 
 
@@ -776,7 +776,7 @@ class MathAtom {
         const body = makeVlist(context, [inner, lineClearance, line, ruleWidth]);
 
         if (!this.index) {
-            return makeOrd([delim, body], 'sqrt');
+            return this.bind(context, makeOrd([delim, body], 'sqrt'));
         }
 
         // Handle the optional root index
@@ -793,7 +793,7 @@ class MathAtom {
         const rootVlist = makeVlist(context, [root], 'shift', -toShift);
         // Add a class surrounding it so we can add on the appropriate
         // kerning
-        return makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt');
+        return this.bind(context, makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt'));
     }
 
 

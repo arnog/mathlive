@@ -119,10 +119,6 @@ function keyboardEventToString(evt) {
         }
     }
 
-    if (!keyname && evt.code) {
-        keyname = KEY_NAMES[evt.code] || evt.code;
-    }
-
     if (!keyname) {
         if (INTL_KEY[evt.key]) {
             keyname = INTL_KEY[evt.key];
@@ -138,6 +134,10 @@ function keyboardEventToString(evt) {
         if (!keyname) {
             keyname = VIRTUAL_KEY_NAMES[evt.key.toLowerCase()] || evt.key;
         }
+    }
+
+    if (!keyname && evt.code) {
+        keyname = KEY_NAMES[evt.code] || evt.code;
     }
 
     const modifiers = [];

@@ -28,7 +28,7 @@
         }},
         methods: {
             sayIt: function(event) {
-                this.$refs.mathfield.perform(['speak', 'all');
+                this.$refs.mathfield.$perform(['speak', 'all');
             },
             setIt: function(event) {
                 this.formula = 'x=-b\\pm \\frac {\\sqrt{b^2-4ac}}{2a}';
@@ -41,7 +41,7 @@
                 return true; 
             },
             asSpokenText: function() {
-                return this.$refs.mathfield ? this.$refs.mathfield.text('spoken') : '';
+                return this.$refs.mathfield ? this.$refs.mathfield.$text('spoken') : '';
             }
         }
     });

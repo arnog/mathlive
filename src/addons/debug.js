@@ -155,7 +155,7 @@ function spanToString(span, indent) {
         }
         if (span.style) {
             for (const s in span.style) {
-                if (span.style.hasOwnProperty(s)) {
+                if (Object.prototype.hasOwnProperty.call(span.style, s)) {
                     result += indent + s + ':"';
                     result += span.style[s] + '",\n';
                 }
@@ -271,7 +271,7 @@ function spanToMarkup(span, indent) {
 
             if (span.style) {
                 for (const s in span.style) {
-                    if (span.style.hasOwnProperty(s)) {
+                    if (Object.prototype.hasOwnProperty.call(span.style, s)) {
                         result += '&nbsp;<span class="styleprop">' + s + ':</span>';
                         result += '<span class="stylevalue"> ' + span.style[s] + '</span>;&nbsp;';
                     }
