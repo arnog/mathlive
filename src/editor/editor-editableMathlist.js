@@ -2378,11 +2378,9 @@ EditableMathlist.prototype._insertSmartFence = function(fence, style) {
 
     // We did not have a valid open fence. Maybe it's a close fence?
     let lDelim;
-    for (const delim in Definitions.RIGHT_DELIM) {
-        if (Definitions.RIGHT_DELIM.hasOwnProperty(delim)) {
-            if (fence === Definitions.RIGHT_DELIM[delim]) lDelim = delim;
-        }
-    }
+    Object.keys(Definitions.RIGHT_DELIM).forEach(delim => {
+        if (fence === Definitions.RIGHT_DELIM[delim]) lDelim = delim;
+    });
     if (lDelim) {
         // We found the matching open fence, so it was a valid close fence.
         // Note that `lDelim` may not match `fence`. That's OK.
