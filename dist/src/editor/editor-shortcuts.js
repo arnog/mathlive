@@ -307,8 +307,7 @@ const INLINE_SHORTCUTS = {
     'Delta':                '\\Delta',
     'pi':                   { mode: 'math', value: '\\pi'},
     'pi ':                  { mode: 'text', value: '\\pi '},
-    'π':                    '\\pi',
-    'Pi':                   '\\Pi',
+    'Pi':                   { mode: 'math', value: '\\Pi'},
     'theta':                '\\theta',
     'Theta':                '\\Theta',
 

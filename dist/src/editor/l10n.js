@@ -149,6 +149,17 @@ l10n.strings = {
         "tooltip.toggle virtual keyboard": "Virtuelle Tastatur umschalten",
         "tooltip.undo": "Widerrufen"
     },
+    "el": {
+        "keyboard.tooltip.functions": "συναρτήσεις",
+        "keyboard.tooltip.greek": "ελληνικά γράμματα",
+        "keyboard.tooltip.command": "Λειτουργία εντολών LaTeX",
+        "keyboard.tooltip.numeric": "Αριθμητικός",
+        "keyboard.tooltip.roman": "Σύμβολα και ρωμαϊκά γράμματα",
+        "tooltip.copy to clipboard": "Αντιγραφή στο πρόχειρο",
+        "tooltip.redo": "Ξανακάνω",
+        "tooltip.toggle virtual keyboard": "Εναλλαγή εικονικού πληκτρολογίου",
+        "tooltip.undo": "Ξεκάνω"
+    },
     "es": {
         "keyboard.tooltip.functions": "Funciones",
         "keyboard.tooltip.greek": "Letras griegas",
