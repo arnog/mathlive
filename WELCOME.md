@@ -1,6 +1,6 @@
 <h1 align="center">
     <a href="https://mathlive.io">
-        <img style="max-width:100%" src="https://github.com/arnog/mathlive/blob/master/assets/logo-1024.jpg?raw=true">
+        <img style="max-width:100%" src="https://github.com/arnog/mathlive/blob/master/assets/logo.png?raw=true">
     </a>
 </h1>
 

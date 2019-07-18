@@ -1,7 +1,17 @@
 # Contributing to MathLive
 
-There are many ways you can get involved with MathLive. Contributing to 
-an open source project is fun and rewarding.
+There are many ways you can get involved with MathLive. Contributing to an open source project is fun and rewarding.
+
+## Funding
+
+If you're using MathLive consider donating to project development via [Patreon](https://patreon.com/arnog) (recurring donation) or [PayPal](https://www.paypal.me/arnogourdol) (one time donation). 
+
+If you are using MathLive in your project, encourage the business partners in your organization to provide financial support of open source projects.
+
+Funds go to general development, support, and infrastructure costs. 
+
+We welcome both individual and corporate sponsors. In addition to Patreon and PayPal, we can also accept short-term development contracts for specific features or maintenance of the project.
+
 
 ## Contributing Issues
 

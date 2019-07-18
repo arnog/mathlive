@@ -1,4 +1,4 @@
-<img alt="math live" src="assets/logo-1024.jpg?raw=true">
+<img alt="math live" src="assets/logo.png?raw=true">
 
 
 
@@ -123,7 +123,7 @@ This will make a local build of MathLive, run a local HTTP server and open a pag
 
 * Using MathLive in your project? Want to support the project ongoing maintenance?
 Consider becoming a patron on [Patreon](https://patreon.com/arnog) or making a 
-donation with [PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CCB2LY5M6SM5W&source=url)
+donation with [PayPal](https://www.paypal.me/arnogourdol)
 * Something wrong? Got ideas for new features? Write up an issue. Read about
 [Contributing](CONTRIBUTING.md) and follow our [Code of Conduct](CODE_OF_CONDUCT.md)
 * Want to use MathLive in your web page? The [Usage Guide](tutorials/USAGE_GUIDE.md) 
