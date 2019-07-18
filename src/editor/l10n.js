@@ -65,11 +65,7 @@ l10n.merge = function(locale, strings) {
         l10n.locale = savedLocale;
     } else if (locale && !strings) {
         strings = locale;
-        for (const l in strings) {
-            if (strings.hasOwnProperty(l)) {
-                l10n.merge(l, strings[l]);
-            }
-        }
+        Object.keys(strings).forEach(l => l10n.merge(l, strings[l]));
     }
 }
 
@@ -152,6 +148,17 @@ l10n.strings = {
         "tooltip.redo": "Wiederholen",
         "tooltip.toggle virtual keyboard": "Virtuelle Tastatur umschalten",
         "tooltip.undo": "Widerrufen"
+    },
+    "el": {
+        "keyboard.tooltip.functions": "συναρτήσεις",
+        "keyboard.tooltip.greek": "ελληνικά γράμματα",
+        "keyboard.tooltip.command": "Λειτουργία εντολών LaTeX",
+        "keyboard.tooltip.numeric": "Αριθμητικός",
+        "keyboard.tooltip.roman": "Σύμβολα και ρωμαϊκά γράμματα",
+        "tooltip.copy to clipboard": "Αντιγραφή στο πρόχειρο",
+        "tooltip.redo": "Ξανακάνω",
+        "tooltip.toggle virtual keyboard": "Εναλλαγή εικονικού πληκτρολογίου",
+        "tooltip.undo": "Ξεκάνω"
     },
     "es": {
         "keyboard.tooltip.functions": "Funciones",

@@ -391,7 +391,7 @@ export class Span {
 
             if (this.attributes) {
                 for (const attribute in this.attributes) {
-                    if (this.attributes.hasOwnProperty(attribute)) {
+                    if (Object.prototype.hasOwnProperty.call(this.attributes, attribute)) {
                         result += ' ' + attribute + '="' + this.attributes[attribute] + '"';
                     }
                 }
@@ -444,7 +444,7 @@ export class Span {
                 let styleString = '';
                 const isSelected = /ML__selected/.test(this.classes);
                 for (const style in this.style) {
-                    if (this.style.hasOwnProperty(style)) {
+                    if (Object.prototype.hasOwnProperty.call(this.style, style)) {
                         // Render the style property, except the background
                         // of selected spans
                         if (style !== 'background-color' || !isSelected) {
@@ -561,8 +561,8 @@ export class Span {
         // If the styles are different, can't coalesce
         if (this.style && span.style) {
             for (const style in this.style) {
-                if (this.style.hasOwnProperty(style) &&
-                    span.style.hasOwnProperty(style)) {
+                if (Object.prototype.hasOwnProperty.call(this.style, style) &&
+                    Object.prototype.hasOwnProperty.call(span.style, style)) {
                     if (this.style[style] !== span.style[style]) return false;
                 }
             }
