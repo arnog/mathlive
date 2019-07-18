@@ -490,17 +490,20 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                 break;
             case 'variable': {
                 body = atom.toLatex();
-                body = body.substring(10, body.length - 1) // unwrap \variable{ }
+                body = body.substring(10, body.length - 1); // unwrap \variable{ }
                 let name = body;
                 let sub = '';
-                const subIndex = body.indexOf('_')
+                const subIndex = body.indexOf('_');
                 if (subIndex > -1) {
-                    name = body.substring(0, subIndex)
-                    sub = body.substring(subIndex + 1).replace('{', '').replace('}', '')
-                    sub = sub.length > 1 ? ' subscript ' + sub + '. End subscript' : ' sub ' + sub
-                    sub = sub.replace(',', PRONUNCIATION[','])
+                    name = body.substring(0, subIndex);
+                    sub = body.substring(subIndex + 1).replace('{', '').replace('}', '');
+                    sub = sub.length > 1 ? ' subscript ' + sub + '; End subscript; End variable' : ' sub ' + sub;
+                    sub = sub.replace(',', PRONUNCIATION[',']);
                 }
-                result += 'the variable <break time="150ms"/>' + name + sub + '.<break time="150ms"/> End variable.<break time="150ms"/>';
+                if (name === 'a') {
+                    name = name.toUpperCase();
+                }
+                result += 'the variable, ' + name + sub + '. ';
                 break;
             }
         }
