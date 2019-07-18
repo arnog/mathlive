@@ -1,3 +1,34 @@
+## 0.30 (July 18, 2019)
+
+### Non-backward compatible changes
+
+- #157: Public APIs that don't start with `$` have been removed. If your code
+used any of these APIs, add a `$` in front of their name. See #157 for the 
+complete list.
+
+### Features / Improvements
+
+- #231: `smartMode` now supports Greek (the language). Also, Greek localization.
+- Don't display i-beam cursor over non-interactive content
+- Use CSS class `.ML__smart-fence__close` to style closing smart fence
+- Added speech support for text mode and units (contributed by @NSoiffer)
+
+### Bug Fixes
+- Fixed an issue where clicking past the end of the equation would select the 
+numerator or denominator if the last element was a fraction, instead of place 
+the cursor after the fraction (regression)
+- Removed dependency on open-cli
+- #220 Fixed an issue where tabbing out of a mathfield would break command mode and some functions
+- #209, #214, #211 et. al. Improvements to SSML support and karaoke mode contributed by @NSoiffer
+- #217 Fixed an issue with parentheses in numerator of fractions
+- #212: Fix round-tripping of `\mathbb`
+- #194: When using the virtual keyboard, interpolate `#@`
+- Fixed an issue where "(" was incorrectly gobbled as argument to a fraction
+- Fixed an issue where smartFence off was ignored
+- #202: use numeric character references instead of named entities in MathML output
+
+
+
 ## 0.29.1 (May 19, 2019)
 
 ### Bug fixes

@@ -16,8 +16,10 @@ export default [{
       }
     }),
     copy({ 
-      targets: ["css/fonts", "src"],
-      outputFolder: "dist"
+      targets: [
+        {src: "css/fonts", dest: "dist"},
+        {src: "src", dest: "dist"}
+      ]
     }),
   ],
   output: [

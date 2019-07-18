@@ -257,7 +257,7 @@ function matchCodepoint(parseMode, cp) {
     let result = '';
     if (parseMode === 'math') {
         for (const p in MATH_SYMBOLS) {
-            if (MATH_SYMBOLS.hasOwnProperty(p)) {
+            if (Object.prototype.hasOwnProperty.call(MATH_SYMBOLS, p)) {
                 if (MATH_SYMBOLS[p].value === s) {
                     result = p;
                     break;
@@ -266,7 +266,7 @@ function matchCodepoint(parseMode, cp) {
         }
     } else {
         for (const p in TEXT_SYMBOLS) {
-            if (TEXT_SYMBOLS.hasOwnProperty(p)) {
+            if (Object.prototype.hasOwnProperty.call(TEXT_SYMBOLS, p)) {
                 if (TEXT_SYMBOLS[p] === s) {
                     result = p;
                     break;
@@ -381,7 +381,7 @@ function unicodeToMathVariant(char) {
 
     // Handle the 'gap' letters by converting them back into their logical range
     for (const c in MATH_LETTER_EXCEPTIONS) {
-        if (MATH_LETTER_EXCEPTIONS.hasOwnProperty(c)) {
+        if (Object.prototype.hasOwnProperty.call(MATH_LETTER_EXCEPTIONS, c)) {
             if (MATH_LETTER_EXCEPTIONS[c] === codepoint) {
                 codepoint = c;
                 break;
@@ -620,7 +620,7 @@ function suggest(s) {
 
     // Iterate over items in the dictionary
     for (const p in FUNCTIONS) {
-        if (FUNCTIONS.hasOwnProperty(p)) {
+        if (Object.prototype.hasOwnProperty.call(FUNCTIONS, p)) {
             if (p.startsWith(s) && !FUNCTIONS[p].infix) {
                 result.push({match:p, frequency:FUNCTIONS[p].frequency});
             }
@@ -628,7 +628,7 @@ function suggest(s) {
     }
 
     for (const p in MATH_SYMBOLS) {
-        if (MATH_SYMBOLS.hasOwnProperty(p)) {
+        if (Object.prototype.hasOwnProperty.call(MATH_SYMBOLS, p)) {
             if (p.startsWith(s)) {
                 result.push({match:p, frequency:MATH_SYMBOLS[p].frequency});
             }

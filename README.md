@@ -16,11 +16,11 @@
 
 MathLive is a JavaScript library to render and edit math.
 
-- [x] Tex-quality typesetting
+- [x] TeX-quality typesetting
 - [x] Easy to use interface for math editing
 - [x] Fast and small
 - [x] Works great on desktop and on mobile devices thanks to an extensive set of virtual keyboards
-- [x] Outputs **LaTeX**, **MathML** and **JSON** (Abstract Syntax Tree, MASTON)**
+- [x] Outputs **LaTeX**, **MathML** and **JSON** (Abstract Syntax Tree, MASTON)
 - [x] And it is easy to customize to your needs!
 
 Try it at [mathlive.io](https://mathlive.io)
@@ -51,23 +51,23 @@ Try it at [mathlive.io](https://mathlive.io)
 ## How To Use MathLive
 
 
-### To display math
-You can use MathLive to simply render math equations by 
+### Displaying Math
+Render math equations by 
 [adding a few lines to your web page](tutorials/USAGE_GUIDE.md). 
 
 ```html
 <!doctype html><html lang="en-US">
 <head>
     ...
-    <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.core.css">
-    <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.css">
-    <script src="https://unpkg.com/mathlive"></script>
+    <link href="https://unpkg.com/mathlive/dist/mathlive.core.css" rel="stylesheet" >
+    <link href="https://unpkg.com/mathlive/dist/mathlive.css" rel="stylesheet" >
 </head>
 <body>
     <h1>Euler's Identity</h1>
     <p>$$e^{i\pi} + 1 = 0$$</p> 
 
-    <script> 
+    <script type='module'> 
+        import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
         MathLive.renderMathInDocument();
     </script>
 </body>
@@ -75,7 +75,7 @@ You can use MathLive to simply render math equations by
 ```
 
 
-### To edit math
+### Editing Math
 You can also incorporate a “math field” to edit math just like you would edit 
 text. The MathLive APIs allow you to interact with the math field,
 including extracting its content, inserting placeholders and more.
@@ -98,7 +98,7 @@ including extracting its content, inserting placeholders and more.
 </html>
 ```
 
-### More examples
+### More Examples
 
 More examples are available at https://mathlive.io/deploy/examples/
 
@@ -121,6 +121,9 @@ This will make a local build of MathLive, run a local HTTP server and open a pag
 
 ## How You Can Help
 
+* Using MathLive in your project? Want to support the project ongoing maintenance?
+Consider becoming a patron on [Patreon](https://patreon.com/arnog) or making a 
+donation with [PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CCB2LY5M6SM5W&source=url)
 * Something wrong? Got ideas for new features? Write up an issue. Read about
 [Contributing](CONTRIBUTING.md) and follow our [Code of Conduct](CODE_OF_CONDUCT.md)
 * Want to use MathLive in your web page? The [Usage Guide](tutorials/USAGE_GUIDE.md) 
