@@ -108,11 +108,4 @@ The following selectors can be passed to [`MathField.$perform()`]{@link MathFiel
 
 | Name                 | Description               |
 | --------------------- | ------------------------- |
-| `speakSelection` | |
-| `speakParent` | |
-| `speakRightSibling` | |
-| `speakLeftSibling` | |
-| `speakGroup` | |
-| `speakAll` | |
-| `speakSelectionWithSynchronizedHighlighting` | |
-| `speakAllWithSynchronizedHighlighting` | |
+| `speak` | speaks the amount specified by the first parameter. |

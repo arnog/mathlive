@@ -495,7 +495,7 @@ function readAloud(element, text, config) {
  * - `paused`
  * - `unavailable`
  * 
- * **See** {@linkcode module:editor-mathfield#speakAllWithSynchronizedHighlighting speakAllWithSynchronizedHighlighting}
+ * **See** {@linkcode module:editor-mathfield#speak speak}
  * @return {string}
  * @function module:mathlive#readAloudStatus
  */
@@ -513,7 +513,7 @@ function readAloudStatus() {
 /**
  * If a Read Aloud operation is in progress, stop it.
  * 
- * **See** {@linkcode module:editor/mathfield#speakAllWithSynchronizedHighlighting speakAllWithSynchronizedHighlighting}
+ * **See** {@linkcode module:editor/mathfield#speak speak}
  * @function module:mathlive#pauseReadAloud
  */
 function pauseReadAloud() {
@@ -530,7 +530,7 @@ function pauseReadAloud() {
 /**
  * If a Read Aloud operation is paused, resume it
  * 
- * **See** {@linkcode module:editor-mathfield#speakAllWithSynchronizedHighlighting speakAllWithSynchronizedHighlighting}
+ * **See** {@linkcode module:editor-mathfield#speak speak}
  * @function module:mathlive#resumeReadAloud
  */
 function resumeReadAloud() {
@@ -547,7 +547,7 @@ function resumeReadAloud() {
 /**
  * If a Read Aloud operation is in progress, read from a specified token
  * 
- * **See** {@linkcode module:editor-mathfield#speakAllWithSynchronizedHighlighting speakAllWithSynchronizedHighlighting}
+ * **See** {@linkcode module:editor-mathfield#speak speak}
  *
  * @param {string} token
  * @param {number} [count]
@@ -672,7 +672,7 @@ function getElement(element) {
  *      elem.innerHTML = elem.dataset.originalContent;
  * ```
  * @param {boolean} [options.readAloud=false] if true, generate markup that can
- * be read aloud later using {@linkcode module:editor-mathfield#speakAllWithSynchronizedHighlighting speakAllWithSynchronizedHighlighting}
+ * be read aloud later using {@linkcode module:editor-mathfield#speak speak}
  * 
  * @param {boolean} [options.TeX.processEnvironments=true] if false, math expression
  * that start with `\begin{` will not automatically be rendered.

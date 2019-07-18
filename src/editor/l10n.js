@@ -21,6 +21,33 @@ export function l10n(s) {
 }
 
 
+l10n.plural = function(value, s, options) {
+    options = options || {};
+    options.type = options.type || 'cardinal';
+    const language = l10n.locale.substring(0, 2);
+    const rules = options.type === 'ordinal' ? l10n.ordinal : l10n.cardinal;
+    let rule = options.type === 'ordinal' ? 
+        l10n._ordinalPluralCategories.indexOf(rules.select(value)) :
+        l10n._cardinalPluralCategories.indexOf(rules.select(value));
+        
+
+    let result;    
+    if (l10n.strings[l10n.locale]) result = l10n.strings[l10n.locale][s];
+    if (!result && l10n.strings[language]) result = l10n.strings[language][s];
+    if (!result) {
+        result = l10n.strings['en'][s];
+        if (!result) result = s;
+        if (options.type === 'ordinal') {
+            rule = l10n._ordinalPluralCategories.indexOf(l10n._ordinalEnglish.select(value));
+        } else {
+            rule = l10n._cardinalPluralCategories.indexOf(l10n._cardinalEnglish.select(value));
+        }
+
+    }
+    return result.split(';')[rule] || result.split(';')[0]
+}
+
+
 /**
  * Two forms for this function:
  * - merge(locale, strings)
@@ -32,7 +59,7 @@ export function l10n(s) {
 l10n.merge = function(locale, strings) {
     if (locale && strings) {
         const savedLocale = l10n._locale;
-        l10n.locale = locale;   // Load the necessary json file if necessary
+        l10n.locale = locale;   // Load the necessary json file
 
         l10n.strings[locale] = {...l10n.strings[locale], ...strings };
         l10n.locale = savedLocale;
@@ -50,7 +77,9 @@ l10n.merge = function(locale, strings) {
 // Add getter and setter for the _locale property of l10n
 Object.defineProperty(l10n, 'locale', { 
     set(locale) {
-        l10n._locale = locale
+        l10n._locale = locale;
+        l10n._ordinal = null;
+        l10n._cardinal = null;
     },
     get() {
         // Use the browser defined language as the default language,
@@ -61,6 +90,31 @@ Object.defineProperty(l10n, 'locale', {
                 navigator.language.slice(0, 5);
         }
         return l10n._locale
+    }
+});
+
+Object.defineProperty(l10n, 'ordinal', { 
+    get() {
+        if (!l10n._ordinal) {
+            l10n._ordinalEnglish = new Intl.PluralRules('en', {type: 'ordinal'});
+            l10n._ordinalEnglishPluralCategories = l10n._ordinalEnglish.resolvedOptions().pluralCategories;
+            l10n._ordinal = new Intl.PluralRules(l10n.locale, {type: 'ordinal'});
+            l10n._ordinalPluralCategories = l10n._ordinal.resolvedOptions().pluralCategories;
+            //    "zero", "one", "two", "few", "many" and "other"
+        }
+        return l10n._ordinal;
+    }
+});
+
+Object.defineProperty(l10n, 'cardinal', { 
+    get() {
+        if (!l10n._cardinal) {
+            l10n._cardinalEnglish = new Intl.PluralRules('en', {type: 'cardinal'});
+            l10n._cardinalEnglishPluralCategories = l10n._cardinalEnglish.resolvedOptions().pluralCategories;
+            l10n._cardinal = new Intl.PluralRules(l10n.locale, {type: 'cardinal'});
+            l10n._cardinaPluralCategories = l10n._ordinal.resolvedOptions().pluralCategories;
+        }
+        return l10n._cardinal;
     }
 });
 

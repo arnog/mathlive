@@ -330,7 +330,6 @@ function MathField(element, config) {
     localConfig.onContentDidChange =
         MathField.prototype._onContentDidChange.bind(this);
     localConfig.onAnnounce = this.config.onAnnounce;
-    localConfig.smartFence = this.config.smartFence;
     localConfig.macros = this.config.macros;
     localConfig.removeExtraneousParentheses = this.config.removeExtraneousParentheses;
 
@@ -817,6 +816,10 @@ MathField.prototype._onSelectionDidChange = function() {
         if (this.mode !== previousMode && typeof this.config.onModeChange === 'function') {
             this.config.onModeChange(this, this.mode)
         }
+        if (previousMode === 'command' && this.mode !== 'command') {
+            Popover.hidePopover(this);
+            this.mathlist.removeCommandString();
+        }
     }
 
     // Defer the updating of the popover position: we'll need the tree to be
@@ -999,7 +1002,7 @@ MathField.prototype._onBlur = function() {
         if (this.config.virtualKeyboardMode === 'onfocus') {
             this.hideVirtualKeyboard_();
         }
-        Popover.updatePopoverPosition(this);
+        this.complete_({discard: true});
         this._requestUpdate();
         if (this.config.onBlur) this.config.onBlur(this);
     }
@@ -1092,6 +1095,16 @@ MathField.prototype.$perform = function(command) {
         this.mathlist[selector](...args);
         if (/^(delete|transpose|add)/.test(selector) && this.mode !== 'command') {
             this.undoManager.snapshot(this.config);
+        }
+        if (/^(delete)/.test(selector) && this.mode === 'command') {
+            const command = this.mathlist.extractCommandStringAroundInsertionPoint();
+            const suggestions = Definitions.suggest(command);
+            if (suggestions.length === 0) {
+                Popover.hidePopover(this);
+            } else {
+                Popover.showPopoverWithLatex(this, 
+                    suggestions[0].match, suggestions.length > 1);
+            }
         }
         dirty = true;
         handled = true;
@@ -1810,7 +1823,7 @@ MathField.prototype._onTypedText = function(text, options) {
                         this.mathlist.insert(c, { 
                             mode: 'math', 
                             style: style, 
-                            smartFence: true 
+                            smartFence: this.config.smartFence 
                         });
                     }
                 }
@@ -2032,9 +2045,12 @@ MathField.prototype.formatMathlist = function(root, format) {
         result = MathAtom.toSpeakableText(root, this.config);
         this.config.textToSpeechMarkup = save;
 
-    } else if (format === 'spoken-ssml') {
+    } else if (format === 'spoken-ssml' ||  format === 'spoken-ssml-withHighlighting') {
         const save = this.config.textToSpeechMarkup;
         this.config.textToSpeechMarkup = 'ssml';
+        if (format === 'spoken-ssml-withHighlighting') {
+            this.config.generateID = true;
+        }
         result = MathAtom.toSpeakableText(root, this.config);
         this.config.textToSpeechMarkup = save;
 
@@ -2067,7 +2083,8 @@ MathField.prototype.formatMathlist = function(root, format) {
  *    * `'spoken'`
  *    * `'spoken-text'`
  *    * `'spoken-ssml'`
- *    * `'mathML'`
+  *    * `spoken-ssml-withHighlighting`
+*    * `'mathML'`
  *    * `'json'`
  * @return {string}
  * @method MathField#$text
@@ -2085,6 +2102,7 @@ MathField.prototype.$text = function(format) {
  *    * `'spoken'`
  *    * `'spoken-text'`
  *    * `'spoken-ssml'`
+ *    * `spoken-ssml-withHighlighting`
  *    * `'mathML'`
  *    * `'json'`
  * @return {string}
@@ -3527,7 +3545,7 @@ MathField.prototype.$setConfig = function(conf) {
  * 
  * @param {string} amount (all, selection, left, right, group, parent)
  * @param {object} speakOptions 
- * @param {boolean} speakOptions.withHighlighting - If true, synchronized highlighting of speech will happen (if possible)
+ * @param {boolean} speakOptions.withHighlighting - If true, synchronized highlighting of speech will happen (if possible). Default is false.
  * 
  * @method MathField#speak_
  */
@@ -3623,8 +3641,11 @@ MathField.prototype.speak_ = function(amount, speakOptions) {
     }
 
     const options = this.config;
-    if (speakOptions.withHighlighting) {
+    if (speakOptions.withHighlighting || options.speechEngine === 'amazon') {
         options.textToSpeechMarkup = (window.sre && options.textToSpeechRules === 'sre') ? 'ssml_step' : 'ssml';
+        if (speakOptions.withHighlighting) {
+            options.generateID = true;
+        }
     }
     const text = MathAtom.toSpeakableText(atoms, options)
 

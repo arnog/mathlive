@@ -58,7 +58,7 @@ function select_text_in_element(element) {
 
 
 function speak_all() {
-    mf.$perform("speakAllWithSynchronizedHighlighting");
+    mf.$perform(["speak", "all", {withHighlighting: true}]);
 }
 
 function speak_pause_resume() {
