@@ -488,7 +488,21 @@ MathAtom.toSpeakableFragment = function(atom, options) {
             case 'box':
                 // @todo
                 break;
-
+            case 'variable': {
+                body = atom.toLatex();
+                body = body.substring(10, body.length - 1) // unwrap \variable{ }
+                let name = body;
+                let sub = '';
+                const subIndex = body.indexOf('_')
+                if (subIndex > -1) {
+                    name = body.substring(0, subIndex)
+                    sub = body.substring(subIndex + 1).replace('{', '').replace('}', '')
+                    sub = sub.length > 1 ? ' subscript ' + sub + '. End subscript' : ' sub ' + sub
+                    sub = sub.replace(',', PRONUNCIATION[','])
+                }
+                result += 'the variable <break time="150ms"/>' + name + sub + '.<break time="150ms"/> End variable.<break time="150ms"/>';
+                break;
+            }
         }
         if (!supsubHandled && atom.superscript) {
 
