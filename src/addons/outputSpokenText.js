@@ -496,9 +496,9 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                 const subIndex = body.indexOf('_');
                 if (subIndex > -1) {
                     name = body.substring(0, subIndex);
-                    sub = body.substring(subIndex + 1).replace('{', '').replace('}', '');
+                    sub = body.substring(subIndex + 1).replace(/[{}]/gm, '');
                     sub = sub.length > 1 ? ' subscript ' + sub + '; End subscript; End variable' : ' sub ' + sub;
-                    sub = sub.replace(',', PRONUNCIATION[',']);
+                    sub = sub.replace(/,/gm, PRONUNCIATION[',']);
                 }
                 if (name === 'a') {
                     name = name.toUpperCase();
