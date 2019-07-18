@@ -189,8 +189,10 @@ function latexifyArray(parent, properties, atoms, options) {
                     if (/^\\operatorname{/.test(atoms[0].latex)) {
                         return atoms[0].latex + latexifyArray(parent, properties, atoms.slice(i), options);
                     }
-                    prefix = '\\' + command + '{';
-                    suffix = '}';
+                    if (!atoms[0].isFunction) {
+                        prefix = '\\' + command + '{';
+                        suffix = '}';
+                    }
                     // These command have an implicit fontSeries/fontShape, so
                     // we're done checking properties now.
                     properties = [];
@@ -539,7 +541,7 @@ MathAtom.MathAtom.prototype.toLatex = function(options) {
                 result += '{';
                 let sep = '';
                 for (const notation in this.notation) {
-                    if (this.notation.hasOwnProperty(notation) &&
+                    if (Object.prototype.hasOwnProperty.call(this.notation, notation) &&
                         this.notation[notation]) {
                         result += sep + notation;
                         sep = ' ';

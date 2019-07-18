@@ -488,7 +488,24 @@ MathAtom.toSpeakableFragment = function(atom, options) {
             case 'box':
                 // @todo
                 break;
-
+            case 'variable': {
+                body = atom.toLatex();
+                body = body.substring(10, body.length - 1); // unwrap \variable{ }
+                let name = body;
+                let sub = '';
+                const subIndex = body.indexOf('_');
+                if (subIndex > -1) {
+                    name = body.substring(0, subIndex);
+                    sub = body.substring(subIndex + 1).replace(/[{}]/gm, '');
+                    sub = sub.length > 1 ? ' subscript ' + sub + '; End subscript; End variable' : ' sub ' + sub;
+                    sub = sub.replace(/,/gm, PRONUNCIATION[',']);
+                }
+                if (name === 'a') {
+                    name = name.toUpperCase();
+                }
+                result += 'the variable, ' + name + sub + '. ';
+                break;
+            }
         }
         if (!supsubHandled && atom.superscript) {
 
@@ -540,15 +557,13 @@ MathAtom.toSpeakableFragment = function(atom, options) {
 /**
  * @param {MathAtom[]}  [atoms] The atoms to represent as speakable text.
  * If omitted, `this` is used.
- * @param {Object.<string, any>} [options]
+ * @param {Object.<string, any>} [speechOptions]
 */
-MathAtom.toSpeakableText = function(atoms, options) {
-    if (!options) {
-        options = {
-            textToSpeechMarkup: '',     // no markup
-            textToSpeechRules: 'mathlive'
-        }
-    }
+MathAtom.toSpeakableText = function(atoms, speechOptions) {
+    const options = speechOptions ? JSON.parse(JSON.stringify(speechOptions)) : {
+        textToSpeechMarkup: '',     // no markup
+        textToSpeechRules: 'mathlive'
+    };  
     options.speechMode = 'math';
 
     if (window.sre && options.textToSpeechRules === 'sre') {
@@ -569,7 +584,6 @@ MathAtom.toSpeakableText = function(atoms, options) {
             return window.sre.System.getInstance().toSpeech(mathML);
         }
         return '';
-        // return window.sre.toSpeech(MathAtom.toMathML(atoms));
     }
 
     let result = MathAtom.toSpeakableFragment(atoms, options);

@@ -21,7 +21,7 @@ import {SIGMAS} from './fontMetrics.js';
 const metrics = [{}, {}, {}]; /* textstyle, scriptstyle, scriptscriptstyle */
 let i;
 for (const key in SIGMAS) {
-    if (SIGMAS.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(SIGMAS, key)) {
         for (i = 0; i < 3; i++) {
             metrics[i][key] = SIGMAS[key][i];
         }
