@@ -28,7 +28,7 @@ export default {
             default: function(_direction) { return true; }
         }
     },
-    /**
+    /*
      * To register this component, call:
      * ```
      *     import MathLive from './mathlive.mjs';
@@ -107,14 +107,14 @@ export default {
         });
     },
     methods: {
-        /**
+        /*
          * 
          * @param {string} selector 
          */
         perform: function(selector) {
             this.$el.mathfield.$perform(selector);
         },
-        /**
+        /*
          * @return {boolean}
          */
         hasFocus: function() {

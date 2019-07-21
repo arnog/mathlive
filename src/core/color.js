@@ -20,6 +20,7 @@
  * @constant
  * @type {Object.<string, string>}
  * @memberof module:color
+ * @private
  */
 const MATHEMATICA_COLORS = {
     'm0': '#3f3d99',        // strong blue
@@ -104,6 +105,7 @@ const LINE_COLORS = [
  * @constant NAMED_COLORS
  * @memberof module:color
  * @type {Object.<string, string>}
+ * @private
  */
 const NAMED_COLORS = {
     'apricot': '#FBB982',

@@ -106,6 +106,7 @@ const KEY_NAMES = {
  * - Returns "Alt-Alt" when only the Alt key is pressed
  * @memberof module:editor/keyboard
  * @param {Event} evt 
+ * @private
  */
 function keyboardEventToString(evt) {
     let keyname;
@@ -164,11 +165,11 @@ function keyboardEventToString(evt) {
  * in the `keystroke()` handler while text input should be handled in 
  * `typedtext()`.
  * 
- * @param {Element} textarea A `TextArea` element that will capture the keyboard
+ * @param {HTMLElement} textarea A `TextArea` element that will capture the keyboard
  * events. While this element will usually be a `TextArea`, it could be any
  * element that is focusable and can receive keyboard events.
  * @param {Object.<string, any>} handlers
- * @param {Element} [handlers.container]
+ * @param {HTMLElement} [handlers.container]
  * @param {function} handlers.keystroke invoked on a key down event, including 
  * for special keys such as ESC, arrow keys, tab, etc... and their variants 
  * with modifiers.

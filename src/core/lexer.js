@@ -69,6 +69,7 @@ class Lexer {
      * Return the next char and advance
      * @return {string}
      * @method module:core/lexer#Lexer#get
+     * @private
      */
     get() {
         return this.pos < this.s.length ? this.s[this.pos++] : null;

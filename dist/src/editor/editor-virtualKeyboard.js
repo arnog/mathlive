@@ -1007,6 +1007,7 @@ function expandLayerMarkup(mf, layer) {
  * @param {object} mf
  * @param {string} theme
  * @result {} A DOM element
+ * @private
  */
 function make(mf, theme) {
     const svgIcons =

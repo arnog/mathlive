@@ -409,6 +409,8 @@ function unicodeToMathVariant(char) {
  * return the corresponding unicode character (a string)
  * @param {string} char
  * @param {string} variant
+ * @memberof module:definitions
+ * @private
  */
 function mathVariantToUnicode(char, variant, style) {
     if (!/[A-Za-z0-9]/.test(char)) return char;
@@ -2824,6 +2826,8 @@ defineFunction([
  * If possible, i.e. if they are all simple atoms, return a string made up of
  * their body
  * @param {object[]} atoms
+ * @memberof module:definitions
+ * @private
  */
 function getSimpleString(atoms) {
     let result = '';

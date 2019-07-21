@@ -128,6 +128,7 @@ export class Span {
      * - fontSize: 'size1', 'size2'...
      * - color:
      * - background:
+     * @private
      */
     applyStyle(style) {
         if (!style) return;
@@ -284,6 +285,7 @@ export class Span {
 /**
  * 
  * @param {number} left 
+ * @private
  */
     setLeft(left) {
         if (left && left !== 0) {
@@ -294,6 +296,7 @@ export class Span {
 /**
  * 
  * @param {number} right 
+ * @private
  */
     setRight(right) {
         if (right && right !== 0) {
@@ -902,6 +905,7 @@ function makeStyleWrap(type, children, fromStyle, toStyle, classes) {
  *
  * @param {Span} body
  * @param {string} svgMarkup
+ * @private
  */
 function makeSVG(body, svgMarkup, svgStyle) {
     body.svgOverlay = svgMarkup;
@@ -1127,7 +1131,7 @@ const FONT_CLASS = {
  * @param {(string|Span[])} symbol the character for which we're seeking the font
  * @param {string} fontFamily such as 'mathbf', 'mathfrak', etc...
  * @return {string} a font name
- * @memberof module:mathAtom
+ * @memberof module:span
  * @private
  */
 function getFontName(symbol, fontFamily) {

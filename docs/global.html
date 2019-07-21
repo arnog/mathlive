@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>editor/mathfield - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>Global - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -58,7 +58,7 @@ writeCookie('symbol-access', 'private')
 
 <main id="main">
     
-        <h1 class="page-title">editor/mathfield</h1>
+        <h1 class="page-title">Global</h1>
     
 
     
@@ -70,8 +70,9 @@ writeCookie('symbol-access', 'private')
 
 <header>
     
+        <h2>
         
-            
+        </h2>
         
     
 </header>
@@ -80,29 +81,8 @@ writeCookie('symbol-access', 'private')
     <div class="container-overview">
     
         
-            <div class="description"><p>See <a href="MathField.html"><code>MathField</code></a></p></div>
-        
 
         
-            
-<div class='method'>
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-
-    
-
-    
 
 
 <dl class="details">
@@ -140,22 +120,6 @@ writeCookie('symbol-access', 'private')
     
 </dl>
 
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
 
         
     
@@ -172,24 +136,277 @@ writeCookie('symbol-access', 'private')
     
 
     
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<div class='member'>
+<h4 class="name" id="INLINE_SHORTCUTS">INLINE_SHORTCUTS<span class="type-signature"> &rarr;[string]:string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">constant</span></span></h4>
+
+
+
+
+<div class="description">
+    <p>These shortcut strings are replaced with the corresponding LaTeX expression
+without requiring an escape sequence or command.</p>
+</div>
+
+
+
+    <h5>Type</h5>
+    <ul>
+        <li>
+            : 
+<span class="param-type">[string]:string</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+</div>
+        
+            
+<div class='member'>
+<h4 class="name" id="KEYBOARD_SHORTCUTS">KEYBOARD_SHORTCUTS<span class="type-signature"> &rarr;[string]:string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">constant</span></span></h4>
+
+
+
+
+<div class="description">
+    <p>The index of this array is a keystroke combination as returned by the key
+field of a JavaScript keyboard event as documented here:
+https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
+except for:</p>
+<ul>
+<li><code>Escape</code>         → <code>Esc</code></li>
+<li><code>LeftArrow</code>...   → <code>Left/Right/Up/Down</code></li>
+<li><code>Delete</code>         → <code>Del</code></li>
+<li><code>Escape</code>         → <code>Esc</code></li>
+<li>' '              → <code>Spacebar</code></li>
+</ul>
+<p>The modifiers are specified before the main key, in the following order:</p>
+<ol>
+<li><code>Ctrl</code></li>
+<li><code>Meta</code>: Command key on Mac OS. On Windows this is the Windows key,
+but the system intercepts those key combinations so they are never received</li>
+<li><code>Alt</code>: Option key on Mac OS</li>
+<li><code>Shift</code></li>
+</ol>
+<p>The keys can be preceded by a context to restrict when the shortcut is
+applicable. For example, &quot;math:Ctrl-KeyA&quot; will restrict this shortcut
+to only apply in the &quot;math&quot; context (parseMode). Other valid context include
+&quot;text&quot; and &quot;command&quot;.</p>
+<p>The value of the entries represent the command to perform.
+This can be either a single selector, or an array of a selector followed
+by its arguments.
+Selectors uses the following naming conventions:</p>
+<ul>
+<li>a 'char' is a math atom (a letter, digit, symbol or compound atom)</li>
+<li>a 'word' is a sequence of math atoms of the same type</li>
+<li>a 'group' is a sequence of sibling atoms, for example a numerator or
+a superscript</li>
+<li>the 'MathField' is the entire expression being edited</li>
+<li>a 'placeholder' is either an actual placeholder atom or an empty child
+list, for example an empty numerator</li>
+<li>'move' changes the position of the insertion point (and collapses the
+selection range if necessary)</li>
+<li>'extend' keeps the anchor of the  selection, but moves the focus (extends,
+or shrinks, the range of selected items)</li>
+</ul>
+</div>
+
+
+
+    <h5>Type</h5>
+    <ul>
+        <li>
+            : 
+<span class="param-type">[string]:string</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+</div>
+        
+            
+<div class='member'>
+<h4 class="name" id="REVERSE_KEYBOARD_SHORTCUTS">REVERSE_KEYBOARD_SHORTCUTS<span class="type-signature"> &rarr;[string]:string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">constant</span></span></h4>
+
+
+
+
+<div class="description">
+    <p>Most commands can be associated to their keyboard shortcuts from the
+KEYBOARD_SHORTCUTS table above, for example 'speakSelection' -&gt; 'Ctrl-KeyR'
+However, those that contain complex commands are more ambiguous.
+For example, '\sqrt' -&gt; 'math:Alt-KeyV'. This table provides the reverse
+mapping for those more complex commands. It is used when displaying
+keyboard shortcuts for specific commands in the popover.</p>
+</div>
+
+
+
+    <h5>Type</h5>
+    <ul>
+        <li>
+            : 
+<span class="param-type">[string]:string</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+</div>
+        
+    
 
     
         <h3 class="subsection-title">Methods</h3>
 
         
             
-<div class='method private'>
+<div class='method'>
 
     
 
-    <h4 class="name" id="nearestElementFromPoint">nearestElementFromPoint<span class="signature">(el<span class="signature-type">: HTMLElement</span>, x<span class="signature-type">: number</span>, y<span class="signature-type">: number</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="startsWithString">startsWithString<span class="signature">(s<span class="signature-type">: string</span>, config<span class="signature-type">: object</span>)</span><span class="type-signature">:  string[]</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Return a tuple of an element and a distance from point (x, y)</p>
+    <p>Return an array of potential shortcuts</p>
 </div>
 
 
@@ -209,13 +426,13 @@ writeCookie('symbol-access', 'private')
 
         <div class="signature">
             
-                <span class="name"><code>el</code></span>
+                <span class="name"><code>s</code></span>
             
 
             <span class="type">
             
                 : 
-<span class="param-type">HTMLElement</span>
+<span class="param-type">string</span>
 
 
             
@@ -232,264 +449,192 @@ writeCookie('symbol-access', 'private')
 
         <div class="signature">
             
-                <span class="name"><code>x</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">number</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>y</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">number</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-</div>
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method private'>
-
-    
-
-    <h4 class="name" id="~_findElementWithCaret">_findElementWithCaret<span class="signature">(el<span class="signature-type">: DomElement</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Utility function that returns the element which has the caret</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>el</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">DomElement</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-</div>
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method private'>
-
-    
-
-    <h4 class="name" id="~validateStyle">validateStyle<span class="signature">(style<span class="signature-type">: object</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Validate a style specification object</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>style</code></span>
+                <span class="name"><code>config</code></span>
             
 
             <span class="type">
             
                 : 
 <span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">string[]</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method'>
+
+    
+
+    <h4 class="name" id="validateShortcut">validateShortcut<span class="signature">(mode<span class="signature-type">: string</span>, siblings<span class="signature-type">: object[]</span>, shortcut<span class="signature-type">: string</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>mode</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>siblings</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>atoms preceding this potential shortcut</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>shortcut</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
 
 
             

@@ -34,6 +34,7 @@ function findLongestRun(atoms, property, value) {
  * @param {MathAtom[]} atoms the list of atoms to transform to LaTeX
  * @param {boolean} expandMacro true if macros should be expanded
  * @result {string} a LaTeX string
+ * @private
  */
 function latexifyArray(parent, properties, atoms, expandMacro) {
     if (atoms.length === 0) return '';
@@ -279,7 +280,8 @@ function latexify(parent, value, expandMacro) {
  * no longer round-trip.
  *
  * @return {string}
- * @method MathAtom#toLatex
+ * @memberof module:core/mathAtom~MathAtom
+ * @private
  */
 MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
     expandMacro = expandMacro === undefined ? false : expandMacro;

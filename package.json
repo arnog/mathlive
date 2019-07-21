@@ -35,7 +35,8 @@
     "build-postcss": "postcss dist/*.css -d dist",
     "build-css": "npm-run-all -s build-corecss build-othercss build-postcss",
     "watch-css": "chokidar \"css/*.less\" --initial -c \"npm run build-css -s\"",
-    "build": "npm-run-all -p build-css build-js rollup",
+    "build-ts-types": "jsdoc -t node_modules/tsd-jsdoc/dist -d ./dist -a public -r ./src/",
+    "build": "npm-run-all -p build-css build-js build-ts-types rollup",
     "watch": "npm-run-all -p watch-*",
     "http-server": "http-server . -c-1 --cors='*' -o http://localhost:8080/examples/index.html",
     "start": "npm-run-all -p watch-js watch-css http-server",
@@ -86,14 +87,13 @@
   "devDependencies": {
     "@babel/cli": "^7.5.0",
     "@babel/core": "^7.5.4",
-    "@babel/polyfill": "^7.4.4",
     "@babel/preset-env": "^7.5.4",
     "@babel/register": "^7.4.4",
     "autoprefixer": "^9.6.1",
     "chokidar-cli": "^1.2.2",
     "cssnano": "^4.1.10",
     "eslint": "^6.0.0",
-    "eslint-watch": "^5.1.2",
+    "eslint-watch": "^6.0.0",
     "http-server": "^0.11.1",
     "jsdoc": "^3.6.3",
     "less": "^3.9.0",
@@ -106,7 +106,8 @@
     "rollup-plugin-terser": "^5.1.1",
     "sutro-jsdoc-theme": "^1.0",
     "tap-spec": "^5.0.0",
-    "tape": "^4.11.0"
+    "tape": "^4.11.0",
+    "tsd-jsdoc": "^2.3.1"
   },
   "dependencies": {}
 }

@@ -35,7 +35,7 @@ import Shortcuts from './editor-shortcuts.js';
  * ```
  *
  * @param {Object.<string, any>} config
- * @param {Element} target - A target object passed as the first argument of 
+ * @param {HTMLElement} target - A target object passed as the first argument of 
  * callback functions. Typically, a MathField.
  * @property {MathAtom[]} root - The root element of the math expression.
  * @property {Object[]} path - The path to the element that is the
@@ -121,6 +121,8 @@ EditableMathlist.prototype.filter = function(cb, dir) {
 /**
  * Enumerator
  * @param {function} cb - A callback called for each atom in the mathlist.
+ * @method EditableMathlist#forEach
+ * @private
  */
 EditableMathlist.prototype.forEach = function(cb) {
     this.root.forEach(cb);
@@ -130,6 +132,8 @@ EditableMathlist.prototype.forEach = function(cb) {
  * 
  * @param {function} cb - A callback called for each selected atom in the 
  * mathlist.
+ * @method EditableMathlist#forEachSelected
+ * @private
  */
 EditableMathlist.prototype.forEachSelected = function(cb, options) {
     options = options || {};
@@ -172,6 +176,7 @@ EditableMathlist.prototype.toString = function() {
 /**
  * When changing the selection, if the former selection is an empty list,
  * insert a placeholder if necessary. For example, if in an empty numerator.
+ * @private
 */
 EditableMathlist.prototype.adjustPlaceholder = function() {
     // Should we insert a placeholder?
@@ -232,6 +237,8 @@ EditableMathlist.prototype.contentDidChange = function() {
  * @param {string|Array} selection
  * @param {number} extent the length of the selection
  * @return {boolean} true if the path has actually changed
+ * @method EditableMathlist#setPath
+ * @private
  */
 EditableMathlist.prototype.setPath = function(selection, extent) {
     // Convert to a path array if necessary
@@ -303,7 +310,7 @@ EditableMathlist.prototype.wordBoundary = function(path, dir) {
 }
 
 
-/**
+/*
  * Calculates the offset of the "next word".
  * This is inspired by the behavior of text editors on macOS, namely:
     blue   yellow
@@ -478,6 +485,7 @@ EditableMathlist.prototype.setRange = function(from, to, options) {
  * @param {MathAtom[][]} array
  * @param {object} rowCol
  * @return {number}
+ * @private
  */
 function arrayIndex(array, rowCol) {
     let result = 0;
@@ -500,6 +508,7 @@ function arrayIndex(array, rowCol) {
  * @return {object}
  * - row: number
  * - col: number
+ * @private
  */
 function arrayColRow(array, index) {
     if (typeof index === 'string') {
@@ -527,6 +536,7 @@ function arrayColRow(array, index) {
  *
  * @param {MathAtom[][]} array
  * @param {number|string|object} colrow
+ * @private
  */
 function arrayCell(array, colrow) {
     if (typeof colrow !== 'object') colrow = arrayColRow(array, colrow);
@@ -544,6 +554,7 @@ function arrayCell(array, colrow) {
 /**
  * Total numbers of cells (include sparse cells) in the array.
  * @param {MathAtom[][]} array
+ * @private
  */
 function arrayCellCount(array) {
     let result = 0;
@@ -565,6 +576,7 @@ function arrayCellCount(array) {
  * @param {string} separator 
  * @param {object} style 
  * @return {MathAtom[]}
+ * @private
  */
 function arrayJoinColumns(row, separator, style) {
     if (!row) return [];
@@ -594,6 +606,7 @@ function arrayJoinColumns(row, separator, style) {
  * @param {strings} separators
  * @param {object} style 
  * @return {MathAtom[]}
+ * @private
  */
 function arrayJoinRows(array, separators, style) {
     if (!separators) separators = [';', ','];
@@ -615,6 +628,7 @@ function arrayJoinRows(array, separators, style) {
  * @param {MathAtom} array 
  * @param {number} col 
  * @return {number}
+ * @private
  */
 function arrayColumnCellCount(array, col) {
     let result = 0;
@@ -637,6 +651,7 @@ function arrayColumnCellCount(array, col) {
  * Remove the indicated column from the array
  * @param {MathAtom} array 
  * @param {number} col 
+ * @private
  */
 function arrayRemoveColumn(array, col) {
     let row = 0;
@@ -652,6 +667,7 @@ function arrayRemoveColumn(array, col) {
  * Remove the indicated row from the array
  * @param {MathAtom} atom 
  * @param {number} row 
+ * @private
  */
 function arrayRemoveRow(array, row) {
     array.splice(row, 1);
@@ -662,6 +678,7 @@ function arrayRemoveRow(array, row) {
  * Return the first non-empty cell, row by row
  * @param {MathAtom[][]} array 
  * @return {string}
+ * @private
  */
 function arrayFirstCellByRow(array) {
     const colRow = {col: 0, row: 0};
@@ -678,6 +695,7 @@ function arrayFirstCellByRow(array) {
  * @param {MathAtom[][]} array 
  * @param {object} colRow 
  * @param {number} dir 
+ * @private
  */
 function arrayAdjustRow(array, colRow, dir) {
     const result = {...colRow};
@@ -859,6 +877,7 @@ EditableMathlist.prototype.sibling = function(offset) {
 /**
  * @return {boolean} True if the selection is an insertion point.
  * @method EditableMathlist#isCollapsed
+ * @private
  */
 EditableMathlist.prototype.isCollapsed = function() {
     return this.extent === 0;
@@ -893,6 +912,7 @@ EditableMathlist.prototype.collapseBackward = function() {
  * Return true if the atom could be a part of a number
  * i.e. "-12354.568"
  * @param {object} atom 
+ * @private
  */
 function isNumber(atom) {
     if (!atom) return false;
@@ -906,6 +926,7 @@ function isNumber(atom) {
  * the selection is a superscript or subscript, the group is the supsub.
  * When the selection is in a text zone, the "group" is a word.
  * @method EditableMathlist#selectGroup_
+ * @private
  */
 EditableMathlist.prototype.selectGroup_ = function() {
     const siblings = this.siblings();
@@ -950,6 +971,7 @@ EditableMathlist.prototype.selectGroup_ = function() {
 /**
  * Select all the atoms in the math field.
  * @method EditableMathlist#selectAll_
+ * @private
  */
 EditableMathlist.prototype.selectAll_ = function() {
     this.path = [{relation: 'body', offset: 0}];
@@ -960,6 +982,7 @@ EditableMathlist.prototype.selectAll_ = function() {
 /**
  * Delete everything in the field
  * @method EditableMathlist#deleteAll_
+ * @private
  */
 EditableMathlist.prototype.deleteAll_ = function() {
     this.selectAll_();
@@ -1997,7 +2020,7 @@ function removeParen(list) {
 
 
 
-/**
+/*
  * If it's a fraction with a parenthesized numerator or denominator
  * remove the parentheses
  * */
@@ -2099,13 +2122,13 @@ function applyStyleToUnstyledAtoms(atom, style) {
 /**
  * @param {string} s
  * @param {Object.<string, any>} options
- * @param {string} options.insertionMode -
+ * @param {"replaceSelection"|"replaceAll"|"insertBefore"|"insertAfter"} options.insertionMode -
  *    * 'replaceSelection' (default)
  *    * 'replaceAll'
  *    * 'insertBefore'
  *    * 'insertAfter'
  *
- * @param {string} options.selectionMode - Describes where the selection
+ * @param {"placeholder"|"after"|"before"} options.selectionMode - Describes where the selection
  * will be after the insertion:
  *    * `'placeholder'`: the selection will be the first available placeholder
  * in the item that has been inserted) (default)
@@ -2117,12 +2140,12 @@ function applyStyleToUnstyledAtoms(atom, style) {
  *
  * @param {string} options.placeholder - The placeholder string, if necessary
  *
- * @param {string} options.format - The format of the string `s`:
+ * @param {"auto"|"latex"} options.format - The format of the string `s`:
  *    * `'auto'`: the string is interpreted as a latex fragment or command or 
  * ASCIIMath (default)
  *    * `'latex'`: the string is interpreted strictly as a latex fragment
  *
- * @param {string} options.smartFence - If true, promote plain fences, e.g. `(`,
+ * @param {boolean} options.smartFence - If true, promote plain fences, e.g. `(`,
  * as `\left...\right` or `\mleft...\mright`
  *
  * @param {boolean} options.suppressChangeNotifications - If true, the
@@ -2132,6 +2155,7 @@ function applyStyleToUnstyledAtoms(atom, style) {
  * @param {object} options.style
  * 
  * @method EditableMathlist#insert
+ * @private
  */
 EditableMathlist.prototype.insert = function(s, options) {
     options = options || {};
@@ -2330,6 +2354,7 @@ EditableMathlist.prototype.insert = function(s, options) {
  * @param {string} fence
  * @param {object} style
  * @return {boolean}
+ * @private
  */
 EditableMathlist.prototype._insertSmartFence = function(fence, style) {
     const parent = this.parent();
@@ -2513,6 +2538,7 @@ EditableMathlist.prototype._deleteAtoms = function(count) {
 /**
  * Delete multiple characters
  * @method EditableMathlist#delete
+ * @private
  */
 EditableMathlist.prototype.delete = function(count) {
     count = count || 0;
@@ -2539,6 +2565,7 @@ EditableMathlist.prototype.delete = function(count) {
  * If dir = 0, delete only if the selection is not collapsed
  * @method EditableMathlist#delete_
  * @instance
+ * @private
  */
 EditableMathlist.prototype.delete_ = function(dir) {
     // Dispatch notifications
@@ -2723,6 +2750,7 @@ EditableMathlist.prototype.delete_ = function(dir) {
 
 /**
  * @method EditableMathlist#moveToNextPlaceholder_
+ * @private
  */
 EditableMathlist.prototype.moveToNextPlaceholder_ = function() {
     this.leap(+1);
@@ -2730,6 +2758,7 @@ EditableMathlist.prototype.moveToNextPlaceholder_ = function() {
 
 /**
  * @method EditableMathlist#moveToPreviousPlaceholder_
+ * @private
  */
 EditableMathlist.prototype.moveToPreviousPlaceholder_ = function() {
     this.leap(-1);
@@ -2737,6 +2766,7 @@ EditableMathlist.prototype.moveToPreviousPlaceholder_ = function() {
 
 /**
  * @method EditableMathlist#moveToNextChar_
+ * @private
  */
 EditableMathlist.prototype.moveToNextChar_ = function() {
     this.move(+1);
@@ -2744,6 +2774,7 @@ EditableMathlist.prototype.moveToNextChar_ = function() {
 
 /**
  * @method EditableMathlist#moveToPreviousChar_
+ * @private
  */
 EditableMathlist.prototype.moveToPreviousChar_ = function() {
     this.move(-1);
@@ -2751,6 +2782,7 @@ EditableMathlist.prototype.moveToPreviousChar_ = function() {
 
 /**
  * @method EditableMathlist#moveUp_
+ * @private
  */
 EditableMathlist.prototype.moveUp_ = function() {
     this.up();
@@ -2758,6 +2790,7 @@ EditableMathlist.prototype.moveUp_ = function() {
 
 /**
  * @method EditableMathlist#moveDown_
+ * @private
  */
 EditableMathlist.prototype.moveDown_ = function() {
     this.down();
@@ -2765,6 +2798,7 @@ EditableMathlist.prototype.moveDown_ = function() {
 
 /**
  * @method EditableMathlist#moveToNextWord_
+ * @private
  */
 EditableMathlist.prototype.moveToNextWord_ = function() {
     this.skip(+1);
@@ -2772,6 +2806,7 @@ EditableMathlist.prototype.moveToNextWord_ = function() {
 
 /**
  * @method EditableMathlist#moveToPreviousWord_
+ * @private
  */
 EditableMathlist.prototype.moveToPreviousWord_ = function() {
     this.skip(-1);
@@ -2779,6 +2814,7 @@ EditableMathlist.prototype.moveToPreviousWord_ = function() {
 
 /**
  * @method EditableMathlist#moveToGroupStart_
+ * @private
  */
 EditableMathlist.prototype.moveToGroupStart_ = function() {
     this.setSelection(0);
@@ -2786,6 +2822,7 @@ EditableMathlist.prototype.moveToGroupStart_ = function() {
 
 /**
  * @method EditableMathlist#moveToGroupEnd_
+ * @private
  */
 EditableMathlist.prototype.moveToGroupEnd_ = function() {
     this.setSelection(-1);
@@ -2793,6 +2830,7 @@ EditableMathlist.prototype.moveToGroupEnd_ = function() {
 
 /**
  * @method EditableMathlist#moveToMathFieldStart_
+ * @private
  */
 EditableMathlist.prototype.moveToMathFieldStart_ = function() {
     this.jumpToMathFieldBoundary(-1);
@@ -2800,6 +2838,7 @@ EditableMathlist.prototype.moveToMathFieldStart_ = function() {
 
 /**
  * @method EditableMathlist#moveToMathFieldEnd_
+ * @private
  */
 EditableMathlist.prototype.moveToMathFieldEnd_ = function() {
     this.jumpToMathFieldBoundary(+1);
@@ -2807,6 +2846,7 @@ EditableMathlist.prototype.moveToMathFieldEnd_ = function() {
 
 /**
  * @method EditableMathlist#deleteNextChar_
+ * @private
  */
 EditableMathlist.prototype.deleteNextChar_ = function() {
     this.delete_(+1);
@@ -2814,6 +2854,7 @@ EditableMathlist.prototype.deleteNextChar_ = function() {
 
 /**
  * @method EditableMathlist#deletePreviousChar_
+ * @private
  */
 EditableMathlist.prototype.deletePreviousChar_ = function() {
     this.delete_(-1);
@@ -2821,6 +2862,7 @@ EditableMathlist.prototype.deletePreviousChar_ = function() {
 
 /**
  * @method EditableMathlist#deleteNextWord_
+ * @private
  */
 EditableMathlist.prototype.deleteNextWord_ = function() {
     this.extendToNextBoundary();
@@ -2829,6 +2871,7 @@ EditableMathlist.prototype.deleteNextWord_ = function() {
 
 /**
  * @method EditableMathlist#deletePreviousWord_
+ * @private
  */
 EditableMathlist.prototype.deletePreviousWord_ = function() {
     this.extendToPreviousBoundary();
@@ -2837,6 +2880,7 @@ EditableMathlist.prototype.deletePreviousWord_ = function() {
 
 /**
  * @method EditableMathlist#deleteToGroupStart_
+ * @private
  */
 EditableMathlist.prototype.deleteToGroupStart_ = function() {
     this.extendToGroupStart();
@@ -2845,6 +2889,7 @@ EditableMathlist.prototype.deleteToGroupStart_ = function() {
 
 /**
  * @method EditableMathlist#deleteToGroupEnd_
+ * @private
  */
 EditableMathlist.prototype.deleteToGroupEnd_ = function() {
     this.extendToMathFieldStart();
@@ -2853,6 +2898,8 @@ EditableMathlist.prototype.deleteToGroupEnd_ = function() {
 
 /**
  * @method EditableMathlist#deleteToMathFieldEnd_
+ * @private
+ * @private
  */
 EditableMathlist.prototype.deleteToMathFieldEnd_ = function() {
     this.extendToMathFieldEnd();
@@ -2864,6 +2911,7 @@ EditableMathlist.prototype.deleteToMathFieldEnd_ = function() {
  * the insertion point past both of them. Does nothing to a selected range of
  * text.
  * @method EditableMathlist#transpose_
+ * @private
  */
 EditableMathlist.prototype.transpose_ = function() {
     // @todo
@@ -2871,6 +2919,7 @@ EditableMathlist.prototype.transpose_ = function() {
 
 /**
  * @method EditableMathlist#extendToNextChar_
+ * @private
  */
 EditableMathlist.prototype.extendToNextChar_ = function() {
     this.extend(+1);
@@ -2878,6 +2927,7 @@ EditableMathlist.prototype.extendToNextChar_ = function() {
 
 /**
  * @method EditableMathlist#extendToPreviousChar_
+ * @private
  */
 EditableMathlist.prototype.extendToPreviousChar_ = function() {
     this.extend(-1);
@@ -2885,6 +2935,7 @@ EditableMathlist.prototype.extendToPreviousChar_ = function() {
 
 /**
  * @method EditableMathlist#extendToNextWord_
+ * @private
  */
 EditableMathlist.prototype.extendToNextWord_ = function() {
     this.skip(+1, {extend:true});
@@ -2892,6 +2943,7 @@ EditableMathlist.prototype.extendToNextWord_ = function() {
 
 /**
  * @method EditableMathlist#extendToPreviousWord_
+ * @private
  */
 EditableMathlist.prototype.extendToPreviousWord_ = function() {
     this.skip(-1, {extend:true});
@@ -2901,6 +2953,7 @@ EditableMathlist.prototype.extendToPreviousWord_ = function() {
  * If the selection is in a denominator, the selection will be extended to
  * include the numerator.
  * @method EditableMathlist#extendUp_
+ * @private
  */
 EditableMathlist.prototype.extendUp_ = function() {
     this.up({extend:true});
@@ -2910,6 +2963,7 @@ EditableMathlist.prototype.extendUp_ = function() {
  * If the selection is in a numerator, the selection will be extended to
  * include the denominator.
  * @method EditableMathlist#extendDown_
+ * @private
  */
 EditableMathlist.prototype.extendDown_ = function() {
     this.down({extend:true});
@@ -2922,6 +2976,7 @@ EditableMathlist.prototype.extendDown_ = function() {
  * "1" and "2", invoking `extendToNextBoundary_` would extend the selection
  * to "234".
  * @method EditableMathlist#extendToNextBoundary_
+ * @private
  */
 EditableMathlist.prototype.extendToNextBoundary_ = function() {
     this.skip(+1, {extend:true});
@@ -2934,6 +2989,7 @@ EditableMathlist.prototype.extendToNextBoundary_ = function() {
  * "5" and "6", invoking `extendToPreviousBoundary` would extend the selection
  * to "2345".
  * @method EditableMathlist#extendToPreviousBoundary_
+ * @private
  */
 EditableMathlist.prototype.extendToPreviousBoundary_ = function() {
     this.skip(-1, {extend:true});
@@ -2941,6 +2997,7 @@ EditableMathlist.prototype.extendToPreviousBoundary_ = function() {
 
 /**
  * @method EditableMathlist#extendToGroupStart_
+ * @private
  */
 EditableMathlist.prototype.extendToGroupStart_ = function() {
     this.setExtent(-this.anchorOffset());
@@ -2948,6 +3005,7 @@ EditableMathlist.prototype.extendToGroupStart_ = function() {
 
 /**
  * @method EditableMathlist#extendToGroupEnd_
+ * @private
  */
 EditableMathlist.prototype.extendToGroupEnd_ = function() {
     this.setExtent(this.siblings().length - this.anchorOffset());
@@ -2955,6 +3013,7 @@ EditableMathlist.prototype.extendToGroupEnd_ = function() {
 
 /**
  * @method EditableMathlist#extendToMathFieldStart_
+ * @private
  */
 EditableMathlist.prototype.extendToMathFieldStart_ = function() {
     this.jumpToMathFieldBoundary(-1, {extend:true});
@@ -2963,6 +3022,7 @@ EditableMathlist.prototype.extendToMathFieldStart_ = function() {
 /**
  * Extend the selection to the end of the math field.
  * @method EditableMathlist#extendToMathFieldEnd_
+ * @private
  */
 EditableMathlist.prototype.extendToMathFieldEnd_ = function() {
     this.jumpToMathFieldBoundary(+1, {extend:true});
@@ -2972,6 +3032,7 @@ EditableMathlist.prototype.extendToMathFieldEnd_ = function() {
  * Switch the cursor to the superscript and select it. If there is no subscript
  * yet, create one.
  * @method EditableMathlist#moveToSuperscript_
+ * @private
  */
 EditableMathlist.prototype.moveToSuperscript_ = function() {
     this.collapseForward();
@@ -3012,6 +3073,7 @@ EditableMathlist.prototype.moveToSuperscript_ = function() {
  * Switch the cursor to the subscript and select it. If there is no subscript
  * yet, create one.
  * @method EditableMathlist#moveToSubscript_
+ * @private
  */
 EditableMathlist.prototype.moveToSubscript_ = function() {
     this.collapseForward();
@@ -3056,6 +3118,7 @@ EditableMathlist.prototype.moveToSubscript_ = function() {
  * - denominator: move to numerator
  * - otherwise: move to superscript
  * @method EditableMathlist#moveToOpposite_
+ * @private
  */
 EditableMathlist.prototype.moveToOpposite_ = function() {
     const OPPOSITE_RELATIONS = {
@@ -3080,6 +3143,7 @@ EditableMathlist.prototype.moveToOpposite_ = function() {
 
 /**
  * @method EditableMathlist#moveBeforeParent_
+ * @private
  */
 EditableMathlist.prototype.moveBeforeParent_ = function() {
     if (this.path.length > 1) {
@@ -3092,6 +3156,7 @@ EditableMathlist.prototype.moveBeforeParent_ = function() {
 
 /**
  * @method EditableMathlist#moveAfterParent_
+ * @private
  */
 EditableMathlist.prototype.moveAfterParent_ = function() {
     if (this.path.length > 1) {
@@ -3170,6 +3235,7 @@ EditableMathlist.prototype.convertParentToArray = function() {
 
 /**
  * @method EditableMathlist#addRowAfter_
+ * @private
  */
 EditableMathlist.prototype.addRowAfter_ = function() {
     this.contentWillChange();
@@ -3179,6 +3245,7 @@ EditableMathlist.prototype.addRowAfter_ = function() {
 }
 /**
  * @method EditableMathlist#addRowBefore_
+ * @private
  */
 EditableMathlist.prototype.addRowBefore_ = function() {
     this.contentWillChange();
@@ -3189,6 +3256,7 @@ EditableMathlist.prototype.addRowBefore_ = function() {
 
 /**
  * @method EditableMathlist#addColumnAfter_
+ * @private
  */
 EditableMathlist.prototype.addColumnAfter_ = function() {
     this.contentWillChange();
@@ -3199,6 +3267,7 @@ EditableMathlist.prototype.addColumnAfter_ = function() {
 
 /**
  * @method EditableMathlist#addColumnBefore_
+ * @private
  */
 EditableMathlist.prototype.addColumnBefore_ = function() {
     this.contentWillChange();
@@ -3217,6 +3286,7 @@ EditableMathlist.prototype.addColumnBefore_ = function() {
  * those sections, and apply it to the entire selection.
  * 
  * @method EditableMathlist#applyStyle
+ * @private
  */
 
 EditableMathlist.prototype._applyStyle = function(style) {
@@ -3309,6 +3379,7 @@ EditableMathlist.prototype._applyStyle = function(style) {
  * - "JavaScript Latex": a variant that is LaTeX, but with escaped backslashes
  *  \\frac{1}{2} \\sin x
  * @param {string} s 
+ * @private
  */
 export function parseMathString(s, config) {
     if (!s) return '';
@@ -3485,6 +3556,7 @@ function parseMathExpression(s, config) {
  * @return {object}
  * - match: the parsed (and converted) portion of the string that is an argument
  * - rest: the raw, unconverted, rest of the string
+ * @private
  */
 function parseMathArgument(s, config) {
     let match = '';

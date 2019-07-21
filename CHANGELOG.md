@@ -1,3 +1,8 @@
+##
+
+### Features / Improvements
+- Added Typescript type definition
+
 ## 0.30 (July 18, 2019)
 
 ### Non-backward compatible changes

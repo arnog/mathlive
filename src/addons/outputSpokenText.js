@@ -538,9 +538,10 @@ MathAtom.toSpeakableFragment = function(atom, options) {
 
 
 /**
- * @param {MathAtom[]}  [atoms] The atoms to represent as speakable text.
+ * @param {MathAtom[]}  atoms The atoms to represent as speakable text.
  * If omitted, `this` is used.
- * @param {Object.<string, any>} [speechOptions]
+ * @param {Object.<string, any>} speechOptions
+ * @private
 */
 MathAtom.toSpeakableText = function(atoms, speechOptions) {
     const options = speechOptions ? JSON.parse(JSON.stringify(speechOptions)) : {

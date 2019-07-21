@@ -414,6 +414,7 @@ function getArg(ast, index) {
  * Given a canonical name, return its precedence
  * @param {string} canonicalName, for example "and"
  * @return {number}
+ * @private
  */
 function getPrecedence(canonicalName) {
     return canonicalName ? (OP_PRECEDENCE[canonicalName] || -1) : -1;
@@ -432,6 +433,7 @@ function getAssociativity(canonicalName) {
  *
  * @param {string} name function canonical name
  * @return {string}
+ * @private
  */
 function getLatexTemplateForFunction(name) {
     let result = FUNCTION_TEMPLATE[name];
@@ -446,6 +448,7 @@ function getLatexTemplateForFunction(name) {
  *
  * @param {string} name symbol name, e.g. "alpha"
  * @return {string}
+ * @private
  */
 function getLatexForSymbol(name) {
     let result = FUNCTION_TEMPLATE[name];
@@ -484,6 +487,7 @@ function isFunction(canonicalName) {
  *
  * @param {string} latex, for example '\\times'
  * @return {string} the canonical name for the input, for example '*'
+ * @private
  */
 function getCanonicalName(latex) {
     latex = (latex || '').trim();
@@ -509,6 +513,7 @@ function getCanonicalName(latex) {
  * or -1 if not an operator
  * @param {object} atom
  * @return {number}
+ * @private
  */
 function opPrec(atom) {
     if (!atom) return null;
@@ -618,6 +623,7 @@ function getString(atom) {
  *
  * @param {object} expr - Abstract Syntax Tree object
  * @return {string} A string, the symbol, or undefined
+ * @private
  */
 function asSymbol(node) {
     return typeof node.sym === 'string' ? (getLatexForSymbol(node.sym) || node.sym) : '';
@@ -629,6 +635,7 @@ function asSymbol(node) {
  *
  * @param {object} node - Abstract Syntax Tree node
  * @return {number} A JavaScript number, the value of the AST or NaN
+ * @private
  * @private
  */
 function asMachineNumber(node) {
@@ -679,6 +686,7 @@ function hasSub(node) {
  * @param {object} expr
  * @param {string} type
  * @param {string} value
+ * @private
  */
 function isAtom(expr, type, value) {
     let result = false;
@@ -698,6 +706,7 @@ function isAtom(expr, type, value) {
  * 
  * @param {string} functionName 
  * @param {object} params 
+ * @private
  */
 function wrapFn(functionName, ...params) {
     const result = { fn: functionName };
@@ -728,6 +737,7 @@ function wrapNum(num) {
  * Return the negative of the expression. Usually { fn:'negate', arg }
  * but for numbers, the negated number
  * @param {object} node
+ * @private
  */
 function negate(node) {
     if (isNumber(node)) {
@@ -756,6 +766,7 @@ function nextIsSupsub(expr) {
  * or to a following 'msubsup' atom.
  * After the call, the index points to the next atom to process.
  * @param {object} expr
+ * @private
  */
 function parseSupsub(expr, options) {
     let atom = expr.atoms[expr.index];
@@ -816,6 +827,7 @@ function parseSupsub(expr, options) {
 
 /**
  * Parse postfix operators, such as "!" (factorial)
+ * @private
  */
 function parsePostfix(expr, options) {
     const lhs = expr.ast;
@@ -862,6 +874,7 @@ function parsePostfix(expr, options) {
  *
  * This function handles all three cases
  *
+ * @private
  */
  function parseDelim(expr, ldelim, rdelim, options) {
     expr.index = expr.index || 0;
@@ -1012,6 +1025,7 @@ function nextIsDigraph(expr, digraph) {
  * =:
  * °C U+2103
  * °F U+2109
+ * @private
  *
 */
 function parseDigraph(expr) {
@@ -1518,6 +1532,7 @@ function parseExpression(expr, options) {
  * Return a string escaped as necessary to comply with the JSON format
  * @param {string} s
  * @return {string}
+ * @private
  */
 function escapeText(s) {
     return s
@@ -1535,6 +1550,7 @@ function escapeText(s) {
  *
  * @return {object}
  * @method MathAtom#toAST
+ * @private
  */
 MathAtom.MathAtom.prototype.toAST = function(options) {
     const MATH_VARIANTS = {
@@ -1789,6 +1805,7 @@ function filterPresentationAtoms(atoms) {
  * <sentence> := ((<text>) <expression>)+
  * @param {object} expr 
  * @return  {object}
+ * @private
  */
 function parseSentence(expr, options) {
     expr.index = expr.index || 0;
@@ -1823,6 +1840,7 @@ function parseSentence(expr, options) {
 /**
  * @param {Atoms[]} atoms 
  * @return  {object}
+ * @private
  */
 function parse(atoms, options) {
     return parseSentence({atoms: filterPresentationAtoms(atoms)}, options);
@@ -1837,6 +1855,7 @@ MathAtom.toAST = function(atoms, options) {
  *
  * @param {string} fence - The fence to wrap around the arguments
  * @return {string} - A string wrapped in the fence
+ * @private
  */
 function wrapFence(fence) {
     const args = Array.prototype.slice.call(arguments);
@@ -1863,6 +1882,7 @@ function wrapFence(fence) {
  * 1233333 -> 12(3)
  * @param {string} m
  * @param {Object.<string, any>} config
+ * @private
  */
 function formatMantissa(m, config) {
     const originalLength = m.length;
@@ -1907,6 +1927,7 @@ function parseFloatToPrecision(num) {
  * @param {string|number} num - A number, represented as a string (e.g. "-12.45"
  *  particularly useful for arbitrary precision numbers) or a number (-12.45)
  * @return {string} A LaTeX representation of the AST
+ * @private
  */
 function numberAsLatex(num, config) {
     let result = '';
@@ -2074,6 +2095,7 @@ function numberAsLatex(num, config) {
  *
  * @param {object} ast - Abstract Syntax Tree object (in canonical form)
  * @return {string} A LaTeX representation of the AST
+ * @private
  */
 function asLatex(ast, options) {
     const config = Object.assign({

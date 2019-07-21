@@ -26,7 +26,7 @@ const cjkRegex =
     /[\u3040-\u309F]|[\u30A0-\u30FF]|[\u4E00-\u9FAF]|[\uAC00-\uD7AF]/;
 
 
-/**
+/*
  *
  * In TeX, there are actually three sets of dimensions, one for each of
  * textstyle, scriptstyle, and scriptscriptstyle.  These are provided in the
@@ -107,7 +107,7 @@ const ptPerEm = 10.0;
 // article.cls.txt:455
 const doubleRuleSep = 2.0 / ptPerEm;
 
-/**
+/*
  * This is just a mapping from common names to real metrics
  */
 export const METRICS = {
@@ -287,6 +287,7 @@ const getCharacterMetrics = function(character, fontCode) {
  * with a unit, which will override the `unit` paramter
  * @param {string} unit
  * @param {number} precision
+ * @private
  */
 function convertDimenToEm(value, unit, precision) {
     if (typeof value === 'string') {

@@ -155,6 +155,7 @@ function scanIdentifier(stream, final, options) {
  * Superscripts can be encoded either as an attribute on the last atom
  * or as a standalone, empty, atom following the one to which it applies.
  * @param {object} stream
+ * @private
  */
 function isSuperscriptAtom(stream) {
     return stream.index < stream.atoms.length &&
@@ -532,6 +533,7 @@ function toString(atoms) {
  * Return a MathML fragment representation of a single atom
  *
  * @return {string}
+ * @private
  */
 MathAtom.MathAtom.prototype.toMathML = function(options) {
     const SPECIAL_IDENTIFIERS = {
