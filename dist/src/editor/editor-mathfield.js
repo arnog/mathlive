@@ -34,54 +34,54 @@ import '../addons/outputSpokenText.js';
 */
 
 /**
- @typedef MathLiveConfig
+ @typedef MathFieldConfig
  @type {Object}
- @property {string} locale
- @property {object<string, string>} strings
- @property {number} horizontalSpacingScale
- @property {string} namespace
- @property {function} substituteTextArea
- @property {"math" | "text"} defaultMode
- @property {function} onFocus
- @property {function} onBlur
- @property {function} onKeystroke
- @property {function} onAnnounce
- @property {boolean} overrideDefaultInlineShortcuts
- @property {object<string, string>} inlineShortcuts
- @property {number} inlineShortcutTimeout
- @property {boolean} smartFence
- @property {boolean} smartSuperscript
- @property {number} scriptDepth
- @property {boolean} removeExtraneousParentheses
- @property {boolean} ignoreSpacebarInMathMode
- @property {string} virtualKeyboardToggleGlyph
- @property {"manual" | "onfocus" | "off" } virtualKeyboardMode
- @property {"all" | "numeric" | "roman" | "greek" | "functions" | "command" | string} virtualKeyboards
- @property {"qwerty" | "azerty" | "qwertz" | "dvorak" | "colemak"} virtualKeyboardRomanLayout
- @property {object<string, string>} customVirtualKeyboardLayers
- @property {object<string, object>} customVirtualKeyboards
- @property {"material" | "apple" | ""} virtualKeyboardTheme
- @property {boolean} keypressVibration
- @property {string} keypressSound
- @property {string} plonkSound
- @property {"mathlive" | "sre"} textToSpeechRules
- @property {"ssml" | "mac"} textToSpeechMarkup
- @property {object} textToSpeechRulesOptions
- @property {"local" | "amazon"} speechEngine
- @property {string} speechEngineVoice
- @property {string} speechEngineRate
- @property {function} onMoveOutOf
- @property {function} onTabOutOf
- @property {function} onContentWillChange
- @property {function} onSelectionWillChange
- @property {function} onSelectionDidChange
- @property {function} onUndoStateWillChange
- @property {function} onUndoStateDidChange
- @property {function} onModeChange
- @property {function} onVirtualKeyboardToggle
- @property {function} onReadAloudStatus
- @property {function} handleSpeak
- @property {function} handleReadAloud
+ @property {string} locale?
+ @property {object<string, string>} strings?
+ @property {number} horizontalSpacingScale?
+ @property {string} namespace?
+ @property {function} substituteTextArea?
+ @property {"math" | "text"} defaultMode?
+ @property {function} onFocus?
+ @property {function} onBlur?
+ @property {function} onKeystroke?
+ @property {function} onAnnounce?
+ @property {boolean} overrideDefaultInlineShortcuts?
+ @property {object<string, string>} inlineShortcuts?
+ @property {number} inlineShortcutTimeout?
+ @property {boolean} smartFence?
+ @property {boolean} smartSuperscript?
+ @property {number} scriptDepth?
+ @property {boolean} removeExtraneousParentheses?
+ @property {boolean} ignoreSpacebarInMathMode?
+ @property {string} virtualKeyboardToggleGlyph?
+ @property {"manual" | "onfocus" | "off" } virtualKeyboardMode?
+ @property {"all" | "numeric" | "roman" | "greek" | "functions" | "command" | string} virtualKeyboards?
+ @property {"qwerty" | "azerty" | "qwertz" | "dvorak" | "colemak"} virtualKeyboardRomanLayout?
+ @property {object<string, string>} customVirtualKeyboardLayers?
+ @property {object<string, object>} customVirtualKeyboards?
+ @property {"material" | "apple" | ""} virtualKeyboardTheme?
+ @property {boolean} keypressVibration?
+ @property {string} keypressSound?
+ @property {string} plonkSound?
+ @property {"mathlive" | "sre"} textToSpeechRules?
+ @property {"ssml" | "mac"} textToSpeechMarkup?
+ @property {object} textToSpeechRulesOptions?
+ @property {"local" | "amazon"} speechEngine?
+ @property {string} speechEngineVoice?
+ @property {string} speechEngineRate?
+ @property {function} onMoveOutOf?
+ @property {function} onTabOutOf?
+ @property {function} onContentWillChange?
+ @property {function} onSelectionWillChange?
+ @property {function} onSelectionDidChange?
+ @property {function} onUndoStateWillChange?
+ @property {function} onUndoStateDidChange?
+ @property {function} onModeChange?
+ @property {function} onVirtualKeyboardToggle?
+ @property {function} onReadAloudStatus?
+ @property {function} handleSpeak?
+ @property {function} handleReadAloud?
  @global
  */
 
@@ -274,7 +274,7 @@ class MathField {
      *
      * @param {HTMLElement} element - The DOM element that this mathfield is attached to.
      * Note that `element.mathfield` is this object.
-     * @param {MathLiveConfig} config - See {@tutorial CONFIG} for details
+     * @param {MathFieldConfig} config - See {@tutorial CONFIG} for details
      * @method MathField#constructor
      * @private
      */
@@ -2962,7 +2962,7 @@ class MathField {
      *
      * Update the configuration options for this mathfield.
      *
-     * @param {MathLiveConfig} [config={}] See {@tutorial CONFIG} for details.
+     * @param {MathFieldConfig} [config={}] See {@tutorial CONFIG} for details.
      *
      * @method MathField#$setConfig
      */
