@@ -25,7 +25,7 @@
     "/LICENSE.txt"
   ],
   "main": "./dist/mathlive.js",
-  "types": "./dist/types.d.ts",
+  "types": "./dist/mathlive.d.ts",
   "scripts": {
     "preclean": "echo Clean directories...",
     "clean": "rimraf build dist docs",
@@ -36,8 +36,8 @@
     "build-postcss": "postcss dist/*.css -d dist",
     "build-css": "npm-run-all -s build-corecss build-othercss build-postcss",
     "watch-css": "chokidar \"css/*.less\" --initial -c \"npm run build-css -s\"",
-    "build-ts-types": "jsdoc -t node_modules/tsd-jsdoc/dist -d ./dist -a public -r ./src/",
-    "build": "npm-run-all -p build-css build-js build-ts-types rollup",
+    "build-ts-types": "jsdoc -t node_modules/tsd-jsdoc/dist -d ./build -a public -r ./src/",
+    "build": "npm-run-all build-css build-js build-ts-types rollup",
     "watch": "npm-run-all -p watch-*",
     "http-server": "http-server . -c-1 --cors='*' -o http://localhost:8080/examples/index.html",
     "start": "npm-run-all -p watch-js watch-css http-server",
