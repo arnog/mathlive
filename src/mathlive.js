@@ -116,7 +116,7 @@ function toMarkup(text, mathstyle, format, macros) {
  * @param {HTMLElement|string} element A DOM element, for example as obtained 
  * by `document.getElementById()`, or the ID of a DOM element as a string.
  * 
- * @param {Object<string, any>} [config={}] See {@tutorial CONFIG} for details.
+ * @param {MathLiveConfig} [config={}] See {@tutorial CONFIG} for details.
  *
  *
  * @return {MathField}

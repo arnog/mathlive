@@ -1,4 +1,112 @@
 /**
+ @typedef MathLiveConfig
+ @type {Object}
+ @property {string} locale
+ @property {object<string, string>} strings
+ @property {number} horizontalSpacingScale
+ @property {string} namespace
+ @property {function} substituteTextArea
+ @property {"math" | "text"} defaultMode
+ @property {function} onFocus
+ @property {function} onBlur
+ @property {function} onKeystroke
+ @property {function} onAnnounce
+ @property {boolean} overrideDefaultInlineShortcuts
+ @property {object<string, string>} inlineShortcuts
+ @property {number} inlineShortcutTimeout
+ @property {boolean} smartFence
+ @property {boolean} smartSuperscript
+ @property {number} scriptDepth
+ @property {boolean} removeExtraneousParentheses
+ @property {boolean} ignoreSpacebarInMathMode
+ @property {string} virtualKeyboardToggleGlyph
+ @property {"manual" | "onfocus" | "off" } virtualKeyboardMode
+ @property {"all" | "numeric" | "roman" | "greek" | "functions" | "command" | string} virtualKeyboards
+ @property {"qwerty" | "azerty" | "qwertz" | "dvorak" | "colemak"} virtualKeyboardRomanLayout
+ @property {object<string, string>} customVirtualKeyboardLayers
+ @property {object<string, object>} customVirtualKeyboards
+ @property {"material" | "apple" | ""} virtualKeyboardTheme
+ @property {boolean} keypressVibration
+ @property {string} keypressSound
+ @property {string} plonkSound
+ @property {"mathlive" | "sre"} textToSpeechRules
+ @property {"ssml" | "mac"} textToSpeechMarkup
+ @property {object} textToSpeechRulesOptions
+ @property {"local" | "amazon"} speechEngine
+ @property {string} speechEngineVoice
+ @property {string} speechEngineRate
+ @property {function} onMoveOutOf
+ @property {function} onTabOutOf
+ @property {function} onContentWillChange
+ @property {function} onSelectionWillChange
+ @property {function} onSelectionDidChange
+ @property {function} onUndoStateWillChange
+ @property {function} onUndoStateDidChange
+ @property {function} onModeChange
+ @property {function} onVirtualKeyboardToggle
+ @property {function} onReadAloudStatus
+ @property {function} handleSpeak
+ @property {function} handleReadAloud
+ @global
+ */
+declare type MathLiveConfig = {
+    locale: string;
+    strings: {
+        [key: string]: string;
+    };
+    horizontalSpacingScale: number;
+    namespace: string;
+    substituteTextArea: (...params: any[]) => any;
+    defaultMode: "math" | "text";
+    onFocus: (...params: any[]) => any;
+    onBlur: (...params: any[]) => any;
+    onKeystroke: (...params: any[]) => any;
+    onAnnounce: (...params: any[]) => any;
+    overrideDefaultInlineShortcuts: boolean;
+    inlineShortcuts: {
+        [key: string]: string;
+    };
+    inlineShortcutTimeout: number;
+    smartFence: boolean;
+    smartSuperscript: boolean;
+    scriptDepth: number;
+    removeExtraneousParentheses: boolean;
+    ignoreSpacebarInMathMode: boolean;
+    virtualKeyboardToggleGlyph: string;
+    virtualKeyboardMode: "manual" | "onfocus" | "off";
+    virtualKeyboards: "all" | "numeric" | "roman" | "greek" | "functions" | "command" | string;
+    virtualKeyboardRomanLayout: "qwerty" | "azerty" | "qwertz" | "dvorak" | "colemak";
+    customVirtualKeyboardLayers: {
+        [key: string]: string;
+    };
+    customVirtualKeyboards: {
+        [key: string]: object;
+    };
+    virtualKeyboardTheme: "material" | "apple" | "";
+    keypressVibration: boolean;
+    keypressSound: string;
+    plonkSound: string;
+    textToSpeechRules: "mathlive" | "sre";
+    textToSpeechMarkup: "ssml" | "mac";
+    textToSpeechRulesOptions: any;
+    speechEngine: "local" | "amazon";
+    speechEngineVoice: string;
+    speechEngineRate: string;
+    onMoveOutOf: (...params: any[]) => any;
+    onTabOutOf: (...params: any[]) => any;
+    onContentWillChange: (...params: any[]) => any;
+    onSelectionWillChange: (...params: any[]) => any;
+    onSelectionDidChange: (...params: any[]) => any;
+    onUndoStateWillChange: (...params: any[]) => any;
+    onUndoStateDidChange: (...params: any[]) => any;
+    onModeChange: (...params: any[]) => any;
+    onVirtualKeyboardToggle: (...params: any[]) => any;
+    onReadAloudStatus: (...params: any[]) => any;
+    handleSpeak: (...params: any[]) => any;
+    handleReadAloud: (...params: any[]) => any;
+};
+
+/**
  *
  * @property {HTMLElement} element - The DOM element this mathfield is attached to.
  * @property {Object.<string, any>} config - A set of key/value pairs that can
@@ -271,13 +379,11 @@ declare class MathField {
      *
      * Update the configuration options for this mathfield.
      *
-     * @param {Object<string, any>} [config={}] See {@tutorial CONFIG} for details.
+     * @param {MathLiveConfig} [config={}] See {@tutorial CONFIG} for details.
      *
      * @method MathField#$setConfig
      */
-    $setConfig(config?: {
-        [key: string]: any;
-    }): void;
+    $setConfig(config?: MathLiveConfig): void;
     /**
      *
      * Speak some part of the expression, either with or without synchronized highlighting.
@@ -353,7 +459,7 @@ declare module "mathlive" {
      * @param {HTMLElement|string} element A DOM element, for example as obtained
      * by `document.getElementById()`, or the ID of a DOM element as a string.
      *
-     * @param {Object<string, any>} [config={}] See {@tutorial CONFIG} for details.
+     * @param {MathLiveConfig} [config={}] See {@tutorial CONFIG} for details.
      *
      *
      * @return {MathField}
@@ -370,9 +476,7 @@ declare module "mathlive" {
      *
      * @function module:mathlive#makeMathField
      */
-    function makeMathField(element: HTMLElement | string, config?: {
-        [key: string]: any;
-    }): MathField;
+    function makeMathField(element: HTMLElement | string, config?: MathLiveConfig): MathField;
     /**
      * Convert a LaTeX string to a string of MathML markup.
      *
