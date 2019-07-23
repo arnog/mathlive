@@ -1143,7 +1143,7 @@ MathField.prototype.$perform = function(command) {
  * @param {string} command
  */
 MathField.prototype.performWithFeedback_ = function(command) {
-    this.focus();
+    this.$focus();
 
     if (this.config.keypressVibration && navigator.vibrate) {
         navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
