@@ -1220,7 +1220,7 @@ EditableMathlist.prototype.extractArgBeforeInsertionPoint = function() {
         }
     } else {
         while (i >= 1 && 
-            /^(mord|surd|msubsup|leftright|mop)$/.test(siblings[i].type)) {
+            /^(mord|surd|msubsup|leftright|mop|variable)$/.test(siblings[i].type)) {
             result.unshift(siblings[i]);
             i--
         }
