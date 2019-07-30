@@ -34,6 +34,13 @@ import '../addons/outputSpokenText.js';
 */
 
 /**
+ * @typedef {function} MathFieldCallback
+ * @param {any} mf
+ * @return void
+ * @global
+ */
+
+/**
  @typedef MathFieldConfig
  @type {Object}
  @property {string} locale?
@@ -42,8 +49,8 @@ import '../addons/outputSpokenText.js';
  @property {string} namespace?
  @property {function} substituteTextArea?
  @property {"math" | "text"} defaultMode?
- @property {function} onFocus?
- @property {function} onBlur?
+ @property {MathFieldCallback} onFocus?
+ @property {MathFieldCallback} onBlur?
  @property {function} onKeystroke?
  @property {function} onAnnounce?
  @property {boolean} overrideDefaultInlineShortcuts?
@@ -72,9 +79,10 @@ import '../addons/outputSpokenText.js';
  @property {string} speechEngineRate?
  @property {function} onMoveOutOf?
  @property {function} onTabOutOf?
- @property {function} onContentWillChange?
- @property {function} onSelectionWillChange?
- @property {function} onSelectionDidChange?
+ @property {MathFieldCallback} onContentWillChange?
+ @property {MathFieldCallback} onContentDidChange?
+ @property {MathFieldCallback} onSelectionWillChange?
+ @property {MathFieldCallback} onSelectionDidChange?
  @property {function} onUndoStateWillChange?
  @property {function} onUndoStateDidChange?
  @property {function} onModeChange?

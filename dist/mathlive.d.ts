@@ -1,4 +1,12 @@
 /**
+ * @typedef {function} MathFieldCallback
+ * @param {any} mf
+ * @return void
+ * @global
+ */
+declare type MathFieldCallback = (mf: any) => any;
+
+/**
  @typedef MathFieldConfig
  @type {Object}
  @property {string} locale?
@@ -7,8 +15,8 @@
  @property {string} namespace?
  @property {function} substituteTextArea?
  @property {"math" | "text"} defaultMode?
- @property {function} onFocus?
- @property {function} onBlur?
+ @property {MathFieldCallback} onFocus?
+ @property {MathFieldCallback} onBlur?
  @property {function} onKeystroke?
  @property {function} onAnnounce?
  @property {boolean} overrideDefaultInlineShortcuts?
@@ -37,9 +45,10 @@
  @property {string} speechEngineRate?
  @property {function} onMoveOutOf?
  @property {function} onTabOutOf?
- @property {function} onContentWillChange?
- @property {function} onSelectionWillChange?
- @property {function} onSelectionDidChange?
+ @property {MathFieldCallback} onContentWillChange?
+ @property {MathFieldCallback} onContentDidChange?
+ @property {MathFieldCallback} onSelectionWillChange?
+ @property {MathFieldCallback} onSelectionDidChange?
  @property {function} onUndoStateWillChange?
  @property {function} onUndoStateDidChange?
  @property {function} onModeChange?
@@ -58,8 +67,8 @@ declare type MathFieldConfig = {
     namespace?: string;
     substituteTextArea?: (...params: any[]) => any;
     defaultMode?: "math" | "text";
-    onFocus?: (...params: any[]) => any;
-    onBlur?: (...params: any[]) => any;
+    onFocus?: MathFieldCallback;
+    onBlur?: MathFieldCallback;
     onKeystroke?: (...params: any[]) => any;
     onAnnounce?: (...params: any[]) => any;
     overrideDefaultInlineShortcuts?: boolean;
@@ -94,9 +103,10 @@ declare type MathFieldConfig = {
     speechEngineRate?: string;
     onMoveOutOf?: (...params: any[]) => any;
     onTabOutOf?: (...params: any[]) => any;
-    onContentWillChange?: (...params: any[]) => any;
-    onSelectionWillChange?: (...params: any[]) => any;
-    onSelectionDidChange?: (...params: any[]) => any;
+    onContentWillChange?: MathFieldCallback;
+    onContentDidChange?: MathFieldCallback;
+    onSelectionWillChange?: MathFieldCallback;
+    onSelectionDidChange?: MathFieldCallback;
     onUndoStateWillChange?: (...params: any[]) => any;
     onUndoStateDidChange?: (...params: any[]) => any;
     onModeChange?: (...params: any[]) => any;
