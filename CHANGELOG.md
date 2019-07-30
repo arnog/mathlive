@@ -1,4 +1,4 @@
-##
+## 0.30.1 (July 30, 2019)
 
 ### Features / Improvements
 - Added Typescript type definition
