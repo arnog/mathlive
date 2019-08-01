@@ -35,8 +35,8 @@ import '../addons/outputSpokenText.js';
 
 /**
  * @typedef {function} MathFieldCallback
- * @param {any} mf
- * @return void
+ * @param {MathField} mf
+ * @return {void}
  * @global
  */
 
