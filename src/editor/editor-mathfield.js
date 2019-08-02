@@ -1052,7 +1052,7 @@ class MathField {
      * @private
      */
     performWithFeedback_(command) {
-        this.focus();
+        this.$focus();
         if (this.config.keypressVibration && navigator.vibrate) {
             navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
         }
