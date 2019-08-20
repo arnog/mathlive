@@ -1,10 +1,15 @@
 /**
  * @typedef {function} MathFieldCallback
- * @param {any} mf
- * @return void
+ * @param {MathField} mf
+ * @return {void}
  * @global
  */
-declare type MathFieldCallback = (mf: any) => any;
+/* The default eslint parser, espree, does not parse the "declare type" correctly.
+   Could use a different parser (babel-eslint), but to avoid bringing in another
+   dependency, just turn off linting for this line */
+/* eslint-disable */
+declare type MathFieldCallback = (mf: MathField) => void;
+/* eslint-enable */
 
 /**
  @typedef MathFieldConfig

@@ -35,8 +35,8 @@ import '../addons/outputSpokenText.js';
 
 /**
  * @typedef {function} MathFieldCallback
- * @param {any} mf
- * @return void
+ * @param {MathField} mf
+ * @return {void}
  * @global
  */
 
@@ -1052,7 +1052,7 @@ class MathField {
      * @private
      */
     performWithFeedback_(command) {
-        this.focus();
+        this.$focus();
         if (this.config.keypressVibration && navigator.vibrate) {
             navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
         }
