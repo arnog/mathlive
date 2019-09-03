@@ -1,5 +1,4 @@
 /**
- * @module editor/shortcuts
  * @private
  */
 
@@ -44,8 +43,8 @@ import Definitions from '../core/definitions.js';
  * - 'extend' keeps the anchor of the  selection, but moves the focus (extends,
  * or shrinks, the range of selected items)
  * 
- * @memberof module:editor/shortcuts
  * @type {Object<string,string>}
+ * @private
  */
 const KEYBOARD_SHORTCUTS = {
     'Left':                     'moveToPreviousChar',
@@ -262,8 +261,8 @@ const KEYBOARD_SHORTCUTS = {
  * For example, '\sqrt' -> 'math:Alt-KeyV'. This table provides the reverse
  * mapping for those more complex commands. It is used when displaying 
  * keyboard shortcuts for specific commands in the popover.
- * @memberof module:editor/shortcuts
  * @type {Object<string,string>}
+ * @private
  */
 const REVERSE_KEYBOARD_SHORTCUTS = {
     '\\theta':                  'Alt-KeyQ',
@@ -295,7 +294,7 @@ const REVERSE_KEYBOARD_SHORTCUTS = {
  * without requiring an escape sequence or command.
  * 
  * @type {Object.<string,string>}
- * @memberof module:editor/shortcuts
+ * @private
  */
 const INLINE_SHORTCUTS = {
     // Primes

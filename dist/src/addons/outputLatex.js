@@ -34,6 +34,7 @@ function findLongestRun(atoms, property, value) {
  * @param {MathAtom[]} atoms the list of atoms to transform to LaTeX
  * @param {boolean} expandMacro true if macros should be expanded
  * @result {string} a LaTeX string
+ * @private
  */
 function latexifyArray(parent, properties, atoms, expandMacro) {
     if (atoms.length === 0) return '';
@@ -171,8 +172,8 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
             prefix = '{\\' + command + ' ';
             suffix = '}';
 
-        } else if (prop === 'fontFamily' && (atoms[0].fontFamily || atoms[0].baseFontFamily)) {
-            if (!/^(math|main|mainrm)$/.test(atoms[0].fontFamily || atoms[0].baseFontFamily)) {
+        } else if (prop === 'fontFamily' && (atoms[0].fontFamily)) {
+            if (!/^(math|main)$/.test(atoms[0].fontFamily)) {
                 const command = {
                     'cal': 'mathcal', 
                     'frak': 'mathfrak', 
@@ -181,9 +182,9 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
                     'cmr': 'mathrm',
                     'cmtt': 'mathtt',
                     'cmss': 'mathsf'
-                }[atoms[0].fontFamily || atoms[0].baseFontFamily] || '';
+                }[atoms[0].fontFamily] || '';
                 if (!command) {
-                    prefix += '{\\fontfamily{' + (atoms[0].fontFamily || atoms[0].baseFontFamily) + '}';
+                    prefix += '{\\fontfamily{' + (atoms[0].fontFamily) + '}';
                     suffix = '}';
                 } else {
                     if (/^\\operatorname{/.test(atoms[0].latex)) {
@@ -279,7 +280,8 @@ function latexify(parent, value, expandMacro) {
  * no longer round-trip.
  *
  * @return {string}
- * @method MathAtom#toLatex
+ * @memberof module:core/mathAtom~MathAtom
+ * @private
  */
 MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
     expandMacro = expandMacro === undefined ? false : expandMacro;

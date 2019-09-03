@@ -128,6 +128,9 @@ class UndoManager {
     /**
      * 
      * @param {Object.<any>} options 
+     * @instance
+     * @memberof UndoManager
+     * @private
      */
     snapshotAndCoalesce(options) {
         if (this.canCoalesce) {
@@ -140,6 +143,9 @@ class UndoManager {
      * Return an object capturing the state of the content and selection of the
      * math field. Pass this object to restore() to reset the value of the math
      * field to this saved value. This does not affect the undo stack.
+     * @instance
+     * @memberof UndoManager
+     * @private
     */
     save() {
         return {
@@ -151,6 +157,9 @@ class UndoManager {
      * Set the content and selection of the math field to a value previously
      * captured with save() or stored in the undo stack.
      * This does not affect the undo stack.
+     * @instance
+     * @memberof UndoManager
+     * @private
     */
     restore(state, options) {
         const wasSuppressing = this.mathlist.suppressChangeNotifications;

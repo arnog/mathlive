@@ -48,7 +48,7 @@ l10n.plural = function(value, s, options) {
 }
 
 
-/**
+/*
  * Two forms for this function:
  * - merge(locale, strings)
  * Merge a dictionary of keys -> values for the specified locale

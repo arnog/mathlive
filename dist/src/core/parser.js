@@ -95,7 +95,8 @@ class Parser {
     /**
      * Return the last atom of the math list
      * If there isn't one, insert a `msubsup` and return it.
-     * @method Parser#lastMathAtom
+     * @method module:core/parser#Parser#lastMathAtom
+     * @private
      */
     lastMathAtom() {
         const lastType = this.mathList.length === 0 ? 'none' : 
@@ -112,6 +113,7 @@ class Parser {
      * @param {string} type
      * @return {boolean} True if the next token is of the specified type
      * @method module:core/parser#Parser#hasToken
+     * @private
      */
     hasToken(type) {
         const index = this.index;
@@ -124,6 +126,7 @@ class Parser {
      * specified value. If `value` is empty, return true if the token is of type
      * `'literal'`
      * @method Parser#hasLiteral
+     * @private
      */
     hasLiteral(value) {
         const index = this.index;
@@ -136,6 +139,7 @@ class Parser {
      * @return {boolean} True if the next token is of type `'literal` and matches
      * the specified regular expression pattern.
      * @method module:core/parser#Parser#hasLiteralPattern
+     * @private
      */
     hasLiteralPattern(pattern) {
         return this.hasToken('literal') &&
@@ -177,7 +181,7 @@ class Parser {
         }
         return false;
     }
-    /**
+    /*
      * Return the appropriate value for a placeholder, either a default
      * one, or if a value was provided for #? via args, that value.
      */
@@ -211,6 +215,7 @@ class Parser {
     /**
      * @param {string} type
      * @method module:core/parser#Parser#parseToken
+     * @private
      */
     parseToken(type) {
         if (this.hasToken(type)) {
@@ -1223,7 +1228,7 @@ class Parser {
         }
         return result;
     }
-    /**
+    /*
      * Attempt to scan the macro name and return an atom list if successful.
      * Otherwise, it wasn't a macro.
      */
