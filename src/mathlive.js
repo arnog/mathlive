@@ -20,6 +20,7 @@ import Span from './core/span.js';
 import Definitions from './core/definitions.js';
 import MathField from './editor/editor-mathfield.js';
 import AutoRender from './addons/auto-render.js';
+import Maston from './addons/maston.js';
 
 /**
  * Convert a LaTeX string to a string of HTML markup.
@@ -195,6 +196,21 @@ function latexToAST(latex, options) {
     return MathAtom.toAST(mathlist, options);
 }
 
+
+/**
+ * Convert an Abstract Syntax Tree to a LaTeX string.
+ *
+ * **See:** {@tutorial MASTON}
+ *
+ * @param {object} The Abstract Syntax Tree as a JavaScript object.
+ *
+ * @return {string} The LaTeX representation of the Abstract Syntax Tree, if valid.
+ * @function module:mathlive#astToLatex
+ */
+function astToLatex(ast, options) {
+    options = options || {};
+    return Maston.asLatex(ast, options);
+}
 
 
 /**
@@ -797,6 +813,7 @@ const MathLive = {
     latexToMathML: toMathML,
     latexToSpeakableText,
     latexToAST,
+    astToLatex,
     makeMathField,
     renderMathInDocument,
     renderMathInElement,
