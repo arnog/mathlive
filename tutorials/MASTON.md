@@ -423,7 +423,7 @@ Argument 2n+1 can be a number, an expression, an array representing a list of
 values, or a range. If an array or a range, the result is an array of expression.
 
 For example:
-````json
+```json
 {   "fn":"bind", 
     "arg": [
         {"fn":"+","arg":[{"sym":"x","sup":2},{"fn":"*","arg":[2,"x"]}]},
