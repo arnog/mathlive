@@ -33,12 +33,17 @@ import '../addons/outputSpokenText.js';
     toSpeakableText() respectively.
 */
 
+/* The default eslint parser, espree, does not parse the "declare type" correctly.
+   Could use a different parser (babel-eslint), but to avoid bringing in another
+   dependency, just turn off linting for this line */
+/* eslint-disable */
 /**
  * @typedef {function} MathFieldCallback
  * @param {MathField} mf
  * @return {void}
  * @global
  */
+/* eslint-enable */
 
 /**
  @typedef MathFieldConfig

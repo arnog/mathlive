@@ -4,12 +4,7 @@
  * @return {void}
  * @global
  */
-/* The default eslint parser, espree, does not parse the "declare type" correctly.
-   Could use a different parser (babel-eslint), but to avoid bringing in another
-   dependency, just turn off linting for this line */
-/* eslint-disable */
 declare type MathFieldCallback = (mf: MathField) => void;
-/* eslint-enable */
 
 /**
  @typedef MathFieldConfig
@@ -513,11 +508,46 @@ declare module "mathlive" {
      *
      * @param {string} latex A string of valid LaTeX. It does not have to start
      * with a mode token such as a `$$` or `\(`.
+     * @param {Object.<string, any>} options
+     * @param {object} [options.macros] A dictionary of LaTeX macros
      *
      * @return {object} The Abstract Syntax Tree as a JavaScript object.
      * @function module:mathlive#latexToAST
      */
-    function latexToAST(latex: string): any;
+    function latexToAST(latex: string, options: {
+        macros?: any;
+    }): any;
+    /**
+     * Convert an Abstract Syntax Tree to a LaTeX string.
+     *
+     * **See:** {@tutorial MASTON}
+     *
+     * @param {object} ast - The Abstract Syntax Tree as a JavaScript object.
+     * @param {Object.<string, any>} options
+     * @param {number} [options.precision=14] Number of digits used in the representation of numbers
+     * @param {string} [options.decimalMarker='.'] Character used as the decimal marker
+     * @param {string} [options.groupSeparator='\\, '] Character used to separate group of numbers, typicall thousands
+     * @param {string} [options.product='\\cdot '] Character used to indicate product. Other option would be '\\times '
+     * @param {string} [options.exponentProduct='\\cdot '] Character used before an exponent indicator
+     * @param {string} [options.exponentMarker=''] Character used to indicate an exponent
+     * @param {string} [options.scientificNotation='auto'] Other possible values 'engineering' or 'on'
+     * @param {string} [options.beginRepeatingDigits='\\overline{']
+     * @param {string} [options.endRepeatingDigits='}']
+    *
+     * @return {string} The LaTeX representation of the Abstract Syntax Tree, if valid.
+     * @function module:mathlive#astToLatex
+     */
+    function astToLatex(ast: any, options: {
+        precision?: number;
+        decimalMarker?: string;
+        groupSeparator?: string;
+        product?: string;
+        exponentProduct?: string;
+        exponentMarker?: string;
+        scientificNotation?: string;
+        beginRepeatingDigits?: string;
+        endRepeatingDigits?: string;
+    }): string;
     /**
      * Convert a LaTeX string to a textual representation ready to be spoken
      *
