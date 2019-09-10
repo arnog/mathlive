@@ -4697,9 +4697,9 @@
       }
     },
     "less": {
-      "version": "3.10.1",
-      "resolved": "https://registry.npmjs.org/less/-/less-3.10.1.tgz",
-      "integrity": "sha512-xlPx6vt5nAm1DGDnuv06SNQba4WnMKY5vZkgCrnyKXkDbs09kl9cc2nSS7OMufLT60IWsxUSnwr1Rkh4rkMFcg==",
+      "version": "3.10.3",
+      "resolved": "https://registry.npmjs.org/less/-/less-3.10.3.tgz",
+      "integrity": "sha512-vz32vqfgmoxF1h3K4J+yKCtajH0PWmjkIFgbs5d78E/c/e+UQTnI+lWK+1eQRE95PXM2mC3rJlLSSP9VQHnaow==",
       "dev": true,
       "requires": {
         "clone": "^2.1.2",
@@ -6388,9 +6388,9 @@
       "dev": true
     },
     "psl": {
-      "version": "1.3.0",
-      "resolved": "https://registry.npmjs.org/psl/-/psl-1.3.0.tgz",
-      "integrity": "sha512-avHdspHO+9rQTLbv1RO+MPYeP/SzsCoxofjVnHanETfQhTJrmB0HlDoW+EiN/R+C0BZ+gERab9NY0lPN2TxNag==",
+      "version": "1.4.0",
+      "resolved": "https://registry.npmjs.org/psl/-/psl-1.4.0.tgz",
+      "integrity": "sha512-HZzqCGPecFLyoRj5HLfuDSKYTJkAfB5thKBIkRHtGjWwY7p1dAyveIbXIq4tO0KYfDF2tHqPUgY9SDnGm00uFw==",
       "dev": true,
       "optional": true
     },
