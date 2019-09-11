@@ -407,6 +407,41 @@ declare class MathField {
     speak_(amount: string, speakOptions: {
         withHighlighting: boolean;
     }): void;
+    /**
+     * The DOM element this mathfield is attached to.
+    */
+    element: HTMLElement;
+    /**
+     * A set of key/value pairs that can
+    be used to customize the behavior of the mathfield
+    */
+    config: {
+        [key: string]: any;
+    };
+    /**
+     * A unique ID identifying this mathfield
+    */
+    id: string;
+    /**
+     * True if the keystroke caption
+    panel is visible
+    */
+    keystrokeCaptionVisible: boolean;
+    /**
+     * True if the virtual keyboard is
+    visible
+    */
+    virtualKeyboardVisible: boolean;
+    /**
+     * The last few keystrokes, to look out
+    for inline shortcuts
+    */
+    keystrokeBuffer: string;
+    /**
+     * The saved state for each of the
+    past keystrokes
+    */
+    keystrokeBufferStates: object[];
 }
 
 /**
