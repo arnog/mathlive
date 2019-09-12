@@ -7,11 +7,11 @@ update_configs:
     directory: "/"
     update_schedule: "weekly"
     automerged_updates:
-    - match:
-        # Supported dependency types:
-        # - "development"
-        # - "production"
-        # - "all"
-        dependency_type: "all"
-        update_type: "semver:minor"
+      - match:
+          # Supported dependency types:
+          # - "development"
+          # - "production"
+          # - "all"
+          dependency_type: "all"
+          update_type: "semver:minor"
     version_requirement_updates: "increase_versions"
