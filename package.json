@@ -104,7 +104,7 @@
     "rimraf": "^3.0.0",
     "rollup": "^1.21.2",
     "rollup-plugin-copy": "^3.1.0",
-    "rollup-plugin-terser": "^5.1.1",
+    "rollup-plugin-terser": "^5.1.2",
     "sutro-jsdoc-theme": "^1.0",
     "tap-spec": "^5.0.0",
     "tape": "^4.11.0",
