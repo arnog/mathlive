@@ -6852,13 +6852,13 @@
       }
     },
     "rollup": {
-      "version": "1.21.2",
-      "resolved": "https://registry.npmjs.org/rollup/-/rollup-1.21.2.tgz",
-      "integrity": "sha512-sCAHlcQ/PExU5t/kRwkEWHdhGmQrZ2IgdQzbjPVNfhWbKHMMZGYqkASVTpQqRPLtQKg15xzEscc+BnIK/TE7/Q==",
+      "version": "1.21.4",
+      "resolved": "https://registry.npmjs.org/rollup/-/rollup-1.21.4.tgz",
+      "integrity": "sha512-Pl512XVCmVzgcBz5h/3Li4oTaoDcmpuFZ+kdhS/wLreALz//WuDAMfomD3QEYl84NkDu6Z6wV9twlcREb4qQsw==",
       "dev": true,
       "requires": {
         "@types/estree": "0.0.39",
-        "@types/node": "^12.7.4",
+        "@types/node": "^12.7.5",
         "acorn": "^7.0.0"
       },
       "dependencies": {
