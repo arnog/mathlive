@@ -441,12 +441,7 @@ function updatePopoverPosition(mf, options) {
             } else {
                 // ... get the caret position
                 const position = mf._getCaretPosition();
-                if (position) {
-                    // and position the popover right below the caret
-                    mf.popover.style.left =
-                        (position.x - mf.popover.offsetWidth / 2) + 'px';
-                    mf.popover.style.top = (position.y + 5) + 'px';
-                }
+                if (position) setPopoverPosition(mf, position);
             }
         }
     }
@@ -456,14 +451,50 @@ function showPopover(mf, markup) {
     mf.popover.innerHTML = markup;
 
     const position = mf._getCaretPosition();
-    if (position) {
-        mf.popover.style.left = (position.x - mf.popover.offsetWidth / 2) + 'px';
-        mf.popover.style.top = (position.y + 5) + 'px';
-    }
+    if (position) setPopoverPosition(mf, position);
 
     mf.popover.classList.add('is-visible');
 }
 
+function setPopoverPosition(mf, position) {
+    // get screen width & height (browser compatibility)
+    const screen_height = window.innerHeight ||
+        document.documentElement.clientHeight ||
+        document.body.clientHeight;
+    const screen_width = window.innerWidth ||
+        document.documentElement.clientWidth ||
+        document.body.clientWidth;
+
+    // get scrollbar size. This would be 0 in mobile device (also no needed).
+    const scrollbar_width = window.innerWidth -
+        document.documentElement.clientWidth;
+    const scrollbar_height = window.innerHeight -
+        document.documentElement.clientHeight;
+    const virtualkeyboard_height = mf.virtualKeyboardVisible ?
+        mf.virtualKeyboard.offsetHeight : 0;
+    // prevent screen overflow horizontal.
+    if (position.x + (mf.popover.offsetWidth / 2) > screen_width - scrollbar_width) {
+        mf.popover.style.left =
+            (screen_width - mf.popover.offsetWidth - scrollbar_width) + 'px';
+    } else if (position.x - (mf.popover.offsetWidth / 2) < 0) {
+        mf.popover.style.left = 0;
+    } else {
+        mf.popover.style.left =
+            (position.x - mf.popover.offsetWidth / 2) + 'px';
+    }
+
+    // and position the popover right below or above the caret
+    if (position.y + mf.popover.offsetHeight + 5 > 
+        screen_height - scrollbar_height - virtualkeyboard_height) {
+        mf.popover.classList.add('reverse-direction');
+        mf.popover.style.top = 
+            (position.y - position.height - 
+            mf.popover.offsetHeight - 5) + 'px';
+    } else {
+        mf.popover.classList.remove('reverse-direction');
+        mf.popover.style.top = (position.y + 5) + 'px';
+    }
+}
 
 function hidePopover(mf) {
     mf.popover.classList.remove('is-visible');

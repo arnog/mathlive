@@ -562,10 +562,12 @@ class MathField {
         const caret = _findElementWithCaret(this.field);
         if (caret) {
             const bounds = caret.getBoundingClientRect();
-            return {
-                x: bounds.right + window.scrollX,
-                y: bounds.bottom + window.scrollY
+            const position = {
+                x: bounds.right,
+                y: bounds.bottom,
+                height: bounds.height,
             };
+            return position;
         }
         return null;
     }
