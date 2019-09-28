@@ -86,7 +86,7 @@
   ],
   "bugs": "https://github.com/arnog/mathlive/issues/",
   "devDependencies": {
-    "@babel/cli": "^7.6.0",
+    "@babel/cli": "^7.6.2",
     "@babel/core": "^7.6.0",
     "@babel/preset-env": "^7.6.2",
     "@babel/register": "^7.6.0",
