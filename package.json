@@ -94,7 +94,7 @@
     "chokidar-cli": "^2.0.0",
     "cssnano": "^4.1.10",
     "eslint": "^6.4.0",
-    "eslint-watch": "^6.0.0",
+    "eslint-watch": "^6.0.1",
     "http-server": "^0.11.1",
     "jsdoc": "^3.6.3",
     "less": "^3.10.3",
