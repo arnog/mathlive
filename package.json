@@ -90,7 +90,7 @@
     "@babel/core": "^7.6.2",
     "@babel/preset-env": "^7.6.2",
     "@babel/register": "^7.6.2",
-    "autoprefixer": "^9.6.1",
+    "autoprefixer": "^9.6.2",
     "chokidar-cli": "^2.0.0",
     "cssnano": "^4.1.10",
     "eslint": "^6.5.1",
