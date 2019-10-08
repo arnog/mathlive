@@ -1999,7 +1999,7 @@ class MathField {
     /**
      * If `text` is not empty, sets the content of the mathfield to the
      * text interpreted as a LaTeX expression.
-     * If `text` is empty (or omitted), return the content of the mahtfield as a
+     * If `text` is empty (or omitted), return the content of the mathfield as a
      * LaTeX expression.
      * @param {string} text
      *
