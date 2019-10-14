@@ -1994,9 +1994,9 @@ class MathField {
      * text interpreted as a LaTeX expression.
      * If `text` is empty (or omitted), return the content of the mahtfield as a
      * LaTeX expression.
-     * @param {string} text
+     * @param {string} [text]
      *
-     * @param {Object.<string, any>} options
+     * @param {Object.<string, any>} [options]
      * @param {boolean} options.suppressChangeNotifications - If true, the
      * handlers for the contentWillChange and contentDidChange notifications will
      * not be invoked. Default `false`.
