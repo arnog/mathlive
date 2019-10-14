@@ -1,3 +1,10 @@
+
+## 0.32.2 (September 24, 2019)
+
+### Bug Fixes
+- Fixed an issue where some keys in the virtual keyboard would be unresponsive
+
+
 ## 0.30.1 (July 30, 2019)
 
 ### Features / Improvements

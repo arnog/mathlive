@@ -1178,7 +1178,7 @@ function parsePrimary(expr, options) {
             const fn = expr.ast;
             const arg = parsePrimary(expr, options).ast;
             if (arg && /^(list0|list|list2)$/.test(arg.fn)) {
-                fn.arg = fn.arg ? fn.arg.arg : undefined;
+                fn.arg = arg.arg;
             } else if (arg) {
                 fn.arg = [arg]
             }
