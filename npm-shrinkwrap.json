@@ -7062,22 +7062,14 @@
       }
     },
     "rollup": {
-      "version": "1.23.1",
-      "resolved": "https://registry.npmjs.org/rollup/-/rollup-1.23.1.tgz",
-      "integrity": "sha512-95C1GZQpr/NIA0kMUQmSjuMDQ45oZfPgDBcN0yZwBG7Kee//m7H68vgIyg+SPuyrTZ5PrXfyLK80OzXeKG5dAA==",
+      "version": "1.25.0",
+      "resolved": "https://registry.npmjs.org/rollup/-/rollup-1.25.0.tgz",
+      "integrity": "sha512-tcf5ThhnhOUaNrxBSABvaaX9uC8hNxgyJpJmDIXaCkKHq/nPocaDz/4F/KBDiUpOt/ThvUxFrUq3XkyWiyXQiQ==",
       "dev": true,
       "requires": {
         "@types/estree": "*",
         "@types/node": "*",
         "acorn": "^7.1.0"
-      },
-      "dependencies": {
-        "acorn": {
-          "version": "7.1.0",
-          "resolved": "https://registry.npmjs.org/acorn/-/acorn-7.1.0.tgz",
-          "integrity": "sha512-kL5CuoXA/dgxlBbVrflsflzQ3PAas7RYZB52NOm/6839iVYJgKMJ3cQJD+t2i5+qFa8h3MDpEOJiS64E8JLnSQ==",
-          "dev": true
-        }
       }
     },
     "rollup-plugin-copy": {
