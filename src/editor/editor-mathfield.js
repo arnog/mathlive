@@ -163,7 +163,7 @@ function MathField(element, config) {
     // 5.1/ The aria-live region for announcements
     let markup = ''
     if (!this.config.substituteTextArea) {
-        if (/android|ipad|ipod|iphone/i.test(navigator.userAgent)) {
+        if (/android|ipad|ipod|iphone/i.test(navigator.userAgent) || /macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints) {
             // On Android or iOS, don't use a textarea, which has the side effect of
             // bringing up the OS virtual keyboard
             markup += `<span class='ML__textarea'>
@@ -598,7 +598,7 @@ MathField.prototype._onPointerDown = function(evt) {
     let dirty = false;
 
     // If a mouse button other than the main one was pressed, return
-    if (evt.buttons !== 1) return;
+    if (evt.pointerType === 'mouse' && evt.buttons !== 1) return;
 
     function endPointerTracking(evt) {
         if (window.PointerEvent) {
