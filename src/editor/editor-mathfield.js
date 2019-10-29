@@ -33,12 +33,17 @@ import '../addons/outputSpokenText.js';
     toSpeakableText() respectively.
 */
 
+/* The default eslint parser, espree, does not parse the "declare type" correctly.
+   Could use a different parser (babel-eslint), but to avoid bringing in another
+   dependency, just turn off linting for this line */
+/* eslint-disable */
 /**
  * @typedef {function} MathFieldCallback
  * @param {MathField} mf
  * @return {void}
  * @global
  */
+/* eslint-enable */
 
 /**
  @typedef MathFieldConfig
@@ -561,10 +566,12 @@ class MathField {
         const caret = _findElementWithCaret(this.field);
         if (caret) {
             const bounds = caret.getBoundingClientRect();
-            return {
-                x: bounds.right + window.scrollX,
-                y: bounds.bottom + window.scrollY
+            const position = {
+                x: bounds.right,
+                y: bounds.bottom,
+                height: bounds.height,
             };
+            return position;
         }
         return null;
     }
@@ -2143,11 +2150,11 @@ class MathField {
      * 
      * If `text` is not empty, sets the content of the mathfield to the
      * text interpreted as a LaTeX expression.
-     * If `text` is empty (or omitted), return the content of the mahtfield as a
+     * If `text` is empty (or omitted), return the content of the mathfield as a
      * LaTeX expression.
      * @param {string} [text]
      *
-     * @param {Object.<string, any>} options
+     * @param {Object.<string, any>} [options]
      * @param {boolean} [options.suppressChangeNotifications] - If true, the
      * handlers for the contentWillChange and contentDidChange notifications will
      * not be invoked. Default `false`.
