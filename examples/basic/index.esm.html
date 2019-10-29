@@ -32,7 +32,7 @@
         smartMode: true,
         virtualKeyboardMode: 'manual',
         onContentDidChange: mf => {
-            const latex = mf.$latex();
+            const latex = mf.$text();
             document.getElementById('latex').innerHTML = escapeHtml(latex);
 
             const mathJSON = MathLive.latexToAST(latex);

@@ -38,7 +38,7 @@
     const mf = MathLive.makeMathField('mf', {
         onContentDidChange: mathfield => {
             try {
-                const ast = MathLive.latexToAST(mathfield.$latex());
+                const ast = MathLive.latexToAST(mathfield.$text());
                 document.getElementById('output').innerHTML = JSON.stringify(mastonToMathjs(ast, {}).eval());
                 // document.getElementById('output').innerHTML = JSON.stringify(ast);
             } catch(e) {

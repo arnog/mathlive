@@ -44,6 +44,6 @@ math field, and displaying it in an output element.
 
 ```javascript
     function updateOutput(mathfield) {
-        document.getElementById('output').innerHTML = mathfield.$latex();
+        document.getElementById('output').innerHTML = mathfield.$text();
     }
 ```
