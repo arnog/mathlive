@@ -171,7 +171,7 @@ function latexifyArray(parent, properties, atoms, options) {
             prefix = '{\\' + command + ' ';
             suffix = '}';
 
-        } else if (prop === 'fontFamily' && (atoms[0].fontFamily)) {
+        } else if (prop === 'fontFamily' && ((atoms[0].fontFamily || atoms[0].baseFontFamily))) {
             if (!/^(math|main)$/.test(atoms[0].fontFamily)) {
                 const command = {
                     'cal': 'mathcal', 
@@ -181,9 +181,9 @@ function latexifyArray(parent, properties, atoms, options) {
                     'cmr': 'mathrm',
                     'cmtt': 'mathtt',
                     'cmss': 'mathsf'
-                }[atoms[0].fontFamily] || '';
+                }[atoms[0].fontFamily || atoms[0].baseFontFamily] || '';
                 if (!command) {
-                    prefix += '{\\fontfamily{' + (atoms[0].fontFamily) + '}';
+                    prefix += '{\\fontfamily{' + (atoms[0].fontFamily || atoms[0].baseFontFamily) + '}';
                     suffix = '}';
                 } else {
                     if (/^\\operatorname{/.test(atoms[0].latex)) {
