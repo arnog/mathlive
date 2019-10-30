@@ -165,6 +165,17 @@ function releaseSharedElement(el) {
     return el;
 }
 
+/**
+ * Checks if the argument is a valid Mathfield.
+ * After a Mathfield has been destroyed (for example by calling revertToOriginalContent()
+ * the Mathfield is no longer valid. However, there may be some pending 
+ * operations invoked via requestAnimationFrame() for example, that would
+ * need to ensure the mathfield is still valid by the time they're executed.
+ * @private
+ */
+export function isValidMathfield(mf) {
+    return mf.element && mf.element.mathfield === mf;
+}
 
 /**
  * Validate a style specification object
@@ -501,7 +512,7 @@ class MathField {
                 break;
             case 'resize': {
                 if (this._resizeTimer) { window.cancelAnimationFrame(this._resizeTimer); }
-                this._resizeTimer = window.requestAnimationFrame(() => this._onResize());
+                this._resizeTimer = window.requestAnimationFrame(() => isValidMathfield(this) &&  this._onResize());
                 break;
             }
             case 'cut':
@@ -550,6 +561,7 @@ class MathField {
         off(this.element, 'focus', this);
         off(this.element, 'blur', this);
         off(window, 'resize', this);
+        delete this.element;
     }
     _resetKeystrokeBuffer() {
         this.keystrokeBuffer = '';
@@ -1841,7 +1853,7 @@ class MathField {
     _requestUpdate() {
         if (!this.dirty) {
             this.dirty = true;
-            requestAnimationFrame(_ => this._render());
+            requestAnimationFrame(_ => isValidMathfield(this) && this._render());
         }
     }
     /**
@@ -3543,7 +3555,8 @@ MathField.prototype.insert_ = MathField.prototype.$insert;
 
 
 export default {
-    MathField: MathField
+    isValidMathfield, 
+    MathField
 }
 
 
