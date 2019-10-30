@@ -1,9 +1,9 @@
 /**
  * This module parses and outputs an Abstract Syntax Tree representing the 
- * formula using the {@tutorial MASTON} format. 
+ * formula using the {@tutorial MATHJSON} format. 
  * 
  * To use it, use the {@linkcode MathAtom#toAST MathAtom.toAST()}  method.
- * @module addons/maston
+ * @module addons/mathJson
  * @private
  */
 

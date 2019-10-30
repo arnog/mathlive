@@ -19,7 +19,7 @@ MathLive is a JavaScript library to render and edit math.
 - [x] Easy to use interface for math editing
 - [x] Fast and small
 - [x] Works great on desktop and on mobile devices thanks to an extensive set of virtual keyboards
-- [x] Outputs **LaTeX**, **MathML** and **JSON** (Abstract Syntax Tree, MASTON)
+- [x] Outputs **LaTeX**, **MathML** and **MathJSON** (Abstract Syntax Tree)
 - [x] And it is easy to customize to your needs!
 
 Try it at [mathlive.io](https://mathlive.io)

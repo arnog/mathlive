@@ -18,7 +18,7 @@
 
 import MathLiveDebug from '../src/addons/debug';
 import MathLive from '../src/mathlive';
-import MASTON from '../src/addons/maston';
+import mathJson from '../src/addons/mathJson';
 import { toASCIIMath } from '../src/editor/outputASCIIMath.js';
 
 
@@ -105,7 +105,7 @@ function mathJSON(latex) {
 
 function equalMathJSON(t, latex, json, comment) {
     t.equal(mathJSON(latex), json, "Latex -> JSON: " + comment);
-    const latexJSON = MASTON.asLatex(json, {precision: 100}).replace(/\\, /g, '').trim();
+    const latexJSON = mathJson.asLatex(json, {precision: 100}).replace(/\\, /g, '').trim();
     t.equal(latexJSON, latex, "JSON->Latex: " + comment);
 }
 

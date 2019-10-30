@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>core/color - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>addons/mathJson - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -58,7 +58,7 @@ writeCookie('symbol-access', 'private')
 
 <main id="main">
     
-        <h1 class="page-title">core/color</h1>
+        <h1 class="page-title">addons/mathJson</h1>
     
 
     
@@ -80,8 +80,9 @@ writeCookie('symbol-access', 'private')
     <div class="container-overview">
     
         
-            <div class="description"><p>This module contains some color dictionaries and algorithms to
-parse a string into a hex RGB color value.s</p></div>
+            <div class="description"><p>This module parses and outputs an Abstract Syntax Tree representing the
+formula using the <a href="tutorial-MATHJSON.html">MathJSON</a> format.</p>
+<p>To use it, use the <a href="MathAtom.html#toAST"><code>MathAtom.toAST()</code></a>  method.</p></div>
         
 
         
@@ -174,6 +175,2838 @@ parse a string into a hex RGB color value.s</p></div>
 
     
 
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~asLatex">asLatex<span class="signature">(ast<span class="signature-type">: object</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>ast</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>Abstract Syntax Tree object (in canonical form)</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>A LaTeX representation of the AST</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~asMachineNumber">asMachineNumber<span class="signature">(node<span class="signature-type">: object</span>)</span><span class="type-signature">:  number</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>node</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>Abstract Syntax Tree node</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">number</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>A JavaScript number, the value of the AST or NaN</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~asSymbol">asSymbol<span class="signature">(expr<span class="signature-type">: object</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>expr</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>Abstract Syntax Tree object</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>A string, the symbol, or undefined</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~escapeText">escapeText<span class="signature">(s<span class="signature-type">: string</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return a string escaped as necessary to comply with the JSON format</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>s</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~formatMantissa">formatMantissa<span class="signature">(m<span class="signature-type">: string</span>, config<span class="signature-type">: [string]:any</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return a formatted mantissa:
+1234567 -&gt; 123 456 7...
+1233333 -&gt; 12(3)</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>m</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>config</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">[string]:any</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~getCanonicalName">getCanonicalName<span class="signature">(latex,<span class="signature-type">: string</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>latex,</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>for example '\times'</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>the canonical name for the input, for example '*'</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~getLatexForSymbol">getLatexForSymbol<span class="signature">(name<span class="signature-type">: string</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>name</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>symbol name, e.g. &quot;alpha&quot;</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~getLatexTemplateForFunction">getLatexTemplateForFunction<span class="signature">(name<span class="signature-type">: string</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>name</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>function canonical name</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~getPrecedence">getPrecedence<span class="signature">(canonicalName,<span class="signature-type">: string</span>)</span><span class="type-signature">:  number</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Given a canonical name, return its precedence</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>canonicalName,</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>for example &quot;and&quot;</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">number</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~isAtom">isAtom<span class="signature">(expr<span class="signature-type">: object</span>, type<span class="signature-type">: string</span>, value<span class="signature-type">: string</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return true if the current atom is of the specified type and value.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>expr</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>type</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>value</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~negate">negate<span class="signature">(node<span class="signature-type">: object</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return the negative of the expression. Usually { fn:'negate', arg }
+but for numbers, the negated number</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>node</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~numberAsLatex">numberAsLatex<span class="signature">(num<span class="signature-type">: string | number</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>num</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+|
+
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>A number, represented as a string (e.g. &quot;-12.45&quot;
+particularly useful for arbitrary precision numbers) or a number (-12.45)</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>A LaTeX representation of the AST</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~opPrec">opPrec<span class="signature">(atom<span class="signature-type">: object</span>)</span><span class="type-signature">:  number</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return the operator precedence of the atom
+or -1 if not an operator</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>atom</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">number</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~parse">parse<span class="signature">(atoms<span class="signature-type">: Atoms[]</span>)</span><span class="type-signature">:  object</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>atoms</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">Atoms[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">object</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~parseDelim">parseDelim<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Delimiters can be expressed:</p>
+<ul>
+<li>as a matching pair of regular characters: '(a)'</li>
+<li>a as 'leftright' expression: '\left(a\right)'</li>
+<li>as a matching pair of 'sizeddelim': '\Bigl(a\Bigr)</li>
+</ul>
+<p>Note that the '\delim' command is only used for delimiters in the middle
+of a \left\right pair and not to represent pair-matched delimiters.</p>
+<p>This function handles all three cases</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~parseDigraph">parseDigraph<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Some symbols are made up of two consecutive characters.
+Handle them here. Return undefined if not a digraph.
+TODO: other digraphs:
+:=
+++
+**
+=:
+°C U+2103
+°F U+2109</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~parseExpression">parseExpression<span class="signature">(expr<span class="signature-type">: object</span>)</span><span class="type-signature">:  object</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Given an atom or an array of atoms, return their AST representation as
+an object.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>expr</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>An expressions, including expr.atoms, expr.index,
+expr.minPrec the minimum precedence that this parser should parse
+before returning; expr.lhs (optional); expr.ast, the resulting AST.</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">object</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>the expr object, updated</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~parsePostfix">parsePostfix<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Parse postfix operators, such as &quot;!&quot; (factorial)</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~parseSentence">parseSentence<span class="signature">(expr<span class="signature-type">: object</span>)</span><span class="type-signature">:  object</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Parse a sequence of text zone and math zones:
+<sentence> := ((<text>) <expression>)+</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>expr</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">object</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~parseSupsub">parseSupsub<span class="signature">(expr<span class="signature-type">: object</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Parse for a possible sup/sub attached directly to the current atom
+or to a following 'msubsup' atom.
+After the call, the index points to the next atom to process.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>expr</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~wrapFence">wrapFence<span class="signature">(fence<span class="signature-type">: string</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>fence</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>The fence to wrap around the arguments</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <ul>
+<li>A string wrapped in the fence</li>
+</ul>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~wrapFn">wrapFn<span class="signature">(functionName<span class="signature-type">: string</span>, &hellip;params<span class="signature-type">: object</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>functionName</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>params</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                    <span class="attribute">repeatable</span>
+                
+                </span>
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
     
 
     

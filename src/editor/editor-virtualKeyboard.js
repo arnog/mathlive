@@ -1299,7 +1299,7 @@ function make(mf, theme) {
                 layers[layer] = tempLayer;
             }
 
-            markup += `<div tabindex="-1" class='keyboard-layer' id='` + layer + `'>`;
+            markup += `<div tabindex="-1" class='keyboard-layer' data-layer='` + layer + `'>`;
             markup += makeKeyboardToolbar(mf, keyboardIDs, keyboard);
             const layerMarkup = typeof layers[layer] === 'function' ?
                 layers[layer]() : layers[layer];

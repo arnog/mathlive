@@ -39,7 +39,7 @@
         onContentDidChange: mathfield => {
             try {
                 const ast = MathLive.latexToAST(mathfield.$text());
-                document.getElementById('output').innerHTML = JSON.stringify(mastonToMathjs(ast, {}).eval());
+                document.getElementById('output').innerHTML = JSON.stringify(mathJsonToMathjs(ast, {}).eval());
                 // document.getElementById('output').innerHTML = JSON.stringify(ast);
             } catch(e) {
                 document.getElementById('output').innerHTML = '😕';
@@ -48,23 +48,23 @@
     });
 
 
-function applySuperscriptAsPower(mjs, maston, config) {
+function applySuperscriptAsPower(mjs, mathJson, config) {
     let result = mjs;
-    if (typeof maston === 'object' && maston.sup !== undefined) {
+    if (typeof mathJson === 'object' && mathJson.sup !== undefined) {
         result = new window.math.expression.node.FunctionNode(
-            'pow', [result, mastonToMathjs(maston.sup, config)]);
+            'pow', [result, mathJsonToMathjs(mathJson.sup, config)]);
     }
     return result;
 }
 
-function getMathjsArgs(maston, config) {    
+function getMathjsArgs(mathJson, config) {    
     let result = [];
-    if (Array.isArray(maston.arg)) {
-        for (let index = 0; index < maston.arg.length; index++) {
-            result.push(mastonToMathjs(maston.arg[index], config));
+    if (Array.isArray(mathJson.arg)) {
+        for (let index = 0; index < mathJson.arg.length; index++) {
+            result.push(mathJsonToMathjs(mathJson.arg[index], config));
         }
     } else {
-        result = [mastonToMathjs(maston.arg, config)];
+        result = [mathJsonToMathjs(mathJson.arg, config)];
     }
     return result;
 }
@@ -73,25 +73,25 @@ function getMathjsArgs(maston, config) {
 /**
  * Return an array of arguments, with the sub if present as the last argument.
  */
-function getMathjsArgsWithSub(maston, config) {
-    const result = getMathjsArgs(maston, config);
-    if (maston.sub !== undefined) {
-        result.push(mastonToMathjs(maston.sub, config));
+function getMathjsArgsWithSub(mathJson, config) {
+    const result = getMathjsArgs(mathJson, config);
+    if (mathJson.sub !== undefined) {
+        result.push(mathJsonToMathjs(mathJson.sub, config));
     }
 
     return result;
 }
 
 /**
- * Return a mathjs node tree corresponding to the MASTON object
- * @param {Object.<string,any>} ast 
+ * Return a mathjs node tree corresponding to the MathjSON object
+ * @param {Object.<string,any>} mathJson 
  */
-function mastonToMathjs(maston, config) {
+function mathJsonToMathjs(mathJson, config) {
     let result;
-    if (maston === undefined) return undefined;
+    if (mathJson === undefined) return undefined;
 
-    if (typeof maston === 'number' || maston.num !== undefined) {
-        let n = typeof maston === 'number' ? maston : maston.num;
+    if (typeof mathJson === 'number' || mathJson.num !== undefined) {
+        let n = typeof mathJson === 'number' ? mathJson : mathJson.num;
 
         // Convert to BigNum if required
         if (config.number === 'BigNumber') n = window.math.bignumber(n);
@@ -99,9 +99,9 @@ function mastonToMathjs(maston, config) {
         result = new window.math.expression.node.ConstantNode(n);
 
         // Apply the superscript as an operation
-        result = applySuperscriptAsPower(result, maston, config);
+        result = applySuperscriptAsPower(result, mathJson, config);
 
-    } else if (typeof maston === 'string' || maston.sym !== undefined) {
+    } else if (typeof mathJson === 'string' || mathJson.sym !== undefined) {
         const BUILT_IN_CONSTANTS = {
             'π':        window.math.pi,
             '\u03c4':   window.math.tau,         // GREEK SMALL LETTER TAU
@@ -113,16 +113,16 @@ function mastonToMathjs(maston, config) {
             '\u2149':   window.math.i,           // ⅉ DOUBLE-STRUCK ITALIC SMALL J
             'i':        window.math.i,           // 
         }
-        const symbol = typeof maston === 'string' ? maston : maston.sym;
+        const symbol = typeof mathJson === 'string' ? mathJson : mathJson.sym;
         if (BUILT_IN_CONSTANTS[symbol]) {
             result = new window.math.expression.node.ConstantNode(BUILT_IN_CONSTANTS[symbol]);
         } else {
-            result = new window.math.expression.node.SymbolNode(MASTON.asSymbol(maston));
+            result = new window.math.expression.node.SymbolNode(MASTON.asSymbol(mathJson));
         }
-        result = applySuperscriptAsPower(result, maston, config);
+        result = applySuperscriptAsPower(result, mathJson, config);
 
-    } else if (maston.op !== undefined) {
-        if (maston.lhs !== undefined && maston.rhs !== undefined) {
+    } else if (mathJson.op !== undefined) {
+        if (mathJson.lhs !== undefined && mathJson.rhs !== undefined) {
             const OPERATOR_FUNCTIONS = {
                 '+':    'add',
                 '-':    'subtract',
@@ -133,10 +133,10 @@ function mastonToMathjs(maston, config) {
                 '%': 'mod',
                 'mod': 'mod'
             };
-            const args = [mastonToMathjs(maston.lhs, config), mastonToMathjs(maston.rhs, config)];
+            const args = [mathJsonToMathjs(mathJson.lhs, config), mathJsonToMathjs(mathJson.rhs, config)];
             result = new window.math.expression.node.OperatorNode(
-                maston.op, OPERATOR_FUNCTIONS[maston.op], args);
-        } else if (maston.rhs !== undefined) {
+                mathJson.op, OPERATOR_FUNCTIONS[mathJson.op], args);
+        } else if (mathJson.rhs !== undefined) {
             const UNARY_OPERATOR_FUNCTIONS = {
                 '-': 'unaryMinus',
                 '+': 'unaryPlus',
@@ -144,25 +144,25 @@ function mastonToMathjs(maston, config) {
                 // 'not': 'not'
             };
             result = new window.math.expression.node.OperatorNode(
-                maston.op, UNARY_OPERATOR_FUNCTIONS[maston.op], 
-                    [mastonToMathjs(maston.rhs, config)]);
+                mathJson.op, UNARY_OPERATOR_FUNCTIONS[mathJson.op], 
+                    [mathJsonToMathjs(mathJson.rhs, config)]);
         }
     
-    } else if (maston.fn) {
-        if (maston.fn === 'log' || 
-            (maston.fn === 'ln' && maston.fn.sub !== undefined)) {
+    } else if (mathJson.fn) {
+        if (mathJson.fn === 'log' || 
+            (mathJson.fn === 'ln' && mathJson.fn.sub !== undefined)) {
             result = new window.math.expression.node.FunctionNode(
-                'log', getMathjsArgsWithSub(maston, config));
+                'log', getMathjsArgsWithSub(mathJson, config));
             
-        } else if (maston.fn === 'lb') {
-            const args = getMathjsArgs(maston, config);
+        } else if (mathJson.fn === 'lb') {
+            const args = getMathjsArgs(mathJson, config);
             args.push(new window.math.expression.node.ConstantNode(window.math.bignumber(2)));
             result = new window.math.expression.node.FunctionNode('log', args);
 
-        } else if (maston.fn === 'lg') {
+        } else if (mathJson.fn === 'lg') {
             result = new window.math.expression.node.FunctionNode(
                 new window.math.expression.node.SymbolNode('log10'),
-                getMathjsArgs(maston, config));
+                getMathjsArgs(mathJson, config));
 
         } else {
             const fnName = {
@@ -182,15 +182,15 @@ function mastonToMathjs(maston, config) {
                 'arcsin':           'asin',
                 'arctan':           'atan',
                 'arcosh':           'acosh',
-                'arsinh': '         asinh'}[maston.fn] || maston.fn;
+                'arsinh': '         asinh'}[mathJson.fn] || mathJson.fn;
 
                 result = new window.math.expression.node.FunctionNode(
-                    fnName, getMathjsArgs(maston, config));
+                    fnName, getMathjsArgs(mathJson, config));
         }
 
-    } else if (maston.group) {
+    } else if (mathJson.group) {
         result = applySuperscriptAsPower(
-            mastonToMathjs(maston.group, config), maston, config);
+            mathJsonToMathjs(mathJson.group, config), mathJson, config);
     }
 
     return result;

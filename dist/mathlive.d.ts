@@ -22,6 +22,7 @@ declare type MathFieldCallback = (mathfield: MathField) => void;
  @property {boolean} overrideDefaultInlineShortcuts?
  @property {object<string, string>} inlineShortcuts?
  @property {number} inlineShortcutTimeout?
+ @property {object<string, string>} macros?
  @property {boolean} smartFence?
  @property {boolean} smartSuperscript?
  @property {number} scriptDepth?
@@ -76,6 +77,9 @@ declare type MathFieldConfig = {
         [key: string]: string;
     };
     inlineShortcutTimeout?: number;
+    macros?: {
+        [key: string]: string;
+    };
     smartFence?: boolean;
     smartSuperscript?: boolean;
     scriptDepth?: number;
@@ -297,14 +301,16 @@ declare class MathField {
      *
      * @param {string} [format] - The format of the result.
      *
-     *|`"latex"`|Macros are not expanded|
-     *|`"latex-expanded"`|All macros are recursively expanded to their definition|
-     *|`"spoken"`||
-     *|`"spoken-text"`||
-     *|`"spoken-ssml"`||
-     *|`"spoken-ssml-withHighlighting"`||
-     *|`"mathML"`||
-     *|`"json"`|A stringified version of the JSON representation of the content|
+    | Format              | Description             |
+    | :------------------ | :---------------------- |
+    | `"latex"`             |LaTeX rendering of the content, with LaTeX macros not expanded|
+    | `"latex-expanded"`    |All macros are recursively expanded to their definition|
+    | `"json"`              | A MathJSON abstract syntax tree, as an object literal formated as a JSON string (see {@tutorial MATHJSON})|
+    | `"spoken"`            |Spoken text rendering, using the default format defined in config, which could be either text or SSML markup.|
+    | `"spoken-text"`       |A plain spoken text rendering of the content.|
+    | `"spoken-ssml"`       |A SSML (Speech Synthesis Markup Language) version of the content, which can be used with some text-to-speech engines such as AWS|
+    | `"spoken-ssml-withHighlighting"`|Like `"spoken-ssml"` but with additional annotations necessary for synchronized higlighting (read aloud)|
+    | `"mathML"`            | A string of MathML markup|
      *
      * **Default** = `"latex"`
      * @return {string}
@@ -317,14 +323,16 @@ declare class MathField {
      *
      * @param {string} [format] - The format of the result.
      *
-     *|`"latex"`|Macros are not expanded|
-     *|`"latex-expanded"`|All macros are recursively expanded to their definition|
-     *|`"spoken"`|
-     *|`"spoken-text"`|
-     *|`"spoken-ssml"`|
-     *|`"spoken-ssml-withHighlighting"`|
-     *|`"mathML"`|
-     *|`"json"`|
+    | Format              | Description             |
+    | :------------------ | :---------------------- |
+    | `"latex"`             |LaTeX rendering of the content, with LaTeX macros not expanded|
+    | `"latex-expanded"`    |All macros are recursively expanded to their definition|
+    | `"json"`              | A MathJSON abstract syntax tree, as an object literal formated as a JSON string (see {@tutorial MATHJSON})|
+    | `"spoken"`            |Spoken text rendering, using the default format defined in config, which could be either text or SSML markup.|
+    | `"spoken-text"`       |A plain spoken text rendering of the content.|
+    | `"spoken-ssml"`       |A SSML (Speech Synthesis Markup Language) version of the content, which can be used with some text-to-speech engines such as AWS|
+    | `"spoken-ssml-withHighlighting"`|Like `"spoken-ssml"` but with additional annotations necessary for synchronized higlighting (read aloud)|
+    | `"mathML"`            | A string of MathML markup|
      *
      * **Default** = `"latex"`
      * @return {string}
@@ -416,23 +424,29 @@ declare class MathField {
      *
      * @param {"replaceSelection"|"replaceAll"|"insertBefore"|"insertAfter"} options.insertionMode -
      *
-     *|`"replaceSelection"`| (default)|
-     *|`"replaceAll"`| |
-     *|`"insertBefore"`| |
-     *|`"insertAfter"`| |
+    | <!-- -->    | <!-- -->    |
+    | :---------- | :---------- |
+    |`"replaceSelection"`| (default)|
+    |`"replaceAll"`| |
+    |`"insertBefore"`| |
+    |`"insertAfter"`| |
      *
      * @param {'placeholder' | 'after' | 'before' | 'item'} options.selectionMode - Describes where the selection
      * will be after the insertion:
      *
-     *|`"placeholder"`| The selection will be the first available placeholder in the text that has been inserted (default)|
-     *|`"after"`| The selection will be an insertion point after the inserted text|
-     *|`"before"`| The selection will be an insertion point before the inserted text|
-     *|`"item"`| The inserted text will be selected|
+    | <!-- -->    | <!-- -->    |
+    | :---------- | :---------- |
+    |`"placeholder"`| The selection will be the first available placeholder in the text that has been inserted (default)|
+    |`"after"`| The selection will be an insertion point after the inserted text|
+    |`"before"`| The selection will be an insertion point before the inserted text|
+    |`"item"`| The inserted text will be selected|
      *
      * @param {'auto' | 'latex'} options.format - The format of the string `s`:
      *
-     *|`"auto"`| The string is Latex fragment or command) (default)|
-     *|`"latex"`| The string is a Latex fragment|
+    | <!-- -->    | <!-- -->    |
+    |:------------|:------------|
+    |`"auto"`| The string is Latex fragment or command) (default)|
+    |`"latex"`| The string is a Latex fragment|
      *
      * @param {boolean} options.focus - If true, the mathfield will be focused after
      * the insertion
@@ -487,13 +501,15 @@ declare class MathField {
      *
      * This can also be one of the following TeX-specific values:
      *
-     *|`"cmr"`| Computer Modern Roman, serif|
-     *|`"cmss"`| Computer Modern Sans-serif, latin characters only|
-     *|`"cmtt"`| Typewriter, slab, latin characters only|
-     *|`"cal"`| Calligraphic style, uppercase latin letters and digits only|
-     *|`"frak"`| Fraktur, gothic, uppercase, lowercase and digits|
-     *|`"bb"`| Blackboard bold, uppercase only|
-     *|`"scr"`| Script style, uppercase only|
+    | <!-- -->    | <!-- -->    |
+    | :---------- | :---------- |
+    |`"cmr"`| Computer Modern Roman, serif|
+    |`"cmss"`| Computer Modern Sans-serif, latin characters only|
+    |`"cmtt"`| Typewriter, slab, latin characters only|
+    |`"cal"`| Calligraphic style, uppercase latin letters and digits only|
+    |`"frak"`| Fraktur, gothic, uppercase, lowercase and digits|
+    |`"bb"`| Blackboard bold, uppercase only|
+    |`"scr"`| Script style, uppercase only|
      *
      * @param {string} [style.series] - The font 'series', i.e. weight and
      * stretch.
@@ -502,33 +518,37 @@ declare class MathField {
      * condensed. Aside from `"b"`, these attributes may not have visible effect if the
      * font family does not support this attribute:
      *
-     *|`"ul"`| ultra-light weight|
-     *|`"el"`| extra-light|
-     *|`"l"`| light|
-     *|`"sl"`| semi-light|
-     *|`"m"`| medium (default)|
-     *|`"sb"`| semi-bold|
-     *|`"b"`| bold|
-     *|`"eb"`| extra-bold|
-     *|`"ub"`| ultra-bold|
-     *|`"uc"`| ultra-condensed|
-     *|`"ec"`| extra-condensed|
-     *|`"c"`| condensed|
-     *|`"sc"`| semi-condensed|
-     *|`"n"`| normal (default)|
-     *|`"sx"`| semi-expanded|
-     *|`"x"`| expanded|
-     *|`"ex"`| extra-expanded|
-     *|`"ux"`| ultra-expanded|
+    | <!-- -->    | <!-- -->    |
+    | :---------- | :---------- |
+    |`"ul"`| ultra-light weight|
+    |`"el"`| extra-light|
+    |`"l"`| light|
+    |`"sl"`| semi-light|
+    |`"m"`| medium (default)|
+    |`"sb"`| semi-bold|
+    |`"b"`| bold|
+    |`"eb"`| extra-bold|
+    |`"ub"`| ultra-bold|
+    |`"uc"`| ultra-condensed|
+    |`"ec"`| extra-condensed|
+    |`"c"`| condensed|
+    |`"sc"`| semi-condensed|
+    |`"n"`| normal (default)|
+    |`"sx"`| semi-expanded|
+    |`"x"`| expanded|
+    |`"ex"`| extra-expanded|
+    |`"ux"`| ultra-expanded|
      *
      * @param {string} [style.shape] - The font "shape", i.e. italic or upright.
      *
-     *|`"auto"`| italic or upright, depending on mode and letter (single letters are italic in math mode)|
-     *|`"up"`| upright|
-     *|`"it"`| italic|
-     *|`"sl"`| slanted or oblique (often the same as italic)|
-     *|`"sc"`| small caps|
-     *|`"ol"`| outline|
+    | <!-- -->    | <!-- -->    |
+    | :---------- | :---------- |
+    |`"auto"`| italic or upright, depending on mode and letter (single letters are italic in math mode)|
+    |`"up"`| upright|
+    |`"it"`| italic|
+    |`"sl"`| slanted or oblique (often the same as italic)|
+    |`"sc"`| small caps|
+    |`"ol"`| outline|
      *
      * @param {string} [style.size] - The font size:  `"size1"`...`"size10"`.
      * '"size5"' is the default size
@@ -687,7 +707,7 @@ declare module "mathlive" {
     /**
      * Converts a LaTeX string to an Abstract Syntax Tree (MathJSON)
      *
-     * **See:** {@tutorial MASTON}
+     * **See:** {@tutorial MATHJSON}
      *
      * @param {string} latex A string of valid LaTeX. It does not have to start
      * with a mode token such as a `$$` or `\(`.
@@ -704,7 +724,7 @@ declare module "mathlive" {
     /**
      * Converts an Abstract Syntax Tree (MathJSON) to a LaTeX string.
      *
-     * **See:** {@tutorial MASTON}
+     * **See:** {@tutorial MATHJSON}
      *
      * @param {object} ast - The Abstract Syntax Tree as an object literal (MathJSON).
      * @param {Object.<string, any>} options

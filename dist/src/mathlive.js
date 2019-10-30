@@ -27,7 +27,7 @@ import Span from './core/span.js';
 import Definitions from './core/definitions.js';
 import MathField from './editor/editor-mathfield.js';
 import AutoRender from './addons/auto-render.js';
-import Maston from './addons/maston.js';
+import mathJson from './addons/mathJson.js';
 
 /**
  * Converts a LaTeX string to a string of HTML markup.
@@ -185,7 +185,7 @@ function toMathML(latex, options) {
 /**
  * Converts a LaTeX string to an Abstract Syntax Tree (MathJSON)
  *
- * **See:** {@tutorial MASTON}
+ * **See:** {@tutorial MATHJSON}
  *
  * @param {string} latex A string of valid LaTeX. It does not have to start
  * with a mode token such as a `$$` or `\(`.
@@ -215,7 +215,7 @@ function latexToAST(latex, options) {
 /**
  * Converts an Abstract Syntax Tree (MathJSON) to a LaTeX string.
  *
- * **See:** {@tutorial MASTON}
+ * **See:** {@tutorial MATHJSON}
  *
  * @param {object} ast - The Abstract Syntax Tree as an object literal (MathJSON).
  * @param {Object.<string, any>} options 
@@ -241,7 +241,7 @@ function latexToAST(latex, options) {
  * @function module:mathlive#astToLatex
  */
 function astToLatex(ast, options) {
-    return Maston.asLatex(ast, options);
+    return mathJson.asLatex(ast, options);
 }
 
 

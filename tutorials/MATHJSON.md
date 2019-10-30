@@ -1,7 +1,6 @@
-# The MASTON Format
+# The MathJSON Format
 
-The **Math Abstract Syntax Tree Object Notation** is a lightweight data 
-interchange format for mathematical notation.
+The MathJSON format is a lightweight data interchange format for mathematical notation.
 
 It is human-readable, while being easy for machines to generate and parse.
 
@@ -20,7 +19,7 @@ In TeX
 ```tex
 e^{\imaginaryI \pi }+1=0
 ```
-In MASTON:
+In MathJSON:
 ```json
 {
     "fn":"equal",
@@ -73,8 +72,8 @@ In MASTON:
 ## Design Goals
 
 ### Definitions
-* **producer** software that generates a MASTON data structure
-* **consumer** software that parses and acts on a MASTON data structure
+* **producer** software that generates a MathJSON data structure
+* **consumer** software that parses and acts on a MathJSON data structure
 
 ### Goals
 - Easy to consume, even if that's at the expense of complexity to generate.
@@ -90,7 +89,7 @@ optional and can be ignored by any consumer.
 
 ## Encoding
 
-A MASTON expression is an [abstract syntax tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) 
+A MathJSON expression is an [abstract syntax tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) 
 encoded as a JSON object.
 
 The root element is an `expression`, with child nodes according 
