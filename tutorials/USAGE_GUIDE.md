@@ -175,12 +175,12 @@ respectively.
 
 ## Using the Math Editor with JavaScript
 
-To transform an existing HTML element into a math field, call 
+To transform an existing HTML element into a mathfield, call 
 {@linkcode module:mathlive#makeMathField MathLive.makeMathField(element, options)}. 
 
 Think of this original element as a placeholder. Typically, a `<div>` would 
 be appropriate. If the element contains some LaTeX text, it will be used as the
- initial value of the math field.
+ initial value of the mathfield.
 
 
 For example:
@@ -205,11 +205,11 @@ For example:
 </html>
 ```
 
-You can control the math field using the public member functions of `MathField`,
+You can control the mathfield using the public member functions of `MathField`,
 that is, functions that do not contain an `_` at the beginning or end of their name.
 Here's a short list for some common operations:
 
-* `$el()` the DOM element associated with this math field
+* `$el()` the DOM element associated with this mathfield
 * `$text(format)` return a textual representation of the content of the math 
 field, `format` can be either `"latex"` (default), `"spoken"` or `"mathML"`.
 * `$insert(content, options)` insert the specified content at the current 
@@ -218,10 +218,10 @@ as well as what will be selected after the insertion. If the content contains
 a `#?` a placeholder will be indicated in its stead. The `#0` sequence will
 be replaced by the item currently selected (or a placeholder if nothing is 
 selected)
-* `$setConfig()` customize how the math field behaves, as well as provide 
+* `$setConfig()` customize how the mathfield behaves, as well as provide 
 notification handlers, for example when the selection changes, or when 
-navigation exists the math field.
-* `$select()` select all the items in the math field
+navigation exists the mathfield.
+* `$select()` select all the items in the mathfield
 * `$clearSelection()` deletes the selection
 * `$perform()` executes a command such as moving the insertion point. Typically
 invoked in response to a user action, such as pressing a keyboard shortcut
@@ -230,7 +230,7 @@ commands in the **Selectors** section below.
 
 ## Selectors
 
-User initiated commands that control the math field can be dispatched using
+User initiated commands that control the mathfield can be dispatched using
 the [`perform()`]{@link MathField#perform} commands. Commands are identified by 
 a string called the **selector**. Most commands take no parameters. When a 
 command does have a parameter, an array made up of the selector and the 

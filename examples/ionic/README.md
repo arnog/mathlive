@@ -1,6 +1,6 @@
 # Basic Example
 
-This example shows how to interact with a MathLive math field.
+This example shows how to interact with a MathLive mathfield.
 
 It uses the minified version of the MathLive library.
 
@@ -22,14 +22,14 @@ blocking rendering.
 <script src="../../dist/mathlive.js"></script>
 ```
 
-## Interact with a math field
+## Interact with a mathfield
 
-Create a math field from an element on page. Here we used a `<div>` element 
+Create a mathfield from an element on page. Here we used a `<div>` element 
 with an ID of `mf`. If the element has any textual content, it will be used 
-as the initial content of the math field.
+as the initial content of the mathfield.
 
-Now is also a good time to customize the math field. Here, we'll provide a 
-handler to be notified when the content of the math field has changed, for 
+Now is also a good time to customize the mathfield. Here, we'll provide a 
+handler to be notified when the content of the mathfield has changed, for 
 example when the user types something in the field.
 
 ```javascript
@@ -40,7 +40,7 @@ example when the user types something in the field.
 ```
 
 We'll process that notification by extracting a LaTeX representation from the 
-math field, and displaying it in an output element.
+mathfield, and displaying it in an output element.
 
 ```javascript
     function updateOutput(mathfield) {

@@ -75,8 +75,8 @@ Render math equations by
 
 
 ### Editing Math
-You can also incorporate a “math field” to edit math just like you would edit 
-text. The MathLive APIs allow you to interact with the math field,
+You can also incorporate a “mathfield” to edit math just like you would edit 
+text. The MathLive APIs allow you to interact with the mathfield,
 including extracting its content, inserting placeholders and more.
 
 ```html

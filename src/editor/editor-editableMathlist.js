@@ -969,7 +969,7 @@ EditableMathlist.prototype.selectGroup_ = function() {
 
 
 /**
- * Select all the atoms in the math field.
+ * Select all the atoms in the mathfield.
  * @method EditableMathlist#selectAll_
  * @private
  */
@@ -3020,7 +3020,7 @@ EditableMathlist.prototype.extendToMathFieldStart_ = function() {
 }
 
 /**
- * Extend the selection to the end of the math field.
+ * Extend the selection to the end of the mathfield.
  * @method EditableMathlist#extendToMathFieldEnd_
  * @private
  */

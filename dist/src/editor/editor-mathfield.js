@@ -39,7 +39,7 @@ import '../addons/outputSpokenText.js';
 /* eslint-disable */
 /**
  * @typedef {function} MathFieldCallback
- * @param {MathField} mf
+ * @param {MathField} mathfield
  * @return {void}
  * @global
  */
@@ -517,10 +517,14 @@ class MathField {
         }
     }
     /**
-     * Revert this math field to its original content. After this method has been
-     * called, no other methods can be called on the MathField object. To turn the
-     * element back into a MathField, call `MathLive.makeMathField()` on the
-     * element again to get a new math field object.
+     * Reverts this mathfield to its original content. 
+     * 
+     * After this method has been
+     * called, no other methods can be called on the object. 
+     * 
+     * To turn the
+     * element back into a mathfield, call `MathLive.makeMathField()` on the
+     * element again to get a new mathfield object.
      *
      * @method MathField#$revertToOriginalContent
      */
@@ -738,7 +742,7 @@ class MathField {
         if (anchorX >= bounds.left && anchorX <= bounds.right &&
             anchorY >= bounds.top && anchorY <= bounds.bottom) {
             // Create divs to block out pointer tracking to the left and right of 
-            // the math field (to avoid triggering the hover of the virtual 
+            // the mathfield (to avoid triggering the hover of the virtual 
             // keyboard toggle, for example)
             let div = document.createElement('div');
             div.className = 'ML__scroller';
@@ -748,7 +752,7 @@ class MathField {
             div.className = 'ML__scroller';
             this.element.appendChild(div);
             div.style.left = (bounds.right) + 'px';
-            // Focus the math field
+            // Focus the mathfield
             if (!this.$hasFocus()) {
                 dirty = true;
                 if (this.textarea.focus) { this.textarea.focus(); }
@@ -983,15 +987,146 @@ class MathField {
         }
     }
     /**
+     * Performs a command defined by a selector.
+     * 
+     * 
+#### Moving the insertion point
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"moveToNextChar"` | |
+| `"moveToPreviousChar"` | |
+| `"moveUp"` | |
+| `"moveDown"` | |
+| `"moveToNextPlaceholder"` | |
+| `"moveToPreviousPlaceholder"` | |
+| `"moveToNextWord"` | |
+| `"moveToPreviousWord"` | |
+| `"moveToGroupStart"` | |
+| `"moveToGroupEnd"` | |
+| `"moveToMathFieldStart"` | |
+| `"moveToMathFieldEnd"` | |
+| `"moveToSuperscript"` | |
+| `"moveToSubscript"` | |
+| `"moveToOpposite"` | |
+| `"moveBeforeParent"` | |
+| `"moveAfterParent"` | |
+
+
+#### Selection 
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"selectGroup"` | Select all the atoms in the current group, that is all the siblings.<br> When the selection is in a numerator, the group is the numerator.<br>When the selection is a superscript or subscript, the group is the supsub.|
+| `"selectAll"` | Select all the atoms in the mathfield|
+
+
+#### Extending the selection
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"extendToNextChar"` | |
+| `"extendToPreviousChar"` | |
+| `"extendToNextWord"` | |
+| `"extendToPreviousWord"` | |
+| `"extendUp"` | |
+| `"extendDown"` | |
+| `"extendToNextBoundary"` | |
+| `"extendToPreviousBoundary"` | |
+| `"extendToGroupStart"` | |
+| `"extendToGroupEnd"` | |
+| `"extendToMathFieldStart"` | |
+| `"extendToMathFieldEnd"` | |
+
+
+#### Editing / deleting
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"deleteAll"` | Delete everything in the field |
+| `"delete"` | Delete the current selection |
+| `"deleteNextChar"` | |
+| `"deletePreviousChar"` | |
+| `"deleteNextWord"` | |
+| `"deletePreviousWord"` | |
+| `"deleteToGroupStart"` | |
+| `"deleteToGroupEnd"` | |
+| `"deleteToMathFieldEnd"` | |
+| `"transpose"` | |
+
+
+#### Editing a matrix
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"addRowAfter"` | |
+| `"addRowBefore"` | |
+| `"addColumnAfter"` | |
+| `"addColumnBefore"` | |
+
+
+#### Other editing commands
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"scrollIntoView"` | |
+| `"scrollToStart"` | |
+| `"switchMode"` | |
+| `"complete"` | |
+| `"nextSuggestion"` | |
+| `"previousSuggestion"` | |
+| `"toggleKeystrokeCaption"` | |
+| `"applyStyle"` | |
+
+
+#### Clipboard 
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"undo"` | |
+| `"redo"` | |
+| `"copyToClipboard"` | |
+| `"cutToClipboard"` | |
+| `"pasteFromClipboard"` | |
+
+
+#### Virtual Keyboard
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"toggleVirtualKeyboard"` | |
+| `"showVirtualKeyboard"` | |
+| `"hideVirtualKeyboard"` | |
+| `"toggleVirtualKeyboardAlt"` | |
+| `"toggleVirtualKeyboardShift"` | |
+| `"showAlternateKeys"` | |
+| `"hideAlternateKeys"` | |
+| `"performAlternateKeys"` | |
+| `"switchKeyboardLayer"` | |
+| `"shiftKeyboardLayer"` | |
+| `"unshiftKeyboardLayer"` | |
+| `"insertAndUnshiftKeyboardLayer"` | |
+| `"performWithFeedback"` | |
+
+
+#### Speech
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"speak"` | speaks the amount specified by the first parameter. |
+     * 
      * @param {string|string[]} command - A selector, or an array whose first element
      * is a selector, and whose subsequent elements are arguments to the selector.
+     * 
      * Note that selectors do not include a final "_". They can be passed either
-     * in camelCase or kebab-case. So:
+     * in camelCase or kebab-case.
+     * 
      * ```javascript
      * mf.$perform('selectAll');
      * mf.$perform('select-all');
      * ```
-     * both calls are valid and invoke the same selector.
+     * In the above example, both calls invoke the same selector.
+     * 
      *
      * @method MathField#$perform
      */
@@ -1361,7 +1496,7 @@ class MathField {
     }
     /**
      * @param {string} keystroke
-     * @param {Event} evt - optional, an Event corresponding to the keystroke
+     * @param {Event} [evt] - An Event corresponding to the keystroke.
      * @method MathField#_onKeystroke
      * @private
      */
@@ -1710,7 +1845,7 @@ class MathField {
         }
     }
     /**
-     * Lay-out the math field and generate the DOM.
+     * Lay-out the mathfield and generate the DOM.
      *
      * This is usually done automatically, but if the font-size, or other geometric
      * attributes are modified, outside of MathLive, this function may need to be
@@ -1878,35 +2013,46 @@ class MathField {
     //
     // PUBLIC API
     //
+
     /**
-     * Return a textual representation of the mathfield.
-     * @param {string} [format='latex']. One of
-     *    * `'latex'`
-     *    * `'latex-expanded'` : all macros are recursively expanded to their definition
-     *    * `'spoken'`
-     *    * `'spoken-text'`
-     *    * `'spoken-ssml'`
-     *    * `spoken-ssml-withHighlighting`
-     *    * `'mathML'`
-     *    * `'json'`
+     * Returns a textual representation of the mathfield.
+     * 
+     * @param {string} [format] - The format of the result.
+     * 
+     *|`"latex"`|Macros are not expanded|
+     *|`"latex-expanded"`|All macros are recursively expanded to their definition|
+     *|`"spoken"`||
+     *|`"spoken-text"`||
+     *|`"spoken-ssml"`||
+     *|`"spoken-ssml-withHighlighting"`||
+     *|`"mathML"`||
+     *|`"json"`|A stringified version of the JSON representation of the content|
+     * 
+     * **Default** = `"latex"`
      * @return {string}
+     * @category Accessing the Content
      * @method MathField#$text
      */
     $text(format) {
         return this.formatMathlist(this.mathlist.root, format);
     }
     /**
-     * Return a textual representation of the selection in the mathfield.
-     * @param {string} [format='latex']. One of
-     *    * `'latex'`
-     *    * `'latex-expanded'` : all macros are recursively expanded to their definition
-     *    * `'spoken'`
-     *    * `'spoken-text'`
-     *    * `'spoken-ssml'`
-     *    * `spoken-ssml-withHighlighting`
-     *    * `'mathML'`
-     *    * `'json'`
+     * Returns a textual representation of the selection in the mathfield.
+     * 
+     * @param {string} [format] - The format of the result.
+     * 
+     *|`"latex"`|Macros are not expanded|
+     *|`"latex-expanded"`|All macros are recursively expanded to their definition|
+     *|`"spoken"`|
+     *|`"spoken-text"`|
+     *|`"spoken-ssml"`|
+     *|`"spoken-ssml-withHighlighting"`|
+     *|`"mathML"`|
+     *|`"json"`|
+     * 
+     * **Default** = `"latex"`
      * @return {string}
+     * @category Accessing the Content
      * @method MathField#$selectedText
      */
     $selectedText(format) {
@@ -1916,20 +2062,27 @@ class MathField {
         return this.formatMathlist(root, format);
     }
     /**
-     * Return true if the length of the selection is 0, that is, if it is a single
+     * Checks if the selection is collapsed.
+     * 
+     * @return {boolean} True if the length of the selection is 0, that is, if it is a single
      * insertion point.
-     * @return {boolean}
+     * @category Selection
      * @method MathField#$selectionIsCollapsed
      */
     $selectionIsCollapsed() {
         return this.mathlist.isCollapsed();
     }
     /**
-     * Return the depth of the selection group. If the selection is at the root level,
-     * returns 0. If the selection is a portion of the numerator of a fraction
+     * Returns the depth of the selection group. 
+     * 
+     * If the selection is at the root level, returns 0. 
+     * 
+     * If the selection is a portion of the numerator of a fraction
      * which is at the root level, return 1. Note that in that case, the numerator
      * would be the "selection group".
+     * 
      * @return {number}
+     * @category Selection
      * @method MathField#$selectionDepth
      */
     $selectionDepth() {
@@ -1974,16 +2127,20 @@ class MathField {
         return wasSubscript ? result : 0;
     }
     /**
-     * Return true if the selection starts at the beginning of the selection group.
+     * Checks if the selection starts at the beginning of the selection group.
+     * 
      * @return {boolean}
+     * @category Selection
      * @method MathField#$selectionAtStart
      */
     $selectionAtStart() {
         return this.mathlist.startOffset() === 0;
     }
     /**
-     * Return true if the selection extends to the end of the selection group.
+     * Checks if the selection extends to the end of the selection group.
+     * 
      * @return {boolean}
+     * @category Selection
      * @method MathField#$selectionAtEnd
      */
     $selectionAtEnd() {
@@ -1997,18 +2154,22 @@ class MathField {
             this.mathlist.endOffset() >= this.mathlist.siblings().length - 1;
     }
     /**
+     * Sets or gets the content of the mathfield.
+     * 
      * If `text` is not empty, sets the content of the mathfield to the
      * text interpreted as a LaTeX expression.
-     * If `text` is empty (or omitted), return the content of the mahtfield as a
+     * 
+     * If `text` is empty (or omitted), return the content of the mathfield as a
      * LaTeX expression.
-     * @param {string} text
+     * @param {string} [text]
      *
-     * @param {Object.<string, any>} options
-     * @param {boolean} options.suppressChangeNotifications - If true, the
+     * @param {Object.<string, any>} [options]
+     * @param {boolean} [options.suppressChangeNotifications] - If true, the
      * handlers for the contentWillChange and contentDidChange notifications will
-     * not be invoked. Default `false`.
+     * not be invoked. **Default** = `false`.
      *
      * @return {string}
+     * @category Accessing the Content
      * @method MathField#$latex
      */
     $latex(text, options) {
@@ -2034,7 +2195,8 @@ class MathField {
     /**
      * Return the DOM element associated with this mathfield.
      *
-     * Note that `this.$el().mathfield = this`
+     * Note that `this.$el().mathfield === this`
+     * 
      * @return {HTMLElement}
      * @method MathField#$el
      */
@@ -2122,44 +2284,50 @@ class MathField {
         return true;
     }
     /**
-     * This method can be invoked as a selector with {@linkcode MathField#$perform $perform("insert")}
-     * or called explicitly.
+     * Inserts a block of text at the current insertion point. 
      * 
-     * It will insert the specified block of text at the current insertion point,
-     * according to the insertion mode specified. 
+     * This method can be called explicitly or invoked as a selector with {@linkcode MathField#$perform $perform("insert")}
+     * .
      * 
      * After the insertion, the selection will be set according to the `selectionMode`.
+     * 
      * @param {string} s - The text to be inserted
      * 
-     * @param {Object.<string, any>} [options={}]
+     * @param {Object.<string, any>} [options]
+     * 
+     * @param {"replaceSelection"|"replaceAll"|"insertBefore"|"insertAfter"} options.insertionMode -
+     * 
+     *|`"replaceSelection"`| (default)|
+     *|`"replaceAll"`| |
+     *|`"insertBefore"`| |
+     *|`"insertAfter"`| |
      * 
      * @param {'placeholder' | 'after' | 'before' | 'item'} options.selectionMode - Describes where the selection
      * will be after the insertion:
-     *    * `'placeholder'`: the selection will be the first available placeholder
-     * in the item that has been inserted (default)
-     *    * `'after'`: the selection will be an insertion point after the item that
-     * has been inserted,
-     *    * `'before'`: the selection will be an insertion point before
-     * the item that has been inserted
-     *    * `'item'`: the item that was inserted will be selected
+     * 
+     *|`"placeholder"`| The selection will be the first available placeholder in the text that has been inserted (default)|
+     *|`"after"`| The selection will be an insertion point after the inserted text|
+     *|`"before"`| The selection will be an insertion point before the inserted text|
+     *|`"item"`| The inserted text will be selected|
      * 
      * @param {'auto' | 'latex'} options.format - The format of the string `s`:
-     *    * `'auto'`: the string is interpreted as a latex fragment or command)
-     * (default)
-     *    * `'latex'`: the string is interpreted strictly as a latex fragment
+     * 
+     *|`"auto"`| The string is Latex fragment or command) (default)|
+     *|`"latex"`| The string is a Latex fragment|
      *
      * @param {boolean} options.focus - If true, the mathfield will be focused after 
      * the insertion
      * 
      * @param {boolean} options.feedback - If true, provide audio and haptic feedback
      * 
-     * @param {'text' | 'math' | ''} options.mode - 'text' or 'math'. If empty, the current mode
+     * @param {"text" | "math" | ""} options.mode - If empty, the current mode
      * is used (default)
      * 
      * @param {boolean} options.resetStyle - If true, the style after the insertion
-     * is the same as the style before (if false, the style after the 
-     * insertion is the style of the last inserted atom).
+     * is the same as the style before. If false, the style after the 
+     * insertion is the style of the last inserted atom.
      *
+     * @category Changing the Content
      * @method MathField#$insert
      */
     $insert(s, options) {
@@ -2324,7 +2492,7 @@ class MathField {
     /**
      * Attach event handlers to an element so that it will react by executing
      * a command when pressed.
-     * `'command'` can be:
+     * `"command"` can be:
      * - a string, a single selector
      * - an array, whose first element is a selector followed by one or more arguments.
      * - an object, with the following keys:
@@ -2780,7 +2948,8 @@ class MathField {
         return false;
     }
     /**
-     * Apply a style (color, bold, italic, etc...).
+     * Updates the style (color, bold, italic, etc...) of the selection or sets
+     * the style to be applied to future input.
      *
      * If there is a selection, the style is applied to the selection
      *
@@ -2790,61 +2959,70 @@ class MathField {
      *
      * If there is no selection, the style will apply to the next character typed.
      *
-     * @param {object} style  an object with the following properties. All the
-     * properties are optional, but they can be combined.
+     * @param {object} style  The style properties to be applied. All the
+     * properties are optional and they can be combined.
      *
-     * @param {string} [style.mode=''] - Either `'math'`, `'text'` or '`command`'
-     * @param {string} [style.color=''] - The text/fill color, as a CSS RGB value or
-     * a string for some 'well-known' colors, e.g. 'red', '#f00', etc...
+     * @param {string} [style.mode] - Either `"math"`, `"text"` or `"command"`
+     * 
+     * @param {string} [style.color] - The text/fill color, as a CSS RGB value or
+     * a string for some "well-known" colors, e.g. `"red"`, `"#f00"`, etc...
      *
-     * @param {string} [style.backgroundColor=''] - The background color.
+     * @param {string} [style.backgroundColor] - The background color.
      *
-     * @param {string} [style.fontFamily=''] - The font family used to render text.
+     * @param {string} [style.fontFamily] - The font family used to render text.
+     * 
      * This value can the name of a locally available font, or a CSS font stack, e.g.
-     * "Avenir", "Georgia, serif", etc...
+     * `"Avenir"`, `"Georgia, serif"`, etc...
+     * 
      * This can also be one of the following TeX-specific values:
-     * - 'cmr': Computer Modern Roman, serif
-     * - 'cmss': Computer Modern Sans-serif, latin characters only
-     * - 'cmtt': Typewriter, slab, latin characters only
-     * - 'cal': Calligraphic style, uppercase latin letters and digits only
-     * - 'frak': Fraktur, gothic, uppercase, lowercase and digits
-     * - 'bb': Blackboard bold, uppercase only
-     * - 'scr': Script style, uppercase only
+     * 
+     *|`"cmr"`| Computer Modern Roman, serif|
+     *|`"cmss"`| Computer Modern Sans-serif, latin characters only|
+     *|`"cmtt"`| Typewriter, slab, latin characters only|
+     *|`"cal"`| Calligraphic style, uppercase latin letters and digits only|
+     *|`"frak"`| Fraktur, gothic, uppercase, lowercase and digits|
+     *|`"bb"`| Blackboard bold, uppercase only|
+     *|`"scr"`| Script style, uppercase only|
      *
-     * @param {string} [style.series=''] - The font 'series', i.e. weight and
-     * stretch. The following values can be combined, for example: "ebc": extra-bold,
-     * condensed. Aside from 'b', these attributes may not have visible effect if the
+     * @param {string} [style.series] - The font 'series', i.e. weight and
+     * stretch. 
+     * 
+     * The following values can be combined, for example: `"ebc"`: extra-bold,
+     * condensed. Aside from `"b"`, these attributes may not have visible effect if the
      * font family does not support this attribute:
-     * - 'ul' ultra-light weight
-     * - 'el': extra-light
-     * - 'l': light
-     * - 'sl': semi-light
-     * - 'm': medium (default)
-     * - 'sb': semi-bold
-     * - 'b': bold
-     * - 'eb': extra-bold
-     * - 'ub': ultra-bold
-     * - 'uc': ultra-condensed
-     * - 'ec': extra-condensed
-     * - 'c': condensed
-     * - 'sc': semi-condensed
-     * - 'n': normal (default)
-     * - 'sx': semi-expanded
-     * - 'x': expanded
-     * - 'ex': extra-expanded
-     * - 'ux': ultra-expanded
+     * 
+     *|`"ul"`| ultra-light weight|
+     *|`"el"`| extra-light|
+     *|`"l"`| light|
+     *|`"sl"`| semi-light|
+     *|`"m"`| medium (default)|
+     *|`"sb"`| semi-bold|
+     *|`"b"`| bold|
+     *|`"eb"`| extra-bold|
+     *|`"ub"`| ultra-bold|
+     *|`"uc"`| ultra-condensed|
+     *|`"ec"`| extra-condensed|
+     *|`"c"`| condensed|
+     *|`"sc"`| semi-condensed|
+     *|`"n"`| normal (default)|
+     *|`"sx"`| semi-expanded|
+     *|`"x"`| expanded|
+     *|`"ex"`| extra-expanded|
+     *|`"ux"`| ultra-expanded|
      *
-     * @param {string} [style.shape=''] - The font 'shape', i.e. italic.
-     * - 'auto': italic or upright, depending on mode and letter (single letters are
-     * italic in math mode)
-     * - 'up': upright
-     * - 'it': italic
-     * - 'sl': slanted or oblique (often the same as italic)
-     * - 'sc': small caps
-     * - 'ol': outline
+     * @param {string} [style.shape] - The font "shape", i.e. italic or upright.
+     * 
+     *|`"auto"`| italic or upright, depending on mode and letter (single letters are italic in math mode)|
+     *|`"up"`| upright|
+     *|`"it"`| italic|
+     *|`"sl"`| slanted or oblique (often the same as italic)|
+     *|`"sc"`| small caps|
+     *|`"ol"`| outline|
      *
-     * @param {string} [style.size=''] - The font size:  'size1'...'size10'
-     * 'size5' is the default size
+     * @param {string} [style.size] - The font size:  `"size1"`...`"size10"`.
+     * '"size5"' is the default size
+     * 
+     * @category Changing the Content
      * @method MathField#$applyStyle
      * */
     $applyStyle(style) {
@@ -2938,11 +3116,17 @@ class MathField {
     /**
      * @param {string} keys - A string representation of a key combination.
      *
-     * For example `'Alt-KeyU'`.
+     * For example `"Alt-KeyU"`.
      *
      * See [W3C UIEvents](https://www.w3.org/TR/uievents/#code-virtual-keyboards)
-     * @param {Event} evt
+     * for more information on the format of the descriptor.
+     * 
+     * @param {Event?} [evt] - An event corresponding to the keystroke. Pass this
+     * event if the keystroke originated from a user interaction that produced it.
+     * If the keystroke is synthetic (for example, triggered in response to a 
+     * click or other event not involving a keyboard), omit it.
      * @return {boolean}
+     * @category Changing the Content
      * @method MathField#$keystroke
      */
     $keystroke(keys, evt) {
@@ -2951,8 +3135,10 @@ class MathField {
         return this._onKeystroke(keys, evt);
     }
     /**
-     * Simulate a user typing the keys indicated by text.
+     * Simulates a user typing the keys indicated by text.
+     * 
      * @param {string} text - A sequence of one or more characters.
+     * @category Changing the Content
      * @method MathField#$typedText
      */
     $typedText(text) {
@@ -2963,11 +3149,11 @@ class MathField {
     /**
      *
      * @param {string} text
-     * @param {Object.<string, any>} [options={}]
-     * @param {boolean} options.focus - If true, the mathfield will be focused
-     * @param {boolean} options.feedback - If true, provide audio and haptic feedback
-     * @param {boolean} options.simulateKeystroke - If true, generate some synthetic
-     * keystrokes (useful to trigger inline shortcuts, for example)
+     * @param {object} [options]
+     * @param {boolean} [options.focus] - If true, the mathfield will be focused.
+     * @param {boolean} [options.feedback] - If true, provide audio and haptic feedback.
+     * @param {boolean} [options.simulateKeystroke] - If true, generate some synthetic
+     * keystrokes (useful to trigger inline shortcuts, for example).
      * @private
      */
     typedText_(text, options) {
@@ -2977,7 +3163,7 @@ class MathField {
      *
      * Update the configuration options for this mathfield.
      *
-     * @param {MathFieldConfig} [config={}] See {@tutorial CONFIG} for details.
+     * @param {MathFieldConfig} config - See {@tutorial CONFIG Configuration Options} for details.
      *
      * @method MathField#$setConfig
      */
@@ -3079,9 +3265,10 @@ class MathField {
      *
      * Speak some part of the expression, either with or without synchronized highlighting.
      *
-     * @param {string} amount (all, selection, left, right, group, parent)
+     * @param {string} amount - `"all"`, `"selection"`, `"left"`, `"right"`, `"group"`, `"parent"`
      * @param {object} speakOptions
-     * @param {boolean} speakOptions.withHighlighting - If true, synchronized highlighting of speech will happen (if possible). Default is false.
+     * @param {boolean} speakOptions.withHighlighting - If true, synchronized 
+     * highlighting of speech will happen (if possible). Default is false.
      *
      * @method MathField#speak_
      */
@@ -3288,10 +3475,10 @@ function speakableText(mathfield, prefix, atoms) {
  * Announce a change in selection or content via the aria-live region.
  * This is the default implementation for this function. It can be overridden
  * via `config.onAnnounce`
- * @param {object} target typically, a MathField
- * @param {string} command the command that invoked the change
- * @param {Atom[]} [oldMathlist=[]] the previous value of mathlist before the change
- * @param {Atom[]} [atomsToSpeak=[] ] 
+ * @param {object} target Typically, a MathField.
+ * @param {string} command The command that invoked the change.
+ * @param {Atom[]} [oldMathlist] The previous value of mathlist before the change.
+ * @param {Atom[]} [atomsToSpeak] 
  * @method MathField#_onAnnounce
  * @private
  */

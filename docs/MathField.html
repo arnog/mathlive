@@ -673,7 +673,7 @@ font family does not support this attribute:</p>
 
             
                     <p class="description last">
-                        <p>The font &quot;shape&quot;, i.e. italic or upright</p>
+                        <p>The font &quot;shape&quot;, i.e. italic or upright.</p>
 <p>|<code>&quot;auto&quot;</code>| italic or upright, depending on mode and letter (single letters are italic in math mode)|
 |<code>&quot;up&quot;</code>| upright|
 |<code>&quot;it&quot;</code>| italic|
@@ -715,7 +715,7 @@ font family does not support this attribute:</p>
 
             
                     <p class="description last">
-                        <p>The font size:  <code>&quot;size1&quot;</code>...<code>&quot;size10&quot;</code>
+                        <p>The font size:  <code>&quot;size1&quot;</code>...<code>&quot;size10&quot;</code>.
 '&quot;size5&quot;' is the default size</p>
                     </p>
                     
@@ -1297,7 +1297,7 @@ insertion is the style of the last inserted atom.</p>
 
     
 
-    <h4 class="name" id="$keystroke">$keystroke<span class="signature">(keys<span class="signature-type">: string</span>, evt<span class="signature-attributes">?</span><span class="signature-type">: Event</span>)</span><span class="type-signature">:  boolean</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="$keystroke">$keystroke<span class="signature">(keys<span class="signature-type">: string</span>, evt<span class="signature-attributes">?, nullable</span><span class="signature-type">: Event</span>)</span><span class="type-signature">:  boolean</span><span class="type-signature"></span></h4>
 
     
 
@@ -1367,6 +1367,8 @@ for more information on the format of the descriptor.</p>
                 <span class="attributes">
                 
 
+                
+                    <span class="attribute">nullable</span>
                 
 
                 
@@ -1479,10 +1481,10 @@ click or other event not involving a keyboard), omit it.</p>
 
 
 <div class="description">
-    <p>Set or get the content of the mathfield.</p>
+    <p>Sets or gets the content of the mathfield.</p>
 <p>If <code>text</code> is not empty, sets the content of the mathfield to the
-text interpreted as a LaTeX expression.
-If <code>text</code> is empty (or omitted), return the content of the mathfield as a
+text interpreted as a LaTeX expression.</p>
+<p>If <code>text</code> is empty (or omitted), return the content of the mathfield as a
 LaTeX expression.</p>
 </div>
 
@@ -1593,7 +1595,7 @@ LaTeX expression.</p>
                     <p class="description last">
                         <p>If true, the
 handlers for the contentWillChange and contentDidChange notifications will
-not be invoked. Default <code>false</code>.</p>
+not be invoked. <strong>Default</strong> = <code>false</code>.</p>
                     </p>
                     
             
@@ -1700,54 +1702,6 @@ not be invoked. Default <code>false</code>.</p>
 
 <div class="description">
     <p>Performs a command defined by a selector.</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>command</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">string</span>
-|
-
-<span class="param-type">string[]</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>A selector, or an array whose first element
-is a selector, and whose subsequent elements are arguments to the selector.</p>
-<p>Note that selectors do not include a final &quot;_&quot;. They can be passed either
-in camelCase or kebab-case.</p>
-<pre class="prettyprint source lang-javascript"><code>mf.$perform('selectAll');
-mf.$perform('select-all');
-</code></pre>
-<p>In the above example, both calls invoke the same selector.</p>
 <h4 id="moving-the-insertion-point">Moving the insertion point</h4>
 <table>
 <thead>
@@ -1842,7 +1796,7 @@ mf.$perform('select-all');
 </tr>
 <tr>
 <td><code>&quot;selectAll&quot;</code></td>
-<td>Select all the atoms in the math field</td>
+<td>Select all the atoms in the mathfield</td>
 </tr>
 </tbody>
 </table>
@@ -2135,6 +2089,54 @@ mf.$perform('select-all');
 </tr>
 </tbody>
 </table>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>command</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+|
+
+<span class="param-type">string[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>A selector, or an array whose first element
+is a selector, and whose subsequent elements are arguments to the selector.</p>
+<p>Note that selectors do not include a final &quot;_&quot;. They can be passed either
+in camelCase or kebab-case.</p>
+<pre class="prettyprint source lang-javascript"><code>mf.$perform('selectAll');
+mf.$perform('select-all');
+</code></pre>
+<p>In the above example, both calls invoke the same selector.</p>
                     </p>
                     
             
@@ -2350,8 +2352,8 @@ element again to get a new mathfield object.</p>
 
             
                     <p class="description last">
-                        <p>One of:</p>
-<p>|<code>&quot;latex&quot;</code>||
+                        <p>The format of the result.</p>
+<p>|<code>&quot;latex&quot;</code>|Macros are not expanded|
 |<code>&quot;latex-expanded&quot;</code>|All macros are recursively expanded to their definition|
 |<code>&quot;spoken&quot;</code>|
 |<code>&quot;spoken-text&quot;</code>|
@@ -3038,15 +3040,15 @@ insertion point.</p>
 
             
                     <p class="description last">
-                        <p>One of</p>
-<p>|<code>&quot;latex&quot;</code>||
+                        <p>The format of the result.</p>
+<p>|<code>&quot;latex&quot;</code>|Macros are not expanded|
 |<code>&quot;latex-expanded&quot;</code>|All macros are recursively expanded to their definition|
-|<code>&quot;spoken&quot;</code>|
-|<code>&quot;spoken-text&quot;</code>|
-|<code>&quot;spoken-ssml&quot;</code>|
-|<code>&quot;spoken-ssml-withHighlighting&quot;</code>|
-|<code>&quot;mathML&quot;</code>|
-|<code>&quot;json&quot;</code>|</p>
+|<code>&quot;spoken&quot;</code>||
+|<code>&quot;spoken-text&quot;</code>||
+|<code>&quot;spoken-ssml&quot;</code>||
+|<code>&quot;spoken-ssml-withHighlighting&quot;</code>||
+|<code>&quot;mathML&quot;</code>||
+|<code>&quot;json&quot;</code>|A stringified version of the JSON representation of the content|</p>
 <p><strong>Default</strong> = <code>&quot;latex&quot;</code></p>
                     </p>
                     
@@ -3389,7 +3391,7 @@ via <code>config.onAnnounce</code></p>
 
             
                     <p class="description last">
-                        <p>typically, a MathField</p>
+                        <p>Typically, a MathField.</p>
                     </p>
                     
             
@@ -3417,7 +3419,7 @@ via <code>config.onAnnounce</code></p>
 
             
                     <p class="description last">
-                        <p>the command that invoked the change</p>
+                        <p>The command that invoked the change.</p>
                     </p>
                     
             
@@ -3450,12 +3452,10 @@ via <code>config.onAnnounce</code></p>
             
 
             
-                <span class="default">= []</span>
-            
 
             
                     <p class="description last">
-                        <p>the previous value of mathlist before the change</p>
+                        <p>The previous value of mathlist before the change.</p>
                     </p>
                     
             
@@ -3487,8 +3487,6 @@ via <code>config.onAnnounce</code></p>
                 </span>
             
 
-            
-                <span class="default">= []</span>
             
 
             

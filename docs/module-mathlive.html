@@ -80,7 +80,10 @@ writeCookie('symbol-access', 'private')
     <div class="container-overview">
     
         
-            <div class="description"><p>This modules exports the MathLive entry points.</p></div>
+            <div class="description"><p>Use MathLive to render and edit mathematical formulas in your browser.</p>
+<p>This module exports some functions and the <code>MathField</code> class.</p>
+<p>See USAGE_GUIDE the Usage Guide for more details on how to get
+started.</p></div>
         
 
         
@@ -153,7 +156,7 @@ writeCookie('symbol-access', 'private')
 
     
         
-    <pre class="prettyprint"><code>// To invoke the functions in this module, import the MathLive module. import MathLive from 'dist/mathlive.mjs';const markup = MathLive.latexToMarkup('e^{i\\pi}+1=0');</code></pre>
+    <pre class="prettyprint"><code>// To invoke the functions in this module, import the `mathlive` module. import mathlive from 'dist/mathlive.mjs';console.log(mathlive.latexToMarkup('e^{i\\pi}+1=0'));</code></pre>
 
     
 
@@ -193,7 +196,7 @@ writeCookie('symbol-access', 'private')
 
 
 <div class="description">
-    <p>Convert an Abstract Syntax Tree to a LaTeX string.</p>
+    <p>Converts an Abstract Syntax Tree (MathJSON) to a LaTeX string.</p>
 <p><strong>See:</strong> <a href="tutorial-MASTON.html">MASTON</a></p>
 </div>
 
@@ -232,7 +235,7 @@ writeCookie('symbol-access', 'private')
 
             
                     <p class="description last">
-                        <p>The Abstract Syntax Tree as a JavaScript object.</p>
+                        <p>The Abstract Syntax Tree as an object literal (MathJSON).</p>
                     </p>
                     
             
@@ -293,7 +296,8 @@ writeCookie('symbol-access', 'private')
 
             
                     <p class="description last">
-                        <p>Number of digits used in the representation of numbers</p>
+                        <p>The number of digits used in the
+representation of numbers. <strong>Default</strong> = 14.</p>
                     </p>
                     
             
@@ -331,7 +335,8 @@ writeCookie('symbol-access', 'private')
 
             
                     <p class="description last">
-                        <p>Character used as the decimal marker</p>
+                        <p>The character used as the decimal
+marker. <strong>Default</strong> = <code>&quot;.&quot;</code>.</p>
                     </p>
                     
             
@@ -369,7 +374,7 @@ writeCookie('symbol-access', 'private')
 
             
                     <p class="description last">
-                        <p>Character used to separate group of numbers, typicall thousands</p>
+                        <p>The character used to separate group of numbers, typically thousands. <strong>Default</strong> = <code>&quot;\\, &quot;</code></p>
                     </p>
                     
             
@@ -407,7 +412,7 @@ writeCookie('symbol-access', 'private')
 
             
                     <p class="description last">
-                        <p>Character used to indicate product. Other option would be '\times '</p>
+                        <p>The character used to indicate product. Other option would be <code>&quot;\\times &quot;</code>. <strong>Default</strong> = <code>&quot;\\cdot &quot;</code></p>
                     </p>
                     
             
@@ -445,7 +450,8 @@ writeCookie('symbol-access', 'private')
 
             
                     <p class="description last">
-                        <p>Character used before an exponent indicator</p>
+                        <p>The character used before an
+exponent indicator. <strong>Default</strong> = <code>&quot;\\cdot &quot;</code></p>
                     </p>
                     
             
@@ -483,7 +489,8 @@ writeCookie('symbol-access', 'private')
 
             
                     <p class="description last">
-                        <p>Character used to indicate an exponent</p>
+                        <p>The character used to indicate an
+exponent. <strong>Default</strong> = <code>&quot;&quot;</code></p>
                     </p>
                     
             
@@ -499,7 +506,13 @@ writeCookie('symbol-access', 'private')
             <span class="type">
             
                 : 
-<span class="param-type">string</span>
+<span class="param-type">"auto"</span>
+|
+
+<span class="param-type">"engineering"</span>
+|
+
+<span class="param-type">"on"</span>
 
 
             
@@ -521,7 +534,8 @@ writeCookie('symbol-access', 'private')
 
             
                     <p class="description last">
-                        <p>Other possible values 'engineering' or 'on'</p>
+                        <p>The format used for numbers
+using the scientific notation. <strong>Default</strong> = <code>&quot;auto&quot;</code></p>
                     </p>
                     
             
@@ -558,6 +572,12 @@ writeCookie('symbol-access', 'private')
             
 
             
+                    <p class="description last">
+                        <p>The string
+used at the begining of repeating digits. <strong>Default</strong> = <code>&quot;\\overline{&quot;</code></p>
+                    </p>
+                    
+            
         </div>
 
     
@@ -590,6 +610,12 @@ writeCookie('symbol-access', 'private')
                 <span class="default">= '}'</span>
             
 
+            
+                    <p class="description last">
+                        <p>The string
+used at the end of repeating digits. <strong>Default</strong> = <code>&quot;}&quot;</code></p>
+                    </p>
+                    
             
         </div>
 
@@ -697,7 +723,7 @@ writeCookie('symbol-access', 'private')
 <div class="description">
     <p>After calling <a href="module-mathlive.html#renderMathInElement"><code>renderMathInElement</code></a>
 or <a href="module-mathlive.html#makeMathField"><code>makeMathField</code></a> the original content
-can be retrived by calling this function.</p>
+can be retrieved by calling this function.</p>
 <p>Given the following markup:</p>
 <pre class="prettyprint source lang-html"><code>&lt;span id='equation'>$$f(x)=sin(x)$$&lt;/span>
 </code></pre>
@@ -825,7 +851,7 @@ element or a MathField.</p>
                     <p class="description last">
                         <p>The namespace used for the <code>data-</code>
 attributes.
-If you used a namespace with <code>renderMathInElement</code>, you must
+If you used a namespace with <code>renderMathInElement()</code>, you must
 use the same namespace here.</p>
                     </p>
                     
@@ -934,7 +960,7 @@ use the same namespace here.</p>
 
 
 <div class="description">
-    <p>Convert a LaTeX string to an Abstract Syntax Tree</p>
+    <p>Converts a LaTeX string to an Abstract Syntax Tree (MathJSON)</p>
 <p><strong>See:</strong> <a href="tutorial-MASTON.html">MASTON</a></p>
 </div>
 
@@ -1065,7 +1091,7 @@ with a mode token such as a <code>$$</code> or <code>\(</code>.</p>
         &nbsp;&nbsp;
     
     
-        <p>The Abstract Syntax Tree as a JavaScript object.</p>
+        <p>The Abstract Syntax Tree as an object literal using the MathJSON format.</p>
     
 </span>
 
@@ -1134,14 +1160,14 @@ with a mode token such as a <code>$$</code> or <code>\(</code>.</p>
 
     
 
-    <h4 class="name" id="latexToMarkup">latexToMarkup<span class="signature">(text<span class="signature-type">: string</span>, mathstyle<span class="signature-type">: string</span>, format<span class="signature-attributes">?</span><span class="signature-type">: string</span>)</span><span class="type-signature">:  string</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="latexToMarkup">latexToMarkup<span class="signature">(text<span class="signature-type">: string</span>, mathstyle<span class="signature-type">: "displaystyle" | "textstyle"</span>, format<span class="signature-attributes">?</span><span class="signature-type">: "mathlist" | "span" | "html"</span>)</span><span class="type-signature">:  string</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Convert a LaTeX string to a string of HTML markup.</p>
+    <p>Converts a LaTeX string to a string of HTML markup.</p>
 </div>
 
 
@@ -1196,7 +1222,10 @@ with a mode token such as <code>$$</code> or <code>\(</code>.</p>
             <span class="type">
             
                 : 
-<span class="param-type">string</span>
+<span class="param-type">"displaystyle"</span>
+|
+
+<span class="param-type">"textstyle"</span>
 
 
             
@@ -1210,7 +1239,8 @@ with a mode token such as <code>$$</code> or <code>\(</code>.</p>
                     <p class="description last">
                         <p>If <code>'displaystyle'</code> the &quot;display&quot; mode of TeX
 is used to typeset the formula, which is most appropriate for formulas that are
-displayed in a standalone block. If <code>'textstyle'</code> is used, the &quot;text&quot; mode
+displayed in a standalone block.</p>
+<p>If <code>'textstyle'</code> is used, the &quot;text&quot; mode
 of TeX is used, which is most appropriate when displaying math &quot;inline&quot;
 with other text (on the same line).</p>
                     </p>
@@ -1228,7 +1258,13 @@ with other text (on the same line).</p>
             <span class="type">
             
                 : 
-<span class="param-type">string</span>
+<span class="param-type">"mathlist"</span>
+|
+
+<span class="param-type">"span"</span>
+|
+
+<span class="param-type">"html"</span>
 
 
             
@@ -1252,7 +1288,7 @@ with other text (on the same line).</p>
                     <p class="description last">
                         <p>For debugging purposes, this function
 can also return a text representation of internal data structures
-used to construct the markup. Valid values include <code>'mathlist'</code> and <code>'span'</code></p>
+used to construct the markup.</p>
                     </p>
                     
             
@@ -1351,7 +1387,7 @@ used to construct the markup. Valid values include <code>'mathlist'</code> and <
 
 
 <div class="description">
-    <p>Convert a LaTeX string to a string of MathML markup.</p>
+    <p>Converts a LaTeX string to a string of MathML markup.</p>
 </div>
 
 
@@ -1451,8 +1487,9 @@ with a mode token such as a <code>$$</code> or <code>\(</code>.</p>
 
             
                     <p class="description last">
-                        <p>If true, add an <code>extid</code> attribute
-to the MathML nodes with a value matching the <code>atomID</code>.</p>
+                        <p>If true, add an <code>&quot;extid&quot;</code> attribute
+to the MathML nodes with a value matching the <code>atomID</code>. This can be used
+to map items on the screen with their MathML representation or vice-versa.</p>
                     </p>
                     
             
@@ -1558,7 +1595,7 @@ to the MathML nodes with a value matching the <code>atomID</code>.</p>
 
 
 <div class="description">
-    <p>Convert a LaTeX string to a textual representation ready to be spoken</p>
+    <p>Converts a LaTeX string to a textual representation ready to be spoken</p>
 </div>
 
 
@@ -1624,12 +1661,6 @@ with a mode token such as a <code>$$</code> or <code>\(</code>.</p>
             
 
             
-                    <p class="description last">
-                        <ul>
-<li></li>
-</ul>
-                    </p>
-                    
                         <div class='param'>
 
     
@@ -1642,7 +1673,10 @@ with a mode token such as a <code>$$</code> or <code>\(</code>.</p>
             <span class="type">
             
                 : 
-<span class="param-type">string</span>
+<span class="param-type">"mathlive"</span>
+|
+
+<span class="param-type">"sre"</span>
 
 
             
@@ -1664,11 +1698,12 @@ with a mode token such as a <code>$$</code> or <code>\(</code>.</p>
 
             
                     <p class="description last">
-                        <p>Specify which
-set of text to speech rules to use.</p>
-<p>A value of <code>mathlive</code> indicates that
-the simple rules built into MathLive should be used. A value of <code>sre</code>
-indicates that the Speech Rule Engine from Volker Sorge should be used.
+                        <p>The set of text to
+speech rules to use.</p>
+<p>A value of <code>&quot;mathlive&quot;</code> (the default) indicates that
+the simple rules built into MathLive should be used.</p>
+<p>A value of <code>&quot;sre&quot;</code> indicates that the Speech Rule Engine from Volker Sorge
+should be used.
 Note that SRE is not included or loaded by MathLive and for this option to
 work SRE should be loaded separately.</p>
                     </p>
@@ -1711,7 +1746,7 @@ work SRE should be loaded separately.</p>
                         <p>The markup syntax to use
 for the output of conversion to spoken text.</p>
 <p>Possible values are <code>ssml</code> for
-the SSML markup or <code>mac</code> for the MacOS markup (e.g. <code>[[ltr]]</code>)</p>
+the SSML markup or <code>mac</code> for the MacOS markup (e.g. <code>&quot;[[ltr]]&quot;</code>)</p>
                     </p>
                     
             
@@ -1865,7 +1900,7 @@ the SRE engine are documented [here]{@link:https://github.com/zorkow/speech-rule
 
 
 <div class="description">
-    <p>Convert a DOM element into an editable math field.</p>
+    <p>Convert a DOM element into an editable mathfield.</p>
 <p>After the DOM element has been created, the value <code>element.mathfield</code> will
 return a reference to the mathfield object. This value is also returned
 by <code>makeMathField</code></p>
@@ -2055,7 +2090,7 @@ MathLive.makeMathField('equation');
 
 
 <div class="description">
-    <p>If a Read Aloud operation is in progress, stop it.</p>
+    <p>Pauses a read aloud operation if one is in progress.</p>
 <p><strong>See</strong> <code>speak</code></p>
 </div>
 
@@ -2133,7 +2168,7 @@ MathLive.makeMathField('equation');
 
     
 
-    <h4 class="name" id="playReadAloud">playReadAloud<span class="signature">(token<span class="signature-type">: string</span>, count<span class="signature-attributes">?</span><span class="signature-type">: number</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
+    <h4 class="name" id="playReadAloud">playReadAloud<span class="signature">(token<span class="signature-attributes">?</span><span class="signature-type">: string</span>, count<span class="signature-attributes">?</span><span class="signature-type">: number</span>)</span><span class="type-signature"></span><span class="type-signature"></span></h4>
 
     
 
@@ -2174,6 +2209,14 @@ MathLive.makeMathField('equation');
             </span>
 
             
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
 
             
 
@@ -2208,6 +2251,11 @@ MathLive.makeMathField('equation');
 
             
 
+            
+                    <p class="description last">
+                        <p>The number of tokens to read.</p>
+                    </p>
+                    
             
         </div>
 
@@ -2450,21 +2498,21 @@ reading with synchronized highlighting</p>
 
     
 
-    <h4 class="name" id="readAloudStatus">readAloudStatus<span class="signature">()</span><span class="type-signature">:  string</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="readAloudStatus">readAloudStatus<span class="signature">()</span><span class="type-signature">:  "ready" | "playing" | "paused" | "unavailable"</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Return the status of a Read Aloud operation (reading with synchronized
+    <p>Returns the status of a Read Aloud operation (reading with synchronized
 highlighting).</p>
-<p>Possible values include:</p>
+<p>Possible values are:</p>
 <ul>
-<li><code>ready</code></li>
-<li><code>playing</code></li>
-<li><code>paused</code></li>
-<li><code>unavailable</code></li>
+<li><code>&quot;ready&quot;</code></li>
+<li><code>&quot;playing&quot;</code></li>
+<li><code>&quot;paused&quot;</code></li>
+<li><code>&quot;unavailable&quot;</code></li>
 </ul>
 <p><strong>See</strong> <code>speak</code></p>
 </div>
@@ -2488,7 +2536,16 @@ highlighting).</p>
 <span class="param-desc">
     
         : 
-<span class="param-type">string</span>
+<span class="param-type">"ready"</span>
+|
+
+<span class="param-type">"playing"</span>
+|
+
+<span class="param-type">"paused"</span>
+|
+
+<span class="param-type">"unavailable"</span>
 
 
         &nbsp;&nbsp;
@@ -3328,7 +3385,7 @@ speakable text markup.</p>
 
 
 <div class="description">
-    <p>If a Read Aloud operation is paused, resume it</p>
+    <p>Resumes a read aloud operation if one was paused.</p>
 <p><strong>See</strong> <code>speak</code></p>
 </div>
 
@@ -3599,8 +3656,8 @@ use the same namespace here.</p>
 
 
 <div class="description">
-    <p>Highlight the span corresponding to the specified atomID
-This is used for TTS with synchronized highlighting (read aloud)</p>
+    <p>Highlights the span corresponding to the specified atomID.</p>
+<p>This is used for text-to-speech with synchronized highlighting (read aloud)</p>
 </div>
 
 

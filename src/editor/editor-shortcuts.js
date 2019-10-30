@@ -691,6 +691,7 @@ const INLINE_SHORTCUTS = {
  * @param {string} s 
  * @param {object} config 
  * @return {string[]}
+ * @private
  */
 function startsWithString(s, config) {
     const result = [];
@@ -725,6 +726,7 @@ function startsWithString(s, config) {
  * @param {string} mode
  * @param {object[]} siblings atoms preceding this potential shortcut
  * @param {string} shortcut 
+ * @private
  */
 function validateShortcut(mode, siblings, shortcut) {
     if (!shortcut) return shortcut

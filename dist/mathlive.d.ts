@@ -1,10 +1,10 @@
 /**
  * @typedef {function} MathFieldCallback
- * @param {MathField} mf
+ * @param {MathField} mathfield
  * @return {void}
  * @global
  */
-declare type MathFieldCallback = (mf: MathField) => void;
+declare type MathFieldCallback = (mathfield: MathField) => void;
 
 /**
  @typedef MathFieldConfig
@@ -135,163 +135,332 @@ declare type MathFieldConfig = {
  */
 declare class MathField {
     /**
-     * Revert this math field to its original content. After this method has been
-     * called, no other methods can be called on the MathField object. To turn the
-     * element back into a MathField, call `MathLive.makeMathField()` on the
-     * element again to get a new math field object.
+     * Reverts this mathfield to its original content.
+     *
+     * After this method has been
+     * called, no other methods can be called on the object.
+     *
+     * To turn the
+     * element back into a mathfield, call `MathLive.makeMathField()` on the
+     * element again to get a new mathfield object.
      *
      * @method MathField#$revertToOriginalContent
      */
     $revertToOriginalContent(): void;
     /**
+     * Performs a command defined by a selector.
+     *
+     *
+    #### Moving the insertion point
+    
+    | Name                 | Description               |
+    | --------------------- | ------------------------- |
+    | `"moveToNextChar"` | |
+    | `"moveToPreviousChar"` | |
+    | `"moveUp"` | |
+    | `"moveDown"` | |
+    | `"moveToNextPlaceholder"` | |
+    | `"moveToPreviousPlaceholder"` | |
+    | `"moveToNextWord"` | |
+    | `"moveToPreviousWord"` | |
+    | `"moveToGroupStart"` | |
+    | `"moveToGroupEnd"` | |
+    | `"moveToMathFieldStart"` | |
+    | `"moveToMathFieldEnd"` | |
+    | `"moveToSuperscript"` | |
+    | `"moveToSubscript"` | |
+    | `"moveToOpposite"` | |
+    | `"moveBeforeParent"` | |
+    | `"moveAfterParent"` | |
+    
+    
+    #### Selection
+    
+    | Name                 | Description               |
+    | --------------------- | ------------------------- |
+    | `"selectGroup"` | Select all the atoms in the current group, that is all the siblings.<br> When the selection is in a numerator, the group is the numerator.<br>When the selection is a superscript or subscript, the group is the supsub.|
+    | `"selectAll"` | Select all the atoms in the mathfield|
+    
+    
+    #### Extending the selection
+    
+    | Name                 | Description               |
+    | --------------------- | ------------------------- |
+    | `"extendToNextChar"` | |
+    | `"extendToPreviousChar"` | |
+    | `"extendToNextWord"` | |
+    | `"extendToPreviousWord"` | |
+    | `"extendUp"` | |
+    | `"extendDown"` | |
+    | `"extendToNextBoundary"` | |
+    | `"extendToPreviousBoundary"` | |
+    | `"extendToGroupStart"` | |
+    | `"extendToGroupEnd"` | |
+    | `"extendToMathFieldStart"` | |
+    | `"extendToMathFieldEnd"` | |
+    
+    
+    #### Editing / deleting
+    
+    | Name                 | Description               |
+    | --------------------- | ------------------------- |
+    | `"deleteAll"` | Delete everything in the field |
+    | `"delete"` | Delete the current selection |
+    | `"deleteNextChar"` | |
+    | `"deletePreviousChar"` | |
+    | `"deleteNextWord"` | |
+    | `"deletePreviousWord"` | |
+    | `"deleteToGroupStart"` | |
+    | `"deleteToGroupEnd"` | |
+    | `"deleteToMathFieldEnd"` | |
+    | `"transpose"` | |
+    
+    
+    #### Editing a matrix
+    
+    | Name                 | Description               |
+    | --------------------- | ------------------------- |
+    | `"addRowAfter"` | |
+    | `"addRowBefore"` | |
+    | `"addColumnAfter"` | |
+    | `"addColumnBefore"` | |
+    
+    
+    #### Other editing commands
+    
+    | Name                 | Description               |
+    | --------------------- | ------------------------- |
+    | `"scrollIntoView"` | |
+    | `"scrollToStart"` | |
+    | `"switchMode"` | |
+    | `"complete"` | |
+    | `"nextSuggestion"` | |
+    | `"previousSuggestion"` | |
+    | `"toggleKeystrokeCaption"` | |
+    | `"applyStyle"` | |
+    
+    
+    #### Clipboard
+    
+    | Name                 | Description               |
+    | --------------------- | ------------------------- |
+    | `"undo"` | |
+    | `"redo"` | |
+    | `"copyToClipboard"` | |
+    | `"cutToClipboard"` | |
+    | `"pasteFromClipboard"` | |
+    
+    
+    #### Virtual Keyboard
+    
+    | Name                 | Description               |
+    | --------------------- | ------------------------- |
+    | `"toggleVirtualKeyboard"` | |
+    | `"showVirtualKeyboard"` | |
+    | `"hideVirtualKeyboard"` | |
+    | `"toggleVirtualKeyboardAlt"` | |
+    | `"toggleVirtualKeyboardShift"` | |
+    | `"showAlternateKeys"` | |
+    | `"hideAlternateKeys"` | |
+    | `"performAlternateKeys"` | |
+    | `"switchKeyboardLayer"` | |
+    | `"shiftKeyboardLayer"` | |
+    | `"unshiftKeyboardLayer"` | |
+    | `"insertAndUnshiftKeyboardLayer"` | |
+    | `"performWithFeedback"` | |
+    
+    
+    #### Speech
+    
+    | Name                 | Description               |
+    | --------------------- | ------------------------- |
+    | `"speak"` | speaks the amount specified by the first parameter. |
+     *
      * @param {string|string[]} command - A selector, or an array whose first element
      * is a selector, and whose subsequent elements are arguments to the selector.
+     *
      * Note that selectors do not include a final "_". They can be passed either
-     * in camelCase or kebab-case. So:
+     * in camelCase or kebab-case.
+     *
      * ```javascript
      * mf.$perform('selectAll');
      * mf.$perform('select-all');
      * ```
-     * both calls are valid and invoke the same selector.
+     * In the above example, both calls invoke the same selector.
+     *
      *
      * @method MathField#$perform
      */
     $perform(command: string | string[]): void;
     /**
-     * Return a textual representation of the mathfield.
-     * @param {string} [format='latex']. One of
-     * * `'latex'`
-     * * `'latex-expanded'` : all macros are recursively expanded to their definition
-     * * `'spoken'`
-     * * `'spoken-text'`
-     * * `'spoken-ssml'`
-     * * `spoken-ssml-withHighlighting`
-     * * `'mathML'`
-     * * `'json'`
+     * Returns a textual representation of the mathfield.
+     *
+     * @param {string} [format] - The format of the result.
+     *
+     *|`"latex"`|Macros are not expanded|
+     *|`"latex-expanded"`|All macros are recursively expanded to their definition|
+     *|`"spoken"`||
+     *|`"spoken-text"`||
+     *|`"spoken-ssml"`||
+     *|`"spoken-ssml-withHighlighting"`||
+     *|`"mathML"`||
+     *|`"json"`|A stringified version of the JSON representation of the content|
+     *
+     * **Default** = `"latex"`
      * @return {string}
+     * @category Accessing the Content
      * @method MathField#$text
      */
     $text(format?: string): string;
     /**
-     * Return a textual representation of the selection in the mathfield.
-     * @param {string} [format='latex']. One of
-     * * `'latex'`
-     * * `'latex-expanded'` : all macros are recursively expanded to their definition
-     * * `'spoken'`
-     * * `'spoken-text'`
-     * * `'spoken-ssml'`
-     * * `spoken-ssml-withHighlighting`
-     * * `'mathML'`
-     * * `'json'`
+     * Returns a textual representation of the selection in the mathfield.
+     *
+     * @param {string} [format] - The format of the result.
+     *
+     *|`"latex"`|Macros are not expanded|
+     *|`"latex-expanded"`|All macros are recursively expanded to their definition|
+     *|`"spoken"`|
+     *|`"spoken-text"`|
+     *|`"spoken-ssml"`|
+     *|`"spoken-ssml-withHighlighting"`|
+     *|`"mathML"`|
+     *|`"json"`|
+     *
+     * **Default** = `"latex"`
      * @return {string}
+     * @category Accessing the Content
      * @method MathField#$selectedText
      */
     $selectedText(format?: string): string;
     /**
-     * Return true if the length of the selection is 0, that is, if it is a single
+     * Checks if the selection is collapsed.
+     *
+     * @return {boolean} True if the length of the selection is 0, that is, if it is a single
      * insertion point.
-     * @return {boolean}
+     * @category Selection
      * @method MathField#$selectionIsCollapsed
      */
     $selectionIsCollapsed(): boolean;
     /**
-     * Return the depth of the selection group. If the selection is at the root level,
-     * returns 0. If the selection is a portion of the numerator of a fraction
+     * Returns the depth of the selection group.
+     *
+     * If the selection is at the root level, returns 0.
+     *
+     * If the selection is a portion of the numerator of a fraction
      * which is at the root level, return 1. Note that in that case, the numerator
      * would be the "selection group".
+     *
      * @return {number}
+     * @category Selection
      * @method MathField#$selectionDepth
      */
     $selectionDepth(): number;
     /**
-     * Return true if the selection starts at the beginning of the selection group.
+     * Checks if the selection starts at the beginning of the selection group.
+     *
      * @return {boolean}
+     * @category Selection
      * @method MathField#$selectionAtStart
      */
     $selectionAtStart(): boolean;
     /**
-     * Return true if the selection extends to the end of the selection group.
+     * Checks if the selection extends to the end of the selection group.
+     *
      * @return {boolean}
+     * @category Selection
      * @method MathField#$selectionAtEnd
      */
     $selectionAtEnd(): boolean;
     /**
+     * Sets or gets the content of the mathfield.
+     *
      * If `text` is not empty, sets the content of the mathfield to the
      * text interpreted as a LaTeX expression.
-     * If `text` is empty (or omitted), return the content of the mahtfield as a
-     * LaTeX expression.
-     * @param {string} text
      *
-     * @param {Object.<string, any>} options
-     * @param {boolean} options.suppressChangeNotifications - If true, the
+     * If `text` is empty (or omitted), return the content of the mathfield as a
+     * LaTeX expression.
+     * @param {string} [text]
+     *
+     * @param {Object.<string, any>} [options]
+     * @param {boolean} [options.suppressChangeNotifications] - If true, the
      * handlers for the contentWillChange and contentDidChange notifications will
-     * not be invoked. Default `false`.
+     * not be invoked. **Default** = `false`.
      *
      * @return {string}
+     * @category Accessing the Content
      * @method MathField#$latex
      */
-    $latex(text: string, options: {
-        suppressChangeNotifications: boolean;
+    $latex(text?: string, options?: {
+        suppressChangeNotifications?: boolean;
     }): string;
     /**
      * Return the DOM element associated with this mathfield.
      *
-     * Note that `this.$el().mathfield = this`
+     * Note that `this.$el().mathfield === this`
+     *
      * @return {HTMLElement}
      * @method MathField#$el
      */
     $el(): HTMLElement;
     /**
-     * This method can be invoked as a selector with {@linkcode MathField#$perform $perform("insert")}
-     * or called explicitly.
+     * Inserts a block of text at the current insertion point.
      *
-     * It will insert the specified block of text at the current insertion point,
-     * according to the insertion mode specified.
+     * This method can be called explicitly or invoked as a selector with {@linkcode MathField#$perform $perform("insert")}
+     * .
      *
      * After the insertion, the selection will be set according to the `selectionMode`.
+     *
      * @param {string} s - The text to be inserted
      *
-     * @param {Object.<string, any>} [options={}]
+     * @param {Object.<string, any>} [options]
+     *
+     * @param {"replaceSelection"|"replaceAll"|"insertBefore"|"insertAfter"} options.insertionMode -
+     *
+     *|`"replaceSelection"`| (default)|
+     *|`"replaceAll"`| |
+     *|`"insertBefore"`| |
+     *|`"insertAfter"`| |
      *
      * @param {'placeholder' | 'after' | 'before' | 'item'} options.selectionMode - Describes where the selection
      * will be after the insertion:
-     * * `'placeholder'`: the selection will be the first available placeholder
-     * in the item that has been inserted (default)
-     * * `'after'`: the selection will be an insertion point after the item that
-     * has been inserted,
-     * * `'before'`: the selection will be an insertion point before
-     * the item that has been inserted
-     * * `'item'`: the item that was inserted will be selected
+     *
+     *|`"placeholder"`| The selection will be the first available placeholder in the text that has been inserted (default)|
+     *|`"after"`| The selection will be an insertion point after the inserted text|
+     *|`"before"`| The selection will be an insertion point before the inserted text|
+     *|`"item"`| The inserted text will be selected|
      *
      * @param {'auto' | 'latex'} options.format - The format of the string `s`:
-     * * `'auto'`: the string is interpreted as a latex fragment or command)
-     * (default)
-     * * `'latex'`: the string is interpreted strictly as a latex fragment
+     *
+     *|`"auto"`| The string is Latex fragment or command) (default)|
+     *|`"latex"`| The string is a Latex fragment|
      *
      * @param {boolean} options.focus - If true, the mathfield will be focused after
      * the insertion
      *
      * @param {boolean} options.feedback - If true, provide audio and haptic feedback
      *
-     * @param {'text' | 'math' | ''} options.mode - 'text' or 'math'. If empty, the current mode
+     * @param {"text" | "math" | ""} options.mode - If empty, the current mode
      * is used (default)
      *
      * @param {boolean} options.resetStyle - If true, the style after the insertion
-     * is the same as the style before (if false, the style after the
-     * insertion is the style of the last inserted atom).
+     * is the same as the style before. If false, the style after the
+     * insertion is the style of the last inserted atom.
      *
+     * @category Changing the Content
      * @method MathField#$insert
      */
     $insert(s: string, options?: {
+        insertionMode: "replaceSelection" | "replaceAll" | "insertBefore" | "insertAfter";
         selectionMode: 'placeholder' | 'after' | 'before' | 'item';
         format: 'auto' | 'latex';
         focus: boolean;
         feedback: boolean;
-        mode: 'text' | 'math' | '';
+        mode: "text" | "math" | "";
         resetStyle: boolean;
     }): void;
     /**
-     * Apply a style (color, bold, italic, etc...).
+     * Updates the style (color, bold, italic, etc...) of the selection or sets
+     * the style to be applied to future input.
      *
      * If there is a selection, the style is applied to the selection
      *
@@ -301,61 +470,70 @@ declare class MathField {
      *
      * If there is no selection, the style will apply to the next character typed.
      *
-     * @param {object} style  an object with the following properties. All the
-     * properties are optional, but they can be combined.
+     * @param {object} style  The style properties to be applied. All the
+     * properties are optional and they can be combined.
      *
-     * @param {string} [style.mode=''] - Either `'math'`, `'text'` or '`command`'
-     * @param {string} [style.color=''] - The text/fill color, as a CSS RGB value or
-     * a string for some 'well-known' colors, e.g. 'red', '#f00', etc...
+     * @param {string} [style.mode] - Either `"math"`, `"text"` or `"command"`
      *
-     * @param {string} [style.backgroundColor=''] - The background color.
+     * @param {string} [style.color] - The text/fill color, as a CSS RGB value or
+     * a string for some "well-known" colors, e.g. `"red"`, `"#f00"`, etc...
      *
-     * @param {string} [style.fontFamily=''] - The font family used to render text.
+     * @param {string} [style.backgroundColor] - The background color.
+     *
+     * @param {string} [style.fontFamily] - The font family used to render text.
+     *
      * This value can the name of a locally available font, or a CSS font stack, e.g.
-     * "Avenir", "Georgia, serif", etc...
+     * `"Avenir"`, `"Georgia, serif"`, etc...
+     *
      * This can also be one of the following TeX-specific values:
-     * - 'cmr': Computer Modern Roman, serif
-     * - 'cmss': Computer Modern Sans-serif, latin characters only
-     * - 'cmtt': Typewriter, slab, latin characters only
-     * - 'cal': Calligraphic style, uppercase latin letters and digits only
-     * - 'frak': Fraktur, gothic, uppercase, lowercase and digits
-     * - 'bb': Blackboard bold, uppercase only
-     * - 'scr': Script style, uppercase only
      *
-     * @param {string} [style.series=''] - The font 'series', i.e. weight and
-     * stretch. The following values can be combined, for example: "ebc": extra-bold,
-     * condensed. Aside from 'b', these attributes may not have visible effect if the
+     *|`"cmr"`| Computer Modern Roman, serif|
+     *|`"cmss"`| Computer Modern Sans-serif, latin characters only|
+     *|`"cmtt"`| Typewriter, slab, latin characters only|
+     *|`"cal"`| Calligraphic style, uppercase latin letters and digits only|
+     *|`"frak"`| Fraktur, gothic, uppercase, lowercase and digits|
+     *|`"bb"`| Blackboard bold, uppercase only|
+     *|`"scr"`| Script style, uppercase only|
+     *
+     * @param {string} [style.series] - The font 'series', i.e. weight and
+     * stretch.
+     *
+     * The following values can be combined, for example: `"ebc"`: extra-bold,
+     * condensed. Aside from `"b"`, these attributes may not have visible effect if the
      * font family does not support this attribute:
-     * - 'ul' ultra-light weight
-     * - 'el': extra-light
-     * - 'l': light
-     * - 'sl': semi-light
-     * - 'm': medium (default)
-     * - 'sb': semi-bold
-     * - 'b': bold
-     * - 'eb': extra-bold
-     * - 'ub': ultra-bold
-     * - 'uc': ultra-condensed
-     * - 'ec': extra-condensed
-     * - 'c': condensed
-     * - 'sc': semi-condensed
-     * - 'n': normal (default)
-     * - 'sx': semi-expanded
-     * - 'x': expanded
-     * - 'ex': extra-expanded
-     * - 'ux': ultra-expanded
      *
-     * @param {string} [style.shape=''] - The font 'shape', i.e. italic.
-     * - 'auto': italic or upright, depending on mode and letter (single letters are
-     * italic in math mode)
-     * - 'up': upright
-     * - 'it': italic
-     * - 'sl': slanted or oblique (often the same as italic)
-     * - 'sc': small caps
-     * - 'ol': outline
+     *|`"ul"`| ultra-light weight|
+     *|`"el"`| extra-light|
+     *|`"l"`| light|
+     *|`"sl"`| semi-light|
+     *|`"m"`| medium (default)|
+     *|`"sb"`| semi-bold|
+     *|`"b"`| bold|
+     *|`"eb"`| extra-bold|
+     *|`"ub"`| ultra-bold|
+     *|`"uc"`| ultra-condensed|
+     *|`"ec"`| extra-condensed|
+     *|`"c"`| condensed|
+     *|`"sc"`| semi-condensed|
+     *|`"n"`| normal (default)|
+     *|`"sx"`| semi-expanded|
+     *|`"x"`| expanded|
+     *|`"ex"`| extra-expanded|
+     *|`"ux"`| ultra-expanded|
      *
-     * @param {string} [style.size=''] - The font size:  'size1'...'size10'
-     * 'size5' is the default size
+     * @param {string} [style.shape] - The font "shape", i.e. italic or upright.
+     *
+     *|`"auto"`| italic or upright, depending on mode and letter (single letters are italic in math mode)|
+     *|`"up"`| upright|
+     *|`"it"`| italic|
+     *|`"sl"`| slanted or oblique (often the same as italic)|
+     *|`"sc"`| small caps|
+     *|`"ol"`| outline|
+     *
+     * @param {string} [style.size] - The font size:  `"size1"`...`"size10"`.
+     * '"size5"' is the default size
+     *
+     * @category Changing the Content
      * @method MathField#$applyStyle
      *
      */
@@ -371,17 +549,25 @@ declare class MathField {
     /**
      * @param {string} keys - A string representation of a key combination.
      *
-     * For example `'Alt-KeyU'`.
+     * For example `"Alt-KeyU"`.
      *
      * See [W3C UIEvents](https://www.w3.org/TR/uievents/#code-virtual-keyboards)
-     * @param {Event} evt
+     * for more information on the format of the descriptor.
+     *
+     * @param {Event?} [evt] - An event corresponding to the keystroke. Pass this
+     * event if the keystroke originated from a user interaction that produced it.
+     * If the keystroke is synthetic (for example, triggered in response to a
+     * click or other event not involving a keyboard), omit it.
      * @return {boolean}
+     * @category Changing the Content
      * @method MathField#$keystroke
      */
-    $keystroke(keys: string, evt: Event): boolean;
+    $keystroke(keys: string, evt?: Event): boolean;
     /**
-     * Simulate a user typing the keys indicated by text.
+     * Simulates a user typing the keys indicated by text.
+     *
      * @param {string} text - A sequence of one or more characters.
+     * @category Changing the Content
      * @method MathField#$typedText
      */
     $typedText(text: string): void;
@@ -389,113 +575,73 @@ declare class MathField {
      *
      * Update the configuration options for this mathfield.
      *
-     * @param {MathFieldConfig} [config={}] See {@tutorial CONFIG} for details.
+     * @param {MathFieldConfig} config - See {@tutorial CONFIG Configuration Options} for details.
      *
      * @method MathField#$setConfig
      */
-    $setConfig(config?: MathFieldConfig): void;
+    $setConfig(config: MathFieldConfig): void;
     /**
      *
      * Speak some part of the expression, either with or without synchronized highlighting.
      *
-     * @param {string} amount (all, selection, left, right, group, parent)
+     * @param {string} amount - `"all"`, `"selection"`, `"left"`, `"right"`, `"group"`, `"parent"`
      * @param {object} speakOptions
-     * @param {boolean} speakOptions.withHighlighting - If true, synchronized highlighting of speech will happen (if possible). Default is false.
+     * @param {boolean} speakOptions.withHighlighting - If true, synchronized
+     * highlighting of speech will happen (if possible). Default is false.
      *
      * @method MathField#speak_
      */
     speak_(amount: string, speakOptions: {
         withHighlighting: boolean;
     }): void;
-    /**
-     * The DOM element this mathfield is attached to.
-    */
-    element: HTMLElement;
-    /**
-     * A set of key/value pairs that can
-    be used to customize the behavior of the mathfield
-    */
-    config: {
-        [key: string]: any;
-    };
-    /**
-     * A unique ID identifying this mathfield
-    */
-    id: string;
-    /**
-     * True if the keystroke caption
-    panel is visible
-    */
-    keystrokeCaptionVisible: boolean;
-    /**
-     * True if the virtual keyboard is
-    visible
-    */
-    virtualKeyboardVisible: boolean;
-    /**
-     * The last few keystrokes, to look out
-    for inline shortcuts
-    */
-    keystrokeBuffer: string;
-    /**
-     * The saved state for each of the
-    past keystrokes
-    */
-    keystrokeBufferStates: object[];
 }
 
 /**
- * Return an array of potential shortcuts
- * @param {string} s
- * @param {object} config
- * @return {string[]}
- */
-declare function startsWithString(s: string, config: any): string[];
-
-/**
  *
- * @param {string} mode
- * @param {object[]} siblings atoms preceding this potential shortcut
- * @param {string} shortcut
- */
-declare function validateShortcut(mode: string, siblings: object[], shortcut: string): void;
-
-/**
+ * Use MathLive to render and edit mathematical formulas in your browser.
  *
- * This modules exports the MathLive entry points.
+ * This module exports {@link #functions%3Amathlive some functions} and the {@link #class%3AMathField `MathField`} class.
+ *
+ * See {@tutorial USAGE_GUIDE the Usage Guide} for more details on how to get
+ * started.
+ *
+ * @example
+ * // To invoke the functions in this module, import the `mathlive` module.
+ *
+ * import mathlive from 'dist/mathlive.mjs';
+ *
+ * console.log(mathlive.latexToMarkup('e^{i\\pi}+1=0'));
  *
  * @module mathlive
- * @example
- * // To invoke the functions in this module, import the MathLive module.
- *
- * import MathLive from 'dist/mathlive.mjs';
- *
- * const markup = MathLive.latexToMarkup('e^{i\\pi}+1=0');
+ * @packageDocumentation MathLive API Reference
  *
  */
 declare module "mathlive" {
     /**
-     * Convert a LaTeX string to a string of HTML markup.
+     * Converts a LaTeX string to a string of HTML markup.
      *
      * @param {string} text A string of valid LaTeX. It does not have to start
      * with a mode token such as `$$` or `\(`.
      *
-     * @param {string} mathstyle If `'displaystyle'` the "display" mode of TeX
+     * @param {"displaystyle" | "textstyle"} mathstyle If `'displaystyle'` the "display" mode of TeX
      * is used to typeset the formula, which is most appropriate for formulas that are
-     * displayed in a standalone block. If `'textstyle'` is used, the "text" mode
+     * displayed in a standalone block.
+     *
+     * If `'textstyle'` is used, the "text" mode
      * of TeX is used, which is most appropriate when displaying math "inline"
      * with other text (on the same line).
      *
-     * @param {string} [format='html'] For debugging purposes, this function
+     * @param {"mathlist" | "span" | "html"} [format='html'] For debugging purposes, this function
      * can also return a text representation of internal data structures
-     * used to construct the markup. Valid values include `'mathlist'` and `'span'`
+     * used to construct the markup.
      *
      * @return {string}
+     * @category Converting
      * @function module:mathlive#latexToMarkup
      */
-    function latexToMarkup(text: string, mathstyle: string, format?: string): string;
+    function latexToMarkup(text: string, mathstyle: "displaystyle" | "textstyle", format?: "mathlist" | "span" | "html"): string;
     /**
-     * Convert a DOM element into an editable math field.
+     * Convert a DOM element into an editable mathfield.
      *
      * After the DOM element has been created, the value `element.mathfield` will
      * return a reference to the mathfield object. This value is also returned
@@ -523,21 +669,23 @@ declare module "mathlive" {
      */
     function makeMathField(element: HTMLElement | string, config?: MathFieldConfig): MathField;
     /**
-     * Convert a LaTeX string to a string of MathML markup.
+     * Converts a LaTeX string to a string of MathML markup.
      *
      * @param {string} latex A string of valid LaTeX. It does not have to start
      * with a mode token such as a `$$` or `\(`.
      * @param {object} options
-     * @param {boolean} [options.generateID=false] - If true, add an `extid` attribute
-     * to the MathML nodes with a value matching the `atomID`.
+     * @param {boolean} [options.generateID=false] - If true, add an `"extid"` attribute
+     * to the MathML nodes with a value matching the `atomID`. This can be used
+     * to map items on the screen with their MathML representation or vice-versa.
      * @return {string}
+     * @category Converting
      * @function module:mathlive#latexToMathML
      */
     function latexToMathML(latex: string, options: {
         generateID?: boolean;
     }): string;
     /**
-     * Convert a LaTeX string to an Abstract Syntax Tree
+     * Converts a LaTeX string to an Abstract Syntax Tree (MathJSON)
      *
      * **See:** {@tutorial MASTON}
      *
@@ -546,30 +694,39 @@ declare module "mathlive" {
      * @param {Object.<string, any>} options
      * @param {object} [options.macros] A dictionary of LaTeX macros
      *
-     * @return {object} The Abstract Syntax Tree as a JavaScript object.
+     * @return {object} The Abstract Syntax Tree as an object literal using the MathJSON format.
+     * @category Converting
      * @function module:mathlive#latexToAST
      */
     function latexToAST(latex: string, options: {
         macros?: any;
     }): any;
     /**
-     * Convert an Abstract Syntax Tree to a LaTeX string.
+     * Converts an Abstract Syntax Tree (MathJSON) to a LaTeX string.
      *
      * **See:** {@tutorial MASTON}
      *
-     * @param {object} ast - The Abstract Syntax Tree as a JavaScript object.
+     * @param {object} ast - The Abstract Syntax Tree as an object literal (MathJSON).
      * @param {Object.<string, any>} options
-     * @param {number} [options.precision=14] Number of digits used in the representation of numbers
-     * @param {string} [options.decimalMarker='.'] Character used as the decimal marker
-     * @param {string} [options.groupSeparator='\\, '] Character used to separate group of numbers, typicall thousands
-     * @param {string} [options.product='\\cdot '] Character used to indicate product. Other option would be '\\times '
-     * @param {string} [options.exponentProduct='\\cdot '] Character used before an exponent indicator
-     * @param {string} [options.exponentMarker=''] Character used to indicate an exponent
-     * @param {string} [options.scientificNotation='auto'] Other possible values 'engineering' or 'on'
-     * @param {string} [options.beginRepeatingDigits='\\overline{']
-     * @param {string} [options.endRepeatingDigits='}']
+     * @param {number} [options.precision=14] The number of digits used in the
+     * representation of numbers. **Default** = 14.
+     * @param {string} [options.decimalMarker='.'] The character used as the decimal
+     * marker. **Default** = `"."`.
+     * @param {string} [options.groupSeparator='\\, '] The character used to separate group of numbers, typically thousands. **Default** = `"\\, "`
+     * @param {string} [options.product='\\cdot '] The character used to indicate product. Other option would be `"\\times "`. **Default** = `"\\cdot "`
+     * @param {string} [options.exponentProduct='\\cdot '] The character used before an
+     * exponent indicator. **Default** = `"\\cdot "`
+     * @param {string} [options.exponentMarker=''] The character used to indicate an
+     * exponent. **Default** = `""`
+     * @param {"auto" | "engineering" | "on"} [options.scientificNotation='auto'] The format used for numbers
+     * using the scientific notation. **Default** = `"auto"`
+     * @param {string} [options.beginRepeatingDigits='\\overline{'] The string
+     * used at the begining of repeating digits. **Default** = `"\\overline{"`
+     * @param {string} [options.endRepeatingDigits='}'] The string
+     * used at the end of repeating digits. **Default** = `"}"`
     *
      * @return {string} The LaTeX representation of the Abstract Syntax Tree, if valid.
+     * @category Converting
      * @function module:mathlive#astToLatex
      */
     function astToLatex(ast: any, options: {
@@ -579,24 +736,26 @@ declare module "mathlive" {
         product?: string;
         exponentProduct?: string;
         exponentMarker?: string;
-        scientificNotation?: string;
+        scientificNotation?: "auto" | "engineering" | "on";
         beginRepeatingDigits?: string;
         endRepeatingDigits?: string;
     }): string;
     /**
-     * Convert a LaTeX string to a textual representation ready to be spoken
+     * Converts a LaTeX string to a textual representation ready to be spoken
      *
      * @param {string} latex A string of valid LaTeX. It does not have to start
      * with a mode token such as a `$$` or `\(`.
      *
-     * @param {Object.<string, any>} options -
+     * @param {Object.<string, any>} options
      *
-     * @param {string} [options.textToSpeechRules='mathlive'] Specify which
-     * set of text to speech rules to use.
+     * @param {"mathlive" | "sre"} [options.textToSpeechRules='mathlive'] The set of text to
+     * speech rules to use.
      *
-     * A value of `mathlive` indicates that
-     * the simple rules built into MathLive should be used. A value of `sre`
-     * indicates that the Speech Rule Engine from Volker Sorge should be used.
+     * A value of `"mathlive"` (the default) indicates that
+     * the simple rules built into MathLive should be used.
+     *
+     * A value of `"sre"` indicates that the Speech Rule Engine from Volker Sorge
+     * should be used.
      * Note that SRE is not included or loaded by MathLive and for this option to
      * work SRE should be loaded separately.
      *
@@ -604,7 +763,7 @@ declare module "mathlive" {
      * for the output of conversion to spoken text.
      *
      * Possible values are `ssml` for
-     * the SSML markup or `mac` for the MacOS markup (e.g. `[[ltr]]`)
+     * the SSML markup or `mac` for the MacOS markup (e.g. `"[[ltr]]"`)
      *
      * @param {Object.<string, any>} [options.textToSpeechRulesOptions={}] A set of
      * key/value pairs that can be used to configure the speech rule engine.
@@ -616,49 +775,55 @@ declare module "mathlive" {
      * @example
      * console.log(MathLive.latexToSpeakableText('\\frac{1}{2}'));
      * // ➡︎'half'
+     * @category Converting
      * @function module:mathlive#latexToSpeakableText
      */
     function latexToSpeakableText(latex: string, options: {
-        textToSpeechRules?: string;
+        textToSpeechRules?: "mathlive" | "sre";
         textToSpeechMarkup?: string;
         textToSpeechRulesOptions?: {
             [key: string]: any;
         };
     }): string;
     /**
-     * Highlight the span corresponding to the specified atomID
-     * This is used for TTS with synchronized highlighting (read aloud)
+     * Highlights the span corresponding to the specified atomID.
      *
+     * This is used for text-to-speech with synchronized highlighting (read aloud)
+     *
+     * @category Read Aloud
      * @param {string} atomID
      *
      */
     function highlightAtomID(atomID: string): void;
     /**
-     * Return the status of a Read Aloud operation (reading with synchronized
+     * Returns the status of a Read Aloud operation (reading with synchronized
      * highlighting).
      *
-     * Possible values include:
-     * - `ready`
-     * - `playing`
-     * - `paused`
-     * - `unavailable`
+     * Possible values are:
+     * - `"ready"`
+     * - `"playing"`
+     * - `"paused"`
+     * - `"unavailable"`
      *
      * **See** {@linkcode module:editor-mathfield#speak speak}
-     * @return {string}
+     * @category Read Aloud
+     * @return {"ready" | "playing" | "paused" | "unavailable"}
      * @function module:mathlive#readAloudStatus
      */
-    function readAloudStatus(): string;
+    function readAloudStatus(): "ready" | "playing" | "paused" | "unavailable";
     /**
-     * If a Read Aloud operation is in progress, stop it.
+     * Pauses a read aloud operation if one is in progress.
      *
      * **See** {@linkcode module:editor/mathfield#speak speak}
+     * @category Read Aloud
      * @function module:mathlive#pauseReadAloud
      */
     function pauseReadAloud(): void;
     /**
-     * If a Read Aloud operation is paused, resume it
+     * Resumes a read aloud operation if one was paused.
      *
      * **See** {@linkcode module:editor-mathfield#speak speak}
+     * @category Read Aloud
      * @function module:mathlive#resumeReadAloud
      */
     function resumeReadAloud(): void;
@@ -667,11 +832,12 @@ declare module "mathlive" {
      *
      * **See** {@linkcode module:editor-mathfield#speak speak}
      *
-     * @param {string} token
-     * @param {number} [count]
+     * @param {string} [token]
+     * @param {number} [count] The number of tokens to read.
+     * @category Read Aloud
      * @function module:mathlive#playReadAloud
      */
-    function playReadAloud(token: string, count?: number): void;
+    function playReadAloud(token?: string, count?: number): void;
     /**
      * Transform all the elements in the document body that contain LaTeX code
      * into typeset math.
@@ -798,7 +964,7 @@ declare module "mathlive" {
     /**
      * After calling {@linkcode module:mathlive#renderMathInElement renderMathInElement}
      * or {@linkcode module:mathlive#makeMathField makeMathField} the original content
-     * can be retrived by calling this function.
+     * can be retrieved by calling this function.
      *
      * Given the following markup:
      * ```html
@@ -818,7 +984,7 @@ declare module "mathlive" {
      * @param {object} [options={}]
      * @param {string} [options.namespace=""] The namespace used for the `data-`
      * attributes.
-     * If you used a namespace with `renderMathInElement`, you must
+     * If you used a namespace with `renderMathInElement()`, you must
      * use the same namespace here.
      * @return {string} the original content of the element.
      * @function module:mathlive#getOriginalContent

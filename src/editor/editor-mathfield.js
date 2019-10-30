@@ -39,7 +39,7 @@ import '../addons/outputSpokenText.js';
 /* eslint-disable */
 /**
  * @typedef {function} MathFieldCallback
- * @param {MathField} mf
+ * @param {MathField} mathfield
  * @return {void}
  * @global
  */
@@ -989,17 +989,6 @@ class MathField {
     /**
      * Performs a command defined by a selector.
      * 
-     * @param {string|string[]} command - A selector, or an array whose first element
-     * is a selector, and whose subsequent elements are arguments to the selector.
-     * 
-     * Note that selectors do not include a final "_". They can be passed either
-     * in camelCase or kebab-case.
-     * 
-     * ```javascript
-     * mf.$perform('selectAll');
-     * mf.$perform('select-all');
-     * ```
-     * In the above example, both calls invoke the same selector.
      * 
 #### Moving the insertion point
 
@@ -1029,10 +1018,11 @@ class MathField {
 | Name                 | Description               |
 | --------------------- | ------------------------- |
 | `"selectGroup"` | Select all the atoms in the current group, that is all the siblings.<br> When the selection is in a numerator, the group is the numerator.<br>When the selection is a superscript or subscript, the group is the supsub.|
-| `"selectAll"` | Select all the atoms in the math field|
+| `"selectAll"` | Select all the atoms in the mathfield|
 
 
 #### Extending the selection
+
 | Name                 | Description               |
 | --------------------- | ------------------------- |
 | `"extendToNextChar"` | |
@@ -1047,6 +1037,7 @@ class MathField {
 | `"extendToGroupEnd"` | |
 | `"extendToMathFieldStart"` | |
 | `"extendToMathFieldEnd"` | |
+
 
 #### Editing / deleting
 
@@ -1063,6 +1054,7 @@ class MathField {
 | `"deleteToMathFieldEnd"` | |
 | `"transpose"` | |
 
+
 #### Editing a matrix
 
 | Name                 | Description               |
@@ -1071,6 +1063,7 @@ class MathField {
 | `"addRowBefore"` | |
 | `"addColumnAfter"` | |
 | `"addColumnBefore"` | |
+
 
 #### Other editing commands
 
@@ -1085,6 +1078,7 @@ class MathField {
 | `"toggleKeystrokeCaption"` | |
 | `"applyStyle"` | |
 
+
 #### Clipboard 
 
 | Name                 | Description               |
@@ -1094,6 +1088,7 @@ class MathField {
 | `"copyToClipboard"` | |
 | `"cutToClipboard"` | |
 | `"pasteFromClipboard"` | |
+
 
 #### Virtual Keyboard
 
@@ -1119,6 +1114,19 @@ class MathField {
 | Name                 | Description               |
 | --------------------- | ------------------------- |
 | `"speak"` | speaks the amount specified by the first parameter. |
+     * 
+     * @param {string|string[]} command - A selector, or an array whose first element
+     * is a selector, and whose subsequent elements are arguments to the selector.
+     * 
+     * Note that selectors do not include a final "_". They can be passed either
+     * in camelCase or kebab-case.
+     * 
+     * ```javascript
+     * mf.$perform('selectAll');
+     * mf.$perform('select-all');
+     * ```
+     * In the above example, both calls invoke the same selector.
+     * 
      *
      * @method MathField#$perform
      */
@@ -2009,16 +2017,16 @@ class MathField {
     /**
      * Returns a textual representation of the mathfield.
      * 
-     * @param {string} [format]. One of
+     * @param {string} [format] - The format of the result.
      * 
-     *|`"latex"`||
+     *|`"latex"`|Macros are not expanded|
      *|`"latex-expanded"`|All macros are recursively expanded to their definition|
-     *|`"spoken"`|
-     *|`"spoken-text"`|
-     *|`"spoken-ssml"`|
-     *|`"spoken-ssml-withHighlighting"`|
-     *|`"mathML"`|
-     *|`"json"`|
+     *|`"spoken"`||
+     *|`"spoken-text"`||
+     *|`"spoken-ssml"`||
+     *|`"spoken-ssml-withHighlighting"`||
+     *|`"mathML"`||
+     *|`"json"`|A stringified version of the JSON representation of the content|
      * 
      * **Default** = `"latex"`
      * @return {string}
@@ -2031,9 +2039,9 @@ class MathField {
     /**
      * Returns a textual representation of the selection in the mathfield.
      * 
-     * @param {string} [format]. One of:
+     * @param {string} [format] - The format of the result.
      * 
-     *|`"latex"`||
+     *|`"latex"`|Macros are not expanded|
      *|`"latex-expanded"`|All macros are recursively expanded to their definition|
      *|`"spoken"`|
      *|`"spoken-text"`|
@@ -2146,10 +2154,11 @@ class MathField {
             this.mathlist.endOffset() >= this.mathlist.siblings().length - 1;
     }
     /**
-     * Set or get the content of the mathfield.
+     * Sets or gets the content of the mathfield.
      * 
      * If `text` is not empty, sets the content of the mathfield to the
      * text interpreted as a LaTeX expression.
+     * 
      * If `text` is empty (or omitted), return the content of the mathfield as a
      * LaTeX expression.
      * @param {string} [text]
@@ -2157,7 +2166,7 @@ class MathField {
      * @param {Object.<string, any>} [options]
      * @param {boolean} [options.suppressChangeNotifications] - If true, the
      * handlers for the contentWillChange and contentDidChange notifications will
-     * not be invoked. Default `false`.
+     * not be invoked. **Default** = `false`.
      *
      * @return {string}
      * @category Accessing the Content
@@ -3001,7 +3010,7 @@ class MathField {
      *|`"ex"`| extra-expanded|
      *|`"ux"`| ultra-expanded|
      *
-     * @param {string} [style.shape] - The font "shape", i.e. italic or upright
+     * @param {string} [style.shape] - The font "shape", i.e. italic or upright.
      * 
      *|`"auto"`| italic or upright, depending on mode and letter (single letters are italic in math mode)|
      *|`"up"`| upright|
@@ -3010,7 +3019,7 @@ class MathField {
      *|`"sc"`| small caps|
      *|`"ol"`| outline|
      *
-     * @param {string} [style.size] - The font size:  `"size1"`...`"size10"`
+     * @param {string} [style.size] - The font size:  `"size1"`...`"size10"`.
      * '"size5"' is the default size
      * 
      * @category Changing the Content
@@ -3112,7 +3121,7 @@ class MathField {
      * See [W3C UIEvents](https://www.w3.org/TR/uievents/#code-virtual-keyboards)
      * for more information on the format of the descriptor.
      * 
-     * @param {Event} [evt] An event corresponding to the keystroke. Pass this
+     * @param {Event?} [evt] - An event corresponding to the keystroke. Pass this
      * event if the keystroke originated from a user interaction that produced it.
      * If the keystroke is synthetic (for example, triggered in response to a 
      * click or other event not involving a keyboard), omit it.
@@ -3140,11 +3149,11 @@ class MathField {
     /**
      *
      * @param {string} text
-     * @param {Object.<string, any>} [options={}]
-     * @param {boolean} options.focus - If true, the mathfield will be focused
-     * @param {boolean} options.feedback - If true, provide audio and haptic feedback
-     * @param {boolean} options.simulateKeystroke - If true, generate some synthetic
-     * keystrokes (useful to trigger inline shortcuts, for example)
+     * @param {object} [options]
+     * @param {boolean} [options.focus] - If true, the mathfield will be focused.
+     * @param {boolean} [options.feedback] - If true, provide audio and haptic feedback.
+     * @param {boolean} [options.simulateKeystroke] - If true, generate some synthetic
+     * keystrokes (useful to trigger inline shortcuts, for example).
      * @private
      */
     typedText_(text, options) {
@@ -3466,10 +3475,10 @@ function speakableText(mathfield, prefix, atoms) {
  * Announce a change in selection or content via the aria-live region.
  * This is the default implementation for this function. It can be overridden
  * via `config.onAnnounce`
- * @param {object} target typically, a MathField
- * @param {string} command the command that invoked the change
- * @param {Atom[]} [oldMathlist=[]] the previous value of mathlist before the change
- * @param {Atom[]} [atomsToSpeak=[] ] 
+ * @param {object} target Typically, a MathField.
+ * @param {string} command The command that invoked the change.
+ * @param {Atom[]} [oldMathlist] The previous value of mathlist before the change.
+ * @param {Atom[]} [atomsToSpeak] 
  * @method MathField#_onAnnounce
  * @private
  */

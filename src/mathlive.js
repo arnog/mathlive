@@ -1,15 +1,22 @@
 
 /**
  *
- * This modules exports the MathLive entry points.
+ * Use MathLive to render and edit mathematical formulas in your browser.
+ * 
+ * This module exports {@link #functions%3Amathlive some functions} and the {@link #class%3AMathField `MathField`} class.
+ * 
+ * See {@tutorial USAGE_GUIDE the Usage Guide} for more details on how to get 
+ * started.
  *
- * @module mathlive
  * @example
- * // To invoke the functions in this module, import the MathLive module. 
+ * // To invoke the functions in this module, import the `mathlive` module. 
  * 
- * import MathLive from 'dist/mathlive.mjs';
+ * import mathlive from 'dist/mathlive.mjs';
  * 
- * const markup = MathLive.latexToMarkup('e^{i\\pi}+1=0');
+ * console.log(mathlive.latexToMarkup('e^{i\\pi}+1=0'));
+ * 
+ * @module mathlive
+ * @packageDocumentation MathLive API Reference
  * 
  */
 
@@ -23,22 +30,25 @@ import AutoRender from './addons/auto-render.js';
 import Maston from './addons/maston.js';
 
 /**
- * Convert a LaTeX string to a string of HTML markup.
+ * Converts a LaTeX string to a string of HTML markup.
  *
  * @param {string} text A string of valid LaTeX. It does not have to start
  * with a mode token such as `$$` or `\(`.
  *
- * @param {string} mathstyle If `'displaystyle'` the "display" mode of TeX
+ * @param {"displaystyle" | "textstyle"} mathstyle If `'displaystyle'` the "display" mode of TeX
  * is used to typeset the formula, which is most appropriate for formulas that are
- * displayed in a standalone block. If `'textstyle'` is used, the "text" mode
+ * displayed in a standalone block. 
+ * 
+ * If `'textstyle'` is used, the "text" mode
  * of TeX is used, which is most appropriate when displaying math "inline"
  * with other text (on the same line).
  *
- * @param {string} [format='html'] For debugging purposes, this function
+ * @param {"mathlist" | "span" | "html"} [format='html'] For debugging purposes, this function
  * can also return a text representation of internal data structures
- * used to construct the markup. Valid values include `'mathlist'` and `'span'`
+ * used to construct the markup.
  *
  * @return {string}
+ * @category Converting
  * @function module:mathlive#latexToMarkup
  */
 function toMarkup(text, mathstyle, format, macros) {
@@ -108,7 +118,7 @@ function toMarkup(text, mathstyle, format, macros) {
 
 
 /**
- * Convert a DOM element into an editable math field.
+ * Convert a DOM element into an editable mathfield.
  * 
  * After the DOM element has been created, the value `element.mathfield` will 
  * return a reference to the mathfield object. This value is also returned 
@@ -145,14 +155,16 @@ function makeMathField(element, config) {
 }
 
 /**
- * Convert a LaTeX string to a string of MathML markup.
+ * Converts a LaTeX string to a string of MathML markup.
  *
  * @param {string} latex A string of valid LaTeX. It does not have to start
  * with a mode token such as a `$$` or `\(`.
  * @param {object} options
- * @param {boolean} [options.generateID=false] - If true, add an `extid` attribute
- * to the MathML nodes with a value matching the `atomID`.
+ * @param {boolean} [options.generateID=false] - If true, add an `"extid"` attribute
+ * to the MathML nodes with a value matching the `atomID`. This can be used
+ * to map items on the screen with their MathML representation or vice-versa.
  * @return {string}
+ * @category Converting
  * @function module:mathlive#latexToMathML
  */
 function toMathML(latex, options) {
@@ -171,7 +183,7 @@ function toMathML(latex, options) {
 }
 
 /**
- * Convert a LaTeX string to an Abstract Syntax Tree
+ * Converts a LaTeX string to an Abstract Syntax Tree (MathJSON)
  *
  * **See:** {@tutorial MASTON}
  *
@@ -180,7 +192,8 @@ function toMathML(latex, options) {
  * @param {Object.<string, any>} options 
  * @param {object} [options.macros] A dictionary of LaTeX macros
  *
- * @return {object} The Abstract Syntax Tree as a JavaScript object.
+ * @return {object} The Abstract Syntax Tree as an object literal using the MathJSON format.
+ * @category Converting
  * @function module:mathlive#latexToAST
  */
 function latexToAST(latex, options) {
@@ -200,23 +213,31 @@ function latexToAST(latex, options) {
 
 
 /**
- * Convert an Abstract Syntax Tree to a LaTeX string.
+ * Converts an Abstract Syntax Tree (MathJSON) to a LaTeX string.
  *
  * **See:** {@tutorial MASTON}
  *
- * @param {object} ast - The Abstract Syntax Tree as a JavaScript object.
+ * @param {object} ast - The Abstract Syntax Tree as an object literal (MathJSON).
  * @param {Object.<string, any>} options 
- * @param {number} [options.precision=14] Number of digits used in the representation of numbers
- * @param {string} [options.decimalMarker='.'] Character used as the decimal marker
- * @param {string} [options.groupSeparator='\\, '] Character used to separate group of numbers, typicall thousands
- * @param {string} [options.product='\\cdot '] Character used to indicate product. Other option would be '\\times '
- * @param {string} [options.exponentProduct='\\cdot '] Character used before an exponent indicator
- * @param {string} [options.exponentMarker=''] Character used to indicate an exponent
- * @param {string} [options.scientificNotation='auto'] Other possible values 'engineering' or 'on'
- * @param {string} [options.beginRepeatingDigits='\\overline{'] 
- * @param {string} [options.endRepeatingDigits='}'] 
+ * @param {number} [options.precision=14] The number of digits used in the 
+ * representation of numbers. **Default** = 14.
+ * @param {string} [options.decimalMarker='.'] The character used as the decimal 
+ * marker. **Default** = `"."`.
+ * @param {string} [options.groupSeparator='\\, '] The character used to separate group of numbers, typically thousands. **Default** = `"\\, "`
+ * @param {string} [options.product='\\cdot '] The character used to indicate product. Other option would be `"\\times "`. **Default** = `"\\cdot "`
+ * @param {string} [options.exponentProduct='\\cdot '] The character used before an 
+ * exponent indicator. **Default** = `"\\cdot "`
+ * @param {string} [options.exponentMarker=''] The character used to indicate an 
+ * exponent. **Default** = `""`
+ * @param {"auto" | "engineering" | "on"} [options.scientificNotation='auto'] The format used for numbers
+ * using the scientific notation. **Default** = `"auto"`
+ * @param {string} [options.beginRepeatingDigits='\\overline{'] The string 
+ * used at the begining of repeating digits. **Default** = `"\\overline{"`
+ * @param {string} [options.endRepeatingDigits='}'] The string 
+ * used at the end of repeating digits. **Default** = `"}"`
 *
  * @return {string} The LaTeX representation of the Abstract Syntax Tree, if valid.
+ * @category Converting
  * @function module:mathlive#astToLatex
  */
 function astToLatex(ast, options) {
@@ -225,19 +246,21 @@ function astToLatex(ast, options) {
 
 
 /**
- * Convert a LaTeX string to a textual representation ready to be spoken
+ * Converts a LaTeX string to a textual representation ready to be spoken
  *
  * @param {string} latex A string of valid LaTeX. It does not have to start
  * with a mode token such as a `$$` or `\(`.
  * 
- * @param {Object.<string, any>} options -
+ * @param {Object.<string, any>} options
  * 
- * @param {string} [options.textToSpeechRules='mathlive'] Specify which
- * set of text to speech rules to use. 
+ * @param {"mathlive" | "sre"} [options.textToSpeechRules='mathlive'] The set of text to 
+ * speech rules to use.
  * 
- * A value of `mathlive` indicates that
- * the simple rules built into MathLive should be used. A value of `sre`
- * indicates that the Speech Rule Engine from Volker Sorge should be used.
+ * A value of `"mathlive"` (the default) indicates that
+ * the simple rules built into MathLive should be used. 
+ * 
+ * A value of `"sre"` indicates that the Speech Rule Engine from Volker Sorge 
+ * should be used.
  * Note that SRE is not included or loaded by MathLive and for this option to
  * work SRE should be loaded separately.
  * 
@@ -245,7 +268,7 @@ function astToLatex(ast, options) {
  * for the output of conversion to spoken text. 
  * 
  * Possible values are `ssml` for 
- * the SSML markup or `mac` for the MacOS markup (e.g. `[[ltr]]`)
+ * the SSML markup or `mac` for the MacOS markup (e.g. `"[[ltr]]"`)
  *
  * @param {Object.<string, any>} [options.textToSpeechRulesOptions={}] A set of 
  * key/value pairs that can be used to configure the speech rule engine. 
@@ -257,6 +280,7 @@ function astToLatex(ast, options) {
  * @example
  * console.log(MathLive.latexToSpeakableText('\\frac{1}{2}'));
  * // ➡︎'half'
+ * @category Converting
  * @function module:mathlive#latexToSpeakableText
  */
 function latexToSpeakableText(latex, options) {
@@ -285,9 +309,11 @@ function removeHighlight(node) {
 }
 
 /**
- * Highlight the span corresponding to the specified atomID
- * This is used for TTS with synchronized highlighting (read aloud)
+ * Highlights the span corresponding to the specified atomID.
+ * 
+ * This is used for text-to-speech with synchronized highlighting (read aloud)
  *
+ * @category Read Aloud
  * @param {string} atomID
  *
  */
@@ -513,17 +539,18 @@ function readAloud(element, text, config) {
 }
 
 /**
- * Return the status of a Read Aloud operation (reading with synchronized
+ * Returns the status of a Read Aloud operation (reading with synchronized
  * highlighting). 
  * 
- * Possible values include:
- * - `ready`
- * - `playing`
- * - `paused`
- * - `unavailable`
+ * Possible values are:
+ * - `"ready"`
+ * - `"playing"`
+ * - `"paused"`
+ * - `"unavailable"`
  * 
  * **See** {@linkcode module:editor-mathfield#speak speak}
- * @return {string}
+ * @category Read Aloud
+ * @return {"ready" | "playing" | "paused" | "unavailable"}
  * @function module:mathlive#readAloudStatus
  */
 function readAloudStatus() {
@@ -538,9 +565,10 @@ function readAloudStatus() {
 }
 
 /**
- * If a Read Aloud operation is in progress, stop it.
+ * Pauses a read aloud operation if one is in progress.
  * 
  * **See** {@linkcode module:editor/mathfield#speak speak}
+ * @category Read Aloud
  * @function module:mathlive#pauseReadAloud
  */
 function pauseReadAloud() {
@@ -555,9 +583,10 @@ function pauseReadAloud() {
 }
 
 /**
- * If a Read Aloud operation is paused, resume it
+ * Resumes a read aloud operation if one was paused.
  * 
  * **See** {@linkcode module:editor-mathfield#speak speak}
+ * @category Read Aloud
  * @function module:mathlive#resumeReadAloud
  */
 function resumeReadAloud() {
@@ -576,8 +605,9 @@ function resumeReadAloud() {
  * 
  * **See** {@linkcode module:editor-mathfield#speak speak}
  *
- * @param {string} token
- * @param {number} [count]
+ * @param {string} [token]
+ * @param {number} [count] The number of tokens to read.
+ * @category Read Aloud
  * @function module:mathlive#playReadAloud
  */
 function playReadAloud(token, count) {
@@ -779,7 +809,7 @@ function revertToOriginalContent(element, options) {
 /**
  * After calling {@linkcode module:mathlive#renderMathInElement renderMathInElement}
  * or {@linkcode module:mathlive#makeMathField makeMathField} the original content
- * can be retrived by calling this function.
+ * can be retrieved by calling this function.
  * 
  * Given the following markup:
  * ```html
@@ -799,7 +829,7 @@ function revertToOriginalContent(element, options) {
  * @param {object} [options={}]
  * @param {string} [options.namespace=""] The namespace used for the `data-`
  * attributes. 
- * If you used a namespace with `renderMathInElement`, you must
+ * If you used a namespace with `renderMathInElement()`, you must
  * use the same namespace here.
  * @return {string} the original content of the element.
  * @function module:mathlive#getOriginalContent

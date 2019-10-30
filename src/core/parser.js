@@ -31,7 +31,7 @@ const MathAtom = MathAtomModule.MathAtom;
  * @property {number} index - The current token to be parsed: index in `this.tokens`
  * @property {MathAtom[]} mathList - Accumulated result of the parsing by
  * `parseAtom()`
- * @property {object} style - The font, weight, color, etc.. to apply to the 
+ * @property {object} style - The font, weight, color, etc. to apply to the 
  * upcoming tokens
  * @property {string} parseMode - The parse mode indicates the syntax rules to
  * use to parse the upcoming tokens.

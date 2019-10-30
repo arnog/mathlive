@@ -28,7 +28,7 @@ The following selectors can be passed to [`"MathField.$perform()"`]{@link MathFi
 | Name                 | Description               |
 | --------------------- | ------------------------- |
 | `"selectGroup"` | Select all the atoms in the current group, that is all the siblings.<br> When the selection is in a numerator, the group is the numerator.<br>When the selection is a superscript or subscript, the group is the supsub.|
-| `"selectAll"` | Select all the atoms in the math field|
+| `"selectAll"` | Select all the atoms in the mathfield|
 
 
 #### Extending the selection

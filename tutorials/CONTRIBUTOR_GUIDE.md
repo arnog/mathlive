@@ -440,9 +440,11 @@ encapsulates the operations that can be done to an editable math list, including
 adding and removing content and keeping track of and modifying an insertion 
 point and selection.
 
-### Math Field
-A **MathField** is a user interface widget that captures the keyboard and 
-pointing device events, and present an appropriate user experience. It 
+### Mathfield
+A **MathField** is a user interface element that captures the keyboard and 
+pointing device events, and presents an appropriate user experience. 
+
+It 
 uses the **EditableMathList** to manipulate the in-memory representation of 
 the math expression being edited.
 

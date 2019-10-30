@@ -94,7 +94,7 @@ class UndoManager {
         }
     }
     /**
-     * Push a snapshot of the content and selection of the math field onto the
+     * Push a snapshot of the content and selection of the mathfield onto the
      * undo stack so that it can potentially be reverted to later.
      * @memberof UndoManager
      * @instance
@@ -141,7 +141,7 @@ class UndoManager {
     }
     /**
      * Return an object capturing the state of the content and selection of the
-     * math field. Pass this object to restore() to reset the value of the math
+     * mathfield. Pass this object to restore() to reset the value of the math
      * field to this saved value. This does not affect the undo stack.
      * @instance
      * @memberof UndoManager
@@ -154,7 +154,7 @@ class UndoManager {
         };
     }
     /**
-     * Set the content and selection of the math field to a value previously
+     * Set the content and selection of the mathfield to a value previously
      * captured with save() or stored in the undo stack.
      * This does not affect the undo stack.
      * @instance
