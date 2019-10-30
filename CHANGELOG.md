@@ -1,3 +1,7 @@
+## 0.32.2 (October 29, 2019)
+
+### Bug Fixes
+- Fix #286 `\mathbb{}`s are missing in the Latex output
 
 ## 0.32.2 (September 24, 2019)
 
