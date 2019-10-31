@@ -754,28 +754,31 @@ class MathField {
         const bounds = this.field.getBoundingClientRect();
         if (anchorX >= bounds.left && anchorX <= bounds.right &&
             anchorY >= bounds.top && anchorY <= bounds.bottom) {
-            // Create divs to block out pointer tracking to the left and right of 
-            // the mathfield (to avoid triggering the hover of the virtual 
-            // keyboard toggle, for example)
-            let div = document.createElement('div');
-            div.className = 'ML__scroller';
-            this.element.appendChild(div);
-            div.style.left = (bounds.left - 200) + 'px';
-            div = document.createElement('div');
-            div.className = 'ML__scroller';
-            this.element.appendChild(div);
-            div.style.left = (bounds.right) + 'px';
+
             // Focus the mathfield
             if (!this.$hasFocus()) {
                 dirty = true;
                 if (this.textarea.focus) { this.textarea.focus(); }
             }
+
             // Clicking or tapping the field resets the keystroke buffer and 
             // smart mode
             this._resetKeystrokeBuffer();
             this.smartModeSuppressed = false;
             anchor = this._pathFromPoint(anchorX, anchorY, { bias: 0 });
             if (anchor) {
+                // Create divs to block out pointer tracking to the left and right of 
+                // the mathfield (to avoid triggering the hover of the virtual 
+                // keyboard toggle, for example)
+                let div = document.createElement('div');
+                div.className = 'ML__scroller';
+                this.element.appendChild(div);
+                div.style.left = (bounds.left - 200) + 'px';
+                div = document.createElement('div');
+                div.className = 'ML__scroller';
+                this.element.appendChild(div);
+                div.style.left = (bounds.right) + 'px';
+
                 if (evt.shiftKey) {
                     // Extend the selection if the shift-key is down
                     this.mathlist.setRange(this.mathlist.path, anchor);
@@ -784,8 +787,10 @@ class MathField {
                 } else {
                     this.mathlist.setPath(anchor, 0);
                 }
+
                 // The selection has changed, so we'll need to re-render
                 dirty = true;
+
                 // Reset any user-specified style
                 this.style = {};
                 // evt.detail contains the number of consecutive clicks
@@ -3407,6 +3412,7 @@ class MathField {
                 this.config.handleSpeak(text, options);
             }
         }
+
         return false;
     }
 }
@@ -3448,18 +3454,18 @@ function _findElementWithCaret(el) {
  * @private
  */
 function nearestElementFromPoint(el, x, y) {
-    let result = { element: null };
-    let considerChildren = true;
-    if (!el.getAttribute('data-atom-id')) {
-        // This element may not have a matching atom, but its children might
-        result.distance = Number.POSITIVE_INFINITY;
-    } else {
+    let result = { element: null, distance: Number.POSITIVE_INFINITY };
+
+    // This element may not have a matching atom, but its children might    
+    let considerChildren = true;    
+    
+    if (el.getAttribute('data-atom-id')) {
         result.element = el;
 
         // Calculate the (square of the) distance to the rectangle
         const r = el.getBoundingClientRect();
-        const dx = Math.max(r.left - x, x - r.right);
-        const dy = Math.max(r.top - y, y - r.bottom);
+        const dx = x - (r.left + r.right) / 2;
+        const dy = y - (r.top + r.bottom) / 2;
         result.distance = dx * dx + dy * dy;
 
         // Only consider children if the target is inside the (horizontal) 
