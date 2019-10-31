@@ -99,7 +99,7 @@ including extracting its content, inserting placeholders and more.
 
 ### More Examples
 
-More examples are available at https://mathlive.io/deploy/examples/
+More examples are available at https://mathlive.io/examples/
 
 
 ### Installing MathLive
