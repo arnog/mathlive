@@ -18,6 +18,10 @@ import ParserModule from '../core/parser.js';
 import MathPath from './editor-mathpath.js';
 import Shortcuts from './editor-shortcuts.js';
 
+function isEmptyMathlist(mathlist) {
+    return mathlist.length === 0 || 
+        (mathlist.length === 1 && mathlist[0].type === 'first');
+}
 
 /**
  *
@@ -2302,6 +2306,7 @@ EditableMathlist.prototype.insert = function(s, options) {
     const parent = this.parent();
     if (this.config.removeExtraneousParentheses && 
         parent && parent.type === 'leftright' && parent.leftDelim === '(' &&
+        isEmptyMathlist(parent.body) &&
         mathlist && mathlist.length === 1 && mathlist[0].type === 'genfrac') {
         // If the insert is fraction inside a lefright, remove the leftright
         this.path.pop();

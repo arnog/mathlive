@@ -621,18 +621,18 @@ class MathAtom {
             mathstyle.metrics.delim1 :
             mathstyle.metrics.delim2;
         // Optional delimiters
-        const leftDelim = Delimiters.makeCustomSizedDelim('mopen', 
-            this.leftDelim, 
-            delimSize, 
-            true, 
-            context.clone({mathstyle: mathstyle})
-        );
-        const rightDelim = Delimiters.makeCustomSizedDelim('mclose', 
-            this.rightDelim, 
-            delimSize, 
-            true, 
-            context.clone({mathstyle: mathstyle})
-        );
+        const leftDelim = this.bind(context, Delimiters.makeCustomSizedDelim('mopen', 
+                this.leftDelim, 
+                delimSize, 
+                true, 
+                context.clone({mathstyle: mathstyle})
+            ));
+        const rightDelim = this.bind(context, Delimiters.makeCustomSizedDelim('mclose', 
+                this.rightDelim, 
+                delimSize, 
+                true, 
+                context.clone({mathstyle: mathstyle})
+            ));
         leftDelim.applyStyle(this.getStyle());
         rightDelim.applyStyle(this.getStyle());
 
@@ -681,12 +681,12 @@ class MathAtom {
         innerDepth = Span.depth(inner) * mathstyle.sizeMultiplier;
         // Add the left delimiter to the beginning of the expression
         if (this.leftDelim) {
-            result.push(Delimiters.makeLeftRightDelim(
+            result.push(this.bind(context, Delimiters.makeLeftRightDelim(
                 'mopen', 
                 this.leftDelim, 
                 innerHeight, innerDepth, 
                 localContext
-            ));
+            )));
             result[result.length - 1].applyStyle(this.getStyle());
         }
         if (inner) {
@@ -696,7 +696,11 @@ class MathAtom {
                 if (inner[i].delim) {
                     const savedCaret = inner[i].caret;
                     const savedSelected = /ML__selected/.test(inner[i].classes);
-                    inner[i] = Delimiters.makeLeftRightDelim('minner', inner[i].delim, innerHeight, innerDepth, localContext);
+                    inner[i] = this.bind(context, Delimiters.makeLeftRightDelim('minner',
+                        inner[i].delim, 
+                        innerHeight, 
+                        innerDepth, 
+                        localContext));
                     inner[i].caret = savedCaret;
                     inner[i].selected(savedSelected);
                 }
@@ -720,12 +724,12 @@ class MathAtom {
                 delim = delim || this.leftDelim;
                 classes = 'ML__smart-fence__close';
             }
-            result.push(Delimiters.makeLeftRightDelim('mclose', 
+            result.push(this.bind(context, Delimiters.makeLeftRightDelim('mclose', 
                 delim, 
                 innerHeight, innerDepth, 
                 localContext,
                 classes
-            ));
+            )));
             result[result.length - 1].applyStyle(this.getStyle());
         }
         // If the `inner` flag is set, return the `inner` element (that's the
@@ -1520,7 +1524,7 @@ function makeID(context) {
     if (typeof context.generateID === 'boolean' && context.generateID) {
         result = Date.now().toString(36).slice(-2) +
             Math.floor(Math.random() * 0x186a0).toString(36);
-    } else if (typeof context.generateID !== 'boolean') {
+    } else if (typeof context.generateID === 'object') {
         if (context.generateID.overrideID) {
             result = context.generateID.overrideID;
         } else {
