@@ -172,7 +172,7 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
             prefix = '{\\' + command + ' ';
             suffix = '}';
 
-        } else if (prop === 'fontFamily' && ((atoms[0].fontFamily || atoms[0].baseFontFamily))) {
+        } else if (prop === 'fontFamily' && atoms[0].fontFamily) {
             if (!/^(math|main)$/.test(atoms[0].fontFamily)) {
                 const command = {
                     'cal': 'mathcal', 
@@ -182,9 +182,9 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
                     'cmr': 'mathrm',
                     'cmtt': 'mathtt',
                     'cmss': 'mathsf'
-                }[atoms[0].fontFamily || atoms[0].baseFontFamily] || '';
+                }[atoms[0].fontFamily] || '';
                 if (!command) {
-                    prefix += '{\\fontfamily{' + (atoms[0].fontFamily || atoms[0].baseFontFamily) + '}';
+                    prefix += '{\\fontfamily{' + atoms[0].fontFamily + '}';
                     suffix = '}';
                 } else {
                     if (/^\\operatorname{/.test(atoms[0].latex)) {
@@ -197,6 +197,26 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
                     // These command have an implicit fontSeries/fontShape, so
                     // we're done checking properties now.
                     properties = [];
+                }
+            }
+        } else if (prop === 'fontFamily' && atoms[0].baseFontFamily) {
+            // This is a command that applied a base font to the atoms.
+            if (atoms[0].latex && atoms[0].latex.startsWith('\\')) { 
+                prefix = '';
+                suffix = '';
+            } else { 
+                const command = {
+                    'cal': 'mathcal', 
+                    'frak': 'mathfrak', 
+                    'bb': 'mathbb',
+                    'scr': 'mathscr',
+                    'cmr': 'mathrm',
+                    'cmtt': 'mathtt',
+                    'cmss': 'mathsf'
+                }[atoms[0].baseFontFamily] || '';
+                if (command) {
+                    prefix = '\\' + command + '{';
+                    suffix = '}';
                 }
             }
         }

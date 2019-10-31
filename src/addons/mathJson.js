@@ -103,6 +103,15 @@ const CANONICAL_NAMES = {
     '\\to':             'to',       // Looks like \rightarrow
     '\\gets':           'gets',     // Looks like \leftarrow
 
+    // Sets
+    '\\in':             'elementof',
+    '\\notin':          '!elementof',
+    '\\ni':             'ownedby',   
+    '\\owns':           'ownedby',
+    '\\subset':         'subset',
+    '\\supset':         'superset',
+    '\\complement':     'complement',
+
     // Logic
     '\\rightarrow':     'shortLogicalImplies',
     '\\leftarrow':      'shortLogicalImpliedBy',
