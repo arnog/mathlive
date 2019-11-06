@@ -10,11 +10,14 @@ branches:
   only:
     - master
     # - release
+before_deploy:
+  npm run build
 deploy:
   provider: npm
   on:
     tags: true
-  api_token: $NPM_API_TOKEN
+  email: "$NPM_EMAIL"
+  api_token: "$NPM_API_TOKEN"
   access: public
   # dry_run: true
   edge: true

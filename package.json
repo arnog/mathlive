@@ -28,8 +28,8 @@
   "types": "./dist/mathlive.d.ts",
   "scripts": {
     "clean": "rimraf build dist docs",
-    "build-js": "eslint src/ -c .eslintrc.json",
-    "watch-js": "esw -w src/",
+    "build-js": "",
+    "watch-js": "",
     "build-corecss": "lessc css/mathlive.core.less dist/mathlive.core.css",
     "build-othercss": "lessc css/mathlive.less dist/mathlive.css",
     "build-postcss": "postcss dist/*.css -d dist",
@@ -51,7 +51,8 @@
     "watch-docs": "chokidar \"src/*.js\" \"tutorials/*.md\" \"examples/*.md\" -c \"npm run docs -s\"",
     "rollup": "rollup --config",
     "watch-rollup": "rollup --config --watch",
-    "dist": "npm-run-all -s clean build docs"
+    "dist": "npm-run-all -s clean build docs",
+    "deploy": "bash ./scripts/deploy"
   },
   "husky": {
     "hooks": {

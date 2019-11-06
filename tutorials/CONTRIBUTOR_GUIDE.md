@@ -17,7 +17,7 @@ If you simply want to use MathLive with your web content, see the {@tutorial USA
 ## Getting Started: Setting up Your Development Environment
 The project uses [NPM scripts](https://docs.npmjs.com/misc/scripts) 
  for its build system. The `package.json` 
-file contains the definitions of the build scripts.
+file and the `scripts/` directory contain the definitions of the build scripts.
 
 To get started developing:
 1. Install [Node.js](http://nodejs.org) on your dev machine
@@ -36,8 +36,7 @@ Once the installation is successful, you can use the following commands:
 ```bash
 # Build the project for local use
 # 1. Compile the `.css/.less` file to `build/*.css`
-# 2. "npm run lint" on the .js files
-# 3. "npm run docs" to generate the documentation
+# 2. Bundle the javascript in the `dist/` directory 
 $ npm run build
 
 # Auto re-build the project when a file changes.
@@ -53,6 +52,9 @@ $ npm test
 
 # Lint JavaScript files
 $ npm run lint
+
+# Lint and fix automatically JavaScript files.
+$ npm run lint:fix
 
 # Calculate the code coverage and output to build/coverage/
 $ npm run coverage
@@ -76,7 +78,7 @@ to the source files of the project in your favorite editor. When you
 save a file, if any problem with your code is detected (linting 
 failure, unit test failure), it will be displayed in the terminal window.
 
-Before doing a commit to `master` the docs and dist folder will be updated 
+Before doing a commit the docs and dist folder will be updated 
 automatically (using a git pre-commit hook managed by Husky).
 
 After you push your changes to `master`, a Travis continuous integration 
@@ -93,23 +95,22 @@ use the following commands:
 # Increase the version number of the library
 # Only do this before making a new public distribution
 # After doing this, you can `npm publish`
-$ npm version major | minor | patch
-
-# Push the tag created by `npm version` to the repo and request Travis to publish
-$ git push --tags origin master -m "[publish]"
+$ npm run deploy major | minor | patch
 ```
 
-The checking comment "[publish]" will Trigger Travis to do a `npm publish`.
-If the build fails for whatever reason, include "[publish]" in the check-in comment
-fixing the issue.
+This command will
+1. Trigger a Travis CI build
+2. Increment the version number and create a corresponding git tag
+3. Publish a git release
+4. Publish to NPM
 
 **Note on versioning** Use the [semver](http://semver.org/) convention for 
 versions:
-* `npm version patch`: bug fixes and other minor changes. Last number of the 
+* `npm run deploy`: bug fixes and other minor changes. Last number of the 
 version is incremented, e.g. `1.2.41` → `1.2.42`
-* `npm version minor`: new features which don't break existing features. Middle
+* `npm run deploy minor`: new features which don't break existing features. Middle
 number of the version is incremented, e.g. `1.2.42` → `1.3.0`
-* `npm version major`: changes which break backward compatibility of the API.
+* `npm run deploy major`: changes which break backward compatibility of the API.
 Increment the first number, e.g. `1.3.56` → `2.0.0`
 
 
