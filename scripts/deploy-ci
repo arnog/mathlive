@@ -1,0 +1,12 @@
+#! bash
+
+set -e  # exit immediately on error
+
+REPO=$(git config --get remote.origin.url | sed 's/.*:\/\/github.com\///;s/.git$//')
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+VERSION=$(git describe --tags)
+API_JSON=$(printf '{"tag_name": "%s","target_commitish": "master","name": "%s","body": "Release of version %s","draft": false,"prerelease": false}' $VERSION $VERSION $VERSION)
+
+echo "Create release $VERSION for $BRANCH branch of $REPO"
+curl --data "$API_JSON" "https://api.github.com/repos/$REPO/releases?access_token=$GH_PUBLISH_TOKEN"
+

@@ -1,5 +1,7 @@
 #! bash
 
+set -e  # exit immediately on error
+
 if [ "$1" == "minor" ]
 then
     npm version minor
@@ -15,14 +17,3 @@ fi
 
 # Deploy a release to git
 git push --tags origin master
-
-REPO=$(git config --get remote.origin.url | sed 's/.*:\/\/github.com\///;s/.git$//')
-BRANCH=$(git rev-parse --abbrev-ref HEAD)
-VERSION=$(git describe --tags)
-API_JSON=$(printf '{"tag_name": "%s","target_commitish": "master","name": "%s","body": "Release of version %s","draft": false,"prerelease": false}' $VERSION $VERSION $VERSION)
-
-echo "Create release $VERSION for $BRANCH branch of $REPO"
-curl --data "$API_JSON" "https://api.github.com/repos/$REPO/releases?access_token=$GH_PUBLISH_TOKEN"
-
-# Deploy a release to NPM
-npm publish
