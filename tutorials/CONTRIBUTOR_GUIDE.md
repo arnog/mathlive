@@ -76,12 +76,12 @@ to the source files of the project in your favorite editor. When you
 save a file, if any problem with your code is detected (linting 
 failure, unit test failure), it will be displayed in the terminal window.
 
-Before doing a commit to `master` it is also recommended that you do a
-`npm run dist` to make sure that the content of the `dist/` 
-and `docs/` directory are in sync with your latest changes.
+Before doing a commit to `master` the docs and dist folder will be updated 
+automatically (using a git pre-commit hook managed by Husky).
 
 After you push your changes to `master`, a Travis continuous integration 
-task will run `npm run dist` and `npm run test`. If either of those tasks
+task will run `npm run lint` and `npm run test` to make sure 
+the build can be reproduced in a clean environment. If either of those tasks
 fail, the build will be marked as failed and will need immediate fixing.
 
 ### Publishing
@@ -95,10 +95,13 @@ use the following commands:
 # After doing this, you can `npm publish`
 $ npm version major | minor | patch
 
-# Do a full build (code, docs, test), then publish the package to npmjs.com
-$ npm publish
-
+# Push the tag created by `npm version` to the repo and request Travis to publish
+$ git push --tags origin master -m "[publish]"
 ```
+
+The checking comment "[publish]" will Trigger Travis to do a `npm publish`.
+If the build fails for whatever reason, include "[publish]" in the check-in comment
+fixing the issue.
 
 **Note on versioning** Use the [semver](http://semver.org/) convention for 
 versions:

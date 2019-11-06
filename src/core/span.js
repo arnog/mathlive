@@ -283,8 +283,8 @@ export class Span {
     }
 
 /**
- * 
- * @param {number} left 
+ *
+ * @param {number} left
  * @private
  */
     setLeft(left) {
@@ -294,8 +294,8 @@ export class Span {
         }
     }
 /**
- * 
- * @param {number} right 
+ *
+ * @param {number} right
  * @private
  */
     setRight(right) {
@@ -373,7 +373,7 @@ export class Span {
             }
         }
         // Collapse 'empty' spans
-        if ((body === '\u200b' || !body) && 
+        if ((body === '\u200b' || !body) &&
             (!this.classes || this.classes === 'ML__selected')) {
             result = '';
 
@@ -435,7 +435,7 @@ export class Span {
             if (hskip) {
                 if (this.style && this.style['margin-left']) {
                     // There was already a margin, add to it
-                    this.style['margin-left'] = 
+                    this.style['margin-left'] =
                         toString((parseFloat(this.style['margin-left']) + hskip / 18)) + 'em';
                 } else {
                     // No margin yet. Can we encode it as a Unicode space?
@@ -479,7 +479,7 @@ export class Span {
                 result += '">';
                 result += body;
                 result += '</span>';
-                result += '<svg ';                
+                result += '<svg ';
                 // result += 'style="position:absolute;left:0;top:0;width:100%;height:100%;z-index:2;';
                 result += 'style="position:absolute;';
                 result += 'overflow:overlay;';
@@ -650,7 +650,7 @@ const INTER_ATOM_SPACING = {
 }
 
 
-// See https://www.w3.org/TR/2000/WD-MathML2-20000328/chapter6.html 
+// See https://www.w3.org/TR/2000/WD-MathML2-20000328/chapter6.html
 // 6.1.4 Non-Marking Characters
 const SPACING_CHARACTER = [
     '\u200b',            // 0/18 ZERO-WIDTH SPACE
@@ -1060,10 +1060,10 @@ export function makeVlist(context, elements, pos, posData) {
 }
 
 // /**
-//  * 
-//  * @param {Span|Span[]} base 
-//  * @param {number} strutHeight 
-//  * @param {number} strutDepth 
+//  *
+//  * @param {Span|Span[]} base
+//  * @param {number} strutHeight
+//  * @param {number} strutDepth
 //  */
 // function makeStrut(base, strutHeight, strutDepth) {
 //     return [base];

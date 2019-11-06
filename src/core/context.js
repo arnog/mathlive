@@ -19,11 +19,11 @@ import Mathstyle from './mathstyle.js';
  * `'script'` or `'scriptscript'`
  * @property {number} opacity
  * @property {number} size
- * @property {boolean|object} generateID - If true, unique IDs should be 
- * generated for each span so they can be mapped back to an atom. 
- * Can also be an object with a `seed` field to generate a specific range of 
- * IDs. Optionally, if a `groupNumbers` property is set to true, an additional 
- * span will enclose strings of digits. This is used by read aloud to properly 
+ * @property {boolean|object} generateID - If true, unique IDs should be
+ * generated for each span so they can be mapped back to an atom.
+ * Can also be an object with a `seed` field to generate a specific range of
+ * IDs. Optionally, if a `groupNumbers` property is set to true, an additional
+ * span will enclose strings of digits. This is used by read aloud to properly
  * pronounce (and highlight) numbers in expressions.
  * @property {string} parentMathstyle
  * @property {number} parentSize
@@ -61,7 +61,7 @@ class Context {
         result.macros = this.macros;
         if (override) {
             // `'auto'` (or undefined) to indicate that the mathstyle should in
-            // fact not be changed. This is used when specifying the mathstyle 
+            // fact not be changed. This is used when specifying the mathstyle
             // for some environments.
             if (override.mathstyle === 'auto' || !override.mathstyle) {
                 delete override.mathstyle;

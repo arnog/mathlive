@@ -223,8 +223,8 @@ const extraCharacterMap = {
  *
  * Note: the `width` property may be undefined if fontMetricsData.js wasn't
  * built using `Make extended_metrics`.
- * @param {string} character 
- * @param {string} fontCode 
+ * @param {string} character
+ * @param {string} fontCode
  * @memberof module:fontMetrics
  * @private
  */

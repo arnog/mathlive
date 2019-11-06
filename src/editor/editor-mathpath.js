@@ -7,9 +7,9 @@
 
 
 /**
- * 
+ *
  * @memberof module:editor/mathpath
- * @param {object} path 
+ * @param {object} path
  * @param {number} extent
  * @return {string}
  * @private
@@ -27,9 +27,9 @@ function pathToString(path, extent) {
 
 
 /**
- * 
+ *
  * @memberof module:editor/mathpath
- * @param {string} string 
+ * @param {string} string
  * @return {object}
  * @private
  */
@@ -60,9 +60,9 @@ function pathFromString(string) {
 
 /**
  * Given two paths, return a path representing their common ancestor.
- * 
- * @param {Array.<string>} p 
- * @param {Array.<string>} q 
+ *
+ * @param {Array.<string>} p
+ * @param {Array.<string>} q
  * @return {Array.<string>}
  * @memberof module:editor/mathpath
  * @private
@@ -71,8 +71,8 @@ function pathCommonAncestor(p, q) {
     const result = [];
     const maxIndex = Math.min(p.length - 1, q.length - 1);
     let i = 0;
-    while ( i <= maxIndex && 
-            p[i].relation === q[i].relation && 
+    while ( i <= maxIndex &&
+            p[i].relation === q[i].relation &&
             p[i].offset === q[i].offset) {
         result.push(p[i]);
         i += 1;
@@ -81,9 +81,9 @@ function pathCommonAncestor(p, q) {
 }
 
 /**
- * 
- * @param {Array.<string>} p 
- * @param {Array.<string>} q 
+ *
+ * @param {Array.<string>} p
+ * @param {Array.<string>} q
  * @return {number} 0 if the paths are identical
  *  - 1 if they are siblings
  *  - >1 if they are not siblings
@@ -97,13 +97,13 @@ function pathDistance(p, q) {
      while (!done) {
         i += 1;
         done = i >= p.length || i >= q.length;
-        done = done || 
-            !(p[i].relation === q[i].relation && 
+        done = done ||
+            !(p[i].relation === q[i].relation &&
             p[i].offset === q[i].offset);
     }
     if (i === p.length && i === q.length) {
         // They're identical
-        result = 0;     
+        result = 0;
     } else if (i + 1 === p.length && i + 1 === q.length &&
         p[i].relation === q[i].relation ) {
         // They're siblings

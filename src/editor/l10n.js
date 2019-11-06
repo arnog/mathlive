@@ -26,12 +26,12 @@ l10n.plural = function(value, s, options) {
     options.type = options.type || 'cardinal';
     const language = l10n.locale.substring(0, 2);
     const rules = options.type === 'ordinal' ? l10n.ordinal : l10n.cardinal;
-    let rule = options.type === 'ordinal' ? 
+    let rule = options.type === 'ordinal' ?
         l10n._ordinalPluralCategories.indexOf(rules.select(value)) :
         l10n._cardinalPluralCategories.indexOf(rules.select(value));
         
 
-    let result;    
+    let result;
     if (l10n.strings[l10n.locale]) result = l10n.strings[l10n.locale][s];
     if (!result && l10n.strings[language]) result = l10n.strings[language][s];
     if (!result) {
@@ -54,7 +54,7 @@ l10n.plural = function(value, s, options) {
  * Merge a dictionary of keys -> values for the specified locale
  * - merge(strings)
  * Merge a dictionary of locale code -> dictionary of keys -> values
- * 
+ *
  */
 l10n.merge = function(locale, strings) {
     if (locale && strings) {
@@ -71,7 +71,7 @@ l10n.merge = function(locale, strings) {
 
 
 // Add getter and setter for the _locale property of l10n
-Object.defineProperty(l10n, 'locale', { 
+Object.defineProperty(l10n, 'locale', {
     set(locale) {
         l10n._locale = locale;
         l10n._ordinal = null;
@@ -82,14 +82,14 @@ Object.defineProperty(l10n, 'locale', {
         // "english" if not running in a browser (node.js)
         if (!l10n._locale) {
             // Use the setter, which will load the necessary .json files.
-            l10n._locale = typeof navigator === 'undefined' ? 'en' : 
+            l10n._locale = typeof navigator === 'undefined' ? 'en' :
                 navigator.language.slice(0, 5);
         }
         return l10n._locale
     }
 });
 
-Object.defineProperty(l10n, 'ordinal', { 
+Object.defineProperty(l10n, 'ordinal', {
     get() {
         if (!l10n._ordinal) {
             l10n._ordinalEnglish = new Intl.PluralRules('en', {type: 'ordinal'});
@@ -102,7 +102,7 @@ Object.defineProperty(l10n, 'ordinal', {
     }
 });
 
-Object.defineProperty(l10n, 'cardinal', { 
+Object.defineProperty(l10n, 'cardinal', {
     get() {
         if (!l10n._cardinal) {
             l10n._cardinalEnglish = new Intl.PluralRules('en', {type: 'cardinal'});

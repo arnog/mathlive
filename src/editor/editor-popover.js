@@ -487,11 +487,11 @@ function setPopoverPosition(mf, position) {
     }
 
     // and position the popover right below or above the caret
-    if (position.y + mf.popover.offsetHeight + 5 > 
+    if (position.y + mf.popover.offsetHeight + 5 >
         screen_height - scrollbar_height - virtualkeyboard_height) {
         mf.popover.classList.add('reverse-direction');
-        mf.popover.style.top = 
-            (position.y - position.height - 
+        mf.popover.style.top =
+            (position.y - position.height -
             mf.popover.offsetHeight - 5) + 'px';
     } else {
         mf.popover.classList.remove('reverse-direction');
