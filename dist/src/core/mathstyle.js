@@ -5,10 +5,10 @@
  * - `scriptstyle`: used for math displayed in a superscript or subscript
  * - `scriptscriptstyle`: used for math displayed in the superscript or subscript
  * of a superscript or subscript.
- * 
- * It provides a generic {@linkcode module:core/mathstyle#Mathstyle Mathstyle} 
- * class which holds information about a specific style. 
- * 
+ *
+ * It provides a generic {@linkcode module:core/mathstyle#Mathstyle Mathstyle}
+ * class which holds information about a specific style.
+ *
  * It also provides instances of all the different kinds
  * of styles possible, and provides functions to move between them and get
  * information about them.

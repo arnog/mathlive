@@ -6,7 +6,7 @@
  * @private
  */
 
-// These keys on international (non-US QWERTY) keyboards should 
+// These keys on international (non-US QWERTY) keyboards should
 // be mapped to the coresponding virtual keys (they could be shifted keys on
 // international keyboards)
 const INTL_KEY = {
@@ -71,15 +71,15 @@ const KEY_NAMES = {
       '9'           : 'Digit9',
       '0'           : 'Digit0',
 
-      '!'           : 'Shift-Digit1',      
+      '!'           : 'Shift-Digit1',
       '@'           : 'Shift-Digit2',
-      '#'           : 'Shift-Digit3',      
-      '$'           : 'Shift-Digit4',      
-      '%'           : 'Shift-Digit5',      
-      '^'           : 'Shift-Digit6',      
-      '&'           : 'Shift-Digit7',      
-      '*'           : 'Shift-Digit8',      
-      '('           : 'Shift-Digit9',      
+      '#'           : 'Shift-Digit3',
+      '$'           : 'Shift-Digit4',
+      '%'           : 'Shift-Digit5',
+      '^'           : 'Shift-Digit6',
+      '&'           : 'Shift-Digit7',
+      '*'           : 'Shift-Digit8',
+      '('           : 'Shift-Digit9',
       ')'           : 'Shift-Digit0',
 
       '-'           : 'Minus',
@@ -95,7 +95,7 @@ const KEY_NAMES = {
   };
 
 /**
- * 
+ *
  * Create a normalized string representation of the key combo,
  * i.e., key code and modifier keys. For example:
  * - `Ctrl-Shift-Alt-KeyF`
@@ -105,7 +105,7 @@ const KEY_NAMES = {
  * - Doesn't work very well for command-<key>
  * - Returns "Alt-Alt" when only the Alt key is pressed
  * @memberof module:editor/keyboard
- * @param {Event} evt 
+ * @param {Event} evt
  * @private
  */
 function keyboardEventToString(evt) {
@@ -113,7 +113,7 @@ function keyboardEventToString(evt) {
     let useModifiers = true;
 
     if (evt.key === 'Unidentified') {
-        // On Android, the evt.key seems to always be Unidentified. 
+        // On Android, the evt.key seems to always be Unidentified.
         // Get the value entered in the event target
         if (evt.target) {
             keyname = VIRTUAL_KEY_NAMES[evt.target.value] || evt.target.value;
@@ -129,7 +129,7 @@ function keyboardEventToString(evt) {
         }
 
         // For virtual keyboards (iOS, Android) and Microsoft Edge (!)
-        // the `evt.code`, which represents the physical key pressed, is set 
+        // the `evt.code`, which represents the physical key pressed, is set
         // to undefined. In that case, map the virtual key ("q") to a
         // pseudo-hardware key ("KeyQ")
         if (!keyname) {
@@ -158,31 +158,31 @@ function keyboardEventToString(evt) {
 
 
 /**
- * Setup to capture the keyboard events from a `TextArea` and redispatch them to 
+ * Setup to capture the keyboard events from a `TextArea` and redispatch them to
  * handlers.
- * 
- * In general, commands (arrows, delete, etc..) should be handled 
- * in the `keystroke()` handler while text input should be handled in 
+ *
+ * In general, commands (arrows, delete, etc..) should be handled
+ * in the `keystroke()` handler while text input should be handled in
  * `typedtext()`.
- * 
+ *
  * @param {HTMLElement} textarea A `TextArea` element that will capture the keyboard
  * events. While this element will usually be a `TextArea`, it could be any
  * element that is focusable and can receive keyboard events.
  * @param {Object.<string, any>} handlers
  * @param {HTMLElement} [handlers.container]
- * @param {function} handlers.keystroke invoked on a key down event, including 
- * for special keys such as ESC, arrow keys, tab, etc... and their variants 
+ * @param {function} handlers.keystroke invoked on a key down event, including
+ * for special keys such as ESC, arrow keys, tab, etc... and their variants
  * with modifiers.
- * @param {function} handlers.typedtext invoked on a keypress or other events 
- * when a key corresponding to a character has been pressed. This include `a-z`, 
+ * @param {function} handlers.typedtext invoked on a keypress or other events
+ * when a key corresponding to a character has been pressed. This include `a-z`,
  * `0-9`, `{}`, `^_()`, etc...
  * This does not include arrow keys, tab, etc... but does include 'space'
  * When a 'character' key is pressed, both `keystroke()` and `typedtext()` will
- * be invoked. When a control/function key is pressed, only `keystroke()` will 
+ * be invoked. When a control/function key is pressed, only `keystroke()` will
  * be invoked. In some cases, for example when using input methods or entering
- * emoji, only `typedtext()` will be invoked. 
- * @param {function} handlers.paste(text) Invoked in response to a paste 
- * command. Not all browsers support this (Chrome doesn't), so typedtext() 
+ * emoji, only `typedtext()` will be invoked.
+ * @param {function} handlers.paste(text) Invoked in response to a paste
+ * command. Not all browsers support this (Chrome doesn't), so typedtext()
  * will be invoked instead.
  * @param {function} handlers.cut
  * @param {function} handlers.copy
@@ -219,9 +219,9 @@ function delegateKeyboardEvents(textarea, handlers) {
     }
 
     function onKeydown(e) {
-        const allowDeadKey = typeof handlers.allowDeadKey === 'function' && 
+        const allowDeadKey = typeof handlers.allowDeadKey === 'function' &&
             handlers.allowDeadKey();
-        if (!allowDeadKey && 
+        if (!allowDeadKey &&
             ((e.key === 'Dead' || e.key === 'Unidentified') || e.keyCode === 229)) {
             deadKey = true;
             compositionInProgress = false;
@@ -238,8 +238,8 @@ function delegateKeyboardEvents(textarea, handlers) {
         } else {
             deadKey = false;
         }
-        if (!compositionInProgress && 
-            e.code !== 'CapsLock' && 
+        if (!compositionInProgress &&
+            e.code !== 'CapsLock' &&
             !/(Control|Meta|Alt|Shift)(Right|Left)/.test(e.code)) {
             keydownEvent = e;
             keypressEvent = null;
@@ -307,15 +307,15 @@ function delegateKeyboardEvents(textarea, handlers) {
     target.addEventListener('cut', onCut, true);
     target.addEventListener('blur', onBlur, true);
     target.addEventListener('focus', onFocus, true);
-    target.addEventListener('compositionstart', 
+    target.addEventListener('compositionstart',
         () => { compositionInProgress = true }, true);
-    target.addEventListener('compositionend', 
+    target.addEventListener('compositionend',
         () => { compositionInProgress = false; defer(handleTypedText); }, true);
 
-    // The `input` handler gets called when the field is changed, for example 
+    // The `input` handler gets called when the field is changed, for example
     // with input methods or emoji input...
-    target.addEventListener('input', () => { 
-        if (deadKey) { 
+    target.addEventListener('input', () => {
+        if (deadKey) {
             const savedBlur = handlers.blur;
             const savedFocus = handlers.focus;
             handlers.blur = null;
@@ -326,9 +326,9 @@ function delegateKeyboardEvents(textarea, handlers) {
             handlers.focus = savedFocus;
             deadKey = false;
             compositionInProgress = false;
-            defer(handleTypedText); 
+            defer(handleTypedText);
         } else if (!compositionInProgress) {
-            defer(handleTypedText); 
+            defer(handleTypedText);
         }
     });
 

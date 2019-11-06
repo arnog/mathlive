@@ -1192,7 +1192,7 @@ function make(mf, theme) {
     if (!keyboardIDs) {
         keyboardIDs = 'all';
     }
-    keyboardIDs = keyboardIDs.replace(/\ball\b/i, 
+    keyboardIDs = keyboardIDs.replace(/\ball\b/i,
         'numeric roman greek functions command')
 
     const layers = Object.assign({}, LAYERS, mf.config.customVirtualKeyboardLayers || {});

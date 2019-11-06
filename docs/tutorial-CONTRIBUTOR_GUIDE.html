@@ -137,11 +137,11 @@ command running in a terminal window while you make the necessary changes
 to the source files of the project in your favorite editor. When you
 save a file, if any problem with your code is detected (linting
 failure, unit test failure), it will be displayed in the terminal window.</p>
-<p>Before doing a commit to <code>master</code> it is also recommended that you do a
-<code>npm run dist</code> to make sure that the content of the <code>dist/</code>
-and <code>docs/</code> directory are in sync with your latest changes.</p>
+<p>Before doing a commit to <code>master</code> the docs and dist folder will be updated
+automatically (using a git pre-commit hook managed by Husky).</p>
 <p>After you push your changes to <code>master</code>, a Travis continuous integration
-task will run <code>npm run dist</code> and <code>npm run test</code>. If either of those tasks
+task will run <code>npm run lint</code> and <code>npm run test</code> to make sure
+the build can be reproduced in a clean environment. If either of those tasks
 fail, the build will be marked as failed and will need immediate fixing.</p>
 <h3 id="publishing">Publishing</h3>
 <p>Once you have made significant changes that are ready to be shared broadly,
@@ -151,10 +151,12 @@ use the following commands:</p>
 # After doing this, you can `npm publish`
 $ npm version major | minor | patch
 
-# Do a full build (code, docs, test), then publish the package to npmjs.com
-$ npm publish
-
+# Push the tag created by `npm version` to the repo and request Travis to publish
+$ git push --tags origin master -m &quot;[publish]&quot;
 </code></pre>
+<p>The checking comment &quot;[publish]&quot; will Trigger Travis to do a <code>npm publish</code>.
+If the build fails for whatever reason, include &quot;[publish]&quot; in the check-in comment
+fixing the issue.</p>
 <p><strong>Note on versioning</strong> Use the <a href="http://semver.org/">semver</a> convention for
 versions:</p>
 <ul>

@@ -547,7 +547,7 @@ MathAtom.toSpeakableText = function(atoms, speechOptions) {
     const options = speechOptions ? JSON.parse(JSON.stringify(speechOptions)) : {
         textToSpeechMarkup: '',     // no markup
         textToSpeechRules: 'mathlive'
-    };  
+    };
     options.speechMode = 'math';
 
     if (window.sre && options.textToSpeechRules === 'sre') {

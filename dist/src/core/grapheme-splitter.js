@@ -1,11 +1,11 @@
 /*
-Breaks a JavaScript string into individual user-perceived "characters" 
+Breaks a JavaScript string into individual user-perceived "characters"
 called extended grapheme clusters by implementing the Unicode UAX-29 standard, version 8.0.0
 
 Usage:
 var splitter = new GraphemeSplitter();
 //returns an array of strings, one string for each grapheme cluster
-var graphemes = splitter.splitGraphemes(string); 
+var graphemes = splitter.splitGraphemes(string);
 
 */
 
@@ -30,7 +30,7 @@ var graphemes = splitter.splitGraphemes(string);
 		const code = str.charCodeAt(idx);
 
 		// if a high surrogate
-		if (0xD800 <= code && code <= 0xDBFF && 
+		if (0xD800 <= code && code <= 0xDBFF &&
 			idx < str.length - 1){
 			const hi = code;
 			const low = str.charCodeAt(idx + 1);
@@ -51,12 +51,12 @@ var graphemes = splitter.splitGraphemes(string);
 			return low;
 		}
 		
-		//just return the char if an unmatched surrogate half or a 
+		//just return the char if an unmatched surrogate half or a
 		//single-char codepoint
 		return code;
 	}
 	
-	// Private function, returns whether a break is allowed between the 
+	// Private function, returns whether a break is allowed between the
 	// two given grapheme breaking classes
 	function shouldBreak(previous, current){
 
@@ -78,15 +78,15 @@ var graphemes = splitter.splitGraphemes(string);
 		} else if(current === Control || current === CR || current === LF){
 		// GB5. ÷ (Control|CR|LF)
 			return true;
-		} else if(previous === L && 
+		} else if(previous === L &&
 			(current === L || current === V || current === LV || current === LVT)){
 		// GB6. L X (L|V|LV|LVT)
 			return false;
-		} else if((previous === LV || previous === V) && 
+		} else if((previous === LV || previous === V) &&
 		// GB7. (LV|V) X (V|T)
 			(current === V || current === T)){
 			return false;
-		} else if((previous === LVT || previous === T) && 
+		} else if((previous === LVT || previous === T) &&
 			current === T){
             // GB8. (LVT|T) X (T)
 			return false;
@@ -171,7 +171,7 @@ var graphemes = splitter.splitGraphemes(string);
 	//given a Unicode code point, determines this symbol's grapheme break property
 	function getGraphemeBreakProperty(code){
 		
-		//grapheme break property for Unicode 8.0.0, 
+		//grapheme break property for Unicode 8.0.0,
 		//taken from http://www.unicode.org/Public/8.0.0/ucd/auxiliary/GraphemeBreakProperty.txt
 		//and adapted to JavaScript rules
 		

@@ -82,7 +82,7 @@ class UndoManager {
         }
     }
     /**
-     * 
+     *
      * @memberof UndoManager
      * @instance
      * @private
@@ -115,7 +115,7 @@ class UndoManager {
         });
 
         this.index++;
-        // If we've reached the maximum number of undo operations, forget the 
+        // If we've reached the maximum number of undo operations, forget the
         // oldest one.
         if (this.stack.length > this.maximumDepth) {
             this.stack.shift();
@@ -126,8 +126,8 @@ class UndoManager {
         this.canCoalesce = false;
     }
     /**
-     * 
-     * @param {Object.<any>} options 
+     *
+     * @param {Object.<any>} options
      * @instance
      * @memberof UndoManager
      * @private
