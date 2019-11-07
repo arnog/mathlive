@@ -16,4 +16,4 @@ else
 fi
 
 # Deploy a release to git
-git push --tags origin master
+git push origin --tags
