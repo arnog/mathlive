@@ -1,6 +1,6 @@
 const SPECIAL_IDENTIFIERS = {
     '\u2212':       '-',  // MINUS SIGN
-    '-':            '-', 
+    '-':            '-',
     '\\alpha':      'alpha',
     '\\beta':       'beta',
     '\\gamma':      'gamma',
@@ -160,7 +160,7 @@ export function toASCIIMath(atom, options){
 
         case 'mord':
             // @todo, deal with some special identifiers: \alpha, etc...
-            result = SPECIAL_IDENTIFIERS[command] || command || 
+            result = SPECIAL_IDENTIFIERS[command] || command ||
                 (typeof atom.body === 'string' ? atom.body : '');
             if (result[0] === '\\') result += '';
             m = command ? command.match(/[{]?\\char"([0-9abcdefABCDEF]*)[}]?/) : null;

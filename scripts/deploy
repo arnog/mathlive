@@ -1,0 +1,19 @@
+#! bash
+
+set -e  # exit immediately on error
+
+if [ "$1" == "minor" ]
+then
+    npm version minor
+
+elif [ "$1" == "major" ]
+then
+    npm version major
+
+else
+    # if $1 is empty or $1 = 'patch'
+    npm version patch
+fi
+
+# Deploy a release to git
+git push origin --tags

@@ -14,35 +14,35 @@ import Definitions from '../core/definitions.js';
  * - `Delete`         → `Del`
  * - `Escape`         → `Esc`
  * - ' '              → `Spacebar`
- * 
+ *
  * The modifiers are specified before the main key, in the following order:
  * 1. `Ctrl`
  * 2. `Meta`: Command key on Mac OS. On Windows this is the Windows key,
  * but the system intercepts those key combinations so they are never received
  * 3. `Alt`: Option key on Mac OS
  * 4. `Shift`
- * 
- * The keys can be preceded by a context to restrict when the shortcut is 
+ *
+ * The keys can be preceded by a context to restrict when the shortcut is
  * applicable. For example, "math:Ctrl-KeyA" will restrict this shortcut
  * to only apply in the "math" context (parseMode). Other valid context include
  * "text" and "command".
- * 
- * The value of the entries represent the command to perform. 
+ *
+ * The value of the entries represent the command to perform.
  * This can be either a single selector, or an array of a selector followed
  * by its arguments.
  * Selectors uses the following naming conventions:
  * - a 'char' is a math atom (a letter, digit, symbol or compound atom)
  * - a 'word' is a sequence of math atoms of the same type
- * - a 'group' is a sequence of sibling atoms, for example a numerator or 
+ * - a 'group' is a sequence of sibling atoms, for example a numerator or
  * a superscript
  * - the 'MathField' is the entire expression being edited
- * - a 'placeholder' is either an actual placeholder atom or an empty child 
+ * - a 'placeholder' is either an actual placeholder atom or an empty child
  * list, for example an empty numerator
- * - 'move' changes the position of the insertion point (and collapses the 
+ * - 'move' changes the position of the insertion point (and collapses the
  * selection range if necessary)
  * - 'extend' keeps the anchor of the  selection, but moves the focus (extends,
  * or shrinks, the range of selected items)
- * 
+ *
  * @type {Object<string,string>}
  * @private
  */
@@ -112,7 +112,7 @@ const KEYBOARD_SHORTCUTS = {
     'command:Tab':              ['complete', {acceptSuggestion: true}], // complete the suggestion
     'command:Return':           'complete',
     'command:Enter':            'complete',
-    'command:Shift-Esc':        ['complete', {discard: true}],     // Some keyboards can't generate 
+    'command:Shift-Esc':        ['complete', {discard: true}],     // Some keyboards can't generate
             // this combination, for example in 60% keyboards it is mapped to ~
     'command:Down':             'nextSuggestion',
     'ios:command:Tab':          'nextSuggestion',
@@ -144,14 +144,14 @@ const KEYBOARD_SHORTCUTS = {
     'mac:Ctrl-KeyF':            'moveToNextChar',
     'mac:Ctrl-KeyP':            'moveUp',
     'mac:Ctrl-KeyN':            'moveDown',
-    'mac:Ctrl-KeyA':            'moveToMathFieldStart',    
+    'mac:Ctrl-KeyA':            'moveToMathFieldStart',
     'mac:Ctrl-KeyE':            'moveToMathFieldEnd',
 
     'mac:Ctrl-Shift-KeyB':      'extendToPreviousChar',
     'mac:Ctrl-Shift-KeyF':      'extendToNextChar',
     'mac:Ctrl-Shift-KeyP':      'extendUp',
     'mac:Ctrl-Shift-KeyN':      'extendDown',
-    'mac:Ctrl-Shift-KeyA':      'extendToMathFieldStart',    
+    'mac:Ctrl-Shift-KeyA':      'extendToMathFieldStart',
     'mac:Ctrl-Shift-KeyE':      'extendToMathFieldEnd',
     'mac:Ctrl-Alt-KeyB':        'moveToPreviousWord',
     'mac:Ctrl-Alt-KeyF':        'moveToNextWord',
@@ -175,7 +175,7 @@ const KEYBOARD_SHORTCUTS = {
     'math:Alt-Shift-BracketLeft':  ['insert', '\\left\\lbrace #0 \\right\\rbrace'],
     'math:Return':               'addRowAfter',
     'math:Enter':                'addRowAfter',
-    'math:Ctrl-Comma':           'addColumnAfter',      
+    'math:Ctrl-Comma':           'addColumnAfter',
     // Excel shortcuts:
     // Shift-space: select entire row, ctrl+space: select an entire column
     // ctrl+shift++ or ctrl+numpad+
@@ -255,11 +255,11 @@ const KEYBOARD_SHORTCUTS = {
 }
 
 /**
- * Most commands can be associated to their keyboard shortcuts from the 
+ * Most commands can be associated to their keyboard shortcuts from the
  * KEYBOARD_SHORTCUTS table above, for example 'speakSelection' -> 'Ctrl-KeyR'
  * However, those that contain complex commands are more ambiguous.
  * For example, '\sqrt' -> 'math:Alt-KeyV'. This table provides the reverse
- * mapping for those more complex commands. It is used when displaying 
+ * mapping for those more complex commands. It is used when displaying
  * keyboard shortcuts for specific commands in the popover.
  * @type {Object<string,string>}
  * @private
@@ -292,7 +292,7 @@ const REVERSE_KEYBOARD_SHORTCUTS = {
 /**
  * These shortcut strings are replaced with the corresponding LaTeX expression
  * without requiring an escape sequence or command.
- * 
+ *
  * @type {Object.<string,string>}
  * @private
  */
@@ -311,9 +311,9 @@ const INLINE_SHORTCUTS = {
     'Theta':                '\\Theta',
 
     // Letter-like
-    'ii':                   { after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text', 
+    'ii':                   { after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
                                 value: '\\imaginaryI' },
-    'jj':                   { after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text', 
+    'jj':                   { after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
                                 value: '\\imaginaryJ' },
     'ee':                   {
                                 mode: 'math',
@@ -395,7 +395,7 @@ const INLINE_SHORTCUTS = {
     '<=':                   '\\le',
     '<<':                   '\\ll',
     '>>':                   '\\gg',
-    '~~':                   '\\approx', 
+    '~~':                   '\\approx',
 
     // More operators
     '≈':                    '\\approx',
@@ -414,12 +414,12 @@ const INLINE_SHORTCUTS = {
     'chi':                  '\\chi',
     'epsilon':              '\\epsilon',
     'varepsilon':           '\\varepsilon',
-    'eta':                  { 
+    'eta':                  {
                                 mode: 'math',
                                 after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
                                 value: '\\eta'
                             },
-    'eta ':                 { 
+    'eta ':                 {
                                 mode: 'text',
                                 after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
                                 value: '\\eta '
@@ -554,19 +554,19 @@ const INLINE_SHORTCUTS = {
 
     // UNITS
     'mm':                   {   mode: 'math',
-                                after: 'nothing+digit', 
+                                after: 'nothing+digit',
                                 value:  '\\operatorname{mm}',         // millimeter
                             },
     'cm':                   {   mode: 'math',
-                                after: 'nothing+digit', 
+                                after: 'nothing+digit',
                                 value:  '\\operatorname{cm}',         // centimeter
                             },
     'km':                   {   mode: 'math',
-                                after: 'nothing+digit', 
+                                after: 'nothing+digit',
                                 value:  '\\operatorname{km}',         // kilometer
                             },
     'kg':                   {   mode: 'math',
-                                after: 'nothing+digit', 
+                                after: 'nothing+digit',
                                 value:  '\\operatorname{kg}',         // kilogram
                             },
                             
@@ -590,7 +590,7 @@ const INLINE_SHORTCUTS = {
     '<->':                  '\\leftrightarrow',
 
     '(.)':                  '\\odot',
-    '(+)':                  '\\oplus',      
+    '(+)':                  '\\oplus',
     '(/)':                  '\\oslash',
     '(*)':                  '\\otimes',
     '(-)':                  '\\ominus',
@@ -642,8 +642,8 @@ const INLINE_SHORTCUTS = {
     '-lt':                  '\\prec',
     '-<=':                  '\\preceq',
     // '>-':                   '\\succ',
-    '>-=':                  '\\succeq', 
-    'prop':                 '\\propto', 
+    '>-=':                  '\\succeq',
+    'prop':                 '\\propto',
     'diamond':              '\\diamond',
     'square':               '\\square',
     'iff':                  '\\iff',
@@ -688,9 +688,10 @@ const INLINE_SHORTCUTS = {
 
 /**
  * Return an array of potential shortcuts
- * @param {string} s 
- * @param {object} config 
+ * @param {string} s
+ * @param {object} config
  * @return {string[]}
+ * @private
  */
 function startsWithString(s, config) {
     const result = [];
@@ -706,7 +707,7 @@ function startsWithString(s, config) {
             });
         }
 
-        const customInlineShortcuts = config && config.inlineShortcuts ? 
+        const customInlineShortcuts = config && config.inlineShortcuts ?
             config.inlineShortcuts : null;
         if (customInlineShortcuts) {
             Object.keys(customInlineShortcuts).forEach(key => {
@@ -721,10 +722,11 @@ function startsWithString(s, config) {
 
 
 /**
- * 
+ *
  * @param {string} mode
  * @param {object[]} siblings atoms preceding this potential shortcut
- * @param {string} shortcut 
+ * @param {string} shortcut
+ * @private
  */
 function validateShortcut(mode, siblings, shortcut) {
     if (!shortcut) return shortcut
@@ -799,13 +801,13 @@ function validateShortcut(mode, siblings, shortcut) {
 
 /**
  * This function is used to resolve inline shortcuts.
- * 
+ *
  * @param {string} mode
  * @param {string} context - atoms preceding the candidate, potentially used
- * to reduce which shortcuts are applicable. If 'null', no restrictions are 
+ * to reduce which shortcuts are applicable. If 'null', no restrictions are
  * applied.
  * @param {string} s - candidate inline shortcuts (e.g. `'pi'`)
- * @param {object} config 
+ * @param {object} config
  * @return {string} - A replacement string matching the shortcut (e.g. `'\pi'`)
  * @memberof module:editor/shortcuts
  * @private
@@ -818,7 +820,7 @@ function forString(mode, context, s, config) {
         result = validateShortcut(mode, context, INLINE_SHORTCUTS[s]);
     }
 
-    const customInlineShortcuts = config && config.inlineShortcuts ? 
+    const customInlineShortcuts = config && config.inlineShortcuts ?
         config.inlineShortcuts : null;
     let customResult;
     if (customInlineShortcuts) {
@@ -868,7 +870,7 @@ function platform(p) {
 
 /**
  * Return the selector matching the keystroke.
- * 
+ *
  * @param {string} mode
  * @param {string} keystroke
  * @return {string}
@@ -928,7 +930,7 @@ function forCommand(command) {
     // with arguments. Normalize it to a string
     command = commandToString(command);
 
-    const regex = new RegExp('^' + 
+    const regex = new RegExp('^' +
         command.replace('\\','\\\\').
             replace('|', '\\|').
             replace('*', '\\*').
@@ -948,7 +950,7 @@ function forCommand(command) {
 
 /**
  * Return a human readable representation of an array of shortcut strings
- * @param {Object<string,string>} shortcuts 
+ * @param {Object<string,string>} shortcuts
  * @param {?string} join - optional, string in between each shortcut representation
  * @memberof module:editor/shortcuts
  * @private
@@ -961,25 +963,25 @@ function stringify(shortcuts, join) {
         const platMatch = shortcut.match(/(^[^:]*):/);
         const plat = platMatch ? platMatch[1] : '';
 
-        if (plat === platform('mac') || 
-            plat === platform('win') || 
-            plat === platform('ios') || 
-            plat === platform('android') || 
-            plat === platform('chromeos') || 
+        if (plat === platform('mac') ||
+            plat === platform('win') ||
+            plat === platform('ios') ||
+            plat === platform('android') ||
+            plat === platform('chromeos') ||
             plat === platform('other')) {
 
             const m = shortcut.match(/:([^:]*)$/);
             keyboardShortcut = m ? m[1] : shortcut;
-        } else if (!['mac', '!mac', 'win', '!win', 'ios', '!ios', 'android', 
+        } else if (!['mac', '!mac', 'win', '!win', 'ios', '!ios', 'android',
             '!android', 'chromeos', '!chromeos', 'other', '!other'].includes(plat)) {
             const m = shortcut.match(/:([^:]*)$/);
             keyboardShortcut = m ? m[1] : shortcut;
         }
         if (keyboardShortcut) {
 
-            const useSymbol = platform('mac') === 'mac' || 
+            const useSymbol = platform('mac') === 'mac' ||
                                 platform('ios') === 'ios';
-            const modifiers = keyboardShortcut.length > 1 ? 
+            const modifiers = keyboardShortcut.length > 1 ?
                 keyboardShortcut.split('-') : [keyboardShortcut];
             let shortcutString = '';
             for (const modifier of modifiers) {
@@ -1041,8 +1043,8 @@ function stringify(shortcuts, join) {
                 result += join || ' or ';
             }
             // if (shortcutString.length === 1) {
-            //     shortcutString = shortcutString + ' (U+' + 
-            //         ('0000' + shortcutString.codePointAt(0).toString(16)).substr(-4) + 
+            //     shortcutString = shortcutString + ' (U+' +
+            //         ('0000' + shortcutString.codePointAt(0).toString(16)).substr(-4) +
             //         ')';
             // }
             result += shortcutString;
@@ -1057,7 +1059,7 @@ export default {
     INLINE_SHORTCUTS,
     stringify,
     startsWithString,
-    forString, 
+    forString,
     selectorForKeystroke,
     forCommand
 }

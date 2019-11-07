@@ -1,7 +1,7 @@
 
 
 /**
- * This module contains some color dictionaries and algorithms to 
+ * This module contains some color dictionaries and algorithms to
  * parse a string into a hex RGB color value.s
  * @summary   Parsing of color strings.
  * @module core/color
@@ -15,7 +15,7 @@
 
 /**
  * First 10 predefined colors used for plotting by Mathematica.
- * 
+ *
  * Also known as _indexed color scheme #97_.
  * @constant
  * @type {Object.<string, string>}
@@ -93,12 +93,12 @@ const LINE_COLORS = [
     '#ffffff',
 ]
 
-/** 
+/**
  * 68 colors (+ white) known to dvips used in LaTeX.
- * 
- * The color names are based on the names of the _Crayola Crayon_ box of 
+ *
+ * The color names are based on the names of the _Crayola Crayon_ box of
  * 64 crayons.
- * 
+ *
  * See:
  * - {@link http://mirror.jmu.edu/pub/CTAN/systems/knuth/local/lib/colordvi.tex|ColorDVI.tex}
  * - {@link https://en.wikibooks.org/w/index.php?title=LaTeX/Colors|Wikibooks:LaTeX/Colors}
@@ -333,26 +333,26 @@ yellowgreen	rgb(154, 205, 50)
 
 /**
  * Return a CSS color (#rrggbb) from a string.
- * 
+ *
  * Possible formats include:
  * - named colors from the DVI color set: 'Yellow', 'red'... Case insensitive.
  * - colors from the Mathematica set: 'm1'...'m9'
  * - 3-digit hex: `'#d50'`
  * - 6-digit hex: `'#dd5500'`
  * - RGB functional: `'rgb(240, 20, 10)'`
- * 
+ *
  * In addition, colors can be mixed using the following syntax:
  * `<mix> = <color>![<value>][!<mix>]`
- * For example: 
+ * For example:
  * - `'blue!20'`  = 20% blue + 80% white
  * - `'blue!20!black'` = 20% + 80% black
  * - `'blue!20!black!30!green'` = (20% + 80% black) * 30 % + 70% green
- * 
+ *
  * If the input string is prefixed with a dash, the complementary color
  * of the expression is returned.
- * 
+ *
  * This creative syntax is defined by the {@link http://mirror.jmu.edu/pub/CTAN/macros/latex/contrib/xcolor/xcolor.pdf|`xcolor` LaTeX package}.
- * 
+ *
  * @param {string} s - An expression representing a color value
  * @return {string} An RGB color expressed as a hex-triplet preceded by `#`
  * @memberof module:color
@@ -436,9 +436,9 @@ function stringToColor(s) {
         blue = 255 - blue;
     }
 
-    return '#' +  
-        ('00' + Math.round(red).toString(16)).slice(-2) + 
-        ('00' + Math.round(green).toString(16)).slice(-2) + 
+    return '#' +
+        ('00' + Math.round(red).toString(16)).slice(-2) +
+        ('00' + Math.round(green).toString(16)).slice(-2) +
         ('00' + Math.round(blue).toString(16)).slice(-2);
 }
 
@@ -463,7 +463,7 @@ function colorToString(color) {
 }
 
 // Export the public interface for this module
-export default { 
+export default {
     stringToColor,
     colorToString,
     AREA_COLORS,

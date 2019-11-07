@@ -182,7 +182,7 @@
         inlineShortcutTimeout: 1500,
         
         onContentDidChange: mf => {
-            document.getElementById('mf2__output').innerHTML = mf.$latex();
+            document.getElementById('mf2__output').innerHTML = mf.$text();
         }
     });
 
@@ -197,7 +197,7 @@
             return true;
         },
         onContentDidChange: mf => {
-            document.getElementById('mf3__output').innerHTML = mf.$latex();
+            document.getElementById('mf3__output').innerHTML = mf.$text();
         }
 
     });

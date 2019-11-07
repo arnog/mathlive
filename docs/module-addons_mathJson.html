@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>Global - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>addons/mathJson - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -58,7 +58,7 @@ writeCookie('symbol-access', 'private')
 
 <main id="main">
     
-        <h1 class="page-title">Global</h1>
+        <h1 class="page-title">addons/mathJson</h1>
     
 
     
@@ -70,9 +70,8 @@ writeCookie('symbol-access', 'private')
 
 <header>
     
-        <h2>
         
-        </h2>
+            
         
     
 </header>
@@ -81,8 +80,31 @@ writeCookie('symbol-access', 'private')
     <div class="container-overview">
     
         
+            <div class="description"><p>This module parses and outputs an Abstract Syntax Tree representing the
+formula using the <a href="tutorial-MATHJSON.html">MathJSON</a> format.</p>
+<p>To use it, use the <a href="MathAtom.html#toAST"><code>MathAtom.toAST()</code></a>  method.</p></div>
+        
 
         
+            
+<div class='method'>
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
 
 
 <dl class="details">
@@ -120,6 +142,22 @@ writeCookie('symbol-access', 'private')
     
 </dl>
 
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
 
         
     
@@ -136,259 +174,6 @@ writeCookie('symbol-access', 'private')
     
 
     
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<div class='member'>
-<h4 class="name" id="INLINE_SHORTCUTS">INLINE_SHORTCUTS<span class="type-signature"> &rarr;[string]:string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">constant</span></span></h4>
-
-
-
-
-<div class="description">
-    <p>These shortcut strings are replaced with the corresponding LaTeX expression
-without requiring an escape sequence or command.</p>
-</div>
-
-
-
-    <h5>Type</h5>
-    <ul>
-        <li>
-            : 
-<span class="param-type">[string]:string</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-</div>
-        
-            
-<div class='member'>
-<h4 class="name" id="KEYBOARD_SHORTCUTS">KEYBOARD_SHORTCUTS<span class="type-signature"> &rarr;[string]:string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">constant</span></span></h4>
-
-
-
-
-<div class="description">
-    <p>The index of this array is a keystroke combination as returned by the key
-field of a JavaScript keyboard event as documented here:
-https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
-except for:</p>
-<ul>
-<li><code>Escape</code>         → <code>Esc</code></li>
-<li><code>LeftArrow</code>...   → <code>Left/Right/Up/Down</code></li>
-<li><code>Delete</code>         → <code>Del</code></li>
-<li><code>Escape</code>         → <code>Esc</code></li>
-<li>' '              → <code>Spacebar</code></li>
-</ul>
-<p>The modifiers are specified before the main key, in the following order:</p>
-<ol>
-<li><code>Ctrl</code></li>
-<li><code>Meta</code>: Command key on Mac OS. On Windows this is the Windows key,
-but the system intercepts those key combinations so they are never received</li>
-<li><code>Alt</code>: Option key on Mac OS</li>
-<li><code>Shift</code></li>
-</ol>
-<p>The keys can be preceded by a context to restrict when the shortcut is
-applicable. For example, &quot;math:Ctrl-KeyA&quot; will restrict this shortcut
-to only apply in the &quot;math&quot; context (parseMode). Other valid context include
-&quot;text&quot; and &quot;command&quot;.</p>
-<p>The value of the entries represent the command to perform.
-This can be either a single selector, or an array of a selector followed
-by its arguments.
-Selectors uses the following naming conventions:</p>
-<ul>
-<li>a 'char' is a math atom (a letter, digit, symbol or compound atom)</li>
-<li>a 'word' is a sequence of math atoms of the same type</li>
-<li>a 'group' is a sequence of sibling atoms, for example a numerator or
-a superscript</li>
-<li>the 'MathField' is the entire expression being edited</li>
-<li>a 'placeholder' is either an actual placeholder atom or an empty child
-list, for example an empty numerator</li>
-<li>'move' changes the position of the insertion point (and collapses the
-selection range if necessary)</li>
-<li>'extend' keeps the anchor of the  selection, but moves the focus (extends,
-or shrinks, the range of selected items)</li>
-</ul>
-</div>
-
-
-
-    <h5>Type</h5>
-    <ul>
-        <li>
-            : 
-<span class="param-type">[string]:string</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-</div>
-        
-            
-<div class='member'>
-<h4 class="name" id="REVERSE_KEYBOARD_SHORTCUTS">REVERSE_KEYBOARD_SHORTCUTS<span class="type-signature"> &rarr;[string]:string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">constant</span></span></h4>
-
-
-
-
-<div class="description">
-    <p>Most commands can be associated to their keyboard shortcuts from the
-KEYBOARD_SHORTCUTS table above, for example 'speakSelection' -&gt; 'Ctrl-KeyR'
-However, those that contain complex commands are more ambiguous.
-For example, '\sqrt' -&gt; 'math:Alt-KeyV'. This table provides the reverse
-mapping for those more complex commands. It is used when displaying
-keyboard shortcuts for specific commands in the popover.</p>
-</div>
-
-
-
-    <h5>Type</h5>
-    <ul>
-        <li>
-            : 
-<span class="param-type">[string]:string</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-</div>
-        
-    
 
     
         <h3 class="subsection-title">Methods</h3>
@@ -399,14 +184,419 @@ keyboard shortcuts for specific commands in the popover.</p>
 
     
 
-    <h4 class="name" id="startsWithString">startsWithString<span class="signature">(s<span class="signature-type">: string</span>, config<span class="signature-type">: object</span>)</span><span class="type-signature">:  string[]</span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="~asLatex">asLatex<span class="signature">(ast<span class="signature-type">: object</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>ast</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>Abstract Syntax Tree object (in canonical form)</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>A LaTeX representation of the AST</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~asMachineNumber">asMachineNumber<span class="signature">(node<span class="signature-type">: object</span>)</span><span class="type-signature">:  number</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>node</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>Abstract Syntax Tree node</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">number</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>A JavaScript number, the value of the AST or NaN</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~asSymbol">asSymbol<span class="signature">(expr<span class="signature-type">: object</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>expr</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>Abstract Syntax Tree object</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>A string, the symbol, or undefined</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~escapeText">escapeText<span class="signature">(s<span class="signature-type">: string</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Return an array of potential shortcuts</p>
+    <p>Return a string escaped as necessary to comply with the JSON format</p>
 </div>
 
 
@@ -446,29 +636,6 @@ keyboard shortcuts for specific commands in the popover.</p>
         </div>
 
     
-
-        <div class="signature">
-            
-                <span class="name"><code>config</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">object</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
 </div>
 
     
@@ -481,7 +648,7 @@ keyboard shortcuts for specific commands in the popover.</p>
 <span class="param-desc">
     
         : 
-<span class="param-type">string[]</span>
+<span class="param-type">string</span>
 
 
         &nbsp;&nbsp;
@@ -554,11 +721,17 @@ keyboard shortcuts for specific commands in the popover.</p>
 
     
 
-    <h4 class="name" id="validateShortcut">validateShortcut<span class="signature">(mode<span class="signature-type">: string</span>, siblings<span class="signature-type">: object[]</span>, shortcut<span class="signature-type">: string</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+    <h4 class="name" id="~formatMantissa">formatMantissa<span class="signature">(m<span class="signature-type">: string</span>, config<span class="signature-type">: [string]:any</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
 
     
 
 
+
+<div class="description">
+    <p>Return a formatted mantissa:
+1234567 -&gt; 123 456 7...
+1233333 -&gt; 12(3)</p>
+</div>
 
 
 
@@ -577,7 +750,7 @@ keyboard shortcuts for specific commands in the popover.</p>
 
         <div class="signature">
             
-                <span class="name"><code>mode</code></span>
+                <span class="name"><code>m</code></span>
             
 
             <span class="type">
@@ -600,41 +773,13 @@ keyboard shortcuts for specific commands in the popover.</p>
 
         <div class="signature">
             
-                <span class="name"><code>siblings</code></span>
+                <span class="name"><code>config</code></span>
             
 
             <span class="type">
             
                 : 
-<span class="param-type">object[]</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>atoms preceding this potential shortcut</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>shortcut</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">string</span>
+<span class="param-type">[string]:any</span>
 
 
             
@@ -710,18 +855,12 @@ keyboard shortcuts for specific commands in the popover.</p>
 </div>
 
         
-    
-
-    
-        <h3 class="subsection-title">Type Definitions</h3>
-
-        
-                
-<div class='method'>
+            
+<div class='method private'>
 
     
 
-    <h4 class="name" id="MathFieldCallback">MathFieldCallback<span class="signature">(mathfield<span class="signature-type">: <a href="MathField.html">MathField</a></span>)</span><span class="type-signature">:  void</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="~getCanonicalName">getCanonicalName<span class="signature">(latex,<span class="signature-type">: string</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
 
     
 
@@ -744,13 +883,13 @@ keyboard shortcuts for specific commands in the popover.</p>
 
         <div class="signature">
             
-                <span class="name"><code>mathfield</code></span>
+                <span class="name"><code>latex,</code></span>
             
 
             <span class="type">
             
                 : 
-<span class="param-type"><a href="MathField.html">MathField</a></span>
+<span class="param-type">string</span>
 
 
             
@@ -760,6 +899,11 @@ keyboard shortcuts for specific commands in the popover.</p>
 
             
 
+            
+                    <p class="description last">
+                        <p>for example '\times'</p>
+                    </p>
+                    
             
         </div>
 
@@ -776,7 +920,142 @@ keyboard shortcuts for specific commands in the popover.</p>
 <span class="param-desc">
     
         : 
-<span class="param-type">void</span>
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>the canonical name for the input, for example '*'</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~getLatexForSymbol">getLatexForSymbol<span class="signature">(name<span class="signature-type">: string</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>name</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>symbol name, e.g. &quot;alpha&quot;</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">string</span>
 
 
         &nbsp;&nbsp;
@@ -843,40 +1122,36 @@ keyboard shortcuts for specific commands in the popover.</p>
 
 </div>
 
+        
             
-                
-<div class='member'>
-<h4 class="name" id="MathFieldConfig">MathFieldConfig</h4>
+<div class='method private'>
 
+    
 
-
-
-
-
-    <h5>Type</h5>
-    <ul>
-        <li>
-            : 
-<span class="param-type">Object</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-    <h5 class="subsection-title">Properties</h5>
+    <h4 class="name" id="~getLatexTemplateForFunction">getLatexTemplateForFunction<span class="signature">(name<span class="signature-type">: string</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
 
     
 
 
+
+
+
+
+
+
+
+
     
 
-        <div class="property">
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
             
-                <span class="name"><code>locale?</code></span>
+                <span class="name"><code>name</code></span>
             
 
             <span class="type">
@@ -892,1243 +1167,40 @@ keyboard shortcuts for specific commands in the popover.</p>
 
             
 
-            <span class="description last">
-                
-            </span>
+            
+                    <p class="description last">
+                        <p>function canonical name</p>
+                    </p>
+                    
+            
         </div>
 
     
-
-        <div class="property">
-            
-                <span class="name"><code>strings?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">object.&lt;string, string></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
+</div>
 
     
 
-        <div class="property">
-            
-                <span class="name"><code>horizontalSpacingScale?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">number</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
     
-
-        <div class="property">
+    
+        &rarr; 
+    
             
-                <span class="name"><code>namespace?</code></span>
-            
-
-            <span class="type">
-            
-                : 
+<span class="param-desc">
+    
+        : 
 <span class="param-type">string</span>
 
 
-            
-            </span>
+        &nbsp;&nbsp;
+    
+    
+</span>
 
-            
 
-            
 
-            <span class="description last">
-                
-            </span>
-        </div>
+        
 
     
-
-        <div class="property">
-            
-                <span class="name"><code>substituteTextArea?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">function</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>defaultMode?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">"math"</span>
-|
-
-<span class="param-type">"text"</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>onFocus?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type"><a href="global.html#MathFieldCallback">MathFieldCallback</a></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>onBlur?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type"><a href="global.html#MathFieldCallback">MathFieldCallback</a></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>onKeystroke?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">function</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>onAnnounce?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">function</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>overrideDefaultInlineShortcuts?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">boolean</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>inlineShortcuts?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">object.&lt;string, string></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>inlineShortcutTimeout?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">number</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>macros?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">object.&lt;string, string></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>smartFence?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">boolean</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>smartSuperscript?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">boolean</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>scriptDepth?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">number</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>removeExtraneousParentheses?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">boolean</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>ignoreSpacebarInMathMode?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">boolean</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>virtualKeyboardToggleGlyph?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>virtualKeyboardMode?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">"manual"</span>
-|
-
-<span class="param-type">"onfocus"</span>
-|
-
-<span class="param-type">"off"</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>virtualKeyboards?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">"all"</span>
-|
-
-<span class="param-type">"numeric"</span>
-|
-
-<span class="param-type">"roman"</span>
-|
-
-<span class="param-type">"greek"</span>
-|
-
-<span class="param-type">"functions"</span>
-|
-
-<span class="param-type">"command"</span>
-|
-
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>virtualKeyboardRomanLayout?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">"qwerty"</span>
-|
-
-<span class="param-type">"azerty"</span>
-|
-
-<span class="param-type">"qwertz"</span>
-|
-
-<span class="param-type">"dvorak"</span>
-|
-
-<span class="param-type">"colemak"</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>customVirtualKeyboardLayers?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">object.&lt;string, string></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>customVirtualKeyboards?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">object.&lt;string, object></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>virtualKeyboardTheme?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">"material"</span>
-|
-
-<span class="param-type">"apple"</span>
-|
-
-<span class="param-type">""</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>keypressVibration?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">boolean</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>keypressSound?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>plonkSound?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>textToSpeechRules?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">"mathlive"</span>
-|
-
-<span class="param-type">"sre"</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>textToSpeechMarkup?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">"ssml"</span>
-|
-
-<span class="param-type">"mac"</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>textToSpeechRulesOptions?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">object</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>speechEngine?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">"local"</span>
-|
-
-<span class="param-type">"amazon"</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>speechEngineVoice?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>speechEngineRate?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">string</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>onMoveOutOf?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">function</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>onTabOutOf?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">function</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>onContentWillChange?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type"><a href="global.html#MathFieldCallback">MathFieldCallback</a></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>onContentDidChange?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type"><a href="global.html#MathFieldCallback">MathFieldCallback</a></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>onSelectionWillChange?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type"><a href="global.html#MathFieldCallback">MathFieldCallback</a></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>onSelectionDidChange?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type"><a href="global.html#MathFieldCallback">MathFieldCallback</a></span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>onUndoStateWillChange?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">function</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>onUndoStateDidChange?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">function</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>onModeChange?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">function</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>onVirtualKeyboardToggle?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">function</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>onReadAloudStatus?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">function</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>handleSpeak?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">function</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-        <div class="property">
-            
-                <span class="name"><code>handleReadAloud?</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">function</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            <span class="description last">
-                
-            </span>
-        </div>
-
-    
-
-
 
 
 <dl class="details">
@@ -2167,11 +1239,1776 @@ keyboard shortcuts for specific commands in the popover.</p>
 </dl>
 
 
+    
+
+    
+
+    
+
+    
+
+    
+
+    
 
 
 
 </div>
+
+        
             
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~getPrecedence">getPrecedence<span class="signature">(canonicalName,<span class="signature-type">: string</span>)</span><span class="type-signature">:  number</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Given a canonical name, return its precedence</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>canonicalName,</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>for example &quot;and&quot;</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">number</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~isAtom">isAtom<span class="signature">(expr<span class="signature-type">: object</span>, type<span class="signature-type">: string</span>, value<span class="signature-type">: string</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return true if the current atom is of the specified type and value.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>expr</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>type</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>value</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~negate">negate<span class="signature">(node<span class="signature-type">: object</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return the negative of the expression. Usually { fn:'negate', arg }
+but for numbers, the negated number</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>node</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~numberAsLatex">numberAsLatex<span class="signature">(num<span class="signature-type">: string | number</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>num</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+|
+
+<span class="param-type">number</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>A number, represented as a string (e.g. &quot;-12.45&quot;
+particularly useful for arbitrary precision numbers) or a number (-12.45)</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>A LaTeX representation of the AST</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~opPrec">opPrec<span class="signature">(atom<span class="signature-type">: object</span>)</span><span class="type-signature">:  number</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return the operator precedence of the atom
+or -1 if not an operator</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>atom</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">number</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~parse">parse<span class="signature">(atoms<span class="signature-type">: Atoms[]</span>)</span><span class="type-signature">:  object</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>atoms</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">Atoms[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">object</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~parseDelim">parseDelim<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Delimiters can be expressed:</p>
+<ul>
+<li>as a matching pair of regular characters: '(a)'</li>
+<li>a as 'leftright' expression: '\left(a\right)'</li>
+<li>as a matching pair of 'sizeddelim': '\Bigl(a\Bigr)</li>
+</ul>
+<p>Note that the '\delim' command is only used for delimiters in the middle
+of a \left\right pair and not to represent pair-matched delimiters.</p>
+<p>This function handles all three cases</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~parseDigraph">parseDigraph<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Some symbols are made up of two consecutive characters.
+Handle them here. Return undefined if not a digraph.
+TODO: other digraphs:
+:=
+++
+**
+=:
+°C U+2103
+°F U+2109</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~parseExpression">parseExpression<span class="signature">(expr<span class="signature-type">: object</span>)</span><span class="type-signature">:  object</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Given an atom or an array of atoms, return their AST representation as
+an object.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>expr</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>An expressions, including expr.atoms, expr.index,
+expr.minPrec the minimum precedence that this parser should parse
+before returning; expr.lhs (optional); expr.ast, the resulting AST.</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">object</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <p>the expr object, updated</p>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~parsePostfix">parsePostfix<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Parse postfix operators, such as &quot;!&quot; (factorial)</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~parseSentence">parseSentence<span class="signature">(expr<span class="signature-type">: object</span>)</span><span class="type-signature">:  object</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Parse a sequence of text zone and math zones:
+<sentence> := ((<text>) <expression>)+</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>expr</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">object</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~parseSupsub">parseSupsub<span class="signature">(expr<span class="signature-type">: object</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Parse for a possible sup/sub attached directly to the current atom
+or to a following 'msubsup' atom.
+After the call, the index points to the next atom to process.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>expr</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~wrapFence">wrapFence<span class="signature">(fence<span class="signature-type">: string</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>fence</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>The fence to wrap around the arguments</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">string</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+        <ul>
+<li>A string wrapped in the fence</li>
+</ul>
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="~wrapFn">wrapFn<span class="signature">(functionName<span class="signature-type">: string</span>, &hellip;params<span class="signature-type">: object</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>functionName</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>params</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                    <span class="attribute">repeatable</span>
+                
+                </span>
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+    
+
     
 
     

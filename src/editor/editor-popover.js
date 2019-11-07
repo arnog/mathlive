@@ -6,8 +6,6 @@ import ParserModule from '../core/parser.js';
 import Span from '../core/span.js';
 import Shortcuts from './editor-shortcuts.js';
 
-
-
 const SAMPLES = {
     '\\mathrm':         '\\mathrm{x=+3.14, x\\in A}',
     '\\mathbf':         '\\mathbf{x=+3.14, x\\in A}',
@@ -429,6 +427,11 @@ function showPopoverWithLatex(mf, latex, displayArrows) {
 }
 
 function updatePopoverPosition(mf, options) {
+    // Check that the mathfield is still valid
+    // (we're calling ourselves from requestAnimationFrame() and the mathfield
+    // could have gotten destroyed
+    if (!mf.element || mf.element.mathfield !== mf) return;
+
     // If the popover pane is visible...
     if (mf.popover.classList.contains('is-visible')) {
         if (options && options.deferred) {
@@ -484,11 +487,11 @@ function setPopoverPosition(mf, position) {
     }
 
     // and position the popover right below or above the caret
-    if (position.y + mf.popover.offsetHeight + 5 > 
+    if (position.y + mf.popover.offsetHeight + 5 >
         screen_height - scrollbar_height - virtualkeyboard_height) {
         mf.popover.classList.add('reverse-direction');
-        mf.popover.style.top = 
-            (position.y - position.height - 
+        mf.popover.style.top =
+            (position.y - position.height -
             mf.popover.offsetHeight - 5) + 'px';
     } else {
         mf.popover.classList.remove('reverse-direction');

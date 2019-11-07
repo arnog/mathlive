@@ -1,7 +1,7 @@
 export default {
     name: 'mathlive-mathfield',
     template: '<div class="mathfield" :id="id"><slot></slot></div>',
-    props: 
+    props:
     {
         id: {
             type: String,
@@ -10,7 +10,7 @@ export default {
         value: {
             type: String,
             default: ''
-        },        
+        },
         config: {
             type: Object,
             default: () => ({})
@@ -35,20 +35,20 @@ export default {
      *     import Mathfield from './vue-mathlive.mjs';
      *     Vue.use(Mathfield, MathLive);
      * ```
-     * 
+     *
      * The HTML tag for this component is `<mathlive-mathfield>`
-     * 
+     *
      * @param {object} vue - This module, as returned from an import statement
      * @param {object} mathlive - The MathLive module, as returned from an import
      * statement
      */
     install: function(vue, mathlive) {
         // When the component is installed (with Vue.use()), the first argument
-        // should be the component (as received from import) and the second 
+        // should be the component (as received from import) and the second
         // should be the MathLive module (also as received from import).
-        // The MathLive module then gets stashed as a property of the Vue 
+        // The MathLive module then gets stashed as a property of the Vue
         // object to be accessed later by the component implementation.
-        // This allows the user of the component to control which version of 
+        // This allows the user of the component to control which version of
         // the MathLive module gets used.
         Object.defineProperty(vue.prototype, '$mathlive', { value: mathlive });
         vue.component('mathlive-mathfield', this);
@@ -59,7 +59,7 @@ export default {
             // update the mathfield to stay in sync, but don't send back content
             // change notifications, to avoid infinite loops.
             if (newValue !== oldValue) {
-                this.$el.mathfield.$latex(newValue, {
+                this.$el.mathfield.$text(newValue, {
                     suppressChangeNotifications: true
                 });
             }
@@ -79,13 +79,13 @@ export default {
             // ... then make the MathField
             vm.$mathlive.makeMathField(vm.$el, {
                 ...vm.config,
-                // To support the 'model' directive, this handler will connect 
+                // To support the 'model' directive, this handler will connect
                 // the content of the mathfield to the ViewModel
                 onContentDidChange: _ => {
                     // When the mathfield is updated, notify the model.
                     // The initial input value is generated from the <slot>
                     // content, so it may need to be updated.
-                    vm.$emit('input', vm.$el.mathfield.$latex());
+                    vm.$emit('input', vm.$el.mathfield.$text());
                 },
                 // Those asynchronous notification handlers are translated to events
                 onFocus: _ => { vm.$emit('focus'); },
@@ -108,8 +108,8 @@ export default {
     },
     methods: {
         /*
-         * 
-         * @param {string} selector 
+         *
+         * @param {string} selector
          */
         perform: function(selector) {
             this.$el.mathfield.$perform(selector);

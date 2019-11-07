@@ -1,22 +1,31 @@
 language: node_js
-node_js:
-- lts/*
-before_install:
-- '[[ $(node -v) =~ ^v9.*$ ]] || npm install -g npm@latest' # skipped when using node 9
-- npm install -g greenkeeper-lockfile
-install:
-- npm install
-before_script: greenkeeper-lockfile-update
-after_script: greenkeeper-lockfile-upload
+node_js: [ lts/* ]
+before_install: [ npm install -g npm@latest ]
+install: [ npm ci ]
 cache:
   directories:
-  - node_modules
-  - "$HOME/.npm"
-branches:
-  only:
-  - master
-  - release
-  - /^greenkeeper/.*$/
+    - node_modules
+    - "$HOME/.npm"
+# branches:
+#   only:
+#     - master
+#     - /v\d+\.\d+[a-z]/    # tagged with version
+    # - release
+before_deploy:
+  - npm run build
+  - npm run deploy-ci
+deploy:
+  provider: npm
+  on:
+    tags: true
+  email: "$NPM_EMAIL"
+  api_token: "$NPM_API_TOKEN"
+  access: public
+  # dry_run: true
+  edge: true
+script:
+  - npm run lint
+  - npm run test
 notifications:
   slack:
     secure: dctz771vJCv6UdjBz65n8XkKx5q/LF5UIY+qSRAxLpqwFp9Y3i9trUNoSaDya4PH5sfAHbUHxsBvG8njIKDJY1pckcrCt2Ml2+9fRQ01cCMggNnSK5OlcuoL6lrnbMbaLz3XEUKJY8mfJnnHggUFNqT0IhCR4xgcxiyg90AtHhIGQcIpkFrpmwbW+ZXm7PMTP/svGkL3OMs4lDO6V8XzEGKXd+4rkcvINZwOtKDXbIf7Wm5MXQ2lf4o1DviAJeFqlIUPRRonAs2KPUAl86t+M22EWDExy6NOtmbdA68m+pDaBJ0mMN0OwxsoEJh5e7ml1/UAs82hCu+Kl3xW4emDrrF7k6C065NmWeRqLBVJxcfy+rdNsiBfJhPmBBGc0VTYLqnWR5PLxDBHgLyO7zAjG4n4G8WpCEY0j891Xaw3Cktz8tWWo336BxCmsd2zOUdoWr+aQsml25mlpLYuX2t4HR66jJdz8A7X+e5m4V3/BE+afMKhRYgeuwPVq03TBAtHZp5jLr0TCw9t3qyNrUEXGtqoAYdCThCP1zcpxTTYnxoYHgoEfiE8OVMkMf6R3JpCUQMk1+AbpyVIHeCxfaq7jCZjUG4exMGFNFhTSjl3ePoCLdwfP75uEIiQU/LOJGb2JrJWVjTEBs5P/atk71ijomygAU3D6BtYwoZm0Hqy+l8=

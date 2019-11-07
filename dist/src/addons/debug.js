@@ -1,8 +1,8 @@
 /**
  * This module contains utilities to debug mathlive internal data structures.
- * 
+ *
  * It is also used by the automated test suite.
- * 
+ *
  * @module addons/debug
  * @private
  */
@@ -26,9 +26,9 @@ export function asciiMathToLatex(ascii) {
 }
 
 /**
- * 
- * @param {object[]} spans 
- * @param {string|number|number[]} symbol specify which span to consider. 
+ *
+ * @param {object[]} spans
+ * @param {string|number|number[]} symbol specify which span to consider.
  * If a string, a span whose body match the string
  * If a number, the nth span in the list
  * If an array, each element in the array indicate the nth child to traverse
@@ -75,8 +75,8 @@ function getProp(spans, symbol, prop) {
 
 /**
  * Return the type ('mbin', etc...) of a span
- * @param {Span[]} spans 
- * @param {string} symbol 
+ * @param {Span[]} spans
+ * @param {string} symbol
  * @return {string}
  * @private
 */
@@ -88,8 +88,8 @@ function getType(spans, symbol) {
 
 /**
  * Return the tag ('span', 'var', etc...) of a span
- * @param {Span[]} spans 
- * @param {string} symbol 
+ * @param {Span[]} spans
+ * @param {string} symbol
  * @return {string}
  * @private
 */
@@ -184,7 +184,7 @@ function mathlistPropToString(mathlist, prop, indent) {
 }
 
 function mathlistToString(mathlist, indent) {
-    if (!mathlist) return ''; 
+    if (!mathlist) return '';
 
     indent = indent || '';
     let result = '';
@@ -296,8 +296,8 @@ function spanToMarkup(span, indent) {
 function mathListColorToMarkup(mathlist, propname) {
     let result = '';
     if (mathlist[propname]) {
-        result += '<span class="styleprop">' + propname + '=</span>'; 
-        result += '<span style="font-size:2em;vertical-align:middle;color:' + mathlist[propname] + '">&#9632;</span>';    
+        result += '<span class="styleprop">' + propname + '=</span>';
+        result += '<span style="font-size:2em;vertical-align:middle;color:' + mathlist[propname] + '">&#9632;</span>';
         result += '<span class="stylevalue">';
         result += mathlist[propname];
         result += '</span>';
@@ -308,7 +308,7 @@ function mathListColorToMarkup(mathlist, propname) {
 function mathListPropToMarkup(mathlist, propname) {
     let result = '';
     if (mathlist[propname]) {
-        result += '<span class="styleprop">' + propname + '=</span>'; 
+        result += '<span class="styleprop">' + propname + '=</span>';
         result += '<span class="stylevalue">';
         result += mathlist[propname]
         result += '</span>" ';
@@ -317,7 +317,7 @@ function mathListPropToMarkup(mathlist, propname) {
 }
 
 function mathlistToMarkup(mathlist, indent) {
-    if (!mathlist) return ''; 
+    if (!mathlist) return '';
 
     indent = indent || '';
     let result = '';
@@ -331,15 +331,15 @@ function mathlistToMarkup(mathlist, indent) {
             result += '<span class="type';
             result += mathlist.isSelected ? ' selected' : '';
             result += mathlist.caret ? ' caret' : '';
-            result += '">' + mathlist.type + 
+            result += '">' + mathlist.type +
                 (mathlist.caret ? ' caret ' : '') + '</span>';
         }
         if (typeof mathlist.body === 'string' && mathlist.body.length > 0) {
             result += '&nbsp;<span class="value">';
             result += mathlist.body;
-            if (mathlist.body.charCodeAt(0) < 32 
+            if (mathlist.body.charCodeAt(0) < 32
                 || mathlist.body.charCodeAt(0) > 127) {
-                result += '&nbsp;U+' + ('000000' + 
+                result += '&nbsp;U+' + ('000000' +
                     mathlist.body.charCodeAt(0).toString(16)).substr(-6);
             }
             result += '</span>&nbsp;';
@@ -408,7 +408,7 @@ function mathlistToMarkup(mathlist, indent) {
 
 
 // Export the public interface for this module
-export default { 
+export default {
     mathlistToMarkup,
     spanToMarkup,
 

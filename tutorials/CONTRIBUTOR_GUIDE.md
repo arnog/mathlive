@@ -17,7 +17,7 @@ If you simply want to use MathLive with your web content, see the {@tutorial USA
 ## Getting Started: Setting up Your Development Environment
 The project uses [NPM scripts](https://docs.npmjs.com/misc/scripts) 
  for its build system. The `package.json` 
-file contains the definitions of the build scripts.
+file and the `scripts/` directory contain the definitions of the build scripts.
 
 To get started developing:
 1. Install [Node.js](http://nodejs.org) on your dev machine
@@ -36,8 +36,7 @@ Once the installation is successful, you can use the following commands:
 ```bash
 # Build the project for local use
 # 1. Compile the `.css/.less` file to `build/*.css`
-# 2. "npm run lint" on the .js files
-# 3. "npm run docs" to generate the documentation
+# 2. Bundle the javascript in the `dist/` directory 
 $ npm run build
 
 # Auto re-build the project when a file changes.
@@ -53,6 +52,9 @@ $ npm test
 
 # Lint JavaScript files
 $ npm run lint
+
+# Lint and fix automatically JavaScript files.
+$ npm run lint:fix
 
 # Calculate the code coverage and output to build/coverage/
 $ npm run coverage
@@ -76,12 +78,12 @@ to the source files of the project in your favorite editor. When you
 save a file, if any problem with your code is detected (linting 
 failure, unit test failure), it will be displayed in the terminal window.
 
-Before doing a commit to `master` it is also recommended that you do a
-`npm run dist` to make sure that the content of the `dist/` 
-and `docs/` directory are in sync with your latest changes.
+Before doing a commit the docs and dist folder will be updated 
+automatically (using a git pre-commit hook managed by Husky).
 
 After you push your changes to `master`, a Travis continuous integration 
-task will run `npm run dist` and `npm run test`. If either of those tasks
+task will run `npm run lint` and `npm run test` to make sure 
+the build can be reproduced in a clean environment. If either of those tasks
 fail, the build will be marked as failed and will need immediate fixing.
 
 ### Publishing
@@ -93,20 +95,22 @@ use the following commands:
 # Increase the version number of the library
 # Only do this before making a new public distribution
 # After doing this, you can `npm publish`
-$ npm version major | minor | patch
-
-# Do a full build (code, docs, test), then publish the package to npmjs.com
-$ npm publish
-
+$ npm run deploy major | minor | patch
 ```
+
+This command will
+1. Trigger a Travis CI build
+2. Increment the version number and create a corresponding git tag
+3. Publish a git release
+4. Publish to NPM
 
 **Note on versioning** Use the [semver](http://semver.org/) convention for 
 versions:
-* `npm version patch`: bug fixes and other minor changes. Last number of the 
+* `npm run deploy`: bug fixes and other minor changes. Last number of the 
 version is incremented, e.g. `1.2.41` → `1.2.42`
-* `npm version minor`: new features which don't break existing features. Middle
+* `npm run deploy minor`: new features which don't break existing features. Middle
 number of the version is incremented, e.g. `1.2.42` → `1.3.0`
-* `npm version major`: changes which break backward compatibility of the API.
+* `npm run deploy major`: changes which break backward compatibility of the API.
 Increment the first number, e.g. `1.3.56` → `2.0.0`
 
 
@@ -440,9 +444,11 @@ encapsulates the operations that can be done to an editable math list, including
 adding and removing content and keeping track of and modifying an insertion 
 point and selection.
 
-### Math Field
-A **MathField** is a user interface widget that captures the keyboard and 
-pointing device events, and present an appropriate user experience. It 
+### Mathfield
+A **MathField** is a user interface element that captures the keyboard and 
+pointing device events, and presents an appropriate user experience. 
+
+It 
 uses the **EditableMathList** to manipulate the in-memory representation of 
 the math expression being edited.
 

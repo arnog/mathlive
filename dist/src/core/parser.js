@@ -31,7 +31,7 @@ const MathAtom = MathAtomModule.MathAtom;
  * @property {number} index - The current token to be parsed: index in `this.tokens`
  * @property {MathAtom[]} mathList - Accumulated result of the parsing by
  * `parseAtom()`
- * @property {object} style - The font, weight, color, etc.. to apply to the 
+ * @property {object} style - The font, weight, color, etc. to apply to the
  * upcoming tokens
  * @property {string} parseMode - The parse mode indicates the syntax rules to
  * use to parse the upcoming tokens.
@@ -99,7 +99,7 @@ class Parser {
      * @private
      */
     lastMathAtom() {
-        const lastType = this.mathList.length === 0 ? 'none' : 
+        const lastType = this.mathList.length === 0 ? 'none' :
             this.mathList[this.mathList.length - 1].type;
         if (lastType !== 'mop' && lastType !== 'msubsup') {
             // ZERO WIDTH SPACE
@@ -589,7 +589,7 @@ class Parser {
         this.tabularMode = savedTabularMode;
         if (!env.tabular && newMathList.length === 0) return null;
         if (env.tabular && array.length === 0) return null;
-        const result = new MathAtom(this.parseMode, 'array', newMathList, 
+        const result = new MathAtom(this.parseMode, 'array', newMathList,
             env.parser ? env.parser(envName, args, array) : {});
         result.array = array;
         result.rowGaps = rowGaps;
@@ -600,11 +600,11 @@ class Parser {
     /**
      * Parse a sequence terminated with a group end marker, such as
      * `}`, `\end`, `&`, etc...
-     * 
+     *
      * Returns an array of atoms or an empty array if the sequence
      * terminates right away.
-     * 
-     * @param {function(Token):boolean} [done] A predicate indicating if a 
+     *
+     * @param {function(Token):boolean} [done] A predicate indicating if a
      * token signals the end of an implicit group
      * @return {MathAtom[]}
      * @method module:core/parser#Parser#scanImplicitGroup
@@ -654,8 +654,8 @@ class Parser {
             // for the parseMode
             const info = Definitions.getInfo('\\' + infix.value, 'math', this.macros);
             if (info) {
-                result = [new MathAtom(this.parseMode, 
-                    info.type, 
+                result = [new MathAtom(this.parseMode,
+                    info.type,
                     info.value || infix.value, // Functions don't have
                     info.parse ? info.parse('\\' + infix.value, [prefix, suffix]) :
                     null)];
@@ -1032,8 +1032,8 @@ class Parser {
                 if (!isFinite(codepoint) || codepoint < 0 || codepoint > 0x10FFFF) {
                     codepoint = 0x2753; // BLACK QUESTION MARK
                 }
-                result = new MathAtom(this.parseMode, 
-                    this.parseMode === 'math' ? 'mord' : '', 
+                result = new MathAtom(this.parseMode,
+                    this.parseMode === 'math' ? 'mord' : '',
                     String.fromCodePoint(codepoint));
                 result.latex = '{\\char"' +
                     ('000000' + codepoint.toString(16)).toUpperCase().substr(-6) + '}';
@@ -1057,13 +1057,13 @@ class Parser {
 
                     // Parse the arguments
                     // let mandatoryParamsCount = 0;
-                    // If explicitGroup is not empty, an explicit group is expected 
-                    // to follow the command and will be parsed *after* the 
+                    // If explicitGroup is not empty, an explicit group is expected
+                    // to follow the command and will be parsed *after* the
                     // command has been processed.
                     // This is used for commands such as \textcolor{color}{content}
-                    // that need to apply the color to the content *after* the 
+                    // that need to apply the color to the content *after* the
                     // style has been changed.
-                    // In definitions, this is indicated with a parameter type 
+                    // In definitions, this is indicated with a parameter type
                     // of 'auto*'
                     let explicitGroup = '';
                     if (info && info.params) {
@@ -1135,17 +1135,17 @@ class Parser {
                                 this.parseMode = savedMode;
 
                             } else {
-                                result = new MathAtom(this.parseMode, 
-                                    info.type, 
-                                    explicitGroup ? this.scanArg(explicitGroup) : null, 
+                                result = new MathAtom(this.parseMode,
+                                    info.type,
+                                    explicitGroup ? this.scanArg(explicitGroup) : null,
                                     {...this.style, ...attributes});
                             }
                         } else {
                             const style = {...this.style};
                             if (info.baseFontFamily) style.baseFontFamily = info.baseFontFamily;
-                            result = new MathAtom(this.parseMode, 
-                                info.type || 'mop', 
-                                info.value || token.value, 
+                            result = new MathAtom(this.parseMode,
+                                info.type || 'mop',
+                                info.value || token.value,
                                 style);
 
                             if (info.skipBoundary) {
@@ -1170,7 +1170,7 @@ class Parser {
 
                     if (!info) {
                         // An unknown command
-                        result = new MathAtom(this.parseMode, 
+                        result = new MathAtom(this.parseMode,
                             'error', '\\' + token.value);
                         result.latex = '\\' + token.value;
 
@@ -1182,19 +1182,19 @@ class Parser {
             if (info) {
                 const style = {...this.style};
                 if (info.baseFontFamily) style.baseFontFamily = info.baseFontFamily;
-                result = new MathAtom(this.parseMode, 
-                    info.type, 
-                    info.value || token.value, 
+                result = new MathAtom(this.parseMode,
+                    info.type,
+                    info.value || token.value,
                     style);
                 if (info.isFunction) {
                     result.isFunction = true;
                 }
             } else {
-                result = new MathAtom(this.parseMode, 
-                    this.parseMode === 'math' ? 'mord' : '', 
+                result = new MathAtom(this.parseMode,
+                    this.parseMode === 'math' ? 'mord' : '',
                     token.value, this.style);
             }
-            result.latex = Definitions.matchCodepoint(this.parseMode, 
+            result.latex = Definitions.matchCodepoint(this.parseMode,
                 token.value.codePointAt(0));
             if (info && info.isFunction && this.smartFence) {
                 // The atom was a function that may be followed by
@@ -1223,7 +1223,7 @@ class Parser {
                 }
             }
         } else {
-            console.warn('Unexpected token type "' + token.type + 
+            console.warn('Unexpected token type "' + token.type +
                 '", value ="' + token.value + '"');
         }
         return result;

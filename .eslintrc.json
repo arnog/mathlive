@@ -40,7 +40,7 @@
 
         "valid-typeof": "error",
         "consistent-return": "error",
-        "curly": ["warn","multi-line"],
+        "curly": ["warn", "multi-line"],
         "eqeqeq": ["error","smart"],
         "guard-for-in": "warn",
         // "max-len": "warn",
@@ -49,7 +49,7 @@
         "no-console": "off",
         "no-else-return": "warn",
         "no-eval": "error",
-        "no-fallthrough": "warn",
+        "no-fallthrough": "error",
         "no-invalid-this": "warn",
         "no-lone-blocks": "warn",
         "no-return-assign": ["warn", "always"],
@@ -64,9 +64,9 @@
         "no-delete-var": "warn",
         "no-mixed-spaces-and-tabs": ["warn", "smart-tabs"],
         "require-jsdoc": "off",
-        "space-infix-ops": ["error", {"int32Hint": false}]
+        "space-infix-ops": ["error", {"int32Hint": false}],
 
         
-        // "no-trailing-spaces": [1,{"skipBlankLines":true}]
+        "no-trailing-spaces": [1,{"skipBlankLines":true}]
     }
 }

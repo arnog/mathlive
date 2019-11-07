@@ -43,10 +43,10 @@ class Token {
 }
 
 /**
- * Given a LaTeX expression represented as a character string, 
- * the Lexer class will scan and return Tokens for the lexical 
+ * Given a LaTeX expression represented as a character string,
+ * the Lexer class will scan and return Tokens for the lexical
  * units in the string.
- * 
+ *
  * @param {string} s A string of LaTeX
  * @class Lexer
  * @class module:core/lexer#Lexer

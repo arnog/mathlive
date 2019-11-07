@@ -135,6 +135,25 @@ The first result can be entered by pausing slightly between the first and
 second character if this option is set to a value of 250 or so.
 
 ---
+** `macros`** ?: `object<string, string>`
+
+A dictionary of LaTeX macros to be used to interpret and render the content.
+
+For example:
+```javascript
+mf.$setConfig({
+   macros: {
+   'smallfrac': '^{#1}\\!\\!/\\!_{#2}',
+}
+});
+```
+
+The code above will support the following notation:
+```tex
+\smallfrac{5}{16}
+```
+
+---
 **`config.smartFence=true`**:`boolean`
 
 If `true`, when an open fence is

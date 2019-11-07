@@ -23,8 +23,8 @@
         "description": "Beautifully typeset math made easy",
         "keywords": "latex, tex, math, typesetting, documentation, docs",
         "forkme": "https://github.com/arnog/mathlive",
-        "headerAddendum": "<link rel=\"stylesheet\" href=\"http://mathlive.io/deploy/mathlive/mathlive.core.css\" type=\"text/css\"><link rel=\"stylesheet\" href=\"http://mathlive.io/deploy/mathlive/mathlive.css\" type=\"text/css\">",
-        "bodyAddendum": "<script src=\"http://mathlive.io/deploy/mathlive/mathlive.js\"></script><script>if (MathLive) {MathLive.renderMathInDocument();}</script>"
+        "headerAddendum": "<link rel=\"stylesheet\" href=\"http://mathlive.io/mathlive/mathlive.core.css\" type=\"text/css\"><link rel=\"stylesheet\" href=\"http://mathlive.io/mathlive/mathlive.css\" type=\"text/css\">",
+        "bodyAddendum": "<script src=\"http://mathlive.io/mathlive/mathlive.js\"></script><script>if (MathLive) {MathLive.renderMathInDocument();}</script>"
     },
     "markdown"  : {
         "parser"        : "gfm",

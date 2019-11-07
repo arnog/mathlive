@@ -1,5 +1,5 @@
 /**
- * 
+ *
  * See {@linkcode MathField}
  * @module editor/mathfield
  * @private
@@ -21,12 +21,12 @@ import { toASCIIMath } from './outputASCIIMath.js';
 import { l10n } from './l10n.js';
 import '../addons/outputLatex.js';
 import '../addons/outputMathML.js';
-import '../addons/maston.js';
+import '../addons/mathJson.js';
 import '../addons/outputSpokenText.js';
 
 /*
     Note:
-    The OutputLatex, OutputMathML, MASTON and OutputSpokenText  modules are required,
+    The OutputLatex, OutputMathML, mathJson and OutputSpokenText  modules are required,
     even though they are not referenced directly.
 
     They modify the MathAtom class, adding toLatex(), toAST(), toMathML() and
@@ -39,7 +39,7 @@ import '../addons/outputSpokenText.js';
 /* eslint-disable */
 /**
  * @typedef {function} MathFieldCallback
- * @param {MathField} mf
+ * @param {MathField} mathfield
  * @return {void}
  * @global
  */
@@ -61,6 +61,7 @@ import '../addons/outputSpokenText.js';
  @property {boolean} overrideDefaultInlineShortcuts?
  @property {object<string, string>} inlineShortcuts?
  @property {number} inlineShortcutTimeout?
+ @property {object<string, string>} macros?
  @property {boolean} smartFence?
  @property {boolean} smartSuperscript?
  @property {number} scriptDepth?
@@ -141,7 +142,7 @@ function off(el, selectors, listener, options) {
 function getSharedElement(id, cls) {
     let result = document.getElementById(id);
     if (result) {
-        result.setAttribute('data-refcount', 
+        result.setAttribute('data-refcount',
             parseInt(result.getAttribute('data-refcount')) + 1);
     } else {
         result = document.createElement('div');
@@ -165,10 +166,21 @@ function releaseSharedElement(el) {
     return el;
 }
 
+/**
+ * Checks if the argument is a valid Mathfield.
+ * After a Mathfield has been destroyed (for example by calling revertToOriginalContent()
+ * the Mathfield is no longer valid. However, there may be some pending
+ * operations invoked via requestAnimationFrame() for example, that would
+ * need to ensure the mathfield is still valid by the time they're executed.
+ * @private
+ */
+export function isValidMathfield(mf) {
+    return mf.element && mf.element.mathfield === mf;
+}
 
 /**
  * Validate a style specification object
- * @param {object} style 
+ * @param {object} style
  * @private
  */
 function validateStyle(style) {
@@ -263,7 +275,7 @@ function validateStyle(style) {
 */
 
 /**
- * 
+ *
  * @property {HTMLElement} element - The DOM element this mathfield is attached to.
  * @property {Object.<string, any>} config - A set of key/value pairs that can
  * be used to customize the behavior of the mathfield
@@ -343,7 +355,7 @@ class MathField {
         }
         markup += '<span class="ML__fieldcontainer">' +
             '<span class="ML__fieldcontainer__field"></span>';
-        // If no value is specified for the virtualKeyboardMode, use 
+        // If no value is specified for the virtualKeyboardMode, use
         // `onfocus` on touch-capable devices and `off` otherwise.
         if (!this.config.virtualKeyboardMode) {
             this.config.virtualKeyboardMode =
@@ -413,14 +425,14 @@ class MathField {
         this.suggestionIndex = 0;
         // The input mode (text, math, command)
         // While mathlist.anchorMode() represent the mode of the current selection,
-        // this.mode is the mode chosen by the user. It indicates the mode the 
-        // next character typed will be interpreted in. 
+        // this.mode is the mode chosen by the user. It indicates the mode the
+        // next character typed will be interpreted in.
         // It is often identical to mathlist.anchorMode() since changing the selection
-        // changes the mode, but sometimes it is not, for example when a user 
+        // changes the mode, but sometimes it is not, for example when a user
         // enters a mode changing command.
         this.mode = config.defaultMode || 'math';
         this.smartModeSuppressed = false;
-        // Current style (color, weight, italic, etc...) 
+        // Current style (color, weight, italic, etc...)
         // Reflects the style to be applied on next insertion, if any
         this.style = {};
         // Focus/blur state
@@ -501,7 +513,7 @@ class MathField {
                 break;
             case 'resize': {
                 if (this._resizeTimer) { window.cancelAnimationFrame(this._resizeTimer); }
-                this._resizeTimer = window.requestAnimationFrame(() => this._onResize());
+                this._resizeTimer = window.requestAnimationFrame(() => isValidMathfield(this) &&  this._onResize());
                 break;
             }
             case 'cut':
@@ -517,10 +529,14 @@ class MathField {
         }
     }
     /**
-     * Revert this math field to its original content. After this method has been
-     * called, no other methods can be called on the MathField object. To turn the
-     * element back into a MathField, call `MathLive.makeMathField()` on the
-     * element again to get a new math field object.
+     * Reverts this mathfield to its original content.
+     *
+     * After this method has been
+     * called, no other methods can be called on the object.
+     *
+     * To turn the
+     * element back into a mathfield, call `MathLive.makeMathField()` on the
+     * element again to get a new mathfield object.
      *
      * @method MathField#$revertToOriginalContent
      */
@@ -546,6 +562,7 @@ class MathField {
         off(this.element, 'focus', this);
         off(this.element, 'blur', this);
         off(window, 'resize', this);
+        delete this.element;
     }
     _resetKeystrokeBuffer() {
         this.keystrokeBuffer = '';
@@ -686,7 +703,7 @@ class MathField {
         function onPointerMove(evt) {
             const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
             const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
-            // Ignore events that are within small spatial and temporal bounds 
+            // Ignore events that are within small spatial and temporal bounds
             // of the pointer down
             const hysteresis = evt.pointerType === 'touch' ? 20 : 5;
             if (Date.now() < anchorTime + 500 &&
@@ -720,7 +737,7 @@ class MathField {
         const anchorX = evt.touches ? evt.touches[0].clientX : evt.clientX;
         const anchorY = evt.touches ? evt.touches[0].clientY : evt.clientY;
         const anchorTime = Date.now();
-        // Calculate the tap count 
+        // Calculate the tap count
         if (lastTap && Math.abs(lastTap.x - anchorX) < 5 &&
             Math.abs(lastTap.y - anchorY) < 5 &&
             Date.now() < lastTap.time + 500) {
@@ -737,28 +754,31 @@ class MathField {
         const bounds = this.field.getBoundingClientRect();
         if (anchorX >= bounds.left && anchorX <= bounds.right &&
             anchorY >= bounds.top && anchorY <= bounds.bottom) {
-            // Create divs to block out pointer tracking to the left and right of 
-            // the math field (to avoid triggering the hover of the virtual 
-            // keyboard toggle, for example)
-            let div = document.createElement('div');
-            div.className = 'ML__scroller';
-            this.element.appendChild(div);
-            div.style.left = (bounds.left - 200) + 'px';
-            div = document.createElement('div');
-            div.className = 'ML__scroller';
-            this.element.appendChild(div);
-            div.style.left = (bounds.right) + 'px';
-            // Focus the math field
+
+            // Focus the mathfield
             if (!this.$hasFocus()) {
                 dirty = true;
                 if (this.textarea.focus) { this.textarea.focus(); }
             }
-            // Clicking or tapping the field resets the keystroke buffer and 
+
+            // Clicking or tapping the field resets the keystroke buffer and
             // smart mode
             this._resetKeystrokeBuffer();
             this.smartModeSuppressed = false;
             anchor = this._pathFromPoint(anchorX, anchorY, { bias: 0 });
             if (anchor) {
+                // Create divs to block out pointer tracking to the left and right of
+                // the mathfield (to avoid triggering the hover of the virtual
+                // keyboard toggle, for example)
+                let div = document.createElement('div');
+                div.className = 'ML__scroller';
+                this.element.appendChild(div);
+                div.style.left = (bounds.left - 200) + 'px';
+                div = document.createElement('div');
+                div.className = 'ML__scroller';
+                this.element.appendChild(div);
+                div.style.left = (bounds.right) + 'px';
+
                 if (evt.shiftKey) {
                     // Extend the selection if the shift-key is down
                     this.mathlist.setRange(this.mathlist.path, anchor);
@@ -767,8 +787,10 @@ class MathField {
                 } else {
                     this.mathlist.setPath(anchor, 0);
                 }
+
                 // The selection has changed, so we'll need to re-render
                 dirty = true;
+
                 // Reset any user-specified style
                 this.style = {};
                 // evt.detail contains the number of consecutive clicks
@@ -983,15 +1005,146 @@ class MathField {
         }
     }
     /**
+     * Performs a command defined by a selector.
+     *
+     *
+#### Moving the insertion point
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"moveToNextChar"` | |
+| `"moveToPreviousChar"` | |
+| `"moveUp"` | |
+| `"moveDown"` | |
+| `"moveToNextPlaceholder"` | |
+| `"moveToPreviousPlaceholder"` | |
+| `"moveToNextWord"` | |
+| `"moveToPreviousWord"` | |
+| `"moveToGroupStart"` | |
+| `"moveToGroupEnd"` | |
+| `"moveToMathFieldStart"` | |
+| `"moveToMathFieldEnd"` | |
+| `"moveToSuperscript"` | |
+| `"moveToSubscript"` | |
+| `"moveToOpposite"` | |
+| `"moveBeforeParent"` | |
+| `"moveAfterParent"` | |
+
+
+#### Selection
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"selectGroup"` | Select all the atoms in the current group, that is all the siblings.<br> When the selection is in a numerator, the group is the numerator.<br>When the selection is a superscript or subscript, the group is the supsub.|
+| `"selectAll"` | Select all the atoms in the mathfield|
+
+
+#### Extending the selection
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"extendToNextChar"` | |
+| `"extendToPreviousChar"` | |
+| `"extendToNextWord"` | |
+| `"extendToPreviousWord"` | |
+| `"extendUp"` | |
+| `"extendDown"` | |
+| `"extendToNextBoundary"` | |
+| `"extendToPreviousBoundary"` | |
+| `"extendToGroupStart"` | |
+| `"extendToGroupEnd"` | |
+| `"extendToMathFieldStart"` | |
+| `"extendToMathFieldEnd"` | |
+
+
+#### Editing / deleting
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"deleteAll"` | Delete everything in the field |
+| `"delete"` | Delete the current selection |
+| `"deleteNextChar"` | |
+| `"deletePreviousChar"` | |
+| `"deleteNextWord"` | |
+| `"deletePreviousWord"` | |
+| `"deleteToGroupStart"` | |
+| `"deleteToGroupEnd"` | |
+| `"deleteToMathFieldEnd"` | |
+| `"transpose"` | |
+
+
+#### Editing a matrix
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"addRowAfter"` | |
+| `"addRowBefore"` | |
+| `"addColumnAfter"` | |
+| `"addColumnBefore"` | |
+
+
+#### Other editing commands
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"scrollIntoView"` | |
+| `"scrollToStart"` | |
+| `"switchMode"` | |
+| `"complete"` | |
+| `"nextSuggestion"` | |
+| `"previousSuggestion"` | |
+| `"toggleKeystrokeCaption"` | |
+| `"applyStyle"` | |
+
+
+#### Clipboard
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"undo"` | |
+| `"redo"` | |
+| `"copyToClipboard"` | |
+| `"cutToClipboard"` | |
+| `"pasteFromClipboard"` | |
+
+
+#### Virtual Keyboard
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"toggleVirtualKeyboard"` | |
+| `"showVirtualKeyboard"` | |
+| `"hideVirtualKeyboard"` | |
+| `"toggleVirtualKeyboardAlt"` | |
+| `"toggleVirtualKeyboardShift"` | |
+| `"showAlternateKeys"` | |
+| `"hideAlternateKeys"` | |
+| `"performAlternateKeys"` | |
+| `"switchKeyboardLayer"` | |
+| `"shiftKeyboardLayer"` | |
+| `"unshiftKeyboardLayer"` | |
+| `"insertAndUnshiftKeyboardLayer"` | |
+| `"performWithFeedback"` | |
+
+
+#### Speech
+
+| Name                 | Description               |
+| --------------------- | ------------------------- |
+| `"speak"` | speaks the amount specified by the first parameter. |
+     *
      * @param {string|string[]} command - A selector, or an array whose first element
      * is a selector, and whose subsequent elements are arguments to the selector.
+     *
      * Note that selectors do not include a final "_". They can be passed either
-     * in camelCase or kebab-case. So:
+     * in camelCase or kebab-case.
+     *
      * ```javascript
      * mf.$perform('selectAll');
      * mf.$perform('select-all');
      * ```
-     * both calls are valid and invoke the same selector.
+     * In the above example, both calls invoke the same selector.
+     *
      *
      * @method MathField#$perform
      */
@@ -1038,7 +1191,7 @@ class MathField {
             dirty = this[selector](...args);
             handled = true;
         }
-        // If the command changed the selection so that it is no longer 
+        // If the command changed the selection so that it is no longer
         // collapsed, or if it was an editing command, reset the inline
         // shortcut buffer and the user style
         if (!this.mathlist.isCollapsed() || /^(transpose|paste|complete|((moveToNextChar|moveToPreviousChar|extend).*))_$/.test(selector)) {
@@ -1178,7 +1331,7 @@ class MathField {
             this.mathlist.siblings().splice(i - 1, 1);
             this.mathlist.contentDidChange();
             // We need to adjust the selection after doing some surgery on the atoms list
-            // But we don't want to receive selection notification changes 
+            // But we don't want to receive selection notification changes
             // which could have a side effect of changing the mode :(
             const save = this.mathlist.suppressChangeNotifications;
             this.mathlist.suppressChangeNotifications = true;
@@ -1295,7 +1448,7 @@ class MathField {
                 return true;
             }
             if (/\.[0-9]$/.test(context)) {
-                // If the new character is a digit, 
+                // If the new character is a digit,
                 // and it was preceded by a dot (which may have been converted
                 // to text)
                 // turn the dot back into 'math'
@@ -1352,7 +1505,7 @@ class MathField {
                 return true;
             }
             if (/\?|\./.test(c)) {
-                // If the last character is a period or question mark, 
+                // If the last character is a period or question mark,
                 // turn it to 'text'
                 return true;
             }
@@ -1361,7 +1514,7 @@ class MathField {
     }
     /**
      * @param {string} keystroke
-     * @param {Event} evt - optional, an Event corresponding to the keystroke
+     * @param {Event} [evt] - An Event corresponding to the keystroke.
      * @method MathField#_onKeystroke
      * @private
      */
@@ -1385,7 +1538,7 @@ class MathField {
         let resetKeystrokeBuffer = false;
         // 4.1 Check if the keystroke, prefixed with the previously typed keystrokes,
         // would match a long shortcut (i.e. '~~')
-        // Ignore the key if command or control is pressed (it may be a shortcut, 
+        // Ignore the key if command or control is pressed (it may be a shortcut,
         // see 4.3)
         if (this.mode !== 'command' && (!evt || (!evt.ctrlKey && !evt.metaKey))) {
             const c = Keyboard.eventToChar(evt);
@@ -1449,7 +1602,7 @@ class MathField {
         }
         // 4.3 Check if this matches a keystroke shortcut
         // Need to check this **after** checking for inline shortcuts because
-        // shift+backquote is a keystroke that inserts "\~"", but "~~" is a 
+        // shift+backquote is a keystroke that inserts "\~"", but "~~" is a
         // shortcut for "\approx" and needs to have priority over shift+backquote
         if (!shortcut && !selector) {
             selector = Shortcuts.selectorForKeystroke(this.mode, keystroke);
@@ -1457,11 +1610,11 @@ class MathField {
         // No shortcut :( We're done.
         if (!shortcut && !selector) { return true; }
         // 5. Perform the action matching this shortcut
-        // 5.1 Remove any error indicator (wavy underline) on the current command 
+        // 5.1 Remove any error indicator (wavy underline) on the current command
         // sequence (if there are any)
         this.mathlist.decorateCommandStringAroundInsertionPoint(false);
-        // 5.2 If we have a `moveAfterParent` selector (usually triggered with 
-        // `spacebar), and we're at the end of a smart fence, close the fence with 
+        // 5.2 If we have a `moveAfterParent` selector (usually triggered with
+        // `spacebar), and we're at the end of a smart fence, close the fence with
         // an empty (.) right delimiter
         const parent = this.mathlist.parent();
         if (selector === 'moveAfterParent' && parent &&
@@ -1469,12 +1622,12 @@ class MathField {
             this.mathlist.endOffset() === this.mathlist.siblings().length - 1 &&
             this.config.smartFence &&
             this.mathlist._insertSmartFence('.')) {
-            // Pressing the space bar (moveAfterParent selector) when at the end 
+            // Pressing the space bar (moveAfterParent selector) when at the end
             // of a potential smartfence will close it as a semi-open fence
             selector = '';
             this._requestUpdate(); // Re-render the closed smartfence
         }
-        // 5.3 If this is the Spacebar and we're just before or right after 
+        // 5.3 If this is the Spacebar and we're just before or right after
         // a text zone, insert the space inside the text zone
         if (this.mode === 'math' && keystroke === 'Spacebar' && !shortcut) {
             const nextSibling = this.mathlist.sibling(1);
@@ -1488,7 +1641,7 @@ class MathField {
         if ((selector && !this.$perform(selector)) || shortcut) {
             // // 6.5 insert the shortcut
             if (shortcut) {
-                // If the shortcut is a mandatory escape sequence (\}, etc...) 
+                // If the shortcut is a mandatory escape sequence (\}, etc...)
                 // don't make it undoable, this would result in syntactically incorrect
                 // formulas
                 if (!/^(\\{|\\}|\\[|\\]|\\@|\\#|\\$|\\%|\\^|\\_|\\backslash)$/.test(shortcut)) {
@@ -1595,7 +1748,7 @@ class MathField {
         if (this.pasteInProgress) {
             this.pasteInProgress = false;
             // This call was made in response to a paste event.
-            // Interpret `text` as a 'smart' expression (could be LaTeX, could be 
+            // Interpret `text` as a 'smart' expression (could be LaTeX, could be
             // UnicodeMath)
             this.mathlist.insert(text, {
                 smartFence: this.config.smartFence,
@@ -1605,9 +1758,9 @@ class MathField {
             const style = { ...this.mathlist.anchorStyle(), ...this.style };
             // Decompose the string into an array of graphemes.
             // This is necessary to correctly process what is displayed as a single
-            // glyph (a grapheme) but which is composed of multiple Unicode 
+            // glyph (a grapheme) but which is composed of multiple Unicode
             // codepoints. This is the case in particular for some emojis, such as
-            // those with a skin tone modifier, the country flags emojis or 
+            // those with a skin tone modifier, the country flags emojis or
             // compound emojis such as the professional emojis, including the
             // David Bowie emoji: 👨🏻‍🎤
             const graphemes = GraphemeSplitter.splitGraphemes(text);
@@ -1661,7 +1814,7 @@ class MathField {
                             /[0-9]/.test(c) &&
                             this.mathlist.siblings().filter(x => x.type !== 'first').length === 0) {
                             // We are inserting a digit into an empty superscript
-                            // If smartSuperscript is on, insert the digit, and 
+                            // If smartSuperscript is on, insert the digit, and
                             // exit the superscript.
                             this.mathlist.insert(c, { mode: 'math', style: style });
                             this.mathlist.moveAfterParent_();
@@ -1706,11 +1859,11 @@ class MathField {
     _requestUpdate() {
         if (!this.dirty) {
             this.dirty = true;
-            requestAnimationFrame(_ => this._render());
+            requestAnimationFrame(_ => isValidMathfield(this) && this._render());
         }
     }
     /**
-     * Lay-out the math field and generate the DOM.
+     * Lay-out the mathfield and generate the DOM.
      *
      * This is usually done automatically, but if the font-size, or other geometric
      * attributes are modified, outside of MathLive, this function may need to be
@@ -1878,35 +2031,50 @@ class MathField {
     //
     // PUBLIC API
     //
+
     /**
-     * Return a textual representation of the mathfield.
-     * @param {string} [format='latex']. One of
-     *    * `'latex'`
-     *    * `'latex-expanded'` : all macros are recursively expanded to their definition
-     *    * `'spoken'`
-     *    * `'spoken-text'`
-     *    * `'spoken-ssml'`
-     *    * `spoken-ssml-withHighlighting`
-     *    * `'mathML'`
-     *    * `'json'`
+     * Returns a textual representation of the mathfield.
+     *
+     * @param {string} [format] - The format of the result.
+     *
+| Format              | Description             |
+| :------------------ | :---------------------- |
+| `"latex"`             |LaTeX rendering of the content, with LaTeX macros not expanded|
+| `"latex-expanded"`    |All macros are recursively expanded to their definition|
+| `"json"`              | A MathJSON abstract syntax tree, as an object literal formated as a JSON string (see {@tutorial MATHJSON})|
+| `"spoken"`            |Spoken text rendering, using the default format defined in config, which could be either text or SSML markup.|
+| `"spoken-text"`       |A plain spoken text rendering of the content.|
+| `"spoken-ssml"`       |A SSML (Speech Synthesis Markup Language) version of the content, which can be used with some text-to-speech engines such as AWS|
+| `"spoken-ssml-withHighlighting"`|Like `"spoken-ssml"` but with additional annotations necessary for synchronized higlighting (read aloud)|
+| `"mathML"`            | A string of MathML markup|
+     *
+     * **Default** = `"latex"`
      * @return {string}
+     * @category Accessing the Content
      * @method MathField#$text
      */
     $text(format) {
         return this.formatMathlist(this.mathlist.root, format);
     }
     /**
-     * Return a textual representation of the selection in the mathfield.
-     * @param {string} [format='latex']. One of
-     *    * `'latex'`
-     *    * `'latex-expanded'` : all macros are recursively expanded to their definition
-     *    * `'spoken'`
-     *    * `'spoken-text'`
-     *    * `'spoken-ssml'`
-     *    * `spoken-ssml-withHighlighting`
-     *    * `'mathML'`
-     *    * `'json'`
+     * Returns a textual representation of the selection in the mathfield.
+     *
+     * @param {string} [format] - The format of the result.
+     *
+| Format              | Description             |
+| :------------------ | :---------------------- |
+| `"latex"`             |LaTeX rendering of the content, with LaTeX macros not expanded|
+| `"latex-expanded"`    |All macros are recursively expanded to their definition|
+| `"json"`              | A MathJSON abstract syntax tree, as an object literal formated as a JSON string (see {@tutorial MATHJSON})|
+| `"spoken"`            |Spoken text rendering, using the default format defined in config, which could be either text or SSML markup.|
+| `"spoken-text"`       |A plain spoken text rendering of the content.|
+| `"spoken-ssml"`       |A SSML (Speech Synthesis Markup Language) version of the content, which can be used with some text-to-speech engines such as AWS|
+| `"spoken-ssml-withHighlighting"`|Like `"spoken-ssml"` but with additional annotations necessary for synchronized higlighting (read aloud)|
+| `"mathML"`            | A string of MathML markup|
+     *
+     * **Default** = `"latex"`
      * @return {string}
+     * @category Accessing the Content
      * @method MathField#$selectedText
      */
     $selectedText(format) {
@@ -1916,20 +2084,27 @@ class MathField {
         return this.formatMathlist(root, format);
     }
     /**
-     * Return true if the length of the selection is 0, that is, if it is a single
+     * Checks if the selection is collapsed.
+     *
+     * @return {boolean} True if the length of the selection is 0, that is, if it is a single
      * insertion point.
-     * @return {boolean}
+     * @category Selection
      * @method MathField#$selectionIsCollapsed
      */
     $selectionIsCollapsed() {
         return this.mathlist.isCollapsed();
     }
     /**
-     * Return the depth of the selection group. If the selection is at the root level,
-     * returns 0. If the selection is a portion of the numerator of a fraction
+     * Returns the depth of the selection group.
+     *
+     * If the selection is at the root level, returns 0.
+     *
+     * If the selection is a portion of the numerator of a fraction
      * which is at the root level, return 1. Note that in that case, the numerator
      * would be the "selection group".
+     *
      * @return {number}
+     * @category Selection
      * @method MathField#$selectionDepth
      */
     $selectionDepth() {
@@ -1974,16 +2149,20 @@ class MathField {
         return wasSubscript ? result : 0;
     }
     /**
-     * Return true if the selection starts at the beginning of the selection group.
+     * Checks if the selection starts at the beginning of the selection group.
+     *
      * @return {boolean}
+     * @category Selection
      * @method MathField#$selectionAtStart
      */
     $selectionAtStart() {
         return this.mathlist.startOffset() === 0;
     }
     /**
-     * Return true if the selection extends to the end of the selection group.
+     * Checks if the selection extends to the end of the selection group.
+     *
      * @return {boolean}
+     * @category Selection
      * @method MathField#$selectionAtEnd
      */
     $selectionAtEnd() {
@@ -1997,18 +2176,22 @@ class MathField {
             this.mathlist.endOffset() >= this.mathlist.siblings().length - 1;
     }
     /**
+     * Sets or gets the content of the mathfield.
+     *
      * If `text` is not empty, sets the content of the mathfield to the
      * text interpreted as a LaTeX expression.
+     *
      * If `text` is empty (or omitted), return the content of the mathfield as a
      * LaTeX expression.
-     * @param {string} text
+     * @param {string} [text]
      *
-     * @param {Object.<string, any>} options
-     * @param {boolean} options.suppressChangeNotifications - If true, the
+     * @param {Object.<string, any>} [options]
+     * @param {boolean} [options.suppressChangeNotifications] - If true, the
      * handlers for the contentWillChange and contentDidChange notifications will
-     * not be invoked. Default `false`.
+     * not be invoked. **Default** = `false`.
      *
      * @return {string}
+     * @category Accessing the Content
      * @method MathField#$latex
      */
     $latex(text, options) {
@@ -2034,7 +2217,8 @@ class MathField {
     /**
      * Return the DOM element associated with this mathfield.
      *
-     * Note that `this.$el().mathfield = this`
+     * Note that `this.$el().mathfield === this`
+     *
      * @return {HTMLElement}
      * @method MathField#$el
      */
@@ -2122,44 +2306,56 @@ class MathField {
         return true;
     }
     /**
-     * This method can be invoked as a selector with {@linkcode MathField#$perform $perform("insert")}
-     * or called explicitly.
-     * 
-     * It will insert the specified block of text at the current insertion point,
-     * according to the insertion mode specified. 
-     * 
+     * Inserts a block of text at the current insertion point.
+     *
+     * This method can be called explicitly or invoked as a selector with {@linkcode MathField#$perform $perform("insert")}
+     * .
+     *
      * After the insertion, the selection will be set according to the `selectionMode`.
+     *
      * @param {string} s - The text to be inserted
-     * 
-     * @param {Object.<string, any>} [options={}]
-     * 
+     *
+     * @param {Object.<string, any>} [options]
+     *
+     * @param {"replaceSelection"|"replaceAll"|"insertBefore"|"insertAfter"} options.insertionMode -
+     *
+| <!-- -->    | <!-- -->    |
+| :---------- | :---------- |
+|`"replaceSelection"`| (default)|
+|`"replaceAll"`| |
+|`"insertBefore"`| |
+|`"insertAfter"`| |
+     *
      * @param {'placeholder' | 'after' | 'before' | 'item'} options.selectionMode - Describes where the selection
      * will be after the insertion:
-     *    * `'placeholder'`: the selection will be the first available placeholder
-     * in the item that has been inserted (default)
-     *    * `'after'`: the selection will be an insertion point after the item that
-     * has been inserted,
-     *    * `'before'`: the selection will be an insertion point before
-     * the item that has been inserted
-     *    * `'item'`: the item that was inserted will be selected
-     * 
+     *
+| <!-- -->    | <!-- -->    |
+| :---------- | :---------- |
+|`"placeholder"`| The selection will be the first available placeholder in the text that has been inserted (default)|
+|`"after"`| The selection will be an insertion point after the inserted text|
+|`"before"`| The selection will be an insertion point before the inserted text|
+|`"item"`| The inserted text will be selected|
+     *
      * @param {'auto' | 'latex'} options.format - The format of the string `s`:
-     *    * `'auto'`: the string is interpreted as a latex fragment or command)
-     * (default)
-     *    * `'latex'`: the string is interpreted strictly as a latex fragment
      *
-     * @param {boolean} options.focus - If true, the mathfield will be focused after 
+| <!-- -->    | <!-- -->    |
+|:------------|:------------|
+|`"auto"`| The string is Latex fragment or command) (default)|
+|`"latex"`| The string is a Latex fragment|
+     *
+     * @param {boolean} options.focus - If true, the mathfield will be focused after
      * the insertion
-     * 
-     * @param {boolean} options.feedback - If true, provide audio and haptic feedback
-     * 
-     * @param {'text' | 'math' | ''} options.mode - 'text' or 'math'. If empty, the current mode
-     * is used (default)
-     * 
-     * @param {boolean} options.resetStyle - If true, the style after the insertion
-     * is the same as the style before (if false, the style after the 
-     * insertion is the style of the last inserted atom).
      *
+     * @param {boolean} options.feedback - If true, provide audio and haptic feedback
+     *
+     * @param {"text" | "math" | ""} options.mode - If empty, the current mode
+     * is used (default)
+     *
+     * @param {boolean} options.resetStyle - If true, the style after the insertion
+     * is the same as the style before. If false, the style after the
+     * insertion is the style of the last inserted atom.
+     *
+     * @category Changing the Content
      * @method MathField#$insert
      */
     $insert(s, options) {
@@ -2324,7 +2520,7 @@ class MathField {
     /**
      * Attach event handlers to an element so that it will react by executing
      * a command when pressed.
-     * `'command'` can be:
+     * `"command"` can be:
      * - a string, a single selector
      * - an array, whose first element is a selector followed by one or more arguments.
      * - an object, with the following keys:
@@ -2628,7 +2824,7 @@ class MathField {
             // Search for the requested layer
             let found = false;
             for (let i = 0; i < layers.length; i++) {
-                if (layers[i].id === layer) {
+                if (layers[i].dataset.layer === layer) {
                     found = true;
                     break;
                 }
@@ -2637,7 +2833,7 @@ class MathField {
             // If we didn't find it, do nothing and keep the current layer
             if (found) {
                 for (let i = 0; i < layers.length; i++) {
-                    if (layers[i].id === layer) {
+                    if (layers[i].dataset.layer === layer) {
                         layers[i].classList.add('is-visible');
                     } else {
                         layers[i].classList.remove('is-visible');
@@ -2780,7 +2976,8 @@ class MathField {
         return false;
     }
     /**
-     * Apply a style (color, bold, italic, etc...).
+     * Updates the style (color, bold, italic, etc...) of the selection or sets
+     * the style to be applied to future input.
      *
      * If there is a selection, the style is applied to the selection
      *
@@ -2790,61 +2987,76 @@ class MathField {
      *
      * If there is no selection, the style will apply to the next character typed.
      *
-     * @param {object} style  an object with the following properties. All the
-     * properties are optional, but they can be combined.
+     * @param {object} style  The style properties to be applied. All the
+     * properties are optional and they can be combined.
      *
-     * @param {string} [style.mode=''] - Either `'math'`, `'text'` or '`command`'
-     * @param {string} [style.color=''] - The text/fill color, as a CSS RGB value or
-     * a string for some 'well-known' colors, e.g. 'red', '#f00', etc...
+     * @param {string} [style.mode] - Either `"math"`, `"text"` or `"command"`
      *
-     * @param {string} [style.backgroundColor=''] - The background color.
+     * @param {string} [style.color] - The text/fill color, as a CSS RGB value or
+     * a string for some "well-known" colors, e.g. `"red"`, `"#f00"`, etc...
      *
-     * @param {string} [style.fontFamily=''] - The font family used to render text.
+     * @param {string} [style.backgroundColor] - The background color.
+     *
+     * @param {string} [style.fontFamily] - The font family used to render text.
+     *
      * This value can the name of a locally available font, or a CSS font stack, e.g.
-     * "Avenir", "Georgia, serif", etc...
+     * `"Avenir"`, `"Georgia, serif"`, etc...
+     *
      * This can also be one of the following TeX-specific values:
-     * - 'cmr': Computer Modern Roman, serif
-     * - 'cmss': Computer Modern Sans-serif, latin characters only
-     * - 'cmtt': Typewriter, slab, latin characters only
-     * - 'cal': Calligraphic style, uppercase latin letters and digits only
-     * - 'frak': Fraktur, gothic, uppercase, lowercase and digits
-     * - 'bb': Blackboard bold, uppercase only
-     * - 'scr': Script style, uppercase only
      *
-     * @param {string} [style.series=''] - The font 'series', i.e. weight and
-     * stretch. The following values can be combined, for example: "ebc": extra-bold,
-     * condensed. Aside from 'b', these attributes may not have visible effect if the
+| <!-- -->    | <!-- -->    |
+| :---------- | :---------- |
+|`"cmr"`| Computer Modern Roman, serif|
+|`"cmss"`| Computer Modern Sans-serif, latin characters only|
+|`"cmtt"`| Typewriter, slab, latin characters only|
+|`"cal"`| Calligraphic style, uppercase latin letters and digits only|
+|`"frak"`| Fraktur, gothic, uppercase, lowercase and digits|
+|`"bb"`| Blackboard bold, uppercase only|
+|`"scr"`| Script style, uppercase only|
+     *
+     * @param {string} [style.series] - The font 'series', i.e. weight and
+     * stretch.
+     *
+     * The following values can be combined, for example: `"ebc"`: extra-bold,
+     * condensed. Aside from `"b"`, these attributes may not have visible effect if the
      * font family does not support this attribute:
-     * - 'ul' ultra-light weight
-     * - 'el': extra-light
-     * - 'l': light
-     * - 'sl': semi-light
-     * - 'm': medium (default)
-     * - 'sb': semi-bold
-     * - 'b': bold
-     * - 'eb': extra-bold
-     * - 'ub': ultra-bold
-     * - 'uc': ultra-condensed
-     * - 'ec': extra-condensed
-     * - 'c': condensed
-     * - 'sc': semi-condensed
-     * - 'n': normal (default)
-     * - 'sx': semi-expanded
-     * - 'x': expanded
-     * - 'ex': extra-expanded
-     * - 'ux': ultra-expanded
      *
-     * @param {string} [style.shape=''] - The font 'shape', i.e. italic.
-     * - 'auto': italic or upright, depending on mode and letter (single letters are
-     * italic in math mode)
-     * - 'up': upright
-     * - 'it': italic
-     * - 'sl': slanted or oblique (often the same as italic)
-     * - 'sc': small caps
-     * - 'ol': outline
+| <!-- -->    | <!-- -->    |
+| :---------- | :---------- |
+|`"ul"`| ultra-light weight|
+|`"el"`| extra-light|
+|`"l"`| light|
+|`"sl"`| semi-light|
+|`"m"`| medium (default)|
+|`"sb"`| semi-bold|
+|`"b"`| bold|
+|`"eb"`| extra-bold|
+|`"ub"`| ultra-bold|
+|`"uc"`| ultra-condensed|
+|`"ec"`| extra-condensed|
+|`"c"`| condensed|
+|`"sc"`| semi-condensed|
+|`"n"`| normal (default)|
+|`"sx"`| semi-expanded|
+|`"x"`| expanded|
+|`"ex"`| extra-expanded|
+|`"ux"`| ultra-expanded|
      *
-     * @param {string} [style.size=''] - The font size:  'size1'...'size10'
-     * 'size5' is the default size
+     * @param {string} [style.shape] - The font "shape", i.e. italic or upright.
+     *
+| <!-- -->    | <!-- -->    |
+| :---------- | :---------- |
+|`"auto"`| italic or upright, depending on mode and letter (single letters are italic in math mode)|
+|`"up"`| upright|
+|`"it"`| italic|
+|`"sl"`| slanted or oblique (often the same as italic)|
+|`"sc"`| small caps|
+|`"ol"`| outline|
+     *
+     * @param {string} [style.size] - The font size:  `"size1"`...`"size10"`.
+     * '"size5"' is the default size
+     *
+     * @category Changing the Content
      * @method MathField#$applyStyle
      * */
     $applyStyle(style) {
@@ -2871,7 +3083,7 @@ class MathField {
                 });
                 this.mode = targetMode;
                 if (this.groupIsSelected()) {
-                    // The entire group was selected. Adjust parent mode if 
+                    // The entire group was selected. Adjust parent mode if
                     // appropriate
                     const parent = this.mathlist.parent();
                     if (parent && (parent.type === 'group' || parent.type === 'root')) {
@@ -2938,11 +3150,17 @@ class MathField {
     /**
      * @param {string} keys - A string representation of a key combination.
      *
-     * For example `'Alt-KeyU'`.
+     * For example `"Alt-KeyU"`.
      *
      * See [W3C UIEvents](https://www.w3.org/TR/uievents/#code-virtual-keyboards)
-     * @param {Event} evt
+     * for more information on the format of the descriptor.
+     *
+     * @param {Event?} [evt] - An event corresponding to the keystroke. Pass this
+     * event if the keystroke originated from a user interaction that produced it.
+     * If the keystroke is synthetic (for example, triggered in response to a
+     * click or other event not involving a keyboard), omit it.
      * @return {boolean}
+     * @category Changing the Content
      * @method MathField#$keystroke
      */
     $keystroke(keys, evt) {
@@ -2951,8 +3169,10 @@ class MathField {
         return this._onKeystroke(keys, evt);
     }
     /**
-     * Simulate a user typing the keys indicated by text.
+     * Simulates a user typing the keys indicated by text.
+     *
      * @param {string} text - A sequence of one or more characters.
+     * @category Changing the Content
      * @method MathField#$typedText
      */
     $typedText(text) {
@@ -2963,11 +3183,11 @@ class MathField {
     /**
      *
      * @param {string} text
-     * @param {Object.<string, any>} [options={}]
-     * @param {boolean} options.focus - If true, the mathfield will be focused
-     * @param {boolean} options.feedback - If true, provide audio and haptic feedback
-     * @param {boolean} options.simulateKeystroke - If true, generate some synthetic
-     * keystrokes (useful to trigger inline shortcuts, for example)
+     * @param {object} [options]
+     * @param {boolean} [options.focus] - If true, the mathfield will be focused.
+     * @param {boolean} [options.feedback] - If true, provide audio and haptic feedback.
+     * @param {boolean} [options.simulateKeystroke] - If true, generate some synthetic
+     * keystrokes (useful to trigger inline shortcuts, for example).
      * @private
      */
     typedText_(text, options) {
@@ -2977,7 +3197,7 @@ class MathField {
      *
      * Update the configuration options for this mathfield.
      *
-     * @param {MathFieldConfig} [config={}] See {@tutorial CONFIG} for details.
+     * @param {MathFieldConfig} config - See {@tutorial CONFIG Configuration Options} for details.
      *
      * @method MathField#$setConfig
      */
@@ -3079,9 +3299,10 @@ class MathField {
      *
      * Speak some part of the expression, either with or without synchronized highlighting.
      *
-     * @param {string} amount (all, selection, left, right, group, parent)
+     * @param {string} amount - `"all"`, `"selection"`, `"left"`, `"right"`, `"group"`, `"parent"`
      * @param {object} speakOptions
-     * @param {boolean} speakOptions.withHighlighting - If true, synchronized highlighting of speech will happen (if possible). Default is false.
+     * @param {boolean} speakOptions.withHighlighting - If true, synchronized
+     * highlighting of speech will happen (if possible). Default is false.
      *
      * @method MathField#speak_
      */
@@ -3191,6 +3412,7 @@ class MathField {
                 this.config.handleSpeak(text, options);
             }
         }
+
         return false;
     }
 }
@@ -3206,7 +3428,7 @@ class MathField {
  * @private
  */
 function _findElementWithCaret(el) {
-    if (el.classList.contains('ML__caret') || 
+    if (el.classList.contains('ML__caret') ||
         el.classList.contains('ML__text-caret') ||
         el.classList.contains('ML__command-caret')) {
         return el;
@@ -3232,21 +3454,21 @@ function _findElementWithCaret(el) {
  * @private
  */
 function nearestElementFromPoint(el, x, y) {
-    let result = { element: null };
+    let result = { element: null, distance: Number.POSITIVE_INFINITY };
+
+    // This element may not have a matching atom, but its children might
     let considerChildren = true;
-    if (!el.getAttribute('data-atom-id')) {
-        // This element may not have a matching atom, but its children might
-        result.distance = Number.POSITIVE_INFINITY;
-    } else {
+    
+    if (el.getAttribute('data-atom-id')) {
         result.element = el;
 
         // Calculate the (square of the) distance to the rectangle
         const r = el.getBoundingClientRect();
-        const dx = Math.max(r.left - x, x - r.right);
-        const dy = Math.max(r.top - y, y - r.bottom);
+        const dx = x - (r.left + r.right) / 2;
+        const dy = y - (r.top + r.bottom) / 2;
         result.distance = dx * dx + dy * dy;
 
-        // Only consider children if the target is inside the (horizontal) 
+        // Only consider children if the target is inside the (horizontal)
         // bounds of the element.
         // This avoid searching the numerator/denominator when a fraction
         // is the last element in the formula.
@@ -3288,10 +3510,10 @@ function speakableText(mathfield, prefix, atoms) {
  * Announce a change in selection or content via the aria-live region.
  * This is the default implementation for this function. It can be overridden
  * via `config.onAnnounce`
- * @param {object} target typically, a MathField
- * @param {string} command the command that invoked the change
- * @param {Atom[]} [oldMathlist=[]] the previous value of mathlist before the change
- * @param {Atom[]} [atomsToSpeak=[] ] 
+ * @param {object} target Typically, a MathField.
+ * @param {string} command The command that invoked the change.
+ * @param {Atom[]} [oldMathlist] The previous value of mathlist before the change.
+ * @param {Atom[]} [atomsToSpeak]
  * @method MathField#_onAnnounce
  * @private
  */
@@ -3356,7 +3578,8 @@ MathField.prototype.insert_ = MathField.prototype.$insert;
 
 
 export default {
-    MathField: MathField
+    isValidMathfield,
+    MathField
 }
 
 

@@ -1,8 +1,8 @@
 /**
  * This module outputs a formula to LaTeX.
- * 
+ *
  * To use it, use the {@linkcode MathAtom#toLatex MathAtom.toLatex()}  method.
- * 
+ *
  * @module addons/outputLatex
  * @private
  */
@@ -14,13 +14,13 @@ function findLongestRun(atoms, property, value) {
     let i = 0;
     if (property === 'fontFamily') {
         while (atoms[i]) {
-            if (atoms[i].type !== 'mop' && 
+            if (atoms[i].type !== 'mop' &&
                 (atoms[i].fontFamily || atoms[i].baseFontFamily) !== value) break
             i++;
         }
     } else {
         while (atoms[i]) {
-            if (atoms[i].type !== 'mop' && 
+            if (atoms[i].type !== 'mop' &&
                 atoms[i][property] !== value) break
             i++;
         }
@@ -29,7 +29,7 @@ function findLongestRun(atoms, property, value) {
 }
 
 /**
- * 
+ *
  * @param {MathAtom} parent the parent or predecessor of the atom list
  * @param {MathAtom[]} atoms the list of atoms to transform to LaTeX
  * @param {boolean} expandMacro true if macros should be expanded
@@ -89,8 +89,8 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
         } else if (prop === 'mode') {
             let allAtomsHaveShapeOrSeriesOrFontFamily = true;
             for (let j = 0; j < i; j++) {
-                if (!atoms[j].fontSeries && 
-                    !atoms[j].fontShape && 
+                if (!atoms[j].fontSeries &&
+                    !atoms[j].fontShape &&
                     !atoms[j].fontFamily &&
                     !atoms[j].baseFontFamily) {
                     allAtomsHaveShapeOrSeriesOrFontFamily = false;
@@ -98,8 +98,8 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
                 }
             }
             if (!allAtomsHaveShapeOrSeriesOrFontFamily) {
-                // Wrap in text, only if there isn't a shape or series on 
-                // all the atoms, because if so, it will be wrapped in a 
+                // Wrap in text, only if there isn't a shape or series on
+                // all the atoms, because if so, it will be wrapped in a
                 // \\textbf, \\textit, etc... and the \\text would be redundant
                 prefix = '\\text{';
                 suffix = '}';
@@ -120,7 +120,7 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
             prefix = '{\\' + command + ' ';
             suffix = '}';
 
-        } else if (prop === 'fontFamily' && 
+        } else if (prop === 'fontFamily' &&
             (atoms[0].fontFamily || atoms[0].baseFontFamily)) {
             const command = {
                 'cmr': 'textrm',
@@ -172,11 +172,11 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
             prefix = '{\\' + command + ' ';
             suffix = '}';
 
-        } else if (prop === 'fontFamily' && (atoms[0].fontFamily)) {
+        } else if (prop === 'fontFamily' && atoms[0].fontFamily) {
             if (!/^(math|main)$/.test(atoms[0].fontFamily)) {
                 const command = {
-                    'cal': 'mathcal', 
-                    'frak': 'mathfrak', 
+                    'cal': 'mathcal',
+                    'frak': 'mathfrak',
                     'bb': 'mathbb',
                     'scr': 'mathscr',
                     'cmr': 'mathrm',
@@ -184,7 +184,7 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
                     'cmss': 'mathsf'
                 }[atoms[0].fontFamily] || '';
                 if (!command) {
-                    prefix += '{\\fontfamily{' + (atoms[0].fontFamily) + '}';
+                    prefix += '{\\fontfamily{' + atoms[0].fontFamily + '}';
                     suffix = '}';
                 } else {
                     if (/^\\operatorname{/.test(atoms[0].latex)) {
@@ -197,6 +197,26 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
                     // These command have an implicit fontSeries/fontShape, so
                     // we're done checking properties now.
                     properties = [];
+                }
+            }
+        } else if (prop === 'fontFamily' && atoms[0].baseFontFamily) {
+            // This is a command that applied a base font to the atoms.
+            if (atoms[0].latex && atoms[0].latex.startsWith('\\')) {
+                prefix = '';
+                suffix = '';
+            } else {
+                const command = {
+                    'cal': 'mathcal',
+                    'frak': 'mathfrak',
+                    'bb': 'mathbb',
+                    'scr': 'mathscr',
+                    'cmr': 'mathrm',
+                    'cmtt': 'mathtt',
+                    'cmss': 'mathsf'
+                }[atoms[0].baseFontFamily] || '';
+                if (command) {
+                    prefix = '\\' + command + '{';
+                    suffix = '}';
                 }
             }
         }
@@ -218,9 +238,9 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
 
     result += prefix;
 
-    result += latexifyArray(parent, 
-        properties.slice(1), 
-        atoms.slice(0, i), 
+    result += latexifyArray(parent,
+        properties.slice(1),
+        atoms.slice(0, i),
         expandMacro);
 
     result += suffix;
@@ -249,13 +269,13 @@ function latexify(parent, value, expandMacro) {
         }
 
         result = latexifyArray(parent, [
-            'mode', 
-            'color', 
-            'backgroundColor', 
+            'mode',
+            'color',
+            'backgroundColor',
             'fontSize',
             'fontFamily',
-            'fontShape', 
-            'fontSeries', 
+            'fontShape',
+            'fontSeries',
             ], value, expandMacro);
         // if (result.startsWith('{') && result.endsWith('}')) {
         //     result = result.slice(1, result.length - 1);
@@ -471,8 +491,8 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
         case 'box':
             if (command === '\\bbox') {
                 result += command;
-                if (isFinite(this.padding) || 
-                    typeof this.border !== 'undefined' || 
+                if (isFinite(this.padding) ||
+                    typeof this.border !== 'undefined' ||
                     typeof this.backgroundcolor !== 'undefined') {
                     const bboxParams = [];
                     if (isFinite(this.padding)) {
@@ -590,7 +610,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
 
 
         default:
-            console.warn('Unexpected atom type "' + this.type + 
+            console.warn('Unexpected atom type "' + this.type +
                 '" in "' + (this.latex || this.value) + '"');
             break;
 

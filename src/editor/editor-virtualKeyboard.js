@@ -1192,7 +1192,7 @@ function make(mf, theme) {
     if (!keyboardIDs) {
         keyboardIDs = 'all';
     }
-    keyboardIDs = keyboardIDs.replace(/\ball\b/i, 
+    keyboardIDs = keyboardIDs.replace(/\ball\b/i,
         'numeric roman greek functions command')
 
     const layers = Object.assign({}, LAYERS, mf.config.customVirtualKeyboardLayers || {});
@@ -1299,7 +1299,7 @@ function make(mf, theme) {
                 layers[layer] = tempLayer;
             }
 
-            markup += `<div tabindex="-1" class='keyboard-layer' id='` + layer + `'>`;
+            markup += `<div tabindex="-1" class='keyboard-layer' data-layer='` + layer + `'>`;
             markup += makeKeyboardToolbar(mf, keyboardIDs, keyboard);
             const layerMarkup = typeof layers[layer] === 'function' ?
                 layers[layer]() : layers[layer];

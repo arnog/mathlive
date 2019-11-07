@@ -457,7 +457,7 @@ function codepointToLatex(parseMode, cp) {
     } else if (v.style === 'bolditalic') {
         result = '\\mathbf{\\mathit{' + result + '}}';
     }
-    return '\\mathord{' + result + '}';    
+    return '\\mathord{' + result + '}';
 }
 
 
@@ -496,7 +496,7 @@ function commandAllowed(mode, command) {
 
 function getValue(mode, symbol) {
     if (mode === 'math') {
-        return MATH_SYMBOLS[symbol] && MATH_SYMBOLS[symbol].value ? 
+        return MATH_SYMBOLS[symbol] && MATH_SYMBOLS[symbol].value ?
             MATH_SYMBOLS[symbol].value : symbol;
     }
     return TEXT_SYMBOLS[symbol] ? TEXT_SYMBOLS[symbol] : symbol;
@@ -599,7 +599,7 @@ function getInfo(symbol, parseMode, macros) {
     }
 
     // Special case `f`, `g` and `h` are recognized as functions.
-    if (info && info.type === 'mord' && 
+    if (info && info.type === 'mord' &&
         (info.value === 'f' || info.value === 'g' || info.value === 'h')) {
         info.isFunction = true;
     }
@@ -816,7 +816,7 @@ function defineFunction(names, params, options, parseFunction) {
         // strictly to group items in generateDocumentation().
         category: category,
 
-        // The base font family, if present, indicates that this font family 
+        // The base font family, if present, indicates that this font family
         // should always be used to render atom. For example, functions such
         // as "sin", etc... are always drawn in a roman font,
         // regardless of the font styling a user may specify.
@@ -1331,13 +1331,13 @@ function(name, args) {
     };
 });
 
-defineFunction('\\color', '{:color}', {allowedInText: true}, (_name, args) => { 
+defineFunction('\\color', '{:color}', {allowedInText: true}, (_name, args) => {
     return { color: args[0] }
 });
 
 
 // From the xcolor package.
-// As per xcolor, this command does not set the mode to text 
+// As per xcolor, this command does not set the mode to text
 // (unlike what its name might suggest)
 defineFunction('\\textcolor', '{:color}{content:auto*}', {allowedInText: true}, (_name, args) => {
     return { color: args[0] };
@@ -1818,7 +1818,7 @@ defineFunction('\\textnormal', '{:text*}', {allowedInText: true}, (_name, _args)
 
 // Rough synomym for \text{}
 /*
-An \mbox within math mode does not use the current math font; rather it uses 
+An \mbox within math mode does not use the current math font; rather it uses
 the typeface of the surrounding running text.
 */
 defineFunction('\\mbox', '{:text*}', null, (_name, _args) => {
@@ -2651,7 +2651,7 @@ defineSymbol( '\\circeq',  AMS,  REL, '\u2257', 31);
 defineSymbol( '\\lessdot',  AMS,  BIN, '\u22d6', 88);
 defineSymbol( '\\gtrdot',  AMS,  BIN, '\u22d7', 45);
 
-// In TeX, '~' is a spacing command (non-breaking space). 
+// In TeX, '~' is a spacing command (non-breaking space).
 // However, '~' is used as an ASCII Math shortctut character, so define a \\~
 // command which maps to the '~' character
 defineSymbol( '\\~',  MAIN,  REL, '~');
@@ -2838,7 +2838,7 @@ function getSimpleString(atoms) {
         } else {
             success = false;
         }
-    } 
+    }
     return success ? result : '';
 }
 
@@ -3058,14 +3058,14 @@ defineSymbol( '"',  MAIN,  MATHORD, '\u201D');       // Double Prime
 category = 'Others';
 
 defineFunction('\\^', '{:string}',
-    {allowedInText: true}, 
+    {allowedInText: true},
     function(name, args) {
     return {
         type: 'mord',
         limits: 'nolimits',
         symbol: true,
         isFunction: false,
-        body: args[0] ? 
+        body: args[0] ?
             ({'a':'â','e':'ê','i':'î','o':'ô','u':'û',
             'A':'Â','E':'Ê','I':'Î','O':'Ô','U':'Û'}[args[0]] || '^') :
             '^',
@@ -3073,15 +3073,15 @@ defineFunction('\\^', '{:string}',
     };
 })
 
-defineFunction("\\`", '{:string}', 
-    {allowedInText: true}, 
+defineFunction("\\`", '{:string}',
+    {allowedInText: true},
     function(name, args) {
     return {
         type: 'mord',
         limits: 'nolimits',
         symbol: true,
         isFunction: false,
-        body: args[0] ? 
+        body: args[0] ?
             ({'a':'à','e':'è','i':'ì','o':'ò','u':'ù',
             'A':'À','E':'È','I':'Ì','O':'Ò','U':'Ù'}[args[0]] || '`') :
             '`',
@@ -3090,15 +3090,15 @@ defineFunction("\\`", '{:string}',
 })
 
 
-defineFunction("\\'", '{:string}', 
-    {allowedInText: true}, 
+defineFunction("\\'", '{:string}',
+    {allowedInText: true},
     function(name, args) {
     return {
         type: 'mord',
         limits: 'nolimits',
         symbol: true,
         isFunction: false,
-        body: args[0] ? 
+        body: args[0] ?
             ({'a':'á','e':'é','i':'í','o':'ó','u':'ú',
             'A':'Á','E':'É','I':'Í','O':'Ó','U':'Ú'}[args[0]] || '\u005e') :
             '\u005e',
@@ -3106,30 +3106,30 @@ defineFunction("\\'", '{:string}',
     };
 })
 
-defineFunction('\\~', '{:string}', 
-    {allowedInText: true}, 
+defineFunction('\\~', '{:string}',
+    {allowedInText: true},
     function(name, args) {
     return {
         type: 'mord',
         limits: 'nolimits',
         symbol: true,
         isFunction: false,
-        body: args[0] ? 
+        body: args[0] ?
             ({'n':'ñ', 'N':'Ñ', 'a':'ã', 'o':'õ', 'A':'Ã', 'O':'Õ'}[args[0]] || '\u00B4') :
             '\u00B4',
         baseFontFamily: 'cmr'
     };
 })
 
-defineFunction('\\c', '{:string}', 
-    {allowedInText: true}, 
+defineFunction('\\c', '{:string}',
+    {allowedInText: true},
     function(name, args) {
     return {
         type: 'mord',
         limits: 'nolimits',
         symbol: true,
         isFunction: false,
-        body: args[0] ? 
+        body: args[0] ?
             ({'c':'ç', 'C':'Ç'}[args[0]] || '') :
             '',
         baseFontFamily: 'cmr'
@@ -3192,15 +3192,15 @@ const COMMAND_MODE_CHARACTERS = /[a-zA-Z0-9!@*()-=+{}[\]\\';:?/.,~<>`|'$%#&^_" ]
 
 // Word boundaries for Cyrillic, Polish, French, German, Italian
 // and Spanish. We use \p{L} (Unicode property escapes: "Letter")
-// but Firefox doesn't support it 
+// but Firefox doesn't support it
 // (https://bugzilla.mozilla.org/show_bug.cgi?id=1361876). Booo...
 // See also https://stackoverflow.com/questions/26133593/using-regex-to-match-international-unicode-alphanumeric-characters-in-javascript
-const LETTER = 
+const LETTER =
     typeof navigator !== 'undefined' && /firefox|edge/i.test(navigator.userAgent) ?
         /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒäöüßÄÖÜẞàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚáéíñóúüÁÉÍÑÓÚÜ]/ :
         new RegExp("\\p{Letter}", 'u');
 
-const LETTER_AND_DIGITS = 
+const LETTER_AND_DIGITS =
     typeof navigator !== 'undefined'  && /firefox|edge/i.test(navigator.userAgent) ?
         /[0-9a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒäöüßÄÖÜẞàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚáéíñóúüÁÉÍÑÓÚÜ]/ :
         new RegExp("[0-9\\p{Letter}]", 'u');

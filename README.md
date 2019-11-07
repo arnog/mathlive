@@ -19,7 +19,7 @@ MathLive is a JavaScript library to render and edit math.
 - [x] Easy to use interface for math editing
 - [x] Fast and small
 - [x] Works great on desktop and on mobile devices thanks to an extensive set of virtual keyboards
-- [x] Outputs **LaTeX**, **MathML** and **JSON** (Abstract Syntax Tree, MASTON)
+- [x] Outputs **LaTeX**, **MathML** and **MathJSON** (Abstract Syntax Tree)
 - [x] And it is easy to customize to your needs!
 
 Try it at [mathlive.io](https://mathlive.io)
@@ -75,8 +75,8 @@ Render math equations by
 
 
 ### Editing Math
-You can also incorporate a “math field” to edit math just like you would edit 
-text. The MathLive APIs allow you to interact with the math field,
+You can also incorporate a “mathfield” to edit math just like you would edit 
+text. The MathLive APIs allow you to interact with the mathfield,
 including extracting its content, inserting placeholders and more.
 
 ```html
@@ -99,7 +99,7 @@ including extracting its content, inserting placeholders and more.
 
 ### More Examples
 
-More examples are available at https://mathlive.io/deploy/examples/
+More examples are available at https://mathlive.io/examples/
 
 
 ### Installing MathLive
