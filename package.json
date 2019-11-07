@@ -3,6 +3,10 @@
   "version": "0.32.8",
   "description": "Render and edit beautifully typeset math",
   "license": "MIT",
+  "funding": {
+    "type": "patreon",
+    "url": "https://patreon.com/arnog"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/arnog/mathlive.git"
@@ -47,7 +51,7 @@
     "coverage": "nyc npm run babel-node ./test/test.js && nyc report",
     "coverage:report": "nyc report",
     "prepare": "",
-    "docs": "jsdoc -c ./jsdoc.conf.json && echo docs.mathlive.io > docs/CNAME",
+    "docs": "jsdoc -c ./jsdoc.conf.json && printf \"docs.mathlive.io\" > docs/CNAME",
     "watch-docs": "chokidar \"src/*.js\" \"tutorials/*.md\" \"examples/*.md\" -c \"npm run docs -s\"",
     "rollup": "rollup --config",
     "watch-rollup": "rollup --config --watch",
