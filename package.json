@@ -52,7 +52,8 @@
     "rollup": "rollup --config",
     "watch-rollup": "rollup --config --watch",
     "dist": "npm-run-all -s clean build docs",
-    "deploy": "bash ./scripts/deploy"
+    "deploy": "bash ./scripts/deploy",
+    "deploy-ci": "bash ./scripts/deploy-ci"
   },
   "husky": {
     "hooks": {

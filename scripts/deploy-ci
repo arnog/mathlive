@@ -2,6 +2,15 @@
 
 set -e  # exit immediately on error
 
+if [ -z "$GH_PUBLISH_TOKEN"] 
+then
+    echo "The $GH_PUBLISH_TOKEN env variable is not set, deploy failed."
+    echo "Note: the deploy-ci command should only be run from the Travis CI environment"
+
+    exit 1
+fi
+
+
 REPO=$(git config --get remote.origin.url | sed 's/.*:\/\/github.com\///;s/.git$//')
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 VERSION=$(git describe --tags)
