@@ -100,6 +100,9 @@ function releaseSharedElement(el) {
     return el;
 }
 
+function isMobileDevice() {
+    return /android|ipad|ipod|iphone/i.test(navigator.userAgent) || /macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints
+}
 
 /**
  * To create a mathfield, you would typically use {@linkcode module:MathLive#makeMathField MathLive.makeMathField()}
@@ -163,7 +166,7 @@ function MathField(element, config) {
     // 5.1/ The aria-live region for announcements
     let markup = ''
     if (!this.config.substituteTextArea) {
-        if (/android|ipad|ipod|iphone/i.test(navigator.userAgent) || /macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints) {
+        if (isMobileDevice()) {
             // On Android or iOS, don't use a textarea, which has the side effect of
             // bringing up the OS virtual keyboard
             markup += `<span class='ML__textarea'>
@@ -194,11 +197,9 @@ function MathField(element, config) {
             '<span class="ML__fieldcontainer__field"></span>';
 
     // If no value is specified for the virtualKeyboardMode, use 
-    // `onfocus` on touch-capable devices and `off` otherwise.
+    // `onfocus` on iOS and Android devices and `off` otherwise.
     if (!this.config.virtualKeyboardMode) {
-        this.config.virtualKeyboardMode = 
-            (window.matchMedia && window.matchMedia("(any-pointer: coarse)").matches
-) ? 'onfocus' : 'off';
+        this.config.virtualKeyboardMode = isMobileDevice() ? 'onfocus' : 'off';
     }
 
     // Only display the virtual keyboard toggle if the virtual keyboard mode is
