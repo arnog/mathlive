@@ -8618,9 +8618,9 @@
       }
     },
     "rollup": {
-      "version": "1.27.0",
-      "resolved": "https://registry.npmjs.org/rollup/-/rollup-1.27.0.tgz",
-      "integrity": "sha512-yaMna4MJ8LLEHhHl1ilgHakylf0LKeQctDxhngZLQ+W57GnXa5vtH7XKaK8zlAhNEhlWiH5YFVFt+QCDPUmNkw==",
+      "version": "1.27.4",
+      "resolved": "https://registry.npmjs.org/rollup/-/rollup-1.27.4.tgz",
+      "integrity": "sha512-UaGNOIax/Ixfd92CAAanUilx2RSkkwEfC1lCTw1eL5Re6NURWgX66ARZt5+3px4kYnpSwzyOot4r18c2b+QgJQ==",
       "dev": true,
       "requires": {
         "@types/estree": "*",
