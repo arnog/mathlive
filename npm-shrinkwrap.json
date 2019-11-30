@@ -2016,9 +2016,9 @@
       }
     },
     "@types/estree": {
-      "version": "0.0.39",
-      "resolved": "https://registry.npmjs.org/@types/estree/-/estree-0.0.39.tgz",
-      "integrity": "sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==",
+      "version": "0.0.40",
+      "resolved": "https://registry.npmjs.org/@types/estree/-/estree-0.0.40.tgz",
+      "integrity": "sha512-p3KZgMto/JyxosKGmnLDJ/dG5wf+qTRMUjHJcspC2oQKa4jP7mz+tv0ND56lLBu3ojHlhzY33Ol+khLyNmilkA==",
       "dev": true
     },
     "@types/events": {
@@ -8688,9 +8688,9 @@
       }
     },
     "rollup": {
-      "version": "1.27.4",
-      "resolved": "https://registry.npmjs.org/rollup/-/rollup-1.27.4.tgz",
-      "integrity": "sha512-UaGNOIax/Ixfd92CAAanUilx2RSkkwEfC1lCTw1eL5Re6NURWgX66ARZt5+3px4kYnpSwzyOot4r18c2b+QgJQ==",
+      "version": "1.27.5",
+      "resolved": "https://registry.npmjs.org/rollup/-/rollup-1.27.5.tgz",
+      "integrity": "sha512-8rfVdzuTg2kt8ObD9LNJpEwUN7B6lsl3sHc5fddtgICpLjpYeSf4m2+RftBzcCaBTMi1iYX3Ez8zFT4Gj2nJjg==",
       "dev": true,
       "requires": {
         "@types/estree": "*",
