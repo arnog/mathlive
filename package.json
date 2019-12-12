@@ -1,8 +1,12 @@
 {
     "name": "mathlive",
-    "version": "0.32.7",
+    "version": "0.32.8",
     "description": "Render and edit beautifully typeset math",
     "license": "MIT",
+    "funding": {
+        "type": "patreon",
+        "url": "https://patreon.com/arnog"
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/arnog/mathlive.git"
@@ -28,15 +32,15 @@
     "types": "./dist/mathlive.d.ts",
     "scripts": {
         "clean": "rimraf build dist docs",
-        "build-js": "",
-        "watch-js": "",
+        "build-js": "rollup --config",
+        "watch-js": "rollup --config --watch",
         "build-corecss": "lessc css/mathlive.core.less dist/mathlive.core.css",
         "build-othercss": "lessc css/mathlive.less dist/mathlive.css",
         "build-postcss": "postcss dist/*.css -d dist",
         "build-css": "npm-run-all -s build-corecss build-othercss build-postcss",
         "watch-css": "chokidar \"css/*.less\" --initial -c \"npm run build-css -s\"",
         "build-ts-types": "jsdoc -t node_modules/tsd-jsdoc/dist -d ./build -a public -r ./src/",
-        "build": "npm-run-all build-css build-js build-ts-types rollup",
+        "build": "npm-run-all build-css build-ts-types build-js",
         "watch": "npm-run-all -p watch-*",
         "http-server": "http-server . -c-1 --cors='*' -o http://localhost:8080/examples/index.html",
         "start": "npm-run-all -p watch-js watch-css http-server",
@@ -47,17 +51,16 @@
         "coverage": "nyc npm run babel-node ./test/test.js && nyc report",
         "coverage:report": "nyc report",
         "prepare": "",
-        "docs": "jsdoc -c ./jsdoc.conf.json && echo docs.mathlive.io > docs/CNAME",
+        "docs": "jsdoc -c ./jsdoc.conf.json && printf \"docs.mathlive.io\" > docs/CNAME",
         "watch-docs": "chokidar \"src/*.js\" \"tutorials/*.md\" \"examples/*.md\" -c \"npm run docs -s\"",
-        "rollup": "rollup --config",
-        "watch-rollup": "rollup --config --watch",
         "dist": "npm-run-all -s clean build docs",
         "deploy": "bash ./scripts/deploy",
         "deploy-ci": "bash ./scripts/deploy-ci"
     },
     "husky": {
         "hooks": {
-            "pre-commit": "lint-staged && npm run dist && git add . && npm run test"
+            "pre-push": "npm run dist && git diff HEAD --quiet && npm test",
+            "pre-commit": "lint-staged"
         }
     },
     "lint-staged": {
@@ -77,7 +80,7 @@
         "reporter": "html"
     },
     "engines": {
-        "npm": ">=6.7",
+        "npm": ">=6.13",
         "node": ">=10.0"
     },
     "browserslist": [

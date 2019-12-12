@@ -6,10 +6,10 @@ cache:
   directories:
     - node_modules
     - "$HOME/.npm"
-# branches:
-#   only:
-#     - master
-#     - /v\d+\.\d+[a-z]/    # tagged with version
+branches:
+  only:
+    - master
+    - /^v\d+\.\d+(\.\d+)?(-\S*)?$/    # tagged with version 
     # - release
 before_deploy:
   - npm run build
