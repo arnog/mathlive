@@ -620,7 +620,7 @@ declare class MathField {
     element: HTMLElement;
     /**
      * A set of key/value pairs that can
-     * be used to customize the behavior of the mathfield
+    be used to customize the behavior of the mathfield
     */
     config: {
         [key: string]: any;
@@ -631,22 +631,22 @@ declare class MathField {
     id: string;
     /**
      * True if the keystroke caption
-     * panel is visible
+    panel is visible
     */
     keystrokeCaptionVisible: boolean;
     /**
      * True if the virtual keyboard is
-     * visible
+    visible
     */
     virtualKeyboardVisible: boolean;
     /**
      * The last few keystrokes, to look out
-     * for inline shortcuts
+    for inline shortcuts
     */
     keystrokeBuffer: string;
     /**
      * The saved state for each of the
-     * past keystrokes
+    past keystrokes
     */
     keystrokeBufferStates: object[];
 }

@@ -1,1 +1,107 @@
+#
+# Normalize text files line ending to LF in the repository
+#
 * text=auto
+
+#
+# Text files
+#
+
+*.css      text
+*.htm      text diff=html
+*.html     text diff=html
+*.js       text
+*.json     text
+*.map      text -diff
+# Markdown
+*.md       text             
+*.sass     text diff=css
+*.scss     text diff=css
+# shell script, always LF
+*.sh       text eol=lf      
+*.svg      text
+*.ts       text
+*.yaml     text
+*.yml      text
+
+#
+# Text files without extension
+#
+
+AUTHORS*          text
+CHANGELOG*        text
+CHANGES           text
+CONTRIBUTING*     text
+COPYING           text
+copyright         text
+*COPYRIGHT*       text
+INSTALL*          text
+license           text
+LICENSE*          text
+NEWS              text
+readme            text
+*README*          text
+TODO              text
+
+#
+# Configuration files
+#
+
+*.bowerrc         text
+*.cnf             text
+*.conf            text
+*.config          text
+.babelrc          text
+.browserslistrc   text
+.editorconfig     text
+.env              text
+.gitattributes    text
+.gitconfig        text
+.htaccess         text
+*.lock            text -diff
+package-lock.json text -diff
+*.npmignore       text
+*.yaml            text
+*.yml             text
+browserslist      text
+Makefile          text
+makefile          text
+
+
+#
+# Configuration files without extension
+#
+
+.csslintrc        text
+.editorconfig     text
+.eslintrc         text
+.gitignore        text
+.gitmodules       text
+.htmlhintrc       text
+.prettierignore   text
+.jscsrc           text
+.jshintrc         text
+.jshintignore     text
+.stylelintrc      text
+
+
+#
+# Graphics
+#
+
+*.gif             binary
+*.ico             binary
+*.jpg             binary
+*.jpeg            binary
+*.png             binary
+
+#
+# Exclude files from exporting
+# (used by the "download ZIP archive" option, for example)
+#
+
+.gitattributes       export-ignore
+.gitignore           export-ignore
+.gitmodules          export-ignore
+.prettierignore      export-ignore
+.package-lock.json   export-ignore
