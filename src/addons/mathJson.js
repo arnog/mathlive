@@ -1083,9 +1083,18 @@ function parsePrimary(expr, options) {
     }
 
     let atom = expr.atoms[expr.index];
+    if (atom.mode === 'text') {
+        let text = '';
+        while (expr.atoms[expr.index] && expr.atoms[expr.index].mode === 'text') {
+            text += expr.atoms[expr.index].body;
+            expr.index += 1;
+        }
+        expr.ast = {'text': text};
+        return expr;
+    }
 
     const val = getCanonicalName(getString(atom));
-
+    
     const digraph = parseDigraph(expr);
     if (digraph) {
         expr.ast = wrapFn(expr.ast, parsePrimary(expr, options).ast);

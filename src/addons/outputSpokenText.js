@@ -257,6 +257,8 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                 result += MathAtom.toSpeakableFragment(atom[i], options);
             }
         }
+    } else if (atom.mode === 'text') {
+        result = atom.body;
     } else {
         let numer = '';
         let denom = '';
