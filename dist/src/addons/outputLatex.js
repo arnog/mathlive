@@ -310,6 +310,8 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
     let i = 0;
     const m = !this.latex ? null : this.latex.match(/^(\\[^{\s0-9]+)/);
     const command = m ? m[1] : null;
+
+    // this.mode=='text' is handled in the switch by looking at this.type===''
     switch(this.type) {
         case 'group':
             result += this.latexOpen || ((this.cssId || this.cssClass) ? '' : '{');

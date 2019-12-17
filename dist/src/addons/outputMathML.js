@@ -587,255 +587,262 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
     }
 
     const command = this.latex ? this.latex.trim() : null;
-    let m;
-    switch(this.type) {
-        case 'group':
-        case 'root':
-            result = toMathML(this.body, 0, 0, options).mathML;
-            break;
-
-        case 'array':
-            if ((this.lFence && this.lFence !== '.') ||
-                (this.rFence && this.rFence !== '.')) {
-                result += '<mrow>';
-                if ((this.lFence && this.lFence !== '.')) {
-                    result += '<mo>' + (SPECIAL_OPERATORS[this.lFence] || this.lFence) + '</mo>';
-                }
-            }
-            result += '<mtable';
-            if (this.colFormat) {
-                result += ' columnalign="';
-                for (i = 0; i < this.colFormat.length; i++) {
-                    if (this.colFormat[i].align) {
-                        result += {l:'left', c:'center', r:'right'}[this.colFormat[i].align] + ' ';
+    if (this.mode === 'text') {
+        result = '<mi' + makeID(this.id, options) + '>' + this.body + '</mi>';
+    } else {
+        switch(this.type) {
+            case 'first':
+                break;  // nothing to do
+            case 'group':
+            case 'root':
+                result = toMathML(this.body, 0, 0, options).mathML;
+                break;
+    
+            case 'array':
+                if ((this.lFence && this.lFence !== '.') ||
+                    (this.rFence && this.rFence !== '.')) {
+                    result += '<mrow>';
+                    if ((this.lFence && this.lFence !== '.')) {
+                        result += '<mo>' + (SPECIAL_OPERATORS[this.lFence] || this.lFence) + '</mo>';
                     }
                 }
-                result += '"';
-            }
-
-            result += '>';
-            for (row = 0; row < this.array.length; row++) {
-                result += '<mtr>';
-                for (col = 0; col < this.array[row].length; col++) {
-                    result += '<mtd>' + toMathML(this.array[row][col], 0, 0, options).mathML + '</mtd>';
+                result += '<mtable';
+                if (this.colFormat) {
+                    result += ' columnalign="';
+                    for (i = 0; i < this.colFormat.length; i++) {
+                        if (this.colFormat[i].align) {
+                            result += {l:'left', c:'center', r:'right'}[this.colFormat[i].align] + ' ';
+                        }
+                    }
+                    result += '"';
                 }
-                result += '</mtr>';
-            }
-
-            result += '</mtable>';
-
-            if ((this.lFence && this.lFence !== '.') ||
-                (this.rFence && this.rFence !== '.')) {
-                if ((this.rFence && this.rFence !== '.')) {
-                    result += '<mo>' + (SPECIAL_OPERATORS[this.lFence] || this.rFence) + '</mo>';
+    
+                result += '>';
+                for (row = 0; row < this.array.length; row++) {
+                    result += '<mtr>';
+                    for (col = 0; col < this.array[row].length; col++) {
+                        result += '<mtd>' + toMathML(this.array[row][col], 0, 0, options).mathML + '</mtd>';
+                    }
+                    result += '</mtr>';
                 }
-                result += '</mrow>';
-            }
-            break;
-
-        case 'genfrac':
-            if (this.leftDelim || this.rightDelim) {
-                result += '<mrow>';
-            }
-            if (this.leftDelim && this.leftDelim !== '.') {
-                result += '<mo' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[this.leftDelim] || this.leftDelim) + '</mo>';
-            }
-            if (this.hasBarLine) {
-                result += '<mfrac>';
-                result += toMathML(this.numer, 0, 0, options).mathML || '<mi>&nbsp;</mi>';
-                result += toMathML(this.denom, 0, 0, options).mathML || '<mi>&nbsp;</mi>';
-                result += '</mfrac>';
-            } else {
-                // No bar line, i.e. \choose, etc...
-                result += '<mtable' + makeID(this.id, options) + '>';
-                result += '<mtr>' + toMathML(this.numer, 0, 0, options).mathML + '</mtr>';
-                result += '<mtr>' + toMathML(this.denom, 0, 0, options).mathML + '</mtr>';
+    
                 result += '</mtable>';
-            }
-            if (this.rightDelim && this.rightDelim !== '.') {
-                result += '<mo' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[this.rightDelim] || this.rightDelim) + '</mo>';
-            }
-            if (this.leftDelim || this.rightDelim) {
+    
+                if ((this.lFence && this.lFence !== '.') ||
+                    (this.rFence && this.rFence !== '.')) {
+                    if ((this.rFence && this.rFence !== '.')) {
+                        result += '<mo>' + (SPECIAL_OPERATORS[this.lFence] || this.rFence) + '</mo>';
+                    }
+                    result += '</mrow>';
+                }
+                break;
+    
+            case 'genfrac':
+                if (this.leftDelim || this.rightDelim) {
+                    result += '<mrow>';
+                }
+                if (this.leftDelim && this.leftDelim !== '.') {
+                    result += '<mo' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[this.leftDelim] || this.leftDelim) + '</mo>';
+                }
+                if (this.hasBarLine) {
+                    result += '<mfrac>';
+                    result += toMathML(this.numer, 0, 0, options).mathML || '<mi>&nbsp;</mi>';
+                    result += toMathML(this.denom, 0, 0, options).mathML || '<mi>&nbsp;</mi>';
+                    result += '</mfrac>';
+                } else {
+                    // No bar line, i.e. \choose, etc...
+                    result += '<mtable' + makeID(this.id, options) + '>';
+                    result += '<mtr>' + toMathML(this.numer, 0, 0, options).mathML + '</mtr>';
+                    result += '<mtr>' + toMathML(this.denom, 0, 0, options).mathML + '</mtr>';
+                    result += '</mtable>';
+                }
+                if (this.rightDelim && this.rightDelim !== '.') {
+                    result += '<mo' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[this.rightDelim] || this.rightDelim) + '</mo>';
+                }
+                if (this.leftDelim || this.rightDelim) {
+                    result += '</mrow>';
+                }
+            break;
+    
+            case 'surd':
+                if (this.index) {
+                    result += '<mroot' + makeID(this.id, options) + '>';
+                    result += toMathML(this.body, 0, 0, options).mathML;
+                    result += toMathML(this.index, 0, 0, options).mathML;
+                    result += '</mroot>';
+                } else {
+                    result += '<msqrt' + makeID(this.id, options) + '>';
+                    result += toMathML(this.body, 0, 0, options).mathML;
+                    result += '</msqrt>';
+                }
+                break;
+    
+            case 'leftright':
+                // TODO: could add fence=true attribute
+                result = '<mrow>';
+                if (this.leftDelim && this.leftDelim !== '.') {
+                    result += '<mo' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[this.leftDelim] || this.leftDelim) + '</mo>';
+                }
+                if (this.body) result += toMathML(this.body, 0, 0, options).mathML;
+                if (this.rightDelim && this.rightDelim !== '.') {
+                    result += '<mo' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[this.rightDelim] || this.rightDelim) + '</mo>';
+                }
                 result += '</mrow>';
-            }
-        break;
-
-        case 'surd':
-            if (this.index) {
-                result += '<mroot' + makeID(this.id, options) + '>';
+                break;
+    
+            case 'sizeddelim':
+            case 'delim':
+                result += '<mo separator="true"' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[this.delim] || this.delim) + '</mo>';
+                break;
+    
+    
+            case 'accent':
+                result += '<mover accent="true"' + makeID(this.id, options) + '>';
                 result += toMathML(this.body, 0, 0, options).mathML;
-                result += toMathML(this.index, 0, 0, options).mathML;
-                result += '</mroot>';
-            } else {
-                result += '<msqrt' + makeID(this.id, options) + '>';
-                result += toMathML(this.body, 0, 0, options).mathML;
-                result += '</msqrt>';
-            }
-            break;
-
-        case 'leftright':
-            // TODO: could add fence=true attribute
-            result = '<mrow>';
-            if (this.leftDelim && this.leftDelim !== '.') {
-                result += '<mo' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[this.leftDelim] || this.leftDelim) + '</mo>';
-            }
-            if (this.body) result += toMathML(this.body, 0, 0, options).mathML;
-            if (this.rightDelim && this.rightDelim !== '.') {
-                result += '<mo' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[this.rightDelim] || this.rightDelim) + '</mo>';
-            }
-            result += '</mrow>';
-            break;
-
-        case 'sizeddelim':
-        case 'delim':
-            result += '<mo separator="true"' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[this.delim] || this.delim) + '</mo>';
-            break;
-
-
-        case 'accent':
-            result += '<mover accent="true"' + makeID(this.id, options) + '>';
-            result += toMathML(this.body, 0, 0, options).mathML;
-            result += '<mo>' + (SPECIAL_OPERATORS[command] || this.accent) + '</mo>';
-            result += '</mover>'
-            break;
-
-        case 'line':
-        case 'overlap':
-            break;
-
-        case 'overunder':
-            overscript = this.overscript;
-            underscript = this.underscript;
-            if (overscript && underscript) {
-                body = this.body;
-            } else if (overscript) {
-                body = this.body;
-                if (this.body[0] && this.body[0].underscript) {
-                    underscript = this.body[0].underscript;
-                    body = this.body[0].body;
-                } else if (this.body[0] && this.body[0].type === 'first' && this.body[1] && this.body[1].underscript) {
-                    underscript = this.body[1].underscript;
-                    body = this.body[1].body;
+                result += '<mo>' + (SPECIAL_OPERATORS[command] || this.accent) + '</mo>';
+                result += '</mover>'
+                break;
+    
+            case 'line':
+            case 'overlap':
+                break;
+    
+            case 'overunder':
+                overscript = this.overscript;
+                underscript = this.underscript;
+                if (overscript && underscript) {
+                    body = this.body;
+                } else if (overscript) {
+                    body = this.body;
+                    if (this.body[0] && this.body[0].underscript) {
+                        underscript = this.body[0].underscript;
+                        body = this.body[0].body;
+                    } else if (this.body[0] && this.body[0].type === 'first' && this.body[1] && this.body[1].underscript) {
+                        underscript = this.body[1].underscript;
+                        body = this.body[1].body;
+                    }
+                } else if (underscript) {
+                    body = this.body;
+                    if (this.body[0] && this.body[0].overscript) {
+                        overscript = this.body[0].overscript;
+                        body = this.body[0].body;
+                    } else if (this.body[0] && this.body[0].type === 'first' && this.body[1] && this.body[1].overscript) {
+                        overscript = this.body[1].overscript;
+                        body = this.body[1].body;
+                    }
                 }
-            } else if (underscript) {
-                body = this.body;
-                if (this.body[0] && this.body[0].overscript) {
-                    overscript = this.body[0].overscript;
-                    body = this.body[0].body;
-                } else if (this.body[0] && this.body[0].type === 'first' && this.body[1] && this.body[1].overscript) {
-                    overscript = this.body[1].overscript;
-                    body = this.body[1].body;
+    
+                if (overscript && underscript) {
+                    result += '<munderover' + variant + makeID(this.id, options) + '>' + toMathML(body, 0, 0, options).mathML;
+                    result += toMathML(underscript, 0, 0, options).mathML;
+                    result += toMathML(overscript, 0, 0, options).mathML;
+                    result += '</munderover>';
+                } else if (overscript) {
+                    result += '<mover' + variant + makeID(this.id, options) + '>' + toMathML(body, 0, 0, options).mathML;
+                    result += toMathML(overscript, 0, 0, options).mathML;
+                    result += '</mover>';
+                } else if (underscript) {
+                    result += '<munder' + variant + makeID(this.id, options) + '>' + toMathML(body, 0, 0, options).mathML;
+                    result += toMathML(underscript, 0, 0, options).mathML;
+                    result += '</munder>';
                 }
+                break;
+    
+            case 'placeholder':     // no real equivalent in MathML -- will generate a '?'qq
+            case 'mord': {
+                result = SPECIAL_IDENTIFIERS[command] || command || (typeof this.body === 'string' ? this.body : '');
+                const  m = command ? command.match(/[{]?\\char"([0-9abcdefABCDEF]*)[}]?/) : null;
+                if (m) {
+                    // It's a \char command
+                    result = '&#x' + m[1] + ';'
+                } else if (result.length > 0 && result.charAt(0) === '\\') {
+                    // This is an identifier with no special handling. Use the
+                    // Unicode value
+                    if (typeof this.body === 'string' && this.body.charCodeAt(0) > 255) {
+                        result = '&#x' + ('000000' +
+                            this.body.charCodeAt(0).toString(16)).substr(-4) + ';';
+                    } else if (typeof this.body === 'string') {
+                        result = this.body.charAt(0);
+                    } else {
+                        result = this.body;
+                    }
+                }
+                const tag = /\d/.test(result) ? 'mn' : 'mi';
+                result = '<' + tag + variant + makeID(this.id, options) + '>' + xmlEscape(result) + '</' + tag + '>';
+                break;
             }
-
-            if (overscript && underscript) {
-                result += '<munderover' + variant + makeID(this.id, options) + '>' + toMathML(body, 0, 0, options).mathML;
-                result += toMathML(underscript, 0, 0, options).mathML;
-                result += toMathML(overscript, 0, 0, options).mathML;
-                result += '</munderover>';
-            } else if (overscript) {
-                result += '<mover' + variant + makeID(this.id, options) + '>' + toMathML(body, 0, 0, options).mathML;
-                result += toMathML(overscript, 0, 0, options).mathML;
-                result += '</mover>';
-            } else if (underscript) {
-                result += '<munder' + variant + makeID(this.id, options) + '>' + toMathML(body, 0, 0, options).mathML;
-                result += toMathML(underscript, 0, 0, options).mathML;
-                result += '</munder>';
-            }
-            break;
-
-        case 'mord': {
-            result = SPECIAL_IDENTIFIERS[command] || command || (typeof this.body === 'string' ? this.body : '');
-            m = command ? command.match(/[{]?\\char"([0-9abcdefABCDEF]*)[}]?/) : null;
-            if (m) {
-                // It's a \char command
-                result = '&#x' + m[1] + ';'
-            } else if (result.length > 0 && result.charAt(0) === '\\') {
-                // This is an identifier with no special handling. Use the
-                // Unicode value
-                if (typeof this.body === 'string' && this.body.charCodeAt(0) > 255) {
-                    result = '&#x' + ('000000' +
-                        this.body.charCodeAt(0).toString(16)).substr(-4) + ';';
-                } else if (typeof this.body === 'string') {
-                    result = this.body.charAt(0);
+            case 'mbin':
+            case 'mrel':
+            case 'textord':
+            case 'minner':
+                if (command && SPECIAL_IDENTIFIERS[command]) {
+                    // Some 'textord' are actually identifiers. Check them here.
+                    result = '<mi' + makeID(this.id, options) + '>' + SPECIAL_IDENTIFIERS[command] + '</mi>';
+                } else if (command && SPECIAL_OPERATORS[command]) {
+                    result = '<mo' + makeID(this.id, options) + '>' + SPECIAL_OPERATORS[command] + '</mo>';
                 } else {
-                    result = this.body;
+                    result = toMo(this, options);
                 }
-            }
-            const tag = /\d/.test(result) ? 'mn' : 'mi';
-            result = '<' + tag + variant + makeID(this.id, options) + '>' + xmlEscape(result) + '</' + tag + '>';
-            break;
+                break;
+    
+            case 'mpunct':
+                result = '<mo separator="true"' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[command] || command) + '</mo>';
+                break;
+    
+            case 'mop':
+                if (this.body !== '\u200b') {
+                    // Not ZERO-WIDTH
+                    result = '<mo' + makeID(this.id, options) + '>';
+                    if (command === '\\operatorname') {
+                        result += this.body;
+                    } else {
+                        result += command || this.body;
+                    }
+                    result += '</mo>';
+                }
+                break;
+    
+            case 'mathstyle':
+                // TODO: mathstyle is a switch. Need to figure out its scope to properly wrap it around a <mstyle> tag
+                // if (this.mathstyle === 'displaystyle') {
+                //     result += '<mstyle displaystyle="true">';
+                //     result += '</mstyle>';
+                // } else {
+                //     result += '<mstyle displaystyle="false">';
+                //     result += '</mstyle>';
+                // };
+                break;
+    
+            case 'box':
+                result = '<menclose notation="box"';
+                if (this.backgroundcolor) {
+                    result += ' mathbackground="' + Color.stringToColor(this.backgroundcolor) + '"';
+                }
+                result += makeID(this.id, options) + '>' + toMathML(this.body, 0, 0, options).mathML + '</menclose>';
+                break;
+    
+            case 'spacing':
+                result += '<mspace width="' + (SPACING[command] || 0) + 'em"/>';
+                break;
+    
+            case 'enclose':
+                result = '<menclose notation="';
+                for (const notation in this.notation) {
+                    if (Object.prototype.hasOwnProperty.call(this.notation, notation) &&
+                        this.notation[notation]) {
+                        result += sep + notation;
+                        sep = ' ';
+                    }
+                }
+                result += makeID(this.id, options) + '">' + toMathML(this.body, 0, 0, options).mathML + '</menclose>';
+                break;
+    
+            case 'space':
+                result += '&nbsp;'
+                break;
+            default:
+                console.log("In conversion to MathML, unknown type : " + this.type);
         }
-        case 'mbin':
-        case 'mrel':
-        case 'textord':
-        case 'minner':
-            if (command && SPECIAL_IDENTIFIERS[command]) {
-                // Some 'textord' are actually identifiers. Check them here.
-                result = '<mi' + makeID(this.id, options) + '>' + SPECIAL_IDENTIFIERS[command] + '</mi>';
-            } else if (command && SPECIAL_OPERATORS[command]) {
-                result = '<mo' + makeID(this.id, options) + '>' + SPECIAL_OPERATORS[command] + '</mo>';
-            } else {
-                result = toMo(this, options);
-            }
-            break;
-
-        case 'mpunct':
-            result = '<mo separator="true"' + makeID(this.id, options) + '>' + (SPECIAL_OPERATORS[command] || command) + '</mo>';
-            break;
-
-        case 'mop':
-            if (this.body !== '\u200b') {
-                // Not ZERO-WIDTH
-                result = '<mo' + makeID(this.id, options) + '>';
-                if (command === '\\operatorname') {
-                    result += this.body;
-                } else {
-                    result += command || this.body;
-                }
-                result += '</mo>';
-            }
-            break;
-
-        case 'mathstyle':
-            // TODO: mathstyle is a switch. Need to figure out its scope to properly wrap it around a <mstyle> tag
-            // if (this.mathstyle === 'displaystyle') {
-            //     result += '<mstyle displaystyle="true">';
-            //     result += '</mstyle>';
-            // } else {
-            //     result += '<mstyle displaystyle="false">';
-            //     result += '</mstyle>';
-            // };
-            break;
-
-        case 'box':
-            result = '<menclose notation="box"';
-            if (this.backgroundcolor) {
-                result += ' mathbackground="' + Color.stringToColor(this.backgroundcolor) + '"';
-            }
-            result += makeID(this.id, options) + '>' + toMathML(this.body, 0, 0, options).mathML + '</menclose>';
-            break;
-
-        case 'spacing':
-            result += '<mspace width="' + (SPACING[command] || 0) + 'em"/>';
-            break;
-
-        case 'enclose':
-            result = '<menclose notation="';
-            for (const notation in this.notation) {
-                if (Object.prototype.hasOwnProperty.call(this.notation, notation) &&
-                    this.notation[notation]) {
-                    result += sep + notation;
-                    sep = ' ';
-                }
-            }
-            result += makeID(this.id, options) + '">' + toMathML(this.body, 0, 0, options).mathML + '</menclose>';
-            break;
-
-        case 'space':
-            result += '&nbsp;'
-            break;
-
     }
     return result;
 }
