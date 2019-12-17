@@ -23,10 +23,7 @@
         "mathquill"
     ],
     "files": [
-        "/dist",
-        "/src",
-        "/AUTHORS",
-        "/LICENSE.txt"
+        "/dist"
     ],
     "main": "./dist/mathlive.js",
     "types": "./dist/mathlive.d.ts",
@@ -59,7 +56,6 @@
     },
     "husky": {
         "hooks": {
-            "pre-push": "npm run dist && git diff HEAD --quiet && npm test",
             "pre-commit": "lint-staged"
         }
     },
