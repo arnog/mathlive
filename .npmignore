@@ -2,5 +2,11 @@
 # Without it, the /dist directory (which is in .gitignore) would not be 
 # taken into account by npm.
 
+/build
+
 ._*
-.DS_Store
+./**/.DS_Store
+./**/.Trashes
+/node_modules
+npm-shrinkwrap.json
+TODO.node_modules
