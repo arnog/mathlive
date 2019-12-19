@@ -1631,7 +1631,6 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
 }
 
 
-
 /**
  * Return a list of spans equivalent to atoms.
  * A span is the most elementary type possible, for example 'text'
@@ -1645,6 +1644,13 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
  * @private
  */
 function decompose(context, atoms) {
+    function isDigit(atom) {
+        return atom.type === 'mord' && /[0-9,.]/.test(atom.latex);
+    }
+    function isText(atom) {
+        return atom.mode === 'text';
+    }
+
     if (!(context instanceof Context.Context)) {
         // We can be passed either a Context object, or
         // a simple object with some properties set.
@@ -1672,7 +1678,8 @@ function decompose(context, atoms) {
             let previousType = 'none';
             let nextType = atoms[1].type;
             let selection =  [];
-            let digitStringID = null;
+            let digitOrTextStringID = null;
+            let lastWasDigit = true;
             let phantomBase = null;
             for (let i = 0; i < atoms.length; i++) {
                 // Is this a binary operator ('+', '-', etc...) that potentially
@@ -1698,10 +1705,9 @@ function decompose(context, atoms) {
                 }
 
                 if (context.generateID.groupNumbers &&
-                    digitStringID &&
-                    atoms[i].type === 'mord' &&
-                    /[0-9,.]/.test(atoms[i].latex)) {
-                    context.generateID.overrideID = digitStringID;
+                    digitOrTextStringID &&
+                    ( (lastWasDigit && isDigit(atoms[i])) || (!lastWasDigit && isText(atoms[i])) )) {
+                    context.generateID.overrideID = digitOrTextStringID;
                 }
                 const span = atoms[i].decompose(context, phantomBase);
                 if (context.generateID) {
@@ -1713,20 +1719,20 @@ function decompose(context, atoms) {
                     const flat = [].concat.apply([], span);
                     phantomBase = flat;
 
-                    // If this is a digit, keep track of it
+                    // If this is a digit or text run, keep track of it
                     if (context.generateID && context.generateID.groupNumbers) {
-                        if (atoms[i].type === 'mord' &&
-                            /[0-9,.]/.test(atoms[i].latex)) {
-                            if (!digitStringID) {
-                                digitStringID = atoms[i].id;
+                        if (isDigit(atoms[i]) || isText(atoms[i])) {
+                            if (!digitOrTextStringID ||
+                                lastWasDigit !== isDigit(atoms[i])){  // changed from text to digits or vise-versa
+                                lastWasDigit = isDigit(atoms[i]);
+                                digitOrTextStringID = atoms[i].id;
                             }
-                        } 
-                        if ((atoms[i].type !== 'mord' ||
-                            !/[0-9,.]/.test(atoms[i].latex) ||
+                        }
+                        if (( !(isDigit(atoms[i]) || isText(atoms[i])) ||
                             atoms[i].superscript ||
-                            atoms[i].subscript) && digitStringID) {
-                            // Done with digits
-                            digitStringID = null;
+                            atoms[i].subscript) && digitOrTextStringID) {
+                            // Done with digits/text
+                            digitOrTextStringID = null;
                         }
                     }
 
