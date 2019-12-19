@@ -1525,12 +1525,8 @@ function makeID(context) {
         result = Date.now().toString(36).slice(-2) +
             Math.floor(Math.random() * 0x186a0).toString(36);
     } else if (typeof context.generateID === 'object') {
-        if (context.generateID.overrideID) {
-            result = context.generateID.overrideID;
-        } else {
-            result = context.generateID.seed.toString(36);
-            context.generateID.seed += 1;
-        }
+        result = context.generateID.overrideID ? context.generateID.overrideID : context.generateID.seed.toString(36);
+        context.generateID.seed += 1;
     }
     return result;
 }
@@ -1724,9 +1720,9 @@ function decompose(context, atoms) {
                             if (!digitStringID) {
                                 digitStringID = atoms[i].id;
                             }
-                        }
+                        } 
                         if ((atoms[i].type !== 'mord' ||
-                            /[0-9,.]/.test(atoms[i].latex) ||
+                            !/[0-9,.]/.test(atoms[i].latex) ||
                             atoms[i].superscript ||
                             atoms[i].subscript) && digitStringID) {
                             // Done with digits
