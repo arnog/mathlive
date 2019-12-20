@@ -5828,6 +5828,7 @@
                 "append-transform": "^1.0.0"
             }
         },
+
         "istanbul-lib-instrument": {
             "version": "3.3.0",
             "resolved": "https://registry.npmjs.org/istanbul-lib-instrument/-/istanbul-lib-instrument-3.3.0.tgz",
