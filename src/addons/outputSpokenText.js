@@ -241,10 +241,15 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                 result += ' of ';
                 result += emph(MathAtom.toSpeakableFragment(atom[i + 1], options));
                 i += 2;
-            // '.' and ',' should only be allowed if prev/next entry is a digit
-            // However, if that isn't the case, this still works because 'toSpeakableFragment' is called in either case.
+        // '.' and ',' should only be allowed if prev/next entry is a digit
+        // However, if that isn't the case, this still works because 'toSpeakableFragment' is called in either case.
+        // Note: the first char in a digit/text run potentially needs to have a 'mark', hence the call to 'toSpeakableFragment'
         } else if (atom[i].mode === 'text') {
-            result += atom[i].body ? atom[i].body : ' ';
+            if (i === 0) {
+                result += MathAtom.toSpeakableFragment(atom[i], options);
+            } else {
+                result += atom[i].body ? atom[i].body : ' ';
+            }
         } else if (atom[i].type === 'mord' && /[0123456789,.]/.test(atom[i].body)) {
             if (isInDigitRun) {
                     result += atom[i].body;
@@ -258,7 +263,7 @@ MathAtom.toSpeakableFragment = function(atom, options) {
             }
         }
     } else if (atom.mode === 'text') {
-        result = atom.body;
+        result += atom.body;
     } else {
         let numer = '';
         let denom = '';
