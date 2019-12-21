@@ -101,7 +101,7 @@
     "devDependencies": {
         "@babel/cli": "^7.7.7",
         "@babel/core": "^7.7.5",
-        "@babel/preset-env": "^7.7.6",
+        "@babel/preset-env": "^7.7.7",
         "@babel/register": "^7.7.7",
         "autoprefixer": "^9.7.3",
         "chokidar-cli": "^2.1.0",
