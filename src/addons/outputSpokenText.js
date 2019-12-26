@@ -233,7 +233,11 @@ MathAtom.toSpeakableFragment = function(atom, options) {
 
     if (Array.isArray(atom)) {
         let isInDigitRun = false;             // need to group sequence of digits
+        let isInTextRun = false;              // need to group text
         for (let i = 0; i < atom.length; i++) {
+            if (atom[i].mode !== 'text') {
+                isInTextRun = false;
+            }
             if (i < atom.length - 2 &&
                 atom[i].type === 'mopen' &&
                 atom[i + 2].type === 'mclose' &&
@@ -241,15 +245,16 @@ MathAtom.toSpeakableFragment = function(atom, options) {
                 result += ' of ';
                 result += emph(MathAtom.toSpeakableFragment(atom[i + 1], options));
                 i += 2;
+        } else if (atom[i].mode === 'text') {
+            if (isInTextRun) {
+                result += atom[i].body ? atom[i].body : ' ';
+            } else {
+                isInTextRun = true;
+                result += MathAtom.toSpeakableFragment(atom[i], options);
+            }
         // '.' and ',' should only be allowed if prev/next entry is a digit
         // However, if that isn't the case, this still works because 'toSpeakableFragment' is called in either case.
         // Note: the first char in a digit/text run potentially needs to have a 'mark', hence the call to 'toSpeakableFragment'
-        } else if (atom[i].mode === 'text') {
-            if (i === 0) {
-                result += MathAtom.toSpeakableFragment(atom[i], options);
-            } else {
-                result += atom[i].body ? atom[i].body : ' ';
-            }
         } else if (atom[i].type === 'mord' && /[0123456789,.]/.test(atom[i].body)) {
             if (isInDigitRun) {
                     result += atom[i].body;
