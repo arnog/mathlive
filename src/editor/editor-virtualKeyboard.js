@@ -184,7 +184,7 @@ const ALT_KEYS_BASE = {
 
     'ee': [
             '\\times 10^{#?}',
-            '\\ln', '\\ln_{10}', '\\log'
+            '\\ln', '\\log_{10}', '\\log'
         ],
 
     '^':  ['_{#?}'],
@@ -630,7 +630,7 @@ const LAYERS = {
             <ul><li class='separator'></li>
                 <li class='fnbutton' data-insert='\\cos'></li>
                 <li class='fnbutton' data-insert='\\cos^{-1}'></li>
-                <li class='fnbutton' data-insert='\\ln_{10}'></li>
+                <li class='fnbutton' data-insert='\\log_{10}'></li>
                 <li class='fnbutton' data-insert='10^{#?}'></li>
                 <li class='bigfnbutton' data-insert='\\operatorname{gcd}(#?)' data-latex='\\operatorname{gcd}()'></li>
                 <li class='bigfnbutton' data-insert='\\operatorname{floor}(#?)' data-latex='\\operatorname{floor}()'></li>

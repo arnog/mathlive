@@ -303,7 +303,7 @@ test('FONTS', function (t) {
         "Functions in \\mathfrak should be in roman");
 
 //  formula.insertText("\\mathrm{\\nexists}");      // nexists should use amsrm
-// formula.insertText("\\mathbb{\\sin}");              // sin should use mainrm
+// formula.insertText("\\mathbb{\\sin}");              // sin should use 'math' font
 
 
     t.end();
@@ -971,9 +971,9 @@ test('MATH JSON', function (t) {
         '{"fn":"bind","arg":[{"fn":"sqrt","arg":[{"sym":"x"}]},{"sym":"x"},{"num":"2"}]}',
         'Bind with square root');
 
-    equalMathJSON(t, '\\ln_{10} (10^{2})', 
-        '{"fn":"ln","sub":{"num":"10"},"arg":[{"num":"10","sup":{"num":"2"}}]}',
-        'ln10');
+    equalMathJSON(t, '\\log_{10} (10^{2})', 
+        '{"fn":"log","sub":{"num":"10"},"arg":[{"num":"10","sup":{"num":"2"}}]}',
+        'log10');
 
 
     // equalMathJSON(t, 'x^{2} + 3x|_{x = 1, 2, 3}', 
