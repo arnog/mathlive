@@ -732,11 +732,11 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
                 result += toMathML(overscript, 0, 0, options).mathML;
                 result += '</munderover>';
             } else if (overscript) {
-                result += '<mover' + variant + makeID(this.id, options) + '>' + toMathML(body, options).mathML;
+                result += '<mover' + variant + makeID(this.id, options) + '>' + toMathML(body, 0, 0, options).mathML;
                 result += toMathML(overscript, 0, 0, options).mathML;
                 result += '</mover>';
             } else if (underscript) {
-                result += '<munder' + variant + makeID(this.id, options) + '>' + toMathML(body, options).mathML;
+                result += '<munder' + variant + makeID(this.id, options) + '>' + toMathML(body, 0, 0, options).mathML;
                 result += toMathML(underscript, 0, 0, options).mathML;
                 result += '</munder>';
             }
