@@ -303,7 +303,7 @@ test('FONTS', function (t) {
         "Functions in \\mathfrak should be in roman");
 
 //  formula.insertText("\\mathrm{\\nexists}");      // nexists should use amsrm
-// formula.insertText("\\mathbb{\\sin}");              // sin should use mainrm
+// formula.insertText("\\mathbb{\\sin}");              // sin should use 'math' font
 
 
     t.end();

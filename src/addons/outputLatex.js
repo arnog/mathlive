@@ -171,8 +171,8 @@ function latexifyArray(parent, properties, atoms, options) {
             prefix = '{\\' + command + ' ';
             suffix = '}';
 
-        } else if (prop === 'fontFamily' && (atoms[0].fontFamily || atoms[0].baseFontFamily)) {
-            if (!/^(math|main|mainrm)$/.test(atoms[0].fontFamily || atoms[0].baseFontFamily)) {
+        } else if (prop === 'fontFamily' && ((atoms[0].fontFamily || atoms[0].baseFontFamily))) {
+            if (!/^(math|main)$/.test(atoms[0].fontFamily)) {
                 const command = {
                     'cal': 'mathcal', 
                     'frak': 'mathfrak', 
