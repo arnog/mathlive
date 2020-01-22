@@ -1,3 +1,15 @@
+##
+
+### Bug Fixes
+
+-   Fix #349:
+    -   'latex-expanded' format no longer returns `\mleft` and `\mright`. This
+        format is intended for inter-exchange with other TeX-compatible renderers
+        and the `\mleft` and `\mright` commands are not widely deployed.
+    -   The content exported to the clipboard is now surrounded by `$$` to more
+        clearly indicate that the content is using TeX format.
+    -   When pasting content that begins/ends with `$` or `$$`, assume LaTeX format
+
 ## 0.33 (December 16, 2019)
 
 ### Bug Fixes

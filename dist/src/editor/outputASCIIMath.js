@@ -93,6 +93,10 @@ export function toASCIIMath(atom, options){
         return result.trim();
     }
 
+    if (atom.mode === 'text') {
+        return '"' + atom.body + '"';   // text -- add in (ASCII) quotes
+    }
+
     let result = '';
     const command = atom.latex ? atom.latex.trim() : null;
     let m;

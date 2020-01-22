@@ -3555,19 +3555,29 @@ export function parseMathString(s, config) {
     // Nothing to do if a single character
     if (s.length <= 1) return s;
 
-    // Replace double-backslash (coming from JavaScript) to a single one
     if (!config || config.format !== "ASCIIMath") {
-        s = s.replace(/\\\\([^\s\n])/g, "\\$1");
-    }
+        // This is not explicitly ASCIIMath. Try to infer if this is LaTex...
 
-    if ((!config || config.format !== "ASCIIMath") && /\\/.test(s)) {
-        // If the string includes a '\' and a '{' or a '}'
-        // it's probably a LaTeX string
-        // (that's not completely true, it could be a UnicodeMath string, since
-        // UnicodeMath supports some LaTeX commands. However, we need to pick
-        // one in order to correctly interpret {} (which are argument delimiters
-        // in LaTeX, and are fences in UnicodeMath)
-        return s;
+        // If the strings is surrounded by `$..$` or `$$..$$`, assumes it is LaTeX
+        if (s.startsWith("$$") && s.endsWith("$$")) {
+            return s.substring(2, s.length - 2);
+        }
+
+        if (s.startsWith("$") && s.endsWith("$")) {
+            return s.substring(1, s.length - 1);
+        }
+
+        // Replace double-backslash (coming from JavaScript) to a single one
+        s = s.replace(/\\\\([^\s\n])/g, "\\$1");
+
+        if (/\\/.test(s)) {
+            // If the string includes a '\' it's probably a LaTeX string
+            // (that's not completely true, it could be a UnicodeMath string, since
+            // UnicodeMath supports some LaTeX commands. However, we need to pick
+            // one in order to correctly interpret {} (which are argument delimiters
+            // in LaTeX, and are fences in UnicodeMath)
+            return s;
+        }
     }
 
     s = s.replace(/\u2061/gu, ""); // Remove function application
@@ -3686,20 +3696,8 @@ function parseMathExpression(s, config) {
                     parseMathExpression(m2.rest, config);
             }
             done = true;
-        } else if (m.match && /^(\(|\{|\[)$/.test(s[0])) {
-            // A group
-
-            s =
-                "\\left" +
-                s[0] +
-                m.match +
-                "\\right" +
-                { "(": ")", "{": "}", "[": "]" }[s[0]] +
-                parseMathExpression(m.rest, config);
-            done = true;
         } else if (m.match) {
-            s = m.match;
-            s += parseMathExpression(m.rest, config);
+            s = m.match + parseMathExpression(m.rest, config);
             done = true;
         }
     }
@@ -3733,8 +3731,8 @@ function parseMathArgument(s, config) {
     let match = "";
     s = s.trim();
     let rest = s;
-    const lFence = s.charAt(0);
-    const rFence = { "(": ")", "{": "}", "[": "]" }[lFence];
+    let lFence = s.charAt(0);
+    let rFence = { "(": ")", "{": "}", "[": "]" }[lFence];
     if (rFence) {
         // It's a fence
         let level = 1;
@@ -3746,14 +3744,18 @@ function parseMathArgument(s, config) {
         }
         if (level === 0) {
             // We've found the matching closing fence
-            if (config.noWrap && lFence === "(" && rFence === ")") {
+            if (config.noWrap && lFence === "(") {
                 match = parseMathExpression(s.substring(1, i - 1), config);
             } else {
+                if (lFence === "{" && rFence === "}") {
+                    lFence = "\\{";
+                    rFence = "\\}";
+                }
                 match =
-                    "\\mleft" +
+                    "\\left" +
                     lFence +
                     parseMathExpression(s.substring(1, i - 1), config) +
-                    "\\mright" +
+                    "\\right" +
                     rFence;
             }
             rest = s.substring(i);

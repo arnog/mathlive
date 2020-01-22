@@ -39,7 +39,7 @@
         "build-ts-types": "jsdoc -t node_modules/tsd-jsdoc/dist -d ./build -a public -r ./src/",
         "build": "npm-run-all build-css build-ts-types build-js",
         "watch": "npm-run-all -p watch-*",
-        "http-server": "http-server . -c-1 --cors='*' -o http://localhost:8080/examples/index.html",
+        "http-server": "http-server . -c-1 --cors='*' -o examples/index.html",
         "start": "npm-run-all -p watch-js watch-css http-server",
         "lint": "eslint src/ -c .eslintrc.json",
         "lint:fix": "eslint src/ -c .eslintrc.json --fix",
