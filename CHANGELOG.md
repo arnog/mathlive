@@ -9,6 +9,7 @@
     -   The content exported to the clipboard is now surrounded by `$$` to more
         clearly indicate that the content is using TeX format.
     -   When pasting content that begins/ends with `$` or `$$`, assume LaTeX format
+-   Fix keyboard shortcuts, e.g. "alt+(" or "alt+v"
 
 ## 0.33 (December 16, 2019)
 
