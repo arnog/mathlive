@@ -305,7 +305,7 @@ The `'after'` key, if present, indicate in what context the shortcut should appl
     -   `[TAB]`: accept suggestion and enter it
     -   `[RETURN]`: enter characters typed so far, ignoring any suggestion.
 -   #132: Support for smart fence with `{}`, and `\langle`.
--   Pressing the spacebar next to a closing smartfence will close it. Useful
+-   Pressing the spacebar next to a closing smartFence will close it. Useful
     for semi-open fences.
 -   Improved rendering performance by 8%
 -   Updated SRE support

@@ -1313,7 +1313,7 @@ EditableMathlist.prototype.extractArgBeforeInsertionPoint = function() {
 };
 // 3 + 4(sin(x) > 3 + 4[sin(x)]/[ __ ]
 // Add a frac inside a partial leftright: remove leftright
-// When smartfence, add paren at end of expr
+// When smartFence, add paren at end of expr
 // a+3x=1 insert after + => paren before =
 
 /**

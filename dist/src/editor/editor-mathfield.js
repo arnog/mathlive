@@ -1856,9 +1856,9 @@ class MathField {
             this.mathlist._insertSmartFence(".")
         ) {
             // Pressing the space bar (moveAfterParent selector) when at the end
-            // of a potential smartfence will close it as a semi-open fence
+            // of a potential smartFence will close it as a semi-open fence
             selector = "";
-            this._requestUpdate(); // Re-render the closed smartfence
+            this._requestUpdate(); // Re-render the closed smartFence
         }
         // 5.3 If this is the Spacebar and we're just before or right after
         // a text zone, insert the space inside the text zone
