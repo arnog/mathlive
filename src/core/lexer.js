@@ -9,11 +9,9 @@
  *
  * For a list of standard TeX macros, see:
  * {@link ftp://tug.ctan.org/pub/tex-archive/systems/knuth/dist/lib/plain.tex|plain.tex}
-*/
-
+ */
 
 import GraphemeSplitter from './grapheme-splitter.js';
-
 
 /**
  *
@@ -114,7 +112,7 @@ class Lexer {
      */
     isWhiteSpace() {
         return /[ \f\n\r\t\v\xA0\u2028\u2029]/.test(this.s[this.pos]);
-/*
+        /*
     Note that browsers are inconsistent in their definitions of the
     `\s` metacharacter, so we use an explicit pattern instead.
 
@@ -174,7 +172,7 @@ class Lexer {
                         // ... or a single non-letter character
                         command = this.get();
                     }
-                   result = new Token('command', command);
+                    result = new Token('command', command);
                 }
             }
             // Is it a group start/end?
@@ -242,10 +240,6 @@ class Lexer {
     }
 }
 
-
-
-
-
 /**
  * Create Tokens from a stream of LaTeX
  *
@@ -258,7 +252,7 @@ class Lexer {
 function tokenize(s) {
     const result = [];
     const lines = s.toString().split(/\r?\n/);
-    let stream =  '';
+    let stream = '';
     let sep = '';
     for (const line of lines) {
         stream += sep;
@@ -278,10 +272,6 @@ function tokenize(s) {
     return result;
 }
 
-
-
-
-
 export default {
-    tokenize
-}
+    tokenize,
+};

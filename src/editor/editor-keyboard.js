@@ -9,88 +9,88 @@
 // be mapped to the coresponding virtual keys (they could be shifted keys on
 // international keyboards)
 const INTL_KEY = {
-    "#": "#",
-    "|": "|",
-    "[": "BracketLeft",
-    "]": "BracketRight",
-    "-": "Minus",
-    "+": "Plus",
-    "=": "Equal",
-    "/": "Slash",
-    "\\": "Backslash"
+    '#': '#',
+    '|': '|',
+    '[': 'BracketLeft',
+    ']': 'BracketRight',
+    '-': 'Minus',
+    '+': 'Plus',
+    '=': 'Equal',
+    '/': 'Slash',
+    '\\': 'Backslash',
 };
 
 const KEY_NAMES = {
-    Space: "Spacebar",
-    " ": "Spacebar",
-    Escape: "Esc",
-    ArrowLeft: "Left",
-    ArrowUp: "Up",
-    ArrowRight: "Right",
-    ArrowDown: "Down",
-    Delete: "Del"
+    Space: 'Spacebar',
+    ' ': 'Spacebar',
+    Escape: 'Esc',
+    ArrowLeft: 'Left',
+    ArrowUp: 'Up',
+    ArrowRight: 'Right',
+    ArrowDown: 'Down',
+    Delete: 'Del',
 };
 
 const VIRTUAL_KEY_NAMES = {
-    q: "KeyQ",
-    w: "KeyW",
-    e: "KeyE",
-    r: "KeyR",
-    t: "KeyT",
-    y: "KeyY",
-    u: "KeyU",
-    i: "KeyI",
-    o: "KeyO",
-    p: "KeyP",
-    a: "KeyA",
-    s: "KeyS",
-    d: "KeyD",
-    f: "KeyF",
-    g: "KeyG",
-    h: "KeyH",
-    j: "KeyJ",
-    k: "KeyK",
-    l: "KeyL",
-    z: "KeyZ",
-    x: "KeyX",
-    c: "KeyC",
-    v: "KeyV",
-    b: "KeyB",
-    n: "KeyN",
-    m: "KeyM",
+    q: 'KeyQ',
+    w: 'KeyW',
+    e: 'KeyE',
+    r: 'KeyR',
+    t: 'KeyT',
+    y: 'KeyY',
+    u: 'KeyU',
+    i: 'KeyI',
+    o: 'KeyO',
+    p: 'KeyP',
+    a: 'KeyA',
+    s: 'KeyS',
+    d: 'KeyD',
+    f: 'KeyF',
+    g: 'KeyG',
+    h: 'KeyH',
+    j: 'KeyJ',
+    k: 'KeyK',
+    l: 'KeyL',
+    z: 'KeyZ',
+    x: 'KeyX',
+    c: 'KeyC',
+    v: 'KeyV',
+    b: 'KeyB',
+    n: 'KeyN',
+    m: 'KeyM',
 
-    "1": "Digit1",
-    "2": "Digit2",
-    "3": "Digit3",
-    "4": "Digit4",
-    "5": "Digit5",
-    "6": "Digit6",
-    "7": "Digit7",
-    "8": "Digit8",
-    "9": "Digit9",
-    "0": "Digit0",
+    '1': 'Digit1',
+    '2': 'Digit2',
+    '3': 'Digit3',
+    '4': 'Digit4',
+    '5': 'Digit5',
+    '6': 'Digit6',
+    '7': 'Digit7',
+    '8': 'Digit8',
+    '9': 'Digit9',
+    '0': 'Digit0',
 
-    "!": "Shift-Digit1",
-    "@": "Shift-Digit2",
-    "#": "Shift-Digit3",
-    $: "Shift-Digit4",
-    "%": "Shift-Digit5",
-    "^": "Shift-Digit6",
-    "&": "Shift-Digit7",
-    "*": "Shift-Digit8",
-    "(": "Shift-Digit9",
-    ")": "Shift-Digit0",
+    '!': 'Shift-Digit1',
+    '@': 'Shift-Digit2',
+    '#': 'Shift-Digit3',
+    $: 'Shift-Digit4',
+    '%': 'Shift-Digit5',
+    '^': 'Shift-Digit6',
+    '&': 'Shift-Digit7',
+    '*': 'Shift-Digit8',
+    '(': 'Shift-Digit9',
+    ')': 'Shift-Digit0',
 
-    "-": "Minus",
-    _: "Shift-Minus",
+    '-': 'Minus',
+    _: 'Shift-Minus',
 
-    "/": "Slash",
-    "\\": "Backslash", // Some virtual keyboards (iOS) return '\' as the event.key
+    '/': 'Slash',
+    '\\': 'Backslash', // Some virtual keyboards (iOS) return '\' as the event.key
     // with no evt.code
-    "|": "Shift-Backslash",
-    "?": "Shift-Slash",
+    '|': 'Shift-Backslash',
+    '?': 'Shift-Slash',
 
-    " ": "Spacebar"
+    ' ': 'Spacebar',
 };
 
 /**
@@ -111,7 +111,7 @@ function keyboardEventToString(evt) {
     let keyname;
     let useModifiers = true;
 
-    if (evt.key === "Unidentified") {
+    if (evt.key === 'Unidentified') {
         // On Android, the evt.key seems to always be Unidentified.
         // Get the value entered in the event target
         if (evt.target) {
@@ -142,17 +142,17 @@ function keyboardEventToString(evt) {
 
     const modifiers = [];
 
-    if (evt.ctrlKey) modifiers.push("Ctrl");
-    if (evt.metaKey) modifiers.push("Meta");
-    if (useModifiers && evt.altKey) modifiers.push("Alt");
-    if (useModifiers && evt.shiftKey) modifiers.push("Shift");
+    if (evt.ctrlKey) modifiers.push('Ctrl');
+    if (evt.metaKey) modifiers.push('Meta');
+    if (useModifiers && evt.altKey) modifiers.push('Alt');
+    if (useModifiers && evt.shiftKey) modifiers.push('Shift');
 
     // If no modifiers, simply return the key name
     if (modifiers.length === 0) return keyname;
 
     modifiers.push(keyname);
 
-    return modifiers.join("-");
+    return modifiers.join('-');
 }
 
 /**
@@ -212,17 +212,17 @@ function delegateKeyboardEvents(textarea, handlers) {
         if (hasSelection(textarea)) return;
 
         const text = textarea.value;
-        textarea.value = "";
+        textarea.value = '';
         if (text.length > 0) handlers.typedText(text);
     }
 
     function onKeydown(e) {
         const allowDeadKey =
-            typeof handlers.allowDeadKey === "function" &&
+            typeof handlers.allowDeadKey === 'function' &&
             handlers.allowDeadKey();
         if (
             !allowDeadKey &&
-            (e.key === "Dead" || e.key === "Unidentified" || e.keyCode === 229)
+            (e.key === 'Dead' || e.key === 'Unidentified' || e.keyCode === 229)
         ) {
             deadKey = true;
             compositionInProgress = false;
@@ -241,7 +241,7 @@ function delegateKeyboardEvents(textarea, handlers) {
         }
         if (
             !compositionInProgress &&
-            e.code !== "CapsLock" &&
+            e.code !== 'CapsLock' &&
             !/(Control|Meta|Alt|Shift)(Right|Left)/.test(e.code)
         ) {
             keydownEvent = e;
@@ -280,7 +280,7 @@ function delegateKeyboardEvents(textarea, handlers) {
         // when doing a middle-click paste command.
         textarea.focus();
         const text = textarea.value;
-        textarea.value = "";
+        textarea.value = '';
         if (text.length > 0) handlers.paste(text);
     }
 
@@ -305,23 +305,23 @@ function delegateKeyboardEvents(textarea, handlers) {
 
     const target = textarea || handlers.container;
 
-    target.addEventListener("keydown", onKeydown, true);
-    target.addEventListener("keypress", onKeypress, true);
-    target.addEventListener("keyup", onKeyup, true);
-    target.addEventListener("paste", onPaste, true);
-    target.addEventListener("copy", onCopy, true);
-    target.addEventListener("cut", onCut, true);
-    target.addEventListener("blur", onBlur, true);
-    target.addEventListener("focus", onFocus, true);
+    target.addEventListener('keydown', onKeydown, true);
+    target.addEventListener('keypress', onKeypress, true);
+    target.addEventListener('keyup', onKeyup, true);
+    target.addEventListener('paste', onPaste, true);
+    target.addEventListener('copy', onCopy, true);
+    target.addEventListener('cut', onCut, true);
+    target.addEventListener('blur', onBlur, true);
+    target.addEventListener('focus', onFocus, true);
     target.addEventListener(
-        "compositionstart",
+        'compositionstart',
         () => {
             compositionInProgress = true;
         },
         true
     );
     target.addEventListener(
-        "compositionend",
+        'compositionend',
         () => {
             compositionInProgress = false;
             defer(handleTypedText);
@@ -331,7 +331,7 @@ function delegateKeyboardEvents(textarea, handlers) {
 
     // The `input` handler gets called when the field is changed, for example
     // with input methods or emoji input...
-    target.addEventListener("input", () => {
+    target.addEventListener('input', () => {
         if (deadKey) {
             const savedBlur = handlers.blur;
             const savedFocus = handlers.focus;
@@ -355,9 +355,9 @@ function hasSelection(textarea) {
 }
 
 function eventToChar(evt) {
-    if (!evt) return "";
+    if (!evt) return '';
     let result;
-    if (evt.key === "Unidentified") {
+    if (evt.key === 'Unidentified') {
         // On Android, the evt.key seems to always be 'Unidentified'.
         // Get the value entered in the event target
         if (evt.target) {
@@ -370,7 +370,7 @@ function eventToChar(evt) {
             result
         )
     ) {
-        result = "";
+        result = '';
     }
     return result;
 }
@@ -381,7 +381,7 @@ function charToEvent(c) {
         metaKey: false,
         ctrlKey: false,
         altKey: false,
-        shiftKey: false
+        shiftKey: false,
     };
 
     return result;
@@ -392,5 +392,5 @@ export default {
     select: delegateKeyboardEvents.select,
     keyboardEventToString,
     eventToChar,
-    charToEvent
+    charToEvent,
 };

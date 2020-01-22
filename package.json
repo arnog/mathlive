@@ -41,8 +41,7 @@
         "watch": "npm-run-all -p watch-*",
         "http-server": "http-server . -c-1 --cors='*' -o examples/index.html",
         "start": "npm-run-all -p watch-js watch-css http-server",
-        "lint": "eslint src/ -c .eslintrc.json",
-        "lint:fix": "eslint src/ -c .eslintrc.json --fix",
+        "lint": "prettier --ignore-path ./.prettierignore --write \"**/*.{ts,js,css,md,yml,json}\" \"!dist/**\" \"!docs/**\" \"!examples/**\"",
         "test": "tape -r @babel/register test/* | tap-spec",
         "watch-test": "chokidar \"src/*.js\" -c \"npm run test -s\" ",
         "coverage": "nyc npm run babel-node ./test/test.js && nyc report",
@@ -54,6 +53,7 @@
         "deploy": "bash ./scripts/deploy",
         "deploy-ci": "bash ./scripts/deploy-ci"
     },
+    "prettier": "@cortex-js/prettier-config",
     "husky": {
         "hooks": {
             "pre-commit": "lint-staged"
@@ -62,6 +62,10 @@
     "lint-staged": {
         "/src/**/*.js": [
             "eslint --fix",
+            "git add"
+        ],
+        "*.{js,css,json,md}": [
+            "prettier --write",
             "git add"
         ]
     },
@@ -95,6 +99,7 @@
     ],
     "bugs": "https://github.com/arnog/mathlive/issues/",
     "devDependencies": {
+        "@cortex-js/prettier-config": "^1.0.0",
         "@babel/cli": "^7.8.3",
         "@babel/core": "^7.8.3",
         "@babel/preset-env": "^7.8.3",
@@ -103,12 +108,15 @@
         "chokidar-cli": "^2.1.0",
         "cssnano": "^4.1.10",
         "eslint": "^6.8.0",
+        "eslint-config-prettier": "^6.7.0",
+        "eslint-plugin-prettier": "^3.1.2",
         "eslint-watch": "^6.0.1",
         "http-server": "^0.12.1",
         "husky": "^4.2.0",
         "jsdoc": "^3.6.3",
         "less": "^3.10.3",
         "lint-staged": "^10.0.2",
+        "prettier": "^1.19.1",
         "npm-run-all": "^4.1.5",
         "nyc": "^15.0.0",
         "postcss-cli": "^7.1.0",

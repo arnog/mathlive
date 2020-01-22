@@ -1,5 +1,3 @@
-
-
 /**
  * This module contains some color dictionaries and algorithms to
  * parse a string into a hex RGB color value.s
@@ -7,7 +5,6 @@
  * @module core/color
  * @private
  */
-
 
 /*
 {\color{apricot}\blacksquare}{\color{aquamarine}\blacksquare}{\color{bittersweet}\blacksquare}{\color{black}\blacksquare}{\color{blue}\blacksquare}{\color{blueGreen}\blacksquare}{\color{blueviolet}\blacksquare}{\color{brickred}\blacksquare}{\color{brown}\blacksquare}{\color{burntorange}\blacksquare}{\color{cadetblue}\blacksquare}{\color{carnationpink}\blacksquare}{\color{cerulean}\blacksquare}{\color{cornflowerblue}\blacksquare}{\color{cyan}\blacksquare}{\color{dandelion}\blacksquare}{\color{darkorchid}\blacksquare}{\color{emerald}\blacksquare}{\color{forestgreen}\blacksquare}{\color{fuchsia}\blacksquare}{\color{goldenrod}\blacksquare}{\color{gray}\blacksquare}{\color{green}\blacksquare}{\color{greenyellow}\blacksquare}{\color{junglegreen}\blacksquare}{\color{lavender}\blacksquare}{\color{limegreen}\blacksquare}{\color{magenta}\blacksquare}{\color{mahogany}\blacksquare}{\color{maroon}\blacksquare}{\color{melon}\blacksquare}{\color{midnightblue}\blacksquare}{\color{mulberry}\blacksquare}{\color{navyblue}\blacksquare}{\color{olivegreen}\blacksquare}{\color{orange}\blacksquare}{\color{orangered}\blacksquare}{\color{orchid}\blacksquare}{\color{peach}\blacksquare}{\color{periwinkle}\blacksquare}{\color{pinegreen}\blacksquare}{\color{plum}\blacksquare}{\color{processblue}\blacksquare}{\color{purple}\blacksquare}{\color{rawsienna}\blacksquare}{\color{red}\blacksquare}{\color{redorange}\blacksquare}{\color{redviolet}\blacksquare}{\color{rhodamine}\blacksquare}{\color{royalblue}\blacksquare}{\color{royalpurple}\blacksquare}{\color{rubinered}\blacksquare}{\color{salmon}\blacksquare}{\color{seagreen}\blacksquare}{\color{sepia}\blacksquare}{\color{skyblue}\blacksquare}{\color{springgreen}\blacksquare}{\color{tan}\blacksquare}{\color{tealblue}\blacksquare}{\color{thistle}\blacksquare}{\color{turquoise}\blacksquare}{\color{violet}\blacksquare}{\color{violetred}\blacksquare}{\color{white}\blacksquare}{\color{wildstrawberry}\blacksquare}{\color{yellow}\blacksquare}{\color{yellowgreen}\blacksquare}{\color{yelloworange}\blacksquare}
@@ -23,75 +20,74 @@
  * @private
  */
 const MATHEMATICA_COLORS = {
-    'm0': '#3f3d99',        // strong blue
-    'm1': '#993d71',        // strong cerise
-    'm2': '#998b3d',        // strong gold
-    'm3': '#3d9956',        // malachite green
-    'm4': '#3d5a99',        // strong cobalt blue
-    'm5': '#993d90',        // strong orchid
-    'm6': '#996d3d',        // strong orange
-    'm7': '#43993d',        // strong sap green
-    'm8': '#3d7999',        // cornflower blue
-    'm9': '#843d99'         // mulberry
-}
-    // ColorData97 (Mathematica standard lines)
-    // rgb(0.368417, 0.506779, 0.709798),       #5e81b5
-    // rgb(0.880722, 0.611041, 0.142051),
-    // rgb(0.560181, 0.691569, 0.194885),
-    // rgb(0.922526, 0.385626, 0.209179),
-    // rgb(0.528488, 0.470624, 0.701351),
-    // rgb(0.772079, 0.431554, 0.102387),
-    // rgb(0.363898, 0.618501, 0.782349),
-    // rgb(1, 0.75, 0),
-    // rgb(0.647624, 0.37816, 0.614037),
-    // rgb(0.571589, 0.586483, 0.),
-    // rgb(0.915, 0.3325, 0.2125),
-    // rgb(0.40082222609352647, 0.5220066643438841, 0.85),
-    // rgb(0.9728288904374106, 0.621644452187053, 0.07336199581899142),
-    // rgb(0.736782672705901, 0.358, 0.5030266573755369),
-    // rgb(0.28026441037696703, 0.715, 0.4292089322474965)
+    m0: '#3f3d99', // strong blue
+    m1: '#993d71', // strong cerise
+    m2: '#998b3d', // strong gold
+    m3: '#3d9956', // malachite green
+    m4: '#3d5a99', // strong cobalt blue
+    m5: '#993d90', // strong orchid
+    m6: '#996d3d', // strong orange
+    m7: '#43993d', // strong sap green
+    m8: '#3d7999', // cornflower blue
+    m9: '#843d99', // mulberry
+};
+// ColorData97 (Mathematica standard lines)
+// rgb(0.368417, 0.506779, 0.709798),       #5e81b5
+// rgb(0.880722, 0.611041, 0.142051),
+// rgb(0.560181, 0.691569, 0.194885),
+// rgb(0.922526, 0.385626, 0.209179),
+// rgb(0.528488, 0.470624, 0.701351),
+// rgb(0.772079, 0.431554, 0.102387),
+// rgb(0.363898, 0.618501, 0.782349),
+// rgb(1, 0.75, 0),
+// rgb(0.647624, 0.37816, 0.614037),
+// rgb(0.571589, 0.586483, 0.),
+// rgb(0.915, 0.3325, 0.2125),
+// rgb(0.40082222609352647, 0.5220066643438841, 0.85),
+// rgb(0.9728288904374106, 0.621644452187053, 0.07336199581899142),
+// rgb(0.736782672705901, 0.358, 0.5030266573755369),
+// rgb(0.28026441037696703, 0.715, 0.4292089322474965)
 
-    // MathLab colors
-    // '#0072bd' // [0, 0.4470, 0.7410]             blue
-    // '#d95319' // [0.8500, 0.3250, 0.0980]        orange
-    // '#edb120', // [0.9290, 0.6940, 0.1250]       yellow
-    // '#7e2f8e', // [0.4940, 0.1840, 0.5560]       purple
-    // '#77ac30', // [0.4660, 0.6740, 0.1880]       green
-    // '#4dbeee', // [0.3010, 0.7450, 0.9330]       cyan
-    // '#a2142f' // [0.6350, 0.0780, 0.1840]	    dark red
-
+// MathLab colors
+// '#0072bd' // [0, 0.4470, 0.7410]             blue
+// '#d95319' // [0.8500, 0.3250, 0.0980]        orange
+// '#edb120', // [0.9290, 0.6940, 0.1250]       yellow
+// '#7e2f8e', // [0.4940, 0.1840, 0.5560]       purple
+// '#77ac30', // [0.4660, 0.6740, 0.1880]       green
+// '#4dbeee', // [0.3010, 0.7450, 0.9330]       cyan
+// '#a2142f' // [0.6350, 0.0780, 0.1840]	    dark red
 
 /* Area colors are most appropriate to color a large area */
 const AREA_COLORS = [
-    '#d35d60',      // red
-    '#7293cb',      // cobalt blue
-    '#e1974d',      // orange
-    '#84bb5d',      // pistachio
-    '#9066a7',      // purple
-    '#aD6a58',      // vermilion
-    '#f5a4ce',      // pale rose
-    '#fff590',      // pale gold
-    '#212121',      // Black
-    '#818787',      // dark grey
-    '#d4d5d2',      // light grey
-    '#ffffff'       // white
-]
+    '#d35d60', // red
+    '#7293cb', // cobalt blue
+    '#e1974d', // orange
+    '#84bb5d', // pistachio
+    '#9066a7', // purple
+    '#aD6a58', // vermilion
+    '#f5a4ce', // pale rose
+    '#fff590', // pale gold
+    '#212121', // Black
+    '#818787', // dark grey
+    '#d4d5d2', // light grey
+    '#ffffff', // white
+];
 
 /* Line colors are most appropriate to color as a stroke color */
 const LINE_COLORS = [
-    '#cc2428',      // red
-    '#3769b1',      // cobalt blue
-    '#da7e30',      // orange
-    '#409852',      // malachite green
-    '#6b4c9a',      // blue violet
-    '#922426',      // red
-    '#e7298a',      // brilliant rose
-    '#ffe907',      // vivid gold
+    '#cc2428', // red
+    '#3769b1', // cobalt blue
+    '#da7e30', // orange
+    '#409852', // malachite green
+    '#6b4c9a', // blue violet
+    '#922426', // red
+    '#e7298a', // brilliant rose
+    '#ffe907', // vivid gold
     '#000000',
     '#525055',
     '#adafaa',
     '#ffffff',
-]
+];
 
 /**
  * 68 colors (+ white) known to dvips used in LaTeX.
@@ -108,76 +104,75 @@ const LINE_COLORS = [
  * @private
  */
 const NAMED_COLORS = {
-    'apricot': '#FBB982',
-    'aquamarine': '#00B5BE',
-    'bittersweet': '#C04F17',
-    'black': '#221E1F',         // Indeed.
-    'blue': '#2D2F92',
-    'bluegreen': '#00B3B8',
-    'blueviolet': '#473992',
-    'brickred': '#B6321C',
-    'brown': '#792500',
-    'burntorange': '#F7921D',
-    'cadetblue': '#74729A',
-    'carnationpink': '#F282B4',
-    'cerulean': '#00A2E3',
-    'cornflowerblue': '#41B0E4',
-    'cyan': '#00AEEF',
-    'dandelion': '#FDBC42',
-    'darkorchid': '#A4538A',
-    'emerald': '#00A99D',
-    'forestgreen': '#009B55',
-    'fuchsia': '#8C368C',
-    'goldenrod': '#FFDF42',
-    'gray': '#949698',
-    'green': '#00A64F',
-    'greenyellow': '#DFE674',
-    'junglegreen': '#00A99A',
-    'lavender': '#F49EC4',
-    'limegreen': '#8DC73E',
-    'magenta': '#EC008C',
-    'mahogany': '#A9341F',
-    'maroon': '#AF3235',
-    'melon': '#F89E7B',
-    'midnightblue': '#006795',
-    'mulberry': '#A93C93',
-    'navyblue': '#006EB8',
-    'olivegreen': '#3C8031',
-    'orange': '#F58137',
-    'orangered': '#ED135A',
-    'orchid': '#AF72B0',
-    'peach': '#F7965A',
-    'periwinkle': '#7977B8',
-    'pinegreen': '#008B72',
-    'plum': '#92268F',
-    'processblue': '#00B0F0',
-    'purple': '#99479B',
-    'rawsienna': '#974006',
-    'red': '#ED1B23',
-    'redorange': '#F26035',
-    'redviolet': '#A1246B',
-    'rhodamine': '#EF559F',
-    'royalblue': '#0071BC',
-    'royalpurple': '#613F99',
-    'rubinered': '#ED017D',
-    'salmon': '#F69289',
-    'seagreen': '#3FBC9D',
-    'sepia': '#671800',
-    'skyblue': '#46C5DD',
-    'springgreen': '#C6DC67',
-    'tan': '#DA9D76',
-    'tealblue': '#00AEB3',
-    'thistle': '#D883B7',
-    'turquoise': '#00B4CE',
-    'violet': '#58429B',
-    'violetred': '#EF58A0',
-    'white': '#FFFFFF',
-    'wildstrawberry': '#EE2967',
-    'yellow': '#FFF200',
-    'yellowgreen': '#98CC70',
-    'yelloworange': '#FAA21A',
+    apricot: '#FBB982',
+    aquamarine: '#00B5BE',
+    bittersweet: '#C04F17',
+    black: '#221E1F', // Indeed.
+    blue: '#2D2F92',
+    bluegreen: '#00B3B8',
+    blueviolet: '#473992',
+    brickred: '#B6321C',
+    brown: '#792500',
+    burntorange: '#F7921D',
+    cadetblue: '#74729A',
+    carnationpink: '#F282B4',
+    cerulean: '#00A2E3',
+    cornflowerblue: '#41B0E4',
+    cyan: '#00AEEF',
+    dandelion: '#FDBC42',
+    darkorchid: '#A4538A',
+    emerald: '#00A99D',
+    forestgreen: '#009B55',
+    fuchsia: '#8C368C',
+    goldenrod: '#FFDF42',
+    gray: '#949698',
+    green: '#00A64F',
+    greenyellow: '#DFE674',
+    junglegreen: '#00A99A',
+    lavender: '#F49EC4',
+    limegreen: '#8DC73E',
+    magenta: '#EC008C',
+    mahogany: '#A9341F',
+    maroon: '#AF3235',
+    melon: '#F89E7B',
+    midnightblue: '#006795',
+    mulberry: '#A93C93',
+    navyblue: '#006EB8',
+    olivegreen: '#3C8031',
+    orange: '#F58137',
+    orangered: '#ED135A',
+    orchid: '#AF72B0',
+    peach: '#F7965A',
+    periwinkle: '#7977B8',
+    pinegreen: '#008B72',
+    plum: '#92268F',
+    processblue: '#00B0F0',
+    purple: '#99479B',
+    rawsienna: '#974006',
+    red: '#ED1B23',
+    redorange: '#F26035',
+    redviolet: '#A1246B',
+    rhodamine: '#EF559F',
+    royalblue: '#0071BC',
+    royalpurple: '#613F99',
+    rubinered: '#ED017D',
+    salmon: '#F69289',
+    seagreen: '#3FBC9D',
+    sepia: '#671800',
+    skyblue: '#46C5DD',
+    springgreen: '#C6DC67',
+    tan: '#DA9D76',
+    tealblue: '#00AEB3',
+    thistle: '#D883B7',
+    turquoise: '#00B4CE',
+    violet: '#58429B',
+    violetred: '#EF58A0',
+    white: '#FFFFFF',
+    wildstrawberry: '#EE2967',
+    yellow: '#FFF200',
+    yellowgreen: '#98CC70',
+    yelloworange: '#FAA21A',
 };
-
 
 // Other color lists: SVG colors, x11 colors
 /*
@@ -370,9 +365,9 @@ function stringToColor(s) {
     let mix = -1;
 
     // If the string is prefixed with a '-', use the complementary color
-    const complementary = colorSpec.length > 0 && colorSpec[0].charAt(0) === '-';
+    const complementary =
+        colorSpec.length > 0 && colorSpec[0].charAt(0) === '-';
     if (complementary) colorSpec[0] = colorSpec[0].slice(1);
-
 
     for (let i = 0; i < colorSpec.length; i++) {
         baseRed = red;
@@ -392,18 +387,20 @@ function stringToColor(s) {
             green = Math.max(0, Math.min(255, parseInt(m[2], 16)));
             blue = Math.max(0, Math.min(255, parseInt(m[3], 16)));
         } else {
-            m = color.match(/^#([0-9a-f]{3})$/i)
+            m = color.match(/^#([0-9a-f]{3})$/i);
             if (m && m[1]) {
                 // It's a three-digit hex number
                 const r1 = parseInt(m[1][0], 16);
                 const g1 = parseInt(m[1][1], 16);
-                const b1 = parseInt(m[1][2], 16)
+                const b1 = parseInt(m[1][2], 16);
                 red = Math.max(0, Math.min(255, r1 * 16 + r1));
                 green = Math.max(0, Math.min(255, g1 * 16 + g1));
                 blue = Math.max(0, Math.min(255, b1 * 16 + b1));
             } else {
                 // It's a rgb functional
-                m = color.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
+                m = color.match(
+                    /^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i
+                );
                 if (m && m[1] && m[2] && m[3]) {
                     red = Math.max(0, Math.min(255, parseInt(m[1])));
                     green = Math.max(0, Math.min(255, parseInt(m[2])));
@@ -414,7 +411,7 @@ function stringToColor(s) {
             }
         }
         if (mix >= 0) {
-            red = (1.0 - mix) * red +  mix * baseRed;
+            red = (1.0 - mix) * red + mix * baseRed;
             green = (1.0 - mix) * green + mix * baseGreen;
             blue = (1.0 - mix) * blue + mix * baseBlue;
             mix = -1;
@@ -436,10 +433,12 @@ function stringToColor(s) {
         blue = 255 - blue;
     }
 
-    return '#' +
+    return (
+        '#' +
         ('00' + Math.round(red).toString(16)).slice(-2) +
         ('00' + Math.round(green).toString(16)).slice(-2) +
-        ('00' + Math.round(blue).toString(16)).slice(-2);
+        ('00' + Math.round(blue).toString(16)).slice(-2)
+    );
 }
 
 function colorToString(color) {
@@ -468,7 +467,4 @@ export default {
     colorToString,
     AREA_COLORS,
     LINE_COLORS,
-}
-
-
-
+};

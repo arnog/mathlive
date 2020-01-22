@@ -1,4 +1,3 @@
-
 /**
  *
  * Use MathLive to render and edit mathematical formulas in your browser.
@@ -54,8 +53,11 @@ import mathJson from './addons/mathJson.js';
 function toMarkup(text, mathstyle, format, macros) {
     mathstyle = mathstyle || 'displaystyle';
 
-    console.assert(/displaystyle|textstyle|scriptstyle|scriptscriptstyle/.test(mathstyle),
-        "Invalid style:", mathstyle);
+    console.assert(
+        /displaystyle|textstyle|scriptstyle|scriptscriptstyle/.test(mathstyle),
+        'Invalid style:',
+        mathstyle
+    );
 
     //
     // 1. Tokenize the text
@@ -72,14 +74,11 @@ function toMarkup(text, mathstyle, format, macros) {
 
     if (format === 'mathlist') return mathlist;
 
-
-
     //
     // 3. Transform the math atoms into elementary spans
     //    for example from genfrac to vlist.
     //
-    let spans = MathAtom.decompose({mathstyle: mathstyle}, mathlist);
-
+    let spans = MathAtom.decompose({ mathstyle: mathstyle }, mathlist);
 
     //
     // 4. Simplify by coalescing adjacent nodes
@@ -95,7 +94,7 @@ function toMarkup(text, mathstyle, format, macros) {
     //
     const base = Span.makeSpan(spans, 'ML__base');
 
-    const topStrut = Span.makeSpan('', 'ML__strut')
+    const topStrut = Span.makeSpan('', 'ML__strut');
     topStrut.setStyle('height', base.height, 'em');
     const struts = [topStrut];
     if (base.depth !== 0) {
@@ -107,15 +106,12 @@ function toMarkup(text, mathstyle, format, macros) {
     struts.push(base);
     const wrapper = Span.makeSpan(struts, 'ML__mathlive');
 
-
     //
     // 6. Generate markup
     //
 
     return wrapper.toMarkup();
 }
-
-
 
 /**
  * Convert a DOM element into an editable mathfield.
@@ -176,8 +172,12 @@ function toMathML(latex, options) {
     options.macros = options.macros || {};
     Object.assign(options.macros, Definitions.MACROS);
 
-    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex),
-        'math', null, options.macros);
+    const mathlist = ParserModule.parseTokens(
+        Lexer.tokenize(latex),
+        'math',
+        null,
+        options.macros
+    );
 
     return MathAtom.toMathML(mathlist, options);
 }
@@ -205,12 +205,15 @@ function latexToAST(latex, options) {
     options.macros = options.macros || {};
     Object.assign(options.macros, Definitions.MACROS);
 
-    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex),
-        'math', null, options.macros);
+    const mathlist = ParserModule.parseTokens(
+        Lexer.tokenize(latex),
+        'math',
+        null,
+        options.macros
+    );
 
     return MathAtom.toAST(mathlist, options);
 }
-
 
 /**
  * Converts an Abstract Syntax Tree (MathJSON) to a LaTeX string.
@@ -235,7 +238,7 @@ function latexToAST(latex, options) {
  * used at the begining of repeating digits. **Default** = `"\\overline{"`
  * @param {string} [options.endRepeatingDigits='}'] The string
  * used at the end of repeating digits. **Default** = `"}"`
-*
+ *
  * @return {string} The LaTeX representation of the Abstract Syntax Tree, if valid.
  * @category Converting
  * @function module:mathlive#astToLatex
@@ -243,7 +246,6 @@ function latexToAST(latex, options) {
 function astToLatex(ast, options) {
     return mathJson.asLatex(ast, options);
 }
-
 
 /**
  * Converts a LaTeX string to a textual representation ready to be spoken
@@ -286,18 +288,21 @@ function astToLatex(ast, options) {
 function latexToSpeakableText(latex, options) {
     if (!MathAtom.toSpeakableText) {
         console.warn('The outputSpokenText module is not loaded.');
-        return "";
+        return '';
     }
     options = options || {};
     options.macros = options.macros || {};
     Object.assign(options.macros, Definitions.MACROS);
 
-    const mathlist = ParserModule.parseTokens(Lexer.tokenize(latex),
-        'math', null, options.macros);
+    const mathlist = ParserModule.parseTokens(
+        Lexer.tokenize(latex),
+        'math',
+        null,
+        options.macros
+    );
 
     return MathAtom.toSpeakableText(mathlist, options);
 }
-
 
 function removeHighlight(node) {
     node.classList.remove('highlight');
@@ -352,9 +357,11 @@ function speak(text, config) {
         }
     } else if (config.speechEngine === 'amazon') {
         if (!window || !window.AWS) {
-            console.warn('AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk');
+            console.warn(
+                'AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk'
+            );
         } else {
-            const polly = new window.AWS.Polly({apiVersion: '2016-06-10'});
+            const polly = new window.AWS.Polly({ apiVersion: '2016-06-10' });
             const params = {
                 OutputFormat: 'mp3',
                 VoiceId: config.speechEngineVoice || 'Joanna',
@@ -365,11 +372,17 @@ function speak(text, config) {
             };
             polly.synthesizeSpeech(params, function(err, data) {
                 if (err) {
-                    console.warn('polly.synthesizeSpeech() error:', err, err.stack);
+                    console.warn(
+                        'polly.synthesizeSpeech() error:',
+                        err,
+                        err.stack
+                    );
                 } else {
                     if (data && data.AudioStream) {
                         const uInt8Array = new Uint8Array(data.AudioStream);
-                        const blob = new Blob([uInt8Array.buffer], {type: 'audio/mpeg'});
+                        const blob = new Blob([uInt8Array.buffer], {
+                            type: 'audio/mpeg',
+                        });
                         const url = URL.createObjectURL(blob);
 
                         const audioElement = new Audio(url);
@@ -383,28 +396,30 @@ function speak(text, config) {
             // Can call AWS.Request() on the result of synthesizeSpeech()
         }
     } else if (config.speechEngine === 'google') {
-        console.warn('The Google speech engine is not supported yet. Please come again.');
+        console.warn(
+            'The Google speech engine is not supported yet. Please come again.'
+        );
         // @todo: implement support for Google Text-to-Speech API,
         // using config.speechEngineToken, config.speechEngineVoice and
         // config.speechEngineAudioConfig
 
-// curl -H "Authorization: Bearer "$(gcloud auth application-default print-access-token) \
-//   -H "Content-Type: application/json; charset=utf-8" \
-//   --data "{
-//     'input':{
-//       'text':'Android is a mobile operating system developed by Google,
-//          based on the Linux kernel and designed primarily for
-//          touchscreen mobile devices such as smartphones and tablets.'
-//     },
-//     'voice':{
-//       'languageCode':'en-gb',
-//       'name':'en-GB-Standard-A',
-//       'ssmlGender':'FEMALE'
-//     },
-//     'audioConfig':{
-//       'audioEncoding':'MP3'
-//     }
-//   }" "https://texttospeech.googleapis.com/v1beta1/text:synthesize" > synthesize-text.txt
+        // curl -H "Authorization: Bearer "$(gcloud auth application-default print-access-token) \
+        //   -H "Content-Type: application/json; charset=utf-8" \
+        //   --data "{
+        //     'input':{
+        //       'text':'Android is a mobile operating system developed by Google,
+        //          based on the Linux kernel and designed primarily for
+        //          touchscreen mobile devices such as smartphones and tablets.'
+        //     },
+        //     'voice':{
+        //       'languageCode':'en-gb',
+        //       'name':'en-GB-Standard-A',
+        //       'ssmlGender':'FEMALE'
+        //     },
+        //     'audioConfig':{
+        //       'audioEncoding':'MP3'
+        //     }
+        //   }" "https://texttospeech.googleapis.com/v1beta1/text:synthesize" > synthesize-text.txt
     }
 }
 
@@ -433,23 +448,26 @@ function readAloud(element, text, config) {
         return;
     }
     if (!window.AWS) {
-        console.warn('AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk');
+        console.warn(
+            'AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk'
+        );
         return;
     }
-    const polly = new window.AWS.Polly({apiVersion: '2016-06-10'});
+    const polly = new window.AWS.Polly({ apiVersion: '2016-06-10' });
 
     const params = {
         OutputFormat: 'json',
         VoiceId: config.speechEngineVoice || 'Joanna',
         Text: text,
         TextType: 'ssml',
-        SpeechMarkTypes: ['ssml']
+        SpeechMarkTypes: ['ssml'],
     };
 
     window.mathlive = window.mathlive || {};
     window.mathlive.readAloudElement = element;
 
-    const status = config.onReadAloudStatus || window.mathlive.onReadAloudStatus;
+    const status =
+        config.onReadAloudStatus || window.mathlive.onReadAloudStatus;
 
     // Request the mark points
     polly.synthesizeSpeech(params, function(err, data) {
@@ -457,8 +475,12 @@ function readAloud(element, text, config) {
             console.warn('polly.synthesizeSpeech() error:', err, err.stack);
         } else {
             if (data && data.AudioStream) {
-                const response = new TextDecoder('utf-8').decode(new Uint8Array(data.AudioStream));
-                window.mathlive.readAloudMarks = response.split('\n').map(x => x ? JSON.parse(x) : {});
+                const response = new TextDecoder('utf-8').decode(
+                    new Uint8Array(data.AudioStream)
+                );
+                window.mathlive.readAloudMarks = response
+                    .split('\n')
+                    .map(x => (x ? JSON.parse(x) : {}));
                 window.mathlive.readAloudTokens = [];
                 for (const mark of window.mathlive.readAloudMarks) {
                     if (mark.value) {
@@ -472,58 +494,103 @@ function readAloud(element, text, config) {
                 params.SpeechMarkTypes = [];
                 polly.synthesizeSpeech(params, function(err, data) {
                     if (err) {
-                        console.warn('polly.synthesizeSpeech(', text , ') error:', err, err.stack);
+                        console.warn(
+                            'polly.synthesizeSpeech(',
+                            text,
+                            ') error:',
+                            err,
+                            err.stack
+                        );
                     } else {
                         if (data && data.AudioStream) {
                             const uInt8Array = new Uint8Array(data.AudioStream);
-                            const blob = new Blob([uInt8Array.buffer], {type: 'audio/mpeg'});
+                            const blob = new Blob([uInt8Array.buffer], {
+                                type: 'audio/mpeg',
+                            });
                             const url = URL.createObjectURL(blob);
 
                             if (!window.mathlive.readAloudAudio) {
                                 window.mathlive.readAloudAudio = new Audio();
-                                window.mathlive.readAloudAudio.addEventListener('ended', () => {
-                                    if (status) status(window.mathlive.readAloudMathField, 'ended');
-                                    if (window.mathlive.readAloudMathField) {
-                                        window.mathlive.readAloudMathField._render();
-                                        window.mathlive.readAloudElement = null;
-                                        window.mathlive.readAloudMathField = null;
-                                        window.mathlive.readAloudTokens = [];
-                                        window.mathlive.readAloudMarks = [];
-                                        window.mathlive.readAloudCurrentMark = '';
-                                    } else {
-                                        removeHighlight(window.mathlive.readAloudElement);
-                                    }
-                                });
-                                window.mathlive.readAloudAudio.addEventListener('timeupdate', () => {
-                                    let value = '';
-                                    // The target, the atom we're looking for, is the one matching the current audio
-                                    // plus 100 ms. By anticipating it a little bit, it feels more natural, otherwise it
-                                    // feels like the highlighting is trailing the audio.
-                                    const target = window.mathlive.readAloudAudio.currentTime * 1000 + 100;
-
-                                    // Find the smallest element which is bigger than the target time
-                                    for (const mark of window.mathlive.readAloudMarks) {
-                                        if (mark.time < target) {
-                                            value = mark.value;
-                                        }
-                                    }
-                                    if (window.mathlive.readAloudCurrentMark !== value) {
-                                        window.mathlive.readAloudCurrentToken = value;
-                                        if (value && value === window.mathlive.readAloudFinalToken) {
-                                            window.mathlive.readAloudAudio.pause();
+                                window.mathlive.readAloudAudio.addEventListener(
+                                    'ended',
+                                    () => {
+                                        if (status)
+                                            status(
+                                                window.mathlive
+                                                    .readAloudMathField,
+                                                'ended'
+                                            );
+                                        if (
+                                            window.mathlive.readAloudMathField
+                                        ) {
+                                            window.mathlive.readAloudMathField._render();
+                                            window.mathlive.readAloudElement = null;
+                                            window.mathlive.readAloudMathField = null;
+                                            window.mathlive.readAloudTokens = [];
+                                            window.mathlive.readAloudMarks = [];
+                                            window.mathlive.readAloudCurrentMark =
+                                                '';
                                         } else {
-                                            window.mathlive.readAloudCurrentMark = value;
-                                            highlightAtomID(window.mathlive.readAloudElement, window.mathlive.readAloudCurrentMark);
+                                            removeHighlight(
+                                                window.mathlive.readAloudElement
+                                            );
                                         }
                                     }
-                                });
+                                );
+                                window.mathlive.readAloudAudio.addEventListener(
+                                    'timeupdate',
+                                    () => {
+                                        let value = '';
+                                        // The target, the atom we're looking for, is the one matching the current audio
+                                        // plus 100 ms. By anticipating it a little bit, it feels more natural, otherwise it
+                                        // feels like the highlighting is trailing the audio.
+                                        const target =
+                                            window.mathlive.readAloudAudio
+                                                .currentTime *
+                                                1000 +
+                                            100;
+
+                                        // Find the smallest element which is bigger than the target time
+                                        for (const mark of window.mathlive
+                                            .readAloudMarks) {
+                                            if (mark.time < target) {
+                                                value = mark.value;
+                                            }
+                                        }
+                                        if (
+                                            window.mathlive
+                                                .readAloudCurrentMark !== value
+                                        ) {
+                                            window.mathlive.readAloudCurrentToken = value;
+                                            if (
+                                                value &&
+                                                value ===
+                                                    window.mathlive
+                                                        .readAloudFinalToken
+                                            ) {
+                                                window.mathlive.readAloudAudio.pause();
+                                            } else {
+                                                window.mathlive.readAloudCurrentMark = value;
+                                                highlightAtomID(
+                                                    window.mathlive
+                                                        .readAloudElement,
+                                                    window.mathlive
+                                                        .readAloudCurrentMark
+                                                );
+                                            }
+                                        }
+                                    }
+                                );
                             } else {
                                 window.mathlive.readAloudAudio.pause();
                             }
 
                             window.mathlive.readAloudAudio.src = url;
                             if (status) {
-                                status(window.mathlive.readAloudMathField, 'playing');
+                                status(
+                                    window.mathlive.readAloudMathField,
+                                    'playing'
+                                );
                             }
                             window.mathlive.readAloudAudio.play();
                         } else {
@@ -576,7 +643,10 @@ function pauseReadAloud() {
     window.mathlive = window.mathlive || {};
     if (window.mathlive.readAloudAudio) {
         if (window.mathlive.onReadAloudStatus) {
-            window.mathlive.onReadAloudStatus(window.mathlive.readAloudMathField, 'paused');
+            window.mathlive.onReadAloudStatus(
+                window.mathlive.readAloudMathField,
+                'paused'
+            );
         }
         window.mathlive.readAloudAudio.pause();
     }
@@ -594,7 +664,10 @@ function resumeReadAloud() {
     window.mathlive = window.mathlive || {};
     if (window.mathlive.readAloudAudio) {
         if (window.mathlive.onReadAloudStatus) {
-            window.mathlive.onReadAloudStatus(window.mathlive.readAloudMathField, 'playing');
+            window.mathlive.onReadAloudStatus(
+                window.mathlive.readAloudMathField,
+                'playing'
+            );
         }
         window.mathlive.readAloudAudio.play();
     }
@@ -617,7 +690,8 @@ function playReadAloud(token, count) {
         let timeIndex = 0;
         window.mathlive.readAloudFinalToken = null;
         if (token) {
-            window.mathlive.readAloudMarks = window.mathlive.readAloudMarks || [];
+            window.mathlive.readAloudMarks =
+                window.mathlive.readAloudMarks || [];
             for (const mark of window.mathlive.readAloudMarks) {
                 if (mark.value === token) {
                     timeIndex = mark.time / 1000;
@@ -633,12 +707,14 @@ function playReadAloud(token, count) {
         }
         window.mathlive.readAloudAudio.currentTime = timeIndex;
         if (window.mathlive.onReadAloudStatus) {
-            window.mathlive.onReadAloudStatus(window.mathlive.readAloudMathField, 'playing');
+            window.mathlive.onReadAloudStatus(
+                window.mathlive.readAloudMathField,
+                'playing'
+            );
         }
         window.mathlive.readAloudAudio.play();
     }
 }
-
 
 /**
  * Transform all the elements in the document body that contain LaTeX code
@@ -761,20 +837,21 @@ function renderMathInElement(element, options) {
     options = options || {};
     options.renderToMarkup = options.renderToMarkup || toMarkup;
     options.renderToMathML = options.renderToMathML || toMathML;
-    options.renderToSpeakableText = options.renderToSpeakableText || latexToSpeakableText;
+    options.renderToSpeakableText =
+        options.renderToSpeakableText || latexToSpeakableText;
     options.macros = options.macros || Definitions.MACROS;
     AutoRender.renderMathInElement(getElement(element), options);
 }
 
-
-
 function validateNamespace(options) {
     if (options.namespace) {
         if (!/^[a-z]+[-]?$/.test(options.namespace)) {
-            throw Error('options.namespace must be a string of lowercase characters only');
+            throw Error(
+                'options.namespace must be a string of lowercase characters only'
+            );
         }
         if (!/-$/.test(options.namespace)) {
-           options.namespace += '-';
+            options.namespace += '-';
         }
     }
 }
@@ -799,12 +876,11 @@ function revertToOriginalContent(element, options) {
     } else {
         options = options || {};
         validateNamespace(options);
-        element.innerHTML = element.getAttribute('data-' +
-            (options.namespace || '') + 'original-content');
+        element.innerHTML = element.getAttribute(
+            'data-' + (options.namespace || '') + 'original-content'
+        );
     }
 }
-
-
 
 /**
  * After calling {@linkcode module:mathlive#renderMathInElement renderMathInElement}
@@ -845,8 +921,9 @@ function getOriginalContent(element, options) {
     }
     options = options || {};
     validateNamespace(options);
-    return element.getAttribute('data-' +
-        (options.namespace || '') + 'original-content');
+    return element.getAttribute(
+        'data-' + (options.namespace || '') + 'original-content'
+    );
 }
 
 const MathLive = {
@@ -864,10 +941,7 @@ const MathLive = {
     readAloudStatus,
     pauseReadAloud,
     resumeReadAloud,
-    playReadAloud
+    playReadAloud,
 };
 
 export default MathLive;
-
-
-

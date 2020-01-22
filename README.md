@@ -1,26 +1,21 @@
 <img alt="math live" src="assets/logo.png?raw=true">
 
-
-
 [![Maintenance](https://img.shields.io/maintenance/yes/2019.svg)]()
 [![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://raw.githubusercontent.com/arnog/mathlive/master/LICENSE.txt)
 
 [![Build Status](https://travis-ci.org/arnog/mathlive.svg?branch=master)](https://travis-ci.org/arnog/mathlive)
 [![David](https://img.shields.io/david/dev/arnog/mathlive.svg)]()
 
-
-
 <img alt="Screenshot" src="assets/screenshots/screenshot.jpg">
-
 
 MathLive is a JavaScript library to render and edit math.
 
-- [x] TeX-quality typesetting
-- [x] Easy to use interface for math editing
-- [x] Fast and small
-- [x] Works great on desktop and on mobile devices thanks to an extensive set of virtual keyboards
-- [x] Outputs **LaTeX**, **MathML** and **MathJSON** (Abstract Syntax Tree)
-- [x] And it is easy to customize to your needs!
+-   [x] TeX-quality typesetting
+-   [x] Easy to use interface for math editing
+-   [x] Fast and small
+-   [x] Works great on desktop and on mobile devices thanks to an extensive set of virtual keyboards
+-   [x] Outputs **LaTeX**, **MathML** and **MathJSON** (Abstract Syntax Tree)
+-   [x] And it is easy to customize to your needs!
 
 Try it at [mathlive.io](https://mathlive.io)
 
@@ -46,54 +41,67 @@ Try it at [mathlive.io](https://mathlive.io)
     </tr>
 </table>
 
-
 ## How To Use MathLive
 
-
 ### Displaying Math
-Render math equations by 
-[adding a few lines to your web page](tutorials/USAGE_GUIDE.md). 
+
+Render math equations by
+[adding a few lines to your web page](tutorials/USAGE_GUIDE.md).
 
 ```html
-<!doctype html><html lang="en-US">
-<head>
-    ...
-    <link href="https://unpkg.com/mathlive/dist/mathlive.core.css" rel="stylesheet" >
-    <link href="https://unpkg.com/mathlive/dist/mathlive.css" rel="stylesheet" >
-</head>
-<body>
-    <h1>Euler's Identity</h1>
-    <p>$$e^{i\pi} + 1 = 0$$</p> 
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        ...
+        <link
+            href="https://unpkg.com/mathlive/dist/mathlive.core.css"
+            rel="stylesheet"
+        />
+        <link
+            href="https://unpkg.com/mathlive/dist/mathlive.css"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <h1>Euler's Identity</h1>
+        <p>$$e^{i\pi} + 1 = 0$$</p>
 
-    <script type='module'> 
-        import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
-        MathLive.renderMathInDocument();
-    </script>
-</body>
+        <script type="module">
+            import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
+            MathLive.renderMathInDocument();
+        </script>
+    </body>
 </html>
 ```
 
-
 ### Editing Math
-You can also incorporate a “mathfield” to edit math just like you would edit 
+
+You can also incorporate a “mathfield” to edit math just like you would edit
 text. The MathLive APIs allow you to interact with the mathfield,
 including extracting its content, inserting placeholders and more.
 
 ```html
-<!doctype html><html lang="en-US">
-<head>
-    ...
-    <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.core.css">
-    <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.css">
-</head>
-<body>
-    <div id='mathfield'>f(x)=</div>
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        ...
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/mathlive/dist/mathlive.core.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/mathlive/dist/mathlive.css"
+        />
+    </head>
+    <body>
+        <div id="mathfield">f(x)=</div>
 
-    <script type='module'> 
-        import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
-        MathLive.makeMathField('mathfield');
-    </script>
-</body>
+        <script type="module">
+            import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
+            MathLive.makeMathField('mathfield');
+        </script>
+    </body>
 </html>
 ```
 
@@ -101,41 +109,43 @@ including extracting its content, inserting placeholders and more.
 
 More examples are available at https://mathlive.io/examples/
 
-
 ### Installing MathLive
 
 The examples above use a CDN, which is the fastest and easiest way to get started.
 However, if you:
-- want to contribute to MathLive
-- use your own CDN
-- make some other changes to MathLive
-you can also install it locally in your project. 
+
+-   want to contribute to MathLive
+-   use your own CDN
+-   make some other changes to MathLive
+    you can also install it locally in your project.
 
 To do so:
+
 ```bash
 $ npm install -s mathlive
 $ npm start
 ```
+
 This will make a local build of MathLive, run a local HTTP server and open a page with the examples in your browser.
 
 ## How You Can Help
 
-* Using MathLive in your project? Want to support the project ongoing maintenance?
-Consider becoming a patron on [Patreon](https://patreon.com/arnog) or making a 
-donation with [PayPal](https://www.paypal.me/arnogourdol)
-* Something wrong? Got ideas for new features? Write up an issue. Read about
-[Contributing](CONTRIBUTING.md) and follow our [Code of Conduct](CODE_OF_CONDUCT.md)
-* Want to use MathLive in your web page? The [Usage Guide](tutorials/USAGE_GUIDE.md) 
-has all the details.
-* Want to contribute some code for an issue or a feature? Read the 
-[Contributor Guide](tutorials/CONTRIBUTOR_GUIDE.md) and the 
-[docs](http://docs.mathlive.io). Looking for inspiration? Pick one of
-the [good first issues](https://github.com/arnog/mathlive/labels/good%20first%20issue)
+-   Using MathLive in your project? Want to support the project ongoing maintenance?
+    Consider becoming a patron on [Patreon](https://patreon.com/arnog) or making a
+    donation with [PayPal](https://www.paypal.me/arnogourdol)
+-   Something wrong? Got ideas for new features? Write up an issue. Read about
+    [Contributing](CONTRIBUTING.md) and follow our [Code of Conduct](CODE_OF_CONDUCT.md)
+-   Want to use MathLive in your web page? The [Usage Guide](tutorials/USAGE_GUIDE.md)
+    has all the details.
+-   Want to contribute some code for an issue or a feature? Read the
+    [Contributor Guide](tutorials/CONTRIBUTOR_GUIDE.md) and the
+    [docs](http://docs.mathlive.io). Looking for inspiration? Pick one of
+    the [good first issues](https://github.com/arnog/mathlive/labels/good%20first%20issue)
 
 ## More Questions?
 
-* Join our Slack channel at https://mathlive.slack.com. 
-* Drop a line to arno@arno.org or [/u/real_arnog](https://www.reddit.com/user/real_arnog)
+-   Join our Slack channel at https://mathlive.slack.com.
+-   Drop a line to arno@arno.org or [/u/real_arnog](https://www.reddit.com/user/real_arnog)
 
 ## License
 

@@ -1,4 +1,4 @@
-"use strict"
+'use strict';
 
 function init_interactive_atoms() {
     add_class_to_all_atoms();
@@ -7,29 +7,32 @@ function init_interactive_atoms() {
 
 // Add a class name to each of the atoms so that it is easy to access
 function add_class_to_all_atoms() {
-    var elements_to_iter = [document.getElementById("mf")];
+    var elements_to_iter = [document.getElementById('mf')];
     while (elements_to_iter.length > 0) {
         let element = elements_to_iter.pop();
         elements_to_iter.push.apply(elements_to_iter, element.children);
-        if (element.hasAttribute("data-atom-id")) {
-            element.className += " data-atom";
+        if (element.hasAttribute('data-atom-id')) {
+            element.className += ' data-atom';
             element.className = element.className.trim();
         }
     }
 }
 
-
 // Add onhover functionality to the atoms
 function add_onmouseover_to_atoms() {
-    var atom_elements = document.getElementsByClassName("data-atom");
+    var atom_elements = document.getElementsByClassName('data-atom');
     for (let atom_idx = 0; atom_idx < atom_elements.length; atom_idx++) {
         let atom_element = atom_elements[atom_idx];
 
-        atom_element.onmouseover = function () {
-            var curr_token = atom_element.getAttribute("data-atom-id");
+        atom_element.onmouseover = function() {
+            var curr_token = atom_element.getAttribute('data-atom-id');
             MathLive.playReadAloud(curr_token);
 
-            for (let atom_idx = 0; atom_idx < atom_elements.length; atom_idx++) {
+            for (
+                let atom_idx = 0;
+                atom_idx < atom_elements.length;
+                atom_idx++
+            ) {
                 let atom_element = atom_elements[atom_idx];
 
                 atom_element.onmouseover = undefined;
@@ -39,8 +42,7 @@ function add_onmouseover_to_atoms() {
 }
 
 function select_text_in_element(element) {
-
-    console.log(element)
+    console.log(element);
     if (document.body.createTextRange) {
         let range = document.body.createTextRange();
         range.moveToElementText(element);
@@ -52,13 +54,12 @@ function select_text_in_element(element) {
         selection.removeAllRanges();
         selection.addRange(range);
     } else {
-        console.warn("Could not select text in node: Unsupported browser.");
+        console.warn('Could not select text in node: Unsupported browser.');
     }
 }
 
-
 function speak_all() {
-    mf.$perform(["speak", "all", {withHighlighting: true}]);
+    mf.$perform(['speak', 'all', { withHighlighting: true }]);
 }
 
 function speak_pause_resume() {
@@ -83,15 +84,17 @@ function speak_stop() {
     }
 
     MathLive.pauseReadAloud();
-    window.mathlive.readAloudCurrentToken = 
-        window.mathlive.readAloudTokens[0];
+    window.mathlive.readAloudCurrentToken = window.mathlive.readAloudTokens[0];
 
-    var elements_to_iter = [document.getElementById("mf")];
+    var elements_to_iter = [document.getElementById('mf')];
     while (elements_to_iter.length > 0) {
         let element = elements_to_iter.pop();
         elements_to_iter.push.apply(elements_to_iter, element.children);
-        if (element.className.indexOf("highlight") >= 0) {
-            element.className = element.className.substr(0, element.className.length - 10);
+        if (element.className.indexOf('highlight') >= 0) {
+            element.className = element.className.substr(
+                0,
+                element.className.length - 10
+            );
         }
     }
 }
@@ -102,8 +105,10 @@ function speak_2prev() {
         return;
     }
 
-    var prev_token_idx = 
-        window.mathlive.readAloudTokens.indexOf(window.mathlive.readAloudCurrentToken) - 2;
+    var prev_token_idx =
+        window.mathlive.readAloudTokens.indexOf(
+            window.mathlive.readAloudCurrentToken
+        ) - 2;
 
     if (prev_token_idx < 0) {
         prev_token_idx = 0;
@@ -122,8 +127,10 @@ function speak_prev() {
         return;
     }
 
-    var prev_token_idx = 
-        window.mathlive.readAloudTokens.indexOf(window.mathlive.readAloudCurrentToken) - 1;
+    var prev_token_idx =
+        window.mathlive.readAloudTokens.indexOf(
+            window.mathlive.readAloudCurrentToken
+        ) - 1;
 
     if (prev_token_idx < 0) {
         prev_token_idx = 0;
@@ -142,8 +149,10 @@ function speak_next() {
         return;
     }
 
-    var next_token_idx = 
-        window.mathlive.readAloudTokens.indexOf(window.mathlive.readAloudCurrentToken) + 1;
+    var next_token_idx =
+        window.mathlive.readAloudTokens.indexOf(
+            window.mathlive.readAloudCurrentToken
+        ) + 1;
     if (next_token_idx === window.mathlive.readAloudTokens.length - 1) {
         speak_stop();
     }
@@ -168,7 +177,7 @@ function speak_goto() {
     add_class_to_all_atoms();
     add_onmouseover_to_atoms();
 
-    // var next_token_idx = 
+    // var next_token_idx =
     //     window.mathlive.readAloudTokens.indexOf(window.mathlive.readAloudCurrentToken) + 1;
     // if (next_token_idx === window.mathlive.readAloudTokens.length - 1) {
     //     speak_stop();

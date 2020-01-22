@@ -1,40 +1,42 @@
 # Keyboard Shortcuts
 
 MathLive.js supports two methods to speed up input using a physical keyboard.
-   * keystroke shortcuts
-   * inline shortcuts
+
+-   keystroke shortcuts
+-   inline shortcuts
 
 ## Keystroke Shortcuts
+
 Keystroke shortcuts are typically a combination of keys pressed simultaneously that triggers a command.
 
 For example, pressing `alt/option` and the `V` key at the same time will insert a square root. Pressing `ctrl/cmd` and the `Z` key at the same time will undo
 the last command.
 
-MathLive has an extensive set of default keystroke shortcuts. To override, 
-customize or add to the list of supported keyboard shortcuts, provide an 
+MathLive has an extensive set of default keystroke shortcuts. To override,
+customize or add to the list of supported keyboard shortcuts, provide an
 appropriate handler as part of MathLive's configuration:
 
 ### **config.onKeystroke**: function(mathfield, keystroke: string, ev:Event)
 
-Invoked when a keystroke is about to be processed. 
-- `keystroke` is a string describing the keystroke, for example `Ctrl-KeyA`
-- `ev` is the native JavaScript keyboard event.
+Invoked when a keystroke is about to be processed.
+
+-   `keystroke` is a string describing the keystroke, for example `Ctrl-KeyA`
+-   `ev` is the native JavaScript keyboard event.
 
 Return `false` to stop handling of the event, otherwise the default command
 (if any) associated with this keystroke will be processed.
 
-
-
 ## Inline Shortcuts
+
 An inline shortcut is a sequence of keystrokes typed on the keyboard that get replaced with another symbol. Unlike keystroke shortcuts they cannot be used to trigger a command.
 
-For example, typing the `p` key followed by the `i` key will result in the **π*(`\pi`) symbol being inserted.
+For example, typing the `p` key followed by the `i` key will result in the \*_π_(`\pi`) symbol being inserted.
 
 If a substitution was undesirable, use **undo** to revert to the raw input.
 
 MathLive has some built-in inline shortcuts defined, but they can be replaced or enhanced with new shortcuts.
 
-###  **config.overrideDefaultInlineShortcuts**: boolean=false
+### **config.overrideDefaultInlineShortcuts**: boolean=false
 
 If `true` the default inline shortcuts are ignored.
 
@@ -42,42 +44,41 @@ Use this if you want to completely override (or turn off) the default inline sho
 
 ### **config.inlineShortcuts**: Object.<string, string>
 
-A map of shortcuts → replacement value. 
+A map of shortcuts → replacement value.
 
-For example `{ 'pi':   '\\pi'}`. 
+For example `{ 'pi': '\\pi'}`.
 
 If `overrideDefaultInlineShortcuts` is false, these shortcuts are applied after any default ones, and can therefore override them.
 
-
-
 ### **config.inlineShortcutTimeout**: number = 0
+
 Maximum time, in milliseconds, between consecutive characters for them to be
-considered part of the same shortcut sequence. 
+considered part of the same shortcut sequence.
 
-A value of 0 is the same as infinity: any consecutive 
-character will be candidate for an inline shortcut, regardless of the 
-interval between this character and the previous one. 
+A value of 0 is the same as infinity: any consecutive
+character will be candidate for an inline shortcut, regardless of the
+interval between this character and the previous one.
 
-A value of 750 will indicate that the maximum interval between two 
-characters to be considered part of the same inline shortcut sequence is 
+A value of 750 will indicate that the maximum interval between two
+characters to be considered part of the same inline shortcut sequence is
 3/4 of a second.
 
-This is useful to enter "+-" as a sequence of two characters, while also 
+This is useful to enter "+-" as a sequence of two characters, while also
 supporting the "±" shortcut with the same sequence.
 
-The first result can be entered by pausing slightly between the first and 
+The first result can be entered by pausing slightly between the first and
 second character if this option is set to a value of 250 or so.
 
 Note that some operations, such as clicking to change the selection, or losing
 the focus on the mathfield, will automatically timeout the shortcuts.
 
-
 ### ASCIIMath Inline Shortcuts
-[ASCIIMath](https://github.com/asciimath/asciimathml/blob/master/ASCIIMathML.js) defines a series of shortcuts that can be typed with ASCII characters to 
+
+[ASCIIMath](https://github.com/asciimath/asciimathml/blob/master/ASCIIMathML.js) defines a series of shortcuts that can be typed with ASCII characters to
 represent mathematical symbols and expressions.
 
 The most common ASCIIMath shortcuts are part of the default inline shortcuts.
-To support additional ASCIIMath shortcuts, add them to the `inlineShortcuts` 
+To support additional ASCIIMath shortcuts, add them to the `inlineShortcuts`
 setting.
 
 ```javascript
@@ -121,8 +122,8 @@ inlineShortcuts: {
     '-lt': '\\prec',
     '-<=': '\\preceq',
     // '>-': '\\succ',
-    '>-=': '\\succeq', 
-    'prop': '\\propto', 
+    '>-=': '\\succeq',
+    'prop': '\\propto',
     'diamond': '\\diamond',
     'square': '\\square',
     'iff': '\\iff',
@@ -149,7 +150,7 @@ inlineShortcuts: {
     'TT': '\\top',
     '|--': '\\vdash',
     '|==': '\\models',
-    
+
     // Other functions
     '|__': '\\lfloor',
     '__|': '\\rfloor',

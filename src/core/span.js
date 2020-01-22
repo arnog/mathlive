@@ -31,7 +31,6 @@ function toString(arg) {
     return result;
 }
 
-
 //----------------------------------------------------------------------------
 // SPAN
 //----------------------------------------------------------------------------
@@ -103,7 +102,6 @@ export class Span {
         this.depth = depth;
         this.maxFontSize = maxFontSize;
     }
-
 
     selected(isSelected) {
         if (isSelected && !/ML__selected/.test(this.classes)) {
@@ -178,38 +176,44 @@ export class Span {
         //
 
         if (style.fontShape) {
-            this.classes += ' ' + ({
-                'it': 'ML__it',
-                'sl': 'ML__shape_sl',     // slanted
-                'sc': 'ML__shape_sc',     // small caps
-                'ol': 'ML__shape_ol'      // outline
-            }[style.fontShape] || '');
+            this.classes +=
+                ' ' +
+                ({
+                    it: 'ML__it',
+                    sl: 'ML__shape_sl', // slanted
+                    sc: 'ML__shape_sc', // small caps
+                    ol: 'ML__shape_ol', // outline
+                }[style.fontShape] || '');
         }
         if (style.fontSeries) {
             const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
             if (m) {
-                this.classes += ' ' + ({
-                    'ul': 'ML__series_ul',
-                    'el': 'ML__series_el',
-                    'l': 'ML__series_l',
-                    'sl': 'ML__series_sl',
-                    'm': '',                // medium (default)
-                    'sb': 'ML__series_sb',
-                    'b': 'ML__bold',
-                    'eb': 'ML__series_eb',
-                    'ub': 'ML__series_ub',
-                }[m[1] || ''] || '');
-                this.classes += ' ' + ({
-                    'uc': 'ML__series_uc',
-                    'ec': 'ML__series_ec',
-                    'c': 'ML__series_c',
-                    'sc': 'ML__series_sc',
-                    'n': '',                // normal (default)
-                    'sx': 'ML__series_sx',
-                    'x': 'ML__series_x',
-                    'ex': 'ML__series_ex',
-                    'ux': 'ML__series_ux',
-                }[m[2] || ''] || '');
+                this.classes +=
+                    ' ' +
+                    ({
+                        ul: 'ML__series_ul',
+                        el: 'ML__series_el',
+                        l: 'ML__series_l',
+                        sl: 'ML__series_sl',
+                        m: '', // medium (default)
+                        sb: 'ML__series_sb',
+                        b: 'ML__bold',
+                        eb: 'ML__series_eb',
+                        ub: 'ML__series_ub',
+                    }[m[1] || ''] || '');
+                this.classes +=
+                    ' ' +
+                    ({
+                        uc: 'ML__series_uc',
+                        ec: 'ML__series_ec',
+                        c: 'ML__series_c',
+                        sc: 'ML__series_sc',
+                        n: '', // normal (default)
+                        sx: 'ML__series_sx',
+                        x: 'ML__series_x',
+                        ex: 'ML__series_ex',
+                        ux: 'ML__series_ux',
+                    }[m[2] || ''] || '');
             }
         }
 
@@ -226,22 +230,26 @@ export class Span {
         if (this.body && this.body.length > 0 && fontName) {
             this.height = 0.0;
             this.depth = 0.0;
-            this.maxFontSize = {
-                size1: 0.5,
-                size2: 0.7,
-                size3: 0.8,
-                size4: 0.9,
-                size5: 1.0,
-                size6: 1.2,
-                size7: 1.44,
-                size8: 1.73,
-                size9: 2.07,
-                size10: 2.49,
-            }[style.fontSize] || 1.0;
+            this.maxFontSize =
+                {
+                    size1: 0.5,
+                    size2: 0.7,
+                    size3: 0.8,
+                    size4: 0.9,
+                    size5: 1.0,
+                    size6: 1.2,
+                    size7: 1.44,
+                    size8: 1.73,
+                    size9: 2.07,
+                    size10: 2.49,
+                }[style.fontSize] || 1.0;
             this.skew = 0.0;
             this.italic = 0.0;
             for (let i = 0; i < this.body.length; i++) {
-                const metrics = FontMetrics.getCharacterMetrics(this.body.charAt(i), fontName);
+                const metrics = FontMetrics.getCharacterMetrics(
+                    this.body.charAt(i),
+                    fontName
+                );
                 // If we were able to get metrics info for this character, store it.
                 if (metrics) {
                     this.height = Math.max(this.height, metrics.height);
@@ -251,9 +259,7 @@ export class Span {
                 }
             }
         }
-        
     }
-
 
     /**
      * Set the value of a CSS property associated with this span.
@@ -282,22 +288,22 @@ export class Span {
         }
     }
 
-/**
- *
- * @param {number} left
- * @private
- */
+    /**
+     *
+     * @param {number} left
+     * @private
+     */
     setLeft(left) {
         if (left && left !== 0) {
             if (!this.style) this.style = {};
             this.style['margin-left'] = toString(left) + 'em';
         }
     }
-/**
- *
- * @param {number} right
- * @private
- */
+    /**
+     *
+     * @param {number} right
+     * @private
+     */
     setRight(right) {
         if (right && right !== 0) {
             if (!this.style) this.style = {};
@@ -313,8 +319,12 @@ export class Span {
 
     addMarginRight(margin) {
         if (margin && margin !== 0) {
-            if (!this.style &&
-                !/qquad|quad|enspace|thickspace|mediumspace|thinspace|negativethinspace/.test(this.classes)) {
+            if (
+                !this.style &&
+                !/qquad|quad|enspace|thickspace|mediumspace|thinspace|negativethinspace/.test(
+                    this.classes
+                )
+            ) {
                 // Attempt to use a class instead of an explicit margin
                 const cls = {
                     '2': 'qquad',
@@ -323,7 +333,7 @@ export class Span {
                     '0.277778': 'thickspace',
                     '0.222222': 'mediumspace',
                     '0.166667': 'thinspace',
-                    '-0.166667': 'negativethinspace'
+                    '-0.166667': 'negativethinspace',
                 }[margin.toString()];
                 if (cls) {
                     this.classes += ' rspace ' + cls;
@@ -332,7 +342,8 @@ export class Span {
             }
             if (!this.style) this.style = {};
             const currentMargin = parseFloat(this.style['margin-right'] || '0');
-            this.style['margin-right'] = toString(currentMargin + margin) + 'em';
+            this.style['margin-right'] =
+                toString(currentMargin + margin) + 'em';
         }
     }
     /**
@@ -361,9 +372,14 @@ export class Span {
                         if (type === 'textord') type = 'mord';
                         if (type === 'first') type = 'none';
                         if (child.isTight) {
-                            spacing = (INTER_ATOM_TIGHT_SPACING[previousType + '+' + type] || 0);
+                            spacing =
+                                INTER_ATOM_TIGHT_SPACING[
+                                    previousType + '+' + type
+                                ] || 0;
                         } else {
-                            spacing = (INTER_ATOM_SPACING[previousType + '+' + type] || 0);
+                            spacing =
+                                INTER_ATOM_SPACING[previousType + '+' + type] ||
+                                0;
                         }
                         spacing = Math.floor(hscale * spacing);
                     }
@@ -373,17 +389,18 @@ export class Span {
             }
         }
         // Collapse 'empty' spans
-        if ((body === '\u200b' || !body) &&
-            (!this.classes || this.classes === 'ML__selected')) {
+        if (
+            (body === '\u200b' || !body) &&
+            (!this.classes || this.classes === 'ML__selected')
+        ) {
             result = '';
-
         } else {
             // Note: We can't omit the tag, even if it has no class and no style,
             // as some layouts (vlist) depends on the presence of the tag to function
             result = '<span';
 
             if (this.cssId) {
-                result += ' id="' + this.cssId + '" '
+                result += ' id="' + this.cssId + '" ';
             }
 
             if (this.svgOverlay) {
@@ -394,8 +411,18 @@ export class Span {
 
             if (this.attributes) {
                 for (const attribute in this.attributes) {
-                    if (Object.prototype.hasOwnProperty.call(this.attributes, attribute)) {
-                        result += ' ' + attribute + '="' + this.attributes[attribute] + '"';
+                    if (
+                        Object.prototype.hasOwnProperty.call(
+                            this.attributes,
+                            attribute
+                        )
+                    ) {
+                        result +=
+                            ' ' +
+                            attribute +
+                            '="' +
+                            this.attributes[attribute] +
+                            '"';
                     }
                 }
             }
@@ -405,24 +432,27 @@ export class Span {
             // Add the type (mbin, mrel, etc...) if specified
             if (this.type) {
                 if (/command|placeholder|error/.test(this.type)) {
-                    classes.push({
-                        'command': 'ML__command',
-                        'placeholder': 'ML__placeholder',
-                        'error': 'ML__error'
-                    }[this.type]);
+                    classes.push(
+                        {
+                            command: 'ML__command',
+                            placeholder: 'ML__placeholder',
+                            error: 'ML__error',
+                        }[this.type]
+                    );
                 }
                 if (this.caret && this.type === 'command') {
                     classes.push('ML__command-caret');
                 }
             }
 
-
             // Remove duplicate and empty classes
             let classList = '';
             if (classes.length > 1) {
-                classList = classes.filter(function (x, e, a) {
-                    return x.length > 0 && a.indexOf(x) === e;
-                }).join(' ');
+                classList = classes
+                    .filter(function(x, e, a) {
+                        return x.length > 0 && a.indexOf(x) === e;
+                    })
+                    .join(' ');
             } else {
                 classList = classes[0];
             }
@@ -436,7 +466,9 @@ export class Span {
                 if (this.style && this.style['margin-left']) {
                     // There was already a margin, add to it
                     this.style['margin-left'] =
-                        toString((parseFloat(this.style['margin-left']) + hskip / 18)) + 'em';
+                        toString(
+                            parseFloat(this.style['margin-left']) + hskip / 18
+                        ) + 'em';
                 } else {
                     // No margin yet. Can we encode it as a Unicode space?
                     if (hskip < 0 && NEGATIVE_SPACING_CHARACTER[-hskip]) {
@@ -454,11 +486,14 @@ export class Span {
                 let styleString = '';
                 const isSelected = /ML__selected/.test(this.classes);
                 for (const style in this.style) {
-                    if (Object.prototype.hasOwnProperty.call(this.style, style)) {
+                    if (
+                        Object.prototype.hasOwnProperty.call(this.style, style)
+                    ) {
                         // Render the style property, except the background
                         // of selected spans
                         if (style !== 'background-color' || !isSelected) {
-                            styleString += style + ':' + this.style[style] + ';';
+                            styleString +=
+                                style + ':' + this.style[style] + ';';
                         }
                     }
                 }
@@ -484,11 +519,18 @@ export class Span {
                 result += 'style="position:absolute;';
                 result += 'overflow:overlay;';
                 result += 'height:' + (this.height + this.depth) + 'em;';
-                result += 'transform:translateY(-' + Math.round(FontMetrics.toPx(this.depth, 'em') + FontMetrics.toPx(this.style.padding)) + 'px);';
+                result +=
+                    'transform:translateY(-' +
+                    Math.round(
+                        FontMetrics.toPx(this.depth, 'em') +
+                            FontMetrics.toPx(this.style.padding)
+                    ) +
+                    'px);';
                 if (this.style && this.style.padding) {
                     result += 'top:' + this.style.padding + ';';
                     result += 'left:' + this.style.padding + ';';
-                    result += 'width:calc(100% - 2 * ' + this.style.padding + ' );';
+                    result +=
+                        'width:calc(100% - 2 * ' + this.style.padding + ' );';
                 } else {
                     result += 'top:0;';
                     result += 'left:0;';
@@ -509,7 +551,6 @@ export class Span {
             result = result + '</span>';
         }
 
-
         if (this.caret && this.type !== 'command') {
             if (this.caret === 'text') {
                 result = result + '<span class="ML__text-caret"></span>';
@@ -520,7 +561,6 @@ export class Span {
 
         return result;
     }
-
 
     /**
      * Can this span be coalesced with 'span'?
@@ -539,8 +579,12 @@ export class Span {
         if (this.tag !== span.tag) return false;
         if (this.type !== span.type) return false;
         // Don't coalesce consecutive errors or placeholders
-        if (this.type === 'error' || this.type === 'placeholder' ||
-            this.type === 'command') return false;
+        if (
+            this.type === 'error' ||
+            this.type === 'placeholder' ||
+            this.type === 'command'
+        )
+            return false;
         // If this span or the candidate span have children, we can't
         // coalesce them, but we'll try to coalesce their children
         const hasChildren = this.children && this.children.length > 0;
@@ -552,9 +596,13 @@ export class Span {
         if (thisStyleCount !== spanStyleCount) return false;
         // For the purpose of our comparison,
         // any 'empty' classes (whitespace)
-        const classes = this.classes.trim().replace(/\s+/g, ' ')
+        const classes = this.classes
+            .trim()
+            .replace(/\s+/g, ' ')
             .split(' ');
-        const spanClasses = span.classes.trim().replace(/\s+/g, ' ')
+        const spanClasses = span.classes
+            .trim()
+            .replace(/\s+/g, ' ')
             .split(' ');
         // If they have a different number of classes, can't coalesce
         if (classes.length !== spanClasses.length) return false;
@@ -571,8 +619,10 @@ export class Span {
         // If the styles are different, can't coalesce
         if (this.style && span.style) {
             for (const style in this.style) {
-                if (Object.prototype.hasOwnProperty.call(this.style, style) &&
-                    Object.prototype.hasOwnProperty.call(span.style, style)) {
+                if (
+                    Object.prototype.hasOwnProperty.call(this.style, style) &&
+                    Object.prototype.hasOwnProperty.call(span.style, style)
+                ) {
                     if (this.style[style] !== span.style[style]) return false;
                 }
             }
@@ -590,20 +640,6 @@ export class Span {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
  * Return HTML markup representing this span, its style, classes and
  * children.
@@ -615,62 +651,61 @@ export class Span {
  * @private
  */
 const INTER_ATOM_SPACING = {
-    'mord+mop':            3,
-    'mord+mbin':           4,
-    'mord+mrel':           5,
-    'mord+minner':         3,
+    'mord+mop': 3,
+    'mord+mbin': 4,
+    'mord+mrel': 5,
+    'mord+minner': 3,
 
-    'mop+mord':             3,
-    'mop+mop':              3,
-    'mop+mbin':             5,
-    'mop+minner':           3,
+    'mop+mord': 3,
+    'mop+mop': 3,
+    'mop+mbin': 5,
+    'mop+minner': 3,
 
-    'mbin+mord':            4,
-    'mbin+mop':             4,
-    'mbin+mopen':           4,
-    'mbin+minner':          4,
+    'mbin+mord': 4,
+    'mbin+mop': 4,
+    'mbin+mopen': 4,
+    'mbin+minner': 4,
 
-    'mrel+mord':            5,
-    'mrel+mop':             5,
-    'mrel+mopen':           5,
-    'mrel+minner':          5,
+    'mrel+mord': 5,
+    'mrel+mop': 5,
+    'mrel+mopen': 5,
+    'mrel+minner': 5,
 
-    'mclose+mop':           3,
-    'mclose+mbin':          4,
-    'mclose+mrel':          5,
-    'mclose+minner':        3,
+    'mclose+mop': 3,
+    'mclose+mbin': 4,
+    'mclose+mrel': 5,
+    'mclose+minner': 3,
 
-    'mpunct+mord':          3,
-    'mpunct+mop':           3,
-    'mpunct+mbin':          4,
-    'mpunct+mrel':          5,
-    'mpunct+mopen':         3,
-    'mpunct+mpunct':        3,
-    'mpunct+minner':        3
-}
-
+    'mpunct+mord': 3,
+    'mpunct+mop': 3,
+    'mpunct+mbin': 4,
+    'mpunct+mrel': 5,
+    'mpunct+mopen': 3,
+    'mpunct+mpunct': 3,
+    'mpunct+minner': 3,
+};
 
 // See https://www.w3.org/TR/2000/WD-MathML2-20000328/chapter6.html
 // 6.1.4 Non-Marking Characters
 const SPACING_CHARACTER = [
-    '\u200b',            // 0/18 ZERO-WIDTH SPACE
-    '\u200a',            // 1/18 HAIR SPACE
-    '\u200a\u200a',      // 2/18
-    '\u2009',            // 3/18 THIN SPACE
-    '\u205f',            // 4/18 MEDIUM MATHEMATICAL SPACE
-    '\u205f\u200a',      // 5/18 MEDIUM MATHEMATICAL SPACE + HAIR SPACE
-    '\u2004',            // 6/18 THREE-PER-EM SPACE   1/3em
+    '\u200b', // 0/18 ZERO-WIDTH SPACE
+    '\u200a', // 1/18 HAIR SPACE
+    '\u200a\u200a', // 2/18
+    '\u2009', // 3/18 THIN SPACE
+    '\u205f', // 4/18 MEDIUM MATHEMATICAL SPACE
+    '\u205f\u200a', // 5/18 MEDIUM MATHEMATICAL SPACE + HAIR SPACE
+    '\u2004', // 6/18 THREE-PER-EM SPACE   1/3em
     '',
     '',
-    '\u2002'             // 9/18 EN SPACE 1/2em = 9/18
+    '\u2002', // 9/18 EN SPACE 1/2em = 9/18
 ];
 const NEGATIVE_SPACING_CHARACTER = [
     '',
-    '\u200a\u2063',     // -1/18
+    '\u200a\u2063', // -1/18
     '',
-    '\u2009\u2063',     // -3/18
-    '\u205f\u2063',     // -4/18
-    '\u2005\u2063'      // -5/18
+    '\u2009\u2063', // -3/18
+    '\u205f\u2063', // -4/18
+    '\u2005\u2063', // -5/18
 ];
 
 /**
@@ -679,12 +714,12 @@ const NEGATIVE_SPACING_CHARACTER = [
  * @private
  */
 const INTER_ATOM_TIGHT_SPACING = {
-    'mord+mop':             3,
-    'mop+mord':             3,
-    'mop+mop':              3,
-    'mclose+mop':           3,
-    'minner+mop':           3
-}
+    'mord+mop': 3,
+    'mop+mord': 3,
+    'mop+mop': 3,
+    'mclose+mop': 3,
+    'minner+mop': 3,
+};
 
 function lastSpanType(span) {
     const result = span.type;
@@ -692,9 +727,6 @@ function lastSpanType(span) {
     if (result === 'textord') return 'mord';
     return result;
 }
-
-
-
 
 /**
  * Attempts to coalesce (merge) spans, for example consecutive text spans.
@@ -720,7 +752,6 @@ function coalesce(spans) {
     return result;
 }
 
-
 //----------------------------------------------------------------------------
 // UTILITY FUNCTIONS
 //----------------------------------------------------------------------------
@@ -740,7 +771,6 @@ function depth(spans) {
     }
     return spans.depth;
 }
-
 
 function skew(spans) {
     if (!spans) return 0;
@@ -762,7 +792,6 @@ function italic(spans) {
     return spans.italic;
 }
 
-
 /**
  * Make an element made of a sequence of children with classes
  * @param {(string|Span|Span[])} content the items 'contained' by this node
@@ -782,7 +811,6 @@ export function makeSpan(content, classes) {
     }
     return new Span(content, classes);
 }
-
 
 /**
  *
@@ -806,7 +834,6 @@ function makeSymbol(fontFamily, symbol, classes) {
     return result;
 }
 
-
 /**
  * Makes an element placed in each of the vlist elements to ensure that each
  * element has the same max font size. To do this, we create a zero-width space
@@ -818,23 +845,29 @@ function makeSymbol(fontFamily, symbol, classes) {
  * @private
  */
 function makeFontSizer(context, fontSize) {
-    const fontSizeAdjustment = fontSize ? fontSize / context.mathstyle.sizeMultiplier : 0;
-    const fontSizeInner = new Span('\u200b');    // ZERO WIDTH SPACE
+    const fontSizeAdjustment = fontSize
+        ? fontSize / context.mathstyle.sizeMultiplier
+        : 0;
+    const fontSizeInner = new Span('\u200b'); // ZERO WIDTH SPACE
 
     if (fontSizeAdjustment !== 1) {
-        fontSizeInner.setStyle('font-size',
+        fontSizeInner.setStyle(
+            'font-size',
             fontSizeAdjustment,
-            (fontSizeAdjustment > 0) ? 'em' : '');
+            fontSizeAdjustment > 0 ? 'em' : ''
+        );
         fontSizeInner.attributes = {
-            "aria-hidden": true
-        }
+            'aria-hidden': true,
+        };
     }
 
     if (context.size !== 'size5') {
-        return new Span(fontSizeInner,
-            'fontsize-ensurer reset-' + context.size + ' size5');
+        return new Span(
+            fontSizeInner,
+            'fontsize-ensurer reset-' + context.size + ' size5'
+        );
     }
-    return (fontSizeAdjustment !== 0) ? fontSizeInner : null;
+    return fontSizeAdjustment !== 0 ? fontSizeInner : null;
 }
 
 /**
@@ -883,7 +916,6 @@ function makePunct(content, classes) {
     return makeSpanOfType('mpunct', content, classes);
 }
 
-
 function makeStyleWrap(type, children, fromStyle, toStyle, classes) {
     classes = classes || '';
     classes += ' style-wrap ';
@@ -928,7 +960,7 @@ export function makeHlist(spans, classes) {
             return spans;
         } else if (Array.isArray(spans) && spans.length === 1) {
             // An array, with a single span, use the single span as the output
-            return spans[0]
+            return spans[0];
         }
     }
     const result = new Span(spans, classes);
@@ -1012,12 +1044,14 @@ export function makeVlist(context, elements, pos, posData) {
         listDepth = -originalElements[1] - originalElements[0].depth;
         currPos = listDepth;
         for (let i = 2; i < originalElements.length; i += 2) {
-            const diff = -originalElements[i + 1] - currPos -
-                originalElements[i].depth;
+            const diff =
+                -originalElements[i + 1] - currPos - originalElements[i].depth;
             currPos = currPos + diff;
 
-            const kern = diff -
-                (originalElements[i - 2].height + originalElements[i - 2].depth);
+            const kern =
+                diff -
+                (originalElements[i - 2].height +
+                    originalElements[i - 2].depth);
 
             elements.push(kern);
             elements.push(originalElements[i]);
@@ -1088,41 +1122,36 @@ export function makeVlist(context, elements, pos, posData) {
 //     return makeOrd([topStrut, bottomStrut, base]);
 // }
 
-
-
 //----------------------------------------------------------------------------
 // FONTS
 //----------------------------------------------------------------------------
 
 // Map an abstract 'fontFamily' to an actual font name
 const FONT_NAME = {
-    'ams':          'AMS-Regular',
-    'bb':           'AMS-Regular',
-    'cal':          'Caligraphic-Regular',
-    'frak':         'Fraktur-Regular',
-    'scr':          'Script-Regular',
-    'cmr':          'Main-Regular',
-    'cmss':         'SansSerif-Regular',
-    'cmtt':         'Typewriter-Regular',
-    'math':         'Math-Regular',
-    'mainit':       'Main-Italic',
-
+    ams: 'AMS-Regular',
+    bb: 'AMS-Regular',
+    cal: 'Caligraphic-Regular',
+    frak: 'Fraktur-Regular',
+    scr: 'Script-Regular',
+    cmr: 'Main-Regular',
+    cmss: 'SansSerif-Regular',
+    cmtt: 'Typewriter-Regular',
+    math: 'Math-Regular',
+    mainit: 'Main-Italic',
 };
 
 const FONT_CLASS = {
-    'ams':          'ML__ams',
-    'bb':           'ML__bb',
-    'cal':          'ML__cal',
-    'frak':         'ML__frak',
-    'scr':          'ML__script',
-    'cmr':          'ML__mathrm',
-    'cmss':         'ML__sans',
-    'cmtt':         'ML__tt',
-    'math':         'ML__mathit',
-    'mainit':       'ML__mainit',
-}
-
-
+    ams: 'ML__ams',
+    bb: 'ML__bb',
+    cal: 'ML__cal',
+    frak: 'ML__frak',
+    scr: 'ML__script',
+    cmr: 'ML__mathrm',
+    cmss: 'ML__sans',
+    cmtt: 'ML__tt',
+    math: 'ML__mathit',
+    mainit: 'ML__mainit',
+};
 
 /**
  * Given a font family ('frak', 'math'...) return a corresponding
@@ -1136,9 +1165,11 @@ const FONT_CLASS = {
  */
 function getFontName(symbol, fontFamily) {
     // If this is not a single char, just do a simple fontFamily -> fontName mapping
-    if (typeof symbol !== 'string' ||
+    if (
+        typeof symbol !== 'string' ||
         symbol.length > 1 ||
-        symbol === '\u200b') {
+        symbol === '\u200b'
+    ) {
         return FONT_NAME[fontFamily];
     }
 
@@ -1149,17 +1180,19 @@ function getFontName(symbol, fontFamily) {
     if (fontFamily === 'bb' || fontFamily === 'scr') {
         // These fonts only support [A-Z ]
         if (!/^[A-Z ]$/.test(symbol)) return null;
-
     } else if (fontFamily === 'cal') {
         // Only supports uppercase latin and digits
         if (!/^[0-9A-Z ]$/.test(symbol)) return null;
-
     } else if (fontFamily === 'frak') {
         if (!/^[0-9A-Za-z ]$|^[!"#$%&'()*+,\-./:;=?[]^’‘]$/.test(symbol)) {
             return null;
         }
     } else if (fontFamily === 'cmtt' || fontFamily === 'cmss') {
-        if (!/^[0-9A-Za-z ]$|^[!"&'()*+,\-./:;=?@[]^_~\u0131\u0237\u0393\u0394\u0398\u039b\u039e\u03A0\u03A3\u03A5\u03A8\u03a9’‘]$/.test(symbol)) {
+        if (
+            !/^[0-9A-Za-z ]$|^[!"&'()*+,\-./:;=?@[]^_~\u0131\u0237\u0393\u0394\u0398\u039b\u039e\u03A0\u03A3\u03A5\u03A8\u03a9’‘]$/.test(
+                symbol
+            )
+        ) {
             return null;
         }
     }
@@ -1192,7 +1225,5 @@ export default {
     height,
     depth,
     skew,
-    italic
-}
-
-
+    italic,
+};

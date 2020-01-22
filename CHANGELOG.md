@@ -238,7 +238,7 @@ Now, a shortcut can be defined with some pre-conditions. It is still possible to
 
 ```javascript
 config.inlineShortcuts = {
-    in: "\\in"
+    in: '\\in',
 };
 ```
 
@@ -247,10 +247,10 @@ However, a shortcut can now be specified with an object:
 ```javascript
 config.inlineShortcuts = {
     in: {
-        mode: "math",
-        after: "space+letter+digit+symbol+fence",
-        value: "\\in"
-    }
+        mode: 'math',
+        after: 'space+letter+digit+symbol+fence',
+        value: '\\in',
+    },
 };
 ```
 
@@ -397,10 +397,10 @@ The `'after'` key, if present, indicate in what context the shortcut should appl
     argument of the handlers now refers to the mathfield to which it applies.
 
 ```javascript
-MathLive.makeMathField("input", {
+MathLive.makeMathField('input', {
     onContentDidChange: mf => {
-        document.getElementById("output").innerHTML = mf.latex();
-    }
+        document.getElementById('output').innerHTML = mf.latex();
+    },
 });
 ```
 
@@ -441,7 +441,7 @@ but it is recommended to use native JavaScript modules:
 
 ```html
 <script type="module">
-    import MathLive from "../../dist/mathlive.mjs";
+    import MathLive from '../../dist/mathlive.mjs';
 </script>
 ```
 
@@ -476,7 +476,7 @@ Instead of:
 use:
 
 ```javascript
-import MathLive from "../../dist/src/mathlive.js";
+import MathLive from '../../dist/src/mathlive.js';
 MathLive.makeMathField(/*...*/);
 ```
 

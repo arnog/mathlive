@@ -1,16 +1,14 @@
 {
     "tags": {
         "allowUnknownTags": true,
-        "dictionaries": ["jsdoc","closure"]
+        "dictionaries": ["jsdoc", "closure"]
     },
     "source": {
         "include": "./src/",
         "includePattern": ".+\\.js$",
         "excludePattern": "^_"
     },
-    "plugins": [
-        "plugins/markdown"
-    ],
+    "plugins": ["plugins/markdown"],
     "templates": {
         "cleverLinks": false,
         "monospaceLinks": false,
@@ -26,10 +24,10 @@
         "headerAddendum": "<link rel=\"stylesheet\" href=\"http://mathlive.io/mathlive/mathlive.core.css\" type=\"text/css\"><link rel=\"stylesheet\" href=\"http://mathlive.io/mathlive/mathlive.css\" type=\"text/css\">",
         "bodyAddendum": "<script src=\"http://mathlive.io/mathlive/mathlive.js\"></script><script>if (MathLive) {MathLive.renderMathInDocument();}</script>"
     },
-    "markdown"  : {
-        "parser"        : "gfm",
-        "hardwrap"      : false,
-        "idInHeadings"  : true
+    "markdown": {
+        "parser": "gfm",
+        "hardwrap": false,
+        "idInHeadings": true
     },
     "opts": {
         "access": "all",

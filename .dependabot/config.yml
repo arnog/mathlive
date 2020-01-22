@@ -1,17 +1,17 @@
 version: 1
 
 update_configs:
-  # Keep package.json (& lockfiles) up to date 
-  # batching pull requests weekly
-  - package_manager: "javascript"
-    directory: "/"
-    update_schedule: "weekly"
-    automerged_updates:
-      - match:
-          # Supported dependency types:
-          # - "development"
-          # - "production"
-          # - "all"
-          dependency_type: "all"
-          update_type: "semver:minor"
-    version_requirement_updates: "increase_versions"
+    # Keep package.json (& lockfiles) up to date
+    # batching pull requests weekly
+    - package_manager: 'javascript'
+      directory: '/'
+      update_schedule: 'weekly'
+      automerged_updates:
+          - match:
+                # Supported dependency types:
+                # - "development"
+                # - "production"
+                # - "all"
+                dependency_type: 'all'
+                update_type: 'semver:minor'
+      version_requirement_updates: 'increase_versions'

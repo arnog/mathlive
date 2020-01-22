@@ -1,14 +1,10 @@
 {
     "eslint.provideLintTask": true,
     "eslint.options": {
-        "configFile":".eslintrc.json"
+        "configFile": ".eslintrc.json"
     },
     "cSpell.allowCompoundWords": true,
-    "cSpell.words": [
-        "assistive",
-        "grapheme",
-        "latexify",
-        "mathrm"
-    ],
-    "search.usePCRE2": true
+    "cSpell.words": ["assistive", "grapheme", "latexify", "mathrm"],
+    "search.usePCRE2": true,
+    "cSpell.enabled": false
 }

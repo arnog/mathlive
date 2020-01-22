@@ -16,11 +16,17 @@
         }
     },
 
-    "extends": "eslint:recommended",
+    "extends": [
+        // Uses the recommended rules for Typescript
+        "plugin:@typescript-eslint/recommended",
+        // Disable rules that conflict with prettier
+        // See https://prettier.io/docs/en/integrating-with-linters.html
+        "plugin:prettier/recommended"
+    ],
     // See http://eslint.org/docs/rules/
 
     "rules": {
-        // Note: 
+        // Note:
         // "off" or 0 - turn the rule off
         // "warn" or 1 - turn the rule on as a warning (doesn’t affect exit code)
         // "error" or 2 - turn the rule on as an error (exit code is 1 when triggered)
@@ -41,7 +47,7 @@
         "valid-typeof": "error",
         "consistent-return": "error",
         "curly": ["warn", "multi-line"],
-        "eqeqeq": ["error","smart"],
+        "eqeqeq": ["error", "smart"],
         "guard-for-in": "warn",
         // "max-len": "warn",
         "new-cap": "warn",
@@ -64,9 +70,8 @@
         "no-delete-var": "warn",
         "no-mixed-spaces-and-tabs": ["warn", "smart-tabs"],
         "require-jsdoc": "off",
-        "space-infix-ops": ["error", {"int32Hint": false}],
+        "space-infix-ops": ["error", { "int32Hint": false }],
 
-        
-        "no-trailing-spaces": [1,{"skipBlankLines":true}]
+        "no-trailing-spaces": [1, { "skipBlankLines": true }]
     }
 }

@@ -1,18 +1,16 @@
 engines:
-  eslint:
-    enabled: true
-  duplication:
-    enabled: true
-    config:
-      languages:
-      - javascript:
+    eslint:
+        enabled: true
+    duplication:
+        enabled: true
+        config:
+            languages:
+                - javascript:
 exclude_paths:
-- "docs/"
-- "dist/"
-- "build/"
-- "test/"
+    - 'docs/'
+    - 'dist/'
+    - 'build/'
+    - 'test/'
 ratings:
-   paths:
-   - "src/**/*"
-
-    
+    paths:
+        - 'src/**/*'

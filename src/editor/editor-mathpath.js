@@ -3,9 +3,6 @@
  * @private
  */
 
-
-
-
 /**
  *
  * @memberof module:editor/mathpath
@@ -25,7 +22,6 @@ function pathToString(path, extent) {
     return result;
 }
 
-
 /**
  *
  * @memberof module:editor/mathpath
@@ -35,7 +31,7 @@ function pathToString(path, extent) {
  */
 function pathFromString(string) {
     // Reset the path
-    const result = {path: [], extent: 0};
+    const result = { path: [], extent: 0 };
 
     // Parse the selection extent, if present
     const components = string.split('#');
@@ -50,7 +46,7 @@ function pathFromString(string) {
         if (m2) {
             result.path.push({
                 relation: m2[1],
-                offset: parseInt(m2[2])
+                offset: parseInt(m2[2]),
             });
         }
     }
@@ -71,9 +67,11 @@ function pathCommonAncestor(p, q) {
     const result = [];
     const maxIndex = Math.min(p.length - 1, q.length - 1);
     let i = 0;
-    while ( i <= maxIndex &&
-            p[i].relation === q[i].relation &&
-            p[i].offset === q[i].offset) {
+    while (
+        i <= maxIndex &&
+        p[i].relation === q[i].relation &&
+        p[i].offset === q[i].offset
+    ) {
         result.push(p[i]);
         i += 1;
     }
@@ -91,31 +89,32 @@ function pathCommonAncestor(p, q) {
  * @private
  */
 function pathDistance(p, q) {
-     let result = 0;
-     let i = -1;
-     let done = false;
-     while (!done) {
+    let result = 0;
+    let i = -1;
+    let done = false;
+    while (!done) {
         i += 1;
         done = i >= p.length || i >= q.length;
-        done = done ||
-            !(p[i].relation === q[i].relation &&
-            p[i].offset === q[i].offset);
+        done =
+            done ||
+            !(p[i].relation === q[i].relation && p[i].offset === q[i].offset);
     }
     if (i === p.length && i === q.length) {
         // They're identical
         result = 0;
-    } else if (i + 1 === p.length && i + 1 === q.length &&
-        p[i].relation === q[i].relation ) {
+    } else if (
+        i + 1 === p.length &&
+        i + 1 === q.length &&
+        p[i].relation === q[i].relation
+    ) {
         // They're siblings
         result = 1;
     } else {
         result = 2;
     }
 
-     return result;
+    return result;
 }
-
-
 
 function clone(path) {
     return pathFromString(pathToString(path)).path;
@@ -126,9 +125,5 @@ export default {
     pathToString,
     pathDistance,
     pathCommonAncestor,
-    clone
-
-}
-
-
-
+    clone,
+};

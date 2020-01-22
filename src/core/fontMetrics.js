@@ -22,9 +22,7 @@ import metricMap from './fontMetricsData.js';
 // - CJK ideograms: [\u4E00-\u9FAF]
 // - Hangul syllables: [\uAC00-\uD7AF]
 // Notably missing are half width Katakana and Romaji glyphs.
-const cjkRegex =
-    /[\u3040-\u309F]|[\u30A0-\u30FF]|[\u4E00-\u9FAF]|[\uAC00-\uD7AF]/;
-
+const cjkRegex = /[\u3040-\u309F]|[\u30A0-\u30FF]|[\u4E00-\u9FAF]|[\uAC00-\uD7AF]/;
 
 /*
  *
@@ -54,28 +52,28 @@ const cjkRegex =
  * @memberof module:fontMetrics
  */
 export const SIGMAS = {
-    slant: [0.250, 0.250, 0.250],       // sigma1
-    space: [0.000, 0.000, 0.000],       // sigma2
-    stretch: [0.000, 0.000, 0.000],     // sigma3
-    shrink: [0.000, 0.000, 0.000],      // sigma4
-    xHeight: [0.431, 0.431, 0.431],     // sigma5
-    quad: [1.000, 1.171, 1.472],        // sigma6
-    extraSpace: [0.000, 0.000, 0.000],  // sigma7
-    num1: [0.677, 0.732, 0.925],        // sigma8
-    num2: [0.394, 0.384, 0.387],        // sigma9
-    num3: [0.444, 0.471, 0.504],        // sigma10
-    denom1: [0.686, 0.752, 1.025],      // sigma11
-    denom2: [0.345, 0.344, 0.532],      // sigma12
-    sup1: [0.413, 0.503, 0.504],        // sigma13
-    sup2: [0.363, 0.431, 0.404],        // sigma14
-    sup3: [0.289, 0.286, 0.294],        // sigma15
-    sub1: [0.150, 0.143, 0.200],        // sigma16
-    sub2: [0.247, 0.286, 0.400],        // sigma17
-    supDrop: [0.386, 0.353, 0.494],     // sigma18
-    subDrop: [0.050, 0.071, 0.100],     // sigma19
-    delim1: [2.390, 1.700, 1.980],      // sigma20
-    delim2: [1.010, 1.157, 1.420],      // sigma21
-    axisHeight: [0.250, 0.250, 0.250],  // sigma22
+    slant: [0.25, 0.25, 0.25], // sigma1
+    space: [0.0, 0.0, 0.0], // sigma2
+    stretch: [0.0, 0.0, 0.0], // sigma3
+    shrink: [0.0, 0.0, 0.0], // sigma4
+    xHeight: [0.431, 0.431, 0.431], // sigma5
+    quad: [1.0, 1.171, 1.472], // sigma6
+    extraSpace: [0.0, 0.0, 0.0], // sigma7
+    num1: [0.677, 0.732, 0.925], // sigma8
+    num2: [0.394, 0.384, 0.387], // sigma9
+    num3: [0.444, 0.471, 0.504], // sigma10
+    denom1: [0.686, 0.752, 1.025], // sigma11
+    denom2: [0.345, 0.344, 0.532], // sigma12
+    sup1: [0.413, 0.503, 0.504], // sigma13
+    sup2: [0.363, 0.431, 0.404], // sigma14
+    sup3: [0.289, 0.286, 0.294], // sigma15
+    sub1: [0.15, 0.143, 0.2], // sigma16
+    sub2: [0.247, 0.286, 0.4], // sigma17
+    supDrop: [0.386, 0.353, 0.494], // sigma18
+    subDrop: [0.05, 0.071, 0.1], // sigma19
+    delim1: [2.39, 1.7, 1.98], // sigma20
+    delim2: [1.01, 1.157, 1.42], // sigma21
+    axisHeight: [0.25, 0.25, 0.25], // sigma22
 };
 
 // These font metrics are extracted from TeX by using
@@ -118,15 +116,14 @@ export const METRICS = {
     bigOpSpacing4: xi12,
     bigOpSpacing5: xi13,
     ptPerEm: ptPerEm,
-    pxPerEm: ptPerEm * 4.0 / 3.0,   // A CSS pt is fixed at 1.333px
+    pxPerEm: (ptPerEm * 4.0) / 3.0, // A CSS pt is fixed at 1.333px
     doubleRuleSep: 2.0 / ptPerEm,
     arraycolsep: 5.0 / ptPerEm,
     baselineskip: 12.0 / ptPerEm,
     arrayrulewidth: 0.4 / ptPerEm,
-    fboxsep: 3 / ptPerEm,               // From letter.dtx:1626
-    fboxrule: 0.4 / ptPerEm,               // From letter.dtx:1627
+    fboxsep: 3 / ptPerEm, // From letter.dtx:1626
+    fboxrule: 0.4 / ptPerEm, // From letter.dtx:1627
 };
-
 
 // These are very rough approximations.  We default to Times New Roman which
 // should have Latin-1 and Cyrillic characters, but may not depending on the
@@ -136,85 +133,83 @@ export const METRICS = {
 // the fraction bar or root line from intersecting the glyph.
 // TODO(kevinb) allow union of multiple glyph metrics for better accuracy.
 const extraCharacterMap = {
-    '\u00a0': '\u0020',     // NON-BREAKING SPACE is like space
-    '\u200b': '\u0020',     // ZERO WIDTH SPACE is like space
+    '\u00a0': '\u0020', // NON-BREAKING SPACE is like space
+    '\u200b': '\u0020', // ZERO WIDTH SPACE is like space
     // Latin-1
-    'Å': 'A',
-    'Ç': 'C',
-    'Ð': 'D',
-    'Þ': 'o',
-    'å': 'a',
-    'ç': 'c',
-    'ð': 'd',
-    'þ': 'o',
-
+    Å: 'A',
+    Ç: 'C',
+    Ð: 'D',
+    Þ: 'o',
+    å: 'a',
+    ç: 'c',
+    ð: 'd',
+    þ: 'o',
 
     // Cyrillic
-    'А': 'A',
-    'Б': 'B',
-    'В': 'B',
-    'Г': 'F',
-    'Д': 'A',
-    'Е': 'E',
-    'Ж': 'K',
-    'З': '3',
-    'И': 'N',
-    'Й': 'N',
-    'К': 'K',
-    'Л': 'N',
-    'М': 'M',
-    'Н': 'H',
-    'О': 'O',
-    'П': 'N',
-    'Р': 'P',
-    'С': 'C',
-    'Т': 'T',
-    'У': 'y',
-    'Ф': 'O',
-    'Х': 'X',
-    'Ц': 'U',
-    'Ч': 'h',
-    'Ш': 'W',
-    'Щ': 'W',
-    'Ъ': 'B',
-    'Ы': 'X',
-    'Ь': 'B',
-    'Э': '3',
-    'Ю': 'X',
-    'Я': 'R',
-    'а': 'a',
-    'б': 'b',
-    'в': 'a',
-    'г': 'r',
-    'д': 'y',
-    'е': 'e',
-    'ж': 'm',
-    'з': 'e',
-    'и': 'n',
-    'й': 'n',
-    'к': 'n',
-    'л': 'n',
-    'м': 'm',
-    'н': 'n',
-    'о': 'o',
-    'п': 'n',
-    'р': 'p',
-    'с': 'c',
-    'т': 'o',
-    'у': 'y',
-    'ф': 'b',
-    'х': 'x',
-    'ц': 'n',
-    'ч': 'n',
-    'ш': 'w',
-    'щ': 'w',
-    'ъ': 'a',
-    'ы': 'm',
-    'ь': 'a',
-    'э': 'e',
-    'ю': 'm',
-    'я': 'r',
-
+    А: 'A',
+    Б: 'B',
+    В: 'B',
+    Г: 'F',
+    Д: 'A',
+    Е: 'E',
+    Ж: 'K',
+    З: '3',
+    И: 'N',
+    Й: 'N',
+    К: 'K',
+    Л: 'N',
+    М: 'M',
+    Н: 'H',
+    О: 'O',
+    П: 'N',
+    Р: 'P',
+    С: 'C',
+    Т: 'T',
+    У: 'y',
+    Ф: 'O',
+    Х: 'X',
+    Ц: 'U',
+    Ч: 'h',
+    Ш: 'W',
+    Щ: 'W',
+    Ъ: 'B',
+    Ы: 'X',
+    Ь: 'B',
+    Э: '3',
+    Ю: 'X',
+    Я: 'R',
+    а: 'a',
+    б: 'b',
+    в: 'a',
+    г: 'r',
+    д: 'y',
+    е: 'e',
+    ж: 'm',
+    з: 'e',
+    и: 'n',
+    й: 'n',
+    к: 'n',
+    л: 'n',
+    м: 'm',
+    н: 'n',
+    о: 'o',
+    п: 'n',
+    р: 'p',
+    с: 'c',
+    т: 'o',
+    у: 'y',
+    ф: 'b',
+    х: 'x',
+    ц: 'n',
+    ч: 'n',
+    ш: 'w',
+    щ: 'w',
+    ъ: 'a',
+    ы: 'm',
+    ь: 'a',
+    э: 'e',
+    ю: 'm',
+    я: 'r',
 };
 
 /**
@@ -229,17 +224,18 @@ const extraCharacterMap = {
  * @private
  */
 const getCharacterMetrics = function(character, fontCode) {
-    const fontName = {
-        'cal': 'Caligraphic-Regular',
-        'ams': 'AMS-Regular',
-        'frak': 'Fraktur-Regular',
-        'bb': 'AMS-Regular',
-        'scr': 'Script-Regular',
-        'cmr': 'Main-Regular',
-        'cmtt': 'Typewriter-Regular',
-        'cmss': 'SansSerif-Regular'
-    }[fontCode] || fontCode;
-    
+    const fontName =
+        {
+            cal: 'Caligraphic-Regular',
+            ams: 'AMS-Regular',
+            frak: 'Fraktur-Regular',
+            bb: 'AMS-Regular',
+            scr: 'Script-Regular',
+            cmr: 'Main-Regular',
+            cmtt: 'Typewriter-Regular',
+            cmss: 'SansSerif-Regular',
+        }[fontCode] || fontCode;
+
     // console.assert(character.length === 1);
     // console.assert(metricMap[fontName], 'Unknown font "' + fontName + '"');
 
@@ -261,11 +257,11 @@ const getCharacterMetrics = function(character, fontCode) {
         // depth + height should be less than 1.0 em
         return {
             defaultMetrics: true,
-            depth: .20,
-            height: .70,
+            depth: 0.2,
+            height: 0.7,
             italic: 0,
-            skew: 0
-        }
+            skew: 0,
+        };
     }
 
     if (metrics) {
@@ -273,13 +269,12 @@ const getCharacterMetrics = function(character, fontCode) {
             depth: metrics[0],
             height: metrics[1],
             italic: metrics[2],
-            skew: metrics[3]
-        }
+            skew: metrics[3],
+        };
     }
 
     return null;
-}
-
+};
 
 /**
  *
@@ -301,20 +296,20 @@ function convertDimenToEm(value, unit, precision) {
     }
 
     // If the units are missing, TeX assumes 'pt'
-    const f = {
-        'pt': 1.0,
-        'mm': 7227 / 2540,
-        'cm': 7227 / 254,
-        'ex': 35271 / 8192,
-        'px': 3.0 / 4.0,
-        'em': METRICS.ptPerEm,
-        'bp': 803 / 800,
-        'dd': 1238 / 1157,
-        'pc': 12.0,
-        'in': 72.27,
-        'mu': 10 / 18,
-
-    }[unit] || 1.0
+    const f =
+        {
+            pt: 1.0,
+            mm: 7227 / 2540,
+            cm: 7227 / 254,
+            ex: 35271 / 8192,
+            px: 3.0 / 4.0,
+            em: METRICS.ptPerEm,
+            bp: 803 / 800,
+            dd: 1238 / 1157,
+            pc: 12.0,
+            in: 72.27,
+            mu: 10 / 18,
+        }[unit] || 1.0;
 
     if (isFinite(precision)) {
         const factor = Math.pow(10, precision);
@@ -328,11 +323,10 @@ function convertDimenToPx(value, unit) {
     return convertDimenToEm(value, unit) * (4.0 / 3.0) * METRICS.ptPerEm;
 }
 
-
 export default {
-    toEm : convertDimenToEm,
+    toEm: convertDimenToEm,
     toPx: convertDimenToPx,
     METRICS,
     SIGMAS,
-    getCharacterMetrics
-}
+    getCharacterMetrics,
+};

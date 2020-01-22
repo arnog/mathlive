@@ -1,7 +1,7 @@
 {
     "USAGE_GUIDE": {
         "title": "Usage Guide/Start Here",
-        "children": [ "EXAMPLES", "CONFIG", "SELECTORS", "COMMANDS_REFERENCE" ]
+        "children": ["EXAMPLES", "CONFIG", "SELECTORS", "COMMANDS_REFERENCE"]
     },
     "EXAMPLES": {
         "title": "Examples"
@@ -21,4 +21,4 @@
     "MATHJSON": {
         "title": "MathJSON"
     }
- }
+}

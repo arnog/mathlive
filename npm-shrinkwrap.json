@@ -2385,6 +2385,12 @@
                 "to-fast-properties": "^2.0.0"
             }
         },
+        "@cortex-js/prettier-config": {
+            "version": "1.0.0",
+            "resolved": "https://registry.npmjs.org/@cortex-js/prettier-config/-/prettier-config-1.0.0.tgz",
+            "integrity": "sha512-H1NNSU+sc1JTMCQ8U4s0u8C8q4JeflKk5CYXLjj+BCCO2PqRZgVF24R3N7aD6LwLslXfNC+H1N8PXxxTqrh0vw==",
+            "dev": true
+        },
         "@istanbuljs/load-nyc-config": {
             "version": "1.0.0",
             "resolved": "https://registry.npmjs.org/@istanbuljs/load-nyc-config/-/load-nyc-config-1.0.0.tgz",
@@ -4585,6 +4591,32 @@
                 }
             }
         },
+        "eslint-config-prettier": {
+            "version": "6.9.0",
+            "resolved": "https://registry.npmjs.org/eslint-config-prettier/-/eslint-config-prettier-6.9.0.tgz",
+            "integrity": "sha512-k4E14HBtcLv0uqThaI6I/n1LEqROp8XaPu6SO9Z32u5NlGRC07Enu1Bh2KEFw4FNHbekH8yzbIU9kUGxbiGmCA==",
+            "dev": true,
+            "requires": {
+                "get-stdin": "^6.0.0"
+            },
+            "dependencies": {
+                "get-stdin": {
+                    "version": "6.0.0",
+                    "resolved": "https://registry.npmjs.org/get-stdin/-/get-stdin-6.0.0.tgz",
+                    "integrity": "sha512-jp4tHawyV7+fkkSKyvjuLZswblUtz+SQKzSWnBbii16BuZksJlU1wuBYXY75r+duh/llF1ur6oNwi+2ZzjKZ7g==",
+                    "dev": true
+                }
+            }
+        },
+        "eslint-plugin-prettier": {
+            "version": "3.1.2",
+            "resolved": "https://registry.npmjs.org/eslint-plugin-prettier/-/eslint-plugin-prettier-3.1.2.tgz",
+            "integrity": "sha512-GlolCC9y3XZfv3RQfwGew7NnuFDKsfI4lbvRK+PIIo23SFH+LemGs4cKwzAaRa+Mdb+lQO/STaIayno8T5sJJA==",
+            "dev": true,
+            "requires": {
+                "prettier-linter-helpers": "^1.0.0"
+            }
+        },
         "eslint-scope": {
             "version": "5.0.0",
             "resolved": "https://registry.npmjs.org/eslint-scope/-/eslint-scope-5.0.0.tgz",
@@ -5085,6 +5117,12 @@
             "version": "2.0.1",
             "resolved": "https://registry.npmjs.org/fast-deep-equal/-/fast-deep-equal-2.0.1.tgz",
             "integrity": "sha1-ewUhjd+WZ79/Nwv3/bLLFf3Qqkk=",
+            "dev": true
+        },
+        "fast-diff": {
+            "version": "1.2.0",
+            "resolved": "https://registry.npmjs.org/fast-diff/-/fast-diff-1.2.0.tgz",
+            "integrity": "sha512-xJuoT5+L99XlZ8twedaRf6Ax2TgQVxvgZOYoPKqZufmJib0tL2tegPBOZb1pVNgIhlqDlA0eO0c3wBvQcmzx4w==",
             "dev": true
         },
         "fast-glob": {
@@ -9413,6 +9451,21 @@
             "resolved": "https://registry.npmjs.org/prelude-ls/-/prelude-ls-1.1.2.tgz",
             "integrity": "sha1-IZMqVJ9eUv/ZqCf1cOBL5iqX2lQ=",
             "dev": true
+        },
+        "prettier": {
+            "version": "1.19.1",
+            "resolved": "https://registry.npmjs.org/prettier/-/prettier-1.19.1.tgz",
+            "integrity": "sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==",
+            "dev": true
+        },
+        "prettier-linter-helpers": {
+            "version": "1.0.0",
+            "resolved": "https://registry.npmjs.org/prettier-linter-helpers/-/prettier-linter-helpers-1.0.0.tgz",
+            "integrity": "sha512-GbK2cP9nraSSUF9N2XwUwqfzlAFlMNYYl+ShE/V+H8a9uNl/oUqB1w2EL54Jh0OlyRSd8RfWYJ3coVS4TROP2w==",
+            "dev": true,
+            "requires": {
+                "fast-diff": "^1.1.2"
+            }
         },
         "pretty-hrtime": {
             "version": "1.0.3",

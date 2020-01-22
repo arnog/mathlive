@@ -1,32 +1,37 @@
 export default {
     name: 'mathlive-mathfield',
     template: '<div class="mathfield" :id="id"><slot></slot></div>',
-    props:
-    {
+    props: {
         id: {
             type: String,
-            default: ''
+            default: '',
         },
         value: {
             type: String,
-            default: ''
+            default: '',
         },
         config: {
             type: Object,
-            default: () => ({})
+            default: () => ({}),
         },
         onKeystroke: {
             type: Function,
-            default: function(_keystroke, _ev) { return true; }
+            default: function(_keystroke, _ev) {
+                return true;
+            },
         },
         onMoveOutOf: {
             type: Function,
-            default: function(_direction) { return true; }
+            default: function(_direction) {
+                return true;
+            },
         },
         onTabOutOf: {
             type: Function,
-            default: function(_direction) { return true; }
-        }
+            default: function(_direction) {
+                return true;
+            },
+        },
     },
     /*
      * To register this component, call:
@@ -60,22 +65,22 @@ export default {
             // change notifications, to avoid infinite loops.
             if (newValue !== oldValue) {
                 this.$el.mathfield.$text(newValue, {
-                    suppressChangeNotifications: true
+                    suppressChangeNotifications: true,
                 });
             }
         },
         config: {
             deep: true,
             handler: function(config) {
-                this.$el.mathfield.$setConfig(config)
-            }
+                this.$el.mathfield.$setConfig(config);
+            },
         },
     },
-    mounted: function () {
+    mounted: function() {
         // A new instance is being created
-        const vm = this;  // Keep a reference to the ViewModel
+        const vm = this; // Keep a reference to the ViewModel
         // Wait until the DOM has been constructed...
-        this.$nextTick(function () {
+        this.$nextTick(function() {
             // ... then make the MathField
             vm.$mathlive.makeMathField(vm.$el, {
                 ...vm.config,
@@ -88,21 +93,46 @@ export default {
                     vm.$emit('input', vm.$el.mathfield.$text());
                 },
                 // Those asynchronous notification handlers are translated to events
-                onFocus: _ => { vm.$emit('focus'); },
-                onBlur: _ => { vm.$emit('blur'); },
-                onContentWillChange: _ => { vm.$emit('content-will-change'); },
-                onSelectionWillChange: _ => { vm.$emit('selection-will-change'); },
-                onUndoStateWillChange: (_, command) => { vm.$emit('undo-state-will-change', command); },
-                onUndoStateDidChange: (_, command) => { vm.$emit('undo-state-did-change', command); },
-                onVirtualKeyboardToggle: (_, visible, keyboardElement) => { vm.$emit('virtual-keyboard-toggle', visible, keyboardElement); },
-                onReadAloudStatus: (_, status) => { vm.$emit('read-aloud-status', status); },
+                onFocus: _ => {
+                    vm.$emit('focus');
+                },
+                onBlur: _ => {
+                    vm.$emit('blur');
+                },
+                onContentWillChange: _ => {
+                    vm.$emit('content-will-change');
+                },
+                onSelectionWillChange: _ => {
+                    vm.$emit('selection-will-change');
+                },
+                onUndoStateWillChange: (_, command) => {
+                    vm.$emit('undo-state-will-change', command);
+                },
+                onUndoStateDidChange: (_, command) => {
+                    vm.$emit('undo-state-did-change', command);
+                },
+                onVirtualKeyboardToggle: (_, visible, keyboardElement) => {
+                    vm.$emit(
+                        'virtual-keyboard-toggle',
+                        visible,
+                        keyboardElement
+                    );
+                },
+                onReadAloudStatus: (_, status) => {
+                    vm.$emit('read-aloud-status', status);
+                },
 
                 // Those notification handlers expect an answer back, so translate
                 // them to callbacks via props
-                onKeystroke: function(_, keystroke, ev) { return vm.onKeystroke(keystroke, ev); },
-                onMoveOutOf: (_, direction) => { return vm.onMoveOutOf(direction); },
-                onTabOutOf: (_, direction) => { return vm.onTabOutOf(direction); },
-
+                onKeystroke: function(_, keystroke, ev) {
+                    return vm.onKeystroke(keystroke, ev);
+                },
+                onMoveOutOf: (_, direction) => {
+                    return vm.onMoveOutOf(direction);
+                },
+                onTabOutOf: (_, direction) => {
+                    return vm.onTabOutOf(direction);
+                },
             });
         });
     },
@@ -158,6 +188,6 @@ export default {
         },
         clearSelection: function() {
             this.$el.mathfield.$clearSelection();
-        }
-    }
+        },
+    },
 };

@@ -1,4 +1,3 @@
-
 import Mathstyle from './mathstyle.js';
 
 /**
@@ -38,8 +37,10 @@ class Context {
         this.macros = from.macros || {};
         this.generateID = from.generateID ? from.generateID : false;
 
-        this.mathstyle = Mathstyle.toMathstyle(from.mathstyle || 'displaystyle');
-        this.size = from.size || 'size5';   // medium size
+        this.mathstyle = Mathstyle.toMathstyle(
+            from.mathstyle || 'displaystyle'
+        );
+        this.size = from.size || 'size5'; // medium size
 
         this.parentMathstyle = from.parentMathstyle || this.mathstyle;
         this.parentSize = from.parentSize || this.size;
@@ -74,7 +75,6 @@ class Context {
         return result;
     }
 
-
     /**
      * Change the mathstyle of this context
      * @param {string} value - `'auto'` to indicate that the mathstyle should in
@@ -90,16 +90,16 @@ class Context {
         }
     }
     cramp() {
-        return this.clone({'mathstyle': this.mathstyle.cramp()});
+        return this.clone({ mathstyle: this.mathstyle.cramp() });
     }
     sup() {
-        return this.clone({'mathstyle': this.mathstyle.sup()});
+        return this.clone({ mathstyle: this.mathstyle.sup() });
     }
     sub() {
-        return this.clone({'mathstyle': this.mathstyle.sup()});
+        return this.clone({ mathstyle: this.mathstyle.sup() });
     }
 }
 
 export default {
-    Context
-}
+    Context,
+};

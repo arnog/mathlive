@@ -4,20 +4,20 @@ body {
 
 html {
     fill: currentColor;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
-        "Droid Sans", "Helvetica Neue", sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+        'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+        'Helvetica Neue', sans-serif;
     height: 100%;
     width: 100%;
 }
 
 body {
     --hue: 210;
-    --on-primary: hsl(var(--hue), 0%,95%);
+    --on-primary: hsl(var(--hue), 0%, 95%);
     --primary: hsl(var(--hue), 40%, 50%);
-    --surface: #fafafa;        
+    --surface: #fafafa;
     --surface-border: #fff;
-    --on-surface: hsl(var(--hue),19%,26%);
+    --on-surface: hsl(var(--hue), 19%, 26%);
 
     --secondary-surface: hsl(0, 0%, 99.5%);
     --secondary-surface-border: hsl(0, 0%, 93%);
@@ -34,14 +34,14 @@ body {
 h2 {
     font-size: 24px;
     font-weight: 600;
-    line-height: .7;
+    line-height: 0.7;
     padding-top: 1em;
     padding-bottom: 1em;
     border: none;
 }
 h3 {
     font-weight: 600;
-    line-height: .7;
+    line-height: 0.7;
     margin-top: 3em;
     margin-bottom: 2em;
 }
@@ -51,9 +51,10 @@ h4 {
     margin-bottom: 1.5em;
 }
 
- h3 strong, h4 strong {
+h3 strong,
+h4 strong {
     color: var(--primary);
- }
+}
 
 h4 {
     font-weight: 400;
@@ -89,11 +90,11 @@ main > div.frame {
 }
 
 kbd {
-  font-family: Consolas, Monaco, 'Andale Mono', monospace;
-  background: #f4f4f4;
-  color: #333;
-  padding: 1px 5px;
-  border-radius: 5px;
+    font-family: Consolas, Monaco, 'Andale Mono', monospace;
+    background: #f4f4f4;
+    color: #333;
+    padding: 1px 5px;
+    border-radius: 5px;
 }
 
 .links {
@@ -110,22 +111,21 @@ kbd {
     }
 }
 
-
 .output {
-    font-family: "Source Code Pro", Menlo, "Bitstream Vera Sans Mono", Monaco, Courier, "Andale Mono", monospace;
+    font-family: 'Source Code Pro', Menlo, 'Bitstream Vera Sans Mono', Monaco,
+        Courier, 'Andale Mono', monospace;
     color: #f0c674;
 
     background: #35434e;
 
-    padding:5px;
+    padding: 5px;
     margin: 10px 0 10px 0;
-    border-radius:5px;
+    border-radius: 5px;
     border: 1px solid #333;
 
-
     min-height: 1em;
-    padding-top: .5em;
-    padding-bottom: .5em;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
 
     word-break: break-word;
     white-space: pre-wrap;
@@ -133,9 +133,9 @@ kbd {
 
 .mathfield {
     border: 1px solid var(--editable-border);
-    padding:5px;
+    padding: 5px;
     margin: 10px 0 10px 0;
-    border-radius:5px;
+    border-radius: 5px;
     background: var(--editable);
     color: var(--on-editable);
 }
@@ -145,7 +145,9 @@ kbd {
     vertical-align: -5px;
 }
 
-a, a:visited, a:active {
+a,
+a:visited,
+a:active {
     text-decoration: none;
     color: var(--link);
     border-radius: 1em;
@@ -158,7 +160,8 @@ a, a:visited, a:active {
     padding-top: 5px;
     padding-bottom: 5px;
 }
-.links a:visited:hover, .links a:hover {
+.links a:visited:hover,
+.links a:hover {
     border: 1px solid var(--secondary-surface-border);
     background: var(--surface);
 }
@@ -177,14 +180,13 @@ body > header {
     justify-content: center;
     align-items: center;
 
-    box-shadow: 16px 6px 24px rgba(0, 0, 0, .2);
-
+    box-shadow: 16px 6px 24px rgba(0, 0, 0, 0.2);
 }
 
 header h1 {
-    font-family: 'Futura', 'Open Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
-        "Droid Sans", "Helvetica Neue", sans-serif;
+    font-family: 'Futura', 'Open Sans', system-ui, -apple-system,
+        BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+        'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 
     /* font-size: 3rem; */
     color: var(--on-primary);
@@ -192,9 +194,9 @@ header h1 {
     margin-left: auto;
     margin-right: auto;
     max-width: 1024px;
-    letter-spacing: -.04ex;
+    letter-spacing: -0.04ex;
     text-rendering: optimizeLegibility;
-    line-height: .9;
+    line-height: 0.9;
     width: 640px;
     text-align: left;
     font-weight: 600;
@@ -212,7 +214,9 @@ footer {
     flex-flow: column wrap;
 }
 
-footer a, footer a:visited, footer a:active {
+footer a,
+footer a:visited,
+footer a:active {
     font-size: 18px;
     padding-top: 6px;
     padding-bottom: 6px;
@@ -230,15 +234,15 @@ footer a, footer a:visited, footer a:active {
     }
 
     .examples {
-        width: 320px; 
+        width: 320px;
     }
 }
 
-@media (prefers-color-scheme: dark) { 
+@media (prefers-color-scheme: dark) {
     body {
-        --surface: hsl(var(--hue),19%,26%);
-        --surface-border: hsl(0,0%,20%);
-        --on-surface: hsl(0,0%,98%);
+        --surface: hsl(var(--hue), 19%, 26%);
+        --surface-border: hsl(0, 0%, 20%);
+        --on-surface: hsl(0, 0%, 98%);
         --primary: hsl(var(--hue), 100%, 50%);
 
         --secondary-surface: hsl(0, 0%, 19%, 0.3);
@@ -246,10 +250,11 @@ footer a, footer a:visited, footer a:active {
         --link: hsl(var(--hue), 100%, 63%);
 
         --editable: #333;
-        --editable-border: hsl(0,0%,13%);;
+        --editable-border: hsl(0, 0%, 13%);
         --on-editable: #fff;
     }
-    h2, h3 {
+    h2,
+    h3 {
         color: hsl(var(--hue), 20%, 90%);
     }
 }
