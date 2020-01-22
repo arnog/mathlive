@@ -555,7 +555,7 @@ test('LEFT/RIGHT', function (t) {
 
     hasClass(t, '\\left.\\frac12\\right.', [0, 0], 'nulldelimiter',
         "Opening null delimiter");
-    hasClass(t, '\\left.\\frac12\\right.', [0, 1, 2], 'nulldelimiter',
+    hasClass(t, '\\left.\\frac12\\right.', [0, 2], 'nulldelimiter',
         "Closing null delimiter");
 
     testDelimiter(t, '[', ']', "Square brackets");
@@ -566,7 +566,7 @@ test('LEFT/RIGHT', function (t) {
     hasClass(t, '\\left a\\frac12\\right0', [0, 0], 'nulldelimiter',
         "Invalid opening delimiter");
 
-    hasClass(t, '\\left a\\frac12\\right0', [0, 1, 2], 'nulldelimiter',
+    hasClass(t, '\\left a\\frac12\\right0', [0, 2], 'nulldelimiter',
         "Invalid closing delimiter");
 
     t.equal(getType('\\left\\ulcorner\\frac12\\right\\urcorner', [0, 0]), 'mopen',
@@ -588,7 +588,7 @@ test('LEFT/RIGHT', function (t) {
     t.equal(getType('\\left\\lfloor\\frac{\\frac34}{2}\\right\\rfloor', [0, 0]), 'mopen',
         "'Stack large' delimiters (large)");
 
-    t.equal(getType('\\left\\lfloorx\\right\\rfloor', [0, 0]), 'mopen',
+    t.equal(getType('\\left\\lfloor x\\right\\rfloor', [0, 0]), 'mopen',
         "'Stack large' delimiters (small)");
 
     t.equal(getType('\\left\\langle\\frac{\\frac34}{2}\\right\\rangle', [0, 0]), 'mopen',
@@ -599,7 +599,7 @@ test('LEFT/RIGHT', function (t) {
 
     hasClass(t, '\\left x\\frac{\\frac34}{2}\\right x', [0, 0], 'nulldelimiter',
         "Unknown opening delimiters");
-    hasClass(t, '\\left x\\frac{\\frac34}{2}\\right x', [0, 1, 2], 'nulldelimiter',
+    hasClass(t, '\\left x\\frac{\\frac34}{2}\\right x', [0, 2], 'nulldelimiter',
         "Unknown closing delimiters");
 
     // All the stacking delimiters

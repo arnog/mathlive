@@ -3660,9 +3660,12 @@ function parseMathExpression(s, config) {
 
     if (!done && /^(f|g|h)[^a-zA-Z]/.test(s)) {
         // This could be a function...
-        m = parseMathArgument(s.substring(1), config);
-        s = s[0];
-        s += m.match;
+        m = parseMathArgument(s.substring(1), { ...config, noWrap: true });
+        if (s[1] === "(") {
+            s = s[0] + "\\mleft(" + m.match + "\\mright)";
+        } else {
+            s = s[0] + m.match;
+        }
         s += parseMathExpression(m.rest, config);
         done = true;
     }
@@ -3697,7 +3700,15 @@ function parseMathExpression(s, config) {
             }
             done = true;
         } else if (m.match) {
-            s = m.match + parseMathExpression(m.rest, config);
+            if (s[0] === "(") {
+                s =
+                    "\\left(" +
+                    m.match +
+                    "\\right)" +
+                    parseMathExpression(m.rest, config);
+            } else {
+                s = m.match + parseMathExpression(m.rest, config);
+            }
             done = true;
         }
     }
