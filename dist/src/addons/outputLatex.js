@@ -552,8 +552,12 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                         latexify(this, this.body, expandMacro) +
                         "}";
                 } else if (command === "\\operatorname") {
-                    // The argument to operator name is text, therefore this.body is a string
-                    result += command + "{" + this.body + "}";
+                    // The argument to `\operatorname` is 'math' and needs to be latexified
+                    result +=
+                        command +
+                        "{" +
+                        latexify(this, this.body, expandMacro) +
+                        "}";
                 } else {
                     if (this.latex && this.latex[0] === "\\") {
                         result += this.latex;
