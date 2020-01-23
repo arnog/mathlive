@@ -16,7 +16,7 @@
  * @private
  */
 
-import {SIGMAS} from './fontMetrics.js';
+import { SIGMAS } from './fontMetrics.js';
 
 const metrics = [{}, {}, {}]; /* textstyle, scriptstyle, scriptscriptstyle */
 let i;
@@ -121,15 +121,6 @@ class Mathstyle {
     }
 }
 
-
-
-
-
-
-
-
-
-
 // IDs of the different styles
 const D = 0;
 const Dc = 1;
@@ -149,7 +140,7 @@ const styles = [
     new Mathstyle(S, 2, 0.7, false),
     new Mathstyle(Sc, 2, 0.7, true),
     new Mathstyle(SS, 3, 0.5, false),
-    new Mathstyle(SSc, 3, 0.5, true)
+    new Mathstyle(SSc, 3, 0.5, true),
 ];
 
 /**
@@ -165,57 +156,53 @@ function toMathstyle(s) {
     if (typeof s === 'object') return s;
 
     const STYLE_NAMES = {
-        'displaystyle': styles[D],
-        'textstyle': styles[T],
-        'scriptstyle': styles[S],
-        'scriptscriptstyle': styles[SS]
-    }
+        displaystyle: styles[D],
+        textstyle: styles[T],
+        scriptstyle: styles[S],
+        scriptscriptstyle: styles[SS],
+    };
 
     console.assert(STYLE_NAMES[s], 'unknown style: "', s, '"');
     return STYLE_NAMES[s];
 }
-
-
 
 // String names for the different sizes
 const sizeNames = [
     'displaystyle textstyle',
     'textstyle',
     'scriptstyle',
-    'scriptscriptstyle'
+    'scriptscriptstyle',
 ];
-
 
 const ADJUST_NAMES = [
     [
         '', // 'reset-textstyle displaystyle textstyle',
         '', // 'reset-textstyle textstyle',
         'reset-textstyle scriptstyle',
-        'reset-textstyle scriptscriptstyle'
+        'reset-textstyle scriptscriptstyle',
     ],
 
     [
         'reset-textstyle displaystyle textstyle',
-        '',        // 'reset-textstyle textstyle',
+        '', // 'reset-textstyle textstyle',
         'reset-textstyle scriptstyle',
-        'reset-textstyle scriptscriptstyle'
+        'reset-textstyle scriptscriptstyle',
     ],
 
     [
         'reset-scriptstyle textstyle displaystyle',
         'reset-scriptstyle textstyle',
         '', // 'reset-scriptstyle scriptstyle',
-        'reset-scriptstyle scriptscriptstyle'
+        'reset-scriptstyle scriptscriptstyle',
     ],
 
     [
         'reset-scriptscriptstyle textstyle displaystyle',
         'reset-scriptscriptstyle textstyle',
         'reset-scriptscriptstyle scriptstyle',
-        '' // 'reset-scriptscriptstyle scriptscriptstyle'
+        '', // 'reset-scriptscriptstyle scriptscriptstyle'
     ],
 ];
-
 
 // Lookup tables for switching from one style to another
 const sup = [S, Sc, S, Sc, SS, SSc, SS, SSc];
@@ -231,8 +218,5 @@ export default {
     TEXT: styles[T],
     SCRIPT: styles[S],
     SCRIPTSCRIPT: styles[SS],
-    toMathstyle
-}
-
-
-
+    toMathstyle,
+};

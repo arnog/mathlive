@@ -2669,10 +2669,19 @@ class MathField {
      * @param {"text" | "math" | ""} options.mode - If empty, the current mode
      * is used (default)
      *
+     * @param {object} options.style
+     * 
      * @param {boolean} options.resetStyle - If true, the style after the insertion
      * is the same as the style before. If false, the style after the
      * insertion is the style of the last inserted atom.
      *
+     * @param {boolean} options.smartFence - If true, promote plain fences, e.g. `(`,
+     * as `\left...\right` or `\mleft...\mright`
+     * 
+     * @param {boolean} options.suppressChangeNotifications - If true, the
+     * handlers for the contentWillChange, contentDidChange, selectionWillChange and
+     * selectionDidChange notifications will not be invoked. Default `false`.
+     * 
      * @category Changing the Content
      * @method MathField#$insert
      */

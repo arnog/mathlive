@@ -155,11 +155,11 @@ Therefore to support arbitrary precision, numbers should always be represented
 as a quoted string.</li>
 <li>support for <code>NaN</code> and <code>infinity</code></li>
 </ul>
-<p><code>basic-number</code> := <code>'&quot;NaN&quot;'</code> | <code>infinity</code> | <code>'&quot;'</code> [<code>'-'</code>] <code>int</code> [ <code>frac</code>] [ <code>exp</code> ]<code>'&quot;'</code></p>
+<p><code>basic-number</code> := <code>'&quot;NaN&quot;'</code> | <code>infinity</code> | <code>'&quot;'</code> [<code>'-'</code>] <code>int</code> [ <code>frac</code>][ <code>exp</code> ]<code>'&quot;'</code></p>
 <p><code>infinity</code> := <code>'&quot;'</code> [<code>'+'</code> | <code>'-'</code>] <code>'Infinity'</code> <code>'&quot;'</code></p>
 <p><code>int</code> := <code>'0'</code> | [ <code>'0'</code> - <code>'9'</code> ]*</p>
 <p><code>frac</code> := <code>'.'</code> (<code>'0'</code> - <code>'9'</code>)*</p>
-<p><code>exp</code> := [<code>'e'</code> | <code>'E'</code>] [<code>'+'</code> | <code>'-'</code>] (<code>'0'</code> - <code>'9'</code> )*</p>
+<p><code>exp</code> := [<code>'e'</code> | <code>'E'</code>][<code>'+'</code> | <code>'-'</code>] (<code>'0'</code> - <code>'9'</code> )*</p>
 <h3 id="native-strings">Native Strings</h3>
 <p>Native strings are a sequence of Unicode characters.</p>
 <p>MATSON producing software should not generate character entities in
@@ -420,7 +420,7 @@ to display over the function. See the SYMBOL section for more details.</li>
 <tr>
 <td><code>divide</code></td>
 <td style="text-align:left">2</td>
-<td style="text-align:left">The first argument divided  by the second argument</td>
+<td style="text-align:left">The first argument divided by the second argument</td>
 </tr>
 <tr>
 <td><code>negate</code></td>
@@ -796,12 +796,8 @@ with the following arguments:</p>
 <pre class="prettyprint source lang-tex"><code>\sum ^n_{i=0}i
 </code></pre>
 <pre class="prettyprint source lang-json"><code>{
-    &quot;fn&quot;:&quot;sum&quot;,
-    &quot;arg&quot;:[
-        {sym: &quot;i&quot;}, 
-        {&quot;fn&quot;:&quot;=&quot;,&quot;arg&quot;:[&quot;i&quot;, 0]},
-        {sym: &quot;n&quot;}
-    ]
+    &quot;fn&quot;: &quot;sum&quot;,
+    &quot;arg&quot;: [{ &quot;sym&quot;: &quot;i&quot; }, { &quot;fn&quot;: &quot;=&quot;, &quot;arg&quot;: [&quot;i&quot;, 0] }, { &quot;sym&quot;: &quot;n&quot; }]
 }
 </code></pre>
 <p>If necessary, an empty argument can be represented by an empty structure.</p>
@@ -907,9 +903,16 @@ argument 2n+1 is the value the identifier should be replaced with.</li>
 <p>Argument 2n+1 can be a number, an expression, an array representing a list of
 values, or a range. If an array or a range, the result is an array of expression.</p>
 <p>For example:</p>
-<pre class="prettyprint source lang-json"><code>{   &quot;fn&quot;:&quot;bind&quot;, 
+<pre class="prettyprint source lang-json"><code>{
+    &quot;fn&quot;: &quot;bind&quot;,
     &quot;arg&quot;: [
-        {&quot;fn&quot;:&quot;+&quot;,&quot;arg&quot;:[{&quot;sym&quot;:&quot;x&quot;,&quot;sup&quot;:2},{&quot;fn&quot;:&quot;*&quot;,&quot;arg&quot;:[2,&quot;x&quot;]}]},
+        {
+            &quot;fn&quot;: &quot;+&quot;,
+            &quot;arg&quot;: [
+                { &quot;sym&quot;: &quot;x&quot;, &quot;sup&quot;: 2 },
+                { &quot;fn&quot;: &quot;*&quot;, &quot;arg&quot;: [2, &quot;x&quot;] }
+            ]
+        },
         &quot;x&quot;,
         &quot;1&quot;
     ]
@@ -917,10 +920,10 @@ values, or a range. If an array or a range, the result is an array of expression
 </code></pre>
 <p>would replace the <code>x</code>in the expression with <code>1</code>.</p>
 <ul>
-<li>
-<p><strong>solve</strong> first argument is an expression. Return an array of identifier and
-their value. The first argument can be an array representing a system of equations.</p>
-</li>
+<li><strong>solve</strong> first argument is an expression. Return an array of identifier and
+their value. The first argument can be an array representing a system of equations.</li>
+</ul>
+<ul>
 <li>
 <p><strong>range</strong> first argument is the start of the range, second argument is the end
 of the third. The third argument is optional and represent the step between
@@ -961,24 +964,24 @@ applied if no other condition match.</p>
 </table>
 <p>Additional functions can be specified using an OpenMath content dictionary. For example, Euler's gamma function:</p>
 <pre class="prettyprint source lang-json"><code>{
-    fn: &quot;gamma&quot;,
-    openmathsymbol: &quot;hypergeo0#gamma&quot;,
-    arg: 1
+    &quot;fn&quot;: &quot;gamma&quot;,
+    &quot;openmathsymbol&quot;: &quot;hypergeo0#gamma&quot;,
+    &quot;arg&quot;: 1
 }
 </code></pre>
 <p>If an <code>openmathsymbol</code> key is present it overrides the value of the <code>fn</code> key as far as the semantic of the operation is concerned. However, the <code>fn</code> key can still be used to display information about this expression to a user. For example:</p>
 <pre class="prettyprint source lang-json"><code>{
-    fn: &quot;\u0393&quot;,
-    openmathsymbol: &quot;hypergeo0#gamma&quot;,
-    arg: 1
+    &quot;fn&quot;: &quot;\u0393&quot;,
+    &quot;openmathsymbol&quot;: &quot;hypergeo0#gamma&quot;,
+    &quot;arg&quot;: 1
 }
 </code></pre>
 <p>where <code>\u0393</code> is the Unicode character <code>GREEK CAPITAL LETTER GAMMA</code> Γ.</p>
 <h3 id="group"><code>group</code></h3>
 <ul>
-<li><code>group</code>:  <code>expression</code></li>
-<li><code>sup</code>:    <code>expression</code></li>
-<li><code>sub</code>:    <code>expression</code></li>
+<li><code>group</code>: <code>expression</code></li>
+<li><code>sup</code>: <code>expression</code></li>
+<li><code>sub</code>: <code>expression</code></li>
 <li><code>accent</code>: <code>string</code></li>
 </ul>
 <p>The <code>group</code> key is the only one required.</p>

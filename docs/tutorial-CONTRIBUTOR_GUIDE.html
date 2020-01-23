@@ -99,7 +99,7 @@ modules necessary to build and test the MathLive library and its documentation.<
 <p>Once the installation is successful, you can use the following commands:</p>
 <pre class="prettyprint source lang-bash"><code># Build the project for local use
 # 1. Compile the `.css/.less` file to `build/*.css`
-# 2. Bundle the javascript in the `dist/` directory 
+# 2. Bundle the javascript in the `dist/` directory
 $ npm run build
 
 # Auto re-build the project when a file changes.
@@ -129,7 +129,7 @@ $ npm run docs
 $ npm run clean
 
 # Clean, build, then minimize and bundle to `dist/`.
-# The `dist/` folder will contain the `.js`, `.css` and font files necessary to 
+# The `dist/` folder will contain the `.js`, `.css` and font files necessary to
 # use MathLive. The `docs/` folder will also be updated.
 $ npm run dist
 
@@ -255,17 +255,21 @@ project. In addition, follow these guidelines:</p>
 single-quoted string. Using backtick (template strings)for multiline
 quotes is OK.</li>
 </ul>
-<pre class="prettyprint source lang-javascript"><code>   let s = 'hello, ' + 'world';
-   s = 'hello, &quot;world&quot;';
-   s = `hello:
+<pre class="prettyprint source lang-javascript"><code>let s = 'hello, ' + 'world';
+s = 'hello, &quot;world&quot;';
+s = `hello:
 world`;
 </code></pre>
 <ul>
 <li>Use camelCase for variables and function names, PascalCase for Objects and Classes and UPPERCASE for constants. Use underscore-prefixed arguments for unused arguments,</li>
 </ul>
-<pre class="prettyprint source lang-javascript"><code>bar.filter((element, _, array) => { console.log(array, element); });
+<pre class="prettyprint source lang-javascript"><code>bar.filter((element, _, array) => {
+    console.log(array, element);
+});
 // or
-bar.filter((element, _index, array) => { console.log(array, element); });
+bar.filter((element, _index, array) => {
+    console.log(array, element);
+});
 </code></pre>
 <ul>
 <li><strong>Typecheck</strong> using <code>typeof v === 'string'</code>, <code>typeof v === 'number'</code>, etc...
@@ -278,15 +282,15 @@ for example, use <code>if (string)</code> instead of <code>if (string !== '')</c
 key/value pairs spelling out the meaning of the boolean.</li>
 </ul>
 <p>Don't do:</p>
-<pre class="prettyprint source lang-javascript"><code>    f(true);
+<pre class="prettyprint source lang-javascript"><code>f(true);
 </code></pre>
 <p>Do:</p>
-<pre class="prettyprint source lang-javascript"><code>    f({reverse: true})
+<pre class="prettyprint source lang-javascript"><code>f({ reverse: true });
 </code></pre>
 <ul>
 <li><strong>Use <code>||</code> for default values.</strong> For example</li>
 </ul>
-<pre class="prettyprint source lang-javascript"><code>    m = f(n) || d;
+<pre class="prettyprint source lang-javascript"><code>m = f(n) || d;
 </code></pre>
 <p>If the function <code>f</code> returns <code>null</code>, <code>undefined</code> or an empty string,
 <code>m</code> will have the value <code>d</code></p>
@@ -299,11 +303,11 @@ method returns the <code>this</code> object so that it can be called again. For 
 <li><strong>Use loose typing.</strong> For example, a function argument could accept a string
 or an array and behave appropriately:</li>
 </ul>
-<pre class="prettyprint source lang-javascript"><code>    function f(argument) {
-        if (Array.isArray(argument)) {
-            argument = argument.join(';');
-        }
+<pre class="prettyprint source lang-javascript"><code>function f(argument) {
+    if (Array.isArray(argument)) {
+        argument = argument.join(';');
     }
+}
 </code></pre>
 <h2 id="naming-conventions">Naming Conventions</h2>
 <p>Those naming conventions are particularly important for objects that are exposed
@@ -313,7 +317,7 @@ as part of the public API, such as <code>MathLive</code> and <code>MathField</co
 be used.</li>
 <li>functions that end in <code>_</code> are selectors and should not be invoked directly by
 a client of the MathLive library (they can be called internally).
-Instead, a <a href="MathField.html#$perform"><code>MathField.$perform()</code></a> call should be
+Instead, a <code>MathField.$perform()</code> call should be
 made. Note that the perform call does not include the <code>_</code>, so you would call
 <code>mathfield.$perform('selectAll')</code>.</li>
 </ul>
@@ -551,7 +555,7 @@ tree to a specific atom</p>
 </li>
 <li>
 <p><strong>editor/mathfield.js</strong> Public API for the editor. Implements the UI for the
-mathfield, including mouse and touch interaction, and  the popover and the
+mathfield, including mouse and touch interaction, and the popover and the
 command bar</p>
 </li>
 <li>

@@ -74,11 +74,17 @@ web content.</p>
 <p>Using a CDN is the simplest approach, as it does not require any configuration:</p>
 <pre class="prettyprint source lang-html"><code>&lt;head>
     ...
-    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://unpkg.com/mathlive/dist/mathlive.core.css&quot;>
-    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://unpkg.com/mathlive/dist/mathlive.css&quot;>
+    &lt;link
+        rel=&quot;stylesheet&quot;
+        href=&quot;https://unpkg.com/mathlive/dist/mathlive.core.css&quot;
+    />
+    &lt;link
+        rel=&quot;stylesheet&quot;
+        href=&quot;https://unpkg.com/mathlive/dist/mathlive.css&quot;
+    />
 &lt;/head>
 &lt;script src=&quot;https://unpkg.com/mathlive&quot;>&lt;/script>
-&lt;div id='mathfield'>f(x)&lt;/div>
+&lt;div id=&quot;mathfield&quot;>f(x)&lt;/div>
 &lt;script>
     MathLive.makeMathField('mathfield');
 &lt;/script>
@@ -110,28 +116,29 @@ need one or the other).</li>
 <h3 id="using-mathlive-in-your-project">Using MathLive in your project</h3>
 <p>Include the following in your web page. Adjust the <code>src</code> and <code>href</code> arguments
 to account for your directory structure.</p>
-<pre class="prettyprint source lang-html"><code>&lt;!doctype html>&lt;html lang=&quot;en-US&quot;>
-&lt;head>
-    ...
-    &lt;link rel=&quot;stylesheet&quot; href=&quot;dist/mathlive.core.css&quot;>
-    &lt;link rel=&quot;stylesheet&quot; href=&quot;dist/mathlive.css&quot;>
-&lt;/head>
-&lt;body>
-    ...
-    &lt;script type='module'> 
-        import MathLive from 'dist/mathlive.mjs';
-    &lt;/script>
-&lt;/body>
+<pre class="prettyprint source lang-html"><code>&lt;!DOCTYPE html>
+&lt;html lang=&quot;en-US&quot;>
+    &lt;head>
+        ...
+        &lt;link rel=&quot;stylesheet&quot; href=&quot;dist/mathlive.core.css&quot; />
+        &lt;link rel=&quot;stylesheet&quot; href=&quot;dist/mathlive.css&quot; />
+    &lt;/head>
+    &lt;body>
+        ...
+        &lt;script type=&quot;module&quot;>
+            import MathLive from 'dist/mathlive.mjs';
+        &lt;/script>
+    &lt;/body>
 &lt;/html>
 </code></pre>
 <h2 id="rendering-math-automatically">Rendering Math Automatically</h2>
 <p>Call <code>MathLive.renderMathInDocument()</code>
 at the end of your document, or in a <code>onload</code> handler to render math contained
 in the document.</p>
-<pre class="prettyprint source lang-html"><code>    &lt;script type='module'> 
-        import MathLive from 'dist/mathlive.mjs';
-        MathLive.renderMathInDocument();
-    &lt;/script>
+<pre class="prettyprint source lang-html"><code>&lt;script type=&quot;module&quot;>
+    import MathLive from 'dist/mathlive.mjs';
+    MathLive.renderMathInDocument();
+&lt;/script>
 </code></pre>
 <p>By default, any LaTeX code that is enclosed with the following delimiters
 will be rendered as math:</p>
@@ -153,9 +160,9 @@ the inline text style will be used, otherwise if the type is
 provided, the display style is used.</p>
 <pre class="prettyprint source lang-html"><code>&lt;h1>Quadratic roots&lt;/h1>
 &lt;script type=&quot;math/tex&quot;>
-    ax^2+bx+c = 
-    a 
-    \left( x - \frac{-b + \sqrt {b^2-4ac}}{2a} \right) 
+    ax^2+bx+c =
+    a
+    \left( x - \frac{-b + \sqrt {b^2-4ac}}{2a} \right)
     \left( x - \frac{-b - \sqrt {b^2-4ac}}{2a} \right)
 &lt;/script>
 </code></pre>
@@ -182,7 +189,7 @@ while others will be ignored. Default: &quot;math/tex&quot;.</li>
 <li><code>ignoreClass</code>: a string used as a regular expression of class names of
 elements whose content will not be scanned for delimiters (<code>'tex2jax_ignore'</code>
 by default)</li>
-<li><code>processClass</code>:   a string used as a regular expression of class names of
+<li><code>processClass</code>: a string used as a regular expression of class names of
 elements whose content <strong>will</strong> be scanned for delimiters, even if their tag
 name or parent class name would have prevented them from doing so.
 (<code>'tex2jax_process'</code> by default)</li>
@@ -192,19 +199,20 @@ name or parent class name would have prevented them from doing so.
 that will trigger a render of the content in 'textstyle' or 'displaystyle' style,
 respectively.</li>
 </ul>
-<pre class="prettyprint source lang-javascript"><code>    MathLive.renderMathInElement(
-        document.getElementById('formulas'), {
-            // Elements with a class of &quot;instruction&quot; or &quot;source will be skipped            
-            ignoreClass: 'instruction|source', 
-            TeX : {
-                delimiters: {
-                    // Allow math formulas surround by $...$ or \(...\)
-                    // to be rendered as textstyle content.
-                    inline: [['$', '$'], ['\\(', '\\)']]
-                }
-            }
-        }
-    );
+<pre class="prettyprint source lang-javascript"><code>MathLive.renderMathInElement(document.getElementById('formulas'), {
+    // Elements with a class of &quot;instruction&quot; or &quot;source will be skipped
+    ignoreClass: 'instruction|source',
+    TeX: {
+        delimiters: {
+            // Allow math formulas surround by $...$ or \(...\)
+            // to be rendered as textstyle content.
+            inline: [
+                ['$', '$'],
+                ['\\(', '\\)'],
+            ],
+        },
+    },
+});
 </code></pre>
 <h2 id="using-the-math-editor-with-javascript">Using the Math Editor with JavaScript</h2>
 <p>To transform an existing HTML element into a mathfield, call
@@ -213,23 +221,26 @@ respectively.</li>
 be appropriate. If the element contains some LaTeX text, it will be used as the
 initial value of the mathfield.</p>
 <p>For example:</p>
-<pre class="prettyprint source lang-html"><code>&lt;!DOCTYPE html>&lt;html lang=&quot;en-US&quot;>
-&lt;head>
-    &lt;meta charset=&quot;utf-8&quot;>
-    &lt;title>MathLive Sample&lt;/title>
+<pre class="prettyprint source lang-html"><code>&lt;!DOCTYPE html>
+&lt;html lang=&quot;en-US&quot;>
+    &lt;head>
+        &lt;meta charset=&quot;utf-8&quot; />
+        &lt;title>MathLive Sample&lt;/title>
 
-    &lt;link rel=&quot;stylesheet&quot; href=&quot;dist/mathlive.core.css&quot;>
-    &lt;link rel=&quot;stylesheet&quot; href=&quot;dist/mathlive.css&quot;>
-&lt;/head>
-&lt;body>
-    &lt;div id='mathfield' style='border: 1px solid #999;padding:5px;'>
-        f(x)=
-    &lt;/div>
-    &lt;script type='module'> 
-        import MathLive from 'dist/mathlive.mjs';
-        const mathfield = MathLive.makeMathField(document.getElementById('mathfield'));
-    &lt;/script>
-&lt;/body>
+        &lt;link rel=&quot;stylesheet&quot; href=&quot;dist/mathlive.core.css&quot; />
+        &lt;link rel=&quot;stylesheet&quot; href=&quot;dist/mathlive.css&quot; />
+    &lt;/head>
+    &lt;body>
+        &lt;div id=&quot;mathfield&quot; style=&quot;border: 1px solid #999;padding:5px;&quot;>
+            f(x)=
+        &lt;/div>
+        &lt;script type=&quot;module&quot;>
+            import MathLive from 'dist/mathlive.mjs';
+            const mathfield = MathLive.makeMathField(
+                document.getElementById('mathfield')
+            );
+        &lt;/script>
+    &lt;/body>
 &lt;/html>
 </code></pre>
 <p>You can control the mathfield using the public member functions of <code>MathField</code>,
@@ -260,9 +271,9 @@ commands in the <strong>Selectors</strong> section below.</li>
 the <code>perform()</code> commands. Commands are identified by
 a string called the <strong>selector</strong>. Most commands take no parameters. When a
 command does have a parameter, an array made up of the selector and the
-commands arguments can be passed to <a href="MathField.html#$perform"><code>MathField.$perform()</code></a>.
+commands arguments can be passed to <code>MathField.$perform()</code>.
 For example:</p>
-<pre class="prettyprint source lang-javascript"><code>   mf.$perform(['insert', '(#0)']);
+<pre class="prettyprint source lang-javascript"><code>mf.$perform(['insert', '(#0)']);
 </code></pre>
 <p>will insert an open and close parenthesis around the selection (the <code>#0</code>
 sequence is replaced with the current selection).</p>
@@ -404,7 +415,7 @@ keyboards that should be made available. The supported keyboards are:
 <p>The keyboards will be displayed in the order indicated.</p>
 <ul>
 <li><code>virtualKeyboardTheme</code> - The visual theme of the virtual keyboard. If empty, the theme will switch automatically based on the device it's running on.
-The two supported themes are  <code>material</code> and <code>apple</code>.</li>
+The two supported themes are <code>material</code> and <code>apple</code>.</li>
 </ul>
 </article>
 

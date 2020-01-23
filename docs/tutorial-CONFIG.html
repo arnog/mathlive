@@ -66,7 +66,7 @@ writeCookie('symbol-access', 'private')
 
 <article>
     <p>These configuration options can be passed to <code>MathLive.makeMathField()</code>
-or <code>MathField.$setConfig()</code>.</p>
+or <code>MathField.\$setConfig()</code>.</p>
 <hr>
 <p><strong><code>config.locale</code></strong>:<code>string</code></p>
 <p>The locale (language + region) to use for string localization.</p>
@@ -158,9 +158,9 @@ second character if this option is set to a value of 250 or so.</p>
 <p>A dictionary of LaTeX macros to be used to interpret and render the content.</p>
 <p>For example:</p>
 <pre class="prettyprint source lang-javascript"><code>mf.$setConfig({
-   macros: {
-   'smallfrac': '^{#1}\\!\\!/\\!_{#2}',
-}
+    macros: {
+        smallfrac: '^{#1}\\!\\!/\\!_{#2}',
+    },
 });
 </code></pre>
 <p>The code above will support the following notation:</p>
@@ -340,7 +340,7 @@ invoked when keyboard navigation would cause the insertion point to leave the
 mathfield.</p>
 <p>The argument indicates the direction of the navigation, either
 <code>&quot;forward&quot;</code> or <code>&quot;backward&quot;</code>.</p>
-<p>Return <code>false</code> to prevent the move, <code>true</code> to  wrap around to the start of the field.</p>
+<p>Return <code>false</code> to prevent the move, <code>true</code> to wrap around to the start of the field.</p>
 <p>By default, the insertion point will wrap around.</p>
 <hr>
 <p><strong><code>config.onTabOutOf</code></strong>:<code>function(mathfield, direction:string)</code></p>
