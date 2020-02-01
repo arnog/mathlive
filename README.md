@@ -1,6 +1,6 @@
 <img alt="math live" src="assets/logo.png?raw=true">
 
-[![Maintenance](https://img.shields.io/maintenance/yes/2019.svg)]()
+[![Maintenance](https://img.shields.io/maintenance/yes/2020.svg)]()
 [![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://raw.githubusercontent.com/arnog/mathlive/master/LICENSE.txt)
 
 [![Build Status](https://travis-ci.org/arnog/mathlive.svg?branch=master)](https://travis-ci.org/arnog/mathlive)
@@ -8,12 +8,14 @@
 
 <img alt="Screenshot" src="assets/screenshots/screenshot.jpg">
 
-MathLive is a JavaScript library to render and edit math.
+MathLive: Math Input Made Easy
 
--   [x] TeX-quality typesetting
--   [x] Easy to use interface for math editing
--   [x] Fast and small
--   [x] Works great on desktop and on mobile devices thanks to an extensive set of virtual keyboards
+-   [x] JavaScript library easy to integrate in your project
+-   [x] Beautiful, TeX-quality typesetting
+-   [x] Easy to use interface for formula editing
+-   [x] Designed for mobile devices with an extensive set of virtual keyboards
+-   [x] Accessility support: screen reader compatible, and includes custom
+        math-to-speech support
 -   [x] Outputs **LaTeX**, **MathML** and **MathJSON** (Abstract Syntax Tree)
 -   [x] And it is easy to customize to your needs!
 
