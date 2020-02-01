@@ -12,6 +12,10 @@
 -   Fix keyboard shortcuts, e.g. "alt+(" or "alt+v"
 -   Fix #354: The argument of `\operatorname` is of type 'math', not 'text'. This means that using the '\text' command inside the argument is valid and that spaces should be ignored by default (but the `~` character can be used to insert a space in that context).
 
+### Features / Improvements
+
+-   Documented `suppressChangeNotifications` options for `$insert()`
+
 ## 0.33 (December 16, 2019)
 
 ### Bug Fixes
