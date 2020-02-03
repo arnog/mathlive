@@ -1,6 +1,5 @@
 @math_main: KaTeX_Main;
 
-
 .ML__mathlive {
     // font: 400 100% @math_main,'times new roman',serif;
     line-height: 0;
@@ -25,7 +24,7 @@
 
     width: min-content;
 
-    // Encourage browsers to consider allocating a hardware accelerated 
+    // Encourage browsers to consider allocating a hardware accelerated
     // layer for this element.
     transform: translateZ(0);
 }
@@ -36,7 +35,8 @@
     cursor: text;
 }
 
-.ML__strut, .ML__strut--bottom {
+.ML__strut,
+.ML__strut--bottom {
     display: inline-block;
     min-height: 1em;
 }
@@ -77,22 +77,32 @@
 
 /* Text mode */
 .ML__text {
+    line-height: 1;
     white-space: pre;
 }
 
 .ML__focused .ML__text {
-    background: hsla(var(--hue), 40%, 50%, .1);
+    background: hsla(var(--hue), 40%, 50%, 0.1);
 }
 
-@keyframes  ML__caret-command-blink {
-    from, to    { opacity: 1; }
-    50%         { opacity: 0; }
+@keyframes ML__caret-command-blink {
+    from,
+    to {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
 }
 
-
-@keyframes  ML__caret-blink {
-    from, to    { border-color: var(--caret); }
-    50%         { border-color: transparent; }
+@keyframes ML__caret-blink {
+    from,
+    to {
+        border-color: var(--caret);
+    }
+    50% {
+        border-color: transparent;
+    }
 }
 
 /* Style for the invisible textarea element which is used
@@ -114,13 +124,12 @@ to make sure it doesn't show. */
     font-size: 16px;
 }
 
-
 .ML__fieldcontainer {
     display: flex;
     flex-flow: row;
     justify-content: space-between;
     align-items: flex-end;
-    min-height: 39px;       /* Need some room for the virtual keyboard toggle */
+    min-height: 39px; /* Need some room for the virtual keyboard toggle */
 
     /* Prevent the browser from trying to interpret touch gestures in the field */
     /* "Disabling double-tap to zoom removes the need for browsers to 
@@ -129,7 +138,7 @@ to make sure it doesn't show. */
     width: 100%;
 
     --hue: 212;
-    --highlight: hsl(var(--hue),97%,85%);
+    --highlight: hsl(var(--hue), 97%, 85%);
     // --highlight: Highlight;         // Highlight color defined in https://www.w3.org/TR/REC-CSS2/ui.html
     //                                 // It has been deprectated in https://www.w3.org/TR/css-color-3/ :(
     // --on-highlight: HighlightText;
@@ -137,26 +146,26 @@ to make sure it doesn't show. */
     --highlight-inactive: #ccc;
     --primary: hsl(var(--hue), 40%, 50%);
 
-    --secondary: hsl(var(--hue),19%,26%);
-    --on-secondary: hsl(var(--hue),19%,26%);    
+    --secondary: hsl(var(--hue), 19%, 26%);
+    --on-secondary: hsl(var(--hue), 19%, 26%);
 }
 
 @media (prefers-color-scheme: dark) {
-    body:not([theme="light"]) .ML__fieldcontainer {
+    body:not([theme='light']) .ML__fieldcontainer {
         --highlight: hsl(var(--hue), 40%, 49%);
         --highlight-inactive: hsl(var(--hue), 10%, 35%);
-        --caret: hsl(var(--hue),97%,85%);
-        --secondary: hsl(var(--hue),25%,35%);
-        --on-secondary: hsl(0,0%,98%);
+        --caret: hsl(var(--hue), 97%, 85%);
+        --secondary: hsl(var(--hue), 25%, 35%);
+        --on-secondary: hsl(0, 0%, 98%);
     }
 }
 
-body[theme="dark"] .ML__fieldcontainer {
+body[theme='dark'] .ML__fieldcontainer {
     --highlight: hsl(var(--hue), 40%, 49%);
     --highlight-inactive: hsl(var(--hue), 10%, 35%);
-    --caret: hsl(var(--hue),97%,85%);
-    --secondary: hsl(var(--hue),25%,35%);
-    --on-secondary: hsl(0,0%,98%);
+    --caret: hsl(var(--hue), 97%, 85%);
+    --secondary: hsl(var(--hue), 25%, 35%);
+    --on-secondary: hsl(0, 0%, 98%);
 }
 
 .ML__fieldcontainer:focus {
@@ -165,7 +174,7 @@ body[theme="dark"] .ML__fieldcontainer {
 }
 
 /* This is the actual field content (formula) */
-.ML__fieldcontainer__field { 
+.ML__fieldcontainer__field {
     align-self: center;
     position: relative;
     overflow: hidden;
@@ -173,8 +182,6 @@ body[theme="dark"] .ML__fieldcontainer {
     padding: 2px;
     width: 100%;
 }
-
-
 
 .ML__virtual-keyboard-toggle {
     display: flex;
@@ -193,28 +200,27 @@ body[theme="dark"] .ML__fieldcontainer {
     /* Avoid some weird blinking with :hover */
     border-radius: 50%;
     border: 1px solid transparent;
-    transition: background 0.2s cubic-bezier(.64,.09,.08,1);
+    transition: background 0.2s cubic-bezier(0.64, 0.09, 0.08, 1);
     color: var(--primary);
     fill: currentColor;
     background: transparent;
 
     &:hover {
-        background: hsl(var(--hue),25%,35%);
-        color: hsl(0,0%,98%);
+        background: hsl(var(--hue), 25%, 35%);
+        color: hsl(0, 0%, 98%);
         fill: currentColor;
         border-radius: 50%;
         // border: 1px solid rgba(255, 255, 255, .9);
-        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+            0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
     }
 }
-
-
 
 /* The element that display info while in command mode */
 .ML__popover {
     visibility: hidden;
     min-width: 160px;
-    background-color: rgba(97, 97, 97, .95);
+    background-color: rgba(97, 97, 97, 0.95);
     color: #fff;
     text-align: center;
     border-radius: 6px;
@@ -226,23 +232,23 @@ body[theme="dark"] .ML__fieldcontainer {
     flex-direction: column;
     justify-content: center;
 
-    box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
-    transition: all 0.2s cubic-bezier(.64,.09,.08,1);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+    transition: all 0.2s cubic-bezier(0.64, 0.09, 0.08, 1);
 
     /* The 'tip' of the popover panel */
     &::after {
-        content: "";
+        content: '';
         position: absolute;
         top: -5px;
         left: calc(50% - 3px);
-        width: 0; 
-        height: 0; 
+        width: 0;
+        height: 0;
         border-left: 5px solid transparent;
         border-right: 5px solid transparent;
-        
+
         font-size: 1rem;
-        
-        border-bottom: 5px solid rgba(97, 97, 97, .9);
+
+        border-bottom: 5px solid rgba(97, 97, 97, 0.9);
     }
 }
 
@@ -250,7 +256,7 @@ body[theme="dark"] .ML__fieldcontainer {
     &::after {
         top: auto;
         bottom: -5px;
-        border-top: 5px solid rgba(97, 97, 97, .9);
+        border-top: 5px solid rgba(97, 97, 97, 0.9);
         border-bottom: 0;
     }
 }
