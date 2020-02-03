@@ -591,6 +591,7 @@ const SUPER_ASSOCIATIVE_FUNCTION = {
 };
 
 function getString(atom) {
+    if (typeof atom === 'string') return atom;
     if (Array.isArray(atom)) {
         let result = '';
         for (const subAtom of atom) {
@@ -1078,9 +1079,7 @@ function parseDigraph(expr) {
     } else {
         const digraph =
             expr.atoms[expr.index].latex + expr.atoms[expr.index + 1].latex;
-        const result = /^(>=|<=|>>|<<|:=|!=|\*\*|\+\+|--)$/.test(digraph)
-            ? digraph
-            : '';
+        const result = /^(>=|<=|>>|<<|:=|!=)$/.test(digraph) ? digraph : '';
         if (result) {
             expr.index += 1;
         }
