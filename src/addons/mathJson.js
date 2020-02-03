@@ -1733,7 +1733,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
                 result = wrapFn(
                     'pow',
                     parse(this.body, options),
-                    wrapFn('divide', 1, parse(this.index, options))
+                    wrapFn('divide', wrapNum(1), parse(this.index, options))
                 );
             } else {
                 result = wrapFn('sqrt', parse(this.body, options));
