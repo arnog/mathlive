@@ -474,8 +474,8 @@ const LAYERS = {
                 <li class='separator w5'></li>
                 <row name='numpad-1'/>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-key='ee' data-alt-keys='ee'>e</li>
-                <li class='keycap tex' data-key='ii' data-alt-keys='ii'>i</li>
+                <li class='keycap tex' data-insert='$$\\exponentialE$$' data-alt-keys='ee'>e</li>
+                <li class='keycap tex' data-insert='$$\\imaginaryI$$' data-alt-keys='ii'>i</li>
                 <li class='keycap tex' data-latex='\\pi' data-alt-keys='numeric-pi'></li>
             </ul>
             <ul>
@@ -484,9 +484,9 @@ const LAYERS = {
                 <li class='separator w5'></li>
                 <row name='numpad-2'/>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-alt-keys='x2' data-insert='#@^{2}'><span><i>x</i>&thinsp;²</span></li>
-                <li class='keycap tex' data-alt-keys='^' data-insert='#@^{#?}'><span><i>x</i><sup>&thinsp;<small>&#x2b1a;</small></sup></span></li>
-                <li class='keycap tex' data-alt-keys='sqrt' data-insert='\\sqrt{#0}' data-latex='\\sqrt{#0}'></li>
+                <li class='keycap tex' data-alt-keys='x2' data-insert='$$#@^{2}$$'><span><i>x</i>&thinsp;²</span></li>
+                <li class='keycap tex' data-alt-keys='^' data-insert='$$#@^{#?}$$'><span><i>x</i><sup>&thinsp;<small>&#x2b1a;</small></sup></span></li>
+                <li class='keycap tex' data-alt-keys='sqrt' data-insert='$$\\sqrt{#0}$$' data-latex='\\sqrt{#0}'></li>
             </ul>
             <ul>
                 <li class='keycap tex' data-alt-keys='(' >(</li>
@@ -576,7 +576,7 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys='subset' data-insert='\\subset '>&#x2282;</li>
                 <li class='keycap tex' data-alt-keys='supset' data-insert='\\supset '>&#x2283;</li>
                 <li class='keycap tex' data-key='!' data-alt-keys='!'>!<aside>factorial</aside></li>
-                <li class='keycap' data-insert='^{\\prime} '><span><sup><span><span style='color:#ddd'>o</span>&#x2032</sup></span><aside>prime</aside></li>
+                <li class='keycap' data-insert='$$^{\\prime} $$'><span><sup><span><span style='color:#ddd'>o</span>&#x2032</sup></span><aside>prime</aside></li>
                 <li class='keycap w15' data-insert='\\llcorner#0\\lrcorner '><span><sub>&#x2514;</sub><span style='color:#ddd'>o</span><sub>&#x2518;</sub></span><aside>floor</aside></li>
                 <li class='keycap tex' data-insert='\\partial '>&#x2202;<aside>partial<br>derivative</aside></li>
                 <li class='keycap tex' data-insert='\\emptyset '>&#x2205;<aside>empty set</aside></li>
@@ -589,9 +589,9 @@ const LAYERS = {
                 <li class='separator w5'></li>
                 <li class='keycap tex' data-insert='\\subseteq '>&#x2286;</li>
                 <li class='keycap tex' data-insert='\\supseteq '>&#x2287;</li>
-                <li class='keycap tex' data-alt-keys='accents' data-insert='\\vec{#@}' data-latex='\\vec{#?}' data-aside='vector'></li>
-                <li class='keycap tex' data-alt-keys='accents' data-insert='\\bar{#@}' data-latex='\\bar{#?}' data-aside='bar'></li>
-                <li class='keycap tex' data-alt-keys='absnorm' data-insert='\\lvert #@ \\rvert ' data-latex='\\lvert #? \\rvert' data-aside='abs'></li>
+                <li class='keycap tex' data-alt-keys='accents' data-insert='$$\\vec{#@}$$' data-latex='\\vec{#?}' data-aside='vector'></li>
+                <li class='keycap tex' data-alt-keys='accents' data-insert='$$\\bar{#@}$$' data-latex='\\bar{#?}' data-aside='bar'></li>
+                <li class='keycap tex' data-alt-keys='absnorm' data-insert='$$\\lvert #@ \\rvert $$' data-latex='\\lvert #? \\rvert' data-aside='abs'></li>
                 <li class='keycap tex' data-insert='\\ast '>&#x2217;<aside>asterisk</aside></li>
 
                 <li class='action font-glyph bottom right w15'
@@ -765,38 +765,38 @@ const LAYERS = {
                 <li class='fnbutton' data-insert='\\sin^{-1}'></li>
                 <li class='fnbutton' data-insert='\\ln'></li>
                 <li class='fnbutton' data-insert='\\exponentialE^{#?}'></li>
-                <li class='bigfnbutton' data-insert='\\operatorname{lcm}(#?)' data-latex='\\operatorname{lcm}()'></li>
-                <li class='bigfnbutton' data-insert='\\operatorname{ceil}(#?)' data-latex='\\operatorname{ceil}()'></li>
-                <li class='bigfnbutton' data-insert='\\lim_{n\\to\\infty}'></li>
-                <li class='bigfnbutton' data-insert='\\int'></li>
-                <li class='bigfnbutton' data-insert='\\operatorname{abs}(#?)' data-latex='\\operatorname{abs}()'></li>
+                <li class='bigfnbutton' data-insert='$$\\operatorname{lcm}(#?)$$' data-latex='\\operatorname{lcm}()'></li>
+                <li class='bigfnbutton' data-insert='$$\\operatorname{ceil}(#?)$$' data-latex='\\operatorname{ceil}()'></li>
+                <li class='bigfnbutton' data-insert='$$\\lim_{n\\to\\infty}$$'></li>
+                <li class='bigfnbutton' data-insert='$$\\int$$'></li>
+                <li class='bigfnbutton' data-insert='$$\\operatorname{abs}(#?)$$' data-latex='\\operatorname{abs}()'></li>
             </ul>
             <ul><li class='separator'></li>
                 <li class='fnbutton' data-insert='\\cos'></li>
                 <li class='fnbutton' data-insert='\\cos^{-1}'></li>
                 <li class='fnbutton' data-insert='\\ln_{10}'></li>
-                <li class='fnbutton' data-insert='10^{#?}'></li>
-                <li class='bigfnbutton' data-insert='\\operatorname{gcd}(#?)' data-latex='\\operatorname{gcd}()'></li>
-                <li class='bigfnbutton' data-insert='\\operatorname{floor}(#?)' data-latex='\\operatorname{floor}()'></li>
-                <li class='bigfnbutton' data-insert='\\sum_{n\\mathop=0}^{\\infty}'></li>
-                <li class='bigfnbutton' data-insert='\\int_{0}^{\\infty}'></li>
-                <li class='bigfnbutton' data-insert='\\operatorname{sign}(#?)' data-latex='\\operatorname{sign}()'></li>
+                <li class='fnbutton' data-insert='$$10^{#?}$$'></li>
+                <li class='bigfnbutton' data-insert='$$\\operatorname{gcd}(#?)$$' data-latex='\\operatorname{gcd}()'></li>
+                <li class='bigfnbutton' data-insert='$$\\operatorname{floor}(#?)$$' data-latex='\\operatorname{floor}()'></li>
+                <li class='bigfnbutton' data-insert='$$\\sum_{n\\mathop=0}^{\\infty}$$'></li>
+                <li class='bigfnbutton' data-insert='$$\\int_{0}^{\\infty}$$'></li>
+                <li class='bigfnbutton' data-insert='$$\\operatorname{sign}(#?)$$' data-latex='\\operatorname{sign}()'></li>
             </ul>
             <ul><li class='separator'></li>
                 <li class='fnbutton' data-insert='\\tan'></li>
                 <li class='fnbutton' data-insert='\\tan^{-1}'></li>
-                <li class='fnbutton' data-insert='\\log_{#?}'></li>
-                <li class='fnbutton' data-insert='\\sqrt[#?]{#0}'></li>
-                <li class='bigfnbutton' data-insert='#0 \\mod' data-latex='\\mod'></li>
-                <li class='bigfnbutton' data-insert='\\operatorname{round}(#?) ' data-latex='\\operatorname{round}()'></li>
-                <li class='bigfnbutton' data-insert='\\prod_{n\\mathop=0}^{\\infty}' data-latex='{\\tiny \\prod_{n=0}^{\\infty}}'></li>
-                <li class='bigfnbutton' data-insert='\\frac{\\differentialD #0}{\\differentialD x}'></li>
+                <li class='fnbutton' data-insert='$$\\log_{#?}$$'></li>
+                <li class='fnbutton' data-insert='$$\\sqrt[#?]{#0}$$'></li>
+                <li class='bigfnbutton' data-insert='$$#0 \\mod$$' data-latex='\\mod'></li>
+                <li class='bigfnbutton' data-insert='$$\\operatorname{round}(#?) $$' data-latex='\\operatorname{round}()'></li>
+                <li class='bigfnbutton' data-insert='$$\\prod_{n\\mathop=0}^{\\infty}$$' data-latex='{\\tiny \\prod_{n=0}^{\\infty}}'></li>
+                <li class='bigfnbutton' data-insert='$$\\frac{\\differentialD #0}{\\differentialD x}$$'></li>
                 <li class='action font-glyph bottom right' data-command='["performWithFeedback","deletePreviousChar"]'>&#x232b;</li></ul>
             <ul><li class='separator'></li>
                 <li class='fnbutton'>(</li>
                 <li class='fnbutton'>)</li>
-                <li class='fnbutton' data-insert='^{#?} ' data-latex='x^{#?} '></li>
-                <li class='fnbutton' data-insert='_{#?} ' data-latex='x_{#?} '></li>
+                <li class='fnbutton' data-insert='$$^{#?} $$' data-latex='x^{#?} '></li>
+                <li class='fnbutton' data-insert='$$_{#?} $$' data-latex='x_{#?} '></li>
                 <li class='keycap w20 ' data-key=' '>&nbsp;</li>
                 <arrows/>
             </ul>
@@ -827,7 +827,7 @@ const LAYERS = {
                 <li class='keycap' data-command='["applyStyle",{"shape":"sl"}]' data-latex='\\textsl{Ab}'></li>
                 <li class='keycap' data-command='["applyStyle",{"shape":"sc"}]' data-latex='\\textsc{Ab}'></li>
                 <li class='separator w5'></li>
-                <li class='keycap' data-insert='\\emph{#?} ' data-latex='\\text{\\emph{emph}}'></li>
+                <li class='keycap' data-insert='$$\\emph{#?} $$' data-latex='\\text{\\emph{emph}}'></li>
             </ul>
             <ul>
                 <li class='keycap' data-command='["applyStyle",{"fontFamily":"cmr"}]' data-latex='\\textrm{Az}'></li>
