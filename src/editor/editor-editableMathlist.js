@@ -275,7 +275,7 @@ EditableMathlist.prototype.setPath = function(selection, extent) {
         this.path = newPath;
         if (extent === 0 && this.anchor().type === 'placeholder') {
             // select the placeholder
-            newPath[newPath.length - 1].offset = 0;
+            newPath[newPath.length - 1].offset = this.anchorOffset() - 1;
             extent = 1;
         }
         selection = {
