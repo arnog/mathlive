@@ -1647,9 +1647,51 @@ EditableMathlist.prototype.previous = function(options) {
     }
 };
 
+function isSelectingPlaceHolder(mathList) {
+    const siblings = mathList.siblings();
+    let isSelectingPlaceHolder = false;
+    if (siblings.length > mathList.anchorOffset() + 1) {
+        const nextAnchor = siblings[mathList.anchorOffset() + 1];
+        if (nextAnchor.type === "placeholder") {
+            isSelectingPlaceHolder = true;
+        }
+    }
+    const currentAnchor = mathList.anchor();
+    if (currentAnchor.type === "placeholder") {
+        isSelectingPlaceHolder = true;
+    }
+    return isSelectingPlaceHolder;
+}
+
+function selectPlaceHolderWhenMove(mathList, moveDistance) {
+    const siblings = mathList.siblings();
+    if (moveDistance > 0) {
+        if (siblings.length > mathList.anchorOffset() + 1) {
+            const nextAnchor = siblings[mathList.anchorOffset() + 1];
+            if (nextAnchor.type === "placeholder") {
+                mathList.setSelection(mathList.anchorOffset(), 1);
+            }
+        }
+    } else if (moveDistance < 0) {
+        if (mathList.anchor().type === "placeholder") {
+            mathList.setSelection(mathList.anchorOffset() - 1, 1);
+        }
+    }
+}
+
 EditableMathlist.prototype.move = function(dist, options) {
     options = options || { extend: false };
     const extend = options.extend || false;
+    const originalDist = dist;
+
+    if (isSelectingPlaceHolder(this)) {
+        // If selecting place holder, move twice to get out of the placeholder.
+        if (originalDist > 0) {
+            dist++;
+        } else if (originalDist < 0) {
+            dist--;
+        }
+    }
 
     this.removeSuggestion();
 
@@ -1674,6 +1716,9 @@ EditableMathlist.prototype.move = function(dist, options) {
                 dist++;
             }
         }
+
+        // Select the placeholder when move into placeholder
+        selectPlaceHolderWhenMove(this, originalDist);
 
         // ** @todo: can't do that without updating the path.
         // If the siblings list we left was empty, remove the relation
