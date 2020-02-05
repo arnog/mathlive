@@ -2168,6 +2168,7 @@ class MathField {
         this.mathlist.forEach(a => {
             a.caret = '';
             a.isSelected = false;
+            a.containsCaret = false;
         });
         const hasFocus = this.$hasFocus();
         if (this.mathlist.isCollapsed()) {
@@ -2176,6 +2177,20 @@ class MathField {
             this.mathlist.forEachSelected(a => {
                 a.isSelected = true;
             });
+        }
+
+        if (hasFocus) {
+            let ancestor = this.mathlist.ancestor(1);
+            let i = 1;
+            let done = false;
+            while (ancestor && !done) {
+                if (ancestor.type === 'surd' || ancestor.type === 'leftright') {
+                    ancestor.containsCaret = true;
+                    done = true;
+                }
+                i += 1;
+                ancestor = this.mathlist.ancestor(i);
+            }
         }
         //
         // 4. Create spans corresponding to the updated mathlist

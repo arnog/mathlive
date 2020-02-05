@@ -72,7 +72,7 @@
     margin-right: -1ex;
     position: relative;
     color: var(--caret);
-    animation: ML__caret-command-blink 1.05s step-end forwards infinite;
+    animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
 
 /* Text mode */
@@ -85,23 +85,13 @@
     background: hsla(var(--hue), 40%, 50%, 0.1);
 }
 
-@keyframes ML__caret-command-blink {
+@keyframes ML__caret-blink {
     from,
     to {
         opacity: 1;
     }
     50% {
         opacity: 0;
-    }
-}
-
-@keyframes ML__caret-blink {
-    from,
-    to {
-        border-color: var(--caret);
-    }
-    50% {
-        border-color: transparent;
     }
 }
 
