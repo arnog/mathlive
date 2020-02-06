@@ -173,6 +173,32 @@ entered via <code>typedText()</code> it will generate a contextually appropriate
 for example using <code>\left...\right</code> if applicable.</p>
 <p>If <code>false</code>, the literal value of the character will be inserted instead.</p>
 <hr>
+<p><strong><code>config.smartMode=false</code></strong>:<code>boolean</code></p>
+<p>If <code>config.smartMode = true</code>, during text input the field will switch automatically between 'math' and 'text' mode depending on what is typed and the context of the formula. If necessary, what was previously typed will be 'fixed' to account for the new info.</p>
+<p>For example, when typing &quot;if x &gt;0&quot;:</p>
+<ul>
+<li>&quot;i&quot; -&gt; math mode, imaginary unit</li>
+<li>&quot;if&quot; -&gt; text mode, english word &quot;if&quot;</li>
+<li>&quot;if x&quot; -&gt; all in text mode, maybe the next word is xylophone?</li>
+<li>&quot;if x &gt;&quot; -&gt; &quot;if&quot; stays in text mode, but now &quot;x &gt;&quot; is in math mode</li>
+<li>&quot;if x &gt; 0&quot; -&gt; &quot;if&quot; in text mode, &quot;x &gt; 0&quot; in math mode</li>
+</ul>
+<p>Smart Mode is off by default.</p>
+<p>Manually switching mode (by typing <code>alt/option+=</code>) will temporarily turn off smart mode.</p>
+<p><strong>Examples</strong></p>
+<ul>
+<li>slope = rise/run</li>
+<li>If x &gt; 0, then f(x) = sin(x)</li>
+<li>x^2 + sin (x) when x &gt; 0</li>
+<li>When x&lt;0, x^{2n+1}&lt;0</li>
+<li>Graph x^2 -x+3 =0 for 0&lt;=x&lt;=5</li>
+<li>Divide by x-3 and then add x^2-1 to both sides</li>
+<li>Given g(x) = 4x – 3, when does g(x)=0?</li>
+<li>Let D be the set {(x,y)|0&lt;=x&lt;=1 and 0&lt;=y&lt;=x}</li>
+<li>\int_{the unit square} f(x,y) dx dy</li>
+<li>For all n in NN</li>
+</ul>
+<hr>
 <p><strong><code>config.smartSuperscript=true</code></strong>:<code>boolean</code></p>
 <p>If <code>true</code>, when a digit is entered in an empty superscript, the cursor
 leaps automatically out of the superscript. This makes entry of common

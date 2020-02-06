@@ -22,6 +22,11 @@ function findLongestRun(atoms, property, value) {
             }
             i++;
         }
+    } else if (property === 'mode') {
+        while (atoms[i]) {
+            if (atoms[i][property] !== value) break;
+            i++;
+        }
     } else {
         while (atoms[i]) {
             if (atoms[i].type !== 'mop' && atoms[i][property] !== value) break;

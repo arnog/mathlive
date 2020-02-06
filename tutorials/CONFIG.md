@@ -174,6 +174,37 @@ If `false`, the literal value of the character will be inserted instead.
 
 ---
 
+**`config.smartMode=false`**:`boolean`
+
+If `config.smartMode = true`, during text input the field will switch automatically between 'math' and 'text' mode depending on what is typed and the context of the formula. If necessary, what was previously typed will be 'fixed' to account for the new info.
+
+For example, when typing "if x >0":
+
+-   "i" -> math mode, imaginary unit
+-   "if" -> text mode, english word "if"
+-   "if x" -> all in text mode, maybe the next word is xylophone?
+-   "if x >" -> "if" stays in text mode, but now "x >" is in math mode
+-   "if x > 0" -> "if" in text mode, "x > 0" in math mode
+
+Smart Mode is off by default.
+
+Manually switching mode (by typing `alt/option+=`) will temporarily turn off smart mode.
+
+**Examples**
+
+-   slope = rise/run
+-   If x > 0, then f(x) = sin(x)
+-   x^2 + sin (x) when x > 0
+-   When x<0, x^{2n+1}<0
+-   Graph x^2 -x+3 =0 for 0<=x<=5
+-   Divide by x-3 and then add x^2-1 to both sides
+-   Given g(x) = 4x – 3, when does g(x)=0?
+-   Let D be the set {(x,y)|0<=x<=1 and 0<=y<=x}
+-   \int\_{the unit square} f(x,y) dx dy
+-   For all n in NN
+
+---
+
 **`config.smartSuperscript=true`**:`boolean`
 
 If `true`, when a digit is entered in an empty superscript, the cursor

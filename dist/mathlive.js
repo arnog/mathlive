@@ -12960,6 +12960,8 @@ var global, factory;
 
                             )
                                 s++;
+                        else if ('mode' === e)
+                            for (; t[s] && t[s][e] === i; ) s++;
                         else
                             for (
                                 ;
@@ -14388,7 +14390,7 @@ var global, factory;
                                 ? (a +=
                                       "<li class='keycap" +
                                       i +
-                                      "' data-alt-keys='*' data-key='-' data-alt-keys='-'>&#x2212;</li>")
+                                      "' data-alt-keys='-' data-key='-' data-alt-keys='-'>&#x2212;</li>")
                                 : /tt/.test(i)
                                 ? (a +=
                                       "<li class='keycap" +

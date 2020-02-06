@@ -1201,7 +1201,7 @@ function expandLayerMarkup(mf, layer) {
                     row +=
                         "<li class='keycap" +
                         cls +
-                        "' data-alt-keys='*' data-key='-' data-alt-keys='-'>&#x2212;</li>";
+                        "' data-alt-keys='-' data-key='-' data-alt-keys='-'>&#x2212;</li>";
                 } else if (/tt/.test(cls)) {
                     row +=
                         "<li class='keycap" +

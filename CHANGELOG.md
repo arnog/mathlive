@@ -2,6 +2,7 @@
 
 ### Bug Fixes
 
+-   Fix #364: Some expressions containing placeholders, when inserted, would not have the placeholder selected. For example, when using the "differentialD" key in the virtual keyboard.
 -   Fix #349:
     -   'latex-expanded' format no longer returns `\mleft` and `\mright`. This
         format is intended for inter-exchange with other TeX-compatible renderers
@@ -11,10 +12,16 @@
     -   When pasting content that begins/ends with `$` or `$$`, assume LaTeX format
 -   Fix keyboard shortcuts, e.g. "alt+(" or "alt+v"
 -   Fix #354: The argument of `\operatorname` is of type 'math', not 'text'. This means that using the '\text' command inside the argument is valid and that spaces should be ignored by default (but the `~` character can be used to insert a space in that context).
+-   Fix #282: Some keys from the virtual keyboards ('e', 'i') produce an incorrect input.
+-   Fix #227: An operator (`\sin`) following some text is incorrectly considered
+    to be part of the text.
 
 ### Features / Improvements
 
 -   Documented `suppressChangeNotifications` options for `$insert()`
+-   Document `config.smartMode` (#312)
+-   The 'surd' (root) and 'leftright' (fences) elements now change color when the caret is inside their body. This helps distinguish the case where the caret position may be ambiguous, for example when it is either after the last element of the body of a 'surd' or the first element after the 'surd'.
+-   #339: Read-only mode. Set the mode to read-only with `mf.$setConfig({readOnly: true})`. When this mode is activated, the formula can be selected (so it can be copied), but it cannot be modified by the user. Progammatic modification is still possible.
 
 ## 0.33 (December 16, 2019)
 
