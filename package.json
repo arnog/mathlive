@@ -1,6 +1,6 @@
 {
     "name": "mathlive",
-    "version": "0.33.2",
+    "version": "0.34.0",
     "description": "Render and edit beautifully typeset math",
     "license": "MIT",
     "funding": {
