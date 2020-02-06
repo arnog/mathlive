@@ -866,7 +866,22 @@ class MathField {
             // smart mode
             this._resetKeystrokeBuffer();
             this.smartModeSuppressed = false;
-            anchor = this._pathFromPoint(anchorX, anchorY, { bias: 0 });
+
+            const wrapperBounds = this.field
+                .querySelector('.ML__mathlive')
+                .getBoundingClientRect();
+            if (anchorX > wrapperBounds.right) {
+                // If outside the bounds of the rendered formula,
+                // set the anchor to the last element of the root
+                anchor = [
+                    {
+                        relation: 'body',
+                        offset: this.mathlist.root.body.length - 1,
+                    },
+                ];
+            } else {
+                anchor = this._pathFromPoint(anchorX, anchorY, { bias: 0 });
+            }
             if (anchor) {
                 // Create divs to block out pointer tracking to the left and right of
                 // the mathfield (to avoid triggering the hover of the virtual
