@@ -1360,22 +1360,13 @@ class Parser {
                 }
             }
         } else if (token.type === '#') {
-            // Parameter token in an implicit group (not as a parameter)
+            // Parameter token
             if (token.value === '?') {
                 // '#?' indicates that a placeholder should be used
                 result = this.placeholder();
             } else if (this.args) {
-                result = this.args[token.value] || null;
-                if (Array.isArray(result) && result.length === 1) {
-                    result = result[0];
-                } else if (Array.isArray(result)) {
-                    const group = new MathAtom(this.parseMode, 'group');
-                    group.body = result;
-                    result = group;
-                } else {
-                    // If there is no argument value specified, use a placeholder
-                    result = this.placeholder();
-                }
+                // Otherwise, substitute the token with a provided argument
+                result = this.args[token.value] || this.placeholder();
             }
         } else {
             console.warn(

@@ -1,3 +1,11 @@
+## 0.
+
+### Bug Fixes
+
+-   #371: When clicking after the last element in the mathfield, always set the anchor to be the last element in the root, i.e. as if `moveToMathFieldEnd` had been performed. For example, if the content is "x^2", clicking after the end of the field will put the caret after the last element (not after the "2" in the superscript)
+
+-   #372: Using an argument in a macro will result in the argument to be substituted without a group being inserted. Previously, `#1` with `ax` as a value for the first argument would have resulted in `{ax}`. This was noticeable when using the `x^2` key in the virtual keyboard: if the equation was `ab`, pressing that key resulted in `{ab}^2`. It now results in `ab^2`
+
 ## 0.34 (Feb 5, 2020)
 
 ### Bug Fixes
