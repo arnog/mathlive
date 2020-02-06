@@ -77,6 +77,7 @@ import '../addons/outputSpokenText.js';
  @property {boolean} keypressVibration?
  @property {string} keypressSound?
  @property {string} plonkSound?
+ @property {boolean} readOnly?
  @property {"mathlive" | "sre"} textToSpeechRules?
  @property {"ssml" | "mac"} textToSpeechMarkup?
  @property {object} textToSpeechRulesOptions?
@@ -1059,6 +1060,7 @@ class MathField {
         }
     }
     _onFocus() {
+        if (this.config.readOnly) return;
         if (this.blurred) {
             this.blurred = false;
             // The textarea may be a span (on mobile, for example), so check that
@@ -1839,6 +1841,9 @@ class MathField {
         if (!shortcut && !selector) {
             return true;
         }
+        if (this.config.readOnly && selector[0] === 'insert') {
+            return true;
+        }
         // 5. Perform the action matching this shortcut
         // 5.1 Remove any error indicator (wavy underline) on the current command
         // sequence (if there are any)
@@ -1961,6 +1966,10 @@ class MathField {
      * @private
      */
     _onTypedText(text, options) {
+        if (this.config.readOnly) {
+            this._announce('plonk');
+            return;
+        }
         options = options || {};
         // Focus, then provide audio and haptic feedback
         if (options.focus) {
@@ -2168,14 +2177,30 @@ class MathField {
         this.mathlist.forEach(a => {
             a.caret = '';
             a.isSelected = false;
+            a.containsCaret = false;
         });
         const hasFocus = this.$hasFocus();
         if (this.mathlist.isCollapsed()) {
-            this.mathlist.anchor().caret = hasFocus ? this.mode : '';
+            this.mathlist.anchor().caret =
+                hasFocus && !this.config.readOnly ? this.mode : '';
         } else {
             this.mathlist.forEachSelected(a => {
                 a.isSelected = true;
             });
+        }
+
+        if (hasFocus && !this.config.readOnly) {
+            let ancestor = this.mathlist.ancestor(1);
+            let i = 1;
+            let done = false;
+            while (ancestor && !done) {
+                if (ancestor.type === 'surd' || ancestor.type === 'leftright') {
+                    ancestor.containsCaret = true;
+                    done = true;
+                }
+                i += 1;
+                ancestor = this.mathlist.ancestor(i);
+            }
         }
         //
         // 4. Create spans corresponding to the updated mathlist
@@ -2226,7 +2251,10 @@ class MathField {
             0,
             this.config.horizontalSpacingScale
         );
-        this.field.classList.toggle('ML__focused', hasFocus);
+        this.field.classList.toggle(
+            'ML__focused',
+            hasFocus && !this.config.readOnly
+        );
         // Probably want to generate content on the fly depending on what to speak
         this.accessibleNode.innerHTML =
             "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
@@ -3722,14 +3750,15 @@ class MathField {
     $setConfig(conf) {
         if (!this.config) {
             this.config = {
+                namespace: '',
+                overrideDefaultInlineShortcuts: false,
+                readOnly: false,
+                removeExtraneousParentheses: true,
+                scriptDepth: [Infinity, Infinity],
                 smartFence: true,
                 smartSuperscript: true,
-                scriptDepth: [Infinity, Infinity],
-                removeExtraneousParentheses: true,
-                overrideDefaultInlineShortcuts: false,
                 virtualKeyboard: '',
                 virtualKeyboardLayout: 'qwerty',
-                namespace: '',
             };
         }
         this.config = { ...this.config, ...conf };
@@ -3824,6 +3853,10 @@ class MathField {
             this.plonkSound.src = this.config.plonkSound;
             this.plonkSound.volume = AUDIO_FEEDBACK_VOLUME;
         }
+        if (this.readOnly) {
+            this._onBlur();
+        }
+        this._requestUpdate();
     }
     /**
      *

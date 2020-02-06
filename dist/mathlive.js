@@ -3602,7 +3602,7 @@ var global, factory;
                                 t.length > 1 ||
                                 '​' === t
                             )
-                                return K[e];
+                                return R[e];
                             if ('bb' === e || 'scr' === e) {
                                 if (!/^[A-Z ]$/.test(t)) return null;
                             } else if ('cal' === e) {
@@ -3621,7 +3621,7 @@ var global, factory;
                                 )
                             )
                                 return null;
-                            return K[e];
+                            return R[e];
                         })(this.body, e)),
                     t.fontShape &&
                         (this.classes +=
@@ -3664,8 +3664,8 @@ var global, factory;
                             }[e[2] || ''] || '')));
                 }
                 if (
-                    (N[e]
-                        ? (this.classes += ' ' + N[e])
+                    (K[e]
+                        ? (this.classes += ' ' + K[e])
                         : e && this.setStyle('font-family', e),
                     this.body && this.body.length > 0 && i)
                 ) {
@@ -4003,33 +4003,33 @@ var global, factory;
             const e = t.type;
             return 'first' === e ? 'none' : 'textord' === e ? 'mord' : e;
         }
-        function P(t) {
+        function I(t) {
             return t
                 ? Array.isArray(t)
                     ? t.reduce((t, e) => Math.max(t, e.height), 0)
                     : t.height
                 : 0;
         }
-        function I(t) {
+        function P(t) {
             return t
                 ? Array.isArray(t)
                     ? t.reduce((t, e) => Math.max(t, e.depth), 0)
                     : t.depth
                 : 0;
         }
-        function B(t, e) {
+        function O(t, e) {
             if (Array.isArray(t)) {
                 const i = [];
                 for (const e of t) e && i.push(e);
-                if (1 === i.length) return B(i[0], e);
+                if (1 === i.length) return O(i[0], e);
             }
             return new L(t, e);
         }
-        function O(t, e, i) {
-            const s = B(e, i);
+        function B(t, e, i) {
+            const s = O(e, i);
             return (s.type = t), s;
         }
-        function R(t, e) {
+        function $(t, e) {
             if (!e || 0 === e.length) {
                 if (t instanceof L) return t;
                 if (Array.isArray(t) && 1 === t.length) return t[0];
@@ -4046,7 +4046,7 @@ var global, factory;
                 i
             );
         }
-        const K = {
+        const R = {
                 ams: 'AMS-Regular',
                 bb: 'AMS-Regular',
                 cal: 'Caligraphic-Regular',
@@ -4058,7 +4058,7 @@ var global, factory;
                 math: 'Math-Regular',
                 mainit: 'Main-Italic',
             },
-            N = {
+            K = {
                 ams: 'ML__ams',
                 bb: 'ML__bb',
                 cal: 'ML__cal',
@@ -4070,7 +4070,7 @@ var global, factory;
                 math: 'ML__mathit',
                 mainit: 'ML__mainit',
             };
-        var $ = {
+        var N = {
             coalesce: function t(e) {
                 if (!e || 0 === e.length) return [];
                 e[0].children = t(e[0].children);
@@ -4080,29 +4080,29 @@ var global, factory;
                         ((e[s].children = t(e[s].children)), i.push(e[s]));
                 return i;
             },
-            makeSpan: B,
+            makeSpan: O,
             makeOp: function(t, e) {
-                return O('mop', t, e);
+                return B('mop', t, e);
             },
             makeOrd: function(t, e) {
-                return O('mord', t, e);
+                return B('mord', t, e);
             },
             makeRel: function(t, e) {
-                return O('mrel', t, e);
+                return B('mrel', t, e);
             },
             makeClose: function(t, e) {
-                return O('mclose', t, e);
+                return B('mclose', t, e);
             },
             makeOpen: function(t, e) {
-                return O('mopen', t, e);
+                return B('mopen', t, e);
             },
             makeInner: function(t, e) {
-                return O('minner', t, e);
+                return B('minner', t, e);
             },
             makePunct: function(t, e) {
-                return O('mpunct', t, e);
+                return B('mpunct', t, e);
             },
-            makeSpanOfType: O,
+            makeSpanOfType: B,
             makeSymbol: function(t, e, i) {
                 const s = new L(e, i),
                     a = m.getCharacterMetrics(e, t);
@@ -4123,7 +4123,7 @@ var global, factory;
                     Array.isArray(e[t]) &&
                         (1 === e[t].length
                             ? (e[t] = e[t][0])
-                            : (e[t] = B(e[t])));
+                            : (e[t] = O(e[t])));
                 if ('shift' === i) a = -e[0].depth - s;
                 else if ('bottom' === i) a = -s;
                 else if ('top' === i) {
@@ -4168,22 +4168,22 @@ var global, factory;
                 for (const t of e)
                     if ('number' == typeof t) o += t;
                     else {
-                        const e = B([r, t]);
+                        const e = O([r, t]);
                         e.setTop(-t.depth - o),
                             l.push(e),
                             (o += t.height + t.depth);
                     }
-                const c = B(l, 'vlist');
+                const c = O(l, 'vlist');
                 return (
-                    (c.depth = Math.max(a, I(c) || 0)),
-                    (c.height = Math.max(-o, P(c) || 0)),
+                    (c.depth = Math.max(a, P(c) || 0)),
+                    (c.height = Math.max(-o, I(c) || 0)),
                     c
                 );
             },
-            makeHlist: R,
+            makeHlist: $,
             makeStyleWrap: function(t, e, i, s, a) {
                 a = a || '';
-                const o = R(e, (a += ' style-wrap ') + i.adjustTo(s));
+                const o = $(e, (a += ' style-wrap ') + i.adjustTo(s));
                 o.type = t;
                 const n = s.sizeMultiplier / i.sizeMultiplier;
                 return (
@@ -4196,8 +4196,8 @@ var global, factory;
             makeSVG: function(t, e, i) {
                 return (t.svgOverlay = e), (t.svgStyle = i), t;
             },
-            height: P,
-            depth: I,
+            height: I,
+            depth: P,
             skew: function(t) {
                 if (!t) return 0;
                 if (Array.isArray(t)) {
@@ -6679,12 +6679,12 @@ var global, factory;
             LETTER: wt,
             LETTER_AND_DIGITS: St,
         };
-        const Mt = $.makeSymbol,
-            Ct = $.makeSpan,
-            _t = $.makeVlist;
+        const Mt = N.makeSymbol,
+            Ct = N.makeSpan,
+            _t = N.makeVlist;
         function Tt(t, e, i, s, a, o) {
             const n = Mt('Size' + i + '-Regular', At.getValue('math', e)),
-                r = $.makeStyleWrap(
+                r = N.makeStyleWrap(
                     t,
                     Ct(n, 'delimsizing size' + i),
                     a.mathstyle,
@@ -6817,7 +6817,7 @@ var global, factory;
                 _.setStyle('color', a.color),
                 'number' == typeof a.opacity &&
                     _.setStyle('opacity', a.opacity),
-                $.makeStyleWrap(
+                N.makeStyleWrap(
                     t,
                     Ct(_, 'delimsizing mult'),
                     a.mathstyle,
@@ -6876,7 +6876,7 @@ var global, factory;
                 '\\gt',
             ],
             qt = [0, 1.2, 1.8, 2.4, 3],
-            Pt = [
+            It = [
                 { type: 'small', mathstyle: M.SCRIPTSCRIPT },
                 { type: 'small', mathstyle: M.SCRIPT },
                 { type: 'small', mathstyle: M.TEXT },
@@ -6885,13 +6885,13 @@ var global, factory;
                 { type: 'large', size: 3 },
                 { type: 'large', size: 4 },
             ],
-            It = [
+            Pt = [
                 { type: 'small', mathstyle: M.SCRIPTSCRIPT },
                 { type: 'small', mathstyle: M.SCRIPT },
                 { type: 'small', mathstyle: M.TEXT },
                 { type: 'stack' },
             ],
-            Bt = [
+            Ot = [
                 { type: 'small', mathstyle: M.SCRIPTSCRIPT },
                 { type: 'small', mathstyle: M.SCRIPT },
                 { type: 'small', mathstyle: M.TEXT },
@@ -6901,13 +6901,13 @@ var global, factory;
                 { type: 'large', size: 4 },
                 { type: 'stack' },
             ];
-        function Ot(t, e, i, s, a, o) {
-            if (!e || 0 === e.length || '.' === e) return Rt(t, a, t);
+        function Bt(t, e, i, s, a, o) {
+            if (!e || 0 === e.length || '.' === e) return $t(t, a, t);
             let n;
             '<' === e || '\\lt' === e
                 ? (e = '\\langle')
                 : ('>' !== e && '\\gt' !== e) || (e = '\\rangle'),
-                (n = Et.includes(e) ? Pt : Dt.includes(e) ? Bt : It);
+                (n = Et.includes(e) ? It : Dt.includes(e) ? Ot : Pt);
             const r = (function(t, e, i, s) {
                 for (
                     let o = Math.min(2, 3 - s.mathstyle.size);
@@ -6938,7 +6938,7 @@ var global, factory;
             return 'small' === r.type
                 ? (function(t, e, i, s, a, o) {
                       const n = Mt('AMS-Regular', At.getValue('math', e)),
-                          r = $.makeStyleWrap(t, n, a.mathstyle, i, o);
+                          r = N.makeStyleWrap(t, n, a.mathstyle, i, o);
                       return (
                           s &&
                               r.setTop(
@@ -6957,8 +6957,8 @@ var global, factory;
                 ? Tt(t, e, r.size, s, a, o)
                 : Ft(t, e, i, s, a, o);
         }
-        function Rt(t, e, i) {
-            return $.makeSpanOfType(
+        function $t(t, e, i) {
+            return N.makeSpanOfType(
                 t,
                 '',
                 'sizing' +
@@ -6967,10 +6967,10 @@ var global, factory;
                     (i || '')
             );
         }
-        var Kt = {
+        var Rt = {
             makeSizedDelim: function(t, e, i, s, a) {
                 return '.' === e
-                    ? Rt(t, s, a)
+                    ? $t(t, s, a)
                     : ('<' === e || '\\lt' === e
                           ? (e = '\\langle')
                           : ('>' !== e && '\\gt' !== e) || (e = '\\rangle'),
@@ -6980,9 +6980,9 @@ var global, factory;
                           ? Ft(t, e, qt[i], !1, s, a)
                           : null);
             },
-            makeCustomSizedDelim: Ot,
+            makeCustomSizedDelim: Bt,
             makeLeftRightDelim: function(t, e, i, s, a, o) {
-                if ('.' === e) return Rt(t, a, o);
+                if ('.' === e) return $t(t, a, o);
                 const n =
                         a.mathstyle.metrics.axisHeight *
                         a.mathstyle.sizeMultiplier,
@@ -6992,15 +6992,15 @@ var global, factory;
                 c = Math.max(l, c);
                 let h = (901 * c) / 500;
                 return (
-                    (l = 2 * c - r), (h = Math.max(h, l)), Ot(t, e, h, !0, a, o)
+                    (l = 2 * c - r), (h = Math.max(h, l)), Bt(t, e, h, !0, a, o)
                 );
             },
         };
-        const Nt = $.makeSpan,
-            $t = $.makeOrd,
-            Wt = $.makeInner,
-            Ht = $.makeHlist,
-            Vt = $.makeVlist,
+        const Kt = N.makeSpan,
+            Nt = N.makeOrd,
+            Wt = N.makeInner,
+            Ht = N.makeHlist,
+            Vt = N.makeVlist,
             Ut = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5/,
             jt = /^([A-Za-z]|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5)$/,
             Gt = {
@@ -7132,7 +7132,7 @@ var global, factory;
             }
             decomposeGroup(t) {
                 const e = t.clone({ mathstyle: this.mathstyle }),
-                    i = $t(Qt(e, this.body));
+                    i = Nt(Qt(e, this.body));
                 return (
                     this.cssId && (i.cssId = this.cssId),
                     i.applyStyle({
@@ -7193,9 +7193,9 @@ var global, factory;
                                     t.clone({ mathstyle: this.mathstyle }),
                                     s[e]
                                 ) || [],
-                            n = [$t(null)].concat(i);
-                        (o = Math.max(o, $.depth(n))),
-                            (a = Math.max(a, $.height(n))),
+                            n = [Nt(null)].concat(i);
+                        (o = Math.max(o, N.depth(n))),
+                            (a = Math.max(a, N.height(n))),
                             h.push(n);
                     }
                     let m = e === p - 1 ? 0 : this.jot || 0;
@@ -7235,7 +7235,7 @@ var global, factory;
                         g
                             ? f.push(Xt(2 * h.arraycolsep))
                             : (y || x) && f.push(Xt(h.arraycolsep)),
-                            f.push(Nt(u[b], 'col-align-' + i.align)),
+                            f.push(Kt(u[b], 'col-align-' + i.align)),
                             b++,
                             (g = !0),
                             (y = !1),
@@ -7248,7 +7248,7 @@ var global, factory;
                             (y = !1),
                             (x = !1);
                     else if (i.rule) {
-                        const e = Nt(null, 'vertical-separator');
+                        const e = Kt(null, 'vertical-separator');
                         e.setStyle('height', l, 'em'),
                             e.setStyle(
                                 'margin-top',
@@ -7274,19 +7274,19 @@ var global, factory;
                         (this.rFence && '.' !== this.rFence)
                     ))
                 )
-                    return $t(f, 'mtable');
-                const k = Nt(f, 'mtable'),
-                    v = $.height(k),
-                    w = $.depth(k);
-                return $t([
+                    return Nt(f, 'mtable');
+                const k = Kt(f, 'mtable'),
+                    v = N.height(k),
+                    w = N.depth(k);
+                return Nt([
                     this.bind(
                         t,
-                        Kt.makeLeftRightDelim('mopen', this.lFence, v, w, t)
+                        Rt.makeLeftRightDelim('mopen', this.lFence, v, w, t)
                     ),
                     k,
                     this.bind(
                         t,
-                        Kt.makeLeftRightDelim('mclose', this.rFence, v, w, t)
+                        Rt.makeLeftRightDelim('mclose', this.rFence, v, w, t)
                     ),
                 ]);
             }
@@ -7297,12 +7297,12 @@ var global, factory;
                             : M.toMathstyle(this.mathstyle),
                     i = t.clone({ mathstyle: e });
                 let s = [];
-                this.numerPrefix && s.push($t(this.numerPrefix));
+                this.numerPrefix && s.push(Nt(this.numerPrefix));
                 const a = this.continuousFraction ? e : e.fracNum();
                 s = s.concat(Qt(i.clone({ mathstyle: a }), this.numer));
                 const o = Ht(s, t.mathstyle.adjustTo(a));
                 let n = [];
-                this.denomPrefix && n.push($t(this.denomPrefix));
+                this.denomPrefix && n.push(Nt(this.denomPrefix));
                 const r = this.continuousFraction ? e : e.fracDen();
                 n = n.concat(Qt(i.clone({ mathstyle: r }), this.denom));
                 const l = Ht(n, t.mathstyle.adjustTo(r)),
@@ -7332,7 +7332,7 @@ var global, factory;
                         (d += p - (d - u - (t + 0.5 * c))),
                         t - 0.5 * c - (f - m) < p &&
                             (m += p - (t - 0.5 * c - (f - m)));
-                    const s = Nt(null, ' frac-line');
+                    const s = Kt(null, ' frac-line');
                     s.applyStyle(this.getStyle()), (s.height = c);
                     const a = [];
                     o && (a.push(o), a.push(-d)),
@@ -7350,7 +7350,7 @@ var global, factory;
                             : e.metrics.delim2,
                     b = this.bind(
                         t,
-                        Kt.makeCustomSizedDelim(
+                        Rt.makeCustomSizedDelim(
                             'mopen',
                             this.leftDelim,
                             y,
@@ -7360,7 +7360,7 @@ var global, factory;
                     ),
                     x = this.bind(
                         t,
-                        Kt.makeCustomSizedDelim(
+                        Rt.makeCustomSizedDelim(
                             'mclose',
                             this.rightDelim,
                             y,
@@ -7369,7 +7369,7 @@ var global, factory;
                         )
                     );
                 b.applyStyle(this.getStyle()), x.applyStyle(this.getStyle());
-                const k = $t(
+                const k = Nt(
                     [b, g, x],
                     t.parentSize !== t.size
                         ? 'sizing reset-' + t.parentSize + ' ' + t.size
@@ -7391,18 +7391,19 @@ var global, factory;
                     o = 0,
                     n = [];
                 if (
-                    ((a = $.height(i) * s.sizeMultiplier),
-                    (o = $.depth(i) * s.sizeMultiplier),
+                    ((a = N.height(i) * s.sizeMultiplier),
+                    (o = N.depth(i) * s.sizeMultiplier),
                     this.leftDelim &&
                         (n.push(
                             this.bind(
                                 t,
-                                Kt.makeLeftRightDelim(
+                                Rt.makeLeftRightDelim(
                                     'mopen',
                                     this.leftDelim,
                                     a,
                                     o,
-                                    e
+                                    e,
+                                    'ML__open'
                                 )
                             )
                         ),
@@ -7415,7 +7416,7 @@ var global, factory;
                                 r = /ML__selected/.test(i[s].classes);
                             (i[s] = this.bind(
                                 t,
-                                Kt.makeLeftRightDelim(
+                                Rt.makeLeftRightDelim(
                                     'minner',
                                     i[s].delim,
                                     a,
@@ -7455,7 +7456,14 @@ var global, factory;
                         n.push(
                             this.bind(
                                 t,
-                                Kt.makeLeftRightDelim('mclose', s, a, o, e, i)
+                                Rt.makeLeftRightDelim(
+                                    'mclose',
+                                    s,
+                                    a,
+                                    o,
+                                    e,
+                                    (i || '') + ' ML__close'
+                                )
                             )
                         ),
                         n[n.length - 1].applyStyle(this.getStyle());
@@ -7472,55 +7480,55 @@ var global, factory;
                 const n =
                         Math.max(
                             2 * a,
-                            ($.height(i) + $.depth(i)) * e.sizeMultiplier
+                            (N.height(i) + N.depth(i)) * e.sizeMultiplier
                         ) +
                         (o + s),
-                    r = Nt(
-                        Kt.makeCustomSizedDelim('', '\\surd', n, !1, t),
+                    r = Kt(
+                        Rt.makeCustomSizedDelim('', '\\surd', n, !1, t),
                         'sqrt-sign'
                     );
                 r.applyStyle(this.getStyle());
                 const l = r.height + r.depth - s;
-                l > $.height(i) + $.depth(i) + o &&
-                    (o = (o + l - ($.height(i) + $.depth(i))) / 2),
-                    r.setTop(r.height - $.height(i) - (o + s));
-                const c = Nt(null, t.mathstyle.adjustTo(M.TEXT) + ' sqrt-line');
+                l > N.height(i) + N.depth(i) + o &&
+                    (o = (o + l - (N.height(i) + N.depth(i))) / 2),
+                    r.setTop(r.height - N.height(i) - (o + s));
+                const c = Kt(null, t.mathstyle.adjustTo(M.TEXT) + ' sqrt-line');
                 c.applyStyle(this.getStyle()), (c.height = s);
                 const d = Vt(t, [i, o, c, s]);
-                if (!this.index) return this.bind(t, $t([r, d], 'sqrt'));
+                if (!this.index) return this.bind(t, Nt([r, d], 'sqrt'));
                 const p = t.clone({ mathstyle: M.SCRIPTSCRIPT }),
-                    m = Nt(Qt(p, this.index), e.adjustTo(M.SCRIPTSCRIPT)),
+                    m = Kt(Qt(p, this.index), e.adjustTo(M.SCRIPTSCRIPT)),
                     u = Math.max(r.height, d.height),
                     f = Math.max(r.depth, d.depth),
                     g = Vt(t, [m], 'shift', -0.6 * (u - f));
-                return this.bind(t, $t([Nt(g, 'root'), r, d], 'sqrt'));
+                return this.bind(t, Nt([Kt(g, 'root'), r, d], 'sqrt'));
             }
             decomposeAccent(t) {
                 const e = t.mathstyle;
                 let i = Qt(t.cramp(), this.body);
                 (this.superscript || this.subscript) &&
-                    (i = this.attachSupsub(t, $t(i), 'mord'));
+                    (i = this.attachSupsub(t, Nt(i), 'mord'));
                 let s = 0;
                 Array.isArray(this.body) &&
                     1 === this.body.length &&
                     this.body[0].isCharacterBox() &&
-                    (s = $.skew(i));
-                const a = Math.min($.height(i), e.metrics.xHeight),
-                    o = $.makeSymbol('Main-Regular', this.accent, 'math');
+                    (s = N.skew(i));
+                const a = Math.min(N.height(i), e.metrics.xHeight),
+                    o = N.makeSymbol('Main-Regular', this.accent, 'math');
                 o.italic = 0;
                 const n = '⃗' === this.accent ? ' accent-vec' : '';
-                let r = Nt(Nt(o), 'accent-body' + n);
+                let r = Kt(Kt(o), 'accent-body' + n);
                 return (
                     (r = Vt(t, [i, -a, r])),
                     r.children[1].setLeft(2 * s),
-                    $t(r, 'accent')
+                    Nt(r, 'accent')
                 );
             }
             decomposeLine(t) {
                 const e = t.mathstyle,
                     i = Qt(t.cramp(), this.body),
                     s = h.defaultRuleThickness / e.sizeMultiplier,
-                    a = Nt(
+                    a = Kt(
                         null,
                         t.mathstyle.adjustTo(M.TEXT) +
                             ' ' +
@@ -7535,22 +7543,22 @@ var global, factory;
                 )
                     o = Vt(t, [i, 3 * s, a, s]);
                 else {
-                    const e = Nt(i);
-                    o = Vt(t, [s, a, 3 * s, e], 'top', $.height(e));
+                    const e = Kt(i);
+                    o = Vt(t, [s, a, 3 * s, e], 'top', N.height(e));
                 }
-                return $t(o, this.position);
+                return Nt(o, this.position);
             }
             decomposeOverunder(t) {
                 const e = Qt(t, this.body),
                     i = t.clone({ mathstyle: 'scriptstyle' }),
                     s = this.overscript
-                        ? Nt(
+                        ? Kt(
                               Qt(i, this.overscript),
                               t.mathstyle.adjustTo(i.mathstyle)
                           )
                         : null,
                     a = this.underscript
-                        ? Nt(
+                        ? Kt(
                               Qt(i, this.underscript),
                               t.mathstyle.adjustTo(i.mathstyle)
                           )
@@ -7558,15 +7566,15 @@ var global, factory;
                 return Yt(t, e, 0, 0, s, a, this.mathtype || 'mrel');
             }
             decomposeOverlap(t) {
-                const e = Nt(Qt(t, this.body), 'inner');
-                return $t(
-                    [e, Nt(null, 'fix')],
+                const e = Kt(Qt(t, this.body), 'inner');
+                return Nt(
+                    [e, Kt(null, 'fix')],
                     'left' === this.align ? 'llap' : 'rlap'
                 );
             }
             decomposeRule(t) {
                 const e = t.mathstyle,
-                    i = $t('', 'rule');
+                    i = Nt('', 'rule');
                 let s = this.shift && !isNaN(this.shift) ? this.shift : 0;
                 s /= e.sizeMultiplier;
                 const a = this.width / e.sizeMultiplier,
@@ -7594,7 +7602,7 @@ var global, factory;
                     o = 0;
                 if (this.symbol) {
                     const n = s ? 'Size2-Regular' : 'Size1-Regular';
-                    (i = $.makeSymbol(
+                    (i = N.makeSymbol(
                         n,
                         this.body,
                         'op-symbol ' + (s ? 'large-op' : 'small-op')
@@ -7607,7 +7615,7 @@ var global, factory;
                         this.bind(t, i);
                 } else
                     Array.isArray(this.body)
-                        ? ((i = $.makeOp(Qt(t, this.body))), this.bind(t, i))
+                        ? ((i = N.makeOp(Qt(t, this.body))), this.bind(t, i))
                         : (i = this.makeSpan(t, this.body));
                 if (this.superscript || this.subscript) {
                     const s = this.limits || 'auto';
@@ -7620,8 +7628,8 @@ var global, factory;
                 return this.symbol && i.setTop(a), i;
             }
             decomposeBox(t) {
-                const e = $t(Qt(t, this.body)),
-                    i = Nt();
+                const e = Nt(Qt(t, this.body)),
+                    i = Kt();
                 i.setStyle('position', 'absolute');
                 const s =
                     'number' == typeof this.padding ? this.padding : h.fboxsep;
@@ -7643,7 +7651,7 @@ var global, factory;
                     e.setStyle('display', 'inline-block'),
                     e.setStyle('height', e.height + e.depth, 'em'),
                     e.setStyle('vertical-align', -e.depth + s, 'em');
-                const a = Nt([i, e]);
+                const a = Kt([i, e]);
                 return (
                     a.setStyle('position', 'relative'),
                     a.setStyle('vertical-align', -s + e.depth, 'em'),
@@ -7655,7 +7663,7 @@ var global, factory;
                 );
             }
             decomposeEnclose(t) {
-                const e = $t(Qt(t, this.body)),
+                const e = Nt(Qt(t, this.body)),
                     i = 'auto' === this.padding ? 0.2 : this.padding;
                 e.setStyle('padding', i, 'em'),
                     e.setStyle('display', 'inline-block'),
@@ -7677,7 +7685,7 @@ var global, factory;
                     this.notation.roundedbox &&
                         (e.setStyle(
                             'border-radius',
-                            ($.height(e) + $.depth(e)) / 2,
+                            (N.height(e) + N.depth(e)) / 2,
                             'em'
                         ),
                         e.setStyle('border', this.borderStyle)),
@@ -7731,7 +7739,7 @@ var global, factory;
                                     : 'filter: drop-shadow(' +
                                       this.shadow +
                                       ')'),
-                        $.makeSVG(e, s, t)
+                        N.makeSVG(e, s, t)
                     );
                 }
                 return e;
@@ -7758,11 +7766,11 @@ var global, factory;
                 else if ('leftright' === this.type)
                     i = this.decomposeLeftright(t);
                 else if ('delim' === this.type)
-                    (i = Nt(null, '')), (i.delim = this.delim);
+                    (i = Kt(null, '')), (i.delim = this.delim);
                 else if ('sizeddelim' === this.type)
                     i = this.bind(
                         t,
-                        Kt.makeSizedDelim(this.cls, this.delim, this.size, t)
+                        Rt.makeSizedDelim(this.cls, this.delim, this.size, t)
                     );
                 else if ('line' === this.type) i = this.decomposeLine(t);
                 else if ('overunder' === this.type)
@@ -7771,7 +7779,7 @@ var global, factory;
                 else if ('rule' === this.type) i = this.decomposeRule(t);
                 else if ('styling' === this.type);
                 else if ('msubsup' === this.type)
-                    (i = $t('​')),
+                    (i = Nt('​')),
                         e && ((i.height = e[0].height), (i.depth = e[0].depth));
                 else if ('mop' === this.type) i = this.decomposeOp(t);
                 else if ('space' === this.type) i = this.makeSpan(t, ' ');
@@ -7783,7 +7791,7 @@ var global, factory;
                                 ? this.makeSpan(t, ' ')
                                 : this.makeSpan(t, ' ');
                     else if (this.width)
-                        (i = Nt('​', 'mspace ')),
+                        (i = Kt('​', 'mspace ')),
                             this.width > 0
                                 ? i.setWidth(this.width)
                                 : i.setStyle('margin-left', this.width, 'em');
@@ -7798,7 +7806,7 @@ var global, factory;
                                 ',': 'thinspace',
                                 '!': 'negativethinspace',
                             }[this.body] || 'quad';
-                        i = Nt('​', 'mspace ' + t);
+                        i = Kt('​', 'mspace ' + t);
                     }
                 else
                     'mathstyle' === this.type
@@ -7826,6 +7834,15 @@ var global, factory;
                         (Array.isArray(i)
                             ? (i[i.length - 1].caret = this.caret)
                             : (i.caret = this.caret)),
+                    this.containsCaret &&
+                        (Array.isArray(i)
+                            ? ((i[0].classes =
+                                  (i[0].classes || '') + ' ML__contains-caret'),
+                              (i[i.length - 1].classes =
+                                  (i[i.length - 1].classes || '') +
+                                  ' ML__contains-caret'))
+                            : (i.classes =
+                                  (i.classes || '') + ' ML__contains-caret')),
                     !this.limits && (this.superscript || this.subscript))
                 )
                     if (Array.isArray(i)) {
@@ -7841,18 +7858,18 @@ var global, factory;
                     o = null;
                 if (this.superscript) {
                     const e = Qt(t.sup(), this.superscript);
-                    a = Nt(e, s.adjustTo(s.sup()));
+                    a = Kt(e, s.adjustTo(s.sup()));
                 }
                 if (this.subscript) {
                     const e = Qt(t.sub(), this.subscript);
-                    o = Nt(e, s.adjustTo(s.sub()));
+                    o = Kt(e, s.adjustTo(s.sub()));
                 }
                 let n,
                     r = 0,
                     l = 0;
                 this.isCharacterBox() ||
-                    ((r = $.height(e) - s.metrics.supDrop),
-                    (l = $.depth(e) + s.metrics.subDrop)),
+                    ((r = N.height(e) - s.metrics.supDrop),
+                    (l = N.depth(e) + s.metrics.subDrop)),
                     (n =
                         s === M.DISPLAY
                             ? s.metrics.sup1
@@ -7866,24 +7883,24 @@ var global, factory;
                     (r = Math.max(r, n, a.depth + 0.25 * s.metrics.xHeight)),
                         (l = Math.max(l, s.metrics.sub2));
                     const i = h.defaultRuleThickness;
-                    if (r - $.depth(a) - ($.height(o) - l) < 4 * i) {
-                        l = 4 * i - (r - a.depth) + $.height(o);
-                        const t = 0.8 * s.metrics.xHeight - (r - $.depth(a));
+                    if (r - N.depth(a) - (N.height(o) - l) < 4 * i) {
+                        l = 4 * i - (r - a.depth) + N.height(o);
+                        const t = 0.8 * s.metrics.xHeight - (r - N.depth(a));
                         t > 0 && ((r += t), (l -= t));
                     }
                     (p = Vt(t, [o, l, a, -r], 'individualShift')),
-                        this.symbol && p.children[0].setLeft(-$.italic(e));
+                        this.symbol && p.children[0].setLeft(-N.italic(e));
                 } else
                     o && !a
                         ? ((l = Math.max(
                               l,
                               s.metrics.sub1,
-                              $.height(o) - 0.8 * s.metrics.xHeight
+                              N.height(o) - 0.8 * s.metrics.xHeight
                           )),
                           (p = Vt(t, [o], 'shift', l)),
                           p.children[0].setRight(d),
                           this.isCharacterBox() &&
-                              p.children[0].setLeft(-$.italic(e)))
+                              p.children[0].setLeft(-N.italic(e)))
                         : !o &&
                           a &&
                           ((r = Math.max(
@@ -7893,21 +7910,21 @@ var global, factory;
                           )),
                           (p = Vt(t, [a], 'shift', -r)),
                           p.children[0].setRight(d));
-                const m = Nt(p, 'msubsup');
+                const m = Kt(p, 'msubsup');
                 return (
                     this.caret && (m.caret = this.caret),
-                    $.makeSpanOfType(i, [e, m])
+                    N.makeSpanOfType(i, [e, m])
                 );
             }
             attachLimits(t, e, i, s) {
                 const a = this.superscript
-                        ? Nt(
+                        ? Kt(
                               Qt(t.sup(), this.superscript),
                               t.mathstyle.adjustTo(t.mathstyle.sup())
                           )
                         : null,
                     o = this.subscript
-                        ? Nt(
+                        ? Kt(
                               Qt(t.sub(), this.subscript),
                               t.mathstyle.adjustTo(t.mathstyle.sub())
                           )
@@ -7945,7 +7962,7 @@ var global, factory;
             }
             makeSpan(t, e) {
                 const i = 'textord' === this.type ? 'mord' : this.type,
-                    s = $.makeSpanOfType(i, e),
+                    s = N.makeSpanOfType(i, e),
                     a = this.getStyle();
                 s.applyStyle(a);
                 const o = a && a.fontSize ? a.fontSize : 'size5';
@@ -7977,13 +7994,13 @@ var global, factory;
             }
         }
         function Xt(t) {
-            const e = Nt('​', 'arraycolsep');
+            const e = Kt('​', 'arraycolsep');
             return e.setWidth(t, 'em'), e;
         }
         function Jt(t, e, i, s) {
             const a = [];
             for (const o of e) {
-                const e = Nt(Qt(t, s));
+                const e = Kt(Qt(t, s));
                 (e.depth = o.depth),
                     (e.height = o.height),
                     a.push(e),
@@ -7993,7 +8010,7 @@ var global, factory;
         }
         function Yt(t, e, i, s, a, o, n) {
             if (!a && !o) return e;
-            e = Nt(e);
+            e = Kt(e);
             let r = 0,
                 l = 0;
             a && (r = Math.max(h.bigOpSpacing1, h.bigOpSpacing3 - a.depth)),
@@ -8003,10 +8020,10 @@ var global, factory;
             if (o && a) {
                 const n =
                     h.bigOpSpacing5 +
-                    $.height(o) +
-                    $.depth(o) +
+                    N.height(o) +
+                    N.depth(o) +
                     l +
-                    $.depth(e) +
+                    N.depth(e) +
                     i;
                 (c = Vt(
                     t,
@@ -8017,15 +8034,15 @@ var global, factory;
                     c.children[0].setLeft(-s),
                     c.children[2].setLeft(s);
             } else if (o && !a) {
-                const a = $.height(e) - i;
+                const a = N.height(e) - i;
                 (c = Vt(t, [h.bigOpSpacing5, o, l, e], 'top', a)),
                     c.children[0].setLeft(-s);
             } else if (!o && a) {
-                const o = $.depth(e) + i;
+                const o = N.depth(e) + i;
                 (c = Vt(t, [e, r, a, h.bigOpSpacing5], 'bottom', o)),
                     c.children[1].setLeft(s);
             }
-            return $.makeSpanOfType(n, c, 'op-limits');
+            return N.makeSpanOfType(n, c, 'op-limits');
         }
         function Qt(t, e) {
             function i(t) {
@@ -10100,7 +10117,7 @@ var global, factory;
                 Array.isArray(t[e.row]) && (i = t[e.row][e.col] || null),
                 !i ||
                     (0 !== i.length && 'first' === i[0].type) ||
-                    i.unshift(Be()),
+                    i.unshift(Oe()),
                 i
             );
         }
@@ -10216,28 +10233,28 @@ var global, factory;
             if (
                 (s ||
                     ('^' !== t[0] && '_' !== t[0]) ||
-                    ((i = Pe(t.substr(1), { ...e, noWrap: !0 })),
+                    ((i = Ie(t.substr(1), { ...e, noWrap: !0 })),
                     (t = t[0] + '{' + i.match + '}'),
                     (t += qe(i.rest, e)),
                     (s = !0)),
                 s ||
                     ((i = t.match(/^(sqrt|\u221a)(.*)/)),
                     i &&
-                        ((i = Pe(i[2], { ...e, noWrap: !0 })),
+                        ((i = Ie(i[2], { ...e, noWrap: !0 })),
                         (t = '\\sqrt{' + i.match + '}'),
                         (t += qe(i.rest, e)),
                         (s = !0))),
                 s ||
                     ((i = t.match(/^(\\cbrt|\u221b)(.*)/)),
                     i &&
-                        ((i = Pe(i[2], { ...e, noWrap: !0 })),
+                        ((i = Ie(i[2], { ...e, noWrap: !0 })),
                         (t = '\\sqrt[3]{' + i.match + '}'),
                         (t += qe(i.rest, e)),
                         (s = !0))),
                 s ||
                     ((i = t.match(/^abs(.*)/)),
                     i &&
-                        ((i = Pe(i[1], { ...e, noWrap: !0 })),
+                        ((i = Ie(i[1], { ...e, noWrap: !0 })),
                         (t = '\\left|' + i.match + '\\right|'),
                         (t += qe(i.rest, e)),
                         (s = !0))),
@@ -10249,10 +10266,10 @@ var global, factory;
                         (s = !0))),
                 s ||
                     ((i = t.match(/^([^a-zA-Z({[_^\\\s"]+)(.*)/)),
-                    i && ((t = Ie(i[1], e)), (t += qe(i[2], e)), (s = !0))),
+                    i && ((t = Pe(i[1], e)), (t += qe(i[2], e)), (s = !0))),
                 !s &&
                     /^(f|g|h)[^a-zA-Z]/.test(t) &&
-                    ((i = Pe(t.substring(1), { ...e, noWrap: !0 })),
+                    ((i = Ie(t.substring(1), { ...e, noWrap: !0 })),
                     (t =
                         '(' === t[1]
                             ? t[0] + '\\mleft(' + i.match + '\\mright)'
@@ -10261,14 +10278,14 @@ var global, factory;
                     (s = !0)),
                 s ||
                     ((i = t.match(/^([a-zA-Z]+)(.*)/)),
-                    i && ((t = Ie(i[1], e)), (t += qe(i[2], e)), (s = !0))),
+                    i && ((t = Pe(i[1], e)), (t += qe(i[2], e)), (s = !0))),
                 !s)
             )
                 if (
-                    ((i = Pe(t, { ...e, noWrap: !0 })),
+                    ((i = Ie(t, { ...e, noWrap: !0 })),
                     i.match && '/' === i.rest[0])
                 ) {
-                    const a = Pe(i.rest.substr(1), { ...e, noWrap: !0 });
+                    const a = Ie(i.rest.substr(1), { ...e, noWrap: !0 });
                     a.match &&
                         (t =
                             '\\frac{' +
@@ -10295,7 +10312,7 @@ var global, factory;
                 t
             );
         }
-        function Pe(t, e) {
+        function Ie(t, e) {
             let i = '',
                 s = (t = t.trim()),
                 a = t.charAt(0),
@@ -10340,7 +10357,7 @@ var global, factory;
             }
             return { match: i, rest: s };
         }
-        function Ie(t, e) {
+        function Pe(t, e) {
             let i = ve.forString('math', null, t, e);
             return (
                 i
@@ -10351,7 +10368,7 @@ var global, factory;
                 i
             );
         }
-        function Be() {
+        function Oe() {
             return new te.MathAtom('', 'first');
         }
         (we.prototype._announce = function(t, e, i) {
@@ -10453,7 +10470,8 @@ var global, factory;
                     (this.path = i),
                         0 === e &&
                             'placeholder' === this.anchor().type &&
-                            ((i[i.length - 1].offset = 0), (e = 1)),
+                            ((i[i.length - 1].offset = this.anchorOffset() - 1),
+                            (e = 1)),
                         (t = { path: i, extent: e || 0 }),
                         (this.path = s);
                 }
@@ -10595,7 +10613,7 @@ var global, factory;
                         {
                             (0 !== e[t.relation].length &&
                                 'first' === e[t.relation][0].type) ||
-                                e[t.relation].unshift(Be());
+                                e[t.relation].unshift(Oe());
                             const i = Math.min(
                                 t.offset,
                                 e[t.relation].length - 1
@@ -10650,7 +10668,7 @@ var global, factory;
                         : ((t = this.parent()[this.relation()] || []),
                           'string' == typeof t && (t = [])),
                     (0 !== t.length && 'first' === t[0].type) ||
-                        t.unshift(Be()),
+                        t.unshift(Oe()),
                     t
                 );
             }),
@@ -11997,14 +12015,14 @@ var global, factory;
             (we.prototype.moveToSuperscript_ = function() {
                 if ((this.collapseForward(), !this.anchor().superscript))
                     if (this.anchor().subscript)
-                        this.anchor().superscript = [Be()];
+                        this.anchor().superscript = [Oe()];
                     else {
                         const t = this.sibling(1);
                         t && t.superscript
                             ? (this.path[this.path.length - 1].offset += 1)
                             : t && t.subscript
                             ? ((this.path[this.path.length - 1].offset += 1),
-                              (this.anchor().superscript = [Be()]))
+                              (this.anchor().superscript = [Oe()]))
                             : ('limits' !== this.anchor().limits &&
                                   (this.siblings().splice(
                                       this.anchorOffset() + 1,
@@ -12019,7 +12037,7 @@ var global, factory;
                                   (this.path[
                                       this.path.length - 1
                                   ].offset += 1)),
-                              (this.anchor().superscript = [Be()]));
+                              (this.anchor().superscript = [Oe()]));
                     }
                 this.path.push({ relation: 'superscript', offset: 0 }),
                     this.selectGroup_();
@@ -12027,14 +12045,14 @@ var global, factory;
             (we.prototype.moveToSubscript_ = function() {
                 if ((this.collapseForward(), !this.anchor().subscript))
                     if (this.anchor().superscript)
-                        this.anchor().subscript = [Be()];
+                        this.anchor().subscript = [Oe()];
                     else {
                         const t = this.sibling(1);
                         t && t.subscript
                             ? (this.path[this.path.length - 1].offset += 1)
                             : t && t.superscript
                             ? ((this.path[this.path.length - 1].offset += 1),
-                              (this.anchor().subscript = [Be()]))
+                              (this.anchor().subscript = [Oe()]))
                             : ('limits' !== this.anchor().limits &&
                                   (this.siblings().splice(
                                       this.anchorOffset() + 1,
@@ -12049,7 +12067,7 @@ var global, factory;
                                   (this.path[
                                       this.path.length - 1
                                   ].offset += 1)),
-                              (this.anchor().subscript = [Be()]));
+                              (this.anchor().subscript = [Oe()]));
                     }
                 this.path.push({ relation: 'subscript', offset: 0 }),
                     this.selectGroup_();
@@ -12062,7 +12080,7 @@ var global, factory;
                     numer: 'denom',
                 }[this.relation()];
                 t || this.moveToSuperscript_(),
-                    this.parent()[t] || (this.parent()[t] = [Be()]),
+                    this.parent()[t] || (this.parent()[t] = [Oe()]),
                     this.setSelection(0, 'end', t);
             }),
             (we.prototype.moveBeforeParent_ = function() {
@@ -12188,8 +12206,8 @@ var global, factory;
                     }),
                     this.contentDidChange();
             });
-        var Oe = { EditableMathlist: we, parseMathString: Ee };
-        const Re = {
+        var Be = { EditableMathlist: we, parseMathString: Ee };
+        const $e = {
                 '#': '#',
                 '|': '|',
                 '[': 'BracketLeft',
@@ -12200,7 +12218,7 @@ var global, factory;
                 '/': 'Slash',
                 '\\': 'Backslash',
             },
-            Ke = {
+            Re = {
                 Space: 'Spacebar',
                 ' ': 'Spacebar',
                 Escape: 'Esc',
@@ -12210,7 +12228,7 @@ var global, factory;
                 ArrowDown: 'Down',
                 Delete: 'Del',
             },
-            Ne = {
+            Ke = {
                 q: 'KeyQ',
                 w: 'KeyW',
                 e: 'KeyE',
@@ -12265,16 +12283,16 @@ var global, factory;
                 '?': 'Shift-Slash',
                 ' ': 'Spacebar',
             };
-        function $e(t) {
+        function Ne(t) {
             let e,
                 i = !0;
             'Unidentified' === t.key &&
                 t.target &&
-                (e = Ne[t.target.value] || t.target.value),
+                (e = Ke[t.target.value] || t.target.value),
                 e ||
-                    (Re[t.key] ? ((e = Re[t.key]), (i = !1)) : (e = Ke[t.key]),
-                    e || (e = Ne[t.key.toLowerCase()])),
-                !e && t.code && (e = Ke[t.code] || t.code);
+                    ($e[t.key] ? ((e = $e[t.key]), (i = !1)) : (e = Re[t.key]),
+                    e || (e = Ke[t.key.toLowerCase()])),
+                !e && t.code && (e = Re[t.code] || t.code);
             const s = [];
             return (
                 t.ctrlKey && s.push('Ctrl'),
@@ -12334,7 +12352,7 @@ var global, factory;
                             !o &&
                             'CapsLock' !== i.code &&
                             !/(Control|Meta|Alt|Shift)(Right|Left)/.test(i.code)
-                        ) || ((s = i), (a = null), e.keystroke($e(i), i))
+                        ) || ((s = i), (a = null), e.keystroke(Ne(i), i))
                     );
                 },
                 !0
@@ -12342,7 +12360,7 @@ var global, factory;
                 c.addEventListener(
                     'keypress',
                     function(t) {
-                        o || (s && a && e.keystroke($e(s), s), (a = t), r(l));
+                        o || (s && a && e.keystroke(Ne(s), s), (a = t), r(l));
                     },
                     !0
                 ),
@@ -12423,7 +12441,7 @@ var global, factory;
         var He = {
             delegateKeyboardEvents: We,
             select: We.select,
-            keyboardEventToString: $e,
+            keyboardEventToString: Ne,
             eventToChar: function(t) {
                 if (!t) return '';
                 let e;
@@ -12844,14 +12862,14 @@ var global, factory;
                                 },
                                 i
                             ),
-                            a = $.makeSpan(s, 'ML__base'),
-                            o = $.makeSpan('', 'ML__strut');
+                            a = N.makeSpan(s, 'ML__base'),
+                            o = N.makeSpan('', 'ML__strut');
                         o.setStyle('height', a.height, 'em');
-                        const r = $.makeSpan('', 'ML__strut--bottom');
+                        const r = N.makeSpan('', 'ML__strut--bottom');
                         return (
                             r.setStyle('height', a.height + a.depth, 'em'),
                             r.setStyle('vertical-align', -a.depth, 'em'),
-                            $.makeSpan([o, r, a], 'ML__mathlive').toMarkup()
+                            N.makeSpan([o, r, a], 'ML__mathlive').toMarkup()
                         );
                     })(Ve[s] || e, t),
                     o = je(s),
@@ -14092,13 +14110,13 @@ var global, factory;
         let si = {};
         const ai = {
             math:
-                "\n        <div class='rows'>\n            <ul>\n                <li class='keycap tex' data-alt-keys='x-var'><i>x</i></li>\n                <li class='keycap tex' data-alt-keys='n-var'><i>n</i></li>\n                <li class='separator w5'></li>\n                <row name='numpad-1'/>\n                <li class='separator w5'></li>\n                <li class='keycap tex' data-key='ee' data-alt-keys='ee'>e</li>\n                <li class='keycap tex' data-key='ii' data-alt-keys='ii'>i</li>\n                <li class='keycap tex' data-latex='\\pi' data-alt-keys='numeric-pi'></li>\n            </ul>\n            <ul>\n                <li class='keycap tex' data-key='<' data-alt-keys='<'>&lt;</li>\n                <li class='keycap tex' data-key='>' data-alt-keys='>'>&gt;</li>\n                <li class='separator w5'></li>\n                <row name='numpad-2'/>\n                <li class='separator w5'></li>\n                <li class='keycap tex' data-alt-keys='x2' data-insert='#@^{2}'><span><i>x</i>&thinsp;²</span></li>\n                <li class='keycap tex' data-alt-keys='^' data-insert='#@^{#?}'><span><i>x</i><sup>&thinsp;<small>&#x2b1a;</small></sup></span></li>\n                <li class='keycap tex' data-alt-keys='sqrt' data-insert='\\sqrt{#0}' data-latex='\\sqrt{#0}'></li>\n            </ul>\n            <ul>\n                <li class='keycap tex' data-alt-keys='(' >(</li>\n                <li class='keycap tex' data-alt-keys=')' >)</li>\n                <li class='separator w5'></li>\n                <row name='numpad-3'/>\n                <li class='separator w5'></li>\n                <li class='keycap tex small' data-alt-keys='int' data-latex='\\int_0^\\infty'><span></span></li>\n                <li class='keycap tex' data-latex='\\forall' data-alt-keys='logic' ></li>\n                <li class='action font-glyph bottom right' data-alt-keys='delete' data-command='[\"performWithFeedback\",\"deletePreviousChar\"]'>&#x232b;</li></ul>\n            </ul>\n            <ul>\n                <li class='keycap' data-alt-keys='foreground-color' data-command='[\"applyStyle\",{\"color\":\"#cc2428\"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428; box-sizing: border-box'></span></li>\n                <li class='keycap' data-alt-keys='background-color' data-command='[\"applyStyle\",{\"backgroundColor\":\"#fff590\"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590; box-sizing: border-box'></span></li>\n                <li class='separator w5'></li>\n                <row name='numpad-4'/>\n                <li class='separator w5'></li>\n                <arrows/>\n            </ul>\n        </div>\n    ",
+                "\n        <div class='rows'>\n            <ul>\n                <li class='keycap tex' data-alt-keys='x-var'><i>x</i></li>\n                <li class='keycap tex' data-alt-keys='n-var'><i>n</i></li>\n                <li class='separator w5'></li>\n                <row name='numpad-1'/>\n                <li class='separator w5'></li>\n                <li class='keycap tex' data-insert='$$\\exponentialE$$' data-alt-keys='ee'>e</li>\n                <li class='keycap tex' data-insert='$$\\imaginaryI$$' data-alt-keys='ii'>i</li>\n                <li class='keycap tex' data-latex='\\pi' data-alt-keys='numeric-pi'></li>\n            </ul>\n            <ul>\n                <li class='keycap tex' data-key='<' data-alt-keys='<'>&lt;</li>\n                <li class='keycap tex' data-key='>' data-alt-keys='>'>&gt;</li>\n                <li class='separator w5'></li>\n                <row name='numpad-2'/>\n                <li class='separator w5'></li>\n                <li class='keycap tex' data-alt-keys='x2' data-insert='$$#@^{2}$$'><span><i>x</i>&thinsp;²</span></li>\n                <li class='keycap tex' data-alt-keys='^' data-insert='$$#@^{#?}$$'><span><i>x</i><sup>&thinsp;<small>&#x2b1a;</small></sup></span></li>\n                <li class='keycap tex' data-alt-keys='sqrt' data-insert='$$\\sqrt{#0}$$' data-latex='\\sqrt{#0}'></li>\n            </ul>\n            <ul>\n                <li class='keycap tex' data-alt-keys='(' >(</li>\n                <li class='keycap tex' data-alt-keys=')' >)</li>\n                <li class='separator w5'></li>\n                <row name='numpad-3'/>\n                <li class='separator w5'></li>\n                <li class='keycap tex small' data-alt-keys='int' data-latex='\\int_0^\\infty'><span></span></li>\n                <li class='keycap tex' data-latex='\\forall' data-alt-keys='logic' ></li>\n                <li class='action font-glyph bottom right' data-alt-keys='delete' data-command='[\"performWithFeedback\",\"deletePreviousChar\"]'>&#x232b;</li></ul>\n            </ul>\n            <ul>\n                <li class='keycap' data-alt-keys='foreground-color' data-command='[\"applyStyle\",{\"color\":\"#cc2428\"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428; box-sizing: border-box'></span></li>\n                <li class='keycap' data-alt-keys='background-color' data-command='[\"applyStyle\",{\"backgroundColor\":\"#fff590\"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590; box-sizing: border-box'></span></li>\n                <li class='separator w5'></li>\n                <row name='numpad-4'/>\n                <li class='separator w5'></li>\n                <arrows/>\n            </ul>\n        </div>\n    ",
             'lower-roman':
                 "\n        <div class='rows'>\n            <ul>\n                <row name='numpad-1' class='if-wide'/>\n                <row name='lower-1' shift-layer='upper-roman'/>\n            </ul>\n            <ul>\n                <row name='numpad-2' class='if-wide'/>\n                <row name='lower-2'  shift-layer='upper-roman''/>\n            </ul>\n            <ul>\n                <row name='numpad-3' class='if-wide'/>\n                <row name='lower-3'  shift-layer='upper-roman''/>\n            </ul>\n            <ul>\n                <row name='numpad-4' class='if-wide'/>\n                <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols'>&infin;≠</li>\n                <li class='keycap' data-alt-keys=','>,</li>\n                <li class='keycap w50' data-key=' ' data-alt-keys='space'>&nbsp;</li>\n                <arrows/>\n            </ul>\n        </div>",
             'upper-roman':
                 "\n        <div class='rows'>\n            <ul>\n                <row name='numpad-1' class='if-wide'/>\n                <row name='upper-1'  shift-layer='lower-roman'/>\n            </ul>\n            <ul>\n                <row name='numpad-2' class='if-wide'/>\n                <row name='upper-2' shift-layer='lower-roman'/>\n            </ul>\n            <ul>\n                <row name='numpad-3' class='if-wide'/>\n                <row name='upper-3' shift-layer='lower-roman'/>\n            </ul>\n            <ul>\n                <row name='numpad-4' class='if-wide'/>\n                <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols'>&infin;≠</li>\n                <li class='keycap' data-alt-keys='.'>;</li>\n                <li class='keycap w50' data-key=' '>&nbsp;</li>\n                <arrows/>\n            </ul>\n        </div>",
             symbols:
-                "\n        <div class='rows'>\n            <ul>\n                <row name='numpad-1' class='if-wide'/>\n                <li class='keycap tex' data-alt-keys='(' data-insert='\\lbrace '>{</li>\n                <li class='keycap tex' data-alt-keys=')' data-insert='\\rbrace '>}</li>\n                <li class='separator w5'></li>\n                <li class='keycap tex' data-alt-keys='set' data-insert='\\in '>&#x2208;</li>\n                <li class='keycap tex' data-alt-keys='!set' data-insert='\\notin '>&#x2209;</li>\n                <li class='keycap tex' data-insert='\\Re '>&#x211c;<aside>Real</aside></li>\n                <li class='keycap tex' data-insert='\\Im '>&#x2111;<aside>Imaginary</aside></li>\n                <li class='keycap w15' data-insert='\\ulcorner#0\\urcorner '><span><sup>&#x250c;</sup><span><span style='color:#ddd'>o</span><sup>&#x2510;</sup></span><aside>ceil</aside></li>\n                <li class='keycap tex' data-alt-keys='nabla' data-insert='\\nabla '>&#x2207;<aside>nabla</aside></li>\n                <li class='keycap tex' data-alt-keys='infinity' data-insert='\\infty '>&#x221e;</li>\n\n            </ul>\n            <ul>\n                <row name='numpad-2' class='if-wide'/>\n                <li class='keycap tex' data-alt-keys='(' data-insert='\\lbrack '>[</li>\n                <li class='keycap tex' data-alt-keys=')' data-insert='\\rbrack '>]</li>\n                <li class='separator w5'></li>\n                <li class='keycap tex' data-alt-keys='subset' data-insert='\\subset '>&#x2282;</li>\n                <li class='keycap tex' data-alt-keys='supset' data-insert='\\supset '>&#x2283;</li>\n                <li class='keycap tex' data-key='!' data-alt-keys='!'>!<aside>factorial</aside></li>\n                <li class='keycap' data-insert='^{\\prime} '><span><sup><span><span style='color:#ddd'>o</span>&#x2032</sup></span><aside>prime</aside></li>\n                <li class='keycap w15' data-insert='\\llcorner#0\\lrcorner '><span><sub>&#x2514;</sub><span style='color:#ddd'>o</span><sub>&#x2518;</sub></span><aside>floor</aside></li>\n                <li class='keycap tex' data-insert='\\partial '>&#x2202;<aside>partial<br>derivative</aside></li>\n                <li class='keycap tex' data-insert='\\emptyset '>&#x2205;<aside>empty set</aside></li>\n\n            </ul>\n            <ul>\n                <row name='numpad-3' class='if-wide'/>\n                <li class='keycap tex' data-alt-keys='(' data-insert='\\langle '>&#x27e8;</li>\n                <li class='keycap tex' data-alt-keys=')' data-insert='\\rangle '>&#x27e9;</li>\n                <li class='separator w5'></li>\n                <li class='keycap tex' data-insert='\\subseteq '>&#x2286;</li>\n                <li class='keycap tex' data-insert='\\supseteq '>&#x2287;</li>\n                <li class='keycap tex' data-alt-keys='accents' data-insert='\\vec{#@}' data-latex='\\vec{#?}' data-aside='vector'></li>\n                <li class='keycap tex' data-alt-keys='accents' data-insert='\\bar{#@}' data-latex='\\bar{#?}' data-aside='bar'></li>\n                <li class='keycap tex' data-alt-keys='absnorm' data-insert='\\lvert #@ \\rvert ' data-latex='\\lvert #? \\rvert' data-aside='abs'></li>\n                <li class='keycap tex' data-insert='\\ast '>&#x2217;<aside>asterisk</aside></li>\n\n                <li class='action font-glyph bottom right w15'\n                    data-shifted='<span class=\"warning\"><svg><use xlink:href=\"#svg-trash\" /></svg></span>'\n                    data-shifted-command='\"deleteAll\"'\n                    data-alt-keys='delete' data-command='[\"performWithFeedback\",\"deletePreviousChar\"]'\n                >&#x232b;</li>\n            </ul>\n            <ul>\n                <row name='numpad-4' class='if-wide'/>\n                <li class='layer-switch font-glyph modifier bottom left' data-layer='lower-roman'>abc</li>\n                <li class='keycap tex' data-insert='\\cdot '>&#x22c5;<aside>centered dot</aside></li>\n                <li class='keycap tex' data-insert='\\colon '>:<aside>colon</aside></li>\n                <li class='keycap tex' data-insert='\\circ '>&#x2218;<aside>circle</aside></li>\n                <li class='keycap tex' data-insert='\\approx '>&#x2248;<aside>approx.</aside></li>\n                <li class='keycap tex' data-insert='\\ne '>&#x2260;</li>\n                <li class='keycap tex' data-insert='\\pm '>&#x00b1;</li>\n                <arrows/>\n            </ul>\n        </div>",
+                "\n        <div class='rows'>\n            <ul>\n                <row name='numpad-1' class='if-wide'/>\n                <li class='keycap tex' data-alt-keys='(' data-insert='\\lbrace '>{</li>\n                <li class='keycap tex' data-alt-keys=')' data-insert='\\rbrace '>}</li>\n                <li class='separator w5'></li>\n                <li class='keycap tex' data-alt-keys='set' data-insert='\\in '>&#x2208;</li>\n                <li class='keycap tex' data-alt-keys='!set' data-insert='\\notin '>&#x2209;</li>\n                <li class='keycap tex' data-insert='\\Re '>&#x211c;<aside>Real</aside></li>\n                <li class='keycap tex' data-insert='\\Im '>&#x2111;<aside>Imaginary</aside></li>\n                <li class='keycap w15' data-insert='\\ulcorner#0\\urcorner '><span><sup>&#x250c;</sup><span><span style='color:#ddd'>o</span><sup>&#x2510;</sup></span><aside>ceil</aside></li>\n                <li class='keycap tex' data-alt-keys='nabla' data-insert='\\nabla '>&#x2207;<aside>nabla</aside></li>\n                <li class='keycap tex' data-alt-keys='infinity' data-insert='\\infty '>&#x221e;</li>\n\n            </ul>\n            <ul>\n                <row name='numpad-2' class='if-wide'/>\n                <li class='keycap tex' data-alt-keys='(' data-insert='\\lbrack '>[</li>\n                <li class='keycap tex' data-alt-keys=')' data-insert='\\rbrack '>]</li>\n                <li class='separator w5'></li>\n                <li class='keycap tex' data-alt-keys='subset' data-insert='\\subset '>&#x2282;</li>\n                <li class='keycap tex' data-alt-keys='supset' data-insert='\\supset '>&#x2283;</li>\n                <li class='keycap tex' data-key='!' data-alt-keys='!'>!<aside>factorial</aside></li>\n                <li class='keycap' data-insert='$$^{\\prime} $$'><span><sup><span><span style='color:#ddd'>o</span>&#x2032</sup></span><aside>prime</aside></li>\n                <li class='keycap w15' data-insert='\\llcorner#0\\lrcorner '><span><sub>&#x2514;</sub><span style='color:#ddd'>o</span><sub>&#x2518;</sub></span><aside>floor</aside></li>\n                <li class='keycap tex' data-insert='\\partial '>&#x2202;<aside>partial<br>derivative</aside></li>\n                <li class='keycap tex' data-insert='\\emptyset '>&#x2205;<aside>empty set</aside></li>\n\n            </ul>\n            <ul>\n                <row name='numpad-3' class='if-wide'/>\n                <li class='keycap tex' data-alt-keys='(' data-insert='\\langle '>&#x27e8;</li>\n                <li class='keycap tex' data-alt-keys=')' data-insert='\\rangle '>&#x27e9;</li>\n                <li class='separator w5'></li>\n                <li class='keycap tex' data-insert='\\subseteq '>&#x2286;</li>\n                <li class='keycap tex' data-insert='\\supseteq '>&#x2287;</li>\n                <li class='keycap tex' data-alt-keys='accents' data-insert='$$\\vec{#@}$$' data-latex='\\vec{#?}' data-aside='vector'></li>\n                <li class='keycap tex' data-alt-keys='accents' data-insert='$$\\bar{#@}$$' data-latex='\\bar{#?}' data-aside='bar'></li>\n                <li class='keycap tex' data-alt-keys='absnorm' data-insert='$$\\lvert #@ \\rvert $$' data-latex='\\lvert #? \\rvert' data-aside='abs'></li>\n                <li class='keycap tex' data-insert='\\ast '>&#x2217;<aside>asterisk</aside></li>\n\n                <li class='action font-glyph bottom right w15'\n                    data-shifted='<span class=\"warning\"><svg><use xlink:href=\"#svg-trash\" /></svg></span>'\n                    data-shifted-command='\"deleteAll\"'\n                    data-alt-keys='delete' data-command='[\"performWithFeedback\",\"deletePreviousChar\"]'\n                >&#x232b;</li>\n            </ul>\n            <ul>\n                <row name='numpad-4' class='if-wide'/>\n                <li class='layer-switch font-glyph modifier bottom left' data-layer='lower-roman'>abc</li>\n                <li class='keycap tex' data-insert='\\cdot '>&#x22c5;<aside>centered dot</aside></li>\n                <li class='keycap tex' data-insert='\\colon '>:<aside>colon</aside></li>\n                <li class='keycap tex' data-insert='\\circ '>&#x2218;<aside>circle</aside></li>\n                <li class='keycap tex' data-insert='\\approx '>&#x2248;<aside>approx.</aside></li>\n                <li class='keycap tex' data-insert='\\ne '>&#x2260;</li>\n                <li class='keycap tex' data-insert='\\pm '>&#x00b1;</li>\n                <arrows/>\n            </ul>\n        </div>",
             'lower-greek':
                 "\n        <div class='rows'>\n            <ul><li class='keycap tex' data-insert='\\varphi '><i>&#x03c6;</i><aside>phi var.</aside></li>\n                <li class='keycap tex' data-insert='\\varsigma '><i>&#x03c2;</i><aside>sigma var.</aside></li>\n                <li class='keycap tex' data-insert='\\epsilon '><i>&#x03f5;</i></li>\n                <li class='keycap tex' data-insert='\\rho '><i>&rho;</i></li>\n                <li class='keycap tex' data-insert='\\tau '><i>&tau;</i></li>\n                <li class='keycap tex' data-insert='\\upsilon '><i>&upsilon;</i></li>\n                <li class='keycap tex' data-insert='\\theta '><i>&theta;</i></li>\n                <li class='keycap tex' data-insert='\\iota '><i>&iota;</i></li>\n                <li class='keycap tex' data-insert='\\omicron '>&omicron;</i></li>\n                <li class='keycap tex' data-insert='\\pi '><i>&pi;</i></li>\n            </ul>\n            <ul><li class='keycap tex' data-insert='\\alpha ' data-shifted='&Alpha;' data-shifted-command='[\"insert\",\"{\\\\char\\\"391}\"]'><i>&alpha;</i></li>\n                <li class='keycap tex' data-insert='\\sigma '><i>&sigma;</i></li>\n                <li class='keycap tex' data-insert='\\delta '><i>&delta;</i></li>\n                <li class='keycap tex' data-insert='\\phi '><i>&#x03d5;</i></i></li>\n                <li class='keycap tex' data-insert='\\gamma '><i>&gamma;</i></li>\n                <li class='keycap tex' data-insert='\\eta '><i>&eta;</i></li>\n                <li class='keycap tex' data-insert='\\xi '><i>&xi;</i></li>\n                <li class='keycap tex' data-insert='\\kappa '><i>&kappa;</i></li>\n                <li class='keycap tex' data-insert='\\lambda '><i>&lambda;</i></li>\n            </ul>\n            <ul><li class='shift modifier font-glyph bottom left w15 layer-switch' data-layer='upper-greek'>&#x21e7;</li>\n                <li class='keycap tex' data-insert='\\zeta '><i>&zeta;</i></li>\n                <li class='keycap tex' data-insert='\\chi '><i>&chi;</i></li>\n                <li class='keycap tex' data-insert='\\psi '><i>&psi;</i></li>\n                <li class='keycap tex' data-insert='\\omega '><i>&omega;</i></li>\n                <li class='keycap tex' data-insert='\\beta '><i>&beta;</i></li>\n                <li class='keycap tex' data-insert='\\nu '><i>&nu;</i></li>\n                <li class='keycap tex' data-insert='\\mu '><i>&mu;</i></li>\n                <li class='action font-glyph bottom right w15'\n                    data-shifted='<span class=\"warning\"><svg><use xlink:href=\"#svg-trash\" /></svg></span>'\n                    data-shifted-command='\"deleteAll\"'\n                    data-alt-keys='delete' data-command='[\"performWithFeedback\",\"deletePreviousChar\"]'\n                >&#x232b;</li>\n            </ul>\n            <ul>\n                <li class='keycap ' data-key=' '>&nbsp;</li>\n                <li class='keycap'>,</li>\n                <li class='keycap tex' data-insert='\\varepsilon '><i>&#x03b5;</i><aside>epsilon var.</aside></li>\n                <li class='keycap tex' data-insert='\\vartheta '><i>&#x03d1;</i><aside>theta var.</aside></li>\n                <li class='keycap tex' data-insert='\\varkappa '><i>&#x3f0;</i><aside>kappa var.</aside></li>\n                <li class='keycap tex' data-insert='\\varpi '><i>&#x03d6;<aside>pi var.</aside></i></li>\n                <li class='keycap tex' data-insert='\\varrho '><i>&#x03f1;</i><aside>rho var.</aside></li>\n                <arrows/>\n            </ul>\n        </div>",
             'upper-greek':
@@ -14110,9 +14128,9 @@ var global, factory;
             'symbols-command':
                 "\n        <div class='rows'>\n            <ul><li class='keycap tt'>1</li><li class='keycap tt'>2</li><li class='keycap tt'>3</li><li class='keycap tt'>4</li><li class='keycap tt'>5</li><li class='keycap tt'>6</li><li class='keycap tt'>7</li><li class='keycap tt'>8</li><li class='keycap tt'>9</li><li class='keycap tt'>0</li></ul>\n            <ul><li class='keycap tt'>!</li><li class='keycap tt'>@</li><li class='keycap tt'>#</li><li class='keycap tt'>$</li><li class='keycap tt'>%</li><li class='keycap tt'>^</li><li class='keycap tt'>&</li><li class='keycap tt'>*</li><li class='keycap tt'>+</li><li class='keycap tt'>=</li></ul>\n            <ul>\n                <li class='keycap tt'>\\</li>\n                <li class='keycap tt'>|</li>\n                <li class='keycap tt'>/</li>\n                <li class='keycap tt'>`</li>\n                <li class='keycap tt'>;</li>\n                <li class='keycap tt'>:</li>\n                <li class='keycap tt'>?</li>\n                <li class='keycap tt'>'</li>\n                <li class='keycap tt'>\"</li>\n                <li class='action font-glyph bottom right'\n                    data-shifted='<span class=\"warning\"><svg><use xlink:href=\"#svg-trash\" /></svg></span>'\n                    data-shifted-command='\"deleteAll\"'\n                    data-alt-keys='delete' data-command='[\"performWithFeedback\",\"deletePreviousChar\"]'\n                >&#x232b;</li>\n            </ul>\n            <ul>\n                <li class='layer-switch font-glyph modifier bottom left' data-layer='lower-command'>abc</li>\n                <li class='keycap tt'>&lt;</li>\n                <li class='keycap tt'>&gt;</li>\n                <li class='keycap tt'>~</li>\n                <li class='keycap tt'>,</li>\n                <li class='keycap tt'>.</li>\n                <li class='keycap' data-key=' '>&nbsp;</li>\n                <arrows/>\n            </ul>\n        </div>",
             functions:
-                "\n        <div class='rows'>\n            <ul><li class='separator'></li>\n                <li class='fnbutton' data-insert='\\sin'></li>\n                <li class='fnbutton' data-insert='\\sin^{-1}'></li>\n                <li class='fnbutton' data-insert='\\ln'></li>\n                <li class='fnbutton' data-insert='\\exponentialE^{#?}'></li>\n                <li class='bigfnbutton' data-insert='\\operatorname{lcm}(#?)' data-latex='\\operatorname{lcm}()'></li>\n                <li class='bigfnbutton' data-insert='\\operatorname{ceil}(#?)' data-latex='\\operatorname{ceil}()'></li>\n                <li class='bigfnbutton' data-insert='\\lim_{n\\to\\infty}'></li>\n                <li class='bigfnbutton' data-insert='\\int'></li>\n                <li class='bigfnbutton' data-insert='\\operatorname{abs}(#?)' data-latex='\\operatorname{abs}()'></li>\n            </ul>\n            <ul><li class='separator'></li>\n                <li class='fnbutton' data-insert='\\cos'></li>\n                <li class='fnbutton' data-insert='\\cos^{-1}'></li>\n                <li class='fnbutton' data-insert='\\ln_{10}'></li>\n                <li class='fnbutton' data-insert='10^{#?}'></li>\n                <li class='bigfnbutton' data-insert='\\operatorname{gcd}(#?)' data-latex='\\operatorname{gcd}()'></li>\n                <li class='bigfnbutton' data-insert='\\operatorname{floor}(#?)' data-latex='\\operatorname{floor}()'></li>\n                <li class='bigfnbutton' data-insert='\\sum_{n\\mathop=0}^{\\infty}'></li>\n                <li class='bigfnbutton' data-insert='\\int_{0}^{\\infty}'></li>\n                <li class='bigfnbutton' data-insert='\\operatorname{sign}(#?)' data-latex='\\operatorname{sign}()'></li>\n            </ul>\n            <ul><li class='separator'></li>\n                <li class='fnbutton' data-insert='\\tan'></li>\n                <li class='fnbutton' data-insert='\\tan^{-1}'></li>\n                <li class='fnbutton' data-insert='\\log_{#?}'></li>\n                <li class='fnbutton' data-insert='\\sqrt[#?]{#0}'></li>\n                <li class='bigfnbutton' data-insert='#0 \\mod' data-latex='\\mod'></li>\n                <li class='bigfnbutton' data-insert='\\operatorname{round}(#?) ' data-latex='\\operatorname{round}()'></li>\n                <li class='bigfnbutton' data-insert='\\prod_{n\\mathop=0}^{\\infty}' data-latex='{\\tiny \\prod_{n=0}^{\\infty}}'></li>\n                <li class='bigfnbutton' data-insert='\\frac{\\differentialD #0}{\\differentialD x}'></li>\n                <li class='action font-glyph bottom right' data-command='[\"performWithFeedback\",\"deletePreviousChar\"]'>&#x232b;</li></ul>\n            <ul><li class='separator'></li>\n                <li class='fnbutton'>(</li>\n                <li class='fnbutton'>)</li>\n                <li class='fnbutton' data-insert='^{#?} ' data-latex='x^{#?} '></li>\n                <li class='fnbutton' data-insert='_{#?} ' data-latex='x_{#?} '></li>\n                <li class='keycap w20 ' data-key=' '>&nbsp;</li>\n                <arrows/>\n            </ul>\n        </div>",
+                "\n        <div class='rows'>\n            <ul><li class='separator'></li>\n                <li class='fnbutton' data-insert='\\sin'></li>\n                <li class='fnbutton' data-insert='\\sin^{-1}'></li>\n                <li class='fnbutton' data-insert='\\ln'></li>\n                <li class='fnbutton' data-insert='\\exponentialE^{#?}'></li>\n                <li class='bigfnbutton' data-insert='$$\\operatorname{lcm}(#?)$$' data-latex='\\operatorname{lcm}()'></li>\n                <li class='bigfnbutton' data-insert='$$\\operatorname{ceil}(#?)$$' data-latex='\\operatorname{ceil}()'></li>\n                <li class='bigfnbutton' data-insert='$$\\lim_{n\\to\\infty}$$'></li>\n                <li class='bigfnbutton' data-insert='$$\\int$$'></li>\n                <li class='bigfnbutton' data-insert='$$\\operatorname{abs}(#?)$$' data-latex='\\operatorname{abs}()'></li>\n            </ul>\n            <ul><li class='separator'></li>\n                <li class='fnbutton' data-insert='\\cos'></li>\n                <li class='fnbutton' data-insert='\\cos^{-1}'></li>\n                <li class='fnbutton' data-insert='\\ln_{10}'></li>\n                <li class='fnbutton' data-insert='$$10^{#?}$$'></li>\n                <li class='bigfnbutton' data-insert='$$\\operatorname{gcd}(#?)$$' data-latex='\\operatorname{gcd}()'></li>\n                <li class='bigfnbutton' data-insert='$$\\operatorname{floor}(#?)$$' data-latex='\\operatorname{floor}()'></li>\n                <li class='bigfnbutton' data-insert='$$\\sum_{n\\mathop=0}^{\\infty}$$'></li>\n                <li class='bigfnbutton' data-insert='$$\\int_{0}^{\\infty}$$'></li>\n                <li class='bigfnbutton' data-insert='$$\\operatorname{sign}(#?)$$' data-latex='\\operatorname{sign}()'></li>\n            </ul>\n            <ul><li class='separator'></li>\n                <li class='fnbutton' data-insert='\\tan'></li>\n                <li class='fnbutton' data-insert='\\tan^{-1}'></li>\n                <li class='fnbutton' data-insert='$$\\log_{#?}$$'></li>\n                <li class='fnbutton' data-insert='$$\\sqrt[#?]{#0}$$'></li>\n                <li class='bigfnbutton' data-insert='$$#0 \\mod$$' data-latex='\\mod'></li>\n                <li class='bigfnbutton' data-insert='$$\\operatorname{round}(#?) $$' data-latex='\\operatorname{round}()'></li>\n                <li class='bigfnbutton' data-insert='$$\\prod_{n\\mathop=0}^{\\infty}$$' data-latex='{\\tiny \\prod_{n=0}^{\\infty}}'></li>\n                <li class='bigfnbutton' data-insert='$$\\frac{\\differentialD #0}{\\differentialD x}$$'></li>\n                <li class='action font-glyph bottom right' data-command='[\"performWithFeedback\",\"deletePreviousChar\"]'>&#x232b;</li></ul>\n            <ul><li class='separator'></li>\n                <li class='fnbutton'>(</li>\n                <li class='fnbutton'>)</li>\n                <li class='fnbutton' data-insert='$$^{#?} $$' data-latex='x^{#?} '></li>\n                <li class='fnbutton' data-insert='$$_{#?} $$' data-latex='x_{#?} '></li>\n                <li class='keycap w20 ' data-key=' '>&nbsp;</li>\n                <arrows/>\n            </ul>\n        </div>",
             style:
-                "\n        <div class='rows'>\n            <ul>\n                <li class='keycap' data-alt-keys='foreground-color' data-command='[\"applyStyle\",{\"color\":\"#cc2428\"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428'></span></li>\n                <li class='keycap' data-alt-keys='background-color' data-command='[\"applyStyle\",{\"backgroundColor\":\"#fff590\"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590'></span></li>\n                <li class='separator w5'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"size\":\"size3\"}]' data-latex='\\scriptsize\\text{small}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"size\":\"size5\"}]' data-latex='\\scriptsize\\text{normal}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"size\":\"size9\"}]' data-latex='\\huge\\text{big}'></li>\n                <li class='separator w5'></li>\n                <li class='keycap' data-latex='\\langle' data-command='[\"insert\", \"\\\\langle\", {\"smartFence\":true}]'></li>\n            </ul>\n            <ul>\n                <li class='keycap' data-command='[\"applyStyle\",{\"series\":\"l\"}]' data-latex='\\fontseries{l}\\text{Ab}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"series\":\"m\"}]' data-latex='\\fontseries{m}\\text{Ab}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"series\":\"b\"}]' data-latex='\\fontseries{b}\\text{Ab}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"series\":\"bx\"}]' data-latex='\\fontseries{bx}\\text{Ab}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"series\":\"sb\"}]' data-latex='\\fontseries{sb}\\text{Ab}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"series\":\"c\"}]' data-latex='\\fontseries{c}\\text{Ab}'></li>\n            </ul>\n            <ul>\n                <li class='keycap' data-command='[\"applyStyle\",{\"shape\":\"up\"}]' data-latex='\\textup{Ab}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"shape\":\"it\"}]' data-latex='\\textit{Ab}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"shape\":\"sl\"}]' data-latex='\\textsl{Ab}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"shape\":\"sc\"}]' data-latex='\\textsc{Ab}'></li>\n                <li class='separator w5'></li>\n                <li class='keycap' data-insert='\\emph{#?} ' data-latex='\\text{\\emph{emph}}'></li>\n            </ul>\n            <ul>\n                <li class='keycap' data-command='[\"applyStyle\",{\"fontFamily\":\"cmr\"}]' data-latex='\\textrm{Az}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"fontFamily\":\"cmtt\"}]' data-latex='\\texttt{Az}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"fontFamily\":\"cmss\"}]' data-latex='\\textsf{Az}'></li>\n\n                <li class='keycap' data-command='[\"applyStyle\",{\"fontFamily\":\"bb\"}]'  data-latex='\\mathbb{AZ}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"fontFamily\":\"scr\"}]'  data-latex='\\mathscr{AZ}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"fontFamily\":\"cal\"}]' data-latex='\\mathcal{A1}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"fontFamily\":\"frak\"}]' data-latex='\\mathfrak{Az}'></li>\n            </ul>\n        </div>",
+                "\n        <div class='rows'>\n            <ul>\n                <li class='keycap' data-alt-keys='foreground-color' data-command='[\"applyStyle\",{\"color\":\"#cc2428\"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428'></span></li>\n                <li class='keycap' data-alt-keys='background-color' data-command='[\"applyStyle\",{\"backgroundColor\":\"#fff590\"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590'></span></li>\n                <li class='separator w5'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"size\":\"size3\"}]' data-latex='\\scriptsize\\text{small}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"size\":\"size5\"}]' data-latex='\\scriptsize\\text{normal}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"size\":\"size9\"}]' data-latex='\\huge\\text{big}'></li>\n                <li class='separator w5'></li>\n                <li class='keycap' data-latex='\\langle' data-command='[\"insert\", \"\\\\langle\", {\"smartFence\":true}]'></li>\n            </ul>\n            <ul>\n                <li class='keycap' data-command='[\"applyStyle\",{\"series\":\"l\"}]' data-latex='\\fontseries{l}\\text{Ab}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"series\":\"m\"}]' data-latex='\\fontseries{m}\\text{Ab}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"series\":\"b\"}]' data-latex='\\fontseries{b}\\text{Ab}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"series\":\"bx\"}]' data-latex='\\fontseries{bx}\\text{Ab}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"series\":\"sb\"}]' data-latex='\\fontseries{sb}\\text{Ab}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"series\":\"c\"}]' data-latex='\\fontseries{c}\\text{Ab}'></li>\n            </ul>\n            <ul>\n                <li class='keycap' data-command='[\"applyStyle\",{\"shape\":\"up\"}]' data-latex='\\textup{Ab}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"shape\":\"it\"}]' data-latex='\\textit{Ab}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"shape\":\"sl\"}]' data-latex='\\textsl{Ab}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"shape\":\"sc\"}]' data-latex='\\textsc{Ab}'></li>\n                <li class='separator w5'></li>\n                <li class='keycap' data-insert='$$\\emph{#?} $$' data-latex='\\text{\\emph{emph}}'></li>\n            </ul>\n            <ul>\n                <li class='keycap' data-command='[\"applyStyle\",{\"fontFamily\":\"cmr\"}]' data-latex='\\textrm{Az}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"fontFamily\":\"cmtt\"}]' data-latex='\\texttt{Az}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"fontFamily\":\"cmss\"}]' data-latex='\\textsf{Az}'></li>\n\n                <li class='keycap' data-command='[\"applyStyle\",{\"fontFamily\":\"bb\"}]'  data-latex='\\mathbb{AZ}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"fontFamily\":\"scr\"}]'  data-latex='\\mathscr{AZ}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"fontFamily\":\"cal\"}]' data-latex='\\mathcal{A1}'></li>\n                <li class='keycap' data-command='[\"applyStyle\",{\"fontFamily\":\"frak\"}]' data-latex='\\mathfrak{Az}'></li>\n            </ul>\n        </div>",
         };
         function oi(t, e, i) {
             t = t.replace(/(^|[^\\])#@/g, '$1#?');
@@ -14121,14 +14139,14 @@ var global, factory;
                     { mathstyle: 'displaystyle', macros: i.config.macros },
                     s
                 ),
-                o = $.makeSpan(a, 'ML__base'),
-                r = $.makeSpan('', 'ML__strut');
+                o = N.makeSpan(a, 'ML__base'),
+                r = N.makeSpan('', 'ML__strut');
             r.setStyle('height', o.height, 'em');
-            const l = $.makeSpan('', 'ML__strut--bottom');
+            const l = N.makeSpan('', 'ML__strut--bottom');
             return (
                 l.setStyle('height', o.height + o.depth, 'em'),
                 l.setStyle('vertical-align', -o.depth, 'em'),
-                $.makeSpan([r, l, o], 'ML__mathlive').toMarkup()
+                N.makeSpan([r, l, o], 'ML__mathlive').toMarkup()
             );
         }
         function ni(t, e, i) {
@@ -15762,16 +15780,16 @@ var global, factory;
                 } else e = t;
             return e;
         }
-        function Pi(t) {
+        function Ii(t) {
             if (!t) return null;
-            const e = qi(Ni(t)),
+            const e = qi(Ki(t)),
                 i = [Di(e), zi(e)];
             return i[0] <= 0 ? null : i;
         }
-        function Ii(t) {
-            return null !== Pi(t);
+        function Pi(t) {
+            return null !== Ii(t);
         }
-        const Bi = {
+        const Oi = {
                 '\\lfloor\\rfloor': 'floor',
                 '\\lceil\\rceil': 'ceil',
                 '\\vert\\vert': 'abs',
@@ -15786,7 +15804,7 @@ var global, factory;
                 '\\lmoustache\\rmoustache': 'moustache',
                 '\\lbrace\\rbrace': 'brace',
             },
-            Oi = {
+            Bi = {
                 '!': 'factorial',
                 '\\dag': 'dagger',
                 '\\dagger': 'dagger',
@@ -15801,7 +15819,7 @@ var global, factory;
                 '\\_': '_',
                 '\\degree': 'degree',
             },
-            Ri = {
+            $i = {
                 '+': 'add',
                 '-': 'add',
                 '*': 'multiply',
@@ -15817,12 +15835,12 @@ var global, factory;
                 shortEquivalent: 'equivalent',
                 equivalent: 'equivalent',
             },
-            Ki = { ',': 'list', ';': 'list2' };
-        function Ni(t) {
+            Ri = { ',': 'list', ';': 'list2' };
+        function Ki(t) {
             if ('string' == typeof t) return t;
             if (Array.isArray(t)) {
                 let e = '';
-                for (const i of t) e += Ni(i);
+                for (const i of t) e += Ki(i);
                 return e;
             }
             if (
@@ -15834,12 +15852,12 @@ var global, factory;
             if ('string' == typeof t.body) return t.body;
             if (Array.isArray(t.body)) {
                 let e = '';
-                for (const i of t.body) e += Ni(i);
+                for (const i of t.body) e += Ki(i);
                 return e;
             }
             return '';
         }
-        function $i(t) {
+        function Ni(t) {
             return 'string' == typeof t.sym
                 ? (function(t) {
                       let e = Ti[t];
@@ -15897,7 +15915,7 @@ var global, factory;
         function Zi(t, e, i) {
             let s = !1;
             const a = t.atoms[t.index];
-            return a && a.type === e && (s = void 0 === i || Ni(a) === i), s;
+            return a && a.type === e && (s = void 0 === i || Ki(a) === i), s;
         }
         function Xi(t, ...e) {
             const i = { fn: t };
@@ -15951,17 +15969,17 @@ var global, factory;
                           (t.ast.sub = rs(i.subscript, e)),
                       void 0 !== i.superscript &&
                           ('msubsup' === i.type
-                              ? /['\u2032]|\\prime/.test(Ni(i.superscript))
+                              ? /['\u2032]|\\prime/.test(Ki(i.superscript))
                                   ? ((t.index += 1),
                                     (i = t.atoms[t.index + 1]),
                                     i &&
                                     'msubsup' === i.type &&
-                                    /['\u2032]|\\prime/.test(Ni(i.superscript))
+                                    /['\u2032]|\\prime/.test(Ki(i.superscript))
                                         ? (t.ast.sup = { sym: '″' })
                                         : ((t.ast.sup = { sym: '′' }),
                                           (t.index -= 1)))
                                   : /['\u2033]|\\doubleprime/.test(
-                                        Ni(i.superscript)
+                                        Ki(i.superscript)
                                     )
                                   ? (t.ast.sup = { sym: '″' })
                                   : t.ast && (t.ast.sup = rs(i.superscript, e))
@@ -15994,8 +16012,8 @@ var global, factory;
             return (
                 s &&
                     s.latex &&
-                    Oi[s.latex.trim()] &&
-                    ((t.ast = Xi(Oi[s.latex.trim()], i)),
+                    Bi[s.latex.trim()] &&
+                    ((t.ast = Xi(Bi[s.latex.trim()], i)),
                     (t = es((t = ts(t, e)), e))),
                 t
             );
@@ -16010,20 +16028,20 @@ var global, factory;
             t.minPrec = 0;
             let o = t.atoms[t.index];
             if (e) {
-                if ('mopen' === o.type && Ni(o) === e)
+                if ('mopen' === o.type && Ki(o) === e)
                     (t.index += 1),
                         (o = (t = os(t, s)).atoms[t.index]),
                         o &&
                             'mclose' === o.type &&
-                            Ni(o) === i &&
+                            Ki(o) === i &&
                             (Qi(t) && (t.ast = { group: t.ast }),
                             (t = es((t = ts(t, s)), s)));
-                else if ('textord' === o.type && Ni(o) === e)
+                else if ('textord' === o.type && Ki(o) === e)
                     (t.index += 1),
                         (o = (t = os(t, s)).atoms[t.index]),
                         o &&
                             'textord' === o.type &&
-                            Ni(o) === i &&
+                            Ki(o) === i &&
                             ((t.index += 1), (t = es((t = ts(t, s)), s)));
                 else if (
                     '\\lVert' === e &&
@@ -16089,7 +16107,7 @@ var global, factory;
                     if ((t = is(t, e, i)))
                         return (
                             s && (t.index += 1),
-                            (t.ast = { fn: Bi[e + i] || e + i, arg: [t.ast] }),
+                            (t.ast = { fn: Oi[e + i] || e + i, arg: [t.ast] }),
                             (t.minPrec = a),
                             t
                         );
@@ -16100,7 +16118,7 @@ var global, factory;
             return (
                 (t.index = t.index || 0),
                 !(t.atoms.length <= 1 || t.index >= t.atoms.length - 1) &&
-                    e === Ni(t.atoms[t.index]) + Ni(t.atoms[t.index + 1])
+                    e === Ki(t.atoms[t.index]) + Ki(t.atoms[t.index + 1])
             );
         }
         function as(t) {
@@ -16151,7 +16169,7 @@ var global, factory;
                             (t += e.atoms[e.index].body), (e.index += 1);
                         return (e.ast = { text: t }), e;
                     }
-                    const a = qi(Ni(s));
+                    const a = qi(Ki(s));
                     if (as(e)) e.ast = Xi(e.ast, t(e, i).ast);
                     else {
                         if ('root' === s.type)
@@ -16222,7 +16240,7 @@ var global, factory;
                         } else if ('genfrac' === s.type || 'surd' === s.type)
                             (e.ast = s.toAST(i)), (e = es((e = ts(e, i)), i));
                         else if ('mord' === s.type || 'mbin' === s.type) {
-                            if (Ei(a) && !Ii(s)) {
+                            if (Ei(a) && !Pi(s)) {
                                 e.ast = { fn: a };
                                 const s = (e = ts(e, i)).ast,
                                     o = t(e, i).ast;
@@ -16238,7 +16256,7 @@ var global, factory;
                             e = es(e, i);
                         } else if ('textord' === s.type) {
                             if (
-                                !Ii(s) &&
+                                !Pi(s) &&
                                 !At.RIGHT_DELIM[
                                     s.latex ? s.latex.trim() : s.body
                                 ]
@@ -16261,14 +16279,14 @@ var global, factory;
                                     s.latex
                                 ) ||
                                     Ei(a)) &&
-                                !Ii(s)
+                                !Pi(s)
                             )
                                 if (
                                     ((e.ast = {
                                         fn: /^\\(mathop|operatorname|operatorname\*)/.test(
                                             s.latex
                                         )
-                                            ? Ni(s.body)
+                                            ? Ki(s.body)
                                             : a,
                                     }),
                                     ji((e = ts(e, i)).ast))
@@ -16319,7 +16337,7 @@ var global, factory;
                         const t = is(e, '(', ')', i) || is(e, null, null, i);
                         t
                             ? (e = t)
-                            : Ii(s) ||
+                            : Pi(s) ||
                               ('placeholder' === s.type
                                   ? (e.ast = Ji(0))
                                   : ((e.ast = { text: '?' }),
@@ -16350,7 +16368,7 @@ var global, factory;
                             ('mord' === s.type ||
                                 'textord' === s.type ||
                                 'mop' === s.type) &&
-                            Ii(s)
+                            Pi(s)
                         )
                             return e;
                         const a = e.ast;
@@ -16381,11 +16399,11 @@ var global, factory;
                     n = as(t);
                 let r, l;
                 if (
-                    ((s = !o || 'text' === o.mode || (!n && !Ii(o))),
-                    s || (([r, l] = n ? [Di(n), zi(n)] : Pi(o)), (s = r < a)),
+                    ((s = !o || 'text' === o.mode || (!n && !Pi(o))),
+                    s || (([r, l] = n ? [Di(n), zi(n)] : Ii(o)), (s = r < a)),
                     !s)
                 ) {
-                    const a = n || qi(Ni(o));
+                    const a = n || qi(Ki(o));
                     if (
                         ((t.minPrec = 'left' === l ? r + 1 : r),
                         (t.index += 1),
@@ -16421,7 +16439,7 @@ var global, factory;
                         } else s = !0;
                     else {
                         const s = os(t, e).ast;
-                        let o = Ki[a];
+                        let o = Ri[a];
                         o && i && i.fn !== o && (i = Xi(o, i)),
                             '-' === a
                                 ? i && i.arg && 'add' === i.fn
@@ -16450,7 +16468,7 @@ var global, factory;
                                                         )).toString(),
                                                     },
                                                 })
-                                : ((o = Ri[a]),
+                                : ((o = $i[a]),
                                   'add' === o && i && 'subtract' === i.fn
                                       ? (i = Xi(
                                             'add',
@@ -16811,7 +16829,7 @@ var global, factory;
                         : void 0),
                         e
                             ? (r = String.fromCodePoint(parseInt(e[1], 16)))
-                            : ((r = qi(Ni(this))),
+                            : ((r = qi(Ki(this))),
                               r.length > 0 &&
                                   '\\' === r.charAt(0) &&
                                   'string' == typeof this.body &&
@@ -16932,7 +16950,7 @@ var global, factory;
                     Gi(e) && (a += '_{' + t(e.sub, s) + '}');
             } else if (e.group)
                 (a = t(e.group, s)),
-                    Hi(e.group) || $i(e.group)
+                    Hi(e.group) || Ni(e.group)
                         ? 0 !== Ui(e.group) && (a = ls(e.fence || '(),', a))
                         : (a = ls(e.fence || '(),', a)),
                     ji(e) && (a += '^{' + t(e.sup, s) + '}'),
@@ -16976,7 +16994,7 @@ var global, factory;
                     )
                         (a = t(Fi(e, 0), s)),
                             Hi(Fi(e, 0)) ||
-                                $i(Fi(e, 0)) ||
+                                Ni(Fi(e, 0)) ||
                                 (a = ls(e.fence || '(),', a)),
                             (a += '^{' + t(Fi(e, 1), s) + '}');
                     else if ('equal' === e.fn && e.arg && e.arg.length > 2)
@@ -17062,7 +17080,7 @@ var global, factory;
                     }
                 }
             else if ('string' == typeof e.sym) {
-                a = $i(e);
+                a = Ni(e);
                 let i = a.match(/^&#x([0-9a-f]+);$/i);
                 i && i[1]
                     ? (a = String.fromCodePoint(parseInt(i[1], 16)))
@@ -17830,7 +17848,7 @@ var global, factory;
                     (o.onAnnounce = this.config.onAnnounce),
                     (o.macros = this.config.macros),
                     (o.removeExtraneousParentheses = this.config.removeExtraneousParentheses),
-                    (this.mathlist = new Oe.EditableMathlist(o, this)),
+                    (this.mathlist = new Be.EditableMathlist(o, this)),
                     (this.undoManager = new (class {
                         constructor(t) {
                             (this.mathlist = t),
@@ -18359,14 +18377,15 @@ var global, factory;
                     this.config.onAnnounce(this, t, e, i);
             }
             _onFocus() {
-                this.blurred &&
-                    ((this.blurred = !1),
-                    this.textarea.focus && this.textarea.focus(),
-                    'onfocus' === this.config.virtualKeyboardMode &&
-                        this.showVirtualKeyboard_(),
-                    Je.updatePopoverPosition(this),
-                    this.config.onFocus && this.config.onFocus(this),
-                    this._requestUpdate());
+                this.config.readOnly ||
+                    (this.blurred &&
+                        ((this.blurred = !1),
+                        this.textarea.focus && this.textarea.focus(),
+                        'onfocus' === this.config.virtualKeyboardMode &&
+                            this.showVirtualKeyboard_(),
+                        Je.updatePopoverPosition(this),
+                        this.config.onFocus && this.config.onFocus(this),
+                        this._requestUpdate()));
             }
             _onBlur() {
                 this.blurred ||
@@ -18714,7 +18733,7 @@ var global, factory;
                             for (; !i && a < e.length; ) {
                                 let t;
                                 if (this.keystrokeBufferStates[a]) {
-                                    const e = new Oe.EditableMathlist();
+                                    const e = new Be.EditableMathlist();
                                     (e.root = te.makeRoot(
                                         'math',
                                         he.parseTokens(
@@ -18775,6 +18794,7 @@ var global, factory;
                     !i && !a)
                 )
                     return !0;
+                if (this.config.readOnly && 'insert' === a[0]) return !0;
                 this.mathlist.decorateCommandStringAroundInsertionPoint(!1);
                 const r = this.mathlist.parent();
                 if (
@@ -18852,6 +18872,7 @@ var global, factory;
                 );
             }
             _onTypedText(t, e) {
+                if (this.config.readOnly) return void this._announce('plonk');
                 if (
                     ((e = e || {}).focus && this.$focus(),
                     e.feedback &&
@@ -18980,14 +19001,29 @@ var global, factory;
                             { relation: 'body', offset: 0 },
                         ]),
                     this.mathlist.forEach(t => {
-                        (t.caret = ''), (t.isSelected = !1);
+                        (t.caret = ''),
+                            (t.isSelected = !1),
+                            (t.containsCaret = !1);
                     });
                 const e = this.$hasFocus();
-                this.mathlist.isCollapsed()
-                    ? (this.mathlist.anchor().caret = e ? this.mode : '')
-                    : this.mathlist.forEachSelected(t => {
-                          t.isSelected = !0;
-                      });
+                if (
+                    (this.mathlist.isCollapsed()
+                        ? (this.mathlist.anchor().caret =
+                              e && !this.config.readOnly ? this.mode : '')
+                        : this.mathlist.forEachSelected(t => {
+                              t.isSelected = !0;
+                          }),
+                    e && !this.config.readOnly)
+                ) {
+                    let t = this.mathlist.ancestor(1),
+                        e = 1,
+                        i = !1;
+                    for (; t && !i; )
+                        ('surd' !== t.type && 'leftright' !== t.type) ||
+                            ((t.containsCaret = !0), (i = !0)),
+                            (e += 1),
+                            (t = this.mathlist.ancestor(e));
+                }
                 const i = te.decompose(
                         {
                             mathstyle: 'displaystyle',
@@ -18999,24 +19035,27 @@ var global, factory;
                         },
                         this.mathlist.root
                     ),
-                    s = $.makeSpan(i, 'ML__base');
+                    s = N.makeSpan(i, 'ML__base');
                 s.attributes = { translate: 'no', 'aria-hidden': 'true' };
-                const a = $.makeSpan('', 'ML__strut');
+                const a = N.makeSpan('', 'ML__strut');
                 a.setStyle('height', s.height, 'em');
                 const o = [a];
                 if (0 !== s.depth) {
-                    const t = $.makeSpan('', 'ML__strut--bottom');
+                    const t = N.makeSpan('', 'ML__strut--bottom');
                     t.setStyle('height', s.height + s.depth, 'em'),
                         t.setStyle('vertical-align', -s.depth, 'em'),
                         o.push(t);
                 }
                 o.push(s);
-                const n = $.makeSpan(o, 'ML__mathlive');
+                const n = N.makeSpan(o, 'ML__mathlive');
                 (this.field.innerHTML = n.toMarkup(
                     0,
                     this.config.horizontalSpacingScale
                 )),
-                    this.field.classList.toggle('ML__focused', e),
+                    this.field.classList.toggle(
+                        'ML__focused',
+                        e && !this.config.readOnly
+                    ),
                     (this.accessibleNode.innerHTML =
                         "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
                         te.toMathML(this.mathlist.root, this.config) +
@@ -20155,14 +20194,15 @@ var global, factory;
                 if (
                     (this.config ||
                         (this.config = {
+                            namespace: '',
+                            overrideDefaultInlineShortcuts: !1,
+                            readOnly: !1,
+                            removeExtraneousParentheses: !0,
+                            scriptDepth: [1 / 0, 1 / 0],
                             smartFence: !0,
                             smartSuperscript: !0,
-                            scriptDepth: [1 / 0, 1 / 0],
-                            removeExtraneousParentheses: !0,
-                            overrideDefaultInlineShortcuts: !1,
                             virtualKeyboard: '',
                             virtualKeyboardLayout: 'qwerty',
-                            namespace: '',
                         }),
                     (this.config = { ...this.config, ...t }),
                     void 0 !== this.config.scriptDepth &&
@@ -20242,7 +20282,9 @@ var global, factory;
                         ((this.plonkSound = new Audio()),
                         (this.plonkSound.preload = 'none'),
                         (this.plonkSound.src = this.config.plonkSound),
-                        (this.plonkSound.volume = 0.5));
+                        (this.plonkSound.volume = 0.5)),
+                    this.readOnly && this._onBlur(),
+                    this._requestUpdate();
             }
             speak_(t, e) {
                 e = e || { withHighlighting: !1 };
@@ -20665,34 +20707,34 @@ var global, factory;
                 o = he.parseTokens(a, 'math', null, s);
             if ('mathlist' === i) return o;
             let r = te.decompose({ mathstyle: e }, o);
-            if (((r = $.coalesce(r)), 'span' === i)) return r;
-            const l = $.makeSpan(r, 'ML__base'),
-                c = $.makeSpan('', 'ML__strut');
+            if (((r = N.coalesce(r)), 'span' === i)) return r;
+            const l = N.makeSpan(r, 'ML__base'),
+                c = N.makeSpan('', 'ML__strut');
             c.setStyle('height', l.height, 'em');
             const h = [c];
             if (0 !== l.depth) {
-                const t = $.makeSpan('', 'ML__strut--bottom');
+                const t = N.makeSpan('', 'ML__strut--bottom');
                 t.setStyle('height', l.height + l.depth, 'em'),
                     t.setStyle('vertical-align', -l.depth, 'em'),
                     h.push(t);
             }
-            return h.push(l), $.makeSpan(h, 'ML__mathlive').toMarkup();
+            return h.push(l), N.makeSpan(h, 'ML__mathlive').toMarkup();
         }
-        function Ps(t, e) {
+        function Is(t, e) {
             if (!te.toMathML) return '';
             ((e = e || {}).macros = e.macros || {}),
                 Object.assign(e.macros, At.MACROS);
             const i = he.parseTokens(n(t), 'math', null, e.macros);
             return te.toMathML(i, e);
         }
-        function Is(t, e) {
+        function Ps(t, e) {
             if (!te.toSpeakableText) return '';
             ((e = e || {}).macros = e.macros || {}),
                 Object.assign(e.macros, At.MACROS);
             const i = he.parseTokens(n(t), 'math', null, e.macros);
             return te.toSpeakableText(i, e);
         }
-        function Bs(t, e) {
+        function Os(t, e) {
             if (
                 (!e &&
                     window &&
@@ -20729,7 +20771,7 @@ var global, factory;
                 window && window.speechSynthesis.speak(e);
             }
         }
-        function Os(t, e, i) {
+        function Bs(t, e, i) {
             if (!window) return;
             if (
                 (!i && window.mathlive && (i = window.mathlive.config),
@@ -20892,21 +20934,21 @@ var global, factory;
                 }
             });
         }
-        function Rs(t) {
+        function $s(t) {
             let e = t;
             if ('string' == typeof t && ((e = document.getElementById(t)), !e))
                 throw Error(`The element with ID "${t}" could not be found.`);
             return e;
         }
-        function Ks(t, e) {
+        function Rs(t, e) {
             Es &&
                 (((e = e || {}).renderToMarkup = e.renderToMarkup || qs),
-                (e.renderToMathML = e.renderToMathML || Ps),
-                (e.renderToSpeakableText = e.renderToSpeakableText || Is),
+                (e.renderToMathML = e.renderToMathML || Is),
+                (e.renderToSpeakableText = e.renderToSpeakableText || Ps),
                 (e.macros = e.macros || At.MACROS),
-                Es.renderMathInElement(Rs(t), e));
+                Es.renderMathInElement($s(t), e));
         }
-        function Ns(t) {
+        function Ks(t) {
             if (t.namespace) {
                 if (!/^[a-z]+[-]?$/.test(t.namespace))
                     throw Error(
@@ -20917,8 +20959,8 @@ var global, factory;
         }
         return {
             latexToMarkup: qs,
-            latexToMathML: Ps,
-            latexToSpeakableText: Is,
+            latexToMathML: Is,
+            latexToSpeakableText: Ps,
             latexToAST: function(t, e) {
                 if (!te.toAST) return {};
                 ((e = e || {}).macros = e.macros || {}),
@@ -20932,32 +20974,32 @@ var global, factory;
             makeMathField: function(t, e) {
                 if (!Cs) throw Error('The MathField module is not loaded.');
                 return (
-                    ((e = e || {}).handleSpeak = e.handleSpeak || Bs),
-                    (e.handleReadAloud = e.handleReadAloud || Os),
-                    new Cs.MathField(Rs(t), e)
+                    ((e = e || {}).handleSpeak = e.handleSpeak || Os),
+                    (e.handleReadAloud = e.handleReadAloud || Bs),
+                    new Cs.MathField($s(t), e)
                 );
             },
             renderMathInDocument: function(t) {
-                Ks(document.body, t);
+                Rs(document.body, t);
             },
-            renderMathInElement: Ks,
+            renderMathInElement: Rs,
             revertToOriginalContent: function(t, e) {
-                (t = (t = Rs(t)).children[1]) instanceof Cs.MathField
+                (t = (t = $s(t)).children[1]) instanceof Cs.MathField
                     ? t.revertToOriginalContent()
-                    : (Ns((e = e || {})),
+                    : (Ks((e = e || {})),
                       (t.innerHTML = t.getAttribute(
                           'data-' + (e.namespace || '') + 'original-content'
                       )));
             },
             getOriginalContent: function(t, e) {
-                return (t = (t = Rs(t)).children[1]) instanceof Cs.MathField
+                return (t = (t = $s(t)).children[1]) instanceof Cs.MathField
                     ? t.originalContent
-                    : (Ns((e = e || {})),
+                    : (Ks((e = e || {})),
                       t.getAttribute(
                           'data-' + (e.namespace || '') + 'original-content'
                       ));
             },
-            readAloud: Os,
+            readAloud: Bs,
             readAloudStatus: function() {
                 return window
                     ? ((window.mathlive = window.mathlive || {}),

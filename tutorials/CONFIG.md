@@ -340,6 +340,12 @@ for example when pressing the spacebar at the root level.
 
 ---
 
+**`config.readOnly='false'`**:`boolean`
+
+If true, the mathfield cannot be edited.
+
+---
+
 **`config.textToSpeechRules='mathlive'`**:`string`
 
 Specify which

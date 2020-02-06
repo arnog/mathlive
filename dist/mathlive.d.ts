@@ -38,6 +38,7 @@ declare type MathFieldCallback = (mathfield: MathField) => void;
  @property {boolean} keypressVibration?
  @property {string} keypressSound?
  @property {string} plonkSound?
+ @property {boolean} readOnly?
  @property {"mathlive" | "sre"} textToSpeechRules?
  @property {"ssml" | "mac"} textToSpeechMarkup?
  @property {object} textToSpeechRulesOptions?
@@ -99,6 +100,7 @@ declare type MathFieldConfig = {
     keypressVibration?: boolean;
     keypressSound?: string;
     plonkSound?: string;
+    readOnly?: boolean;
     textToSpeechRules?: "mathlive" | "sre";
     textToSpeechMarkup?: "ssml" | "mac";
     textToSpeechRulesOptions?: any;

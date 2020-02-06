@@ -802,7 +802,8 @@ class MathAtom {
                         this.leftDelim,
                         innerHeight,
                         innerDepth,
-                        localContext
+                        localContext,
+                        'ML__open'
                     )
                 )
             );
@@ -867,7 +868,7 @@ class MathAtom {
                         innerHeight,
                         innerDepth,
                         localContext,
-                        classes
+                        (classes || '') + ' ML__close'
                     )
                 )
             );
@@ -1533,6 +1534,20 @@ class MathAtom {
                 result[result.length - 1].caret = this.caret;
             } else {
                 result.caret = this.caret;
+            }
+        }
+        if (this.containsCaret) {
+            if (Array.isArray(result)) {
+                // For a /mleft.../mright, tag the first and last atom in the
+                // list with the "ML__contains-caret" style (it's the open and
+                // closing fence, respectively)
+                result[0].classes =
+                    (result[0].classes || '') + ' ML__contains-caret';
+                result[result.length - 1].classes =
+                    (result[result.length - 1].classes || '') +
+                    ' ML__contains-caret';
+            } else {
+                result.classes = (result.classes || '') + ' ML__contains-caret';
             }
         }
         // Finally, attach any necessary superscript, subscripts
