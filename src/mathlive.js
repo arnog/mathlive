@@ -46,6 +46,8 @@ import mathJson from './addons/mathJson.js';
  * can also return a text representation of internal data structures
  * used to construct the markup.
  *
+ * @param {object} [macros] A dictionary of LaTeX macros
+ *
  * @return {string}
  * @category Converting
  * @function module:mathlive#latexToMarkup
