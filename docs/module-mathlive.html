@@ -1164,7 +1164,7 @@ with a mode token such as a <code>$$</code> or <code>\(</code>.</p>
 
     
 
-    <h4 class="name" id="latexToMarkup">latexToMarkup<span class="signature">(text<span class="signature-type">: string</span>, mathstyle<span class="signature-type">: "displaystyle" | "textstyle"</span>, format<span class="signature-attributes">?</span><span class="signature-type">: "mathlist" | "span" | "html"</span>)</span><span class="type-signature">:  string</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="latexToMarkup">latexToMarkup<span class="signature">(text<span class="signature-type">: string</span>, mathstyle<span class="signature-type">: "displaystyle" | "textstyle"</span>, format<span class="signature-attributes">?</span><span class="signature-type">: "mathlist" | "span" | "html"</span>, macros<span class="signature-attributes">?</span><span class="signature-type">: object</span>)</span><span class="type-signature">:  string</span><span class="type-signature"></span></h4>
 
     
 
@@ -1293,6 +1293,42 @@ with other text (on the same line).</p>
                         <p>For debugging purposes, this function
 can also return a text representation of internal data structures
 used to construct the markup.</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>macros</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>A dictionary of LaTeX macros</p>
                     </p>
                     
             

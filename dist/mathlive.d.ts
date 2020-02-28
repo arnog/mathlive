@@ -704,11 +704,13 @@ declare module "mathlive" {
      * can also return a text representation of internal data structures
      * used to construct the markup.
      *
+     * @param {object} [macros] A dictionary of LaTeX macros
+     *
      * @return {string}
      * @category Converting
      * @function module:mathlive#latexToMarkup
      */
-    function latexToMarkup(text: string, mathstyle: "displaystyle" | "textstyle", format?: "mathlist" | "span" | "html"): string;
+    function latexToMarkup(text: string, mathstyle: "displaystyle" | "textstyle", format?: "mathlist" | "span" | "html", macros?: any): string;
     /**
      * Convert a DOM element into an editable mathfield.
      *

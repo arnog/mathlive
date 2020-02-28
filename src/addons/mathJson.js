@@ -510,7 +510,7 @@ function getCanonicalName(latex) {
 
 /**
  * Return the operator precedence of the atom
- * or -1 if not an operator
+ * or null if not an operator
  * @param {object} atom
  * @return {number}
  * @private
