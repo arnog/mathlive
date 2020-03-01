@@ -287,6 +287,8 @@
                 sub-pixel border lines don't draw at some zoom 
                 levels (110%, 90%). Setting the min-height seems to work around it.
                 */
+                box-sizing: content-box; /* Vuetify sets the box-sizing to inherit 
+                causes the fraction line to not draw at all sizes (see #26) */
             }
         }
     }
