@@ -1,7 +1,14 @@
 import { registerAtomType, decompose } from './atom-utils.js';
-import { makeSpan, makeVlist, makeOrd } from './span.js';
+import {
+    makeSpan,
+    makeVlist,
+    makeOrd,
+    depth as spanDepth,
+    height as spanHeight,
+} from './span.js';
 import { METRICS as FONTMETRICS } from './fontMetrics.js';
 import Delimiters from './delimiters.js';
+import Mathstyle from './mathstyle.js';
 
 registerAtomType('array', (context, atom) => {
     // See http://tug.ctan.org/macros/latex/base/ltfsstrc.dtx
