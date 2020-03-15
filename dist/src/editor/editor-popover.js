@@ -1,7 +1,7 @@
-import MathAtom from '../core/mathAtom.js';
+import { decompose } from '../core/atom-utils.js';
 import Lexer from '../core/lexer.js';
 import ParserModule from '../core/parser.js';
-import Span from '../core/span.js';
+import { makeSpan } from '../core/span.js';
 import Shortcuts from './editor-shortcuts.js';
 
 const SAMPLES = {
@@ -380,7 +380,7 @@ function latexToMarkup(latex, mf) {
         null,
         mf.config.macros
     );
-    const spans = MathAtom.decompose(
+    const spans = decompose(
         {
             mathstyle: 'displaystyle',
             macros: mf.config.macros,
@@ -388,17 +388,14 @@ function latexToMarkup(latex, mf) {
         parse
     );
 
-    const base = Span.makeSpan(spans, 'ML__base');
+    const base = makeSpan(spans, 'ML__base');
 
-    const topStrut = Span.makeSpan('', 'ML__strut');
+    const topStrut = makeSpan('', 'ML__strut');
     topStrut.setStyle('height', base.height, 'em');
-    const bottomStrut = Span.makeSpan('', 'ML__strut--bottom');
+    const bottomStrut = makeSpan('', 'ML__strut--bottom');
     bottomStrut.setStyle('height', base.height + base.depth, 'em');
     bottomStrut.setStyle('vertical-align', -base.depth, 'em');
-    const wrapper = Span.makeSpan(
-        [topStrut, bottomStrut, base],
-        'ML__mathlive'
-    );
+    const wrapper = makeSpan([topStrut, bottomStrut, base], 'ML__mathlive');
 
     return wrapper.toMarkup();
 }

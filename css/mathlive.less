@@ -439,6 +439,77 @@
         }
     }
 
+    .stretchy {
+        width: 100%;
+        display: block;
+        position: absolute;
+        left: 0;
+        overflow: hidden;
+        &:before,
+        &:after {
+            content: '';
+        }
+        svg {
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: inherit;
+            fill: currentColor;
+            stroke: currentColor;
+            fill-rule: nonzero;
+            fill-opacity: 1;
+            stroke-width: 1;
+            stroke-linecap: butt;
+            stroke-linejoin: miter;
+            stroke-miterlimit: 4;
+            stroke-dasharray: none;
+            stroke-dashoffset: 0;
+            stroke-opacity: 1;
+        }
+    }
+
+    .slice-1-of-2 {
+        display: inline-flex;
+        position: absolute;
+        left: 0;
+        width: 50.2%;
+        overflow: hidden;
+    }
+    .slice-2-of-2 {
+        display: inline-flex;
+        position: absolute;
+        right: 0;
+        width: 50.2%;
+        overflow: hidden;
+    }
+    .slice-1-of-3 {
+        display: inline-flex;
+        position: absolute;
+        left: 0;
+        width: 25.1%;
+        overflow: hidden;
+    }
+    .slice-2-of-3 {
+        display: inline-flex;
+        position: absolute;
+        left: 25%;
+        width: 50%;
+        overflow: hidden;
+    }
+    .slice-3-of-3 {
+        display: inline-flex;
+        position: absolute;
+        right: 0;
+        width: 25.1%;
+        overflow: hidden;
+    }
+    .slice-1-of-1 {
+        display: inline-flex;
+        position: absolute;
+        width: 100%;
+        overflow: hidden;
+    }
+
     .sqrt {
         display: inline-block;
 
@@ -564,6 +635,10 @@
         .vlist > span {
             text-align: center;
         }
+    }
+    .op-over-under > .vlist > span:first-child,
+    .op-over-under > .vlist > span:last-child {
+        text-align: center;
     }
 
     .accent {

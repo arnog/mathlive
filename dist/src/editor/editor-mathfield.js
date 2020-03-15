@@ -4,11 +4,12 @@
  * @module editor/mathfield
  * @private
  */
-import Definitions from '../core/definitions.js';
-import MathAtom from '../core/mathAtom.js';
+import { suggest, commandAllowed, MACROS } from '../core/definitions-utils.js';
+import { MathAtom, makeRoot } from '../core/mathAtom.js';
+import { decompose } from '../core/atom-utils.js';
 import Lexer from '../core/lexer.js';
 import ParserModule from '../core/parser.js';
-import Span from '../core/span.js';
+import { makeSpan } from '../core/span.js';
 import EditableMathlist from './editor-editableMathlist.js';
 import MathPath from './editor-mathpath.js';
 import Keyboard from './editor-keyboard.js';
@@ -1333,7 +1334,7 @@ class MathField {
             }
             if (/^(delete)/.test(selector) && this.mode === 'command') {
                 const command = this.mathlist.extractCommandStringAroundInsertionPoint();
-                const suggestions = Definitions.suggest(command);
+                const suggestions = suggest(command);
                 if (suggestions.length === 0) {
                     Popover.hidePopover(this);
                 } else {
@@ -1778,7 +1779,7 @@ class MathField {
                         let siblings;
                         if (this.keystrokeBufferStates[i]) {
                             const mathlist = new EditableMathlist.EditableMathlist();
-                            mathlist.root = MathAtom.makeRoot(
+                            mathlist.root = makeRoot(
                                 'math',
                                 ParserModule.parseTokens(
                                     Lexer.tokenize(
@@ -2042,7 +2043,7 @@ class MathField {
                     this.mathlist.removeSuggestion();
                     this.suggestionIndex = 0;
                     const command = this.mathlist.extractCommandStringAroundInsertionPoint();
-                    const suggestions = Definitions.suggest(command + c);
+                    const suggestions = suggest(command + c);
                     displayArrows = suggestions.length > 1;
                     if (suggestions.length === 0) {
                         this.mathlist.insert(c, { mode: 'command' });
@@ -2220,7 +2221,7 @@ class MathField {
         //
         // 4. Create spans corresponding to the updated mathlist
         //
-        const spans = MathAtom.decompose(
+        const spans = decompose(
             {
                 mathstyle: 'displaystyle',
                 generateID: {
@@ -2239,7 +2240,7 @@ class MathField {
         //
         // 5. Construct struts around the spans
         //
-        const base = Span.makeSpan(spans, 'ML__base');
+        const base = makeSpan(spans, 'ML__base');
         base.attributes = {
             // Sometimes Google Translate kicks in an attempts to 'translate' math
             // This doesn't work very well, so turn off translate
@@ -2248,17 +2249,17 @@ class MathField {
             // They should use instead the 'aria-label' below.
             'aria-hidden': 'true',
         };
-        const topStrut = Span.makeSpan('', 'ML__strut');
+        const topStrut = makeSpan('', 'ML__strut');
         topStrut.setStyle('height', base.height, 'em');
         const struts = [topStrut];
         if (base.depth !== 0) {
-            const bottomStrut = Span.makeSpan('', 'ML__strut--bottom');
+            const bottomStrut = makeSpan('', 'ML__strut--bottom');
             bottomStrut.setStyle('height', base.height + base.depth, 'em');
             bottomStrut.setStyle('vertical-align', -base.depth, 'em');
             struts.push(bottomStrut);
         }
         struts.push(base);
-        const wrapper = Span.makeSpan(struts, 'ML__mathlive');
+        const wrapper = makeSpan(struts, 'ML__mathlive');
         //
         // 6. Generate markup and accessible node
         //
@@ -2429,7 +2430,7 @@ class MathField {
         if (!atoms) {
             return '';
         }
-        const root = MathAtom.makeRoot('math', atoms);
+        const root = makeRoot('math', atoms);
         return this.formatMathlist(root, format);
     }
     /**
@@ -2833,7 +2834,7 @@ class MathField {
                 // We'll assume we want to insert in math mode
                 // (commands are only available in math mode)
                 const mode = 'math';
-                if (Definitions.commandAllowed(mode, command)) {
+                if (commandAllowed(mode, command)) {
                     const mathlist = ParserModule.parseTokens(
                         Lexer.tokenize(command),
                         mode,
@@ -2873,7 +2874,7 @@ class MathField {
         this.mathlist.positionInsertionPointAfterCommitedCommand();
         this.mathlist.removeSuggestion();
         const command = this.mathlist.extractCommandStringAroundInsertionPoint();
-        const suggestions = Definitions.suggest(command);
+        const suggestions = suggest(command);
         if (suggestions.length === 0) {
             Popover.hidePopover(this);
             this.mathlist.decorateCommandStringAroundInsertionPoint(true);
@@ -2906,7 +2907,7 @@ class MathField {
             // Not very efficient, but simple.
             this.mathlist.removeSuggestion();
             const command = this.mathlist.extractCommandStringAroundInsertionPoint();
-            const suggestions = Definitions.suggest(command);
+            const suggestions = suggest(command);
             this.suggestionIndex = suggestions.length - 1;
         }
         this._updateSuggestion();
@@ -3788,11 +3789,7 @@ class MathField {
             this.config.removeExtraneousParentheses = true;
         }
         this.config.onAnnounce = conf.onAnnounce || _onAnnounce;
-        this.config.macros = Object.assign(
-            {},
-            Definitions.MACROS,
-            this.config.macros
-        );
+        this.config.macros = Object.assign({}, MACROS, this.config.macros);
         // Validate the namespace (used for `data-` attributes)
         if (!/^[a-z]*[-]?$/.test(this.config.namespace)) {
             throw Error(

@@ -20,10 +20,12 @@
  */
 
 import Lexer from './core/lexer.js';
-import MathAtom from './core/mathAtom.js';
+import { MathAtom } from './core/mathAtom.js';
+import { decompose } from './core/atom-utils.js';
 import ParserModule from './core/parser.js';
-import Span from './core/span.js';
-import Definitions from './core/definitions.js';
+import { coalesce, makeSpan } from './core/span.js';
+import { MACROS } from './core/definitions-utils.js';
+import './core/definitions.js';
 import MathField from './editor/editor-mathfield.js';
 import AutoRender from './addons/auto-render.js';
 import mathJson from './addons/mathJson.js';
@@ -80,33 +82,33 @@ function toMarkup(text, mathstyle, format, macros) {
     // 3. Transform the math atoms into elementary spans
     //    for example from genfrac to vlist.
     //
-    let spans = MathAtom.decompose({ mathstyle: mathstyle }, mathlist);
+    let spans = decompose({ mathstyle: mathstyle }, mathlist);
 
     //
     // 4. Simplify by coalescing adjacent nodes
     //    for example, from <span>1</span><span>2</span>
     //    to <span>12</span>
     //
-    spans = Span.coalesce(spans);
+    spans = coalesce(spans);
 
     if (format === 'span') return spans;
 
     //
     // 5. Wrap the expression with struts
     //
-    const base = Span.makeSpan(spans, 'ML__base');
+    const base = makeSpan(spans, 'ML__base');
 
-    const topStrut = Span.makeSpan('', 'ML__strut');
+    const topStrut = makeSpan('', 'ML__strut');
     topStrut.setStyle('height', base.height, 'em');
     const struts = [topStrut];
     if (base.depth !== 0) {
-        const bottomStrut = Span.makeSpan('', 'ML__strut--bottom');
+        const bottomStrut = makeSpan('', 'ML__strut--bottom');
         bottomStrut.setStyle('height', base.height + base.depth, 'em');
         bottomStrut.setStyle('vertical-align', -base.depth, 'em');
         struts.push(bottomStrut);
     }
     struts.push(base);
-    const wrapper = Span.makeSpan(struts, 'ML__mathlive');
+    const wrapper = makeSpan(struts, 'ML__mathlive');
 
     //
     // 6. Generate markup
@@ -172,7 +174,7 @@ function toMathML(latex, options) {
     }
     options = options || {};
     options.macros = options.macros || {};
-    Object.assign(options.macros, Definitions.MACROS);
+    Object.assign(options.macros, MACROS);
 
     const mathlist = ParserModule.parseTokens(
         Lexer.tokenize(latex),
@@ -205,7 +207,7 @@ function latexToAST(latex, options) {
     }
     options = options || {};
     options.macros = options.macros || {};
-    Object.assign(options.macros, Definitions.MACROS);
+    Object.assign(options.macros, MACROS);
 
     const mathlist = ParserModule.parseTokens(
         Lexer.tokenize(latex),
@@ -294,7 +296,7 @@ function latexToSpeakableText(latex, options) {
     }
     options = options || {};
     options.macros = options.macros || {};
-    Object.assign(options.macros, Definitions.MACROS);
+    Object.assign(options.macros, MACROS);
 
     const mathlist = ParserModule.parseTokens(
         Lexer.tokenize(latex),
@@ -841,7 +843,7 @@ function renderMathInElement(element, options) {
     options.renderToMathML = options.renderToMathML || toMathML;
     options.renderToSpeakableText =
         options.renderToSpeakableText || latexToSpeakableText;
-    options.macros = options.macros || Definitions.MACROS;
+    options.macros = options.macros || MACROS;
     AutoRender.renderMathInElement(getElement(element), options);
 }
 

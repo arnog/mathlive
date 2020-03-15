@@ -8,7 +8,7 @@
  * @private
  */
 
-import MathAtom from '../core/mathAtom.js';
+import { MathAtom } from '../core/mathAtom.js';
 import Color from '../core/color.js';
 
 const SPECIAL_OPERATORS = {
@@ -593,7 +593,50 @@ function toString(atoms) {
  * @return {string}
  * @private
  */
-MathAtom.MathAtom.prototype.toMathML = function(options) {
+MathAtom.prototype.toMathML = function(options) {
+    // For named SVG atoms, map to a Unicode char
+    const SVG_CODE_POINTS = {
+        widehat: '^',
+        widecheck: 'ˇ',
+        widetilde: '~',
+        utilde: '~',
+        overleftarrow: '\u2190',
+        underleftarrow: '\u2190',
+        xleftarrow: '\u2190',
+        overrightarrow: '\u2192',
+        underrightarrow: '\u2192',
+        xrightarrow: '\u2192',
+        underbrace: '\u23df',
+        overbrace: '\u23de',
+        overgroup: '\u23e0',
+        undergroup: '\u23e1',
+        overleftrightarrow: '\u2194',
+        underleftrightarrow: '\u2194',
+        xleftrightarrow: '\u2194',
+        Overrightarrow: '\u21d2',
+        xRightarrow: '\u21d2',
+        overleftharpoon: '\u21bc',
+        xleftharpoonup: '\u21bc',
+        overrightharpoon: '\u21c0',
+        xrightharpoonup: '\u21c0',
+        xLeftarrow: '\u21d0',
+        xLeftrightarrow: '\u21d4',
+        xhookleftarrow: '\u21a9',
+        xhookrightarrow: '\u21aa',
+        xmapsto: '\u21a6',
+        xrightharpoondown: '\u21c1',
+        xleftharpoondown: '\u21bd',
+        xrightleftharpoons: '\u21cc',
+        xleftrightharpoons: '\u21cb',
+        xtwoheadleftarrow: '\u219e',
+        xtwoheadrightarrow: '\u21a0',
+        xlongequal: '=',
+        xtofrom: '\u21c4',
+        xrightleftarrows: '\u21c4',
+        xrightequilibrium: '\u21cc', // Not a perfect match.
+        xleftequilibrium: '\u21cb', // None better available.
+    };
+
     const SPECIAL_IDENTIFIERS = {
         '\\exponentialE': '&#x02147;',
         '\\imaginaryI': '&#x2148;',
@@ -826,7 +869,10 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
             case 'overunder':
                 overscript = this.overscript;
                 underscript = this.underscript;
-                if (overscript && underscript) {
+                if (
+                    (this.svgAbove || overscript) &&
+                    (this.svgBelow || underscript)
+                ) {
                     body = this.body;
                 } else if (overscript) {
                     body = this.body;
@@ -858,33 +904,41 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
                     }
                 }
 
-                if (overscript && underscript) {
+                if (
+                    (this.svgAbove || overscript) &&
+                    (this.svgBelow || underscript)
+                ) {
+                    result += `<munderover ${variant} ${makeID(
+                        this.id,
+                        options
+                    )}>`;
                     result +=
-                        '<munderover' +
-                        variant +
-                        makeID(this.id, options) +
-                        '>' +
+                        SVG_CODE_POINTS[this.svgBody] ||
                         toMathML(body, 0, 0, options).mathML;
-                    result += toMathML(underscript, 0, 0, options).mathML;
-                    result += toMathML(overscript, 0, 0, options).mathML;
+                    result +=
+                        SVG_CODE_POINTS[this.svgBelow] ||
+                        toMathML(underscript, 0, 0, options).mathML;
+                    result +=
+                        SVG_CODE_POINTS[this.svgAbove] ||
+                        toMathML(overscript, 0, 0, options).mathML;
                     result += '</munderover>';
-                } else if (overscript) {
+                } else if (this.svgAbove || overscript) {
                     result +=
-                        '<mover' +
-                        variant +
-                        makeID(this.id, options) +
-                        '>' +
-                        toMathML(body, 0, 0, options).mathML;
-                    result += toMathML(overscript, 0, 0, options).mathML;
+                        `<mover ${variant} ${makeID(this.id, options)}>` +
+                        (SVG_CODE_POINTS[this.svgBody] ||
+                            toMathML(body, 0, 0, options).mathML);
+                    result +=
+                        SVG_CODE_POINTS[this.svgAbove] ||
+                        toMathML(overscript, 0, 0, options).mathML;
                     result += '</mover>';
-                } else if (underscript) {
+                } else if (this.svgBelow || underscript) {
                     result +=
-                        '<munder' +
-                        variant +
-                        makeID(this.id, options) +
-                        '>' +
-                        toMathML(body, 0, 0, options).mathML;
-                    result += toMathML(underscript, 0, 0, options).mathML;
+                        `<munder ${variant} ${makeID(this.id, options)}>` +
+                        (SVG_CODE_POINTS[this.svgBody] ||
+                            toMathML(body, 0, 0, options).mathML);
+                    result +=
+                        SVG_CODE_POINTS[this.svgBelow] ||
+                        toMathML(underscript, 0, 0, options).mathML;
                     result += '</munder>';
                 }
                 break;

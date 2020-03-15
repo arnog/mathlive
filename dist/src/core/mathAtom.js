@@ -1,21 +1,32 @@
 /**
  *
- * See also the class {@linkcode MathAtom}
  * @module core/mathatom
  * @private
  */
+import { ATOM_REGISTRY, decompose } from './atom-utils.js';
 import Mathstyle from './mathstyle.js';
-import Context from './context.js';
+import { Context } from './context.js';
 import { METRICS as FONTMETRICS } from './fontMetrics.js';
-import Span from './span.js';
+import {
+    makeSpan,
+    makeOrd,
+    makeInner,
+    makeVlist,
+    makeSymbol,
+    makeSpanOfType,
+    makeOp,
+    depth as spanDepth,
+    height as spanHeight,
+    italic as spanItalic,
+} from './span.js';
 import Delimiters from './delimiters.js';
+import '../core/atom-genfrac.js';
+import '../core/atom-array.js';
+import '../core/atom-overunder.js';
+import '../core/atom-accent.js';
+import '../core/atom-enclose.js';
 
-const makeSpan = Span.makeSpan;
-const makeOrd = Span.makeOrd;
-const makeInner = Span.makeInner;
-const makeHlist = Span.makeHlist;
-const makeVlist = Span.makeVlist;
-export const GREEK_REGEX = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5/;
+const GREEK_REGEX = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5/;
 
 // TeX by default auto-italicize latin letters and lowercase greek letters
 const AUTO_ITALIC_REGEX = /^([A-Za-z]|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5)$/;
@@ -111,7 +122,7 @@ const SIZING_MULTIPLIER = {
  * @class
  * @private
  */
-class MathAtom {
+export class MathAtom {
     /**
      *
      * @param {string} mode
@@ -319,436 +330,6 @@ class MathAtom {
         return span;
     }
 
-    decomposeArray(context) {
-        // See http://tug.ctan.org/macros/latex/base/ltfsstrc.dtx
-        // and http://tug.ctan.org/macros/latex/base/lttab.dtx
-        let colFormat = this.colFormat;
-        if (colFormat && colFormat.length === 0) {
-            colFormat = [{ align: 'l' }];
-        }
-        if (!colFormat) {
-            colFormat = [
-                { align: 'l' },
-                { align: 'l' },
-                { align: 'l' },
-                { align: 'l' },
-                { align: 'l' },
-                { align: 'l' },
-                { align: 'l' },
-                { align: 'l' },
-                { align: 'l' },
-                { align: 'l' },
-            ];
-        }
-        // Fold the array so that there are no more columns of content than
-        // there are columns prescribed by the column format.
-        const array = [];
-        let colMax = 0; // Maximum number of columns of content
-        for (const colSpec of colFormat) {
-            if (colSpec.align) colMax++;
-        }
-        for (const row of this.array) {
-            let colIndex = 0;
-            while (colIndex < row.length) {
-                const newRow = [];
-                const lastCol = Math.min(row.length, colIndex + colMax);
-                while (colIndex < lastCol) {
-                    newRow.push(row[colIndex++]);
-                }
-                array.push(newRow);
-            }
-        }
-        // If the last row is empty, ignore it.
-        if (
-            array[array.length - 1].length === 1 &&
-            array[array.length - 1][0].length === 0
-        ) {
-            array.pop();
-        }
-        const mathstyle =
-            Mathstyle.toMathstyle(this.mathstyle) || context.mathstyle;
-        // Row spacing
-        // Default \arraystretch from lttab.dtx
-        const arraystretch = this.arraystretch || 1;
-        const arrayskip = arraystretch * FONTMETRICS.baselineskip;
-        const arstrutHeight = 0.7 * arrayskip;
-        const arstrutDepth = 0.3 * arrayskip; // \@arstrutbox in lttab.dtx
-        let totalHeight = 0;
-        let nc = 0;
-        const body = [];
-        const nr = array.length;
-        for (let r = 0; r < nr; ++r) {
-            const inrow = array[r];
-            nc = Math.max(nc, inrow.length);
-            let height = arstrutHeight; // \@array adds an \@arstrut
-            let depth = arstrutDepth; // to each row (via the template)
-            const outrow = [];
-            for (let c = 0; c < inrow.length; ++c) {
-                const localContext = context.clone({
-                    mathstyle: this.mathstyle,
-                });
-                const cell = decompose(localContext, inrow[c]) || [];
-                const elt = [makeOrd(null)].concat(cell);
-                depth = Math.max(depth, Span.depth(elt));
-                height = Math.max(height, Span.height(elt));
-                outrow.push(elt);
-            }
-            let jot = r === nr - 1 ? 0 : this.jot || 0;
-            if (this.rowGaps && this.rowGaps[r]) {
-                jot = this.rowGaps[r];
-                if (jot > 0) {
-                    // \@argarraycr
-                    jot += arstrutDepth;
-                    if (depth < jot) {
-                        depth = jot; // \@xargarraycr
-                    }
-                    jot = 0;
-                }
-            }
-            outrow.height = height;
-            outrow.depth = depth;
-            totalHeight += height;
-            outrow.pos = totalHeight;
-            totalHeight += depth + jot; // \@yargarraycr
-            body.push(outrow);
-        }
-        const offset = totalHeight / 2 + mathstyle.metrics.axisHeight;
-        const contentCols = [];
-        for (let colIndex = 0; colIndex < nc; colIndex++) {
-            const col = [];
-            for (const row of body) {
-                const elem = row[colIndex];
-                if (!elem) {
-                    continue;
-                }
-                elem.depth = row.depth;
-                elem.height = row.height;
-
-                col.push(elem);
-                col.push(row.pos - offset);
-            }
-            if (col.length > 0) {
-                contentCols.push(makeVlist(context, col, 'individualShift'));
-            }
-        }
-        // Iterate over each column description.
-        // Each `colDesc` will indicate whether to insert a gap, a rule or
-        // a column from 'contentCols'
-        const cols = [];
-        let prevColContent = false;
-        let prevColRule = false;
-        let currentContentCol = 0;
-        let firstColumn = !this.lFence;
-        for (const colDesc of colFormat) {
-            if (colDesc.align && currentContentCol >= contentCols.length) {
-                break;
-            } else if (
-                colDesc.align &&
-                currentContentCol < contentCols.length
-            ) {
-                // If an alignment is specified, insert a column of content
-                if (prevColContent) {
-                    // If no gap was provided, insert a default gap between
-                    // consecutive columns of content
-                    cols.push(makeColGap(2 * FONTMETRICS.arraycolsep));
-                } else if (prevColRule || firstColumn) {
-                    // If the previous column was a rule or this is the first column
-                    // add a smaller gap
-                    cols.push(makeColGap(FONTMETRICS.arraycolsep));
-                }
-                cols.push(
-                    makeSpan(
-                        contentCols[currentContentCol],
-                        'col-align-' + colDesc.align
-                    )
-                );
-                currentContentCol++;
-                prevColContent = true;
-                prevColRule = false;
-                firstColumn = false;
-            } else if (typeof colDesc.gap !== 'undefined') {
-                // Something to insert in between columns of content
-                if (typeof colDesc.gap === 'number') {
-                    // It's a number, indicating how much space, in em,
-                    // to leave in between columns
-                    cols.push(makeColGap(colDesc.gap));
-                } else {
-                    // It's a mathlist
-                    // Create a column made up of the mathlist
-                    // as many times as there are rows.
-                    cols.push(
-                        makeColOfRepeatingElements(
-                            context,
-                            body,
-                            offset,
-                            colDesc.gap
-                        )
-                    );
-                }
-                prevColContent = false;
-                prevColRule = false;
-                firstColumn = false;
-            } else if (colDesc.rule) {
-                // It's a rule.
-                const separator = makeSpan(null, 'vertical-separator');
-                separator.setStyle('height', totalHeight, 'em');
-                // result.setTop((1 - context.mathstyle.sizeMultiplier) *
-                //     context.mathstyle.metrics.axisHeight);
-                separator.setStyle(
-                    'margin-top',
-                    3 * context.mathstyle.metrics.axisHeight - offset,
-                    'em'
-                );
-                separator.setStyle('vertical-align', 'top');
-                // separator.setStyle('display', 'inline-block');
-                let gap = 0;
-                if (prevColRule) {
-                    gap =
-                        FONTMETRICS.doubleRuleSep - FONTMETRICS.arrayrulewidth;
-                } else if (prevColContent) {
-                    gap = FONTMETRICS.arraycolsep - FONTMETRICS.arrayrulewidth;
-                }
-                separator.setLeft(gap, 'em');
-                cols.push(separator);
-                prevColContent = false;
-                prevColRule = true;
-                firstColumn = false;
-            }
-        }
-        if (prevColContent && !this.rFence) {
-            // If the last column was content, add a small gap
-            cols.push(makeColGap(FONTMETRICS.arraycolsep));
-        }
-        if (
-            (!this.lFence || this.lFence === '.') &&
-            (!this.rFence || this.rFence === '.')
-        ) {
-            // There are no delimiters around the array, just return what
-            // we've built so far.
-            return makeOrd(cols, 'mtable');
-        }
-        // There is at least one delimiter. Wrap the core of the array with
-        // appropriate left and right delimiters
-        // const inner = makeSpan(makeSpan(cols, 'mtable'), 'mord');
-        const inner = makeSpan(cols, 'mtable');
-        const innerHeight = Span.height(inner);
-        const innerDepth = Span.depth(inner);
-        return makeOrd([
-            this.bind(
-                context,
-                Delimiters.makeLeftRightDelim(
-                    'mopen',
-                    this.lFence,
-                    innerHeight,
-                    innerDepth,
-                    context
-                )
-            ),
-            inner,
-            this.bind(
-                context,
-                Delimiters.makeLeftRightDelim(
-                    'mclose',
-                    this.rFence,
-                    innerHeight,
-                    innerDepth,
-                    context
-                )
-            ),
-        ]);
-    }
-
-    /**
-     * Gengrac -- Generalized fraction
-     *
-     * Decompose fractions, binomials, and in general anything made
-     * of two expressions on top of each other, optionally separated by a bar,
-     * and optionally surrounded by fences (parentheses, brackets, etc...)
-     *
-     * Depending on the type of fraction the mathstyle is either
-     * display math or inline math (which is indicated by 'textstyle'). This value can
-     * also be set to 'auto', which indicates it should use the current mathstyle
-     *
-     * @method MathAtom#decomposeGenfrac
-     * @private
-     */
-    decomposeGenfrac(context) {
-        const mathstyle =
-            this.mathstyle === 'auto'
-                ? context.mathstyle
-                : Mathstyle.toMathstyle(this.mathstyle);
-        const newContext = context.clone({ mathstyle: mathstyle });
-        let numer = [];
-        if (this.numerPrefix) {
-            numer.push(makeOrd(this.numerPrefix));
-        }
-        const numeratorStyle = this.continuousFraction
-            ? mathstyle
-            : mathstyle.fracNum();
-        numer = numer.concat(
-            decompose(
-                newContext.clone({ mathstyle: numeratorStyle }),
-                this.numer
-            )
-        );
-        const numerReset = makeHlist(
-            numer,
-            context.mathstyle.adjustTo(numeratorStyle)
-        );
-        let denom = [];
-        if (this.denomPrefix) {
-            denom.push(makeOrd(this.denomPrefix));
-        }
-        const denominatorStyle = this.continuousFraction
-            ? mathstyle
-            : mathstyle.fracDen();
-        denom = denom.concat(
-            decompose(
-                newContext.clone({ mathstyle: denominatorStyle }),
-                this.denom
-            )
-        );
-        const denomReset = makeHlist(
-            denom,
-            context.mathstyle.adjustTo(denominatorStyle)
-        );
-        const ruleWidth = !this.hasBarLine
-            ? 0
-            : FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
-        // Rule 15b from Appendix G
-        let numShift;
-        let clearance;
-        let denomShift;
-        if (mathstyle.size === Mathstyle.DISPLAY.size) {
-            numShift = mathstyle.metrics.num1;
-            if (ruleWidth > 0) {
-                clearance = 3 * ruleWidth;
-            } else {
-                clearance = 7 * FONTMETRICS.defaultRuleThickness;
-            }
-            denomShift = mathstyle.metrics.denom1;
-        } else {
-            if (ruleWidth > 0) {
-                numShift = mathstyle.metrics.num2;
-                clearance = ruleWidth;
-            } else {
-                numShift = mathstyle.metrics.num3;
-                clearance = 3 * FONTMETRICS.defaultRuleThickness;
-            }
-            denomShift = mathstyle.metrics.denom2;
-        }
-        const numerDepth = numerReset ? numerReset.depth : 0;
-        const denomHeight = denomReset ? denomReset.height : 0;
-        let frac;
-        if (ruleWidth === 0) {
-            // Rule 15c from Appendix G
-            // No bar line between numerator and denominator
-            const candidateClearance =
-                numShift - numerDepth - (denomHeight - denomShift);
-            if (candidateClearance < clearance) {
-                numShift += 0.5 * (clearance - candidateClearance);
-                denomShift += 0.5 * (clearance - candidateClearance);
-            }
-            frac = makeVlist(
-                newContext,
-                [numerReset, -numShift, denomReset, denomShift],
-                'individualShift'
-            );
-        } else {
-            // Rule 15d from Appendix G
-            // There is a bar line between the numerator and the denominator
-            const axisHeight = mathstyle.metrics.axisHeight;
-            if (
-                numShift - numerDepth - (axisHeight + 0.5 * ruleWidth) <
-                clearance
-            ) {
-                numShift +=
-                    clearance -
-                    (numShift - numerDepth - (axisHeight + 0.5 * ruleWidth));
-            }
-            if (
-                axisHeight - 0.5 * ruleWidth - (denomHeight - denomShift) <
-                clearance
-            ) {
-                denomShift +=
-                    clearance -
-                    (axisHeight - 0.5 * ruleWidth - (denomHeight - denomShift));
-            }
-            const mid = makeSpan(
-                null,
-                /* newContext.mathstyle.adjustTo(Mathstyle.TEXT) + */ ' frac-line'
-            );
-            mid.applyStyle(this.getStyle());
-            // @todo: do we really need to reset the size?
-            // Manually set the height of the line because its height is
-            // created in CSS
-            mid.height = ruleWidth;
-            const elements = [];
-            if (numerReset) {
-                elements.push(numerReset);
-                elements.push(-numShift);
-            }
-            elements.push(mid);
-            elements.push(ruleWidth / 2 - axisHeight);
-            if (denomReset) {
-                elements.push(denomReset);
-                elements.push(denomShift);
-            }
-            frac = makeVlist(newContext, elements, 'individualShift');
-        }
-        // Add a 'mfrac' class to provide proper context for
-        // other css selectors (such as 'frac-line')
-        frac.classes += ' mfrac';
-        // Since we manually change the style sometimes (with \dfrac or \tfrac),
-        // account for the possible size change here.
-        frac.height *=
-            mathstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
-        frac.depth *=
-            mathstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
-        // if (!this.leftDelim && !this.rightDelim) {
-        //     return makeOrd(frac,
-        //         context.parentMathstyle.adjustTo(mathstyle) +
-        //         ((context.parentSize !== context.size) ?
-        //             (' sizing reset-' + context.parentSize + ' ' + context.size) : ''));
-        // }
-        // Rule 15e of Appendix G
-        const delimSize =
-            mathstyle.size === Mathstyle.DISPLAY.size
-                ? mathstyle.metrics.delim1
-                : mathstyle.metrics.delim2;
-        // Optional delimiters
-        const leftDelim = this.bind(
-            context,
-            Delimiters.makeCustomSizedDelim(
-                'mopen',
-                this.leftDelim,
-                delimSize,
-                true,
-                context.clone({ mathstyle: mathstyle })
-            )
-        );
-        const rightDelim = this.bind(
-            context,
-            Delimiters.makeCustomSizedDelim(
-                'mclose',
-                this.rightDelim,
-                delimSize,
-                true,
-                context.clone({ mathstyle: mathstyle })
-            )
-        );
-        leftDelim.applyStyle(this.getStyle());
-        rightDelim.applyStyle(this.getStyle());
-
-        const result = makeOrd(
-            [leftDelim, frac, rightDelim],
-            context.parentSize !== context.size
-                ? 'sizing reset-' + context.parentSize + ' ' + context.size
-                : ''
-        );
-        return this.bind(context, result);
-    }
-
     /**
      *  \left....\right
      *
@@ -790,8 +371,8 @@ class MathAtom {
         // The size of delimiters is the same, regardless of what mathstyle we are
         // in. Thus, to correctly calculate the size of delimiter we need around
         // a group, we scale down the inner size based on the size.
-        innerHeight = Span.height(inner) * mathstyle.sizeMultiplier;
-        innerDepth = Span.depth(inner) * mathstyle.sizeMultiplier;
+        innerHeight = spanHeight(inner) * mathstyle.sizeMultiplier;
+        innerDepth = spanDepth(inner) * mathstyle.sizeMultiplier;
         // Add the left delimiter to the beginning of the expression
         if (this.leftDelim) {
             result.push(
@@ -900,7 +481,7 @@ class MathAtom {
         let lineClearance = ruleWidth + phi / 4;
         const innerTotalHeight = Math.max(
             2 * phi,
-            (Span.height(inner) + Span.depth(inner)) * mathstyle.sizeMultiplier
+            (spanHeight(inner) + spanDepth(inner)) * mathstyle.sizeMultiplier
         );
         const minDelimiterHeight =
             innerTotalHeight + (lineClearance + ruleWidth);
@@ -921,20 +502,17 @@ class MathAtom {
         const delimDepth = delim.height + delim.depth - ruleWidth;
 
         // Adjust the clearance based on the delimiter size
-        if (
-            delimDepth >
-            Span.height(inner) + Span.depth(inner) + lineClearance
-        ) {
+        if (delimDepth > spanHeight(inner) + spanDepth(inner) + lineClearance) {
             lineClearance =
                 (lineClearance +
                     delimDepth -
-                    (Span.height(inner) + Span.depth(inner))) /
+                    (spanHeight(inner) + spanDepth(inner))) /
                 2;
         }
 
         // Shift the delimiter so that its top lines up with the top of the line
         delim.setTop(
-            delim.height - Span.height(inner) - (lineClearance + ruleWidth)
+            delim.height - spanHeight(inner) - (lineClearance + ruleWidth)
         );
         const line = makeSpan(
             null,
@@ -977,54 +555,6 @@ class MathAtom {
         );
     }
 
-    decomposeAccent(context) {
-        // Accents are handled in the TeXbook pg. 443, rule 12.
-        const mathstyle = context.mathstyle;
-        // Build the base atom
-        let base = decompose(context.cramp(), this.body);
-        if (this.superscript || this.subscript) {
-            // If there is a supsub attached to the accent
-            // apply it to the base.
-            // Note this does not give the same result as TeX when there
-            // are stacked accents, e.g. \vec{\breve{\hat{\acute{...}}}}^2
-            base = this.attachSupsub(context, makeOrd(base), 'mord');
-        }
-        // Calculate the skew of the accent. This is based on the line "If the
-        // nucleus is not a single character, let s = 0; otherwise set s to the
-        // kern amount for the nucleus followed by the \skewchar of its font."
-        // Note that our skew metrics are just the kern between each character
-        // and the skewchar.
-        let skew = 0;
-        if (
-            Array.isArray(this.body) &&
-            this.body.length === 1 &&
-            this.body[0].isCharacterBox()
-        ) {
-            skew = Span.skew(base);
-        }
-        // calculate the amount of space between the body and the accent
-        const clearance = Math.min(
-            Span.height(base),
-            mathstyle.metrics.xHeight
-        );
-        // Build the accent
-        const accent = Span.makeSymbol('Main-Regular', this.accent, 'math');
-        // Remove the italic correction of the accent, because it only serves to
-        // shift the accent over to a place we don't want.
-        accent.italic = 0;
-        // The \vec character that the fonts use is a combining character, and
-        // thus shows up much too far to the left. To account for this, we add a
-        // specific class which shifts the accent over to where we want it.
-        const vecClass = this.accent === '\u20d7' ? ' accent-vec' : '';
-        let accentBody = makeSpan(makeSpan(accent), 'accent-body' + vecClass);
-        accentBody = makeVlist(context, [base, -clearance, accentBody]);
-        // Shift the accent over by the skew. Note we shift by twice the skew
-        // because we are centering the accent, so by adding 2*skew to the left,
-        // we shift it to the right by 1*skew.
-        accentBody.children[1].setLeft(2 * skew);
-        return makeOrd(accentBody, 'accent');
-    }
-
     /**
      * \overline and \underline
      *
@@ -1055,36 +585,10 @@ class MathAtom {
                 context,
                 [ruleWidth, line, 3 * ruleWidth, innerSpan],
                 'top',
-                Span.height(innerSpan)
+                spanHeight(innerSpan)
             );
         }
         return makeOrd(vlist, this.position);
-    }
-
-    decomposeOverunder(context) {
-        const base = decompose(context, this.body);
-        const annotationStyle = context.clone({ mathstyle: 'scriptstyle' });
-        const above = this.overscript
-            ? makeSpan(
-                  decompose(annotationStyle, this.overscript),
-                  context.mathstyle.adjustTo(annotationStyle.mathstyle)
-              )
-            : null;
-        const below = this.underscript
-            ? makeSpan(
-                  decompose(annotationStyle, this.underscript),
-                  context.mathstyle.adjustTo(annotationStyle.mathstyle)
-              )
-            : null;
-        return makeStack(
-            context,
-            base,
-            0,
-            0,
-            above,
-            below,
-            this.mathtype || 'mrel'
-        );
     }
 
     decomposeOverlap(context) {
@@ -1136,7 +640,7 @@ class MathAtom {
         if (this.symbol) {
             // If this is a symbol, create the symbol.
             const fontName = large ? 'Size2-Regular' : 'Size1-Regular';
-            base = Span.makeSymbol(
+            base = makeSymbol(
                 fontName,
                 this.body,
                 'op-symbol ' + (large ? 'large-op' : 'small-op')
@@ -1157,7 +661,7 @@ class MathAtom {
             this.bind(context, base);
         } else if (Array.isArray(this.body)) {
             // If this is a list, decompose that list.
-            base = Span.makeOp(decompose(context, this.body));
+            base = makeOp(decompose(context, this.body));
             // Bind the generated span and this atom so the atom can be retrieved
             // from the span later.
             this.bind(context, base);
@@ -1237,152 +741,6 @@ class MathAtom {
         return result;
     }
 
-    decomposeEnclose(context) {
-        const base = makeOrd(decompose(context, this.body));
-        const result = base;
-        // Account for the padding
-        const padding = this.padding === 'auto' ? 0.2 : this.padding; // em
-        result.setStyle('padding', padding, 'em');
-        result.setStyle('display', 'inline-block');
-        result.setStyle('height', result.height + result.depth, 'em');
-        result.setStyle('left', -padding, 'em');
-        if (this.backgroundcolor && this.backgroundcolor !== 'transparent') {
-            result.setStyle('background-color', this.backgroundcolor);
-        }
-        let svg = '';
-        if (this.notation.box) result.setStyle('border', this.borderStyle);
-        if (this.notation.actuarial) {
-            result.setStyle('border-top', this.borderStyle);
-            result.setStyle('border-right', this.borderStyle);
-        }
-        if (this.notation.madruwb) {
-            result.setStyle('border-bottom', this.borderStyle);
-            result.setStyle('border-right', this.borderStyle);
-        }
-        if (this.notation.roundedbox) {
-            result.setStyle(
-                'border-radius',
-                (Span.height(result) + Span.depth(result)) / 2,
-                'em'
-            );
-            result.setStyle('border', this.borderStyle);
-        }
-        if (this.notation.circle) {
-            result.setStyle('border-radius', '50%');
-            result.setStyle('border', this.borderStyle);
-        }
-        if (this.notation.top) result.setStyle('border-top', this.borderStyle);
-        if (this.notation.left)
-            result.setStyle('border-left', this.borderStyle);
-        if (this.notation.right)
-            result.setStyle('border-right', this.borderStyle);
-        if (this.notation.bottom)
-            result.setStyle('border-bottom', this.borderStyle);
-        if (this.notation.horizontalstrike) {
-            svg += '<line x1="3%"  y1="50%" x2="97%" y2="50%"';
-            svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
-            svg += ' stroke-linecap="round"';
-            if (this.svgStrokeStyle) {
-                svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-            }
-            svg += '/>';
-        }
-        if (this.notation.verticalstrike) {
-            svg += '<line x1="50%"  y1="3%" x2="50%" y2="97%"';
-            svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
-            svg += ' stroke-linecap="round"';
-            if (this.svgStrokeStyle) {
-                svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-            }
-            svg += '/>';
-        }
-        if (this.notation.updiagonalstrike) {
-            svg += '<line x1="3%"  y1="97%" x2="97%" y2="3%"';
-            svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
-            svg += ' stroke-linecap="round"';
-            if (this.svgStrokeStyle) {
-                svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-            }
-            svg += '/>';
-        }
-        if (this.notation.downdiagonalstrike) {
-            svg += '<line x1="3%"  y1="3%" x2="97%" y2="97%"';
-            svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
-            svg += ' stroke-linecap="round"';
-            if (this.svgStrokeStyle) {
-                svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-            }
-            svg += '/>';
-        }
-        // if (this.notation.updiagonalarrow) {
-        //     const t = 1;
-        //     const length = Math.sqrt(w * w + h * h);
-        //     const f = 1 / length / 0.075 * t;
-        //     const wf = w * f;
-        //     const hf = h * f;
-        //     const x = w - t / 2;
-        //     let y = t / 2;
-        //     if (y + hf - .4 * wf < 0 ) y = 0.4 * wf - hf;
-        //     svg += '<line ';
-        //     svg += `x1="1" y1="${h - 1}px" x2="${x - .7 * wf}px" y2="${y + .7 * hf}px"`;
-        //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
-        //     svg += ' stroke-linecap="round"';
-        //     if (this.svgStrokeStyle) {
-        //         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-        //     }
-        //     svg += '/>';
-        //     svg += '<polygon points="';
-        //     svg += `${x},${y} ${x - wf - .4 * hf},${y + hf - .4 * wf} `;
-        //     svg += `${x - .7 * wf},${y + .7 * hf} ${x - wf + .4 * hf},${y + hf + .4 * wf} `;
-        //     svg += `${x},${y}`;
-        //     svg += `" stroke='none' fill="${this.strokeColor}"`;
-        //     svg += '/>';
-        // }
-        // if (this.notation.phasorangle) {
-        //     svg += '<path d="';
-        //     svg += `M ${h / 2},1 L1,${h} L${w},${h} "`;
-        //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
-        //     if (this.svgStrokeStyle) {
-        //         svg += ' stroke-linecap="round"';
-        //         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-        //     }
-        //     svg += '/>';
-        // }
-        // if (this.notation.radical) {
-        //     svg += '<path d="';
-        //     svg += `M 0,${.6 * h} L1,${h} L${emToPx(padding) * 2},1 "`;
-        //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
-        //     if (this.svgStrokeStyle) {
-        //         svg += ' stroke-linecap="round"';
-        //         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-        //     }
-        //     svg += '/>';
-        // }
-        // if (this.notation.longdiv) {
-        //     svg += '<path d="';
-        //     svg += `M ${w} 1 L1 1 a${emToPx(padding)} ${h / 2}, 0, 0, 1, 1 ${h} "`;
-        //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
-        //     if (this.svgStrokeStyle) {
-        //         svg += ' stroke-linecap="round"';
-        //         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-        //     }
-        //     svg += '/>';
-        // }
-        if (svg) {
-            let svgStyle;
-            if (this.shadow !== 'none') {
-                if (this.shadow === 'auto') {
-                    svgStyle =
-                        'filter: drop-shadow(0 0 .5px rgba(255, 255, 255, .7)) drop-shadow(1px 1px 2px #333)';
-                } else {
-                    svgStyle = 'filter: drop-shadow(' + this.shadow + ')';
-                }
-            }
-            return Span.makeSVG(result, svg, svgStyle);
-        }
-        return result;
-    }
-
     /**
      * Return a representation of this, but decomposed in an array of Spans
      *
@@ -1394,7 +752,7 @@ class MathAtom {
      * @private
      */
     decompose(context, phantomBase) {
-        console.assert(context instanceof Context.Context);
+        console.assert(context instanceof Context);
         let result = null;
         if (
             !this.type ||
@@ -1410,14 +768,8 @@ class MathAtom {
             result.type = this.type;
         } else if (this.type === 'group' || this.type === 'root') {
             result = this.decomposeGroup(context);
-        } else if (this.type === 'array') {
-            result = this.decomposeArray(context);
-        } else if (this.type === 'genfrac') {
-            result = this.decomposeGenfrac(context);
         } else if (this.type === 'surd') {
             result = this.decomposeSurd(context);
-        } else if (this.type === 'accent') {
-            result = this.decomposeAccent(context);
         } else if (this.type === 'leftright') {
             result = this.decomposeLeftright(context);
         } else if (this.type === 'delim') {
@@ -1435,8 +787,6 @@ class MathAtom {
             );
         } else if (this.type === 'line') {
             result = this.decomposeLine(context);
-        } else if (this.type === 'overunder') {
-            result = this.decomposeOverunder(context);
         } else if (this.type === 'overlap') {
             // For llap (18), rlap (270), clap (0)
             // smash (common), mathllap (0), mathrlap (0), mathclap (0)
@@ -1445,10 +795,6 @@ class MathAtom {
             result = this.decomposeOverlap(context);
         } else if (this.type === 'rule') {
             result = this.decomposeRule(context);
-        } else if (this.type === 'styling') {
-            //
-            // STYLING
-            //
         } else if (this.type === 'msubsup') {
             // The caret for this atom type is handled by its elements
             result = makeOrd('\u200b');
@@ -1496,8 +842,6 @@ class MathAtom {
             context.setMathstyle(this.mathstyle);
         } else if (this.type === 'box') {
             result = this.decomposeBox(context);
-        } else if (this.type === 'enclose') {
-            result = this.decomposeEnclose(context);
         } else if (this.type === 'command' || this.type === 'error') {
             result = this.makeSpan(context, this.body);
             result.classes = ''; // Override fonts and other attributes.
@@ -1516,15 +860,15 @@ class MathAtom {
             // ZERO-WIDTH SPACE
             result = this.makeSpan(context, '\u200b');
         } else {
-            //
-            // DEFAULT
-            //
-            console.assert(false, 'Unknown MathAtom type: "' + this.type + '"');
+            console.assert(
+                ATOM_REGISTRY[this.type],
+                'Unknown MathAtom type: "' + this.type + '"'
+            );
+            result = ATOM_REGISTRY[this.type].decompose(context, this);
         }
         if (!result) return result;
         if (
             this.caret &&
-            this.type !== 'styling' &&
             this.type !== 'msubsup' &&
             this.type !== 'command' &&
             this.type !== 'placeholder' &&
@@ -1589,8 +933,8 @@ class MathAtom {
         let supShift = 0;
         let subShift = 0;
         if (!this.isCharacterBox()) {
-            supShift = Span.height(nucleus) - mathstyle.metrics.supDrop;
-            subShift = Span.depth(nucleus) + mathstyle.metrics.subDrop;
+            supShift = spanHeight(nucleus) - mathstyle.metrics.supDrop;
+            subShift = spanDepth(nucleus) + mathstyle.metrics.subDrop;
         }
         // Rule 18c
         let minSupShift;
@@ -1617,18 +961,16 @@ class MathAtom {
             subShift = Math.max(subShift, mathstyle.metrics.sub2);
             const ruleWidth = FONTMETRICS.defaultRuleThickness;
             if (
-                supShift -
-                    Span.depth(supmid) -
-                    (Span.height(submid) - subShift) <
+                supShift - spanDepth(supmid) - (spanHeight(submid) - subShift) <
                 4 * ruleWidth
             ) {
                 subShift =
                     4 * ruleWidth -
                     (supShift - supmid.depth) +
-                    Span.height(submid);
+                    spanHeight(submid);
                 const psi =
                     0.8 * mathstyle.metrics.xHeight -
-                    (supShift - Span.depth(supmid));
+                    (supShift - spanDepth(supmid));
                 if (psi > 0) {
                     supShift += psi;
                     subShift -= psi;
@@ -1643,19 +985,19 @@ class MathAtom {
             // Account for that by shifting the subscript back the appropriate
             // amount. Note we only do this when the nucleus is a single symbol.
             if (this.symbol) {
-                supsub.children[0].setLeft(-Span.italic(nucleus));
+                supsub.children[0].setLeft(-spanItalic(nucleus));
             }
         } else if (submid && !supmid) {
             // Rule 18b
             subShift = Math.max(
                 subShift,
                 mathstyle.metrics.sub1,
-                Span.height(submid) - 0.8 * mathstyle.metrics.xHeight
+                spanHeight(submid) - 0.8 * mathstyle.metrics.xHeight
             );
             supsub = makeVlist(context, [submid], 'shift', subShift);
             supsub.children[0].setRight(scriptspace);
             if (this.isCharacterBox()) {
-                supsub.children[0].setLeft(-Span.italic(nucleus));
+                supsub.children[0].setLeft(-spanItalic(nucleus));
             }
         } else if (!submid && supmid) {
             // Rule 18c, d
@@ -1673,7 +1015,7 @@ class MathAtom {
         if (this.caret) {
             supsubContainer.caret = this.caret;
         }
-        return Span.makeSpanOfType(type, [nucleus, supsubContainer]);
+        return makeSpanOfType(type, [nucleus, supsubContainer]);
     }
 
     attachLimits(context, nucleus, nucleusShift, slant) {
@@ -1689,14 +1031,13 @@ class MathAtom {
                   context.mathstyle.adjustTo(context.mathstyle.sub())
               )
             : null;
-        return makeStack(
+        return makeLimitsStack(
             context,
             nucleus,
             nucleusShift,
             slant,
             limitAbove,
-            limitBelow,
-            'mop'
+            limitBelow
         );
     }
 
@@ -1731,7 +1072,7 @@ class MathAtom {
      */
     makeSpan(context, body) {
         const type = this.type === 'textord' ? 'mord' : this.type;
-        const result = Span.makeSpanOfType(type, body);
+        const result = makeSpanOfType(type, body);
 
         // The font family is determined by:
         // - the base font family associated with this atom (optional). For example,
@@ -1787,36 +1128,6 @@ class MathAtom {
     }
 }
 
-/**
- * Used in `decomposeArray` to create a column separator span.
- *
- * @param {number} width
- * @memberof module:mathAtom
- * @private
- */
-function makeColGap(width) {
-    const separator = makeSpan('\u200b', 'arraycolsep');
-    separator.setWidth(width, 'em');
-    return separator;
-}
-
-/**
- * Used in decomposeArray to create a column of repeating elements.
- * @memberof module:mathAtom
- * @private
- */
-function makeColOfRepeatingElements(context, body, offset, elem) {
-    const col = [];
-    for (const row of body) {
-        const cell = makeSpan(decompose(context, elem));
-        cell.depth = row.depth;
-        cell.height = row.height;
-        col.push(cell);
-        col.push(row.pos - offset);
-    }
-    return makeVlist(context, col, 'individualShift');
-}
-
 function makeID(context) {
     let result;
     if (typeof context.generateID === 'boolean' && context.generateID) {
@@ -1839,7 +1150,7 @@ function makeID(context) {
 
 /**
  * Combine a nucleus with an atom above and an atom below. Used to form
- * limits and used by \stackrel.
+ * limits.
  *
  * @param {Context} context
  * @param {Span} nucleus The base over and under which the atoms will
@@ -1850,16 +1161,15 @@ function makeID(context) {
  * indicate by how much to horizontally offset the above and below atoms
  * @param {Span} above
  * @param {Span} below
- * @param {string} type The type ('mop', 'mrel', etc...) of the result
  * @return {Span}
  * @memberof module:mathAtom
  * @private
  */
-function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
+function makeLimitsStack(context, nucleus, nucleusShift, slant, above, below) {
     // If nothing above and nothing below, nothing to do.
     if (!above && !below) return nucleus;
 
-    // IE 8 clips \int if it is in a display: inline-block. We wrap it
+    // IE8 clips \int if it is in a display: inline-block. We wrap it
     // in a new span so it is an inline, and works.
     // @todo: revisit
     nucleus = makeSpan(nucleus);
@@ -1870,13 +1180,13 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
     if (above) {
         aboveShift = Math.max(
             FONTMETRICS.bigOpSpacing1,
-            FONTMETRICS.bigOpSpacing3 - above.depth
+            FONTMETRICS.bigOpSpacing3 - spanDepth(above)
         );
     }
     if (below) {
         belowShift = Math.max(
             FONTMETRICS.bigOpSpacing2,
-            FONTMETRICS.bigOpSpacing4 - below.height
+            FONTMETRICS.bigOpSpacing4 - spanHeight(below)
         );
     }
 
@@ -1885,10 +1195,10 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
     if (below && above) {
         const bottom =
             FONTMETRICS.bigOpSpacing5 +
-            Span.height(below) +
-            Span.depth(below) +
+            spanHeight(below) +
+            spanDepth(below) +
             belowShift +
-            Span.depth(nucleus) +
+            spanDepth(nucleus) +
             nucleusShift;
 
         result = makeVlist(
@@ -1913,7 +1223,7 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
         result.children[0].setLeft(-slant);
         result.children[2].setLeft(slant);
     } else if (below && !above) {
-        const top = Span.height(nucleus) - nucleusShift;
+        const top = spanHeight(nucleus) - nucleusShift;
 
         result = makeVlist(
             context,
@@ -1925,7 +1235,7 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
         // See comment above about slants
         result.children[0].setLeft(-slant);
     } else if (!below && above) {
-        const bottom = Span.depth(nucleus) + nucleusShift;
+        const bottom = spanDepth(nucleus) + nucleusShift;
 
         result = makeVlist(
             context,
@@ -1938,201 +1248,7 @@ function makeStack(context, nucleus, nucleusShift, slant, above, below, type) {
         result.children[1].setLeft(slant);
     }
 
-    return Span.makeSpanOfType(type, result, 'op-limits');
-}
-
-/**
- * Return a list of spans equivalent to atoms.
- * A span is the most elementary type possible, for example 'text'
- * or 'vlist', while the input atoms may be more abstract and complex,
- * such as 'genfrac'
- *
- * @param {Context} context Font family, variant, size, color, etc...
- * @param {(MathAtom|MathAtom[])} atoms
- * @return {Span[]}
- * @memberof module:core/mathatom
- * @private
- */
-function decompose(context, atoms) {
-    function isDigit(atom) {
-        return atom.type === 'mord' && /[0-9,.]/.test(atom.latex);
-    }
-    function isText(atom) {
-        return atom.mode === 'text';
-    }
-
-    if (!(context instanceof Context.Context)) {
-        // We can be passed either a Context object, or
-        // a simple object with some properties set.
-        context = new Context.Context(context);
-    }
-
-    // In most cases we want to display selection,
-    // except if the generateID.groupNumbers flag is set which is used for
-    // read aloud.
-    const displaySelection =
-        !context.generateID || !context.generateID.groupNumbers;
-
-    let result = [];
-    if (Array.isArray(atoms)) {
-        if (atoms.length === 0) {
-            return result;
-        } else if (atoms.length === 1) {
-            result = atoms[0].decompose(context);
-            if (result && displaySelection && atoms[0].isSelected) {
-                result.forEach(x => x.selected(true));
-            }
-            console.assert(!result || Array.isArray(result));
-        } else {
-            let previousType = 'none';
-            let nextType = atoms[1].type;
-            let selection = [];
-            let digitOrTextStringID = null;
-            let lastWasDigit = true;
-            let phantomBase = null;
-            for (let i = 0; i < atoms.length; i++) {
-                // Is this a binary operator ('+', '-', etc...) that potentially
-                // needs to be adjusted to a unary operator?
-                //
-                // When preceded by a mbin, mopen, mrel, mpunct, mop or
-                // when followed by a mrel, mclose or mpunct
-                // or if preceded or followed by no sibling, a 'mbin' becomes a
-                // 'mord'
-                if (atoms[i].type === 'mbin') {
-                    if (
-                        /first|none|mrel|mpunct|mopen|mbin|mop/.test(
-                            previousType
-                        ) ||
-                        /none|mrel|mpunct|mclose/.test(nextType)
-                    ) {
-                        atoms[i].type = 'mord';
-                    }
-                }
-
-                // If this is a scaffolding supsub, we'll use the
-                // phantomBase from the previous atom to position the supsub.
-                // Otherwise, no need for the phantomBase
-                if (
-                    atoms[i].body !== '\u200b' ||
-                    (!atoms[i].superscript && !atoms[i].subscript)
-                ) {
-                    phantomBase = null;
-                }
-
-                if (
-                    context.generateID.groupNumbers &&
-                    digitOrTextStringID &&
-                    ((lastWasDigit && isDigit(atoms[i])) ||
-                        (!lastWasDigit && isText(atoms[i])))
-                ) {
-                    context.generateID.overrideID = digitOrTextStringID;
-                }
-                const span = atoms[i].decompose(context, phantomBase);
-                if (context.generateID) {
-                    context.generateID.overrideID = null;
-                }
-                if (span) {
-                    // The result from decompose is always an array
-                    // Flatten it (i.e. [[a1, a2], b1, b2] -> [a1, a2, b1, b2]
-                    const flat = [].concat.apply([], span);
-                    phantomBase = flat;
-
-                    // If this is a digit or text run, keep track of it
-                    if (context.generateID && context.generateID.groupNumbers) {
-                        if (isDigit(atoms[i]) || isText(atoms[i])) {
-                            if (
-                                !digitOrTextStringID ||
-                                lastWasDigit !== isDigit(atoms[i])
-                            ) {
-                                // changed from text to digits or vise-versa
-                                lastWasDigit = isDigit(atoms[i]);
-                                digitOrTextStringID = atoms[i].id;
-                            }
-                        }
-                        if (
-                            (!(isDigit(atoms[i]) || isText(atoms[i])) ||
-                                atoms[i].superscript ||
-                                atoms[i].subscript) &&
-                            digitOrTextStringID
-                        ) {
-                            // Done with digits/text
-                            digitOrTextStringID = null;
-                        }
-                    }
-
-                    if (displaySelection && atoms[i].isSelected) {
-                        selection = selection.concat(flat);
-                        selection.forEach(x => x.selected(true));
-                    } else {
-                        if (selection.length > 0) {
-                            // There was a selection, but we're out of it now
-                            // Append the selection
-                            result = [...result, ...selection];
-                            selection = [];
-                        }
-                        result = result.concat(flat);
-                    }
-                }
-
-                // Since the next atom (and this atom!) could have children
-                // use getFinal...() and getInitial...() to get the closest
-                // atom linearly.
-                previousType = atoms[i].getFinalBaseElement().type;
-                nextType = atoms[i + 1]
-                    ? atoms[i + 1].getInitialBaseElement().type
-                    : 'none';
-            }
-
-            // Is there a leftover selection?
-            if (selection.length > 0) {
-                result = [...result, ...selection];
-                selection = [];
-            }
-        }
-    } else if (atoms) {
-        // This is a single atom, decompose it
-        result = atoms.decompose(context);
-        if (result && displaySelection && atoms.isSelected) {
-            result.forEach(x => x.selected(true));
-        }
-    }
-
-    if (!result || result.length === 0) return null;
-
-    console.assert(Array.isArray(result) && result.length > 0);
-
-    // If the mathstyle changed between the parent and the current atom,
-    // account for the size difference
-    if (context.mathstyle !== context.parentMathstyle) {
-        const factor =
-            context.mathstyle.sizeMultiplier /
-            context.parentMathstyle.sizeMultiplier;
-        for (const span of result) {
-            console.assert(!Array.isArray(span));
-            console.assert(
-                typeof span.height === 'number' && isFinite(span.height)
-            );
-            span.height *= factor;
-            span.depth *= factor;
-        }
-    }
-    // If the size changed between the parent and the current group,
-    // account for the size difference
-    if (context.size !== context.parentSize) {
-        const factor =
-            SIZING_MULTIPLIER[context.size] /
-            SIZING_MULTIPLIER[context.parentSize];
-        for (const span of result) {
-            console.assert(!Array.isArray(span));
-            console.assert(
-                typeof span.height === 'number' && isFinite(span.height)
-            );
-            span.height *= factor;
-            span.depth *= factor;
-        }
-    }
-
-    return result;
+    return makeSpanOfType('mop', result, 'op-limits');
 }
 
 /**
@@ -2145,7 +1261,7 @@ function decompose(context, atoms) {
  * @private
  */
 
-function makeRoot(parseMode, body) {
+export function makeRoot(parseMode, body) {
     parseMode = parseMode || 'math';
     const result = new MathAtom(parseMode, 'root', body || []);
     if (result.body.length === 0 || result.body[0].type !== 'first') {
@@ -2153,11 +1269,3 @@ function makeRoot(parseMode, body) {
     }
     return result;
 }
-
-// Export the public interface for this module
-export default {
-    MathAtom,
-    decompose,
-    makeRoot,
-    GREEK_REGEX,
-};

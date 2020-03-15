@@ -4,6 +4,7 @@
  */
 
 import FontMetrics from './fontMetrics.js';
+import { svgBodyToMarkup, svgBodyHeight } from './svg-span.js';
 
 /**
  * Return a string made up of the concatenated arguments.
@@ -317,35 +318,35 @@ export class Span {
         }
     }
 
-    addMarginRight(margin) {
-        if (margin && margin !== 0) {
-            if (
-                !this.style &&
-                !/qquad|quad|enspace|thickspace|mediumspace|thinspace|negativethinspace/.test(
-                    this.classes
-                )
-            ) {
-                // Attempt to use a class instead of an explicit margin
-                const cls = {
-                    '2': 'qquad',
-                    '1': 'quad',
-                    '.5': 'enspace',
-                    '0.277778': 'thickspace',
-                    '0.222222': 'mediumspace',
-                    '0.166667': 'thinspace',
-                    '-0.166667': 'negativethinspace',
-                }[margin.toString()];
-                if (cls) {
-                    this.classes += ' rspace ' + cls;
-                    return;
-                }
-            }
-            if (!this.style) this.style = {};
-            const currentMargin = parseFloat(this.style['margin-right'] || '0');
-            this.style['margin-right'] =
-                toString(currentMargin + margin) + 'em';
-        }
-    }
+    // addMarginRight(margin) {
+    //     if (margin && margin !== 0) {
+    //         if (
+    //             !this.style &&
+    //             !/qquad|quad|enspace|thickspace|mediumspace|thinspace|negativethinspace/.test(
+    //                 this.classes
+    //             )
+    //         ) {
+    //             // Attempt to use a class instead of an explicit margin
+    //             const cls = {
+    //                 '2': 'qquad',
+    //                 '1': 'quad',
+    //                 '.5': 'enspace',
+    //                 '0.277778': 'thickspace',
+    //                 '0.222222': 'mediumspace',
+    //                 '0.166667': 'thinspace',
+    //                 '-0.166667': 'negativethinspace',
+    //             }[margin.toString()];
+    //             if (cls) {
+    //                 this.classes += ' rspace ' + cls;
+    //                 return;
+    //             }
+    //         }
+    //         if (!this.style) this.style = {};
+    //         const currentMargin = parseFloat(this.style['margin-right'] || '0');
+    //         this.style['margin-right'] =
+    //             toString(currentMargin + margin) + 'em';
+    //     }
+    // }
     /**
      * Generate the HTML markup to represent this span.
      *
@@ -390,7 +391,7 @@ export class Span {
         }
         // Collapse 'empty' spans
         if (
-            (body === '\u200b' || !body) &&
+            (body === '\u200b' || (!body && !this.svgBody)) &&
             (!this.classes || this.classes === 'ML__selected')
         ) {
             result = '';
@@ -410,21 +411,14 @@ export class Span {
             }
 
             if (this.attributes) {
-                for (const attribute in this.attributes) {
-                    if (
-                        Object.prototype.hasOwnProperty.call(
-                            this.attributes,
-                            attribute
+                result +=
+                    ' ' +
+                    Object.keys(this.attributes)
+                        .map(
+                            attribute =>
+                                `${attribute}="${this.attributes[attribute]}"`
                         )
-                    ) {
-                        result +=
-                            ' ' +
-                            attribute +
-                            '="' +
-                            this.attributes[attribute] +
-                            '"';
-                    }
-                }
+                        .join(' ');
             }
 
             const classes = this.classes.split(' ');
@@ -458,7 +452,7 @@ export class Span {
             }
 
             if (classList.length > 0) {
-                result += ' class="' + classList + '"';
+                result += ` class="${classList}"`;
             }
 
             // If a `hskip` value was provided, add it to the margin-left
@@ -506,7 +500,9 @@ export class Span {
 
             // If there is some SVG markup associated with this span,
             // include it now
-            if (this.svgOverlay) {
+            if (this.svgBody) {
+                result += svgBodyToMarkup(this.svgBody);
+            } else if (this.svgOverlay) {
                 result += '<span style="';
                 result += 'display: inline-block;';
                 result += 'height:' + (this.height + this.depth) + 'em;';
@@ -737,7 +733,7 @@ function lastSpanType(span) {
  * @memberof module:core/span
  * @private
  */
-function coalesce(spans) {
+export function coalesce(spans) {
     if (!spans || spans.length === 0) return [];
 
     spans[0].children = coalesce(spans[0].children);
@@ -756,7 +752,7 @@ function coalesce(spans) {
 // UTILITY FUNCTIONS
 //----------------------------------------------------------------------------
 
-function height(spans) {
+export function height(spans) {
     if (!spans) return 0;
     if (Array.isArray(spans)) {
         return spans.reduce((acc, x) => Math.max(acc, x.height), 0);
@@ -764,7 +760,7 @@ function height(spans) {
     return spans.height;
 }
 
-function depth(spans) {
+export function depth(spans) {
     if (!spans) return 0;
     if (Array.isArray(spans)) {
         return spans.reduce((acc, x) => Math.max(acc, x.depth), 0);
@@ -772,7 +768,7 @@ function depth(spans) {
     return spans.depth;
 }
 
-function skew(spans) {
+export function skew(spans) {
     if (!spans) return 0;
     if (Array.isArray(spans)) {
         let result = 0;
@@ -784,7 +780,7 @@ function skew(spans) {
     return spans.skew;
 }
 
-function italic(spans) {
+export function italic(spans) {
     if (!spans) return 0;
     if (Array.isArray(spans)) {
         return spans[spans.length - 1].italic;
@@ -820,7 +816,7 @@ export function makeSpan(content, classes) {
  * @memberof module:core/span
  * @private
  */
-function makeSymbol(fontFamily, symbol, classes) {
+export function makeSymbol(fontFamily, symbol, classes) {
     const result = new Span(symbol, classes);
 
     const metrics = FontMetrics.getCharacterMetrics(symbol, fontFamily);
@@ -882,13 +878,13 @@ function makeFontSizer(context, fontSize) {
  * @memberof module:core/span
  * @private
  */
-function makeSpanOfType(type, content, classes) {
+export function makeSpanOfType(type, content, classes) {
     const result = makeSpan(content, classes);
     result.type = type;
     return result;
 }
 
-function makeOp(content, classes) {
+export function makeOp(content, classes) {
     return makeSpanOfType('mop', content, classes);
 }
 
@@ -896,15 +892,15 @@ export function makeOrd(content, classes) {
     return makeSpanOfType('mord', content, classes);
 }
 
-function makeRel(content, classes) {
+export function makeRel(content, classes) {
     return makeSpanOfType('mrel', content, classes);
 }
 
-function makeClose(content, classes) {
+export function makeClose(content, classes) {
     return makeSpanOfType('mclose', content, classes);
 }
 
-function makeOpen(content, classes) {
+export function makeOpen(content, classes) {
     return makeSpanOfType('mopen', content, classes);
 }
 
@@ -912,11 +908,11 @@ export function makeInner(content, classes) {
     return makeSpanOfType('minner', content, classes);
 }
 
-function makePunct(content, classes) {
+export function makePunct(content, classes) {
     return makeSpanOfType('mpunct', content, classes);
 }
 
-function makeStyleWrap(type, children, fromStyle, toStyle, classes) {
+export function makeStyleWrap(type, children, fromStyle, toStyle, classes) {
     classes = classes || '';
     classes += ' style-wrap ';
 
@@ -939,7 +935,7 @@ function makeStyleWrap(type, children, fromStyle, toStyle, classes) {
  * @param {string} svgMarkup
  * @private
  */
-function makeSVG(body, svgMarkup, svgStyle) {
+export function makeSVGOverlay(body, svgMarkup, svgStyle) {
     body.svgOverlay = svgMarkup;
     body.svgStyle = svgStyle;
     return body;
@@ -1093,35 +1089,6 @@ export function makeVlist(context, elements, pos, posData) {
     return result;
 }
 
-// /**
-//  *
-//  * @param {Span|Span[]} base
-//  * @param {number} strutHeight
-//  * @param {number} strutDepth
-//  */
-// function makeStrut(base, strutHeight, strutDepth) {
-//     return [base];
-//     const topStrut = makeSpan(null, 'ML__strut');
-//     topStrut.height = strutHeight || 0;
-//     topStrut.depth = 0;
-//     topStrut.setStyle('height', strutHeight, 'em');
-
-//     const bottomStrut = makeSpan(null, 'ML__strut--bottom');
-//     bottomStrut.height = strutHeight || 0;
-//     bottomStrut.depth = strutDepth || 0;
-//     bottomStrut.setStyle('height', strutHeight + strutDepth, 'em');
-//     if (strutDepth) {
-//         bottomStrut.setStyle('vertical-align', -strutDepth, 'em');
-//     }
-
-//     if (Array.isArray(base)) {
-//         base.unshift(topStrut);
-//         base.unshift(bottomStrut);
-//         return base;
-//     }
-//     return makeOrd([topStrut, bottomStrut, base]);
-// }
-
 //----------------------------------------------------------------------------
 // FONTS
 //----------------------------------------------------------------------------
@@ -1200,30 +1167,17 @@ function getFontName(symbol, fontFamily) {
     return FONT_NAME[fontFamily];
 }
 
-// Export the public interface for this module
-export default {
-    coalesce,
-    makeSpan,
-    makeOp,
-    makeOrd,
-    makeRel,
-    makeClose,
-    makeOpen,
-    makeInner,
-    makePunct,
-
-    makeSpanOfType,
-    makeSymbol,
-    makeVlist,
-    makeHlist,
-    makeStyleWrap,
-
-    // makeStrut,
-
-    makeSVG,
-
-    height,
-    depth,
-    skew,
-    italic,
-};
+/**
+ * Create a span that consist of a (stretchy) SVG element
+ *
+ * @param {string} svgBodyName
+ * @param {string} classes list of classes attributes associated with this node
+ * @private
+ */
+export function makeSVGSpan(svgBodyName, classes) {
+    const span = new Span(null, classes);
+    span.svgBody = svgBodyName;
+    span.height = svgBodyHeight(svgBodyName);
+    span.depth = span.height / 2;
+    return span;
+}

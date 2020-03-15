@@ -32,7 +32,7 @@ import Mathstyle from './mathstyle.js';
  * @global
  * @private
  */
-class Context {
+export class Context {
     constructor(from) {
         this.macros = from.macros || {};
         this.generateID = from.generateID ? from.generateID : false;
@@ -99,7 +99,3 @@ class Context {
         return this.clone({ mathstyle: this.mathstyle.sup() });
     }
 }
-
-export default {
-    Context,
-};

@@ -80,20 +80,22 @@ export const SIGMAS = {
 // \font\a=cmex10
 // \showthe\fontdimenX\a
 // where X is the corresponding variable number. These correspond to the font
-// parameters of the extension fonts (family 3). See the TeXbook, page 441.
-const xi1 = 0;
-const xi2 = 0;
-const xi3 = 0;
-const xi4 = 0;
-const xi5 = 0.431;
-const xi6 = 1;
-const xi7 = 0;
-const xi8 = 0.04;
+// parameters of the extension fonts (family 3). See the TeXbook, page 433
+const xi1 = 0; // Slant per pt
+const xi2 = 0; // Interword space
+const xi3 = 0; // Interword stretch
+const xi4 = 0; // Interword shrink
+const xi5 = 0.431; // x-height
+const xi6 = 1; // Quad width
+const xi7 = 0; // Extra space
+const xi8 = 0.04; // Default rule thickness, TexBook p.390
 const xi9 = 0.111;
 const xi10 = 0.166;
 const xi11 = 0.2;
 const xi12 = 0.6;
 const xi13 = 0.1;
+// Note: xi14: offset from baseline for superscript TexBook p. 179
+// Note: xi16: offset from baseline for subscript
 
 // This value determines how large a pt is, for metrics which are defined in
 // terms of pts.

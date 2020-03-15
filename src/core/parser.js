@@ -3,13 +3,15 @@
  * @private
  */
 
-import Definitions from './definitions.js';
+import {
+    getEnvironmentInfo,
+    getInfo,
+    matchCodepoint,
+} from './definitions-utils.js';
 import Color from './color.js';
 import FontMetrics from './fontMetrics.js';
 import Lexer from './lexer.js';
-import MathAtomModule from './mathAtom.js';
-
-const MathAtom = MathAtomModule.MathAtom;
+import { MathAtom } from './mathAtom.js';
 
 /**
  * A parser transforms a list of tokens into a list of MathAtom.
@@ -169,7 +171,7 @@ class Parser {
             index < this.tokens.length &&
             this.tokens[index].type === 'command'
         ) {
-            const info = Definitions.getInfo(
+            const info = getInfo(
                 '\\' + this.tokens[index].value,
                 this.parseMode,
                 this.macros
@@ -562,7 +564,7 @@ class Parser {
         // The \begin command is immediately followed by the environment
         // name, as a string argument
         const envName = this.scanArg('string');
-        const env = Definitions.getEnvironmentInfo(envName);
+        const env = getEnvironmentInfo(envName);
         // If the environment has some arguments, parse them
         const args = [];
         if (env && env.params) {
@@ -706,11 +708,7 @@ class Parser {
             // it had when we encountered the infix. However, since all infix are
             // only defined in 'math' mode, we can use the 'math' constant
             // for the parseMode
-            const info = Definitions.getInfo(
-                '\\' + infix.value,
-                'math',
-                this.macros
-            );
+            const info = getInfo('\\' + infix.value, 'math', this.macros);
             if (info) {
                 result = [
                     new MathAtom(
@@ -790,7 +788,7 @@ class Parser {
         } else if (token.type === 'literal') {
             delim = token.value;
         }
-        const info = Definitions.getInfo(delim, 'math', this.macros);
+        const info = getInfo(delim, 'math', this.macros);
         if (!info) return null;
         if (info.type === 'mopen' || info.type === 'mclose') {
             return delim;
@@ -1159,7 +1157,7 @@ class Parser {
             } else {
                 result = this.scanMacro(token.value);
                 if (!result) {
-                    const info = Definitions.getInfo(
+                    const info = getInfo(
                         '\\' + token.value,
                         this.parseMode,
                         this.macros
@@ -1321,11 +1319,7 @@ class Parser {
                 }
             }
         } else if (token.type === 'literal') {
-            const info = Definitions.getInfo(
-                token.value,
-                this.parseMode,
-                this.macros
-            );
+            const info = getInfo(token.value, this.parseMode, this.macros);
             if (info) {
                 const style = { ...this.style };
                 if (info.baseFontFamily)
@@ -1347,7 +1341,7 @@ class Parser {
                     this.style
                 );
             }
-            result.latex = Definitions.matchCodepoint(
+            result.latex = matchCodepoint(
                 this.parseMode,
                 token.value.codePointAt(0)
             );

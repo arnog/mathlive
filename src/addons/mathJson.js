@@ -8,9 +8,14 @@
  */
 
 import Lexer from '../core/lexer.js';
-import MathAtom from '../core/mathAtom.js';
+import { MathAtom } from '../core/mathAtom.js';
 import ParserModule from '../core/parser.js';
-import Definitions from '../core/definitions.js';
+import {
+    unicodeStringToLatex,
+    getInfo,
+    mathVariantToUnicode,
+    RIGHT_DELIM,
+} from '../core/definitions-utils.js';
 
 const CANONICAL_NAMES = {
     // CONSTANTS
@@ -455,7 +460,7 @@ function getLatexForSymbol(name) {
             .replace('%', '');
     }
     if (name.length > 1) {
-        const info = Definitions.getInfo('\\' + name, 'math');
+        const info = getInfo('\\' + name, 'math');
         if (
             info &&
             (!info.fontFamily ||
@@ -466,7 +471,7 @@ function getLatexForSymbol(name) {
         }
     }
     if (!result) {
-        result = Definitions.unicodeStringToLatex('math', name);
+        result = unicodeStringToLatex('math', name);
     }
 
     return result;
@@ -495,7 +500,7 @@ function getCanonicalName(latex) {
     let result = CANONICAL_NAMES[latex];
     if (!result) {
         if (/^\\[^{}]+$/.test(latex)) {
-            const info = Definitions.getInfo(latex, 'math', {});
+            const info = getInfo(latex, 'math', {});
             if (info) {
                 result = info.value || latex.slice(1);
             } else {
@@ -913,20 +918,20 @@ function parseDelim(expr, ldelim, rdelim, options) {
         let pairedDelim = true;
         if (atom.type === 'mopen') {
             ldelim = atom.latex.trim();
-            rdelim = Definitions.RIGHT_DELIM[ldelim];
+            rdelim = RIGHT_DELIM[ldelim];
         } else if (atom.type === 'sizeddelim') {
             ldelim = atom.delim;
-            rdelim = Definitions.RIGHT_DELIM[ldelim];
+            rdelim = RIGHT_DELIM[ldelim];
         } else if (atom.type === 'leftright') {
             pairedDelim = false;
             ldelim = atom.leftDelim;
             rdelim = atom.rightDelim;
             // If we have an unclosed smart fence, assume the right delim is
             // matching the left delim
-            if (rdelim === '?') rdelim = Definitions.RIGHT_DELIM[ldelim];
+            if (rdelim === '?') rdelim = RIGHT_DELIM[ldelim];
         } else if (atom.type === 'textord') {
             ldelim = atom.latex.trim();
-            rdelim = Definitions.RIGHT_DELIM[ldelim];
+            rdelim = RIGHT_DELIM[ldelim];
         }
         if (ldelim && rdelim) {
             if (ldelim === '|' && rdelim === '|') {
@@ -1236,11 +1241,7 @@ function parsePrimary(expr, options) {
         // in parseExpression()
         if (!isOperator(atom)) {
             // This doesn't look like a textord operator
-            if (
-                !Definitions.RIGHT_DELIM[
-                    atom.latex ? atom.latex.trim() : atom.body
-                ]
-            ) {
+            if (!RIGHT_DELIM[atom.latex ? atom.latex.trim() : atom.body]) {
                 // Not an operator, not a fence, it's a symbol or a function
                 if (isFunction(val)) {
                     // It's a function
@@ -1376,8 +1377,8 @@ function parsePrimary(expr, options) {
             atom.type === 'leftright')
     ) {
         if (atom.type === 'sizeddelim') {
-            for (const d in Definitions.RIGHT_DELIM) {
-                if (atom.delim === Definitions.RIGHT_DELIM[d]) {
+            for (const d in RIGHT_DELIM) {
+                if (atom.delim === RIGHT_DELIM[d]) {
                     // This is (most likely) a closing delim, exit.
                     // There are ambiguous cases, for example |x|y|z|.
                     expr.index += 1;
@@ -1648,7 +1649,7 @@ function escapeText(s) {
  * @method MathAtom#toAST
  * @private
  */
-MathAtom.MathAtom.prototype.toAST = function(options) {
+MathAtom.prototype.toAST = function(options) {
     const MATH_VARIANTS = {
         bb: 'double-struck',
         cal: 'script',
@@ -1776,9 +1777,7 @@ MathAtom.MathAtom.prototype.toAST = function(options) {
                     }
                 }
             }
-            variantSym = escapeText(
-                Definitions.mathVariantToUnicode(sym, variant, style)
-            );
+            variantSym = escapeText(mathVariantToUnicode(sym, variant, style));
             if (variantSym !== sym) {
                 // If there's a specific Unicode character matching this one
                 // no need to record a variant.

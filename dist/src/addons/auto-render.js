@@ -1,6 +1,6 @@
 /* eslint no-console:0 */
 import '../core/mathAtom.js'; // eslint-disable-line no-unused-vars
-import Definitions from '../core/definitions.js';
+import { MACROS } from '../core/definitions-utils.js';
 
 function findEndOfMath(delimiter, text, startIndex) {
     // Adapted from
@@ -428,7 +428,7 @@ function renderMathInElement(elem, options) {
         options.processScriptTypePattern = new RegExp(
             options.processScriptType
         );
-        options.macros = Definitions.MACROS;
+        options.macros = MACROS;
 
         // Validate the namespace (used for `data-` attributes)
         if (options.namespace) {

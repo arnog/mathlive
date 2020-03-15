@@ -1,4 +1,4 @@
-import MathAtom from '../core/mathAtom.js';
+import { MathAtom } from '../core/mathAtom.js';
 import Popover from '../editor/editor-popover.js';
 import '../core/definitions.js';
 

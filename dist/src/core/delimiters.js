@@ -23,14 +23,16 @@
  * @private
  */
 
-import Definitions from './definitions.js';
-import Span from './span.js';
+import { getValue } from './definitions-utils.js';
+import {
+    makeSpanOfType,
+    makeSymbol,
+    makeSpan,
+    makeVlist,
+    makeStyleWrap,
+} from './span.js';
 import Mathstyle from './mathstyle.js';
 import FontMetrics from './fontMetrics.js';
-
-const makeSymbol = Span.makeSymbol;
-const makeSpan = Span.makeSpan;
-const makeVlist = Span.makeVlist;
 
 /**
  * Makes a small delimiter. This is a delimiter that comes in the Main-Regular
@@ -40,15 +42,9 @@ const makeVlist = Span.makeVlist;
  * @private
  */
 function makeSmallDelim(type, delim, style, center, context, classes) {
-    const text = makeSymbol('AMS-Regular', Definitions.getValue('math', delim));
+    const text = makeSymbol('AMS-Regular', getValue('math', delim));
 
-    const span = Span.makeStyleWrap(
-        type,
-        text,
-        context.mathstyle,
-        style,
-        classes
-    );
+    const span = makeStyleWrap(type, text, context.mathstyle, style, classes);
 
     if (center) {
         span.setTop(
@@ -72,10 +68,10 @@ function makeSmallDelim(type, delim, style, center, context, classes) {
 function makeLargeDelim(type, delim, size, center, context, classes) {
     const inner = makeSymbol(
         'Size' + size + '-Regular',
-        Definitions.getValue('math', delim)
+        getValue('math', delim)
     );
 
-    const result = Span.makeStyleWrap(
+    const result = makeStyleWrap(
         type,
         makeSpan(inner, 'delimsizing size' + size),
         context.mathstyle,
@@ -114,7 +110,7 @@ function makeInner(symbol, font) {
     // @todo: revisit if all this wrapping is needed or if the spans could
     // be simplified
     const inner = makeSpan(
-        makeSymbol(font, Definitions.getValue('math', symbol)),
+        makeSymbol(font, getValue('math', symbol)),
         'delimsizinginner' + sizeClass
     );
 
@@ -134,7 +130,7 @@ function makeStackedDelim(type, delim, heightTotal, center, context, classes) {
     let middle;
     let repeat;
     let bottom;
-    top = repeat = bottom = Definitions.getValue('math', delim);
+    top = repeat = bottom = getValue('math', delim);
     middle = null;
     // Also keep track of what font the delimiters are in
     let font = 'Size1-Regular';
@@ -263,17 +259,17 @@ function makeStackedDelim(type, delim, heightTotal, center, context, classes) {
 
     // Get the metrics of the four sections
     const topMetrics = FontMetrics.getCharacterMetrics(
-        Definitions.getValue('math', top),
+        getValue('math', top),
         font
     );
     const topHeightTotal = topMetrics.height + topMetrics.depth;
     const repeatMetrics = FontMetrics.getCharacterMetrics(
-        Definitions.getValue('math', repeat),
+        getValue('math', repeat),
         font
     );
     const repeatHeightTotal = repeatMetrics.height + repeatMetrics.depth;
     const bottomMetrics = FontMetrics.getCharacterMetrics(
-        Definitions.getValue('math', bottom),
+        getValue('math', bottom),
         font
     );
     const bottomHeightTotal = bottomMetrics.height + bottomMetrics.depth;
@@ -281,7 +277,7 @@ function makeStackedDelim(type, delim, heightTotal, center, context, classes) {
     let middleFactor = 1;
     if (middle !== null) {
         const middleMetrics = FontMetrics.getCharacterMetrics(
-            Definitions.getValue('math', middle),
+            getValue('math', middle),
             font
         );
         middleHeightTotal = middleMetrics.height + middleMetrics.depth;
@@ -346,7 +342,7 @@ function makeStackedDelim(type, delim, heightTotal, center, context, classes) {
     if (typeof context.opacity === 'number')
         inner.setStyle('opacity', context.opacity);
 
-    return Span.makeStyleWrap(
+    return makeStyleWrap(
         type,
         makeSpan(inner, 'delimsizing mult'),
         context.mathstyle,
@@ -568,7 +564,7 @@ function traverseSequence(delim, height, sequence, context) {
  * @param {string} delim
  * @param {number} height
  * @param {boolean} center
- * @param {Context.Context} context
+ * @param {Context} context
  * @param {string[]} classes
  * @memberof module:delimiters
  * @private
@@ -596,7 +592,7 @@ function makeCustomSizedDelim(type, delim, height, center, context, classes) {
 
     // Look through the sequence
     const delimType = traverseSequence(
-        Definitions.getValue('math', delim),
+        getValue('math', delim),
         height,
         sequence,
         context
@@ -683,7 +679,7 @@ function makeLeftRightDelim(type, delim, height, depth, context, classes) {
  * @private
  */
 function makeNullFence(type, context, classes) {
-    return Span.makeSpanOfType(
+    return makeSpanOfType(
         type,
         '',
         'sizing' + // @todo not useful, redundant with 'nulldelimiter'

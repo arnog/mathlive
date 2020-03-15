@@ -2,7 +2,7 @@
  * @private
  */
 
-import Definitions from '../core/definitions.js';
+import { LETTER } from '../core/definitions-utils.js';
 
 /**
  * The index of this array is a keystroke combination as returned by the key
@@ -805,10 +805,7 @@ function validateShortcut(mode, siblings, shortcut) {
     nothing = !sibling || sibling.type === 'first'; // start of a group
     if (sibling) {
         text = sibling.mode === 'text';
-        letter =
-            !text &&
-            sibling.type === 'mord' &&
-            Definitions.LETTER.test(sibling.body);
+        letter = !text && sibling.type === 'mord' && LETTER.test(sibling.body);
         digit =
             !text && sibling.type === 'mord' && /[0-9]+$/.test(sibling.body);
         isFunction = !text && sibling.isFunction;

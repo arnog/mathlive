@@ -11,8 +11,13 @@
  * @module editor/editableMathlist
  * @private
  */
-import Definitions from '../core/definitions.js';
-import MathAtom from '../core/mathAtom.js';
+import {
+    LETTER_AND_DIGITS,
+    COMMAND_MODE_CHARACTERS,
+    RIGHT_DELIM,
+    getEnvironmentInfo,
+} from '../core/definitions-utils.js';
+import { MathAtom, makeRoot } from '../core/mathAtom.js';
 import Lexer from '../core/lexer.js';
 import ParserModule from '../core/parser.js';
 import MathPath from './editor-mathpath.js';
@@ -57,7 +62,7 @@ function isEmptyMathlist(mathlist) {
  * @memberof module:editor/editableMathlist
  */
 function EditableMathlist(config, target) {
-    this.root = MathAtom.makeRoot();
+    this.root = makeRoot();
     this.path = [{ relation: 'body', offset: 0 }];
     this.extent = 0;
 
@@ -205,12 +210,7 @@ EditableMathlist.prototype.adjustPlaceholder = function() {
         if (placeholder) {
             // ◌ ⬚
             const placeholderAtom = [
-                new MathAtom.MathAtom(
-                    'math',
-                    'placeholder',
-                    '⬚',
-                    this.anchorStyle()
-                ),
+                new MathAtom('math', 'placeholder', '⬚', this.anchorStyle()),
             ];
             Array.prototype.splice.apply(
                 siblings,
@@ -330,7 +330,7 @@ EditableMathlist.prototype.wordBoundary = function(path, dir) {
     while (
         iter.sibling(i) &&
         iter.sibling(i).mode === 'text' &&
-        Definitions.LETTER_AND_DIGITS.test(iter.sibling(i).body)
+        LETTER_AND_DIGITS.test(iter.sibling(i).body)
     ) {
         i += dir;
     }
@@ -377,14 +377,14 @@ EditableMathlist.prototype.wordBoundaryOffset = function(offset, dir) {
     if (siblings[offset].mode !== 'text') return offset;
 
     let result;
-    if (Definitions.LETTER_AND_DIGITS.test(siblings[offset].body)) {
+    if (LETTER_AND_DIGITS.test(siblings[offset].body)) {
         // (1) We start with an alphanumerical character
         let i = offset;
         let match;
         do {
             match =
                 siblings[i].mode === 'text' &&
-                Definitions.LETTER_AND_DIGITS.test(siblings[i].body);
+                LETTER_AND_DIGITS.test(siblings[i].body);
             i += dir;
         } while (siblings[i] && match);
         result = siblings[i] ? i - 2 * dir : i - dir;
@@ -623,7 +623,7 @@ function arrayJoinColumns(row, separator, style) {
             if (sep) {
                 result.push(sep);
             } else {
-                sep = new MathAtom.MathAtom('math', 'mpunct', separator, style);
+                sep = new MathAtom('math', 'mpunct', separator, style);
             }
             result = result.concat(cell);
         }
@@ -647,7 +647,7 @@ function arrayJoinRows(array, separators, style) {
         if (sep) {
             result.push(sep);
         } else {
-            sep = new MathAtom.MathAtom('math', 'mpunct', separators[0], style);
+            sep = new MathAtom('math', 'mpunct', separators[0], style);
         }
         result = result.concat(arrayJoinColumns(row, separators[1]));
     }
@@ -972,14 +972,14 @@ EditableMathlist.prototype.selectGroup_ = function() {
         while (
             siblings[start] &&
             siblings[start].mode === 'text' &&
-            Definitions.LETTER_AND_DIGITS.test(siblings[start].body)
+            LETTER_AND_DIGITS.test(siblings[start].body)
         ) {
             start -= 1;
         }
         while (
             siblings[end] &&
             siblings[end].mode === 'text' &&
-            Definitions.LETTER_AND_DIGITS.test(siblings[end].body)
+            LETTER_AND_DIGITS.test(siblings[end].body)
         ) {
             end += 1;
         }
@@ -2315,15 +2315,13 @@ EditableMathlist.prototype.insert = function(s, options) {
             // Short-circuit the tokenizer and parser if in command mode
             mathlist = [];
             for (const c of s) {
-                if (Definitions.COMMAND_MODE_CHARACTERS.test(c)) {
-                    mathlist.push(
-                        new MathAtom.MathAtom('command', 'command', c)
-                    );
+                if (COMMAND_MODE_CHARACTERS.test(c)) {
+                    mathlist.push(new MathAtom('command', 'command', c));
                 }
             }
         } else if (s === '\u001b') {
             // Insert an 'esc' character triggers the command mode
-            mathlist = [new MathAtom.MathAtom('command', 'command', '\\')];
+            mathlist = [new MathAtom('command', 'command', '\\')];
         } else {
             s = parseMathString(s, this.config);
 
@@ -2483,7 +2481,7 @@ EditableMathlist.prototype._insertSmartFence = function(fence, style) {
     if (fence === '[' || fence === '\\[') fence = '\\lbrack';
     if (fence === ']' || fence === '\\]') fence = '\\rbrack';
 
-    const rDelim = Definitions.RIGHT_DELIM[fence];
+    const rDelim = RIGHT_DELIM[fence];
     if (rDelim && !(parent.type === 'leftright' && parent.leftDelim === '|')) {
         // We have a valid open fence as input
         let s = '';
@@ -2519,8 +2517,8 @@ EditableMathlist.prototype._insertSmartFence = function(fence, style) {
 
     // We did not have a valid open fence. Maybe it's a close fence?
     let lDelim;
-    Object.keys(Definitions.RIGHT_DELIM).forEach(delim => {
-        if (fence === Definitions.RIGHT_DELIM[delim]) lDelim = delim;
+    Object.keys(RIGHT_DELIM).forEach(delim => {
+        if (fence === RIGHT_DELIM[delim]) lDelim = delim;
     });
     if (lDelim) {
         // We found the matching open fence, so it was a valid close fence.
@@ -2639,7 +2637,7 @@ EditableMathlist.prototype.insertSuggestion = function(s, l) {
     // Make a mathlist from the string argument with the `suggestion` property set
     const subs = s.substr(l);
     for (const c of subs) {
-        const atom = new MathAtom.MathAtom('command', 'command', c);
+        const atom = new MathAtom('command', 'command', c);
         atom.suggestion = true;
         mathlist.push(atom);
     }
@@ -3219,7 +3217,7 @@ EditableMathlist.prototype.moveToSuperscript_ = function() {
                     this.siblings().splice(
                         this.anchorOffset() + 1,
                         0,
-                        new MathAtom.MathAtom(
+                        new MathAtom(
                             this.parent().anchorMode,
                             'msubsup',
                             '\u200b',
@@ -3262,7 +3260,7 @@ EditableMathlist.prototype.moveToSubscript_ = function() {
                     this.siblings().splice(
                         this.anchorOffset() + 1,
                         0,
-                        new MathAtom.MathAtom(
+                        new MathAtom(
                             this.parent().anchorMode,
                             'msubsup',
                             '\u200b',
@@ -3384,7 +3382,7 @@ EditableMathlist.prototype.convertParentToArray = function() {
             { '(': 'pmatrix', '\\lbrack': 'bmatrix', '\\lbrace': 'cases' }[
                 parent.leftDelim
             ] || 'matrix';
-        const env = Definitions.getEnvironmentInfo(envName);
+        const env = getEnvironmentInfo(envName);
         const array = [[parent.body]];
         if (env.parser) {
             Object.assign(parent, env.parser(envName, [], array));
@@ -3825,7 +3823,7 @@ function paddedShortcut(s, config) {
 }
 
 function makeFirstAtom() {
-    return new MathAtom.MathAtom('', 'first');
+    return new MathAtom('', 'first');
 }
 
 export default {

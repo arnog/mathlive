@@ -7,8 +7,9 @@
  * @private
  */
 
-import MathAtom from '../core/mathAtom.js';
+import { MathAtom } from '../core/mathAtom.js';
 import Color from '../core/color.js';
+import { emit as emitDefinition } from '../core/definitions-utils.js';
 
 function findLongestRun(atoms, property, value) {
     let i = 0;
@@ -293,6 +294,7 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
  * Given an atom or an array of atoms, return a LaTeX string representation
  * @return {string}
  * @param {string|MathAtom|MathAtom[]} value
+ * @param {boolean} expandMacro
  * @private
  */
 function latexify(parent, value, expandMacro) {
@@ -341,7 +343,7 @@ function latexify(parent, value, expandMacro) {
  * @memberof module:core/mathAtom~MathAtom
  * @private
  */
-MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
+MathAtom.prototype.toLatex = function(expandMacro) {
     expandMacro = expandMacro === undefined ? false : expandMacro;
     let result = '';
     let col,
@@ -349,6 +351,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
     let i = 0;
     const m = !this.latex ? null : this.latex.match(/^(\\[^{\s0-9]+)/);
     const command = m ? m[1] : null;
+    const emit = (parent, atom) => latexify(parent, atom, expandMacro);
 
     // this.mode=='text' is handled in the switch by looking at this.type===''
     switch (this.type) {
@@ -359,14 +362,13 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             if (this.cssId) result += '\\cssId{' + this.cssId + '}{';
 
             if (this.cssClass === 'ML__emph') {
-                result +=
-                    '\\emph{' + latexify(this, this.body, expandMacro) + '}';
+                result += `\\emph{${emit(this, this.body)}`;
             } else {
                 if (this.cssClass) result += '\\class{' + this.cssClass + '}{';
 
                 result += expandMacro
-                    ? latexify(this, this.body, true)
-                    : this.latex || latexify(this, this.body, false);
+                    ? emit(this, this.body)
+                    : this.latex || emit(this, this.body);
 
                 if (this.cssClass) result += '}';
             }
@@ -394,7 +396,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             for (row = 0; row < this.array.length; row++) {
                 for (col = 0; col < this.array[row].length; col++) {
                     if (col > 0) result += ' & ';
-                    result += latexify(this, this.array[row][col], expandMacro);
+                    result += emit(this, this.array[row][col]);
                 }
                 // Adds a separator between rows (but not after the last row)
                 if (row < this.array.length - 1) {
@@ -405,43 +407,40 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             break;
 
         case 'root':
-            result = latexify(this, this.body, expandMacro);
+            result = emit(this, this.body);
             break;
 
         case 'genfrac':
             if (/^(choose|atop|over)$/.test(this.body)) {
                 // Infix commands.
                 result += '{';
-                result += latexify(this, this.numer, expandMacro);
+                result += emit(this, this.numer);
                 result += '\\' + this.body + ' ';
-                result += latexify(this, this.denom, expandMacro);
+                result += emit(this, this.denom);
                 result += '}';
             } else {
                 // @todo: deal with fracs delimiters
                 result += command;
-                result += `{${latexify(
+                result += `{${emit(this, this.numer)}}{${emit(
                     this,
-                    this.numer,
-                    expandMacro
-                )}}{${latexify(this, this.denom, expandMacro)}}`;
+                    this.denom
+                )}}`;
             }
             break;
 
         case 'surd':
             result += '\\sqrt';
             if (this.index) {
-                result += '[';
-                result += latexify(this, this.index, expandMacro);
-                result += ']';
+                result += `[${emit(this, this.index)}]`;
             }
-            result += `{${latexify(this, this.body, expandMacro)}}`;
+            result += `{${emit(this, this.body)}}`;
             break;
 
         case 'leftright':
             if (this.inner) {
                 result += '\\left' + (this.leftDelim || '.');
                 if (this.leftDelim && this.leftDelim.length > 1) result += ' ';
-                result += latexify(this, this.body, expandMacro);
+                result += emit(this, this.body);
                 result += '\\right' + (this.rightDelim || '.');
                 if (this.rightDelim && this.rightDelim.length > 1) {
                     result += ' ';
@@ -456,14 +455,13 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                     // used, e.g., on the clipboard for maximum compatibility
                     // with other LaTeX renderers), drop the `\mleft(` and `\mright`)
                     // commands
-                    result +=
-                        '(' + latexify(this, this.body, expandMacro) + ')';
+                    result += `(${emit(this, this.body)})`;
                 } else {
                     result += '\\mleft' + (this.leftDelim || '.');
                     if (this.leftDelim && this.leftDelim.length > 1) {
                         result += ' ';
                     }
-                    result += latexify(this, this.body, expandMacro);
+                    result += emit(this, this.body);
                     result += '\\mright' + (this.rightDelim || '.');
                     if (this.rightDelim && this.rightDelim.length > 1) {
                         result += ' ';
@@ -480,27 +478,27 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
         case 'rule':
             result += command;
             if (this.shift) {
-                result += `[${latexify(this, this.shift, expandMacro)}em]`;
+                result += `[${emit(this, this.shift)}em]`;
             }
-            result += `{${latexify(
+            result += `{${emit(this, this.width)}em}{${emit(
                 this,
-                this.width,
-                expandMacro
-            )}em}{${latexify(this, this.height, expandMacro)}em}`;
+                this.height
+            )}em}`;
             break;
 
         case 'line':
         case 'overlap':
         case 'accent':
-            result += `${command}{${latexify(this, this.body, expandMacro)}}`;
+            result += `${command}{${emit(this, this.body)}}`;
             break;
 
         case 'overunder':
-            result += `${command}{${latexify(
-                this,
-                this.overscript || this.underscript,
-                expandMacro
-            )}}{${latexify(parent, this.body, expandMacro)}}`;
+            result +=
+                emitDefinition(command, parent, this, emit) ||
+                `${command}{${emit(
+                    this,
+                    this.overscript || this.underscript
+                )}}{${emit(parent, this.body)}}`;
             break;
 
         case 'mord':
@@ -517,11 +515,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                     command
                 )
             ) {
-                result +=
-                    command +
-                    '{' +
-                    latexify(this, this.body, expandMacro) +
-                    '}';
+                result += `${command}{${emit(this, this.body)}}`;
             } else if (command === '\\char"') {
                 result += this.latex + ' ';
             } else if (command === '\\unicode') {
@@ -551,18 +545,10 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 // Not ZERO-WIDTH
                 if (command === '\\mathop') {
                     // The argument to mathop is math, therefor this.body can be an expression
-                    result +=
-                        command +
-                        '{' +
-                        latexify(this, this.body, expandMacro) +
-                        '}';
+                    result += command + '{' + emit(this, this.body) + '}';
                 } else if (command === '\\operatorname') {
                     // The argument to `\operatorname` is 'math' and needs to be latexified
-                    result +=
-                        command +
-                        '{' +
-                        latexify(this, this.body, expandMacro) +
-                        '}';
+                    result += command + '{' + emit(this, this.body) + '}';
                 } else {
                     if (this.latex && this.latex[0] === '\\') {
                         result += this.latex;
@@ -609,9 +595,9 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                     }
                     result += `[${bboxParams.join(',')}]`;
                 }
-                result += `{${latexify(this, this.body, expandMacro)}}`;
+                result += `{${emit(this, this.body)}}`;
             } else if (command === '\\boxed') {
-                result += `\\boxed{${latexify(this, this.body, expandMacro)}}`;
+                result += `\\boxed{${emit(this, this.body)}}`;
             } else {
                 // \\colorbox, \\fcolorbox
                 result += command;
@@ -621,7 +607,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 if (this.backgroundcolor) {
                     result += `{${Color.colorToString(this.backgroundcolor)}}`;
                 }
-                result += `{${latexify(this, this.body, expandMacro)}}`;
+                result += `{${emit(this, this.body)}}`;
             }
             break;
 
@@ -704,7 +690,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                     result += `[${style}]`;
                 }
             }
-            result += `{${latexify(this, this.body, expandMacro)}}`;
+            result += `{${emit(this, this.body)}}`;
             break;
 
         case 'mathstyle':
@@ -739,7 +725,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             break;
     }
     if (this.superscript) {
-        let sup = latexify(this, this.superscript, expandMacro);
+        let sup = emit(this, this.superscript);
         if (sup.length === 1) {
             if (sup === '\u2032') {
                 // PRIME
@@ -754,7 +740,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
         }
     }
     if (this.subscript) {
-        const sub = latexify(this, this.subscript, expandMacro);
+        const sub = emit(this, this.subscript);
         if (sub.length === 1) {
             result += '_' + sub;
         } else {
