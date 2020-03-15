@@ -1,10 +1,70 @@
-## 0.
+## 0.35
+
+### New Features
+
+-   **Extensible (stretchy) symbols**: \
+    #126 (`\overgroup`, `\overrightarrow`, `\overleftrightarrow`), #180 (`\xrightarrow`, `\xrightleftharpoons`), #292(`\widehat`, `\overbrace`, `\underbrace`), #338 (`\vec`, `\bar`).\
+    \
+    This work has been made possible thanks to the financial support of a generous sponsor.\
+    \
+    It is now possible for a symbol with operands above or below, or for a decoration above or below an expression, to stretch (extend) so that its width will match the width of the operands or expression. \
+    These extensible symbols and decorations are important for some domains such as geometry and chemistry.\
+    This release introduces the following new commands:
+
+    -   `\overrightarrow{base}`
+    -   `\overleftarrow{base}`
+    -   `\Overrightarrow{base}`
+    -   `\overleftharpoon{base}`
+    -   `\overrightharpoon{base}`
+    -   `\overleftrightarrow{base}`
+    -   `\overbrace{base}`
+    -   `\overlinesegment{base}`
+    -   `\overgroup{base}`
+    -   `\underrightarrow{base}`
+    -   `\underleftarrow{base}`
+    -   `\underleftrightarrow{base}`
+    -   `\underbrace{base}`
+    -   `\underlinesegment{base}`
+    -   `\undergroup{base}`
+    -   `\xrightarrow[below]{above}`
+    -   `\xleftarrow[below]{above}`
+    -   `\xRightarrow[below]{above}`
+    -   `\xLeftarrow[below]{above}`
+    -   `\xleftharpoonup[below]{above}`
+    -   `\xleftharpoondown[below]{above}`
+    -   `\xrightharpoonup[below]{above}`
+    -   `\xrightharpoondown[below]{above}`
+    -   `\xlongequal[below]{above}`
+    -   `\xtwoheadleftarrow[below]{above}`
+    -   `\xtwoheadrightarrow[below]{above}`
+    -   `\xleftrightarrow[below]{above}`
+    -   `\xLeftrightarrow[below]{above}`
+    -   `\xrightleftharpoons[below]{above}`
+    -   `\xleftrightharpoons[below]{above}`
+    -   `\xhookleftarrow[below]{above}`
+    -   `\xhookrightarrow[below]{above}`
+    -   `\xmapsto[below]{above}`
+    -   `\xtofrom[below]{above}`
+    -   `\xrightleftarrows[below]{above}`
+    -   `\xrightequilibrium[below]{above}`
+    -   `\xleftequilibrium[below]{above}`
+
+    In addition, the following commands can now be used to represent stretchy accents:
+
+    -   `\widehat{base}`
+    -   `\widecheck{base}`
+    -   `\widetilde{base}`
+    -   `\utilde{base}`
 
 ### Bug Fixes
 
--   #371: When clicking after the last element in the mathfield, always set the anchor to be the last element in the root, i.e. as if `moveToMathFieldEnd` had been performed. For example, if the content is "x^2", clicking after the end of the field will put the caret after the last element (not after the "2" in the superscript)
+-   **#371**: When clicking after the last element in the mathfield, always set the anchor to be the last element in the root, i.e. as if `moveToMathFieldEnd` had been performed. For example, if the content is "x^2", clicking after the end of the field will put the caret after the last element (not after the "2" in the superscript)
 
--   #372: Using an argument in a macro will result in the argument to be substituted without a group being inserted. Previously, `#1` with `ax` as a value for the first argument would have resulted in `{ax}`. This was noticeable when using the `x^2` key in the virtual keyboard: if the equation was `ab`, pressing that key resulted in `{ab}^2`. It now results in `ab^2`
+-   **#372**: Using an argument in a macro will result in the argument to be substituted without a group being inserted. Previously, `#1` with `ax` as a value for the first argument would have resulted in `{ax}`. This was noticeable when using the `x^2` key in the virtual keyboard: if the equation was `ab`, pressing that key resulted in `{ab}^2`. It now results in `ab^2`
+
+### Code Maintenance
+
+-   Re-factored the definitions of functions, symbols and environments which are now split in multiple files instead of being all contained in `core/definitions.js`
 
 ## 0.34 (Feb 5, 2020)
 
