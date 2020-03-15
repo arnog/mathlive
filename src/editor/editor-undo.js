@@ -1,7 +1,7 @@
 /**
  *
  * @class UndoManager
- * @property {MathAtom[]} mathlist
+ * @property {Atom[]} mathlist
  * @property {object[]} stack Stack of undo/redo states
  * @property {number} index Index pointing to the undo/redo stack
  * @property {number} maximumDepth Maximum number of undo/redo states

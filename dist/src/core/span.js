@@ -3,7 +3,7 @@
  * @private
  */
 
-import FontMetrics from './fontMetrics.js';
+import FontMetrics from './font-metrics.js';
 import { svgBodyToMarkup, svgBodyHeight } from './svg-span.js';
 
 /**

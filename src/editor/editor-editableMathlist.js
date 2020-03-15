@@ -17,7 +17,7 @@ import {
     RIGHT_DELIM,
     getEnvironmentInfo,
 } from '../core/definitions-utils.js';
-import { MathAtom, makeRoot } from '../core/mathAtom.js';
+import { Atom, makeRoot } from '../core/atom.js';
 import Lexer from '../core/lexer.js';
 import ParserModule from '../core/parser.js';
 import MathPath from './editor-mathpath.js';
@@ -48,7 +48,7 @@ function isEmptyMathlist(mathlist) {
  * @param {Object.<string, any>} config
  * @param {HTMLElement} target - A target object passed as the first argument of
  * callback functions. Typically, a MathField.
- * @property {MathAtom[]} root - The root element of the math expression.
+ * @property {Atom[]} root - The root element of the math expression.
  * @property {Object[]} path - The path to the element that is the
  * anchor for the selection.
  * @property {number} extent - Number of atoms in the selection. `0` if the
@@ -96,7 +96,7 @@ EditableMathlist.prototype._announce = function(command, mathlist, atoms) {
  * @param {function} cb - A predicate being passed a path and the atom at this
  * path. Return true to include the designated atom in the result.
  * @param {number} dir - `+1` to iterate forward, `-1` to iterate backward.
- * @return {MathAtom[]} The atoms for which the predicate is true
+ * @return {Atom[]} The atoms for which the predicate is true
  * @method EditableMathlist#filter
  * @private
  */
@@ -210,7 +210,7 @@ EditableMathlist.prototype.adjustPlaceholder = function() {
         if (placeholder) {
             // ◌ ⬚
             const placeholderAtom = [
-                new MathAtom('math', 'placeholder', '⬚', this.anchorStyle()),
+                new Atom('math', 'placeholder', '⬚', this.anchorStyle()),
             ];
             Array.prototype.splice.apply(
                 siblings,
@@ -518,7 +518,7 @@ EditableMathlist.prototype.setRange = function(from, to, options) {
 
 /**
  * Convert an array row/col into an array index.
- * @param {MathAtom[][]} array
+ * @param {Atom[][]} array
  * @param {object} rowCol
  * @return {number}
  * @private
@@ -538,7 +538,7 @@ function arrayIndex(array, rowCol) {
 
 /**
  * Convert an array index (scalar) to an array row/col.
- * @param {MathAtom[][]} array
+ * @param {Atom[][]} array
  * @param {number|string} index
  * @return {object}
  * - row: number
@@ -567,7 +567,7 @@ function arrayColRow(array, index) {
  * Return the array cell corresponding to colrow or null (for example in
  * a sparse array)
  *
- * @param {MathAtom[][]} array
+ * @param {Atom[][]} array
  * @param {number|string|object} colrow
  * @private
  */
@@ -586,7 +586,7 @@ function arrayCell(array, colrow) {
 
 /**
  * Total numbers of cells (include sparse cells) in the array.
- * @param {MathAtom[][]} array
+ * @param {Atom[][]} array
  * @private
  */
 function arrayCellCount(array) {
@@ -603,10 +603,10 @@ function arrayCellCount(array) {
 
 /**
  * Join all the cells at the indicated row into a single mathlist
- * @param {MathAtom[]} row
+ * @param {Atom[]} row
  * @param {string} separator
  * @param {object} style
- * @return {MathAtom[]}
+ * @return {Atom[]}
  * @private
  */
 function arrayJoinColumns(row, separator, style) {
@@ -623,7 +623,7 @@ function arrayJoinColumns(row, separator, style) {
             if (sep) {
                 result.push(sep);
             } else {
-                sep = new MathAtom('math', 'mpunct', separator, style);
+                sep = new Atom('math', 'mpunct', separator, style);
             }
             result = result.concat(cell);
         }
@@ -633,10 +633,10 @@ function arrayJoinColumns(row, separator, style) {
 
 /**
  * Join all the rows into a single atom list
- * @param {MathAtom} array
+ * @param {Atom} array
  * @param {strings} separators
  * @param {object} style
- * @return {MathAtom[]}
+ * @return {Atom[]}
  * @private
  */
 function arrayJoinRows(array, separators, style) {
@@ -647,7 +647,7 @@ function arrayJoinRows(array, separators, style) {
         if (sep) {
             result.push(sep);
         } else {
-            sep = new MathAtom('math', 'mpunct', separators[0], style);
+            sep = new Atom('math', 'mpunct', separators[0], style);
         }
         result = result.concat(arrayJoinColumns(row, separators[1]));
     }
@@ -656,7 +656,7 @@ function arrayJoinRows(array, separators, style) {
 
 /**
  * Return the number of non-empty cells in that column
- * @param {MathAtom} array
+ * @param {Atom} array
  * @param {number} col
  * @return {number}
  * @private
@@ -680,7 +680,7 @@ function arrayColumnCellCount(array, col) {
 
 /**
  * Remove the indicated column from the array
- * @param {MathAtom} array
+ * @param {Atom} array
  * @param {number} col
  * @private
  */
@@ -696,7 +696,7 @@ function arrayRemoveColumn(array, col) {
 
 /**
  * Remove the indicated row from the array
- * @param {MathAtom} atom
+ * @param {Atom} atom
  * @param {number} row
  * @private
  */
@@ -706,7 +706,7 @@ function arrayRemoveRow(array, row) {
 
 /**
  * Return the first non-empty cell, row by row
- * @param {MathAtom[][]} array
+ * @param {Atom[][]} array
  * @return {string}
  * @private
  */
@@ -722,7 +722,7 @@ function arrayFirstCellByRow(array) {
  * Adjust colRow to point to the next/previous available row
  * If no more rows, go to the next/previous column
  * If no more columns, return null
- * @param {MathAtom[][]} array
+ * @param {Atom[][]} array
  * @param {object} colRow
  * @param {number} dir
  * @private
@@ -755,7 +755,7 @@ function arrayAdjustRow(array, colRow, dir) {
  * - `ancestor` = 1: parent
  * - `ancestor` = 2: grand-parent
  * - etc...
- * @return {MathAtom}
+ * @return {Atom}
  * @method EditableMathlist#ancestor
  * @private
  */
@@ -874,7 +874,7 @@ EditableMathlist.prototype.insertFirstAtom = function() {
 };
 
 /**
- * @return {MathAtom[]} array of children of the parent
+ * @return {Atom[]} array of children of the parent
  * @method EditableMathlist#siblings
  * @private
  */
@@ -901,7 +901,7 @@ EditableMathlist.prototype.siblings = function() {
  * Sibling, relative to `anchor`
  * `sibling(0)` = start of selection
  * `sibling(-1)` = sibling immediately left of start offset
- * @return {MathAtom}
+ * @return {Atom}
  * @method EditableMathlist#sibling
  * @private
  */
@@ -1033,8 +1033,8 @@ EditableMathlist.prototype.deleteAll_ = function() {
 
 /**
  *
- * @param {MathAtom} atom
- * @param {MathAtom} target
+ * @param {Atom} atom
+ * @param {Atom} target
  * @return {boolean} True if  `atom` is the target, or if one of the
  * children of `atom` contains the target
  * @function atomContains
@@ -1076,7 +1076,7 @@ function atomContains(atom, target) {
 }
 
 /**
- * @param {MathAtom} atom
+ * @param {Atom} atom
  * @return {boolean} True if `atom` is within the selection range
  * @todo: poorly named, since this is specific to the selection, not the math
  * field
@@ -1095,7 +1095,7 @@ EditableMathlist.prototype.contains = function(atom) {
 };
 
 /**
- * @return {MathAtom[]} The currently selected atoms, or `null` if the
+ * @return {Atom[]} The currently selected atoms, or `null` if the
  * selection is collapsed
  * @method EditableMathlist#getSelectedAtoms
  * @private
@@ -2316,12 +2316,12 @@ EditableMathlist.prototype.insert = function(s, options) {
             mathlist = [];
             for (const c of s) {
                 if (COMMAND_MODE_CHARACTERS.test(c)) {
-                    mathlist.push(new MathAtom('command', 'command', c));
+                    mathlist.push(new Atom('command', 'command', c));
                 }
             }
         } else if (s === '\u001b') {
             // Insert an 'esc' character triggers the command mode
-            mathlist = [new MathAtom('command', 'command', '\\')];
+            mathlist = [new Atom('command', 'command', '\\')];
         } else {
             s = parseMathString(s, this.config);
 
@@ -2637,7 +2637,7 @@ EditableMathlist.prototype.insertSuggestion = function(s, l) {
     // Make a mathlist from the string argument with the `suggestion` property set
     const subs = s.substr(l);
     for (const c of subs) {
-        const atom = new MathAtom('command', 'command', c);
+        const atom = new Atom('command', 'command', c);
         atom.suggestion = true;
         mathlist.push(atom);
     }
@@ -3217,7 +3217,7 @@ EditableMathlist.prototype.moveToSuperscript_ = function() {
                     this.siblings().splice(
                         this.anchorOffset() + 1,
                         0,
-                        new MathAtom(
+                        new Atom(
                             this.parent().anchorMode,
                             'msubsup',
                             '\u200b',
@@ -3260,7 +3260,7 @@ EditableMathlist.prototype.moveToSubscript_ = function() {
                     this.siblings().splice(
                         this.anchorOffset() + 1,
                         0,
-                        new MathAtom(
+                        new Atom(
                             this.parent().anchorMode,
                             'msubsup',
                             '\u200b',
@@ -3823,7 +3823,7 @@ function paddedShortcut(s, config) {
 }
 
 function makeFirstAtom() {
-    return new MathAtom('', 'first');
+    return new Atom('', 'first');
 }
 
 export default {

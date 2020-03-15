@@ -32,8 +32,7 @@ import {
     makeStyleWrap,
 } from './span.js';
 import Mathstyle from './mathstyle.js';
-import FontMetrics from './fontMetrics.js';
-
+import FontMetrics from './font-metrics.js';
 /**
  * Makes a small delimiter. This is a delimiter that comes in the Main-Regular
  * font, but is restyled to either be in textstyle, scriptstyle, or

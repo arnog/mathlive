@@ -2,13 +2,13 @@
  *
  * This module outputs a formula to MathML.
  *
- * To use it, use the {@linkcode MathAtom#toMathML MathAtom.toMathML()}  method.
+ * To use it, use the {@linkcode Atom#toMathML Atom.toMathML()}  method.
  *
  * @module addons/outputMathML
  * @private
  */
 
-import { MathAtom } from '../core/mathAtom.js';
+import { Atom } from '../core/atom.js';
 import Color from '../core/color.js';
 
 const SPECIAL_OPERATORS = {
@@ -498,7 +498,7 @@ function scanOperator(stream, final, options) {
  * Given an atom or an array of atoms, return their MathML representation as
  * a string.
  * @return {string}
- * @param {string|MathAtom|MathAtom[]} input
+ * @param {string|Atom|Atom[]} input
  * @param {number} initial index of the input to start conversion from
  * @param {number} final last index of the input to stop conversion to
  * @private
@@ -593,7 +593,7 @@ function toString(atoms) {
  * @return {string}
  * @private
  */
-MathAtom.prototype.toMathML = function(options) {
+Atom.prototype.toMathML = function(options) {
     // For named SVG atoms, map to a Unicode char
     const SVG_CODE_POINTS = {
         widehat: '^',
@@ -1096,7 +1096,7 @@ MathAtom.prototype.toMathML = function(options) {
     return result;
 };
 
-MathAtom.toMathML = function(atoms, options) {
+Atom.toMathML = function(atoms, options) {
     return toMathML(atoms, 0, 0, options).mathML;
 };
 

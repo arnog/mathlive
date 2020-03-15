@@ -6,7 +6,7 @@ import {
     depth as spanDepth,
     height as spanHeight,
 } from './span.js';
-import { METRICS as FONTMETRICS } from './fontMetrics.js';
+import { METRICS as FONTMETRICS } from './font-metrics.js';
 import Delimiters from './delimiters.js';
 import Mathstyle from './mathstyle.js';
 
@@ -249,7 +249,6 @@ registerAtomType('array', (context, atom) => {
  * Used in `decomposeArray` to create a column separator span.
  *
  * @param {number} width
- * @memberof module:mathAtom
  * @private
  */
 function makeColGap(width) {
@@ -260,7 +259,6 @@ function makeColGap(width) {
 
 /**
  * Used in decomposeArray to create a column of repeating elements.
- * @memberof module:mathAtom
  * @private
  */
 function makeColOfRepeatingElements(context, body, offset, elem) {

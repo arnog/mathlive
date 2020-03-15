@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>addons/outputMathML - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>Atom - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -58,7 +58,7 @@ writeCookie('symbol-access', 'private')
 
 <main id="main">
     
-        <h1 class="page-title">addons/outputMathML</h1>
+        <h1 class="page-title">Atom</h1>
     
 
     
@@ -70,8 +70,16 @@ writeCookie('symbol-access', 'private')
 
 <header>
     
+        <h2>
+            <span class="ancestors"><a href="module-core_atom.html">core/atom</a>.</span>
         
-            
+        Atom
+        </h2>
+        
+            <div class="class-description"><p>An atom is an object encapsulating an elementary mathematical unit,
+independent of its graphical representation.</p>
+<p>It keeps track of the content, while the dimensions, position and style
+are tracked by Span objects which are created by the <code>decompose()</code> functions.</p></div>
         
     
 </header>
@@ -80,121 +88,17 @@ writeCookie('symbol-access', 'private')
     <div class="container-overview">
     
         
-            <div class="description"><p>This module outputs a formula to MathML.</p>
-<p>To use it, use the <code>Atom.toMathML()</code>  method.</p></div>
-        
-
-        
-            
-<div class='method'>
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
 <div class='method private'>
 
     
+    <h2>Constructor</h2>
+    
 
-    <h4 class="name" id="~isSuperscriptAtom">isSuperscriptAtom<span class="signature">(stream<span class="signature-type">: object</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+    <h4 class="name" id="Atom">new Atom<span class="signature">(mode<span class="signature-type">: string</span>, type<span class="signature-type">: string</span>, body<span class="signature-type">: string | Array</span>, style<span class="signature-type">: object</span>)</span><span class="type-signature">:  <a href="Atom.html">Atom</a></span><span class="type-signature"><span class="attrib">private</span></span></h4>
 
     
 
 
-
-<div class="description">
-    <p>Return true if the current atom is a standalone superscript atom
-i.e. an atom with no content, except of a superscript.
-Superscripts can be encoded either as an attribute on the last atom
-or as a standalone, empty, atom following the one to which it applies.</p>
-</div>
 
 
 
@@ -213,7 +117,79 @@ or as a standalone, empty, atom following the one to which it applies.</p>
 
         <div class="signature">
             
-                <span class="name"><code>stream</code></span>
+                <span class="name"><code>mode</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>type</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>body</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+|
+
+<span class="param-type">Array</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>style</code></span>
             
 
             <span class="type">
@@ -238,183 +214,6 @@ or as a standalone, empty, atom following the one to which it applies.</p>
     
 
     
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method private'>
-
-    
-
-    <h4 class="name" id="~toMathML">toMathML<span class="signature">(input<span class="signature-type">: string | <a href="Atom.html">Atom</a> | Atom[]</span>, initial<span class="signature-type">: number</span>, final<span class="signature-type">: number</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Given an atom or an array of atoms, return their MathML representation as
-a string.</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>input</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">string</span>
-|
-
-<span class="param-type"><a href="Atom.html">Atom</a></span>
-|
-
-<span class="param-type">Atom[]</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>initial</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">number</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>index of the input to start conversion from</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>final</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">number</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>last index of the input to stop conversion to</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-</div>
-
-    
-
-    
     
         &rarr; 
     
@@ -422,7 +221,7 @@ a string.</p>
 <span class="param-desc">
     
         : 
-<span class="param-type">string</span>
+<span class="param-type"><a href="Atom.html">Atom</a></span>
 
 
         &nbsp;&nbsp;
@@ -437,6 +236,296 @@ a string.</p>
     
 
 
+    <h5 class="subsection-title">Properties</h5>
+
+    
+
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>mode</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p><code>'display'</code>, <code>'command'</code>, etc...</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>type</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>Type can be one of:</p>
+<ul>
+<li><code>mord</code>: ordinary symbol, e.g. <code>x</code>, <code>\alpha</code></li>
+<li><code>textord</code>: ordinary characters</li>
+<li><code>mop</code>: operators, including special functions, <code>\sin</code>, <code>\sum</code>, <code>\cap</code>.</li>
+<li><code>mbin</code>: binary operator: <code>+</code>, <code>*</code>, etc...</li>
+<li><code>mrel</code>: relational operator: <code>=</code>, <code>\ne</code>, etc...</li>
+<li><code>mpunct</code>: punctuation: <code>,</code>, <code>:</code>, etc...</li>
+<li><code>mopen</code>: opening fence: <code>(</code>, <code>\langle</code>, etc...</li>
+<li><code>mclose</code>: closing fence: <code>)</code>, <code>\rangle</code>, etc...</li>
+<li><code>minner</code>: special layout cases, overlap, <code>\left...\right</code></li>
+</ul>
+<p>In addition to these basic types, which correspond to the TeX atom types,
+some atoms represent more complex compounds, including:</p>
+<ul>
+<li><code>space</code> and <code>spacing</code>: blank space between atoms</li>
+<li><code>mathstyle</code>: to change the math style used: <code>display</code> or <code>text</code>.
+The layout rules are different for each, the latter being more compact and
+intended to be incorporated with surrounding non-math text.</li>
+<li><code>root</code>: a group, which has no parent (only one per formula)</li>
+<li><code>group</code>: a simple group of atoms, for example from a <code>{...}</code></li>
+<li><code>sizing</code>: set the size of the font used</li>
+<li><code>rule</code>: draw a line, for the <code>\rule</code> command</li>
+<li><code>line</code>: used by <code>\overline</code> and <code>\underline</code> commands</li>
+<li><code>box</code>: a border drawn around an expression and change its background color</li>
+<li><code>overlap</code>: display a symbol <em>over</em> another</li>
+<li><code>overunder</code>: displays an annotation above or below a symbol</li>
+<li><code>array</code>: a group, which has children arranged in rows. Used
+by environments such as <code>matrix</code>, <code>cases</code>, etc...</li>
+<li><code>genfrac</code>: a generalized fraction: a numerator and denominator, separated
+by an optional line, and surrounded by optional fences</li>
+<li><code>surd</code>: a surd, aka root</li>
+<li><code>leftright</code>: used by the <code>\left</code> and <code>\right</code> commands</li>
+<li><code>delim</code>: some delimiter</li>
+<li><code>sizeddelim</code>: a delimiter that can grow</li>
+</ul>
+<p>The following types are used by the editor:</p>
+<ul>
+<li><code>command</code> indicate a command being entered. The text is displayed in
+blue in the editor.</li>
+<li><code>error</code>: indicate a command that is unknown, for example <code>\xyzy</code>. The text
+is displayed with a wavy red underline in the editor.</li>
+<li><code>placeholder</code>: indicate a temporary item. Placeholders are displayed
+as a dashed square in the editor.</li>
+<li><code>first</code>: a special, empty, atom put as the first atom in math lists in
+order to be able to position the caret before the first element. Aside from
+the caret, they display nothing.</li>
+</ul>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>body</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+|
+
+<span class="param-type">Atom[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last">
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>superscript</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">Atom[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last">
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>subscript</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">Atom[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last">
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>numer</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">Atom[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last">
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>denom</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">Atom[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last">
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>captureSelection</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">boolean</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>if true, this atom does not let its
+children be selected. Used by the <code>\enclose</code> annotations, for example.</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>skipBoundary</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">boolean</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>if true, when the caret reaches the
+first position in this element's body, it automatically moves to the
+outside of the element. Conversely, when the caret reaches the position
+right after this element, it automatically moves to the last position
+inside this element.</p>
+                
+            </span>
+        </div>
+
+    
+
+
+
+
 <dl class="details">
 
     
@@ -489,7 +578,21 @@ a string.</p>
 
 </div>
 
-        
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
     
 
     

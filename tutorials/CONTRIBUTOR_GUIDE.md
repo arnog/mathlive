@@ -460,7 +460,7 @@ The following types are used by the editor:
 
 A **math list** is simply an array of atoms. Although it's a common data
 structure there is no class to represent it: it's simply an `Array` of
-`MathAtom` objects.
+`Atom` objects.
 
 ### Lexer
 
@@ -502,16 +502,16 @@ Here's a brief guide to the files of the project:
     which symbol or atom type they map to. Used by the `Parser`
 -   **core/color.js** Support to parse color arguments
 
--   **core/mathAtom.js** Implements the `MathAtom` class: atoms to spans
+-   **core/atom.js** Implements the `Atom` class: atoms to spans
 -   **core.delimiters.js** Rendering (atoms to span) for delimiters.
 -   **core/context.js** Rendering context of the current parse level (math style,
-    color, font size, font family, font style, etc...). Used by MathAtom while
+    color, font size, font family, font style, etc...). Used by Atom while
     generating spans
 -   **core/mathstyle.js** Provides info about the ** math styles**: display, text,
     scripttext, scripscripttext and their tight variants.
--   **core/fontMetrics.js** Provides glyph metrics: height above baseline, depth
+-   **core/font-metrics.js** Provides glyph metrics: height above baseline, depth
     below baseline, italic correction.
--   **core/fontMetricsData.js** Used by `fontMetrics.js`
+-   **core/font-metrics-data.js** Used by `font-metrics.js`
 
 -   **core/span.js** Implements the `Span` class: spans to markup
 
@@ -549,8 +549,8 @@ time. It's your chance to return info that will be used by to render the atom.
 **(2)** If you can use the existing atom types, great. If needed, modify an
 existing atom type to support what you want, including passing additional
 parameters. If no atom types match, create a new one by adding a new
-`MathAtom.decompose<atom-type>()` function and calling it from
-`MathAtom.decompose()`.
+`Atom.decompose<atom-type>()` function and calling it from
+`Atom.decompose()`.
 
 **(3)** Call `makeSpan()` and its variants in your decompose function to construct
 a representation of the atom.

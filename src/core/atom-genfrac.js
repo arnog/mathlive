@@ -1,6 +1,6 @@
 import { registerAtomType, decompose } from './atom-utils.js';
 import Mathstyle from './mathstyle.js';
-import { METRICS as FONTMETRICS } from './fontMetrics.js';
+import { METRICS as FONTMETRICS } from './font-metrics.js';
 import { makeSpan, makeOrd, makeHlist, makeVlist } from './span.js';
 import Delimiters from './delimiters.js';
 

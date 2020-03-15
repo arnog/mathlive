@@ -20,7 +20,7 @@
  */
 
 import Lexer from './core/lexer.js';
-import { MathAtom } from './core/mathAtom.js';
+import { Atom } from './core/atom.js';
 import { decompose } from './core/atom-utils.js';
 import ParserModule from './core/parser.js';
 import { coalesce, makeSpan } from './core/span.js';
@@ -71,7 +71,7 @@ function toMarkup(text, mathstyle, format, macros) {
     //
     // 2. Parse each token in the formula
     //    Turn the list of tokens in the formula into
-    //    a tree of high-level MathAtom, e.g. 'genfrac'.
+    //    a tree of high-level Atom, e.g. 'genfrac'.
     //
 
     const mathlist = ParserModule.parseTokens(tokens, 'math', null, macros);
@@ -168,7 +168,7 @@ function makeMathField(element, config) {
  * @function module:mathlive#latexToMathML
  */
 function toMathML(latex, options) {
-    if (!MathAtom.toMathML) {
+    if (!Atom.toMathML) {
         console.warn('The MathML module is not loaded.');
         return '';
     }
@@ -183,7 +183,7 @@ function toMathML(latex, options) {
         options.macros
     );
 
-    return MathAtom.toMathML(mathlist, options);
+    return Atom.toMathML(mathlist, options);
 }
 
 /**
@@ -201,7 +201,7 @@ function toMathML(latex, options) {
  * @function module:mathlive#latexToAST
  */
 function latexToAST(latex, options) {
-    if (!MathAtom.toAST) {
+    if (!Atom.toAST) {
         console.warn('The AST module is not loaded.');
         return {};
     }
@@ -216,7 +216,7 @@ function latexToAST(latex, options) {
         options.macros
     );
 
-    return MathAtom.toAST(mathlist, options);
+    return Atom.toAST(mathlist, options);
 }
 
 /**
@@ -290,7 +290,7 @@ function astToLatex(ast, options) {
  * @function module:mathlive#latexToSpeakableText
  */
 function latexToSpeakableText(latex, options) {
-    if (!MathAtom.toSpeakableText) {
+    if (!Atom.toSpeakableText) {
         console.warn('The outputSpokenText module is not loaded.');
         return '';
     }
@@ -305,7 +305,7 @@ function latexToSpeakableText(latex, options) {
         options.macros
     );
 
-    return MathAtom.toSpeakableText(mathlist, options);
+    return Atom.toSpeakableText(mathlist, options);
 }
 
 function removeHighlight(node) {

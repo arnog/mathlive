@@ -1,5 +1,5 @@
 import { registerAtomType, decompose } from './atom-utils.js';
-import { METRICS as FONTMETRICS } from './fontMetrics.js';
+import { METRICS as FONTMETRICS } from './font-metrics.js';
 import {
     makeSVGSpan,
     makeSpan,

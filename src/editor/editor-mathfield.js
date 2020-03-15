@@ -5,7 +5,7 @@
  * @private
  */
 import { suggest, commandAllowed, MACROS } from '../core/definitions-utils.js';
-import { MathAtom, makeRoot } from '../core/mathAtom.js';
+import { Atom, makeRoot } from '../core/atom.js';
 import { decompose } from '../core/atom-utils.js';
 import Lexer from '../core/lexer.js';
 import ParserModule from '../core/parser.js';
@@ -30,7 +30,7 @@ import '../addons/outputSpokenText.js';
     The OutputLatex, OutputMathML, mathJson and OutputSpokenText  modules are required,
     even though they are not referenced directly.
 
-    They modify the MathAtom class, adding toLatex(), toAST(), toMathML() and
+    They modify the Atom class, adding toLatex(), toAST(), toMathML() and
     toSpeakableText() respectively.
 */
 
@@ -2274,7 +2274,7 @@ class MathField {
         // Probably want to generate content on the fly depending on what to speak
         this.accessibleNode.innerHTML =
             "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
-            MathAtom.toMathML(this.mathlist.root, this.config) +
+            Atom.toMathML(this.mathlist.root, this.config) +
             '</math>';
         //this.ariaLiveText.textContent = "";
         //
@@ -2347,11 +2347,11 @@ class MathField {
         } else if (format === 'mathML') {
             result = root.toMathML(this.config);
         } else if (format === 'spoken') {
-            result = MathAtom.toSpeakableText(root, this.config);
+            result = Atom.toSpeakableText(root, this.config);
         } else if (format === 'spoken-text') {
             const saveTextToSpeechMarkup = this.config.textToSpeechMarkup;
             this.config.textToSpeechMarkup = '';
-            result = MathAtom.toSpeakableText(root, this.config);
+            result = Atom.toSpeakableText(root, this.config);
             this.config.textToSpeechMarkup = saveTextToSpeechMarkup;
         } else if (
             format === 'spoken-ssml' ||
@@ -2363,11 +2363,11 @@ class MathField {
             if (format === 'spoken-ssml-withHighlighting') {
                 this.config.generateID = true;
             }
-            result = MathAtom.toSpeakableText(root, this.config);
+            result = Atom.toSpeakableText(root, this.config);
             this.config.textToSpeechMarkup = saveTextToSpeechMarkup;
             this.config.generateID = saveGenerateID;
         } else if (format === 'json') {
-            const json = MathAtom.toAST(root, this.config);
+            const json = Atom.toAST(root, this.config);
             result = JSON.stringify(json);
         } else if (format === 'ASCIIMath') {
             result = toASCIIMath(root, this.config);
@@ -3981,7 +3981,7 @@ class MathField {
                 options.generateID = true;
             }
         }
-        const text = MathAtom.toSpeakableText(atoms, options);
+        const text = Atom.toSpeakableText(atoms, options);
         if (speakOptions.withHighlighting) {
             window.mathlive.readAloudMathField = this;
             this._render({ forHighlighting: true });
@@ -4069,7 +4069,7 @@ function speakableText(mathfield, prefix, atoms) {
     config.textToSpeechMarkup = '';
     config.textToSpeechRulesOptions = config.textToSpeechRulesOptions || {};
     config.textToSpeechRulesOptions.markup = 'none';
-    return prefix + MathAtom.toSpeakableText(atoms, config);
+    return prefix + Atom.toSpeakableText(atoms, config);
 }
 
 /**
@@ -4113,7 +4113,7 @@ function _onAnnounce(target, command, oldMathlist, atomsToSpeak) {
         liveText = speakableText(target, '', target.mathlist.root);
         target.accessibleNode.innerHTML =
             '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
-            MathAtom.toMathML(target.mathlist.root, target.config) +
+            Atom.toMathML(target.mathlist.root, target.config) +
             '</math>';
 
         target.textarea.setAttribute('aria-label', 'after: ' + liveText);

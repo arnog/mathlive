@@ -7,7 +7,7 @@ import {
     depth as spanDepth,
     height as spanHeight,
 } from './span.js';
-import { METRICS as FONTMETRICS } from './fontMetrics.js';
+import { METRICS as FONTMETRICS } from './font-metrics.js';
 
 // An `overunder` atom has the following attributes:
 // - body: atoms[]: atoms displayed on the base line
@@ -67,7 +67,6 @@ registerAtomType('overunder', (context, atom) => {
  * @param {Span} below
  * @param {string} type The type ('mop', 'mrel', etc...) of the result
  * @return {Span}
- * @memberof module:mathAtom
  * @private
  */
 function makeOverunderStack(context, nucleus, above, below, type) {

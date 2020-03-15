@@ -16,7 +16,7 @@
  * @private
  */
 
-import { SIGMAS } from './fontMetrics.js';
+import { SIGMAS } from './font-metrics.js';
 
 const metrics = [{}, {}, {}]; /* textstyle, scriptstyle, scriptscriptstyle */
 let i;

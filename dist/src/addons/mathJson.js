@@ -2,13 +2,13 @@
  * This module parses and outputs an Abstract Syntax Tree representing the
  * formula using the {@tutorial MATHJSON} format.
  *
- * To use it, use the {@linkcode MathAtom#toAST MathAtom.toAST()}  method.
+ * To use it, use the {@linkcode Atom#toAST Atom.toAST()}  method.
  * @module addons/mathJson
  * @private
  */
 
 import Lexer from '../core/lexer.js';
-import { MathAtom } from '../core/mathAtom.js';
+import { Atom } from '../core/atom.js';
 import ParserModule from '../core/parser.js';
 import {
     unicodeStringToLatex,
@@ -1646,10 +1646,10 @@ function escapeText(s) {
  * Return an AST representation of a single atom
  *
  * @return {object}
- * @method MathAtom#toAST
+ * @method Atom#toAST
  * @private
  */
-MathAtom.prototype.toAST = function(options) {
+Atom.prototype.toAST = function(options) {
     const MATH_VARIANTS = {
         bb: 'double-struck',
         cal: 'script',
@@ -1972,7 +1972,7 @@ function parse(atoms, options) {
     return parseSentence({ atoms: filterPresentationAtoms(atoms) }, options);
 }
 
-MathAtom.toAST = function(atoms, options) {
+Atom.toAST = function(atoms, options) {
     return parse(atoms, options);
 };
 

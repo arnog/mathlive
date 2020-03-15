@@ -1,5 +1,5 @@
 /* eslint no-console:0 */
-import '../core/mathAtom.js'; // eslint-disable-line no-unused-vars
+import '../core/atom.js';
 import { MACROS } from '../core/definitions-utils.js';
 
 function findEndOfMath(delimiter, text, startIndex) {

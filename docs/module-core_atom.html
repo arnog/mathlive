@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"><title>addons/outputMathML - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+    <meta charset="utf-8"><title>core/atom - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -58,7 +58,7 @@ writeCookie('symbol-access', 'private')
 
 <main id="main">
     
-        <h1 class="page-title">addons/outputMathML</h1>
+        <h1 class="page-title">core/atom</h1>
     
 
     
@@ -71,8 +71,6 @@ writeCookie('symbol-access', 'private')
 <header>
     
         
-            
-        
     
 </header>
 
@@ -80,83 +78,6 @@ writeCookie('symbol-access', 'private')
     <div class="container-overview">
     
         
-            <div class="description"><p>This module outputs a formula to MathML.</p>
-<p>To use it, use the <code>Atom.toMathML()</code>  method.</p></div>
-        
-
-        
-            
-<div class='method'>
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
 
         
     
@@ -166,6 +87,13 @@ writeCookie('symbol-access', 'private')
 
     
 
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="module-core_atom.Atom.html">Atom</a></dt>
+            <dd></dd>
+        </dl>
     
 
      
@@ -183,17 +111,14 @@ writeCookie('symbol-access', 'private')
 
     
 
-    <h4 class="name" id="~isSuperscriptAtom">isSuperscriptAtom<span class="signature">(stream<span class="signature-type">: object</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
+    <h4 class="name" id=".exports.makeRoot">exports.makeRoot<span class="signature">(parseMode<span class="signature-type">: string</span>, body<span class="signature-type">: Atom[]</span>)</span><span class="type-signature">:  Atom[]</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Return true if the current atom is a standalone superscript atom
-i.e. an atom with no content, except of a superscript.
-Superscripts can be encoded either as an attribute on the last atom
-or as a standalone, empty, atom following the one to which it applies.</p>
+    <p>Return an atom suitable for use as the root of a formula.</p>
 </div>
 
 
@@ -213,13 +138,13 @@ or as a standalone, empty, atom following the one to which it applies.</p>
 
         <div class="signature">
             
-                <span class="name"><code>stream</code></span>
+                <span class="name"><code>parseMode</code></span>
             
 
             <span class="type">
             
                 : 
-<span class="param-type">object</span>
+<span class="param-type">string</span>
 
 
             
@@ -233,113 +158,15 @@ or as a standalone, empty, atom following the one to which it applies.</p>
         </div>
 
     
-</div>
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-</div>
-
-        
-            
-<div class='method private'>
-
-    
-
-    <h4 class="name" id="~toMathML">toMathML<span class="signature">(input<span class="signature-type">: string | <a href="Atom.html">Atom</a> | Atom[]</span>, initial<span class="signature-type">: number</span>, final<span class="signature-type">: number</span>)</span><span class="type-signature">:  string</span><span class="type-signature"><span class="attrib">private</span><span class="attrib">inner</span></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Given an atom or an array of atoms, return their MathML representation as
-a string.</p>
-</div>
-
-
-
-
-
-
-
-
-    
-
-    
-        <!-- <h5>Parameters</h5> -->
-        <div class='param'>
-
-    
 
         <div class="signature">
             
-                <span class="name"><code>input</code></span>
+                <span class="name"><code>body</code></span>
             
 
             <span class="type">
             
                 : 
-<span class="param-type">string</span>
-|
-
-<span class="param-type"><a href="Atom.html">Atom</a></span>
-|
-
 <span class="param-type">Atom[]</span>
 
 
@@ -350,62 +177,6 @@ a string.</p>
 
             
 
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>initial</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">number</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>index of the input to start conversion from</p>
-                    </p>
-                    
-            
-        </div>
-
-    
-
-        <div class="signature">
-            
-                <span class="name"><code>final</code></span>
-            
-
-            <span class="type">
-            
-                : 
-<span class="param-type">number</span>
-
-
-            
-            </span>
-
-            
-
-            
-
-            
-                    <p class="description last">
-                        <p>last index of the input to stop conversion to</p>
-                    </p>
-                    
             
         </div>
 
@@ -422,7 +193,7 @@ a string.</p>
 <span class="param-desc">
     
         : 
-<span class="param-type">string</span>
+<span class="param-type">Atom[]</span>
 
 
         &nbsp;&nbsp;

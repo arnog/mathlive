@@ -1,12 +1,12 @@
 /**
  *
- * @module core/mathatom
+ * @module core/atom
  * @private
  */
 import { ATOM_REGISTRY, decompose } from './atom-utils.js';
 import Mathstyle from './mathstyle.js';
 import { Context } from './context.js';
-import { METRICS as FONTMETRICS } from './fontMetrics.js';
+import { METRICS as FONTMETRICS } from './font-metrics.js';
 import {
     makeSpan,
     makeOrd,
@@ -20,11 +20,11 @@ import {
     italic as spanItalic,
 } from './span.js';
 import Delimiters from './delimiters.js';
-import '../core/atom-genfrac.js';
-import '../core/atom-array.js';
-import '../core/atom-overunder.js';
-import '../core/atom-accent.js';
-import '../core/atom-enclose.js';
+import './atom-genfrac.js';
+import './atom-array.js';
+import './atom-overunder.js';
+import './atom-accent.js';
+import './atom-enclose.js';
 
 const GREEK_REGEX = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5/;
 
@@ -54,10 +54,10 @@ const SIZING_MULTIPLIER = {
  *
  * @param {string} mode
  * @param {string} type
- * @param {string|MathAtom[]} body
+ * @param {string|Atom[]} body
  * @param {Object.<string, any>} [style={}] A set of additional properties to append to
  * the atom
- * @return {MathAtom}
+ * @return {Atom}
  * @property {string} mode `'display'`, `'command'`, etc...
  * @property {string} type - Type can be one of:
  * - `mord`: ordinary symbol, e.g. `x`, `\alpha`
@@ -104,11 +104,11 @@ const SIZING_MULTIPLIER = {
  * order to be able to position the caret before the first element. Aside from
  * the caret, they display nothing.
  *
- * @property {string|MathAtom[]} body
- * @property {MathAtom[]} superscript
- * @property {MathAtom[]} subscript
- * @property {MathAtom[]} numer
- * @property {MathAtom[]} denom
+ * @property {string|Atom[]} body
+ * @property {Atom[]} superscript
+ * @property {Atom[]} subscript
+ * @property {Atom[]} numer
+ * @property {Atom[]} denom
  *
  * @property {boolean} captureSelection if true, this atom does not let its
  * children be selected. Used by the `\enclose` annotations, for example.
@@ -122,7 +122,7 @@ const SIZING_MULTIPLIER = {
  * @class
  * @private
  */
-export class MathAtom {
+export class Atom {
     /**
      *
      * @param {string} mode
@@ -280,8 +280,8 @@ export class MathAtom {
      * and return an array of all the atoms for which the predicate callback
      * is true.
      *
-     * @return {MathAtom[]}
-     * @method MathAtom#filter
+     * @return {Atom[]}
+     * @method Atom#filter
      * @private
      */
     filter(cb) {
@@ -338,23 +338,21 @@ export class MathAtom {
      * leftDelim (resp. rightDelim) will be undefined. We still need to handle
      * those cases.
      *
-     * @method MathAtom#decomposeLeftright
+     * @method Atom#decomposeLeftright
      * @private
      */
     decomposeLeftright(context) {
         if (!this.body) {
             // No body, only a delimiter
             if (this.leftDelim) {
-                return new MathAtom('math', 'mopen', this.leftDelim).decompose(
+                return new Atom('math', 'mopen', this.leftDelim).decompose(
                     context
                 );
             }
             if (this.rightDelim) {
-                return new MathAtom(
-                    'math',
-                    'mclose',
-                    this.rightDelim
-                ).decompose(context);
+                return new Atom('math', 'mclose', this.rightDelim).decompose(
+                    context
+                );
             }
             return null;
         }
@@ -558,7 +556,7 @@ export class MathAtom {
     /**
      * \overline and \underline
      *
-     * @method MathAtom#decomposeLine
+     * @method Atom#decomposeLine
      * @private
      */
     decomposeLine(context) {
@@ -601,7 +599,7 @@ export class MathAtom {
 
     /**
      * \rule
-     * @memberof MathAtom
+     * @memberof Atom
      * @instance
      * @private
      */
@@ -748,7 +746,7 @@ export class MathAtom {
      * @param {Span[]} [phantomBase=null] If not null, the spans to use to
      * calculate the placement of the supsub
      * @return {Span[]}
-     * @method MathAtom#decompose
+     * @method Atom#decompose
      * @private
      */
     decompose(context, phantomBase) {
@@ -862,7 +860,7 @@ export class MathAtom {
         } else {
             console.assert(
                 ATOM_REGISTRY[this.type],
-                'Unknown MathAtom type: "' + this.type + '"'
+                'Unknown Atom type: "' + this.type + '"'
             );
             result = ATOM_REGISTRY[this.type].decompose(context, this);
         }
@@ -1046,7 +1044,7 @@ export class MathAtom {
      * can be retrieved from the span later on (e.g. when the span is clicked on)
      * @param {Context} context
      * @param {Span} span
-     * @method MathAtom#bind
+     * @method Atom#bind
      * @private
      */
     bind(context, span) {
@@ -1067,7 +1065,7 @@ export class MathAtom {
      * @param {Context} context
      * @param {(string|Span[])} body
      * @return {Span}
-     * @method MathAtom#makeSpan
+     * @method Atom#makeSpan
      * @private
      */
     makeSpan(context, body) {
@@ -1162,7 +1160,7 @@ function makeID(context) {
  * @param {Span} above
  * @param {Span} below
  * @return {Span}
- * @memberof module:mathAtom
+ * @memberof module:atom
  * @private
  */
 function makeLimitsStack(context, nucleus, nucleusShift, slant, above, below) {
@@ -1255,17 +1253,17 @@ function makeLimitsStack(context, nucleus, nucleusShift, slant, above, below) {
  * Return an atom suitable for use as the root of a formula.
  *
  * @param {string} parseMode
- * @param {MathAtom[]} body
- * @return {MathAtom[]}
- * @memberof module:core/mathatom
+ * @param {Atom[]} body
+ * @return {Atom[]}
+ * @memberof module:core/atom
  * @private
  */
 
 export function makeRoot(parseMode, body) {
     parseMode = parseMode || 'math';
-    const result = new MathAtom(parseMode, 'root', body || []);
+    const result = new Atom(parseMode, 'root', body || []);
     if (result.body.length === 0 || result.body[0].type !== 'first') {
-        result.body.unshift(new MathAtom('', 'first'));
+        result.body.unshift(new Atom('', 'first'));
     }
     return result;
 }

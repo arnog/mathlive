@@ -13,9 +13,8 @@ export function registerAtomType(name, decompose) {
  * such as 'genfrac'
  *
  * @param {Context} context Font family, variant, size, color, etc...
- * @param {(MathAtom|MathAtom[])} atoms - A single atom or an array of atoms
+ * @param {(Atom|Atom[])} atoms - A single atom or an array of atoms
  * @return {Span[]}
- * @memberof module:core/mathatom
  * @private
  */
 export function decompose(context, atoms) {

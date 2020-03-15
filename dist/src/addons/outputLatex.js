@@ -1,13 +1,13 @@
 /**
  * This module outputs a formula to LaTeX.
  *
- * To use it, use the {@linkcode MathAtom#toLatex MathAtom.toLatex()}  method.
+ * To use it, use the {@linkcode Atom#toLatex Atom.toLatex()}  method.
  *
  * @module addons/outputLatex
  * @private
  */
 
-import { MathAtom } from '../core/mathAtom.js';
+import { Atom } from '../core/atom.js';
 import Color from '../core/color.js';
 import { emit as emitDefinition } from '../core/definitions-utils.js';
 
@@ -39,8 +39,8 @@ function findLongestRun(atoms, property, value) {
 
 /**
  *
- * @param {MathAtom} parent the parent or predecessor of the atom list
- * @param {MathAtom[]} atoms the list of atoms to transform to LaTeX
+ * @param {Atom} parent the parent or predecessor of the atom list
+ * @param {Atom[]} atoms the list of atoms to transform to LaTeX
  * @param {boolean} expandMacro true if macros should be expanded
  * @result {string} a LaTeX string
  * @private
@@ -293,7 +293,7 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
 /**
  * Given an atom or an array of atoms, return a LaTeX string representation
  * @return {string}
- * @param {string|MathAtom|MathAtom[]} value
+ * @param {string|Atom|Atom[]} value
  * @param {boolean} expandMacro
  * @private
  */
@@ -340,10 +340,10 @@ function latexify(parent, value, expandMacro) {
  * no longer round-trip.
  *
  * @return {string}
- * @memberof module:core/mathAtom~MathAtom
+ * @memberof module:core/atom~Atom
  * @private
  */
-MathAtom.prototype.toLatex = function(expandMacro) {
+Atom.prototype.toLatex = function(expandMacro) {
     expandMacro = expandMacro === undefined ? false : expandMacro;
     let result = '';
     let col,
