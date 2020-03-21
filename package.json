@@ -106,7 +106,7 @@
         "@babel/cli": "^7.8.4",
         "@babel/core": "^7.8.7",
         "@babel/preset-env": "^7.8.7",
-        "@babel/register": "^7.8.6",
+        "@babel/register": "^7.9.0",
         "@cortex-js/prettier-config": "^1.0.0",
         "autoprefixer": "^9.7.4",
         "chokidar-cli": "^2.1.0",
