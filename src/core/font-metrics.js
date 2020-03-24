@@ -225,7 +225,7 @@ const extraCharacterMap = {
  * @memberof module:fontMetrics
  * @private
  */
-const getCharacterMetrics = function(character, fontCode) {
+export function getCharacterMetrics(character, fontCode) {
     const fontName =
         {
             cal: 'Caligraphic-Regular',
@@ -276,7 +276,7 @@ const getCharacterMetrics = function(character, fontCode) {
     }
 
     return null;
-};
+}
 
 /**
  *
@@ -286,7 +286,7 @@ const getCharacterMetrics = function(character, fontCode) {
  * @param {number} precision
  * @private
  */
-function convertDimenToEm(value, unit, precision) {
+export function convertDimenToEm(value, unit, precision) {
     if (typeof value === 'string') {
         const m = value.match(/([-+]?[0-9.]*)\s*([a-zA-Z]+)/);
         if (!m) {
@@ -321,14 +321,6 @@ function convertDimenToEm(value, unit, precision) {
     return (value / METRICS.ptPerEm) * f;
 }
 
-function convertDimenToPx(value, unit) {
+export function convertDimenToPx(value, unit) {
     return convertDimenToEm(value, unit) * (4.0 / 3.0) * METRICS.ptPerEm;
 }
-
-export default {
-    toEm: convertDimenToEm,
-    toPx: convertDimenToPx,
-    METRICS,
-    SIGMAS,
-    getCharacterMetrics,
-};

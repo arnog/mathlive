@@ -9,7 +9,7 @@ import {
     matchCodepoint,
 } from './definitions-utils.js';
 import Color from './color.js';
-import FontMetrics from './font-metrics.js';
+import { convertDimenToEm } from './font-metrics.js';
 import Lexer from './lexer.js';
 import { Atom } from './atom.js';
 
@@ -263,6 +263,53 @@ class Parser {
             this.get();
         }
     }
+    parseArguments(info) {
+        if (!info || !info.params) return ['', [], ''];
+        let explicitGroup = '';
+        const args = [];
+        let argString = '';
+        let i = info.infix ? 2 : 0;
+        while (i < info.params.length) {
+            const param = info.params[i];
+            // Parse an argument
+            if (param.optional) {
+                args.push(this.scanOptionalArg(param.type));
+            } else if (param.type.endsWith('*')) {
+                explicitGroup = param.type.slice(0, -1);
+            } else {
+                // If it's not present, scanArg returns null.
+                // Add a placeholder instead.
+                const arg = this.scanArg(param.type);
+                if (
+                    arg &&
+                    arg.length === 1 &&
+                    arg[0].type === 'placeholder' &&
+                    param.placeholder
+                ) {
+                    arg[0].value = param.placeholder;
+                }
+                if (arg) {
+                    args.push(arg);
+                } else if (param.placeholder) {
+                    const placeholder = new Atom(
+                        this.parseMode,
+                        'placeholder',
+                        param.placeholder
+                    );
+                    placeholder.captureSelection = true;
+
+                    args.push([placeholder]);
+                } else {
+                    args.push(this.placeholder());
+                }
+                if (param.type !== 'math' && typeof arg === 'string') {
+                    argString += arg;
+                }
+            }
+            i += 1;
+        }
+        return [explicitGroup, args, argString];
+    }
     parseCommand(command) {
         if (this.hasCommand(command)) {
             this.index++;
@@ -435,30 +482,30 @@ class Parser {
         this.skipWhitespace();
         let result;
         if (this.parseKeyword('pt')) {
-            result = FontMetrics.toEm(value, 'pt');
+            result = convertDimenToEm(value, 'pt');
         } else if (this.parseKeyword('mm')) {
-            result = FontMetrics.toEm(value, 'mm');
+            result = convertDimenToEm(value, 'mm');
         } else if (this.parseKeyword('cm')) {
-            result = FontMetrics.toEm(value, 'cm');
+            result = convertDimenToEm(value, 'cm');
         } else if (this.parseKeyword('ex')) {
-            result = FontMetrics.toEm(value, 'ex');
+            result = convertDimenToEm(value, 'ex');
         } else if (this.parseKeyword('px')) {
-            result = FontMetrics.toEm(value, 'px');
+            result = convertDimenToEm(value, 'px');
         } else if (this.parseKeyword('em')) {
-            result = FontMetrics.toEm(value, 'em');
+            result = convertDimenToEm(value, 'em');
         } else if (this.parseKeyword('bp')) {
-            result = FontMetrics.toEm(value, 'bp');
+            result = convertDimenToEm(value, 'bp');
         } else if (this.parseKeyword('dd')) {
-            result = FontMetrics.toEm(value, 'dd');
+            result = convertDimenToEm(value, 'dd');
         } else if (this.parseKeyword('pc')) {
-            result = FontMetrics.toEm(value, 'pc');
+            result = convertDimenToEm(value, 'pc');
         } else if (this.parseKeyword('in')) {
-            result = FontMetrics.toEm(value, 'in');
+            result = convertDimenToEm(value, 'in');
         } else if (this.parseKeyword('mu')) {
-            result = FontMetrics.toEm(value, 'mu');
+            result = convertDimenToEm(value, 'mu');
         } else {
             // If the units are missing, TeX assumes 'pt'
-            result = FontMetrics.toEm(value, 'pt');
+            result = convertDimenToEm(value, 'pt');
         }
         return result;
     }
@@ -496,7 +543,7 @@ class Parser {
                         const savedParsemode = this.swapParseMode('math');
                         result.push({
                             gap: this.scanImplicitGroup(
-                                token => token.type === '}'
+                                (token) => token.type === '}'
                             ),
                         });
                         this.swapParseMode(savedParsemode);
@@ -522,7 +569,7 @@ class Parser {
         const result = new Atom('math', 'group');
         result.mathstyle = final === ')' ? 'textstyle' : 'displaystyle';
         result.body = this.scanImplicitGroup(
-            token => token.type === 'command' && token.value === final
+            (token) => token.type === 'command' && token.value === final
         );
         this.parseCommand(final);
         this.swapParseMode(savedParsemode);
@@ -542,7 +589,7 @@ class Parser {
         result.latexOpen = result.mathstyle === 'textstyle' ? '$' : '$$';
         result.latexClose = result.latexOpen;
         const savedParsemode = this.swapParseMode('math');
-        result.body = this.scanImplicitGroup(token => token.type === final);
+        result.body = this.scanImplicitGroup((token) => token.type === final);
         this.parseToken(final);
         this.swapParseMode(savedParsemode);
         if (!result.body || result.body.length === 0) return null;
@@ -658,14 +705,16 @@ class Parser {
         // a `'}'`, `'&'`, `'\'`, `'\cr'` or `'\end'` or the end of the stream
         const savedStyle = this.style;
         if (!done) {
-            done = token =>
+            done = (token) =>
                 token.type === '}' ||
                 (token.type === 'literal' && token.value === '&') ||
                 (token.type === 'command' && /^(end|cr|\\)$/.test(token.value));
         }
-        // To handle infix operators, we'll keep track of their prefix
-        // (tokens coming before them)
+        // To handle infix commands, we'll keep track of their prefix
+        // (tokens coming before them) and their arguments
         let infix = null; // A token
+        let infixInfo = null;
+        let infixArgs = [];
         let prefix = null; // A mathlist
         const savedMathlist = this.swapMathList([]);
         // if (this.index >= this.tokens.length) return true;
@@ -690,6 +739,14 @@ class Parser {
                 // The next token is an infix and we have not seen one yet
                 // (there can be only one infix command per implicit group).
                 infix = this.get();
+                // The current parseMode, this.parseMode, may no longer have the value
+                // it had when we encountered the infix. However, since all infix are
+                // only defined in 'math' mode, we can use the 'math' constant
+                // for the parseMode
+                infixInfo = getInfo('\\' + infix.value, 'math', this.macros);
+                if (infixInfo) {
+                    [, infixArgs] = this.parseArguments(infixInfo);
+                }
                 // Save the math list so far and start a new one
                 prefix = this.swapMathList([]);
             } else {
@@ -698,20 +755,16 @@ class Parser {
         }
         let result;
         if (infix) {
-            const suffix = this.swapMathList(savedMathlist);
-            // The current parseMode, this.parseMode, may no longer have the value
-            // it had when we encountered the infix. However, since all infix are
-            // only defined in 'math' mode, we can use the 'math' constant
-            // for the parseMode
-            const info = getInfo('\\' + infix.value, 'math', this.macros);
-            if (info) {
+            if (infixInfo) {
+                infixArgs.unshift(this.swapMathList(savedMathlist)); // suffix
+                infixArgs.unshift(prefix);
                 result = [
                     new Atom(
                         this.parseMode,
-                        info.type,
-                        info.value || infix.value, // Functions don't have
-                        info.parse
-                            ? info.parse('\\' + infix.value, [prefix, suffix])
+                        infixInfo.type,
+                        infixInfo.value || infix.value, // Functions don't have
+                        infixInfo.parse
+                            ? infixInfo.parse('\\' + infix.value, infixArgs)
                             : null
                     ),
                 ];
@@ -740,7 +793,7 @@ class Parser {
     scanGroup() {
         if (!this.parseToken('{')) return null;
         const result = new Atom(this.parseMode, 'group');
-        result.body = this.scanImplicitGroup(token => token.type === '}');
+        result.body = this.scanImplicitGroup((token) => token.type === '}');
         this.parseToken('}');
         result.latexOpen = '{';
         result.latexClose = '}';
@@ -971,7 +1024,7 @@ class Parser {
                         const m = elem.match(/^\s*([0-9.]+)\s*([a-z][a-z])/);
                         if (m) {
                             result = result || {};
-                            result.padding = FontMetrics.toEm(m[1], m[2]);
+                            result.padding = convertDimenToEm(m[1], m[2]);
                         } else {
                             const m = elem.match(/^\s*border\s*:\s*(.*)/);
                             if (m) {
@@ -988,7 +1041,8 @@ class Parser {
                 );
                 this.mathList = this.mathList.concat(
                     this.scanImplicitGroup(
-                        token => token.type === 'literal' && token.value === ']'
+                        (token) =>
+                            token.type === 'literal' && token.value === ']'
                     )
                 );
             }
@@ -1157,11 +1211,8 @@ class Parser {
                         this.parseMode,
                         this.macros
                     );
-                    const args = [];
-                    let argString = '';
 
                     // Parse the arguments
-                    // let mandatoryParamsCount = 0;
                     // If explicitGroup is not empty, an explicit group is expected
                     // to follow the command and will be parsed *after* the
                     // command has been processed.
@@ -1170,53 +1221,11 @@ class Parser {
                     // style has been changed.
                     // In definitions, this is indicated with a parameter type
                     // of 'auto*'
-                    let explicitGroup = '';
-                    if (info && info.params) {
-                        for (const param of info.params) {
-                            // Parse an argument
-                            if (param.optional) {
-                                // If it's not present, return the default argument value
-                                const arg = this.scanOptionalArg(param.type);
-                                // args.push(arg ? arg : param.defaultValue); @todo defaultvalue
-                                args.push(arg);
-                            } else if (param.type.endsWith('*')) {
-                                explicitGroup = param.type.slice(0, -1);
-                            } else {
-                                // mandatoryParamsCount += 1;
-                                // If it's not present, scanArg returns null.
-                                // Add a placeholder instead.
-                                const arg = this.scanArg(param.type);
-                                if (
-                                    arg &&
-                                    arg.length === 1 &&
-                                    arg[0].type === 'placeholder' &&
-                                    param.placeholder
-                                ) {
-                                    arg[0].value = param.placeholder;
-                                }
-                                if (arg) {
-                                    args.push(arg);
-                                } else if (param.placeholder) {
-                                    const placeholder = new Atom(
-                                        this.parseMode,
-                                        'placeholder',
-                                        param.placeholder
-                                    );
-                                    placeholder.captureSelection = true;
-
-                                    args.push([placeholder]);
-                                } else {
-                                    args.push(this.placeholder());
-                                }
-                                if (
-                                    param.type !== 'math' &&
-                                    typeof arg === 'string'
-                                ) {
-                                    argString += arg;
-                                }
-                            }
-                        }
-                    }
+                    const [
+                        explicitGroup,
+                        args,
+                        argString,
+                    ] = this.parseArguments(info);
                     if (info && !info.infix) {
                         // Infix commands should be handled in scanImplicitGroup
                         // If we find an infix command here, it's a syntax error
@@ -1288,7 +1297,7 @@ class Parser {
                             !/^(llap|rlap|class|cssId)$/.test(token.value)
                         ) {
                             result.latex = '\\' + token.value;
-                            if (argString /*|| mandatoryParamsCount > 0*/) {
+                            if (argString) {
                                 result.latex += '{' + argString + '}';
                             }
                             if (result.isFunction && this.smartFence) {

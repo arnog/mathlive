@@ -1,10 +1,10 @@
 /**
  * @typedef {function} MathFieldCallback
- * @param {MathField} mathfield
+ * @param {Mathfield} mathfield
  * @return {void}
  * @global
  */
-declare type MathFieldCallback = (mathfield: MathField) => void;
+declare type MathFieldCallback = (mathfield: Mathfield) => void;
 
 /**
  @typedef MathFieldConfig
@@ -136,10 +136,10 @@ declare type MathFieldConfig = {
  * for inline shortcuts
  * @property {object[]} keystrokeBufferStates The saved state for each of the
  * past keystrokes
- * @class MathField
+ * @class Mathfield
  * @global
  */
-declare class MathField {
+declare class Mathfield {
     /**
      * Reverts this mathfield to its original content.
      *
@@ -150,7 +150,7 @@ declare class MathField {
      * element back into a mathfield, call `MathLive.makeMathField()` on the
      * element again to get a new mathfield object.
      *
-     * @method MathField#$revertToOriginalContent
+     * @method Mathfield#$revertToOriginalContent
      */
     $revertToOriginalContent(): void;
     /**
@@ -295,7 +295,7 @@ declare class MathField {
      * In the above example, both calls invoke the same selector.
      *
      *
-     * @method MathField#$perform
+     * @method Mathfield#$perform
      */
     $perform(command: string | string[]): void;
     /**
@@ -317,7 +317,7 @@ declare class MathField {
      * **Default** = `"latex"`
      * @return {string}
      * @category Accessing the Content
-     * @method MathField#$text
+     * @method Mathfield#$text
      */
     $text(format?: string): string;
     /**
@@ -339,7 +339,7 @@ declare class MathField {
      * **Default** = `"latex"`
      * @return {string}
      * @category Accessing the Content
-     * @method MathField#$selectedText
+     * @method Mathfield#$selectedText
      */
     $selectedText(format?: string): string;
     /**
@@ -348,7 +348,7 @@ declare class MathField {
      * @return {boolean} True if the length of the selection is 0, that is, if it is a single
      * insertion point.
      * @category Selection
-     * @method MathField#$selectionIsCollapsed
+     * @method Mathfield#$selectionIsCollapsed
      */
     $selectionIsCollapsed(): boolean;
     /**
@@ -362,7 +362,7 @@ declare class MathField {
      *
      * @return {number}
      * @category Selection
-     * @method MathField#$selectionDepth
+     * @method Mathfield#$selectionDepth
      */
     $selectionDepth(): number;
     /**
@@ -370,7 +370,7 @@ declare class MathField {
      *
      * @return {boolean}
      * @category Selection
-     * @method MathField#$selectionAtStart
+     * @method Mathfield#$selectionAtStart
      */
     $selectionAtStart(): boolean;
     /**
@@ -378,7 +378,7 @@ declare class MathField {
      *
      * @return {boolean}
      * @category Selection
-     * @method MathField#$selectionAtEnd
+     * @method Mathfield#$selectionAtEnd
      */
     $selectionAtEnd(): boolean;
     /**
@@ -398,7 +398,7 @@ declare class MathField {
      *
      * @return {string}
      * @category Accessing the Content
-     * @method MathField#$latex
+     * @method Mathfield#$latex
      */
     $latex(text?: string, options?: {
         suppressChangeNotifications?: boolean;
@@ -409,13 +409,13 @@ declare class MathField {
      * Note that `this.$el().mathfield === this`
      *
      * @return {HTMLElement}
-     * @method MathField#$el
+     * @method Mathfield#$el
      */
     $el(): HTMLElement;
     /**
      * Inserts a block of text at the current insertion point.
      *
-     * This method can be called explicitly or invoked as a selector with {@linkcode MathField#$perform $perform("insert")}
+     * This method can be called explicitly or invoked as a selector with {@linkcode Mathfield#$perform $perform("insert")}
      * .
      *
      * After the insertion, the selection will be set according to the `selectionMode`.
@@ -472,7 +472,7 @@ declare class MathField {
      * selectionDidChange notifications will not be invoked. Default `false`.
      *
      * @category Changing the Content
-     * @method MathField#$insert
+     * @method Mathfield#$insert
      */
     $insert(s: string, options?: {
         insertionMode: "replaceSelection" | "replaceAll" | "insertBefore" | "insertAfter";
@@ -568,7 +568,7 @@ declare class MathField {
      * '"size5"' is the default size
      *
      * @category Changing the Content
-     * @method MathField#$applyStyle
+     * @method Mathfield#$applyStyle
      *
      */
     $applyStyle(style: {
@@ -594,7 +594,7 @@ declare class MathField {
      * click or other event not involving a keyboard), omit it.
      * @return {boolean}
      * @category Changing the Content
-     * @method MathField#$keystroke
+     * @method Mathfield#$keystroke
      */
     $keystroke(keys: string, evt?: Event): boolean;
     /**
@@ -602,7 +602,7 @@ declare class MathField {
      *
      * @param {string} text - A sequence of one or more characters.
      * @category Changing the Content
-     * @method MathField#$typedText
+     * @method Mathfield#$typedText
      */
     $typedText(text: string): void;
     /**
@@ -611,7 +611,7 @@ declare class MathField {
      *
      * @param {MathFieldConfig} config - See {@tutorial CONFIG Configuration Options} for details.
      *
-     * @method MathField#$setConfig
+     * @method Mathfield#$setConfig
      */
     $setConfig(config: MathFieldConfig): void;
     /**
@@ -623,7 +623,7 @@ declare class MathField {
      * @param {boolean} speakOptions.withHighlighting - If true, synchronized
      * highlighting of speech will happen (if possible). Default is false.
      *
-     * @method MathField#speak_
+     * @method Mathfield#speak_
      */
     speak_(amount: string, speakOptions: {
         withHighlighting: boolean;
@@ -669,7 +669,7 @@ declare class MathField {
  *
  * Use MathLive to render and edit mathematical formulas in your browser.
  *
- * This module exports {@link #functions%3Amathlive some functions} and the {@link #class%3AMathField `MathField`} class.
+ * This module exports {@link #functions%3Amathlive some functions} and the {@link #class%3AMathField `Mathfield`} class.
  *
  * See {@tutorial USAGE_GUIDE the Usage Guide} for more details on how to get
  * started.
@@ -724,7 +724,7 @@ declare module "mathlive" {
      * @param {MathFieldConfig} [config={}] See {@tutorial CONFIG} for details.
      *
      *
-     * @return {MathField}
+     * @return {Mathfield}
      *
      * Given the HTML markup:
      * ```html
@@ -738,7 +738,7 @@ declare module "mathlive" {
      *
      * @function module:mathlive#makeMathField
      */
-    function makeMathField(element: HTMLElement | string, config?: MathFieldConfig): MathField;
+    function makeMathField(element: HTMLElement | string, config?: MathFieldConfig): Mathfield;
     /**
      * Converts a LaTeX string to a string of MathML markup.
      *
@@ -1022,14 +1022,14 @@ declare module "mathlive" {
     }, renderToMarkup?: (...params: any[]) => any, renderToMathML?: (...params: any[]) => any, renderToSpeakableText?: (...params: any[]) => any): void;
     /**
      *
-     * @param {string|HTMLElement|MathField} element
+     * @param {string|HTMLElement|Mathfield} element
      * @param {Object.<string, any>} [options={}]
      * @param {string} options.namespace The namespace used for the `data-`
      * attributes. If you used a namespace with `renderMathInElement`, you must
      * use the same namespace here.
      * @function module:mathlive#revertToOriginalContent
      */
-    function revertToOriginalContent(element: string | HTMLElement | MathField, options?: {
+    function revertToOriginalContent(element: string | HTMLElement | Mathfield, options?: {
         namespace: string;
     }): void;
     /**
@@ -1050,8 +1050,8 @@ declare module "mathlive" {
      * ```
      * $$f(x)=sin(x)$$
      * ```
-     * @param {string | HTMLElement | MathField} element - A DOM element ID, a DOM
-     * element or a MathField.
+     * @param {string | HTMLElement | Mathfield} element - A DOM element ID, a DOM
+     * element or a Mathfield.
      * @param {object} [options={}]
      * @param {string} [options.namespace=""] The namespace used for the `data-`
      * attributes.
@@ -1060,7 +1060,7 @@ declare module "mathlive" {
      * @return {string} the original content of the element.
      * @function module:mathlive#getOriginalContent
      */
-    function getOriginalContent(element: string | HTMLElement | MathField, options?: {
+    function getOriginalContent(element: string | HTMLElement | Mathfield, options?: {
         namespace?: string;
     }): string;
 }

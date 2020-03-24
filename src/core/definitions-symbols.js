@@ -5,7 +5,7 @@ import {
 } from './definitions-utils.js';
 
 // Simple characters allowed in math mode
-defineSymbols('0123456789/@.');
+defineSymbols('0123456789/@.?!');
 defineSymbolRange(0x0041, 0x005a); // a-z
 defineSymbolRange(0x0061, 0x007a); // A-Z
 
@@ -38,9 +38,6 @@ defineSymbol('\\diamondsuit', '\u2662');
 defineSymbol('\\differencedelta', '\u2206', 'mrel');
 
 defineSymbol('\\backslash', '\\');
-
-defineSymbol('?', '?');
-defineSymbol('!', '!');
 
 defineSymbol('\\nabla', '\u2207');
 defineSymbol('\\partial', '\u2202');
@@ -112,89 +109,94 @@ defineSymbol('\\maltese', '\u2720', 'mord', 'ams');
 
 // Arrow Symbols
 
-defineSymbol('\\longrightarrow', '\u27f6', 'mrel');
 defineSymbol('\\rightarrow', '\u2192', 'mrel');
-defineSymbol('\\Longrightarrow', '\u27f9', 'mrel'); // See \\implies
+defineSymbol('\\leftarrow', '\u2190', 'mrel');
 defineSymbol('\\Rightarrow', '\u21d2', 'mrel');
+defineSymbol('\\Leftarrow', '\u21d0', 'mrel');
+defineSymbol('\\longrightarrow', '\u27f6', 'mrel');
+defineSymbol('\\longleftarrow', '\u27f5', 'mrel');
+defineSymbol('\\Longrightarrow', '\u27f9', 'mrel'); // See \\implies
+defineSymbol('\\Longleftarrow', '\u27f8', 'mrel');
+defineSymbol('\\dashrightarrow', '\u21e2', 'mrel', 'ams');
+defineSymbol('\\dashleftarrow', '\u21e0', 'mrel', 'ams');
+defineSymbol('\\Rrightarrow', '\u21db', 'mrel', 'ams');
+defineSymbol('\\Lleftarrow', '\u21da', 'mrel', 'ams');
 
-defineSymbol('\\longmapsto', '\u27fc', 'mrel');
-defineSymbol('\\mapsto', '\u21a6', 'mrel');
-
+defineSymbol('\\longleftrightarrow', '\u27f7', 'mrel');
 defineSymbol('\\Longleftrightarrow', '\u27fa', 'mrel');
 
+defineSymbol('\\leftrightarrows', '\u21c6', 'mrel', 'ams');
 defineSymbol('\\rightleftarrows', '\u21c4', 'mrel', 'ams');
 
-defineSymbol('\\leftarrow', '\u2190', 'mrel');
-
-defineSymbol('\\curvearrowleft', '\u21b6', 'mrel', 'ams');
+defineSymbol('\\mapsto', '\u21a6', 'mrel');
+defineSymbol('\\longmapsto', '\u27fc', 'mrel');
 
 defineSymbol('\\uparrow', '\u2191', 'mrel');
 defineSymbol('\\downarrow', '\u2193', 'mrel');
+defineSymbol('\\Uparrow', '\u21d1', 'mrel');
+defineSymbol('\\Downarrow', '\u21d3', 'mrel');
+defineSymbol('\\updownarrow', '\u2195', 'mrel');
+defineSymbol('\\Updownarrow', '\u21d5', 'mrel');
+
+defineSymbol('\\curvearrowright', '\u21b7', 'mrel', 'ams');
+defineSymbol('\\curvearrowleft', '\u21b6', 'mrel', 'ams');
 
 defineSymbol('\\hookrightarrow', '\u21aa', 'mrel');
-defineSymbol('\\rightharpoonup', '\u21c0', 'mrel');
-defineSymbol('\\rightleftharpoons', '\u21cc', 'mrel');
+defineSymbol('\\hookleftarrow', '\u21a9', 'mrel');
 
-defineSymbol('\\Leftarrow', '\u21d0', 'mrel');
-defineSymbol('\\longleftrightarrow', '\u27f7', 'mrel');
-defineSymbol('\\longleftarrow', '\u27f5', 'mrel');
-defineSymbol('\\Longleftarrow', '\u27f8', 'mrel');
+defineSymbol('\\rightharpoonup', '\u21c0', 'mrel');
+defineSymbol('\\leftharpoonup', '\u21bc', 'mrel');
+defineSymbol('\\rightharpoondown', '\u21c1', 'mrel');
+defineSymbol('\\leftharpoondown', '\u21bd', 'mrel');
+
+defineSymbol('\\rightrightarrows', '\u21c9', 'mrel', 'ams');
+defineSymbol('\\leftleftarrows', '\u21c7', 'mrel', 'ams');
+defineSymbol('\\upuparrows', '\u21c8', 'mrel', 'ams');
+defineSymbol('\\downdownarrows', '\u21ca', 'mrel', 'ams');
+
+defineSymbol('\\leftarrowtail', '\u21a2', 'mrel', 'ams');
+defineSymbol('\\rightarrowtail', '\u21a3', 'mrel', 'ams');
+
+defineSymbol('\\looparrowright', '\u21ac', 'mrel', 'ams');
+defineSymbol('\\looparrowleft', '\u21ab', 'mrel', 'ams');
+
+defineSymbol('\\twoheadleftarrow', '\u219e', 'mrel', 'ams');
+defineSymbol('\\twoheadrightarrow', '\u21a0', 'mrel', 'ams');
+
+defineSymbol('\\rightleftharpoons', '\u21cc', 'mrel');
+defineSymbol('\\leftrightharpoons', '\u21cb', 'mrel', 'ams');
+
+defineSymbol('\\Rsh', '\u21b1', 'mrel', 'ams');
+defineSymbol('\\Lsh', '\u21b0', 'mrel', 'ams');
 
 defineSymbol('\\searrow', '\u2198', 'mrel');
 defineSymbol('\\nearrow', '\u2197', 'mrel');
 defineSymbol('\\swarrow', '\u2199', 'mrel');
 defineSymbol('\\nwarrow', '\u2196', 'mrel');
 
-defineSymbol('\\Uparrow', '\u21d1', 'mrel');
-defineSymbol('\\Downarrow', '\u21d3', 'mrel');
-defineSymbol('\\updownarrow', '\u2195', 'mrel');
-defineSymbol('\\Updownarrow', '\u21d5', 'mrel');
-
-defineSymbol('\\hookleftarrow', '\u21a9', 'mrel');
-defineSymbol('\\leftharpoonup', '\u21bc', 'mrel');
-defineSymbol('\\leftharpoondown', '\u21bd', 'mrel');
-defineSymbol('\\rightharpoondown', '\u21c1', 'mrel');
-
-defineSymbol('\\leftrightarrows', '\u21c6', 'mrel', 'ams');
-
-defineSymbol('\\dashrightarrow', '\u21e2', 'mrel', 'ams');
-defineSymbol('\\dashleftarrow', '\u21e0', 'mrel', 'ams');
-defineSymbol('\\leftleftarrows', '\u21c7', 'mrel', 'ams');
-defineSymbol('\\Lleftarrow', '\u21da', 'mrel', 'ams');
-defineSymbol('\\twoheadleftarrow', '\u219e', 'mrel', 'ams');
-defineSymbol('\\leftarrowtail', '\u21a2', 'mrel', 'ams');
-defineSymbol('\\looparrowleft', '\u21ab', 'mrel', 'ams');
-defineSymbol('\\leftrightharpoons', '\u21cb', 'mrel', 'ams');
-defineSymbol('\\circlearrowleft', '\u21ba', 'mrel', 'ams');
-defineSymbol('\\Lsh', '\u21b0', 'mrel', 'ams');
-defineSymbol('\\upuparrows', '\u21c8', 'mrel', 'ams');
-defineSymbol('\\downharpoonleft', '\u21c3', 'mrel', 'ams');
-defineSymbol('\\multimap', '\u22b8', 'mrel', 'ams');
-defineSymbol('\\leftrightsquigarrow', '\u21ad', 'mrel', 'ams');
-defineSymbol('\\twoheadrightarrow', '\u21a0', 'mrel', 'ams');
-defineSymbol('\\rightarrowtail', '\u21a3', 'mrel', 'ams');
-defineSymbol('\\looparrowright', '\u21ac', 'mrel', 'ams');
-defineSymbol('\\curvearrowright', '\u21b7', 'mrel', 'ams');
 defineSymbol('\\circlearrowright', '\u21bb', 'mrel', 'ams');
-defineSymbol('\\Rsh', '\u21b1', 'mrel', 'ams');
-defineSymbol('\\downdownarrows', '\u21ca', 'mrel', 'ams');
+defineSymbol('\\circlearrowleft', '\u21ba', 'mrel', 'ams');
+
+defineSymbol('\\restriction', '\u21be', 'mrel', 'ams');
 defineSymbol('\\upharpoonright', '\u21be', 'mrel', 'ams');
+defineSymbol('\\upharpoonleft', '\u21bf', 'mrel', 'ams');
 defineSymbol('\\downharpoonright', '\u21c2', 'mrel', 'ams');
+defineSymbol('\\downharpoonleft', '\u21c3', 'mrel', 'ams');
+
 defineSymbol('\\rightsquigarrow', '\u21dd', 'mrel', 'ams');
 defineSymbol('\\leadsto', '\u21dd', 'mrel', 'ams');
-defineSymbol('\\Rrightarrow', '\u21db', 'mrel', 'ams');
-defineSymbol('\\restriction', '\u21be', 'mrel', 'ams');
-defineSymbol('\\upharpoonleft', '\u21bf', 'mrel', 'ams');
-defineSymbol('\\rightrightarrows', '\u21c9', 'mrel', 'ams');
+defineSymbol('\\leftrightsquigarrow', '\u21ad', 'mrel', 'ams');
+
+defineSymbol('\\multimap', '\u22b8', 'mrel', 'ams');
 
 // 'ams' Negated Arrows
 
 defineSymbol('\\nrightarrow', '\u219b', 'mrel', 'ams');
+defineSymbol('\\nleftarrow', '\u219a', 'mrel', 'ams');
 defineSymbol('\\nRightarrow', '\u21cf', 'mrel', 'ams');
+defineSymbol('\\nLeftarrow', '\u21cd', 'mrel', 'ams');
 defineSymbol('\\nleftrightarrow', '\u21ae', 'mrel', 'ams');
 defineSymbol('\\nLeftrightarrow', '\u21ce', 'mrel', 'ams');
-defineSymbol('\\nleftarrow', '\u219a', 'mrel', 'ams');
-defineSymbol('\\nLeftarrow', '\u21cd', 'mrel', 'ams');
 
 // 'ams' Negated Binary Relations
 
@@ -669,17 +671,7 @@ defineSymbol('\\blacktriangleright', '\u25b6', 'mrel', 'ams');
 defineSymbol('\\/', '/');
 defineSymbol('|', '\u2223', 'textord');
 
-defineSymbol('\\sqcup', '\u2294', 'mbin');
-defineSymbol('\\sqcap', '\u2293', 'mbin');
-defineSymbol('\\uplus', '\u228e', 'mbin');
-defineSymbol('\\wr', '\u2240', 'mbin');
-defineSymbol('\\Cap', '\u22d2', 'mbin', 'ams');
-defineSymbol('\\Cup', '\u22d3', 'mbin', 'ams');
-defineSymbol('\\doublecap', '\u22d2', 'mbin', 'ams');
-defineSymbol('\\doublecup', '\u22d3', 'mbin', 'ams');
-defineSymbol('\\amalg', '\u2a3f', 'mbin');
 defineSymbol('\\And', '\u0026', 'mbin');
-
 defineSymbol('\\imath', '\u0131');
 defineSymbol('\\jmath', '\u0237');
 

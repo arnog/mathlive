@@ -1,5 +1,5 @@
 const SVG_BODY = {
-    // Adapted from https://github.com/KaTeX/KaTeX/src/stretchy.js
+    // Adapted from https://github.com/KaTeX/KaTeX/blob/master/src/stretchy.js
 
     overrightarrow: [['rightarrow'], 0.888, 522, 'xMaxYMin'],
     overleftarrow: [['leftarrow'], 0.888, 522, 'xMinYMin'],
@@ -445,7 +445,7 @@ export function svgBodyToMarkup(svgBodyName) {
 
 export function svgBodyHeight(svgBodyName) {
     if (SVG_BODY[svgBodyName]) {
-        SVG_BODY[svgBodyName][1];
+        return SVG_BODY[svgBodyName][2] / 1000;
     }
     return SVG_ACCENTS[svgBodyName][2];
 }

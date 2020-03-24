@@ -279,13 +279,13 @@ function f(argument) {
 ## Naming Conventions
 
 Those naming conventions are particularly important for objects that are exposed
-as part of the public API, such as `MathLive` and `MathField`.
+as part of the public API, such as `MathLive` and `Mathfield`.
 
 -   variables and function names that begin with `_` are private and should not
     be used.
 -   functions that end in `_` are selectors and should not be invoked directly by
     a client of the MathLive library (they can be called internally).
-    Instead, a [`MathField.$perform()`]{@link MathField#\$perform} call should be
+    Instead, a [`Mathfield.$perform()`]{@link Mathfield#\$perform} call should be
     made. Note that the perform call does not include the `_`, so you would call
     `mathfield.$perform('selectAll')`.
 
@@ -482,7 +482,7 @@ point and selection.
 
 ### Mathfield
 
-A **MathField** is a user interface element that captures the keyboard and
+A **Mathfield** is a user interface element that captures the keyboard and
 pointing device events, and presents an appropriate user experience.
 
 It

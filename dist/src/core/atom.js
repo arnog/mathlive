@@ -10,11 +10,8 @@ import { METRICS as FONTMETRICS } from './font-metrics.js';
 import {
     makeSpan,
     makeOrd,
-    makeInner,
     makeVlist,
-    makeSymbol,
     makeSpanOfType,
-    makeOp,
     depth as spanDepth,
     height as spanHeight,
     italic as spanItalic,
@@ -25,6 +22,11 @@ import './atom-array.js';
 import './atom-overunder.js';
 import './atom-accent.js';
 import './atom-enclose.js';
+import './atom-box.js';
+import './atom-op.js';
+import './atom-line.js';
+import './atom-leftright.js';
+import './atom-surd.js';
 
 const GREEK_REGEX = /\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5/;
 
@@ -330,265 +332,6 @@ export class Atom {
         return span;
     }
 
-    /**
-     *  \left....\right
-     *
-     * Note that we can encounter malformed \left...\right, for example
-     * a \left without a matching \right or vice versa. In that case, the
-     * leftDelim (resp. rightDelim) will be undefined. We still need to handle
-     * those cases.
-     *
-     * @method Atom#decomposeLeftright
-     * @private
-     */
-    decomposeLeftright(context) {
-        if (!this.body) {
-            // No body, only a delimiter
-            if (this.leftDelim) {
-                return new Atom('math', 'mopen', this.leftDelim).decompose(
-                    context
-                );
-            }
-            if (this.rightDelim) {
-                return new Atom('math', 'mclose', this.rightDelim).decompose(
-                    context
-                );
-            }
-            return null;
-        }
-        // The scope of the context is this group, so make a copy of it
-        // so that any changes to it will be discarded when finished
-        // with this group.
-        const localContext = context.clone();
-        const inner = decompose(localContext, this.body);
-        const mathstyle = localContext.mathstyle;
-        let innerHeight = 0;
-        let innerDepth = 0;
-        let result = [];
-        // Calculate its height and depth
-        // The size of delimiters is the same, regardless of what mathstyle we are
-        // in. Thus, to correctly calculate the size of delimiter we need around
-        // a group, we scale down the inner size based on the size.
-        innerHeight = spanHeight(inner) * mathstyle.sizeMultiplier;
-        innerDepth = spanDepth(inner) * mathstyle.sizeMultiplier;
-        // Add the left delimiter to the beginning of the expression
-        if (this.leftDelim) {
-            result.push(
-                this.bind(
-                    context,
-                    Delimiters.makeLeftRightDelim(
-                        'mopen',
-                        this.leftDelim,
-                        innerHeight,
-                        innerDepth,
-                        localContext,
-                        'ML__open'
-                    )
-                )
-            );
-            result[result.length - 1].applyStyle(this.getStyle());
-        }
-        if (inner) {
-            // Replace the delim (\middle) spans with proper ones now that we know
-            // the height/depth
-            for (let i = 0; i < inner.length; i++) {
-                if (inner[i].delim) {
-                    const savedCaret = inner[i].caret;
-                    const savedSelected = /ML__selected/.test(inner[i].classes);
-                    inner[i] = this.bind(
-                        context,
-                        Delimiters.makeLeftRightDelim(
-                            'minner',
-                            inner[i].delim,
-                            innerHeight,
-                            innerDepth,
-                            localContext
-                        )
-                    );
-                    inner[i].caret = savedCaret;
-                    inner[i].selected(savedSelected);
-                }
-            }
-            result = result.concat(inner);
-        }
-        // Add the right delimiter to the end of the expression.
-        if (this.rightDelim) {
-            let delim = this.rightDelim;
-            let classes;
-            if (delim === '?') {
-                // Use a placeholder delimiter matching the open delimiter
-                delim = {
-                    '(': ')',
-                    '\\{': '\\}',
-                    '\\[': '\\]',
-                    '\\lbrace': '\\rbrace',
-                    '\\langle': '\\rangle',
-                    '\\lfloor': '\\rfloor',
-                    '\\lceil': '\\rceil',
-                    '\\vert': '\\vert',
-                    '\\lvert': '\\rvert',
-                    '\\Vert': '\\Vert',
-                    '\\lVert': '\\rVert',
-                    '\\lbrack': '\\rbrack',
-                    '\\ulcorner': '\\urcorner',
-                    '\\llcorner': '\\lrcorner',
-                    '\\lgroup': '\\rgroup',
-                    '\\lmoustache': '\\rmoustache',
-                }[this.leftDelim];
-                delim = delim || this.leftDelim;
-                classes = 'ML__smart-fence__close';
-            }
-            result.push(
-                this.bind(
-                    context,
-                    Delimiters.makeLeftRightDelim(
-                        'mclose',
-                        delim,
-                        innerHeight,
-                        innerDepth,
-                        localContext,
-                        (classes || '') + ' ML__close'
-                    )
-                )
-            );
-            result[result.length - 1].applyStyle(this.getStyle());
-        }
-        // If the `inner` flag is set, return the `inner` element (that's the
-        // behavior for the regular `\left...\right`
-        if (this.inner) return makeInner(result, mathstyle.cls());
-        // Otherwise, include a `\mathopen{}...\mathclose{}`. That's the
-        // behavior for `\mleft...\mright`, which allows for tighter spacing
-        // for example in `\sin\mleft(x\mright)`
-        return result;
-    }
-
-    decomposeSurd(context) {
-        // See the TeXbook pg. 443, Rule 11.
-        // http://www.ctex.org/documents/shredder/src/texbook.pdf
-        const mathstyle = context.mathstyle;
-        // First, we do the same steps as in overline to build the inner group
-        // and line
-        const inner = decompose(context.cramp(), this.body);
-        const ruleWidth =
-            FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
-        let phi = ruleWidth;
-        if (mathstyle.id < Mathstyle.TEXT.id) {
-            phi = mathstyle.metrics.xHeight;
-        }
-        // Calculate the clearance between the body and line
-        let lineClearance = ruleWidth + phi / 4;
-        const innerTotalHeight = Math.max(
-            2 * phi,
-            (spanHeight(inner) + spanDepth(inner)) * mathstyle.sizeMultiplier
-        );
-        const minDelimiterHeight =
-            innerTotalHeight + (lineClearance + ruleWidth);
-
-        // Create a \surd delimiter of the required minimum size
-        const delim = makeSpan(
-            Delimiters.makeCustomSizedDelim(
-                '',
-                '\\surd',
-                minDelimiterHeight,
-                false,
-                context
-            ),
-            'sqrt-sign'
-        );
-        delim.applyStyle(this.getStyle());
-
-        const delimDepth = delim.height + delim.depth - ruleWidth;
-
-        // Adjust the clearance based on the delimiter size
-        if (delimDepth > spanHeight(inner) + spanDepth(inner) + lineClearance) {
-            lineClearance =
-                (lineClearance +
-                    delimDepth -
-                    (spanHeight(inner) + spanDepth(inner))) /
-                2;
-        }
-
-        // Shift the delimiter so that its top lines up with the top of the line
-        delim.setTop(
-            delim.height - spanHeight(inner) - (lineClearance + ruleWidth)
-        );
-        const line = makeSpan(
-            null,
-            context.mathstyle.adjustTo(Mathstyle.TEXT) + ' sqrt-line'
-        );
-        line.applyStyle(this.getStyle());
-        line.height = ruleWidth;
-
-        const body = makeVlist(context, [
-            inner,
-            lineClearance,
-            line,
-            ruleWidth,
-        ]);
-
-        if (!this.index) {
-            return this.bind(context, makeOrd([delim, body], 'sqrt'));
-        }
-
-        // Handle the optional root index
-        // The index is always in scriptscript style
-        const newcontext = context.clone({ mathstyle: Mathstyle.SCRIPTSCRIPT });
-        const root = makeSpan(
-            decompose(newcontext, this.index),
-            mathstyle.adjustTo(Mathstyle.SCRIPTSCRIPT)
-        );
-        // Figure out the height and depth of the inner part
-        const innerRootHeight = Math.max(delim.height, body.height);
-        const innerRootDepth = Math.max(delim.depth, body.depth);
-        // The amount the index is shifted by. This is taken from the TeX
-        // source, in the definition of `\r@@t`.
-        const toShift = 0.6 * (innerRootHeight - innerRootDepth);
-        // Build a VList with the superscript shifted up correctly
-        const rootVlist = makeVlist(context, [root], 'shift', -toShift);
-        // Add a class surrounding it so we can add on the appropriate
-        // kerning
-        return this.bind(
-            context,
-            makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt')
-        );
-    }
-
-    /**
-     * \overline and \underline
-     *
-     * @method Atom#decomposeLine
-     * @private
-     */
-    decomposeLine(context) {
-        const mathstyle = context.mathstyle;
-        // TeXBook:443. Rule 9 and 10
-        const inner = decompose(context.cramp(), this.body);
-        const ruleWidth =
-            FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
-        const line = makeSpan(
-            null,
-            context.mathstyle.adjustTo(Mathstyle.TEXT) +
-                ' ' +
-                this.position +
-                '-line'
-        );
-        line.height = ruleWidth;
-        line.maxFontSize = 1.0;
-        let vlist;
-        if (this.position === 'overline') {
-            vlist = makeVlist(context, [inner, 3 * ruleWidth, line, ruleWidth]);
-        } else {
-            const innerSpan = makeSpan(inner);
-            vlist = makeVlist(
-                context,
-                [ruleWidth, line, 3 * ruleWidth, innerSpan],
-                'top',
-                spanHeight(innerSpan)
-            );
-        }
-        return makeOrd(vlist, this.position);
-    }
-
     decomposeOverlap(context) {
         const inner = makeSpan(decompose(context, this.body), 'inner');
         return makeOrd(
@@ -620,125 +363,6 @@ export class Atom {
         return result;
     }
 
-    decomposeOp(context) {
-        // Operators are handled in the TeXbook pg. 443-444, rule 13(a).
-        const mathstyle = context.mathstyle;
-        let large = false;
-        if (
-            mathstyle.size === Mathstyle.DISPLAY.size &&
-            typeof this.body === 'string' &&
-            this.body !== '\\smallint'
-        ) {
-            // Most symbol operators get larger in displaystyle (rule 13)
-            large = true;
-        }
-        let base;
-        let baseShift = 0;
-        let slant = 0;
-        if (this.symbol) {
-            // If this is a symbol, create the symbol.
-            const fontName = large ? 'Size2-Regular' : 'Size1-Regular';
-            base = makeSymbol(
-                fontName,
-                this.body,
-                'op-symbol ' + (large ? 'large-op' : 'small-op')
-            );
-            base.type = 'mop';
-            // Shift the symbol so its center lies on the axis (rule 13). It
-            // appears that our fonts have the centers of the symbols already
-            // almost on the axis, so these numbers are very small. Note we
-            // don't actually apply this here, but instead it is used either in
-            // the vlist creation or separately when there are no limits.
-            baseShift =
-                (base.height - base.depth) / 2 -
-                mathstyle.metrics.axisHeight * mathstyle.sizeMultiplier;
-            // The slant of the symbol is just its italic correction.
-            slant = base.italic;
-            // Bind the generated span and this atom so the atom can be retrieved
-            // from the span later.
-            this.bind(context, base);
-        } else if (Array.isArray(this.body)) {
-            // If this is a list, decompose that list.
-            base = makeOp(decompose(context, this.body));
-            // Bind the generated span and this atom so the atom can be retrieved
-            // from the span later.
-            this.bind(context, base);
-        } else {
-            // Otherwise, this is a text operator. Build the text from the
-            // operator's name.
-            console.assert(this.type === 'mop');
-            base = this.makeSpan(context, this.body);
-        }
-        if (this.superscript || this.subscript) {
-            const limits = this.limits || 'auto';
-            if (
-                this.alwaysHandleSupSub ||
-                limits === 'limits' ||
-                (limits === 'auto' && mathstyle.size === Mathstyle.DISPLAY.size)
-            ) {
-                return this.attachLimits(context, base, baseShift, slant);
-            }
-            return this.attachSupsub(context, base, 'mop');
-        }
-        if (this.symbol) base.setTop(baseShift);
-        return base;
-    }
-
-    decomposeBox(context) {
-        // Base is the main content "inside" the box
-        const base = makeOrd(decompose(context, this.body));
-
-        // This span will represent the box (background and border)
-        // It's positioned to overlap the base
-        const box = makeSpan();
-        box.setStyle('position', 'absolute');
-
-        // The padding extends outside of the base
-        const padding =
-            typeof this.padding === 'number'
-                ? this.padding
-                : FONTMETRICS.fboxsep;
-
-        box.setStyle('height', base.height + base.depth + 2 * padding, 'em');
-        if (padding !== 0) {
-            box.setStyle('width', 'calc(100% + ' + 2 * padding + 'em)');
-        } else {
-            box.setStyle('width', '100%');
-        }
-
-        box.setStyle('top', -padding, 'em');
-        box.setStyle('left', -padding, 'em');
-        box.setStyle('z-index', '-1'); // Ensure the box is *behind* the base
-
-        if (this.backgroundcolor)
-            box.setStyle('background-color', this.backgroundcolor);
-        if (this.framecolor)
-            box.setStyle(
-                'border',
-                FONTMETRICS.fboxrule + 'em solid ' + this.framecolor
-            );
-        if (this.border) box.setStyle('border', this.border);
-
-        base.setStyle('display', 'inline-block');
-        base.setStyle('height', base.height + base.depth, 'em');
-        base.setStyle('vertical-align', -base.depth + padding, 'em');
-
-        // The result is a span that encloses the box and the base
-        const result = makeSpan([box, base]);
-        // Set its position as relative so that the box can be absolute positioned
-        // over the base
-        result.setStyle('position', 'relative');
-        result.setStyle('vertical-align', -padding + base.depth, 'em');
-
-        // The padding adds to the width and height of the pod
-        result.height = base.height + padding;
-        result.depth = base.depth + padding;
-        result.setLeft(padding);
-        result.setRight(padding);
-
-        return result;
-    }
-
     /**
      * Return a representation of this, but decomposed in an array of Spans
      *
@@ -766,10 +390,6 @@ export class Atom {
             result.type = this.type;
         } else if (this.type === 'group' || this.type === 'root') {
             result = this.decomposeGroup(context);
-        } else if (this.type === 'surd') {
-            result = this.decomposeSurd(context);
-        } else if (this.type === 'leftright') {
-            result = this.decomposeLeftright(context);
         } else if (this.type === 'delim') {
             result = makeSpan(null, '');
             result.delim = this.delim;
@@ -783,8 +403,6 @@ export class Atom {
                     context
                 )
             );
-        } else if (this.type === 'line') {
-            result = this.decomposeLine(context);
         } else if (this.type === 'overlap') {
             // For llap (18), rlap (270), clap (0)
             // smash (common), mathllap (0), mathrlap (0), mathclap (0)
@@ -800,8 +418,6 @@ export class Atom {
                 result.height = phantomBase[0].height;
                 result.depth = phantomBase[0].depth;
             }
-        } else if (this.type === 'mop') {
-            result = this.decomposeOp(context);
         } else if (this.type === 'space') {
             // A space literal
             result = this.makeSpan(context, ' ');
@@ -838,8 +454,6 @@ export class Atom {
             }
         } else if (this.type === 'mathstyle') {
             context.setMathstyle(this.mathstyle);
-        } else if (this.type === 'box') {
-            result = this.decomposeBox(context);
         } else if (this.type === 'command' || this.type === 'error') {
             result = this.makeSpan(context, this.body);
             result.classes = ''; // Override fonts and other attributes.
@@ -894,8 +508,8 @@ export class Atom {
         }
         // Finally, attach any necessary superscript, subscripts
         if (!this.limits && (this.superscript || this.subscript)) {
-            // If limits is set, the attachment of sup/sub was handled
-            // in the atom decomposition (e.g. decomposeOp, decomposeAccent)
+            // If `limits` is set, the attachment of sup/sub was handled
+            // in the atom decomposition (e.g. mop, accent)
             if (Array.isArray(result)) {
                 const lastSpan = result[result.length - 1];
                 result[result.length - 1] = this.attachSupsub(

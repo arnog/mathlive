@@ -35,7 +35,7 @@ import { LETTER } from '../core/definitions-utils.js';
  * - a 'word' is a sequence of math atoms of the same type
  * - a 'group' is a sequence of sibling atoms, for example a numerator or
  * a superscript
- * - the 'MathField' is the entire expression being edited
+ * - the 'Mathfield' is the entire expression being edited
  * - a 'placeholder' is either an actual placeholder atom or an empty child
  * list, for example an empty numerator
  * - 'move' changes the position of the insertion point (and collapses the

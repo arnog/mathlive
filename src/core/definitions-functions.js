@@ -29,7 +29,7 @@ defineFunction(
     ],
     '',
     null,
-    function(name) {
+    function (name) {
         return {
             type: 'mop',
             limits: 'nolimits',
@@ -45,7 +45,7 @@ defineFunction(
     ['deg', 'dim', 'exp', 'hom', 'ker', 'lb', 'lg', 'ln', 'log'],
     '',
     null,
-    function(name) {
+    function (name) {
         return {
             type: 'mop',
             limits: 'nolimits',
@@ -57,7 +57,7 @@ defineFunction(
     }
 );
 
-defineFunction(['lim', 'mod'], '', null, function(name) {
+defineFunction(['lim', 'mod'], '', null, function (name) {
     return {
         type: 'mop',
         limits: 'limits',
@@ -66,7 +66,7 @@ defineFunction(['lim', 'mod'], '', null, function(name) {
         baseFontFamily: 'cmr',
     };
 });
-defineFunction(['det', 'max', 'min'], '', null, function(name) {
+defineFunction(['det', 'max', 'min'], '', null, function (name) {
     return {
         type: 'mop',
         limits: 'limits',
@@ -78,7 +78,7 @@ defineFunction(['det', 'max', 'min'], '', null, function(name) {
 });
 
 // Root
-defineFunction('sqrt', '[index:auto]{radicand:auto}', null, function(
+defineFunction('sqrt', '[index:auto]{radicand:auto}', null, function (
     name,
     args
 ) {
@@ -94,7 +94,7 @@ defineFunction(
     ['frac', 'dfrac', 'tfrac', 'cfrac', 'binom', 'dbinom', 'tbinom'],
     '{numerator}{denominator}',
     null,
-    function(name, args) {
+    function (name, args) {
         const result = {
             type: 'genfrac',
             numer: args[0],
@@ -140,35 +140,11 @@ defineFunction(
     }
 );
 
-/*
-\over = \above 0.4pt
-\atop = \above 0pt
-\choose = \atopwithdelims()
-*/
-// infix commands:
-// {above}\atop{below} --> \genfrac{}{}{0pt}{above}{below}
-// {above}\atopwithdelims{leftdelim}{rightdelim}{below} --> \genfrac{leftdelim}{rightdelim}{0pt}{0/1/2/3}{above}{below}
-//  Note: 0/1/2/3 -> displaystyle, textstyle, scriptstyle, scriptscriptstyle
-// \atopwithdelimiters
-// a\above 0.5pt b               -->
-// \abovewithdelims
-// \choose              --> \binom
-// \choose = \atopwithdelims()          INFIX
-// \def\brack{\atopwithdelims[]}        INFIX
-// \def\brace{\atopwithdelims\{\}}      INFIX
-
-// '\\above', /* {dim} 122 */
-// '\\overwithdelims' /* {leftdelim}{rightdelim} w/ barline 15 */,
-// '\\atopwithdelims' /* {leftdelim}{rightdelim} no barline 0 */,
-// '\\atop' /* nodelims, no barline 0 */,
-// '\\brack', '\\brace' like \choose, but
-//      with braces and brackets fences. 0 usage in latexsearch */
-
 defineFunction(
     ['over' /* 21 */, 'atop' /* 12 */, 'choose' /* 1968 */],
     '',
     { infix: true },
-    function(name, args) {
+    function (name, args) {
         const numer = args[0];
         const denom = args[1];
         let hasBarLine = false;
@@ -206,7 +182,7 @@ defineFunction(
 defineFunction('\\slashed'
 */
 
-defineFunction('pdiff', '{numerator}{denominator}', null, function(
+defineFunction('pdiff', '{numerator}{denominator}', null, function (
     _funcname,
     args
 ) {
@@ -243,7 +219,7 @@ defineFunction(
     ],
     '',
     null,
-    function(name) {
+    function (name) {
         return {
             type: 'mop',
             limits: 'auto',
@@ -269,44 +245,42 @@ defineFunction(
     }
 );
 
-// No limits, symbols
-defineFunction(
-    [
-        'int',
-        'iint',
-        'iiint',
-        'oint',
-        'oiint',
-        'oiiint',
-        'intclockwise',
-        'varointclockwise',
-        'ointctrclockwise',
-        'intctrclockwise',
-    ],
-    '',
-    null,
-    function(name) {
-        return {
-            type: 'mop',
-            limits: 'nolimits',
-            symbol: true,
-            body: {
-                int: '\u222b',
-                iint: '\u222c',
-                iiint: '\u222d',
-                oint: '\u222e',
-                oiint: '\u222f',
-                oiiint: '\u2230',
-                intclockwise: '\u2231',
-                varointclockwise: '\u2232',
-                ointctrclockwise: '\u2233',
-                intctrclockwise: '\u2a11',
-            }[name.slice(1)],
-        };
-    }
-);
+// No limits, symbols (i.e. display larger in 'display' mode, and
+// centered on the baseline)
+const EXTENSIBLE_SYMBOLS = {
+    int: '\u222b',
+    iint: '\u222c',
+    iiint: '\u222d',
+    oint: '\u222e',
+    oiint: '\u222f',
+    oiiint: '\u2230',
+    intclockwise: '\u2231',
+    varointclockwise: '\u2232',
+    ointctrclockwise: '\u2233',
+    intctrclockwise: '\u2a11',
+    sqcup: '\u2294',
+    sqcap: '\u2293',
+    uplus: '\u228e',
+    wr: '\u2240',
+    amalg: '\u2a3f',
+    Cap: '\u22d2',
+    Cup: '\u22d3',
+    doublecap: '\u22d2',
+    doublecup: '\u22d3',
+};
+defineFunction(Object.keys(EXTENSIBLE_SYMBOLS), '', null, function (name) {
+    return {
+        type: 'mop',
+        limits: 'nolimits',
+        symbol: true,
+        body: EXTENSIBLE_SYMBOLS[name.slice(1)],
+        baseFontFamily: { '\u22d2': 'ams', '\u22d3': 'ams' }[
+            EXTENSIBLE_SYMBOLS[name.slice(1)]
+        ],
+    };
+});
 
-defineFunction(['Re', 'Im'], '', null, function(name) {
+defineFunction(['Re', 'Im'], '', null, function (name) {
     return {
         type: 'mop',
         limits: 'nolimits',
@@ -317,7 +291,7 @@ defineFunction(['Re', 'Im'], '', null, function(name) {
     };
 });
 
-defineFunction('middle', '{:delim}', null, function(name, args) {
+defineFunction('middle', '{:delim}', null, function (name, args) {
     return { type: 'delim', delim: args[0] };
 });
 

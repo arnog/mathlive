@@ -1,4 +1,5 @@
-category = 'Environments';
+import { defineEnvironment } from './definitions-utils.js';
+
 /*
 
 <columns> ::= <column>*<line>
@@ -141,22 +142,15 @@ gives a width that is the actual width of the contents, thus it can be used as
 a component in a containing expression, e.g. for putting the entire alignment
 in a parenthesis
 */
-defineEnvironment('math', '', { frequency: 0 }, function() {
+defineEnvironment('math', '', {}, function () {
     return { mathstyle: 'textstyle' };
 });
 
-defineEnvironment(
-    'displaymath',
-    '',
-    {
-        frequency: 8,
-    },
-    function() {
-        return {
-            mathstyle: 'displaystyle',
-        };
-    }
-);
+defineEnvironment('displaymath', '', {}, function () {
+    return {
+        mathstyle: 'displaystyle',
+    };
+});
 
 // defineEnvironment('text', '', {
 //     frequency: 0,
@@ -166,38 +160,31 @@ defineEnvironment(
 //     };
 // });
 
-defineEnvironment(
-    'array',
-    '{columns:colspec}',
-    {
-        frequency: COMMON,
-    },
-    function(name, args) {
-        return {
-            colFormat: args[0],
-            mathstyle: 'textstyle',
-        };
-    }
-);
+defineEnvironment('array', '{columns:colspec}', {}, function (name, args) {
+    return {
+        colFormat: args[0],
+        mathstyle: 'textstyle',
+    };
+});
 
-defineEnvironment('eqnarray', '', {}, function() {
+defineEnvironment('eqnarray', '', {}, function () {
     return {};
 });
 
-defineEnvironment('equation', '', {}, function() {
+defineEnvironment('equation', '', {}, function () {
     return {
         colFormat: [{ align: 'c' }],
     };
 });
 
-defineEnvironment('subequations', '', {}, function() {
+defineEnvironment('subequations', '', {}, function () {
     return {
         colFormat: [{ align: 'c' }],
     };
 });
 
 // Note spelling: MULTLINE, not multiline.
-defineEnvironment('multline', '', {}, function() {
+defineEnvironment('multline', '', {}, function () {
     return {
         firstRowFormat: [{ align: 'l' }],
         colFormat: [{ align: 'c' }],
@@ -210,7 +197,7 @@ defineEnvironment('multline', '', {}, function() {
 // Note that some versions of AMS-Math have a gap on the left.
 // More recent version suppresses that gap, but have an option to turn it back on
 // for backward compatibility.
-defineEnvironment(['align', 'aligned'], '', {}, function(name, args, array) {
+defineEnvironment(['align', 'aligned'], '', {}, function (name, args, array) {
     let colCount = 0;
     for (const row of array) {
         colCount = Math.max(colCount, row.length);
@@ -245,11 +232,11 @@ defineEnvironment(['align', 'aligned'], '', {}, function(name, args, array) {
 //     };
 // });
 
-defineEnvironment('split', '', {}, function() {
+defineEnvironment('split', '', {}, function () {
     return {};
 });
 
-defineEnvironment(['gather', 'gathered'], '', {}, function() {
+defineEnvironment(['gather', 'gathered'], '', {}, function () {
     // An AMS-Math environment
     // %    The \env{gathered} environment is for several lines that are
     // %    centered independently.
@@ -297,7 +284,7 @@ defineEnvironment(
     ],
     '[columns:colspec]',
     {},
-    function(name, args) {
+    function (name, args) {
         // From amstex.sty:
         // \def\matrix{\hskip -\arraycolsep\array{*\c@MaxMatrixCols c}}
         // \def\endmatrix{\endarray \hskip -\arraycolsep}
@@ -368,7 +355,7 @@ defineEnvironment(
     }
 );
 
-defineEnvironment('cases', '', {}, function() {
+defineEnvironment('cases', '', {}, function () {
     // From amstex.sty:
     // \def\cases{\left\{\def\arraystretch{1.2}\hskip-\arraycolsep
     //   \array{l@{\quad}l}}
@@ -388,10 +375,10 @@ defineEnvironment('cases', '', {}, function() {
     };
 });
 
-defineEnvironment('theorem', '', {}, function() {
+defineEnvironment('theorem', '', {}, function () {
     return {};
 });
 
-defineEnvironment('center', '', {}, function() {
+defineEnvironment('center', '', {}, function () {
     return { colFormat: [{ align: 'c' }] };
 });

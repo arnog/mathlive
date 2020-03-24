@@ -88,6 +88,9 @@ defineFunction(
         return {
             type: 'overunder',
 
+            // Set the spacing type
+            mathtype: 'mrel',
+
             // Set the "svgBody" to the name of a SVG object (which is the same
             // as the command name)
             svgBody: name.slice(1),

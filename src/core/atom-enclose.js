@@ -1,52 +1,73 @@
 import { registerAtomType, decompose } from './atom-utils.js';
+import { METRICS as FONTMETRICS } from './font-metrics.js';
 import {
+    makeSpan,
     makeOrd,
-    makeSVGOverlay,
+    addSVGOverlay,
     depth as spanDepth,
     height as spanHeight,
-    skew as spanSkew,
-    italic as spanItalic,
 } from './span.js';
 
 registerAtomType('enclose', (context, atom) => {
     const base = makeOrd(decompose(context, atom.body));
-    const result = base;
+
     // Account for the padding
-    const padding = atom.padding === 'auto' ? 0.2 : atom.padding; // em
-    result.setStyle('padding', padding, 'em');
-    result.setStyle('display', 'inline-block');
-    result.setStyle('height', result.height + result.depth, 'em');
-    result.setStyle('left', -padding, 'em');
-    if (atom.backgroundcolor && atom.backgroundcolor !== 'transparent') {
-        result.setStyle('background-color', atom.backgroundcolor);
+    const padding =
+        typeof atom.padding === 'number' ? atom.padding : FONTMETRICS.fboxsep;
+
+    // The 'ML__notation' class is required to prevent the span from being omitted
+    // during rendering (it looks like an empty, no-op span)
+    const notation = makeSpan('', 'ML__notation');
+    notation.setStyle('position', 'absolute');
+    notation.setStyle(
+        'height',
+        spanHeight(base) + spanDepth(base) + 2 * padding,
+        'em'
+    );
+    notation.height = spanHeight(base) + padding;
+    notation.depth = spanDepth(base) + padding;
+    if (padding !== 0) {
+        notation.setStyle('width', 'calc(100% + ' + 2 * padding + 'em)');
+    } else {
+        notation.setStyle('width', '100%');
     }
-    let svg = '';
-    if (atom.notation.box) result.setStyle('border', atom.borderStyle);
+    notation.setStyle('top', '0');
+    notation.setStyle('left', -padding, 'em');
+    notation.setStyle('z-index', '-1'); // Ensure the box is *behind* the base
+    if (atom.backgroundcolor) {
+        notation.setStyle('background-color', atom.backgroundcolor);
+    }
+
+    if (atom.notation.box) notation.setStyle('border', atom.borderStyle);
     if (atom.notation.actuarial) {
-        result.setStyle('border-top', atom.borderStyle);
-        result.setStyle('border-right', atom.borderStyle);
+        notation.setStyle('border-top', atom.borderStyle);
+        notation.setStyle('border-right', atom.borderStyle);
     }
     if (atom.notation.madruwb) {
-        result.setStyle('border-bottom', atom.borderStyle);
-        result.setStyle('border-right', atom.borderStyle);
+        notation.setStyle('border-bottom', atom.borderStyle);
+        notation.setStyle('border-right', atom.borderStyle);
     }
     if (atom.notation.roundedbox) {
-        result.setStyle(
+        notation.setStyle(
             'border-radius',
-            (spanHeight(result) + spanDepth(result)) / 2,
+            (spanHeight(base) + spanDepth(base)) / 2,
             'em'
         );
-        result.setStyle('border', atom.borderStyle);
+        notation.setStyle('border', atom.borderStyle);
     }
     if (atom.notation.circle) {
-        result.setStyle('border-radius', '50%');
-        result.setStyle('border', atom.borderStyle);
+        notation.setStyle('border-radius', '50%');
+        notation.setStyle('border', atom.borderStyle);
     }
-    if (atom.notation.top) result.setStyle('border-top', atom.borderStyle);
-    if (atom.notation.left) result.setStyle('border-left', atom.borderStyle);
-    if (atom.notation.right) result.setStyle('border-right', atom.borderStyle);
+    if (atom.notation.top) notation.setStyle('border-top', atom.borderStyle);
+    if (atom.notation.left) notation.setStyle('border-left', atom.borderStyle);
+    if (atom.notation.right)
+        notation.setStyle('border-right', atom.borderStyle);
     if (atom.notation.bottom)
-        result.setStyle('border-bottom', atom.borderStyle);
+        notation.setStyle('border-bottom', atom.borderStyle);
+
+    let svg = '';
+
     if (atom.notation.horizontalstrike) {
         svg += '<line x1="3%"  y1="50%" x2="97%" y2="50%"';
         svg += ` stroke-width="${atom.strokeWidth}" stroke="${atom.strokeColor}"`;
@@ -147,7 +168,19 @@ registerAtomType('enclose', (context, atom) => {
                 svgStyle = 'filter: drop-shadow(' + atom.shadow + ')';
             }
         }
-        return makeSVGOverlay(result, svg, svgStyle);
+        addSVGOverlay(notation, svg, svgStyle);
     }
+    const result = makeSpan([notation, base]);
+    // Set its position as relative so that the box can be absolute positioned
+    // over the base
+    result.setStyle('position', 'relative');
+    result.setStyle('vertical-align', -padding + spanDepth(base), 'em');
+
+    // The padding adds to the width and height of the pod
+    result.height = spanHeight(base) + padding;
+    result.depth = spanDepth(base) + padding;
+    result.setLeft(padding);
+    result.setRight(padding);
+
     return result;
 });

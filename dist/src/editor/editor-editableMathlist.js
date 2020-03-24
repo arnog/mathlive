@@ -36,7 +36,7 @@ function isEmptyMathlist(mathlist) {
  * - Method names that _begin with_ an underbar `_` are private and meant
  * to be used only by the implementation of the class.
  * - Method names that _end with_ an underbar `_` are selectors. They can
- * be invoked by calling [`MathField.$perform()`]{@link MathField#$perform}.
+ * be invoked by calling [`Mathfield.$perform()`]{@link Mathfield#$perform}.
  * They will be dispatched to an instance of `MathEditableList` as necessary.
  * Note that the selector name does not include the underbar.
  *
@@ -47,7 +47,7 @@ function isEmptyMathlist(mathlist) {
  *
  * @param {Object.<string, any>} config
  * @param {HTMLElement} target - A target object passed as the first argument of
- * callback functions. Typically, a MathField.
+ * callback functions. Typically, a Mathfield.
  * @property {Atom[]} root - The root element of the math expression.
  * @property {Object[]} path - The path to the element that is the
  * anchor for the selection.

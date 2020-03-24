@@ -2,7 +2,7 @@
  *
  * Use MathLive to render and edit mathematical formulas in your browser.
  *
- * This module exports {@link #functions%3Amathlive some functions} and the {@link #class%3AMathField `MathField`} class.
+ * This module exports {@link #functions%3Amathlive some functions} and the {@link #class%3AMathField `Mathfield`} class.
  *
  * See {@tutorial USAGE_GUIDE the Usage Guide} for more details on how to get
  * started.
@@ -26,7 +26,7 @@ import ParserModule from './core/parser.js';
 import { coalesce, makeSpan } from './core/span.js';
 import { MACROS } from './core/definitions-utils.js';
 import './core/definitions.js';
-import MathField from './editor/editor-mathfield.js';
+import { Mathfield } from './editor/editor-mathfield.js';
 import AutoRender from './addons/auto-render.js';
 import mathJson from './addons/mathJson.js';
 
@@ -130,7 +130,7 @@ function toMarkup(text, mathstyle, format, macros) {
  * @param {MathFieldConfig} [config={}] See {@tutorial CONFIG} for details.
  *
  *
- * @return {MathField}
+ * @return {Mathfield}
  *
  * Given the HTML markup:
  * ```html
@@ -145,13 +145,10 @@ function toMarkup(text, mathstyle, format, macros) {
  * @function module:mathlive#makeMathField
  */
 function makeMathField(element, config) {
-    if (!MathField) {
-        throw Error('The MathField module is not loaded.');
-    }
     config = config || {};
     config.handleSpeak = config.handleSpeak || speak;
     config.handleReadAloud = config.handleReadAloud || readAloud;
-    return new MathField.MathField(getElement(element), config);
+    return new Mathfield(getElement(element), config);
 }
 
 /**
@@ -862,7 +859,7 @@ function validateNamespace(options) {
 
 /**
  *
- * @param {string|HTMLElement|MathField} element
+ * @param {string|HTMLElement|Mathfield} element
  * @param {Object.<string, any>} [options={}]
  * @param {string} options.namespace The namespace used for the `data-`
  * attributes. If you used a namespace with `renderMathInElement`, you must
@@ -875,7 +872,7 @@ function revertToOriginalContent(element, options) {
     // element is a pair: accessible span, math -- set it to the math part
     element = element.children[1];
 
-    if (element instanceof MathField.MathField) {
+    if (element instanceof Mathfield) {
         element.revertToOriginalContent();
     } else {
         options = options || {};
@@ -904,8 +901,8 @@ function revertToOriginalContent(element, options) {
  * ```
  * $$f(x)=sin(x)$$
  * ```
- * @param {string | HTMLElement | MathField} element - A DOM element ID, a DOM
- * element or a MathField.
+ * @param {string | HTMLElement | Mathfield} element - A DOM element ID, a DOM
+ * element or a Mathfield.
  * @param {object} [options={}]
  * @param {string} [options.namespace=""] The namespace used for the `data-`
  * attributes.
@@ -920,7 +917,7 @@ function getOriginalContent(element, options) {
     // element is a pair: accessible span, math -- set it to the math part
     element = element.children[1];
 
-    if (element instanceof MathField.MathField) {
+    if (element instanceof Mathfield) {
         return element.originalContent;
     }
     options = options || {};

@@ -214,7 +214,7 @@ For example:
 </html>
 ```
 
-You can control the mathfield using the public member functions of `MathField`,
+You can control the mathfield using the public member functions of `Mathfield`,
 that is, functions that do not contain an `_` at the beginning or end of their name.
 Here's a short list for some common operations:
 
@@ -240,10 +240,10 @@ Here's a short list for some common operations:
 ## Selectors
 
 User initiated commands that control the mathfield can be dispatched using
-the [`perform()`]{@link MathField#perform} commands. Commands are identified by
+the [`perform()`]{@link Mathfield#perform} commands. Commands are identified by
 a string called the **selector**. Most commands take no parameters. When a
 command does have a parameter, an array made up of the selector and the
-commands arguments can be passed to [`MathField.$perform()`]{@link MathField#\$perform}.
+commands arguments can be passed to [`Mathfield.$perform()`]{@link Mathfield#\$perform}.
 For example:
 
 ```javascript

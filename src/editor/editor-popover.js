@@ -3,121 +3,14 @@ import Lexer from '../core/lexer.js';
 import ParserModule from '../core/parser.js';
 import { makeSpan } from '../core/span.js';
 import Shortcuts from './editor-shortcuts.js';
-
-const SAMPLES = {
-    '\\mathrm': '\\mathrm{x=+3.14, x\\in A}',
-    '\\mathbf': '\\mathbf{x=+3.14, x\\in A}',
-    '\\bf': '\\bf{x=+3.14, x\\in A}',
-    '\\bm': '\\bm{x=+3.14, x\\in A}',
-    '\\bold': '\\bold{x=+3.14, x\\in A}',
-    '\\mathit': '\\mathbb{x=+3.14}',
-    '\\mathbb': '\\mathbb{ABCD}',
-    '\\Bbb': '\\mathbb{ABCD}',
-    '\\frak': '\\frak{ABCD}',
-    '\\mathfrak': '\\mathfrak{ABCD}',
-    '\\mathscr': '\\mathscr{ABCD}',
-    '\\mathsf': '\\mathsf{ABab01}',
-    '\\mathtt': '\\mathtt{x=+3.14, x\\in A}',
-    '\\mathcal': '\\mathcal{ABCD}',
-    '\\boldsymbol': '\\boldsymbol{ABab01+=}',
-
-    '\\text': '\\text{ABC abc}',
-    '\\textrm': '\\textrm{ABC abc}',
-    '\\textnormal': '\\textnormal{ABC abc}',
-    '\\textit': '\\textit{ABC abc}',
-    '\\textbf': '\\textbf{ABC abc}',
-    '\\texttt': '\\texttt{ABC abc}',
-    '\\textsf': '\\textsf{ABC abc}',
-    '\\textcolor': `{\\textcolor{m0}A}{\\textcolor{m1}B}{\\textcolor{m2}C }{\\textcolor{m3}a}{\\textcolor{m4}b}{\\textcolor{m5}c}{\\textcolor{m6}8}`,
-    '\\color': `{\\color{m0}A}{\\color{m1}B}{\\color{m2}C}{\\color{m3}a}{\\color{m4}b}{\\color{m5}c}{\\color{m6}8}`,
-
-    '\\underline': '\\underline{\\unicode{"2B1A}}',
-    '\\overline': '\\overline{\\unicode{"2B1A}}',
-
-    '\\vec': '\\vec{\\unicode{"25CC}}',
-    '\\check': '\\check{\\unicode{"25CC}}',
-    '\\acute': '\\acute{\\unicode{"25CC}}',
-    '\\breve': '\\breve{\\unicode{"25CC}}',
-    '\\tilde': '\\tilde{\\unicode{"25CC}}',
-    '\\hat': '\\hat{\\unicode{"25CC}}',
-    '\\ddot': '\\ddot{\\unicode{"25CC}}',
-    '\\dot': '\\dot{\\unicode{"25CC}}',
-    '\\bar': '\\bar{\\unicode{"25CC}}',
-
-    '\\!': '\\unicode{"203A}\\!\\unicode{"2039}',
-    '\\,': '\\unicode{"203A}\\,\\unicode{"2039}',
-    '\\:': '\\unicode{"203A}\\:\\unicode{"2039}',
-    '\\;': '\\unicode{"203A}\\;\\unicode{"2039}',
-    '\\quad': '\\unicode{"203A}\\quad\\unicode{"2039}',
-    '\\qquad': '\\unicode{"203A}\\qquad\\unicode{"2039}',
-    '\\enskip': '\\unicode{"203A}\\enskip\\unicode{"2039}',
-    '\\space': '\\unicode{"203A}\\space\\unicode{"2039}',
-
-    '\\frac': '\\frac{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\dfrac': '\\dfrac{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\cfrac': '\\cfrac{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\tfrac': '\\tfrac{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\dbinom': '\\dbinom{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\tbinom': '\\tbinom{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\binom': '\\binom{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\pdiff': '\\pdiff{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-
-    '\\in': 'n\\in\\N',
-    '\\notin': 'n\\notin\\N',
-    '\\not': 'B \\not A',
-    '\\ni': 'N\\in n',
-    '\\owns': 'N\\owns n',
-    '\\subset': 'A\\subset B',
-    '\\supset': 'B\\supset A',
-    '\\subseteq': 'A\\subseteq B',
-    '\\supseteq': 'B\\supseteq A',
-    '\\nsubseteq': 'A\\nsubseteq B',
-    '\\nsupseteq': 'B\\nsupseteq A',
-    '\\subsetneq': 'A\\subsetneq B',
-    '\\supsetneq': 'B\\supsetneq A',
-    '\\varsubsetneq': 'A\\varsubsetneq B',
-    '\\varsupsetneq': 'B\\varsupsetneq A',
-    '\\nsubseteqq': 'A\\varsupsetneq B',
-    '\\subsetneqq': 'A\\subsetneqq B',
-    '\\varsubsetneqq': 'A\\varsubsetneqq B',
-    '\\nsubset': 'A\\nsubset B',
-    '\\nsupset': 'B\\nsupset A',
-    '\\complement': 'A^\\complement',
-
-    '\\bigcup': '\\bigcup_{\\unicode{"2B1A}}',
-    '\\bigcap': '\\bigcap_{\\unicode{"2B1A}}',
-    '\\sqrt': '\\sqrt{\\unicode{"2B1A}}',
-    '\\prod': '\\prod_{\\unicode{"2B1A}}^{\\unicode{"2B1A}}',
-    '\\sum': '\\sum_{\\unicode{"2B1A}}^{\\unicode{"2B1A}}',
-    '\\int': '\\int_{\\unicode{"2B1A}}^{\\unicode{"2B1A}}',
-    '\\stackrel': '\\stackrel{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\stackbin': '\\stackbin{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\underset': '\\underset{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\overset': '\\overset{\\unicode{"2B1A}}{\\unicode{"2B1A}}',
-    '\\prime': '\\unicode{"2B1A}^{\\prime}',
-
-    '\\boxed': '\\boxed{\\unicode{"2B1A}}',
-    '\\colorbox': '\\colorbox{#fbc0bd}{\\unicode{"2B1A}}',
-    '\\bbox': '\\bbox[#ffd400, solid 2px #ffd400]{\\unicode{"2B1A}}',
-    '\\enclose':
-        '\\enclose{updiagonalstrike,roundedbox}[1px solid red, mathbackground="#fbc0bd"]{23+45}',
-    '\\fcolorbox': '\\fcolorbox{#cd0030}{#ffd400}{\\unicode{"2B1A}}',
-    '\\ ': '\\char"2423', // OPEN BOX
-
-    '\\top': '{\\color{red}P}\\top',
-    '\\bot': '{\\color{#0F0}P}\\bot',
-    '\\mid': 'P(p\\mid q)',
-
-    '\\rlap': '\\rlap{x}o',
-    '\\llap': 'o\\llap{/}',
-};
+import { getInfo } from '../core/definitions-utils.js';
 
 // A textual description of a LaTeX command.
 // The value can be either a single string, or an array of string
 // in order to provide alternatives or additional context.
 // In that case, the first string in the array should be appropriate
 // to be spoken for accessibility.
-const NOTES = {
+export const NOTES = {
     '\\text': 'roman text',
     '\\textrm': 'roman text',
     '\\textnormal': 'roman text',
@@ -407,7 +300,8 @@ function showPopoverWithLatex(mf, latex, displayArrows) {
     }
 
     const command = latex;
-    const command_markup = latexToMarkup(SAMPLES[command] || latex, mf);
+    const info = getInfo(command);
+    const command_markup = latexToMarkup((info && info.template) || latex, mf);
     const command_note = getNote(command);
     const command_shortcuts = Shortcuts.forCommand(command);
 
@@ -538,8 +432,6 @@ function hidePopover(mf) {
 }
 
 export default {
-    getNote,
-    SAMPLES,
     NOTES,
     showPopoverWithLatex,
     showPopover,

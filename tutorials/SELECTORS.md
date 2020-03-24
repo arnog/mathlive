@@ -1,4 +1,4 @@
-The following selectors can be passed to [`"MathField.$perform()"`]{@link MathField#\$perform}.
+The following selectors can be passed to [`"Mathfield.$perform()"`]{@link Mathfield#\$perform}.
 
 #### Moving the insertion point
 

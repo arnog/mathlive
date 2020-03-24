@@ -1,6 +1,6 @@
 /**
  *
- * See {@linkcode MathField}
+ * See {@linkcode Mathfield}
  * @module editor/mathfield
  * @private
  */
@@ -40,7 +40,7 @@ import '../addons/outputSpokenText.js';
 /* eslint-disable */
 /**
  * @typedef {function} MathFieldCallback
- * @param {MathField} mathfield
+ * @param {Mathfield} mathfield
  * @return {void}
  * @global
  */
@@ -177,7 +177,7 @@ function releaseSharedElement(el) {
  * need to ensure the mathfield is still valid by the time they're executed.
  * @private
  */
-export function isValidMathfield(mf) {
+function isValidMathfield(mf) {
     return mf.element && mf.element.mathfield === mf;
 }
 
@@ -274,7 +274,7 @@ function validateStyle(style) {
  * - Method names that _begin with_ an underbar `_` are private and meant
  * to be used only by the implementation of the class.
  * - Method names that _end with_ an underbar `_` are selectors. They can
- * be invoked by calling [`MathField.$perform()`]{@link MathField#$perform}. Note
+ * be invoked by calling [`Mathfield.$perform()`]{@link Mathfield#$perform}. Note
  * that the selector name does not include the underbar.
  *
  * For example:
@@ -297,10 +297,10 @@ function validateStyle(style) {
  * for inline shortcuts
  * @property {object[]} keystrokeBufferStates The saved state for each of the
  * past keystrokes
- * @class MathField
+ * @class Mathfield
  * @global
  */
-class MathField {
+export class Mathfield {
     /**
      * To create a mathfield, you would typically use {@linkcode module:MathLive#makeMathField MathLive.makeMathField()}
      * instead of invoking directly this constructor.
@@ -309,7 +309,7 @@ class MathField {
      * @param {HTMLElement} element - The DOM element that this mathfield is attached to.
      * Note that `element.mathfield` is this object.
      * @param {MathFieldConfig} config - See {@tutorial CONFIG} for details
-     * @method MathField#constructor
+     * @method Mathfield#constructor
      * @private
      */
     constructor(element, config) {
@@ -497,10 +497,10 @@ class MathField {
         on(window, 'resize', this);
         // Override some handlers in the config
         const localConfig = { ...config };
-        localConfig.onSelectionDidChange = MathField.prototype._onSelectionDidChange.bind(
+        localConfig.onSelectionDidChange = Mathfield.prototype._onSelectionDidChange.bind(
             this
         );
-        localConfig.onContentDidChange = MathField.prototype._onContentDidChange.bind(
+        localConfig.onContentDidChange = Mathfield.prototype._onContentDidChange.bind(
             this
         );
         localConfig.onAnnounce = this.config.onAnnounce;
@@ -579,7 +579,7 @@ class MathField {
      * element back into a mathfield, call `MathLive.makeMathField()` on the
      * element again to get a new mathfield object.
      *
-     * @method MathField#$revertToOriginalContent
+     * @method Mathfield#$revertToOriginalContent
      */
     $revertToOriginalContent() {
         this.element.innerHTML = this.originalContent;
@@ -615,7 +615,7 @@ class MathField {
     /**
      * Return the (x,y) client coordinates of the caret
      *
-     * @method MathField#_getCaretPosition
+     * @method Mathfield#_getCaretPosition
      * @private
      */
     _getCaretPosition() {
@@ -1294,7 +1294,7 @@ class MathField {
      * In the above example, both calls invoke the same selector.
      *
      *
-     * @method MathField#$perform
+     * @method Mathfield#$perform
      */
     $perform(command) {
         if (!command) {
@@ -1534,7 +1534,7 @@ class MathField {
      * into text mode.
      * This excludes things like 'mop' (e.g. \sin)
      * @return {string}
-     * @method MathField#getTextBeforeAnchor_
+     * @method Mathfield#getTextBeforeAnchor_
      * @private
      */
     getTextBeforeAnchor_() {
@@ -1563,7 +1563,7 @@ class MathField {
      *
      * @param {string} keystroke
      * @param {Event} evt - a Event corresponding to the keystroke
-     * @method MathField#smartMode_
+     * @method Mathfield#smartMode_
      * @return {boolean} true if the mode should change
      * @private
      */
@@ -1732,7 +1732,7 @@ class MathField {
     /**
      * @param {string} keystroke
      * @param {Event} [evt] - An Event corresponding to the keystroke.
-     * @method MathField#_onKeystroke
+     * @method Mathfield#_onKeystroke
      * @private
      */
     _onKeystroke(keystroke, evt) {
@@ -2165,7 +2165,7 @@ class MathField {
      * attributes are modified, outside of MathLive, this function may need to be
      * called explicitly.
      *
-     * @method MathField#render
+     * @method Mathfield#render
      * @private
      */
     _render(renderOptions) {
@@ -2399,7 +2399,7 @@ class MathField {
      * **Default** = `"latex"`
      * @return {string}
      * @category Accessing the Content
-     * @method MathField#$text
+     * @method Mathfield#$text
      */
     $text(format) {
         return this.formatMathlist(this.mathlist.root, format);
@@ -2423,7 +2423,7 @@ class MathField {
      * **Default** = `"latex"`
      * @return {string}
      * @category Accessing the Content
-     * @method MathField#$selectedText
+     * @method Mathfield#$selectedText
      */
     $selectedText(format) {
         const atoms = this.mathlist.getSelectedAtoms();
@@ -2439,7 +2439,7 @@ class MathField {
      * @return {boolean} True if the length of the selection is 0, that is, if it is a single
      * insertion point.
      * @category Selection
-     * @method MathField#$selectionIsCollapsed
+     * @method Mathfield#$selectionIsCollapsed
      */
     $selectionIsCollapsed() {
         return this.mathlist.isCollapsed();
@@ -2455,7 +2455,7 @@ class MathField {
      *
      * @return {number}
      * @category Selection
-     * @method MathField#$selectionDepth
+     * @method Mathfield#$selectionDepth
      */
     $selectionDepth() {
         return this.mathlist.path.length;
@@ -2503,7 +2503,7 @@ class MathField {
      *
      * @return {boolean}
      * @category Selection
-     * @method MathField#$selectionAtStart
+     * @method Mathfield#$selectionAtStart
      */
     $selectionAtStart() {
         return this.mathlist.startOffset() === 0;
@@ -2513,7 +2513,7 @@ class MathField {
      *
      * @return {boolean}
      * @category Selection
-     * @method MathField#$selectionAtEnd
+     * @method Mathfield#$selectionAtEnd
      */
     $selectionAtEnd() {
         return this.mathlist.endOffset() >= this.mathlist.siblings().length - 1;
@@ -2544,7 +2544,7 @@ class MathField {
      *
      * @return {string}
      * @category Accessing the Content
-     * @method MathField#$latex
+     * @method Mathfield#$latex
      */
     $latex(text, options) {
         if (text) {
@@ -2576,7 +2576,7 @@ class MathField {
      * Note that `this.$el().mathfield === this`
      *
      * @return {HTMLElement}
-     * @method MathField#$el
+     * @method Mathfield#$el
      */
     $el() {
         return this.element;
@@ -2641,7 +2641,7 @@ class MathField {
     }
     /**
      *
-     * @method MathField#enterCommandMode_
+     * @method Mathfield#enterCommandMode_
      * @private
      */
     enterCommandMode_() {
@@ -2670,7 +2670,7 @@ class MathField {
     /**
      * Inserts a block of text at the current insertion point.
      *
-     * This method can be called explicitly or invoked as a selector with {@linkcode MathField#$perform $perform("insert")}
+     * This method can be called explicitly or invoked as a selector with {@linkcode Mathfield#$perform $perform("insert")}
      * .
      *
      * After the insertion, the selection will be set according to the `selectionMode`.
@@ -2727,7 +2727,7 @@ class MathField {
      * selectionDidChange notifications will not be invoked. Default `false`.
      * 
      * @category Changing the Content
-     * @method MathField#$insert
+     * @method Mathfield#$insert
      */
     $insert(s, options) {
         if (typeof s === 'string' && s.length > 0) {
@@ -2812,7 +2812,7 @@ class MathField {
      * mode switched back to math
      * @param {boolean} options.acceptSuggestion if true, accept the suggestion to
      * complete the command. Otherwise, only use what has been entered so far.
-     * @method MathField#complete_
+     * @method Mathfield#complete_
      * @private
      */
     complete_(options) {
@@ -3599,7 +3599,7 @@ class MathField {
      * '"size5"' is the default size
      *
      * @category Changing the Content
-     * @method MathField#$applyStyle
+     * @method Mathfield#$applyStyle
      * */
     $applyStyle(style) {
         this._resetKeystrokeBuffer();
@@ -3723,7 +3723,7 @@ class MathField {
      * click or other event not involving a keyboard), omit it.
      * @return {boolean}
      * @category Changing the Content
-     * @method MathField#$keystroke
+     * @method Mathfield#$keystroke
      */
     $keystroke(keys, evt) {
         // This is the public API, while onKeystroke is the
@@ -3735,7 +3735,7 @@ class MathField {
      *
      * @param {string} text - A sequence of one or more characters.
      * @category Changing the Content
-     * @method MathField#$typedText
+     * @method Mathfield#$typedText
      */
     $typedText(text) {
         // This is the public API, while onTypedText is the
@@ -3761,7 +3761,7 @@ class MathField {
      *
      * @param {MathFieldConfig} config - See {@tutorial CONFIG Configuration Options} for details.
      *
-     * @method MathField#$setConfig
+     * @method Mathfield#$setConfig
      */
     $setConfig(conf) {
         if (!this.config) {
@@ -3879,7 +3879,7 @@ class MathField {
      * @param {boolean} speakOptions.withHighlighting - If true, synchronized
      * highlighting of speech will happen (if possible). Default is false.
      *
-     * @method MathField#speak_
+     * @method Mathfield#speak_
      */
     speak_(amount, speakOptions) {
         speakOptions = speakOptions || { withHighlighting: false };
@@ -4076,11 +4076,11 @@ function speakableText(mathfield, prefix, atoms) {
  * Announce a change in selection or content via the aria-live region.
  * This is the default implementation for this function. It can be overridden
  * via `config.onAnnounce`
- * @param {object} target Typically, a MathField.
+ * @param {object} target Typically, a Mathfield.
  * @param {string} command The command that invoked the change.
  * @param {Atom[]} [oldMathlist] The previous value of mathlist before the change.
  * @param {Atom[]} [atomsToSpeak]
- * @method MathField#_onAnnounce
+ * @method Mathfield#_onAnnounce
  * @private
  */
 function _onAnnounce(target, command, oldMathlist, atomsToSpeak) {
@@ -4139,14 +4139,9 @@ function _onAnnounce(target, command, oldMathlist, atomsToSpeak) {
     // this.textarea.setAttribute('aria-label', liveText + ariaLiveChangeHack);
 }
 
-MathField.prototype.undo_ = MathField.prototype.undo;
-MathField.prototype.redo_ = MathField.prototype.redo;
-MathField.prototype.scrollIntoView_ = MathField.prototype.scrollIntoView;
-MathField.prototype.scrollToStart_ = MathField.prototype.scrollToStart;
-MathField.prototype.scrollToEnd_ = MathField.prototype.scrollToEnd;
-MathField.prototype.insert_ = MathField.prototype.$insert;
-
-export default {
-    isValidMathfield,
-    MathField,
-};
+Mathfield.prototype.undo_ = Mathfield.prototype.undo;
+Mathfield.prototype.redo_ = Mathfield.prototype.redo;
+Mathfield.prototype.scrollIntoView_ = Mathfield.prototype.scrollIntoView;
+Mathfield.prototype.scrollToStart_ = Mathfield.prototype.scrollToStart;
+Mathfield.prototype.scrollToEnd_ = Mathfield.prototype.scrollToEnd;
+Mathfield.prototype.insert_ = Mathfield.prototype.$insert;

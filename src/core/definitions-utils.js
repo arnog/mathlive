@@ -1,8 +1,8 @@
-const MATH_SYMBOLS = {};
+export const MATH_SYMBOLS = {};
 
-const FUNCTIONS = {};
+export const FUNCTIONS = {};
 
-const ENVIRONMENTS = {};
+export const ENVIRONMENTS = {};
 
 export const MACROS = {
     iff: '\\;\u27fa\\;', //>2,000 Note: additional spaces around the arrows
@@ -458,11 +458,10 @@ export function unicodeStringToLatex(parseMode, s) {
 export function commandAllowed(mode, command) {
     if (
         FUNCTIONS[command] &&
-        (mode !== 'text' || FUNCTIONS[command].allowedInText)
+        (!FUNCTIONS[command].mode || FUNCTIONS[command].mode.includes(mode))
     ) {
         return true;
     }
-
     if ({ text: TEXT_SYMBOLS, math: MATH_SYMBOLS }[mode][command]) {
         return true;
     }
@@ -521,11 +520,11 @@ export function getInfo(symbol, parseMode, macros) {
         info = FUNCTIONS[symbol];
         if (info) {
             // We've got a match
-            if (parseMode === 'math' || info.allowedInText) return info;
 
-            // That's a valid function, but it's not allowed in non-math mode,
-            // and we're in non-math mode
-            return null;
+            // Validate that the current mode is supported by the command
+            if (info.mode && !info.mode.includes(parseMode)) return null;
+
+            return info;
         }
 
         if (!info) {
@@ -558,7 +557,7 @@ export function getInfo(symbol, parseMode, macros) {
                 if (/(^|[^\\])#9/.test(def)) argCount = 9;
                 info = {
                     type: 'group',
-                    allowedInText: false,
+                    mode: 'math',
                     params: [],
                     infix: false,
                 };
@@ -659,17 +658,10 @@ const AMS = 'ams'; // Some symbols are not in the "main" KaTeX font
  */
 function parseParamTemplateArgument(argTemplate, isOptional) {
     let r = argTemplate.match(/=(.+)/);
-    let defaultValue = '{}';
+    const defaultValue = r ? r[1] : isOptional ? '[]' : '{}';
     let type = 'auto';
     let placeholder = null;
 
-    if (r) {
-        console.assert(
-            isOptional,
-            "Can't provide a default value for required parameters"
-        );
-        defaultValue = r[1];
-    }
     // Parse the type (:type)
     r = argTemplate.match(/:([^=]+)/);
     if (r) type = r[1].trim();
@@ -723,7 +715,7 @@ function parseParamTemplate(paramTemplate) {
 export function parseArgAsString(atoms) {
     let result = '';
     let success = true;
-    atoms.forEach(atom => {
+    atoms.forEach((atom) => {
         if (typeof atom.body === 'string') {
             result += atom.body;
         } else {
@@ -779,7 +771,7 @@ export function defineEnvironment(names, params, options, parser) {
 
  * @param {object} options
  * - infix
- * - allowedInText
+ * - mode
  * @param {function} parseFunction
  * @memberof module:definitions
  * @private
@@ -809,12 +801,12 @@ export function defineFunction(
         // {optional, type, defaultValue, placeholder}
         params: parseParamTemplate(params),
 
-        allowedInText: !!options.allowedInText,
+        mode: options.mode,
         infix: !!options.infix,
         parse: parseFunction,
         emit: emitFunction,
     };
-    names.forEach(name => {
+    names.forEach((name) => {
         FUNCTIONS['\\' + name] = data;
     });
 }
@@ -822,7 +814,7 @@ export function defineFunction(
 // Body-text symbols
 // See http://ctan.mirrors.hoobly.com/info/symbols/comprehensive/symbols-a4.pdf, p14
 
-const TEXT_SYMBOLS = {
+export const TEXT_SYMBOLS = {
     '\\#': '\u0023',
     '\\&': '\u0026',
     '\\$': '$',

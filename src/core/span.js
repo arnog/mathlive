@@ -3,7 +3,7 @@
  * @private
  */
 
-import FontMetrics from './font-metrics.js';
+import { getCharacterMetrics } from './font-metrics.js';
 import { svgBodyToMarkup, svgBodyHeight } from './svg-span.js';
 
 /**
@@ -93,7 +93,7 @@ export class Span {
         let depth = 0.0;
         let maxFontSize = 1.0;
         if (this.children) {
-            this.children.forEach(x => {
+            this.children.forEach((x) => {
                 if (x.height > height) height = x.height;
                 if (x.depth > depth) depth = x.depth;
                 if (x.maxFontSize > maxFontSize) maxFontSize = x.maxFontSize;
@@ -113,7 +113,7 @@ export class Span {
             this.classes = this.classes.replace('ML__selected', '');
         }
         if (this.children) {
-            this.children.forEach(x => x.selected(isSelected));
+            this.children.forEach((x) => x.selected(isSelected));
         }
     }
     /**
@@ -247,7 +247,7 @@ export class Span {
             this.skew = 0.0;
             this.italic = 0.0;
             for (let i = 0; i < this.body.length; i++) {
-                const metrics = FontMetrics.getCharacterMetrics(
+                const metrics = getCharacterMetrics(
                     this.body.charAt(i),
                     fontName
                 );
@@ -392,7 +392,10 @@ export class Span {
         // Collapse 'empty' spans
         if (
             (body === '\u200b' || (!body && !this.svgBody)) &&
-            (!this.classes || this.classes === 'ML__selected')
+            (!this.classes || this.classes === 'ML__selected') &&
+            !this.cssId &&
+            !this.style &&
+            !this.svgOverlay
         ) {
             result = '';
         } else {
@@ -404,18 +407,12 @@ export class Span {
                 result += ' id="' + this.cssId + '" ';
             }
 
-            if (this.svgOverlay) {
-                this.setStyle('position', 'relative');
-                this.setStyle('height', this.height + this.depth, 'em');
-                this.setStyle('vertical-align', -this.depth, 'em');
-            }
-
             if (this.attributes) {
                 result +=
                     ' ' +
                     Object.keys(this.attributes)
                         .map(
-                            attribute =>
+                            (attribute) =>
                                 `${attribute}="${this.attributes[attribute]}"`
                         )
                         .join(' ');
@@ -443,7 +440,7 @@ export class Span {
             let classList = '';
             if (classes.length > 1) {
                 classList = classes
-                    .filter(function(x, e, a) {
+                    .filter(function (x, e, a) {
                         return x.length > 0 && a.indexOf(x) === e;
                     })
                     .join(' ');
@@ -511,17 +508,9 @@ export class Span {
                 result += body;
                 result += '</span>';
                 result += '<svg ';
-                // result += 'style="position:absolute;left:0;top:0;width:100%;height:100%;z-index:2;';
                 result += 'style="position:absolute;';
                 result += 'overflow:overlay;';
                 result += 'height:' + (this.height + this.depth) + 'em;';
-                result +=
-                    'transform:translateY(-' +
-                    Math.round(
-                        FontMetrics.toPx(this.depth, 'em') +
-                            FontMetrics.toPx(this.style.padding)
-                    ) +
-                    'px);';
                 if (this.style && this.style.padding) {
                     result += 'top:' + this.style.padding + ';';
                     result += 'left:' + this.style.padding + ';';
@@ -572,36 +561,41 @@ export class Span {
      * @private
      */
     tryCoalesceWith(span) {
+        // Don't coalesce if the tag or type are different
         if (this.tag !== span.tag) return false;
         if (this.type !== span.type) return false;
-        // Don't coalesce consecutive errors or placeholders
+
+        // Don't coalesce consecutive errors, placeholders or commands
         if (
             this.type === 'error' ||
             this.type === 'placeholder' ||
             this.type === 'command'
         )
             return false;
+
+        // Don't coalesce if some of the content is SVG
+        if (this.svgBody || !this.body) return false;
+        if (span.svgBody || !span.body) return false;
+
         // If this span or the candidate span have children, we can't
         // coalesce them, but we'll try to coalesce their children
         const hasChildren = this.children && this.children.length > 0;
         const spanHasChildren = span.children && span.children.length > 0;
         if (hasChildren || spanHasChildren) return false;
+
         // If they have a different number of styles, can't coalesce
         const thisStyleCount = this.style ? this.style.length : 0;
         const spanStyleCount = span.style ? span.style.length : 0;
         if (thisStyleCount !== spanStyleCount) return false;
+
         // For the purpose of our comparison,
         // any 'empty' classes (whitespace)
-        const classes = this.classes
-            .trim()
-            .replace(/\s+/g, ' ')
-            .split(' ');
-        const spanClasses = span.classes
-            .trim()
-            .replace(/\s+/g, ' ')
-            .split(' ');
+        const classes = this.classes.trim().replace(/\s+/g, ' ').split(' ');
+        const spanClasses = span.classes.trim().replace(/\s+/g, ' ').split(' ');
+
         // If they have a different number of classes, can't coalesce
         if (classes.length !== spanClasses.length) return false;
+
         // OK, let's do the more expensive comparison now.
         // If they have different classes, can't coalesce
         classes.sort();
@@ -612,6 +606,7 @@ export class Span {
             if (classes[i] === 'vertical-separator') return false;
             if (classes[i] !== spanClasses[i]) return false;
         }
+
         // If the styles are different, can't coalesce
         if (this.style && span.style) {
             for (const style in this.style) {
@@ -623,6 +618,7 @@ export class Span {
                 }
             }
         }
+
         // OK, the attributes of those spans are compatible.
         // Merge span into this
         this.body += span.body;
@@ -642,7 +638,7 @@ export class Span {
  *
  * @param {number} [hskip] amount of whitespace to insert before this element
  * This is used to adjust the inter-spacing between spans of different types,
- * e.g. 'bin' and 'rel', according to the TeX rules.
+ * e.g. 'bin' and 'rel', according to the TeX rules (TexBook p.170)
  * @alias module:core/span.INTER_ATOM_SPACING
  * @private
  */
@@ -819,7 +815,7 @@ export function makeSpan(content, classes) {
 export function makeSymbol(fontFamily, symbol, classes) {
     const result = new Span(symbol, classes);
 
-    const metrics = FontMetrics.getCharacterMetrics(symbol, fontFamily);
+    const metrics = getCharacterMetrics(symbol, fontFamily);
     result.height = metrics.height;
     result.depth = metrics.depth;
     result.skew = metrics.skew;
@@ -935,7 +931,7 @@ export function makeStyleWrap(type, children, fromStyle, toStyle, classes) {
  * @param {string} svgMarkup
  * @private
  */
-export function makeSVGOverlay(body, svgMarkup, svgStyle) {
+export function addSVGOverlay(body, svgMarkup, svgStyle) {
     body.svgOverlay = svgMarkup;
     body.svgStyle = svgStyle;
     return body;
@@ -1177,7 +1173,7 @@ function getFontName(symbol, fontFamily) {
 export function makeSVGSpan(svgBodyName, classes) {
     const span = new Span(null, classes);
     span.svgBody = svgBodyName;
-    span.height = svgBodyHeight(svgBodyName);
-    span.depth = span.height / 2;
+    span.height = svgBodyHeight(svgBodyName) / 2;
+    span.depth = span.height;
     return span;
 }

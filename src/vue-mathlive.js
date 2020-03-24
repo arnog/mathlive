@@ -81,7 +81,7 @@ export default {
         const vm = this; // Keep a reference to the ViewModel
         // Wait until the DOM has been constructed...
         this.$nextTick(function() {
-            // ... then make the MathField
+            // ... then make the Mathfield
             vm.$mathlive.makeMathField(vm.$el, {
                 ...vm.config,
                 // To support the 'model' directive, this handler will connect

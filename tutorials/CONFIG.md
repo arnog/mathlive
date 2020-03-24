@@ -1,5 +1,5 @@
 These configuration options can be passed to {@linkcode module:MathLive#makeMathField MathLive.makeMathField()}
-or {@linkcode module:editor/mathfield#MathField#setConfig MathField.\$setConfig()}.
+or {@linkcode module:editor/mathfield#Mathfield#setConfig Mathfield.\$setConfig()}.
 
 ---
 
@@ -70,21 +70,21 @@ will be in when created.
 
 ---
 
-**`config.onFocus`**:`function(mathfield:MathField)`
+**`config.onFocus`**:`function(mathfield:Mathfield)`
 
 Invoked when the mathfield has
 gained focus
 
 ---
 
-**`config.onBlur`**:`function(mathfield:MathField)`
+**`config.onBlur`**:`function(mathfield:Mathfield)`
 
 Invoked when the mathfield has
 lost focus
 
 ---
 
-**`config.onKeystroke`**:`function(mathfield:MathField, keystroke:string, ev:Event):boolean`
+**`config.onKeystroke`**:`function(mathfield:Mathfield, keystroke:string, ev:Event):boolean`
 
 Invoked when a keystroke is about to be processed.
 
@@ -95,7 +95,7 @@ Return `false` to stop the handling of the event.
 
 ---
 
-**`config.onAnnounce`**: `function(mathfield:MathField, command: string, before: atoms[], after: atoms[])`
+**`config.onAnnounce`**: `function(mathfield:Mathfield, command: string, before: atoms[], after: atoms[])`
 
 Invoked when a command has modified the selection or content. This is an
 opportunity to provide accessible feedback on navigation and editing operations.

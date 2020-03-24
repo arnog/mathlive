@@ -10,6 +10,7 @@
 import './definitions-symbols.js';
 import './definitions-accents.js';
 import './definitions-extensible-symbols.js';
+import './definitions-environments.js';
 import './definitions-enclose.js';
 import './definitions-styling.js';
 import './definitions-functions.js';

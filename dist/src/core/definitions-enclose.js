@@ -1,4 +1,5 @@
 import { defineFunction } from './definitions-utils.js';
+import { convertDimenToPx } from './font-metrics.js';
 
 // \enclose, a MathJax extension mapping to the MathML `menclose` tag.
 // The first argument is a comma delimited list of notations, as defined
@@ -33,7 +34,7 @@ defineFunction(
             for (const s of styles) {
                 const shorthand = s.match(/\s*(\S+)\s+(\S+)\s+(.*)/);
                 if (shorthand) {
-                    result.strokeWidth = FontMetrics.toPx(shorthand[1], 'px');
+                    result.strokeWidth = convertDimenToPx(shorthand[1], 'px');
                     if (!isFinite(result.strokeWidth)) {
                         result.strokeWidth = 1;
                     }
@@ -47,7 +48,7 @@ defineFunction(
                         } else if (attribute[1] === 'mathcolor') {
                             result.strokeColor = attribute[2];
                         } else if (attribute[1] === 'padding') {
-                            result.padding = FontMetrics.toPx(
+                            result.padding = convertDimenToPx(
                                 attribute[2],
                                 'px'
                             );

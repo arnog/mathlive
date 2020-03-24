@@ -1,20 +1,14 @@
-import { defineFunction } from './definitions-utils.js';
+import { defineFunction, parseArgAsString } from './definitions-utils.js';
 
-defineFunction('color', '{:color}', { allowedInText: true }, (_name, args) => {
+defineFunction('color', '{:color}', {}, (_name, args) => {
     return { color: args[0] };
 });
 
 // From the xcolor package.
-// As per xcolor, this command does not set the mode to text
-// (unlike what its name might suggest)
-defineFunction(
-    'textcolor',
-    '{:color}{content:auto*}',
-    { allowedInText: true },
-    (_name, args) => {
-        return { color: args[0] };
-    }
-);
+// Unlike what its name might suggest, this command does not set the mode to text
+defineFunction('textcolor', '{:color}{content:auto*}', {}, (_name, args) => {
+    return { color: args[0] };
+});
 
 // Can be preceded by e.g. '\fboxsep=4pt' (also \fboxrule)
 // Note:
@@ -23,7 +17,7 @@ defineFunction(
 // - \fbox: sets content in 'auto' mode (frequency 777)
 // - \framebox[<width>][<alignment>]{<content>} (<alignment> := 'c'|'t'|'b' (center, top, bottom) (frequency 28)
 // @todo
-defineFunction('boxed', '{content:math}', null, function(name, args) {
+defineFunction('boxed', '{content:math}', null, function (name, args) {
     return {
         type: 'box',
         framecolor: 'black',
@@ -35,8 +29,8 @@ defineFunction('boxed', '{content:math}', null, function(name, args) {
 defineFunction(
     'colorbox',
     '{background-color:color}{content:auto}',
-    { allowedInText: true },
-    function(name, args) {
+    {},
+    function (name, args) {
         return {
             type: 'box',
             backgroundcolor: args[0],
@@ -49,8 +43,8 @@ defineFunction(
 defineFunction(
     'fcolorbox',
     '{frame-color:color}{background-color:color}{content:auto}',
-    { allowedInText: true },
-    function(name, args) {
+    {},
+    function (name, args) {
         return {
             type: 'box',
             framecolor: args[0],
@@ -69,10 +63,7 @@ defineFunction(
 // arg ::= [<background:color>|<padding:dimen>|<style>]
 // style ::= 'border:' <string>
 
-defineFunction('bbox', '[:bbox]{body:auto}', { allowedInText: true }, function(
-    name,
-    args
-) {
+defineFunction('bbox', '[:bbox]{body:auto}', {}, function (name, args) {
     if (args[0]) {
         return {
             type: 'box',
@@ -105,8 +96,8 @@ defineFunction(
         'Huge',
     ],
     '',
-    { allowedInText: true },
-    function(name, _args) {
+    {},
+    function (name, _args) {
         return {
             fontSize: {
                 tiny: 'size1',
@@ -124,295 +115,201 @@ defineFunction(
     }
 );
 ``;
-// SERIES: weight
-defineFunction(
-    'fontseries',
-    '{:text}',
-    { allowedInText: true },
-    (_name, args) => {
-        return { fontSeries: parseArgAsString(args[0]) };
-    }
-);
 
-defineFunction('bf', '', { allowedInText: true }, (_name, _args) => {
-    return { fontSeries: 'b' };
+// \fontseries only works in text mode
+defineFunction('fontseries', '{:text}', { mode: 'text' }, (_name, args) => {
+    return { fontSeries: parseArgAsString(args[0]) };
+});
+// SHAPE: italic, small caps
+defineFunction('fontshape', '{:text}', { mode: 'text' }, (_name, args) => {
+    return { fontShape: parseArgAsString(args[0]) };
 });
 
-defineFunction('bm', '{:math*}', { allowedInText: true }, (_name, _args) => {
-    return { fontSeries: 'b' };
+// FONT FAMILY: Fraktur, Calligraphic, ...
+defineFunction('fontfamily', '{:text}', { mode: 'text' }, (_name, args) => {
+    return { fontFamily: parseArgAsString(args[0]) };
+});
+
+// In LaTeX, the \fontseries, \fontshape, \fontfamily, \fontsize commands
+// do not take effect until \selectfont is encoded. In our implementation,
+// they take effect immediately, and \selectfont is a no-op
+defineFunction('selectfont', '', { mode: 'text' }, (_name, _args) => {
+    return {};
+});
+
+// \bf works in any mode
+// As per the LaTeX 2.09 semantics, it overrides shape, family
+defineFunction('bf', '', {}, (_name, _args) => {
+    return { fontSeries: 'b', fontShape: 'n', fontFamily: 'cmr' };
+});
+
+// \bm only works in math mode
+defineFunction('bm', '{:math*}', { mode: 'math' }, (_name, _args) => {
+    return {
+        mode: 'math',
+        fontSeries: 'b',
+        fontShape: 'n',
+        fontFamily: 'cmr',
+    };
 });
 
 // Note: switches to math mode
-defineFunction('bold', '', { allowedInText: true }, (_name, _args) => {
-    return { mode: 'math', fontSeries: 'b' };
+defineFunction('bold', '{:math*}', {}, (_name, _args) => {
+    return {
+        mode: 'math',
+        fontSeries: 'b',
+        fontShape: 'n',
+        fontFamily: 'cmr',
+    };
 });
 
-defineFunction(
-    ['mathbf', 'boldsymbol'],
-    '{:math*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return { mode: 'math', fontSeries: 'b', fontShape: 'n' };
-    }
-);
-
-defineFunction('bfseries', '', { allowedInText: true }, (_name, _args) => {
+defineFunction('bfseries', '', { mode: 'text' }, (_name, _args) => {
     return { fontSeries: 'b' };
 });
-
-defineFunction(
-    'textbf',
-    '{:text*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return { fontSeries: 'b' };
-    }
-);
-
-defineFunction(
-    'mathmd',
-    '{:math*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return { mode: 'math', fontSeries: 'm', fontShape: 'n' };
-    }
-);
-
-defineFunction('mdseries', '', { allowedInText: true }, (_name, _args) => {
+defineFunction('mdseries', '', { mode: 'text' }, (_name, _args) => {
     return { fontSeries: 'm' };
 });
-
-defineFunction(
-    'textmd',
-    '{:math*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return { fontSeries: 'm' };
-    }
-);
-
-// @todo \textlf
-
-// SHAPE: italic, small caps
-defineFunction(
-    'fontshape',
-    '{:text}',
-    { allowedInText: true },
-    (_name, args) => {
-        return { fontShape: parseArgAsString(args[0]) };
-    }
-);
-
-defineFunction('it', '', { allowedInText: true }, (_name, _args) => {
-    return { fontShape: 'it' };
-});
-
-defineFunction(
-    'mathit',
-    '{:math*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return { mode: 'math', fontSeries: 'm', fontShape: 'it' };
-    }
-);
-
-defineFunction('upshape', '', { allowedInText: true }, (_name, _args) => {
+defineFunction('upshape', '', { mode: 'text' }, (_name, _args) => {
     return { fontShape: 'n' };
 });
-
-defineFunction(
-    'textup',
-    '{:text*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return { fontShape: 'n' };
-    }
-);
-
-defineFunction(
-    'textit',
-    '{:text*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return { fontShape: 'it' };
-    }
-);
-
-defineFunction('slshape', '', { allowedInText: true }, (_name, _args) => {
+defineFunction('slshape', '', { mode: 'text' }, (_name, _args) => {
     return { fontShape: 'sl' };
 });
-
-defineFunction(
-    'textsl',
-    '{:text*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return { fontShape: 'sl' };
-    }
-);
-
-// Small caps (switches to text mode)
-defineFunction('scshape', '', { allowedInText: true }, (_name, _args) => {
-    return { mode: 'text', fontShape: 'sc' };
+// Small caps
+defineFunction('scshape', '', { mode: 'text' }, (_name, _args) => {
+    return { fontShape: 'sc' };
 });
 
-defineFunction(
-    'textsc',
-    '{:text*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return { fontShape: 'sc' };
-    }
-);
-
-// FONT FAMILY: Fraktur, Calligraphic, ...
-
-defineFunction(
-    'fontfamily',
-    '{:text}',
-    { allowedInText: true },
-    (_name, args) => {
-        return { fontFamily: parseArgAsString(args[0]) };
-    }
-);
-
-defineFunction(
-    'mathrm',
-    '{:math*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return {
-            mode: 'math',
-            fontFamily: 'cmr',
-            fontSeries: 'm',
-            fontShape: 'n',
-        };
-    }
-);
-
-defineFunction('rmfamily', '', { allowedInText: true }, (_name, _args) => {
-    return { fontFamily: 'cmr' };
+defineFunction('textbf', '{:text*}', {}, (_name, _args) => {
+    return { mode: 'text', fontSeries: 'b' };
+});
+defineFunction('textmd', '{:text*}', {}, (_name, _args) => {
+    return { mode: 'text', fontSeries: 'm' };
 });
 
-defineFunction(
-    'textrm',
-    '{:text*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return { fontFamily: 'cmr' };
-    }
-);
-
-defineFunction(
-    'mathsf',
-    '{:math*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return {
-            mode: 'math',
-            baseFontFamily: 'cmss',
-            fontSeries: 'm',
-            fontShape: 'n',
-        };
-    }
-);
-
-defineFunction('sffamily', '', { allowedInText: true }, (_name, _args) => {
-    return { fontFamily: 'cmss' };
+defineFunction('textup', '{:text*}', {}, (_name, _args) => {
+    return { mode: 'text', fontShape: 'n' };
 });
-
-defineFunction(
-    'textsf',
-    '{:text*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return { fontFamily: 'cmss' };
-    }
-);
-
-defineFunction(
-    'mathtt',
-    '{:math*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return {
-            mode: 'math',
-            baseFontFamily: 'cmtt',
-            fontSeries: 'm',
-            fontShape: 'n',
-        };
-    }
-);
-
-defineFunction('ttfamily', '', { allowedInText: true }, (_name, _args) => {
-    return { fontFamily: 'cmtt' };
-});
-
-defineFunction(
-    'texttt',
-    '{:text*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return { fontFamily: 'cmtt' };
-    }
-);
-
-defineFunction(
-    ['Bbb', 'mathbb'],
-    '{:math*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return { mode: 'math', baseFontFamily: 'bb' };
-    }
-);
-
-defineFunction(
-    ['frak', 'mathfrak'],
-    '{:math*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return { baseFontFamily: 'frak' };
-    }
-);
-
-defineFunction(
-    'mathcal',
-    '{:math*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return {
-            mode: 'math',
-            baseFontFamily: 'cal',
-            fontSeries: 'm',
-            fontShape: 'n',
-        };
-    }
-);
-
-defineFunction(
-    'mathscr',
-    '{:math*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return {
-            mode: 'math',
-            baseFontFamily: 'scr',
-            fontSeries: 'm',
-            fontShape: 'n',
-        };
-    }
-);
 
 // @todo: family could be 'none' or 'default'
 // "normal" font of the body text, not necessarily roman
-defineFunction(
-    'textnormal',
-    '{:text*}',
-    { allowedInText: true },
-    (_name, _args) => {
-        return { fontFamily: 'cmr', fontShape: 'n', fontSeries: 'n' };
-    }
-);
+defineFunction('textnormal', '{:text*}', {}, (_name, _args) => {
+    return { mode: 'text', fontShape: 'n', fontSeries: 'm' };
+});
+
+defineFunction('textsl', '{:text*}', {}, (_name, _args) => {
+    return { mode: 'text', fontShape: 'sl' };
+});
+
+defineFunction('textit', '{:text*}', {}, (_name, _args) => {
+    return { mode: 'text', fontShape: 'it' };
+});
+
+defineFunction('textsc', '{:text*}', {}, (_name, _args) => {
+    return { mode: 'text', fontShape: 'sc' };
+});
+defineFunction('textrm', '{:text*}', {}, (_name, _args) => {
+    return { mode: 'text', fontFamily: 'cmr' };
+});
+
+defineFunction('textsf', '{:text*}', {}, (_name, _args) => {
+    return { mode: 'text', fontFamily: 'cmss' };
+});
+
+defineFunction('texttt', '{:text*}', {}, (_name, _args) => {
+    return { mode: 'text', fontFamily: 'cmtt' };
+});
+
+// Note: in LaTeX, \mathbf is a no-op in text mode.
+defineFunction(['mathbf', 'boldsymbol'], '{:math*}', {}, (_name, _args) => {
+    return { mode: 'math', fontSeries: 'b', fontShape: 'n', fontFamily: 'cmr' };
+});
+defineFunction('mathmd', '{:math*}', {}, (_name, _args) => {
+    return { mode: 'math', fontSeries: 'm', fontShape: 'n', fontFamily: 'cmr' };
+});
+defineFunction('mathit', '{:math*}', {}, (_name, _args) => {
+    return {
+        mode: 'math',
+        fontSeries: 'm',
+        fontShape: 'it',
+        fontFamily: 'cmr',
+    };
+});
+defineFunction('mathrm', '{:math*}', {}, (_name, _args) => {
+    return {
+        mode: 'math',
+        fontSeries: 'm',
+        fontShape: 'n',
+        baseFontFamily: 'cmr',
+    };
+});
+
+defineFunction('mathsf', '{:math*}', {}, (_name, _args) => {
+    return {
+        mode: 'math',
+        baseFontFamily: 'cmss',
+        fontSeries: 'm',
+        fontShape: 'n',
+    };
+});
+defineFunction('mathtt', '{:math*}', {}, (_name, _args) => {
+    return {
+        mode: 'math',
+        baseFontFamily: 'cmtt',
+        fontSeries: 'm',
+        fontShape: 'n',
+    };
+});
+
+defineFunction('it', '', {}, (_name, _args) => {
+    return {
+        fontSeries: 'm',
+        fontShape: 'it',
+        fontFamily: 'cmr',
+    };
+});
+
+// In LaTeX, \rmfamily, \sffamily and \ttfamily are no-op in math mode.
+defineFunction('rmfamily', '', {}, (_name, _args) => {
+    return { fontFamily: 'cmr' };
+});
+
+defineFunction('sffamily', '', {}, (_name, _args) => {
+    return { fontFamily: 'cmss' };
+});
+
+defineFunction('ttfamily', '', {}, (_name, _args) => {
+    return { fontFamily: 'cmtt' };
+});
+
+// In LaTeX, \Bbb and \mathbb are no-op in math mode.
+// They also map lowercase characters to different glyphs.
+// Note that \Bbb has been deprecated for over 20 years (as well as \rm, \it, \bf)
+defineFunction(['Bbb', 'mathbb'], '{:math*}', {}, (_name, _args) => {
+    return { mode: 'math', baseFontFamily: 'bb' };
+});
+
+defineFunction(['frak', 'mathfrak'], '{:math*}', {}, (_name, _args) => {
+    return { baseFontFamily: 'frak' };
+});
+
+defineFunction('mathcal', '{:math*}', {}, (_name, _args) => {
+    return {
+        mode: 'math',
+        baseFontFamily: 'cal',
+        fontSeries: 'm',
+        fontShape: 'n',
+    };
+});
+
+defineFunction('mathscr', '{:math*}', {}, (_name, _args) => {
+    return {
+        mode: 'math',
+        baseFontFamily: 'scr',
+        fontSeries: 'm',
+        fontShape: 'n',
+    };
+});
 
 // Rough synomym for \text{}
 /*
@@ -420,44 +317,38 @@ An \mbox within math mode does not use the current math font; rather it uses
 the typeface of the surrounding running text.
 */
 defineFunction('mbox', '{:text*}', null, (_name, _args) => {
-    return { fontFamily: 'cmr' };
+    return { mode: 'text', fontFamily: 'cmr' };
 });
 
-defineFunction('text', '{:text*}', { allowedInText: true }, (_name, _args) => {
-    return {};
+defineFunction('text', '{:text*}', null, (_name, _args) => {
+    return { mode: 'text' };
 });
 
 /* A MathJax extension: assign a class to the element */
-defineFunction(
-    'class',
-    '{name:text}{content:auto*}',
-    { allowedInText: true },
-    (_name, args) => {
-        return { cssClass: parseArgAsString(args[0]) };
-    }
-);
+defineFunction('class', '{name:text}{content:auto*}', null, (_name, args) => {
+    return { cssClass: parseArgAsString(args[0]) };
+});
 
 /* A MathJax extension: assign an ID to the element */
-defineFunction(
-    'cssId',
-    '{id:text}{content:auto}',
-    { allowedInText: true },
-    (_name, args) => {
-        return {
-            cssId: parseArgAsString(args[0]),
-            body: args[1],
-            type: 'group',
-        };
-    }
-);
+defineFunction('cssId', '{id:text}{content:auto}', null, (_name, args) => {
+    return {
+        cssId: parseArgAsString(args[0]),
+        body: args[1],
+        type: 'group',
+    };
+});
 
-/* Note: in TeX, \em is restricted to text mode. We extend it to math */
-defineFunction('em', '', { allowedInText: true }, (_name, _args) => {
-    return { cssClass: 'ML__emph', type: 'group' };
+/* Note: in TeX, \em is restricted to text mode. We extend it to math
+ * This is the 'switch' variant of \emph, i.e:
+ * `\emph{important text}`
+ * `{\em important text}`
+ */
+defineFunction('em', '', null, (_name, _args) => {
+    return { cssClass: 'ML__emph' };
 });
 
 /* Note: in TeX, \emph is restricted to text mode. We extend it to math */
-defineFunction('emph', '{:auto}', { allowedInText: true }, (_name, args) => {
+defineFunction('emph', '{:auto}', null, (_name, args) => {
     return {
         cssClass: 'ML__emph',
         body: args[0],
@@ -507,7 +398,7 @@ defineFunction(
     ],
     '{:delim}',
     null,
-    function(name, args) {
+    function (name, args) {
         return {
             type: 'sizeddelim',
             size: DELIMITER_SIZES[name].size,
@@ -525,8 +416,8 @@ defineFunction(
         // it's the same as \hspace.
     ],
     '{width:skip}',
-    { allowedInText: true },
-    function(_name, args) {
+    {},
+    function (_name, args) {
         return {
             type: 'spacing',
             width: args[0] || 0,
@@ -547,7 +438,7 @@ defineFunction(
     ],
     '{:auto}',
     null,
-    function(name, args) {
+    function (name, args) {
         const result = {
             type: {
                 '\\mathop': 'mop',
@@ -575,7 +466,7 @@ defineFunction(
     ['operatorname', 'operatorname*'],
     '{operator:math}',
     null,
-    function(name, args) {
+    function (name, args) {
         const result = {
             type: 'mop',
             skipBoundary: true,
@@ -583,7 +474,7 @@ defineFunction(
             isFunction: true,
         };
 
-        result.body.forEach(x => {
+        result.body.forEach((x) => {
             x.isFunction = false;
             x.autoFontFamily = 'cmr';
         });
@@ -598,7 +489,7 @@ defineFunction(
     }
 );
 
-defineFunction('unicode', '{charcode:number}', null, function(name, args) {
+defineFunction('unicode', '{charcode:number}', null, function (name, args) {
     let codepoint = parseInt(args[0]);
     if (!isFinite(codepoint)) codepoint = 0x2753; // BLACK QUESTION MARK
     return {
@@ -612,7 +503,7 @@ defineFunction(
     'rule',
     '[raise:dimen]{width:dimen}{thickness:dimen}',
     null,
-    function(name, args) {
+    function (name, args) {
         return {
             type: 'rule',
             shift: args[0],
@@ -623,7 +514,7 @@ defineFunction(
 );
 
 // An overline
-defineFunction('overline', '{:auto}', null, function(name, args) {
+defineFunction('overline', '{:auto}', null, function (name, args) {
     return {
         type: 'line',
         position: 'overline',
@@ -632,7 +523,7 @@ defineFunction('overline', '{:auto}', null, function(name, args) {
     };
 });
 
-defineFunction('underline', '{:auto}', null, function(name, args) {
+defineFunction('underline', '{:auto}', null, function (name, args) {
     return {
         type: 'line',
         position: 'underline',
@@ -641,8 +532,8 @@ defineFunction('underline', '{:auto}', null, function(name, args) {
     };
 });
 
-defineFunction('overset', '{annotation:auto}{symbol:auto}', null, function(
-    name,
+defineFunction('overset', '{annotation:auto}{symbol:auto}', null, function (
+    _name,
     args
 ) {
     return {
@@ -653,8 +544,8 @@ defineFunction('overset', '{annotation:auto}{symbol:auto}', null, function(
     };
 });
 
-defineFunction('underset', '{annotation:auto}{symbol:auto}', null, function(
-    name,
+defineFunction('underset', '{annotation:auto}{symbol:auto}', null, function (
+    _name,
     args
 ) {
     return {
@@ -667,9 +558,9 @@ defineFunction('underset', '{annotation:auto}{symbol:auto}', null, function(
 
 defineFunction(
     ['overwithdelims' /* 21 */, 'atopwithdelims' /* COMMON */],
-    '{left-delim:delim}{right-delim:delim}',
+    '{numer:auto}{denom:auto}{left-delim:delim}{right-delim:delim}',
     { infix: true },
-    function(name, args) {
+    function (_name, args) {
         return {
             type: 'genfrac',
             numer: args[0],
@@ -686,18 +577,19 @@ defineFunction(
     ['stackrel', 'stackbin'],
     '{annotation:auto}{symbol:auto}',
     null,
-    function(name, args) {
+    function (name, args) {
         return {
             type: 'overunder',
             overscript: args[0],
             skipBoundary: true,
             body: args[1],
+            // Set the correct spacing rule for \stackrel
             mathtype: name === '\\stackrel' ? 'mrel' : 'mbin',
         };
     }
 );
 
-defineFunction('rlap', '{:auto}', null, function(name, args) {
+defineFunction('rlap', '{:auto}', null, function (name, args) {
     return {
         type: 'overlap',
         align: 'right',
@@ -706,7 +598,7 @@ defineFunction('rlap', '{:auto}', null, function(name, args) {
     };
 });
 
-defineFunction('llap', '{:auto}', null, function(name, args) {
+defineFunction('llap', '{:auto}', null, function (name, args) {
     return {
         type: 'overlap',
         align: 'left',
@@ -715,7 +607,7 @@ defineFunction('llap', '{:auto}', null, function(name, args) {
     };
 });
 
-defineFunction('mathrlap', '{:auto}', null, function(name, args) {
+defineFunction('mathrlap', '{:auto}', null, function (name, args) {
     return {
         type: 'overlap',
         mode: 'math',
@@ -725,7 +617,7 @@ defineFunction('mathrlap', '{:auto}', null, function(name, args) {
     };
 });
 
-defineFunction('mathllap', '{:auto}', null, function(name, args) {
+defineFunction('mathllap', '{:auto}', null, function (name, args) {
     return {
         type: 'overlap',
         mode: 'math',

@@ -13,7 +13,10 @@ const ACCENTS = {
     hat: '\u005e',
     vec: '\u20d7',
 };
-defineFunction(Object.keys(ACCENTS), '{body:auto}', null, function(name, args) {
+defineFunction(Object.keys(ACCENTS), '{body:auto}', null, function (
+    name,
+    args
+) {
     return {
         type: 'accent',
         accent: ACCENTS[name.slice(1)],
@@ -79,7 +82,7 @@ defineFunction(
  *
  */
 
-defineFunction('^', '{:string}', { allowedInText: true }, function(name, args) {
+defineFunction('^', '{:string}', {}, function (name, args) {
     return {
         type: 'mord',
         limits: 'nolimits',
@@ -103,7 +106,7 @@ defineFunction('^', '{:string}', { allowedInText: true }, function(name, args) {
     };
 });
 
-defineFunction('`', '{:string}', { allowedInText: true }, function(name, args) {
+defineFunction('`', '{:string}', {}, function (name, args) {
     return {
         type: 'mord',
         limits: 'nolimits',
@@ -127,7 +130,7 @@ defineFunction('`', '{:string}', { allowedInText: true }, function(name, args) {
     };
 });
 
-defineFunction("'", '{:string}', { allowedInText: true }, function(name, args) {
+defineFunction("'", '{:string}', {}, function (name, args) {
     return {
         type: 'mord',
         limits: 'nolimits',
@@ -151,7 +154,7 @@ defineFunction("'", '{:string}', { allowedInText: true }, function(name, args) {
     };
 });
 
-defineFunction('~', '{:string}', { allowedInText: true }, function(name, args) {
+defineFunction('~', '{:string}', {}, function (name, args) {
     return {
         type: 'mord',
         limits: 'nolimits',
@@ -165,7 +168,7 @@ defineFunction('~', '{:string}', { allowedInText: true }, function(name, args) {
     };
 });
 
-defineFunction('c', '{:string}', { allowedInText: true }, function(name, args) {
+defineFunction('c', '{:string}', {}, function (name, args) {
     return {
         type: 'mord',
         limits: 'nolimits',

@@ -52,7 +52,7 @@ registerAtomType('overunder', (context, atom) => {
         body,
         above,
         below,
-        atom.mathtype || 'mrel'
+        atom.mathtype || 'mord'
     );
 });
 
@@ -79,13 +79,13 @@ function makeOverunderStack(context, nucleus, above, below, type) {
     if (above) {
         aboveShift = Math.max(
             FONTMETRICS.bigOpSpacing1,
-            FONTMETRICS.bigOpSpacing3 + spanHeight(above) / 2
+            FONTMETRICS.bigOpSpacing3 - spanDepth(above)
         );
     }
     if (below) {
         belowShift = Math.max(
             FONTMETRICS.bigOpSpacing2,
-            FONTMETRICS.bigOpSpacing4
+            FONTMETRICS.bigOpSpacing4 - spanHeight(below)
         );
     }
 
@@ -98,13 +98,11 @@ function makeOverunderStack(context, nucleus, above, below, type) {
         result = makeVlist(
             context,
             [
-                spanDepth(below) +
-                    spanHeight(below) +
-                    FONTMETRICS.bigOpSpacing2,
+                0,
                 below,
-                -FONTMETRICS.bigOpSpacing1,
+                FONTMETRICS.bigOpSpacing3 + spanDepth(nucleus),
                 nucleus,
-                -spanHeight(nucleus) + FONTMETRICS.bigOpSpacing5,
+                -aboveShift,
                 above,
                 FONTMETRICS.bigOpSpacing2,
             ],
@@ -116,7 +114,7 @@ function makeOverunderStack(context, nucleus, above, below, type) {
 
         result = makeVlist(
             context,
-            [0, below, FONTMETRICS.bigOpSpacing2 - spanHeight(below), nucleus],
+            [0, below, belowShift, nucleus],
             'top',
             top
         );
@@ -125,7 +123,10 @@ function makeOverunderStack(context, nucleus, above, below, type) {
             context,
             [
                 nucleus,
-                FONTMETRICS.bigOpSpacing5, // TeXBook 13.1
+                Math.max(
+                    FONTMETRICS.bigOpSpacing2,
+                    aboveShift - spanDepth(above)
+                ), // TeXBook 13a, p.444
                 above,
                 0,
             ],
@@ -134,5 +135,5 @@ function makeOverunderStack(context, nucleus, above, below, type) {
         );
     }
 
-    return makeSpanOfType(type, result, above && below ? 'op-over-under' : '');
+    return makeSpanOfType(type, result, 'op-over-under');
 }

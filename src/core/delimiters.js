@@ -32,7 +32,7 @@ import {
     makeStyleWrap,
 } from './span.js';
 import Mathstyle from './mathstyle.js';
-import FontMetrics from './font-metrics.js';
+import { getCharacterMetrics, METRICS } from './font-metrics.js';
 /**
  * Makes a small delimiter. This is a delimiter that comes in the Main-Regular
  * font, but is restyled to either be in textstyle, scriptstyle, or
@@ -257,25 +257,16 @@ function makeStackedDelim(type, delim, heightTotal, center, context, classes) {
     }
 
     // Get the metrics of the four sections
-    const topMetrics = FontMetrics.getCharacterMetrics(
-        getValue('math', top),
-        font
-    );
+    const topMetrics = getCharacterMetrics(getValue('math', top), font);
     const topHeightTotal = topMetrics.height + topMetrics.depth;
-    const repeatMetrics = FontMetrics.getCharacterMetrics(
-        getValue('math', repeat),
-        font
-    );
+    const repeatMetrics = getCharacterMetrics(getValue('math', repeat), font);
     const repeatHeightTotal = repeatMetrics.height + repeatMetrics.depth;
-    const bottomMetrics = FontMetrics.getCharacterMetrics(
-        getValue('math', bottom),
-        font
-    );
+    const bottomMetrics = getCharacterMetrics(getValue('math', bottom), font);
     const bottomHeightTotal = bottomMetrics.height + bottomMetrics.depth;
     let middleHeightTotal = 0;
     let middleFactor = 1;
     if (middle !== null) {
-        const middleMetrics = FontMetrics.getCharacterMetrics(
+        const middleMetrics = getCharacterMetrics(
             getValue('math', middle),
             font
         );
@@ -527,7 +518,7 @@ function traverseSequence(delim, height, sequence, context) {
             break;
         }
 
-        const metrics = FontMetrics.getCharacterMetrics(
+        const metrics = getCharacterMetrics(
             delim,
             delimTypeToFont(sequence[i])
         );
@@ -641,7 +632,7 @@ function makeLeftRightDelim(type, delim, height, depth, context, classes) {
 
     // Taken from TeX source, tex.web, function make_left_right
     const delimiterFactor = 901; // plain.tex:327
-    const delimiterShortfall = 5.0 / FontMetrics.METRICS.ptPerEm; // plain.tex:345
+    const delimiterShortfall = 5.0 / METRICS.ptPerEm; // plain.tex:345
 
     let delta2 = depth + axisHeight;
     let delta1 = height - axisHeight;

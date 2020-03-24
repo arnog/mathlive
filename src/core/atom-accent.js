@@ -40,7 +40,7 @@ registerAtomType('accent', (context, atom) => {
     let accentBody;
     if (atom.svgAccent) {
         accentBody = makeSVGSpan(atom.svgAccent);
-        clearance = -FONTMETRICS.bigOpSpacing1;
+        clearance = -clearance + FONTMETRICS.bigOpSpacing1;
     } else {
         // Build the accent
         const accent = makeSymbol('Main-Regular', atom.accent, 'math');

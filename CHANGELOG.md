@@ -2,14 +2,17 @@
 
 ### New Features
 
--   **Extensible (stretchy) symbols**: \
-    #126 (`\overgroup`, `\overrightarrow`, `\overleftrightarrow`), #180 (`\xrightarrow`, `\xrightleftharpoons`), #292(`\widehat`, `\overbrace`, `\underbrace`), #338 (`\vec`, `\bar`).\
-    \
-    This work has been made possible thanks to the financial support of a generous sponsor.\
-    \
-    It is now possible for a symbol with operands above or below, or for a decoration above or below an expression, to stretch (extend) so that its width will match the width of the operands or expression. \
-    These extensible symbols and decorations are important for some domains such as geometry and chemistry.\
-    This release introduces the following new commands:
+-   **Extensible (stretchy) symbols**:
+
+    **#126** (`\overgroup`, `\overrightarrow`, `\overleftrightarrow`), **#180** (`\xrightarrow`, `\xrightleftharpoons`), **#292** (`\widehat`, `\overbrace`, `\underbrace`), **#338** (`\vec`, `\bar`).
+
+    This work has been made possible thanks to the financial support of a generous sponsor.
+
+    It is now possible for a symbol with operands above or below, or for a decoration above or below an expression, to stretch (extend) so that its width will match the width of the operands or expression.
+
+    These extensible symbols and decorations are important for some domains such as geometry and chemistry.
+
+    This release introduces th following new commands:
 
     -   `\overrightarrow{base}`
     -   `\overleftarrow{base}`
@@ -56,15 +59,33 @@
     -   `\widetilde{base}`
     -   `\utilde{base}`
 
+-   Improved rendering and layout of `\enclose`
+
+-   Improved layout of `overunder` atoms
+
+-   Improved layout of `accent` atoms
+
+-   Improved fidelity of styling commands (`\textup`, `\fontseries`, etc...). They are now closer to what LaTeX does, in all its wonderful weirdness (see https://texfaq.org/FAQ-2letterfontcmd). Added `\selectfont` command.
+
 ### Bug Fixes
 
 -   **#371**: When clicking after the last element in the mathfield, always set the anchor to be the last element in the root, i.e. as if `moveToMathFieldEnd` had been performed. For example, if the content is "x^2", clicking after the end of the field will put the caret after the last element (not after the "2" in the superscript)
 
 -   **#372**: Using an argument in a macro will result in the argument to be substituted without a group being inserted. Previously, `#1` with `ax` as a value for the first argument would have resulted in `{ax}`. This was noticeable when using the `x^2` key in the virtual keyboard: if the equation was `ab`, pressing that key resulted in `{ab}^2`. It now results in `ab^2`
 
+-   Fixed an issue rendering some commands such as `\boxed` and others when in static mode. An over-agressive optimization would coalesce spans with no content, even though they may include important styling info.
+
+-   Fixed the rendering of infix commands with arguments, e.g. `\atopwithdelims` and `overwithdelims`. The arguments of infix commands were incorrectly merged with the suffix.
+
+-   Fixed inter-atom spacing of `overunder` atoms (they should space as `mord`)
+
 ### Code Maintenance
 
 -   Re-factored the definitions of functions, symbols and environments which are now split in multiple files instead of being all contained in `core/definitions.js`
+
+-   Re-factored and isolated the metadata about LaTex commands (frequency and category). This should reduce the amount of data carried by the core package. All the metadata is now in `definitions-metadata.js`. As a side effect, the examples displayed in the popover window might be less complete, but the removal of popover is on the roadmap.
+
+-   Removal of default export for some modules. Need to complete it for all the remaining modules.
 
 ## 0.34 (Feb 5, 2020)
 
@@ -477,7 +498,7 @@ The `'after'` key, if present, indicate in what context the shortcut should appl
 
 ```javascript
 MathLive.makeMathField('input', {
-    onContentDidChange: mf => {
+    onContentDidChange: (mf) => {
         document.getElementById('output').innerHTML = mf.latex();
     },
 });
