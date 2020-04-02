@@ -2545,6 +2545,7 @@ MathField.prototype.complete_ = function(options) {
         }
         this.undoManager.snapshot(this.config);
         this._announce('replacement');
+        this.switchMode_('math');
         return true;
     }
     return false;
