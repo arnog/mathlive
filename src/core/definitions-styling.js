@@ -6,6 +6,7 @@ defineFunction('color', '{:color}', {}, (_name, args) => {
 
 // From the xcolor package.
 // Unlike what its name might suggest, this command does not set the mode to text
+// That is, it can equally be applied to math and text mode.
 defineFunction('textcolor', '{:color}{content:auto*}', {}, (_name, args) => {
     return { color: args[0] };
 });
@@ -114,7 +115,6 @@ defineFunction(
         };
     }
 );
-``;
 
 // \fontseries only works in text mode
 defineFunction('fontseries', '{:text}', { mode: 'text' }, (_name, args) => {
@@ -462,6 +462,9 @@ defineFunction(
     }
 );
 
+// @todo see http://mirrors.ibiblio.org/CTAN/macros/latex/required/amsmath/amsopn.pdf
+// for list of additional operators
+
 defineFunction(
     ['operatorname', 'operatorname*'],
     '{operator:math}',
@@ -469,10 +472,27 @@ defineFunction(
     function (name, args) {
         const result = {
             type: 'mop',
-            skipBoundary: true,
+            captureSelection: true, // Do not let children be selected
             body: args[0],
             isFunction: true,
         };
+        /*
+        The \operatorname commands is defined with:
+
+        \gdef\newmcodes@{\mathcode`\'39\mathcode`\*42\mathcode`\."613A%
+        \ifnum\mathcode`\-=45 \else
+            \mathchardef\std@minus\mathcode`\-\relax
+        \fi
+        \mathcode`\-45\mathcode`\/47\mathcode`\:"603A\relax}
+
+
+        \mathcode assigns to a character its category (2=mbin), its font family (0=cmr),
+        and its character code.
+
+        It basically temporarily reassigns to ":.'-/*" the values/properties
+        these characters have in text mode (but importantly, not to " " (space))
+
+        */
 
         result.body.forEach((x) => {
             x.isFunction = false;
@@ -557,7 +577,7 @@ defineFunction('underset', '{annotation:auto}{symbol:auto}', null, function (
 });
 
 defineFunction(
-    ['overwithdelims' /* 21 */, 'atopwithdelims' /* COMMON */],
+    ['overwithdelims', 'atopwithdelims'],
     '{numer:auto}{denom:auto}{left-delim:delim}{right-delim:delim}',
     { infix: true },
     function (_name, args) {
