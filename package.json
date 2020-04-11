@@ -105,7 +105,7 @@
     "devDependencies": {
         "@babel/cli": "^7.8.4",
         "@babel/core": "^7.9.0",
-        "@babel/preset-env": "^7.9.0",
+        "@babel/preset-env": "^7.9.5",
         "@babel/register": "^7.9.0",
         "@cortex-js/prettier-config": "^1.0.0",
         "autoprefixer": "^9.7.5",
