@@ -131,7 +131,7 @@
         "sutro-jsdoc-theme": "^1.0",
         "tap-spec": "^5.0.0",
         "tape": "^4.13.2",
-        "tsd-jsdoc": "^2.4.0"
+        "tsd-jsdoc": "^2.5.0"
     },
     "dependencies": {}
 }

@@ -11488,9 +11488,9 @@
             "dev": true
         },
         "tsd-jsdoc": {
-            "version": "2.4.0",
-            "resolved": "https://registry.npmjs.org/tsd-jsdoc/-/tsd-jsdoc-2.4.0.tgz",
-            "integrity": "sha512-TBWIgYP/I681CQQXv4SNGe9HszfNDnyHtQkkPEX+fraFYBkWY8+5ug2quisRcrBz13QY78Hqta0PHeCT5llUFg==",
+            "version": "2.5.0",
+            "resolved": "https://registry.npmjs.org/tsd-jsdoc/-/tsd-jsdoc-2.5.0.tgz",
+            "integrity": "sha512-80fcJLAiUeerg4xPftp+iEEKWUjJjHk9AvcHwJqA8Zw0R4oASdu3kT/plE/Zj19QUTz8KupyOX25zStlNJjS9g==",
             "dev": true,
             "requires": {
                 "typescript": "^3.2.1"
@@ -11544,9 +11544,9 @@
             }
         },
         "typescript": {
-            "version": "3.6.3",
-            "resolved": "https://registry.npmjs.org/typescript/-/typescript-3.6.3.tgz",
-            "integrity": "sha512-N7bceJL1CtRQ2RiG0AQME13ksR7DiuQh/QehubYcghzv20tnh+MQnQIuJddTmsbqYj+dztchykemz0zFzlvdQw==",
+            "version": "3.8.3",
+            "resolved": "https://registry.npmjs.org/typescript/-/typescript-3.8.3.tgz",
+            "integrity": "sha512-MYlEfn5VrLNsgudQTVJeNaQFUAI7DkhnOjdpAp4T+ku1TfQClewlbSuTVHiA+8skNBgaf02TL/kLOvig4y3G8w==",
             "dev": true
         },
         "uc.micro": {
