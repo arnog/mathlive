@@ -585,7 +585,7 @@ declare module "mathlive" {
      * @param [options.macros] - A dictionary of LaTeX macros
      * @returns The Abstract Syntax Tree as an object literal using the MathJSON format.
      */
-    function latexToAST(latex: string, options: {
+    function latexToAST(latex: string, options?: {
         macros?: any;
     }): any;
     /**

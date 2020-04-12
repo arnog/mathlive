@@ -2316,8 +2316,7 @@ EditableMathlist.prototype.insert = function (s, options) {
     if (options.insertionMode === 'replaceSelection' && !this.isCollapsed()) {
         this.delete_();
     } else if (options.insertionMode === 'replaceAll') {
-        // Remove all the children of root, save for the 'first' atom
-        this.root.body.splice(1);
+        this.root.body = [];
         this.path = [{ relation: 'body', offset: 0 }];
         this.extent = 0;
     } else if (options.insertionMode === 'insertBefore') {

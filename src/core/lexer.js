@@ -11,7 +11,7 @@
  * {@link ftp://tug.ctan.org/pub/tex-archive/systems/knuth/dist/lib/plain.tex|plain.tex}
  */
 
-import GraphemeSplitter from './grapheme-splitter.js';
+import { splitGraphemes } from './grapheme-splitter.ts';
 
 /**
  *
@@ -52,7 +52,7 @@ class Token {
  */
 class Lexer {
     constructor(s) {
-        this.s = GraphemeSplitter.splitGraphemes(s);
+        this.s = splitGraphemes(s);
         this.pos = 0;
     }
     /**

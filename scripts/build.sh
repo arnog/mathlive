@@ -51,7 +51,7 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
     if [ "$BUILD" = "watch" ]; then
         # Launch server, do build
         echo "Launching server"
-        npx http-server . -c-1 --cors='*' -o examples/index.html &
+        npx http-server . -c-1 --cors='*' -o examples/test-cases/index.html &
 
         # do dev build and watch
         BUILD="development"

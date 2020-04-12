@@ -27,6 +27,7 @@ import { MACROS } from './core/definitions.js';
 import { Mathfield } from './editor/editor-mathfield.js';
 import AutoRender from './addons/auto-render.js';
 import { jsonToLatex } from './addons/mathJson.js';
+import MathLiveDebug from './addons/debug.js';
 
 /**
  * Converts a LaTeX string to a string of HTML markup.
@@ -178,7 +179,7 @@ function toMathML(latex, options) {
  *
  * @param {string} latex A string of valid LaTeX. It does not have to start
  * with a mode token such as a `$$` or `\(`.
- * @param {Object.<string, any>} options
+ * @param {Object.<string, any>} [options]
  * @param {object} [options.macros] A dictionary of LaTeX macros
  *
  * @return {object} The Abstract Syntax Tree as an object literal using the MathJSON format.
@@ -925,6 +926,14 @@ const MathLive = {
     pauseReadAloud,
     resumeReadAloud,
     playReadAloud,
+    debug: {
+        getStyle: MathLiveDebug.getStyle,
+        getType: MathLiveDebug.getType,
+        spanToString: MathLiveDebug.spanToString,
+        hasClass: MathLiveDebug.hasClass,
+        latexToAsciiMath: MathLiveDebug.latexToAsciiMath,
+        asciiMathToLatex: MathLiveDebug.asciiMathToLatex,
+    },
 };
 
 export default MathLive;

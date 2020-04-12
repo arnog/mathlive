@@ -16,7 +16,7 @@ import Undo from './editor-undo.js';
 import Shortcuts from './editor-shortcuts.js';
 import Popover from './editor-popover.js';
 import VirtualKeyboard from './editor-virtualKeyboard.js';
-import GraphemeSplitter from '../core/grapheme-splitter.js';
+import { splitGraphemes } from '../core/grapheme-splitter.ts';
 import { toASCIIMath } from './outputASCIIMath.js';
 import { l10n } from './l10n.js';
 import '../addons/outputLatex.js';
@@ -966,9 +966,10 @@ export class Mathfield {
         this.mathlist.commitCommandStringBeforeInsertionPoint();
         // Keep the content of the textarea in sync wiht the selection.
         // This will allow cut/copy to work.
-        const selection = new Atom('math', 'root', []);
-        selection.body = this.mathlist.getSelectedAtoms();
-        const result = selection.toLatex(false);
+        const result = makeRoot(
+            'math',
+            this.mathlist.getSelectedAtoms()
+        ).toLatex(false);
         if (result) {
             this.textarea.value = result;
             // The textarea may be a span (on mobile, for example), so check that
@@ -2046,7 +2047,7 @@ export class Mathfield {
             // those with a skin tone modifier, the country flags emojis or
             // compound emojis such as the professional emojis, including the
             // David Bowie emoji: 👨🏻‍🎤
-            const graphemes = GraphemeSplitter.splitGraphemes(text);
+            const graphemes = splitGraphemes(text);
             for (const c of graphemes) {
                 if (this.mode === 'command') {
                     this.mathlist.removeSuggestion();

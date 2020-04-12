@@ -549,30 +549,30 @@ export function getValue(mode, symbol) {
     return TEXT_SYMBOLS[symbol] ? TEXT_SYMBOLS[symbol] : symbol;
 }
 
-export function emit(command, parent, atom, emitFn) {
+export function emit(symbol, parent, atom, emitFn) {
     console.assert(atom);
-    console.assert(command, 'Missing command for ', atom.body);
+    console.assert(symbol, 'Missing command for ', atom.body);
 
-    if (FUNCTIONS[command] && FUNCTIONS[command].emit) {
-        return FUNCTIONS[command].emit(command, parent, atom, emitFn);
+    if (FUNCTIONS[symbol] && FUNCTIONS[symbol].emit) {
+        return FUNCTIONS[symbol].emit(symbol, parent, atom, emitFn);
     }
 
-    if (MATH_SYMBOLS[command] || TEXT_SYMBOLS[command]) {
+    if (MATH_SYMBOLS[symbol] || TEXT_SYMBOLS[symbol]) {
         // Add a space after commands, to avoid, e.g.
         // '\sin' + 'x' -> '\sinx' instead of '\sin x'
-        return command + (/^\\.*[a-zA-Z0-9]$/.test(command) ? ' ' : '');
+        return symbol + (/^\\.*[a-zA-Z0-9]$/.test(symbol) ? ' ' : '');
     }
 
     if (
-        FUNCTIONS[command] &&
-        FUNCTIONS[command].params &&
-        FUNCTIONS[command].params.length === 1 &&
+        FUNCTIONS[symbol] &&
+        FUNCTIONS[symbol].params &&
+        FUNCTIONS[symbol].params.length === 1 &&
         atom.body
     ) {
-        return command + '{' + emitFn(atom, atom.body) + '}';
+        return symbol + '{' + emitFn(atom, atom.body) + '}';
     }
-    // No custom emit function provided, return ''
-    return '';
+    // No custom emit function provided, return the symbol (could be a character)
+    return symbol;
 }
 
 export function getEnvironmentInfo(name) {

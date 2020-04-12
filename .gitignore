@@ -3,7 +3,7 @@
 /build
 /out
 /node_modules
-/.nyc_output
+/coverage
 
 babel.babel
 TODO.md

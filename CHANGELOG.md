@@ -4,10 +4,12 @@
 
 -   "Verbatim Latex": the Latex provided as input (for example with `insert()`)
     is preserved as long as it's not edited. Previously, the latex would be
-    normalized, and therefore the output did not match the input character
+    normalized, and therefore the output would not match the input character
     for character, even though it produced equivalent Latex code. For example,
     extra spaces could be inserted, and the order of subscript and superscript was
-    not guaranteed. Now, the Latex is preserved as long as possible, until
+    not preserved.
+
+    Now, the Latex is preserved until
     editing operations cause it to be modified. This also means that the arguments
     of macros are never modified (since the macros are not editable) and will be
     returned exactly as input (they were normalized before).
@@ -25,9 +27,9 @@
 (up) = upright
 
 The default letter shape style is `auto`, which indicates that `french` should
-be used if the locale is "french", and `tex` otherwise.
+be used if the locale is "french", and `tex` otherwise. The previous behavior was to always use 'tex' style lettershape stle.
 
--   Added an example with some test cases, including LaTeX output for comparison.
+-   Added an example with some test cases, including LaTeX output screenshots for comparison.
 
 -   Re-done the font selection sub-system. Internally, it's now cleaner and
     easier to follow, and also closer to the LaTeX implementation. In particular,
@@ -42,26 +44,29 @@ be used if the locale is "french", and `tex` otherwise.
 
 ### Code Maintenance
 
--   Updated font binary
+-   Updated font binaries
 -   Factored out some of the mode specific code into `modes-*.js`
+-   Started porting to Typescript (1 file so far).
+-   Rewrote grapheme splitter in TS. As a result, code size reduced by 113Kb (!).
+-   Switched to `jest` as a test runner.
 
 ### Bug Fixes
 
--   Fix #393: some characters in a `\operatorname` command, including '-' and '\*', were not displayed correctly (they should display as if in text mode, not in math mode)
+-   **Fix #393**: some characters in a `\operatorname` command, including `-` and `*`, were not displayed correctly (they should display as if in text mode, not in math mode, and the correct glyphs are different between the two modes)
 
--   Fix #395: re-implemented how macros handle their arguments. They would previously
+-   **Fix #395**: re-implemented how macros handle their arguments. They would previously
     parse their argument using the current parseMode. This is incorrect. The parseMode
     cannot be determined until the macro has been expanded and the arguments substituted.
     The parsing of the macros arguments is now deferred until after the macro has been
     expanded. Additionally, it wasn't previously possible for arguments to macros
     to contain other arguments. This is now allowed.
 
--   Fix #395 (bis): Properly output Latex for macros when using 'latex' and 'latex-expanded' formats.
+-   **Fix #395 (bis)**: Properly output Latex for macros when using 'latex' and 'latex-expanded' formats.
 
 -   Fixed numerous issues with LaTeX round-tripping. For example, `\mathfrak{C}`,
     `\boldsymbol{\sin\theta}`,
 
--   If the `\text` command included a '&', the content following the '&' would be ignored.
+-   If the `\text` command included a `&`, the content following the `&` would be ignored.
 
 -   The `align*` environment was not handled correctly and displayed an extra gap between columns.
 
@@ -78,13 +83,15 @@ be used if the locale is "french", and `tex` otherwise.
 
 -   Related to the above, but worth noting separately, `\mathbf{\alpha}` should
     render as normal italic: the `\mathbf` command does not apply to lowercase
-    greek letters. Note that uppercase greek are not affected. This is an artifact of the TeX font encoding.
+    greek letters. The command _does_ apply to uppercase greek letters. This is an artifact of the TeX font encoding, but the behavior is preserved for compatibility with TeX.
 
--   The `\textcolor` did not apply to large symbols, such as `\sum`
+-   The `\textcolor` command did not apply to large symbols, such as `\sum`
 
 -   Correctly output LaTeX for infix operators such as `\atopwithdelims`
 
 -   Correctly output unicode characters in the astral plane, e.g. `\unicode{"1F468}`
+
+-   Fixed an issue were consecutive calls to set the content of the mathfield could result in some spurious characters inserted at the beginning of the field.
 
 ## Breaking Change
 

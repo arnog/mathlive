@@ -26,7 +26,7 @@
         </header>
         <main>
             <div class="mathfield" id="mf">
-                \sin\theta^{2}
+                👨🏻‍🎤🍔
             </div>
             <div class="output" id="latex"></div>
             <div class="output" id="mathjson"></div>
@@ -98,7 +98,7 @@
                 },
                 {
                     id: 'styling-3',
-                    title: '\mathbf vs \boldsymbol',
+                    title: '\\mathbf vs \\boldsymbol',
                     pic: 'styling-3.gif',
                     latex:
                         'x\\sin\\theta\\Theta\\boldsymbol{x\\sin\\theta\\Theta}\\mathbf{x\\sin\\theta\\Theta}',
@@ -130,7 +130,7 @@
                 {
                     id: 'styling-8',
                     title: 'Text styled with color',
-                    latex: `\text{\textcolor{green}{green}\textcolor{red}{red}}`,
+                    latex: `\\text{\\textcolor{green}{green}\\textcolor{red}{red}}`,
                 },
                 {
                     id: 'styling-9',
@@ -888,27 +888,28 @@
 
                 {
                     id: 'mathstyle-1',
-                    title: '$ inside \\text',
+                    title: '&dollar; inside \\text',
                     comment: '<kbd>x</kbd> is in italic',
                     latex: `\\text{hello world $x$}`,
                 },
                 {
                     id: 'mathstyle-2',
-                    title: '$$ inside \\text',
+                    title: '&dollar;&dollar; inside \\text',
                     comment:
                         '<kbd>x</kbd> is upright (can’t switch to displaystyle from text mode)',
                     latex: `\\text{Hello world $$x$$}`,
                 },
                 {
                     id: 'mathstyle-3',
-                    title: '$ inside \\text inside \\[...\\]',
+                    title: '&dollar; inside \\text inside \\&#91;...\\&#93;',
                     comment:
                         '<kbd>For</kbd> is upright, <kbd>x</kbd> is italics (math variable)',
                     latex: '\\[ \\text{For $|x|<1$}. \\]',
                 },
                 {
                     id: 'mathstyle-4',
-                    title: '$$...$$ inside $...$',
+                    title:
+                        '&dollar;&dollar;...&dollar;&dollar; inside &dollar;...&dollar;',
                     comment:
                         'Only <kbd>\\prod</kbd> is in <kbd>displaystyle</kbd>',
                     latex: `\\prod_0^n  $\\sum_0^n $$ \\sum_0^n $$ $`,
@@ -1060,14 +1061,6 @@
                 virtualKeyboardMode: 'manual',
                 onContentDidChange: (mf) => {
                     const latex = mf.$text('latex');
-                    console.log(latex);
-                    console.trace();
-                    if (
-                        latex !== '\\frac{\\sin\\theta^{2}}{\\placeholder{}}' &&
-                        latex !== '\\sin\\theta^{2}'
-                    ) {
-                        console.log('unexpected');
-                    }
 
                     document.getElementById('latex').innerHTML = escapeHtml(
                         latex
@@ -1075,13 +1068,12 @@
 
                     const mathJSON = MathLive.latexToAST(latex);
 
-                    /*                    document.getElementById('mathjson').innerHTML =
+                    document.getElementById('mathjson').innerHTML =
                         escapeHtml(JSON.stringify(mathJSON, null, 2)) +
                         '<br>' +
                         escapeHtml(
                             MathLive.astToLatex(mathJSON, { precision: 100 })
                         );
-*/
                 },
             });
 
@@ -1099,12 +1091,12 @@
                     mf.$latex(x.latex);
                     result +=
                         '<p><code style="color: #0066ce">' +
-                        escapeHtml(mf.$text()) +
+                        escapeHtml(mf.$text('latex-expanded')) +
                         '</code></p>';
-                    //  result +=
-                    //      '<p><code style="color: #0066ce">' +
-                    //      escapeHtml(mf.$text('json-2')) +
-                    //      '</code></p>';
+                    /* result +=
+                        '<p><code style="color: #0066ce">' +
+                        escapeHtml(mf.$text('json-2')) +
+                        '</code></p>'; */
                     if (x.pic) {
                         result += `<p><img style="transform: translate(-33%,-33%) scale(.33)" src="${x.pic}"></p>`;
                     }
