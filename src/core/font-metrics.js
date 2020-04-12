@@ -81,13 +81,13 @@ export const SIGMAS = {
 // \showthe\fontdimenX\a
 // where X is the corresponding variable number. These correspond to the font
 // parameters of the extension fonts (family 3). See the TeXbook, page 433
-const xi1 = 0; // Slant per pt
-const xi2 = 0; // Interword space
-const xi3 = 0; // Interword stretch
-const xi4 = 0; // Interword shrink
-const xi5 = 0.431; // x-height
-const xi6 = 1; // Quad width
-const xi7 = 0; // Extra space
+// const xi1 = 0; // Slant per pt
+// const xi2 = 0; // Interword space
+// const xi3 = 0; // Interword stretch
+// const xi4 = 0; // Interword shrink
+// const xi5 = 0.431; // x-height
+// const xi6 = 1; // Quad width
+// const xi7 = 0; // Extra space
 const xi8 = 0.04; // Default rule thickness, TexBook p.390
 const xi9 = 0.111;
 const xi10 = 0.166;
@@ -103,10 +103,6 @@ const xi13 = 0.1;
 // match.
 const ptPerEm = 10.0;
 
-// The space between adjacent `|` columns in an array definition. From
-// article.cls.txt:455
-const doubleRuleSep = 2.0 / ptPerEm;
-
 /*
  * This is just a mapping from common names to real metrics
  */
@@ -119,7 +115,8 @@ export const METRICS = {
     bigOpSpacing5: xi13,
     ptPerEm: ptPerEm,
     pxPerEm: (ptPerEm * 4.0) / 3.0, // A CSS pt is fixed at 1.333px
-    doubleRuleSep: 2.0 / ptPerEm,
+    doubleRuleSep: 2.0 / ptPerEm, // The space between adjacent `|` columns in an array definition. From
+    // article.cls.txt:455
     arraycolsep: 5.0 / ptPerEm,
     baselineskip: 12.0 / ptPerEm,
     arrayrulewidth: 0.4 / ptPerEm,
@@ -221,25 +218,13 @@ const extraCharacterMap = {
  * Note: the `width` property may be undefined if fontMetricsData.js wasn't
  * built using `Make extended_metrics`.
  * @param {string} character
- * @param {string} fontCode
+ * @param {string} fontName e.g. 'Main-Regular', 'Typewriter-Regular', etc...
  * @memberof module:fontMetrics
  * @private
  */
-export function getCharacterMetrics(character, fontCode) {
-    const fontName =
-        {
-            cal: 'Caligraphic-Regular',
-            ams: 'AMS-Regular',
-            frak: 'Fraktur-Regular',
-            bb: 'AMS-Regular',
-            scr: 'Script-Regular',
-            cmr: 'Main-Regular',
-            cmtt: 'Typewriter-Regular',
-            cmss: 'SansSerif-Regular',
-        }[fontCode] || fontCode;
-
+export function getCharacterMetrics(character, fontName) {
     // console.assert(character.length === 1);
-    // console.assert(metricMap[fontName], 'Unknown font "' + fontName + '"');
+    console.assert(metricMap[fontName], 'Unknown font "' + fontName + '"');
 
     let ch = character.charCodeAt(0);
 
@@ -266,16 +251,12 @@ export function getCharacterMetrics(character, fontCode) {
         };
     }
 
-    if (metrics) {
-        return {
-            depth: metrics[0],
-            height: metrics[1],
-            italic: metrics[2],
-            skew: metrics[3],
-        };
-    }
-
-    return null;
+    return {
+        depth: metrics[0],
+        height: metrics[1],
+        italic: metrics[2],
+        skew: metrics[3],
+    };
 }
 
 /**

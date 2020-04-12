@@ -199,7 +199,7 @@ function delegateKeyboardEvents(textarea, handlers) {
 
     function defer(cb) {
         clearTimeout(callbackTimeoutID);
-        callbackTimeoutID = setTimeout(function() {
+        callbackTimeoutID = setTimeout(function () {
             clearTimeout(callbackTimeoutID);
             cb();
         });

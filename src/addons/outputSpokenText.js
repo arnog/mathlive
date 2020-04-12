@@ -196,7 +196,7 @@ function atomicValue(mathlist) {
     return result;
 }
 
-Atom.toSpeakableFragment = function(atom, options) {
+Atom.toSpeakableFragment = function (atom, options) {
     function letter(c) {
         let result = '';
         if (!options.textToSpeechMarkup) {
@@ -405,7 +405,7 @@ Atom.toSpeakableFragment = function(atom, options) {
             case 'mopen':
             case 'mclose':
             case 'textord': {
-                const command = atom.latex ? atom.latex.trim() : '';
+                const command = atom.symbol;
                 if (
                     command === '\\mathbin' ||
                     command === '\\mathrel' ||
@@ -420,7 +420,7 @@ Atom.toSpeakableFragment = function(atom, options) {
                 }
 
                 let atomValue = atom.body;
-                let latexValue = atom.latex;
+                let latexValue = atom.symbol;
                 if (atom.type === 'delim' || atom.type === 'sizeddelim') {
                     atomValue = latexValue = atom.delim;
                 }
@@ -461,7 +461,7 @@ Atom.toSpeakableFragment = function(atom, options) {
                 // @todo
                 if (atom.body !== '\u200b') {
                     // Not ZERO-WIDTH
-                    const trimLatex = atom.latex ? atom.latex.trim() : '';
+                    const trimLatex = atom.symbol;
                     if (trimLatex === '\\sum') {
                         if (atom.superscript && atom.subscript) {
                             let sup = Atom.toSpeakableFragment(
@@ -553,17 +553,17 @@ Atom.toSpeakableFragment = function(atom, options) {
                     } else if (typeof atom.body === 'string') {
                         const value =
                             PRONUNCIATION[atom.body] ||
-                            PRONUNCIATION[atom.latex.trim()];
+                            PRONUNCIATION[atom.symbol];
                         if (value) {
                             result += value;
                         } else {
                             result += ' ' + atom.body;
                         }
-                    } else if (atom.latex && atom.latex.length > 0) {
-                        if (atom.latex[0] === '\\') {
-                            result += ' ' + atom.latex.substr(1);
+                    } else if (atom.symbol) {
+                        if (atom.symbol[0] === '\\') {
+                            result += ' ' + atom.symbol.substr(1);
                         } else {
-                            result += ' ' + atom.latex;
+                            result += ' ' + atom.symbol;
                         }
                     }
                 }
@@ -642,7 +642,7 @@ Atom.toSpeakableFragment = function(atom, options) {
  * @param {Object.<string, any>} speechOptions
  * @private
  */
-Atom.toSpeakableText = function(atoms, speechOptions) {
+Atom.toSpeakableText = function (atoms, speechOptions) {
     const options = speechOptions
         ? JSON.parse(JSON.stringify(speechOptions))
         : {

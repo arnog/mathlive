@@ -98,7 +98,7 @@ export function toASCIIMath(atom, options) {
     }
 
     let result = '';
-    const command = atom.latex ? atom.latex.trim() : null;
+    const command = atom.symbol;
     let m;
 
     switch (atom.type) {
@@ -195,7 +195,7 @@ export function toASCIIMath(atom, options) {
                 if (typeof atom.body === 'string') {
                     result = atom.body.charAt(0);
                 } else {
-                    result = atom.latex;
+                    result = atom.symbol;
                 }
             }
             // result = '<mi' + variant + makeID(atom.id, options) + '>' + xmlEscape(result) + '</mi>';

@@ -9,7 +9,7 @@ defineFunction(
     'enclose',
     '{notation:string}[style:string]{body:auto}',
     null,
-    function(name, args) {
+    (_name, args) => {
         let notations = args[0] || [];
         const result = {
             type: 'enclose',
@@ -75,14 +75,15 @@ defineFunction(
         notations = notations
             .toString()
             .split(/[, ]/)
-            .filter(v => v.length > 0)
-            .map(v => v.toLowerCase());
+            .filter((v) => v.length > 0)
+            .map((v) => v.toLowerCase());
         result.notation = {};
         for (const notation of notations) {
             result.notation[notation] = true;
         }
-        if (result.notation['updiagonalarrow'])
+        if (result.notation['updiagonalarrow']) {
             result.notation['updiagonalstrike'] = false;
+        }
         if (result.notation['box']) {
             result.notation['left'] = false;
             result.notation['right'] = false;
@@ -93,7 +94,7 @@ defineFunction(
     }
 );
 
-defineFunction('cancel', '{body:auto}', null, function(name, args) {
+defineFunction('cancel', '{body:auto}', null, function (name, args) {
     return {
         type: 'enclose',
         strokeColor: 'currentColor',
@@ -108,7 +109,7 @@ defineFunction('cancel', '{body:auto}', null, function(name, args) {
     };
 });
 
-defineFunction('bcancel', '{body:auto}', null, function(name, args) {
+defineFunction('bcancel', '{body:auto}', null, function (name, args) {
     return {
         type: 'enclose',
         strokeColor: 'currentColor',
@@ -123,7 +124,7 @@ defineFunction('bcancel', '{body:auto}', null, function(name, args) {
     };
 });
 
-defineFunction('xcancel', '{body:auto}', null, function(name, args) {
+defineFunction('xcancel', '{body:auto}', null, function (name, args) {
     return {
         type: 'enclose',
         strokeColor: 'currentColor',

@@ -1,9 +1,8 @@
 import { decompose } from '../core/atom-utils.js';
-import Lexer from '../core/lexer.js';
-import ParserModule from '../core/parser.js';
+import { parseString } from '../core/parser.js';
 import { makeSpan } from '../core/span.js';
 import Shortcuts from './editor-shortcuts.js';
-import { getInfo } from '../core/definitions-utils.js';
+import { getInfo } from '../core/definitions.js';
 
 // A textual description of a LaTeX command.
 // The value can be either a single string, or an array of string
@@ -24,7 +23,6 @@ export const NOTES = {
     '\\bold': 'bold',
     '\\mathit': 'italic',
     '\\mathbb': 'blackboard',
-    '\\Bbb': 'blackboard',
     '\\mathscr': 'script',
     '\\mathtt': ['typewriter', '(monospaced)'],
     '\\mathsf': 'sans-serif',
@@ -267,12 +265,7 @@ function getNote(symbol) {
 }
 
 function latexToMarkup(latex, mf) {
-    const parse = ParserModule.parseTokens(
-        Lexer.tokenize(latex),
-        'math',
-        null,
-        mf.config.macros
-    );
+    const parse = parseString(latex, 'math', null, mf.config.macros);
     const spans = decompose(
         {
             mathstyle: 'displaystyle',
@@ -301,24 +294,21 @@ function showPopoverWithLatex(mf, latex, displayArrows) {
 
     const command = latex;
     const info = getInfo(command);
-    const command_markup = latexToMarkup((info && info.template) || latex, mf);
-    const command_note = getNote(command);
-    const command_shortcuts = Shortcuts.forCommand(command);
+    const commandMarkup = latexToMarkup((info && info.template) || latex, mf);
+    const commandNote = getNote(command);
+    const commandShortcuts = Shortcuts.forCommand(command);
 
     let template = displayArrows
         ? '<div class="ML__popover__prev-shortcut" role="button" aria-label="Previous suggestion"><span><span>&#x25B2;</span></span></div>'
         : '';
     template += '<span class="ML__popover__content" role="button">';
-    template +=
-        '<div class="ML__popover__command">' + command_markup + '</div>';
-    if (command_note) {
-        template += '<div class="ML__popover__note">' + command_note + '</div>';
+    template += '<div class="ML__popover__command">' + commandMarkup + '</div>';
+    if (commandNote) {
+        template += '<div class="ML__popover__note">' + commandNote + '</div>';
     }
-    if (command_shortcuts) {
+    if (commandShortcuts) {
         template +=
-            '<div class="ML__popover__shortcut">' +
-            command_shortcuts +
-            '</div>';
+            '<div class="ML__popover__shortcut">' + commandShortcuts + '</div>';
     }
     template += '</span>';
     template += displayArrows
@@ -383,30 +373,30 @@ function showPopover(mf, markup) {
 
 function setPopoverPosition(mf, position) {
     // get screen width & height (browser compatibility)
-    const screen_height =
+    const screenHeight =
         window.innerHeight ||
         document.documentElement.clientHeight ||
         document.body.clientHeight;
-    const screen_width =
+    const screenWidth =
         window.innerWidth ||
         document.documentElement.clientWidth ||
         document.body.clientWidth;
 
     // get scrollbar size. This would be 0 in mobile device (also no needed).
-    const scrollbar_width =
+    const scrollbarWidth =
         window.innerWidth - document.documentElement.clientWidth;
-    const scrollbar_height =
+    const scrollbarHeight =
         window.innerHeight - document.documentElement.clientHeight;
-    const virtualkeyboard_height = mf.virtualKeyboardVisible
+    const virtualkeyboardHeight = mf.virtualKeyboardVisible
         ? mf.virtualKeyboard.offsetHeight
         : 0;
     // prevent screen overflow horizontal.
     if (
         position.x + mf.popover.offsetWidth / 2 >
-        screen_width - scrollbar_width
+        screenWidth - scrollbarWidth
     ) {
         mf.popover.style.left =
-            screen_width - mf.popover.offsetWidth - scrollbar_width + 'px';
+            screenWidth - mf.popover.offsetWidth - scrollbarWidth + 'px';
     } else if (position.x - mf.popover.offsetWidth / 2 < 0) {
         mf.popover.style.left = 0;
     } else {
@@ -416,7 +406,7 @@ function setPopoverPosition(mf, position) {
     // and position the popover right below or above the caret
     if (
         position.y + mf.popover.offsetHeight + 5 >
-        screen_height - scrollbar_height - virtualkeyboard_height
+        screenHeight - scrollbarHeight - virtualkeyboardHeight
     ) {
         mf.popover.classList.add('reverse-direction');
         mf.popover.style.top =

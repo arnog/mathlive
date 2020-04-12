@@ -5,11 +5,88 @@
 
 import { getCharacterMetrics } from './font-metrics.js';
 import { svgBodyToMarkup, svgBodyHeight } from './svg-span.js';
+import { applyStyle as applyStyleForMode } from './modes-utils.js';
+
+/*
+ * See http://www.tug.org/TUGboat/tb30-3/tb96vieth.pdf for
+ * typesetting conventions for mathematical physics (units, etc...)
+ */
+
+const INTER_ATOM_SPACING = {
+    'mord+mop': 3,
+    'mord+mbin': 4,
+    'mord+mrel': 5,
+    'mord+minner': 3,
+
+    'mop+mord': 3,
+    'mop+mop': 3,
+    'mop+mbin': 5,
+    'mop+minner': 3,
+
+    'mbin+mord': 4,
+    'mbin+mop': 4,
+    'mbin+mopen': 4,
+    'mbin+minner': 4,
+
+    'mrel+mord': 5,
+    'mrel+mop': 5,
+    'mrel+mopen': 5,
+    'mrel+minner': 5,
+
+    'mclose+mop': 3,
+    'mclose+mbin': 4,
+    'mclose+mrel': 5,
+    'mclose+minner': 3,
+
+    'mpunct+mord': 3,
+    'mpunct+mop': 3,
+    'mpunct+mbin': 4,
+    'mpunct+mrel': 5,
+    'mpunct+mopen': 3,
+    'mpunct+mpunct': 3,
+    'mpunct+minner': 3,
+};
+
+// See https://www.w3.org/TR/2000/WD-MathML2-20000328/chapter6.html
+// 6.1.4 Non-Marking Characters
+const SPACING_CHARACTER = [
+    '\u200b', // 0/18 ZERO-WIDTH SPACE
+    '\u200a', // 1/18 HAIR SPACE
+    '\u200a\u200a', // 2/18
+    '\u2009', // 3/18 THIN SPACE
+    '\u205f', // 4/18 MEDIUM MATHEMATICAL SPACE
+    '\u205f\u200a', // 5/18 MEDIUM MATHEMATICAL SPACE + HAIR SPACE
+    '\u2004', // 6/18 THREE-PER-EM SPACE   1/3em
+    '',
+    '',
+    '\u2002', // 9/18 EN SPACE 1/2em = 9/18
+];
+const NEGATIVE_SPACING_CHARACTER = [
+    '',
+    '\u200a\u2063', // -1/18
+    '',
+    '\u2009\u2063', // -3/18
+    '\u205f\u2063', // -4/18
+    '\u2005\u2063', // -5/18
+];
+
+/**
+ *
+ * @alias module:core/span.INTER_ATOM_TIGHT_SPACING
+ * @private
+ */
+const INTER_ATOM_TIGHT_SPACING = {
+    'mord+mop': 3,
+    'mop+mord': 3,
+    'mop+mop': 3,
+    'mclose+mop': 3,
+    'minner+mop': 3,
+};
 
 /**
  * Return a string made up of the concatenated arguments.
  * Each arguments can be either a string, which is unchanged,
- * or a number, which is converted to a string with at most 5 fractional digits.
+ * or a number, which is converted to a string with at most 2 fractional digits.
  *
  * @param {(Array.<any>|string|number)} arg
  * @return {string}
@@ -19,7 +96,7 @@ import { svgBodyToMarkup, svgBodyHeight } from './svg-span.js';
 function toString(arg) {
     let result = '';
     if (typeof arg === 'number') {
-        result += Math.floor(1e2 * arg) / 1e2;
+        result += Math.ceil(1e2 * arg) / 1e2;
     } else if (typeof arg === 'string') {
         result += arg;
     } else if (Array.isArray(arg)) {
@@ -67,7 +144,7 @@ export class Span {
         if (Array.isArray(content)) {
             // Check if isArray first, since an array is also an object
             // Flatten it (i.e. [[a1, a2], b1, b2] -> [a1, a2, b1, b2]
-            this.children = [].concat.apply([], content);
+            this.children = [].concat(...content);
         } else if (typeof content === 'string') {
             this.body = content;
         } else if (content && typeof content === 'object') {
@@ -116,21 +193,45 @@ export class Span {
             this.children.forEach((x) => x.selected(isSelected));
         }
     }
+
     /**
      * @param {object} style A style specification with the following
      * (all optionals) properties, which use the TeX terminology:
      *
+     * - color:
+     *
+     * - background:
+     *
+     * - variant: 'main', 'normal', 'ams', 'calligraphic', 'fraktur',
+     * 'sans-serif', 'monospace', 'double-struck'...
+     * Variants can map either to math characters in specific Unicode range
+     * (see https://en.wikipedia.org/wiki/Mathematical_Alphanumeric_Symbols)
+     * e.g. 𝒜, 𝔄, 𝖠, 𝙰, 𝔸, A, 𝐴
+     * or to some built-in fonts (e.g. 'SansSerif-Regular')
+     * 'normal' is a synthetic variant that maps either to 'main' (roman) or
+     * 'math' (italic) depending on the symbol and the letterShapeStyle.
+     *
+     * - variantStyle: 'up', bold', 'italic', 'bolditalic'. An optional modifier to
+     * further specify the variant to use.
+     *
      * - fontFamily: cmr, cmss, cmtt, cmsy (symbols), cmex (large symbols),
      *  ptm (times), phv (helvetica), pcr (courier)
+     *
      * - fontSeries: m (medium), b (bold), bx (bold extended), sb (semi-bold), c (condensed)
-     * - fontShape:          italic, oblique, "roman": n (normal, upright), it, sl, sc
+     *
+     * - fontShape: italic, oblique, "roman": n (normal, upright), it, sl, sc
+     *
      * - fontSize: 'size1', 'size2'...
-     * - color:
-     * - background:
+     *
      * @private
      */
+
     applyStyle(style) {
         if (!style) return;
+
+        //
+        // 1. Apply color
+        //
         if (style.color) {
             if (style.color !== 'none') {
                 this.setStyle('color', style.color);
@@ -147,7 +248,7 @@ export class Span {
         }
 
         //
-        // 1. Add any custom style classes
+        // 2. Add any custom style classes
         //
 
         if (style.cssClass) {
@@ -157,80 +258,19 @@ export class Span {
         // If the body is null (for example for a line), we're done.
         if (!this.body) return;
 
-        // Determine the appropriate font (and font-related classes)
         //
-        // 2. Determine the font family (i.e. 'amsrm', 'mathit', 'mathcal', etc...)
-        //
-
-        let fontFamily = style.fontFamily;
-        if (fontFamily === 'math' && style.fontShape === 'n') {
-            // 'math' is italic by default. If we need upright, switch to main.
-            fontFamily = 'cmr';
-        }
-        let fontName = 'Main-Regular'; // Default font
-        if (fontFamily) {
-            fontName = getFontName(this.body, fontFamily);
-        }
-
-        //
-        // 3. Determine the classes necessary to represent the series and shape
+        // 3. Determine the font family (i.e. 'ams', 'mathcal', etc...)
+        // and apply styling by adding appropriate classes to the atom
         //
 
-        if (style.fontShape) {
-            this.classes +=
-                ' ' +
-                ({
-                    it: 'ML__it',
-                    sl: 'ML__shape_sl', // slanted
-                    sc: 'ML__shape_sc', // small caps
-                    ol: 'ML__shape_ol', // outline
-                }[style.fontShape] || '');
-        }
-        if (style.fontSeries) {
-            const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
-            if (m) {
-                this.classes +=
-                    ' ' +
-                    ({
-                        ul: 'ML__series_ul',
-                        el: 'ML__series_el',
-                        l: 'ML__series_l',
-                        sl: 'ML__series_sl',
-                        m: '', // medium (default)
-                        sb: 'ML__series_sb',
-                        b: 'ML__bold',
-                        eb: 'ML__series_eb',
-                        ub: 'ML__series_ub',
-                    }[m[1] || ''] || '');
-                this.classes +=
-                    ' ' +
-                    ({
-                        uc: 'ML__series_uc',
-                        ec: 'ML__series_ec',
-                        c: 'ML__series_c',
-                        sc: 'ML__series_sc',
-                        n: '', // normal (default)
-                        sx: 'ML__series_sx',
-                        x: 'ML__series_x',
-                        ex: 'ML__series_ex',
-                        ux: 'ML__series_ux',
-                    }[m[2] || ''] || '');
-            }
-        }
+        console.assert(typeof this.body === 'string');
 
-        if (FONT_CLASS[fontFamily]) {
-            this.classes += ' ' + FONT_CLASS[fontFamily];
-        } else if (fontFamily) {
-            // Not a well-known family. Use a style.
-            this.setStyle('font-family', fontFamily);
-        }
+        const fontName = applyStyleForMode(this, style);
 
         //
-        // 3. Get the metrics information
+        // 5. Get the metrics information
         //
-        if (this.body && this.body.length > 0 && fontName) {
-            this.height = 0.0;
-            this.depth = 0.0;
+        if (this.body && fontName) {
             this.maxFontSize =
                 {
                     size1: 0.5,
@@ -244,6 +284,8 @@ export class Span {
                     size9: 2.07,
                     size10: 2.49,
                 }[style.fontSize] || 1.0;
+            this.height = 0.0;
+            this.depth = 0.0;
             this.skew = 0.0;
             this.italic = 0.0;
             for (let i = 0; i < this.body.length; i++) {
@@ -318,46 +360,20 @@ export class Span {
         }
     }
 
-    // addMarginRight(margin) {
-    //     if (margin && margin !== 0) {
-    //         if (
-    //             !this.style &&
-    //             !/qquad|quad|enspace|thickspace|mediumspace|thinspace|negativethinspace/.test(
-    //                 this.classes
-    //             )
-    //         ) {
-    //             // Attempt to use a class instead of an explicit margin
-    //             const cls = {
-    //                 '2': 'qquad',
-    //                 '1': 'quad',
-    //                 '.5': 'enspace',
-    //                 '0.277778': 'thickspace',
-    //                 '0.222222': 'mediumspace',
-    //                 '0.166667': 'thinspace',
-    //                 '-0.166667': 'negativethinspace',
-    //             }[margin.toString()];
-    //             if (cls) {
-    //                 this.classes += ' rspace ' + cls;
-    //                 return;
-    //             }
-    //         }
-    //         if (!this.style) this.style = {};
-    //         const currentMargin = parseFloat(this.style['margin-right'] || '0');
-    //         this.style['margin-right'] =
-    //             toString(currentMargin + margin) + 'em';
-    //     }
-    // }
     /**
      * Generate the HTML markup to represent this span.
      *
      * @param {number} [hskip=0] - Space (in mu, 1/18em) to leave on the left side
      * of the span. Implemented as a Unicode character if possible, a margin-left otherwise.
+     * This is used to adjust the inter-spacing between spans of different types,
+     * e.g. 'bin' and 'rel', according to the TeX rules (TexBook p.170)
      * @param {number} [hscale=1.0] - If a value is provided, the margins are scaled by
      * this factor.
      * @return {string} HTML markup
      * @method module:core/span.Span#toMarkup
      * @private
      */
+
     toMarkup(hskip, hscale) {
         hskip = hskip || 0;
         hscale = hscale || 1.0;
@@ -570,8 +586,9 @@ export class Span {
             this.type === 'error' ||
             this.type === 'placeholder' ||
             this.type === 'command'
-        )
+        ) {
             return false;
+        }
 
         // Don't coalesce if some of the content is SVG
         if (this.svgBody || !this.body) return false;
@@ -631,87 +648,6 @@ export class Span {
         return true;
     }
 }
-
-/**
- * Return HTML markup representing this span, its style, classes and
- * children.
- *
- * @param {number} [hskip] amount of whitespace to insert before this element
- * This is used to adjust the inter-spacing between spans of different types,
- * e.g. 'bin' and 'rel', according to the TeX rules (TexBook p.170)
- * @alias module:core/span.INTER_ATOM_SPACING
- * @private
- */
-const INTER_ATOM_SPACING = {
-    'mord+mop': 3,
-    'mord+mbin': 4,
-    'mord+mrel': 5,
-    'mord+minner': 3,
-
-    'mop+mord': 3,
-    'mop+mop': 3,
-    'mop+mbin': 5,
-    'mop+minner': 3,
-
-    'mbin+mord': 4,
-    'mbin+mop': 4,
-    'mbin+mopen': 4,
-    'mbin+minner': 4,
-
-    'mrel+mord': 5,
-    'mrel+mop': 5,
-    'mrel+mopen': 5,
-    'mrel+minner': 5,
-
-    'mclose+mop': 3,
-    'mclose+mbin': 4,
-    'mclose+mrel': 5,
-    'mclose+minner': 3,
-
-    'mpunct+mord': 3,
-    'mpunct+mop': 3,
-    'mpunct+mbin': 4,
-    'mpunct+mrel': 5,
-    'mpunct+mopen': 3,
-    'mpunct+mpunct': 3,
-    'mpunct+minner': 3,
-};
-
-// See https://www.w3.org/TR/2000/WD-MathML2-20000328/chapter6.html
-// 6.1.4 Non-Marking Characters
-const SPACING_CHARACTER = [
-    '\u200b', // 0/18 ZERO-WIDTH SPACE
-    '\u200a', // 1/18 HAIR SPACE
-    '\u200a\u200a', // 2/18
-    '\u2009', // 3/18 THIN SPACE
-    '\u205f', // 4/18 MEDIUM MATHEMATICAL SPACE
-    '\u205f\u200a', // 5/18 MEDIUM MATHEMATICAL SPACE + HAIR SPACE
-    '\u2004', // 6/18 THREE-PER-EM SPACE   1/3em
-    '',
-    '',
-    '\u2002', // 9/18 EN SPACE 1/2em = 9/18
-];
-const NEGATIVE_SPACING_CHARACTER = [
-    '',
-    '\u200a\u2063', // -1/18
-    '',
-    '\u2009\u2063', // -3/18
-    '\u205f\u2063', // -4/18
-    '\u2005\u2063', // -5/18
-];
-
-/**
- *
- * @alias module:core/span.INTER_ATOM_TIGHT_SPACING
- * @private
- */
-const INTER_ATOM_TIGHT_SPACING = {
-    'mord+mop': 3,
-    'mop+mord': 3,
-    'mop+mop': 3,
-    'mclose+mop': 3,
-    'minner+mop': 3,
-};
 
 function lastSpanType(span) {
     const result = span.type;
@@ -1083,84 +1019,6 @@ export function makeVlist(context, elements, pos, posData) {
     result.height = Math.max(-currPos, height(result) || 0);
 
     return result;
-}
-
-//----------------------------------------------------------------------------
-// FONTS
-//----------------------------------------------------------------------------
-
-// Map an abstract 'fontFamily' to an actual font name
-const FONT_NAME = {
-    ams: 'AMS-Regular',
-    bb: 'AMS-Regular',
-    cal: 'Caligraphic-Regular',
-    frak: 'Fraktur-Regular',
-    scr: 'Script-Regular',
-    cmr: 'Main-Regular',
-    cmss: 'SansSerif-Regular',
-    cmtt: 'Typewriter-Regular',
-    math: 'Math-Regular',
-    mainit: 'Main-Italic',
-};
-
-const FONT_CLASS = {
-    ams: 'ML__ams',
-    bb: 'ML__bb',
-    cal: 'ML__cal',
-    frak: 'ML__frak',
-    scr: 'ML__script',
-    cmr: 'ML__mathrm',
-    cmss: 'ML__sans',
-    cmtt: 'ML__tt',
-    math: 'ML__mathit',
-    mainit: 'ML__mainit',
-};
-
-/**
- * Given a font family ('frak', 'math'...) return a corresponding
- * font name. If the font does not support the specified symbol
- * return an alternate font or null if none could be determined.
- * @param {(string|Span[])} symbol the character for which we're seeking the font
- * @param {string} fontFamily such as 'mathbf', 'mathfrak', etc...
- * @return {string} a font name
- * @memberof module:span
- * @private
- */
-function getFontName(symbol, fontFamily) {
-    // If this is not a single char, just do a simple fontFamily -> fontName mapping
-    if (
-        typeof symbol !== 'string' ||
-        symbol.length > 1 ||
-        symbol === '\u200b'
-    ) {
-        return FONT_NAME[fontFamily];
-    }
-
-    // This is a single character. Do some remapping as necessary.
-
-    // If symbol is not in the repertoire of the font,
-    // return null.
-    if (fontFamily === 'bb' || fontFamily === 'scr') {
-        // These fonts only support [A-Z ]
-        if (!/^[A-Z ]$/.test(symbol)) return null;
-    } else if (fontFamily === 'cal') {
-        // Only supports uppercase latin and digits
-        if (!/^[0-9A-Z ]$/.test(symbol)) return null;
-    } else if (fontFamily === 'frak') {
-        if (!/^[0-9A-Za-z ]$|^[!"#$%&'()*+,\-./:;=?[]^’‘]$/.test(symbol)) {
-            return null;
-        }
-    } else if (fontFamily === 'cmtt' || fontFamily === 'cmss') {
-        if (
-            !/^[0-9A-Za-z ]$|^[!"&'()*+,\-./:;=?@[]^_~\u0131\u0237\u0393\u0394\u0398\u039b\u039e\u03A0\u03A3\u03A5\u03A8\u03a9’‘]$/.test(
-                symbol
-            )
-        ) {
-            return null;
-        }
-    }
-
-    return FONT_NAME[fontFamily];
 }
 
 /**

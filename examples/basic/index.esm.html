@@ -1,62 +1,88 @@
 <!DOCTYPE html>
 <html lang="en-US">
-<head>
-    <meta charset="utf-8">
-    <title>MathLive Basic Example</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="../style.css">
+    <head>
+        <meta charset="utf-8" />
+        <title>MathLive Basic Example</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="../style.css" />
 
-    <link rel="stylesheet" href="/dist/mathlive.core.css">
-    <link rel="stylesheet" href="/dist/mathlive.css">
-</head>
-<body>
-    <header>
-        <h1>MathLive Basic Example</h1>
-    </header>
-    <main>
-        <div class="mathfield" id='mf' >f(x)=</div>
-        <div class='output' id='latex'></div>
-        <div class='output' id='mathjson'></div>
-    </main>
+        <link rel="stylesheet" href="/dist/mathlive.core.css" />
+        <link rel="stylesheet" href="/dist/mathlive.css" />
+    </head>
+    <body>
+        <header>
+            <h1>MathLive Basic Example</h1>
+        </header>
+        <main>
+            <div class="mathfield" id="mf">
+                $$\nexists \exists f(x)+\frac{3i}{y\cdot h}$$
+                <!-- $$\frac{\text{a\textit{b\textbf{\textsf{c}d}}}}{\mathbf{e\mathit{f}\mathbb{G}}}$$ -->
+            </div>
+            <div class="output" id="latex"></div>
+            <div class="output" id="mathjson"></div>
+        </main>
 
-    <footer>
-        <a href="https://github.com/arnog/mathlive/tree/master/examples/basic"><svg class="fa-w-24" height="24px" style="vertical-align: -3px; margin-right: 6px;"><use xlink:href="../icons.svg#github" /></svg>View source&nbsp;<svg class="fa-w-24" height="24px"><use xlink:href="../icons.svg#angle-right" /></svg></a>
-        <a href="../">More examples&nbsp;<svg class="fa-w-24" height="24px"><use xlink:href="../icons.svg#angle-right" /></svg></a>
-        <a href="/">Return to the homepage&nbsp;<svg class="fa-w-24" height="24px"><use xlink:href="../icons.svg#angle-right" /></svg></a>
-    </footer>
+        <footer>
+            <a
+                href="https://github.com/arnog/mathlive/tree/master/examples/basic"
+                ><svg
+                    class="fa-w-24"
+                    height="24px"
+                    style="vertical-align: -3px; margin-right: 6px;"
+                >
+                    <use xlink:href="../icons.svg#github" /></svg
+                >View source&nbsp;<svg class="fa-w-24" height="24px">
+                    <use xlink:href="../icons.svg#angle-right" /></svg
+            ></a>
+            <a href="../"
+                >More examples&nbsp;<svg class="fa-w-24" height="24px">
+                    <use xlink:href="../icons.svg#angle-right" /></svg
+            ></a>
+            <a href="/"
+                >Return to the homepage&nbsp;<svg class="fa-w-24" height="24px">
+                    <use xlink:href="../icons.svg#angle-right" /></svg
+            ></a>
+        </footer>
 
-<script type='module'> 
-    import MathLive from '/dist/mathlive.mjs';
-    // import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
+        <script type="module">
+            import MathLive from '/dist/mathlive.mjs';
+            // import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
 
-    const mf = MathLive.makeMathField('mf', {
-        smartMode: true,
-        virtualKeyboardMode: 'manual',
-        onContentDidChange: mf => {
-            const latex = mf.$text();
-            document.getElementById('latex').innerHTML = escapeHtml(latex);
+            const mf = MathLive.makeMathField('mf', {
+                smartMode: true,
+                virtualKeyboardMode: 'manual',
+                onContentDidChange: (mf) => {
+                    const latex = mf.$text();
+                    document.getElementById('latex').innerHTML = escapeHtml(
+                        latex
+                    );
 
-            const mathJSON = MathLive.latexToAST(latex);
-            document.getElementById('mathjson').innerHTML = 
-                escapeHtml(JSON.stringify(mathJSON)) ;
-        }
-    });
-    
-    function escapeHtml (string) {
-    return String(string).replace(/[&<>"'`=/\u200b]/g, function (s) {
-        return {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#39;',
-            '/': '&#x2F;',
-            '`': '&#x60;',
-            '=': '&#x3D;',
-            '\u200b': '&amp;#zws;'
-        }[s] || s;
-    });
-    }
-</script>
+                    const mathJSON = MathLive.latexToAST(latex);
+                    document.getElementById('mathjson').innerHTML = escapeHtml(
+                        JSON.stringify(mathJSON)
+                    );
+                },
+            });
 
-</body></html>
+            function escapeHtml(string) {
+                return String(string).replace(/[&<>"'`=/\u200b]/g, function (
+                    s
+                ) {
+                    return (
+                        {
+                            '&': '&amp;',
+                            '<': '&lt;',
+                            '>': '&gt;',
+                            '"': '&quot;',
+                            "'": '&#39;',
+                            '/': '&#x2F;',
+                            '`': '&#x60;',
+                            '=': '&#x3D;',
+                            '\u200b': '&amp;#zws;',
+                        }[s] || s
+                    );
+                });
+            }
+        </script>
+    </body>
+</html>

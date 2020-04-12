@@ -4,9 +4,8 @@
  */
 import { decompose } from '../core/atom-utils.js';
 import { makeSpan } from '../core/span.js';
-import Lexer from '../core/lexer.js';
-import ParserModule from '../core/parser.js';
-import Color from '../core/color.js';
+import { parseString } from '../core/parser.js';
+import { LINE_COLORS, AREA_COLORS } from '../core/color.js';
 import '../addons/outputLatex.js';
 import { l10n } from './l10n.js';
 
@@ -846,12 +845,7 @@ function latexToMarkup(latex, arg, mf) {
     // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
     latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
 
-    const parse = ParserModule.parseTokens(
-        Lexer.tokenize(latex),
-        'math',
-        arg,
-        mf.config.macros
-    );
+    const parse = parseString(latex, 'math', arg, mf.config.macros);
     const spans = decompose(
         {
             mathstyle: 'displaystyle',
@@ -1293,7 +1287,7 @@ function make(mf, theme) {
 
     // Auto-populate the ALT_KEYS table
     ALT_KEYS_BASE['foreground-color'] = [];
-    for (const color of Color.LINE_COLORS) {
+    for (const color of LINE_COLORS) {
         ALT_KEYS_BASE['foreground-color'].push({
             classes: 'small-button',
             content:
@@ -1304,7 +1298,7 @@ function make(mf, theme) {
         });
     }
     ALT_KEYS_BASE['background-color'] = [];
-    for (const color of Color.AREA_COLORS) {
+    for (const color of AREA_COLORS) {
         ALT_KEYS_BASE['background-color'].push({
             classes: 'small-button',
             content:
@@ -1316,7 +1310,7 @@ function make(mf, theme) {
     }
 
     ALT_KEYS = { ...ALT_KEYS_BASE };
-    Object.keys(ALT_KEYS).forEach(key => {
+    Object.keys(ALT_KEYS).forEach((key) => {
         ALT_KEYS[key] = ALT_KEYS[key].slice();
     });
 
@@ -1629,12 +1623,12 @@ function make(mf, theme) {
 
     // Select the first keyboard as the initial one.
     const layerElements = result.getElementsByClassName('keyboard-layer');
-    Array.from(layerElements).forEach(x => {
-        x.addEventListener('mousedown', evt => {
+    Array.from(layerElements).forEach((x) => {
+        x.addEventListener('mousedown', (evt) => {
             evt.preventDefault();
             evt.stopPropagation();
         });
-        x.addEventListener('touchstart', evt => {
+        x.addEventListener('touchstart', (evt) => {
             evt.preventDefault();
             evt.stopPropagation();
         });
@@ -1644,19 +1638,19 @@ function make(mf, theme) {
     // Listen to know when the mouse has been released without being
     // captured to remove the alternate keys panel and the shifted state of the
     // keyboard.
-    window.addEventListener('mouseup', function() {
+    window.addEventListener('mouseup', function () {
         mf.hideAlternateKeys_();
         mf.unshiftKeyboardLayer_();
     });
-    window.addEventListener('blur', function() {
+    window.addEventListener('blur', function () {
         mf.hideAlternateKeys_();
         mf.unshiftKeyboardLayer_();
     });
-    window.addEventListener('touchend', function() {
+    window.addEventListener('touchend', function () {
         mf.hideAlternateKeys_();
         mf.unshiftKeyboardLayer_();
     });
-    window.addEventListener('touchcancel', function() {
+    window.addEventListener('touchcancel', function () {
         mf.hideAlternateKeys_();
         mf.unshiftKeyboardLayer_();
     });

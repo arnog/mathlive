@@ -33,10 +33,11 @@ defineFunction(
         return {
             type: 'mop',
             limits: 'nolimits',
-            symbol: false,
+            isSymbol: false,
             isFunction: true,
             body: name.slice(1),
-            baseFontFamily: 'cmr',
+            variant: 'main',
+            variantStyle: 'up',
         };
     }
 );
@@ -49,10 +50,11 @@ defineFunction(
         return {
             type: 'mop',
             limits: 'nolimits',
-            symbol: false,
+            isSymbol: false,
             isFunction: true,
             body: name.slice(1),
-            baseFontFamily: 'cmr',
+            variant: 'main',
+            variantStyle: 'up',
         };
     }
 );
@@ -61,40 +63,50 @@ defineFunction(['lim', 'mod'], '', null, function (name) {
     return {
         type: 'mop',
         limits: 'limits',
-        symbol: false,
+        isSymbol: false,
         body: name.slice(1),
-        baseFontFamily: 'cmr',
+        variant: 'main',
     };
 });
 defineFunction(['det', 'max', 'min'], '', null, function (name) {
     return {
         type: 'mop',
         limits: 'limits',
-        symbol: false,
+        isSymbol: false,
         isFunction: true,
         body: name.slice(1),
-        baseFontFamily: 'cmr',
+        variant: 'main',
     };
 });
 
 // Root
-defineFunction('sqrt', '[index:auto]{radicand:auto}', null, function (
-    name,
-    args
-) {
-    return {
-        type: 'surd',
-        body: args[1],
-        index: args[0],
-    };
-});
+defineFunction(
+    'sqrt',
+    '[index:auto]{radicand:auto}',
+    null,
+    (_name, args) => {
+        return {
+            type: 'surd',
+            body: args[1],
+            index: args[0],
+        };
+    },
+    (name, _parent, atom, emit) => {
+        let args = '';
+        if (atom.index) {
+            args += `[${emit(atom, atom.index)}]`;
+        }
+        args += `{${emit(atom, atom.body)}}`;
+        return name + args;
+    }
+);
 
 // Fractions
 defineFunction(
     ['frac', 'dfrac', 'tfrac', 'cfrac', 'binom', 'dbinom', 'tbinom'],
     '{numerator}{denominator}',
     null,
-    function (name, args) {
+    (name, args) => {
         const result = {
             type: 'genfrac',
             numer: args[0],
@@ -137,14 +149,17 @@ defineFunction(
         }
 
         return result;
+    },
+    (name, _parent, atom, emit) => {
+        return `${name}{${emit(atom, atom.numer)}}{${emit(atom, atom.denom)}}`;
     }
 );
 
 defineFunction(
-    ['over' /* 21 */, 'atop' /* 12 */, 'choose' /* 1968 */],
+    ['over', 'atop', 'choose'],
     '',
     { infix: true },
-    function (name, args) {
+    (name, args) => {
         const numer = args[0];
         const denom = args[1];
         let hasBarLine = false;
@@ -174,6 +189,9 @@ defineFunction(
             rightDelim: rightDelim,
             mathstyle: 'auto',
         };
+    },
+    (name, _parent, atom, emit) => {
+        return `{${emit(atom, atom.numer)}${name} ${emit(atom, atom.denom)}}`;
     }
 );
 
@@ -182,22 +200,27 @@ defineFunction(
 defineFunction('\\slashed'
 */
 
-defineFunction('pdiff', '{numerator}{denominator}', null, function (
-    _funcname,
-    args
-) {
-    return {
-        type: 'genfrac',
-        numer: args[0],
-        denom: args[1],
-        numerPrefix: '\u2202',
-        denomPrefix: '\u2202',
-        hasBarLine: true,
-        leftDelim: null,
-        rightDelim: null,
-        mathstyle: 'auto',
-    };
-});
+defineFunction(
+    'pdiff',
+    '{numerator}{denominator}',
+    null,
+    function (_funcname, args) {
+        return {
+            type: 'genfrac',
+            numer: args[0],
+            denom: args[1],
+            numerPrefix: '\u2202',
+            denomPrefix: '\u2202',
+            hasBarLine: true,
+            leftDelim: null,
+            rightDelim: null,
+            mathstyle: 'auto',
+        };
+    },
+    (name, _parent, atom, emit) => {
+        return `${name}{${emit(atom, atom.numer)}}{${emit(atom, atom.denom)}}`;
+    }
+);
 
 // Limits, symbols
 defineFunction(
@@ -223,8 +246,8 @@ defineFunction(
         return {
             type: 'mop',
             limits: 'auto',
-            symbol: true,
-            baseFontFamily: 'cmr',
+            isSymbol: true,
+            variant: 'main',
             body: {
                 coprod: '\u2210',
                 bigvee: '\u22c1',
@@ -272,9 +295,9 @@ defineFunction(Object.keys(EXTENSIBLE_SYMBOLS), '', null, function (name) {
     return {
         type: 'mop',
         limits: 'nolimits',
-        symbol: true,
+        isSymbol: true,
         body: EXTENSIBLE_SYMBOLS[name.slice(1)],
-        baseFontFamily: { '\u22d2': 'ams', '\u22d3': 'ams' }[
+        variant: { '\u22d2': 'ams', '\u22d3': 'ams' }[
             EXTENSIBLE_SYMBOLS[name.slice(1)]
         ],
     };
@@ -284,10 +307,10 @@ defineFunction(['Re', 'Im'], '', null, function (name) {
     return {
         type: 'mop',
         limits: 'nolimits',
-        symbol: false,
+        isSymbol: false,
         isFunction: true,
         body: { '\\Re': '\u211c', '\\Im': '\u2111' }[name],
-        baseFontFamily: 'frak',
+        variant: 'fraktur',
     };
 });
 

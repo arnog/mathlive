@@ -13,13 +13,13 @@ registerAtomType('mop', (context, atom) => {
     let base;
     let baseShift = 0;
     let slant = 0;
-    if (atom.symbol) {
+    if (atom.isSymbol) {
         // If this is a symbol, create the symbol.
 
         // Most symbol operators get larger in displaystyle (rule 13)
         const large =
             mathstyle.size === Mathstyle.DISPLAY.size &&
-            atom.latex !== '\\smallint';
+            atom.symbol !== '\\smallint';
 
         base = makeSymbol(
             large ? 'Size2-Regular' : 'Size1-Regular',
@@ -40,21 +40,31 @@ registerAtomType('mop', (context, atom) => {
         // The slant of the symbol is just its italic correction.
         slant = base.italic;
 
-        // Bind the generated span and this atom so the atom can be retrieved
-        // from the span later.
-        atom.bind(context, base);
+        base.applyStyle({
+            color: atom.phantom ? 'transparent' : atom.color,
+            backgroundColor: atom.phantom
+                ? 'transparent'
+                : atom.backgroundColor,
+            cssId: atom.cssId,
+            cssClass: atom.cssClass,
+            letterShapeStyle: context.letterShapeStyle,
+        });
     } else if (Array.isArray(atom.body)) {
         // If this is a list, decompose that list.
         base = makeOp(decompose(context, atom.body));
-        // Bind the generated span and this atom so the atom can be retrieved
-        // from the span later.
-        atom.bind(context, base);
     } else {
         // Otherwise, this is a text operator. Build the text from the
         // operator's name.
         console.assert(atom.type === 'mop');
         base = atom.makeSpan(context, atom.body);
     }
+
+    // Bind the generated span and this atom so the atom can be retrieved
+    // from the span later.
+    atom.bind(context, base);
+
+    if (atom.isSymbol) base.setTop(baseShift);
+    let result = base;
     if (atom.superscript || atom.subscript) {
         const limits = atom.limits || 'auto';
         if (
@@ -62,10 +72,10 @@ registerAtomType('mop', (context, atom) => {
             limits === 'limits' ||
             (limits === 'auto' && mathstyle.size === Mathstyle.DISPLAY.size)
         ) {
-            return atom.attachLimits(context, base, baseShift, slant);
+            result = atom.attachLimits(context, base, baseShift, slant);
+        } else {
+            result = atom.attachSupsub(context, base, 'mop');
         }
-        return atom.attachSupsub(context, base, 'mop');
     }
-    if (atom.symbol) base.setTop(baseShift);
-    return base;
+    return result;
 });

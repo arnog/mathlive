@@ -58,7 +58,7 @@ const MATHEMATICA_COLORS = {
 // '#a2142f' // [0.6350, 0.0780, 0.1840]	    dark red
 
 /* Area colors are most appropriate to color a large area */
-const AREA_COLORS = [
+export const AREA_COLORS = [
     '#d35d60', // red
     '#7293cb', // cobalt blue
     '#e1974d', // orange
@@ -74,7 +74,7 @@ const AREA_COLORS = [
 ];
 
 /* Line colors are most appropriate to color as a stroke color */
-const LINE_COLORS = [
+export const LINE_COLORS = [
     '#cc2428', // red
     '#3769b1', // cobalt blue
     '#da7e30', // orange
@@ -353,7 +353,7 @@ yellowgreen	rgb(154, 205, 50)
  * @memberof module:color
  * @private
  */
-function stringToColor(s) {
+export function stringToColor(s) {
     const colorSpec = s.toLowerCase().split('!');
 
     let baseRed;
@@ -441,7 +441,7 @@ function stringToColor(s) {
     );
 }
 
-function colorToString(color) {
+export function colorToString(color) {
     let result = color.toUpperCase();
 
     for (const c in NAMED_COLORS) {
@@ -460,11 +460,3 @@ function colorToString(color) {
 
     return result;
 }
-
-// Export the public interface for this module
-export default {
-    stringToColor,
-    colorToString,
-    AREA_COLORS,
-    LINE_COLORS,
-};

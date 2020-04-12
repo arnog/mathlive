@@ -14,3 +14,5 @@ import './definitions-environments.js';
 import './definitions-enclose.js';
 import './definitions-styling.js';
 import './definitions-functions.js';
+
+export * from './definitions-utils.js';

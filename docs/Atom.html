@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"><title>Atom - MathLive Docs</title><meta name="description" content="Beautifully typeset math made easy"><meta name="keywords" content="latex, tex, math, typesetting, documentation, docs">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    
+        <link rel="stylesheet" href="http://mathlive.io/mathlive/mathlive.core.css" type="text/css"><link rel="stylesheet" href="http://mathlive.io/mathlive/mathlive.css" type="text/css">
+    
+
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700|Source+Sans+Pro:400,400i,700,900" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono:400,700|Source+Code+Pro:400,700" rel="stylesheet">
+
+    <style>pre.prettyprint{background: #35434e;}</style>
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow-night.css">
+
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/custom.css">
+</head>
+<body>
+
+
+<div class="forkme"><a href="https://github.com/arnog/mathlive"><img style="position: absolute; top: 0; right: 0; border: 0; z-index:1;" src="https://camo.githubusercontent.com/52760788cde945287fbb584134c4cbc2bc36f904/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"></a></div>
+
+
+<section role="navigation">
+    <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+    <label for="nav-trigger" class="navicon-button x">
+        <div class="navicon"></div>
+    </label>
+
+    <label for="nav-trigger" class="overlay"></label>
+
+    <nav id="nav">
+        <h3 class="group-title home"><a href="index.html">MathLive Docs</a></h3><input class="search" placeholder="Search" type="text"><div class="list"><h3 class="group-title">Tutorials</h3><ul><li><a href="tutorial-CONTRIBUTOR_GUIDE.html">Contributor Guide</a><ul></ul></li><li><a href="tutorial-MATHJSON.html">MathJSON</a><ul></ul></li><li><a href="tutorial-USAGE_GUIDE.html">Usage Guide/Start Here</a><ul><li><a href="tutorial-EXAMPLES.html">Examples</a></li><li><a href="tutorial-CONFIG.html">Configuration options</a></li><li><a href="tutorial-SELECTORS.html">Selectors for perform()</a></li><li><a href="tutorial-COMMANDS_REFERENCE.html">Commands Reference</a></li></ul></li></ul><h3 class="group-title">Modules</h3><ul><li class="private"><a href="module-addons_debug.html" class="className">addons/debug</a><ul class='methods private'><li data-type='method' class='private'><a href="module-addons_debug.html#~getSymbol" class="methodName">getSymbol</a></li><li data-type='method' class='private'><a href="module-addons_debug.html#~getTag" class="methodName">getTag</a></li><li data-type='method' class='private'><a href="module-addons_debug.html#~getType" class="methodName">getType</a></li></ul></li><li class="private"><a href="module-addons_mathJson.html" class="className">addons/mathJson</a><ul class='methods private'><li data-type='method' class='private'><a href="module-addons_mathJson.html#.jsonToLatex" class="methodName">jsonToLatex</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~asMachineNumber" class="methodName">asMachineNumber</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~asSymbol" class="methodName">asSymbol</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~escapeText" class="methodName">escapeText</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~formatMantissa" class="methodName">formatMantissa</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~getCanonicalName" class="methodName">getCanonicalName</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~getLatexForSymbol" class="methodName">getLatexForSymbol</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~getLatexTemplateForFunction" class="methodName">getLatexTemplateForFunction</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~getPrecedence" class="methodName">getPrecedence</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~isAtom" class="methodName">isAtom</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~negate" class="methodName">negate</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~numberAsLatex" class="methodName">numberAsLatex</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~opPrec" class="methodName">opPrec</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~parse" class="methodName">parse</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~parseDelim" class="methodName">parseDelim</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~parseDigraph" class="methodName">parseDigraph</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~parseExpression" class="methodName">parseExpression</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~parsePostfix" class="methodName">parsePostfix</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~parseSentence" class="methodName">parseSentence</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~parseSupsub" class="methodName">parseSupsub</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~wrapFence" class="methodName">wrapFence</a></li><li data-type='method' class='private'><a href="module-addons_mathJson.html#~wrapFn" class="methodName">wrapFn</a></li></ul></li><li class="private"><a href="module-addons_outputLatex.html" class="className">addons/outputLatex</a><ul class='methods private'><li data-type='method' class='private'><a href="module-addons_outputLatex.html#~latexify" class="methodName">latexify</a></li><li data-type='method' class='private'><a href="module-addons_outputLatex.html#~latexifyArray" class="methodName">latexifyArray</a></li></ul></li><li class="private"><a href="module-addons_outputMathML.html" class="className">addons/outputMathML</a><ul class='methods private'><li data-type='method' class='private'><a href="module-addons_outputMathML.html#~isSuperscriptAtom" class="methodName">isSuperscriptAtom</a></li><li data-type='method' class='private'><a href="module-addons_outputMathML.html#~toMathML" class="methodName">toMathML</a></li></ul></li><li class="private"><a href="module-core_atom.html" class="className">core/atom</a><ul class='methods private'><li data-type='method' class='private'><a href="module-core_atom.html#.exports.makeRoot" class="methodName">exports.makeRoot</a></li></ul></li><li class="private"><a href="module-core_color.html" class="className">core/color</a></li><li class="private"><a href="module-core_definitions.html" class="className">core/definitions</a></li><li class="private"><a href="module-core_delimiters.html" class="className">core/delimiters</a></li><li class="private"><a href="module-core_fontMetrics.html" class="className">core/fontMetrics</a><ul class='methods private'><li data-type='method' class='private'><a href="module-core_fontMetrics.html#.convertDimenToEm" class="methodName">convertDimenToEm</a></li></ul></li><li class="private"><a href="module-core_lexer.html" class="className">core/lexer</a><ul class='methods private'><li data-type='method' class='private'><a href="module-core_lexer.html#.exports.tokenize" class="methodName">exports.tokenize</a></li></ul></li><li class="private"><a href="module-core_mathstyle.html" class="className">core/mathstyle</a></li><li class="private"><a href="module-core_parser.html" class="className">core/parser</a><ul class='methods private'><li data-type='method' class='private'><a href="module-core_parser.html#parseString" class="methodName">parseString</a></li></ul></li><li class="private"><a href="module-core_span.html" class="className">core/span</a><ul class='methods private'><li data-type='method' class='private'><a href="module-core_span.html#.addSVGOverlay" class="methodName">addSVGOverlay</a></li><li data-type='method' class='private'><a href="module-core_span.html#.exports.coalesce" class="methodName">exports.coalesce</a></li><li data-type='method' class='private'><a href="module-core_span.html#.exports.makeHlist" class="methodName">exports.makeHlist</a></li><li data-type='method' class='private'><a href="module-core_span.html#.exports.makeSpan" class="methodName">exports.makeSpan</a></li><li data-type='method' class='private'><a href="module-core_span.html#.exports.makeSpanOfType" class="methodName">exports.makeSpanOfType</a></li><li data-type='method' class='private'><a href="module-core_span.html#.exports.makeSymbol" class="methodName">exports.makeSymbol</a></li><li data-type='method' class='private'><a href="module-core_span.html#.exports.makeVlist" class="methodName">exports.makeVlist</a></li><li data-type='method' class='private'><a href="module-core_span.html#.makeFontSizer" class="methodName">makeFontSizer</a></li><li data-type='method' class='private'><a href="module-core_span.html#.makeSVGSpan" class="methodName">makeSVGSpan</a></li><li data-type='method' class='private'><a href="module-core_span.html#.toString" class="methodName">toString</a></li></ul></li><li class="private"><a href="module-editor_editableMathlist.html" class="className">editor/editableMathlist</a><ul class='methods private'><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#.parseMathString" class="methodName">parseMathString</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~arrayAdjustRow" class="methodName">arrayAdjustRow</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~arrayCell" class="methodName">arrayCell</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~arrayCellCount" class="methodName">arrayCellCount</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~arrayColRow" class="methodName">arrayColRow</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~arrayColumnCellCount" class="methodName">arrayColumnCellCount</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~arrayFirstCellByRow" class="methodName">arrayFirstCellByRow</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~arrayIndex" class="methodName">arrayIndex</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~arrayJoinColumns" class="methodName">arrayJoinColumns</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~arrayJoinRows" class="methodName">arrayJoinRows</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~arrayRemoveColumn" class="methodName">arrayRemoveColumn</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~arrayRemoveRow" class="methodName">arrayRemoveRow</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~atomContains" class="methodName">atomContains</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~isNumber" class="methodName">isNumber</a></li><li data-type='method' class='private'><a href="module-editor_editableMathlist.html#~parseMathArgument" class="methodName">parseMathArgument</a></li></ul></li><li class="private"><a href="module-editor_keyboard.html" class="className">editor/keyboard</a><ul class='methods private'><li data-type='method' class='private'><a href="module-editor_keyboard.html#.delegateKeyboardEvents" class="methodName">delegateKeyboardEvents</a></li><li data-type='method' class='private'><a href="module-editor_keyboard.html#.keyboardEventToString" class="methodName">keyboardEventToString</a></li></ul></li><li class="private"><a href="module-editor_mathfield.html" class="className">editor/mathfield</a><ul class='methods private'><li data-type='method' class='private'><a href="module-editor_mathfield.html#nearestElementFromPoint" class="methodName">nearestElementFromPoint</a></li><li data-type='method' class='private'><a href="module-editor_mathfield.html#~_findElementWithCaret" class="methodName">_findElementWithCaret</a></li><li data-type='method' class='private'><a href="module-editor_mathfield.html#~isValidMathfield" class="methodName">isValidMathfield</a></li><li data-type='method' class='private'><a href="module-editor_mathfield.html#~validateStyle" class="methodName">validateStyle</a></li></ul></li><li class="private"><a href="module-editor_mathpath.html" class="className">editor/mathpath</a><ul class='methods private'><li data-type='method' class='private'><a href="module-editor_mathpath.html#.pathCommonAncestor" class="methodName">pathCommonAncestor</a></li><li data-type='method' class='private'><a href="module-editor_mathpath.html#.pathDistance" class="methodName">pathDistance</a></li><li data-type='method' class='private'><a href="module-editor_mathpath.html#.pathFromString" class="methodName">pathFromString</a></li><li data-type='method' class='private'><a href="module-editor_mathpath.html#.pathToString" class="methodName">pathToString</a></li></ul></li><li class="private"><a href="module-editor_virtualKeyboard.html" class="className">editor/virtualKeyboard</a><ul class='methods private'><li data-type='method' class='private'><a href="module-editor_virtualKeyboard.html#~expandLayerMarkup" class="methodName">expandLayerMarkup</a></li><li data-type='method' class='private'><a href="module-editor_virtualKeyboard.html#~make" class="methodName">make</a></li><li data-type='method' class='private'><a href="module-editor_virtualKeyboard.html#~makeKeyboardToolbar" class="methodName">makeKeyboardToolbar</a></li></ul></li><li><a href="module-mathlive.html" class="className">mathlive</a><ul class='methods'><li data-type='method'><a href="module-mathlive.html#astToLatex" class="methodName">astToLatex</a></li><li data-type='method'><a href="module-mathlive.html#getOriginalContent" class="methodName">getOriginalContent</a></li><li data-type='method'><a href="module-mathlive.html#latexToAST" class="methodName">latexToAST</a></li><li data-type='method'><a href="module-mathlive.html#latexToMarkup" class="methodName">latexToMarkup</a></li><li data-type='method'><a href="module-mathlive.html#latexToMathML" class="methodName">latexToMathML</a></li><li data-type='method'><a href="module-mathlive.html#latexToSpeakableText" class="methodName">latexToSpeakableText</a></li><li data-type='method'><a href="module-mathlive.html#makeMathField" class="methodName">makeMathField</a></li><li data-type='method'><a href="module-mathlive.html#pauseReadAloud" class="methodName">pauseReadAloud</a></li><li data-type='method'><a href="module-mathlive.html#playReadAloud" class="methodName">playReadAloud</a></li><li data-type='method' class='private'><a href="module-mathlive.html#readAloud" class="methodName">readAloud</a></li><li data-type='method'><a href="module-mathlive.html#readAloudStatus" class="methodName">readAloudStatus</a></li><li data-type='method'><a href="module-mathlive.html#renderMathInElement" class="methodName">renderMathInElement</a></li><li data-type='method'><a href="module-mathlive.html#resumeReadAloud" class="methodName">resumeReadAloud</a></li><li data-type='method'><a href="module-mathlive.html#revertToOriginalContent" class="methodName">revertToOriginalContent</a></li><li data-type='method'><a href="module-mathlive.html#~highlightAtomID" class="methodName">highlightAtomID</a></li><li data-type='method'><a href="module-mathlive.html#~renderMathInDocument" class="methodName">renderMathInDocument</a></li></ul></li></ul><h3 class="group-title">Classes</h3><ul><li class="private"><a href="Atom.html" class="className">Atom</a><ul class='methods private'><li data-type='method' class='private'><a href="Atom.html#.toSpeakableText" class="methodName">toSpeakableText</a></li><li data-type='method' class='private'><a href="Atom.html#bind" class="methodName">bind</a></li><li data-type='method' class='private'><a href="Atom.html#decompose" class="methodName">decompose</a></li><li data-type='method' class='private'><a href="Atom.html#decomposeRule" class="methodName">decomposeRule</a></li><li data-type='method' class='private'><a href="Atom.html#filter" class="methodName">filter</a></li><li data-type='method' class='private'><a href="Atom.html#makeSpan" class="methodName">makeSpan</a></li><li data-type='method' class='private'><a href="Atom.html#toAST" class="methodName">toAST</a></li></ul></li><li class="private"><a href="Context.html" class="className">Context</a><ul class='methods private'><li data-type='method' class='private'><a href="Context.html#clone" class="methodName">clone</a></li><li data-type='method' class='private'><a href="Context.html#setMathstyle" class="methodName">setMathstyle</a></li></ul></li><li class="private"><a href="EditableMathlist.html" class="className">EditableMathlist</a><ul class='methods private'><li data-type='method' class='private'><a href="EditableMathlist.html#_addCell" class="methodName">_addCell</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#_deleteAtoms" class="methodName">_deleteAtoms</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#addColumnAfter_" class="methodName">addColumnAfter_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#addColumnBefore_" class="methodName">addColumnBefore_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#addRowAfter_" class="methodName">addRowAfter_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#addRowBefore_" class="methodName">addRowBefore_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#ancestor" class="methodName">ancestor</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#anchor" class="methodName">anchor</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#applyStyle" class="methodName">applyStyle</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#commandOffsets" class="methodName">commandOffsets</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#commitCommandStringBeforeInsertionPoint" class="methodName">commitCommandStringBeforeInsertionPoint</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#contains" class="methodName">contains</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#decorateCommandStringAroundInsertionPoint" class="methodName">decorateCommandStringAroundInsertionPoint</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#delete" class="methodName">delete</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#delete_" class="methodName">delete_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#deleteAll_" class="methodName">deleteAll_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#deleteNextChar_" class="methodName">deleteNextChar_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#deleteNextWord_" class="methodName">deleteNextWord_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#deletePreviousChar_" class="methodName">deletePreviousChar_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#deletePreviousWord_" class="methodName">deletePreviousWord_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#deleteToGroupEnd_" class="methodName">deleteToGroupEnd_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#deleteToGroupStart_" class="methodName">deleteToGroupStart_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#deleteToMathFieldEnd_" class="methodName">deleteToMathFieldEnd_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#endOffset" class="methodName">endOffset</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extend" class="methodName">extend</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extendDown_" class="methodName">extendDown_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extendToGroupEnd_" class="methodName">extendToGroupEnd_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extendToGroupStart_" class="methodName">extendToGroupStart_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extendToMathFieldEnd_" class="methodName">extendToMathFieldEnd_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extendToMathFieldStart_" class="methodName">extendToMathFieldStart_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extendToNextBoundary_" class="methodName">extendToNextBoundary_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extendToNextChar_" class="methodName">extendToNextChar_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extendToNextWord_" class="methodName">extendToNextWord_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extendToPreviousBoundary_" class="methodName">extendToPreviousBoundary_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extendToPreviousChar_" class="methodName">extendToPreviousChar_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extendToPreviousWord_" class="methodName">extendToPreviousWord_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extendUp_" class="methodName">extendUp_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extractArgBeforeInsertionPoint" class="methodName">extractArgBeforeInsertionPoint</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#extractCommandStringAroundInsertionPoint" class="methodName">extractCommandStringAroundInsertionPoint</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#filter" class="methodName">filter</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#forEach" class="methodName">forEach</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#forEachSelected" class="methodName">forEachSelected</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#getSelectedAtoms" class="methodName">getSelectedAtoms</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#insert" class="methodName">insert</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#insertFirstAtom" class="methodName">insertFirstAtom</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#isCollapsed" class="methodName">isCollapsed</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#jump" class="methodName">jump</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#leap" class="methodName">leap</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#moveAfterParent_" class="methodName">moveAfterParent_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#moveBeforeParent_" class="methodName">moveBeforeParent_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#moveDown_" class="methodName">moveDown_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#moveToGroupEnd_" class="methodName">moveToGroupEnd_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#moveToGroupStart_" class="methodName">moveToGroupStart_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#moveToMathFieldEnd_" class="methodName">moveToMathFieldEnd_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#moveToMathFieldStart_" class="methodName">moveToMathFieldStart_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#moveToNextChar_" class="methodName">moveToNextChar_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#moveToNextPlaceholder_" class="methodName">moveToNextPlaceholder_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#moveToNextWord_" class="methodName">moveToNextWord_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#moveToOpposite_" class="methodName">moveToOpposite_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#moveToPreviousChar_" class="methodName">moveToPreviousChar_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#moveToPreviousPlaceholder_" class="methodName">moveToPreviousPlaceholder_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#moveToPreviousWord_" class="methodName">moveToPreviousWord_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#moveToSubscript_" class="methodName">moveToSubscript_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#moveToSuperscript_" class="methodName">moveToSuperscript_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#moveUp_" class="methodName">moveUp_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#next" class="methodName">next</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#selectAll_" class="methodName">selectAll_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#selectGroup_" class="methodName">selectGroup_</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#setExtent" class="methodName">setExtent</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#setPath" class="methodName">setPath</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#setRange" class="methodName">setRange</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#setSelection" class="methodName">setSelection</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#sibling" class="methodName">sibling</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#siblings" class="methodName">siblings</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#skip" class="methodName">skip</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#startOffset" class="methodName">startOffset</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#toString" class="methodName">toString</a></li><li data-type='method' class='private'><a href="EditableMathlist.html#transpose_" class="methodName">transpose_</a></li></ul></li><li><a href="Mathfield.html" class="className">Mathfield</a><ul class='methods'><li data-type='method'><a href="Mathfield.html#$applyStyle" class="methodName">$applyStyle</a></li><li data-type='method'><a href="Mathfield.html#$el" class="methodName">$el</a></li><li data-type='method'><a href="Mathfield.html#$insert" class="methodName">$insert</a></li><li data-type='method'><a href="Mathfield.html#$keystroke" class="methodName">$keystroke</a></li><li data-type='method'><a href="Mathfield.html#$latex" class="methodName">$latex</a></li><li data-type='method'><a href="Mathfield.html#$perform" class="methodName">$perform</a></li><li data-type='method'><a href="Mathfield.html#$revertToOriginalContent" class="methodName">$revertToOriginalContent</a></li><li data-type='method'><a href="Mathfield.html#$selectedText" class="methodName">$selectedText</a></li><li data-type='method'><a href="Mathfield.html#$selectionAtEnd" class="methodName">$selectionAtEnd</a></li><li data-type='method'><a href="Mathfield.html#$selectionAtStart" class="methodName">$selectionAtStart</a></li><li data-type='method'><a href="Mathfield.html#$selectionDepth" class="methodName">$selectionDepth</a></li><li data-type='method'><a href="Mathfield.html#$selectionIsCollapsed" class="methodName">$selectionIsCollapsed</a></li><li data-type='method'><a href="Mathfield.html#$setConfig" class="methodName">$setConfig</a></li><li data-type='method'><a href="Mathfield.html#$text" class="methodName">$text</a></li><li data-type='method'><a href="Mathfield.html#$typedText" class="methodName">$typedText</a></li><li data-type='method' class='private'><a href="Mathfield.html#_getCaretPosition" class="methodName">_getCaretPosition</a></li><li data-type='method' class='private'><a href="Mathfield.html#_onAnnounce" class="methodName">_onAnnounce</a></li><li data-type='method' class='private'><a href="Mathfield.html#_onKeystroke" class="methodName">_onKeystroke</a></li><li data-type='method' class='private'><a href="Mathfield.html#complete_" class="methodName">complete_</a></li><li data-type='method' class='private'><a href="Mathfield.html#constructor" class="methodName">constructor</a></li><li data-type='method' class='private'><a href="Mathfield.html#enterCommandMode_" class="methodName">enterCommandMode_</a></li><li data-type='method' class='private'><a href="Mathfield.html#getTextBeforeAnchor_" class="methodName">getTextBeforeAnchor_</a></li><li data-type='method' class='private'><a href="Mathfield.html#render" class="methodName">render</a></li><li data-type='method' class='private'><a href="Mathfield.html#smartMode_" class="methodName">smartMode_</a></li><li data-type='method'><a href="Mathfield.html#speak_" class="methodName">speak_</a></li></ul></li><li class="private"><a href="module-core_lexer_Lexer.html" class="className">Lexer</a><ul class='methods private'><li data-type='method' class='private'><a href="module-core_lexer_Lexer.html#end" class="methodName">end</a></li><li data-type='method' class='private'><a href="module-core_lexer_Lexer.html#get" class="methodName">get</a></li><li data-type='method' class='private'><a href="module-core_lexer_Lexer.html#isWhiteSpace" class="methodName">isWhiteSpace</a></li><li data-type='method' class='private'><a href="module-core_lexer_Lexer.html#makeToken" class="methodName">makeToken</a></li><li data-type='method' class='private'><a href="module-core_lexer_Lexer.html#peek" class="methodName">peek</a></li><li data-type='method' class='private'><a href="module-core_lexer_Lexer.html#scan" class="methodName">scan</a></li></ul></li><li class="private"><a href="module-core_lexer_Token.html" class="className">Token</a></li><li class="private"><a href="module-core_mathstyle_Mathstyle.html" class="className">Mathstyle</a></li><li class="private"><a href="module-core_parser_Parser.html" class="className">Parser</a><ul class='methods private'><li data-type='method' class='private'><a href="module-core_parser_Parser.html#end" class="methodName">end</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#hasLiteralPattern" class="methodName">hasLiteralPattern</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#hasToken" class="methodName">hasToken</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#lastMathAtom" class="methodName">lastMathAtom</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#parseAtom" class="methodName">parseAtom</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#parseKeyword" class="methodName">parseKeyword</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#parseLimits" class="methodName">parseLimits</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#parseSupSub" class="methodName">parseSupSub</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#parseToken" class="methodName">parseToken</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#scanArg" class="methodName">scanArg</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#scanColor" class="methodName">scanColor</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#scanDimen" class="methodName">scanDimen</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#scanEnvironment" class="methodName">scanEnvironment</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#scanGroup" class="methodName">scanGroup</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#scanImplicitGroup" class="methodName">scanImplicitGroup</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#scanLeftRight" class="methodName">scanLeftRight</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#scanLiteralArg" class="methodName">scanLiteralArg</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#scanModeSet" class="methodName">scanModeSet</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#scanString" class="methodName">scanString</a></li><li data-type='method' class='private'><a href="module-core_parser_Parser.html#scanToken" class="methodName">scanToken</a></li></ul></li><li class="private"><a href="module-core_span.exports.Span.html" class="className">Span</a></li><li class="private"><a href="UndoManager.html" class="className">UndoManager</a><ul class='methods private'><li data-type='method' class='private'><a href="UndoManager.html#canRedo" class="methodName">canRedo</a></li><li data-type='method' class='private'><a href="UndoManager.html#canUndo" class="methodName">canUndo</a></li><li data-type='method' class='private'><a href="UndoManager.html#pop" class="methodName">pop</a></li><li data-type='method' class='private'><a href="UndoManager.html#redo" class="methodName">redo</a></li><li data-type='method' class='private'><a href="UndoManager.html#restore" class="methodName">restore</a></li><li data-type='method' class='private'><a href="UndoManager.html#save" class="methodName">save</a></li><li data-type='method' class='private'><a href="UndoManager.html#snapshot" class="methodName">snapshot</a></li><li data-type='method' class='private'><a href="UndoManager.html#snapshotAndCoalesce" class="methodName">snapshotAndCoalesce</a></li><li data-type='method' class='private'><a href="UndoManager.html#undo" class="methodName">undo</a></li></ul></li></ul><h3>Globals</h3><ul><li><a href="global.html#decompose">decompose</a></li><li><a href="global.html#INLINE_SHORTCUTS">INLINE_SHORTCUTS</a></li><li><a href="global.html#KEYBOARD_SHORTCUTS">KEYBOARD_SHORTCUTS</a></li><li><a href="global.html#makeColGap">makeColGap</a></li><li><a href="global.html#makeColOfRepeatingElements">makeColOfRepeatingElements</a></li><li><a href="global.html#makeOverunderStack">makeOverunderStack</a></li><li><a href="global.html#REVERSE_KEYBOARD_SHORTCUTS">REVERSE_KEYBOARD_SHORTCUTS</a></li><li><a href="global.html#startsWithString">startsWithString</a></li><li><a href="global.html#svgBodyToMarkup">svgBodyToMarkup</a></li><li><a href="global.html#validateShortcut">validateShortcut</a></li></ul><div class="checkbox"><input id="toggle-private" type="checkbox" onclick="
+if (!document.getElementById('toggle-private').checked) {
+document.documentElement.classList.add('no-private')
+writeCookie('symbol-access', 'no-private')
+} else {
+document.documentElement.classList.remove('no-private')
+writeCookie('symbol-access', 'private')
+}
+"><label for="toggle-private">Include Private Symbols</label></div></div>
+        <footer role="contentInfo">
+            Made with <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a>. 
+            
+        </footer>
+    </nav>
+</section>
+
+<main id="main">
+    
+        <h1 class="page-title">Atom</h1>
+    
+
+    
+
+
+
+
+<section class="container">
+
+<header>
+    
+        <h2>
+        Atom
+        </h2>
+        
+            <div class="class-description"><p>An atom is an object encapsulating an elementary mathematical unit,
+independent of its graphical representation.</p>
+<p>It keeps track of the content, while the dimensions, position and style
+are tracked by Span objects which are created by the <code>decompose()</code> functions.</p></div>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+<div class='method private'>
+
+    
+    <h2>Constructor</h2>
+    
+
+    <h4 class="name" id="Atom">new Atom<span class="signature">(mode<span class="signature-type">: string</span>, type<span class="signature-type">: string</span>, body<span class="signature-type">: string | Array</span>, style<span class="signature-type">: object</span>)</span><span class="type-signature">:  <a href="Atom.html">Atom</a></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>mode</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>type</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>body</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+|
+
+<span class="param-type">Array</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>style</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">object</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type"><a href="Atom.html">Atom</a></span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+    <h5 class="subsection-title">Properties</h5>
+
+    
+
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>mode</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p><code>'display'</code>, <code>'command'</code>, etc...</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>type</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>Type can be one of:</p>
+<ul>
+<li><code>mord</code>: ordinary symbol, e.g. <code>x</code>, <code>\alpha</code></li>
+<li><code>textord</code>: ordinary characters</li>
+<li><code>mop</code>: operators, including special functions, <code>\sin</code>, <code>\sum</code>, <code>\cap</code>.</li>
+<li><code>mbin</code>: binary operator: <code>+</code>, <code>*</code>, etc...</li>
+<li><code>mrel</code>: relational operator: <code>=</code>, <code>\ne</code>, etc...</li>
+<li><code>mpunct</code>: punctuation: <code>,</code>, <code>:</code>, etc...</li>
+<li><code>mopen</code>: opening fence: <code>(</code>, <code>\langle</code>, etc...</li>
+<li><code>mclose</code>: closing fence: <code>)</code>, <code>\rangle</code>, etc...</li>
+<li><code>minner</code>: special layout cases, overlap, <code>\left...\right</code></li>
+</ul>
+<p>In addition to these basic types, which correspond to the TeX atom types,
+some atoms represent more complex compounds, including:</p>
+<ul>
+<li><code>space</code> and <code>spacing</code>: blank space between atoms</li>
+<li><code>mathstyle</code>: to change the math style used: <code>display</code> or <code>text</code>.
+The layout rules are different for each, the latter being more compact and
+intended to be incorporated with surrounding non-math text.</li>
+<li><code>root</code>: a group, which has no parent (only one per formula)</li>
+<li><code>group</code>: a simple group of atoms, for example from a <code>{...}</code></li>
+<li><code>sizing</code>: set the size of the font used</li>
+<li><code>rule</code>: draw a line, for the <code>\rule</code> command</li>
+<li><code>line</code>: used by <code>\overline</code> and <code>\underline</code> commands</li>
+<li><code>box</code>: a border drawn around an expression and change its background color</li>
+<li><code>overlap</code>: display a symbol <em>over</em> another</li>
+<li><code>overunder</code>: displays an annotation above or below a symbol</li>
+<li><code>array</code>: a group, which has children arranged in rows. Used
+by environments such as <code>matrix</code>, <code>cases</code>, etc...</li>
+<li><code>genfrac</code>: a generalized fraction: a numerator and denominator, separated
+by an optional line, and surrounded by optional fences</li>
+<li><code>surd</code>: a surd, aka root</li>
+<li><code>leftright</code>: used by the <code>\left</code> and <code>\right</code> commands</li>
+<li><code>delim</code>: some delimiter</li>
+<li><code>sizeddelim</code>: a delimiter that can grow</li>
+</ul>
+<p>The following types are used by the editor:</p>
+<ul>
+<li><code>command</code> indicate a command being entered. The text is displayed in
+blue in the editor.</li>
+<li><code>error</code>: indicate a command that is unknown, for example <code>\xyzy</code>. The text
+is displayed with a wavy red underline in the editor.</li>
+<li><code>placeholder</code>: indicate a temporary item. Placeholders are displayed
+as a dashed square in the editor.</li>
+<li><code>first</code>: a special, empty, atom put as the first atom in math lists in
+order to be able to position the caret before the first element. Aside from
+the caret, they display nothing.</li>
+</ul>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>body</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+|
+
+<span class="param-type">Atom[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last">
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>superscript</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">Atom[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last">
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>subscript</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">Atom[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last">
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>numer</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">Atom[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last">
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>denom</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">Atom[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last">
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>captureSelection</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">boolean</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>if true, this atom does not let its
+children be selected. Used by the <code>\enclose</code> annotations, for example.</p>
+                
+            </span>
+        </div>
+
+    
+
+        <div class="property">
+            
+                <span class="name"><code>skipBoundary</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">boolean</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            <span class="description last"><p>if true, when the caret reaches the
+first position in this element's body, it automatically moves to the
+outside of the element. Conversely, when the caret reaches the position
+right after this element, it automatically moves to the last position
+inside this element.</p>
+                
+            </span>
+        </div>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+    
+    </div>
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="Atom.html">Atom</a></dt>
+            <dd></dd>
+        </dl>
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id=".toSpeakableText">toSpeakableText<span class="signature">(atoms<span class="signature-type">: Atom[]</span>, speechOptions<span class="signature-type">: [string]:any</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span><span class="attrib">static</span></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>atoms</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">Atom[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>The atoms to represent as speakable text.
+If omitted, <code>this</code> is used.</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>speechOptions</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">[string]:any</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="bind">bind<span class="signature">(context<span class="signature-type">: <a href="Context.html">Context</a></span>, span<span class="signature-type">: Span</span>)</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Add an ID attribute to both the span and this atom so that the atom
+can be retrieved from the span later on (e.g. when the span is clicked on)</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>context</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type"><a href="Context.html">Context</a></span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>span</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">Span</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="decompose">decompose<span class="signature">(context<span class="signature-type">: <a href="Context.html">Context</a></span>, phantomBase<span class="signature-attributes">?</span><span class="signature-type">: Span[]</span>)</span><span class="type-signature">:  Span[]</span><span class="type-signature"><span class="attrib">private</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return a representation of this, but decomposed in an array of Spans</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>context</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type"><a href="Context.html">Context</a></span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+                    <p class="description last">
+                        <p>Font variant, size, color, etc...</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>phantomBase</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">Span[]</span>
+
+
+            
+            </span>
+
+            
+                <span class="attributes">
+                
+
+                
+
+                
+                </span>
+            
+
+            
+                <span class="default">= null</span>
+            
+
+            
+                    <p class="description last">
+                        <p>If not null, the spans to use to
+calculate the placement of the supsub</p>
+                    </p>
+                    
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">Span[]</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="decomposeRule">decomposeRule<span class="signature">()</span><span class="type-signature"></span><span class="type-signature"><span class="attrib">private</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>\rule</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="filter">filter<span class="signature">()</span><span class="type-signature">:  Atom[]</span><span class="type-signature"><span class="attrib">private</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Iterate over all the child atoms of this atom, this included,
+and return an array of all the atoms for which the predicate callback
+is true.</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">Atom[]</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="makeSpan">makeSpan<span class="signature">(context<span class="signature-type">: <a href="Context.html">Context</a></span>, body<span class="signature-type">: string | Span[]</span>)</span><span class="type-signature">:  Span</span><span class="type-signature"><span class="attrib">private</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Create a span with the specified body and with a class attribute
+equal to the type ('mbin', 'inner', 'spacing', etc...)</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+        <!-- <h5>Parameters</h5> -->
+        <div class='param'>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>context</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type"><a href="Context.html">Context</a></span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+
+        <div class="signature">
+            
+                <span class="name"><code>body</code></span>
+            
+
+            <span class="type">
+            
+                : 
+<span class="param-type">string</span>
+|
+
+<span class="param-type">Span[]</span>
+
+
+            
+            </span>
+
+            
+
+            
+
+            
+        </div>
+
+    
+</div>
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">Span</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+            
+<div class='method private'>
+
+    
+
+    <h4 class="name" id="toAST">toAST<span class="signature">()</span><span class="type-signature">:  object</span><span class="type-signature"><span class="attrib">private</span></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Return an AST representation of a single atom</p>
+</div>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+    
+        &rarr; 
+    
+            
+<span class="param-desc">
+    
+        : 
+<span class="param-type">object</span>
+
+
+        &nbsp;&nbsp;
+    
+    
+</span>
+
+
+
+        
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+</div>
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</main>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="scripts/namis.search.jquery.js"></script>
+<script>
+    function readCookie(a) {
+        var b = document.cookie.match('(^|;)\\s*' + a + '\\s*=\\s*([^;]+)');
+        return b ? b.pop() : '';
+    }
+    function writeCookie(a, v) {
+		var date = new Date();
+		date.setTime(date.getTime()+(30*24*60*60*1000));
+    	document.cookie = a + "=" + v + "; expires=" + date.toUTCString() + "; path=/";
+    }
+
+    var cookie = readCookie('symbol-access');
+    if (!cookie || cookie === 'no-private') {
+        document.documentElement.classList.add('no-private');
+    }
+    
+   document.getElementById('toggle-private').checked = 
+    !document.documentElement.classList.contains('no-private');
+
+
+    prettyPrint();
+    (function($){
+        $('#nav').search(['className', 'methodName']);
+    })(jQuery);
+</script>
+<script src="scripts/linenumber.js"></script>
+
+
+    <script src="http://mathlive.io/mathlive/mathlive.js"></script><script>if (MathLive) {MathLive.renderMathInDocument();}</script>
+
+
+</body>
+</html>

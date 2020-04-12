@@ -78,60 +78,59 @@ export default {
     },
     mounted: function () {
         // A new instance is being created
-        const vm = this; // Keep a reference to the ViewModel
         // Wait until the DOM has been constructed...
-        this.$nextTick(function () {
+        this.$nextTick(() => {
             // ... then make the Mathfield
-            vm.$mathlive.makeMathField(vm.$el, {
-                ...vm.config,
+            this.$mathlive.makeMathField(this.$el, {
+                ...this.config,
                 // To support the 'model' directive, this handler will connect
                 // the content of the mathfield to the ViewModel
                 onContentDidChange: (_) => {
                     // When the mathfield is updated, notify the model.
                     // The initial input value is generated from the <slot>
                     // content, so it may need to be updated.
-                    vm.$emit('input', vm.$el.mathfield.$text());
+                    this.$emit('input', this.$el.mathfield.$text());
                 },
                 // Those asynchronous notification handlers are translated to events
                 onFocus: (_) => {
-                    vm.$emit('focus');
+                    this.$emit('focus');
                 },
                 onBlur: (_) => {
-                    vm.$emit('blur');
+                    this.$emit('blur');
                 },
                 onContentWillChange: (_) => {
-                    vm.$emit('content-will-change');
+                    this.$emit('content-will-change');
                 },
                 onSelectionWillChange: (_) => {
-                    vm.$emit('selection-will-change');
+                    this.$emit('selection-will-change');
                 },
                 onUndoStateWillChange: (_, command) => {
-                    vm.$emit('undo-state-will-change', command);
+                    this.$emit('undo-state-will-change', command);
                 },
                 onUndoStateDidChange: (_, command) => {
-                    vm.$emit('undo-state-did-change', command);
+                    this.$emit('undo-state-did-change', command);
                 },
                 onVirtualKeyboardToggle: (_, visible, keyboardElement) => {
-                    vm.$emit(
+                    this.$emit(
                         'virtual-keyboard-toggle',
                         visible,
                         keyboardElement
                     );
                 },
                 onReadAloudStatus: (_, status) => {
-                    vm.$emit('read-aloud-status', status);
+                    this.$emit('read-aloud-status', status);
                 },
 
                 // Those notification handlers expect an answer back, so translate
                 // them to callbacks via props
                 onKeystroke: function (_, keystroke, ev) {
-                    return vm.onKeystroke(keystroke, ev);
+                    return this.onKeystroke(keystroke, ev);
                 },
                 onMoveOutOf: (_, direction) => {
-                    return vm.onMoveOutOf(direction);
+                    return this.onMoveOutOf(direction);
                 },
                 onTabOutOf: (_, direction) => {
-                    return vm.onTabOutOf(direction);
+                    return this.onTabOutOf(direction);
                 },
             });
         });

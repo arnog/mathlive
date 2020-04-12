@@ -40,6 +40,9 @@ export class Context {
         this.mathstyle = Mathstyle.toMathstyle(
             from.mathstyle || 'displaystyle'
         );
+
+        this.letterShapeStyle = from.letterShapeStyle || 'tex';
+
         this.size = from.size || 'size5'; // medium size
 
         this.parentMathstyle = from.parentMathstyle || this.mathstyle;

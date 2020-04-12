@@ -51,13 +51,13 @@ defineSymbol('\\imaginaryJ', 'j'); // NOTE: not a real TeX symbol, but Mathemati
 defineSymbol('\\hbar', '\u210f');
 defineSymbol('\\hslash', '\u210f', 'mord', 'ams');
 
-defineSymbol('\\differentialD', 'd', 'mord', 'cmr'); // NOTE: not a real TeX symbol, but Mathematica
-defineSymbol('\\rd', 'd', 'mord', 'cmr'); // NOTE: not a real TeX symbol, but used in ProofWiki
+defineSymbol('\\differentialD', 'd', 'mord', 'main'); // NOTE: not a real TeX symbol, but Mathematica
+defineSymbol('\\rd', 'd', 'mord', 'main'); // NOTE: not a real TeX symbol, but used in ProofWiki
 // NOTE: set in math as per ISO 80000-2:2009.
-defineSymbol('\\capitalDifferentialD', 'D', 'mord', 'cmr'); // NOTE: not a real TeX symbol, but Mathematica
+defineSymbol('\\capitalDifferentialD', 'D', 'mord', 'main'); // NOTE: not a real TeX symbol, but Mathematica
 // NOTE: set in math as per ISO 80000-2:2009.
-defineSymbol('\\rD', 'D', 'mord', 'cmr'); // NOTE: not a real TeX symbol
-defineSymbol('\\exponentialE', 'e', 'mord', 'cmr'); // NOTE: not a real TeX symbol, but Mathematica
+defineSymbol('\\rD', 'D', 'mord', 'main'); // NOTE: not a real TeX symbol
+defineSymbol('\\exponentialE', 'e', 'mord', 'main'); // NOTE: not a real TeX symbol, but Mathematica
 // NOTE: set in math as per ISO 80000-2:2009.
 
 defineSymbol('\\Finv', '\u2132', 'mord', 'ams');
@@ -69,27 +69,27 @@ defineSymbol('\\eth', '\u00f0', 'mord', 'ams');
 defineSymbol('\\mho', '\u2127', 'mord', 'ams');
 
 defineSymbol('\\Bbbk', '\u006b', 'mord', 'ams');
-defineSymbol('\\doubleStruckCapitalN', 'N', 'mord', 'bb'); // NOTE: Not TeX?
-defineSymbol('\\N', 'N', 'mord', 'bb'); // NOTE: Check if standard Latex
-defineSymbol('\\doubleStruckCapitalR', 'R', 'mord', 'bb'); // NOTE: Not TeX?
-defineSymbol('\\R', 'R', 'mord', 'bb'); // NOTE: Check if standard Latex
-defineSymbol('\\doubleStruckCapitalQ', 'Q', 'mord', 'bb'); // NOTE: Not TeX?
-defineSymbol('\\Q', 'Q', 'mord', 'bb'); // NOTE: Check if standard Latex
-defineSymbol('\\doubleStruckCapitalC', 'C', 'mord', 'bb'); // NOTE: Not TeX?
-defineSymbol('\\C', 'C', 'mord', 'bb'); // NOTE: Check if standard Latex
-defineSymbol('\\doubleStruckCapitalZ', 'Z', 'mord', 'bb'); // NOTE: Not TeX?
-defineSymbol('\\Z', 'Z', 'mord', 'bb'); // NOTE: Check if standard Latex
-defineSymbol('\\doubleStruckCapitalP', 'P', 'mord', 'bb'); // NOTE: Not TeX?
-defineSymbol('\\P', 'P', 'mord', 'bb'); // NOTE: Check if standard Latex
+defineSymbol('\\doubleStruckCapitalN', 'N', 'mord', 'double-struck'); // NOTE: Not TeX?
+defineSymbol('\\N', 'N', 'mord', 'double-struck'); // NOTE: Check if standard Latex
+defineSymbol('\\doubleStruckCapitalR', 'R', 'mord', 'double-struck'); // NOTE: Not TeX?
+defineSymbol('\\R', 'R', 'mord', 'double-struck'); // NOTE: Check if standard Latex
+defineSymbol('\\doubleStruckCapitalQ', 'Q', 'mord', 'double-struck'); // NOTE: Not TeX?
+defineSymbol('\\Q', 'Q', 'mord', 'double-struck'); // NOTE: Check if standard Latex
+defineSymbol('\\doubleStruckCapitalC', 'C', 'mord', 'double-struck'); // NOTE: Not TeX?
+defineSymbol('\\C', 'C', 'mord', 'double-struck'); // NOTE: Check if standard Latex
+defineSymbol('\\doubleStruckCapitalZ', 'Z', 'mord', 'double-struck'); // NOTE: Not TeX?
+defineSymbol('\\Z', 'Z', 'mord', 'double-struck'); // NOTE: Check if standard Latex
+defineSymbol('\\doubleStruckCapitalP', 'P', 'mord', 'double-struck'); // NOTE: Not TeX?
+defineSymbol('\\P', 'P', 'mord', 'double-struck'); // NOTE: Check if standard Latex
 
-defineSymbol('\\scriptCapitalE', 'E', 'mord', 'scr'); // NOTE: Not TeX?
-defineSymbol('\\scriptCapitalH', 'H', 'mord', 'scr'); // NOTE: Not TeX?
-defineSymbol('\\scriptCapitalL', 'L', 'mord', 'scr'); // NOTE: Not TeX?
+defineSymbol('\\scriptCapitalE', 'E', 'mord', 'script'); // NOTE: Not TeX?
+defineSymbol('\\scriptCapitalH', 'H', 'mord', 'script'); // NOTE: Not TeX?
+defineSymbol('\\scriptCapitalL', 'L', 'mord', 'script'); // NOTE: Not TeX?
 
-defineSymbol('\\gothicCapitalC', 'C', 'mord', 'frak'); // NOTE: Not TeX?
-defineSymbol('\\gothicCapitalH', 'H', 'mord', 'frak'); // NOTE: Not TeX?
-defineSymbol('\\gothicCapitalI', 'I', 'mord', 'frak'); // NOTE: Not TeX?
-defineSymbol('\\gothicCapitalR', 'R', 'mord', 'frak'); // NOTE: Not TeX?
+defineSymbol('\\gothicCapitalC', 'C', 'mord', 'fraktur'); // NOTE: Not TeX?
+defineSymbol('\\gothicCapitalH', 'H', 'mord', 'fraktur'); // NOTE: Not TeX?
+defineSymbol('\\gothicCapitalI', 'I', 'mord', 'fraktur'); // NOTE: Not TeX?
+defineSymbol('\\gothicCapitalR', 'R', 'mord', 'fraktur'); // NOTE: Not TeX?
 
 defineSymbol('\\pounds', '\u00a3');
 defineSymbol('\\yen', '\u00a5', 'mord', 'ams');

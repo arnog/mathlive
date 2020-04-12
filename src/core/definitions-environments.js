@@ -197,7 +197,11 @@ defineEnvironment('multline', '', {}, function () {
 // Note that some versions of AMS-Math have a gap on the left.
 // More recent version suppresses that gap, but have an option to turn it back on
 // for backward compatibility.
-defineEnvironment(['align', 'aligned'], '', {}, function (name, args, array) {
+defineEnvironment(['align', 'align*', 'aligned'], '', {}, function (
+    _name,
+    _args,
+    array
+) {
     let colCount = 0;
     for (const row of array) {
         colCount = Math.max(colCount, row.length);
@@ -214,6 +218,7 @@ defineEnvironment(['align', 'aligned'], '', {}, function (name, args, array) {
     colFormat.push({ gap: 0 });
 
     return {
+        arraycolsep: 0,
         colFormat: colFormat,
         jot: 0.3, // Jot is an extra gap between lines of numbered equation.
         // It's 3pt by default in LaTeX (ltmath.dtx:181)

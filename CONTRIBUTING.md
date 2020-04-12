@@ -87,11 +87,6 @@ some feedback to make sure that your pull request fits in with
 -   the architecture of the project
 -   the coding guidelines of the project
 
-Before we can consider merging your pull request, you must sign the
-Contributor License Agreement here:
-
-<a href="https://cla-assistant.io/arnog/mathlive"><img src="https://cla-assistant.io/readme/badge/arnog/mathlive" alt="CLA assistant" /></a>
-
 Once your pull request has been accepted, it will be merged
 into the master branch.
 

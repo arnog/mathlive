@@ -61,10 +61,12 @@ registerAtomType('enclose', (context, atom) => {
     }
     if (atom.notation.top) notation.setStyle('border-top', atom.borderStyle);
     if (atom.notation.left) notation.setStyle('border-left', atom.borderStyle);
-    if (atom.notation.right)
+    if (atom.notation.right) {
         notation.setStyle('border-right', atom.borderStyle);
-    if (atom.notation.bottom)
+    }
+    if (atom.notation.bottom) {
         notation.setStyle('border-bottom', atom.borderStyle);
+    }
 
     let svg = '';
 
@@ -174,6 +176,7 @@ registerAtomType('enclose', (context, atom) => {
     // Set its position as relative so that the box can be absolute positioned
     // over the base
     result.setStyle('position', 'relative');
+    result.setStyle('display', 'inline');
     result.setStyle('vertical-align', -padding + spanDepth(base), 'em');
 
     // The padding adds to the width and height of the pod

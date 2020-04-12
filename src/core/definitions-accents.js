@@ -82,11 +82,11 @@ defineFunction(
  *
  */
 
-defineFunction('^', '{:string}', {}, function (name, args) {
+defineFunction('^', '{:string}', {}, (_name, args) => {
     return {
         type: 'mord',
         limits: 'nolimits',
-        symbol: true,
+        isSymbol: true,
         isFunction: false,
         body: args[0]
             ? {
@@ -102,15 +102,14 @@ defineFunction('^', '{:string}', {}, function (name, args) {
                   U: 'Û',
               }[args[0]] || '^'
             : '^',
-        baseFontFamily: 'cmr',
     };
 });
 
-defineFunction('`', '{:string}', {}, function (name, args) {
+defineFunction('`', '{:string}', {}, (_name, args) => {
     return {
         type: 'mord',
         limits: 'nolimits',
-        symbol: true,
+        isSymbol: true,
         isFunction: false,
         body: args[0]
             ? {
@@ -126,7 +125,6 @@ defineFunction('`', '{:string}', {}, function (name, args) {
                   U: 'Ù',
               }[args[0]] || '`'
             : '`',
-        baseFontFamily: 'cmr',
     };
 });
 
@@ -134,7 +132,7 @@ defineFunction("'", '{:string}', {}, function (name, args) {
     return {
         type: 'mord',
         limits: 'nolimits',
-        symbol: true,
+        isSymbol: true,
         isFunction: false,
         body: args[0]
             ? {
@@ -150,7 +148,6 @@ defineFunction("'", '{:string}', {}, function (name, args) {
                   U: 'Ú',
               }[args[0]] || '\u005e'
             : '\u005e',
-        baseFontFamily: 'cmr',
     };
 });
 
@@ -158,13 +155,12 @@ defineFunction('~', '{:string}', {}, function (name, args) {
     return {
         type: 'mord',
         limits: 'nolimits',
-        symbol: true,
+        isSymbol: true,
         isFunction: false,
         body: args[0]
             ? { n: 'ñ', N: 'Ñ', a: 'ã', o: 'õ', A: 'Ã', O: 'Õ' }[args[0]] ||
               '\u00B4'
             : '\u00B4',
-        baseFontFamily: 'cmr',
     };
 });
 
@@ -172,9 +168,8 @@ defineFunction('c', '{:string}', {}, function (name, args) {
     return {
         type: 'mord',
         limits: 'nolimits',
-        symbol: true,
+        isSymbol: true,
         isFunction: false,
         body: args[0] ? { c: 'ç', C: 'Ç' }[args[0]] || '' : '',
-        baseFontFamily: 'cmr',
     };
 });

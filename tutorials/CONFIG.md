@@ -3,7 +3,7 @@ or {@linkcode module:editor/mathfield#Mathfield#setConfig Mathfield.\$setConfig(
 
 ---
 
-**`config.locale`**:`string`
+**`config.locale`** : `string`
 
 The locale (language + region) to use for string localization.
 
@@ -11,7 +11,7 @@ If not is provided, the locale of the browser is used.
 
 ---
 
-**`config.strings`**:`object`
+**`config.strings`** : `object`
 
 An object whose keys are a locale string, and whose values are an object of
 string identifier to localized string.
@@ -31,11 +31,40 @@ This will override the default localized strings.
 
 ---
 
-**`config.horizontalSpacingScale=1.0`**:`number`
+**`config.horizontalSpacingScale=1.0`** : `number`
 
 Scaling factor to be
 applied to horizontal spacing between elements of the formula. With a value
 greater than 1.0, can be used to improve the legibility.
+
+---
+
+**`config.letterShapeStyle='text'`** : `string`
+
+Control the letter shape style:
+
+| `letterShapeStyle` | xyz | ABC | αβɣ | ΓΔΘ |
+| ------------------ | --- | --- | --- | --- |
+| `iso`              | it  | it  | it  | it  |
+| `tex`              | it  | it  | it  | up  |
+| `french`           | it  | up  | up  | up  |
+| `upright`          | up  | up  | up  | up  |
+
+(it) = italic
+(up) = upright
+
+The default letter shape style is `auto`, which indicates that `french` should
+be used if the locale is "french", and `tex` otherwise.
+
+**Historical note**: where do the "french" rules come from? The TeX standard
+font, Computer Modern, is based on Monotype 155M, itself based on the Porson
+greek font which was one of the most widely used Greek fonts in english-speaking
+countries. This font had upright capitals, but slanted lowercase. In France,
+the traditional font for greek was Didot, which has both upright capitals
+and lowercase.
+
+As for roman uppercase, they are recommended by "Lexique des règles typographiques en usage à l’Imprimerie Nationale". It should be noted
+that this convention is not universally followed.
 
 ---
 

@@ -8,19 +8,13 @@
  */
 
 import { toASCIIMath } from '../editor/outputASCIIMath.js';
-import Lexer from '../core/lexer.js';
-import ParserModule from '../core/parser.js';
+import { parseString } from '../core/parser.js';
 import { parseMathString } from '../editor/editor-editableMathlist.js';
 
 export function latexToAsciiMath(latex, mode) {
     mode = mode || 'math';
 
-    const mathlist = ParserModule.parseTokens(
-        Lexer.tokenize(latex),
-        mode,
-        null,
-        null
-    );
+    const mathlist = parseString(latex, mode, null, null);
 
     return toASCIIMath(mathlist);
 }

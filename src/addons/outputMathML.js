@@ -9,7 +9,7 @@
  */
 
 import { Atom } from '../core/atom.js';
-import Color from '../core/color.js';
+import { stringToColor } from '../core/color.js';
 
 const SPECIAL_OPERATORS = {
     '\\pm': '&PlusMinus;',
@@ -450,7 +450,7 @@ function scanOperator(stream, final, options) {
             lastType = 'mo';
         } else {
             const atom = stream.atoms[stream.index];
-            const isUnit = atom.latex.indexOf('\\operatorname') === 0;
+            const isUnit = atom.symbol === '\\operatorname';
             const op = isUnit
                 ? '<mi class="MathML-Unit"' +
                   makeID(atom.id, options) +
@@ -593,7 +593,7 @@ function toString(atoms) {
  * @return {string}
  * @private
  */
-Atom.prototype.toMathML = function(options) {
+Atom.prototype.toMathML = function (options) {
     // For named SVG atoms, map to a Unicode char
     const SVG_CODE_POINTS = {
         widehat: '^',
@@ -687,7 +687,7 @@ Atom.prototype.toMathML = function(options) {
         variant = ' mathvariant="' + variant + '"';
     }
 
-    const command = this.latex ? this.latex.trim() : null;
+    const command = this.symbol;
     if (this.mode === 'text') {
         result = '<mi' + makeID(this.id, options) + '>' + this.body + '</mi>';
     } else {
@@ -827,8 +827,9 @@ Atom.prototype.toMathML = function(options) {
                         (SPECIAL_OPERATORS[this.leftDelim] || this.leftDelim) +
                         '</mo>';
                 }
-                if (this.body)
+                if (this.body) {
                     result += toMathML(this.body, 0, 0, options).mathML;
+                }
                 if (this.rightDelim && this.rightDelim !== '.') {
                     result +=
                         '<mo' +
@@ -876,10 +877,11 @@ Atom.prototype.toMathML = function(options) {
                     body = this.body;
                 } else if (overscript) {
                     body = this.body;
-                    if (this.body[0] && this.body[0].underscript) {
+                    if (this.body && this.body[0] && this.body[0].underscript) {
                         underscript = this.body[0].underscript;
                         body = this.body[0].body;
                     } else if (
+                        this.body &&
                         this.body[0] &&
                         this.body[0].type === 'first' &&
                         this.body[1] &&
@@ -890,10 +892,11 @@ Atom.prototype.toMathML = function(options) {
                     }
                 } else if (underscript) {
                     body = this.body;
-                    if (this.body[0] && this.body[0].overscript) {
+                    if (this.body && this.body[0] && this.body[0].overscript) {
                         overscript = this.body[0].overscript;
                         body = this.body[0].body;
                     } else if (
+                        this.body &&
                         this.body[0] &&
                         this.body[0].type === 'first' &&
                         this.body[1] &&
@@ -1049,7 +1052,7 @@ Atom.prototype.toMathML = function(options) {
                 if (this.backgroundcolor) {
                     result +=
                         ' mathbackground="' +
-                        Color.stringToColor(this.backgroundcolor) +
+                        stringToColor(this.backgroundcolor) +
                         '"';
                 }
                 result +=
@@ -1096,7 +1099,7 @@ Atom.prototype.toMathML = function(options) {
     return result;
 };
 
-Atom.toMathML = function(atoms, options) {
+Atom.toMathML = function (atoms, options) {
     return toMathML(atoms, 0, 0, options).mathML;
 };
 

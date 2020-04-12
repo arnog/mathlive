@@ -1,0 +1,32 @@
+{
+    "compilerOptions": {
+        // "declaration": true,
+        "allowJs": true,
+        // "checkJs": true,
+        "emitDecoratorMetadata": true,
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
+        "incremental": true,
+        "module": "esnext",
+        "moduleResolution": "node",
+        "noImplicitAny": false,
+        "noLib": false,
+        "removeComments": true,
+        "sourceMap": true,
+        "strictNullChecks": true,
+        "target": "es2019",
+        "resolveJsonModule": true,
+
+        "outDir": "build",
+
+        "lib": ["es2017", "es2020.string", "dom", "dom.iterable", "scripthost"]
+    },
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts",
+        "dist",
+        "build",
+        "examples",
+        "rollup.config.js"
+    ]
+}

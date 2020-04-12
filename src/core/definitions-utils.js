@@ -40,20 +40,94 @@ export const RIGHT_DELIM = {
     '\\lmoustache': '\\rmoustache',
 };
 
+// Body-text symbols
+// See http://ctan.mirrors.hoobly.com/info/symbols/comprehensive/symbols-a4.pdf, p14
+
+export const TEXT_SYMBOLS = {
+    '\\#': '\u0023',
+    '\\&': '\u0026',
+    '\\$': '$',
+    '\\%': '%',
+    '\\_': '_',
+    '\\euro': '\u20AC',
+    '\\maltese': '\u2720',
+    '\\{': '{',
+    '\\}': '}',
+    '\\nobreakspace': '\u00A0',
+    '\\ldots': '\u2026',
+    '\\textellipsis': '\u2026',
+    '\\backslash': '\\',
+    '`': '\u2018',
+    "'": '\u2019',
+    '``': '\u201c',
+    "''": '\u201d',
+    '\\degree': '\u00b0',
+    '\\textasciicircum': '^',
+    '\\textasciitilde': '~',
+    '\\textasteriskcentered': '*',
+    '\\textbackslash': '\\',
+    '\\textbraceleft': '{',
+    '\\textbraceright': '}',
+    '\\textbullet': '•',
+    '\\textdollar': '$',
+    '\\textsterling': '£',
+    '–': '\u2013', // EN DASH
+    '—': '\u2014', // EM DASH
+    '‘': '\u2018', // LEFT SINGLE QUOTATION MARK
+    '’': '\u2019', // RIGHT SINGLE QUOTATION MARK
+    '“': '\u201C', // LEFT DOUBLE QUOTATION MARK
+    '”': '\u201D', // RIGHT DOUBLE QUOTATION MARK
+    '"': '\u201D', // DOUBLE PRIME
+    '\\ss': '\u00df', // LATIN SMALL LETTER SHARP S
+    '\\ae': '\u00E6', // LATIN SMALL LETTER AE
+    '\\oe': '\u0153', // LATIN SMALL LIGATURE OE
+    '\\AE': '\u00c6', // LATIN CAPITAL LETTER AE
+    '\\OE': '\u0152', // LATIN CAPITAL LIGATURE OE
+    '\\O': '\u00d8', // LATIN CAPITAL LETTER O WITH STROKE
+    '\\i': '\u0131', // LATIN SMALL LETTER DOTLESS I
+    '\\j': '\u0237', // LATIN SMALL LETTER DOTLESS J
+    '\\aa': '\u00e5', // LATIN SMALL LETTER A WITH RING ABOVE
+    '\\AA': '\u00c5', // LATIN CAPITAL LETTER A WITH RING ABOVE
+};
+
+export const COMMAND_MODE_CHARACTERS = /[a-zA-Z0-9!@*()-=+{}[\]\\';:?/.,~<>`|'$%#&^_" ]/;
+
+// Word boundaries for Cyrillic, Polish, French, German, Italian
+// and Spanish. We use \p{L} (Unicode property escapes: "Letter")
+// but Firefox doesn't support it
+// (https://bugzilla.mozilla.org/show_bug.cgi?id=1361876). Booo...
+// See also https://stackoverflow.com/questions/26133593/using-regex-to-match-international-unicode-alphanumeric-characters-in-javascript
+export const LETTER =
+    typeof navigator !== 'undefined' &&
+    /firefox|edge/i.test(navigator.userAgent)
+        ? /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒäöüßÄÖÜẞàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚáéíñóúüÁÉÍÑÓÚÜ]/
+        : new RegExp('\\p{Letter}', 'u');
+
+export const LETTER_AND_DIGITS =
+    typeof navigator !== 'undefined' &&
+    /firefox|edge/i.test(navigator.userAgent)
+        ? /[0-9a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒäöüßÄÖÜẞàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚáéíñóúüÁÉÍÑÓÚÜ]/
+        : new RegExp('[0-9\\p{Letter}]', 'u');
+
 /**
  *
- * @param {string} latexName    The common LaTeX command for this symbol
+ * @param {string} latexName    The LaTeX command for this symbol, for
+ * example `\alpha` or `+`
+ *
  * @param {string} value
+ *
  * @param {string} type
- * @param {string} baseFont
+ *
+ * @param {string} variant
+ *
  * @memberof module:definitions
  * @private
  */
-export function defineSymbol(latexName, value, type = 'mord', baseFont = '') {
+export function defineSymbol(latexName, value, type = 'mord', variant = '') {
     MATH_SYMBOLS[latexName] = {
-        type: type,
-        baseFontFamily: baseFont,
-        value: value,
+        type,
+        variant,
+        value,
     };
 }
 
@@ -140,43 +214,22 @@ const CODEPOINT_SHORTCUTS = {
  * Given a character, return a LaTeX expression matching its Unicode codepoint.
  * If there is a matching symbol (e.g. \alpha) it is returned.
  * @param {string} parseMode
- * @param {number} cp
+ * @param {string} s
  * @return {string}
  * @memberof module:definitions
  * @private
  */
-export function matchCodepoint(parseMode, cp) {
-    const s = String.fromCodePoint(cp);
-
-    // Some symbols map to multiple codepoints.
-    // Some symbols are 'pseudosuperscript'. Convert them to a super(or sub)script.
-    // Map their alternative codepoints here.
-    if (parseMode === 'math' && CODEPOINT_SHORTCUTS[s])
-        return CODEPOINT_SHORTCUTS[s];
-
-    // Don't map 'simple' code point.
-    // For example "C" maps to \doubleStruckCapitalC, not the desired "C"
-    if (cp > 32 && cp < 127) return s;
-
+export function charToLatex(parseMode, s) {
     let result = '';
     if (parseMode === 'math') {
-        for (const p in MATH_SYMBOLS) {
-            if (Object.prototype.hasOwnProperty.call(MATH_SYMBOLS, p)) {
-                if (MATH_SYMBOLS[p].value === s) {
-                    result = p;
-                    break;
-                }
-            }
-        }
+        // Some symbols map to multiple codepoints.
+        // Some symbols are 'pseudosuperscript'. Convert them to a super(or sub)script.
+        // Map their alternative codepoints here.
+        result =
+            CODEPOINT_SHORTCUTS[s] ||
+            Object.keys(MATH_SYMBOLS).find((x) => MATH_SYMBOLS[x].value === s);
     } else {
-        for (const p in TEXT_SYMBOLS) {
-            if (Object.prototype.hasOwnProperty.call(TEXT_SYMBOLS, p)) {
-                if (TEXT_SYMBOLS[p] === s) {
-                    result = p;
-                    break;
-                }
-            }
-        }
+        result = Object.keys(TEXT_SYMBOLS).find((x) => TEXT_SYMBOLS[x] === s);
     }
 
     return result || s;
@@ -185,7 +238,7 @@ export function matchCodepoint(parseMode, cp) {
 /**
  * Given a Unicode character returns {char:, variant:, style} corresponding
  * to this codepoint. `variant` is optional.
- * This maps characters such as "blackboard uppercase C" to
+ * This maps characters such as ℂ ("blackboard uppercase C") to
  * {char: 'C', variant: 'double-struck', style:''}
  * @param {string} char
  */
@@ -378,7 +431,7 @@ function unicodeToMathVariant(char) {
 }
 
 /**
- * Given a character and variant ('bb', 'cal', etc...)
+ * Given a character and variant ('double-struck', 'fraktur', etc...)
  * return the corresponding unicode character (a string)
  * @param {string} char
  * @param {string} variant
@@ -415,15 +468,18 @@ export function mathVariantToUnicode(char, variant, style) {
     return char;
 }
 
-function codepointToLatex(parseMode, cp) {
-    // Codepoint shortcuts have priority over variants
-    // That is, "\N" vs "\mathbb{N}"
-    if (parseMode === 'text') return String.fromCodePoint(cp);
+function unicodeCharToLatex(parseMode, char) {
+    if (parseMode === 'text') {
+        return charToLatex(parseMode, char) || char;
+    }
 
     let result;
+    // Codepoint shortcuts have priority over variants
+    // That is, "\N" vs "\mathbb{N}"
+    const cp = char.codePointAt(0);
     if (CODEPOINT_SHORTCUTS[cp]) return CODEPOINT_SHORTCUTS[cp];
     const v = unicodeToMathVariant(cp);
-    if (!v.style && !v.variant) return matchCodepoint(parseMode, cp);
+    if (!v.style && !v.variant) return charToLatex(parseMode, char);
     result = v.char;
     if (v.variant) {
         result = '\\' + v.variant + '{' + result + '}';
@@ -433,15 +489,30 @@ function codepointToLatex(parseMode, cp) {
     } else if (v.style === 'italic') {
         result = '\\mathit{' + result + '}';
     } else if (v.style === 'bolditalic') {
-        result = '\\mathbf{\\mathit{' + result + '}}';
+        result = '\\mathbfit{' + result + '}';
     }
     return '\\mathord{' + result + '}';
 }
 
 export function unicodeStringToLatex(parseMode, s) {
     let result = '';
-    for (const cp of s) {
-        result += codepointToLatex(parseMode, cp.codePointAt(0));
+    let needSpace = false;
+    for (const c of s) {
+        if (needSpace) {
+            if (parseMode === 'text') {
+                result += '{}';
+            } else {
+                result += ' ';
+            }
+        }
+        needSpace = false;
+        const latex = unicodeCharToLatex(parseMode, c);
+        if (latex) {
+            result += latex;
+            needSpace = /\\[a-zA-Z0-9]+\*?$/.test(latex);
+        } else {
+            result += c;
+        }
     }
     return result;
 }
@@ -479,9 +550,28 @@ export function getValue(mode, symbol) {
 }
 
 export function emit(command, parent, atom, emitFn) {
+    console.assert(atom);
+    console.assert(command, 'Missing command for ', atom.body);
+
     if (FUNCTIONS[command] && FUNCTIONS[command].emit) {
         return FUNCTIONS[command].emit(command, parent, atom, emitFn);
     }
+
+    if (MATH_SYMBOLS[command] || TEXT_SYMBOLS[command]) {
+        // Add a space after commands, to avoid, e.g.
+        // '\sin' + 'x' -> '\sinx' instead of '\sin x'
+        return command + (/^\\.*[a-zA-Z0-9]$/.test(command) ? ' ' : '');
+    }
+
+    if (
+        FUNCTIONS[command] &&
+        FUNCTIONS[command].params &&
+        FUNCTIONS[command].params.length === 1 &&
+        atom.body
+    ) {
+        return command + '{' + emitFn(atom, atom.body) + '}';
+    }
+    // No custom emit function provided, return ''
     return '';
 }
 
@@ -511,7 +601,7 @@ export function getEnvironmentInfo(name) {
  * @private
  */
 export function getInfo(symbol, parseMode, macros) {
-    if (symbol.length === 0) return null;
+    if (!symbol || symbol.length === 0) return null;
 
     let info = null;
 
@@ -632,13 +722,6 @@ export function suggest(s) {
     return result;
 }
 
-// Fonts
-const MAIN = ''; // The "main" KaTeX font (in fact one of several
-// depending on the math variant, size, etc...)
-const AMS = 'ams'; // Some symbols are not in the "main" KaTeX font
-// or have a different glyph available in the "AMS"
-// font (`\hbar` and `\hslash` for example).
-
 /**
  * An argument template has the following syntax:
  *
@@ -679,7 +762,7 @@ function parseParamTemplateArgument(argTemplate, isOptional) {
 }
 
 function parseParamTemplate(paramTemplate) {
-    if (!paramTemplate || paramTemplate.length === 0) return [];
+    if (!paramTemplate) return [];
 
     let result = [];
     let params = paramTemplate.split(']');
@@ -791,12 +874,6 @@ export function defineFunction(
 
     // Set default values of functions
     const data = {
-        // The base font family, if present, indicates that this font family
-        // should always be used to render atom. For example, functions such
-        // as "sin", etc... are always drawn in a roman font,
-        // regardless of the font styling a user may specify.
-        baseFontFamily: options.fontFamily,
-
         // The parameters for this function, an array of
         // {optional, type, defaultValue, placeholder}
         params: parseParamTemplate(params),
@@ -810,72 +887,3 @@ export function defineFunction(
         FUNCTIONS['\\' + name] = data;
     });
 }
-
-// Body-text symbols
-// See http://ctan.mirrors.hoobly.com/info/symbols/comprehensive/symbols-a4.pdf, p14
-
-export const TEXT_SYMBOLS = {
-    '\\#': '\u0023',
-    '\\&': '\u0026',
-    '\\$': '$',
-    '\\%': '%',
-    '\\_': '_',
-    '\\euro': '\u20AC',
-    '\\maltese': '\u2720',
-    '\\{': '{',
-    '\\}': '}',
-    '\\nobreakspace': '\u00A0',
-    '\\ldots': '\u2026',
-    '\\textellipsis': '\u2026',
-    '\\backslash': '\\',
-    '`': '\u2018',
-    "'": '\u2019',
-    '``': '\u201c',
-    "''": '\u201d',
-    '\\degree': '\u00b0',
-    '\\textasciicircum': '^',
-    '\\textasciitilde': '~',
-    '\\textasteriskcentered': '*',
-    '\\textbackslash': '\\',
-    '\\textbraceleft': '{',
-    '\\textbraceright': '}',
-    '\\textbullet': '•',
-    '\\textdollar': '$',
-    '\\textsterling': '£',
-    '–': '\u2013', // EN DASH
-    '—': '\u2014', // EM DASH
-    '‘': '\u2018', // LEFT SINGLE QUOTATION MARK
-    '’': '\u2019', // RIGHT SINGLE QUOTATION MARK
-    '“': '\u201C', // LEFT DOUBLE QUOTATION MARK
-    '”': '\u201D', // RIGHT DOUBLE QUOTATION MARK
-    '"': '\u201D', // DOUBLE PRIME
-    '\\ss': '\u00df', // LATIN SMALL LETTER SHARP S
-    '\\ae': '\u00E6', // LATIN SMALL LETTER AE
-    '\\oe': '\u0153', // LATIN SMALL LIGATURE OE
-    '\\AE': '\u00c6', // LATIN CAPITAL LETTER AE
-    '\\OE': '\u0152', // LATIN CAPITAL LIGATURE OE
-    '\\O': '\u00d8', // LATIN CAPITAL LETTER O WITH STROKE
-    '\\i': '\u0131', // LATIN SMALL LETTER DOTLESS I
-    '\\j': '\u0237', // LATIN SMALL LETTER DOTLESS J
-    '\\aa': '\u00e5', // LATIN SMALL LETTER A WITH RING ABOVE
-    '\\AA': '\u00c5', // LATIN CAPITAL LETTER A WITH RING ABOVE
-};
-
-export const COMMAND_MODE_CHARACTERS = /[a-zA-Z0-9!@*()-=+{}[\]\\';:?/.,~<>`|'$%#&^_" ]/;
-
-// Word boundaries for Cyrillic, Polish, French, German, Italian
-// and Spanish. We use \p{L} (Unicode property escapes: "Letter")
-// but Firefox doesn't support it
-// (https://bugzilla.mozilla.org/show_bug.cgi?id=1361876). Booo...
-// See also https://stackoverflow.com/questions/26133593/using-regex-to-match-international-unicode-alphanumeric-characters-in-javascript
-export const LETTER =
-    typeof navigator !== 'undefined' &&
-    /firefox|edge/i.test(navigator.userAgent)
-        ? /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒäöüßÄÖÜẞàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚáéíñóúüÁÉÍÑÓÚÜ]/
-        : new RegExp('\\p{Letter}', 'u');
-
-export const LETTER_AND_DIGITS =
-    typeof navigator !== 'undefined' &&
-    /firefox|edge/i.test(navigator.userAgent)
-        ? /[0-9a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒäöüßÄÖÜẞàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚáéíñóúüÁÉÍÑÓÚÜ]/
-        : new RegExp('[0-9\\p{Letter}]', 'u');

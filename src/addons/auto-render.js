@@ -1,6 +1,6 @@
 /* eslint no-console:0 */
 import '../core/atom.js';
-import { MACROS } from '../core/definitions-utils.js';
+import { MACROS } from '../core/definitions.js';
 
 function findEndOfMath(delimiter, text, startIndex) {
     // Adapted from
@@ -171,12 +171,11 @@ function createMarkupNode(text, options, mathstyle, createNodeOnFailure) {
     }
 
     try {
-        span.innerHTML = options.renderToMarkup(
-            text,
-            mathstyle || 'displaystyle',
-            'html',
-            options.macros
-        );
+        span.innerHTML = options.renderToMarkup(text, {
+            mathstyle: mathstyle || 'displaystyle',
+            format: 'html',
+            macros: options.macros,
+        });
     } catch (e) {
         console.error("Could not parse'" + text + "' with ", e);
         if (createNodeOnFailure) {

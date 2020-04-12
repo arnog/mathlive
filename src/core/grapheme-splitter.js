@@ -13,15 +13,15 @@ const CR = 0,
     LF = 1,
     Control = 2,
     Extend = 3,
-    Regional_Indicator = 4,
-    SpacingMark = 5,
+    REGIONAL_INDICATOR = 4,
+    SPACING_MARK = 5,
     L = 6,
     V = 7,
     T = 8,
     LV = 9,
     LVT = 10,
     Other = 11,
-    Skin_Tone = 12;
+    SKIN_TONE = 12;
 
 // Private function, gets a Unicode code point from a JavaScript UTF-16 string
 // handling surrogate pairs appropriately
@@ -57,7 +57,7 @@ function codePointAt(str, idx) {
 // Private function, returns whether a break is allowed between the
 // two given grapheme breaking classes
 function shouldBreak(previous, current) {
-    if (previous === Other && current === Skin_Tone) {
+    if (previous === Other && current === SKIN_TONE) {
         // From version 10. Skin tone modifiers with emojis
         return false;
     } else if (previous === Extend && current === Other) {
@@ -91,16 +91,16 @@ function shouldBreak(previous, current) {
         // GB8. (LVT|T) X (T)
         return false;
     } else if (
-        previous === Regional_Indicator &&
-        current === Regional_Indicator
+        previous === REGIONAL_INDICATOR &&
+        current === REGIONAL_INDICATOR
     ) {
-        // GB8a. Regional_Indicator X Regional_Indicator
+        // GB8a. REGIONAL_INDICATOR X REGIONAL_INDICATOR
         return false;
     } else if (current === Extend) {
         // GB9. X Extend
         return false;
-    } else if (current === SpacingMark) {
-        // GB9a. X SpacingMark
+    } else if (current === SPACING_MARK) {
+        // GB9a. X SPACING_MARK
         return false;
     }
     // GB9b. Prepend X (there are currently no characters with this class)
@@ -531,14 +531,14 @@ function getGraphemeBreakProperty(code) {
         0x1f1e6 <= code &&
         code <= 0x1f1ff // So  [26] REGIONAL INDICATOR SYMBOL LETTER A..REGIONAL INDICATOR SYMBOL LETTER Z
     ) {
-        return Regional_Indicator;
+        return REGIONAL_INDICATOR;
     }
 
     if (
         0x1f3fb <= code &&
         code <= 0x1f3ff //EMOJI MODIFIER FITZPATRICK
     ) {
-        return Skin_Tone;
+        return SKIN_TONE;
     }
 
     if (
@@ -675,7 +675,7 @@ function getGraphemeBreakProperty(code) {
         0x1d166 === code || // Mc       MUSICAL SYMBOL COMBINING SPRECHGESANG STEM
         0x1d16d === code // Mc       MUSICAL SYMBOL COMBINING AUGMENTATION DOT
     ) {
-        return SpacingMark;
+        return SPACING_MARK;
     }
 
     if (

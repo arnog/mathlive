@@ -15,7 +15,7 @@ export function l10n(s) {
     return result;
 }
 
-l10n.plural = function(value, s, options) {
+l10n.plural = function (value, s, options) {
     options = options || {};
     options.type = options.type || 'cardinal';
     const language = l10n.locale.substring(0, 2);
@@ -52,7 +52,7 @@ l10n.plural = function(value, s, options) {
  * Merge a dictionary of locale code -> dictionary of keys -> values
  *
  */
-l10n.merge = function(locale, strings) {
+l10n.merge = function (locale, strings) {
     if (locale && strings) {
         const savedLocale = l10n._locale;
         l10n.locale = locale; // Load the necessary json file
@@ -61,7 +61,7 @@ l10n.merge = function(locale, strings) {
         l10n.locale = savedLocale;
     } else if (locale && !strings) {
         strings = locale;
-        Object.keys(strings).forEach(l => l10n.merge(l, strings[l]));
+        Object.keys(strings).forEach((l) => l10n.merge(l, strings[l]));
     }
 };
 

@@ -2,7 +2,7 @@
  * @private
  */
 
-import { LETTER } from '../core/definitions-utils.js';
+import { LETTER } from '../core/definitions.js';
 
 /**
  * The index of this array is a keystroke combination as returned by the key
@@ -744,7 +744,7 @@ function startsWithString(s, config) {
         const skipDefaultShortcuts =
             config && config.overrideDefaultInlineShortcuts;
         if (!skipDefaultShortcuts) {
-            Object.keys(INLINE_SHORTCUTS).forEach(key => {
+            Object.keys(INLINE_SHORTCUTS).forEach((key) => {
                 if (key.startsWith(s2) && !result.includes(key)) {
                     result.push(key);
                 }
@@ -754,7 +754,7 @@ function startsWithString(s, config) {
         const customInlineShortcuts =
             config && config.inlineShortcuts ? config.inlineShortcuts : null;
         if (customInlineShortcuts) {
-            Object.keys(customInlineShortcuts).forEach(key => {
+            Object.keys(customInlineShortcuts).forEach((key) => {
                 if (key.startsWith(s2)) {
                     result.push(key);
                 }
@@ -776,8 +776,9 @@ function validateShortcut(mode, siblings, shortcut) {
     // If it's a simple shortcut (no conditional), it's valid
     if (typeof shortcut === 'string') return shortcut;
 
-    if (typeof shortcut.mode === 'string' && shortcut.mode !== mode)
+    if (typeof shortcut.mode === 'string' && shortcut.mode !== mode) {
         return null;
+    }
 
     // If we have no context, we assume all the shortcuts are valid
     if (!siblings) return shortcut ? shortcut.value : undefined;
@@ -994,7 +995,7 @@ function forCommand(command) {
                 .replace('^', '\\^') +
             '([^*a-zA-Z]|$)'
     );
-    Object.keys(KEYBOARD_SHORTCUTS).forEach(shortcut => {
+    Object.keys(KEYBOARD_SHORTCUTS).forEach((shortcut) => {
         if (regex.test(commandToString(KEYBOARD_SHORTCUTS[shortcut]))) {
             const m = shortcut.match(/:([^:]*)$/);
             if (m) result.push(m[1]);

@@ -19,16 +19,14 @@
  *
  */
 
-import Lexer from './core/lexer.js';
 import { Atom } from './core/atom.js';
 import { decompose } from './core/atom-utils.js';
-import ParserModule from './core/parser.js';
+import { parseString } from './core/parser.js';
 import { coalesce, makeSpan } from './core/span.js';
-import { MACROS } from './core/definitions-utils.js';
-import './core/definitions.js';
+import { MACROS } from './core/definitions.js';
 import { Mathfield } from './editor/editor-mathfield.js';
 import AutoRender from './addons/auto-render.js';
-import mathJson from './addons/mathJson.js';
+import { jsonToLatex } from './addons/mathJson.js';
 
 /**
  * Converts a LaTeX string to a string of HTML markup.
@@ -36,7 +34,7 @@ import mathJson from './addons/mathJson.js';
  * @param {string} text A string of valid LaTeX. It does not have to start
  * with a mode token such as `$$` or `\(`.
  *
- * @param {"displaystyle" | "textstyle"} mathstyle If `'displaystyle'` the "display" mode of TeX
+ * @param {"displaystyle" | "textstyle"} options.mathstyle If `'displaystyle'` the "display" mode of TeX
  * is used to typeset the formula, which is most appropriate for formulas that are
  * displayed in a standalone block.
  *
@@ -44,57 +42,52 @@ import mathJson from './addons/mathJson.js';
  * of TeX is used, which is most appropriate when displaying math "inline"
  * with other text (on the same line).
  *
- * @param {"mathlist" | "span" | "html"} [format='html'] For debugging purposes, this function
+ * @param {"mathlist" | "span" | "html"} [options.format='html'] For debugging purposes, this function
  * can also return a text representation of internal data structures
  * used to construct the markup.
  *
- * @param {object} [macros] A dictionary of LaTeX macros
+ * @param {object} [options.macros] A dictionary of LaTeX macros
  *
  * @return {string}
  * @category Converting
  * @function module:mathlive#latexToMarkup
  */
-function toMarkup(text, mathstyle, format, macros) {
-    mathstyle = mathstyle || 'displaystyle';
+function toMarkup(text, options) {
+    options = options || {};
+    options.mathstyle = options.mathstyle || 'displaystyle';
+    options.letterShapeStyle = options.letterShapeStyle || 'auto';
 
-    console.assert(
-        /displaystyle|textstyle|scriptstyle|scriptscriptstyle/.test(mathstyle),
-        'Invalid style:',
-        mathstyle
+    //
+    // 1. Parse the formula and return a tree of atoms, e.g. 'genfrac'.
+    //
+
+    const mathlist = parseString(text, 'math', null, options.macros);
+
+    if (options.format === 'mathlist') return mathlist;
+
+    //
+    // 2. Transform the math atoms into elementary spans
+    //    for example from genfrac to vlist.
+    //
+    let spans = decompose(
+        {
+            mathstyle: options.mathstyle,
+            letterShapeStyle: options.letterShapeStyle,
+        },
+        mathlist
     );
 
     //
-    // 1. Tokenize the text
-    //
-    const tokens = Lexer.tokenize(text);
-
-    //
-    // 2. Parse each token in the formula
-    //    Turn the list of tokens in the formula into
-    //    a tree of high-level Atom, e.g. 'genfrac'.
-    //
-
-    const mathlist = ParserModule.parseTokens(tokens, 'math', null, macros);
-
-    if (format === 'mathlist') return mathlist;
-
-    //
-    // 3. Transform the math atoms into elementary spans
-    //    for example from genfrac to vlist.
-    //
-    let spans = decompose({ mathstyle: mathstyle }, mathlist);
-
-    //
-    // 4. Simplify by coalescing adjacent nodes
+    // 3. Simplify by coalescing adjacent nodes
     //    for example, from <span>1</span><span>2</span>
     //    to <span>12</span>
     //
     spans = coalesce(spans);
 
-    if (format === 'span') return spans;
+    if (options.format === 'span') return spans;
 
     //
-    // 5. Wrap the expression with struts
+    // 4. Wrap the expression with struts
     //
     const base = makeSpan(spans, 'ML__base');
 
@@ -111,7 +104,7 @@ function toMarkup(text, mathstyle, format, macros) {
     const wrapper = makeSpan(struts, 'ML__mathlive');
 
     //
-    // 6. Generate markup
+    // 5. Generate markup
     //
 
     return wrapper.toMarkup();
@@ -173,12 +166,7 @@ function toMathML(latex, options) {
     options.macros = options.macros || {};
     Object.assign(options.macros, MACROS);
 
-    const mathlist = ParserModule.parseTokens(
-        Lexer.tokenize(latex),
-        'math',
-        null,
-        options.macros
-    );
+    const mathlist = parseString(latex, 'math', null, options.macros);
 
     return Atom.toMathML(mathlist, options);
 }
@@ -206,12 +194,7 @@ function latexToAST(latex, options) {
     options.macros = options.macros || {};
     Object.assign(options.macros, MACROS);
 
-    const mathlist = ParserModule.parseTokens(
-        Lexer.tokenize(latex),
-        'math',
-        null,
-        options.macros
-    );
+    const mathlist = parseString(latex, 'math', null, options.macros);
 
     return Atom.toAST(mathlist, options);
 }
@@ -245,7 +228,10 @@ function latexToAST(latex, options) {
  * @function module:mathlive#astToLatex
  */
 function astToLatex(ast, options) {
-    return mathJson.asLatex(ast, options);
+    return jsonToLatex(
+        typeof ast === 'string' ? JSON.parse(ast) : ast,
+        options
+    );
 }
 
 /**
@@ -295,12 +281,7 @@ function latexToSpeakableText(latex, options) {
     options.macros = options.macros || {};
     Object.assign(options.macros, MACROS);
 
-    const mathlist = ParserModule.parseTokens(
-        Lexer.tokenize(latex),
-        'math',
-        null,
-        options.macros
-    );
+    const mathlist = parseString(latex, 'math', null, options.macros);
 
     return Atom.toSpeakableText(mathlist, options);
 }
@@ -308,7 +289,7 @@ function latexToSpeakableText(latex, options) {
 function removeHighlight(node) {
     node.classList.remove('highlight');
     if (node.children) {
-        Array.from(node.children).forEach(x => {
+        Array.from(node.children).forEach((x) => {
             removeHighlight(x);
         });
     }
@@ -327,14 +308,14 @@ function highlightAtomID(node, atomID) {
     if (!atomID || node.dataset.atomId === atomID) {
         node.classList.add('highlight');
         if (node.children && node.children.length > 0) {
-            Array.from(node.children).forEach(x => {
+            Array.from(node.children).forEach((x) => {
                 highlightAtomID(x);
             });
         }
     } else {
         node.classList.remove('highlight');
         if (node.children && node.children.length > 0) {
-            Array.from(node.children).forEach(x => {
+            Array.from(node.children).forEach((x) => {
                 highlightAtomID(x, atomID);
             });
         }
@@ -371,7 +352,7 @@ function speak(text, config) {
                 TextType: 'ssml',
                 // SpeechMarkTypes: ['ssml]'
             };
-            polly.synthesizeSpeech(params, function(err, data) {
+            polly.synthesizeSpeech(params, function (err, data) {
                 if (err) {
                     console.warn(
                         'polly.synthesizeSpeech() error:',
@@ -387,7 +368,7 @@ function speak(text, config) {
                         const url = URL.createObjectURL(blob);
 
                         const audioElement = new Audio(url);
-                        audioElement.play().catch(err => console.log(err));
+                        audioElement.play().catch((err) => console.log(err));
                     } else {
                         console.log('polly.synthesizeSpeech():' + data);
                     }
@@ -471,7 +452,7 @@ function readAloud(element, text, config) {
         config.onReadAloudStatus || window.mathlive.onReadAloudStatus;
 
     // Request the mark points
-    polly.synthesizeSpeech(params, function(err, data) {
+    polly.synthesizeSpeech(params, function (err, data) {
         if (err) {
             console.warn('polly.synthesizeSpeech() error:', err, err.stack);
         } else {
@@ -481,7 +462,7 @@ function readAloud(element, text, config) {
                 );
                 window.mathlive.readAloudMarks = response
                     .split('\n')
-                    .map(x => (x ? JSON.parse(x) : {}));
+                    .map((x) => (x ? JSON.parse(x) : {}));
                 window.mathlive.readAloudTokens = [];
                 for (const mark of window.mathlive.readAloudMarks) {
                     if (mark.value) {
@@ -493,7 +474,7 @@ function readAloud(element, text, config) {
                 // Request the audio
                 params.OutputFormat = 'mp3';
                 params.SpeechMarkTypes = [];
-                polly.synthesizeSpeech(params, function(err, data) {
+                polly.synthesizeSpeech(params, function (err, data) {
                     if (err) {
                         console.warn(
                             'polly.synthesizeSpeech(',
@@ -515,12 +496,13 @@ function readAloud(element, text, config) {
                                 window.mathlive.readAloudAudio.addEventListener(
                                     'ended',
                                     () => {
-                                        if (status)
+                                        if (status) {
                                             status(
                                                 window.mathlive
                                                     .readAloudMathField,
                                                 'ended'
                                             );
+                                        }
                                         if (
                                             window.mathlive.readAloudMathField
                                         ) {

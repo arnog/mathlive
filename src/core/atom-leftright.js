@@ -1,4 +1,4 @@
-import { registerAtomType, decompose } from './atom-utils.js';
+import { Atom, registerAtomType, decompose } from './atom-utils.js';
 import { makeInner, depth as spanDepth, height as spanHeight } from './span.js';
 import Delimiters from './delimiters.js';
 

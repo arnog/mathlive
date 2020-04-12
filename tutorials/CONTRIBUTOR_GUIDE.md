@@ -56,17 +56,11 @@ $ npm start
 # Run test scripts
 $ npm test
 
-# Lint JavaScript files
-$ npm run lint
-
-# Lint and fix automatically JavaScript files.
-$ npm run lint:fix
-
 # Calculate the code coverage and output to build/coverage/
 $ npm run coverage
 
 # Build the documentation file to `docs/`
-$ npm run docs
+$ npm run build docs
 
 # Clean up (deletes) the contents of the `build/`, `dist/` and `docs/` directories
 $ npm run clean
@@ -74,23 +68,21 @@ $ npm run clean
 # Clean, build, then minimize and bundle to `dist/`.
 # The `dist/` folder will contain the `.js`, `.css` and font files necessary to
 # use MathLive. The `docs/` folder will also be updated.
-$ npm run dist
+$ npm run build dist
 
 ```
 
 During development, it is recommended that you keep the `npm start`
 command running in a terminal window while you make the necessary changes
 to the source files of the project in your favorite editor. When you
-save a file, if any problem with your code is detected (linting
-failure, unit test failure), it will be displayed in the terminal window.
+save a file, if any problem with your code is detected
+it will be displayed in the terminal window.
 
-Before doing a commit the docs and dist folder will be updated
-automatically (using a git pre-commit hook managed by Husky).
+Before doing a push the docs and dist folder will be updated
+automatically (using a git pre-push hook managed by Husky).
 
 After you push your changes to `master`, a Travis continuous integration
-task will run `npm run lint` and `npm run test` to make sure
-the build can be reproduced in a clean environment. If either of those tasks
-fail, the build will be marked as failed and will need immediate fixing.
+task will run to make sure the build can be reproduced in a clean environment.
 
 ### Publishing
 
@@ -132,23 +124,17 @@ The MathLive library consists of the following key directories:
     on the `src/core` module.
 -   `src/addons` some optional modules that provide additional functionality
 
-You can include only the files you need. For example, if you only
-need to display math, you can skip `src/editor/` and `src/addons`.
-
-In addition, the `dist/` directories contain optimized
+The `dist/` directory contains optimized/minified
 output generated from the `css/` and `src/` directories:
 
--   the `build/` directory contains intermediary build results. These
-    intermediary results can be used for debugging during development, but are
-    not suitable for distribution. For example, this directory will contain the
-    `.css` files generated from the `.less` in `css/`. However, a transpiled or
-    minified `.js` file would not, as those are intended for distribution and
-    should be in the `dist/` directory.
--   the `dist/` directory contains the build results that are ready
-    for distribution. The files in this directory should be transpiled (for
-    `.js` files), autoprefixed (for `.css` files), minimized and bundled.
--   finally, the `docs/` directory contain documentation generated from the
+-   the `build/` directory contains intermediary build results.
+-   the `docs/` directory contains documentation generated from the
     source code.
+-   the `dist/` directory contains executable build result. If a file named
+    "DEVELOPMENT_BUILD" is present in the directory, the content of the directory
+    is suitable only for development purposes, not for production. This means
+    the files have not been minified and compiled, and include additional .map
+    files referencing back to the source file for ease of debugging.
 
 The content of the `build/`, `dist/` and `docs/` directories are entirely
 generated as part of the build process. No other directory should contain
@@ -203,78 +189,7 @@ The code base attempts to follow these general guidelines:
     However, public APIs should check the validity of parameters, and behave
     reasonably when they aren't.
 
-Use the `.eslintrc.json` file to follow the linting conventions used in the
-project. In addition, follow these guidelines:
-
--   **Tabs** are expanded to **four spaces**
--   Quotes are preferably **single quotes**. Use double-quotes when inside a
-    single-quoted string. Using backtick (template strings)for multiline
-    quotes is OK.
-
-```javascript
-let s = 'hello, ' + 'world';
-s = 'hello, "world"';
-s = `hello:
-world`;
-```
-
--   Use camelCase for variables and function names, PascalCase for Objects and Classes and UPPERCASE for constants. Use underscore-prefixed arguments for unused arguments,
-
-```javascript
-bar.filter((element, _, array) => {
-    console.log(array, element);
-});
-// or
-bar.filter((element, _index, array) => {
-    console.log(array, element);
-});
-```
-
--   **Typecheck** using `typeof v === 'string'`, `typeof v === 'number'`, etc...
-    Use `Array.isArray(v)` to check for arrays.
--   **Conditional evaluation.** Use conditional evaluation shortcuts when applicable
-    for example, use `if (string)` instead of `if (string !== '')`
--   The variable holding the return value of a function is usually named
-    **`result`**
--   **Avoid boolean as arguments.** Instead, use an `options` object with
-    key/value pairs spelling out the meaning of the boolean.
-
-Don't do:
-
-```javascript
-f(true);
-```
-
-Do:
-
-```javascript
-f({ reverse: true });
-```
-
--   **Use `||` for default values.** For example
-
-```javascript
-m = f(n) || d;
-```
-
-If the function `f` returns `null`, `undefined` or an empty string,
-`m` will have the value `d`
-
--   **Braces for control structures** should always be used, except for short
-    `if` statement that can fit on one line, for example `if (done) return;`
--   **Avoid method chaining.** Method chaining is a programming style where a
-    method returns the `this` object so that it can be called again. For example
-    `div.css('color', 'white').height(50).width(50)`.
--   **Use loose typing.** For example, a function argument could accept a string
-    or an array and behave appropriately:
-
-```javascript
-function f(argument) {
-    if (Array.isArray(argument)) {
-        argument = argument.join(';');
-    }
-}
-```
+The project uses the `prettier` tool to enforce a consistent formatting style.
 
 ## Naming Conventions
 

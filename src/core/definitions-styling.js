@@ -1,4 +1,22 @@
 import { defineFunction, parseArgAsString } from './definitions-utils.js';
+import { colorToString, stringToColor } from '../core/color.js';
+
+defineFunction(
+    'ensuremath',
+    '{:math}',
+    {},
+    (_name, args) => {
+        return {
+            type: 'group',
+            mode: 'math',
+            body: args[0],
+            skipBoundary: true,
+            latexOpen: '\\ensuremath{',
+            latexClose: '}',
+        };
+    },
+    (_name, _parent, atom, emit) => emit(atom, atom.body)
+);
 
 defineFunction('color', '{:color}', {}, (_name, args) => {
     return { color: args[0] };
@@ -18,7 +36,7 @@ defineFunction('textcolor', '{:color}{content:auto*}', {}, (_name, args) => {
 // - \fbox: sets content in 'auto' mode (frequency 777)
 // - \framebox[<width>][<alignment>]{<content>} (<alignment> := 'c'|'t'|'b' (center, top, bottom) (frequency 28)
 // @todo
-defineFunction('boxed', '{content:math}', null, function (name, args) {
+defineFunction('boxed', '{content:math}', null, (_name, args) => {
     return {
         type: 'box',
         framecolor: 'black',
@@ -27,33 +45,47 @@ defineFunction('boxed', '{content:math}', null, function (name, args) {
     };
 });
 
+// In LaTeX, \colorbox sets the mode to text
 defineFunction(
     'colorbox',
-    '{background-color:color}{content:auto}',
+    '{background-color:string}{content:auto}',
     {},
-    function (name, args) {
+    (_name, args) => {
         return {
             type: 'box',
-            backgroundcolor: args[0],
+            backgroundcolor: stringToColor(args[0]),
             skipBoundary: true,
             body: args[1],
+            verbatimBackgroundcolor: args[0], // Save this value to restore it verbatim later
         };
-    }
+    },
+    (name, _parent, atom, emit) =>
+        `${name}{${
+            atom.verbatimBackgroundcolor || colorToString(atom.backgroundcolor)
+        }}{${emit(atom, atom.body)}}`
 );
 
 defineFunction(
     'fcolorbox',
-    '{frame-color:color}{background-color:color}{content:auto}',
+    '{frame-color:string}{background-color:string}{content:auto}',
     {},
     function (name, args) {
         return {
             type: 'box',
-            framecolor: args[0],
-            backgroundcolor: args[1],
+            framecolor: stringToColor(args[0]),
+            backgroundcolor: stringToColor(args[1]),
             skipBoundary: true,
             body: args[2],
+            verbatimBackgroundcolor: args[1], // Save this value to restore it verbatim later
+            verbatimFramecolor: args[0], // Save this value to restore it verbatim later
         };
-    }
+    },
+    (name, _parent, atom, emit) =>
+        `${name}{${
+            atom.verbatimFramecolor || atom.colorToString(atom.framecolor)
+        }{${
+            atom.verbatimBackgroundcolor || colorToString(atom.backgroundcolor)
+        }}{${emit(atom, atom.body)}}`
 );
 
 // \bbox, MathJax extension
@@ -64,23 +96,50 @@ defineFunction(
 // arg ::= [<background:color>|<padding:dimen>|<style>]
 // style ::= 'border:' <string>
 
-defineFunction('bbox', '[:bbox]{body:auto}', {}, function (name, args) {
-    if (args[0]) {
+defineFunction(
+    'bbox',
+    '[:bbox]{body:auto}',
+    {},
+    function (name, args) {
+        if (args[0]) {
+            return {
+                type: 'box',
+                padding: args[0].padding,
+                border: args[0].border,
+                backgroundcolor: args[0].backgroundcolor,
+                skipBoundary: true,
+                body: args[1],
+            };
+        }
         return {
             type: 'box',
-            padding: args[0].padding,
-            border: args[0].border,
-            backgroundcolor: args[0].backgroundcolor,
             skipBoundary: true,
             body: args[1],
         };
+    },
+    (name, _parent, atom, emit) => {
+        let result = name;
+        if (
+            isFinite(atom.padding) ||
+            typeof atom.border !== 'undefined' ||
+            typeof atom.backgroundcolor !== 'undefined'
+        ) {
+            const bboxParams = [];
+            if (isFinite(atom.padding)) {
+                bboxParams.push(Math.floor(1e2 * atom.padding) / 1e2 + 'em');
+            }
+            if (atom.border) {
+                bboxParams.push('border:' + atom.border);
+            }
+            if (atom.backgroundcolor) {
+                bboxParams.push(colorToString(atom.backgroundcolor));
+            }
+            result += `[${bboxParams.join(',')}]`;
+        }
+
+        return result + `{${emit(atom, atom.body)}}`;
     }
-    return {
-        type: 'box',
-        skipBoundary: true,
-        body: args[1],
-    };
-});
+);
 
 // Size
 defineFunction(
@@ -143,24 +202,17 @@ defineFunction('bf', '', {}, (_name, _args) => {
     return { fontSeries: 'b', fontShape: 'n', fontFamily: 'cmr' };
 });
 
-// \bm only works in math mode
-defineFunction('bm', '{:math*}', { mode: 'math' }, (_name, _args) => {
-    return {
-        mode: 'math',
-        fontSeries: 'b',
-        fontShape: 'n',
-        fontFamily: 'cmr',
-    };
+// Note: These function work a little bit differently than LaTex
+// In LaTeX, \bm{x\mathrm{y}} yield a bold x and an upright y.
+// This is not necesarily intentional, but a side effect of the (current)
+// implementation of \bm
+defineFunction(['boldsymbol', 'bm'], '{:math*}', {}, (_name, _args) => {
+    return { mode: 'math', cssClass: 'ML__boldsymbol' };
 });
 
 // Note: switches to math mode
 defineFunction('bold', '{:math*}', {}, (_name, _args) => {
-    return {
-        mode: 'math',
-        fontSeries: 'b',
-        fontShape: 'n',
-        fontFamily: 'cmr',
-    };
+    return { mode: 'math', variantStyle: 'bold' };
 });
 
 defineFunction('bfseries', '', { mode: 'text' }, (_name, _args) => {
@@ -209,56 +261,40 @@ defineFunction('textsc', '{:text*}', {}, (_name, _args) => {
     return { mode: 'text', fontShape: 'sc' };
 });
 defineFunction('textrm', '{:text*}', {}, (_name, _args) => {
-    return { mode: 'text', fontFamily: 'cmr' };
+    return { mode: 'text', fontFamily: 'roman' };
 });
 
 defineFunction('textsf', '{:text*}', {}, (_name, _args) => {
-    return { mode: 'text', fontFamily: 'cmss' };
+    return { mode: 'text', fontFamily: 'sans-serif' };
 });
 
 defineFunction('texttt', '{:text*}', {}, (_name, _args) => {
-    return { mode: 'text', fontFamily: 'cmtt' };
+    return { mode: 'text', fontFamily: 'monospace' };
 });
 
-// Note: in LaTeX, \mathbf is a no-op in text mode.
-defineFunction(['mathbf', 'boldsymbol'], '{:math*}', {}, (_name, _args) => {
-    return { mode: 'math', fontSeries: 'b', fontShape: 'n', fontFamily: 'cmr' };
+// Note: \mathbf is a no-op in text mode
+defineFunction('mathbf', '{:math*}', {}, (_name, _args) => {
+    return { mode: 'math', variant: 'normal', variantStyle: 'bold' };
 });
-defineFunction('mathmd', '{:math*}', {}, (_name, _args) => {
-    return { mode: 'math', fontSeries: 'm', fontShape: 'n', fontFamily: 'cmr' };
-});
+
 defineFunction('mathit', '{:math*}', {}, (_name, _args) => {
-    return {
-        mode: 'math',
-        fontSeries: 'm',
-        fontShape: 'it',
-        fontFamily: 'cmr',
-    };
+    return { mode: 'math', variant: 'normal', variantStyle: 'italic' };
 });
+
+// From the ISOMath package
+defineFunction('mathbfit', '{:math*}', {}, (_name, _args) => {
+    return { mode: 'math', variant: 'normal', variantStyle: 'bolditalic' };
+});
+
 defineFunction('mathrm', '{:math*}', {}, (_name, _args) => {
-    return {
-        mode: 'math',
-        fontSeries: 'm',
-        fontShape: 'n',
-        baseFontFamily: 'cmr',
-    };
+    return { mode: 'math', variant: 'normal', variantStyle: 'up' };
 });
 
 defineFunction('mathsf', '{:math*}', {}, (_name, _args) => {
-    return {
-        mode: 'math',
-        baseFontFamily: 'cmss',
-        fontSeries: 'm',
-        fontShape: 'n',
-    };
+    return { mode: 'math', variant: 'sans-serif', variantStyle: 'up' };
 });
 defineFunction('mathtt', '{:math*}', {}, (_name, _args) => {
-    return {
-        mode: 'math',
-        baseFontFamily: 'cmtt',
-        fontSeries: 'm',
-        fontShape: 'n',
-    };
+    return { mode: 'math', variant: 'monospace', variantStyle: 'up' };
 });
 
 defineFunction('it', '', {}, (_name, _args) => {
@@ -266,49 +302,40 @@ defineFunction('it', '', {}, (_name, _args) => {
         fontSeries: 'm',
         fontShape: 'it',
         fontFamily: 'cmr',
+        variantStyle: 'it', // For math mode
     };
 });
 
 // In LaTeX, \rmfamily, \sffamily and \ttfamily are no-op in math mode.
 defineFunction('rmfamily', '', {}, (_name, _args) => {
-    return { fontFamily: 'cmr' };
+    return { fontFamily: 'roman' };
 });
 
 defineFunction('sffamily', '', {}, (_name, _args) => {
-    return { fontFamily: 'cmss' };
+    return { fontFamily: 'sans-serif' };
 });
 
 defineFunction('ttfamily', '', {}, (_name, _args) => {
-    return { fontFamily: 'cmtt' };
+    return { fontFamily: 'monospace' };
 });
 
-// In LaTeX, \Bbb and \mathbb are no-op in math mode.
+// In LaTeX, \Bbb and \mathbb are no-op in text mode.
 // They also map lowercase characters to different glyphs.
 // Note that \Bbb has been deprecated for over 20 years (as well as \rm, \it, \bf)
 defineFunction(['Bbb', 'mathbb'], '{:math*}', {}, (_name, _args) => {
-    return { mode: 'math', baseFontFamily: 'bb' };
+    return { variant: 'double-struck', variantStyle: 'up' };
 });
 
 defineFunction(['frak', 'mathfrak'], '{:math*}', {}, (_name, _args) => {
-    return { baseFontFamily: 'frak' };
+    return { variant: 'fraktur', variantStyle: 'up' };
 });
 
 defineFunction('mathcal', '{:math*}', {}, (_name, _args) => {
-    return {
-        mode: 'math',
-        baseFontFamily: 'cal',
-        fontSeries: 'm',
-        fontShape: 'n',
-    };
+    return { variant: 'calligraphic', variantStyle: 'up' };
 });
 
 defineFunction('mathscr', '{:math*}', {}, (_name, _args) => {
-    return {
-        mode: 'math',
-        baseFontFamily: 'scr',
-        fontSeries: 'm',
-        fontShape: 'n',
-    };
+    return { variant: 'script', variantStyle: 'up' };
 });
 
 // Rough synomym for \text{}
@@ -316,8 +343,12 @@ defineFunction('mathscr', '{:math*}', {}, (_name, _args) => {
 An \mbox within math mode does not use the current math font; rather it uses
 the typeface of the surrounding running text.
 */
-defineFunction('mbox', '{:text*}', null, (_name, _args) => {
-    return { mode: 'text', fontFamily: 'cmr' };
+defineFunction('mbox', '{:text}', null, (_name, args) => {
+    return {
+        type: 'group',
+        mode: 'math',
+        body: args[0],
+    };
 });
 
 defineFunction('text', '{:text*}', null, (_name, _args) => {
@@ -332,9 +363,9 @@ defineFunction('class', '{name:text}{content:auto*}', null, (_name, args) => {
 /* A MathJax extension: assign an ID to the element */
 defineFunction('cssId', '{id:text}{content:auto}', null, (_name, args) => {
     return {
-        cssId: parseArgAsString(args[0]),
-        body: args[1],
         type: 'group',
+        body: args[1],
+        cssId: parseArgAsString(args[0]),
     };
 });
 
@@ -450,15 +481,19 @@ defineFunction(
                 '\\mathord': 'mord',
                 '\\mathinner': 'minner',
             }[name],
-            body: parseArgAsString(args[0]) || args[0],
+            body: args[0], // Pass the body as an array of atoms, not a string
+            // A string would be styled as text, but these need to be interpreted
+            // as 'math'
             captureSelection: true, // Do not let children be selected
-            baseFontFamily: name === '\\mathop' ? 'math' : '',
         };
         if (name === '\\mathop') {
-            result.limits = 'nolimits';
+            result.limits = 'limits';
             result.isFunction = true;
         }
         return result;
+    },
+    (name, _parent, atom, emit) => {
+        return `${name}{${emit(atom, atom.body)}}`;
     }
 );
 
@@ -496,7 +531,15 @@ defineFunction(
 
         result.body.forEach((x) => {
             x.isFunction = false;
-            x.autoFontFamily = 'cmr';
+            if (!x.variant && !x.variantStyle) {
+                // No variant as been specified (as it could have been with
+                // \operatorname{\mathit{lim}} for example)
+                // Bypass the default auto styling by specifing an upright style
+                x.variant = 'main';
+                x.variantStyle = 'up';
+            }
+            x.type = 'mord';
+            x.body = { '\u2217': '*', '\u2212': '-' }[x.body] || x.body;
         });
 
         if (name === '\\operatorname') {
@@ -509,14 +552,25 @@ defineFunction(
     }
 );
 
-defineFunction('unicode', '{charcode:number}', null, function (name, args) {
-    let codepoint = parseInt(args[0]);
-    if (!isFinite(codepoint)) codepoint = 0x2753; // BLACK QUESTION MARK
-    return {
-        type: 'mord',
-        body: String.fromCodePoint(codepoint),
-    };
-});
+defineFunction(
+    'unicode',
+    '{charcode:number}',
+    null,
+    (_name, args) => {
+        let codepoint = parseInt(args[0]);
+        if (!isFinite(codepoint)) codepoint = 0x2753; // BLACK QUESTION MARK
+        return {
+            type: 'mord',
+            body: String.fromCodePoint(codepoint),
+            codepoint: codepoint,
+        };
+    },
+    (name, _parent, atom, _emit) => {
+        return `${name}{"${('000000' + atom.codepoint.toString(16))
+            .toUpperCase()
+            .substr(-6)}}`;
+    }
+);
 
 // A box of the width and height
 defineFunction(
@@ -552,29 +606,45 @@ defineFunction('underline', '{:auto}', null, function (name, args) {
     };
 });
 
-defineFunction('overset', '{annotation:auto}{symbol:auto}', null, function (
-    _name,
-    args
-) {
-    return {
-        type: 'overunder',
-        overscript: args[0],
-        skipBoundary: true,
-        body: args[1],
-    };
-});
+defineFunction(
+    'overset',
+    '{annotation:auto}{symbol:auto}',
+    null,
+    function (_name, args) {
+        return {
+            type: 'overunder',
+            overscript: args[0],
+            skipBoundary: true,
+            body: args[1],
+        };
+    },
+    (name, _parent, atom, emit) => {
+        return `${name}{${emit(atom, atom.overscript)}}{${emit(
+            atom,
+            atom.body
+        )}}`;
+    }
+);
 
-defineFunction('underset', '{annotation:auto}{symbol:auto}', null, function (
-    _name,
-    args
-) {
-    return {
-        type: 'overunder',
-        underscript: args[0],
-        skipBoundary: true,
-        body: args[1],
-    };
-});
+defineFunction(
+    'underset',
+    '{annotation:auto}{symbol:auto}',
+    null,
+    function (_name, args) {
+        return {
+            type: 'overunder',
+            underscript: args[0],
+            skipBoundary: true,
+            body: args[1],
+        };
+    },
+    (name, _parent, atom, emit) => {
+        return `${name}{${emit(atom, atom.overscript)}}{${emit(
+            atom,
+            atom.body
+        )}}`;
+    }
+);
 
 defineFunction(
     ['overwithdelims', 'atopwithdelims'],
@@ -590,6 +660,11 @@ defineFunction(
             rightDelim: args[3],
             mathstyle: 'auto',
         };
+    },
+    (name, _parent, atom, emit) => {
+        return `${emit(atom, atom.numer)} ${name}${atom.leftDelim}${
+            atom.rightDelim
+        }${emit(atom, atom.denom)}`;
     }
 );
 
@@ -606,7 +681,9 @@ defineFunction(
             // Set the correct spacing rule for \stackrel
             mathtype: name === '\\stackrel' ? 'mrel' : 'mbin',
         };
-    }
+    },
+    (name, _parent, atom, emit) =>
+        `${name}{${emit(atom, atom.overscript)}}{${emit(atom, atom.body)}}`
 );
 
 defineFunction('rlap', '{:auto}', null, function (name, args) {

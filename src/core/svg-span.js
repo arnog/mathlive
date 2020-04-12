@@ -415,7 +415,7 @@ export function svgBodyToMarkup(svgBodyName) {
         return `<span style="height:${height}em;min-width:0">${result}</span>`;
     }
 
-    let [paths, minWidth, viewBoxHeight, align] = SVG_BODY[svgBodyName];
+    const [paths, minWidth, viewBoxHeight, align] = SVG_BODY[svgBodyName];
     let widthClasses;
     let aligns;
     const height = viewBoxHeight / 1000;

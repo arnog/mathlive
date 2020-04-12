@@ -209,19 +209,6 @@ class Lexer {
                     result = new Token('literal', '#');
                 }
             }
-            // result = new Token(this.get());
-            // if (!this.end()) {
-            //     const next = this.get();
-            //     if (next >= '0' && next <= '9') {
-            //         result.value = parseInt(next);
-            //     } else {
-            //         result.value = next;
-            //     }
-            // }
-        } else if (this.peek() === '~') {
-            // Spacing
-            this.get();
-            result = new Token('command', 'space');
         } else if (this.peek() === '$') {
             // Mode switch
             this.get();
@@ -249,7 +236,7 @@ class Lexer {
  * @memberof module:core/lexer
  * @private
  */
-function tokenize(s) {
+export function tokenize(s) {
     const result = [];
     const lines = s.toString().split(/\r?\n/);
     let stream = '';
@@ -271,7 +258,3 @@ function tokenize(s) {
 
     return result;
 }
-
-export default {
-    tokenize,
-};

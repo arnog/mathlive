@@ -1,5 +1,5 @@
 /// ^.*('\\.*').*
-import { FUNCTIONS, MATH_SYMBOLS } from '../core/definitions-utils.js';
+import { FUNCTIONS, MATH_SYMBOLS } from '../core/definitions.js';
 
 // Frequency of a symbol.
 // String constants corresponding to frequency values,
@@ -13,38 +13,6 @@ export const RARE = 1200;
 export const UNCOMMON = 2000;
 export const COMMON = 3000;
 export const SUPERCOMMON = 4000;
-
-/**
- * Set the frequency of the specified symbol.
- * Default frequency is UNCOMMON
- * The argument list is a frequency value, followed by one or more symbol strings
- * For example:
- *  frequency(COMMON , '\\sin', '\\cos')
- * @param {string|number} value The frequency as a string constant,
- * or a numeric value [0...2000]
- * @param {...string}
- * @memberof module:definitions
- * @private
- */
-function frequency(value, ...symbols) {
-    const v = value;
-
-    symbols.forEach((symbol) => {
-        if (MATH_SYMBOLS[symbol]) {
-            MATH_SYMBOLS[symbol].frequency = v;
-            MATH_SYMBOLS[symbol].category = gCategory;
-        }
-        if (FUNCTIONS[symbol]) {
-            // Make a copy of the entry, since it could be shared by multiple
-            // symbols
-            FUNCTIONS[symbol] = {
-                ...FUNCTIONS[symbol],
-                frequency: v,
-                category: gCategory,
-            };
-        }
-    });
-}
 
 /*
  * Set the metadata for the specified symbols

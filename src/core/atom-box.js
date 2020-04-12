@@ -33,17 +33,20 @@ registerAtomType('box', (context, atom) => {
         box.setStyle('width', '100%');
     }
 
-    box.setStyle('top', -padding, 'em');
+    box.setStyle('bottom', -spanDepth(base), 'em');
     box.setStyle('left', -padding, 'em');
     box.setStyle('z-index', '-1'); // Ensure the box is *behind* the base
+    box.setStyle('box-sizing', 'border-box');
 
-    if (atom.backgroundcolor)
+    if (atom.backgroundcolor) {
         box.setStyle('background-color', atom.backgroundcolor);
-    if (atom.framecolor)
+    }
+    if (atom.framecolor) {
         box.setStyle(
             'border',
             FONTMETRICS.fboxrule + 'em solid ' + atom.framecolor
         );
+    }
     if (atom.border) box.setStyle('border', atom.border);
 
     base.setStyle('display', 'inline-block');

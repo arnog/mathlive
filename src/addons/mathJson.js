@@ -7,15 +7,14 @@
  * @private
  */
 
-import Lexer from '../core/lexer.js';
 import { Atom } from '../core/atom.js';
-import ParserModule from '../core/parser.js';
+import { parseString } from '../core/parser.js';
 import {
     unicodeStringToLatex,
     getInfo,
     mathVariantToUnicode,
     RIGHT_DELIM,
-} from '../core/definitions-utils.js';
+} from '../core/definitions.js';
 
 const CANONICAL_NAMES = {
     // CONSTANTS
@@ -326,7 +325,7 @@ const OP_PRECEDENCE = {
     '..': 263, // Not in MathML
 
     // Unit conversion
-    to: 262, // Not in MathLM
+    to: 262, // Not in MathML
     in: 262, // Not in MathML
 
     '|': 261, // Not in MathML    (bind is the |_ operator)
@@ -454,10 +453,7 @@ function getLatexTemplateForFunction(name) {
 function getLatexForSymbol(name) {
     let result = FUNCTION_TEMPLATE[name];
     if (result) {
-        return result
-            .replace('%1', '')
-            .replace('%0', '')
-            .replace('%', '');
+        return result.replace('%1', '').replace('%0', '').replace('%', '');
     }
     if (name.length > 1) {
         const info = getInfo('\\' + name, 'math');
@@ -605,10 +601,10 @@ function getString(atom) {
         return result;
     }
     if (
-        atom.latex &&
-        !/^\\math(op|bin|rel|open|punct|ord|inner)/.test(atom.latex)
+        atom.symbol &&
+        !/^\\math(op|bin|rel|open|punct|ord|inner)/.test(atom.symbol)
     ) {
-        return atom.latex.trim();
+        return atom.symbol;
     }
     if (atom.type === 'leftright') {
         return '';
@@ -879,8 +875,8 @@ function parsePostfix(expr, options) {
         return expr;
     }
     const atom = expr.atoms[expr.index];
-    if (atom && atom.latex && POSTFIX_FUNCTION[atom.latex.trim()]) {
-        expr.ast = wrapFn(POSTFIX_FUNCTION[atom.latex.trim()], lhs);
+    if (atom && atom.symbol && POSTFIX_FUNCTION[atom.symbol]) {
+        expr.ast = wrapFn(POSTFIX_FUNCTION[atom.symbol], lhs);
         expr = parseSupsub(expr, options);
         expr = parsePostfix(expr, options);
     }
@@ -917,7 +913,7 @@ function parseDelim(expr, ldelim, rdelim, options) {
         // and return it as a function application
         let pairedDelim = true;
         if (atom.type === 'mopen') {
-            ldelim = atom.latex.trim();
+            ldelim = atom.symbol;
             rdelim = RIGHT_DELIM[ldelim];
         } else if (atom.type === 'sizeddelim') {
             ldelim = atom.delim;
@@ -930,14 +926,14 @@ function parseDelim(expr, ldelim, rdelim, options) {
             // matching the left delim
             if (rdelim === '?') rdelim = RIGHT_DELIM[ldelim];
         } else if (atom.type === 'textord') {
-            ldelim = atom.latex.trim();
+            ldelim = atom.symbol;
             rdelim = RIGHT_DELIM[ldelim];
         }
         if (ldelim && rdelim) {
             if (ldelim === '|' && rdelim === '|') {
                 // Check if this could be a ||x|| instead of |x|
                 const atom = expr.atoms[expr.index + 1];
-                if (atom && atom.type === 'textord' && atom.latex === '|') {
+                if (atom && atom.type === 'textord' && atom.symbol === '|') {
                     // Yes, it's a ||x||
                     ldelim = '\\lVert';
                     rdelim = '\\rVert';
@@ -981,10 +977,10 @@ function parseDelim(expr, ldelim, rdelim, options) {
     } else if (
         ldelim === '\\lVert' &&
         atom.type === 'textord' &&
-        atom.latex === '|'
+        atom.symbol === '|'
     ) {
         atom = expr.atoms[expr.index + 1];
-        if (atom && atom.type === 'textord' && atom.latex === '|') {
+        if (atom && atom.type === 'textord' && atom.symbol === '|') {
             // This is an opening ||
             expr.index += 2; // Skip the open delim
             expr = parseExpression(expr, options);
@@ -993,10 +989,10 @@ function parseDelim(expr, ldelim, rdelim, options) {
             if (
                 atom &&
                 atom.type === 'textord' &&
-                atom.latex === '|' &&
+                atom.symbol === '|' &&
                 atom2 &&
                 atom2.type === 'textord' &&
-                atom2.latex === '|'
+                atom2.symbol === '|'
             ) {
                 // This was a closing ||
                 expr.index += 2;
@@ -1083,7 +1079,7 @@ function parseDigraph(expr) {
         expr.index -= 1;
     } else {
         const digraph =
-            expr.atoms[expr.index].latex + expr.atoms[expr.index + 1].latex;
+            expr.atoms[expr.index].symbol + expr.atoms[expr.index + 1].symbol;
         const result = /^(>=|<=|>>|<<|:=|!=)$/.test(digraph) ? digraph : '';
         if (result) {
             expr.index += 1;
@@ -1138,7 +1134,7 @@ function parsePrimary(expr, options) {
         expr.index += 1; // Skip the '+' symbol
         expr = parsePrimary(expr, options);
         expr.ast = wrapFn('add', expr.ast);
-    } else if (atom.type === 'mord' && /^[0-9.]$/.test(atom.latex)) {
+    } else if (atom.type === 'mord' && /^[0-9.]$/.test(atom.symbol)) {
         // Looks like a number
         let num = '';
         let done = false;
@@ -1150,7 +1146,7 @@ function parsePrimary(expr, options) {
                 ((isAtom(expr, 'mord') ||
                     isAtom(expr, 'mpunct', ',') ||
                     isAtom(expr, 'mbin')) &&
-                    pat.test(expr.atoms[expr.index].latex)))
+                    pat.test(expr.atoms[expr.index].symbol)))
         ) {
             if (expr.atoms[expr.index].type === 'spacing') {
                 expr.index += 1;
@@ -1160,7 +1156,7 @@ function parsePrimary(expr, options) {
             ) {
                 done = true;
             } else {
-                let digit = expr.atoms[expr.index].latex;
+                let digit = expr.atoms[expr.index].symbol;
                 if (digit === 'd' || digit === 'D') {
                     digit = 'e';
                     pat = /^[0-9+-.]$/;
@@ -1193,8 +1189,8 @@ function parsePrimary(expr, options) {
         if (
             atom &&
             atom.type === 'group' &&
-            atom.latex &&
-            atom.latex.startsWith('\\nicefrac')
+            atom.lsymbolatex &&
+            atom.symbol.startsWith('\\nicefrac')
         ) {
             // \nicefrac macro, add an invisible plus
             const lhs = expr.ast;
@@ -1241,7 +1237,7 @@ function parsePrimary(expr, options) {
         // in parseExpression()
         if (!isOperator(atom)) {
             // This doesn't look like a textord operator
-            if (!RIGHT_DELIM[atom.latex ? atom.latex.trim() : atom.body]) {
+            if (!RIGHT_DELIM[atom.symbol || atom.body]) {
                 // Not an operator, not a fence, it's a symbol or a function
                 if (isFunction(val)) {
                     // It's a function
@@ -1268,12 +1264,12 @@ function parsePrimary(expr, options) {
     } else if (atom.type === 'mop') {
         // Could be a function or an operator.
         if (
-            (/^\\(mathop|operatorname|operatorname\*)/.test(atom.latex) ||
+            (/^\\(mathop|operatorname|operatorname\*)/.test(atom.symbol) ||
                 isFunction(val)) &&
             !isOperator(atom)
         ) {
             expr.ast = {
-                fn: /^\\(mathop|operatorname|operatorname\*)/.test(atom.latex)
+                fn: /^\\(mathop|operatorname|operatorname\*)/.test(atom.symbol)
                     ? getString(atom.body)
                     : val,
             };
@@ -1332,7 +1328,7 @@ function parsePrimary(expr, options) {
         return expr;
     } else if (atom.type === 'error') {
         expr.index += 1;
-        expr.ast = { error: atom.latex };
+        expr.ast = { error: atom.symbol };
         return expr;
     }
 
@@ -1485,33 +1481,33 @@ function parseExpression(expr, options) {
                     // Bind is a special function. It doesn't have a rhs, and
                     // its argument is a subscript.
                     expr.ast = {};
-                    const sub_arg = parseSupsub(expr, options).ast.sub;
+                    const subArg = parseSupsub(expr, options).ast.sub;
                     lhs = wrapFn('bind', lhs);
-                    if (sub_arg && sub_arg.fn === 'equal' && lhs.arg) {
+                    if (subArg && subArg.fn === 'equal' && lhs.arg) {
                         // This is a subscript of the form "x=..."
-                        lhs.arg.push(getArg(sub_arg, 0));
-                        lhs.arg.push(getArg(sub_arg, 1));
+                        lhs.arg.push(getArg(subArg, 0));
+                        lhs.arg.push(getArg(subArg, 1));
                     } else if (
-                        sub_arg &&
+                        subArg &&
                         lhs.arg &&
-                        (sub_arg.fn === 'list' || sub_arg.fn === 'list2')
+                        (subArg.fn === 'list' || subArg.fn === 'list2')
                     ) {
                         // Form: "x=0;n=3;z=5"
                         let currentSym = { sym: 'x' };
-                        for (let i = 0; i < sub_arg.arg.length; i++) {
-                            if (sub_arg.arg[i].fn === 'equal') {
-                                currentSym = getArg(sub_arg.arg[i], 0);
+                        for (let i = 0; i < subArg.arg.length; i++) {
+                            if (subArg.arg[i].fn === 'equal') {
+                                currentSym = getArg(subArg.arg[i], 0);
                                 lhs.arg.push(currentSym);
-                                lhs.arg.push(getArg(sub_arg.arg[i], 1));
+                                lhs.arg.push(getArg(subArg.arg[i], 1));
                             } else {
                                 lhs.arg.push(currentSym);
-                                lhs.arg.push(sub_arg.arg[i]);
+                                lhs.arg.push(subArg.arg[i]);
                             }
                         }
-                    } else if (sub_arg) {
+                    } else if (subArg) {
                         // Default identifier if none provided
                         lhs.arg.push({ sym: 'x' });
-                        lhs.arg.push(sub_arg);
+                        lhs.arg.push(subArg);
                     }
                 } else {
                     // That was a "|", but not with a subscript after, so
@@ -1649,14 +1645,14 @@ function escapeText(s) {
  * @method Atom#toAST
  * @private
  */
-Atom.prototype.toAST = function(options) {
+Atom.prototype.toAST = function (options) {
     const MATH_VARIANTS = {
-        bb: 'double-struck',
-        cal: 'script',
-        scr: 'script',
-        frak: 'fraktur',
-        cmrss: 'sans-serif',
-        cmrtt: 'monospace',
+        'double-struck': 'double-struck',
+        calligraphic: 'script',
+        script: 'script',
+        fraktur: 'fraktur',
+        'sans-serif': 'sans-serif',
+        monospace: 'monospace',
     };
     // TODO: See https://www.w3.org/TR/MathML2/chapter6.html#chars.letter-like-tables
 
@@ -1664,44 +1660,40 @@ Atom.prototype.toAST = function(options) {
     let sym = '';
     let m;
     let lhs, rhs;
-    let variant = MATH_VARIANTS[this.baseFontFamily || this.fontFamily];
+    let variant =
+        MATH_VARIANTS[
+            this.variant +
+                (!this.variantStyle || this.variantStyle === 'up'
+                    ? ''
+                    : '-' + this.variantStyle)
+        ];
     let variantSym;
 
     let style = '';
     if (this.fontSeries === 'b') style += 'bold';
     if (this.fontShape === 'it') style += 'italic';
 
-    const command = this.latex ? this.latex.trim() : null;
+    const command = this.symbol;
     switch (this.type) {
         case 'root':
         case 'group':
             // Macros appear as group as well. Handle some of them.
-            if (this.latex && this.latex.startsWith('\\nicefrac')) {
-                m = this.latex.slice(9).match(/({.*}|[^}])({.*}|[^}])/);
+            if (this.symbol && this.symbol.startsWith('\\nicefrac')) {
+                m = this.symbol.slice(9).match(/({.*}|[^}])({.*}|[^}])/);
                 if (m) {
                     if (m[1].length === 1) {
                         lhs = m[1];
                     } else {
                         lhs = m[1].substr(1, m[1].length - 2);
                     }
-                    lhs = ParserModule.parseTokens(
-                        Lexer.tokenize(lhs),
-                        'math',
-                        null,
-                        options.macros
-                    );
+                    lhs = parseString(lhs, 'math', null, options.macros);
 
                     if (m[2].length === 1) {
                         rhs = m[2];
                     } else {
                         rhs = m[2].substr(1, m[2].length - 2);
                     }
-                    rhs = ParserModule.parseTokens(
-                        Lexer.tokenize(rhs),
-                        'math',
-                        null,
-                        options.macros
-                    );
+                    rhs = parseString(rhs, 'math', null, options.macros);
 
                     result = wrapFn(
                         'divide',
@@ -1820,7 +1812,7 @@ Atom.prototype.toAST = function(options) {
             } else if (/array|matrix|pmatrix|bmatrix/.test(this.env.name)) {
                 result = { fn: 'array', args: [] };
                 for (const row of this.array) {
-                    result.args.push(row.map(cell => parse(cell, options)));
+                    result.args.push(row.map((cell) => parse(cell, options)));
                 }
             } else if (this.env.name === 'cases') {
                 result = { fn: 'cases', args: [] };
@@ -1837,7 +1829,7 @@ Atom.prototype.toAST = function(options) {
                                     )
                                 ) {
                                     condition = condition.arg.filter(
-                                        x => typeof x !== 'string'
+                                        (x) => typeof x !== 'string'
                                     );
                                 }
                             }
@@ -1860,7 +1852,7 @@ Atom.prototype.toAST = function(options) {
                 'Unhandled atom "' +
                     this.type +
                     '" in "' +
-                    (this.latex || this.body) +
+                    (this.symbol || this.body) +
                     '"'
             );
     }
@@ -1913,8 +1905,8 @@ function filterPresentationAtoms(atoms) {
                 atoms.numer = filterPresentationAtoms(atoms.numer);
             }
             if (atoms.array && Array.isArray(atoms.array)) {
-                atoms.array = atoms.array.map(row =>
-                    row.map(cell => filterPresentationAtoms(cell))
+                atoms.array = atoms.array.map((row) =>
+                    row.map((cell) => filterPresentationAtoms(cell))
                 );
             }
             result = [atoms];
@@ -1947,7 +1939,7 @@ function parseSentence(expr, options) {
                 text += expr.atoms[expr.index].body;
                 expr.index += 1;
             }
-            zones.push(text);
+            zones.push(wrapFn('text', text));
         } else {
             const z = parseExpression(expr, options).ast;
             // Something went wrong in parsing the expression...
@@ -1957,7 +1949,7 @@ function parseSentence(expr, options) {
     }
 
     if (zones.length > 1) {
-        return wrapFn('text', ...zones);
+        return wrapFn('sequence', ...zones);
     }
 
     return zones[0] || undefined;
@@ -1972,7 +1964,7 @@ function parse(atoms, options) {
     return parseSentence({ atoms: filterPresentationAtoms(atoms) }, options);
 }
 
-Atom.toAST = function(atoms, options) {
+Atom.toAST = function (atoms, options) {
     return parse(atoms, options);
 };
 
@@ -1982,9 +1974,7 @@ Atom.toAST = function(atoms, options) {
  * @return {string} - A string wrapped in the fence
  * @private
  */
-function wrapFence(fence) {
-    const args = Array.prototype.slice.call(arguments);
-    args.shift();
+function wrapFence(fence, ...args) {
     fence = fence || '.. ';
     let result = '';
     if (args.length > 0) {
@@ -2242,7 +2232,7 @@ function numberAsLatex(num, config) {
  * @return {string} A LaTeX representation of the AST
  * @private
  */
-function asLatex(ast, options) {
+export function jsonToLatex(ast, options) {
     const config = Object.assign(
         {
             precision: 14,
@@ -2263,10 +2253,8 @@ function asLatex(ast, options) {
 
     if (ast === undefined) return '';
     if (typeof ast === 'string') {
-        ast = JSON.parse(ast);
-    }
-
-    if (ast.latex) {
+        result = ast;
+    } else if (ast.latex) {
         // If ast.latex key is present, use it to render the element
         result = ast.latex;
     } else if (isNumber(ast)) {
@@ -2306,30 +2294,30 @@ function asLatex(ast, options) {
         } else {
             result = numberAsLatex(ast.num, config);
         }
-        if (hasSup(ast)) result += '^{' + asLatex(ast.sup, config) + '}';
-        if (hasSub(ast)) result += '_{' + asLatex(ast.sub, config) + '}';
+        if (hasSup(ast)) result += '^{' + jsonToLatex(ast.sup, config) + '}';
+        if (hasSub(ast)) result += '_{' + jsonToLatex(ast.sub, config) + '}';
     } else if (ast.group) {
-        result = asLatex(ast.group, config);
+        result = jsonToLatex(ast.group, config);
         if (!isNumber(ast.group) && !asSymbol(ast.group)) {
             result = wrapFence(ast.fence || '(),', result);
         } else if (numberIm(ast.group) !== 0) {
             result = wrapFence(ast.fence || '(),', result);
         }
-        if (hasSup(ast)) result += '^{' + asLatex(ast.sup, config) + '}';
-        if (hasSub(ast)) result += '_{' + asLatex(ast.sub, config) + '}';
+        if (hasSup(ast)) result += '^{' + jsonToLatex(ast.sup, config) + '}';
+        if (hasSub(ast)) result += '_{' + jsonToLatex(ast.sub, config) + '}';
     } else if (ast.fn) {
         if (ast.fn === 'bind') {
-            result = asLatex(getArg(ast, 0), config) + '|_{';
+            result = jsonToLatex(getArg(ast, 0), config) + '|_{';
             if (ast.arg && ast.arg.length === 2) {
-                result += asLatex(getArg(ast, 1));
+                result += jsonToLatex(getArg(ast, 1));
             } else {
                 let sep = '';
                 for (let i = 1; i < ast.arg.length; i += 2) {
                     result +=
                         sep +
-                        asLatex(getArg(ast, i)) +
+                        jsonToLatex(getArg(ast, i)) +
                         ' = ' +
-                        asLatex(getArg(ast, i + 1));
+                        jsonToLatex(getArg(ast, i + 1));
                     sep = ', ';
                 }
             }
@@ -2337,17 +2325,17 @@ function asLatex(ast, options) {
         } else if (ast.fn === 'divide') {
             result =
                 '\\frac{' +
-                asLatex(getArg(ast, 0), config) +
+                jsonToLatex(getArg(ast, 0), config) +
                 '}{' +
-                asLatex(getArg(ast, 1), config) +
+                jsonToLatex(getArg(ast, 1), config) +
                 '}';
         } else if (ast.fn === 'negate') {
-            result = '-' + asLatex(getArg(ast, 0), config);
+            result = '-' + jsonToLatex(getArg(ast, 0), config);
         } else if (ast.fn === 'subtract') {
             result =
-                asLatex(getArg(ast, 0), config) +
+                jsonToLatex(getArg(ast, 0), config) +
                 ' - ' +
-                asLatex(getArg(ast, 1), config);
+                jsonToLatex(getArg(ast, 1), config);
         } else if (
             (ast.fn === 'add' || ast.fn === 'multiply') &&
             Array.isArray(ast.arg)
@@ -2355,20 +2343,20 @@ function asLatex(ast, options) {
             const a = [];
             for (const exp of ast.arg) {
                 if (exp.fn === 'add' || exp.fn === 'subtract') {
-                    a.push(wrapFence('() ', asLatex(exp, config)));
+                    a.push(wrapFence('() ', jsonToLatex(exp, config)));
                 } else if (isComplexWithRealAndImaginary(exp)) {
                     // Complex numbers that have both a real and imaginary part
                     // should be wrapped in parentheses
-                    a.push(wrapFence('() ', asLatex(exp, config)));
+                    a.push(wrapFence('() ', jsonToLatex(exp, config)));
                 } else if (
                     hasSup(ast) &&
                     !(numberIm(exp) === 0 || numberIm(exp) === 1)
                 ) {
                     // Wrap with parentheses if there's an exponent
                     // and the imaginary part is neither 0 nor 1
-                    a.push(wrapFence('() ', asLatex(exp, config)));
+                    a.push(wrapFence('() ', jsonToLatex(exp, config)));
                 } else {
-                    a.push(asLatex(exp, config));
+                    a.push(jsonToLatex(exp, config));
                 }
             }
             if (ast.fn === 'multiply') {
@@ -2421,23 +2409,27 @@ function asLatex(ast, options) {
         } else if (ast.fn === 'list' || ast.fn === 'list2') {
             const a = [];
             for (const exp of ast.arg) {
-                a.push(asLatex(exp, config));
+                a.push(jsonToLatex(exp, config));
             }
 
             result = a.join(ast.fn === 'list2' ? '; ' : ', ');
+        } else if (ast.fn === 'sequence') {
+            result = ast.arg.map((x) => jsonToLatex(x, config)).join('');
+        } else if (ast.fn === 'text') {
+            result = '\\text{' + (ast.arg[0] || '') + '}';
         } else if (
             ast.fn === 'pow' &&
             Array.isArray(ast.arg) &&
             ast.arg.length >= 2
         ) {
-            result = asLatex(getArg(ast, 0), config);
+            result = jsonToLatex(getArg(ast, 0), config);
             if (!isNumber(getArg(ast, 0)) && !asSymbol(getArg(ast, 0))) {
                 result = wrapFence(ast.fence || '(),', result);
             }
 
-            result += '^{' + asLatex(getArg(ast, 1), config) + '}';
+            result += '^{' + jsonToLatex(getArg(ast, 1), config) + '}';
         } else if (ast.fn === 'equal' && ast.arg && ast.arg.length > 2) {
-            result = ast.arg.map(x => asLatex(x, config)).join(' = ');
+            result = ast.arg.map((x) => jsonToLatex(x, config)).join(' = ');
         } else {
             const fn = getLatexTemplateForFunction(ast.fn);
             result = fn;
@@ -2450,12 +2442,12 @@ function asLatex(ast, options) {
                 // Parenthesis are required if argument list is longer than 1
                 result += wrapFence(
                     ast.fence || '(),',
-                    ...ast.arg.map(x => asLatex(x, config))
+                    ...ast.arg.map((x) => jsonToLatex(x, config))
                 );
             } else if (Array.isArray(ast.arg) && ast.arg.length > 0) {
                 // The parenthesis may be optional...
-                const arg0 = asLatex(getArg(ast, 0), config);
-                const arg1 = asLatex(getArg(ast, 1), config);
+                const arg0 = jsonToLatex(getArg(ast, 0), config);
+                const arg1 = jsonToLatex(getArg(ast, 1), config);
                 const argsn = [...ast.arg];
                 if (/%0/.test(fn)) {
                     result = result.replace('%0', arg0);
@@ -2469,7 +2461,7 @@ function asLatex(ast, options) {
                 if (argsn.length > 0) {
                     argstring = wrapFence(
                         ast.fence || '(),',
-                        ...argsn.map(x => asLatex(x, config))
+                        ...argsn.map((x) => jsonToLatex(x, config))
                     );
                 }
             } else {
@@ -2480,7 +2472,7 @@ function asLatex(ast, options) {
             if (hasSup(ast)) {
                 result = result.replace(
                     '%^',
-                    '^{' + asLatex(ast.sup, config) + '}'
+                    '^{' + jsonToLatex(ast.sup, config) + '}'
                 );
             } else {
                 result = result.replace('%^', '');
@@ -2488,7 +2480,7 @@ function asLatex(ast, options) {
             if (hasSub(ast)) {
                 result = result.replace(
                     '%_',
-                    '_{' + asLatex(ast.sub, config) + '}'
+                    '_{' + jsonToLatex(ast.sub, config) + '}'
                 );
             } else {
                 result = result.replace('%_', '');
@@ -2526,8 +2518,8 @@ function asLatex(ast, options) {
             };
             result = '\\' + MATH_VARIANTS[ast.variant] + '{' + result + '}';
         }
-        if (hasSup(ast)) result += '^{' + asLatex(ast.sup, config) + '}';
-        if (hasSub(ast)) result += '_{' + asLatex(ast.sub, config) + '}';
+        if (hasSup(ast)) result += '^{' + jsonToLatex(ast.sup, config) + '}';
+        if (hasSub(ast)) result += '_{' + jsonToLatex(ast.sub, config) + '}';
     } else if (typeof ast.text === 'string') {
         result = '\\text{' + ast.text + '}';
     }
@@ -2543,7 +2535,7 @@ function asLatex(ast, options) {
 
 // Export the public interface for this module
 export default {
-    asLatex,
+    jsonToLatex,
     asMachineNumber,
     isNumber,
     asSymbol,

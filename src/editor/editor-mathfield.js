@@ -4,11 +4,10 @@
  * @module editor/mathfield
  * @private
  */
-import { suggest, commandAllowed, MACROS } from '../core/definitions-utils.js';
+import { suggest, commandAllowed, MACROS } from '../core/definitions.js';
 import { Atom, makeRoot } from '../core/atom.js';
 import { decompose } from '../core/atom-utils.js';
-import Lexer from '../core/lexer.js';
-import ParserModule from '../core/parser.js';
+import { parseString } from '../core/parser.js';
 import { makeSpan } from '../core/span.js';
 import EditableMathlist from './editor-editableMathlist.js';
 import MathPath from './editor-mathpath.js';
@@ -34,17 +33,12 @@ import '../addons/outputSpokenText.js';
     toSpeakableText() respectively.
 */
 
-/* The default eslint parser, espree, does not parse the "declare type" correctly.
-   Could use a different parser (babel-eslint), but to avoid bringing in another
-   dependency, just turn off linting for this line */
-/* eslint-disable */
 /**
  * @typedef {function} MathFieldCallback
  * @param {Mathfield} mathfield
  * @return {void}
  * @global
  */
-/* eslint-enable */
 
 /**
  @typedef MathFieldConfig
@@ -52,6 +46,7 @@ import '../addons/outputSpokenText.js';
  @property {string} locale?
  @property {object<string, string>} strings?
  @property {number} horizontalSpacingScale?
+ @property {"auto" | "tex" | "iso" | "french" | "upright"} letterShapeStyle?
  @property {string} namespace?
  @property {function} substituteTextArea?
  @property {"math" | "text"} defaultMode?
@@ -283,6 +278,9 @@ function validateStyle(style) {
  * ```
  */
 
+let gLastTap;
+let gTapCount = 0;
+
 /**
  *
  * @property {HTMLElement} element - The DOM element this mathfield is attached to.
@@ -409,7 +407,7 @@ export class Mathfield {
         // Listen to 'wheel' events to scroll (horizontally) the field when it overflows
         this.field.addEventListener(
             'wheel',
-            ev => {
+            (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();
                 let wheelDelta =
@@ -641,7 +639,7 @@ export class Mathfield {
                 right: -Infinity,
             };
             // Calculate the union of the bounds of all the selected spans
-            selectedNodes.forEach(node => {
+            selectedNodes.forEach((node) => {
                 const bounds = node.getBoundingClientRect();
                 if (bounds.left < selectionRect.left) {
                     selectionRect.left = bounds.left;
@@ -690,7 +688,7 @@ export class Mathfield {
         if (id) {
             // Let's find the atom that has a matching ID with the element that
             // was clicked on (or near)
-            const paths = this.mathlist.filter(function(_path, atom) {
+            const paths = this.mathlist.filter(function (_path, atom) {
                 // If the atom allows children to be selected, match only if
                 // the ID of  the atom matches the one we're looking for.
                 if (!atom.captureSelection) {
@@ -699,7 +697,9 @@ export class Mathfield {
                 // If the atom does not allow children to be selected
                 // (captureSelection === true), the element matches if any of
                 // its children has an ID that matches.
-                return atom.filter(childAtom => childAtom.id === id).length > 0;
+                return (
+                    atom.filter((childAtom) => childAtom.id === id).length > 0
+                );
             });
             if (paths && paths.length > 0) {
                 // (There should be exactly one atom that matches this ID...)
@@ -742,6 +742,18 @@ export class Mathfield {
         if (evt.buttons !== 1) {
             return;
         }
+        let scrollLeft = false;
+        let scrollRight = false;
+        const anchorX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+        const anchorY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+        const anchorTime = Date.now();
+        const scrollInterval = setInterval(() => {
+            if (scrollLeft) {
+                that.field.scroll({ top: 0, left: that.field.scrollLeft - 16 });
+            } else if (scrollRight) {
+                that.field.scroll({ top: 0, left: that.field.scrollLeft + 16 });
+            }
+        }, 32);
         function endPointerTracking(evt) {
             if (window.PointerEvent) {
                 off(that.field, 'pointermove', onPointerMove);
@@ -763,19 +775,11 @@ export class Mathfield {
             clearInterval(scrollInterval);
             that.element
                 .querySelectorAll('.ML__scroller')
-                .forEach(x => x.parentNode.removeChild(x));
+                .forEach((x) => x.parentNode.removeChild(x));
             evt.preventDefault();
             evt.stopPropagation();
         }
-        let scrollLeft = false;
-        let scrollRight = false;
-        const scrollInterval = setInterval(() => {
-            if (scrollLeft) {
-                that.field.scroll({ top: 0, left: that.field.scrollLeft - 16 });
-            } else if (scrollRight) {
-                that.field.scroll({ top: 0, left: that.field.scrollLeft + 16 });
-            }
-        }, 32);
+
         function onPointerMove(evt) {
             const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
             const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
@@ -828,25 +832,23 @@ export class Mathfield {
             evt.preventDefault();
             evt.stopPropagation();
         }
-        const anchorX = evt.touches ? evt.touches[0].clientX : evt.clientX;
-        const anchorY = evt.touches ? evt.touches[0].clientY : evt.clientY;
-        const anchorTime = Date.now();
+
         // Calculate the tap count
         if (
-            lastTap &&
-            Math.abs(lastTap.x - anchorX) < 5 &&
-            Math.abs(lastTap.y - anchorY) < 5 &&
-            Date.now() < lastTap.time + 500
+            gLastTap &&
+            Math.abs(gLastTap.x - anchorX) < 5 &&
+            Math.abs(gLastTap.y - anchorY) < 5 &&
+            Date.now() < gLastTap.time + 500
         ) {
-            tapCount += 1;
-            lastTap.time = anchorTime;
+            gTapCount += 1;
+            gLastTap.time = anchorTime;
         } else {
-            lastTap = {
+            gLastTap = {
                 x: anchorX,
                 y: anchorY,
                 time: anchorTime,
             };
-            tapCount = 1;
+            gTapCount = 1;
         }
         const bounds = this.field.getBoundingClientRect();
         if (
@@ -913,9 +915,9 @@ export class Mathfield {
                 // evt.detail contains the number of consecutive clicks
                 // for double-click, triple-click, etc...
                 // (note that evt.detail is not set when using pointerEvent)
-                if (evt.detail === 3 || tapCount > 2) {
+                if (evt.detail === 3 || gTapCount > 2) {
                     endPointerTracking(evt);
-                    if (evt.detail === 3 || tapCount === 3) {
+                    if (evt.detail === 3 || gTapCount === 3) {
                         // This is a triple-click
                         this.mathlist.selectAll_();
                     }
@@ -942,7 +944,7 @@ export class Mathfield {
                             on(window, 'mouseup', endPointerTracking);
                         }
                     }
-                    if (evt.detail === 2 || tapCount === 2) {
+                    if (evt.detail === 2 || gTapCount === 2) {
                         // This is a double-click
                         trackingWords = true;
                         this.mathlist.selectGroup_();
@@ -950,7 +952,7 @@ export class Mathfield {
                 }
             }
         } else {
-            lastTap = null;
+            gLastTap = null;
         }
         if (dirty) {
             this._requestUpdate();
@@ -962,12 +964,13 @@ export class Mathfield {
     _onSelectionDidChange() {
         // Every atom before the new caret position is now committed
         this.mathlist.commitCommandStringBeforeInsertionPoint();
-        // If the selection is not collapsed, put it in the textarea
+        // Keep the content of the textarea in sync wiht the selection.
         // This will allow cut/copy to work.
-        let result = '';
-        this.mathlist.forEachSelected(atom => {
-            result += atom.toLatex();
+        const selection = new Atom('math', 'group', []);
+        this.mathlist.forEachSelected((atom) => {
+            selection.body.push(atom);
         });
+        const result = selection.toLatex(false);
         if (result) {
             this.textarea.value = result;
             // The textarea may be a span (on mobile, for example), so check that
@@ -1142,7 +1145,7 @@ export class Mathfield {
                 '</span>' +
                 vb.innerHTML;
             vb.style.visibility = 'visible';
-            setTimeout(function() {
+            setTimeout(function () {
                 if (vb.childNodes.length > 0) {
                     vb.removeChild(vb.childNodes[vb.childNodes.length - 1]);
                 }
@@ -1311,7 +1314,7 @@ export class Mathfield {
             selector = command;
         }
         // Convert kebab case (like-this) to camel case (likeThis).
-        selector = selector.replace(/-\w/g, m => m[1].toUpperCase());
+        selector = selector.replace(/-\w/g, (m) => m[1].toUpperCase());
         selector += '_';
         if (typeof this.mathlist[selector] === 'function') {
             if (/^(delete|transpose|add)/.test(selector)) {
@@ -1384,7 +1387,7 @@ export class Mathfield {
             navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
         }
         // Convert kebab case to camel case.
-        command = command.replace(/-\w/g, m => m[1].toUpperCase());
+        command = command.replace(/-\w/g, (m) => m[1].toUpperCase());
         if (
             command === 'moveToNextPlaceholder' ||
             command === 'moveToPreviousPlaceholder' ||
@@ -1392,10 +1395,12 @@ export class Mathfield {
         ) {
             if (this.returnKeypressSound) {
                 this.returnKeypressSound.load();
-                this.returnKeypressSound.play().catch(err => console.warn(err));
+                this.returnKeypressSound
+                    .play()
+                    .catch((err) => console.warn(err));
             } else if (this.keypressSound) {
                 this.keypressSound.load();
-                this.keypressSound.play().catch(err => console.warn(err));
+                this.keypressSound.play().catch((err) => console.warn(err));
             }
         } else if (
             command === 'deletePreviousChar' ||
@@ -1409,14 +1414,16 @@ export class Mathfield {
         ) {
             if (this.deleteKeypressSound) {
                 this.deleteKeypressSound.load();
-                this.deleteKeypressSound.play().catch(err => console.warn(err));
+                this.deleteKeypressSound
+                    .play()
+                    .catch((err) => console.warn(err));
             } else if (this.keypressSound) {
                 this.keypressSound.load();
-                this.keypressSound.play().catch(err => console.warn(err));
+                this.keypressSound.play().catch((err) => console.warn(err));
             }
         } else if (this.keypressSound) {
             this.keypressSound.load();
-            this.keypressSound.play().catch(err => console.warn(err));
+            this.keypressSound.play().catch((err) => console.warn(err));
         }
         return this.$perform(command);
     }
@@ -1452,7 +1459,8 @@ export class Mathfield {
                 (until && !until(atom));
             if (!done) {
                 atom.applyStyle({ mode: 'text' });
-                atom.latex = atom.body;
+                atom.symbol = atom.body;
+                atom.latex = '';
             }
             i -= 1;
             count -= 1;
@@ -1644,8 +1652,9 @@ export class Mathfield {
                 this.convertLastAtomsToMath_(1);
                 const atom = this.mathlist.sibling(0);
                 atom.body = '⋅'; // centered dot
-                atom.autoFontFamily = 'cmr';
-                atom.latex = '\\cdot';
+                atom.variant = 'auto';
+                atom.symbol = '\\cdot';
+                atom.latex = '';
                 return true;
             }
             if (/(^|\s)[a-zA-Z][^a-zA-Z]$/.test(context)) {
@@ -1687,7 +1696,9 @@ export class Mathfield {
         } else {
             // We're in math mode. Should we switch to text?
             if (keystroke === 'Spacebar') {
-                this.convertLastAtomsToText_(a => /[a-z][:,;.]$/.test(a.body));
+                this.convertLastAtomsToText_((a) =>
+                    /[a-z][:,;.]$/.test(a.body)
+                );
                 return true;
             }
             if (
@@ -1697,7 +1708,9 @@ export class Mathfield {
                 // A sequence of three characters
                 // (except for some exceptions)
                 // Convert them to text.
-                this.convertLastAtomsToText_(a => /[a-zA-Z:,;.]/.test(a.body));
+                this.convertLastAtomsToText_((a) =>
+                    /[a-zA-Z:,;.]/.test(a.body)
+                );
                 return true;
             }
             if (/(^|\W)(if|If)$/i.test(context)) {
@@ -1714,7 +1727,7 @@ export class Mathfield {
                 // A sequence of three *greek* characters
                 // (except for one exception)
                 // Convert them to text.
-                this.convertLastAtomsToText_(a =>
+                this.convertLastAtomsToText_((a) =>
                     /(:|,|;|.|\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5)/u.test(
                         a.body
                     )
@@ -1781,10 +1794,8 @@ export class Mathfield {
                             const mathlist = new EditableMathlist.EditableMathlist();
                             mathlist.root = makeRoot(
                                 'math',
-                                ParserModule.parseTokens(
-                                    Lexer.tokenize(
-                                        this.keystrokeBufferStates[i].latex
-                                    ),
+                                parseString(
+                                    this.keystrokeBufferStates[i].latex,
                                     this.config.default,
                                     null,
                                     this.config.macros
@@ -1997,7 +2008,7 @@ export class Mathfield {
             }
             if (this.keypressSound) {
                 this.keypressSound.load();
-                this.keypressSound.play().catch(err => console.warn(err));
+                this.keypressSound.play().catch((err) => console.warn(err));
             }
         }
         if (options.commandMode && this.mode !== 'command') {
@@ -2102,7 +2113,7 @@ export class Mathfield {
                             /[0-9]/.test(c) &&
                             this.mathlist
                                 .siblings()
-                                .filter(x => x.type !== 'first').length === 0
+                                .filter((x) => x.type !== 'first').length === 0
                         ) {
                             // We are inserting a digit into an empty superscript
                             // If smartSuperscript is on, insert the digit, and
@@ -2154,7 +2165,7 @@ export class Mathfield {
         if (!this.dirty) {
             this.dirty = true;
             requestAnimationFrame(
-                _ => isValidMathfield(this) && this._render()
+                (_) => isValidMathfield(this) && this._render()
             );
         }
     }
@@ -2190,7 +2201,7 @@ export class Mathfield {
         //
         // 3. Update selection state and blinking cursor (caret)
         //
-        this.mathlist.forEach(a => {
+        this.mathlist.forEach((a) => {
             a.caret = '';
             a.isSelected = false;
             a.containsCaret = false;
@@ -2200,7 +2211,7 @@ export class Mathfield {
             this.mathlist.anchor().caret =
                 hasFocus && !this.config.readOnly ? this.mode : '';
         } else {
-            this.mathlist.forEachSelected(a => {
+            this.mathlist.forEachSelected((a) => {
                 a.isSelected = true;
             });
         }
@@ -2224,6 +2235,7 @@ export class Mathfield {
         const spans = decompose(
             {
                 mathstyle: 'displaystyle',
+                letterShapeStyle: this.config.letterShapeStyle,
                 generateID: {
                     // Using the hash as a seed for the ID
                     // keeps the IDs the same until the content of the field changes.
@@ -2306,7 +2318,7 @@ export class Mathfield {
         // be copied to the clipboard, so defer the clearing of the selection
         // to later, after the cut operation has been handled.
         setTimeout(
-            function() {
+            function () {
                 this.$clearSelection();
                 this._requestUpdate();
             }.bind(this),
@@ -2369,6 +2381,9 @@ export class Mathfield {
         } else if (format === 'json') {
             const json = Atom.toAST(root, this.config);
             result = JSON.stringify(json);
+        } else if (format === 'json-2') {
+            const json = Atom.toAST(root, this.config);
+            result = JSON.stringify(json, null, 2);
         } else if (format === 'ASCIIMath') {
             result = toASCIIMath(root, this.config);
         } else {
@@ -2714,18 +2729,18 @@ export class Mathfield {
      * is used (default)
      *
      * @param {object} options.style
-     * 
+     *
      * @param {boolean} options.resetStyle - If true, the style after the insertion
      * is the same as the style before. If false, the style after the
      * insertion is the style of the last inserted atom.
      *
      * @param {boolean} options.smartFence - If true, promote plain fences, e.g. `(`,
      * as `\left...\right` or `\mleft...\mright`
-     * 
+     *
      * @param {boolean} options.suppressChangeNotifications - If true, the
      * handlers for the contentWillChange, contentDidChange, selectionWillChange and
      * selectionDidChange notifications will not be invoked. Default `false`.
-     * 
+     *
      * @category Changing the Content
      * @method Mathfield#$insert
      */
@@ -2835,8 +2850,8 @@ export class Mathfield {
                 // (commands are only available in math mode)
                 const mode = 'math';
                 if (commandAllowed(mode, command)) {
-                    const mathlist = ParserModule.parseTokens(
-                        Lexer.tokenize(command),
+                    const mathlist = parseString(
+                        command,
                         mode,
                         null,
                         this.config.macros
@@ -2847,8 +2862,8 @@ export class Mathfield {
                 } else {
                     // This wasn't a simple function or symbol.
                     // Interpret the input as LaTeX code
-                    const mathlist = ParserModule.parseTokens(
-                        Lexer.tokenize(command),
+                    const mathlist = parseString(
+                        command,
                         mode,
                         null,
                         this.config.macros
@@ -3009,7 +3024,7 @@ export class Mathfield {
         let touchID;
         let syntheticTarget; // Target while touch move
         let pressAndHoldTimer;
-        on(el, 'mousedown touchstart:passive', function(ev) {
+        on(el, 'mousedown touchstart:passive', function (ev) {
             if (ev.type !== 'mousedown' || ev.buttons === 1) {
                 // The primary button was pressed or the screen was tapped.
                 ev.stopPropagation();
@@ -3040,7 +3055,7 @@ export class Mathfield {
                     if (pressAndHoldTimer) {
                         clearTimeout(pressAndHoldTimer);
                     }
-                    pressAndHoldTimer = window.setTimeout(function() {
+                    pressAndHoldTimer = window.setTimeout(function () {
                         if (el.classList.contains('pressed')) {
                             that.$perform(JSON.parse(pressAndHoldStartCommand));
                         }
@@ -3048,7 +3063,7 @@ export class Mathfield {
                 }
             }
         });
-        on(el, 'mouseleave touchcancel', function() {
+        on(el, 'mouseleave touchcancel', function () {
             el.classList.remove('pressed');
             // let command = el.getAttribute('data-' + that.config.namespace +
             //     'command-pressAndHoldEnd');
@@ -3057,7 +3072,7 @@ export class Mathfield {
             //     that.$perform(JSON.parse(command));
             // }
         });
-        on(el, 'touchmove:passive', function(ev) {
+        on(el, 'touchmove:passive', function (ev) {
             // Unlike with mouse tracking, touch tracking only sends events
             // to the target that was originally tapped on. For consistency,
             // we want to mimic the behavior of the mouse interaction by
@@ -3089,12 +3104,12 @@ export class Mathfield {
                 }
             }
         });
-        on(el, 'mouseenter', function(ev) {
+        on(el, 'mouseenter', function (ev) {
             if (ev.buttons === 1) {
                 el.classList.add('pressed');
             }
         });
-        on(el, 'mouseup touchend click', function(ev) {
+        on(el, 'mouseup touchend click', function (ev) {
             if (syntheticTarget) {
                 ev.stopPropagation();
                 ev.preventDefault();
@@ -3117,7 +3132,7 @@ export class Mathfield {
             }
             // Since we want the active state to be visible for a while,
             // use a timer to remove it after a short delay
-            window.setTimeout(function() {
+            window.setTimeout(function () {
                 el.classList.remove('active');
             }, 150);
             let command = el.getAttribute(
@@ -3490,20 +3505,15 @@ export class Mathfield {
                 // Construct the virtual keyboard
                 this.virtualKeyboard = VirtualKeyboard.make(this, theme);
                 // Let's make sure that tapping on the keyboard focuses the field
-                on(
-                    this.virtualKeyboard,
-                    'touchstart:passive mousedown',
-                    function() {
-                        that.$focus();
-                    }
-                );
+                on(this.virtualKeyboard, 'touchstart:passive mousedown', () => {
+                    this.$focus();
+                });
                 document.body.appendChild(this.virtualKeyboard);
             }
             // For the transition effect to work, the property has to be changed
             // after the insertion in the DOM. Use setTimeout
-            const that = this;
-            window.setTimeout(function() {
-                that.virtualKeyboard.classList.add('is-visible');
+            window.setTimeout(() => {
+                this.virtualKeyboard.classList.add('is-visible');
             }, 1);
         } else if (this.virtualKeyboard) {
             this.virtualKeyboard.classList.remove('is-visible');
@@ -3548,13 +3558,9 @@ export class Mathfield {
      *
 | <!-- -->    | <!-- -->    |
 | :---------- | :---------- |
-|`"cmr"`| Computer Modern Roman, serif|
-|`"cmss"`| Computer Modern Sans-serif, latin characters only|
-|`"cmtt"`| Typewriter, slab, latin characters only|
-|`"cal"`| Calligraphic style, uppercase latin letters and digits only|
-|`"frak"`| Fraktur, gothic, uppercase, lowercase and digits|
-|`"bb"`| Blackboard bold, uppercase only|
-|`"scr"`| Script style, uppercase only|
+|`"roman"`| Computer Modern Roman, serif|
+|`"sans-serif"`| Computer Modern Sans-serif, latin characters only|
+|`"monospace"`| Typewriter, slab, latin characters only|
      *
      * @param {string} [style.series] - The font 'series', i.e. weight and
      * stretch.
@@ -3778,6 +3784,7 @@ export class Mathfield {
             };
         }
         this.config = { ...this.config, ...conf };
+
         if (
             this.config.scriptDepth !== undefined &&
             !Array.isArray(this.config.scriptDepth)
@@ -3816,6 +3823,19 @@ export class Mathfield {
                 ch: 'qwertz',
             }[l10n.locale.substring(0, 2)] ||
             'qwerty';
+
+        // Letter shape style (locale dependent)
+        if (
+            !this.config.letterShapeStyle ||
+            this.config.letterShapeStyle === 'auto'
+        ) {
+            if (l10n.locale.substring(0, 2) === 'fr') {
+                this.config.letterShapeStyle = 'french';
+            } else {
+                this.config.letterShapeStyle = 'tex';
+            }
+        }
+
         // Possible keypress sound feedback
         this.keypressSound = undefined;
         this.spacebarKeypressSound = undefined;
@@ -4013,7 +4033,7 @@ function _findElementWithCaret(el) {
         return el;
     }
     let result;
-    Array.from(el.children).forEach(function(child) {
+    Array.from(el.children).forEach(function (child) {
         result = result || _findElementWithCaret(child);
     });
     return result;
@@ -4050,7 +4070,7 @@ function nearestElementFromPoint(el, x, y) {
     }
 
     if (considerChildren && el.children) {
-        Array.from(el.children).forEach(function(child) {
+        Array.from(el.children).forEach(function (child) {
             const nearest = nearestElementFromPoint(child, x, y);
             if (nearest.element && nearest.distance <= result.distance) {
                 result = nearest;
@@ -4060,9 +4080,6 @@ function nearestElementFromPoint(el, x, y) {
 
     return result;
 }
-
-let lastTap;
-let tapCount = 0;
 
 function speakableText(mathfield, prefix, atoms) {
     const config = Object.assign({}, mathfield.config);
@@ -4093,7 +4110,7 @@ function _onAnnounce(target, command, oldMathlist, atomsToSpeak) {
         // example when a command has no effect.
         if (target.plonkSound) {
             target.plonkSound.load();
-            target.plonkSound.play().catch(err => console.warn(err));
+            target.plonkSound.play().catch((err) => console.warn(err));
         }
         // As a side effect, reset the keystroke buffer
         target._resetKeystrokeBuffer();

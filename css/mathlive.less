@@ -1,13 +1,5 @@
 @import '__fonts.less';
 
-@monospace: 'Source Code Pro', Consolas, 'Roboto Mono', Menlo,
-    'Bitstream Vera Sans Mono', 'DejaVu Sans Mono', Monaco, Courier, monospace;
-@system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
-    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-@math_main: KaTeX_Main;
-@math_math: KaTeX_Math;
-
 @font-face {
     font-family: KaTeX_Main;
     src: url(fonts/KaTeX_Main-Regular.woff2) format('woff2'),
@@ -25,6 +17,15 @@
     font-style: italic;
     font-display: 'swap';
 }
+
+@monospace: 'Source Code Pro', Consolas, 'Roboto Mono', Menlo,
+    'Bitstream Vera Sans Mono', 'DejaVu Sans Mono', Monaco, Courier, monospace;
+@system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+
+@math_main: KaTeX_Main;
+@math_math: KaTeX_Math;
 
 @shadow1: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 @shadow2: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
@@ -68,14 +69,22 @@
     font-style: italic;
 }
 
-.ML__mathrm {
+/* Use cmr for 'math upright' */
+.ML__cmr {
     font-family: KaTeX_Main;
     font-style: normal;
 }
 
 .ML__mathbf {
-    font-family: KaTeX_Main;
+    font-family: KaTeX_Main; // Use upright font (@math_math is italic)
     font-weight: bold;
+}
+
+/* lowercase greek symbols should stick to math font when \mathbf is applied 
+   to match TeX idiosyncratic behavior */
+.lcGreek.ML__mathbf {
+    font-family: @math_math;
+    font-weight: normal;
 }
 
 .ML__mathbfit {
@@ -113,7 +122,7 @@
     font-family: KaTeX_SansSerif;
 }
 
-.ML__mainit {
+.ML__cmti {
     font-family: @math_main;
     font-style: italic;
 }
@@ -134,7 +143,8 @@
 .ML__series_sb {
     font-weight: 500;
 }
-.ML__bold {
+.ML__bold,
+.ML__boldsymbol {
     font-weight: 700;
 }
 .ML__series_eb {

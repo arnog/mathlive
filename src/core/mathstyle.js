@@ -1,5 +1,5 @@
 /**
- * This file contains information and classes for the various kinds of styles
+ * This file contains information and classes for the various kinds of MATHSTYLES
  * used in TeX, such as:
  * - `textstyle`: used for math that is displayed inline
  * - `scriptstyle`: used for math displayed in a superscript or subscript
@@ -10,13 +10,70 @@
  * class which holds information about a specific style.
  *
  * It also provides instances of all the different kinds
- * of styles possible, and provides functions to move between them and get
+ * of MATHSTYLES possible, and provides functions to move between them and get
  * information about them.
  * @module core/mathstyle
  * @private
  */
 
 import { SIGMAS } from './font-metrics.js';
+
+// String names for the different sizes
+const SIZE_NAMES = [
+    'displaystyle textstyle',
+    'textstyle',
+    'scriptstyle',
+    'scriptscriptstyle',
+];
+
+const ADJUST_NAMES = [
+    [
+        '', // 'reset-textstyle displaystyle textstyle',
+        '', // 'reset-textstyle textstyle',
+        'reset-textstyle scriptstyle',
+        'reset-textstyle scriptscriptstyle',
+    ],
+
+    [
+        'reset-textstyle displaystyle textstyle',
+        '', // 'reset-textstyle textstyle',
+        'reset-textstyle scriptstyle',
+        'reset-textstyle scriptscriptstyle',
+    ],
+
+    [
+        'reset-scriptstyle textstyle displaystyle',
+        'reset-scriptstyle textstyle',
+        '', // 'reset-scriptstyle scriptstyle',
+        'reset-scriptstyle scriptscriptstyle',
+    ],
+
+    [
+        'reset-scriptscriptstyle textstyle displaystyle',
+        'reset-scriptscriptstyle textstyle',
+        'reset-scriptscriptstyle scriptstyle',
+        '', // 'reset-scriptscriptstyle scriptscriptstyle'
+    ],
+];
+// IDs of the different MATHSTYLES
+const D = 0;
+const Dc = 1;
+const T = 2;
+const Tc = 3;
+const S = 4;
+const Sc = 5;
+const SS = 6;
+const SSc = 7;
+
+// Instances of the different MATHSTYLES
+let MATHSTYLES = [];
+
+// Lookup tables for switching from one style to another
+const sup = [S, Sc, S, Sc, SS, SSc, SS, SSc];
+const sub = [Sc, Sc, Sc, Sc, SSc, SSc, SSc, SSc];
+const fracNum = [T, Tc, S, Sc, SS, SSc, SS, SSc];
+const fracDen = [Tc, Tc, Sc, Sc, SSc, SSc, SSc, SSc];
+const cramp = [Dc, Dc, Tc, Tc, Sc, Sc, SSc, SSc];
 
 const metrics = [{}, {}, {}]; /* textstyle, scriptstyle, scriptscriptstyle */
 let i;
@@ -56,7 +113,7 @@ class Mathstyle {
      * @private
      */
     sup() {
-        return styles[sup[this.id]];
+        return MATHSTYLES[sup[this.id]];
     }
     /**
      * Get the style of a subscript given a base in the current style.
@@ -64,7 +121,7 @@ class Mathstyle {
      * @private
      */
     sub() {
-        return styles[sub[this.id]];
+        return MATHSTYLES[sub[this.id]];
     }
     /**
      * Get the style of a fraction numerator given the fraction in the current
@@ -73,7 +130,7 @@ class Mathstyle {
      * @private
      */
     fracNum() {
-        return styles[fracNum[this.id]];
+        return MATHSTYLES[fracNum[this.id]];
     }
     /**
      * Get the style of a fraction denominator given the fraction in the current
@@ -82,7 +139,7 @@ class Mathstyle {
      * @private
      */
     fracDen() {
-        return styles[fracDen[this.id]];
+        return MATHSTYLES[fracDen[this.id]];
     }
     /**
      * Get the cramped version of a style (in particular, cramping a cramped style
@@ -91,7 +148,7 @@ class Mathstyle {
      * @private
      */
     cramp() {
-        return styles[cramp[this.id]];
+        return MATHSTYLES[cramp[this.id]];
     }
     /**
      * HTML class name, like `displaystyle cramped`
@@ -99,7 +156,7 @@ class Mathstyle {
      * @private
      */
     cls() {
-        return sizeNames[this.size];
+        return SIZE_NAMES[this.size];
     }
     /**
      * HTML Reset class name, like 'reset-textstyle'
@@ -121,18 +178,7 @@ class Mathstyle {
     }
 }
 
-// IDs of the different styles
-const D = 0;
-const Dc = 1;
-const T = 2;
-const Tc = 3;
-const S = 4;
-const Sc = 5;
-const SS = 6;
-const SSc = 7;
-
-// Instances of the different styles
-const styles = [
+MATHSTYLES = [
     new Mathstyle(D, 0, 1.0, false),
     new Mathstyle(Dc, 0, 1.0, true),
     new Mathstyle(T, 1, 1.0, false),
@@ -156,67 +202,22 @@ function toMathstyle(s) {
     if (typeof s === 'object') return s;
 
     const STYLE_NAMES = {
-        displaystyle: styles[D],
-        textstyle: styles[T],
-        scriptstyle: styles[S],
-        scriptscriptstyle: styles[SS],
+        displaystyle: MATHSTYLES[D],
+        textstyle: MATHSTYLES[T],
+        scriptstyle: MATHSTYLES[S],
+        scriptscriptstyle: MATHSTYLES[SS],
     };
 
     console.assert(STYLE_NAMES[s], 'unknown style: "', s, '"');
     return STYLE_NAMES[s];
 }
 
-// String names for the different sizes
-const sizeNames = [
-    'displaystyle textstyle',
-    'textstyle',
-    'scriptstyle',
-    'scriptscriptstyle',
-];
-
-const ADJUST_NAMES = [
-    [
-        '', // 'reset-textstyle displaystyle textstyle',
-        '', // 'reset-textstyle textstyle',
-        'reset-textstyle scriptstyle',
-        'reset-textstyle scriptscriptstyle',
-    ],
-
-    [
-        'reset-textstyle displaystyle textstyle',
-        '', // 'reset-textstyle textstyle',
-        'reset-textstyle scriptstyle',
-        'reset-textstyle scriptscriptstyle',
-    ],
-
-    [
-        'reset-scriptstyle textstyle displaystyle',
-        'reset-scriptstyle textstyle',
-        '', // 'reset-scriptstyle scriptstyle',
-        'reset-scriptstyle scriptscriptstyle',
-    ],
-
-    [
-        'reset-scriptscriptstyle textstyle displaystyle',
-        'reset-scriptscriptstyle textstyle',
-        'reset-scriptscriptstyle scriptstyle',
-        '', // 'reset-scriptscriptstyle scriptscriptstyle'
-    ],
-];
-
-// Lookup tables for switching from one style to another
-const sup = [S, Sc, S, Sc, SS, SSc, SS, SSc];
-const sub = [Sc, Sc, Sc, Sc, SSc, SSc, SSc, SSc];
-const fracNum = [T, Tc, S, Sc, SS, SSc, SS, SSc];
-const fracDen = [Tc, Tc, Sc, Sc, SSc, SSc, SSc, SSc];
-const cramp = [Dc, Dc, Tc, Tc, Sc, Sc, SSc, SSc];
-
-// We only export some of the styles. Also, we don't export the `Mathstyle`
-// class so no more styles can be generated.
+// We only export some of the MATHSTYLES. Also, we don't export the `Mathstyle`
+// class so no more MATHSTYLES can be generated.
 export default {
-    DISPLAY: styles[D],
-    TEXT: styles[T],
-    SCRIPT: styles[S],
-    SCRIPTSCRIPT: styles[SS],
+    DISPLAY: MATHSTYLES[D],
+    TEXT: MATHSTYLES[T],
+    SCRIPT: MATHSTYLES[S],
+    SCRIPTSCRIPT: MATHSTYLES[SS],
     toMathstyle,
 };

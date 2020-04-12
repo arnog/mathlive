@@ -23,7 +23,7 @@
  * @private
  */
 
-import { getValue } from './definitions-utils.js';
+import { getValue } from './definitions.js';
 import {
     makeSpanOfType,
     makeSymbol,
@@ -52,8 +52,9 @@ function makeSmallDelim(type, delim, style, center, context, classes) {
         );
     }
     span.setStyle('color', context.color);
-    if (typeof context.opacity === 'number')
+    if (typeof context.opacity === 'number') {
         span.setStyle('opacity', context.opacity);
+    }
 
     return span;
 }
@@ -85,8 +86,9 @@ function makeLargeDelim(type, delim, size, center, context, classes) {
         );
     }
     result.setStyle('color', context.color);
-    if (typeof context.opacity === 'number')
+    if (typeof context.opacity === 'number') {
         result.setStyle('opacity', context.opacity);
+    }
 
     return result;
 }
@@ -329,8 +331,9 @@ function makeStackedDelim(type, delim, heightTotal, center, context, classes) {
     // Finally, build the vlist
     const inner = makeVlist(context, inners, 'bottom', depth);
     inner.setStyle('color', context.color);
-    if (typeof context.opacity === 'number')
+    if (typeof context.opacity === 'number') {
         inner.setStyle('opacity', context.opacity);
+    }
 
     return makeStyleWrap(
         type,

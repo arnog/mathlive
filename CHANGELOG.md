@@ -1,3 +1,91 @@
+## [Unreleased]
+
+### New Features
+
+-   New configuration setting to control the letter shape style:
+
+| `letterShapeStyle` | xyz | ABC | αβɣ | ΓΔΘ |
+| ------------------ | --- | --- | --- | --- |
+| `iso`              | it  | it  | it  | it  |
+| `tex`              | it  | it  | it  | up  |
+| `french`           | it  | up  | up  | up  |
+| `upright`          | up  | up  | up  | up  |
+
+(it) = italic
+(up) = upright
+
+The default letter shape style is `auto`, which indicates that `french` should
+be used if the locale is "french", and `tex` otherwise.
+
+-   Added an example with some test cases, including LaTeX output for comparison.
+
+-   Re-done the font selection sub-system. Internally, it's now cleaner and
+    easier to follow, and also closer to the LaTeX implementation. In particular,
+    in math mode, the styling directives are exclusive, except for `\mathsymbol`,
+    which matches the TeX behavior.
+
+-   When a character variant (for example using `\mathbb`) is not available in
+    the font repertoire, convert to Unicode and fallback to the system font. This
+    allows `\mathbb{1}` to correctly output 𝟙.
+
+-   Added support for `\ensuremath` command
+
+### Code Maintenance
+
+-   Updated font binary
+-   Factored out some of the mode specific code into `modes-*.js`
+
+### Bug Fixes
+
+-   Fix #393: some characters in a `\operatorname` command, including '-' and '\*', were not displayed correctly (they should display as if in text mode, not in math mode)
+
+-   Fix #395: re-implemented how macros handle their arguments. They would previously
+    parse their argument using the current parseMode. This is incorrect. The parseMode
+    cannot be determined until the macro has been expanded and the arguments substituted.
+    The parsing of the macros arguments is now deferred until after the macro has been
+    expanded. Additionally, it wasn't previously possible for arguments to macros
+    to contain other arguments. This is now allowed.
+
+-   Fix #395 (bis): Properly output Latex for macros when using 'latex' and 'latex-expanded' formats.
+
+-   Fixed numerous issues with LaTeX round-tripping. For example, `\mathfrak{C}`,
+    `\boldsymbol{\sin\theta}`,
+
+-   If the `\text` command included a '&', the content following the '&' would be ignored.
+
+-   The `align*` environment was not handled correctly and displayed an extra gap between columns.
+
+-   The math styling commands did not behave properly. For example:
+
+`\mathbf{\sin \alpha} + \mathit{\cos \beta} + \mathbf{\tan x} + \boldsymbol{\sin \gamma}`
+
+|       | before       | after       |
+| ----- | ------------ | ----------- |
+| alpha | bold upright | italic      |
+| cos   | italic       | upright     |
+| tan   | bold         | roman       |
+| gamma | bold upright | bold italic |
+
+-   Related to the above, but worth noting separately, `\mathbf{\alpha}` should
+    render as normal italic: the `\mathbf` command does not apply to lowercase
+    greek letters. Note that uppercase greek are not affected. This is an artifact of the TeX font encoding.
+
+-   The `\textcolor` did not apply to large symbols, such as `\sum`
+
+-   Correctly output LaTeX for infix operators such as `\atopwithdelims`
+
+-   Correctly output unicode characters in the astral plane, e.g. `\unicode{"1F468}`
+
+## Breaking Change
+
+-   The signature of the `latexToMarkup` function has changed. Instead of a
+    style and format, the second argument is an option object. The style can be
+    specified with a `mathstyle` property, the format with a `format` property.
+    A new `letterShapeStyle` property can also be specified.
+
+    -   Before: `MathLive.latexToMarkup(formula, 'displaystyle')`
+    -   After: `MathLive.latexToMarkup(formula, { mathstyle: 'displaystyle' });`
+
 ## 0.35
 
 ### New Features

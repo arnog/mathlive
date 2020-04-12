@@ -8,33 +8,33 @@
  */
 
 import { Atom } from '../core/atom.js';
-import Color from '../core/color.js';
-import { emit as emitDefinition } from '../core/definitions-utils.js';
+import { emit as emitDefinition } from '../core/definitions.js';
+import { emitLatexRun, getPropertyRuns } from '../core/modes.js';
+import { colorToString } from '../core/color.js';
 
-function findLongestRun(atoms, property, value) {
-    let i = 0;
-    if (property === 'fontFamily') {
-        while (atoms[i]) {
-            if (
-                atoms[i].type !== 'mop' &&
-                (atoms[i].fontFamily || atoms[i].baseFontFamily) !== value
-            ) {
-                break;
+// See https://tex.stackexchange.com/questions/58098/what-are-all-the-font-styles-i-can-use-in-math-mode
+
+/*
+ * Return an array of runs with the same mode
+ */
+function getModeRuns(atoms) {
+    const result = [];
+    let run = [];
+    let currentMode = 'NONE';
+    atoms.forEach((atom) => {
+        if (atom.type !== 'first') {
+            if (atom.mode !== currentMode) {
+                if (run.length > 0) result.push(run);
+                run = [atom];
+                currentMode = atom.mode;
+            } else {
+                run.push(atom);
             }
-            i++;
         }
-    } else if (property === 'mode') {
-        while (atoms[i]) {
-            if (atoms[i][property] !== value) break;
-            i++;
-        }
-    } else {
-        while (atoms[i]) {
-            if (atoms[i].type !== 'mop' && atoms[i][property] !== value) break;
-            i++;
-        }
-    }
-    return i;
+    });
+    // Push whatever is left
+    if (run.length > 0) result.push(run);
+    return result;
 }
 
 /**
@@ -45,249 +45,38 @@ function findLongestRun(atoms, property, value) {
  * @result {string} a LaTeX string
  * @private
  */
-function latexifyArray(parent, properties, atoms, expandMacro) {
+function latexifyArray(parent, atoms, expandMacro) {
+    if (atoms.length === 0) return '';
+    if (atoms[0].type === 'first') {
+        if (atoms.length === 1) return '';
+        // Remove the 'first' atom, if present
+        atoms = atoms.slice(1);
+    }
     if (atoms.length === 0) return '';
 
-    if (properties.length === 0) {
-        // We've (recursively) checked:
-        // all the atoms have the same properties
-        return atoms.map(x => x.toLatex(expandMacro)).join('');
-    }
-
-    let result = '';
-    let prefix = '';
-    let suffix = '';
-    const prop = properties[0];
-    let propValue = atoms[0][prop];
-    if (prop === 'fontFamily') {
-        propValue = atoms[0].fontFamily || atoms[0].baseFontFamily;
-    }
-
-    const i = findLongestRun(atoms, prop, propValue);
-
-    if (atoms[0].mode === 'text') {
-        if (prop === 'fontShape' && atoms[0].fontShape) {
-            if (atoms[0].fontShape === 'it') {
-                prefix = '\\textit{';
-                suffix = '}';
-            } else if (atoms[0].fontShape === 'sl') {
-                prefix = '\\textsl{';
-                suffix = '}';
-            } else if (atoms[0].fontShape === 'sc') {
-                prefix = '\\textsc{';
-                suffix = '}';
-            } else if (atoms[0].fontShape === 'n') {
-                prefix = '\\textup{';
-                suffix = '}';
-            } else {
-                prefix = '\\text{\\fontshape{' + atoms[0].fontShape + '}';
-                suffix = '}';
-            }
-        } else if (prop === 'fontSeries' && atoms[0].fontSeries) {
-            if (atoms[0].fontSeries === 'b') {
-                prefix = '\\textbf{';
-                suffix = '}';
-            } else if (atoms[0].fontSeries === 'l') {
-                prefix = '\\textlf{';
-                suffix = '}';
-            } else if (atoms[0].fontSeries === 'm') {
-                prefix = '\\textmd{';
-                suffix = '}';
-            } else {
-                prefix = '\\text{\\fontseries{' + atoms[0].fontSeries + '}';
-                suffix = '}';
-            }
-        } else if (prop === 'mode') {
-            let allAtomsHaveShapeOrSeriesOrFontFamily = true;
-            for (let j = 0; j < i; j++) {
-                if (
-                    !atoms[j].fontSeries &&
-                    !atoms[j].fontShape &&
-                    !atoms[j].fontFamily &&
-                    !atoms[j].baseFontFamily
-                ) {
-                    allAtomsHaveShapeOrSeriesOrFontFamily = false;
-                    break;
+    return getPropertyRuns(atoms, 'cssClass')
+        .map((x) => {
+            const result = getPropertyRuns(x, 'color')
+                .map((x) =>
+                    getModeRuns(x)
+                        .map((x) => emitLatexRun(parent, x, expandMacro))
+                        .join('')
+                )
+                .join('');
+            if (
+                x[0].cssClass &&
+                (!parent || parent.cssClass !== x[0].cssClass)
+            ) {
+                if (x[0].cssClass === 'ML__boldsymbol') {
+                    return '\\boldsymbol{' + result + '}';
+                } else if (x[0].cssClass === 'ML__emph') {
+                    return '\\emph{' + result + '}';
                 }
+                return '\\class{' + x[0].cssClass + '}{' + result + '}';
             }
-            if (!allAtomsHaveShapeOrSeriesOrFontFamily) {
-                // Wrap in text, only if there isn't a shape or series on
-                // all the atoms, because if so, it will be wrapped in a
-                // \\textbf, \\textit, etc... and the \\text would be redundant
-                prefix = '\\text{';
-                suffix = '}';
-            }
-        } else if (prop === 'fontSize' && atoms[0].fontSize) {
-            const command =
-                {
-                    size1: 'tiny',
-                    size2: 'scriptsize',
-                    size3: 'footnotesize',
-                    size4: 'small',
-                    size5: 'normalsize',
-                    size6: 'large',
-                    size7: 'Large',
-                    size8: 'LARGE',
-                    size9: 'huge',
-                    size10: 'Huge',
-                }[atoms[0].fontSize] || '';
-            prefix = '{\\' + command + ' ';
-            suffix = '}';
-        } else if (
-            prop === 'fontFamily' &&
-            (atoms[0].fontFamily || atoms[0].baseFontFamily)
-        ) {
-            const command =
-                {
-                    cmr: 'textrm',
-                    cmtt: 'texttt',
-                    cmss: 'textsf',
-                }[atoms[0].fontFamily || atoms[0].baseFontFamily] || '';
-            if (!command) {
-                prefix +=
-                    '{\\fontfamily{' +
-                    (atoms[0].fontFamily || atoms[0].baseFontFamily) +
-                    '}';
-                suffix = '}';
-            } else {
-                prefix = '\\' + command + '{';
-                suffix = '}';
-            }
-        }
-    } else if (atoms[0].mode === 'math') {
-        if (prop === 'fontSeries') {
-            if (atoms[0].fontSeries === 'b') {
-                prefix = '\\mathbf{';
-                suffix = '}';
-            } else if (atoms[0].fontSeries && atoms[0].fontSeries !== 'n') {
-                prefix = '{\\fontSeries{' + atoms[0].fontSeries + '}';
-                suffix = '}';
-            }
-        } else if (prop === 'fontShape') {
-            if (atoms[0].fontShape === 'it') {
-                prefix = '\\mathit{';
-                suffix = '}';
-            } else if (atoms[0].fontShape === 'n') {
-                prefix = '{\\upshape ';
-                suffix = '}';
-            } else if (atoms[0].fontShape && atoms[0].fontShape !== 'n') {
-                prefix = '{\\fontShape{' + atoms[0].fontShape + '}';
-                suffix = '}';
-            }
-        } else if (prop === 'fontSize' && atoms[0].fontSize) {
-            const command =
-                {
-                    size1: 'tiny',
-                    size2: 'scriptsize',
-                    size3: 'footnotesize',
-                    size4: 'small',
-                    size5: 'normalsize',
-                    size6: 'large',
-                    size7: 'Large',
-                    size8: 'LARGE',
-                    size9: 'huge',
-                    size10: 'Huge',
-                }[atoms[0].fontSize] || '';
-            prefix = '{\\' + command + ' ';
-            suffix = '}';
-        } else if (prop === 'fontFamily' && atoms[0].fontFamily) {
-            if (!/^(math|main)$/.test(atoms[0].fontFamily)) {
-                const command =
-                    {
-                        cal: 'mathcal',
-                        frak: 'mathfrak',
-                        bb: 'mathbb',
-                        scr: 'mathscr',
-                        cmr: 'mathrm',
-                        cmtt: 'mathtt',
-                        cmss: 'mathsf',
-                    }[atoms[0].fontFamily] || '';
-                if (!command) {
-                    prefix += '{\\fontfamily{' + atoms[0].fontFamily + '}';
-                    suffix = '}';
-                } else {
-                    if (/^\\operatorname{/.test(atoms[0].latex)) {
-                        return (
-                            atoms[0].latex +
-                            latexifyArray(
-                                parent,
-                                properties,
-                                atoms.slice(i),
-                                expandMacro
-                            )
-                        );
-                    }
-                    if (!atoms[0].isFunction) {
-                        prefix = '\\' + command + '{';
-                        suffix = '}';
-                    }
-                    // These command have an implicit fontSeries/fontShape, so
-                    // we're done checking properties now.
-                    properties = [];
-                }
-            }
-        } else if (prop === 'fontFamily' && atoms[0].baseFontFamily) {
-            // This is a command that applied a base font to the atoms.
-            if (atoms[0].latex && atoms[0].latex.startsWith('\\')) {
-                prefix = '';
-                suffix = '';
-            } else {
-                const command =
-                    {
-                        cal: 'mathcal',
-                        frak: 'mathfrak',
-                        bb: 'mathbb',
-                        scr: 'mathscr',
-                        cmr: 'mathrm',
-                        cmtt: 'mathtt',
-                        cmss: 'mathsf',
-                    }[atoms[0].baseFontFamily] || '';
-                if (command) {
-                    prefix = '\\' + command + '{';
-                    suffix = '}';
-                }
-            }
-        }
-    }
-
-    if (
-        prop === 'color' &&
-        atoms[0].color &&
-        atoms[0].color !== 'none' &&
-        (!parent || parent.color !== atoms[0].color)
-    ) {
-        prefix = '\\textcolor{' + Color.colorToString(atoms[0].color) + '}{';
-        suffix = '}';
-    }
-
-    if (
-        prop === 'backgroundColor' &&
-        atoms[0].backgroundColor &&
-        atoms[0].backgroundColor !== 'none' &&
-        (!parent || parent.backgroundColor !== atoms[0].backgroundColor)
-    ) {
-        prefix =
-            '\\colorbox{' +
-            Color.colorToString(atoms[0].backgroundColor) +
-            '}{';
-        suffix = '}';
-    }
-
-    result += prefix;
-
-    result += latexifyArray(
-        parent,
-        properties.slice(1),
-        atoms.slice(0, i),
-        expandMacro
-    );
-
-    result += suffix;
-
-    // latexify the rest
-    result += latexifyArray(parent, properties, atoms.slice(i), expandMacro);
-
-    return result;
+            return result;
+        })
+        .join('');
 }
 
 /**
@@ -299,30 +88,8 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
  */
 function latexify(parent, value, expandMacro) {
     let result = '';
-    if (Array.isArray(value) && value.length > 0) {
-        if (value[0].type === 'first') {
-            // Remove the 'first' atom, if present
-            value = value.slice(1);
-            if (value.length === 0) return '';
-        }
-
-        result = latexifyArray(
-            parent,
-            [
-                'mode',
-                'color',
-                'backgroundColor',
-                'fontSize',
-                'fontFamily',
-                'fontShape',
-                'fontSeries',
-            ],
-            value,
-            expandMacro
-        );
-        // if (result.startsWith('{') && result.endsWith('}')) {
-        //     result = result.slice(1, result.length - 1);
-        // }
+    if (Array.isArray(value)) {
+        result = latexifyArray(parent, value, expandMacro);
     } else if (typeof value === 'number' || typeof value === 'boolean') {
         result = value.toString();
     } else if (typeof value === 'string') {
@@ -343,39 +110,51 @@ function latexify(parent, value, expandMacro) {
  * @memberof module:core/atom~Atom
  * @private
  */
-Atom.prototype.toLatex = function(expandMacro) {
-    expandMacro = expandMacro === undefined ? false : expandMacro;
+Atom.prototype.toLatex = function (expandMacro) {
+    expandMacro = typeof expandMacro === 'undefined' ? false : expandMacro;
+    // @todo: enable this after clearing out this.latex on edit
+    // if (!expandMacro && this.latex) {
+    //     return this.latex;
+    // }
     let result = '';
-    let col,
-        row = 0;
+    let col = 0;
+    let row = 0;
     let i = 0;
-    const m = !this.latex ? null : this.latex.match(/^(\\[^{\s0-9]+)/);
-    const command = m ? m[1] : null;
+    const command = this.symbol;
     const emit = (parent, atom) => latexify(parent, atom, expandMacro);
 
     // this.mode=='text' is handled in the switch by looking at this.type===''
     switch (this.type) {
         case 'group':
-            result +=
-                this.latexOpen || (this.cssId || this.cssClass ? '' : '{');
-
-            if (this.cssId) result += '\\cssId{' + this.cssId + '}{';
-
-            if (this.cssClass === 'ML__emph') {
-                result += `\\emph{${emit(this, this.body)}`;
+            if (command) {
+                // This is a macro
+                console.assert(this.latex, 'No latex for ' + command);
+                if (!expandMacro) {
+                    result = this.latex;
+                } else {
+                    result = `${command}{${emit(this, this.body)}}`;
+                }
             } else {
-                if (this.cssClass) result += '\\class{' + this.cssClass + '}{';
+                result =
+                    this.latexOpen || (this.cssId || this.cssClass ? '' : '{');
 
-                result += expandMacro
-                    ? emit(this, this.body)
-                    : this.latex || emit(this, this.body);
+                if (this.cssId) result += '\\cssId{' + this.cssId + '}{';
 
-                if (this.cssClass) result += '}';
+                if (this.cssClass === 'ML__emph') {
+                    result += `\\emph{${emit(this, this.body)}`;
+                } else {
+                    if (this.cssClass) {
+                        result += '\\class{' + this.cssClass + '}{';
+                    }
+                    result += emit(this, this.body);
+
+                    if (this.cssClass) result += '}';
+                }
+                if (this.cssId) result += '}';
+
+                result +=
+                    this.latexClose || (this.cssId || this.cssClass ? '' : '}');
             }
-            if (this.cssId) result += '}';
-
-            result +=
-                this.latexClose || (this.cssId || this.cssClass ? '' : '}');
             break;
 
         case 'array':
@@ -408,32 +187,6 @@ Atom.prototype.toLatex = function(expandMacro) {
 
         case 'root':
             result = emit(this, this.body);
-            break;
-
-        case 'genfrac':
-            if (/^(choose|atop|over)$/.test(this.body)) {
-                // Infix commands.
-                result += '{';
-                result += emit(this, this.numer);
-                result += '\\' + this.body + ' ';
-                result += emit(this, this.denom);
-                result += '}';
-            } else {
-                // @todo: deal with fracs delimiters
-                result += command;
-                result += `{${emit(this, this.numer)}}{${emit(
-                    this,
-                    this.denom
-                )}}`;
-            }
-            break;
-
-        case 'surd':
-            result += '\\sqrt';
-            if (this.index) {
-                result += `[${emit(this, this.index)}]`;
-            }
-            result += `{${emit(this, this.body)}}`;
             break;
 
         case 'leftright':
@@ -486,21 +239,6 @@ Atom.prototype.toLatex = function(expandMacro) {
             )}em}`;
             break;
 
-        case 'line':
-        case 'overlap':
-        case 'accent':
-            result += `${command}{${emit(this, this.body)}}`;
-            break;
-
-        case 'overunder':
-            result +=
-                emitDefinition(command, parent, this, emit) ||
-                `${command}{${emit(
-                    this,
-                    this.overscript || this.underscript
-                )}}{${emit(parent, this.body)}}`;
-            break;
-
         case 'mord':
         case 'minner':
         case 'mbin':
@@ -509,34 +247,10 @@ Atom.prototype.toLatex = function(expandMacro) {
         case 'mopen':
         case 'mclose':
         case 'textord':
-        case '': // mode = text
-            if (
-                /^\\(mathbin|mathrel|mathopen|mathclose|mathpunct|mathord|mathinner)/.test(
-                    command
-                )
-            ) {
-                result += `${command}{${emit(this, this.body)}}`;
-            } else if (command === '\\char"') {
+            if (command === '\\char"') {
                 result += this.latex + ' ';
-            } else if (command === '\\unicode') {
-                result += '\\unicode{"';
-                result += ('000000' + this.body.charCodeAt(0).toString(16))
-                    .toUpperCase()
-                    .substr(-6);
-                result += '}';
-            } else if (this.latex || typeof this.body === 'string') {
-                // Not ZERO-WIDTH
-                if (this.latex && this.latex[0] === '\\') {
-                    result += this.latex;
-                    if (/[a-zA-Z0-9]$/.test(this.latex)) {
-                        result += ' ';
-                    }
-                } else if (command) {
-                    result += command;
-                } else {
-                    result +=
-                        this.body !== '\u200b' ? this.latex || this.body : '';
-                }
+            } else {
+                result += emitDefinition(command, null, this, emit);
             }
             break;
 
@@ -550,64 +264,17 @@ Atom.prototype.toLatex = function(expandMacro) {
                     // The argument to `\operatorname` is 'math' and needs to be latexified
                     result += command + '{' + emit(this, this.body) + '}';
                 } else {
-                    if (this.latex && this.latex[0] === '\\') {
-                        result += this.latex;
-                        if (/[a-zA-Z0-9]$/.test(this.latex)) {
-                            result += ' ';
-                        }
-                    } else if (command) {
-                        result += command;
-                    } else {
-                        result +=
-                            this.body !== '\u200b'
-                                ? this.latex || this.body
-                                : '';
+                    result += command;
+                    if (/^\\.*[a-zA-Z0-9]$/.test(command)) {
+                        // Add a space after commands, to avoid, e.g.
+                        // '\sin' + 'x' -> '\sinx' instead of '\sin x'
+                        result += ' ';
                     }
                 }
             }
             if (this.explicitLimits) {
                 if (this.limits === 'limits') result += '\\limits ';
                 if (this.limits === 'nolimits') result += '\\nolimits ';
-            }
-            break;
-
-        case 'box':
-            if (command === '\\bbox') {
-                result += command;
-                if (
-                    isFinite(this.padding) ||
-                    typeof this.border !== 'undefined' ||
-                    typeof this.backgroundcolor !== 'undefined'
-                ) {
-                    const bboxParams = [];
-                    if (isFinite(this.padding)) {
-                        bboxParams.push(
-                            Math.floor(1e2 * this.padding) / 1e2 + 'em'
-                        );
-                    }
-                    if (this.border) {
-                        bboxParams.push('border:' + this.border);
-                    }
-                    if (this.backgroundcolor) {
-                        bboxParams.push(
-                            Color.colorToString(this.backgroundcolor)
-                        );
-                    }
-                    result += `[${bboxParams.join(',')}]`;
-                }
-                result += `{${emit(this, this.body)}}`;
-            } else if (command === '\\boxed') {
-                result += `\\boxed{${emit(this, this.body)}}`;
-            } else {
-                // \\colorbox, \\fcolorbox
-                result += command;
-                if (this.framecolor) {
-                    result += `{${Color.colorToString(this.framecolor)}}`;
-                }
-                if (this.backgroundcolor) {
-                    result += `{${Color.colorToString(this.backgroundcolor)}}`;
-                }
-                result += `{${emit(this, this.body)}}`;
             }
             break;
 
@@ -663,7 +330,7 @@ Atom.prototype.toLatex = function(expandMacro) {
                     style +=
                         sep +
                         'mathbackground="' +
-                        Color.colorToString(this.backgroundcolor) +
+                        colorToString(this.backgroundcolor) +
                         '"';
                     sep = ',';
                 }
@@ -681,7 +348,7 @@ Atom.prototype.toLatex = function(expandMacro) {
                     style +=
                         sep +
                         'mathcolor="' +
-                        Color.colorToString(this.strokeColor) +
+                        colorToString(this.strokeColor) +
                         '"';
                     sep = ',';
                 }
@@ -698,7 +365,7 @@ Atom.prototype.toLatex = function(expandMacro) {
             break;
 
         case 'space':
-            result += this.latex;
+            result += this.symbol;
             break;
 
         case 'placeholder':
@@ -714,14 +381,25 @@ Atom.prototype.toLatex = function(expandMacro) {
             result += this.latex;
             break;
 
-        default:
-            console.warn(
-                'Unexpected atom type "' +
-                    this.type +
-                    '" in "' +
-                    (this.latex || this.value) +
-                    '"'
+        case '':
+            console.assert(
+                this.mode === 'text',
+                'Null atom type in mode ' + this.mode
             );
+            console.error('Attempting to emit a text atom');
+            break;
+
+        default:
+            result = emitDefinition(command, parent, this, emit);
+            console.assert(
+                result,
+                'Missing custom emiter for ',
+                command || this.body
+            );
+            if (!result) {
+                result += command;
+            }
+
             break;
     }
     if (this.superscript) {
@@ -749,6 +427,3 @@ Atom.prototype.toLatex = function(expandMacro) {
     }
     return result;
 };
-
-// Export the public interface for this module
-export default {};

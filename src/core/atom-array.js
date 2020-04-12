@@ -61,6 +61,10 @@ registerAtomType('array', (context, atom) => {
     // Row spacing
     // Default \arraystretch from lttab.dtx
     const arraystretch = atom.arraystretch || 1;
+    const arraycolsep =
+        typeof atom.arraycolsep === 'number'
+            ? atom.arraycolsep
+            : FONTMETRICS.arraycolsep;
     const arrayskip = arraystretch * FONTMETRICS.baselineskip;
     const arstrutHeight = 0.7 * arrayskip;
     const arstrutDepth = 0.3 * arrayskip; // \@arstrutbox in lttab.dtx
@@ -138,11 +142,11 @@ registerAtomType('array', (context, atom) => {
             if (prevColContent) {
                 // If no gap was provided, insert a default gap between
                 // consecutive columns of content
-                cols.push(makeColGap(2 * FONTMETRICS.arraycolsep));
+                cols.push(makeColGap(2 * arraycolsep));
             } else if (prevColRule || firstColumn) {
                 // If the previous column was a rule or this is the first column
                 // add a smaller gap
-                cols.push(makeColGap(FONTMETRICS.arraycolsep));
+                cols.push(makeColGap(arraycolsep));
             }
             cols.push(
                 makeSpan(
@@ -193,7 +197,7 @@ registerAtomType('array', (context, atom) => {
             if (prevColRule) {
                 gap = FONTMETRICS.doubleRuleSep - FONTMETRICS.arrayrulewidth;
             } else if (prevColContent) {
-                gap = FONTMETRICS.arraycolsep - FONTMETRICS.arrayrulewidth;
+                gap = arraycolsep - FONTMETRICS.arrayrulewidth;
             }
             separator.setLeft(gap, 'em');
             cols.push(separator);
@@ -204,7 +208,7 @@ registerAtomType('array', (context, atom) => {
     }
     if (prevColContent && !atom.rFence) {
         // If the last column was content, add a small gap
-        cols.push(makeColGap(FONTMETRICS.arraycolsep));
+        cols.push(makeColGap(arraycolsep));
     }
     if (
         (!atom.lFence || atom.lFence === '.') &&
