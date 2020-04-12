@@ -129,12 +129,7 @@ Atom.prototype.toLatex = function (expandMacro) {
         case 'group':
             if (command) {
                 // This is a macro
-                console.assert(this.latex, 'No latex for ' + command);
-                if (!expandMacro) {
-                    result = this.latex;
-                } else {
-                    result = `${command}{${emit(this, this.body)}}`;
-                }
+                result = expandMacro ? emit(this, this.body) : this.latex;
             } else {
                 result =
                     this.latexOpen || (this.cssId || this.cssClass ? '' : '{');

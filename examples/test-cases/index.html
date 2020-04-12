@@ -26,7 +26,7 @@
         </header>
         <main>
             <div class="mathfield" id="mf">
-                👨🏻‍🎤🍔
+                \myMacro{fu bar}
             </div>
             <div class="output" id="latex"></div>
             <div class="output" id="mathjson"></div>
@@ -1056,11 +1056,11 @@
                 // letterShapeStyle: 'french', // 'french', 'upright', 'tex'
                 smartMode: true,
                 macros: {
-                    mymacro: '\\operatorname{\\mathrm{#1}}^{\\text{above}}',
+                    myMacro: '\\operatorname{\\text{#1}}',
                 },
                 virtualKeyboardMode: 'manual',
                 onContentDidChange: (mf) => {
-                    const latex = mf.$text('latex');
+                    const latex = mf.$text('latex-expanded');
 
                     document.getElementById('latex').innerHTML = escapeHtml(
                         latex
