@@ -1284,39 +1284,60 @@ EditableMathlist.prototype.removeCommandString = function () {
     this.suppressChangeNotifications = contentWasChanging;
     this.contentDidChange();
 };
-
 /**
  * @return {string}
- * @method EditableMathlist#extractArgBeforeInsertionPoint
+ * @method EditableMathlist#getContentFromSiblings
  * @private
  */
-EditableMathlist.prototype.extractArgBeforeInsertionPoint = function () {
+EditableMathlist.prototype.getContentFromSiblings = function (start, end) {
     const siblings = this.siblings();
-    if (siblings.length <= 1) return [];
+    if (isEmptyMathlist(siblings)) return '';
+    if (siblings[0].type === 'first' && start === 0) {
+        start = 1;
+    }
+    if (start === 1 && end === siblings.length - 1) {
+        // It's the entire sibling list. Get the parent's latex
+        return this.parent().toLatex();
+    }
+    let result = '';
+    let i = start;
+    while (i <= end) {
+        result += siblings[i].toLatex();
+        i++;
+    }
+    return result;
+};
 
-    const result = [];
-    let i = this.startOffset();
-    if (siblings[i].mode === 'text') {
-        while (i >= 1 && siblings[i].mode === 'text') {
-            result.unshift(siblings[i]);
-            i--;
+/**
+ * Locate the offset before the insertion point that would indicate
+ * a good place to select as an implicit argument.
+ * For example with '1+\sin(x)', if the insertion point is at the
+ * end, the implicit arg offset would be after the plus. As a result,
+ * inserting a fraction after the sin would yield: '1+\frac{\sin(c)}{\placeholder{}}'
+ * @return {string}
+ * @method EditableMathlist#getImplicitArgOffset
+ * @private
+ */
+EditableMathlist.prototype.getImplicitArgOffset = function () {
+    const siblings = this.siblings();
+
+    let result = this.startOffset();
+    if (siblings[result].mode === 'text') {
+        while (result >= 1 && siblings[result].mode === 'text') {
+            result--;
         }
     } else {
+        // Find the first 'mrel', etc... to the left of the insertion point
         while (
-            i >= 1 &&
-            /^(mord|surd|msubsup|leftright|mop)$/.test(siblings[i].type)
+            result >= 1 &&
+            /^(mord|surd|msubsup|leftright|mop)$/.test(siblings[result].type)
         ) {
-            result.unshift(siblings[i]);
-            i--;
+            result--;
         }
     }
 
     return result;
 };
-// 3 + 4(sin(x) > 3 + 4[sin(x)]/[ __ ]
-// Add a frac inside a partial leftright: remove leftright
-// When smartFence, add paren at end of expr
-// a+3x=1 insert after + => paren before =
 
 /**
  * @param {number} offset
@@ -2205,6 +2226,22 @@ function applyStyleToUnstyledAtoms(atom, style) {
 }
 
 /**
+ * Clear the verbatim Latex property for the parent node and its parents.
+ * This will cause the latex value to be re-calculated.
+ * @method EditableMathlist#invalidateLatex
+ * @private
+ */
+EditableMathlist.prototype.invalidateLatex = function () {
+    let depth = 1;
+    let atom = this.ancestor(depth);
+    while (atom) {
+        atom.latex = undefined;
+        depth += 1;
+        atom = this.ancestor(depth);
+    }
+};
+
+/**
  * @param {string} s
  * @param {Object.<string, any>} options
  * @param {"replaceSelection"|"replaceAll"|"insertBefore"|"insertAfter"} options.insertionMode -
@@ -2327,20 +2364,26 @@ EditableMathlist.prototype.insert = function (s, options) {
         } else {
             s = parseMathString(s, this.config);
 
+            // Replace placeholders
+            s = s.replace(/(^|[^\\])#\?/g, '$1\\placeholder{}');
+
             if (args[0]) {
                 // There was a selection, we'll use it for #@
                 s = s.replace(/(^|[^\\])#@/g, '$1#0');
             } else if (/(^|[^\\])#@/.test(s)) {
                 // If we're inserting a latex fragment that includes a #@ argument
-                // substitute the preceding `mord` or text mode atoms for it.
-                s = s.replace(/(^|[^\\])#@/g, '$1#0');
-                args[0] = this.extractArgBeforeInsertionPoint();
+                // substitute the preceding `mord`s or text mode atoms for it (implicit argument)
+                const offset = this.getImplicitArgOffset();
+                s = s.replace(
+                    /(^|[^\\])#@/g,
+                    '$1' +
+                        this.getContentFromSiblings(
+                            offset + 1,
+                            this.startOffset()
+                        )
+                );
                 // Delete the implicit argument
-                this._deleteAtoms(-args[0].length);
-                // If the implicit argument was empty, remove it from the args list.
-                if (Array.isArray(args[0]) && args[0].length === 0) {
-                    args[0] = undefined;
-                }
+                this._deleteAtoms(offset - this.startOffset());
             } else {
                 // No selection, no 'mord' before. Let's make '#@' a placeholder.
                 s = s.replace(/(^|[^\\])#@/g, '$1#?');
@@ -2387,6 +2430,9 @@ EditableMathlist.prototype.insert = function (s, options) {
         mathlist = parseString(s, 'text', args, options.macros, false);
     }
 
+    // Something has been inserted, and the parent's verbatim latex is no longer valid
+    this.invalidateLatex();
+
     // Some atoms may already have a style (for example if there was an
     // argument, i.e. the selection, that this was applied to).
     // So, don't apply style to atoms that are already styled, but *do*
@@ -2409,6 +2455,12 @@ EditableMathlist.prototype.insert = function (s, options) {
         this.path.pop();
         this.siblings()[this.anchorOffset()] = mathlist[0];
     } else {
+        if (options.format === 'latex' && args.length === 1 && !args[0]) {
+            // If we are given a latex string with no arguments, store it verbatim
+            if (isEmptyMathlist(parent.body)) {
+                parent.latex = s;
+            }
+        }
         Array.prototype.splice.apply(
             this.siblings(),
             [this.anchorOffset() + 1, 0].concat(mathlist)

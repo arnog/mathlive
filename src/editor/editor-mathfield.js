@@ -966,10 +966,8 @@ export class Mathfield {
         this.mathlist.commitCommandStringBeforeInsertionPoint();
         // Keep the content of the textarea in sync wiht the selection.
         // This will allow cut/copy to work.
-        const selection = new Atom('math', 'group', []);
-        this.mathlist.forEachSelected((atom) => {
-            selection.body.push(atom);
-        });
+        const selection = new Atom('math', 'root', []);
+        selection.body = this.mathlist.getSelectedAtoms();
         const result = selection.toLatex(false);
         if (result) {
             this.textarea.value = result;

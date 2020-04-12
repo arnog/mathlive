@@ -112,10 +112,11 @@ function latexify(parent, value, expandMacro) {
  */
 Atom.prototype.toLatex = function (expandMacro) {
     expandMacro = typeof expandMacro === 'undefined' ? false : expandMacro;
-    // @todo: enable this after clearing out this.latex on edit
-    // if (!expandMacro && this.latex) {
-    //     return this.latex;
-    // }
+    // If we have some verbatim latex for this atom, use it.
+    // This allow non-significant punctuation to be preserved when possible.
+    if (!expandMacro && this.latex) {
+        return this.latex;
+    }
     let result = '';
     let col = 0;
     let row = 0;

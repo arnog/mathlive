@@ -11,7 +11,8 @@ import { Atom } from './atom.js';
 import { parseTokens } from './modes.js';
 
 function tokensToString(tokens) {
-    return tokens
+    let hasParamToken = false;
+    const result = tokens
         .map((token) => {
             if (token.type === 'literal') {
                 return token.value;
@@ -29,6 +30,7 @@ function tokensToString(tokens) {
                 return '#?';
             }
             if (token.type === '#') {
+                hasParamToken = true;
                 return '#' + token.value;
             }
             if (token.type === 'space') {
@@ -44,6 +46,7 @@ function tokensToString(tokens) {
             return '';
         })
         .join('');
+    return hasParamToken ? '' : result;
 }
 
 /**
@@ -313,29 +316,7 @@ class Parser {
             } else {
                 // If it's not present, scanArg returns null.
                 // Add a placeholder instead.
-                const arg = this.scanArg(param.type);
-                if (
-                    arg &&
-                    arg.length === 1 &&
-                    arg[0].type === 'placeholder' &&
-                    param.placeholder
-                ) {
-                    arg[0].value = param.placeholder;
-                }
-                if (arg) {
-                    args.push(arg);
-                } else if (param.placeholder) {
-                    const placeholder = new Atom(
-                        this.parseMode,
-                        'placeholder',
-                        param.placeholder
-                    );
-                    placeholder.captureSelection = true;
-
-                    args.push([placeholder]);
-                } else {
-                    args.push(this.placeholder());
-                }
+                args.push(this.scanArg(param.type) || this.placeholder());
             }
             i += 1;
         }

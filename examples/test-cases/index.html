@@ -26,27 +26,7 @@
         </header>
         <main>
             <div class="mathfield" id="mf">
-                \sin \theta^{2
-                <!-- \text{\fontshape{up}upright\textsc{small caps}up} -->
-                <!-- \text{See \alpha\sin \n{n} \c{c} \frac{1}{2}} -->
-                <!-- \textbf{\textsf{sans-serif \alpha \textbf{bold}}} -->
-                <!-- \text{\textit{italic}regular\textbf{bold{\fontshape{up}up\large
-                right}something}} -->
-                <!-- \text{\textcolor{green}{green\textcolor{red}{red}}\fontseries{b}bold\fontshape{it}bolditalic\fontfamily{cursive}cursive
-                bold italic\fontshape{n}cursive bold} -->
-                <!-- \colorbox{BurntOrange}{y} -->
-                <!-- \textcolor{green}{\class{foo}{\textcolor{red}{x}}\class{foo}{\colorbox{BurntOrange}{y}+1}} -->
-                <!-- \cssId{foo}{\sin\theta x}\cssId{foo}{y+1} -->
-                <!-- \mathcal{\gothicCapitalC C} -->
-                <!-- 3 \over x -->
-                <!-- \mathbf{x\sin\theta\Theta} -->
-                <!-- x\sin\theta\Theta\boldsymbol{x\sin\theta\Theta}\mathbf{x\sin\theta\Theta} -->
-                <!-- \boldsymbol{\sin\theta}x -->
-                <!-- \mathop{operator} -->
-                <!-- \ensuremath{x} -->
-                <!-- -\colorbox{BurntOrange}{\ensuremath{x\frac{1}{\colorbox{yellow}{\ensuremath{x}}}}}= -->
-                <!-- \color{red}x+1\sin\alpha\frac{\textcolor{magenta}{\class{foo}{x}}}{{\color{green}x}+2} -->
-                <!-- \mymacro{hello~wor ld} -->
+                \sin\theta^{2}
             </div>
             <div class="output" id="latex"></div>
             <div class="output" id="mathjson"></div>
@@ -1080,18 +1060,28 @@
                 virtualKeyboardMode: 'manual',
                 onContentDidChange: (mf) => {
                     const latex = mf.$text('latex');
+                    console.log(latex);
+                    console.trace();
+                    if (
+                        latex !== '\\frac{\\sin\\theta^{2}}{\\placeholder{}}' &&
+                        latex !== '\\sin\\theta^{2}'
+                    ) {
+                        console.log('unexpected');
+                    }
+
                     document.getElementById('latex').innerHTML = escapeHtml(
                         latex
                     );
 
                     const mathJSON = MathLive.latexToAST(latex);
 
-                    document.getElementById('mathjson').innerHTML =
+                    /*                    document.getElementById('mathjson').innerHTML =
                         escapeHtml(JSON.stringify(mathJSON, null, 2)) +
                         '<br>' +
                         escapeHtml(
                             MathLive.astToLatex(mathJSON, { precision: 100 })
                         );
+*/
                 },
             });
 

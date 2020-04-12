@@ -2,6 +2,16 @@
 
 ### New Features
 
+-   "Verbatim Latex": the Latex provided as input (for example with `insert()`)
+    is preserved as long as it's not edited. Previously, the latex would be
+    normalized, and therefore the output did not match the input character
+    for character, even though it produced equivalent Latex code. For example,
+    extra spaces could be inserted, and the order of subscript and superscript was
+    not guaranteed. Now, the Latex is preserved as long as possible, until
+    editing operations cause it to be modified. This also means that the arguments
+    of macros are never modified (since the macros are not editable) and will be
+    returned exactly as input (they were normalized before).
+
 -   New configuration setting to control the letter shape style:
 
 | `letterShapeStyle` | xyz | ABC | αβɣ | ΓΔΘ |
