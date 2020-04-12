@@ -7,7 +7,7 @@
  * @private
  */
 
-import { Atom } from '../core/atom.js';
+import { Atom } from '../core/atom.ts';
 import { emit as emitDefinition } from '../core/definitions.js';
 import { emitLatexRun, getPropertyRuns } from '../core/modes.js';
 import { colorToString } from '../core/color.js';

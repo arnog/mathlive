@@ -5,7 +5,7 @@
  * @private
  */
 import { suggest, commandAllowed, MACROS } from '../core/definitions.js';
-import { Atom, makeRoot } from '../core/atom.js';
+import { Atom, makeRoot } from '../core/atom.ts';
 import { decompose } from '../core/atom-utils.js';
 import { parseString } from '../core/parser.js';
 import { makeSpan } from '../core/span.js';

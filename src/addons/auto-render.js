@@ -1,5 +1,5 @@
 /* eslint no-console:0 */
-import '../core/atom.js';
+import '../core/atom.ts';
 import { MACROS } from '../core/definitions.js';
 
 function findEndOfMath(delimiter, text, startIndex) {

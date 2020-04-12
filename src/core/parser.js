@@ -6,8 +6,8 @@
 import { getEnvironmentInfo, getInfo, charToLatex } from './definitions.js';
 import { stringToColor } from './color.js';
 import { convertDimenToEm } from './font-metrics.js';
-import { tokenize } from './lexer.js';
-import { Atom } from './atom.js';
+import { tokenize } from './lexer.ts';
+import { Atom } from './atom.ts';
 import { parseTokens } from './modes.js';
 
 function tokensToString(tokens) {

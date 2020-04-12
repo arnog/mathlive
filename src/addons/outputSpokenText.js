@@ -1,4 +1,4 @@
-import { Atom } from '../core/atom.js';
+import { Atom } from '../core/atom.ts';
 import Popover from '../editor/editor-popover.js';
 import '../core/definitions.js';
 

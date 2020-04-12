@@ -19,7 +19,7 @@
  *
  */
 
-import { Atom } from './core/atom.js';
+import { Atom } from './core/atom.ts';
 import { decompose } from './core/atom-utils.js';
 import { parseString } from './core/parser.js';
 import { coalesce, makeSpan } from './core/span.js';

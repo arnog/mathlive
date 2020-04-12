@@ -17,7 +17,7 @@ import {
     RIGHT_DELIM,
     getEnvironmentInfo,
 } from '../core/definitions.js';
-import { Atom, makeRoot } from '../core/atom.js';
+import { Atom, makeRoot } from '../core/atom.ts';
 import { parseString } from '../core/parser.js';
 import MathPath from './editor-mathpath.js';
 import Shortcuts from './editor-shortcuts.js';

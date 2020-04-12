@@ -8,7 +8,7 @@
  * @private
  */
 
-import { Atom } from '../core/atom.js';
+import { Atom } from '../core/atom.ts';
 import { stringToColor } from '../core/color.js';
 
 const SPECIAL_OPERATORS = {

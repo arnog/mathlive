@@ -1,6 +1,6 @@
 import { register, getPropertyRuns } from './modes-utils.js';
 import { colorToString } from './color.js';
-import { Atom } from './atom.js';
+import { Atom } from './atom.ts';
 import { getInfo, charToLatex, unicodeStringToLatex } from './definitions.js';
 
 function emitStringTextRun(_context, run, _expandMacro) {

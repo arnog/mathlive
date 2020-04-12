@@ -11,7 +11,7 @@
  * {@link ftp://tug.ctan.org/pub/tex-archive/systems/knuth/dist/lib/plain.tex|plain.tex}
  */
 
-import { splitGraphemes } from './grapheme-splitter.ts';
+import { splitGraphemes } from './grapheme-splitter';
 
 /**
  *
@@ -33,7 +33,9 @@ import { splitGraphemes } from './grapheme-splitter.ts';
  * @private
  */
 class Token {
-    constructor(type, value) {
+    type: string;
+    value: string | number;
+    constructor(type: string, value: string | number = '') {
         this.type = type;
         this.value = value;
         console.assert(!(type === 'literal' && value === '}'));
@@ -51,7 +53,9 @@ class Token {
  * @private
  */
 class Lexer {
-    constructor(s) {
+    s: string | string[];
+    pos: number;
+    constructor(s: string) {
         this.s = splitGraphemes(s);
         this.pos = 0;
     }
@@ -60,7 +64,7 @@ class Lexer {
      * @method module:core/lexer#Lexer#end
      * @private
      */
-    end() {
+    end(): boolean {
         return this.pos >= this.s.length;
     }
     /**
@@ -69,37 +73,34 @@ class Lexer {
      * @method module:core/lexer#Lexer#get
      * @private
      */
-    get() {
-        return this.pos < this.s.length ? this.s[this.pos++] : null;
+    get(): string {
+        return this.pos < this.s.length ? this.s[this.pos++] : '';
     }
     /**
      * Return the next char, but do not advance
-     * @return {string}
      * @method module:core/lexer#Lexer#peek
      * @private
      */
-    peek() {
+    peek(): string {
         return this.s[this.pos];
     }
     /**
      * Return the next substring matching regEx and advance.
-     * @param {RegEx} regEx
-     * @return {?string}
      * @method module:core/lexer#Lexer#scan
      * @private
      */
-    scan(regEx) {
-        let result;
+    scan(regEx: RegExp): string | null {
         // this.s can either be a string, if it's made up only of ASCII chars
         // or an array of graphemes, if it's more complicated.
+        let execResult: (string | null)[] | null;
         if (typeof this.s === 'string') {
-            result = regEx.exec(this.s.slice(this.pos));
+            execResult = regEx.exec(this.s.slice(this.pos));
         } else {
-            result = regEx.exec(this.s.slice(this.pos).join(''));
+            execResult = regEx.exec(this.s.slice(this.pos).join(''));
         }
-        if (result) {
-            this.pos += result[0].length;
-            return result[0];
+        if (execResult && execResult[0]) {
+            this.pos += execResult[0].length;
+            return execResult[0];
         }
         return null;
     }
@@ -144,7 +145,7 @@ class Lexer {
      * @method module:core/lexer#Lexer#makeToken
      * @private
      */
-    makeToken() {
+    makeToken(): Token | null {
         // If we've reached the end, exit
         if (this.end()) return null;
         // Handle white space
@@ -153,7 +154,7 @@ class Lexer {
             this.get();
             return new Token('space');
         }
-        let result = null;
+        let result: Token | null = null;
         // Is it a command?
         if (this.peek() === '\\') {
             this.get(); // Skip the initial \
@@ -177,7 +178,7 @@ class Lexer {
             }
             // Is it a group start/end?
         } else if (this.peek() === '{' || this.peek() === '}') {
-            result = new Token(this.get());
+            result = new Token(this.get()!);
         } else if (this.peek() === '#') {
             // This could be either a param token, or a literal # (used for
             // colorspecs, for example). A param token is a '#' followed by
@@ -199,7 +200,7 @@ class Lexer {
                 }
                 if (isParam) {
                     result = new Token('#');
-                    next = this.get();
+                    next = this.get()!;
                     if (next >= '0' && next <= '9') {
                         result.value = parseInt(next);
                     } else {
@@ -221,7 +222,7 @@ class Lexer {
                 result = new Token('$');
             }
         } else {
-            result = new Token('literal', this.get());
+            result = new Token('literal', this.get()!);
         }
         return result;
     }
@@ -236,8 +237,8 @@ class Lexer {
  * @memberof module:core/lexer
  * @private
  */
-export function tokenize(s) {
-    const result = [];
+export function tokenize(s: string): Token[] {
+    const result: Token[] = [];
     const lines = s.toString().split(/\r?\n/);
     let stream = '';
     let sep = '';
