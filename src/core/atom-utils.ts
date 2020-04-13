@@ -9,8 +9,65 @@ import {
     depth as spanDepth,
     height as spanHeight,
     italic as spanItalic,
+    Span,
 } from './span.js';
 import Delimiters from './delimiters.js';
+
+export type ParseMode =
+    | ''
+    | 'auto'
+    | 'bbox'
+    | 'color'
+    | 'colspec'
+    | 'delim'
+    | 'dimen'
+    | 'math'
+    | 'number'
+    | 'skip'
+    | 'text'
+    | 'string';
+export type AtomType =
+    | ''
+    | 'array'
+    | 'command'
+    | 'delim'
+    | 'error'
+    | 'first'
+    | 'group'
+    | 'leftright'
+    | 'mathstyle' // @revisit
+    | 'mbin'
+    | 'mop'
+    | 'mord'
+    | 'mrel'
+    | 'msubsup'
+    | 'none' // @revisit
+    | 'overlap'
+    | 'placeholder'
+    | 'root'
+    | 'rule'
+    | 'sizeddelim'
+    | 'space'
+    | 'spacing'
+    | 'textord';
+export type Variant = 'calligraphic' | 'fraktur';
+export type VariantStyle = 'up' | 'bold' | 'italic' | 'bolditalic' | '';
+export type FontShape = 'auto' | 'n' | '';
+export type FontSeries = 'auto' | 'm' | '';
+export interface Style {
+    mode?: ParseMode;
+    color?: string;
+    backgroundColor?: string;
+    variant?: Variant;
+    variantStyle?: VariantStyle;
+    fontFamily?: string;
+    fontShape?: FontShape;
+    fontSeries?: FontSeries;
+    fontSize?: string;
+    cssId?: string;
+    cssClass?: string;
+    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'up' | 'auto';
+}
 
 export const ATOM_REGISTRY = {};
 
@@ -28,7 +85,7 @@ export const SIZING_MULTIPLIER = {
     size10: 2.49,
 };
 
-export function registerAtomType(name, decompose) {
+export function registerAtomType(name: string, decompose) {
     ATOM_REGISTRY[name] = { decompose: decompose };
 }
 
@@ -43,11 +100,18 @@ export function registerAtomType(name, decompose) {
  * @return {Span[]}
  * @private
  */
-export function decompose(context, atoms) {
-    function isDigit(atom) {
-        return atom.type === 'mord' && /^[0-9,.]$/.test(atom.symbol);
+export function decompose(
+    context: Context,
+    atoms: Atom | Atom[]
+): Span[] | null {
+    function isDigit(atom: Atom): boolean {
+        return (
+            atom.type === 'mord' &&
+            !!atom.symbol &&
+            /^[0-9,.]$/.test(atom.symbol)
+        );
     }
-    function isText(atom) {
+    function isText(atom: Atom): boolean {
         return atom.mode === 'text';
     }
 
@@ -63,7 +127,7 @@ export function decompose(context, atoms) {
     const displaySelection =
         !context.generateID || !context.generateID.groupNumbers;
 
-    let result = [];
+    let result: Span[] | null = [];
     if (Array.isArray(atoms)) {
         if (atoms.length === 0) {
             return [];
@@ -77,7 +141,7 @@ export function decompose(context, atoms) {
             let previousType = 'none';
             let nextType = atoms[1].type;
             let selection = [];
-            let digitOrTextStringID = null;
+            let digitOrTextStringID = '';
             let lastWasDigit = true;
             let phantomBase = null;
             for (let i = 0; i < atoms.length; i++) {
@@ -146,7 +210,7 @@ export function decompose(context, atoms) {
                             digitOrTextStringID
                         ) {
                             // Done with digits/text
-                            digitOrTextStringID = null;
+                            digitOrTextStringID = '';
                         }
                     }
 
@@ -302,7 +366,75 @@ export function decompose(context, atoms) {
  * @class
  * @private
  */
-export class Atom {
+export class Atom implements Style {
+    mode: ParseMode;
+    type: AtomType;
+    latex?: string;
+    symbol?: string; // Latex command ('\sin') or character ('a')
+    isSymbol?: boolean;
+    isFunction?: boolean;
+    error?: boolean; // Indicate an unknown command
+    suggestion?: boolean; // This atom is a suggestion
+    latexOpen?: string; // type = 'group'
+    latexClose?: string; // type = 'group'
+    body?: string | Atom[];
+    index?: Atom[]; // type = 'surd'
+    underscript?: Atom[];
+    overscript?: Atom[];
+    denom?: Atom[]; // type = 'genfrac'
+    numer?: Atom[]; // type = 'genfrac'
+    subscript?: Atom[];
+    superscript?: Atom[];
+    limits?: 'limits' | 'nolimits';
+    explicitLimits?: boolean;
+    array?: Atom[][][]; // type = 'array'
+    rowGaps?: number[]; // type = 'array'
+    env: { name: string; tabular: boolean }; // type = 'array'
+    inner?: boolean;
+    leftDelim?: string;
+    rightDelim?: string;
+    delim?: string;
+    size?: string; // type = 'sizeddelim' @revisit Use maxFontSize? or fontSize?
+
+    width?: number;
+    height?: number;
+    maxFontSize?: number;
+    depth?: number;
+    shift?: number;
+    align?: 'left' | 'right';
+
+    skipBoundary?: boolean;
+    // selected?: boolean;
+    isSelected?: boolean;
+    caret: '' | 'text';
+    containsCaret: boolean; // If the atom or one of its descendant includes the caret
+
+    mathstyle?:
+        | 'displaystyle'
+        | 'textstyle'
+        | 'scriptstyle'
+        | 'scriptscriptstyle';
+
+    cls?: string;
+
+    color?: string;
+    backgroundColor?: string;
+    variant?: Variant;
+    variantStyle?: VariantStyle;
+    fontFamily?: string;
+    fontShape?: FontShape;
+    fontSeries?: FontSeries;
+    fontSize?: string;
+    cssId?: string;
+    cssClass?: string;
+    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'up' | 'auto';
+
+    phantom?: boolean;
+
+    captureSelection?: boolean;
+
+    id?: string;
+
     /**
      *
      * @param {string} mode
@@ -310,7 +442,12 @@ export class Atom {
      * @param {string|Array} body
      * @param {object} style
      */
-    constructor(mode, type, body, style) {
+    constructor(
+        mode: ParseMode,
+        type: AtomType,
+        body: string | Atom[] = '',
+        style: Style = {}
+    ) {
         this.mode = mode;
         this.type = type;
         this.body = body;
@@ -320,7 +457,7 @@ export class Atom {
         this.applyStyle(style);
     }
 
-    getStyle() {
+    getStyle(): Style {
         return {
             mode: this.mode,
             color: this.phantom ? 'transparent' : this.color,
@@ -338,7 +475,7 @@ export class Atom {
         };
     }
 
-    applyStyle(style) {
+    applyStyle(style: Style) {
         Object.assign(this, style);
 
         if (this.fontFamily === 'none') {
@@ -372,8 +509,8 @@ export class Atom {
         }
     }
 
-    getInitialBaseElement() {
-        let result;
+    getInitialBaseElement(): Atom {
+        let result: Atom;
         if (Array.isArray(this.body) && this.body.length > 0) {
             if (this.body[0].type !== 'first') {
                 result = this.body[0].getInitialBaseElement();
@@ -384,19 +521,19 @@ export class Atom {
         return result || this;
     }
 
-    getFinalBaseElement() {
+    getFinalBaseElement(): Atom {
         if (Array.isArray(this.body) && this.body.length > 0) {
             return this.body[this.body.length - 1].getFinalBaseElement();
         }
         return this;
     }
 
-    isCharacterBox() {
+    isCharacterBox(): boolean {
         const base = this.getInitialBaseElement();
         return /minner|mbin|mrel|mpunct|mopen|mclose|textord/.test(base.type);
     }
 
-    forEach(cb) {
+    forEach(cb: (arg0: this) => void) {
         cb(this);
         if (Array.isArray(this.body)) {
             for (const atom of this.body) if (atom) atom.forEach(cb);
@@ -473,7 +610,7 @@ export class Atom {
         return result;
     }
 
-    decomposeGroup(context) {
+    decomposeGroup(context: Context) {
         // The scope of the context is this group, so clone it
         // so that any changes to it will be discarded when finished
         // with this group.
@@ -481,7 +618,7 @@ export class Atom {
         // If that's the case, clone() returns a clone of the
         // context with the same mathstyle.
         const localContext = context.clone({ mathstyle: this.mathstyle });
-        const span = makeOrd(decompose(localContext, this.body));
+        const span = makeOrd(decompose(localContext, this.body as Atom[])); // @revisit
         if (this.cssId) span.cssId = this.cssId;
         span.applyStyle({
             backgroundColor: this.backgroundColor,
@@ -490,8 +627,11 @@ export class Atom {
         return span;
     }
 
-    decomposeOverlap(context) {
-        const inner = makeSpan(decompose(context, this.body), 'inner');
+    decomposeOverlap(context: Context) {
+        const inner = makeSpan(
+            decompose(context, this.body as Atom[]),
+            'inner'
+        ); // @revisit
         return makeOrd(
             [inner, makeSpan(null, 'fix')],
             this.align === 'left' ? 'llap' : 'rlap'
@@ -504,7 +644,7 @@ export class Atom {
      * @instance
      * @private
      */
-    decomposeRule(context) {
+    decomposeRule(context: Context) {
         const mathstyle = context.mathstyle;
         const result = makeOrd('', 'rule');
         let shift = this.shift && !isNaN(this.shift) ? this.shift : 0;
@@ -514,7 +654,7 @@ export class Atom {
         result.setStyle('border-right-width', width, 'em');
         result.setStyle('border-top-width', height, 'em');
         result.setStyle('margin-top', -(height - shift), 'em');
-        result.setStyle('border-color', context.color);
+        result.setStyle('border-color', context['color']); // @revisit
         result.width = width;
         result.height = height + shift;
         result.depth = -shift;
@@ -531,8 +671,11 @@ export class Atom {
      * @method Atom#decompose
      * @private
      */
-    decompose(context, phantomBase) {
-        let result = null;
+    decompose(
+        context: Context,
+        phantomBase: Span[] | null = null
+    ): Span[] | null {
+        let result: Span | Span[] | null = null;
         if (
             !this.type ||
             /mord|minner|mbin|mrel|mpunct|mopen|mclose|textord/.test(this.type)
@@ -606,7 +749,7 @@ export class Atom {
                         ':': 'mediumspace',
                         ',': 'thinspace',
                         '!': 'negativethinspace',
-                    }[this.body] || 'quad';
+                    }[this.body as string] || 'quad';
                 result = makeSpan('\u200b', 'mspace ' + spacingCls);
             }
         } else if (this.type === 'mathstyle') {
@@ -635,7 +778,7 @@ export class Atom {
             );
             result = ATOM_REGISTRY[this.type].decompose(context, this);
         }
-        if (!result) return result;
+        if (!result) return null;
         if (
             this.caret &&
             this.type !== 'msubsup' &&
@@ -960,7 +1103,7 @@ function makeLimitsStack(context, nucleus, nucleusShift, slant, above, below) {
         );
     }
 
-    let result = null;
+    let result: Span | null = null;
 
     if (below && above) {
         const bottom =
@@ -990,8 +1133,8 @@ function makeLimitsStack(context, nucleus, nucleusShift, slant, above, below) {
         // that we are supposed to shift the limits by 1/2 of the slant,
         // but since we are centering the limits adding a full slant of
         // margin will shift by 1/2 that.
-        result.children[0].setLeft(-slant);
-        result.children[2].setLeft(slant);
+        result!.children[0].setLeft(-slant);
+        result!.children[2].setLeft(slant);
     } else if (below && !above) {
         const top = spanHeight(nucleus) - nucleusShift;
 
@@ -1003,7 +1146,7 @@ function makeLimitsStack(context, nucleus, nucleusShift, slant, above, below) {
         );
 
         // See comment above about slants
-        result.children[0].setLeft(-slant);
+        result!.children[0].setLeft(-slant);
     } else if (!below && above) {
         const bottom = spanDepth(nucleus) + nucleusShift;
 
@@ -1015,7 +1158,7 @@ function makeLimitsStack(context, nucleus, nucleusShift, slant, above, below) {
         );
 
         // See comment above about slants
-        result.children[1].setLeft(slant);
+        result!.children[1].setLeft(slant);
     }
 
     return makeSpanOfType('mop', result, 'op-limits');
@@ -1031,11 +1174,14 @@ function makeLimitsStack(context, nucleus, nucleusShift, slant, above, below) {
  * @private
  */
 
-export function makeRoot(parseMode, body) {
+export function makeRoot(parseMode: ParseMode, body: Atom[]): Atom {
     parseMode = parseMode || 'math';
     const result = new Atom(parseMode, 'root', body || []);
-    if (result.body.length === 0 || result.body[0].type !== 'first') {
-        result.body.unshift(new Atom('', 'first'));
+    if (
+        Array.isArray(result.body) &&
+        (result.body.length === 0 || result.body[0].type !== 'first')
+    ) {
+        result.body!.unshift(new Atom('', 'first'));
     }
     return result;
 }

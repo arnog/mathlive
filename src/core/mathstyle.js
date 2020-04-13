@@ -99,7 +99,7 @@ for (i = 0; i < 3; i++) {
  * @class module:core/mathstyle#Mathstyle
  * @private
  */
-class Mathstyle {
+export class Mathstyle {
     constructor(id, size, multiplier, cramped) {
         this.id = id;
         this.size = size;
@@ -161,7 +161,6 @@ class Mathstyle {
     /**
      * HTML Reset class name, like 'reset-textstyle'
      * @method module:mathstyle.MathStyle#adjustTo
-     * @private
      */
     adjustTo(newStyle) {
         let result = ADJUST_NAMES[this.size][newStyle.size];

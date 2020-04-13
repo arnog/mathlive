@@ -3,5 +3,5 @@ module.exports = {
     testEnvironment: 'node',
     coverageReporters: ['lcov'],
     coverageDirectory: './coverage',
-    roots: ['<rootDir>/test', '<rootDir>/build', '<rootDir>/dist'],
+    roots: ['<rootDir>/test', '<rootDir>/dist'],
 };

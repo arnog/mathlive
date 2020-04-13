@@ -6,6 +6,27 @@
 import { getCharacterMetrics } from './font-metrics.js';
 import { svgBodyToMarkup, svgBodyHeight } from './svg-span.js';
 import { applyStyle as applyStyleForMode } from './modes-utils.js';
+import { Context } from './context.js';
+import { Mathstyle } from './mathstyle.js';
+
+export type Variant = 'calligraphic' | 'fraktur';
+export type VariantStyle = 'up' | 'bold' | 'italic' | 'bolditalic' | '';
+export type FontShape = 'auto' | 'n' | '';
+export type FontSeries = 'auto' | 'm' | '';
+export interface Style {
+    mode?: string;
+    color?: string;
+    backgroundColor?: string;
+    variant?: Variant;
+    variantStyle?: VariantStyle;
+    fontFamily?: string;
+    fontShape?: FontShape;
+    fontSeries?: FontSeries;
+    fontSize?: string;
+    cssId?: string;
+    cssClass?: string;
+    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'up' | 'auto';
+}
 
 /*
  * See http://www.tug.org/TUGboat/tb30-3/tb96vieth.pdf for
@@ -93,20 +114,27 @@ const INTER_ATOM_TIGHT_SPACING = {
  * @memberof module:core/span
  * @private
  */
-function toString(arg) {
-    let result = '';
+function toString(arg: Array<string | number> | string | number): string {
+    if (typeof arg === 'string') {
+        return arg;
+    }
     if (typeof arg === 'number') {
-        result += Math.ceil(1e2 * arg) / 1e2;
-    } else if (typeof arg === 'string') {
-        result += arg;
-    } else if (Array.isArray(arg)) {
+        return Number(Math.ceil(1e2 * arg) / 1e2).toString();
+    }
+    if (typeof arg === 'undefined') {
+        return '';
+    }
+    if (Array.isArray(arg)) {
+        let result = '';
         for (const elem of arg) {
             result += toString(elem);
         }
-    } else if (arg) {
-        result += arg.toString();
+        return result;
+        // } else if (arg) {
+        //     result += (arg as number).toString();
     }
-    return result;
+    console.error('Span.toStringUnexpected argument type');
+    return '';
 }
 
 //----------------------------------------------------------------------------
@@ -126,7 +154,7 @@ function toString(arg) {
  * @property {string} type - For example, `'command'`, `'mrel'`, etc...
  * @property {string} classes - A string of space separated CSS classes
  * associated with this element
- * @property {string} cssID - A CSS ID assigned to this span (optional)
+ * @property {string} cssId - A CSS ID assigned to this span (optional)
  * @property {Span[]} children - An array, potentially empty, of spans which
  * this span encloses
  * @property {string} body - Content of this span. Can be empty.
@@ -134,12 +162,37 @@ function toString(arg) {
  * associated with this element.
  * @property {number} height - The measurement from baseline to top, in em.
  * @property {number} depth - The measurement from baseline to bottom, in em.
- * @private
+ * @property {number} width
  */
 export class Span {
-    constructor(content, classes) {
+    classes: string;
+    children?: Span[];
+    body: string;
+    delim?: string; // @revisit
+    caret: 'text' | '';
+
+    height?: number;
+    depth?: number;
+    width?: number;
+    skew?: number;
+    italic?: number;
+    maxFontSize?: number;
+
+    isTight?: boolean;
+
+    type?: string;
+    cssId?: string;
+
+    svgBody?: string;
+    svgOverlay?: string;
+    svgStyle?: string;
+
+    style: { [key: string]: string };
+    attributes?: { [key: string]: string }; // HTML attributes
+
+    constructor(content: string | Span | Span[], classes = '') {
         // CLASSES
-        this.classes = classes || '';
+        this.classes = classes;
         // CONTENT
         if (Array.isArray(content)) {
             // Check if isArray first, since an array is also an object
@@ -181,7 +234,7 @@ export class Span {
         this.maxFontSize = maxFontSize;
     }
 
-    selected(isSelected) {
+    selected(isSelected: boolean) {
         if (isSelected && !/ML__selected/.test(this.classes)) {
             if (this.classes.length > 0) this.classes += ' ';
             this.classes += 'ML__selected';
@@ -226,7 +279,7 @@ export class Span {
      * @private
      */
 
-    applyStyle(style) {
+    applyStyle(style: Style) {
         if (!style) return;
 
         //
@@ -312,9 +365,8 @@ export class Span {
      * @param {...(string|number)} value a series of strings and numbers that will be concatenated.
      * @return {string}
      * @method module:core/span.Span#setStyle
-     * @private
      */
-    setStyle(prop, ...value) {
+    setStyle(prop: string, ...value: (string | number)[]): void {
         const v = toString(value);
         if (v.length > 0) {
             if (!this.style) this.style = {};
@@ -322,7 +374,7 @@ export class Span {
         }
     }
 
-    setTop(top) {
+    setTop(top: number): void {
         if (top && top !== 0) {
             if (!this.style) this.style = {};
             this.style['top'] = toString(top) + 'em';
@@ -334,9 +386,8 @@ export class Span {
     /**
      *
      * @param {number} left
-     * @private
      */
-    setLeft(left) {
+    setLeft(left: number): void {
         if (left && left !== 0) {
             if (!this.style) this.style = {};
             this.style['margin-left'] = toString(left) + 'em';
@@ -345,15 +396,14 @@ export class Span {
     /**
      *
      * @param {number} right
-     * @private
      */
-    setRight(right) {
+    setRight(right: number) {
         if (right && right !== 0) {
             if (!this.style) this.style = {};
             this.style['margin-right'] = toString(right) + 'em';
         }
     }
-    setWidth(width) {
+    setWidth(width: number) {
         if (width && width !== 0) {
             if (!this.style) this.style = {};
             this.style['width'] = toString(width) + 'em';
@@ -371,10 +421,9 @@ export class Span {
      * this factor.
      * @return {string} HTML markup
      * @method module:core/span.Span#toMarkup
-     * @private
      */
 
-    toMarkup(hskip, hscale) {
+    toMarkup(hskip: number, hscale: number): string {
         hskip = hskip || 0;
         hscale = hscale || 1.0;
         let result = '';
@@ -576,9 +625,8 @@ export class Span {
      * @method module:core/span.Span#tryCoalesceWith
      * @private
      */
-    tryCoalesceWith(span) {
+    tryCoalesceWith(span: Span): boolean {
         // Don't coalesce if the tag or type are different
-        if (this.tag !== span.tag) return false;
         if (this.type !== span.type) return false;
 
         // Don't coalesce consecutive errors, placeholders or commands
@@ -649,7 +697,7 @@ export class Span {
     }
 }
 
-function lastSpanType(span) {
+function lastSpanType(span: Span) {
     const result = span.type;
     if (result === 'first') return 'none';
     if (result === 'textord') return 'mord';
@@ -665,7 +713,7 @@ function lastSpanType(span) {
  * @memberof module:core/span
  * @private
  */
-export function coalesce(spans) {
+export function coalesce(spans: Span[]): Span[] {
     if (!spans || spans.length === 0) return [];
 
     spans[0].children = coalesce(spans[0].children);
@@ -684,7 +732,7 @@ export function coalesce(spans) {
 // UTILITY FUNCTIONS
 //----------------------------------------------------------------------------
 
-export function height(spans) {
+export function height(spans: Span | Span[]) {
     if (!spans) return 0;
     if (Array.isArray(spans)) {
         return spans.reduce((acc, x) => Math.max(acc, x.height), 0);
@@ -692,7 +740,7 @@ export function height(spans) {
     return spans.height;
 }
 
-export function depth(spans) {
+export function depth(spans: Span | Span[]) {
     if (!spans) return 0;
     if (Array.isArray(spans)) {
         return spans.reduce((acc, x) => Math.max(acc, x.depth), 0);
@@ -700,7 +748,7 @@ export function depth(spans) {
     return spans.depth;
 }
 
-export function skew(spans) {
+export function skew(spans: Span | Span[]) {
     if (!spans) return 0;
     if (Array.isArray(spans)) {
         let result = 0;
@@ -712,7 +760,7 @@ export function skew(spans) {
     return spans.skew;
 }
 
-export function italic(spans) {
+export function italic(spans: Span | Span[]) {
     if (!spans) return 0;
     if (Array.isArray(spans)) {
         return spans[spans.length - 1].italic;
@@ -724,17 +772,17 @@ export function italic(spans) {
  * Make an element made of a sequence of children with classes
  * @param {(string|Span|Span[])} content the items 'contained' by this node
  * @param {string} classes list of classes attributes associated with this node
+ * @return {Span}
  * @memberof module:core/span
- * @private
  */
-export function makeSpan(content, classes) {
+export function makeSpan(content: string | Span | Span[], classes = ''): Span {
     if (Array.isArray(content)) {
         const c = [];
         for (const s of content) {
             if (s) c.push(s);
         }
         if (c.length === 1) {
-            return makeSpan(c[0], classes);
+            return new Span(c[0], classes);
         }
     }
     return new Span(content, classes);
@@ -748,7 +796,11 @@ export function makeSpan(content, classes) {
  * @memberof module:core/span
  * @private
  */
-export function makeSymbol(fontFamily, symbol, classes) {
+export function makeSymbol(
+    fontFamily: string,
+    symbol: string,
+    classes: string
+): Span {
     const result = new Span(symbol, classes);
 
     const metrics = getCharacterMetrics(symbol, fontFamily);
@@ -772,7 +824,7 @@ export function makeSymbol(fontFamily, symbol, classes) {
  * @memberof module:core/span
  * @private
  */
-function makeFontSizer(context, fontSize) {
+function makeFontSizer(context: Context, fontSize: number): Span {
     const fontSizeAdjustment = fontSize
         ? fontSize / context.mathstyle.sizeMultiplier
         : 0;
@@ -785,7 +837,7 @@ function makeFontSizer(context, fontSize) {
             fontSizeAdjustment > 0 ? 'em' : ''
         );
         fontSizeInner.attributes = {
-            'aria-hidden': true,
+            'aria-hidden': 'true',
         };
     }
 
@@ -810,41 +862,51 @@ function makeFontSizer(context, fontSize) {
  * @memberof module:core/span
  * @private
  */
-export function makeSpanOfType(type, content, classes) {
+export function makeSpanOfType(
+    type: string,
+    content: string | Span | Span[],
+    classes = ''
+): Span {
     const result = makeSpan(content, classes);
     result.type = type;
     return result;
 }
 
-export function makeOp(content, classes) {
+export function makeOp(content: string | Span[], classes = '') {
     return makeSpanOfType('mop', content, classes);
 }
 
-export function makeOrd(content, classes) {
+export function makeOrd(content: string | Span[], classes = '') {
     return makeSpanOfType('mord', content, classes);
 }
 
-export function makeRel(content, classes) {
+export function makeRel(content: string | Span[], classes = '') {
     return makeSpanOfType('mrel', content, classes);
 }
 
-export function makeClose(content, classes) {
+export function makeClose(content: string | Span[], classes = '') {
     return makeSpanOfType('mclose', content, classes);
 }
 
-export function makeOpen(content, classes) {
+export function makeOpen(content: string | Span[], classes = '') {
     return makeSpanOfType('mopen', content, classes);
 }
 
-export function makeInner(content, classes) {
+export function makeInner(content: string, classes = '') {
     return makeSpanOfType('minner', content, classes);
 }
 
-export function makePunct(content, classes) {
+export function makePunct(content: string | Span[], classes = '') {
     return makeSpanOfType('mpunct', content, classes);
 }
 
-export function makeStyleWrap(type, children, fromStyle, toStyle, classes) {
+export function makeStyleWrap(
+    type: string,
+    children: Span | Span[],
+    fromStyle: Mathstyle,
+    toStyle: Mathstyle,
+    classes: string
+) {
     classes = classes || '';
     classes += ' style-wrap ';
 
@@ -867,7 +929,7 @@ export function makeStyleWrap(type, children, fromStyle, toStyle, classes) {
  * @param {string} svgMarkup
  * @private
  */
-export function addSVGOverlay(body, svgMarkup, svgStyle) {
+export function addSVGOverlay(body: Span, svgMarkup: string, svgStyle: string) {
     body.svgOverlay = svgMarkup;
     body.svgStyle = svgStyle;
     return body;
@@ -880,7 +942,7 @@ export function addSVGOverlay(body, svgMarkup, svgStyle) {
  * @memberof module:core/span
  * @private
  */
-export function makeHlist(spans, classes) {
+export function makeHlist(spans: Span | Span[], classes: string) {
     if (!classes || classes.length === 0) {
         // No decorations...
         if (spans instanceof Span) {
@@ -923,29 +985,34 @@ export function makeHlist(spans, classes) {
  * @memberof module:core/span
  * @private
  */
-export function makeVlist(context, elements, pos, posData) {
+export function makeVlist(
+    context: Context,
+    elements: Array<number | Span[] | Span>,
+    pos: 'shift' | 'top' | 'bottom' | 'individualShift' = 'shift',
+    posData = 0
+) {
     let listDepth = 0;
     let currPos = 0;
     pos = pos || 'shift';
-    posData = posData || 0;
 
     // Normalize the elements so that they're all either a number or
     // a single span. If a child is an array of spans,
     // wrap it in a span
     for (let i = 0; i < elements.length; i++) {
         if (Array.isArray(elements[i])) {
-            if (elements[i].length === 1) {
+            if ((elements[i] as Span[]).length === 1) {
                 // If that's an array made up of a single span, use that span
                 elements[i] = elements[i][0];
             } else {
                 // Otherwise, wrap it in a span
-                elements[i] = makeSpan(elements[i]);
+                elements[i] = makeSpan(elements[i] as Span[]);
             }
         }
     }
 
     if (pos === 'shift') {
-        listDepth = -elements[0].depth - posData;
+        console.assert(elements[0] instanceof Span);
+        listDepth = -(elements[0] as Span).depth - posData;
     } else if (pos === 'bottom') {
         listDepth = -posData;
     } else if (pos === 'top') {
@@ -954,7 +1021,7 @@ export function makeVlist(context, elements, pos, posData) {
             if (element instanceof Span) {
                 // It's a Span, use the dimension data
                 bottom -= element.height + element.depth;
-            } else {
+            } else if (typeof element === 'number') {
                 // It's a kern adjustment
                 bottom -= element;
             }
@@ -964,22 +1031,30 @@ export function makeVlist(context, elements, pos, posData) {
         // Individual adjustment to each elements.
         // The elements list is made up of a Span followed
         // by a shift adjustment as an integer
-        const originalElements = elements;
+        const originalElements: (number | Span)[] = elements as (
+            | number
+            | Span
+        )[];
         elements = [originalElements[0]];
 
         // Add in kerns to the list of elements to get each element to be
         // shifted to the correct specified shift
-        listDepth = -originalElements[1] - originalElements[0].depth;
+        console.assert(originalElements[0] instanceof Span);
+        listDepth = -originalElements[1] - (originalElements[0] as Span).depth;
         currPos = listDepth;
         for (let i = 2; i < originalElements.length; i += 2) {
+            console.assert(originalElements[i] instanceof Span);
             const diff =
-                -originalElements[i + 1] - currPos - originalElements[i].depth;
+                -originalElements[i + 1] -
+                currPos -
+                (originalElements[i] as Span).depth;
             currPos = currPos + diff;
 
+            console.assert(originalElements[i - 2] instanceof Span);
             const kern =
                 diff -
-                (originalElements[i - 2].height +
-                    originalElements[i - 2].depth);
+                ((originalElements[i - 2] as Span).height +
+                    (originalElements[i - 2] as Span).depth);
 
             elements.push(kern);
             elements.push(originalElements[i]);
@@ -1003,7 +1078,7 @@ export function makeVlist(context, elements, pos, posData) {
         if (typeof element === 'number') {
             // It's a kern adjustment
             currPos += element;
-        } else {
+        } else if (element instanceof Span) {
             const wrap = makeSpan([fontSizer, element]);
             wrap.setTop(-element.depth - currPos);
             newElements.push(wrap);
@@ -1028,7 +1103,7 @@ export function makeVlist(context, elements, pos, posData) {
  * @param {string} classes list of classes attributes associated with this node
  * @private
  */
-export function makeSVGSpan(svgBodyName, classes) {
+export function makeSVGSpan(svgBodyName: string, classes: string) {
     const span = new Span(null, classes);
     span.svgBody = svgBodyName;
     span.height = svgBodyHeight(svgBodyName) / 2;

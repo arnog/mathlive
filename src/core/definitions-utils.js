@@ -200,6 +200,8 @@ const CODEPOINT_SHORTCUTS = {
 
     0x2032: '\\prime',
     0x2033: '\\doubleprime',
+    0x2035: '\\backprime',
+    0x2036: '\\backdoubleprime',
     0x2220: '\\angle',
 
     0x2102: '\\C',
@@ -595,7 +597,7 @@ export function getEnvironmentInfo(name) {
 /**
  * @param {string} symbol    A command (e.g. '\alpha') or a character (e.g. 'a')
  * @param {string} parseMode One of 'math' or 'text'
- * @param {object} macros A macros dictionary
+ * @param {MacroDictionary} macros={} A macros dictionary
  * @return {object} An info structure about the symbol, or null
  * @memberof module:definitions
  * @private

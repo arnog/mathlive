@@ -32,7 +32,7 @@ import { splitGraphemes } from './grapheme-splitter';
  * @class module:core/lexer#Token
  * @private
  */
-class Token {
+export class Token {
     type: string;
     value: string | number;
     constructor(type: string, value: string | number = '') {

@@ -27,6 +27,7 @@ import Mathstyle from './mathstyle.js';
  * @property {string} parentMathstyle
  * @property {number} parentSize
  * @property {object} macros A macros dictionary
+ * @property {string} color
  *
  * @class Context
  * @global
@@ -54,9 +55,6 @@ export class Context {
     /**
      * Returns a new context with the same properties as 'this'.
      * @return {Context}
-     * @memberof Context
-     * @instance
-     * @private
      */
     clone(override) {
         const result = new Context(this);
@@ -85,7 +83,6 @@ export class Context {
      * environments.
      * @memberof Context
      * @instance
-     * @private
      */
     setMathstyle(value) {
         if (value && value !== 'auto') {

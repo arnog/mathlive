@@ -267,7 +267,7 @@ export function getCharacterMetrics(character, fontName) {
  * @param {number} precision
  * @private
  */
-export function convertDimenToEm(value, unit, precision) {
+export function convertDimenToEm(value, unit, precision = NaN) {
     if (typeof value === 'string') {
         const m = value.match(/([-+]?[0-9.]*)\s*([a-zA-Z]+)/);
         if (!m) {

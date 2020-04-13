@@ -13,4 +13,4 @@ import './atom-op.js';
 import './atom-line.js';
 import './atom-leftright.js';
 import './atom-surd.js';
-export { Atom, makeRoot } from './atom-utils.js';
+export * from './atom-utils';
