@@ -3268,7 +3268,7 @@ EditableMathlist.prototype.moveToSuperscript_ = function () {
                         this.anchorOffset() + 1,
                         0,
                         new Atom(
-                            this.parent().anchorMode,
+                            this.parent().mode,
                             'msubsup',
                             '\u200b',
                             this.anchorStyle()
@@ -3311,7 +3311,7 @@ EditableMathlist.prototype.moveToSubscript_ = function () {
                         this.anchorOffset() + 1,
                         0,
                         new Atom(
-                            this.parent().anchorMode,
+                            this.parent().mode,
                             'msubsup',
                             '\u200b',
                             this.anchorStyle()
