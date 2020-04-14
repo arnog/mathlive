@@ -85,27 +85,31 @@ registerAtomType('leftright', (context, atom) => {
         let delim = atom.rightDelim;
         let classes;
         if (delim === '?') {
-            // Use a placeholder delimiter matching the open delimiter
-            delim = {
-                '(': ')',
-                '\\{': '\\}',
-                '\\[': '\\]',
-                '\\lbrace': '\\rbrace',
-                '\\langle': '\\rangle',
-                '\\lfloor': '\\rfloor',
-                '\\lceil': '\\rceil',
-                '\\vert': '\\vert',
-                '\\lvert': '\\rvert',
-                '\\Vert': '\\Vert',
-                '\\lVert': '\\rVert',
-                '\\lbrack': '\\rbrack',
-                '\\ulcorner': '\\urcorner',
-                '\\llcorner': '\\lrcorner',
-                '\\lgroup': '\\rgroup',
-                '\\lmoustache': '\\rmoustache',
-            }[atom.leftDelim];
-            delim = delim || atom.leftDelim;
-            classes = 'ML__smart-fence__close';
+            if (context.smartFence) {
+                // Use a placeholder delimiter matching the open delimiter
+                delim = {
+                    '(': ')',
+                    '\\{': '\\}',
+                    '\\[': '\\]',
+                    '\\lbrace': '\\rbrace',
+                    '\\langle': '\\rangle',
+                    '\\lfloor': '\\rfloor',
+                    '\\lceil': '\\rceil',
+                    '\\vert': '\\vert',
+                    '\\lvert': '\\rvert',
+                    '\\Vert': '\\Vert',
+                    '\\lVert': '\\rVert',
+                    '\\lbrack': '\\rbrack',
+                    '\\ulcorner': '\\urcorner',
+                    '\\llcorner': '\\lrcorner',
+                    '\\lgroup': '\\rgroup',
+                    '\\lmoustache': '\\rmoustache',
+                }[atom.leftDelim];
+                delim = delim || atom.leftDelim;
+                classes = 'ML__smart-fence__close';
+            } else {
+                delim = '.';
+            }
         }
         result.push(
             atom.bind(

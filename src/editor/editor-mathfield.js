@@ -2244,6 +2244,7 @@ export class Mathfield {
                     // consecutive digits to represent a number.
                     groupNumbers: renderOptions.forHighlighting,
                 },
+                smartFence: this.config.smartFence,
                 macros: this.config.macros,
             },
             this.mathlist.root

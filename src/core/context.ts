@@ -48,6 +48,7 @@ interface ContextInterface {
     letterShapeStyle?: 'tex' | 'french' | 'iso' | 'up';
     opacity?: number;
     color?: string;
+    smartFence?: boolean;
 }
 
 /**
@@ -97,6 +98,8 @@ export class Context implements ContextInterface {
     letterShapeStyle: 'tex' | 'french' | 'iso' | 'up';
     opacity: number;
     color?: string;
+    smartFence: boolean;
+
     constructor(from: ContextInterface) {
         this.macros = from.macros || {};
         this.atomIdsSettings = from.atomIdsSettings;
@@ -111,6 +114,7 @@ export class Context implements ContextInterface {
         this.parentSize = from.parentSize || this.size;
 
         this.opacity = from.opacity;
+        this.smartFence = from.smartFence;
     }
 
     /**

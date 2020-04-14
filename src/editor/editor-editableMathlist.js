@@ -2287,8 +2287,26 @@ EditableMathlist.prototype.insert = function (s, options) {
     options = options || {};
 
     // Try to insert a smart fence.
-    if (options.smartFence && this._insertSmartFence(s, options.style)) {
-        return;
+    if (!options.smartFence) {
+        // When smartFence is turned off, only do a "smart" fence insert
+        // if we're inside a `leftright`, at the last char
+        const parent = this.parent();
+        if (
+            parent?.type === 'leftright' &&
+            parent.rightDelim === '?' &&
+            this.endOffset() === this.siblings().length - 1 &&
+            /^[)}\]|]$/.test(s)
+        ) {
+            this.contentWillChange();
+            parent.rightDelim = s;
+            this.move(+1);
+            this.contentDidChange();
+            return;
+        }
+    } else {
+        if (this._insertSmartFence(s, options.style)) {
+            return;
+        }
     }
 
     const suppressChangeNotifications = this.suppressChangeNotifications;
