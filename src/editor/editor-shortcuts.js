@@ -166,14 +166,14 @@ const KEYBOARD_SHORTCUTS = {
     'text:Shift-Quote': ['switch-mode', 'math', '”', ''],
 
     // WOLFRAM MATHEMATICA BINDINGS
-    'math:Ctrl-Digit2': ['insert', '\\sqrt{#0}'],
+    'math:Ctrl-Digit2': ['insert', '$$\\sqrt{#0}$$'],
     'math:Ctrl-Digit5': 'moveToOpposite',
     'math:Ctrl-Digit6': 'moveToSuperscript',
     'math:Ctrl-Minus': 'moveToSubscript',
-    'math:Alt-BracketLeft': ['insert', '\\left\\lbrack #0 \\right\\rbrack'],
+    'math:Alt-BracketLeft': ['insert', '$$\\left\\lbrack #0 \\right\\rbrack$$'],
     'math:Alt-Shift-BracketLeft': [
         'insert',
-        '\\left\\lbrace #0 \\right\\rbrace',
+        '$$\\left\\lbrace #0 \\right\\rbrace$$',
     ],
     'math:Return': 'addRowAfter',
     'math:Enter': 'addRowAfter',
@@ -184,35 +184,35 @@ const KEYBOARD_SHORTCUTS = {
     // ctrl+- to delete a row or columns
 
     // MATHLIVE BINDINGS
-    'math:Alt-KeyQ': ['insert', '\\theta'],
-    'math:Alt-KeyP': ['insert', '\\pi'],
-    'math:Alt-KeyV': ['insert', '\\sqrt{#0}'],
-    'math:Alt-KeyW': ['insert', '\\sum_{i=#?}^{#?}'],
-    'math:Alt-KeyB': ['insert', '\\int_{#?}^{#?}'],
-    'math:Alt-KeyU': ['insert', '\\cup'],
-    'math:Alt-KeyN': ['insert', '\\cap'],
-    'math:Alt-KeyO': ['insert', '\\emptyset'],
-    'math:Alt-KeyD': ['insert', '\\differentialD'],
-    'math:Alt-Shift-KeyO': ['insert', '\\varnothing'],
-    'math:Alt-Shift-KeyD': ['insert', '\\partial'],
-    'math:Alt-Shift-KeyP': ['insert', '\\prod_{i=#?}^{#?}'],
-    'math:Alt-Shift-KeyU': ['insert', '\\bigcup'],
-    'math:Alt-Shift-KeyN': ['insert', '\\bigcap'],
-    'math:Alt-Shift-KeyA': ['insert', '\\forall'],
-    'math:Alt-Shift-KeyE': ['insert', '\\exists'],
-    'math:Alt-Digit5': ['insert', '\\infty'], // "%" key
-    'math:Alt-Digit6': ['insert', '\\wedge'], // "^" key
-    'math:Alt-Shift-Digit6': ['insert', '\\vee'], // "^" key
+    'math:Alt-KeyQ': ['insert', '$$\\theta$$'],
+    'math:Alt-KeyP': ['insert', '$$\\pi$$'],
+    'math:Alt-KeyV': ['insert', '$$\\sqrt{#0}$$'],
+    'math:Alt-KeyW': ['insert', '$$\\sum_{i=#?}^{#?}$$'],
+    'math:Alt-KeyB': ['insert', '$$\\int_{#?}^{#?}$$'],
+    'math:Alt-KeyU': ['insert', '$$\\cup$$'],
+    'math:Alt-KeyN': ['insert', '$$\\cap$$'],
+    'math:Alt-KeyO': ['insert', '$$\\emptyset$$'],
+    'math:Alt-KeyD': ['insert', '$$\\differentialD$$'],
+    'math:Alt-Shift-KeyO': ['insert', '$$\\varnothing$$'],
+    'math:Alt-Shift-KeyD': ['insert', '$$\\partial$$'],
+    'math:Alt-Shift-KeyP': ['insert', '$$\\prod_{i=#?}^{#?}$$'],
+    'math:Alt-Shift-KeyU': ['insert', '$$\\bigcup$$'],
+    'math:Alt-Shift-KeyN': ['insert', '$$\\bigcap$$'],
+    'math:Alt-Shift-KeyA': ['insert', '$$\\forall$$'],
+    'math:Alt-Shift-KeyE': ['insert', '$$\\exists$$'],
+    'math:Alt-Digit5': ['insert', '$\\infty$$'], // "%" key
+    'math:Alt-Digit6': ['insert', '$$\\wedge$$'], // "^" key
+    'math:Alt-Shift-Digit6': ['insert', '$$\\vee$$'], // "^" key
     'math:Alt-Digit9': ['insert', '('], // "(" key, override smartFence
     'math:Alt-Digit0': ['insert', ')'], // ")" key, override smartFence
     'math:Alt-Shift-Backslash': ['insert', '|'], // "|" key, override smartFence
-    'math:Alt-Backslash': ['insert', '\\backslash'], // "|" key, override command mode
-    'math:Slash': ['insert', '\\frac{#@}{#?}'],
-    'math:Alt-Slash': ['insert', '\\frac{#?}{#@}'],
-    'math:NumpadDivide': ['insert', '\\frac{#@}{#?}'],
+    'math:Alt-Backslash': ['insert', '$$\\backslash$$'], // "|" key, override command mode
+    'math:Slash': ['insert', '$$\\frac{#@}{#?}$$'],
+    'math:Alt-Slash': ['insert', '$$\\frac{#?}{#@}$$'],
+    'math:NumpadDivide': ['insert', '$$\\frac{#@}{#?}$$'],
     'math:Alt-NumpadDivide': ['insert', '\\frac{#?}{#@}'],
-    'math:Shift-Backquote': ['insert', '\\~'],
-    'math:Alt-Shift-Slash': ['insert', '\\/'],
+    'math:Shift-Backquote': ['insert', '$$\\~$$'],
+    'math:Alt-Shift-Slash': ['insert', '$$\\/$$'],
 
     // Accessibility
     'Alt-Shift-KeyK': 'toggleKeystrokeCaption',

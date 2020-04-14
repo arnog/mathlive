@@ -20,7 +20,8 @@ export function latexToAsciiMath(latex, mode) {
 }
 
 export function asciiMathToLatex(ascii) {
-    return parseMathString(ascii, { format: 'ASCIIMath' });
+    const [, result] = parseMathString(ascii, { format: 'ASCIIMath' });
+    return result;
 }
 
 /**

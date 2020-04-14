@@ -1295,7 +1295,11 @@ EditableMathlist.prototype.getContentFromSiblings = function (start, end) {
     if (siblings[0].type === 'first' && start === 0) {
         start = 1;
     }
-    if (start === 1 && end === siblings.length - 1) {
+    if (
+        this.parent().type === 'root' &&
+        start === 1 &&
+        end === siblings.length - 1
+    ) {
         // It's the entire sibling list. Get the parent's latex
         return this.parent().toLatex();
     }
@@ -2344,7 +2348,7 @@ EditableMathlist.prototype.insert = function (s, options) {
     }
 
     if (anchorMode === 'math' && options.format === 'ASCIIMath') {
-        s = parseMathString(s, { ...this.config, format: 'ASCIIMath' });
+        [, s] = parseMathString(s, { ...this.config, format: 'ASCIIMath' });
         mathlist = parseString(s, 'math', null, options.macros, false);
 
         // Simplify result.
@@ -2362,7 +2366,7 @@ EditableMathlist.prototype.insert = function (s, options) {
             // Insert an 'esc' character triggers the command mode
             mathlist = [new Atom('command', 'command', '\\')];
         } else {
-            s = parseMathString(s, this.config);
+            [options.format, s] = parseMathString(s, this.config);
 
             // Replace placeholders
             s = s.replace(/(^|[^\\])#\?/g, '$1\\placeholder{}');
@@ -2398,7 +2402,9 @@ EditableMathlist.prototype.insert = function (s, options) {
             );
 
             // Simplify result.
-            this.simplifyParen(mathlist);
+            if (options.format !== 'latex') {
+                this.simplifyParen(mathlist);
+            }
         }
     } else if (options.format === 'latex') {
         mathlist = parseString(
@@ -2442,6 +2448,7 @@ EditableMathlist.prototype.insert = function (s, options) {
     // Insert the mathlist at the position following the anchor
     const parent = this.parent();
     if (
+        options.format !== 'latex' &&
         this.config.removeExtraneousParentheses &&
         parent &&
         parent.type === 'leftright' &&
@@ -3598,21 +3605,32 @@ EditableMathlist.prototype._applyStyle = function (style) {
  * @private
  */
 export function parseMathString(s, config) {
-    if (!s) return '';
+    if (!s) return ['latex', ''];
 
     // Nothing to do if a single character
-    if (s.length <= 1) return s;
+    if (s.length <= 1) return ['latex', s];
 
     if (!config || config.format !== 'ASCIIMath') {
         // This is not explicitly ASCIIMath. Try to infer if this is LaTex...
 
         // If the strings is surrounded by `$..$` or `$$..$$`, assumes it is LaTeX
-        if (s.startsWith('$$') && s.endsWith('$$')) {
-            return s.substring(2, s.length - 2);
+        const trimedString = s.trim();
+        if (
+            (trimedString.startsWith('$$') && trimedString.endsWith('$$')) ||
+            (trimedString.startsWith('\\[') && trimedString.endsWith('\\]')) ||
+            (trimedString.startsWith('\\(') && trimedString.endsWith('\\)'))
+        ) {
+            return [
+                'latex',
+                trimedString.substring(2, trimedString.length - 2),
+            ];
         }
 
-        if (s.startsWith('$') && s.endsWith('$')) {
-            return s.substring(1, s.length - 1);
+        if (trimedString.startsWith('$') && trimedString.endsWith('$')) {
+            return [
+                'latex',
+                trimedString.substring(1, trimedString.length - 1),
+            ];
         }
 
         // Replace double-backslash (coming from JavaScript) to a single one
@@ -3624,7 +3642,7 @@ export function parseMathString(s, config) {
             // UnicodeMath supports some LaTeX commands. However, we need to pick
             // one in order to correctly interpret {} (which are argument delimiters
             // in LaTeX, and are fences in UnicodeMath)
-            return s;
+            return ['latex', s];
         }
     }
 
@@ -3636,7 +3654,7 @@ export function parseMathString(s, config) {
     s = s.replace(/([^\\])cosx/g, '$1\\cos x '); // common typo
     s = s.replace(/\u2013/g, '-'); // EN-DASH, sometimes used as a minus sign
 
-    return parseMathExpression(s, config);
+    return [config.format || 'asciimath', parseMathExpression(s, config)];
 }
 
 function parseMathExpression(s, config) {
