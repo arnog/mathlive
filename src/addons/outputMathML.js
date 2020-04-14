@@ -12,8 +12,8 @@ import { Atom } from '../core/atom';
 import { stringToColor } from '../core/color';
 
 const SPECIAL_OPERATORS = {
-    '\\pm': '&PlusMinus;',
-    '\\times': '&times;',
+    '\\pm': '&#177;',
+    '\\times': '&#215;',
     '\\colon': ':',
     '\\vert': '|',
     '\\Vert': '\u2225',
@@ -161,11 +161,11 @@ function scanIdentifier(stream, final, options) {
                 stream.lastType === 'fence') &&
             !/^<mo>(.*)<\/mo>$/.test(mathML)
         ) {
-            mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
+            mathML = '<mo>&#8290;</mo>' + mathML; // &InvisibleTimes;
         }
 
         if (body.endsWith('>f</mi>') || body.endsWith('>g</mi>')) {
-            mathML += '<mo> &ApplyFunction; </mo>';
+            mathML += '<mo>&x2061;</mo>'; // &ApplyFunction;
             stream.lastType = 'applyfunction';
         } else {
             stream.lastType = /^<mo>(.*)<\/mo>$/.test(mathML) ? 'mo' : 'mi';
@@ -381,7 +381,7 @@ function scanFence(stream, final, options) {
                 stream.lastType === 'mfrac' ||
                 stream.lastType === 'fence'
             ) {
-                mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
+                mathML = '<mo>&#8290;</mo>' + mathML; // &InvisibleTimes;
             }
             stream.index = closeIndex + 1;
 
@@ -480,7 +480,7 @@ function scanOperator(stream, final, options) {
             (stream.lastType === 'mi' || stream.lastType === 'mn') &&
             !/^<mo>(.*)<\/mo>$/.test(mathML)
         ) {
-            mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
+            mathML = '<mo>&#8290;</mo>' + mathML; // &InvisibleTimes;
         }
         stream.index += 1;
     }
