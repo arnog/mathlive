@@ -6,9 +6,9 @@ import {
     depth as spanDepth,
     height as spanHeight,
 } from './span.js';
-import { METRICS as FONTMETRICS } from './font-metrics.js';
-import Delimiters from './delimiters.js';
-import Mathstyle from './mathstyle.js';
+import { METRICS as FONTMETRICS } from './font-metrics';
+import { makeLeftRightDelim } from './delimiters';
+import { MATHSTYLES } from './mathstyle';
 
 registerAtomType('array', (context, atom) => {
     // See http://tug.ctan.org/macros/latex/base/ltfsstrc.dtx
@@ -56,8 +56,7 @@ registerAtomType('array', (context, atom) => {
     ) {
         array.pop();
     }
-    const mathstyle =
-        Mathstyle.toMathstyle(atom.mathstyle) || context.mathstyle;
+    const mathstyle = MATHSTYLES[atom.mathstyle] || context.mathstyle;
     // Row spacing
     // Default \arraystretch from lttab.dtx
     const arraystretch = atom.arraystretch || 1;
@@ -80,7 +79,7 @@ registerAtomType('array', (context, atom) => {
         const outrow = [];
         for (let c = 0; c < inrow.length; ++c) {
             const localContext = context.clone({
-                mathstyle: atom.mathstyle,
+                mathstyle: MATHSTYLES[atom.mathstyle],
             });
             const cell = decompose(localContext, inrow[c]) || [];
             const elt = [makeOrd(null)].concat(cell);
@@ -227,7 +226,7 @@ registerAtomType('array', (context, atom) => {
     return makeOrd([
         atom.bind(
             context,
-            Delimiters.makeLeftRightDelim(
+            makeLeftRightDelim(
                 'mopen',
                 atom.lFence,
                 innerHeight,
@@ -238,7 +237,7 @@ registerAtomType('array', (context, atom) => {
         inner,
         atom.bind(
             context,
-            Delimiters.makeLeftRightDelim(
+            makeLeftRightDelim(
                 'mclose',
                 atom.rFence,
                 innerHeight,

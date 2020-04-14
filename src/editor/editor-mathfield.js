@@ -9,6 +9,7 @@ import { Atom, makeRoot } from '../core/atom.ts';
 import { decompose } from '../core/atom-utils.js';
 import { parseString } from '../core/parser.js';
 import { makeSpan } from '../core/span.js';
+import { MATHSTYLES } from '../core/mathstyle';
 import EditableMathlist from './editor-editableMathlist.js';
 import MathPath from './editor-mathpath.js';
 import Keyboard from './editor-keyboard.js';
@@ -2233,9 +2234,9 @@ export class Mathfield {
         //
         const spans = decompose(
             {
-                mathstyle: 'displaystyle',
+                mathstyle: MATHSTYLES.displaystyle,
                 letterShapeStyle: this.config.letterShapeStyle,
-                generateID: {
+                atomIdsSettings: {
                     // Using the hash as a seed for the ID
                     // keeps the IDs the same until the content of the field changes.
                     seed: this._hash(),
@@ -2369,14 +2370,14 @@ export class Mathfield {
             format === 'spoken-ssml-withHighlighting'
         ) {
             const saveTextToSpeechMarkup = this.config.textToSpeechMarkup;
-            const saveGenerateID = this.config.generateID;
+            const savedAtomIdsSettings = this.config.atomIdsSettings;
             this.config.textToSpeechMarkup = 'ssml';
             if (format === 'spoken-ssml-withHighlighting') {
-                this.config.generateID = true;
+                this.config.atomIdsSettings = { seed: 'random' };
             }
             result = Atom.toSpeakableText(root, this.config);
             this.config.textToSpeechMarkup = saveTextToSpeechMarkup;
-            this.config.generateID = saveGenerateID;
+            this.config.atomIdsSettings = savedAtomIdsSettings;
         } else if (format === 'json') {
             const json = Atom.toAST(root, this.config);
             result = JSON.stringify(json);
@@ -3997,7 +3998,7 @@ export class Mathfield {
                     ? 'ssml_step'
                     : 'ssml';
             if (speakOptions.withHighlighting) {
-                options.generateID = true;
+                options.atomIdsSettings = { seed: 'random' };
             }
         }
         const text = Atom.toSpeakableText(atoms, options);

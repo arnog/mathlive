@@ -1,5 +1,5 @@
-import { registerAtomType, decompose } from './atom-utils.js';
-import Mathstyle from './mathstyle.js';
+import { registerAtomType, decompose, Atom } from './atom-utils.js';
+import { MATHSTYLES } from './mathstyle.js';
 import { METRICS as FONTMETRICS } from './font-metrics.js';
 import {
     makeSpan,
@@ -8,19 +8,22 @@ import {
     depth as spanDepth,
     height as spanHeight,
 } from './span.js';
-import Delimiters from './delimiters.js';
+import { Context } from './context';
 
-registerAtomType('surd', (context, atom) => {
+import { makeCustomSizedDelim } from './delimiters';
+
+registerAtomType('surd', (context: Context, atom: Atom) => {
     // See the TeXbook pg. 443, Rule 11.
     // http://www.ctex.org/documents/shredder/src/texbook.pdf
     const mathstyle = context.mathstyle;
     // First, we do the same steps as in overline to build the inner group
     // and line
-    const inner = decompose(context.cramp(), atom.body);
+    console.assert(Array.isArray(atom.body));
+    const inner = decompose(context.cramp(), atom.body as Atom[]);
     const ruleWidth =
         FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
     let phi = ruleWidth;
-    if (mathstyle.id < Mathstyle.TEXT.id) {
+    if (mathstyle.id < MATHSTYLES.textstyle.id) {
         phi = mathstyle.metrics.xHeight;
     }
     // Calculate the clearance between the body and line
@@ -33,13 +36,7 @@ registerAtomType('surd', (context, atom) => {
 
     // Create a \surd delimiter of the required minimum size
     const delim = makeSpan(
-        Delimiters.makeCustomSizedDelim(
-            '',
-            '\\surd',
-            minDelimiterHeight,
-            false,
-            context
-        ),
+        makeCustomSizedDelim('', '\\surd', minDelimiterHeight, false, context),
         'sqrt-sign'
     );
     delim.applyStyle(atom.getStyle());
@@ -61,7 +58,7 @@ registerAtomType('surd', (context, atom) => {
     );
     const line = makeSpan(
         null,
-        context.mathstyle.adjustTo(Mathstyle.TEXT) + ' sqrt-line'
+        context.mathstyle.adjustTo(MATHSTYLES.textstyle) + ' sqrt-line'
     );
     line.applyStyle(atom.getStyle());
     line.height = ruleWidth;
@@ -74,10 +71,12 @@ registerAtomType('surd', (context, atom) => {
 
     // Handle the optional root index
     // The index is always in scriptscript style
-    const newcontext = context.clone({ mathstyle: Mathstyle.SCRIPTSCRIPT });
+    const newcontext = context.clone({
+        mathstyle: MATHSTYLES.scriptscriptstyle,
+    });
     const root = makeSpan(
         decompose(newcontext, atom.index),
-        mathstyle.adjustTo(Mathstyle.SCRIPTSCRIPT)
+        mathstyle.adjustTo(MATHSTYLES.scriptscriptstyle)
     );
     // Figure out the height and depth of the inner part
     const innerRootHeight = Math.max(delim.height, body.height);

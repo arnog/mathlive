@@ -1,6 +1,6 @@
 import { Atom, registerAtomType, decompose } from './atom-utils.js';
 import { makeInner, depth as spanDepth, height as spanHeight } from './span.js';
-import Delimiters from './delimiters.js';
+import { makeLeftRightDelim } from './delimiters';
 
 /**
  *  \left....\right
@@ -45,7 +45,7 @@ registerAtomType('leftright', (context, atom) => {
         result.push(
             atom.bind(
                 context,
-                Delimiters.makeLeftRightDelim(
+                makeLeftRightDelim(
                     'mopen',
                     atom.leftDelim,
                     innerHeight,
@@ -66,7 +66,7 @@ registerAtomType('leftright', (context, atom) => {
                 const savedSelected = /ML__selected/.test(inner[i].classes);
                 inner[i] = atom.bind(
                     context,
-                    Delimiters.makeLeftRightDelim(
+                    makeLeftRightDelim(
                         'minner',
                         inner[i].delim,
                         innerHeight,
@@ -110,7 +110,7 @@ registerAtomType('leftright', (context, atom) => {
         result.push(
             atom.bind(
                 context,
-                Delimiters.makeLeftRightDelim(
+                makeLeftRightDelim(
                     'mclose',
                     delim,
                     innerHeight,

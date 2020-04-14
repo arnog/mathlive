@@ -26,7 +26,15 @@
         </header>
         <main>
             <div class="mathfield" id="mf">
-                f^{\doubleprime}
+                <!-- \huge x \text{y} -->
+                \sqrt[\Huge 3]{29}
+                <!-- x^{\binom{n}{k}} -->
+                <!-- \binom12 \textstyle \binom34 \scriptstyle \binom56 \displaystyle \binom78 \scriptstyle \binom90 -->
+                <!-- \int^b_a x^2 dx -->
+                <!-- \int^b_a\int^c_d x^2 dx dy -->
+                <!-- \int x^2 + x = 0 -->
+                <!-- \int x^2 + x dx = 0 -->
+                <!-- \int (x^2 + x) dx = 0 -->
             </div>
             <div class="output" id="latex"></div>
             <div class="output" id="mathjson"></div>
@@ -511,6 +519,7 @@
                 {
                     id: 'sqrt-2',
                     title: 'Cube root with \\Huge index',
+                    comment: '\\Huge does not apply to math mode',
                     latex: 'g(x)=\\sqrt[\\Huge 3]{29}',
                 },
 
@@ -560,7 +569,8 @@
                 },
                 {
                     id: 'genfrac-1',
-                    title: '\\Genfrac in a \\scriptstyle',
+                    pic: 'genfrac-1.gif',
+                    title: 'genfrac in a \\scriptstyle',
                     latex: `x^{\\binom{n}{k}}`,
                 },
                 {
@@ -881,6 +891,7 @@
                 },
                 {
                     id: 'styling-1',
+                    pic: 'styling-1.gif',
                     title:
                         'Math Styles: \\textstyle, \\displaystyle, \\scriptstyle, \\scriptscriptstyle',
                     latex: `\\binom12 \\textstyle \\binom34 \\scriptstyle \\binom56 \\displaystyle \\binom78 \\scriptstyle \\binom90`,
@@ -918,7 +929,10 @@
                 {
                     id: 'sizing-1',
                     title: 'Sizing',
-                    latex: `\\binom12 \\Huge \\binom34 \\tiny \\binom56`,
+                    pic: 'sizing-1.gif',
+                    comment:
+                        '\\Huge, \\large, etc... only affect size of text mode content',
+                    latex: `\\binom12  \\binom34  \\huge \\binom56 x \\text{huge}`,
                 },
 
                 {
@@ -1077,8 +1091,8 @@
                 },
             });
 
-            if (TextTrackCue) {
-                MathLive.renderMathInDocument();
+            MathLive.renderMathInDocument();
+            if (true) {
                 const savedMathfieldContent = mf.$text();
                 document.getElementById(
                     'examples'

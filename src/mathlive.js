@@ -28,6 +28,7 @@ import { Mathfield } from './editor/editor-mathfield.js';
 import AutoRender from './addons/auto-render.js';
 import { jsonToLatex } from './addons/mathJson.js';
 import MathLiveDebug from './addons/debug.js';
+import { MATHSTYLES } from './core/mathstyle';
 
 /**
  * Converts a LaTeX string to a string of HTML markup.
@@ -72,7 +73,7 @@ function toMarkup(text, options) {
     //
     let spans = decompose(
         {
-            mathstyle: options.mathstyle,
+            mathstyle: MATHSTYLES[options.mathstyle],
             letterShapeStyle: options.letterShapeStyle,
         },
         mathlist

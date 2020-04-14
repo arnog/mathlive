@@ -75,11 +75,6 @@ In MathJSON:
 
 ## Design Goals
 
-### Definitions
-
--   **producer** software that generates a MathJSON data structure
--   **consumer** software that parses and acts on a MathJSON data structure
-
 ### Goals
 
 -   Easy to consume, even if that's at the expense of complexity to generate.
@@ -101,7 +96,34 @@ encoded as a JSON object.
 The root element is an `expression`, with child nodes according
 to the grammar below.
 
-### Basic Number
+## Grammar
+
+A MathJSON expression is an Abstract Syntax Tree. As such, there is no need to
+introduce parentheses or to resort to operator precedence in order to parse
+the expression correctly.
+
+The type of each node is indicated by the presence of a specific key, for
+example `sym` for the "symbol" node or `fn` for the "function" node.
+
+There are five types of nodes:
+
+```
+`expression` :=
+    `number`
+    `symbol`
+    `function`
+    `group`
+    `text`
+```
+
+### `number`
+
+A node with a "num" key:
+
+```
+`number` :=
+    { "num" : `basic-number` | `complex-number` }
+```
 
 A basic number is encoded following the JSON grammar, with the following extensions:
 
@@ -111,21 +133,47 @@ A basic number is encoded following the JSON grammar, with the following extensi
     as a quoted string.
 -   support for `NaN` and `infinity`
 
-`basic-number` := `'"NaN"'` | `infinity` | `'"'` [`'-'`] `int` [ `frac`][ `exp` ]`'"'`
+```
+`basic-number` :=
+    "NaN"
+    `infinity`
+    `'"'` [`'-'`] `int` [ `frac`][ `exp` ]`'"'`
 
-`infinity` := `'"'` [`'+'` | `'-'`] `'Infinity'` `'"'`
+`infinity` :=
+    `'"'` [`'+'` | `'-'`] `'Infinity'` `'"'`
 
-`int` := `'0'` | [ `'0'` - `'9'` ]\*
+`int` :=
+    `'0'` | [ `'0'` - `'9'` ]\*
 
-`frac` := `'.'` (`'0'` - `'9'`)\*
+`frac` :=
+    `'.'` (`'0'` - `'9'`)\*
 
-`exp` := [`'e'` | `'E'`][`'+'` | `'-'`] (`'0'` - `'9'` )\*
+`exp` :=
+    [`'e'` | `'E'`][`'+'` | `'-'`] (`'0'` - `'9'` )\*
+
+`complex-number` :=
+    {
+        "re": `basic-number`,
+        "im": `basic-number`
+    }
+```
+
+### `symbol`
+
+A node with the following keys
+
+-   `"sym"`: `native-string`
+-   `"type"`: native-string`, the data type of the symbol. See table below.
+-   `"index"`: A 0-based index into a vector or array. An index can be a number or an array of numbers.
+-   `"accent"`: `string`, a modifier applied to a symbol, such as "hat" or "bar".
+
+The `"sym"` key is the only required key.
 
 ### Native Strings
 
 Native strings are a sequence of Unicode characters.
 
-MATSON producing software should not generate character entities in
+MathJSON producing software should not generate character entities in
 strings.
 
 As per JSON, any Unicode character may be escaped using a `\u` escape sequence.
@@ -143,7 +191,7 @@ See [Unicode Chapter 22 - Symbols](http://www.unicode.org/versions/Unicode10.0.0
 
 ### Optional keys
 
-All nodes may have the following keys:
+All nodes in a MathJSON expression may have the following keys:
 
 -   `sub`: `expression`, a subscript
 -   `sup`: `expression`, a superscript
@@ -154,16 +202,16 @@ All nodes may have the following keys:
 -   `mathml`: A visual representation in MathML of the expression.
 -   `class`: A CSS class to be associated with a representation of this node
 -   `id`: A CSS id to be associated with a representation of this node
--   `style`: A CSS style string
+-   `css`: A CSS style string
 -   `wikidata`: A short string indicating an entry in a wikibase. For example,
     `"Q2111"`
--   `wikibase`: A base URL for the wikidata key. A full URL can be produced
+-   `wikibase`: A base URL for the `wikidata` key. A full URL can be produced
     by concatenating this key with the wikidata key. This key applies to
     this node and all its children. The default value is "https://www.wikidata.org/wiki/"
--   `openmathcd`: A base URL for an OpenMath content dictionary. This key applies to
-    this node and all its children. The default value is "http://www.openmath.org/cd".
 -   `openmathsymbol`: A short string indicating an entry in an OpenMath Content
     Dictionary. For example: `arith1/#abs`.
+-   `openmathcd`: A base URL for an OpenMath content dictionary. This key applies to
+    this node and all its children. The default value is "http://www.openmath.org/cd".
 
 ### Key order
 
@@ -185,42 +233,7 @@ These two expressions are _not_ equivalent:
    {"fn":"divide", "arg":[{num:"3"}, {num:"1"}]}
 ```
 
-## Grammar
-
-An expression is an Abstract Syntax Tree. As such, there is no need to
-introduce parentheses or to resort to operator precedence in order to parse
-the expression correctly.
-
-The type of each node is indicated by the presence of a specific key, for example `sym` for the "symbol" node or `fn` for the "function" node.
-
-There are five types of nodes:
-
-`expression` := `number` |
-`symbol` |
-`function` |
-`group` |
-`text` |
-
-### `number`
-
-A node with the following key:
-
--   `num`: `basic-number` | `complex-number`
-
-`complex-number` := { "re": `basic-number`, "im": `basic-number`}
-
-### `symbol`
-
-A node with the following keys
-
--   `sym`: `native-string`
--   `type`: native-string`, the data type of the symbol. See table below.
--   `index`: A 0-based index into a vector or array. An index can be a number or an array of numbers.
--   `accent`: `string`, a modifier applied to a symbol, such as "hat" or "bar".
-
-The `sym` key is the only required key.
-
-#### Type
+#### Symbol Type
 
 The data type of a symbol can be used to refine the interpretation of operations
 performed upon it.
@@ -263,7 +276,7 @@ The following values are recommended:
 
 ### `function`
 
--   `fn`: `native-string`, the name of the function.
+-   `fn`: `native-string`, the name of the function or `expression`
 -   `arg`: array of `expression`, the arguments to the function.
 -   `fence`: `string`, one to three characters indicating the delimiters used for the expression. The first character is the opening delimiter, the second character, if present, is the closing delimiter. The third character, if present, is the delimiters separating the arguments. If no value is provided for this key, the default value `(),` is used. The character `.` can be used to indicate the absence of a delimiter, for example `..;`.
 -   `sub`: `expression`
@@ -282,6 +295,7 @@ When using common functions, the following values are recommended:
 | `subtract`                 | 2     | Subtract the second from the first.               |
 | `divide`                   | 2     | The first argument divided by the second argument |
 | `negate`                   | 1     | Negate the argument                               |
+| `sequence`                 | 1+    | concatenated elements                             |
 | `list`                     | 1+    | comma separated list                              |
 | `list2`                    | 1+    | semi-colon separated list                         |
 
@@ -347,21 +361,21 @@ cuts of those functions. The interpretation is left up to the consuming software
 
 #### Relational operators
 
-| Operation                |  Value   | Comment                                |
-| ------------------------ | :------: | -------------------------------------- |
+| Operation                | Value    | Comment                                |
+| ------------------------ | :------- | -------------------------------------- |
 | Equal to                 | `equal`  | General purpose equality               |
-| Less than                |   `lt`   |
-| Less than or equal to    |   `le`   |
-| Greater than             |   `gt`   |
-| Greater than or equal to |   `ge`   |
-| Much less than           |   `ll`   | `x ≪ y`                                |
-| Much greater than        |   `gg`   | `y ≫ x`                                |
+| Less than                | `lt`     |
+| Less than or equal to    | `le`     |
+| Greater than             | `gt`     |
+| Greater than or equal to | `ge`     |
+| Much less than           | `ll`     | `x ≪ y`                                |
+| Much greater than        | `gg`     | `y ≫ x`                                |
 | Definition/assignment    | `assign` | Used with `a := 5` or `f(x) := sin(x)` |
-| Identity                 |  `:=:`   | Used with `1 + 1 :=: 2`                |
+| Identity                 | `:=:`    | Used with `1 + 1 :=: 2`                |
 | Approximately equal to   | `approx` | Used with `π ≈ 3.14`                   |
-| Not equal to             |   `ne`   |
-| Similar to               |  `sim`   | `2 ~ 5`                                |
-| Congruent to             |  `cong`  | `A ≅ B`                                |
+| Not equal to             | `ne`     |
+| Similar to               | `sim`    | `2 ~ 5`                                |
+| Congruent to             | `cong`   | `A ≅ B`                                |
 
 There are three semantically distinct use for "equal to" which are often all represented with `=` in mathematical notation:
 
@@ -398,24 +412,24 @@ If necessary, an empty argument can be represented by an empty structure.
 
 The following values should be used to represent these common big operators:
 
-| Operation        | Value              | Comment  |
-| ---------------- | :----------------- | :------- |
-| Sum              | `sum`              | ∑ U+2211 |
-| Product          | `product`          | ∏ U+220f |
-| Intersection     | `intersection`     | ⋂ U+22c2 |
-| Union            | `union`            | ⋃ U+22c3 |
-| Integral         | `integral`         | ∫ U+222b |
-| Double integral  | `integral2`        | ∬ U+222c |
-| Triple integral  | `integral3`        | ∭ U+222d |
-| Contour integral | `contour_integral` | ∮ U+222e |
-| Circle Plus      | `circle_plus`      | U+2a01   |
-| Circle Times     | `circle_times`     | U+2a02   |
-| And              | `n_and`            | U+22c1   |
-| Or               | `n_or`             | U+22c0   |
-| Coproduct        | `coproduct`        | ∐ U+2210 |
-| Square cup       | `square_cup`       | U+2a06   |
-| U plus           | `union_plus`       | U+2a04   |
-| O dot            | `odot`             | U+2a00   |
+| Operation        | Value              | Unicode Character |
+| ---------------- | :----------------- | :---------------- |
+| Sum              | `sum`              | ∑ U+2211          |
+| Product          | `product`          | ∏ U+220f          |
+| Intersection     | `intersection`     | ⋂ U+22c2          |
+| Union            | `union`            | ⋃ U+22c3          |
+| Integral         | `integral`         | ∫ U+222b          |
+| Double integral  | `integral2`        | ∬ U+222c          |
+| Triple integral  | `integral3`        | ∭ U+222d          |
+| Contour integral | `contour_integral` | ∮ U+222e          |
+| Circle Plus      | `circle_plus`      | U+2a01            |
+| Circle Times     | `circle_times`     | U+2a02            |
+| And              | `n_and`            | U+22c1            |
+| Or               | `n_or`             | U+22c0            |
+| Coproduct        | `coproduct`        | ∐ U+2210          |
+| Square cup       | `square_cup`       | U+2a06            |
+| U plus           | `union_plus`       | U+2a04            |
+| O dot            | `odot`             | U+2a00            |
 
 #### Special Functions
 

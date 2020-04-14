@@ -1,5 +1,5 @@
 import { Context } from './context.js';
-import Mathstyle from './mathstyle.js';
+import { MATHSTYLES } from './mathstyle';
 import { METRICS as FONTMETRICS } from './font-metrics.js';
 import {
     makeSpan,
@@ -11,7 +11,7 @@ import {
     italic as spanItalic,
     Span,
 } from './span.js';
-import Delimiters from './delimiters.js';
+import { makeSizedDelim } from './delimiters';
 
 export type ParseMode =
     | ''
@@ -85,7 +85,7 @@ export const SIZING_MULTIPLIER = {
     size10: 2.49,
 };
 
-export function registerAtomType(name: string, decompose) {
+export function registerAtomType(name: string, decompose): void {
     ATOM_REGISTRY[name] = { decompose: decompose };
 }
 
@@ -122,10 +122,10 @@ export function decompose(
     }
 
     // In most cases we want to display selection,
-    // except if the generateID.groupNumbers flag is set which is used for
+    // except if the atomIdsSettings.groupNumbers flag is set which is used for
     // read aloud.
     const displaySelection =
-        !context.generateID || !context.generateID.groupNumbers;
+        !context.atomIdsSettings || !context.atomIdsSettings.groupNumbers;
 
     let result: Span[] | null = [];
     if (Array.isArray(atoms)) {
@@ -174,16 +174,16 @@ export function decompose(
                 }
 
                 if (
-                    context.generateID.groupNumbers &&
+                    context.atomIdsSettings?.groupNumbers &&
                     digitOrTextStringID &&
                     ((lastWasDigit && isDigit(atoms[i])) ||
                         (!lastWasDigit && isText(atoms[i])))
                 ) {
-                    context.generateID.overrideID = digitOrTextStringID;
+                    context.atomIdsSettings.overrideID = digitOrTextStringID;
                 }
                 const span = atoms[i].decompose(context, phantomBase);
-                if (context.generateID) {
-                    context.generateID.overrideID = null;
+                if (context.atomIdsSettings) {
+                    context.atomIdsSettings.overrideID = null;
                 }
                 if (span) {
                     // The result from decompose is always an array
@@ -192,13 +192,13 @@ export function decompose(
                     phantomBase = flat;
 
                     // If this is a digit or text run, keep track of it
-                    if (context.generateID && context.generateID.groupNumbers) {
+                    if (context.atomIdsSettings?.groupNumbers) {
                         if (isDigit(atoms[i]) || isText(atoms[i])) {
                             if (
                                 !digitOrTextStringID ||
                                 lastWasDigit !== isDigit(atoms[i])
                             ) {
-                                // changed from text to digits or vise-versa
+                                // changed from text to digits or vice-versa
                                 lastWasDigit = isDigit(atoms[i]);
                                 digitOrTextStringID = atoms[i].id;
                             }
@@ -394,7 +394,7 @@ export class Atom implements Style {
     leftDelim?: string;
     rightDelim?: string;
     delim?: string;
-    size?: string; // type = 'sizeddelim' @revisit Use maxFontSize? or fontSize?
+    size?: 1 | 2 | 3 | 4; // type = 'sizeddelim' @revisit Use maxFontSize? or fontSize?
 
     width?: number;
     height?: number;
@@ -475,7 +475,7 @@ export class Atom implements Style {
         };
     }
 
-    applyStyle(style: Style) {
+    applyStyle(style: Style): void {
         Object.assign(this, style);
 
         if (this.fontFamily === 'none') {
@@ -533,7 +533,7 @@ export class Atom implements Style {
         return /minner|mbin|mrel|mpunct|mopen|mclose|textord/.test(base.type);
     }
 
-    forEach(cb: (arg0: this) => void) {
+    forEach(cb: (arg0: this) => void): void {
         cb(this);
         if (Array.isArray(this.body)) {
             for (const atom of this.body) if (atom) atom.forEach(cb);
@@ -576,13 +576,9 @@ export class Atom implements Style {
      * Iterate over all the child atoms of this atom, this included,
      * and return an array of all the atoms for which the predicate callback
      * is true.
-     *
-     * @return {Atom[]}
-     * @method Atom#filter
-     * @private
      */
-    filter(cb) {
-        let result = [];
+    filter(cb: (atom: Atom) => boolean): Atom[] {
+        let result: Atom[] = [];
         if (cb(this)) result.push(this);
         for (const relation of [
             'body',
@@ -610,14 +606,16 @@ export class Atom implements Style {
         return result;
     }
 
-    decomposeGroup(context: Context) {
+    decomposeGroup(context: Context): Span {
         // The scope of the context is this group, so clone it
         // so that any changes to it will be discarded when finished
         // with this group.
         // Note that the mathstyle property is optional and could be undefined
         // If that's the case, clone() returns a clone of the
         // context with the same mathstyle.
-        const localContext = context.clone({ mathstyle: this.mathstyle });
+        const localContext = context.clone({
+            mathstyle: this.mathstyle ? MATHSTYLES[this.mathstyle] : undefined,
+        });
         const span = makeOrd(decompose(localContext, this.body as Atom[])); // @revisit
         if (this.cssId) span.cssId = this.cssId;
         span.applyStyle({
@@ -627,7 +625,7 @@ export class Atom implements Style {
         return span;
     }
 
-    decomposeOverlap(context: Context) {
+    decomposeOverlap(context: Context): Span {
         const inner = makeSpan(
             decompose(context, this.body as Atom[]),
             'inner'
@@ -638,13 +636,7 @@ export class Atom implements Style {
         );
     }
 
-    /**
-     * \rule
-     * @memberof Atom
-     * @instance
-     * @private
-     */
-    decomposeRule(context: Context) {
+    decomposeRule(context: Context): Span {
         const mathstyle = context.mathstyle;
         const result = makeOrd('', 'rule');
         let shift = this.shift && !isNaN(this.shift) ? this.shift : 0;
@@ -685,7 +677,10 @@ export class Atom implements Style {
             if (typeof this.body === 'string') {
                 result = this.makeSpan(context, this.body);
             } else {
-                result = this.makeSpan(context, decompose(context, this.body));
+                result = this.makeSpan(
+                    context,
+                    decompose(context, this.body as Atom[])
+                );
             }
             result.type = this.type;
         } else if (this.type === 'group' || this.type === 'root') {
@@ -696,12 +691,7 @@ export class Atom implements Style {
         } else if (this.type === 'sizeddelim') {
             result = this.bind(
                 context,
-                Delimiters.makeSizedDelim(
-                    this.cls,
-                    this.delim,
-                    this.size,
-                    context
-                )
+                makeSizedDelim(this.cls, this.delim, this.size, context)
             );
         } else if (this.type === 'overlap') {
             // For llap (18), rlap (270), clap (0)
@@ -755,7 +745,8 @@ export class Atom implements Style {
         } else if (this.type === 'mathstyle') {
             context.setMathstyle(this.mathstyle);
         } else if (this.type === 'command' || this.type === 'error') {
-            result = this.makeSpan(context, this.body);
+            console.assert(typeof this.body === 'string');
+            result = this.makeSpan(context, this.body as string);
             result.classes = ''; // Override fonts and other attributes.
             if (this.error) {
                 result.classes += ' ML__error';
@@ -824,7 +815,7 @@ export class Atom implements Style {
         return Array.isArray(result) ? result : [result];
     }
 
-    attachSupsub(context, nucleus, type) {
+    attachSupsub(context: Context, nucleus: Span, type: string): Span {
         // If no superscript or subscript, nothing to do.
         if (!this.superscript && !this.subscript) return nucleus;
         // Superscript and subscripts are discussed in the TeXbook
@@ -841,26 +832,26 @@ export class Atom implements Style {
             const sub = decompose(context.sub(), this.subscript);
             submid = makeSpan(sub, mathstyle.adjustTo(mathstyle.sub()));
         }
-        // Rule 18a
+        // Rule 18a, p445
         let supShift = 0;
         let subShift = 0;
         if (!this.isCharacterBox()) {
             supShift = spanHeight(nucleus) - mathstyle.metrics.supDrop;
             subShift = spanDepth(nucleus) + mathstyle.metrics.subDrop;
         }
-        // Rule 18c
-        let minSupShift;
-        if (mathstyle === Mathstyle.DISPLAY) {
-            minSupShift = mathstyle.metrics.sup1;
+        // Rule 18c, p445
+        let minSupShift: number;
+        if (mathstyle === MATHSTYLES.displaystyle) {
+            minSupShift = mathstyle.metrics.sup1; // sigma13
         } else if (mathstyle.cramped) {
-            minSupShift = mathstyle.metrics.sup3;
+            minSupShift = mathstyle.metrics.sup3; // sigma15
         } else {
-            minSupShift = mathstyle.metrics.sup2;
+            minSupShift = mathstyle.metrics.sup2; // sigma14
         }
         // scriptspace is a font-size-independent size, so scale it
-        // appropriately
+        // appropriately @revisit: do we really need to do this scaling? It's in em...
         const multiplier =
-            Mathstyle.TEXT.sizeMultiplier * mathstyle.sizeMultiplier;
+            MATHSTYLES.textstyle.sizeMultiplier * mathstyle.sizeMultiplier;
         const scriptspace = 0.5 / FONTMETRICS.ptPerEm / multiplier;
         let supsub = null;
         if (submid && supmid) {
@@ -930,7 +921,12 @@ export class Atom implements Style {
         return makeSpanOfType(type, [nucleus, supsubContainer]);
     }
 
-    attachLimits(context, nucleus, nucleusShift, slant) {
+    attachLimits(
+        context: Context,
+        nucleus: Span,
+        nucleusShift: number,
+        slant: number
+    ): Span {
         const limitAbove = this.superscript
             ? makeSpan(
                   decompose(context.sup(), this.superscript),
@@ -956,12 +952,8 @@ export class Atom implements Style {
     /**
      * Add an ID attribute to both the span and this atom so that the atom
      * can be retrieved from the span later on (e.g. when the span is clicked on)
-     * @param {Context} context
-     * @param {Span} span
-     * @method Atom#bind
-     * @private
      */
-    bind(context, span) {
+    bind(context: Context, span: Span): Span {
         if (this.type !== 'first' && this.body !== '\u200b') {
             this.id = makeID(context);
             if (this.id) {
@@ -976,13 +968,8 @@ export class Atom implements Style {
      * Create a span with the specified body and with a class attribute
      * equal to the type ('mbin', 'inner', 'spacing', etc...)
      *
-     * @param {Context} context
-     * @param {(string|Span[])} body
-     * @return {Span}
-     * @method Atom#makeSpan
-     * @private
      */
-    makeSpan(context, body) {
+    makeSpan(context: Context, body: string | Span | Span[]): Span {
         const type = this.type === 'textord' ? 'mord' : this.type;
         const result = makeSpanOfType(type, body);
 
@@ -1001,7 +988,7 @@ export class Atom implements Style {
         result.applyStyle(style);
 
         // Apply size correction
-        const size = style && style.fontSize ? style.fontSize : 'size5';
+        const size = style?.fontSize ? style.fontSize : 'size5';
         if (size !== context.parentSize) {
             result.classes += ' sizing reset-' + context.parentSize;
             result.classes += ' ' + size;
@@ -1011,7 +998,7 @@ export class Atom implements Style {
         }
         result.maxFontSize = Math.max(
             result.maxFontSize,
-            context.sizeMultiplier || 1.0
+            context.mathstyle.sizeMultiplier || 1.0
         );
 
         // Set other attributes
@@ -1042,17 +1029,19 @@ export class Atom implements Style {
     }
 }
 
-function makeID(context) {
-    let result;
-    if (typeof context.generateID === 'boolean' && context.generateID) {
-        result =
-            Date.now().toString(36).slice(-2) +
-            Math.floor(Math.random() * 0x186a0).toString(36);
-    } else if (typeof context.generateID === 'object') {
-        result = context.generateID.overrideID
-            ? context.generateID.overrideID
-            : context.generateID.seed.toString(36);
-        context.generateID.seed += 1;
+function makeID(context: Context): string {
+    let result: string;
+    if (context.atomIdsSettings) {
+        if (typeof context.atomIdsSettings.seed === 'number') {
+            result = context.atomIdsSettings.overrideID
+                ? context.atomIdsSettings.overrideID
+                : context.atomIdsSettings.seed.toString(36);
+            context.atomIdsSettings.seed += 1;
+        } else {
+            result =
+                Date.now().toString(36).slice(-2) +
+                Math.floor(Math.random() * 0x186a0).toString(36);
+        }
     }
     return result;
 }
@@ -1078,7 +1067,14 @@ function makeID(context) {
  * @memberof module:atom
  * @private
  */
-function makeLimitsStack(context, nucleus, nucleusShift, slant, above, below) {
+function makeLimitsStack(
+    context: Context,
+    nucleus: Span,
+    nucleusShift: number,
+    slant: number,
+    above: Span,
+    below: Span
+): Span {
     // If nothing above and nothing below, nothing to do.
     if (!above && !below) return nucleus;
 

@@ -188,7 +188,7 @@ export class Span {
     svgStyle?: string;
 
     style: { [key: string]: string };
-    attributes?: { [key: string]: string }; // HTML attributes
+    attributes?: { [key: string]: string }; // HTML attributes, for example 'data-atom-id'
 
     constructor(content: string | Span | Span[], classes = '') {
         // CLASSES
@@ -218,7 +218,7 @@ export class Span {
      * @method module:core/span.Span#updateDimensions
      * @private
      */
-    updateDimensions() {
+    updateDimensions(): void {
         let height = 0.0;
         let depth = 0.0;
         let maxFontSize = 1.0;
@@ -234,7 +234,7 @@ export class Span {
         this.maxFontSize = maxFontSize;
     }
 
-    selected(isSelected: boolean) {
+    selected(isSelected: boolean): void {
         if (isSelected && !/ML__selected/.test(this.classes)) {
             if (this.classes.length > 0) this.classes += ' ';
             this.classes += 'ML__selected';
@@ -279,7 +279,7 @@ export class Span {
      * @private
      */
 
-    applyStyle(style: Style) {
+    applyStyle(style: Style): void {
         if (!style) return;
 
         //
@@ -397,13 +397,13 @@ export class Span {
      *
      * @param {number} right
      */
-    setRight(right: number) {
+    setRight(right: number): void {
         if (right && right !== 0) {
             if (!this.style) this.style = {};
             this.style['margin-right'] = toString(right) + 'em';
         }
     }
-    setWidth(width: number) {
+    setWidth(width: number): void {
         if (width && width !== 0) {
             if (!this.style) this.style = {};
             this.style['width'] = toString(width) + 'em';
@@ -423,9 +423,7 @@ export class Span {
      * @method module:core/span.Span#toMarkup
      */
 
-    toMarkup(hskip: number, hscale: number): string {
-        hskip = hskip || 0;
-        hscale = hscale || 1.0;
+    toMarkup(hskip = 1.0, hscale = 1.0): string {
         let result = '';
         let body = this.body || '';
         if (this.children) {
@@ -697,7 +695,7 @@ export class Span {
     }
 }
 
-function lastSpanType(span: Span) {
+function lastSpanType(span: Span): string {
     const result = span.type;
     if (result === 'first') return 'none';
     if (result === 'textord') return 'mord';
@@ -732,7 +730,7 @@ export function coalesce(spans: Span[]): Span[] {
 // UTILITY FUNCTIONS
 //----------------------------------------------------------------------------
 
-export function height(spans: Span | Span[]) {
+export function height(spans: Span | Span[]): number {
     if (!spans) return 0;
     if (Array.isArray(spans)) {
         return spans.reduce((acc, x) => Math.max(acc, x.height), 0);
@@ -740,7 +738,7 @@ export function height(spans: Span | Span[]) {
     return spans.height;
 }
 
-export function depth(spans: Span | Span[]) {
+export function depth(spans: Span | Span[]): number {
     if (!spans) return 0;
     if (Array.isArray(spans)) {
         return spans.reduce((acc, x) => Math.max(acc, x.depth), 0);
@@ -748,7 +746,7 @@ export function depth(spans: Span | Span[]) {
     return spans.depth;
 }
 
-export function skew(spans: Span | Span[]) {
+export function skew(spans: Span | Span[]): number {
     if (!spans) return 0;
     if (Array.isArray(spans)) {
         let result = 0;
@@ -760,7 +758,7 @@ export function skew(spans: Span | Span[]) {
     return spans.skew;
 }
 
-export function italic(spans: Span | Span[]) {
+export function italic(spans: Span | Span[]): number {
     if (!spans) return 0;
     if (Array.isArray(spans)) {
         return spans[spans.length - 1].italic;
@@ -772,7 +770,6 @@ export function italic(spans: Span | Span[]) {
  * Make an element made of a sequence of children with classes
  * @param {(string|Span|Span[])} content the items 'contained' by this node
  * @param {string} classes list of classes attributes associated with this node
- * @return {Span}
  * @memberof module:core/span
  */
 export function makeSpan(content: string | Span | Span[], classes = ''): Span {
@@ -788,18 +785,10 @@ export function makeSpan(content: string | Span | Span[], classes = ''): Span {
     return new Span(content, classes);
 }
 
-/**
- *
- * @param {string} fontFamily
- * @param {string} symbol
- * @param {string} classes
- * @memberof module:core/span
- * @private
- */
 export function makeSymbol(
     fontFamily: string,
     symbol: string,
-    classes: string
+    classes = ''
 ): Span {
     const result = new Span(symbol, classes);
 
@@ -820,9 +809,6 @@ export function makeSymbol(
  * with the correct font size.
 //  * Note: without this, even when fontSize = 0, the fraction bar is no
 //  * longer positioned correctly
- * @return {Span}
- * @memberof module:core/span
- * @private
  */
 function makeFontSizer(context: Context, fontSize: number): Span {
     const fontSizeAdjustment = fontSize
@@ -859,8 +845,6 @@ function makeFontSizer(context: Context, fontSize: number): Span {
  * See https://tex.stackexchange.com/questions/81752/
  * for a thorough description of the TeXt atom type and their relevance to
  * proper kerning.
- * @memberof module:core/span
- * @private
  */
 export function makeSpanOfType(
     type: string,
@@ -872,31 +856,31 @@ export function makeSpanOfType(
     return result;
 }
 
-export function makeOp(content: string | Span[], classes = '') {
+export function makeOp(content: string | Span[], classes = ''): Span {
     return makeSpanOfType('mop', content, classes);
 }
 
-export function makeOrd(content: string | Span[], classes = '') {
+export function makeOrd(content: string | Span[], classes = ''): Span {
     return makeSpanOfType('mord', content, classes);
 }
 
-export function makeRel(content: string | Span[], classes = '') {
+export function makeRel(content: string | Span[], classes = ''): Span {
     return makeSpanOfType('mrel', content, classes);
 }
 
-export function makeClose(content: string | Span[], classes = '') {
+export function makeClose(content: string | Span[], classes = ''): Span {
     return makeSpanOfType('mclose', content, classes);
 }
 
-export function makeOpen(content: string | Span[], classes = '') {
+export function makeOpen(content: string | Span[], classes = ''): Span {
     return makeSpanOfType('mopen', content, classes);
 }
 
-export function makeInner(content: string, classes = '') {
+export function makeInner(content: string, classes = ''): Span {
     return makeSpanOfType('minner', content, classes);
 }
 
-export function makePunct(content: string | Span[], classes = '') {
+export function makePunct(content: string | Span[], classes = ''): Span {
     return makeSpanOfType('mpunct', content, classes);
 }
 
@@ -906,7 +890,7 @@ export function makeStyleWrap(
     fromStyle: Mathstyle,
     toStyle: Mathstyle,
     classes: string
-) {
+): Span {
     classes = classes || '';
     classes += ' style-wrap ';
 
@@ -915,7 +899,7 @@ export function makeStyleWrap(
 
     const multiplier = toStyle.sizeMultiplier / fromStyle.sizeMultiplier;
 
-    result.height *= multiplier;
+    result.height *= multiplier; // @revisit. Use spanHeight()? is height set at this point?
     result.depth *= multiplier;
     result.maxFontSize = toStyle.sizeMultiplier;
 
@@ -929,7 +913,11 @@ export function makeStyleWrap(
  * @param {string} svgMarkup
  * @private
  */
-export function addSVGOverlay(body: Span, svgMarkup: string, svgStyle: string) {
+export function addSVGOverlay(
+    body: Span,
+    svgMarkup: string,
+    svgStyle: string
+): Span {
     body.svgOverlay = svgMarkup;
     body.svgStyle = svgStyle;
     return body;
@@ -939,10 +927,8 @@ export function addSVGOverlay(body: Span, svgMarkup: string, svgStyle: string) {
  *
  * @param {Span|Span[]} spans
  * @param {string} classes
- * @memberof module:core/span
- * @private
  */
-export function makeHlist(spans: Span | Span[], classes: string) {
+export function makeHlist(spans: Span | Span[], classes: string): Span {
     if (!classes || classes.length === 0) {
         // No decorations...
         if (spans instanceof Span) {
@@ -982,15 +968,13 @@ export function makeHlist(spans: Span | Span[], classes: string) {
  * - `"shift"`: the baseline of the vlist will be positioned posData away from the baseline
  * of the first child. (>0 moves down)
  * @param {number} posData
- * @memberof module:core/span
- * @private
  */
 export function makeVlist(
     context: Context,
     elements: Array<number | Span[] | Span>,
     pos: 'shift' | 'top' | 'bottom' | 'individualShift' = 'shift',
     posData = 0
-) {
+): Span {
     let listDepth = 0;
     let currPos = 0;
     pos = pos || 'shift';
@@ -1101,9 +1085,8 @@ export function makeVlist(
  *
  * @param {string} svgBodyName
  * @param {string} classes list of classes attributes associated with this node
- * @private
  */
-export function makeSVGSpan(svgBodyName: string, classes: string) {
+export function makeSVGSpan(svgBodyName: string, classes: string): Span {
     const span = new Span(null, classes);
     span.svgBody = svgBodyName;
     span.height = svgBodyHeight(svgBodyName) / 2;
