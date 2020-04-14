@@ -353,7 +353,7 @@ yellowgreen	rgb(154, 205, 50)
  * @memberof module:color
  * @private
  */
-export function stringToColor(s) {
+export function stringToColor(s: string): string {
     const colorSpec = s.toLowerCase().split('!');
 
     let baseRed;
@@ -374,8 +374,7 @@ export function stringToColor(s) {
         baseGreen = green;
         baseBlue = blue;
 
-        let colorName = colorSpec[i].match(/([a-z0-9]*)/);
-        if (colorName) colorName = colorName[1];
+        const colorName = colorSpec[i].match(/([a-z0-9]*)/)?.[1];
 
         let color = NAMED_COLORS[colorName] || MATHEMATICA_COLORS[colorName];
         if (!color) color = colorSpec[i];
@@ -441,7 +440,7 @@ export function stringToColor(s) {
     );
 }
 
-export function colorToString(color) {
+export function colorToString(color: string): string {
     let result = color.toUpperCase();
 
     for (const c in NAMED_COLORS) {

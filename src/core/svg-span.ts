@@ -399,10 +399,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
 /**
  * Generate the HTML markup to represent a SVG span.
  *
- * @param {string} svgBodyName
- * @private
  */
-export function svgBodyToMarkup(svgBodyName) {
+export function svgBodyToMarkup(svgBodyName: string): string {
     if (SVG_ACCENTS[svgBodyName]) {
         const height = SVG_ACCENTS[svgBodyName][2];
         const result =
@@ -416,8 +414,8 @@ export function svgBodyToMarkup(svgBodyName) {
     }
 
     const [paths, minWidth, viewBoxHeight, align] = SVG_BODY[svgBodyName];
-    let widthClasses;
-    let aligns;
+    let widthClasses: string[];
+    let aligns: string[];
     const height = viewBoxHeight / 1000;
     if (paths.length === 3) {
         widthClasses = ['slice-1-of-3', 'slice-2-of-3', 'slice-3-of-3'];
@@ -431,7 +429,7 @@ export function svgBodyToMarkup(svgBodyName) {
     }
     const body = paths
         .map(
-            (path, i) =>
+            (path: string | number, i: string | number) =>
                 `<span class="${widthClasses[i]}" style="height:${height}em">` +
                 `<svg width="400em" height="${height}em"` +
                 `viewBox="0 0 400000 ${viewBoxHeight}"` +
@@ -443,7 +441,7 @@ export function svgBodyToMarkup(svgBodyName) {
     return `<span style="height:${height}em;min-width:${minWidth}em">${body}</span>`;
 }
 
-export function svgBodyHeight(svgBodyName) {
+export function svgBodyHeight(svgBodyName: string): number {
     if (SVG_BODY[svgBodyName]) {
         return SVG_BODY[svgBodyName][2] / 1000;
     }

@@ -20,7 +20,6 @@ import VirtualKeyboard from './editor-virtualKeyboard.js';
 import { splitGraphemes } from '../core/grapheme-splitter.ts';
 import { toASCIIMath } from './outputASCIIMath.js';
 import { l10n } from './l10n.js';
-import '../addons/outputLatex.js';
 import '../addons/outputMathML.js';
 import '../addons/mathJson.js';
 import '../addons/outputSpokenText.js';

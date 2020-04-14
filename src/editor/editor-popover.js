@@ -3,6 +3,7 @@ import { parseString } from '../core/parser.js';
 import { makeSpan } from '../core/span.js';
 import Shortcuts from './editor-shortcuts.js';
 import { getInfo } from '../core/definitions.js';
+import { MATHSTYLES } from '../core/mathstyle';
 
 // A textual description of a LaTeX command.
 // The value can be either a single string, or an array of string
@@ -268,7 +269,7 @@ function latexToMarkup(latex, mf) {
     const parse = parseString(latex, 'math', null, mf.config.macros);
     const spans = decompose(
         {
-            mathstyle: 'displaystyle',
+            mathstyle: MATHSTYLES.displaystyle,
             macros: mf.config.macros,
         },
         parse

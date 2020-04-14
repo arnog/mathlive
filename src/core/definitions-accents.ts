@@ -1,4 +1,5 @@
 import { defineFunction, parseArgAsString } from './definitions-utils.js';
+import { Atom } from './atom-utils';
 
 const ACCENTS = {
     acute: '\u02ca',
@@ -25,7 +26,7 @@ defineFunction(Object.keys(ACCENTS), '{body:auto}', null, function (
         // it to the decomposeAccent
         // (any non-null value would do)
         skipBoundary: true,
-        body: args[0],
+        body: args[0] as Atom[],
     };
 });
 
@@ -34,7 +35,7 @@ defineFunction(
     '{body:auto}',
     null,
     (name, args) => {
-        const baseString = parseArgAsString(args[0]);
+        const baseString = parseArgAsString(args[0] as Atom[]);
         const accent =
             name.slice(1) +
             (baseString.length > 5
@@ -48,7 +49,7 @@ defineFunction(
             // it to the decomposeAccent
             // (any non-null value would do)
             skipBoundary: true,
-            body: args[0],
+            body: args[0] as Atom[],
         };
     }
 );
@@ -58,7 +59,7 @@ defineFunction(
     '{body:auto}',
     null,
     (_name, args) => {
-        const baseString = parseArgAsString(args[0]);
+        const baseString = parseArgAsString(args[0] as Atom[]);
         const accent =
             'widetilde' +
             (baseString.length > 5
@@ -68,13 +69,14 @@ defineFunction(
         return {
             type: 'overunder',
 
-            body: args[0],
+            body: args[0] as Atom[],
             svgBelow: accent,
 
             skipBoundary: true,
         };
     },
-    (_name, _parent, atom, emit) => `\\utilde{${emit(atom, atom.body)}}`
+    (_name, _parent, atom, emit) =>
+        `\\utilde{${emit(atom, atom.body as Atom[])}}`
 );
 
 /*
@@ -100,7 +102,7 @@ defineFunction('^', '{:string}', {}, (_name, args) => {
                   I: 'Î',
                   O: 'Ô',
                   U: 'Û',
-              }[args[0]] || '^'
+              }[args[0] as string] || '^'
             : '^',
     };
 });
@@ -123,7 +125,7 @@ defineFunction('`', '{:string}', {}, (_name, args) => {
                   I: 'Ì',
                   O: 'Ò',
                   U: 'Ù',
-              }[args[0]] || '`'
+              }[args[0] as string] || '`'
             : '`',
     };
 });
@@ -146,7 +148,7 @@ defineFunction("'", '{:string}', {}, function (name, args) {
                   I: 'Í',
                   O: 'Ó',
                   U: 'Ú',
-              }[args[0]] || '\u005e'
+              }[args[0] as string] || '\u005e'
             : '\u005e',
     };
 });
@@ -158,8 +160,9 @@ defineFunction('~', '{:string}', {}, function (name, args) {
         isSymbol: true,
         isFunction: false,
         body: args[0]
-            ? { n: 'ñ', N: 'Ñ', a: 'ã', o: 'õ', A: 'Ã', O: 'Õ' }[args[0]] ||
-              '\u00B4'
+            ? { n: 'ñ', N: 'Ñ', a: 'ã', o: 'õ', A: 'Ã', O: 'Õ' }[
+                  args[0] as string
+              ] || '\u00B4'
             : '\u00B4',
     };
 });
@@ -170,6 +173,6 @@ defineFunction('c', '{:string}', {}, function (name, args) {
         limits: 'nolimits',
         isSymbol: true,
         isFunction: false,
-        body: args[0] ? { c: 'ç', C: 'Ç' }[args[0]] || '' : '',
+        body: args[0] ? { c: 'ç', C: 'Ç' }[args[0] as string] || '' : '',
     };
 });

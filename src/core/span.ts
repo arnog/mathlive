@@ -3,30 +3,11 @@
  * @private
  */
 
-import { getCharacterMetrics } from './font-metrics.js';
-import { svgBodyToMarkup, svgBodyHeight } from './svg-span.js';
-import { applyStyle as applyStyleForMode } from './modes-utils.js';
-import { Context } from './context.js';
-import { Mathstyle } from './mathstyle.js';
-
-export type Variant = 'calligraphic' | 'fraktur';
-export type VariantStyle = 'up' | 'bold' | 'italic' | 'bolditalic' | '';
-export type FontShape = 'auto' | 'n' | '';
-export type FontSeries = 'auto' | 'm' | '';
-export interface Style {
-    mode?: string;
-    color?: string;
-    backgroundColor?: string;
-    variant?: Variant;
-    variantStyle?: VariantStyle;
-    fontFamily?: string;
-    fontShape?: FontShape;
-    fontSeries?: FontSeries;
-    fontSize?: string;
-    cssId?: string;
-    cssClass?: string;
-    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'up' | 'auto';
-}
+import { getCharacterMetrics } from './font-metrics';
+import { svgBodyToMarkup, svgBodyHeight } from './svg-span';
+import { applyStyle as applyStyleForMode } from './modes-utils';
+import { Context, Style } from './context';
+import { Mathstyle } from './mathstyle';
 
 /*
  * See http://www.tug.org/TUGboat/tb30-3/tb96vieth.pdf for
@@ -898,7 +879,6 @@ export function makeStyleWrap(
     result.type = type;
 
     const multiplier = toStyle.sizeMultiplier / fromStyle.sizeMultiplier;
-
     result.height *= multiplier; // @revisit. Use spanHeight()? is height set at this point?
     result.depth *= multiplier;
     result.maxFontSize = toStyle.sizeMultiplier;

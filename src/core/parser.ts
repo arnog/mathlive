@@ -3,19 +3,15 @@ import {
     getInfo,
     charToLatex,
     MacroDictionary,
-} from './definitions.js';
-import { stringToColor } from './color.js';
-import { convertDimenToEm } from './font-metrics.js';
+} from './definitions';
+import { stringToColor } from './color';
+import { convertDimenToEm } from './font-metrics';
 import { Token, tokenize } from './lexer';
-import { Atom, Style, ParseMode } from './atom';
-import { parseTokens } from './modes.js';
+import { Atom, Colspec } from './atom';
+import { parseTokens } from './modes';
 import { MacroDefinition } from './definitions-utils';
+import { Style, ParseMode } from './context';
 
-type Colspec = {
-    gap?: Atom[];
-    align?: 'l' | 'c' | 'r';
-    rule?: boolean;
-};
 type BBoxParam = {
     backgroundcolor?: string;
     padding?: number;
@@ -1150,11 +1146,13 @@ class Parser {
      * @param {string} [parseMode] Temporarily overrides the parser parsemode. For
      * example: `'dimension'`, `'color'`, `'text'`, etc...
      */
-    scanArg(parseMode?: ParseMode): string | Atom[] {
+    scanArg(
+        parseMode?: ParseMode
+    ): string | number | Atom | Atom[] | Colspec[] {
         parseMode =
             !parseMode || parseMode === 'auto' ? this.parseMode : parseMode;
         this.parseFiller();
-        let result;
+        let result: string | number | Atom | Atom[] | Colspec[];
         // An argument (which is called a 'math field' in TeX)
         // could be a single character or symbol, as in `\frac12`
         // Note that ``\frac\sqrt{-1}\alpha\beta`` is equivalent to
@@ -1240,7 +1238,11 @@ class Parser {
                     macros: this.macros,
                     smartFence: this.smartFence,
                     style: this.style,
-                    parse: (mode, tokens, options) => {
+                    parse: (
+                        mode: ParseMode,
+                        tokens: Token[],
+                        options
+                    ): [Atom[], Token[]] => {
                         const parser = new Parser(
                             tokens,
                             options.args,
@@ -1295,7 +1297,7 @@ class Parser {
                 result = new Atom(
                     this.parseMode,
                     'placeholder',
-                    this.scanArg('string'),
+                    this.scanArg('string') as string,
                     this.style
                 );
                 result.captureSelection = true;
@@ -1372,7 +1374,9 @@ class Parser {
                                     this.parseMode,
                                     info.type,
                                     explicitGroup
-                                        ? this.scanArg(explicitGroup)
+                                        ? (this.scanArg(
+                                              explicitGroup
+                                          ) as Atom[])
                                         : null,
                                     { ...this.style, ...attributes }
                                 );

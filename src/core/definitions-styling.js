@@ -1,5 +1,5 @@
-import { defineFunction, parseArgAsString } from './definitions-utils.js';
-import { colorToString, stringToColor } from '../core/color.js';
+import { defineFunction, parseArgAsString } from './definitions-utils';
+import { colorToString, stringToColor } from '../core/color';
 
 defineFunction(
     'ensuremath',

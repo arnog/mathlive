@@ -1,6 +1,39 @@
 import { Mathstyle, MATHSTYLES } from './mathstyle';
 import { MacroDictionary } from './definitions-utils';
 
+export type ParseMode =
+    | ''
+    | 'auto'
+    | 'bbox'
+    | 'color'
+    | 'colspec'
+    | 'delim'
+    | 'dimen'
+    | 'math'
+    | 'number'
+    | 'skip'
+    | 'text'
+    | 'string';
+
+export type Variant = 'calligraphic' | 'fraktur';
+export type VariantStyle = 'up' | 'bold' | 'italic' | 'bolditalic' | '';
+export type FontShape = 'auto' | 'n' | '';
+export type FontSeries = 'auto' | 'm' | '';
+export interface Style {
+    mode?: ParseMode;
+    color?: string;
+    backgroundColor?: string;
+    variant?: Variant;
+    variantStyle?: VariantStyle;
+    fontFamily?: string;
+    fontShape?: FontShape;
+    fontSeries?: FontSeries;
+    fontSize?: string;
+    cssId?: string;
+    cssClass?: string;
+    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'up' | 'auto';
+}
+
 interface ContextInterface {
     macros?: MacroDictionary;
     atomIdsSettings?: {

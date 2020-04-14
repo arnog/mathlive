@@ -1,7 +1,7 @@
-import { register, getPropertyRuns } from './modes-utils.js';
-import { colorToString } from './color.js';
-import { Atom } from './atom.ts';
-import { getInfo, charToLatex, unicodeStringToLatex } from './definitions.js';
+import { register, getPropertyRuns } from './modes-utils';
+import { colorToString } from './color';
+import { Atom } from './atom-utils';
+import { getInfo, charToLatex, unicodeStringToLatex } from './definitions';
 
 function emitStringTextRun(_context, run, _expandMacro) {
     let needSpace = false;
@@ -169,18 +169,18 @@ const TEXT_FONT_CLASS = {
     monospace: 'ML__tt',
 };
 
-function applyStyle(atom, style) {
+function applyStyle(span, style) {
     const fontFamily = style.fontFamily;
 
     if (TEXT_FONT_CLASS[fontFamily]) {
-        atom.classes += ' ' + TEXT_FONT_CLASS[fontFamily];
+        span.classes += ' ' + TEXT_FONT_CLASS[fontFamily];
     } else if (fontFamily) {
         // Not a well-known family. Use a style.
-        atom.setStyle('font-family', fontFamily);
+        span.setStyle('font-family', fontFamily);
     }
 
     if (style.fontShape) {
-        atom.classes +=
+        span.classes +=
             ' ' +
             ({
                 it: 'ML__it',
@@ -192,7 +192,7 @@ function applyStyle(atom, style) {
     if (style.fontSeries) {
         const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
         if (m) {
-            atom.classes +=
+            span.classes +=
                 ' ' +
                 ({
                     ul: 'ML__series_ul',
@@ -205,7 +205,7 @@ function applyStyle(atom, style) {
                     eb: 'ML__series_eb',
                     ub: 'ML__series_ub',
                 }[m[1] || ''] || '');
-            atom.classes +=
+            span.classes +=
                 ' ' +
                 ({
                     uc: 'ML__series_uc',

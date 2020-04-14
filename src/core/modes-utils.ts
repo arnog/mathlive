@@ -1,14 +1,32 @@
+import { Span } from './span';
+import { Token } from './lexer';
+import { MacroDictionary } from './definitions-utils';
+import { Atom } from './atom';
+import { ParseMode, Style } from './context';
+
+interface ParseTokensOptions {
+    args: (string | Atom[])[];
+    macros: MacroDictionary;
+    smartFence: boolean;
+    style: Style;
+    parse: (
+        mode: ParseMode,
+        tokens: Token[],
+        options: ParseTokensOptions
+    ) => [Atom[], Token[]];
+}
+
 /*
  * Return an array of runs (array of atoms with the same value
  *   for the specified property)
  */
-export function getPropertyRuns(atoms, property) {
+export function getPropertyRuns(atoms: Atom[], property: string): Atom[][] {
     const result = [];
     let run = [];
-    let currentValue;
-    atoms.forEach((atom) => {
+    let currentValue: string;
+    atoms.forEach((atom: Atom) => {
         if (atom.type !== 'first') {
-            let value;
+            let value: string;
             if (property === 'variant') {
                 value = atom.variant;
                 if (atom.variantStyle && atom.variantStyle !== 'up') {
@@ -37,11 +55,26 @@ export function getPropertyRuns(atoms, property) {
 
 export const MODES_REGISTRY = {};
 
-export function register(name, definition) {
+export function register(
+    name: string,
+    definition: {
+        emitLatexRun: (
+            context: Atom,
+            run: Atom[],
+            expandMacro: boolean
+        ) => string;
+        applyStyle: (span: Span, style: Style) => string;
+        parse?: (tokens: Token[], options: ParseTokensOptions) => Atom[];
+    }
+): void {
     MODES_REGISTRY[name] = { ...definition };
 }
 
-export function emitLatexRun(parent, run, expandMacro) {
+export function emitLatexRun(
+    parent: Atom,
+    run: Atom[],
+    expandMacro: boolean
+): string {
     if (
         MODES_REGISTRY[run[0].mode] &&
         MODES_REGISTRY[run[0].mode].emitLatexRun
@@ -55,7 +88,11 @@ export function emitLatexRun(parent, run, expandMacro) {
     return '';
 }
 
-export function parseTokens(mode, tokens, options) {
+export function parseTokens(
+    mode: ParseMode,
+    tokens: Token[],
+    options: ParseTokensOptions
+) {
     if (MODES_REGISTRY[mode] && MODES_REGISTRY[mode].parse) {
         return MODES_REGISTRY[mode].parse(tokens, options);
     }
@@ -67,9 +104,9 @@ export function parseTokens(mode, tokens, options) {
  * the effective font name to be used for metrics
  * ('Main-Regular', 'Caligraphic-Regualr' etc...)
  */
-export function applyStyle(atom, style) {
+export function applyStyle(span: Span, style: Style): string {
     if (MODES_REGISTRY[style.mode] && MODES_REGISTRY[style.mode].applyStyle) {
-        return MODES_REGISTRY[style.mode].applyStyle(atom, style);
+        return MODES_REGISTRY[style.mode].applyStyle(span, style);
     }
     return '';
 }

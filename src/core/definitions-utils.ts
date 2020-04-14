@@ -1,8 +1,30 @@
+import { ParseMode } from './context';
+import { Atom } from './atom-utils';
+
 export const MATH_SYMBOLS = {};
 
 export const FUNCTIONS = {};
 
 export const ENVIRONMENTS = {};
+
+type EmitFunction = (
+    name: string,
+    parent: Atom,
+    atom: Atom,
+    emit: (parent: Atom, atoms: Atom[]) => string
+) => string;
+
+type ParseFunction = (
+    name: string,
+    args: (string | Atom[])[]
+) => {
+    type?: string;
+    limits?: string;
+    skipBoundary?: boolean;
+    accent?: string;
+    body?: Atom[];
+    svgBelow?: string; // type = 'overunder'
+};
 
 export type MacroDefinition = { def: string; args?: number };
 export type MacroDictionary = { [name: string]: string | MacroDefinition };
@@ -114,20 +136,19 @@ export const LETTER_AND_DIGITS =
 
 /**
  *
- * @param {string} latexName    The LaTeX command for this symbol, for
+ * @param {string} symbol    The LaTeX command for this symbol, for
  * example `\alpha` or `+`
- *
- * @param {string} value
- *
- * @param {string} type
- *
- * @param {string} variant
  *
  * @memberof module:definitions
  * @private
  */
-export function defineSymbol(latexName, value, type = 'mord', variant = '') {
-    MATH_SYMBOLS[latexName] = {
+export function defineSymbol(
+    symbol: string,
+    value: string,
+    type = 'mord',
+    variant = ''
+): void {
+    MATH_SYMBOLS[symbol] = {
         type,
         variant,
         value,
@@ -140,7 +161,7 @@ export function defineSymbol(latexName, value, type = 'mord', variant = '') {
  * @memberof module:definitions
  * @private
  */
-export function defineSymbols(string) {
+export function defineSymbols(string: string): void {
     for (let i = 0; i < string.length; i++) {
         const ch = string.charAt(i);
         defineSymbol(ch, ch);
@@ -154,7 +175,7 @@ export function defineSymbols(string) {
  * @memberof module:definitions
  * @private
  */
-export function defineSymbolRange(from, to) {
+export function defineSymbolRange(from: number, to: number): void {
     for (let i = from; i <= to; i++) {
         const ch = String.fromCodePoint(i);
         defineSymbol(ch, ch);
@@ -224,7 +245,7 @@ const CODEPOINT_SHORTCUTS = {
  * @memberof module:definitions
  * @private
  */
-export function charToLatex(parseMode, s) {
+export function charToLatex(parseMode: ParseMode, s: string): string {
     let result = '';
     if (parseMode === 'math') {
         // Some symbols map to multiple codepoints.
@@ -394,21 +415,21 @@ const MATH_UNICODE_BLOCKS = [
     { start: 0x1d7f6, len: 10, offset: 48, variant: 'monospace' },
 ];
 
-function unicodeToMathVariant(char) {
-    let codepoint = char;
-    if (typeof char === 'string') codepoint = char.codePointAt(0);
+function unicodeToMathVariant(
+    codepoint: number
+): { char: string; variant?: string; style?: string } {
     if (
         (codepoint < 0x1d400 || codepoint > 0x1d7ff) &&
         (codepoint < 0x2100 || codepoint > 0x214f)
     ) {
-        return { char: char };
+        return { char: String.fromCodePoint(codepoint) };
     }
 
     // Handle the 'gap' letters by converting them back into their logical range
     for (const c in MATH_LETTER_EXCEPTIONS) {
         if (Object.prototype.hasOwnProperty.call(MATH_LETTER_EXCEPTIONS, c)) {
             if (MATH_LETTER_EXCEPTIONS[c] === codepoint) {
-                codepoint = c;
+                codepoint = c.codePointAt(0);
                 break;
             }
         }
@@ -432,7 +453,7 @@ function unicodeToMathVariant(char) {
         }
     }
 
-    return { char: char };
+    return { char: String.fromCodePoint(codepoint) };
 }
 
 /**
@@ -473,7 +494,7 @@ export function mathVariantToUnicode(char, variant, style) {
     return char;
 }
 
-function unicodeCharToLatex(parseMode, char) {
+function unicodeCharToLatex(parseMode: ParseMode, char: string): string {
     if (parseMode === 'text') {
         return charToLatex(parseMode, char) || char;
     }
@@ -499,7 +520,7 @@ function unicodeCharToLatex(parseMode, char) {
     return '\\mathord{' + result + '}';
 }
 
-export function unicodeStringToLatex(parseMode, s) {
+export function unicodeStringToLatex(parseMode: ParseMode, s: string): string {
     let result = '';
     let needSpace = false;
     for (const c of s) {
@@ -531,7 +552,7 @@ export function unicodeStringToLatex(parseMode, s) {
  * @memberof module:definitions
  * @private
  */
-export function commandAllowed(mode, command) {
+export function commandAllowed(mode: ParseMode, command: string): boolean {
     if (
         FUNCTIONS[command] &&
         (!FUNCTIONS[command].mode || FUNCTIONS[command].mode.includes(mode))
@@ -545,7 +566,7 @@ export function commandAllowed(mode, command) {
     return false;
 }
 
-export function getValue(mode, symbol) {
+export function getValue(mode: ParseMode, symbol: string): string {
     if (mode === 'math') {
         return MATH_SYMBOLS[symbol] && MATH_SYMBOLS[symbol].value
             ? MATH_SYMBOLS[symbol].value
@@ -580,7 +601,7 @@ export function emit(symbol, parent, atom, emitFn) {
     return symbol;
 }
 
-export function getEnvironmentInfo(name) {
+export function getEnvironmentInfo(name: string) {
     let result = ENVIRONMENTS[name];
     if (!result) {
         result = {
@@ -605,7 +626,11 @@ export function getEnvironmentInfo(name) {
  * @memberof module:definitions
  * @private
  */
-export function getInfo(symbol, parseMode, macros) {
+export function getInfo(
+    symbol: string,
+    parseMode: ParseMode,
+    macros: MacroDictionary
+) {
     if (!symbol || symbol.length === 0) return null;
 
     let info = null;
@@ -696,7 +721,7 @@ export function getInfo(symbol, parseMode, macros) {
  * @memberof module:definitions
  * @private
  */
-export function suggest(s) {
+export function suggest(s: string): string[] {
     if (s.length <= 1) return [];
     const result = [];
 
@@ -744,7 +769,7 @@ export function suggest(s) {
  * @memberof module:definitions
  * @private
  */
-function parseParamTemplateArgument(argTemplate, isOptional) {
+function parseParamTemplateArgument(argTemplate: string, isOptional: boolean) {
     let r = argTemplate.match(/=(.+)/);
     const defaultValue = r ? r[1] : isOptional ? '[]' : '{}';
     let type = 'auto';
@@ -800,7 +825,7 @@ function parseParamTemplate(paramTemplate) {
  * @memberof module:definitions
  * @private
  */
-export function parseArgAsString(atoms) {
+export function parseArgAsString(atoms: Atom[]): string {
     let result = '';
     let success = true;
     atoms.forEach((atom) => {
@@ -825,7 +850,12 @@ export function parseArgAsString(atoms) {
  * @memberof module:definitions
  * @private
  */
-export function defineEnvironment(names, params, options, parser) {
+export function defineEnvironment(
+    names: string | string[],
+    params: string,
+    options,
+    parser
+): void {
     if (typeof names === 'string') names = [names];
     if (!options) options = {};
     const parsedParams = parseParamTemplate(params);
@@ -838,8 +868,6 @@ export function defineEnvironment(names, params, options, parser) {
 
         // Callback to parse the arguments
         parser: parser,
-
-        mathstyle: 'displaystyle',
 
         tabular: options.tabular || true,
         colFormat: options.colFormat || [],
@@ -865,12 +893,12 @@ export function defineEnvironment(names, params, options, parser) {
  * @private
  */
 export function defineFunction(
-    names,
-    params,
-    options,
-    parseFunction,
-    emitFunction
-) {
+    names: string | string[],
+    params: string,
+    options: { mode?: ParseMode; infix?: boolean },
+    parseFunction?: ParseFunction,
+    emitFunction?: EmitFunction
+): void {
     if (typeof names === 'string') {
         names = [names];
     }

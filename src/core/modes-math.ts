@@ -1,6 +1,7 @@
-import { colorToString } from '../core/color.js';
-import { register, getPropertyRuns } from './modes-utils.js';
-import { getInfo, mathVariantToUnicode } from './definitions-utils.js';
+import { colorToString } from './color';
+import { register, getPropertyRuns } from './modes-utils';
+import { getInfo, mathVariantToUnicode } from './definitions-utils';
+import { Atom } from './atom';
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible
@@ -88,80 +89,90 @@ const LETTER_SHAPE_MODIFIER = {
 
 // See http://ctan.math.illinois.edu/macros/latex/base/fntguide.pdf
 
-function emitLatexMathRun(context, run, expandMacro) {
+function emitLatexMathRun(
+    context: Atom,
+    run: Atom[],
+    expandMacro: boolean
+): string {
     let contextValue = context.variant;
     if (context.variantStyle && context.variantStyle !== 'up') {
         contextValue += '-' + context.variantStyle;
     }
-    return getPropertyRuns(run, 'color').map((x) => {
-        const result = getPropertyRuns(x, 'variant')
-            .map((x) => {
-                let value = x[0].variant;
-                if (x[0].variantStyle && x[0].variantStyle !== 'up') {
-                    value += '-' + x[0].variantStyle;
-                }
-                // Check if all the atoms in this run have a base
-                // variant identical to the current variant
-                // If so, we can skip wrapping them
-                if (
-                    x.every((x) => {
-                        const info = getInfo(x.symbol, context.mode, null);
-                        if (!info || !(info.variant || info.variantStyle)) {
-                            return false;
-                        }
-                        let styledValue = x.variant;
-                        if (x.variantStyle && x.variantStyle !== 'up') {
-                            styledValue += '-' + x.variantStyle;
-                        }
-                        return styledValue === value;
-                    })
-                ) {
-                    return x.map((x) => x.toLatex(expandMacro)).join('');
-                }
+    return getPropertyRuns(run, 'color')
+        .map((x) => {
+            const result = getPropertyRuns(x, 'variant')
+                .map((x) => {
+                    let value = x[0].variant;
+                    if (x[0].variantStyle && x[0].variantStyle !== 'up') {
+                        value += '-' + x[0].variantStyle;
+                    }
+                    // Check if all the atoms in this run have a base
+                    // variant identical to the current variant
+                    // If so, we can skip wrapping them
+                    if (
+                        x.every((x) => {
+                            const info = getInfo(x.symbol, context.mode, null);
+                            if (!info || !(info.variant || info.variantStyle)) {
+                                return false;
+                            }
+                            let styledValue = x.variant;
+                            if (x.variantStyle && x.variantStyle !== 'up') {
+                                styledValue += '-' + x.variantStyle;
+                            }
+                            return styledValue === value;
+                        })
+                    ) {
+                        return x.map((x) => x.toLatex(expandMacro)).join('');
+                    }
 
-                let command = '';
-                if (value && value !== contextValue) {
-                    command = {
-                        calligraphic: '\\mathcal{',
-                        fraktur: '\\mathfrak{',
-                        'double-struck': '\\mathbb{',
-                        script: '\\mathscr{',
-                        monospace: '\\mathtt{',
-                        'sans-serif': '\\mathsf{',
-                        normal: '\\mathrm{',
-                        'normal-italic': '\\mathit{',
-                        'normal-bold': '\\mathbf{',
-                        'normal-bolditalic': '\\mathbfit{',
-                        ams: '',
-                        'ams-italic': '\\mathit{',
-                        'ams-bold': '\\mathbf{',
-                        'ams-bolditalic': '\\mathbfit{',
-                        main: '',
-                        'main-italic': '\\mathit{',
-                        'main-bold': '\\mathbf{',
-                        'main-bolditalic': '\\mathbfit{',
-                        // There are a few rare font families possible, which
-                        // are not supported:
-                        // mathbbm, mathbbmss, mathbbmtt, mathds, swab, goth
-                        // In addition, the 'main' and 'math' font technically
-                        // map to \mathnormal{}
-                    }[value];
-                    console.assert(typeof command !== 'undefined');
-                }
+                    let command = '';
+                    if (value && value !== contextValue) {
+                        command = {
+                            calligraphic: '\\mathcal{',
+                            fraktur: '\\mathfrak{',
+                            'double-struck': '\\mathbb{',
+                            script: '\\mathscr{',
+                            monospace: '\\mathtt{',
+                            'sans-serif': '\\mathsf{',
+                            normal: '\\mathrm{',
+                            'normal-italic': '\\mathit{',
+                            'normal-bold': '\\mathbf{',
+                            'normal-bolditalic': '\\mathbfit{',
+                            ams: '',
+                            'ams-italic': '\\mathit{',
+                            'ams-bold': '\\mathbf{',
+                            'ams-bolditalic': '\\mathbfit{',
+                            main: '',
+                            'main-italic': '\\mathit{',
+                            'main-bold': '\\mathbf{',
+                            'main-bolditalic': '\\mathbfit{',
+                            // There are a few rare font families possible, which
+                            // are not supported:
+                            // mathbbm, mathbbmss, mathbbmtt, mathds, swab, goth
+                            // In addition, the 'main' and 'math' font technically
+                            // map to \mathnormal{}
+                        }[value];
+                        console.assert(typeof command !== 'undefined');
+                    }
+                    return (
+                        command +
+                        x.map((x) => x.toLatex(expandMacro)).join('') +
+                        (command ? '}' : '')
+                    );
+                })
+                .join('');
+            if (x[0].color && (!context || context.color !== x[0].color)) {
                 return (
-                    command +
-                    x.map((x) => x.toLatex(expandMacro)).join('') +
-                    (command ? '}' : '')
+                    '\\textcolor{' +
+                    colorToString(x[0].color) +
+                    '}{' +
+                    result +
+                    '}'
                 );
-            })
-            .join('');
-        if (x[0].color && (!parent || parent.color !== x[0].color)) {
-            return (
-                '\\textcolor{' + colorToString(x[0].color) + '}{' + result + '}'
-            );
-        }
-        return result;
-    });
+            }
+            return result;
+        })
+        .join('');
 }
 
 function applyStyle(atom, style) {

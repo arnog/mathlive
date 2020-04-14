@@ -1,4 +1,12 @@
-import { Context } from './context.js';
+import {
+    Context,
+    Style,
+    ParseMode,
+    Variant,
+    VariantStyle,
+    FontShape,
+    FontSeries,
+} from './context.js';
 import { MATHSTYLES } from './mathstyle';
 import { METRICS as FONTMETRICS } from './font-metrics.js';
 import {
@@ -12,33 +20,26 @@ import {
     Span,
 } from './span.js';
 import { makeSizedDelim } from './delimiters';
+import { atomToLatex } from './atom-to-latex';
 
-export type ParseMode =
-    | ''
-    | 'auto'
-    | 'bbox'
-    | 'color'
-    | 'colspec'
-    | 'delim'
-    | 'dimen'
-    | 'math'
-    | 'number'
-    | 'skip'
-    | 'text'
-    | 'string';
 export type AtomType =
     | ''
     | 'array'
     | 'command'
     | 'delim'
+    | 'enclose'
     | 'error'
     | 'first'
     | 'group'
     | 'leftright'
     | 'mathstyle' // @revisit
     | 'mbin'
+    | 'mclose'
+    | 'minner'
     | 'mop'
+    | 'mopen'
     | 'mord'
+    | 'mpunct'
     | 'mrel'
     | 'msubsup'
     | 'none' // @revisit
@@ -50,24 +51,12 @@ export type AtomType =
     | 'space'
     | 'spacing'
     | 'textord';
-export type Variant = 'calligraphic' | 'fraktur';
-export type VariantStyle = 'up' | 'bold' | 'italic' | 'bolditalic' | '';
-export type FontShape = 'auto' | 'n' | '';
-export type FontSeries = 'auto' | 'm' | '';
-export interface Style {
-    mode?: ParseMode;
-    color?: string;
-    backgroundColor?: string;
-    variant?: Variant;
-    variantStyle?: VariantStyle;
-    fontFamily?: string;
-    fontShape?: FontShape;
-    fontSeries?: FontSeries;
-    fontSize?: string;
-    cssId?: string;
-    cssClass?: string;
-    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'up' | 'auto';
-}
+
+export type Colspec = {
+    gap?: Atom[];
+    align?: 'l' | 'c' | 'r';
+    rule?: boolean;
+};
 
 export const ATOM_REGISTRY = {};
 
@@ -396,6 +385,14 @@ export class Atom implements Style {
     delim?: string;
     size?: 1 | 2 | 3 | 4; // type = 'sizeddelim' @revisit Use maxFontSize? or fontSize?
 
+    colFormat?: Colspec[]; // when type = 'array', formating of columns
+    notation?: string[]; // when type = 'enclose'
+    shadow?: string; // when type = 'enclose', CSS shadow
+    strokeWidth?: number; // when type = 'enclose'
+    strokeStyle?: string; // when type = 'enclose', CSS string
+    strokeColor?: string; // when type = 'enclose', CSS string
+    borderStyle?: string; // when type = 'enclose', CSS string
+
     width?: number;
     height?: number;
     maxFontSize?: number;
@@ -448,6 +445,7 @@ export class Atom implements Style {
         body: string | Atom[] = '',
         style: Style = {}
     ) {
+        console.assert(type === 'first' || mode);
         this.mode = mode;
         this.type = type;
         this.body = body;
@@ -456,7 +454,9 @@ export class Atom implements Style {
         // This can override the mode, type and body
         this.applyStyle(style);
     }
-
+    toLatex(expandMacro: boolean): string {
+        return atomToLatex(this, expandMacro);
+    }
     getStyle(): Style {
         return {
             mode: this.mode,
@@ -502,7 +502,7 @@ export class Atom implements Style {
         }
 
         if (this.mode === 'text') {
-            // @todo: revisit. Use type = 'text' for text atoms?
+            // @revisit. Use type = 'text' for text atoms?
             // A root can be in text mode (root created when creating a representation
             // of the selection, for copy/paste for example)
             if (this.type !== 'root') this.type = '';

@@ -412,14 +412,14 @@ Here's a brief guide to the files of the project:
 
 -   **core/lexer.ts** Implements the `Lexer` class: strings to tokens
 
--   **core/parser.js** Implements the `Parser` class: tokens to atoms
+-   **core/parser.ts** Implements the `Parser` class: tokens to atoms
 -   **core/definitions.js** Dictionary of all the known LaTeX commands, and
     which symbol or atom type they map to. Used by the `Parser`
--   **core/color.js** Support to parse color arguments
+-   **core/color.ts** Support to parse color arguments
 
 -   **core/atom.ts** Implements the `Atom` class: atoms to spans
 -   **core.delimiters.js** Rendering (atoms to span) for delimiters.
--   **core/context.js** Rendering context of the current parse level (math style,
+-   **core/context.ts** Rendering context of the current parse level (math style,
     color, font size, font family, font style, etc...). Used by Atom while
     generating spans
 -   **core/mathstyle.js** Provides info about the ** math styles**: display, text,
@@ -428,7 +428,7 @@ Here's a brief guide to the files of the project:
     below baseline, italic correction.
 -   **core/font-metrics-data.js** Used by `font-metrics.js`
 
--   **core/span.js** Implements the `Span` class: spans to markup
+-   **core/span.ts** Implements the `Span` class: spans to markup
 
 -   **editor/editableMathlist.js**: The `EditableMathlist` keeps track of a tree
     of math atoms representing the math expression being edited, and a selection

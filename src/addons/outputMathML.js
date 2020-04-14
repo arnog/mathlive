@@ -8,8 +8,8 @@
  * @private
  */
 
-import { Atom } from '../core/atom.ts';
-import { stringToColor } from '../core/color.js';
+import { Atom } from '../core/atom';
+import { stringToColor } from '../core/color';
 
 const SPECIAL_OPERATORS = {
     '\\pm': '&PlusMinus;',

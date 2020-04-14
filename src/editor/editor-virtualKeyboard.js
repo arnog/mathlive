@@ -2,12 +2,12 @@
  * @module editor/virtualKeyboard
  * @private
  */
-import { decompose } from '../core/atom-utils.js';
-import { makeSpan } from '../core/span.js';
-import { parseString } from '../core/parser.js';
-import { LINE_COLORS, AREA_COLORS } from '../core/color.js';
-import '../addons/outputLatex.js';
-import { l10n } from './l10n.js';
+import { decompose } from '../core/atom-utils';
+import { makeSpan } from '../core/span';
+import { parseString } from '../core/parser';
+import { LINE_COLORS, AREA_COLORS } from '../core/color';
+import { l10n } from './l10n';
+import { MATHSTYLES } from '../core/mathstyle';
 
 const KEYBOARDS = {
     numeric: {
@@ -848,7 +848,7 @@ function latexToMarkup(latex, arg, mf) {
     const parse = parseString(latex, 'math', arg, mf.config.macros);
     const spans = decompose(
         {
-            mathstyle: 'displaystyle',
+            mathstyle: MATHSTYLES.displaystyle,
             macros: mf.config.macros,
         },
         parse

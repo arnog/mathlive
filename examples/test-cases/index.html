@@ -26,8 +26,10 @@
         </header>
         <main>
             <div class="mathfield" id="mf">
+                \begin{math}\sum^{100}_{n=0}\end{math}
                 <!-- \huge x \text{y} -->
-                \sqrt[\Huge 3]{29}
+                <!-- \scriptscriptstyle x \text{y} -->
+                <!-- \sqrt[\Huge 3]{29} -->
                 <!-- x^{\binom{n}{k}} -->
                 <!-- \binom12 \textstyle \binom34 \scriptstyle \binom56 \displaystyle \binom78 \scriptstyle \binom90 -->
                 <!-- \int^b_a x^2 dx -->
@@ -38,20 +40,10 @@
             </div>
             <div class="output" id="latex"></div>
             <div class="output" id="mathjson"></div>
+            <div class="output" id="mathascii"></div>
             <div id="examples"></div>
         </main>
         <footer>
-            <a
-                href="https://github.com/arnog/mathlive/tree/master/examples/basic"
-                ><svg
-                    class="fa-w-24"
-                    height="24px"
-                    style="vertical-align: -3px; margin-right: 6px;"
-                >
-                    <use xlink:href="../icons.svg#github" /></svg
-                >View source&nbsp;<svg class="fa-w-24" height="24px">
-                    <use xlink:href="../icons.svg#angle-right" /></svg
-            ></a>
             <a href="../"
                 >More examples&nbsp;<svg class="fa-w-24" height="24px">
                     <use xlink:href="../icons.svg#angle-right" /></svg
@@ -1088,11 +1080,15 @@
                         escapeHtml(
                             MathLive.astToLatex(mathJSON, { precision: 100 })
                         );
+
+                    document.getElementById('mathascii').innerHTML = escapeHtml(
+                        mf.$text('ASCIIMath')
+                    );
                 },
             });
 
-            MathLive.renderMathInDocument();
             if (true) {
+                MathLive.renderMathInDocument();
                 const savedMathfieldContent = mf.$text();
                 document.getElementById(
                     'examples'

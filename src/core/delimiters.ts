@@ -82,14 +82,13 @@ function makeLargeDelim(
     context: Context,
     classes = ''
 ): Span {
-    const inner = makeSymbol(
-        'Size' + size + '-Regular',
-        getValue('math', delim)
-    );
-
     const result = makeStyleWrap(
         type,
-        makeSpan(inner, 'delimsizing size' + size),
+        makeSymbol(
+            'Size' + size + '-Regular',
+            getValue('math', delim),
+            'delimsizing size' + size
+        ),
         context.mathstyle,
         MATHSTYLES.textstyle,
         classes
@@ -124,14 +123,11 @@ function makeInner(symbol: string, font: string): Span {
         sizeClass = ' delim-size4';
     }
 
-    // @todo: revisit if all this wrapping is needed or if the spans could
-    // be simplified
-    const inner = makeSpan(
-        makeSymbol(font, getValue('math', symbol)),
+    return makeSymbol(
+        font,
+        getValue('math', symbol),
         'delimsizinginner' + sizeClass
     );
-
-    return inner;
 }
 
 /**

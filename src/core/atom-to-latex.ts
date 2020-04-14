@@ -7,10 +7,10 @@
  * @private
  */
 
-import { Atom } from '../core/atom.ts';
-import { emit as emitDefinition } from '../core/definitions.js';
-import { emitLatexRun, getPropertyRuns } from '../core/modes.js';
-import { colorToString } from '../core/color.js';
+import { Atom } from './atom';
+import { emit as emitDefinition } from './definitions';
+import { emitLatexRun, getPropertyRuns } from './modes-utils';
+import { colorToString } from './color';
 
 // See https://tex.stackexchange.com/questions/58098/what-are-all-the-font-styles-i-can-use-in-math-mode
 
@@ -106,113 +106,110 @@ function latexify(parent, value, expandMacro) {
  * @param {boolean} expandMacro - If true, macros are fully expanded. This will
  * no longer round-trip.
  *
- * @return {string}
- * @memberof module:core/atom~Atom
- * @private
  */
-Atom.prototype.toLatex = function (expandMacro) {
+export function atomToLatex(atom: Atom, expandMacro: boolean) {
     expandMacro = typeof expandMacro === 'undefined' ? false : expandMacro;
     // If we have some verbatim latex for this atom, use it.
     // This allow non-significant punctuation to be preserved when possible.
-    if (!expandMacro && this.latex) {
-        return this.latex;
+    if (!expandMacro && atom.latex) {
+        return atom.latex;
     }
     let result = '';
     let col = 0;
     let row = 0;
     let i = 0;
-    const command = this.symbol;
+    const command = atom.symbol;
     const emit = (parent, atom) => latexify(parent, atom, expandMacro);
 
-    // this.mode=='text' is handled in the switch by looking at this.type===''
-    switch (this.type) {
+    // atom.mode=='text' is handled in the switch by looking at atom.type===''
+    switch (atom.type) {
         case 'group':
             if (command) {
                 // This is a macro
-                result = expandMacro ? emit(this, this.body) : this.latex;
+                result = expandMacro ? emit(atom, atom.body) : atom.latex;
             } else {
                 result =
-                    this.latexOpen || (this.cssId || this.cssClass ? '' : '{');
+                    atom.latexOpen || (atom.cssId || atom.cssClass ? '' : '{');
 
-                if (this.cssId) result += '\\cssId{' + this.cssId + '}{';
+                if (atom.cssId) result += '\\cssId{' + atom.cssId + '}{';
 
-                if (this.cssClass === 'ML__emph') {
-                    result += `\\emph{${emit(this, this.body)}`;
+                if (atom.cssClass === 'ML__emph') {
+                    result += `\\emph{${emit(atom, atom.body)}`;
                 } else {
-                    if (this.cssClass) {
-                        result += '\\class{' + this.cssClass + '}{';
+                    if (atom.cssClass) {
+                        result += '\\class{' + atom.cssClass + '}{';
                     }
-                    result += emit(this, this.body);
+                    result += emit(atom, atom.body);
 
-                    if (this.cssClass) result += '}';
+                    if (atom.cssClass) result += '}';
                 }
-                if (this.cssId) result += '}';
+                if (atom.cssId) result += '}';
 
                 result +=
-                    this.latexClose || (this.cssId || this.cssClass ? '' : '}');
+                    atom.latexClose || (atom.cssId || atom.cssClass ? '' : '}');
             }
             break;
 
         case 'array':
-            result += '\\begin{' + this.env.name + '}';
-            if (this.env.name === 'array') {
+            result += '\\begin{' + atom.env.name + '}';
+            if (atom.env.name === 'array') {
                 result += '{';
-                if (this.colFormat) {
-                    for (i = 0; i < this.colFormat.length; i++) {
-                        if (this.colFormat[i].align) {
-                            result += this.colFormat[i].align;
-                        } else if (this.colFormat[i].rule) {
+                if (atom.colFormat) {
+                    for (i = 0; i < atom.colFormat.length; i++) {
+                        if (atom.colFormat[i].align) {
+                            result += atom.colFormat[i].align;
+                        } else if (atom.colFormat[i].rule) {
                             result += '|';
                         }
                     }
                 }
                 result += '}';
             }
-            for (row = 0; row < this.array.length; row++) {
-                for (col = 0; col < this.array[row].length; col++) {
+            for (row = 0; row < atom.array.length; row++) {
+                for (col = 0; col < atom.array[row].length; col++) {
                     if (col > 0) result += ' & ';
-                    result += emit(this, this.array[row][col]);
+                    result += emit(atom, atom.array[row][col]);
                 }
                 // Adds a separator between rows (but not after the last row)
-                if (row < this.array.length - 1) {
+                if (row < atom.array.length - 1) {
                     result += ' \\\\ ';
                 }
             }
-            result += '\\end{' + this.env.name + '}';
+            result += '\\end{' + atom.env.name + '}';
             break;
 
         case 'root':
-            result = emit(this, this.body);
+            result = emit(atom, atom.body);
             break;
 
         case 'leftright':
-            if (this.inner) {
-                result += '\\left' + (this.leftDelim || '.');
-                if (this.leftDelim && this.leftDelim.length > 1) result += ' ';
-                result += emit(this, this.body);
-                result += '\\right' + (this.rightDelim || '.');
-                if (this.rightDelim && this.rightDelim.length > 1) {
+            if (atom.inner) {
+                result += '\\left' + (atom.leftDelim || '.');
+                if (atom.leftDelim && atom.leftDelim.length > 1) result += ' ';
+                result += emit(atom, atom.body);
+                result += '\\right' + (atom.rightDelim || '.');
+                if (atom.rightDelim && atom.rightDelim.length > 1) {
                     result += ' ';
                 }
             } else {
                 if (
                     expandMacro &&
-                    this.leftDelim === '(' &&
-                    this.rightDelim === ')'
+                    atom.leftDelim === '(' &&
+                    atom.rightDelim === ')'
                 ) {
                     // If we're in 'expandMacro' mode (i.e. interchange format
                     // used, e.g., on the clipboard for maximum compatibility
                     // with other LaTeX renderers), drop the `\mleft(` and `\mright`)
                     // commands
-                    result += `(${emit(this, this.body)})`;
+                    result += `(${emit(atom, atom.body)})`;
                 } else {
-                    result += '\\mleft' + (this.leftDelim || '.');
-                    if (this.leftDelim && this.leftDelim.length > 1) {
+                    result += '\\mleft' + (atom.leftDelim || '.');
+                    if (atom.leftDelim && atom.leftDelim.length > 1) {
                         result += ' ';
                     }
-                    result += emit(this, this.body);
-                    result += '\\mright' + (this.rightDelim || '.');
-                    if (this.rightDelim && this.rightDelim.length > 1) {
+                    result += emit(atom, atom.body);
+                    result += '\\mright' + (atom.rightDelim || '.');
+                    if (atom.rightDelim && atom.rightDelim.length > 1) {
                         result += ' ';
                     }
                 }
@@ -221,17 +218,17 @@ Atom.prototype.toLatex = function (expandMacro) {
 
         case 'delim':
         case 'sizeddelim':
-            result += command + '{' + this.delim + '}';
+            result += command + '{' + atom.delim + '}';
             break;
 
         case 'rule':
             result += command;
-            if (this.shift) {
-                result += `[${emit(this, this.shift)}em]`;
+            if (atom.shift) {
+                result += `[${emit(atom, atom.shift)}em]`;
             }
-            result += `{${emit(this, this.width)}em}{${emit(
-                this,
-                this.height
+            result += `{${emit(atom, atom.width)}em}{${emit(
+                atom,
+                atom.height
             )}em}`;
             break;
 
@@ -244,21 +241,21 @@ Atom.prototype.toLatex = function (expandMacro) {
         case 'mclose':
         case 'textord':
             if (command === '\\char"') {
-                result += this.latex + ' ';
+                result += atom.latex + ' ';
             } else {
-                result += emitDefinition(command, null, this, emit);
+                result += emitDefinition(command, null, atom, emit);
             }
             break;
 
         case 'mop':
-            if (this.body !== '\u200b') {
+            if (atom.body !== '\u200b') {
                 // Not ZERO-WIDTH
                 if (command === '\\mathop') {
-                    // The argument to mathop is math, therefor this.body can be an expression
-                    result += command + '{' + emit(this, this.body) + '}';
+                    // The argument to mathop is math, therefor atom.body can be an expression
+                    result += command + '{' + emit(atom, atom.body) + '}';
                 } else if (command === '\\operatorname') {
                     // The argument to `\operatorname` is 'math' and needs to be latexified
-                    result += command + '{' + emit(this, this.body) + '}';
+                    result += command + '{' + emit(atom, atom.body) + '}';
                 } else {
                     result += command;
                     if (/^\\.*[a-zA-Z0-9]$/.test(command)) {
@@ -268,9 +265,9 @@ Atom.prototype.toLatex = function (expandMacro) {
                     }
                 }
             }
-            if (this.explicitLimits) {
-                if (this.limits === 'limits') result += '\\limits ';
-                if (this.limits === 'nolimits') result += '\\nolimits ';
+            if (atom.explicitLimits) {
+                if (atom.limits === 'limits') result += '\\limits ';
+                if (atom.limits === 'nolimits') result += '\\nolimits ';
             }
             break;
 
@@ -282,16 +279,16 @@ Atom.prototype.toLatex = function (expandMacro) {
             result += command;
             if (command === '\\hspace' || command === '\\hspace*') {
                 result += '{';
-                if (this.width) {
-                    result += this.width + 'em';
+                if (atom.width) {
+                    result += atom.width + 'em';
                 } else {
                     result += '0em';
                 }
                 result += '}';
             } else {
                 result += ' ';
-                if (this.width) {
-                    result += this.width + 'em ';
+                if (atom.width) {
+                    result += atom.width + 'em ';
                 }
             }
 
@@ -300,51 +297,37 @@ Atom.prototype.toLatex = function (expandMacro) {
         case 'enclose':
             result += command;
             if (command === '\\enclose') {
-                result += '{';
-                let sep = '';
-                for (const notation in this.notation) {
-                    if (
-                        Object.prototype.hasOwnProperty.call(
-                            this.notation,
-                            notation
-                        ) &&
-                        this.notation[notation]
-                    ) {
-                        result += sep + notation;
-                        sep = ' ';
-                    }
-                }
-                result += '}';
+                result += '{' + Object.keys(atom.notation).join(' ') + '}';
 
                 // \enclose can have optional parameters...
                 let style = '';
-                sep = '';
+                let sep = '';
                 if (
-                    this.backgroundcolor &&
-                    this.backgroundcolor !== 'transparent'
+                    atom.backgroundColor &&
+                    atom.backgroundColor !== 'transparent'
                 ) {
                     style +=
                         sep +
                         'mathbackground="' +
-                        colorToString(this.backgroundcolor) +
+                        colorToString(atom.backgroundColor) +
                         '"';
                     sep = ',';
                 }
-                if (this.shadow && this.shadow !== 'auto') {
-                    style += sep + 'shadow="' + this.shadow + '"';
+                if (atom.shadow && atom.shadow !== 'auto') {
+                    style += sep + 'shadow="' + atom.shadow + '"';
                     sep = ',';
                 }
-                if (this.strokeWidth !== 1 || this.strokeStyle !== 'solid') {
-                    style += sep + this.borderStyle;
+                if (atom.strokeWidth !== 1 || atom.strokeStyle !== 'solid') {
+                    style += sep + atom.borderStyle;
                     sep = ',';
                 } else if (
-                    this.strokeColor &&
-                    this.strokeColor !== 'currentColor'
+                    atom.strokeColor &&
+                    atom.strokeColor !== 'currentColor'
                 ) {
                     style +=
                         sep +
                         'mathcolor="' +
-                        colorToString(this.strokeColor) +
+                        colorToString(atom.strokeColor) +
                         '"';
                     sep = ',';
                 }
@@ -353,19 +336,19 @@ Atom.prototype.toLatex = function (expandMacro) {
                     result += `[${style}]`;
                 }
             }
-            result += `{${emit(this, this.body)}}`;
+            result += `{${emit(atom, atom.body)}}`;
             break;
 
         case 'mathstyle':
-            result += '\\' + this.mathstyle + ' ';
+            result += '\\' + atom.mathstyle + ' ';
             break;
 
         case 'space':
-            result += this.symbol;
+            result += atom.symbol;
             break;
 
         case 'placeholder':
-            result += '\\placeholder{' + (this.value || '') + '}';
+            result += '\\placeholder{}';
             break;
 
         case 'first':
@@ -374,23 +357,23 @@ Atom.prototype.toLatex = function (expandMacro) {
             break;
 
         case 'error':
-            result += this.latex;
+            result += atom.latex;
             break;
 
         case '':
             console.assert(
-                this.mode === 'text',
-                'Null atom type in mode ' + this.mode
+                atom.mode === 'text',
+                'Null atom type in mode ' + atom.mode
             );
             console.error('Attempting to emit a text atom');
             break;
 
         default:
-            result = emitDefinition(command, parent, this, emit);
+            result = emitDefinition(command, parent, atom, emit);
             console.assert(
                 result,
                 'Missing custom emiter for ',
-                command || this.body
+                command || atom.body
             );
             if (!result) {
                 result += command;
@@ -398,8 +381,8 @@ Atom.prototype.toLatex = function (expandMacro) {
 
             break;
     }
-    if (this.superscript) {
-        let sup = emit(this, this.superscript);
+    if (atom.superscript) {
+        let sup = emit(atom, atom.superscript);
         if (sup.length === 1) {
             if (sup === '\u2032') {
                 // PRIME
@@ -413,8 +396,8 @@ Atom.prototype.toLatex = function (expandMacro) {
             result += '^{' + sup + '}';
         }
     }
-    if (this.subscript) {
-        const sub = emit(this, this.subscript);
+    if (atom.subscript) {
+        const sub = emit(atom, atom.subscript);
         if (sub.length === 1) {
             result += '_' + sub;
         } else {
@@ -422,4 +405,4 @@ Atom.prototype.toLatex = function (expandMacro) {
         }
     }
     return result;
-};
+}
