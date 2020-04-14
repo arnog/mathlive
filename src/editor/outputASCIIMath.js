@@ -83,13 +83,15 @@ export function toASCIIMath(atom, options) {
                 i++;
             }
             result += '"' + toASCIIMath(atom.slice(i), options);
-        } else {
+        } else if (atom[0].mode === 'math') {
             let i = 0;
             while (atom[i] && atom[i].mode === 'math') {
                 result += toASCIIMath(atom[i], options);
                 i++;
             }
             result += toASCIIMath(atom.slice(i), options);
+        } else {
+            console.warn('toASCIIMath: Unexpected mode');
         }
         return result.trim();
     }
