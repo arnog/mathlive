@@ -73,6 +73,7 @@ export function toASCIIMath(atom, options) {
         let result = '';
         if (atom.length === 0) return '';
         if (atom[0].type === 'first') atom.shift();
+        if (atom.length === 0) return '';
         if (atom[0].mode === 'text') {
             // Text mode... put it in (ASCII) quotes
             let i = 0;
