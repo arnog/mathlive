@@ -30,9 +30,11 @@ import {
     makeSpan,
     makeVlist,
     makeStyleWrap,
+    Span,
 } from './span.js';
-import Mathstyle from './mathstyle.js';
+import { Mathstyle, MATHSTYLES } from './mathstyle.js';
 import { getCharacterMetrics, METRICS } from './font-metrics.js';
+import { Context } from './context.js';
 /**
  * Makes a small delimiter. This is a delimiter that comes in the Main-Regular
  * font, but is restyled to either be in textstyle, scriptstyle, or
@@ -40,7 +42,14 @@ import { getCharacterMetrics, METRICS } from './font-metrics.js';
  * @memberof module:delimiters
  * @private
  */
-function makeSmallDelim(type, delim, style, center, context, classes) {
+function makeSmallDelim(
+    type: string,
+    delim: string,
+    style: Mathstyle,
+    center: boolean,
+    context: Context,
+    classes = ''
+): Span {
     const text = makeSymbol('AMS-Regular', getValue('math', delim));
 
     const span = makeStyleWrap(type, text, context.mathstyle, style, classes);
@@ -65,7 +74,14 @@ function makeSmallDelim(type, delim, style, center, context, classes) {
  * @memberof module:delimiters
  * @private
  */
-function makeLargeDelim(type, delim, size, center, context, classes) {
+function makeLargeDelim(
+    type: string,
+    delim: string,
+    size: number,
+    center: boolean,
+    context: Context,
+    classes = ''
+): Span {
     const inner = makeSymbol(
         'Size' + size + '-Regular',
         getValue('math', delim)
@@ -75,7 +91,7 @@ function makeLargeDelim(type, delim, size, center, context, classes) {
         type,
         makeSpan(inner, 'delimsizing size' + size),
         context.mathstyle,
-        Mathstyle.TEXT,
+        MATHSTYLES.textstyle,
         classes
     );
 
@@ -99,7 +115,7 @@ function makeLargeDelim(type, delim, size, center, context, classes) {
  * @memberof module:delimiters
  * @private
  */
-function makeInner(symbol, font) {
+function makeInner(symbol: string, font: string): Span {
     let sizeClass = '';
     // Apply the correct CSS class to choose the right font.
     if (font === 'Size1-Regular') {
@@ -124,13 +140,20 @@ function makeInner(symbol, font) {
  * @memberof module:delimiters
  * @private
  */
-function makeStackedDelim(type, delim, heightTotal, center, context, classes) {
+function makeStackedDelim(
+    type: string,
+    delim: string,
+    heightTotal: number,
+    center: boolean,
+    context: Context,
+    classes = ''
+): Span {
     // There are four parts, the top, an optional middle, a repeated part, and a
     // bottom.
-    let top;
-    let middle;
-    let repeat;
-    let bottom;
+    let top: string;
+    let middle: string;
+    let repeat: string;
+    let bottom: string;
     top = repeat = bottom = getValue('math', delim);
     middle = null;
     // Also keep track of what font the delimiters are in
@@ -339,7 +362,7 @@ function makeStackedDelim(type, delim, heightTotal, center, context, classes) {
         type,
         makeSpan(inner, 'delimsizing mult'),
         context.mathstyle,
-        Mathstyle.TEXT,
+        MATHSTYLES.textstyle,
         classes
     );
 }
@@ -410,7 +433,13 @@ const sizeToMaxHeight = [0, 1.2, 1.8, 2.4, 3.0];
  * @memberof module:delimiters
  * @private
  */
-function makeSizedDelim(type, delim, size, context, classes) {
+export function makeSizedDelim(
+    type: string,
+    delim: string,
+    size: number,
+    context: Context,
+    classes = ''
+): Span {
     if (delim === '.') {
         // Empty delimiters still count as elements, even though they don't
         // show anything.
@@ -457,11 +486,17 @@ function makeSizedDelim(type, delim, size, context, classes) {
  * them explicitly here.
  */
 
+interface DelimiterInfo {
+    type: 'small' | 'large' | 'stack';
+    mathstyle?: Mathstyle;
+    size?: 1 | 2 | 3 | 4;
+}
+
 // Delimiters that never stack try small delimiters and large delimiters only
-const stackNeverDelimiterSequence = [
-    { type: 'small', mathstyle: Mathstyle.SCRIPTSCRIPT },
-    { type: 'small', mathstyle: Mathstyle.SCRIPT },
-    { type: 'small', mathstyle: Mathstyle.TEXT },
+const stackNeverDelimiterSequence: DelimiterInfo[] = [
+    { type: 'small', mathstyle: MATHSTYLES.scriptscriptstyle },
+    { type: 'small', mathstyle: MATHSTYLES.scriptstyle },
+    { type: 'small', mathstyle: MATHSTYLES.textstyle },
     { type: 'large', size: 1 },
     { type: 'large', size: 2 },
     { type: 'large', size: 3 },
@@ -469,19 +504,19 @@ const stackNeverDelimiterSequence = [
 ];
 
 // Delimiters that always stack try the small delimiters first, then stack
-const stackAlwaysDelimiterSequence = [
-    { type: 'small', mathstyle: Mathstyle.SCRIPTSCRIPT },
-    { type: 'small', mathstyle: Mathstyle.SCRIPT },
-    { type: 'small', mathstyle: Mathstyle.TEXT },
+const stackAlwaysDelimiterSequence: DelimiterInfo[] = [
+    { type: 'small', mathstyle: MATHSTYLES.scriptscriptstyle },
+    { type: 'small', mathstyle: MATHSTYLES.scriptstyle },
+    { type: 'small', mathstyle: MATHSTYLES.textstyle },
     { type: 'stack' },
 ];
 
 // Delimiters that stack when large try the small and then large delimiters, and
 // stack afterwards
-const stackLargeDelimiterSequence = [
-    { type: 'small', mathstyle: Mathstyle.SCRIPTSCRIPT },
-    { type: 'small', mathstyle: Mathstyle.SCRIPT },
-    { type: 'small', mathstyle: Mathstyle.TEXT },
+const stackLargeDelimiterSequence: DelimiterInfo[] = [
+    { type: 'small', mathstyle: MATHSTYLES.scriptscriptstyle },
+    { type: 'small', mathstyle: MATHSTYLES.scriptstyle },
+    { type: 'small', mathstyle: MATHSTYLES.textstyle },
     { type: 'large', size: 1 },
     { type: 'large', size: 2 },
     { type: 'large', size: 3 },
@@ -492,13 +527,13 @@ const stackLargeDelimiterSequence = [
 /*
  * Get the font used in a delimiter based on what kind of delimiter it is.
  */
-function delimTypeToFont(type) {
-    if (type.type === 'small') {
+function delimTypeToFont(info: DelimiterInfo): string {
+    if (info.type === 'small') {
         return 'Main-Regular';
-    } else if (type.type === 'large') {
-        return 'Size' + type.size + '-Regular';
+    } else if (info.type === 'large') {
+        return 'Size' + info.size + '-Regular';
     }
-    console.assert(type.type === 'stack');
+    console.assert(info.type === 'stack');
     return 'Size4-Regular';
 }
 
@@ -509,7 +544,12 @@ function delimTypeToFont(type) {
  * @memberof module:delimiters
  * @private
  */
-function traverseSequence(delim, height, sequence, context) {
+function traverseSequence(
+    delim: string,
+    height: number,
+    sequence: DelimiterInfo[],
+    context: Context
+): DelimiterInfo {
     // Here, we choose the index we should start at in the sequences. In smaller
     // sizes (which correspond to larger numbers in style.size) we start earlier
     // in the sequence. Thus, scriptscript starts at index 3-3=0, script starts
@@ -528,7 +568,7 @@ function traverseSequence(delim, height, sequence, context) {
         if (metrics.defaultMetrics) {
             // If we don't have metrics info for this character,
             // assume we'll construct as a small delimiter
-            return { type: 'small', mathstyle: Mathstyle.SCRIPT };
+            return { type: 'small', mathstyle: MATHSTYLES.scriptstyle };
         }
         let heightDepth = metrics.height + metrics.depth;
 
@@ -562,7 +602,14 @@ function traverseSequence(delim, height, sequence, context) {
  * @memberof module:delimiters
  * @private
  */
-function makeCustomSizedDelim(type, delim, height, center, context, classes) {
+export function makeCustomSizedDelim(
+    type: string,
+    delim: string,
+    height: number,
+    center: boolean,
+    context: Context,
+    classes = ''
+): Span {
     if (!delim || delim.length === 0 || delim === '.') {
         return makeNullFence(type, context, type);
     }
@@ -574,7 +621,7 @@ function makeCustomSizedDelim(type, delim, height, center, context, classes) {
     }
 
     // Decide what sequence to use
-    let sequence;
+    let sequence: DelimiterInfo[];
     if (stackNeverDelimiters.includes(delim)) {
         sequence = stackNeverDelimiterSequence;
     } else if (stackLargeDelimiters.includes(delim)) {
@@ -623,7 +670,14 @@ function makeCustomSizedDelim(type, delim, height, center, context, classes) {
  * @memberof module:delimiters
  * @private
  */
-function makeLeftRightDelim(type, delim, height, depth, context, classes) {
+export function makeLeftRightDelim(
+    type: string,
+    delim: string,
+    height: number,
+    depth: number,
+    context: Context,
+    classes = ''
+) {
     // If this is the empty delimiter, return a null fence
     if (delim === '.') {
         return makeNullFence(type, context, classes);
@@ -671,21 +725,14 @@ function makeLeftRightDelim(type, delim, height, depth, context, classes) {
  * @memberof module:delimiters
  * @private
  */
-function makeNullFence(type, context, classes) {
+function makeNullFence(type: string, context: Context, classes: string) {
     return makeSpanOfType(
         type,
         '',
         'sizing' + // @todo not useful, redundant with 'nulldelimiter'
         // 'reset-' + context.size, 'size5',                 // @todo: that seems like a lot of resizing... do we need both?
-        context.mathstyle.adjustTo(Mathstyle.TEXT) +
+        context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
         ' nulldelimiter ' + // The null delimiter has a width, specified by class 'nulldelimiter'
             (classes || '')
     );
 }
-
-// Export the public interface for this module
-export default {
-    makeSizedDelim,
-    makeCustomSizedDelim,
-    makeLeftRightDelim,
-};

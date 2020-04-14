@@ -11,13 +11,11 @@
     "parser": "@typescript-eslint/parser",
 
     "parserOptions": {
+        // "ecmaFeatures": { "jsx": false }, // default
         // Configure the parser with the tsconfig file in the root project
-        "project": "./tsconfig.json",
-        "ecmaVersion": 2020,
-        "sourceType": "module" // Allow the use of import
-        // "ecmaFeatures": {
-        //     "jsx": false
-        // }
+        "project": "./tsconfig.json"
+        // "ecmaVersion": 2020,
+        // "sourceType": "module" // Allow the use of import
     },
 
     "extends": [
@@ -32,15 +30,15 @@
 
     "rules": {
         /// Temporary lenient rules until more complete conversion to
-        /// Typescript is completed
+        /// Typescript is completed. @revisit
         "@typescript-eslint/explicit-function-return-type": "off",
 
         "prettier/prettier": "error",
 
         // note you must disable the base rule as it can report incorrect errors
         "indent": "off",
-        // "@typescript-eslint/prefer-optional-chain": "warn",
-        // "@typescript-eslint/prefer-nullish-coalescing": "warn",
+        "@typescript-eslint/prefer-optional-chain": "off", /// @revisit
+        "@typescript-eslint/prefer-nullish-coalescing": "warn",
 
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-unused-vars": [
@@ -63,7 +61,9 @@
             "error",
             {
                 "functions": false,
-                "classes": false
+                "classes": false,
+                "variables": false,
+                "typedefs": false
             }
         ],
         "@typescript-eslint/no-this-alias": [

@@ -1,5 +1,5 @@
 import { registerAtomType, decompose } from './atom-utils.js';
-import Mathstyle from './mathstyle.js';
+import { MATHSTYLES } from './mathstyle';
 import { makeSymbol, makeOp } from './span.js';
 
 /**
@@ -18,7 +18,7 @@ registerAtomType('mop', (context, atom) => {
 
         // Most symbol operators get larger in displaystyle (rule 13)
         const large =
-            mathstyle.size === Mathstyle.DISPLAY.size &&
+            mathstyle.size === MATHSTYLES.displaystyle.size &&
             atom.symbol !== '\\smallint';
 
         base = makeSymbol(
@@ -70,7 +70,8 @@ registerAtomType('mop', (context, atom) => {
         if (
             atom.alwaysHandleSupSub ||
             limits === 'limits' ||
-            (limits === 'auto' && mathstyle.size === Mathstyle.DISPLAY.size)
+            (limits === 'auto' &&
+                mathstyle.size === MATHSTYLES.displaystyle.size)
         ) {
             result = atom.attachLimits(context, base, baseShift, slant);
         } else {

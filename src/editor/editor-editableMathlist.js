@@ -2317,6 +2317,7 @@ EditableMathlist.prototype.insert = function (s, options) {
         this.delete_();
     } else if (options.insertionMode === 'replaceAll') {
         this.root.body = [];
+        this.root.latex = '';
         this.path = [{ relation: 'body', offset: 0 }];
         this.extent = 0;
     } else if (options.insertionMode === 'insertBefore') {

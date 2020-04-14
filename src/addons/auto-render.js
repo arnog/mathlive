@@ -355,7 +355,7 @@ function scanElement(elem, options) {
                     true
                 );
                 childNode.parentNode.replaceChild(span, childNode);
-            } else {
+            } else if (tag !== 'script') {
                 // Element node
                 const shouldRender =
                     options.processClassPattern.test(childNode.className) ||

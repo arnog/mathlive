@@ -1,5 +1,5 @@
 import { registerAtomType, decompose } from './atom-utils.js';
-import Mathstyle from './mathstyle.js';
+import { MATHSTYLES } from './mathstyle';
 import { METRICS as FONTMETRICS } from './font-metrics.js';
 import { makeSpan, makeOrd, makeVlist, height as spanHeight } from './span.js';
 
@@ -16,7 +16,7 @@ registerAtomType('line', (context, atom) => {
         FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
     const line = makeSpan(
         null,
-        context.mathstyle.adjustTo(Mathstyle.TEXT) +
+        context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
             ' ' +
             atom.position +
             '-line'

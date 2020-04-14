@@ -4,7 +4,10 @@ export const FUNCTIONS = {};
 
 export const ENVIRONMENTS = {};
 
-export const MACROS = {
+export type MacroDefinition = { def: string; args?: number };
+export type MacroDictionary = { [name: string]: string | MacroDefinition };
+
+export const MACROS: MacroDictionary = {
     iff: '\\;\u27fa\\;', //>2,000 Note: additional spaces around the arrows
     nicefrac: '^{#1}\\!\\!/\\!_{#2}',
 

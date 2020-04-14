@@ -1,17 +1,15 @@
-/**
- * @module core/parser
- * @private
- */
-
-import { getEnvironmentInfo, getInfo, charToLatex } from './definitions.js';
+import {
+    getEnvironmentInfo,
+    getInfo,
+    charToLatex,
+    MacroDictionary,
+} from './definitions.js';
 import { stringToColor } from './color.js';
 import { convertDimenToEm } from './font-metrics.js';
 import { Token, tokenize } from './lexer';
 import { Atom, Style, ParseMode } from './atom';
 import { parseTokens } from './modes.js';
-
-type MacroDefinition = { def: string; args?: number };
-type MacroDictionary = { [name: string]: string | MacroDefinition };
+import { MacroDefinition } from './definitions-utils';
 
 type Colspec = {
     gap?: Atom[];
@@ -102,7 +100,7 @@ function tokensToString(tokens: Token[]): string {
 class Parser {
     tokens: Token[];
     index: number;
-    args: Atom[][];
+    args: (string | Atom[])[];
     macros: MacroDictionary;
     mathList: Atom[];
     style: Style;
@@ -111,7 +109,11 @@ class Parser {
     tabularMode: boolean;
     endCount: number;
 
-    constructor(tokens: Token[], args, macros) {
+    constructor(
+        tokens: Token[],
+        args: (string | Atom[])[],
+        macros: MacroDictionary
+    ) {
         this.tokens = tokens;
         this.index = 0;
         this.args = args;
@@ -235,7 +237,7 @@ class Parser {
                 this.parseMode,
                 this.macros
             );
-            return info && info.infix;
+            return info?.infix;
         }
         return false;
     }
@@ -359,21 +361,21 @@ class Parser {
         }
         return [explicitGroup, args];
     }
-    parseCommand(command) {
+    parseCommand(command: string): boolean {
         if (this.hasCommand(command)) {
             this.index++;
             return true;
         }
         return false;
     }
-    parseLiteral(literal) {
+    parseLiteral(literal: string): boolean {
         if (this.hasLiteral(literal)) {
             this.index++;
             return true;
         }
         return false;
     }
-    parseFiller() {
+    parseFiller(): boolean {
         let skipped = false;
         let done = false;
         do {
@@ -397,7 +399,7 @@ class Parser {
      * @method module:core/parser#Parser#parseKeyword
      * @private
      */
-    parseKeyword(keyword) {
+    parseKeyword(keyword: string): boolean {
         const savedIndex = this.index;
         let done = this.end();
         let value = '';
@@ -427,7 +429,7 @@ class Parser {
      * @method module:core/parser#Parser#scanString
      * @private
      */
-    scanString() {
+    scanString(): string {
         let result = '';
         let done = this.end();
         while (!done) {
@@ -462,7 +464,7 @@ class Parser {
      * @method module:core/parser#Parser#scanLiteralArg
      * @private
      */
-    scanLiteralArg() {
+    scanLiteralArg(): string {
         let result = '';
         if (this.hasToken('{')) {
             this.get(); // Skip initial "{"
@@ -664,7 +666,7 @@ class Parser {
      * @method Parser#scanModeShift
      * @private
      */
-    scanModeShift() {
+    scanModeShift(): Atom {
         if (!this.hasToken('$') && !this.hasToken('$$')) return null;
         const final = this.get()!.type;
         const result = new Atom('math', 'group');
@@ -685,7 +687,7 @@ class Parser {
      * @method module:core/parser#Parser#scanEnvironment
      * @private
      */
-    scanEnvironment() {
+    scanEnvironment(): Atom {
         // An environment starts with a \begin command
         if (!this.parseCommand('begin')) return null;
         // The \begin command is immediately followed by the environment
@@ -701,7 +703,7 @@ class Parser {
             | Atom
             | Atom[]
         )[] = [];
-        if (env && env.params) {
+        if (env?.params) {
             for (const param of env.params) {
                 // Parse an argument
                 if (param.optional) {
@@ -799,7 +801,7 @@ class Parser {
      * @method module:core/parser#Parser#scanImplicitGroup
      * @private
      */
-    scanImplicitGroup(done?: (token: Token) => boolean) {
+    scanImplicitGroup(done?: (token: Token) => boolean): Atom[] {
         // An implicit group is a sequence of atoms that terminates with
         // a `'}'`,
         // For environments, they also terminate at
@@ -807,7 +809,7 @@ class Parser {
         // and a specific 'done' callback is passed for that
         const savedStyle = this.style;
         if (!done) {
-            done = (token: Token) => token.type === '}';
+            done = (token: Token): boolean => token.type === '}';
         }
         // To handle infix commands, we'll keep track of their prefix
         // (tokens coming before them) and their arguments
@@ -890,11 +892,8 @@ class Parser {
      *
      * Return a group Atom with an empty body if an empty
      * group (i.e. `{}`).
-     * @return {Atom}
-     * @method module:core/parser#Parser#scanGroup
-     * @private
      */
-    scanGroup(): Atom | null {
+    scanGroup(): Atom {
         if (!this.parseToken('{')) return null;
         const result = new Atom(this.parseMode, 'group');
         result.body = this.scanImplicitGroup(
@@ -905,7 +904,7 @@ class Parser {
         result.latexClose = '}';
         return result;
     }
-    scanSmartFence() {
+    scanSmartFence(): Atom {
         this.skipWhitespace();
         if (!this.parseLiteral('(')) return null;
         // We've found an open paren... Convert to a `\mleft...\mright`
@@ -928,11 +927,8 @@ class Parser {
      * Scan a delimiter, e.g. '(', '|', '\vert', '\ulcorner'
      *
      * @return {string} The delimiter (as a character or command) or null
-     * @memberof Parser
-     * @method module:core/parser#Parser#scanDelim
-     * @private
      */
-    scanDelim() {
+    scanDelim(): string {
         this.skipWhitespace();
         const token = this.get();
         if (!token) return null;
@@ -967,11 +963,8 @@ class Parser {
      * `/left.../right` sequence, and is handled separately.
      *
      * Return either an atom of type `'leftright'` or null
-     * @return {Atom}
-     * @method module:core/parser#Parser#scanLeftRight
-     * @private
      */
-    scanLeftRight() {
+    scanLeftRight(): Atom {
         if (this.parseCommand('right') || this.parseCommand('mright')) {
             // We have an unbalanced left/right (there's a \right, but no \left)
             return null;
@@ -1010,9 +1003,6 @@ class Parser {
      *
      * Modify the last atom accordingly.
      *
-     * @return {Atom}
-     * @method module:core/parser#Parser#parseSupSub
-     * @private
      */
     parseSupSub(): boolean {
         // No sup/sub in text or command mode.
@@ -1057,8 +1047,6 @@ class Parser {
      * This overrides the calculation made for the placement, which is usually
      * dependent on the displaystyle (`inlinemath` prefers `\nolimits`, while
      * `displaymath` prefers `\limits`).
-     * @method module:core/parser#Parser#parseLimits
-     * @private
      */
     parseLimits() {
         // Note: technically, \limits and \nolimits are only applicable
@@ -1083,7 +1071,9 @@ class Parser {
         }
         return false;
     }
-    scanOptionalArg(parseMode: ParseMode) {
+    scanOptionalArg(
+        parseMode: ParseMode
+    ): string | number | BBoxParam | Colspec[] | Atom[] {
         parseMode =
             !parseMode || parseMode === 'auto' ? this.parseMode : parseMode;
         this.skipWhitespace();
@@ -1159,8 +1149,6 @@ class Parser {
      *
      * @param {string} [parseMode] Temporarily overrides the parser parsemode. For
      * example: `'dimension'`, `'color'`, `'text'`, etc...
-     * @method module:core/parser#Parser#scanArg
-     * @private
      */
     scanArg(parseMode?: ParseMode): string | Atom[] {
         parseMode =
@@ -1347,7 +1335,7 @@ class Parser {
                     result.latex = '\\' + token.value;
                 }
             } else {
-                result = this.scanMacro(token.value);
+                result = this.scanMacro(token.value as string);
                 if (!result) {
                     // This wasn't a macro, so let's see if it's a regular command
                     const info = getInfo(
@@ -1498,7 +1486,7 @@ class Parser {
             }
             result.symbol = token.value;
             result.latex = charToLatex(this.parseMode, token.value);
-            if (info && info.isFunction && this.smartFence) {
+            if (info?.isFunction && this.smartFence) {
                 // The atom was a function that may be followed by
                 // an argument, like `f(`.
                 const smartFence = this.scanSmartFence();
@@ -1533,14 +1521,14 @@ class Parser {
      * Attempt to scan the macro name and return an atom list if successful.
      * Otherwise, it wasn't a macro.
      */
-    scanMacro(macro) {
+    scanMacro(macro: string): Atom {
         if (!this.macros || !this.macros[macro]) return null;
         const initialIndex = this.index;
-        const args = {};
-        let def;
+        const args: (string | Atom[])[] = [];
+        let def: string;
         let argCount = 0;
         if (typeof this.macros[macro] === 'string') {
-            def = this.macros[macro];
+            def = this.macros[macro] as string;
             // Let's see if there are arguments in the definition.
             if (/(^|[^\\])#1/.test(def)) argCount = 1;
             if (/(^|[^\\])#2/.test(def)) argCount = 2;
@@ -1608,24 +1596,18 @@ class Parser {
 
 /**
  * Given a string of LaTeX, return a corresponding math list (array of atoms).
- * @param {string} s
- * @param {string} [parseMode='math']
- * @param {string[]} [args={}] - If there are any placeholder tokens, e.g.
+ * @param [args=[]] - If there are any placeholder tokens, e.g.
  * `#0`, `#1`, etc... they will be replaced by the value provided by `args`.
- * @param {object} [macro={}] Dictionary defining macros
- * @param {boolean} [smartFence=false] If true, promote plain fences, e.g. `(`,
+ * @param [smartFence] If true, promote plain fences, e.g. `(`,
  * as `\left...\right` or `\mleft...\mright`
- * @return {object[]} An array of Atom
- * @method module:core/parser#parseString
- * @private
  */
 export function parseString(
     s: string,
     parseMode: ParseMode,
-    args,
-    macros,
+    args: (string | Atom[])[],
+    macros: MacroDictionary,
     smartFence = false
-) {
+): Atom[] {
     let mathlist = [];
     const parser = new Parser(tokenize(s), args, macros);
     parser.parseMode = parseMode || 'math'; // other possible values: 'text', 'color', etc...

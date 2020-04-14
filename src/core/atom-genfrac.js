@@ -1,8 +1,8 @@
 import { registerAtomType, decompose } from './atom-utils.js';
-import Mathstyle from './mathstyle.js';
+import { MATHSTYLES } from './mathstyle';
 import { METRICS as FONTMETRICS } from './font-metrics.js';
 import { makeSpan, makeOrd, makeHlist, makeVlist } from './span.js';
-import Delimiters from './delimiters.js';
+import { makeCustomSizedDelim } from './delimiters';
 
 /**
  * Gengrac -- Generalized fraction
@@ -21,7 +21,7 @@ registerAtomType('genfrac', (context, atom) => {
     const mathstyle =
         atom.mathstyle === 'auto'
             ? context.mathstyle
-            : Mathstyle.toMathstyle(atom.mathstyle);
+            : MATHSTYLES[atom.mathstyle];
     const newContext = context.clone({ mathstyle: mathstyle });
     let numer = [];
     if (atom.numerPrefix) {
@@ -58,7 +58,7 @@ registerAtomType('genfrac', (context, atom) => {
     let numShift;
     let clearance;
     let denomShift;
-    if (mathstyle.size === Mathstyle.DISPLAY.size) {
+    if (mathstyle.size === MATHSTYLES.displaystyle.size) {
         numShift = mathstyle.metrics.num1;
         if (ruleWidth > 0) {
             clearance = 3 * ruleWidth;
@@ -115,7 +115,7 @@ registerAtomType('genfrac', (context, atom) => {
         }
         const mid = makeSpan(
             null,
-            /* newContext.mathstyle.adjustTo(Mathstyle.TEXT) + */ ' frac-line'
+            /* newContext.mathstyle.adjustTo(MATHSTYLES.textstyle) + */ ' frac-line'
         );
         mid.applyStyle(atom.getStyle());
         // @todo: do we really need to reset the size?
@@ -150,13 +150,13 @@ registerAtomType('genfrac', (context, atom) => {
     // }
     // Rule 15e of Appendix G
     const delimSize =
-        mathstyle.size === Mathstyle.DISPLAY.size
+        mathstyle.size === MATHSTYLES.displaystyle.size
             ? mathstyle.metrics.delim1
             : mathstyle.metrics.delim2;
     // Optional delimiters
     const leftDelim = atom.bind(
         context,
-        Delimiters.makeCustomSizedDelim(
+        makeCustomSizedDelim(
             'mopen',
             atom.leftDelim,
             delimSize,
@@ -166,7 +166,7 @@ registerAtomType('genfrac', (context, atom) => {
     );
     const rightDelim = atom.bind(
         context,
-        Delimiters.makeCustomSizedDelim(
+        makeCustomSizedDelim(
             'mclose',
             atom.rightDelim,
             delimSize,

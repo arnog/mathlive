@@ -98,7 +98,7 @@ class Lexer {
         } else {
             execResult = regEx.exec(this.s.slice(this.pos).join(''));
         }
-        if (execResult && execResult[0]) {
+        if (execResult?.[0]) {
             this.pos += execResult[0].length;
             return execResult[0];
         }
@@ -111,7 +111,7 @@ class Lexer {
      * @method module:core/lexer#Lexer#isWhiteSpace
      * @private
      */
-    isWhiteSpace() {
+    isWhiteSpace(): boolean {
         return /[ \f\n\r\t\v\xA0\u2028\u2029]/.test(this.s[this.pos]);
         /*
     Note that browsers are inconsistent in their definitions of the

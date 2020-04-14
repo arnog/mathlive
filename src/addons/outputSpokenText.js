@@ -652,7 +652,7 @@ Atom.toSpeakableText = function (atoms, speechOptions) {
     options.speechMode = 'math';
 
     if (window.sre && options.textToSpeechRules === 'sre') {
-        options.generateID = true;
+        options.atomIdsSettings = { seed: 'random' };
         const mathML = Atom.toMathML(atoms, options);
         if (mathML) {
             if (options.textToSpeechMarkup) {
