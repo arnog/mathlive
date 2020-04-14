@@ -917,6 +917,7 @@ export class Atom implements Style {
         const supsubContainer = makeSpan(supsub, 'msubsup');
         if (this.caret) {
             supsubContainer.caret = this.caret;
+            this.caret = '';
         }
         return makeSpanOfType(type, [nucleus, supsubContainer]);
     }
@@ -1022,6 +1023,7 @@ export class Atom implements Style {
             // to the 'msubsup' atom, so no need to have it here.
             if (!this.superscript && !this.subscript) {
                 result.caret = this.caret;
+                this.caret = '';
                 if (context.mathstyle.isTight()) result.isTight = true;
             }
         }
