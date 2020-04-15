@@ -43,22 +43,22 @@ defineSymbol('\\nabla', '\u2207');
 defineSymbol('\\partial', '\u2202');
 
 defineSymbol('\\ell', '\u2113');
-defineSymbol('\\imaginaryI', 'i'); // NOTE: not a real TeX symbol, but Mathematica
-// NOTE: set in math as per ISO 80000-2:2009.
-defineSymbol('\\imaginaryJ', 'j'); // NOTE: not a real TeX symbol, but Mathematica
-// NOTE: set in math as per ISO 80000-2:2009.
+defineSymbol('\\imaginaryI', 'i', 'mord', 'main'); // NOTE: not a real TeX symbol, but Mathematica
+// NOTE: set in main (upright) as per ISO 80000-2:2009.
+defineSymbol('\\imaginaryJ', 'j', 'mord', 'main'); // NOTE: not a real TeX symbol, but Mathematica
+// NOTE: set in main (upright) as per ISO 80000-2:2009.
 
 defineSymbol('\\hbar', '\u210f');
 defineSymbol('\\hslash', '\u210f', 'mord', 'ams');
 
 defineSymbol('\\differentialD', 'd', 'mord', 'main'); // NOTE: not a real TeX symbol, but Mathematica
 defineSymbol('\\rd', 'd', 'mord', 'main'); // NOTE: not a real TeX symbol, but used in ProofWiki
-// NOTE: set in math as per ISO 80000-2:2009.
+// NOTE: set in main (upright) as per ISO 80000-2:2009.
 defineSymbol('\\capitalDifferentialD', 'D', 'mord', 'main'); // NOTE: not a real TeX symbol, but Mathematica
-// NOTE: set in math as per ISO 80000-2:2009.
+// NOTE: set in main (upright) as per ISO 80000-2:2009.
 defineSymbol('\\rD', 'D', 'mord', 'main'); // NOTE: not a real TeX symbol
 defineSymbol('\\exponentialE', 'e', 'mord', 'main'); // NOTE: not a real TeX symbol, but Mathematica
-// NOTE: set in math as per ISO 80000-2:2009.
+// NOTE: set in main (upright) as per ISO 80000-2:2009.
 
 defineSymbol('\\Finv', '\u2132', 'mord', 'ams');
 defineSymbol('\\Game', '\u2141', 'mord', 'ams');

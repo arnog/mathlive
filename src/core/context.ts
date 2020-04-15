@@ -16,13 +16,14 @@ export type ParseMode =
     | 'string';
 
 export type Variant =
+    | 'ams'
     | 'double-struck'
     | 'calligraphic'
     | 'script'
     | 'fraktur'
     | 'sans-serif'
     | 'monospace'
-    | 'normal'
+    | 'normal' // 'main' (upright) or 'math' (italic) depending on letterShapeStyle
     | 'main'
     | 'math';
 export type VariantStyle = 'up' | 'bold' | 'italic' | 'bolditalic' | '';

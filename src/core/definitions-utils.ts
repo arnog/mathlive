@@ -1,5 +1,5 @@
 import { ParseMode, Variant, VariantStyle } from './context';
-import { Atom, Notations, Colspec } from './atom-utils';
+import { Atom, AtomType, Notations, Colspec } from './atom-utils';
 import { FontSeries, FontShape } from './context';
 
 export const MATH_SYMBOLS = {};
@@ -273,8 +273,8 @@ export const LETTER_AND_DIGITS =
 export function defineSymbol(
     symbol: string,
     value: string,
-    type = 'mord',
-    variant = ''
+    type: AtomType = 'mord',
+    variant: Variant | '' = ''
 ): void {
     MATH_SYMBOLS[symbol] = {
         type,
@@ -282,14 +282,26 @@ export function defineSymbol(
         value,
     };
     if (!REVERSE_MATH_SYMBOLS[value]) {
-        REVERSE_MATH_SYMBOLS[value] = symbol;
+        if (!variant) {
+            REVERSE_MATH_SYMBOLS[value] = symbol;
+        }
     } else {
-        console.warn(
-            'Multiple definitions for ',
-            value,
-            REVERSE_MATH_SYMBOLS[value],
-            symbol
-        );
+        if (!variant) {
+            console.warn(
+                'Multiple definitions for ',
+                value,
+                REVERSE_MATH_SYMBOLS[value],
+                symbol
+            );
+        } else {
+            console.warn(
+                'Multiple definitions with variant for ',
+                value,
+                variant,
+                REVERSE_MATH_SYMBOLS[value],
+                symbol
+            );
+        }
     }
 }
 

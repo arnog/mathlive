@@ -207,7 +207,7 @@ function applyStyle(atom, style) {
 
     // 2. If no explicit variant style, auto-italicize some symbols,
     // depending on the letterShapeStyle
-    if (!variantStyle && atom.body.length === 1) {
+    if (variant === 'normal' && !variantStyle && atom.body.length === 1) {
         LETTER_SHAPE_RANGES.forEach((x, i) => {
             if (
                 x.test(atom.body) &&
