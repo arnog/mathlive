@@ -1,6 +1,6 @@
 import { decompose } from '../core/atom-utils.js';
 import { parseString } from '../core/parser.js';
-import { makeSpan } from '../core/span.js';
+import { makeSpan, makeStruts } from '../core/span.js';
 import Shortcuts from './editor-shortcuts.js';
 import { getInfo } from '../core/definitions.js';
 import { MATHSTYLES } from '../core/mathstyle';
@@ -275,14 +275,7 @@ function latexToMarkup(latex, mf) {
         parse
     );
 
-    const base = makeSpan(spans, 'ML__base');
-
-    const topStrut = makeSpan('', 'ML__strut');
-    topStrut.setStyle('height', base.height, 'em');
-    const bottomStrut = makeSpan('', 'ML__strut--bottom');
-    bottomStrut.setStyle('height', base.height + base.depth, 'em');
-    bottomStrut.setStyle('vertical-align', -base.depth, 'em');
-    const wrapper = makeSpan([topStrut, bottomStrut, base], 'ML__mathlive');
+    const wrapper = makeStruts(makeSpan(spans, 'ML__base'), '', 'ML__mathlive');
 
     return wrapper.toMarkup();
 }

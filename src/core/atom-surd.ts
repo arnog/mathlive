@@ -5,6 +5,7 @@ import {
     makeSpan,
     makeOrd,
     makeVlist,
+    makeStruts,
     depth as spanDepth,
     height as spanHeight,
     Span,
@@ -87,12 +88,18 @@ registerAtomType('surd', (context: Context, atom: Atom): Span[] => {
     const toShift = 0.6 * (innerRootHeight - innerRootDepth);
     // Build a VList with the superscript shifted up correctly
     const rootVlist = makeVlist(context, [root], 'shift', -toShift);
+
     // Add a class surrounding it so we can add on the appropriate
     // kerning
+
     return [
         atom.bind(
             context,
-            makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt')
+            makeStruts(
+                [makeSpan(rootVlist, 'root'), delim, body],
+                'mord',
+                'sqrt'
+            )
         ),
     ];
 });

@@ -8,7 +8,7 @@ import { suggest, commandAllowed, MACROS } from '../core/definitions.js';
 import { Atom, makeRoot } from '../core/atom.ts';
 import { decompose } from '../core/atom-utils.js';
 import { parseString } from '../core/parser.js';
-import { makeSpan } from '../core/span.js';
+import { makeSpan, makeStruts } from '../core/span.js';
 import { MATHSTYLES } from '../core/mathstyle';
 import EditableMathlist from './editor-editableMathlist.js';
 import MathPath from './editor-mathpath.js';
@@ -2261,17 +2261,8 @@ export class Mathfield {
             // They should use instead the 'aria-label' below.
             'aria-hidden': 'true',
         };
-        const topStrut = makeSpan('', 'ML__strut');
-        topStrut.setStyle('height', base.height, 'em');
-        const struts = [topStrut];
-        if (base.depth !== 0) {
-            const bottomStrut = makeSpan('', 'ML__strut--bottom');
-            bottomStrut.setStyle('height', base.height + base.depth, 'em');
-            bottomStrut.setStyle('vertical-align', -base.depth, 'em');
-            struts.push(bottomStrut);
-        }
-        struts.push(base);
-        const wrapper = makeSpan(struts, 'ML__mathlive');
+        const wrapper = makeStruts(base, '', 'ML__mathlive');
+
         //
         // 6. Generate markup and accessible node
         //

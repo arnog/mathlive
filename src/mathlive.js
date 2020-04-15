@@ -22,7 +22,7 @@
 import { Atom } from './core/atom.ts';
 import { decompose } from './core/atom-utils.js';
 import { parseString } from './core/parser.js';
-import { coalesce, makeSpan } from './core/span.js';
+import { coalesce, makeSpan, makeStruts } from './core/span.js';
 import { MACROS } from './core/definitions.js';
 import { Mathfield } from './editor/editor-mathfield.js';
 import AutoRender from './addons/auto-render.js';
@@ -91,19 +91,7 @@ function toMarkup(text, options) {
     //
     // 4. Wrap the expression with struts
     //
-    const base = makeSpan(spans, 'ML__base');
-
-    const topStrut = makeSpan('', 'ML__strut');
-    topStrut.setStyle('height', base.height, 'em');
-    const struts = [topStrut];
-    if (base.depth !== 0) {
-        const bottomStrut = makeSpan('', 'ML__strut--bottom');
-        bottomStrut.setStyle('height', base.height + base.depth, 'em');
-        bottomStrut.setStyle('vertical-align', -base.depth, 'em');
-        struts.push(bottomStrut);
-    }
-    struts.push(base);
-    const wrapper = makeSpan(struts, 'ML__mathlive');
+    const wrapper = makeStruts(makeSpan(spans, 'ML__base'), '', 'ML__mathlive');
 
     //
     // 5. Generate markup

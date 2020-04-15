@@ -26,6 +26,9 @@
         </header>
         <main>
             <div class="mathfield" id="mf">
+                -\colorbox{BurntOrange}{\ensuremath{\color{red}x\frac{1}{\colorbox{yellow}{\ensuremath{x}}}}}=\frac1c
+                + x \bbox[border:solid 1px red]{\sqrt[3]{x}} = \binom{C}{k}
+
                 <!-- \left(\frac12\right) -->
                 <!-- \huge x \text{y} -->
                 <!-- \scriptscriptstyle x \text{y} -->
@@ -60,20 +63,34 @@
             // prettier-ignore
             const TESTING_SAMPLES = [
                 {
+                    title: 'Ordinary Symbols and letterShapeStyle',
                     id: 'ordinary-1',
                     pic: 'ordinary-1.gif',
                     comment:
-                        'Roman lower and uppercase letters and greek lowercase should be italic. Greek uppercase should be upright. There should be some extra space after the letter "f"',
-                    title: 'Ordinary Symbols from the "math" font',
+`With the "tex" letterShapeStyle: 
+<ul>
+    <li>roman lower and uppercase letters should be italic</li>
+    <li>greek lowercase should be italic</li>
+    <li>greek uppercase should be upright</li>
+    <li>there should be some extra space after the letter "f"</li>
+</ul>
+`,
                     latex: `(+-1234.56=0)\\{|/@"\`\\}abcfgxyz\\alpha \\beta ABCFGXYZ\\Gamma \\Delta \\Psi`,
                 },
                 {
+                    title: 'Ordinary symbols from various fonts',
                     id: 'ordinary-2',
                     pic: 'ordinary-2.gif',
                     comment:
-                        '\\exists is in math font, \\nexists is in ams font, \\imath is in main font ',
-                    title: 'Ordinary symbols from various fonts',
-                    latex: `\\exists \\nexists \\imath \\alpha \\Omega i x fg`,
+`With the "tex" letterShapeStyle: 
+<ul>
+    <li><kbd>\\exists</kbd> uses the "math" font</li>
+    <li><kbd>\\nexists</kbd> uses the "ams" font</li>
+    <li><kbd>\\imath</kbd> (dotless i) uses the "main" font, italicized (does not exist in the "math" font)</li>
+    <li><kbd>\\imaginaryI</kbd> uses the "main" font (upright)</li>
+</ul>
+`,
+                    latex: `\\exists \\nexists \\imath \\alpha \\Omega i x fg \\imaginaryI `,
                 },
                 {
                     id: 'ordinary-4',
@@ -86,7 +103,7 @@
                     pic: 'ordinary-3.gif',
                     title: 'Ordinary symbols, styled',
                     comment:
-                        'In math mode, styling commands are exclusive, except for \\boldsymbol. \\mathbf is upright bold, \\mathit is normal italic',
+                        'In math mode, styling commands are exclusive, except for <kbd>\\boldsymbol</kbd>. <kbd>\\mathbf</kbd> is upright bold, <kbd>\\mathit</kbd> is normal italic',
                     latex: `Xx\\Gamma\\mathrm{Xx}\\mathbf{Xx\\Gamma}\\mathit{\\mathbf{Xx}} \\mathbf{\\mathit{Xx\\Gamma}} \\boldsymbol{\\mathrm{Xx}}\\mathcal{EXxe}`,
                 },
                 {
@@ -94,7 +111,7 @@
                     title: 'Style applied to operator',
                     pic: 'styling-2.gif',
                     comment:
-                        'Operators are unaffected by styling except <kbd>\\sin \\theta</kbd>, in bold. In LaTeX, lowercase greek letters and operators are not affected by \\mathbf',
+                        'Operators are unaffected by styling except <kbd>\\sin \\theta</kbd>, in bold. In LaTeX, lowercase greek letters and operators are not affected by <kbd>\\mathbf</kbd>',
                     latex: `\\mathbf{\\sin \\theta} + \\mathit{\\cos \\theta} + \\mathbf{\\sin x} + \\boldsymbol{\\sin \\theta}`,
                 },
                 {

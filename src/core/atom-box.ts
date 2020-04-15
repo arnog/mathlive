@@ -15,7 +15,10 @@ registerAtomType('box', (context: Context, atom: Atom): Span[] => {
         typeof atom.padding === 'number' ? atom.padding : FONTMETRICS.fboxsep;
 
     // Base is the main content "inside" the box
-    const base = makeOrd(decompose(context, atom.body as Atom[]));
+    const content = makeOrd(decompose(context, atom.body as Atom[]));
+    content.setStyle('vertical-align', -spanDepth(content), 'em');
+    content.setStyle('height', 0);
+    const base = makeOrd([content]);
 
     // This span will represent the box (background and border)
     // It's positioned to overlap the base
@@ -35,7 +38,7 @@ registerAtomType('box', (context: Context, atom: Atom): Span[] => {
         box.setStyle('width', '100%');
     }
 
-    box.setStyle('bottom', -spanDepth(base), 'em');
+    box.setStyle('top', -padding, 'em');
     box.setStyle('left', -padding, 'em');
     box.setStyle('z-index', '-1'); // Ensure the box is *behind* the base
     box.setStyle('box-sizing', 'border-box');
@@ -53,7 +56,6 @@ registerAtomType('box', (context: Context, atom: Atom): Span[] => {
 
     base.setStyle('display', 'inline-block');
     base.setStyle('height', spanHeight(base) + spanDepth(base), 'em');
-    base.setStyle('vertical-align', -spanDepth(base) + padding, 'em');
 
     // The result is a span that encloses the box and the base
     const result = makeSpan([box, base]);
@@ -67,6 +69,9 @@ registerAtomType('box', (context: Context, atom: Atom): Span[] => {
     result.depth = spanDepth(base) + padding;
     result.setLeft(padding);
     result.setRight(padding);
+    result.setStyle('height', result.height + result.depth - 2 * padding, 'em');
+    result.setStyle('top', -padding, 'em');
+    result.setStyle('display', 'inline-block');
 
     return [result];
 });

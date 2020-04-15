@@ -3,7 +3,7 @@
  * @private
  */
 import { decompose } from '../core/atom-utils';
-import { makeSpan } from '../core/span';
+import { makeSpan, makeStruts } from '../core/span';
 import { parseString } from '../core/parser';
 import { LINE_COLORS, AREA_COLORS } from '../core/color';
 import { l10n } from './l10n';
@@ -854,14 +854,7 @@ function latexToMarkup(latex, arg, mf) {
         parse
     );
 
-    const base = makeSpan(spans, 'ML__base');
-
-    const topStrut = makeSpan('', 'ML__strut');
-    topStrut.setStyle('height', base.height, 'em');
-    const bottomStrut = makeSpan('', 'ML__strut--bottom');
-    bottomStrut.setStyle('height', base.height + base.depth, 'em');
-    bottomStrut.setStyle('vertical-align', -base.depth, 'em');
-    const wrapper = makeSpan([topStrut, bottomStrut, base], 'ML__mathlive');
+    const wrapper = makeStruts(makeSpan(spans, 'ML__base'), '', 'ML__mathlive');
 
     return wrapper.toMarkup();
 }

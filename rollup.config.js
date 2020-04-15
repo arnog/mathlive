@@ -62,17 +62,6 @@ export default [
             resolve(),
             typescript(TYPESCRIPT_OPTIONS),
             PRODUCTION && terser(TERSER_OPTIONS),
-            // copy({
-            //     targets: [
-            //         { src: 'css/fonts', dest: 'dist' },
-            //         { src: 'src', dest: 'dist' },
-            //         {
-            //             src: 'build/types.d.ts',
-            //             dest: 'dist',
-            //             rename: 'mathlive.d.ts',
-            //         },
-            //     ],
-            // }),
         ],
         output: [
             // JavaScript native module

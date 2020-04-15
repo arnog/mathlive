@@ -800,6 +800,30 @@ export function makePunct(content: string | Span[], classes = ''): Span {
     return makeSpanOfType('mpunct', content, classes);
 }
 
+export function makeStruts(
+    content: Span | Span[],
+    type: 'mord' | '' = '',
+    classes = ''
+): Span {
+    const topStrut = makeSpan('', 'ML__strut');
+    topStrut.setStyle('height', height(content), 'em');
+    let bottomStrut: Span;
+    if (depth(content) !== 0) {
+        bottomStrut = makeSpan('', 'ML__strut--bottom');
+        bottomStrut.setStyle('height', height(content) + depth(content), 'em');
+        bottomStrut.setStyle('vertical-align', -depth(content), 'em');
+    }
+    let struts: Span[];
+    if (Array.isArray(content)) {
+        struts = [topStrut, bottomStrut, ...content];
+    } else {
+        struts = [topStrut, bottomStrut, content];
+    }
+    const result = makeSpan(struts, classes);
+    result.type = type;
+    return result;
+}
+
 export function makeStyleWrap(
     type: string,
     children: Span | Span[],
