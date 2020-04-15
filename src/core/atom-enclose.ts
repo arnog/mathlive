@@ -179,7 +179,6 @@ registerAtomType('enclose', (context: Context, atom: Atom): Span[] => {
     // over the base
     result.setStyle('position', 'relative');
     result.setStyle('display', 'inline');
-    result.setStyle('vertical-align', -padding + spanDepth(base), 'em');
 
     // The padding adds to the width and height of the pod
     result.height = spanHeight(base) + padding;

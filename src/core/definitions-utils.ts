@@ -3,6 +3,63 @@ import { Atom, Notations, Colspec } from './atom-utils';
 import { FontSeries, FontShape } from './context';
 
 export const MATH_SYMBOLS = {};
+// Map a character to some corresponding Latex
+// This is used for some characters such as ² SUPERSCRIPT TWO
+// The table will also be populated by any registered symbol
+// from MATH_SYMBOLS
+// prettier-ignore
+export const REVERSE_MATH_SYMBOLS = {
+    '\u2223': '|',
+    '\u00b7': '\\cdot',
+    '\u00bc': '\\frac{1}{4}',
+    '\u00bd': '\\frac{1}{2}',
+    '\u00be': '\\frac{3}{4}',
+    '\u2070': '^{0}',
+    '\u2071': '^{i}', // eslint-disable-line
+    '\u00b9': '^{1}',
+    '\u00b2': '^{2}',
+    '\u00b3': '^{3}',
+    '\u2074': '^{4}',
+    '\u2075': '^{5}',
+    '\u2076': '^{6}',
+    '\u2077': '^{7}',
+    '\u2078': '^{8}',
+    '\u2079': '^{9}',
+    '\u207a': '^{+}',
+    '\u207b': '^{-}',
+    '\u207c': '^{=}',
+    '\u207f': '^{n}', // eslint-disable-line
+    '\u2080': '_{0}',
+    '\u2081': '_{1}',
+    '\u2082': '_{2}',
+    '\u2083': '_{3}',
+    '\u2084': '_{4}',
+    '\u2085': '_{5}',
+    '\u2086': '_{6}',
+    '\u2087': '_{7}',
+    '\u2088': '_{8}',
+    '\u2089': '_{9}',
+    '\u208a': '_{+}',
+    '\u208b': '_{-}',
+    '\u208c': '_{=}',
+    '\u2090': '_{a}',
+    '\u2091': '_{e}',
+    '\u2092': '_{o}',
+    '\u2093': '_{x}',
+
+    '\u2032': '\\prime',
+    '\u2033': '\\doubleprime',
+    '\u2035': '\\backprime',
+    '\u2036': '\\backdoubleprime',
+    '\u2220': '\\angle',
+
+    '\u2102': '\\C',
+    '\u2115': '\\N',
+    '\u2119': '\\P',
+    '\u211a': '\\Q',
+    '\u211d': '\\R',
+    '\u2124': '\\Z',
+};
 
 export const FUNCTIONS = {};
 
@@ -224,6 +281,16 @@ export function defineSymbol(
         variant,
         value,
     };
+    if (!REVERSE_MATH_SYMBOLS[value]) {
+        REVERSE_MATH_SYMBOLS[value] = symbol;
+    } else {
+        console.warn(
+            'Multiple definitions for ',
+            value,
+            REVERSE_MATH_SYMBOLS[value],
+            symbol
+        );
+    }
 }
 
 /**
@@ -253,83 +320,20 @@ export function defineSymbolRange(from: number, to: number): void {
     }
 }
 
-const CODEPOINT_SHORTCUTS = {
-    8739: '|',
-    0x00b7: '\\cdot',
-    0x00bc: '\\frac{1}{4}',
-    0x00bd: '\\frac{1}{2}',
-    0x00be: '\\frac{3}{4}',
-    0x2070: '^{0}',
-    0x2071: '^{i}',
-    0x00b9: '^{1}',
-    0x00b2: '^{2}',
-    0x00b3: '^{3}',
-    0x2074: '^{4}',
-    0x2075: '^{5}',
-    0x2076: '^{6}',
-    0x2077: '^{7}',
-    0x2078: '^{8}',
-    0x2079: '^{9}',
-    0x207a: '^{+}',
-    0x207b: '^{-}',
-    0x207c: '^{=}',
-    0x207f: '^{n}',
-
-    0x2080: '_{0}',
-    0x2081: '_{1}',
-    0x2082: '_{2}',
-    0x2083: '_{3}',
-    0x2084: '_{4}',
-    0x2085: '_{5}',
-    0x2086: '_{6}',
-    0x2087: '_{7}',
-    0x2088: '_{8}',
-    0x2089: '_{9}',
-    0x208a: '_{+}',
-    0x208b: '_{-}',
-    0x208c: '_{=}',
-    0x2090: '_{a}',
-    0x2091: '_{e}',
-    0x2092: '_{o}',
-    0x2093: '_{x}',
-
-    0x2032: '\\prime',
-    0x2033: '\\doubleprime',
-    0x2035: '\\backprime',
-    0x2036: '\\backdoubleprime',
-    0x2220: '\\angle',
-
-    0x2102: '\\C',
-    0x2115: '\\N',
-    0x2119: '\\P',
-    0x211a: '\\Q',
-    0x211d: '\\R',
-    0x2124: '\\Z',
-};
-
 /**
  * Given a character, return a LaTeX expression matching its Unicode codepoint.
  * If there is a matching symbol (e.g. \alpha) it is returned.
- * @param {string} parseMode
- * @param {string} s
- * @return {string}
- * @memberof module:definitions
- * @private
  */
 export function charToLatex(parseMode: ParseMode, s: string): string {
-    let result = '';
     if (parseMode === 'math') {
-        // Some symbols map to multiple codepoints.
-        // Some symbols are 'pseudosuperscript'. Convert them to a super(or sub)script.
-        // Map their alternative codepoints here.
-        result =
-            CODEPOINT_SHORTCUTS[s] ||
-            Object.keys(MATH_SYMBOLS).find((x) => MATH_SYMBOLS[x].value === s);
-    } else {
-        result = Object.keys(TEXT_SYMBOLS).find((x) => TEXT_SYMBOLS[x] === s);
+        return REVERSE_MATH_SYMBOLS[s] || s;
     }
-
-    return result || s;
+    if (parseMode === 'text') {
+        return (
+            Object.keys(TEXT_SYMBOLS).find((x) => TEXT_SYMBOLS[x] === s) || s
+        );
+    }
+    return s;
 }
 
 /**
@@ -565,18 +569,22 @@ export function mathVariantToUnicode(char, variant, style) {
     return char;
 }
 
-function unicodeCharToLatex(parseMode: ParseMode, char: string): string {
+export function unicodeCharToLatex(parseMode: ParseMode, char: string): string {
     if (parseMode === 'text') {
         return charToLatex(parseMode, char) || char;
     }
 
-    let result;
+    let result: string;
     // Codepoint shortcuts have priority over variants
     // That is, "\N" vs "\mathbb{N}"
+    // if (CODEPOINT_SHORTCUTS[cp]) return CODEPOINT_SHORTCUTS[cp];
+    result = charToLatex(parseMode, char);
+    if (result) return result;
+
     const cp = char.codePointAt(0);
-    if (CODEPOINT_SHORTCUTS[cp]) return CODEPOINT_SHORTCUTS[cp];
     const v = unicodeToMathVariant(cp);
-    if (!v.style && !v.variant) return charToLatex(parseMode, char);
+    if (!v.style && !v.variant) return '';
+
     result = v.char;
     if (v.variant) {
         result = '\\' + v.variant + '{' + result + '}';

@@ -2,7 +2,7 @@
 <html lang="en-US">
     <head>
         <meta charset="utf-8" />
-        <title>MathLive Basic Example</title>
+        <title>MathLive Test Cases</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="stylesheet" href="../style.css" />
 
@@ -57,6 +57,7 @@
         <script type="module">
             import MathLive from '/dist/mathlive.mjs';
 
+            // prettier-ignore
             const TESTING_SAMPLES = [
                 {
                     id: 'ordinary-1',
@@ -528,15 +529,21 @@
                     latex: `\\boxed{\\frac{\\frac12}{x^{3^x}}}+a=\\left[\\frac{\\frac12}{x^{3^x}}\\right]`,
                 },
                 {
-                    id: 'cancel-1',
+                    id: 'enclose-1',
+                    title: 'Strikes',
+                    latex:
+                        '3+\\enclose{updiagonalstrike downdiagonalstrike}[6px solid rgba(205, 0, 11, .4)]{18}+5',
+                },
+                {
+                    id: 'enclose-2',
                     title: 'Canceling out',
                     latex: `\\begin{aligned}
-                            2x-5 &= 7 \\\\
-                            2x\\enclose{updiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{-5}\\textcolor{green}{\\enclose{updiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{+5}} &= 7\\textcolor{green}{+5}\\\\
-                            \\frac{\\enclose{updiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{2}x}{\\textcolor{green}{\\enclose{updiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{2}}} &= \\frac{12}{\\textcolor{green}{2}}\\\\
-                            x &= 6
-                        \\end{aligned}
-                        `,
+    2x-5 &= 7 \\\\
+    2x\\enclose{updiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{-5}\\textcolor{green}{\\enclose{updiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{+5}} &= 7\\textcolor{green}{+5}\\\\
+    \\frac{\\enclose{updiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{2}x}{\\textcolor{green}{\\enclose{updiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{2}}} &= \\frac{12}{\\textcolor{green}{2}}\\\\
+    x &= 6
+\\end{aligned}
+`,
                 },
                 {
                     id: 'underover-1',
@@ -936,50 +943,50 @@
                     id: 'color-1',
                     title: 'All the colors',
                     latex: `\\begin{array}{c}
-                            {\\color{apricot}\\blacksquare}{\\color{aquamarine}\\blacksquare}
-                            {\\color{bittersweet}\\blacksquare}{\\color{black}\\blacksquare}
-                            {\\color{blue}\\blacksquare}{\\color{blueGreen}\\blacksquare}
-                            {\\color{blueviolet}\\blacksquare}{\\color{brickred}\\blacksquare}\\\\
+    {\\color{apricot}\\blacksquare}{\\color{aquamarine}\\blacksquare}
+    {\\color{bittersweet}\\blacksquare}{\\color{black}\\blacksquare}
+    {\\color{blue}\\blacksquare}{\\color{blueGreen}\\blacksquare}
+    {\\color{blueviolet}\\blacksquare}{\\color{brickred}\\blacksquare}\\\\
 
-                            {\\color{brown}\\blacksquare}{\\color{burntorange}\\blacksquare}
-                            {\\color{cadetblue}\\blacksquare}{\\color{carnationpink}\\blacksquare}
-                            {\\color{cerulean}\\blacksquare}{\\color{cornflowerblue}\\blacksquare}
-                            {\\color{cyan}\\blacksquare}{\\color{dandelion}\\blacksquare}\\\\
+    {\\color{brown}\\blacksquare}{\\color{burntorange}\\blacksquare}
+    {\\color{cadetblue}\\blacksquare}{\\color{carnationpink}\\blacksquare}
+    {\\color{cerulean}\\blacksquare}{\\color{cornflowerblue}\\blacksquare}
+    {\\color{cyan}\\blacksquare}{\\color{dandelion}\\blacksquare}\\\\
 
 
-                            {\\color{darkorchid}\\blacksquare}{\\color{emerald}\\blacksquare}
-                            {\\color{forestgreen}\\blacksquare}{\\color{fuchsia}\\blacksquare}
-                            {\\color{goldenrod}\\blacksquare}{\\color{gray}\\blacksquare}
-                            {\\color{green}\\blacksquare}{\\color{greenyellow}\\blacksquare}\\\\
+    {\\color{darkorchid}\\blacksquare}{\\color{emerald}\\blacksquare}
+    {\\color{forestgreen}\\blacksquare}{\\color{fuchsia}\\blacksquare}
+    {\\color{goldenrod}\\blacksquare}{\\color{gray}\\blacksquare}
+    {\\color{green}\\blacksquare}{\\color{greenyellow}\\blacksquare}\\\\
 
-                            {\\color{junglegreen}\\blacksquare}{\\color{lavender}\\blacksquare}
-                            {\\color{limegreen}\\blacksquare}{\\color{magenta}\\blacksquare}
-                            {\\color{mahogany}\\blacksquare}{\\color{maroon}\\blacksquare}
-                            {\\color{melon}\\blacksquare}{\\color{midnightblue}\\blacksquare}\\\\
+    {\\color{junglegreen}\\blacksquare}{\\color{lavender}\\blacksquare}
+    {\\color{limegreen}\\blacksquare}{\\color{magenta}\\blacksquare}
+    {\\color{mahogany}\\blacksquare}{\\color{maroon}\\blacksquare}
+    {\\color{melon}\\blacksquare}{\\color{midnightblue}\\blacksquare}\\\\
 
-                            {\\color{mulberry}\\blacksquare}{\\color{navyblue}\\blacksquare}
-                            {\\color{olivegreen}\\blacksquare}{\\color{orange}\\blacksquare}
-                            {\\color{orangered}\\blacksquare}{\\color{orchid}\\blacksquare}
-                            {\\color{peach}\\blacksquare}{\\color{periwinkle}\\blacksquare}\\\\
+    {\\color{mulberry}\\blacksquare}{\\color{navyblue}\\blacksquare}
+    {\\color{olivegreen}\\blacksquare}{\\color{orange}\\blacksquare}
+    {\\color{orangered}\\blacksquare}{\\color{orchid}\\blacksquare}
+    {\\color{peach}\\blacksquare}{\\color{periwinkle}\\blacksquare}\\\\
 
-                            {\\color{pinegreen}\\blacksquare}{\\color{plum}\\blacksquare}
-                            {\\color{processblue}\\blacksquare}{\\color{purple}\\blacksquare}
-                            {\\color{rawsienna}\\blacksquare}{\\color{red}\\blacksquare}
-                            {\\color{redorange}\\blacksquare}{\\color{redviolet}\\blacksquare}\\\\
+    {\\color{pinegreen}\\blacksquare}{\\color{plum}\\blacksquare}
+    {\\color{processblue}\\blacksquare}{\\color{purple}\\blacksquare}
+    {\\color{rawsienna}\\blacksquare}{\\color{red}\\blacksquare}
+    {\\color{redorange}\\blacksquare}{\\color{redviolet}\\blacksquare}\\\\
 
-                            {\\color{rhodamine}\\blacksquare}{\\color{royalblue}\\blacksquare}
-                            {\\color{royalpurple}\\blacksquare}{\\color{rubinered}\\blacksquare}
-                            {\\color{salmon}\\blacksquare}{\\color{seagreen}\\blacksquare}
-                            {\\color{sepia}\\blacksquare}{\\color{skyblue}\\blacksquare}\\\\
+    {\\color{rhodamine}\\blacksquare}{\\color{royalblue}\\blacksquare}
+    {\\color{royalpurple}\\blacksquare}{\\color{rubinered}\\blacksquare}
+    {\\color{salmon}\\blacksquare}{\\color{seagreen}\\blacksquare}
+    {\\color{sepia}\\blacksquare}{\\color{skyblue}\\blacksquare}\\\\
 
-                            {\\color{springgreen}\\blacksquare}{\\color{tan}\\blacksquare}
-                            {\\color{tealblue}\\blacksquare}{\\color{thistle}\\blacksquare}
-                            {\\color{turquoise}\\blacksquare}{\\color{violet}\\blacksquare}
-                            {\\color{violetred}\\blacksquare}{\\color{white}\\blacksquare}\\\\
+    {\\color{springgreen}\\blacksquare}{\\color{tan}\\blacksquare}
+    {\\color{tealblue}\\blacksquare}{\\color{thistle}\\blacksquare}
+    {\\color{turquoise}\\blacksquare}{\\color{violet}\\blacksquare}
+    {\\color{violetred}\\blacksquare}{\\color{white}\\blacksquare}\\\\
 
-                            {\\color{wildstrawberry}\\blacksquare}{\\color{yellow}\\blacksquare}
-                            {\\color{yellowgreen}\\blacksquare}{\\color{yelloworange}\\blacksquare}
-                        \\end{array}`,
+    {\\color{wildstrawberry}\\blacksquare}{\\color{yellow}\\blacksquare}
+    {\\color{yellowgreen}\\blacksquare}{\\color{yelloworange}\\blacksquare}
+\\end{array}`,
                 },
                 {
                     id: 'bbox-1',

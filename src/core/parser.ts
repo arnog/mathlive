@@ -1,7 +1,7 @@
 import {
     getEnvironmentInfo,
     getInfo,
-    charToLatex,
+    unicodeCharToLatex,
     MacroDictionary,
 } from './definitions';
 import { stringToColor } from './color';
@@ -1484,7 +1484,7 @@ class Parser {
                 );
             }
             result.symbol = token.value;
-            result.latex = charToLatex(this.parseMode, token.value);
+            result.latex = unicodeCharToLatex(this.parseMode, token.value);
             if (info?.isFunction && this.smartFence) {
                 // The atom was a function that may be followed by
                 // an argument, like `f(`.

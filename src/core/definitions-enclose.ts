@@ -1,6 +1,6 @@
 import { defineFunction, ParseFunctionResult } from './definitions-utils';
 import { convertDimenToPx } from './font-metrics';
-import { Atom, Notations } from './atom-utils';
+import { Atom } from './atom-utils';
 
 // \enclose, a MathJax extension mapping to the MathML `menclose` tag.
 // The first argument is a comma delimited list of notations, as defined
@@ -72,14 +72,13 @@ defineFunction(
             result.strokeColor;
 
         // Normalize the list of notations.
-        const notations: Notations = (args[0] as string)
+        result.notation = {};
+        (args[0] as string)
             .split(/[, ]/)
             .filter((v) => v.length > 0)
-            .map((v) => v.toLowerCase()) as Notations;
-        result.notation = {};
-        Object.keys(notations).forEach((x) => {
-            result.notation[x] = true;
-        });
+            .forEach((x) => {
+                result.notation[x.toLowerCase()] = true;
+            });
         if (result.notation['updiagonalarrow']) {
             result.notation['updiagonalstrike'] = false;
         }
