@@ -2482,7 +2482,11 @@ EditableMathlist.prototype.insert = function (s, options) {
     } else {
         if (options.format === 'latex' && args.length === 1 && !args[0]) {
             // If we are given a latex string with no arguments, store it verbatim
-            if (isEmptyMathlist(parent.body)) {
+            // Caution: we can only do this if the toLatex() for this parent
+            // would return an empty string. If the latex is generated using other
+            // properties than parent.body, for example by adding '\left.' and
+            // '\right.' with a 'leftright' type, we can't use this shortcut.
+            if (parent.type === 'root' && isEmptyMathlist(parent.body)) {
                 parent.latex = s;
             }
         }

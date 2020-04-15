@@ -1,18 +1,19 @@
-import { registerAtomType, decompose, Atom } from './atom-utils.js';
-import { MATHSTYLES } from './mathstyle.js';
-import { METRICS as FONTMETRICS } from './font-metrics.js';
+import { registerAtomType, decompose, Atom } from './atom-utils';
+import { MATHSTYLES } from './mathstyle';
+import { METRICS as FONTMETRICS } from './font-metrics';
 import {
     makeSpan,
     makeOrd,
     makeVlist,
     depth as spanDepth,
     height as spanHeight,
-} from './span.js';
+    Span,
+} from './span';
 import { Context } from './context';
 
 import { makeCustomSizedDelim } from './delimiters';
 
-registerAtomType('surd', (context: Context, atom: Atom) => {
+registerAtomType('surd', (context: Context, atom: Atom): Span[] => {
     // See the TeXbook pg. 443, Rule 11.
     // http://www.ctex.org/documents/shredder/src/texbook.pdf
     const mathstyle = context.mathstyle;
@@ -66,7 +67,7 @@ registerAtomType('surd', (context: Context, atom: Atom) => {
     const body = makeVlist(context, [inner, lineClearance, line, ruleWidth]);
 
     if (!atom.index) {
-        return atom.bind(context, makeOrd([delim, body], 'sqrt'));
+        return [atom.bind(context, makeOrd([delim, body], 'sqrt'))];
     }
 
     // Handle the optional root index
@@ -88,8 +89,10 @@ registerAtomType('surd', (context: Context, atom: Atom) => {
     const rootVlist = makeVlist(context, [root], 'shift', -toShift);
     // Add a class surrounding it so we can add on the appropriate
     // kerning
-    return atom.bind(
-        context,
-        makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt')
-    );
+    return [
+        atom.bind(
+            context,
+            makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt')
+        ),
+    ];
 });

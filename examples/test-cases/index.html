@@ -26,7 +26,7 @@
         </header>
         <main>
             <div class="mathfield" id="mf">
-                \left(\frac12\right)
+                <!-- \left(\frac12\right) -->
                 <!-- \huge x \text{y} -->
                 <!-- \scriptscriptstyle x \text{y} -->
                 <!-- \sqrt[\Huge 3]{29} -->
@@ -1060,7 +1060,7 @@
 
             const mf = MathLive.makeMathField('mf', {
                 // letterShapeStyle: 'french', // 'french', 'upright', 'tex'
-                smartFence: false,
+                smartFence: true,
                 smartMode: true,
                 macros: {
                     myMacro: '\\operatorname{\\text{#1}}',

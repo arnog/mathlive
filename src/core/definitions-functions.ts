@@ -1,4 +1,5 @@
-import { defineFunction } from './definitions-utils.js';
+import { defineFunction, ParseFunctionResult } from './definitions-utils';
+import { Atom } from './atom-utils';
 
 defineFunction(
     [
@@ -96,7 +97,7 @@ defineFunction(
         if (atom.index) {
             args += `[${emit(atom, atom.index)}]`;
         }
-        args += `{${emit(atom, atom.body)}}`;
+        args += `{${emit(atom, atom.body as Atom[])}}`;
         return name + args;
     }
 );
@@ -106,11 +107,11 @@ defineFunction(
     ['frac', 'dfrac', 'tfrac', 'cfrac', 'binom', 'dbinom', 'tbinom'],
     '{numerator}{denominator}',
     null,
-    (name, args) => {
-        const result = {
+    (name, args): ParseFunctionResult => {
+        const result: ParseFunctionResult = {
             type: 'genfrac',
-            numer: args[0],
-            denom: args[1],
+            numer: args[0] as Atom[],
+            denom: args[1] as Atom[],
             mathstyle: 'auto',
         };
 
@@ -159,9 +160,9 @@ defineFunction(
     ['over', 'atop', 'choose'],
     '',
     { infix: true },
-    (name, args) => {
-        const numer = args[0];
-        const denom = args[1];
+    (name, args): ParseFunctionResult => {
+        const numer = args[0] as Atom[];
+        const denom = args[1] as Atom[];
         let hasBarLine = false;
         let leftDelim = null;
         let rightDelim = null;
@@ -204,11 +205,11 @@ defineFunction(
     'pdiff',
     '{numerator}{denominator}',
     null,
-    function (_funcname, args) {
+    (_funcname, args): ParseFunctionResult => {
         return {
             type: 'genfrac',
-            numer: args[0],
-            denom: args[1],
+            numer: args[0] as Atom[],
+            denom: args[1] as Atom[],
             numerPrefix: '\u2202',
             denomPrefix: '\u2202',
             hasBarLine: true,
@@ -242,7 +243,7 @@ defineFunction(
     ],
     '',
     null,
-    function (name) {
+    (name): ParseFunctionResult => {
         return {
             type: 'mop',
             limits: 'auto',
@@ -303,7 +304,7 @@ defineFunction(Object.keys(EXTENSIBLE_SYMBOLS), '', null, function (name) {
     };
 });
 
-defineFunction(['Re', 'Im'], '', null, function (name) {
+defineFunction(['Re', 'Im'], '', null, function (name): ParseFunctionResult {
     return {
         type: 'mop',
         limits: 'nolimits',
@@ -314,8 +315,11 @@ defineFunction(['Re', 'Im'], '', null, function (name) {
     };
 });
 
-defineFunction('middle', '{:delim}', null, function (name, args) {
-    return { type: 'delim', delim: args[0] };
+defineFunction('middle', '{:delim}', null, function (
+    name,
+    args
+): ParseFunctionResult {
+    return { type: 'delim', delim: args[0] as string };
 });
 
 // TODO

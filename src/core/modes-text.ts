@@ -1,12 +1,19 @@
-import { register, getPropertyRuns } from './modes-utils';
+import { register, getPropertyRuns, ParseTokensOptions } from './modes-utils';
 import { colorToString } from './color';
+import { Style } from './context';
+import { Token } from './lexer';
+import { Span } from './span';
 import { Atom } from './atom-utils';
 import { getInfo, charToLatex, unicodeStringToLatex } from './definitions';
 
-function emitStringTextRun(_context, run, _expandMacro) {
+function emitStringTextRun(
+    _context: Atom,
+    run: Atom[],
+    _expandMacro: boolean
+): string {
     let needSpace = false;
     return run
-        .map((x) => {
+        .map((x: Atom) => {
             let result = '';
             let space = '';
             if (x.latex) {
@@ -25,9 +32,13 @@ function emitStringTextRun(_context, run, _expandMacro) {
         .join('');
 }
 
-function emitFontShapeTextRun(context, run, expandMacro) {
+function emitFontShapeTextRun(
+    context: Atom,
+    run: Atom[],
+    expandMacro: boolean
+): string {
     return getPropertyRuns(run, 'fontShape')
-        .map((x) => {
+        .map((x: Atom[]) => {
             const result = emitStringTextRun(context, x, expandMacro);
             if (x[0].fontShape === 'it') {
                 return '\\textit{' + result + '}';
@@ -49,7 +60,11 @@ function emitFontShapeTextRun(context, run, expandMacro) {
         .join('');
 }
 
-function emitFontSeriesTextRun(context, run, expandMacro) {
+function emitFontSeriesTextRun(
+    context: Atom,
+    run: Atom[],
+    expandMacro: boolean
+): string {
     return getPropertyRuns(run, 'fontSeries')
         .map((x) => {
             const result = emitFontShapeTextRun(context, x, expandMacro);
@@ -70,9 +85,13 @@ function emitFontSeriesTextRun(context, run, expandMacro) {
         .join('');
 }
 
-function emitSizeTextRun(context, run, expandMacro) {
+function emitSizeTextRun(
+    context: Atom,
+    run: Atom[],
+    expandMacro: boolean
+): string {
     return getPropertyRuns(run, 'fontSize')
-        .map((x) => {
+        .map((x: Atom[]) => {
             const result = emitFontSeriesTextRun(context, x, expandMacro);
             const command =
                 {
@@ -95,9 +114,13 @@ function emitSizeTextRun(context, run, expandMacro) {
         .join('');
 }
 
-function emitFontFamilyTextRun(context, run, expandMacro) {
+function emitFontFamilyTextRun(
+    context: Atom,
+    run: Atom[],
+    expandMacro: boolean
+): string {
     return getPropertyRuns(run, 'fontFamily')
-        .map((x) => {
+        .map((x: Atom[]) => {
             const result = emitSizeTextRun(context, x, expandMacro);
             const command =
                 {
@@ -116,11 +139,19 @@ function emitFontFamilyTextRun(context, run, expandMacro) {
         .join('');
 }
 
-function emitStyledTextRun(context, run, expandMacro) {
+function emitStyledTextRun(
+    context: Atom,
+    run: Atom[],
+    expandMacro: boolean
+): string {
     return emitFontFamilyTextRun(context, run, expandMacro);
 }
 
-function emitColorRun(context, run, expandMacro) {
+function emitColorRun(
+    context: Atom,
+    run: Atom[],
+    expandMacro: boolean
+): string {
     return getPropertyRuns(run, 'color')
         .map((x) => {
             const result = emitStyledTextRun(context, x, expandMacro);
@@ -145,11 +176,15 @@ function emitColorRun(context, run, expandMacro) {
         .join('');
 }
 
-function emitLatexTextRun(context, run, expandMacro) {
+function emitLatexTextRun(
+    context: Atom,
+    run: Atom[],
+    expandMacro: boolean
+): string {
     const result = emitColorRun(context, run, expandMacro);
 
     const allAtomsHaveShapeOrSeriesOrFontFamily = run.every(
-        (x) => x.fontSeries || x.fontShape || x.fontFamily
+        (x: Atom) => x.fontSeries || x.fontShape || x.fontFamily
     );
     if (
         !allAtomsHaveShapeOrSeriesOrFontFamily ||
@@ -169,7 +204,7 @@ const TEXT_FONT_CLASS = {
     monospace: 'ML__tt',
 };
 
-function applyStyle(span, style) {
+function applyStyle(span: Span, style: Style) {
     const fontFamily = style.fontFamily;
 
     if (TEXT_FONT_CLASS[fontFamily]) {
@@ -230,9 +265,9 @@ function applyStyle(span, style) {
 // options.smartFence
 // options.style
 // options.parser
-function parse(tokens, options) {
+function parse(tokens: Token[], options: ParseTokensOptions) {
     let result = [];
-    let atom;
+    let atom: Atom;
 
     while (tokens.length > 0) {
         const token = tokens.shift();
@@ -242,31 +277,31 @@ function parse(tokens, options) {
             result.push(atom);
         } else if (token.type === 'placeholder') {
             // RENDER PLACEHOLDER
-            atom = new Atom('text', 'placeholder', token.value);
+            atom = new Atom('text', 'placeholder', token.value as string);
             atom.captureSelection = true;
             result.push(atom);
         } else if (token.type === 'command') {
             // Invoke the 'main' parser to handle the command
             tokens.unshift(token);
-            let atoms;
+            let atoms: Atom[];
             [atoms, tokens] = options.parse('text', tokens, options);
             result = [...result, ...atoms];
         } else if (token.type === 'literal') {
-            const info = getInfo(token.value, 'text', options.macros);
+            const info = getInfo(token.value as string, 'text', options.macros);
             atom = new Atom(
                 'text',
                 info ? info.type : '', // @todo: revisit. Use 'text' type?
                 info ? info.value : token.value,
                 options.style
             );
-            atom.symbol = token.value;
-            atom.latex = charToLatex('text', token.value);
+            atom.symbol = token.value as string;
+            atom.latex = charToLatex('text', token.value as string);
             result.push(atom);
         } else if (token.type === '$' || token.type === '$$') {
             // Mode-shift
             const subtokens = tokens.slice(
                 0,
-                tokens.findIndex((x) => x.type === token.type)
+                tokens.findIndex((x: Token) => x.type === token.type)
             );
             tokens = tokens.slice(subtokens.length + 1);
             const [atoms] = options.parse('math', subtokens, options);

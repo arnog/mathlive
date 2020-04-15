@@ -1,8 +1,3 @@
-/**
- * @module core/span
- * @private
- */
-
 import { getCharacterMetrics } from './font-metrics';
 import { svgBodyToMarkup, svgBodyHeight } from './svg-span';
 import { applyStyle as applyStyleForMode } from './modes-utils';
@@ -72,11 +67,6 @@ const NEGATIVE_SPACING_CHARACTER = [
     '\u2005\u2063', // -5/18
 ];
 
-/**
- *
- * @alias module:core/span.INTER_ATOM_TIGHT_SPACING
- * @private
- */
 const INTER_ATOM_TIGHT_SPACING = {
     'mord+mop': 3,
     'mop+mord': 3,
@@ -127,23 +117,22 @@ function toString(arg: Array<string | number> | string | number): string {
  * of children (other spans). Each span can be decorated with
  * CSS classes and style attributes.
  *
- * @param {string|Span|Span[]} content the items 'contained' by this node
- * @param {string} classes list of classes attributes associated with this node
- * @return {void}
- * @class
- * @memberof module:core/span
- * @property {string} type - For example, `'command'`, `'mrel'`, etc...
- * @property {string} classes - A string of space separated CSS classes
+ * @param content the items 'contained' by this node
+ * @param classes list of classes attributes associated with this node
+
+
+ * @property  type - For example, `'command'`, `'mrel'`, etc...
+ * @property classes - A string of space separated CSS classes
  * associated with this element
- * @property {string} cssId - A CSS ID assigned to this span (optional)
- * @property {Span[]} children - An array, potentially empty, of spans which
+ * @property cssId - A CSS ID assigned to this span (optional)
+ * @property children - An array, potentially empty, of spans which
  * this span encloses
- * @property {string} body - Content of this span. Can be empty.
- * @property {Object.<string, any>} style - A set of key/value pairs specifying CSS properties
+ * @property body - Content of this span. Can be empty.
+ * @property style - A set of key/value pairs specifying CSS properties
  * associated with this element.
- * @property {number} height - The measurement from baseline to top, in em.
- * @property {number} depth - The measurement from baseline to bottom, in em.
- * @property {number} width
+ * @property height - The measurement from baseline to top, in em.
+ * @property depth - The measurement from baseline to bottom, in em.
+ * @property width
  */
 export class Span {
     classes: string;
@@ -196,8 +185,6 @@ export class Span {
      * - height: distance from bottom to top
      * - depth: distance from bottom to baseline
      * - maxFontSize: a size multiplier (typically set with commands such as \huge)
-     * @method module:core/span.Span#updateDimensions
-     * @private
      */
     updateDimensions(): void {
         let height = 0.0;
@@ -227,38 +214,6 @@ export class Span {
             this.children.forEach((x) => x.selected(isSelected));
         }
     }
-
-    /**
-     * @param {object} style A style specification with the following
-     * (all optionals) properties, which use the TeX terminology:
-     *
-     * - color:
-     *
-     * - background:
-     *
-     * - variant: 'main', 'normal', 'ams', 'calligraphic', 'fraktur',
-     * 'sans-serif', 'monospace', 'double-struck'...
-     * Variants can map either to math characters in specific Unicode range
-     * (see https://en.wikipedia.org/wiki/Mathematical_Alphanumeric_Symbols)
-     * e.g. 𝒜, 𝔄, 𝖠, 𝙰, 𝔸, A, 𝐴
-     * or to some built-in fonts (e.g. 'SansSerif-Regular')
-     * 'normal' is a synthetic variant that maps either to 'main' (roman) or
-     * 'math' (italic) depending on the symbol and the letterShapeStyle.
-     *
-     * - variantStyle: 'up', bold', 'italic', 'bolditalic'. An optional modifier to
-     * further specify the variant to use.
-     *
-     * - fontFamily: cmr, cmss, cmtt, cmsy (symbols), cmex (large symbols),
-     *  ptm (times), phv (helvetica), pcr (courier)
-     *
-     * - fontSeries: m (medium), b (bold), bx (bold extended), sb (semi-bold), c (condensed)
-     *
-     * - fontShape: italic, oblique, "roman": n (normal, upright), it, sl, sc
-     *
-     * - fontSize: 'size1', 'size2'...
-     *
-     * @private
-     */
 
     applyStyle(style: Style): void {
         if (!style) return;
@@ -342,10 +297,8 @@ export class Span {
      * Set the value of a CSS property associated with this span.
      * For example, setStyle('border-right', 5.6, 'em');
      *
-     * @param {string} prop the CSS property to set
-     * @param {...(string|number)} value a series of strings and numbers that will be concatenated.
-     * @return {string}
-     * @method module:core/span.Span#setStyle
+     * @param prop the CSS property to set
+     * @param value a series of strings and numbers that will be concatenated.
      */
     setStyle(prop: string, ...value: (string | number)[]): void {
         const v = toString(value);
@@ -364,20 +317,12 @@ export class Span {
         }
     }
 
-    /**
-     *
-     * @param {number} left
-     */
     setLeft(left: number): void {
         if (left && left !== 0) {
             if (!this.style) this.style = {};
             this.style['margin-left'] = toString(left) + 'em';
         }
     }
-    /**
-     *
-     * @param {number} right
-     */
     setRight(right: number): void {
         if (right && right !== 0) {
             if (!this.style) this.style = {};
@@ -394,14 +339,13 @@ export class Span {
     /**
      * Generate the HTML markup to represent this span.
      *
-     * @param {number} [hskip=0] - Space (in mu, 1/18em) to leave on the left side
+     * @param hskip - Space (in mu, 1/18em) to leave on the left side
      * of the span. Implemented as a Unicode character if possible, a margin-left otherwise.
      * This is used to adjust the inter-spacing between spans of different types,
      * e.g. 'bin' and 'rel', according to the TeX rules (TexBook p.170)
-     * @param {number} [hscale=1.0] - If a value is provided, the margins are scaled by
+     * @param hscale - If a value is provided, the margins are scaled by
      * this factor.
-     * @return {string} HTML markup
-     * @method module:core/span.Span#toMarkup
+     * @return HTML markup
      */
 
     toMarkup(hskip = 1.0, hscale = 1.0): string {
@@ -599,10 +543,6 @@ export class Span {
      *      "<span class='mord mathrm'>12</span>"
      * rather than:
      *      "<span class='mord mathrm'>1</span><span class='mord mathrm'>2</span>"
-     * @param {Span} span
-     * @return {boolean}
-     * @method module:core/span.Span#tryCoalesceWith
-     * @private
      */
     tryCoalesceWith(span: Span): boolean {
         // Don't coalesce if the tag or type are different
@@ -687,10 +627,6 @@ function lastSpanType(span: Span): string {
  * Attempts to coalesce (merge) spans, for example consecutive text spans.
  * Return a new tree with coalesced spans.
  *
- * @param {Span[]} spans
- * @return {Span[]} coalesced tree
- * @memberof module:core/span
- * @private
  */
 export function coalesce(spans: Span[]): Span[] {
     if (!spans || spans.length === 0) return [];
@@ -749,9 +685,8 @@ export function italic(spans: Span | Span[]): number {
 
 /**
  * Make an element made of a sequence of children with classes
- * @param {(string|Span|Span[])} content the items 'contained' by this node
- * @param {string} classes list of classes attributes associated with this node
- * @memberof module:core/span
+ * @param content the items 'contained' by this node
+ * @param classes list of classes attributes associated with this node
  */
 export function makeSpan(content: string | Span | Span[], classes = ''): Span {
     if (Array.isArray(content)) {
@@ -819,10 +754,10 @@ function makeFontSizer(context: Context, fontSize: number): Span {
 
 /**
  *
- * @param {string} type One of 'mbin', 'mop', 'mord', 'mrel' 'mclose',
+ * @param type One of 'mbin', 'mop', 'mord', 'mrel' 'mclose',
  * 'mpunct', 'minner'
- * @param {string|Span[]} content A string or an array of other Spans
- * @param {string} classes CSS classes decorating this span
+ * @param content A string or an array of other Spans
+ * @param classes CSS classes decorating this span
  * See https://tex.stackexchange.com/questions/81752/
  * for a thorough description of the TeXt atom type and their relevance to
  * proper kerning.
@@ -857,7 +792,7 @@ export function makeOpen(content: string | Span[], classes = ''): Span {
     return makeSpanOfType('mopen', content, classes);
 }
 
-export function makeInner(content: string, classes = ''): Span {
+export function makeInner(content: Span[], classes = ''): Span {
     return makeSpanOfType('minner', content, classes);
 }
 
@@ -888,10 +823,6 @@ export function makeStyleWrap(
 
 /**
  * Add some SVG markup to be overlaid on top of the span
- *
- * @param {Span} body
- * @param {string} svgMarkup
- * @private
  */
 export function addSVGOverlay(
     body: Span,
@@ -903,11 +834,6 @@ export function addSVGOverlay(
     return body;
 }
 
-/**
- *
- * @param {Span|Span[]} spans
- * @param {string} classes
- */
 export function makeHlist(spans: Span | Span[], classes: string): Span {
     if (!classes || classes.length === 0) {
         // No decorations...
@@ -935,11 +861,9 @@ export function makeHlist(spans: Span | Span[], classes: string): Span {
 
 /**
  * Create a new span of type `vlist`, a set of vertically stacked items
- * @param {Context} context
- * @param {Array.<(number|Span)>} elements
- * An array of Span and integer. The integer can be either some kerning information
+ * @param elements  An array of Span and integer. The integer can be either some kerning information
  * or the value of an individual shift of the preceding child if in 'individualShift' mode
- * @param {string} pos The method that will be used to position the elements in the vlist.
+ * @param pos The method that will be used to position the elements in the vlist.
  *
  * One of:
  * - `"individualShift"`: each child must be followed by a number indicating how much to shift it (i.e. moved downwards)
@@ -947,7 +871,6 @@ export function makeHlist(spans: Span | Span[], classes: string): Span {
  * - `"bottom"`: posData specifies the bottommost point of the vlist (>0 move down)
  * - `"shift"`: the baseline of the vlist will be positioned posData away from the baseline
  * of the first child. (>0 moves down)
- * @param {number} posData
  */
 export function makeVlist(
     context: Context,
@@ -1063,10 +986,9 @@ export function makeVlist(
 /**
  * Create a span that consist of a (stretchy) SVG element
  *
- * @param {string} svgBodyName
- * @param {string} classes list of classes attributes associated with this node
+ * @param classes list of classes attributes associated with this node
  */
-export function makeSVGSpan(svgBodyName: string, classes: string): Span {
+export function makeSVGSpan(svgBodyName: string, classes = ''): Span {
     const span = new Span(null, classes);
     span.svgBody = svgBodyName;
     span.height = svgBodyHeight(svgBodyName) / 2;

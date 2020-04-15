@@ -1,5 +1,6 @@
-import { defineFunction } from './definitions-utils.js';
-import { convertDimenToPx } from './font-metrics.js';
+import { defineFunction, ParseFunctionResult } from './definitions-utils';
+import { convertDimenToPx } from './font-metrics';
+import { Atom, Notations } from './atom-utils';
 
 // \enclose, a MathJax extension mapping to the MathML `menclose` tag.
 // The first argument is a comma delimited list of notations, as defined
@@ -9,9 +10,8 @@ defineFunction(
     'enclose',
     '{notation:string}[style:string]{body:auto}',
     null,
-    (_name, args) => {
-        let notations = args[0] || [];
-        const result = {
+    (_name: string, args: (string | Atom[])[]): ParseFunctionResult => {
+        const result: ParseFunctionResult = {
             type: 'enclose',
             strokeColor: 'currentColor',
             strokeWidth: 1,
@@ -28,7 +28,7 @@ defineFunction(
             // Split the string by comma delimited sub-strings, ignoring commas
             // that may be inside (). For example"x, rgb(a, b, c)" would return
             // ['x', 'rgb(a, b, c)']
-            const styles = args[1].split(
+            const styles = (args[1] as string).split(
                 /,(?![^(]*\)(?:(?:[^(]*\)){2})*[^"]*$)/
             );
             for (const s of styles) {
@@ -72,15 +72,14 @@ defineFunction(
             result.strokeColor;
 
         // Normalize the list of notations.
-        notations = notations
-            .toString()
+        const notations: Notations = (args[0] as string)
             .split(/[, ]/)
             .filter((v) => v.length > 0)
-            .map((v) => v.toLowerCase());
+            .map((v) => v.toLowerCase()) as Notations;
         result.notation = {};
-        for (const notation of notations) {
-            result.notation[notation] = true;
-        }
+        Object.keys(notations).forEach((x) => {
+            result.notation[x] = true;
+        });
         if (result.notation['updiagonalarrow']) {
             result.notation['updiagonalstrike'] = false;
         }
@@ -94,7 +93,10 @@ defineFunction(
     }
 );
 
-defineFunction('cancel', '{body:auto}', null, function (name, args) {
+defineFunction('cancel', '{body:auto}', null, function (
+    _name,
+    args
+): ParseFunctionResult {
     return {
         type: 'enclose',
         strokeColor: 'currentColor',
@@ -109,7 +111,10 @@ defineFunction('cancel', '{body:auto}', null, function (name, args) {
     };
 });
 
-defineFunction('bcancel', '{body:auto}', null, function (name, args) {
+defineFunction('bcancel', '{body:auto}', null, function (
+    name,
+    args
+): ParseFunctionResult {
     return {
         type: 'enclose',
         strokeColor: 'currentColor',
@@ -124,7 +129,10 @@ defineFunction('bcancel', '{body:auto}', null, function (name, args) {
     };
 });
 
-defineFunction('xcancel', '{body:auto}', null, function (name, args) {
+defineFunction('xcancel', '{body:auto}', null, function (
+    name,
+    args
+): ParseFunctionResult {
     return {
         type: 'enclose',
         strokeColor: 'currentColor',

@@ -1,6 +1,12 @@
-import { Atom, registerAtomType, decompose } from './atom-utils.js';
-import { makeInner, depth as spanDepth, height as spanHeight } from './span.js';
+import { Atom, registerAtomType, decompose } from './atom-utils';
+import {
+    makeInner,
+    depth as spanDepth,
+    height as spanHeight,
+    Span,
+} from './span';
 import { makeLeftRightDelim } from './delimiters';
+import { Context } from './context';
 
 /**
  *  \left....\right
@@ -10,9 +16,8 @@ import { makeLeftRightDelim } from './delimiters';
  * leftDelim (resp. rightDelim) will be undefined. We still need to handle
  * those cases.
  *
- * @private
  */
-registerAtomType('leftright', (context, atom) => {
+registerAtomType('leftright', (context: Context, atom: Atom): Span[] => {
     if (!atom.body) {
         // No body, only a delimiter
         if (atom.leftDelim) {
@@ -29,11 +34,11 @@ registerAtomType('leftright', (context, atom) => {
     // so that any changes to it will be discarded when finished
     // with this group.
     const localContext = context.clone();
-    const inner = decompose(localContext, atom.body);
+    const inner = decompose(localContext, atom.body as Atom[]);
     const mathstyle = localContext.mathstyle;
     let innerHeight = 0;
     let innerDepth = 0;
-    let result = [];
+    let result: Span[] = [];
     // Calculate its height and depth
     // The size of delimiters is the same, regardless of what mathstyle we are
     // in. Thus, to correctly calculate the size of delimiter we need around
@@ -128,7 +133,7 @@ registerAtomType('leftright', (context, atom) => {
     }
     // If the `inner` flag is set, return the `inner` element (that's the
     // behavior for the regular `\left...\right`
-    if (atom.inner) return makeInner(result, mathstyle.cls());
+    if (atom.inner) return [makeInner(result, mathstyle.cls())];
     // Otherwise, include a `\mathopen{}...\mathclose{}`. That's the
     // behavior for `\mleft...\mright`, which allows for tighter spacing
     // for example in `\sin\mleft(x\mright)`

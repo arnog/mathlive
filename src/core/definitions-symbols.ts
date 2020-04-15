@@ -2,7 +2,7 @@ import {
     defineSymbol,
     defineSymbols,
     defineSymbolRange,
-} from './definitions-utils.js';
+} from './definitions-utils';
 
 // Simple characters allowed in math mode
 defineSymbols('0123456789/@.?!');

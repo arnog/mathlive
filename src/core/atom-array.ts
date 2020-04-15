@@ -1,16 +1,18 @@
-import { registerAtomType, decompose } from './atom-utils.js';
+import { registerAtomType, decompose, Atom } from './atom-utils';
 import {
     makeSpan,
     makeVlist,
     makeOrd,
     depth as spanDepth,
     height as spanHeight,
-} from './span.js';
+    Span,
+} from './span';
 import { METRICS as FONTMETRICS } from './font-metrics';
 import { makeLeftRightDelim } from './delimiters';
 import { MATHSTYLES } from './mathstyle';
+import { Context } from './context';
 
-registerAtomType('array', (context, atom) => {
+registerAtomType('array', (context: Context, atom: Atom): Span[] => {
     // See http://tug.ctan.org/macros/latex/base/ltfsstrc.dtx
     // and http://tug.ctan.org/macros/latex/base/lttab.dtx
     let colFormat = atom.colFormat;
@@ -76,7 +78,12 @@ registerAtomType('array', (context, atom) => {
         nc = Math.max(nc, inrow.length);
         let height = arstrutHeight; // \@array adds an \@arstrut
         let depth = arstrutDepth; // to each row (via the template)
-        const outrow = [];
+        const outrow: {
+            cells: Span[][];
+            height: number;
+            depth: number;
+            pos: number;
+        } = { cells: [], height: 0, depth: 0, pos: 0 };
         for (let c = 0; c < inrow.length; ++c) {
             const localContext = context.clone({
                 mathstyle: MATHSTYLES[atom.mathstyle],
@@ -85,7 +92,7 @@ registerAtomType('array', (context, atom) => {
             const elt = [makeOrd(null)].concat(cell);
             depth = Math.max(depth, spanDepth(elt));
             height = Math.max(height, spanHeight(elt));
-            outrow.push(elt);
+            outrow.cells.push(elt);
         }
         let jot = r === nr - 1 ? 0 : atom.jot || 0;
         if (atom.rowGaps && atom.rowGaps[r]) {
@@ -111,7 +118,7 @@ registerAtomType('array', (context, atom) => {
     for (let colIndex = 0; colIndex < nc; colIndex++) {
         const col = [];
         for (const row of body) {
-            const elem = row[colIndex];
+            const elem = row.cells[colIndex];
             if (!elem) {
                 continue;
             }
@@ -198,7 +205,7 @@ registerAtomType('array', (context, atom) => {
             } else if (prevColContent) {
                 gap = arraycolsep - FONTMETRICS.arrayrulewidth;
             }
-            separator.setLeft(gap, 'em');
+            separator.setLeft(gap);
             cols.push(separator);
             prevColContent = false;
             prevColRule = true;
@@ -215,7 +222,7 @@ registerAtomType('array', (context, atom) => {
     ) {
         // There are no delimiters around the array, just return what
         // we've built so far.
-        return makeOrd(cols, 'mtable');
+        return [makeOrd(cols, 'mtable')];
     }
     // There is at least one delimiter. Wrap the core of the array with
     // appropriate left and right delimiters
@@ -223,29 +230,31 @@ registerAtomType('array', (context, atom) => {
     const inner = makeSpan(cols, 'mtable');
     const innerHeight = spanHeight(inner);
     const innerDepth = spanDepth(inner);
-    return makeOrd([
-        atom.bind(
-            context,
-            makeLeftRightDelim(
-                'mopen',
-                atom.lFence,
-                innerHeight,
-                innerDepth,
-                context
-            )
-        ),
-        inner,
-        atom.bind(
-            context,
-            makeLeftRightDelim(
-                'mclose',
-                atom.rFence,
-                innerHeight,
-                innerDepth,
-                context
-            )
-        ),
-    ]);
+    return [
+        makeOrd([
+            atom.bind(
+                context,
+                makeLeftRightDelim(
+                    'mopen',
+                    atom.lFence,
+                    innerHeight,
+                    innerDepth,
+                    context
+                )
+            ),
+            inner,
+            atom.bind(
+                context,
+                makeLeftRightDelim(
+                    'mclose',
+                    atom.rFence,
+                    innerHeight,
+                    innerDepth,
+                    context
+                )
+            ),
+        ]),
+    ];
 });
 
 /**
@@ -254,9 +263,9 @@ registerAtomType('array', (context, atom) => {
  * @param {number} width
  * @private
  */
-function makeColGap(width) {
+function makeColGap(width: number): Span {
     const separator = makeSpan('\u200b', 'arraycolsep');
-    separator.setWidth(width, 'em');
+    separator.setWidth(width);
     return separator;
 }
 
@@ -264,7 +273,7 @@ function makeColGap(width) {
  * Used in decomposeArray to create a column of repeating elements.
  * @private
  */
-function makeColOfRepeatingElements(context, body, offset, elem) {
+function makeColOfRepeatingElements(context: Context, body, offset, elem) {
     const col = [];
     for (const row of body) {
         const cell = makeSpan(decompose(context, elem));

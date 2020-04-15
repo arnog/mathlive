@@ -1,17 +1,22 @@
-import { registerAtomType, decompose } from './atom-utils.js';
+import { registerAtomType, decompose, Atom } from './atom-utils';
 import { MATHSTYLES } from './mathstyle';
-import { METRICS as FONTMETRICS } from './font-metrics.js';
-import { makeSpan, makeOrd, makeVlist, height as spanHeight } from './span.js';
+import { METRICS as FONTMETRICS } from './font-metrics';
+import {
+    makeSpan,
+    makeOrd,
+    makeVlist,
+    height as spanHeight,
+    Span,
+} from './span';
+import { Context } from './context';
 
 /**
  * \overline and \underline
- *
- * @private
  */
-registerAtomType('line', (context, atom) => {
+registerAtomType('line', (context: Context, atom: Atom): Span[] => {
     const mathstyle = context.mathstyle;
     // TeXBook:443. Rule 9 and 10
-    const inner = decompose(context.cramp(), atom.body);
+    const inner = decompose(context.cramp(), atom.body as Atom[]);
     const ruleWidth =
         FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
     const line = makeSpan(
@@ -35,5 +40,5 @@ registerAtomType('line', (context, atom) => {
             spanHeight(innerSpan)
         );
     }
-    return makeOrd(vlist, atom.position);
+    return [makeOrd(vlist, atom.position)];
 });

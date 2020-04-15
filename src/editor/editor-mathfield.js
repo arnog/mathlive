@@ -1817,7 +1817,16 @@ export class Mathfield {
                     }
                     stateIndex = i - 1;
                     this.keystrokeBuffer += c;
+                    let y = this.undoManager.save();
+                    if (y.latex === 'a') {
+                        y = this.undoManager.save();
+                    }
                     this.keystrokeBufferStates.push(this.undoManager.save());
+                    console.log(
+                        this.keystrokeBufferStates[
+                            this.keystrokeBufferStates.length - 1
+                        ]
+                    );
                     if (
                         Shortcuts.startsWithString(candidate, this.config)
                             .length <= 1

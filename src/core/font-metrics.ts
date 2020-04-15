@@ -1,19 +1,23 @@
-/* eslint no-unused-vars:0 */
 /**
  * This module contains metrics regarding fonts and individual symbols. The sigma
- * and xi variables, as well as the metricMap map contain data extracted from
+ * and xi variables, as well as the METRICS_MAP map contain data extracted from
  * TeX, TeX font metrics, and the TTF files. These data are then exposed via the
  * `metrics` variable and the getCharacterMetrics function.
- * @module core/fontMetrics
- * @private
  */
-import metricMap from './font-metrics-data.js';
+import METRICS_MAP from './font-metrics-data';
 
-// This metricMap contains a mapping from font name and character code to character
+// This METRICS_MAP contains a mapping from font name and character code to character
 // metrics, including height, depth, italic correction, and skew (kern from the
 // character to the corresponding \skewchar)
 // This map is generated via `make metrics`. It should not be changed manually.
 
+interface CharacterMetrics {
+    defaultMetrics: boolean;
+    depth: number;
+    height: number;
+    italic: number;
+    skew: number;
+}
 // const hangulRegex = /[\uAC00-\uD7AF]/;
 
 // This regex combines
@@ -213,18 +217,19 @@ const extraCharacterMap = {
 
 /**
  * This function is a convenience function for looking up information in the
- * metricMap table. It takes a character as a string, and a font name.
+ * METRICS_MAP table. It takes a character as a string, and a font name.
  *
  * Note: the `width` property may be undefined if fontMetricsData.js wasn't
  * built using `Make extended_metrics`.
  * @param {string} character
  * @param {string} fontName e.g. 'Main-Regular', 'Typewriter-Regular', etc...
- * @memberof module:fontMetrics
- * @private
  */
-export function getCharacterMetrics(character, fontName) {
+export function getCharacterMetrics(
+    character: string,
+    fontName: string
+): CharacterMetrics {
     // console.assert(character.length === 1);
-    console.assert(metricMap[fontName], 'Unknown font "' + fontName + '"');
+    console.assert(METRICS_MAP[fontName], 'Unknown font "' + fontName + '"');
 
     let ch = character.charCodeAt(0);
 
@@ -233,7 +238,7 @@ export function getCharacterMetrics(character, fontName) {
     } else if (cjkRegex.test(character[0])) {
         ch = 77; // 'M'.charCodeAt(0);
     }
-    const metrics = metricMap[fontName][ch];
+    const metrics = METRICS_MAP[fontName][ch];
 
     if (!metrics) {
         // console.warn(
@@ -252,6 +257,7 @@ export function getCharacterMetrics(character, fontName) {
     }
 
     return {
+        defaultMetrics: false,
         depth: metrics[0],
         height: metrics[1],
         italic: metrics[2],
@@ -263,11 +269,12 @@ export function getCharacterMetrics(character, fontName) {
  *
  * @param {number|string} value If value is a string, it may be suffixed
  * with a unit, which will override the `unit` paramter
- * @param {string} unit
- * @param {number} precision
- * @private
  */
-export function convertDimenToEm(value, unit, precision = NaN) {
+export function convertDimenToEm(
+    value: number | string,
+    unit: string,
+    precision = NaN
+): number {
     if (typeof value === 'string') {
         const m = value.match(/([-+]?[0-9.]*)\s*([a-zA-Z]+)/);
         if (!m) {
@@ -302,6 +309,6 @@ export function convertDimenToEm(value, unit, precision = NaN) {
     return (value / METRICS.ptPerEm) * f;
 }
 
-export function convertDimenToPx(value, unit) {
+export function convertDimenToPx(value: string | number, unit: string): number {
     return convertDimenToEm(value, unit) * (4.0 / 3.0) * METRICS.ptPerEm;
 }

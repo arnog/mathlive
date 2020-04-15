@@ -4,7 +4,7 @@ import { MacroDictionary } from './definitions-utils';
 import { Atom } from './atom';
 import { ParseMode, Style } from './context';
 
-interface ParseTokensOptions {
+export interface ParseTokensOptions {
     args: (string | Atom[])[];
     macros: MacroDictionary;
     smartFence: boolean;

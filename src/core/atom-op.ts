@@ -1,14 +1,12 @@
-import { registerAtomType, decompose } from './atom-utils.js';
+import { registerAtomType, decompose, Atom } from './atom-utils';
 import { MATHSTYLES } from './mathstyle';
-import { makeSymbol, makeOp } from './span.js';
+import { makeSymbol, makeOp, Span } from './span';
+import { Context } from './context';
 
 /**
  * Operators are handled in the TeXbook pg. 443-444, rule 13(a).
- *
- *
- * @private
  */
-registerAtomType('mop', (context, atom) => {
+registerAtomType('mop', (context: Context, atom: Atom): Span[] => {
     const mathstyle = context.mathstyle;
     let base;
     let baseShift = 0;
@@ -23,7 +21,7 @@ registerAtomType('mop', (context, atom) => {
 
         base = makeSymbol(
             large ? 'Size2-Regular' : 'Size1-Regular',
-            atom.body,
+            atom.body as string,
             'op-symbol ' + (large ? 'large-op' : 'small-op')
         );
         base.type = 'mop';

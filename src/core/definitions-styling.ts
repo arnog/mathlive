@@ -1,5 +1,7 @@
-import { defineFunction, parseArgAsString } from './definitions-utils';
-import { colorToString, stringToColor } from '../core/color';
+import { defineFunction, ParseFunctionResult } from './definitions-utils';
+import { colorToString, stringToColor } from './color';
+import { Atom, BBoxParam } from './atom-utils';
+import { FontShape, FontSeries } from './context';
 
 defineFunction(
     'ensuremath',
@@ -15,18 +17,18 @@ defineFunction(
             latexClose: '}',
         };
     },
-    (_name, _parent, atom, emit) => emit(atom, atom.body)
+    (_name, _parent, atom, emit) => emit(atom, atom.body as Atom[])
 );
 
 defineFunction('color', '{:color}', {}, (_name, args) => {
-    return { color: args[0] };
+    return { color: args[0] as string };
 });
 
 // From the xcolor package.
 // Unlike what its name might suggest, this command does not set the mode to text
 // That is, it can equally be applied to math and text mode.
 defineFunction('textcolor', '{:color}{content:auto*}', {}, (_name, args) => {
-    return { color: args[0] };
+    return { color: args[0] as string };
 });
 
 // Can be preceded by e.g. '\fboxsep=4pt' (also \fboxrule)
@@ -53,39 +55,37 @@ defineFunction(
     (_name, args) => {
         return {
             type: 'box',
-            backgroundcolor: stringToColor(args[0]),
+            backgroundcolor: stringToColor(args[0] as string),
             skipBoundary: true,
             body: args[1],
-            verbatimBackgroundcolor: args[0], // Save this value to restore it verbatim later
+            verbatimBackgroundcolor: args[0] as string, // Save this value to restore it verbatim later
         };
     },
     (name, _parent, atom, emit) =>
         `${name}{${
             atom.verbatimBackgroundcolor || colorToString(atom.backgroundcolor)
-        }}{${emit(atom, atom.body)}}`
+        }}{${emit(atom, atom.body as Atom[])}}`
 );
 
 defineFunction(
     'fcolorbox',
     '{frame-color:string}{background-color:string}{content:auto}',
     {},
-    function (name, args) {
+    (_name, args) => {
         return {
             type: 'box',
-            framecolor: stringToColor(args[0]),
-            backgroundcolor: stringToColor(args[1]),
+            framecolor: stringToColor(args[0] as string),
+            backgroundcolor: stringToColor(args[1] as string),
             skipBoundary: true,
             body: args[2],
-            verbatimBackgroundcolor: args[1], // Save this value to restore it verbatim later
-            verbatimFramecolor: args[0], // Save this value to restore it verbatim later
+            verbatimBackgroundcolor: args[1] as string, // Save this value to restore it verbatim later
+            verbatimFramecolor: args[0] as string, // Save this value to restore it verbatim later
         };
     },
     (name, _parent, atom, emit) =>
-        `${name}{${
-            atom.verbatimFramecolor || atom.colorToString(atom.framecolor)
-        }{${
+        `${name}{${atom.verbatimFramecolor || colorToString(atom.framecolor)}{${
             atom.verbatimBackgroundcolor || colorToString(atom.backgroundcolor)
-        }}{${emit(atom, atom.body)}}`
+        }}{${emit(atom, atom.body as Atom[])}}`
 );
 
 // \bbox, MathJax extension
@@ -100,13 +100,14 @@ defineFunction(
     'bbox',
     '[:bbox]{body:auto}',
     {},
-    function (name, args) {
+    (_name, args) => {
         if (args[0]) {
+            const arg = args[0] as BBoxParam;
             return {
                 type: 'box',
-                padding: args[0].padding,
-                border: args[0].border,
-                backgroundcolor: args[0].backgroundcolor,
+                padding: arg.padding,
+                border: arg.border,
+                backgroundcolor: arg.backgroundcolor,
                 skipBoundary: true,
                 body: args[1],
             };
@@ -137,7 +138,7 @@ defineFunction(
             result += `[${bboxParams.join(',')}]`;
         }
 
-        return result + `{${emit(atom, atom.body)}}`;
+        return result + `{${emit(atom, atom.body as Atom[])}}`;
     }
 );
 
@@ -157,7 +158,7 @@ defineFunction(
     ],
     '',
     {},
-    function (name, _args) {
+    (name, _args) => {
         return {
             fontSize: {
                 tiny: 'size1',
@@ -176,17 +177,17 @@ defineFunction(
 );
 
 // \fontseries only works in text mode
-defineFunction('fontseries', '{:text}', { mode: 'text' }, (_name, args) => {
-    return { fontSeries: parseArgAsString(args[0]) };
+defineFunction('fontseries', '{:string}', { mode: 'text' }, (_name, args) => {
+    return { fontSeries: (args[0] as string) as FontSeries };
 });
 // SHAPE: italic, small caps
-defineFunction('fontshape', '{:text}', { mode: 'text' }, (_name, args) => {
-    return { fontShape: parseArgAsString(args[0]) };
+defineFunction('fontshape', '{:string}', { mode: 'text' }, (_name, args) => {
+    return { fontShape: args[0] as FontShape };
 });
 
 // FONT FAMILY: Fraktur, Calligraphic, ...
-defineFunction('fontfamily', '{:text}', { mode: 'text' }, (_name, args) => {
-    return { fontFamily: parseArgAsString(args[0]) };
+defineFunction('fontfamily', '{:string}', { mode: 'text' }, (_name, args) => {
+    return { fontFamily: args[0] as string };
 });
 
 // In LaTeX, the \fontseries, \fontshape, \fontfamily, \fontsize commands
@@ -290,41 +291,76 @@ defineFunction('mathrm', '{:math*}', {}, (_name, _args) => {
     return { mode: 'math', variant: 'normal', variantStyle: 'up' };
 });
 
-defineFunction('mathsf', '{:math*}', {}, (_name, _args) => {
-    return { mode: 'math', variant: 'sans-serif', variantStyle: 'up' };
-});
-defineFunction('mathtt', '{:math*}', {}, (_name, _args) => {
-    return { mode: 'math', variant: 'monospace', variantStyle: 'up' };
-});
+defineFunction(
+    'mathsf',
+    '{:math*}',
+    {},
+    (_name, _args): ParseFunctionResult => {
+        return { mode: 'math', variant: 'sans-serif', variantStyle: 'up' };
+    }
+);
+defineFunction(
+    'mathtt',
+    '{:math*}',
+    {},
+    (_name, _args): ParseFunctionResult => {
+        return { mode: 'math', variant: 'monospace', variantStyle: 'up' };
+    }
+);
 
-defineFunction('it', '', {}, (_name, _args) => {
-    return {
-        fontSeries: 'm',
-        fontShape: 'it',
-        fontFamily: 'cmr',
-        variantStyle: 'it', // For math mode
-    };
-});
+defineFunction(
+    'it',
+    '',
+    {},
+    (_name, _args): ParseFunctionResult => {
+        return {
+            fontSeries: 'm',
+            fontShape: 'it',
+            fontFamily: 'cmr',
+            variantStyle: 'italic', // For math mode
+        };
+    }
+);
 
 // In LaTeX, \rmfamily, \sffamily and \ttfamily are no-op in math mode.
-defineFunction('rmfamily', '', {}, (_name, _args) => {
-    return { fontFamily: 'roman' };
-});
+defineFunction(
+    'rmfamily',
+    '',
+    {},
+    (_name, _args): ParseFunctionResult => {
+        return { fontFamily: 'roman' };
+    }
+);
 
-defineFunction('sffamily', '', {}, (_name, _args) => {
-    return { fontFamily: 'sans-serif' };
-});
+defineFunction(
+    'sffamily',
+    '',
+    {},
+    (_name, _args): ParseFunctionResult => {
+        return { fontFamily: 'sans-serif' };
+    }
+);
 
-defineFunction('ttfamily', '', {}, (_name, _args) => {
-    return { fontFamily: 'monospace' };
-});
+defineFunction(
+    'ttfamily',
+    '',
+    {},
+    (_name, _args): ParseFunctionResult => {
+        return { fontFamily: 'monospace' };
+    }
+);
 
 // In LaTeX, \Bbb and \mathbb are no-op in text mode.
 // They also map lowercase characters to different glyphs.
 // Note that \Bbb has been deprecated for over 20 years (as well as \rm, \it, \bf)
-defineFunction(['Bbb', 'mathbb'], '{:math*}', {}, (_name, _args) => {
-    return { variant: 'double-struck', variantStyle: 'up' };
-});
+defineFunction(
+    ['Bbb', 'mathbb'],
+    '{:math*}',
+    {},
+    (_name, _args): ParseFunctionResult => {
+        return { variant: 'double-struck', variantStyle: 'up' };
+    }
+);
 
 defineFunction(['frak', 'mathfrak'], '{:math*}', {}, (_name, _args) => {
     return { variant: 'fraktur', variantStyle: 'up' };
@@ -334,59 +370,94 @@ defineFunction('mathcal', '{:math*}', {}, (_name, _args) => {
     return { variant: 'calligraphic', variantStyle: 'up' };
 });
 
-defineFunction('mathscr', '{:math*}', {}, (_name, _args) => {
-    return { variant: 'script', variantStyle: 'up' };
-});
+defineFunction(
+    'mathscr',
+    '{:math*}',
+    {},
+    (_name, _args): ParseFunctionResult => {
+        return { variant: 'script', variantStyle: 'up' };
+    }
+);
 
 // Rough synomym for \text{}
 /*
 An \mbox within math mode does not use the current math font; rather it uses
 the typeface of the surrounding running text.
 */
-defineFunction('mbox', '{:text}', null, (_name, args) => {
-    return {
-        type: 'group',
-        mode: 'math',
-        body: args[0],
-    };
-});
+defineFunction(
+    'mbox',
+    '{:text}',
+    null,
+    (_name, args): ParseFunctionResult => {
+        return {
+            type: 'group',
+            mode: 'math',
+            body: args[0],
+        };
+    }
+);
 
-defineFunction('text', '{:text*}', null, (_name, _args) => {
-    return { mode: 'text' };
-});
+defineFunction(
+    'text',
+    '{:text*}',
+    null,
+    (_name, _args): ParseFunctionResult => {
+        return { mode: 'text' };
+    }
+);
 
 /* A MathJax extension: assign a class to the element */
-defineFunction('class', '{name:text}{content:auto*}', null, (_name, args) => {
-    return { cssClass: parseArgAsString(args[0]) };
-});
+defineFunction(
+    'class',
+    '{name:string}{content:auto*}',
+    null,
+    (_name, args): ParseFunctionResult => {
+        return { cssClass: args[0] as string };
+    }
+);
 
 /* A MathJax extension: assign an ID to the element */
-defineFunction('cssId', '{id:text}{content:auto}', null, (_name, args) => {
-    return {
-        type: 'group',
-        body: args[1],
-        cssId: parseArgAsString(args[0]),
-    };
-});
+defineFunction(
+    'cssId',
+    '{id:string}{content:auto}',
+    null,
+    (_name, args): ParseFunctionResult => {
+        return {
+            type: 'group',
+            body: args[1],
+            cssId: args[0] as string,
+        };
+    }
+);
 
 /* Note: in TeX, \em is restricted to text mode. We extend it to math
  * This is the 'switch' variant of \emph, i.e:
  * `\emph{important text}`
  * `{\em important text}`
  */
-defineFunction('em', '', null, (_name, _args) => {
-    return { cssClass: 'ML__emph' };
-});
+defineFunction(
+    'em',
+    '',
+    null,
+    (_name, _args): ParseFunctionResult => {
+        return { cssClass: 'ML__emph' };
+    }
+);
 
 /* Note: in TeX, \emph is restricted to text mode. We extend it to math */
-defineFunction('emph', '{:auto}', null, (_name, args) => {
-    return {
-        cssClass: 'ML__emph',
-        body: args[0],
-        type: 'group',
-        skipBoundary: true,
-    };
-});
+defineFunction(
+    'emph',
+    '{:auto}',
+    null,
+    (_name, args): ParseFunctionResult => {
+        return {
+            cssClass: 'ML__emph',
+            body: args[0],
+            type: 'group',
+            skipBoundary: true,
+        };
+    }
+);
 
 // Extra data needed for the delimiter parse function down below
 const DELIMITER_SIZES = {
@@ -429,12 +500,12 @@ defineFunction(
     ],
     '{:delim}',
     null,
-    function (name, args) {
+    function (name, args): ParseFunctionResult {
         return {
             type: 'sizeddelim',
             size: DELIMITER_SIZES[name].size,
             cls: DELIMITER_SIZES[name].mclass,
-            delim: args[0],
+            delim: args[0] as string,
         };
     }
 );
@@ -469,8 +540,8 @@ defineFunction(
     ],
     '{:auto}',
     null,
-    function (name, args) {
-        const result = {
+    (name, args) => {
+        const result: ParseFunctionResult = {
             type: {
                 '\\mathop': 'mop',
                 '\\mathbin': 'mbin',
@@ -493,7 +564,7 @@ defineFunction(
         return result;
     },
     (name, _parent, atom, emit) => {
-        return `${name}{${emit(atom, atom.body)}}`;
+        return `${name}{${emit(atom, atom.body as Atom[])}}`;
     }
 );
 
@@ -505,7 +576,7 @@ defineFunction(
     '{operator:math}',
     null,
     function (name, args) {
-        const result = {
+        const result: ParseFunctionResult = {
             type: 'mop',
             captureSelection: true, // Do not let children be selected
             body: args[0],
@@ -529,7 +600,7 @@ defineFunction(
 
         */
 
-        result.body.forEach((x) => {
+        (result.body as Atom[]).forEach((x) => {
             x.isFunction = false;
             if (!x.variant && !x.variantStyle) {
                 // No variant as been specified (as it could have been with
@@ -539,7 +610,8 @@ defineFunction(
                 x.variantStyle = 'up';
             }
             x.type = 'mord';
-            x.body = { '\u2217': '*', '\u2212': '-' }[x.body] || x.body;
+            x.body =
+                { '\u2217': '*', '\u2212': '-' }[x.body as string] || x.body;
         });
 
         if (name === '\\operatorname') {
@@ -557,7 +629,7 @@ defineFunction(
     '{charcode:number}',
     null,
     (_name, args) => {
-        let codepoint = parseInt(args[0]);
+        let codepoint = parseInt(args[0] as string);
         if (!isFinite(codepoint)) codepoint = 0x2753; // BLACK QUESTION MARK
         return {
             type: 'mord',
@@ -588,7 +660,7 @@ defineFunction(
 );
 
 // An overline
-defineFunction('overline', '{:auto}', null, function (name, args) {
+defineFunction('overline', '{:auto}', null, (_name, args) => {
     return {
         type: 'line',
         position: 'overline',
@@ -597,7 +669,7 @@ defineFunction('overline', '{:auto}', null, function (name, args) {
     };
 });
 
-defineFunction('underline', '{:auto}', null, function (name, args) {
+defineFunction('underline', '{:auto}', null, (_name, args) => {
     return {
         type: 'line',
         position: 'underline',
@@ -621,7 +693,7 @@ defineFunction(
     (name, _parent, atom, emit) => {
         return `${name}{${emit(atom, atom.overscript)}}{${emit(
             atom,
-            atom.body
+            atom.body as Atom[]
         )}}`;
     }
 );
@@ -641,7 +713,7 @@ defineFunction(
     (name, _parent, atom, emit) => {
         return `${name}{${emit(atom, atom.overscript)}}{${emit(
             atom,
-            atom.body
+            atom.body as Atom[]
         )}}`;
     }
 );
@@ -650,14 +722,14 @@ defineFunction(
     ['overwithdelims', 'atopwithdelims'],
     '{numer:auto}{denom:auto}{left-delim:delim}{right-delim:delim}',
     { infix: true },
-    function (_name, args) {
+    function (_name, args): ParseFunctionResult {
         return {
             type: 'genfrac',
-            numer: args[0],
-            denom: args[1],
+            numer: args[0] as Atom[],
+            denom: args[1] as Atom[],
             hasBarLine: false,
-            leftDelim: args[2],
-            rightDelim: args[3],
+            leftDelim: args[2] as string,
+            rightDelim: args[3] as string,
             mathstyle: 'auto',
         };
     },
@@ -683,7 +755,10 @@ defineFunction(
         };
     },
     (name, _parent, atom, emit) =>
-        `${name}{${emit(atom, atom.overscript)}}{${emit(atom, atom.body)}}`
+        `${name}{${emit(atom, atom.overscript)}}{${emit(
+            atom,
+            atom.body as Atom[]
+        )}}`
 );
 
 defineFunction('rlap', '{:auto}', null, function (name, args) {

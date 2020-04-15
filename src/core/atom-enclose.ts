@@ -1,15 +1,17 @@
-import { registerAtomType, decompose } from './atom-utils.js';
-import { METRICS as FONTMETRICS } from './font-metrics.js';
+import { registerAtomType, decompose, Atom } from './atom-utils';
+import { METRICS as FONTMETRICS } from './font-metrics';
 import {
     makeSpan,
     makeOrd,
     addSVGOverlay,
     depth as spanDepth,
     height as spanHeight,
-} from './span.js';
+    Span,
+} from './span';
+import { Context } from './context';
 
-registerAtomType('enclose', (context, atom) => {
-    const base = makeOrd(decompose(context, atom.body));
+registerAtomType('enclose', (context: Context, atom: Atom): Span[] => {
+    const base = makeOrd(decompose(context, atom.body as Atom[]));
 
     // Account for the padding
     const padding =
@@ -185,5 +187,5 @@ registerAtomType('enclose', (context, atom) => {
     result.setLeft(padding);
     result.setRight(padding);
 
-    return result;
+    return [result];
 });

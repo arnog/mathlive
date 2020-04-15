@@ -1,19 +1,21 @@
-import { registerAtomType, decompose } from './atom-utils.js';
-import { METRICS as FONTMETRICS } from './font-metrics.js';
+import { registerAtomType, decompose, Atom } from './atom-utils';
+import { METRICS as FONTMETRICS } from './font-metrics';
 import {
     makeSpan,
     makeOrd,
     depth as spanDepth,
     height as spanHeight,
-} from './span.js';
+    Span,
+} from './span';
+import { Context } from './context';
 
-registerAtomType('box', (context, atom) => {
+registerAtomType('box', (context: Context, atom: Atom): Span[] => {
     // The padding extends outside of the base
     const padding =
         typeof atom.padding === 'number' ? atom.padding : FONTMETRICS.fboxsep;
 
     // Base is the main content "inside" the box
-    const base = makeOrd(decompose(context, atom.body));
+    const base = makeOrd(decompose(context, atom.body as Atom[]));
 
     // This span will represent the box (background and border)
     // It's positioned to overlap the base
@@ -66,5 +68,5 @@ registerAtomType('box', (context, atom) => {
     result.setLeft(padding);
     result.setRight(padding);
 
-    return result;
+    return [result];
 });

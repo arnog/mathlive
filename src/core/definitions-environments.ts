@@ -1,4 +1,4 @@
-import { defineEnvironment } from './definitions-utils.js';
+import { defineEnvironment, ParseFunctionResult } from './definitions-utils.js';
 
 /*
 
@@ -289,11 +289,11 @@ defineEnvironment(
     ],
     '[columns:colspec]',
     {},
-    function (name, args) {
+    function (name, args): ParseFunctionResult {
         // From amstex.sty:
         // \def\matrix{\hskip -\arraycolsep\array{*\c@MaxMatrixCols c}}
         // \def\endmatrix{\endarray \hskip -\arraycolsep}
-        const result = {};
+        const result: ParseFunctionResult = {};
 
         result.mathstyle = 'textstyle';
 

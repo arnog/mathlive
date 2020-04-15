@@ -1,5 +1,5 @@
-import { registerAtomType, decompose } from './atom-utils.js';
-import { METRICS as FONTMETRICS } from './font-metrics.js';
+import { registerAtomType, decompose, Atom } from './atom-utils';
+import { METRICS as FONTMETRICS } from './font-metrics';
 import {
     makeSVGSpan,
     makeSpan,
@@ -8,19 +8,21 @@ import {
     makeSymbol,
     height as spanHeight,
     skew as spanSkew,
-} from './span.js';
+    Span,
+} from './span';
+import { Context } from './context';
 
-registerAtomType('accent', (context, atom) => {
+registerAtomType('accent', (context: Context, atom: Atom): Span[] => {
     // Accents are handled in the TeXbook pg. 443, rule 12.
     const mathstyle = context.mathstyle;
     // Build the base atom
-    let base = decompose(context.cramp(), atom.body);
+    let base = decompose(context.cramp(), atom.body as Atom[]);
     if (atom.superscript || atom.subscript) {
         // If there is a supsub attached to the accent
         // apply it to the base.
         // Note this does not give the same result as TeX when there
         // are stacked accents, e.g. \vec{\breve{\hat{\acute{...}}}}^2
-        base = atom.attachSupsub(context, makeOrd(base), 'mord');
+        base = [atom.attachSupsub(context, makeOrd(base), 'mord')];
     }
     // Calculate the skew of the accent. This is based on the line "If the
     // nucleus is not a single character, let s = 0; otherwise set s to the
@@ -37,7 +39,7 @@ registerAtomType('accent', (context, atom) => {
     }
     // calculate the amount of space between the body and the accent
     let clearance = Math.min(spanHeight(base), mathstyle.metrics.xHeight);
-    let accentBody;
+    let accentBody: Span;
     if (atom.svgAccent) {
         accentBody = makeSVGSpan(atom.svgAccent);
         clearance = -clearance + FONTMETRICS.bigOpSpacing1;
@@ -58,5 +60,5 @@ registerAtomType('accent', (context, atom) => {
     // because we are centering the accent, so by adding 2*skew to the left,
     // we shift it to the right by 1*skew.
     accentBody.children[1].setLeft(2 * skew);
-    return makeOrd(accentBody, 'accent');
+    return [makeOrd([accentBody], 'accent')];
 });

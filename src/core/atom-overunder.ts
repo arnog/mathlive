@@ -1,4 +1,4 @@
-import { registerAtomType, decompose } from './atom-utils.js';
+import { registerAtomType, decompose, Atom } from './atom-utils';
 import {
     makeSVGSpan,
     makeSpan,
@@ -6,8 +6,9 @@ import {
     makeSpanOfType,
     depth as spanDepth,
     height as spanHeight,
-} from './span.js';
-import { METRICS as FONTMETRICS } from './font-metrics.js';
+} from './span';
+import { METRICS as FONTMETRICS } from './font-metrics';
+import { MATHSTYLES } from './mathstyle';
 
 // An `overunder` atom has the following attributes:
 // - body: atoms[]: atoms displayed on the base line
@@ -20,8 +21,10 @@ import { METRICS as FONTMETRICS } from './font-metrics.js';
 registerAtomType('overunder', (context, atom) => {
     const body = atom.svgBody
         ? makeSVGSpan(atom.svgBody)
-        : decompose(context, atom.body);
-    const annotationStyle = context.clone({ mathstyle: 'scriptstyle' });
+        : decompose(context, atom.body as Atom[]);
+    const annotationStyle = context.clone({
+        mathstyle: MATHSTYLES.scriptstyle,
+    });
     let above;
     let below;
     if (atom.svgAbove) {
@@ -47,13 +50,7 @@ registerAtomType('overunder', (context, atom) => {
         above.setLeft(0.3);
         above.setRight(0.3);
     }
-    return makeOverunderStack(
-        context,
-        body,
-        above,
-        below,
-        atom.mathtype || 'mord'
-    );
+    return makeOverunderStack(context, body, above, below, atom.type || 'mord');
 });
 
 /**

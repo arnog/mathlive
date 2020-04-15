@@ -1,5 +1,6 @@
-import { ParseMode } from './context';
-import { Atom } from './atom-utils';
+import { ParseMode, Variant, VariantStyle } from './context';
+import { Atom, Notations, Colspec } from './atom-utils';
+import { FontSeries, FontShape } from './context';
 
 export const MATH_SYMBOLS = {};
 
@@ -14,17 +15,87 @@ type EmitFunction = (
     emit: (parent: Atom, atoms: Atom[]) => string
 ) => string;
 
+export type ParseFunctionResult = {
+    type?: string;
+
+    mode?: string;
+    mathstyle?: string;
+
+    skipBoundary?: boolean;
+    captureSelection?: boolean;
+
+    body?: string | Atom[];
+    svgBelow?: string; // type = 'overunder'
+
+    limits?: 'limits' | 'nolimits' | 'accent' | 'auto';
+    accent?: string;
+
+    latexOpen?: string; // type = 'group'
+    latexClose?: string; // type = 'group'
+    color?: string; // type = ''
+    verbatimBackgroundcolor?: string;
+    backgroundcolor?: string;
+    framecolor?: string;
+    verbatimFramecolor?: string;
+    fontSize?:
+        | 'size1'
+        | 'size2'
+        | 'size3'
+        | 'size4'
+        | 'size5'
+        | 'size6'
+        | 'size7'
+        | 'size8'
+        | 'size9'
+        | 'size10';
+    fontSeries?: FontSeries;
+    fontShape?: FontShape;
+    fontFamily?: string;
+    variant?: Variant;
+    variantStyle?: VariantStyle;
+
+    cssClass?: string;
+    cssId?: string;
+    isFunction?: boolean;
+    isSymbol?: boolean;
+
+    size?: string; // type = 'sizeddelim'
+    cls?: string; // type = 'sizeddelim'    @revisit: use cssClass?
+    delim?: string;
+
+    // type = 'genfrac'
+    hasBarLine?: boolean;
+    leftDelim?: string;
+    rightDelim?: string;
+    numer?: Atom[];
+    denom?: Atom[];
+    continuousFraction?: boolean;
+    numerPrefix?: string;
+    denomPrefix?: string;
+
+    // type = 'enclose'
+    notation?: Notations;
+    borderStyle?: string;
+    padding?: number | string;
+    svgStrokeStyle?: string;
+    strokeColor?: string;
+    strokeWidth?: number;
+    strokeStyle?: string;
+    shadow?: string;
+
+    // type = 'array'
+    arraystretch?: number;
+    colFormat?: Colspec[];
+    // arraycolsep?: number;
+    // jot?: number;
+    lFence?: string;
+    rFence?: string;
+};
+
 type ParseFunction = (
     name: string,
     args: (string | Atom[])[]
-) => {
-    type?: string;
-    limits?: string;
-    skipBoundary?: boolean;
-    accent?: string;
-    body?: Atom[];
-    svgBelow?: string; // type = 'overunder'
-};
+) => ParseFunctionResult;
 
 export type MacroDefinition = { def: string; args?: number };
 export type MacroDictionary = { [name: string]: string | MacroDefinition };

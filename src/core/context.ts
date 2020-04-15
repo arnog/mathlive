@@ -15,10 +15,28 @@ export type ParseMode =
     | 'text'
     | 'string';
 
-export type Variant = 'calligraphic' | 'fraktur';
+export type Variant =
+    | 'double-struck'
+    | 'calligraphic'
+    | 'script'
+    | 'fraktur'
+    | 'sans-serif'
+    | 'monospace'
+    | 'normal'
+    | 'main'
+    | 'math';
 export type VariantStyle = 'up' | 'bold' | 'italic' | 'bolditalic' | '';
-export type FontShape = 'auto' | 'n' | '';
-export type FontSeries = 'auto' | 'm' | '';
+export type FontShape = 'auto' | 'n' | 'it' | 'sl' | 'sc' | '';
+export type FontSeries = 'auto' | 'm' | 'b' | 'l' | '';
+
+/**
+ * Variants can map either to math characters in specific Unicode range
+ * (see https://en.wikipedia.org/wiki/Mathematical_Alphanumeric_Symbols)
+ * e.g. 𝒜, 𝔄, 𝖠, 𝙰, 𝔸, A, 𝐴
+ * or to some built-in fonts (e.g. 'SansSerif-Regular')
+ * 'normal' is a synthetic variant that maps either to 'main' (roman) or
+ * 'math' (italic) depending on the symbol and the letterShapeStyle.
+ */
 export interface Style {
     mode?: ParseMode;
     color?: string;
@@ -121,7 +139,7 @@ export class Context implements ContextInterface {
      * Returns a new context with the same properties as 'this',
      * except for the ones provided in `override`
      */
-    clone(override: ContextInterface): Context {
+    clone(override: ContextInterface = {}): Context {
         const result = new Context(this);
         if (override) {
             // `'auto'` (or undefined) to indicate that the mathstyle should in

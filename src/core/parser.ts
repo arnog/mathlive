@@ -7,16 +7,11 @@ import {
 import { stringToColor } from './color';
 import { convertDimenToEm } from './font-metrics';
 import { Token, tokenize } from './lexer';
-import { Atom, Colspec } from './atom';
+import { Atom, Colspec, BBoxParam } from './atom';
 import { parseTokens } from './modes';
 import { MacroDefinition } from './definitions-utils';
 import { Style, ParseMode } from './context';
 
-type BBoxParam = {
-    backgroundcolor?: string;
-    padding?: number;
-    border?: string;
-};
 function tokensToString(tokens: Token[]): string {
     let hasParamToken = false;
     const result = tokens

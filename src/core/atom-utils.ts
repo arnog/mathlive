@@ -22,6 +22,21 @@ import {
 import { makeSizedDelim } from './delimiters';
 import { atomToLatex } from './atom-to-latex';
 
+export type Notations = {
+    downdiagonalstrike?: boolean;
+    updiagonalstrike?: boolean;
+    verticalstrike?: boolean;
+    horizontalstrike?: boolean;
+    right?: boolean;
+    bottom?: boolean;
+    left?: boolean;
+    top?: boolean;
+    circle?: boolean;
+    roundedbox?: boolean;
+    madruwb?: boolean;
+    actuarial?: boolean;
+    box?: boolean;
+};
 export type AtomType =
     | ''
     | 'array'
@@ -57,6 +72,11 @@ export type Colspec = {
     align?: 'l' | 'c' | 'r';
     rule?: boolean;
 };
+export type BBoxParam = {
+    backgroundcolor?: string;
+    padding?: number;
+    border?: string;
+};
 
 export const ATOM_REGISTRY = {};
 
@@ -74,7 +94,10 @@ export const SIZING_MULTIPLIER = {
     size10: 2.49,
 };
 
-export function registerAtomType(name: string, decompose): void {
+export function registerAtomType(
+    name: string,
+    decompose: (context: Context, atom: Atom) => Span[]
+): void {
     ATOM_REGISTRY[name] = { decompose: decompose };
 }
 
@@ -84,10 +107,9 @@ export function registerAtomType(name: string, decompose): void {
  * or 'vlist', while the input atoms may be more abstract and complex,
  * such as 'genfrac'
  *
- * @param {Context} context Font family, variant, size, color, etc...
- * @param {(Atom|Atom[])} atoms - A single atom or an array of atoms
- * @return {Span[]}
- * @private
+ * @param context Font family, variant, size, color, and other info useful
+ * to render an expression
+ * @param atoms - A single atom or an array of atoms
  */
 export function decompose(
     context: Context,
@@ -285,12 +307,8 @@ export function decompose(
  * It keeps track of the content, while the dimensions, position and style
  * are tracked by Span objects which are created by the `decompose()` functions.
  *
- * @param {string} mode
- * @param {string} type
- * @param {string|Atom[]} body
- * @param {Object.<string, any>} [style={}] A set of additional properties to append to
+ * @param style A set of additional properties to append to
  * the atom
- * @return {Atom}
  * @property {string} mode `'display'`, `'command'`, etc...
  * @property {string} type - Type can be one of:
  * - `mord`: ordinary symbol, e.g. `x`, `\alpha`
@@ -337,12 +355,6 @@ export function decompose(
  * order to be able to position the caret before the first element. Aside from
  * the caret, they display nothing.
  *
- * @property {string|Atom[]} body
- * @property {Atom[]} superscript
- * @property {Atom[]} subscript
- * @property {Atom[]} numer
- * @property {Atom[]} denom
- *
  * @property {boolean} captureSelection if true, this atom does not let its
  * children be selected. Used by the `\enclose` annotations, for example.
  *
@@ -351,9 +363,6 @@ export function decompose(
  * outside of the element. Conversely, when the caret reaches the position
  * right after this element, it automatically moves to the last position
  * inside this element.
- *
- * @class
- * @private
  */
 export class Atom implements Style {
     mode: ParseMode;
@@ -364,18 +373,45 @@ export class Atom implements Style {
     isFunction?: boolean;
     error?: boolean; // Indicate an unknown command
     suggestion?: boolean; // This atom is a suggestion
+
     latexOpen?: string; // type = 'group'
     latexClose?: string; // type = 'group'
+
     body?: string | Atom[];
+    codepoint?: number; // type = 'mord'
+    accent?: string; // type = 'accent'
+    svgAccent?: string; // type = 'accent'
+    svgBody?: string;
+    svgAbove?: string; // type = 'overunder'
+    svgBelow?: string; // type = 'overunder'
+
     index?: Atom[]; // type = 'surd'
-    underscript?: Atom[];
-    overscript?: Atom[];
+
     denom?: Atom[]; // type = 'genfrac'
     numer?: Atom[]; // type = 'genfrac'
+    numerPrefix?: string; // type = 'genfrac'
+    denomPrefix?: string; // type = 'genfrac'
+    continuousFraction?: boolean; // type = 'genfrac'
+    hasBarLine?: boolean; // type = 'genfrac'
+
+    // type = 'array'
+    arraystretch?: number;
+    arraycolsep?: number;
+    jot?: number;
+    lFence?: string; // @revisit: use leftDelim
+    rFence?: string; // @revisit: use leftDelim
+
+    alwaysHandleSupSub?: boolean;
     subscript?: Atom[];
     superscript?: Atom[];
-    limits?: 'limits' | 'nolimits';
+    underscript?: Atom[];
+    overscript?: Atom[];
+
+    position: string; // type = 'line'
+
+    limits?: 'limits' | 'nolimits' | 'accent';
     explicitLimits?: boolean;
+
     array?: Atom[][][]; // type = 'array'
     rowGaps?: number[]; // type = 'array'
     env: { name: string; tabular: boolean }; // type = 'array'
@@ -385,11 +421,19 @@ export class Atom implements Style {
     delim?: string;
     size?: 1 | 2 | 3 | 4; // type = 'sizeddelim' @revisit Use maxFontSize? or fontSize?
 
+    framecolor?: string; // type = 'box'
+    verbatimFramecolor?: string; // type = 'box'
+    backgroundcolor?: string; // type = 'box'
+    verbatimBackgroundcolor?: string; // type = 'box'
+    padding?: number; // type = 'box'
+    border?: string; // type = 'box'
+
     colFormat?: Colspec[]; // when type = 'array', formating of columns
-    notation?: string[]; // when type = 'enclose'
+    notation?: Notations; // when type = 'enclose'
     shadow?: string; // when type = 'enclose', CSS shadow
     strokeWidth?: number; // when type = 'enclose'
     strokeStyle?: string; // when type = 'enclose', CSS string
+    svgStrokeStyle?: string; // when type = 'enclose', CSS string
     strokeColor?: string; // when type = 'enclose', CSS string
     borderStyle?: string; // when type = 'enclose', CSS string
 
@@ -407,10 +451,11 @@ export class Atom implements Style {
     containsCaret: boolean; // If the atom or one of its descendant includes the caret
 
     mathstyle?:
+        | 'auto'
         | 'displaystyle'
         | 'textstyle'
         | 'scriptstyle'
-        | 'scriptscriptstyle';
+        | 'scriptscriptstyle'; // type = 'genfrac', ''
 
     cls?: string;
 

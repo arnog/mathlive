@@ -1,8 +1,9 @@
-import { registerAtomType, decompose } from './atom-utils.js';
+import { registerAtomType, decompose, Atom } from './atom-utils';
 import { MATHSTYLES } from './mathstyle';
-import { METRICS as FONTMETRICS } from './font-metrics.js';
-import { makeSpan, makeOrd, makeHlist, makeVlist } from './span.js';
+import { METRICS as FONTMETRICS } from './font-metrics';
+import { makeSpan, makeOrd, makeHlist, makeVlist, Span } from './span';
 import { makeCustomSizedDelim } from './delimiters';
+import { Context } from './context';
 
 /**
  * Gengrac -- Generalized fraction
@@ -14,10 +15,8 @@ import { makeCustomSizedDelim } from './delimiters';
  * Depending on the type of fraction the mathstyle is either
  * display math or inline math (which is indicated by 'textstyle'). This value can
  * also be set to 'auto', which indicates it should use the current mathstyle
- *
- * @private
  */
-registerAtomType('genfrac', (context, atom) => {
+registerAtomType('genfrac', (context: Context, atom: Atom): Span[] => {
     const mathstyle =
         atom.mathstyle === 'auto'
             ? context.mathstyle
@@ -55,9 +54,9 @@ registerAtomType('genfrac', (context, atom) => {
         ? 0
         : FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
     // Rule 15b from Appendix G
-    let numShift;
-    let clearance;
-    let denomShift;
+    let numShift: number;
+    let clearance: number;
+    let denomShift: number;
     if (mathstyle.size === MATHSTYLES.displaystyle.size) {
         numShift = mathstyle.metrics.num1;
         if (ruleWidth > 0) {
@@ -78,7 +77,7 @@ registerAtomType('genfrac', (context, atom) => {
     }
     const numerDepth = numerReset ? numerReset.depth : 0;
     const denomHeight = denomReset ? denomReset.height : 0;
-    let frac;
+    let frac: string | Span;
     if (ruleWidth === 0) {
         // Rule 15c from Appendix G
         // No bar line between numerator and denominator
@@ -183,5 +182,5 @@ registerAtomType('genfrac', (context, atom) => {
             ? 'sizing reset-' + context.parentSize + ' ' + context.size
             : ''
     );
-    return atom.bind(context, result);
+    return [atom.bind(context, result)];
 });

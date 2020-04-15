@@ -1,4 +1,5 @@
-import { defineFunction } from './definitions-utils.js';
+import { defineFunction } from './definitions-utils';
+import { Atom } from './atom';
 
 // Extensible (horitontally stretchy) symbols
 
@@ -29,7 +30,7 @@ defineFunction(
             skipBoundary: true,
         };
     },
-    (name, _parent, atom, emit) => `${name}{${emit(atom, atom.body)}}`
+    (name, _parent, atom, emit) => `${name}{${emit(atom, atom.body as Atom[])}}`
 );
 
 defineFunction(
@@ -55,7 +56,7 @@ defineFunction(
             skipBoundary: true,
         };
     },
-    (name, _parent, atom, emit) => `${name}{${emit(atom, atom.body)}}`
+    (name, _parent, atom, emit) => `${name}{${emit(atom, atom.body as Atom[])}}`
 );
 defineFunction(
     [
