@@ -4,7 +4,6 @@ import { METRICS as FONTMETRICS } from './font-metrics';
 import {
     makeSpan,
     makeVlist,
-    makeStruts,
     depth as spanDepth,
     height as spanHeight,
     Span,
@@ -94,11 +93,7 @@ registerAtomType('surd', (context: Context, atom: Atom): Span[] => {
     return [
         atom.bind(
             context,
-            makeStruts(
-                [makeSpan(rootVlist, 'root'), delim, body],
-                'sqrt',
-                'mord'
-            )
+            makeSpan([makeSpan(rootVlist, 'root'), delim, body], 'sqrt', 'mord')
         ),
     ];
 });

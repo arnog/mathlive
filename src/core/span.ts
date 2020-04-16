@@ -810,7 +810,9 @@ export function makeStruts(
     } else {
         struts = [topStrut, bottomStrut, content];
     }
-    return makeSpan(struts, classes, type);
+    const result = makeSpan(struts, classes, type);
+    // result.setStyle('display', 'inline-block');
+    return result;
 }
 
 export function makeStyleWrap(

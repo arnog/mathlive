@@ -49,11 +49,11 @@ interface Metrics {
     xHeight: number;
     quad: number;
     extraSpace: number;
-    num1: number;
-    num2: number;
-    num3: number;
-    denom1: number;
-    denom2: number;
+    num1: number; // 8
+    num2: number; // 9
+    num3: number; // 10
+    denom1: number; // 11
+    denom2: number; // 12
     sup1: number;
     sup2: number;
     sup3: number;

@@ -4,12 +4,27 @@ import { FontSeries, FontShape } from './context';
 
 export const MATH_SYMBOLS = {};
 // Map a character to some corresponding Latex
-// This is used for some characters such as ² SUPERSCRIPT TWO
+// This is used for some characters such as ² SUPERSCRIPT TWO.
+// This is also an opportunity to specify the prefered form when
+// a unicode character is encountered that maps to multiple commands,
+// for example ≠ could map either to \ne or \neq
 // The table will also be populated by any registered symbol
 // from MATH_SYMBOLS
 // prettier-ignore
 export const REVERSE_MATH_SYMBOLS = {
-    '\u2223': '|',
+    '<': '<',   // Also \lt
+    '>': '>',   // Also \gt
+    'o': 'o',    // Also \omicron
+    '&': '\\&',  // Also \And
+    '{': '\\{',  // Also \lbrace
+    '}': '\\}',  // Also \rbrace
+    '[': '\\lbrack',
+    ']': '\\rbrack',
+    ':': '\\colon', // Also :
+    
+    '\u00a0': '~', // Also \space
+    '\u00ac': '\\neg',  // Also \lnot
+
     '\u00b7': '\\cdot',
     '\u00bc': '\\frac{1}{4}',
     '\u00bd': '\\frac{1}{2}',
@@ -19,6 +34,11 @@ export const REVERSE_MATH_SYMBOLS = {
     '\u00b9': '^{1}',
     '\u00b2': '^{2}',
     '\u00b3': '^{3}',
+
+    '\u2020': '\\dagger', // Also \dag
+    '\u2021': '\\ddagger', // Also \ddag
+    '\u2026': '\\ldots',    // Also \mathellipsis
+
     '\u2074': '^{4}',
     '\u2075': '^{5}',
     '\u2076': '^{6}',
@@ -42,25 +62,47 @@ export const REVERSE_MATH_SYMBOLS = {
     '\u208a': '_{+}',
     '\u208b': '_{-}',
     '\u208c': '_{=}',
-    '\u2090': '_{a}',
-    '\u2091': '_{e}',
-    '\u2092': '_{o}',
-    '\u2093': '_{x}',
+    '\u2090': '_{a}',// eslint-disable-line
+    '\u2091': '_{e}',// eslint-disable-line
+    '\u2092': '_{o}',// eslint-disable-line
+    '\u2093': '_{x}',// eslint-disable-line
 
     '\u2032': '\\prime',
-    '\u2033': '\\doubleprime',
-    '\u2035': '\\backprime',
-    '\u2036': '\\backdoubleprime',
-    '\u2220': '\\angle',
+    '\'': '\\prime',
 
-    '\u2102': '\\C',
-    '\u2115': '\\N',
-    '\u2119': '\\P',
-    '\u211a': '\\Q',
-    '\u211d': '\\R',
-    '\u2124': '\\Z',
+    '\u2190': '\\gets', // Also \leftarrow
+    '\u2192': '\\to',   // Also \rightarrow
+
+    '\u25b3': '\\triangle', // Also \bigtriangleup, \vartriangle
+    '\u25bd': '\\triangledown',
+
+    '\u220b': '\\owns', // Also \ni
+    '\u2217': '\\ast',  // Also *
+    '\u2223': '\\vert',  // Also |, \mvert, \lvert, \rvert
+    '\u2225': '\\Vert',  // Also \parallel \shortparallel
+
+    '\u2227': '\\land', // Also \wedge
+    '\u2228': '\\lor', // Also \vee
+
+    '\u22c5': '\\cdot', // Also \centerdot, \cdotp
+    '\u22c8': '\\bowtie', // Also \Joint
+
+    '\u2260': '\\ne',   // Also \neq
+    '\u2264': '\\le',   // Also \leq
+    '\u2265': '\\ge',   // Also \geq
+    '\u22a5': '\\bot', // Also \perp
+
+    '\u27f7': '\\biconditional',    // Also longleftrightarrow
+    '\u27f8': '\\impliedby', // Also \Longleftarrow
+    '\u27f9': '\\implies', // Also \Longrightarrow
+
+    '\u2102': '\\C',    // Also \doubleStruckCapitalC
+    '\u2115': '\\N',    // Also \doubleStruckCapitalN
+    '\u2119': '\\P',    // Also \doubleStruckCapitalP
+    '\u211a': '\\Q',    // Also \doubleStruckCapitalQ
+    '\u211d': '\\R',    // Also \doubleStruckCapitalR
+    '\u2124': '\\Z',    // Also \doubleStruckCapitalZ
 };
-
 export const FUNCTIONS = {};
 
 export const ENVIRONMENTS = {};
@@ -224,6 +266,9 @@ export const TEXT_SYMBOLS = {
     '\\textbullet': '•',
     '\\textdollar': '$',
     '\\textsterling': '£',
+    '\\textdagger': '\u2020',
+    '\\textdaggerdbl': '\u2021',
+
     '–': '\u2013', // EN DASH
     '—': '\u2014', // EM DASH
     '‘': '\u2018', // LEFT SINGLE QUOTATION MARK
@@ -281,27 +326,8 @@ export function defineSymbol(
         variant,
         value,
     };
-    if (!REVERSE_MATH_SYMBOLS[value]) {
-        if (!variant) {
-            REVERSE_MATH_SYMBOLS[value] = symbol;
-        }
-    } else {
-        if (!variant) {
-            console.warn(
-                'Multiple definitions for ',
-                value,
-                REVERSE_MATH_SYMBOLS[value],
-                symbol
-            );
-        } else {
-            console.warn(
-                'Multiple definitions with variant for ',
-                value,
-                variant,
-                REVERSE_MATH_SYMBOLS[value],
-                symbol
-            );
-        }
+    if (!REVERSE_MATH_SYMBOLS[value] && !variant) {
+        REVERSE_MATH_SYMBOLS[value] = symbol;
     }
 }
 

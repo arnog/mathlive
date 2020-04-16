@@ -1,7 +1,14 @@
 import { registerAtomType, decompose, Atom } from './atom-utils';
 import { MATHSTYLES } from './mathstyle';
 import { METRICS as FONTMETRICS } from './font-metrics';
-import { makeSpan, makeHlist, makeVlist, Span } from './span';
+import {
+    Span,
+    makeSpan,
+    makeHlist,
+    makeVlist,
+    depth as spanDepth,
+    height as spanHeight,
+} from './span';
 import { makeCustomSizedDelim } from './delimiters';
 import { Context } from './context';
 
@@ -53,31 +60,37 @@ registerAtomType('genfrac', (context: Context, atom: Atom): Span[] => {
     const ruleWidth = !atom.hasBarLine
         ? 0
         : FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
-    // Rule 15b from Appendix G
+    // Rule 15b from TeXBook Appendix G, p.444
+    //
+    // 15b. If C > T, set u ← σ8 and v ← σ11. Otherwise set u ← σ9 or σ10,according
+    // as θ ̸= 0 or θ = 0, and set v ← σ12. (The fraction will be typeset with
+    // its numerator shifted up by an amount u with respect to the current
+    // baseline, and with the denominator shifted down by v, unless the boxes
+    // are unusually large.)
     let numShift: number;
-    let clearance: number;
+    let clearance = 0;
     let denomShift: number;
     if (mathstyle.size === MATHSTYLES.displaystyle.size) {
-        numShift = mathstyle.metrics.num1;
+        numShift = mathstyle.metrics.num1; // set u ← σ8
         if (ruleWidth > 0) {
-            clearance = 3 * ruleWidth;
+            clearance = 3 * ruleWidth; //  φ ← 3θ
         } else {
-            clearance = 7 * FONTMETRICS.defaultRuleThickness;
+            clearance = 7 * FONTMETRICS.defaultRuleThickness; // φ ← 7 ξ8
         }
-        denomShift = mathstyle.metrics.denom1;
+        denomShift = mathstyle.metrics.denom1; // v ← σ11
     } else {
         if (ruleWidth > 0) {
-            numShift = mathstyle.metrics.num2;
-            clearance = ruleWidth;
+            numShift = mathstyle.metrics.num2; // u ← σ9
+            clearance = ruleWidth; //  φ ← θ
         } else {
-            numShift = mathstyle.metrics.num3;
-            clearance = 3 * FONTMETRICS.defaultRuleThickness;
+            numShift = mathstyle.metrics.num3; // u ← σ10
+            clearance = 3 * FONTMETRICS.defaultRuleThickness; // φ ← 3 ξ8
         }
-        denomShift = mathstyle.metrics.denom2;
+        denomShift = mathstyle.metrics.denom2; // v ← σ12
     }
-    const numerDepth = numerReset ? numerReset.depth : 0;
-    const denomHeight = denomReset ? denomReset.height : 0;
-    let frac: string | Span;
+    const numerDepth = numerReset ? spanDepth(numerReset) : 0;
+    const denomHeight = denomReset ? spanHeight(denomReset) : 0;
+    let frac: Span;
     if (ruleWidth === 0) {
         // Rule 15c from Appendix G
         // No bar line between numerator and denominator
@@ -96,31 +109,20 @@ registerAtomType('genfrac', (context: Context, atom: Atom): Span[] => {
         // Rule 15d from Appendix G
         // There is a bar line between the numerator and the denominator
         const axisHeight = mathstyle.metrics.axisHeight;
-        if (
-            numShift - numerDepth - (axisHeight + 0.5 * ruleWidth) <
-            clearance
-        ) {
-            numShift +=
-                clearance -
-                (numShift - numerDepth - (axisHeight + 0.5 * ruleWidth));
+        const numerLine = axisHeight + 0.5 * ruleWidth;
+        const denomLine = axisHeight - 0.5 * ruleWidth;
+        if (numShift - numerDepth - numerLine < clearance) {
+            numShift += clearance - (numShift - numerDepth - numerLine);
         }
-        if (
-            axisHeight - 0.5 * ruleWidth - (denomHeight - denomShift) <
-            clearance
-        ) {
-            denomShift +=
-                clearance -
-                (axisHeight - 0.5 * ruleWidth - (denomHeight - denomShift));
+        if (denomLine - (denomHeight - denomShift) < clearance) {
+            denomShift += clearance - (denomLine - (denomHeight - denomShift));
         }
-        const mid = makeSpan(
-            null,
-            /* newContext.mathstyle.adjustTo(MATHSTYLES.textstyle) + */ ' frac-line'
-        );
+        const mid = makeSpan(null, ' frac-line');
         mid.applyStyle(atom.getStyle());
-        // @todo: do we really need to reset the size?
         // Manually set the height of the line because its height is
         // created in CSS
-        mid.height = ruleWidth;
+        mid.height = ruleWidth / 2;
+        mid.depth = ruleWidth / 2;
         const elements = [];
         if (numerReset) {
             elements.push(numerReset);

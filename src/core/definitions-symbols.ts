@@ -99,30 +99,33 @@ defineSymbol('\\euro', '\u20AC'); // NOTE: not TeX built-in, but textcomp packag
 
 // Math and Text
 
-defineSymbol('\\textdagger', '\u2020', 'mbin');
 defineSymbol('\\dagger', '\u2020', 'mbin');
 defineSymbol('\\dag', '\u2020', 'mbin');
 defineSymbol('\\ddag', '\u2021', 'mbin');
-defineSymbol('\\textdaggerdbl', '\u2021', 'mbin');
 defineSymbol('\\ddagger', '\u2021', 'mbin');
 defineSymbol('\\maltese', '\u2720', 'mord', 'ams');
 
 // Arrow Symbols
 
 defineSymbol('\\rightarrow', '\u2192', 'mrel');
+defineSymbol('\\to', '\u2192', 'mrel');
 defineSymbol('\\leftarrow', '\u2190', 'mrel');
+defineSymbol('\\gets', '\u2190', 'mrel');
 defineSymbol('\\Rightarrow', '\u21d2', 'mrel');
 defineSymbol('\\Leftarrow', '\u21d0', 'mrel');
 defineSymbol('\\longrightarrow', '\u27f6', 'mrel');
 defineSymbol('\\longleftarrow', '\u27f5', 'mrel');
-defineSymbol('\\Longrightarrow', '\u27f9', 'mrel'); // See \\implies
+defineSymbol('\\Longrightarrow', '\u27f9', 'mrel');
+defineSymbol('\\implies', '\u27f9', 'mrel');
 defineSymbol('\\Longleftarrow', '\u27f8', 'mrel');
+defineSymbol('\\impliedby', '\u27f8', 'mrel');
 defineSymbol('\\dashrightarrow', '\u21e2', 'mrel', 'ams');
 defineSymbol('\\dashleftarrow', '\u21e0', 'mrel', 'ams');
 defineSymbol('\\Rrightarrow', '\u21db', 'mrel', 'ams');
 defineSymbol('\\Lleftarrow', '\u21da', 'mrel', 'ams');
 
 defineSymbol('\\longleftrightarrow', '\u27f7', 'mrel');
+defineSymbol('\\biconditional', '\u27f7', 'mrel');
 defineSymbol('\\Longleftrightarrow', '\u27fa', 'mrel');
 
 defineSymbol('\\leftrightarrows', '\u21c6', 'mrel', 'ams');
@@ -295,6 +298,8 @@ defineSymbol('\\Vert', '\u2225');
 defineSymbol('\\mVert', '\u2225');
 defineSymbol('\\lVert', '\u2225', 'mopen');
 defineSymbol('\\rVert', '\u2225', 'mclose');
+defineSymbol('\\parallel', '\u2225', 'mrel');
+defineSymbol('\\shortparallel', '\u2225', 'mrel', 'ams');
 
 defineSymbol('\\lbrack', '[', 'mopen');
 defineSymbol('\\rbrack', ']', 'mclose');
@@ -331,13 +336,12 @@ defineSymbol('>', '>', 'mrel');
 defineSymbol('\\gt', '>', 'mrel');
 
 defineSymbol('\\le', '\u2264', 'mrel');
+defineSymbol('\\leq', '\u2264', 'mrel');
 defineSymbol('\\ge', '\u2265', 'mrel');
+defineSymbol('\\geq', '\u2265', 'mrel');
 
 defineSymbol('\\leqslant', '\u2a7d', 'mrel', 'ams');
 defineSymbol('\\geqslant', '\u2a7e', 'mrel', 'ams');
-
-defineSymbol('\\leq', '\u2264', 'mrel');
-defineSymbol('\\geq', '\u2265', 'mrel');
 
 defineSymbol('\\ll', '\u226a', 'mrel');
 defineSymbol('\\gg', '\u226b', 'mrel');
@@ -357,7 +361,6 @@ defineSymbol('\\succ', '\u227b', 'mrel');
 defineSymbol('\\succeq', '\u2ab0', 'mrel');
 
 defineSymbol('\\perp', '\u22a5', 'mrel');
-defineSymbol('\\parallel', '\u2225', 'mrel');
 
 defineSymbol('\\propto', '\u221d', 'mrel');
 defineSymbol('\\Colon', '\u2237', 'mrel');
@@ -392,6 +395,7 @@ defineSymbol('\\ngeq', '\u2271', 'mrel', 'ams');
 defineSymbol('\\smallsmile', '\u2323', 'mrel', 'ams');
 defineSymbol('\\smallfrown', '\u2322', 'mrel', 'ams');
 defineSymbol('\\bowtie', '\u22c8', 'mrel');
+defineSymbol('\\Join', '\u22c8', 'mrel');
 
 defineSymbol('\\asymp', '\u224d', 'mrel');
 
@@ -430,7 +434,6 @@ defineSymbol('\\succcurlyeq', '\u227d', 'mrel', 'ams');
 defineSymbol('\\curlyeqsucc', '\u22df', 'mrel', 'ams');
 defineSymbol('\\Vdash', '\u22a9', 'mrel', 'ams');
 defineSymbol('\\shortmid', '\u2223', 'mrel', 'ams');
-defineSymbol('\\shortparallel', '\u2225', 'mrel', 'ams');
 defineSymbol('\\between', '\u226c', 'mrel', 'ams');
 defineSymbol('\\pitchfork', '\u22d4', 'mrel', 'ams');
 defineSymbol('\\varpropto', '\u221d', 'mrel', 'ams');
@@ -439,7 +442,6 @@ defineSymbol('\\llless', '\u22d8', 'mrel', 'ams');
 defineSymbol('\\gggtr', '\u22d9', 'mrel', 'ams');
 defineSymbol('\\lhd', '\u22b2', 'mbin', 'ams');
 defineSymbol('\\rhd', '\u22b3', 'mbin', 'ams');
-defineSymbol('\\Join', '\u22c8', 'mrel');
 
 defineSymbol('\\doteq', '\u2250', 'mrel');
 defineSymbol('\\doteqdot', '\u2251', 'mrel', 'ams');
@@ -456,17 +458,12 @@ defineSymbol('\\~', '~', 'mrel');
 
 defineSymbol('\\leftrightarrow', '\u2194', 'mrel');
 defineSymbol('\\Leftrightarrow', '\u21d4', 'mrel');
-defineSymbol('\\to', '\u2192', 'mrel');
 defineSymbol('\\models', '\u22a8', 'mrel');
 defineSymbol('\\vdash', '\u22a2', 'mrel');
 
 defineSymbol('\\therefore', '\u2234', 'mrel', 'ams');
 defineSymbol('\\because', '\u2235', 'mrel', 'ams');
-defineSymbol('\\implies', '\u27f9', 'mrel');
-defineSymbol('\\gets', '\u2190', 'mrel');
 defineSymbol('\\dashv', '\u22a3', 'mrel');
-defineSymbol('\\impliedby', '\u27f8', 'mrel');
-defineSymbol('\\biconditional', '\u27f7', 'mrel');
 defineSymbol('\\roundimplies', '\u2970', 'mrel');
 
 // 'ams' Binary Operators
@@ -490,9 +487,9 @@ defineSymbol('\\leftthreetimes', '\u22cb', 'mbin', 'ams');
 defineSymbol('\\rightthreetimes', '\u22cc', 'mbin', 'ams');
 defineSymbol('\\intercal', '\u22ba', 'mbin', 'ams');
 defineSymbol('\\dotplus', '\u2214', 'mbin', 'ams');
-defineSymbol('\\centerdot', '\u22c5', 'mbin', 'ams');
 defineSymbol('\\doublebarwedge', '\u2a5e', 'mbin', 'ams');
 defineSymbol('\\divideontimes', '\u22c7', 'mbin', 'ams');
+defineSymbol('\\centerdot', '\u22c5', 'mbin', 'ams');
 defineSymbol('\\cdot', '\u22c5', 'mbin');
 
 defineSymbol('\\infty', '\u221e');
@@ -598,23 +595,22 @@ defineSymbol('\\qquad', null, 'spacing');
 
 defineSymbol('\\colon', ':', 'mpunct');
 defineSymbol('\\cdotp', '\u22c5', 'mpunct');
-defineSymbol('\\ldots', '\u2026', 'minner');
 defineSymbol('\\cdots', '\u22ef', 'minner');
 defineSymbol('\\ddots', '\u22f1', 'minner');
+defineSymbol('\\ldots', '\u2026', 'minner');
 defineSymbol('\\mathellipsis', '\u2026', 'minner');
 defineSymbol('\\vdots', '\u22ee');
 defineSymbol('\\ldotp', '\u002e', 'mpunct');
 defineSymbol(',', ',', 'mpunct');
 defineSymbol(';', ';', 'mpunct');
 
+defineSymbol('\\land', '\u2227', 'mbin');
 defineSymbol('\\wedge', '\u2227', 'mbin');
+defineSymbol('\\lor', '\u2228', 'mbin');
 defineSymbol('\\vee', '\u2228', 'mbin');
-
 defineSymbol('\\lnot', '\u00ac');
 defineSymbol('\\neg', '\u00ac');
 
-defineSymbol('\\land', '\u2227', 'mbin');
-defineSymbol('\\lor', '\u2228', 'mbin');
 defineSymbol('\\barwedge', '\u22bc', 'mbin', 'ams');
 defineSymbol('\\veebar', '\u22bb', 'mbin', 'ams');
 defineSymbol('\\nor', '\u22bb', 'mbin', 'ams'); // NOTE: Not TeX, Mathematica
@@ -644,9 +640,9 @@ defineSymbol('\\circledS', '\u24c8', 'mord', 'ams');
 defineSymbol('\\circledR', '\u00ae', 'mord', 'ams');
 
 defineSymbol('\\triangle', '\u25b3');
-defineSymbol('\\triangleq', '\u225c', 'mrel', 'ams');
 defineSymbol('\\bigtriangleup', '\u25b3', 'mbin');
 defineSymbol('\\vartriangle', '\u25b3', 'mrel', 'ams');
+defineSymbol('\\triangleq', '\u225c', 'mrel', 'ams');
 
 defineSymbol('\\triangledown', '\u25bd', 'mord', 'ams');
 defineSymbol('\\bigtriangledown', '\u25bd', 'mbin');
