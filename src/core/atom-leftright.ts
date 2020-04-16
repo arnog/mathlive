@@ -1,6 +1,6 @@
 import { Atom, registerAtomType, decompose } from './atom-utils';
 import {
-    makeInner,
+    makeSpan,
     depth as spanDepth,
     height as spanHeight,
     Span,
@@ -133,7 +133,7 @@ registerAtomType('leftright', (context: Context, atom: Atom): Span[] => {
     }
     // If the `inner` flag is set, return the `inner` element (that's the
     // behavior for the regular `\left...\right`
-    if (atom.inner) return [makeInner(result, mathstyle.cls())];
+    if (atom.inner) return [makeSpan(result, mathstyle.cls(), 'minner')];
     // Otherwise, include a `\mathopen{}...\mathclose{}`. That's the
     // behavior for `\mleft...\mright`, which allows for tighter spacing
     // for example in `\sin\mleft(x\mright)`

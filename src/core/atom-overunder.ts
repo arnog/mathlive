@@ -1,14 +1,17 @@
 import { registerAtomType, decompose, Atom } from './atom-utils';
 import {
+    Span,
+    SpanType,
+    isSpanType,
     makeSVGSpan,
     makeSpan,
     makeVlist,
-    makeSpanOfType,
     depth as spanDepth,
     height as spanHeight,
 } from './span';
 import { METRICS as FONTMETRICS } from './font-metrics';
 import { MATHSTYLES } from './mathstyle';
+import { Context } from './context';
 
 // An `overunder` atom has the following attributes:
 // - body: atoms[]: atoms displayed on the base line
@@ -18,15 +21,15 @@ import { MATHSTYLES } from './mathstyle';
 // - underscript: atoms[]: atoms displayed below the body
 // - svgBelow: string. A named SVG graphic below the element
 // - skipBoundary: boolean. If true, ignore atom boundary when keyboard navigating
-registerAtomType('overunder', (context, atom) => {
-    const body = atom.svgBody
+registerAtomType('overunder', (context: Context, atom: Atom): Span[] => {
+    const body: Span | Span[] = atom.svgBody
         ? makeSVGSpan(atom.svgBody)
         : decompose(context, atom.body as Atom[]);
     const annotationStyle = context.clone({
         mathstyle: MATHSTYLES.scriptstyle,
     });
-    let above;
-    let below;
+    let above: Span;
+    let below: Span;
     if (atom.svgAbove) {
         above = makeSVGSpan(atom.svgAbove);
     } else if (atom.overscript) {
@@ -50,25 +53,32 @@ registerAtomType('overunder', (context, atom) => {
         above.setLeft(0.3);
         above.setRight(0.3);
     }
-    return makeOverunderStack(context, body, above, below, atom.type || 'mord');
+    return makeOverunderStack(
+        context,
+        body,
+        above,
+        below,
+        isSpanType(atom.type) ? atom.type : 'mord'
+    );
 });
 
 /**
  * Combine a nucleus with an atom above and an atom below. Used to form
  * stacks for the 'overunder' atom type .
  *
- * @param {Context} context
  * @param {Span} nucleus The base over and under which the atoms will
  * be placed.
- * @param {Span} above
- * @param {Span} below
  * @param {string} type The type ('mop', 'mrel', etc...) of the result
- * @return {Span}
- * @private
  */
-function makeOverunderStack(context, nucleus, above, below, type) {
+function makeOverunderStack(
+    context: Context,
+    nucleus: Span | Span[],
+    above: Span,
+    below: Span,
+    type: SpanType
+): Span[] {
     // If nothing above and nothing below, nothing to do.
-    if (!above && !below) return nucleus;
+    if (!above && !below) return Array.isArray(nucleus) ? nucleus : [nucleus];
 
     let aboveShift = 0;
     let belowShift = 0;
@@ -132,5 +142,5 @@ function makeOverunderStack(context, nucleus, above, below, type) {
         );
     }
 
-    return makeSpanOfType(type, result, 'op-over-under');
+    return [makeSpan(result, 'op-over-under', type)];
 }

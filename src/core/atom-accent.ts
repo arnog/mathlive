@@ -3,7 +3,6 @@ import { METRICS as FONTMETRICS } from './font-metrics';
 import {
     makeSVGSpan,
     makeSpan,
-    makeOrd,
     makeVlist,
     makeSymbol,
     height as spanHeight,
@@ -22,7 +21,7 @@ registerAtomType('accent', (context: Context, atom: Atom): Span[] => {
         // apply it to the base.
         // Note this does not give the same result as TeX when there
         // are stacked accents, e.g. \vec{\breve{\hat{\acute{...}}}}^2
-        base = [atom.attachSupsub(context, makeOrd(base), 'mord')];
+        base = [atom.attachSupsub(context, makeSpan(base, '', 'mord'), 'mord')];
     }
     // Calculate the skew of the accent. This is based on the line "If the
     // nucleus is not a single character, let s = 0; otherwise set s to the
@@ -60,5 +59,5 @@ registerAtomType('accent', (context: Context, atom: Atom): Span[] => {
     // because we are centering the accent, so by adding 2*skew to the left,
     // we shift it to the right by 1*skew.
     accentBody.children[1].setLeft(2 * skew);
-    return [makeOrd([accentBody], 'accent')];
+    return [makeSpan([accentBody], 'accent', 'mord')];
 });

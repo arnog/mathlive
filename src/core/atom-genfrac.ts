@@ -1,7 +1,7 @@
 import { registerAtomType, decompose, Atom } from './atom-utils';
 import { MATHSTYLES } from './mathstyle';
 import { METRICS as FONTMETRICS } from './font-metrics';
-import { makeSpan, makeOrd, makeHlist, makeVlist, Span } from './span';
+import { makeSpan, makeHlist, makeVlist, Span } from './span';
 import { makeCustomSizedDelim } from './delimiters';
 import { Context } from './context';
 
@@ -24,7 +24,7 @@ registerAtomType('genfrac', (context: Context, atom: Atom): Span[] => {
     const newContext = context.clone({ mathstyle: mathstyle });
     let numer = [];
     if (atom.numerPrefix) {
-        numer.push(makeOrd(atom.numerPrefix));
+        numer.push(makeSpan(atom.numerPrefix, 'mord'));
     }
     const numeratorStyle = atom.continuousFraction
         ? mathstyle
@@ -38,7 +38,7 @@ registerAtomType('genfrac', (context: Context, atom: Atom): Span[] => {
     );
     let denom = [];
     if (atom.denomPrefix) {
-        denom.push(makeOrd(atom.denomPrefix));
+        denom.push(makeSpan(atom.denomPrefix, 'mord'));
     }
     const denominatorStyle = atom.continuousFraction
         ? mathstyle
@@ -176,11 +176,16 @@ registerAtomType('genfrac', (context: Context, atom: Atom): Span[] => {
     leftDelim.applyStyle(atom.getStyle());
     rightDelim.applyStyle(atom.getStyle());
 
-    const result = makeOrd(
-        [leftDelim, frac, rightDelim],
-        context.parentSize !== context.size
-            ? 'sizing reset-' + context.parentSize + ' ' + context.size
-            : ''
-    );
-    return [atom.bind(context, result)];
+    return [
+        atom.bind(
+            context,
+            makeSpan(
+                [leftDelim, frac, rightDelim],
+                context.parentSize !== context.size
+                    ? 'sizing reset-' + context.parentSize + ' ' + context.size
+                    : '',
+                'mord'
+            )
+        ),
+    ];
 });

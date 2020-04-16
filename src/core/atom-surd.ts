@@ -3,7 +3,6 @@ import { MATHSTYLES } from './mathstyle';
 import { METRICS as FONTMETRICS } from './font-metrics';
 import {
     makeSpan,
-    makeOrd,
     makeVlist,
     makeStruts,
     depth as spanDepth,
@@ -68,7 +67,7 @@ registerAtomType('surd', (context: Context, atom: Atom): Span[] => {
     const body = makeVlist(context, [inner, lineClearance, line, ruleWidth]);
 
     if (!atom.index) {
-        return [atom.bind(context, makeOrd([delim, body], 'sqrt'))];
+        return [atom.bind(context, makeSpan([delim, body], 'sqrt', 'mord'))];
     }
 
     // Handle the optional root index
@@ -97,8 +96,8 @@ registerAtomType('surd', (context: Context, atom: Atom): Span[] => {
             context,
             makeStruts(
                 [makeSpan(rootVlist, 'root'), delim, body],
-                'mord',
-                'sqrt'
+                'sqrt',
+                'mord'
             )
         ),
     ];

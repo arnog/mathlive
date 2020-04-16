@@ -2,7 +2,6 @@ import { registerAtomType, decompose, Atom } from './atom-utils';
 import { METRICS as FONTMETRICS } from './font-metrics';
 import {
     makeSpan,
-    makeOrd,
     depth as spanDepth,
     height as spanHeight,
     Span,
@@ -15,10 +14,14 @@ registerAtomType('box', (context: Context, atom: Atom): Span[] => {
         typeof atom.padding === 'number' ? atom.padding : FONTMETRICS.fboxsep;
 
     // Base is the main content "inside" the box
-    const content = makeOrd(decompose(context, atom.body as Atom[]));
+    const content = makeSpan(
+        decompose(context, atom.body as Atom[]),
+        '',
+        'mord'
+    );
     content.setStyle('vertical-align', -spanDepth(content), 'em');
     content.setStyle('height', 0);
-    const base = makeOrd([content]);
+    const base = makeSpan(content, '', 'mord');
 
     // This span will represent the box (background and border)
     // It's positioned to overlap the base

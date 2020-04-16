@@ -2,7 +2,6 @@ import { registerAtomType, decompose, Atom } from './atom-utils';
 import {
     makeSpan,
     makeVlist,
-    makeOrd,
     depth as spanDepth,
     height as spanHeight,
     Span,
@@ -89,7 +88,7 @@ registerAtomType('array', (context: Context, atom: Atom): Span[] => {
                 mathstyle: MATHSTYLES[atom.mathstyle],
             });
             const cell = decompose(localContext, inrow[c]) || [];
-            const elt = [makeOrd(null)].concat(cell);
+            const elt = [makeSpan(null, '', 'mord')].concat(cell);
             depth = Math.max(depth, spanDepth(elt));
             height = Math.max(height, spanHeight(elt));
             outrow.cells.push(elt);
@@ -222,7 +221,7 @@ registerAtomType('array', (context: Context, atom: Atom): Span[] => {
     ) {
         // There are no delimiters around the array, just return what
         // we've built so far.
-        return [makeOrd(cols, 'mtable')];
+        return [makeSpan(cols, 'mtable', 'mord')];
     }
     // There is at least one delimiter. Wrap the core of the array with
     // appropriate left and right delimiters
@@ -231,29 +230,33 @@ registerAtomType('array', (context: Context, atom: Atom): Span[] => {
     const innerHeight = spanHeight(inner);
     const innerDepth = spanDepth(inner);
     return [
-        makeOrd([
-            atom.bind(
-                context,
-                makeLeftRightDelim(
-                    'mopen',
-                    atom.lFence,
-                    innerHeight,
-                    innerDepth,
-                    context
-                )
-            ),
-            inner,
-            atom.bind(
-                context,
-                makeLeftRightDelim(
-                    'mclose',
-                    atom.rFence,
-                    innerHeight,
-                    innerDepth,
-                    context
-                )
-            ),
-        ]),
+        makeSpan(
+            [
+                atom.bind(
+                    context,
+                    makeLeftRightDelim(
+                        'mopen',
+                        atom.lFence,
+                        innerHeight,
+                        innerDepth,
+                        context
+                    )
+                ),
+                inner,
+                atom.bind(
+                    context,
+                    makeLeftRightDelim(
+                        'mclose',
+                        atom.rFence,
+                        innerHeight,
+                        innerDepth,
+                        context
+                    )
+                ),
+            ],
+            '',
+            'mord'
+        ),
     ];
 });
 

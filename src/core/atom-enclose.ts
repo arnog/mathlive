@@ -2,7 +2,6 @@ import { registerAtomType, decompose, Atom } from './atom-utils';
 import { METRICS as FONTMETRICS } from './font-metrics';
 import {
     makeSpan,
-    makeOrd,
     addSVGOverlay,
     depth as spanDepth,
     height as spanHeight,
@@ -11,7 +10,7 @@ import {
 import { Context } from './context';
 
 registerAtomType('enclose', (context: Context, atom: Atom): Span[] => {
-    const base = makeOrd(decompose(context, atom.body as Atom[]));
+    const base = makeSpan(decompose(context, atom.body as Atom[]), '', 'mord');
 
     // Account for the padding
     const padding =

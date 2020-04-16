@@ -2261,7 +2261,7 @@ export class Mathfield {
             // They should use instead the 'aria-label' below.
             'aria-hidden': 'true',
         };
-        const wrapper = makeStruts(base, '', 'ML__mathlive');
+        const wrapper = makeStruts(base, 'ML__mathlive');
 
         //
         // 6. Generate markup and accessible node

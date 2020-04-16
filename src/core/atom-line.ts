@@ -1,13 +1,7 @@
 import { registerAtomType, decompose, Atom } from './atom-utils';
 import { MATHSTYLES } from './mathstyle';
 import { METRICS as FONTMETRICS } from './font-metrics';
-import {
-    makeSpan,
-    makeOrd,
-    makeVlist,
-    height as spanHeight,
-    Span,
-} from './span';
+import { makeSpan, makeVlist, height as spanHeight, Span } from './span';
 import { Context } from './context';
 
 /**
@@ -40,5 +34,5 @@ registerAtomType('line', (context: Context, atom: Atom): Span[] => {
             spanHeight(innerSpan)
         );
     }
-    return [makeOrd(vlist, atom.position)];
+    return [makeSpan(vlist, atom.position, 'mord')];
 });

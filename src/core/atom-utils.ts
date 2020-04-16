@@ -11,12 +11,12 @@ import { MATHSTYLES } from './mathstyle';
 import { METRICS as FONTMETRICS } from './font-metrics.js';
 import {
     makeSpan,
-    makeOrd,
     makeVlist,
-    makeSpanOfType,
     depth as spanDepth,
     height as spanHeight,
     italic as spanItalic,
+    SpanType,
+    isSpanType,
     Span,
 } from './span.js';
 import { makeSizedDelim } from './delimiters';
@@ -457,7 +457,7 @@ export class Atom implements Style {
         | 'scriptstyle'
         | 'scriptscriptstyle'; // type = 'genfrac', ''
 
-    cls?: string;
+    cls?: SpanType;
 
     color?: string;
     backgroundColor?: string;
@@ -661,7 +661,11 @@ export class Atom implements Style {
         const localContext = context.clone({
             mathstyle: this.mathstyle ? MATHSTYLES[this.mathstyle] : undefined,
         });
-        const span = makeOrd(decompose(localContext, this.body as Atom[])); // @revisit
+        const span = makeSpan(
+            decompose(localContext, this.body as Atom[]),
+            '',
+            'mord'
+        ); // @revisit
         if (this.cssId) span.cssId = this.cssId;
         span.applyStyle({
             backgroundColor: this.backgroundColor,
@@ -675,15 +679,16 @@ export class Atom implements Style {
             decompose(context, this.body as Atom[]),
             'inner'
         ); // @revisit
-        return makeOrd(
+        return makeSpan(
             [inner, makeSpan(null, 'fix')],
-            this.align === 'left' ? 'llap' : 'rlap'
+            this.align === 'left' ? 'llap' : 'rlap',
+            'mord'
         );
     }
 
     decomposeRule(context: Context): Span {
         const mathstyle = context.mathstyle;
-        const result = makeOrd('', 'rule');
+        const result = makeSpan('', 'rule', 'mord');
         let shift = this.shift && !isNaN(this.shift) ? this.shift : 0;
         shift = shift / mathstyle.sizeMultiplier;
         const width = this.width / mathstyle.sizeMultiplier;
@@ -727,7 +732,7 @@ export class Atom implements Style {
                     decompose(context, this.body as Atom[])
                 );
             }
-            result.type = this.type;
+            result.type = isSpanType(this.type) ? this.type : '';
         } else if (this.type === 'group' || this.type === 'root') {
             result = this.decomposeGroup(context);
         } else if (this.type === 'delim') {
@@ -748,7 +753,7 @@ export class Atom implements Style {
             result = this.decomposeRule(context);
         } else if (this.type === 'msubsup') {
             // The caret for this atom type is handled by its elements
-            result = makeOrd('\u200b');
+            result = makeSpan('\u200b', '', 'mord');
             if (phantomBase) {
                 result.height = phantomBase[0].height;
                 result.depth = phantomBase[0].depth;
@@ -860,7 +865,7 @@ export class Atom implements Style {
         return Array.isArray(result) ? result : [result];
     }
 
-    attachSupsub(context: Context, nucleus: Span, type: string): Span {
+    attachSupsub(context: Context, nucleus: Span, type: SpanType): Span {
         // If no superscript or subscript, nothing to do.
         if (!this.superscript && !this.subscript) return nucleus;
         // Superscript and subscripts are discussed in the TeXbook
@@ -964,7 +969,7 @@ export class Atom implements Style {
             supsubContainer.caret = this.caret;
             this.caret = '';
         }
-        return makeSpanOfType(type, [nucleus, supsubContainer]);
+        return makeSpan([nucleus, supsubContainer], '', type);
     }
 
     attachLimits(
@@ -1016,8 +1021,15 @@ export class Atom implements Style {
      *
      */
     makeSpan(context: Context, body: string | Span | Span[]): Span {
-        const type = this.type === 'textord' ? 'mord' : this.type;
-        const result = makeSpanOfType(type, body);
+        // Ensure that the atom type is a valid Span type, or use ''
+        console.assert(isSpanType(this.type));
+        const type: SpanType =
+            this.type === 'textord'
+                ? 'mord'
+                : isSpanType(this.type)
+                ? this.type
+                : '';
+        const result = makeSpan(body, '', type);
 
         // The font family is determined by:
         // - the base font family associated with this atom (optional). For example,
@@ -1204,7 +1216,7 @@ function makeLimitsStack(
         result!.children[1].setLeft(slant);
     }
 
-    return makeSpanOfType('mop', result, 'op-limits');
+    return makeSpan(result, 'op-limits', 'mop');
 }
 
 /**

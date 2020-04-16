@@ -25,11 +25,11 @@
 
 import { getValue } from './definitions.js';
 import {
-    makeSpanOfType,
     makeSymbol,
     makeSpan,
     makeVlist,
     makeStyleWrap,
+    SpanType,
     Span,
 } from './span.js';
 import { Mathstyle, MATHSTYLES } from './mathstyle.js';
@@ -43,7 +43,7 @@ import { Context } from './context.js';
  * @private
  */
 function makeSmallDelim(
-    type: string,
+    type: SpanType,
     delim: string,
     style: Mathstyle,
     center: boolean,
@@ -75,7 +75,7 @@ function makeSmallDelim(
  * @private
  */
 function makeLargeDelim(
-    type: string,
+    type: SpanType,
     delim: string,
     size: number,
     center: boolean,
@@ -137,7 +137,7 @@ function makeInner(symbol: string, font: string): Span {
  * @private
  */
 function makeStackedDelim(
-    type: string,
+    type: SpanType,
     delim: string,
     heightTotal: number,
     center: boolean,
@@ -430,7 +430,7 @@ const sizeToMaxHeight = [0, 1.2, 1.8, 2.4, 3.0];
  * @private
  */
 export function makeSizedDelim(
-    type: string,
+    type: SpanType,
     delim: string,
     size: number,
     context: Context,
@@ -599,7 +599,7 @@ function traverseSequence(
  * @private
  */
 export function makeCustomSizedDelim(
-    type: string,
+    type: SpanType,
     delim: string,
     height: number,
     center: boolean,
@@ -667,7 +667,7 @@ export function makeCustomSizedDelim(
  * @private
  */
 export function makeLeftRightDelim(
-    type: string,
+    type: SpanType,
     delim: string,
     height: number,
     depth: number,
@@ -721,14 +721,18 @@ export function makeLeftRightDelim(
  * @memberof module:delimiters
  * @private
  */
-function makeNullFence(type: string, context: Context, classes: string) {
-    return makeSpanOfType(
-        type,
+function makeNullFence(
+    type: SpanType,
+    context: Context,
+    classes: string
+): Span {
+    return makeSpan(
         '',
         'sizing' + // @todo not useful, redundant with 'nulldelimiter'
         // 'reset-' + context.size, 'size5',                 // @todo: that seems like a lot of resizing... do we need both?
         context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
         ' nulldelimiter ' + // The null delimiter has a width, specified by class 'nulldelimiter'
-            (classes || '')
+            (classes || ''),
+        type
     );
 }

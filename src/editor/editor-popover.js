@@ -275,7 +275,7 @@ function latexToMarkup(latex, mf) {
         parse
     );
 
-    const wrapper = makeStruts(makeSpan(spans, 'ML__base'), '', 'ML__mathlive');
+    const wrapper = makeStruts(makeSpan(spans, 'ML__base'), 'ML__mathlive');
 
     return wrapper.toMarkup();
 }

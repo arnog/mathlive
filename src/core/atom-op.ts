@@ -1,6 +1,6 @@
 import { registerAtomType, decompose, Atom } from './atom-utils';
 import { MATHSTYLES } from './mathstyle';
-import { makeSymbol, makeOp, Span } from './span';
+import { makeSymbol, makeSpan, Span } from './span';
 import { Context } from './context';
 
 /**
@@ -22,9 +22,9 @@ registerAtomType('mop', (context: Context, atom: Atom): Span[] => {
         base = makeSymbol(
             large ? 'Size2-Regular' : 'Size1-Regular',
             atom.body as string,
-            'op-symbol ' + (large ? 'large-op' : 'small-op')
+            'op-symbol ' + (large ? 'large-op' : 'small-op'),
+            'mop'
         );
-        base.type = 'mop';
 
         // Shift the symbol so its center lies on the axis (rule 13). It
         // appears that our fonts have the centers of the symbols already
@@ -49,7 +49,7 @@ registerAtomType('mop', (context: Context, atom: Atom): Span[] => {
         });
     } else if (Array.isArray(atom.body)) {
         // If this is a list, decompose that list.
-        base = makeOp(decompose(context, atom.body));
+        base = makeSpan(decompose(context, atom.body), '', 'mop');
     } else {
         // Otherwise, this is a text operator. Build the text from the
         // operator's name.

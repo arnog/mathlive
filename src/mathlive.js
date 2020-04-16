@@ -91,7 +91,7 @@ function toMarkup(text, options) {
     //
     // 4. Wrap the expression with struts
     //
-    const wrapper = makeStruts(makeSpan(spans, 'ML__base'), '', 'ML__mathlive');
+    const wrapper = makeStruts(makeSpan(spans, 'ML__base'), 'ML__mathlive');
 
     //
     // 5. Generate markup

@@ -5,6 +5,37 @@ import { Context, Style } from './context';
 import { Mathstyle } from './mathstyle';
 
 /*
+ * See https://tex.stackexchange.com/questions/81752/
+ * for a thorough description of the TeXt atom type and their relevance to
+ * proper kerning.
+ */
+
+const SPAN_TYPE = [
+    '',
+    'mord',
+    'mbin',
+    'mop',
+    'mrel',
+    'mopen',
+    'mclose',
+    'mpunct',
+    'minner',
+    'spacing',
+    // 'mtable',
+    'first',
+    'command',
+    'error',
+    'placeholder',
+    'textord', // @revisit
+    'none', // @revisit. Use ''?
+] as const; // The const assertion prevents widening to string[]
+export type SpanType = typeof SPAN_TYPE[number];
+
+export function isSpanType(type: string): type is SpanType {
+    return ((SPAN_TYPE as unknown) as string[]).includes(type);
+}
+
+/*
  * See http://www.tug.org/TUGboat/tb30-3/tb96vieth.pdf for
  * typesetting conventions for mathematical physics (units, etc...)
  */
@@ -135,8 +166,10 @@ function toString(arg: Array<string | number> | string | number): string {
  * @property width
  */
 export class Span {
-    classes: string;
     children?: Span[];
+    classes: string;
+    type: SpanType;
+
     body: string;
     delim?: string; // @revisit
     caret: 'text' | '';
@@ -150,7 +183,6 @@ export class Span {
 
     isTight?: boolean;
 
-    type?: string;
     cssId?: string;
 
     svgBody?: string;
@@ -160,7 +192,11 @@ export class Span {
     style: { [key: string]: string };
     attributes?: { [key: string]: string }; // HTML attributes, for example 'data-atom-id'
 
-    constructor(content: string | Span | Span[], classes = '') {
+    constructor(
+        content: string | Span | Span[],
+        classes = '',
+        type: SpanType = ''
+    ) {
         // CLASSES
         this.classes = classes;
         // CONTENT
@@ -173,10 +209,13 @@ export class Span {
         } else if (content && typeof content === 'object') {
             this.children = [content];
         }
+        this.type = type;
+
         // STYLE
         // CSS style, as an array of key value pairs.
         // Use this.setStyle() to modify it.
         this.style = null;
+
         // Calculate the dimensions of this span based on its children
         this.updateDimensions();
     }
@@ -409,19 +448,15 @@ export class Span {
             const classes = this.classes.split(' ');
 
             // Add the type (mbin, mrel, etc...) if specified
-            if (this.type) {
-                if (/command|placeholder|error/.test(this.type)) {
-                    classes.push(
-                        {
-                            command: 'ML__command',
-                            placeholder: 'ML__placeholder',
-                            error: 'ML__error',
-                        }[this.type]
-                    );
-                }
-                if (this.caret && this.type === 'command') {
-                    classes.push('ML__command-caret');
-                }
+            classes.push(
+                {
+                    command: 'ML__command',
+                    placeholder: 'ML__placeholder',
+                    error: 'ML__error',
+                }[this.type] ?? ''
+            );
+            if (this.caret && this.type === 'command') {
+                classes.push('ML__command-caret');
             }
 
             // Remove duplicate and empty classes
@@ -688,25 +723,29 @@ export function italic(spans: Span | Span[]): number {
  * @param content the items 'contained' by this node
  * @param classes list of classes attributes associated with this node
  */
-export function makeSpan(content: string | Span | Span[], classes = ''): Span {
+export function makeSpan(
+    content: string | Span | Span[],
+    classes = '',
+    type: SpanType = ''
+): Span {
+    console.assert(!classes || !isSpanType(classes));
     if (Array.isArray(content)) {
-        const c = [];
-        for (const s of content) {
-            if (s) c.push(s);
-        }
+        const c = content.filter((x) => !!x);
         if (c.length === 1) {
-            return new Span(c[0], classes);
+            return new Span(c[0], classes, type);
         }
+        return new Span(c, classes, type);
     }
-    return new Span(content, classes);
+    return new Span(content, classes, type);
 }
 
 export function makeSymbol(
     fontFamily: string,
     symbol: string,
-    classes = ''
+    classes = '',
+    type: SpanType = ''
 ): Span {
-    const result = new Span(symbol, classes);
+    const result = new Span(symbol, classes, type);
 
     const metrics = getCharacterMetrics(symbol, fontFamily);
     result.height = metrics.height;
@@ -752,58 +791,10 @@ function makeFontSizer(context: Context, fontSize: number): Span {
     return fontSizeAdjustment !== 0 ? fontSizeInner : null;
 }
 
-/**
- *
- * @param type One of 'mbin', 'mop', 'mord', 'mrel' 'mclose',
- * 'mpunct', 'minner'
- * @param content A string or an array of other Spans
- * @param classes CSS classes decorating this span
- * See https://tex.stackexchange.com/questions/81752/
- * for a thorough description of the TeXt atom type and their relevance to
- * proper kerning.
- */
-export function makeSpanOfType(
-    type: string,
-    content: string | Span | Span[],
-    classes = ''
-): Span {
-    const result = makeSpan(content, classes);
-    result.type = type;
-    return result;
-}
-
-export function makeOp(content: string | Span[], classes = ''): Span {
-    return makeSpanOfType('mop', content, classes);
-}
-
-export function makeOrd(content: string | Span[], classes = ''): Span {
-    return makeSpanOfType('mord', content, classes);
-}
-
-export function makeRel(content: string | Span[], classes = ''): Span {
-    return makeSpanOfType('mrel', content, classes);
-}
-
-export function makeClose(content: string | Span[], classes = ''): Span {
-    return makeSpanOfType('mclose', content, classes);
-}
-
-export function makeOpen(content: string | Span[], classes = ''): Span {
-    return makeSpanOfType('mopen', content, classes);
-}
-
-export function makeInner(content: Span[], classes = ''): Span {
-    return makeSpanOfType('minner', content, classes);
-}
-
-export function makePunct(content: string | Span[], classes = ''): Span {
-    return makeSpanOfType('mpunct', content, classes);
-}
-
 export function makeStruts(
     content: Span | Span[],
-    type: 'mord' | '' = '',
-    classes = ''
+    classes = '',
+    type: SpanType = ''
 ): Span {
     const topStrut = makeSpan('', 'ML__strut');
     topStrut.setStyle('height', height(content), 'em');
@@ -819,13 +810,11 @@ export function makeStruts(
     } else {
         struts = [topStrut, bottomStrut, content];
     }
-    const result = makeSpan(struts, classes);
-    result.type = type;
-    return result;
+    return makeSpan(struts, classes, type);
 }
 
 export function makeStyleWrap(
-    type: string,
+    type: SpanType,
     children: Span | Span[],
     fromStyle: Mathstyle,
     toStyle: Mathstyle,
@@ -858,8 +847,12 @@ export function addSVGOverlay(
     return body;
 }
 
-export function makeHlist(spans: Span | Span[], classes: string): Span {
-    if (!classes || classes.length === 0) {
+export function makeHlist(
+    spans: Span | Span[],
+    classes = '',
+    type: SpanType = ''
+): Span {
+    if (!classes) {
         // No decorations...
         if (spans instanceof Span) {
             // A single span, use it as the output
@@ -869,7 +862,7 @@ export function makeHlist(spans: Span | Span[], classes: string): Span {
             return spans[0];
         }
     }
-    const result = new Span(spans, classes);
+    const result = new Span(spans, classes, type);
 
     let multiplier = 1.0;
     if (spans instanceof Span) {
@@ -1012,8 +1005,8 @@ export function makeVlist(
  *
  * @param classes list of classes attributes associated with this node
  */
-export function makeSVGSpan(svgBodyName: string, classes = ''): Span {
-    const span = new Span(null, classes);
+export function makeSVGSpan(svgBodyName: string): Span {
+    const span = new Span(null);
     span.svgBody = svgBodyName;
     span.height = svgBodyHeight(svgBodyName) / 2;
     span.depth = span.height;
