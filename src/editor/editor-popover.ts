@@ -341,7 +341,7 @@ export function updatePopoverPosition(
 
     // If the popover pane is visible...
     if (mf.popover.classList.contains('is-visible')) {
-        if (options && options.deferred) {
+        if (options?.deferred) {
             // Call ourselves again later, typically after the
             // rendering/layout of the DOM has been completed
             window.requestAnimationFrame(() => updatePopoverPosition(mf));

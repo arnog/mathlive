@@ -380,14 +380,14 @@ export function stringToColor(s: string): string {
         if (!color) color = colorSpec[i];
 
         let m = color.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
-        if (m && m[1] && m[2] && m[3]) {
+        if (m?.[1] && m[2] && m[3]) {
             // It's a six-digit hex number
             red = Math.max(0, Math.min(255, parseInt(m[1], 16)));
             green = Math.max(0, Math.min(255, parseInt(m[2], 16)));
             blue = Math.max(0, Math.min(255, parseInt(m[3], 16)));
         } else {
             m = color.match(/^#([0-9a-f]{3})$/i);
-            if (m && m[1]) {
+            if (m?.[1]) {
                 // It's a three-digit hex number
                 const r1 = parseInt(m[1][0], 16);
                 const g1 = parseInt(m[1][1], 16);
@@ -400,7 +400,7 @@ export function stringToColor(s: string): string {
                 m = color.match(
                     /^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i
                 );
-                if (m && m[1] && m[2] && m[3]) {
+                if (m?.[1] && m[2] && m[3]) {
                     red = Math.max(0, Math.min(255, parseInt(m[1])));
                     green = Math.max(0, Math.min(255, parseInt(m[2])));
                     blue = Math.max(0, Math.min(255, parseInt(m[3])));

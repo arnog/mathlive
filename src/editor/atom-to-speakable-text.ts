@@ -135,7 +135,7 @@ function getSpokenName(latex) {
 
 function platform(p: string): string {
     let result = 'other';
-    if (navigator && navigator.platform && navigator.userAgent) {
+    if (navigator?.platform && navigator.userAgent) {
         if (/^(mac)/i.test(navigator.platform)) {
             result = 'mac';
         } else if (/^(win)/i.test(navigator.platform)) {

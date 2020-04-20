@@ -31,10 +31,10 @@ export function moveToSuperscript(model: ModelPrivate): boolean {
             getAnchor(model).superscript = [new Atom('', 'first')];
         } else {
             const sibling = model.sibling(1);
-            if (sibling && sibling.superscript) {
+            if (sibling?.superscript) {
                 model.path[model.path.length - 1].offset += 1;
                 //            setSelection(model, model.anchorOffset() + 1);
-            } else if (sibling && sibling.subscript) {
+            } else if (sibling?.subscript) {
                 model.path[model.path.length - 1].offset += 1;
                 //            setSelection(model, model.anchorOffset() + 1);
                 getAnchor(model).superscript = [new Atom('', 'first')];
@@ -76,10 +76,10 @@ export function moveToSubscript(model: ModelPrivate): boolean {
             getAnchor(model).subscript = [new Atom('', 'first')];
         } else {
             const sibling = model.sibling(1);
-            if (sibling && sibling.subscript) {
+            if (sibling?.subscript) {
                 model.path[model.path.length - 1].offset += 1;
                 // setSelection(model, model.anchorOffset() + 1);
-            } else if (sibling && sibling.superscript) {
+            } else if (sibling?.superscript) {
                 model.path[model.path.length - 1].offset += 1;
                 // setSelection(model, model.anchorOffset() + 1);
                 getAnchor(model).subscript = [new Atom('', 'first')];

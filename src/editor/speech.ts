@@ -218,7 +218,7 @@ export function defaultSpeakHook(text, config) {
                         err.stack
                     );
                     // announce('plonk');
-                } else if (data && data.AudioStream) {
+                } else if (data?.AudioStream) {
                     const uInt8Array = new Uint8Array(data.AudioStream);
                     const blob = new Blob([uInt8Array.buffer], {
                         type: 'audio/mpeg',

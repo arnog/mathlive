@@ -907,7 +907,7 @@ function parsePostfix(expr, options) {
         return expr;
     }
     const atom = expr.atoms[expr.index];
-    if (atom && atom.symbol && POSTFIX_FUNCTION[atom.symbol]) {
+    if (atom?.symbol && POSTFIX_FUNCTION[atom.symbol]) {
         expr.ast = wrapFn(POSTFIX_FUNCTION[atom.symbol], lhs);
         expr = parseSupsub(expr, options);
         expr = parsePostfix(expr, options);
@@ -1424,7 +1424,7 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
         const lhs = expr.ast;
         expr.ast = {};
         expr = parsePrimary(expr, options);
-        if (expr && expr.ast && lhs) {
+        if (expr?.ast && lhs) {
             if (
                 (isFunction(lhs.fn) && typeof lhs.arg === 'undefined') ||
                 (Array.isArray(lhs.arg) && lhs.arg.length === 0)
@@ -1558,7 +1558,7 @@ function parseExpression(expr, options) {
 
                 // Promote subtraction to an addition
                 if (opName === '-') {
-                    if (lhs && lhs.arg && lhs.fn === 'add') {
+                    if (lhs?.arg && lhs.fn === 'add') {
                         // add(x,y) - z -> add(x, y, -z)
                         if (rhs !== undefined) lhs.arg.push(negate(rhs));
                     } else if (lhs && lhs.fn === 'subtract') {
@@ -2216,7 +2216,7 @@ function numberAsLatex(
             const mantissa = y / Math.pow(10, exponent);
             let mantissaString = '';
             const m = mantissa.toString().match(/^(.*)\.(.*)$/);
-            if (m && m[1] && m[2]) {
+            if (m?.[1] && m[2]) {
                 mantissaString = m[1] + config.decimalMarker + m[2];
             }
             if (config.groupSeparator) {
@@ -2242,7 +2242,7 @@ function numberAsLatex(
         let base, exponent, mantissa;
         base = valString;
         mantissa = '';
-        if (m && m[1] && m[2]) {
+        if (m?.[1] && m[2]) {
             // There is an exponent...
             base = m[1];
             if (config.exponentMarker) {
@@ -2252,7 +2252,7 @@ function numberAsLatex(
             }
         }
         m = base.match(/^(.*)\.(.*)$/);
-        if (m && m[1] && m[2]) {
+        if (m?.[1] && m[2]) {
             base = m[1];
             mantissa = m[2];
         }
@@ -2538,11 +2538,11 @@ export function jsonToLatex(
         result = asSymbol(ast);
         // Is it a Unicode value?
         let m = result.match(/^&#x([0-9a-f]+);$/i);
-        if (m && m[1]) {
+        if (m?.[1]) {
             result = String.fromCodePoint(parseInt(m[1], 16));
         } else {
             m = result.match(/^&#([0-9]+);$/i);
-            if (m && m[1]) {
+            if (m?.[1]) {
                 result = String.fromCodePoint(parseInt(m[1]));
             }
         }

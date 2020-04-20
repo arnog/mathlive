@@ -807,7 +807,7 @@ export function getInfo(
         if (!info) {
             // Maybe it's a macro
             const command = symbol.slice(1);
-            if (macros && macros[command]) {
+            if (macros?.[command]) {
                 let def = macros[command];
                 if (typeof def === 'object') {
                     def = def.def;

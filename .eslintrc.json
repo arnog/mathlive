@@ -38,7 +38,7 @@
 
         // note you must disable the base rule as it can report incorrect errors
         "indent": "off",
-        "@typescript-eslint/prefer-optional-chain": "off", /// @revisit
+        "@typescript-eslint/prefer-optional-chain": "warn",
         "@typescript-eslint/prefer-nullish-coalescing": "warn",
 
         "@typescript-eslint/generic-type-naming": ["warn", "^[A-Z][a-zA-Z]*$"],

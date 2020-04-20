@@ -30,8 +30,9 @@ export function getInlineShortcutsStartingWith(
             });
         }
 
-        const customInlineShortcuts =
-            config && config.inlineShortcuts ? config.inlineShortcuts : null;
+        const customInlineShortcuts = config?.inlineShortcuts
+            ? config.inlineShortcuts
+            : null;
         if (customInlineShortcuts) {
             Object.keys(customInlineShortcuts).forEach((key) => {
                 if (key.startsWith(s2)) {
@@ -173,7 +174,7 @@ export function getInlineShortcut(
  */
 function platform(p) {
     let result = 'other';
-    if (navigator && navigator.platform && navigator.userAgent) {
+    if (navigator?.platform && navigator.userAgent) {
         if (/^(mac)/i.test(navigator.platform)) {
             result = 'mac';
         } else if (/^(win)/i.test(navigator.platform)) {

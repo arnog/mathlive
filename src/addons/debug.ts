@@ -100,7 +100,7 @@ function getTag(spans, symbol) {
 
 function getStyle(spans, symbol, prop) {
     const s = getSymbol(spans, symbol);
-    if (s && s.style) return s.style[prop];
+    if (s?.style) return s.style[prop];
     return null;
 }
 

@@ -72,7 +72,7 @@ export function onKeystroke(
         mathfield.config.onKeystroke &&
         !mathfield.config.onKeystroke(mathfield, keystroke, evt)
     ) {
-        if (evt && evt.preventDefault) {
+        if (evt?.preventDefault) {
             evt.preventDefault();
             evt.stopPropagation();
         }
@@ -292,7 +292,7 @@ export function onKeystroke(
     mathfield.scrollIntoView();
     // 7. Keystroke has been handled, if it wasn't caught in the default
     // case, so prevent propagation
-    if (evt && evt.preventDefault) {
+    if (evt?.preventDefault) {
         evt.preventDefault();
         evt.stopPropagation();
     }
