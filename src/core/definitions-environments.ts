@@ -1,4 +1,4 @@
-import { defineEnvironment, ParseFunctionResult } from './definitions-utils.js';
+import { defineEnvironment, ParseFunctionResult } from './definitions-utils';
 
 /*
 

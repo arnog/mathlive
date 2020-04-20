@@ -1,62 +1,25 @@
 import { Mathstyle, MATHSTYLES } from './mathstyle';
-import { MacroDictionary } from './definitions-utils';
+import { MacroDictionary, ParseMode } from '../public/core';
 
-export type ParseMode =
-    | ''
-    | 'auto'
-    | 'bbox'
-    | 'color'
-    | 'colspec'
-    | 'delim'
-    | 'dimen'
-    | 'math'
-    | 'number'
-    | 'skip'
-    | 'text'
-    | 'string';
+export type ParseModePrivate =
+    | ParseMode
+    | (
+          | ''
+          | 'auto'
+          | 'bbox'
+          | 'color'
+          | 'colspec'
+          | 'delim'
+          | 'dimen'
+          | 'number'
+          | 'skip'
+          | 'string'
+      );
 
-export type Variant =
-    | 'ams'
-    | 'double-struck'
-    | 'calligraphic'
-    | 'script'
-    | 'fraktur'
-    | 'sans-serif'
-    | 'monospace'
-    | 'normal' // 'main' (upright) or 'math' (italic) depending on letterShapeStyle
-    | 'main'
-    | 'math';
-export type VariantStyle = 'up' | 'bold' | 'italic' | 'bolditalic' | '';
-export type FontShape = 'auto' | 'n' | 'it' | 'sl' | 'sc' | '';
-export type FontSeries = 'auto' | 'm' | 'b' | 'l' | '';
-
-/**
- * Variants can map either to math characters in specific Unicode range
- * (see https://en.wikipedia.org/wiki/Mathematical_Alphanumeric_Symbols)
- * e.g. 𝒜, 𝔄, 𝖠, 𝙰, 𝔸, A, 𝐴
- * or to some built-in fonts (e.g. 'SansSerif-Regular')
- * 'normal' is a synthetic variant that maps either to 'main' (roman) or
- * 'math' (italic) depending on the symbol and the letterShapeStyle.
- */
-export interface Style {
-    mode?: ParseMode;
-    color?: string;
-    backgroundColor?: string;
-    variant?: Variant;
-    variantStyle?: VariantStyle;
-    fontFamily?: string;
-    fontShape?: FontShape;
-    fontSeries?: FontSeries;
-    fontSize?: string;
-    cssId?: string;
-    cssClass?: string;
-    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'up' | 'auto';
-}
-
-interface ContextInterface {
+export interface ContextInterface {
     macros?: MacroDictionary;
     atomIdsSettings?: {
-        overrideID: string;
+        overrideID?: string;
         groupNumbers: boolean;
         seed: string | number;
     };
@@ -64,7 +27,7 @@ interface ContextInterface {
     parentMathstyle?: Mathstyle;
     size?: string; // @revisit: set explicit possible values, e.g. 'size5', etc...
     parentSize?: string;
-    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'up';
+    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
     opacity?: number;
     color?: string;
     smartFence?: boolean;
@@ -106,18 +69,18 @@ interface ContextInterface {
 export class Context implements ContextInterface {
     macros: MacroDictionary;
     atomIdsSettings?: {
-        overrideID: string;
+        overrideID?: string;
         groupNumbers: boolean;
         seed: string | number;
     };
     mathstyle: Mathstyle;
-    parentMathstyle: Mathstyle;
-    size: string; // @revisit: set explicit possible values, e.g. 'size5', etc...
-    parentSize: string;
-    letterShapeStyle: 'tex' | 'french' | 'iso' | 'up';
-    opacity: number;
+    parentMathstyle?: Mathstyle;
+    size?: string; // @revisit: set explicit possible values, e.g. 'size5', etc...
+    parentSize?: string;
+    letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
+    opacity?: number;
     color?: string;
-    smartFence: boolean;
+    smartFence?: boolean;
 
     constructor(from: ContextInterface) {
         this.macros = from.macros || {};

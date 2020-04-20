@@ -32,6 +32,7 @@
         /// Temporary lenient rules until more complete conversion to
         /// Typescript is completed. @revisit
         "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/no-explicit-any": "off",
 
         "prettier/prettier": "error",
 
@@ -40,6 +41,7 @@
         "@typescript-eslint/prefer-optional-chain": "off", /// @revisit
         "@typescript-eslint/prefer-nullish-coalescing": "warn",
 
+        "@typescript-eslint/generic-type-naming": ["warn", "^[A-Z][a-zA-Z]*$"],
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-unused-vars": [
             "error",
@@ -72,7 +74,6 @@
                 "allowedNames": ["self", "that"] // Allow `const self = this`; `[]` by default
             }
         ],
-        "@typescript-eslint/generic-type-naming": ["warn", "^T[A-Z][a-zA-Z]+$"],
         "@typescript-eslint/no-for-in-array": "error",
 
         // Note:
@@ -102,12 +103,14 @@
         "new-cap": "warn",
         "no-bitwise": "off",
         "no-console": "off",
+        "no-dupe-class-members": "off", // Support TypeScritp polymorphism
         "no-else-return": "warn",
         "no-eval": "error",
         "no-fallthrough": "error",
         "no-invalid-this": "warn",
         "no-lone-blocks": "warn",
         "no-return-assign": ["warn", "always"],
+        "no-redeclare": "off",
         "no-self-compare": "error",
         "no-sequences": "warn",
         "no-unneeded-ternary": "warn",

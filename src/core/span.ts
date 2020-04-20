@@ -1,7 +1,8 @@
+import { Style, ParseMode } from '../public/core';
 import { getCharacterMetrics } from './font-metrics';
 import { svgBodyToMarkup, svgBodyHeight } from './svg-span';
 import { applyStyle as applyStyleForMode } from './modes-utils';
-import { Context, Style } from './context';
+import { Context } from './context';
 import { Mathstyle } from './mathstyle';
 
 /*
@@ -172,7 +173,7 @@ export class Span {
 
     body: string;
     delim?: string; // @revisit
-    caret: 'text' | '';
+    caret: ParseMode;
 
     height?: number;
     depth?: number;

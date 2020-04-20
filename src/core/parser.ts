@@ -9,8 +9,9 @@ import { convertDimenToEm } from './font-metrics';
 import { Token, tokenize } from './lexer';
 import { Atom, Colspec, BBoxParam } from './atom';
 import { parseTokens } from './modes';
-import { MacroDefinition } from './definitions-utils';
-import { Style, ParseMode } from './context';
+import { FunctionDefinition } from './definitions-utils';
+import { MacroDefinition, Style } from '../public/core';
+import { ParseModePrivate } from './context';
 
 function tokensToString(tokens: Token[]): string {
     let hasParamToken = false;
@@ -86,7 +87,6 @@ function tokensToString(tokens: Token[]): string {
  *  a column separator and `'\'` as a row separator. Used for matrixes, etc...
  * @property {number} endCount - Counter to prevent deadlock. If `end()` is
  * called too many times (1,000) in a row for the same token, bail.
- * @private
  */
 class Parser {
     tokens: Token[];
@@ -95,7 +95,7 @@ class Parser {
     macros: MacroDictionary;
     mathList: Atom[];
     style: Style;
-    parseMode: ParseMode;
+    parseMode: ParseModePrivate;
     smartFence: boolean;
     tabularMode: boolean;
     endCount: number;
@@ -121,7 +121,7 @@ class Parser {
         this.mathList = newMathList;
         return result;
     }
-    swapParseMode(mode: ParseMode): ParseMode {
+    swapParseMode(mode: ParseModePrivate): ParseModePrivate {
         const result = this.parseMode;
         this.parseMode = mode;
         return result;
@@ -315,15 +315,14 @@ class Parser {
             this.get();
         }
     }
-    parseArguments(info: {
-        params: { optional: boolean; type: ParseMode }[];
-        infix: boolean;
-    }): [
-        ParseMode,
+    parseArguments(
+        info: FunctionDefinition
+    ): [
+        ParseModePrivate,
         (string | number | BBoxParam | Colspec[] | Atom | Atom[])[]
     ] {
         if (!info || !info.params) return ['', []];
-        let explicitGroup: ParseMode = '';
+        let explicitGroup: ParseModePrivate = '';
         const args: (
             | string
             | number
@@ -342,7 +341,7 @@ class Parser {
                 // For example 'math*'.
                 // In this case, indicate that a 'yet-to-be-parsed'
                 // argument (and 'explicit group') is present
-                explicitGroup = param.type.slice(0, -1) as ParseMode;
+                explicitGroup = param.type.slice(0, -1) as ParseModePrivate;
             } else {
                 // If it's not present, scanArg returns null.
                 // Add a placeholder instead.
@@ -842,7 +841,7 @@ class Parser {
                 infixInfo = getInfo('\\' + infix.value, 'math', this.macros);
                 if (infixInfo) {
                     [, infixArgs] = this.parseArguments(infixInfo) as [
-                        ParseMode,
+                        ParseModePrivate,
                         Atom[][]
                     ];
                 }
@@ -1063,7 +1062,7 @@ class Parser {
         return false;
     }
     scanOptionalArg(
-        parseMode: ParseMode
+        parseMode: ParseModePrivate
     ): string | number | BBoxParam | Colspec[] | Atom[] {
         parseMode =
             !parseMode || parseMode === 'auto' ? this.parseMode : parseMode;
@@ -1142,7 +1141,7 @@ class Parser {
      * example: `'dimension'`, `'color'`, `'text'`, etc...
      */
     scanArg(
-        parseMode?: ParseMode
+        parseMode?: ParseModePrivate
     ): string | number | Atom | Atom[] | Colspec[] {
         parseMode =
             !parseMode || parseMode === 'auto' ? this.parseMode : parseMode;
@@ -1234,7 +1233,7 @@ class Parser {
                     smartFence: this.smartFence,
                     style: this.style,
                     parse: (
-                        mode: ParseMode,
+                        mode: ParseModePrivate,
                         tokens: Token[],
                         options
                     ): [Atom[], Token[]] => {
@@ -1419,13 +1418,9 @@ class Parser {
                             result = new Atom(
                                 this.parseMode,
                                 info.type || 'mop',
-                                info.value || token.value,
+                                info.value || (token.value as string),
                                 style
                             );
-
-                            if (info.skipBoundary) {
-                                result.skipBoundary = true;
-                            }
                         }
                         if (
                             result instanceof Atom &&
@@ -1602,7 +1597,7 @@ class Parser {
  */
 export function parseString(
     s: string,
-    parseMode: ParseMode,
+    parseMode: ParseModePrivate,
     args: (string | Atom[])[],
     macros: MacroDictionary,
     smartFence = false

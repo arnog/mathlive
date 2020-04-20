@@ -1,4 +1,4 @@
-import { defineFunction, parseArgAsString } from './definitions-utils.js';
+import { defineFunction, parseArgAsString } from './definitions-utils';
 import { Atom } from './atom-utils';
 
 const ACCENTS = {

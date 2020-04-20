@@ -24,13 +24,7 @@ Start with the two guides:
 -   [Contributor Guide]{@tutorial CONTRIBUTOR_GUIDE}: read this if you're
     interested in contributing to MathLive or want to better understand how it
     works behind the covers.
-
-Use the navigation panel on the side to get info about a symbol from the
-MathLive source.
-
-Use the **Include Private Symbols** checkbox at the bottom of the navigation
-panel to include the symbols used internally by MathLive, or to only show
-the public API.
+-   View the [MathLive API reference docs](http://cortexjs.io/docs/mathlive/) for more detailed info.
 
 ## More Questions?
 

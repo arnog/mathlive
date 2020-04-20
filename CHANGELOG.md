@@ -1,53 +1,179 @@
 ## [Unreleased]
 
+### Highlights
+
+-   **maintenance**: Migration to TypeScript
+-   **maintenance**: New math variant (bold, italic, etc...) subsytem matches LaTeX more closely
+-   **maintenance**: Reduced code size
+-   **new feature**: Verbatim Latex
+-   **new feature**: `Mathfield.getConfig()`
+
 ### New Features
 
--   "Verbatim Latex": the Latex provided as input (for example with `insert()`)
-    is preserved as long as it's not edited. Previously, the latex would be
-    normalized, and therefore the output would not match the input character
+-   **"Verbatim Latex"**: the Latex provided as input (for example with `insert()`)
+    is preserved as long as it's not edited. Previously, the Latex would be
+    normalized on input, and the output would not match character
     for character, even though it produced equivalent Latex code. For example,
     extra spaces could be inserted, and the order of subscript and superscript was
     not preserved.
 
-    Now, the Latex is preserved until
+    Now, the input Latex is preserved until
     editing operations cause it to be modified. This also means that the arguments
     of macros are never modified (since the macros are not editable) and will be
     returned exactly as input (they were normalized before).
 
--   New configuration setting to control the letter shape style:
+-   New **`letterShapeStyle`** configuration setting to control which letters are automatically italicized, according to four popular styles:
 
-| `letterShapeStyle` | xyz | ABC | αβɣ | ΓΔΘ |
-| ------------------ | --- | --- | --- | --- |
-| `iso`              | it  | it  | it  | it  |
-| `tex`              | it  | it  | it  | up  |
-| `french`           | it  | up  | up  | up  |
-| `upright`          | up  | up  | up  | up  |
+    | `letterShapeStyle` | xyz | ABC | αβɣ | ΓΔΘ |
+    | -----------------: | --- | --- | --- | --- |
+    |              `iso` | it  | it  | it  | it  |
+    |              `tex` | it  | it  | it  | up  |
+    |           `french` | it  | up  | up  | up  |
+    |          `upright` | up  | up  | up  | up  |
 
-(it) = italic
-(up) = upright
+    **(it)** = italic\
+    **(up)** = upright
 
-The default letter shape style is `auto`, which indicates that `french` should
-be used if the locale is "french", and `tex` otherwise. The previous behavior was to always use 'tex' style lettershape stle.
+    The default letter shape style is `auto`: if the system locale is "french", the `french` style will be used, `tex` otherwise. The previous behavior was to always use `tex` style lettershape.
 
--   Added an example with some test cases, including LaTeX output screenshots for comparison.
+-   New `Mathfield.getConfig()` method which gives access to the current configuration settings.
 
--   Re-done the font selection sub-system. Internally, it's now cleaner and
+    It can be invoked in three different ways:
+
+    -   `mf.getConfig()`: return a `MathfieldConfig` object will the values for all
+        the configuration options filled-in.
+    -   `mf.getConfig('letterShapeStyle')`: return the current value of the
+        `letterShapeStyle` option
+    -   `mf.getConfig(['smartMode', 'smartFence'])`: return an object with the
+        values of the `smartMode` and `smartFence` filled in.
+
+    Note that `getConfig()` may return a different value immediately after `setConfig()`
+    was invoked: `getConfig()` returns a "resolved" value, so for example:
+
+    ```javascript
+    mf.setConfig({ letterShapeStyle: 'auto' });
+    console.log(mf.getConfig('letterShapeStyle')); // prints 'tex'
+    ```
+
+*   An example (`examples/test-cases`) with some test cases was added, including LaTeX output screenshots for comparison.
+
+*   Re-done the font selection sub-system. Internally, it's now cleaner and
     easier to follow, and also closer to the LaTeX implementation. In particular,
     in math mode, the styling directives are exclusive, except for `\mathsymbol`,
     which matches the TeX behavior.
 
--   When a character variant (for example using `\mathbb`) is not available in
+*   When a character variant (for example using `\mathbb`) is not available in
     the font repertoire, convert to Unicode and fallback to the system font. This
     allows `\mathbb{1}` to correctly output 𝟙.
 
--   Added support for `\ensuremath` command
+*   Added support for `\ensuremath` command
 
 ### Code Maintenance
 
+#### Codebase Migrated to Typescript
+
+This does not impact the bundled library, which is still transpiled JavaScript from the TypeScript sources and which can be used either with a JavaScript or TypeScript based project.
+
+The migration did not result in changes to the public API which remains backward compatible with previous versions. However, new declaration files (`*.d.ts`) for TypeScript are available. They are more detailed (and accurate) than the previous ones which were generated from JSDoc comments.
+
+The migration was done by hand for the entire code base (35 kloc). Type information was provided for all the data structures and function signatures.
+
+While this does not affect the external users of MathLive (the API and functionality remains the same), this has resulted in several bugs being found by the compiler through static analysis. For example, the `onUndoStateWillChange()` handler was never invoked because of this statement:
+
+```javascript
+if (options && options.onUndoStateWillChange === 'function') {
+    options.onUndoStateWillChange();
+}
+```
+
+instead of:
+
+```javascript
+if (options && typeof options.onUndoStateWillChange === 'function') {
+    options.onUndoStateWillChange();
+}
+```
+
+The TypeScript compiler correctly flagged this error.
+
+This migration will make the ongoing maintenance and development of the codebase much easier.
+
+#### Codebase Refactoring
+
+Concurrently to the migration to TypeScript, and thanks to the increased clarity and confidence brought in with static typing and code analysis tools, the code has been modularized and reorganized as follow. The codebase previously consisted of several large monolithic source files, some of which were in excess of 4,500 loc.
+
+They have been broken up as follow:
+
+-   `core/atom.js` →
+    -   `atom-array.ts`
+    -   `atom-accent.ts`
+    -   `atom-box.ts`
+    -   `atom-enclose.ts`
+    -   `atom-genfrac.ts`
+    -   `atom-leftright.ts`
+    -   `atom-line.ts`
+    -   `atom-op.ts`
+    -   `atom-overunder.ts`
+    -   `atom-surd.ts`
+    -   `atom-to-latex.ts`
+    -   `atom-utils.ts`
+    -   `atom.ts`
+-   `core/definitions.js` →
+    -   `definitions-accents.ts`
+    -   `definitions-enclose.ts`
+    -   `definitions-environments.ts`
+    -   `definitions-extensible-symbols.ts`
+    -   `definitions-functions.ts`
+    -   `definitinos-styling.ts`
+    -   `definitions-symbols.ts`
+    -   `definitions-utils.ts`
+    -   `definitions.ts`
+-   `core/parser.js` →
+    -   `parser.ts`
+    -   `modes.ts`
+    -   `modes-utils.ts`
+    -   `modes-math.ts`
+    -   `modes-text.ts`
+    -   `modes-command.ts`
+-   `editor-mathlist.js` →
+    -   `model.ts`
+    -   `model-utils.ts`
+    -   `model-styling.ts`
+    -   `model-smartfence.ts`
+    -   `model-selection.ts`
+    -   `model-listeners.ts`
+    -   `model-insert.ts`
+    -   `model-delete.ts`
+    -   `model-commands.ts`
+    -   `model-command-mode.ts`
+    -   `model-array.ts`
+    -   `model-array-utils.ts`
+-   `editor-mathfield.js` →
+    -   `a11y.ts`
+    -   `autocomplete.ts`
+    -   `commands.ts`
+    -   `config.ts`
+    -   `speech.ts`
+    -   `speech-read-aloud.ts`
+    -   `undo.ts`
+    -   `mathfield.ts`
+    -   `mathfield-virtual-keyboards.ts`
+    -   `mathfield-utils.ts`
+    -   `mathfield-styling.ts`
+    -   `mathfield-smartmode.ts`
+    -   `mathfield-render.ts`
+    -   `mathfield-pointer-input.ts`
+    -   `mathfield-keyboard-input.ts`
+    -   `mathfield-commands.ts`
+    -   `mathfield-clipboard.ts`
+    -   `mathfield-buttons.ts`
+
+Again, this is an internal change that will have no impact for external users of the MathLive library, but it will be contribute to improving the maintainability and velocity of the project.
+
+#### Other Code Maintenance
+
 -   Updated font binaries
--   Factored out some of the mode specific code into `modes-*.js`
--   Started porting to Typescript (1 file so far).
--   Rewrote grapheme splitter in TS. As a result, code size reduced by 113Kb (!).
+-   Rewrote grapheme splitter in TypeScript. As a result, code size reduced by 113Kb (!).
 -   Switched to `jest` as a test runner.
 
 ### Bug Fixes
@@ -70,9 +196,9 @@ be used if the locale is "french", and `tex` otherwise. The previous behavior wa
 
 -   The `align*` environment was not handled correctly and displayed an extra gap between columns.
 
--   The math styling commands did not behave properly. For example:
-
-`\mathbf{\sin \alpha} + \mathit{\cos \beta} + \mathbf{\tan x} + \boldsymbol{\sin \gamma}`
+-   The math styling commands did not behave properly. For example:\
+    \
+    `\mathbf{\sin \alpha} + \mathit{\cos \beta} + \mathbf{\tan x} + \boldsymbol{\sin \gamma}`
 
 |       | before       | after       |
 | ----- | ------------ | ----------- |
@@ -95,13 +221,33 @@ be used if the locale is "french", and `tex` otherwise. The previous behavior wa
 
 ## Breaking Change
 
--   The signature of the `latexToMarkup` function has changed. Instead of a
+-   The signature of the `latexToMarkup()` function has changed.\
+    Instead of a
     style and format, the second argument is an option object. The style can be
     specified with a `mathstyle` property, the format with a `format` property.
     A new `letterShapeStyle` property can also be specified.
 
     -   Before: `MathLive.latexToMarkup(formula, 'displaystyle')`
     -   After: `MathLive.latexToMarkup(formula, { mathstyle: 'displaystyle' });`
+
+-   The 'command' virtual keyboard is no longer displayed by default. The layout
+    for this virtual keyboard has been deprecated and will be removed in a future
+    version. This is a partial fullfilment of #270.
+
+## Deprecated
+
+-   The `overrideDefaultInlineShortcuts` is deprecated (still supported in this
+    version, but will be removed in an upcoming one). Instead, to add to the default
+    shortcuts, use:
+
+```javascript
+mf.setConfig({
+    inlineShortcuts: {
+        ...mf.getConfig('inlineShortcuts').inlineShortcuts,
+        ...newShortcuts,
+    },
+});
+```
 
 ## 0.35
 

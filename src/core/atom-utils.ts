@@ -1,14 +1,14 @@
+import { Context, ContextInterface, ParseModePrivate } from './context';
 import {
-    Context,
     Style,
     ParseMode,
     Variant,
     VariantStyle,
     FontShape,
     FontSeries,
-} from './context.js';
+} from '../public/core';
 import { MATHSTYLES } from './mathstyle';
-import { METRICS as FONTMETRICS } from './font-metrics.js';
+import { METRICS as FONTMETRICS } from './font-metrics';
 import {
     makeSpan,
     makeVlist,
@@ -18,7 +18,7 @@ import {
     SpanType,
     isSpanType,
     Span,
-} from './span.js';
+} from './span';
 import { makeSizedDelim } from './delimiters';
 import { atomToLatex } from './atom-to-latex';
 
@@ -40,11 +40,13 @@ export type Notations = {
 export type AtomType =
     | ''
     | 'array'
+    | 'box'
     | 'command'
     | 'delim'
     | 'enclose'
     | 'error'
     | 'first'
+    | 'genfrac'
     | 'group'
     | 'leftright'
     | 'mathstyle' // @revisit
@@ -59,12 +61,14 @@ export type AtomType =
     | 'msubsup'
     | 'none' // @revisit
     | 'overlap'
+    | 'overunder'
     | 'placeholder'
     | 'root'
     | 'rule'
     | 'sizeddelim'
     | 'space'
     | 'spacing'
+    | 'surd'
     | 'textord';
 
 export type Colspec = {
@@ -112,7 +116,7 @@ export function registerAtomType(
  * @param atoms - A single atom or an array of atoms
  */
 export function decompose(
-    context: Context,
+    inputContext: ContextInterface,
     atoms: Atom | Atom[]
 ): Span[] | null {
     function isDigit(atom: Atom): boolean {
@@ -126,11 +130,12 @@ export function decompose(
         return atom.mode === 'text';
     }
 
-    if (!(context instanceof Context)) {
-        // We can be passed either a Context object, or
-        // a simple object with some properties set.
-        context = new Context(context);
-    }
+    // We can be passed either a Context object, or
+    // a simple object with some properties set.
+    const context: Context =
+        inputContext instanceof Context
+            ? inputContext
+            : new Context(inputContext);
 
     // In most cases we want to display selection,
     // except if the atomIdsSettings.groupNumbers flag is set which is used for
@@ -365,7 +370,7 @@ export function decompose(
  * inside this element.
  */
 export class Atom implements Style {
-    mode: ParseMode;
+    mode: ParseModePrivate;
     type: AtomType;
     latex?: string;
     symbol?: string; // Latex command ('\sin') or character ('a')
@@ -447,7 +452,7 @@ export class Atom implements Style {
     skipBoundary?: boolean;
     // selected?: boolean;
     isSelected?: boolean;
-    caret: '' | 'text';
+    caret: ParseMode | '';
     containsCaret: boolean; // If the atom or one of its descendant includes the caret
 
     mathstyle?:
@@ -469,7 +474,7 @@ export class Atom implements Style {
     fontSize?: string;
     cssId?: string;
     cssClass?: string;
-    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'up' | 'auto';
+    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
 
     phantom?: boolean;
 
@@ -485,7 +490,7 @@ export class Atom implements Style {
      * @param {object} style
      */
     constructor(
-        mode: ParseMode,
+        mode: ParseModePrivate,
         type: AtomType,
         body: string | Atom[] = '',
         style: Style = {}
@@ -499,7 +504,7 @@ export class Atom implements Style {
         // This can override the mode, type and body
         this.applyStyle(style);
     }
-    toLatex(expandMacro: boolean): string {
+    toLatex(expandMacro = false): string {
         return atomToLatex(this, expandMacro);
     }
     getStyle(): Style {
@@ -1221,16 +1226,9 @@ function makeLimitsStack(
 
 /**
  * Return an atom suitable for use as the root of a formula.
- *
- * @param {string} parseMode
- * @param {Atom[]} body
- * @return {Atom[]}
- * @memberof module:core/atom
- * @private
  */
 
-export function makeRoot(parseMode: ParseMode, body: Atom[]): Atom {
-    parseMode = parseMode || 'math';
+export function makeRoot(parseMode: ParseMode, body: Atom[] = []): Atom {
     const result = new Atom(parseMode, 'root', body || []);
     if (
         Array.isArray(result.body) &&

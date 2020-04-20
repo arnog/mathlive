@@ -16,3 +16,4 @@ import './definitions-styling';
 import './definitions-functions';
 
 export * from './definitions-utils';
+export { MacroDictionary } from '../public/core';

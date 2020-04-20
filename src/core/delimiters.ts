@@ -23,7 +23,7 @@
  * @private
  */
 
-import { getValue } from './definitions.js';
+import { getValue } from './definitions';
 import {
     makeSymbol,
     makeSpan,
@@ -31,10 +31,10 @@ import {
     makeStyleWrap,
     SpanType,
     Span,
-} from './span.js';
-import { Mathstyle, MATHSTYLES } from './mathstyle.js';
-import { getCharacterMetrics, METRICS } from './font-metrics.js';
-import { Context } from './context.js';
+} from './span';
+import { Mathstyle, MATHSTYLES } from './mathstyle';
+import { getCharacterMetrics, METRICS } from './font-metrics';
+import { Context } from './context';
 /**
  * Makes a small delimiter. This is a delimiter that comes in the Main-Regular
  * font, but is restyled to either be in textstyle, scriptstyle, or

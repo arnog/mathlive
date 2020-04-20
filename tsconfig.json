@@ -11,22 +11,29 @@
         "moduleResolution": "node",
         "noImplicitAny": false,
         "noLib": false,
-        "removeComments": true,
+        "removeComments": false,
         "sourceMap": true,
         "strictNullChecks": false,
         "target": "es2019",
         "resolveJsonModule": true,
 
+        "rootDir": "src",
         "outDir": "build",
+        "tsBuildInfoFile": "./build/ts-cache.tsbuildinfo",
 
         "lib": ["es2017", "es2020.string", "dom", "dom.iterable", "scripthost"]
     },
+    "include": ["./src"],
     "exclude": [
+        "coverage",
+        "test",
         "node_modules",
         "**/*.spec.ts",
         "dist",
         "build",
         "examples",
-        "rollup.config.js"
+        "docs",
+        "tutorials",
+        "*.config.js"
     ]
 }

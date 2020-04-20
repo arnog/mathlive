@@ -1,6 +1,6 @@
 import { register, getPropertyRuns, ParseTokensOptions } from './modes-utils';
 import { colorToString } from './color';
-import { Style } from './context';
+import { Style } from '../public/core';
 import { Token } from './lexer';
 import { Span } from './span';
 import { Atom } from './atom-utils';
@@ -291,7 +291,7 @@ function parse(tokens: Token[], options: ParseTokensOptions) {
             atom = new Atom(
                 'text',
                 info ? info.type : '', // @todo: revisit. Use 'text' type?
-                info ? info.value : token.value,
+                info ? info.value : (token.value as string),
                 options.style
             );
             atom.symbol = token.value as string;

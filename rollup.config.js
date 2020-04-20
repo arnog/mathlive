@@ -1,11 +1,13 @@
 import { terser } from 'rollup-plugin-terser';
-// import copy from 'rollup-plugin-copy';
 import typescript from 'rollup-plugin-typescript2';
 import resolve from 'rollup-plugin-node-resolve';
-// import replace from 'rollup-plugin-replace';
-import pkg from './package.json';
-import chalk from 'chalk';
 import { eslint } from 'rollup-plugin-eslint';
+
+import pkg from './package.json';
+import path from 'path';
+import chalk from 'chalk';
+
+const { exec } = require('child_process');
 
 process.env.BUILD = process.env.BUILD || 'development';
 const PRODUCTION = process.env.BUILD === 'production';
@@ -14,23 +16,16 @@ const BUILD_ID =
     Math.floor(Math.random() * 0x186a0).toString(36);
 const BUILD_DIRECTORY = 'dist';
 
-console.log(
-    chalk.bold.cyan('Making a ') +
-        chalk.red(PRODUCTION ? 'production' : 'development') +
-        chalk.bold.cyan(' build')
-);
-
 const TYPESCRIPT_OPTIONS = {
     // typescript: require('typescript'),
-    // objectHashIgnoreUnknownHack: true,
     clean: PRODUCTION,
     // verbosity: 3,
     include: ['*.ts+(|x)', '**/*.ts+(|x)', '*.js+(|x)', '**/*.js+(|x)'],
-    // tsconfigOverride: {
-    //     compilerOptions: {
-    //         // "declaration": !PRODUCTION,
-    //     },
-    // },
+    tsconfigOverride: {
+        compilerOptions: {
+            // declaration: false,
+        },
+    },
 };
 
 const TERSER_OPTIONS = {
@@ -50,11 +45,85 @@ const TERSER_OPTIONS = {
     },
 };
 
+function normalizePath(id) {
+    return path.relative(process.cwd(), id).split(path.sep).join('/');
+}
+
+function timestamp() {
+    const now = new Date();
+    return chalk.green(
+        `${now.getHours()}:${('0' + now.getMinutes()).slice(-2)}:${(
+            '0' + now.getSeconds()
+        ).slice(-2)}`
+    );
+}
+
 export default [
     // MathLive main module
     {
-        input: 'src/mathlive.js',
+        onwarn(warning, warn) {
+            // The use of #private class variables seem to trigger this warning.
+            if (warning.code === 'THIS_IS_UNDEFINED') return;
+            warn(warning);
+        },
+        input: 'src/mathlive.ts',
         plugins: [
+            {
+                name: 'rollup.config.js',
+                transform(_code, id) {
+                    const file = normalizePath(id);
+                    if (file.includes(':')) {
+                        return;
+                    }
+
+                    if (process.stdout.isTTY) {
+                        process.stdout.clearLine();
+                        process.stdout.cursorTo(0);
+                        process.stdout.write('Building ' + chalk.grey(file));
+                    } else {
+                        console.log(chalk.grey(file));
+                    }
+                },
+                buildEnd() {
+                    if (
+                        process.env.BUILD === 'watch' ||
+                        process.env.BUILD === 'watching'
+                    ) {
+                        if (process.stdout.isTTY) {
+                            process.stdout.clearLine();
+                            process.stdout.cursorTo(0);
+                            process.stdout.write(
+                                timestamp() +
+                                    (process.env.BUILD === 'watching'
+                                        ? ' Build updated'
+                                        : ' Build done')
+                            );
+                        }
+                    } else {
+                        process.stdout.clearLine();
+                        process.stdout.cursorTo(0);
+                    }
+                    if (process.env.BUILD === 'watch') {
+                        process.env.BUILD = 'watching';
+                        process.stdout.clearLine();
+                        process.stdout.cursorTo(0);
+                        console.log('         🚀 Launching server');
+                        exec(
+                            "npx http-server . -s -c-1 --cors='*' -o /examples/test-cases/index.html",
+                            (error, stdout, stderr) => {
+                                if (error) {
+                                    console.error(
+                                        `http-server error: ${error}`
+                                    );
+                                    return;
+                                }
+                                console.log(stdout);
+                                console.error(stderr);
+                            }
+                        );
+                    }
+                },
+            },
             eslint({
                 // fix: true,
                 // include: 'src/',
@@ -79,10 +148,11 @@ export default [
             },
         ],
         watch: {
-            clearScreen: false,
+            clearScreen: true,
             exclude: ['node_modules/**'],
         },
     },
+
     // MathLive Vue-js adapter
     {
         input: 'src/vue-mathlive.js',

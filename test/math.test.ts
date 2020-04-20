@@ -1,4 +1,6 @@
-const MathLive = require('../dist/mathlive.js');
+// const MathLive = require('../dist/mathlive.js');
+
+import MathLive from '../src/mathlive';
 
 const MathLiveDebug = MathLive.debug;
 
@@ -7,7 +9,7 @@ const MathLiveDebug = MathLive.debug;
 //     return MathLiveDebug.getProp(s, symbol, prop);
 // }
 
-function getStyle(s: string, symbol, prop) {
+function getStyle(s: any, symbol, prop) {
     if (typeof s === 'string') s = toSpan(s);
     return MathLiveDebug.getStyle(s, symbol, prop);
 }

@@ -1,8 +1,8 @@
 import { Span } from './span';
 import { Token } from './lexer';
-import { MacroDictionary } from './definitions-utils';
 import { Atom } from './atom';
-import { ParseMode, Style } from './context';
+import { Style, MacroDictionary } from '../public/core';
+import { ParseModePrivate } from './context';
 
 export interface ParseTokensOptions {
     args: (string | Atom[])[];
@@ -10,7 +10,7 @@ export interface ParseTokensOptions {
     smartFence: boolean;
     style: Style;
     parse: (
-        mode: ParseMode,
+        mode: ParseModePrivate,
         tokens: Token[],
         options: ParseTokensOptions
     ) => [Atom[], Token[]];
@@ -89,7 +89,7 @@ export function emitLatexRun(
 }
 
 export function parseTokens(
-    mode: ParseMode,
+    mode: ParseModePrivate,
     tokens: Token[],
     options: ParseTokensOptions
 ) {
