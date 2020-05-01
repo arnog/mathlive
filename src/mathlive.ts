@@ -1,3 +1,6 @@
+import { Mathfield } from './public/mathfield';
+import { MathfieldConfig } from './public/config';
+
 import { Atom } from './core/atom';
 import { Span } from './core/span';
 import { decompose } from './core/atom-utils';
@@ -20,7 +23,15 @@ import {
 import { atomToSpeakableText } from './editor/atom-to-speakable-text';
 import { atomToMathML } from './addons/math-ml';
 
-function latexToMarkup(text: string, options: any): string | Atom[] | Span[] {
+function latexToMarkup(
+    text: string,
+    options: {
+        mathstyle?: 'displaystyle' | 'textstyle';
+        letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
+        macros?: MacroDictionary;
+        format?: string;
+    }
+): string | Atom[] | Span[] {
     options = options || {};
     options.mathstyle = options.mathstyle || 'displaystyle';
     options.letterShapeStyle = options.letterShapeStyle || 'auto';
@@ -64,7 +75,10 @@ function latexToMarkup(text: string, options: any): string | Atom[] | Span[] {
     return wrapper.toMarkup();
 }
 
-function makeMathField(element: HTMLElement, config?) {
+function makeMathField(
+    element: HTMLElement,
+    config?: MathfieldConfig
+): Mathfield {
     config = config ?? {};
     config.speakHook = config.speakHook ?? defaultSpeakHook;
     config.readAloudHook = config.readAloudHook ?? defaultReadAloudHook;
@@ -114,7 +128,7 @@ function astToLatex(
     );
 }
 
-function latexToSpeakableText(latex, options) {
+function latexToSpeakableText(latex, options): string {
     options = options || {};
     options.macros = options.macros || {};
     Object.assign(options.macros, MACROS);
@@ -124,11 +138,11 @@ function latexToSpeakableText(latex, options) {
     return atomToSpeakableText(mathlist, options);
 }
 
-function renderMathInDocument(options) {
+function renderMathInDocument(options): void {
     renderMathInElement(document.body, options);
 }
 
-function getElement(element) {
+function getElement(element): HTMLElement {
     let result = element;
     if (typeof element === 'string') {
         result = document.getElementById(element);
@@ -139,7 +153,7 @@ function getElement(element) {
     return result;
 }
 
-function renderMathInElement(element, options) {
+function renderMathInElement(element, options): void {
     if (!AutoRender) {
         console.warn('The AutoRender module is not loaded.');
         return;
@@ -153,7 +167,7 @@ function renderMathInElement(element, options) {
     AutoRender.renderMathInElement(getElement(element), options);
 }
 
-function validateNamespace(options) {
+function validateNamespace(options): void {
     if (options.namespace) {
         if (!/^[a-z]+[-]?$/.test(options.namespace)) {
             throw Error(
@@ -166,11 +180,9 @@ function validateNamespace(options) {
     }
 }
 
-function revertToOriginalContent(element, options) {
-    element = getElement(element);
-
+function revertToOriginalContent(element: HTMLElement, options): void {
     // element is a pair: accessible span, math -- set it to the math part
-    element = element.children[1];
+    element = getElement(element).children[1] as HTMLElement;
 
     if (element instanceof MathfieldPrivate) {
         element.$revertToOriginalContent();
@@ -183,11 +195,9 @@ function revertToOriginalContent(element, options) {
     }
 }
 
-function getOriginalContent(element, options) {
-    element = getElement(element);
-
+function getOriginalContent(element: string | HTMLElement, options): string {
     // element is a pair: accessible span, math -- set it to the math part
-    element = element.children[1];
+    element = getElement(element).children[1] as HTMLElement;
 
     if (element instanceof MathfieldPrivate) {
         return element.originalContent;

@@ -1,32 +1,37 @@
 {
     "compilerOptions": {
-        // "declaration": true,
-        "allowJs": true,
-        // "checkJs": true,
-        "emitDecoratorMetadata": true,
-        "esModuleInterop": true,
-        "experimentalDecorators": true,
-        "incremental": true,
-        "module": "esnext",
-        "moduleResolution": "node",
-        "noImplicitAny": false,
-        "noLib": false,
-        "removeComments": false,
-        "sourceMap": true,
-        "strictNullChecks": false,
-        "target": "es2019",
-        "resolveJsonModule": true,
-
-        "rootDir": "src",
+        "rootDir": ".",
         "outDir": "build",
+
+        "incremental": true,
         "tsBuildInfoFile": "./build/ts-cache.tsbuildinfo",
 
-        "lib": ["es2017", "es2020.string", "dom", "dom.iterable", "scripthost"]
+        "lib": ["es2017", "es2020.string", "dom", "dom.iterable", "scripthost"],
+        // "declaration": true,
+        // "allowJs": true,
+        // "checkJs": true,
+
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+
+        "module": "esnext",
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+
+        "target": "es2019",
+
+        "strictNullChecks": false,
+        "noImplicitAny": false,
+        "noLib": false,
+        // We'll strip the comments with rollup.
+        // Need them for the declaration files
+        "removeComments": false,
+        "sourceMap": true
     },
-    "include": ["./src"],
     "exclude": [
         "coverage",
-        "test",
+        // "test",
         "node_modules",
         "**/*.spec.ts",
         "dist",
@@ -34,6 +39,6 @@
         "examples",
         "docs",
         "tutorials",
-        "*.config.js"
+        "**/*.config.js"
     ]
 }

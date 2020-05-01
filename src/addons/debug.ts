@@ -2,9 +2,6 @@
  * This module contains utilities to debug mathlive internal data structures.
  *
  * It is also used by the automated test suite.
- *
- * @module addons/debug
- * @private
  */
 
 import { atomToAsciiMath } from '../editor/atom-to-ascii-math';

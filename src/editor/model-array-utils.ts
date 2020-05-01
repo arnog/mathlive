@@ -1,3 +1,5 @@
+import { isArray } from '../common/types';
+
 import { Atom } from '../core/atom';
 
 /**
@@ -22,19 +24,28 @@ export function arrayIndex(array, rowCol): number {
  * - row: number
  * - col: number
  */
-export function arrayColRow(array, index) {
+export function arrayColRow(
+    array: Atom[][][],
+    index: number | string
+): {
+    col: number;
+    row: number;
+} {
+    let i: number;
     if (typeof index === 'string') {
         const m = index.match(/cell([0-9]*)$/);
-        if (m) index = parseInt(m[1]);
+        if (m) i = parseInt(m[1]);
+    } else {
+        i = index;
     }
     const result = { row: 0, col: 0 };
-    while (index > 0) {
+    while (i > 0) {
         result.col += 1;
         if (!array[result.row] || result.col >= array[result.row].length) {
             result.col = 0;
             result.row += 1;
         }
-        index -= 1;
+        i -= 1;
     }
 
     return result;
@@ -43,15 +54,14 @@ export function arrayColRow(array, index) {
 /**
  * Return the array cell corresponding to colrow or null (for example in
  * a sparse array)
- *
- * @param {Atom[][]} array
- * @param {number|string|object} colrow
- * @private
  */
-export function arrayCell(array, colrow) {
+export function arrayCell(
+    array: Atom[][][],
+    colrow: string | number | { col: number; row: number }
+): Atom[] {
     if (typeof colrow !== 'object') colrow = arrayColRow(array, colrow);
-    let result;
-    if (Array.isArray(array[colrow.row])) {
+    let result: Atom[];
+    if (isArray(array[colrow.row])) {
         result = array[colrow.row][colrow.col] || null;
     }
     // If the 'first' math atom is missing, insert it
@@ -66,7 +76,7 @@ export function arrayCell(array, colrow) {
  * @param {Atom[][]} array
  * @private
  */
-export function arrayCellCount(array: Atom[][][]) {
+export function arrayCellCount(array: Atom[][][]): number {
     let result = 0;
     let numRows = 0;
     let numCols = 1;
@@ -83,7 +93,11 @@ export function arrayCellCount(array: Atom[][][]) {
  * If no more rows, go to the next/previous column
  * If no more columns, return null
  */
-export function arrayAdjustRow(array: Atom[][][], colRow, dir: number) {
+export function arrayAdjustRow(
+    array: Atom[][][],
+    colRow: { col: number; row: number },
+    dir: number
+): { col: number; row: number } {
     const result = { ...colRow };
     result.row += dir;
     if (result.row < 0) {

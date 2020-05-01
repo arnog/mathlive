@@ -1,9 +1,10 @@
 /**
  * This module parses and outputs an Abstract Syntax Tree representing the
- * formula using the {@tutorial MATHJSON} format.
+ * formula using the {@tutorial MATHJSON | MathJson } format.
  *
- * To use it, use the {@linkcode atomtoAST atomtoAST()}  method.
+ * To use it, use the {@linkcode atomtoAST | atomtoAST()}  method.
  */
+import { isArray } from '../common/types';
 
 import { Atom, AtomType } from '../core/atom';
 import { parseString } from '../core/parser';
@@ -446,7 +447,7 @@ const OP_PRECEDENCE = {
 };
 
 function getArg(ast, index) {
-    return Array.isArray(ast.arg) ? ast.arg[index] : undefined;
+    return isArray(ast.arg) ? ast.arg[index] : undefined;
 }
 
 /**
@@ -625,7 +626,7 @@ const SUPER_ASSOCIATIVE_FUNCTION = {
 
 function getString(atom) {
     if (typeof atom === 'string') return atom;
-    if (Array.isArray(atom)) {
+    if (isArray(atom)) {
         let result = '';
         for (const subAtom of atom) {
             result += getString(subAtom);
@@ -644,7 +645,7 @@ function getString(atom) {
     if (typeof atom.body === 'string') {
         return atom.body;
     }
-    if (Array.isArray(atom.body)) {
+    if (isArray(atom.body)) {
         let result = '';
         for (const subAtom of atom.body) {
             result += getString(subAtom);
@@ -1427,7 +1428,7 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
         if (expr?.ast && lhs) {
             if (
                 (isFunction(lhs.fn) && typeof lhs.arg === 'undefined') ||
-                (Array.isArray(lhs.arg) && lhs.arg.length === 0)
+                (isArray(lhs.arg) && lhs.arg.length === 0)
             ) {
                 // A function with no arguments followed by a list ->
                 // the list becomes the argument to the function
@@ -1907,7 +1908,7 @@ function filterPresentationAtoms(
 ): Atom[] {
     if (!atoms) return [];
     let result;
-    if (Array.isArray(atoms)) {
+    if (isArray(atoms)) {
         result = [];
         for (const atom of atoms) {
             const filter = filterPresentationAtoms(atom);
@@ -1919,25 +1920,25 @@ function filterPresentationAtoms(
         } else if (atoms.type === 'box') {
             result = filterPresentationAtoms(atoms.body as Atom[]);
         } else {
-            if (atoms.body && Array.isArray(atoms.body)) {
+            if (atoms.body && isArray(atoms.body)) {
                 atoms.body = filterPresentationAtoms(atoms.body);
             }
-            if (atoms.superscript && Array.isArray(atoms.superscript)) {
+            if (atoms.superscript && isArray(atoms.superscript)) {
                 atoms.superscript = filterPresentationAtoms(atoms.superscript);
             }
-            if (atoms.subscript && Array.isArray(atoms.subscript)) {
+            if (atoms.subscript && isArray(atoms.subscript)) {
                 atoms.subscript = filterPresentationAtoms(atoms.subscript);
             }
-            if (atoms.index && Array.isArray(atoms.index)) {
+            if (atoms.index && isArray(atoms.index)) {
                 atoms.index = filterPresentationAtoms(atoms.index);
             }
-            if (atoms.denom && Array.isArray(atoms.denom)) {
+            if (atoms.denom && isArray(atoms.denom)) {
                 atoms.denom = filterPresentationAtoms(atoms.denom);
             }
-            if (atoms.numer && Array.isArray(atoms.numer)) {
+            if (atoms.numer && isArray(atoms.numer)) {
                 atoms.numer = filterPresentationAtoms(atoms.numer);
             }
-            if (atoms.array && Array.isArray(atoms.array)) {
+            if (atoms.array && isArray(atoms.array)) {
                 atoms.array = atoms.array.map((row) =>
                     row.map((cell) => filterPresentationAtoms(cell))
                 );
@@ -1991,11 +1992,11 @@ function parseSentence(
     return zones[0] || undefined;
 }
 
-function parse(atoms: Atom[], options: MathJsonLatexOptions) {
+function parse(atoms: Atom | Atom[], options: MathJsonLatexOptions) {
     return parseSentence({ atoms: filterPresentationAtoms(atoms) }, options);
 }
 
-export function atomtoMathJson(atoms: Atom[], options) {
+export function atomtoMathJson(atoms: Atom | Atom[], options) {
     return parse(atoms, options);
 }
 
@@ -2381,7 +2382,7 @@ export function jsonToLatex(
                 jsonToLatex(getArg(ast, 1), config);
         } else if (
             (ast.fn === 'add' || ast.fn === 'multiply') &&
-            Array.isArray(ast.arg)
+            isArray(ast.arg)
         ) {
             const a = [];
             for (const exp of ast.arg) {
@@ -2462,7 +2463,7 @@ export function jsonToLatex(
             result = '\\text{' + (ast.arg[0] || '') + '}';
         } else if (
             ast.fn === 'pow' &&
-            Array.isArray(ast.arg) &&
+            isArray(ast.arg) &&
             ast.arg.length >= 2
         ) {
             result = jsonToLatex(getArg(ast, 0), config);
@@ -2479,7 +2480,7 @@ export function jsonToLatex(
             let argstring = '';
             const parenRequired =
                 /%(?![01_^])/.test(fn) &&
-                Array.isArray(ast.arg) &&
+                isArray(ast.arg) &&
                 ast.arg.length > 1;
             if (parenRequired) {
                 // Parenthesis are required if argument list is longer than 1
@@ -2487,7 +2488,7 @@ export function jsonToLatex(
                     ast.fence || '(),',
                     ...ast.arg.map((x) => jsonToLatex(x, config))
                 );
-            } else if (Array.isArray(ast.arg) && ast.arg.length > 0) {
+            } else if (isArray(ast.arg) && ast.arg.length > 0) {
                 // The parenthesis may be optional...
                 const arg0 = jsonToLatex(getArg(ast, 0), config);
                 const arg1 = jsonToLatex(getArg(ast, 1), config);
@@ -2575,11 +2576,3 @@ export function jsonToLatex(
 
     return result;
 }
-
-// Export the public interface for this module
-export default {
-    jsonToLatex,
-    asMachineNumber,
-    isNumber,
-    asSymbol,
-};

@@ -8,7 +8,11 @@ import { Mathfield } from './mathfield-utils';
  * @param {function} until - callback to indicate when to stop
  * @private
  */
-function convertLastAtomsToText(mathfield: Mathfield, count, until?) {
+function convertLastAtomsToText(
+    mathfield: Mathfield,
+    count: number,
+    until?
+): void {
     if (typeof count === 'function') {
         until = count;
         count = Infinity;
@@ -48,7 +52,11 @@ function convertLastAtomsToText(mathfield: Mathfield, count, until?) {
  * @param {function} until - callback to indicate when to stop
  * @private
  */
-function convertLastAtomsToMath(mathfield: Mathfield, count?, until?) {
+function convertLastAtomsToMath(
+    mathfield: Mathfield,
+    count?: number,
+    until?
+): void {
     if (typeof count === 'function') {
         until = count;
         count = Infinity;
@@ -81,7 +89,7 @@ function convertLastAtomsToMath(mathfield: Mathfield, count?, until?) {
  * space character is found (i.e. it is surrounded by math zone),
  * remove it.
  */
-export function removeIsolatedSpace(mathfield: Mathfield) {
+export function removeIsolatedSpace(mathfield: Mathfield): void {
     let i = 0;
     while (
         mathfield.model.sibling(i) &&
@@ -269,7 +277,7 @@ export function smartMode_(
     } else {
         // We're in math mode. Should we switch to text?
         if (keystroke === 'Spacebar') {
-            convertLastAtomsToText(mathfield, (a) =>
+            convertLastAtomsToText(mathfield, undefined, (a) =>
                 /[a-z][:,;.]$/.test(a.body)
             );
             return true;
@@ -281,7 +289,7 @@ export function smartMode_(
             // A sequence of three characters
             // (except for some exceptions)
             // Convert them to text.
-            convertLastAtomsToText(mathfield, (a) =>
+            convertLastAtomsToText(mathfield, undefined, (a) =>
                 /[a-zA-Z:,;.]/.test(a.body)
             );
             return true;
@@ -300,7 +308,7 @@ export function smartMode_(
             // A sequence of three *greek* characters
             // (except for one exception)
             // Convert them to text.
-            convertLastAtomsToText(mathfield, (a) =>
+            convertLastAtomsToText(mathfield, undefined, (a) =>
                 /(:|,|;|.|\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5)/u.test(
                     a.body
                 )

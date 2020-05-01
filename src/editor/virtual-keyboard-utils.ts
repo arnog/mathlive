@@ -1,7 +1,3 @@
-/**
- * @module editor/virtualKeyboard
- * @private
- */
 import { decompose } from '../core/atom-utils';
 import { makeSpan, makeStruts } from '../core/span';
 import { parseString } from '../core/parser';
@@ -845,7 +841,7 @@ const LAYERS = {
         </div>`,
 };
 
-function latexToMarkup(latex, arg, mf) {
+function latexToMarkup(latex: string, arg, mf: Mathfield): string {
     // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
     latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
 
@@ -868,17 +864,19 @@ function latexToMarkup(latex, arg, mf) {
  * Return a markup string for the keyboard toolbar for the specified layer.
  * @private
  */
-function makeKeyboardToolbar(mf, keyboardIDs, currentKeyboard) {
+function makeKeyboardToolbar(
+    mf: Mathfield,
+    keyboardIDs,
+    currentKeyboard
+): string {
     // The left hand side of the toolbar has a list of all the available keyboards
     let result = "<div class='left'>";
     const keyboardList = keyboardIDs.replace(/\s+/g, ' ').split(' ');
     if (keyboardList.length > 1) {
-        const keyboards = Object.assign(
-            {},
-            KEYBOARDS,
-            mf.config.customVirtualKeyboards || {}
-        );
-
+        const keyboards = {
+            ...KEYBOARDS,
+            ...(mf.config.customVirtualKeyboards ?? {}),
+        };
         for (const keyboard of keyboardList) {
             if (!keyboards[keyboard]) {
                 console.error('Unknown virtual keyboard "' + keyboard + '"');
@@ -954,7 +952,7 @@ export function makeKeycap(
     mf: Mathfield,
     elList,
     chainedCommand?: string | any[]
-) {
+): void {
     for (let i = 0; i < elList.length; ++i) {
         const el = elList[i];
         // Display
@@ -1061,11 +1059,8 @@ export function makeKeycap(
 
 /**
  * Expand the shortcut tags (e.g. <row>) inside a layer.
- * @param {object} mf
- * @param {string} layer
- * @private
  */
-function expandLayerMarkup(mf, layer) {
+function expandLayerMarkup(mf: Mathfield, layer): string {
     const ROWS = {
         // First row should be 10 key wide
         // Second row should be 10 key wide
@@ -1231,11 +1226,11 @@ function expandLayerMarkup(mf, layer) {
 /**
  * Construct a virtual keyboard element based on the config options in the
  * mathfield and an optional theme.
- * @param {object} mf
- * @param {string} theme
- * @result {} A DOM element
  */
-export function makeKeyboard(mf: Mathfield, theme: 'apple' | 'material' | '') {
+export function makeKeyboard(
+    mf: Mathfield,
+    theme: 'apple' | 'material' | ''
+): HTMLElement {
     const svgIcons = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
 
             <symbol id="svg-command" viewBox="0 0 640 512">
@@ -1656,7 +1651,7 @@ export function makeKeyboard(mf: Mathfield, theme: 'apple' | 'material' | '') {
     return result;
 }
 
-export function hideAlternateKeys(_mathfield: Mathfield) {
+export function hideAlternateKeys(_mathfield: Mathfield): boolean {
     const altContainer = document.getElementById(
         'mathlive-alternate-keys-panel'
     );
@@ -1672,7 +1667,7 @@ export function hideAlternateKeys(_mathfield: Mathfield) {
  * was pressed.
  *
  */
-export function unshiftKeyboardLayer(mathfield: Mathfield) {
+export function unshiftKeyboardLayer(mathfield: Mathfield): boolean {
     const keycaps = mathfield.virtualKeyboard.querySelectorAll(
         'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
     );

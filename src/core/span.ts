@@ -1,3 +1,5 @@
+import { isArray } from '../common/types';
+
 import { Style, ParseMode } from '../public/core';
 import { getCharacterMetrics } from './font-metrics';
 import { svgBodyToMarkup, svgBodyHeight } from './svg-span';
@@ -112,12 +114,8 @@ const INTER_ATOM_TIGHT_SPACING = {
  * Each arguments can be either a string, which is unchanged,
  * or a number, which is converted to a string with at most 2 fractional digits.
  *
- * @param {(Array.<any>|string|number)} arg
- * @return {string}
- * @memberof module:core/span
- * @private
  */
-function toString(arg: Array<string | number> | string | number): string {
+function toString(arg: (string | number)[] | string | number): string {
     if (typeof arg === 'string') {
         return arg;
     }
@@ -127,7 +125,7 @@ function toString(arg: Array<string | number> | string | number): string {
     if (typeof arg === 'undefined') {
         return '';
     }
-    if (Array.isArray(arg)) {
+    if (isArray(arg)) {
         let result = '';
         for (const elem of arg) {
             result += toString(elem);
@@ -201,7 +199,7 @@ export class Span {
         // CLASSES
         this.classes = classes;
         // CONTENT
-        if (Array.isArray(content)) {
+        if (isArray(content)) {
             // Check if isArray first, since an array is also an object
             // Flatten it (i.e. [[a1, a2], b1, b2] -> [a1, a2, b1, b2]
             this.children = [].concat(...content);
@@ -464,7 +462,7 @@ export class Span {
             let classList = '';
             if (classes.length > 1) {
                 classList = classes
-                    .filter(function (x, e, a) {
+                    .filter((x, e, a) => {
                         return x.length > 0 && a.indexOf(x) === e;
                     })
                     .join(' ');
@@ -685,7 +683,7 @@ export function coalesce(spans: Span[]): Span[] {
 
 export function height(spans: Span | Span[]): number {
     if (!spans) return 0;
-    if (Array.isArray(spans)) {
+    if (isArray(spans)) {
         return spans.reduce((acc, x) => Math.max(acc, x.height), 0);
     }
     return spans.height;
@@ -693,7 +691,7 @@ export function height(spans: Span | Span[]): number {
 
 export function depth(spans: Span | Span[]): number {
     if (!spans) return 0;
-    if (Array.isArray(spans)) {
+    if (isArray(spans)) {
         return spans.reduce((acc, x) => Math.max(acc, x.depth), 0);
     }
     return spans.depth;
@@ -701,7 +699,7 @@ export function depth(spans: Span | Span[]): number {
 
 export function skew(spans: Span | Span[]): number {
     if (!spans) return 0;
-    if (Array.isArray(spans)) {
+    if (isArray(spans)) {
         let result = 0;
         for (const span of spans) {
             result += span.skew || 0;
@@ -713,7 +711,7 @@ export function skew(spans: Span | Span[]): number {
 
 export function italic(spans: Span | Span[]): number {
     if (!spans) return 0;
-    if (Array.isArray(spans)) {
+    if (isArray(spans)) {
         return spans[spans.length - 1].italic;
     }
     return spans.italic;
@@ -730,7 +728,7 @@ export function makeSpan(
     type: SpanType = ''
 ): Span {
     console.assert(!classes || !isSpanType(classes));
-    if (Array.isArray(content)) {
+    if (isArray(content)) {
         const c = content.filter((x) => !!x);
         if (c.length === 1) {
             return new Span(c[0], classes, type);
@@ -806,7 +804,7 @@ export function makeStruts(
         bottomStrut.setStyle('vertical-align', -depth(content), 'em');
     }
     let struts: Span[];
-    if (Array.isArray(content)) {
+    if (isArray(content)) {
         struts = [topStrut, bottomStrut, ...content];
     } else {
         struts = [topStrut, bottomStrut, content];
@@ -860,7 +858,7 @@ export function makeHlist(
         if (spans instanceof Span) {
             // A single span, use it as the output
             return spans;
-        } else if (Array.isArray(spans) && spans.length === 1) {
+        } else if (isArray(spans) && spans.length === 1) {
             // An array, with a single span, use the single span as the output
             return spans[0];
         }
@@ -894,7 +892,7 @@ export function makeHlist(
  */
 export function makeVlist(
     context: Context,
-    elements: Array<number | Span[] | Span>,
+    elements: (number | Span[] | Span)[],
     pos: 'shift' | 'top' | 'bottom' | 'individualShift' = 'shift',
     posData = 0
 ): Span {
@@ -906,7 +904,7 @@ export function makeVlist(
     // a single span. If a child is an array of spans,
     // wrap it in a span
     for (let i = 0; i < elements.length; i++) {
-        if (Array.isArray(elements[i])) {
+        if (isArray(elements[i])) {
             if ((elements[i] as Span[]).length === 1) {
                 // If that's an array made up of a single span, use that span
                 elements[i] = elements[i][0];

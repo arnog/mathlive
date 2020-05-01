@@ -95,7 +95,6 @@ export const KEYBOARD_SHORTCUTS = {
 
     'math:Esc': ['switch-mode', 'command'],
     'math:Backslash': ['switch-mode', 'command'],
-    'math:IntlBackslash': ['switch-mode', 'command'],
 
     'math:Alt-Equal': ['apply-style', { mode: 'text' }],
     'text:Alt-Equal': ['apply-style', { mode: 'math' }],

@@ -1,3 +1,5 @@
+import { isArray } from '../common/types';
+
 import {
     makeKeycap,
     makeKeyboard,
@@ -133,7 +135,10 @@ registerCommand(
     { target: 'virtual-keyboard' }
 );
 
-export function switchKeyboardLayer(mathfield: Mathfield, layer: string) {
+export function switchKeyboardLayer(
+    mathfield: Mathfield,
+    layer: string
+): boolean {
     if (mathfield.config.virtualKeyboardMode !== 'off') {
         if (
             layer !== 'lower-command' &&
@@ -207,19 +212,19 @@ registerCommand(
                                 'data-unshifted-command',
                                 command
                             );
-                            const shiftedCommand = keycap.getAttribute(
+                            const shifteCommand = keycap.getAttribute(
                                 'data-shifted-command'
                             );
-                            if (shiftedCommand) {
+                            if (shifteCommand) {
                                 keycap.setAttribute(
                                     'data-' +
                                         mathfield.config.namespace +
                                         'command',
-                                    shiftedCommand
+                                    shifteCommand
                                 );
                             } else {
                                 const commandObj = JSON.parse(command);
-                                if (Array.isArray(commandObj)) {
+                                if (isArray(commandObj)) {
                                     commandObj[1] = commandObj[1].toUpperCase();
                                 }
                                 keycap.setAttribute(
@@ -318,13 +323,13 @@ export function showVirtualKeyboard(mathfield: Mathfield, theme = ''): boolean {
     return false;
 }
 
-export function hideVirtualKeyboard(mathfield: Mathfield) {
+export function hideVirtualKeyboard(mathfield: Mathfield): boolean {
     mathfield.virtualKeyboardVisible = true;
     toggleVirtualKeyboard(mathfield);
     return false;
 }
 
-function toggleVirtualKeyboard(mathfield: Mathfield, theme?) {
+function toggleVirtualKeyboard(mathfield: Mathfield, theme?): boolean {
     mathfield.virtualKeyboardVisible = !mathfield.virtualKeyboardVisible;
     if (mathfield.virtualKeyboardVisible) {
         if (mathfield.virtualKeyboard) {

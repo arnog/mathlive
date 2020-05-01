@@ -42,12 +42,12 @@ export class UndoManager {
         this.reset();
     }
 
-    reset() {
+    reset(): void {
         this.stack = [];
         this.index = -1;
     }
 
-    startRecording() {
+    startRecording(): void {
         this.record = true;
     }
 
@@ -59,7 +59,7 @@ export class UndoManager {
         return this.index !== this.stack.length - 1;
     }
 
-    undo(options: UndoOptions) {
+    undo(options: UndoOptions): void {
         if (this.canUndo()) {
             if (typeof options?.onUndoStateWillChange === 'function') {
                 options.onUndoStateWillChange(this.mathlist.mathfield, 'undo');
@@ -72,13 +72,7 @@ export class UndoManager {
             this.canCoalesce = false;
         }
     }
-    /**
-     *
-     * @memberof UndoManager
-     * @instance
-     * @private
-     */
-    redo(options: UndoOptions) {
+    redo(options: UndoOptions): void {
         if (this.canRedo()) {
             if (typeof options?.onUndoStateWillChange === 'function') {
                 options.onUndoStateWillChange(this.mathlist.mathfield, 'redo');
@@ -91,13 +85,7 @@ export class UndoManager {
             this.canCoalesce = false;
         }
     }
-    /**
-     *
-     * @memberof UndoManager
-     * @instance
-     * @private
-     */
-    pop() {
+    pop(): void {
         if (this.canUndo()) {
             this.index -= 1;
             this.stack.pop();
@@ -106,11 +94,8 @@ export class UndoManager {
     /**
      * Push a snapshot of the content and selection of the mathfield onto the
      * undo stack so that it can potentially be reverted to later.
-     * @memberof UndoManager
-     * @instance
-     * @private
      */
-    snapshot(options: UndoOptions) {
+    snapshot(options: UndoOptions): void {
         if (!this.record) return;
 
         if (typeof options?.onUndoStateWillChange === 'function') {
@@ -136,7 +121,7 @@ export class UndoManager {
         this.canCoalesce = false;
     }
 
-    snapshotAndCoalesce(options: UndoOptions) {
+    snapshotAndCoalesce(options: UndoOptions): void {
         if (this.canCoalesce) {
             this.pop();
         }
@@ -160,7 +145,7 @@ export class UndoManager {
      * captured with save() or stored in the undo stack.
      * This does not affect the undo stack.
      */
-    restore(state: UndoRecord, options: UndoOptions) {
+    restore(state: UndoRecord, options: UndoOptions): void {
         const wasSuppressing = this.mathlist.suppressChangeNotifications;
         if (typeof options.suppressChangeNotifications !== 'undefined') {
             this.mathlist.suppressChangeNotifications =

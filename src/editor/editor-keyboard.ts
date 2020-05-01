@@ -1,8 +1,6 @@
 /**
  * This modules handles low-level keyboard events and normalize them across
  * browsers.
- * @module editor/keyboard
- * @private
  */
 
 // These keys on international (non-US QWERTY) keyboards should

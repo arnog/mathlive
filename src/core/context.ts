@@ -61,10 +61,6 @@ export interface ContextInterface {
  * @property {number} parentSize
  * @property {object} macros A macros dictionary
  * @property {string} color
- *
- * @class Context
- * @global
- * @private
  */
 export class Context implements ContextInterface {
     macros: MacroDictionary;
@@ -128,21 +124,19 @@ export class Context implements ContextInterface {
      * @param {string} value - `'auto'` to indicate that the mathstyle should in
      * fact not be changed. This is used when specifying the mathstyle for some
      * environments.
-     * @memberof Context
-     * @instance
      */
-    setMathstyle(value: string) {
+    setMathstyle(value: string): void {
         if (value && value !== 'auto') {
             this.mathstyle = MATHSTYLES[value];
         }
     }
-    cramp() {
+    cramp(): Context {
         return this.clone({ mathstyle: this.mathstyle.cramp() });
     }
-    sup() {
+    sup(): Context {
         return this.clone({ mathstyle: this.mathstyle.sup() });
     }
-    sub() {
+    sub(): Context {
         return this.clone({ mathstyle: this.mathstyle.sub() });
     }
 }

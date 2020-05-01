@@ -1,7 +1,6 @@
 import { Selector } from './commands';
 import { MathfieldConfig } from './config';
 import { ParseMode, MacroDictionary, Style } from './core';
-
 /**
  * | Format              | Description             |
 | :------------------ | :---------------------- |
@@ -14,19 +13,8 @@ import { ParseMode, MacroDictionary, Style } from './core';
 | `"spoken-ssml-withHighlighting"`|Like `"spoken-ssml"` but with additional annotations necessary for synchronized higlighting (read aloud)|
 | `"mathML"`            | A string of MathML markup|
 */
-export type OutputFormat =
-    | 'latex'
-    | 'latex-expanded'
-    | 'json'
-    | 'json-2'
-    | 'spoken'
-    | 'spoken-text'
-    | 'spoken-ssml'
-    | 'spoken-ssml-withHighlighting'
-    | 'mathML'
-    | 'ASCIIMath';
-
-export type InsertOptions = {
+export declare type OutputFormat = 'latex' | 'latex-expanded' | 'json' | 'json-2' | 'spoken' | 'spoken-text' | 'spoken-ssml' | 'spoken-ssml-withHighlighting' | 'mathML' | 'ASCIIMath';
+export declare type InsertOptions = {
     /** If `"auto"` or omitted, the current mode is used */
     mode?: ParseMode | 'auto';
     /**
@@ -39,11 +27,7 @@ export type InsertOptions = {
  *
  */
     format?: string;
-    insertionMode?:
-        | 'replaceSelection'
-        | 'replaceAll'
-        | 'insertBefore'
-        | 'insertAfter';
+    insertionMode?: 'replaceSelection' | 'replaceAll' | 'insertBefore' | 'insertAfter';
     /**
   * Describes where the selection
   * will be after the insertion:
@@ -77,14 +61,11 @@ export type InsertOptions = {
      */
     resetStyle?: boolean;
 };
-
 export interface Mathfield {
     getConfig(keys: keyof MathfieldConfig): any;
     getConfig(keys: string[]): MathfieldConfig;
     getConfig(keys: keyof MathfieldConfig | string[]): any | MathfieldConfig;
-
     $setConfig(config: MathfieldConfig): void;
-
     /**
      * Reverts this mathfield to its original content.
      *
@@ -95,7 +76,6 @@ export interface Mathfield {
      * `MathLive.makeMathField()` on the element again to get a new mathfield object.
      */
     $revertToOriginalContent(): void;
-
     /**
      * Performs a command defined by a selector.
      *
@@ -115,7 +95,6 @@ export interface Mathfield {
      *
      */
     $perform(command: Selector | any[]): boolean;
-
     /**
      * Returns a textual representation of the mathfield.
      *
@@ -125,7 +104,6 @@ export interface Mathfield {
      * @category Accessing the Content
      */
     $text(format: OutputFormat): string;
-
     /**
      * Returns a textual representation of the selection in the mathfield.
      *
@@ -134,11 +112,8 @@ export interface Mathfield {
      * @category Accessing the Content
      */
     $selectedText(format: OutputFormat): string;
-
     $select(): void;
-
     $clearSelection(): void;
-
     /**
      * Checks if the selection is collapsed.
      *
@@ -146,7 +121,6 @@ export interface Mathfield {
      * insertion point.
      */
     $selectionIsCollapsed(): boolean;
-
     /**
      * Returns the depth of the selection group.
      *
@@ -157,12 +131,10 @@ export interface Mathfield {
      * would be the "selection group".
      */
     $selectionDepth(): number;
-
     /**
      * Checks if the selection starts at the beginning of the selection group.
      */
     $selectionAtStart(): boolean;
-
     /**
      * Checks if the selection extends to the end of the selection group.
      */
@@ -179,14 +151,12 @@ export interface Mathfield {
      * @category Accessing the Content
      */
     $latex(text?: string, options?: InsertOptions): string;
-
     /**
      * Return the DOM element associated with this mathfield.
      *
      * Note that `this.$el().mathfield === this`
      */
     $el(): HTMLElement;
-
     /**
      * Inserts a block of text at the current insertion point.
      *
@@ -200,7 +170,6 @@ export interface Mathfield {
      * @category Changing the Content
      */
     $insert(s: string, options?: InsertOptions): boolean;
-
     /**
      * @category Focus
      */
@@ -213,7 +182,6 @@ export interface Mathfield {
      * @category Focus
      */
     $blur(): void;
-
     /**
      * Updates the style (color, bold, italic, etc...) of the selection or sets
      * the style to be applied to future input.
@@ -228,7 +196,6 @@ export interface Mathfield {
      *
      */
     $applyStyle(style: Style): void;
-
     /**
      * @param {string} keys - A string representation of a key combination.
      *
@@ -245,7 +212,6 @@ export interface Mathfield {
      * @category Changing the Content
      */
     $keystroke(keys: string, evt?: KeyboardEvent): boolean;
-
     /**
      * Simulates a user typing the keys indicated by text.
      *

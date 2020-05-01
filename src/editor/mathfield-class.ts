@@ -1,6 +1,7 @@
 import { ParseMode, Style } from '../public/core';
+import { Mathfield, OutputFormat, InsertOptions } from '../public/mathfield';
 
-import { makeRoot } from '../core/atom';
+import { Atom, makeRoot } from '../core/atom';
 
 import { ModelPrivate } from './model';
 import { applyStyle } from './model-styling';
@@ -49,8 +50,6 @@ import {
     off,
 } from './mathfield-utils';
 
-import { Mathfield } from '../public/mathfield';
-
 import { onCut, onCopy, onPaste } from './mathfield-clipboard';
 import { attachButtonHandlers } from './mathfield-buttons';
 import { onPointerDown } from './mathfield-pointer-input';
@@ -59,8 +58,10 @@ import {
     hideVirtualKeyboard,
     switchKeyboardLayer,
 } from './virtual-keyboard-commands';
+
 import { atomToSpeakableText } from './atom-to-speakable-text';
 import { atomtoMathJson } from '../addons/math-json';
+import { atomToMathML } from '../addons/math-ml';
 
 export class MathfieldPrivate implements Mathfield {
     model: ModelPrivate;
@@ -106,13 +107,12 @@ export class MathfieldPrivate implements Mathfield {
     deleteKeypressSound: HTMLAudioElement;
     plonkSound: HTMLAudioElement;
     /**
-     * To create a mathfield, you would typically use {@linkcode module:MathLive#makeMathField MathLive.makeMathField()}
+     * To create a mathfield, you would typically use {@linkcode makeMathField | MathLive.makeMathField()}
      * instead of invoking directly this constructor.
      *
      *
      * @param element - The DOM element that this mathfield is attached to.
      * Note that `element.mathfield` is this object.
-     * @param config - See {@tutorial CONFIG} for details
      */
     constructor(element: HTMLElement, config: MathfieldConfigPrivate) {
         // Setup default config options
@@ -350,11 +350,11 @@ export class MathfieldPrivate implements Mathfield {
         requestUpdate(this);
     }
 
-    getConfig(keys: keyof MathfieldConfigPrivate): any;
+    getConfig(keys: keyof MathfieldConfigPrivate): boolean | number | string;
     getConfig(keys: string[]): MathfieldConfigPrivate;
     getConfig(
         keys: keyof MathfieldConfigPrivate | string[]
-    ): any | MathfieldConfigPrivate {
+    ): boolean | number | string | MathfieldConfigPrivate {
         return getConfig(this.config, keys);
     }
 
@@ -367,7 +367,7 @@ export class MathfieldPrivate implements Mathfield {
      * would create a new function that would have to be kept track off
      * to be able to properly remove the event handler later.
      */
-    handleEvent(evt) {
+    handleEvent(evt: Event): void {
         switch (evt.type) {
             case 'focus':
                 this._onFocus();
@@ -393,7 +393,7 @@ export class MathfieldPrivate implements Mathfield {
                 onCut(this);
                 break;
             case 'copy':
-                onCopy(this, evt);
+                onCopy(this, evt as ClipboardEvent);
                 break;
             case 'paste':
                 onPaste(this);
@@ -402,7 +402,7 @@ export class MathfieldPrivate implements Mathfield {
                 console.warn('Unexpected event type', evt.type);
         }
     }
-    $revertToOriginalContent() {
+    $revertToOriginalContent(): void {
         this.element.innerHTML = this.originalContent;
         delete this.element['mathfield'];
         delete this.accessibleNode;
@@ -437,7 +437,7 @@ export class MathfieldPrivate implements Mathfield {
         clearTimeout(this.keystrokeBufferResetTimer);
     }
 
-    _onSelectionDidChange() {
+    private _onSelectionDidChange(): void {
         // Every atom before the new caret position is now committed
         commitCommandStringBeforeInsertionPoint(this.model);
         // Keep the content of the textarea in sync wiht the selection.
@@ -480,7 +480,7 @@ export class MathfieldPrivate implements Mathfield {
             this.config.onSelectionDidChange(this);
         }
     }
-    _onContentDidChange() {
+    private _onContentDidChange(): void {
         if (this.undoManager.canRedo()) {
             this.element.classList.add('can-redo');
         } else {
@@ -496,7 +496,7 @@ export class MathfieldPrivate implements Mathfield {
         }
     }
 
-    _onFocus() {
+    private _onFocus(): void {
         if (this.config.readOnly) return;
         if (this.blurred) {
             this.blurred = false;
@@ -515,7 +515,7 @@ export class MathfieldPrivate implements Mathfield {
             requestUpdate(this);
         }
     }
-    _onBlur() {
+    private _onBlur(): void {
         if (!this.blurred) {
             this.blurred = true;
             this.ariaLiveText.textContent = '';
@@ -529,7 +529,7 @@ export class MathfieldPrivate implements Mathfield {
             }
         }
     }
-    _onResize() {
+    private _onResize(): void {
         this.element.classList.remove(
             'ML__isNarrowWidth',
             'ML__isWideWidth',
@@ -545,17 +545,17 @@ export class MathfieldPrivate implements Mathfield {
         updatePopoverPosition(this);
     }
 
-    $perform(command: SelectorPrivate): boolean {
+    $perform(command: SelectorPrivate | any[]): boolean {
         return perform(this, command);
     }
 
-    formatMathlist(root, format) {
+    private formatMathlist(root: Atom, format: OutputFormat): string {
         format = format || 'latex';
         let result = '';
         if (format === 'latex' || format === 'latex-expanded') {
             result = root.toLatex(format === 'latex-expanded');
         } else if (format === 'mathML') {
-            result = root.toMathML(this.config);
+            result = atomToMathML(root, this.config);
         } else if (format === 'spoken') {
             result = atomToSpeakableText(root, this.config);
         } else if (format === 'spoken-text') {
@@ -590,11 +590,11 @@ export class MathfieldPrivate implements Mathfield {
         return result;
     }
 
-    $text(format: string): string {
+    $text(format: OutputFormat): string {
         return this.formatMathlist(this.model.root, format);
     }
 
-    $selectedText(format: string): string {
+    $selectedText(format: OutputFormat): string {
         const atoms = getSelectedAtoms(this.model);
         if (!atoms) {
             return '';
@@ -627,11 +627,11 @@ export class MathfieldPrivate implements Mathfield {
             this.model.endOffset() >= this.model.siblings().length - 1
         );
     }
-    $latex(text?, options?) {
+    $latex(text?: string, options?: InsertOptions): string {
         if (text) {
             const oldValue = this.model.root.toLatex();
             if (text !== oldValue) {
-                options = options || {};
+                options = options ?? { mode: 'math' };
                 insert(this.model, text, {
                     insertionMode: 'replaceAll',
                     selectionMode: 'after',
@@ -649,7 +649,7 @@ export class MathfieldPrivate implements Mathfield {
         // Return the content as LaTeX
         return this.model.root.toLatex();
     }
-    $el() {
+    $el(): HTMLElement {
         return this.element;
     }
     scrollIntoView(): void {
@@ -686,9 +686,9 @@ export class MathfieldPrivate implements Mathfield {
             }
         }
     }
-    $insert(s: string, options?): boolean {
+    $insert(s: string, options?: InsertOptions): boolean {
         if (typeof s === 'string' && s.length > 0) {
-            options = options || {};
+            options = options ?? { mode: 'math' };
             if (options.focus) {
                 this.$focus();
             }
@@ -762,10 +762,10 @@ export class MathfieldPrivate implements Mathfield {
         requestUpdate(this);
     }
 
-    $hasFocus() {
+    $hasFocus(): boolean {
         return document.hasFocus() && document.activeElement === this.textarea;
     }
-    $focus() {
+    $focus(): void {
         if (!this.$hasFocus()) {
             // The textarea may be a span (on mobile, for example), so check that
             // it has a focus() before calling it.
@@ -775,28 +775,28 @@ export class MathfieldPrivate implements Mathfield {
             this.model.announce('line');
         }
     }
-    $blur() {
+    $blur(): void {
         if (this.$hasFocus()) {
             if (this.textarea.blur) {
                 this.textarea.blur();
             }
         }
     }
-    $select() {
+    $select(): void {
         selectAll(this.model);
     }
-    $clearSelection() {
+    $clearSelection(): void {
         deleteChar(this.model);
     }
 
-    $applyStyle(style) {
+    $applyStyle(style: Style): void {
         applyStyle(this.model, style);
     }
 
-    $keystroke(keys: string, evt?: KeyboardEvent) {
+    $keystroke(keys: string, evt?: KeyboardEvent): boolean {
         return onKeystroke(this, keys, evt);
     }
-    $typedText(text: string) {
+    $typedText(text: string): void {
         onTypedText(this, text);
     }
 }

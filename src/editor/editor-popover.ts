@@ -1,3 +1,5 @@
+import { isArray } from '../common/types';
+
 import { decompose } from '../core/atom-utils';
 import { parseString } from '../core/parser';
 import { makeSpan, makeStruts } from '../core/span';
@@ -259,16 +261,16 @@ export const NOTES = {
     '\\lim': 'limit',
 };
 
-function getNote(symbol) {
+function getNote(symbol): string {
     let result = NOTES[symbol] || '';
-    if (Array.isArray(result)) {
+    if (isArray(result)) {
         result = result.join('<br>');
     }
 
     return result;
 }
 
-function latexToMarkup(latex, mf) {
+function latexToMarkup(latex: string, mf: Mathfield): string {
     const parse = parseString(latex, 'math', null, mf.config.macros);
     const spans = decompose(
         {

@@ -1,3 +1,5 @@
+import { isArray } from '../common/types';
+
 import { LETTER } from '../core/definitions';
 import { MathfieldConfigPrivate, InlineShortcutDefinition } from './config';
 import { ParseMode } from '../public/core';
@@ -172,7 +174,7 @@ export function getInlineShortcut(
  * @memberof module:editor/shortcuts
  * @private
  */
-function platform(p) {
+function platform(p: string): string {
     let result = 'other';
     if (navigator?.platform && navigator.userAgent) {
         if (/^(mac)/i.test(navigator.platform)) {
@@ -198,11 +200,8 @@ function platform(p) {
 /**
  * Return the selector matching the keystroke.
  *
- * @param {string} mode
- * @param {string} keystroke
- * @return {string}
  */
-export function getKeyboardShortcut(mode: ParseMode, keystroke) {
+export function getKeyboardShortcut(mode: ParseMode, keystroke): string {
     for (const c of [
         platform('mac') + ':' + mode + ':' + keystroke,
         platform('win') + ':' + mode + ':' + keystroke,
@@ -229,22 +228,22 @@ export function getKeyboardShortcut(mode: ParseMode, keystroke) {
     return '';
 }
 
-function commandToString(command) {
+function commandToString(command): string {
     let result = command;
 
-    if (Array.isArray(result) && result.length > 0) {
+    if (isArray(result) && result.length > 0) {
         result = result[0] + '(' + result.slice(1).join('') + ')';
     }
 
     return result;
 }
 
-export function getShortcutForCommand(command) {
+export function getShortcutForCommand(command): string {
     let result = [];
 
     if (typeof command === 'string') {
         const candidate = REVERSE_KEYBOARD_SHORTCUTS[command];
-        if (Array.isArray(candidate)) {
+        if (isArray(candidate)) {
             result = candidate.slice();
         } else if (candidate) {
             result.push(candidate);

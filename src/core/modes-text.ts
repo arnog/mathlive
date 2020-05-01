@@ -204,7 +204,10 @@ const TEXT_FONT_CLASS = {
     monospace: 'ML__tt',
 };
 
-function applyStyle(span: Span, style: Style) {
+/**
+ * Return the font-family name
+ */
+function applyStyle(span: Span, style: Style): string {
     const fontFamily = style.fontFamily;
 
     if (TEXT_FONT_CLASS[fontFamily]) {

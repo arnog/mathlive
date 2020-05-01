@@ -1,5 +1,4 @@
-export type ParseMode = 'math' | 'text' | 'command';
-
+export declare type ParseMode = 'math' | 'text' | 'command';
 /**
  * Variants can map either to math characters in specific Unicode range
  * (see https://en.wikipedia.org/wiki/Mathematical_Alphanumeric_Symbols)
@@ -9,23 +8,10 @@ export type ParseMode = 'math' | 'text' | 'command';
  * 'normal' is a synthetic variant that maps either to 'main' (roman) or
  * 'math' (italic) depending on the symbol and the letterShapeStyle.
  */
-export type Variant =
-    | 'ams'
-    | 'double-struck'
-    | 'calligraphic'
-    | 'script'
-    | 'fraktur'
-    | 'sans-serif'
-    | 'monospace'
-    | 'normal' // 'main' (upright) or 'math' (italic) depending on letterShapeStyle
-    | 'main'
-    | 'math';
-export type VariantStyle = 'up' | 'bold' | 'italic' | 'bolditalic' | '';
-
-export type FontShape = 'auto' | 'n' | 'it' | 'sl' | 'sc' | '';
-
-export type FontSeries = 'auto' | 'm' | 'b' | 'l' | '';
-
+export declare type Variant = 'ams' | 'double-struck' | 'calligraphic' | 'script' | 'fraktur' | 'sans-serif' | 'monospace' | 'normal' | 'main' | 'math';
+export declare type VariantStyle = 'up' | 'bold' | 'italic' | 'bolditalic' | '';
+export declare type FontShape = 'auto' | 'n' | 'it' | 'sl' | 'sc' | '';
+export declare type FontSeries = 'auto' | 'm' | 'b' | 'l' | '';
 export interface Style {
     mode?: ParseMode | string;
     color?: string;
@@ -40,12 +26,13 @@ export interface Style {
     cssClass?: string;
     letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
 }
-
-export type MacroDefinition = { def: string; args?: number };
-
+export declare type MacroDefinition = {
+    def: string;
+    args?: number;
+};
 /**
  * A dictionary of LaTeX macros to be used to interpret and render the content.
- * 
+ *
  * For example:
 ```typescript
 mf.$setConfig({
@@ -59,4 +46,6 @@ The code above will support the following notation:
 \smallfrac{5}{16}
 ```
 */
-export type MacroDictionary = { [name: string]: string | MacroDefinition };
+export declare type MacroDictionary = {
+    [name: string]: string | MacroDefinition;
+};

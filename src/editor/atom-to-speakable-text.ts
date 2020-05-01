@@ -1,6 +1,6 @@
 import { TextToSpeechOptions } from '../public/config';
 
-import { Atom } from '../core/atom';
+import { Atom, isAtomArray } from '../core/atom';
 
 import { atomsToMathML } from '../addons/math-ml';
 
@@ -125,7 +125,7 @@ const PRONUNCIATION = {
     kg: 'kilograms',
 };
 
-function getSpokenName(latex) {
+function getSpokenName(latex: string): string {
     let result = '';
     if (latex.charAt(0) === '\\') {
         result = ' ' + latex.replace('\\', '') + ' ';
@@ -158,7 +158,7 @@ function platform(p: string): string {
 
 function isAtomic(atoms: Atom[]): boolean {
     let count = 0;
-    if (Array.isArray(atoms)) {
+    if (isAtomArray(atoms)) {
         for (const atom of atoms) {
             if (atom.type !== 'first') {
                 count += 1;
@@ -169,7 +169,7 @@ function isAtomic(atoms: Atom[]): boolean {
 }
 
 function atomicID(atoms: Atom[]): string {
-    if (Array.isArray(atoms)) {
+    if (isAtomArray(atoms)) {
         for (const atom of atoms) {
             if (atom.type !== 'first' && atom.id) {
                 return atom.id.toString();
@@ -181,7 +181,7 @@ function atomicID(atoms: Atom[]): string {
 
 function atomicValue(atoms: Atom[]): string {
     let result = '';
-    if (atoms && Array.isArray(atoms)) {
+    if (isAtomArray(atoms)) {
         for (const atom of atoms) {
             if (atom.type !== 'first' && typeof atom.body === 'string') {
                 result += atom.body;
@@ -227,7 +227,7 @@ function atomToSpeakableFragment(
 
     let result = '';
 
-    if (Array.isArray(atom)) {
+    if (isAtomArray(atom)) {
         let isInDigitRun = false; // need to group sequence of digits
         let isInTextRun = false; // need to group text
         for (let i = 0; i < atom.length; i++) {
@@ -675,7 +675,7 @@ function atomToSpeakableFragment(
 export function atomToSpeakableText(
     atoms: Atom | Atom[],
     speechOptions: Required<TextToSpeechOptions>
-) {
+): string {
     const options = {
         ...speechOptions,
         textToSpeechRulesOptions: { ...speechOptions.textToSpeechRulesOptions },

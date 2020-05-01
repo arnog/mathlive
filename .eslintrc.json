@@ -3,7 +3,7 @@
         "browser": true,
         // "commonjs": true,
         "es6": true,
-        "node": true,
+        "node": true, // For jest, config files, etc...
         "amd": true,
         "mocha": true
     },
@@ -11,9 +11,12 @@
     "parser": "@typescript-eslint/parser",
 
     "parserOptions": {
-        // "ecmaFeatures": { "jsx": false }, // default
         // Configure the parser with the tsconfig file in the root project
-        "project": "./tsconfig.json"
+        // (or rather an extended version that add peripheral files such as rollup.config.js
+        // so that eslint doesn't complain that they are not in the project)
+        "project": "./tsconfig.eslint.json"
+
+        // "ecmaFeatures": { "jsx": false }, // default
         // "ecmaVersion": 2020,
         // "sourceType": "module" // Allow the use of import
     },
@@ -32,6 +35,19 @@
         /// Temporary lenient rules until more complete conversion to
         /// Typescript is completed. @revisit
         "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/no-unnecessary-type-arguments": "warn",
+        "@typescript-eslint/no-untyped-public-signature": "warn",
+        // "@typescript-eslint/typedef": [
+        //     "warn",
+        //     {
+        //         "parameter": true,
+        //         "arrowParameter": false,
+        //         "variableDeclaration": false
+        //     }
+        // ],
+
+        "@typescript-eslint/array-type": ["warn", { "default": "array" }],
+
         "@typescript-eslint/no-explicit-any": "off",
 
         "prettier/prettier": "error",

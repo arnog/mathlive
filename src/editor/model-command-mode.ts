@@ -1,3 +1,5 @@
+import { isArray } from '../common/types';
+
 import { Atom } from '../core/atom';
 
 import { ModelPrivate } from './model-utils';
@@ -119,7 +121,7 @@ export function spliceCommandStringAroundInsertionPoint(
 
 function removeCommandStringFromAtom(atom: Atom | Atom[]) {
     if (!atom) return;
-    if (Array.isArray(atom)) {
+    if (isArray(atom)) {
         for (let i = atom.length - 1; i >= 0; i--) {
             if (atom[i].type === 'command') {
                 atom.splice(i, 1);

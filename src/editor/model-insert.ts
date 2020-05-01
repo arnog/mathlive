@@ -1,7 +1,7 @@
-import { ParseMode, Style, MacroDictionary } from '../public/core';
+import { InsertOptions } from '../public/mathfield';
 
 import { COMMAND_MODE_CHARACTERS } from '../core/definitions';
-import { Atom } from '../core/atom';
+import { Atom, isAtomArray } from '../core/atom';
 import { parseString } from '../core/parser';
 import { RIGHT_DELIM } from '../core/definitions';
 
@@ -26,60 +26,11 @@ import {
 import { deleteAtoms, deleteChar } from './model-delete';
 import { arrayCellCount, arrayCell } from './model-array-utils';
 
-/**
- * @param {string} s
- * @param {Object.<string, any>} options
- * @param options.insertionMode -
- *    * 'replaceSelection' (default)
- *    * 'replaceAll'
- *    * 'insertBefore'
- *    * 'insertAfter'
- *
- * @param options.selectionMode - Describes where the selection
- * will be after the insertion:
- *    * `'placeholder'`: the selection will be the first available placeholder
- * in the item that has been inserted) (default)
- *    * `'after'`: the selection will be an insertion point after the item that
- * has been inserted),
- *    * `'before'`: the selection will be an insertion point before
- * the item that has been inserted) or 'item' (the item that was inserted will
- * be selected).
- *
- * @param {string} options.placeholder - The placeholder string, if necessary
- *
- * @param {"auto"|"latex"} options.format - The format of the string `s`:
- *    * `'auto'`: the string is interpreted as a latex fragment or command or
- * ASCIIMath (default)
- *    * `'latex'`: the string is interpreted strictly as a latex fragment
- *
- * @param {boolean} options.smartFence - If true, promote plain fences, e.g. `(`,
- * as `\left...\right` or `\mleft...\mright`
- *
- * @param {boolean} options.suppressChangeNotifications - If true, the
- * handlers for the contentWillChange, contentDidChange, selectionWillChange and
- * selectionDidChange notifications will not be invoked. Default `false`.
- *
- * @param {object} options.style
- */
 export function insert(
     model: ModelPrivate,
     s: string,
-    options: {
-        mode: ParseMode | 'auto';
-        format?: string;
-        insertionMode?:
-            | 'replaceSelection'
-            | 'replaceAll'
-            | 'insertBefore'
-            | 'insertAfter';
-        selectionMode?: 'placeholder' | 'after' | 'before';
-        placeholder?: string;
-        suppressChangeNotifications?: boolean;
-        style?: Style;
-        smartFence?: boolean;
-        macros?: MacroDictionary;
-    }
-) {
+    options: InsertOptions
+): void {
     // Try to insert a smart fence.
     if (!(options.smartFence ?? false)) {
         // When smartFence is turned off, only do a "smart" fence insert
@@ -333,7 +284,7 @@ export function insert(
     model.suppressChangeNotifications = suppressChangeNotifications;
 }
 
-function removeParen(list) {
+function removeParen(list: Atom[]): Atom[] {
     if (!list) return undefined;
 
     if (
@@ -341,7 +292,7 @@ function removeParen(list) {
         list[0].type === 'leftright' &&
         list[0].leftDelim === '('
     ) {
-        list = list[0].body;
+        list = list[0].body as Atom[];
     }
 
     return list;
@@ -356,22 +307,22 @@ function simplifyParen(model: ModelPrivate, atoms: Atom[]): void {
     if (atoms && model.options.removeExtraneousParentheses) {
         for (let i = 0; atoms[i]; i++) {
             if (atoms[i].type === 'leftright' && atoms[i].leftDelim === '(') {
-                if (Array.isArray(atoms[i].body)) {
+                if (isAtomArray(atoms[i].body)) {
                     let genFracCount = 0;
                     let genFracIndex = 0;
                     let nonGenFracCount = 0;
                     for (let j = 0; atoms[i].body[j]; j++) {
-                        if ((atoms[i].body as Atom[])[j].type === 'genfrac') {
+                        if ((atoms[i].body[j] as Atom).type === 'genfrac') {
                             genFracCount++;
                             genFracIndex = j;
                         }
-                        if ((atoms[i].body as Atom[])[j].type !== 'first') {
+                        if ((atoms[i].body[j] as Atom).type !== 'first') {
                             nonGenFracCount++;
                         }
                     }
                     if (nonGenFracCount === 0 && genFracCount === 1) {
                         // This is a single frac inside a leftright: remove the leftright
-                        atoms[i] = (atoms[i].body as Atom[])[genFracIndex];
+                        atoms[i] = atoms[i].body[genFracIndex] as Atom;
                     }
                 }
             }
@@ -406,8 +357,8 @@ function simplifyParen(model: ModelPrivate, atoms: Atom[]): void {
             }
             if (atom.type === 'surd') {
                 simplifyParen(model, atom.body as Atom[]);
-                atom.body = removeParen(atom.body);
-            } else if (atom.body && Array.isArray(atom.body)) {
+                atom.body = removeParen(atom.body as Atom[]);
+            } else if (isAtomArray(atom.body)) {
                 simplifyParen(model, atom.body);
             }
 

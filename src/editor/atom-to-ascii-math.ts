@@ -1,3 +1,7 @@
+import { isArray } from '../common/types';
+
+import { Atom } from '../core/atom';
+
 const SPECIAL_IDENTIFIERS = {
     '\u2212': '-', // MINUS SIGN
     '-': '-',
@@ -67,9 +71,9 @@ const SPECIAL_OPERATORS = {
     // '\\hat': '&#x005e;'
 };
 
-export function atomToAsciiMath(atom, options?) {
+export function atomToAsciiMath(atom: Atom | Atom[], options?): string {
     if (!atom) return '';
-    if (Array.isArray(atom)) {
+    if (isArray(atom)) {
         let result = '';
         if (atom.length === 0) return '';
         if (atom[0].type === 'first') atom.shift();
@@ -107,7 +111,7 @@ export function atomToAsciiMath(atom, options?) {
     switch (atom.type) {
         case 'group':
         case 'root':
-            result = atomToAsciiMath(atom.body, options);
+            result = atomToAsciiMath(atom.body as Atom[], options);
             break;
 
         case 'array':
@@ -145,10 +149,13 @@ export function atomToAsciiMath(atom, options?) {
                     'root(' +
                     atomToAsciiMath(atom.index, options) +
                     ')(' +
-                    atomToAsciiMath(atom.body, options) +
+                    atomToAsciiMath(atom.body as Atom[], options) +
                     ')';
             } else {
-                result += 'sqrt(' + atomToAsciiMath(atom.body, options) + ')';
+                result +=
+                    'sqrt(' +
+                    atomToAsciiMath(atom.body as Atom[], options) +
+                    ')';
             }
             break;
 
@@ -157,7 +164,7 @@ export function atomToAsciiMath(atom, options?) {
                 atom.leftDelim === '.' || !atom.leftDelim
                     ? '{:'
                     : atom.leftDelim;
-            result += atomToAsciiMath(atom.body, options);
+            result += atomToAsciiMath(atom.body as Atom[], options);
             result +=
                 atom.rightDelim === '.' || !atom.rightDelim
                     ? '{:'
@@ -169,10 +176,6 @@ export function atomToAsciiMath(atom, options?) {
             // result += '<mo separator="true"' + makeID(atom.id, options) + '>' + (SPECIAL_OPERATORS[atom.delim] || atom.delim) + '</mo>';
             break;
 
-        case 'accent':
-            break;
-
-        case 'line':
         case 'overlap':
             break;
 
@@ -214,7 +217,7 @@ export function atomToAsciiMath(atom, options?) {
             } else if (command && SPECIAL_OPERATORS[command]) {
                 result = SPECIAL_OPERATORS[command];
             } else {
-                result = atom.body;
+                result = atom.body as string;
             }
             break;
 
@@ -232,7 +235,7 @@ export function atomToAsciiMath(atom, options?) {
                 // Not ZERO-WIDTH
                 result = '';
                 if (command === '\\operatorname') {
-                    result += atomToAsciiMath(atom.body, options);
+                    result += atomToAsciiMath(atom.body as Atom[], options);
                 } else {
                     result += atom.body || command;
                 }

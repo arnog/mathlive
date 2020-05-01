@@ -600,10 +600,8 @@ function unicodeToMathVariant(
 /**
  * Given a character and variant ('double-struck', 'fraktur', etc...)
  * return the corresponding unicode character (a string)
- * @param char
- * @param variant
  */
-export function mathVariantToUnicode(char, variant, style) {
+export function mathVariantToUnicode(char: string, variant, style): string {
     if (!/[A-Za-z0-9]/.test(char)) return char;
     if (!variant && !style) return char;
 
@@ -725,7 +723,7 @@ export function getValue(mode: ParseModePrivate, symbol: string): string {
     return TEXT_SYMBOLS[symbol] ? TEXT_SYMBOLS[symbol] : symbol;
 }
 
-export function emit(symbol, parent, atom, emitFn) {
+export function emit(symbol, parent, atom, emitFn): string {
     console.assert(atom);
     console.assert(symbol, 'Missing command for ', atom.body);
 
@@ -908,10 +906,6 @@ export function suggest(s: string): { match: string; frequency: number }[] {
  * - <default> is the default value if none is provided for an optional
  * parameter
  *
- * @param {string} argTemplate
- * @param {boolean} isOptional
- * @memberof module:definitions
- * @private
  */
 function parseParamTemplateArgument(argTemplate: string, isOptional: boolean) {
     let r = argTemplate.match(/=(.+)/);

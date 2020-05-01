@@ -66,6 +66,9 @@ export default [
             if (warning.code === 'THIS_IS_UNDEFINED') return;
             warn(warning);
         },
+        // @todo: generate multiple flavors (i.e. no-editor, renderer only)
+        // by specifying multiple inputs:
+        // input: [ 'mathlive': 'src/mathlive.ts', 'mathlive-render': 'src/mathlive-render.ts' ]
         input: 'src/mathlive.ts',
         plugins: [
             {
@@ -134,12 +137,14 @@ export default [
         ],
         output: [
             // JavaScript native module
+            // (stricly speaking not necessary, since the UMD output is module
+            // compatible, but this gives us a "clean" module)
             {
                 format: 'es',
                 file: `${BUILD_DIRECTORY}/mathlive.mjs`,
                 sourcemap: !PRODUCTION,
             },
-            // UMD file, suitable for <script>, require(), etc...
+            // UMD file, suitable for import, <script> and require()
             {
                 format: 'umd',
                 file: `${BUILD_DIRECTORY}/mathlive.js`,

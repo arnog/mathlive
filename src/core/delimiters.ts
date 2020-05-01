@@ -19,8 +19,6 @@
  * delimiter which surrounds an expression of a given height an depth. It is
  * used in `\left` and `\right`.
  * @summary   Handling of delimiters surrounds symbols.
- * @module core/delimiters
- * @private
  */
 
 import { getValue } from './definitions';
@@ -663,8 +661,6 @@ export function makeCustomSizedDelim(
  * Make a delimiter for use with `\left` and `\right`, given a height and depth
  * of an expression that the delimiters surround.
  * See tex.web:14994
- * @memberof module:delimiters
- * @private
  */
 export function makeLeftRightDelim(
     type: SpanType,
@@ -673,7 +669,7 @@ export function makeLeftRightDelim(
     depth: number,
     context: Context,
     classes = ''
-) {
+): Span {
     // If this is the empty delimiter, return a null fence
     if (delim === '.') {
         return makeNullFence(type, context, classes);

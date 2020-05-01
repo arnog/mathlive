@@ -1,3 +1,5 @@
+import { isArray } from '../common/types';
+
 import { getEnvironmentInfo } from '../core/definitions';
 import { Atom } from '../core/atom';
 import { ModelPrivate } from './model-utils';
@@ -99,7 +101,7 @@ export function arrayRemoveRow(array: Atom[][][], row: number): void {
 /**
  * Return the first non-empty cell, row by row
  */
-export function arrayFirstCellByRow(array: Atom[][][]) {
+export function arrayFirstCellByRow(array: Atom[][][]): string {
     const colRow = { col: 0, row: 0 };
     while (colRow.row < array.length && !arrayCell(array, colRow)) {
         colRow.row += 1;
@@ -113,10 +115,10 @@ export function arrayFirstCellByRow(array: Atom[][][]) {
 function addCell(
     model: ModelPrivate,
     where: 'after row' | 'before row' | 'after column' | 'before column'
-) {
+): void {
     // This command is only applicable if we're in an array
     const parent = model.parent();
-    if (parent && parent.type === 'array' && Array.isArray(parent.array)) {
+    if (parent && parent.type === 'array' && isArray(parent.array)) {
         const relation = model.relation();
         if (parent.array) {
             const colRow = arrayColRow(parent.array, relation);

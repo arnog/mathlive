@@ -1,8 +1,3 @@
-/**
- *
- * @module core/atom
- * @private
- */
 import './atom-genfrac';
 import './atom-array';
 import './atom-overunder';

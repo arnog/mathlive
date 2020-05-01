@@ -225,7 +225,7 @@ export function defaultReadAloudHook(
  * - `"paused"`
  * - `"unavailable"`
  *
- * **See** {@linkcode module:editor-mathfield#speak speak}
+ * **See** {@linkcode speak}
  * @category Read Aloud
  * @return {"ready" | "playing" | "paused" | "unavailable"}
  */
@@ -243,7 +243,7 @@ export function readAloudStatus() {
 /**
  * Pauses a read aloud operation if one is in progress.
  *
- * **See** {@linkcode module:editor/mathfield#speak speak}
+ * **See** {@linkcode speak}
  */
 export function pauseReadAloud() {
     if (!window) return;
@@ -262,7 +262,7 @@ export function pauseReadAloud() {
 /**
  * Resumes a read aloud operation if one was paused.
  *
- * **See** {@linkcode module:editor-mathfield#speak speak}
+ * **See** {@linkcode speak}
  */
 export function resumeReadAloud() {
     if (!window) return;
@@ -281,7 +281,7 @@ export function resumeReadAloud() {
 /**
  * If a Read Aloud operation is in progress, read from a specified token
  *
- * **See** {@linkcode module:editor-mathfield#speak speak}
+ * **See** {@linkcode speak}
  *
  * @param {string} [token]
  * @param {number} [count] The number of tokens to read.

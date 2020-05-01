@@ -1,8 +1,10 @@
 // const MathLive = require('../dist/mathlive.js');
 
-import MathLive from '../src/mathlive';
+// import MathLive from '../src/mathlive';
+/// <reference path="../dist/mathlive.d.ts" />
+import MathLive from '../dist/mathlive.js';
 
-const MathLiveDebug = MathLive.debug;
+const MathLiveDebug = MathLive['debug'];
 
 // function getProp(s, symbol, prop) {
 //     if (typeof s === 'string') s = toSpan(s);
@@ -23,7 +25,7 @@ function toSpan(formula) {
     return MathLive.latexToMarkup(formula, {
         mathstyle: 'displaystyle',
         format: 'span',
-    });
+    } as unknown); // 'span' is a secret format, so force it with 'unknown'
 }
 
 function spanToString(span) {

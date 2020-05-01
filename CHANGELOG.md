@@ -68,6 +68,8 @@
 
 *   Added support for `\ensuremath` command
 
+*   Added the `\imageof` ⊷ and `\originalof` ⊸ symbols
+
 ### Code Maintenance
 
 #### Codebase Migrated to Typescript

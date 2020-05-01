@@ -1,9 +1,7 @@
 import { Keys } from './types-utils';
-
 import { ParseMode } from './core';
 import { Mathfield } from './mathfield';
 import { Model } from './model';
-
 /**
  * How much of the formula should be spoken:
  * | | |
@@ -15,16 +13,7 @@ import { Model } from './model';
  * | `group` | the group (numerator, root, etc..) the selection is in |
  * | `parent` | the parent of the selection |
  */
-
-export type SpeechScope =
-    | 'all'
-    | 'selection'
-    | 'left'
-    | 'right'
-    | 'group'
-    | 'parent';
-
-// @revisit: maybe a command attribute instead?
+export declare type SpeechScope = 'all' | 'selection' | 'left' | 'right' | 'group' | 'parent';
 /**
  * Commands return true if they resulted in a dirty state
  * @command mathfield.perform
@@ -32,14 +21,12 @@ export type SpeechScope =
 export interface Commands {
     undo: (mathfield: Mathfield) => boolean;
     redo: (mathfield: Mathfield) => boolean;
-
     /**
      * Perform a command and include interactive feedback such as sound and
      * haptic feedback. This is useful to simulate user interaction,
      * for example for commands from the virtual keyboard
      */
     performWithFeedback: (mathfield: Mathfield, command: string) => boolean;
-
     /**
      * @category Auto-complete
      */
@@ -52,7 +39,6 @@ export interface Commands {
      * @category Auto-complete
      */
     previousSuggestion: (mathfield: Mathfield) => boolean;
-
     /**
      * @category Clipboard
      */
@@ -65,7 +51,6 @@ export interface Commands {
      * @category Clipboard
      */
     pasteFromClipboard: (mathfield: Mathfield) => boolean;
-
     /**
      * @category Scrolling
      */
@@ -78,40 +63,29 @@ export interface Commands {
      * @category Scrolling
      */
     scrollToEnd: (mathfield: Mathfield) => boolean;
-
     enterCommandMode: (mathfield: Mathfield) => boolean;
-
     toggleKeystrokeCaption: (mathfield: Mathfield) => boolean;
-
     switchMode: (mathfield: Mathfield, mode: ParseMode) => boolean;
-    insert: (mathfield: Mathfield, s: string, options) => boolean;
-    typedText: (
-        text: string,
-        options: {
-            /** If true, the mathfield will be focused */
-            focus: boolean;
-            /** If true, provide audio and haptic feedback */
-            feedback: boolean;
-            /** If true, generate some synthetic
-             * keystrokes (useful to trigger inline shortcuts, for example).
-             */
-            simulateKeystroke: boolean;
-        }
-    ) => boolean;
-
-    speak: (
-        mathfield: Mathfield,
-        /** {@inheritDoc SpeechScope} */
-        scope: SpeechScope,
-        options: {
-            /**
-             * In addition to speaking the requested portion of the formula,
-             * visually highlight it as it is read (read aloud functionality)
-             */
-            withHighlighting: boolean;
-        }
-    ) => boolean;
-
+    insert: (mathfield: Mathfield, s: string, options: any) => boolean;
+    typedText: (text: string, options: {
+        /** If true, the mathfield will be focused */
+        focus: boolean;
+        /** If true, provide audio and haptic feedback */
+        feedback: boolean;
+        /** If true, generate some synthetic
+         * keystrokes (useful to trigger inline shortcuts, for example).
+         */
+        simulateKeystroke: boolean;
+    }) => boolean;
+    speak: (mathfield: Mathfield, 
+    /** {@inheritDoc SpeechScope} */
+    scope: SpeechScope, options: {
+        /**
+         * In addition to speaking the requested portion of the formula,
+         * visually highlight it as it is read (read aloud functionality)
+         */
+        withHighlighting: boolean;
+    }) => boolean;
     /**
      * @category Array
      */
@@ -128,9 +102,7 @@ export interface Commands {
      * @category Array
      */
     addColumnBefore: (model: Model) => boolean;
-
     deleteAll: (model: Model) => boolean;
-
     /**
      * @category Selection
      */
@@ -175,7 +147,6 @@ export interface Commands {
      * @category Selection
      */
     moveToPreviousWord: (model: Model) => boolean;
-
     /**
      * @category Selection
      */
@@ -196,7 +167,6 @@ export interface Commands {
      * @category Selection
      */
     moveToSuperscript: (model: Model) => boolean;
-
     /**
      * @category Selection
      */
@@ -254,5 +224,4 @@ export interface Commands {
      */
     extendToMathFieldEnd: (model: Model) => boolean;
 }
-
-export type Selector = Keys<Commands>;
+export declare type Selector = Keys<Commands>;

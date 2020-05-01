@@ -1,11 +1,8 @@
 import { MacroDictionary, ParseMode } from './core';
 import { InlineShortcutDefinition } from './shortcuts';
-
-// Use a forward declaration to avoid a circular dependency
-// (Mathfield -> Config -> Mathfield)
-declare class Mathfield {}
-
-export type TextToSpeechOptions = {
+declare class Mathfield {
+}
+export declare type TextToSpeechOptions = {
     /**
      * Specify which set of text to speech rules to use.
      *
@@ -39,7 +36,9 @@ export type TextToSpeechOptions = {
      * options for the SRE engine are documented
      * {@link https://github.com/zorkow/speech-rule-engine | here}
      */
-    textToSpeechRulesOptions?: { [key: string]: string };
+    textToSpeechRulesOptions?: {
+        [key: string]: string;
+    };
     /**
      * Indicates which speech engine to use for speech output.
      *
@@ -59,7 +58,6 @@ export type TextToSpeechOptions = {
      * https://docs.aws.amazon.com/polly/latest/dg/voicelist.html
      *
      */
-
     speechEngineVoice?: string;
     /**
      * Sets the speed of the selected voice.
@@ -71,15 +69,10 @@ export type TextToSpeechOptions = {
      * twice the default rate.
      */
     speechEngineRate?: string;
-    speakHook?: (text: string, config: MathfieldConfig) => void; // @revisit 1.0: rename speakHook
-    readAloudHook?: (
-        element: HTMLElement,
-        text: string,
-        config: MathfieldConfig
-    ) => void; // @revisit 1.0: rename readAloudHook
+    speakHook?: (text: string, config: MathfieldConfig) => void;
+    readAloudHook?: (element: HTMLElement, text: string, config: MathfieldConfig) => void;
 };
-
-export type VirtualKeyboardOptions = {
+export declare type VirtualKeyboardOptions = {
     /**
      * If specified, the markup to be used to display the virtual keyboard
      * toggle glyph. If none is specified a default keyboard icon is used.
@@ -107,21 +100,8 @@ export type VirtualKeyboardOptions = {
      *
      * The keyboards will be displayed in the order indicated.
      */
-    virtualKeyboards?:
-        | 'all'
-        | 'numeric'
-        | 'roman'
-        | 'greek'
-        | 'functions'
-        | 'command'
-        | string;
-    virtualKeyboardLayout?:
-        | 'auto'
-        | 'qwerty'
-        | 'azerty'
-        | 'qwertz'
-        | 'dvorak'
-        | 'colemak';
+    virtualKeyboards?: 'all' | 'numeric' | 'roman' | 'greek' | 'functions' | 'command' | string;
+    virtualKeyboardLayout?: 'auto' | 'qwerty' | 'azerty' | 'qwertz' | 'dvorak' | 'colemak';
     /**
      * Some additional custom virtual keyboard layers.
      *
@@ -134,8 +114,12 @@ export type VirtualKeyboardOptions = {
      * {@link https://github.com/arnog/mathlive/tree/master/examples/virtual_keyboard | virtual keyboard example}
      *
      */
-    customVirtualKeyboardLayers?: { [layer: string]: string };
-    customVirtualKeyboards?: { [layer: string]: string };
+    customVirtualKeyboardLayers?: {
+        [layer: string]: string;
+    };
+    customVirtualKeyboards?: {
+        [layer: string]: string;
+    };
     /**
      * The visual theme used for the virtual keyboard.
      *
@@ -161,15 +145,12 @@ export type VirtualKeyboardOptions = {
      *     the others are optional. If they are missing, this sound is played as
      *     well.
      */
-    keypressSound?:
-        | string
-        | HTMLAudioElement
-        | {
-              spacebar?: string | HTMLAudioElement;
-              return?: string | HTMLAudioElement;
-              delete?: string | HTMLAudioElement;
-              default: string | HTMLAudioElement;
-          };
+    keypressSound?: string | HTMLAudioElement | {
+        spacebar?: string | HTMLAudioElement;
+        return?: string | HTMLAudioElement;
+        delete?: string | HTMLAudioElement;
+        default: string | HTMLAudioElement;
+    };
     /**
      * URL to a sound file which will be played to provide feedback when a
      * command has no effect, for example when pressing the spacebar at the root
@@ -177,7 +158,6 @@ export type VirtualKeyboardOptions = {
      */
     plonkSound?: string | HTMLAudioElement;
 };
-
 /**
  * These methods provide an opportunity to intercept or modify an action.
  * Their return value indicate whether the default handling should proceed.
@@ -191,11 +171,7 @@ export interface MathfieldHooks {
      *
      * Return `false` to stop the handling of the event.
      */
-    onKeystroke?: (
-        sender: Mathfield,
-        keystroke: string,
-        ev: KeyboardEvent
-    ) => boolean;
+    onKeystroke?: (sender: Mathfield, keystroke: string, ev: KeyboardEvent) => boolean;
     /**
      * A hook invoked when keyboard navigation would cause the insertion
      * point to leave the mathfield.
@@ -208,10 +184,7 @@ export interface MathfieldHooks {
      *
      * By default, the insertion point will wrap around.
      */
-    onMoveOutOf?: (
-        sender: Mathfield,
-        direction: 'forward' | 'backward'
-    ) => boolean;
+    onMoveOutOf?: (sender: Mathfield, direction: 'forward' | 'backward') => boolean;
     /**
      * A hook invoked when pressing tab (or shift-tab) would cause the
      * insertion point to leave the mathfield.
@@ -223,22 +196,13 @@ export interface MathfieldHooks {
      * element.
      *
      */
-    onTabOutOf?: (
-        sender: Mathfield,
-        direction: 'forward' | 'backward'
-    ) => boolean;
+    onTabOutOf?: (sender: Mathfield, direction: 'forward' | 'backward') => boolean;
 }
-
-export type UndoStateChangeListener = (
-    target: Mathfield,
-    action: 'undo' | 'redo' | 'snapshot'
-) => void;
-
+export declare type UndoStateChangeListener = (target: Mathfield, action: 'undo' | 'redo' | 'snapshot') => void;
 /**
  * The methods provide a notification that an event is about to occur or has
  * occured.
  */
-
 export interface MathfieldListeners {
     /** The mathfield has lost keyboard focus */
     onBlur?: (sender: Mathfield) => void;
@@ -251,15 +215,10 @@ export interface MathfieldListeners {
     onUndoStateWillChange?: UndoStateChangeListener;
     onUndoStateDidChange?: UndoStateChangeListener;
     onModeChange?: (sender: Mathfield, mode: ParseMode) => void;
-    onVirtualKeyboardToggle?: (
-        sender: Mathfield,
-        visible: boolean,
-        keyboardElement: HTMLElement
-    ) => void;
+    onVirtualKeyboardToggle?: (sender: Mathfield, visible: boolean, keyboardElement: HTMLElement) => void;
     onReadAloudStatus?: (sender: Mathfield) => void;
 }
-
-export type InlineShortcutsOptions = {
+export declare type InlineShortcutsOptions = {
     /** @deprecated Use:
      * ```typescript
      * mf.setConfig(
@@ -320,7 +279,9 @@ export type InlineShortcutsOptions = {
      *  | `'closefence'` | A closing fence such as `}`|
      *  | `'text'`| Some plain text|
      */
-    inlineShortcuts?: { [key: string]: InlineShortcutDefinition };
+    inlineShortcuts?: {
+        [key: string]: InlineShortcutDefinition;
+    };
     /**
      * Maximum time, in milliseconds, between consecutive characters for them to be
      * considered part of the same shortcut sequence.
@@ -345,8 +306,7 @@ export type InlineShortcutsOptions = {
      */
     inlineShortcutTimeout?: number;
 };
-
-export type LocalizationOptions = {
+export declare type LocalizationOptions = {
     /**
      * The locale (language + region) to use for string localization.
      *
@@ -371,10 +331,13 @@ export type LocalizationOptions = {
  *
  * This will override the default localized strings.
 */
-    strings?: { [locale: string]: { [key: string]: string } };
+    strings?: {
+        [locale: string]: {
+            [key: string]: string;
+        };
+    };
 };
-
-export type EditingOptions = {
+export declare type EditingOptions = {
     /** When true, the user cannot edit the mathfield. */
     readOnly?: boolean;
     /**
@@ -448,7 +411,7 @@ export type EditingOptions = {
      * second element the depth of superscript. Thus, a value of `[0, 1]` would
      * suppress the entry of subscripts, and allow one level of superscripts.
      */
-    scriptDepth?: number | [number, number]; // For [superscript, subscript] or for both
+    scriptDepth?: number | [number, number];
     /**
      * If `true`, extra parentheses around a numerator or denominator are
      * removed automatically.
@@ -461,8 +424,7 @@ export type EditingOptions = {
      */
     ignoreSpacebarInMathMode?: boolean;
 };
-
-export type LayoutOptions = {
+export declare type LayoutOptions = {
     defaultMode?: 'math' | 'text';
     /**
  *A dictionary of LaTeX macros to be used to interpret and render the content.
@@ -484,7 +446,6 @@ mf.setConfig({
 ```
  */
     macros?: MacroDictionary;
-
     /**
      * Scaling factor to be applied to horizontal spacing between elements of
      * the formula. A value greater than 1.0 can be used to improve the
@@ -524,7 +485,6 @@ mf.setConfig({
     */
     letterShapeStyle?: 'auto' | 'tex' | 'iso' | 'french' | 'upright';
 };
-
 /**
  *
  * * <var>namespace</var> Namespace that is added to `data-` attributes
@@ -547,15 +507,8 @@ mf.setConfig({
  *
  * Alternatively, the ID of a DOM element can be provided.
  */
-
-export type MathfieldConfig = LayoutOptions &
-    EditingOptions &
-    LocalizationOptions &
-    InlineShortcutsOptions &
-    VirtualKeyboardOptions &
-    TextToSpeechOptions &
-    MathfieldHooks &
-    MathfieldListeners & {
-        namespace?: string;
-        substituteTextArea?: string | (() => HTMLElement);
-    };
+export declare type MathfieldConfig = LayoutOptions & EditingOptions & LocalizationOptions & InlineShortcutsOptions & VirtualKeyboardOptions & TextToSpeechOptions & MathfieldHooks & MathfieldListeners & {
+    namespace?: string;
+    substituteTextArea?: string | (() => HTMLElement);
+};
+export {};

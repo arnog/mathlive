@@ -1,3 +1,5 @@
+import { isArray } from '../common/types';
+
 import { ParseMode } from '../public/core';
 
 import { LETTER_AND_DIGITS } from '../core/definitions';
@@ -410,7 +412,7 @@ export function next(
         }
         relation = 'body';
         while (relation) {
-            if (Array.isArray(anchor[relation])) {
+            if (isArray(anchor[relation])) {
                 model.path.push({ relation: relation, offset: 0 });
                 model.insertFirstAtom();
                 if (!options.iterateAll && anchor.skipBoundary) {
@@ -531,7 +533,7 @@ export function previous(
         }
         relation = 'superscript';
         while (relation) {
-            if (Array.isArray(anchor[relation])) {
+            if (isArray(anchor[relation])) {
                 model.path.push({
                     relation: relation,
                     offset: anchor[relation].length - 1,
@@ -1000,9 +1002,10 @@ export function moveAfterParent(model: ModelPrivate): boolean {
 }
 
 /**
- * The atom where the selection starts. When the selection is extended
- * the anchor remains fixed. The anchor could be either before or
- * after the focus.
+ * The atom where the selection starts.
+ *
+ * When the selection is extended the anchor remains fixed. The anchor
+ * could be either before or after the focus.
  */
 export function getAnchor(model: ModelPrivate): Atom {
     if (model.parent().array) {
@@ -1106,7 +1109,7 @@ export function setPath(model: ModelPrivate, selection, extent = 0): boolean {
     // Convert to a path array if necessary
     if (typeof selection === 'string') {
         selection = pathFromString(selection);
-    } else if (Array.isArray(selection)) {
+    } else if (isArray(selection)) {
         // need to temporarily change the path of this to use 'sibling()'
         const newPath = clonePath(selection);
         const oldPath = model.path;
@@ -1194,7 +1197,7 @@ export function forEachSelected(
     model: ModelPrivate,
     cb: (atom: Atom) => void,
     options?: { recursive?: boolean }
-) {
+): void {
     options = options ?? {};
     options.recursive = options.recursive ?? false;
 
@@ -1253,7 +1256,7 @@ export function getContentFromSiblings(
  * When changing the selection, if the former selection is an empty list,
  * insert a placeholder if necessary. For example, if in an empty numerator.
  */
-function adjustPlaceholder(model: ModelPrivate) {
+function adjustPlaceholder(model: ModelPrivate): void {
     // Should we insert a placeholder?
     // Check if we're an empty list that is the child of a fraction
     const siblings = model.siblings();

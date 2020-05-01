@@ -1,3 +1,5 @@
+import { isArray } from '../common/types';
+
 import {
     getEnvironmentInfo,
     getInfo,
@@ -197,13 +199,11 @@ class Parser {
      * @param {RegEx} pattern
      * @return {boolean} True if the next token is of type `'literal` and matches
      * the specified regular expression pattern.
-     * @method module:core/parser#Parser#hasLiteralPattern
-     * @private
      */
-    hasLiteralPattern(pattern): boolean {
+    hasLiteralPattern(pattern: RegExp): boolean {
         return (
             this.hasToken('literal') &&
-            pattern.test(this.tokens[this.index].value)
+            pattern.test(this.tokens[this.index].value as string)
         );
     }
     hasCommand(command: string): boolean {
@@ -274,11 +274,11 @@ class Parser {
         result.captureSelection = true;
         return [result];
     }
-    hasImplicitCommand(commands): boolean {
+    hasImplicitCommand(commands: string[]): boolean {
         if (this.index < this.tokens.length) {
             const token = this.tokens[this.index];
             if (token.type === 'command') {
-                return commands.includes(token.value);
+                return commands.includes(token.value as string);
             }
         }
         return false;
@@ -290,12 +290,8 @@ class Parser {
         }
         return false;
     }
-    /**
-     * @param {string} type
-     * @method module:core/parser#Parser#parseToken
-     * @private
-     */
-    parseToken(type): boolean {
+
+    parseToken(type: string): boolean {
         if (this.hasToken(type)) {
             this.index++;
             return true;
@@ -485,10 +481,8 @@ class Parser {
     }
     /**
      * Return a CSS color (#rrggbb)
-     * @method module:core/parser#Parser#scanColor
-     * @private
      */
-    scanColor() {
+    scanColor(): string {
         return stringToColor(this.scanString());
     }
     /**
@@ -552,7 +546,7 @@ class Parser {
      * @method module:core/parser#Parser#scanDimen
      * @private
      */
-    scanDimen() {
+    scanDimen(): number {
         const value = this.scanNumber(false);
         this.skipWhitespace();
         let result;
@@ -584,7 +578,7 @@ class Parser {
         }
         return result;
     }
-    scanSkip() {
+    scanSkip(): number {
         const result = this.scanDimen();
         // We parse, but ignore the optional 'plus' and 'minus'
         // arguments.
@@ -1038,7 +1032,7 @@ class Parser {
      * dependent on the displaystyle (`inlinemath` prefers `\nolimits`, while
      * `displaymath` prefers `\limits`).
      */
-    parseLimits() {
+    parseLimits(): boolean {
         // Note: technically, \limits and \nolimits are only applicable
         // after an operator. However, we apply them in all cases. They
         // will simply be ignored when not applicable (i.e. on a literal)
@@ -1507,7 +1501,7 @@ class Parser {
             );
         }
         // Always return an array of atoms
-        return result && !Array.isArray(result)
+        return result && !isArray(result)
             ? [result as Atom]
             : (result as Atom[]);
     }
@@ -1579,7 +1573,7 @@ class Parser {
         // If we have an atom to add, push it at the end of the current math list
         // We could have no atom for tokens that were skipped, a ' ' in math mode
         // for example
-        if (Array.isArray(result)) {
+        if (isArray(result)) {
             this.mathList = this.mathList.concat(result);
         } else if (result) {
             this.mathList.push(result);

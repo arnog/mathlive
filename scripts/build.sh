@@ -8,7 +8,7 @@ set -o pipefail  # don't hide errors within pipes
 cd "$(dirname "$0")/.."
 
 if [ "$#" -gt 1 ]; then
-    echo -e "\033[40m`basename "$0"`\033[0m\033[31m ERROR \033[0m Expected one argument: 'development' (default) 'watch' 'production' 'docs'"
+    echo -e "\033[40m`basename "$0"`\033[0m\033[31m ERROR \033[0m Expected one argument: 'development' (default) 'watch' 'production'"
     exit 1
 fi
 
@@ -24,7 +24,6 @@ export BUILD="${1-development}"
 
 # Clean output directories
 echo -e "\033[40m`basename "$0"`\033[0m 🚀 Cleaning output directories"
-rm -rf ./docs
 rm -rf ./dist
 rm -rf ./build
 rm -rf ./coverage
@@ -45,11 +44,6 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
         # Optimize CSS
         echo -e "\033[40m`basename "$0"`\033[0m 🚀 Optimizing CSS"
         npx postcss dist/*.css -d dist
-
-        # Build docs
-        echo -e "\033[40m`basename "$0"`\033[0m 🚀 Building docs"
-        npx jsdoc -c ./jsdoc.conf.json
-        printf docs.mathlive.io > docs/CNAME
     fi
 
     if [ "$BUILD" != "production" ]; then
@@ -63,7 +57,8 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
     echo -e "\033[40m`basename "$0"`\033[0m 🚀 Building declaration files (.d.ts)"
     # npx tsc --target "ES5" -d --emitDeclarationOnly --outFile --module system ./dist/mathlive.d.ts ./src/mathlive.api.ts 
     # npx tsc -d --emitDeclarationOnly --outDir dist ./src/mathlive.api.ts 
-    npx tsc --target "ES5" -d --emitDeclarationOnly --outFile ./dist/mathlive.d.ts ./src/public/mathlive.ts 
+    # npx tsc --target "ES5" -d --emitDeclarationOnly --outFile ./dist/mathlive.d.ts ./src/public/mathlive.ts 
+    npx tsc --target "ES5" -d --emitDeclarationOnly --outDir ./dist ./src/public/mathlive.ts 
 
     if [ "$BUILD" = "watch" ]; then
         # Do dev build and watch
@@ -79,14 +74,7 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
         fi
     fi
 
-
-elif [ "$BUILD" = "docs" ]; then
-    # Build docs
-    echo -e "\033[40m`basename "$0"`\033[0m 🚀 Building docs"
-    npx jsdoc -c ./jsdoc.conf.json
-    printf docs.mathlive.io > docs/CNAME
-
 else
-    echo -e "\033[40m`basename "$0"`\033[0m\033[31m ERROR \033[0m Expected: 'development' (default) 'watch' 'production' 'docs'"
+    echo -e "\033[40m`basename "$0"`\033[0m\033[31m ERROR \033[0m Expected: 'development' (default) 'watch' 'production'"
     exit 1
 fi

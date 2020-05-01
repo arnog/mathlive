@@ -20,7 +20,7 @@ export function defaultAnnounceHook(
     action: string,
     oldModel: ModelPrivate,
     atoms: Atom[]
-) {
+): void {
     //** Fix: the focus is the end of the selection, so it is before where we want it
     let liveText = '';
     // const action = moveAmount > 0 ? "right" : "left";
@@ -84,8 +84,11 @@ export function defaultAnnounceHook(
  *   an 'end of' phrasing based on what structure we are at the end of
  */
 // @revisit. Currently this = Mathfield, but it looks like model is enough
-function nextAtomSpeechText(mathfield: Mathfield, oldModel: ModelPrivate) {
-    function relation(parent: Atom, leaf: PathSegment) {
+function nextAtomSpeechText(
+    mathfield: Mathfield,
+    oldModel: ModelPrivate
+): string {
+    function relation(parent: Atom, leaf: PathSegment): string {
         const EXPR_NAME = {
             //    'array': 'should not happen',
             numer: 'numerator',

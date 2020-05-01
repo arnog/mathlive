@@ -1,3 +1,5 @@
+import { isArray } from '../common/types';
+
 import { registerAtomType, decompose, Atom } from './atom-utils';
 import { MATHSTYLES } from './mathstyle';
 import { METRICS as FONTMETRICS } from './font-metrics';
@@ -18,7 +20,7 @@ registerAtomType('surd', (context: Context, atom: Atom): Span[] => {
     const mathstyle = context.mathstyle;
     // First, we do the same steps as in overline to build the inner group
     // and line
-    console.assert(Array.isArray(atom.body));
+    console.assert(isArray(atom.body));
     const inner = decompose(context.cramp(), atom.body as Atom[]);
     const ruleWidth =
         FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;

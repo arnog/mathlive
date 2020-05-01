@@ -1,3 +1,5 @@
+import { isArray } from '../common/types';
+
 import { hidePopover, showPopoverWithLatex } from './editor-popover'; // @revisit
 import { suggest } from '../core/definitions';
 import { Mathfield } from './mathfield-utils';
@@ -50,7 +52,7 @@ export function register(
 
 export function perform(
     mathfield: Mathfield,
-    command: SelectorPrivate | string[]
+    command: SelectorPrivate | any[]
 ): boolean {
     if (!command) {
         return false;
@@ -61,7 +63,7 @@ export function perform(
     let handled = false;
     let dirty = false;
 
-    if (Array.isArray(command)) {
+    if (isArray(command)) {
         selector = command[0] as SelectorPrivate;
         args = command.slice(1);
     } else {

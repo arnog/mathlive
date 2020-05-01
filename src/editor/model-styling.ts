@@ -1,11 +1,16 @@
-import { Atom } from '../core/atom';
+import { Atom, isAtomArray } from '../core/atom';
 import { contentDidChange, contentWillChange } from './model-listeners';
 import { ModelPrivate } from './model-utils';
 import { selectionIsCollapsed, forEachSelected } from './model-selection';
 
-export function applyStyleToUnstyledAtoms(atom: Atom | Atom[], style) {
+import { Style, FontSeries, FontShape } from '../public/core';
+
+export function applyStyleToUnstyledAtoms(
+    atom: Atom | Atom[],
+    style: Style
+): void {
     if (!atom || !style) return;
-    if (Array.isArray(atom)) {
+    if (isAtomArray(atom)) {
         // Apply styling options to each atom
         atom.forEach((x) => applyStyleToUnstyledAtoms(x, style));
     } else if (typeof atom === 'object') {
@@ -41,11 +46,14 @@ export function applyStyleToUnstyledAtoms(atom: Atom | Atom[], style) {
  * @private
  */
 
-export function applyStyle(model: ModelPrivate, style) {
+export function applyStyle(
+    model: ModelPrivate,
+    style: Style & { series?: FontSeries; shape?: FontShape; size?: string }
+): void {
     // No selection, nothing to do.
     if (selectionIsCollapsed(model)) return;
 
-    function everyStyle(property, value) {
+    function everyStyle(property, value): boolean {
         let result = true;
         forEachSelected(
             model,

@@ -1,3 +1,5 @@
+import { isArray } from '../common/types';
+
 import { Atom } from '../core/atom';
 import { MACROS } from '../core/definitions';
 import { l10n } from './l10n';
@@ -55,7 +57,7 @@ export function update(
     Object.keys(updates).forEach((key) => {
         switch (key) {
             case 'scriptDepth':
-                if (Array.isArray(updates.scriptDepth)) {
+                if (isArray(updates.scriptDepth)) {
                     result.scriptDepth = [
                         updates.scriptDepth[0],
                         updates.scriptDepth[1],
@@ -195,7 +197,7 @@ export function update(
                 result[key] = updates[key] as any;
                 break;
             default:
-                if (Array.isArray(updates[key])) {
+                if (isArray(updates[key])) {
                     result[key] = [...updates[key]];
                 } else if (typeof updates[key] === 'object') {
                     result[key] = { ...updates[key] };
@@ -234,7 +236,7 @@ export function get(
     }
     const result: MathfieldConfigPrivate = {};
     resolvedKeys.forEach((x) => {
-        if (Array.isArray(result[x])) {
+        if (isArray(result[x])) {
             result[x] = [...result[x]];
         } else if (typeof result[x] === 'object') {
             result[x] = { ...result[x] };
@@ -297,9 +299,9 @@ export function getDefault(): Required<MathfieldConfigPrivate> {
         readAloudHook: NO_OP_LISTENER,
 
         onAnnounce: defaultAnnounceHook,
-        onKeystroke: () => true,
-        onMoveOutOf: () => true,
-        onTabOutOf: () => true,
+        onKeystroke: (): boolean => true,
+        onMoveOutOf: (): boolean => true,
+        onTabOutOf: (): boolean => true,
 
         onBlur: NO_OP_LISTENER,
         onFocus: NO_OP_LISTENER,

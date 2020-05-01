@@ -1,13 +1,3 @@
-/**
- *
- * This module outputs a formula to MathML.
- *
- * To use it, use the {@linkcode Atom#toMathML Atom.toMathML()}  method.
- *
- * @module addons/outputMathML
- * @private
- */
-
 import { Atom } from '../core/atom';
 import { stringToColor } from '../core/color';
 
