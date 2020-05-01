@@ -190,6 +190,8 @@ defineSymbol('\\rightsquigarrow', '\u21dd', 'mrel', 'ams');
 defineSymbol('\\leadsto', '\u21dd', 'mrel', 'ams');
 defineSymbol('\\leftrightsquigarrow', '\u21ad', 'mrel', 'ams');
 
+defineSymbol('\\originalof', '\u22B6', 'mrel');
+defineSymbol('\\imageof', '\u22B7', 'mrel');
 defineSymbol('\\multimap', '\u22b8', 'mrel', 'ams');
 
 // 'ams' Negated Arrows

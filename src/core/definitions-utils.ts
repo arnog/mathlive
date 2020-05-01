@@ -1,6 +1,45 @@
-import { ParseMode, Variant, VariantStyle } from './context';
+import { ParseModePrivate } from './context';
 import { Atom, AtomType, Notations, Colspec } from './atom-utils';
-import { FontSeries, FontShape } from './context';
+import {
+    Variant,
+    VariantStyle,
+    FontSeries,
+    FontShape,
+    MacroDictionary,
+} from '../public/core';
+
+export type FunctionArgumentDefiniton = {
+    optional: boolean;
+    type: ParseModePrivate;
+    defaultValue: any;
+    placeholder: string;
+};
+
+export type FunctionDefinition = {
+    params: FunctionArgumentDefiniton[];
+    mode: ParseModePrivate;
+    infix: boolean;
+    parse: Function;
+    emit: Function;
+    isFunction: boolean;
+};
+
+type EnvironmentDefinition = {
+    params: FunctionArgumentDefiniton[];
+    parser: Function;
+    mathstyle: string; //@revisit MathStle
+    tabular: boolean;
+    colFormat: Colspec[];
+    lFence: string;
+    rFence: string;
+};
+
+type SymbolDefinition = {
+    type: AtomType;
+    value: string;
+    variant: Variant;
+    variantStyle: VariantStyle;
+};
 
 export const MATH_SYMBOLS = {};
 // Map a character to some corresponding Latex
@@ -196,9 +235,6 @@ type ParseFunction = (
     args: (string | Atom[])[]
 ) => ParseFunctionResult;
 
-export type MacroDefinition = { def: string; args?: number };
-export type MacroDictionary = { [name: string]: string | MacroDefinition };
-
 export const MACROS: MacroDictionary = {
     iff: '\\;\u27fa\\;', //>2,000 Note: additional spaces around the arrows
     nicefrac: '^{#1}\\!\\!/\\!_{#2}',
@@ -308,12 +344,8 @@ export const LETTER_AND_DIGITS =
         : new RegExp('[0-9\\p{Letter}]', 'u');
 
 /**
- *
- * @param {string} symbol    The LaTeX command for this symbol, for
+ * @param symbol    The LaTeX command for this symbol, for
  * example `\alpha` or `+`
- *
- * @memberof module:definitions
- * @private
  */
 export function defineSymbol(
     symbol: string,
@@ -333,9 +365,7 @@ export function defineSymbol(
 
 /**
  * Define a set of single-character symbols as 'mord' symbols.
- * @param {string} string a string of single character symbols
- * @memberof module:definitions
- * @private
+ * @param string a string of single character symbols
  */
 export function defineSymbols(string: string): void {
     for (let i = 0; i < string.length; i++) {
@@ -346,10 +376,8 @@ export function defineSymbols(string: string): void {
 
 /**
  * Define a set of single-character symbols as a range of Unicode codepoints
- * @param {number} from First Unicode codepoint
- * @param {number} to Last Unicode codepoint
- * @memberof module:definitions
- * @private
+ * @param from First Unicode codepoint
+ * @param to Last Unicode codepoint
  */
 export function defineSymbolRange(from: number, to: number): void {
     for (let i = from; i <= to; i++) {
@@ -362,7 +390,7 @@ export function defineSymbolRange(from: number, to: number): void {
  * Given a character, return a LaTeX expression matching its Unicode codepoint.
  * If there is a matching symbol (e.g. \alpha) it is returned.
  */
-export function charToLatex(parseMode: ParseMode, s: string): string {
+export function charToLatex(parseMode: ParseModePrivate, s: string): string {
     if (parseMode === 'math') {
         return REVERSE_MATH_SYMBOLS[s] || s;
     }
@@ -572,12 +600,8 @@ function unicodeToMathVariant(
 /**
  * Given a character and variant ('double-struck', 'fraktur', etc...)
  * return the corresponding unicode character (a string)
- * @param {string} char
- * @param {string} variant
- * @memberof module:definitions
- * @private
  */
-export function mathVariantToUnicode(char, variant, style) {
+export function mathVariantToUnicode(char: string, variant, style): string {
     if (!/[A-Za-z0-9]/.test(char)) return char;
     if (!variant && !style) return char;
 
@@ -607,7 +631,10 @@ export function mathVariantToUnicode(char, variant, style) {
     return char;
 }
 
-export function unicodeCharToLatex(parseMode: ParseMode, char: string): string {
+export function unicodeCharToLatex(
+    parseMode: ParseModePrivate,
+    char: string
+): string {
     if (parseMode === 'text') {
         return charToLatex(parseMode, char) || char;
     }
@@ -637,7 +664,10 @@ export function unicodeCharToLatex(parseMode: ParseMode, char: string): string {
     return '\\mathord{' + result + '}';
 }
 
-export function unicodeStringToLatex(parseMode: ParseMode, s: string): string {
+export function unicodeStringToLatex(
+    parseMode: ParseModePrivate,
+    s: string
+): string {
     let result = '';
     let needSpace = false;
     for (const c of s) {
@@ -666,10 +696,11 @@ export function unicodeStringToLatex(parseMode: ParseMode, s: string): string {
  * @param {string} command
  * @return {boolean} True if command is allowed in the mode
  * (note that command can also be a single character, e.g. "a")
- * @memberof module:definitions
- * @private
  */
-export function commandAllowed(mode: ParseMode, command: string): boolean {
+export function commandAllowed(
+    mode: ParseModePrivate,
+    command: string
+): boolean {
     if (
         FUNCTIONS[command] &&
         (!FUNCTIONS[command].mode || FUNCTIONS[command].mode.includes(mode))
@@ -683,7 +714,7 @@ export function commandAllowed(mode: ParseMode, command: string): boolean {
     return false;
 }
 
-export function getValue(mode: ParseMode, symbol: string): string {
+export function getValue(mode: ParseModePrivate, symbol: string): string {
     if (mode === 'math') {
         return MATH_SYMBOLS[symbol] && MATH_SYMBOLS[symbol].value
             ? MATH_SYMBOLS[symbol].value
@@ -692,7 +723,7 @@ export function getValue(mode: ParseMode, symbol: string): string {
     return TEXT_SYMBOLS[symbol] ? TEXT_SYMBOLS[symbol] : symbol;
 }
 
-export function emit(symbol, parent, atom, emitFn) {
+export function emit(symbol, parent, atom, emitFn): string {
     console.assert(atom);
     console.assert(symbol, 'Missing command for ', atom.body);
 
@@ -736,18 +767,16 @@ export function getEnvironmentInfo(name: string) {
 }
 
 /**
- * @param {string} symbol    A command (e.g. '\alpha') or a character (e.g. 'a')
- * @param {string} parseMode One of 'math' or 'text'
- * @param {MacroDictionary} macros={} A macros dictionary
+ * @param symbol    A command (e.g. '\alpha') or a character (e.g. 'a')
+ * @param parseMode One of 'math' or 'text'
+ * @param macros A macros dictionary
  * @return {object} An info structure about the symbol, or null
- * @memberof module:definitions
- * @private
  */
 export function getInfo(
     symbol: string,
-    parseMode: ParseMode,
-    macros: MacroDictionary
-) {
+    parseMode: ParseModePrivate,
+    macros?: MacroDictionary
+): FunctionDefinition & EnvironmentDefinition & SymbolDefinition {
     if (!symbol || symbol.length === 0) return null;
 
     let info = null;
@@ -776,7 +805,7 @@ export function getInfo(
         if (!info) {
             // Maybe it's a macro
             const command = symbol.slice(1);
-            if (macros && macros[command]) {
+            if (macros?.[command]) {
                 let def = macros[command];
                 if (typeof def === 'object') {
                     def = def.def;
@@ -833,12 +862,8 @@ export function getInfo(
  * Return an array of suggestion for completing string 's'.
  * For example, for 'si', it could return ['sin', 'sinh', 'sim', 'simeq', 'sigma']
  * Infix operators are excluded, since they are deprecated commands.
- * @param {string} s
- * @return {string[]}
- * @memberof module:definitions
- * @private
  */
-export function suggest(s: string): string[] {
+export function suggest(s: string): { match: string; frequency: number }[] {
     if (s.length <= 1) return [];
     const result = [];
 
@@ -881,10 +906,6 @@ export function suggest(s: string): string[] {
  * - <default> is the default value if none is provided for an optional
  * parameter
  *
- * @param {string} argTemplate
- * @param {boolean} isOptional
- * @memberof module:definitions
- * @private
  */
 function parseParamTemplateArgument(argTemplate: string, isOptional: boolean) {
     let r = argTemplate.match(/=(.+)/);
@@ -1012,7 +1033,7 @@ export function defineEnvironment(
 export function defineFunction(
     names: string | string[],
     params: string,
-    options: { mode?: ParseMode; infix?: boolean },
+    options: { mode?: ParseModePrivate; infix?: boolean },
     parseFunction?: ParseFunction,
     emitFunction?: EmitFunction
 ): void {

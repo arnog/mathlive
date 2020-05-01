@@ -3,8 +3,6 @@
  * commands, for example `\alpha`, `\sin`, `\mathrm`.
  * There are a few exceptions with some "built-in" commands that require
  * special parsing such as `\char`.
- * @module core/definitions
- * @private
  */
 
 import './definitions-symbols';
@@ -16,3 +14,4 @@ import './definitions-styling';
 import './definitions-functions';
 
 export * from './definitions-utils';
+export { MacroDictionary } from '../public/core';

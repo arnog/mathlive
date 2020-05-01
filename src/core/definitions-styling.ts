@@ -1,7 +1,7 @@
 import { defineFunction, ParseFunctionResult } from './definitions-utils';
 import { colorToString, stringToColor } from './color';
 import { Atom, BBoxParam } from './atom-utils';
-import { FontShape, FontSeries } from './context';
+import { FontShape, FontSeries } from '../public/core';
 
 defineFunction(
     'ensuremath',

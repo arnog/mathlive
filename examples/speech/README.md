@@ -47,7 +47,7 @@ There is great variation between platforms (and browsers) on the quality of the 
 
 ```html
 <head>
-    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.249.1.min.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.657.0.min.js"></script>
     <script>
         AWS.config.region = 'eu-west-1';
         AWS.config.accessKeyId = 'YOUR-KEY';

@@ -1,3 +1,5 @@
+import { isArray } from '../common/types';
+
 import { registerAtomType, decompose, Atom } from './atom-utils';
 import {
     Span,
@@ -78,7 +80,7 @@ function makeOverunderStack(
     type: SpanType
 ): Span[] {
     // If nothing above and nothing below, nothing to do.
-    if (!above && !below) return Array.isArray(nucleus) ? nucleus : [nucleus];
+    if (!above && !below) return isArray(nucleus) ? nucleus : [nucleus];
 
     let aboveShift = 0;
     let belowShift = 0;

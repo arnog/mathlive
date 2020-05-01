@@ -1,3 +1,5 @@
+import { isArray } from '../common/types';
+
 import { registerAtomType, decompose, Atom } from './atom-utils';
 import { METRICS as FONTMETRICS } from './font-metrics';
 import {
@@ -30,7 +32,7 @@ registerAtomType('accent', (context: Context, atom: Atom): Span[] => {
     // and the skewchar.
     let skew = 0;
     if (
-        Array.isArray(atom.body) &&
+        isArray(atom.body) &&
         atom.body.length === 1 &&
         atom.body[0].isCharacterBox()
     ) {

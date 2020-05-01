@@ -1,11 +1,4 @@
-/**
- * This module outputs a formula to LaTeX.
- *
- * To use it, use the {@linkcode Atom#toLatex Atom.toLatex()}  method.
- *
- * @module addons/outputLatex
- * @private
- */
+import { isArray, isFunction } from '../common/types';
 
 import { Atom } from './atom';
 import { emit as emitDefinition } from './definitions';
@@ -81,20 +74,20 @@ function latexifyArray(parent, atoms, expandMacro) {
 
 /**
  * Given an atom or an array of atoms, return a LaTeX string representation
- * @return {string}
- * @param {string|Atom|Atom[]} value
- * @param {boolean} expandMacro
- * @private
  */
-function latexify(parent, value, expandMacro) {
+function latexify(
+    parent: Atom,
+    value: boolean | number | string | Atom | Atom[],
+    expandMacro: boolean
+): string {
     let result = '';
-    if (Array.isArray(value)) {
+    if (isArray(value)) {
         result = latexifyArray(parent, value, expandMacro);
     } else if (typeof value === 'number' || typeof value === 'boolean') {
         result = value.toString();
     } else if (typeof value === 'string') {
         result = value.replace(/\s/g, '~');
-    } else if (value && typeof value.toLatex === 'function') {
+    } else if (value && isFunction(value.toLatex)) {
         result = value.toLatex(expandMacro);
     }
     return result;
@@ -107,7 +100,7 @@ function latexify(parent, value, expandMacro) {
  * no longer round-trip.
  *
  */
-export function atomToLatex(atom: Atom, expandMacro: boolean) {
+export function atomToLatex(atom: Atom, expandMacro: boolean): string {
     expandMacro = typeof expandMacro === 'undefined' ? false : expandMacro;
     // If we have some verbatim latex for this atom, use it.
     // This allow non-significant punctuation to be preserved when possible.
@@ -119,7 +112,8 @@ export function atomToLatex(atom: Atom, expandMacro: boolean) {
     let row = 0;
     let i = 0;
     const command = atom.symbol;
-    const emit = (parent, atom) => latexify(parent, atom, expandMacro);
+    const emit = (parent: Atom, atom: string | number | Atom[]): string =>
+        latexify(parent, atom, expandMacro);
 
     // atom.mode=='text' is handled in the switch by looking at atom.type===''
     switch (atom.type) {
@@ -371,7 +365,7 @@ export function atomToLatex(atom: Atom, expandMacro: boolean) {
         default:
             result = emitDefinition(command, parent, atom, emit);
             console.assert(
-                result,
+                !!result,
                 'Missing custom emiter for ',
                 command || atom.body
             );

@@ -1,3 +1,5 @@
+import { isArray } from '../common/types';
+
 import {
     getEnvironmentInfo,
     getInfo,
@@ -9,8 +11,9 @@ import { convertDimenToEm } from './font-metrics';
 import { Token, tokenize } from './lexer';
 import { Atom, Colspec, BBoxParam } from './atom';
 import { parseTokens } from './modes';
-import { MacroDefinition } from './definitions-utils';
-import { Style, ParseMode } from './context';
+import { FunctionDefinition } from './definitions-utils';
+import { MacroDefinition, Style } from '../public/core';
+import { ParseModePrivate } from './context';
 
 function tokensToString(tokens: Token[]): string {
     let hasParamToken = false;
@@ -86,7 +89,6 @@ function tokensToString(tokens: Token[]): string {
  *  a column separator and `'\'` as a row separator. Used for matrixes, etc...
  * @property {number} endCount - Counter to prevent deadlock. If `end()` is
  * called too many times (1,000) in a row for the same token, bail.
- * @private
  */
 class Parser {
     tokens: Token[];
@@ -95,7 +97,7 @@ class Parser {
     macros: MacroDictionary;
     mathList: Atom[];
     style: Style;
-    parseMode: ParseMode;
+    parseMode: ParseModePrivate;
     smartFence: boolean;
     tabularMode: boolean;
     endCount: number;
@@ -121,7 +123,7 @@ class Parser {
         this.mathList = newMathList;
         return result;
     }
-    swapParseMode(mode: ParseMode): ParseMode {
+    swapParseMode(mode: ParseModePrivate): ParseModePrivate {
         const result = this.parseMode;
         this.parseMode = mode;
         return result;
@@ -197,13 +199,11 @@ class Parser {
      * @param {RegEx} pattern
      * @return {boolean} True if the next token is of type `'literal` and matches
      * the specified regular expression pattern.
-     * @method module:core/parser#Parser#hasLiteralPattern
-     * @private
      */
-    hasLiteralPattern(pattern): boolean {
+    hasLiteralPattern(pattern: RegExp): boolean {
         return (
             this.hasToken('literal') &&
-            pattern.test(this.tokens[this.index].value)
+            pattern.test(this.tokens[this.index].value as string)
         );
     }
     hasCommand(command: string): boolean {
@@ -274,11 +274,11 @@ class Parser {
         result.captureSelection = true;
         return [result];
     }
-    hasImplicitCommand(commands): boolean {
+    hasImplicitCommand(commands: string[]): boolean {
         if (this.index < this.tokens.length) {
             const token = this.tokens[this.index];
             if (token.type === 'command') {
-                return commands.includes(token.value);
+                return commands.includes(token.value as string);
             }
         }
         return false;
@@ -290,12 +290,8 @@ class Parser {
         }
         return false;
     }
-    /**
-     * @param {string} type
-     * @method module:core/parser#Parser#parseToken
-     * @private
-     */
-    parseToken(type): boolean {
+
+    parseToken(type: string): boolean {
         if (this.hasToken(type)) {
             this.index++;
             return true;
@@ -315,15 +311,14 @@ class Parser {
             this.get();
         }
     }
-    parseArguments(info: {
-        params: { optional: boolean; type: ParseMode }[];
-        infix: boolean;
-    }): [
-        ParseMode,
+    parseArguments(
+        info: FunctionDefinition
+    ): [
+        ParseModePrivate,
         (string | number | BBoxParam | Colspec[] | Atom | Atom[])[]
     ] {
         if (!info || !info.params) return ['', []];
-        let explicitGroup: ParseMode = '';
+        let explicitGroup: ParseModePrivate = '';
         const args: (
             | string
             | number
@@ -342,7 +337,7 @@ class Parser {
                 // For example 'math*'.
                 // In this case, indicate that a 'yet-to-be-parsed'
                 // argument (and 'explicit group') is present
-                explicitGroup = param.type.slice(0, -1) as ParseMode;
+                explicitGroup = param.type.slice(0, -1) as ParseModePrivate;
             } else {
                 // If it's not present, scanArg returns null.
                 // Add a placeholder instead.
@@ -486,10 +481,8 @@ class Parser {
     }
     /**
      * Return a CSS color (#rrggbb)
-     * @method module:core/parser#Parser#scanColor
-     * @private
      */
-    scanColor() {
+    scanColor(): string {
         return stringToColor(this.scanString());
     }
     /**
@@ -553,7 +546,7 @@ class Parser {
      * @method module:core/parser#Parser#scanDimen
      * @private
      */
-    scanDimen() {
+    scanDimen(): number {
         const value = this.scanNumber(false);
         this.skipWhitespace();
         let result;
@@ -585,7 +578,7 @@ class Parser {
         }
         return result;
     }
-    scanSkip() {
+    scanSkip(): number {
         const result = this.scanDimen();
         // We parse, but ignore the optional 'plus' and 'minus'
         // arguments.
@@ -842,7 +835,7 @@ class Parser {
                 infixInfo = getInfo('\\' + infix.value, 'math', this.macros);
                 if (infixInfo) {
                     [, infixArgs] = this.parseArguments(infixInfo) as [
-                        ParseMode,
+                        ParseModePrivate,
                         Atom[][]
                     ];
                 }
@@ -1039,7 +1032,7 @@ class Parser {
      * dependent on the displaystyle (`inlinemath` prefers `\nolimits`, while
      * `displaymath` prefers `\limits`).
      */
-    parseLimits() {
+    parseLimits(): boolean {
         // Note: technically, \limits and \nolimits are only applicable
         // after an operator. However, we apply them in all cases. They
         // will simply be ignored when not applicable (i.e. on a literal)
@@ -1063,7 +1056,7 @@ class Parser {
         return false;
     }
     scanOptionalArg(
-        parseMode: ParseMode
+        parseMode: ParseModePrivate
     ): string | number | BBoxParam | Colspec[] | Atom[] {
         parseMode =
             !parseMode || parseMode === 'auto' ? this.parseMode : parseMode;
@@ -1142,7 +1135,7 @@ class Parser {
      * example: `'dimension'`, `'color'`, `'text'`, etc...
      */
     scanArg(
-        parseMode?: ParseMode
+        parseMode?: ParseModePrivate
     ): string | number | Atom | Atom[] | Colspec[] {
         parseMode =
             !parseMode || parseMode === 'auto' ? this.parseMode : parseMode;
@@ -1234,7 +1227,7 @@ class Parser {
                     smartFence: this.smartFence,
                     style: this.style,
                     parse: (
-                        mode: ParseMode,
+                        mode: ParseModePrivate,
                         tokens: Token[],
                         options
                     ): [Atom[], Token[]] => {
@@ -1419,13 +1412,9 @@ class Parser {
                             result = new Atom(
                                 this.parseMode,
                                 info.type || 'mop',
-                                info.value || token.value,
+                                info.value || (token.value as string),
                                 style
                             );
-
-                            if (info.skipBoundary) {
-                                result.skipBoundary = true;
-                            }
                         }
                         if (
                             result instanceof Atom &&
@@ -1512,7 +1501,7 @@ class Parser {
             );
         }
         // Always return an array of atoms
-        return result && !Array.isArray(result)
+        return result && !isArray(result)
             ? [result as Atom]
             : (result as Atom[]);
     }
@@ -1584,7 +1573,7 @@ class Parser {
         // If we have an atom to add, push it at the end of the current math list
         // We could have no atom for tokens that were skipped, a ' ' in math mode
         // for example
-        if (Array.isArray(result)) {
+        if (isArray(result)) {
             this.mathList = this.mathList.concat(result);
         } else if (result) {
             this.mathList.push(result);
@@ -1602,7 +1591,7 @@ class Parser {
  */
 export function parseString(
     s: string,
-    parseMode: ParseMode,
+    parseMode: ParseModePrivate,
     args: (string | Atom[])[],
     macros: MacroDictionary,
     smartFence = false

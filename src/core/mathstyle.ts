@@ -40,7 +40,7 @@
  * Finally, style C↓ is the subscript style, which is (C↑) .
  */
 
-import { SIGMAS } from './font-metrics.js';
+import { SIGMAS } from './font-metrics';
 interface Metrics {
     slant: number;
     space: number;

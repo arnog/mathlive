@@ -19,11 +19,9 @@
  * delimiter which surrounds an expression of a given height an depth. It is
  * used in `\left` and `\right`.
  * @summary   Handling of delimiters surrounds symbols.
- * @module core/delimiters
- * @private
  */
 
-import { getValue } from './definitions.js';
+import { getValue } from './definitions';
 import {
     makeSymbol,
     makeSpan,
@@ -31,10 +29,10 @@ import {
     makeStyleWrap,
     SpanType,
     Span,
-} from './span.js';
-import { Mathstyle, MATHSTYLES } from './mathstyle.js';
-import { getCharacterMetrics, METRICS } from './font-metrics.js';
-import { Context } from './context.js';
+} from './span';
+import { Mathstyle, MATHSTYLES } from './mathstyle';
+import { getCharacterMetrics, METRICS } from './font-metrics';
+import { Context } from './context';
 /**
  * Makes a small delimiter. This is a delimiter that comes in the Main-Regular
  * font, but is restyled to either be in textstyle, scriptstyle, or
@@ -663,8 +661,6 @@ export function makeCustomSizedDelim(
  * Make a delimiter for use with `\left` and `\right`, given a height and depth
  * of an expression that the delimiters surround.
  * See tex.web:14994
- * @memberof module:delimiters
- * @private
  */
 export function makeLeftRightDelim(
     type: SpanType,
@@ -673,7 +669,7 @@ export function makeLeftRightDelim(
     depth: number,
     context: Context,
     classes = ''
-) {
+): Span {
     // If this is the empty delimiter, return a null fence
     if (delim === '.') {
         return makeNullFence(type, context, classes);

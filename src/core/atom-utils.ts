@@ -1,14 +1,16 @@
+import { isArray } from '../common/types';
+
+import { Context, ContextInterface, ParseModePrivate } from './context';
 import {
-    Context,
     Style,
     ParseMode,
     Variant,
     VariantStyle,
     FontShape,
     FontSeries,
-} from './context.js';
+} from '../public/core';
 import { MATHSTYLES } from './mathstyle';
-import { METRICS as FONTMETRICS } from './font-metrics.js';
+import { METRICS as FONTMETRICS } from './font-metrics';
 import {
     makeSpan,
     makeVlist,
@@ -18,7 +20,7 @@ import {
     SpanType,
     isSpanType,
     Span,
-} from './span.js';
+} from './span';
 import { makeSizedDelim } from './delimiters';
 import { atomToLatex } from './atom-to-latex';
 
@@ -40,11 +42,13 @@ export type Notations = {
 export type AtomType =
     | ''
     | 'array'
+    | 'box'
     | 'command'
     | 'delim'
     | 'enclose'
     | 'error'
     | 'first'
+    | 'genfrac'
     | 'group'
     | 'leftright'
     | 'mathstyle' // @revisit
@@ -59,12 +63,14 @@ export type AtomType =
     | 'msubsup'
     | 'none' // @revisit
     | 'overlap'
+    | 'overunder'
     | 'placeholder'
     | 'root'
     | 'rule'
     | 'sizeddelim'
     | 'space'
     | 'spacing'
+    | 'surd'
     | 'textord';
 
 export type Colspec = {
@@ -112,7 +118,7 @@ export function registerAtomType(
  * @param atoms - A single atom or an array of atoms
  */
 export function decompose(
-    context: Context,
+    inputContext: ContextInterface,
     atoms: Atom | Atom[]
 ): Span[] | null {
     function isDigit(atom: Atom): boolean {
@@ -126,11 +132,12 @@ export function decompose(
         return atom.mode === 'text';
     }
 
-    if (!(context instanceof Context)) {
-        // We can be passed either a Context object, or
-        // a simple object with some properties set.
-        context = new Context(context);
-    }
+    // We can be passed either a Context object, or
+    // a simple object with some properties set.
+    const context: Context =
+        inputContext instanceof Context
+            ? inputContext
+            : new Context(inputContext);
 
     // In most cases we want to display selection,
     // except if the atomIdsSettings.groupNumbers flag is set which is used for
@@ -139,19 +146,19 @@ export function decompose(
         !context.atomIdsSettings || !context.atomIdsSettings.groupNumbers;
 
     let result: Span[] | null = [];
-    if (Array.isArray(atoms)) {
+    if (isArray(atoms)) {
         if (atoms.length === 0) {
             return [];
         } else if (atoms.length === 1) {
             result = atoms[0].decompose(context);
             if (result && displaySelection && atoms[0].isSelected) {
-                result.forEach((x) => x.selected(true));
+                result.forEach((x: Span) => x.selected(true));
             }
-            console.assert(!result || Array.isArray(result));
+            console.assert(!result || isArray(result));
         } else {
             let previousType = 'none';
             let nextType = atoms[1].type;
-            let selection = [];
+            let selection: Span[] = [];
             let digitOrTextStringID = '';
             let lastWasDigit = true;
             let phantomBase = null;
@@ -227,7 +234,7 @@ export function decompose(
 
                     if (displaySelection && atoms[i].isSelected) {
                         selection = selection.concat(flat);
-                        selection.forEach((x) => x.selected(true));
+                        selection.forEach((x: Span) => x.selected(true));
                     } else {
                         if (selection.length > 0) {
                             // There was a selection, but we're out of it now
@@ -258,13 +265,13 @@ export function decompose(
         // This is a single atom, decompose it
         result = atoms.decompose(context);
         if (result && displaySelection && atoms.isSelected) {
-            result.forEach((x) => x.selected(true));
+            result.forEach((x: Span) => x.selected(true));
         }
     }
 
     if (!result || result.length === 0) return null;
 
-    console.assert(Array.isArray(result) && result.length > 0);
+    console.assert(isArray(result) && result.length > 0);
 
     // If the mathstyle changed between the parent and the current atom,
     // account for the size difference
@@ -273,7 +280,7 @@ export function decompose(
             context.mathstyle.sizeMultiplier /
             context.parentMathstyle.sizeMultiplier;
         for (const span of result) {
-            console.assert(!Array.isArray(span));
+            console.assert(!isArray(span));
             console.assert(
                 typeof span.height === 'number' && isFinite(span.height)
             );
@@ -288,7 +295,7 @@ export function decompose(
             SIZING_MULTIPLIER[context.size] /
             SIZING_MULTIPLIER[context.parentSize];
         for (const span of result) {
-            console.assert(!Array.isArray(span));
+            console.assert(!isArray(span));
             console.assert(
                 typeof span.height === 'number' && isFinite(span.height)
             );
@@ -365,7 +372,7 @@ export function decompose(
  * inside this element.
  */
 export class Atom implements Style {
-    mode: ParseMode;
+    mode: ParseModePrivate;
     type: AtomType;
     latex?: string;
     symbol?: string; // Latex command ('\sin') or character ('a')
@@ -447,7 +454,7 @@ export class Atom implements Style {
     skipBoundary?: boolean;
     // selected?: boolean;
     isSelected?: boolean;
-    caret: '' | 'text';
+    caret: ParseMode | '';
     containsCaret: boolean; // If the atom or one of its descendant includes the caret
 
     mathstyle?:
@@ -469,7 +476,7 @@ export class Atom implements Style {
     fontSize?: string;
     cssId?: string;
     cssClass?: string;
-    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'up' | 'auto';
+    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
 
     phantom?: boolean;
 
@@ -485,12 +492,12 @@ export class Atom implements Style {
      * @param {object} style
      */
     constructor(
-        mode: ParseMode,
+        mode: ParseModePrivate,
         type: AtomType,
         body: string | Atom[] = '',
         style: Style = {}
     ) {
-        console.assert(type === 'first' || mode);
+        console.assert(type === 'first' || !!mode);
         this.mode = mode;
         this.type = type;
         this.body = body;
@@ -499,7 +506,7 @@ export class Atom implements Style {
         // This can override the mode, type and body
         this.applyStyle(style);
     }
-    toLatex(expandMacro: boolean): string {
+    toLatex(expandMacro = false): string {
         return atomToLatex(this, expandMacro);
     }
     getStyle(): Style {
@@ -556,7 +563,7 @@ export class Atom implements Style {
 
     getInitialBaseElement(): Atom {
         let result: Atom;
-        if (Array.isArray(this.body) && this.body.length > 0) {
+        if (isArray(this.body) && this.body.length > 0) {
             if (this.body[0].type !== 'first') {
                 result = this.body[0].getInitialBaseElement();
             } else if (this.body[1]) {
@@ -567,7 +574,7 @@ export class Atom implements Style {
     }
 
     getFinalBaseElement(): Atom {
-        if (Array.isArray(this.body) && this.body.length > 0) {
+        if (isArray(this.body) && this.body.length > 0) {
             return this.body[this.body.length - 1].getFinalBaseElement();
         }
         return this;
@@ -580,7 +587,7 @@ export class Atom implements Style {
 
     forEach(cb: (arg0: this) => void): void {
         cb(this);
-        if (Array.isArray(this.body)) {
+        if (isArray(this.body)) {
             for (const atom of this.body) if (atom) atom.forEach(cb);
         } else if (this.body && typeof this.body === 'object') {
             // Note: body can be null, for example 'first' or 'rule'
@@ -635,13 +642,13 @@ export class Atom implements Style {
             'denom',
             'index',
         ]) {
-            if (Array.isArray(this[relation])) {
+            if (isArray(this[relation])) {
                 for (const atom of this[relation]) {
                     if (atom) result = result.concat(atom.filter(cb));
                 }
             }
         }
-        if (Array.isArray(this.array)) {
+        if (isArray(this.array)) {
             for (const row of this.array) {
                 for (const cell of row) {
                     if (cell) result = result.concat(cell.filter(cb));
@@ -827,14 +834,14 @@ export class Atom implements Style {
             this.type !== 'placeholder' &&
             this.type !== 'first'
         ) {
-            if (Array.isArray(result)) {
+            if (isArray(result)) {
                 result[result.length - 1].caret = this.caret;
             } else {
                 result.caret = this.caret;
             }
         }
         if (this.containsCaret) {
-            if (Array.isArray(result)) {
+            if (isArray(result)) {
                 // For a /mleft.../mright, tag the first and last atom in the
                 // list with the "ML__contains-caret" style (it's the open and
                 // closing fence, respectively)
@@ -851,7 +858,7 @@ export class Atom implements Style {
         if (!this.limits && (this.superscript || this.subscript)) {
             // If `limits` is set, the attachment of sup/sub was handled
             // in the atom decomposition (e.g. mop, accent)
-            if (Array.isArray(result)) {
+            if (isArray(result)) {
                 const lastSpan = result[result.length - 1];
                 result[result.length - 1] = this.attachSupsub(
                     context,
@@ -862,7 +869,7 @@ export class Atom implements Style {
                 result = [this.attachSupsub(context, result, result.type)];
             }
         }
-        return Array.isArray(result) ? result : [result];
+        return isArray(result) ? result : [result];
     }
 
     attachSupsub(context: Context, nucleus: Span, type: SpanType): Span {
@@ -1221,22 +1228,19 @@ function makeLimitsStack(
 
 /**
  * Return an atom suitable for use as the root of a formula.
- *
- * @param {string} parseMode
- * @param {Atom[]} body
- * @return {Atom[]}
- * @memberof module:core/atom
- * @private
  */
 
-export function makeRoot(parseMode: ParseMode, body: Atom[]): Atom {
-    parseMode = parseMode || 'math';
+export function makeRoot(parseMode: ParseMode, body: Atom[] = []): Atom {
     const result = new Atom(parseMode, 'root', body || []);
     if (
-        Array.isArray(result.body) &&
+        isArray(result.body) &&
         (result.body.length === 0 || result.body[0].type !== 'first')
     ) {
         result.body!.unshift(new Atom('', 'first'));
     }
     return result;
+}
+
+export function isAtomArray(arg: any): arg is Atom[] {
+    return isArray(arg);
 }

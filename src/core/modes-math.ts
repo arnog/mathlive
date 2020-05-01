@@ -175,7 +175,7 @@ function emitLatexMathRun(
         .join('');
 }
 
-function applyStyle(atom, style) {
+function applyStyle(atom, style): string {
     // letterShapeStyle will usually be set automatically, except when the
     // locale cannot be determined, in which case its value will be 'auto'
     // which we default to 'tex'

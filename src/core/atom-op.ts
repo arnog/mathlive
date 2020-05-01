@@ -1,3 +1,5 @@
+import { isArray } from '../common/types';
+
 import { registerAtomType, decompose, Atom } from './atom-utils';
 import { MATHSTYLES } from './mathstyle';
 import { makeSymbol, makeSpan, Span } from './span';
@@ -47,7 +49,7 @@ registerAtomType('mop', (context: Context, atom: Atom): Span[] => {
             cssClass: atom.cssClass,
             letterShapeStyle: context.letterShapeStyle,
         });
-    } else if (Array.isArray(atom.body)) {
+    } else if (isArray(atom.body)) {
         // If this is a list, decompose that list.
         base = makeSpan(decompose(context, atom.body), '', 'mop');
     } else {

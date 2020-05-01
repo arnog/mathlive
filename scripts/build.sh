@@ -8,35 +8,42 @@ set -o pipefail  # don't hide errors within pipes
 cd "$(dirname "$0")/.."
 
 if [ "$#" -gt 1 ]; then
-    echo -e "\033[40m`basename "$0"`\033[0m\033[31m ERROR \033[0m Expected one argument: 'development' (default) 'watch' 'production' 'docs'"
+    echo -e "\033[40m`basename "$0"`\033[0m\033[31m ERROR \033[0m Expected one argument: 'development' (default) 'watch' 'production'"
     exit 1
 fi
+
+# If no node_modules directory, do an install first
+if [ ! -d "./node_modules" ]; then
+    echo -e "\033[40m`basename "$0"`\033[0m 🚀 Installing dependencies"
+    npm install
+fi
+
 
 # Read the first argument, set it to "development" if not set
 export BUILD="${1-development}"
 
 # Clean output directories
-rm -rf ./docs
+echo -e "\033[40m`basename "$0"`\033[0m 🚀 Cleaning output directories"
 rm -rf ./dist
 rm -rf ./build
+rm -rf ./coverage
 
 if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "production" ]; then
     mkdir -p dist
 
     # Copy fonts
+    echo -e "\033[40m`basename "$0"`\033[0m 🚀 Copying static assets (fonts)"
     cp -f -R css/fonts dist/
     
     # Build CSS
+    echo -e "\033[40m`basename "$0"`\033[0m 🚀 Building CSS"
     npx lessc css/mathlive.core.less dist/mathlive.core.css
     npx lessc css/mathlive.less dist/mathlive.css
 
     if [ "$BUILD" = "production" ]; then
         # Optimize CSS
+        echo -e "\033[40m`basename "$0"`\033[0m 🚀 Optimizing CSS"
         npx postcss dist/*.css -d dist
-
-        # Build docs
-        npx jsdoc -c ./jsdoc.conf.json
-        printf docs.mathlive.io > docs/CNAME
     fi
 
     if [ "$BUILD" != "production" ]; then
@@ -44,33 +51,30 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
         touch dist/DEVELOPMENT-BUILD
     fi
 
-    # Build Typescript types from JSDoc
-    npx jsdoc -t node_modules/tsd-jsdoc/dist -d ./build -a public -r ./src/
-    mv -f ./build/types.d.ts ./dist/mathlive.d.ts
+    # Bundle declaration files (.d.ts)
+    # Even though we only generate declaration file, the target must be set high-enough
+    # to prevent tsc from complaining (!)
+    echo -e "\033[40m`basename "$0"`\033[0m 🚀 Building declaration files (.d.ts)"
+    # npx tsc --target "ES5" -d --emitDeclarationOnly --outFile --module system ./dist/mathlive.d.ts ./src/mathlive.api.ts 
+    # npx tsc -d --emitDeclarationOnly --outDir dist ./src/mathlive.api.ts 
+    # npx tsc --target "ES5" -d --emitDeclarationOnly --outFile ./dist/mathlive.d.ts ./src/public/mathlive.ts 
+    npx tsc --target "ES5" -d --emitDeclarationOnly --outDir ./dist ./src/public/mathlive.ts 
 
     if [ "$BUILD" = "watch" ]; then
-        # Launch server, do build
-        echo "Launching server"
-        npx http-server . -c-1 --cors='*' -o examples/test-cases/index.html &
-
-        # do dev build and watch
-        BUILD="development"
-        npx rollup --config --watch
+        # Do dev build and watch
+        echo -e "\033[40m`basename "$0"`\033[0m 🚀 Making a \033[33mdevelopment\033[0m build"
+        npx rollup --silent --config --watch
     else
-        # do build (development or production)
-        npx rollup --config 
+        # Do build (development or production)
+        echo -e "\033[40m`basename "$0"`\033[0m 🚀 Making a \033[33m" $BUILD "\033[0m build"
+        npx rollup --silent --config 
         if [ "$BUILD" = "production" ]; then
-            npm run test
+            echo -e "\033[40m`basename "$0"`\033[0m 🚀 Running test suite"
+            npx jest --silent
         fi
     fi
 
-
-elif [ "$BUILD" = "docs" ]; then
-    # Build docs
-    npx jsdoc -c ./jsdoc.conf.json
-    printf docs.mathlive.io > docs/CNAME
-
 else
-    echo -e "\033[40m`basename "$0"`\033[0m\033[31m ERROR \033[0m Expected: 'development' (default) 'watch' 'production' 'docs'"
+    echo -e "\033[40m`basename "$0"`\033[0m\033[31m ERROR \033[0m Expected: 'development' (default) 'watch' 'production'"
     exit 1
 fi
