@@ -79,7 +79,10 @@ export default [
                         return;
                     }
 
-                    if (process.stdout.isTTY) {
+                    if (
+                        process.stdout.isTTY &&
+                        typeof process.stdout.clearLine === 'function'
+                    ) {
                         process.stdout.clearLine();
                         process.stdout.cursorTo(0);
                         process.stdout.write('Building ' + chalk.grey(file));
@@ -92,7 +95,10 @@ export default [
                         process.env.BUILD === 'watch' ||
                         process.env.BUILD === 'watching'
                     ) {
-                        if (process.stdout.isTTY) {
+                        if (
+                            process.stdout.isTTY &&
+                            typeof process.stdout.clearLine === 'function'
+                        ) {
                             process.stdout.clearLine();
                             process.stdout.cursorTo(0);
                             process.stdout.write(
@@ -103,13 +109,23 @@ export default [
                             );
                         }
                     } else {
-                        process.stdout.clearLine();
-                        process.stdout.cursorTo(0);
+                        if (
+                            process.stdout.isTTY &&
+                            typeof process.stdout.clearLine === 'function'
+                        ) {
+                            process.stdout.clearLine();
+                            process.stdout.cursorTo(0);
+                        }
                     }
                     if (process.env.BUILD === 'watch') {
                         process.env.BUILD = 'watching';
-                        process.stdout.clearLine();
-                        process.stdout.cursorTo(0);
+                        if (
+                            process.stdout.isTTY &&
+                            typeof process.stdout.clearLine === 'function'
+                        ) {
+                            process.stdout.clearLine();
+                            process.stdout.cursorTo(0);
+                        }
                         console.log('         🚀 Launching server');
                         exec(
                             "npx http-server . -s -c-1 --cors='*' -o /examples/test-cases/index.html",
