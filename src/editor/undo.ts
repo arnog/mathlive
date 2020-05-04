@@ -152,11 +152,12 @@ export class UndoManager {
 
         // Restore the content
         insert(this.mathlist, state ? state.latex : '', {
+            ...options,
+            format: 'latex',
             mode: 'math',
             insertionMode: 'replaceAll',
             selectionMode: 'after',
-            format: 'latex',
-            ...options,
+            smartFence: false,
         });
 
         // Restore the selection
