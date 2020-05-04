@@ -1,5 +1,5 @@
 @import '__fonts.less';
-
+@keyboard-zindex: 105;
 @font-face {
     font-family: KaTeX_Main;
     src: url('@{font-folder}/KaTeX_Main-Regular.woff2') format('woff2'),
@@ -913,7 +913,7 @@ body[theme='dark'] .ML__keystroke-caption {
     left: 0;
     bottom: -267px;
     width: 100vw;
-    z-index: 105;
+    z-index: @keyboard-zindex;
 
     padding-top: 5px;
 
@@ -985,7 +985,7 @@ body[theme='dark'] .ML__keystroke-caption {
         top: 0; // "
         box-sizing: content-box; // "
         transform: none; // "
-        z-index: 106; // Above the keyboard (105)
+        z-index: (@keyboard-zindex + 1); 
 
         display: flex;
         flex-direction: row;
@@ -1328,7 +1328,7 @@ body[theme='dark'] .ML__keystroke-caption {
                 &.action:active,
                 &.action.active {
                     transform: translateY(-20px) scale(1.4, 1.4);
-                    z-index: 100;
+                    z-index: (@keyboard-zindex - 5);
                     color: var(--keyboard-text-active);
                 }
                 &.modifier:active,
@@ -1648,7 +1648,7 @@ div.ML__keyboard.material {
                 transition: none;
                 justify-content: flex-start;
                 padding: 2px 0 0 0;
-                z-index: 100;
+                z-index: (@keyboard-zindex - 5);
             }
             @media only screen and (max-width: 414px) {
                 width: 16.5px;
