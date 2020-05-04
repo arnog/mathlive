@@ -763,7 +763,9 @@ export class MathfieldPrivate implements Mathfield {
     }
 
     $hasFocus(): boolean {
-        return document.hasFocus() && document.activeElement === this.textarea;
+        return (
+            document.hasFocus() && deepActiveElement(document) === this.textarea
+        );
     }
     $focus(): void {
         if (!this.$hasFocus()) {
@@ -799,4 +801,13 @@ export class MathfieldPrivate implements Mathfield {
     $typedText(text: string): void {
         onTypedText(this, text);
     }
+}
+
+function deepActiveElement(
+    root: DocumentOrShadowRoot = document
+): Element | null {
+    if (root.activeElement?.shadowRoot?.activeElement) {
+        return deepActiveElement(root.activeElement.shadowRoot);
+    }
+    return root.activeElement;
 }
