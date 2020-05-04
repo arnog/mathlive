@@ -12,12 +12,8 @@
  * First 10 predefined colors used for plotting by Mathematica.
  *
  * Also known as _indexed color scheme #97_.
- * @constant
- * @type {Object.<string, string>}
- * @memberof module:color
- * @private
  */
-const MATHEMATICA_COLORS = {
+const MATHEMATICA_COLORS: { [key: string]: string } = {
     m0: '#3f3d99', // strong blue
     m1: '#993d71', // strong cerise
     m2: '#998b3d', // strong gold
@@ -96,12 +92,8 @@ export const LINE_COLORS = [
  * See:
  * - {@link http://mirror.jmu.edu/pub/CTAN/systems/knuth/local/lib/colordvi.tex | ColorDVI.tex}
  * - {@link https://en.wikibooks.org/w/index.php?title=LaTeX/Colors | Wikibooks:LaTeX/Colors}
- * @constant NAMED_COLORS
- * @memberof module:color
- * @type {Object.<string, string>}
- * @private
  */
-const NAMED_COLORS = {
+const NAMED_COLORS: { [key: string]: string } = {
     apricot: '#FBB982',
     aquamarine: '#00B5BE',
     bittersweet: '#C04F17',
@@ -346,10 +338,8 @@ yellowgreen	rgb(154, 205, 50)
  *
  * This creative syntax is defined by the {@link http://mirror.jmu.edu/pub/CTAN/macros/latex/contrib/xcolor/xcolor.pdf | `xcolor` LaTeX package}.
  *
- * @param {string} s - An expression representing a color value
- * @return {string} An RGB color expressed as a hex-triplet preceded by `#`
- * @memberof module:color
- * @private
+ * @param s - An expression representing a color value
+ * @return An RGB color expressed as a hex-triplet preceded by `#`
  */
 export function stringToColor(s: string): string {
     const colorSpec = s.toLowerCase().split('!');

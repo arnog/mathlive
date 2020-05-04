@@ -130,8 +130,6 @@ class Parser {
     }
     /**
      * True if we've reached the end of the token stream.
-     * @method module:core/parser#Parser#end
-     * @private
      */
     end(): boolean {
         // To prevent a deadlock, count how many times end() is called without the
@@ -153,8 +151,6 @@ class Parser {
     /**
      * Return the last atom of the math list
      * If there isn't one, insert a `msubsup` and return it.
-     * @method module:core/parser#Parser#lastMathAtom
-     * @private
      */
     lastMathAtom(): Atom {
         const lastType =
@@ -169,10 +165,7 @@ class Parser {
         return this.mathList[this.mathList.length - 1];
     }
     /**
-     * @param {string} type
-     * @return {boolean} True if the next token is of the specified type
-     * @method module:core/parser#Parser#hasToken
-     * @private
+     * @return True if the next token is of the specified type
      */
     hasToken(type: string): boolean {
         const index = this.index;
@@ -181,12 +174,9 @@ class Parser {
             : false;
     }
     /**
-     * @param {string} [value]
-     * @return {boolean} True if the next token is of type `'literal` and has the
+     * @return True if the next token is of type `'literal` and has the
      * specified value. If `value` is empty, return true if the token is of type
      * `'literal'`
-     * @method Parser#hasLiteral
-     * @private
      */
     hasLiteral(value = ''): boolean {
         const index = this.index;
@@ -196,8 +186,8 @@ class Parser {
             : false;
     }
     /**
-     * @param {RegEx} pattern
-     * @return {boolean} True if the next token is of type `'literal` and matches
+     * @param pattern
+     * @return True if the next token is of type `'literal` and matches
      * the specified regular expression pattern.
      */
     hasLiteralPattern(pattern: RegExp): boolean {
@@ -254,7 +244,7 @@ class Parser {
         }
         return false;
     }
-    /*
+    /**
      * Return the appropriate value for a placeholder, either a default
      * one, or if a value was provided for #? via args, that value.
      */
@@ -380,10 +370,7 @@ class Parser {
      * mm mu pc plus pt sp spread to true width
      *
      * TeX: 8212
-     * @param {string} keyword
-     * @return {boolean} true if the expected keyword is present
-     * @method module:core/parser#Parser#parseKeyword
-     * @private
+     * @return true if the expected keyword is present
      */
     parseKeyword(keyword: string): boolean {
         const savedIndex = this.index;
@@ -411,9 +398,6 @@ class Parser {
      * Terminates on the first non-character encountered
      * e.g. '{', '}' etc...
      * Will also terminate on ']'
-     * @return {string}
-     * @method module:core/parser#Parser#scanString
-     * @private
      */
     scanString(): string {
         let result = '';
@@ -447,8 +431,6 @@ class Parser {
     }
     /**
      * Return the literal tokens, as a string, until a matching closing "}"
-     * @method module:core/parser#Parser#scanLiteralArg
-     * @private
      */
     scanLiteralArg(): string {
         let result = '';
@@ -495,9 +477,6 @@ class Parser {
      * octal constant (i.e., radix 8, preceded by~\.\'), a hexadecimal constant
      * (radix 16, preceded by~\."), an alphabetic constant (preceded by~\.\`), or
      * an internal variable.
-     * @return {number}
-     * @method Parser#scanNumber
-     * @private
      */
     scanNumber(isInteger = true): number {
         const negative = this.parseLiteral('-');
@@ -542,9 +521,6 @@ class Parser {
      * @todo: note that some units depend on the font (em, ex). So it might be
      * better to return a dimen struct with the value + unit and resolve
      * later when we have a font context....
-     * @return {number}
-     * @method module:core/parser#Parser#scanDimen
-     * @private
      */
     scanDimen(): number {
         const value = this.scanNumber(false);
@@ -625,9 +601,7 @@ class Parser {
     }
     /**
      * Parse a `\(...\)` or `\[...\]` sequence
-     * @return {Atom} group for the sequence or null
-     * @method module:core/parser#Parser#scanModeSet
-     * @private
+     * @return group for the sequence or null
      */
     scanModeSet(): Atom {
         let final: string;
@@ -647,8 +621,6 @@ class Parser {
     }
     /**
      * Parse a `$...$` or `$$...$$` sequence
-     * @method Parser#scanModeShift
-     * @private
      */
     scanModeShift(): Atom {
         if (!this.hasToken('$') && !this.hasToken('$$')) return null;
@@ -668,8 +640,6 @@ class Parser {
     }
     /**
      * Parse a \begin{env}...\end{end} sequence
-     * @method module:core/parser#Parser#scanEnvironment
-     * @private
      */
     scanEnvironment(): Atom {
         // An environment starts with a \begin command
@@ -779,11 +749,8 @@ class Parser {
      * Returns an array of atoms or an empty array if the sequence
      * terminates right away.
      *
-     * @param {function(Token):boolean} [done] A predicate indicating if a
+     * @param done - A predicate indicating if a
      * token signals the end of an implicit group
-     * @return {Atom[]}
-     * @method module:core/parser#Parser#scanImplicitGroup
-     * @private
      */
     scanImplicitGroup(done?: (token: Token) => boolean): Atom[] {
         // An implicit group is a sequence of atoms that terminates with
@@ -910,7 +877,7 @@ class Parser {
     /**
      * Scan a delimiter, e.g. '(', '|', '\vert', '\ulcorner'
      *
-     * @return {string} The delimiter (as a character or command) or null
+     * @return The delimiter (as a character or command) or null
      */
     scanDelim(): string {
         this.skipWhitespace();
@@ -1131,8 +1098,8 @@ class Parser {
      * An argument can either be a single atom or
      * a sequence of atoms enclosed in braces.
      *
-     * @param {string} [parseMode] Temporarily overrides the parser parsemode. For
-     * example: `'dimension'`, `'color'`, `'text'`, etc...
+     * @param parseMode Temporarily overrides the parser parsemode. For
+     * example: `'dimen'`, `'color'`, `'text'`, etc...
      */
     scanArg(
         parseMode?: ParseModePrivate
@@ -1257,11 +1224,7 @@ class Parser {
         const mathList = this.swapMathList(savedMathList);
         return result ? result : mathList;
     }
-    /**
-     * @return {Atom[]}
-     * @method module:core/parser#Parser#scanToken
-     * @private
-     */
+
     scanToken(): Atom[] {
         const token = this.get();
         if (!token) return null;
@@ -1505,7 +1468,7 @@ class Parser {
             ? [result as Atom]
             : (result as Atom[]);
     }
-    /*
+    /**
      * Attempt to scan the macro name and return an atom list if successful.
      * Otherwise, it wasn't a macro.
      */
@@ -1558,8 +1521,6 @@ class Parser {
     /**
      * Make a Atom for the current token or token group and
      * add it to the parser's current mathList
-     * @method module:core/parser#Parser#parseAtom
-     * @private
      */
     parseAtom(): boolean {
         let result: Atom | Atom[] =
@@ -1584,9 +1545,9 @@ class Parser {
 
 /**
  * Given a string of LaTeX, return a corresponding math list (array of atoms).
- * @param [args=[]] - If there are any placeholder tokens, e.g.
+ * @param args - If there are any placeholder tokens, e.g.
  * `#0`, `#1`, etc... they will be replaced by the value provided by `args`.
- * @param [smartFence] If true, promote plain fences, e.g. `(`,
+ * @param smartFence - If true, promote plain fences, e.g. `(`,
  * as `\left...\right` or `\mleft...\mright`
  */
 export function parseString(

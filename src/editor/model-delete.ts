@@ -23,13 +23,10 @@ import {
 } from './model-array';
 
 /**
- * @param {number} dir If the selection is not collapsed, and dir is
+ * @param dir If the selection is not collapsed, and dir is
  * negative, delete backwards, starting with the anchor atom.
  * That is, delete(-1) will delete only the anchor atom.
  * If dir = 0, delete only if the selection is not collapsed
- * @method EditableMathlist#delete_
- * @instance
- * @private
  */
 function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0) {
     // Dispatch notifications

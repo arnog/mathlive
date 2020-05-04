@@ -3,7 +3,9 @@ import { InlineShortcutDefinition } from './shortcuts';
 
 // Use a forward declaration to avoid a circular dependency
 // (Mathfield -> Config -> Mathfield)
-declare class Mathfield {}
+// declare module './mathfield' {
+export class Mathfield {}
+// }
 
 export type TextToSpeechOptions = {
     /**

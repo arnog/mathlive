@@ -862,7 +862,6 @@ function latexToMarkup(latex: string, arg, mf: Mathfield): string {
 
 /**
  * Return a markup string for the keyboard toolbar for the specified layer.
- * @private
  */
 function makeKeyboardToolbar(
     mf: Mathfield,

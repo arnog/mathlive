@@ -36,6 +36,9 @@ export { MathfieldConfig };
  * with other text (on the same line).
  *
  * @param  options.macros A dictionary of LaTeX macros
+ *
+ * @category Converting
+ * @keywords convert, latex, markup
  */
 export declare function latexToMarkup(text: string, options: {
     mathstyle?: 'displaystyle' | 'textstyle';
@@ -62,7 +65,7 @@ export declare function latexToMarkup(text: string, options: {
  * import MathLive from 'dist/mathlive.mjs';
  * MathLive.makeMathField('equation');
  * ```
- *
+ * @keywords create, make, mathfield
  */
 export declare function makeMathField(element: HTMLElement | string, config: MathfieldConfig): Mathfield;
 /**
@@ -87,6 +90,8 @@ export declare function latexToMathML(latex: string, options: {
  * @param options.macros A dictionary of LaTeX macros
  *
  * @return  The Abstract Syntax Tree as an object literal using the MathJSON format.
+ * @category Converting
+ * @keywords convert, latex, mathjson, ast
  */
 export declare function latexToAST(latex: string, options?: {
     macros?: MacroDictionary;
@@ -98,6 +103,7 @@ export declare function latexToAST(latex: string, options?: {
  *
  * @return The LaTeX representation of the Abstract Syntax Tree, if valid.
  * @category Converting
+ * @keywords convert, latex, mathjson, ast
  */
 export declare function astToLatex(mathJson: any, options?: {
     /** The number of digits used in the representation of numbers. **Default** = 14 */
@@ -131,6 +137,8 @@ export declare function astToLatex(mathJson: any, options?: {
  * @example
  * console.log(MathLive.latexToSpeakableText('\\frac{1}{2}'));
  * // 'half'
+ * @category Converting
+ * @keywords convert, latex, speech, speakable, text, speakable text
  */
 export declare function latexToSpeakableText(latex: string, options: TextToSpeechOptions): string;
 export declare type AutoRenderOptions = {
@@ -250,6 +258,8 @@ export declare type AutoRenderOptions = {
  *     MathLive.renderMathInDocument();
  * });
  *
+ * @category Rendering
+ * @keywords render, document
  */
 export declare function renderMathInDocument(options?: AutoRenderOptions): void;
 /**
@@ -261,8 +271,15 @@ export declare function renderMathInDocument(options?: AutoRenderOptions): void;
  * @param {HTMLElement|string} element An HTML DOM element, or a string containing
  * the ID of an element.
  *
+ * @category Rendering
+ * @keywords render, element, htmlelement
  */
 export declare function renderMathInElement(element: HTMLElement, options?: AutoRenderOptions): void;
+/**
+ *
+ * @category Rendering
+ * @keywords revert, original, content
+ */
 export declare function revertToOriginalContent(element: HTMLElement, 
 /** The namespace used for the `data-`
  * attributes. If you used a namespace with `renderMathInElement`, you must
@@ -291,6 +308,9 @@ options?: {
  * ```
  * @param {string | HTMLElement | Mathfield} element - A DOM element ID, a DOM
  * element or a Mathfield.
+ *
+ * @category Rendering
+ * @keywords original, content
  */
 export declare function getOriginalContent(element: string | HTMLElement, options?: {
     /** The namespace used for the `data-` attributes.

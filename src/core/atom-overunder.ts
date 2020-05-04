@@ -68,9 +68,9 @@ registerAtomType('overunder', (context: Context, atom: Atom): Span[] => {
  * Combine a nucleus with an atom above and an atom below. Used to form
  * stacks for the 'overunder' atom type .
  *
- * @param {Span} nucleus The base over and under which the atoms will
+ * @param nucleus The base over and under which the atoms will
  * be placed.
- * @param {string} type The type ('mop', 'mrel', etc...) of the result
+ * @param type The type ('mop', 'mrel', etc...) of the result
  */
 function makeOverunderStack(
     context: Context,

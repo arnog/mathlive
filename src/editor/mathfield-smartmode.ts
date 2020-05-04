@@ -4,7 +4,7 @@ import { contentDidChange, contentWillChange } from './model-listeners';
 import { Mathfield } from './mathfield-utils';
 /**
  * Convert the atoms before the anchor to 'text' mode
- * @param {number} count - how many atoms back to look at
+ * @param count - how many atoms back to look at
  * @param {function} until - callback to indicate when to stop
  * @private
  */
@@ -17,7 +17,7 @@ function convertLastAtomsToText(
         until = count;
         count = Infinity;
     }
-    if (count === undefined) {
+    if (typeof count === 'undefined') {
         count = Infinity;
     }
     let i = 0;

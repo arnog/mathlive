@@ -452,15 +452,13 @@ function getArg(ast, index) {
 
 /**
  * Given a canonical name, return its precedence
- * @param {string} canonicalName, for example "and"
- * @return {number}
- * @private
+ * @param canonicalName, for example "and"
  */
-function getPrecedence(canonicalName) {
+function getPrecedence(canonicalName: string): number {
     return canonicalName ? OP_PRECEDENCE[canonicalName] || -1 : -1;
 }
 
-function getAssociativity(canonicalName) {
+function getAssociativity(canonicalName: string): 'left' | 'right' {
     if (/=|=>/.test(canonicalName)) {
         return 'right';
     }
@@ -469,11 +467,9 @@ function getAssociativity(canonicalName) {
 
 /**
  *
- * @param {string} name function canonical name
- * @return {string}
- * @private
+ * @param name - function canonical name
  */
-function getLatexTemplateForFunction(name) {
+function getLatexTemplateForFunction(name: string): string {
     let result = FUNCTION_TEMPLATE[name];
     if (!result) {
         result =
@@ -487,9 +483,7 @@ function getLatexTemplateForFunction(name) {
 
 /**
  *
- * @param {string} name symbol name, e.g. "alpha"
- * @return {string}
- * @private
+ * @param name symbol name, e.g. "alpha"
  */
 function getLatexForSymbol(name: string): string {
     let result = FUNCTION_TEMPLATE[name];
@@ -506,7 +500,7 @@ function getLatexForSymbol(name: string): string {
     return result;
 }
 
-function isFunction(canonicalName) {
+function isFunction(canonicalName: string): boolean {
     if (canonicalName === 'f' || canonicalName === 'g') return true;
 
     const t = FUNCTION_TEMPLATE[canonicalName];
@@ -520,11 +514,10 @@ function isFunction(canonicalName) {
 
 /**
  *
- * @param {string} latex, for example '\\times'
- * @return {string} the canonical name for the input, for example '*'
- * @private
+ * @param latex, for example '\\times'
+ * @retur the canonical name for the input, for example '*'
  */
-function getCanonicalName(latex) {
+function getCanonicalName(latex: string): string {
     latex = (latex || '').trim();
     let result = CANONICAL_NAMES[latex];
     if (!result) {
@@ -545,14 +538,14 @@ function getCanonicalName(latex) {
 /**
  * Return the operator precedence of the atom
  * or null if not an operator
- * @param {object} atom
- * @return {number}
- * @private
  */
-function opPrec(atom) {
+function opPrec(atom: Atom): [number, 'left' | 'right'] {
     if (!atom) return null;
     const name = getCanonicalName(getString(atom));
-    const result = [getPrecedence(name), getAssociativity(name)];
+    const result: [number, 'left' | 'right'] = [
+        getPrecedence(name),
+        getAssociativity(name),
+    ];
     if (result[0] <= 0) return null;
     return result;
 }
@@ -658,10 +651,9 @@ function getString(atom) {
 /**
  *
  * @param {object} expr - Abstract Syntax Tree object
- * @return {string} A string, the symbol, or undefined
- * @private
+ * @return A string, the symbol, or undefined
  */
-function asSymbol(node) {
+function asSymbol(node): string {
     return typeof node.sym === 'string'
         ? getLatexForSymbol(node.sym) || node.sym
         : '';
@@ -670,15 +662,13 @@ function asSymbol(node) {
 /**
  *
  * @param {object} node - Abstract Syntax Tree node
- * @return {number} A JavaScript number, the value of the AST or NaN
- * @private
- * @private
+ * @return A JavaScript number, the value of the AST or NaN
  */
-function asMachineNumber(node) {
+function asMachineNumber(node): number {
     return parseFloat(node.num);
 }
 
-function isNumber(node) {
+function isNumber(node): boolean {
     return typeof node === 'object' && typeof node.num !== 'undefined';
 }
 
@@ -724,10 +714,6 @@ function hasSub(node) {
 
 /**
  * Return true if the current atom is of the specified type and value.
- * @param {object} expr
- * @param {string} type
- * @param {string} value
- * @private
  */
 function isAtom(expr: ParseState, type: AtomType, value?): boolean {
     let result = false;
@@ -742,13 +728,7 @@ function isAtom(expr: ParseState, type: AtomType, value?): boolean {
     return result;
 }
 
-/**
- *
- * @param {string} functionName
- * @param {object} params
- * @private
- */
-function wrapFn(functionName: string, ...params): MathJsonFunction {
+function wrapFn(functionName: string, ...params: any[]): MathJsonFunction {
     const result = { fn: functionName, arg: undefined };
     if (params) {
         const args = [];
@@ -1952,9 +1932,6 @@ function filterPresentationAtoms(
 /**
  * Parse a sequence of text zone and math zones:
  * <sentence> := ((<text>) <expression>)+
- * @param {object} expr
- * @return  {object}
- * @private
  */
 function parseSentence(
     expr: ParseState,
@@ -2080,10 +2057,9 @@ function parseFloatToPrecision(num) {
 
 /**
  *
- * @param {string|number} num - A number, represented as a string (e.g. "-12.45"
+ * @param num - A number, represented as a string (e.g. "-12.45"
  *  particularly useful for arbitrary precision numbers) or a number (-12.45)
- * @return {string} A LaTeX representation of the AST
- * @private
+ * @return A LaTeX representation of the AST
  */
 function numberAsLatex(
     num: string | number,
@@ -2271,7 +2247,6 @@ function numberAsLatex(
  *
  * @param {object} ast - Abstract Syntax Tree object (in canonical form)
  * @return {string} A LaTeX representation of the AST
- * @private
  */
 export function jsonToLatex(
     ast: MathJson,

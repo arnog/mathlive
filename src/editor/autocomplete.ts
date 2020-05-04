@@ -39,15 +39,18 @@ export function insertSuggestion(model: ModelPrivate, s, l): void {
 /**
  * When in command mode, insert the select command and return to math mode
  * If escape is true, the command is discared.
- * @param {object} options
- * @param {boolean} options.discard if true, the command is discarded and the
+ * @param options.discard if true, the command is discarded and the
  * mode switched back to math
- * @param {boolean} options.acceptSuggestion if true, accept the suggestion to
+ * @param options.acceptSuggestion if true, accept the suggestion to
  * complete the command. Otherwise, only use what has been entered so far.
- * @method Mathfield#complete_
- * @private
  */
-export function complete(mathfield: Mathfield, options?) {
+export function complete(
+    mathfield: Mathfield,
+    options?: {
+        discard?: boolean;
+        acceptSuggestion?: boolean;
+    }
+) {
     options = options || { acceptSuggestion: false };
     hidePopover(mathfield);
     if (options.discard) {

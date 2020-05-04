@@ -37,8 +37,6 @@ import { Context } from './context';
  * Makes a small delimiter. This is a delimiter that comes in the Main-Regular
  * font, but is restyled to either be in textstyle, scriptstyle, or
  * scriptscriptstyle.
- * @memberof module:delimiters
- * @private
  */
 function makeSmallDelim(
     type: SpanType,
@@ -69,8 +67,6 @@ function makeSmallDelim(
 /**
  * Makes a large delimiter. This is a delimiter that comes in the Size1, Size2,
  * Size3, or Size4 fonts. It is always rendered in textstyle.
- * @memberof module:delimiters
- * @private
  */
 function makeLargeDelim(
     type: SpanType,
@@ -109,8 +105,6 @@ function makeLargeDelim(
 /**
  * Make an inner span with the given offset and in the given font. This is used
  * in `makeStackedDelim` to make the stacking pieces for the delimiter.
- * @memberof module:delimiters
- * @private
  */
 function makeInner(symbol: string, font: string): Span {
     let sizeClass = '';
@@ -131,8 +125,6 @@ function makeInner(symbol: string, font: string): Span {
 /**
  * Make a stacked delimiter out of a given delimiter, with the total height at
  * least `heightTotal`. This routine is mentioned on page 442 of the TeXbook.
- * @memberof module:delimiters
- * @private
  */
 function makeStackedDelim(
     type: SpanType,
@@ -424,8 +416,6 @@ const sizeToMaxHeight = [0, 1.2, 1.8, 2.4, 3.0];
 
 /**
  * Used to create a delimiter of a specific size, where `size` is 1, 2, 3, or 4.
- * @memberof module:delimiters
- * @private
  */
 export function makeSizedDelim(
     type: SpanType,
@@ -534,9 +524,7 @@ function delimTypeToFont(info: DelimiterInfo): string {
 /**
  * Traverse a sequence of types of delimiters to decide what kind of delimiter
  * should be used to create a delimiter of the given height+depth.
- * @param {string} delim: a character value (not a command)
- * @memberof module:delimiters
- * @private
+ * @param delim - a character value (not a command)
  */
 function traverseSequence(
     delim: string,
@@ -587,14 +575,7 @@ function traverseSequence(
  * Make a delimiter of a given height+depth, with optional centering. Here, we
  * traverse the sequences, and create a delimiter that the sequence tells us to.
  *
- * @param {string} type 'mopen' or 'mclose'
- * @param {string} delim
- * @param {number} height
- * @param {boolean} center
- * @param {Context} context
- * @param {string[]} classes
- * @memberof module:delimiters
- * @private
+ * @param type - 'mopen' or 'mclose'
  */
 export function makeCustomSizedDelim(
     type: SpanType,
@@ -712,10 +693,7 @@ export function makeLeftRightDelim(
 
 /**
  *
- * @param {Context} context
- * @param {string} [type] either 'mopen', 'mclose' or null
- * @memberof module:delimiters
- * @private
+ * @param type either 'mopen', 'mclose' or null
  */
 function makeNullFence(
     type: SpanType,

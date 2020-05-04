@@ -173,7 +173,6 @@ function scanIdentifier(stream, final, options) {
  * Superscripts can be encoded either as an attribute on the last atom
  * or as a standalone, empty, atom following the one to which it applies.
  * @param {object} stream
- * @private
  */
 function isSuperscriptAtom(stream) {
     return (
@@ -487,13 +486,11 @@ function scanOperator(stream, final, options) {
 /**
  * Given an atom or an array of atoms, return their MathML representation as
  * a string.
- * @return {string}
  * @param {string|Atom|Atom[]} input
- * @param {number} initial index of the input to start conversion from
- * @param {number} final last index of the input to stop conversion to
- * @private
+ * @param initial index of the input to start conversion from
+ * @param final last index of the input to stop conversion to
  */
-function toMathML(input, initial, final, options) {
+function toMathML(input, initial: number, final: number, options) {
     const result = {
         atoms: input,
         index: initial || 0,
@@ -580,10 +577,8 @@ function toString(atoms) {
 /**
  * Return a MathML fragment representation of a single atom
  *
- * @return {string}
- * @private
  */
-export function atomToMathML(atom, options) {
+export function atomToMathML(atom, options): string {
     // For named SVG atoms, map to a Unicode char
     const SVG_CODE_POINTS = {
         widehat: '^',

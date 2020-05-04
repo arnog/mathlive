@@ -23,8 +23,6 @@ interface UndoOptions {
  * @property {object[]} stack Stack of undo/redo states
  * @property {number} index Index pointing to the undo/redo stack
  * @property {number} maximumDepth Maximum number of undo/redo states
- * @global
- * @private
  */
 export class UndoManager {
     mathlist: ModelPrivate;

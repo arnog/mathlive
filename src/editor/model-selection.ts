@@ -28,8 +28,6 @@ import { selectionDidChange, selectionWillChange } from './model-listeners';
 /**
  * Return true if the atom could be a part of a number
  * i.e. "-12354.568"
- * @param {object} atom
- * @private
  */
 function isNumber(atom: Atom): boolean {
     if (!atom) return false;
@@ -220,17 +218,17 @@ export function leap(
 }
 
 /**
- * @param {number} offset
+ * @param offset
  * - &gt;0: index of the child in the group where the selection will start from
  * - <0: index counting from the end of the group
- * @param {number|string} [extent=0] Number of items in the selection:
+ * @param extent Number of items in the selection:
  * - 0: collapsed selection, single insertion point
  * - &gt;0: selection extending _after_ the offset
  * - <0: selection extending _before_ the offset
  * - `'end'`: selection extending to the end of the group
  * - `'start'`: selection extending to the beginning of the group
- * @param {string} relation e.g. `'body'`, `'superscript'`, etc...
- * @return {boolean} False if the relation is invalid (no such children)
+ * @param relation e.g. `'body'`, `'superscript'`, etc...
+ * @return False if the relation is invalid (no such children)
  */
 export function setSelection(
     model: ModelPrivate,
@@ -308,8 +306,6 @@ export function setSelection(
 
 /**
  * Move the anchor to the next permissible atom
- * @method EditableMathlist#next
- * @private
  */
 export function next(
     model: ModelPrivate,
@@ -731,7 +727,7 @@ export function extend(model: ModelPrivate, dist: number): boolean {
  * than the current focus.
  * If `extend` is true, the selection will be extended. Otherwise, it is
  * collapsed, then moved.
- * @param {number} dir +1 to skip forward, -1 to skip back
+ * @param dir +1 to skip forward, -1 to skip back
  */
 export function skip(model: ModelPrivate, dir: 1 | -1, options?): boolean {
     options = options || { extend: false };
@@ -1220,11 +1216,6 @@ export function forEachSelected(
     }
 }
 
-/**
- * @return {string}
- * @method EditableMathlist#getContentFromSiblings
- * @private
- */
 export function getContentFromSiblings(
     model: ModelPrivate,
     start,
@@ -1293,16 +1284,6 @@ function adjustPlaceholder(model: ModelPrivate): void {
         }
     }
 }
-
-/**
- * Enumerator
- * @param {function} cb - A callback called for each atom in the mathlist.
- * @method EditableMathlist#forEach
- * @private
- */
-// EditableMathlist.prototype.forEach = function (cb) {
-//     this.root.forEach(cb);
-// };
 
 function wordBoundary(model: ModelPrivate, path, dir): Path {
     dir = dir < 0 ? -1 : +1;

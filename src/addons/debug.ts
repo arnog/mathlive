@@ -28,7 +28,6 @@ export function asciiMathToLatex(ascii) {
  * If a string, a span whose body match the string
  * If a number, the nth span in the list
  * If an array, each element in the array indicate the nth child to traverse
- * @private
  */
 function getSymbol(spans, symbol) {
     if (!spans) return null;
@@ -74,7 +73,6 @@ function getProp(spans, symbol, prop) {
  * @param {Span[]} spans
  * @param {string} symbol
  * @return {string}
- * @private
  */
 function getType(spans, symbol) {
     const s = getSymbol(spans, symbol);
@@ -87,7 +85,6 @@ function getType(spans, symbol) {
  * @param {Span[]} spans
  * @param {string} symbol
  * @return {string}
- * @private
  */
 function getTag(spans, symbol) {
     const s = getSymbol(spans, symbol);

@@ -73,8 +73,6 @@ export function arrayCell(
 
 /**
  * Total numbers of cells (include sparse cells) in the array.
- * @param {Atom[][]} array
- * @private
  */
 export function arrayCellCount(array: Atom[][][]): number {
     let result = 0;

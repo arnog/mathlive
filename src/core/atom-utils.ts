@@ -484,13 +484,6 @@ export class Atom implements Style {
 
     id?: string;
 
-    /**
-     *
-     * @param {string} mode
-     * @param {string} type
-     * @param {string|Array} body
-     * @param {object} style
-     */
     constructor(
         mode: ParseModePrivate,
         type: AtomType,
@@ -713,12 +706,9 @@ export class Atom implements Style {
     /**
      * Return a representation of this, but decomposed in an array of Spans
      *
-     * @param {Context} context Font variant, size, color, etc...
-     * @param {Span[]} [phantomBase=null] If not null, the spans to use to
+     * @param context Font variant, size, color, etc...
+     * @param phantomBase If not null, the spans to use to
      * calculate the placement of the supsub
-     * @return {Span[]}
-     * @method Atom#decompose
-     * @private
      */
     decompose(
         context: Context,
@@ -1120,18 +1110,13 @@ function makeID(context: Context): string {
  * Combine a nucleus with an atom above and an atom below. Used to form
  * limits.
  *
- * @param {Context} context
- * @param {Span} nucleus The base over and under which the atoms will
+ * @param context
+ * @param nucleus The base over and under which the atoms will
  * be placed.
- * @param {number} nucleusShift The vertical shift of the nucleus from
+ * @param nucleusShift The vertical shift of the nucleus from
  * the baseline.
- * @param {number} slant For operators that have a slant, such as \int,
+ * @param slant For operators that have a slant, such as \int,
  * indicate by how much to horizontally offset the above and below atoms
- * @param {Span} above
- * @param {Span} below
- * @return {Span}
- * @memberof module:atom
- * @private
  */
 function makeLimitsStack(
     context: Context,

@@ -1,5 +1,5 @@
+import { Style, ParseMode, FontSeries, FontShape } from '../public/core';
 import { selectionIsCollapsed, getAnchorMode } from './model-selection';
-import { Style, ParseMode, FontSeries, FontShape } from '../core/context';
 import { Mathfield } from './mathfield-utils';
 import { applyStyle as applyStyleToModel } from './model-styling';
 
@@ -85,8 +85,6 @@ export function applyStyle(mathfield: Mathfield, style) {
 
 /**
  * Validate a style specification object
- * @param {object} style
- * @private
  */
 function validateStyle(style: { [key: string]: string }): Style {
     const result: Style = {};

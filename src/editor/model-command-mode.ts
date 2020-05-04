@@ -12,11 +12,6 @@ import {
     leap,
 } from './model-selection';
 
-/**
- * @return {string}
- * @method EditableMathlist#extractCommandStringAroundInsertionPoint
- * @private
- */
 export function extractCommandStringAroundInsertionPoint(
     model: ModelPrivate,
     beforeInsertionPointOnly = false
@@ -39,13 +34,13 @@ export function extractCommandStringAroundInsertionPoint(
 }
 
 /**
- * @param {boolean} value If true, decorate the command string around the
+ * @param value - If true, decorate the command string around the
  * insertion point with an error indicator (red dotted underline). If false,
  * remove it.
  */
 export function decorateCommandStringAroundInsertionPoint(
     model: ModelPrivate,
-    value
+    value: boolean
 ): void {
     const command = getCommandOffsets(model);
     if (command) {

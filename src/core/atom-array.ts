@@ -263,8 +263,6 @@ registerAtomType('array', (context: Context, atom: Atom): Span[] => {
 /**
  * Used in `decomposeArray` to create a column separator span.
  *
- * @param {number} width
- * @private
  */
 function makeColGap(width: number): Span {
     const separator = makeSpan('\u200b', 'arraycolsep');
@@ -274,7 +272,6 @@ function makeColGap(width: number): Span {
 
 /**
  * Used in decomposeArray to create a column of repeating elements.
- * @private
  */
 function makeColOfRepeatingElements(context: Context, body, offset, elem) {
     const col = [];

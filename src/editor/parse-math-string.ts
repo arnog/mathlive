@@ -31,8 +31,6 @@ import { InlineShortcutDefinition, getInlineShortcut } from './shortcuts';
  *
  * - "JavaScript Latex": a variant that is LaTeX, but with escaped backslashes
  *  \\frac{1}{2} \\sin x
- * @param {string} s
- * @private
  */
 export function parseMathString(
     s: string,
@@ -258,11 +256,9 @@ function parseMathExpression(
  * - a single [a-zA-Z] letter (an identifier)
  * - a multi-letter shortcut (e.g., pi)
  * - a LaTeX command (\pi) (for UnicodeMath)
- * @param {string} s
- * @return {object}
+ * @return
  * - match: the parsed (and converted) portion of the string that is an argument
  * - rest: the raw, unconverted, rest of the string
- * @private
  */
 function parseMathArgument(
     s: string,
@@ -271,7 +267,7 @@ function parseMathArgument(
         format?: string;
         inlineShortcuts: { [key: string]: InlineShortcutDefinition };
     }
-) {
+): { match: string; rest: string } {
     let match = '';
     s = s.trim();
     let rest = s;

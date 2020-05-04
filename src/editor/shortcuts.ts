@@ -168,11 +168,9 @@ export function getInlineShortcut(
  * - `'ios'`
  * - `'chromeos'`
  * - `'other'` (Linux, etc...)
- * @param {string} p The platform to test against.
- * @return {string} if we are running on the candidate platform, return it.
+ * @param p The platform to test against.
+ * @return if we are running on the candidate platform, return it.
  * Otherwise, return "!" + candidate.
- * @memberof module:editor/shortcuts
- * @private
  */
 function platform(p: string): string {
     let result = 'other';

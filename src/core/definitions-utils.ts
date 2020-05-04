@@ -402,14 +402,6 @@ export function charToLatex(parseMode: ParseModePrivate, s: string): string {
     return s;
 }
 
-/**
- * Given a Unicode character returns {char:, variant:, style} corresponding
- * to this codepoint. `variant` is optional.
- * This maps characters such as ℂ ("blackboard uppercase C") to
- * {char: 'C', variant: 'double-struck', style:''}
- * @param {string} char
- */
-
 /* Some symbols in the MATHEMATICAL ALPHANUMERICAL SYMBOLS block had
    been previously defined in other blocks. Remap them */
 const MATH_LETTER_EXCEPTIONS = {
@@ -692,9 +684,7 @@ export function unicodeStringToLatex(
 
 /**
  *
- * @param {string} mode
- * @param {string} command
- * @return {boolean} True if command is allowed in the mode
+ * @return True if command is allowed in the mode
  * (note that command can also be a single character, e.g. "a")
  */
 export function commandAllowed(
@@ -959,9 +949,6 @@ function parseParamTemplate(paramTemplate) {
 /**
  * If possible, i.e. if they are all simple atoms, return a string made up of
  * their body
- * @param {object[]} atoms
- * @memberof module:definitions
- * @private
  */
 export function parseArgAsString(atoms: Atom[]): string {
     let result = '';
@@ -980,13 +967,8 @@ export function parseArgAsString(atoms: Atom[]): string {
  * Define one or more environments to be used with
  *         \begin{<env-name>}...\end{<env-name>}.
  *
- * @param {string|string[]} names
- * @param {string} params The number and type of required and optional parameters.
- * @param {object} options
- * -
- * @param {function(*)} parser
- * @memberof module:definitions
- * @private
+ * @param names
+ * @param  params The number and type of required and optional parameters.
  */
 export function defineEnvironment(
     names: string | string[],
@@ -1018,17 +1000,10 @@ export function defineEnvironment(
 /**
  * Define one of more functions.
  *
- * @param {string|string[]} names
- * @param {string} params The number and type of required and optional parameters.
+ * @param names
+ * @param params The number and type of required and optional parameters.
  * For example: '{}' defines a single mandatory parameter
  * '[index=2]{indicand:auto}' defines two params, one optional, one required
-
- * @param {object} options
- * - infix
- * - mode
- * @param {function} parseFunction
- * @memberof module:definitions
- * @private
  */
 export function defineFunction(
     names: string | string[],

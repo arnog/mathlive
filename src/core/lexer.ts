@@ -23,10 +23,6 @@ import { splitGraphemes } from './grapheme-splitter';
  *  - `space`: one or more space characters (including tab, etc...)
  *
  *  See: [TeX:289](http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web)
- * @property {string} value
- * @property {string} type
- * @class module:core/lexer#Token
- * @private
  */
 export class Token {
     type: string;
@@ -43,10 +39,7 @@ export class Token {
  * the Lexer class will scan and return Tokens for the lexical
  * units in the string.
  *
- * @param {string} s A string of LaTeX
- * @class Lexer
- * @class module:core/lexer#Lexer
- * @private
+ * @param s A string of LaTeX
  */
 class Lexer {
     s: string | string[];
@@ -56,34 +49,25 @@ class Lexer {
         this.pos = 0;
     }
     /**
-     * @return {boolean} True if we reached the end of the stream
-     * @method module:core/lexer#Lexer#end
-     * @private
+     * @return True if we reached the end of the stream
      */
     end(): boolean {
         return this.pos >= this.s.length;
     }
     /**
      * Return the next char and advance
-     * @return {string}
-     * @method module:core/lexer#Lexer#get
-     * @private
      */
     get(): string {
         return this.pos < this.s.length ? this.s[this.pos++] : '';
     }
     /**
      * Return the next char, but do not advance
-     * @method module:core/lexer#Lexer#peek
-     * @private
      */
     peek(): string {
         return this.s[this.pos];
     }
     /**
      * Return the next substring matching regEx and advance.
-     * @method module:core/lexer#Lexer#scan
-     * @private
      */
     scan(regEx: RegExp): string | null {
         // this.s can either be a string, if it's made up only of ASCII chars
@@ -104,8 +88,6 @@ class Lexer {
      * Return true if next char is white space. Does not advance.
      *
      * See [Stackoverflow](http://stackoverflow.com/questions/6073637/)
-     * @method module:core/lexer#Lexer#isWhiteSpace
-     * @private
      */
     isWhiteSpace(): boolean {
         return /[ \f\n\r\t\v\xA0\u2028\u2029]/.test(this.s[this.pos]);
@@ -136,10 +118,6 @@ class Lexer {
     }
     /**
      * Return a single token, or null, created from the lexer.
-     *
-     * @returns {Token}
-     * @method module:core/lexer#Lexer#makeToken
-     * @private
      */
     makeToken(): Token | null {
         // If we've reached the end, exit
@@ -227,11 +205,8 @@ class Lexer {
 /**
  * Create Tokens from a stream of LaTeX
  *
- * @param {string} s - A string o LaTeX. It can include comments (with the `%`
+ * @param s - A string o LaTeX. It can include comments (with the `%`
  * marker) and multiple lines.
- * @return {Token[]}
- * @memberof module:core/lexer
- * @private
  */
 export function tokenize(s: string): Token[] {
     const result: Token[] = [];

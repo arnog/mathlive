@@ -243,13 +243,12 @@ export function onPointerDown(mathfield: Mathfield, evt) {
 
 /**
  * Return a tuple of an element and a distance from point (x, y)
- * @param {HTMLElement} el
- * @param {number} x
- * @param {number} y
- * @function module:editor/mathfield#nearestElementFromPoint
- * @private
  */
-function nearestElementFromPoint(el, x, y) {
+function nearestElementFromPoint(
+    el: HTMLElement,
+    x: number,
+    y: number
+): { distance: number; element: HTMLElement } {
     let result = { element: null, distance: Number.POSITIVE_INFINITY };
 
     // This element may not have a matching atom, but its children might
@@ -272,28 +271,30 @@ function nearestElementFromPoint(el, x, y) {
     }
 
     if (considerChildren && el.children) {
-        Array.from(el.children).forEach(function (child) {
-            const nearest = nearestElementFromPoint(child, x, y);
+        for (const child of el.children) {
+            const nearest = nearestElementFromPoint(child as HTMLElement, x, y);
             if (nearest.element && nearest.distance <= result.distance) {
                 result = nearest;
             }
-        });
+        }
     }
 
     return result;
 }
 
 /**
- * @param {number} x
- * @param {number} y
- * @param {object} options
- * @param {boolean} options.bias  if 0, the midpoint of the bounding box
+ * @param options.bias  if 0, the midpoint of the bounding box
  * is considered to return the sibling. If <0, the left sibling is
  * favored, if >0, the right sibling
  */
-export function pathFromPoint(mathfield, x, y, options) {
-    options = options || {};
-    options.bias = options.bias || 0;
+export function pathFromPoint(
+    mathfield: Mathfield,
+    x: number,
+    y: number,
+    options?: { bias?: number }
+) {
+    options = options ?? {};
+    options.bias = options.bias ?? 0;
     let result;
     // Try to find the deepest element that is near the point that was
     // clicked on (the point could be outside of the element)

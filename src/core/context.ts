@@ -1,5 +1,5 @@
-import { Mathstyle, MATHSTYLES } from './mathstyle';
 import { MacroDictionary, ParseMode } from '../public/core';
+import { Mathstyle, MATHSTYLES } from './mathstyle';
 
 export type ParseModePrivate =
     | ParseMode
@@ -121,7 +121,7 @@ export class Context implements ContextInterface {
 
     /**
      * Change the mathstyle of this context
-     * @param {string} value - `'auto'` to indicate that the mathstyle should in
+     * @param value - `'auto'` to indicate that the mathstyle should in
      * fact not be changed. This is used when specifying the mathstyle for some
      * environments.
      */

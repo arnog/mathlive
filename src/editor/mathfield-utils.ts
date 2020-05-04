@@ -137,7 +137,6 @@ export function releaseSharedElement(el: HTMLElement): void {
  * the Mathfield is no longer valid. However, there may be some pending
  * operations invoked via requestAnimationFrame() for example, that would
  * need to ensure the mathfield is still valid by the time they're executed.
- * @private
  */
 export function isValidMathfield(mf) {
     return mf.element && mf.element.mathfield === mf;
@@ -156,9 +155,9 @@ function _findElementWithCaret(el) {
         return el;
     }
     let result;
-    Array.from(el.children).forEach(function (child) {
+    for (const child of el.children) {
         result = result || _findElementWithCaret(child);
-    });
+    }
     return result;
 }
 

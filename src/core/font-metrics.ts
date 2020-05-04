@@ -221,8 +221,7 @@ const extraCharacterMap = {
  *
  * Note: the `width` property may be undefined if fontMetricsData.js wasn't
  * built using `Make extended_metrics`.
- * @param {string} character
- * @param {string} fontName e.g. 'Main-Regular', 'Typewriter-Regular', etc...
+ * @param fontName e.g. 'Main-Regular', 'Typewriter-Regular', etc...
  */
 export function getCharacterMetrics(
     character: string,
@@ -267,7 +266,7 @@ export function getCharacterMetrics(
 
 /**
  *
- * @param {number|string} value If value is a string, it may be suffixed
+ * @param value If value is a string, it may be suffixed
  * with a unit, which will override the `unit` paramter
  */
 export function convertDimenToEm(

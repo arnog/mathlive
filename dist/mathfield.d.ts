@@ -98,20 +98,20 @@ export interface Mathfield {
     /**
      * Returns a textual representation of the mathfield.
      *
-     * @param {string} [format] - The format of the result.
+     * @param format - The format of the result.
      * **Default** = `"latex"`
      * @return {string}
      * @category Accessing the Content
      */
-    $text(format: OutputFormat): string;
+    $text(format?: OutputFormat): string;
     /**
      * Returns a textual representation of the selection in the mathfield.
      *
-     * @param {string} [format] - The format of the result.
+     * @param format - The format of the result.
      * **Default** = `"latex"`
      * @category Accessing the Content
      */
-    $selectedText(format: OutputFormat): string;
+    $selectedText(format?: OutputFormat): string;
     $select(): void;
     $clearSelection(): void;
     /**
@@ -197,7 +197,7 @@ export interface Mathfield {
      */
     $applyStyle(style: Style): void;
     /**
-     * @param {string} keys - A string representation of a key combination.
+     * @param keys - A string representation of a key combination.
      *
      * For example `"Alt-KeyU"`.
      *
@@ -208,7 +208,7 @@ export interface Mathfield {
      * event if the keystroke originated from a user interaction that produced it.
      * If the keystroke is synthetic (for example, triggered in response to a
      * click or other event not involving a keyboard), omit it.
-     * @return {boolean} Return true if the field need to be re-rendered
+     * @return Return true if the field need to be re-rendered
      * @category Changing the Content
      */
     $keystroke(keys: string, evt?: KeyboardEvent): boolean;

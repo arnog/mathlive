@@ -1,6 +1,6 @@
 import { MacroDictionary, ParseMode } from './core';
 import { InlineShortcutDefinition } from './shortcuts';
-declare class Mathfield {
+export declare class Mathfield {
 }
 export declare type TextToSpeechOptions = {
     /**
@@ -511,4 +511,3 @@ export declare type MathfieldConfig = LayoutOptions & EditingOptions & Localizat
     namespace?: string;
     substituteTextArea?: string | (() => HTMLElement);
 };
-export {};

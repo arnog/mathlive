@@ -55,8 +55,7 @@ export function showKeystroke(mathfield: Mathfield, keystroke: string) {
 }
 
 /**
- * @param {string} keystroke
- * @param {Event} [evt] - An Event corresponding to the keystroke.
+ * @param [evt] - An Event corresponding to the keystroke.
  */
 export function onKeystroke(
     mathfield: Mathfield,

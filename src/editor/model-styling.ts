@@ -41,9 +41,6 @@ export function applyStyleToUnstyledAtoms(
  * If the style is already applied to the selection, remove it. If the selection
  * has the style partially applied (i.e. only some sections), remove it from
  * those sections, and apply it to the entire selection.
- *
- * @method EditableMathlist#applyStyle
- * @private
  */
 
 export function applyStyle(
