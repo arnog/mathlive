@@ -1,6 +1,6 @@
 /**
  * This module parses and outputs an Abstract Syntax Tree representing the
- * formula using the {@tutorial MATHJSON | MathJson } format.
+ * formula using the {@tutorial math-json | MathJSON } format.
  *
  * To use it, use the {@linkcode atomtoAST | atomtoAST()}  method.
  */

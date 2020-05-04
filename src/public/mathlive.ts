@@ -3,17 +3,16 @@
  * Use MathLive to render and edit mathematical formulas in your browser.
  *
  *
- * See {@tutorial USAGE_GUIDE | the Usage Guide} for more details on how to get
- * started.
+ * Read {@tutorial mathfield-getting-started | Getting Started}.
  *
  * @example
  * // To invoke the functions in this module, import the `mathlive` module.
  *
- * import mathlive from 'dist/mathlive.mjs';
+ * import mathlive from 'mathlive.js';
  *
  * console.log(mathlive.latexToMarkup('e^{i\\pi}+1=0'));
  *
- * @packageDocumentation MathLive API Reference
+ * @packageDocumentation MathLive SDK Reference
  *
  */
 
@@ -97,7 +96,7 @@ export declare function latexToMathML(
 /**
  * Converts a LaTeX string to an Abstract Syntax Tree (MathJSON)
  *
- * **See:** {@tutorial MATHJSON | MathJson}
+ * **See:** {@tutorial math-json | MathJSON }
  *
  * @param latex A string of valid LaTeX. It does not have to start
  * with a mode token such as a `$$` or `\(`.
@@ -117,7 +116,7 @@ export declare function latexToAST(
 /**
  * Converts a MathJSON Abstract Syntax Tree to a LaTeX string.
  *
- * **See:** {@tutorial MATHJSON | MathJson}
+ * **See:** {@tutorial math-json | MathJSON }
  *
  * @return The LaTeX representation of the Abstract Syntax Tree, if valid.
  * @category Converting
@@ -286,7 +285,7 @@ export type AutoRenderOptions = {
  * this should only be called once per document, once the DOM has been loaded.
  * To render a specific element, use {@linkcode renderMathInElement | renderMathInElement()}
  *
- * **See:** {@tutorial USAGE_GUIDE | Getting Started}
+ * Read {@tutorial mathfield-getting-started | Getting Started}.
  *
  * @example
  * import MathLive from 'dist/mathlive.mjs';
@@ -303,7 +302,7 @@ export declare function renderMathInDocument(options?: AutoRenderOptions): void;
  * Transform all the children of `element`, recursively, that contain LaTeX code
  * into typeset math.
  *
- * **See:** {@tutorial USAGE_GUIDE | Getting Started}
+ * Read {@tutorial mathfield-getting-started | Getting Started}.
  *
  * @param {HTMLElement|string} element An HTML DOM element, or a string containing
  * the ID of an element.

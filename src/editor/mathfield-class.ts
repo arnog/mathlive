@@ -331,15 +331,21 @@ export class MathfieldPrivate implements Mathfield {
         // Prepare to manage undo/redo
         this.undoManager = new UndoManager(this.model);
 
-        // If there was some content in the element, use it for the initial
-        // value of the mathfield
-        if (elementText.length > 0) {
-            this.$latex(elementText);
-        }
+        // Use the content of the element for the initial value of the mathfield
+        insert(this.model, elementText, {
+            insertionMode: 'replaceAll',
+            selectionMode: 'after',
+            format: 'latex',
+            mode: 'math',
+            suppressChangeNotifications: true,
+            macros: this.config.macros,
+        });
 
         // Now start recording potentially undoable actions
         this.undoManager.startRecording();
         this.undoManager.snapshot(this.config);
+
+        requestUpdate(this);
     }
 
     $setConfig(config: MathfieldConfigPrivate): void {

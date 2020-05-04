@@ -1007,7 +1007,7 @@ export function makeKeycap(
                     focus: true,
                     feedback: true,
                     mode: 'math',
-                    format: 'auto',
+                    format: 'latex',
                     resetStyle: true,
                 },
             ];
@@ -1019,7 +1019,7 @@ export function makeKeycap(
                     focus: true,
                     feedback: true,
                     mode: 'math',
-                    format: 'auto',
+                    format: 'latex',
                     resetStyle: true,
                 },
             ];
