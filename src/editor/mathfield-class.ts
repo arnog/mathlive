@@ -261,7 +261,7 @@ export class MathfieldPrivate implements Mathfield {
         // It is often identical to getAnchorMode() since changing the selection
         // changes the mode, but sometimes it is not, for example when a user
         // enters a mode changing command.
-        this.mode = config.defaultMode;
+        this.mode = this.config.defaultMode;
         this.smartModeSuppressed = false;
         // Current style (color, weight, italic, etc...)
         // Reflects the style to be applied on next insertion, if any

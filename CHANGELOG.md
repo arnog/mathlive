@@ -2,11 +2,11 @@
 
 ### Highlights
 
--   **maintenance**: Migration to TypeScript
--   **maintenance**: New math variant (bold, italic, etc...) subsytem matches LaTeX more closely
--   **maintenance**: Reduced code size
--   **new feature**: Verbatim Latex
--   **new feature**: `Mathfield.getConfig()`
+-   **Maintenance**: Migration to TypeScript
+-   **Maintenance**: New math variant (bold, italic, etc...) subsytem matches LaTeX more closely
+-   **Maintenance**: Reduced code size
+-   **New feature**: Verbatim Latex
+-   **New feature**: `Mathfield.getConfig()`
 
 ### New Features
 
@@ -179,6 +179,22 @@ Again, this is an internal change that will have no impact for external users of
 -   Switched to `jest` as a test runner.
 
 ### Bug Fixes
+
+-   **Fix #236**: An initially empty field had no visible caret until it had focused,
+    then blurred, then focused again.
+-   **Fix #438**: MathLive did not behave correctly when inside a shadow DOM
+-   **Fix #436**: When `smartFence` was on, applying an inline shortcut before
+    the closing parent of a paren group that had been inserted as a pure fence
+    (not a `\left\right` group) the parens would get (incorrectly) promoted
+    to a `\left\right` group, and the shortcut would be inserted outside of the
+    paren.
+-   **Fix #435**: Virtual keyboard after a JSON-based virtual keyboard would not
+    display correctly.
+-   **Fix #417**: The "International Backslash" (labeled `><` on a german keyboard)
+    would incorrectly trigger the command mode.
+-   **Fix #416**: With `smartFence` on, braces around a fraction would disappear,
+    e.g. typing "(1/2" would result in "1/2"
+-   **Fix #415**: `toASCIIMath()` would fail when the mathfield was empty
 
 -   **Fix #393**: some characters in a `\operatorname` command, including `-` and `*`, were not displayed correctly (they should display as if in text mode, not in math mode, and the correct glyphs are different between the two modes)
 
