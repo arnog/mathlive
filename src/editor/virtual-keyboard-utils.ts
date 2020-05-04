@@ -1538,15 +1538,16 @@ export function makeKeyboard(
                         tempLayer += `</ul>`;
                     }
                     tempLayer += `</div>`;
-
-                    if (layers[layer].container) {
-                        tempLayer += `</div'>`;
-                    }
-
-                    if (layers[layer].backdrop) {
-                        tempLayer += `</div'>`;
-                    }
                 }
+
+                if (layers[layer].container) {
+                    tempLayer += '</div>';
+                }
+
+                if (layers[layer].backdrop) {
+                    tempLayer += '</div>';
+                }
+
                 layers[layer] = tempLayer;
             }
 
