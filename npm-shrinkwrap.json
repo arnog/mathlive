@@ -1,6 +1,6 @@
 {
     "name": "mathlive",
-    "version": "0.35.1",
+    "version": "0.50.0",
     "lockfileVersion": 1,
     "requires": true,
     "dependencies": {
