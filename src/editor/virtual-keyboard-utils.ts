@@ -1378,7 +1378,7 @@ export function makeKeyboard(
         ALT_KEYS[key].unshift({
             latex: '\\mathsf{' + key + '}',
             aside: 'sans',
-            insert: '\\mathbb{' + key + '}',
+            insert: '\\mathsf{' + key + '}',
         });
         ALT_KEYS[key].unshift({
             latex: '\\mathbf{' + key + '}',
