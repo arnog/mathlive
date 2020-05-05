@@ -3,7 +3,7 @@ import { isArray } from '../common/types';
 import { LETTER } from '../core/definitions';
 import { MathfieldConfigPrivate, InlineShortcutDefinition } from './config';
 import { ParseMode } from '../public/core';
-import { Atom } from '../core/Atom';
+import { Atom } from '../core/atom';
 import { INLINE_SHORTCUTS } from './shortcuts-definitions-inline';
 import {
     KEYBOARD_SHORTCUTS,
