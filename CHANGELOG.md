@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.50 (May 4, 2020)
 
 ### Highlights
 
@@ -180,6 +180,9 @@ Again, this is an internal change that will have no impact for external users of
 
 ### Bug Fixes
 
+-   **Fix #285**: The initial content of the mathfield was considered part of the
+    undo stack, that is, typing command+Z before making any editing operations
+    would make the initial content disappear.
 -   **Fix #236**: An initially empty field had no visible caret until it had focused,
     then blurred, then focused again.
 -   **Fix #438**: MathLive did not behave correctly when inside a shadow DOM
