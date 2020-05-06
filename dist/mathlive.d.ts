@@ -3,14 +3,16 @@
  * Use MathLive to render and edit mathematical formulas in your browser.
  *
  *
- * Read {@tutorial mathfield-getting-started | Getting Started}.
+ * Read {@tutorial mathfield-getting-started | Getting Started} for more info.
  *
  * @example
- * // To invoke the functions in this module, import the `mathlive` module.
+ * <script type="module">
+ * // To invoke the functions in this module, import the `Mathlive` module.
  *
- * import mathlive from 'mathlive.js';
+ * import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
  *
- * console.log(mathlive.latexToMarkup('e^{i\\pi}+1=0'));
+ * console.log(MathLive.latexToAST('e^{i\\pi}+1=0'));
+ * </script>
  *
  * @packageDocumentation MathLive SDK Reference
  *
@@ -60,8 +62,8 @@ export declare function latexToMarkup(text: string, options: {
  * <span id='equation'>$f(x)=sin(x)$</span>
  * ```
  * The following code will turn the span into an editable mathfield.
- * ```
- * import MathLive from 'dist/mathlive.mjs';
+ * ```javascript
+ * import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
  * MathLive.makeMathField('equation');
  * ```
  * @keywords create, make, mathfield
@@ -80,9 +82,9 @@ export declare function latexToMathML(latex: string, options: {
     generateID: boolean;
 }): string;
 /**
- * Converts a LaTeX string to an Abstract Syntax Tree (MathJSON)
+ * Converts a LaTeX string to an {@tutorial math-json | MathJSON } Abstract Syntax Tree
  *
- * **See:** {@tutorial math-json | MathJSON }
+ * **See Also:** [[latexToAST|latexToAST()]]
  *
  * @param latex A string of valid LaTeX. It does not have to start
  * with a mode token such as a `$$` or `\(`.
@@ -96,9 +98,9 @@ export declare function latexToAST(latex: string, options?: {
     macros?: MacroDictionary;
 }): any;
 /**
- * Converts a MathJSON Abstract Syntax Tree to a LaTeX string.
+ * Converts a {@tutorial math-json | MathJSON } Abstract Syntax Tree to a LaTeX string.
  *
- * **See:** {@tutorial math-json | MathJSON }
+ * **See Also:** [[latexToAST|latexToAST()]]
  *
  * @return The LaTeX representation of the Abstract Syntax Tree, if valid.
  * @category Converting
@@ -252,7 +254,7 @@ export declare type AutoRenderOptions = {
  * Read {@tutorial mathfield-getting-started | Getting Started}.
  *
  * @example
- * import MathLive from 'dist/mathlive.mjs';
+ * import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
  * document.addEventListener("load", () => {
  *     MathLive.renderMathInDocument();
  * });

@@ -420,6 +420,7 @@ class Parser {
                     // TeX will give a 'Missing \endcsname inserted' error
                     // if it encounters any command when expecting a string.
                     // We're a bit more lax.
+                    // @todo: report error
                     result += token!.value;
                 }
             } else {
@@ -899,7 +900,7 @@ class Parser {
         // '?' is a special delimiter used as a 'placeholder'
         // (when the closing delimiter is displayed greyed out)
         if (
-            /^(\?|\||<|>|\\vert|\\Vert|\\\||\\surd|\\uparrow|\\downarrow|\\Uparrow|\\Downarrow|\\updownarrow|\\Updownarrow|\\mid|\\mvert|\\mVert)$/.test(
+            /^(\.|\?|\||<|>|\\vert|\\Vert|\\\||\\surd|\\uparrow|\\downarrow|\\Uparrow|\\Downarrow|\\updownarrow|\\Updownarrow|\\mid|\\mvert|\\mVert)$/.test(
                 delim
             )
         ) {
@@ -918,6 +919,7 @@ class Parser {
     scanLeftRight(): Atom {
         if (this.parseCommand('right') || this.parseCommand('mright')) {
             // We have an unbalanced left/right (there's a \right, but no \left)
+            // @todo report error
             return null;
         }
 
@@ -1312,6 +1314,7 @@ class Parser {
                         // Infix commands should be handled in scanImplicitGroup
                         // If we find an infix command here, it's a syntax error
                         // (second infix command in an implicit group) and should be ignored.
+                        // @todo report error
 
                         //  Invoke the parse() function if present
                         if (info.parse) {
@@ -1405,6 +1408,7 @@ class Parser {
 
                     if (!info) {
                         // An unknown command
+                        // @todo: report error
                         result = new Atom('text', 'error', '\\' + token.value);
                         result.symbol = '\\' + token.value;
                         result.latex = '\\' + token.value;

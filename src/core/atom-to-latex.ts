@@ -185,16 +185,16 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
                     result += ' ';
                 }
             } else {
-                if (
-                    expandMacro &&
-                    atom.leftDelim === '(' &&
-                    atom.rightDelim === ')'
-                ) {
+                if (expandMacro) {
                     // If we're in 'expandMacro' mode (i.e. interchange format
                     // used, e.g., on the clipboard for maximum compatibility
                     // with other LaTeX renderers), drop the `\mleft(` and `\mright`)
                     // commands
-                    result += `(${emit(atom, atom.body)})`;
+                    result +=
+                        atom.leftDelim === '.' ? '' : atom.leftDelim + ' ';
+                    result += emit(atom, atom.body);
+                    result +=
+                        atom.rightDelim === '.' ? '' : atom.rightDelim + ' ';
                 } else {
                     result += '\\mleft' + (atom.leftDelim || '.');
                     if (atom.leftDelim && atom.leftDelim.length > 1) {

@@ -167,7 +167,7 @@ export function atomToAsciiMath(atom: Atom | Atom[], options?): string {
             result += atomToAsciiMath(atom.body as Atom[], options);
             result +=
                 atom.rightDelim === '.' || !atom.rightDelim
-                    ? '{:'
+                    ? ':}'
                     : atom.rightDelim;
             break;
 

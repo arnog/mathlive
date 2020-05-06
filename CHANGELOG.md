@@ -1,3 +1,10 @@
+## [unreleased]
+
+### Bug Fixes
+
+-   Fixed an issue where the alphabetic 'sans' keys on the virtual keyboard output blackboard.
+-   Fixed an issue where the `\mleft.` and `\mright.` commands would not be rendered correctly (or propertly converted to MathASCII). (https://github.com/benetech/MathShare/issues/1182)
+
 ## 0.50 (May 4, 2020)
 
 ### Highlights
