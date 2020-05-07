@@ -12,7 +12,7 @@ import { Token, tokenize } from './lexer';
 import { Atom, Colspec, BBoxParam } from './atom';
 import { parseTokens } from './modes';
 import { FunctionDefinition } from './definitions-utils';
-import { ParserErrorCallback, MacroDefinition, Style } from '../public/core';
+import { ParserErrorListener, MacroDefinition, Style } from '../public/core';
 import { ParseModePrivate } from './context';
 
 function tokensToString(tokens: Token[]): string {
@@ -95,7 +95,7 @@ class Parser {
     args: (string | Atom[])[];
     macros: MacroDictionary;
 
-    error: ParserErrorCallback;
+    onError: ParserErrorListener;
     index = 0;
     mathList: Atom[] = [];
     style: Style = {};
@@ -108,12 +108,21 @@ class Parser {
         tokens: Token[],
         args: (string | Atom[])[],
         macros: MacroDictionary,
-        error: ParserErrorCallback
+        onError: ParserErrorListener
     ) {
         this.tokens = tokens;
         this.args = args;
         this.macros = macros;
-        this.error = error;
+        this.onError = (err) =>
+            onError({
+                before: tokensToString(
+                    this.tokens.slice(this.index, this.index + 10)
+                ),
+                after: tokensToString(
+                    this.tokens.slice(Math.max(0, this.index - 10), this.index)
+                ),
+                ...err,
+            });
     }
     swapMathList(newMathList: Atom[] = []): Atom[] {
         const result = this.mathList;
@@ -254,7 +263,9 @@ class Parser {
                 this.args['?'],
                 this.parseMode,
                 null,
-                this.macros
+                this.macros,
+                false,
+                this.onError
             );
         }
         // U+2753 = BLACK QUESTION MARK ORNAMENT
@@ -333,7 +344,7 @@ class Parser {
                     args.push(arg);
                 } else {
                     // Report an error
-                    this.error({ code: 'missing-argument' });
+                    this.onError({ code: 'missing-argument' });
                     return ['', null];
                 }
             }
@@ -424,7 +435,7 @@ class Parser {
                     // TeX will give a 'Missing \endcsname inserted' error
                     // if it encounters any command when expecting a string.
                     // We're a bit more lax.
-                    this.error({ code: 'unbalanced-braces' });
+                    this.onError({ code: 'unbalanced-braces' });
                     result += token!.value;
                 }
             } else {
@@ -555,7 +566,7 @@ class Parser {
             result = convertDimenToEm(value, 'mu');
         } else {
             // If the units are missing, TeX assumes 'pt'
-            this.error({ code: 'missing-unit' });
+            this.onError({ code: 'missing-unit' });
             result = convertDimenToEm(value, 'pt');
         }
         return result;
@@ -674,7 +685,12 @@ class Parser {
                     args.push(this.scanOptionalArg(param.type));
                 } else {
                     const arg = this.scanArg(param.type);
-                    this.error({ code: 'missing-argument' });
+                    if (!arg) {
+                        this.onError({
+                            code: 'missing-argument',
+                            arg: envName,
+                        });
+                    }
                     args.push(arg);
                 }
             }
@@ -691,7 +707,7 @@ class Parser {
         let done = false;
         do {
             if (this.end()) {
-                this.error({ code: 'unbalanced-environment' });
+                this.onError({ code: 'unbalanced-environment', arg: envName });
                 done = true;
             }
             if (!done && this.parseCommand('end')) {
@@ -891,7 +907,7 @@ class Parser {
         this.skipWhitespace();
         const token = this.get();
         if (!token) {
-            this.error({ code: 'unexpected-end-of-string' });
+            this.onError({ code: 'unexpected-end-of-string' });
             return null;
         }
         let delim = '.';
@@ -902,11 +918,11 @@ class Parser {
         }
         const info = getInfo(delim, 'math', this.macros);
         if (!info) {
-            this.error({ code: 'unknown-command', arg: delim });
+            this.onError({ code: 'unknown-command', arg: delim });
             return null;
         }
         if (info.mode && !info.mode.includes(this.parseMode)) {
-            this.error({ code: 'unexpected-delimiter', arg: delim });
+            this.onError({ code: 'unexpected-delimiter', arg: delim });
             return null;
         }
         if (info.type === 'mopen' || info.type === 'mclose') {
@@ -923,7 +939,7 @@ class Parser {
         ) {
             return delim;
         }
-        this.error({ code: 'unexpected-delimiter', arg: delim });
+        this.onError({ code: 'unexpected-delimiter', arg: delim });
         return null;
     }
     /**
@@ -937,7 +953,7 @@ class Parser {
     scanLeftRight(): Atom {
         if (this.parseCommand('right') || this.parseCommand('mright')) {
             // We have an unbalanced left/right (there's a \right, but no \left)
-            this.error({ code: 'unbalanced-braces' });
+            this.onError({ code: 'unbalanced-braces' });
             return null;
         }
 
@@ -1161,7 +1177,9 @@ class Parser {
                           this.args[paramToken.value],
                           this.parseMode,
                           null,
-                          this.macros
+                          this.macros,
+                          false,
+                          this.onError
                       )
                     : this.args[paramToken.value] || null;
             }
@@ -1208,7 +1226,7 @@ class Parser {
             result = parseTokens(
                 parseMode,
                 this.tokens.slice(initialIndex, this.index - 1),
-                this.error,
+                this.onError,
                 {
                     args: this.args,
                     macros: this.macros,
@@ -1223,7 +1241,7 @@ class Parser {
                             tokens,
                             options.args,
                             options.macros,
-                            this.error
+                            this.onError
                         );
                         parser.parseMode = mode;
                         parser.style = options.style;
@@ -1321,7 +1339,7 @@ class Parser {
 
                     if (!info) {
                         // An unknown command
-                        this.error({
+                        this.onError({
                             code: 'unknown-command',
                             arg: '\\' + token.value,
                         });
@@ -1333,7 +1351,7 @@ class Parser {
 
                     if (info.mode && !info.mode.includes(this.parseMode)) {
                         // Command invalid in this mode
-                        this.error({
+                        this.onError({
                             code: 'invalid-command',
                             arg: '\\' + token.value,
                         });
@@ -1361,7 +1379,7 @@ class Parser {
                         // Infix commands should be handled in scanImplicitGroup
                         // If we find an infix command here, it's a syntax error
                         // (second infix command in an implicit group) and should be ignored.
-                        this.error({
+                        this.onError({
                             code: 'too-many-infix-commands',
                             arg: '\\' + token.value,
                         });
@@ -1505,15 +1523,17 @@ class Parser {
                         this.args[token.value],
                         this.parseMode,
                         [],
-                        this.macros
+                        this.macros,
+                        false,
+                        this.onError
                     );
                 }
             }
         } else {
             if (token.type === '}') {
-                this.error({ latex: '', code: 'unbalanced-braces' });
+                this.onError({ latex: '', code: 'unbalanced-braces' });
             } else {
-                this.error({
+                this.onError({
                     latex: '',
                     code: 'unexpected-token',
                     arg: token.type + (token.value ?? ''),
@@ -1567,7 +1587,14 @@ class Parser {
         const atom = new Atom(
             this.parseMode,
             'group',
-            parseString(def, this.parseMode, args, this.macros)
+            parseString(
+                def,
+                this.parseMode,
+                args,
+                this.macros,
+                false,
+                this.onError
+            )
         );
         atom.captureSelection = true;
         atom.symbol = '\\' + macro;
@@ -1613,12 +1640,12 @@ export function parseString(
     args: (string | Atom[])[],
     macros: MacroDictionary,
     smartFence = false,
-    error?: ParserErrorCallback
+    error?: ParserErrorListener
 ): Atom[] {
     let mathlist = [];
     const parser = new Parser(tokenize(s), args, macros, (err) => {
         if (error) {
-            error({ latex: s, code: err.code });
+            error({ ...err, latex: s });
         } else {
             console.warn(
                 'MathLive parsing error: ' +

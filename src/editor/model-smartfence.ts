@@ -1,6 +1,6 @@
 import { RIGHT_DELIM } from '../core/definitions';
-import { Atom } from '../core/atom';
-import { ModelPrivate } from './model-utils';
+import type { Atom } from '../core/atom';
+import type { ModelInterface } from './model-utils';
 import { contentDidChange, contentWillChange } from './model-listeners';
 import {
     selectionIsCollapsed,
@@ -15,7 +15,7 @@ import { insert } from './model-insert';
  * If not handled (because `fence` wasn't a fence), return false.
  */
 export function insertSmartFence(
-    model: ModelPrivate,
+    model: ModelInterface,
     fence: string,
     style
 ): boolean {

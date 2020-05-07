@@ -1,3 +1,21 @@
+## 0.50.2 (May 7, 2020)
+
+### Bug Fixes
+
+-   Fixed an issue with rendering of MathML
+
+### Improvements
+
+-   Added additional contextual information to the parser error message. Detect
+    more errors.
+
+### Breaking Change
+
+-   Renamed `config.error` to `config.onError` for consistency with the other
+    listeners.
+
+### New Feature
+
 ## 0.50.1 (May 6, 2020)
 
 ### New Feature

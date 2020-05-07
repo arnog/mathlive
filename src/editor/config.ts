@@ -189,6 +189,7 @@ export function update(
             case 'onModeChange':
             case 'onVirtualKeyboardToggle':
             case 'onReadAloudStatus':
+            case 'onError':
                 if (updates[key] === null) {
                     result[key] = NO_OP_LISTENER;
                 } else if (typeof updates[key] !== 'function') {
@@ -315,7 +316,7 @@ export function getDefault(): Required<MathfieldConfigPrivate> {
         onVirtualKeyboardToggle: NO_OP_LISTENER,
         onReadAloudStatus: NO_OP_LISTENER,
 
-        error: (_) => {
+        onError: (_) => {
             return;
         },
     };

@@ -10,7 +10,7 @@ import {
     getInlineShortcut,
     getShortcutMarkup,
 } from './shortcuts';
-import { hidePopover, showPopoverWithLatex } from './editor-popover';
+import { hidePopover, showPopoverWithLatex } from './popover';
 import { splitGraphemes } from '../core/grapheme-splitter';
 import { HAPTIC_FEEDBACK_DURATION } from './commands';
 import { getAnchorStyle, setPath } from './model-selection';

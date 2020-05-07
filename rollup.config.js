@@ -143,10 +143,11 @@ export default [
                     }
                 },
             },
-            eslint({
-                // fix: true,
-                // include: 'src/',
-            }),
+            PRODUCTION &&
+                eslint({
+                    // fix: true,
+                    // include: 'src/',
+                }),
             resolve(),
             typescript(TYPESCRIPT_OPTIONS),
             PRODUCTION && terser(TERSER_OPTIONS),

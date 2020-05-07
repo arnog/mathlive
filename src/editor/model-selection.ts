@@ -12,7 +12,9 @@ import {
     pathFromString,
 } from './path';
 
-import { ModelPrivate } from './model'; // @revisit. Circular dependency because
+import type { ModelInterface } from './model-utils';
+
+import { ModelPrivate } from './model-class'; // @revisit. Circular dependency because
 // we need to create a model to make an iterator (we could use model-utils forward
 // declaration otherwise
 import { isEmptyMathlist, removeSuggestion } from './model-utils';
@@ -44,7 +46,7 @@ function isNumber(atom: Atom): boolean {
  * - `end` is after the last atom of type `command`
  */
 export function getCommandOffsets(
-    model: ModelPrivate
+    model: ModelInterface
 ): { start: number; end: number } {
     const siblings = model.siblings();
     if (siblings.length <= 1) return null;
@@ -65,7 +67,7 @@ export function getCommandOffsets(
 }
 
 export function positionInsertionPointAfterCommitedCommand(
-    model: ModelPrivate
+    model: ModelInterface
 ): void {
     const siblings = model.siblings();
     const command = getCommandOffsets(model);
@@ -76,7 +78,7 @@ export function positionInsertionPointAfterCommitedCommand(
     setSelection(model, i - 1);
 }
 
-export function getAnchorMode(model: ModelPrivate): ParseMode {
+export function getAnchorMode(model: ModelInterface): ParseMode {
     const anchor = selectionIsCollapsed(model)
         ? getAnchor(model)
         : model.sibling(1);
@@ -98,7 +100,7 @@ export function getAnchorMode(model: ModelPrivate): ParseMode {
 }
 
 // @revisit any
-export function getAnchorStyle(model: ModelPrivate): any {
+export function getAnchorStyle(model: ModelInterface): any {
     const anchor = selectionIsCollapsed(model)
         ? getAnchor(model)
         : model.sibling(1);
@@ -140,7 +142,7 @@ export function getAnchorStyle(model: ModelPrivate): any {
  * @return False if no placeholder found and did not move
  */
 export function leap(
-    model: ModelPrivate,
+    model: ModelInterface,
     dir: -1 | 1 = 1,
     callHooks = true
 ): boolean {
@@ -231,7 +233,7 @@ export function leap(
  * @return False if the relation is invalid (no such children)
  */
 export function setSelection(
-    model: ModelPrivate,
+    model: ModelInterface,
     offset = 0,
     extent: number | 'end' | 'start' = 0,
     relation = ''
@@ -308,7 +310,7 @@ export function setSelection(
  * Move the anchor to the next permissible atom
  */
 export function next(
-    model: ModelPrivate,
+    model: ModelInterface,
     options?: { iterateAll?: boolean }
 ): void {
     options = options || {};
@@ -422,7 +424,7 @@ export function next(
 }
 
 export function previous(
-    model: ModelPrivate,
+    model: ModelInterface,
     options?: { iterateAll?: boolean }
 ): void {
     options = options || {};
@@ -554,7 +556,7 @@ export function previous(
     }
 }
 
-export function move(model: ModelPrivate, dist: number, options?): boolean {
+export function move(model: ModelInterface, dist: number, options?): boolean {
     options = options || { extend: false };
     const extend = options.extend || false;
 
@@ -594,7 +596,7 @@ export function move(model: ModelPrivate, dist: number, options?): boolean {
     return true;
 }
 
-export function up(model: ModelPrivate, options?): boolean {
+export function up(model: ModelInterface, options?): boolean {
     options = options || { extend: false };
     const extend = options.extend || false;
 
@@ -631,7 +633,7 @@ export function up(model: ModelPrivate, options?): boolean {
     return true;
 }
 
-export function down(model: ModelPrivate, options?): boolean {
+export function down(model: ModelInterface, options?): boolean {
     options = options || { extend: false };
     const extend = options.extend || false;
 
@@ -674,7 +676,7 @@ export function down(model: ModelPrivate, options?): boolean {
  * @param dist - The change (positive or negative) to the extent
  * of the selection. The anchor point does not move.
  */
-export function extend(model: ModelPrivate, dist: number): boolean {
+export function extend(model: ModelInterface, dist: number): boolean {
     let offset = model.path[model.path.length - 1].offset;
     let extent = 0;
     const oldPath = model.clone();
@@ -729,7 +731,7 @@ export function extend(model: ModelPrivate, dist: number): boolean {
  * collapsed, then moved.
  * @param dir +1 to skip forward, -1 to skip back
  */
-export function skip(model: ModelPrivate, dir: 1 | -1, options?): boolean {
+export function skip(model: ModelInterface, dir: 1 | -1, options?): boolean {
     options = options || { extend: false };
     const extend = options.extend || false;
     dir = dir < 0 ? -1 : +1;
@@ -802,7 +804,7 @@ export function skip(model: ModelPrivate, dir: 1 | -1, options?): boolean {
 /**
  * Move to the next/previous expression boundary
  */
-export function jump(model: ModelPrivate, dir, options?): boolean {
+export function jump(model: ModelInterface, dir, options?): boolean {
     options = options || { extend: false };
     const extend = options.extend || false;
     dir = dir < 0 ? -1 : +1;
@@ -822,7 +824,7 @@ export function jump(model: ModelPrivate, dir, options?): boolean {
 }
 
 export function jumpToMathFieldBoundary(
-    model: ModelPrivate,
+    model: ModelInterface,
     dir: number,
     options?
 ): boolean {
@@ -865,7 +867,7 @@ export function jumpToMathFieldBoundary(
  * @return The currently selected atoms, or `null` if the
  * selection is collapsed
  */
-export function getSelectedAtoms(model: ModelPrivate): Atom[] {
+export function getSelectedAtoms(model: ModelInterface): Atom[] {
     if (selectionIsCollapsed(model)) return null;
     const result = [];
     const siblings = model.siblings();
@@ -902,7 +904,7 @@ export function getSelectedAtoms(model: ModelPrivate): Atom[] {
  * the selection is a superscript or subscript, the group is the supsub.
  * When the selection is in a text zone, the "group" is a word.
  */
-export function selectGroup(model: ModelPrivate): boolean {
+export function selectGroup(model: ModelInterface): boolean {
     const siblings = model.siblings();
     if (getAnchorMode(model) === 'text') {
         let start = model.startOffset();
@@ -951,7 +953,7 @@ export function selectGroup(model: ModelPrivate): boolean {
     return true;
 }
 
-export function selectAll(model: ModelPrivate): boolean {
+export function selectAll(model: ModelInterface): boolean {
     model.path = [{ relation: 'body', offset: 0 }];
     return setSelection(model, 0, 'end');
 }
@@ -959,33 +961,33 @@ export function selectAll(model: ModelPrivate): boolean {
 /**
  * @return {boolean} True if the selection is an insertion point.
  */
-export function selectionIsCollapsed(model: ModelPrivate): boolean {
+export function selectionIsCollapsed(model: ModelInterface): boolean {
     return model.extent === 0;
 }
 
 export function setSelectionExtent(
-    model: ModelPrivate,
+    model: ModelInterface,
     extent: number
 ): boolean {
     model.extent = extent;
     return true;
 }
 
-export function collapseSelectionForward(model: ModelPrivate): boolean {
+export function collapseSelectionForward(model: ModelInterface): boolean {
     if (model.extent === 0) return false;
 
     setSelection(model, model.endOffset());
     return true;
 }
 
-export function collapseSelectionBackward(model: ModelPrivate): boolean {
+export function collapseSelectionBackward(model: ModelInterface): boolean {
     if (model.extent === 0) return false;
 
     setSelection(model, model.startOffset());
     return true;
 }
 
-export function moveAfterParent(model: ModelPrivate): boolean {
+export function moveAfterParent(model: ModelInterface): boolean {
     if (model.path.length > 1) {
         const oldPath = model.clone();
         model.path.pop();
@@ -1003,7 +1005,7 @@ export function moveAfterParent(model: ModelPrivate): boolean {
  * When the selection is extended the anchor remains fixed. The anchor
  * could be either before or after the focus.
  */
-export function getAnchor(model: ModelPrivate): Atom {
+export function getAnchor(model: ModelInterface): Atom {
     if (model.parent().array) {
         return arrayCell(model.parent().array, model.relation())[
             model.anchorOffset()
@@ -1021,7 +1023,7 @@ export function getAnchor(model: ModelPrivate): Atom {
  * @return true if the range was actually changed
  */
 export function setRange(
-    model: ModelPrivate,
+    model: ModelInterface,
     from: Path,
     to: Path,
     options: { extendToWordBoundary?: boolean } = {
@@ -1101,7 +1103,7 @@ export function setRange(
  * @param  extent the length of the selection
  * @return true if the path has actually changed
  */
-export function setPath(model: ModelPrivate, selection, extent = 0): boolean {
+export function setPath(model: ModelInterface, selection, extent = 0): boolean {
     // Convert to a path array if necessary
     if (typeof selection === 'string') {
         selection = pathFromString(selection);
@@ -1163,7 +1165,7 @@ export function setPath(model: ModelPrivate, selection, extent = 0): boolean {
  * end, the implicit arg offset would be after the plus. As a result,
  * inserting a fraction after the sin would yield: '1+\frac{\sin(c)}{\placeholder{}}'
  */
-export function getImplicitArgOffset(model: ModelPrivate): number {
+export function getImplicitArgOffset(model: ModelInterface): number {
     const siblings = model.siblings();
 
     let result = model.startOffset();
@@ -1190,7 +1192,7 @@ export function getImplicitArgOffset(model: ModelPrivate): number {
  * mathlist.
  */
 export function forEachSelected(
-    model: ModelPrivate,
+    model: ModelInterface,
     cb: (atom: Atom) => void,
     options?: { recursive?: boolean }
 ): void {
@@ -1217,7 +1219,7 @@ export function forEachSelected(
 }
 
 export function getContentFromSiblings(
-    model: ModelPrivate,
+    model: ModelInterface,
     start,
     end
 ): string {
@@ -1247,7 +1249,7 @@ export function getContentFromSiblings(
  * When changing the selection, if the former selection is an empty list,
  * insert a placeholder if necessary. For example, if in an empty numerator.
  */
-function adjustPlaceholder(model: ModelPrivate): void {
+function adjustPlaceholder(model: ModelInterface): void {
     // Should we insert a placeholder?
     // Check if we're an empty list that is the child of a fraction
     const siblings = model.siblings();
@@ -1285,7 +1287,7 @@ function adjustPlaceholder(model: ModelPrivate): void {
     }
 }
 
-function wordBoundary(model: ModelPrivate, path, dir): Path {
+function wordBoundary(model: ModelInterface, path, dir): Path {
     dir = dir < 0 ? -1 : +1;
 
     const iter = new ModelPrivate();
@@ -1336,7 +1338,7 @@ function wordBoundary(model: ModelPrivate, path, dir): Path {
  *
  */
 function wordBoundaryOffset(
-    model: ModelPrivate,
+    model: ModelInterface,
     offset: number,
     dir: number
 ): number {
@@ -1420,7 +1422,7 @@ function wordBoundaryOffset(
  * @param {number} dir - `+1` to iterate forward, `-1` to iterate backward.
  * @return The paths (as a string) for all the atoms which the predicate is true
  */
-export function filter(model: ModelPrivate, cb, dir: -1 | 1 = +1): string[] {
+export function filter(model: ModelInterface, cb, dir: -1 | 1 = +1): string[] {
     dir = dir < 0 ? -1 : +1;
 
     const result = [];

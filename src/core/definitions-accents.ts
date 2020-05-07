@@ -153,7 +153,7 @@ defineFunction("'", '{:string}', {}, function (name, args) {
     };
 });
 
-defineFunction('~', '{:string}', {}, function (name, args) {
+defineFunction('~', '{:string}', {}, (_name, args) => {
     return {
         type: 'mord',
         limits: 'nolimits',
@@ -167,7 +167,7 @@ defineFunction('~', '{:string}', {}, function (name, args) {
     };
 });
 
-defineFunction('c', '{:string}', {}, function (name, args) {
+defineFunction('c', '{:string}', {}, (_name, args) => {
     return {
         type: 'mord',
         limits: 'nolimits',

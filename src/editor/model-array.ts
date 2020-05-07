@@ -2,7 +2,7 @@ import { isArray } from '../common/types';
 
 import { getEnvironmentInfo } from '../core/definitions';
 import { Atom } from '../core/atom';
-import { ModelPrivate } from './model-utils';
+import type { ModelInterface } from './model-utils';
 import { contentDidChange, contentWillChange } from './model-listeners';
 import { getAnchorMode } from './model-selection';
 import { register as registerCommand } from './commands';
@@ -113,7 +113,7 @@ export function arrayFirstCellByRow(array: Atom[][][]): string {
  * Internal primitive to add a column/row in a matrix
  */
 function addCell(
-    model: ModelPrivate,
+    model: ModelInterface,
     where: 'after row' | 'before row' | 'after column' | 'before column'
 ): void {
     // This command is only applicable if we're in an array
@@ -147,7 +147,7 @@ function addCell(
     }
 }
 
-export function convertParentToArray(model: ModelPrivate): void {
+export function convertParentToArray(model: ModelInterface): void {
     const parent = model.parent();
     if (parent.type === 'leftright') {
         parent.type = 'array';
@@ -173,7 +173,7 @@ export function convertParentToArray(model: ModelPrivate): void {
     // Or if at root, this could be a 'align*' environment
 }
 
-export function addRowAfter(model: ModelPrivate): boolean {
+export function addRowAfter(model: ModelInterface): boolean {
     contentWillChange(model);
     convertParentToArray(model);
     addCell(model, 'after row');
@@ -181,14 +181,14 @@ export function addRowAfter(model: ModelPrivate): boolean {
     return true;
 }
 
-export function addRowBefore(model: ModelPrivate): boolean {
+export function addRowBefore(model: ModelInterface): boolean {
     contentWillChange(model);
     convertParentToArray(model);
     addCell(model, 'before row');
     contentDidChange(model);
     return true;
 }
-export function addColumnAfter(model: ModelPrivate): boolean {
+export function addColumnAfter(model: ModelInterface): boolean {
     contentWillChange(model);
     convertParentToArray(model);
     addCell(model, 'after column');
@@ -196,7 +196,7 @@ export function addColumnAfter(model: ModelPrivate): boolean {
     return true;
 }
 
-export function addColumnBefore(model: ModelPrivate): boolean {
+export function addColumnBefore(model: ModelInterface): boolean {
     contentWillChange(model);
     convertParentToArray(model);
     addCell(model, 'before column');

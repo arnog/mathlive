@@ -1,8 +1,8 @@
 import { isArray } from '../common/types';
 
-import { Atom } from '../core/atom';
+import type { Atom } from '../core/atom';
 
-import { ModelPrivate } from './model-utils';
+import type { ModelInterface } from './model-utils';
 import { contentDidChange, contentWillChange } from './model-listeners';
 import { arrayCellCount, arrayCell } from './model-array-utils';
 import {
@@ -13,7 +13,7 @@ import {
 } from './model-selection';
 
 export function extractCommandStringAroundInsertionPoint(
-    model: ModelPrivate,
+    model: ModelInterface,
     beforeInsertionPointOnly = false
 ): string {
     let result = '';
@@ -39,20 +39,20 @@ export function extractCommandStringAroundInsertionPoint(
  * remove it.
  */
 export function decorateCommandStringAroundInsertionPoint(
-    model: ModelPrivate,
-    value: boolean
+    model: ModelInterface,
+    hasError: boolean
 ): void {
     const command = getCommandOffsets(model);
     if (command) {
         const siblings = model.siblings();
         for (let i = command.start; i < command.end; i++) {
-            siblings[i].error = value;
+            siblings[i].error = hasError;
         }
     }
 }
 
 export function commitCommandStringBeforeInsertionPoint(
-    model: ModelPrivate
+    model: ModelInterface
 ): void {
     const command = getCommandOffsets(model);
     if (command) {
@@ -67,7 +67,7 @@ export function commitCommandStringBeforeInsertionPoint(
 }
 
 export function spliceCommandStringAroundInsertionPoint(
-    model: ModelPrivate,
+    model: ModelInterface,
     mathlist: Atom[]
 ): void {
     const command = getCommandOffsets(model);
@@ -144,7 +144,7 @@ function removeCommandStringFromAtom(atom: Atom | Atom[]) {
     }
 }
 
-export function removeCommandString(model: ModelPrivate): void {
+export function removeCommandString(model: ModelInterface): void {
     contentWillChange(model);
     const contentWasChanging = model.suppressChangeNotifications;
     model.suppressChangeNotifications = true;

@@ -26,7 +26,7 @@
         </header>
         <main>
             <div class="mathfield" id="mf">
-                \sqrt\frac{3}{1+\frac34}
+                {x}
                 <!-- \left(\frac12\right) -->
                 <!-- \huge x \text{y} -->
                 <!-- \scriptscriptstyle x \text{y} -->
@@ -158,7 +158,7 @@
                     id: 'styling-10',
                     title: 'Text with commands',
                     latex:
-                        '\\text{See \\alpha\\sin \\n{n} \\c{c} \\frac{1}{2}}',
+                        '\\text{See \\alpha\\sin \\~{n} \\c{c} \\frac{1}{2}}',
                 },
                 {
                     id: 'styling-11',
@@ -366,7 +366,7 @@
                             \\\\
                             &= \\frac13\\, \\frac{H^2}{m^2}\\, \\left[ \\left( 2 - 5\\, m + 3\\, m^2 \\right) + \\left( 4\\, m - 2 \\right)\\, \\frac{E(m)}{K(m)} \\right]
                                 - \\frac{H^2}{m^2}\\, \\left( 1 - m - \\frac{E(m)}{K(m)} \\right)^2
-                        \\end{align}`,
+                        \\end{align*}`,
                 },
                 {
                     id: 'matrix-19',
@@ -869,7 +869,7 @@
                 },
                 {
                     id: 'leftright-7',
-                    title: 'Unabalanced \\left \\right',
+                    title: 'Unbalanced \\left \\right',
                     latex: `a\\right) b \\left(c`,
                 },
                 {
@@ -1108,11 +1108,32 @@
                         mf.$text('ASCIIMath')
                     );
                 },
+                onError: (err) => {
+                    console.error(err.latex, err.code + (err.arg ?? ''));
+                },
             });
 
-            if (false) {
-                MathLive.renderMathInDocument();
+            if (true) {
+                // MathLive.renderMathInDocument({
+                //    onError: (err) => {
+                //        console.error(err.latex, err.code + (err.arg ?? ''));
+                //    },
+                // });
                 const savedMathfieldContent = mf.$text();
+                let error = [];
+                mf.$setConfig({
+                    onError: (err) =>
+                        error.push(
+                            'At "' +
+                                err.after +
+                                '<span style="color:#999">' +
+                                err.before +
+                                '</span>" ' +
+                                err.code +
+                                ' ' +
+                                (err.arg ?? '')
+                        ),
+                });
                 document.getElementById(
                     'examples'
                 ).innerHTML = TESTING_SAMPLES.map((x) => {
@@ -1121,7 +1142,16 @@
                     }</p><code>${escapeHtml(
                         x.latex
                     )}</code><p class='formula'>$$${x.latex}$$</p>`;
+                    error = [];
                     mf.$latex(x.latex);
+                    if (error.length > 0) {
+                        result +=
+                            '<p><code style="color: red">Parsing Errors:</code>';
+                        result +=
+                            '<p><code style="color: red">' +
+                            error.join('<br>') +
+                            '</code>';
+                    }
                     result +=
                         '<p><code style="color: #0066ce">' +
                         escapeHtml(mf.$text('latex-expanded')) +

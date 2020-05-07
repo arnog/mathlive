@@ -1,4 +1,4 @@
-import { ParserErrorCode, MacroDictionary, ParseMode } from './core';
+import { ParserErrorListener, MacroDictionary, ParseMode } from './core';
 import { InlineShortcutDefinition } from './shortcuts';
 
 // Use a forward declaration to avoid a circular dependency
@@ -202,7 +202,7 @@ export interface MathfieldHooks {
      * A hook invoked when keyboard navigation would cause the insertion
      * point to leave the mathfield.
      *
-     * <var>direction</var> indicates the direction of the navigation, either
+     * - <var>direction</var> indicates the direction of the navigation, either
      * `"forward"` or `"backward"`.
      *
      * Return `false` to prevent the move, `true` to wrap around to the
@@ -494,10 +494,11 @@ mf.setConfig({
  *
  * The namespace should be a string of lowercase letters.
  *
- * - <var>error</var> An optional callback function that will be
+ * - <var>onError</var> An optional listener function that will be
  * invoked when an error is encountered while parsing some Latex. This
- * could be the initial value, a value modified later with an API call,
- * or a user interaction (pasting in the field for example). See [[`ParserErrorCode`]]
+ * could be the initial value of the mathfield, a value inserted
+ * programmatically later, or through a user interaction (pasting in the
+ * mathfield for example). See [[`ParserErrorCode`]]
  * for the list of possible errors.
  *
  * - <var>substituteTextArea</var> A function that returns a focusable
@@ -523,6 +524,6 @@ export type MathfieldConfig = LayoutOptions &
     MathfieldHooks &
     MathfieldListeners & {
         namespace?: string;
-        error?: (msg: ParserErrorCode) => void;
+        onError?: ParserErrorListener;
         substituteTextArea?: string | (() => HTMLElement);
     };

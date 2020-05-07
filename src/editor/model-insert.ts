@@ -9,14 +9,15 @@ import {
 
 import { parseMathString } from './parse-math-string';
 
+import type { ModelInterface } from './model-utils';
+import { invalidateVerbatimLatex, isEmptyMathlist } from './model-utils';
+import { arrayCellCount, arrayCell } from './model-array-utils';
+import { deleteAtoms, deleteChar } from './model-delete';
+import { insertSmartFence } from './model-smartfence';
+import { applyStyleToUnstyledAtoms } from './model-styling';
+import { contentDidChange, contentWillChange } from './model-listeners';
+
 import {
-    ModelPrivate,
-    invalidateVerbatimLatex,
-    arrayCellCount,
-    arrayCell,
-    deleteAtoms,
-    deleteChar,
-    insertSmartFence,
     selectionIsCollapsed,
     getAnchorMode,
     setSelection,
@@ -27,14 +28,10 @@ import {
     collapseSelectionForward,
     getImplicitArgOffset,
     getContentFromSiblings,
-    applyStyleToUnstyledAtoms,
-    isEmptyMathlist,
-    contentDidChange,
-    contentWillChange,
-} from './model';
+} from './model-selection';
 
 export function insert(
-    model: ModelPrivate,
+    model: ModelInterface,
     s: string,
     options: InsertOptions
 ): void {
@@ -55,10 +52,8 @@ export function insert(
             contentDidChange(model);
             return;
         }
-    } else {
-        if (insertSmartFence(model, s, options.style)) {
-            return;
-        }
+    } else if (insertSmartFence(model, s, options.style)) {
+        return;
     }
 
     const suppressChangeNotifications = model.suppressChangeNotifications;
@@ -122,7 +117,14 @@ export function insert(
 
     if (mode === 'math' && options.format === 'ASCIIMath') {
         [, s] = parseMathString(s, { format: 'ASCIIMath' });
-        mathlist = parseString(s, 'math', null, options?.macros, false);
+        mathlist = parseString(
+            s,
+            'math',
+            null,
+            options?.macros,
+            false,
+            model.listeners.onError
+        );
 
         // Simplify result.
         simplifyParen(model, mathlist);
@@ -172,7 +174,8 @@ export function insert(
                 mode,
                 args,
                 options.macros,
-                options.smartFence ?? false
+                options.smartFence ?? false,
+                model.listeners.onError
             );
 
             // Simplify result.
@@ -186,7 +189,8 @@ export function insert(
             mode,
             args,
             options.macros,
-            options.smartFence ?? false
+            options.smartFence ?? false,
+            model.listeners.onError
         );
     } else if (mode === 'text' || options.format === 'text') {
         // Map special TeX characters to alternatives
@@ -207,7 +211,14 @@ export function insert(
         s = s.replace(/~/g, '\\textasciitilde ');
         s = s.replace(/£/g, '\\textsterling ');
 
-        mathlist = parseString(s, 'text', args, options.macros, false);
+        mathlist = parseString(
+            s,
+            'text',
+            args,
+            options.macros,
+            false,
+            model.listeners.onError
+        );
     }
 
     // Something has been inserted, and the parent's verbatim latex is no longer valid
@@ -310,7 +321,7 @@ function removeParen(list: Atom[]): Atom[] {
  * remove the parentheses
  *
  */
-function simplifyParen(model: ModelPrivate, atoms: Atom[]): void {
+function simplifyParen(model: ModelInterface, atoms: Atom[]): void {
     if (atoms && model.options.removeExtraneousParentheses) {
         for (let i = 0; atoms[i]; i++) {
             if (atoms[i].type === 'leftright' && atoms[i].leftDelim === '(') {

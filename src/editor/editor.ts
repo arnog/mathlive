@@ -1,5 +1,3 @@
-export * from './editor-popover';
-
 export * from './mathfield';
 export * from './mathfield-buttons';
 

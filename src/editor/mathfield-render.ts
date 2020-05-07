@@ -12,7 +12,7 @@ import {
     getSelectionBounds,
     isValidMathfield,
 } from './mathfield-utils';
-import { atomToMathML } from '../addons/math-ml';
+import { atomsToMathML } from '../addons/math-ml';
 
 /*
  * Return a hash (32-bit integer) representing the content of the mathfield
@@ -143,7 +143,7 @@ export function render(mathfield: Mathfield, renderOptions?) {
 
     mathfield.accessibleNode.innerHTML =
         '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
-        atomToMathML(mathfield.model.root, mathfield.config) +
+        atomsToMathML(mathfield.model.root, mathfield.config) +
         '</math>';
     //mathfield.ariaLiveText.textContent = "";
 

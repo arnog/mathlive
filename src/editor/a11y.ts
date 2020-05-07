@@ -1,13 +1,13 @@
-import { TextToSpeechOptions } from '../public/config';
+import type { TextToSpeechOptions } from '../public/config';
 
-import { Atom } from '../core/atom';
+import type { Atom } from '../core/atom';
 
-import { atomToMathML } from '../addons/math-ml';
+import { atomsToMathML } from '../addons/math-ml';
 import { speakableText } from './speech';
 import { selectionIsCollapsed, getSelectedAtoms } from './model-selection';
-import { ModelPrivate } from './model-utils';
-import { Mathfield } from './mathfield-utils';
-import { PathSegment } from './path';
+import type { ModelInterface } from './model-utils';
+import type { Mathfield } from './mathfield-utils';
+import type { PathSegment } from './path';
 
 /**
  * Announce a change in selection or content via the aria-live region.
@@ -18,7 +18,7 @@ import { PathSegment } from './path';
 export function defaultAnnounceHook(
     mathfield: Mathfield,
     action: string,
-    oldModel: ModelPrivate,
+    oldModel: ModelInterface,
     atoms: Atom[]
 ): void {
     //** Fix: the focus is the end of the selection, so it is before where we want it
@@ -54,7 +54,7 @@ export function defaultAnnounceHook(
         liveText = speakableText(mathfield.config, '', mathfield.model.root);
         mathfield.accessibleNode.innerHTML =
             '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
-            atomToMathML(mathfield.model.root, mathfield.config) +
+            atomsToMathML(mathfield.model.root, mathfield.config) +
             '</math>';
 
         mathfield.textarea.setAttribute('aria-label', 'after: ' + liveText);
@@ -86,7 +86,7 @@ export function defaultAnnounceHook(
 // @revisit. Currently this = Mathfield, but it looks like model is enough
 function nextAtomSpeechText(
     mathfield: Mathfield,
-    oldModel: ModelPrivate
+    oldModel: ModelInterface
 ): string {
     function relation(parent: Atom, leaf: PathSegment): string {
         const EXPR_NAME = {

@@ -1,6 +1,6 @@
 import { Mathfield } from './public/mathfield';
 import { MathfieldConfig, TextToSpeechOptions } from './public/config';
-import { ParserErrorCallback } from './public/core';
+import { ParserErrorListener } from './public/core';
 
 import { Atom } from './core/atom';
 import { Span } from './core/span';
@@ -22,7 +22,7 @@ import {
     playReadAloud,
 } from './editor/speech-read-aloud';
 import { atomToSpeakableText } from './editor/atom-to-speakable-text';
-import { atomToMathML } from './addons/math-ml';
+import { atomsToMathML } from './addons/math-ml';
 
 import './addons/definitions-metadata';
 
@@ -32,7 +32,7 @@ function latexToMarkup(
         mathstyle?: 'displaystyle' | 'textstyle';
         letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
         macros?: MacroDictionary;
-        error?: ParserErrorCallback;
+        onError?: ParserErrorListener;
         format?: string;
     }
 ): string | Atom[] | Span[] {
@@ -50,7 +50,7 @@ function latexToMarkup(
         null,
         options.macros,
         false,
-        options.error
+        options.onError
     );
 
     //
@@ -100,15 +100,22 @@ function latexToMathML(
     latex: string,
     options?: {
         macros?: MacroDictionary;
-        error?: ParserErrorCallback;
+        onError?: ParserErrorListener;
         generateID?: boolean;
     }
 ): string {
     options = options ?? {};
     options.macros = { ...MACROS, ...(options.macros ?? {}) };
 
-    return atomToMathML(
-        parseString(latex, 'math', null, options.macros, false, options.error),
+    return atomsToMathML(
+        parseString(
+            latex,
+            'math',
+            null,
+            options.macros,
+            false,
+            options.onError
+        ),
         options
     );
 }
@@ -117,14 +124,21 @@ function latexToAST(
     latex: string,
     options?: {
         macros?: MacroDictionary;
-        error?: ParserErrorCallback;
+        onError?: ParserErrorListener;
     }
 ) {
     options = options ?? {};
     options.macros = { ...MACROS, ...(options.macros ?? {}) };
 
     return atomtoMathJson(
-        parseString(latex, 'math', null, options.macros, false, options.error),
+        parseString(
+            latex,
+            'math',
+            null,
+            options.macros,
+            false,
+            options.onError
+        ),
         options
     );
 }
@@ -153,7 +167,7 @@ function latexToSpeakableText(
     latex: string,
     options: TextToSpeechOptions & {
         macros?: MacroDictionary;
-        error?: ParserErrorCallback;
+        onError?: ParserErrorListener;
     }
 ): string {
     options = options ?? {};
@@ -166,7 +180,7 @@ function latexToSpeakableText(
         null,
         options.macros,
         false,
-        options.error
+        options.onError
     );
 
     return atomToSpeakableText(
@@ -179,22 +193,18 @@ function renderMathInDocument(options): void {
     renderMathInElement(document.body, options);
 }
 
-function getElement(element): HTMLElement {
-    let result = element;
+function getElement(element: string | HTMLElement): HTMLElement {
     if (typeof element === 'string') {
-        result = document.getElementById(element);
+        const result: HTMLElement = document.getElementById(element);
         if (!result) {
             throw Error(`The element with ID "${element}" could not be found.`);
         }
+        return result;
     }
-    return result;
+    return element;
 }
 
 function renderMathInElement(element, options): void {
-    if (!AutoRender) {
-        console.warn('The AutoRender module is not loaded.');
-        return;
-    }
     options = options || {};
     options.renderToMarkup = options.renderToMarkup || latexToMarkup;
     options.renderToMathML = options.renderToMathML || latexToMathML;

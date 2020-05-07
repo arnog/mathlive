@@ -27,43 +27,38 @@ export type ModelHooks = {
         //     | 'deleted: denominator'
         //     | 'deleted: root'
         //     | 'deleted: superscript',
-        modelBefore: ModelPrivate,
+        modelBefore: ModelInterface,
         atoms: Atom[] // object of the command
     ) => void;
     moveOut?: (
-        sender: ModelPrivate,
+        sender: ModelInterface,
         direction: 'forward' | 'backward'
     ) => boolean;
     tabOut?: (
-        sender: ModelPrivate,
+        sender: ModelInterface,
         direction: 'forward' | 'backward'
     ) => boolean;
 };
 
 declare class Mathfield {}
 
-export declare interface ModelPrivate {
-    mathfield: Mathfield;
+export interface ModelInterface {
+    // mathfield: Mathfield;
     options: ModelOptions;
     listeners: ModelListeners;
     hooks: Required<ModelHooks>;
-
     root: Atom;
-
     path: Path; // @revisit: could be called anchor
     extent: number; // @revisit: could group anchor + extent = Selection
-
     suppressChangeNotifications: boolean;
-
-    clone(): ModelPrivate;
-
+    clone(): ModelInterface;
     // @revisit: that's not really a notification: it's a hook. Move to Model.
     announce(
         command: string, // @revisit: be more explicit
-        modelBefore?: ModelPrivate,
+        modelBefore?: ModelInterface,
         atoms?: Atom[]
     );
-    toString();
+    // toString();
     siblings(): Atom[];
     anchorOffset(): number;
     focusOffset(): number;
@@ -82,7 +77,7 @@ export function isEmptyMathlist(atoms: Atom[]): boolean {
     );
 }
 
-export function removeSuggestion(model: ModelPrivate): void {
+export function removeSuggestion(model: ModelInterface): void {
     const siblings = model.siblings();
     // Remove all `suggestion` atoms
     for (let i = siblings.length - 1; i >= 0; i--) {
@@ -96,7 +91,7 @@ export function removeSuggestion(model: ModelPrivate): void {
  * Clear the verbatim Latex property for the parent node and its parents.
  * This will cause the latex value to be re-calculated.
  */
-export function invalidateVerbatimLatex(model: ModelPrivate): void {
+export function invalidateVerbatimLatex(model: ModelInterface): void {
     let depth = 1;
     let atom = model.ancestor(depth);
     while (atom) {

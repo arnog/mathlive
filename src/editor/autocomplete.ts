@@ -1,9 +1,10 @@
-import { ModelPrivate } from './model-utils';
 import { Atom } from '../core/atom';
 import { parseString } from '../core/parser';
 import { suggest, commandAllowed } from '../core/definitions-utils';
+
+import type { ModelInterface } from './model-utils';
 import { register as registerCommand } from './commands';
-import { hidePopover, showPopoverWithLatex } from './editor-popover';
+import { hidePopover, showPopoverWithLatex } from './popover';
 import { insert } from './model-insert';
 import {
     decorateCommandStringAroundInsertionPoint,
@@ -12,10 +13,10 @@ import {
 } from './model-command-mode';
 import { removeSuggestion } from './model-utils';
 import { positionInsertionPointAfterCommitedCommand } from './model-selection';
-import { Mathfield } from './mathfield-utils';
+import type { Mathfield } from './mathfield-utils';
 import { requestUpdate } from './mathfield-render';
 
-export function insertSuggestion(model: ModelPrivate, s, l): void {
+export function insertSuggestion(model: ModelInterface, s, l): void {
     removeSuggestion(model);
 
     const mathlist = [];

@@ -19,7 +19,7 @@
  */
 import { Mathfield } from './mathfield';
 import { MathfieldConfig, TextToSpeechOptions } from './config';
-import { MacroDictionary, ParserErrorCallback } from './core';
+import { MacroDictionary, ParserErrorListener } from './core';
 export { Mathfield };
 export { MathfieldConfig };
 /**
@@ -38,7 +38,7 @@ export { MathfieldConfig };
  *
  * @param  options.macros A dictionary of LaTeX macros
  *
- * @param  options.error A function invoked when a syntax error is encountered.
+ * @param  options.onError A function invoked when a syntax error is encountered.
  * An attempt to recover will be made even when an error is reported.
  *
  * @category Converting
@@ -48,7 +48,7 @@ export declare function latexToMarkup(text: string, options: {
     mathstyle?: 'displaystyle' | 'textstyle';
     letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
     macros?: MacroDictionary;
-    error?: ParserErrorCallback;
+    onError?: ParserErrorListener;
 }): string;
 /**
  * Convert a DOM element into an editable mathfield.
@@ -81,13 +81,13 @@ export declare function makeMathField(element: HTMLElement | string, config: Mat
  * @param options.generateId If true, add an `"extid"` attribute
  * to the MathML nodes with a value matching the `atomID`. This can be used
  * to map items on the screen with their MathML representation or vice-versa.
- * @param options.error Callback invoked when an error is encountered while
+ * @param options.onError Callback invoked when an error is encountered while
  * parsing the input string.
  */
 export declare function latexToMathML(latex: string, options: {
     macros?: MacroDictionary;
     generateID: boolean;
-    error?: ParserErrorCallback;
+    onError?: ParserErrorListener;
 }): string;
 /**
  * Converts a LaTeX string to an {@tutorial math-json | MathJSON } Abstract Syntax Tree
@@ -97,7 +97,7 @@ export declare function latexToMathML(latex: string, options: {
  * @param latex A string of valid LaTeX. It does not have to start
  * with a mode token such as a `$$` or `\(`.
  * @param options.macros A dictionary of LaTeX macros
- * @param options.error Callback invoked when an error is encountered while
+ * @param options.onError Callback invoked when an error is encountered while
  * parsing the input string.
  *
  * @return  The Abstract Syntax Tree as an object literal using the MathJSON format.
@@ -106,7 +106,7 @@ export declare function latexToMathML(latex: string, options: {
  */
 export declare function latexToAST(latex: string, options?: {
     macros?: MacroDictionary;
-    error?: ParserErrorCallback;
+    onError?: ParserErrorListener;
 }): any;
 /**
  * Converts a {@tutorial math-json | MathJSON } Abstract Syntax Tree to a LaTeX string.
@@ -144,7 +144,7 @@ export declare function astToLatex(mathJson: any, options?: {
  * with a mode token such as a `$$` or `\(`.
  *
  * @param options {@inheritDoc TextToSpeechOptions}
- * @param options.error Callback invoked when an error is encountered while
+ * @param options.onError Callback invoked when an error is encountered while
  * parsing the input string.
  *
  * @return The spoken representation of the input LaTeX.
@@ -156,7 +156,7 @@ export declare function astToLatex(mathJson: any, options?: {
  */
 export declare function latexToSpeakableText(latex: string, options: TextToSpeechOptions & {
     macros?: MacroDictionary;
-    error?: ParserErrorCallback;
+    onError?: ParserErrorListener;
 }): string;
 export declare type AutoRenderOptions = {
     /** Namespace that is added to `data-`  attributes to avoid collisions with other libraries.

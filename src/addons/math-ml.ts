@@ -578,7 +578,7 @@ function toString(atoms) {
  * Return a MathML fragment representation of a single atom
  *
  */
-export function atomToMathML(atom, options): string {
+function atomToMathML(atom, options): string {
     // For named SVG atoms, map to a Unicode char
     const SVG_CODE_POINTS = {
         widehat: '^',

@@ -7,7 +7,7 @@ import { ModelPrivate } from './model';
 import { applyStyle } from './model-styling';
 import Keyboard from './editor-keyboard';
 import { UndoManager } from './undo';
-import { hidePopover, updatePopoverPosition } from './editor-popover';
+import { hidePopover, updatePopoverPosition } from './popover';
 import { atomToAsciiMath } from './atom-to-ascii-math';
 import { localize as l10n } from './l10n';
 import { HAPTIC_FEEDBACK_DURATION, SelectorPrivate, perform } from './commands';
@@ -61,7 +61,7 @@ import {
 
 import { atomToSpeakableText } from './atom-to-speakable-text';
 import { atomtoMathJson } from '../addons/math-json';
-import { atomToMathML } from '../addons/math-ml';
+import { atomsToMathML } from '../addons/math-ml';
 
 export class MathfieldPrivate implements Mathfield {
     model: ModelPrivate;
@@ -316,6 +316,7 @@ export class MathfieldPrivate implements Mathfield {
                     this.config.onContentWillChange(this),
                 onSelectionWillChange: () =>
                     this.config.onSelectionWillChange(this),
+                onError: this.config.onError,
             },
             {
                 announce: (_sender: Mathfield, command, modelBefore, atoms) =>
@@ -350,6 +351,25 @@ export class MathfieldPrivate implements Mathfield {
 
     $setConfig(config: MathfieldConfigPrivate): void {
         this.config = updateConfig(this.config, config);
+        this.model.setListeners({
+            onContentDidChange: (_sender: ModelPrivate) =>
+                this._onContentDidChange(),
+            onSelectionDidChange: (_sender: ModelPrivate) =>
+                this._onSelectionDidChange(),
+            onContentWillChange: () => this.config.onContentWillChange(this),
+            onSelectionWillChange: () =>
+                this.config.onSelectionWillChange(this),
+            onError: this.config.onError,
+        });
+        this.model.setHooks({
+            announce: (_sender: Mathfield, command, modelBefore, atoms) =>
+                this.config.onAnnounce?.(this, command, modelBefore, atoms),
+            moveOut: (_sender, direction) =>
+                this.config.onMoveOutOf(this, direction),
+            tabOut: (_sender, direction) =>
+                this.config.onTabOutOf(this, direction),
+        });
+
         if (!this.config.readOnly) {
             this._onBlur();
         }
@@ -561,7 +581,7 @@ export class MathfieldPrivate implements Mathfield {
         if (format === 'latex' || format === 'latex-expanded') {
             result = root.toLatex(format === 'latex-expanded');
         } else if (format === 'mathML') {
-            result = atomToMathML(root, this.config);
+            result = atomsToMathML(root, this.config);
         } else if (format === 'spoken') {
             result = atomToSpeakableText(root, this.config);
         } else if (format === 'spoken-text') {

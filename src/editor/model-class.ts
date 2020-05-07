@@ -3,21 +3,11 @@ import { Path, clone as clonePath, pathToString } from './path';
 import { arrayCell } from './model-array-utils';
 import { ModelListeners } from './model-listeners';
 
-import { ModelOptions, ModelHooks } from './model-utils';
-import './model-commands';
-export * from './model-utils';
-
-// export * from './model-array';
-// export * from './model-command-mode';
-// export * from './model-delete';
-// export * from './model-insert';
-// export * from './model-selection';
-// export * from './model-styling';
-// export * from './model-smartfence';
+import { ModelInterface, ModelOptions, ModelHooks } from './model-utils';
 
 declare class Mathfield {}
 
-export class ModelPrivate {
+export class ModelPrivate implements ModelInterface {
     mathfield: Mathfield;
     options: ModelOptions;
     listeners: ModelListeners;
@@ -45,7 +35,28 @@ export class ModelPrivate {
         this.path = [{ relation: 'body', offset: 0 }];
         this.extent = 0;
 
+        this.setListeners(listeners);
+        this.setHooks(hooks);
+        this.mathfield = target;
+
+        this.suppressChangeNotifications = false;
+    }
+
+    clone(): ModelPrivate {
+        const result = new ModelPrivate(
+            this.options,
+            this.listeners,
+            this.hooks,
+            this.mathfield
+        );
+        result.root = this.root;
+        result.path = clonePath(this.path);
+        return result;
+    }
+    setListeners(listeners?: ModelListeners): void {
         this.listeners = listeners;
+    }
+    setHooks(hooks?: ModelHooks): void {
         this.hooks = {
             announce: hooks?.announce
                 ? hooks.announce
@@ -68,24 +79,7 @@ export class ModelPrivate {
                       return true;
                   },
         };
-        this.mathfield = target;
-
-        this.suppressChangeNotifications = false;
     }
-
-    clone(): ModelPrivate {
-        const result = new ModelPrivate(
-            this.options,
-            this.listeners,
-            this.hooks,
-            this.mathfield
-        );
-        result.root = this.root;
-        result.path = clonePath(this.path);
-        return result;
-    }
-
-    // @revisit: that's not really a notification: it's a hook. Move to Model.
     announce(
         command: string, // @revisit: be more explicit
         modelBefore?: ModelPrivate,

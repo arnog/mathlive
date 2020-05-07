@@ -1,13 +1,15 @@
-import { ModelPrivate } from './model-utils';
+import type { ParserErrorListener } from '../public/core';
+import type { ModelInterface } from './model-utils';
 
 export type ModelListeners = {
-    onContentWillChange?: (sender: ModelPrivate) => void;
-    onContentDidChange?: (sender: ModelPrivate) => void;
-    onSelectionWillChange?: (sender: ModelPrivate) => void;
-    onSelectionDidChange?: (sender: ModelPrivate) => void;
+    onContentWillChange: (sender: ModelInterface) => void;
+    onContentDidChange: (sender: ModelInterface) => void;
+    onSelectionWillChange: (sender: ModelInterface) => void;
+    onSelectionDidChange: (sender: ModelInterface) => void;
+    onError: ParserErrorListener;
 };
 
-export function selectionWillChange(model: ModelPrivate): void {
+export function selectionWillChange(model: ModelInterface): void {
     if (
         typeof model.listeners?.onSelectionWillChange === 'function' &&
         !model.suppressChangeNotifications
@@ -16,7 +18,7 @@ export function selectionWillChange(model: ModelPrivate): void {
     }
 }
 
-export function selectionDidChange(model: ModelPrivate): void {
+export function selectionDidChange(model: ModelInterface): void {
     if (
         typeof model.listeners?.onSelectionDidChange === 'function' &&
         !model.suppressChangeNotifications
@@ -25,7 +27,7 @@ export function selectionDidChange(model: ModelPrivate): void {
     }
 }
 
-export function contentWillChange(model: ModelPrivate): void {
+export function contentWillChange(model: ModelInterface): void {
     if (
         typeof model.listeners?.onContentWillChange === 'function' &&
         !model.suppressChangeNotifications
@@ -34,7 +36,7 @@ export function contentWillChange(model: ModelPrivate): void {
     }
 }
 
-export function contentDidChange(model: ModelPrivate): void {
+export function contentDidChange(model: ModelInterface): void {
     if (
         typeof model.listeners?.onContentDidChange === 'function' &&
         !model.suppressChangeNotifications

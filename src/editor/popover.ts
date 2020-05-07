@@ -8,13 +8,12 @@ import {
     parseString,
 } from '../core/core';
 
-import {
-    getShortcutForCommand,
-    getAnchor,
-    getCaretPosition,
-    attachButtonHandlers,
-    Mathfield,
-} from './editor';
+import { getAnchor } from './model-selection';
+import { getShortcutForCommand } from './shortcuts';
+import { attachButtonHandlers } from './mathfield-buttons';
+import { getCaretPosition } from './mathfield-utils';
+
+import type { Mathfield } from './mathfield';
 
 // A textual description of a LaTeX command.
 // The value can be either a single string, or an array of string

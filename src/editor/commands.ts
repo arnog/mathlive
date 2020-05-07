@@ -1,6 +1,6 @@
 import { isArray } from '../common/types';
 
-import { hidePopover, showPopoverWithLatex } from './editor-popover'; // @revisit
+import { hidePopover, showPopoverWithLatex } from './popover'; // @revisit
 import { suggest } from '../core/definitions';
 import { Mathfield } from './mathfield-utils';
 import { selectionIsCollapsed } from './model-selection';

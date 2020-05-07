@@ -5,18 +5,18 @@
  */
 export declare type ParseMode = 'math' | 'text' | 'command';
 /**
- * Error code passed to the [[`ParserErrorCallback`]] callback.
+ * Error code passed to the [[`ParserErrorListener`]] function.
  *
  * See [[`MathfieldConfig`]], [[`latexToMarkup`]],  [[`latexToMathML`]],  [[`latexToAST`]],
  *
  *
     |  | |
     | ------------------ | ---      |
+    | `unknown-command`             | There is no definition available for this command, e.g. `\zin`  |
+    | `invalid-command`             | This command is not valid in the current mode (e.g. text command in math mode)  |
     | `unbalanced-braces`           |  There are too many or too few `{` or `}`  |
     | `unbalanced-environment`      |  An environment was open but never closed (`\begin{array}`}  |
     | `missing-argument`            |  A required argument is missing, e.g. `\frac{2}` |
-    | `unknown-command`             | There is no definition available for this command, e.g. `\zin`  |
-    | `invalid-command`             | This command is not valid in the current mode (e.g. text command in math mode)  |
     | `too-many-infix-commands`     | A group can include only one infix command (i.e. `\choose`, `\atop`). In general it's best to avoid infix commands.  |
     | `unexpected-command-in-string`| A command expected a string argument, but there was a command instead  |
     | `missing-unit`                |  An argument requiring a dimension was missing an unit.  |
@@ -24,9 +24,11 @@ export declare type ParseMode = 'math' | 'text' | 'command';
     | `unexpected-token`            |  An unexpected character was encountered.  |
     | `unexpected-end-of-string`    |  The end of the string was reached, but some required arguments were missing. |
  */
-export declare type ParserErrorCode = 'unbalanced-braces' | 'unbalanced-environment' | 'missing-argument' | 'unknown-command' | 'invalid-command' | 'too-many-infix-commands' | 'unexpected-command-in-string' | 'missing-unit' | 'unexpected-delimiter' | 'unexpected-token' | 'unexpected-end-of-string';
-export declare type ParserErrorCallback = (err: {
+export declare type ParserErrorCode = 'unknown-command' | 'invalid-command' | 'unbalanced-braces' | 'unbalanced-environment' | 'missing-argument' | 'too-many-infix-commands' | 'unexpected-command-in-string' | 'missing-unit' | 'unexpected-delimiter' | 'unexpected-token' | 'unexpected-end-of-string';
+export declare type ParserErrorListener = (err: {
     latex?: string;
+    before?: string;
+    after?: string;
     code: ParserErrorCode;
     arg?: string;
 }) => void;

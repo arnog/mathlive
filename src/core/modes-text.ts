@@ -1,4 +1,4 @@
-import { ParserErrorCallback, Style } from '../public/core';
+import { ParserErrorListener, Style } from '../public/core';
 import { register, getPropertyRuns, ParseTokensOptions } from './modes-utils';
 import { colorToString } from './color';
 import { Token } from './lexer';
@@ -270,7 +270,7 @@ function applyStyle(span: Span, style: Style): string {
 // options.parser
 function parse(
     tokens: Token[],
-    error: ParserErrorCallback,
+    error: ParserErrorListener,
     options: ParseTokensOptions
 ) {
     let result = [];
