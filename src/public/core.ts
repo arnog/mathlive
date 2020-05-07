@@ -50,7 +50,7 @@ export type ParserErrorListener = (err: {
  * Variants indicate a stylistic alternate for some characters.
  *
  * Typically, those are controlled with explicit commands, such as `\mathbb{}` or
- * `\mathfrak{}`. This type is used with the [[`applyStyle`]] function to change
+ * `\mathfrak{}`. This type is used with the [[`$applyStyle`]] method to change
  * the styling of a range of selected characters.
  *
  * In mathematical notation these variants are used not only for visual

@@ -106,7 +106,7 @@ export declare function latexToMathML(
 /**
  * Converts a LaTeX string to an {@tutorial math-json | MathJSON } Abstract Syntax Tree
  *
- * **See Also:** [[latexToAST|latexToAST()]]
+ * **See Also:** [[astToLatex|astToLatex()]]
  *
  * @param latex A string of valid LaTeX. It does not have to start
  * with a mode token such as a `$$` or `\(`.
