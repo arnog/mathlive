@@ -1,4 +1,15 @@
-## [unreleased]
+## 0.50.1 (May 6, 2020)
+
+### New Feature
+
+-   A new option, `config.error` can be used to catch errors while parsing Latex.
+
+    This is invoked both for the initial content of the mathfield, when the
+    content of the mathfield is changed programmatically, or when the user
+    paste latex content in the field.
+
+    An error code will indicate the problem encountered, but the parsing will
+    attempt to recover, as it has done previously.
 
 ### Bug Fixes
 

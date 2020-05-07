@@ -88,7 +88,10 @@ export function parseMathString(
     s = s.replace(/([^\\])cosx/g, '$1\\cos x '); // common typo
     s = s.replace(/\u2013/g, '-'); // EN-DASH, sometimes used as a minus sign
 
-    return [options?.format || 'ASCIIMath', parseMathExpression(s, options)];
+    return [
+        options?.format || 'ASCIIMath',
+        parseMathExpression(s, options ?? {}),
+    ];
 }
 
 function parseMathExpression(
@@ -105,7 +108,7 @@ function parseMathExpression(
     if (!done && (s[0] === '^' || s[0] === '_')) {
         // Superscript and subscript
         m = parseMathArgument(s.substr(1), {
-            inlineShortcuts: options?.inlineShortcuts,
+            inlineShortcuts: options?.inlineShortcuts ?? {},
             noWrap: true,
         });
         s = s[0] + '{' + m.match + '}';
@@ -118,7 +121,7 @@ function parseMathExpression(
         if (m) {
             // Square root
             m = parseMathArgument(m[2], {
-                inlineShortcuts: options?.inlineShortcuts,
+                inlineShortcuts: options?.inlineShortcuts ?? {},
                 noWrap: true,
             });
             s = '\\sqrt{' + m.match + '}';
@@ -132,7 +135,7 @@ function parseMathExpression(
         if (m) {
             // Cube root
             m = parseMathArgument(m[2], {
-                inlineShortcuts: options?.inlineShortcuts,
+                inlineShortcuts: options?.inlineShortcuts ?? {},
                 noWrap: true,
             });
             s = '\\sqrt[3]{' + m.match + '}';
@@ -146,7 +149,7 @@ function parseMathExpression(
         if (m) {
             // Absolute value
             m = parseMathArgument(m[1], {
-                inlineShortcuts: options?.inlineShortcuts,
+                inlineShortcuts: options?.inlineShortcuts ?? {},
                 noWrap: true,
             });
             s = '\\left|' + m.match + '\\right|';
@@ -179,7 +182,7 @@ function parseMathExpression(
     if (!done && /^(f|g|h)[^a-zA-Z]/.test(s)) {
         // This could be a function...
         m = parseMathArgument(s.substring(1), {
-            inlineShortcuts: options.inlineShortcuts,
+            inlineShortcuts: options.inlineShortcuts ?? {},
             noWrap: true,
         });
         if (s[1] === '(') {
@@ -204,13 +207,13 @@ function parseMathExpression(
 
     if (!done) {
         m = parseMathArgument(s, {
-            inlineShortcuts: options.inlineShortcuts,
+            inlineShortcuts: options.inlineShortcuts ?? {},
             noWrap: true,
         });
         if (m.match && m.rest[0] === '/') {
             // Fraction
             const m2 = parseMathArgument(m.rest.substr(1), {
-                inlineShortcuts: options.inlineShortcuts,
+                inlineShortcuts: options.inlineShortcuts ?? {},
                 noWrap: true,
             });
             if (m2.match) {
@@ -265,7 +268,7 @@ function parseMathArgument(
     options: {
         noWrap?: boolean;
         format?: string;
-        inlineShortcuts: { [key: string]: InlineShortcutDefinition };
+        inlineShortcuts?: { [key: string]: InlineShortcutDefinition };
     }
 ): { match: string; rest: string } {
     let match = '';

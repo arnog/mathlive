@@ -1,6 +1,6 @@
+import { ParserErrorCallback, Style } from '../public/core';
 import { register, getPropertyRuns, ParseTokensOptions } from './modes-utils';
 import { colorToString } from './color';
-import { Style } from '../public/core';
 import { Token } from './lexer';
 import { Span } from './span';
 import { Atom } from './atom-utils';
@@ -268,7 +268,11 @@ function applyStyle(span: Span, style: Style): string {
 // options.smartFence
 // options.style
 // options.parser
-function parse(tokens: Token[], options: ParseTokensOptions) {
+function parse(
+    tokens: Token[],
+    error: ParserErrorCallback,
+    options: ParseTokensOptions
+) {
     let result = [];
     let atom: Atom;
 
@@ -291,15 +295,21 @@ function parse(tokens: Token[], options: ParseTokensOptions) {
             result = [...result, ...atoms];
         } else if (token.type === 'literal') {
             const info = getInfo(token.value as string, 'text', options.macros);
-            atom = new Atom(
-                'text',
-                info ? info.type : '', // @todo: revisit. Use 'text' type?
-                info ? info.value : (token.value as string),
-                options.style
-            );
-            atom.symbol = token.value as string;
-            atom.latex = charToLatex('text', token.value as string);
-            result.push(atom);
+            if (!info) {
+                error({ code: 'unexpected-token' });
+            } else if (!info.mode || info.mode.includes('text')) {
+                atom = new Atom(
+                    'text',
+                    info ? info.type : '', // @todo: revisit. Use 'text' type?
+                    info ? info.value : (token.value as string),
+                    options.style
+                );
+                atom.symbol = token.value as string;
+                atom.latex = charToLatex('text', token.value as string);
+                result.push(atom);
+            } else {
+                error({ code: 'unexpected-token' });
+            }
         } else if (token.type === '$' || token.type === '$$') {
             // Mode-shift
             const subtokens = tokens.slice(
@@ -314,7 +324,10 @@ function parse(tokens: Token[], options: ParseTokensOptions) {
             // In text mode, braces are sometimes used to separate adjacent
             // commands without inserting a space, e.g. "\backlash{}command"
         } else {
-            console.error('Unexpected token type in text mode ', token.type);
+            error({
+                code: 'unexpected-token',
+                arg: token.type + (token.value ?? ''),
+            });
         }
     }
     return [result, tokens];
@@ -323,5 +336,5 @@ function parse(tokens: Token[], options: ParseTokensOptions) {
 register('text', {
     emitLatexRun: emitLatexTextRun,
     applyStyle,
-    parse: (tokens, options) => parse(tokens, options)[0],
+    parse: (tokens, error, options) => parse(tokens, error, options)[0],
 });

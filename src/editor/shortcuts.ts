@@ -11,6 +11,9 @@ import {
 } from './shortcuts-definitions-keyboard';
 export { InlineShortcutDefinition };
 
+export { KEYBOARD_SHORTCUTS } from './shortcuts-definitions-keyboard';
+export { INLINE_SHORTCUTS } from './shortcuts-definitions-inline';
+
 /**
  * Return an array of potential shortcuts
  */

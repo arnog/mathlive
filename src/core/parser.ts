@@ -12,7 +12,7 @@ import { Token, tokenize } from './lexer';
 import { Atom, Colspec, BBoxParam } from './atom';
 import { parseTokens } from './modes';
 import { FunctionDefinition } from './definitions-utils';
-import { MacroDefinition, Style } from '../public/core';
+import { ParserErrorCallback, MacroDefinition, Style } from '../public/core';
 import { ParseModePrivate } from './context';
 
 function tokensToString(tokens: Token[]): string {
@@ -92,31 +92,28 @@ function tokensToString(tokens: Token[]): string {
  */
 class Parser {
     tokens: Token[];
-    index: number;
     args: (string | Atom[])[];
     macros: MacroDictionary;
-    mathList: Atom[];
-    style: Style;
-    parseMode: ParseModePrivate;
-    smartFence: boolean;
-    tabularMode: boolean;
-    endCount: number;
+
+    error: ParserErrorCallback;
+    index = 0;
+    mathList: Atom[] = [];
+    style: Style = {};
+    parseMode: ParseModePrivate = 'math';
+    smartFence = false;
+    tabularMode = false;
+    endCount = 0;
 
     constructor(
         tokens: Token[],
         args: (string | Atom[])[],
-        macros: MacroDictionary
+        macros: MacroDictionary,
+        error: ParserErrorCallback
     ) {
         this.tokens = tokens;
-        this.index = 0;
         this.args = args;
         this.macros = macros;
-        this.mathList = [];
-        this.style = {};
-        this.parseMode = 'math';
-        this.tabularMode = false;
-        this.smartFence = false;
-        this.endCount = 0;
+        this.error = error;
     }
     swapMathList(newMathList: Atom[] = []): Atom[] {
         const result = this.mathList;
@@ -218,6 +215,7 @@ class Parser {
                 this.parseMode,
                 this.macros
             );
+            if (info?.mode && !info.mode.includes(this.parseMode)) return false;
             return info?.infix;
         }
         return false;
@@ -321,7 +319,7 @@ class Parser {
         while (i < info.params.length) {
             const param = info.params[i];
             // Parse an argument
-            if (param.optional) {
+            if (param.isOptional) {
                 args.push(this.scanOptionalArg(param.type));
             } else if (param.type.endsWith('*')) {
                 // For example 'math*'.
@@ -330,8 +328,14 @@ class Parser {
                 explicitGroup = param.type.slice(0, -1) as ParseModePrivate;
             } else {
                 // If it's not present, scanArg returns null.
-                // Add a placeholder instead.
-                args.push(this.scanArg(param.type) || this.placeholder());
+                const arg = this.scanArg(param.type);
+                if (arg) {
+                    args.push(arg);
+                } else {
+                    // Report an error
+                    this.error({ code: 'missing-argument' });
+                    return ['', null];
+                }
             }
             i += 1;
         }
@@ -420,7 +424,7 @@ class Parser {
                     // TeX will give a 'Missing \endcsname inserted' error
                     // if it encounters any command when expecting a string.
                     // We're a bit more lax.
-                    // @todo: report error
+                    this.error({ code: 'unbalanced-braces' });
                     result += token!.value;
                 }
             } else {
@@ -551,6 +555,7 @@ class Parser {
             result = convertDimenToEm(value, 'mu');
         } else {
             // If the units are missing, TeX assumes 'pt'
+            this.error({ code: 'missing-unit' });
             result = convertDimenToEm(value, 'pt');
         }
         return result;
@@ -661,17 +666,16 @@ class Parser {
         if (env?.params) {
             for (const param of env.params) {
                 // Parse an argument
-                if (param.optional) {
-                    // If it's not present, return the default argument value
-                    const arg = this.scanOptionalArg(param.type);
-                    // args.push(arg ? arg : param.defaultValue); @todo defaultvalue
-                    args.push(arg);
-                } else {
+                if (param.isOptional) {
                     // If it's not present, scanArg returns null,
                     // but push it on the list of arguments anyway.
                     // The null value will be interpreted as unspecified
                     // optional value by the command parse function.
-                    args.push(this.scanArg(param.type));
+                    args.push(this.scanOptionalArg(param.type));
+                } else {
+                    const arg = this.scanArg(param.type);
+                    this.error({ code: 'missing-argument' });
+                    args.push(arg);
                 }
             }
         }
@@ -686,7 +690,10 @@ class Parser {
         let row: Atom[][] = [];
         let done = false;
         do {
-            done = this.end();
+            if (this.end()) {
+                this.error({ code: 'unbalanced-environment' });
+                done = true;
+            }
             if (!done && this.parseCommand('end')) {
                 done = this.scanArg('string') === envName;
             }
@@ -883,7 +890,10 @@ class Parser {
     scanDelim(): string {
         this.skipWhitespace();
         const token = this.get();
-        if (!token) return null;
+        if (!token) {
+            this.error({ code: 'unexpected-end-of-string' });
+            return null;
+        }
         let delim = '.';
         if (token.type === 'command') {
             delim = '\\' + token.value;
@@ -891,7 +901,14 @@ class Parser {
             delim = token.value as string;
         }
         const info = getInfo(delim, 'math', this.macros);
-        if (!info) return null;
+        if (!info) {
+            this.error({ code: 'unknown-command', arg: delim });
+            return null;
+        }
+        if (info.mode && !info.mode.includes(this.parseMode)) {
+            this.error({ code: 'unexpected-delimiter', arg: delim });
+            return null;
+        }
         if (info.type === 'mopen' || info.type === 'mclose') {
             return delim;
         }
@@ -906,6 +923,7 @@ class Parser {
         ) {
             return delim;
         }
+        this.error({ code: 'unexpected-delimiter', arg: delim });
         return null;
     }
     /**
@@ -919,7 +937,7 @@ class Parser {
     scanLeftRight(): Atom {
         if (this.parseCommand('right') || this.parseCommand('mright')) {
             // We have an unbalanced left/right (there's a \right, but no \left)
-            // @todo report error
+            this.error({ code: 'unbalanced-braces' });
             return null;
         }
 
@@ -1190,6 +1208,7 @@ class Parser {
             result = parseTokens(
                 parseMode,
                 this.tokens.slice(initialIndex, this.index - 1),
+                this.error,
                 {
                     args: this.args,
                     macros: this.macros,
@@ -1203,7 +1222,8 @@ class Parser {
                         const parser = new Parser(
                             tokens,
                             options.args,
-                            options.macros
+                            options.macros,
+                            this.error
                         );
                         parser.parseMode = mode;
                         parser.style = options.style;
@@ -1299,6 +1319,30 @@ class Parser {
                         {}
                     );
 
+                    if (!info) {
+                        // An unknown command
+                        this.error({
+                            code: 'unknown-command',
+                            arg: '\\' + token.value,
+                        });
+                        result = new Atom('math', 'error', '\\' + token.value);
+                        result.symbol = '\\' + token.value;
+                        result.latex = '\\' + token.value;
+                        return [result];
+                    }
+
+                    if (info.mode && !info.mode.includes(this.parseMode)) {
+                        // Command invalid in this mode
+                        this.error({
+                            code: 'invalid-command',
+                            arg: '\\' + token.value,
+                        });
+                        result = new Atom('math', 'error', '\\' + token.value);
+                        result.symbol = '\\' + token.value;
+                        result.latex = '\\' + token.value;
+                        return [result];
+                    }
+
                     // Parse the arguments
                     // If explicitGroup is not empty, an explicit group is expected
                     // to follow the command and will be parsed *after* the
@@ -1310,12 +1354,18 @@ class Parser {
                     // of 'auto*'
                     const initialIndex = this.index;
                     const [explicitGroup, args] = this.parseArguments(info);
-                    if (info && !info.infix) {
+
+                    if (!args) return null; // Some required arguments were missing...
+
+                    if (info.infix) {
                         // Infix commands should be handled in scanImplicitGroup
                         // If we find an infix command here, it's a syntax error
                         // (second infix command in an implicit group) and should be ignored.
-                        // @todo report error
-
+                        this.error({
+                            code: 'too-many-infix-commands',
+                            arg: '\\' + token.value,
+                        });
+                    } else {
                         //  Invoke the parse() function if present
                         if (info.parse) {
                             const attributes = info.parse(
@@ -1405,14 +1455,6 @@ class Parser {
                             }
                         }
                     }
-
-                    if (!info) {
-                        // An unknown command
-                        // @todo: report error
-                        result = new Atom('text', 'error', '\\' + token.value);
-                        result.symbol = '\\' + token.value;
-                        result.latex = '\\' + token.value;
-                    }
                 }
             }
         } else if (
@@ -1456,16 +1498,27 @@ class Parser {
                 result = this.placeholder();
             } else if (this.args) {
                 // Otherwise, substitute the token with a provided argument
-                result = this.args[token.value] || this.placeholder();
+                if (!this.args[token.value]) {
+                    result = this.placeholder();
+                } else {
+                    result = parseString(
+                        this.args[token.value],
+                        this.parseMode,
+                        [],
+                        this.macros
+                    );
+                }
             }
         } else {
-            console.warn(
-                'Unexpected token type "' +
-                    token.type +
-                    '", value ="' +
-                    token.value +
-                    '"'
-            );
+            if (token.type === '}') {
+                this.error({ latex: '', code: 'unbalanced-braces' });
+            } else {
+                this.error({
+                    latex: '',
+                    code: 'unexpected-token',
+                    arg: token.type + (token.value ?? ''),
+                });
+            }
         }
         // Always return an array of atoms
         return result && !isArray(result)
@@ -1559,10 +1612,22 @@ export function parseString(
     parseMode: ParseModePrivate,
     args: (string | Atom[])[],
     macros: MacroDictionary,
-    smartFence = false
+    smartFence = false,
+    error?: ParserErrorCallback
 ): Atom[] {
     let mathlist = [];
-    const parser = new Parser(tokenize(s), args, macros);
+    const parser = new Parser(tokenize(s), args, macros, (err) => {
+        if (error) {
+            error({ latex: s, code: err.code });
+        } else {
+            console.warn(
+                'MathLive parsing error: ' +
+                    err.code +
+                    (err.arg ? ' ' + err.arg + ' ' : ''),
+                'in "' + s + '"'
+            );
+        }
+    });
     parser.parseMode = parseMode || 'math'; // other possible values: 'text', 'color', etc...
     if (smartFence) parser.smartFence = true;
 

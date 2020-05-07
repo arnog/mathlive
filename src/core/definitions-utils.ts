@@ -9,10 +9,8 @@ import {
 } from '../public/core';
 
 export type FunctionArgumentDefiniton = {
-    optional: boolean;
+    isOptional: boolean;
     type: ParseModePrivate;
-    defaultValue: any;
-    placeholder: string;
 };
 
 export type FunctionDefinition = {
@@ -361,6 +359,9 @@ export function defineSymbol(
     if (!REVERSE_MATH_SYMBOLS[value] && !variant) {
         REVERSE_MATH_SYMBOLS[value] = symbol;
     }
+    // We accept all math symbols in text mode as well
+    // which is a bit more permissive than TeX
+    TEXT_SYMBOLS[symbol] = value;
 }
 
 /**
@@ -776,20 +777,14 @@ export function getInfo(
         info = FUNCTIONS[symbol];
         if (info) {
             // We've got a match
-
-            // Validate that the current mode is supported by the command
-            if (info.mode && !info.mode.includes(parseMode)) return null;
-
             return info;
         }
 
-        if (!info) {
-            // It wasn't a function, maybe it's a symbol?
-            if (parseMode === 'math') {
-                info = MATH_SYMBOLS[symbol];
-            } else if (TEXT_SYMBOLS[symbol]) {
-                info = { value: TEXT_SYMBOLS[symbol] };
-            }
+        // It wasn't a function, maybe it's a symbol?
+        if (parseMode === 'math') {
+            info = MATH_SYMBOLS[symbol];
+        } else if (TEXT_SYMBOLS[symbol]) {
+            info = { value: TEXT_SYMBOLS[symbol] };
         }
 
         if (!info) {
@@ -819,10 +814,8 @@ export function getInfo(
                 };
                 while (argCount >= 1) {
                     info.params.push({
-                        optional: false,
+                        isOptional: false,
                         type: 'math',
-                        defaultValue: null,
-                        placeholder: null,
                     });
                     argCount -= 1;
                 }
@@ -887,46 +880,37 @@ export function suggest(s: string): { match: string; frequency: number }[] {
 /**
  * An argument template has the following syntax:
  *
- * <placeholder>:<type>=<default>
+ * <placeholder>:<type>
  *
  * where
  * - <placeholder> is a string whose value is displayed when the argument
  *   is missing
  * - <type> is one of 'string', 'color', 'dimen', 'auto', 'text', 'math'
- * - <default> is the default value if none is provided for an optional
- * parameter
  *
  */
-function parseParamTemplateArgument(argTemplate: string, isOptional: boolean) {
-    let r = argTemplate.match(/=(.+)/);
-    const defaultValue = r ? r[1] : isOptional ? '[]' : '{}';
-    let type = 'auto';
-    let placeholder = null;
+function parseParamTemplateArgument(argTemplate: string): ParseModePrivate {
+    let type: ParseModePrivate = 'auto';
 
     // Parse the type (:type)
-    r = argTemplate.match(/:([^=]+)/);
-    if (r) type = r[1].trim();
+    const r = argTemplate.match(/:([^=]+)/);
+    if (r) type = r[1].trim() as ParseModePrivate;
 
-    // Parse the placeholder
-    r = argTemplate.match(/^([^:=]+)/);
-    if (r) placeholder = r[1].trim();
-
-    return {
-        optional: isOptional,
-        type: type,
-        defaultValue: defaultValue,
-        placeholder: placeholder,
-    };
+    return type;
 }
 
-function parseParamTemplate(paramTemplate) {
+function parseParamTemplate(
+    paramTemplate: string
+): FunctionArgumentDefiniton[] {
     if (!paramTemplate) return [];
 
     let result = [];
     let params = paramTemplate.split(']');
     if (params[0].charAt(0) === '[') {
         // We found at least one optional parameter.
-        result.push(parseParamTemplateArgument(params[0].slice(1), true));
+        result.push({
+            isOptional: true,
+            type: parseParamTemplateArgument(params[0].slice(1)),
+        });
         // Parse the rest
         for (let i = 1; i <= params.length; i++) {
             result = result.concat(parseParamTemplate(params[i]));
@@ -935,7 +919,10 @@ function parseParamTemplate(paramTemplate) {
         params = paramTemplate.split('}');
         if (params[0].charAt(0) === '{') {
             // We found a required parameter
-            result.push(parseParamTemplateArgument(params[0].slice(1), false));
+            result.push({
+                isOptional: false,
+                type: parseParamTemplateArgument(params[0].slice(1)),
+            });
             // Parse the rest
             for (let i = 1; i <= params.length; i++) {
                 result = result.concat(parseParamTemplate(params[i]));
@@ -967,8 +954,7 @@ export function parseArgAsString(atoms: Atom[]): string {
  * Define one or more environments to be used with
  *         \begin{<env-name>}...\end{<env-name>}.
  *
- * @param names
- * @param  params The number and type of required and optional parameters.
+ * @param params The number and type of required and optional parameters.
  */
 export function defineEnvironment(
     names: string | string[],
@@ -976,14 +962,16 @@ export function defineEnvironment(
     options,
     parser
 ): void {
-    if (typeof names === 'string') names = [names];
+    if (typeof names === 'string') {
+        names = [names];
+    }
     if (!options) options = {};
     const parsedParams = parseParamTemplate(params);
 
     // Set default values of functions
     const data = {
         // Params: the parameters for this function, an array of
-        // {optional, type, defaultValue, placeholder}
+        // {optional, type}
         params: parsedParams,
 
         // Callback to parse the arguments
@@ -1003,7 +991,7 @@ export function defineEnvironment(
  * @param names
  * @param params The number and type of required and optional parameters.
  * For example: '{}' defines a single mandatory parameter
- * '[index=2]{indicand:auto}' defines two params, one optional, one required
+ * '[string]{auto}' defines two params, one optional, one required
  */
 export function defineFunction(
     names: string | string[],
@@ -1021,7 +1009,7 @@ export function defineFunction(
     // Set default values of functions
     const data = {
         // The parameters for this function, an array of
-        // {optional, type, defaultValue, placeholder}
+        // {optional, type}
         params: parseParamTemplate(params),
 
         mode: options.mode,

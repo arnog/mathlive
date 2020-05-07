@@ -314,5 +314,9 @@ export function getDefault(): Required<MathfieldConfigPrivate> {
         onModeChange: NO_OP_LISTENER,
         onVirtualKeyboardToggle: NO_OP_LISTENER,
         onReadAloudStatus: NO_OP_LISTENER,
+
+        error: (_) => {
+            return;
+        },
     };
 }

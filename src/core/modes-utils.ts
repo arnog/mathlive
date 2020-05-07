@@ -1,7 +1,8 @@
+import { ParserErrorCallback, Style, MacroDictionary } from '../public/core';
+
 import { Span } from './span';
 import { Token } from './lexer';
 import { Atom } from './atom';
-import { Style, MacroDictionary } from '../public/core';
 import { ParseModePrivate } from './context';
 
 export interface ParseTokensOptions {
@@ -64,7 +65,11 @@ export function register(
             expandMacro: boolean
         ) => string;
         applyStyle: (span: Span, style: Style) => string;
-        parse?: (tokens: Token[], options: ParseTokensOptions) => Atom[];
+        parse?: (
+            tokens: Token[],
+            error: ParserErrorCallback,
+            options: ParseTokensOptions
+        ) => Atom[];
     }
 ): void {
     MODES_REGISTRY[name] = { ...definition };
@@ -91,10 +96,11 @@ export function emitLatexRun(
 export function parseTokens(
     mode: ParseModePrivate,
     tokens: Token[],
+    error: ParserErrorCallback,
     options: ParseTokensOptions
 ) {
     if (MODES_REGISTRY[mode] && MODES_REGISTRY[mode].parse) {
-        return MODES_REGISTRY[mode].parse(tokens, options);
+        return MODES_REGISTRY[mode].parse(tokens, error, options);
     }
     return null;
 }

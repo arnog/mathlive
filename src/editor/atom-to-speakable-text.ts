@@ -194,7 +194,7 @@ function atomicValue(atoms: Atom[]): string {
 function atomToSpeakableFragment(
     mode: 'text' | 'math',
     atom: Atom | Atom[],
-    options: Required<TextToSpeechOptions>
+    options: TextToSpeechOptions
 ): string {
     function letter(c: string): string {
         let result = '';
@@ -674,7 +674,7 @@ function atomToSpeakableFragment(
  */
 export function atomToSpeakableText(
     atoms: Atom | Atom[],
-    speechOptions: Required<TextToSpeechOptions>
+    speechOptions: TextToSpeechOptions
 ): string {
     const options = {
         ...speechOptions,

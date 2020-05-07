@@ -50,6 +50,7 @@ export interface Commands {
     nextSuggestion: (mathfield: Mathfield) => boolean;
     /**
      * @category Auto-complete
+
      */
     previousSuggestion: (mathfield: Mathfield) => boolean;
 
@@ -79,6 +80,9 @@ export interface Commands {
      */
     scrollToEnd: (mathfield: Mathfield) => boolean;
 
+    /**
+     * @deprecated The command mode will be dropped in a future release.
+     */
     enterCommandMode: (mathfield: Mathfield) => boolean;
 
     toggleKeystrokeCaption: (mathfield: Mathfield) => boolean;

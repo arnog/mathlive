@@ -4,8 +4,21 @@
  * It is also used by the automated test suite.
  */
 
-import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
 import { parseString } from '../core/parser';
+import {
+    MACROS,
+    FUNCTIONS,
+    MATH_SYMBOLS,
+    TEXT_SYMBOLS,
+    ENVIRONMENTS,
+} from '../core/definitions';
+import {
+    KEYBOARD_SHORTCUTS,
+    INLINE_SHORTCUTS,
+    getShortcutMarkup,
+} from '../editor/shortcuts';
+
+import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
 import { parseMathString } from '../editor/parse-math-string';
 
 export function latexToAsciiMath(latex, mode?) {
@@ -445,4 +458,14 @@ export default {
 
     latexToAsciiMath,
     asciiMathToLatex,
+    FUNCTIONS,
+    MATH_SYMBOLS,
+    TEXT_SYMBOLS,
+    ENVIRONMENTS,
+    MACROS,
+
+    KEYBOARD_SHORTCUTS,
+    INLINE_SHORTCUTS,
+
+    getShortcutMarkup,
 };

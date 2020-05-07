@@ -727,7 +727,6 @@ export function makeSpan(
     classes = '',
     type: SpanType = ''
 ): Span {
-    console.assert(!classes || !isSpanType(classes));
     if (isArray(content)) {
         const c = content.filter((x) => !!x);
         if (c.length === 1) {

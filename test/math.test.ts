@@ -1,8 +1,5 @@
-// const MathLive = require('../dist/mathlive.js');
-
-// import MathLive from '../src/mathlive';
 /// <reference path="../dist/mathlive.d.ts" />
-import MathLive from '../dist/mathlive.js';
+import MathLive from '../dist/mathlive';
 
 const MathLiveDebug = MathLive['debug'];
 
@@ -543,7 +540,7 @@ test('SURDS', function () {
 
     expect(
         toSpan(
-            'ax^2+bx+c = a \\left( x - \\frac{-b + \\sqrt {b^2-4ac}}{2a} \\right) \\left( x - \\frac{-b - \\sqrt {b^2-4ac}}{2a} \\right)'
+            'ax^2+bx+c = a \\left( x - \\frac{-b + \\sqrt {b^2-4ac}{2a} \\right) \\left( x - \\frac{-b - \\sqrt {b^2-4ac}{2a} \\right)'
         )
     ).toBeTruthy();
 

@@ -3,14 +3,16 @@
  * Use MathLive to render and edit mathematical formulas in your browser.
  *
  *
- * Read {@tutorial mathfield-getting-started | Getting Started}.
+ * Read {@tutorial mathfield-getting-started | Getting Started} for more info.
  *
  * @example
- * // To invoke the functions in this module, import the `mathlive` module.
+ * <script type="module">
+ * // To invoke the functions in this module, import the `Mathlive` module.
  *
- * import mathlive from 'mathlive.js';
+ * import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
  *
- * console.log(mathlive.latexToMarkup('e^{i\\pi}+1=0'));
+ * console.log(MathLive.latexToAST('e^{i\\pi}+1=0'));
+ * </script>
  *
  * @packageDocumentation MathLive SDK Reference
  *
@@ -18,7 +20,7 @@
 
 import { Mathfield } from './mathfield';
 import { MathfieldConfig, TextToSpeechOptions } from './config';
-import { MacroDictionary } from './core';
+import { MacroDictionary, ParserErrorCallback } from './core';
 
 export { Mathfield };
 export { MathfieldConfig };
@@ -38,6 +40,9 @@ export { MathfieldConfig };
  *
  * @param  options.macros A dictionary of LaTeX macros
  *
+ * @param  options.error A function invoked when a syntax error is encountered.
+ * An attempt to recover will be made even when an error is reported.
+ *
  * @category Converting
  * @keywords convert, latex, markup
  */
@@ -47,6 +52,7 @@ export declare function latexToMarkup(
         mathstyle?: 'displaystyle' | 'textstyle';
         letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
         macros?: MacroDictionary;
+        error?: ParserErrorCallback;
     }
 ): string;
 
@@ -66,8 +72,8 @@ export declare function latexToMarkup(
  * <span id='equation'>$f(x)=sin(x)$</span>
  * ```
  * The following code will turn the span into an editable mathfield.
- * ```
- * import MathLive from 'dist/mathlive.mjs';
+ * ```javascript
+ * import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
  * MathLive.makeMathField('equation');
  * ```
  * @keywords create, make, mathfield
@@ -82,25 +88,31 @@ export declare function makeMathField(
  *
  * @param latex A string of valid LaTeX. It does not have to start
  * with a mode token such as a `$$` or `\(`.
+ * @param options.generateId If true, add an `"extid"` attribute
+ * to the MathML nodes with a value matching the `atomID`. This can be used
+ * to map items on the screen with their MathML representation or vice-versa.
+ * @param options.error Callback invoked when an error is encountered while
+ * parsing the input string.
  */
 export declare function latexToMathML(
     latex: string,
     options: {
-        /** If true, add an `"extid"` attribute
-         * to the MathML nodes with a value matching the `atomID`. This can be used
-         * to map items on the screen with their MathML representation or vice-versa. */
+        macros?: MacroDictionary;
         generateID: boolean;
+        error?: ParserErrorCallback;
     }
 ): string;
 
 /**
- * Converts a LaTeX string to an Abstract Syntax Tree (MathJSON)
+ * Converts a LaTeX string to an {@tutorial math-json | MathJSON } Abstract Syntax Tree
  *
- * **See:** {@tutorial math-json | MathJSON }
+ * **See Also:** [[latexToAST|latexToAST()]]
  *
  * @param latex A string of valid LaTeX. It does not have to start
  * with a mode token such as a `$$` or `\(`.
  * @param options.macros A dictionary of LaTeX macros
+ * @param options.error Callback invoked when an error is encountered while
+ * parsing the input string.
  *
  * @return  The Abstract Syntax Tree as an object literal using the MathJSON format.
  * @category Converting
@@ -110,13 +122,14 @@ export declare function latexToAST(
     latex: string,
     options?: {
         macros?: MacroDictionary;
+        error?: ParserErrorCallback;
     }
 );
 
 /**
- * Converts a MathJSON Abstract Syntax Tree to a LaTeX string.
+ * Converts a {@tutorial math-json | MathJSON } Abstract Syntax Tree to a LaTeX string.
  *
- * **See:** {@tutorial math-json | MathJSON }
+ * **See Also:** [[latexToAST|latexToAST()]]
  *
  * @return The LaTeX representation of the Abstract Syntax Tree, if valid.
  * @category Converting
@@ -153,6 +166,8 @@ export declare function astToLatex(
  * with a mode token such as a `$$` or `\(`.
  *
  * @param options {@inheritDoc TextToSpeechOptions}
+ * @param options.error Callback invoked when an error is encountered while
+ * parsing the input string.
  *
  * @return The spoken representation of the input LaTeX.
  * @example
@@ -163,7 +178,10 @@ export declare function astToLatex(
  */
 export declare function latexToSpeakableText(
     latex: string,
-    options: TextToSpeechOptions
+    options: TextToSpeechOptions & {
+        macros?: MacroDictionary;
+        error?: ParserErrorCallback;
+    }
 ): string;
 export type AutoRenderOptions = {
     /** Namespace that is added to `data-`  attributes to avoid collisions with other libraries.
@@ -288,7 +306,7 @@ export type AutoRenderOptions = {
  * Read {@tutorial mathfield-getting-started | Getting Started}.
  *
  * @example
- * import MathLive from 'dist/mathlive.mjs';
+ * import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
  * document.addEventListener("load", () => {
  *     MathLive.renderMathInDocument();
  * });

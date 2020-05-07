@@ -160,7 +160,7 @@ defineEnvironment('displaymath', '', {}, function () {
 //     };
 // });
 
-defineEnvironment('array', '{columns:colspec}', {}, function (name, args) {
+defineEnvironment('array', '{columns:colspec}', {}, (_name, args) => {
     return {
         colFormat: args[0],
         mathstyle: 'textstyle',

@@ -1,5 +1,6 @@
 import { Mathfield } from './public/mathfield';
-import { MathfieldConfig } from './public/config';
+import { MathfieldConfig, TextToSpeechOptions } from './public/config';
+import { ParserErrorCallback } from './public/core';
 
 import { Atom } from './core/atom';
 import { Span } from './core/span';
@@ -23,12 +24,15 @@ import {
 import { atomToSpeakableText } from './editor/atom-to-speakable-text';
 import { atomToMathML } from './addons/math-ml';
 
+import './addons/definitions-metadata';
+
 function latexToMarkup(
     text: string,
     options: {
         mathstyle?: 'displaystyle' | 'textstyle';
         letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
         macros?: MacroDictionary;
+        error?: ParserErrorCallback;
         format?: string;
     }
 ): string | Atom[] | Span[] {
@@ -40,7 +44,14 @@ function latexToMarkup(
     // 1. Parse the formula and return a tree of atoms, e.g. 'genfrac'.
     //
 
-    const atoms = parseString(text, 'math', null, options.macros);
+    const atoms = parseString(
+        text,
+        'math',
+        null,
+        options.macros,
+        false,
+        options.error
+    );
 
     //
     // 2. Transform the math atoms into elementary spans
@@ -87,23 +98,33 @@ function makeMathField(
 
 function latexToMathML(
     latex: string,
-    options?: { macros?: MacroDictionary }
+    options?: {
+        macros?: MacroDictionary;
+        error?: ParserErrorCallback;
+        generateID?: boolean;
+    }
 ): string {
     options = options ?? {};
     options.macros = { ...MACROS, ...(options.macros ?? {}) };
 
     return atomToMathML(
-        parseString(latex, 'math', null, options.macros),
+        parseString(latex, 'math', null, options.macros, false, options.error),
         options
     );
 }
 
-function latexToAST(latex: string, options?: { macros?: MacroDictionary }) {
+function latexToAST(
+    latex: string,
+    options?: {
+        macros?: MacroDictionary;
+        error?: ParserErrorCallback;
+    }
+) {
     options = options ?? {};
     options.macros = { ...MACROS, ...(options.macros ?? {}) };
 
     return atomtoMathJson(
-        parseString(latex, 'math', null, options.macros),
+        parseString(latex, 'math', null, options.macros, false, options.error),
         options
     );
 }
@@ -128,14 +149,30 @@ function astToLatex(
     );
 }
 
-function latexToSpeakableText(latex, options): string {
-    options = options || {};
+function latexToSpeakableText(
+    latex: string,
+    options: TextToSpeechOptions & {
+        macros?: MacroDictionary;
+        error?: ParserErrorCallback;
+    }
+): string {
+    options = options ?? {};
     options.macros = options.macros || {};
     Object.assign(options.macros, MACROS);
 
-    const mathlist = parseString(latex, 'math', null, options.macros);
+    const mathlist = parseString(
+        latex,
+        'math',
+        null,
+        options.macros,
+        false,
+        options.error
+    );
 
-    return atomToSpeakableText(mathlist, options);
+    return atomToSpeakableText(
+        mathlist,
+        options as Required<TextToSpeechOptions>
+    );
 }
 
 function renderMathInDocument(options): void {
@@ -234,5 +271,12 @@ export default {
         hasClass: MathLiveDebug.hasClass,
         latexToAsciiMath: MathLiveDebug.latexToAsciiMath,
         asciiMathToLatex: MathLiveDebug.asciiMathToLatex,
+        FUNCTIONS: MathLiveDebug.FUNCTIONS,
+        MATH_SYMBOLS: MathLiveDebug.MATH_SYMBOLS,
+        TEXT_SYMBOLS: MathLiveDebug.TEXT_SYMBOLS,
+        ENVIRONMENTS: MathLiveDebug.ENVIRONMENTS,
+        MACROS: MathLiveDebug.MACROS,
+        KEYBOARD_SHORTCUTS: MathLiveDebug.KEYBOARD_SHORTCUTS,
+        getShortcutMarkup: MathLiveDebug.getShortcutMarkup,
     },
 };

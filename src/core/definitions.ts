@@ -5,13 +5,15 @@
  * special parsing such as `\char`.
  */
 
-import './definitions-symbols';
 import './definitions-accents';
-import './definitions-extensible-symbols';
-import './definitions-environments';
 import './definitions-enclose';
-import './definitions-styling';
+import './definitions-environments';
+import './definitions-extensible-symbols';
 import './definitions-functions';
+import './definitions-styling';
+import './definitions-symbols';
 
+import './definitions-utils';
 export * from './definitions-utils';
+
 export { MacroDictionary } from '../public/core';

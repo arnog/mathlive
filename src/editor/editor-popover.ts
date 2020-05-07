@@ -1,14 +1,20 @@
 import { isArray } from '../common/types';
 
-import { decompose } from '../core/atom-utils';
-import { parseString } from '../core/parser';
-import { makeSpan, makeStruts } from '../core/span';
-import { getShortcutForCommand } from './shortcuts';
-import { MATHSTYLES } from '../core/mathstyle';
-import { getAnchor } from './model-selection';
-import { getCaretPosition } from './mathfield-utils';
-import { attachButtonHandlers } from './mathfield-buttons';
-import { Mathfield } from './mathfield-utils';
+import {
+    MATHSTYLES,
+    decompose,
+    makeSpan,
+    makeStruts,
+    parseString,
+} from '../core/core';
+
+import {
+    getShortcutForCommand,
+    getAnchor,
+    getCaretPosition,
+    attachButtonHandlers,
+    Mathfield,
+} from './editor';
 
 // A textual description of a LaTeX command.
 // The value can be either a single string, or an array of string

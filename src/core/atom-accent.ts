@@ -1,8 +1,10 @@
 import { isArray } from '../common/types';
 
-import { registerAtomType, decompose, Atom } from './atom-utils';
-import { METRICS as FONTMETRICS } from './font-metrics';
 import {
+    Atom,
+    Context,
+    registerAtomType,
+    decompose,
     makeSVGSpan,
     makeSpan,
     makeVlist,
@@ -10,8 +12,8 @@ import {
     height as spanHeight,
     skew as spanSkew,
     Span,
-} from './span';
-import { Context } from './context';
+    METRICS as FONTMETRICS,
+} from './core';
 
 registerAtomType('accent', (context: Context, atom: Atom): Span[] => {
     // Accents are handled in the TeXbook pg. 443, rule 12.

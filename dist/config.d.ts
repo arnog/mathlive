@@ -1,4 +1,4 @@
-import { MacroDictionary, ParseMode } from './core';
+import { ParserErrorCode, MacroDictionary, ParseMode } from './core';
 import { InlineShortcutDefinition } from './shortcuts';
 export declare class Mathfield {
 }
@@ -444,14 +444,20 @@ mf.setConfig({
 };
 /**
  *
- * * <var>namespace</var> Namespace that is added to `data-` attributes
+ * - <var>namespace</var> Namespace that is added to `data-` attributes
  * to avoid collisions with other libraries.
  *
  * It is empty by default.
  *
  * The namespace should be a string of lowercase letters.
  *
- * * <var>substituteTextArea</var> A function that returns a focusable
+ * - <var>error</var> An optional callback function that will be
+ * invoked when an error is encountered while parsing some Latex. This
+ * could be the initial value, a value modified later with an API call,
+ * or a user interaction (pasting in the field for example). See [[`ParserErrorCode`]]
+ * for the list of possible errors.
+ *
+ * - <var>substituteTextArea</var> A function that returns a focusable
  * element that can be used to capture text input.
  *
  * An (invisible) DOM element is used to capture the keyboard events. By
@@ -466,5 +472,6 @@ mf.setConfig({
  */
 export declare type MathfieldConfig = LayoutOptions & EditingOptions & LocalizationOptions & InlineShortcutsOptions & VirtualKeyboardOptions & TextToSpeechOptions & MathfieldHooks & MathfieldListeners & {
     namespace?: string;
+    error?: (msg: ParserErrorCode) => void;
     substituteTextArea?: string | (() => HTMLElement);
 };

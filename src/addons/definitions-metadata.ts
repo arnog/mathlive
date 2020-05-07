@@ -96,7 +96,12 @@ metadata(
     ARCANE,
     '{$0{m0}A}{$0{m1}B}{$0{m2}C }{$0{m3}a}{$0{m4}b}{$0{m5}c}{$0{m6}8}'
 );
-metadata('Decoration', ['\\overline', '\\underline'], COMMON);
+metadata(
+    'Decoration',
+    ['\\overline', '\\underline'],
+    COMMON,
+    '$0{\\placeholder{}}'
+);
 metadata(
     'Decoration',
     ['\\enclose'],
@@ -117,7 +122,12 @@ metadata(
     '\\colorbox{#fbc0bd}{\\unicode{"2B1A}}'
 );
 
-metadata('Decoration', ['\\boxed', '\\cancel', '\\bcancel', '\\xcancel'], RARE);
+metadata(
+    'Decoration',
+    ['\\boxed', '\\cancel', '\\bcancel', '\\xcancel'],
+    RARE,
+    '$0{\\placeholder{}}'
+);
 
 metadata(
     'Decoration',
@@ -213,12 +223,11 @@ metadata(
         '\\mathinner',
         '\\operatorname',
         '\\operatorname*',
-        '\\middle',
     ],
     RARE,
     'x=$0{arg}=0'
 );
-
+metadata('Layout', ['\\middle'], RARE, '\\left\\{x$0|x>0\\right\\}');
 metadata(
     'Layout',
     ['\\overset', '\\underset', '\\stackrel', '\\stackbin'],
@@ -229,7 +238,12 @@ metadata(
 metadata('Layout', ['\\rlap', '\\mathrlap'], RARE, '$0{/}0');
 metadata('Layout', ['\\llap', '\\mathllap'], RARE, 'o$0{/}');
 
-metadata('Fractions', ['\\frac'], SUPERCOMMON);
+metadata(
+    'Fractions',
+    ['\\frac'],
+    SUPERCOMMON,
+    '$0{\\placeholder{}}{\\placeholder{}}'
+);
 metadata(
     'Fractions',
     [
@@ -241,7 +255,8 @@ metadata(
         '\\pdiff',
         '\\cfrac',
     ],
-    RARE
+    RARE,
+    '$0{\\placeholder{}}{\\placeholder{}}'
 );
 metadata(
     'Fractions',
@@ -304,7 +319,8 @@ metadata('Accents', ['\\vec'], SUPERCOMMON);
 metadata(
     'Accents',
     ['\\bar', '\\ddot', '\\acute', '\\tilde', '\\check'],
-    COMMON
+    COMMON,
+    '$0{\\placeholder{}}'
 );
 metadata('Accents', ['\\^', '\\`', "\\'"], RARE, '$0{e}');
 metadata('Accents', ['\\c'], RARE, '$0{c}');
@@ -312,7 +328,8 @@ metadata('Accents', ['\\~'], RARE, '$0{n}');
 metadata(
     'Accents',
     ['\\mathring', '\\hat', '\\dot', '\\breve', '\\grave'],
-    RARE
+    RARE,
+    '$0{\\placeholder{}}'
 );
 
 metadata(
@@ -856,7 +873,8 @@ metadata(
     RARE
 );
 
-metadata('Operators', ['\\sqrt', '+', '-', '*', '\\cdot'], SUPERCOMMON);
+metadata('Operators', ['+', '-', '*', '\\cdot'], SUPERCOMMON);
+metadata('Operators', ['\\sqrt'], SUPERCOMMON, '$0{\\placeholder{}}');
 
 metadata('Operators', ['\\pm', '\\mp', '\\times', '\\div', '\\surd'], COMMON);
 
