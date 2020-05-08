@@ -14,7 +14,8 @@
  * console.log(MathLive.latexToAST('e^{i\\pi}+1=0'));
  * </script>
  *
- * @packageDocumentation MathLive SDK Reference
+ * @packageDocumentation MathLive SDK Reference {{GIT_VERSION}}
+ * @version {{GIT_VERSION}}
  *
  */
 
@@ -24,6 +25,23 @@ import { MacroDictionary, ParserErrorListener } from './core';
 
 export { Mathfield };
 export { MathfieldConfig };
+
+/**
+ * The version string for this build of the SDK in the form of:
+ *
+ * `git tag`-`number of comits`-g`abbreviated commit hash`
+ *
+ * The `git tag` uses [semver](https://semver.org/):
+ * - The first number is the **MAJOR** version, incremented for
+ * incompatible API changes
+ * - The second number is the **MINOR** version, incremented for new features
+ * - The third number is the **PATCH** version, incremented for bug fixes
+ *
+ * Current version: `{{GIT_VERSION}}`
+ *
+ */
+export declare const version: string;
+
 /**
  * Converts a LaTeX string to a string of HTML markup.
  *
@@ -191,6 +209,7 @@ export type AutoRenderOptions = {
      * The namespace should be a string of lowercase letters.
      */
     namespace?: string;
+
     /** Custom LaTeX macros */
     macros?: MacroDictionary;
 
@@ -200,8 +219,8 @@ export type AutoRenderOptions = {
      *
      * **Default:** `['noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml']`
      */
-
     skipTags?: string[];
+
     /**
      * A string used as a regular expression of class names of elements whose content will not be
      * scanned for delimiter
@@ -267,16 +286,16 @@ export type AutoRenderOptions = {
          */
 
         processEnvironments?: boolean;
-    };
 
-    /**
-     * Delimiter pairs that will trigger a render of the content in
-     * display style or inline, respectively.
-     *
-     * **Default**: `{display: [ ['$$', '$$'], ['\\[', '\\]'] ] ], inline: [ ['\\(','\\)'] ] ]}`
-     *
-     */
-    delimiters?: { display: string[][]; inline: string[][] };
+        /**
+         * Delimiter pairs that will trigger a render of the content in
+         * display style or inline, respectively.
+         *
+         * **Default**: `{display: [ ['$$', '$$'], ['\\[', '\\]'] ] ], inline: [ ['\\(','\\)'] ] ]}`
+         *
+         */
+        delimiters?: { display: string[][]; inline: string[][] };
+    };
 
     /** A function that will convert any LaTeX found to
      * HTML markup. This is only useful to override the default MathLive renderer
@@ -298,10 +317,13 @@ export type AutoRenderOptions = {
  * Transform all the elements in the document body that contain LaTeX code
  * into typeset math.
  *
- * **Note:** This is a very expensive call, as it needs to parse the entire
+ * **(Caution):**
+ * This is a very expensive call, as it needs to parse the entire
  * DOM tree to determine which elements need to be processed. In most cases
  * this should only be called once per document, once the DOM has been loaded.
+ *
  * To render a specific element, use {@linkcode renderMathInElement | renderMathInElement()}
+ * ---
  *
  * Read {@tutorial mathfield-getting-started | Getting Started}.
  *
@@ -322,14 +344,14 @@ export declare function renderMathInDocument(options?: AutoRenderOptions): void;
  *
  * Read {@tutorial mathfield-getting-started | Getting Started}.
  *
- * @param {HTMLElement|string} element An HTML DOM element, or a string containing
+ * @param element An HTML DOM element, or a string containing
  * the ID of an element.
  *
  * @category Rendering
  * @keywords render, element, htmlelement
  */
 export declare function renderMathInElement(
-    element: HTMLElement,
+    element: string | HTMLElement,
     options?: AutoRenderOptions
 ): void;
 

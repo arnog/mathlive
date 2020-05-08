@@ -1,6 +1,3 @@
-/**
- * @preserve MathLive LONG_VERSION
- */
 import { Mathfield } from './public/mathfield';
 import { MathfieldConfig, TextToSpeechOptions } from './public/config';
 import { ParserErrorListener } from './public/core';
@@ -259,15 +256,10 @@ function getOriginalContent(element: string | HTMLElement, options): string {
     );
 }
 
-// This LONG_VERSION variable will be replaced by Terser during the
+// This GIT_VERSION variable will be replaced by Terser during the
 // rollup build process.
-declare const LONG_VERSION: string;
-/**
- * The version string for this version of the SDK in the form of:
- * `git tag`-`number of comits`-g`abbreviated commit name`
- *
- */
-export const version = LONG_VERSION;
+export declare const GIT_VERSION: string;
+export const version: string = GIT_VERSION;
 
 export default {
     version,

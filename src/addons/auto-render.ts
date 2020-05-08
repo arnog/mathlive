@@ -1,6 +1,13 @@
 /* eslint no-console:0 */
 import '../core/atom';
 import { MACROS } from '../core/definitions';
+import { AutoRenderOptions } from '../public/mathlive';
+
+type AutoRenderOptionsPrivate = AutoRenderOptions & {
+    ignoreClassPattern: RegExp;
+    processClassPattern: RegExp;
+    processScriptTypePattern: RegExp;
+};
 
 function findEndOfMath(delimiter, text, startIndex) {
     // Adapted from
@@ -150,7 +157,7 @@ function splitWithDelimiters(
     return data;
 }
 
-function createMathMLNode(latex, options) {
+function createMathMLNode(latex: string, options: AutoRenderOptionsPrivate) {
     // Create a node for AT (Assistive Technology, e.g. screen reader) to speak, etc.
     // This node has a style that makes it be invisible to display but is seen by AT
     const span = document.createElement('span');
@@ -167,7 +174,12 @@ function createMathMLNode(latex, options) {
     return span;
 }
 
-function createMarkupNode(text, options, mathstyle, createNodeOnFailure) {
+function createMarkupNode(
+    text: string,
+    options: AutoRenderOptionsPrivate,
+    mathstyle,
+    createNodeOnFailure
+) {
     // Create a node for displaying math.
     //   This is slightly ugly because in the case of failure to create the markup,
     //   sometimes a text node is desired and sometimes not.
@@ -206,10 +218,10 @@ function createMarkupNode(text, options, mathstyle, createNodeOnFailure) {
 }
 
 function createAccessibleMarkupPair(
-    text,
-    mathstyle,
-    options,
-    createNodeOnFailure
+    text: string,
+    mathstyle: 'displaystyle' | 'inlinestyle' | string,
+    options: AutoRenderOptionsPrivate,
+    createNodeOnFailure: boolean
 ) {
     // Create a math node (a span with an accessible component and a visual component)
     // If there is an error in parsing the latex, 'createNodeOnFailure' controls whether
@@ -248,7 +260,7 @@ function createAccessibleMarkupPair(
     return markupNode;
 }
 
-function scanText(text, options) {
+function scanText(text: string, options: AutoRenderOptionsPrivate) {
     // If the text starts with '\begin'...
     // (this is a MathJAX behavior)
     let fragment = null;
@@ -283,7 +295,7 @@ function scanText(text, options) {
     return fragment;
 }
 
-function scanElement(elem, options) {
+function scanElement(elem, options: AutoRenderOptionsPrivate) {
     const originalContent = elem.getAttribute(
         'data-' + options.namespace + 'original-content'
     );
@@ -391,7 +403,7 @@ function scanElement(elem, options) {
     }
 }
 
-const defaultOptions = {
+const defaultOptions: AutoRenderOptions = {
     // Optional namespace for the `data-` attributes.
     namespace: '',
 
@@ -425,7 +437,6 @@ const defaultOptions = {
     renderAccessibleContent: 'mathml',
 
     TeX: {
-        disabled: false,
         processEnvironments: true,
         delimiters: {
             inline: [['\\(', '\\)']],
@@ -437,9 +448,12 @@ const defaultOptions = {
     },
 };
 
-function renderMathInElement(elem, options) {
+function renderMathInElement(
+    elem: HTMLElement | string,
+    options: AutoRenderOptionsPrivate
+): void {
     try {
-        options = Object.assign({}, defaultOptions, options);
+        options = { ...defaultOptions, ...options };
         options.ignoreClassPattern = new RegExp(options.ignoreClass);
         options.processClassPattern = new RegExp(options.processClass);
         options.processScriptTypePattern = new RegExp(

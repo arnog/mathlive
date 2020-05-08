@@ -41,12 +41,12 @@ const TERSER_OPTIONS = {
             ENV: JSON.stringify(process.env.BUILD),
             VERSION: JSON.stringify(pkg.version || '0.0'),
             BUILD_ID: JSON.stringify(BUILD_ID),
-            LONG_VERSION: process.env.LONG_VERSION || '?.?.?',
+            GIT_VERSION: process.env.GIT_VERSION || '?.?.?',
         },
     },
     output: {
         preamble:
-            '/* MathLive ' + (process.env.LONG_VERSION || '?.?.?') + '  */',
+            '/* MathLive ' + (process.env.GIT_VERSION || 'v?.?.?') + '  */',
     },
 };
 
@@ -63,7 +63,7 @@ function timestamp() {
     );
 }
 
-export default [
+const ROLLUP = [
     // MathLive main module
     {
         onwarn(warning, warn) {
@@ -157,31 +157,41 @@ export default [
             typescript(TYPESCRIPT_OPTIONS),
             PRODUCTION && terser(TERSER_OPTIONS),
         ],
-        output: [
-            // JavaScript native module
-            // (stricly speaking not necessary, since the UMD output is module
-            // compatible, but this gives us a "clean" module)
-            {
-                format: 'es',
-                file: `${BUILD_DIRECTORY}/mathlive.mjs`,
-                sourcemap: !PRODUCTION,
-            },
-            // UMD file, suitable for import, <script> and require()
-            {
-                format: 'umd',
-                file: `${BUILD_DIRECTORY}/mathlive.js`,
-                sourcemap: !PRODUCTION,
-                name: 'MathLive',
-            },
-        ],
+        output: PRODUCTION
+            ? [
+                  // JavaScript native module
+                  // (stricly speaking not necessary, since the UMD output is module
+                  // compatible, but this gives us a "clean" module)
+                  {
+                      format: 'es',
+                      file: `${BUILD_DIRECTORY}/mathlive.mjs`,
+                      sourcemap: false,
+                  },
+                  // UMD file, suitable for import, <script> and require()
+                  {
+                      format: 'umd',
+                      file: `${BUILD_DIRECTORY}/mathlive.js`,
+                      sourcemap: false,
+                      name: 'MathLive',
+                  },
+              ]
+            : [
+                  {
+                      format: 'es',
+                      file: `${BUILD_DIRECTORY}/mathlive.mjs`,
+                      sourcemap: true,
+                  },
+              ],
         watch: {
             clearScreen: true,
             exclude: ['node_modules/**'],
         },
     },
+];
 
-    // MathLive Vue-js adapter
-    {
+// MathLive Vue-js adapter
+if (PRODUCTION) {
+    ROLLUP.push({
         input: 'src/vue-mathlive.js',
         plugins: [terser(TERSER_OPTIONS)],
         output: {
@@ -190,5 +200,7 @@ export default [
             file: 'dist/vue-mathlive.mjs',
             format: 'es',
         },
-    },
-];
+    });
+}
+
+export default ROLLUP;

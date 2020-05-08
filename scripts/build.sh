@@ -22,7 +22,7 @@ fi
 # Read the first argument, set it to "development" if not set
 export BUILD="${1-development}"
 
-export LONG_VERSION=`git describe --long --dirty`
+export GIT_VERSION=`git describe --long --dirty`
 
 # Clean output directories
 echo -e "\033[40m`basename "$0"`\033[0m 🚀 Cleaning output directories"
@@ -46,7 +46,8 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
         # Optimize CSS
         echo -e "\033[40m`basename "$0"`\033[0m 🚀 Optimizing CSS"
         npx postcss dist/*.css -d dist
-        find ./dist -type f -name '*.css' -exec sed -i '' "1s/^/\/\*$LONG_VERSION\*\//" {} \;
+        # Stamp version in output files
+        find ./dist -type f -name '*.css' -exec sed -i '' "1s/^/\/\* $GIT_VERSION \*\//" {} \;
     fi
 
     if [ "$BUILD" != "production" ]; then
@@ -58,10 +59,10 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
     # Even though we only generate declaration file, the target must be set high-enough
     # to prevent tsc from complaining (!)
     echo -e "\033[40m`basename "$0"`\033[0m 🚀 Building declaration files (.d.ts)"
-    # npx tsc --target "ES5" -d --emitDeclarationOnly --outFile --module system ./dist/mathlive.d.ts ./src/mathlive.api.ts 
-    # npx tsc -d --emitDeclarationOnly --outDir dist ./src/mathlive.api.ts 
-    # npx tsc --target "ES5" -d --emitDeclarationOnly --outFile ./dist/mathlive.d.ts ./src/public/mathlive.ts 
     npx tsc --target "ES5" -d --emitDeclarationOnly --outDir ./dist ./src/public/mathlive.ts 
+    # Stamp version in output declaration files
+    find ./dist -type f -name '*.d.ts' -exec sed -i '' "1s/^/\/\* $GIT_VERSION \*\/$(printf '\r')/" {} \;
+    find ./dist -type f -name '*.d.ts' -exec sed -i '' "s/{{GIT_VERSION}}/$GIT_VERSION/" {} \;
 
     if [ "$BUILD" = "watch" ]; then
         # Do dev build and watch
