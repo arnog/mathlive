@@ -22,6 +22,8 @@ fi
 # Read the first argument, set it to "development" if not set
 export BUILD="${1-development}"
 
+export LONG_VERSION=`git describe --long --dirty`
+
 # Clean output directories
 echo -e "\033[40m`basename "$0"`\033[0m 🚀 Cleaning output directories"
 rm -rf ./dist
@@ -44,6 +46,7 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
         # Optimize CSS
         echo -e "\033[40m`basename "$0"`\033[0m 🚀 Optimizing CSS"
         npx postcss dist/*.css -d dist
+        find ./dist -type f -name '*.css' -exec sed -i '' "1s/^/\/\*$LONG_VERSION\*\//" {} \;
     fi
 
     if [ "$BUILD" != "production" ]; then

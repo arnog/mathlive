@@ -41,7 +41,12 @@ const TERSER_OPTIONS = {
             ENV: JSON.stringify(process.env.BUILD),
             VERSION: JSON.stringify(pkg.version || '0.0'),
             BUILD_ID: JSON.stringify(BUILD_ID),
+            LONG_VERSION: process.env.LONG_VERSION || '?.?.?',
         },
+    },
+    output: {
+        preamble:
+            '/* MathLive ' + (process.env.LONG_VERSION || '?.?.?') + '  */',
     },
 };
 

@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### New Features
+
+-   Added a `MathLive.version` string
+
 ## 0.50.2 (May 7, 2020)
 
 ### Bug Fixes
