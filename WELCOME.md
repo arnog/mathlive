@@ -17,16 +17,11 @@ with an easy to use interface for math editing. Try it at [mathlive.io](https://
 
 ## How To Use This Documentation
 
-Start with the two guides:
+Start with these resources:
 
--   [Usage Guide]{@tutorial USAGE_GUIDE}: read this to get started using
+-   [Usage Guide](tutorials/USAGE_GUIDE.md): read this to get started using
     MathLive in your web page to display math formulas, or edit them.
--   [Contributor Guide]{@tutorial CONTRIBUTOR_GUIDE}: read this if you're
+-   [Contributor Guide](tutorials/CONTRIBUTOR_GUIDE.md): read this if you're
     interested in contributing to MathLive or want to better understand how it
     works behind the covers.
--   View the [MathLive API reference docs](http://cortexjs.io/docs/mathlive/) for more detailed info.
-
-## More Questions?
-
--   Join our Slack channel at https://mathlive.slack.com.
--   Drop a line to arno@arno.org or tweet @arnog
+-   View the [MathLive API reference docs](https://cortexjs.io/docs/mathlive/) for more detailed info.

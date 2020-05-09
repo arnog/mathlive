@@ -1,10 +1,21 @@
 ## [Unreleased]
 
+### Bug Fixes
+
+-   **Fix #444** The "x^2" key in the virtual keyboard did not work as expected.
+
+### Improvements
+
+-   Updated the build system to automatically add the lastest entry from the
+    CHANGELOG to the GitHub release note.
+
+## 0.50.3 (2020-05-08)
+
 ### New Features
 
 -   Added a `MathLive.version` string
 
-## 0.50.2 (May 7, 2020)
+## 0.50.2 (2020-05-07)
 
 ### Bug Fixes
 
@@ -22,18 +33,18 @@
 
 ### New Feature
 
-## 0.50.1 (May 6, 2020)
+## 0.50.1 (2020-05-06)
 
 ### New Feature
 
 -   A new option, `config.error` can be used to catch errors while parsing Latex.
 
     This is invoked both for the initial content of the mathfield, when the
-    content of the mathfield is changed programmatically, or when the user
-    paste latex content in the field.
+    content of the mathfield is changed programmatically, and when the user
+    pastes latex content in the field.
 
     An error code will indicate the problem encountered, but the parsing will
-    attempt to recover, as it has done previously.
+    attempt to recover, in keeping with the previous behavior.
 
 ### Bug Fixes
 
@@ -282,7 +293,7 @@ Again, this is an internal change that will have no impact for external users of
 
 -   Fixed an issue were consecutive calls to set the content of the mathfield could result in some spurious characters inserted at the beginning of the field.
 
-## Breaking Change
+### Breaking Change
 
 -   The signature of the `latexToMarkup()` function has changed.\
     Instead of a
@@ -297,7 +308,9 @@ Again, this is an internal change that will have no impact for external users of
     for this virtual keyboard has been deprecated and will be removed in a future
     version. This is a partial fullfilment of #270.
 
-## Deprecated
+-   The `config.handleSpeak` and `config.handleReadAloud` hooks have been renamed `config.speakHook` and `config.readAloudHook` respectively
+
+### Deprecated
 
 -   The `overrideDefaultInlineShortcuts` is deprecated (still supported in this
     version, but will be removed in an upcoming one). Instead, to add to the default
@@ -312,7 +325,7 @@ mf.setConfig({
 });
 ```
 
-## 0.35
+## 0.35.0 (2020-03-24)
 
 ### New Features
 
@@ -401,7 +414,7 @@ mf.setConfig({
 
 -   Removal of default export for some modules. Need to complete it for all the remaining modules.
 
-## 0.34 (Feb 5, 2020)
+## 0.34.0 (2020-02-05)
 
 ### Bug Fixes
 
@@ -426,32 +439,32 @@ mf.setConfig({
 -   The 'surd' (root) and 'leftright' (fences) elements now change color when the caret is inside their body. This helps distinguish the case where the caret position may be ambiguous, for example when it is either after the last element of the body of a 'surd' or the first element after the 'surd'.
 -   #339: Read-only mode. Set the mode to read-only with `mf.$setConfig({readOnly: true})`. When this mode is activated, the formula can be selected (so it can be copied), but it cannot be modified by the user. Progammatic modification is still possible.
 
-## 0.33 (December 16, 2019)
+## 0.33 (2019-12-19)
 
 ### Bug Fixes
 
 -   Fix #313. Text mode content is not output in MathML, speech and MathJSON (contribution by @NSoiffer)
 -   Fix #275: Selection improvements (use centerpoint to calculate nearest atom) and make delimiters selection eligible.
 
-## 0.32.3 (October 29, 2019)
+## 0.32.3 (2019-10-29)
 
 ### Bug Fixes
 
 -   Fix #286 `\mathbb{}`s are missing in the Latex output
 
-## 0.32.2 (September 24, 2019)
+## 0.32.2 (2019-09-24)
 
 ### Bug Fixes
 
 -   Fixed an issue where some keys in the virtual keyboard would be unresponsive
 
-## 0.30.1 (July 30, 2019)
+## 0.30.1 (2019-07-30)
 
 ### Features / Improvements
 
 -   Added Typescript type definition
 
-## 0.30 (July 18, 2019)
+## 0.30 (2019-07-18)
 
 ### Non-backward compatible changes
 
@@ -481,7 +494,7 @@ mf.setConfig({
 -   Fixed an issue where smartFence off was ignored
 -   #202: use numeric character references instead of named entities in MathML output
 
-## 0.29.1 (May 19, 2019)
+## 0.29.1 (2019-05-19)
 
 ### Bug fixes
 
@@ -493,7 +506,7 @@ mf.setConfig({
 -   Fixed issues with enclose layout
 -   Avoid triggering spurious notifications while inserting an inline shortcut
 
-## 0.29 (May 9, 2019)
+## 0.29 (2019-05-09)
 
 ### Major New Features
 
@@ -542,7 +555,7 @@ will result in the "$" being in math mode.
 -   Fixed #177: custom localization strings are now handled correctly.
 -   Fixed some issues toggling style when selection is empty.
 
-## 0.28 (Apr 22, 2019)
+## 0.28 (2019-04-22)
 
 This release contains some small bug fixes and improvements.
 
@@ -562,7 +575,7 @@ This release contains some small bug fixes and improvements.
 -   Added support for applying size to the selection with `applyStyle({size:'size9'})` (default size is `size5`, smallest is `size1`, largest is `size10`).
 -   Added support for `npm run start` which will start a local web server for ease of debugging (some features, such as using JavaScript native modules, require a local server)
 
-## 0.27 (Apr 8, 2019)
+## 0.27 (2019-04-08)
 
 ### Breaking Changes
 
@@ -746,7 +759,7 @@ The `'after'` key, if present, indicate in what context the shortcut should appl
 -   #118. Improved navigating out of inferior limits
 -   Improve visual blinking when selecting with the mouse to the left
 
-## 0.26 (Feb 4, 2019)
+## 0.26 (2019-02-04)
 
 ### Breaking Changes
 
@@ -790,7 +803,7 @@ The `'after'` key, if present, indicate in what context the shortcut should appl
     lazy loading of sounds and some other resources.
 -   Moved some modules to classes.
 
-## 0.25 (December 29, 2018)
+## 0.25 (2018-12-29)
 
 ### Major New Features
 
@@ -801,7 +814,7 @@ The `'after'` key, if present, indicate in what context the shortcut should appl
 -   #104 - Numeric keypard "/" was ignored.
 -   #91 - Handling of '~' as an operator and a shortcut.
 
-## 0.24 (December 16, 2018)
+## 0.24 (2018-12-16)
 
 ### Breaking Changes
 
@@ -914,7 +927,7 @@ MathLive.makeMathField(/*...*/);
 -   Fix issue #114. Incorrect selection when shift-select at the end.
 -   Fix issue #78. Cross-out positioning issue
 
-## 0.22 (April 11, 2018)
+## 0.22 (2018-04-11)
 
 ### Major New Features
 
@@ -971,7 +984,7 @@ MathLive.makeMathField(/*...*/);
 -   Moved operator precedence and canonical names from Definitions to MASTON.
 -   Improved rendering performance by eliminating hotspots through profiling.
 
-## 0.21 (March 30, 2018)
+## 0.21 (2018-03-30)
 
 ### Major New Features
 
@@ -1016,7 +1029,7 @@ MathLive.makeMathField(/*...*/);
 -   Refactored the Popover code into `Popover.js`
 -   Moved some content from `Definitions.js` and into `Popover.js`
 
-## 0.20 (March 24, 2018)
+## 0.20 (2018-03-24)
 
 ### Major New Features
 
@@ -1032,9 +1045,9 @@ MathLive.makeMathField(/*...*/);
 -   MASTON: improved parsing of numbers
 -   Handle Unicode pseudo-superscript characters as exponents
 
-## 0.19 (March 19, 2018)
+## 0.19 (2018-03-19)
 
-### Majore New Features
+### Major New Features
 
 -   MASTON: first implementation
 -   Support selecting cells in arrays
@@ -1075,7 +1088,7 @@ MathLive.makeMathField(/*...*/);
 -   Reduce the amount of markup generated, avoid generating markup for empty spans.
 -   Updated fonts from KaTeX
 
-## 0.18 (March 4, 2018)
+## 0.18 (2018-03-04)
 
 ### Bug Fixes
 
@@ -1086,7 +1099,7 @@ MathLive.makeMathField(/*...*/);
 -   Reverted back to WebPack 3
 -   Simplified CSS and streamlined markup for `vlist` spans.
 
-## 0.0.17 (February 27, 2018)
+## 0.0.17 (2018-02-27)
 
 ### New Features
 
@@ -1109,7 +1122,7 @@ MathLive.makeMathField(/*...*/);
 -   Improved handling of undo.
 -   New implementation of \enclose notations.
 
-## 0.0.16 (September 13, 2017)
+## 0.0.16 (2017-09-13)
 
 ### Deprecated Features
 
@@ -1125,7 +1138,7 @@ MathLive.makeMathField(/*...*/);
 -   Perform a snapshot with the undo manager when invoking `MathField.insert()`.
 -   Documentation improvements.
 
-## 0.0.15 (July 1, 2017)
+## 0.0.15 (2017-07-01)
 
 ### New Features
 

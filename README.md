@@ -14,12 +14,11 @@ MathLive: Math Input Made Easy
 -   [x] Beautiful, TeX-quality typesetting
 -   [x] Easy to use interface for formula editing
 -   [x] Designed for mobile devices with an extensive set of virtual keyboards
--   [x] Accessility support: screen reader compatible, and includes custom
-        math-to-speech support
+-   [x] Accessility support: screen reader compatible, and includes custom math-to-speech support
 -   [x] Outputs **LaTeX**, **MathML** and **MathJSON** (Abstract Syntax Tree)
 -   [x] And it is easy to customize to your needs!
 
-Try it at [mathlive.io](https://mathlive.io)
+Try it at [mathlive.io](https://mathlive.io).
 
 <table align="center" >
     <tr>
@@ -107,29 +106,6 @@ including extracting its content, inserting placeholders and more.
 </html>
 ```
 
-### More Examples
-
-More examples are available at https://mathlive.io/examples/
-
-### Installing MathLive
-
-The examples above use a CDN, which is the fastest and easiest way to get started.
-However, if you:
-
--   want to contribute to MathLive
--   use your own CDN
--   make some other changes to MathLive
-    you can also install it locally in your project.
-
-To do so:
-
-```bash
-$ npm install -s mathlive
-$ npm start
-```
-
-This will make a local build of MathLive, run a local HTTP server and open a page with the examples in your browser.
-
 ## How You Can Help
 
 -   Using MathLive in your project? Want to support the project ongoing maintenance?
@@ -137,8 +113,6 @@ This will make a local build of MathLive, run a local HTTP server and open a pag
     donation with [PayPal](https://www.paypal.me/arnogourdol)
 -   Something wrong? Got ideas for new features? Write up an issue. Read about
     [Contributing](CONTRIBUTING.md) and follow our [Code of Conduct](CODE_OF_CONDUCT.md)
--   Want to use MathLive in your web page? The [Usage Guide](tutorials/USAGE_GUIDE.md)
-    has all the details.
 -   Want to contribute some code for an issue or a feature? Read the
     [Contributor Guide](tutorials/CONTRIBUTOR_GUIDE.md) and the
     [docs](http://docs.mathlive.io). Looking for inspiration? Pick one of
@@ -146,7 +120,10 @@ This will make a local build of MathLive, run a local HTTP server and open a pag
 
 ## More Questions?
 
--   Join our Slack channel at https://mathlive.slack.com.
+-   Look at some [examples](https://mathlive.io/examples/)
+-   Want to use MathLive in your web page? The [Usage Guide](tutorials/USAGE_GUIDE.md) has all the details
+-   [Read the API documentation](https://cortexjs.io/docs/mathlive/)
+-   Join our [Gitter community](https://gitter.im/cortex-js/community)
 -   Drop a line to arno@arno.org or [/u/real_arnog](https://www.reddit.com/user/real_arnog)
 
 ## License

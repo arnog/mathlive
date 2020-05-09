@@ -15,5 +15,10 @@ else
     npm version patch
 fi
 
-# Deploy a release to git
+# The "preversion" and "version" scripts are run by the "npm version" command.
+# The "npm version" commands above have also created a matching git tag.
+
+# Deploy this tagged release to Github.
+# This will trigger a Travis build.
+# In turn, the Travis build will publish to npm.
 git push origin --tags

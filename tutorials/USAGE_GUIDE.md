@@ -56,9 +56,7 @@ The `dist/` directory contains the following:
     this file lazily to improve your page load time.
 -   `fonts/` A directory of fonts used by MathLive. Credit for those fonts goes to
     the KaTeX project.
--   `src/` The source code for MathLive, as native JavaScript modules. Can be
-    useful for debugging, but in general `mathlive.mjs` will be sufficient (you only
-    need one or the other).
+-   `*.d.ts` TypeScript declaration files
 
 ### Using MathLive in your project
 
@@ -140,8 +138,8 @@ been rendered, in which case they will be rendered again. This is useful
 if something in the environment changes that could require the layout to be
 updated.
 
-The {@linkcode module:mathlive#renderMathInElement MathLive.renderMathInElement()} and
-{@linkcode module:mathlive#renderMathInDocument MathLive.renderMathInDocument()}
+The {@linkcode module:mathlive#renderMathInElement | MathLive.renderMathInElement()} and
+{@linkcode module:mathlive#renderMathInDocument | MathLive.renderMathInDocument()}
 functions take an optional `options` object which can be used to customize their
 behavior:
 
@@ -182,7 +180,7 @@ MathLive.renderMathInElement(document.getElementById('formulas'), {
 ## Using the Math Editor with JavaScript
 
 To transform an existing HTML element into a mathfield, call
-{@linkcode module:mathlive#makeMathField MathLive.makeMathField(element, options)}.
+{@linkcode module:mathlive#makeMathField | MathLive.makeMathField(element, options)}.
 
 Think of this original element as a placeholder. Typically, a `<div>` would
 be appropriate. If the element contains some LaTeX text, it will be used as the

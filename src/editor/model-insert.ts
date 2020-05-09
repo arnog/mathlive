@@ -128,7 +128,10 @@ export function insert(
 
         // Simplify result.
         simplifyParen(model, mathlist);
-    } else if (mode !== 'text' && options.format === 'auto') {
+    } else if (
+        mode !== 'text' &&
+        (options.format === 'auto' || options.format === 'latex')
+    ) {
         if (mode === 'command') {
             // Short-circuit the tokenizer and parser if in command mode
             mathlist = [];
@@ -141,7 +144,9 @@ export function insert(
             // Insert an 'esc' character triggers the command mode
             mathlist = [new Atom('command', 'command', '\\')];
         } else {
-            [options.format, s] = parseMathString(s);
+            if (options.format === 'auto') {
+                [options.format, s] = parseMathString(s);
+            }
 
             // Replace placeholders
             s = s.replace(/(^|[^\\])#\?/g, '$1\\placeholder{}');
@@ -168,7 +173,9 @@ export function insert(
                 // No selection, no 'mord' before. Let's make '#@' a placeholder.
                 s = s.replace(/(^|[^\\])#@/g, '$1#?');
             }
-
+            if (/^\$\$(.*)\$\$$/.test(s)) {
+                s = s.substring(2, s.length - 2);
+            }
             mathlist = parseString(
                 s,
                 mode,
@@ -183,15 +190,6 @@ export function insert(
                 simplifyParen(model, mathlist);
             }
         }
-    } else if (options.format === 'latex') {
-        mathlist = parseString(
-            s,
-            mode,
-            args,
-            options.macros,
-            options.smartFence ?? false,
-            model.listeners.onError
-        );
     } else if (mode === 'text' || options.format === 'text') {
         // Map special TeX characters to alternatives
         // Must do this one first, since other replacements include backslash

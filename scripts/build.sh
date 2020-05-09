@@ -60,6 +60,7 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
     # to prevent tsc from complaining (!)
     echo -e "\033[40m`basename "$0"`\033[0m 🚀 Building declaration files (.d.ts)"
     npx tsc --target "ES5" -d --emitDeclarationOnly --outDir ./dist ./src/public/mathlive.ts 
+
     # Stamp version in output declaration files
     find ./dist -type f -name '*.d.ts' -exec sed -i '' "1s/^/\/\* $GIT_VERSION \*\/$(printf '\r')/" {} \;
     find ./dist -type f -name '*.d.ts' -exec sed -i '' "s/{{GIT_VERSION}}/$GIT_VERSION/" {} \;
@@ -73,6 +74,8 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
         echo -e "\033[40m`basename "$0"`\033[0m 🚀 Making a \033[33m" $BUILD "\033[0m build"
         npx rollup --silent --config 
         if [ "$BUILD" = "production" ]; then
+            # Stamp the Git version number
+            find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec sed -i '' "s/{{GIT_VERSION}}/$GIT_VERSION/g" {} \;
             echo -e "\033[40m`basename "$0"`\033[0m 🚀 Running test suite"
             npx jest --silent
         fi

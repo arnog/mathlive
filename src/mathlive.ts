@@ -256,10 +256,8 @@ function getOriginalContent(element: string | HTMLElement, options): string {
     );
 }
 
-// This GIT_VERSION variable will be replaced by Terser during the
-// rollup build process.
-export declare const GIT_VERSION: string;
-export const version: string = GIT_VERSION;
+// This GIT_VERSION variable will be replaced during the build process.
+export const version = '{{GIT_VERSION}}';
 
 export default {
     version,

@@ -1,4 +1,4 @@
-/* v0.50.3-0-g99b60ef */import { Selector } from './commands';
+/* v0.50.3-1-g189bf6b-dirty */import { Selector } from './commands';
 import { MathfieldConfig } from './config';
 import { ParseMode, MacroDictionary, Style } from './core';
 /**

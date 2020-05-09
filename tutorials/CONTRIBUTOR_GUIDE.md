@@ -1,7 +1,7 @@
 This guide is for developers who want to contribute code to MathLive,
 or who want to understand in more depth how MathLive works.
 
-If you simply want to use MathLive with your web content, see the {@tutorial USAGE_GUIDE}.
+If you simply want to use MathLive with your web content, see the [Usage Guide](tutorials/USAGE_GUIDE.md).
 
 ## Table of Contents
 
@@ -91,19 +91,22 @@ use the following commands:
 
 ```bash
 # Increase the version number of the library
-# Only do this before making a new public distribution
-# After doing this, you can `npm publish`
+# and publish the build to GitHub and NPM.
 $ npm run deploy major | minor | patch
 ```
 
 This command will
 
-1. Trigger a Travis CI build
-2. Increment the version number and create a corresponding git tag
+1. Increment the version number and create a corresponding git tag
+2. Update the CHANGELOG with the current version number
 3. Publish a git release
-4. Publish to NPM
+4. Trigger a Travis CI build
+5. Publish to NPM (from the Travis environment)
 
-**Note on versioning** Use the [semver](http://semver.org/) convention for
+**Note:** You should **not** run `npm publish` manually, or this will cause
+the `npm publish` call from Travis to fail.
+
+**Note on versioning:** Use the [semver](http://semver.org/) convention for
 versions:
 
 -   `npm run deploy`: bug fixes and other minor changes. Last number of the
@@ -142,34 +145,10 @@ intermediated files generated as part of the build process.
 
 ## Language and Coding Style
 
-MathLive is written in JavaScript, using the [ES2016 dialect](https://www.ecma-international.org/ecma-262/7.0/). This
-includes in particular these features:
+MathLive is written in TypeScript.
 
--   native modules: `import` and `export`
--   `let` and `const` instead of `var`
--   block-scoped variables and functions
--   `Array.prototype.includes()`
--   `Object.assign()`
--   arrow functions: `() => {}`
--   template strings
--   `for (...of...)` iterators
--   string searching `String.startsWith()`, `String.endsWith()`
--   number formatting
-
-Some features have been partially adopted, and the codebase should get
-cleaned up whenever the opportunity arises:
-
--   classes
--   use of rest/spread
-
-Features that have not been adopted include:
-
--   getters/setters: would probably be a good idea
--   destructuring: probably some opportunities to simplify some code
--   default parameters: would clean up some code
--   generators
-
-The code is minified and bundled to reduce the load time.
+The project uses the `prettier` tool to enforce a consistent formatting style
+and naming conventions. The tool will be run automatically before commits.
 
 The code base attempts to follow these general guidelines:
 
@@ -189,27 +168,12 @@ The code base attempts to follow these general guidelines:
     However, public APIs should check the validity of parameters, and behave
     reasonably when they aren't.
 
-The project uses the `prettier` tool to enforce a consistent formatting style.
+## Bundling
 
-## Naming Conventions
-
-Those naming conventions are particularly important for objects that are exposed
-as part of the public API, such as `MathLive` and `Mathfield`.
-
--   variables and function names that begin with `_` are private and should not
-    be used.
--   functions that end in `_` are selectors and should not be invoked directly by
-    a client of the MathLive library (they can be called internally).
-    Instead, a [`Mathfield.$perform()`]{@link Mathfield#\$perform} call should be
-    made. Note that the perform call does not include the `_`, so you would call
-    `mathfield.$perform('selectAll')`.
-
-Also note that `$perform` accepts both CamelCase and kebab-case, so
-`mathfield.$perform('select-all')` is valid as well.
-
--   functions that begin with `$` are public.
--   functions that neither begin nor end with an `_` are public and can be called
-    directly.
+The TypeScript code is compiled to JavaScript by the `tsc` compiler. When
+doing a production build, the JavaScript is further minimized with `terser`,
+then bundle into a single file with `rollup`. The CSS files are minimized
+with `postcss`.
 
 ## Browser Support
 
@@ -290,15 +254,55 @@ are easy to use on touch screens and for users of alternative pointing devices.
 
 ## Architecture
 
-The core of MathLive is a math rendering engine that can output to HTML and
-CSS. This engine uses the TeX layout algorithms because of their quality.
+The core of MathLive is a rendering engine that generated HTML (and SVG) markup. This engine uses the TeX layout algorithms because of their quality.
 Given the same input, MathLive will render pixel for pixel what TeX would
 have rendered.
+
 To do so, it makes use of a web version of the fonts used by TeX and which are
 included in the `dist/fonts/` directory.
+
 Although the rendering engine follows the TeX algorithms, MathLive also has
 an in-memory data structure to represent a math expression while it is being
-edited (the math atom tree).
+edited (a tree of Atom(s)).
+
+MathLive is divided into two main components:
+
+-   Core: handles rendering of Latex to HTML markup
+-   Editor: handles the user interaction with the formula, using Core for the rendering.
+
+### Core
+
+Core takes a Latex string as input. A `lexer` converts the string into `Token[]`
+which are then passed on to a `parser`. The `parser` uses the information from
+`modes-*` to parse the tokens depending on the current mode (text, math, etc...).
+The Latex commands are defined in `definitions-*`, and used by the `parser` to
+properly interpret the commands it encounter and turn them into `Atom[]`.
+
+An `Atom` is an elementary layout unit, for example a `genfrac` Atom can layout
+a "generalized fraction", that is something with a numerator and denominator,
+optionally a bar separating the two, and some optionally some opening and closing
+fences. It is used by the `\frac` command, but also `\choose`, `\pdiff` and others.
+
+The `Atom[]` are then turned into `Span[]` which are virtual markup elements.
+
+Eventually, the `Span[]` get rendered into HTML/SVG markup.
+
+![Core Architecture](./assets/mathlive-core.png)
+
+### Editor
+
+The `mathfield` is the object handling the user interaction and driving the
+rendering of the formula into the document.
+
+It makes use of several subcomponents (`virtual-keyboard`, `undo`, etc...) to handle specific aspects of the user interaction. It makes changes to the formula
+by issuing basic editing commands such as `insert()`, `delete()` and modifying
+the selection to the `model`.
+
+The `model` keep track of the state of the formula,
+including its content (a tree of `Atom`) and the selection and interacts with
+the core to turn the `Atom` into `Span` and into markup.
+
+![Editor Architecture](./assets/mathlive-editor.png)
 
 Here are some of the key concepts used throughout the code base.
 
@@ -317,7 +321,7 @@ such as additional space between items the CSS margin are adjusted.
 **Spans** can be rendered to HTML markup with `Span.toMarkup()` before being
 displayed on the page.
 
-### Math Atom
+### Atom
 
 An atom is an object encapsulating an elementary mathematical unit, independent
 of its graphical representation.
@@ -371,12 +375,6 @@ The following types are used by the editor:
 -   **first**: a special, empty, atom put as the first atom in math lists in
     order to more easily represent the cursor position. They are not displayed.
 
-### Math List
-
-A **math list** is simply an array of atoms. Although it's a common data
-structure there is no class to represent it: it's simply an `Array` of
-`Atom` objects.
-
 ### Lexer
 
 The **lexer** converts a string of TeX code into tokens that can be digested
@@ -388,20 +386,18 @@ The **parser** turns a stream of tokens generated by the lexer into
 **math atoms**. Those atoms then can be rendered into **spans**, or back into
 LaTeX or into spoken text.
 
-### Editable Math List
+### Model
 
-An **Editable Math List** is a class specific to the editor. It
-encapsulates the operations that can be done to an editable math list, including
+The `Model` class encapsulates the operations that can be done to an editable math list, including
 adding and removing content and keeping track of and modifying an insertion
 point and selection.
 
 ### Mathfield
 
-A **Mathfield** is a user interface element that captures the keyboard and
+The `Mathfield` class is a user interface element that captures the keyboard and
 pointing device events, and presents an appropriate user experience.
 
-It
-uses the **EditableMathList** to manipulate the in-memory representation of
+It uses a `Model` to manipulate the in-memory representation of
 the math expression being edited.
 
 ## Files
@@ -430,42 +426,19 @@ Here's a brief guide to the files of the project:
 
 -   **core/span.ts** Implements the `Span` class: spans to markup
 
--   **editor/editableMathlist.js**: The `EditableMathlist` keeps track of a tree
+-   **editor/model.ts**: The `Model` keeps track of a tree
     of math atoms representing the math expression being edited, and a selection
     with can either be _collapsed_ (only the insertion point is visible) or not, in
     which case it has an _extent_ indicating how big the selection is. This class
     has no UI logic in it.
--   **editor/mathpath.js** A utility class that represents a path in an atom
-    tree to a specific atom
 
--   **editor/mathfield.js** Public API for the editor. Implements the UI for the
+-   **editor/mathfield.ts** Public API for the editor. Implements the UI for the
     mathfield, including mouse and touch interaction, and the popover and the
     command bar
--   **editor/shortcuts.js** Defines the keyboard shortcuts
--   **editor/commands.js**: list of commands displayed in the command bar
--   **editor/popover.js** Implements the popover panel
--   **editor/keyboard.js** A utility class that captures keyboard events from
+-   **editor/shortcuts.ts** Defines the keyboard shortcuts
+-   **editor/commands.ts**: list of commands displayed in the command bar
+-   **editor/popover.ts** Implements the popover panel
+-   **editor/keyboard.ts** A utility class that captures keyboard events from
     a _Textarea_ DOM element.
--   **editor/undo.js** Implements the _Undo Manager_ which keeps tracks of the
+-   **editor/undo.ts** Implements the _Undo Manager_ which keeps tracks of the
     state of the mathfield as it is being edited in order to support undo/redo.
-
-## Common Tasks
-
-So, you want to...
-
-### Add a new LaTeX command?
-
-**(1)** Start with `core/definitions.js`. Add a new entry to the appropriate table
-by calling `defineSymbol()` for commands that need no parameters, `defineFunction()` for commands that need some parameters or `defineEnvironment()` for environments, that is `\begin{}...\end{}` blocks.
-
-For functions, the handler function in the definition will be called by the parser at the right
-time. It's your chance to return info that will be used by to render the atom.
-
-**(2)** If you can use the existing atom types, great. If needed, modify an
-existing atom type to support what you want, including passing additional
-parameters. If no atom types match, create a new one by adding a new
-`Atom.decompose<atom-type>()` function and calling it from
-`Atom.decompose()`.
-
-**(3)** Call `makeSpan()` and its variants in your decompose function to construct
-a representation of the atom.

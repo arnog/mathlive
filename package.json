@@ -19,8 +19,10 @@
         "deploy-ci": "bash ./scripts/deploy-ci",
         "dist": "bash ./scripts/build.sh production",
         "lint": "eslint --fix src/",
+        "preversion": "bash ./scripts/build.sh production",
         "start": "bash ./scripts/build.sh watch",
-        "test": "bash ./scripts/test.sh"
+        "test": "bash ./scripts/test.sh",
+        "version": "bash ./scripts/version.sh"
     },
     "main": "./dist/mathlive.js",
     "module": "./dist/mathlive.mjs",
@@ -81,7 +83,7 @@
         "@typescript-eslint/parser": "^2.31.0",
         "autoprefixer": "^9.7.6",
         "cssnano": "^4.1.10",
-        "eslint": "^6.8.0",
+        "eslint": "^7.0.0",
         "eslint-config-prettier": "^6.11.0",
         "eslint-plugin-prettier": "^3.1.3",
         "http-server": "^0.12.3",
