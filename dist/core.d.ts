@@ -1,4 +1,4 @@
-/* v0.50.3-2-g27e0b7c *//**
+/**
  * The mode that indicates how a portion of content is interpreted
  *
  * @deprecated The 'command'mode will be dropped in a future release
