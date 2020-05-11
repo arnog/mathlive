@@ -1,4 +1,4 @@
-import { ParseMode } from './core';
+/* v0.50.4-8-g06b13ab-dirty */import { ParseMode } from './core';
 /**
  * An inline shortcut can be specified as a simple string or as
  * an object literal with additional options:

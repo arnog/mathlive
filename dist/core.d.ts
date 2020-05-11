@@ -1,4 +1,4 @@
-/**
+/* v0.50.4-8-g06b13ab-dirty *//**
  * The mode that indicates how a portion of content is interpreted
  *
  * @deprecated The 'command'mode will be dropped in a future release

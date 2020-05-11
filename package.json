@@ -42,10 +42,10 @@
         }
     },
     "lint-staged": {
-        "/src/**/*.js": [
+        "/src/**/*.ts": [
             "eslint --fix"
         ],
-        "/src/**/*.{js,css,json,less}": [
+        "/src/**/*.{ts,css,json,less}": [
             "prettier --write"
         ],
         "/*.md": [

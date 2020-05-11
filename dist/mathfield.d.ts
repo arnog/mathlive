@@ -1,4 +1,4 @@
-import { Selector } from './commands';
+/* v0.50.4-8-g06b13ab-dirty */import { Selector } from './commands';
 import { MathfieldConfig } from './config';
 import { ParseMode, MacroDictionary, Style } from './core';
 /**
