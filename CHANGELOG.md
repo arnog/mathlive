@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.50.5 ()
 
 -   **Fix #311** Before making a build, check the correct version of node and npm
     are installed
