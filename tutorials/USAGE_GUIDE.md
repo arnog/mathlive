@@ -212,8 +212,7 @@ For example:
 </html>
 ```
 
-You can control the mathfield using the public member functions of `Mathfield`,
-that is, functions that do not contain an `_` at the beginning or end of their name.
+You can control the mathfield using the public methods of `Mathfield`.
 Here's a short list for some common operations:
 
 -   `$el()` the DOM element associated with this mathfield

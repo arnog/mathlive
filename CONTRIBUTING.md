@@ -21,35 +21,7 @@ Before filing something, [have a look](https://github.com/arnog/mathlive/issues)
 at the existing issues. It's better to avoid filing duplicates. You can
 add a comment to an existing issue if you'd like.
 
-### What happens after I file an issue?
-
-1. After a bug is filed, it will be _awaiting review_
-2. After the bug has been triaged, it will be have one or more labels assigned to it.
-3. Once a developer has started working on the bug, the bug will be assigned to someone.
-4. Once a bug has been resolve, it is closed. You can still comment on closed bugs, or re-open them if necessary.
-
-In addition, issues can be tagged with the following:
-
--   _high priority_: Catastrophic issue that impacts many users
--   _medium priority_: Regression or issues that impact a significant number of users
--   _low priority_: Low severity (minor cosmetic issue) or very few users impacted
--   _no priority_: No plan to fix the issue, but we will consider a fix if someone offers a pull request
--   _good first issue_: This is an issue that would be a good candidate for someone
-    who has little experience with the code base
--   _external_: This is an issue that has a dependency on an external component
-    (typically, a browser)
--   _architecture_: This is an issue that requires a significant architectural
-    change
--   _performance_: This issue affects perceived or measurable performance
--   _cleanup_: Resolving this issue would improve the code base maintainability
-    without adding new functionality
--   _unable to reproduce_ the bug, as reported, could not be replicated
-    by the developer. Additional information is necessary to continue investigating.
--   _not a bug_: The behavior described in the issue report is actually
-    the intended behavior. This may be a usability issue, a documentation issue,
-    or a disagreement regarding what the behavior should be.
--   _fact of life_: The issue cannot be resolved due to constraints of
-    the browser, the OS, or the laws of physics.
+To speed up the resolution of an issue, including a pointer to an executable test case that demonstrates the issue, if applicable.
 
 ### Can I help fix a bug?
 

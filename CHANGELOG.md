@@ -1,4 +1,11 @@
-##  0.50.4 (2020-05-09)
+## [Unreleased]
+
+-   **Fix #311** Before making a build, check the correct version of node and npm
+    are installed
+-   Make the build system work better on Windows
+-   Do not update /dist on each push
+
+## 0.50.4 (2020-05-09)
 
 ### Bug Fixes
 

@@ -15,8 +15,7 @@
     "scripts": {
         "build": "bash ./scripts/build.sh",
         "clean": "rimraf build dist coverage",
-        "deploy": "bash ./scripts/deploy",
-        "deploy-ci": "bash ./scripts/deploy-ci",
+        "deploy-ci": "bash ./scripts/deploy-ci.sh",
         "dist": "bash ./scripts/build.sh production",
         "lint": "eslint --fix src/",
         "start": "bash ./scripts/build.sh watch",
@@ -39,7 +38,7 @@
     "husky": {
         "hooks": {
             "pre-commit": "lint-staged",
-            "pre-push": "npm run dist"
+            "pre-push": "bash ./scripts/pre-push.sh"
         }
     },
     "lint-staged": {
@@ -57,8 +56,8 @@
         ]
     },
     "engines": {
-        "npm": ">=6.14",
-        "node": ">=10.0"
+        "npm": ">=6.14.5",
+        "node": ">=12.16.3"
     },
     "browserslist": [
         "> 1%",
@@ -72,7 +71,19 @@
         "Neil Soiffer (https://github.com/NSoiffer)",
         "Jason Boxman (https://github.com/jboxman)",
         "Synergy Codes (https://www.synergycodes.com/)",
-        "Rafał Piekarski (https://github.com/rpdiss)"
+        "Rafał Piekarski (https://github.com/rpdiss)",
+        "Kajetan Champlewski <kchamplewski@gmail.com>",
+        "Fabian Grewing <Fabian.Heimbuerger@gmail.com>",
+        "Paul Masson <paulmasson@comcast.net>",
+        "Soroush Javadi <soroush.javadi@gmail.com>",
+        "Thomas Schell <thom.schell@gmail.com>",
+        "leerobert <lee.robert.138@gmail.com>",
+        "spirobel <spirobel@protonmail.com>",
+        "Artur Fijał <afijal@soldevelo.com>",
+        "David Le Jolly <david.lejolly@gmail.com>",
+        "Johannes Wilm <johanneswilm@gmail.com>",
+        "Nick Gravelyn <nick@gravelyn.com>",
+        "paosder <denjaraos@gmail.com>"
     ],
     "devDependencies": {
         "@cortex-js/prettier-config": "^1.0.0",
@@ -81,6 +92,7 @@
         "@typescript-eslint/eslint-plugin": "^2.31.0",
         "@typescript-eslint/parser": "^2.31.0",
         "autoprefixer": "^9.7.6",
+        "check-node-version": "^4.0.3",
         "cssnano": "^4.1.10",
         "eslint": "^7.0.0",
         "eslint-config-prettier": "^6.11.0",

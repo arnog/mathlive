@@ -1,4 +1,4 @@
-/* v0.50.4-0-g72e4e1b */import { Keys } from './types-utils';
+import { Keys } from './types-utils';
 import { ParseMode } from './core';
 import { Mathfield } from './mathfield';
 import { Model } from './model';

@@ -40,35 +40,29 @@ Depending on your system setup, you may need to run as admin, in which case use 
 Once the installation is successful, you can use the following commands:
 
 ```bash
-# Build the project for local use
-# 1. Compile the `.css/.less` file to `build/*.css`
-# 2. Bundle the javascript in the `dist/` directory
-$ npm run build
-
-# Auto re-build the project when a file changes.
-# Watch for changed files, and does "npm run build" and "npm run test"
-# Run a local server to view the examples and do some simple debugging
-# Note that the use of native modules require a server (they do not work
-# with local files)
-# After running this command, visit http://localhost:8080/examples/ in a browser
+# Make a local build and watch source file changes and rebuid.
+# Run a local server (http://localhost:8080/examples/) to view
+# the examples and do some simple debugging
 $ npm start
 
-# Run test scripts
+# Make a local development build
+# 1. Compile the `.css/.less` file to `build/*.css`
+# 2. Compile the TypeScript source files and create a bundle with sourcemap
+# in the `dist/` directory
+$ npm run build
+
+
+# Run test suite
 $ npm test
 
-# Calculate the code coverage and output to build/coverage/
-$ npm run coverage
+# Calculate the code coverage and output to coverage/
+$ npm test coverage
 
-# Build the documentation file to `docs/`
-$ npm run build docs
 
-# Clean up (deletes) the contents of the `build/`, `dist/` and `docs/` directories
-$ npm run clean
-
-# Clean, build, then minimize and bundle to `dist/`.
+# Create a production build to `dist/`.
 # The `dist/` folder will contain the `.js`, `.css` and font files necessary to
-# use MathLive. The `docs/` folder will also be updated.
-$ npm run build dist
+# use MathLive.
+$ npm run build production
 
 ```
 
@@ -78,13 +72,18 @@ to the source files of the project in your favorite editor. When you
 save a file, if any problem with your code is detected
 it will be displayed in the terminal window.
 
-Before doing a push the docs and dist folder will be updated
-automatically (using a git pre-push hook managed by Husky).
-
 After you push your changes to `master`, a Travis continuous integration
 task will run to make sure the build can be reproduced in a clean environment.
 
-### Publishing
+### Troubleshooting
+
+If you are getting build errors after updating your repo, your node-modules/ directory may need to be updated. Run:
+
+```bash
+$ npm ci
+```
+
+### Deploy / Publish
 
 Once you have made significant changes that are ready to be shared broadly,
 use the following commands:
@@ -92,14 +91,14 @@ use the following commands:
 ```bash
 # Increase the version number of the library
 # and publish the build to GitHub and NPM.
-$ npm run deploy major | minor | patch
+$ npm run version [major | minor | patch]
 ```
 
 This command will
 
 1. Increment the version number and create a corresponding git tag
 2. Update the CHANGELOG with the current version number
-3. Publish a git release
+3. Publish a GitHub release
 4. Trigger a Travis CI build
 5. Publish to NPM (from the Travis environment)
 
@@ -109,11 +108,11 @@ the `npm publish` call from Travis to fail.
 **Note on versioning:** Use the [semver](http://semver.org/) convention for
 versions:
 
--   `npm run deploy`: bug fixes and other minor changes. Last number of the
+-   `npm run version`: bug fixes and other minor changes. Last number of the
     version is incremented, e.g. `1.2.41` → `1.2.42`
--   `npm run deploy minor`: new features which don't break existing features. Middle
+-   `npm run version minor`: new features which don't break existing features. Middle
     number of the version is incremented, e.g. `1.2.42` → `1.3.0`
--   `npm run deploy major`: changes which break backward compatibility of the API.
+-   `npm run version major`: changes which break backward compatibility of the API.
     Increment the first number, e.g. `1.3.56` → `2.0.0`
 
 ## Code Structure

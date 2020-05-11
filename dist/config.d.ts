@@ -1,4 +1,4 @@
-/* v0.50.4-0-g72e4e1b */import { ParserErrorListener, MacroDictionary, ParseMode } from './core';
+import { ParserErrorListener, MacroDictionary, ParseMode } from './core';
 import { InlineShortcutDefinition } from './shortcuts';
 export declare class Mathfield {
 }

@@ -1,4 +1,4 @@
-/* v0.50.4-0-g72e4e1b */import { Selector } from './commands';
+import { Selector } from './commands';
 import { MathfieldConfig } from './config';
 import { ParseMode, MacroDictionary, Style } from './core';
 /**

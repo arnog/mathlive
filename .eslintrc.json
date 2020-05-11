@@ -50,7 +50,12 @@
 
         "@typescript-eslint/no-explicit-any": "off",
 
-        "prettier/prettier": "error",
+        "prettier/prettier": [
+            "error",
+            {
+                "endOfLine": "auto"
+            }
+        ],
 
         // note you must disable the base rule as it can report incorrect errors
         "indent": "off",

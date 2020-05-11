@@ -5,7 +5,17 @@ set -o nounset   # abort on unbound variable
 set -o pipefail  # don't hide errors within pipes
 # set -x    # for debuging, trace what is being executed.
 
+# Note on the `sed` command:
+# On Linux, the -i switch can be used without an extension argument
+# On macOS, the -i switch must be followed by an extension argument (which can be empty)
+# On Windows, the argument of the -i switch is optional, but if present it must follow it immediately without a space in between
+
+
+
 cd "$(dirname "$0")/.."
+
+# Check that correct version of npm and node are installed
+npx check-node-version --package
 
 if [ "$#" -gt 1 ]; then
     echo -e "\033[40m`basename "$0"`\033[0m\033[31m ERROR \033[0m Expected one argument: 'development' (default) 'watch' 'production'"
@@ -47,11 +57,12 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
         echo -e "\033[40m`basename "$0"`\033[0m 🚀 Optimizing CSS"
         npx postcss dist/*.css -d dist
         # Stamp version in output files
-        find ./dist -type f -name '*.css' -exec sed -i '' "1s/^/\/\* $GIT_VERSION \*\//" {} \;
+        find ./dist -type f -name '*.css' -exec sed -i'' "1s/^/\/\* $GIT_VERSION \*\//" {} \;
     fi
 
     if [ "$BUILD" != "production" ]; then
-        # Write sentinel file
+        # Write sentinel file. It will be checked in the pre-push.sh script
+        # to prevent commiting a dev build to the repo.
         touch dist/DEVELOPMENT-BUILD
     fi
 
@@ -62,8 +73,10 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
     npx tsc --target "ES5" -d --emitDeclarationOnly --outDir ./dist ./src/public/mathlive.ts 
 
     # Stamp version in output declaration files
-    find ./dist -type f -name '*.d.ts' -exec sed -i '' "1s/^/\/\* $GIT_VERSION \*\/$(printf '\r')/" {} \;
-    find ./dist -type f -name '*.d.ts' -exec sed -i '' "s/{{GIT_VERSION}}/$GIT_VERSION/" {} \;
+    if [ "$BUILD" = "production" ]; then
+        find ./dist -type f -name '*.d.ts' -exec sed -i'' "1s/^/\/\* $GIT_VERSION \*\/$(printf '\r')/" {} \;
+        find ./dist -type f -name '*.d.ts' -exec sed -i'' "s/{{GIT_VERSION}}/$GIT_VERSION/" {} \;
+    fi
 
     if [ "$BUILD" = "watch" ]; then
         # Do dev build and watch
@@ -75,13 +88,14 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
         npx rollup --silent --config 
         if [ "$BUILD" = "production" ]; then
             # Stamp the Git version number
-            find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec sed -i '' "s/{{GIT_VERSION}}/$GIT_VERSION/g" {} \;
+            find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec sed -i'' "s/{{GIT_VERSION}}/$GIT_VERSION/g" {} \;
+            # Run test suite
             echo -e "\033[40m`basename "$0"`\033[0m 🚀 Running test suite"
             npx jest --silent
         fi
     fi
 
 else
-    echo -e "\033[40m`basename "$0"`\033[0m\033[31m ERROR \033[0m Expected: 'development' (default) 'watch' 'production'"
+    echo -e "\033[40m`basename "$0"`\033[0m\033[31m ERROR \033[0m Expected: 'development' (default) 'watch' or 'production'"
     exit 1
 fi

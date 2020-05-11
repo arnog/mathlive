@@ -15,7 +15,6 @@ branches:
         - /^v\d+\.\d+(\.\d+)?(-\S*)?$/ # tagged with version
         # - release
 before_deploy:
-    - npm run dist
     - npm run deploy-ci
 deploy:
     skip_cleanup: true
