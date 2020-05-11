@@ -14,6 +14,7 @@ bash ./scripts/build.sh production
 
 PACKAGE_VERSION=$(node -pe "require('./package.json').version")
 
+DATE_STAMP=$(date +%F)
 
 # On Linux, the -i switch can be used without an extension argument
 # On macOS, the -i switch must be followed by an extension argument (which can be empty)

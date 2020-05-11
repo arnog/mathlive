@@ -1,4 +1,8 @@
-## 0.50.5 ()
+## [Unreleased]
+
+-   Fix date stamping of declaration files
+
+## 0.50.5 (2020-05-10)
 
 -   **Fix #311** Before making a build, check the correct version of node and npm
     are installed

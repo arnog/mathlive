@@ -77,7 +77,7 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
 
     # Stamp version in output declaration files
     if [ "$BUILD" = "production" ]; then
-        find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "1s/^/\/\* $GIT_VERSION \*\/$(printf '\r')/" {}' \;
+        find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "1s/^/\/\* $GIT_VERSION \*\/$(printf '"'"'\r'"'"')/" {}' \;
         find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "s/{{GIT_VERSION}}/$GIT_VERSION/" {}' \;
     fi
 
