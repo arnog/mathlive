@@ -1,10 +1,9 @@
-import { ParseMode } from '../public/core';
+import type { ParseMode } from '../public/core';
+import type { Mathfield } from '../public/mathfield';
+import type { ModelPrivate } from './model-class';
 
-import { MacroDictionary } from '../core/definitions';
-import { Atom } from '../core/atom';
-
-import { Path } from './path';
-import { ModelListeners } from './model-listeners';
+import type { MacroDictionary } from '../core/definitions';
+import type { Atom } from '../core/atom';
 
 export type ModelOptions = {
     mode: ParseMode;
@@ -27,49 +26,18 @@ export type ModelHooks = {
         //     | 'deleted: denominator'
         //     | 'deleted: root'
         //     | 'deleted: superscript',
-        modelBefore: ModelInterface,
+        modelBefore: ModelPrivate,
         atoms: Atom[] // object of the command
     ) => void;
     moveOut?: (
-        sender: ModelInterface,
+        sender: ModelPrivate,
         direction: 'forward' | 'backward'
     ) => boolean;
     tabOut?: (
-        sender: ModelInterface,
+        sender: ModelPrivate,
         direction: 'forward' | 'backward'
     ) => boolean;
 };
-
-declare class Mathfield {}
-
-export interface ModelInterface {
-    // mathfield: Mathfield;
-    options: ModelOptions;
-    listeners: ModelListeners;
-    hooks: Required<ModelHooks>;
-    root: Atom;
-    path: Path; // @revisit: could be called anchor
-    extent: number; // @revisit: could group anchor + extent = Selection
-    suppressChangeNotifications: boolean;
-    clone(): ModelInterface;
-    // @revisit: that's not really a notification: it's a hook. Move to Model.
-    announce(
-        command: string, // @revisit: be more explicit
-        modelBefore?: ModelInterface,
-        atoms?: Atom[]
-    );
-    // toString();
-    siblings(): Atom[];
-    anchorOffset(): number;
-    focusOffset(): number;
-    startOffset(): number;
-    endOffset(): number;
-    sibling(offset: number): Atom;
-    ancestor(ancestor: number): Atom;
-    parent(): Atom;
-    relation(): string;
-    insertFirstAtom(): void;
-}
 
 export function isEmptyMathlist(atoms: Atom[]): boolean {
     return (
@@ -77,7 +45,7 @@ export function isEmptyMathlist(atoms: Atom[]): boolean {
     );
 }
 
-export function removeSuggestion(model: ModelInterface): void {
+export function removeSuggestion(model: ModelPrivate): void {
     const siblings = model.siblings();
     // Remove all `suggestion` atoms
     for (let i = siblings.length - 1; i >= 0; i--) {
@@ -91,7 +59,7 @@ export function removeSuggestion(model: ModelInterface): void {
  * Clear the verbatim Latex property for the parent node and its parents.
  * This will cause the latex value to be re-calculated.
  */
-export function invalidateVerbatimLatex(model: ModelInterface): void {
+export function invalidateVerbatimLatex(model: ModelPrivate): void {
     let depth = 1;
     let atom = model.ancestor(depth);
     while (atom) {

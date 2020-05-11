@@ -1,17 +1,16 @@
 import { decompose } from '../core/atom-utils';
 import { makeSpan, makeStruts } from '../core/span';
 import { MATHSTYLES } from '../core/mathstyle';
+
 import { pathToString } from './path';
 import {
     selectionIsCollapsed,
     getAnchor,
     forEachSelected,
 } from './model-selection';
-import {
-    Mathfield,
-    getSelectionBounds,
-    isValidMathfield,
-} from './mathfield-utils';
+import { getSelectionBounds, isValidMathfield } from './mathfield-utils';
+import type { MathfieldPrivate } from './mathfield-class';
+
 import { atomsToMathML } from '../addons/math-ml';
 
 /*
@@ -27,7 +26,7 @@ function hash(latex: string) {
     return Math.abs(result);
 }
 
-export function requestUpdate(mathfield: Mathfield) {
+export function requestUpdate(mathfield: MathfieldPrivate) {
     if (!mathfield.dirty) {
         mathfield.dirty = true;
         requestAnimationFrame(
@@ -44,7 +43,7 @@ export function requestUpdate(mathfield: Mathfield) {
  * called explicitly.
  *
  */
-export function render(mathfield: Mathfield, renderOptions?) {
+export function render(mathfield: MathfieldPrivate, renderOptions?) {
     renderOptions = renderOptions || {};
     mathfield.dirty = false;
     //

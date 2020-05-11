@@ -1,6 +1,6 @@
-import { Mathfield } from './public/mathfield';
-import { MathfieldConfig, TextToSpeechOptions } from './public/config';
-import { ParserErrorListener } from './public/core';
+import type { Mathfield } from './public/mathfield';
+import type { MathfieldConfig, TextToSpeechOptions } from './public/config';
+import type { ParserErrorListener } from './public/core';
 
 import { Atom } from './core/atom';
 import { Span } from './core/span';

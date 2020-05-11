@@ -1,6 +1,6 @@
 import { Atom, isAtomArray } from '../core/atom';
+import type { ModelPrivate } from './model-class';
 import { contentDidChange, contentWillChange } from './model-listeners';
-import type { ModelInterface } from './model-utils';
 import { selectionIsCollapsed, forEachSelected } from './model-selection';
 
 import { Style, FontSeries, FontShape } from '../public/core';
@@ -44,7 +44,7 @@ export function applyStyleToUnstyledAtoms(
  */
 
 export function applyStyle(
-    model: ModelInterface,
+    model: ModelPrivate,
     style: Style & { series?: FontSeries; shape?: FontShape; size?: string }
 ): void {
     // No selection, nothing to do.

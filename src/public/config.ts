@@ -1,11 +1,6 @@
 import { ParserErrorListener, MacroDictionary, ParseMode } from './core';
 import { InlineShortcutDefinition } from './shortcuts';
-
-// Use a forward declaration to avoid a circular dependency
-// (Mathfield -> Config -> Mathfield)
-// declare module './mathfield' {
-export class Mathfield {}
-// }
+import type { Mathfield } from './mathfield';
 
 export type TextToSpeechOptions = {
     /**

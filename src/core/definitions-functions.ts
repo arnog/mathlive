@@ -1,5 +1,5 @@
 import { defineFunction, ParseFunctionResult } from './definitions-utils';
-import { Atom } from './atom-utils';
+import type { Atom } from './atom';
 
 defineFunction(
     [

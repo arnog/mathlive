@@ -1,7 +1,7 @@
 import { colorToString } from './color';
 import { register, getPropertyRuns } from './modes-utils';
 import { getInfo, mathVariantToUnicode } from './definitions-utils';
-import { Atom } from './atom';
+import type { Atom } from './atom';
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible

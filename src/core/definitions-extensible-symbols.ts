@@ -1,5 +1,5 @@
 import { defineFunction } from './definitions-utils';
-import { Atom } from './atom';
+import type { Atom } from './atom';
 
 // Extensible (horitontally stretchy) symbols
 

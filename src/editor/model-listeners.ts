@@ -1,15 +1,15 @@
 import type { ParserErrorListener } from '../public/core';
-import type { ModelInterface } from './model-utils';
+import type { ModelPrivate } from './model-class';
 
 export type ModelListeners = {
-    onContentWillChange: (sender: ModelInterface) => void;
-    onContentDidChange: (sender: ModelInterface) => void;
-    onSelectionWillChange: (sender: ModelInterface) => void;
-    onSelectionDidChange: (sender: ModelInterface) => void;
+    onContentWillChange: (sender: ModelPrivate) => void;
+    onContentDidChange: (sender: ModelPrivate) => void;
+    onSelectionWillChange: (sender: ModelPrivate) => void;
+    onSelectionDidChange: (sender: ModelPrivate) => void;
     onError: ParserErrorListener;
 };
 
-export function selectionWillChange(model: ModelInterface): void {
+export function selectionWillChange(model: ModelPrivate): void {
     if (
         typeof model.listeners?.onSelectionWillChange === 'function' &&
         !model.suppressChangeNotifications
@@ -18,7 +18,7 @@ export function selectionWillChange(model: ModelInterface): void {
     }
 }
 
-export function selectionDidChange(model: ModelInterface): void {
+export function selectionDidChange(model: ModelPrivate): void {
     if (
         typeof model.listeners?.onSelectionDidChange === 'function' &&
         !model.suppressChangeNotifications
@@ -27,7 +27,7 @@ export function selectionDidChange(model: ModelInterface): void {
     }
 }
 
-export function contentWillChange(model: ModelInterface): void {
+export function contentWillChange(model: ModelPrivate): void {
     if (
         typeof model.listeners?.onContentWillChange === 'function' &&
         !model.suppressChangeNotifications
@@ -36,7 +36,7 @@ export function contentWillChange(model: ModelInterface): void {
     }
 }
 
-export function contentDidChange(model: ModelInterface): void {
+export function contentDidChange(model: ModelPrivate): void {
     if (
         typeof model.listeners?.onContentDidChange === 'function' &&
         !model.suppressChangeNotifications

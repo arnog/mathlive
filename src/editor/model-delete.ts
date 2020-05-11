@@ -1,8 +1,5 @@
-import {
-    ModelInterface,
-    removeSuggestion,
-    invalidateVerbatimLatex,
-} from './model-utils';
+import type { ModelPrivate } from './model-class';
+import { removeSuggestion, invalidateVerbatimLatex } from './model-utils';
 import {
     selectionWillChange,
     selectionDidChange,
@@ -28,7 +25,7 @@ import {
  * That is, delete(-1) will delete only the anchor atom.
  * If dir = 0, delete only if the selection is not collapsed
  */
-function delete_(model: ModelInterface, dir: 0 | -1 | 1 = 0) {
+function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0) {
     // Dispatch notifications
     contentWillChange(model);
     selectionWillChange(model);
@@ -285,7 +282,7 @@ function delete_(model: ModelInterface, dir: 0 | -1 | 1 = 0) {
 /**
  * Delete sibling atoms
  */
-export function deleteAtoms(model: ModelInterface, count: number) {
+export function deleteAtoms(model: ModelPrivate, count: number) {
     if (count > 0) {
         model.siblings().splice(model.anchorOffset() + 1, count);
     } else {
@@ -297,7 +294,7 @@ export function deleteAtoms(model: ModelInterface, count: number) {
 /**
  * Delete the selection, or multiple characters
  */
-export function deleteChar(model: ModelInterface, count = 0): boolean {
+export function deleteChar(model: ModelPrivate, count = 0): boolean {
     if (count === 0) {
         delete_(model, 0);
     } else if (count > 0) {

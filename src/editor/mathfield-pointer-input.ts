@@ -6,13 +6,14 @@ import {
     selectAll,
     filter,
 } from './model-selection';
-import { Mathfield, on, off } from './mathfield-utils';
+import { on, off } from './mathfield-utils';
+import type { MathfieldPrivate } from './mathfield-class';
 import { requestUpdate } from './mathfield-render';
 
 let gLastTap;
 let gTapCount = 0;
 
-export function onPointerDown(mathfield: Mathfield, evt) {
+export function onPointerDown(mathfield: MathfieldPrivate, evt) {
     const that = mathfield;
     let anchor;
     let trackingPointer = false;
@@ -288,7 +289,7 @@ function nearestElementFromPoint(
  * favored, if >0, the right sibling
  */
 export function pathFromPoint(
-    mathfield: Mathfield,
+    mathfield: MathfieldPrivate,
     x: number,
     y: number,
     options?: { bias?: number }

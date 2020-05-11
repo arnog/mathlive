@@ -1,5 +1,5 @@
 import { register } from './commands';
-import type { ModelInterface } from './model-utils';
+import type { ModelPrivate } from './model-class';
 import {
     setSelection,
     move,
@@ -24,7 +24,7 @@ import { Atom } from '../core/atom';
  * Switch the cursor to the superscript and select it. If there is no subscript
  * yet, create one.
  */
-export function moveToSuperscript(model: ModelInterface): boolean {
+export function moveToSuperscript(model: ModelPrivate): boolean {
     collapseSelectionForward(model);
     if (getAnchor(model).superscript) {
         if (getAnchor(model).subscript) {
@@ -69,7 +69,7 @@ export function moveToSuperscript(model: ModelInterface): boolean {
  * Switch the cursor to the subscript and select it. If there is no subscript
  * yet, create one.
  */
-export function moveToSubscript(model: ModelInterface): boolean {
+export function moveToSubscript(model: ModelPrivate): boolean {
     collapseSelectionForward(model);
     if (!getAnchor(model).subscript) {
         if (getAnchor(model).superscript) {
@@ -119,7 +119,7 @@ export function moveToSubscript(model: ModelInterface): boolean {
  */
 register(
     {
-        moveToOpposite: (model: ModelInterface): boolean => {
+        moveToOpposite: (model: ModelPrivate): boolean => {
             const OPPOSITE_RELATIONS = {
                 superscript: 'subscript',
                 subscript: 'superscript',
@@ -140,7 +140,7 @@ register(
             setSelection(model, 0, 'end', oppositeRelation);
             return true;
         },
-        moveBeforeParent: (model: ModelInterface): boolean => {
+        moveBeforeParent: (model: ModelPrivate): boolean => {
             if (model.path.length > 1) {
                 model.path.pop();
                 setSelection(model, model.anchorOffset() - 1);
@@ -149,28 +149,28 @@ register(
             model.announce('plonk');
             return false;
         },
-        moveAfterParent: (model: ModelInterface): boolean =>
+        moveAfterParent: (model: ModelPrivate): boolean =>
             moveAfterParent(model),
 
-        moveToNextPlaceholder: (model: ModelInterface): boolean =>
+        moveToNextPlaceholder: (model: ModelPrivate): boolean =>
             leap(model, +1),
-        moveToPreviousPlaceholder: (model: ModelInterface): boolean =>
+        moveToPreviousPlaceholder: (model: ModelPrivate): boolean =>
             leap(model, -1),
-        moveToNextChar: (model: ModelInterface): boolean => move(model, +1),
-        moveToPreviousChar: (model: ModelInterface): boolean => move(model, -1),
-        moveUp: (model: ModelInterface): boolean => up(model),
-        moveDown: (model: ModelInterface): boolean => down(model),
-        moveToNextWord: (model: ModelInterface): boolean => skip(model, +1),
-        moveToPreviousWord: (model: ModelInterface): boolean => skip(model, -1),
-        moveToGroupStart: (model: ModelInterface): boolean =>
+        moveToNextChar: (model: ModelPrivate): boolean => move(model, +1),
+        moveToPreviousChar: (model: ModelPrivate): boolean => move(model, -1),
+        moveUp: (model: ModelPrivate): boolean => up(model),
+        moveDown: (model: ModelPrivate): boolean => down(model),
+        moveToNextWord: (model: ModelPrivate): boolean => skip(model, +1),
+        moveToPreviousWord: (model: ModelPrivate): boolean => skip(model, -1),
+        moveToGroupStart: (model: ModelPrivate): boolean =>
             setSelection(model, 0),
-        moveToGroupEnd: (model: ModelInterface): boolean =>
+        moveToGroupEnd: (model: ModelPrivate): boolean =>
             setSelection(model, -1),
-        moveToMathFieldStart: (model: ModelInterface): boolean =>
+        moveToMathFieldStart: (model: ModelPrivate): boolean =>
             jumpToMathFieldBoundary(model, -1),
-        moveToMathFieldEnd: (model: ModelInterface): boolean =>
+        moveToMathFieldEnd: (model: ModelPrivate): boolean =>
             jumpToMathFieldBoundary(model, +1),
-        moveToSuperscript: (model: ModelInterface): boolean =>
+        moveToSuperscript: (model: ModelPrivate): boolean =>
             moveToSuperscript(model),
     },
     { target: 'model', category: 'selection-anchor' }
@@ -178,19 +178,18 @@ register(
 
 register(
     {
-        selectGroup: (model: ModelInterface): boolean => selectGroup(model),
+        selectGroup: (model: ModelPrivate): boolean => selectGroup(model),
 
-        selectAll: (model: ModelInterface): boolean => selectAll(model),
-        extendToNextChar: (model: ModelInterface): boolean => extend(model, +1),
-        extendToPreviousChar: (model: ModelInterface): boolean =>
+        selectAll: (model: ModelPrivate): boolean => selectAll(model),
+        extendToNextChar: (model: ModelPrivate): boolean => extend(model, +1),
+        extendToPreviousChar: (model: ModelPrivate): boolean =>
             extend(model, -1),
-        extendToNextWord: (model: ModelInterface): boolean =>
+        extendToNextWord: (model: ModelPrivate): boolean =>
             skip(model, +1, { extend: true }),
-        extendToPreviousWord: (model: ModelInterface): boolean =>
+        extendToPreviousWord: (model: ModelPrivate): boolean =>
             skip(model, -1, { extend: true }),
-        extendUp: (model: ModelInterface): boolean =>
-            up(model, { extend: true }),
-        extendDown: (model: ModelInterface): boolean =>
+        extendUp: (model: ModelPrivate): boolean => up(model, { extend: true }),
+        extendDown: (model: ModelPrivate): boolean =>
             down(model, { extend: true }),
         /**
          * Extend the selection until the next boundary is reached. A boundary
@@ -199,7 +198,7 @@ register(
          * "1" and "2", invoking `extendToNextBoundary_` would extend the selection
          * to "234".
          */
-        extendToNextBoundary: (model: ModelInterface): boolean =>
+        extendToNextBoundary: (model: ModelPrivate): boolean =>
             skip(model, +1, { extend: true }),
 
         /**
@@ -209,18 +208,18 @@ register(
          * "5" and "6", invoking `extendToPreviousBoundary` would extend the selection
          * to "2345".
          */
-        extendToPreviousBoundary: (model: ModelInterface): boolean =>
+        extendToPreviousBoundary: (model: ModelPrivate): boolean =>
             skip(model, -1, { extend: true }),
-        extendToGroupStart: (model: ModelInterface): boolean =>
+        extendToGroupStart: (model: ModelPrivate): boolean =>
             setSelectionExtent(model, -model.anchorOffset()),
-        extendToGroupEnd: (model: ModelInterface): boolean =>
+        extendToGroupEnd: (model: ModelPrivate): boolean =>
             setSelectionExtent(
                 model,
                 model.siblings().length - model.anchorOffset()
             ),
-        extendToMathFieldStart: (model: ModelInterface): boolean =>
+        extendToMathFieldStart: (model: ModelPrivate): boolean =>
             jumpToMathFieldBoundary(model, -1, { extend: true }),
-        extendToMathFieldEnd: (model: ModelInterface): boolean =>
+        extendToMathFieldEnd: (model: ModelPrivate): boolean =>
             jumpToMathFieldBoundary(model, +1, { extend: true }),
     },
     { target: 'model', category: 'selection-extend' }
@@ -228,31 +227,30 @@ register(
 
 register(
     {
-        deleteAll: (model: ModelInterface): boolean => {
+        deleteAll: (model: ModelPrivate): boolean => {
             selectAll(model);
             return deleteChar(model);
         },
-        deleteNextChar: (model: ModelInterface): boolean =>
-            deleteChar(model, +1),
-        deletePreviousChar: (model: ModelInterface): boolean =>
+        deleteNextChar: (model: ModelPrivate): boolean => deleteChar(model, +1),
+        deletePreviousChar: (model: ModelPrivate): boolean =>
             deleteChar(model, -1),
-        deleteNextWord: (model: ModelInterface): boolean => {
+        deleteNextWord: (model: ModelPrivate): boolean => {
             skip(model, +1, { extend: true });
             return deleteChar(model);
         },
-        deletePreviousWord: (model: ModelInterface): boolean => {
+        deletePreviousWord: (model: ModelPrivate): boolean => {
             skip(model, -1, { extend: true });
             return deleteChar(model);
         },
-        deleteToGroupStart: (model: ModelInterface): boolean => {
+        deleteToGroupStart: (model: ModelPrivate): boolean => {
             setSelectionExtent(model, -model.anchorOffset());
             return deleteChar(model);
         },
-        deleteToGroupEnd: (model: ModelInterface): boolean => {
+        deleteToGroupEnd: (model: ModelPrivate): boolean => {
             jumpToMathFieldBoundary(model, -1, { extend: true });
             return deleteChar(model);
         },
-        deleteToMathFieldEnd: (model: ModelInterface): boolean => {
+        deleteToMathFieldEnd: (model: ModelPrivate): boolean => {
             jumpToMathFieldBoundary(model, +1, { extend: true });
             return deleteChar(model);
         },

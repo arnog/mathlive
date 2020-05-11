@@ -2,7 +2,7 @@ import { Atom } from '../core/atom';
 import { parseString } from '../core/parser';
 import { suggest, commandAllowed } from '../core/definitions-utils';
 
-import type { ModelInterface } from './model-utils';
+import type { ModelPrivate } from './model-class';
 import { register as registerCommand } from './commands';
 import { hidePopover, showPopoverWithLatex } from './popover';
 import { insert } from './model-insert';
@@ -13,10 +13,10 @@ import {
 } from './model-command-mode';
 import { removeSuggestion } from './model-utils';
 import { positionInsertionPointAfterCommitedCommand } from './model-selection';
-import type { Mathfield } from './mathfield-utils';
+import type { MathfieldPrivate } from './mathfield-class';
 import { requestUpdate } from './mathfield-render';
 
-export function insertSuggestion(model: ModelInterface, s, l): void {
+export function insertSuggestion(model: ModelPrivate, s, l): void {
     removeSuggestion(model);
 
     const mathlist = [];
@@ -46,7 +46,7 @@ export function insertSuggestion(model: ModelInterface, s, l): void {
  * complete the command. Otherwise, only use what has been entered so far.
  */
 export function complete(
-    mathfield: Mathfield,
+    mathfield: MathfieldPrivate,
     options?: {
         discard?: boolean;
         acceptSuggestion?: boolean;
@@ -113,7 +113,7 @@ export function complete(
     return false;
 }
 
-function updateSuggestion(mathfield: Mathfield): boolean {
+function updateSuggestion(mathfield: MathfieldPrivate): boolean {
     positionInsertionPointAfterCommitedCommand(mathfield.model);
     removeSuggestion(mathfield.model);
     const command = extractCommandStringAroundInsertionPoint(mathfield.model);
@@ -137,7 +137,7 @@ function updateSuggestion(mathfield: Mathfield): boolean {
     return true;
 }
 
-function nextSuggestion(mathfield: Mathfield): boolean {
+function nextSuggestion(mathfield: MathfieldPrivate): boolean {
     mathfield.suggestionIndex += 1;
     // The modulo of the suggestionIndex is used to determine which suggestion
     // to display, so no need to worry about rolling over.
@@ -145,7 +145,7 @@ function nextSuggestion(mathfield: Mathfield): boolean {
     return false;
 }
 
-function previousSuggestion(mathfield: Mathfield): boolean {
+function previousSuggestion(mathfield: MathfieldPrivate): boolean {
     mathfield.suggestionIndex -= 1;
     if (mathfield.suggestionIndex < 0) {
         // We're rolling over

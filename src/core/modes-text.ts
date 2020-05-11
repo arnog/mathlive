@@ -3,7 +3,7 @@ import { register, getPropertyRuns, ParseTokensOptions } from './modes-utils';
 import { colorToString } from './color';
 import { Token } from './lexer';
 import { Span } from './span';
-import { Atom } from './atom-utils';
+import { Atom } from './atom';
 import { getInfo, charToLatex, unicodeStringToLatex } from './definitions';
 
 function emitStringTextRun(

@@ -2,7 +2,7 @@ import { isArray } from '../common/types';
 
 import { hidePopover, showPopoverWithLatex } from './popover'; // @revisit
 import { suggest } from '../core/definitions';
-import { Mathfield } from './mathfield-utils';
+import type { MathfieldPrivate } from './mathfield-class';
 import { selectionIsCollapsed } from './model-selection';
 import { extractCommandStringAroundInsertionPoint } from './model-command-mode';
 import { requestUpdate } from './mathfield-render';
@@ -51,7 +51,7 @@ export function register(
 }
 
 export function perform(
-    mathfield: Mathfield,
+    mathfield: MathfieldPrivate,
     command: SelectorPrivate | any[]
 ): boolean {
     if (!command) {
@@ -143,7 +143,10 @@ export function perform(
  * are pressed.
  */
 
-export function performWithFeedback(mathfield: Mathfield, selector): boolean {
+export function performWithFeedback(
+    mathfield: MathfieldPrivate,
+    selector
+): boolean {
     // @revisit: have a registry of commands -> sound
     mathfield.$focus();
     if (mathfield.config.keypressVibration && navigator.vibrate) {
@@ -192,6 +195,8 @@ export function performWithFeedback(mathfield: Mathfield, selector): boolean {
 }
 
 register({
-    performWithFeedback: (mathfield: Mathfield, command: string): boolean =>
-        performWithFeedback(mathfield, command),
+    performWithFeedback: (
+        mathfield: MathfieldPrivate,
+        command: string
+    ): boolean => performWithFeedback(mathfield, command),
 });

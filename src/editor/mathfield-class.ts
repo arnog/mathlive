@@ -1,5 +1,9 @@
-import { ParseMode, Style } from '../public/core';
-import { Mathfield, OutputFormat, InsertOptions } from '../public/mathfield';
+import type { ParseMode, Style } from '../public/core';
+import type {
+    Mathfield,
+    OutputFormat,
+    InsertOptions,
+} from '../public/mathfield';
 
 import { Atom, makeRoot } from '../core/atom';
 

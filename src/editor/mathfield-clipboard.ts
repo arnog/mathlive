@@ -1,15 +1,15 @@
 import { register as registerCommand } from './commands';
 import { selectionIsCollapsed } from './model-selection';
-import { Mathfield } from './mathfield-utils';
+import type { MathfieldPrivate } from './mathfield-class';
 import { requestUpdate } from './mathfield-render';
 
-export function onPaste(mathfield: Mathfield): boolean {
+export function onPaste(mathfield: MathfieldPrivate): boolean {
     // Make note we're in the process of pasting. The subsequent call to
     // onTypedText() will take care of interpreting the clipboard content
     mathfield.pasteInProgress = true;
     return true;
 }
-export function onCut(mathfield: Mathfield): boolean {
+export function onCut(mathfield: MathfieldPrivate): boolean {
     // Clearing the selection will have the side effect of clearing the
     // content of the textarea. However, the textarea value is what will
     // be copied to the clipboard, so defer the clearing of the selection
@@ -23,7 +23,7 @@ export function onCut(mathfield: Mathfield): boolean {
     );
     return true;
 }
-export function onCopy(mathfield: Mathfield, e: ClipboardEvent): void {
+export function onCopy(mathfield: MathfieldPrivate, e: ClipboardEvent): void {
     if (selectionIsCollapsed(mathfield.model)) {
         e.clipboardData.setData(
             'text/plain',
@@ -51,7 +51,7 @@ export function onCopy(mathfield: Mathfield, e: ClipboardEvent): void {
 
 registerCommand(
     {
-        copyToClipboard: (mathfield: Mathfield) => {
+        copyToClipboard: (mathfield: MathfieldPrivate) => {
             mathfield.$focus();
             // If the selection is empty, select the entire field before
             // copying it.
@@ -62,13 +62,13 @@ registerCommand(
             return false;
         },
 
-        cutToClipboard: (mathfield: Mathfield) => {
+        cutToClipboard: (mathfield: MathfieldPrivate) => {
             mathfield.$focus();
             document.execCommand('cut');
             return true;
         },
 
-        pasteFromClipboard: (mathfield: Mathfield) => {
+        pasteFromClipboard: (mathfield: MathfieldPrivate) => {
             mathfield.$focus();
             document.execCommand('paste');
             return true;

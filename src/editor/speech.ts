@@ -1,12 +1,13 @@
-import { TextToSpeechOptions } from '../public/config';
-import { SpeechScope } from '../public/commands';
+import type { TextToSpeechOptions } from '../public/config';
+import type { SpeechScope } from '../public/commands';
 
-import { Atom } from '../core/atom';
+import type { Atom } from '../core/atom';
+
+import type { MathfieldPrivate } from './mathfield-class';
 
 import { atomToSpeakableText } from './atom-to-speakable-text';
 import { register as registerCommand } from './commands';
 import { getSelectedAtoms, selectionIsCollapsed } from './model-selection';
-import { Mathfield } from './mathfield-utils';
 import { render } from './mathfield-render';
 
 export function speakableText(
@@ -37,7 +38,7 @@ export function speakableText(
 registerCommand(
     {
         speak: (
-            mathfield: Mathfield,
+            mathfield: MathfieldPrivate,
             scope: SpeechScope,
             options: { withHighlighting: boolean }
         ): boolean => {
@@ -48,12 +49,12 @@ registerCommand(
 );
 
 function speak(
-    mathfield: Mathfield,
+    mathfield: MathfieldPrivate,
     scope: SpeechScope,
     speakOptions: { withHighlighting: boolean }
 ) {
     speakOptions = speakOptions ?? { withHighlighting: false };
-    function getAtoms(mathfield: Mathfield, scope: SpeechScope) {
+    function getAtoms(mathfield: MathfieldPrivate, scope: SpeechScope) {
         let result = null;
         switch (scope) {
             case 'all':

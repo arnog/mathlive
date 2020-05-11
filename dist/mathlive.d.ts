@@ -1,4 +1,4 @@
-/* v0.50.4-8-g06b13ab-dirty *//**
+/* v0.50.4-9-ge281449-dirty *//**
  *
  * Use MathLive to render and edit mathematical formulas in your browser.
  *
@@ -14,8 +14,8 @@
  * console.log(MathLive.latexToAST('e^{i\\pi}+1=0'));
  * </script>
  *
- * @packageDocumentation MathLive SDK Reference v0.50.4-8-g06b13ab-dirty
- * @version v0.50.4-8-g06b13ab-dirty
+ * @packageDocumentation MathLive SDK Reference v0.50.4-9-ge281449-dirty
+ * @version v0.50.4-9-ge281449-dirty
  *
  */
 import { Mathfield } from './mathfield';
@@ -34,7 +34,7 @@ export { MathfieldConfig };
  * - The second number is the **MINOR** version, incremented for new features
  * - The third number is the **PATCH** version, incremented for bug fixes
  *
- * Current version: `v0.50.4-8-g06b13ab-dirty`
+ * Current version: `v0.50.4-9-ge281449-dirty`
  *
  */
 export declare const version: string;

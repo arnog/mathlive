@@ -1,4 +1,5 @@
-import { Mathfield, on } from './mathfield-utils';
+import { on } from './mathfield-utils';
+import type { MathfieldPrivate } from './mathfield-class';
 
 /**
  * Attach event handlers to an element so that it will react by executing
@@ -26,7 +27,7 @@ import { Mathfield, on } from './mathfield-utils';
  *
  */
 export function attachButtonHandlers(
-    mathfield: Mathfield,
+    mathfield: MathfieldPrivate,
     el: Element,
     command:
         | string

@@ -5,8 +5,8 @@ import type { Atom } from '../core/atom';
 import { atomsToMathML } from '../addons/math-ml';
 import { speakableText } from './speech';
 import { selectionIsCollapsed, getSelectedAtoms } from './model-selection';
-import type { ModelInterface } from './model-utils';
-import type { Mathfield } from './mathfield-utils';
+import type { ModelPrivate } from './model-class';
+import type { MathfieldPrivate } from './mathfield-class';
 import type { PathSegment } from './path';
 
 /**
@@ -16,9 +16,9 @@ import type { PathSegment } from './path';
  * @param oldModel The previous value of the model before the change.
  */
 export function defaultAnnounceHook(
-    mathfield: Mathfield,
+    mathfield: MathfieldPrivate,
     action: string,
-    oldModel: ModelInterface,
+    oldModel: ModelPrivate,
     atoms: Atom[]
 ): void {
     //** Fix: the focus is the end of the selection, so it is before where we want it
@@ -83,10 +83,10 @@ export function defaultAnnounceHook(
 /* Returns the speech text of the next atom after the selection or
  *   an 'end of' phrasing based on what structure we are at the end of
  */
-// @revisit. Currently this = Mathfield, but it looks like model is enough
+// @revisit. Currently this = MathfieldPrivate, but it looks like model is enough
 function nextAtomSpeechText(
-    mathfield: Mathfield,
-    oldModel: ModelInterface
+    mathfield: MathfieldPrivate,
+    oldModel: ModelPrivate
 ): string {
     function relation(parent: Atom, leaf: PathSegment): string {
         const EXPR_NAME = {

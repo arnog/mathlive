@@ -1,39 +1,39 @@
 import { ParseMode } from '../public/core';
 import { register as registerCommand } from './commands';
 import { complete } from './autocomplete';
-import { Mathfield } from './mathfield-utils';
+import type { MathfieldPrivate } from './mathfield-class';
 import { onTypedText } from './mathfield-keyboard-input';
 
 registerCommand({
-    undo: (mathfield: Mathfield) => {
+    undo: (mathfield: MathfieldPrivate) => {
         complete(mathfield);
         // Undo to the previous state
         mathfield.undoManager.undo(mathfield.config);
         return true;
     },
-    redo: (mathfield: Mathfield) => {
+    redo: (mathfield: MathfieldPrivate) => {
         complete(mathfield);
         mathfield.undoManager.redo(mathfield.config);
         return true;
     },
-    scrollIntoView: (mathfield: Mathfield) => {
+    scrollIntoView: (mathfield: MathfieldPrivate) => {
         mathfield.scrollIntoView();
         return true;
     },
-    scrollToStart: (mathfield: Mathfield) => {
+    scrollToStart: (mathfield: MathfieldPrivate) => {
         mathfield.field.scroll(0, 0);
         return true;
     },
-    scrollToEnd: (mathfield: Mathfield) => {
+    scrollToEnd: (mathfield: MathfieldPrivate) => {
         const fieldBounds = mathfield.field.getBoundingClientRect();
         mathfield.field.scroll(fieldBounds.left - window.scrollX, 0);
         return true;
     },
-    enterCommandMode: (mathfield: Mathfield) => {
+    enterCommandMode: (mathfield: MathfieldPrivate) => {
         mathfield.switchMode('command');
         return true;
     },
-    toggleKeystrokeCaption: (mathfield: Mathfield) => {
+    toggleKeystrokeCaption: (mathfield: MathfieldPrivate) => {
         mathfield.keystrokeCaptionVisible = !mathfield.keystrokeCaptionVisible;
         mathfield.keystrokeCaption.innerHTML = '';
         if (!mathfield.keystrokeCaptionVisible) {
@@ -41,13 +41,13 @@ registerCommand({
         }
         return false;
     },
-    switchMode: (mathfield: Mathfield, mode: ParseMode) => {
+    switchMode: (mathfield: MathfieldPrivate, mode: ParseMode) => {
         mathfield.switchMode(mode);
         return true;
     },
-    insert: (mathfield: Mathfield, s: string, options) =>
+    insert: (mathfield: MathfieldPrivate, s: string, options) =>
         mathfield.$insert(s, options),
-    typedText: (mathfield: Mathfield, text: string) => {
+    typedText: (mathfield: MathfieldPrivate, text: string) => {
         onTypedText(mathfield, text);
         return true;
     },

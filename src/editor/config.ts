@@ -1,17 +1,18 @@
+import type { MathfieldConfig } from '../public/config';
+
 import { isArray } from '../common/types';
 
-import { Atom } from '../core/atom';
+import type { Atom } from '../core/atom';
 import { MACROS } from '../core/definitions';
+
+import type { MathfieldPrivate } from './mathfield-class';
+import type { ModelPrivate } from './model-class';
 import { l10n } from './l10n';
 import { defaultAnnounceHook } from './a11y';
 import { INLINE_SHORTCUTS } from './shortcuts-definitions-inline';
-import { MathfieldConfig } from '../public/config';
 export { InlineShortcutDefinition } from '../public/shortcuts';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // from 0.0 to 1.0
-
-declare class Model {}
-declare class Mathfield {}
 
 const NO_OP_LISTENER = (): void => {
     return;
@@ -19,9 +20,9 @@ const NO_OP_LISTENER = (): void => {
 
 export type MathfieldConfigPrivate = MathfieldConfig & {
     onAnnounce?: (
-        target: Mathfield,
+        target: MathfieldPrivate,
         command: string, // verb
-        modelBefore: Model,
+        modelBefore: ModelPrivate,
         atoms: Atom[] // object of the command
     ) => void; // @revisit 1.0: rename announceHook
 };

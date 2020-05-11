@@ -1,7 +1,7 @@
 import Keyboard from './editor-keyboard';
 import { selectionIsCollapsed, setSelection } from './model-selection';
 import { contentDidChange, contentWillChange } from './model-listeners';
-import { Mathfield } from './mathfield-utils';
+import type { MathfieldPrivate } from './mathfield-class';
 /**
  * Convert the atoms before the anchor to 'text' mode
  * @param count - how many atoms back to look at
@@ -9,7 +9,7 @@ import { Mathfield } from './mathfield-utils';
  * @private
  */
 function convertLastAtomsToText(
-    mathfield: Mathfield,
+    mathfield: MathfieldPrivate,
     count: number,
     until?
 ): void {
@@ -53,7 +53,7 @@ function convertLastAtomsToText(
  * @private
  */
 function convertLastAtomsToMath(
-    mathfield: Mathfield,
+    mathfield: MathfieldPrivate,
     count?: number,
     until?
 ): void {
@@ -89,7 +89,7 @@ function convertLastAtomsToMath(
  * space character is found (i.e. it is surrounded by math zone),
  * remove it.
  */
-export function removeIsolatedSpace(mathfield: Mathfield): void {
+export function removeIsolatedSpace(mathfield: MathfieldPrivate): void {
     let i = 0;
     while (
         mathfield.model.sibling(i) &&
@@ -124,7 +124,7 @@ export function removeIsolatedSpace(mathfield: Mathfield): void {
  * into text mode.
  * This excludes things like 'mop' (e.g. \sin)
  */
-function getTextBeforeAnchor(mathfield: Mathfield): string {
+function getTextBeforeAnchor(mathfield: MathfieldPrivate): string {
     // Going backwards, accumulate
     let result = '';
     let i = 0;
@@ -153,7 +153,7 @@ function getTextBeforeAnchor(mathfield: Mathfield): string {
  */
 
 export function smartMode_(
-    mathfield: Mathfield,
+    mathfield: MathfieldPrivate,
     keystroke: string,
     evt
 ): boolean {

@@ -1,4 +1,4 @@
-import { decompose } from '../core/atom-utils';
+import { decompose } from '../core/atom';
 import { makeSpan, makeStruts } from '../core/span';
 import { parseString } from '../core/parser';
 import { LINE_COLORS, AREA_COLORS } from '../core/color';
@@ -7,7 +7,7 @@ import { MATHSTYLES } from '../core/mathstyle';
 import { attachButtonHandlers } from './mathfield-buttons';
 import { releaseSharedElement } from './mathfield-utils';
 
-import { Mathfield } from './mathfield-utils';
+import type { MathfieldPrivate } from './mathfield-class';
 
 const KEYBOARDS = {
     numeric: {
@@ -841,7 +841,7 @@ const LAYERS = {
         </div>`,
 };
 
-function latexToMarkup(latex: string, arg, mf: Mathfield): string {
+function latexToMarkup(latex: string, arg, mf: MathfieldPrivate): string {
     // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
     latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
 
@@ -864,7 +864,7 @@ function latexToMarkup(latex: string, arg, mf: Mathfield): string {
  * Return a markup string for the keyboard toolbar for the specified layer.
  */
 function makeKeyboardToolbar(
-    mf: Mathfield,
+    mf: MathfieldPrivate,
     keyboardIDs,
     currentKeyboard
 ): string {
@@ -948,7 +948,7 @@ function makeKeyboardToolbar(
 }
 
 export function makeKeycap(
-    mf: Mathfield,
+    mf: MathfieldPrivate,
     elList,
     chainedCommand?: string | any[]
 ): void {
@@ -1059,7 +1059,7 @@ export function makeKeycap(
 /**
  * Expand the shortcut tags (e.g. <row>) inside a layer.
  */
-function expandLayerMarkup(mf: Mathfield, layer): string {
+function expandLayerMarkup(mf: MathfieldPrivate, layer): string {
     const ROWS = {
         // First row should be 10 key wide
         // Second row should be 10 key wide
@@ -1227,7 +1227,7 @@ function expandLayerMarkup(mf: Mathfield, layer): string {
  * mathfield and an optional theme.
  */
 export function makeKeyboard(
-    mf: Mathfield,
+    mf: MathfieldPrivate,
     theme: 'apple' | 'material' | ''
 ): HTMLElement {
     const svgIcons = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -1651,7 +1651,7 @@ export function makeKeyboard(
     return result;
 }
 
-export function hideAlternateKeys(_mathfield: Mathfield): boolean {
+export function hideAlternateKeys(_mathfield: MathfieldPrivate): boolean {
     const altContainer = document.getElementById(
         'mathlive-alternate-keys-panel'
     );
@@ -1667,7 +1667,7 @@ export function hideAlternateKeys(_mathfield: Mathfield): boolean {
  * was pressed.
  *
  */
-export function unshiftKeyboardLayer(mathfield: Mathfield): boolean {
+export function unshiftKeyboardLayer(mathfield: MathfieldPrivate): boolean {
     const keycaps = mathfield.virtualKeyboard.querySelectorAll(
         'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
     );

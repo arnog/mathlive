@@ -1,6 +1,6 @@
 import { defineFunction, ParseFunctionResult } from './definitions-utils';
 import { convertDimenToPx } from './font-metrics';
-import { Atom } from './atom-utils';
+import type { Atom } from './atom';
 
 // \enclose, a MathJax extension mapping to the MathML `menclose` tag.
 // The first argument is a comma delimited list of notations, as defined

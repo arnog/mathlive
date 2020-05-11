@@ -2,7 +2,7 @@ import { isArray } from '../common/types';
 
 import type { Atom } from '../core/atom';
 
-import type { ModelInterface } from './model-utils';
+import type { ModelPrivate } from './model-class';
 import { contentDidChange, contentWillChange } from './model-listeners';
 import { arrayCellCount, arrayCell } from './model-array-utils';
 import {
@@ -13,7 +13,7 @@ import {
 } from './model-selection';
 
 export function extractCommandStringAroundInsertionPoint(
-    model: ModelInterface,
+    model: ModelPrivate,
     beforeInsertionPointOnly = false
 ): string {
     let result = '';
@@ -39,7 +39,7 @@ export function extractCommandStringAroundInsertionPoint(
  * remove it.
  */
 export function decorateCommandStringAroundInsertionPoint(
-    model: ModelInterface,
+    model: ModelPrivate,
     hasError: boolean
 ): void {
     const command = getCommandOffsets(model);
@@ -52,7 +52,7 @@ export function decorateCommandStringAroundInsertionPoint(
 }
 
 export function commitCommandStringBeforeInsertionPoint(
-    model: ModelInterface
+    model: ModelPrivate
 ): void {
     const command = getCommandOffsets(model);
     if (command) {
@@ -67,7 +67,7 @@ export function commitCommandStringBeforeInsertionPoint(
 }
 
 export function spliceCommandStringAroundInsertionPoint(
-    model: ModelInterface,
+    model: ModelPrivate,
     mathlist: Atom[]
 ): void {
     const command = getCommandOffsets(model);
@@ -144,7 +144,7 @@ function removeCommandStringFromAtom(atom: Atom | Atom[]) {
     }
 }
 
-export function removeCommandString(model: ModelInterface): void {
+export function removeCommandString(model: ModelPrivate): void {
     contentWillChange(model);
     const contentWasChanging = model.suppressChangeNotifications;
     model.suppressChangeNotifications = true;

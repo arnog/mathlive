@@ -1,4 +1,4 @@
-import { ModelPrivate } from './model';
+import type { ModelPrivate } from './model';
 import { insert } from './model-insert';
 import { setPath } from './model-selection';
 import { UndoStateChangeListener } from '../public/config';
@@ -7,8 +7,6 @@ type UndoRecord = {
     latex: string;
     selection: string;
 };
-
-declare class Mathfield {}
 
 interface UndoOptions {
     onUndoStateWillChange?: UndoStateChangeListener;

@@ -1,6 +1,6 @@
 import { isArray } from '../common/types';
 
-import type { Atom } from './atom-utils';
+import type { Atom } from './atom';
 import type { Context } from './context';
 
 import { registerAtomType, decompose } from './atom-utils';

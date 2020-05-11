@@ -1,5 +1,5 @@
 import { defineFunction, parseArgAsString } from './definitions-utils';
-import { Atom } from './atom-utils';
+import type { Atom } from './atom';
 
 const ACCENTS = {
     acute: '\u02ca',

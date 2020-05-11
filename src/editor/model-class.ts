@@ -1,14 +1,15 @@
 import { Atom, makeRoot } from '../core/atom';
+import type { Model } from '../public/model';
+import type { Mathfield } from '../public/mathfield';
+import type { MathfieldPrivate } from './mathfield-class';
 import { Path, clone as clonePath, pathToString } from './path';
 import { arrayCell } from './model-array-utils';
 import { ModelListeners } from './model-listeners';
 
-import { ModelInterface, ModelOptions, ModelHooks } from './model-utils';
+import { ModelOptions, ModelHooks } from './model-utils';
 
-declare class Mathfield {}
-
-export class ModelPrivate implements ModelInterface {
-    mathfield: Mathfield;
+export class ModelPrivate implements Model {
+    mathfield: MathfieldPrivate;
     options: ModelOptions;
     listeners: ModelListeners;
     hooks: Required<ModelHooks>;
@@ -37,7 +38,7 @@ export class ModelPrivate implements ModelInterface {
 
         this.setListeners(listeners);
         this.setHooks(hooks);
-        this.mathfield = target;
+        this.mathfield = target as MathfieldPrivate;
 
         this.suppressChangeNotifications = false;
     }
@@ -85,7 +86,7 @@ export class ModelPrivate implements ModelInterface {
         modelBefore?: ModelPrivate,
         atoms: Atom[] = []
     ): void {
-        this.hooks.announce(this, command, modelBefore, atoms);
+        this.hooks.announce(this.mathfield, command, modelBefore, atoms);
     }
 
     /**

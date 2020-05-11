@@ -9,7 +9,7 @@ import {
 
 import { parseMathString } from './parse-math-string';
 
-import type { ModelInterface } from './model-utils';
+import type { ModelPrivate } from './model-class';
 import { invalidateVerbatimLatex, isEmptyMathlist } from './model-utils';
 import { arrayCellCount, arrayCell } from './model-array-utils';
 import { deleteAtoms, deleteChar } from './model-delete';
@@ -31,7 +31,7 @@ import {
 } from './model-selection';
 
 export function insert(
-    model: ModelInterface,
+    model: ModelPrivate,
     s: string,
     options: InsertOptions
 ): void {
@@ -319,7 +319,7 @@ function removeParen(list: Atom[]): Atom[] {
  * remove the parentheses
  *
  */
-function simplifyParen(model: ModelInterface, atoms: Atom[]): void {
+function simplifyParen(model: ModelPrivate, atoms: Atom[]): void {
     if (atoms && model.options.removeExtraneousParentheses) {
         for (let i = 0; atoms[i]; i++) {
             if (atoms[i].type === 'leftright' && atoms[i].leftDelim === '(') {

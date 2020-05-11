@@ -1,6 +1,6 @@
 import { isArray, isFunction } from '../common/types';
 
-import { Atom } from './atom';
+import type { Atom } from './atom';
 import { emit as emitDefinition } from './definitions';
 import { emitLatexRun, getPropertyRuns } from './modes-utils';
 import { colorToString } from './color';

@@ -1,6 +1,6 @@
 import { isArray } from '../common/types';
 
-import { Atom } from '../core/atom';
+import type { Atom } from '../core/atom';
 
 const SPECIAL_IDENTIFIERS = {
     '\u2212': '-', // MINUS SIGN

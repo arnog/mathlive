@@ -1,9 +1,9 @@
 import { ParserErrorListener, Style, MacroDictionary } from '../public/core';
 
-import { Span } from './span';
-import { Token } from './lexer';
-import { Atom } from './atom';
-import { ParseModePrivate } from './context';
+import type { Span } from './span';
+import type { Token } from './lexer';
+import type { Atom } from './atom';
+import type { ParseModePrivate } from './context';
 
 export interface ParseTokensOptions {
     args: (string | Atom[])[];

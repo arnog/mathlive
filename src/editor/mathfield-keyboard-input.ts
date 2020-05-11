@@ -26,12 +26,12 @@ import { contentDidChange, contentWillChange } from './model-listeners';
 import { insert } from './model-insert';
 import { requestUpdate } from './mathfield-render';
 
-import { Mathfield } from './mathfield-utils';
+import type { MathfieldPrivate } from './mathfield-class';
 
 import { removeIsolatedSpace } from './mathfield-smartmode';
 import { smartMode_ } from './mathfield-smartmode';
 
-export function showKeystroke(mathfield: Mathfield, keystroke: string) {
+export function showKeystroke(mathfield: MathfieldPrivate, keystroke: string) {
     const vb = mathfield.keystrokeCaption;
     if (vb && mathfield.keystrokeCaptionVisible) {
         const bounds = mathfield.element.getBoundingClientRect();
@@ -58,7 +58,7 @@ export function showKeystroke(mathfield: Mathfield, keystroke: string) {
  * @param [evt] - An Event corresponding to the keystroke.
  */
 export function onKeystroke(
-    mathfield: Mathfield,
+    mathfield: MathfieldPrivate,
     keystroke: string,
     evt: KeyboardEvent
 ) {
@@ -312,7 +312,11 @@ export function onKeystroke(
  * necessary, then insert text
  * @private
  */
-export function onTypedText(mathfield: Mathfield, text: string, options?) {
+export function onTypedText(
+    mathfield: MathfieldPrivate,
+    text: string,
+    options?
+) {
     if (mathfield.config.readOnly) {
         mathfield.model.announce('plonk');
         return;
@@ -474,7 +478,7 @@ export function onTypedText(mathfield: Mathfield, text: string, options?) {
     showPopoverWithLatex(mathfield, popoverText, displayArrows);
 }
 
-function superscriptDepth(mathfield: Mathfield) {
+function superscriptDepth(mathfield: MathfieldPrivate) {
     let result = 0;
     let i = 0;
     let atom = mathfield.model.ancestor(i);
@@ -493,7 +497,7 @@ function superscriptDepth(mathfield: Mathfield) {
     }
     return wasSuperscript ? result : 0;
 }
-function subscriptDepth(mathfield: Mathfield) {
+function subscriptDepth(mathfield: MathfieldPrivate) {
     let result = 0;
     let i = 0;
     let atom = mathfield.model.ancestor(i);

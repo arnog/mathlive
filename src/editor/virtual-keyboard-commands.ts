@@ -9,8 +9,8 @@ import {
 import { complete } from './autocomplete';
 import { getSharedElement } from './mathfield-utils';
 import { register as registerCommand } from './commands';
-import { Mathfield, on } from './mathfield-utils';
-
+import { on } from './mathfield-utils';
+import type { MathfieldPrivate } from './mathfield-class';
 /*
  * Alternate options are displayed when a key on the virtual keyboard is pressed
  * and held.
@@ -18,7 +18,7 @@ import { Mathfield, on } from './mathfield-utils';
  */
 registerCommand(
     {
-        showAlternateKeys: (mathfield: Mathfield, keycap, altKeys) => {
+        showAlternateKeys: (mathfield: MathfieldPrivate, keycap, altKeys) => {
             const altContainer = getSharedElement(
                 'mathlive-alternate-keys-panel',
                 'ML__keyboard alternate-keys'
@@ -136,7 +136,7 @@ registerCommand(
 );
 
 export function switchKeyboardLayer(
-    mathfield: Mathfield,
+    mathfield: MathfieldPrivate,
     layer: string
 ): boolean {
     if (mathfield.config.virtualKeyboardMode !== 'off') {
@@ -187,7 +187,7 @@ export function switchKeyboardLayer(
  */
 registerCommand(
     {
-        shiftKeyboardLayer: (mathfield: Mathfield) => {
+        shiftKeyboardLayer: (mathfield: MathfieldPrivate) => {
             const keycaps = mathfield.virtualKeyboard.querySelectorAll(
                 'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
             );
@@ -246,7 +246,7 @@ registerCommand(
 
 registerCommand(
     {
-        hideAlternateKeys: (mathfield: Mathfield) =>
+        hideAlternateKeys: (mathfield: MathfieldPrivate) =>
             hideAlternateKeys(mathfield),
 
         /*
@@ -254,16 +254,16 @@ registerCommand(
          * We need to hide the Alternate Keys panel, then perform the
          * command.
          */
-        performAlternateKeys: (mathfield: Mathfield, command) => {
+        performAlternateKeys: (mathfield: MathfieldPrivate, command) => {
             hideAlternateKeys(mathfield);
             return mathfield.$perform(command);
         },
-        switchKeyboardLayer: (mathfield: Mathfield, layer) =>
+        switchKeyboardLayer: (mathfield: MathfieldPrivate, layer) =>
             switchKeyboardLayer(mathfield, layer),
-        unshiftKeyboardLayer: (mathfield: Mathfield) =>
+        unshiftKeyboardLayer: (mathfield: MathfieldPrivate) =>
             unshiftKeyboardLayer(mathfield),
 
-        insertAndUnshiftKeyboardLayer: (mathfield: Mathfield, c) => {
+        insertAndUnshiftKeyboardLayer: (mathfield: MathfieldPrivate, c) => {
             mathfield.$insert(c);
             unshiftKeyboardLayer(mathfield);
             return true;
@@ -275,7 +275,7 @@ registerCommand(
 registerCommand(
     {
         /* Toggle the virtual keyboard, but switch to the alternate theme if available */
-        toggleVirtualKeyboardAlt: (mathfield: Mathfield) => {
+        toggleVirtualKeyboardAlt: (mathfield: MathfieldPrivate) => {
             let hadAltTheme = false;
             if (mathfield.virtualKeyboard) {
                 hadAltTheme = mathfield.virtualKeyboard.classList.contains(
@@ -289,7 +289,7 @@ registerCommand(
             return false;
         },
         /** Toggle the virtual keyboard, but switch another keyboard layout */
-        toggleVirtualKeyboardShift: (mathfield: Mathfield) => {
+        toggleVirtualKeyboardShift: (mathfield: MathfieldPrivate) => {
             mathfield.config.virtualKeyboardLayout = {
                 qwerty: 'azerty',
 
@@ -317,19 +317,22 @@ registerCommand(
     { target: 'virtual-keyboard' }
 );
 
-export function showVirtualKeyboard(mathfield: Mathfield, theme = ''): boolean {
+export function showVirtualKeyboard(
+    mathfield: MathfieldPrivate,
+    theme = ''
+): boolean {
     mathfield.virtualKeyboardVisible = false;
     toggleVirtualKeyboard(mathfield, theme);
     return false;
 }
 
-export function hideVirtualKeyboard(mathfield: Mathfield): boolean {
+export function hideVirtualKeyboard(mathfield: MathfieldPrivate): boolean {
     mathfield.virtualKeyboardVisible = true;
     toggleVirtualKeyboard(mathfield);
     return false;
 }
 
-function toggleVirtualKeyboard(mathfield: Mathfield, theme?): boolean {
+function toggleVirtualKeyboard(mathfield: MathfieldPrivate, theme?): boolean {
     mathfield.virtualKeyboardVisible = !mathfield.virtualKeyboardVisible;
     if (mathfield.virtualKeyboardVisible) {
         if (mathfield.virtualKeyboard) {
@@ -367,11 +370,11 @@ function toggleVirtualKeyboard(mathfield: Mathfield, theme?): boolean {
 
 registerCommand(
     {
-        toggleVirtualKeyboard: (mathfield: Mathfield, theme) =>
+        toggleVirtualKeyboard: (mathfield: MathfieldPrivate, theme) =>
             toggleVirtualKeyboard(mathfield, theme),
-        hideVirtualKeyboard: (mathfield: Mathfield) =>
+        hideVirtualKeyboard: (mathfield: MathfieldPrivate) =>
             hideVirtualKeyboard(mathfield),
-        showVirtualKeyboard: (mathfield: Mathfield, theme): boolean =>
+        showVirtualKeyboard: (mathfield: MathfieldPrivate, theme): boolean =>
             showVirtualKeyboard(mathfield, theme),
     },
     { target: 'virtual-keyboard' }

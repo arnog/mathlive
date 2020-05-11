@@ -1,7 +1,6 @@
-/* v0.50.4-8-g06b13ab-dirty */import { ParserErrorListener, MacroDictionary, ParseMode } from './core';
+/* v0.50.4-9-ge281449-dirty */import { ParserErrorListener, MacroDictionary, ParseMode } from './core';
 import { InlineShortcutDefinition } from './shortcuts';
-export declare class Mathfield {
-}
+import type { Mathfield } from './mathfield';
 export declare type TextToSpeechOptions = {
     /**
      * Specify which set of text to speech rules to use.

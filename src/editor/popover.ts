@@ -13,7 +13,7 @@ import { getShortcutForCommand } from './shortcuts';
 import { attachButtonHandlers } from './mathfield-buttons';
 import { getCaretPosition } from './mathfield-utils';
 
-import type { Mathfield } from './mathfield';
+import type { MathfieldPrivate } from './mathfield-class';
 
 // A textual description of a LaTeX command.
 // The value can be either a single string, or an array of string
@@ -275,7 +275,7 @@ function getNote(symbol): string {
     return result;
 }
 
-function latexToMarkup(latex: string, mf: Mathfield): string {
+function latexToMarkup(latex: string, mf: MathfieldPrivate): string {
     const parse = parseString(latex, 'math', null, mf.config.macros);
     const spans = decompose(
         {
@@ -290,7 +290,11 @@ function latexToMarkup(latex: string, mf: Mathfield): string {
     return wrapper.toMarkup();
 }
 
-export function showPopoverWithLatex(mf: Mathfield, latex, displayArrows) {
+export function showPopoverWithLatex(
+    mf: MathfieldPrivate,
+    latex,
+    displayArrows
+) {
     if (!latex || latex.length === 0) {
         hidePopover(mf);
         return;
@@ -338,7 +342,7 @@ export function showPopoverWithLatex(mf: Mathfield, latex, displayArrows) {
 }
 
 export function updatePopoverPosition(
-    mf: Mathfield,
+    mf: MathfieldPrivate,
     options?: { deferred: boolean }
 ) {
     // Check that the mathfield is still valid
@@ -367,7 +371,7 @@ export function updatePopoverPosition(
     }
 }
 
-export function showPopover(mf: Mathfield, markup) {
+export function showPopover(mf: MathfieldPrivate, markup) {
     mf.popover.innerHTML = markup;
 
     const position = getCaretPosition(mf.field);
@@ -422,6 +426,6 @@ function setPopoverPosition(mf, position) {
     }
 }
 
-export function hidePopover(mf: Mathfield) {
+export function hidePopover(mf: MathfieldPrivate) {
     mf.popover.classList.remove('is-visible');
 }
