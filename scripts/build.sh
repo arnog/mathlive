@@ -9,7 +9,10 @@ set -o pipefail  # don't hide errors within pipes
 # On Linux, the -i switch can be used without an extension argument
 # On macOS, the -i switch must be followed by an extension argument (which can be empty)
 # On Windows, the argument of the -i switch is optional, but if present it must follow it immediately without a space in between
-
+sedi () {
+    sed --version >/dev/null 2>&1 && sed -i -- "$@" || sed -i "" "$@"
+}
+export -f sedi
 
 
 cd "$(dirname "$0")/.."
@@ -57,7 +60,7 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
         echo -e "\033[40m`basename "$0"`\033[0m 🚀 Optimizing CSS"
         npx postcss dist/*.css -d dist
         # Stamp version in output files
-        find ./dist -type f -name '*.css' -exec sed -i'' "1s/^/\/\* $GIT_VERSION \*\//" {} \;
+        find ./dist -type f -name '*.css' -exec bash -c 'sedi "1s/^/\/\* $GIT_VERSION \*\//" {}' \;
     fi
 
     if [ "$BUILD" != "production" ]; then
@@ -74,8 +77,8 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
 
     # Stamp version in output declaration files
     if [ "$BUILD" = "production" ]; then
-        find ./dist -type f -name '*.d.ts' -exec sed -i'' "1s/^/\/\* $GIT_VERSION \*\/$(printf '\r')/" {} \;
-        find ./dist -type f -name '*.d.ts' -exec sed -i'' "s/{{GIT_VERSION}}/$GIT_VERSION/" {} \;
+        find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "1s/^/\/\* $GIT_VERSION \*\/$(printf '\r')/" {}' \;
+        find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "s/{{GIT_VERSION}}/$GIT_VERSION/" {}' \;
     fi
 
     if [ "$BUILD" = "watch" ]; then
@@ -88,7 +91,7 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
         npx rollup --silent --config 
         if [ "$BUILD" = "production" ]; then
             # Stamp the Git version number
-            find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec sed -i'' "s/{{GIT_VERSION}}/$GIT_VERSION/g" {} \;
+            find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec bash -c 'sedi "s/{{GIT_VERSION}}/$GIT_VERSION/g" {}' \;
             # Run test suite
             echo -e "\033[40m`basename "$0"`\033[0m 🚀 Running test suite"
             npx jest --silent

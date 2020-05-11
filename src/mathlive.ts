@@ -257,7 +257,7 @@ function getOriginalContent(element: string | HTMLElement, options): string {
 }
 
 // This GIT_VERSION variable will be replaced during the build process.
-export const version = '{{GIT_VERSION}}';
+const version = '{{GIT_VERSION}}';
 
 export default {
     version,

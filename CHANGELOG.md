@@ -4,6 +4,7 @@
     are installed
 -   Make the build system work better on Windows
 -   Do not update /dist on each push
+-   When using a UMD module, do not export 'default'
 
 ## 0.50.4 (2020-05-09)
 
