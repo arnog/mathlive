@@ -37,22 +37,19 @@
     },
     "husky": {
         "hooks": {
-            "pre-commit": "lint-staged",
-            "pre-push": "bash ./scripts/pre-push.sh"
+            "pre-commit": "lint-staged && bash ./scripts/pre-commit.sh",
+            "pre-push": "npm test"
         }
     },
     "lint-staged": {
         "/src/**/*.js": [
-            "eslint --fix",
-            "git add"
+            "eslint --fix"
         ],
         "/src/**/*.{js,css,json,less}": [
-            "prettier --write",
-            "git add"
+            "prettier --write"
         ],
         "/*.md": [
-            "prettier --write",
-            "git add"
+            "prettier --write"
         ]
     },
     "engines": {
