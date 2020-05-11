@@ -1,4 +1,4 @@
-/* v0.50.5-0-g331da6f-dirty */import { Keys } from './types-utils';
+/* v0.50.5-1-ga8f346d-dirty */import { Keys } from './types-utils';
 import { ParseMode } from './core';
 import { Mathfield } from './mathfield';
 import { Model } from './model';

@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.50.6 (2020-05-11)
 
 -   Fix date stamping of declaration files
 
