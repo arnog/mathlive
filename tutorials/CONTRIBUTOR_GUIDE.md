@@ -1,19 +1,19 @@
 This guide is for developers who want to contribute code to MathLive,
-or who want to understand in more depth how MathLive works.
+or who need to modify or debug it.
 
-If you simply want to use MathLive with your web content, see the [Usage Guide](tutorials/USAGE_GUIDE.md).
+If you simply want to use MathLive in your project, see the [Usage Guide](tutorials/USAGE_GUIDE.md).
 
 ## Table of Contents
 
 -   [Getting Started: Setting up Your Development Environment](#getting-started-setting-up-your-development-environment)
+-   [Deploy / Publish](#deploy--publish)
 -   [Code Structure](#code-structure)
 -   [Language and Coding Style](#language-and-coding-style)
--   [Naming Conventions](#naming-conventions)
+-   [Bundling](#bundling)
 -   [Browser Support](#browser-support)
 -   [Accessibility](#accessibility-a11y)
 -   [Architecture](#architecture)
 -   [Files](#files)
--   [Common Tasks](#common-tasks)
 
 ## Getting Started: Setting up Your Development Environment
 
@@ -23,7 +23,7 @@ file and the `scripts/` directory contain the definitions of the build scripts.
 
 To get started developing:
 
-1. Install [Node.js](http://nodejs.org) on your dev machine
+1. Install [Node.js](http://nodejs.org) on your dev machine (this will also install `npm`). The LTS version is recommended.
 2. In your shell, type:
 
 ```bash
@@ -33,9 +33,12 @@ $ npm ci
 ```
 
 The `npm ci` command installs in the `mathlive/node_modules` directory all the Node
-modules necessary to build and test the MathLive library and its documentation.
+modules necessary to build and test the MathLive SDK.
 
 Depending on your system setup, you may need to run as admin, in which case use `sudo npm ci` or equivalent.
+
+If your version of `npm` or `node` is out of date, you will be
+prompted to update.
 
 Once the installation is successful, you can use the following commands:
 
@@ -45,79 +48,84 @@ Once the installation is successful, you can use the following commands:
 # the examples and do some simple debugging
 $ npm start
 
+
 # Make a local development build
 # 1. Compile the `.css/.less` file to `build/*.css`
-# 2. Compile the TypeScript source files and create a bundle with sourcemap
-# in the `dist/` directory
+# 2. Compile the TypeScript source files and create
+# a bundle with sourcemap in the `dist/` directory
 $ npm run build
 
 
 # Run test suite
 $ npm test
 
-# Calculate the code coverage and output to coverage/
+
+# Calculate the code coverage and output to `coverage/`
 $ npm test coverage
 
 
 # Create a production build to `dist/`.
-# The `dist/` folder will contain the `.js`, `.css` and font files necessary to
-# use MathLive.
+# The `dist/` folder will contain the `.js`, `.css` and
+# font files necessary to use MathLive.
 $ npm run build production
 
 ```
 
-During development, it is recommended that you keep the `npm start`
-command running in a terminal window while you make the necessary changes
-to the source files of the project in your favorite editor. When you
-save a file, if any problem with your code is detected
-it will be displayed in the terminal window.
+During development, keep `npm start` running. A build will be triggered when
+a source file is updated.
 
 After you push your changes to `master`, a Travis continuous integration
 task will run to make sure the build can be reproduced in a clean environment.
 
 ### Troubleshooting
 
-If you are getting build errors after updating your repo, your node-modules/ directory may need to be updated. Run:
+If you are getting build errors after updating your repo, your `node-modules/`
+directory may need to be updated. Run:
 
 ```bash
 $ npm ci
 ```
 
-### Deploy / Publish
+## Deploy / Publish
 
-Once you have made significant changes that are ready to be shared broadly,
-use the following commands:
+You will need a `GH_PUBLIC_TOKEN` env variable set up
+with a "Personal Access Token" to publish the GitHub Release.
+
+Go to GitHub > [user] > Settings > Developer Settings > Personal Access Tokens to create one and set it as a shell env global variable.
+
+To publish a new version of the SDK:
 
 ```bash
-# Increase the version number of the library
-# and publish the build to GitHub and NPM.
-$ npm run version [major | minor | patch]
+# Increase the version number of the SDK
+# and publish a GitHub release
+$ npm version [major | minor | patch]
+
+# Publish to NPM
+$ npm publish
 ```
 
-This command will
+These commands will:
 
-1. Increment the version number and create a corresponding git tag
+1. Increment the version number of the SDK and create a corresponding git tag
 2. Update the CHANGELOG with the current version number
 3. Publish a GitHub release
-4. Trigger a Travis CI build
-5. Publish to NPM (from the Travis environment)
+4. Publish to NPM
 
-**Note:** You should **not** run `npm publish` manually, or this will cause
-the `npm publish` call from Travis to fail.
+(See `scripts/version.sh`, which is invoked by `npm version`)
 
 **Note on versioning:** Use the [semver](http://semver.org/) convention for
 versions:
 
--   `npm run version`: bug fixes and other minor changes. Last number of the
+-   `npm version patch`: bug fixes and other minor changes. Last number of the
     version is incremented, e.g. `1.2.41` → `1.2.42`
--   `npm run version minor`: new features which don't break existing features. Middle
+-   `npm version minor`: new features which don't break existing features. Middle
     number of the version is incremented, e.g. `1.2.42` → `1.3.0`
--   `npm run version major`: changes which break backward compatibility of the API.
+-   `npm version major`: changes which break backward compatibility of the API.
     Increment the first number, e.g. `1.3.56` → `2.0.0`
 
 ## Code Structure
 
-The MathLive library consists of the following key directories:
+The MathLive SDK consists of the following key directories:
 
 -   `css/` the stylesheets and fonts used by MathLive
 -   `src/core` the core JavaScript code needed to render math. This module depends
@@ -171,7 +179,7 @@ The code base attempts to follow these general guidelines:
 
 The TypeScript code is compiled to JavaScript by the `tsc` compiler. When
 doing a production build, the JavaScript is further minimized with `terser`,
-then bundle into a single file with `rollup`. The CSS files are minimized
+then bundled into a single file with `rollup`. The CSS files are minimized
 with `postcss`.
 
 ## Browser Support
@@ -253,7 +261,7 @@ are easy to use on touch screens and for users of alternative pointing devices.
 
 ## Architecture
 
-The core of MathLive is a rendering engine that generated HTML (and SVG) markup. This engine uses the TeX layout algorithms because of their quality.
+The core of MathLive is a rendering engine that generates HTML (and SVG) markup. This engine uses the TeX layout algorithms because of their quality.
 Given the same input, MathLive will render pixel for pixel what TeX would
 have rendered.
 

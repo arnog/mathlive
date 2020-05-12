@@ -5,7 +5,7 @@ set -e  # exit immediately on error
 if [ -z "$GH_PUBLISH_TOKEN" ]
 then
     echo "The `\$GH_PUBLISH_TOKEN` env variable is not set. Deploy failed."
-    echo "Got to GitHub > [user] > Settings > Developer Settings > Personal Access Tokens to create one and set it as an env variable."
+    echo "Go to GitHub > [user] > Settings > Developer Settings > Personal Access Tokens to create one and set it as an env variable."
     exit 1
 fi
 
@@ -26,8 +26,6 @@ API_JSON=$(printf '{"tag_name": "%s","target_commitish": "master","name": "%s","
 
 echo $API_JSON
 echo "Creating GitHub release $VERSION for $BRANCH branch of $REPO"
-
-exit;
 
 curl -H "Authorization: token $GH_PUBLISH_TOKEN" --data "$API_JSON" "https://api.github.com/repos/$REPO/releases"
 
