@@ -15,12 +15,12 @@
     "scripts": {
         "build": "bash ./scripts/build.sh",
         "clean": "rimraf build dist coverage",
-        "deploy-ci": "bash ./scripts/deploy-ci.sh",
         "dist": "bash ./scripts/build.sh production",
         "lint": "eslint --fix src/",
         "start": "bash ./scripts/build.sh watch",
         "test": "bash ./scripts/test.sh",
-        "version": "bash ./scripts/version.sh"
+        "version": "bash ./scripts/version.sh",
+        "postversion": "bash ./scripts/github-release.sh"
     },
     "main": "./dist/mathlive.js",
     "module": "./dist/mathlive.mjs",

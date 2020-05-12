@@ -26,7 +26,7 @@ import { Atom } from '../core/atom';
  */
 export function moveToSuperscript(model: ModelPrivate): boolean {
     collapseSelectionForward(model);
-    if (getAnchor(model).superscript) {
+    if (!getAnchor(model).superscript) {
         if (getAnchor(model).subscript) {
             getAnchor(model).superscript = [new Atom('', 'first')];
         } else {
@@ -58,7 +58,6 @@ export function moveToSuperscript(model: ModelPrivate): boolean {
                 getAnchor(model).superscript = [new Atom('', 'first')];
             }
         }
-        return true;
     }
     model.path.push({ relation: 'superscript', offset: 0 });
     selectGroup(model);
@@ -172,6 +171,8 @@ register(
             jumpToMathFieldBoundary(model, +1),
         moveToSuperscript: (model: ModelPrivate): boolean =>
             moveToSuperscript(model),
+        moveToSubscript: (model: ModelPrivate): boolean =>
+            moveToSubscript(model),
     },
     { target: 'model', category: 'selection-anchor' }
 );

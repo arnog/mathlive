@@ -27,9 +27,3 @@ sedi -e 's/\[Unreleased\]/'"$PACKAGE_VERSION"' ('"$DATE_STAMP"')/g' CHANGELOG.md
 
 git add CHANGELOG.md
 git add dist
-git commit -m $PACKAGE_VERSION
-
-# Deploy this tagged release to Github.
-# This will trigger a Travis build.
-# In turn, the Travis build will publish to npm.
-git push origin --tags
