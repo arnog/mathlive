@@ -2427,10 +2427,11 @@ export function jsonToLatex(
             }
         } else if (ast.fn === 'list' || ast.fn === 'list2') {
             const a = [];
-            for (const exp of ast.arg) {
-                a.push(jsonToLatex(exp, config));
+            if (ast.arg) {
+                for (const exp of ast.arg) {
+                    a.push(jsonToLatex(exp, config));
+                }
             }
-
             result = a.join(ast.fn === 'list2' ? '; ' : ', ');
         } else if (ast.fn === 'sequence') {
             result = ast.arg.map((x) => jsonToLatex(x, config)).join('');

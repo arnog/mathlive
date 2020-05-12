@@ -20,7 +20,7 @@ const KEYBOARDS = {
         tooltip: 'keyboard.tooltip.roman',
         layer: 'lower-roman',
         label: 'ABC',
-        layers: ['lower-roman', 'upper-roman', 'symbols'],
+        layers: ['lower-roman', 'upper-roman'],
     },
     greek: {
         tooltip: 'keyboard.tooltip.greek',
@@ -35,6 +35,13 @@ const KEYBOARDS = {
         label: '<i>f</i>&thinsp;()',
         classes: 'tex',
         layers: ['functions'],
+    },
+    symbols: {
+        tooltip: 'keyboard.tooltip.symbols',
+        layer: 'symbols',
+        label: '&infin;≠∈',
+        classes: 'tex',
+        layers: ['symbols'],
     },
     command: {
         tooltip: 'keyboard.tooltip.command',
@@ -53,32 +60,32 @@ const KEYBOARDS = {
 };
 
 const SHIFTED_KEYS = {
-    '\\varphi ': { label: '&Phi;', insert: '\\Phi ' },
-    '\\varsigma ': { label: '&Sigma;', insert: '\\Sigma ' },
-    '\\epsilon ': { label: '&#x0190;', insert: '{\\char"0190}' },
-    '\\rho ': { label: '&#x3A1', insert: '{\\char"3A1}' },
-    '\\tau ': { label: '&#x3A4;', insert: '{\\char"3A4}' },
-    '\\upsilon ': { label: '&Upsilon;', insert: '\\Upsilon ' },
-    '\\theta ': { label: '&Theta;', insert: '\\Theta ' },
-    '\\iota ': { label: '&Iota;', insert: '{\\char"399}' },
-    '\\omicron ': { label: '&#x039F;', insert: '{\\char"39F}' },
-    '\\pi ': { label: '&Pi;', insert: '\\Pi ' },
-    '\\alpha ': { label: '&Alpha;', insert: '{\\char"391}' },
-    '\\sigma ': { label: '&Sigma;', insert: '\\Sigma ' },
-    '\\delta ': { label: '&Delta;', insert: '\\Delta ' },
-    '\\phi ': { label: '&#x03a6;', insert: '\\Phi ' },
-    '\\gamma ': { label: '&Gamma;', insert: '\\Gamma ' },
-    '\\eta ': { label: '&Eta;', insert: '{\\char"397}' },
-    '\\xi ': { label: '&Xi;', insert: '\\Xi ' },
-    '\\kappa ': { label: '&Kappa;', insert: '{\\char"39A}' },
-    '\\lambda ': { label: '&Lambda;', insert: '\\Lambda ' },
-    '\\zeta ': { label: '&Zeta;', insert: '{\\char"396}' },
-    '\\chi ': { label: '&Chi;', insert: '{\\char"3A7}' },
-    '\\psi ': { label: '&Psi;', insert: '\\Psi ' },
-    '\\omega ': { label: '&Omega;', insert: '\\Omega ' },
-    '\\beta ': { label: '&Beta;', insert: '{\\char"392}' },
-    '\\nu ': { label: '&Nu;', insert: '{\\char"39D}' },
-    '\\mu ': { label: '&Mu;', insert: '{\\char"39C}' },
+    '\\varphi ': ['&Phi;', '\\Phi '],
+    '\\varsigma ': ['&Sigma;', '\\Sigma '],
+    '\\epsilon ': ['&#x0190;', '{\\char"0190}'],
+    '\\rho ': ['&#x3A1', '{\\char"3A1}'],
+    '\\tau ': ['&#x3A4;', '{\\char"3A4}'],
+    '\\upsilon ': ['&Upsilon;', '\\Upsilon '],
+    '\\theta ': ['&Theta;', '\\Theta '],
+    '\\iota ': ['&Iota;', '{\\char"399}'],
+    '\\omicron ': ['&#x039F;', '{\\char"39F}'],
+    '\\pi ': ['&Pi;', '\\Pi '],
+    '\\alpha ': ['&Alpha;', '{\\char"391}'],
+    '\\sigma ': ['&Sigma;', '\\Sigma '],
+    '\\delta ': ['&Delta;', '\\Delta '],
+    '\\phi ': ['&#x03a6;', '\\Phi '],
+    '\\gamma ': ['&Gamma;', '\\Gamma '],
+    '\\eta ': ['&Eta;', '{\\char"397}'],
+    '\\xi ': ['&Xi;', '\\Xi '],
+    '\\kappa ': ['&Kappa;', '{\\char"39A}'],
+    '\\lambda ': ['&Lambda;', '\\Lambda '],
+    '\\zeta ': ['&Zeta;', '{\\char"396}'],
+    '\\chi ': ['&Chi;', '{\\char"3A7}'],
+    '\\psi ': ['&Psi;', '\\Psi '],
+    '\\omega ': ['&Omega;', '\\Omega '],
+    '\\beta ': ['&Beta;', '{\\char"392}'],
+    '\\nu ': ['&Nu;', '{\\char"39D}'],
+    '\\mu ': ['&Mu;', '{\\char"39C}'],
 };
 
 // const FUNCTIONS = [
@@ -523,7 +530,7 @@ const LAYERS = {
             </ul>
             <ul>
                 <row name='numpad-4' class='if-wide'/>
-                <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols'>&infin;≠</li>
+                <li class='keycap' >;</li>
                 <li class='keycap' data-alt-keys=','>,</li>
                 <li class='keycap w50' data-key=' ' data-alt-keys='space'>&nbsp;</li>
                 <arrows/>
@@ -545,7 +552,7 @@ const LAYERS = {
             </ul>
             <ul>
                 <row name='numpad-4' class='if-wide'/>
-                <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols'>&infin;≠</li>
+                <li class='keycap' >;</li>
                 <li class='keycap' data-alt-keys='.'>;</li>
                 <li class='keycap w50' data-key=' '>&nbsp;</li>
                 <arrows/>
@@ -590,7 +597,7 @@ const LAYERS = {
                 <li class='keycap tex' data-insert='\\supseteq '>&#x2287;</li>
                 <li class='keycap tex' data-alt-keys='accents' data-insert='$$\\vec{#@}$$' data-latex='\\vec{#?}' data-aside='vector'></li>
                 <li class='keycap tex' data-alt-keys='accents' data-insert='$$\\bar{#@}$$' data-latex='\\bar{#?}' data-aside='bar'></li>
-                <li class='keycap tex' data-alt-keys='absnorm' data-insert='$$\\lvert #@ \\rvert $$' data-latex='\\lvert #? \\rvert' data-aside='abs'></li>
+                <li class='keycap tex' data-alt-keys='absnorm' data-insert='$$\\left| #0 \\right|$$' data-latex='\\left| #? \\right|' data-aside='abs'></li>
                 <li class='keycap tex' data-insert='\\ast '>&#x2217;<aside>asterisk</aside></li>
 
                 <li class='action font-glyph bottom right w15'
@@ -601,7 +608,7 @@ const LAYERS = {
             </ul>
             <ul>
                 <row name='numpad-4' class='if-wide'/>
-                <li class='layer-switch font-glyph modifier bottom left' data-layer='lower-roman'>abc</li>
+                <li class='keycap tex' data-insert=','>,</li>
                 <li class='keycap tex' data-insert='\\cdot '>&#x22c5;<aside>centered dot</aside></li>
                 <li class='keycap tex' data-insert='\\colon '>:<aside>colon</aside></li>
                 <li class='keycap tex' data-insert='\\circ '>&#x2218;<aside>circle</aside></li>
@@ -982,15 +989,14 @@ export function makeKeycap(
             el.classList.add(el.getAttribute('data-classes'));
         }
 
-        let key = el.getAttribute('data-insert');
-        if (key) key = key.replace(/&quot;/g, '"');
+        const key = el.getAttribute('data-insert')?.replace(/&quot;/g, '"');
         if (key && SHIFTED_KEYS[key]) {
-            el.setAttribute('data-shifted', SHIFTED_KEYS[key].label);
+            el.setAttribute('data-shifted', SHIFTED_KEYS[key][0]);
             el.setAttribute(
                 'data-shifted-command',
                 JSON.stringify([
                     'insertAndUnshiftKeyboardLayer',
-                    SHIFTED_KEYS[key].insert,
+                    SHIFTED_KEYS[key][1],
                 ])
             );
         }
@@ -1309,11 +1315,12 @@ export function makeKeyboard(
         ALT_KEYS[key] = ALT_KEYS[key].slice();
     });
 
-    const upperAlpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const lowerAlpha = 'abcdefghijklmnopqrstuvwxyz';
-    const digits = '0123456789';
+    const UPPER_ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const LOWER_ALPHA = 'abcdefghijklmnopqrstuvwxyz';
+    const DIGITS = '0123456789';
+    // Define the alternate set for uppercase keys
     for (let i = 0; i < 26; i++) {
-        const key = upperAlpha[i];
+        const key = UPPER_ALPHA[i];
         if (!ALT_KEYS[key]) ALT_KEYS[key] = [];
         ALT_KEYS[key].unshift({
             latex: '\\mathbb{' + key + '}',
@@ -1345,35 +1352,10 @@ export function makeKeyboard(
             aside: 'fraktur',
             insert: '\\mathfrak{' + key + '}',
         });
-
-        ALT_KEYS[key].unshift({
-            latex: '\\mathbb{' + lowerAlpha[i] + '}',
-            aside: 'blackboard',
-            insert: '\\mathbb{' + lowerAlpha[i] + '}',
-        });
-        ALT_KEYS[key].unshift({
-            latex: '\\mathbf{' + lowerAlpha[i] + '}',
-            aside: 'bold',
-            insert: '\\mathbf{' + lowerAlpha[i] + '}',
-        });
-        ALT_KEYS[key].unshift({
-            latex: '\\mathsf{' + lowerAlpha[i] + '}',
-            aside: 'sans',
-            insert: '\\mathsf{' + lowerAlpha[i] + '}',
-        });
-        ALT_KEYS[key].unshift({
-            latex: '\\mathcal{' + lowerAlpha[i] + '}',
-            aside: 'calligraphy',
-            insert: '\\mathcal{' + lowerAlpha[i] + '}',
-        });
-        ALT_KEYS[key].unshift({
-            latex: '\\mathfrak{' + lowerAlpha[i] + '}',
-            aside: 'fraktur',
-            insert: '\\mathfrak{' + lowerAlpha[i] + '}',
-        });
     }
+    // Define the alternate set for lowercase keys
     for (let i = 0; i <= 26; i++) {
-        const key = lowerAlpha[i];
+        const key = LOWER_ALPHA[i];
         if (!ALT_KEYS[key]) ALT_KEYS[key] = [];
         ALT_KEYS[key].unshift({
             latex: '\\mathsf{' + key + '}',
@@ -1397,7 +1379,7 @@ export function makeKeyboard(
         });
     }
     for (let i = 0; i < 10; i++) {
-        const key = digits[i];
+        const key = DIGITS[i];
         if (!ALT_KEYS[key]) ALT_KEYS[key] = [];
         // The mathbb font does not appear to include digits,
         // although it's supposed to.
@@ -1437,7 +1419,7 @@ export function makeKeyboard(
     }
     keyboardIDs = keyboardIDs.replace(
         /\ball\b/i,
-        'numeric roman greek functions'
+        'numeric functions symbols roman  greek'
     );
 
     const layers = {
@@ -1631,6 +1613,8 @@ export function makeKeyboard(
     // Listen to know when the mouse has been released without being
     // captured to remove the alternate keys panel and the shifted state of the
     // keyboard.
+    // @todo should use a scrim instead (to prevent elements underneat the alt
+    // layer from reacting while the alt layer is up)
     window.addEventListener('mouseup', function () {
         hideAlternateKeys(mf);
         unshiftKeyboardLayer(mf);

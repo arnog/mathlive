@@ -1177,7 +1177,10 @@ class Parser {
                 return this.placeholder();
             }
             if (this.args) {
-                if (typeof this.args[paramToken.value] === 'undefined') {
+                if (
+                    this.args[paramToken.value] === null ||
+                    typeof this.args[paramToken.value] === 'undefined'
+                ) {
                     return this.placeholder();
                 }
                 return typeof this.args[paramToken.value] === 'string'
@@ -1524,7 +1527,10 @@ class Parser {
                 result = this.placeholder();
             } else {
                 // Otherwise, substitute the token with a provided argument
-                if (typeof this.args[token.value] === 'undefined') {
+                if (
+                    this.args[token.value] === null ||
+                    typeof this.args[token.value] === 'undefined'
+                ) {
                     result = this.placeholder();
                 } else if (typeof this.args[token.value] === 'string') {
                     result = parseString(
