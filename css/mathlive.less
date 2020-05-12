@@ -60,6 +60,10 @@
     border: 0;
 }
 
+.ML__small-delim {
+    font-family: KaTeX_Main;
+}
+
 .ML__mathit {
     font-family: @math_math;
     /* The @math_math (KaTeX_Math) font is italic 
@@ -1078,6 +1082,7 @@ body[theme='dark'] .ML__keystroke-caption {
                     font-size: 12px;
                     line-height: 12px;
                     opacity: 0.78;
+                    padding-top: 2px;
                 }
             }
         }
@@ -1119,13 +1124,14 @@ body[theme='dark'] .ML__keystroke-caption {
             }
         }
         & > .left {
-            justify-content: flex-start;
+            position: relative;
             display: flex;
+            justify-content: flex-start;
             flex-flow: row;
         }
         & > .right {
-            justify-content: flex-end;
             display: flex;
+            justify-content: flex-end;
             flex-flow: row;
         }
         & > div > div {

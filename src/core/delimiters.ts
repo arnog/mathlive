@@ -46,7 +46,7 @@ function makeSmallDelim(
     context: Context,
     classes = ''
 ): Span {
-    const text = makeSymbol('AMS-Regular', getValue('math', delim));
+    const text = makeSymbol('Main-Regular', getValue('math', delim));
 
     const span = makeStyleWrap(type, text, context.mathstyle, style, classes);
 
@@ -513,7 +513,7 @@ const stackLargeDelimiterSequence: DelimiterInfo[] = [
  */
 function delimTypeToFont(info: DelimiterInfo): string {
     if (info.type === 'small') {
-        return 'Main-Regular';
+        return 'AMS-Regular';
     } else if (info.type === 'large') {
         return 'Size' + info.size + '-Regular';
     }
@@ -613,8 +613,8 @@ export function makeCustomSizedDelim(
         context
     );
 
-    // Depending on the sequence element we decided on, call the appropriate
-    // function.
+    // Depending on the sequence element we decided on,
+    // call the appropriate function.
     if (delimType.type === 'small') {
         return makeSmallDelim(
             type,
@@ -622,9 +622,10 @@ export function makeCustomSizedDelim(
             delimType.mathstyle,
             center,
             context,
-            classes
+            'ML__small-delim ' + classes
         );
-    } else if (delimType.type === 'large') {
+    }
+    if (delimType.type === 'large') {
         return makeLargeDelim(
             type,
             delim,
@@ -661,34 +662,25 @@ export function makeLeftRightDelim(
         context.mathstyle.metrics.axisHeight * context.mathstyle.sizeMultiplier;
 
     // Taken from TeX source, tex.web, function make_left_right
-    const delimiterFactor = 901; // plain.tex:327
-    const delimiterShortfall = 5.0 / METRICS.ptPerEm; // plain.tex:345
+    const delimiterFactor = 901; // plain.tex:327, texboox:152
+    const delimiterShortfall = 5.0 / METRICS.ptPerEm; // plain.tex:345, texboox:152
 
-    let delta2 = depth + axisHeight;
-    let delta1 = height - axisHeight;
-    delta1 = Math.max(delta2, delta1);
-
-    let delta = (delta1 * delimiterFactor) / 500;
-    delta2 = 2 * delta1 - delimiterShortfall;
-    delta = Math.max(delta, delta2);
-
-    // const maxDistFromAxis = Math.max(height - axisHeight, depth + axisHeight);
-    // const totalHeight = Math.max(
-    //     // In real TeX, calculations are done using integral values which are
-    //     // 65536 per pt, or 655360 per em. So, the division here truncates in
-    //     // TeX but doesn't here, producing different results. If we wanted to
-    //     // exactly match TeX's calculation, we could do
-    //     //   Math.floor(655360 * maxDistFromAxis / 500) *
-    //     //    delimiterFactor / 655360
-    //     // (To see the difference, compare
-    //     //    x^{x^{\left(\rule{0.1em}{0.68em}\right)}}
-    //     // in TeX and KaTeX)
-    //     maxDistFromAxis / 500 * delimiterFactor,
-    //     2 * maxDistFromAxis - delimiterShortfall);
+    const maxDistFromAxis = Math.max(height - axisHeight, depth + axisHeight);
+    const totalHeight = Math.max(
+        (maxDistFromAxis / 500) * delimiterFactor,
+        2 * maxDistFromAxis - delimiterShortfall
+    );
 
     // Finally, we defer to `makeCustomSizedDelim` with our calculated total
     // height
-    return makeCustomSizedDelim(type, delim, delta, true, context, classes);
+    return makeCustomSizedDelim(
+        type,
+        delim,
+        totalHeight,
+        true,
+        context,
+        classes
+    );
 }
 
 /**
