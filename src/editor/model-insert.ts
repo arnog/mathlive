@@ -74,11 +74,13 @@ export function insert(
     let mathlist;
 
     // Save the content of the selection, if any
-    const args = [getSelectedAtoms(model)];
+    const args: (string | Atom[])[] = [getSelectedAtoms(model)];
 
     // If a placeholder was specified, use it
-    if (options.placeholder !== undefined) {
-        args['?'] = options.placeholder;
+    const placeholder = options.placeholder ?? '\\placeholder{}';
+    args['?'] = placeholder;
+    if (!args[0]) {
+        args[0] = placeholder;
     }
 
     // Delete any selected items
