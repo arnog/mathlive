@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.50.7 (2020-05-11)
 
 -   **Fix #448**: Fix an issue where the "^" keyboard shortcut would not work.
 

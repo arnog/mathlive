@@ -1,4 +1,4 @@
-/* v0.50.6-1-g264acf2-dirty */import { Selector } from './commands';
+/* v0.50.6-2-gc0c6d53-dirty */import { Selector } from './commands';
 import { MathfieldConfig } from './config';
 import { ParseMode, MacroDictionary, Style } from './core';
 /**
