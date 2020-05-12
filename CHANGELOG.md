@@ -1,3 +1,12 @@
+## [Unreleased]
+
+-   Fixed an issue where the absolute value key from the virtual keyboard would
+    insert '|#@|'
+
+-   Fixed an issue where 'sqrt' from the virtual keyboard or keyboard shortcut
+    (option+V) would do nothing. The problem affected any inline shortcut or key
+    that included a '#0' argument when there was no selection.
+
 ## 0.50.7 (2020-05-11)
 
 -   **Fix #448**: Fix an issue where the "^" keyboard shortcut would not work.

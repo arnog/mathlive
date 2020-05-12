@@ -79,9 +79,6 @@ export function insert(
     // If a placeholder was specified, use it
     const placeholder = options.placeholder ?? '\\placeholder{}';
     args['?'] = placeholder;
-    if (!args[0]) {
-        args[0] = placeholder;
-    }
 
     // Delete any selected items
     if (
@@ -150,9 +147,6 @@ export function insert(
                 [options.format, s] = parseMathString(s);
             }
 
-            // Replace placeholders
-            s = s.replace(/(^|[^\\])#\?/g, '$1\\placeholder{}');
-
             if (args[0]) {
                 // There was a selection, we'll use it for #@
                 s = s.replace(/(^|[^\\])#@/g, '$1#0');
@@ -175,6 +169,7 @@ export function insert(
                 // No selection, no 'mord' before. Let's make '#@' a placeholder.
                 s = s.replace(/(^|[^\\])#@/g, '$1#?');
             }
+            // If the whole string is bracketed by a mode shift command, remove it
             if (/^\$\$(.*)\$\$$/.test(s)) {
                 s = s.substring(2, s.length - 2);
             }

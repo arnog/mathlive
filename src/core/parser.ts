@@ -256,7 +256,18 @@ class Parser {
      * one, or if a value was provided for #? via args, that value.
      */
     placeholder(): Atom[] {
-        if (this.args && typeof this.args['?'] === 'string') {
+        if (!this.args || typeof this.args['?'] === 'undefined') {
+            // U+2753 = BLACK QUESTION MARK ORNAMENT
+            const result = new Atom(
+                this.parseMode,
+                'placeholder',
+                '?',
+                this.style
+            );
+            result.captureSelection = true;
+            return [result];
+        }
+        if (typeof this.args?.['?'] === 'string') {
             // If there is a specific value defined for the placeholder,
             // use it.
             return parseString(
@@ -268,10 +279,7 @@ class Parser {
                 this.onError
             );
         }
-        // U+2753 = BLACK QUESTION MARK ORNAMENT
-        const result = new Atom(this.parseMode, 'placeholder', '?', this.style);
-        result.captureSelection = true;
-        return [result];
+        return this.args['?'];
     }
     hasImplicitCommand(commands: string[]): boolean {
         if (this.index < this.tokens.length) {
@@ -1169,7 +1177,7 @@ class Parser {
                 return this.placeholder();
             }
             if (this.args) {
-                if (!this.args[paramToken.value] && this.args['?']) {
+                if (typeof this.args[paramToken.value] === 'undefined') {
                     return this.placeholder();
                 }
                 return typeof this.args[paramToken.value] === 'string'
@@ -1181,7 +1189,7 @@ class Parser {
                           false,
                           this.onError
                       )
-                    : this.args[paramToken.value] || null;
+                    : this.args[paramToken.value] ?? null;
             }
             return null;
         }
@@ -1511,14 +1519,14 @@ class Parser {
             }
         } else if (token.type === '#') {
             // Parameter token
-            if (token.value === '?') {
+            if (token.value === '?' || !this.args) {
                 // '#?' indicates that a placeholder should be used
                 result = this.placeholder();
-            } else if (this.args) {
+            } else {
                 // Otherwise, substitute the token with a provided argument
-                if (!this.args[token.value]) {
+                if (typeof this.args[token.value] === 'undefined') {
                     result = this.placeholder();
-                } else {
+                } else if (typeof this.args[token.value] === 'string') {
                     result = parseString(
                         this.args[token.value],
                         this.parseMode,
@@ -1527,6 +1535,8 @@ class Parser {
                         false,
                         this.onError
                     );
+                } else {
+                    result = this.args[token.value];
                 }
             }
         } else {
@@ -1578,9 +1588,8 @@ class Parser {
             args[i] = this.scanLiteralArg();
         }
         // Carry forward the placeholder argument, if any.
-        if (this.args && typeof this.args['?'] === 'string') {
-            args['?'] = this.args['?'];
-        }
+        args['?'] = this.args?.['?'];
+
         // Group the result of the macro expansion, and set the
         // captureSelection attribute so that it is handled as an unbreakable
         // unit
