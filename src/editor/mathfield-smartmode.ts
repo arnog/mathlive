@@ -290,7 +290,7 @@ export function smartMode_(
             // (except for some exceptions)
             // Convert them to text.
             convertLastAtomsToText(mathfield, undefined, (a) =>
-                /[a-zA-Z:,;.]/.test(a.body)
+                /[a-zA-Z]/.test(a.body)
             );
             return true;
         }
