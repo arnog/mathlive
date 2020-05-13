@@ -513,7 +513,7 @@ const stackLargeDelimiterSequence: DelimiterInfo[] = [
  */
 function delimTypeToFont(info: DelimiterInfo): string {
     if (info.type === 'small') {
-        return 'AMS-Regular';
+        return 'Main-Regular';
     } else if (info.type === 'large') {
         return 'Size' + info.size + '-Regular';
     }
