@@ -123,7 +123,6 @@ export function onKeystroke(
                         siblings = mathfield.model.siblings();
                     }
                     shortcut = getInlineShortcut(
-                        mathfield.mode,
                         siblings,
                         candidate.slice(i),
                         mathfield.config.inlineShortcuts

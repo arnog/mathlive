@@ -4,6 +4,8 @@
 
 -   The Symbols keyboard is now a top-level keyboard. Previously it was accessible
     only from the Roman keyboard.
+-   Added some standard Latex commands: `\inf`, `\Pr`, `\liminf`, `\limsup`
+-   Added inline shortcuts for some commands: `sinh`, `cosh`, `sec`, `csc`, `cot`, `arcsin`, `arccos`, `arctan`
 
 ### Bug Fixes
 
@@ -15,6 +17,8 @@
 -   The 'sqrt' key from the virtual keyboard or keyboard shortcut
     (option+V) would do nothing. The problem affected any inline shortcut or key
     that included a '#0' argument when there was no selection.
+
+-   Fixed an issue with long inline shortcuts that could trigger temporarily text mode (e.g. 'arcsin')
 
 ## 0.50.7 (2020-05-11)
 

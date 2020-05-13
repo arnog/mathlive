@@ -3,30 +3,44 @@ import type { Atom } from './atom';
 
 defineFunction(
     [
-        'arcsin',
         'arccos',
+        'arcsin',
         'arctan',
-        'arctg',
-        'arcctg',
+        'arctg', // Not Latex standard. Used in France
+        'arcctg', // Not Latex standard. Used in France
         'arg',
-        'ch',
+        'ch', // Not Latex standard. \cosh
         'cos',
-        'cosec',
         'cosh',
         'cot',
-        'cotg',
         'coth',
-        'csc',
-        'ctg',
+        'ctg', // Not Latex standard. Used in France
         'cth',
+        'cotg', // Not Latex standard. Used in France
+        'csc', // Not Latex standard. \cth
+        'cosec', // Not Latex standard.
+        'deg',
+        'dim',
+        'exp',
+        'hom',
+        'inf',
+        'ker',
+        'lg',
+        'lb', // Not Latex standard. US Dept of Commerce recommendation for log2
+        'lg', // Not Latex standard. In German and Russian literature,  log10.
+        // Sometimes used as the log2
+        'ln',
+        'log',
+        'Pr',
         'sec',
+        'sh', // Not Latex standard. \sinh
         'sin',
         'sinh',
-        'sh',
+        'sup',
         'tan',
         'tanh',
-        'tg',
-        'th',
+        'tg', // Not Latex standard. Used in France
+        'th', // Not Latex standard. \tanh
     ],
     '',
     null,
@@ -43,22 +57,15 @@ defineFunction(
     }
 );
 
-defineFunction(
-    ['deg', 'dim', 'exp', 'hom', 'ker', 'lb', 'lg', 'ln', 'log'],
-    '',
-    null,
-    function (name) {
-        return {
-            type: 'mop',
-            limits: 'nolimits',
-            isSymbol: false,
-            isFunction: true,
-            body: name.slice(1),
-            variant: 'main',
-            variantStyle: 'up',
-        };
-    }
-);
+defineFunction(['liminf', 'limsup'], '', null, (name) => {
+    return {
+        type: 'mop',
+        limits: 'limits',
+        isSymbol: false,
+        body: { '\\liminf': 'lim inf', '\\limsup': 'lim sup' }[name],
+        variant: 'main',
+    };
+});
 
 defineFunction(['lim', 'mod'], '', null, function (name) {
     return {
@@ -69,6 +76,8 @@ defineFunction(['lim', 'mod'], '', null, function (name) {
         variant: 'main',
     };
 });
+
+// With Limits
 defineFunction(['det', 'max', 'min'], '', null, function (name) {
     return {
         type: 'mop',

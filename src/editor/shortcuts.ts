@@ -54,7 +54,6 @@ export function getInlineShortcutsStartingWith(
  * @param siblings atoms preceding this potential shortcut
  */
 function validateShortcut(
-    mode: ParseMode,
     siblings: Atom[],
     shortcut: InlineShortcutDefinition
 ): string {
@@ -62,10 +61,6 @@ function validateShortcut(
 
     // If it's a simple shortcut (no conditional), it's always valid
     if (typeof shortcut === 'string') return shortcut;
-
-    if (shortcut.mode !== mode) {
-        return '';
-    }
 
     // If we have no context, we assume all the shortcuts are valid
     if (!siblings) return shortcut.value;
@@ -92,6 +87,12 @@ function validateShortcut(
     }
     nothing = !sibling || sibling.type === 'first'; // start of a group
     if (sibling) {
+        if (
+            typeof shortcut.mode !== 'undefined' &&
+            sibling.mode !== shortcut.mode
+        ) {
+            return '';
+        }
         text = sibling.mode === 'text';
         letter =
             !text &&
@@ -148,16 +149,11 @@ function validateShortcut(
  * @return A replacement string matching the shortcut (e.g. `'\pi'`)
  */
 export function getInlineShortcut(
-    mode: ParseMode,
     context: Atom[],
     s: string,
     shortcuts?: { [key: string]: InlineShortcutDefinition }
 ): string {
-    return validateShortcut(
-        mode,
-        context,
-        shortcuts?.[s] ?? INLINE_SHORTCUTS[s]
-    );
+    return validateShortcut(context, shortcuts?.[s] ?? INLINE_SHORTCUTS[s]);
 }
 
 /**

@@ -63,10 +63,19 @@ export const INLINE_SHORTCUTS: {
     '∂': { mode: 'math', value: '\\differentialD' },
 
     // Functions
+    arcsin: { mode: 'math', value: '\\arcsin' },
+    arccos: { mode: 'math', value: '\\arccos' },
+    arctan: { mode: 'math', value: '\\arctan' },
     sin: { mode: 'math', value: '\\sin' },
+    sinh: { mode: 'math', value: '\\sinh' },
     cos: { mode: 'math', value: '\\cos' },
+    cosh: { mode: 'math', value: '\\cosh' },
     tan: { mode: 'math', value: '\\tan' },
     tanh: { mode: 'math', value: '\\tanh' },
+    sec: { mode: 'math', value: '\\sec' },
+    csc: { mode: 'math', value: '\\csc' },
+    cot: { mode: 'math', value: '\\cot' },
+
     log: { mode: 'math', value: '\\log' },
     ln: { mode: 'math', value: '\\ln' },
     exp: { mode: 'math', value: '\\exp' },

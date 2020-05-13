@@ -311,12 +311,7 @@ function parseMathArgument(
         let m = s.match(/^([a-zA-Z]+)/);
         if (m) {
             // It's a string of letter, maybe a shortcut
-            let shortcut = getInlineShortcut(
-                'math',
-                null,
-                s,
-                options.inlineShortcuts
-            );
+            let shortcut = getInlineShortcut(null, s, options.inlineShortcuts);
             if (shortcut) {
                 shortcut = shortcut.replace('_{#?}', '');
                 shortcut = shortcut.replace('^{#?}', '');
@@ -350,7 +345,7 @@ function parseMathArgument(
 }
 
 function paddedShortcut(s: string, options: { format?: string }) {
-    let result = getInlineShortcut('math', null, s, options);
+    let result = getInlineShortcut(null, s, options);
     if (result) {
         result = result.replace('_{#?}', '');
         result = result.replace('^{#?}', '');
