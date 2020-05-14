@@ -14,8 +14,8 @@
  * console.log(MathLive.latexToAST('e^{i\\pi}+1=0'));
  * </script>
  *
- * @packageDocumentation MathLive SDK Reference {{GIT_VERSION}}
- * @version {{GIT_VERSION}}
+ * @packageDocumentation MathLive SDK Reference {{SDK_VERSION}}
+ * @version {{SDK_VERSION}}
  *
  */
 
@@ -27,17 +27,16 @@ export { Mathfield };
 export { MathfieldConfig };
 
 /**
- * The version string for this build of the SDK in the form of:
+ * The version string of the SDK in the form of:
  *
- * `git tag`-`number of comits`-g`abbreviated commit hash`
+ * `MAJOR`.`MINOR`.`PATCH`
  *
- * The `git tag` uses [semver](https://semver.org/):
- * - The first number is the **MAJOR** version, incremented for
- * incompatible API changes
- * - The second number is the **MINOR** version, incremented for new features
- * - The third number is the **PATCH** version, incremented for bug fixes
+ * The version uses [semver](https://semver.org/):
+ * - The **MAJOR** version is incremented for incompatible API changes
+ * - The **MINOR** version is incremented for new features
+ * - The **PATCH** version is incremented for bug fixes
  *
- * Current version: `{{GIT_VERSION}}`
+ * Current version: `{{SDK_VERSION}}`
  *
  */
 export declare const version: string;

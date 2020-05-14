@@ -35,7 +35,14 @@ fi
 # Read the first argument, set it to "development" if not set
 export BUILD="${1-development}"
 
-export GIT_VERSION=`git describe --long --dirty`
+# export GIT_VERSION=`git describe --long --dirty`
+
+export SDK_VERSION=$(cat package.json \
+  | grep version \
+  | head -1 \
+  | awk -F: '{ print $2 }' \
+  | sed 's/[",]//g' \
+  | tr -d '[[:space:]]')
 
 # Clean output directories
 echo -e "\033[40m`basename "$0"`\033[0m 🚀 Cleaning output directories"
@@ -60,7 +67,7 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
         echo -e "\033[40m`basename "$0"`\033[0m 🚀 Optimizing CSS"
         npx postcss dist/*.css -d dist
         # Stamp version in output files
-        find ./dist -type f -name '*.css' -exec bash -c 'sedi "1s/^/\/\* $GIT_VERSION \*\//" {}' \;
+        find ./dist -type f -name '*.css' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\//" {}' \;
     fi
 
     if [ "$BUILD" != "production" ]; then
@@ -77,8 +84,8 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
 
     # Stamp version in output declaration files
     if [ "$BUILD" = "production" ]; then
-        find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "1s/^/\/\* $GIT_VERSION \*\/$(printf '"'"'\r'"'"')/" {}' \;
-        find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "s/{{GIT_VERSION}}/$GIT_VERSION/" {}' \;
+        find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\/$(printf '"'"'\r'"'"')/" {}' \;
+        find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "s/{{SDK_VERSION}}/$SDK_VERSION/" {}' \;
     fi
 
     if [ "$BUILD" = "watch" ]; then
@@ -90,8 +97,8 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
         echo -e "\033[40m`basename "$0"`\033[0m 🚀 Making a \033[33m" $BUILD "\033[0m build"
         npx rollup --silent --config 
         if [ "$BUILD" = "production" ]; then
-            # Stamp the Git version number
-            find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec bash -c 'sedi "s/{{GIT_VERSION}}/$GIT_VERSION/g" {}' \;
+            # Stamp the SDK version number
+            find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec bash -c 'sedi "s/{{SDK_VERSION}}/$SDK_VERSION/g" {}' \;
             # Run test suite
             echo -e "\033[40m`basename "$0"`\033[0m 🚀 Running test suite"
             npx jest --silent

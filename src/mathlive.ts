@@ -256,8 +256,8 @@ function getOriginalContent(element: string | HTMLElement, options): string {
     );
 }
 
-// This GIT_VERSION variable will be replaced during the build process.
-const version = '{{GIT_VERSION}}';
+// This SDK_VERSION variable will be replaced during the build process.
+const version = '{{SDK_VERSION}}';
 
 export default {
     version,

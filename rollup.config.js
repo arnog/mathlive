@@ -28,6 +28,8 @@ const TYPESCRIPT_OPTIONS = {
     },
 };
 
+const SDK_VERSION = JSON.stringify(pkg.version || 'v?.?.?');
+
 const TERSER_OPTIONS = {
     sourcemap: false,
     compress: {
@@ -39,14 +41,13 @@ const TERSER_OPTIONS = {
         passes: 2,
         global_defs: {
             ENV: JSON.stringify(process.env.BUILD),
-            VERSION: JSON.stringify(pkg.version || '0.0'),
+            SDK_VERSION: SDK_VERSION,
             BUILD_ID: JSON.stringify(BUILD_ID),
             GIT_VERSION: process.env.GIT_VERSION || '?.?.?',
         },
     },
     output: {
-        preamble:
-            '/* MathLive ' + (process.env.GIT_VERSION || 'v?.?.?') + '  */',
+        preamble: '/* MathLive ' + SDK_VERSION + '  */',
     },
 };
 
