@@ -4,9 +4,9 @@ import { MathfieldConfig } from '../public/config';
 function removeHighlight(node) {
     node.classList.remove('highlight');
     if (node.children) {
-        Array.from(node.children).forEach((x) => {
-            removeHighlight(x);
-        });
+        for (const child of node.children) {
+            removeHighlight(child);
+        }
     }
 }
 
@@ -73,19 +73,7 @@ export function defaultReadAloudHook(
     const params = {
         OutputFormat: 'json',
         VoiceId: config.speechEngineVoice || 'Joanna',
-        Engine: [
-            'Amy',
-            'Emma',
-            'Brian',
-            'Ivy',
-            'Joanna',
-            'Kendra',
-            'Kimberly',
-            'Salli',
-            'Joey',
-            'Justin',
-            'Matthew',
-        ].includes(config.speechEngineVoice),
+        Engine: 'standard', // The neural engine does not appear to support ssml marks
         Text: text,
         TextType: 'ssml',
         SpeechMarkTypes: ['ssml'],

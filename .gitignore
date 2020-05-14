@@ -9,6 +9,8 @@ babel.babel
 TODO.md
 examples/basic/index.debug.html
 
+# To store secret credentials
+*.secret.js
 
 # OS generated files #
 ######################

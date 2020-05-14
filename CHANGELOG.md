@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bug Fixes
+
+-   The Read Aloud feature would not work when a Neural Engine AWS voice
+    was used (such as Joana or Matthew).
+
 ## 0.50.8 (2020-05-13)
 
 ### Improvements
