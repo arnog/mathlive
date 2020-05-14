@@ -10,10 +10,13 @@ import { on, off } from './mathfield-utils';
 import type { MathfieldPrivate } from './mathfield-class';
 import { requestUpdate } from './mathfield-render';
 
-let gLastTap;
+let gLastTap: { x: number; y: number; time: number };
 let gTapCount = 0;
 
-export function onPointerDown(mathfield: MathfieldPrivate, evt) {
+export function onPointerDown(
+    mathfield: MathfieldPrivate,
+    evt: PointerEvent
+): void {
     const that = mathfield;
     let anchor;
     let trackingPointer = false;
@@ -21,16 +24,18 @@ export function onPointerDown(mathfield: MathfieldPrivate, evt) {
     let dirty = false;
 
     // If a mouse button other than the main one was pressed, return.
-    // On iOS 12.4 Safari and Firefox on Android, the touchstart event is sent
-    // with event.buttons = 0 which for a mouse event would normally be an
+    // On iOS 12.4 Safari and Firefox on Android (which do not support
+    // PointerEvent) the touchstart event is sent with event.buttons = 0
+    // which for a mouse event would normally be an
     // invalid button. Accept this button 0.
     if (evt.buttons !== 1 && evt.buttons !== 0) {
         return;
     }
     let scrollLeft = false;
     let scrollRight = false;
-    const anchorX = evt.touches ? evt.touches[0].clientX : evt.clientX;
-    const anchorY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+    // Note: evt['touches'] is for touchstart (when PointerEvent is not supported)
+    const anchorX = evt['touches'] ? evt['touches'][0].clientX : evt.clientX;
+    const anchorY = evt['touches'] ? evt['touches'][0].clientY : evt.clientY;
     const anchorTime = Date.now();
     const scrollInterval = setInterval(() => {
         if (scrollLeft) {
@@ -39,20 +44,16 @@ export function onPointerDown(mathfield: MathfieldPrivate, evt) {
             that.field.scroll({ top: 0, left: that.field.scrollLeft + 16 });
         }
     }, 32);
-    function endPointerTracking(evt) {
+    function endPointerTracking(evt: PointerEvent): void {
         if (window.PointerEvent) {
             off(that.field, 'pointermove', onPointerMove);
-            off(
-                that.field,
-                'pointerend pointerleave pointercancel',
-                endPointerTracking
-            );
+            off(that.field, 'pointerup pointercancel', endPointerTracking);
             // off(window, 'pointermove', onPointerMove);
             // off(window, 'pointerup blur', endPointerTracking);
             that.field.releasePointerCapture(evt.pointerId);
         } else {
             off(that.field, 'touchmove', onPointerMove);
-            off(that.field, 'touchend touchleave', endPointerTracking);
+            off(that.field, 'touchcancel touchend', endPointerTracking);
             off(window, 'mousemove', onPointerMove);
             off(window, 'mouseup blur', endPointerTracking);
         }
@@ -65,9 +66,9 @@ export function onPointerDown(mathfield: MathfieldPrivate, evt) {
         evt.stopPropagation();
     }
 
-    function onPointerMove(evt) {
-        const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
-        const y = evt.touches ? evt.touches[0].clientY : evt.clientY;
+    function onPointerMove(evt: PointerEvent) {
+        const x = evt['touches'] ? evt['touches'][0].clientX : evt.clientX;
+        const y = evt['touches'] ? evt['touches'][0].clientY : evt.clientY;
         // Ignore events that are within small spatial and temporal bounds
         // of the pointer down
         const hysteresis = evt.pointerType === 'touch' ? 20 : 5;
@@ -91,11 +92,11 @@ export function onPointerDown(mathfield: MathfieldPrivate, evt) {
                 });
             }
         } else {
-            if (evt.touches && evt.touches.length === 2) {
+            if (evt['touches'] && evt['touches'].length === 2) {
                 actualAnchor = pathFromPoint(
                     that,
-                    evt.touches[1].clientX,
-                    evt.touches[1].clientY,
+                    evt['touches'][1].clientX,
+                    evt['touches'][1].clientY,
                     { bias: 0 }
                 );
             }
@@ -211,18 +212,23 @@ export function onPointerDown(mathfield: MathfieldPrivate, evt) {
                     on(that.field, 'pointermove', onPointerMove);
                     on(
                         that.field,
-                        'pointerend pointercancel pointerup',
+                        'pointerup pointercancel',
                         endPointerTracking
                     );
                     that.field.setPointerCapture(evt.pointerId);
                 } else {
                     on(window, 'blur', endPointerTracking);
-                    if (evt.touches) {
+                    if (evt['touches']) {
+                        // This is a touchstart event (and PointerEvent is not supported)
                         // To receive the subsequent touchmove/touch, need to
                         // listen to this evt.target.
                         // This was a touch event
                         on(evt.target, 'touchmove', onPointerMove);
-                        on(evt.target, 'touchend', endPointerTracking);
+                        on(
+                            evt.target,
+                            'touchcancel touchend',
+                            endPointerTracking
+                        );
                     } else {
                         on(window, 'mousemove', onPointerMove);
                         on(window, 'mouseup', endPointerTracking);
