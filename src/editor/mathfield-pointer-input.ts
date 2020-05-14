@@ -19,7 +19,11 @@ export function onPointerDown(mathfield: MathfieldPrivate, evt) {
     let trackingPointer = false;
     let trackingWords = false;
     let dirty = false;
-    // If a mouse button other than the main one was pressed, return
+
+    // If a mouse button other than the main one was pressed, return.
+    // On iOS 12.4 Safari and Firefox on Android, the touchstart event is sent
+    // with event.buttons = 0 which for a mouse event would normally be an
+    // invalid button. Accept this button 0.
     if (evt.buttons !== 1 && evt.buttons !== 0) {
         return;
     }
