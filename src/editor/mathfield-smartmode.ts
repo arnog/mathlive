@@ -167,7 +167,7 @@ export function smartMode_(
         return false;
     }
     const c = Keyboard.eventToChar(evt);
-    if (c.length > 1) {
+    if (c.length === 0) {
         return false;
     } // Backspace, Left, etc...
     if (!selectionIsCollapsed(mathfield.model)) {
