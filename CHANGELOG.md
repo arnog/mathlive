@@ -10,6 +10,7 @@
 -   When generating Latex output, only insert spaces when necessary (i.e. after
     commands that are followed by a letter). Conversely, _always_ generate the space
     when necessary (`\rbrack a` would generate `\rbracka`)
+-   Minor rendering performance improvement
 
 ### Bug Fixes
 
@@ -27,6 +28,9 @@
     (e.g. 'arcsin') and never apply the inline shortcut
 
 -   Do not trigger smart mode conversion with arrow keys
+
+-   Fixed an issue on iOS 12 and Firefox/Android where the Mathfield could not be
+    focused (fix contributed by (https://github.com/beneater)
 
 ## 0.50.7 (2020-05-11)
 
