@@ -1,5 +1,5 @@
 import { colorToString } from './color';
-import { register, getPropertyRuns } from './modes-utils';
+import { joinLatex, register, getPropertyRuns } from './modes-utils';
 import { getInfo, mathVariantToUnicode } from './definitions-utils';
 import type { Atom } from './atom';
 
@@ -98,10 +98,10 @@ function emitLatexMathRun(
     if (context.variantStyle && context.variantStyle !== 'up') {
         contextValue += '-' + context.variantStyle;
     }
-    return getPropertyRuns(run, 'color')
-        .map((x) => {
-            const result = getPropertyRuns(x, 'variant')
-                .map((x) => {
+    return joinLatex(
+        getPropertyRuns(run, 'color').map((x) => {
+            const result = joinLatex(
+                getPropertyRuns(x, 'variant').map((x) => {
                     let value = x[0].variant;
                     if (x[0].variantStyle && x[0].variantStyle !== 'up') {
                         value += '-' + x[0].variantStyle;
@@ -122,7 +122,7 @@ function emitLatexMathRun(
                             return styledValue === value;
                         })
                     ) {
-                        return x.map((x) => x.toLatex(expandMacro)).join('');
+                        return joinLatex(x.map((x) => x.toLatex(expandMacro)));
                     }
 
                     let command = '';
@@ -156,11 +156,11 @@ function emitLatexMathRun(
                     }
                     return (
                         command +
-                        x.map((x) => x.toLatex(expandMacro)).join('') +
+                        joinLatex(x.map((x) => x.toLatex(expandMacro))) +
                         (command ? '}' : '')
                     );
                 })
-                .join('');
+            );
             if (x[0].color && (!context || context.color !== x[0].color)) {
                 return (
                     '\\textcolor{' +
@@ -172,7 +172,7 @@ function emitLatexMathRun(
             }
             return result;
         })
-        .join('');
+    );
 }
 
 function applyStyle(atom, style): string {

@@ -8,6 +8,7 @@ import { isArray } from '../common/types';
 
 import { Atom, AtomType } from '../core/atom';
 import { parseString } from '../core/parser';
+import { joinLatex } from '../core/modes-utils';
 import {
     unicodeStringToLatex,
     getInfo,
@@ -2434,7 +2435,7 @@ export function jsonToLatex(
             }
             result = a.join(ast.fn === 'list2' ? '; ' : ', ');
         } else if (ast.fn === 'sequence') {
-            result = ast.arg.map((x) => jsonToLatex(x, config)).join('');
+            result = joinLatex(ast.arg.map((x) => jsonToLatex(x, config)));
         } else if (ast.fn === 'text') {
             result = '\\text{' + (ast.arg[0] || '') + '}';
         } else if (

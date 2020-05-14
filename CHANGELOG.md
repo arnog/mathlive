@@ -5,24 +5,32 @@
 -   The Symbols keyboard is now a top-level keyboard. Previously it was accessible
     only from the Roman keyboard.
 -   Added some standard Latex commands: `\inf`, `\Pr`, `\liminf`, `\limsup`
--   Added inline shortcuts for some commands: `sinh`, `cosh`, `sec`, `csc`, `cot`, `arcsin`, `arccos`, `arctan`
+-   Added inline shortcuts for some commands: `sinh`, `cosh`, `sec`, `csc`,
+    `cot`, `arcsin`, `arccos`, `arctan`
+-   When generating Latex output, only insert spaces when necessary (i.e. after
+    commands that are followed by a letter). Conversely, _always_ generate the space
+    when necessary (`\rbrack a` would generate `\rbracka`)
 
 ### Bug Fixes
 
--   The absolute value character "|" (and other small delimiters) would be displayed in the wrong font (and too small)
+-   The absolute value character "|" (and other small delimiters) would be
+    displayed in the wrong font (and too small)
 
 -   The absolute value key from the virtual keyboard would
     insert '|#@|'
 
 -   The 'sqrt' key from the virtual keyboard or keyboard shortcut
     (option+V) would do nothing. The problem affected any inline shortcut or key
-    that included a '#0' argument when there was no selection.
+    that included a '#0' argument when there was no selection
 
--   Fixed an issue with long inline shortcuts that could trigger temporarily text mode (e.g. 'arcsin')
+-   Fixed an issue with long inline shortcuts that could trigger text mode
+    (e.g. 'arcsin') and never apply the inline shortcut
+
+-   Do not trigger smart mode conversion with arrow keys
 
 ## 0.50.7 (2020-05-11)
 
--   **Fix #448**: Fix an issue where the "^" keyboard shortcut would not work.
+-   **Fix #448**: Fix an issue where the "^" keyboard shortcut would not work
 
 ## 0.50.6 (2020-05-11)
 

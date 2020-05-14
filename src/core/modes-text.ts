@@ -1,5 +1,10 @@
 import { ParserErrorListener, Style } from '../public/core';
-import { register, getPropertyRuns, ParseTokensOptions } from './modes-utils';
+import {
+    joinLatex,
+    register,
+    getPropertyRuns,
+    ParseTokensOptions,
+} from './modes-utils';
 import { colorToString } from './color';
 import { Token } from './lexer';
 import { Span } from './span';
@@ -12,8 +17,8 @@ function emitStringTextRun(
     _expandMacro: boolean
 ): string {
     let needSpace = false;
-    return run
-        .map((x: Atom) => {
+    return joinLatex(
+        run.map((x: Atom) => {
             let result = '';
             let space = '';
             if (x.latex) {
@@ -29,7 +34,7 @@ function emitStringTextRun(
             needSpace = /\\[a-zA-Z0-9]+\*?$/.test(result);
             return space + result;
         })
-        .join('');
+    );
 }
 
 function emitFontShapeTextRun(
@@ -37,8 +42,8 @@ function emitFontShapeTextRun(
     run: Atom[],
     expandMacro: boolean
 ): string {
-    return getPropertyRuns(run, 'fontShape')
-        .map((x: Atom[]) => {
+    return joinLatex(
+        getPropertyRuns(run, 'fontShape').map((x: Atom[]) => {
             const result = emitStringTextRun(context, x, expandMacro);
             if (x[0].fontShape === 'it') {
                 return '\\textit{' + result + '}';
@@ -57,7 +62,7 @@ function emitFontShapeTextRun(
             }
             return result;
         })
-        .join('');
+    );
 }
 
 function emitFontSeriesTextRun(
@@ -65,8 +70,8 @@ function emitFontSeriesTextRun(
     run: Atom[],
     expandMacro: boolean
 ): string {
-    return getPropertyRuns(run, 'fontSeries')
-        .map((x) => {
+    return joinLatex(
+        getPropertyRuns(run, 'fontSeries').map((x) => {
             const result = emitFontShapeTextRun(context, x, expandMacro);
             if (x[0].fontSeries === 'b') {
                 return '\\textbf{' + result + '}';
@@ -82,7 +87,7 @@ function emitFontSeriesTextRun(
             }
             return result;
         })
-        .join('');
+    );
 }
 
 function emitSizeTextRun(
@@ -90,8 +95,8 @@ function emitSizeTextRun(
     run: Atom[],
     expandMacro: boolean
 ): string {
-    return getPropertyRuns(run, 'fontSize')
-        .map((x: Atom[]) => {
+    return joinLatex(
+        getPropertyRuns(run, 'fontSize').map((x: Atom[]) => {
             const result = emitFontSeriesTextRun(context, x, expandMacro);
             const command =
                 {
@@ -111,7 +116,7 @@ function emitSizeTextRun(
             }
             return result;
         })
-        .join('');
+    );
 }
 
 function emitFontFamilyTextRun(
@@ -119,8 +124,8 @@ function emitFontFamilyTextRun(
     run: Atom[],
     expandMacro: boolean
 ): string {
-    return getPropertyRuns(run, 'fontFamily')
-        .map((x: Atom[]) => {
+    return joinLatex(
+        getPropertyRuns(run, 'fontFamily').map((x: Atom[]) => {
             const result = emitSizeTextRun(context, x, expandMacro);
             const command =
                 {
@@ -136,7 +141,7 @@ function emitFontFamilyTextRun(
             }
             return result;
         })
-        .join('');
+    );
 }
 
 function emitStyledTextRun(
@@ -152,8 +157,8 @@ function emitColorRun(
     run: Atom[],
     expandMacro: boolean
 ): string {
-    return getPropertyRuns(run, 'color')
-        .map((x) => {
+    return joinLatex(
+        getPropertyRuns(run, 'color').map((x) => {
             const result = emitStyledTextRun(context, x, expandMacro);
 
             if (
@@ -173,7 +178,7 @@ function emitColorRun(
             }
             return result;
         })
-        .join('');
+    );
 }
 
 function emitLatexTextRun(
