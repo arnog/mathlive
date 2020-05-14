@@ -29,9 +29,11 @@ function hash(latex: string) {
 export function requestUpdate(mathfield: MathfieldPrivate) {
     if (!mathfield.dirty) {
         mathfield.dirty = true;
-        requestAnimationFrame(
-            (_) => isValidMathfield(mathfield) && render(mathfield)
-        );
+        requestAnimationFrame(() => {
+            if (isValidMathfield(mathfield) && mathfield.dirty) {
+                render(mathfield);
+            }
+        });
     }
 }
 
@@ -44,7 +46,7 @@ export function requestUpdate(mathfield: MathfieldPrivate) {
  *
  */
 export function render(mathfield: MathfieldPrivate, renderOptions?) {
-    renderOptions = renderOptions || {};
+    renderOptions = renderOptions ?? {};
     mathfield.dirty = false;
     //
     // 1. Stop and reset read aloud state

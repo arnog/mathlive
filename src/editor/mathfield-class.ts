@@ -472,9 +472,9 @@ export class MathfieldPrivate implements Mathfield {
         commitCommandStringBeforeInsertionPoint(this.model);
         // Keep the content of the textarea in sync wiht the selection.
         // This will allow cut/copy to work.
-        const result = makeRoot('math', getSelectedAtoms(this.model)).toLatex(
-            false
-        );
+        const result = selectionIsCollapsed(this.model)
+            ? ''
+            : makeRoot('math', getSelectedAtoms(this.model)).toLatex(false);
         const textarea = this.textarea as HTMLInputElement;
         if (result) {
             textarea.value = result;
@@ -505,7 +505,8 @@ export class MathfieldPrivate implements Mathfield {
         // Defer the updating of the popover position: we'll need the tree to be
         // re-rendered first to get an updated caret position
         updatePopoverPosition(this, { deferred: true });
-        // Invoke client handlers, if provided.
+
+        // Invoke client listeners, if provided.
         if (typeof this.config.onSelectionDidChange === 'function') {
             this.config.onSelectionDidChange(this);
         }

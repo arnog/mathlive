@@ -72,15 +72,14 @@ export function releaseSharedElement(el: HTMLElement): void {
  * operations invoked via requestAnimationFrame() for example, that would
  * need to ensure the mathfield is still valid by the time they're executed.
  */
-export function isValidMathfield(mf) {
-    return mf.element && mf.element.mathfield === mf;
+export function isValidMathfield(mf): boolean {
+    return mf.element && mf.element['mathfield'] === mf;
 }
 
 /**
- * Utility function that returns the element which has the caret
- *
+ * Return the element which has the caret
  */
-function _findElementWithCaret(el) {
+function findElementWithCaret(el: Element): Element {
     if (
         el.classList.contains('ML__caret') ||
         el.classList.contains('ML__text-caret') ||
@@ -90,7 +89,8 @@ function _findElementWithCaret(el) {
     }
     let result;
     for (const child of el.children) {
-        result = result || _findElementWithCaret(child);
+        result = findElementWithCaret(child);
+        if (result) break;
     }
     return result;
 }
@@ -98,8 +98,8 @@ function _findElementWithCaret(el) {
 /**
  * Return the (x,y) client coordinates of the caret
  */
-export function getCaretPosition(el) {
-    const caret = _findElementWithCaret(el);
+export function getCaretPosition(el: Element) {
+    const caret = findElementWithCaret(el);
     if (caret) {
         const bounds = caret.getBoundingClientRect();
         const position = {
@@ -111,8 +111,8 @@ export function getCaretPosition(el) {
     }
     return null;
 }
-export function getSelectionBounds(el) {
-    const selectedNodes = el.querySelectorAll('.ML__selected');
+export function getSelectionBounds(field: Element) {
+    const selectedNodes = field.querySelectorAll('.ML__selected');
     if (selectedNodes && selectedNodes.length > 0) {
         const selectionRect = {
             top: Infinity,
@@ -136,11 +136,11 @@ export function getSelectionBounds(el) {
                 selectionRect.top = bounds.top;
             }
         });
-        const fieldRect = el.getBoundingClientRect();
+        const fieldRect = field.getBoundingClientRect();
         const w = selectionRect.right - selectionRect.left;
         const h = selectionRect.bottom - selectionRect.top;
         selectionRect.left = Math.ceil(
-            selectionRect.left - fieldRect.left + el.scrollLeft
+            selectionRect.left - fieldRect.left + field.scrollLeft
         );
         selectionRect.right = selectionRect.left + w;
         selectionRect.top = Math.ceil(selectionRect.top - fieldRect.top);

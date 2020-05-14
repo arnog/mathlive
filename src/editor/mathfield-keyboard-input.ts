@@ -467,10 +467,13 @@ export function onTypedText(
     if (mathfield.mode !== 'command') {
         mathfield.undoManager.snapshotAndCoalesce(mathfield.config);
     }
-    // Render the mathlist
-    requestUpdate(mathfield);
+    // Mark the mathfield dirty
+    // (it will get rendered in scrollIntoView())
+    mathfield.dirty = true;
+
     // Make sure the insertion point is visible
     mathfield.scrollIntoView();
+
     // Since the location of the popover depends on the position of the caret
     // only show the popover after the formula has been rendered and the
     // position of the caret calculated
