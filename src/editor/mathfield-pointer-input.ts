@@ -20,7 +20,7 @@ export function onPointerDown(mathfield: MathfieldPrivate, evt) {
     let trackingWords = false;
     let dirty = false;
     // If a mouse button other than the main one was pressed, return
-    if (evt.buttons !== 1) {
+    if (evt.buttons !== 1 && evt.buttons !== 0) {
         return;
     }
     let scrollLeft = false;
