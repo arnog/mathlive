@@ -123,7 +123,7 @@ export default {
 
                 // Those notification handlers expect an answer back, so translate
                 // them to callbacks via props
-                onKeystroke: function (_, keystroke, ev) {
+                onKeystroke: (_, keystroke, ev) => {
                     return this.onKeystroke(keystroke, ev);
                 },
                 onMoveOutOf: (_, direction) => {
