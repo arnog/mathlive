@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.50.8 (2020-05-13)
 
 ### Improvements
 
