@@ -89,6 +89,6 @@ The textual content of the element is used as the initial value of the editor.
 
 Selectors can be passed to [`Mathfield.$perform()`]{@link Mathfield#\$perform}
 to execute various commands. They can also be associated with keys in virtual
-keyboard or with keyboard shortcuts.
+keyboard.
 
 See {@tutorial SELECTORS} for a list of all the selectors.
