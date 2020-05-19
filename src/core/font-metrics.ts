@@ -246,6 +246,16 @@ export function getCharacterMetrics(
         //     ' in font "' + fontName + '"');
         // Assume default values.
         // depth + height should be less than 1.0 em
+        if (ch === 11034) {
+            // Placeholder character
+            return {
+                defaultMetrics: true,
+                depth: 0,
+                height: 1.0,
+                italic: 0,
+                skew: 0,
+            };
+        }
         return {
             defaultMetrics: true,
             depth: 0.2,
