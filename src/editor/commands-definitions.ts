@@ -23,10 +23,6 @@ export interface CommandsPrivate {
 
     /** Toggle the virtual keyboard, but switch another keyboard layout */
     toggleVirtualKeyboardShift: (mathfield: Mathfield) => boolean;
-
-    toggleVirtualKeyboard: (mathfield: Mathfield, theme) => boolean;
-    hideVirtualKeyboard: (mathfield: Mathfield) => boolean;
-    showVirtualKeyboard: (mathfield: Mathfield, theme) => boolean;
 }
 
 export type SelectorPrivate = Keys<Commands & CommandsPrivate>;

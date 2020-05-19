@@ -1,0 +1,352 @@
+import type { Keybinding } from '../public/config';
+
+export const DEFAULT_KEYBINDINGS: Keybinding[] = [
+    { key: 'ctrl+alt+e', command: ['insert', '\\text{cmd+alt+e}'] },
+    { key: 'cmd+alt+a', command: ['insert', '\\text{cmd+alt+a}'] },
+    { key: 'ctrl+alt+a', command: ['insert', '\\text{ctrl+alt+a}'] },
+    { key: 'meta+alt+2', command: ['insert', '\\text{meta+alt+2}'] },
+    {
+        key: 'ctrl+alt+shift+a',
+        command: ['insert', '\\text{ctrl+alt+shift+a}'],
+    },
+    // { key: 'meta+alt+@', command: ['insert', '\\text{cmd+alt+@}'] },
+
+    { key: 'left', command: 'moveToPreviousChar' },
+    { key: 'right', command: 'moveToNextChar' },
+    { key: 'up', command: 'moveUp' },
+    { key: 'down', command: 'moveDown' },
+
+    { key: 'shift+[ArrowLeft]', command: 'extendToPreviousChar' },
+    { key: 'shift+[ArrowRight]', command: 'extendToNextChar' },
+    { key: 'shift+[ArrowUp]', command: 'extendUp' },
+    { key: 'shift+[ArrowDown]', command: 'extendDown' },
+
+    { key: '[Backspace]', command: 'deletePreviousChar' },
+    { key: 'alt+[Delete]', command: 'deletePreviousChar' },
+
+    { key: '[Delete]', command: 'deleteNextChar' },
+    { key: 'alt+[Backspace]', command: 'deleteNextChar' },
+
+    { key: 'alt+[ArrowLeft]', command: 'moveToPreviousWord' },
+    { key: 'alt+[ArrowRight]', command: 'moveToNextWord' },
+
+    { key: 'alt+shift+[ArrowLeft]', command: 'extendToPreviousWord' },
+    { key: 'alt+shift+[ArrowRight]', command: 'extendToNextWord' },
+
+    { key: 'ctrl+[ArrowLeft]', command: 'moveToGroupStart' },
+    { key: 'ctrl+[ArrowRight]', command: 'moveToGroupEnd' },
+
+    { key: 'ctrl+shift+[ArrowLeft]', command: 'extendToGroupStart' },
+    { key: 'ctrl+shift+[ArrowRight]', command: 'extendToGroupEnd' },
+
+    { key: '[Space]', ifMode: 'math', command: 'moveAfterParent' },
+    { key: 'shift+[Space]', ifMode: 'math', command: 'moveBeforeParent' },
+
+    { key: '[Home]', command: 'moveToMathFieldStart' },
+    { key: 'cmd+[ArrowLeft]', command: 'moveToMathFieldStart' },
+    { key: 'shift+[Home]', command: 'extendToMathFieldStart' },
+    { key: 'cmd+shift+[ArrowLeft]', command: 'extendToMathFieldStart' },
+
+    { key: '[End]', command: 'moveToMathFieldEnd' },
+    { key: 'cmd+[ArrowRight]', command: 'moveToMathFieldEnd' },
+    { key: 'shift+[End]', command: 'extendToMathFieldEnd' },
+    { key: 'cmd+shift+[ArrowRight]', command: 'extendToMathFieldEnd' },
+
+    { key: '[Pageup]', command: 'moveToGroupStart' },
+    { key: '[Pagedown]', command: 'moveToGroupEnd' },
+
+    { key: '[Tab]', ifMode: 'math', command: 'moveToNextPlaceholder' },
+    {
+        key: 'shift+[Tab]',
+        ifMode: 'math',
+        command: 'moveToPreviousPlaceholder',
+    },
+
+    { key: '[Tab]', ifMode: 'text', command: 'moveToNextPlaceholder' },
+    {
+        key: 'shift+[Tab]',
+        ifMode: 'text',
+        command: 'moveToPreviousPlaceholder',
+    },
+
+    { key: '[Escape]', ifMode: 'math', command: ['switch-mode', 'command'] },
+    { key: '\\', ifMode: 'math', command: ['switch-mode', 'command'] },
+
+    {
+        key: 'alt+[Equal]',
+        ifMode: 'math',
+        command: ['applyStyle', { mode: 'text' }],
+    },
+    {
+        key: 'alt+[Equal]',
+        ifMode: 'text',
+        command: ['applyStyle', { mode: 'math' }],
+    },
+
+    {
+        key: '[Escape]',
+        ifMode: 'command',
+        command: ['complete', { discard: true }],
+    }, // discard the command} insert nothing
+    {
+        key: '[Tab]',
+        ifMode: 'command',
+        command: ['complete', { acceptSuggestion: true }],
+    }, // complete the suggestion
+    { key: '[Return]', ifMode: 'command', command: 'complete' },
+    { key: '[Enter]', ifMode: 'command', command: 'complete' },
+    {
+        key: 'shift+[Escape]',
+        ifMode: 'command',
+        command: ['complete', { discard: true }],
+    }, // Some keyboards can't generate
+    // this combination, for example in 60% keyboards it is mapped to ~
+    { key: '[ArrowDown]', ifMode: 'command', command: 'nextSuggestion' },
+    // { key: 'ios:command:[Tab]', ifMode: 'command',command: 'nextSuggestion' },
+    { key: '[ArrowUp]', ifMode: 'command', command: 'previousSuggestion' },
+
+    { key: 'ctrl+a', ifPlatform: '!macos', command: 'selectAll' },
+    { key: 'cmd+a', command: 'selectAll' },
+
+    // Rare keys on some extended keyboards
+    { key: '[Cut]', command: 'cutToClipboard' },
+    { key: '[Copy]', command: 'copyToClipboard' },
+    { key: '[Paste]', command: 'pasteFromClipboard' },
+    { key: '[Clear]', command: 'deletePreviousChar' },
+
+    { key: 'ctrl+z', ifPlatform: '!macos', command: 'undo' },
+    { key: 'cmd+z', command: 'undo' },
+    { key: '[Undo]', command: 'undo' },
+    { key: 'ctrl+y', ifPlatform: '!macos', command: 'redo' }, // ARIA recommendation
+    { key: 'cmd+shift+y', command: 'redo' },
+    { key: 'ctrl+shift+z', ifPlatform: '!macos', command: 'redo' },
+    { key: 'cmd+shift+z', command: 'redo' },
+    { key: '[Redo]', command: 'redo' },
+
+    { key: '[EraseEof]', command: 'deleteToGroupEnd' },
+
+    // EMACS/MACOS BINDINGS
+    { key: 'ctrl+b', ifPlatform: 'macos', command: 'moveToPreviousChar' },
+    { key: 'ctrl+f', ifPlatform: 'macos', command: 'moveToNextChar' },
+    { key: 'ctrl+p', ifPlatform: 'macos', command: 'moveUp' },
+    { key: 'ctrl+n', ifPlatform: 'macos', command: 'moveDown' },
+    { key: 'ctrl+a', ifPlatform: 'macos', command: 'moveToMathFieldStart' },
+    { key: 'ctrl+e', ifPlatform: 'macos', command: 'moveToMathFieldEnd' },
+    {
+        key: 'ctrl+shift+b',
+        ifPlatform: 'macos',
+        command: 'extendToPreviousChar',
+    },
+    { key: 'ctrl+shift+f', ifPlatform: 'macos', command: 'extendToNextChar' },
+    { key: 'ctrl+shift+p', ifPlatform: 'macos', command: 'extendUp' },
+    { key: 'ctrl+shift+n', ifPlatform: 'macos', command: 'extendDown' },
+    {
+        key: 'ctrl+shift+a',
+        ifPlatform: 'macos',
+        command: 'extendToMathFieldStart',
+    },
+    {
+        key: 'ctrl+shift+e',
+        ifPlatform: 'macos',
+        command: 'extendToMathFieldEnd',
+    },
+    { key: 'ctrl+alt+b', ifPlatform: 'macos', command: 'moveToPreviousWord' },
+    { key: 'ctrl+alt+f', ifPlatform: 'macos', command: 'moveToNextWord' },
+    {
+        key: 'ctrl+shift+alt+b',
+        ifPlatform: 'macos',
+        command: 'extendToPreviousWord',
+    },
+    {
+        key: 'ctrl+shift+alt+f',
+        ifPlatform: 'macos',
+        command: 'extendToNextWord',
+    },
+
+    { key: 'ctrl+h', ifPlatform: 'macos', command: 'deletePreviousChar' },
+    { key: 'ctrl+d', ifPlatform: 'macos', command: 'deleteNextChar' },
+    { key: 'ctrl+l', ifPlatform: 'macos', command: 'scrollIntoView' },
+    // { key: 'ctrl+t', ifPlatform: 'macos', command: 'transpose' },
+
+    {
+        key: 'shift+[Quote]',
+        ifMode: 'math',
+        command: ['switchMode', 'text', '', '“'],
+    }, // ??
+    {
+        key: 'shift+[Quote]',
+        ifMode: 'text',
+        command: ['switch-mode', 'math', '”', ''],
+    }, // ??
+
+    // WOLFRAM MATHEMATICA BINDINGS
+    {
+        key: 'ctrl+[Digit2]',
+        ifMode: 'math',
+        command: ['insert', '$$\\sqrt{#0}$$'],
+    },
+    { key: 'ctrl+[Digit5]', ifMode: 'math', command: 'moveToOpposite' },
+    { key: 'ctrl+[Digit6]', ifMode: 'math', command: 'moveToSuperscript' },
+    { key: 'ctrl+[Minus]', ifMode: 'math', command: 'moveToSubscript' }, // ??
+    {
+        key: 'alt+[BracketLeft]',
+        ifMode: 'math',
+        command: ['insert', '$$\\left\\lbrack #0 \\right\\rbrack$$'],
+    }, // ??
+    {
+        key: 'alt+shift+[BracketLeft]',
+        ifMode: 'math',
+        command: ['insert', '$$\\left\\lbrace #0 \\right\\rbrace$$'],
+    }, // ??
+
+    { key: '[Return]', ifMode: 'math', command: 'addRowAfter' },
+    { key: '[Enter]', ifMode: 'math', command: 'addRowAfter' },
+    { key: 'ctrl+[Comma]', ifMode: 'math', command: 'addColumnAfter' },
+    { key: '[Return]', ifMode: 'text', command: 'addRowAfter' },
+    { key: '[Enter]', ifMode: 'text', command: 'addRowAfter' },
+    { key: 'ctrl+[Comma]', ifMode: 'text', command: 'addColumnAfter' },
+
+    // Excel keybindings:
+    // shift+space: select entire row, ctrl+space: select an entire column
+    // ctrl+shift++ or ctrl+numpad+
+    // ctrl+- to delete a row or columns
+
+    // MATHLIVE BINDINGS
+    // { key: 'alt+a', command: ['insert', '$$\\theta$$'] },
+    { key: 'alt+p', ifMode: 'math', command: ['insert', '$$\\pi$$'] },
+    { key: 'alt+v', ifMode: 'math', command: ['insert', '$$\\sqrt{#0}$$'] },
+    {
+        key: 'alt+w',
+        ifMode: 'math',
+        command: ['insert', '$$\\sum_{i=#?}^{#?}$$'],
+    },
+    // { key: 'alt+b', command: ['insert', '$$\\int_{#?}^{#?}$$'] },
+    { key: 'alt+u', ifMode: 'math', command: ['insert', '$$\\cup$$'] },
+    { key: 'alt+n', ifMode: 'math', command: ['insert', '$$\\cap$$'] },
+    { key: 'alt+o', ifMode: 'math', command: ['insert', '$$\\emptyset$$'] },
+    {
+        key: 'alt+d',
+        ifMode: 'math',
+        command: ['insert', '$$\\differentialD$$'],
+    },
+    {
+        key: 'alt+shift+o',
+        ifMode: 'math',
+        command: ['insert', '$$\\varnothing$$'],
+    },
+    {
+        key: 'alt+shift+d',
+        ifMode: 'math',
+        command: ['insert', '$$\\partial$$'],
+    },
+    {
+        key: 'alt+shift+p',
+        ifMode: 'math',
+        command: ['insert', '$$\\prod_{i=#?}^{#?}$$'],
+    },
+    { key: 'alt+shift+u', ifMode: 'math', command: ['insert', '$$\\bigcup$$'] },
+    { key: 'alt+shift+n', ifMode: 'math', command: ['insert', '$$\\bigcap$$'] },
+    { key: 'alt+shift+a', ifMode: 'math', command: ['insert', '$$\\forall$$'] },
+    { key: 'alt+shift+e', ifMode: 'math', command: ['insert', '$$\\exists$$'] },
+    { key: 'alt+[Digit5]', ifMode: 'math', command: ['insert', '$\\infty$$'] }, // "%" key
+    { key: 'alt+[Digit6]', ifMode: 'math', command: ['insert', '$$\\wedge$$'] }, // "^" key
+    {
+        key: 'alt+shift+[Digit6]',
+        ifMode: 'math',
+        command: ['insert', '$$\\vee$$'],
+    }, // "^" key
+    { key: 'alt+[Digit9]', ifMode: 'math', command: ['insert', '('] }, // "(" key} override smartFence
+    { key: 'alt+[Digit0]', ifMode: 'math', command: ['insert', ')'] }, // ")" key} override smartFence
+    { key: 'alt+shift+[Backslash]', ifMode: 'math', command: ['insert', '|'] }, // "|" key} override smartFence
+    {
+        key: 'alt+[Backslash]',
+        ifMode: 'math',
+        command: ['insert', '$$\\backslash$$'],
+    }, // "|" key} override command mode
+    {
+        key: '[Slash]',
+        ifMode: 'math',
+        command: ['insert', '$$\\frac{#@}{#?}$$'],
+    },
+    {
+        key: 'alt+[Slash]',
+        ifMode: 'math',
+        command: ['insert', '$$\\frac{#?}{#@}$$'],
+    },
+    {
+        key: '[NumpadDivide]',
+        ifMode: 'math',
+        command: ['insert', '$$\\frac{#@}{#?}$$'],
+    }, // ??
+    {
+        key: 'alt+[NumpadDivide]',
+        ifMode: 'math',
+        command: ['insert', '\\frac{#?}{#@}'],
+    }, // ??
+    {
+        key: 'shift+[Backquote]',
+        ifMode: 'math',
+        command: ['insert', '$$\\~$$'],
+    }, // ??
+    {
+        key: 'alt+shift+[Slash]',
+        ifMode: 'math',
+        command: ['insert', '$$\\/$$'],
+    }, // ??
+
+    // Accessibility
+    { key: 'alt+shift+k', command: 'toggleKeystrokeCaption' },
+    { key: 'alt+[Space]', command: 'toggleVirtualKeyboard' },
+
+    // Note: On Mac OS (as of 10.12), there is a bug/behavior that causes
+    // a beep to be generated with certain command+control key combinations.
+    // The workaround is to create a default binding file to silence them.
+    // In ~/Library/KeyBindings/DefaultKeyBinding.dict add these entries:
+    /*
+ {
+    "^@\UF701" = "noop:";
+    "^@\UF702" = "noop:";
+    "^@\UF703" = "noop:";
+}
+*/
+    {
+        key: 'ctrl+alt+[ArrowUp]',
+        command: ['speak', 'parent', { withHighlighting: false }],
+    },
+    {
+        key: 'ctrl+alt+[ArrowDown]',
+        command: ['speak', 'all', { withHighlighting: false }],
+    },
+];
+
+/**
+ * Most commands can be associated to their keyboard shortcuts from the
+ * DEFAULT_KEYBINDINGS table above, for example 'speakSelection' -> 'ctrl+KeyR'
+ * However, those that contain complex commands are more ambiguous.
+ * For example, '\sqrt' -> 'math:alt+KeyV'. This table provides the reverse
+ * mapping for those more complex commands. It is used when displaying
+ * keybindings for specific commands in the popover.
+ */
+export const REVERSE_KEYBINDINGS = {
+    '\\theta': 'alt+q',
+    '\\sqrt': ['alt+v', 'ctrl+[Digit2]'],
+    '\\pi': 'alt+p',
+    '\\prod': 'alt+shift+p',
+    '\\sum': 'alt+w',
+    '\\int': 'alt+b',
+    '\\cup': 'alt+u',
+    '\\cap': 'alt+n',
+    '\\bigcup': 'alt+shift+u',
+    '\\bigcap': 'alt+shift+n',
+    '\\forall': 'alt+shift+a',
+    '\\exists': 'alt+shift+e',
+    '\\infty': 'alt+[Digit5]',
+    '\\wedge': 'alt+[Digit5]',
+    '\\vee': 'alt+shift+[Digit6]',
+    '\\differentialD': 'alt+d',
+    '\\partial': 'alt+shift+d',
+    '\\frac': 'Slash',
+    '\\emptyset': 'alt+o',
+    '\\varnothing': 'alt+shift+o',
+    '\\~': '~',
+};

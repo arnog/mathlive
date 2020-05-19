@@ -3,7 +3,7 @@ import { insert } from './model-insert';
 import { setPath } from './model-selection';
 import { UndoStateChangeListener } from '../public/config';
 
-type UndoRecord = {
+export type UndoRecord = {
     latex: string;
     selection: string;
 };

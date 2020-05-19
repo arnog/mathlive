@@ -1,19 +1,21 @@
-# Keyboard Shortcuts
+# Key Bindings and Inline Shortcuts
 
 MathLive.js supports two methods to speed up input using a physical keyboard.
 
--   keystroke shortcuts
+-   key bindings
 -   inline shortcuts
 
-## Keystroke Shortcuts
+## Key bindings
 
-Keystroke shortcuts are typically a combination of keys pressed simultaneously that triggers a command.
+Key bindings are typically a combination of keys pressed simultaneously that
+triggers a command.
 
-For example, pressing `alt/option` and the `V` key at the same time will insert a square root. Pressing `ctrl/cmd` and the `Z` key at the same time will undo
+For example, pressing `alt/option` and the `V` key at the same time will insert
+a square root. Pressing `ctrl/cmd` and the `Z` key at the same time will undo
 the last command.
 
-MathLive has an extensive set of default keystroke shortcuts. To override,
-customize or add to the list of supported keyboard shortcuts, provide an
+MathLive has an extensive set of default key bindings. To override,
+customize or add to the list of supported key bindings, provide an
 appropriate handler as part of MathLive's configuration:
 
 ### **config.onKeystroke**: function(mathfield, keystroke: string, ev:Event)
@@ -28,13 +30,16 @@ Return `false` to stop handling of the event, otherwise the default command
 
 ## Inline Shortcuts
 
-An inline shortcut is a sequence of keystrokes typed on the keyboard that get replaced with another symbol. Unlike keystroke shortcuts they cannot be used to trigger a command.
+An inline shortcut is a sequence of keystrokes typed on the keyboard that get
+replaced with another symbol. Unlike keystroke shortcuts they cannot be used to
+trigger a command.
 
 For example, typing the `p` key followed by the `i` key will result in the \*_π_(`\pi`) symbol being inserted.
 
 If a substitution was undesirable, use **undo** to revert to the raw input.
 
-MathLive has some built-in inline shortcuts defined, but they can be replaced or enhanced with new shortcuts.
+MathLive has some built-in inline shortcuts defined, but they can be replaced or
+enhanced with new shortcuts.
 
 ### **config.overrideDefaultInlineShortcuts**: boolean=false
 

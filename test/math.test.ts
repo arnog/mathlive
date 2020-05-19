@@ -1,5 +1,5 @@
 /// <reference path="../dist/mathlive.d.ts" />
-import MathLive from '../dist/mathlive';
+import MathLive from '../src/mathlive';
 
 const MathLiveDebug = MathLive['debug'];
 

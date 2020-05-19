@@ -12,11 +12,9 @@ import {
     TEXT_SYMBOLS,
     ENVIRONMENTS,
 } from '../core/definitions';
-import {
-    KEYBOARD_SHORTCUTS,
-    INLINE_SHORTCUTS,
-    getShortcutMarkup,
-} from '../editor/shortcuts';
+import { INLINE_SHORTCUTS } from '../editor/shortcuts';
+import { DEFAULT_KEYBINDINGS } from '../editor/keybindings-definitions';
+import { getKeybindingMarkup } from '../editor/keybindings';
 
 import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
 import { parseMathString } from '../editor/parse-math-string';
@@ -464,8 +462,8 @@ export default {
     ENVIRONMENTS,
     MACROS,
 
-    KEYBOARD_SHORTCUTS,
     INLINE_SHORTCUTS,
+    DEFAULT_KEYBINDINGS,
 
-    getShortcutMarkup,
+    getKeybindingMarkup,
 };

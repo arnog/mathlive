@@ -1,3 +1,4 @@
+import type { Style } from '../public/core';
 import { RIGHT_DELIM } from '../core/definitions';
 import type { Atom } from '../core/atom';
 import type { ModelPrivate } from './model-class';
@@ -10,6 +11,14 @@ import {
 } from './model-selection';
 import { insert } from './model-insert';
 
+// const MATCHING_FENCE = {
+//     '\\lbrace': ['\\rbrace'],
+//     '(': [')', ']', '\\rbrack'],
+//     // For (open/closed) intervals
+//     '\\rbrack': [')', ']', '\\rbrack', '[', '\\lbrack'],
+//     '\\lbrack': [')', ']', '\\rbrack', '[', '\\lbrack'],
+// };
+
 /**
  * Insert a smart fence '(', '{', '[', etc...
  * If not handled (because `fence` wasn't a fence), return false.
@@ -17,26 +26,37 @@ import { insert } from './model-insert';
 export function insertSmartFence(
     model: ModelPrivate,
     fence: string,
-    style
+    style: Style
 ): boolean {
     const parent = model.parent();
+    let delims =
+        parent.type === 'leftright' ? parent.leftDelim + parent.rightDelim : '';
+    if (delims === '\\lbrace\\rbrace') delims = '{}';
+    if (delims === '\\{\\}') delims = '{}';
 
-    // We're inserting a middle punctuation, for example as in {...|...}
-    if (parent.type === 'leftright' && parent.leftDelim !== '|') {
-        if (/\||\\vert|\\Vert|\\mvert|\\mid/.test(fence)) {
-            insert(model, '\\,\\middle' + fence + '\\, ', {
-                mode: 'math',
-                format: 'latex',
-                style: style,
-            });
-            return true;
-        }
+    //
+    // 1. Are we inserting a middle fence?
+    // ...as in {...|...}
+    //
+    if (delims === '{}' && /\||\\vert|\\Vert|\\mvert|\\mid/.test(fence)) {
+        insert(model, '\\,\\middle' + fence + '\\, ', {
+            mode: 'math',
+            format: 'latex',
+            style: style,
+        });
+        return true;
     }
+    // Normalize some fences.
+    // Note that '{' and '}' are not valid braces.
+    // They should be '\{' or '\lbrace' and '\}' or '\rbrace'
     if (fence === '{' || fence === '\\{') fence = '\\lbrace';
     if (fence === '}' || fence === '\\}') fence = '\\rbrace';
     if (fence === '[' || fence === '\\[') fence = '\\lbrack';
-    if (fence === ']' || fence === '\\]') fence = '\\rbrack';
+    if (fence === ']' || fence === '\\]') fence = '\\rbrock';
 
+    //
+    // 2. Is it an open fence?
+    //
     const rDelim = RIGHT_DELIM[fence];
     if (rDelim && !(parent.type === 'leftright' && parent.leftDelim === '|')) {
         // We have a valid open fence as input
@@ -71,8 +91,10 @@ export function insertSmartFence(
         return true;
     }
 
-    // We did not have a valid open fence. Maybe it's a close fence?
-    let lDelim;
+    //
+    // 3. Is it a close fence?
+    //
+    let lDelim: string;
     Object.keys(RIGHT_DELIM).forEach((delim) => {
         if (fence === RIGHT_DELIM[delim]) lDelim = delim;
     });
@@ -94,9 +116,9 @@ export function insertSmartFence(
             return true;
         }
 
-        // If we have a 'leftright' sibling to our left
+        // If we have a `leftright` sibling to our left
         // with an indeterminate right fence,
-        // move what's between us and the 'leftright' inside the leftright
+        // move what's between us and the `leftright` inside the `leftright`
         const siblings = model.siblings();
         let i: number;
         for (i = model.endOffset(); i >= 0; i--) {
@@ -119,8 +141,8 @@ export function insertSmartFence(
             return true;
         }
 
-        // If we're inside a 'leftright', but not the last atom,
-        // and the 'leftright' right delim is indeterminate
+        // If we're inside a `leftright`, but not the last atom,
+        // and the `leftright` right delim is indeterminate
         // adjust the body (put everything after the insertion point outside)
         if (
             parent &&
@@ -161,8 +183,9 @@ export function insertSmartFence(
 
         // Meh... We couldn't find a matching open fence. Just insert the
         // closing fence as a regular character
-        insert(model, fence, { mode: 'math', format: 'latex', style: style });
-        return true;
+        return false;
+        // insert(model, fence, { mode: 'math', format: 'latex', style: style });
+        // return true;
     }
 
     return false;

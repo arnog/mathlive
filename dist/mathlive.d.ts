@@ -1,4 +1,4 @@
-/* v0.50.7-17-g3470679-dirty *//**
+/* 0.50.8 *//**
  *
  * Use MathLive to render and edit mathematical formulas in your browser.
  *
@@ -14,8 +14,8 @@
  * console.log(MathLive.latexToAST('e^{i\\pi}+1=0'));
  * </script>
  *
- * @packageDocumentation MathLive SDK Reference v0.50.7-17-g3470679-dirty
- * @version v0.50.7-17-g3470679-dirty
+ * @packageDocumentation MathLive SDK Reference 0.50.8
+ * @version 0.50.8
  *
  */
 import { Mathfield } from './mathfield';
@@ -24,17 +24,16 @@ import { MacroDictionary, ParserErrorListener } from './core';
 export { Mathfield };
 export { MathfieldConfig };
 /**
- * The version string for this build of the SDK in the form of:
+ * The version string of the SDK in the form of:
  *
- * `git tag`-`number of comits`-g`abbreviated commit hash`
+ * `MAJOR`.`MINOR`.`PATCH`
  *
- * The `git tag` uses [semver](https://semver.org/):
- * - The first number is the **MAJOR** version, incremented for
- * incompatible API changes
- * - The second number is the **MINOR** version, incremented for new features
- * - The third number is the **PATCH** version, incremented for bug fixes
+ * The version uses [semver](https://semver.org/):
+ * - The **MAJOR** version is incremented for incompatible API changes
+ * - The **MINOR** version is incremented for new features
+ * - The **PATCH** version is incremented for bug fixes
  *
- * Current version: `v0.50.7-17-g3470679-dirty`
+ * Current version: `0.50.8`
  *
  */
 export declare const version: string;

@@ -1,7 +1,9 @@
-import Keyboard from './editor-keyboard';
+import { eventToChar } from './keyboard';
 import { selectionIsCollapsed, setSelection } from './model-selection';
 import { contentDidChange, contentWillChange } from './model-listeners';
 import type { MathfieldPrivate } from './mathfield-class';
+import { mightProducePrintableCharacter } from './keyboard';
+
 /**
  * Convert the atoms before the anchor to 'text' mode
  * @param count - how many atoms back to look at
@@ -147,15 +149,15 @@ function getTextBeforeAnchor(mathfield: MathfieldPrivate): string {
  * Consider whether to switch mode give the content before the anchor
  * and the character being input
  *
- * @param {string} keystroke
- * @param {Event} evt - a Event corresponding to the keystroke
+ * @param keystroke
+ * @param evt - a Event corresponding to the keystroke
  * @return true if the mode should change
  */
 
-export function smartMode_(
+export function smartMode(
     mathfield: MathfieldPrivate,
     keystroke: string,
-    evt
+    evt: KeyboardEvent
 ): boolean {
     if (mathfield.smartModeSuppressed) {
         return false;
@@ -163,13 +165,10 @@ export function smartMode_(
     if (mathfield.model.endOffset() < mathfield.model.siblings().length - 1) {
         return false;
     }
-    if (!evt || evt.ctrlKey || evt.metaKey) {
+    if (!evt || !mightProducePrintableCharacter(evt)) {
         return false;
     }
-    const c = Keyboard.eventToChar(evt);
-    if (c.length === 0) {
-        return false;
-    } // Backspace, Left, etc...
+    const c = eventToChar(evt);
     if (!selectionIsCollapsed(mathfield.model)) {
         // There is a selection
         if (mathfield.mode === 'text') {
@@ -276,7 +275,7 @@ export function smartMode_(
         }
     } else {
         // We're in math mode. Should we switch to text?
-        if (keystroke === 'Spacebar') {
+        if (keystroke === '[Space]') {
             convertLastAtomsToText(mathfield, undefined, (a) =>
                 /[a-z][:,;.]$/.test(a.body)
             );

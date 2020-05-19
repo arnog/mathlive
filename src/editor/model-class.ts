@@ -1,6 +1,5 @@
 import { Atom, makeRoot } from '../core/atom';
-import type { Model } from '../public/model';
-import type { Mathfield } from '../public/mathfield';
+import type { Model, Mathfield } from '../public/mathfield';
 import type { MathfieldPrivate } from './mathfield-class';
 import { Path, clone as clonePath, pathToString } from './path';
 import { arrayCell } from './model-array-utils';

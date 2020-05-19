@@ -181,6 +181,7 @@ registerAtomType('genfrac', (context: Context, atom: Atom): Span[] => {
     return [
         atom.bind(
             context,
+            // makeStruts(
             makeSpan(
                 [leftDelim, frac, rightDelim],
                 context.parentSize !== context.size
@@ -188,6 +189,7 @@ registerAtomType('genfrac', (context: Context, atom: Atom): Span[] => {
                     : '',
                 'mord'
             )
+            // )
         ),
     ];
 });

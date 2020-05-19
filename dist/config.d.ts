@@ -1,6 +1,147 @@
-/* v0.50.7-17-g3470679-dirty */import { ParserErrorListener, MacroDictionary, ParseMode } from './core';
-import { InlineShortcutDefinition } from './shortcuts';
+/* 0.50.8 */import { ParserErrorListener, MacroDictionary, ParseMode } from './core';
 import type { Mathfield } from './mathfield';
+import type { Selector } from './commands';
+/**
+ * A keybinding associates a combination of physical keyboard keys with a
+ * command.
+ *
+ * For example:
+ *
+ * ```javascript
+ * {
+ *      "key": "cmd+a",
+ *      "command": "selectAll",
+ * },
+ * {
+ *      "key": "ctrl+[Slash]",
+ *      "command": "selectAll",
+ *      "ifPlatform": "chromeos"
+ * }
+ * ```
+ *
+ */
+export declare type Keybinding = {
+    /**
+     * The pressed keys that will trigger this keybinding.
+     *
+     * The `key` is made up of modifiers and the key itself.
+     *
+     * The following modifiers can be used:
+     *
+     *  | Platform | Modifiers |
+     *  | :----- | :----- |
+     *  | macOS, iOS |  `ctrl`, `shift`, `alt`, `cmd` |
+     *  | Windows |  `ctrl`, `shift`, `alt`, `win` |
+     *  | Linux, Android, ChromeOS |  `ctrl`, `shift`, `alt`, `meta` |
+     *
+     * If a `cmd` modifier is used, the keybinding will only apply on macOS,
+     * and so on.
+     *
+     * The following values for keys can be used:
+     * * `f1`-`f19`, `a`-`z`, `0`-`9`
+     * * `\``, `-`, `=`, `[`, `]`, `\`, `;`, `'`, `,`, `.`, `/`
+     * * `left`, `up, `right`, `down`, `pageup`, `pagedown`, `end`, `home`
+     * * `tab`, `enter`, `escape`, `space`, `backspace`, `delete`
+     * * `pausebreak`, `capslock`, `insert`
+     * * `numpad0`-`numpad9`, `numpad_multiply`, `numpad_add`, `numpad_separator`
+     * * `numpad_subtract`, `numpad_decimal`, `numpad_divide`
+     *
+     * The values will be remapped based on the current keyboard layout. So, for
+     * example if `a` is used, on a French AZERTY keyboard the keybinding will be
+     * associated with the key labeled 'A' (event though it corresponds to the
+     * key labeled 'Q' on a US QWERTY keyboard).
+     *
+     * To associate keybindings with physical keys independent of the keyboard
+     * layout, use the following keycodes:
+     *
+     * - `[F1]`-`[F19]`, `[KeyA]`-`[KeyZ]`, `[Digit0]`-`[Digit9]`
+     * - `[Backquote]`, `[Minus]`, `[Equal]`, `[BracketLeft]`, `[BracketRight]`, `[Backslash]`, `[Semicolon]`, `[Quote]`, `[Comma]`, `[Period]`, `[Slash]`
+     * - `[ArrowLeft]`, `[ArrowUp]`, `[ArrowRight]`, `[ArrowDown]`, `[PageUp]`, `[PageDown]`, `[End]`, `[Home]`
+     * - `[Tab]`, `[Enter]`, `[Escape]`, `[Space]`, `[Backspace]`, `[Delete]`
+     * - `[Pause]`, `[CapsLock]`, `[Insert]`
+     * - `[Numpad0]`-`[Numpad9]`, `[NumpadMultiply]`, `[NumpadAdd]`, `[NumpadComma]`
+     * - `[NumpadSubtract]`, `[NumpadDecimal]`, `[NumpadDivide]`
+     *
+     * For example, using `[KeyQ]` will map to the the key labeled 'Q' on a QWERTY
+     * keyboard, and to the key labeled 'A' on an AZERTY keyboard.
+     *
+     * As a general guideline, it is preferable to use the key values `a`-`z`
+     * for keybinding that are pseudo-mnemotechnic. For the other, it is generally
+     * preferable to use the keycodes.
+     *
+     */
+    key: string;
+    /** The command is a single selector, or a selector with arguments */
+    command: Selector | any[];
+    /**
+     * This indicate in which mode this keybinding will apply. If none is
+     * specified, the keybinding always apply.
+     */
+    ifMode?: ParseMode;
+    /**
+     * If specified, this indicates the OS platform to which this keybinding
+     * apply.
+     *
+     * For example, if set to `!macos` this key binding will apply to every
+     * platform, except macOS.
+     *
+     */
+    ifPlatform?: 'macos' | '!macos' | 'windows' | '!windows' | 'linux' | '!linux' | 'ios' | '!ios' | 'android' | '!android' | 'chromeos' | '!chromeos';
+};
+/**
+ * An inline shortcut can be specified as a simple string or as
+ * an object literal with additional options:
+ *
+ *```javascript
+ *     config.inlineShortcuts = {
+ *      half: '\\frac{1}{2}',
+ *      in: {
+ *          mode: 'math',
+ *          after: 'space+letter+digit+symbol+fence',
+ *          value: '\\in',
+ *      },
+ *  };
+ *```
+ *
+ * When using a string, the shortcut will apply in any mode, and regardless
+ * of the characters surrounding it.
+ *
+ * When using an object literal the `value` key is required an indicate the
+ * shortcut substitution.
+ *
+ * The `mode` key, if present, indicate which mode this shortcut will
+ * apply in, either `'math'` or `'text'`. If the key is not present the
+ * shortcut apply in all modes.
+ *
+ * The `'after'` key, if present, indicate in what context (surrounding characters)
+ * the shortcut will apply. One or more values can be specified, separated by a '+'
+ * sign. If any of the values match, the shortcut will be applicable.
+ *
+ *
+ * Possible values are:
+ *
+ *  | | |
+ *  | :----- | :----- |
+ *  | `'space'` |  A spacing command, such as `\quad` |
+ *  | `'nothing'`|  The begining of a group |
+ *  | `'surd'` |A square root or n-th root |
+ *  | `'frac'` |A fraction|
+ *  | `'function'` |A function such as `\sin` or `f`|
+ *  | `'letter'` |A letter, such as `x` or `n`|
+ *  | `'digit'` |`0` through `9`|
+ *  | `'binop'` |A binary operator, such as `+`|
+ *  | `'relop'` |A relational operator, such as `=`|
+ *  | `'punct'` |A punctuation mark, such as `,`|
+ *  | `'array'` |An array, such as a matrix or cases statement|
+ *  | `'openfence'` |An opening fence, such as `(`|
+ *  | `'closefence'` | A closing fence such as `}`|
+ *  | `'text'`| Some plain text|
+ */
+export declare type InlineShortcutDefinition = string | {
+    value: string;
+    mode?: ParseMode;
+    after?: string;
+};
 export declare type TextToSpeechOptions = {
     /**
      * Specify which set of text to speech rules to use.
@@ -217,6 +358,9 @@ export interface MathfieldListeners {
     onVirtualKeyboardToggle?: (sender: Mathfield, visible: boolean, keyboardElement: HTMLElement) => void;
     onReadAloudStatus?: (sender: Mathfield) => void;
 }
+export declare type KeyboardOptions = {
+    keybindings?: Keybinding[];
+};
 export declare type InlineShortcutsOptions = {
     /** @deprecated Use:
      * ```typescript
@@ -470,8 +614,33 @@ mf.setConfig({
  *
  * Alternatively, the ID of a DOM element can be provided.
  */
-export declare type MathfieldConfig = LayoutOptions & EditingOptions & LocalizationOptions & InlineShortcutsOptions & VirtualKeyboardOptions & TextToSpeechOptions & MathfieldHooks & MathfieldListeners & {
+export declare type MathfieldConfig = LayoutOptions & EditingOptions & LocalizationOptions & InlineShortcutsOptions & KeyboardOptions & VirtualKeyboardOptions & TextToSpeechOptions & MathfieldHooks & MathfieldListeners & {
     namespace?: string;
     onError?: ParserErrorListener;
     substituteTextArea?: string | (() => HTMLElement);
 };
+/**
+ *  | Name | Platform | Display name |
+ *  | :----- | :----- | :----- |
+ *  | `'apple.en-intl'` |  Apple | English (International) |
+ *  | `'windows.en-intl'` |  Windows | English (International) |
+ *  | `'linux.en'` |  Linux | English |
+ */
+export declare type KeyboardLayoutName = 'apple.french' | 'windows.french' | 'linux.french' | 'apple.en-intl' | 'windows.en-intl' | 'linux.en';
+/**
+ * Change the current physical keyboard layout.
+ *
+ * Note that this affects some keybindings, but not general text input.
+ *
+ * If set to `auto` the keyboard layout is guessed approximately.
+ *
+ */
+export declare function setKeyboardLayout(name: KeyboardLayoutName | 'auto'): void;
+/**
+ * Change the current physical keyboard layout to a layout that matches the
+ * specified locale, if one is available.
+ *
+ * Note that this affects some keybindings, but not general text input.
+ *
+ */
+export declare function setKeyboardLayoutLocale(locale: string): void;

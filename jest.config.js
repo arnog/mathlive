@@ -1,6 +1,6 @@
 module.exports = {
     preset: 'ts-jest',
-    testEnvironment: 'node',
+    testEnvironment: 'jsdom',
     coverageReporters: ['lcov'],
     coverageDirectory: './coverage',
     roots: ['<rootDir>/test', '<rootDir>/dist'],

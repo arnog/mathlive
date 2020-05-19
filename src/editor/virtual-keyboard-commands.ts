@@ -319,7 +319,7 @@ registerCommand(
 
 export function showVirtualKeyboard(
     mathfield: MathfieldPrivate,
-    theme = ''
+    theme: 'apple' | 'material' | '' = ''
 ): boolean {
     mathfield.virtualKeyboardVisible = false;
     toggleVirtualKeyboard(mathfield, theme);
@@ -332,7 +332,10 @@ export function hideVirtualKeyboard(mathfield: MathfieldPrivate): boolean {
     return false;
 }
 
-function toggleVirtualKeyboard(mathfield: MathfieldPrivate, theme?): boolean {
+function toggleVirtualKeyboard(
+    mathfield: MathfieldPrivate,
+    theme?: 'apple' | 'material' | ''
+): boolean {
     mathfield.virtualKeyboardVisible = !mathfield.virtualKeyboardVisible;
     if (mathfield.virtualKeyboardVisible) {
         if (mathfield.virtualKeyboard) {

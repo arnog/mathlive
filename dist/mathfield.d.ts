@@ -1,4 +1,4 @@
-/* v0.50.7-17-g3470679-dirty */import { Selector } from './commands';
+/* 0.50.8 */import { Selector } from './commands';
 import { MathfieldConfig } from './config';
 import { ParseMode, MacroDictionary, Style } from './core';
 /**
@@ -38,7 +38,7 @@ export declare type InsertOptions = {
    |`"before"`| The selection will be an insertion point before the inserted text|
    |`"item"`| The inserted text will be selected|
 */
-    selectionMode?: 'placeholder' | 'after' | 'before';
+    selectionMode?: 'placeholder' | 'after' | 'before' | 'item';
     placeholder?: string;
     suppressChangeNotifications?: boolean;
     style?: Style;
@@ -219,4 +219,7 @@ export interface Mathfield {
      * @category Changing the Content
      */
     $typedText(text: string): void;
+}
+export interface Model {
+    mathfield: Mathfield;
 }

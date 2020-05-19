@@ -1,9 +1,10 @@
 import { Style, ParseMode, FontSeries, FontShape } from '../public/core';
 import { selectionIsCollapsed, getAnchorMode } from './model-selection';
-import { Mathfield } from './mathfield-utils';
+import { MathfieldPrivate } from './mathfield-class';
 import { applyStyle as applyStyleToModel } from './model-styling';
+import { register as registerCommand } from './commands';
 
-export function applyStyle(mathfield: Mathfield, style) {
+export function applyStyle(mathfield: MathfieldPrivate, style) {
     mathfield.resetKeystrokeBuffer();
     style = validateStyle(style);
     if (style.mode) {
@@ -82,6 +83,8 @@ export function applyStyle(mathfield: Mathfield, style) {
     }
     return true;
 }
+
+registerCommand({ applyStyle }, { target: 'mathfield' });
 
 /**
  * Validate a style specification object

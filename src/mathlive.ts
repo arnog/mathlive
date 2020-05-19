@@ -290,7 +290,7 @@ export default {
         TEXT_SYMBOLS: MathLiveDebug.TEXT_SYMBOLS,
         ENVIRONMENTS: MathLiveDebug.ENVIRONMENTS,
         MACROS: MathLiveDebug.MACROS,
-        KEYBOARD_SHORTCUTS: MathLiveDebug.KEYBOARD_SHORTCUTS,
-        getShortcutMarkup: MathLiveDebug.getShortcutMarkup,
+        DEFAULT_KEYBINDINGS: MathLiveDebug.DEFAULT_KEYBINDINGS,
+        getKeybindingMarkup: MathLiveDebug.getKeybindingMarkup,
     },
 };

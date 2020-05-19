@@ -1,4 +1,5 @@
 import type { ParseMode, Style } from '../public/core';
+import type { Keybinding, KeyboardLayoutName } from '../public/config';
 import type {
     Mathfield,
     OutputFormat,
@@ -9,8 +10,8 @@ import { Atom, makeRoot } from '../core/atom';
 
 import { ModelPrivate } from './model';
 import { applyStyle } from './model-styling';
-import Keyboard from './editor-keyboard';
-import { UndoManager } from './undo';
+import { delegateKeyboardEvents } from './keyboard';
+import { UndoRecord, UndoManager } from './undo';
 import { hidePopover, updatePopoverPosition } from './popover';
 import { atomToAsciiMath } from './atom-to-ascii-math';
 import { localize as l10n } from './l10n';
@@ -43,6 +44,7 @@ import { onTypedText, onKeystroke } from './mathfield-keyboard-input';
 import { render } from './mathfield-render';
 
 import './mathfield-commands';
+import './mathfield-styling';
 
 import {
     getCaretPosition,
@@ -63,6 +65,9 @@ import {
     switchKeyboardLayer,
 } from './virtual-keyboard-commands';
 
+import { normalizeKeybindings } from './keybindings';
+import { setKeyboardLayoutLocale } from './keyboard-layout';
+
 import { atomToSpeakableText } from './atom-to-speakable-text';
 import { atomtoMathJson } from '../addons/math-json';
 import { atomsToMathML } from '../addons/math-ml';
@@ -74,11 +79,11 @@ export class MathfieldPrivate implements Mathfield {
     undoManager: UndoManager;
 
     readOnly: boolean;
-
+    blurred: boolean;
     dirty: boolean; // If true, need to be redrawn
     pasteInProgress: boolean;
     smartModeSuppressed: boolean;
-    _resizeTimer: number; // Timer handle
+    resizeTimer: number; // Timer handle
 
     element: HTMLElement;
     originalContent: string;
@@ -89,16 +94,19 @@ export class MathfieldPrivate implements Mathfield {
     ariaLiveText: HTMLElement;
     accessibleNode: HTMLElement;
     popover: HTMLElement;
-    keystrokeCaption: HTMLElement;
-    virtualKeyboard: HTMLElement;
 
     keystrokeCaptionVisible: boolean;
+    keystrokeCaption: HTMLElement;
+
     virtualKeyboardVisible: boolean;
-    blurred: boolean;
+    virtualKeyboard: HTMLElement;
+
+    keybindings: Keybinding[]; // Normalized keybindings (raw ones in config)
+    keyboardLayout: KeyboardLayoutName;
 
     keystrokeBuffer: string;
-    keystrokeBufferStates: any[]; // @revisit
-    keystrokeBufferResetTimer: any; // @revisit
+    keystrokeBufferStates: UndoRecord[];
+    keystrokeBufferResetTimer: number;
 
     suggestionIndex: number;
 
@@ -110,6 +118,7 @@ export class MathfieldPrivate implements Mathfield {
     returnKeypressSound: HTMLAudioElement;
     deleteKeypressSound: HTMLAudioElement;
     plonkSound: HTMLAudioElement;
+
     /**
      * To create a mathfield, you would typically use {@linkcode makeMathField | MathLive.makeMathField()}
      * instead of invoking directly this constructor.
@@ -121,6 +130,7 @@ export class MathfieldPrivate implements Mathfield {
     constructor(element: HTMLElement, config: MathfieldConfigPrivate) {
         // Setup default config options
         this.config = updateConfig(getDefaultConfig(), config);
+
         this.element = element;
         element['mathfield'] = this;
 
@@ -144,7 +154,7 @@ export class MathfieldPrivate implements Mathfield {
         // 5.1/ The aria-live region for announcements
         let markup = '';
         if (!this.config.substituteTextArea) {
-            if (/android|ipad|ipod|iphone/i.test(navigator.userAgent)) {
+            if (/android|ipad|ipod|iphone/i.test(navigator?.userAgent)) {
                 // On Android or iOS, don't use a textarea, which has the side effect of
                 // bringing up the OS virtual keyboard
                 markup += `<span class='ML__textarea'>
@@ -279,15 +289,14 @@ export class MathfieldPrivate implements Mathfield {
         on(this.textarea, 'copy', this);
         on(this.textarea, 'paste', this);
         // Delegate keyboard events
-        Keyboard.delegateKeyboardEvents(this.textarea, {
-            container: this.element,
+        delegateKeyboardEvents(this.textarea, {
             allowDeadKey: () => this.mode === 'text',
             typedText: (text: string, options) =>
                 onTypedText(this, text, options),
             paste: () => onPaste(this),
             keystroke: (keystroke, e) => onKeystroke(this, keystroke, e),
-            focus: this._onFocus.bind(this),
-            blur: this._onBlur.bind(this),
+            focus: () => this._onFocus(),
+            blur: () => this._onBlur(),
         });
 
         // Delegate mouse and touch events
@@ -374,6 +383,9 @@ export class MathfieldPrivate implements Mathfield {
                 this.config.onTabOutOf(this, direction),
         });
 
+        setKeyboardLayoutLocale(this.config.locale);
+        this.keybindings = normalizeKeybindings(this.config.keybindings);
+
         if (!this.config.readOnly) {
             this._onBlur();
         }
@@ -407,14 +419,17 @@ export class MathfieldPrivate implements Mathfield {
                 break;
             case 'touchstart':
             case 'mousedown':
+                // iOS <=13 Safari and Firefox on Android
+                onPointerDown(this, evt as PointerEvent);
+                break;
             case 'pointerdown':
-                onPointerDown(this, evt);
+                onPointerDown(this, evt as PointerEvent);
                 break;
             case 'resize': {
-                if (this._resizeTimer) {
-                    window.cancelAnimationFrame(this._resizeTimer);
+                if (this.resizeTimer) {
+                    window.cancelAnimationFrame(this.resizeTimer);
                 }
-                this._resizeTimer = window.requestAnimationFrame(
+                this.resizeTimer = window.requestAnimationFrame(
                     () => isValidMathfield(this) && this._onResize()
                 );
                 break;
@@ -724,7 +739,7 @@ export class MathfieldPrivate implements Mathfield {
                 this.$focus();
             }
             if (options.feedback) {
-                if (this.config.keypressVibration && navigator.vibrate) {
+                if (this.config.keypressVibration && navigator?.vibrate) {
                     navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
                 }
                 if (this.keypressSound) {

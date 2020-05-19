@@ -723,9 +723,7 @@ export function emit(symbol, parent, atom, emitFn): string {
     }
 
     if (MATH_SYMBOLS[symbol] || TEXT_SYMBOLS[symbol]) {
-        // Add a space after commands, to avoid, e.g.
-        // '\sin' + 'x' -> '\sinx' instead of '\sin x'
-        return symbol + (/^\\.*[a-zA-Z0-9]$/.test(symbol) ? ' ' : '');
+        return symbol;
     }
 
     if (

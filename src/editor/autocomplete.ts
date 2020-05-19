@@ -1,6 +1,6 @@
 import { Atom } from '../core/atom';
 import { parseString } from '../core/parser';
-import { suggest, commandAllowed } from '../core/definitions-utils';
+import { suggest } from '../core/definitions-utils';
 
 import type { ModelPrivate } from './model-class';
 import { register as registerCommand } from './commands';

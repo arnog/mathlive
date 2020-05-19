@@ -149,7 +149,7 @@ export function performWithFeedback(
 ): boolean {
     // @revisit: have a registry of commands -> sound
     mathfield.$focus();
-    if (mathfield.config.keypressVibration && navigator.vibrate) {
+    if (mathfield.config.keypressVibration && navigator?.vibrate) {
         navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
     }
     // Convert kebab case to camel case.

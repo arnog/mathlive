@@ -91,10 +91,7 @@ Object.defineProperty(l10n, 'locale', {
         // "english" if not running in a browser (node.js)
         if (!l10n._locale) {
             // Use the setter, which will load the necessary .json files.
-            l10n._locale =
-                typeof navigator === 'undefined'
-                    ? 'en'
-                    : navigator.language.slice(0, 5);
+            l10n._locale = navigator?.language.slice(0, 5) ?? 'en';
         }
         return l10n._locale;
     },

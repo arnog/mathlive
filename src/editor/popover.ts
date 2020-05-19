@@ -9,7 +9,7 @@ import {
 } from '../core/core';
 
 import { getAnchor } from './model-selection';
-import { getShortcutForCommand } from './shortcuts';
+import { getKeybindingsForCommand } from './keybindings';
 import { attachButtonHandlers } from './mathfield-buttons';
 import { getCaretPosition } from './mathfield-utils';
 
@@ -292,8 +292,8 @@ function latexToMarkup(latex: string, mf: MathfieldPrivate): string {
 
 export function showPopoverWithLatex(
     mf: MathfieldPrivate,
-    latex,
-    displayArrows
+    latex: string,
+    displayArrows: boolean
 ) {
     if (!latex || latex.length === 0) {
         hidePopover(mf);
@@ -303,7 +303,9 @@ export function showPopoverWithLatex(
     const command = latex;
     const commandMarkup = latexToMarkup(latex, mf);
     const commandNote = getNote(command);
-    const commandShortcuts = getShortcutForCommand(command);
+    const keybinding = getKeybindingsForCommand(mf.keybindings, command).join(
+        '<br>'
+    );
 
     let template = displayArrows
         ? '<div class="ML__popover__prev-shortcut" role="button" aria-label="Previous suggestion"><span><span>&#x25B2;</span></span></div>'
@@ -313,9 +315,9 @@ export function showPopoverWithLatex(
     if (commandNote) {
         template += '<div class="ML__popover__note">' + commandNote + '</div>';
     }
-    if (commandShortcuts) {
+    if (keybinding) {
         template +=
-            '<div class="ML__popover__shortcut">' + commandShortcuts + '</div>';
+            '<div class="ML__popover__shortcut">' + keybinding + '</div>';
     }
     template += '</span>';
     template += displayArrows

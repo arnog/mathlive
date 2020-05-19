@@ -234,6 +234,9 @@ export class Span {
                 if (x.depth > depth) depth = x.depth;
                 if (x.maxFontSize > maxFontSize) maxFontSize = x.maxFontSize;
             });
+        } else if (typeof this.body === 'string') {
+            height = 0.7;
+            depth = 0.2;
         }
         this.height = height;
         this.depth = depth;

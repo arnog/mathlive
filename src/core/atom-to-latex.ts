@@ -192,11 +192,9 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
                     // used, e.g., on the clipboard for maximum compatibility
                     // with other LaTeX renderers), drop the `\mleft(` and `\mright`)
                     // commands
-                    result +=
-                        atom.leftDelim === '.' ? '' : atom.leftDelim + ' ';
+                    result += atom.leftDelim === '.' ? '' : atom.leftDelim;
                     result += emit(atom, atom.body);
-                    result +=
-                        atom.rightDelim === '.' ? '' : atom.rightDelim + ' ';
+                    result += atom.rightDelim === '.' ? '' : atom.rightDelim;
                 } else {
                     result += '\\mleft' + (atom.leftDelim || '.');
                     if (atom.leftDelim && atom.leftDelim.length > 1) {
@@ -236,7 +234,7 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
         case 'mclose':
         case 'textord':
             if (command === '\\char"') {
-                result += atom.latex + ' ';
+                result += atom.latex;
             } else {
                 result += emitDefinition(command, null, atom, emit);
             }
@@ -335,7 +333,7 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
             break;
 
         case 'mathstyle':
-            result += '\\' + atom.mathstyle + ' ';
+            result += '\\' + atom.mathstyle;
             break;
 
         case 'space':

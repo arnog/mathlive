@@ -1,15 +1,16 @@
+import type { Selector } from '../public/commands';
 import { suggest } from '../core/definitions';
 import { makeRoot } from '../core/atom';
 import { parseString } from '../core/parser';
 import { ModelPrivate, removeSuggestion } from './model';
 import { moveAfterParent } from './model-selection';
-import Keyboard from './editor-keyboard';
+import { mightProducePrintableCharacter, eventToChar } from './keyboard';
+import { getInlineShortcutsStartingWith, getInlineShortcut } from './shortcuts';
 import {
-    getInlineShortcutsStartingWith,
-    getKeyboardShortcut,
-    getInlineShortcut,
-    getShortcutMarkup,
-} from './shortcuts';
+    getCommandForKeybinding,
+    getKeybindingMarkup,
+    normalizeKeybindings,
+} from './keybindings';
 import { hidePopover, showPopoverWithLatex } from './popover';
 import { splitGraphemes } from '../core/grapheme-splitter';
 import { HAPTIC_FEEDBACK_DURATION } from './commands';
@@ -29,7 +30,11 @@ import { requestUpdate } from './mathfield-render';
 import type { MathfieldPrivate } from './mathfield-class';
 
 import { removeIsolatedSpace } from './mathfield-smartmode';
-import { smartMode_ } from './mathfield-smartmode';
+import { smartMode } from './mathfield-smartmode';
+import {
+    getActiveKeyboardLayout,
+    validateKeyboardLayout,
+} from './keyboard-layout';
 
 export function showKeystroke(mathfield: MathfieldPrivate, keystroke: string) {
     const vb = mathfield.keystrokeCaption;
@@ -39,7 +44,7 @@ export function showKeystroke(mathfield: MathfieldPrivate, keystroke: string) {
         vb.style.top = bounds.top - 64 + 'px';
         vb.innerHTML =
             '<span>' +
-            (getShortcutMarkup(keystroke) || keystroke) +
+            (getKeybindingMarkup(keystroke) || keystroke) +
             '</span>' +
             vb.innerHTML;
         vb.style.visibility = 'visible';
@@ -62,11 +67,24 @@ export function onKeystroke(
     keystroke: string,
     evt: KeyboardEvent
 ) {
-    // 1. Display the keystroke in the keystroke panel (if visible)
+    // 1. Update the keybindings according to the current keyboard layout
+    // 1.1 Possibly update the current layout based on this event
+    validateKeyboardLayout(evt);
+
+    const activeLayout = getActiveKeyboardLayout();
+    if (mathfield.keyboardLayout !== activeLayout.id) {
+        console.log('Switching to keyboard layout ' + activeLayout.id);
+        mathfield.keyboardLayout = activeLayout.id;
+        mathfield.keybindings = normalizeKeybindings(
+            mathfield.config.keybindings
+        );
+    }
+
+    // 2. Display the keystroke in the keystroke panel (if visible)
     showKeystroke(mathfield, keystroke);
-    // 2. Reset the timer for the keystroke buffer reset
+    // 3. Reset the timer for the keystroke buffer reset
     clearTimeout(mathfield.keystrokeBufferResetTimer);
-    // 3. Give a chance to the custom keystroke handler to intercept the event
+    // 4. Give a chance to the custom keystroke handler to intercept the event
     if (
         mathfield.config.onKeystroke &&
         !mathfield.config.onKeystroke(mathfield, keystroke, evt)
@@ -77,80 +95,74 @@ export function onKeystroke(
         }
         return false;
     }
-    // 4. Let's try to find a matching shortcut or command
-    let shortcut;
-    let stateIndex;
-    let selector;
+    // 5. Let's try to find a matching shortcut or command
+    let shortcut: string;
+    let stateIndex: number;
+    let selector: Selector | '' | any[];
     let resetKeystrokeBuffer = false;
-    // 4.1 Check if the keystroke, prefixed with the previously typed keystrokes,
+    // 5.1 Check if the keystroke, prefixed with the previously typed keystrokes,
     // would match a long shortcut (i.e. '~~')
-    // Ignore the key if command or control is pressed (it may be a shortcut,
-    // see 4.3)
+    // Ignore the key if command or control is pressed (it may be a keybinding,
+    // see 5.3)
     if (
         mathfield.mode !== 'command' &&
         (!evt || (!evt.ctrlKey && !evt.metaKey))
     ) {
-        const c = Keyboard.eventToChar(evt);
-        // The Backspace key will be handled as a delete command later (5.4)
-        // const c = Keyboard.eventToChar(evt);
-        if (c !== 'Backspace') {
-            if (!c || c.length > 1) {
-                // It was a non-alpha character (PageUp, End, etc...)
-                mathfield.resetKeystrokeBuffer();
-            } else {
-                // Find the longest substring that matches a shortcut
-                const candidate = mathfield.keystrokeBuffer + c;
-                let i = 0;
-                while (!shortcut && i < candidate.length) {
-                    let siblings;
-                    if (mathfield.keystrokeBufferStates[i]) {
-                        const mathlist = new ModelPrivate();
-                        mathlist.root = makeRoot(
-                            'math',
-                            parseString(
-                                mathfield.keystrokeBufferStates[i].latex,
-                                mathfield.config.defaultMode,
-                                null,
-                                mathfield.config.macros
-                            )
-                        );
-                        setPath(
-                            mathlist,
-                            mathfield.keystrokeBufferStates[i].selection
-                        );
-                        siblings = mathlist.siblings();
-                    } else {
-                        siblings = mathfield.model.siblings();
-                    }
-                    shortcut = getInlineShortcut(
-                        siblings,
-                        candidate.slice(i),
-                        mathfield.config.inlineShortcuts
+        if (!mightProducePrintableCharacter(evt)) {
+            // It was a non-alpha character (PageUp, End, etc...)
+            mathfield.resetKeystrokeBuffer();
+        } else {
+            const c = eventToChar(evt);
+            // Find the longest substring that matches a shortcut
+            const candidate = mathfield.keystrokeBuffer + c;
+            let i = 0;
+            while (!shortcut && i < candidate.length) {
+                let siblings;
+                if (mathfield.keystrokeBufferStates[i]) {
+                    const mathlist = new ModelPrivate();
+                    mathlist.root = makeRoot(
+                        'math',
+                        parseString(
+                            mathfield.keystrokeBufferStates[i].latex,
+                            mathfield.config.defaultMode,
+                            null,
+                            mathfield.config.macros
+                        )
                     );
-                    i += 1;
-                }
-                stateIndex = i - 1;
-                mathfield.keystrokeBuffer += c;
-                mathfield.keystrokeBufferStates.push(
-                    mathfield.undoManager.save()
-                );
-                if (
-                    getInlineShortcutsStartingWith(candidate, mathfield.config)
-                        .length <= 1
-                ) {
-                    resetKeystrokeBuffer = true;
+                    setPath(
+                        mathlist,
+                        mathfield.keystrokeBufferStates[i].selection
+                    );
+                    siblings = mathlist.siblings();
                 } else {
-                    if (mathfield.config.inlineShortcutTimeout) {
-                        // Set a timer to reset the shortcut buffer
-                        mathfield.keystrokeBufferResetTimer = setTimeout(() => {
-                            mathfield.resetKeystrokeBuffer();
-                        }, mathfield.config.inlineShortcutTimeout);
-                    }
+                    siblings = mathfield.model.siblings();
+                }
+                shortcut = getInlineShortcut(
+                    siblings,
+                    candidate.slice(i),
+                    mathfield.config.inlineShortcuts
+                );
+                i += 1;
+            }
+            stateIndex = i - 1;
+            mathfield.keystrokeBuffer += c;
+            mathfield.keystrokeBufferStates.push(mathfield.undoManager.save());
+            if (
+                getInlineShortcutsStartingWith(candidate, mathfield.config)
+                    .length <= 1
+            ) {
+                resetKeystrokeBuffer = true;
+            } else {
+                if (mathfield.config.inlineShortcutTimeout) {
+                    // Set a timer to reset the shortcut buffer
+                    mathfield.keystrokeBufferResetTimer = setTimeout(() => {
+                        mathfield.resetKeystrokeBuffer();
+                    }, mathfield.config.inlineShortcutTimeout);
                 }
             }
         }
     }
-    // 4.2. Should we switch mode?
+    // 5.2. Should we switch mode?
     // Need to check this before determing if there's a valid shortcut
     // since if we switch to math mode, we may want to apply the shortcut
     // e.g. "slope = rise/run"
@@ -160,7 +172,7 @@ export function onKeystroke(
             // If we found a shortcut (e.g. "alpha"),
             // switch to math mode and insert it
             mathfield.mode = 'math';
-        } else if (smartMode_(mathfield, keystroke, evt)) {
+        } else if (smartMode(mathfield, keystroke, evt)) {
             mathfield.mode = { math: 'text', text: 'math' }[mathfield.mode];
             selector = '';
         }
@@ -172,12 +184,16 @@ export function onKeystroke(
             mathfield.config.onModeChange(mathfield, mathfield.mode);
         }
     }
-    // 4.3 Check if this matches a keystroke shortcut
+    // 5.3 Check if this matches a keybinding
     // Need to check this **after** checking for inline shortcuts because
-    // shift+backquote is a keystroke that inserts "\~"", but "~~" is a
+    // shift+backquote is a keybinding that inserts "\~"", but "~~" is a
     // shortcut for "\approx" and needs to have priority over shift+backquote
     if (!shortcut && !selector) {
-        selector = getKeyboardShortcut(mathfield.mode, keystroke);
+        selector = getCommandForKeybinding(
+            mathfield.keybindings,
+            mathfield.mode,
+            keystroke
+        );
     }
     // No shortcut :( We're done.
     if (!shortcut && !selector) {
@@ -186,11 +202,11 @@ export function onKeystroke(
     if (mathfield.config.readOnly && selector[0] === 'insert') {
         return true;
     }
-    // 5. Perform the action matching this shortcut
-    // 5.1 Remove any error indicator (wavy underline) on the current command
+    // 6. Perform the action matching this shortcut
+    // 6.1 Remove any error indicator (wavy underline) on the current command
     // sequence (if there are any)
     decorateCommandStringAroundInsertionPoint(mathfield.model, false);
-    // 5.2 If we have a `moveAfterParent` selector (usually triggered with
+    // 6.2 If we have a `moveAfterParent` selector (usually triggered with
     // `spacebar), and we're at the end of a smart fence, close the fence with
     // an empty (.) right delimiter
     const parent = mathfield.model.parent();
@@ -207,9 +223,9 @@ export function onKeystroke(
         selector = '';
         requestUpdate(mathfield); // Re-render the closed smartFence
     }
-    // 5.3 If this is the Spacebar and we're just before or right after
+    // 6.3 If this is the Spacebar and we're just before or right after
     // a text zone, insert the space inside the text zone
-    if (mathfield.mode === 'math' && keystroke === 'Spacebar' && !shortcut) {
+    if (mathfield.mode === 'math' && keystroke === '[Spacebar]' && !shortcut) {
         const nextSibling = mathfield.model.sibling(1);
         const previousSibling = mathfield.model.sibling(-1);
         if (
@@ -219,7 +235,7 @@ export function onKeystroke(
             insert(mathfield.model, ' ', { mode: 'text' });
         }
     }
-    // 5.4 If there's a selector, perform it.
+    // 6.4 If there's a selector, perform it.
     if (selector) {
         mathfield.$perform(selector);
     } else if (shortcut) {
@@ -238,7 +254,7 @@ export function onKeystroke(
                 ...getAnchorStyle(mathfield.model),
                 ...mathfield.style,
             };
-            insert(mathfield.model, Keyboard.eventToChar(evt), {
+            insert(mathfield.model, eventToChar(evt), {
                 suppressChangeNotifications: true,
                 mode: mathfield.mode,
                 style: style,
@@ -286,9 +302,10 @@ export function onKeystroke(
             mathfield.resetKeystrokeBuffer();
         }
     }
-    // 6. Make sure the insertion point is scrolled into view
+    // 7. Make sure the insertion point is scrolled into view
     mathfield.scrollIntoView();
-    // 7. Keystroke has been handled, if it wasn't caught in the default
+
+    // 8. Keystroke has been handled, if it wasn't caught in the default
     // case, so prevent propagation
     if (evt?.preventDefault) {
         evt.preventDefault();
@@ -326,7 +343,7 @@ export function onTypedText(
         mathfield.$focus();
     }
     if (options.feedback) {
-        if (mathfield.config.keypressVibration && navigator.vibrate) {
+        if (mathfield.config.keypressVibration && navigator?.vibrate) {
             navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
         }
         if (mathfield.keypressSound) {
@@ -343,8 +360,8 @@ export function onTypedText(
     if (options.simulateKeystroke) {
         // for (const c of text) {
         const c = text.charAt(0);
-        const ev: KeyboardEvent = Keyboard.charToEvent(c) as KeyboardEvent;
-        if (!onKeystroke(mathfield, Keyboard.keyboardEventToString(ev), ev)) {
+        const ev = new KeyboardEvent('keypress', { key: c });
+        if (!onKeystroke(mathfield, c, ev)) {
             return;
         }
         // }

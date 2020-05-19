@@ -46,9 +46,9 @@ export function applyStyleToUnstyledAtoms(
 export function applyStyle(
     model: ModelPrivate,
     style: Style & { series?: FontSeries; shape?: FontShape; size?: string }
-): void {
+): boolean {
     // No selection, nothing to do.
-    if (selectionIsCollapsed(model)) return;
+    if (selectionIsCollapsed(model)) return false;
 
     function everyStyle(property, value): boolean {
         let result = true;
@@ -101,4 +101,6 @@ export function applyStyle(
     contentWillChange(model);
     forEachSelected(model, (x) => x.applyStyle(style), { recursive: true });
     contentDidChange(model);
+
+    return true;
 }

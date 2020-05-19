@@ -9,8 +9,8 @@ import type { MathfieldPrivate } from './mathfield-class';
 import type { ModelPrivate } from './model-class';
 import { l10n } from './l10n';
 import { defaultAnnounceHook } from './a11y';
-import { INLINE_SHORTCUTS } from './shortcuts-definitions-inline';
-export { InlineShortcutDefinition } from '../public/shortcuts';
+import { INLINE_SHORTCUTS } from './shortcuts-definitions';
+import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // from 0.0 to 1.0
 
@@ -273,6 +273,8 @@ export function getDefault(): Required<MathfieldConfigPrivate> {
 
         locale: 'auto',
         strings: {},
+
+        keybindings: DEFAULT_KEYBINDINGS,
 
         overrideDefaultInlineShortcuts: false, // @revisit: don't need this if we return the actual shortcuts
         inlineShortcuts: {}, // @revisit: return the actual shortcuts

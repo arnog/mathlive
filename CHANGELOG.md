@@ -1,16 +1,49 @@
 ## [Unreleased]
 
+### New Features
+
+-   **#450** Custom keybindings. A keybinding (also called keyboard shorcut)
+    associate a keystroke combination on a physical keyboard with a command.
+    Mathlive previously had some built-in keybindings, but now they can be
+    extended or replaced.
+    See `config.keybindings` and `Keybinding`.
+
+-   Added `setKeyboardLayout()` and `setKeyboardLayoutLocale()` functions to
+    customize the current physical keyboard layout.
+
+### Improvements
+
+-   **#461** The array editing commands only worked in math mode. They now apply
+    in text mode as well.
+
+-   **#459**: Add a placeholder for incomplete commands, for example entering
+    `\frac` in command mode.
+
+-   Added some missing commands: `deleteNextChar`, `deletePreviousChar`,
+    `deleteNextWord`, `deletePreviousWord`, `deleteToGroupStart`, `deleteToGroupEnd`,
+    `deleteToMathFieldEnd`, `moveToSubscript`, `applyStyle`, `toggleVirtualKeyboard`,
+    `hideVirtualKeyboard`, `showVirtualKeyboard`
+
+-   In some cases, the top of the placeholder character could be cut off.
+
 ### Bug Fixes
 
 -   The Read Aloud feature would not work when a Neural Engine AWS voice
-    was used (such as Joana or Matthew).
+    was used (such as Joana or Matthew)
+
+-   In the Vue wrapper, the `onKeystroke` handler would error
+
+-   Styling (applying color, style) was disabled. This also affected mode change
+    (i.e. alt+= to switch between text and math mode)
+
+-   After completing a command in command mode (i.e. pressing the return key), the mode did not switch not math mode and remained in command mode.
 
 ## 0.50.8 (2020-05-13)
 
 ### Improvements
 
 -   The Symbols keyboard is now a top-level keyboard. Previously it was accessible
-    only from the Roman keyboard.
+    only from the Roman keyboard
 -   Added some standard Latex commands: `\inf`, `\Pr`, `\liminf`, `\limsup`
 -   Added inline shortcuts for some commands: `sinh`, `cosh`, `sec`, `csc`,
     `cot`, `arcsin`, `arccos`, `arctan`

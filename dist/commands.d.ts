@@ -1,7 +1,6 @@
-/* v0.50.7-17-g3470679-dirty */import { Keys } from './types-utils';
-import { ParseMode } from './core';
-import { Mathfield } from './mathfield';
-import { Model } from './model';
+/* 0.50.8 */import type { Keys } from './types-utils';
+import type { ParseMode, Style } from './core';
+import type { Mathfield, Model } from './mathfield';
 /**
  * How much of the formula should be spoken:
  * | | |
@@ -106,7 +105,38 @@ export interface Commands {
      * @category Array
      */
     addColumnBefore: (model: Model) => boolean;
+    /**
+     * @category Deleting
+     */
     deleteAll: (model: Model) => boolean;
+    /**
+     * @category Deleting
+     */
+    deleteNextChar: (model: Model) => boolean;
+    /**
+     * @category Deleting
+     */
+    deletePreviousChar: (model: Model) => boolean;
+    /**
+     * @category Deleting
+     */
+    deleteNextWord: (model: Model) => boolean;
+    /**
+     * @category Deleting
+     */
+    deletePreviousWord: (model: Model) => boolean;
+    /**
+     * @category Deleting
+     */
+    deleteToGroupStart: (model: Model) => boolean;
+    /**
+     * @category Deleting
+     */
+    deleteToGroupEnd: (model: Model) => boolean;
+    /**
+     * @category Deleting
+     */
+    deleteToMathFieldEnd: (model: Model) => boolean;
     /**
      * @category Selection
      */
@@ -174,6 +204,10 @@ export interface Commands {
     /**
      * @category Selection
      */
+    moveToSubscript: (model: Model) => boolean;
+    /**
+     * @category Selection
+     */
     selectGroup: (model: Model) => boolean;
     /**
      * @category Selection
@@ -227,5 +261,18 @@ export interface Commands {
      * @category Selection
      */
     extendToMathFieldEnd: (model: Model) => boolean;
+    applyStyle: (mathfield: Mathfield, style: Style) => boolean;
+    /**
+     * @category Virtual Keyboard
+     */
+    toggleVirtualKeyboard: (mathfield: Mathfield, theme: 'apple' | 'material' | '') => boolean;
+    /**
+     * @category Virtual Keyboard
+     */
+    hideVirtualKeyboard: (mathfield: Mathfield) => boolean;
+    /**
+     * @category Virtual Keyboard
+     */
+    showVirtualKeyboard: (mathfield: Mathfield, theme: 'apple' | 'material' | '') => boolean;
 }
 export declare type Selector = Keys<Commands>;

@@ -6,7 +6,11 @@
         "incremental": true,
         "tsBuildInfoFile": "./build/ts-cache.tsbuildinfo",
 
-        "lib": ["es2017", "es2020.string", "dom", "dom.iterable", "scripthost"],
+        "lib": ["es2018", "es2020.string", "dom", "dom.iterable", "scripthost"],
+        // Only include the types for jest, not all the ones in node_modules/@types,
+        // which include NodeJS definitions that are not applicable to a web app
+        "types": ["./node_modules/@types/jest"],
+
         // "declaration": true,
         // "allowJs": true,
         // "checkJs": true,
