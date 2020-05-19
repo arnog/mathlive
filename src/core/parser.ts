@@ -353,7 +353,7 @@ class Parser {
                 } else {
                     // Report an error
                     this.onError({ code: 'missing-argument' });
-                    return ['', null];
+                    args.push(this.placeholder());
                 }
             }
             i += 1;
