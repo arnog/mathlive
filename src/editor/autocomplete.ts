@@ -72,38 +72,24 @@ export function complete(
         } else {
             // We'll assume we want to insert in math mode
             // (commands are only available in math mode)
-            const mode = 'math';
-            if (commandAllowed(mode, command)) {
-                const mathlist = parseString(
-                    command,
-                    mode,
-                    null,
-                    mathfield.config.macros
-                );
+            mathfield.switchMode('math');
+            // Interpret the input as LaTeX code
+            const mathlist = parseString(
+                command,
+                'math',
+                null,
+                mathfield.config.macros
+            );
+            if (mathlist) {
                 spliceCommandStringAroundInsertionPoint(
                     mathfield.model,
                     mathlist
                 );
             } else {
-                // mathfield wasn't a simple function or symbol.
-                // Interpret the input as LaTeX code
-                const mathlist = parseString(
-                    command,
-                    mode,
-                    null,
-                    mathfield.config.macros
+                decorateCommandStringAroundInsertionPoint(
+                    mathfield.model,
+                    true
                 );
-                if (mathlist) {
-                    spliceCommandStringAroundInsertionPoint(
-                        mathfield.model,
-                        mathlist
-                    );
-                } else {
-                    decorateCommandStringAroundInsertionPoint(
-                        mathfield.model,
-                        true
-                    );
-                }
             }
         }
         mathfield.undoManager.snapshot(mathfield.config);
