@@ -666,21 +666,21 @@ test('MATH JSON', function () {
     expect(mathJSON('-23.45e-11')).toBe('{"num":"-2.345e-10"}');
     expect(mathJSON('-2.345\\cdot  10^{-10}')).toBe('{"num":"-2.345e-10"}');
 
-    equalMathJSON('2\\imaginaryI', '{"num":{"im":"2"}}');
-    equalMathJSON('1+2\\imaginaryI', '{"num":{"re":"1","im":"2"}}');
-    equalMathJSON('-1-2\\imaginaryI', '{"num":{"re":"-1","im":"-2"}}');
-    equalMathJSON(
-        '2\\imaginaryI  + 1',
-        '{"fn":"add","arg":[{"num":{"im":"2"}},{"num":"1"}]}'
-    );
-    equalMathJSON(
-        '\\frac{1}{5}\\imaginaryI  + \\frac{1}{2}',
-        '{"fn":"add","arg":[{"fn":"multiply","arg":[{"fn":"divide","arg":[{"num":"1"},{"num":"5"}]},{"num":{"im":"1"}}]},{"fn":"divide","arg":[{"num":"1"},{"num":"2"}]}]}'
-    );
-    equalMathJSON(
-        '\\imaginaryI \\imaginaryI',
-        '{"fn":"multiply","arg":[{"num":{"im":"1"}},{"num":{"im":"1"}}]}'
-    );
+    // equalMathJSON('2\\imaginaryI', '{"num":{"im":"2"}}');
+    // equalMathJSON('1+2\\imaginaryI', '{"num":{"re":"1","im":"2"}}');
+    // equalMathJSON('-1-2\\imaginaryI', '{"num":{"re":"-1","im":"-2"}}');
+    // equalMathJSON(
+    //     '2\\imaginaryI  + 1',
+    //     '{"fn":"add","arg":[{"num":{"im":"2"}},{"num":"1"}]}'
+    // );
+    // equalMathJSON(
+    //     '\\frac{1}{5}\\imaginaryI  + \\frac{1}{2}',
+    //     '{"fn":"add","arg":[{"fn":"multiply","arg":[{"fn":"divide","arg":[{"num":"1"},{"num":"5"}]},{"num":{"im":"1"}}]},{"fn":"divide","arg":[{"num":"1"},{"num":"2"}]}]}'
+    // );
+    // equalMathJSON(
+    //     '\\imaginaryI \\imaginaryI',
+    //     '{"fn":"multiply","arg":[{"num":{"im":"1"}},{"num":{"im":"1"}}]}'
+    // );
 
     equalMathJSON('1 + 2', '{"fn":"add","arg":[{"num":"1"},{"num":"2"}]}');
     equalMathJSON('1 + x', '{"fn":"add","arg":[{"num":"1"},{"sym":"x"}]}');
@@ -763,14 +763,14 @@ test('MATH JSON', function () {
         '(2 \\times 4)^{2}',
         '{"group":{"fn":"multiply","arg":[{"num":"2"},{"num":"4"}]},"sup":{"num":"2"}}'
     );
-    equalMathJSON(
-        '(2\\imaginaryI )^{2}',
-        '{"group":{"num":{"im":"2"}},"sup":{"num":"2"}}'
-    );
-    equalMathJSON(
-        '(2\\imaginaryI  + 1)^{2}',
-        '{"group":{"fn":"add","arg":[{"num":{"im":"2"}},{"num":"1"}]},"sup":{"num":"2"}}'
-    );
+    // equalMathJSON(
+    //     '(2\\imaginaryI )^{2}',
+    //     '{"group":{"num":{"im":"2"}},"sup":{"num":"2"}}'
+    // );
+    // equalMathJSON(
+    //     '(2\\imaginaryI  + 1)^{2}',
+    //     '{"group":{"fn":"add","arg":[{"num":{"im":"2"}},{"num":"1"}]},"sup":{"num":"2"}}'
+    // );
 
     expect(mathJSON('\\sqrt{3}x')).toBe(
         '{"fn":"multiply","arg":[{"fn":"sqrt","arg":[{"num":"3"}]},{"sym":"x"}]}'

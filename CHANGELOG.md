@@ -1,3 +1,11 @@
+## [Unreleased]
+
+### Improvements
+
+-   Move some of the Mathematica inspired command (e.g. `\differentialD`, `doubleStruckCapitalN`, etc...) to be macros instead of built-in commands.
+    This will allow them to be properly expanded during copy/paste operations
+    for improved interoperability.
+
 ## 0.51.0 (2020-05-19)
 
 ### New Features

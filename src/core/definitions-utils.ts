@@ -246,6 +246,32 @@ export const MACROS: MacroDictionary = {
     Ket: '\\left|#1\\right\\rangle',
     Braket: '\\left\\langle{#1}\\right\\rangle',
     Set: '\\left\\lbrace #1 \\right\\rbrace',
+
+    // Proof Wiki
+    rd: '\\mathrm{d}',
+    rD: '\\mathrm{D}',
+
+    // From Wolfram Alpha
+    doubleStruckCapitalN: '\\mathbb{N}',
+    doubleStruckCapitalR: '\\mathbb{R}',
+    doubleStruckCapitalQ: '\\mathbb{Q}',
+    doubleStruckCapitalZ: '\\mathbb{Z}',
+    doubleStruckCapitalP: '\\mathbb{P}',
+
+    scriptCapitalE: '\\mathscr{E}',
+    scriptCapitalH: '\\mathscr{H}',
+    scriptCapitalL: '\\mathscr{L}',
+    gothicCapitalC: '\\mathfrak{C}',
+    gothicCapitalH: '\\mathfrak{H}',
+    gothicCapitalI: '\\mathfrak{I}',
+    gothicCapitalR: '\\mathfrak{R}',
+
+    imaginaryI: '\\mathrm{i}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+    imaginaryJ: '\\mathrm{j}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+
+    exponentialE: '\\mathrm{e}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+    differentialD: '\\mathrm{d}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+    capitalDifferentialD: '\\mathrm{D}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
 };
 
 export const RIGHT_DELIM = {

@@ -1231,8 +1231,8 @@ class Parser {
             let depth = 1;
             do {
                 const token = this.get();
-                if (token.type === '}') depth -= 1;
-                if (token.type === '{') depth += 1;
+                if (token?.type === '}') depth -= 1;
+                if (token?.type === '{') depth += 1;
             } while (depth > 0 && !this.end());
             result = parseTokens(
                 parseMode,
