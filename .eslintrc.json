@@ -34,6 +34,19 @@
     // See http://eslint.org/docs/rules/
 
     "rules": {
+        // "no-unsanitized/method": [
+        //     "warn",
+        //     {
+        //         // "disableDefault": true,
+        //         "escape": {
+        //             "methods": [
+        //                 "createHTML",
+        //                 "mathfield.config.createHTML",
+        //                 "MathfieldPrivate.config.createHTML"
+        //             ]
+        //         }
+        //     }
+        // ],
         /// Temporary lenient rules until more complete conversion to
         /// Typescript is completed. @revisit
         "@typescript-eslint/explicit-function-return-type": "off",

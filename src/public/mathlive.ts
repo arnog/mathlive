@@ -209,6 +209,15 @@ export type AutoRenderOptions = {
      */
     namespace?: string;
 
+    /**
+     * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
+     *
+     * This optional function will be called whenever the DOM is modified
+     * by injecting a string of HTML, allowing that string to be sanitized
+     * according to a policy defined by the host.
+     */
+    createHTML?: (html: string) => any;
+
     /** Custom LaTeX macros */
     macros?: MacroDictionary;
 

@@ -258,6 +258,7 @@ export function getDefault(): Required<MathfieldConfigPrivate> {
         namespace: '',
         substituteTextArea: undefined,
         readOnly: false,
+        createHTML: (s) => s,
 
         defaultMode: 'math',
         macros: MACROS,

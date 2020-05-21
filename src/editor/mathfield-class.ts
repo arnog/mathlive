@@ -209,7 +209,7 @@ export class MathfieldPrivate implements Mathfield {
         </div>
     `;
 
-        this.element.innerHTML = markup;
+        this.element.innerHTML = this.config.createHTML(markup);
 
         let iChild = 0; // index of child -- used to make changes below easier
         if (typeof this.config.substituteTextArea === 'function') {
@@ -448,7 +448,7 @@ export class MathfieldPrivate implements Mathfield {
         }
     }
     $revertToOriginalContent(): void {
-        this.element.innerHTML = this.originalContent;
+        this.element.innerHTML = this.config.createHTML(this.originalContent);
         delete this.element['mathfield'];
         delete this.accessibleNode;
         delete this.ariaLiveText;

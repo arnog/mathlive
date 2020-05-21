@@ -42,11 +42,12 @@ export function showKeystroke(mathfield: MathfieldPrivate, keystroke: string) {
         const bounds = mathfield.element.getBoundingClientRect();
         vb.style.left = bounds.left + 'px';
         vb.style.top = bounds.top - 64 + 'px';
-        vb.innerHTML =
+        vb.innerHTML = mathfield.config.createHTML(
             '<span>' +
-            (getKeybindingMarkup(keystroke) || keystroke) +
-            '</span>' +
-            vb.innerHTML;
+                (getKeybindingMarkup(keystroke) || keystroke) +
+                '</span>' +
+                vb.innerHTML
+        );
         vb.style.visibility = 'visible';
         setTimeout(function () {
             if (vb.childNodes.length > 0) {

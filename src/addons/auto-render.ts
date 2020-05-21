@@ -162,10 +162,11 @@ function createMathMLNode(latex: string, options: AutoRenderOptionsPrivate) {
     // This node has a style that makes it be invisible to display but is seen by AT
     const span = document.createElement('span');
     try {
-        span.innerHTML =
+        const html =
             "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
             options.renderToMathML(latex, options) +
             '</math>';
+        span.innerHTML = options.createHTML ? options.createHTML(html) : html;
     } catch (e) {
         console.error("Could not convert'" + latex + "' to MathML with ", e);
         span.textContent = latex;
@@ -201,11 +202,12 @@ function createMarkupNode(
     }
 
     try {
-        span.innerHTML = options.renderToMarkup(text, {
+        const html = options.renderToMarkup(text, {
             mathstyle: mathstyle || 'displaystyle',
             format: 'html',
             macros: options.macros,
         });
+        span.innerHTML = options.createHTML ? options.createHTML(html) : html;
     } catch (e) {
         console.error("Could not parse'" + text + "' with ", e);
         if (createNodeOnFailure) {
@@ -249,7 +251,10 @@ function createAccessibleMarkupPair(
             options.renderToSpeakableText
         ) {
             const span = document.createElement('span');
-            span.innerHTML = options.renderToSpeakableText(text, options);
+            const html = options.renderToSpeakableText(text, options);
+            span.innerHTML = options.createHTML
+                ? options.createHTML(html)
+                : html;
             span.className = 'sr-only';
             fragment.appendChild(span);
         }

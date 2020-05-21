@@ -642,36 +642,6 @@ mf.setConfig({
     letterShapeStyle?: 'auto' | 'tex' | 'iso' | 'french' | 'upright';
 };
 
-/**
- *
- * - <var>namespace</var> Namespace that is added to `data-` attributes
- * to avoid collisions with other libraries.
- *
- * It is empty by default.
- *
- * The namespace should be a string of lowercase letters.
- *
- * - <var>onError</var> An optional listener function that will be
- * invoked when an error is encountered while parsing some Latex. This
- * could be the initial value of the mathfield, a value inserted
- * programmatically later, or through a user interaction (pasting in the
- * mathfield for example). See [[`ParserErrorCode`]]
- * for the list of possible errors.
- *
- * - <var>substituteTextArea</var> A function that returns a focusable
- * element that can be used to capture text input.
- *
- * An (invisible) DOM element is used to capture the keyboard events. By
- * default, this element is a `<textarea>` on desktop and a `<span>` on
- * mobile devices, to prevent the device virtual keyboard from being
- * displayed.
- *
- * This function provides the option of substituting the DOM element
- * used for keyboard capture.
- *
- * Alternatively, the ID of a DOM element can be provided.
- */
-
 export type MathfieldConfig = LayoutOptions &
     EditingOptions &
     LocalizationOptions &
@@ -681,9 +651,52 @@ export type MathfieldConfig = LayoutOptions &
     TextToSpeechOptions &
     MathfieldHooks &
     MathfieldListeners & {
+        /**
+         * Namespace that is added to `data-` attributes to avoid collisions
+         * with other libraries.
+         *
+         * It is empty by default.
+         *
+         * The namespace should be a string of lowercase letters.
+         */
         namespace?: string;
+
+        /**
+         * An optional listener function that will be
+         * invoked when an error is encountered while parsing some Latex. This
+         * could be the initial value of the mathfield, a value inserted
+         * programmatically later, or through a user interaction (pasting in the
+         * mathfield for example). See [[`ParserErrorCode`]]
+         * for the list of possible errors.
+         */
         onError?: ParserErrorListener;
+
+        /**
+         * A function that returns a focusable
+         * element that can be used to capture text input.
+         *
+         * An (invisible) DOM element is used to capture the keyboard events. By
+         * default, this element is a `<textarea>` on desktop and a `<span>` on
+         * mobile devices, to prevent the device virtual keyboard from being
+         * displayed.
+         *
+         * This function provides the option of substituting the DOM element
+         * used for keyboard capture.
+         *
+         *
+         * Alternatively, the ID of a DOM element can be provided.
+         */
         substituteTextArea?: string | (() => HTMLElement);
+
+        /**
+         * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
+         *
+         * This optional function will be called whenever the DOM is modified
+         * by injecting a string of HTML, allowing that string to be sanitized
+         * according to a policy defined by the host.
+         */
+        createHTML?: (html: string) => any;
+        // @todo https://github.com/microsoft/TypeScript/issues/30024
     };
 
 /**
@@ -692,6 +705,9 @@ export type MathfieldConfig = LayoutOptions &
  *  | `'apple.en-intl'` |  Apple | English (International) |
  *  | `'windows.en-intl'` |  Windows | English (International) |
  *  | `'linux.en'` |  Linux | English |
+ *  | `'apple.french'` |  Apple | French (AZERTY) |
+ *  | `'windows.french'` |  Windows | French (AZERTY) |
+ *  | `'linux.french'` |  Linux | French (AZERTY) |
  */
 export type KeyboardLayoutName =
     | 'apple.french'

@@ -87,7 +87,7 @@ registerCommand(
                 markup += '</li>';
             }
             markup = '<ul>' + markup + '</ul>';
-            altContainer.innerHTML = markup;
+            altContainer.innerHTML = mathfield.config.createHTML(markup);
             makeKeycap(
                 mathfield,
                 altContainer.getElementsByTagName('li'),
@@ -203,7 +203,9 @@ registerCommand(
                         if (!shiftedContent) {
                             shiftedContent = keycap.innerHTML.toUpperCase();
                         }
-                        keycap.innerHTML = shiftedContent;
+                        keycap.innerHTML = mathfield.config.createHTML(
+                            shiftedContent
+                        );
                         const command = keycap.getAttribute(
                             'data-' + mathfield.config.namespace + 'command'
                         );

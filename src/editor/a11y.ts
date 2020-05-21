@@ -52,10 +52,11 @@ export function defaultAnnounceHook(
     } else if (action === 'line') {
         // announce the current line -- currently that's everything
         liveText = speakableText(mathfield.config, '', mathfield.model.root);
-        mathfield.accessibleNode.innerHTML =
+        mathfield.accessibleNode.innerHTML = mathfield.config.createHTML(
             '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
-            atomsToMathML(mathfield.model.root, mathfield.config) +
-            '</math>';
+                atomsToMathML(mathfield.model.root, mathfield.config) +
+                '</math>'
+        );
 
         mathfield.textarea.setAttribute('aria-label', 'after: ' + liveText);
 

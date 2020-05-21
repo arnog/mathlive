@@ -133,19 +133,19 @@ export function render(mathfield: MathfieldPrivate, renderOptions?) {
     //
     // 6. Generate markup and accessible node
     //
-    mathfield.field.innerHTML = wrapper.toMarkup(
-        0,
-        mathfield.config.horizontalSpacingScale
+    mathfield.field.innerHTML = mathfield.config.createHTML(
+        wrapper.toMarkup(0, mathfield.config.horizontalSpacingScale)
     );
     mathfield.field.classList.toggle(
         'ML__focused',
         hasFocus && !mathfield.config.readOnly
     );
 
-    mathfield.accessibleNode.innerHTML =
+    mathfield.accessibleNode.innerHTML = mathfield.config.createHTML(
         '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
-        atomsToMathML(mathfield.model.root, mathfield.config) +
-        '</math>';
+            atomsToMathML(mathfield.model.root, mathfield.config) +
+            '</math>'
+    );
     //mathfield.ariaLiveText.textContent = "";
 
     //

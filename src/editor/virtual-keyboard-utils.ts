@@ -961,30 +961,31 @@ export function makeKeycap(
 ): void {
     for (let i = 0; i < elList.length; ++i) {
         const el = elList[i];
+        let html = '';
         // Display
         if (el.getAttribute('data-latex')) {
-            el.innerHTML = latexToMarkup(
+            html = latexToMarkup(
                 el.getAttribute('data-latex').replace(/&quot;/g, '"'),
                 { '?': '{\\color{#555}{\\tiny \\char"2B1A}}' },
                 mf
             );
         } else if (el.innerHTML === '' && el.getAttribute('data-insert')) {
-            el.innerHTML = latexToMarkup(
+            html = latexToMarkup(
                 el.getAttribute('data-insert').replace(/&quot;/g, '"'),
                 { '?': '{\\color{#555}{\\tiny \\char"2B1A}}' },
                 mf
             );
         } else if (el.getAttribute('data-content')) {
-            el.innerHTML = el
-                .getAttribute('data-content')
-                .replace(/&quot;/g, '"');
+            html = el.getAttribute('data-content').replace(/&quot;/g, '"');
         }
+
         if (el.getAttribute('data-aside')) {
-            el.innerHTML +=
+            html +=
                 '<aside>' +
                 el.getAttribute('data-aside').replace(/&quot;/g, '"') +
                 '</aside>';
         }
+        el.innerHTML = mf.config.createHTML(html);
         if (el.getAttribute('data-classes')) {
             el.classList.add(el.getAttribute('data-classes'));
         }
@@ -1556,7 +1557,7 @@ export function makeKeyboard(
     } else if (mf.config.virtualKeyboardTheme) {
         result.classList.add(mf.config.virtualKeyboardTheme);
     }
-    result.innerHTML = markup;
+    result.innerHTML = mf.config.createHTML(markup);
 
     // Attach the element handlers
     makeKeycap(
@@ -1660,7 +1661,7 @@ export function unshiftKeyboardLayer(mathfield: MathfieldPrivate): boolean {
             const keycap = keycaps[i];
             const content = keycap.getAttribute('data-unshifted-content');
             if (content) {
-                keycap.innerHTML = content;
+                keycap.innerHTML = mathfield.config.createHTML(content);
             }
             const command = keycap.getAttribute('data-unshifted-command');
             if (command) {

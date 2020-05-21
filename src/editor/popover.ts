@@ -373,8 +373,8 @@ export function updatePopoverPosition(
     }
 }
 
-export function showPopover(mf: MathfieldPrivate, markup) {
-    mf.popover.innerHTML = markup;
+export function showPopover(mf: MathfieldPrivate, markup: string) {
+    mf.popover.innerHTML = mf.config.createHTML(markup);
 
     const position = getCaretPosition(mf.field);
     if (position) setPopoverPosition(mf, position);

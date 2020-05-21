@@ -236,9 +236,12 @@ function revertToOriginalContent(element: HTMLElement, options): void {
     } else {
         options = options || {};
         validateNamespace(options);
-        element.innerHTML = element.getAttribute(
+        const html = element.getAttribute(
             'data-' + (options.namespace || '') + 'original-content'
         );
+        element.innerHTML = options.createHTML
+            ? options.createHTML(html)
+            : html;
     }
 }
 

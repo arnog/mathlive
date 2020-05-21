@@ -1,10 +1,17 @@
 ## [Unreleased]
 
+### New Feature
+
+-   Support for [Trusted Types](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
+    A new option in `Config`, `createHTML`, is called before injecting HTML
+    into the page
+
 ### Improvements
 
--   Move some of the Mathematica inspired command (e.g. `\differentialD`, `doubleStruckCapitalN`, etc...) to be macros instead of built-in commands.
+-   Move some of the Mathematica inspired command (e.g. `\differentialD`,
+    `doubleStruckCapitalN`, etc...) to be macros instead of built-in commands.
     This will allow them to be properly expanded during copy/paste operations
-    for improved interoperability.
+    for improved interoperability
 
 ## 0.51.0 (2020-05-19)
 
@@ -14,25 +21,25 @@
     associate a keystroke combination on a physical keyboard with a command.
     Mathlive previously had some built-in keybindings, but now they can be
     extended or replaced.
-    See `config.keybindings` and `Keybinding`.
+    See `config.keybindings` and `Keybinding`
 
 -   Added `setKeyboardLayout()` and `setKeyboardLayoutLocale()` functions to
-    customize the current physical keyboard layout.
+    customize the current physical keyboard layout
 
 ### Improvements
 
 -   **#461** The array editing commands only worked in math mode. They now apply
-    in text mode as well.
+    in text mode as well
 
 -   **#459**: Add a placeholder for incomplete commands, for example entering
-    `\frac` in command mode.
+    `\frac` in command mode
 
 -   Added some missing commands: `deleteNextChar`, `deletePreviousChar`,
     `deleteNextWord`, `deletePreviousWord`, `deleteToGroupStart`, `deleteToGroupEnd`,
     `deleteToMathFieldEnd`, `moveToSubscript`, `applyStyle`, `toggleVirtualKeyboard`,
     `hideVirtualKeyboard`, `showVirtualKeyboard`
 
--   In some cases, the top of the placeholder character could be cut off.
+-   In some cases, the top of the placeholder character could be cut off
 
 ### Bug Fixes
 
