@@ -90,7 +90,7 @@ registerCommand(
             altContainer.innerHTML = mathfield.config.createHTML(markup);
             makeKeycap(
                 mathfield,
-                altContainer.getElementsByTagName('li'),
+                [].slice.call(altContainer.getElementsByTagName('li')),
                 'performAlternateKeys'
             );
             const keycapEl = mathfield.virtualKeyboard.querySelector(

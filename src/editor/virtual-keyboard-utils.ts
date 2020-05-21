@@ -956,12 +956,12 @@ function makeKeyboardToolbar(
 
 export function makeKeycap(
     mf: MathfieldPrivate,
-    elList,
+    elList: HTMLElement[],
     chainedCommand?: string | any[]
 ): void {
     for (let i = 0; i < elList.length; ++i) {
         const el = elList[i];
-        let html = '';
+        let html: string;
         // Display
         if (el.getAttribute('data-latex')) {
             html = latexToMarkup(
@@ -969,7 +969,7 @@ export function makeKeycap(
                 { '?': '{\\color{#555}{\\tiny \\char"2B1A}}' },
                 mf
             );
-        } else if (el.innerHTML === '' && el.getAttribute('data-insert')) {
+        } else if (el.getAttribute('data-insert') && el.innerHTML === '') {
             html = latexToMarkup(
                 el.getAttribute('data-insert').replace(/&quot;/g, '"'),
                 { '?': '{\\color{#555}{\\tiny \\char"2B1A}}' },
@@ -980,12 +980,15 @@ export function makeKeycap(
         }
 
         if (el.getAttribute('data-aside')) {
-            html +=
+            html =
+                (html ?? '') +
                 '<aside>' +
                 el.getAttribute('data-aside').replace(/&quot;/g, '"') +
                 '</aside>';
         }
-        el.innerHTML = mf.config.createHTML(html);
+        if (typeof html !== 'undefined') {
+            el.innerHTML = mf.config.createHTML(html);
+        }
         if (el.getAttribute('data-classes')) {
             el.classList.add(el.getAttribute('data-classes'));
         }
@@ -1562,8 +1565,10 @@ export function makeKeyboard(
     // Attach the element handlers
     makeKeycap(
         mf,
-        result.querySelectorAll<HTMLElement>(
-            '.keycap, .action, .fnbutton, .bigfnbutton'
+        [].slice.call(
+            result.querySelectorAll<HTMLElement>(
+                '.keycap, .action, .fnbutton, .bigfnbutton'
+            )
         )
     );
 
