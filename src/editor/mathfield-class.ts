@@ -674,7 +674,7 @@ export class MathfieldPrivate implements Mathfield {
         );
     }
     $latex(text?: string, options?: InsertOptions): string {
-        if (text) {
+        if (typeof text === 'string') {
             const oldValue = this.model.root.toLatex();
             if (text !== oldValue) {
                 options = options ?? { mode: 'math' };
