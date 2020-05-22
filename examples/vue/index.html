@@ -8,12 +8,12 @@
         <link rel="stylesheet" href="../../dist/mathlive.css" />
     </head>
     <body>
-        <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-
         <script type="module">
+            import Vue from 'https://cdn.jsdelivr.net/npm/vue/dist/vue.esm.browser.js';
             import MathLive from '../../dist/mathlive.mjs';
             //   import Mathfield from "./node_modules/mathlive/dist/vue-mathlive.mjs";
             import Mathfield from '../../dist/vue-mathlive.mjs';
+            Vue.config.devtools = true;
 
             Vue.use(Mathfield, MathLive);
             // The default tag for mathfields is <mathlive-mathfield>
