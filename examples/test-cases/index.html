@@ -1114,6 +1114,9 @@
                     ...mf.getConfig('macros'),
                     myMacro: '\\operatorname{\\text{#1}}',
                 },
+                onUndoStateDidChange: (x) => {
+                    console.log('undo state changed');
+                },
             });
 
             if (false) {

@@ -79,7 +79,7 @@ export function applyStyle(mathfield: MathfieldPrivate, style) {
     } else {
         // Change the style of the selection
         applyStyleToModel(mathfield.model, style);
-        mathfield.undoManager.snapshot(mathfield.config);
+        mathfield.snapshot();
     }
     return true;
 }

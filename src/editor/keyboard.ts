@@ -20,7 +20,7 @@
  * - `charCode`, `keyCode` and `which` are deprecated
  *
  * For background, see this info regarding keybinding in VSCode:
- * - https://github.com/microsoft/vscode/tree/69f2f05a37f2ddcbc93d5739373015a821a105b4/src/vs/workbench/services/keybinding
+ * - https://github.com/microsoft/vscode/tree/master/src/vs/workbench/services/keybinding
  * - https://github.com/microsoft/vscode/wiki/Keybinding-Issues
  */
 

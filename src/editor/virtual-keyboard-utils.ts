@@ -1679,3 +1679,27 @@ export function unshiftKeyboardLayer(mathfield: MathfieldPrivate): boolean {
     }
     return false;
 }
+
+export function updateUndoRedoButtons(mathfield: MathfieldPrivate) {
+    const virtualKeyboardToolbar = mathfield.virtualKeyboard?.querySelector(
+        '.keyboard-toolbar'
+    );
+    if (virtualKeyboardToolbar) {
+        const undoButton = virtualKeyboardToolbar.querySelector(
+            '[data-command=\'"undo"\']'
+        );
+        const redoButton = virtualKeyboardToolbar.querySelector(
+            '[data-command=\'"redo"\']'
+        );
+        if (mathfield.canRedo()) {
+            redoButton.classList.remove('disabled');
+        } else {
+            redoButton.classList.add('disabled');
+        }
+        if (mathfield.canUndo()) {
+            undoButton.classList.remove('disabled');
+        } else {
+            undoButton.classList.add('disabled');
+        }
+    }
+}

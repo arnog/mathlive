@@ -160,7 +160,7 @@ export function onKeystroke(
             }
             stateIndex = i - 1;
             mathfield.keystrokeBuffer += c;
-            mathfield.keystrokeBufferStates.push(mathfield.undoManager.save());
+            mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
             if (
                 getInlineShortcutsStartingWith(candidate, mathfield.config)
                     .length <= 1
@@ -276,12 +276,11 @@ export function onKeystroke(
             });
             const saveMode = mathfield.mode;
             // Create a snapshot with the inserted character
-            mathfield.undoManager.snapshotAndCoalesce(mathfield.config);
+            mathfield.snapshotAndCoalesce();
             // Revert to the state before the beginning of the shortcut
             // (restore doesn't change the undo stack)
-            mathfield.undoManager.restore(
-                mathfield.keystrokeBufferStates[stateIndex],
-                { ...mathfield.config, suppressChangeNotifications: true }
+            mathfield.restoreToUndoRecord(
+                mathfield.keystrokeBufferStates[stateIndex]
             );
             mathfield.mode = saveMode;
         }
@@ -309,7 +308,7 @@ export function onKeystroke(
         }
         mathfield.model.suppressChangeNotifications = save;
         contentDidChange(mathfield.model);
-        mathfield.undoManager.snapshot(mathfield.config);
+        mathfield.snapshot();
         requestUpdate(mathfield);
         mathfield.model.announce('replacement');
         // If we're done with the shortcuts (found a unique one), reset it.
@@ -498,7 +497,7 @@ export function onTypedText(
         }
     }
     if (mathfield.mode !== 'command') {
-        mathfield.undoManager.snapshotAndCoalesce(mathfield.config);
+        mathfield.snapshotAndCoalesce();
     }
     // Mark the mathfield dirty
     // (it will get rendered in scrollIntoView())

@@ -661,12 +661,15 @@ export declare type MathfieldConfig = LayoutOptions & EditingOptions & Localizat
  *  | :----- | :----- | :----- |
  *  | `'apple.en-intl'`         |  Apple | English (International) |
  *  | `'apple.french'`          |  Apple | French (AZERTY) |
+ *  | `'apple.german'`          |  Apple | German (QWERTZ) |
  *  | `'windows.en-intl'`       |  Windows | English (International) |
  *  | `'windows.french'`        |  Windows | French (AZERTY) |
+ *  | `'windows.german'`          |  Windows | German (QWERTZ) |
  *  | `'linux.en'`              |  Linux | English |
  *  | `'linux.french'`          |  Linux | French (AZERTY) |
+ *  | `'linux.german'`          |  Linux | German (QWERTZ) |
  */
-export declare type KeyboardLayoutName = 'apple.en-intl' | 'apple.french' | 'windows.en-intl' | 'windows.french' | 'linux.en' | 'linux.french';
+export declare type KeyboardLayoutName = 'apple.en-intl' | 'apple.french' | 'apple.german' | 'windows.en-intl' | 'windows.french' | 'windows.german' | 'linux.en' | 'linux.french' | 'linux.german';
 /**
  * Change the current physical keyboard layout.
  *

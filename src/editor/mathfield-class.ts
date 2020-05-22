@@ -74,22 +74,22 @@ import {
 import { atomToSpeakableText } from './atom-to-speakable-text';
 import { atomtoMathJson } from '../addons/math-json';
 import { atomsToMathML } from '../addons/math-ml';
+import { updateUndoRedoButtons } from './virtual-keyboard';
 
 export class MathfieldPrivate implements Mathfield {
     model: ModelPrivate;
     config: Required<MathfieldConfigPrivate>;
 
-    undoManager: UndoManager;
+    private undoManager: UndoManager;
 
-    readOnly: boolean;
-    blurred: boolean;
+    private blurred: boolean;
     dirty: boolean; // If true, need to be redrawn
     pasteInProgress: boolean;
     smartModeSuppressed: boolean;
-    resizeTimer: number; // Timer handle
+    private resizeTimer: number; // Timer handle
 
     element: HTMLElement;
-    originalContent: string;
+    readonly originalContent: string;
 
     textarea: HTMLElement;
     field: HTMLElement;
@@ -116,11 +116,11 @@ export class MathfieldPrivate implements Mathfield {
     mode: ParseMode;
     style: Style;
 
-    keypressSound: HTMLAudioElement; // @revisit. Is this used? The sounds are in config, no?
-    spacebarKeypressSound: HTMLAudioElement;
-    returnKeypressSound: HTMLAudioElement;
-    deleteKeypressSound: HTMLAudioElement;
-    plonkSound: HTMLAudioElement;
+    readonly keypressSound: HTMLAudioElement; // @revisit. Is this used? The sounds are in config, no?
+    readonly spacebarKeypressSound: HTMLAudioElement;
+    readonly returnKeypressSound: HTMLAudioElement;
+    readonly deleteKeypressSound: HTMLAudioElement;
+    readonly plonkSound: HTMLAudioElement;
 
     /**
      * To create a mathfield, you would typically use {@linkcode makeMathField | MathLive.makeMathField()}
@@ -325,7 +325,7 @@ export class MathfieldPrivate implements Mathfield {
             },
             {
                 onContentDidChange: (_sender: ModelPrivate) =>
-                    this._onContentDidChange(),
+                    this.config.onContentDidChange(this),
                 onSelectionDidChange: (_sender: ModelPrivate) =>
                     this._onSelectionDidChange(),
                 onContentWillChange: () =>
@@ -364,7 +364,7 @@ export class MathfieldPrivate implements Mathfield {
 
         this.model.setListeners({
             onContentDidChange: (_sender: ModelPrivate) =>
-                this._onContentDidChange(),
+                this.config.onContentDidChange(this),
             onSelectionDidChange: (_sender: ModelPrivate) =>
                 this._onSelectionDidChange(),
             onContentWillChange: () => this.config.onContentWillChange(this),
@@ -403,7 +403,7 @@ export class MathfieldPrivate implements Mathfield {
         this.config = updateConfig(this.config, config);
         this.model.setListeners({
             onContentDidChange: (_sender: ModelPrivate) =>
-                this._onContentDidChange(),
+                this.config.onContentDidChange(this),
             onSelectionDidChange: (_sender: ModelPrivate) =>
                 this._onSelectionDidChange(),
             onContentWillChange: () => this.config.onContentWillChange(this),
@@ -574,21 +574,6 @@ export class MathfieldPrivate implements Mathfield {
         // Invoke client listeners, if provided.
         if (typeof this.config.onSelectionDidChange === 'function') {
             this.config.onSelectionDidChange(this);
-        }
-    }
-    private _onContentDidChange(): void {
-        if (this.undoManager.canRedo()) {
-            this.element.classList.add('can-redo');
-        } else {
-            this.element.classList.remove('can-redo');
-        }
-        if (this.undoManager.canUndo()) {
-            this.element.classList.add('can-undo');
-        } else {
-            this.element.classList.remove('can-undo');
-        }
-        if (typeof this.config.onContentDidChange === 'function') {
-            this.config.onContentDidChange(this);
         }
     }
 
@@ -896,6 +881,60 @@ export class MathfieldPrivate implements Mathfield {
     }
     $typedText(text: string): void {
         onTypedText(this, text);
+    }
+    canUndo(): boolean {
+        return this.undoManager.canUndo();
+    }
+    canRedo(): boolean {
+        return this.undoManager.canRedo();
+    }
+    popUndoStack(): void {
+        this.undoManager.pop();
+    }
+    snapshot(): void {
+        this.undoManager.snapshot({
+            ...this.config,
+            onUndoStateDidChange: (mf, reason): void => {
+                updateUndoRedoButtons(this);
+                this.config.onUndoStateDidChange(mf, reason);
+            },
+        });
+    }
+    snapshotAndCoalesce(): void {
+        this.undoManager.snapshotAndCoalesce({
+            ...this.config,
+            onUndoStateDidChange: (mf, reason): void => {
+                updateUndoRedoButtons(this);
+                this.config.onUndoStateDidChange(mf, reason);
+            },
+        });
+    }
+    getUndoRecord(): UndoRecord {
+        return this.undoManager.save();
+    }
+    restoreToUndoRecord(s: UndoRecord): void {
+        this.undoManager.restore(s, {
+            ...this.config,
+            suppressChangeNotifications: true,
+        });
+    }
+    undo(): void {
+        return this.undoManager.undo({
+            ...this.config,
+            onUndoStateDidChange: (mf, reason): void => {
+                updateUndoRedoButtons(this);
+                this.config.onUndoStateDidChange(mf, reason);
+            },
+        });
+    }
+    redo(): void {
+        return this.undoManager.redo({
+            ...this.config,
+            onUndoStateDidChange: (mf, reason): void => {
+                updateUndoRedoButtons(this);
+                this.config.onUndoStateDidChange(mf, reason);
+            },
+        });
     }
 }
 

@@ -83,15 +83,15 @@ export function perform(
             mathfield.mode !== 'command'
         ) {
             // Update the undo state to account for the current selection
-            mathfield.undoManager.pop();
-            mathfield.undoManager.snapshot(mathfield.config);
+            mathfield.popUndoStack();
+            mathfield.snapshot();
         }
         COMMANDS[selector].fn(mathfield.model, ...args);
         if (
             /^(delete|transpose|add)/.test(selector) &&
             mathfield.mode !== 'command'
         ) {
-            mathfield.undoManager.snapshot(mathfield.config);
+            mathfield.snapshot();
         }
         if (/^(delete)/.test(selector) && mathfield.mode === 'command') {
             const command = extractCommandStringAroundInsertionPoint(

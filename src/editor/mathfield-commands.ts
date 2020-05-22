@@ -8,12 +8,12 @@ registerCommand({
     undo: (mathfield: MathfieldPrivate) => {
         complete(mathfield);
         // Undo to the previous state
-        mathfield.undoManager.undo(mathfield.config);
+        mathfield.undo();
         return true;
     },
     redo: (mathfield: MathfieldPrivate) => {
         complete(mathfield);
-        mathfield.undoManager.redo(mathfield.config);
+        mathfield.redo();
         return true;
     },
     scrollIntoView: (mathfield: MathfieldPrivate) => {

@@ -227,17 +227,19 @@ function validateNamespace(options): void {
     }
 }
 
-function revertToOriginalContent(element: HTMLElement, options): void {
-    // element is a pair: accessible span, math -- set it to the math part
-    element = getElement(element).children[1] as HTMLElement;
-
+function revertToOriginalContent(
+    element: string | HTMLElement | MathfieldPrivate,
+    options
+): void {
     if (element instanceof MathfieldPrivate) {
         element.$revertToOriginalContent();
     } else {
-        options = options || {};
+        // element is a pair: accessible span, math -- set it to the math part
+        element = getElement(element).children[1] as HTMLElement;
+        options = options ?? {};
         validateNamespace(options);
         const html = element.getAttribute(
-            'data-' + (options.namespace || '') + 'original-content'
+            'data-' + (options.namespace ?? '') + 'original-content'
         );
         element.innerHTML = options.createHTML
             ? options.createHTML(html)
@@ -246,16 +248,15 @@ function revertToOriginalContent(element: HTMLElement, options): void {
 }
 
 function getOriginalContent(element: string | HTMLElement, options): string {
-    // element is a pair: accessible span, math -- set it to the math part
-    element = getElement(element).children[1] as HTMLElement;
-
     if (element instanceof MathfieldPrivate) {
         return element.originalContent;
     }
-    options = options || {};
+    // element is a pair: accessible span, math -- set it to the math part
+    element = getElement(element).children[1] as HTMLElement;
+    options = options ?? {};
     validateNamespace(options);
     return element.getAttribute(
-        'data-' + (options.namespace || '') + 'original-content'
+        'data-' + (options.namespace ?? '') + 'original-content'
     );
 }
 

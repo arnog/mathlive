@@ -92,7 +92,7 @@ export function complete(
                 );
             }
         }
-        mathfield.undoManager.snapshot(mathfield.config);
+        mathfield.snapshot();
         mathfield.model.announce('replacement');
         return true;
     }

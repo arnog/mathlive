@@ -18,6 +18,13 @@
 -   When an invalid keybinding is encountered, the `onError` listener is now
     invoked with an erorr code of `invalid-keybinding`
 
+-   Added support for German keyboard layout.
+
+### Bug Fixes
+
+-   The Undo and Redo button in the virtual keyboard did not change their
+    state appropriately given the state of the undo stack.
+
 ## 0.51.0 (2020-05-19)
 
 ### New Features
