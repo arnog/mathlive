@@ -267,7 +267,10 @@ function normalizeKeybinding(keybinding: Keybinding): Keybinding {
  * - 'keys' are transformed to 'code' according to the current keyboard layout
  * - keybindings that don't apply to the current platform are removed
  */
-export function normalizeKeybindings(keybindings: Keybinding[]): Keybinding[] {
+export function normalizeKeybindings(
+    keybindings: Keybinding[],
+    onError: (e: any) => void
+): Keybinding[] {
     const result = [];
     const errors = [];
     keybindings.forEach((x) => {
@@ -278,11 +281,10 @@ export function normalizeKeybindings(keybindings: Keybinding[]): Keybinding[] {
             }
         } catch (e) {
             errors.push(e.message);
-            console.error(e.message);
         }
     });
     if (errors.length > 0) {
-        throw new Error(errors.join('\n'));
+        onError(errors);
     }
     return result;
 }

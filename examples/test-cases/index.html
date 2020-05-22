@@ -1084,9 +1084,6 @@
                 // letterShapeStyle: 'french', // 'french', 'upright', 'tex'
                 smartFence: true,
                 smartMode: true,
-                macros: {
-                    myMacro: '\\operatorname{\\text{#1}}',
-                },
                 virtualKeyboardMode: 'manual',
                 onContentDidChange: (mf) => {
                     const latex = mf.$text('latex-expanded');
@@ -1112,8 +1109,14 @@
                     console.error(err.latex, err.code + (err.arg ?? ''));
                 },
             });
+            mf.$setConfig({
+                macros: {
+                    ...mf.getConfig('macros'),
+                    myMacro: '\\operatorname{\\text{#1}}',
+                },
+            });
 
-            if (tue) {
+            if (false) {
                 // MathLive.renderMathInDocument({
                 //    onError: (err) => {
                 //        console.error(err.latex, err.code + (err.arg ?? ''));

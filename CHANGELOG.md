@@ -3,8 +3,10 @@
 ### New Feature
 
 -   Support for [Trusted Types](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
+
     A new option in `Config`, `createHTML`, is called before injecting HTML
-    into the page
+    into the page, providing an opportunity to sanitize the markup according
+    to a policy set by the host
 
 ### Improvements
 
@@ -12,6 +14,9 @@
     `doubleStruckCapitalN`, etc...) to be macros instead of built-in commands.
     This will allow them to be properly expanded during copy/paste operations
     for improved interoperability
+
+-   When an invalid keybinding is encountered, the `onError` listener is now
+    invoked with an erorr code of `invalid-keybinding`
 
 ## 0.51.0 (2020-05-19)
 
@@ -21,6 +26,7 @@
     associate a keystroke combination on a physical keyboard with a command.
     Mathlive previously had some built-in keybindings, but now they can be
     extended or replaced.
+
     See `config.keybindings` and `Keybinding`
 
 -   Added `setKeyboardLayout()` and `setKeyboardLayoutLocale()` functions to

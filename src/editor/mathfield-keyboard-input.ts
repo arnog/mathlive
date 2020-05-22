@@ -69,7 +69,8 @@ export function onKeystroke(
     evt: KeyboardEvent
 ) {
     // 1. Update the keybindings according to the current keyboard layout
-    // 1.1 Possibly update the current layout based on this event
+
+    // 1.1 Possibly update the current keyboard layout based on this event
     validateKeyboardLayout(evt);
 
     const activeLayout = getActiveKeyboardLayout();
@@ -77,14 +78,25 @@ export function onKeystroke(
         console.log('Switching to keyboard layout ' + activeLayout.id);
         mathfield.keyboardLayout = activeLayout.id;
         mathfield.keybindings = normalizeKeybindings(
-            mathfield.config.keybindings
+            mathfield.config.keybindings,
+            (e) => {
+                if (typeof mathfield.config.onError === 'function') {
+                    mathfield.config.onError({
+                        code: 'invalid-keybinding',
+                        arg: e.join('\n'),
+                    });
+                }
+                console.log(e.join('\n'));
+            }
         );
     }
 
     // 2. Display the keystroke in the keystroke panel (if visible)
     showKeystroke(mathfield, keystroke);
+
     // 3. Reset the timer for the keystroke buffer reset
     clearTimeout(mathfield.keystrokeBufferResetTimer);
+
     // 4. Give a chance to the custom keystroke handler to intercept the event
     if (
         mathfield.config.onKeystroke &&
@@ -96,6 +108,7 @@ export function onKeystroke(
         }
         return false;
     }
+
     // 5. Let's try to find a matching shortcut or command
     let shortcut: string;
     let stateIndex: number;
@@ -203,6 +216,7 @@ export function onKeystroke(
     if (mathfield.config.readOnly && selector[0] === 'insert') {
         return true;
     }
+
     // 6. Perform the action matching this shortcut
     // 6.1 Remove any error indicator (wavy underline) on the current command
     // sequence (if there are any)
@@ -303,6 +317,7 @@ export function onKeystroke(
             mathfield.resetKeystrokeBuffer();
         }
     }
+
     // 7. Make sure the insertion point is scrolled into view
     mathfield.scrollIntoView();
 

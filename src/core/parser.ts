@@ -12,7 +12,7 @@ import { Token, tokenize } from './lexer';
 import { Atom, Colspec, BBoxParam } from './atom';
 import { parseTokens } from './modes';
 import { FunctionDefinition } from './definitions-utils';
-import { ParserErrorListener, MacroDefinition, Style } from '../public/core';
+import { ErrorListener, MacroDefinition, Style } from '../public/core';
 import { ParseModePrivate } from './context';
 
 function tokensToString(tokens: Token[]): string {
@@ -95,7 +95,7 @@ class Parser {
     args: (string | Atom[])[];
     macros: MacroDictionary;
 
-    onError: ParserErrorListener;
+    onError: ErrorListener;
     index = 0;
     mathList: Atom[] = [];
     style: Style = {};
@@ -108,7 +108,7 @@ class Parser {
         tokens: Token[],
         args: (string | Atom[])[],
         macros: MacroDictionary,
-        onError: ParserErrorListener
+        onError: ErrorListener
     ) {
         this.tokens = tokens;
         this.args = args;
@@ -1655,7 +1655,7 @@ export function parseString(
     args: (string | Atom[])[],
     macros: MacroDictionary,
     smartFence = false,
-    error?: ParserErrorListener
+    error?: ErrorListener
 ): Atom[] {
     let mathlist = [];
     const parser = new Parser(tokenize(s), args, macros, (err) => {

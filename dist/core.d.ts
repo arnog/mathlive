@@ -25,12 +25,13 @@ export declare type ParseMode = 'math' | 'text' | 'command';
     | `unexpected-end-of-string`    |  The end of the string was reached, but some required arguments were missing. |
  */
 export declare type ParserErrorCode = 'unknown-command' | 'invalid-command' | 'unbalanced-braces' | 'unbalanced-environment' | 'missing-argument' | 'too-many-infix-commands' | 'unexpected-command-in-string' | 'missing-unit' | 'unexpected-delimiter' | 'unexpected-token' | 'unexpected-end-of-string';
-export declare type ParserErrorListener = (err: {
+export declare type MathfieldErrorCode = 'invalid-keybinding';
+export declare type ErrorListener = (err: {
+    code: ParserErrorCode | MathfieldErrorCode;
+    arg?: string;
     latex?: string;
     before?: string;
     after?: string;
-    code: ParserErrorCode;
-    arg?: string;
 }) => void;
 /**
  * Variants indicate a stylistic alternate for some characters.

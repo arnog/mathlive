@@ -66,7 +66,10 @@ import {
 } from './virtual-keyboard-commands';
 
 import { normalizeKeybindings } from './keybindings';
-import { setKeyboardLayoutLocale } from './keyboard-layout';
+import {
+    setKeyboardLayoutLocale,
+    getActiveKeyboardLayout,
+} from './keyboard-layout';
 
 import { atomToSpeakableText } from './atom-to-speakable-text';
 import { atomtoMathJson } from '../addons/math-json';
@@ -359,6 +362,40 @@ export class MathfieldPrivate implements Mathfield {
         this.undoManager.startRecording();
         this.undoManager.snapshot(this.config);
 
+        this.model.setListeners({
+            onContentDidChange: (_sender: ModelPrivate) =>
+                this._onContentDidChange(),
+            onSelectionDidChange: (_sender: ModelPrivate) =>
+                this._onSelectionDidChange(),
+            onContentWillChange: () => this.config.onContentWillChange(this),
+            onSelectionWillChange: () =>
+                this.config.onSelectionWillChange(this),
+            onError: this.config.onError,
+        });
+        this.model.setHooks({
+            announce: (_sender: Mathfield, command, modelBefore, atoms) =>
+                this.config.onAnnounce?.(this, command, modelBefore, atoms),
+            moveOut: (_sender, direction) =>
+                this.config.onMoveOutOf(this, direction),
+            tabOut: (_sender, direction) =>
+                this.config.onTabOutOf(this, direction),
+        });
+
+        if (!this.config.locale.startsWith(getActiveKeyboardLayout().locale)) {
+            setKeyboardLayoutLocale(this.config.locale);
+        }
+        this.keybindings = normalizeKeybindings(
+            this.config.keybindings,
+            (e) => {
+                if (typeof this.config.onError === 'function') {
+                    this.config.onError({
+                        code: 'invalid-keybinding',
+                        arg: e.join('\n'),
+                    });
+                }
+                console.log(e.join('\n'));
+            }
+        );
         requestUpdate(this);
     }
 
@@ -383,8 +420,21 @@ export class MathfieldPrivate implements Mathfield {
                 this.config.onTabOutOf(this, direction),
         });
 
-        setKeyboardLayoutLocale(this.config.locale);
-        this.keybindings = normalizeKeybindings(this.config.keybindings);
+        if (!this.config.locale.startsWith(getActiveKeyboardLayout().locale)) {
+            setKeyboardLayoutLocale(this.config.locale);
+        }
+        this.keybindings = normalizeKeybindings(
+            this.config.keybindings,
+            (e) => {
+                if (typeof this.config.onError === 'function') {
+                    this.config.onError({
+                        code: 'invalid-keybinding',
+                        arg: e.join('\n'),
+                    });
+                }
+                console.log(e.join('\n'));
+            }
+        );
 
         if (!this.config.readOnly) {
             this._onBlur();

@@ -1,14 +1,13 @@
 /**
  *
- * Use MathLive to render and edit mathematical formulas in your browser.
+ * Use MathLive to render and edit mathematical formulas.
  *
  *
  * Read {@tutorial mathfield-getting-started | Getting Started} for more info.
  *
  * @example
  * <script type="module">
- * // To invoke the functions in this module, import the `Mathlive` module.
- *
+ * // Load the `Mathlive` module from a CDN
  * import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
  *
  * console.log(MathLive.latexToAST('e^{i\\pi}+1=0'));
@@ -21,28 +20,26 @@
 
 import { Mathfield } from './mathfield';
 import { MathfieldConfig, TextToSpeechOptions } from './config';
-import { MacroDictionary, ParserErrorListener } from './core';
+import { MacroDictionary, ErrorListener } from './core';
 
 export { Mathfield };
 export { MathfieldConfig };
 
 /**
- * The version string of the SDK in the form of:
+ * Current version: `{{SDK_VERSION}}`
+ *
+ * The version string of the SDK using the [semver](https://semver.org/) convention:
  *
  * `MAJOR`.`MINOR`.`PATCH`
  *
- * The version uses [semver](https://semver.org/):
- * - The **MAJOR** version is incremented for incompatible API changes
- * - The **MINOR** version is incremented for new features
- * - The **PATCH** version is incremented for bug fixes
- *
- * Current version: `{{SDK_VERSION}}`
- *
+ * * **`MAJOR`** is incremented for incompatible API changes
+ * * **`MINOR`** is incremented for new features
+ * * **`PATCH`** is incremented for bug fixes
  */
 export declare const version: string;
 
 /**
- * Converts a LaTeX string to a string of HTML markup.
+ * Convert a LaTeX string to a string of HTML markup.
  *
  * @param text A string of valid LaTeX. It does not have to start
  * with a mode token such as `$$` or `\(`.
@@ -69,16 +66,15 @@ export declare function latexToMarkup(
         mathstyle?: 'displaystyle' | 'textstyle';
         letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
         macros?: MacroDictionary;
-        onError?: ParserErrorListener;
+        onError?: ErrorListener;
     }
 ): string;
 
 /**
  * Convert a DOM element into an editable mathfield.
  *
- * After the DOM element has been created, the value `element.mathfield` will
- * return a reference to the mathfield object. This value is also returned
- * by `makeMathField`
+ * The `mathfield` property of the DOM element is a reference to the corresponding
+ * `Mathfield` object. This value is also returned by `makeMathField()`.
  *
  * @param element A DOM element, for example as obtained
  * by `document.getElementById()`, or the ID of a DOM element as a string.
@@ -101,7 +97,7 @@ export declare function makeMathField(
 ): Mathfield;
 
 /**
- * Converts a LaTeX string to a string of MathML markup.
+ * Convert a LaTeX string to a string of MathML markup.
  *
  * @param latex A string of valid LaTeX. It does not have to start
  * with a mode token such as a `$$` or `\(`.
@@ -116,12 +112,12 @@ export declare function latexToMathML(
     options: {
         macros?: MacroDictionary;
         generateID: boolean;
-        onError?: ParserErrorListener;
+        onError?: ErrorListener;
     }
 ): string;
 
 /**
- * Converts a LaTeX string to an {@tutorial math-json | MathJSON } Abstract Syntax Tree
+ * Convert a LaTeX string to a {@tutorial math-json | MathJSON } Abstract Syntax Tree
  *
  * **See Also:** [[astToLatex|astToLatex()]]
  *
@@ -139,7 +135,7 @@ export declare function latexToAST(
     latex: string,
     options?: {
         macros?: MacroDictionary;
-        onError?: ParserErrorListener;
+        onError?: ErrorListener;
     }
 );
 
@@ -177,7 +173,7 @@ export declare function astToLatex(
 ): string;
 
 /**
- * Converts a LaTeX string to a textual representation ready to be spoken
+ * Convert a LaTeX string to a textual representation ready to be spoken
  *
  * @param latex A string of valid LaTeX. It does not have to start
  * with a mode token such as a `$$` or `\(`.
@@ -197,7 +193,7 @@ export declare function latexToSpeakableText(
     latex: string,
     options: TextToSpeechOptions & {
         macros?: MacroDictionary;
-        onError?: ParserErrorListener;
+        onError?: ErrorListener;
     }
 ): string;
 export type AutoRenderOptions = {
@@ -347,8 +343,8 @@ export type AutoRenderOptions = {
 export declare function renderMathInDocument(options?: AutoRenderOptions): void;
 
 /**
- * Transform all the children of `element`, recursively, that contain LaTeX code
- * into typeset math.
+ * Transform all the children of `element` that contain LaTeX code
+ * into typeset math, recursively.
  *
  * Read {@tutorial mathfield-getting-started | Getting Started}.
  *
@@ -364,6 +360,9 @@ export declare function renderMathInElement(
 ): void;
 
 /**
+ * After calling {@linkcode renderMathInElement}
+ * or {@linkcode makeMathField} the original content
+ * can be restored by calling this function.
  *
  * @category Rendering
  * @keywords revert, original, content

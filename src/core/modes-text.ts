@@ -1,4 +1,4 @@
-import { ParserErrorListener, Style } from '../public/core';
+import { ErrorListener, Style } from '../public/core';
 import {
     joinLatex,
     register,
@@ -275,7 +275,7 @@ function applyStyle(span: Span, style: Style): string {
 // options.parser
 function parse(
     tokens: Token[],
-    error: ParserErrorListener,
+    error: ErrorListener,
     options: ParseTokensOptions
 ) {
     let result = [];

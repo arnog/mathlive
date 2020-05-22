@@ -1,6 +1,6 @@
 import type { Mathfield } from './public/mathfield';
 import type { MathfieldConfig, TextToSpeechOptions } from './public/config';
-import type { ParserErrorListener } from './public/core';
+import type { ErrorListener } from './public/core';
 
 import { Atom } from './core/atom';
 import { Span } from './core/span';
@@ -32,7 +32,7 @@ function latexToMarkup(
         mathstyle?: 'displaystyle' | 'textstyle';
         letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
         macros?: MacroDictionary;
-        onError?: ParserErrorListener;
+        onError?: ErrorListener;
         format?: string;
     }
 ): string | Atom[] | Span[] {
@@ -100,7 +100,7 @@ function latexToMathML(
     latex: string,
     options?: {
         macros?: MacroDictionary;
-        onError?: ParserErrorListener;
+        onError?: ErrorListener;
         generateID?: boolean;
     }
 ): string {
@@ -124,7 +124,7 @@ function latexToAST(
     latex: string,
     options?: {
         macros?: MacroDictionary;
-        onError?: ParserErrorListener;
+        onError?: ErrorListener;
     }
 ) {
     options = options ?? {};
@@ -167,7 +167,7 @@ function latexToSpeakableText(
     latex: string,
     options: TextToSpeechOptions & {
         macros?: MacroDictionary;
-        onError?: ParserErrorListener;
+        onError?: ErrorListener;
     }
 ): string {
     options = options ?? {};

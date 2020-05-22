@@ -1,4 +1,4 @@
-import { ParserErrorListener, Style, MacroDictionary } from '../public/core';
+import { ErrorListener, Style, MacroDictionary } from '../public/core';
 
 import type { Span } from './span';
 import type { Token } from './lexer';
@@ -88,7 +88,7 @@ export function register(
         applyStyle: (span: Span, style: Style) => string;
         parse?: (
             tokens: Token[],
-            error: ParserErrorListener,
+            error: ErrorListener,
             options: ParseTokensOptions
         ) => Atom[];
     }
@@ -117,7 +117,7 @@ export function emitLatexRun(
 export function parseTokens(
     mode: ParseModePrivate,
     tokens: Token[],
-    error: ParserErrorListener,
+    error: ErrorListener,
     options: ParseTokensOptions
 ) {
     if (MODES_REGISTRY[mode] && MODES_REGISTRY[mode].parse) {

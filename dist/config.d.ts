@@ -1,4 +1,4 @@
-/* 0.51.0 */import { ParserErrorListener, MacroDictionary, ParseMode } from './core';
+/* 0.51.0 */import { ErrorListener, MacroDictionary, ParseMode } from './core';
 import type { Mathfield } from './mathfield';
 import type { Selector } from './commands';
 /**
@@ -13,9 +13,9 @@ import type { Selector } from './commands';
  *      "command": "selectAll",
  * },
  * {
- *      "key": "ctrl+[Slash]",
- *      "command": "selectAll",
- *      "ifPlatform": "chromeos"
+ *      key: 'ctrl+[Digit2]',
+ *      ifMode: 'math',
+ *      command: ['insert', '\\sqrt{#0}'],
  * }
  * ```
  *
@@ -34,16 +34,22 @@ export declare type Keybinding = {
      *  | Windows |  `ctrl`, `shift`, `alt`, `win` |
      *  | Linux, Android, ChromeOS |  `ctrl`, `shift`, `alt`, `meta` |
      *
-     * If a `cmd` modifier is used, the keybinding will only apply on macOS,
-     * and so on.
+     * If the `cmd` modifier is used, the keybinding will only apply on macOS.
+     * If the `win` modifier is used, the keybinding will only apply to Windows.
+     * If the `meta` modifier is used, the keybinding will apply to platforms
+     * other than macOS or Windows.
+     *
+     * The `alt` key is the `option` key on Apple keyboards.
+     *
      *
      * The following values for keys can be used:
-     * * `f1`-`f19`, `a`-`z`, `0`-`9`
-     * * `\``, `-`, `=`, `[`, `]`, `\`, `;`, `'`, `,`, `.`, `/`
-     * * `left`, `up, `right`, `down`, `pageup`, `pagedown`, `end`, `home`
+     * * `a`&ndash;`z`, `0`&ndash;`9`
+     * * `` ` ``, `-`, `=`, `[`, `]`, `\`, `;`, `'`, `,`, `.`, `/`
+     * * `left`, `up`, `right`, `down`, `pageup`, `pagedown`, `end`, `home`
      * * `tab`, `enter`, `escape`, `space`, `backspace`, `delete`
+     * * `f1`&ndash;`f19`
      * * `pausebreak`, `capslock`, `insert`
-     * * `numpad0`-`numpad9`, `numpad_multiply`, `numpad_add`, `numpad_separator`
+     * * `numpad0`&ndash;`numpad9`, `numpad_multiply`, `numpad_add`, `numpad_separator`
      * * `numpad_subtract`, `numpad_decimal`, `numpad_divide`
      *
      * The values will be remapped based on the current keyboard layout. So, for
@@ -54,28 +60,42 @@ export declare type Keybinding = {
      * To associate keybindings with physical keys independent of the keyboard
      * layout, use the following keycodes:
      *
-     * - `[F1]`-`[F19]`, `[KeyA]`-`[KeyZ]`, `[Digit0]`-`[Digit9]`
+     * - `[KeyA]`&ndash;`[KeyZ]`, `[Digit0]`&ndash;`[Digit9]`
      * - `[Backquote]`, `[Minus]`, `[Equal]`, `[BracketLeft]`, `[BracketRight]`, `[Backslash]`, `[Semicolon]`, `[Quote]`, `[Comma]`, `[Period]`, `[Slash]`
      * - `[ArrowLeft]`, `[ArrowUp]`, `[ArrowRight]`, `[ArrowDown]`, `[PageUp]`, `[PageDown]`, `[End]`, `[Home]`
      * - `[Tab]`, `[Enter]`, `[Escape]`, `[Space]`, `[Backspace]`, `[Delete]`
+     * - `[F1]`&ndash;`[F19]`
      * - `[Pause]`, `[CapsLock]`, `[Insert]`
-     * - `[Numpad0]`-`[Numpad9]`, `[NumpadMultiply]`, `[NumpadAdd]`, `[NumpadComma]`
+     * - `[Numpad0]`&ndash;`[Numpad9]`, `[NumpadMultiply]`, `[NumpadAdd]`, `[NumpadComma]`
      * - `[NumpadSubtract]`, `[NumpadDecimal]`, `[NumpadDivide]`
      *
      * For example, using `[KeyQ]` will map to the the key labeled 'Q' on a QWERTY
      * keyboard, and to the key labeled 'A' on an AZERTY keyboard.
      *
-     * As a general guideline, it is preferable to use the key values `a`-`z`
+     * As a general guideline, it is preferable to use the key values `a`&ndash;`z`
      * for keybinding that are pseudo-mnemotechnic. For the other, it is generally
      * preferable to use the keycodes.
+     *
+     * Consider the key combination: `alt+2`. With an AZERTY (French) layout,
+     * the digits (i.e. '2') are only accessible when shifted. The '2' key produces
+     * 'é' when not shifted. It is therefore impossible on an AZERTY keyboard to
+     * produce the `alt+2` key combination, at best it would be `alt+shift+2`.
+     * To indicate that the intended key combination should be `alt` and the
+     * key on the keyboard which has the position of the `2` key on a US keyboard,
+     * a key code should be used instead: `alt+[Digit2]`. This will correspond
+     * to a key combination that can be generated on any keyboard.
+     *
+     * If a keybinding is invalid (impossible to produce) with the current
+     * keyboard layout, an error will be generated, and the `onError` listener
+     * will be called with a `invalid-keybinding` error code.
      *
      */
     key: string;
     /** The command is a single selector, or a selector with arguments */
     command: Selector | any[];
     /**
-     * This indicate in which mode this keybinding will apply. If none is
-     * specified, the keybinding always apply.
+     * If specified, this indicate in which mode this keybinding will apply.
+     * If none is specified, the keybinding apply in every mode.
      */
     ifMode?: ParseMode;
     /**
@@ -529,17 +549,21 @@ export declare type LayoutOptions = {
     /**
  *A dictionary of LaTeX macros to be used to interpret and render the content.
  *
- *For example:
+ *For example, to add a new macro to the default macro dictionary:
  *
 ```javascript
 mf.setConfig({
     macros: {
+        ...mf.getConfig('macros'),
         smallfrac: '^{#1}\\!\\!/\\!_{#2}',
     },
 });
 ```
  *
- *The code above will support the following notation:
+ * Note that `getConfig()` is called to keep the existing macros and add to them.
+ * Otherwise, all the macros are replaced with the new definition.
+ *
+ * The code above will support the following notation:
  *
 ```tex
 \smallfrac{5}{16}
@@ -586,47 +610,63 @@ mf.setConfig({
     letterShapeStyle?: 'auto' | 'tex' | 'iso' | 'french' | 'upright';
 };
 /**
- *
- * - <var>namespace</var> Namespace that is added to `data-` attributes
- * to avoid collisions with other libraries.
- *
- * It is empty by default.
- *
- * The namespace should be a string of lowercase letters.
- *
- * - <var>onError</var> An optional listener function that will be
- * invoked when an error is encountered while parsing some Latex. This
- * could be the initial value of the mathfield, a value inserted
- * programmatically later, or through a user interaction (pasting in the
- * mathfield for example). See [[`ParserErrorCode`]]
- * for the list of possible errors.
- *
- * - <var>substituteTextArea</var> A function that returns a focusable
- * element that can be used to capture text input.
- *
- * An (invisible) DOM element is used to capture the keyboard events. By
- * default, this element is a `<textarea>` on desktop and a `<span>` on
- * mobile devices, to prevent the device virtual keyboard from being
- * displayed.
- *
- * This function provides the option of substituting the DOM element
- * used for keyboard capture.
- *
- * Alternatively, the ID of a DOM element can be provided.
+ * @keywords security, trust, sanitize, errors
  */
 export declare type MathfieldConfig = LayoutOptions & EditingOptions & LocalizationOptions & InlineShortcutsOptions & KeyboardOptions & VirtualKeyboardOptions & TextToSpeechOptions & MathfieldHooks & MathfieldListeners & {
+    /**
+     * Namespace that is added to `data-` attributes to avoid collisions
+     * with other libraries.
+     *
+     * The namespace should be a string of lowercase letters.
+     *
+     * It is empty by default.
+     */
     namespace?: string;
-    onError?: ParserErrorListener;
+    /**
+     * An optional listener function that will be
+     * invoked when an error is encountered.
+     *
+     * This could be a Latex parsing error, for the initial value of the
+     * mathfield, a value inserted programmatically later, or through a
+     * user interaction (pasting in the mathfield for example).
+     * See [[`ParserErrorCode`]] for the list of possible parsing errors.
+     *
+     * This could also be another kind of error, such as an invalid keybinding.
+     *
+     */
+    onError?: ErrorListener;
+    /**
+     * This function provides the option of substituting the focusable DOM
+     * element used to capture keyboard input.
+     *
+     * An (invisible) DOM element is used to capture the keyboard events. By
+     * default, this element is a `<textarea>` on desktop and a `<span>` on
+     * mobile devices, to prevent the device virtual keyboard from being
+     * displayed.
+     *
+     * Alternatively, the ID of a DOM element can be provided.
+     */
     substituteTextArea?: string | (() => HTMLElement);
+    /**
+     * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
+     *
+     * This optional function will be called before a string of HTML is
+     * injected in the DOM, allowing that string to be sanitized
+     * according to a policy defined by the host.
+     */
+    createHTML?: (html: string) => any;
 };
 /**
  *  | Name | Platform | Display name |
  *  | :----- | :----- | :----- |
- *  | `'apple.en-intl'` |  Apple | English (International) |
- *  | `'windows.en-intl'` |  Windows | English (International) |
- *  | `'linux.en'` |  Linux | English |
+ *  | `'apple.en-intl'`         |  Apple | English (International) |
+ *  | `'apple.french'`          |  Apple | French (AZERTY) |
+ *  | `'windows.en-intl'`       |  Windows | English (International) |
+ *  | `'windows.french'`        |  Windows | French (AZERTY) |
+ *  | `'linux.en'`              |  Linux | English |
+ *  | `'linux.french'`          |  Linux | French (AZERTY) |
  */
-export declare type KeyboardLayoutName = 'apple.french' | 'windows.french' | 'linux.french' | 'apple.en-intl' | 'windows.en-intl' | 'linux.en';
+export declare type KeyboardLayoutName = 'apple.en-intl' | 'apple.french' | 'windows.en-intl' | 'windows.french' | 'linux.en' | 'linux.french';
 /**
  * Change the current physical keyboard layout.
  *

@@ -1,4 +1,4 @@
-import type { ParserErrorListener } from '../public/core';
+import type { ErrorListener } from '../public/core';
 import type { ModelPrivate } from './model-class';
 
 export type ModelListeners = {
@@ -6,7 +6,7 @@ export type ModelListeners = {
     onContentDidChange: (sender: ModelPrivate) => void;
     onSelectionWillChange: (sender: ModelPrivate) => void;
     onSelectionDidChange: (sender: ModelPrivate) => void;
-    onError: ParserErrorListener;
+    onError: ErrorListener;
 };
 
 export function selectionWillChange(model: ModelPrivate): void {

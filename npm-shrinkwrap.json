@@ -1141,9 +1141,9 @@
             "dev": true
         },
         "@types/node": {
-            "version": "14.0.3",
-            "resolved": "https://registry.npmjs.org/@types/node/-/node-14.0.3.tgz",
-            "integrity": "sha512-a8TR2N5VEJCL9HEJrAfwv3UI1bZq50HydowDDVV6pfnY7ZwG5Pjii+nSDhrDtGW3XKMoVKOgG8zS/Kv5j399uA==",
+            "version": "14.0.4",
+            "resolved": "https://registry.npmjs.org/@types/node/-/node-14.0.4.tgz",
+            "integrity": "sha512-k3NqigXWRzQZVBDS5D1U70A5E8Qk4Kh+Ha/x4M8Bt9pF0X05eggfnC9+63Usc9Q928hRUIpIhTQaXsZwZBl4Ew==",
             "dev": true
         },
         "@types/normalize-package-data": {
@@ -2556,7 +2556,7 @@
         },
         "decamelize": {
             "version": "1.2.0",
-            "resolved": false,
+            "resolved": "",
             "integrity": "sha1-9lNNFRSCabIDUue+4m9QH5oZEpA=",
             "dev": true
         },
@@ -8033,9 +8033,9 @@
             }
         },
         "rollup": {
-            "version": "2.10.4",
-            "resolved": "https://registry.npmjs.org/rollup/-/rollup-2.10.4.tgz",
-            "integrity": "sha512-aYvoYjeu9DwrUTEfRlHiugW1eoHz7EGxETaOISpw+zkH9oOaQLO85eG+14ky4vyYgi3mUofbpWJgb+yLBE0PKw==",
+            "version": "2.10.5",
+            "resolved": "https://registry.npmjs.org/rollup/-/rollup-2.10.5.tgz",
+            "integrity": "sha512-05WRM/tjmPYwhOBvm/G9Qwa/HnAqn0TK0XxLDLQzoM4XdSmKjPBvhBl+U+Q/C6VJsucljyTQjGkZD503mjbPQg==",
             "dev": true,
             "requires": {
                 "fsevents": "~2.1.2"
@@ -9523,9 +9523,9 @@
             }
         },
         "typescript": {
-            "version": "3.9.2",
-            "resolved": "https://registry.npmjs.org/typescript/-/typescript-3.9.2.tgz",
-            "integrity": "sha512-q2ktq4n/uLuNNShyayit+DTobV2ApPEo/6so68JaD5ojvc/6GClBipedB9zNWYxRSAlZXAe405Rlijzl6qDiSw==",
+            "version": "3.9.3",
+            "resolved": "https://registry.npmjs.org/typescript/-/typescript-3.9.3.tgz",
+            "integrity": "sha512-D/wqnB2xzNFIcoBG9FG8cXRDjiqSTbG2wd8DMZeQyJlP1vfTkIxH4GKveWaEBYySKIg+USu+E+EDIR47SqnaMQ==",
             "dev": true
         },
         "union": {

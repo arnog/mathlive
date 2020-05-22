@@ -38,12 +38,14 @@ export type ParserErrorCode =
     | 'unexpected-token'
     | 'unexpected-end-of-string';
 
-export type ParserErrorListener = (err: {
+export type MathfieldErrorCode = 'invalid-keybinding';
+
+export type ErrorListener = (err: {
+    code: ParserErrorCode | MathfieldErrorCode;
+    arg?: string;
     latex?: string;
     before?: string;
     after?: string;
-    code: ParserErrorCode;
-    arg?: string;
 }) => void;
 
 /**

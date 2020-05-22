@@ -112,8 +112,8 @@ kbd {
 }
 
 .output {
-    font-family: 'Source Code Pro', Menlo, 'Bitstream Vera Sans Mono', Monaco,
-        Courier, 'Andale Mono', monospace;
+    font-family: 'IBM Plex mono', 'Source Code Pro', Menlo,
+        'Bitstream Vera Sans Mono', Monaco, Courier, 'Andale Mono', monospace;
     color: #f0c674;
 
     background: #35434e;
