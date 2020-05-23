@@ -4,14 +4,17 @@ import { MathfieldPrivate } from './mathfield-class';
 import { applyStyle as applyStyleToModel } from './model-styling';
 import { register as registerCommand } from './commands';
 
-export function applyStyle(mathfield: MathfieldPrivate, style) {
+export function applyStyle(
+    mathfield: MathfieldPrivate,
+    inStyle: { [key: string]: string }
+): boolean {
     mathfield.resetKeystrokeBuffer();
-    style = validateStyle(style);
+    const style = validateStyle(inStyle);
     if (style.mode) {
         // There's a mode ('text', 'math', 'command') change
         if (selectionIsCollapsed(mathfield.model)) {
             // Nothing selected
-            mathfield.switchMode(style.mode);
+            mathfield.switchMode(style.mode as ParseMode);
         } else {
             // Convert the selection from one mode to another
             const previousMode = mathfield.mode;

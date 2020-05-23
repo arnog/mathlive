@@ -1,5 +1,5 @@
 import { ParseModePrivate } from './context';
-import { Atom, AtomType, Notations, Colspec } from './atom-utils';
+import { Atom, AtomType, Notations, Colspec, BBoxParam } from './atom-utils';
 import {
     Variant,
     VariantStyle,
@@ -17,19 +17,17 @@ export type FunctionDefinition = {
     params: FunctionArgumentDefiniton[];
     mode: ParseModePrivate;
     infix: boolean;
-    parse: Function;
-    emit: Function;
+    parse: ParseFunction;
+    emit: EmitFunction;
     isFunction: boolean;
 };
 
 type EnvironmentDefinition = {
-    params: FunctionArgumentDefiniton[];
-    parser: Function;
-    mathstyle: string; //@revisit MathStle
+    /* If true, the 'content' of the environment is parsed in tabular mode,
+        i.e. wiht '&' creating a new column and '\\' creating a new row */
     tabular: boolean;
-    colFormat: Colspec[];
-    lFence: string;
-    rFence: string;
+    params: FunctionArgumentDefiniton[];
+    parser: ParseEnvironmentFunction;
 };
 
 type SymbolDefinition = {
@@ -142,7 +140,7 @@ export const REVERSE_MATH_SYMBOLS = {
 };
 export const FUNCTIONS = {};
 
-export const ENVIRONMENTS = {};
+export const ENVIRONMENTS: { [name: string]: EnvironmentDefinition } = {};
 
 type EmitFunction = (
     name: string,
@@ -154,7 +152,7 @@ type EmitFunction = (
 export type ParseFunctionResult = {
     type?: string;
 
-    mode?: string;
+    mode?: ParseModePrivate;
     mathstyle?: string;
 
     skipBoundary?: boolean;
@@ -163,7 +161,7 @@ export type ParseFunctionResult = {
     body?: string | Atom[];
     svgBelow?: string; // type = 'overunder'
 
-    limits?: 'limits' | 'nolimits' | 'accent' | 'auto';
+    limits?: 'limits' | 'nolimits' | 'accent' | 'overunder' | 'auto';
     accent?: string;
 
     latexOpen?: string; // type = 'group'
@@ -218,20 +216,34 @@ export type ParseFunctionResult = {
     strokeWidth?: number;
     strokeStyle?: string;
     shadow?: string;
-
-    // type = 'array'
-    arraystretch?: number;
-    colFormat?: Colspec[];
-    // arraycolsep?: number;
-    // jot?: number;
-    lFence?: string;
-    rFence?: string;
 };
 
 type ParseFunction = (
     name: string,
-    args: (string | Atom[])[]
+    args: (string | number | BBoxParam | Colspec[] | Atom[])[]
 ) => ParseFunctionResult;
+
+export type ParseEnvironmentResult = {
+    // params: FunctionArgumentDefiniton[];
+    // parser: ParseFunction;
+    mathstyle?:
+        | 'displaystyle'
+        | 'textstyle'
+        | 'scriptstyle'
+        | 'scriptscriptstyle';
+    colFormat?: Colspec[];
+    lFence?: string;
+    rFence?: string;
+    jot?: number; // Jot is an extra gap between lines of numbered equation.
+    // It's 3pt by default in LaTeX (ltmath.dtx:181)
+    arraystretch?: number;
+    arraycolsep?: number;
+};
+type ParseEnvironmentFunction = (
+    name: string,
+    args: (string | number | BBoxParam | Colspec[] | Atom[])[],
+    arrray: Atom[][][]
+) => ParseEnvironmentResult;
 
 export const MACROS: MacroDictionary = {
     iff: '\\;\u27fa\\;', //>2,000 Note: additional spaces around the arrows
@@ -620,7 +632,11 @@ function unicodeToMathVariant(
  * Given a character and variant ('double-struck', 'fraktur', etc...)
  * return the corresponding unicode character (a string)
  */
-export function mathVariantToUnicode(char: string, variant, style): string {
+export function mathVariantToUnicode(
+    char: string,
+    variant: string,
+    style: string
+): string {
     if (!/[A-Za-z0-9]/.test(char)) return char;
     if (!variant && !style) return char;
 
@@ -740,9 +756,14 @@ export function getValue(mode: ParseModePrivate, symbol: string): string {
     return TEXT_SYMBOLS[symbol] ? TEXT_SYMBOLS[symbol] : symbol;
 }
 
-export function emit(symbol, parent, atom, emitFn): string {
-    console.assert(atom);
-    console.assert(symbol, 'Missing command for ', atom.body);
+export function emit(
+    symbol: string,
+    parent: Window,
+    atom: Atom,
+    emitFn: (parent: Atom, atoms: Atom[]) => string
+): string {
+    console.assert(!!atom);
+    console.assert(!!symbol, 'Missing command for ', atom.body);
 
     if (FUNCTIONS[symbol] && FUNCTIONS[symbol].emit) {
         return FUNCTIONS[symbol].emit(symbol, parent, atom, emitFn);
@@ -758,27 +779,14 @@ export function emit(symbol, parent, atom, emitFn): string {
         FUNCTIONS[symbol].params.length === 1 &&
         atom.body
     ) {
-        return symbol + '{' + emitFn(atom, atom.body) + '}';
+        return symbol + '{' + emitFn(atom, atom.body as Atom[]) + '}';
     }
     // No custom emit function provided, return the symbol (could be a character)
     return symbol;
 }
 
-export function getEnvironmentInfo(name: string) {
-    let result = ENVIRONMENTS[name];
-    if (!result) {
-        result = {
-            params: '',
-            parser: null,
-            mathstyle: 'displaystyle',
-            tabular: true,
-            colFormat: [],
-            lFence: '.',
-            rFence: '.',
-            // arrayStretch: 1,
-        };
-    }
-    return result;
+export function getEnvironmentDefinition(name: string): EnvironmentDefinition {
+    return ENVIRONMENTS[name] ?? null;
 }
 
 /**
@@ -791,7 +799,7 @@ export function getInfo(
     symbol: string,
     parseMode: ParseModePrivate,
     macros?: MacroDictionary
-): FunctionDefinition & EnvironmentDefinition & SymbolDefinition {
+): FunctionDefinition & SymbolDefinition {
     if (!symbol || symbol.length === 0) return null;
 
     let info = null;
@@ -983,30 +991,40 @@ export function parseArgAsString(atoms: Atom[]): string {
 export function defineEnvironment(
     names: string | string[],
     params: string,
-    options,
-    parser
+    parser: ParseEnvironmentFunction,
+    isTabular = false
 ): void {
     if (typeof names === 'string') {
         names = [names];
     }
-    if (!options) options = {};
     const parsedParams = parseParamTemplate(params);
 
     // Set default values of functions
-    const data = {
+    const data: EnvironmentDefinition = {
+        tabular: isTabular,
         // Params: the parameters for this function, an array of
         // {optional, type}
         params: parsedParams,
 
         // Callback to parse the arguments
         parser: parser,
-
-        tabular: options.tabular || true,
-        colFormat: options.colFormat || [],
     };
     for (const name of names) {
         ENVIRONMENTS[name] = data;
     }
+}
+
+/**
+ * Like defineEnvironment, but for a tabular environment, i.e.
+ * one whose content is in tabular mode, where '&' indicata a new column
+ * and '\\' indicate a new row.
+ */
+export function defineTabularEnvironment(
+    names: string | string[],
+    params: string,
+    parser: ParseEnvironmentFunction
+): void {
+    defineEnvironment(names, params, parser, true);
 }
 
 /**

@@ -11,7 +11,7 @@ defineFunction(
         return {
             type: 'group',
             mode: 'math',
-            body: args[0],
+            body: args[0] as Atom[],
             skipBoundary: true,
             latexOpen: '\\ensuremath{',
             latexClose: '}',
@@ -43,7 +43,7 @@ defineFunction('boxed', '{content:math}', null, (_name, args) => {
         type: 'box',
         framecolor: 'black',
         skipBoundary: true,
-        body: args[0],
+        body: args[0] as Atom[],
     };
 });
 
@@ -57,7 +57,7 @@ defineFunction(
             type: 'box',
             backgroundcolor: stringToColor(args[0] as string),
             skipBoundary: true,
-            body: args[1],
+            body: args[1] as Atom[],
             verbatimBackgroundcolor: args[0] as string, // Save this value to restore it verbatim later
         };
     },
@@ -77,7 +77,7 @@ defineFunction(
             framecolor: stringToColor(args[0] as string),
             backgroundcolor: stringToColor(args[1] as string),
             skipBoundary: true,
-            body: args[2],
+            body: args[2] as Atom[],
             verbatimBackgroundcolor: args[1] as string, // Save this value to restore it verbatim later
             verbatimFramecolor: args[0] as string, // Save this value to restore it verbatim later
         };
@@ -109,13 +109,13 @@ defineFunction(
                 border: arg.border,
                 backgroundcolor: arg.backgroundcolor,
                 skipBoundary: true,
-                body: args[1],
+                body: args[1] as Atom[],
             };
         }
         return {
             type: 'box',
             skipBoundary: true,
-            body: args[1],
+            body: args[1] as Atom[],
         };
     },
     (name, _parent, atom, emit) => {
@@ -392,7 +392,7 @@ defineFunction(
         return {
             type: 'group',
             mode: 'math',
-            body: args[0],
+            body: args[0] as Atom[],
         };
     }
 );
@@ -424,7 +424,7 @@ defineFunction(
     (_name, args): ParseFunctionResult => {
         return {
             type: 'group',
-            body: args[1],
+            body: args[1] as Atom[],
             cssId: args[0] as string,
         };
     }
@@ -452,7 +452,7 @@ defineFunction(
     (_name, args): ParseFunctionResult => {
         return {
             cssClass: 'ML__emph',
-            body: args[0],
+            body: args[0] as Atom[],
             type: 'group',
             skipBoundary: true,
         };
@@ -552,7 +552,7 @@ defineFunction(
                 '\\mathord': 'mord',
                 '\\mathinner': 'minner',
             }[name],
-            body: args[0], // Pass the body as an array of atoms, not a string
+            body: args[0] as Atom[], // Pass the body as an array of atoms, not a string
             // A string would be styled as text, but these need to be interpreted
             // as 'math'
             captureSelection: true, // Do not let children be selected
@@ -579,7 +579,7 @@ defineFunction(
         const result: ParseFunctionResult = {
             type: 'mop',
             captureSelection: true, // Do not let children be selected
-            body: args[0],
+            body: args[0] as Atom[],
             isFunction: true,
         };
         /*
@@ -665,7 +665,7 @@ defineFunction('overline', '{:auto}', null, (_name, args) => {
         type: 'line',
         position: 'overline',
         skipBoundary: true,
-        body: args[0],
+        body: args[0] as Atom[],
     };
 });
 
@@ -674,7 +674,7 @@ defineFunction('underline', '{:auto}', null, (_name, args) => {
         type: 'line',
         position: 'underline',
         skipBoundary: true,
-        body: args[0],
+        body: args[0] as Atom[],
     };
 });
 
@@ -687,7 +687,7 @@ defineFunction(
             type: 'overunder',
             overscript: args[0],
             skipBoundary: true,
-            body: args[1],
+            body: args[1] as Atom[],
         };
     },
     (name, _parent, atom, emit) => {
@@ -705,9 +705,9 @@ defineFunction(
     function (_name, args) {
         return {
             type: 'overunder',
-            underscript: args[0],
+            underscript: args[0] as Atom[],
             skipBoundary: true,
-            body: args[1],
+            body: args[1] as Atom[],
         };
     },
     (name, _parent, atom, emit) => {
@@ -747,9 +747,9 @@ defineFunction(
     function (name, args) {
         return {
             type: 'overunder',
-            overscript: args[0],
+            overscript: args[0] as Atom[],
             skipBoundary: true,
-            body: args[1],
+            body: args[1] as Atom[],
             // Set the correct spacing rule for \stackrel
             mathtype: name === '\\stackrel' ? 'mrel' : 'mbin',
         };
@@ -766,7 +766,7 @@ defineFunction('rlap', '{:auto}', null, function (name, args) {
         type: 'overlap',
         align: 'right',
         skipBoundary: true,
-        body: args[0],
+        body: args[0] as Atom[],
     };
 });
 
@@ -775,7 +775,7 @@ defineFunction('llap', '{:auto}', null, function (name, args) {
         type: 'overlap',
         align: 'left',
         skipBoundary: true,
-        body: args[0],
+        body: args[0] as Atom[],
     };
 });
 
@@ -785,7 +785,7 @@ defineFunction('mathrlap', '{:auto}', null, function (name, args) {
         mode: 'math',
         align: 'right',
         skipBoundary: true,
-        body: args[0],
+        body: args[0] as Atom[],
     };
 });
 
@@ -795,6 +795,6 @@ defineFunction('mathllap', '{:auto}', null, function (name, args) {
         mode: 'math',
         align: 'left',
         skipBoundary: true,
-        body: args[0],
+        body: args[0] as Atom[],
     };
 });

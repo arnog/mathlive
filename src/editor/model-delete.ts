@@ -282,7 +282,7 @@ function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0) {
 /**
  * Delete sibling atoms
  */
-export function deleteAtoms(model: ModelPrivate, count: number) {
+export function deleteAtoms(model: ModelPrivate, count: number): void {
     if (count > 0) {
         model.siblings().splice(model.anchorOffset() + 1, count);
     } else {

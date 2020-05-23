@@ -251,6 +251,10 @@ register(
             jumpToMathFieldBoundary(model, -1, { extend: true });
             return deleteChar(model);
         },
+        deleteToMathFieldStart: (model: ModelPrivate): boolean => {
+            jumpToMathFieldBoundary(model, -1, { extend: true });
+            return deleteChar(model);
+        },
         deleteToMathFieldEnd: (model: ModelPrivate): boolean => {
             jumpToMathFieldBoundary(model, +1, { extend: true });
             return deleteChar(model);

@@ -38,7 +38,7 @@ export function parseMathString(
         format?: string;
         inlineShortcuts?: { [key: string]: InlineShortcutDefinition };
     }
-) {
+): [string, string] {
     if (!s) return ['latex', ''];
 
     // Nothing to do if a single character

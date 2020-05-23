@@ -106,7 +106,7 @@ defineFunction('cancel', '{body:auto}', null, function (
         padding: 'auto',
         shadow: 'auto',
         notation: { updiagonalstrike: true },
-        body: args[0],
+        body: args[0] as Atom[],
     };
 });
 
@@ -124,7 +124,7 @@ defineFunction('bcancel', '{body:auto}', null, function (
         padding: 'auto',
         shadow: 'auto',
         notation: { downdiagonalstrike: true },
-        body: args[0],
+        body: args[0] as Atom[],
     };
 });
 
@@ -142,6 +142,6 @@ defineFunction('xcancel', '{body:auto}', null, function (
         padding: 'auto',
         shadow: 'auto',
         notation: { updiagonalstrike: true, downdiagonalstrike: true },
-        body: args[0],
+        body: args[0] as Atom[],
     };
 });

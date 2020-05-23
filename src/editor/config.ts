@@ -39,7 +39,12 @@ function loadSound(sound: string | HTMLAudioElement): HTMLAudioElement {
     return sound;
 }
 
-function unloadSound(sound: string | HTMLAudioElement | object): void {
+function unloadSound(
+    sound:
+        | string
+        | HTMLAudioElement
+        | { [key: string]: HTMLAudioElement | string }
+): void {
     if (sound instanceof HTMLAudioElement) {
         sound.pause();
         sound.removeAttribute('src');
@@ -258,7 +263,7 @@ export function getDefault(): Required<MathfieldConfigPrivate> {
         namespace: '',
         substituteTextArea: undefined,
         readOnly: false,
-        createHTML: (s) => s,
+        createHTML: (s: string): any => s,
 
         defaultMode: 'math',
         macros: MACROS,
@@ -320,7 +325,7 @@ export function getDefault(): Required<MathfieldConfigPrivate> {
         onVirtualKeyboardToggle: NO_OP_LISTENER,
         onReadAloudStatus: NO_OP_LISTENER,
 
-        onError: (_) => {
+        onError: (): void => {
             return;
         },
     };

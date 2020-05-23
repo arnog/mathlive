@@ -145,7 +145,7 @@ export function perform(
 
 export function performWithFeedback(
     mathfield: MathfieldPrivate,
-    selector
+    selector: SelectorPrivate
 ): boolean {
     // @revisit: have a registry of commands -> sound
     mathfield.$focus();
@@ -153,7 +153,9 @@ export function performWithFeedback(
         navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
     }
     // Convert kebab case to camel case.
-    selector = selector.replace(/-\w/g, (m) => m[1].toUpperCase());
+    selector = selector.replace(/-\w/g, (m) =>
+        m[1].toUpperCase()
+    ) as SelectorPrivate;
     if (
         selector === 'moveToNextPlaceholder' ||
         selector === 'moveToPreviousPlaceholder' ||
@@ -197,6 +199,6 @@ export function performWithFeedback(
 register({
     performWithFeedback: (
         mathfield: MathfieldPrivate,
-        command: string
+        command: SelectorPrivate
     ): boolean => performWithFeedback(mathfield, command),
 });

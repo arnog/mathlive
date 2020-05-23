@@ -1,15 +1,17 @@
-export function isArray(array: any): array is any[] {
-    return Array.isArray(array);
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+
+export function isArray(x: any): x is any[] {
+    return Array.isArray(x);
 }
 
-export function isString(str: any): str is string {
-    return typeof str === 'string';
+export function isString(x: any): x is string {
+    return typeof x === 'string';
 }
 
-export function isNumber(obj: any): obj is number {
-    return typeof obj === 'number' && !isNaN(obj);
+export function isNumber(x: any): x is number {
+    return typeof x === 'number' && !Number.isNaN(x);
 }
 
-export function isFunction(obj: any): obj is Function {
-    return typeof obj === 'function';
+export function isFunction(x: any): x is (...args: any[]) => void {
+    return typeof x === 'function';
 }

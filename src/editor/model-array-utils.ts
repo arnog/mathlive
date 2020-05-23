@@ -5,7 +5,10 @@ import { Atom } from '../core/atom';
 /**
  * Convert an array row/col into an array index.
  */
-export function arrayIndex(array, rowCol): number {
+export function arrayIndex(
+    array: Atom[][][],
+    rowCol: { col: number; row: number }
+): number {
     let result = 0;
 
     for (let i = 0; i < rowCol.row; i++) {

@@ -5,6 +5,7 @@ import type { ParseMode } from '../public/core';
 import { LETTER_AND_DIGITS } from '../core/definitions';
 import { Atom } from '../core/atom';
 import {
+    Selection,
     Path,
     pathDistance,
     clone as clonePath,
@@ -554,9 +555,13 @@ export function previous(
     }
 }
 
-export function move(model: ModelPrivate, dist: number, options?): boolean {
-    options = options || { extend: false };
-    const extend = options.extend || false;
+export function move(
+    model: ModelPrivate,
+    dist: number,
+    options?: { extend: any }
+): boolean {
+    options = options ?? { extend: false };
+    const extend = options.extend ?? false;
 
     removeSuggestion(model);
 
@@ -594,9 +599,12 @@ export function move(model: ModelPrivate, dist: number, options?): boolean {
     return true;
 }
 
-export function up(model: ModelPrivate, options?): boolean {
-    options = options || { extend: false };
-    const extend = options.extend || false;
+export function up(
+    model: ModelPrivate,
+    options?: { extend: boolean }
+): boolean {
+    options = options ?? { extend: false };
+    const extend = options.extend ?? false;
 
     collapseSelectionBackward(model);
     const relation = model.relation();
@@ -631,9 +639,12 @@ export function up(model: ModelPrivate, options?): boolean {
     return true;
 }
 
-export function down(model: ModelPrivate, options?): boolean {
-    options = options || { extend: false };
-    const extend = options.extend || false;
+export function down(
+    model: ModelPrivate,
+    options?: { extend: boolean }
+): boolean {
+    options = options ?? { extend: false };
+    const extend = options.extend ?? false;
 
     collapseSelectionForward(model);
     const relation = model.relation();
@@ -729,9 +740,13 @@ export function extend(model: ModelPrivate, dist: number): boolean {
  * collapsed, then moved.
  * @param dir +1 to skip forward, -1 to skip back
  */
-export function skip(model: ModelPrivate, dir: 1 | -1, options?): boolean {
-    options = options || { extend: false };
-    const extend = options.extend || false;
+export function skip(
+    model: ModelPrivate,
+    dir: 1 | -1,
+    options?: { extend: boolean }
+): boolean {
+    options = options ?? { extend: false };
+    const extend = options.extend ?? false;
     dir = dir < 0 ? -1 : +1;
 
     const oldPath = model.clone();
@@ -802,9 +817,12 @@ export function skip(model: ModelPrivate, dir: 1 | -1, options?): boolean {
 /**
  * Move to the next/previous expression boundary
  */
-export function jump(model: ModelPrivate, dir, options?): boolean {
-    options = options || { extend: false };
-    const extend = options.extend || false;
+export function jump(
+    model: ModelPrivate,
+    dir: number,
+    options?: { extend: boolean }
+): boolean {
+    options = options ?? { extend: false };
     dir = dir < 0 ? -1 : +1;
 
     const siblings = model.siblings();
@@ -813,7 +831,7 @@ export function jump(model: ModelPrivate, dir, options?): boolean {
 
     const offset = dir < 0 ? 0 : siblings.length - 1;
 
-    if (extend) {
+    if (options.extend ?? false) {
         extend(model, offset - focus);
     } else {
         move(model, offset - focus);
@@ -823,19 +841,17 @@ export function jump(model: ModelPrivate, dir, options?): boolean {
 
 export function jumpToMathFieldBoundary(
     model: ModelPrivate,
-    dir: number,
-    options?
+    dir = 1,
+    options?: { extend: boolean }
 ): boolean {
-    options = options || { extend: false };
-    const extend = options.extend || false;
-    dir = dir || +1;
+    options = options ?? { extend: false };
     dir = dir < 0 ? -1 : +1;
 
     const oldPath = model.clone();
     const path = [{ relation: 'body', offset: model.path[0].offset }];
     let extent;
 
-    if (!extend) {
+    if (!options.extend ?? false) {
         // Change the anchor to the end/start of the root expression
         path[0].offset = dir < 0 ? 0 : model.root.body.length - 1;
         extent = 0;
@@ -1097,17 +1113,21 @@ export function setRange(
 
 /**
  *
- * @param {string|Array} selection
  * @param  extent the length of the selection
  * @return true if the path has actually changed
  */
-export function setPath(model: ModelPrivate, selection, extent = 0): boolean {
+export function setPath(
+    model: ModelPrivate,
+    inSelection: string | Path | Selection,
+    extent = 0
+): boolean {
+    let selection: Selection;
     // Convert to a path array if necessary
-    if (typeof selection === 'string') {
-        selection = pathFromString(selection);
-    } else if (isArray(selection)) {
+    if (typeof inSelection === 'string') {
+        selection = pathFromString(inSelection);
+    } else if (isArray(inSelection)) {
         // need to temporarily change the path of this to use 'sibling()'
-        const newPath = clonePath(selection);
+        const newPath = clonePath(inSelection as Path);
         const oldPath = model.path;
         model.path = newPath;
         if (extent === 0 && getAnchor(model).type === 'placeholder') {
@@ -1120,6 +1140,8 @@ export function setPath(model: ModelPrivate, selection, extent = 0): boolean {
             extent: extent || 0,
         };
         model.path = oldPath;
+    } else {
+        selection = inSelection;
     }
 
     const pathChanged = pathDistance(model.path, selection.path) !== 0;
@@ -1218,8 +1240,8 @@ export function forEachSelected(
 
 export function getContentFromSiblings(
     model: ModelPrivate,
-    start,
-    end
+    start: number,
+    end: number
 ): string {
     const siblings = model.siblings();
     if (isEmptyMathlist(siblings)) return '';
@@ -1420,7 +1442,11 @@ function wordBoundaryOffset(
  * @param {number} dir - `+1` to iterate forward, `-1` to iterate backward.
  * @return The paths (as a string) for all the atoms which the predicate is true
  */
-export function filter(model: ModelPrivate, cb, dir: -1 | 1 = +1): string[] {
+export function filter(
+    model: ModelPrivate,
+    cb: (path: Path, anchor: Atom) => boolean,
+    dir: -1 | 1 = +1
+): string[] {
     dir = dir < 0 ? -1 : +1;
 
     const result = [];

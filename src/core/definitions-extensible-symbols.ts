@@ -21,13 +21,15 @@ defineFunction(
         return {
             type: 'overunder',
             // The body is the argument of the command
-            body: args[0],
+            body: args[0] as Atom[],
 
             // Set the "svgAbove" to the name of a SVG object (which is the same
             // as the command name)
             svgAbove: name.slice(1),
 
             skipBoundary: true,
+
+            limits: 'overunder',
         };
     },
     (name, _parent, atom, emit) => `${name}{${emit(atom, atom.body as Atom[])}}`
@@ -48,12 +50,13 @@ defineFunction(
         return {
             type: 'overunder',
 
-            body: args[0],
+            body: args[0] as Atom[],
             // Set the "svgBelow" to the name of a SVG object (which is the same
             // as the command name)
             svgBelow: name.slice(1),
 
             skipBoundary: true,
+            limits: 'overunder',
         };
     },
     (name, _parent, atom, emit) => `${name}{${emit(atom, atom.body as Atom[])}}`

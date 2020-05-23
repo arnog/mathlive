@@ -470,7 +470,7 @@ export function platform(): 'apple' | 'windows' | 'linux' {
     return result;
 }
 
-export function register(layout: KeyboardLayout) {
+export function register(layout: KeyboardLayout): void {
     if (layout.platform === platform()) {
         gKeyboardLayouts.push(layout);
     }

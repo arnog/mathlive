@@ -1680,7 +1680,7 @@ export function unshiftKeyboardLayer(mathfield: MathfieldPrivate): boolean {
     return false;
 }
 
-export function updateUndoRedoButtons(mathfield: MathfieldPrivate) {
+export function updateUndoRedoButtons(mathfield: MathfieldPrivate): void {
     const virtualKeyboardToolbar = mathfield.virtualKeyboard?.querySelector(
         '.keyboard-toolbar'
     );

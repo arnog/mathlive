@@ -97,8 +97,8 @@ defineFunction(
     (_name, args) => {
         return {
             type: 'surd',
-            body: args[1],
-            index: args[0],
+            body: args[1] as Atom[],
+            index: args[0] as Atom[],
         };
     },
     (name, _parent, atom, emit) => {

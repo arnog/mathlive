@@ -16,7 +16,7 @@ import {
     RIGHT_DELIM,
 } from '../core/definitions';
 
-type MathJsonLatexOptions = {
+export type MathJsonLatexOptions = {
     precision?: number;
     decimalMarker?: string;
     groupSeparator?: string;
@@ -29,7 +29,7 @@ type MathJsonLatexOptions = {
     endRepeatingDigits?: string;
 };
 
-type MathJson = any;
+export type MathJson = any;
 type ComplexNumber = { re?: string; im?: string };
 type WrappedNumber = { num: string | ComplexNumber };
 type MathJsonNumber = WrappedNumber & MathJsonOptionalAttributes;
@@ -1453,7 +1453,7 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
  * @return {object} the expr object, updated
  * @private
  */
-function parseExpression(expr, options) {
+function parseExpression(expr: ParseState, options: MathJsonLatexOptions) {
     expr.index = expr.index || 0;
     expr.ast = undefined;
     if (expr.atoms.length === 0 || expr.index >= expr.atoms.length) return expr;
@@ -1654,7 +1654,22 @@ function escapeText(s) {
  * Return an AST representation of a single atom
  *
  */
-export function atomToMathJson(atom: Atom, options): MathJson {
+export function atomToMathJson(
+    atom: Atom,
+    options: {
+        precision?: number;
+        decimalMarker?: string;
+        groupSeparator?: string;
+        product?: string;
+        exponentProduct?: string;
+        exponentMarker?: string;
+        arcSeparator?: string;
+        scientificNotation?: 'auto' | 'engineering' | 'on';
+        beginRepeatingDigits?: string;
+        endRepeatingDigits?: string;
+        macros?: any;
+    }
+): MathJson {
     const MATH_VARIANTS = {
         'double-struck': 'double-struck',
         calligraphic: 'script',
@@ -1816,18 +1831,20 @@ export function atomToMathJson(atom: Atom, options): MathJson {
             break;
 
         case 'array':
-            if (atom.env.name === 'cardinality') {
+            if (atom.environmentName === 'cardinality') {
                 // @revisit... It's an environment, but not an array...?
                 result = wrapFn(
                     'card',
                     parse((atom.array as unknown) as Atom[], options)
                 );
-            } else if (/array|matrix|pmatrix|bmatrix/.test(atom.env.name)) {
+            } else if (
+                /array|matrix|pmatrix|bmatrix/.test(atom.environmentName)
+            ) {
                 result = { fn: 'array', args: [] };
                 for (const row of atom.array) {
                     result.args.push(row.map((cell) => parse(cell, options)));
                 }
-            } else if (atom.env.name === 'cases') {
+            } else if (atom.environmentName === 'cases') {
                 result = { fn: 'cases', args: [] };
                 for (const row of atom.array) {
                     if (row[0]) {
@@ -1936,7 +1953,7 @@ function filterPresentationAtoms(
  */
 function parseSentence(
     expr: ParseState,
-    options: MathJsonLatexOptions
+    options?: MathJsonLatexOptions
 ): MathJson {
     expr.index = expr.index || 0;
     expr.ast = undefined;
@@ -1970,11 +1987,14 @@ function parseSentence(
     return zones[0] || undefined;
 }
 
-function parse(atoms: Atom | Atom[], options: MathJsonLatexOptions) {
+function parse(atoms: Atom | Atom[], options?: MathJsonLatexOptions): MathJson {
     return parseSentence({ atoms: filterPresentationAtoms(atoms) }, options);
 }
 
-export function atomtoMathJson(atoms: Atom | Atom[], options) {
+export function atomtoMathJson(
+    atoms: Atom | Atom[],
+    options?: MathJsonLatexOptions
+): MathJson {
     return parse(atoms, options);
 }
 

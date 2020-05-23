@@ -16,7 +16,11 @@ import { positionInsertionPointAfterCommitedCommand } from './model-selection';
 import type { MathfieldPrivate } from './mathfield-class';
 import { requestUpdate } from './mathfield-render';
 
-export function insertSuggestion(model: ModelPrivate, s, l): void {
+export function insertSuggestion(
+    model: ModelPrivate,
+    s: string,
+    l: number
+): void {
     removeSuggestion(model);
 
     const mathlist = [];
@@ -51,7 +55,7 @@ export function complete(
         discard?: boolean;
         acceptSuggestion?: boolean;
     }
-) {
+): boolean {
     options = options || { acceptSuggestion: false };
     hidePopover(mathfield);
     if (options.discard) {

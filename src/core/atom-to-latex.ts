@@ -146,8 +146,8 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
             break;
 
         case 'array':
-            result += '\\begin{' + atom.env.name + '}';
-            if (atom.env.name === 'array') {
+            result += '\\begin{' + atom.environmentName + '}';
+            if (atom.environmentName === 'array') {
                 result += '{';
                 if (atom.colFormat) {
                     for (i = 0; i < atom.colFormat.length; i++) {
@@ -170,7 +170,7 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
                     result += ' \\\\ ';
                 }
             }
-            result += '\\end{' + atom.env.name + '}';
+            result += '\\end{' + atom.environmentName + '}';
             break;
 
         case 'root':

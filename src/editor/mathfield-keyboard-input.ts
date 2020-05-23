@@ -36,7 +36,10 @@ import {
     validateKeyboardLayout,
 } from './keyboard-layout';
 
-export function showKeystroke(mathfield: MathfieldPrivate, keystroke: string) {
+export function showKeystroke(
+    mathfield: MathfieldPrivate,
+    keystroke: string
+): void {
     const vb = mathfield.keystrokeCaption;
     if (vb && mathfield.keystrokeCaptionVisible) {
         const bounds = mathfield.element.getBoundingClientRect();
@@ -67,7 +70,7 @@ export function onKeystroke(
     mathfield: MathfieldPrivate,
     keystroke: string,
     evt: KeyboardEvent
-) {
+): boolean {
     // 1. Update the keybindings according to the current keyboard layout
 
     // 1.1 Possibly update the current keyboard layout based on this event
@@ -346,8 +349,13 @@ export function onKeystroke(
 export function onTypedText(
     mathfield: MathfieldPrivate,
     text: string,
-    options?
-) {
+    options?: {
+        focus?: boolean;
+        feedback?: boolean;
+        commandMode?: boolean;
+        simulateKeystroke?: boolean;
+    }
+): void {
     if (mathfield.config.readOnly) {
         mathfield.model.announce('plonk');
         return;

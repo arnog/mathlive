@@ -66,9 +66,8 @@ registerAtomType('mop', (context: Context, atom: Atom): Span[] => {
     if (atom.isSymbol) base.setTop(baseShift);
     let result = base;
     if (atom.superscript || atom.subscript) {
-        const limits = atom.limits || 'auto';
+        const limits = atom.limits ?? 'auto';
         if (
-            atom.alwaysHandleSupSub ||
             limits === 'limits' ||
             (limits === 'auto' &&
                 mathstyle.size === MATHSTYLES.displaystyle.size)

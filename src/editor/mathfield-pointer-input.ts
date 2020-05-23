@@ -1,4 +1,4 @@
-import { pathFromString, clone as clonePath } from './path';
+import { pathFromString, clone as clonePath, Path } from './path';
 import {
     setPath,
     selectGroup,
@@ -303,7 +303,7 @@ export function pathFromPoint(
     x: number,
     y: number,
     options?: { bias?: number }
-) {
+): Path {
     options = options ?? {};
     options.bias = options.bias ?? 0;
     let result;

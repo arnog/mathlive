@@ -1,7 +1,7 @@
 import { isArray } from '../common/types';
 
 import {
-    getEnvironmentInfo,
+    getEnvironmentDefinition,
     getInfo,
     unicodeCharToLatex,
     MacroDictionary,
@@ -155,18 +155,23 @@ class Parser {
         return index < this.tokens.length ? this.tokens[index] : null;
     }
     /**
-     * Return the last atom of the math list
+     * Return the last atom of the math list that can have a subsup attached to it.
      * If there isn't one, insert a `msubsup` and return it.
      */
-    lastMathAtom(): Atom {
-        const lastType =
+    lastSubsupAtom(): Atom {
+        const lastAtom =
             this.mathList.length === 0
-                ? 'none'
-                : this.mathList[this.mathList.length - 1].type;
-        if (lastType !== 'mop' && lastType !== 'msubsup') {
-            // ZERO WIDTH SPACE
-            const lastAtom = new Atom(this.parseMode, 'msubsup', '\u200b');
-            this.mathList.push(lastAtom);
+                ? undefined
+                : this.mathList[this.mathList.length - 1];
+        if (
+            !lastAtom ||
+            (lastAtom.type !== 'mop' && lastAtom.type !== 'msubsup')
+        ) {
+            if (!lastAtom?.limits || lastAtom?.limits === 'nolimits') {
+                this.mathList.push(
+                    new Atom(this.parseMode, 'msubsup', '\u200b')
+                );
+            }
         }
         return this.mathList[this.mathList.length - 1];
     }
@@ -605,7 +610,7 @@ class Parser {
             if (this.hasLiteral()) {
                 const literal = this.get()!.value as string;
                 if ('lcr'.includes(literal)) {
-                    result.push({ align: literal as 'l' | 'c' | 'r' });
+                    result.push({ align: literal as 'l' | 'c' | 'r' | 'm' });
                 } else if (literal === '|') {
                     result.push({ rule: true });
                 } else if (literal === '@') {
@@ -669,21 +674,18 @@ class Parser {
     scanEnvironment(): Atom {
         // An environment starts with a \begin command
         if (!this.parseCommand('begin')) return null;
+
         // The \begin command is immediately followed by the environment
         // name, as a string argument
         const envName = this.scanArg('string') as string;
-        const env = getEnvironmentInfo(envName);
+        if (!envName) return null;
+        const def = getEnvironmentDefinition(envName);
+        if (!def) return null;
+
         // If the environment has some arguments, parse them
-        const args: (
-            | string
-            | number
-            | BBoxParam
-            | Colspec[]
-            | Atom
-            | Atom[]
-        )[] = [];
-        if (env?.params) {
-            for (const param of env.params) {
+        const args: (string | number | BBoxParam | Colspec[] | Atom[])[] = [];
+        if (def?.params) {
+            for (const param of def.params) {
                 // Parse an argument
                 if (param.isOptional) {
                     // If it's not present, scanArg returns null,
@@ -708,7 +710,7 @@ class Parser {
         const savedTabularMode = this.tabularMode;
         const savedMathList = this.swapMathList([]);
         // @todo: since calling scanImplicitGroup(), may not need to save/restore the mathlist
-        this.tabularMode = env.tabular;
+        this.tabularMode = def.tabular;
         const array: Atom[][][] = [];
         const rowGaps: number[] = [];
         let row: Atom[][] = [];
@@ -719,7 +721,13 @@ class Parser {
                 done = true;
             }
             if (!done && this.parseCommand('end')) {
-                done = this.scanArg('string') === envName;
+                if (this.scanArg('string') !== envName) {
+                    this.onError({
+                        code: 'unbalanced-environment',
+                        arg: envName,
+                    });
+                }
+                done = true;
             }
             if (!done) {
                 if (this.parseColumnSeparator()) {
@@ -760,18 +768,15 @@ class Parser {
         );
         this.parseMode = savedMode;
         this.tabularMode = savedTabularMode;
-        if (!env.tabular && newMathList.length === 0) return null;
-        if (env.tabular && array.length === 0) return null;
-        const result = new Atom(
-            this.parseMode,
-            'array',
-            newMathList,
-            env.parser ? env.parser(envName, args, array) : {}
-        );
+
+        if (!def.tabular && newMathList.length === 0) return null;
+        if (def.tabular && array.length === 0) return null;
+
+        const result = new Atom(this.parseMode, 'array', newMathList);
+        Object.assign(result, def.parser(envName, args, array));
         result.array = array;
         result.rowGaps = rowGaps;
-        result.env = { ...env };
-        result.env.name = envName;
+        result.environmentName = envName;
         return result;
     }
     /**
@@ -1002,7 +1007,7 @@ class Parser {
     parseSupSub(): boolean {
         // No sup/sub in text or command mode.
         if (this.parseMode !== 'math') return false;
-        // Apply the subscript/superscript to the last render atom.
+        // Apply the subscript/superscript to the last rendered atom.
         // If none is present (beginning of the mathlist, i.e. `{^2}`,
         // an empty atom will be created, equivalent to `{{}^2}`
         let result = false;
@@ -1011,22 +1016,21 @@ class Parser {
             this.hasLiteral('_') ||
             this.hasLiteral("'")
         ) {
-            const supsub = this.hasLiteral('^') ? 'superscript' : 'subscript';
+            const supsub = this.hasLiteral('_') ? 'subscript' : 'superscript';
             if (this.parseLiteral('^') || this.parseLiteral('_')) {
                 const arg = this.scanArg();
                 if (arg) {
-                    const atom = this.lastMathAtom();
-                    atom[supsub] = atom[supsub] || [];
-                    atom[supsub] = atom[supsub].concat(arg as Atom[]);
+                    const atom = this.lastSubsupAtom();
+                    atom[supsub] = (atom[supsub] ?? []).concat(arg as Atom[]);
                     result = true;
                 }
             } else if (this.parseLiteral("'")) {
                 // A single quote (prime) is actually equivalent to a
                 // '^{\prime}'
-                const base = this.lastMathAtom();
+                const base = this.lastSubsupAtom();
                 const atom = new Atom(base.mode, 'mord', '\u2032');
                 atom.symbol = '\\prime';
-                base.superscript = base.superscript || [];
+                base.superscript = base.superscript ?? [];
                 base.superscript.push(atom);
                 result = true;
             }
@@ -1049,7 +1053,7 @@ class Parser {
         // will simply be ignored when not applicable (i.e. on a literal)
         // which is actually consistent with TeX.
         if (this.parseCommand('limits')) {
-            const lastAtom = this.lastMathAtom();
+            const lastAtom = this.lastSubsupAtom();
             lastAtom.limits = 'limits';
             // Record that the limits was set through an explicit command
             // so we can generate the appropriate LaTeX later
@@ -1057,7 +1061,7 @@ class Parser {
             return true;
         }
         if (this.parseCommand('nolimits')) {
-            const lastAtom = this.lastMathAtom();
+            const lastAtom = this.lastSubsupAtom();
             lastAtom.limits = 'nolimits';
             // Record that the limits was set through an explicit command
             // so we can generate the appropriate LaTeX later

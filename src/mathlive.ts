@@ -10,7 +10,12 @@ import { coalesce, makeSpan, makeStruts } from './core/span';
 import { MACROS, MacroDictionary } from './core/definitions';
 import { MathfieldPrivate } from './editor/mathfield-class';
 import AutoRender from './addons/auto-render';
-import { jsonToLatex, atomtoMathJson } from './addons/math-json';
+import {
+    jsonToLatex,
+    atomtoMathJson,
+    MathJsonLatexOptions,
+    MathJson,
+} from './addons/math-json';
 import MathLiveDebug from './addons/debug';
 import { MATHSTYLES } from './core/mathstyle';
 import { defaultSpeakHook } from './editor/speech';
@@ -25,6 +30,7 @@ import { atomToSpeakableText } from './editor/atom-to-speakable-text';
 import { atomsToMathML } from './addons/math-ml';
 
 import './addons/definitions-metadata';
+import { AutoRenderOptions } from './public/mathlive';
 
 function latexToMarkup(
     text: string,
@@ -122,11 +128,11 @@ function latexToMathML(
 
 function latexToAST(
     latex: string,
-    options?: {
+    options?: MathJsonLatexOptions & {
         macros?: MacroDictionary;
         onError?: ErrorListener;
     }
-) {
+): MathJson {
     options = options ?? {};
     options.macros = { ...MACROS, ...(options.macros ?? {}) };
 
@@ -143,20 +149,7 @@ function latexToAST(
     );
 }
 
-function astToLatex(
-    ast,
-    options: {
-        precision?: number;
-        decimalMarker?: string;
-        groupSeparator?: string;
-        product?: string;
-        exponentProduct?: string;
-        exponentMarker?: string;
-        scientificNotation?: 'auto' | 'engineering' | 'on';
-        beginRepeatingDigits?: string;
-        endRepeatingDigits?: string;
-    }
-): string {
+function astToLatex(ast: MathJson, options: MathJsonLatexOptions): string {
     return jsonToLatex(
         typeof ast === 'string' ? JSON.parse(ast) : ast,
         options
@@ -189,7 +182,7 @@ function latexToSpeakableText(
     );
 }
 
-function renderMathInDocument(options): void {
+function renderMathInDocument(options: AutoRenderOptions): void {
     renderMathInElement(document.body, options);
 }
 
@@ -204,7 +197,10 @@ function getElement(element: string | HTMLElement): HTMLElement {
     return element;
 }
 
-function renderMathInElement(element, options): void {
+function renderMathInElement(
+    element: HTMLElement,
+    options: AutoRenderOptions
+): void {
     options = options || {};
     options.renderToMarkup = options.renderToMarkup || latexToMarkup;
     options.renderToMathML = options.renderToMathML || latexToMathML;
@@ -229,7 +225,7 @@ function validateNamespace(options): void {
 
 function revertToOriginalContent(
     element: string | HTMLElement | MathfieldPrivate,
-    options
+    options: AutoRenderOptions
 ): void {
     if (element instanceof MathfieldPrivate) {
         element.$revertToOriginalContent();
@@ -247,7 +243,10 @@ function revertToOriginalContent(
     }
 }
 
-function getOriginalContent(element: string | HTMLElement, options): string {
+function getOriginalContent(
+    element: string | HTMLElement,
+    options: AutoRenderOptions
+): string {
     if (element instanceof MathfieldPrivate) {
         return element.originalContent;
     }

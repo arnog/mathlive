@@ -74,8 +74,10 @@ export type AtomType =
     | 'textord';
 
 export type Colspec = {
-    gap?: Atom[];
-    align?: 'l' | 'c' | 'r';
+    gap?: number | Atom[];
+    // 'm' is a special alignement for multline: left on first row, right on last
+    // row, centered otherwise
+    align?: 'l' | 'c' | 'r' | 'm';
     rule?: boolean;
 };
 export type BBoxParam = {
@@ -408,7 +410,6 @@ export class Atom implements Style {
     lFence?: string; // @revisit: use leftDelim
     rFence?: string; // @revisit: use leftDelim
 
-    alwaysHandleSupSub?: boolean;
     subscript?: Atom[];
     superscript?: Atom[];
     underscript?: Atom[];
@@ -416,12 +417,14 @@ export class Atom implements Style {
 
     position: string; // type = 'line'
 
-    limits?: 'limits' | 'nolimits' | 'accent';
+    limits?: 'limits' | 'nolimits' | 'accent' | 'overunder';
     explicitLimits?: boolean;
 
     array?: Atom[][][]; // type = 'array'
     rowGaps?: number[]; // type = 'array'
-    env: { name: string; tabular: boolean }; // type = 'array'
+    // env: { name: string; tabular: boolean }; // type = 'array'
+    environmentName?: string; // type = 'array'
+
     inner?: boolean;
     leftDelim?: string;
     rightDelim?: string;
@@ -1226,6 +1229,6 @@ export function makeRoot(parseMode: ParseMode, body: Atom[] = []): Atom {
     return result;
 }
 
-export function isAtomArray(arg: any): arg is Atom[] {
+export function isAtomArray(arg: string | Atom | Atom[]): arg is Atom[] {
     return isArray(arg);
 }

@@ -15,7 +15,7 @@ export declare type ParseMode = 'math' | 'text' | 'command';
     | `unknown-command`             | There is no definition available for this command, e.g. `\zin`  |
     | `invalid-command`             | This command is not valid in the current mode (e.g. text command in math mode)  |
     | `unbalanced-braces`           |  There are too many or too few `{` or `}`  |
-    | `unbalanced-environment`      |  An environment was open but never closed (`\begin{array}`}  |
+    | `unbalanced-environment`      |  An environment was open but never closed (`\begin{array}`) or the `\end` command does not match the `\begin` command (`\begin{array*}\end{array}`)  |
     | `missing-argument`            |  A required argument is missing, e.g. `\frac{2}` |
     | `too-many-infix-commands`     | A group can include only one infix command (i.e. `\choose`, `\atop`). In general it's best to avoid infix commands.  |
     | `unexpected-command-in-string`| A command expected a string argument, but there was a command instead  |

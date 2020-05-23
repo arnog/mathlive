@@ -1,4 +1,4 @@
-import type { TextToSpeechOptions } from '../public/config';
+import type { TextToSpeechOptions, MathfieldConfig } from '../public/config';
 import type { SpeechScope } from '../public/commands';
 
 import type { Atom } from '../core/atom';
@@ -14,10 +14,10 @@ export function speakableText(
     speechOptions: Required<TextToSpeechOptions>,
     prefix: string,
     atoms: Atom | Atom[]
-) {
-    const options = {
+): string {
+    const options: TextToSpeechOptions = {
         ...speechOptions,
-        textToSpeechMarkup: '' as '', // @revisit: ts weirdness
+        textToSpeechMarkup: '',
         textToSpeechRulesOptions: {
             ...speechOptions.textToSpeechRulesOptions,
             markup: 'none',
@@ -165,7 +165,7 @@ function speak(
     return false;
 }
 
-export function defaultSpeakHook(text, config) {
+export function defaultSpeakHook(text: string, config: MathfieldConfig): void {
     if (!config && window && window['mathlive']) {
         config = window['mathlive'].config;
     }

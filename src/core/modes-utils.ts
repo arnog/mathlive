@@ -119,7 +119,7 @@ export function parseTokens(
     tokens: Token[],
     error: ErrorListener,
     options: ParseTokensOptions
-) {
+): Atom[] {
     if (MODES_REGISTRY[mode] && MODES_REGISTRY[mode].parse) {
         return MODES_REGISTRY[mode].parse(tokens, error, options);
     }

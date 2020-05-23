@@ -1,12 +1,13 @@
 import { isArray } from '../common/types';
 
-import { getEnvironmentInfo } from '../core/definitions';
+import { getEnvironmentDefinition } from '../core/definitions';
 import { Atom } from '../core/atom';
 import type { ModelPrivate } from './model-class';
 import { contentDidChange, contentWillChange } from './model-listeners';
 import { getAnchorMode } from './model-selection';
 import { register as registerCommand } from './commands';
 import { arrayIndex, arrayColRow, arrayCell } from './model-array-utils';
+import { Style } from '../public/core';
 export * from './model-array-utils';
 
 /**
@@ -15,7 +16,7 @@ export * from './model-array-utils';
 export function arrayJoinColumns(
     row: Atom[][],
     separator = ',',
-    style?
+    style?: Style
 ): Atom[] {
     if (!row) return [];
     let result: Atom[] = [];
@@ -43,10 +44,10 @@ export function arrayJoinColumns(
 export function arrayJoinRows(
     array: Atom[][][],
     separators = [';', ','],
-    style?
+    style?: Style
 ): Atom[] {
-    let result = [];
-    let sep;
+    let result: Atom[] = [];
+    let sep: Atom;
     for (const row of array) {
         if (sep) {
             result.push(sep);
@@ -154,15 +155,12 @@ export function convertParentToArray(model: ModelPrivate): void {
         const envName =
             { '(': 'pmatrix', '\\lbrack': 'bmatrix', '\\lbrace': 'cases' }[
                 parent.leftDelim
-            ] || 'matrix';
-        const env = getEnvironmentInfo(envName);
+            ] ?? 'matrix';
+        const env = getEnvironmentDefinition(envName);
         const array = [[parent.body as Atom[]]];
-        if (env.parser) {
-            Object.assign(parent, env.parser(envName, [], array));
-        }
+        Object.assign(parent, env.parser(envName, [], array));
         parent.mode = getAnchorMode(model);
-        parent.env = { ...env };
-        parent.env.name = envName;
+        parent.environmentName = envName;
         parent.array = array;
         parent.rowGaps = [0];
         delete parent.body;

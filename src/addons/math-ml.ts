@@ -1,6 +1,6 @@
+import type { MathfieldConfig } from '../public/config';
 import { Atom } from '../core/atom';
 import { stringToColor } from '../core/color';
-
 const SPECIAL_OPERATORS = {
     '\\pm': '&#177;',
     '\\times': '&#215;',
@@ -490,14 +490,23 @@ function scanOperator(stream, final, options) {
  * @param initial index of the input to start conversion from
  * @param final last index of the input to stop conversion to
  */
-function toMathML(input, initial: number, final: number, options) {
+function toMathML(
+    input: number | boolean | string | Atom | Atom[],
+    initial: number,
+    final: number,
+    options: MathfieldConfig
+): {
+    atoms: number | boolean | string | Atom | Atom[];
+    index: number;
+    mathML: string;
+    lastType: string;
+} {
     const result = {
         atoms: input,
-        index: initial || 0,
+        index: initial ?? 0,
         mathML: '',
         lastType: '',
     };
-    final = final || (input ? input.length : 0);
 
     if (typeof input === 'number' || typeof input === 'boolean') {
         result.mathML = input.toString();
@@ -507,6 +516,7 @@ function toMathML(input, initial: number, final: number, options) {
         result.mathML = atomToMathML(input, options);
     } else if (Array.isArray(input)) {
         let count = 0;
+        final = final ?? (input ? input.length : 0);
 
         while (result.index < final) {
             if (
@@ -1084,6 +1094,9 @@ function atomToMathML(atom, options): string {
     return result;
 }
 
-export function atomsToMathML(atoms, options) {
+export function atomsToMathML(
+    atoms: Atom | Atom[],
+    options: MathfieldConfig
+): string {
     return toMathML(atoms, 0, 0, options).mathML;
 }

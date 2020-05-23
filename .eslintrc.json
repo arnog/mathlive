@@ -51,7 +51,7 @@
         /// Typescript is completed. @revisit
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/no-unnecessary-type-arguments": "warn",
-        "@typescript-eslint/no-untyped-public-signature": "warn",
+        "@typescript-eslint/explicit-module-boundary-types": "warn",
         // "@typescript-eslint/typedef": [
         //     "warn",
         //     {
@@ -74,10 +74,18 @@
 
         // note you must disable the base rule as it can report incorrect errors
         "indent": "off",
+
         "@typescript-eslint/prefer-optional-chain": "warn",
         "@typescript-eslint/prefer-nullish-coalescing": "warn",
 
-        "@typescript-eslint/generic-type-naming": ["warn", "^[A-Z][a-zA-Z]*$"],
+        "@typescript-eslint/naming-convention": [
+            "warn",
+            {
+                "selector": "typeParameter",
+                "format": ["PascalCase"],
+                "prefix": ["T"]
+            }
+        ],
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-unused-vars": [
             "error",

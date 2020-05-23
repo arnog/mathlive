@@ -136,6 +136,10 @@ export interface Commands {
     /**
      * @category Deleting
      */
+    deleteToMathFieldStart: (model: Model) => boolean;
+    /**
+     * @category Deleting
+     */
     deleteToMathFieldEnd: (model: Model) => boolean;
     /**
      * @category Selection

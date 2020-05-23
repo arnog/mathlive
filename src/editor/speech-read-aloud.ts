@@ -48,7 +48,7 @@ export function defaultReadAloudHook(
     element: HTMLElement,
     text: string,
     config: MathfieldConfig
-) {
+): void {
     if (!window) {
         return;
     }
@@ -215,9 +215,12 @@ export function defaultReadAloudHook(
  *
  * **See** {@linkcode speak}
  * @category Read Aloud
- * @return {"ready" | "playing" | "paused" | "unavailable"}
  */
-export function readAloudStatus() {
+export function readAloudStatus():
+    | 'ready'
+    | 'playing'
+    | 'paused'
+    | 'unavailable' {
     if (!window) return 'unavailable';
     window['mathlive'] = window['mathlive'] || {};
 
@@ -233,7 +236,7 @@ export function readAloudStatus() {
  *
  * **See** {@linkcode speak}
  */
-export function pauseReadAloud() {
+export function pauseReadAloud(): void {
     if (!window) return;
     window['mathlive'] = window['mathlive'] || {};
     if (window['mathlive'].readAloudAudio) {
@@ -252,7 +255,7 @@ export function pauseReadAloud() {
  *
  * **See** {@linkcode speak}
  */
-export function resumeReadAloud() {
+export function resumeReadAloud(): void {
     if (!window) return;
     window['mathlive'] = window['mathlive'] || {};
     if (window['mathlive'].readAloudAudio) {
@@ -271,10 +274,9 @@ export function resumeReadAloud() {
  *
  * **See** {@linkcode speak}
  *
- * @param {string} [token]
- * @param {number} [count] The number of tokens to read.
+ * @param count The number of tokens to read.
  */
-export function playReadAloud(token, count) {
+export function playReadAloud(token: string, count: number): void {
     if (!window) return;
     window['mathlive'] = window['mathlive'] || {};
     if (window['mathlive'].readAloudAudio) {

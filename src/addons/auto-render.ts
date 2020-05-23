@@ -4,9 +4,9 @@ import { MACROS } from '../core/definitions';
 import { AutoRenderOptions } from '../public/mathlive';
 
 type AutoRenderOptionsPrivate = AutoRenderOptions & {
-    ignoreClassPattern: RegExp;
-    processClassPattern: RegExp;
-    processScriptTypePattern: RegExp;
+    ignoreClassPattern?: RegExp;
+    processClassPattern?: RegExp;
+    processScriptTypePattern?: RegExp;
 };
 
 function findEndOfMath(delimiter, text, startIndex) {
@@ -203,7 +203,7 @@ function createMarkupNode(
 
     try {
         const html = options.renderToMarkup(text, {
-            mathstyle: mathstyle || 'displaystyle',
+            mathstyle: mathstyle ?? 'displaystyle',
             format: 'html',
             macros: options.macros,
         });

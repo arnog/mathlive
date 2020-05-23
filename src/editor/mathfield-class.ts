@@ -294,9 +294,10 @@ export class MathfieldPrivate implements Mathfield {
         // Delegate keyboard events
         delegateKeyboardEvents(this.textarea, {
             allowDeadKey: () => this.mode === 'text',
-            typedText: (text: string, options) =>
-                onTypedText(this, text, options),
-            paste: () => onPaste(this),
+            typedText: (text: string): void => onTypedText(this, text),
+            paste: () => {
+                return onPaste(this);
+            },
             keystroke: (keystroke, e) => onKeystroke(this, keystroke, e),
             focus: () => this._onFocus(),
             blur: () => this._onBlur(),
@@ -658,13 +659,13 @@ export class MathfieldPrivate implements Mathfield {
             this.config.textToSpeechMarkup = saveTextToSpeechMarkup;
             // this.config.atomIdsSettings = savedAtomIdsSettings;      // @revisit
         } else if (format === 'json') {
-            const json = atomtoMathJson(root, this.config);
+            const json = atomtoMathJson(root);
             result = JSON.stringify(json);
         } else if (format === 'json-2') {
-            const json = atomtoMathJson(root, this.config);
+            const json = atomtoMathJson(root);
             result = JSON.stringify(json, null, 2);
         } else if (format === 'ASCIIMath') {
-            result = atomToAsciiMath(root, this.config);
+            result = atomToAsciiMath(root);
         } else {
             console.warn('Unknown format :', format);
         }

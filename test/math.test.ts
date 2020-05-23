@@ -25,7 +25,7 @@ function toSpan(formula) {
     } as unknown); // 'span' is a secret format, so force it with 'unknown'
 }
 
-function spanToString(span) {
+function spanToString(span: any): string {
     if (typeof span === 'string') span = toSpan(span);
     return MathLiveDebug.spanToString(span)
         .replace(/\t/g, '  ')

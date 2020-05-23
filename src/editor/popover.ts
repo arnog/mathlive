@@ -294,7 +294,7 @@ export function showPopoverWithLatex(
     mf: MathfieldPrivate,
     latex: string,
     displayArrows: boolean
-) {
+): void {
     if (!latex || latex.length === 0) {
         hidePopover(mf);
         return;
@@ -346,7 +346,7 @@ export function showPopoverWithLatex(
 export function updatePopoverPosition(
     mf: MathfieldPrivate,
     options?: { deferred: boolean }
-) {
+): void {
     // Check that the mathfield is still valid
     // (we're calling ourselves from requestAnimationFrame() and the mathfield
     // could have gotten destroyed
@@ -373,7 +373,7 @@ export function updatePopoverPosition(
     }
 }
 
-export function showPopover(mf: MathfieldPrivate, markup: string) {
+export function showPopover(mf: MathfieldPrivate, markup: string): void {
     mf.popover.innerHTML = mf.config.createHTML(markup);
 
     const position = getCaretPosition(mf.field);
@@ -428,6 +428,6 @@ function setPopoverPosition(mf, position) {
     }
 }
 
-export function hidePopover(mf: MathfieldPrivate) {
+export function hidePopover(mf: MathfieldPrivate): void {
     mf.popover.classList.remove('is-visible');
 }

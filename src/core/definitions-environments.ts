@@ -1,6 +1,13 @@
-import { defineEnvironment, ParseFunctionResult } from './definitions-utils';
+import {
+    defineEnvironment,
+    ParseEnvironmentResult,
+    defineTabularEnvironment,
+} from './definitions-utils';
+import { Colspec } from './core';
 
 /*
+
+See http://texdoc.net/texmf-dist/doc/latex/amsmath/amsldoc.pdf
 
 <columns> ::= <column>*<line>
 <column> ::= <line>('l'|'c'|'r')
@@ -142,14 +149,12 @@ gives a width that is the actual width of the contents, thus it can be used as
 a component in a containing expression, e.g. for putting the entire alignment
 in a parenthesis
 */
-defineEnvironment('math', '', {}, function () {
+defineEnvironment('math', '', () => {
     return { mathstyle: 'textstyle' };
 });
 
-defineEnvironment('displaymath', '', {}, function () {
-    return {
-        mathstyle: 'displaystyle',
-    };
+defineEnvironment('displaymath', '', function () {
+    return { mathstyle: 'displaystyle' };
 });
 
 // defineEnvironment('text', '', {
@@ -160,35 +165,23 @@ defineEnvironment('displaymath', '', {}, function () {
 //     };
 // });
 
-defineEnvironment('array', '{columns:colspec}', {}, (_name, args) => {
+defineTabularEnvironment('array', '{columns:colspec}', (_name, args) => {
     return {
-        colFormat: args[0],
+        colFormat: args[0] as Colspec[],
         mathstyle: 'textstyle',
     };
 });
 
-defineEnvironment('eqnarray', '', {}, function () {
-    return {};
-});
-
-defineEnvironment('equation', '', {}, function () {
-    return {
-        colFormat: [{ align: 'c' }],
-    };
-});
-
-defineEnvironment('subequations', '', {}, function () {
+defineTabularEnvironment(['equation', 'equation', 'subequations'], '', () => {
     return {
         colFormat: [{ align: 'c' }],
     };
 });
 
 // Note spelling: MULTLINE, not multiline.
-defineEnvironment('multline', '', {}, function () {
+defineTabularEnvironment('multline', '', function () {
     return {
-        firstRowFormat: [{ align: 'l' }],
-        colFormat: [{ align: 'c' }],
-        lastRowFormat: [{ align: 'r' }],
+        colFormat: [{ align: 'm' }],
     };
 });
 
@@ -197,70 +190,85 @@ defineEnvironment('multline', '', {}, function () {
 // Note that some versions of AMS-Math have a gap on the left.
 // More recent version suppresses that gap, but have an option to turn it back on
 // for backward compatibility.
-defineEnvironment(['align', 'align*', 'aligned'], '', {}, function (
-    _name,
-    _args,
-    array
-) {
-    let colCount = 0;
-    for (const row of array) {
-        colCount = Math.max(colCount, row.length);
-    }
-    const colFormat = [{ gap: 0 }, { align: 'r' }, { gap: 0 }, { align: 'l' }];
-    let i = 2;
-    while (i < colCount) {
-        colFormat.push({ gap: 1 });
-        colFormat.push({ align: 'r' });
+// Note that technically, 'eqnarray' behaves (slightly) differently. However,
+// is is generally recommended to avoid using eqnarray and use align isntead.
+// https://texblog.net/latex-archive/maths/eqnarray-align-environment/
+defineTabularEnvironment(
+    ['align', 'align*', 'aligned', 'eqnarray'],
+    '',
+    (_name, _args, array): ParseEnvironmentResult => {
+        let colCount = 0;
+        for (const row of array) {
+            colCount = Math.max(colCount, row.length);
+        }
+        const colFormat: Colspec[] = [
+            { gap: 0 },
+            { align: 'r' },
+            { gap: 0 },
+            { align: 'l' },
+        ];
+        let i = 2;
+        while (i < colCount) {
+            colFormat.push({ gap: 1 });
+            colFormat.push({ align: 'r' });
+            colFormat.push({ gap: 0 });
+            colFormat.push({ align: 'l' });
+            i += 2;
+        }
         colFormat.push({ gap: 0 });
-        colFormat.push({ align: 'l' });
-        i += 2;
+
+        return {
+            arraycolsep: 0,
+            colFormat: colFormat,
+            jot: 0.3,
+        };
     }
-    colFormat.push({ gap: 0 });
+);
 
-    return {
-        arraycolsep: 0,
-        colFormat: colFormat,
-        jot: 0.3, // Jot is an extra gap between lines of numbered equation.
-        // It's 3pt by default in LaTeX (ltmath.dtx:181)
-    };
-});
-
-// defineEnvironment('alignat', '', {}, function(name, args) {
+// defineEnvironment('alignat', '', function(name, args) {
 //     return {
 
 //     };
 // });
 
-// defineEnvironment('flalign', '', {}, function(name, args) {
+// defineEnvironment('flalign', '', function(name, args) {
 //     return {
 
 //     };
 // });
 
-defineEnvironment('split', '', {}, function () {
-    return {};
-});
+defineTabularEnvironment(
+    'split',
+    '',
+    (): ParseEnvironmentResult => {
+        return { colFormat: [{ align: 'r' }, { align: 'l' }] };
+    }
+);
 
-defineEnvironment(['gather', 'gathered'], '', {}, function () {
-    // An AMS-Math environment
-    // %    The \env{gathered} environment is for several lines that are
-    // %    centered independently.
-    // From amstex.sty
-    // \newenvironment{gathered}[1][c]{%
-    //   \relax\ifmmode\else\nonmatherr@{\begin{gathered}}\fi
-    //   \null\,%
-    //   \if #1t\vtop \else \if#1b\vbox \else \vcenter \fi\fi
-    //   \bgroup\Let@\restore@math@cr
-    //   \ifinany@\else\openup\jot\fi\ialign
-    //   \bgroup\hfil\strut@$\m@th\displaystyle##$\hfil\crcr
+defineTabularEnvironment(
+    ['gather', 'gathered'],
+    '',
+    (): ParseEnvironmentResult => {
+        // An AMS-Math environment
+        // %    The \env{gathered} environment is for several lines that are
+        // %    centered independently.
+        // From amstex.sty
+        // \newenvironment{gathered}[1][c]{%
+        //   \relax\ifmmode\else\nonmatherr@{\begin{gathered}}\fi
+        //   \null\,%
+        //   \if #1t\vtop \else \if#1b\vbox \else \vcenter \fi\fi
+        //   \bgroup\Let@\restore@math@cr
+        //   \ifinany@\else\openup\jot\fi\ialign
+        //   \bgroup\hfil\strut@$\m@th\displaystyle##$\hfil\crcr
 
-    return {
-        colFormat: [{ gap: 0.25 }, { align: 'c' }, { gap: 0 }],
-        jot: 0.3,
-    };
-});
+        return {
+            colFormat: [{ gap: 0.25 }, { align: 'c' }, { gap: 0 }],
+            jot: 0.3,
+        };
+    }
+);
 
-// defineEnvironment('cardinality', '', {}, function() {
+// defineEnvironment('cardinality', '',  function() {
 //     const result = {};
 
 //     result.mathstyle = 'textstyle';
@@ -270,7 +278,7 @@ defineEnvironment(['gather', 'gathered'], '', {}, function () {
 //     return result;
 // });
 
-defineEnvironment(
+defineTabularEnvironment(
     [
         'matrix',
         'pmatrix',
@@ -288,12 +296,11 @@ defineEnvironment(
         'smallmatrix*',
     ],
     '[columns:colspec]',
-    {},
-    function (name, args): ParseFunctionResult {
+    (name, args): ParseEnvironmentResult => {
         // From amstex.sty:
         // \def\matrix{\hskip -\arraycolsep\array{*\c@MaxMatrixCols c}}
         // \def\endmatrix{\endarray \hskip -\arraycolsep}
-        const result: ParseFunctionResult = {};
+        const result: ParseEnvironmentResult = {};
 
         result.mathstyle = 'textstyle';
 
@@ -343,7 +350,7 @@ defineEnvironment(
             default:
         }
 
-        result.colFormat = args[0] || [
+        result.colFormat = (args[0] as Colspec[]) ?? [
             { align: 'c' },
             { align: 'c' },
             { align: 'c' },
@@ -360,7 +367,7 @@ defineEnvironment(
     }
 );
 
-defineEnvironment('cases', '', {}, function () {
+defineTabularEnvironment('cases', '', () => {
     // From amstex.sty:
     // \def\cases{\left\{\def\arraystretch{1.2}\hskip-\arraycolsep
     //   \array{l@{\quad}l}}
@@ -380,10 +387,17 @@ defineEnvironment('cases', '', {}, function () {
     };
 });
 
-defineEnvironment('theorem', '', {}, function () {
-    return {};
-});
+// This is a text mode environment
+/*
+\begin{theorem}
+Let $f$ be a function whose derivative exists in every point, then $f$
+is a continuous function.
+\end{theorem}
+*/
+// defineEnvironment('theorem', '', function () {
+//     return {};
+// });
 
-defineEnvironment('center', '', {}, function () {
+defineEnvironment('center', '', function () {
     return { colFormat: [{ align: 'c' }] };
 });

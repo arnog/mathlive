@@ -17,7 +17,7 @@ import { atomsToMathML } from '../addons/math-ml';
  * Return a hash (32-bit integer) representing the content of the mathfield
  * (but not the selection state)
  */
-function hash(latex: string) {
+function hash(latex: string): number {
     let result = 0;
     for (let i = 0; i < latex.length; i++) {
         result = result * 31 + latex.charCodeAt(i);
@@ -26,7 +26,7 @@ function hash(latex: string) {
     return Math.abs(result);
 }
 
-export function requestUpdate(mathfield: MathfieldPrivate) {
+export function requestUpdate(mathfield: MathfieldPrivate): void {
     if (!mathfield.dirty) {
         mathfield.dirty = true;
         requestAnimationFrame(() => {
@@ -45,7 +45,10 @@ export function requestUpdate(mathfield: MathfieldPrivate) {
  * called explicitly.
  *
  */
-export function render(mathfield: MathfieldPrivate, renderOptions?) {
+export function render(
+    mathfield: MathfieldPrivate,
+    renderOptions?: { forHighlighting?: boolean }
+): void {
     renderOptions = renderOptions ?? {};
     mathfield.dirty = false;
     //

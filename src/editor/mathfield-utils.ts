@@ -1,5 +1,12 @@
-export function on(el, selectors, listener, options?) {
-    selectors = selectors.split(' ');
+import { MathfieldPrivate } from './mathfield-class';
+
+export function on(
+    el: EventTarget,
+    inSelectors: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: AddEventListenerOptions
+): void {
+    const selectors = inSelectors.split(' ');
     for (const sel of selectors) {
         const m = sel.match(/(.*):(.*)/);
         if (m) {
@@ -16,8 +23,13 @@ export function on(el, selectors, listener, options?) {
     }
 }
 
-export function off(el, selectors, listener, options?) {
-    selectors = selectors.split(' ');
+export function off(
+    el: EventTarget,
+    inSelectors: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: AddEventListenerOptions
+): void {
+    const selectors = inSelectors.split(' ');
     for (const sel of selectors) {
         const m = sel.match(/(.*):(.*)/);
         if (m) {
@@ -72,7 +84,7 @@ export function releaseSharedElement(el: HTMLElement): void {
  * operations invoked via requestAnimationFrame() for example, that would
  * need to ensure the mathfield is still valid by the time they're executed.
  */
-export function isValidMathfield(mf): boolean {
+export function isValidMathfield(mf: MathfieldPrivate): boolean {
     return mf.element && mf.element['mathfield'] === mf;
 }
 
@@ -98,7 +110,9 @@ function findElementWithCaret(el: Element): Element {
 /**
  * Return the (x,y) client coordinates of the caret
  */
-export function getCaretPosition(el: Element) {
+export function getCaretPosition(
+    el: Element
+): { x: number; y: number; height: number } {
     const caret = findElementWithCaret(el);
     if (caret) {
         const bounds = caret.getBoundingClientRect();
@@ -111,7 +125,9 @@ export function getCaretPosition(el: Element) {
     }
     return null;
 }
-export function getSelectionBounds(field: Element) {
+export function getSelectionBounds(
+    field: Element
+): { top: number; bottom: number; left: number; right: number } {
     const selectedNodes = field.querySelectorAll('.ML__selected');
     if (selectedNodes && selectedNodes.length > 0) {
         const selectionRect = {

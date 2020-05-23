@@ -31,14 +31,13 @@ const TYPESCRIPT_OPTIONS = {
 const SDK_VERSION = JSON.stringify(pkg.version || 'v?.?.?');
 
 const TERSER_OPTIONS = {
-    sourcemap: false,
     compress: {
         drop_console: true,
         drop_debugger: true,
         ecma: 8, // Use "5" to support older browsers
         module: true,
         warnings: true,
-        passes: 2,
+        passes: 4,
         global_defs: {
             ENV: JSON.stringify(process.env.BUILD),
             SDK_VERSION: SDK_VERSION,
@@ -191,17 +190,17 @@ const ROLLUP = [
 ];
 
 // MathLive Vue-js adapter
-if (PRODUCTION) {
-    ROLLUP.push({
-        input: 'src/vue-mathlive.js',
-        plugins: [terser(TERSER_OPTIONS)],
-        output: {
-            // JavaScript native module
-            sourcemap: false,
-            file: 'dist/vue-mathlive.mjs',
-            format: 'es',
-        },
-    });
-}
+// if (PRODUCTION) {
+ROLLUP.push({
+    input: 'src/vue-mathlive.js',
+    plugins: [terser(TERSER_OPTIONS)],
+    output: {
+        // JavaScript native module
+        sourcemap: false,
+        file: 'dist/vue-mathlive.mjs',
+        format: 'es',
+    },
+});
+// }
 
 export default ROLLUP;

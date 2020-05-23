@@ -168,7 +168,17 @@ function keyboardEventToString(evt: KeyboardEvent): string {
  * be invoked. In some cases, for example when using input methods or entering
  * emoji, only `typedtext()` will be invoked.
  */
-export function delegateKeyboardEvents(textarea: HTMLElement, handlers): void {
+export function delegateKeyboardEvents(
+    textarea: HTMLElement,
+    handlers: {
+        allowDeadKey: () => boolean;
+        typedText: (text: string) => void;
+        paste: (text: string) => void;
+        keystroke: (keystroke: string, e: KeyboardEvent) => void;
+        focus: () => void;
+        blur: () => void;
+    }
+): void {
     let keydownEvent = null;
     let keypressEvent = null;
     let compositionInProgress = false;
@@ -291,7 +301,9 @@ export function delegateKeyboardEvents(textarea: HTMLElement, handlers): void {
     );
     target.addEventListener(
         'focus',
-        (evt: FocusEvent) => handlers.focus?.(evt),
+        () => {
+            if (handlers.focus) handlers.focus();
+        },
         true
     );
     target.addEventListener(
