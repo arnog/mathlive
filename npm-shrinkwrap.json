@@ -2565,7 +2565,7 @@
         },
         "decamelize": {
             "version": "1.2.0",
-            "resolved": "",
+            "resolved": false,
             "integrity": "sha1-9lNNFRSCabIDUue+4m9QH5oZEpA=",
             "dev": true
         },
