@@ -10,7 +10,7 @@ import { Context } from './context';
  */
 registerAtomType('mop', (context: Context, atom: Atom): Span[] => {
     const mathstyle = context.mathstyle;
-    let base;
+    let base: Span;
     let baseShift = 0;
     let slant = 0;
     if (atom.isSymbol) {
@@ -77,5 +77,5 @@ registerAtomType('mop', (context: Context, atom: Atom): Span[] => {
             result = atom.attachSupsub(context, base, 'mop');
         }
     }
-    return result;
+    return [result];
 });

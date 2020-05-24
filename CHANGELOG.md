@@ -25,6 +25,11 @@
 -   The Undo and Redo button in the virtual keyboard did not change their
     state appropriately given the state of the undo stack.
 
+-   'overunder': The superscript and subscript after an 'overunder' atom
+    (e.g. `\overbrace`) did not display correctly (above or below the brace).
+    The 'overunder' atom would also not display correctly if the width of
+    the atom was below a minimal threshold.
+
 ## 0.51.0 (2020-05-19)
 
 ### New Features

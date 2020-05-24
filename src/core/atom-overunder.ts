@@ -55,13 +55,18 @@ registerAtomType('overunder', (context: Context, atom: Atom): Span[] => {
         above.setLeft(0.3);
         above.setRight(0.3);
     }
-    return makeOverunderStack(
+    let result = makeOverunderStack(
         context,
         body,
         above,
         below,
         isSpanType(atom.type) ? atom.type : 'mord'
     );
+    if (atom.superscript || atom.subscript) {
+        result = atom.attachLimits(context, result, 0, 0);
+    }
+
+    return [result];
 });
 
 /**
@@ -78,9 +83,9 @@ function makeOverunderStack(
     above: Span,
     below: Span,
     type: SpanType
-): Span[] {
+): Span {
     // If nothing above and nothing below, nothing to do.
-    if (!above && !below) return isArray(nucleus) ? nucleus : [nucleus];
+    if (!above && !below) return isArray(nucleus) ? makeSpan(nucleus) : nucleus;
 
     let aboveShift = 0;
     let belowShift = 0;
@@ -144,5 +149,5 @@ function makeOverunderStack(
         );
     }
 
-    return [makeSpan(result, 'op-over-under', type)];
+    return makeSpan(result, 'op-over-under', type);
 }

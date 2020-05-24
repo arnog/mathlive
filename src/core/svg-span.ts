@@ -438,7 +438,7 @@ export function svgBodyToMarkup(svgBodyName: string): string {
                 `</svg></span>`
         )
         .join('');
-    return `<span style="height:${height}em;min-width:${minWidth}em">${body}</span>`;
+    return `<span style="height:${height}em;min-width:${minWidth}em;display:inline-block;">${body}</span>`;
 }
 
 export function svgBodyHeight(svgBodyName: string): number {
