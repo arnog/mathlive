@@ -312,7 +312,7 @@ export function next(
     model: ModelPrivate,
     options?: { iterateAll?: boolean }
 ): void {
-    options = options || {};
+    options = options ?? {};
 
     const NEXT_RELATION = {
         body: 'numer',
@@ -426,7 +426,7 @@ export function previous(
     model: ModelPrivate,
     options?: { iterateAll?: boolean }
 ): void {
-    options = options || {};
+    options = options ?? {};
 
     const PREVIOUS_RELATION = {
         numer: 'body',

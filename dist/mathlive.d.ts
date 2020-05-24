@@ -264,18 +264,6 @@ export declare type AutoRenderOptions = {
             inline: string[][];
         };
     };
-    /** A function that will convert any LaTeX found to
-     * HTML markup. This is only useful to override the default MathLive renderer
-     */
-    renderToMarkup?: Function;
-    /**
-     * a function that will convert any LaTeX found to
-     * MathML markup.
-     */
-    renderToMathML?: Function;
-    /** A function that will convert any LaTeX found to
-     * speakable text markup. */
-    renderToSpeakableText?: Function;
 };
 /**
  * Transform all the elements in the document body that contain LaTeX code

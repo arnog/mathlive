@@ -2,8 +2,6 @@ import type { Mathfield } from './public/mathfield';
 import type { MathfieldConfig, TextToSpeechOptions } from './public/config';
 import type { ErrorListener } from './public/core';
 
-import { Atom } from './core/atom';
-import { Span } from './core/span';
 import { decompose } from './core/atom-utils';
 import { parseString } from './core/parser';
 import { coalesce, makeSpan, makeStruts } from './core/span';
@@ -30,7 +28,7 @@ import { atomToSpeakableText } from './editor/atom-to-speakable-text';
 import { atomsToMathML } from './addons/math-ml';
 
 import './addons/definitions-metadata';
-import { AutoRenderOptions } from './public/mathlive';
+import { AutoRenderOptionsPrivate } from './addons/auto-render';
 
 function latexToMarkup(
     text: string,
@@ -41,8 +39,8 @@ function latexToMarkup(
         onError?: ErrorListener;
         format?: string;
     }
-): string | Atom[] | Span[] {
-    options = options || {};
+): string {
+    options = options ?? {};
     options.mathstyle = options.mathstyle || 'displaystyle';
     options.letterShapeStyle = options.letterShapeStyle || 'auto';
 
@@ -78,7 +76,7 @@ function latexToMarkup(
     //
     spans = coalesce(spans);
 
-    if (options.format === 'span') return spans;
+    if (options.format === 'span') return (spans as unknown) as string;
 
     //
     // 4. Wrap the expression with struts
@@ -164,7 +162,7 @@ function latexToSpeakableText(
     }
 ): string {
     options = options ?? {};
-    options.macros = options.macros || {};
+    options.macros = options.macros ?? {};
     Object.assign(options.macros, MACROS);
 
     const mathlist = parseString(
@@ -182,7 +180,7 @@ function latexToSpeakableText(
     );
 }
 
-function renderMathInDocument(options: AutoRenderOptions): void {
+function renderMathInDocument(options: AutoRenderOptionsPrivate): void {
     renderMathInElement(document.body, options);
 }
 
@@ -199,11 +197,11 @@ function getElement(element: string | HTMLElement): HTMLElement {
 
 function renderMathInElement(
     element: HTMLElement,
-    options: AutoRenderOptions
+    options: AutoRenderOptionsPrivate
 ): void {
-    options = options || {};
-    options.renderToMarkup = options.renderToMarkup || latexToMarkup;
-    options.renderToMathML = options.renderToMathML || latexToMathML;
+    options = options ?? {};
+    options.renderToMarkup = options.renderToMarkup ?? latexToMarkup;
+    options.renderToMathML = options.renderToMathML ?? latexToMathML;
     options.renderToSpeakableText =
         options.renderToSpeakableText || latexToSpeakableText;
     options.macros = options.macros || MACROS;
@@ -225,7 +223,7 @@ function validateNamespace(options): void {
 
 function revertToOriginalContent(
     element: string | HTMLElement | MathfieldPrivate,
-    options: AutoRenderOptions
+    options: AutoRenderOptionsPrivate
 ): void {
     if (element instanceof MathfieldPrivate) {
         element.$revertToOriginalContent();
@@ -245,7 +243,7 @@ function revertToOriginalContent(
 
 function getOriginalContent(
     element: string | HTMLElement,
-    options: AutoRenderOptions
+    options: AutoRenderOptionsPrivate
 ): string {
     if (element instanceof MathfieldPrivate) {
         return element.originalContent;

@@ -382,7 +382,7 @@ export function showPopover(mf: MathfieldPrivate, markup: string): void {
     mf.popover.classList.add('is-visible');
 }
 
-function setPopoverPosition(mf, position) {
+function setPopoverPosition(mf, position): void {
     // get screen width & height (browser compatibility)
     const screenHeight =
         window.innerHeight ||

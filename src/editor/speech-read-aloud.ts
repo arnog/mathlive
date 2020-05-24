@@ -1,10 +1,10 @@
 import { render } from './mathfield-render';
 import { MathfieldConfig } from '../public/config';
 
-function removeHighlight(node) {
-    node.classList.remove('highlight');
-    if (node.children) {
-        for (const child of node.children) {
+function removeHighlight(element: Element): void {
+    element.classList.remove('highlight');
+    if (element.children) {
+        for (const child of element.children) {
             removeHighlight(child);
         }
     }
@@ -19,18 +19,18 @@ function removeHighlight(node) {
  * @param {string} atomID
  *
  */
-function highlightAtomID(node, atomID?) {
-    if (!atomID || node.dataset.atomId === atomID) {
-        node.classList.add('highlight');
-        if (node.children && node.children.length > 0) {
-            Array.from(node.children).forEach((x) => {
+function highlightAtomID(element: Element, atomID?: string): void {
+    if (!atomID || element['dataset']?.atomId === atomID) {
+        element.classList.add('highlight');
+        if (element.children && element.children.length > 0) {
+            Array.from(element.children).forEach((x) => {
                 highlightAtomID(x);
             });
         }
     } else {
-        node.classList.remove('highlight');
-        if (node.children && node.children.length > 0) {
-            Array.from(node.children).forEach((x) => {
+        element.classList.remove('highlight');
+        if (element.children && element.children.length > 0) {
+            Array.from(element.children).forEach((x) => {
                 highlightAtomID(x, atomID);
             });
         }
@@ -55,7 +55,7 @@ export function defaultReadAloudHook(
     if (!config && window['mathlive']) {
         config = window['mathlive'].config;
     }
-    config = config || {};
+    config = config ?? {};
 
     if (config.speechEngine !== 'amazon') {
         console.warn('Use Amazon TTS Engine for synchronized highlighting');
@@ -222,7 +222,7 @@ export function readAloudStatus():
     | 'paused'
     | 'unavailable' {
     if (!window) return 'unavailable';
-    window['mathlive'] = window['mathlive'] || {};
+    window['mathlive'] = window['mathlive'] ?? {};
 
     if (!window['mathlive'].readAloudAudio) return 'ready';
     if (window['mathlive'].readAloudAudio.paused) return 'paused';
@@ -238,7 +238,7 @@ export function readAloudStatus():
  */
 export function pauseReadAloud(): void {
     if (!window) return;
-    window['mathlive'] = window['mathlive'] || {};
+    window['mathlive'] = window['mathlive'] ?? {};
     if (window['mathlive'].readAloudAudio) {
         if (window['mathlive'].onReadAloudStatus) {
             window['mathlive'].onReadAloudStatus(
@@ -257,7 +257,7 @@ export function pauseReadAloud(): void {
  */
 export function resumeReadAloud(): void {
     if (!window) return;
-    window['mathlive'] = window['mathlive'] || {};
+    window['mathlive'] = window['mathlive'] ?? {};
     if (window['mathlive'].readAloudAudio) {
         if (window['mathlive'].onReadAloudStatus) {
             window['mathlive'].onReadAloudStatus(
@@ -278,7 +278,7 @@ export function resumeReadAloud(): void {
  */
 export function playReadAloud(token: string, count: number): void {
     if (!window) return;
-    window['mathlive'] = window['mathlive'] || {};
+    window['mathlive'] = window['mathlive'] ?? {};
     if (window['mathlive'].readAloudAudio) {
         let timeIndex = 0;
         window['mathlive'].readAloudFinalToken = null;

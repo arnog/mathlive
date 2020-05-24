@@ -10,7 +10,7 @@ import { colorToString } from './color';
 /*
  * Return an array of runs with the same mode
  */
-function getModeRuns(atoms) {
+function getModeRuns(atoms: Atom[]): Atom[][] {
     const result = [];
     let run = [];
     let currentMode = 'NONE';
@@ -37,7 +37,7 @@ function getModeRuns(atoms) {
  * @param {boolean} expandMacro true if macros should be expanded
  * @result {string} a LaTeX string
  */
-function latexifyArray(parent, atoms, expandMacro) {
+function latexifyArray(parent, atoms, expandMacro): string {
     if (atoms.length === 0) return '';
     if (atoms[0].type === 'first') {
         if (atoms.length === 1) return '';

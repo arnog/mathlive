@@ -22,8 +22,8 @@ export const l10n: {
     strings?: { [language: string]: { [key: string]: string } };
 } = {};
 
-l10n.plural = function (value, s, options) {
-    options = options || {};
+l10n.plural = function (value: number, s: string, options): Intl.PluralRules {
+    options = options ?? {};
     options.type = options.type || 'cardinal';
     const language = l10n.locale.substring(0, 2);
     const rules = options.type === 'ordinal' ? l10n._ordinal : l10n._cardinal;
@@ -62,7 +62,7 @@ l10n.plural = function (value, s, options) {
 l10n.merge = function (
     locale: string | { [language: string]: { [key: string]: string } },
     strings?: { [key: string]: string }
-) {
+): void {
     if (locale && strings) {
         const savedLocale = l10n._locale;
         l10n.locale = locale as string; // Load the necessary json file

@@ -360,7 +360,7 @@ export function onTypedText(
         mathfield.model.announce('plonk');
         return;
     }
-    options = options || {};
+    options = options ?? {};
     // Focus, then provide audio and haptic feedback
     if (options.focus) {
         mathfield.$focus();
@@ -520,7 +520,7 @@ export function onTypedText(
     showPopoverWithLatex(mathfield, popoverText, displayArrows);
 }
 
-function superscriptDepth(mathfield: MathfieldPrivate) {
+function superscriptDepth(mathfield: MathfieldPrivate): number {
     let result = 0;
     let i = 0;
     let atom = mathfield.model.ancestor(i);
@@ -539,7 +539,7 @@ function superscriptDepth(mathfield: MathfieldPrivate) {
     }
     return wasSuperscript ? result : 0;
 }
-function subscriptDepth(mathfield: MathfieldPrivate) {
+function subscriptDepth(mathfield: MathfieldPrivate): number {
     let result = 0;
     let i = 0;
     let atom = mathfield.model.ancestor(i);

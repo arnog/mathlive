@@ -1218,7 +1218,7 @@ function makeLimitsStack(
  * Return an atom suitable for use as the root of a formula.
  */
 
-export function makeRoot(parseMode: ParseMode, body: Atom[] = []): Atom {
+export function makeRoot(parseMode: ParseModePrivate, body: Atom[] = []): Atom {
     const result = new Atom(parseMode, 'root', body || []);
     if (
         isArray(result.body) &&

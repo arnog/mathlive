@@ -29,7 +29,7 @@ const SPECIAL_OPERATORS = {
     '\\hat': '&#x005e;',
 };
 
-function xmlEscape(str) {
+function xmlEscape(str: string): string {
     return (
         str
             // .replace(/&/g, '&amp;')

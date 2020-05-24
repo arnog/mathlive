@@ -15,7 +15,7 @@ export function onCut(mathfield: MathfieldPrivate): boolean {
     // be copied to the clipboard, so defer the clearing of the selection
     // to later, after the cut operation has been handled.
     setTimeout(
-        function () {
+        function (): void {
             mathfield.$clearSelection();
             requestUpdate(mathfield);
         }.bind(mathfield),

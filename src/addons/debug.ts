@@ -221,7 +221,7 @@ function spanToMarkup(span: Span, indent = ''): string {
     return result;
 }
 
-function mathListColorToMarkup(mathlist, propname) {
+function mathListColorToMarkup(mathlist, propname): string {
     let result = '';
     if (mathlist[propname]) {
         result += '<span class="styleprop">' + propname + '=</span>';
@@ -236,7 +236,7 @@ function mathListColorToMarkup(mathlist, propname) {
     return result;
 }
 
-function mathListPropToMarkup(mathlist, propname) {
+function mathListPropToMarkup(mathlist, propname): string {
     let result = '';
     if (mathlist[propname]) {
         result += '<span class="styleprop">' + propname + '=</span>';

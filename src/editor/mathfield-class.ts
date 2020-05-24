@@ -325,22 +325,27 @@ export class MathfieldPrivate implements Mathfield {
                     .removeExtraneousParentheses,
             },
             {
-                onContentDidChange: (_sender: ModelPrivate) =>
+                onContentDidChange: (_sender: ModelPrivate): void =>
                     this.config.onContentDidChange(this),
-                onSelectionDidChange: (_sender: ModelPrivate) =>
+                onSelectionDidChange: (_sender: ModelPrivate): void =>
                     this._onSelectionDidChange(),
-                onContentWillChange: () =>
+                onContentWillChange: (): void =>
                     this.config.onContentWillChange(this),
-                onSelectionWillChange: () =>
+                onSelectionWillChange: (): void =>
                     this.config.onSelectionWillChange(this),
                 onError: this.config.onError,
             },
             {
-                announce: (_sender: Mathfield, command, modelBefore, atoms) =>
+                announce: (
+                    _sender: Mathfield,
+                    command,
+                    modelBefore,
+                    atoms
+                ): void =>
                     this.config.onAnnounce?.(this, command, modelBefore, atoms),
-                moveOut: (_sender, direction) =>
+                moveOut: (_sender, direction): boolean =>
                     this.config.onMoveOutOf(this, direction),
-                tabOut: (_sender, direction) =>
+                tabOut: (_sender, direction): boolean =>
                     this.config.onTabOutOf(this, direction),
             },
             this

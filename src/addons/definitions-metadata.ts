@@ -20,7 +20,12 @@ export const SUPERCOMMON = 4000;
  * metadata('Functions', ['\\sin', '\\cos'], COMMON, '$0{a}')
  *
  */
-function metadata(category, symbols, frequency = COMMON, template = '$0') {
+function metadata(
+    category,
+    symbols,
+    frequency = COMMON,
+    template = '$0'
+): void {
     symbols.forEach((symbol) => {
         if (MATH_SYMBOLS[symbol]) {
             MATH_SYMBOLS[symbol].frequency = frequency;

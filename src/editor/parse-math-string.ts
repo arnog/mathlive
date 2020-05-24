@@ -100,7 +100,7 @@ function parseMathExpression(
         format?: string;
         inlineShortcuts?: { [key: string]: InlineShortcutDefinition };
     }
-) {
+): string {
     if (!s) return '';
     let done = false;
     let m;
@@ -344,7 +344,7 @@ function parseMathArgument(
     return { match: match, rest: rest };
 }
 
-function paddedShortcut(s: string, options: { format?: string }) {
+function paddedShortcut(s: string, options: { format?: string }): string {
     let result = getInlineShortcut(null, s, options);
     if (result) {
         result = result.replace('_{#?}', '');

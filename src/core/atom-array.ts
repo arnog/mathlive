@@ -273,7 +273,12 @@ function makeColGap(width: number): Span {
 /**
  * Used in decomposeArray to create a column of repeating elements.
  */
-function makeColOfRepeatingElements(context: Context, body, offset, elem) {
+function makeColOfRepeatingElements(
+    context: Context,
+    body,
+    offset,
+    elem
+): Span {
     const col = [];
     for (const row of body) {
         const cell = makeSpan(decompose(context, elem));

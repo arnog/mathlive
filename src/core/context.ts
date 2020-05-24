@@ -79,7 +79,7 @@ export class Context implements ContextInterface {
     smartFence?: boolean;
 
     constructor(from: ContextInterface) {
-        this.macros = from.macros || {};
+        this.macros = from.macros ?? {};
         this.atomIdsSettings = from.atomIdsSettings;
 
         this.mathstyle = from.mathstyle || MATHSTYLES.displaystyle;

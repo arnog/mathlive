@@ -31,8 +31,12 @@
 
         // "plugin:no-unsanitized/DOM"
     ],
-    // See http://eslint.org/docs/rules/
 
+    // Note:
+    // "off" or 0 - turn the rule off
+    // "warn" or 1 - turn the rule on as a warning (doesn’t affect exit code)
+    // "error" or 2 - turn the rule on as an error (exit code is 1 when triggered)
+    // See http://eslint.org/docs/rules/
     "rules": {
         // "no-unsanitized/method": [
         //     "warn",
@@ -47,23 +51,10 @@
         //         }
         //     }
         // ],
-        /// Temporary lenient rules until more complete conversion to
-        /// Typescript is completed. @revisit
-        "@typescript-eslint/explicit-function-return-type": "off",
-        "@typescript-eslint/no-unnecessary-type-arguments": "warn",
-        "@typescript-eslint/explicit-module-boundary-types": "warn",
-        // "@typescript-eslint/typedef": [
-        //     "warn",
-        //     {
-        //         "parameter": true,
-        //         "arrowParameter": false,
-        //         "variableDeclaration": false
-        //     }
-        // ],
 
-        "@typescript-eslint/array-type": ["warn", { "default": "array" }],
-
-        "@typescript-eslint/no-explicit-any": "off",
+        // Turn off rules that are Typescript specific
+        // (they are turned on later in the "overrides" section)
+        "@typescript-eslint/explicit-module-boundary-types": "off",
 
         "prettier/prettier": [
             "error",
@@ -75,18 +66,11 @@
         // note you must disable the base rule as it can report incorrect errors
         "indent": "off",
 
-        "@typescript-eslint/prefer-optional-chain": "warn",
-        "@typescript-eslint/prefer-nullish-coalescing": "warn",
-
-        "@typescript-eslint/naming-convention": [
-            "warn",
-            {
-                "selector": "typeParameter",
-                "format": ["PascalCase"],
-                "prefix": ["T"]
-            }
-        ],
-        "@typescript-eslint/no-non-null-assertion": "off",
+        "no-const-assign": "warn",
+        "no-this-before-super": "warn",
+        // "no-undef": "warn",
+        "no-unreachable": "warn",
+        "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
         "@typescript-eslint/no-unused-vars": [
             "error",
             {
@@ -97,38 +81,7 @@
                 // "ignoreRestSiblings": false
             }
         ],
-        // "@typescript-eslint/explicit-function-return-type": [
-        //     "warn",
-        //     {
-        //         "allowExpressions": true
-        //     }
-        // ],
-        "@typescript-eslint/no-use-before-define": [
-            "error",
-            {
-                "functions": false,
-                "classes": false,
-                "variables": false,
-                "typedefs": false
-            }
-        ],
-        "@typescript-eslint/no-this-alias": [
-            "error",
-            {
-                "allowedNames": ["self", "that"] // Allow `const self = this`; `[]` by default
-            }
-        ],
-        "@typescript-eslint/no-for-in-array": "error",
 
-        // Note:
-        // "off" or 0 - turn the rule off
-        // "warn" or 1 - turn the rule on as a warning (doesn’t affect exit code)
-        // "error" or 2 - turn the rule on as an error (exit code is 1 when triggered)
-        "no-const-assign": "warn",
-        "no-this-before-super": "warn",
-        // "no-undef": "warn",
-        "no-unreachable": "warn",
-        "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
         "constructor-super": "warn",
 
         "block-scoped-var": "error",
@@ -169,5 +122,59 @@
         "space-infix-ops": ["error", { "int32Hint": false }],
 
         "no-trailing-spaces": [1, { "skipBlankLines": true }]
-    }
+    },
+    "overrides": [
+        {
+            // Typescript-specific rules
+            "files": ["*.ts"],
+            "rules": {
+                "@typescript-eslint/prefer-optional-chain": "warn",
+                "@typescript-eslint/prefer-nullish-coalescing": "warn",
+
+                "@typescript-eslint/naming-convention": [
+                    "warn",
+                    {
+                        "selector": "typeParameter",
+                        "format": ["PascalCase"]
+                    }
+                ],
+                "@typescript-eslint/no-non-null-assertion": "off",
+                "@typescript-eslint/no-use-before-define": [
+                    "error",
+                    {
+                        "functions": false,
+                        "classes": false,
+                        "variables": false,
+                        "typedefs": false
+                    }
+                ],
+                "@typescript-eslint/no-this-alias": [
+                    "error",
+                    {
+                        "allowedNames": ["self", "that"] // Allow `const self = this`; `[]` by default
+                    }
+                ],
+                "@typescript-eslint/no-for-in-array": "error",
+
+                "@typescript-eslint/explicit-function-return-type": "off",
+                "@typescript-eslint/explicit-module-boundary-types": "warn",
+                "@typescript-eslint/no-unnecessary-type-arguments": "warn",
+                // "@typescript-eslint/typedef": [
+                //     "warn",
+                //     {
+                //         "parameter": true,
+                //         "arrowParameter": false,
+                //         "variableDeclaration": false
+                //     }
+                // ],
+
+                "@typescript-eslint/array-type": [
+                    "warn",
+                    { "default": "array" }
+                ],
+
+                "@typescript-eslint/no-explicit-any": "off"
+            }
+        }
+    ]
 }

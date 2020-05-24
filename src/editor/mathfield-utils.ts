@@ -10,7 +10,7 @@ export function on(
     for (const sel of selectors) {
         const m = sel.match(/(.*):(.*)/);
         if (m) {
-            const options2 = options || {};
+            const options2 = options ?? {};
             if (m[2] === 'active') {
                 options2.passive = false;
             } else {
@@ -33,7 +33,7 @@ export function off(
     for (const sel of selectors) {
         const m = sel.match(/(.*):(.*)/);
         if (m) {
-            const options2 = options || {};
+            const options2 = options ?? {};
             if (m[2] === 'active') {
                 options2.passive = false;
             } else {

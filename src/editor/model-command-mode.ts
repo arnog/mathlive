@@ -114,7 +114,7 @@ export function spliceCommandStringAroundInsertionPoint(
     }
 }
 
-function removeCommandStringFromAtom(atom: Atom | Atom[]) {
+function removeCommandStringFromAtom(atom: Atom | Atom[]): void {
     if (!atom) return;
     if (isArray(atom)) {
         for (let i = atom.length - 1; i >= 0; i--) {

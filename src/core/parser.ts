@@ -113,7 +113,7 @@ class Parser {
         this.tokens = tokens;
         this.args = args;
         this.macros = macros;
-        this.onError = (err) =>
+        this.onError = (err): void =>
             onError({
                 before: tokensToString(
                     this.tokens.slice(this.index, this.index + 10)

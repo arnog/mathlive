@@ -1865,7 +1865,7 @@ export function atomToMathJson(
                             }
                         }
 
-                        statement.push(condition || {});
+                        statement.push(condition ?? {});
                         result.args.push(statement);
                     }
                 }

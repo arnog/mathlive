@@ -52,9 +52,9 @@ function speak(
     mathfield: MathfieldPrivate,
     scope: SpeechScope,
     speakOptions: { withHighlighting: boolean }
-) {
+): boolean {
     speakOptions = speakOptions ?? { withHighlighting: false };
-    function getAtoms(mathfield: MathfieldPrivate, scope: SpeechScope) {
+    function getAtoms(mathfield: MathfieldPrivate, scope: SpeechScope): Atom[] {
         let result = null;
         switch (scope) {
             case 'all':
@@ -169,7 +169,7 @@ export function defaultSpeakHook(text: string, config: MathfieldConfig): void {
     if (!config && window && window['mathlive']) {
         config = window['mathlive'].config;
     }
-    config = config || {};
+    config = config ?? {};
 
     if (!config.speechEngine || config.speechEngine === 'local') {
         // On ChromeOS: chrome.accessibilityFeatures.spokenFeedback

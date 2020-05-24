@@ -195,7 +195,7 @@ export function delegateKeyboardEvents(
         });
     }
 
-    function handleTypedText() {
+    function handleTypedText(): void {
         // Some browsers (Firefox, Opera) fire a keypress event for commands
         // such as command-C where there might be a non-empty selection.
         // We need to ignore these.

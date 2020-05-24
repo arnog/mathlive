@@ -1,15 +1,56 @@
 /* eslint no-console:0 */
 import '../core/atom';
-import { MACROS } from '../core/definitions';
+import { MACROS, MacroDictionary } from '../core/definitions';
 import { AutoRenderOptions } from '../public/mathlive';
+import { ErrorListener } from '../public/core';
 
-type AutoRenderOptionsPrivate = AutoRenderOptions & {
+export type AutoRenderOptionsPrivate = AutoRenderOptions & {
+    /** A function that will convert any LaTeX found to
+     * HTML markup. This is only useful to override the default MathLive renderer
+     */
+    renderToMarkup?: (
+        text: string,
+        options: {
+            mathstyle?: 'displaystyle' | 'textstyle';
+            letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
+            macros?: MacroDictionary;
+            onError?: ErrorListener;
+            format?: string;
+        }
+    ) => string;
+
+    /**
+     * a function that will convert any LaTeX found to
+     * MathML markup.
+     */
+    renderToMathML?: (
+        text: string,
+        options: {
+            mathstyle?: string;
+            format?: string;
+            macros?: MacroDictionary;
+        }
+    ) => string;
+
+    /** A function that will convert any LaTeX found to
+     * speakable text markup. */
+    renderToSpeakableText?: (
+        text: string,
+        options: {
+            mathstyle?: string;
+            format?: string;
+            macros?: MacroDictionary;
+        }
+    ) => string;
     ignoreClassPattern?: RegExp;
     processClassPattern?: RegExp;
     processScriptTypePattern?: RegExp;
+
+    mathstyle?: string;
+    format?: string;
 };
 
-function findEndOfMath(delimiter, text, startIndex) {
+function findEndOfMath(delimiter, text, startIndex): number {
     // Adapted from
     // https://github.com/Khan/perseus/blob/master/src/perseus-markdown.jsx
     let index = startIndex;
@@ -157,7 +198,10 @@ function splitWithDelimiters(
     return data;
 }
 
-function createMathMLNode(latex: string, options: AutoRenderOptionsPrivate) {
+function createMathMLNode(
+    latex: string,
+    options: AutoRenderOptionsPrivate
+): HTMLElement {
     // Create a node for AT (Assistive Technology, e.g. screen reader) to speak, etc.
     // This node has a style that makes it be invisible to display but is seen by AT
     const span = document.createElement('span');
@@ -178,9 +222,9 @@ function createMathMLNode(latex: string, options: AutoRenderOptionsPrivate) {
 function createMarkupNode(
     text: string,
     options: AutoRenderOptionsPrivate,
-    mathstyle,
-    createNodeOnFailure
-) {
+    mathstyle: 'displaystyle' | 'textstyle',
+    createNodeOnFailure: boolean
+): HTMLSpanElement | Text {
     // Create a node for displaying math.
     //   This is slightly ugly because in the case of failure to create the markup,
     //   sometimes a text node is desired and sometimes not.
@@ -221,17 +265,17 @@ function createMarkupNode(
 
 function createAccessibleMarkupPair(
     text: string,
-    mathstyle: 'displaystyle' | 'inlinestyle' | string,
+    mathstyle: 'displaystyle' | 'textstyle' | string,
     options: AutoRenderOptionsPrivate,
     createNodeOnFailure: boolean
-) {
+): Node {
     // Create a math node (a span with an accessible component and a visual component)
     // If there is an error in parsing the latex, 'createNodeOnFailure' controls whether
     //   'null' is returned or an accessible node with the text used.
     const markupNode = createMarkupNode(
         text,
         options,
-        mathstyle,
+        mathstyle as 'displaystyle' | 'textstyle',
         createNodeOnFailure
     );
 
@@ -265,10 +309,10 @@ function createAccessibleMarkupPair(
     return markupNode;
 }
 
-function scanText(text: string, options: AutoRenderOptionsPrivate) {
+function scanText(text: string, options: AutoRenderOptionsPrivate): Node {
     // If the text starts with '\begin'...
     // (this is a MathJAX behavior)
-    let fragment = null;
+    let fragment: Node = null;
     if (options.TeX.processEnvironments && /^\s*\\begin/.test(text)) {
         fragment = document.createDocumentFragment();
         fragment.appendChild(
@@ -300,7 +344,7 @@ function scanText(text: string, options: AutoRenderOptionsPrivate) {
     return fragment;
 }
 
-function scanElement(elem, options: AutoRenderOptionsPrivate) {
+function scanElement(elem, options: AutoRenderOptionsPrivate): void {
     const originalContent = elem.getAttribute(
         'data-' + options.namespace + 'original-content'
     );

@@ -25,7 +25,7 @@ import {
  * That is, delete(-1) will delete only the anchor atom.
  * If dir = 0, delete only if the selection is not collapsed
  */
-function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0) {
+function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0): void {
     // Dispatch notifications
     contentWillChange(model);
     selectionWillChange(model);

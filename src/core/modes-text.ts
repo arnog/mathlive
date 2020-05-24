@@ -277,7 +277,7 @@ function parse(
     tokens: Token[],
     error: ErrorListener,
     options: ParseTokensOptions
-) {
+): [Atom[], Token[]] {
     let result = [];
     let atom: Atom;
 

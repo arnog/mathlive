@@ -70,12 +70,12 @@ export class ModelPrivate implements Model {
                   },
             moveOut: hooks?.moveOut
                 ? hooks.moveOut
-                : () => {
+                : (): boolean => {
                       return true;
                   },
             tabOut: hooks?.tabOut
                 ? hooks.tabOut
-                : () => {
+                : (): boolean => {
                       return true;
                   },
         };

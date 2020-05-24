@@ -10,4 +10,4 @@ type Filter<T, Cond, U extends keyof T = keyof T> = {
 /**
  * @internal
  */
-export type Keys<T> = Filter<T, Function> & string;
+export type Keys<T> = Filter<T, (...args: any[]) => any> & string;

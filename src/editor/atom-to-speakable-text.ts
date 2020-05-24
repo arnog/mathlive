@@ -686,7 +686,7 @@ export function atomToSpeakableText(
         if (mathML) {
             if (options.textToSpeechMarkup) {
                 options.textToSpeechRulesOptions =
-                    options.textToSpeechRulesOptions || {};
+                    options.textToSpeechRulesOptions ?? {};
                 options.textToSpeechRulesOptions.markup =
                     options.textToSpeechMarkup;
                 if (options.textToSpeechRulesOptions.markup === 'ssml') {
