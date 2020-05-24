@@ -14,7 +14,7 @@ git push origin --tags --verbose
 
 
 # Create a GitHub release matching this tag
-REPO=$(git config --get remote.origin.url | sed -e's/.*\///;s/.git$//')
+REPO=$(git config --get remote.origin.url | sed -e's/.*://;s/.git$//')
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
