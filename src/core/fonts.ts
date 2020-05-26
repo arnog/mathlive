@@ -32,7 +32,9 @@ export async function loadFonts(
         // for (const fontFace of document.fonts.values()) { console.log(fontFace.family)}
         let fontsLoaded = false;
         try {
-            fontsLoaded = fontFamilies.every((x) => document['fonts'].check(x));
+            fontsLoaded = fontFamilies.every((x) =>
+                document['fonts'].check('16px ' + x)
+            );
         } catch (e) {
             fontsLoaded = false;
         }

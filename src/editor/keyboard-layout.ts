@@ -448,7 +448,7 @@ const gKeyboardLayouts: KeyboardLayout[] = [];
 let gKeyboardLayout: KeyboardLayout;
 
 export function platform(): 'apple' | 'windows' | 'linux' {
-    let result: 'apple' | 'windows' | 'linux';
+    let result: 'apple' | 'windows' | 'linux' = 'linux';
     if (navigator?.platform && navigator?.userAgent) {
         if (/^(mac)/i.test(navigator.platform)) {
             result = 'apple';
