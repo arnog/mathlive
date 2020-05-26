@@ -16,48 +16,60 @@ export async function loadFonts(
         );
     }
     if ('fonts' in document) {
-        const parentFolder = new URL('.', import.meta['url']).toString();
-        const fontsFolder = new URL(
-            fontsDirectory ?? './fonts',
-            parentFolder
-        ).toString();
-        const fonts: FontFace[] = ([
-            ['KaTeX_Main-Regular', { weight: 'normal' }],
-            ['KaTeX_Main-BoldItalic', { style: 'italic', weight: 'bold' }],
-            ['KaTeX_Main-Bold', { weight: 'bold' }],
-            ['KaTeX_Math-Italic', { style: 'italic' }],
-            ['KaTeX_Math-BoldItalic', { style: 'italic', weight: 'bold' }],
-            ['KaTeX_AMS-Regular'],
-            ['KaTeX_Caligraphic-Regular'],
-            ['KaTeX_Caligraphic-Bold', { weight: 'bold' }],
-            ['KaTeX_Fraktur-Regular'],
-            ['KaTeX_Fraktur-Bold', { weight: 'bold' }],
-            ['KaTeX_SansSerif-Regular', { style: 'italic' }],
-            ['KaTeX_SansSerif-Bold', { weight: 'bold' }],
-            ['KaTeX_SansSerif-Italic', { style: 'italic' }],
-            ['KaTeX_Script-Regular'],
-            ['KaTeX_Typewriter-Regular'],
-            ['KaTeX_Size1-Regular'],
-            ['KaTeX_Size2-Regular'],
-            ['KaTeX_Size3-Regular'],
-            ['KaTeX_Size4-Regular'],
-        ] as [string, { [key: string]: string }][]).map((x) =>
-            makeFontFace(
-                x[0].replace(/-[a-zA-Z]+$/, ''),
-                fontsFolder + '/' + x[0],
-                x[1]
-            )
-        );
+        const fontFamilies = [
+            'KaTeX_Main',
+            'KaTeX_Math',
+            'KaTeX_AMS',
+            'KaTeX_Caligraphic',
+            'KaTeX_Fraktur',
+            'KaTeX_SansSerif',
+            'KaTeX_Script',
+            'KaTeX_Size1',
+            'KaTeX_Size2',
+            'KaTeX_Size3',
+            'KaTeX_Size4',
+        ];
         // for (const fontFace of document.fonts.values()) { console.log(fontFace.family)}
         let fontsLoaded = false;
         try {
-            fontsLoaded = fonts.every((font) =>
-                document['fonts'].check(font.family)
-            );
+            fontsLoaded = fontFamilies.every((x) => document['fonts'].check(x));
         } catch (e) {
             fontsLoaded = false;
         }
         if (!fontsLoaded) {
+            const parentFolder = new URL('.', import.meta['url']).toString();
+            const fontsFolder = new URL(
+                fontsDirectory ?? './fonts',
+                parentFolder
+            ).toString();
+            const fonts: FontFace[] = ([
+                ['KaTeX_Main-Regular'],
+                ['KaTeX_Main-BoldItalic', { style: 'italic', weight: 'bold' }],
+                ['KaTeX_Main-Bold', { weight: 'bold' }],
+                ['KaTeX_Main-Italic', { style: 'italic' }],
+                ['KaTeX_Math-Italic', { style: 'italic' }],
+                ['KaTeX_Math-BoldItalic', { style: 'italic', weight: 'bold' }],
+                ['KaTeX_AMS-Regular'],
+                ['KaTeX_Caligraphic-Regular'],
+                ['KaTeX_Caligraphic-Bold', { weight: 'bold' }],
+                ['KaTeX_Fraktur-Regular'],
+                ['KaTeX_Fraktur-Bold', { weight: 'bold' }],
+                ['KaTeX_SansSerif-Regular', { style: 'italic' }],
+                ['KaTeX_SansSerif-Bold', { weight: 'bold' }],
+                ['KaTeX_SansSerif-Italic', { style: 'italic' }],
+                ['KaTeX_Script-Regular'],
+                ['KaTeX_Typewriter-Regular'],
+                ['KaTeX_Size1-Regular'],
+                ['KaTeX_Size2-Regular'],
+                ['KaTeX_Size3-Regular'],
+                ['KaTeX_Size4-Regular'],
+            ] as [string, { [key: string]: string }][]).map((x) =>
+                makeFontFace(
+                    x[0].replace(/-[a-zA-Z]+$/, ''),
+                    fontsFolder + '/' + x[0],
+                    x[1]
+                )
+            );
             try {
                 const loadedFonts = ((await Promise.all(
                     fonts.map((x) => {
