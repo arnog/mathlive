@@ -256,5 +256,5 @@ export interface Mathfield {
 }
 
 export interface Model {
-    mathfield: Mathfield;
+    readonly mathfield: Mathfield;
 }

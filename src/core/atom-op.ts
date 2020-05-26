@@ -41,8 +41,8 @@ registerAtomType('mop', (context: Context, atom: Atom): Span[] => {
         slant = base.italic;
 
         base.applyStyle({
-            color: atom.phantom ? 'transparent' : atom.color,
-            backgroundColor: atom.phantom
+            color: atom.isPhantom ? 'transparent' : atom.color,
+            backgroundColor: atom.isPhantom
                 ? 'transparent'
                 : atom.backgroundColor,
             cssId: atom.cssId,

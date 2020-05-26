@@ -232,8 +232,8 @@ export type ParseEnvironmentResult = {
         | 'scriptstyle'
         | 'scriptscriptstyle';
     colFormat?: Colspec[];
-    lFence?: string;
-    rFence?: string;
+    leftDelim?: string;
+    rightDelim?: string;
     jot?: number; // Jot is an extra gap between lines of numbered equation.
     // It's 3pt by default in LaTeX (ltmath.dtx:181)
     arraystretch?: number;

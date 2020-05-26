@@ -29,7 +29,7 @@ export function insertSuggestion(
     const subs = s.substr(l);
     for (const c of subs) {
         const atom = new Atom('command', 'command', c);
-        atom.suggestion = true;
+        atom.isSuggestion = true;
         mathlist.push(atom);
     }
 

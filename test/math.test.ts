@@ -622,6 +622,10 @@ test('COLORS', function () {
 
     // a{b\\color c}d}
     let f = 'a{b\\color{#f00} c}d';
+    expect(getStyle(f, 'a', 'color')).toEqual(null);
+    expect(getStyle(f, 'b', 'color')).toEqual(null);
+    expect(getStyle(f, 'c', 'color')).toEqual('#ff0000');
+    expect(getStyle(f, 'd', 'color')).toEqual(null);
     expect(
         getStyle(f, 'a', 'color') === null &&
             getStyle(f, 'b', 'color') === null &&
@@ -630,12 +634,16 @@ test('COLORS', function () {
     ).toBeTruthy();
 
     f = 'a\\left(b\\color{#f00} c\\right)d';
-    expect(
-        getStyle(f, 'a', 'color') === null &&
-            getStyle(f, 'b', 'color') === null &&
-            getStyle(f, 'c', 'color') === '#ff0000' &&
-            getStyle(f, 'd', 'color') === null
-    ).toBeTruthy();
+    expect(getStyle(f, 'a', 'color')).toEqual(null);
+    expect(getStyle(f, 'b', 'color')).toEqual(null);
+    expect(getStyle(f, 'c', 'color')).toEqual('#ff0000');
+    expect(getStyle(f, 'd', 'color')).toEqual(null);
+    // expect(
+    //     getStyle(f, 'a', 'color') === null &&
+    //         getStyle(f, 'b', 'color') === null &&
+    //         getStyle(f, 'c', 'color') === '#ff0000' &&
+    //         getStyle(f, 'd', 'color') === null
+    // ).toBeTruthy();
 
     expect(
         toSpan(

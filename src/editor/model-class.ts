@@ -8,8 +8,8 @@ import { ModelListeners } from './model-listeners';
 import { ModelOptions, ModelHooks } from './model-utils';
 
 export class ModelPrivate implements Model {
-    mathfield: MathfieldPrivate;
-    options: ModelOptions;
+    readonly mathfield: MathfieldPrivate;
+    readonly options: ModelOptions;
     listeners: ModelListeners;
     hooks: Required<ModelHooks>;
 

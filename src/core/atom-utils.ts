@@ -318,8 +318,8 @@ export function decompose(
  *
  * @param style A set of additional properties to append to
  * the atom
- * @property {string} mode `'display'`, `'command'`, etc...
- * @property {string} type - Type can be one of:
+ * @property mode - `'display'`, `'command'`, etc...
+ * @property type - Type can be one of:
  * - `mord`: ordinary symbol, e.g. `x`, `\alpha`
  * - `textord`: ordinary characters
  * - `mop`: operators, including special functions, `\sin`, `\sum`, `\cap`.
@@ -364,10 +364,10 @@ export function decompose(
  * order to be able to position the caret before the first element. Aside from
  * the caret, they display nothing.
  *
- * @property {boolean} captureSelection if true, this atom does not let its
+ * @property captureSelection if true, this atom does not let its
  * children be selected. Used by the `\enclose` annotations, for example.
  *
- * @property {boolean} skipBoundary if true, when the caret reaches the
+ * @property skipBoundary if true, when the caret reaches the
  * first position in this element's body, it automatically moves to the
  * outside of the element. Conversely, when the caret reaches the position
  * right after this element, it automatically moves to the last position
@@ -378,87 +378,88 @@ export class Atom implements Style {
     type: AtomType;
     latex?: string;
     symbol?: string; // Latex command ('\sin') or character ('a')
-    isSymbol?: boolean;
+    readonly isSymbol?: boolean;
     isFunction?: boolean;
-    error?: boolean; // Indicate an unknown command
-    suggestion?: boolean; // This atom is a suggestion
+    isError?: boolean; // Indicate an unknown command
+    isSuggestion?: boolean; // This atom is a suggestion
+    readonly isPhantom?: boolean;
+    readonly skipBoundary?: boolean;
+    captureSelection?: boolean;
+
+    isSelected?: boolean;
+    containsCaret: boolean; // If the atom or one of its descendant includes the caret
+    caret: ParseMode | '';
 
     latexOpen?: string; // type = 'group'
     latexClose?: string; // type = 'group'
 
     body?: string | Atom[];
-    codepoint?: number; // type = 'mord'
-    accent?: string; // type = 'accent'
-    svgAccent?: string; // type = 'accent'
-    svgBody?: string;
-    svgAbove?: string; // type = 'overunder'
-    svgBelow?: string; // type = 'overunder'
+    readonly codepoint?: number; // type = 'mord'
+
+    readonly accent?: string; // type = 'accent'
+    readonly svgAccent?: string; // type = 'accent'
+    readonly svgBody?: string;
+    readonly svgAbove?: string; // type = 'overunder'
+    readonly svgBelow?: string; // type = 'overunder'
 
     index?: Atom[]; // type = 'surd'
 
     denom?: Atom[]; // type = 'genfrac'
     numer?: Atom[]; // type = 'genfrac'
-    numerPrefix?: string; // type = 'genfrac'
-    denomPrefix?: string; // type = 'genfrac'
-    continuousFraction?: boolean; // type = 'genfrac'
-    hasBarLine?: boolean; // type = 'genfrac'
-
-    // type = 'array'
-    arraystretch?: number;
-    arraycolsep?: number;
-    jot?: number;
-    lFence?: string; // @revisit: use leftDelim
-    rFence?: string; // @revisit: use leftDelim
+    readonly numerPrefix?: string; // type = 'genfrac'
+    readonly denomPrefix?: string; // type = 'genfrac'
+    readonly continuousFraction?: boolean; // type = 'genfrac'
+    readonly hasBarLine?: boolean; // type = 'genfrac'
 
     subscript?: Atom[];
     superscript?: Atom[];
     underscript?: Atom[];
     overscript?: Atom[];
 
-    position: string; // type = 'line'
+    readonly position: string; // type = 'line'
 
     limits?: 'limits' | 'nolimits' | 'accent' | 'overunder';
-    explicitLimits?: boolean;
+    explicitLimits?: boolean; // True if the limits were set by a command
 
+    // type = 'array'
     array?: Atom[][][]; // type = 'array'
+    environmentName?: string; // type = 'array'
+    readonly arraystretch?: number;
+    readonly arraycolsep?: number;
+    readonly jot?: number;
     rowGaps?: number[]; // type = 'array'
     // env: { name: string; tabular: boolean }; // type = 'array'
-    environmentName?: string; // type = 'array'
+    readonly colFormat?: Colspec[]; // when type = 'array', formating of columns
 
     inner?: boolean;
     leftDelim?: string;
     rightDelim?: string;
-    delim?: string;
-    size?: 1 | 2 | 3 | 4; // type = 'sizeddelim' @revisit Use maxFontSize? or fontSize?
 
-    framecolor?: string; // type = 'box'
-    verbatimFramecolor?: string; // type = 'box'
-    backgroundcolor?: string; // type = 'box'
-    verbatimBackgroundcolor?: string; // type = 'box'
-    padding?: number; // type = 'box'
-    border?: string; // type = 'box'
+    private size?: 1 | 2 | 3 | 4; // type = 'sizeddelim' @revisit Use maxFontSize? or fontSize?
+    readonly delim?: string; // type = 'sizeddelim'
 
-    colFormat?: Colspec[]; // when type = 'array', formating of columns
-    notation?: Notations; // when type = 'enclose'
-    shadow?: string; // when type = 'enclose', CSS shadow
-    strokeWidth?: number; // when type = 'enclose'
-    strokeStyle?: string; // when type = 'enclose', CSS string
-    svgStrokeStyle?: string; // when type = 'enclose', CSS string
-    strokeColor?: string; // when type = 'enclose', CSS string
-    borderStyle?: string; // when type = 'enclose', CSS string
+    readonly framecolor?: string; // type = 'box'
+    readonly verbatimFramecolor?: string; // type = 'box'
+    readonly backgroundcolor?: string; // type = 'box'
+    readonly verbatimBackgroundcolor?: string; // type = 'box'
+    readonly padding?: number; // type = 'box'
+    readonly border?: string; // type = 'box'
 
-    width?: number;
-    height?: number;
-    maxFontSize?: number;
-    depth?: number;
-    shift?: number;
-    align?: 'left' | 'right';
+    readonly notation?: Notations; // when type = 'enclose'
+    readonly shadow?: string; // when type = 'enclose', CSS shadow
+    readonly strokeWidth?: number; // when type = 'enclose'
+    readonly strokeStyle?: string; // when type = 'enclose', CSS string
+    readonly svgStrokeStyle?: string; // when type = 'enclose', CSS string
+    readonly strokeColor?: string; // when type = 'enclose', CSS string
+    readonly borderStyle?: string; // when type = 'enclose', CSS string
 
-    skipBoundary?: boolean;
-    // selected?: boolean;
-    isSelected?: boolean;
-    caret: ParseMode | '';
-    containsCaret: boolean; // If the atom or one of its descendant includes the caret
+    readonly shift?: number; // type = 'rule'
+    private depth?: number; // type = 'rule'
+    readonly height?: number; // type = 'rule' (and others?)
+    width?: number; // type = 'rule' (and others?)
+
+    private maxFontSize?: number;
+    private align?: 'left' | 'right'; // type = 'overlap'
 
     mathstyle?:
         | 'auto'
@@ -467,8 +468,9 @@ export class Atom implements Style {
         | 'scriptstyle'
         | 'scriptscriptstyle'; // type = 'genfrac', ''
 
-    cls?: SpanType;
+    private cls?: SpanType;
 
+    // Style
     color?: string;
     backgroundColor?: string;
     variant?: Variant;
@@ -480,10 +482,6 @@ export class Atom implements Style {
     cssId?: string;
     cssClass?: string;
     letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
-
-    phantom?: boolean;
-
-    captureSelection?: boolean;
 
     id?: string;
 
@@ -508,8 +506,8 @@ export class Atom implements Style {
     getStyle(): Style {
         return {
             mode: this.mode,
-            color: this.phantom ? 'transparent' : this.color,
-            backgroundColor: this.phantom
+            color: this.isPhantom ? 'transparent' : this.color,
+            backgroundColor: this.isPhantom
                 ? 'transparent'
                 : this.backgroundColor,
             variant: this.variant,
@@ -798,10 +796,10 @@ export class Atom implements Style {
             console.assert(typeof this.body === 'string');
             result = this.makeSpan(context, this.body as string);
             result.classes = ''; // Override fonts and other attributes.
-            if (this.error) {
+            if (this.isError) {
                 result.classes += ' ML__error';
             }
-            if (this.suggestion) {
+            if (this.isSuggestion) {
                 result.classes += ' ML__suggestion';
             }
         } else if (this.type === 'placeholder') {

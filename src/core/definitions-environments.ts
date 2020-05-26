@@ -307,32 +307,32 @@ defineTabularEnvironment(
         switch (name) {
             case 'pmatrix':
             case 'pmatrix*':
-                result.lFence = '(';
-                result.rFence = ')';
+                result.leftDelim = '(';
+                result.rightDelim = ')';
                 break;
 
             case 'bmatrix':
             case 'bmatrix*':
-                result.lFence = '[';
-                result.rFence = ']';
+                result.leftDelim = '[';
+                result.rightDelim = ']';
                 break;
 
             case 'Bmatrix':
             case 'Bmatrix*':
-                result.lFence = '\\lbrace';
-                result.rFence = '\\rbrace';
+                result.leftDelim = '\\lbrace';
+                result.rightDelim = '\\rbrace';
                 break;
 
             case 'vmatrix':
             case 'vmatrix*':
-                result.lFence = '\\vert';
-                result.rFence = '\\vert';
+                result.leftDelim = '\\vert';
+                result.rightDelim = '\\vert';
                 break;
 
             case 'Vmatrix':
             case 'Vmatrix*':
-                result.lFence = '\\Vert';
-                result.rFence = '\\Vert';
+                result.leftDelim = '\\Vert';
+                result.rightDelim = '\\Vert';
                 break;
 
             case 'smallmatrix':
@@ -344,8 +344,8 @@ defineTabularEnvironment(
             case 'matrix*':
                 // Specifying a fence, even a null fence,
                 // will prevent the insertion of an initial and final gap
-                result.lFence = '.';
-                result.rFence = '.';
+                result.leftDelim = '.';
+                result.rightDelim = '.';
                 break;
             default:
         }
@@ -381,8 +381,8 @@ defineTabularEnvironment('cases', '', () => {
 
     return {
         arraystretch: 1.2,
-        lFence: '\\lbrace',
-        rFence: '.',
+        leftDelim: '\\lbrace',
+        rightDelim: '.',
         colFormat: [{ align: 'l' }, { gap: 1 }, { align: 'l' }],
     };
 });

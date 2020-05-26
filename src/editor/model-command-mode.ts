@@ -46,7 +46,7 @@ export function decorateCommandStringAroundInsertionPoint(
     if (command) {
         const siblings = model.siblings();
         for (let i = command.start; i < command.end; i++) {
-            siblings[i].error = hasError;
+            siblings[i].isError = hasError;
         }
     }
 }
@@ -60,7 +60,7 @@ export function commitCommandStringBeforeInsertionPoint(
         const anchorOffset = model.anchorOffset() + 1;
         for (let i = command.start; i < anchorOffset; i++) {
             if (siblings[i]) {
-                siblings[i].suggestion = false;
+                siblings[i].isSuggestion = false;
             }
         }
     }

@@ -329,18 +329,11 @@ class Parser {
         info: FunctionDefinition
     ): [
         ParseModePrivate,
-        (string | number | BBoxParam | Colspec[] | Atom | Atom[])[]
+        (string | number | BBoxParam | Colspec[] | Atom[])[]
     ] {
         if (!info || !info.params) return ['', []];
         let explicitGroup: ParseModePrivate = '';
-        const args: (
-            | string
-            | number
-            | BBoxParam
-            | Colspec[]
-            | Atom
-            | Atom[]
-        )[] = [];
+        const args: (string | number | BBoxParam | Colspec[] | Atom[])[] = [];
         let i = info.infix ? 2 : 0;
         while (i < info.params.length) {
             const param = info.params[i];
@@ -1146,11 +1139,11 @@ class Parser {
      */
     scanArg(
         parseMode?: ParseModePrivate
-    ): string | number | Atom | Atom[] | Colspec[] {
+    ): string | number | Atom[] | Colspec[] {
         parseMode =
             !parseMode || parseMode === 'auto' ? this.parseMode : parseMode;
         this.parseFiller();
-        let result: string | number | Atom | Atom[] | Colspec[];
+        let result: string | number | Atom[] | Colspec[];
         // An argument (which is called a 'math field' in TeX)
         // could be a single character or symbol, as in `\frac12`
         // Note that ``\frac\sqrt{-1}\alpha\beta`` is equivalent to

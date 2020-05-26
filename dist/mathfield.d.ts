@@ -221,5 +221,5 @@ export interface Mathfield {
     $typedText(text: string): void;
 }
 export interface Model {
-    mathfield: Mathfield;
+    readonly mathfield: Mathfield;
 }

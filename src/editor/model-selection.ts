@@ -71,7 +71,7 @@ export function positionInsertionPointAfterCommitedCommand(
     const siblings = model.siblings();
     const command = getCommandOffsets(model);
     let i = command.start;
-    while (i < command.end && !siblings[i].suggestion) {
+    while (i < command.end && !siblings[i].isSuggestion) {
         i++;
     }
     setSelection(model, i - 1);

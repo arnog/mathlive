@@ -14,27 +14,16 @@ interface UndoOptions {
     suppressChangeNotifications?: boolean;
 }
 
-/**
- *
- * @class UndoManager
- * @property {Atom[]} mathlist
- * @property {object[]} stack Stack of undo/redo states
- * @property {number} index Index pointing to the undo/redo stack
- * @property {number} maximumDepth Maximum number of undo/redo states
- */
 export class UndoManager {
-    mathlist: ModelPrivate;
-    maximumDepth: number;
-    record: boolean;
-    canCoalesce: boolean;
-    stack: UndoRecord[];
-    index: number;
+    private model: ModelPrivate;
+    private maximumDepth = 1000; // Maximum number of undo/redo states
+    private record = false;
+    private canCoalesce = false;
+    private stack: UndoRecord[]; // Stack of undo/redo states
+    private index: number; // Index pointing to the undo/redo stack
 
-    constructor(mathlist: ModelPrivate) {
-        this.mathlist = mathlist;
-        this.maximumDepth = 1000;
-        this.record = false;
-        this.canCoalesce = false;
+    constructor(model: ModelPrivate) {
+        this.model = model;
         this.reset();
     }
 
@@ -58,12 +47,12 @@ export class UndoManager {
     undo(options: UndoOptions): void {
         if (this.canUndo()) {
             if (typeof options?.onUndoStateWillChange === 'function') {
-                options.onUndoStateWillChange(this.mathlist.mathfield, 'undo');
+                options.onUndoStateWillChange(this.model.mathfield, 'undo');
             }
             this.restore(this.stack[this.index - 1], options);
             this.index -= 1;
             if (options && typeof options.onUndoStateDidChange === 'function') {
-                options.onUndoStateDidChange(this.mathlist.mathfield, 'undo');
+                options.onUndoStateDidChange(this.model.mathfield, 'undo');
             }
             this.canCoalesce = false;
         }
@@ -71,12 +60,12 @@ export class UndoManager {
     redo(options: UndoOptions): void {
         if (this.canRedo()) {
             if (typeof options?.onUndoStateWillChange === 'function') {
-                options.onUndoStateWillChange(this.mathlist.mathfield, 'redo');
+                options.onUndoStateWillChange(this.model.mathfield, 'redo');
             }
             this.index += 1;
             this.restore(this.stack[this.index], options);
             if (options && typeof options.onUndoStateDidChange === 'function') {
-                options.onUndoStateDidChange(this.mathlist.mathfield, 'redo');
+                options.onUndoStateDidChange(this.model.mathfield, 'redo');
             }
             this.canCoalesce = false;
         }
@@ -95,14 +84,14 @@ export class UndoManager {
         if (!this.record) return;
 
         if (typeof options?.onUndoStateWillChange === 'function') {
-            options.onUndoStateWillChange(this.mathlist.mathfield, 'snapshot');
+            options.onUndoStateWillChange(this.model.mathfield, 'snapshot');
         }
         // Drop any entries that are part of the redo stack
         this.stack.splice(this.index + 1, this.stack.length - this.index - 1);
         // Add a new entry
         this.stack.push({
-            latex: this.mathlist.root.toLatex(false),
-            selection: this.mathlist.toString(),
+            latex: this.model.root.toLatex(false),
+            selection: this.model.toString(),
         });
 
         this.index++;
@@ -112,7 +101,7 @@ export class UndoManager {
             this.stack.shift();
         }
         if (options && typeof options.onUndoStateDidChange === 'function') {
-            options.onUndoStateDidChange(this.mathlist.mathfield, 'snapshot');
+            options.onUndoStateDidChange(this.model.mathfield, 'snapshot');
         }
         this.canCoalesce = false;
     }
@@ -132,8 +121,8 @@ export class UndoManager {
      */
     save(): UndoRecord {
         return {
-            latex: this.mathlist.root.toLatex(false),
-            selection: this.mathlist.toString(),
+            latex: this.model.root.toLatex(false),
+            selection: this.model.toString(),
         };
     }
     /**
@@ -142,14 +131,14 @@ export class UndoManager {
      * This does not affect the undo stack.
      */
     restore(state: UndoRecord, options: UndoOptions): void {
-        const wasSuppressing = this.mathlist.suppressChangeNotifications;
+        const wasSuppressing = this.model.suppressChangeNotifications;
         if (typeof options.suppressChangeNotifications !== 'undefined') {
-            this.mathlist.suppressChangeNotifications =
+            this.model.suppressChangeNotifications =
                 options.suppressChangeNotifications;
         }
 
         // Restore the content
-        insert(this.mathlist, state ? state.latex : '', {
+        insert(this.model, state ? state.latex : '', {
             ...options,
             format: 'latex',
             mode: 'math',
@@ -160,10 +149,10 @@ export class UndoManager {
 
         // Restore the selection
         setPath(
-            this.mathlist,
+            this.model,
             state ? state.selection : [{ relation: 'body', offset: 0 }]
         );
 
-        this.mathlist.suppressChangeNotifications = wasSuppressing;
+        this.model.suppressChangeNotifications = wasSuppressing;
     }
 }

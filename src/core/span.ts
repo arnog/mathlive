@@ -165,12 +165,14 @@ function toString(arg: (string | number)[] | string | number): string {
  * @property width
  */
 export class Span {
-    children?: Span[];
-    classes: string;
     type: SpanType;
 
+    children?: Span[];
     body: string;
+
+    classes: string;
     delim?: string; // @revisit
+
     caret: ParseMode;
 
     height?: number;

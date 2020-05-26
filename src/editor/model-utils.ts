@@ -49,7 +49,7 @@ export function removeSuggestion(model: ModelPrivate): void {
     const siblings = model.siblings();
     // Remove all `suggestion` atoms
     for (let i = siblings.length - 1; i >= 0; i--) {
-        if (siblings[i].suggestion) {
+        if (siblings[i].isSuggestion) {
             siblings.splice(i, 1);
         }
     }

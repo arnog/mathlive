@@ -696,14 +696,15 @@ function atomToMathML(atom, options): string {
 
             case 'array':
                 if (
-                    (atom.lFence && atom.lFence !== '.') ||
-                    (atom.rFence && atom.rFence !== '.')
+                    (atom.leftDelim && atom.leftDelim !== '.') ||
+                    (atom.rightDelim && atom.rightDelim !== '.')
                 ) {
                     result += '<mrow>';
-                    if (atom.lFence && atom.lFence !== '.') {
+                    if (atom.leftDelim && atom.leftDelim !== '.') {
                         result +=
                             '<mo>' +
-                            (SPECIAL_OPERATORS[atom.lFence] || atom.lFence) +
+                            (SPECIAL_OPERATORS[atom.leftDelim] ||
+                                atom.leftDelim) +
                             '</mo>';
                     }
                 }
@@ -737,13 +738,14 @@ function atomToMathML(atom, options): string {
                 result += '</mtable>';
 
                 if (
-                    (atom.lFence && atom.lFence !== '.') ||
-                    (atom.rFence && atom.rFence !== '.')
+                    (atom.leftDelim && atom.leftDelim !== '.') ||
+                    (atom.rightDelim && atom.rightDelim !== '.')
                 ) {
-                    if (atom.rFence && atom.rFence !== '.') {
+                    if (atom.rightDelim && atom.rightDelim !== '.') {
                         result +=
                             '<mo>' +
-                            (SPECIAL_OPERATORS[atom.lFence] || atom.rFence) +
+                            (SPECIAL_OPERATORS[atom.leftDelim] ||
+                                atom.rightDelim) +
                             '</mo>';
                     }
                     result += '</mrow>';
