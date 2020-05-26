@@ -36,7 +36,7 @@
     left: 0;
     bottom: -267px;
     width: 100vw;
-    z-index: @keyboard-zindex;
+    z-index: var(--ML_keyboard-zindex, @keyboard-zindex);
 
     padding-top: 5px;
 
@@ -109,7 +109,7 @@
         top: 0; // "
         box-sizing: content-box; // "
         transform: none; // "
-        z-index: (@keyboard-zindex + 1);
+        z-index: calc(var(--ML_keyboard-zindex, @keyboard-zindex) + 1);
 
         display: flex;
         flex-direction: row;
@@ -454,7 +454,9 @@
                 &.action:active,
                 &.action.active {
                     transform: translateY(-20px) scale(1.4, 1.4);
-                    z-index: (@keyboard-zindex - 5);
+                    z-index: calc(
+                        var(--ML_keyboard-zindex, @keyboard-zindex) - 5
+                    );
                     color: var(--keyboard-text-active);
                 }
                 &.modifier:active,
@@ -775,7 +777,7 @@ div.ML__keyboard.material {
                 transition: none;
                 justify-content: flex-start;
                 padding: 2px 0 0 0;
-                z-index: (@keyboard-zindex - 5);
+                z-index: calc(var(--ML_keyboard-zindex, @keyboard-zindex) - 5);
             }
             @media only screen and (max-width: 414px) {
                 width: 16.5px;

@@ -21,7 +21,7 @@
     'mathlive.mjs' file. If you need to copy the 'fonts' directory to a different
     location, specify it using the `Config.fontsDirectory` option. It should be
     either a relative path or a full URL pointing to the directory that contains
-    the fonts.
+    the fonts. (Fix for **#425**)
 
 
     You no longer need to manually specify the stylesheets when using
@@ -41,6 +41,9 @@
     default, the `fonts` folder should be placed next to the stylesheet. If you
     need a different location when using the static stylesheet, you will need
     to modify it.
+
+-   **#425** Added CSS variable `--ML_keyboard-zindex` for zindex of the virtual
+    keyboard.
 
 ## 0.52 (2020-05-23)
 
