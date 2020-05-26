@@ -2,68 +2,43 @@
 
 This example shows how to interact with a MathLive mathfield.
 
-It uses the minified version of the MathLive library.
+It uses the Mathlive SDK distributed via a CDN.
 
-## Load the stylesheets
+### 1. ... as a ES module
 
-Load both the "core" and regular stylesheet. The "core" stylesheet contains
-only the basic to display a simple formula. You can lazily load the
-regular stylesheet, but you will need both to display correctly formulas.
+ES Modules, also known as JavaScript Modules, are the recommended way to load
+JavaScript libraries. The library is loaded asynchronously, improving loading
+performance, and it does not pollute the global environment.
 
 ```html
-<link rel="stylesheet" href="../../dist/mathlive.core.css" />
-<link rel="stylesheet" href="../../dist/mathlive.css" />
+<script type="module">
+    import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
+    // ...
+</script>
 ```
 
-## Load the JavaScript library...
+The file `mathlive.mjs` in the `dist` directory is a JavaScript
+module, indicated by the `mjs` file extension.
 
-There are multiple ways to load the MathLive JavaScript library, and this
-example demonstrates two of them:
+In order to use the `import` statement, the `<script>` tag has an attribute
+`type='module'`. Doing so will also require CORS to be
+respected, which means that loading directly from a local filesystem
+will not work, but will require a local server instead.
 
--   with a `<script>` tag (see `index.html`)
--   as a ES Module (see `index.esm.html`)
+### 2. ... with a `<script>` tag
 
-### 1. ... with a `<script>` tag
-
-Include a `<script>` tag, preferably at the end of your page, before the
-`</body>` tag, to avoid blocking rendering.
+It is also possible to load Mathlive using a `<script>` tag.
 
 ```html
-<script src="../../dist/mathlive.js"></script>
+<script src="https://unpkg.com/mathlive/dist/mathlive.js"></script>
 ```
 
 Once loaded, the global object `MathLive` will contain the main API entry points,
 such as `MathLive.makeMathField()`
 
-This is a simple method, and well suited if you need little customization and
-interactivity.
-
 Note that the `mathlive.js` file in the `dist` directory is a UMD
 (Universal Module Definition) file, meaning that you can use it with
 several loaders, include requirejs, and CommonJS.
-
-### 2. ... as a ES module
-
-ES Modules, also known as JavaScript Modules, are a more recent method to load
-JavaScript libraries. The script is loaded asynchronously, improving loading
-performance, and you can choose the variable in which the API is imported.
-
-```html
-<script type="module">
-    import MathLive from '../../dist/mathlive.mjs';
-    // ...
-</script>
-```
-
-This method is more modern, and better suited if you need to integrate
-MathLive with significant amounts of JavaScript code, such as other libraries.
-
-Note that the file `mathlive.mjs` in the `dist` directory is a ES
-module, indicated by the `mjs` file extension.
-
-Note that in order to use the `import` statement, the `<script>` tag has an attribute `type='module'`. Doing so will also require CORS to be
-respected, which means that loading directly from a local filesystem
-will not work, but will require a local server instead.
 
 ## Interact with a mathfield
 
@@ -79,8 +54,8 @@ mathfield, and displaying it in an output element.
 
 ```javascript
 const mf = MathLive.makeMathField('mf', {
-    onContentDidChange: mf => {
-        document.getElementById('output').innerHTML = mf.$text();
+    onContentDidChange: (mf) => {
+        console.log(mf.$text());
     },
 });
 ```

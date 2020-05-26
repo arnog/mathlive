@@ -13,6 +13,8 @@ export type ParseMode = 'math' | 'text' | 'command';
  *
     |  | |
     | ------------------ | ---      |
+    | `font-not-found`              | A required font could not be loaded. The `fontDirectory` option may not be setup correctly or the 'fonts' directory is missing. |
+    | `invalid-keybinding`          | A keybinding includes a combinatino of keys which cannot be performed with the current keyboard layout. |
     | `unknown-command`             | There is no definition available for this command, e.g. `\zin`  |
     | `invalid-command`             | This command is not valid in the current mode (e.g. text command in math mode)  |
     | `unbalanced-braces`           |  There are too many or too few `{` or `}`  |
@@ -38,7 +40,7 @@ export type ParserErrorCode =
     | 'unexpected-token'
     | 'unexpected-end-of-string';
 
-export type MathfieldErrorCode = 'invalid-keybinding';
+export type MathfieldErrorCode = 'invalid-keybinding' | 'font-not-found';
 
 export type ErrorListener = (err: {
     code: ParserErrorCode | MathfieldErrorCode;

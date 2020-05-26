@@ -5,30 +5,26 @@ To contribute to the MathLive project, see the {@tutorial CONTRIBUTOR_GUIDE}.
 
 ## Getting Started
 
-Install MathLive from a CDN, from NPM or from GitHub.
+Use MathLive from a CDN, from NPM or from GitHub.
 
 ### Using a CDN
 
 Using a CDN is the simplest approach, as it does not require any configuration:
 
 ```html
-<head>
-    ...
-    <link
-        rel="stylesheet"
-        href="https://unpkg.com/mathlive/dist/mathlive.core.css"
-    />
-    <link
-        rel="stylesheet"
-        href="https://unpkg.com/mathlive/dist/mathlive.css"
-    />
-</head>
-<script src="https://unpkg.com/mathlive"></script>
-<div id="mathfield">f(x)</div>
-<script>
-    MathLive.makeMathField('mathfield');
-</script>
+<!DOCTYPE html>
+<html lang="en-US">
+    <div id="mathfield">f(x)</div>
+    <script type="module">
+        import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
+        MathLive.makeMathField('mathfield');
+    </script>
+</html>
 ```
+
+Note that the HTML quirks mode is not supported. This means that the host page
+must use the strict mode, indicated by a `<!doctype html>` directive at the
+top of the page.
 
 ### Using NPM
 
@@ -51,34 +47,14 @@ The `dist/` directory contains the following:
     module which gives access to the MathLive API.
 -   `mathlive.js` Same as `mathlive.mjs` but as a UMD (Universal Module Definition)
     file which can be imported using a module loader such as requirejs.
--   `mathlive-core.css` The minimal amount of CSS to display math with MathLive.
--   `mathlive.css` The rest of the CSS you need to display math. You can load
-    this file lazily to improve your page load time.
 -   `fonts/` A directory of fonts used by MathLive. Credit for those fonts goes to
     the KaTeX project.
 -   `*.d.ts` TypeScript declaration files
-
-### Using MathLive in your project
-
-Include the following in your web page. Adjust the `src` and `href` arguments
-to account for your directory structure.
-
-```html
-<!DOCTYPE html>
-<html lang="en-US">
-    <head>
-        ...
-        <link rel="stylesheet" href="dist/mathlive.core.css" />
-        <link rel="stylesheet" href="dist/mathlive.css" />
-    </head>
-    <body>
-        ...
-        <script type="module">
-            import MathLive from 'dist/mathlive.mjs';
-        </script>
-    </body>
-</html>
-```
+-   `mathlive-static.css` an optional stlysheet which can be used if you need to
+    render some markup created by Mathlive. Use this only if you do _not_ include
+    the Mathlive library in your page. Mathlive will automatically inject any
+    needed CSS in the page. The `fonts` folder should be placed next to
+    this stylesheet.
 
 ## Rendering Math Automatically
 
@@ -191,13 +167,6 @@ For example:
 ```html
 <!DOCTYPE html>
 <html lang="en-US">
-    <head>
-        <meta charset="utf-8" />
-        <title>MathLive Sample</title>
-
-        <link rel="stylesheet" href="dist/mathlive.core.css" />
-        <link rel="stylesheet" href="dist/mathlive.css" />
-    </head>
     <body>
         <div id="mathfield" style="border: 1px solid #999;padding:5px;">
             f(x)=

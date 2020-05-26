@@ -1,3 +1,47 @@
+## [Unreleased]
+
+### Breaking Change / New Feature
+
+-   **#158** The CSS files `mathlive.css` and `mathlive.core.css` have been deprecated and removed from the distribution.
+
+    The necessary CSS is now injected dynamically into the page. This simplifies the use of the library, but also reduces the amount of CSS in the page, potentially improving performance. That's particularly the case when the virtual keyboard is not used, as the CSS stylesheet for the virtual keyboard is substantial, and it is now injected only when the keyboard is used.
+
+
+    To transition, you should remove from your code any instance of:
+
+    ```html
+    <link rel="stylesheet" href="mathlive.core.css" type="text/css" />
+    <link rel="stylesheet" href="mathlive.css" type="text/css" />
+    ```
+
+    (the path to your CSS file may be different).
+
+    You may need to specify the location of the 'fonts' directory. By default,
+    the 'fonts' directory is expected to be next to the 'mathlive.js',
+    'mathlive.mjs' file. If you need to copy the 'fonts' directory to a different
+    location, specify it using the `Config.fontsDirectory` option. It should be
+    either a relative path or a full URL pointing to the directory that contains
+    the fonts.
+
+
+    You no longer need to manually specify the stylesheets when using
+    `renderMathInElement()` or `renderMathInDocument()` either.
+    The necessary stylesheet will get injected in the
+    document as needed. Note that this stylesheet for these functions is
+    smaller than the stylesheet used when
+    the editor is in use. These two functions also gain a property to specify the
+    location of the 'fonts' directory, if necessary (by default, the 'fonts'
+    directory is expected to be next to the 'mathlive.js', 'mathlive.mjs' file.)
+
+
+    In some rare cases, you may have used the CSS stylesheet without the Mathlive library, for example, after you may have saved the output of `latexToMarkup()` to a database
+    and use it to render later in a page. In that case, you would need to use the
+    CSS styelsheet `dist/mathlive-static.css`, which is suitable for this use case.
+    Note that it does reference a 'fonts' folder that may need to be adjusted. By
+    default, the `fonts` folder should be placed next to the stylesheet. If you
+    need a different location when using the static stylesheet, you will need
+    to modify it.
+
 ## 0.52 (2020-05-23)
 
 ### New Feature

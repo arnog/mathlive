@@ -1,28 +1,4 @@
-# Basic Example
-
-This example shows how to interact with a MathLive mathfield.
-
-It uses the minified version of the MathLive library.
-
-## Load the stylesheets
-
-Load both the "core" and regular stylesheet. The "core" stylesheet contains
-only the basic to display a simple formula. You can lazily load the
-regular stylesheet, but you will need both to display correctly formulas.
-
-```html
-<link rel="stylesheet" href="../../dist/mathlive.core.css" />
-<link rel="stylesheet" href="../../dist/mathlive.css" />
-```
-
-## Load the JavaScript library
-
-Preferably at the end of your page, before the `</body>` tag, to avoid
-blocking rendering.
-
-```html
-<script src="../../dist/mathlive.js"></script>
-```
+# Virtual Keyboards
 
 ## Interact with a mathfield
 

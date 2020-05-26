@@ -9,7 +9,10 @@
         "lib": ["es2018", "es2020.string", "dom", "dom.iterable", "scripthost"],
         // Only include the types for jest, not all the ones in node_modules/@types,
         // which include NodeJS definitions that are not applicable to a web app
-        "types": ["./node_modules/@types/jest"],
+        "types": [
+            "./node_modules/@types/jest",
+            "./node_modules/@types/css-font-loading-module"
+        ],
 
         // "declaration": true,
         // "allowJs": true,
@@ -18,12 +21,11 @@
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
 
+        "target": "es2019",
         "module": "esnext",
         "esModuleInterop": true,
         "moduleResolution": "node",
         "resolveJsonModule": true,
-
-        "target": "es2019",
 
         "strictNullChecks": false,
         "noImplicitAny": false,

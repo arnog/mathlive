@@ -2,7 +2,9 @@
     "env": {
         "browser": true,
         // "commonjs": true,
-        "es6": true,
+        // "es6": true,
+        "es2020": true,
+        "jest": true,
         "node": true, // For jest, config files, etc...
         "amd": true,
         "mocha": true
@@ -14,11 +16,12 @@
         // Configure the parser with the tsconfig file in the root project
         // (or rather an extended version that add peripheral files such as rollup.config.js
         // so that eslint doesn't complain that they are not in the project)
-        "project": "./tsconfig.eslint.json"
+        "project": "./tsconfig.eslint.json",
 
         // "ecmaFeatures": { "jsx": false }, // default
-        // "ecmaVersion": 2020,
+        "ecmaVersion": 2020,
         // "sourceType": "module" // Allow the use of import
+        "extraFileExtensions": [".less"]
     },
 
     "extends": [

@@ -2,6 +2,7 @@ import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
 import resolve from 'rollup-plugin-node-resolve';
 import { eslint } from 'rollup-plugin-eslint';
+import postcss from 'rollup-plugin-postcss';
 
 import pkg from './package.json';
 import path from 'path';
@@ -150,9 +151,18 @@ const ROLLUP = [
             },
             PRODUCTION &&
                 eslint({
+                    exclude: ['**/*.less'],
                     // fix: true,
                     // include: 'src/',
                 }),
+            postcss({
+                extract: false, // extract: path.resolve('dist/mathlive.css')
+                modules: false,
+                inject: false,
+                extensions: ['.css', '.less'],
+                plugins: [],
+                minimize: PRODUCTION,
+            }),
             resolve(),
             typescript(TYPESCRIPT_OPTIONS),
             PRODUCTION && terser(TERSER_OPTIONS),

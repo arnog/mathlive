@@ -2,7 +2,7 @@ import { render } from './mathfield-render';
 import { MathfieldConfig } from '../public/config';
 
 function removeHighlight(element: Element): void {
-    element.classList.remove('highlight');
+    element.classList.remove('ML__highlight');
     if (element.children) {
         for (const child of element.children) {
             removeHighlight(child);
@@ -21,14 +21,14 @@ function removeHighlight(element: Element): void {
  */
 function highlightAtomID(element: Element, atomID?: string): void {
     if (!atomID || element['dataset']?.atomId === atomID) {
-        element.classList.add('highlight');
+        element.classList.add('ML__highlight');
         if (element.children && element.children.length > 0) {
             Array.from(element.children).forEach((x) => {
                 highlightAtomID(x);
             });
         }
     } else {
-        element.classList.remove('highlight');
+        element.classList.remove('ML__highlight');
         if (element.children && element.children.length > 0) {
             Array.from(element.children).forEach((x) => {
                 highlightAtomID(x, atomID);

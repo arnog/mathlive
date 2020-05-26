@@ -3,6 +3,9 @@ import '../core/atom';
 import { MACROS, MacroDictionary } from '../core/definitions';
 import { AutoRenderOptions } from '../public/mathlive';
 import { ErrorListener } from '../public/core';
+import { loadFonts } from '../core/fonts';
+import { inject as injectStylesheet } from '../common/stylesheet';
+import coreStylesheet from '../../css/core.less';
 
 export type AutoRenderOptionsPrivate = AutoRenderOptions & {
     /** A function that will convert any LaTeX found to
@@ -215,7 +218,7 @@ function createMathMLNode(
         console.error("Could not convert'" + latex + "' to MathML with ", e);
         span.textContent = latex;
     }
-    span.className = 'sr-only';
+    span.className = 'ML__sr-only';
     return span;
 }
 
@@ -246,6 +249,8 @@ function createMarkupNode(
     }
 
     try {
+        loadFonts(options.fontsDirectory);
+        injectStylesheet(coreStylesheet);
         const html = options.renderToMarkup(text, {
             mathstyle: mathstyle ?? 'displaystyle',
             format: 'html',
@@ -299,7 +304,7 @@ function createAccessibleMarkupPair(
             span.innerHTML = options.createHTML
                 ? options.createHTML(html)
                 : html;
-            span.className = 'sr-only';
+            span.className = 'ML__sr-only';
             fragment.appendChild(span);
         }
         fragment.appendChild(markupNode);

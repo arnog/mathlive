@@ -8,6 +8,9 @@ import type {
 
 import { Atom, makeRoot } from '../core/atom';
 
+import { loadFonts } from '../core/fonts';
+import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
+
 import { ModelPrivate } from './model';
 import { applyStyle } from './model-styling';
 import { delegateKeyboardEvents } from './keyboard';
@@ -76,6 +79,12 @@ import { atomtoMathJson } from '../addons/math-json';
 import { atomsToMathML } from '../addons/math-ml';
 import { updateUndoRedoButtons } from './virtual-keyboard';
 
+import mathfieldStylesheet from '../../css/mathfield.less';
+import coreStylesheet from '../../css/core.less';
+
+import popoverStylesheet from '../../css/popover.less';
+import keystrokeCaptionStylesheet from '../../css/keystroke-caption.less';
+
 export class MathfieldPrivate implements Mathfield {
     model: ModelPrivate;
     config: Required<MathfieldConfigPrivate>;
@@ -90,6 +99,8 @@ export class MathfieldPrivate implements Mathfield {
 
     element: HTMLElement;
     readonly originalContent: string;
+
+    private stylesheets: Stylesheet[] = [];
 
     textarea: HTMLElement;
     field: HTMLElement;
@@ -143,6 +154,11 @@ export class MathfieldPrivate implements Mathfield {
         if (elementText) {
             elementText = elementText.trim();
         }
+
+        // Load the fonts, inject the core and mathfield stylesheets
+        loadFonts(this.config.fontsDirectory, this.config.onError);
+        this.stylesheets.push(injectStylesheet(coreStylesheet));
+        this.stylesheets.push(injectStylesheet(mathfieldStylesheet));
 
         // Additional elements used for UI.
         // They are retrieved in order a bit later, so they need to be kept in sync
@@ -206,7 +222,7 @@ export class MathfieldPrivate implements Mathfield {
         }
         markup += '</span>';
         markup += `
-        <div class="sr-only">
+        <div class="ML__sr-only">
             <span aria-live="assertive" aria-atomic="true"></span>
             <span></span>
         </div>
@@ -257,10 +273,12 @@ export class MathfieldPrivate implements Mathfield {
             'mathlive-popover-panel',
             'ML__popover'
         );
+        this.stylesheets.push(injectStylesheet(popoverStylesheet));
         this.keystrokeCaption = getSharedElement(
             'mathlive-keystroke-caption-panel',
             'ML__keystroke-caption'
         );
+        this.stylesheets.push(injectStylesheet(keystrokeCaptionStylesheet));
         // The keystroke caption panel and the command bar are
         // initially hidden
         this.keystrokeCaptionVisible = false;
@@ -531,6 +549,7 @@ export class MathfieldPrivate implements Mathfield {
         off(this.element, 'blur', this);
         off(window, 'resize', this);
         delete this.element;
+        this.stylesheets.forEach((x) => x.release());
     }
     resetKeystrokeBuffer(): void {
         this.keystrokeBuffer = '';

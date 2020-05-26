@@ -1,0 +1,141 @@
+@system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+
+div.ML__popover.is-visible {
+    visibility: visible;
+    animation: ML__fade-in cubic-bezier(0, 0, 0.2, 1) 0.15s;
+}
+@keyframes ML__fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* The wrapper class for the entire content of the popover panel */
+.ML__popover__content {
+    border-radius: 6px;
+    padding: 2px;
+    cursor: pointer;
+    min-height: 100px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: 8px;
+    margin-right: 8px;
+    a {
+        color: #5ea6fd;
+        padding-top: 0.3em;
+        margin-top: 0.4em;
+        display: block;
+        &:hover {
+            color: #5ea6fd;
+            text-decoration: underline;
+        }
+    }
+    /* Since the content can be clicked on, provide feedback on hover */
+    &:hover,
+    &.pressed,
+    &.active {
+        background: rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* The command inside a popover (inside a ML__popover-content) */
+.ML__popover__command {
+    font-size: 1.6rem;
+}
+
+.ML__popover__prev-shortcut {
+    height: 31px;
+    opacity: 0.1;
+    cursor: pointer;
+
+    margin-left: 8px;
+    margin-right: 8px;
+    padding-top: 4px;
+    padding-bottom: 2px;
+}
+
+.ML__popover__prev-shortcut:hover,
+.ML__popover__next-shortcut:hover {
+    opacity: 0.3;
+}
+
+.ML__popover__prev-shortcut.pressed,
+.ML__popover__next-shortcut.pressed {
+    opacity: 1;
+}
+
+.ML__popover__prev-shortcut.active,
+.ML__popover__next-shortcut.active {
+    opacity: 1;
+}
+
+.ML__popover__prev-shortcut > span,
+.ML__popover__next-shortcut > span {
+    padding: 5px;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+}
+
+.ML__popover__prev-shortcut > span > span {
+    margin-top: -2px;
+    display: block;
+}
+
+.ML__popover__next-shortcut > span > span {
+    margin-top: +2px;
+    display: block;
+}
+
+.ML__popover__prev-shortcut:hover > span,
+.ML__popover__next-shortcut:hover > span {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.ML__popover__next-shortcut {
+    height: 34px;
+    opacity: 0.1;
+    cursor: pointer;
+
+    margin-left: 8px;
+    margin-right: 8px;
+    padding-top: 2px;
+    padding-bottom: 4px;
+}
+
+/* The keyboard shortcuts for a symbol as displayed in the popover */
+.ML__popover__shortcut {
+    font-family: @system;
+    font-size: 0.8em;
+    opacity: 0.7;
+
+    margin-top: 0.25em;
+    padding-top: 0.25em;
+}
+
+/* The field in a popover that provides some info about the symbol */
+.ML__popover__note {
+    font-family: @system;
+    font-size: 0.8rem;
+    opacity: 0.7;
+
+    line-height: 1em;
+
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    padding-top: 0.25em;
+}
+
+/* Style for the character that joins the modifiers of a keyboard shortcut 
+(usually a "+" sign)*/
+.ML__shortcut-join {
+    opacity: 0.5;
+}

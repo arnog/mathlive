@@ -14,61 +14,42 @@ sedi () {
 }
 export -f sedi
 
-
 cd "$(dirname "$0")/.."
+
+if [ "$#" -gt 1 ]; then
+    echo -e "\033[40m`basename "$0"`\033[0m\033[31m ERROR \033[0m Expected at most one argument: 'development' (default), 'watch' or 'production'"
+    exit 1
+fi
 
 # Check that correct version of npm and node are installed
 npx check-node-version --package
 
-if [ "$#" -gt 1 ]; then
-    echo -e "\033[40m`basename "$0"`\033[0m\033[31m ERROR \033[0m Expected one argument: 'development' (default) 'watch' 'production'"
-    exit 1
-fi
-
-# If no node_modules directory, do an install first
+# If no "node_modules" directory, do an install first
 if [ ! -d "./node_modules" ]; then
     echo -e "\033[40m`basename "$0"`\033[0m 🚀 Installing dependencies"
     npm install
 fi
 
-
 # Read the first argument, set it to "development" if not set
 export BUILD="${1-development}"
 
-# export GIT_VERSION=`git describe --long --dirty`
-
-export SDK_VERSION=$(cat package.json \
-  | grep version \
-  | head -1 \
-  | awk -F: '{ print $2 }' \
-  | sed 's/[",]//g' \
-  | tr -d '[[:space:]]')
-
-# Clean output directories
-echo -e "\033[40m`basename "$0"`\033[0m 🚀 Cleaning output directories"
-rm -rf ./dist
-rm -rf ./build
-rm -rf ./coverage
-
 if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "production" ]; then
+    # export GIT_VERSION=`git describe --long --dirty`
+
+    export SDK_VERSION=$(cat package.json \
+    | grep version \
+    | head -1 \
+    | awk -F: '{ print $2 }' \
+    | sed 's/[",]//g' \
+    | tr -d '[[:space:]]')
+
+    # Clean output directories
+    echo -e "\033[40m`basename "$0"`\033[0m 🚀 Cleaning output directories"
+    rm -rf ./dist
+    rm -rf ./build
+    rm -rf ./coverage
+
     mkdir -p dist
-
-    # Copy fonts
-    echo -e "\033[40m`basename "$0"`\033[0m 🚀 Copying static assets (fonts)"
-    cp -f -R css/fonts dist/
-    
-    # Build CSS
-    echo -e "\033[40m`basename "$0"`\033[0m 🚀 Building CSS"
-    npx lessc css/mathlive.core.less dist/mathlive.core.css
-    npx lessc css/mathlive.less dist/mathlive.css
-
-    if [ "$BUILD" = "production" ]; then
-        # Optimize CSS
-        echo -e "\033[40m`basename "$0"`\033[0m 🚀 Optimizing CSS"
-        npx postcss dist/*.css -d dist
-        # Stamp version in output files
-        find ./dist -type f -name '*.css' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\//" {}' \;
-    fi
 
     if [ "$BUILD" != "production" ]; then
         # Write sentinel file. It will be checked in the pre-push.sh script
@@ -82,11 +63,13 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
     echo -e "\033[40m`basename "$0"`\033[0m 🚀 Building declaration files (.d.ts)"
     npx tsc --target "ES5" -d --emitDeclarationOnly --outDir ./dist ./src/public/mathlive.ts 
 
-    # Stamp version in output declaration files
-    if [ "$BUILD" = "production" ]; then
-        find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\/$(printf '"'"'\r'"'"')/" {}' \;
-        find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "s/{{SDK_VERSION}}/$SDK_VERSION/" {}' \;
-    fi
+    # Copy fonts
+    echo -e "\033[40m`basename "$0"`\033[0m 🚀 Copying static assets (fonts)"
+    cp -f -R css/fonts dist/
+
+    # Build CSS
+    echo -e "\033[40m`basename "$0"`\033[0m 🚀 Building static CSS"
+    npx lessc css/mathlive-static.less dist/mathlive-static.css
 
     if [ "$BUILD" = "watch" ]; then
         # Do dev build and watch
@@ -96,9 +79,23 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
         # Do build (development or production)
         echo -e "\033[40m`basename "$0"`\033[0m 🚀 Making a \033[33m" $BUILD "\033[0m build"
         npx rollup --silent --config 
+
         if [ "$BUILD" = "production" ]; then
+            # Optimize CSS
+            echo -e "\033[40m`basename "$0"`\033[0m 🚀 Optimizing CSS"
+            npx postcss dist/*.css -d dist
+
             # Stamp the SDK version number
+            echo -e "\033[40m`basename "$0"`\033[0m 🚀 Stamping output files"
+            find ./dist -type f -name '*.css' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\//" {}' \;
             find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec bash -c 'sedi "s/{{SDK_VERSION}}/$SDK_VERSION/g" {}' \;
+            find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\/$(printf '"'"'\r'"'"')/" {}' \;
+            find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "s/{{SDK_VERSION}}/$SDK_VERSION/" {}' \;
+
+            # Linting
+            # echo -e "\033[40m`basename "$0"`\033[0m 🚀 Linting"
+            # npm run lint
+
             # Run test suite
             echo -e "\033[40m`basename "$0"`\033[0m 🚀 Running test suite"
             npx jest --silent
@@ -106,6 +103,6 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
     fi
 
 else
-    echo -e "\033[40m`basename "$0"`\033[0m\033[31m ERROR \033[0m Expected: 'development' (default) 'watch' or 'production'"
+    echo -e "\033[40m`basename "$0"`\033[0m\033[31m ERROR \033[0m Expected: 'development' (default), 'watch' or 'production'"
     exit 1
 fi

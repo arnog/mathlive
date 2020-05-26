@@ -9,6 +9,10 @@ import { releaseSharedElement } from './mathfield-utils';
 
 import type { MathfieldPrivate } from './mathfield-class';
 
+import { inject as injectStylesheet } from '../common/stylesheet';
+
+import virtualKeyboardStylesheet from '../../css/virtual-keyboard.less';
+
 const KEYBOARDS = {
     numeric: {
         tooltip: 'keyboard.tooltip.numeric',
@@ -1289,6 +1293,8 @@ export function makeKeyboard(
     // </symbol>
 
     let markup = svgIcons;
+
+    injectStylesheet(virtualKeyboardStylesheet);
 
     // Auto-populate the ALT_KEYS table
     ALT_KEYS_BASE['foreground-color'] = [];

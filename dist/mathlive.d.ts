@@ -178,6 +178,42 @@ export declare type AutoRenderOptions = {
      */
     namespace?: string;
     /**
+     * A URL fragment pointing to the directory containing the fonts
+     * necessary to render a formula.
+     *
+     * These fonts are available in the `/dist/fonts` directory of the SDK.
+     *
+     * Customize this value to reflect where you have copied these fonts,
+     * or to use the CDN version.
+     *
+     * The default value is './fonts'.
+     *
+     * Changing this setting after the mathfield has been created will have
+     * no effect.
+     *
+     * ```javascript
+     * {
+     *      // Use the CDN version
+     *      fontsDirectory: ''
+     * }
+     * ```
+     * ```javascript
+     * {
+     *      // Use a directory called 'fonts', located next to the
+     *      // `mathlive.js` (or `mathlive.mjs`) file.
+     *      fontsDirectory: './fonts'
+     * }
+     * ```
+     * ```javascript
+     * {
+     *      // Use a directory located at the top your website
+     *      fontsDirectory: 'https://example.com/fonts'
+     * }
+     * ```
+     *
+     */
+    fontsDirectory?: string;
+    /**
      * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
      *
      * This optional function will be called whenever the DOM is modified

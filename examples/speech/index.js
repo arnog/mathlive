@@ -24,7 +24,7 @@ function add_onmouseover_to_atoms() {
     for (let atom_idx = 0; atom_idx < atom_elements.length; atom_idx++) {
         let atom_element = atom_elements[atom_idx];
 
-        atom_element.onmouseover = function() {
+        atom_element.onmouseover = function () {
             var curr_token = atom_element.getAttribute('data-atom-id');
             MathLive.playReadAloud(curr_token);
 
@@ -90,7 +90,7 @@ function speak_stop() {
     while (elements_to_iter.length > 0) {
         let element = elements_to_iter.pop();
         elements_to_iter.push.apply(elements_to_iter, element.children);
-        if (element.className.indexOf('highlight') >= 0) {
+        if (element.className.indexOf('ML__highlight') >= 0) {
             element.className = element.className.substr(
                 0,
                 element.className.length - 10

@@ -47,22 +47,11 @@ Try it at [mathlive.io](https://mathlive.io).
 ### Displaying Math
 
 Render math equations by
-[adding a few lines to your web page](tutorials/USAGE_GUIDE.md).
+[adding a two lines to your web page](tutorials/USAGE_GUIDE.md).
 
 ```html
 <!DOCTYPE html>
 <html lang="en-US">
-    <head>
-        ...
-        <link
-            href="https://unpkg.com/mathlive/dist/mathlive.core.css"
-            rel="stylesheet"
-        />
-        <link
-            href="https://unpkg.com/mathlive/dist/mathlive.css"
-            rel="stylesheet"
-        />
-    </head>
     <body>
         <h1>Euler's Identity</h1>
         <p>$$e^{i\pi} + 1 = 0$$</p>
@@ -84,17 +73,6 @@ including extracting its content, inserting placeholders and more.
 ```html
 <!DOCTYPE html>
 <html lang="en-US">
-    <head>
-        ...
-        <link
-            rel="stylesheet"
-            href="https://unpkg.com/mathlive/dist/mathlive.core.css"
-        />
-        <link
-            rel="stylesheet"
-            href="https://unpkg.com/mathlive/dist/mathlive.css"
-        />
-    </head>
     <body>
         <div id="mathfield">f(x)=</div>
 

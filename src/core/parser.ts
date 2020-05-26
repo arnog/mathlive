@@ -286,11 +286,13 @@ class Parser {
         }
         return this.args['?'];
     }
-    hasImplicitCommand(commands: string[]): boolean {
+    hasImplicitCommand(): boolean {
         if (this.index < this.tokens.length) {
             const token = this.tokens[this.index];
             if (token.type === 'command') {
-                return commands.includes(token.value as string);
+                return /^(displaystyle|textstyle|scriptstyle|scriptscriptstyle)/.test(
+                    token.value as string
+                );
             }
         }
         return false;
@@ -809,14 +811,7 @@ class Parser {
         // if (this.index >= this.tokens.length) return true;
         // const token = this.tokens[this.index];
         while (!this.end() && !done(this.peek())) {
-            if (
-                this.hasImplicitCommand([
-                    'displaystyle',
-                    'textstyle',
-                    'scriptstyle',
-                    'scriptscriptstyle',
-                ])
-            ) {
+            if (this.hasImplicitCommand()) {
                 // Implicit math style commands such as \displaystyle, \textstyle...
                 // Note these commands switch to math mode and a specific size
                 // \textsize is the mathstyle used for inlinemath, not for text

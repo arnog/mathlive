@@ -382,7 +382,10 @@ export function showPopover(mf: MathfieldPrivate, markup: string): void {
     mf.popover.classList.add('is-visible');
 }
 
-function setPopoverPosition(mf, position): void {
+function setPopoverPosition(
+    mf: MathfieldPrivate,
+    position: { x: number; y: number; height: number }
+): void {
     // get screen width & height (browser compatibility)
     const screenHeight =
         window.innerHeight ||
@@ -409,7 +412,7 @@ function setPopoverPosition(mf, position): void {
         mf.popover.style.left =
             screenWidth - mf.popover.offsetWidth - scrollbarWidth + 'px';
     } else if (position.x - mf.popover.offsetWidth / 2 < 0) {
-        mf.popover.style.left = 0;
+        mf.popover.style.left = '0';
     } else {
         mf.popover.style.left = position.x - mf.popover.offsetWidth / 2 + 'px';
     }
@@ -419,11 +422,11 @@ function setPopoverPosition(mf, position): void {
         position.y + mf.popover.offsetHeight + 5 >
         screenHeight - scrollbarHeight - virtualkeyboardHeight
     ) {
-        mf.popover.classList.add('reverse-direction');
+        mf.popover.classList.add('ML__popover--reverse-direction');
         mf.popover.style.top =
             position.y - position.height - mf.popover.offsetHeight - 5 + 'px';
     } else {
-        mf.popover.classList.remove('reverse-direction');
+        mf.popover.classList.remove('ML__popover--reverse-direction');
         mf.popover.style.top = position.y + 5 + 'px';
     }
 }

@@ -6,8 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="stylesheet" href="../style.css" />
 
-        <link rel="stylesheet" href="/dist/mathlive.core.css" />
-        <link rel="stylesheet" href="/dist/mathlive.css" />
+        <!-- <link rel="stylesheet" href="/dist/mathlive-static.css" /> -->
         <style>
             .formula {
                 background: white;
@@ -61,1102 +60,1115 @@
 
             // prettier-ignore
             const TESTING_SAMPLES = [
-                            {
-                                title: 'Ordinary Symbols and letterShapeStyle',
-                                id: 'ordinary-1',
-                                pic: 'ordinary-1.gif',
-                                comment:
-            `With the "tex" letterShapeStyle:
-            <ul>
-                <li>roman lower and uppercase letters should be italic</li>
-                <li>greek lowercase should be italic</li>
-                <li>greek uppercase should be upright</li>
-                <li>there should be some extra space after the letter "f"</li>
-            </ul>
-            `,
-                                latex: `(+-1234.56=0)\\{|/@"\`\\}abcfgxyz\\alpha \\beta ABCFGXYZ\\Gamma \\Delta \\Psi`,
-                            },
-                            {
-                                title: 'Ordinary symbols from various fonts',
-                                id: 'ordinary-2',
-                                pic: 'ordinary-2.gif',
-                                comment:
-            `With the "tex" letterShapeStyle:
-            <ul>
-                <li><kbd>\\exists</kbd> uses the "math" font</li>
-                <li><kbd>\\nexists</kbd> uses the "ams" font</li>
-                <li><kbd>\\imath</kbd> (dotless i) uses the "main" font, italicized (does not exist in the "math" font)</li>
-                <li><kbd>\\imaginaryI</kbd> uses the "main" font (upright)</li>
-            </ul>
-            `,
-                                latex: `\\exists \\nexists \\imath \\alpha \\Omega i x fg \\imaginaryI `,
-                            },
-                            {
-                                id: 'ordinary-4',
-                                title: 'Extended math symbols, arrows',
-                                pic: 'ordinary-4.gif',
-                                latex: `\\nleqslant\\nshortparallel\\measuredangle\\blacklozenge\\Finv\\maltese\\leftrightarrows\\curvearrowright\\looparrowright\\hookrightarrow\\nearrow`,
-                            },
-                            {
-                                id: 'ordinary-3',
-                                pic: 'ordinary-3.gif',
-                                title: 'Ordinary symbols, styled',
-                                comment:
-                                    'In math mode, styling commands are exclusive, except for <kbd>\\boldsymbol</kbd>. <kbd>\\mathbf</kbd> is upright bold, <kbd>\\mathit</kbd> is normal italic',
-                                latex: `Xx\\Gamma\\mathrm{Xx}\\mathbf{Xx\\Gamma}\\mathit{\\mathbf{Xx}} \\mathbf{\\mathit{Xx\\Gamma}} \\boldsymbol{\\mathrm{Xx}}\\mathcal{EXxe}`,
-                            },
-                            {
-                                id: 'styling-2',
-                                title: 'Style applied to operator',
-                                pic: 'styling-2.gif',
-                                comment:
-                                    'Operators are unaffected by styling except <kbd>\\sin \\theta</kbd>, in bold. In LaTeX, lowercase greek letters and operators are not affected by <kbd>\\mathbf</kbd>',
-                                latex: `\\mathbf{\\sin \\theta} + \\mathit{\\cos \\theta} + \\mathbf{\\sin x} + \\boldsymbol{\\sin \\theta}`,
-                            },
-                            {
-                                id: 'styling-3',
-                                title: '\\mathbf vs \\boldsymbol',
-                                pic: 'styling-3.gif',
-                                latex:
-                                    'x\\sin\\theta\\Theta\\boldsymbol{x\\sin\\theta\\Theta}\\mathbf{x\\sin\\theta\\Theta}',
-                            },
-                            {
-                                id: 'styling-7',
-                                title: 'Text color',
-                                pic: 'styling-7.gif',
-                                latex: `\\color{red}x+1\\sin\\alpha\\frac{\\color{magenta}1}{{\\color{green}x}+2}`,
-                            },
-                            {
-                                id: 'styling-4',
-                                title: 'Background color',
-                                pic: 'styling-4.gif',
-                                latex: `-\\colorbox{BurntOrange}{\\ensuremath{x\\frac{1}{\\colorbox{yellow}{\\ensuremath{x}}}}}=`,
-                            },
-                            {
-                                id: 'styling-5',
-                                title: 'Text and background color',
-                                pic: 'styling-5.gif',
-                                latex: `-\\colorbox{BurntOrange}{\\ensuremath{\\color{red}x\\frac{1}{\\colorbox{yellow}{\\ensuremath{x}}}}}=`,
-                            },
-                            {
-                                id: 'styling-6',
-                                title: 'Interwoven color, class, background',
-                                latex:
-                                    '\\textcolor{green}{\\class{foo}{\\textcolor{red}{x}}\\class{foo}{\\colorbox{BurntOrange}{y}+1}}',
-                            },
-                            {
-                                id: 'styling-8',
-                                title: 'Text styled with color',
-                                latex: `\\text{\\textcolor{green}{green}\\textcolor{red}{red}}`,
-                            },
-                            {
-                                id: 'styling-9',
-                                title: 'More styled text',
-                                latex:
-                                    '\\text{\\textit{italic} upright roman \\textbf{bold {\\fontshape{n}upright \\large large} roman}',
-                            },
-                            {
-                                id: 'styling-10',
-                                title: 'Text with commands',
-                                latex:
-                                    '\\text{See \\alpha\\sin \\~{n} \\c{c} \\frac{1}{2}}',
-                            },
-                            {
-                                id: 'styling-11',
-                                title: 'Text with commands',
-                                comment: 'Insert {} to separate commands when necessary',
-                                latex: '\\text{\\backslash\\alpha{}d\\c{c}}',
-                            },
-                            {
-                                id: 'fraction-1',
-                                title: 'Fraction',
-                                pic: 'fraction-1.gif',
-                                latex: `-\\frac{2}{x+1}\\ne-\\frac{x+1}{2}`,
-                            },
-                            {
-                                id: 'fraction-2',
-                                title: 'Fractions of fraction',
-                                pic: 'fraction-2.gif',
-                                latex: `-\\frac{-\\frac{1}{2}}{-\\frac{3}{4}}`,
-                            },
-                            {
-                                id: 'variants-1',
-                                title: 'Variants',
-                                latex: `\\gothicCapitalC\\gothicCapitalH\\scriptCapitalE\\doubleStruckCapitalQ\\\Bbbk`,
-                            },
-                            {
-                                id: 'ordinary-4',
-                                title: 'Unicode symbols',
-                                comment:
-                                    'man + light skin tone + person role + microphone & hamburger',
-                                latex: `\\unicode{"1F468}\\unicode{"1F3FB}\\unicode{"200D}\\unicode{"1F3A4}🍔=\\char"1F354`,
-                            },
-                            {
-                                id: 'operator-1',
-                                title: 'Operator',
-                                latex: `f(x)=\\operatorname {li}(x)-\\sum _{\\rho }\\operatorname {li}(x^{\\rho })-\\log(2)+\\int _{x}^{\\infty }{\\frac  {dt}{t(t^{2}-1)\\log(t)}}`,
-                            },
-                            {
-                                id: 'operator-2',
-                                title: 'Operator with multicharacter name and superscript',
-                                comment:
-                                    'Space is ignored and "-" is processed as dash, not minus sign',
-                                pic: 'operator-2.gif',
-                                latex: `\\operatorname{li-mit max}^2(x)`,
-                            },
-                            {
-                                id: 'operator-3',
-                                title: '\\operatorname with styling',
-                                comment: 'Styling inside an operator name is respected',
-                                latex: '\\operatorname{\\mathit{limit}}(x)',
-                            },
-                            {
-                                id: 'limits-1',
-                                title: '\\nolimits',
-                                latex: `\\sum_{P_i \\in Paths(I)} \\text{Probes}(P_{i}) = \\sum\\nolimits_{P_i \\in Paths(I)} \\text{Probes}(P_{i})`,
-                            },
-                            {
-                                id: 'limits-2',
-                                title: '\\limits',
-                                latex: `\\sum\\limits_{i=1}^n i^2`,
-                            },
-                            {
-                                id: 'limits-3',
-                                title: '\\limits in textstyle',
-                                latex: `\\textstyle{\\sum_{i=1}^n i^2 = \\sum\\limits_{i=1}^n i^2}`,
-                            },
-                            {
-                                id: 'limits-4',
-                                title: 'Limits on a custom operator',
-                                pic: 'limits-4.gif',
-                                latex: `\\operatorname{custom-operator}^{above}_{below}\\mathop{operator}^{above}_{below}`,
-                            },
-                            {
-                                id: 'equation-hopital',
-                                title: 'L’Hôpital’s Rule',
-                                pic: 'l-hopital.gif',
-                                comment:
-                                    'The limit of an indeterminate form 0/0 is the limit of the derivatives of the numerator and the denominator.',
-                                latex: `\\lim_{x\\to 0}{\\frac{e^x-1}{2x}}
-                        \\overset{\\left[\\frac{0}{0}\\right]}{\\underset{\\mathop{H}}{=}}
-                        \\lim_{x\\to 0}{\\frac{e^x}{2}}={\\frac{1}{2}}`,
-                            },
-                            {
-                                id: 'mathjax-1',
-                                title: 'Lorenz Equation',
-                                pic: 'lorenz.gif',
-                                comment:
-                                    'Note that "align" (instead of "align*") should display equation numbers',
-                                latex: `\\begin{align*}
-                            \\dot{x} & = \\sigma(y-x) \\\\
-                            \\dot{y} & = \\rho x - y - xz \\\\
-                            \\dot{z} & = -\\beta z + xy
-                        \\end{align*}`,
-                            },
-                            {
-                                id: 'mathjax-2',
-                                title: 'The Cauchy-Schwarz Inequality',
-                                comment: '',
-                                latex: `\\left( \\sum_{k=1}^n a_k b_k \\right)^{\\!\\!2} \\leq
-                        \\left( \\sum_{k=1}^n a_k^2 \\right) \\left( \\sum_{k=1}^n b_k^2 \\right)`,
-                            },
-                            {
-                                id: 'mathjax-3',
-                                title:
-                                    'Probability of getting k heads when flipping n coins',
-                                latex: `\\[P(E) = {n \\choose k} p^k (1-p)^{ n-k} \\]`,
-                            },
-                            {
-                                id: 'mathjax-4',
-                                title: 'An Identity of Ramanujan',
-                                latex: `   \\frac{1}{(\\sqrt{\\phi \\sqrt{5}}-\\phi) e^{\\frac25 \\pi}} =
-                                        1+\\cfrac{e^{-2\\pi}} {1+\\cfrac{e^{-4\\pi}} {1+\\cfrac{e^{-6\\pi}}
-                                        {1+\\cfrac{e^{-8\\pi}} {1+\\ldots} } } }
-                                    `,
-                            },
-                            {
-                                id: 'mathjax-5',
-                                title: 'A Rogers-Ramanujan Identity',
-                                latex: `  1 +  \\frac{q^2}{(1-q)}+\\frac{q^6}{(1-q)(1-q^2)}+\\cdots =
-                                        \\prod_{j=0}^{\\infty}\\frac{1}{(1-q^{5j+2})(1-q^{5j+3})},
-                                        \\quad\\quad \\text{for $|q|<1$}.`,
-                            },
-                            {
-                                id: 'equation-demorgan',
-                                title: 'DeMorgan’s law',
-                                latex: '\\neg(P\\land Q) \\iff (\\neg P)\\lor(\\neg Q)',
-                            },
-                            {
-                                id: 'equation-taylor',
-                                title: 'Taylor Series',
-                                latex: `f(x)|_{x=a}=T|^f_a(x)= \\sum_{n=0}^\\infty \\frac{f^{(n)}(a)}{n!}(x-a)^n`,
-                            },
+                                {
+                                    title: 'Ordinary Symbols and letterShapeStyle',
+                                    id: 'ordinary-1',
+                                    pic: 'ordinary-1.gif',
+                                    comment:
+                `With the "tex" letterShapeStyle:
+                <ul>
+                    <li>roman lower and uppercase letters should be italic</li>
+                    <li>greek lowercase should be italic</li>
+                    <li>greek uppercase should be upright</li>
+                    <li>there should be some extra space after the letter "f"</li>
+                </ul>
+                `,
+                                    latex: `(+-1234.56=0)\\{|/@"\`\\}abcfgxyz\\alpha \\beta ABCFGXYZ\\Gamma \\Delta \\Psi`,
+                                },
+                                {
+                                    title: 'Ordinary symbols from various fonts',
+                                    id: 'ordinary-2',
+                                    pic: 'ordinary-2.gif',
+                                    comment:
+                `With the "tex" letterShapeStyle:
+                <ul>
+                    <li><kbd>\\exists</kbd> uses the "math" font</li>
+                    <li><kbd>\\nexists</kbd> uses the "ams" font</li>
+                    <li><kbd>\\imath</kbd> (dotless i) uses the "main" font, italicized (does not exist in the "math" font)</li>
+                    <li><kbd>\\imaginaryI</kbd> uses the "main" font (upright)</li>
+                </ul>
+                `,
+                                    latex: `\\exists \\nexists \\imath \\alpha \\Omega i x fg \\imaginaryI `,
+                                },
+                                {
+                                    id: 'ordinary-4',
+                                    title: 'Extended math symbols, arrows',
+                                    pic: 'ordinary-4.gif',
+                                    latex: `\\nleqslant\\nshortparallel\\measuredangle\\blacklozenge\\Finv\\maltese\\leftrightarrows\\curvearrowright\\looparrowright\\hookrightarrow\\nearrow`,
+                                },
+                                {
+                                    id: 'ordinary-3',
+                                    pic: 'ordinary-3.gif',
+                                    title: 'Ordinary symbols, styled',
+                                    comment:
+                                        'In math mode, styling commands are exclusive, except for <kbd>\\boldsymbol</kbd>. <kbd>\\mathbf</kbd> is upright bold, <kbd>\\mathit</kbd> is normal italic',
+                                    latex: `Xx\\Gamma\\mathrm{Xx}\\mathbf{Xx\\Gamma}\\mathit{\\mathbf{Xx}} \\mathbf{\\mathit{Xx\\Gamma}} \\boldsymbol{\\mathrm{Xx}}\\mathcal{EXxe}`,
+                                },
+                                {
+                                    id: 'styling-2',
+                                    title: 'Style applied to operator',
+                                    pic: 'styling-2.gif',
+                                    comment:
+                                        'Operators are unaffected by styling except <kbd>\\sin \\theta</kbd>, in bold. In LaTeX, lowercase greek letters and operators are not affected by <kbd>\\mathbf</kbd>',
+                                    latex: `\\mathbf{\\sin \\theta} + \\mathit{\\cos \\theta} + \\mathbf{\\sin x} + \\boldsymbol{\\sin \\theta}`,
+                                },
+                                {
+                                    id: 'styling-3',
+                                    title: '\\mathbf vs \\boldsymbol',
+                                    pic: 'styling-3.gif',
+                                    latex:
+                                        'x\\sin\\theta\\Theta\\boldsymbol{x\\sin\\theta\\Theta}\\mathbf{x\\sin\\theta\\Theta}',
+                                },
+                                {
+                                    id: 'styling-7',
+                                    title: 'Text color',
+                                    pic: 'styling-7.gif',
+                                    latex: `\\color{red}x+1\\sin\\alpha\\frac{\\color{magenta}1}{{\\color{green}x}+2}`,
+                                },
+                                {
+                                    id: 'styling-4',
+                                    title: 'Background color',
+                                    pic: 'styling-4.gif',
+                                    latex: `-\\colorbox{BurntOrange}{\\ensuremath{x\\frac{1}{\\colorbox{yellow}{\\ensuremath{x}}}}}=`,
+                                },
+                                {
+                                    id: 'styling-5',
+                                    title: 'Text and background color',
+                                    pic: 'styling-5.gif',
+                                    latex: `-\\colorbox{BurntOrange}{\\ensuremath{\\color{red}x\\frac{1}{\\colorbox{yellow}{\\ensuremath{x}}}}}=`,
+                                },
+                                {
+                                    id: 'styling-6',
+                                    title: 'Interwoven color, class, background',
+                                    latex:
+                                        '\\textcolor{green}{\\class{foo}{\\textcolor{red}{x}}\\class{foo}{\\colorbox{BurntOrange}{y}+1}}',
+                                },
+                                {
+                                    id: 'styling-8',
+                                    title: 'Text styled with color',
+                                    latex: `\\text{\\textcolor{green}{green}\\textcolor{red}{red}}`,
+                                },
+                                {
+                                    id: 'styling-9',
+                                    title: 'More styled text',
+                                    latex:
+                                        '\\text{\\textit{italic} upright roman \\textbf{bold {\\fontshape{n}upright \\large large} roman}',
+                                },
+                                {
+                                    id: 'styling-10',
+                                    title: 'Text with commands',
+                                    latex:
+                                        '\\text{See \\alpha\\sin \\~{n} \\c{c} \\frac{1}{2}}',
+                                },
+                                {
+                                    id: 'styling-11',
+                                    title: 'Text with commands',
+                                    comment: 'Insert {} to separate commands when necessary',
+                                    latex: '\\text{\\backslash\\alpha{}d\\c{c}}',
+                                },
+                                {
+                                    id: 'fraction-1',
+                                    title: 'Fraction',
+                                    pic: 'fraction-1.gif',
+                                    latex: `-\\frac{2}{x+1}\\ne-\\frac{x+1}{2}`,
+                                },
+                                {
+                                    id: 'fraction-2',
+                                    title: 'Fractions of fraction',
+                                    pic: 'fraction-2.gif',
+                                    latex: `-\\frac{-\\frac{1}{2}}{-\\frac{3}{4}}`,
+                                },
+                                {
+                                    id: 'variants-1',
+                                    title: 'Variants',
+                                    latex: `\\gothicCapitalC\\gothicCapitalH\\scriptCapitalE\\doubleStruckCapitalQ\\\Bbbk`,
+                                },
+                                {
+                                    id: 'ordinary-4',
+                                    title: 'Unicode symbols',
+                                    comment:
+                                        'man + light skin tone + person role + microphone & hamburger',
+                                    latex: `\\unicode{"1F468}\\unicode{"1F3FB}\\unicode{"200D}\\unicode{"1F3A4}🍔=\\char"1F354`,
+                                },
+                                {
+                                    id: 'operator-1',
+                                    title: 'Operator',
+                                    latex: `f(x)=\\operatorname {li}(x)-\\sum _{\\rho }\\operatorname {li}(x^{\\rho })-\\log(2)+\\int _{x}^{\\infty }{\\frac  {dt}{t(t^{2}-1)\\log(t)}}`,
+                                },
+                                {
+                                    id: 'operator-2',
+                                    title: 'Operator with multicharacter name and superscript',
+                                    comment:
+                                        'Space is ignored and "-" is processed as dash, not minus sign',
+                                    pic: 'operator-2.gif',
+                                    latex: `\\operatorname{li-mit max}^2(x)`,
+                                },
+                                {
+                                    id: 'operator-3',
+                                    title: '\\operatorname with styling',
+                                    comment: 'Styling inside an operator name is respected',
+                                    latex: '\\operatorname{\\mathit{limit}}(x)',
+                                },
+                                {
+                                    id: 'limits-1',
+                                    title: '\\nolimits',
+                                    latex: `\\sum_{P_i \\in Paths(I)} \\text{Probes}(P_{i}) = \\sum\\nolimits_{P_i \\in Paths(I)} \\text{Probes}(P_{i})`,
+                                },
+                                {
+                                    id: 'limits-2',
+                                    title: '\\limits',
+                                    latex: `\\sum\\limits_{i=1}^n i^2`,
+                                },
+                                {
+                                    id: 'limits-3',
+                                    title: '\\limits in textstyle',
+                                    latex: `\\textstyle{\\sum_{i=1}^n i^2 = \\sum\\limits_{i=1}^n i^2}`,
+                                },
+                                {
+                                    id: 'limits-4',
+                                    title: 'Limits on a custom operator',
+                                    pic: 'limits-4.gif',
+                                    latex: `\\operatorname{custom-operator}^{above}_{below}\\mathop{operator}^{above}_{below}`,
+                                },
+                                {
+                                    id: 'equation-hopital',
+                                    title: 'L’Hôpital’s Rule',
+                                    pic: 'l-hopital.gif',
+                                    comment:
+                                        'The limit of an indeterminate form 0/0 is the limit of the derivatives of the numerator and the denominator.',
+                                    latex: `\\lim_{x\\to 0}{\\frac{e^x-1}{2x}}
+                            \\overset{\\left[\\frac{0}{0}\\right]}{\\underset{\\mathop{H}}{=}}
+                            \\lim_{x\\to 0}{\\frac{e^x}{2}}={\\frac{1}{2}}`,
+                                },
+                                {
+                                    id: 'mathjax-1',
+                                    title: 'Lorenz Equation',
+                                    pic: 'lorenz.gif',
+                                    comment:
+                                        'Note that "align" (instead of "align*") should display equation numbers',
+                                    latex: `\\begin{align*}
+                                \\dot{x} & = \\sigma(y-x) \\\\
+                                \\dot{y} & = \\rho x - y - xz \\\\
+                                \\dot{z} & = -\\beta z + xy
+                            \\end{align*}`,
+                                },
+                                {
+                                    id: 'mathjax-2',
+                                    title: 'The Cauchy-Schwarz Inequality',
+                                    comment: '',
+                                    latex: `\\left( \\sum_{k=1}^n a_k b_k \\right)^{\\!\\!2} \\leq
+                            \\left( \\sum_{k=1}^n a_k^2 \\right) \\left( \\sum_{k=1}^n b_k^2 \\right)`,
+                                },
+                                {
+                                    id: 'mathjax-3',
+                                    title:
+                                        'Probability of getting k heads when flipping n coins',
+                                    latex: `\\[P(E) = {n \\choose k} p^k (1-p)^{ n-k} \\]`,
+                                },
+                                {
+                                    id: 'mathjax-4',
+                                    title: 'An Identity of Ramanujan',
+                                    latex: `   \\frac{1}{(\\sqrt{\\phi \\sqrt{5}}-\\phi) e^{\\frac25 \\pi}} =
+                                            1+\\cfrac{e^{-2\\pi}} {1+\\cfrac{e^{-4\\pi}} {1+\\cfrac{e^{-6\\pi}}
+                                            {1+\\cfrac{e^{-8\\pi}} {1+\\ldots} } } }
+                                        `,
+                                },
+                                {
+                                    id: 'mathjax-5',
+                                    title: 'A Rogers-Ramanujan Identity',
+                                    latex: `  1 +  \\frac{q^2}{(1-q)}+\\frac{q^6}{(1-q)(1-q^2)}+\\cdots =
+                                            \\prod_{j=0}^{\\infty}\\frac{1}{(1-q^{5j+2})(1-q^{5j+3})},
+                                            \\quad\\quad \\text{for $|q|<1$}.`,
+                                },
+                                {
+                                    id: 'equation-demorgan',
+                                    title: 'DeMorgan’s law',
+                                    latex: '\\neg(P\\land Q) \\iff (\\neg P)\\lor(\\neg Q)',
+                                },
+                                {
+                                    id: 'equation-taylor',
+                                    title: 'Taylor Series',
+                                    latex: `f(x)|_{x=a}=T|^f_a(x)= \\sum_{n=0}^\\infty \\frac{f^{(n)}(a)}{n!}(x-a)^n`,
+                                },
 
-                            {
-                                id: 'shrodinger-1',
-                                title: 'Schrodinger’s Equation',
-                                comment:
-                                    'The solution of this equation is a wave that describes the quantum aspects of a system.',
-                                latex: `\\frac{\\hbar^2}{2m}\\nabla^2\\Psi + V(\\mathbf{r})\\Psi= -i\\hbar \\frac{\\partial\\Psi}{\\partial t}`,
-                            },
+                                {
+                                    id: 'shrodinger-1',
+                                    title: 'Schrodinger’s Equation',
+                                    comment:
+                                        'The solution of this equation is a wave that describes the quantum aspects of a system.',
+                                    latex: `\\frac{\\hbar^2}{2m}\\nabla^2\\Psi + V(\\mathbf{r})\\Psi= -i\\hbar \\frac{\\partial\\Psi}{\\partial t}`,
+                                },
 
-                            {
-                                id: 'black-scholes',
-                                title: 'Black-Scholes',
-                                latex: `u(x,\\,\\tau )= Ke^{x + \\frac{1}{2}\\sigma^2 \\tau}N(d_1) - KN(d_2){\\overset {x\\rightsquigarrow \\infty }{\\asymp }}Ke^{x}}`,
-                            },
-                            {
-                                id: 'equation-maxwell',
-                                title: 'Maxwell’s Equation',
-                                pic: 'maxwell.gif',
-                                comment: `The magnetic field induced around a closed loop is proportional
-                                    to the electric current plus displacement current (rate of change of
-                                    electric field) it encloses.<br>
-                                    The electric flux leaving a volume is proportional to the charge inside.<br>
-                                    The voltage induced in a closed circuit is proportional to the rate of
-                                    change of the magnetic flux it encloses.<br>
-                                    There are no magnetic monopoles; the total magnetic flux through a closed
-                                    surface is zero.
-                                    `,
-                                latex: `\\begin{aligned}
-                                    \\nabla \\times \\vec{\\mathbf{B}} -\\, \\frac1c\\, \\frac{\\partial\\vec{\\mathbf{E}}}{\\partial t}
-                                        & = \\frac{4\\pi}{c}\\vec{\\mathbf{j}} \\\\
-                                    \\nabla \\cdot \\vec{\\mathbf{E}}
-                                        & = 4 \\pi \\rho \\\\
-                                    \\nabla \\times \\vec{\\mathbf{E}}\\, +\\, \\frac1c\\, \\frac{\\partial\\vec{\\mathbf{B}}}{\\partial t}
-                                        & = \\vec{\\mathbf{0}} \\\\
-                                    \\nabla \\cdot \\vec{\\mathbf{B}}
-                                        & = 0 \\end{aligned}`,
-                            },
-                            {
-                                id: 'equation-riemann',
-                                title: 'Riemann’s Formula',
-                                pic: 'riemann.gif',
-                                latex: `\\begin{array}{lc}
-                                        \\text{Given:}\\\\
-                                        &    f(x)=\\operatorname {li}(x)-\\sum _{\\rho }\\operatorname {li}(x^{\\rho })-\\log(2)+\\int _{x}^{\\infty }{\\frac  {dt}{t(t^{2}-1)\\log(t)}}\\\\
-                                        \\text{with}\\\\
-                                        &    \\operatorname {li}(x)=\\int _{0}^{x}{\\frac  {dt}{\\log(t)}}.\\\\
-                                        \\text{then}\\\\
-                                        &    \\pi _{0}(x)=\\sum _{n}{\\frac {1}{n}}\\mu (n)f(x^{1/n})=f(x)-{\\frac {1}{2}}f(x^{1/2})-{\\frac {1}{3}}f(x^{1/3})-{\\frac {1}{5}}f(x^{1/5})+{\\frac {1}{6}}f(x^{1/6})-\\cdots ,\\\\
-                                        \\text{and}\\\\
-                                        &    \\Pi _{0}(x)=\\sum _{n=1}^{\\infty }{\\frac {1}{n}}\\pi _{0}(x^{1/n})\\\\
-                                        \\text{where}\\\\
-                                        &    \\bigl( \\Pi _{0}(x) \\bigr) \\text{is Riemann's prime counting function.}
-                                    \\end{array}`,
-                            },
-                            {
-                                id: 'equation-cnoidal',
-                                title: 'Cnoidal Wave Equation',
-                                pic: 'cnoidal.gif',
-                                comment:
-                                    '<a href="https://en.wikipedia.org/wiki/Cnoidal_wave">Cnoidal wave</a>',
-                                latex: `\\begin{align*}
-                                        \\frac{1}{\\lambda}\\, \\int_0^\\lambda \\eta^2\\; \\text{d}x
-                                        &= \\frac{1}{\\lambda} \\int_0^\\lambda
-                                                \\left\\{ \\eta_2 + H\\, \\operatorname{cn}^2 \\left(
-                                                    \\begin{array}{c|c} \\displaystyle \\frac{\\xi}{\\Delta} & m\\end{array}
-                                                \\right) \\right\\}^2\\;
-                                                \\text{d}\\xi
-                                            = \\frac{H^2}{\\lambda} \\int_0^\\lambda
-                                                \\operatorname{cn}^4 \\left( \\begin{array}{c|c} \\displaystyle \\frac{\\xi}{\\Delta} & m\\end{array} \\right)\\; \\text{d}\\xi
-                                            - \\eta_2^2
-                                        \\\\
-                                        &= \\frac{\\Delta\\, H^2}{\\lambda} \\int_0^{\\pi} \\cos^4\\, \\psi\\, \\frac{\\text{d}\\xi}{\\text{d}\\psi}\\; \\text{d}\\psi - \\eta_2^2
-                                            = \\frac{H^2}{2\\, K(m)} \\int_0^{\\pi} \\frac{\\cos^4\\, \\psi}{\\sqrt{1 - m\\, \\sin^2\\, \\psi}}\\; \\text{d}\\psi - \\eta_2^2
-                                        \\\\
-                                        &= \\frac13\\, \\frac{H^2}{m^2}\\, \\left[ \\left( 2 - 5\\, m + 3\\, m^2 \\right) + \\left( 4\\, m - 2 \\right)\\, \\frac{E(m)}{K(m)} \\right]
-                                            - \\frac{H^2}{m^2}\\, \\left( 1 - m - \\frac{E(m)}{K(m)} \\right)^2
-                                    \\end{align*}`,
-                            },
-                            {
-                                id: 'matrix-19',
-                                title: 'Fibonacci Polynomials',
-                                pic: 'fibonacci.gif',
-                                comment: 'Fn(1) is the Fibonacci sequence.',
-                                latex: `F_n(x)= \\begin{cases}
-                                        0, & \\mbox{if } n =  0\\\\
-                                        1, & \\mbox{if } n =  1\\\\
-                                        x F_{n - 1}(x) + F_{n - 2}(x),& \\mbox{if }  n \\geq 2
-                                    \\end{cases}`,
-                            },
-                            {
-                                id: 'loop',
-                                title: 'The Loop Equation',
-                                comment:
-                                    'This equation is a description of a loop in a programming language using formal methods.',
-                                latex: `\\begin{matrix}
-                                        \\alpha\\in p(DO)
-                                            \\quad\\Longleftrightarrow\\quad
-                                            DO(\\alpha)\\subseteq A^\\ast\\\\
-                                        \\Updownarrow\\\\
-                                        DO(\\alpha)=\\begin{cases}
-                                            \\{\\langle\\alpha\\rangle\\},
-                                                &\\mathop{ha}\\neg\\pi(\\alpha)\\\\
+                                {
+                                    id: 'black-scholes',
+                                    title: 'Black-Scholes',
+                                    latex: `u(x,\\,\\tau )= Ke^{x + \\frac{1}{2}\\sigma^2 \\tau}N(d_1) - KN(d_2){\\overset {x\\rightsquigarrow \\infty }{\\asymp }}Ke^{x}}`,
+                                },
+                                {
+                                    id: 'equation-maxwell',
+                                    title: 'Maxwell’s Equation',
+                                    pic: 'maxwell.gif',
+                                    comment: `The magnetic field induced around a closed loop is proportional
+                                        to the electric current plus displacement current (rate of change of
+                                        electric field) it encloses.<br>
+                                        The electric flux leaving a volume is proportional to the charge inside.<br>
+                                        The voltage induced in a closed circuit is proportional to the rate of
+                                        change of the magnetic flux it encloses.<br>
+                                        There are no magnetic monopoles; the total magnetic flux through a closed
+                                        surface is zero.
+                                        `,
+                                    latex: `\\begin{aligned}
+                                        \\nabla \\times \\vec{\\mathbf{B}} -\\, \\frac1c\\, \\frac{\\partial\\vec{\\mathbf{E}}}{\\partial t}
+                                            & = \\frac{4\\pi}{c}\\vec{\\mathbf{j}} \\\\
+                                        \\nabla \\cdot \\vec{\\mathbf{E}}
+                                            & = 4 \\pi \\rho \\\\
+                                        \\nabla \\times \\vec{\\mathbf{E}}\\, +\\, \\frac1c\\, \\frac{\\partial\\vec{\\mathbf{B}}}{\\partial t}
+                                            & = \\vec{\\mathbf{0}} \\\\
+                                        \\nabla \\cdot \\vec{\\mathbf{B}}
+                                            & = 0 \\end{aligned}`,
+                                },
+                                {
+                                    id: 'equation-riemann',
+                                    title: 'Riemann’s Formula',
+                                    pic: 'riemann.gif',
+                                    latex: `\\begin{array}{lc}
+                                            \\text{Given:}\\\\
+                                            &    f(x)=\\operatorname {li}(x)-\\sum _{\\rho }\\operatorname {li}(x^{\\rho })-\\log(2)+\\int _{x}^{\\infty }{\\frac  {dt}{t(t^{2}-1)\\log(t)}}\\\\
+                                            \\text{with}\\\\
+                                            &    \\operatorname {li}(x)=\\int _{0}^{x}{\\frac  {dt}{\\log(t)}}.\\\\
+                                            \\text{then}\\\\
+                                            &    \\pi _{0}(x)=\\sum _{n}{\\frac {1}{n}}\\mu (n)f(x^{1/n})=f(x)-{\\frac {1}{2}}f(x^{1/2})-{\\frac {1}{3}}f(x^{1/3})-{\\frac {1}{5}}f(x^{1/5})+{\\frac {1}{6}}f(x^{1/6})-\\cdots ,\\\\
+                                            \\text{and}\\\\
+                                            &    \\Pi _{0}(x)=\\sum _{n=1}^{\\infty }{\\frac {1}{n}}\\pi _{0}(x^{1/n})\\\\
+                                            \\text{where}\\\\
+                                            &    \\bigl( \\Pi _{0}(x) \\bigr) \\text{is Riemann's prime counting function.}
+                                        \\end{array}`,
+                                },
+                                {
+                                    id: 'equation-cnoidal',
+                                    title: 'Cnoidal Wave Equation',
+                                    pic: 'cnoidal.gif',
+                                    comment:
+                                        '<a href="https://en.wikipedia.org/wiki/Cnoidal_wave">Cnoidal wave</a>',
+                                    latex: `\\begin{align*}
+                                            \\frac{1}{\\lambda}\\, \\int_0^\\lambda \\eta^2\\; \\text{d}x
+                                            &= \\frac{1}{\\lambda} \\int_0^\\lambda
+                                                    \\left\\{ \\eta_2 + H\\, \\operatorname{cn}^2 \\left(
+                                                        \\begin{array}{c|c} \\displaystyle \\frac{\\xi}{\\Delta} & m\\end{array}
+                                                    \\right) \\right\\}^2\\;
+                                                    \\text{d}\\xi
+                                                = \\frac{H^2}{\\lambda} \\int_0^\\lambda
+                                                    \\operatorname{cn}^4 \\left( \\begin{array}{c|c} \\displaystyle \\frac{\\xi}{\\Delta} & m\\end{array} \\right)\\; \\text{d}\\xi
+                                                - \\eta_2^2
+                                            \\\\
+                                            &= \\frac{\\Delta\\, H^2}{\\lambda} \\int_0^{\\pi} \\cos^4\\, \\psi\\, \\frac{\\text{d}\\xi}{\\text{d}\\psi}\\; \\text{d}\\psi - \\eta_2^2
+                                                = \\frac{H^2}{2\\, K(m)} \\int_0^{\\pi} \\frac{\\cos^4\\, \\psi}{\\sqrt{1 - m\\, \\sin^2\\, \\psi}}\\; \\text{d}\\psi - \\eta_2^2
+                                            \\\\
+                                            &= \\frac13\\, \\frac{H^2}{m^2}\\, \\left[ \\left( 2 - 5\\, m + 3\\, m^2 \\right) + \\left( 4\\, m - 2 \\right)\\, \\frac{E(m)}{K(m)} \\right]
+                                                - \\frac{H^2}{m^2}\\, \\left( 1 - m - \\frac{E(m)}{K(m)} \\right)^2
+                                        \\end{align*}`,
+                                },
+                                {
+                                    id: 'matrix-19',
+                                    title: 'Fibonacci Polynomials',
+                                    pic: 'fibonacci.gif',
+                                    comment: 'Fn(1) is the Fibonacci sequence.',
+                                    latex: `F_n(x)= \\begin{cases}
+                                            0, & \\mbox{if } n =  0\\\\
+                                            1, & \\mbox{if } n =  1\\\\
+                                            x F_{n - 1}(x) + F_{n - 2}(x),& \\mbox{if }  n \\geq 2
+                                        \\end{cases}`,
+                                },
+                                {
+                                    id: 'loop',
+                                    title: 'The Loop Equation',
+                                    comment:
+                                        'This equation is a description of a loop in a programming language using formal methods.',
+                                    latex: `\\begin{matrix}
+                                            \\alpha\\in p(DO)
+                                                \\quad\\Longleftrightarrow\\quad
+                                                DO(\\alpha)\\subseteq A^\\ast\\\\
+                                            \\Updownarrow\\\\
+                                            DO(\\alpha)=\\begin{cases}
+                                                \\{\\langle\\alpha\\rangle\\},
+                                                    &\\mathop{ha}\\neg\\pi(\\alpha)\\\\
 
-                                            \\{\\alpha\\in A^\\ast \\mid \\exists n\\in\\mathbb{N}
-                                                \\;\\colon\\;\\
-                                                \\alpha=\\chi_n(\\alpha^1,\\ldots,\\alpha^n)\\wedge&\\\\
-                                            /g\\alpha^1\\in S(\\alpha)
+                                                \\{\\alpha\\in A^\\ast \\mid \\exists n\\in\\mathbb{N}
+                                                    \\;\\colon\\;\\
+                                                    \\alpha=\\chi_n(\\alpha^1,\\ldots,\\alpha^n)\\wedge&\\\\
+                                                /g\\alpha^1\\in S(\\alpha)
+                                                    \\wedge
+                                                \\forall i \\in [1..n-1]\\;\\colon\\;&\\\\
+                                                \\alpha^{i+1}\\in S(\\tau(\\alpha^i))
+                                                    \\wedge
+                                                \\pi(\\tau(\\alpha^i))\\wedge&\\\\
+                                                \\neg\\pi(\\tau(\\alpha^n))\\},
+                                                    &\\mathop{ha} \\pi(\\alpha)
+                                            \\end{cases}\\\\
+                                            \\Updownarrow\\\\
+                                            \\neg \\pi(\\alpha)
+                                                \\vee
+                                            (\\exists\\beta \\in A^\\infty
+                                                \\;\\colon\\;
+                                            \\beta_1=\\alpha
                                                 \\wedge
-                                            \\forall i \\in [1..n-1]\\;\\colon\\;&\\\\
-                                            \\alpha^{i+1}\\in S(\\tau(\\alpha^i))
-                                                \\wedge
-                                            \\pi(\\tau(\\alpha^i))\\wedge&\\\\
-                                            \\neg\\pi(\\tau(\\alpha^n))\\},
-                                                &\\mathop{ha} \\pi(\\alpha)
-                                        \\end{cases}\\\\
-                                        \\Updownarrow\\\\
-                                        \\neg \\pi(\\alpha)
-                                            \\vee
-                                        (\\exists\\beta \\in A^\\infty
+                                            \\forall i \\in \\mathbb{N}
                                             \\;\\colon\\;
-                                        \\beta_1=\\alpha
-                                            \\wedge
-                                        \\forall i \\in \\mathbb{N}
-                                        \\;\\colon\\;
-                                        \\beta_{i+1}\\in p(S)(\\beta_i)
-                                            \\wedge
-                                        \\pi(\\beta_i))\\\\
-                                        \\Updownarrow\\\\
-                                            \\alpha\\in\\frac{}{p(S)|_\\pi}
-                                    \\end{matrix}
-                                    `,
-                            },
-                            {
-                                id: 'matrix-18',
-                                title: 'Gathered environment',
-                                comment: 'The cells of the matrix should be in textstyle.',
-                                latex: `\\begin{gathered}
-                                        \\text{gathered}   \\\\
-                                        \\frac12 x^2+y^2=z^2 \\\\
-                                            x < y
-                                    \\end{gathered}
-                                            \\ne
-                                    \\begin{array}{c}
-                                        \\text{array\\{c\\}} \\\\
-                                        \\frac12 x^2+y^2=z^2 \\\\
-                                            x < y
-                                    \\end{array}`,
-                            },
-                            {
-                                id: 'matrix-19',
-                                title: 'cases environment',
-                                pic: 'matrix-19.png',
-                                latex: `\\begin{cases}
-                                        \\frac{x-y}{4}=\\frac{4-y}{8}\\\\
-                                        -\\frac{y+3}{8}=\\frac{1-2x}{8}
-                                    \\end{cases}`,
-                            },
-                            {
-                                id: 'matrix-20',
-                                title: 'Matrix with Fractions',
-                                comment: 'The cells of the matrix should be in textstyle.',
-                                latex: `\\begin{pmatrix}
-                                        \\frac12&   0   &\\frac34\\\\[.5em]
-                                        0&  \\frac12&   \\frac43
-                                    \\end{pmatrix}`,
-                            },
-                            {
-                                id: 'keyboard-3',
-                                title: 'Keyboard Input: parens',
-                                latex: `a = (b+c) \\times \\lbrack d+e+f \\} + (a + (b - c \\star d) ) = 0`,
-                            },
-                            {
-                                id: 'keyboard-1',
-                                title: 'Keyboard Input: Placeholders',
-                                latex: `\\alpha^2+1+\\frac{#?}{#?}+\\sqrt{#?}-x^2_{a+1}=0`,
-                            },
-                            {
-                                id: 'keyboard-2',
-                                title: 'Keyboard Input: Sub-expressions',
-                                latex: `1+ {(n+\\frac{123}{456})+\\sqrt{2n+1+(a*2)}}  - x^2_{a+1}=0`,
-                            },
-                            {
-                                id: 'matrix-16',
-                                title: 'Aligned Numbers (custom column separator) *',
-                                latex: `\\begin{array}{r@{.}l}
-                                        3   & 14159 \\\\
-                                        16  & 2     \\\\
-                                        123 & 456   \\\\
-                                    \\end{array}`,
-                            },
-                            {
-                                id: 'modulo-1',
-                                title: 'Modulo *',
-                                latex: `\\begin{aligned}
-                                    \\exists p \\in \\mathbb{P}; x,y \\in \\mathbb{N} \\mid p = x^2 + y^2 \\iff p-1\\pmod{4}=0\\\\
-                                    \\exists p \\in \\mathbb{P}; x,y \\in \\mathbb{N} \\mid p = x^2 + y^2 \\iff (p-1)\\mod 4 =0\\\\
-                                    \\exists p \\in \\mathbb{P}; x,y \\in \\mathbb{N} \\mid p = x^2 + y^2 \\iff (p-1)\\bmod 4 =0
-                                    \\end{aligned}`,
-                            },
-                            {
-                                id: 'vphantom-1',
-                                title: '\\vphantom *',
-                                latex: `\\begin{align*}
-                                        f & = g\\left( 3^{3^{3}} + \\text{\\textrm{\\ldots}}\\right.\\\\
-                                        & \\qquad \\left.+ 3\\vphantom{3^{3^{3}}} \\right)\\,.
-                                    \\end{align*}`,
-                            },
-                            {
-                                id: 'accent-3',
-                                title: 'Stacked Accents with Superscript *',
-                                pic: 'stacked-accents.gif',
-                                latex: `\\vec{\\breve{\\hat{\\acute{Y}}}}^2 =
-                                    \\vec{\\breve{\\hat{\\acute{XXX}}}}^2 =
-                                    \\vec{\\breve{\\hat{\\acute{\\sqrt{XXX}}}}}^2 =
-                                    \\vec{\\breve{\\hat{\\acute{\\frac{1}{2}}}}}^2 =
-                                    \\xi^A \\, =
-                                    \\hat{\\bar{\\acute{\\breve{\\vec{\\xi\\alpha XXX}}}}}{}^{A'} =
-                                    \\left(\\cfrac{\\frac12}{\\frac34}\\right)^2`,
-                            },
-
-                            {
-                                id: 'modes-1',
-                                title:
-                                    'Math mode shift and set: $, $$, \\(...\\) and \\[...\\]',
-                                latex: `\\begin{array}{l}\\text{The equation $x = \\frac12$ is very simple.}\\\\
-                                        \\text{With more room: $$x = \\sqrt{\\frac12}$$  to breathe}\\\\
-                                        \\text{The equation \\(x = \\frac12\\) is very simple.}\\\\
-                                        \\text{With more room: \\[x = \\sqrt{\\frac12}\\] to breathe.}
-                                    \\end{array}
-                                                            `,
-                            },
-                            {
-                                id: 'modes-2',
-                                title: 'Nested mode shifts and set: $ and $$',
-                                comment:
-                                    'In TeX the $$ inside text is an error, only $ is allowed (and not byall TeX implementation)',
-                                latex: `\\text{A $\\frac12$$\\frac34$$ \\frac56$}`,
-                            },
-                            {
-                                id: 'sqrt-1',
-                                title: 'Cube root',
-                                latex: 'g(x)=\\sqrt[3]{29}',
-                            },
-                            {
-                                id: 'sqrt-2',
-                                title: 'Cube root with \\Huge index',
-                                comment: '\\Huge does not apply to math mode',
-                                latex: 'g(x)=\\sqrt[\\Huge 3]{29}',
-                            },
-
-                            {
-                                id: 'fraction-1',
-                                title: 'Combined fraction',
-                                latex: `\\left[\\dfrac{2}{\\dfrac84}\\right]`,
-                            },
-
-                            {
-                                id: 'boxed-1',
-                                pic: 'tall-boxed.gif',
-                                title: '\\boxed tall element next to mbin',
-                                latex: `\\boxed{\\frac{\\frac12}{x^{3^x}}}+a=\\left[\\frac{\\frac12}{x^{3^x}}\\right]`,
-                            },
-                            {
-                                id: 'enclose-1',
-                                title: 'Strikes',
-                                latex:
-                                    '3+\\enclose{updiagonalstrike downdiagonalstrike}[6px solid rgba(205, 0, 11, .4)]{18}+5',
-                            },
-                            {
-                                id: 'enclose-2',
-                                title: 'Canceling out',
-                                latex: `\\begin{aligned}
-                2x-5 &= 7 \\\\
-                2x\\enclose{updiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{-5}\\textcolor{green}{\\enclose{updiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{+5}} &= 7\\textcolor{green}{+5}\\\\
-                \\frac{\\enclose{updiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{2}x}{\\textcolor{green}{\\enclose{updiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{2}}} &= \\frac{12}{\\textcolor{green}{2}}\\\\
-                x &= 6
-            \\end{aligned}
-            `,
-                            },
-                            {
-                                id: 'underover-1',
-                                title: 'Overset',
-                                latex: `f(x) \\overset{\\text{def}}{=} x \\ln(1+x)`,
-                            },
-                            {
-                                id: 'underover-2',
-                                title: 'Underset',
-                                latex: `f(x) \\underset{x \\to 0}{=} x^2 + o(x^2)`,
-                            },
-                            {
-                                id: 'underover-3',
-                                title: 'Underset/Overset',
-                                pic: 'under-over.gif',
-                                comment:
-                                    '\\def\\stackrel#1#2{\\mathrel{\\mathop{#2}\\limits^{#1}}}',
-                                latex: `\\begin{aligned}
-                                        A \\underset{\\text{below}}{\\overset{\\text{above}}{+}} C\\
-                                        A \\mathop{+}_{\\text{below}}^{\\text{above}} C
-                                    \\end{aligned}`,
-                            },
-                            {
-                                id: 'genfrac-1',
-                                pic: 'genfrac-1.gif',
-                                title: 'genfrac in a \\scriptstyle',
-                                latex: `x^{\\binom{n}{k}}`,
-                            },
-                            {
-                                id: 'stackrel-1',
-                                title: 'Stackrel',
-                                latex: `x\\stackrel{a}{=}x`,
-                            },
-                            {
-                                id: 'atop-1',
-                                title: '\\atopwithdelims *',
-                                latex: `{n \\atopwithdelims ()0}`,
-                            },
-                            {
-                                id: 'accent-1',
-                                title: 'Acents',
-                                pic: 'accents-1.gif',
-                                latex: `\\vec{x}=\\vec{x+1}=\\acute{a}\\dot\\alpha\\tilde{\\mathcal{N}}\\hat{\\gamma}\\check{0}`,
-                            },
-                            {
-                                id: 'accent-2',
-                                title: 'Acents (doubled)',
-                                latex: `\\xi^A \\, \\hat{\\bar{\\xi}}{}^{A'}`,
-                            },
-
-                            {
-                                id: 'matrix-1',
-                                title: 'Rotation Matrix',
-                                latex: `\\begin{bmatrix} x' \\\\ y' \\end{bmatrix}
-                                    =
-                                        \\begin{bmatrix} \\cos \\theta &  -\\sin\\theta \\\\ \\sin \\theta & \\cos \\theta \\end{bmatrix} \\begin{bmatrix} x \\\\ y \\end{bmatrix}`,
-                            },
-                            {
-                                id: 'matrix-1-1',
-                                title: 'Matrix Inversion',
-                                comment:
-                                    'The extra line (\\\\) at the bottom of the matrices should be ignored.',
-                                latex: `\\mathbf{A}^{-1} =
-                                    \\begin{bmatrix}
-                                        a & b \\\\
-                                        c & d \\\\
-                                    \\end{bmatrix}^{-1} =
-                                    \\frac{1}{\\det \\mathbf{A}}
-                                    \\begin{bmatrix*}[rr]
-                                    d & -b \\\\
-                                    -c & a \\\\
-                                    \\end{bmatrix*} =
-                                    \\frac{1}{ad - bc}
-                                    \\begin{bmatrix*}[rr]
-                                    d & -b \\\\
-                                        -c & a \\\\
-                                    \\end{bmatrix*}.`,
-                            },
-                            {
-                                id: 'matrix-1-2',
-                                title: 'Cross Product',
-                                latex: `\\mathbf{V}_1 \\times \\mathbf{V}_2 =  \
-                                        \\begin{vmatrix}
-                                            \\mathbf{i} & \\mathbf{j} & \\mathbf{k} \\\\[.25em]
-                                    \\frac{\\partial X}{\\partial u} &  \\frac{\\partial Y}{\\partial u} & 0 \\\\[.5em]
-                                    \\frac{\\partial X}{\\partial v} &  \\frac{\\partial Y}{\\partial v} & 0
-                                    \\end{vmatrix}`,
-                            },
-                            {
-                                id: 'matrix-2',
-                                title: 'Matrix (pmatrix)',
-                                latex: `A_{m,n} =
-                                    \\begin{pmatrix}
-                                        a_{1,1} & a_{1,2} & \\cdots & a_{1,n} \\\\
-                                        a_{2,1} & a_{2,2} & \\cdots & a_{2,n} \\\\
-                                        \\vdots  & \\vdots  & \\ddots & \\vdots  \\\\
-                                        a_{m,1} & a_{m,2} & \\cdots & a_{m,n}
-                                    \\end{pmatrix}`,
-                            },
-                            {
-                                id: 'matrix-3',
-                                title: 'Matrix (bmatrix)',
-                                latex: `\\mathbf{Z} = \\begin{bmatrix} 0 & \\cdots & 0 \\\\ \\vdots & \\ddots & \\vdots \\\\ 0 & \\cdots & 0 \\end{bmatrix}`,
-                            },
-                            {
-                                id: 'matrix-4',
-                                title: 'A rule inside a matrix',
-                                latex: `\\begin{matrix}=\\rule{5em}{3em}\\end{matrix}`,
-                            },
-                            {
-                                id: 'matrix-7',
-                                title: 'Matrix with infix',
-                                comment:
-                                    '<kbd>d</kbd> should be in a separate column, not in the infix command',
-                                latex: `\\begin{matrix} a \\choose b c & d \\end{matrix}`,
-                            },
-                            {
-                                id: 'matrix-8',
-                                title: 'Array with mathstyle',
-                                comment:
-                                    'The content of <kbd>\\array</kbd> is in text mode, so technically <kbd>\\displaystyle</kbd> should be illegal. But TeX does render it, so...',
-                                latex: `\\frac12 \\begin{array}{c} \\textstyle \\frac12 \\end{array}`,
-                            },
-                            {
-                                id: 'cases-1',
-                                title: 'Cases',
-                                latex: `f(n) = \\begin{cases}
-                                        \\frac{n}{2}, &
-                                            \\text{if } n\\text{ is even} \\\\
-                                        3n+1, &
-                                            \\text{if } n\\text{ is odd}
-                                    \\end{cases}`,
-                            },
-                            {
-                                id: 'matrix-9',
-                                title: 'Array with column format',
-                                latex: `\\begin{array}{lr}\\text{left-aligned}&b\\\\c&\\text{right-aligned} \\end{array}`,
-                            },
-                            {
-                                id: 'matrix-10',
-                                title: 'Matrix* with column format',
-                                latex: `\\begin{matrix*}[lr]ABCDEF&b\\\\c&2348448 \\end{matrix*}`,
-                            },
-                            {
-                                id: 'matrix-11',
-                                title: 'Array with lines',
-                                pic: 'array-with-lines.gif',
-                                latex: `\\begin{array}{c|c}
-                                        1 & 2 \\\\
-                                        \\hline
-                                        3 & 4
-                                    \\end{array}`,
-                            },
-                            {
-                                id: 'matrix-12',
-                                title: 'Array with Columns Overflow',
-                                latex: `\\begin{array}{lr}a&b&C&D&E&F\\\\1&2 \\end{array}`,
-                            },
-                            {
-                                id: 'matrix-13',
-                                title: 'Cases with Column Overflow',
-                                latex: `\\begin{cases}
-                                        aaaaa&bbbbb&cccc&dddd&eeee&ffff&ggggg&hhhhh&iiiii\\\\
-                                        a&b&c&d&e&f&g&h&i
-                                    \\end{cases}`,
-                            },
-
-                            {
-                                id: 'matrix-14',
-                                title: 'Array with Empty Column Format',
-                                latex: `\\begin{array}{}A&BBBBB\\\\C&D\\end{array}`,
-                            },
-                            {
-                                id: 'matrix-15',
-                                title: 'A matrix Inside a Fraction',
-                                latex: `\\frac{\\begin{matrix}a\\\\b\\end{matrix}}{1}`,
-                            },
-                            {
-                                id: 'matrix-6',
-                                title: 'Matrix with gap between lines',
-                                latex: `\\begin{aligned}a & b \\\\[2em]c & d\\end{aligned}`,
-                            },
-                            {
-                                id: 'matrix-101',
-                                title: 'Array Spacing',
-                                latex: `\\left|
-                                                                \\begin{array}{|cc|}
-                                                                    \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
-                                                                    \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
-                                                                \\end{array}
-                                                            \\right|`,
-                            },
-                            {
-                                id: 'matrix-102',
-                                title: 'Multiline Spacing',
-                                latex: `\\left|
-                                        \\begin{multline}
-                                            \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
-                                            \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
-                                        \\end{multline}
-                                    \\right|`,
-                            },
-                            {
-                                id: 'matrix-103',
-                                title: 'Aligned Spacing',
-                                latex: `\\left|
-                                        \\begin{aligned}
-                                            \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
-                                            \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
-                                        \\end{aligned}
-                                    \\right|`,
-                            },
-                            {
-                                id: 'matrix-104',
-                                title: 'Gathered Spacing',
-                                latex: `\\left|
-                                        \\begin{gathered}
-                                            \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
-                                            \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
-                                        \\end{gathered}
-                                    \\right|`,
-                            },
-                            {
-                                id: 'matrix-105',
-                                title: 'Matrix Spacing',
-                                latex: `\\left|
-                                        \\begin{matrix}
-                                            \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
-                                            \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
+                                            \\beta_{i+1}\\in p(S)(\\beta_i)
+                                                \\wedge
+                                            \\pi(\\beta_i))\\\\
+                                            \\Updownarrow\\\\
+                                                \\alpha\\in\\frac{}{p(S)|_\\pi}
                                         \\end{matrix}
-                                    \\right|`,
-                            },
-                            {
-                                id: 'matrix-106',
-                                title: 'Matrix* Spacing',
-                                latex: `\\left|
-                                        \\begin{matrix*}
-                                            \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
-                                            \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
-                                        \\end{matrix*}
-                                    \\right|`,
-                            },
-                            {
-                                id: 'matrix-107',
-                                title: 'Cases Spacing',
-                                latex: `\\left|
-                                        \\begin{cases}
-                                            \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
-                                            \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
-                                        \\end{cases}
-                                    \\right|`,
-                            },
+                                        `,
+                                },
+                                {
+                                    id: 'matrix-18',
+                                    title: 'Gathered environment',
+                                    comment: 'The cells of the matrix should be in textstyle.',
+                                    latex: `\\begin{gathered}
+                                            \\text{gathered}   \\\\
+                                            \\frac12 x^2+y^2=z^2 \\\\
+                                                x < y
+                                        \\end{gathered}
+                                                \\ne
+                                        \\begin{array}{c}
+                                            \\text{array\\{c\\}} \\\\
+                                            \\frac12 x^2+y^2=z^2 \\\\
+                                                x < y
+                                        \\end{array}`,
+                                },
+                                {
+                                    id: 'matrix-19',
+                                    title: 'cases environment',
+                                    pic: 'matrix-19.png',
+                                    latex: `\\begin{cases}
+                                            \\frac{x-y}{4}=\\frac{4-y}{8}\\\\
+                                            -\\frac{y+3}{8}=\\frac{1-2x}{8}
+                                        \\end{cases}`,
+                                },
+                                {
+                                    id: 'matrix-20',
+                                    title: 'Matrix with Fractions',
+                                    comment: 'The cells of the matrix should be in textstyle.',
+                                    latex: `\\begin{pmatrix}
+                                            \\frac12&   0   &\\frac34\\\\[.5em]
+                                            0&  \\frac12&   \\frac43
+                                        \\end{pmatrix}`,
+                                },
+                                {
+                                    id: 'keyboard-3',
+                                    title: 'Keyboard Input: parens',
+                                    latex: `a = (b+c) \\times \\lbrack d+e+f \\} + (a + (b - c \\star d) ) = 0`,
+                                },
+                                {
+                                    id: 'keyboard-1',
+                                    title: 'Keyboard Input: Placeholders',
+                                    latex: `\\alpha^2+1+\\frac{#?}{#?}+\\sqrt{#?}-x^2_{a+1}=0`,
+                                },
+                                {
+                                    id: 'keyboard-2',
+                                    title: 'Keyboard Input: Sub-expressions',
+                                    latex: `1+ {(n+\\frac{123}{456})+\\sqrt{2n+1+(a*2)}}  - x^2_{a+1}=0`,
+                                },
+                                {
+                                    id: 'matrix-16',
+                                    title: 'Aligned Numbers (custom column separator) *',
+                                    latex: `\\begin{array}{r@{.}l}
+                                            3   & 14159 \\\\
+                                            16  & 2     \\\\
+                                            123 & 456   \\\\
+                                        \\end{array}`,
+                                },
+                                {
+                                    id: 'modulo-1',
+                                    title: 'Modulo *',
+                                    latex: `\\begin{aligned}
+                                        \\exists p \\in \\mathbb{P}; x,y \\in \\mathbb{N} \\mid p = x^2 + y^2 \\iff p-1\\pmod{4}=0\\\\
+                                        \\exists p \\in \\mathbb{P}; x,y \\in \\mathbb{N} \\mid p = x^2 + y^2 \\iff (p-1)\\mod 4 =0\\\\
+                                        \\exists p \\in \\mathbb{P}; x,y \\in \\mathbb{N} \\mid p = x^2 + y^2 \\iff (p-1)\\bmod 4 =0
+                                        \\end{aligned}`,
+                                },
+                                {
+                                    id: 'vphantom-1',
+                                    title: '\\vphantom *',
+                                    latex: `\\begin{align*}
+                                            f & = g\\left( 3^{3^{3}} + \\text{\\textrm{\\ldots}}\\right.\\\\
+                                            & \\qquad \\left.+ 3\\vphantom{3^{3^{3}}} \\right)\\,.
+                                        \\end{align*}`,
+                                },
+                                {
+                                    id: 'accent-3',
+                                    title: 'Stacked Accents with Superscript *',
+                                    pic: 'stacked-accents.gif',
+                                    latex: `\\vec{\\breve{\\hat{\\acute{Y}}}}^2 =
+                                        \\vec{\\breve{\\hat{\\acute{XXX}}}}^2 =
+                                        \\vec{\\breve{\\hat{\\acute{\\sqrt{XXX}}}}}^2 =
+                                        \\vec{\\breve{\\hat{\\acute{\\frac{1}{2}}}}}^2 =
+                                        \\xi^A \\, =
+                                        \\hat{\\bar{\\acute{\\breve{\\vec{\\xi\\alpha XXX}}}}}{}^{A'} =
+                                        \\left(\\cfrac{\\frac12}{\\frac34}\\right)^2`,
+                                },
 
-                            {
-                                id: 'matrix-108',
-                                title: 'Matrix: Column Separator in Embedded Array',
-                                latex: `-\\begin{align}
-                                        - &= -\\begin{array}{|r} \\displaystyle \\frac12 \\end{array}
-                                    \\end{align}`,
-                            },
+                                {
+                                    id: 'modes-1',
+                                    title:
+                                        'Math mode shift and set: $, $$, \\(...\\) and \\[...\\]',
+                                    latex: `\\begin{array}{l}\\text{The equation $x = \\frac12$ is very simple.}\\\\
+                                            \\text{With more room: $$x = \\sqrt{\\frac12}$$  to breathe}\\\\
+                                            \\text{The equation \\(x = \\frac12\\) is very simple.}\\\\
+                                            \\text{With more room: \\[x = \\sqrt{\\frac12}\\] to breathe.}
+                                        \\end{array}
+                                                                `,
+                                },
+                                {
+                                    id: 'modes-2',
+                                    title: 'Nested mode shifts and set: $ and $$',
+                                    comment:
+                                        'In TeX the $$ inside text is an error, only $ is allowed (and not byall TeX implementation)',
+                                    latex: `\\text{A $\\frac12$$\\frac34$$ \\frac56$}`,
+                                },
+                                {
+                                    id: 'sqrt-1',
+                                    title: 'Cube root',
+                                    latex: 'g(x)=\\sqrt[3]{29}',
+                                },
+                                {
+                                    id: 'sqrt-2',
+                                    title: 'Cube root with \\Huge index',
+                                    comment: '\\Huge does not apply to math mode',
+                                    latex: 'g(x)=\\sqrt[\\Huge 3]{29}',
+                                },
 
-                            {
-                                id: 'matrix-109',
-                                title: 'Align: Baseline Alignment',
-                                comment: 'The - should be aligned',
-                                latex: `-\\begin{align}-\\end{align}`,
-                            },
+                                {
+                                    id: 'fraction-1',
+                                    title: 'Combined fraction',
+                                    latex: `\\left[\\dfrac{2}{\\dfrac84}\\right]`,
+                                },
 
-                            {
-                                id: 'matrix-110',
-                                title: 'Multline',
-                                comment: 'First line is left aligned, last is right aligned, other centered. Single column.',
-                                latex: `\\begin{multline}a + b  + c \\\\ d + e + f & q + p \\\\ x + y + z\\end{multline}`,
-                            },
+                                {
+                                    id: 'boxed-1',
+                                    pic: 'tall-boxed.gif',
+                                    title: '\\boxed tall element next to mbin',
+                                    latex: `\\boxed{\\frac{\\frac12}{x^{3^x}}}+a=\\left[\\frac{\\frac12}{x^{3^x}}\\right]`,
+                                },
+                                {
+                                    id: 'enclose-1',
+                                    title: 'Strikes',
+                                    latex:
+                                        '3+\\enclose{updiagonalstrike downdiagonalstrike}[6px solid rgba(205, 0, 11, .4)]{18}+5',
+                                },
+                                {
+                                    id: 'enclose-2',
+                                    title: 'Canceling out',
+                                    latex: `\\begin{aligned}
+                    2x-5 &= 7 \\\\
+                    2x\\enclose{updiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{-5}\\textcolor{green}{\\enclose{updiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{+5}} &= 7\\textcolor{green}{+5}\\\\
+                    \\frac{\\enclose{updiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{2}x}{\\textcolor{green}{\\enclose{updiagonalstrike}[4px solid rgba(205, 0, 11, .4)]{2}}} &= \\frac{12}{\\textcolor{green}{2}}\\\\
+                    x &= 6
+                \\end{aligned}
+                `,
+                                },
+                                {
+                                    id: 'underover-1',
+                                    title: 'Overset',
+                                    latex: `f(x) \\overset{\\text{def}}{=} x \\ln(1+x)`,
+                                },
+                                {
+                                    id: 'underover-2',
+                                    title: 'Underset',
+                                    latex: `f(x) \\underset{x \\to 0}{=} x^2 + o(x^2)`,
+                                },
+                                {
+                                    id: 'underover-3',
+                                    title: 'Underset/Overset',
+                                    pic: 'under-over.gif',
+                                    comment:
+                                        '\\def\\stackrel#1#2{\\mathrel{\\mathop{#2}\\limits^{#1}}}',
+                                    latex: `\\begin{aligned}
+                                            A \\underset{\\text{below}}{\\overset{\\text{above}}{+}} C\\
+                                            A \\mathop{+}_{\\text{below}}^{\\text{above}} C
+                                        \\end{aligned}`,
+                                },
+                                {
+                                    id: 'genfrac-1',
+                                    pic: 'genfrac-1.gif',
+                                    title: 'genfrac in a \\scriptstyle',
+                                    latex: `x^{\\binom{n}{k}}`,
+                                },
+                                {
+                                    id: 'stackrel-1',
+                                    title: 'Stackrel',
+                                    latex: `x\\stackrel{a}{=}x`,
+                                },
+                                {
+                                    id: 'atop-1',
+                                    title: '\\atopwithdelims *',
+                                    latex: `{n \\atopwithdelims ()0}`,
+                                },
+                                {
+                                    id: 'accent-1',
+                                    title: 'Acents',
+                                    pic: 'accents-1.gif',
+                                    latex: `\\vec{x}=\\vec{x+1}=\\acute{a}\\dot\\alpha\\tilde{\\mathcal{N}}\\hat{\\gamma}\\check{0}`,
+                                },
+                                {
+                                    id: 'accent-2',
+                                    title: 'Acents (doubled)',
+                                    latex: `\\xi^A \\, \\hat{\\bar{\\xi}}{}^{A'}`,
+                                },
 
-                            {
-                                id: 'text-1',
-                                title: 'Pi (\\text)',
-                                latex: `\\pi={\\text{circumference} \\over \\text{radius}^2}`,
-                            },
-                            {
-                                id: 'left-right-1',
-                                title: 'Quadratic Roots (\\left...\\right) *',
-                                comment:
-                                    'The bar of the square root is off by one pixel. LineHeight and FontSize are off compared to KaTex',
-                                latex: `ax^2+bx+c = a \\left( x - \\frac{-b + \\sqrt {b^2-4ac}}{2a} \\right) \\left( x - \\frac{-b - \\sqrt {b^2-4ac}}{2a} \\right)`,
-                            },
+                                {
+                                    id: 'matrix-1',
+                                    title: 'Rotation Matrix',
+                                    latex: `\\begin{bmatrix} x' \\\\ y' \\end{bmatrix}
+                                        =
+                                            \\begin{bmatrix} \\cos \\theta &  -\\sin\\theta \\\\ \\sin \\theta & \\cos \\theta \\end{bmatrix} \\begin{bmatrix} x \\\\ y \\end{bmatrix}`,
+                                },
+                                {
+                                    id: 'matrix-1-1',
+                                    title: 'Matrix Inversion',
+                                    comment:
+                                        'The extra line (\\\\) at the bottom of the matrices should be ignored.',
+                                    latex: `\\mathbf{A}^{-1} =
+                                        \\begin{bmatrix}
+                                            a & b \\\\
+                                            c & d \\\\
+                                        \\end{bmatrix}^{-1} =
+                                        \\frac{1}{\\det \\mathbf{A}}
+                                        \\begin{bmatrix*}[rr]
+                                        d & -b \\\\
+                                        -c & a \\\\
+                                        \\end{bmatrix*} =
+                                        \\frac{1}{ad - bc}
+                                        \\begin{bmatrix*}[rr]
+                                        d & -b \\\\
+                                            -c & a \\\\
+                                        \\end{bmatrix*}.`,
+                                },
+                                {
+                                    id: 'matrix-1-2',
+                                    title: 'Cross Product',
+                                    latex: `\\mathbf{V}_1 \\times \\mathbf{V}_2 =  \
+                                            \\begin{vmatrix}
+                                                \\mathbf{i} & \\mathbf{j} & \\mathbf{k} \\\\[.25em]
+                                        \\frac{\\partial X}{\\partial u} &  \\frac{\\partial Y}{\\partial u} & 0 \\\\[.5em]
+                                        \\frac{\\partial X}{\\partial v} &  \\frac{\\partial Y}{\\partial v} & 0
+                                        \\end{vmatrix}`,
+                                },
+                                {
+                                    id: 'matrix-2',
+                                    title: 'Matrix (pmatrix)',
+                                    latex: `A_{m,n} =
+                                        \\begin{pmatrix}
+                                            a_{1,1} & a_{1,2} & \\cdots & a_{1,n} \\\\
+                                            a_{2,1} & a_{2,2} & \\cdots & a_{2,n} \\\\
+                                            \\vdots  & \\vdots  & \\ddots & \\vdots  \\\\
+                                            a_{m,1} & a_{m,2} & \\cdots & a_{m,n}
+                                        \\end{pmatrix}`,
+                                },
+                                {
+                                    id: 'matrix-3',
+                                    title: 'Matrix (bmatrix)',
+                                    latex: `\\mathbf{Z} = \\begin{bmatrix} 0 & \\cdots & 0 \\\\ \\vdots & \\ddots & \\vdots \\\\ 0 & \\cdots & 0 \\end{bmatrix}`,
+                                },
+                                {
+                                    id: 'matrix-4',
+                                    title: 'A rule inside a matrix',
+                                    latex: `\\begin{matrix}=\\rule{5em}{3em}\\end{matrix}`,
+                                },
+                                {
+                                    id: 'matrix-7',
+                                    title: 'Matrix with infix',
+                                    comment:
+                                        '<kbd>d</kbd> should be in a separate column, not in the infix command',
+                                    latex: `\\begin{matrix} a \\choose b c & d \\end{matrix}`,
+                                },
+                                {
+                                    id: 'matrix-8',
+                                    title: 'Array with mathstyle',
+                                    comment:
+                                        'The content of <kbd>\\array</kbd> is in text mode, so technically <kbd>\\displaystyle</kbd> should be illegal. But TeX does render it, so...',
+                                    latex: `\\frac12 \\begin{array}{c} \\textstyle \\frac12 \\end{array}`,
+                                },
+                                {
+                                    id: 'cases-1',
+                                    title: 'Cases',
+                                    latex: `f(n) = \\begin{cases}
+                                            \\frac{n}{2}, &
+                                                \\text{if } n\\text{ is even} \\\\
+                                            3n+1, &
+                                                \\text{if } n\\text{ is odd}
+                                        \\end{cases}`,
+                                },
+                                {
+                                    id: 'matrix-9',
+                                    title: 'Array with column format',
+                                    latex: `\\begin{array}{lr}\\text{left-aligned}&b\\\\c&\\text{right-aligned} \\end{array}`,
+                                },
+                                {
+                                    id: 'matrix-10',
+                                    title: 'Matrix* with column format',
+                                    latex: `\\begin{matrix*}[lr]ABCDEF&b\\\\c&2348448 \\end{matrix*}`,
+                                },
+                                {
+                                    id: 'matrix-11',
+                                    title: 'Array with lines',
+                                    pic: 'array-with-lines.gif',
+                                    latex: `\\begin{array}{c|c}
+                                            1 & 2 \\\\
+                                            \\hline
+                                            3 & 4
+                                        \\end{array}`,
+                                },
+                                {
+                                    id: 'matrix-12',
+                                    title: 'Array with Columns Overflow',
+                                    latex: `\\begin{array}{lr}a&b&C&D&E&F\\\\1&2 \\end{array}`,
+                                },
+                                {
+                                    id: 'matrix-13',
+                                    title: 'Cases with Column Overflow',
+                                    latex: `\\begin{cases}
+                                            aaaaa&bbbbb&cccc&dddd&eeee&ffff&ggggg&hhhhh&iiiii\\\\
+                                            a&b&c&d&e&f&g&h&i
+                                        \\end{cases}`,
+                                },
 
-                            {
-                                id: 'left-right-2',
-                                pic: 'left-right-2.gif',
-                                title: 'Evaluation at limits (\\left...\\right)',
-                                latex: `\\left.\\frac{x^3}{3}\\right|_0^1`,
-                            },
-                            {
-                                id: 'left-right-3',
-                                title: '\\left...\\right',
-                                latex: `\\left( \\sum_{k=1}^n a_k b_k \\right)^{\\!\\!2} \\leq
-                                                             \\left( \\sum_{k=1}^n a_k^2 \\right) \\left( \\sum_{k=1}^n b_k^2 \\right)`,
-                            },
-                            {
-                                id: 'left-right-4',
-                                title: '\\left...\\middle...\\right',
-                                latex: `\\left\\lbrace a \\middle\\mid \\frac12 \\right \\rbrace`,
-                            },
-                            {
-                                id: 'left-right-5',
-                                title: '\\left......\\right with superscript',
-                                latex: `\\left(x\\right)^2`,
-                            },
-                            {
-                                id: 'leftright-6',
-                                title: 'Nested \\left \\right',
-                                latex: `\\left[\\left(\\frac{1}{x}\\right) + \\dfrac{2}{\\dfrac84}\\right]`,
-                            },
-                            {
-                                id: 'leftright-7',
-                                title: 'Unbalanced \\left \\right',
-                                latex: `a\\right) b \\left(c`,
-                            },
-                            {
-                                id: 'fences-1',
-                                title: 'Big delimiters',
-                                latex: `\\begin{aligned}
-                                        \\bigl\\langle a \\bigm\\| b \\bigr\\rangle \\big|\\\\
-                                        \\Bigl\\langle a \\Bigm\\| b \\Bigr\\rangle \\Big|\\\\
-                                        \\biggl\\langle a \\biggm\\| b \\biggr\\rangle \\bigg|\\\\
-                                        \\Biggl\\langle a \\Biggm\\| b \\Biggr\\rangle \\Bigg|\\\\
-                                    \\end{aligned}`,
-                            },
+                                {
+                                    id: 'matrix-14',
+                                    title: 'Array with Empty Column Format',
+                                    latex: `\\begin{array}{}A&BBBBB\\\\C&D\\end{array}`,
+                                },
+                                {
+                                    id: 'matrix-15',
+                                    title: 'A matrix Inside a Fraction',
+                                    latex: `\\frac{\\begin{matrix}a\\\\b\\end{matrix}}{1}`,
+                                },
+                                {
+                                    id: 'matrix-6',
+                                    title: 'Matrix with gap between lines',
+                                    latex: `\\begin{aligned}a & b \\\\[2em]c & d\\end{aligned}`,
+                                },
+                                {
+                                    id: 'matrix-101',
+                                    title: 'Array Spacing',
+                                    latex: `\\left|
+                                                                    \\begin{array}{|cc|}
+                                                                        \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
+                                                                        \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
+                                                                    \\end{array}
+                                                                \\right|`,
+                                },
+                                {
+                                    id: 'matrix-102',
+                                    title: 'Multiline Spacing',
+                                    latex: `\\left|
+                                            \\begin{multline}
+                                                \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
+                                                \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
+                                            \\end{multline}
+                                        \\right|`,
+                                },
+                                {
+                                    id: 'matrix-103',
+                                    title: 'Aligned Spacing',
+                                    latex: `\\left|
+                                            \\begin{aligned}
+                                                \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
+                                                \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
+                                            \\end{aligned}
+                                        \\right|`,
+                                },
+                                {
+                                    id: 'matrix-104',
+                                    title: 'Gathered Spacing',
+                                    latex: `\\left|
+                                            \\begin{gathered}
+                                                \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
+                                                \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
+                                            \\end{gathered}
+                                        \\right|`,
+                                },
+                                {
+                                    id: 'matrix-105',
+                                    title: 'Matrix Spacing',
+                                    latex: `\\left|
+                                            \\begin{matrix}
+                                                \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
+                                                \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
+                                            \\end{matrix}
+                                        \\right|`,
+                                },
+                                {
+                                    id: 'matrix-106',
+                                    title: 'Matrix* Spacing',
+                                    latex: `\\left|
+                                            \\begin{matrix*}
+                                                \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
+                                                \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
+                                            \\end{matrix*}
+                                        \\right|`,
+                                },
+                                {
+                                    id: 'matrix-107',
+                                    title: 'Cases Spacing',
+                                    latex: `\\left|
+                                            \\begin{cases}
+                                                \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
+                                                \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
+                                            \\end{cases}
+                                        \\right|`,
+                                },
 
-                            {
-                                id: 'binom-1',
-                                title: 'Combination (binomial)',
-                                latex: `\\binom{n}{k}= {n \\choose k} = {^n}C_k = \\frac{n!}{k!(n-k)!}`,
-                            },
+                                {
+                                    id: 'matrix-108',
+                                    title: 'Matrix: Column Separator in Embedded Array',
+                                    latex: `-\\begin{align}
+                                            - &= -\\begin{array}{|r} \\displaystyle \\frac12 \\end{array}
+                                        \\end{align}`,
+                                },
 
-                            {
-                                id: 'overunderbrace-1',
-                                pic: 'overunderbrace-1.gif',
-                                title: 'Over/under Brace *',
-                                latex: `z = \\overbrace{
-                                        \\underbrace{x}_\\text{real} + i
-                                        \\underbrace{y}_\\text{imaginary}
-                                    }^\\text{complex number}`,
-                            },
-                            {
-                                id: 'stacking-1',
-                                title: 'Stacking *',
-                                latex: `\\ell(x,y) = e\\bigl(\\arg(x+\\mathrm {i}y)\\bigr) \\quad\\stackrel{ \\mathcal{P}}{ \\hbox to 40pt{\\rightarrowfill}} \\quad \\overset {\\mbox {\\raisebox {-3pt}[0pt][0pt]{\\scriptsize $\\frown $}}}{\\ell }(r,\\varphi)=e(\\varphi)`,
-                            },
-                            {
-                                id: 'styling-1',
-                                pic: 'styling-1.gif',
-                                title:
-                                    'Math Styles: \\textstyle, \\displaystyle, \\scriptstyle, \\scriptscriptstyle',
-                                latex: `\\binom12 \\textstyle \\binom34 \\scriptstyle \\binom56 \\displaystyle \\binom78 \\scriptstyle \\binom90`,
-                            },
+                                {
+                                    id: 'matrix-109',
+                                    title: 'Align: Baseline Alignment',
+                                    comment: 'The - should be aligned',
+                                    latex: `-\\begin{align}-\\end{align}`,
+                                },
 
-                            {
-                                id: 'mathstyle-1',
-                                title: '&dollar; inside \\text',
-                                comment: '<kbd>x</kbd> is in italic',
-                                latex: `\\text{hello world $x$}`,
-                            },
-                            {
-                                id: 'mathstyle-2',
-                                title: '&dollar;&dollar; inside \\text',
-                                comment:
-                                    '<kbd>x</kbd> is upright (can’t switch to displaystyle from text mode)',
-                                latex: `\\text{Hello world $$x$$}`,
-                            },
-                            {
-                                id: 'mathstyle-3',
-                                title: '&dollar; inside \\text inside \\&#91;...\\&#93;',
-                                comment:
-                                    '<kbd>For</kbd> is upright, <kbd>x</kbd> is italics (math variable)',
-                                latex: '\\[ \\text{For $|x|<1$}. \\]',
-                            },
-                            {
-                                id: 'mathstyle-4',
-                                title:
-                                    '&dollar;&dollar;...&dollar;&dollar; inside &dollar;...&dollar;',
-                                comment:
-                                    'Only <kbd>\\prod</kbd> is in <kbd>displaystyle</kbd>',
-                                latex: `\\prod_0^n  $\\sum_0^n $$ \\sum_0^n $$ $`,
-                            },
+                                {
+                                    id: 'matrix-110',
+                                    title: 'Multline',
+                                    comment: 'First line is left aligned, last is right aligned, other centered. Single column.',
+                                    latex: `\\begin{multline}a + b  + c \\\\ d + e + f & q + p \\\\ x + y + z\\end{multline}`,
+                                },
 
-                            {
-                                id: 'sizing-1',
-                                title: 'Sizing',
-                                pic: 'sizing-1.gif',
-                                comment:
-                                    '\\Huge, \\large, etc... only affect size of text mode content',
-                                latex: `\\binom12  \\binom34  \\huge \\binom56 x \\text{huge}`,
-                            },
+                                {
+                                    id: 'text-1',
+                                    title: 'Pi (\\text)',
+                                    latex: `\\pi={\\text{circumference} \\over \\text{radius}^2}`,
+                                },
+                                {
+                                    id: 'left-right-1',
+                                    title: 'Quadratic Roots (\\left...\\right) *',
+                                    comment:
+                                        'The bar of the square root is off by one pixel. LineHeight and FontSize are off compared to KaTex',
+                                    latex: `ax^2+bx+c = a \\left( x - \\frac{-b + \\sqrt {b^2-4ac}}{2a} \\right) \\left( x - \\frac{-b - \\sqrt {b^2-4ac}}{2a} \\right)`,
+                                },
 
-                            {
-                                id: 'color-2',
-                                title: 'White *',
-                                latex: '{\\color{white}\\blacksquare}',
-                            },
-                            {
-                                id: 'color-1',
-                                title: 'All the colors',
-                                latex: `\\begin{array}{c}
-                {\\color{apricot}\\blacksquare}{\\color{aquamarine}\\blacksquare}
-                {\\color{bittersweet}\\blacksquare}{\\color{black}\\blacksquare}
-                {\\color{blue}\\blacksquare}{\\color{blueGreen}\\blacksquare}
-                {\\color{blueviolet}\\blacksquare}{\\color{brickred}\\blacksquare}\\\\
+                                {
+                                    id: 'left-right-2',
+                                    pic: 'left-right-2.gif',
+                                    title: 'Evaluation at limits (\\left...\\right)',
+                                    latex: `\\left.\\frac{x^3}{3}\\right|_0^1`,
+                                },
+                                {
+                                    id: 'left-right-3',
+                                    title: '\\left...\\right',
+                                    latex: `\\left( \\sum_{k=1}^n a_k b_k \\right)^{\\!\\!2} \\leq
+                                                                 \\left( \\sum_{k=1}^n a_k^2 \\right) \\left( \\sum_{k=1}^n b_k^2 \\right)`,
+                                },
+                                {
+                                    id: 'left-right-4',
+                                    title: '\\left...\\middle...\\right',
+                                    latex: `\\left\\lbrace a \\middle\\mid \\frac12 \\right \\rbrace`,
+                                },
+                                {
+                                    id: 'left-right-5',
+                                    title: '\\left......\\right with superscript',
+                                    latex: `\\left(x\\right)^2`,
+                                },
+                                {
+                                    id: 'leftright-6',
+                                    title: 'Nested \\left \\right',
+                                    latex: `\\left[\\left(\\frac{1}{x}\\right) + \\dfrac{2}{\\dfrac84}\\right]`,
+                                },
+                                {
+                                    id: 'leftright-7',
+                                    title: 'Unbalanced \\left \\right',
+                                    latex: `a\\right) b \\left(c`,
+                                },
+                                {
+                                    id: 'fences-1',
+                                    title: 'Big delimiters',
+                                    latex: `\\begin{aligned}
+                                            \\bigl\\langle a \\bigm\\| b \\bigr\\rangle \\big|\\\\
+                                            \\Bigl\\langle a \\Bigm\\| b \\Bigr\\rangle \\Big|\\\\
+                                            \\biggl\\langle a \\biggm\\| b \\biggr\\rangle \\bigg|\\\\
+                                            \\Biggl\\langle a \\Biggm\\| b \\Biggr\\rangle \\Bigg|\\\\
+                                        \\end{aligned}`,
+                                },
 
-                {\\color{brown}\\blacksquare}{\\color{burntorange}\\blacksquare}
-                {\\color{cadetblue}\\blacksquare}{\\color{carnationpink}\\blacksquare}
-                {\\color{cerulean}\\blacksquare}{\\color{cornflowerblue}\\blacksquare}
-                {\\color{cyan}\\blacksquare}{\\color{dandelion}\\blacksquare}\\\\
+                                {
+                                    id: 'binom-1',
+                                    title: 'Combination (binomial)',
+                                    latex: `\\binom{n}{k}= {n \\choose k} = {^n}C_k = \\frac{n!}{k!(n-k)!}`,
+                                },
+
+                                {
+                                    id: 'overunderbrace-1',
+                                    pic: 'overunderbrace-1.gif',
+                                    title: 'Over/under Brace *',
+                                    latex: `z = \\overbrace{
+                                            \\underbrace{x}_\\text{real} + i
+                                            \\underbrace{y}_\\text{imaginary}
+                                        }^\\text{complex number}`,
+                                },
+                                {
+                                    id: 'stacking-1',
+                                    title: 'Stacking *',
+                                    latex: `\\ell(x,y) = e\\bigl(\\arg(x+\\mathrm {i}y)\\bigr) \\quad\\stackrel{ \\mathcal{P}}{ \\hbox to 40pt{\\rightarrowfill}} \\quad \\overset {\\mbox {\\raisebox {-3pt}[0pt][0pt]{\\scriptsize $\\frown $}}}{\\ell }(r,\\varphi)=e(\\varphi)`,
+                                },
+                                {
+                                    id: 'styling-1',
+                                    pic: 'styling-1.gif',
+                                    title:
+                                        'Math Styles: \\textstyle, \\displaystyle, \\scriptstyle, \\scriptscriptstyle',
+                                    latex: `\\binom12 \\textstyle \\binom34 \\scriptstyle \\binom56 \\displaystyle \\binom78 \\scriptstyle \\binom90`,
+                                },
+
+                                {
+                                    id: 'mathstyle-1',
+                                    title: '&dollar; inside \\text',
+                                    comment: '<kbd>x</kbd> is in italic',
+                                    latex: `\\text{hello world $x$}`,
+                                },
+                                {
+                                    id: 'mathstyle-2',
+                                    title: '&dollar;&dollar; inside \\text',
+                                    comment:
+                                        '<kbd>x</kbd> is upright (can’t switch to displaystyle from text mode)',
+                                    latex: `\\text{Hello world $$x$$}`,
+                                },
+                                {
+                                    id: 'mathstyle-3',
+                                    title: '&dollar; inside \\text inside \\&#91;...\\&#93;',
+                                    comment:
+                                        '<kbd>For</kbd> is upright, <kbd>x</kbd> is italics (math variable)',
+                                    latex: '\\[ \\text{For $|x|<1$}. \\]',
+                                },
+                                {
+                                    id: 'mathstyle-4',
+                                    title:
+                                        '&dollar;&dollar;...&dollar;&dollar; inside &dollar;...&dollar;',
+                                    comment:
+                                        'Only <kbd>\\prod</kbd> is in <kbd>displaystyle</kbd>',
+                                    latex: `\\prod_0^n  $\\sum_0^n $$ \\sum_0^n $$ $`,
+                                },
+
+                                {
+                                    id: 'sizing-1',
+                                    title: 'Sizing',
+                                    pic: 'sizing-1.gif',
+                                    comment:
+                                        '\\Huge, \\large, etc... only affect size of text mode content',
+                                    latex: `\\binom12  \\binom34  \\huge \\binom56 x \\text{huge}`,
+                                },
+
+                                {
+                                    id: 'color-2',
+                                    title: 'White *',
+                                    latex: '{\\color{white}\\blacksquare}',
+                                },
+                                {
+                                    id: 'color-1',
+                                    title: 'All the colors',
+                                    latex: `\\begin{array}{c}
+                    {\\color{apricot}\\blacksquare}{\\color{aquamarine}\\blacksquare}
+                    {\\color{bittersweet}\\blacksquare}{\\color{black}\\blacksquare}
+                    {\\color{blue}\\blacksquare}{\\color{blueGreen}\\blacksquare}
+                    {\\color{blueviolet}\\blacksquare}{\\color{brickred}\\blacksquare}\\\\
+
+                    {\\color{brown}\\blacksquare}{\\color{burntorange}\\blacksquare}
+                    {\\color{cadetblue}\\blacksquare}{\\color{carnationpink}\\blacksquare}
+                    {\\color{cerulean}\\blacksquare}{\\color{cornflowerblue}\\blacksquare}
+                    {\\color{cyan}\\blacksquare}{\\color{dandelion}\\blacksquare}\\\\
 
 
-                {\\color{darkorchid}\\blacksquare}{\\color{emerald}\\blacksquare}
-                {\\color{forestgreen}\\blacksquare}{\\color{fuchsia}\\blacksquare}
-                {\\color{goldenrod}\\blacksquare}{\\color{gray}\\blacksquare}
-                {\\color{green}\\blacksquare}{\\color{greenyellow}\\blacksquare}\\\\
+                    {\\color{darkorchid}\\blacksquare}{\\color{emerald}\\blacksquare}
+                    {\\color{forestgreen}\\blacksquare}{\\color{fuchsia}\\blacksquare}
+                    {\\color{goldenrod}\\blacksquare}{\\color{gray}\\blacksquare}
+                    {\\color{green}\\blacksquare}{\\color{greenyellow}\\blacksquare}\\\\
 
-                {\\color{junglegreen}\\blacksquare}{\\color{lavender}\\blacksquare}
-                {\\color{limegreen}\\blacksquare}{\\color{magenta}\\blacksquare}
-                {\\color{mahogany}\\blacksquare}{\\color{maroon}\\blacksquare}
-                {\\color{melon}\\blacksquare}{\\color{midnightblue}\\blacksquare}\\\\
+                    {\\color{junglegreen}\\blacksquare}{\\color{lavender}\\blacksquare}
+                    {\\color{limegreen}\\blacksquare}{\\color{magenta}\\blacksquare}
+                    {\\color{mahogany}\\blacksquare}{\\color{maroon}\\blacksquare}
+                    {\\color{melon}\\blacksquare}{\\color{midnightblue}\\blacksquare}\\\\
 
-                {\\color{mulberry}\\blacksquare}{\\color{navyblue}\\blacksquare}
-                {\\color{olivegreen}\\blacksquare}{\\color{orange}\\blacksquare}
-                {\\color{orangered}\\blacksquare}{\\color{orchid}\\blacksquare}
-                {\\color{peach}\\blacksquare}{\\color{periwinkle}\\blacksquare}\\\\
+                    {\\color{mulberry}\\blacksquare}{\\color{navyblue}\\blacksquare}
+                    {\\color{olivegreen}\\blacksquare}{\\color{orange}\\blacksquare}
+                    {\\color{orangered}\\blacksquare}{\\color{orchid}\\blacksquare}
+                    {\\color{peach}\\blacksquare}{\\color{periwinkle}\\blacksquare}\\\\
 
-                {\\color{pinegreen}\\blacksquare}{\\color{plum}\\blacksquare}
-                {\\color{processblue}\\blacksquare}{\\color{purple}\\blacksquare}
-                {\\color{rawsienna}\\blacksquare}{\\color{red}\\blacksquare}
-                {\\color{redorange}\\blacksquare}{\\color{redviolet}\\blacksquare}\\\\
+                    {\\color{pinegreen}\\blacksquare}{\\color{plum}\\blacksquare}
+                    {\\color{processblue}\\blacksquare}{\\color{purple}\\blacksquare}
+                    {\\color{rawsienna}\\blacksquare}{\\color{red}\\blacksquare}
+                    {\\color{redorange}\\blacksquare}{\\color{redviolet}\\blacksquare}\\\\
 
-                {\\color{rhodamine}\\blacksquare}{\\color{royalblue}\\blacksquare}
-                {\\color{royalpurple}\\blacksquare}{\\color{rubinered}\\blacksquare}
-                {\\color{salmon}\\blacksquare}{\\color{seagreen}\\blacksquare}
-                {\\color{sepia}\\blacksquare}{\\color{skyblue}\\blacksquare}\\\\
+                    {\\color{rhodamine}\\blacksquare}{\\color{royalblue}\\blacksquare}
+                    {\\color{royalpurple}\\blacksquare}{\\color{rubinered}\\blacksquare}
+                    {\\color{salmon}\\blacksquare}{\\color{seagreen}\\blacksquare}
+                    {\\color{sepia}\\blacksquare}{\\color{skyblue}\\blacksquare}\\\\
 
-                {\\color{springgreen}\\blacksquare}{\\color{tan}\\blacksquare}
-                {\\color{tealblue}\\blacksquare}{\\color{thistle}\\blacksquare}
-                {\\color{turquoise}\\blacksquare}{\\color{violet}\\blacksquare}
-                {\\color{violetred}\\blacksquare}{\\color{white}\\blacksquare}\\\\
+                    {\\color{springgreen}\\blacksquare}{\\color{tan}\\blacksquare}
+                    {\\color{tealblue}\\blacksquare}{\\color{thistle}\\blacksquare}
+                    {\\color{turquoise}\\blacksquare}{\\color{violet}\\blacksquare}
+                    {\\color{violetred}\\blacksquare}{\\color{white}\\blacksquare}\\\\
 
-                {\\color{wildstrawberry}\\blacksquare}{\\color{yellow}\\blacksquare}
-                {\\color{yellowgreen}\\blacksquare}{\\color{yelloworange}\\blacksquare}
-            \\end{array}`,
-                            },
-                            {
-                                id: 'bbox-1',
-                                title: '\\bbox single argument',
-                                latex: `\\frac1c + \\bbox[border:solid 1px red]{\\sqrt[3]{x}} = \\binom{C}{k}`,
-                            },
-                            {
-                                id: 'bbox-2',
-                                pic: 'bbox-2.png',
-                                title: '\\box multiple arguments',
-                                latex: `\\frac1c + \\bbox[2em,yellow,border:solid 5px red]{\\sqrt[3]{x}} = \\binom{C}{k}`,
-                            },
-                            {
-                                id: 'rule-1',
-                                title: 'A rule with a baseline offset',
-                                latex: '=\\rule[1em]{5em}{3em}=',
-                            },
-                            {
-                                id: 'spacing-1',
-                                title: '\\hspace, positive and negative',
-                                latex: `A\\hspace{2em}B C\\hspace{-1.5em}D`,
-                            },
-                            {
-                                id: 'maston-1',
-                                title: 'MASTON: Numbers',
-                                comment: '',
-                                latex: `1 + 2.34 + \\frac{5}{6} + (-7.8) + 901.2e^{-3} + 4,567,890 + 1\\,234 + 567d8 + 9 \\frac{1}{2} + 3~\\frac{4}{5} + 6~7/8`,
-                            },
-                            {
-                                id: 'maston-2',
-                                title: 'MASTON: Symbols',
-                                comment: '',
-                                latex: `a + \\alpha +  \\mathop{mathop} + \\aleph + \\mathrm{roman} + \\mathbf{bold} + \\pi + e - \\exponentialE + i - \\imaginaryI`,
-                            },
-                            {
-                                id: 'maston-3',
-                                title: 'MASTON: Arithmetic operations',
-                                comment: '',
-                                latex: `-xy + a\\times b - \\frac{a}{b} + x^2 - (x + 1)^{n+1} + \\alpha(q + 3) + f(x)`,
-                            },
-                            {
-                                id: 'maston-4',
-                                title: 'MASTON: Functions',
-                                comment: '',
-                                latex: `\\ln_{10}x + \\ln_{10}(x) + \\ln_{10}(x+1) + \\zeta(x+1) + \\sin x + \\sin^{-1}x`,
-                            },
-                            {
-                                id: 'maston-5',
-                                title: 'MASTON: Postfix operators',
-                                comment: 'Should equal factorial(factorial2(x))',
-                                latex: `x!!! = (x!!)!`,
-                            },
-                            {
-                                id: 'maston-6',
-                                title: 'MASTON: Fences',
-                                comment: '',
-                                latex: `|x - 1| = |(x - 1)| = \\langle x + 1 \\rangle`,
-                            },
-                            {
-                                id: 'maston-6-1',
-                                title: 'MASTON: Norm',
-                                comment: '',
-                                latex: `\\Vert 1+2\\imaginaryI \\Vert ^2`,
-                            },
-                            {
-                                id: 'maston-7',
-                                title: 'MASTON: Operators',
-                                comment: '',
-                                latex: `3x+1=6\\ne 3(x+1)=6`,
-                            },
-                            {
-                                id: 'maston-7',
-                                title: 'MASTON: Sum operators',
-                                comment: 'Sum converges to 0.5',
-                                latex: `\\sum ^{\\infty }_{n=2}2^{-n}`,
-                            },
-                        ];
+                    {\\color{wildstrawberry}\\blacksquare}{\\color{yellow}\\blacksquare}
+                    {\\color{yellowgreen}\\blacksquare}{\\color{yelloworange}\\blacksquare}
+                \\end{array}`,
+                                },
+                                {
+                                    id: 'bbox-1',
+                                    title: '\\bbox single argument',
+                                    latex: `\\frac1c + \\bbox[border:solid 1px red]{\\sqrt[3]{x}} = \\binom{C}{k}`,
+                                },
+                                {
+                                    id: 'bbox-2',
+                                    pic: 'bbox-2.png',
+                                    title: '\\box multiple arguments',
+                                    latex: `\\frac1c + \\bbox[2em,yellow,border:solid 5px red]{\\sqrt[3]{x}} = \\binom{C}{k}`,
+                                },
+                                {
+                                    id: 'rule-1',
+                                    title: 'A rule with a baseline offset',
+                                    latex: '=\\rule[1em]{5em}{3em}=',
+                                },
+                                {
+                                    id: 'spacing-1',
+                                    title: '\\hspace, positive and negative',
+                                    latex: `A\\hspace{2em}B C\\hspace{-1.5em}D`,
+                                },
+                                {
+                                    id: 'maston-1',
+                                    title: 'MASTON: Numbers',
+                                    comment: '',
+                                    latex: `1 + 2.34 + \\frac{5}{6} + (-7.8) + 901.2e^{-3} + 4,567,890 + 1\\,234 + 567d8 + 9 \\frac{1}{2} + 3~\\frac{4}{5} + 6~7/8`,
+                                },
+                                {
+                                    id: 'maston-2',
+                                    title: 'MASTON: Symbols',
+                                    comment: '',
+                                    latex: `a + \\alpha +  \\mathop{mathop} + \\aleph + \\mathrm{roman} + \\mathbf{bold} + \\pi + e - \\exponentialE + i - \\imaginaryI`,
+                                },
+                                {
+                                    id: 'maston-3',
+                                    title: 'MASTON: Arithmetic operations',
+                                    comment: '',
+                                    latex: `-xy + a\\times b - \\frac{a}{b} + x^2 - (x + 1)^{n+1} + \\alpha(q + 3) + f(x)`,
+                                },
+                                {
+                                    id: 'maston-4',
+                                    title: 'MASTON: Functions',
+                                    comment: '',
+                                    latex: `\\ln_{10}x + \\ln_{10}(x) + \\ln_{10}(x+1) + \\zeta(x+1) + \\sin x + \\sin^{-1}x`,
+                                },
+                                {
+                                    id: 'maston-5',
+                                    title: 'MASTON: Postfix operators',
+                                    comment: 'Should equal factorial(factorial2(x))',
+                                    latex: `x!!! = (x!!)!`,
+                                },
+                                {
+                                    id: 'maston-6',
+                                    title: 'MASTON: Fences',
+                                    comment: '',
+                                    latex: `|x - 1| = |(x - 1)| = \\langle x + 1 \\rangle`,
+                                },
+                                {
+                                    id: 'maston-6-1',
+                                    title: 'MASTON: Norm',
+                                    comment: '',
+                                    latex: `\\Vert 1+2\\imaginaryI \\Vert ^2`,
+                                },
+                                {
+                                    id: 'maston-7',
+                                    title: 'MASTON: Operators',
+                                    comment: '',
+                                    latex: `3x+1=6\\ne 3(x+1)=6`,
+                                },
+                                {
+                                    id: 'maston-7',
+                                    title: 'MASTON: Sum operators',
+                                    comment: 'Sum converges to 0.5',
+                                    latex: `\\sum ^{\\infty }_{n=2}2^{-n}`,
+                                },
+                            ];
 
-            const mf = MathLive.makeMathField('mf', {
-                // letterShapeStyle: 'french', // 'french', 'upright', 'tex'
-                smartFence: true,
-                smartMode: true,
-                virtualKeyboardMode: 'manual',
-                onContentDidChange: (mf) => {
-                    const latex = mf.$text('latex-expanded');
+            let mf;
+            if (true) {
+                mf = MathLive.makeMathField('mf', {
+                    // fontsDirectory: '/dist/fonts/',
+                    // letterShapeStyle: 'french', // 'french', 'upright', 'tex'
+                    smartFence: true,
+                    smartMode: true,
+                    virtualKeyboardMode: 'manual',
+                    onContentDidChange: (mf) => {
+                        const latex = mf.$text('latex-expanded');
 
-                    document.getElementById('latex').innerHTML = escapeHtml(
-                        latex
-                    );
-
-                    const mathJSON = MathLive.latexToAST(latex);
-
-                    document.getElementById('mathjson').innerHTML =
-                        escapeHtml(JSON.stringify(mathJSON, null, 2)) +
-                        '<br>' +
-                        escapeHtml(
-                            MathLive.astToLatex(mathJSON, { precision: 100 })
+                        document.getElementById('latex').innerHTML = escapeHtml(
+                            latex
                         );
 
-                    document.getElementById('mathascii').innerHTML = escapeHtml(
-                        mf.$text('ASCIIMath')
-                    );
-                },
-                onError: (err) => {
-                    console.error(err.latex, err.code + (err.arg ?? ''));
-                },
-            });
-            mf.$setConfig({
-                macros: {
-                    ...mf.getConfig('macros'),
-                    myMacro: '\\operatorname{\\text{#1}}',
-                },
-                onUndoStateDidChange: (x) => {
-                    console.log('undo state changed');
-                },
-            });
+                        const mathJSON = MathLive.latexToAST(latex);
 
-            if (false) {
+                        document.getElementById('mathjson').innerHTML =
+                            escapeHtml(JSON.stringify(mathJSON, null, 2)) +
+                            '<br>' +
+                            escapeHtml(
+                                MathLive.astToLatex(mathJSON, {
+                                    precision: 100,
+                                })
+                            );
+
+                        document.getElementById(
+                            'mathascii'
+                        ).innerHTML = escapeHtml(mf.$text('ASCIIMath'));
+                    },
+                    onError: (err) => {
+                        console.error(
+                            err.latex,
+                            err.code + ' ' + err.arg ?? ''
+                        );
+                    },
+                });
+            }
+            if (mf) {
+                mf.$setConfig({
+                    macros: {
+                        ...mf.getConfig('macros'),
+                        myMacro: '\\operatorname{\\text{#1}}',
+                    },
+                    onUndoStateDidChange: (x) => {
+                        console.log('undo state changed');
+                    },
+                });
+            }
+            if (true) {
                 // MathLive.renderMathInDocument({
                 //    onError: (err) => {
                 //        console.error(err.latex, err.code + (err.arg ?? ''));
                 //    },
                 // });
-                const savedMathfieldContent = mf.$text();
                 let error = [];
-                mf.$setConfig({
-                    onError: (err) =>
-                        error.push(
-                            'At "' +
-                                err.after +
-                                '<span style="color:#999">' +
-                                err.before +
-                                '</span>" ' +
-                                err.code +
-                                ' ' +
-                                (err.arg ?? '')
-                        ),
-                });
+                let savedMathfieldContent;
+                if (mf) {
+                    savedMathfieldContent = mf.$text();
+                    mf.$setConfig({
+                        onError: (err) =>
+                            error.push(
+                                'At "' +
+                                    err.after +
+                                    '<span style="color:#999">' +
+                                    err.before +
+                                    '</span>" ' +
+                                    err.code +
+                                    ' ' +
+                                    (err.arg ?? '')
+                            ),
+                    });
+                }
                 document.getElementById(
                     'examples'
                 ).innerHTML = TESTING_SAMPLES.map((x) => {
@@ -1166,30 +1178,34 @@
                         x.latex
                     )}</code><p class='formula'>$$${x.latex}$$</p>`;
                     error = [];
-                    mf.$latex(x.latex);
-                    if (error.length > 0) {
+                    if (mf) {
+                        mf.$latex(x.latex);
+                        if (error.length > 0) {
+                            result +=
+                                '<p><code style="color: red">Parsing Errors:</code>';
+                            result +=
+                                '<p><code style="color: red">' +
+                                error.join('<br>') +
+                                '</code>';
+                        }
                         result +=
-                            '<p><code style="color: red">Parsing Errors:</code>';
-                        result +=
-                            '<p><code style="color: red">' +
-                            error.join('<br>') +
-                            '</code>';
+                            '<p><code style="color: #0066ce">' +
+                            escapeHtml(mf.$text('latex-expanded')) +
+                            '</code></p>';
+                        /* result +=
+                                        '<p><code style="color: #0066ce">' +
+                                        escapeHtml(mf.$text('json-2')) +
+                                        '</code></p>'; */
                     }
-                    result +=
-                        '<p><code style="color: #0066ce">' +
-                        escapeHtml(mf.$text('latex-expanded')) +
-                        '</code></p>';
-                    /* result +=
-                                    '<p><code style="color: #0066ce">' +
-                                    escapeHtml(mf.$text('json-2')) +
-                                    '</code></p>'; */
                     if (x.pic) {
                         result += `<p><img style="transform: translate(-33%,-33%) scale(.33)" src="${x.pic}"></p>`;
                     }
                     return result;
                 }).join('');
                 MathLive.renderMathInElement('examples');
-                mf.$latex(savedMathfieldContent);
+                if (mf) {
+                    mf.$latex(savedMathfieldContent);
+                }
             }
             function escapeHtml(string) {
                 return String(string).replace(/[&<>"'`=/\u200b]/g, function (

@@ -1,54 +1,53 @@
-<!DOCTYPE html><html lang="en-US">
-<head>
-    <meta charset="utf-8">
-    <title>MathLive Basic Example</title>
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8" />
+        <title>MathLive Basic Example</title>
+        <style>
+            body {
+                font-family: sans-serif;
+                color: #444;
+                background-color: #f9f9f9;
+            }
+            main {
+                max-width: 820px;
+                margin: auto;
+            }
+            .mathfield {
+                border: 1px solid #ddd;
+                padding: 5px;
+                margin: 10px 0 10px 0;
+                border-radius: 5px;
+                background-color: #fff;
+            }
+            #output {
+                padding: 5px;
+                margin: 200px 0 10px 0;
+                border-radius: 5px;
+                border: 1px solid #000;
 
-    <link rel="stylesheet" href="../../dist/mathlive.core.css">
-    <link rel="stylesheet" href="../../dist/mathlive.css">
-    <style>
-        body {
-            font-family: sans-serif;
-            color: #444;
-            background-color: #f9f9f9;
-        }
-        main {
-            max-width: 820px;
-            margin: auto;
-        }
-        .mathfield {
-            border: 1px solid #ddd;
-            padding:5px;
-            margin: 10px 0 10px 0;
-            border-radius:5px;
-            background-color: #fff;
-        }
-        #output {
-            padding:5px;
-            margin: 200px 0 10px 0;
-            border-radius:5px;
-            border: 1px solid #000;
+                font-family: 'Source Code Pro', Menlo,
+                    'Bitstream Vera Sans Mono', Monaco, Courier, 'Andale Mono',
+                    monospace;
+                color: #f0c674;
+                background: #35434e;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <h2>MathLive Basic Example</h2>
+            <div class="mathfield" id="mf">f(x)=</div>
+            <div id="output"></div>
+        </main>
 
-            font-family: "Source Code Pro", Menlo, "Bitstream Vera Sans Mono", Monaco, Courier, "Andale Mono", monospace;
-            color: #f0c674;
-            background: #35434e;
-        }
-    </style>
-</head>
-<body>
-    <main>
-        <h2>MathLive Basic Example</h2>
-        <div class="mathfield" id='mf' >f(x)=</div>
-        <div id='output'></div>
-    </main>
-
-
-<script src="../../dist/mathlive.js"></script>
-<script> 
-    const mf = MathLive.makeMathField('mf', {
-        onContentDidChange: mf => {
-            document.getElementById('output').innerHTML = mf.$text();
-        }
-    });
-</script>
-
-</body></html>
+        <script src="../../dist/mathlive.js"></script>
+        <script>
+            const mf = MathLive.makeMathField('mf', {
+                onContentDidChange: (mf) => {
+                    document.getElementById('output').innerHTML = mf.$text();
+                },
+            });
+        </script>
+    </body>
+</html>
