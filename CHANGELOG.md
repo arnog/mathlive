@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.53.0 (2020-05-31)
 
 ### Breaking Change / New Feature
 
