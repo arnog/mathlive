@@ -39,6 +39,11 @@ export async function loadFonts(
             fontsLoaded = false;
         }
         if (!fontsLoaded) {
+            if (document.body.classList.contains('ML__fonts-loading')) {
+                return;
+            }
+            document.body.classList.add('ML__fonts-loading');
+
             const parentFolder = new URL('.', import.meta['url']).toString();
             const fontsFolder = new URL(
                 fontsDirectory ?? './fonts',
@@ -90,6 +95,7 @@ export async function loadFonts(
                 )) as unknown) as FontFace[];
                 // Render them at the same time
                 loadedFonts.forEach((font) => document['fonts'].add(font));
+                document.body.classList.remove('ML__fonts-loading');
             } catch (e) {
                 console.log(e);
             }

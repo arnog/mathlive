@@ -175,7 +175,7 @@ function splitAtDelimiters(
 }
 
 function splitWithDelimiters(
-    text,
+    text: string,
     delimiters
 ): {
     type: string;
@@ -324,6 +324,7 @@ function scanText(text: string, options: AutoRenderOptionsPrivate): Node {
             createAccessibleMarkupPair(text, undefined, options, true)
         );
     } else {
+        if (!text.trim()) return null;
         const data = splitWithDelimiters(text, options.TeX.delimiters);
         if (data.length === 1 && data[0].type === 'text') {
             // This text contains no math. No need to continue processing
@@ -441,6 +442,7 @@ function scanElement(elem, options: AutoRenderOptionsPrivate): void {
                 childNode.parentNode.replaceChild(span, childNode);
             } else if (tag !== 'script') {
                 // Element node
+                // console.assert(childNode.className !== 'formula');
                 const shouldRender =
                     options.processClassPattern.test(childNode.className) ||
                     !(
@@ -449,7 +451,23 @@ function scanElement(elem, options: AutoRenderOptionsPrivate): void {
                     );
 
                 if (shouldRender) {
-                    scanElement(childNode, options);
+                    if (
+                        elem.childNodes.length === 1 &&
+                        elem.childNodes[0].nodeType === 3
+                    ) {
+                        const formula = elem.textContent;
+                        elem.textContent = '';
+                        elem.appendChild(
+                            createAccessibleMarkupPair(
+                                formula,
+                                'displaystyle',
+                                options,
+                                true
+                            )
+                        );
+                    } else {
+                        scanElement(childNode, options);
+                    }
                 }
             }
         }

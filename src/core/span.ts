@@ -857,23 +857,19 @@ export function makeHlist(
     classes = '',
     type: SpanType = ''
 ): Span {
-    if (!classes) {
-        // No decorations...
-        if (spans instanceof Span) {
-            // A single span, use it as the output
-            return spans;
-        } else if (isArray(spans) && spans.length === 1) {
-            // An array, with a single span, use the single span as the output
-            return spans[0];
-        }
-    }
+    // Note: do not try to optimize and avoid creating the span below
+    // Some layouts, e.g. vlist, depend on that span being there.
+
     const result = new Span(spans, classes, type);
 
     let multiplier = 1.0;
     if (spans instanceof Span) {
         multiplier = spans.maxFontSize;
     } else {
-        multiplier = spans.reduce((acc, x) => Math.max(acc, x.maxFontSize), 0);
+        multiplier = spans.reduce(
+            (acc, x) => Math.max(acc, x.maxFontSize),
+            multiplier
+        );
     }
     result.height *= multiplier;
     result.depth *= multiplier;

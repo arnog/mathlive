@@ -98,7 +98,7 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
 
             # Run test suite
             echo -e "\033[40m`basename "$0"`\033[0m 🚀 Running test suite"
-            npx jest --silent
+            npx jest --silent --reporters jest-silent-reporter
         fi
     fi
 

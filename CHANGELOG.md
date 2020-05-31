@@ -42,8 +42,44 @@
     need a different location when using the static stylesheet, you will need
     to modify it.
 
--   **#425** Added CSS variable `--ML_keyboard-zindex` for zindex of the virtual
-    keyboard.
+-   **#425** Added CSS variable `--ML_keyboard-zindex` to control the zindex
+    of the virtual keyboard.
+
+-   Add support for `^^` and `^^^^` constructs in Latex. See TexBook p. 56:
+
+        There’s also a special convention in which ^^ is followed by two
+        “lowercase hexadecimal digits,” 0–9 or a–f. With this convention, all 256 characters are
+        obtainable in a uniform way, from ^^00 to ^^ff. Character 127 is ^^7f.
+
+    XeTeX extends this convention with `^^^^` for four-digit Unicode characters.
+
+-   Added support for more TeX primitives, including `\string`, `\csname`, `\endcsname`, `\obeyspaces`
+
+-   Improved the handling of parameters (e.g. `#1`) to more accurately match the TeX behavior
+    (previously parameters could only substitute for an entire argument, i.e. `{#1}`).
+    They are now handled by replacing their value with their corresponding tokens.
+
+-   Added support for `\laplace` and `\Laplace` symbols
+
+### Bug Fixes
+
+-   **#469** The keyboard layout on Linux was not detected
+    correctly, resulting in some keys (such as arrows and backspace) not working correctly.
+
+-   Integers in a Latex stream would not always be parsed
+    correctly. As per the TeXBook, an integer can be preceded by an arbitrary number
+    of "+", "-" or whitespace characters, so `\char -+ +- "4A` is valid and
+    equivalent to `\char"4A`
+
+-   Integers in a latex stream specified with a backtick (
+    "alphabetic constant") would not be parsed correctly. Now `` \char`A `` gives the
+    expected result (`A`).
+
+-   Consecutive whitespace where not always coalesced.
+
+-   The bounding box of the initial selection (before the 'first' atom was inserted) was incorrect.
+
+-   The sizing commands (`\huge`, `\small`, `\tiny`, etc...) should not apply in 'math' mode.
 
 ## 0.52 (2020-05-23)
 

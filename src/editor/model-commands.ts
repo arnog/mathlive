@@ -28,7 +28,9 @@ export function moveToSuperscript(model: ModelPrivate): boolean {
     collapseSelectionForward(model);
     if (!getAnchor(model).superscript) {
         if (getAnchor(model).subscript) {
-            getAnchor(model).superscript = [new Atom('', 'first')];
+            getAnchor(model).superscript = [
+                new Atom(model.parent().mode, 'first'),
+            ];
         } else {
             const sibling = model.sibling(1);
             if (sibling?.superscript) {
@@ -37,7 +39,9 @@ export function moveToSuperscript(model: ModelPrivate): boolean {
             } else if (sibling?.subscript) {
                 model.path[model.path.length - 1].offset += 1;
                 //            setSelection(model, model.anchorOffset() + 1);
-                getAnchor(model).superscript = [new Atom('', 'first')];
+                getAnchor(model).superscript = [
+                    new Atom(model.parent().mode, 'first'),
+                ];
             } else {
                 if (getAnchor(model).limits !== 'limits') {
                     model
@@ -55,7 +59,9 @@ export function moveToSuperscript(model: ModelPrivate): boolean {
                     model.path[model.path.length - 1].offset += 1;
                     //            setSelection(model, model.anchorOffset() + 1);
                 }
-                getAnchor(model).superscript = [new Atom('', 'first')];
+                getAnchor(model).superscript = [
+                    new Atom(model.parent().mode, 'first'),
+                ];
             }
         }
     }
@@ -72,7 +78,9 @@ export function moveToSubscript(model: ModelPrivate): boolean {
     collapseSelectionForward(model);
     if (!getAnchor(model).subscript) {
         if (getAnchor(model).superscript) {
-            getAnchor(model).subscript = [new Atom('', 'first')];
+            getAnchor(model).subscript = [
+                new Atom(model.parent().mode, 'first'),
+            ];
         } else {
             const sibling = model.sibling(1);
             if (sibling?.subscript) {
@@ -81,7 +89,9 @@ export function moveToSubscript(model: ModelPrivate): boolean {
             } else if (sibling?.superscript) {
                 model.path[model.path.length - 1].offset += 1;
                 // setSelection(model, model.anchorOffset() + 1);
-                getAnchor(model).subscript = [new Atom('', 'first')];
+                getAnchor(model).subscript = [
+                    new Atom(model.parent().mode, 'first'),
+                ];
             } else {
                 if (getAnchor(model).limits !== 'limits') {
                     model
@@ -99,7 +109,9 @@ export function moveToSubscript(model: ModelPrivate): boolean {
                     model.path[model.path.length - 1].offset += 1;
                     // setSelection(model, model.anchorOffset() + 1);
                 }
-                getAnchor(model).subscript = [new Atom('', 'first')];
+                getAnchor(model).subscript = [
+                    new Atom(model.parent().mode, 'first'),
+                ];
             }
         }
     }
@@ -133,7 +145,9 @@ register(
             if (!model.parent()[oppositeRelation]) {
                 // Don't have children of the opposite relation yet
                 // Add them
-                model.parent()[oppositeRelation] = [new Atom('', 'first')];
+                model.parent()[oppositeRelation] = [
+                    new Atom(model.parent().mode, 'first'),
+                ];
             }
 
             setSelection(model, 0, 'end', oppositeRelation);

@@ -15,9 +15,11 @@ export declare type ParseMode = 'math' | 'text' | 'command';
     | `font-not-found`              | A required font could not be loaded. The `fontDirectory` option may not be setup correctly or the 'fonts' directory is missing. |
     | `invalid-keybinding`          | A keybinding includes a combinatino of keys which cannot be performed with the current keyboard layout. |
     | `unknown-command`             | There is no definition available for this command, e.g. `\zin`  |
+    | `unknown-environment`         | There is no definition available for this environment, e.g. `\begin{foo}`  |
     | `invalid-command`             | This command is not valid in the current mode (e.g. text command in math mode)  |
     | `unbalanced-braces`           |  There are too many or too few `{` or `}`  |
     | `unbalanced-environment`      |  An environment was open but never closed (`\begin{array}`) or the `\end` command does not match the `\begin` command (`\begin{array*}\end{array}`)  |
+    | `unbalanced-mode-shift`       |  A `$`, `$$`, `\(` or `\[` was not balanced  |
     | `missing-argument`            |  A required argument is missing, e.g. `\frac{2}` |
     | `too-many-infix-commands`     | A group can include only one infix command (i.e. `\choose`, `\atop`). In general it's best to avoid infix commands.  |
     | `unexpected-command-in-string`| A command expected a string argument, but there was a command instead  |
@@ -25,8 +27,9 @@ export declare type ParseMode = 'math' | 'text' | 'command';
     | `unexpected-delimiter`        |  An invalid symbol or command was used as a delimiter.  |
     | `unexpected-token`            |  An unexpected character was encountered.  |
     | `unexpected-end-of-string`    |  The end of the string was reached, but some required arguments were missing. |
+    | `improper-alphabetic-constant`    | The alphabetic constant prefix `` ` `` was not followed by a letter or single character command. |
  */
-export declare type ParserErrorCode = 'unknown-command' | 'invalid-command' | 'unbalanced-braces' | 'unbalanced-environment' | 'missing-argument' | 'too-many-infix-commands' | 'unexpected-command-in-string' | 'missing-unit' | 'unexpected-delimiter' | 'unexpected-token' | 'unexpected-end-of-string';
+export declare type ParserErrorCode = 'unknown-command' | 'invalid-command' | 'unbalanced-braces' | 'unknown-environment' | 'unbalanced-environment' | 'unbalanced-mode-shift' | 'missing-argument' | 'too-many-infix-commands' | 'unexpected-command-in-string' | 'missing-unit' | 'unexpected-delimiter' | 'unexpected-token' | 'unexpected-end-of-string' | 'improper-alphabetic-constant';
 export declare type MathfieldErrorCode = 'invalid-keybinding' | 'font-not-found';
 export declare type ErrorListener = (err: {
     code: ParserErrorCode | MathfieldErrorCode;

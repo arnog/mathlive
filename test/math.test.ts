@@ -1,13 +1,7 @@
-/// <reference path="../dist/mathlive.d.ts" />
-// import MathLive from '../src/mathlive';
 import MathLive from '../dist/mathlive';
+import { MathfieldErrorCode, ParserErrorCode } from '../src/public/core';
 
 const MathLiveDebug = MathLive['debug'];
-
-// function getProp(s, symbol, prop) {
-//     if (typeof s === 'string') s = toSpan(s);
-//     return MathLiveDebug.getProp(s, symbol, prop);
-// }
 
 function getStyle(s: any, symbol, prop) {
     if (typeof s === 'string') s = toSpan(s);
@@ -26,6 +20,28 @@ function toSpan(formula) {
     } as unknown); // 'span' is a secret format, so force it with 'unknown'
 }
 
+function isError(
+    formula: string,
+    expectedError: ParserErrorCode | MathfieldErrorCode
+) {
+    let errorCode;
+    MathLive.latexToMarkup(formula, {
+        mathstyle: 'displaystyle',
+        format: 'span',
+        onError: (err) => {
+            if (!errorCode) {
+                // Catch the first error only
+                errorCode = err.code;
+            }
+        },
+    } as unknown); // 'span' is a secret format, so force it with 'unknown'
+    test(formula, () => expect(errorCode).toBe(expectedError));
+}
+
+function isNoError(formula: string) {
+    isError(formula, undefined);
+}
+
 function spanToString(span: any): string {
     if (typeof span === 'string') span = toSpan(span);
     return MathLiveDebug.spanToString(span)
@@ -33,15 +49,23 @@ function spanToString(span: any): string {
         .replace(/\n/g, '\n');
 }
 
-function hasClass(s, symbol, cls) {
+function hasClass(s, symbol, cls: string) {
     let span = s;
     if (typeof span === 'string') {
         span = toSpan(s);
     }
 
-    const result = MathLiveDebug.hasClass(span, symbol, cls);
+    test(s, () =>
+        expect(MathLiveDebug.hasClass(span, symbol, cls)).toBeTruthy()
+    );
+}
 
-    expect(result).toBeTruthy();
+function hasType(
+    s: string,
+    symbol: number | string | number[],
+    type: string
+): void {
+    test(s, () => expect(getType(s, symbol)).toBe(type));
 }
 
 function notHasClass(s, symbol, cls) {
@@ -52,47 +76,51 @@ function notHasClass(s, symbol, cls) {
 
     const result = !MathLiveDebug.hasClass(span, symbol, cls);
 
-    expect(result).toBeTruthy();
+    test(s, () => expect(result).toBeTruthy());
 }
 
-function equalSpan(formula1, formula2) {
+function equalSpan(formula1: string, formula2: string) {
     const s1 = spanToString(toSpan(formula1));
     const s2 = spanToString(toSpan(formula2));
-    return expect(s1).toBe(s2);
+    test(formula1, () => expect(s1).toBe(s2));
 }
 
-function mathJSON(latex) {
+function mathJSON(latex: string) {
     return JSON.stringify(MathLive.latexToAST(latex));
 }
 
-function equalMathJSON(latex, json) {
-    expect(mathJSON(latex)).toBe(json);
+function equalMathJSON(latex: string, json: string) {
     const latexJSON = MathLive.astToLatex(json, { precision: 100 })
         .replace(/\\, /g, '')
         .trim();
-    expect(latexJSON).toBe(latex);
+    test(latex, () => {
+        expect(mathJSON(latex)).toBe(json);
+        expect(latexJSON).toBe(latex);
+    });
 }
 
-function equalASCIIMath(latex, ascii) {
-    expect(MathLiveDebug.latexToAsciiMath(latex)).toBe(ascii);
-
-    expect(MathLiveDebug.asciiMathToLatex(ascii)).toBe(latex);
+function equalASCIIMath(latex: string, ascii: string) {
+    test(latex, () => {
+        expect(MathLiveDebug.latexToAsciiMath(latex)).toBe(ascii);
+        expect(MathLiveDebug.asciiMathToLatex(ascii)).toBe(latex);
+    });
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-test('BASIC PARSING', function () {
-    expect(toSpan('')).toBeTruthy();
+describe('BASIC PARSING', function () {
+    isNoError('');
     equalSpan('%', '');
+    equalSpan('% comment', '');
     equalSpan('a%b', 'a');
     equalSpan('a % b ', 'a');
 
-    expect(getType('x', 0)).toBe('mord');
+    test('x', () => expect(getType('x', 0)).toBe('mord'));
     hasClass('x', 0, 'ML__mathit');
 
     const ordString = '1234|/@.`abcdefgzABCDEFGZ';
     // const ordString = '1234|/@.\"`abcdefgzABCDEFGZ';
     const ordSpan = toSpan(ordString);
-    expect(ordSpan).toBeTruthy();
+    test('ordstring', () => expect(ordSpan).toBeTruthy());
     // @todo t.equal(ordSpan.length, 1, 'There should be a single span for all the characters');
     // @todo t.equal(ordSpan[0].body, ordString, 'The body of the span should be the same as the string');
     // @todo t.ok(hasClass(ordSpan, 0, 'mord'), "The span should be a 'mord'");
@@ -104,7 +132,7 @@ test('BASIC PARSING', function () {
 
     // equalSpan('{+}', '\\mathord{+}', 'A single item in a group is the same as the item in a "ord"');
 
-    expect(getType('{a}b', 1)).toBe('mord');
+    test('{a}b', () => expect(getType('{a}b', 1)).toBe('mord'));
 
     equalSpan('a%b x \\xyz', 'a');
     equalSpan('%b x \\xyz', '');
@@ -117,13 +145,28 @@ test('BASIC PARSING', function () {
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-test('CHARACTERS', function () {
-    // TeX \char command
-    equalSpan('\\char"4A', 'J');
-    equalSpan('\\char"004A', 'J');
-    equalSpan("\\char'0112", 'J');
-    equalSpan('\\char74', 'J');
-    equalSpan('\\char "004A', 'J');
+describe('CHARACTERS', function () {
+    // ^^ command
+    equalSpan('^^4ab', 'Jb');
+    equalSpan('^^^^004ab', 'Jb');
+
+    // Active character ~ (equivalent to space)
+    equalSpan('a\\text{b~c}d', 'a\\text{b c}d');
+
+    // \char command
+    equalSpan('\\char"4A 0', 'J0');
+    equalSpan('\\char"004A 0', 'J0');
+    equalSpan("\\char'0112 0", 'J0');
+    equalSpan('\\char74 0', 'J0');
+    equalSpan('\\char "004A 0', 'J0');
+    // \char and integers (backtick)
+    equalSpan('\\char`J0', 'J0');
+    equalSpan('\\char`\\J0', 'J0');
+    equalSpan('\\char `\\J', 'J');
+    equalSpan('\\char   `\\J', 'J');
+    equalSpan('\\char +- +-  `\\J', 'J');
+    equalSpan('\\char +- -  `\\J', 'J');
+    equalSpan('\\char +- -- -++  `\\J', 'J');
 
     // \unicode, a MathJax extension
     // (MathJax also accepts optional width, height and font arguments which we don't support)
@@ -140,14 +183,17 @@ test('CHARACTERS', function () {
 // }
 
 ////////////////////////////////////////////////////////////////////////////////
-test('TEXT MODE', function () {
-    // t.equal(getType('\\text{ }', [0]), 'textord', "Spaces are preserved.");
-
-    hasClass('\\text{ }', [0], 'ML__text');
+describe('EXPANSION PRIMITIVES', function () {
+    equalSpan('\\obeyspaces =   =', '=\\space\\space\\space=');
+    equalSpan('\\csname alpha\\endcsname', '\\alpha');
+    equalSpan('\\csname alph\\char"41\\endcsname', '\\alph A');
+    equalSpan('=\\sqrt\\bgroup x \\egroup=', '=\\sqrt{x}=');
+    equalSpan('\\string\\alpha', '\\backslash alpha');
+    equalSpan('#?', '\\placeholder{}');
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-test('ARGUMENTS', function () {
+describe('ARGUMENTS', function () {
     equalSpan('\\frac12', '\\frac{1}{2}');
     equalSpan('\\frac  1  2', '\\frac{1}{2}');
     equalSpan('\\frac357', '\\frac{3}{5}7');
@@ -158,16 +204,18 @@ test('ARGUMENTS', function () {
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-test('INFIX COMMANDS', function () {
+describe('INFIX COMMANDS', function () {
     equalSpan('a\\over b', '\\frac{a}{b}');
     equalSpan('a\\over b c', '\\frac{a}{bc}');
     equalSpan('x{a+1\\over1-b}y', 'x{\\frac{a+1}{1-b}}y');
 
     equalSpan('x{a+1\\over1-b\\over2}y', 'x{a+1\\over1-b2}y');
+
+    isError('a\\over b \\over c', 'too-many-infix-commands');
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-test('FUNCTIONAL ARGUMENTS', function () {
+describe('FUNCTIONAL ARGUMENTS', function () {
     equalSpan('\\frac1a', '\\frac{1}{a}');
 
     equalSpan('\\frac a b', '\\frac{a}{b}');
@@ -184,10 +232,10 @@ test('FUNCTIONAL ARGUMENTS', function () {
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-// test('PARSING MODE', function () {});
+// describe('PARSING MODE', function () {});
 
 ////////////////////////////////////////////////////////////////////////////////
-test('FONTS', function () {
+describe('FONTS', function () {
     hasClass('\\alpha + x - 1 - \\Gamma', 'x', 'ML__mathit');
     notHasClass('\\alpha + x - 1 - \\Gamma', '1', 'ML__mathit');
     hasClass('\\alpha + x - 1 - \\Gamma', 'α', 'ML__mathit');
@@ -197,37 +245,37 @@ test('FONTS', function () {
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-// test('ERRORS', function () {});
+// describe('ERRORS', function () {});
 
 ////////////////////////////////////////////////////////////////////////////////
-test('BINARY OPERATORS', function () {
-    expect(getType('a+b', '+')).toBe('mbin');
-    expect(getType('f(a)+f(b)', '+')).toBe('mbin');
-    expect(getType('x^n+y^n', '+')).toBe('mbin');
-    expect(getType('+b', '+')).toBe('mord');
-    expect(getType('(+b', '+')).toBe('mord');
-    expect(getType('=+b', '+')).toBe('mord');
-    expect(getType('\\sin+b', '+')).toBe('mord');
-    expect(getType(', +b', '+')).toBe('mord');
+describe('BINARY OPERATORS', function () {
+    hasType('a+b', '+', 'mbin');
+    hasType('f(a)+f(b)', '+', 'mbin');
+    hasType('x^n+y^n', '+', 'mbin');
+    hasType('+b', '+', 'mord');
+    hasType('(+b', '+', 'mord');
+    hasType('=+b', '+', 'mord');
+    hasType('\\sin+b', '+', 'mord');
+    hasType(', +b', '+', 'mord');
 
-    expect(getType('\\textcolor{red}{a}+b', '+')).toBe('mbin');
-    expect(getType('\\textcolor{red}{a=}+b', '+')).toBe('mord');
+    hasType('\\textcolor{red}{a}+b', '+', 'mbin');
+    hasType('\\textcolor{red}{a=}+b', '+', 'mord');
 
-    expect(getType('a^2+b', '+')).toBe('mbin');
-    expect(getType('a^{2}+b', '+')).toBe('mbin');
+    hasType('a^2+b', '+', 'mbin');
+    hasType('a^{2}+b', '+', 'mbin');
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-// test('TYPE COERCION', function () {});
+// describe('TYPE COERCION', function () {});
 
 ////////////////////////////////////////////////////////////////////////////////
-// test('SUBSCRIPSUPERSCRIPTS AND LIMITS', function () {});
+// describe('SUBSCRIPSUPERSCRIPTS AND LIMITS', function () {});
 
 ////////////////////////////////////////////////////////////////////////////////
-test('FRACTIONS', function () {
-    expect(toSpan('\\frac57')).toBeTruthy();
-    expect(toSpan('\\frac {5} {7}')).toBeTruthy();
-    expect(toSpan('\\frac {\\frac57} {\\frac37}')).toBeTruthy();
+describe('FRACTIONS', function () {
+    isNoError('\\frac57');
+    isNoError('\\frac {5} {7}');
+    isNoError('\\frac {\\frac57} {\\frac37}');
 
     expect(
         toSpan(
@@ -235,14 +283,14 @@ test('FRACTIONS', function () {
         )
     ).toBeTruthy();
 
-    expect(toSpan('\\binom{n}{k}')).toBeTruthy();
-    expect(toSpan('\\dbinom{n}{k}')).toBeTruthy();
-    expect(toSpan('\\tbinom{n}{k}')).toBeTruthy();
+    isNoError('\\binom{n}{k}');
+    isNoError('\\dbinom{n}{k}');
+    isNoError('\\tbinom{n}{k}');
 
     equalSpan('n \\choose k', '\\binom{n}{k}');
 
     // @todo: a better rest...
-    expect(toSpan('\\pdiff{f(x)}{x}')).toBeTruthy();
+    isNoError('\\pdiff{f(x)}{x}');
 });
 
 // function hasSize(size) {
@@ -250,12 +298,12 @@ test('FRACTIONS', function () {
 // }
 
 ////////////////////////////////////////////////////////////////////////////////
-test('SIZING AND MATH STYLE', function () {
-    expect(toSpan('\\text{a \\tiny x y}b')).toBeTruthy();
+describe('SIZING STYLE', function () {
+    isNoError('\\text{a \\tiny x y}b');
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-test('RULE AND DIMENSIONS', function () {
+describe('RULE AND DIMENSIONS', function () {
     hasClass('\\rule{1em}{2em}', 0, 'rule');
     hasClass('\\rule[1em]{1em}{2em}', 0, 'rule');
     hasClass('\\rule{1em}', 0, 'rule');
@@ -286,7 +334,7 @@ test('RULE AND DIMENSIONS', function () {
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-test('DECORATIONS', function () {
+describe('DECORATIONS', function () {
     expect(getStyle('\\bbox{1+x}', 0, 'border')).toBe(undefined);
 
     expect(
@@ -328,122 +376,106 @@ test('DECORATIONS', function () {
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-test('OVER/UNDERLINE', function () {
-    expect(toSpan('a\\overline{x}b')).toBeTruthy();
-    expect(
-        toSpan(
-            '\\overline{xyz}\\overline{1+\\frac34}\\underline{abc}\\underline{\\frac57}'
-        )
-    ).toBeTruthy();
-    expect(toSpan('\\underline{\\frac14}')).toBeTruthy();
+describe('OVER/UNDERLINE', function () {
+    isNoError('a\\overline{x}b');
+    isNoError(
+        '\\overline{xyz}\\overline{1+\\frac34}\\underline{abc}\\underline{\\frac57}'
+    );
+    isNoError('\\underline{\\frac14}');
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-test('SPACING AND KERN', function () {
-    expect(toSpan('a\\hskip 3em b')).toBeTruthy();
-    expect(toSpan('a\\kern 3em b')).toBeTruthy();
-    expect(toSpan('a\\hspace{3em} b')).toBeTruthy();
+describe('SPACING AND KERN', function () {
+    isNoError('a\\hskip 3em b');
+    isNoError('a\\kern 3em b');
+    isNoError('a\\hspace{3em} b');
     equalSpan('a\\hskip 3em b', 'a\\hspace{3em} b');
 });
 
 function testDelimiter(openDel, closeDel) {
     // Regular sized delimiters
-    expect(
-        getType('\\left' + openDel + ' x + 1' + '\\right' + closeDel, [0, 0])
-    ).toBe('mopen');
-    expect(
-        getType('\\left' + openDel + ' x + 1' + '\\right' + closeDel, [0, 4])
-    ).toBe('mclose');
-    // t.notEqual(getType("\\left" + openDel + " x + 1" + "\\right" + closeDel, [0,0]),
-    //     'nulldelimiter', "Open delimiter " + openDel + (msg ? ' ' + msg : ''));
-    // t.notEqual(getType(("\\left" + openDel + " x + 1" + "\\right" + closeDel, [0,4]),
-    //     'nulldelimiter', "Close delimiter " + closeDel + (msg ? ' ' + msg : ''));
+    test(openDel + ' ' + closeDel, () => {
+        expect(
+            getType('\\left' + openDel + ' x + 1' + '\\right' + closeDel, 0)
+        ).toBe('mopen');
+        expect(
+            getType('\\left' + openDel + ' x + 1' + '\\right' + closeDel, 4)
+        ).toBe('mclose');
+        // t.notEqual(getType("\\left" + openDel + " x + 1" + "\\right" + closeDel, [0,0]),
+        //     'nulldelimiter', "Open delimiter " + openDel + (msg ? ' ' + msg : ''));
+        // t.notEqual(getType(("\\left" + openDel + " x + 1" + "\\right" + closeDel, [0,4]),
+        //     'nulldelimiter', "Close delimiter " + closeDel + (msg ? ' ' + msg : ''));
 
-    // Delimiters with large expression
-    expect(
-        getType(
-            '\\left' +
-                openDel +
-                ' x \\frac{\\frac34}{\\frac57}' +
-                '\\right' +
-                closeDel,
-            [0, 0]
-        )
-    ).toBe('mopen');
-    expect(
-        getType(
-            '\\left' +
-                openDel +
-                ' x \\frac{\\frac34}{\\frac57}' +
-                '\\right' +
-                closeDel,
-            [0, 3]
-        )
-    ).toBe('mclose');
-    // t.notEqual(getType("\\left" + openDel + " x \\frac{\\frac34}{\\frac57}" + "\\right" + closeDel, [0,0]),
-    //     'nulldelimiter', "Large open delimiter " + openDel + (msg ? ' ' + msg : ''));
-    // t.notEqual(getType("\\left" + openDel + " x \\frac{\\frac34}{\\frac57}" + "\\right" + closeDel, [0,3]),
-    //     'nulldelimiter', "Large close delimiter " + closeDel + (msg ? ' ' + msg : ''));
+        // Delimiters with large expression
+        expect(
+            getType(
+                '\\left' +
+                    openDel +
+                    ' x \\frac{\\frac34}{\\frac57}' +
+                    '\\right' +
+                    closeDel,
+                0
+            )
+        ).toBe('mopen');
+        expect(
+            getType(
+                '\\left' +
+                    openDel +
+                    ' x \\frac{\\frac34}{\\frac57}' +
+                    '\\right' +
+                    closeDel,
+                3
+            )
+        ).toBe('mclose');
+        // t.notEqual(getType("\\left" + openDel + " x \\frac{\\frac34}{\\frac57}" + "\\right" + closeDel, [0,0]),
+        //     'nulldelimiter', "Large open delimiter " + openDel + (msg ? ' ' + msg : ''));
+        // t.notEqual(getType("\\left" + openDel + " x \\frac{\\frac34}{\\frac57}" + "\\right" + closeDel, [0,3]),
+        //     'nulldelimiter', "Large close delimiter " + closeDel + (msg ? ' ' + msg : ''));
+    });
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-test('LEFT/RIGHT', function () {
+describe('LEFT/RIGHT', function () {
     // equalSpan('\\left(a\\right)', '\\left{(}a\\right{)}',
     //     '\\left\\right with unbraced arguments');
 
-    expect(getType('\\left(a\\right)', [0, 0])).toBe('mopen');
-    expect(getType('\\left(a\\right)', [0, 2])).toBe('mclose');
+    hasType('\\left(a\\right)', 0, 'mopen');
+    hasType('\\left(a\\right)', 2, 'mclose');
 
-    expect(getType('\\left(\\frac12\\right)', [0, 0])).toBe('mopen');
+    hasType('\\left(\\frac12\\right)', 0, 'mopen');
 
-    hasClass('\\left.\\frac12\\right.', [0, 0], 'nulldelimiter');
-    hasClass('\\left.\\frac12\\right.', [0, 2], 'nulldelimiter');
+    hasClass('\\left.\\frac12\\right.', 0, 'nulldelimiter');
+    hasClass('\\left.\\frac12\\right.', 2, 'nulldelimiter');
 
     testDelimiter('[', ']');
 
     testDelimiter('\\lfloor', '\\rfloor');
 
-    hasClass('\\left a\\frac12\\right0', [0, 0], 'nulldelimiter');
+    isError('\\left a\\frac12\\right0', 'unexpected-delimiter');
 
-    hasClass('\\left a\\frac12\\right0', [0, 2], 'nulldelimiter');
+    hasType('\\left\\ulcorner\\frac12\\right\\urcorner', 0, 'mopen');
 
-    expect(getType('\\left\\ulcorner\\frac12\\right\\urcorner', [0, 0])).toBe(
+    hasType('\\left\\uparrow\\frac12\\right\\Downarrow', 0, 'mopen');
+
+    hasType('\\left\\uparrow\\frac{\\frac34}{2}\\right\\vert', 0, 'mopen');
+
+    hasType(
+        '\\left\\uparrow\\frac{\\frac{\\frac57}{\\frac95}}{2}\\right\\vert',
+        0,
         'mopen'
     );
 
-    expect(getType('\\left\\uparrow\\frac12\\right\\Downarrow', [0, 0])).toBe(
-        'mopen'
-    );
+    hasType('{\\left\\uparrow x\\right\\vert}', [0, 0], 'mopen');
 
-    expect(
-        getType('\\left\\uparrow\\frac{\\frac34}{2}\\right\\vert', [0, 0])
-    ).toBe('mopen');
+    hasType('\\left\\lfloor\\frac{\\frac34}{2}\\right\\rfloor', 0, 'mopen');
 
-    expect(
-        getType(
-            '\\left\\uparrow\\frac{\\frac{\\frac57}{\\frac95}}{2}\\right\\vert',
-            [0, 0]
-        )
-    ).toBe('mopen');
+    hasType('\\left\\lfloor x\\right\\rfloor', 0, 'mopen');
 
-    expect(getType('{\\tiny\\left\\uparrow x\\right\\vert}', [0, 0, 0])).toBe(
-        'mopen'
-    );
+    hasType('\\left\\langle\\frac{\\frac34}{2}\\right\\rangle', 0, 'mopen');
 
-    expect(
-        getType('\\left\\lfloor\\frac{\\frac34}{2}\\right\\rfloor', [0, 0])
-    ).toBe('mopen');
+    hasType('\\left<\\frac{\\frac34}{2}\\right>', 0, 'mopen');
 
-    expect(getType('\\left\\lfloor x\\right\\rfloor', [0, 0])).toBe('mopen');
-
-    expect(
-        getType('\\left\\langle\\frac{\\frac34}{2}\\right\\rangle', [0, 0])
-    ).toBe('mopen');
-
-    expect(getType('\\left<\\frac{\\frac34}{2}\\right>', [0, 0])).toBe('mopen');
-
-    hasClass('\\left x\\frac{\\frac34}{2}\\right x', [0, 0], 'nulldelimiter');
-    hasClass('\\left x\\frac{\\frac34}{2}\\right x', [0, 2], 'nulldelimiter');
+    isError('\\left x\\frac{\\frac34}{2}\\right x', 'unexpected-delimiter');
 
     // All the stacking delimiters
     testDelimiter('\\vert', '\\vert');
@@ -465,50 +497,46 @@ test('LEFT/RIGHT', function () {
     testDelimiter('\\surd', '\\surd');
 
     // Middle
-    hasClass('\\left(a\\middle|b\\right)', [0, 2], 'style-wrap');
-    hasClass('\\left(a\\middle xb\\right)', [0, 2], 'nulldelimiter');
+    hasClass('\\left(a\\middle|b\\right)', 2, 'style-wrap');
+    hasClass('\\left(a\\middle xb\\right)', 2, 'nulldelimiter');
 });
 
 ////////////////////////////////////////////////////////////////////////////////
 function testSizingDelimiter(openCmd, closeCmd, midCmd, ordCmd) {
     // Regular sized delimiters
 
-    expect(
-        getType(
-            openCmd +
-                '\\lbrack x' +
-                midCmd +
-                '\\vert y ' +
-                ordCmd +
-                '\\Vert z' +
-                closeCmd +
-                '\\rbrack',
-            0
-        )
-    ).toBe('mopen');
-
-    expect(getType(openCmd + '\\lbrack x' + closeCmd + '\\rbrack', 2)).toBe(
-        'mclose'
+    hasType(
+        openCmd +
+            '\\lbrack x' +
+            midCmd +
+            '\\vert y ' +
+            ordCmd +
+            '\\Vert z' +
+            closeCmd +
+            '\\rbrack',
+        0,
+        'mopen'
     );
 
-    expect(
-        getType(
-            openCmd +
-                '< x' +
-                midCmd +
-                '\\vert y ' +
-                ordCmd +
-                '\\Vert z' +
-                closeCmd +
-                '>',
-            0
-        )
-    ).toBe('mopen');
+    hasType(openCmd + '\\lbrack x' + closeCmd + '\\rbrack', 2, 'mclose');
 
-    expect(getType(openCmd + '< x' + closeCmd + '>', 2)).toBe('mclose');
+    hasType(
+        openCmd +
+            '< x' +
+            midCmd +
+            '\\vert y ' +
+            ordCmd +
+            '\\Vert z' +
+            closeCmd +
+            '>',
+        0,
+        'mopen'
+    );
+
+    hasType(openCmd + '< x' + closeCmd + '>', 2, 'mclose');
 }
 
-test('SIZED DELIMITERS', function () {
+describe('SIZED DELIMITERS', function () {
     testSizingDelimiter('\\bigl', '\\bigr', '\\bigm', '\\big');
     testSizingDelimiter('\\Bigl', '\\Bigr', '\\Bigm', '\\Big');
     testSizingDelimiter('\\biggl', '\\biggr', '\\biggm', '\\bigg');
@@ -516,7 +544,7 @@ test('SIZED DELIMITERS', function () {
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-test('ENVIRONMENTS', function () {
+describe('ENVIRONMENTS', function () {
     // t.ok(toSpan('\\begin'), '\\begin with no argumenno \\end');
     // t.ok(toSpan('\\begin{a}'), '\\begin with argumenno \\end');
     // t.ok(toSpan('\\begin{a}\\end'), '\\begin with argumen\\end with no argument');
@@ -526,31 +554,29 @@ test('ENVIRONMENTS', function () {
     equalSpan('\\begin{array}a', '\\begin{array}a\\end{array}');
 
     // A legal environment name consist only of letters and "*"
-    expect(toSpan('\\begin{\\alpha}\\end{\\alpha}')).toBeTruthy();
-    expect(toSpan('\\begin{1732}\\end{1732}')).toBeTruthy();
-    expect(toSpan('\\begin{.}\\end{.}')).toBeTruthy();
-    expect(toSpan('\\begin{(}\\end{(}')).toBeTruthy();
+    isError('\\begin{\\alpha}\\end{\\alpha}', 'unknown-environment');
+    isError('\\begin{1732}\\end{1732}', 'unknown-environment');
+    isError('\\begin{.}\\end{.}', 'unknown-environment');
+    isError('\\begin{(}\\end{(}', 'unknown-environment');
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-test('SURDS', function () {
-    expect(toSpan('\\sqrt5')).toBeTruthy();
+describe('SURDS', function () {
+    isNoError('\\sqrt5');
 
-    expect(toSpan('\\sqrt{}')).toBeTruthy();
-    expect(toSpan('\\sqrt')).toBeTruthy();
+    isNoError('\\sqrt{}');
+    isError('\\sqrt', 'missing-argument');
 
-    expect(
-        toSpan(
-            'ax^2+bx+c = a \\left( x - \\frac{-b + \\sqrt {b^2-4ac}{2a} \\right) \\left( x - \\frac{-b - \\sqrt {b^2-4ac}{2a} \\right)'
-        )
-    ).toBeTruthy();
+    isNoError(
+        'ax^2+bx+c = a \\left( x - \\frac{-b + \\sqrt {b^2-4ac}}{2a} \\right) \\left( x - \\frac{-b - \\sqrt {b^2-4ac}}{2a} \\right)'
+    );
 
-    expect(toSpan('\\sqrt[3]{5}')).toBeTruthy();
-    expect(toSpan('\\sqrt[3]5')).toBeTruthy();
+    isNoError('\\sqrt[3]{5}');
+    isNoError('\\sqrt[3]5');
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-test('ACCENTS', function () {
+describe('ACCENTS', function () {
     hasClass('\\vec)', 0, 'accent');
     hasClass('\\vec{x+1})', 0, 'accent');
 
@@ -567,10 +593,10 @@ test('ACCENTS', function () {
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-// test('PHANTOM', function () {});
+// describe('PHANTOM', function () {});
 
 ////////////////////////////////////////////////////////////////////////////////
-test('COLORS', function () {
+describe('COLORS', function () {
     // formula.insertText("\\sin x \\textcolor{#f00}{red} \\backgroundcolor{yellow}{x + \\frac1{\\frac34}} \\textcolor{m1}{\\blacktriangle}\\textcolor{m2}{\\blacktriangle}\\textcolor{m3}{\\blacktriangle}\\textcolor{m4}{\\blacktriangle}\\textcolor{m5}{\\blacktriangle}\\textcolor{m6}{\\blacktriangle}\\textcolor{m7}{\\blacktriangle}\\textcolor{m8}{\\blacktriangle}\\textcolor{m9}{\\blacktriangle}");
     // formula.insertText("\\textcolor{aquamarine}{\\blacksquare}");
     // formula.insertText("\\textcolor{rgb(240, 10, 200)}{\\blacksquare}");
@@ -622,22 +648,19 @@ test('COLORS', function () {
 
     // a{b\\color c}d}
     let f = 'a{b\\color{#f00} c}d';
-    expect(getStyle(f, 'a', 'color')).toEqual(null);
-    expect(getStyle(f, 'b', 'color')).toEqual(null);
-    expect(getStyle(f, 'c', 'color')).toEqual('#ff0000');
-    expect(getStyle(f, 'd', 'color')).toEqual(null);
-    expect(
-        getStyle(f, 'a', 'color') === null &&
-            getStyle(f, 'b', 'color') === null &&
-            getStyle(f, 'c', 'color') === '#ff0000' &&
-            getStyle(f, 'd', 'color') === null
-    ).toBeTruthy();
-
+    test(f, () => {
+        expect(getStyle(f, 'a', 'color')).toEqual(null);
+        expect(getStyle(f, 'b', 'color')).toEqual(null);
+        expect(getStyle(f, 'c', 'color')).toEqual('#ff0000');
+        expect(getStyle(f, 'd', 'color')).toEqual(null);
+    });
     f = 'a\\left(b\\color{#f00} c\\right)d';
-    expect(getStyle(f, 'a', 'color')).toEqual(null);
-    expect(getStyle(f, 'b', 'color')).toEqual(null);
-    expect(getStyle(f, 'c', 'color')).toEqual('#ff0000');
-    expect(getStyle(f, 'd', 'color')).toEqual(null);
+    test(f, () => {
+        expect(getStyle(f, 'a', 'color')).toEqual(null);
+        expect(getStyle(f, 'b', 'color')).toEqual(null);
+        expect(getStyle(f, 'c', 'color')).toEqual('#ff0000');
+        expect(getStyle(f, 'd', 'color')).toEqual(null);
+    });
     // expect(
     //     getStyle(f, 'a', 'color') === null &&
     //         getStyle(f, 'b', 'color') === null &&
@@ -645,14 +668,12 @@ test('COLORS', function () {
     //         getStyle(f, 'd', 'color') === null
     // ).toBeTruthy();
 
-    expect(
-        toSpan(
-            '{\\color{apricot}\\blacksquare}{\\color{aquamarine}\\blacksquare}{\\color{bittersweet}\\blacksquare}{\\color{black}\\blacksquare}{\\color{blue}\\blacksquare}{\\color{blueGreen}\\blacksquare}{\\color{blueviolet}\\blacksquare}{\\color{brickred}\\blacksquare}{\\color{brown}\\blacksquare}{\\color{burntorange}\\blacksquare}{\\color{cadetblue}\\blacksquare}{\\color{carnationpink}\\blacksquare}{\\color{cerulean}\\blacksquare}{\\color{cornflowerblue}\\blacksquare}{\\color{cyan}\\blacksquare}{\\color{dandelion}\\blacksquare}{\\color{darkorchid}\\blacksquare}{\\color{emerald}\\blacksquare}{\\color{forestgreen}\\blacksquare}{\\color{fuchsia}\\blacksquare}{\\color{goldenrod}\\blacksquare}{\\color{gray}\\blacksquare}{\\color{green}\\blacksquare}{\\color{greenyellow}\\blacksquare}{\\color{junglegreen}\\blacksquare}{\\color{lavender}\\blacksquare}{\\color{limegreen}\\blacksquare}{\\color{magenta}\\blacksquare}{\\color{mahogany}\\blacksquare}{\\color{maroon}\\blacksquare}{\\color{melon}\\blacksquare}{\\color{midnightblue}\\blacksquare}{\\color{mulberry}\\blacksquare}{\\color{navyblue}\\blacksquare}{\\color{olivegreen}\\blacksquare}{\\color{orange}\\blacksquare}{\\color{orangered}\\blacksquare}{\\color{orchid}\\blacksquare}{\\color{peach}\\blacksquare}{\\color{periwinkle}\\blacksquare}{\\color{pinegreen}\\blacksquare}{\\color{plum}\\blacksquare}{\\color{processblue}\\blacksquare}{\\color{purple}\\blacksquare}{\\color{rawsienna}\\blacksquare}{\\color{red}\\blacksquare}{\\color{redorange}\\blacksquare}{\\color{redviolet}\\blacksquare}{\\color{rhodamine}\\blacksquare}{\\color{royalblue}\\blacksquare}{\\color{royalpurple}\\blacksquare}{\\color{rubinered}\\blacksquare}{\\color{salmon}\\blacksquare}{\\color{seagreen}\\blacksquare}{\\color{sepia}\\blacksquare}{\\color{skyblue}\\blacksquare}{\\color{springgreen}\\blacksquare}{\\color{tan}\\blacksquare}{\\color{tealblue}\\blacksquare}{\\color{thistle}\\blacksquare}{\\color{turquoise}\\blacksquare}{\\color{violet}\\blacksquare}{\\color{violetred}\\blacksquare}{\\color{white}\\blacksquare}{\\color{wildstrawberry}\\blacksquare}{\\color{yellow}\\blacksquare}{\\color{yellowgreen}\\blacksquare}{\\color{yelloworange}\\blacksquare}'
-        )
-    ).toBeTruthy();
+    isNoError(
+        '{\\color{apricot}\\blacksquare}{\\color{aquamarine}\\blacksquare}{\\color{bittersweet}\\blacksquare}{\\color{black}\\blacksquare}{\\color{blue}\\blacksquare}{\\color{blueGreen}\\blacksquare}{\\color{blueviolet}\\blacksquare}{\\color{brickred}\\blacksquare}{\\color{brown}\\blacksquare}{\\color{burntorange}\\blacksquare}{\\color{cadetblue}\\blacksquare}{\\color{carnationpink}\\blacksquare}{\\color{cerulean}\\blacksquare}{\\color{cornflowerblue}\\blacksquare}{\\color{cyan}\\blacksquare}{\\color{dandelion}\\blacksquare}{\\color{darkorchid}\\blacksquare}{\\color{emerald}\\blacksquare}{\\color{forestgreen}\\blacksquare}{\\color{fuchsia}\\blacksquare}{\\color{goldenrod}\\blacksquare}{\\color{gray}\\blacksquare}{\\color{green}\\blacksquare}{\\color{greenyellow}\\blacksquare}{\\color{junglegreen}\\blacksquare}{\\color{lavender}\\blacksquare}{\\color{limegreen}\\blacksquare}{\\color{magenta}\\blacksquare}{\\color{mahogany}\\blacksquare}{\\color{maroon}\\blacksquare}{\\color{melon}\\blacksquare}{\\color{midnightblue}\\blacksquare}{\\color{mulberry}\\blacksquare}{\\color{navyblue}\\blacksquare}{\\color{olivegreen}\\blacksquare}{\\color{orange}\\blacksquare}{\\color{orangered}\\blacksquare}{\\color{orchid}\\blacksquare}{\\color{peach}\\blacksquare}{\\color{periwinkle}\\blacksquare}{\\color{pinegreen}\\blacksquare}{\\color{plum}\\blacksquare}{\\color{processblue}\\blacksquare}{\\color{purple}\\blacksquare}{\\color{rawsienna}\\blacksquare}{\\color{red}\\blacksquare}{\\color{redorange}\\blacksquare}{\\color{redviolet}\\blacksquare}{\\color{rhodamine}\\blacksquare}{\\color{royalblue}\\blacksquare}{\\color{royalpurple}\\blacksquare}{\\color{rubinered}\\blacksquare}{\\color{salmon}\\blacksquare}{\\color{seagreen}\\blacksquare}{\\color{sepia}\\blacksquare}{\\color{skyblue}\\blacksquare}{\\color{springgreen}\\blacksquare}{\\color{tan}\\blacksquare}{\\color{tealblue}\\blacksquare}{\\color{thistle}\\blacksquare}{\\color{turquoise}\\blacksquare}{\\color{violet}\\blacksquare}{\\color{violetred}\\blacksquare}{\\color{white}\\blacksquare}{\\color{wildstrawberry}\\blacksquare}{\\color{yellow}\\blacksquare}{\\color{yellowgreen}\\blacksquare}{\\color{yelloworange}\\blacksquare}'
+    );
 });
 
-test('MATH JSON', function () {
+describe('MATH JSON', function () {
     equalMathJSON('', undefined);
     equalMathJSON('7', '{"num":"7"}');
     equalMathJSON('-7', '{"num":"-7"}');
@@ -761,7 +782,7 @@ test('MATH JSON', function () {
         '{"fn":"equal","arg":[{"sym":"x"},{"num":"0"}]}'
     );
     expect(mathJSON('\\left(1+2\\right)^{3}')).toBe(
-        '{"group":{"fn":"add","arg":[{"num":"1"},{"num":"2"}]},"sup":{"num":"3"}}'
+        '{"fn":"add","arg":[{"num":"1"},{"num":"2"}],"sup":{"num":"3"}}'
     );
     equalMathJSON('2^{0.5}', '{"num":"2","sup":{"num":"0.5"}}');
     equalMathJSON(
@@ -906,7 +927,7 @@ test('MATH JSON', function () {
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-test('ASCII MATH', function () {
+describe('ASCII MATH', function () {
     equalASCIIMath('123', '123');
     equalASCIIMath('-123.456', '-123.456');
     equalASCIIMath('-123.456e9', '-123.456e9');

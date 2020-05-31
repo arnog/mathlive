@@ -283,55 +283,50 @@ function parse(
 
     while (tokens.length > 0) {
         const token = tokens.shift();
-        if (token.type === 'space') {
+        if (token === '<space>') {
             atom = new Atom('text', '', ' ', options.style);
             atom.symbol = ' ';
             result.push(atom);
-        } else if (token.type === 'placeholder') {
-            // RENDER PLACEHOLDER
-            atom = new Atom('text', 'placeholder', token.value as string);
-            atom.captureSelection = true;
-            result.push(atom);
-        } else if (token.type === 'command') {
+        } else if (token[0] === '\\') {
             // Invoke the 'main' parser to handle the command
             tokens.unshift(token);
             let atoms: Atom[];
             [atoms, tokens] = options.parse('text', tokens, options);
             result = [...result, ...atoms];
-        } else if (token.type === 'literal') {
-            const info = getInfo(token.value as string, 'text', options.macros);
+        } else if (token.length === 1) {
+            const info = getInfo(token, 'text', options.macros);
             if (!info) {
                 error({ code: 'unexpected-token' });
             } else if (!info.mode || info.mode.includes('text')) {
                 atom = new Atom(
                     'text',
                     info ? info.type : '', // @todo: revisit. Use 'text' type?
-                    info ? info.value : (token.value as string),
+                    info ? info.value : token,
                     options.style
                 );
-                atom.symbol = token.value as string;
-                atom.latex = charToLatex('text', token.value as string);
+                atom.symbol = token;
+                atom.latex = charToLatex('text', token);
                 result.push(atom);
             } else {
                 error({ code: 'unexpected-token' });
             }
-        } else if (token.type === '$' || token.type === '$$') {
+        } else if (token === '<$>' || token === '<$$>') {
             // Mode-shift
             const subtokens = tokens.slice(
                 0,
-                tokens.findIndex((x: Token) => x.type === token.type)
+                tokens.findIndex((x: Token) => x === token)
             );
             tokens = tokens.slice(subtokens.length + 1);
             const [atoms] = options.parse('math', subtokens, options);
             result = [...result, ...atoms];
-        } else if (token.type === '{' || token.type === '}') {
+        } else if (token === '<{>' || token === '<}>') {
             // Spurious braces are ignored by TeX in text mode
             // In text mode, braces are sometimes used to separate adjacent
             // commands without inserting a space, e.g. "\backlash{}command"
         } else {
             error({
                 code: 'unexpected-token',
-                arg: token.type + (token.value ?? ''),
+                arg: token,
             });
         }
     }

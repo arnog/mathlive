@@ -64,6 +64,80 @@ function timestamp() {
     );
 }
 
+// Rollup plugin to display build progress and launch server
+function buildProgress() {
+    return {
+        name: 'rollup.config.js',
+        transform(_code, id) {
+            const file = normalizePath(id);
+            if (file.includes(':')) {
+                return;
+            }
+
+            if (
+                process.stdout.isTTY &&
+                typeof process.stdout.clearLine === 'function'
+            ) {
+                process.stdout.clearLine();
+                process.stdout.cursorTo(0);
+                process.stdout.write('Building ' + chalk.grey(file));
+            } else {
+                console.log(chalk.grey(file));
+            }
+        },
+        buildEnd() {
+            if (
+                process.env.BUILD === 'watch' ||
+                process.env.BUILD === 'watching'
+            ) {
+                if (
+                    process.stdout.isTTY &&
+                    typeof process.stdout.clearLine === 'function'
+                ) {
+                    process.stdout.clearLine();
+                    process.stdout.cursorTo(0);
+                    process.stdout.write(
+                        timestamp() +
+                            (process.env.BUILD === 'watching'
+                                ? ' Build updated'
+                                : ' Build done')
+                    );
+                }
+            } else {
+                if (
+                    process.stdout.isTTY &&
+                    typeof process.stdout.clearLine === 'function'
+                ) {
+                    process.stdout.clearLine();
+                    process.stdout.cursorTo(0);
+                }
+            }
+            if (process.env.BUILD === 'watch') {
+                process.env.BUILD = 'watching';
+                if (
+                    process.stdout.isTTY &&
+                    typeof process.stdout.clearLine === 'function'
+                ) {
+                    process.stdout.clearLine();
+                    process.stdout.cursorTo(0);
+                }
+                console.log('         🚀 Launching server');
+                exec(
+                    "npx http-server . -s -c-1 --cors='*' -o /examples/test-cases/index.html",
+                    (error, stdout, stderr) => {
+                        if (error) {
+                            console.error(`http-server error: ${error}`);
+                            return;
+                        }
+                        console.log(stdout);
+                        console.error(stderr);
+                    }
+                );
+            }
+        },
+    };
+}
+
 const ROLLUP = [
     // MathLive main module
     {
@@ -77,84 +151,8 @@ const ROLLUP = [
         // input: [ 'mathlive': 'src/mathlive.ts', 'mathlive-render': 'src/mathlive-render.ts' ]
         input: 'src/mathlive.ts',
         plugins: [
-            {
-                name: 'rollup.config.js',
-                transform(_code, id) {
-                    const file = normalizePath(id);
-                    if (file.includes(':')) {
-                        return;
-                    }
-
-                    if (
-                        process.stdout.isTTY &&
-                        typeof process.stdout.clearLine === 'function'
-                    ) {
-                        process.stdout.clearLine();
-                        process.stdout.cursorTo(0);
-                        process.stdout.write('Building ' + chalk.grey(file));
-                    } else {
-                        console.log(chalk.grey(file));
-                    }
-                },
-                buildEnd() {
-                    if (
-                        process.env.BUILD === 'watch' ||
-                        process.env.BUILD === 'watching'
-                    ) {
-                        if (
-                            process.stdout.isTTY &&
-                            typeof process.stdout.clearLine === 'function'
-                        ) {
-                            process.stdout.clearLine();
-                            process.stdout.cursorTo(0);
-                            process.stdout.write(
-                                timestamp() +
-                                    (process.env.BUILD === 'watching'
-                                        ? ' Build updated'
-                                        : ' Build done')
-                            );
-                        }
-                    } else {
-                        if (
-                            process.stdout.isTTY &&
-                            typeof process.stdout.clearLine === 'function'
-                        ) {
-                            process.stdout.clearLine();
-                            process.stdout.cursorTo(0);
-                        }
-                    }
-                    if (process.env.BUILD === 'watch') {
-                        process.env.BUILD = 'watching';
-                        if (
-                            process.stdout.isTTY &&
-                            typeof process.stdout.clearLine === 'function'
-                        ) {
-                            process.stdout.clearLine();
-                            process.stdout.cursorTo(0);
-                        }
-                        console.log('         🚀 Launching server');
-                        exec(
-                            "npx http-server . -s -c-1 --cors='*' -o /examples/test-cases/index.html",
-                            (error, stdout, stderr) => {
-                                if (error) {
-                                    console.error(
-                                        `http-server error: ${error}`
-                                    );
-                                    return;
-                                }
-                                console.log(stdout);
-                                console.error(stderr);
-                            }
-                        );
-                    }
-                },
-            },
-            PRODUCTION &&
-                eslint({
-                    exclude: ['**/*.less'],
-                    // fix: true,
-                    // include: 'src/',
-                }),
+            buildProgress(),
+            PRODUCTION && eslint({ exclude: ['**/*.less'] }),
             postcss({
                 extract: false, // extract: path.resolve('dist/mathlive.css')
                 modules: false,

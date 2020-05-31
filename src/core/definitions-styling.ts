@@ -142,6 +142,21 @@ defineFunction(
     }
 );
 
+defineFunction(
+    ['displaystyle', 'textstyle', 'scriptstyle', 'scriptscriptstyle'],
+    '',
+    {},
+    (name, _args) => {
+        return {
+            mathstyle: name.slice(1) as
+                | 'displaystyle'
+                | 'textstyle'
+                | 'scriptstyle'
+                | 'scriptscriptstyle',
+        };
+    }
+);
+
 // Size
 defineFunction(
     [
@@ -157,7 +172,7 @@ defineFunction(
         'Huge',
     ],
     '',
-    {},
+    { mode: 'text' },
     (name, _args) => {
         return {
             fontSize: {

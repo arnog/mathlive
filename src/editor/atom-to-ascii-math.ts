@@ -76,7 +76,7 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
     if (isArray(atom)) {
         let result = '';
         if (atom.length === 0) return '';
-        if (atom[0].type === 'first') atom.shift();
+        if (atom[0].type === 'first') atom = atom.slice(1);
         if (atom.length === 0) return '';
         if (atom[0].mode === 'text') {
             // Text mode... put it in (ASCII) quotes

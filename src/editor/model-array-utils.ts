@@ -65,11 +65,11 @@ export function arrayCell(
     if (typeof colrow !== 'object') colrow = arrayColRow(array, colrow);
     let result: Atom[];
     if (isArray(array[colrow.row])) {
-        result = array[colrow.row][colrow.col] || null;
+        result = array[colrow.row][colrow.col] ?? null;
     }
     // If the 'first' math atom is missing, insert it
     if (result && (result.length === 0 || result[0].type !== 'first')) {
-        result.unshift(new Atom('', 'first'));
+        result.unshift(new Atom('math', 'first'));
     }
     return result;
 }

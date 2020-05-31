@@ -100,6 +100,7 @@
         "http-server": "^0.12.3",
         "husky": "^4.2.5",
         "jest": "^26.0.1",
+        "jest-silent-reporter": "^0.2.1",
         "less": "^3.11.1",
         "lint-staged": "^10.2.6",
         "postcss-cli": "^7.1.1",

@@ -780,14 +780,14 @@ export class Atom implements Style {
             } else {
                 const spacingCls =
                     {
-                        qquad: 'qquad',
-                        quad: 'quad',
-                        enspace: 'enspace',
-                        ';': 'thickspace',
-                        ':': 'mediumspace',
-                        ',': 'thinspace',
-                        '!': 'negativethinspace',
-                    }[this.body as string] || 'quad';
+                        '\\qquad': 'qquad',
+                        '\\quad': 'quad',
+                        '\\enspace': 'enspace',
+                        '\\;': 'thickspace',
+                        '\\:': 'mediumspace',
+                        '\\,': 'thinspace',
+                        '\\!': 'negativethinspace',
+                    }[this.symbol] ?? 'mediumspace';
                 result = makeSpan('\u200b', 'mspace ' + spacingCls);
             }
         } else if (this.type === 'mathstyle') {
@@ -1222,7 +1222,7 @@ export function makeRoot(parseMode: ParseModePrivate, body: Atom[] = []): Atom {
         isArray(result.body) &&
         (result.body.length === 0 || result.body[0].type !== 'first')
     ) {
-        result.body!.unshift(new Atom('', 'first'));
+        result.body!.unshift(new Atom(parseMode, 'first'));
     }
     return result;
 }

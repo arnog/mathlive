@@ -25,20 +25,20 @@
         </header>
         <main>
             <div class="mathfield" id="mf">
-                z = \overbrace{ \underbrace{x}_\text{real} + i
-                \underbrace{y}_\text{imaginary} }^\text{complex number}
-                <!-- \left(\frac12\right) -->
-                <!-- \huge x \text{y} -->
-                <!-- \scriptscriptstyle x \text{y} -->
-                <!-- \sqrt[\Huge 3]{29} -->
-                <!-- x^{\binom{n}{k}} -->
-                <!-- \binom12 \textstyle \binom34 \scriptstyle \binom56 \displaystyle \binom78 \scriptstyle \binom90 -->
-                <!-- \int^b_a x^2 dx -->
-                <!-- \int^b_a\int^c_d x^2 dx dy -->
-                <!-- \int x^2 + x = 0 -->
-                <!-- \int x^2 + x dx = 0 -->
-                <!-- \int (x^2 + x) dx = 0 -->
+                \left(1+2\right)^{3}'
             </div>
+            <!-- \left(\frac12\right) -->
+            <!-- \huge x \text{y} -->
+            <!-- \scriptscriptstyle x \text{y} -->
+            <!-- \sqrt[\Huge 3]{29} -->
+            <!-- x^{\binom{n}{k}} -->
+            <!-- \binom12 \textstyle \binom34 \scriptstyle \binom56 \displaystyle \binom78 \scriptstyle \binom90 -->
+            <!-- \int^b_a x^2 dx -->
+            <!-- \int^b_a\int^c_d x^2 dx dy -->
+            <!-- \int x^2 + x = 0 -->
+            <!-- \int x^2 + x dx = 0 -->
+            <!-- \int (x^2 + x) dx = 0 -->
+
             <div class="output" id="latex"></div>
             <div class="output" id="mathjson"></div>
             <div class="output" id="mathascii"></div>
@@ -152,7 +152,7 @@
                                     id: 'styling-9',
                                     title: 'More styled text',
                                     latex:
-                                        '\\text{\\textit{italic} upright roman \\textbf{bold {\\fontshape{n}upright \\large large} roman}',
+                                        '\\text{\\textit{italic} upright roman \\textbf{bold {\\fontshape{n}upright \\large large} roman}}',
                                 },
                                 {
                                     id: 'styling-10',
@@ -607,6 +607,11 @@
                                     latex: `{n \\atopwithdelims ()0}`,
                                 },
                                 {
+                                    id: 'infix-1',
+                                    title: 'Only one infix per group',
+                                    latex: `a \\over b \\over c`,
+                                },
+                                {
                                     id: 'accent-1',
                                     title: 'Acents',
                                     pic: 'accents-1.gif',
@@ -945,7 +950,7 @@
                                     title: '&dollar; inside \\text inside \\&#91;...\\&#93;',
                                     comment:
                                         '<kbd>For</kbd> is upright, <kbd>x</kbd> is italics (math variable)',
-                                    latex: '\\[ \\text{For $|x|<1$}. \\]',
+                                    latex: '\\text{For $|x|<1$}.',
                                 },
                                 {
                                     id: 'mathstyle-4',
@@ -953,7 +958,7 @@
                                         '&dollar;&dollar;...&dollar;&dollar; inside &dollar;...&dollar;',
                                     comment:
                                         'Only <kbd>\\prod</kbd> is in <kbd>displaystyle</kbd>',
-                                    latex: `\\prod_0^n  $\\sum_0^n $$ \\sum_0^n $$ $`,
+                                    latex: `\\prod_0^n  $\\sum_0^n $$ \\sum_0^n $$ $ `,
                                 },
 
                                 {
@@ -1145,12 +1150,12 @@
                     },
                 });
             }
-            if (true) {
-                // MathLive.renderMathInDocument({
-                //    onError: (err) => {
-                //        console.error(err.latex, err.code + (err.arg ?? ''));
-                //    },
-                // });
+            // MathLive.renderMathInDocument({
+            //     onError: (err) => {
+            //         console.error(err.latex, err.code + ' ' + (err.arg ?? ''));
+            //     },
+            // });
+            if (false) {
                 let error = [];
                 let savedMathfieldContent;
                 if (mf) {
@@ -1172,11 +1177,14 @@
                 document.getElementById(
                     'examples'
                 ).innerHTML = TESTING_SAMPLES.map((x) => {
-                    let result = `<h2>${x.title}</h2><p>${
-                        x.comment || ''
-                    }</p><code>${escapeHtml(
-                        x.latex
-                    )}</code><p class='formula'>$$${x.latex}$$</p>`;
+                    let result =
+                        `<h2>${x.title}</h2><p>${
+                            x.comment || ''
+                        }</p><code>${escapeHtml(
+                            x.latex
+                        )}</code><p class="formula"><script type='math/tex'>${
+                            x.latex
+                        }</` + 'script></p>';
                     error = [];
                     if (mf) {
                         mf.$latex(x.latex);
@@ -1202,7 +1210,9 @@
                     }
                     return result;
                 }).join('');
-                MathLive.renderMathInElement('examples');
+                MathLive.renderMathInElement('examples', {
+                    processClass: 'formula',
+                });
                 if (mf) {
                     mf.$latex(savedMathfieldContent);
                 }

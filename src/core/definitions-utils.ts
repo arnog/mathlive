@@ -153,7 +153,12 @@ export type ParseFunctionResult = {
     type?: string;
 
     mode?: ParseModePrivate;
-    mathstyle?: string;
+    mathstyle?:
+        | 'auto'
+        | 'textstyle'
+        | 'displaystyle'
+        | 'scriptstyle'
+        | 'scriptscriptstyle';
 
     skipBoundary?: boolean;
     captureSelection?: boolean;

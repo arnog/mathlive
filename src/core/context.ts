@@ -4,15 +4,14 @@ import { Mathstyle, MATHSTYLES } from './mathstyle';
 export type ParseModePrivate =
     | ParseMode
     | (
-          | ''
           | 'auto'
           | 'bbox'
-          | 'color'
-          | 'colspec'
+          | 'color' //color name, hex value: `'#fff'`, `'#a0a0a0'`
+          | 'colspec' // formating of a column in tabular environment, e.g. `'r@{.}l'`
           | 'delim'
-          | 'dimen'
-          | 'number'
-          | 'skip'
+          | 'dimen' // `'25mu'`, `'2pt'`
+          | 'number' //`+/-12.56`
+          | 'skip' // `'25mu plus 2em minus fiLll'`, `'2pt'`
           | 'string'
       );
 

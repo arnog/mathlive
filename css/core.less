@@ -1,6 +1,10 @@
 // The mu (mathematical unit) is defined by TeX as 1/18 em
 @mu: 1/18em;
 
+@system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+
 .ML__sr-only {
     position: absolute;
     width: 1px;
@@ -12,36 +16,12 @@
     border: 0;
 }
 
-.ML__mathlive {
-    display: inline-block;
-
-    line-height: 0;
-
-    direction: ltr;
-
-    text-align: left;
-    text-indent: 0;
-    text-rendering: auto;
-    font-style: normal;
-    font-size-adjust: none;
-    letter-spacing: normal;
-
-    word-wrap: normal;
-    word-spacing: normal;
-    white-space: nowrap;
-
-    text-shadow: none;
-    -webkit-user-select: none;
-    user-select: none;
-
-    width: min-content;
-
-    // Encourage browsers to consider allocating a hardware accelerated
-    // layer for this element.
-    transform: translateZ(0);
+body.ML__fonts-loading .ML__base {
+    visibility: hidden;
 }
 
 .ML__base {
+    visibility: inherit;
     display: inline-block;
     position: relative;
     cursor: text;
@@ -59,6 +39,7 @@
 
 /* Text mode */
 .ML__text {
+    font-family: var(--ml_text-font-family, @system);
     white-space: pre;
 }
 
@@ -217,6 +198,34 @@
     @thinspace: 0.16667em; // 3mu
     @mediumspace: 0.22222em; // 4mu
     @thickspace: 0.27778em; // 5mu
+
+    display: inline-block;
+
+    line-height: 0;
+
+    direction: ltr;
+
+    text-align: left;
+    text-indent: 0;
+    text-rendering: auto;
+    font-family: KaTeX_Main;
+    font-style: normal;
+    font-size-adjust: none;
+    letter-spacing: normal;
+
+    word-wrap: normal;
+    word-spacing: normal;
+    white-space: nowrap;
+
+    text-shadow: none;
+    -webkit-user-select: none;
+    user-select: none;
+
+    width: min-content;
+
+    // Encourage browsers to consider allocating a hardware accelerated
+    // layer for this element.
+    transform: translateZ(0);
 
     .reset-textstyle.scriptstyle {
         font-size: 0.7em;
@@ -654,6 +663,7 @@
         }
 
         .accent-body > span {
+            font-family: KaTeX_Main;
             width: 0;
         }
 
