@@ -114,9 +114,9 @@ function makeOverunderStack(
             [
                 0,
                 below,
-                FONTMETRICS.bigOpSpacing3 + spanDepth(nucleus),
+                belowShift,
                 nucleus,
-                -aboveShift,
+                aboveShift,
                 above,
                 FONTMETRICS.bigOpSpacing2,
             ],
@@ -136,13 +136,10 @@ function makeOverunderStack(
         result = makeVlist(
             context,
             [
+                spanDepth(nucleus),
                 nucleus,
-                Math.max(
-                    FONTMETRICS.bigOpSpacing2,
-                    aboveShift - spanDepth(above)
-                ), // TeXBook 13a, p.444
+                Math.max(FONTMETRICS.bigOpSpacing2, aboveShift), // TeXBook 13a, p.444
                 above,
-                0,
             ],
             'bottom',
             spanDepth(nucleus)
