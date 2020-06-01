@@ -1,7 +1,7 @@
 import { isArray } from '../common/types';
 
 import { Style, ParseMode } from '../public/core';
-import { getCharacterMetrics } from './font-metrics';
+import { getCharacterMetrics, METRICS } from './font-metrics';
 import { svgBodyToMarkup, svgBodyHeight } from './svg-span';
 import { applyStyle as applyStyleForMode } from './modes-utils';
 import { Context } from './context';
@@ -237,8 +237,8 @@ export class Span {
                 if (x.maxFontSize > maxFontSize) maxFontSize = x.maxFontSize;
             });
         } else if (typeof this.body === 'string') {
-            height = 0.7;
-            depth = 0.2;
+            height = METRICS.baselineskip;
+            depth = 0;
         }
         this.height = height;
         this.depth = depth;
@@ -773,7 +773,8 @@ function makeFontSizer(context: Context, fontSize: number): Span {
         ? fontSize / context.mathstyle.sizeMultiplier
         : 0;
     const fontSizeInner = new Span('\u200b'); // ZERO WIDTH SPACE
-
+    fontSizeInner.depth = 0;
+    fontSizeInner.height = 0;
     if (fontSizeAdjustment !== 1) {
         fontSizeInner.setStyle(
             'font-size',

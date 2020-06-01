@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Bug Fixes
+
+-   Adjusted height of square root (there was some extra blank space above)
+
 ## 0.53.1 (2020-06-01)
 
 ### Bug Fixes
