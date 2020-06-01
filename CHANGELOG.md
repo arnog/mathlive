@@ -1,3 +1,11 @@
+## [Unreleased]
+
+### Bug Fixes
+
+-   In the virtual keyboard, use `\scriptstyle` to display small symbols
+-   Better vertical alignment of extensible arrows
+-   Don't display a double caret after a `\leftright`
+
 ## 0.53.0 (2020-05-31)
 
 ### Breaking Change / New Feature
