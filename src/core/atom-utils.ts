@@ -826,7 +826,14 @@ export class Atom implements Style {
             this.type !== 'first'
         ) {
             if (isArray(result)) {
-                result[result.length - 1].caret = this.caret;
+                if (
+                    !(
+                        this.type === 'leftright' &&
+                        (this.superscript || this.subscript)
+                    )
+                ) {
+                    result[result.length - 1].caret = this.caret;
+                }
             } else {
                 result.caret = this.caret;
             }
