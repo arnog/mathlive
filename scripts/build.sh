@@ -88,7 +88,7 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
             # Stamp the SDK version number
             echo -e "\033[40m`basename "$0"`\033[0m 🚀 Stamping output files"
             find ./dist -type f -name '*.css' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\//" {}' \;
-            find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec bash -c 'sedi "s/{{SDK_VERSION}}/$SDK_VERSION/g" {}' \;
+            find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec bash -c 'sedi s/{{SDK_VERSION}}/$SDK_VERSION/g {}' \;
             find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\/$(printf '"'"'\r'"'"')/" {}' \;
             find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "s/{{SDK_VERSION}}/$SDK_VERSION/" {}' \;
 

@@ -29,7 +29,7 @@ const TYPESCRIPT_OPTIONS = {
     },
 };
 
-const SDK_VERSION = JSON.stringify(pkg.version || 'v?.?.?');
+const SDK_VERSION = pkg.version || 'v?.?.?';
 
 const TERSER_OPTIONS = {
     compress: {
