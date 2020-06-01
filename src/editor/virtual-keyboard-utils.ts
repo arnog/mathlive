@@ -799,7 +799,7 @@ const LAYERS = {
                 <li class='fnbutton' data-insert='$$\\sqrt[#?]{#0}$$'></li>
                 <li class='bigfnbutton' data-insert='$$#0 \\mod$$' data-latex='\\mod'></li>
                 <li class='bigfnbutton' data-insert='$$\\operatorname{round}(#?) $$' data-latex='\\operatorname{round}()'></li>
-                <li class='bigfnbutton' data-insert='$$\\prod_{n\\mathop=0}^{\\infty}$$' data-latex='{\\tiny \\prod_{n=0}^{\\infty}}'></li>
+                <li class='bigfnbutton' data-insert='$$\\prod_{n\\mathop=0}^{\\infty}$$' data-latex='{\\scriptstyle \\prod_{n=0}^{\\infty}}'></li>
                 <li class='bigfnbutton' data-insert='$$\\frac{\\differentialD #0}{\\differentialD x}$$'></li>
                 <li class='action font-glyph bottom right' data-command='["performWithFeedback","deletePreviousChar"]'>&#x232b;</li></ul>
             <ul><li class='separator'></li>
@@ -970,13 +970,13 @@ export function makeKeycap(
         if (el.getAttribute('data-latex')) {
             html = latexToMarkup(
                 el.getAttribute('data-latex').replace(/&quot;/g, '"'),
-                { '?': '{\\color{#555}{\\tiny \\char"2B1A}}' },
+                { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' },
                 mf
             );
         } else if (el.getAttribute('data-insert') && el.innerHTML === '') {
             html = latexToMarkup(
                 el.getAttribute('data-insert').replace(/&quot;/g, '"'),
-                { '?': '{\\color{#555}{\\tiny \\char"2B1A}}' },
+                { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' },
                 mf
             );
         } else if (el.getAttribute('data-content')) {
