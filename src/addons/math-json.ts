@@ -1449,7 +1449,7 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
  * an object.
  * @param {object} expr An expressions, including expr.atoms, expr.index,
  * expr.minPrec the minimum precedence that this parser should parse
- * before returning; expr.lhs (optional); expr.ast, the resulting AST.
+ * before returning; expr.ast, the resulting AST.
  * @return {object} the expr object, updated
  * @private
  */
