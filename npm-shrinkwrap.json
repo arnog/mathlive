@@ -2667,7 +2667,7 @@
         },
         "decamelize": {
             "version": "1.2.0",
-            "resolved": "",
+            "resolved": false,
             "integrity": "sha1-9lNNFRSCabIDUue+4m9QH5oZEpA=",
             "dev": true
         },
@@ -8657,9 +8657,9 @@
             }
         },
         "regenerate": {
-            "version": "1.4.0",
-            "resolved": "https://registry.npmjs.org/regenerate/-/regenerate-1.4.0.tgz",
-            "integrity": "sha512-1G6jJVDWrt0rK99kBjvEtziZNCICAuvIPkSiUFIQxVP06RCVpq3dmDo2oi6ABpYaDYaTRr67BEhL8r1wgEZZKg==",
+            "version": "1.4.1",
+            "resolved": "https://registry.npmjs.org/regenerate/-/regenerate-1.4.1.tgz",
+            "integrity": "sha512-j2+C8+NtXQgEKWk49MMP5P/u2GhnahTtVkRIHr5R5lVRlbKvmQ+oS+A5aLKWp2ma5VkT8sh6v+v4hbH0YHR66A==",
             "dev": true
         },
         "regenerate-unicode-properties": {
@@ -8708,9 +8708,9 @@
             }
         },
         "regjsgen": {
-            "version": "0.5.1",
-            "resolved": "https://registry.npmjs.org/regjsgen/-/regjsgen-0.5.1.tgz",
-            "integrity": "sha512-5qxzGZjDs9w4tzT3TPhCJqWdCc3RLYwy9J2NB0nm5Lz+S273lvWcpjaTGHsT1dc6Hhfq41uSEOw8wBmxrKOuyg==",
+            "version": "0.5.2",
+            "resolved": "https://registry.npmjs.org/regjsgen/-/regjsgen-0.5.2.tgz",
+            "integrity": "sha512-OFFT3MfrH90xIW8OOSyUrk6QHD5E9JOTeGodiJeBS3J6IwlgzJMNE/1bZklWz5oTg+9dCMyEetclvCVXOPoN3A==",
             "dev": true
         },
         "regjsparser": {
@@ -9142,9 +9142,9 @@
             }
         },
         "rollup-plugin-postcss": {
-            "version": "3.1.1",
-            "resolved": "https://registry.npmjs.org/rollup-plugin-postcss/-/rollup-plugin-postcss-3.1.1.tgz",
-            "integrity": "sha512-4/FO5/2O5kv2uWRd7PPTN4mBCWoHwwFTnpEGokfPKfj6kygvTORqkBWNgVPXi7bBefNKtMA3FqQ10se6/J8kKw==",
+            "version": "3.1.2",
+            "resolved": "https://registry.npmjs.org/rollup-plugin-postcss/-/rollup-plugin-postcss-3.1.2.tgz",
+            "integrity": "sha512-29ocL0CqjLj9sUghTG64ZwFxwbo2d0WyOTVtqPg6SEMZyFmKke9TClBf4/CcdFaWHqS+YZGsUpq3mzIBSYrw+A==",
             "dev": true,
             "requires": {
                 "chalk": "^4.0.0",
