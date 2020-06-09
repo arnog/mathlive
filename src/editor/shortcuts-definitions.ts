@@ -82,9 +82,24 @@ export const INLINE_SHORTCUTS: {
 
     // Differentials
     // According to ISO31/XI (ISO 80000-2), differentials should be upright
-    dx: '\\differentialD x',
-    dy: '\\differentialD y',
-    dt: '\\differentialD t',
+    dx: {
+        mode: 'math',
+        after:
+            'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\differentialD x',
+    },
+    dy: {
+        mode: 'math',
+        after:
+            'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\differentialD y',
+    },
+    dt: {
+        mode: 'math',
+        after:
+            'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\differentialD t',
+    },
 
     // Logic
     AA: { mode: 'math', value: '\\forall' },
@@ -113,28 +128,28 @@ export const INLINE_SHORTCUTS: {
     PP: '\\P', // Prime numbers
 
     // Operators
-    xx: '\\times',
-    '+-': '\\pm',
+    xx: { mode: 'math', value: '\\times' },
+    '+-': { mode: 'math', value: '\\pm' },
 
     // Relational operators
-    '!=': '\\ne',
-    '>=': '\\ge',
-    '<=': '\\le',
-    '<<': '\\ll',
-    '>>': '\\gg',
-    '~~': '\\approx',
+    '!=': { mode: 'math', value: '\\ne' },
+    '>=': { mode: 'math', value: '\\ge' },
+    '<=': { mode: 'math', value: '\\le' },
+    '<<': { mode: 'math', value: '\\ll' },
+    '>>': { mode: 'math', value: '\\gg' },
+    '~~': { mode: 'math', value: '\\approx' },
 
     // More operators
-    '≈': '\\approx',
-    '?=': '\\questeq',
-    '÷': '\\div',
-    '¬': '\\neg',
-    ':=': '\\coloneq',
-    '::': '\\Colon',
+    '≈': { mode: 'math', value: '\\approx' },
+    '?=': { mode: 'math', value: '\\questeq' },
+    '÷': { mode: 'math', value: '\\div' },
+    '¬': { mode: 'math', value: '\\neg' },
+    ':=': { mode: 'math', value: '\\coloneq' },
+    '::': { mode: 'math', value: '\\Colon' },
 
     // Fences
-    '(:': '\\langle',
-    ':)': '\\rangle',
+    '(:': { mode: 'math', value: '\\langle' },
+    ':)': { mode: 'math', value: '\\rangle' },
 
     // More Greek letters
     beta: '\\beta',
@@ -235,7 +250,7 @@ export const INLINE_SHORTCUTS: {
     Ω: '\\omega', // @TODO: or ohm?
 
     // More Logic
-    forall: '\\forall',
+    forall: { mode: 'math', value: '\\forall' },
     exists: {
         mode: 'math',
         value: '\\exists',
