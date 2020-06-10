@@ -3,6 +3,8 @@
 ### Bug Fixes
 
 -   Adjusted height of square root (there was some extra blank space above)
+-   Ensure that the 'dt' inline shortcut does not trigger when writing "width"
+    (it should only apply in the math mode)
 -   **#492** Typing "/" to insert as fraction when some items were selected
     would result in an eroneous output.
 
