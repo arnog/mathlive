@@ -1129,9 +1129,9 @@
             "dev": true
         },
         "@types/node": {
-            "version": "14.0.6",
-            "resolved": "https://registry.npmjs.org/@types/node/-/node-14.0.6.tgz",
-            "integrity": "sha512-FbNmu4F67d3oZMWBV6Y4MaPER+0EpE9eIYf2yaHhCWovc1dlXCZkqGX4NLHfVVr6umt20TNBdRzrNJIzIKfdbw==",
+            "version": "14.0.13",
+            "resolved": "https://registry.npmjs.org/@types/node/-/node-14.0.13.tgz",
+            "integrity": "sha512-rouEWBImiRaSJsVA+ITTFM6ZxibuAlTuNOCyxVbwreu6k6+ujs7DfnU9o+PShFhET78pMBl3eH+AGSI5eOTkPA==",
             "dev": true
         },
         "@types/normalize-package-data": {
@@ -2652,7 +2652,7 @@
         },
         "decamelize": {
             "version": "1.2.0",
-            "resolved": "",
+            "resolved": false,
             "integrity": "sha1-9lNNFRSCabIDUue+4m9QH5oZEpA=",
             "dev": true
         },
