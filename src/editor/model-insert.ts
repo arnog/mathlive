@@ -5,6 +5,7 @@ import {
     COMMAND_MODE_CHARACTERS,
     isAtomArray,
     parseString,
+    makeRoot,
 } from '../core/core';
 
 import { parseMathString } from './parse-math-string';
@@ -71,10 +72,12 @@ export function insert(
     options.macros = options.macros ?? model.options.macros;
 
     const mode = options.mode || getAnchorMode(model);
-    let mathlist;
+    let mathlist: Atom[];
 
     // Save the content of the selection, if any
-    const args: (string | Atom[])[] = [getSelectedAtoms(model)];
+    const args: (string | Atom[])[] = [
+        makeRoot('math', getSelectedAtoms(model)).toLatex(false),
+    ];
 
     // If a placeholder was specified, use it
     const placeholder = options.placeholder ?? '\\placeholder{}';
@@ -255,10 +258,7 @@ export function insert(
                 parent.latex = s;
             }
         }
-        Array.prototype.splice.apply(
-            model.siblings(),
-            [model.anchorOffset() + 1, 0].concat(mathlist)
-        );
+        model.siblings().splice(model.anchorOffset() + 1, 0, ...mathlist);
     }
 
     // If needed, make sure there's a first atom in the siblings list

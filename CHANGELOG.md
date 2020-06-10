@@ -3,6 +3,8 @@
 ### Bug Fixes
 
 -   Adjusted height of square root (there was some extra blank space above)
+-   **#492** Typing "/" to insert as fraction when some items were selected
+    would result in an eroneous output.
 
 ## 0.53.1 (2020-06-01)
 
