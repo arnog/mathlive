@@ -516,7 +516,7 @@ function toMathML(
         result.mathML = atomToMathML(input, options);
     } else if (Array.isArray(input)) {
         let count = 0;
-        final = final ?? (input ? input.length : 0);
+        final = final ? final : input ? input.length : 0;
 
         while (result.index < final) {
             if (
@@ -874,30 +874,24 @@ function atomToMathML(atom, options): string {
                     body = atom.body;
                 } else if (overscript) {
                     body = atom.body;
-                    if (atom.body && atom.body[0] && atom.body[0].underscript) {
+                    if (atom.body?.[0]?.underscript) {
                         underscript = atom.body[0].underscript;
                         body = atom.body[0].body;
                     } else if (
-                        atom.body &&
-                        atom.body[0] &&
-                        atom.body[0].type === 'first' &&
-                        atom.body[1] &&
-                        atom.body[1].underscript
+                        atom?.body[0]?.type === 'first' &&
+                        atom?.body[1]?.underscript
                     ) {
                         underscript = atom.body[1].underscript;
                         body = atom.body[1].body;
                     }
                 } else if (underscript) {
                     body = atom.body;
-                    if (atom.body && atom.body[0] && atom.body[0].overscript) {
+                    if (atom?.body?.[0]?.overscript) {
                         overscript = atom.body[0].overscript;
                         body = atom.body[0].body;
                     } else if (
-                        atom.body &&
-                        atom.body[0] &&
-                        atom.body[0].type === 'first' &&
-                        atom.body[1] &&
-                        atom.body[1].overscript
+                        atom?.body[0]?.type === 'first' &&
+                        atom?.body[1]?.overscript
                     ) {
                         overscript = atom.body[1].overscript;
                         body = atom.body[1].body;
