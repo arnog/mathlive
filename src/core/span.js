@@ -350,6 +350,7 @@ export class Span {
         let body = this.body || '';
         if (this.children) {
             let previousType = 'none';
+            let previousBody = undefined
             for (const child of this.children) {
                 let spacing = 0;
                 if (previousType) {
@@ -359,7 +360,8 @@ export class Span {
                         if (type === 'first') type = 'none';
                         if (child.isTight) {
                             spacing = (INTER_ATOM_TIGHT_SPACING[previousType + '+' + type] || 0);
-                        } else {
+                        } else if (previousType !== 'mpunct' || previousBody !== ',' || type !== 'mord') {
+                            // do not apply spacing for mpunct+mord when the mpunct is a comma
                             spacing = (INTER_ATOM_SPACING[previousType + '+' + type] || 0);
                         }
                         spacing = Math.floor(hscale * spacing);
@@ -367,6 +369,7 @@ export class Span {
                 }
                 body += child.toMarkup(spacing, hscale);
                 previousType = lastSpanType(child);
+                previousBody = child.body
             }
         }
         // Collapse 'empty' spans
