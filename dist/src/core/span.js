@@ -350,7 +350,7 @@ export class Span {
         let body = this.body || '';
         if (this.children) {
             let previousType = 'none';
-            let previousBody = undefined
+            let previousBody = undefined;
             for (const child of this.children) {
                 let spacing = 0;
                 if (previousType) {
