@@ -30,7 +30,7 @@ type EnvironmentDefinition = {
     parser: ParseEnvironmentFunction;
 };
 
-type SymbolDefinition = {
+export type SymbolDefinition = {
     type: AtomType;
     value: string;
     variant: Variant;
@@ -374,13 +374,13 @@ export const COMMAND_MODE_CHARACTERS = /[a-zA-Z0-9!@*()-=+{}[\]\\';:?/.,~<>`|'$%
 // See also https://stackoverflow.com/questions/26133593/using-regex-to-match-international-unicode-alphanumeric-characters-in-javascript
 export const LETTER =
     typeof navigator !== 'undefined' &&
-    /firefox|edge/i.test(navigator.userAgent)
+    /firefox|edge|Trident/i.test(navigator.userAgent)
         ? /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒäöüßÄÖÜẞàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚáéíñóúüÁÉÍÑÓÚÜ]/
         : new RegExp('\\p{Letter}', 'u');
 
 export const LETTER_AND_DIGITS =
     typeof navigator !== 'undefined' &&
-    /firefox|edge/i.test(navigator.userAgent)
+    /firefox|edge|Trident/i.test(navigator.userAgent)
         ? /[0-9a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒäöüßÄÖÜẞàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚáéíñóúüÁÉÍÑÓÚÜ]/
         : new RegExp('[0-9\\p{Letter}]', 'u');
 
@@ -606,7 +606,7 @@ function unicodeToMathVariant(
     for (const c in MATH_LETTER_EXCEPTIONS) {
         if (Object.prototype.hasOwnProperty.call(MATH_LETTER_EXCEPTIONS, c)) {
             if (MATH_LETTER_EXCEPTIONS[c] === codepoint) {
-                codepoint = c.codePointAt(0);
+                codepoint = c.codePointAt(0) ?? 0;
                 break;
             }
         }
@@ -754,9 +754,7 @@ export function commandAllowed(
 
 export function getValue(mode: ParseModePrivate, symbol: string): string {
     if (mode === 'math') {
-        return MATH_SYMBOLS[symbol] && MATH_SYMBOLS[symbol].value
-            ? MATH_SYMBOLS[symbol].value
-            : symbol;
+        return MATH_SYMBOLS[symbol]?.value ?? symbol;
     }
     return TEXT_SYMBOLS[symbol] ? TEXT_SYMBOLS[symbol] : symbol;
 }
@@ -770,7 +768,7 @@ export function emit(
     console.assert(!!atom);
     console.assert(!!symbol, 'Missing command for ', atom.body);
 
-    if (FUNCTIONS[symbol] && FUNCTIONS[symbol].emit) {
+    if (FUNCTIONS[symbol]?.emit) {
         return FUNCTIONS[symbol].emit(symbol, parent, atom, emitFn);
     }
 
@@ -778,12 +776,7 @@ export function emit(
         return symbol;
     }
 
-    if (
-        FUNCTIONS[symbol] &&
-        FUNCTIONS[symbol].params &&
-        FUNCTIONS[symbol].params.length === 1 &&
-        atom.body
-    ) {
+    if (atom.body && FUNCTIONS[symbol]?.params?.length === 1) {
         return symbol + '{' + emitFn(atom, atom.body as Atom[]) + '}';
     }
     // No custom emit function provided, return the symbol (could be a character)
