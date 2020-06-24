@@ -31,13 +31,20 @@ export async function loadFonts(
         ];
         // for (const fontFace of document.fonts.values()) { console.log(fontFace.family)}
         let fontsLoaded = false;
-        try {
-            fontsLoaded = fontFamilies.every((x) =>
-                document['fonts'].check('16px ' + x)
-            );
-        } catch (e) {
-            fontsLoaded = false;
+
+        // Firefox returns true for fonts that are not loaded...
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1252821 🤦‍♂️
+        // So, if on Firefox, always assume that the fonts are not loaded.
+        if (!/firefox/i.test(navigator.userAgent)) {
+            try {
+                fontsLoaded = fontFamilies.every((x) =>
+                    document['fonts'].check('16px ' + x)
+                );
+            } catch (e) {
+                fontsLoaded = false;
+            }
         }
+
         if (!fontsLoaded) {
             if (document.body.classList.contains('ML__fonts-loading')) {
                 return;
@@ -96,8 +103,8 @@ export async function loadFonts(
                 // Render them at the same time
                 loadedFonts.forEach((font) => document['fonts'].add(font));
                 document.body.classList.remove('ML__fonts-loading');
-            } catch (e) {
-                console.log(e);
+            } catch (err) {
+                console.error(err);
             }
         }
     }
