@@ -176,6 +176,7 @@ export function insert(
             if (/^\$\$(.*)\$\$$/.test(s)) {
                 s = s.substring(2, s.length - 2);
             }
+            if (!args[0]) args[0] = placeholder;
             mathlist = parseString(
                 s,
                 mode,
