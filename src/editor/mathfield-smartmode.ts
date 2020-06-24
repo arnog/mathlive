@@ -314,9 +314,13 @@ export function smartMode(
             );
             return true;
         }
-        if (/\?|\./.test(c)) {
-            // If the last character is a period or question mark,
+        if (c === '?') {
+            // If the last character is a question mark,
             // turn it to 'text'
+            return true;
+        }
+        if (c === '.' && !/[0-9-+]\.$/.test(context)) {
+            // A period after something other than a digit (or minus)
             return true;
         }
     }
