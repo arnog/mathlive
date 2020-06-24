@@ -6,7 +6,7 @@
 export type ParseMode = 'math' | 'text' | 'command';
 
 /**
- * Error code passed to the [[`ParserErrorListener`]] function.
+ * Error code passed to the [[`ErrorListener`]] function.
  *
  * See [[`MathfieldConfig`]], [[`latexToMarkup`]],  [[`latexToMathML`]],  [[`latexToAST`]],
  *

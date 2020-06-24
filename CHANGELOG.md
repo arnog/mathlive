@@ -1,3 +1,58 @@
+## [Unreleased]
+
+### Bug Fixes
+
+-   **#504** "Spacing is inconsistent after editing"
+
+    The spacing of operators should be adjusted depending on what's around them:
+    there is less space after a "-" sign when used as an infix operator than there
+    is around a "-" sign used as a prefix operator (i.e. "-4" vs "3-4").
+
+    The code that was handling this was accounting for it by modifying the type of
+    the element. This worked well enough for static rendering, but for dynamic
+    rendering (i.e. editing), once modified the previous type of the element was
+    lost and could not be restored (i.e. after deleting the atom in front of a "-"
+    sign, the "-" was no longer a binary operator but a regular symbol).
+
+    This is now handled during layout without modifying the type of the element.
+
+-   Workaround for a Safari bug where in some cases the caret would not blink.
+
+-   **#505** More consistent spacing between elements. Previously some Unicode
+    math spacing characters were used. However, these characters are not
+    rendered consistently. Switched to using CSS margins instead.
+
+-   The Latex generated for a `\left` command with another command as a
+    fence was lacking a space, e.g. `\left\lbracka\right\rbrack` instead of
+    `\left\lbrack a\right\rbrack`
+
+-   Smart fence for square brackets was not working correctly.
+
+-   Fixed smartmode to avoid converting a decimal point to text when entering,
+    e.g. "314.1576"
+
+-   The alt/option+V shortcut now correctly inserts a placeholder in the square root
+
+-   The "\arcos" function was incorrectly spelled "\arccos".
+
+### New Feature
+
+-   **#508** In order to better support some deployment configurations, added
+    a 'mathlive-fonts.css' file to the distribution package.
+
+    This is intended to be used by build/bundle environements that have an
+    asset pipeline that can move/rename assets, including the font-files
+
+    Note that this method is **not** recommended. It will result in some cases
+    where the layout is incorrect until the page is reloaded (especially for
+    formulas using large symbols such as integrals or large parentheses).
+
+    To use it, add the following to the web pages using MathLive:
+
+```html
+<link rel="stylesheet" href="dist/mathlive-fonts.css" />
+```
+
 ## 0.53.2 (2020-06-10)
 
 ### Bug Fixes
