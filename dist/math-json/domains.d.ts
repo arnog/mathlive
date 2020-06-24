@@ -1,4 +1,4 @@
-/* 0.54.0 */export declare const DOMAIN_NONE = 0;
+/* 0.54.1 */export declare const DOMAIN_NONE = 0;
 export declare const DOMAIN_ZERO = 1;
 export declare const DOMAIN_PRIME_NUMBER = 256;
 export declare const DOMAIN_POSITIVE_INTEGER: number;

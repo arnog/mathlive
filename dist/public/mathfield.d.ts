@@ -1,4 +1,4 @@
-/* 0.54.0 */import { Selector } from './commands';
+/* 0.54.1 */import { Selector } from './commands';
 import { MathfieldConfig } from './config';
 import { ParseMode, MacroDictionary, Style } from './core';
 /**
