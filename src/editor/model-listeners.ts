@@ -1,4 +1,8 @@
-import type { ErrorListener } from '../public/core';
+import type {
+    ErrorListener,
+    ParserErrorCode,
+    MathfieldErrorCode,
+} from '../public/core';
 import type { ModelPrivate } from './model-class';
 
 export type ModelListeners = {
@@ -6,7 +10,7 @@ export type ModelListeners = {
     onContentDidChange: (sender: ModelPrivate) => void;
     onSelectionWillChange: (sender: ModelPrivate) => void;
     onSelectionDidChange: (sender: ModelPrivate) => void;
-    onError: ErrorListener;
+    onError: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
 };
 
 export function selectionWillChange(model: ModelPrivate): void {

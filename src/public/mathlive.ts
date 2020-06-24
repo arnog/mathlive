@@ -20,7 +20,8 @@
 
 import { Mathfield } from './mathfield';
 import { MathfieldConfig, TextToSpeechOptions } from './config';
-import { MacroDictionary, ErrorListener } from './core';
+import { MacroDictionary, ErrorListener, ParserErrorCode } from './core';
+import { ErrorCode as MathJsonErrorCode } from '../math-json/public';
 
 export { Mathfield };
 export { MathfieldConfig };
@@ -66,7 +67,7 @@ export declare function latexToMarkup(
         mathstyle?: 'displaystyle' | 'textstyle';
         letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
         macros?: MacroDictionary;
-        onError?: ErrorListener;
+        onError?: ErrorListener<ParserErrorCode>;
     }
 ): string;
 
@@ -112,7 +113,7 @@ export declare function latexToMathML(
     options: {
         macros?: MacroDictionary;
         generateID: boolean;
-        onError?: ErrorListener;
+        onError?: ErrorListener<ParserErrorCode>;
     }
 ): string;
 
@@ -135,7 +136,7 @@ export declare function latexToAST(
     latex: string,
     options?: {
         macros?: MacroDictionary;
-        onError?: ErrorListener;
+        onError?: ErrorListener<ParserErrorCode | MathJsonErrorCode>;
     }
 );
 
@@ -193,7 +194,7 @@ export declare function latexToSpeakableText(
     latex: string,
     options: TextToSpeechOptions & {
         macros?: MacroDictionary;
-        onError?: ErrorListener;
+        onError?: ErrorListener<ParserErrorCode>;
     }
 ): string;
 export type AutoRenderOptions = {

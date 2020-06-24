@@ -199,7 +199,7 @@ export class ModelPrivate implements Model {
                     result[segment.relation][0].type !== 'first'
                 ) {
                     result[segment.relation].unshift(
-                        new Atom(result[segment.relation][1].type.mode, 'first')
+                        new Atom(result[segment.relation][0].mode, 'first')
                     );
                 }
                 const offset = Math.min(

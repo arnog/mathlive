@@ -13,9 +13,12 @@ VARIANT="${1-coverage}"
 export TEST="true"
 
 if [ "$VARIANT" = "coverage" ]; then
-    npx jest --coverage
+#    npx jest test/math-json.test  --coverage
+    npx jest   --coverage
 elif [ "$VARIANT" = "snapshot" ]; then
-    npx jest -u
+#    npx jest test/math-json.test -u
+    npx jest  -u
 else
+#    npx jest test/math-json.test 
     npx jest
 fi

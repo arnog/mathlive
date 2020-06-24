@@ -1,4 +1,10 @@
-import { ErrorListener, MacroDictionary, ParseMode } from './core';
+import {
+    ErrorListener,
+    MacroDictionary,
+    ParseMode,
+    ParserErrorCode,
+    MathfieldErrorCode,
+} from './core';
 import type { Mathfield } from './mathfield';
 import type { Selector } from './commands';
 
@@ -701,7 +707,7 @@ export type MathfieldConfig = LayoutOptions &
          * This could also be another kind of error, such as an invalid keybinding.
          *
          */
-        onError?: ErrorListener;
+        onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
 
         /**
          * This function provides the option of substituting the focusable DOM

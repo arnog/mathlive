@@ -761,7 +761,7 @@ export function getValue(mode: ParseModePrivate, symbol: string): string {
 
 export function emit(
     symbol: string,
-    parent: Window,
+    parent: Atom,
     atom: Atom,
     emitFn: (parent: Atom, atoms: Atom[]) => string
 ): string {

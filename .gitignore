@@ -14,6 +14,7 @@ examples/basic/index.debug.html
 
 # OS generated files #
 ######################
+**/.DS_Store
 .DS_Store
 .DS_Store?
 ._*

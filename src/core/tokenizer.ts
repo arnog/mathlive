@@ -28,7 +28,7 @@ export type Token = string;
  *
  * @param s A string of LaTeX
  */
-class Lexer {
+class Tokenizer {
     private s: string | string[];
     private pos: number;
 
@@ -186,7 +186,7 @@ class Lexer {
 
 // Some primitive commands need to be handled in the expansion phase
 // (the 'gullet')
-function expand(lex: Lexer, args: string[]): Token[] {
+function expand(lex: Tokenizer, args: string[]): Token[] {
     let result: Token[] = [];
     let token = lex.next();
     if (token) {
@@ -311,11 +311,11 @@ export function tokenize(s: string, args: string[]): Token[] {
         if (m) stream += m[0];
     }
 
-    const lex = new Lexer(stream);
+    const tokenizer = new Tokenizer(stream);
     let result: Token[] = [];
     do {
-        result = result.concat(expand(lex, args));
-    } while (!lex.end());
+        result = result.concat(expand(tokenizer, args));
+    } while (!tokenizer.end());
 
     return result;
 }

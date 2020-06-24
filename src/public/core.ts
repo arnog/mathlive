@@ -51,8 +51,8 @@ export type ParserErrorCode =
 
 export type MathfieldErrorCode = 'invalid-keybinding' | 'font-not-found';
 
-export type ErrorListener = (err: {
-    code: ParserErrorCode | MathfieldErrorCode;
+export type ErrorListener<T> = (err: {
+    code: T;
     arg?: string;
     latex?: string;
     before?: string;

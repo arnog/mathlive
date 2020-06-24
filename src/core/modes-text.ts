@@ -1,4 +1,4 @@
-import { ErrorListener, Style } from '../public/core';
+import { ErrorListener, Style, ParserErrorCode } from '../public/core';
 import {
     joinLatex,
     register,
@@ -6,7 +6,7 @@ import {
     ParseTokensOptions,
 } from './modes-utils';
 import { colorToString } from './color';
-import { Token } from './lexer';
+import { Token } from './tokenizer';
 import { Span } from './span';
 import { Atom } from './atom';
 import { getInfo, charToLatex, unicodeStringToLatex } from './definitions';
@@ -275,7 +275,7 @@ function applyStyle(span: Span, style: Style): string {
 // options.parser
 function parse(
     tokens: Token[],
-    error: ErrorListener,
+    error: ErrorListener<ParserErrorCode>,
     options: ParseTokensOptions
 ): [Atom[], Token[]] {
     let result = [];

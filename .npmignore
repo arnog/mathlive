@@ -1,3 +1,0 @@
-# An empty .npmignore file is necessary for the .gitignore file to be ignored
-# Without it, the /dist directory (which is in .gitignore) would not be 
-# taken into account by npm

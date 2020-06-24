@@ -1,6 +1,10 @@
 import type { Mathfield } from './public/mathfield';
 import type { MathfieldConfig, TextToSpeechOptions } from './public/config';
-import type { ErrorListener } from './public/core';
+import type {
+    ErrorListener,
+    ParserErrorCode,
+    MathfieldErrorCode,
+} from './public/core';
 
 import { decompose } from './core/atom-utils';
 import { parseString } from './core/parser';
@@ -9,10 +13,10 @@ import { MACROS, MacroDictionary } from './core/definitions';
 import { MathfieldPrivate } from './editor/mathfield-class';
 import AutoRender from './addons/auto-render';
 import {
-    jsonToLatex,
-    atomtoMathJson,
     MathJsonLatexOptions,
     MathJson,
+    atomtoMathJson,
+    jsonToLatex,
 } from './addons/math-json';
 import MathLiveDebug from './addons/debug';
 import { MATHSTYLES } from './core/mathstyle';
@@ -29,6 +33,8 @@ import { atomsToMathML } from './addons/math-ml';
 
 import './addons/definitions-metadata';
 import { AutoRenderOptionsPrivate } from './addons/auto-render';
+import { ErrorCode as MathJsonErrorCode } from './math-json/public';
+// import { parseLatex, emitLatex } from './math-json/math-json';
 
 function latexToMarkup(
     text: string,
@@ -36,13 +42,14 @@ function latexToMarkup(
         mathstyle?: 'displaystyle' | 'textstyle';
         letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
         macros?: MacroDictionary;
-        onError?: ErrorListener;
+        onError?: ErrorListener<ParserErrorCode>;
         format?: string;
     }
 ): string {
     options = options ?? {};
     options.mathstyle = options.mathstyle || 'displaystyle';
     options.letterShapeStyle = options.letterShapeStyle || 'auto';
+    options.macros = { ...MACROS, ...(options.macros ?? {}) };
 
     //
     // 1. Parse the formula and return a tree of atoms, e.g. 'genfrac'.
@@ -104,7 +111,7 @@ function latexToMathML(
     latex: string,
     options?: {
         macros?: MacroDictionary;
-        onError?: ErrorListener;
+        onError?: ErrorListener<ParserErrorCode>;
         generateID?: boolean;
     }
 ): string {
@@ -112,14 +119,7 @@ function latexToMathML(
     options.macros = { ...MACROS, ...(options.macros ?? {}) };
 
     return atomsToMathML(
-        parseString(
-            latex,
-            'math',
-            null,
-            options.macros,
-            false,
-            options.onError
-        ),
+        parseString(latex, 'math', [], options.macros, false, options.onError),
         options
     );
 }
@@ -128,11 +128,13 @@ function latexToAST(
     latex: string,
     options?: MathJsonLatexOptions & {
         macros?: MacroDictionary;
-        onError?: ErrorListener;
+        onError?: ErrorListener<ParserErrorCode | MathJsonErrorCode>;
     }
 ): MathJson {
     options = options ?? {};
     options.macros = { ...MACROS, ...(options.macros ?? {}) };
+
+    // return parseLatex(latex, options);
 
     return atomtoMathJson(
         parseString(
@@ -147,18 +149,19 @@ function latexToAST(
     );
 }
 
-function astToLatex(ast: MathJson, options: MathJsonLatexOptions): string {
+function astToLatex(expr: MathJson, options: MathJsonLatexOptions): string {
     return jsonToLatex(
-        typeof ast === 'string' ? JSON.parse(ast) : ast,
+        typeof expr === 'string' ? JSON.parse(expr) : expr,
         options
     );
+    // return emitLatex(expr, options);
 }
 
 function latexToSpeakableText(
     latex: string,
     options: TextToSpeechOptions & {
         macros?: MacroDictionary;
-        onError?: ErrorListener;
+        onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
     }
 ): string {
     options = options ?? {};

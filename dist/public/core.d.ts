@@ -31,8 +31,8 @@ export declare type ParseMode = 'math' | 'text' | 'command';
  */
 export declare type ParserErrorCode = 'unknown-command' | 'invalid-command' | 'unbalanced-braces' | 'unknown-environment' | 'unbalanced-environment' | 'unbalanced-mode-shift' | 'missing-argument' | 'too-many-infix-commands' | 'unexpected-command-in-string' | 'missing-unit' | 'unexpected-delimiter' | 'unexpected-token' | 'unexpected-end-of-string' | 'improper-alphabetic-constant';
 export declare type MathfieldErrorCode = 'invalid-keybinding' | 'font-not-found';
-export declare type ErrorListener = (err: {
-    code: ParserErrorCode | MathfieldErrorCode;
+export declare type ErrorListener<T> = (err: {
+    code: T;
     arg?: string;
     latex?: string;
     before?: string;

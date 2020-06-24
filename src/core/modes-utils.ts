@@ -1,7 +1,12 @@
-import { ErrorListener, Style, MacroDictionary } from '../public/core';
+import {
+    ErrorListener,
+    Style,
+    MacroDictionary,
+    ParserErrorCode,
+} from '../public/core';
 
 import type { Span } from './span';
-import type { Token } from './lexer';
+import type { Token } from './tokenizer';
 import type { Atom } from './atom';
 import type { ParseModePrivate } from './context';
 
@@ -35,6 +40,23 @@ export function joinLatex(segments: string[]): string {
         }
         result += segment;
     }
+    return result;
+}
+
+export function tokensToString(tokens: Token[]): string {
+    const result = joinLatex(
+        tokens.map((token) => {
+            return (
+                {
+                    '<space>': ' ',
+                    '<$$>': '$$',
+                    '<$>': '$',
+                    '<{>': '{',
+                    '<}>': '}',
+                }[token] ?? token
+            );
+        })
+    );
     return result;
 }
 
@@ -88,7 +110,7 @@ export function register(
         applyStyle: (span: Span, style: Style) => string;
         parse?: (
             tokens: Token[],
-            error: ErrorListener,
+            onError: ErrorListener<ParserErrorCode>,
             options: ParseTokensOptions
         ) => Atom[];
     }
@@ -101,10 +123,7 @@ export function emitLatexRun(
     run: Atom[],
     expandMacro: boolean
 ): string {
-    if (
-        MODES_REGISTRY[run[0].mode] &&
-        MODES_REGISTRY[run[0].mode].emitLatexRun
-    ) {
+    if (MODES_REGISTRY[run[0].mode]?.emitLatexRun) {
         return MODES_REGISTRY[run[0].mode].emitLatexRun(
             parent,
             run,
@@ -117,11 +136,11 @@ export function emitLatexRun(
 export function parseTokens(
     mode: ParseModePrivate,
     tokens: Token[],
-    error: ErrorListener,
+    onError: ErrorListener<ParserErrorCode>,
     options: ParseTokensOptions
 ): Atom[] {
-    if (MODES_REGISTRY[mode] && MODES_REGISTRY[mode].parse) {
-        return MODES_REGISTRY[mode].parse(tokens, error, options);
+    if (MODES_REGISTRY[mode]?.parse) {
+        return MODES_REGISTRY[mode].parse(tokens, onError, options);
     }
     return null;
 }
@@ -132,7 +151,7 @@ export function parseTokens(
  * ('Main-Regular', 'Caligraphic-Regualr' etc...)
  */
 export function applyStyle(span: Span, style: Style): string {
-    if (MODES_REGISTRY[style.mode] && MODES_REGISTRY[style.mode].applyStyle) {
+    if (MODES_REGISTRY[style.mode]?.applyStyle) {
         return MODES_REGISTRY[style.mode].applyStyle(span, style);
     }
     return '';

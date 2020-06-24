@@ -481,7 +481,7 @@ export class Span {
 
             // If a `hskip` value was provided, add it to the margin-left
             if (hskip) {
-                if (this.style && this.style['margin-left']) {
+                if (this.style?.['margin-left']) {
                     // There was already a margin, add to it
                     this.style['margin-left'] =
                         toString(
@@ -538,7 +538,7 @@ export class Span {
                 result += 'style="position:absolute;';
                 result += 'overflow:overlay;';
                 result += 'height:' + (this.height + this.depth) + 'em;';
-                if (this.style && this.style.padding) {
+                if (this.style?.padding) {
                     result += 'top:' + this.style.padding + ';';
                     result += 'left:' + this.style.padding + ';';
                     result +=

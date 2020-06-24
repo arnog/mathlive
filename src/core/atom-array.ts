@@ -94,7 +94,7 @@ registerAtomType('array', (context: Context, atom: Atom): Span[] => {
             outrow.cells.push(elt);
         }
         let jot = r === nr - 1 ? 0 : atom.jot || 0;
-        if (atom.rowGaps && atom.rowGaps[r]) {
+        if (atom.rowGaps?.[r]) {
             jot = atom.rowGaps[r];
             if (jot > 0) {
                 // \@argarraycr

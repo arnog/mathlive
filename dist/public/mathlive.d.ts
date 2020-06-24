@@ -19,7 +19,8 @@
  */
 import { Mathfield } from './mathfield';
 import { MathfieldConfig, TextToSpeechOptions } from './config';
-import { MacroDictionary, ErrorListener } from './core';
+import { MacroDictionary, ErrorListener, ParserErrorCode } from './core';
+import { ErrorCode as MathJsonErrorCode } from '../math-json/public';
 export { Mathfield };
 export { MathfieldConfig };
 /**
@@ -60,7 +61,7 @@ export declare function latexToMarkup(text: string, options: {
     mathstyle?: 'displaystyle' | 'textstyle';
     letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
     macros?: MacroDictionary;
-    onError?: ErrorListener;
+    onError?: ErrorListener<ParserErrorCode>;
 }): string;
 /**
  * Convert a DOM element into an editable mathfield.
@@ -98,7 +99,7 @@ export declare function makeMathField(element: HTMLElement | string, config: Mat
 export declare function latexToMathML(latex: string, options: {
     macros?: MacroDictionary;
     generateID: boolean;
-    onError?: ErrorListener;
+    onError?: ErrorListener<ParserErrorCode>;
 }): string;
 /**
  * Convert a LaTeX string to a {@tutorial math-json | MathJSON } Abstract Syntax Tree
@@ -117,7 +118,7 @@ export declare function latexToMathML(latex: string, options: {
  */
 export declare function latexToAST(latex: string, options?: {
     macros?: MacroDictionary;
-    onError?: ErrorListener;
+    onError?: ErrorListener<ParserErrorCode | MathJsonErrorCode>;
 }): any;
 /**
  * Converts a {@tutorial math-json | MathJSON } Abstract Syntax Tree to a LaTeX string.
@@ -167,7 +168,7 @@ export declare function astToLatex(mathJson: any, options?: {
  */
 export declare function latexToSpeakableText(latex: string, options: TextToSpeechOptions & {
     macros?: MacroDictionary;
-    onError?: ErrorListener;
+    onError?: ErrorListener<ParserErrorCode>;
 }): string;
 export declare type AutoRenderOptions = {
     /** Namespace that is added to `data-`  attributes to avoid collisions with other libraries.

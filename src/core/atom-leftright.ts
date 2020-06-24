@@ -95,7 +95,6 @@ registerAtomType('leftright', (context: Context, atom: Atom): Span[] => {
                 delim = {
                     '(': ')',
                     '\\{': '\\}',
-                    '\\[': '\\]',
                     '\\lbrace': '\\rbrace',
                     '\\langle': '\\rangle',
                     '\\lfloor': '\\rfloor',

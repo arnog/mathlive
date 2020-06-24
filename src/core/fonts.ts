@@ -1,8 +1,8 @@
-import type { ErrorListener } from '../public/core';
+import type { ErrorListener, MathfieldErrorCode } from '../public/core';
 
 export async function loadFonts(
     fontsDirectory?: string,
-    onError?: ErrorListener
+    onError?: ErrorListener<MathfieldErrorCode>
 ): Promise<void> {
     function makeFontFace(
         name: string,
