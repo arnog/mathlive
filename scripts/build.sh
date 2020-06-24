@@ -70,6 +70,7 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
     # Build CSS
     echo -e "\033[40m`basename "$0"`\033[0m 🚀 Building static CSS"
     npx lessc css/mathlive-static.less dist/mathlive-static.css
+    npx lessc css/mathlive-fonts.less dist/mathlive-fonts.css
 
     if [ "$BUILD" = "watch" ]; then
         # Do dev build and watch
