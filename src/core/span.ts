@@ -363,40 +363,38 @@ export class Span {
      * of the span. Implemented as a Unicode character if possible, a margin-left otherwise.
      * This is used to adjust the inter-spacing between spans of different types,
      * e.g. 'bin' and 'rel', according to the TeX rules (TexBook p.170)
+     *
      * @param hscale - If a value is provided, the margins are scaled by
      * this factor.
+     *
      * @return HTML markup
      */
 
     toMarkup(hskip = 1.0, hscale = 1.0): string {
         let result = '';
         let body = this.body || '';
+
+        //
+        // 1. Calculate the spacing between atoms, based on their type
+        // (`mord`, `mbin`, `mrel`, etc...)
+        //
         if (this.children) {
             let previousType = 'none';
-            for (const child of this.children) {
+            for (let i = 0; i < this.children.length; i++) {
+                const child = this.children[i];
                 let spacing = 0;
-                if (previousType) {
-                    let type = child.type;
-                    if (type) {
-                        if (type === 'textord') type = 'mord';
-                        if (type === 'first') type = 'none';
-                        if (child.isTight) {
-                            spacing =
-                                INTER_ATOM_TIGHT_SPACING[
-                                    previousType + '+' + type
-                                ] || 0;
-                        } else {
-                            spacing =
-                                INTER_ATOM_SPACING[previousType + '+' + type] ||
-                                0;
-                        }
-                        spacing = Math.floor(hscale * spacing);
-                    }
+                const type = getEffectiveType(this.children, i);
+                const combinedType = previousType + '+' + type;
+                if (child.isTight) {
+                    spacing = INTER_ATOM_TIGHT_SPACING[combinedType] ?? 0;
+                } else {
+                    spacing = INTER_ATOM_SPACING[combinedType] ?? 0;
                 }
                 body += child.toMarkup(spacing, hscale);
-                previousType = lastSpanType(child);
+                previousType = type;
             }
         }
+
         // Collapse 'empty' spans
         if (
             (body === '\u200b' || (!body && !this.svgBody)) &&
@@ -625,10 +623,28 @@ export class Span {
     }
 }
 
-function lastSpanType(span: Span): string {
-    const result = span.type;
+function getEffectiveType(xs: Span[], i: number): string {
+    if (i < 0 || i >= xs.length) return 'none';
+
+    const prevType = xs[i - 1]?.type ?? 'none';
+    const nextType = xs[i + 1]?.type ?? 'none';
+
+    let result = xs[i].type ?? 'none';
+
     if (result === 'first') return 'none';
     if (result === 'textord') return 'mord';
+    if (result === 'mbin') {
+        // If a `mbin` span, i.e. "+" is after or before spans
+        // of a certain type, consider it to be a `mord` instead.
+        // This is to handle proper spacing of, e.g. "-4" vs "1-4"
+        if (
+            /first|none|mrel|mpunct|mopen|mbin|mop/.test(prevType) ||
+            /none|mrel|mpunct|mclose/.test(nextType)
+        ) {
+            result = 'mord';
+        }
+    }
+
     return result;
 }
 

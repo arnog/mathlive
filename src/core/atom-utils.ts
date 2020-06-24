@@ -158,31 +158,11 @@ export function decompose(
             }
             console.assert(!result || isArray(result));
         } else {
-            let previousType = 'none';
-            let nextType = atoms[1].type;
             let selection: Span[] = [];
             let digitOrTextStringID = '';
             let lastWasDigit = true;
             let phantomBase = null;
             for (let i = 0; i < atoms.length; i++) {
-                // Is this a binary operator ('+', '-', etc...) that potentially
-                // needs to be adjusted to a unary operator?
-                //
-                // When preceded by a mbin, mopen, mrel, mpunct, mop or
-                // when followed by a mrel, mclose or mpunct
-                // or if preceded or followed by no sibling, a 'mbin' becomes a
-                // 'mord'
-                if (atoms[i].type === 'mbin') {
-                    if (
-                        /first|none|mrel|mpunct|mopen|mbin|mop/.test(
-                            previousType
-                        ) ||
-                        /none|mrel|mpunct|mclose/.test(nextType)
-                    ) {
-                        atoms[i].type = 'mord';
-                    }
-                }
-
                 // If this is a scaffolding supsub, we'll use the
                 // phantomBase from the previous atom to position the supsub.
                 // Otherwise, no need for the phantomBase
@@ -247,14 +227,6 @@ export function decompose(
                         result = result.concat(flat);
                     }
                 }
-
-                // Since the next atom (and this atom!) could have children
-                // use getFinal...() and getInitial...() to get the closest
-                // atom linearly.
-                previousType = atoms[i].getFinalBaseElement().type;
-                nextType = atoms[i + 1]
-                    ? atoms[i + 1].getInitialBaseElement().type
-                    : 'none';
             }
 
             // Is there a leftover selection?

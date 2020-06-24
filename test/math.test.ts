@@ -238,14 +238,14 @@ describe('BINARY OPERATORS', function () {
     hasType('a+b', '+', 'mbin');
     hasType('f(a)+f(b)', '+', 'mbin');
     hasType('x^n+y^n', '+', 'mbin');
-    hasType('+b', '+', 'mord');
-    hasType('(+b', '+', 'mord');
-    hasType('=+b', '+', 'mord');
-    hasType('\\sin+b', '+', 'mord');
-    hasType(', +b', '+', 'mord');
+    hasType('+b', '+', 'mbin');
+    hasType('(+b', '+', 'mbin');
+    hasType('=+b', '+', 'mbin');
+    hasType('\\sin+b', '+', 'mbin');
+    hasType(', +b', '+', 'mbin');
 
     hasType('\\textcolor{red}{a}+b', '+', 'mbin');
-    hasType('\\textcolor{red}{a=}+b', '+', 'mord');
+    hasType('\\textcolor{red}{a=}+b', '+', 'mbin');
 
     hasType('a^2+b', '+', 'mbin');
     hasType('a^{2}+b', '+', 'mbin');
