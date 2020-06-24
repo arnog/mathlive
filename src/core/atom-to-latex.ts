@@ -113,6 +113,7 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
     let row = 0;
     let i = 0;
     const command = atom.symbol;
+    let segments = [];
     const emit = (parent: Atom, atom: string | number | Atom[]): string =>
         latexify(parent, atom, expandMacro);
 
@@ -179,34 +180,31 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
 
         case 'leftright':
             if (atom.inner) {
-                result += '\\left' + (atom.leftDelim || '.');
-                if (atom.leftDelim && atom.leftDelim.length > 1) result += ' ';
-                result += emit(atom, atom.body);
-                result += '\\right' + (atom.rightDelim || '.');
-                if (atom.rightDelim && atom.rightDelim.length > 1) {
-                    result += ' ';
-                }
+                segments = [
+                    '\\left' + (atom.leftDelim || '.'),
+                    emit(atom, atom.body),
+                    '\\right' + (atom.rightDelim || '.'),
+                ];
             } else {
                 if (expandMacro) {
                     // If we're in 'expandMacro' mode (i.e. interchange format
                     // used, e.g., on the clipboard for maximum compatibility
                     // with other LaTeX renderers), drop the `\mleft(` and `\mright`)
                     // commands
-                    result += atom.leftDelim === '.' ? '' : atom.leftDelim;
-                    result += emit(atom, atom.body);
-                    result += atom.rightDelim === '.' ? '' : atom.rightDelim;
+                    segments = [
+                        atom.leftDelim === '.' ? '' : atom.leftDelim,
+                        emit(atom, atom.body),
+                        atom.rightDelim === '.' ? '' : atom.rightDelim,
+                    ];
                 } else {
-                    result += '\\mleft' + (atom.leftDelim || '.');
-                    if (atom.leftDelim && atom.leftDelim.length > 1) {
-                        result += ' ';
-                    }
-                    result += emit(atom, atom.body);
-                    result += '\\mright' + (atom.rightDelim || '.');
-                    if (atom.rightDelim && atom.rightDelim.length > 1) {
-                        result += ' ';
-                    }
+                    segments = [
+                        '\\mleft' + (atom.leftDelim || '.'),
+                        emit(atom, atom.body),
+                        '\\mright' + (atom.rightDelim || '.'),
+                    ];
                 }
             }
+            result += joinLatex(segments);
             break;
 
         case 'delim':
@@ -362,7 +360,7 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
             break;
 
         default:
-            result = emitDefinition(command, parent, atom, emit);
+            result = emitDefinition(command, null, atom, emit);
             console.assert(
                 !!result,
                 'Missing custom emiter for ',
