@@ -51,8 +51,8 @@ export function insertSmartFence(
     // They should be '\{' or '\lbrace' and '\}' or '\rbrace'
     if (fence === '{' || fence === '\\{') fence = '\\lbrace';
     if (fence === '}' || fence === '\\}') fence = '\\rbrace';
-    if (fence === '[' || fence === '\\[') fence = '\\lbrack';
-    if (fence === ']' || fence === '\\]') fence = '\\rbrock';
+    if (fence === '[') fence = '\\lbrack';
+    if (fence === ']') fence = '\\rbrack';
 
     //
     // 2. Is it an open fence?
