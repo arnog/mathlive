@@ -250,7 +250,7 @@ function createMarkupNode(
 
     try {
         loadFonts(options.fontsDirectory);
-        injectStylesheet(coreStylesheet);
+        injectStylesheet(null, coreStylesheet);
         const html = options.renderToMarkup(text, {
             mathstyle: mathstyle ?? 'displaystyle',
             format: 'html',

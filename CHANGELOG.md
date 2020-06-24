@@ -11,6 +11,11 @@
 -   **#506** Chrome was outputing a harmless warning about passive event listeners.
     The warning has been silenced.
 
+-   **#505** Chrome was outputing a harmless warning about passive event listeners.
+    The warning has been silenced with extreme prejudice.
+
+-   **#503** Dynamic styles were not applied inside of shadow DOM
+
 ## 0.53.3 (2020-06-24)
 
 ### Bug Fixes

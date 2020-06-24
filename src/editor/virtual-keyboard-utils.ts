@@ -1294,7 +1294,7 @@ export function makeKeyboard(
 
     let markup = svgIcons;
 
-    injectStylesheet(virtualKeyboardStylesheet);
+    injectStylesheet(mf.element, virtualKeyboardStylesheet);
 
     // Auto-populate the ALT_KEYS table
     ALT_KEYS_BASE['foreground-color'] = [];

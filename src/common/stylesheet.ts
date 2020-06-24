@@ -3,13 +3,16 @@ import { hashCode } from './hash-code';
 
 export type Stylesheet = Releasable;
 
-export function inject(css: string): Releasable {
-    if (!css || typeof document === 'undefined') {
-        return null;
-    }
+export function inject(element: HTMLElement, css: string): Releasable {
+    if (!css) return null;
+
+    const root: HTMLElement =
+        (element?.getRootNode() as HTMLElement) ?? document?.head;
+
+    if (!root) return null;
 
     const id = hashCode(css).toString(36);
-    const el = document.head.querySelector(`style[data-id="${id}"]`);
+    const el = root.querySelector(`style[data-id="${id}"]`);
     if (el) {
         const refCount = parseFloat(el.getAttribute('data-refcount') ?? '0');
         el.setAttribute('data-refcount', Number(refCount + 1).toString());
@@ -22,7 +25,7 @@ export function inject(css: string): Releasable {
         styleNode.dataset.id = id;
         styleNode.dataset.refcount = '1';
         styleNode.appendChild(document.createTextNode(css));
-        document.head.appendChild(styleNode);
+        root.appendChild(styleNode);
     }
 
     return {
