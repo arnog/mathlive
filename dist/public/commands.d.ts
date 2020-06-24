@@ -1,4 +1,4 @@
-/* 0.53.3 */import type { Keys } from './types-utils';
+/* 0.54.0 */import type { Keys } from './types-utils';
 import type { ParseMode, Style } from './core';
 import type { Mathfield, Model } from './mathfield';
 /**
