@@ -1615,10 +1615,14 @@ export function makeKeyboard(
             evt.preventDefault();
             evt.stopPropagation();
         });
-        x.addEventListener('touchstart', (evt) => {
-            evt.preventDefault();
-            evt.stopPropagation();
-        });
+        x.addEventListener(
+            'touchstart',
+            (evt) => {
+                evt.preventDefault();
+                evt.stopPropagation();
+            },
+            { passive: false }
+        );
     });
     layerElements[0].classList.add('is-visible');
 

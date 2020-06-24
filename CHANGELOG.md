@@ -1,3 +1,16 @@
+## [Unreleased]
+
+### Bug Fixes
+
+-   **#490** Firefox does not load fonts
+    There is a bug in Firefox (https://bugzilla.mozilla.org/show_bug.cgi?id=1252821)
+    where the status of fonts is reported incorrectly.
+
+    Implemented a workaround by always loading fonts in Firefox.
+
+-   **#506** Chrome was outputing a harmless warning about passive event listeners.
+    The warning has been silenced.
+
 ## 0.53.3 (2020-06-24)
 
 ### Bug Fixes
