@@ -12,12 +12,6 @@ import { coalesce, makeSpan, makeStruts } from './core/span';
 import { MACROS, MacroDictionary } from './core/definitions';
 import { MathfieldPrivate } from './editor/mathfield-class';
 import AutoRender from './addons/auto-render';
-import {
-    MathJsonLatexOptions,
-    MathJson,
-    atomtoMathJson,
-    jsonToLatex,
-} from './addons/math-json';
 import MathLiveDebug from './addons/debug';
 import { MATHSTYLES } from './core/mathstyle';
 import { defaultSpeakHook } from './editor/speech';
@@ -33,8 +27,9 @@ import { atomsToMathML } from './addons/math-ml';
 
 import './addons/definitions-metadata';
 import { AutoRenderOptionsPrivate } from './addons/auto-render';
-import { ErrorCode as MathJsonErrorCode } from './math-json/public';
-// import { parseLatex, emitLatex } from './math-json/math-json';
+import { ErrorCode, Form, Expression, Dictionary } from './math-json/public';
+import { parseLatex, emitLatex } from './math-json/math-json';
+import { ParseLatexOptions, EmitLatexOptions } from './math-json/latex/public';
 
 function latexToMarkup(
     text: string,
@@ -126,35 +121,26 @@ function latexToMathML(
 
 function latexToAST(
     latex: string,
-    options?: MathJsonLatexOptions & {
+    options?: ParseLatexOptions & {
         macros?: MacroDictionary;
-        onError?: ErrorListener<ParserErrorCode | MathJsonErrorCode>;
+        onError?: ErrorListener<ErrorCode>;
+        form?: Form | Form[];
     }
-): MathJson {
+): Expression {
     options = options ?? {};
     options.macros = { ...MACROS, ...(options.macros ?? {}) };
 
-    // return parseLatex(latex, options);
-
-    return atomtoMathJson(
-        parseString(
-            latex,
-            'math',
-            null,
-            options.macros,
-            false,
-            options.onError
-        ),
-        options
-    );
+    return parseLatex(latex, options);
 }
 
-function astToLatex(expr: MathJson, options: MathJsonLatexOptions): string {
-    return jsonToLatex(
-        typeof expr === 'string' ? JSON.parse(expr) : expr,
-        options
-    );
-    // return emitLatex(expr, options);
+function astToLatex(
+    expr: Expression,
+    options: EmitLatexOptions & {
+        dictionary?: Dictionary;
+        onError?: ErrorListener<ErrorCode>;
+    }
+): string {
+    return emitLatex(expr, options);
 }
 
 function latexToSpeakableText(

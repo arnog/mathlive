@@ -1,3 +1,20 @@
+## [Unreleased]
+
+### New Features
+
+-   **#500** Next Generation MathJSON. This is a breaking change: the new
+    MathJSON format is not backward compatible with the previour version.
+    For more details on the format, see `src/math-json/README.md`.
+
+    The `astToLatex()` and `latexToAST()` functions can still be used to
+    convert between Latex and MathJSON, but they now handle the new MathJSON
+    format. Note that the options to these functions have changed.
+
+    In particular, there is greatly improved customization of the parsing
+    possible. It is possible to define the syntax of custom notations, including
+    requesting that no parsing be done, at which point a string of Latex
+    tokens is returned.
+
 ## 0.54.0 (2020-06-24)
 
 ### Bug Fixes

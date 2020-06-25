@@ -32,6 +32,7 @@ export const DEFAULT_PARSE_LATEX_OPTIONS: Required<ParseLatexOptions> = {
     promoteUnknownSymbols: /^[a-zA-Z]$/,
     promoteUnknownFunctions: /^[f|g]$/,
     invisiblePlusOperator: ADD,
+    preserveLatex: false,
     dictionary: [],
 };
 

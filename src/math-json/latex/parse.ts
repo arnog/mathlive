@@ -1035,6 +1035,7 @@ export class Scanner implements Scanner {
      */
     matchPrimary(): Expression | null {
         let result: Expression | null = null;
+        const originalIndex = this.index;
 
         //
         // 1. Is it a number?
@@ -1077,7 +1078,7 @@ export class Scanner implements Scanner {
             result = postfix ?? result;
         } while (postfix);
 
-        return result;
+        return this.decorate(result, originalIndex);
     }
 
     /**
@@ -1092,6 +1093,7 @@ export class Scanner implements Scanner {
      */
     matchExpression(minPrec = 0): Expression | null {
         let lhs: Expression = null;
+        const originalIndex = this.index;
 
         this.skipSpace();
 
@@ -1137,6 +1139,25 @@ export class Scanner implements Scanner {
                 done = true;
             }
         }
-        return lhs;
+        return this.decorate(lhs, originalIndex);
+    }
+
+    /**
+     * Add latex or other requested metadata to the expression
+     */
+    decorate(expr: Expression, start: number): Expression {
+        if (this.options.preserveLatex) {
+            const latex = this.latex(start, this.index);
+            if (Array.isArray(expr)) {
+                expr = { latex: latex, fn: expr };
+            } else if (typeof expr === 'number') {
+                expr = { latex: latex, num: Number(expr).toString() };
+            } else if (typeof expr === 'string') {
+                expr = { latex: latex, sym: expr };
+            } else {
+                expr.latex = latex;
+            }
+        }
+        return expr;
     }
 }

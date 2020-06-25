@@ -273,6 +273,12 @@ export type ParseLatexOptions = LatexNumberOptions & {
      */
     promoteUnknownFunctions?: RegExp;
 
+    /**
+     * If true, the expression will be decorated with the Latex
+     * fragments correspondind to each elements of the expression
+     */
+    preserveLatex?: boolean;
+
     dictionary?: LatexDictionary;
 };
 

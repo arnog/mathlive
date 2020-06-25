@@ -596,6 +596,10 @@ export function fullForm(
             if (isSymbolObject(expr)) {
                 return expr.sym;
             }
+        } else {
+            if (isFunctionObject(expr)) {
+                expr.fn = expr.fn.map((x) => fullForm(dic, x));
+            }
         }
     }
     return expr;
