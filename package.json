@@ -24,7 +24,7 @@
     },
     "main": "./dist/mathlive.js",
     "module": "./dist/mathlive.mjs",
-    "types": "./dist/mathlive.d.ts",
+    "types": "./dist/public/mathlive.d.ts",
     "files": [
         "/dist"
     ],
