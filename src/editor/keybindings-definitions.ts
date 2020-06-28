@@ -264,14 +264,14 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
         command: ['insert', '$$\\backslash$$'],
     }, // "|" key} override command mode
     {
-        key: '[Slash]',
+        key: '/',
         ifMode: 'math',
         command: ['insert', '$$\\frac{#@}{#?}$$'],
     },
     {
-        key: 'alt+[Slash]',
+        key: 'alt+/',
         ifMode: 'math',
-        command: ['insert', '$$\\frac{#?}{#@}$$'],
+        command: ['insert', '$$\\/$$'],
     },
     {
         key: '[NumpadDivide]',
@@ -288,11 +288,6 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
         ifMode: 'math',
         command: ['insert', '$$\\~$$'],
     }, // ??
-    {
-        key: 'alt+shift+[Slash]',
-        ifMode: 'math',
-        command: ['insert', '$$\\/$$'],
-    }, // ??
 
     // Accessibility
     { key: 'alt+shift+k', command: 'toggleKeystrokeCaption' },
@@ -303,12 +298,12 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     // The workaround is to create a default binding file to silence them.
     // In ~/Library/KeyBindings/DefaultKeyBinding.dict add these entries:
     /*
- {
-    "^@\UF701" = "noop:";
-    "^@\UF702" = "noop:";
-    "^@\UF703" = "noop:";
-}
-*/
+     {
+        "^@\UF701" = "noop:";
+        "^@\UF702" = "noop:";
+        "^@\UF703" = "noop:";
+    }
+    */
     {
         key: 'ctrl+alt+[ArrowUp]',
         command: ['speak', 'parent', { withHighlighting: false }],

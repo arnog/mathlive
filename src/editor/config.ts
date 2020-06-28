@@ -110,7 +110,7 @@ export function update(
                             hu: 'qwertz',
                             sk: 'qwertz',
                             ch: 'qwertz',
-                        }[l10n.locale.substring(0, 2)] || 'qwerty';
+                        }[l10n.locale.substring(0, 2)] ?? 'qwerty';
                 } else {
                     result.virtualKeyboardLayout =
                         updates.virtualKeyboardLayout;
@@ -278,7 +278,7 @@ export function getDefault(): Required<MathfieldConfigPrivate> {
         removeExtraneousParentheses: true,
         ignoreSpacebarInMathMode: true,
 
-        locale: 'auto',
+        locale: l10n.locale,
         strings: {},
 
         keybindings: DEFAULT_KEYBINDINGS,

@@ -55,14 +55,15 @@ export function getCommandForKeybinding(
     keystroke: string
 ): Selector | any[] | '' {
     if (keybindings.length === 0) return '';
-    for (let i = keybindings.length - 1; i--; i >= 0) {
+
+    // Try to match using a virtual keystroke
+    for (let i = keybindings.length - 1; i >= 0; i--) {
         if (keybindings[i].key === keystroke) {
             if (!keybindings[i].ifMode || keybindings[i].ifMode === mode) {
                 return keybindings[i].command;
             }
         }
     }
-
     return '';
 }
 
@@ -199,7 +200,7 @@ export function getKeybindingMarkup(keystroke: string): string {
                     '[digit7]': '7',
                     '[digit8]': '8',
                     '[digit9]': '9',
-                }[segment.toLowerCase()] || segment.toUpperCase();
+                }[segment.toLowerCase()] ?? segment.toUpperCase();
         }
     }
     return result;
@@ -254,7 +255,7 @@ function normalizeKeybinding(keybinding: Keybinding): Keybinding {
         if (!code) {
             throw new Error('Invalid keybinding key "' + keybinding.key + '"');
         }
-        segments.push(code);
+        segments = segments.concat(code.split('+'));
     } else {
         segments.push(key);
     }
