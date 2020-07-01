@@ -1192,7 +1192,7 @@ function expandLayerMarkup(mf: MathfieldPrivate, layer): string {
                     row +=
                         "<li class='keycap" +
                         cls +
-                        "' data-alt-keys='/' data-insert='\\frac{#0}{#?}'>&divide;</li>";
+                        "' data-alt-keys='/' data-insert='\\frac{#@}{#?}'>&divide;</li>";
                 } else if (c === '*') {
                     row +=
                         "<li class='keycap" +
