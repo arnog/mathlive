@@ -114,7 +114,7 @@
         "rollup-plugin-terser": "latest",
         "rollup-plugin-typescript2": "latest",
         "ts-jest": "^26.1.1",
-        "typescript": "^3.9.5"
+        "typescript": "^3.9.6"
     },
     "dependencies": {},
     "keywords": [
