@@ -1,9 +1,9 @@
 /**
- * 
+ *
  * This module outputs a formula to MathML.
- * 
+ *
  * To use it, use the {@linkcode MathAtom#toMathML MathAtom.toMathML()}  method.
- * 
+ *
  * @module addons/outputMathML
  * @private
  */
@@ -105,7 +105,7 @@ function scanIdentifier(stream, final, options) {
                 const sup = toMathML(stream.atoms[superscript].superscript, 0, 0, options).mathML;
 
                 const sup2 = toMathML(stream.atoms[superscript + 1].superscript, 0, 0, options).mathML;
-                if ((sup === '<mi>\u2032</mi>' || sup === '<mi>&#x2032;</mi>') && 
+                if ((sup === '<mi>\u2032</mi>' || sup === '<mi>&#x2032;</mi>') &&
                     (sup2 === '<mi>\u2032</mi>' || sup2 === '<mi>&#x2032;</mi>')) {
                     mathML += '<mi>&#x2033;</mi>';
                 } else if (sup === '<mi>\u2032</mi>' || sup === '<mi>&#x2032;</mi>') {
@@ -556,8 +556,8 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
     };
 
     const MATH_VARIANTS = {
-        'cal': 'script', 
-        'frak': 'fraktur', 
+        'cal': 'script',
+        'frak': 'fraktur',
         'bb': 'double-struck',
         'scr': 'script',
         'cmtt': 'monospace',
@@ -834,6 +834,8 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
             result += '&nbsp;'
             break;
 
+        case 'variable':
+            result += toMathML(this.body, 0, 0, options).mathML;
     }
     return result;
 }
