@@ -287,6 +287,7 @@ function scanElement(elem, options) {
 
                 const span = createAccessibleMarkupPair(childNode.textContent,
                     style, options, true)
+                i += span.childNodes.length - 1;
                 childNode.parentNode.replaceChild(span, childNode);
             } else {
                 // Element node
