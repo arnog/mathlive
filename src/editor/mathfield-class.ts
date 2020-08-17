@@ -208,10 +208,10 @@ export class MathfieldPrivate implements Mathfield {
         // Only display the virtual keyboard toggle if the virtual keyboard mode is
         // 'manual'
         if (this.config.virtualKeyboardMode === 'manual') {
-            markup += `<div class="ML__virtual-keyboard-toggle" role="button" data-tooltip="${l10n(
+            markup += `<div class="ML__virtual-keyboard-toggle" role="button" data-ML__tooltip="${l10n(
                 'tooltip.toggle virtual keyboard'
             )}">`;
-            // data-tooltip='Toggle Virtual Keyboard'
+            // data-ML__tooltip='Toggle Virtual Keyboard'
             if (this.config.virtualKeyboardToggleGlyph) {
                 markup += this.config.virtualKeyboardToggleGlyph;
             } else {

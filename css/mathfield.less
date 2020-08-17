@@ -57,7 +57,7 @@
     min-height: 39px; /* Need some room for the virtual keyboard toggle */
 
     /* Prevent the browser from trying to interpret touch gestures in the field */
-    /* "Disabling double-tap to zoom removes the need for browsers to 
+    /* "Disabling double-tap to zoom removes the need for browsers to
         delay the generation of click events when the user taps the screen." */
     touch-action: none;
     width: 100%;
@@ -187,7 +187,7 @@ body[theme='dark'] .ML__fieldcontainer {
 }
 
 /* Style for the invisible textarea element which is used
-to capture keyboard events. We're just trying really hard 
+to capture keyboard events. We're just trying really hard
 to make sure it doesn't show. */
 .ML__textarea__textarea {
     transform: scale(0);
@@ -208,7 +208,7 @@ to make sure it doesn't show. */
     background: hsla(var(--hue), 40%, 50%, 0.1);
 }
 
-/* When using smartFence, the anticipated closing fence is displayed 
+/* When using smartFence, the anticipated closing fence is displayed
 with this style */
 .ML__smart-fence__close {
     opacity: 0.5;
@@ -272,8 +272,8 @@ with this style */
     fill: currentColor;
 }
 
-/* Styling for an element which is overlaid 
-to the left and right of the mathfield while 
+/* Styling for an element which is overlaid
+to the left and right of the mathfield while
 scrolling to prevent the capture of hover events */
 .ML__scroller {
     position: fixed;
@@ -283,13 +283,13 @@ scrolling to prevent the capture of hover events */
     width: 200px;
 }
 
-/* Add an attribute 'data-tooltip' to automatically show a 
-   tooltip over a element on hover. 
-   Use 'data-position="top"' to place the tooltip above the 
+/* Add an attribute 'data-ML__tooltip' to automatically show a
+   tooltip over a element on hover.
+   Use 'data-position="top"' to place the tooltip above the
    element rather than below.
    Use 'data-delay' to delay the triggering of the tooltip.
 */
-[data-tooltip] {
+[data-ML__tooltip] {
     position: relative;
     &[data-placement='top']::after {
         top: inherit;
@@ -298,7 +298,7 @@ scrolling to prevent the capture of hover events */
     &::after {
         position: absolute;
         visibility: hidden;
-        content: attr(data-tooltip);
+        content: attr(data-ML__tooltip);
 
         display: inline-table;
 
@@ -335,7 +335,7 @@ scrolling to prevent the capture of hover events */
     }
 }
 
-[data-tooltip]:hover {
+[data-ML__tooltip]:hover {
     position: relative;
     &::after {
         visibility: visible; // Visible triggers the animation...
@@ -345,11 +345,11 @@ scrolling to prevent the capture of hover events */
     }
 }
 
-[data-tooltip][data-delay]::after {
+[data-ML__tooltip][data-delay]::after {
     // On fade out, we don't want a delay
     transition-delay: 0s;
 }
-[data-tooltip][data-delay]:hover::after {
+[data-ML__tooltip][data-delay]:hover::after {
     // But we do want a delay on fade in
     transition-delay: 1s; /* attr(data-delay); Should work. But doesn't. */
 }
