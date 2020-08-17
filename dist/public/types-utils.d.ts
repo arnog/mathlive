@@ -1,4 +1,4 @@
-/* 0.54.1 *//**
+/* 0.55.0 *//**
  * @internal
  */
 declare type Filter<T, Cond, U extends keyof T = keyof T> = {

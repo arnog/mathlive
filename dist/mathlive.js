@@ -30097,7 +30097,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return element.getAttribute('data-' + ((_a = options.namespace) !== null && _a !== void 0 ? _a : '') + 'original-content');
     }
     // This SDK_VERSION variable will be replaced during the build process.
-    const version = '0.54.1';
+    const version = '0.55.0';
     var mathlive = {
         version,
         latexToMarkup: latexToMarkup$2,
