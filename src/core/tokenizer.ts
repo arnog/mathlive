@@ -308,7 +308,7 @@ export function tokenize(s: string, args: string[]): Token[] {
         // Remove everything after a % (comment marker)
         // (but \% should be preserved...)
         const m = line.match(/((?:\\%)|[^%])*/);
-        if (m) stream += m[0];
+        if (m !== null) stream += m[0];
     }
 
     const tokenizer = new Tokenizer(stream);

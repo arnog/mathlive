@@ -2,18 +2,37 @@
 
 ### New Features
 
--   **#500** Next Generation MathJSON. This is a breaking change: the new
-    MathJSON format is not backward compatible with the previour version.
-    For more details on the format, see `src/math-json/README.md`.
+-   **WebPack issues workaround and font loading configuation**
 
-    The `astToLatex()` and `latexToAST()` functions can still be used to
-    convert between Latex and MathJSON, but they now handle the new MathJSON
-    format. Note that the options to these functions have changed.
+    Follow up to **#508**. The fonts can now be loaded either statically or dynamically.
 
-    In particular, there is greatly improved customization of the parsing
-    possible. It is possible to define the syntax of custom notations, including
-    requesting that no parsing be done, at which point a string of Latex
-    tokens is returned.
+    -   **dynamic loading** by default, the fonts will get loaded programmatically
+        when they are needed and the rendering will be deferred until the fonts
+        are available to avoid unnecessary redrawing. Use this technique if you
+        have a simple build/bundle workflow. You can still customize the relative
+        path to the fonts folder using the `fontsDirectory` configuration option.
+
+    -   **static loading** include the `mathlive-fonts.css` stylesheet in your
+        page. The loading of this file will trigget the font to be loaded
+        asynchronously by the browser. Use this technique if you are using
+        WebPack or have a build/bundle workflow that renames the font files or
+        in general require the bundler to know about the required assets.
+
+-   **New packaging options**. The distribution files have been split between
+    minified and non-minified version. In the more common cases, the minified
+    version (`mathlive.min.js` and `mathlive.min.mjs` should be used). The
+    non-minified version (`mathlive.js` and
+    `mathlive.mjs` can be used to help in debugging issues or to apply patches).
+
+### Bug Fixes
+
+-   The fonts failed to load when loading MathLive using a `<script>` tag and
+    a CDN. The fonts folder is now resolved correctly with the following configurations:
+
+        - `<script>` tag and CDN
+        - `<script>` tag and local file
+        - `import` and CDN
+        - `import` and local file
 
 ## 0.54.0 (2020-06-24)
 

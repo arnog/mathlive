@@ -1,4 +1,4 @@
-import type { Dictionary } from './public';
+import type { Dictionary } from '../public';
 
 export const CORE_DICTIONARY: Dictionary = {
     Evaluate: {
@@ -29,6 +29,15 @@ export const CORE_DICTIONARY: Dictionary = {
 // length(expr, depth:integer) (for a list, an expression, etc..)
 // apply(expr:symbol, arguments) -> [expr, ...arguments] (but symbol is an expression that's evaluated...)
 // shape
+// length
+// depth
+
+// take(n, list) -> n first elements of the list
+// repeat(x) -> infinite list with "x" as argument
+// cycle(list) -> infinitely repeating list, i.e. cycle({1, 2, 3}) -> {1, 2, 3, 1, 2, 3, 1...}
+// iterate(f, acc) -> {f(acc), f(f(acc)), f(f(f(acc)))...}
+// == NestList ??
+
 // identity
 // range
 // index

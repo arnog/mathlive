@@ -211,7 +211,7 @@ function atomToSpeakableFragment(
                 result +=
                     ' <say-as interpret-as="character">' + c + '</say-as>';
             } else if (/[A-Z]/.test(c)) {
-                result += 'capital ' + c.toLowerCase() + '';
+                result += String('capital ' + c.toLowerCase());
             } else {
                 result += c;
             }

@@ -765,8 +765,8 @@ export function emit(
     atom: Atom,
     emitFn: (parent: Atom, atoms: Atom[]) => string
 ): string {
-    console.assert(!!atom);
-    console.assert(!!symbol, 'Missing command for ', atom.body);
+    console.assert(Boolean(atom));
+    console.assert(Boolean(symbol), 'Missing command for ', atom.body);
 
     if (FUNCTIONS[symbol]?.emit) {
         return FUNCTIONS[symbol].emit(symbol, parent, atom, emitFn);
@@ -1053,7 +1053,7 @@ export function defineFunction(
         params: parseParamTemplate(params),
 
         mode: options.mode,
-        infix: !!options.infix,
+        infix: Boolean(options.infix),
         parse: parseFunction,
         emit: emitFunction,
     };

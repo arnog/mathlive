@@ -9,7 +9,12 @@ import {
     getArg,
     getArgs,
 } from './utils';
-import { findFunctionInDictionary, POWER, MULTIPLY, ADD } from './dictionary';
+import {
+    findFunctionInDictionary,
+    POWER,
+    MULTIPLY,
+    ADD,
+} from './dictionary/dictionary';
 
 export function order(a: Expression, b: Expression): number {
     const lexA = getLex(a);
@@ -18,9 +23,9 @@ export function order(a: Expression, b: Expression): number {
     if (lexA > lexB) return 1;
 
     let valA = getExprValue(a);
-    if (isNaN(valA)) valA = +Infinity;
+    if (isNaN(valA)) valA = Number(Infinity);
     let valB = getExprValue(b);
-    if (isNaN(valB)) valB = +Infinity;
+    if (isNaN(valB)) valB = Number(Infinity);
     if (valA < valB) return -1;
     if (valA > valB) return 1;
 

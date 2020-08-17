@@ -11,21 +11,23 @@ import {
     getArgCount,
     replaceLatex,
     getFunctionHead,
+    isFunctionObject,
 } from '../utils';
 import {
     IndexedLatexDictionary,
     IndexedLatexDictionaryEntry,
     indexLatexDictionary,
 } from './definitions';
-import { joinLatex } from '../../core/modes';
+import { joinLatex, tokensToString } from '../../core/modes';
 import { emitNumber } from './emit-number';
 import { getApplyFunctionStyle, getGroupStyle } from './emit-style';
-import { GROUP } from '../dictionary';
+import { GROUP } from '../dictionary/dictionary';
 
 function getSymbolStyle(expr: Expression, _level: number): 'asis' | 'upright' {
     console.assert(typeof expr === 'string' || isSymbolObject(expr));
-
-    return getSymbolName(expr).length > 1 ? 'upright' : 'asis';
+    const sym = getSymbolName(expr);
+    if (sym === null) return 'asis';
+    return sym.length > 1 ? 'upright' : 'asis';
 }
 
 function emitMatchfix(
@@ -49,7 +51,11 @@ function emitMatchfix(
             }
         }
     }
-    if (def.closeFence) segments.push(def.closeFence);
+    if (Array.isArray(def.closeFence)) {
+        segments.push(tokensToString(def.closeFence));
+    } else if (typeof def.closeFence === 'string') {
+        segments.push(def.closeFence);
+    }
     return joinLatex(segments);
 }
 
@@ -141,6 +147,7 @@ export class Emitter implements Emitter {
     /**
      * Emit the expression, and if the expression is an operator
      * of precedence less than or equal to prec, wrap it in some paren.
+     * @todo: don't wrap abs
      */
     wrap(expr: Expression | null, prec?: number): string {
         if (expr === null) return '';
@@ -156,7 +163,7 @@ export class Emitter implements Emitter {
             return this.emit(expr);
         }
         const name = getFunctionName(expr);
-        if (typeof name === 'string' && name) {
+        if (name) {
             const def = this.dictionary.name.get(name);
             if (
                 def &&
@@ -214,6 +221,8 @@ export class Emitter implements Emitter {
 
             const name = getSymbolName(expr);
 
+            if (name === null) return '';
+
             switch (getSymbolStyle(expr, this.level)) {
                 case 'upright':
                     return '\\operatorname{' + name + '}';
@@ -255,7 +264,7 @@ export class Emitter implements Emitter {
             return this.emit(head) + this.emit([GROUP, ...args]);
         }
 
-        if (def.requiredLatexArg) {
+        if (def.requiredLatexArg > 0) {
             //
             // 3. Is it a known Latex command?
             //
@@ -265,7 +274,7 @@ export class Emitter implements Emitter {
             let requiredArg = '';
             let i = 0;
             while (i < def.requiredLatexArg) {
-                requiredArg += '{' + this.emit(args[1 + i++]) + '}';
+                requiredArg += '{' + this.emit(args[i++]) + '}';
             }
             while (
                 i <
@@ -309,7 +318,7 @@ export class Emitter implements Emitter {
         }
 
         //
-        // 2. Is it a named symbol (Latex token, function, constant, variable or
+        // 2. Is it a named symbol (Latex token, constant, variable or
         //    operator)
         //
         const name = getSymbolName(expr);
@@ -340,14 +349,13 @@ export class Emitter implements Emitter {
                 '{' +
                 args
                     .map((x) => this.emit(x))
-                    .filter((x) => !!x)
+                    .filter((x) => Boolean(x))
                     .join('}{') +
                 '}'
             );
-        } else if (name) {
+        } else if (name !== null) {
             // It's a symbol
-            const def = this.dictionary.name.get(getSymbolName(expr));
-            result = this.emitSymbol(expr, def);
+            result = this.emitSymbol(expr, this.dictionary.name.get(name));
         } else {
             //
             // 2.2 A function, operator or matchfix operator
@@ -373,7 +381,7 @@ export class Emitter implements Emitter {
                         result = this.emitSymbol(expr, def);
                     }
                 }
-            } else if (Array.isArray(expr)) {
+            } else if (Array.isArray(expr) || isFunctionObject(expr)) {
                 // It's a function, but without definition.
                 // It could be a [['derive', "f"], x]
                 result = this.emitSymbol(expr);

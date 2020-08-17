@@ -24,7 +24,7 @@ export const l10n: {
 
 l10n.plural = function (value: number, s: string, options): Intl.PluralRules {
     options = options ?? {};
-    options.type = options.type || 'cardinal';
+    options.type = options.type ?? 'cardinal';
     const language = l10n.locale.substring(0, 2);
     const rules = options.type === 'ordinal' ? l10n._ordinal : l10n._cardinal;
     let rule =

@@ -29,17 +29,17 @@ import {
     IDENTITY,
     SEQUENCE,
     NOTHING,
-} from './dictionary';
+} from './dictionary/dictionary';
 
 export function isNumberObject(expr: Expression): expr is MathJsonRealNumber {
-    return !!expr && typeof expr === 'object' && 'num' in expr;
+    return Boolean(expr) && typeof expr === 'object' && 'num' in expr;
 }
 
 export function isSymbolObject(expr: Expression): expr is MathJsonSymbol {
-    return !!expr && typeof expr === 'object' && 'sym' in expr;
+    return Boolean(expr) && typeof expr === 'object' && 'sym' in expr;
 }
 export function isFunctionObject(expr: Expression): expr is MathJsonFunction {
-    return !!expr && typeof expr === 'object' && 'fn' in expr;
+    return Boolean(expr) && typeof expr === 'object' && 'fn' in expr;
 }
 
 export function getNumberValue(expr: Expression): number {
@@ -69,10 +69,10 @@ export function getNumberValue(expr: Expression): number {
 export function getRationalValue(expr: Expression): [number, number] {
     if (typeof expr === 'number') return [expr, 1];
     if (isNumberObject(expr)) return [getNumberValue(expr), 1];
-    const name = getFunctionName(expr);
-    if (!name) return [NaN, NaN];
+    if (isAtomic(expr)) return [NaN, NaN];
+    const head = getFunctionName(expr);
 
-    if (name === POWER) {
+    if (head === POWER) {
         const exponent = getNumberValue(getArg(expr, 2));
         if (exponent === 1) {
             return [getNumberValue(getArg(expr, 1)), 1];
@@ -82,7 +82,7 @@ export function getRationalValue(expr: Expression): [number, number] {
         return [NaN, NaN];
     }
 
-    if (name === DIVIDE) {
+    if (head === DIVIDE) {
         return [
             getNumberValue(getArg(expr, 1)),
             getNumberValue(getArg(expr, 2)),
@@ -90,7 +90,7 @@ export function getRationalValue(expr: Expression): [number, number] {
     }
 
     if (
-        name === MULTIPLY &&
+        head === MULTIPLY &&
         getFunctionName(getArg(expr, 2)) === POWER &&
         getNumberValue(getArg(getArg(expr, 2), 2)) === -1
     ) {
@@ -101,6 +101,38 @@ export function getRationalValue(expr: Expression): [number, number] {
     }
 
     return [NaN, NaN];
+}
+
+/**
+ * The head of an expression can either be a string or an expression.
+ *
+ * Examples:
+ * `["negate", 5]`  -> "negate"
+ * `[["prime", "f"], "x"] -> `["prime", "f"]
+ */
+export function getFunctionHead(expr: Expression): Expression {
+    if (Array.isArray(expr)) {
+        return expr[0];
+    }
+    if (isFunctionObject(expr)) {
+        return expr.fn[0];
+    }
+    return null;
+}
+
+/**
+ * True if the expression is a number or a symbol
+ */
+export function isAtomic(expr: Expression): boolean {
+    // return (
+    //     typeof expr === 'string' ||
+    //     typeof expr === 'number' ||
+    //     (typeof expr === 'object' && ('num' in expr || 'sym' in expr))
+    // );
+    return (
+        expr === null ||
+        (!Array.isArray(expr) && (typeof expr !== 'object' || !('fn' in expr)))
+    );
 }
 
 export function getFunctionName(
@@ -125,37 +157,21 @@ export function getFunctionName(
     | typeof NOTHING
     | typeof SEQUENCE
     | typeof PRIME
-    | '' {
+    | ''
+    | string {
     const head = getFunctionHead(expr);
     if (typeof head === 'string') return head as any;
     return '';
 }
 
-/**
- * The head of an expression can either be a string or an expression.
- *
- * Examples:
- * `["negate", 5]`  -> "negate"
- * `[["prime", "f"], "x"] -> `["prime", "f"]
- */
-export function getFunctionHead(expr: Expression): Expression {
-    if (Array.isArray(expr)) {
-        return expr[0];
-    }
-    if (isFunctionObject(expr)) {
-        return expr.fn[0];
-    }
-    return null;
-}
-
-export function getSymbolName(expr: Expression): string {
+export function getSymbolName(expr: Expression): string | null {
     if (typeof expr === 'string') {
         return expr;
     }
     if (isSymbolObject(expr)) {
         return expr.sym;
     }
-    return '';
+    return null;
 }
 
 /**
@@ -228,6 +244,8 @@ export function normalizeDefinition(
         isListable: false,
         isAssociative: false,
         isCommutative: false,
+        isIdempotent: false,
+        sequenceHold: false,
         isPure: false,
         hold: 'none',
         argCount: def.isAssociative ?? false ? Infinity : 0,

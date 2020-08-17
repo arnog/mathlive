@@ -11,6 +11,7 @@ import {
     getArgCount,
     vars,
     getFunctionHead,
+    isAtomic,
 } from './utils';
 import {
     findFunctionInDictionary,
@@ -29,7 +30,8 @@ import {
     ROOT,
     SUBTRACT,
     NOTHING,
-} from './dictionary';
+    SUBSEQUENCE,
+} from './dictionary/dictionary';
 import { canonicalOrder } from './order';
 
 function ungroup(expr: Expression): Expression {
@@ -201,12 +203,15 @@ function canonicalListForm(
     dic: Dictionary,
     expr: Expression | null
 ): Expression | null {
+    if (isAtomic(expr)) return expr;
+
     const name = getFunctionName(expr);
-    if (!name) return expr;
 
     const isList = name === LIST;
+    const def = findFunctionInDictionary(dic, name);
+    const sequenceHold = def?.sequenceHold ?? false;
     const args = getArgs(expr);
-    let newArgs: Expression[] = [];
+    const newArgs: Expression[] = [];
 
     for (let arg of args) {
         arg = canonicalListForm(dic, arg);
@@ -221,8 +226,15 @@ function canonicalListForm(
                 newArgs.push(arg);
             }
             // Skip it...
-        } else if (name === SEQUENCE) {
-            newArgs = newArgs.concat(getArgs(arg));
+        } else if (name === SEQUENCE && !sequenceHold) {
+            const head = getFunctionHead(expr);
+            for (const arg2 of getArgs(arg)) {
+                if (getFunctionName(arg2) === SUBSEQUENCE) {
+                    newArgs.push([head, ...getArgs(arg2)]);
+                } else {
+                    newArgs.push(arg2);
+                }
+            }
         } else {
             newArgs.push(arg);
         }
@@ -411,9 +423,9 @@ function canonicalNegateForm(
     dic: Dictionary,
     expr: Expression | null
 ): Expression | null {
-    expr = ungroup(expr);
     const head = getFunctionName(expr);
     if (head === NEGATE) {
+        expr = ungroup(expr);
         const arg = getArg(expr, 1);
         if (typeof arg === 'number') {
             expr = -arg;
@@ -684,7 +696,7 @@ export function canonicalForm(
         'canonical-negate', // simplify negate
         'canonical-add', // simplify add
         'flatten', // associative, idempotent and groups
-        'canonical-list', // 'nothing', 'identity' and 'sequence'
+        'canonical-list', // 'NOTHING', 'Identity' and 'Sequence'
         'sorted',
         'full',
     ]);
@@ -759,7 +771,7 @@ export function form(
             return;
         }
         result = fn(dic, result);
-        console.log(form + ' = ' + JSON.stringify(result));
+        // console.log(form + ' = ' + JSON.stringify(result));
     });
     return result;
 }

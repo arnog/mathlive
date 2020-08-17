@@ -787,12 +787,15 @@ export type KeyboardLayoutName =
     | 'apple.en-intl'
     | 'apple.french'
     | 'apple.german'
+    | 'apple.spanish'
     | 'windows.en-intl'
     | 'windows.french'
     | 'windows.german'
+    | 'windows.spanish'
     | 'linux.en'
     | 'linux.french'
-    | 'linux.german';
+    | 'linux.german'
+    | 'linux.spanish';
 
 /**
  * Change the current physical keyboard layout.

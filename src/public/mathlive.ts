@@ -8,7 +8,7 @@
  * @example
  * <script type="module">
  * // Load the `Mathlive` module from a CDN
- * import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
+ * import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
  *
  * console.log(MathLive.latexToAST('e^{i\\pi}+1=0'));
  * </script>
@@ -87,7 +87,7 @@ export declare function latexToMarkup(
  * ```
  * The following code will turn the span into an editable mathfield.
  * ```javascript
- * import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
+ * import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
  * MathLive.makeMathField('equation');
  * ```
  * @keywords create, make, mathfield
@@ -355,7 +355,7 @@ export type AutoRenderOptions = {
  * Read {@tutorial mathfield-getting-started | Getting Started}.
  *
  * @example
- * import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
+ * import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
  * document.addEventListener("load", () => {
  *     MathLive.renderMathInDocument();
  * });

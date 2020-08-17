@@ -163,9 +163,8 @@ const ROLLUP = [
             }),
             resolve(),
             typescript(TYPESCRIPT_OPTIONS),
-            PRODUCTION && terser(TERSER_OPTIONS),
         ],
-        output: PRODUCTION
+        output: true
             ? [
                   // JavaScript native module
                   // (stricly speaking not necessary, since the UMD output is module
@@ -173,21 +172,21 @@ const ROLLUP = [
                   {
                       format: 'es',
                       file: `${BUILD_DIRECTORY}/mathlive.mjs`,
-                      sourcemap: false,
+                      sourcemap: !PRODUCTION,
                   },
                   // UMD file, suitable for import, <script> and require()
                   {
                       format: 'umd',
-                      file: `${BUILD_DIRECTORY}/mathlive.js`,
-                      sourcemap: false,
                       name: 'MathLive',
+                      file: `${BUILD_DIRECTORY}/mathlive.js`,
+                      sourcemap: !PRODUCTION,
                   },
               ]
             : [
                   {
                       format: 'es',
                       file: `${BUILD_DIRECTORY}/mathlive.mjs`,
-                      sourcemap: true,
+                      sourcemap: !PRODUCTION,
                   },
               ],
         watch: {
@@ -197,18 +196,59 @@ const ROLLUP = [
     },
 ];
 
-// MathLive Vue-js adapter
-// if (PRODUCTION) {
-ROLLUP.push({
-    input: 'src/vue-mathlive.js',
-    plugins: [terser(TERSER_OPTIONS)],
-    output: {
-        // JavaScript native module
-        sourcemap: false,
-        file: 'dist/vue-mathlive.mjs',
-        format: 'es',
-    },
-});
-// }
+if (PRODUCTION) {
+    // MathLive Vue-js adapter
+    ROLLUP.push({
+        input: 'src/vue-mathlive.js',
+        plugins: [terser(TERSER_OPTIONS)],
+        output: {
+            // JavaScript native module
+            sourcemap: false,
+            file: 'dist/vue-mathlive.mjs',
+            format: 'es',
+        },
+    });
+
+    // Minified versions
+    ROLLUP.push({
+        onwarn(warning, warn) {
+            // The use of #private class variables seem to trigger this warning.
+            if (warning.code === 'THIS_IS_UNDEFINED') return;
+            warn(warning);
+        },
+        input: 'src/mathlive.ts',
+        plugins: [
+            buildProgress(),
+            postcss({
+                extract: false, // extract: path.resolve('dist/mathlive.css')
+                modules: false,
+                inject: false,
+                extensions: ['.css', '.less'],
+                plugins: [],
+                minimize: true,
+            }),
+            resolve(),
+            typescript(TYPESCRIPT_OPTIONS),
+            terser(TERSER_OPTIONS),
+        ],
+        output: [
+            // JavaScript native module
+            // (stricly speaking not necessary, since the UMD output is module
+            // compatible, but this gives us a "clean" module)
+            {
+                format: 'es',
+                file: `${BUILD_DIRECTORY}/mathlive.min.mjs`,
+                sourcemap: false,
+            },
+            // UMD file, suitable for import, <script> and require()
+            {
+                format: 'umd',
+                name: 'MathLive',
+                file: `${BUILD_DIRECTORY}/mathlive.min.js`,
+                sourcemap: false,
+            },
+        ],
+    });
+}
 
 export default ROLLUP;

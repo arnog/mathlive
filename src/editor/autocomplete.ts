@@ -56,7 +56,7 @@ export function complete(
         acceptSuggestion?: boolean;
     }
 ): boolean {
-    options = options || { acceptSuggestion: false };
+    options = options ?? { acceptSuggestion: false };
     hidePopover(mathfield);
     if (options.discard) {
         spliceCommandStringAroundInsertionPoint(mathfield.model, null);

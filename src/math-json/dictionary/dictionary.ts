@@ -3,9 +3,11 @@ import type {
     DictionaryCategory,
     SymbolDefinition,
     FunctionDefinition,
-} from './public';
+} from '../public';
 import { ARITHMETIC_DICTIONARY } from './dictionary-arithmetic';
 import { CORE_DICTIONARY } from './dictionary-core';
+import { SETS_DICTIONARY } from './dictionary-sets';
+import { TRIGONOMETRY_DICTIONARY } from './dictionary-trigonometry';
 
 /**
  * These constants are the 'primitives' that are used for some basic manipulations
@@ -16,7 +18,9 @@ export const LATEX = 'Latex';
 export const LIST = 'List';
 export const IDENTITY = 'Identity';
 export const MISSING = 'Missing';
+export const NOTHING = 'Nothing';
 export const SEQUENCE = 'Sequence';
+export const SUBSEQUENCE = 'Subsequence';
 export const GROUP = 'Group';
 
 export const MULTIPLY = 'Multiply';
@@ -33,7 +37,6 @@ export const ROOT = 'Root';
 export const PRIME = 'Prime';
 
 export const COMPLEX_INFINITY = 'COMPLEX_INFINITY';
-export const NOTHING = 'NOTHING';
 export const PI = 'PI';
 export const EXPONENTIAL_E = 'E';
 export const IMAGINARY_I = 'I';
@@ -106,18 +109,16 @@ export function findSymbolInDictionary(
 // Unary functions:
 // https://query.wikidata.org/#PREFIX%20wd%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fentity%2F%3E%0APREFIX%20wdt%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fprop%2Fdirect%2F%3E%0A%0ASELECT%20DISTINCT%20%3Fitem%0AWHERE%20%7B%0A%20%20%20%20%3Fitem%20wdt%3AP31%2a%20wd%3AQ657596%0A%7D%0A
 // https://query.wikidata.org/#PREFIX%20wd%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fentity%2F%3E%0APREFIX%20wdt%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fprop%2Fdirect%2F%3E%0A%0ASELECT%20DISTINCT%20%3Fitem%0AWHERE%20%7B%0A%20%20%20%20%3Fitem%20wdt%3AP279%2a%20wd%3AQ657596%0A%7D%0A
+
 // Binary functions:
 // https://query.wikidata.org/#PREFIX%20wd%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fentity%2F%3E%0APREFIX%20wdt%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fprop%2Fdirect%2F%3E%0A%0ASELECT%20DISTINCT%20%3Fitem%0AWHERE%20%7B%0A%20%20%20%20%3Fitem%20wdt%3AP31%2a%20wd%3AQ164307%0A%7D%0A
-// Set operations:
-// https://query.wikidata.org/#PREFIX%20wd%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fentity%2F%3E%0APREFIX%20wdt%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fprop%2Fdirect%2F%3E%0A%0ASELECT%20DISTINCT%20%3Fitem%0AWHERE%20%7B%0A%20%20%20%20%3Fitem%20wdt%3AP31%2a%20wd%3AQ1964995%0A%7D%0A
 
 // Bindings to:
 // - stdlib: https://github.com/stdlib-js/stdlib
 // - mathjs
 // - others...?
 
-export const DICTIONARY: { [category in DictionaryCategory]: Dictionary } = {
-    core: CORE_DICTIONARY,
+export const DICTIONARY: { [category in DictionaryCategory]?: Dictionary } = {
     arithmetic: ARITHMETIC_DICTIONARY,
     algebra: {
         // polynomial([0, 2, 0, 4]:list, x:symbol) -> 2x + 4x^3
@@ -156,6 +157,7 @@ export const DICTIONARY: { [category in DictionaryCategory]: Dictionary } = {
         // argument
         // conjugate
     },
+    core: CORE_DICTIONARY,
     dimensions: {
         // volume, speed, area
     },
@@ -180,7 +182,7 @@ export const DICTIONARY: { [category in DictionaryCategory]: Dictionary } = {
         // for-all
         // exists
     },
-
+    inequalities: {},
     intervals: {
         // interval of integers vs interval of other sets (integer interval don't need to be open/closed)
         // interval vs. ranges
@@ -212,6 +214,7 @@ export const DICTIONARY: { [category in DictionaryCategory]: Dictionary } = {
         // random
         // hash
     },
+    other: {},
     polynomials: {
         // degree
         // expand
@@ -243,15 +246,7 @@ export const DICTIONARY: { [category in DictionaryCategory]: Dictionary } = {
     rounding: {
         // ceiling, floor, trunc, round,
     },
-    sets: {
-        // cartesian-product
-        // empty-set
-        // intersect
-        // union
-        // set-diff / minus
-        // subset
-        // Z, P, N, Q, R, C
-    },
+    sets: SETS_DICTIONARY,
     statistics: {
         // average
         // mean
@@ -263,12 +258,6 @@ export const DICTIONARY: { [category in DictionaryCategory]: Dictionary } = {
     transcendentals: {
         // log, ln, exp,
     },
-    trigonometry: {
-        // sin, cos, tan, sec, csc, cot, sinh,
-        // cosh, tanh, sechh, csch, coth,
-        // arcsin, arccos, arctan, arcsec, arccsc, arccot, arcsinh,
-        // arcosh, artanh, arcsech, arccsch, arccoth,
-        // arctan2
-    },
+    trigonometry: TRIGONOMETRY_DICTIONARY,
     units: {},
 };

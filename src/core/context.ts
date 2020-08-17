@@ -81,14 +81,14 @@ export class Context implements ContextInterface {
         this.macros = from.macros ?? {};
         this.atomIdsSettings = from.atomIdsSettings;
 
-        this.mathstyle = from.mathstyle || MATHSTYLES.displaystyle;
+        this.mathstyle = from.mathstyle ?? MATHSTYLES.displaystyle;
 
-        this.letterShapeStyle = from.letterShapeStyle || 'tex';
+        this.letterShapeStyle = from.letterShapeStyle ?? 'tex';
 
-        this.size = from.size || 'size5'; // medium size
+        this.size = from.size ?? 'size5'; // medium size
 
-        this.parentMathstyle = from.parentMathstyle || this.mathstyle;
-        this.parentSize = from.parentSize || this.size;
+        this.parentMathstyle = from.parentMathstyle ?? this.mathstyle;
+        this.parentSize = from.parentSize ?? this.size;
 
         this.opacity = from.opacity;
         this.smartFence = from.smartFence;
@@ -100,7 +100,7 @@ export class Context implements ContextInterface {
      */
     clone(override: ContextInterface = {}): Context {
         const result = new Context(this);
-        if (override) {
+        if (typeof override !== 'undefined') {
             // `'auto'` (or undefined) to indicate that the mathstyle should in
             // fact not be changed. This is used when specifying the mathstyle
             // for some environments.

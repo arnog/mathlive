@@ -103,7 +103,7 @@ defineFunction(
     },
     (name, _parent, atom, emit) => {
         let args = '';
-        if (atom.index) {
+        if (typeof atom.index !== 'undefined') {
             args += `[${emit(atom, atom.index)}]`;
         }
         args += `{${emit(atom, atom.body as Atom[])}}`;

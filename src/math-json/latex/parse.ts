@@ -12,7 +12,7 @@ import {
 import { tokensToString } from '../../core/modes';
 import { IndexedLatexDictionary, indexLatexDictionary } from './definitions';
 import { DEFAULT_PARSE_LATEX_OPTIONS } from './utils';
-import { GROUP, DIVIDE, LATEX, NOTHING } from '../dictionary';
+import { GROUP, DIVIDE, LATEX, NOTHING } from '../dictionary/dictionary';
 
 export class Scanner implements Scanner {
     readonly tokens: LatexToken[];
@@ -51,7 +51,7 @@ export class Scanner implements Scanner {
         this.invisibleOperatorPrecedence = 0;
         if (this.options.invisibleOperator) {
             def = this.dictionary.name.get(this.options.invisibleOperator);
-            if (!def) {
+            if (typeof def === 'undefined') {
                 options.onError({
                     code: 'unknown-operator',
                     arg: this.options.invisibleOperator,
@@ -63,35 +63,6 @@ export class Scanner implements Scanner {
                 });
             } else {
                 this.invisibleOperatorPrecedence = def.precedence;
-            }
-        }
-        if (this.options.superscriptOperator) {
-            def = this.dictionary.name.get(this.options.superscriptOperator);
-            if (!def) {
-                options.onError({
-                    code: 'unknown-operator',
-                    arg: this.options.superscriptOperator,
-                });
-            } else if (typeof def.precedence === 'undefined') {
-                options.onError({
-                    code: 'expected-operator',
-                    arg: this.options.superscriptOperator,
-                });
-            }
-        }
-
-        if (this.options.subscriptOperator) {
-            def = this.dictionary.name.get(this.options.subscriptOperator);
-            if (!def) {
-                options.onError({
-                    code: 'unknown-operator',
-                    arg: this.options.subscriptOperator,
-                });
-            } else if (typeof def.precedence === 'undefined') {
-                options.onError({
-                    code: 'expected-operator',
-                    arg: this.options.subscriptOperator,
-                });
             }
         }
     }
@@ -106,6 +77,12 @@ export class Scanner implements Scanner {
         return result;
     }
 
+    getIndex(): number {
+        return this.index;
+    }
+    setIndex(n: number): void {
+        this.index = n;
+    }
     atEnd(): boolean {
         return this.index >= this.tokens.length;
     }
@@ -154,7 +131,6 @@ export class Scanner implements Scanner {
     peekDefinition(
         kind:
             | 'symbol'
-            | 'function'
             | 'infix'
             | 'matchfix'
             | 'prefix'
@@ -177,7 +153,7 @@ export class Scanner implements Scanner {
             );
         }
         for (let i = defs.length; i > 0; i--) {
-            if (defs[i]) return [defs[i], i];
+            if (typeof defs[i] !== 'undefined') return [defs[i], i];
         }
         return [null, 0];
     }
@@ -201,6 +177,22 @@ export class Scanner implements Scanner {
             return true;
         }
         return false;
+    }
+
+    matchAll(target: LatexToken | LatexToken[]): boolean {
+        let matched = true;
+
+        if (typeof target === 'string') {
+            target = [target];
+        }
+        let i = 0;
+        do {
+            matched = this.tokens[this.index + i] === target[i++];
+        } while (matched && i < target.length);
+        if (matched) {
+            this.index += i;
+        }
+        return matched;
     }
 
     matchAny(targets: LatexToken[]): LatexToken {
@@ -250,7 +242,7 @@ export class Scanner implements Scanner {
             '9',
             this.options.groupSeparator ?? '',
         ]);
-        if (result) {
+        if (result !== null) {
             return result
                 .filter((x) => x !== this.options.groupSeparator)
                 .join('');
@@ -318,6 +310,7 @@ export class Scanner implements Scanner {
         this.index = savedIndex;
         return '';
     }
+
     matchOperator(
         kind: 'infix' | 'prefix' | 'postfix',
         lhs: Expression | null = null,
@@ -325,7 +318,7 @@ export class Scanner implements Scanner {
     ): Expression | null {
         const [def, n] = this.peekDefinition(kind);
 
-        if (!def) return null;
+        if (def === null) return null;
 
         if (typeof def.parse === 'function') {
             // Custom parser found
@@ -333,7 +326,7 @@ export class Scanner implements Scanner {
             this.index += n;
             let rhs = null;
             [lhs, rhs] = def.parse(lhs, this, minPrec, latex);
-            if (!rhs) {
+            if (rhs === null) {
                 this.index -= n;
                 return null;
             }
@@ -353,44 +346,46 @@ export class Scanner implements Scanner {
 
     matchArguments(kind: '' | 'group' | 'implicit'): Expression[] | null {
         if (!kind) return null;
+
         const savedIndex = this.index;
         let result: Expression[] | null = null;
+
         const group = this.matchMatchfixOperator();
-        if (group) {
-            if (kind === 'group' && getFunctionName(group) === GROUP) {
-                // We got a group i.e. `f(a, b, c)`
+
+        if (kind === 'group' && getFunctionName(group) === GROUP) {
+            // We got a group i.e. `f(a, b, c)`
+            result = getArgs(group);
+        } else if (kind === 'implicit') {
+            // Does this function allow arguments with optional parentheses?
+            // (i.e. trig functions, as in `\cos x`.
+            if (getFunctionName(group) === GROUP) {
                 result = getArgs(group);
-            } else if (kind === 'implicit') {
-                // Does this function allow arguments with optional parentheses?
-                // (i.e. trig functions, as in `\cos x`.
-                if (getFunctionName(group) === GROUP) {
-                    result = getArgs(group);
-                } else if (group) {
-                    // There was a matchfix, the "group" is the argument, i.e.
-                    // `\sin [a, b, c]`
-                    result = [group];
-                }
-                {
-                    // No group, but arguments without parentheses are allowed
-                    // Read a primary
-                    // (i.e. we interpret `\cos x + 1` as `\cos(x) + 1`)
-                    const primary = this.matchPrimary();
-                    if (primary) result = [primary];
-                }
+            } else if (group !== null) {
+                // There was a matchfix, the "group" is the argument, i.e.
+                // `\sin [a, b, c]`
+                result = [group];
             } else {
-                // The element following the function does not match
-                // a possible argument list
-                // That's OK, but need to undo the parsing of the matchfix
-                // This is the case: `f[a]`
-                this.index = savedIndex;
+                // No group, but arguments without parentheses are allowed
+                // Read a primary
+                // (i.e. we interpret `\cos x + 1` as `\cos(x) + 1`)
+                const primary = this.matchPrimary();
+                if (primary !== null) result = [primary];
             }
+        } else {
+            // The element following the function does not match
+            // a possible argument list
+            // That's OK, but need to undo the parsing of the matchfix
+            // This is the case: `f[a]` or `f|a|`
+            this.index = savedIndex;
         }
         return result;
     }
 
     matchMatchfixOperator(): Expression | null {
+        const savedIndex = this.index;
         const [def, n] = this.peekDefinition('matchfix');
-        if (!def) return null;
+        if (def === null) return null;
+
         let result: Expression | null = null;
 
         if (typeof def.parse === 'function') {
@@ -404,45 +399,56 @@ export class Scanner implements Scanner {
 
         this.index += n;
         result = [def.parse];
-        let expr: Expression | null = null;
+        let foundClosefence = false;
         let done = false;
-        let foundCloseFence = false;
-        while (!this.atEnd() && !done) {
+        while (!this.atEnd() && !done && !foundClosefence) {
             this.skipSpace();
-            expr = this.matchExpression();
-            if (!expr) {
-                // No expression. This could be two consecutive separators,
-                // i.e. `(1,,3)` which is valid
-                // but it could also be a syntax error, i.e. `(?` when `?` is
-                // not a valid operator.
-                if (this.match(def.separator)) {
-                    result.push(NOTHING);
-                } else if (this.match(def.closeFence)) {
-                    foundCloseFence = true;
-                    done = true;
-                } else {
-                    // Something went wrong, let's exit.
-                    done = true;
-                }
+            // In case of ambiguity, we prioritize close fence over open,
+            // e.g. `|2-a|+b+|3-b|` -> `(|2-a|)+b+(|3-b|)`
+            // So we check *first* if it's a closefence, before trying to
+            // match an expression which would interpret an open fence
+            if (this.matchAll(def.closeFence)) {
+                foundClosefence = true;
             } else {
-                result.push(expr);
-                // Consume separator, if present
-                this.match(def.separator);
-
-                if (this.match(def.closeFence)) {
-                    foundCloseFence = true;
-                    done = true;
+                const expr = this.matchExpression();
+                if (expr === null) {
+                    // No expression. This could be two consecutive separators,
+                    // i.e. `(1,,3)` which is valid
+                    // but it could also be a syntax error, i.def.closeFencee.
+                    // `(?` when `?` is not a valid operator.
+                    if (this.match(def.separator)) {
+                        result.push(NOTHING);
+                    } else {
+                        done = true;
+                    }
+                } else {
+                    result.push(expr);
+                    // Consume separator, if present
+                    // Note that for Groups, for example, the consumed expression
+                    // is a sequence, so the ',' separator is actually consumed
+                    // by the sequence, not by the group.
+                    // So by the time we reach here, we're at the closing fence.
+                    // @todo: maybe we dont' need def.separator for matchfix operators...
+                    this.skipSpace();
+                    if (!this.match(def.separator)) {
+                        done = true;
+                    }
                 }
-                // If we didn't get a fence we'll continue parsing, even if a
-                // separator is missing,
-                // e.g. `(1 2 3)` will produce the same expression as `(1, 2, 3)`
             }
         }
-        if (!foundCloseFence) {
-            this.onError({
-                code: 'unbalanced-matchfix-operator',
-                arg: def.closeFence,
-            });
+        if (!foundClosefence && !this.matchAll(def.closeFence)) {
+            // If we didn't find a close fence, it may be because
+            // we mistook an open fence for a close fence (for `|a+|b|+c|`):
+            // backtrack
+            this.index = savedIndex;
+            return null;
+            // this.onError({
+            //     code: 'unbalanced-matchfix-operator',
+            //     arg:
+            //         typeof def.closeFence === 'string'
+            //             ? def.closeFence
+            //             : tokensToString(def.closeFence),
+            // });
         }
 
         return result;
@@ -491,7 +497,7 @@ export class Scanner implements Scanner {
         // with the definition), just
         if (result !== null) return result;
 
-        if (!def) {
+        if (def === null) {
             // This is an unknown symbol.
             // Can we promote it?
             if (this.options.promoteUnknownFunctions?.test(this.peek())) {
@@ -499,7 +505,7 @@ export class Scanner implements Scanner {
                 // this.onError({ code: 'unknown-function', arg: name });
                 const group = this.matchMatchfixOperator();
                 // If no arguments, return it as a symbol
-                if (!group) return name;
+                if (group === null) return name;
                 if (getFunctionName(group) !== GROUP) return null;
                 return [name, ...getArgs(group)];
             }
@@ -509,7 +515,7 @@ export class Scanner implements Scanner {
             }
 
             // Not a symbol (punctuation or fence, maybe?)...
-            return null;
+            return this.matchUnknownLatexCommand();
         }
 
         //
@@ -521,7 +527,7 @@ export class Scanner implements Scanner {
         let i = def.optionalLatexArg ?? 0;
         while (i > 0) {
             arg = this.matchOptionalLatexArgument();
-            if (arg) optionalArgs.push(arg);
+            if (arg !== null) optionalArgs.push(arg);
             i--;
         }
         i = def.requiredLatexArg ?? 0;
@@ -530,7 +536,7 @@ export class Scanner implements Scanner {
             // `null` indicate that no required argument was found
             if (arg === null) this.onError({ code: 'expected-argument' });
             // `""` indicate an empty argument, i.e. `{}` was found
-            if (arg) requiredArgs.push(arg);
+            if (arg !== null) requiredArgs.push(arg);
             i--;
         }
 
@@ -610,23 +616,27 @@ export class Scanner implements Scanner {
         let result: Expression | null = null;
         this.skipSpace();
         ([
-            ['^', 'superfix', this.options.superscriptOperator],
-            ['_', 'subfix', this.options.subscriptOperator],
-        ] as [string, 'superfix' | 'subfix', string][]).forEach((x) => {
-            if (result) return;
-            const [triggerChar, opKind, defaultOp] = x;
-            if (!defaultOp) return;
+            ['^', 'superfix'],
+            ['_', 'subfix'],
+        ] as [string, 'superfix' | 'subfix'][]).forEach((x) => {
+            if (result !== null) return;
+
+            const [triggerChar, opKind] = x;
+
             if (!this.match(triggerChar)) return;
+
             this.skipSpace();
+
             const savedIndex = this.index;
             let def: LatexDictionaryEntry;
             let n = 0;
             if (this.match('<{>')) {
+                // Supsub with an argument
                 this.skipSpace();
                 [def, n] = this.peekDefinition(opKind);
                 this.index += n;
                 this.skipSpace();
-                if (def && def.name && this.match('<}>')) {
+                if (def?.name && this.match('<}>')) {
                     //
                     // It's a supfix/subfix operator (
                     //  i.e. `^{*}` for `superstar`
@@ -647,7 +657,7 @@ export class Scanner implements Scanner {
                 // Single token argument for a sup/subfix
                 //
                 [def, n] = this.peekDefinition(opKind);
-                if (def && def.name) {
+                if (def?.name) {
                     this.index += n;
                     if (typeof def.parse === 'function') {
                         result = def.parse(lhs, this, 0, def.name)[1];
@@ -656,33 +666,42 @@ export class Scanner implements Scanner {
                     }
                 }
             }
-            if (result) {
+            if (result === null) {
+                def = this.dictionary.infix[1]?.get(triggerChar);
+                if (typeof def?.parse === 'function') {
+                    result = def.parse(lhs, this, 0, triggerChar)[1];
+                } else if (typeof def?.parse === 'string') {
+                    [lhs, result] = this.applyOperator(
+                        def.parse,
+                        lhs,
+                        this.matchRequiredLatexArgument()
+                    );
+                    result = this.applyInvisibleOperator(lhs, result);
+                } else {
+                    result = this.applyInvisibleOperator(lhs, triggerChar);
+                }
+            }
+            if (result !== null) {
                 // There could be some arguments following the supsub, e.g.
                 // `f^{-1}(x)`
                 const args = this.matchArguments(def?.arguments);
-                if (args) result = [result, ...args];
-            } else {
-                [, result] = this.applyOperator(
-                    defaultOp,
-                    lhs,
-                    this.matchRequiredLatexArgument()
-                );
+                if (args !== null) result = [result, ...args];
             }
         });
         return result;
     }
 
     matchPostfix(lhs: Expression | null): Expression | null {
-        if (!lhs) return null;
+        if (lhs === null) return null;
 
         const [def, n] = this.peekDefinition('postfix');
-        if (!def) return null;
+        if (def === null) return null;
 
         if (typeof def.parse === 'function') {
             const latex = this.latexAhead(n);
             this.index += n;
             [, lhs] = def.parse(lhs, this, 0, latex);
-            if (!lhs) {
+            if (lhs === null) {
                 this.index -= n;
                 return null;
             }
@@ -766,14 +785,14 @@ export class Scanner implements Scanner {
                 // Parse but drop optional argument (used to indicate spacing between lines)
                 this.matchOptionalLatexArgument();
 
-                if (expr) row.push(expr);
+                if (expr !== null) row.push(expr);
                 result.push(row);
                 row = ['list'];
                 expr = null;
             } else {
                 const rhs = this.matchExpression();
-                if (!rhs) done = true;
-                if (expr) {
+                if (rhs === null) done = true;
+                if (expr !== null) {
                     expr = this.applyInvisibleOperator(expr, rhs);
                 } else {
                     expr = rhs;
@@ -847,14 +866,28 @@ export class Scanner implements Scanner {
     ): NonNullable<[Expression | null, Expression | null]> {
         const def = this.dictionary.name.get(op);
 
-        if (def?.trigger?.prefix && lhs && !rhs) {
-            return [null, [def.name, lhs]];
-        }
-        if (def?.trigger?.postfix && rhs) {
-            return [lhs, [def.name, rhs]];
+        if (typeof def === 'undefined') {
+            this.onError({ code: 'unknown-operator' });
+            return [lhs, rhs];
         }
 
-        if (def?.trigger?.infix && lhs && rhs) {
+        if (
+            typeof def.trigger?.prefix !== 'undefined' &&
+            lhs === null &&
+            rhs !== null
+        ) {
+            return [null, [def.name, rhs]];
+        }
+        if (typeof def.trigger?.postfix !== 'undefined' && lhs !== null) {
+            return [null, [def.name, lhs]];
+        }
+
+        if (
+            (typeof def.trigger?.matchfix !== 'undefined' ||
+                typeof def.trigger?.infix !== 'undefined') &&
+            lhs !== null &&
+            rhs !== null
+        ) {
             // infix
             if (def.associativity === 'non') {
                 return [null, [op, lhs, rhs]];
@@ -873,7 +906,6 @@ export class Scanner implements Scanner {
                     } else {
                         if (Array.isArray(lhs)) {
                             lhs.push(rhs);
-                            return [null, lhs];
                         }
                         if (isFunctionObject(lhs)) {
                             lhs.fn.push(rhs);
@@ -917,16 +949,12 @@ export class Scanner implements Scanner {
             }
             return [null, [op, lhs, rhs]];
         }
-        if (def?.trigger.infix) {
+        if (typeof def.trigger.infix !== 'undefined') {
             // Infix, but either right or left operand missing
             this.onError({ code: 'expected-operand' });
             return [lhs, null];
         }
 
-        if (!def) {
-            this.onError({ code: 'unknown-operator' });
-            return [lhs, rhs];
-        }
         return [lhs, null];
     }
 
@@ -944,8 +972,8 @@ export class Scanner implements Scanner {
         lhs: Expression | null,
         rhs: Expression | null
     ): Expression | null {
-        if (!lhs) return rhs;
-        if (!rhs) return lhs;
+        if (lhs === null) return rhs;
+        if (rhs === null) return lhs;
         // @todo: handle invisible plus
         if (this.options.invisiblePlusOperator) {
             if (
@@ -957,7 +985,7 @@ export class Scanner implements Scanner {
                     lhs,
                     rhs
                 );
-                if (!lhs) return rhs;
+                if (lhs === null) return rhs;
                 return null;
             }
         }
@@ -967,7 +995,7 @@ export class Scanner implements Scanner {
                 lhs,
                 rhs
             );
-            if (!lhs) return rhs;
+            if (lhs === null) return rhs;
             return null;
         }
         // No invisible operator, use 'latex'
@@ -977,7 +1005,7 @@ export class Scanner implements Scanner {
         } else {
             fn.push(lhs);
         }
-        if (rhs) {
+        if (rhs !== null) {
             if (getFunctionName(rhs) === LATEX) {
                 fn = fn.concat(getArgs(rhs));
             } else {
@@ -991,9 +1019,12 @@ export class Scanner implements Scanner {
     }
 
     matchUnknownLatexCommand(): Expression | null {
-        const savedIndex = this.index;
-        const command = this.next();
-        console.assert(command.length > 1 && command[0] === '\\');
+        const command = this.peek();
+        if (!command || command[0] !== '\\') {
+            return null;
+        }
+
+        this.next();
 
         const optArgs: Expression[] = [];
         const reqArgs: Expression[] = [];
@@ -1002,14 +1033,14 @@ export class Scanner implements Scanner {
         do {
             done = true;
             let expr = this.matchOptionalLatexArgument();
-            if (expr) {
+            if (expr !== null) {
                 optArgs.push(expr);
                 done = false;
             }
             this.skipSpace();
             if (this.peek() === '<{>') {
                 expr = this.matchRequiredLatexArgument();
-                if (expr) {
+                if (expr !== null) {
                     reqArgs.push(expr);
                     done = false;
                 }
@@ -1019,8 +1050,7 @@ export class Scanner implements Scanner {
         if (optArgs.length > 0 || reqArgs.length > 0) {
             return [command, ...reqArgs, ...optArgs];
         }
-        this.index = savedIndex;
-        return null;
+        return command;
     }
 
     /**
@@ -1033,7 +1063,7 @@ export class Scanner implements Scanner {
      *  <matchfix-op-open> <expression> [<matchfix-op-separator> <expression>] <matchfix-op-close>
      *
      */
-    matchPrimary(): Expression | null {
+    matchPrimary(_minPrec?: number): Expression | null {
         let result: Expression | null = null;
         const originalIndex = this.index;
 
@@ -1049,19 +1079,19 @@ export class Scanner implements Scanner {
         //    `f(x)` or `\sin(\pi)
         //    `\frac{1}{2}`
         //
-        if (!result) result = this.matchSymbol();
+        if (result === null) result = this.matchSymbol();
 
         //
         // 3. Is it an environment?
         // `\begin{...}...\end{...}`
         //
-        if (!result) result = this.matchEnvironment();
+        if (result === null) result = this.matchEnvironment();
 
         //
         // 3. Is it a matchfix expression?
         //    (group fence, absolute value, integral, etc...)
         //
-        if (!result) result = this.matchMatchfixOperator();
+        if (result === null) result = this.matchMatchfixOperator();
 
         //
         // 4. Are there subsup or postfix operators?
@@ -1070,13 +1100,13 @@ export class Scanner implements Scanner {
         do {
             supsub = this.matchSupsub(result);
             result = supsub ?? result;
-        } while (supsub);
+        } while (supsub !== null);
 
         let postfix: Expression | null = null;
         do {
             postfix = this.matchPostfix(result);
             result = postfix ?? result;
-        } while (postfix);
+        } while (postfix !== null);
 
         return this.decorate(result, originalIndex);
     }
@@ -1105,8 +1135,8 @@ export class Scanner implements Scanner {
         //
         // 2. Do we have a primary?
         //
-        if (!lhs) lhs = this.matchPrimary();
-        if (!lhs) return null;
+        if (lhs === null) lhs = this.matchPrimary(minPrec);
+        if (lhs === null) return null;
 
         //
         // 3. Are there some infix operators?
@@ -1115,23 +1145,28 @@ export class Scanner implements Scanner {
         while (!this.atEnd() && !done) {
             this.skipSpace();
             let result = this.matchOperator('infix', lhs, minPrec);
-            if (!result) {
+            if (result === null) {
                 // We've encountered something else than an infix operator
+                // OR an infix operator with a lower priority.
                 // Could be "y" after "x": time to apply the invisible operator
-                // if the next element is *not* an operator.
+                // if the next element is:
+                // - a symbol: `2x`, `2f(x)` (after `2`)
+                // - a number: `x2` (after `x`)
+                // - a matchfix open: `x(n+1)` (after `x`)
+                // (i.e. not an operator)
                 const [op] = this.peekDefinition('operator');
-                if (!op) {
+                if (op === null) {
                     const rhs = this.matchExpression(
                         this.invisibleOperatorPrecedence
                     );
-                    if (rhs) {
-                        result = this.applyInvisibleOperator(lhs, rhs);
-                    } else {
+                    if (rhs === null) {
                         done = true;
+                    } else {
+                        result = this.applyInvisibleOperator(lhs, rhs);
                     }
                 }
             }
-            if (result) {
+            if (result !== null) {
                 lhs = result;
             } else {
                 // We could not apply the infix operator: the rhs may
@@ -1154,7 +1189,7 @@ export class Scanner implements Scanner {
                 expr = { latex: latex, num: Number(expr).toString() };
             } else if (typeof expr === 'string') {
                 expr = { latex: latex, sym: expr };
-            } else {
+            } else if (typeof expr === 'object' && expr !== null) {
                 expr.latex = latex;
             }
         }

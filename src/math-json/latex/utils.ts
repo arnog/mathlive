@@ -3,7 +3,7 @@ import {
     ParseLatexOptions,
     EmitLatexOptions,
 } from './public';
-import { MULTIPLY, POWER, ADD } from '../dictionary';
+import { MULTIPLY, ADD } from '../dictionary/dictionary';
 
 export const DEFAULT_LATEX_NUMBER_OPTIONS: Required<LatexNumberOptions> = {
     precision: 15, // assume 2^53 bits floating points
@@ -23,14 +23,12 @@ export const DEFAULT_PARSE_LATEX_OPTIONS: Required<ParseLatexOptions> = {
     ...DEFAULT_LATEX_NUMBER_OPTIONS,
 
     invisibleOperator: MULTIPLY,
-    superscriptOperator: POWER,
-    subscriptOperator: '',
     skipSpace: true,
 
     parseArgumentsOfUnknownLatexCommands: true,
     parseNumbers: true,
     promoteUnknownSymbols: /^[a-zA-Z]$/,
-    promoteUnknownFunctions: /^[f|g]$/,
+    promoteUnknownFunctions: /^[fg]$/,
     invisiblePlusOperator: ADD,
     preserveLatex: false,
     dictionary: [],

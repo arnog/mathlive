@@ -155,16 +155,22 @@ export function render(
     // 7. Calculate selection rectangle
     //
     const selectionRect = getSelectionBounds(mathfield.field);
-    if (selectionRect) {
+    if (selectionRect !== null) {
         const selectionElement = document.createElement('div');
         selectionElement.classList.add('ML__selection');
         selectionElement.style.position = 'absolute';
-        selectionElement.style.left = selectionRect.left + 'px';
-        selectionElement.style.top = selectionRect.top + 'px';
+        selectionElement.style.left =
+            Number(selectionRect.left).toString() + 'px';
+        selectionElement.style.top =
+            Number(selectionRect.top).toString() + 'px';
         selectionElement.style.width =
-            Math.ceil(selectionRect.right - selectionRect.left) + 'px';
+            Number(
+                Math.ceil(selectionRect.right - selectionRect.left)
+            ).toString() + 'px';
         selectionElement.style.height =
-            Math.ceil(selectionRect.bottom - selectionRect.top - 1) + 'px';
+            Number(
+                Math.ceil(selectionRect.bottom - selectionRect.top - 1)
+            ).toString() + 'px';
         mathfield.field.insertBefore(
             selectionElement,
             mathfield.field.childNodes[0]

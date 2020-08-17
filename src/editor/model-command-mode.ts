@@ -27,7 +27,7 @@ export function extractCommandStringAroundInsertionPoint(
         for (let i = command.start; i < end; i++) {
             // All these atoms are 'command' atom with a body that's
             // a single character
-            result += siblings[i].body || '';
+            result += siblings[i].body ?? '';
         }
     }
     return result;

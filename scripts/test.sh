@@ -7,8 +7,8 @@ set -o pipefail  # don't hide errors within pipes
 
 cd "$(dirname "$0")/.."
 
-# Read the first argument, set it to "coverage" if not set
-VARIANT="${1-coverage}"
+# Read the first argument, set it to "test" if not set
+VARIANT="${1-test}"
 
 export TEST="true"
 
@@ -19,6 +19,6 @@ elif [ "$VARIANT" = "snapshot" ]; then
 #    npx jest test/math-json.test -u
     npx jest  -u
 else
-#    npx jest test/math-json.test 
-    npx jest
+    npx jest test/math.test
+    # npx jest test/math-json.test
 fi

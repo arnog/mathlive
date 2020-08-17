@@ -719,7 +719,7 @@ export function makeSpan(
     type: SpanType = ''
 ): Span {
     if (isArray(content)) {
-        const c = content.filter((x) => !!x);
+        const c = content.filter((x) => Boolean(x));
         if (c.length === 1) {
             return new Span(c[0], classes, type);
         }

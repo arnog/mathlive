@@ -30,6 +30,10 @@ export declare type FunctionDefinition = {
      */
     hold?: 'none' | 'all' | 'first' | 'rest';
     /**
+     * If true, `Sequence` arguments are not automatically spliced in
+     */
+    sequenceHold?: boolean;
+    /**
      * Number of arguments, or minimum or minimum and maximum number of arguments.
      *
      * These are the arguments in the expr representation (i.e. ["f", 1, 2])
@@ -213,7 +217,7 @@ export declare type Expression = MathJsonRealNumber | number | MathJsonSymbol | 
  *      - 'full',
  */
 export declare type Form = 'canonical' | 'canonical-add' | 'canonical-divide' | 'canonical-exp' | 'canonical-list' | 'canonical-multiply' | 'canonical-power' | 'canonical-negate' | 'canonical-number' | 'canonical-root' | 'canonical-subtract' | 'flatten' | 'full' | 'sorted' | 'stripped-metadata' | 'sum-product';
-export declare type DictionaryCategory = 'algebra' | 'arithmetic' | 'calculus' | 'complex' | 'combinatorics' | 'dimensions' | 'intervals' | 'linear-algebra' | 'lists' | 'logic' | 'numeric' | 'quantifiers' | 'physics' | 'polynomials' | 'relations' | 'sets' | 'statistics' | 'core' | 'transcendentals' | 'trigonometry' | 'rounding' | 'units';
+export declare type DictionaryCategory = 'algebra' | 'arithmetic' | 'calculus' | 'complex' | 'combinatorics' | 'dimensions' | 'inequalities' | 'intervals' | 'linear-algebra' | 'lists' | 'logic' | 'numeric' | 'other' | 'quantifiers' | 'physics' | 'polynomials' | 'relations' | 'sets' | 'statistics' | 'symbols' | 'core' | 'transcendentals' | 'trigonometry' | 'rounding' | 'units';
 /**
  * Return a dictionary suitable for the specified category, or `"all"`
  * for all categories (`"arithmetic"`, `"algebra"`, etc...).

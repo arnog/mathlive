@@ -376,7 +376,7 @@ class Parser {
             token = this.peek();
         }
 
-        isInteger = !!isInteger;
+        isInteger = Boolean(isInteger);
 
         let radix = 10;
         let digits = /[0-9]/;
@@ -710,7 +710,7 @@ class Parser {
         }
         let result: Atom[];
         if (infix) {
-            console.assert(!!infixInfo);
+            console.assert(Boolean(infixInfo));
             infixArgs.unshift(this.swapAtoms(saveAtoms)); // suffix
             if (prefix) infixArgs.unshift(prefix);
             result = [
@@ -1482,15 +1482,15 @@ export function parseString(
         args,
         macros,
         (err) => {
-            if (onError) {
+            if (typeof onError === 'function') {
                 onError({ ...err, latex: s });
             } else {
-                console.warn(
-                    'MathLive parsing error: ' +
-                        err.code +
-                        (err.arg ? ' ' + err.arg + ' ' : ''),
-                    'in "' + s + '"'
-                );
+                // console.warn(
+                //     'MathLive parsing error: ' +
+                //         err.code +
+                //         (err.arg ? ' ' + err.arg + ' ' : ''),
+                //     'in "' + s + '"'
+                // );
             }
         }
     );

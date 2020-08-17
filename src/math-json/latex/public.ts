@@ -169,7 +169,7 @@ export type LatexDictionaryEntry = {
      * If `trigger` is `'matchfix'``.
      */
     separator?: Latex;
-    closeFence?: Latex;
+    closeFence?: LatexToken | LatexToken[];
 };
 
 export type LatexDictionary = LatexDictionaryEntry[];
@@ -182,26 +182,6 @@ export type ParseLatexOptions = LatexNumberOptions & {
      * Default: `"multiply"`
      */
     invisibleOperator?: string;
-
-    /**
-     * When a superscript `^` is encountered, consider it to be applying this
-     * operator to the base.
-     *
-     * If empty, an error will be generated when a superscript is encountered.
-     *
-     * Default: `"power"`
-     */
-    superscriptOperator?: string;
-
-    /**
-     * When a subscript `_` is encountered, consider it to be applying this
-     * operator to the base.
-     *
-     * If empty, an error will be generated when a subscript is encountered.
-     *
-     * Empty by default.
-     */
-    subscriptOperator?: string;
 
     /**
      * If true, ignore space characters.
@@ -264,7 +244,7 @@ export type ParseLatexOptions = LatexNumberOptions & {
      * After...
      *
      * ```
-     *      promoteUnknownFunctions = /^[f|g]$/
+     *      promoteUnknownFunctions = /^[fg]$/
      * ```
      *
      * ... `f(x)` is parsed as ["f", "x"]
@@ -383,7 +363,12 @@ export type EmitterFunction = (emitter: Emitter, expr: Expression) => string;
 export interface Scanner {
     readonly onError: ErrorListener<ErrorCode>;
     readonly options: Required<ParseLatexOptions>;
+
+    clone(start: number, end: number): Scanner;
+
     atEnd(): boolean;
+    getIndex(): number;
+    setIndex(n: number): void;
     /** Return the next token, without advancing the index */
     peek(): LatexToken;
     /** Return an array of string corresponding to tokens ahead.
@@ -419,7 +404,10 @@ export interface Scanner {
         lhs: Expression | null,
         rhs: Expression | null
     ): NonNullable<[Expression | null, Expression | null]>;
-
+    applyInvisibleOperator(
+        lhs: Expression | null,
+        rhs: Expression | null
+    ): Expression | null;
     /** If the next tokens correspond to an optional argument,
      * enclosed with `[` and `]` return the content of the argument
      * as an expression and advance the index past the closing `]`.
@@ -444,7 +432,7 @@ export interface Scanner {
      *
      * If not a primary, return `null` and do not advance the index.
      */
-    matchPrimary(): Expression | null;
+    matchPrimary(minPrec?: number): Expression | null;
 
     /**
      *  Parse an expression:

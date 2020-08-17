@@ -35,8 +35,8 @@ function convertLastAtomsToText(
                 /mord|textord|mpunct/.test(atom.type) ||
                 (atom.type === 'mop' && /[a-zA-Z]+/.test(atom.body as string))
             ) ||
-            !!atom.superscript ||
-            !!atom.subscript ||
+            Boolean(atom.superscript) ||
+            Boolean(atom.subscript) ||
             (until && !until(atom));
         if (!done) {
             atom.applyStyle({ mode: 'text' });

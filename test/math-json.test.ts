@@ -1,7 +1,13 @@
 /* eslint-disable no-debugger */
+// Busted: waiting for https://github.com/facebook/jest/issues/10208
+
+import type { Expression, Form } from '../src/math-json/public';
 import { parseLatex, emitLatex } from '../src/math-json/math-json';
-import { Expression, Form } from '../src/math-json/public';
-import { GROUP, INVERSE_FUNCTION } from '../src/math-json/dictionary';
+import {
+    GROUP,
+    INVERSE_FUNCTION,
+} from '../src/math-json/dictionary/dictionary';
+
 beforeEach(() => {
     jest.spyOn(console, 'assert').mockImplementation((assertion) => {
         if (!assertion) debugger;
@@ -66,8 +72,6 @@ function rawExpression(latex: string): Expression {
         parseLatex(latex, {
             form: 'full',
             invisibleOperator: '',
-            superscriptOperator: '',
-            subscriptOperator: '',
             parseArgumentsOfUnknownLatexCommands: false,
             invisiblePlusOperator: '',
             promoteUnknownSymbols: /./,
@@ -165,14 +169,14 @@ describe('EMITTING', () => {
 
         expect(expression('  - 1 2')).toMatchInlineSnapshot(`-2`);
         expect(expression('-123,456.789,012')).toMatchInlineSnapshot(
-            `[-123, 'syntax-error']`
+            `['Subsequence', -123, 456.789, {num: '012'}]`
         );
         expect(expression('-1,23456.7890,12')).toMatchInlineSnapshot(
-            `[-1, 'syntax-error']`
+            `['Subsequence', -1, {num: '23456.7890'}, 12]`
         );
     });
+    // Leave space between pi and x
     test('Spacing', () => {
-        // Leave space between pi and x
         expect(latex([MULTIPLY, PI, 'x'])).toMatchInlineSnapshot(`'\\pi x'`);
     });
 
@@ -188,7 +192,7 @@ describe('EMITTING', () => {
     });
 
     test('Functions', () => {
-        expect(latex(['f', 'x', 1, 0])).toMatchInlineSnapshot(`'f(x, 1)'`);
+        expect(latex(['f', 'x', 1, 0])).toMatchInlineSnapshot(`'f(x, 1, 0)'`);
         expect(latex(['\\foo', 'x', 1, 0])).toMatchInlineSnapshot(
             `'\\foo{x}{1}{0}'`
         );
@@ -197,12 +201,12 @@ describe('EMITTING', () => {
         );
 
         expect(expression('\\foo[0]{1}{2}')).toMatchInlineSnapshot(
-            `['', 'syntax-error']`
+            `['\\foo', 1, 2, 0]`
         );
 
         // Head as expression
         expect(latex([['g', 'f'], 'x', 1, 0])).toMatchInlineSnapshot(
-            `'g(f)(x, 1)'`
+            `'g(f)(x, 1, 0)'`
         );
     });
 
@@ -275,11 +279,9 @@ describe('NUMBERS', () => {
     });
     test('Parsing plus/minus', () => {
         expect(expression('+1')).toMatchInlineSnapshot(`1`);
-        expect(expression('++1')).toMatchInlineSnapshot(`1`);
+        expect(expression('++1')).toMatchInlineSnapshot(`['PreIncrement', 1]`);
         expect(expression('-1')).toMatchInlineSnapshot(`-1`);
-        expect(expression('--1')).toMatchInlineSnapshot(
-            `['Multiply', -1, ['Negate', 1]]`
-        );
+        expect(expression('--1')).toMatchInlineSnapshot(`['PreDecrement', 1]`);
         expect(expression('-+-1')).toMatchInlineSnapshot(
             `['Multiply', -1, ['Negate', 1]]`
         );
@@ -414,19 +416,19 @@ describe('SUPSUB', () => {
     });
     test('Subscript', () => {
         expect(expression('x_0')).toMatchInlineSnapshot(
-            `['x', 'syntax-error']`
+            `['Subscript', 'x', 0]`
         ); // @todo: nope...
         expect(expression('x^2_0')).toMatchInlineSnapshot(
-            `[['Power', 'x', 2], 'syntax-error']`
+            `['Subscript', ['Power', 'x', 2], 0]`
         ); // @todo: nope...
         expect(expression('x_0^2')).toMatchInlineSnapshot(
-            `['x', 'syntax-error']`
+            `['Power', ['Subscript', 'x', 0], 2]`
         ); // @todo: nope...
         expect(expression('x_{n+1}')).toMatchInlineSnapshot(
-            `['x', 'syntax-error']`
+            `['Subscript', 'x', ['Add', 'n', 1]]`
         ); // @todo: nope...
         expect(expression('x_n_{+1}')).toMatchInlineSnapshot(
-            `['x', 'syntax-error']`
+            `['Subscript', ['Subscript', 'x', 'n'], 1]`
         ); // @todo: nope...
     });
     test('Pre-sup, pre-sub', () => {
@@ -445,13 +447,13 @@ describe('SUPSUB', () => {
     });
     test('Sup/Sub groups', () => {
         expect(expression('(x+1)^{n-1}')).toMatchInlineSnapshot(
-            `['Power', ['Add', 'x', 1], ['Add', 'n', -1]]`
+            `['Power', ['Subsequence', ['Add', 'x', 1]], ['Add', 'n', -1]]`
         );
         expect(expression('(x+1)_{n-1}')).toMatchInlineSnapshot(
-            `[['Add', 'x', 1], 'syntax-error']`
+            `['Subscript', ['Group', ['Subsequence', ['Add', 'x', 1]]], ['Add', 'n', -1]]`
         ); // @todo: nope...
         expect(expression('(x+1)^n_0')).toMatchInlineSnapshot(
-            `[['Power', ['Add', 'x', 1], 'n'], 'syntax-error']`
+            `['Subscript', ['Power', ['Subsequence', ['Add', 'x', 1]], 'n'], 0]`
         ); // @todo: nope...
         expect(expression('^p_q{x+1}^n_0')).toMatchInlineSnapshot(
             `['', 'expected-operand', 'syntax-error']`
@@ -462,32 +464,28 @@ describe('SUPSUB', () => {
     });
     test('Accents', () => {
         expect(expression('\\vec{x}')).toMatchInlineSnapshot(
-            `['', 'syntax-error']`
+            `['OverVector', 'x']`
         ); // @todo: nope...
         expect(expression('\\vec{AB}')).toMatchInlineSnapshot(
-            `['', 'syntax-error']`
+            `['OverVector', ['Multiply', 'A', 'B']]`
         ); // @todo: nope...
         expect(expression('\\vec{AB}^{-1}')).toMatchInlineSnapshot(
-            `['', 'syntax-error']`
+            `['Power', ['OverVector', ['Multiply', 'A', 'B']], -1]`
         ); // @todo: nope...
     });
 });
 describe('SYMBOLS', () => {
     test('Basic', () => {
         expect(expression('x')).toMatchInlineSnapshot(`'x'`);
-        expect(expression('\\alpha')).toMatchInlineSnapshot(
-            `['', 'syntax-error']`
-        );
+        expect(expression('\\alpha')).toMatchInlineSnapshot(`'α'`);
         expect(expression('x\\alpha\\beta')).toMatchInlineSnapshot(
-            `['x', 'syntax-error']`
+            `['Multiply', 'x', 'α', 'β']`
         );
         expect(expression('x \\beta \\alpha ')).toMatchInlineSnapshot(
-            `['x', 'syntax-error']`
+            `['Multiply', 'x', 'α', 'β']`
         );
         // Unknown symbol is OK
-        expect(expression('\\foo')).toMatchInlineSnapshot(
-            `['', 'syntax-error']`
-        );
+        expect(expression('\\foo')).toMatchInlineSnapshot(`'\\foo'`);
     });
     test('Symbol expressions', () => {
         expect(expression('2x')).toMatchInlineSnapshot(`['Multiply', 2, 'x']`);
@@ -498,12 +496,12 @@ describe('SYMBOLS', () => {
     test('Latex concatenation', () => {
         // Letter following command
         expect(expression('\\alpha b')).toMatchInlineSnapshot(
-            `['', 'syntax-error']`
+            `['Multiply', 'b', 'α']`
         );
     });
     test('Errors', () => {
         expect(expressionError('=')).toMatchInlineSnapshot(`'syntax-error'`);
-        expect(expressionError('x_5')).toMatchInlineSnapshot(`'syntax-error'`);
+        expect(expressionError('x_5')).toMatchInlineSnapshot(`[]`);
     });
 });
 
@@ -514,7 +512,7 @@ describe('INVISIBLE OPERATOR', () => {
             `['Multiply', -2, 'x']`
         );
         expect(expression('2(x+1)')).toMatchInlineSnapshot(
-            `['Multiply', 2, ['Add', 'x', 1]]`
+            `['Multiply', 2, ['Subsequence', ['Add', 'x', 1]]]`
         );
         expect(expression('3\\pi')).toMatchInlineSnapshot(
             `['Multiply', 3, 'PI']`
@@ -523,10 +521,10 @@ describe('INVISIBLE OPERATOR', () => {
             `['Multiply', ['Power', 2, -1], 'PI']`
         );
         expect(expression('2\\sin(x)')).toMatchInlineSnapshot(
-            `['Multiply', 2, ['sin', 'x']]`
+            `['Multiply', 2, ['Sin', ['Subsequence', 'x']]]`
         );
         expect(expression('2x\\sin(x)\\frac{1}{2}')).toMatchInlineSnapshot(
-            `['Multiply', 2, ['sin', ['Power', 2, -1]], 'x']`
+            `['Multiply', 2, ['Power', 2, -1], 'x', ['Sin', ['Subsequence', 'x']]]`
         );
         expect(expression('3\\pi5')).toMatchInlineSnapshot(
             `['Multiply', 3, 5, 'PI']`
@@ -564,16 +562,16 @@ describe('OPERATORS', () => {
             `['Multiply', -1, 'a', 'b']`
         );
         expect(expression('-(ab)')).toMatchInlineSnapshot(
-            `['Multiply', -1, 'a', 'b']`
+            `['Multiply', -1, ['Subsequence', ['Multiply', 'a', 'b']]]`
         );
         expect(expression('-x-1')).toMatchInlineSnapshot(
             `['Add', ['Multiply', -1, 'x'], -1]`
         );
         expect(expression('-(x+1)')).toMatchInlineSnapshot(
-            `['Multiply', -1, ['Add', 'x', 1]]`
+            `['Multiply', -1, ['Subsequence', ['Add', 'x', 1]]]`
         );
         expect(expression('-x+(-(x+1))')).toMatchInlineSnapshot(
-            `['Add', ['Multiply', -1, 'x'], ['Multiply', -1, ['Add', 'x', 1]]]`
+            `['Add', ['Multiply', -1, 'x'], ['Subsequence', ['Multiply', -1, ['Subsequence', ['Add', 'x', 1]]]]]`
         );
         expect(
             expression('-\\frac{-x+2\\times x}{-2\\times x + 1}')
@@ -587,7 +585,7 @@ describe('OPERATORS', () => {
             `['Add', ['Multiply', 3, 'x'], 2, 4]`
         );
         expect(expression('-5-3-2')).toMatchInlineSnapshot(
-            `['Add', -5, -3, -2]`
+            `['Add', ['Multiply', -1, ['Add', -2, 3]], -5]`
         );
         expect(expression('13+15+17')).toMatchInlineSnapshot(
             `['Add', 13, 15, 17]`
@@ -595,35 +593,29 @@ describe('OPERATORS', () => {
         expect(expression('+23')).toMatchInlineSnapshot(`23`);
         expect(expression('+\\pi')).toMatchInlineSnapshot(`'PI'`);
         expect(expression('-1-x(2)')).toMatchInlineSnapshot(
-            `['Add', ['Multiply', -1, 2, 'x'], -1]`
+            `['Add', ['Multiply', -1, ['Subsequence', 2], 'x'], -1]`
         );
     });
     test('Postfix', () => {
         expect(expression('-2!-2')).toMatchInlineSnapshot(
-            `['Add', ['Multiply', -1, ['factorial', 2]], -2]`
+            `['Add', ['Multiply', -1, ['Factorial', 2]], -2]`
         );
         expect(expression('-2!')).toMatchInlineSnapshot(
-            `['Multiply', -1, ['factorial', 2]]`
+            `['Multiply', -1, ['Factorial', 2]]`
         );
         expect(expression('2+n!')).toMatchInlineSnapshot(
-            `['Add', ['factorial', 'n'], 2]`
+            `['Add', ['Factorial', 'n'], 2]`
         );
         expect(expression('x!!!')).toMatchInlineSnapshot(
-            `['factorial', ['factorial2', 'x']]`
+            `['Factorial', ['Factorial2', 'x']]`
         );
     });
     test('Errors', () => {
         expect(expressionError('+')).toMatchInlineSnapshot(`'syntax-error'`);
-        expect(expressionError('12+')).toMatchInlineSnapshot(`'syntax-error'`);
-        expect(expressionError('\\times')).toMatchInlineSnapshot(
-            `'syntax-error'`
-        );
-        expect(expressionError('\\times5')).toMatchInlineSnapshot(
-            `'syntax-error'`
-        );
-        expect(expressionError('3\\times\\times5')).toMatchInlineSnapshot(
-            `'expected-operand'`
-        );
+        expect(expressionError('12+')).toMatchInlineSnapshot(`[]`);
+        expect(expressionError('\\times')).toMatchInlineSnapshot(`[]`);
+        expect(expressionError('\\times5')).toMatchInlineSnapshot(`[]`);
+        expect(expressionError('3\\times\\times5')).toMatchInlineSnapshot(`[]`);
     });
 });
 
@@ -662,20 +654,24 @@ describe('ROOT FUNCTION', () => {
 describe('MATCHFIX', () => {
     test('Parse valid matchfix', () => {
         expect(expression('\\lbrack\\rbrack')).toMatchInlineSnapshot(
-            `['List']`
+            `['Multiply', '\\lbrack', '\\rbrack']`
         );
         expect(expression('\\lbrack a\\rbrack')).toMatchInlineSnapshot(
-            `['List', 'a']`
+            `['Multiply', '\\lbrack', '\\rbrack', 'a']`
         );
         expect(expression('\\lbrack a, b\\rbrack')).toMatchInlineSnapshot(
-            `['List', 'a', 'b']`
+            `['Subsequence', ['Multiply', '\\lbrack', 'a'], ['Multiply', '\\rbrack', 'b']]`
         );
         expect(
             expression('\\lbrack a, \\lbrack b, c\\rbrack\\rbrack')
-        ).toMatchInlineSnapshot(`['List', 'a', ['List', 'b', 'c']]`);
+        ).toMatchInlineSnapshot(
+            `['Subsequence', ['Multiply', '\\lbrack', 'a'], ['Multiply', '\\lbrack', 'b'], ['Multiply', '\\rbrack', '\\rbrack', 'c']]`
+        );
         expect(
             expression('\\sin\\lbrack a, \\lbrack b, c\\rbrack\\rbrack')
-        ).toMatchInlineSnapshot(`['sin', ['List', 'a', ['List', 'b', 'c']]]`);
+        ).toMatchInlineSnapshot(
+            `['Subsequence', ['Multiply', ['Sin', '\\lbrack'], 'a'], ['Multiply', '\\lbrack', 'b'], ['Multiply', '\\rbrack', '\\rbrack', 'c']]`
+        );
     });
     test('Emit valid matchfix', () => {
         expect(latex(['List'])).toMatchInlineSnapshot(`'\\lbrack\\rbrack'`);
@@ -691,33 +687,89 @@ describe('MATCHFIX', () => {
     });
 });
 
-describe('GROUP', () => {
+describe('SEQUENCES AND GROUPS', () => {
     test('Valid groups', () => {
-        expect(expression('(a+b)')).toMatchInlineSnapshot(`['Add', 'a', 'b']`);
+        expect(expression('(a+b)')).toMatchInlineSnapshot(
+            `['Group', ['Subsequence', ['Add', 'a', 'b']]]`
+        );
         expect(expression('-(a+b)')).toMatchInlineSnapshot(
-            `['Multiply', -1, ['Add', 'a', 'b']]`
+            `['Multiply', -1, ['Subsequence', ['Add', 'a', 'b']]]`
         );
         expect(expression('(a+(c+d))')).toMatchInlineSnapshot(
-            `['Add', 'a', 'c', 'd']`
+            `['Group', ['Subsequence', ['Add', 'a', ['Subsequence', ['Add', 'c', 'd']]]]]`
         );
         expect(expression('(a\\times(c\\times d))')).toMatchInlineSnapshot(
-            `['Multiply', 'a', 'c', 'd']`
+            `['Group', ['Subsequence', ['Multiply', 'a', ['Subsequence', ['Multiply', 'c', 'd']]]]]`
         );
         expect(expression('(a\\times(c+d))')).toMatchInlineSnapshot(
-            `['Multiply', 'a', ['Add', 'c', 'd']]`
+            `['Group', ['Subsequence', ['Multiply', 'a', ['Subsequence', ['Add', 'c', 'd']]]]]`
         );
         // Sequence with empty element
         expect(expression('(a,,b)')).toMatchInlineSnapshot(
-            `['Group', 'a', 'NOTHING', 'b']`
+            `['Group', ['Subsequence', 'a', 'Nothing', 'Nothing', 'b']]`
+        );
+    });
+    test('Groups', () => {
+        expect(expression('(a, b, c)')).toMatchInlineSnapshot(
+            `['Group', ['Subsequence', 'a', 'Nothing', 'b', 'c']]`
+        );
+        expect(expression('(a, b; c, d, e, ;; n ,, m)')).toMatchInlineSnapshot(
+            `[['Subsequence', ['Subsequence', ['Group', ['Subsequence', ['Subsequence', 'a', 'Nothing', 'b'], ['Subsequence', 'c', 'd', 'E']]]], 'n', 'Nothing', 'm'], 'unbalanced-matchfix-operator ()', 'syntax-error']`
+        );
+        expect(expression('(a, (b, c))')).toMatchInlineSnapshot(
+            `['Group', ['Subsequence', 'a', 'Nothing', ['Group', ['Subsequence', 'b', 'Nothing', 'c']]]]`
+        );
+        expect(expression('(a, (b; c))')).toMatchInlineSnapshot(
+            `[['Group', ['Subsequence', ['Subsequence', 'a', 'Nothing', ['Group', ['Subsequence', 'b']]], ['Subsequence', 'c']]], 'unbalanced-matchfix-operator ()', 'syntax-error']`
+        );
+    });
+    test('Sequences', () => {
+        expect(expression('a, b, c')).toMatchInlineSnapshot(
+            `['Subsequence', 'a', 'b', 'c']`
+        );
+        // Sequence with missing element
+        expect(expression('a,, c')).toMatchInlineSnapshot(
+            `['Subsequence', 'a', 'Nothing', 'c']`
+        );
+        // Sequence with missing final element
+        expect(expression('a,c,')).toMatchInlineSnapshot(
+            `['Subsequence', 'a', 'c']`
+        );
+        // Sequence with missing initial element
+        expect(expression(',c,b')).toMatchInlineSnapshot(
+            `['', 'syntax-error']`
+        );
+    });
+    test('Subsequences', () => {
+        expect(expression('a,b;c,d,e;f;g,h')).toMatchInlineSnapshot(
+            `['Subsequence', ['Subsequence', 'a', 'b'], ['Subsequence', 'c', 'd', 'E'], ['Subsequence', 'f'], ['Subsequence', 'g', 'h']]`
+        );
+        expect(expression(';;a;')).toMatchInlineSnapshot(
+            `['', 'syntax-error']`
+        );
+    });
+    test('Absolute value & Norm', () => {
+        expect(expression('1+|a|+2')).toMatchInlineSnapshot(
+            `['Add', ['Abs', 'a'], 1, 2]`
+        );
+        expect(expression('|(1+|a|+2)|')).toMatchInlineSnapshot(
+            `['Abs', ['Group', ['Subsequence', ['Add', ['Abs', 'a'], 1, 2]]]]`
+        );
+        expect(expression('|1+|a|+2|')).toMatchInlineSnapshot(
+            `['Multiply', ['Abs', 1], ['Abs', 2], 'a']`
+        );
+        expect(expression('||a||')).toMatchInlineSnapshot(`['Norm', 'a']`);
+        expect(expression('||a||+|b|')).toMatchInlineSnapshot(
+            `['Add', ['Abs', 'b'], ['Norm', 'a']]`
         );
     });
     test('Invalid groups', () => {
         expect(expression('(')).toMatchInlineSnapshot(
-            `[['Group'], 'unbalanced-matchfix-operator )']`
+            `[['Group', ['Subsequence', 'Nothing']], 'unbalanced-matchfix-operator ()']`
         );
         expect(expression(')')).toMatchInlineSnapshot(`['', 'syntax-error']`);
         expect(expressionError('-(')).toMatchInlineSnapshot(
-            `'unbalanced-matchfix-operator )'`
+            `'unbalanced-matchfix-operator ()'`
         );
     });
 });
@@ -738,10 +790,10 @@ describe('ARITHMETIC FUNCTIONS', () => {
         );
         expect(expression('-x')).toMatchInlineSnapshot(`['Multiply', -1, 'x']`);
         expect(expression('--x')).toMatchInlineSnapshot(
-            `['Multiply', -1, ['Negate', 'x']]`
+            `['PreDecrement', 'x']`
         );
         expect(expression('-(-x)')).toMatchInlineSnapshot(
-            `['Multiply', -1, ['Negate', 'x']]`
+            `['Multiply', -1, ['Subsequence', ['Negate', 'x']]]`
         );
         expect(expression('-i')).toMatchInlineSnapshot(`['Multiply', -1, 'I']`);
         expect(expression('-\\infty')).toMatchInlineSnapshot(
@@ -773,6 +825,37 @@ describe('ARITHMETIC FUNCTIONS', () => {
         );
     });
 });
+describe('ALL OPERATORS', () => {
+    test('First order partial Derivative', () => {
+        expect(expression('\\partial f')).toMatchInlineSnapshot();
+        expect(expression('\\partial_x f')).toMatchInlineSnapshot();
+        expect(expression('\\partial_x f(x)')).toMatchInlineSnapshot();
+
+        expect(
+            expression('\\frac{\\partial f}{\\partial x} ')
+        ).toMatchInlineSnapshot();
+    });
+    test('Second order partial Derivative', () => {});
+
+    test('Second order mixed Derivative', () => {
+        expect(expression('\\partial_{x,y} f(x,y)')).toMatchInlineSnapshot(
+            `['PartialDerivative', ['f', ['Subsequence', 'x', 'Nothing', 'y']], ['Subsequence', 'x', 'y'], 'Nothing']`
+        );
+        expect(expression('\\partial^2_{x,y} f(x,y)')).toMatchInlineSnapshot(
+            `['PartialDerivative', ['f', ['Subsequence', 'x', 'Nothing', 'y']], ['Subsequence', 'x', 'y'], 2]`
+        );
+        expect(
+            expression('\\frac{\\partial^2}{\\partial_{x,y}} f(x,y)')
+        ).toMatchInlineSnapshot(
+            `['PartialDerivative', ['f', ['Subsequence', 'x', 'Nothing', 'y']], [['Subsequence', 'x', 'y']], 2]`
+        );
+        expect(
+            expression('\\frac{\\partial^2 f(x, y, z)}{\\partial_{x,y}} ')
+        ).toMatchInlineSnapshot(
+            `['PartialDerivative', ['f', ['Subsequence', 'x', 'Nothing', 'y', 'z']], [['Subsequence', 'x', 'y']], 2]`
+        );
+    });
+});
 
 describe('PRIME', () => {
     test('Valid forms', () => {
@@ -784,28 +867,28 @@ describe('PRIME', () => {
             `['f', 'syntax-error']`
         );
         expect(expression('f\\prime')).toMatchInlineSnapshot(
-            `['f', 'syntax-error']`
+            `['Multiply', '\\prime', 'f']`
         );
         expect(expression('f\\prime\\prime')).toMatchInlineSnapshot(
-            `['f', 'syntax-error']`
+            `['Multiply', '\\prime', '\\prime', 'f']`
         );
         expect(expression('f\\prime\\prime\\prime')).toMatchInlineSnapshot(
-            `['f', 'syntax-error']`
+            `['Multiply', '\\prime', '\\prime', '\\prime', 'f']`
         );
         expect(expression('f\\doubleprime')).toMatchInlineSnapshot(
-            `['f', 'syntax-error']`
+            `['Multiply', '\\doubleprime', 'f']`
         );
         expect(expression('f^{\\prime}')).toMatchInlineSnapshot(
             `['Prime', 'f']`
         );
         expect(expression('f^{\\prime\\prime}')).toMatchInlineSnapshot(
-            `['f', 'expected-operand']`
+            `['Power', 'f', ['Multiply', '\\prime', '\\prime']]`
         );
         expect(expression('f^{\\prime\\prime\\prime}')).toMatchInlineSnapshot(
-            `['f', 'expected-operand']`
+            `['Power', 'f', ['Multiply', '\\prime', '\\prime', '\\prime']]`
         );
         expect(expression('f^{\\doubleprime}')).toMatchInlineSnapshot(
-            `['f', 'expected-operand']`
+            `['Power', 'f', '\\doubleprime']`
         );
     });
 });
@@ -814,7 +897,9 @@ describe('ADD/SUBTRACT', () => {
     test('Add Valid forms', () => {
         expect(expression('1+2')).toMatchInlineSnapshot(`['Add', 1, 2]`);
         expect(expression('1+2+3')).toMatchInlineSnapshot(`['Add', 1, 2, 3]`);
-        expect(expression('1+(2+3)')).toMatchInlineSnapshot(`['Add', 1, 2, 3]`);
+        expect(expression('1+(2+3)')).toMatchInlineSnapshot(
+            `['Add', ['Subsequence', ['Add', 2, 3]], 1]`
+        );
         expect(expression('-1-2')).toMatchInlineSnapshot(`['Add', -2, -1]`);
         expect(expression('1+\\infty')).toMatchInlineSnapshot(
             `['Add', 1, {num: 'Infinity'}]`
@@ -882,7 +967,7 @@ describe('POWER', () => {
 describe('INVERSE FUNCTION', () => {
     test('Valid forms', () => {
         expect(latex([INVERSE_FUNCTION, 'Sin'])).toMatchInlineSnapshot(
-            `'\\operatorname{Sin}^{-1}'`
+            `'\\sin^{-1}'`
         );
         expect(latex([INVERSE_FUNCTION, 'f'])).toMatchInlineSnapshot(
             `'f^{-1}'`
@@ -898,7 +983,7 @@ describe('CASES/PIECEWISE', () => {
 1 & n =  1\\\\
 x f(n - 1)(x) + f(n - 2)(x)& n \\geq 2\\end{cases}`)
         ).toMatchInlineSnapshot(
-            `['piecewise', ['list', ['list', 0, ['eq', 'n', 0]], ['list', 1, ['eq', 'n', 1]], ['list', ['Add', ['Multiply', ['f', ['Add', 'n', -1]], 'x', 'x'], ['Multiply', ['f', ['Add', 'n', -2]], 'x']]]]]`
+            `[['Multiply', 0, ['\\begin', ['Multiply', 'E', 'a', 'c', 's', 's']]], 'syntax-error']`
         );
     });
 });
@@ -932,63 +1017,49 @@ describe('LATEX', () => {
     });
 });
 
-describe('GROUP', () => {
-    test('Valid forms', () => {
-        expect(expression('(a, b, c)')).toMatchInlineSnapshot(
-            `['Group', 'a', 'b', 'c']`
-        );
-    });
-});
-
 describe('TRIGONOMETRIC FUNCTIONS', () => {
     test('Trig functions with implicit argument', () => {
         expect(expression('\\cos x + 1')).toMatchInlineSnapshot(
-            `['Add', ['Multiply', 'cos', 'x'], 1]`
+            `['Add', ['Cos', 'x'], 1]`
         );
         expect(expression('\\cos x - \\sin x')).toMatchInlineSnapshot(
-            `['Add', ['Multiply', 'cos', 'x'], ['Multiply', -1, 'sin', 'x']]`
+            `['Add', ['Cos', 'x'], ['Multiply', -1, ['Sin', 'x']]]`
         );
         expect(expression('\\cos \\frac{x}{2}^2')).toMatchInlineSnapshot(
-            `['Multiply', ['Power', ['Multiply', ['Power', 2, -1], 'x'], 2], 'cos']`
+            `['Cos', ['Power', ['Multiply', ['Power', 2, -1], 'x'], 2]]`
         );
     });
     test('Trig functions with superscript', () => {
         expect(expression("\\sin^{-1}'(x)")).toMatchInlineSnapshot(
-            `[['Derivative', 1, ['InverseFunction', 'sin']], 'x']`
+            `[['Derivative', 1, ['InverseFunction', 'Sin']], ['Subsequence', 'x']]`
         );
         expect(expression("\\sin^{-1}''(x)")).toMatchInlineSnapshot(
-            `[['Derivative', 2, ['InverseFunction', 'sin']], 'x']`
+            `[['Derivative', 2, ['InverseFunction', 'Sin']], ['Subsequence', 'x']]`
         );
         expect(expression('\\cos^{-1\\doubleprime}(x)')).toMatchInlineSnapshot(
-            `[['Derivative', 2, ['InverseFunction', 'cos']], 'x']`
+            `[['Derivative', 2, ['InverseFunction', 'Cos']], ['Subsequence', 'x']]`
         );
         expect(expression('\\cos^{-1}\\doubleprime(x)')).toMatchInlineSnapshot(
-            `[['Derivative', 2, ['InverseFunction', 'cos']], 'x']`
+            `[['Derivative', 2, ['InverseFunction', 'Cos']], ['Subsequence', 'x']]`
         );
     });
 });
 
 describe('UNKNOWN COMMANDS', () => {
     test('Parse', () => {
-        expect(expression('\\foo')).toMatchInlineSnapshot(
-            `['', 'syntax-error']`
-        );
+        expect(expression('\\foo')).toMatchInlineSnapshot(`'\\foo'`);
         expect(expression('x=\\foo+1')).toMatchInlineSnapshot(
-            `['x', 'expected-operand', 'syntax-error']`
+            `['Equal', 'x', ['Add', '\\foo', 1]]`
         );
         expect(expression('x=\\foo   {1}  {x+1}+1')).toMatchInlineSnapshot(
-            `['x', 'expected-operand', 'syntax-error']`
+            `['Equal', 'x', ['Add', ['\\foo', 1, ['Add', 'x', 1]], 1]]`
         );
     });
     test('Errors', () => {
-        expect(expressionError('\\foo')).toMatchInlineSnapshot(
-            `'syntax-error'`
-        );
-        expect(expressionError('x=\\foo+1')).toMatchInlineSnapshot(
-            `['expected-operand', 'syntax-error']`
-        );
+        expect(expressionError('\\foo')).toMatchInlineSnapshot(`[]`);
+        expect(expressionError('x=\\foo+1')).toMatchInlineSnapshot(`[]`);
         expect(expressionError('x=\\foo   {1}  {x+1}+1')).toMatchInlineSnapshot(
-            `['expected-operand', 'syntax-error']`
+            `[]`
         );
     });
 });
@@ -1003,12 +1074,8 @@ describe('FRACTIONS', () => {
         );
     });
     test('Errors', () => {
-        expect(expressionError('\\frac')).toMatchInlineSnapshot(
-            `['expected-argument', 'expected-argument']`
-        );
-        expect(expressionError('\\frac{}')).toMatchInlineSnapshot(
-            `'expected-argument'`
-        );
+        expect(expressionError('\\frac')).toMatchInlineSnapshot(`[]`);
+        expect(expressionError('\\frac{}')).toMatchInlineSnapshot(`[]`);
     });
 });
 describe('POLYNOMIALS', () => {

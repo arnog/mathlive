@@ -9,29 +9,29 @@ export function getWikidata(dictionary: Dictionary, json: Expression): string {
     }
     if (typeof json === 'string') {
         const def = dictionary[json];
-        if (def) return def.wikidata ?? '';
+        if (typeof def === 'object') return def.wikidata ?? '';
         return '';
     }
     if (isSymbolObject(json)) {
         if (json.wikidata) return json.wikidata;
         const def = dictionary[json.sym[0] as string];
-        if (def) return def.wikidata ?? '';
+        if (typeof def === 'object') return def.wikidata ?? '';
         return '';
     }
     if (Array.isArray(json)) {
         const fnDef = dictionary[json[0] as string];
-        if (fnDef) return fnDef.wikidata ?? '';
+        if (typeof fnDef === 'object') return fnDef.wikidata ?? '';
         const opDef = dictionary.operators[json[0] as string];
-        if (opDef) return opDef.wikidata ?? '';
+        if (typeof opDef === 'object') return opDef.wikidata ?? '';
 
         return '';
     }
     if (isFunctionObject(json)) {
         if (json.wikidata) return json.wikidata;
         const fnDef = dictionary[json.fn[0] as string];
-        if (fnDef) return fnDef.wikidata ?? '';
+        if (typeof fnDef === 'object') return fnDef.wikidata ?? '';
         const opDef = dictionary[json.fn[0] as string];
-        if (opDef) return opDef.wikidata ?? '';
+        if (typeof opDef === 'object') return opDef.wikidata ?? '';
         return '';
     }
     return '';

@@ -59,7 +59,8 @@ function latexifyArray(parent, atoms, expandMacro): string {
             );
             if (
                 x[0].cssClass &&
-                (!parent || parent.cssClass !== x[0].cssClass)
+                (typeof parent === 'undefined' ||
+                    parent.cssClass !== x[0].cssClass)
             ) {
                 if (x[0].cssClass === 'ML__boldsymbol') {
                     return '\\boldsymbol{' + result + '}';
@@ -88,7 +89,11 @@ function latexify(
         result = value.toString();
     } else if (typeof value === 'string') {
         result = value.replace(/\s/g, '~');
-    } else if (value && isFunction(value.toLatex)) {
+    } else if (
+        typeof value !== 'undefined' &&
+        value !== null &&
+        isFunction(value.toLatex)
+    ) {
         result = value.toLatex(expandMacro);
     }
     return result;
@@ -150,7 +155,7 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
             result += '\\begin{' + atom.environmentName + '}';
             if (atom.environmentName === 'array') {
                 result += '{';
-                if (atom.colFormat) {
+                if (typeof atom.colFormat !== 'undefined') {
                     for (i = 0; i < atom.colFormat.length; i++) {
                         if (atom.colFormat[i].align) {
                             result += atom.colFormat[i].align;
@@ -271,7 +276,7 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
             if (command === '\\hspace' || command === '\\hspace*') {
                 result += '{';
                 if (atom.width) {
-                    result += atom.width + 'em';
+                    result += Number(atom.width).toString() + 'em';
                 } else {
                     result += '0em';
                 }
@@ -279,7 +284,7 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
             } else {
                 result += ' ';
                 if (atom.width) {
-                    result += atom.width + 'em ';
+                    result += Number(atom.width).toString() + 'em ';
                 }
             }
 
@@ -362,7 +367,7 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
         default:
             result = emitDefinition(command, null, atom, emit);
             console.assert(
-                !!result,
+                Boolean(result),
                 'Missing custom emiter for ',
                 command || atom.body
             );
@@ -372,7 +377,7 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
 
             break;
     }
-    if (atom.superscript) {
+    if (typeof atom.superscript !== 'undefined') {
         let sup = emit(atom, atom.superscript);
         if (sup.length === 1) {
             if (sup === '\u2032') {
@@ -387,7 +392,7 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
             result += '^{' + sup + '}';
         }
     }
-    if (atom.subscript) {
+    if (typeof atom.subscript !== 'undefined') {
         const sub = emit(atom, atom.subscript);
         if (sub.length === 1) {
             result += '_' + sub;

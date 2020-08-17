@@ -40,6 +40,11 @@ export type FunctionDefinition = {
     hold?: 'none' | 'all' | 'first' | 'rest';
 
     /**
+     * If true, `Sequence` arguments are not automatically spliced in
+     */
+    sequenceHold?: boolean;
+
+    /**
      * Number of arguments, or minimum or minimum and maximum number of arguments.
      *
      * These are the arguments in the expr representation (i.e. ["f", 1, 2])
@@ -304,17 +309,20 @@ export type DictionaryCategory =
     | 'complex'
     | 'combinatorics'
     | 'dimensions'
+    | 'inequalities'
     | 'intervals'
     | 'linear-algebra'
     | 'lists'
     | 'logic'
     | 'numeric'
+    | 'other'
     | 'quantifiers'
     | 'physics'
     | 'polynomials'
     | 'relations'
     | 'sets'
     | 'statistics'
+    | 'symbols'
     | 'core'
     | 'transcendentals'
     | 'trigonometry'

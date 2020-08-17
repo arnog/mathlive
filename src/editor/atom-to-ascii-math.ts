@@ -185,7 +185,7 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
                 SPECIAL_IDENTIFIERS[command] ||
                 command ||
                 (typeof atom.body === 'string' ? atom.body : '');
-            if (result[0] === '\\') result += '';
+            if (result[0] === '\\') result = String(result);
             m = command
                 ? command.match(/[{]?\\char"([0-9abcdefABCDEF]*)[}]?/)
                 : null;

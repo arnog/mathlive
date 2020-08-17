@@ -12,6 +12,12 @@ import { coalesce, makeSpan, makeStruts } from './core/span';
 import { MACROS, MacroDictionary } from './core/definitions';
 import { MathfieldPrivate } from './editor/mathfield-class';
 import AutoRender from './addons/auto-render';
+import {
+    MathJsonLatexOptions,
+    MathJson,
+    atomtoMathJson,
+    jsonToLatex,
+} from './addons/math-json';
 import MathLiveDebug from './addons/debug';
 import { MATHSTYLES } from './core/mathstyle';
 import { defaultSpeakHook } from './editor/speech';
@@ -27,9 +33,10 @@ import { atomsToMathML } from './addons/math-ml';
 
 import './addons/definitions-metadata';
 import { AutoRenderOptionsPrivate } from './addons/auto-render';
-import { ErrorCode, Form, Expression, Dictionary } from './math-json/public';
-import { parseLatex, emitLatex } from './math-json/math-json';
-import { ParseLatexOptions, EmitLatexOptions } from './math-json/latex/public';
+import { ErrorCode as MathJsonErrorCode } from './math-json/public';
+// import { ErrorCode, Form, Expression, Dictionary } from './math-json/public';
+// import { parseLatex, emitLatex } from './math-json/math-json';
+// import { ParseLatexOptions, EmitLatexOptions } from './math-json/latex/public';
 
 function latexToMarkup(
     text: string,
@@ -118,30 +125,61 @@ function latexToMathML(
         options
     );
 }
-
 function latexToAST(
     latex: string,
-    options?: ParseLatexOptions & {
+    options?: MathJsonLatexOptions & {
         macros?: MacroDictionary;
-        onError?: ErrorListener<ErrorCode>;
-        form?: Form | Form[];
+        onError?: ErrorListener<ParserErrorCode | MathJsonErrorCode>;
     }
-): Expression {
+): MathJson {
     options = options ?? {};
     options.macros = { ...MACROS, ...(options.macros ?? {}) };
 
-    return parseLatex(latex, options);
+    // return parseLatex(latex, options);
+
+    return atomtoMathJson(
+        parseString(
+            latex,
+            'math',
+            null,
+            options.macros,
+            false,
+            options.onError
+        ),
+        options
+    );
 }
 
-function astToLatex(
-    expr: Expression,
-    options: EmitLatexOptions & {
-        dictionary?: Dictionary;
-        onError?: ErrorListener<ErrorCode>;
-    }
-): string {
-    return emitLatex(expr, options);
+function astToLatex(expr: MathJson, options: MathJsonLatexOptions): string {
+    return jsonToLatex(
+        typeof expr === 'string' ? JSON.parse(expr) : expr,
+        options
+    );
+    // return emitLatex(expr, options);
 }
+// function latexToAST(
+//     latex: string,
+//     options?: ParseLatexOptions & {
+//         macros?: MacroDictionary;
+//         onError?: ErrorListener<ErrorCode>;
+//         form?: Form | Form[];
+//     }
+// ): Expression {
+//     options = options ?? {};
+//     options.macros = { ...MACROS, ...(options.macros ?? {}) };
+
+//     return parseLatex(latex, options);
+// }
+
+// function astToLatex(
+//     expr: Expression,
+//     options: EmitLatexOptions & {
+//         dictionary?: Dictionary;
+//         onError?: ErrorListener<ErrorCode>;
+//     }
+// ): string {
+//     return emitLatex(expr, options);
+// }
 
 function latexToSpeakableText(
     latex: string,
@@ -176,7 +214,7 @@ function renderMathInDocument(options: AutoRenderOptionsPrivate): void {
 function getElement(element: string | HTMLElement): HTMLElement {
     if (typeof element === 'string') {
         const result: HTMLElement = document.getElementById(element);
-        if (!result) {
+        if (result === null) {
             throw Error(`The element with ID "${element}" could not be found.`);
         }
         return result;
@@ -192,13 +230,13 @@ function renderMathInElement(
     options.renderToMarkup = options.renderToMarkup ?? latexToMarkup;
     options.renderToMathML = options.renderToMathML ?? latexToMathML;
     options.renderToSpeakableText =
-        options.renderToSpeakableText || latexToSpeakableText;
-    options.macros = options.macros || MACROS;
+        options.renderToSpeakableText ?? latexToSpeakableText;
+    options.macros = options.macros ?? MACROS;
     AutoRender.renderMathInElement(getElement(element), options);
 }
 
 function validateNamespace(options): void {
-    if (options.namespace) {
+    if (typeof options.namespace === 'string') {
         if (!/^[a-z]+[-]?$/.test(options.namespace)) {
             throw Error(
                 'options.namespace must be a string of lowercase characters only'
@@ -224,9 +262,10 @@ function revertToOriginalContent(
         const html = element.getAttribute(
             'data-' + (options.namespace ?? '') + 'original-content'
         );
-        element.innerHTML = options.createHTML
-            ? options.createHTML(html)
-            : html;
+        element.innerHTML =
+            typeof options.createHTML === 'function'
+                ? options.createHTML(html)
+                : html;
     }
 }
 

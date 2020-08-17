@@ -126,7 +126,7 @@ export function decompose(
     function isDigit(atom: Atom): boolean {
         return (
             atom.type === 'mord' &&
-            !!atom.symbol &&
+            Boolean(atom.symbol) &&
             /^[0-9,.]$/.test(atom.symbol)
         );
     }
@@ -463,7 +463,7 @@ export class Atom implements Style {
         body: string | Atom[] = '',
         style: Style = {}
     ) {
-        console.assert(type === 'first' || !!mode);
+        console.assert(type === 'first' || Boolean(mode));
         this.mode = mode;
         this.type = type;
         this.body = body;

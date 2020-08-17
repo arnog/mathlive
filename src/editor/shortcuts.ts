@@ -102,7 +102,7 @@ function validateShortcut(
         binop = sibling.type === 'mbin';
         relop = sibling.type === 'mrel';
         punct = sibling.type === 'mpunct' || sibling.type === 'minner';
-        array = !!sibling.array;
+        array = Boolean(sibling.array);
         openfence = sibling.type === 'mopen';
         closefence = sibling.type === 'mclose' || sibling.type === 'leftright';
         space = sibling.type === 'space';

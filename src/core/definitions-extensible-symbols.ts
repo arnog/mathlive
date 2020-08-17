@@ -106,6 +106,8 @@ defineFunction(
     },
     (name, _parent, atom, emit) =>
         name +
-        (atom.underscript ? `[${emit(atom, atom.underscript)}]` : '') +
+        (typeof atom.underscript !== 'undefined'
+            ? `[${emit(atom, atom.underscript)}]`
+            : '') +
         `{${emit(atom, atom.overscript)}}`
 );

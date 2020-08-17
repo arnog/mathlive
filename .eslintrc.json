@@ -201,7 +201,7 @@
             "print",
             "captureEvents",
             "releaseEvents",
-            "getComputedStyle",
+            // "getComputedStyle",
             "matchMedia",
             "moveTo",
             "moveBy",

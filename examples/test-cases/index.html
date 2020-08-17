@@ -27,7 +27,21 @@
         <h1>MathLive Test Cases</h1>
     </header>
     <main>
-        <div class="mathfield" id="mf">\lbrack a\rbrack</div>
+        <div class="mathfield" id="mf">(x,,2)</div>
+        <!-- -123, 456.789, -->
+        <!-- x_5 -->
+        <!-- -5-3-2 -->
+        <!-- 12+ -- >
+        <!-- \lbrack\rbrack -- >
+        <!-- \foo  -->
+        <!-- (a,,b) -- >
+        <!--       a\le b \overline{z} \overrightarrow{ABC} -->
+        <!-- $$(deadbeef)_{16}$$ -->
+        <!-- \partial^2_{x,y} f(x,y) -->
+        <!-- |(a+|b|+1)| -->
+        <!-- -0+0(\frac{0}{\frac{0}{0}}-0)+x^\pi -->
+        <!-- -0+0(\frac{0}{\frac{0}{0}}-0) -->
+        <!-- x_0 + x_{0} +  x_n + x_{n+1}-->
         <!-- -2x5z\sqrt{y}\frac{3}{4}3\pi y} -->
         <!-- \sin^{-1}\prime(x)      \sin^{-1}'(x) -- >
         <!-- "\begin{align*}\dot{x} & =\sigma(y-x) \\ \dot{y} & =\rho x-y-xz \\ \dot{z} & =-\beta z+xy\end{align*}" ->
@@ -1142,6 +1156,7 @@
             errors = [];
             expr = MathLive.latexToAST(latex, {
                 form: 'full',
+                preserveLatex: true,
                 onError: (err) =>
                     errors.push('parse: ' + err.code + (err.arg ? ' ' + err.arg : '')),
             });
@@ -1200,7 +1215,7 @@
                 onError: (err) => {
                     console.error(
                         err.latex,
-                        err.code + ' ' + err.arg ?? ''
+                        err.code + ' ' + (err.arg ?? '')
                     );
                 },
             });

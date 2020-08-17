@@ -11,7 +11,7 @@ import { Emitter } from './latex/emit';
 import { Dictionary, ErrorCode, Expression, Form } from './public';
 import { ParseLatexOptions, EmitLatexOptions } from './latex/public';
 import { getDefaultLatexDictionary } from './latex/definitions';
-import { getDefaultDictionary } from './dictionary';
+import { getDefaultDictionary } from './dictionary/dictionary';
 
 declare let process: {
     env: { [key: string]: string };
@@ -28,7 +28,7 @@ export function parseLatex(
         ...DEFAULT_LATEX_NUMBER_OPTIONS,
         ...DEFAULT_PARSE_LATEX_OPTIONS,
         onError: (err) => {
-            if (window) {
+            if (typeof window !== 'undefined') {
                 if (!err.before || !err.after) {
                     console.warn(err.code + (err.arg ? ': ' + err.arg : ''));
                 } else {

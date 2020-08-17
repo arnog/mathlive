@@ -107,7 +107,7 @@ export class ModelPrivate implements Model {
         if (this.parent().array) {
             siblings = arrayCell(this.parent().array, this.relation());
         } else {
-            siblings = this.parent()[this.relation()] || [];
+            siblings = this.parent()[this.relation()] ?? [];
             if (typeof siblings === 'string') siblings = [];
         }
 
