@@ -481,7 +481,7 @@ export const DEFINITIONS_ARITHMETIC: LatexDictionary = [
     },
     {
         name: MULTIPLY,
-        trigger: { infix: '\\codt' },
+        trigger: { infix: '\\cdot' },
         emit: emitMultiply,
         associativity: 'both',
         precedence: 390,
