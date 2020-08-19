@@ -83,7 +83,7 @@ import coreStylesheet from '../../css/core.less';
 
 import popoverStylesheet from '../../css/popover.less';
 import keystrokeCaptionStylesheet from '../../css/keystroke-caption.less';
-// import { parseLatex } from '../math-json/math-json';
+import { parseLatex } from '../math-json/math-json';
 import { atomtoMathJson } from '../addons/math-json';
 
 export class MathfieldPrivate implements Mathfield {
@@ -685,11 +685,13 @@ export class MathfieldPrivate implements Mathfield {
             result = atomToSpeakableText(root, this.config);
             this.config.textToSpeechMarkup = saveTextToSpeechMarkup;
             // this.config.atomIdsSettings = savedAtomIdsSettings;      // @revisit
+        } else if (format === 'mathjson') {
+            const json = parseLatex(root.toLatex(true), {
+                form: 'canonical',
+            });
+            result = JSON.stringify(json);
         } else if (format === 'json') {
             const json = atomtoMathJson(root);
-            // const json = parseLatex(root.toLatex(true), {
-            //     form: 'canonical',
-            // });
             result = JSON.stringify(json);
         } else if (format === 'json-2') {
             const json = atomtoMathJson(root);

@@ -17,6 +17,7 @@ import { ParseMode, MacroDictionary, Style } from './core';
 export type OutputFormat =
     | 'latex'
     | 'latex-expanded'
+    | 'mathjson' // Work progress next generation MathJson
     | 'json'
     | 'json-2'
     | 'spoken'

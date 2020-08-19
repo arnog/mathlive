@@ -25111,6 +25111,5557 @@ var css_248z$3 = "div.ML__popover.is-visible{visibility:inherit;-webkit-animatio
 
 var css_248z$4 = ".ML__keystroke-caption{visibility:hidden;background:var(--secondary);border-color:var(--secondary-border);box-shadow:0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23);text-align:center;border-radius:6px;padding:16px;position:absolute;z-index:1;display:flex;flex-direction:row;justify-content:center;--keystroke:#fff;--on-keystroke:#555;--keystroke-border:#f7f7f7}@media (prefers-color-scheme:dark){body:not([theme=light]) .ML__keystroke-caption{--keystroke:hsl(var(--hue),50%,30%);--on-keystroke:#fafafa;--keystroke-border:hsl(var(--hue),50%,25%)}}body[theme=dark] .ML__keystroke-caption{--keystroke:hsl(var(--hue),50%,30%);--on-keystroke:#fafafa;--keystroke-border:hsl(var(--hue),50%,25%)}.ML__keystroke-caption>span{min-width:14px;margin:0 8px 0 0;padding:4px;background-color:var(--keystroke);color:var(--on-keystroke);fill:currentColor;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:1em;border-radius:6px;border:2px solid var(--keystroke-border)}";
 
+const ARITHMETIC_DICTIONARY = {
+    //
+    // Constants
+    //
+    PI: {
+        wikidata: 'Q167',
+        isConstant: true,
+        domain: 'R+',
+    },
+    //
+    // Functions
+    //
+    Abs: {
+        /** Elem */
+        wikidata: 'Q3317982',
+        isPure: true,
+        isListable: true,
+        isIdempotent: true,
+    },
+    Add: {
+        /** Elem */
+        wikidata: 'Q32043',
+        isAssociative: true,
+        isCommutative: true,
+        isListable: true,
+        isIdempotent: true,
+        isPure: true,
+    },
+    Chop: {
+        isAssociative: true,
+        isListable: true,
+        isPure: true,
+        isIdempotent: true,
+    },
+    Ceil: {
+        /** rounds a number up to the next largest integer */
+        isPure: true,
+    },
+    Equal: {
+        // mathematical relationship asserting that two quantities have the same value
+        wikidata: 'Q842346',
+        isPure: true,
+    },
+    E: {
+        isConstant: true,
+        value: { num: '2.7182818284590452354' },
+    },
+    Exp: {
+        /** Elem */
+        isPure: true,
+    },
+    Exp2: {
+        /** Elem */
+        isPure: true,
+    },
+    Exp10: {
+        /** Elem */
+        isPure: true,
+    },
+    Erf: {
+        /** Elem */
+        // Error function
+        isPure: true,
+    },
+    Erfc: {
+        /** Elem */
+        // Error function complement
+        isPure: true,
+    },
+    ExpMinusOne: {
+        /** Elem */
+        isPure: true,
+    },
+    Factorial: {
+        wikidata: 'Q120976',
+        isPure: true,
+    },
+    Floor: {
+        isPure: true,
+    },
+    Gamma: {
+        /** Elem */
+        isPure: true,
+    },
+    LogGamma: {
+        /** Elem */
+        isPure: true,
+    },
+    Log: {
+        /** Elem */
+        isPure: true,
+    },
+    Log2: {
+        /** Elem */
+        isPure: true,
+    },
+    Log10: {
+        /** Elem */
+        isPure: true,
+    },
+    LogOnePlus: {
+        /** Elem */
+        isPure: true,
+    },
+    MachineEpsilon: {
+        /*
+            The difference between 1 and the next larger floating point number
+            
+            2^{−52}
+            
+            See https://en.wikipedia.org/wiki/Machine_epsilon
+        */
+        isConstant: true,
+        value: { num: '2.220446049250313e-16' },
+    },
+    Multiply: {
+        /** Elem */
+        wikidata: 'Q40276',
+        isAssociative: true,
+        isCommutative: true,
+        isIdempotent: true,
+        isPure: true,
+    },
+    NotEqual: {
+        // Not equal
+        wikidata: 'Q28113351',
+        isCommutative: true,
+        isPure: true,
+    },
+    Negate: {
+        /** Elem */
+        wikidata: 'Q715358',
+        isPure: true,
+    },
+    Power: {
+        /** Elem */
+        wikidata: 'Q33456',
+        isCommutative: false,
+        isPure: true,
+    },
+    Round: {
+        isPure: true,
+    },
+    SignGamma: {
+        /** Elem */
+        /** The sign of the gamma function: -1 or +1 */
+        isPure: true,
+    },
+    Sqrt: {
+        /** Elem */
+        isPure: true,
+    },
+    Root: {
+        /** Elem */
+        isCommutative: false,
+        isPure: true,
+    },
+    Subtract: {
+        /** Elem */
+        wikidata: 'Q32043',
+        isCommutative: false,
+        isPure: true,
+    },
+};
+
+const CORE_DICTIONARY = {
+    Evaluate: {
+    // expr, [precision]
+    },
+    Group: {
+        domain: 'expression',
+        isListable: true,
+        // To support `((a,b),(c,d))`, group is considered non associative
+        // and non-idempotent
+        isPure: false,
+    },
+    Latex: {
+        domain: 'string',
+        isListable: false,
+        isPure: true,
+    },
+    String: {
+        domain: 'string',
+        isListable: true,
+        isPure: true,
+    },
+};
+// https://www.mathworks.com/help/referencelist.html?type=function&listtype=cat&category=&blocktype=&capability=&s_tid=CRUX_lftnav        // list
+// xcas/gias https://www-fourier.ujf-grenoble.fr/~parisse/giac/doc/en/cascmd_en/cascmd_en.html
+// https://www.haskell.org/onlinereport/haskell2010/haskellch9.html#x16-1720009.1
+// length(expr, depth:integer) (for a list, an expression, etc..)
+// apply(expr:symbol, arguments) -> [expr, ...arguments] (but symbol is an expression that's evaluated...)
+// shape
+// length
+// depth
+// take(n, list) -> n first elements of the list
+// repeat(x) -> infinite list with "x" as argument
+// cycle(list) -> infinitely repeating list, i.e. cycle({1, 2, 3}) -> {1, 2, 3, 1, 2, 3, 1...}
+// iterate(f, acc) -> {f(acc), f(f(acc)), f(f(f(acc)))...}
+// == NestList ??
+// identity
+// range
+// index
+// evaluate
+// bind // replace  ( x-> 1)
+// domain
+// min, max
+// Nothing  -- constants, ignored in lists
+// None -- constant for some options
+// rule ->
+// delayed-rule: :> (value of replacement is recalculated each time)
+// set, set delayed
+// join
+// convert(expr, CONVERT_TO, OPTIONS) -- See Maple
+// N
+// set, delayed-set
+// spread -> expand the elements of a list. If inside a list, insert the list into its parent
+// compose (compose(f, g) -> a new function such that compose(f, g)(x) -> f(g(x))
+// convert(expr, options), with options such as 'cos', 'sin, 'trig, 'exp', 'ln', 'latex', 'string', etc...)
+// symbol(x) -> x as a symbol, e.g. symbol('x' + 'y') -> `xy` (and registers it)
+// symbols() -> return list of all known symbols
+// variables() -> return list of all free variables
+
+// Set operations:
+// https://query.wikidata.org/#PREFIX%20wd%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fentity%2F%3E%0APREFIX%20wdt%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fprop%2Fdirect%2F%3E%0A%0ASELECT%20DISTINCT%20%3Fitem%0AWHERE%20%7B%0A%20%20%20%20%3Fitem%20wdt%3AP31%2a%20wd%3AQ1964995%0A%7D%0A
+const SETS_DICTIONARY = {
+    CartesianProduct: {
+        // Aka the product set, the set direct product or cross product
+        // Notation: \times
+        wikidata: 'Q173740',
+    },
+    // empty-set
+    Intersection: {
+        // notation: \Cap
+        wikidata: 'Q185359',
+    },
+    Complement: {
+        // Return the element of the first argument that are not in any of
+        // the subsequent lists
+        wikidata: 'Q242767',
+    },
+    Union: {
+        // Works on set, but can also work on lists
+        wikidata: 'Q185359',
+    },
+    // disjoint union Q842620 ⊔
+    SymmetricDifference: {
+        // symmetric difference = disjunctive union  (circled minus)
+        /** = Union(Complemenent(a, b), Complement(b, a) */
+        /** Corresponds to XOR in boolean logic */
+        wikidata: 'Q1147242',
+    },
+};
+
+// sec, csc, cot
+// sechh, csch, coth,
+// arcsec, arccsc, arccot, arcsinh,
+// arcsech, arccsch, arccoth,
+const TRIGONOMETRY_DICTIONARY = {
+    Arcosh: {
+        /** Elem */
+        isPure: true,
+    },
+    Arccos: {
+        /** Elem */
+        isPure: true,
+    },
+    Arcsin: {
+        /** Elem */
+        isPure: true,
+    },
+    Arctan: {
+        /** Elem */
+        isPure: true,
+    },
+    Arctan2: {
+        /** Elem */
+        isPure: true,
+    },
+    Arsinh: {
+        /** Elem */
+        isPure: true,
+    },
+    Artanh: {
+        /** Elem */
+        isPure: true,
+    },
+    Cos: {
+        /** Elem */
+        isPure: true,
+    },
+    Degrees: {
+        /* = Pi / 180 */
+        isConstant: true,
+        value: { num: '0.017453292519943295769236907' },
+    },
+    FromPolarCoordinates: {
+        /* converts (radius, angle) -> (x, y) */
+        isPure: true,
+    },
+    Haversine: {
+        /** = sin(z/2)^2 */
+        isPure: true,
+    },
+    Hypot: {
+        /** Elem */
+        // sqrt(x*x + y*y)
+        isPure: true,
+    },
+    InverseHaversine: {
+        /** = 2 * Arcsin(Sqrt(z)) */
+        isPure: true,
+    },
+    Sin: {
+        /** Elem */
+        isPure: true,
+    },
+    Sinh: {
+        /** Elem */
+        isPure: true,
+    },
+    Tan: {
+        /** Elem */
+        isPure: true,
+    },
+    Tanh: {
+        /** Elem */
+        isPure: true,
+    },
+    ToPolarCoordinates: {
+        /* converts (x, y) -> (radius, angle) */
+        isPure: true,
+    },
+};
+
+/**
+ * These constants are the 'primitives' that are used for some basic manipulations
+ * such as parsing, and transforming to canonical form.
+ *
+ */
+const LATEX = 'Latex';
+const LIST = 'List';
+const IDENTITY = 'Identity';
+const MISSING = 'Missing';
+const NOTHING = 'Nothing';
+const SEQUENCE = 'Sequence';
+const SUBSEQUENCE = 'Subsequence';
+const GROUP = 'Group';
+const MULTIPLY = 'Multiply';
+const POWER = 'Power';
+const DIVIDE = 'Divide';
+const ADD = 'Add';
+const SUBTRACT = 'Subtract';
+const NEGATE = 'Negate';
+const DERIVATIVE = 'Derivative';
+const INVERSE_FUNCTION = 'InverseFunction';
+const EXP = 'Exp';
+const SQRT = 'Sqrt';
+const ROOT = 'Root';
+const PRIME = 'Prime';
+const COMPLEX_INFINITY = 'COMPLEX_INFINITY';
+const PI = 'PI';
+const EXPONENTIAL_E = 'E';
+const IMAGINARY_I = 'I';
+function getDefaultDictionary(domain = 'all') {
+    let result;
+    if (domain === 'all') {
+        result = {};
+        Object.keys(DICTIONARY).forEach((x) => {
+            result = { ...result, ...DICTIONARY[x] };
+        });
+    }
+    else {
+        result = { ...DICTIONARY[domain] };
+    }
+    return result;
+}
+function findFunctionInDictionary(dic, name) {
+    if (dic[name] && !('isConstant' in dic[name])) {
+        return dic[name];
+    }
+    return null;
+}
+function findSymbolInDictionary(dic, name) {
+    if (dic[name] && 'isConstant' in dic[name]) {
+        return dic[name];
+    }
+    return null;
+}
+// export const ADD = 'Q32043';
+// export const SUBTRACT = 'Q40754';
+// export const NEGATE = 'Q715358'; // -x
+// export const RECIPROCAL = 'Q216906'; // 1/x
+// export const MULTIPLY = 'Q40276';
+// export const DIVIDE = 'Q40276';
+// export const POWER = 'Q33456';
+// export const STRING = 'Q184754';
+// export const TEXT = '';
+// export const COMPLEX = 'Q11567'; // ℂ Set of complex numbers Q26851286
+// export const REAL = 'Q12916'; // ℝ Set of real numbers: Q26851380
+// export const RATIONAL = 'Q1244890'; // ℚ
+// export const NATURAL_NUMBER = 'Q21199'; // ℕ0 (includes 0) or ℕ* (wihtout 0) Set of Q28777634
+// // set of positive integers (incl 0): Q47339953
+// // set of natural numbers (w/o 0): Q47007719
+// export const INTEGER = 'Q12503'; // ℤ
+// export const PRIME = 'Q47370614'; // set of prime numbers
+// export const MATRIX = 'Q44337';
+// export const FUNCTION = 'Q11348';
+// export const LIST = 'Q12139612';
+// Unary functions:
+// https://query.wikidata.org/#PREFIX%20wd%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fentity%2F%3E%0APREFIX%20wdt%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fprop%2Fdirect%2F%3E%0A%0ASELECT%20DISTINCT%20%3Fitem%0AWHERE%20%7B%0A%20%20%20%20%3Fitem%20wdt%3AP31%2a%20wd%3AQ657596%0A%7D%0A
+// https://query.wikidata.org/#PREFIX%20wd%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fentity%2F%3E%0APREFIX%20wdt%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fprop%2Fdirect%2F%3E%0A%0ASELECT%20DISTINCT%20%3Fitem%0AWHERE%20%7B%0A%20%20%20%20%3Fitem%20wdt%3AP279%2a%20wd%3AQ657596%0A%7D%0A
+// Binary functions:
+// https://query.wikidata.org/#PREFIX%20wd%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fentity%2F%3E%0APREFIX%20wdt%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fprop%2Fdirect%2F%3E%0A%0ASELECT%20DISTINCT%20%3Fitem%0AWHERE%20%7B%0A%20%20%20%20%3Fitem%20wdt%3AP31%2a%20wd%3AQ164307%0A%7D%0A
+// Bindings to:
+// - stdlib: https://github.com/stdlib-js/stdlib
+// - mathjs
+// - others...?
+const DICTIONARY = {
+    arithmetic: ARITHMETIC_DICTIONARY,
+    algebra: {
+    // polynomial([0, 2, 0, 4]:list, x:symbol) -> 2x + 4x^3
+    // polynomial(2x + 4x^3, x) -> {0, 2, 0, 4}
+    // rational(2x + 4x^3, {3, 1}, x) -> (2x + 4x^3)/(3+x)
+    // https://reference.wolfram.com/language/tutorial/AlgebraicCalculations.html
+    // simplify-trig (macsyma)
+    //  - trigReduce, trigExpand, trigFactor, trigToExp (mathematica)
+    // Mathematica:
+    // - distribute -> (a+b)(c+d) -> ac+ ad+ bc+ bd (doesn't have to be multiply,
+    // f(a+b, c+d) -> f(a, c) + f(a, d) + f(b, c) + f(b, d)
+    // -- distribute(expr, over=add, with=multiply)
+    // https://reference.wolfram.com/language/ref/Distribute.html
+    // - expand, expand-all
+    // - factor
+    // - simplify
+    },
+    calculus: {
+    // D
+    // Derivative (mathematica)
+    // diff (macsyma)
+    // nth-diff
+    // int
+    // - integrate(expression, symbol)  -- indefinite integral
+    // - integrate(expression, range) <range> = {symbol, min, max} -- definite integral
+    // - integrate(expression, range1, range2) -- multiple integral
+    // def-int
+    },
+    combinatorics: {},
+    complex: {
+    // real
+    // imaginary
+    // complex-cartesian (constructor)
+    // complex-polar
+    // argument
+    // conjugate
+    },
+    core: CORE_DICTIONARY,
+    dimensions: {
+    // volume, speed, area
+    },
+    lists: {
+    // first    or head
+    // rest     or tail
+    // cons -> cons(first (element), rest (list)) = list
+    // append -> append(list, list) -> list
+    // reverse
+    // rotate
+    // in
+    // map   ⁡ map(2x, x, list) ( 2 ⁢ x | x ∈ [ 0 , 10 ] )
+    // such-that {x ∈ Z | x ≥ 0 ∧ x < 100 ∧ x 2 ∈ Z}
+    // select : picks out all elements ei of list for which crit[ei] is True.
+    // sort
+    // contains / find
+    },
+    logic: {
+    // true, false
+    // and, or, not, xor,, nand, nor, xnor,
+    // equivalent, implies
+    // for-all
+    // exists
+    },
+    inequalities: {},
+    intervals: {
+    // interval of integers vs interval of other sets (integer interval don't need to be open/closed)
+    // interval vs. ranges
+    // interval, open-interval, etc..
+    // upper     or min?
+    // lower    or max?
+    },
+    'linear-algebra': {
+    // matrix
+    // transpose
+    // cross-product
+    // outer-product
+    // determinant
+    // vector
+    // matrix
+    // rank
+    // scalar-matrix
+    // constant-matrix
+    // identitity-matrix
+    },
+    numeric: {
+    // Gamma function
+    // Zeta function
+    // erf function
+    // numerator(fraction)
+    // denominator(fraction)
+    // exactFloatToRational
+    // N -> eval as a number
+    // random
+    // hash
+    },
+    other: {},
+    polynomials: {
+    // degree
+    // expand
+    // factors
+    // roots
+    },
+    physics: {
+        'mu-0': {
+            isConstant: true,
+            wikidata: 'Q1515261',
+            domain: 'R+',
+            value: 1.25663706212e-6,
+            unit: [MULTIPLY, 'H', [POWER, 'm', -1]],
+        },
+    },
+    quantifiers: {},
+    relations: {
+    // eq, lt, leq, gt, geq, neq, approx
+    //     shortLogicalImplies: 52, // ->
+    // shortImplies => 51
+    // implies ==> 49
+    //    impliedBy: 45, // <==
+    // := assign 80
+    // less-than-or-equal-to: Q55935272 241
+    // greater-than-or-equal: Q55935291 242
+    // greater-than: Q47035128  243
+    // less-than: Q52834024 245
+    },
+    rounding: {
+    // ceiling, floor, trunc, round,
+    },
+    sets: SETS_DICTIONARY,
+    statistics: {
+    // average
+    // mean
+    // variance = size(l) * stddev(l)^2 / (size(l) - 1)
+    // stddev
+    // median
+    // quantile
+    },
+    transcendentals: {
+    // log, ln, exp,
+    },
+    trigonometry: TRIGONOMETRY_DICTIONARY,
+    units: {},
+};
+
+const DEFAULT_LATEX_NUMBER_OPTIONS = {
+    precision: 15,
+    decimalMarker: '.',
+    groupSeparator: '\\,',
+    exponentProduct: '\\cdot',
+    beginExponentMarker: '10^{',
+    endExponentMarker: '}',
+    arcSeparator: '\\,',
+    notation: 'auto',
+    imaginaryNumber: '\\imaginaryI',
+    beginRepeatingDigits: '\\overline{',
+    endRepeatingDigits: '}',
+};
+const DEFAULT_PARSE_LATEX_OPTIONS = {
+    ...DEFAULT_LATEX_NUMBER_OPTIONS,
+    invisibleOperator: MULTIPLY,
+    skipSpace: true,
+    parseArgumentsOfUnknownLatexCommands: true,
+    parseNumbers: true,
+    promoteUnknownSymbols: /^[a-zA-Z]$/,
+    promoteUnknownFunctions: /^[fg]$/,
+    invisiblePlusOperator: ADD,
+    preserveLatex: false,
+    dictionary: [],
+};
+const DEFAULT_EMIT_LATEX_OPTIONS = {
+    ...DEFAULT_LATEX_NUMBER_OPTIONS,
+    invisibleMultiply: '',
+    invisiblePlus: '',
+    // invisibleApply: '',
+    multiply: '\\times',
+    // openGroup: '(',
+    // closeGroup: ')',
+    // divide: '\\frac{#1}{#2}',
+    // subtract: '#1-#2',
+    // add: '#1+#2',
+    // negate: '-#1',
+    // squareRoot: '\\sqrt{#1}',
+    // nthRoot: '\\sqrt[#2]{#1}',
+    dictionary: [],
+};
+
+function isNumberObject(expr) {
+    return Boolean(expr) && typeof expr === 'object' && 'num' in expr;
+}
+function isSymbolObject(expr) {
+    return Boolean(expr) && typeof expr === 'object' && 'sym' in expr;
+}
+function isFunctionObject(expr) {
+    return Boolean(expr) && typeof expr === 'object' && 'fn' in expr;
+}
+function getNumberValue(expr) {
+    if (typeof expr === 'number') {
+        return expr;
+    }
+    if (isNumberObject(expr)) {
+        return parseFloat(expr.num);
+    }
+    if (getFunctionName(expr) === NEGATE) {
+        return -getNumberValue(getArg(expr, 1));
+    }
+    return NaN;
+}
+/**
+ * Return a rational (numer over denom) representation of the expression,
+ * if possibe, `[NaN, NaN]` otherwise.
+ *
+ * The expression can be:
+ * - a number
+ * - ["power", d, -1]
+ * - ["power", n, 1]
+ * - ["divide", n, d]
+ * - ["multiply", n, ["power", d, -1]]
+ */
+function getRationalValue(expr) {
+    if (typeof expr === 'number')
+        return [expr, 1];
+    if (isNumberObject(expr))
+        return [getNumberValue(expr), 1];
+    if (isAtomic$1(expr))
+        return [NaN, NaN];
+    const head = getFunctionName(expr);
+    if (head === POWER) {
+        const exponent = getNumberValue(getArg(expr, 2));
+        if (exponent === 1) {
+            return [getNumberValue(getArg(expr, 1)), 1];
+        }
+        else if (exponent === -1) {
+            return [1, getNumberValue(getArg(expr, 1))];
+        }
+        return [NaN, NaN];
+    }
+    if (head === DIVIDE) {
+        return [
+            getNumberValue(getArg(expr, 1)),
+            getNumberValue(getArg(expr, 2)),
+        ];
+    }
+    if (head === MULTIPLY &&
+        getFunctionName(getArg(expr, 2)) === POWER &&
+        getNumberValue(getArg(getArg(expr, 2), 2)) === -1) {
+        return [
+            getNumberValue(getArg(expr, 1)),
+            getNumberValue(getArg(getArg(expr, 2), 1)),
+        ];
+    }
+    return [NaN, NaN];
+}
+/**
+ * The head of an expression can either be a string or an expression.
+ *
+ * Examples:
+ * `["negate", 5]`  -> "negate"
+ * `[["prime", "f"], "x"] -> `["prime", "f"]
+ */
+function getFunctionHead(expr) {
+    if (Array.isArray(expr)) {
+        return expr[0];
+    }
+    if (isFunctionObject(expr)) {
+        return expr.fn[0];
+    }
+    return null;
+}
+/**
+ * True if the expression is a number or a symbol
+ */
+function isAtomic$1(expr) {
+    // return (
+    //     typeof expr === 'string' ||
+    //     typeof expr === 'number' ||
+    //     (typeof expr === 'object' && ('num' in expr || 'sym' in expr))
+    // );
+    return (expr === null ||
+        (!Array.isArray(expr) && (typeof expr !== 'object' || !('fn' in expr))));
+}
+function getFunctionName(expr) {
+    const head = getFunctionHead(expr);
+    if (typeof head === 'string')
+        return head;
+    return '';
+}
+function getSymbolName(expr) {
+    if (typeof expr === 'string') {
+        return expr;
+    }
+    if (isSymbolObject(expr)) {
+        return expr.sym;
+    }
+    return null;
+}
+/**
+ * Return the arguments
+ */
+function getArgs(expr) {
+    if (Array.isArray(expr)) {
+        return expr.slice(1);
+    }
+    if (isFunctionObject(expr)) {
+        return expr.fn.slice(1);
+    }
+    return [];
+}
+function mapArgs(expr, fn) {
+    if (Array.isArray(expr)) {
+        return expr.map((x, i) => (i === 0 ? x : fn(x)));
+    }
+    if (isFunctionObject(expr)) {
+        return expr.fn.map((x, i) => (i === 0 ? x : fn(x)));
+    }
+    return expr;
+}
+function getArg(expr, n) {
+    if (Array.isArray(expr)) {
+        return expr[n];
+    }
+    if (isFunctionObject(expr)) {
+        return expr.fn[n];
+    }
+    return null;
+}
+function getArgCount(expr) {
+    if (Array.isArray(expr)) {
+        return Math.max(0, expr.length - 1);
+    }
+    if (isFunctionObject(expr)) {
+        return Math.max(0, expr.fn.length - 1);
+    }
+    return 0;
+}
+/**
+ * Replace '#1', '#2' in the latex template stings with the corresponding
+ * values from `replacement`, in a Latex syntax safe manner (i.e. inserting spaces when needed)
+ */
+function replaceLatex(template, replacement) {
+    var _a;
+    console.assert(typeof template === 'string');
+    console.assert(template.length > 0);
+    let result = template;
+    for (let i = 0; i < replacement.length; i++) {
+        let s = (_a = replacement[i]) !== null && _a !== void 0 ? _a : '';
+        if (/[a-zA-Z*]/.test(s[0])) {
+            const m = result.match(new RegExp('(.*)#' + Number(i + 1).toString()));
+            if (m && /\\[a-zA-Z*]+/.test(m[1])) {
+                s = ' ' + s;
+            }
+        }
+        result = result.replace('#' + Number(i + 1).toString(), s);
+    }
+    return result;
+}
+/**
+ * Return the nth term in expr.
+ * If expr is not a "add" function, returns null.
+ */
+// export function nth(_expr: Expression, _vars?: string[]): Expression {
+//     return null;
+// }
+function varsRecursive(dic, vars, expr) {
+    const args = getArgs(expr);
+    if (args.length > 0) {
+        args.forEach((x) => varsRecursive(dic, vars, x));
+    }
+    else {
+        // It has a name, but no arguments. It's a symbol
+        const name = getSymbolName(expr);
+        if (name && !vars.has(name)) {
+            const def = findSymbolInDictionary(dic, name);
+            if (!def || !def.isConstant) {
+                // It's not in the dictionary, or it's in the dictionary
+                // but not as a constant -> it's a variable
+                vars.add(name);
+            }
+        }
+    }
+}
+/**
+ * Return an array of the non-constant symbols in the expression.
+ */
+function vars(dic, expr) {
+    const result = new Set();
+    varsRecursive(dic, result, expr);
+    return result;
+}
+
+const DEFINITIONS_INEQUALITIES = [
+    {
+        name: 'NotLess',
+        trigger: { infix: ['!', '<'] },
+        associativity: 'right',
+        precedence: 246,
+    },
+    {
+        name: 'NotLess',
+        trigger: { infix: '\\nless' },
+        associativity: 'right',
+        precedence: 246,
+    },
+    {
+        name: 'Less',
+        trigger: { infix: '<' },
+        associativity: 'right',
+        precedence: 245,
+    },
+    {
+        name: 'Less',
+        trigger: { infix: '\\lt' },
+        associativity: 'right',
+        precedence: 245,
+    },
+    {
+        name: 'LessEqual',
+        trigger: { infix: ['<', '='] },
+        associativity: 'right',
+        precedence: 241,
+    },
+    {
+        name: 'LessEqual',
+        trigger: { infix: '\\le' },
+        associativity: 'right',
+        precedence: 241,
+    },
+    {
+        name: 'LessEqual',
+        trigger: { infix: '\\leq' },
+        associativity: 'right',
+        precedence: 241,
+    },
+    {
+        name: 'LessEqual',
+        trigger: { infix: '\\leqslant' },
+        associativity: 'right',
+        precedence: 265,
+    },
+    {
+        name: 'LessNotEqual',
+        trigger: { infix: '\\lneqq' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'NotLessNotEqual',
+        trigger: { infix: '\\nleqq' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'LessOverEqual',
+        trigger: { infix: '\\leqq' },
+        associativity: 'right',
+        precedence: 265,
+    },
+    {
+        name: 'GreaterOverEqual',
+        trigger: { infix: '\\geqq' },
+        associativity: 'right',
+        precedence: 265,
+    },
+    {
+        name: 'Equal',
+        trigger: { infix: '=' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'StarEqual',
+        trigger: { infix: ['*', '='] },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'StarEqual',
+        trigger: { infix: ['\\star', '='] },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'PlusEqual',
+        trigger: { infix: ['+', '='] },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'MinusEqual',
+        trigger: { infix: ['-', '='] },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'SlashEqual',
+        trigger: { infix: ['/', '='] },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'EqualEqual',
+        trigger: { infix: ['=', '='] },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'EqualEqualEqual',
+        trigger: { infix: ['=', '=', '='] },
+        associativity: 'right',
+        precedence: 265,
+    },
+    {
+        name: 'TildeFullEqual',
+        trigger: { infix: '\\cong' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'NotTildeFullEqual',
+        trigger: { infix: '\\ncong' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'Assign',
+        trigger: { infix: [':', '='] },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'Assign',
+        trigger: { infix: '\\coloneq' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'Approx',
+        trigger: { infix: '\\approx' },
+        associativity: 'right',
+        precedence: 247,
+    },
+    {
+        name: 'NotApprox',
+        trigger: { infix: '\\approx' },
+        associativity: 'right',
+        precedence: 247,
+    },
+    {
+        name: 'ApproxEqual',
+        trigger: { infix: '\\approxeq' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'NotApproxEqual',
+        trigger: { infix: ['!', '\\approxeq'] },
+        associativity: 'right',
+        precedence: 250,
+    },
+    {
+        name: 'Unequal',
+        trigger: { infix: '\\ne' },
+        associativity: 'right',
+        precedence: 255,
+    },
+    {
+        name: 'Unequal',
+        trigger: { infix: ['!', '='] },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'GreaterEqual',
+        trigger: { infix: '\\ge' },
+        associativity: 'right',
+        precedence: 242,
+    },
+    {
+        name: 'GreaterEqual',
+        trigger: { infix: '\\geq' },
+        associativity: 'right',
+        precedence: 242,
+    },
+    {
+        name: 'GreaterEqual',
+        trigger: { infix: ['>', '='] },
+        associativity: 'right',
+        precedence: 243,
+    },
+    {
+        name: 'GreaterEqual',
+        trigger: { infix: '\\geqslant' },
+        associativity: 'right',
+        precedence: 265,
+    },
+    {
+        name: 'GreaterNotEqual',
+        trigger: { infix: '\\gneqq' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'NotGreaterNotEqual',
+        trigger: { infix: '\\ngeqq' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'Greater',
+        trigger: { infix: '>' },
+        associativity: 'right',
+        precedence: 245,
+    },
+    {
+        name: 'Greater',
+        trigger: { infix: '\\gt' },
+        associativity: 'right',
+        precedence: 245,
+    },
+    {
+        name: 'NotGreater',
+        trigger: { infix: '\\ngtr' },
+        associativity: 'right',
+        precedence: 244,
+    },
+    {
+        name: 'NotGreater',
+        trigger: { infix: ['!', '>'] },
+        associativity: 'right',
+        precedence: 244,
+    },
+    {
+        name: 'RingEqual',
+        trigger: { infix: '\\circeq' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'TriangleEqual',
+        trigger: { infix: '\\triangleq' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'DotEqual',
+        trigger: { infix: '\\doteq' },
+        associativity: 'right',
+        precedence: 265,
+    },
+    {
+        name: 'DotEqualDot',
+        trigger: { infix: '\\doteqdot' },
+        associativity: 'right',
+        precedence: 265,
+    },
+    {
+        name: 'FallingDotEqual',
+        trigger: { infix: '\\fallingdotseq' },
+        associativity: 'right',
+        precedence: 265,
+    },
+    {
+        name: 'RisingDotEqual',
+        trigger: { infix: '\\fallingdotseq' },
+        associativity: 'right',
+        precedence: 265,
+    },
+    {
+        name: 'QuestionEqual',
+        trigger: { infix: '\\questeq' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'Equivalent',
+        trigger: { infix: '\\equiv' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'MuchLess',
+        trigger: { infix: '\\ll' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'MuchGreater',
+        trigger: { infix: '\\gg' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'Precedes',
+        trigger: { infix: '\\prec' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'Succeeds',
+        trigger: { infix: '\\succ' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'PrecedesEqual',
+        trigger: { infix: '\\preccurlyeq' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'SucceedsEqual',
+        trigger: { infix: '\\curlyeqprec' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'NotPrecedes',
+        trigger: { infix: '\\nprec' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'NotSucceeds',
+        trigger: { infix: '\\nsucc' },
+        associativity: 'right',
+        precedence: 260,
+    },
+    {
+        name: 'ElementOf',
+        trigger: { infix: '\\in' },
+        associativity: 'right',
+        precedence: 240,
+    },
+    {
+        name: 'NotElementOf',
+        trigger: { infix: '\\notin' },
+        associativity: 'right',
+        precedence: 240,
+    },
+    {
+        name: 'Contains',
+        trigger: { infix: '\\ni' },
+        associativity: 'right',
+        precedence: 160,
+    },
+    {
+        name: 'Subset',
+        trigger: { infix: '\\subset' },
+        associativity: 'right',
+        precedence: 240,
+    },
+    {
+        name: 'SquareSubset',
+        trigger: { infix: '\\sqsubset' },
+        associativity: 'right',
+        precedence: 265,
+    },
+    {
+        name: 'SquareSubsetEqal',
+        trigger: { infix: '\\sqsubseteq' },
+        associativity: 'right',
+        precedence: 265,
+    },
+    {
+        name: 'Superset',
+        trigger: { infix: '\\supset' },
+        associativity: 'right',
+        precedence: 240,
+    },
+    {
+        name: 'SquareSuperset',
+        trigger: { infix: '\\sqsupset' },
+        associativity: 'right',
+        precedence: 265,
+    },
+    {
+        name: 'SquareSupersetEuqal',
+        trigger: { infix: '\\sqsupseteq' },
+        associativity: 'right',
+        precedence: 265,
+    },
+    {
+        name: 'NotSubset',
+        trigger: { infix: '\\nsubset' },
+        associativity: 'right',
+        precedence: 240,
+    },
+    {
+        name: 'NotSuperset',
+        trigger: { infix: '\\nsupset' },
+        associativity: 'right',
+        precedence: 240,
+    },
+    {
+        name: 'SubsetEqual',
+        trigger: { infix: '\\subseteq' },
+        associativity: 'right',
+        precedence: 240,
+    },
+    {
+        name: 'SupersetEqual',
+        trigger: { infix: '\\supseteq' },
+        associativity: 'right',
+        precedence: 240,
+    },
+    {
+        name: 'NotSubsetNotEqual',
+        trigger: { infix: '\\nsubseteq' },
+        associativity: 'right',
+        precedence: 240,
+    },
+    {
+        name: 'NotSupersetNotEqual',
+        trigger: { infix: '\\nsupseteq' },
+        associativity: 'right',
+        precedence: 240,
+    },
+    {
+        name: 'SubsetNotEqual',
+        trigger: { infix: '\\subsetneq' },
+        associativity: 'right',
+        precedence: 240,
+    },
+    {
+        name: 'SupersetNotEqual',
+        trigger: { infix: '\\supsetneq' },
+        associativity: 'right',
+        precedence: 240,
+    },
+    {
+        name: 'SubsetNotEqual',
+        trigger: { infix: '\\varsupsetneqq' },
+        associativity: 'right',
+        precedence: 240,
+    },
+    {
+        name: 'SupersetNotEqual',
+        trigger: { infix: '\\varsupsetneq' },
+        associativity: 'right',
+        precedence: 240,
+    },
+    {
+        name: 'Between',
+        trigger: { infix: '\\between' },
+        associativity: 'right',
+        precedence: 265,
+    },
+];
+
+const DEFINITIONS_OTHERS = [
+    {
+        name: 'Overscript',
+        trigger: { infix: '\\overset' },
+        precedence: 700,
+    },
+    {
+        name: 'Underscript',
+        trigger: { infix: '\\underset' },
+        precedence: 700,
+    },
+    {
+        name: 'Increment',
+        trigger: { postfix: ['+', '+'] },
+        precedence: 880,
+    },
+    {
+        name: 'Decrement',
+        trigger: { postfix: ['-', '-'] },
+        precedence: 880,
+    },
+    {
+        name: 'PreIncrement',
+        trigger: { prefix: ['+', '+'] },
+        precedence: 880,
+    },
+    {
+        name: 'PreDecrement',
+        trigger: { prefix: ['-', '-'] },
+        precedence: 880,
+    },
+    {
+        name: 'Ring',
+        trigger: { infix: '\\circ' },
+        precedence: 265,
+    },
+    {
+        // @todo: if lhs is a list/tensor
+        name: 'Transpose',
+        trigger: { superfix: 'T' },
+    },
+    {
+        // @todo: if lhs is a list/tensor
+        name: 'ConjugateTranspose',
+        trigger: { superfix: 'H' },
+    },
+    {
+        name: 'StringJoin',
+        trigger: { infix: ['\\lt', '\\gt'] },
+        precedence: 780,
+    },
+    {
+        name: 'Starstar',
+        trigger: { infix: ['\\star', '\\star'] },
+        precedence: 780,
+    },
+    {
+        // Partial derivative using a variation of the Euler notation: `∂_xf(x)`
+        // (the Euler notation uses `D_1f(x)` where "1" is for the first variable
+        // For the Leibniz notation see 'Divide' that handles `∂f/∂x`
+        name: 'PartialDerivative',
+        trigger: { prefix: '\\partial' },
+        parse: (_lhs, scanner, _minPrec, _latex) => {
+            var _a;
+            let done = false;
+            let sup = NOTHING;
+            let sub = NOTHING;
+            while (!done) {
+                scanner.skipSpace();
+                if (scanner.match('_')) {
+                    sub = scanner.matchRequiredLatexArgument();
+                }
+                else if (scanner.match('^')) {
+                    sup = scanner.matchRequiredLatexArgument();
+                }
+                else {
+                    done = true;
+                }
+            }
+            if (getFunctionName(sub) === SEQUENCE) {
+                sub = [LIST, ...getArgs(sub)];
+            }
+            let rhs = (_a = scanner.matchRequiredLatexArgument()) !== null && _a !== void 0 ? _a : NOTHING;
+            if (rhs !== NOTHING) {
+                rhs = [rhs, ...scanner.matchArguments('group')];
+            }
+            return [null, ['PartialDerivative', rhs, sub, sup]];
+        },
+        emit: (emitter, expr) => {
+            let result = '\\partial';
+            const fn = getArg(expr, 1);
+            const vars = getArg(expr, 2);
+            const degree = getArg(expr, 3);
+            if (vars !== null && vars !== NOTHING) {
+                if (getFunctionHead(vars) === LIST) {
+                    result +=
+                        '_{' + emitter.emit([SEQUENCE, ...getArgs(vars)]) + '}';
+                }
+                else {
+                    result += '_{' + emitter.emit(vars) + '}';
+                }
+            }
+            if (degree !== null && degree !== NOTHING) {
+                result += '^{' + emitter.emit(degree) + '}';
+            }
+            if (fn !== null && fn !== NOTHING) {
+                result += emitter.emit(fn);
+            }
+            return result;
+        },
+        precedence: 740,
+    },
+    {
+        name: 'OverBar',
+        trigger: { symbol: '\\overline' },
+        requiredLatexArg: 1,
+    },
+    {
+        name: 'UnderBar',
+        trigger: { symbol: '\\underline' },
+        requiredLatexArg: 1,
+    },
+    {
+        name: 'OverVector',
+        trigger: { symbol: '\\vec' },
+        requiredLatexArg: 1,
+    },
+    {
+        name: 'OverTile',
+        trigger: { symbol: '\\tilde' },
+        requiredLatexArg: 1,
+    },
+    {
+        name: 'OverHat',
+        trigger: { symbol: '\\hat' },
+        requiredLatexArg: 1,
+    },
+    {
+        name: 'OverHat',
+        trigger: { symbol: '\\hat' },
+        requiredLatexArg: 1,
+    },
+    {
+        name: 'OverRightArrow',
+        trigger: { symbol: '\\overrightarrow' },
+        requiredLatexArg: 1,
+    },
+    {
+        name: 'OverLeftArrow',
+        trigger: { symbol: '\\overleftarrow' },
+        requiredLatexArg: 1,
+    },
+    {
+        name: 'OverRightDoubleArrow',
+        trigger: { symbol: '\\Overrightarrow' },
+        requiredLatexArg: 1,
+    },
+    {
+        name: 'OverLeftHarpoon',
+        trigger: { symbol: '\\overleftharpoon' },
+        requiredLatexArg: 1,
+    },
+    {
+        name: 'OverRightHarpoon',
+        trigger: { symbol: '\\overrightharpoon' },
+        requiredLatexArg: 1,
+    },
+    {
+        name: 'OverLeftRightArrow',
+        trigger: { symbol: '\\overleftrightarrow' },
+        requiredLatexArg: 1,
+    },
+    {
+        name: 'OverBrace',
+        trigger: { symbol: '\\overbrace' },
+        requiredLatexArg: 1,
+    },
+    {
+        name: 'OverLineSegment',
+        trigger: { symbol: '\\overlinesegment' },
+        requiredLatexArg: 1,
+    },
+    {
+        name: 'OverGroup',
+        trigger: { symbol: '\\overgroup' },
+        requiredLatexArg: 1,
+    },
+];
+// https://reference.wolfram.com/language/tutorial/TextualInputAndOutput.html
+
+function getApplyFunctionStyle(_expr, _level) {
+    return 'paren';
+}
+function getGroupStyle(_expr, _level) {
+    return 'paren';
+}
+function getRootStyle(_expr, level) {
+    if (level > 1)
+        return 'solidus';
+    return 'radical';
+}
+function getFractionStyle(_expr, level) {
+    if (level > 3)
+        return 'inline-solidus';
+    return 'quotient';
+}
+
+function emitGroup(emitter, expr) {
+    let sep = '';
+    let argString = '';
+    const anySubsequence = getArgs(expr).some((x) => getFunctionName(x) === SUBSEQUENCE);
+    for (const arg of getArgs(expr)) {
+        if (arg !== null) {
+            argString += sep + emitter.emit(arg);
+            sep = anySubsequence ? '; ' : ', ';
+        }
+    }
+    return emitter.wrapString(argString, getGroupStyle(expr, emitter.level));
+}
+function parseSequence(lhs, scanner, minPrec, _latex) {
+    if (minPrec >= 20)
+        return [lhs, null];
+    let args = [];
+    let row = [lhs !== null && lhs !== void 0 ? lhs : NOTHING];
+    let done = false;
+    while (!done) {
+        scanner.skipSpace();
+        const rhs = scanner.matchExpression(20);
+        if (rhs === null) {
+            scanner.skipSpace();
+            if (scanner.match(',')) {
+                row.push(NOTHING);
+            }
+            else {
+                done = true;
+            }
+        }
+        else {
+            if (getFunctionName(rhs) === SEQUENCE) {
+                row = row.concat(getArgs(rhs));
+            }
+            else {
+                row.push(rhs);
+            }
+            scanner.skipSpace();
+            if (scanner.match(',')) {
+                scanner.skipSpace();
+            }
+            else if (scanner.match(';')) {
+                args.push([SUBSEQUENCE, ...row]);
+                row = [];
+            }
+            else {
+                done = true;
+            }
+        }
+    }
+    if (args.length === 0) {
+        args = row;
+    }
+    else {
+        args.push([SUBSEQUENCE, ...row]);
+    }
+    return [null, [SUBSEQUENCE, ...args]];
+}
+function emitSequence(emitter, expr) {
+    if (getFunctionName(expr) === 'Sequence') {
+        const anySubsequence = getArgs(expr).some((x) => getFunctionName(x) === SUBSEQUENCE);
+        if (anySubsequence) {
+            return getArgs(expr)
+                .map((x) => emitter.emit(x))
+                .join('; ');
+        }
+    }
+    return getArgs(expr)
+        .map((x) => emitter.emit(x))
+        .join(', ');
+}
+function emitLatex(emitter, expr) {
+    if (expr === null)
+        return '';
+    const head = getFunctionHead(expr);
+    if (head !== null) {
+        const args = getArgs(expr);
+        if (head === LATEX) {
+            return args.map((x) => emitLatex(emitter, x)).join('');
+        }
+        if (args.length === 0)
+            return emitter.emit(head);
+        return (emitter.emit(head) +
+            args.map((x) => '{' + emitter.emit(x) + '}').join(''));
+    }
+    return emitter.emit(expr);
+}
+const DEFINITIONS_CORE = [
+    { name: LATEX, emit: emitLatex },
+    {
+        name: GROUP,
+        trigger: { matchfix: '(' },
+        parse: (lhs, scanner, _minPrec, _latex) => {
+            const originalIndex = scanner.getIndex();
+            //
+            // 1. Attempt to scan a base-n number
+            // i.e. `(deadbeef)_{16}`
+            //
+            let done = false;
+            let couldBeBaseNumber = true;
+            let maxDigit = 0;
+            let base = '';
+            while (!done && couldBeBaseNumber) {
+                const token = scanner.next();
+                if (scanner.atEnd() || token === ')') {
+                    done = true;
+                }
+                else if (!/^[0-9a-zA-Z]$/.test(token)) {
+                    couldBeBaseNumber = false;
+                }
+                else {
+                    maxDigit = Math.max(maxDigit, parseInt(token, 36));
+                    base += token;
+                }
+            }
+            scanner.skipSpace();
+            if (couldBeBaseNumber && scanner.match('_')) {
+                const radix = getNumberValue(scanner.matchRequiredLatexArgument());
+                if (isFinite(radix) && maxDigit < radix) {
+                    return [lhs, ['BaseForm', parseInt(base, radix), radix]];
+                }
+            }
+            //
+            // 2. It wasn't a number in a base. Scan a sequence
+            //
+            scanner.setIndex(originalIndex);
+            const [, seq] = parseSequence(scanner.matchExpression(20), scanner, 0);
+            if (!scanner.match(')')) {
+                scanner.onError({
+                    code: 'unbalanced-matchfix-operator',
+                    arg: '()',
+                });
+            }
+            return [lhs, [GROUP, seq]];
+        },
+        emit: emitGroup,
+        separator: ',',
+        closeFence: ')',
+        precedence: 20,
+    },
+    {
+        name: LIST,
+        trigger: { matchfix: '\\lbrack' },
+        separator: ',',
+        closeFence: '\\rbrack',
+        precedence: 20,
+    },
+    {
+        name: 'BaseForm',
+        emit: (emitter, expr) => {
+            const radix = getNumberValue(getArg(expr, 2));
+            if (isFinite(radix) && radix > 0 && radix <= 36) {
+                const num = getNumberValue(getArg(expr, 1));
+                if (isFinite(num)) {
+                    let digits = Number(num).toString(radix);
+                    let groupLength = 0;
+                    if (radix === 2) {
+                        groupLength = 4;
+                    }
+                    else if (radix === 10) {
+                        groupLength = 4;
+                    }
+                    else if (radix === 16) {
+                        groupLength = 2;
+                    }
+                    else if (radix > 16) {
+                        groupLength = 4;
+                    }
+                    if (groupLength > 0) {
+                        const oldDigits = digits;
+                        digits = '';
+                        for (let i = 0; i < oldDigits.length; i++) {
+                            if (i > 0 && i % groupLength === 0) {
+                                digits = '\\; ' + digits;
+                            }
+                            digits =
+                                oldDigits[oldDigits.length - i - 1] + digits;
+                        }
+                    }
+                    return ('\\mathtt{' +
+                        digits +
+                        '}_{' +
+                        Number(radix).toString() +
+                        '}');
+                }
+            }
+            return ('\\operatorname{BaseForm}(' +
+                emitter.emit(getArg(expr, 1)) +
+                ', ' +
+                emitter.emit(getArg(expr, 2)) +
+                ')');
+        },
+    },
+    {
+        name: 'Set',
+        trigger: { matchfix: '\\lbrace' },
+        separator: ',',
+        closeFence: '\\rbrace',
+        precedence: 20,
+    },
+    {
+        name: SEQUENCE,
+        trigger: { infix: ',' },
+        // Unlike the matchfix version of List,
+        // when the comma operator is used, the lhs and rhs are flattened,
+        // i.e. `1,2,3` -> `["Sequence", 1, 2, 3],
+        // but `1, (2, 3)` -> ["Sequence", 1, ["Group", 2, 3]]`
+        parse: parseSequence,
+        emit: emitSequence,
+        precedence: 20,
+    },
+    {
+        name: SUBSEQUENCE,
+        trigger: { infix: ';' },
+        parse: parseSequence,
+        emit: emitSequence,
+        precedence: 20,
+    },
+    {
+        name: MISSING,
+        trigger: '\\placeholder',
+        emit: '\\placeholder',
+        requiredLatexArg: 1,
+    },
+    {
+        name: 'Subscript',
+        trigger: { infix: '_' },
+        precedence: 720,
+        emit: (emitter, expr) => {
+            if (getArgCount(expr) === 2) {
+                return (emitter.emit(getArg(expr, 1)) +
+                    '_{' +
+                    emitter.emit(getArg(expr, 2)) +
+                    '}');
+            }
+            return '_{' + emitter.emit(getArg(expr, 1)) + '}';
+        },
+        parse: (lhs, scanner, _minPrec, _latex) => {
+            const rhs = scanner.matchRequiredLatexArgument();
+            return [null, ['Subscript', lhs, rhs]];
+        },
+    },
+    {
+        name: 'Superplus',
+        trigger: { superfix: '+' },
+    },
+    {
+        name: 'Subplus',
+        trigger: { subfix: '+' },
+    },
+    {
+        name: 'Superminus',
+        trigger: { superfix: '-' },
+    },
+    {
+        name: 'Subminus',
+        trigger: { subfix: '-' },
+    },
+    {
+        // @todo: when lhs is a complex number, 'Conjugate'
+        name: 'Superstar',
+        trigger: { superfix: '*' },
+    },
+    {
+        // @todo: when lhs is a complex number, 'Conjugate'
+        name: 'Superstar',
+        trigger: { superfix: '\\star' },
+    },
+    {
+        name: 'Substar',
+        trigger: { subfix: '*' },
+    },
+    {
+        name: 'Substar',
+        trigger: { subfix: '\\star' },
+    },
+    {
+        name: 'Superdagger',
+        trigger: { superfix: '\\dagger' },
+    },
+    {
+        name: 'Superdagger',
+        trigger: { superfix: '\\dag' },
+    },
+    {
+        name: PRIME,
+        trigger: { superfix: '\\prime' },
+        arguments: 'group',
+    },
+    {
+        // name: 'prime',
+        trigger: { superfix: '\\doubleprime' },
+        parse: (lhs) => {
+            return [null, [PRIME, lhs, 2]];
+        },
+        arguments: 'group',
+    },
+    {
+        name: INVERSE_FUNCTION,
+        emit: (emitter, expr) => {
+            return emitter.emit(getArg(expr, 1)) + '^{-1}';
+        },
+    },
+    {
+        name: DERIVATIVE,
+        trigger: 'D',
+        parse: (lhs, _scanner) => {
+            return [lhs, [DERIVATIVE, 1]];
+        },
+        emit: (emitter, expr) => {
+            const degree = getNumberValue(getArg(expr, 1));
+            if (!isFinite(degree))
+                return '';
+            const base = emitter.emit(getArg(expr, 2));
+            if (degree === 1) {
+                return base + '^{\\prime}';
+            }
+            else if (degree === 2) {
+                return base + '^{\\doubleprime}';
+            }
+            return base + '^{(' + Number(degree).toString() + ')}';
+        },
+    },
+    {
+        name: 'Piecewise',
+        trigger: { environment: 'cases' },
+        parse: (_lhs, scanner) => {
+            return [null, ['piecewise', scanner.matchTabular()]];
+        },
+        emit: (emitter, expr) => {
+            if (getFunctionName(getArg(expr, 1)) !== LIST)
+                return '';
+            const rows = getArgs(getArg(expr, 1));
+            let body = '';
+            let rowSep = '';
+            for (const row of rows) {
+                body += rowSep;
+                const arg1 = getArg(row, 1);
+                if (arg1 !== null) {
+                    body += emitter.emit(arg1);
+                    const arg2 = getArg(row, 2);
+                    if (arg2 !== null)
+                        body += '&' + emitter.emit(arg2);
+                }
+                rowSep = '\\\\';
+            }
+            return '\\begin{cases}' + body + '\\end{cases}';
+        },
+    },
+];
+
+function order(a, b) {
+    const lexA = getLex(a);
+    const lexB = getLex(b);
+    if (lexA < lexB)
+        return -1;
+    if (lexA > lexB)
+        return 1;
+    let valA = getExprValue(a);
+    if (isNaN(valA))
+        valA = Number(Infinity);
+    let valB = getExprValue(b);
+    if (isNaN(valB))
+        valB = Number(Infinity);
+    if (valA < valB)
+        return -1;
+    if (valA > valB)
+        return 1;
+    const lenA = getExprLength(a);
+    const lenB = getExprLength(b);
+    if (lenA === lenB) {
+        // Order arg by arg
+        for (let i = 1; i <= lenA; i++) {
+            const comp = order(getArg(a, i), getArg(b, i));
+            if (comp !== 0)
+                return comp;
+        }
+    }
+    return lenB - lenA;
+}
+/**
+ * Return the (total) degree of the term
+ */
+function degree(expr, sortedVars) {
+    if (expr === 0)
+        return -Infinity;
+    const name = getFunctionName(expr);
+    if (name === POWER) {
+        const exponent = getNumberValue(getArg(expr, 2));
+        if (isFinite(exponent))
+            return exponent;
+        return 0;
+    }
+    if (name === MULTIPLY) {
+        let result = 0;
+        getArgs(expr).forEach((x) => {
+            result += degree(x, sortedVars);
+        });
+        return result;
+    }
+    if (sortedVars.includes(getSymbolName(expr)))
+        return 1;
+    return 0;
+}
+/**
+ *  Return the degree of variable v
+ *  i.e. if "v" -> degree 1
+ *  if "v^2" -> degree 2
+ *  if "v^2v^3" -> degree 5
+ *  if "v^n" -> degree 0
+ */
+function getDegree(expr, v) {
+    const name = getFunctionName(expr);
+    if (name === POWER) {
+        if (getSymbolName(getArg(expr, 1)) === v) {
+            const exponent = getNumberValue(getArg(expr, 2));
+            if (isFinite(exponent))
+                return exponent;
+        }
+        return 0;
+    }
+    if (name === MULTIPLY) {
+        let result = 0;
+        for (const arg of getArgs(expr)) {
+            result += getDegree(arg, v);
+        }
+        return result;
+    }
+    if (getSymbolName(expr) === v)
+        return 1;
+    return 0;
+}
+/**
+ * Get a string representing, in order, all the symbols of the expression.
+ * This assumes that each of the argument of the expression, if any,
+ * have already been sorted.
+ */
+function getLex(expr) {
+    if (getFunctionHead(expr)) {
+        return getArgs(expr).map(getLex).join(' ');
+    }
+    if (typeof expr === 'string')
+        return expr;
+    if (isSymbolObject(expr))
+        return expr.sym;
+    return '';
+}
+/**
+ * Get  the "length" of the expression, i.e. the number of arguments, recursively
+ *
+ */
+function getExprLength(expr) {
+    if (getFunctionHead(expr)) {
+        return getArgs(expr)
+            .map(getExprLength)
+            .reduce((acc, x) => acc + x, 0);
+    }
+    if (typeof expr === 'string')
+        return 1;
+    if (getSymbolName(expr))
+        return 1;
+    return 0;
+}
+function getExprValue(expr) {
+    if (getFunctionHead(expr))
+        return NaN;
+    if (typeof expr === 'number')
+        return expr;
+    if (isNumberObject(expr))
+        return getNumberValue(expr);
+    return 0;
+}
+/**
+ * The deglex order is used for sum of factors:
+ * - first by total degree of each factor
+ * - then lexicographically for each variable
+ * - then lexicogaphcially for other symbols
+ * - then by length
+ * - then by value
+ *
+ */
+function deglex(a, b, sortedVars) {
+    const aDeg = degree(a, sortedVars);
+    const bDeg = degree(b, sortedVars);
+    if (aDeg < bDeg)
+        return 1;
+    if (aDeg > bDeg)
+        return -1;
+    // Lexicographic order:
+    // Compare order of lexicographically sorted vars
+    // (i.e. "x" first, then "y", then "z", etc...
+    // a = 5 x^5 y^7
+    // b =   x^2 y^3
+    for (const x of sortedVars) {
+        const aDegX = getDegree(a, x);
+        const bDegX = getDegree(b, x);
+        if (aDegX !== bDegX)
+            return bDegX - aDegX;
+    }
+    const aLex = getLex(a);
+    const bLex = getLex(b);
+    if (aLex > bLex)
+        return -1;
+    if (aLex < bLex)
+        return 1;
+    // Inverse than the regular order: smaller first
+    // let valA = getExprValue(a);
+    // if (isNaN(valA)) valA = +Infinity;
+    // let valB = getExprValue(b);
+    // if (isNaN(valB)) valB = +Infinity;
+    // if (valA < valB) return -1;
+    // if (valA > valB) return 1;
+    return order(a, b);
+}
+function canonicalOrder(dic, sortedVars, expr) {
+    var _a;
+    let args = getArgs(expr);
+    if (args.length === 0)
+        return expr;
+    // Sort each of the arguments
+    args = args.map((x) => canonicalOrder(dic, sortedVars, x));
+    const name = getFunctionName(expr);
+    if (name === ADD) {
+        // Use the deglex sort order for sums
+        args.sort((a, b) => deglex(a, b, sortedVars));
+    }
+    else {
+        // Is the function commutative?
+        const def = findFunctionInDictionary(dic, name);
+        if ((_a = def === null || def === void 0 ? void 0 : def.isCommutative) !== null && _a !== void 0 ? _a : false) {
+            // Sort the argument list
+            args.sort(order);
+        }
+    }
+    return [getFunctionHead(expr), ...args];
+}
+
+function ungroup(expr) {
+    const head = getFunctionHead(expr);
+    if (!head)
+        return expr;
+    if (head === GROUP && getArgCount(expr) === 1) {
+        return ungroup(getArg(expr, 1));
+    }
+    return mapArgs(expr, ungroup);
+}
+/**
+ * Return an expression that's the inverse (1/x) of the input
+ *
+ */
+function applyInvert(expr) {
+    if (expr === null)
+        return null;
+    expr = ungroup(expr);
+    const head = getFunctionHead(expr);
+    if (head === POWER && getArgCount(expr) === 2) {
+        return [POWER, getArg(expr, 1), applyNegate(getArg(expr, 2))];
+    }
+    if (head === DIVIDE && getArgCount(expr) === 2) {
+        return [MULTIPLY, [POWER, getArg(expr, 1), -1], getArg(expr, 2)];
+    }
+    return [POWER, expr, -1];
+}
+function applyNegate(expr) {
+    if (expr === null)
+        return expr;
+    expr = ungroup(expr);
+    if (typeof expr === 'number') {
+        expr = -expr;
+    }
+    else if (expr && isNumberObject(expr)) {
+        if (expr.num[0] === '-') {
+            expr = { num: expr.num.slice(1) };
+        }
+        else {
+            expr = { num: '-' + expr.num };
+        }
+    }
+    else {
+        // [NEGATE, [NEGATE, x]] -> x
+        const name = getFunctionName(expr);
+        const argCount = getArgCount(expr);
+        if (name === NEGATE && argCount === 1) {
+            return getArg(expr, 1);
+        }
+        else if (name === MULTIPLY) {
+            let arg = getArg(expr, 1);
+            if (typeof arg === 'number') {
+                arg = -arg;
+            }
+            else if (isNumberObject(arg)) {
+                if (arg.num[0] === '-') {
+                    arg = { num: arg.num.slice(1) };
+                }
+                else {
+                    arg = { num: '-' + arg.num };
+                }
+            }
+            else {
+                arg = [NEGATE, arg];
+            }
+            return [MULTIPLY, arg, ...getArgs(expr).slice(1)];
+        }
+        else if (name === GROUP && argCount === 1) {
+            return applyNegate(getArg(getArg(expr, 1), 1));
+        }
+        expr = [NEGATE, expr];
+    }
+    return expr;
+}
+function flatten(expr, flatName) {
+    const head = getFunctionHead(expr);
+    if (!head)
+        return expr;
+    expr = mapArgs(expr, (x) => flatten(x, flatName));
+    if (head !== flatName)
+        return expr;
+    const args = getArgs(expr);
+    let newArgs = [];
+    for (let i = 0; i < args.length; i++) {
+        if (getFunctionName(args[i]) === flatName) {
+            // [f, a, [f, b, c]] -> [f, a, b, c]
+            // or [f, f[a]] -> f[a]
+            newArgs = newArgs.concat(getArgs(args[i]));
+        }
+        else {
+            newArgs.push(args[i]);
+        }
+    }
+    return [head, ...newArgs];
+}
+function flattenIdempotent(dic, expr) {
+    const name = getFunctionName(expr);
+    const def = findFunctionInDictionary(dic, name);
+    if (def === null || def === void 0 ? void 0 : def.isIdempotent)
+        return flatten(expr, name);
+    return mapArgs(expr, (x) => flattenIdempotent(dic, x));
+}
+function flattenAssociative(dic, expr) {
+    const name = getFunctionName(expr);
+    const def = findFunctionInDictionary(dic, name);
+    if (def === null || def === void 0 ? void 0 : def.isAssociative)
+        return flatten(expr, name);
+    return mapArgs(expr, (x) => flattenAssociative(dic, x));
+}
+function canonicalAddForm(dic, expr) {
+    const head = getFunctionHead(expr);
+    if (!head)
+        return expr;
+    if (head !== ADD) {
+        return mapArgs(expr, (x) => canonicalAddForm(dic, x));
+    }
+    expr = flatten(ungroup(expr), ADD);
+    let args = getArgs(expr);
+    args = args
+        .map((x) => canonicalAddForm(dic, x))
+        .filter((x) => getNumberValue(x) !== 0);
+    const argCount = args.length;
+    if (argCount === 0)
+        return 0;
+    if (argCount === 1)
+        return args[0];
+    return [ADD, ...args];
+}
+function canonicalDivideForm(dic, expr) {
+    const head = getFunctionHead(expr);
+    if (!head)
+        return expr;
+    if (head !== DIVIDE) {
+        return mapArgs(expr, (x) => canonicalDivideForm(dic, x));
+    }
+    if (getArgCount(expr) !== 2)
+        return expr;
+    const arg1 = canonicalDivideForm(dic, getArg(expr, 1));
+    const arg2 = canonicalDivideForm(dic, getArg(expr, 2));
+    const val2 = getNumberValue(arg2);
+    if (val2 === 1)
+        return arg1;
+    return [MULTIPLY, arg1, applyInvert(arg2)];
+}
+function canonicalExpForm(dic, expr) {
+    const head = getFunctionHead(expr);
+    if (!head)
+        return expr;
+    if (head !== EXP) {
+        return mapArgs(expr, (x) => canonicalExpForm(dic, x));
+    }
+    if (getArgCount(expr) !== 1)
+        return expr;
+    return [POWER, EXPONENTIAL_E, canonicalExpForm(dic, getArg(expr, 1))];
+}
+function canonicalListForm(dic, expr) {
+    var _a;
+    if (isAtomic$1(expr))
+        return expr;
+    const name = getFunctionName(expr);
+    const isList = name === LIST;
+    const def = findFunctionInDictionary(dic, name);
+    const sequenceHold = (_a = def === null || def === void 0 ? void 0 : def.sequenceHold) !== null && _a !== void 0 ? _a : false;
+    const args = getArgs(expr);
+    const newArgs = [];
+    for (let arg of args) {
+        arg = canonicalListForm(dic, arg);
+        const name = getFunctionName(arg);
+        if (name === IDENTITY) {
+            const newArg = getArg(arg, 1);
+            if (newArg !== null && typeof newArg !== 'undefined') {
+                newArgs.push(newArg);
+            }
+        }
+        else if (name === NOTHING) {
+            if (!isList) {
+                newArgs.push(arg);
+            }
+            // Skip it...
+        }
+        else if (name === SEQUENCE && !sequenceHold) {
+            const head = getFunctionHead(expr);
+            for (const arg2 of getArgs(arg)) {
+                if (getFunctionName(arg2) === SUBSEQUENCE) {
+                    newArgs.push([head, ...getArgs(arg2)]);
+                }
+                else {
+                    newArgs.push(arg2);
+                }
+            }
+        }
+        else {
+            newArgs.push(arg);
+        }
+    }
+    return [getFunctionHead(expr), ...newArgs];
+}
+function getRootDegree(expr) {
+    const name = getFunctionName(expr);
+    if (name === SQRT)
+        return 2;
+    if (name === ROOT)
+        return getNumberValue(getArg(expr, 2));
+    if (name !== POWER)
+        return 1;
+    const exponent = getArg(expr, 2);
+    if (!exponent)
+        return 1;
+    if (getFunctionName(exponent) === POWER &&
+        getNumberValue(getArg(exponent, 2)) === -1) {
+        const val = getNumberValue(getArg(exponent, 1));
+        if (isFinite(val))
+            return val;
+    }
+    return 1;
+}
+/**
+ * Assuming that `expr` is a `"multiply"`, return in the first member
+ * of the tuples all the arguments that are square roots,
+ * and in the second member of the tuples all those that aren't
+ */
+function getSquareRoots(expr) {
+    const args = getArgs(expr);
+    const roots = [];
+    const nonRoots = [];
+    for (const arg of args) {
+        if (getRootDegree(arg) === 2) {
+            roots.push(getArg(arg, 1));
+        }
+        else {
+            nonRoots.push(arg);
+        }
+    }
+    return [roots, nonRoots];
+}
+function canonicalMultiplyForm(dic, expr) {
+    const head = getFunctionHead(expr);
+    if (!head)
+        return expr;
+    expr = mapArgs(expr, (x) => canonicalMultiplyForm(dic, x));
+    if (head !== MULTIPLY)
+        return expr;
+    expr = flatten(ungroup(expr), MULTIPLY);
+    // Group all square roots together
+    const [squareRoots, nonSquareRoots] = getSquareRoots(expr);
+    let args;
+    if (squareRoots.length === 0) {
+        args = nonSquareRoots;
+    }
+    else if (squareRoots.length === 1) {
+        expr = [
+            MULTIPLY,
+            ...nonSquareRoots,
+            [POWER, squareRoots[0], [POWER, 2, -1]],
+        ];
+        args = getArgs(expr);
+    }
+    else {
+        expr = [
+            MULTIPLY,
+            ...nonSquareRoots,
+            [POWER, [MULTIPLY, ...squareRoots], [POWER, 2, -1]],
+        ];
+        args = getArgs(expr);
+    }
+    // Hoist any negative (numbers or `"negate"` function)
+    let isNegative = false;
+    let hasNegative = false;
+    args = args.map((x) => {
+        if (getFunctionName(x) === NEGATE) {
+            hasNegative = true;
+            isNegative = !isNegative;
+            return getArg(x, 1);
+        }
+        const val = getNumberValue(x);
+        if (val < 0) {
+            hasNegative = true;
+            isNegative = !isNegative;
+            return -val;
+        }
+        return x;
+    });
+    if (isNegative) {
+        const val = getNumberValue(args[0]);
+        if (isFinite(val)) {
+            // If the first argument is a finite number, negate it
+            args = getArgs(flatten([MULTIPLY, -val, ...args.slice(1)], MULTIPLY));
+        }
+        else {
+            args = getArgs(flatten([MULTIPLY, -1, ...args], MULTIPLY));
+        }
+    }
+    else if (hasNegative) {
+        // At least one term was hoisted, it could require flatening
+        // e.g. `[MULTIPLY, [NEGATE, [MULTIPLY, 2, 3]], 4]`
+        args = getArgs(flatten([MULTIPLY, ...args], MULTIPLY));
+    }
+    else {
+        args = getArgs(flatten([MULTIPLY, ...args], MULTIPLY));
+    }
+    // Any arg is 0? Return 0.
+    // WARNING: we can't do this. If any of the argument, or the result
+    // of the evaluation of any of the argument was non-finit, the
+    // result is undefined (NaN), not 0.
+    // if (args.some((x) => getNumberValue(x) === 0)) return 0;
+    // Any 1? Eliminate them.
+    args = args.filter((x) => getNumberValue(x) !== 1);
+    // If no arguments left, return 1
+    if (args.length === 0)
+        return 1;
+    // Only one argument, return it (`"multiply"` is idempotent)
+    if (args.length === 1)
+        return args[0];
+    return [MULTIPLY, ...args];
+}
+// @todo: see https://docs.sympy.org/1.6/modules/core.html#pow
+function canonicalPowerForm(dic, expr) {
+    const head = getFunctionHead(expr);
+    if (!head)
+        return expr;
+    if (head !== POWER) {
+        return mapArgs(expr, (x) => canonicalPowerForm(dic, x));
+    }
+    expr = ungroup(expr);
+    if (getArgCount(expr) !== 2)
+        return expr;
+    const arg1 = canonicalPowerForm(dic, getArg(expr, 1));
+    const val1 = getNumberValue(arg1);
+    const arg2 = canonicalPowerForm(dic, getArg(expr, 2));
+    const val2 = getNumberValue(arg2);
+    if (val2 === 0)
+        return 1;
+    if (val2 === 1)
+        return arg1;
+    if (val1 === -1 && val2 === -1)
+        return -1;
+    // -1 +oo           nan
+    // -1 -oo           nan
+    // 0 -1             zoo
+    // 0 oo             0
+    // 0 -oo            zoo
+    if (val1 === 1 && val2 === -1)
+        return 1;
+    if (val1 === 1)
+        return 1;
+    // 1 oo             nan
+    // 1 -oo            nan
+    // oo -1            0
+    // oo oo            oo
+    // oo -oo           0
+    // oo i             nan
+    // oo 1+i           zoo
+    // oo -1+i          0
+    // -oo -1           0
+    // -oo oo           nan
+    // -oo -oo          nan
+    // -oo i            nan
+    // -oo 1+i          zoo
+    // -oo -1+i         0
+    // b zoo            nan
+    return expr;
+}
+function canonicalNegateForm(dic, expr) {
+    const head = getFunctionName(expr);
+    if (head === NEGATE) {
+        expr = ungroup(expr);
+        const arg = getArg(expr, 1);
+        if (typeof arg === 'number') {
+            expr = -arg;
+        }
+        else if (arg && isNumberObject(arg)) {
+            if (getNumberValue(arg) === 0)
+                return 0;
+            if (arg.num[0] === '-') {
+                expr = { num: arg.num.slice(1) };
+            }
+            else {
+                expr = { num: '-' + arg.num };
+            }
+        }
+        else if (getFunctionName(arg) === MULTIPLY) {
+            let fact = getArg(arg, 1);
+            if (typeof fact === 'number') {
+                fact = -fact;
+            }
+            else if (isNumberObject(fact)) {
+                if (fact.num[0] === '-') {
+                    fact = { num: fact.num.slice(1) };
+                }
+                else {
+                    fact = { num: '-' + fact.num };
+                }
+            }
+            else {
+                return [MULTIPLY, -1, fact, ...getArgs(arg).slice(1)];
+            }
+            return [MULTIPLY, fact, ...getArgs(arg).slice(1)];
+        }
+        else {
+            return [MULTIPLY, -1, arg];
+        }
+    }
+    else if (head) {
+        return mapArgs(expr, (x) => canonicalNegateForm(dic, x));
+    }
+    return expr;
+}
+function canonicalNumberForm(dic, expr) {
+    if (getFunctionHead(expr)) {
+        return mapArgs(expr, (x) => canonicalNumberForm(dic, x));
+    }
+    if (typeof expr === 'number') {
+        if (isNaN(expr)) {
+            return { num: 'NaN' };
+        }
+        else if (!isFinite(expr) && expr > 0) {
+            return { num: 'Infinity' };
+        }
+        else if (!isFinite(expr) && expr < 0) {
+            return { num: '-Infinity' };
+        }
+        // } else if (typeof expr === 'bigint') {
+        //     return { num: BigInt(expr).toString().slice(0, -1) };
+        // }
+    }
+    else if (isNumberObject(expr)) {
+        if (isNaN(Number(expr.num))) {
+            // Only return true if it's not a number
+            // If it's an overflow, Number() is Infinity
+            // If it's an underflow Number() is 0
+            return { num: 'NaN' };
+        }
+        if (expr.num.endsWith('n')) {
+            // It's a bigint string
+            return { num: expr.num.slice(0, -1) };
+        }
+        // if (typeof expr.num === 'bigint') {
+        //     return { num: BigInt(expr.num).toString().slice(0, -1) };
+        // }
+    }
+    return expr;
+}
+function canonicalSubtractForm(dic, expr) {
+    const head = getFunctionHead(expr);
+    if (!head)
+        return expr;
+    if (head !== SUBTRACT) {
+        return mapArgs(expr, (x) => canonicalSubtractForm(dic, x));
+    }
+    if (getArgCount(expr) !== 2)
+        return expr;
+    const arg1 = canonicalSubtractForm(dic, getArg(expr, 1));
+    const val1 = getNumberValue(arg1);
+    const arg2 = canonicalSubtractForm(dic, getArg(expr, 2));
+    const val2 = getNumberValue(arg2);
+    if (val1 === 0) {
+        if (val2 === 0)
+            return 0;
+        return canonicalSubtractForm(dic, [ADD, arg1, applyNegate(arg2)]);
+    }
+    return canonicalSubtractForm(dic, [ADD, arg1, applyNegate(arg2)]);
+}
+function canonicalRootForm(dic, expr) {
+    const head = getFunctionHead(expr);
+    if (!head)
+        return expr;
+    if (head !== ROOT && head !== SQRT) {
+        return mapArgs(expr, (x) => canonicalRootForm(dic, x));
+    }
+    if (getArgCount(expr) < 1)
+        return expr;
+    const arg1 = canonicalRootForm(dic, getArg(expr, 1));
+    let arg2 = 2;
+    if (getArgCount(expr) > 1) {
+        arg2 = canonicalPowerForm(dic, getArg(expr, 2));
+    }
+    const val2 = getNumberValue(arg2);
+    if (val2 === 1) {
+        return arg1;
+    }
+    return [POWER, arg1, [DIVIDE, 1, arg2]];
+}
+/**
+ * Return num as a number if it's a valid JSON number (that is
+ * a valid JavaScript number but not NaN or +/-Infinity) or
+ * as a string otherwise
+ */
+function isValidJSONNumber(num) {
+    const val = Number(num);
+    if (typeof num === 'string' && val.toString() === num) {
+        // If the number roundtrips, it can be represented by a
+        // JavaScript number
+        // However, NaN and Infinity cannot be represented by JSON
+        if (isNaN(val) || !isFinite(val)) {
+            return val.toString();
+        }
+        return val;
+    }
+    return num;
+}
+/**
+ * Transform the expression so that object literals for numbers, symbols and
+ * functions are used only when necessary, i.e. when they have associated
+ * metadata attributes. Otherwise, use a plain number, string or array
+ *
+ * For example:
+ * ```
+ * {num: 2} -> 2
+ * {sym: "x"} -> "x"
+ * {fn:['add', {num: 1}, {sym: "x"}]} -> ['add', 1, "x"]
+ * ```
+ *
+ */
+function fullForm(dic, expr) {
+    if (expr === null)
+        return null;
+    if (Array.isArray(expr)) {
+        return expr.map((x, i) => {
+            if (i === 0) {
+                return x;
+            }
+            return fullForm(dic, x);
+        });
+    }
+    if (typeof expr === 'object') {
+        const keys = Object.keys(expr);
+        if (keys.length === 1) {
+            if (isNumberObject(expr)) {
+                // Exclude NaN and Infinity, which are not valid numbers in JSON
+                const val = isValidJSONNumber(expr.num);
+                if (typeof val === 'number')
+                    return val;
+                return { num: val };
+            }
+            if (isFunctionObject(expr)) {
+                return expr.fn.map((x) => fullForm(dic, x));
+            }
+            if (isSymbolObject(expr)) {
+                return expr.sym;
+            }
+        }
+        else {
+            if (isFunctionObject(expr)) {
+                expr.fn = expr.fn.map((x) => fullForm(dic, x));
+            }
+        }
+    }
+    return expr;
+}
+function strippedMetadataForm(dict, expr) {
+    if (typeof expr === 'number' || typeof expr === 'string') {
+        return expr;
+    }
+    if (Array.isArray(expr)) {
+        return mapArgs(expr, (x) => strippedMetadataForm(dict, x));
+    }
+    if (typeof expr === 'object') {
+        if ('num' in expr) {
+            const val = isValidJSONNumber(expr.num);
+            if (typeof val === 'number')
+                return val;
+            return { num: val };
+        }
+        else if ('fn' in expr) {
+            return mapArgs(expr.fn, (x) => strippedMetadataForm(dict, x));
+        }
+    }
+    return null;
+}
+/**
+ * Transform the expression so that the arguments of functions that have the
+ * `isCommutative` attributes are ordered as per the following:
+ *
+ * - Real numbers
+ * - Complex numbers
+ * - Symbols
+ * - Functions
+ *
+ * Within Real Numbers:
+ * - by their value
+ *
+ * With Complex numbers:
+ * - by the value of their imaginary component,
+ * - then by the value of their real component
+ *
+ * With Symbols:
+ * - constants (`isConstant === true`) before non-constants
+ * - then alphabetically
+ *
+ * With Functions:
+ * - if a `[MULTIPLY]` or a `[POWER]`... @todo
+ *
+ */
+function sortedForm(dic, expr) {
+    // Get the unique variables (not constants) in the expression
+    const v = vars(dic, expr);
+    return canonicalOrder(dic, Array.from(v).sort(), expr);
+}
+/**
+ *  Return the expression in canonical form:
+ *
+ * - `"divide"`, `"exp"`,` `"subtract"`, `"root"`, `"exp"` replaced with
+ *      `"add"`, `"multiply"`, "`power"`
+ * - some trivial simplifications (multiply by 1, addition of 0, division by 1)
+ * - terms sorted
+ *
+ */
+function canonicalForm(dic, expr) {
+    return form(dic, expr, [
+        'canonical-number',
+        'canonical-exp',
+        'canonical-root',
+        'canonical-subtract',
+        'canonical-divide',
+        'canonical-power',
+        'canonical-multiply',
+        // some POWER functions, but they are 'safe' (don't need simplification)
+        'canonical-negate',
+        'canonical-add',
+        'flatten',
+        'canonical-list',
+        'sorted',
+        'full',
+    ]);
+}
+function flattenForm(dic, expr) {
+    return flattenAssociative(dic, flattenIdempotent(dic, expr));
+}
+/**
+ * Transform an expression by applying one or more rewriting rules to it,
+ * recursively.
+ *
+ * There are many ways to symbolically manipulate an expression, but
+ * transformations with `form` have the following charactersitics:
+ *
+ * - they don't require calculation or assumption above the domain of free
+ * variables or the value of constants
+ * - the output expression is expressed with more primitive functions,
+ * for example subtraction is replaced with addition
+ *
+ */
+function form(dic, expr, forms) {
+    let result = expr;
+    forms.forEach((form) => {
+        const fn = {
+            canonical: canonicalForm,
+            'canonical-add': canonicalAddForm,
+            'canonical-divide': canonicalDivideForm,
+            'canonical-exp': canonicalExpForm,
+            'canonical-list': canonicalListForm,
+            'canonical-multiply': canonicalMultiplyForm,
+            'canonical-power': canonicalPowerForm,
+            'canonical-negate': canonicalNegateForm,
+            'canonical-number': canonicalNumberForm,
+            'canonical-root': canonicalRootForm,
+            'canonical-subtract': canonicalSubtractForm,
+            full: fullForm,
+            flatten: flattenForm,
+            sorted: sortedForm,
+            'stripped-metadata': strippedMetadataForm,
+        }[form];
+        if (!fn) {
+            console.error('Unknown form ' + form);
+            result = null;
+            return;
+        }
+        result = fn(dic, result);
+        // console.log(form + ' = ' + JSON.stringify(result));
+    });
+    return result;
+}
+
+/**
+ * If expression is a product, collect all the terms with a
+ * negative exponents in the denominator, and all the terms
+ * with a positive exponent (or no exponent) in the numerator.
+ */
+function numeratorDenominator(expr) {
+    if (getFunctionName(expr) !== MULTIPLY)
+        return [null, null];
+    const numerator = [];
+    const denominator = [];
+    const args = getArgs(expr);
+    for (const arg of args) {
+        if (getFunctionName(arg) === POWER) {
+            if (getFunctionName(getArg(arg, 2)) === NEGATE) {
+                denominator.push([
+                    POWER,
+                    getArg(arg, 1),
+                    getArg(getArg(arg, 2), 1),
+                ]);
+            }
+            else {
+                const exponentVal = getNumberValue(getArg(arg, 2));
+                if (exponentVal === -1) {
+                    denominator.push(getArg(arg, 1));
+                }
+                else if (exponentVal < 0) {
+                    denominator.push([
+                        POWER,
+                        getArg(arg, 1),
+                        applyNegate(getArg(arg, 2)),
+                    ]);
+                }
+                else {
+                    numerator.push(arg);
+                }
+            }
+        }
+        else {
+            numerator.push(arg);
+        }
+    }
+    return [numerator, denominator];
+}
+function emitRoot(emitter, style, base, degree) {
+    degree = degree !== null && degree !== void 0 ? degree : 2;
+    if (style === 'solidus') {
+        return emitter.wrapShort(base) + '^{1\\/' + emitter.emit(degree) + '}';
+    }
+    else if (style === 'quotient') {
+        return (emitter.wrapShort(base) +
+            '^{\\frac{1}{' +
+            emitter.emit(degree) +
+            '}}');
+    }
+    const degreeValue = getNumberValue(degree);
+    if (degreeValue === 2) {
+        return '\\sqrt{' + emitter.emit(base) + '}';
+    }
+    // It's the n-th root
+    return '\\sqrt[' + emitter.emit(degree) + ']{' + emitter.emit(base) + '}';
+}
+function parseRoot(lhs, scanner, _minPrec, _latex) {
+    const degree = scanner.matchOptionalLatexArgument();
+    const base = scanner.matchRequiredLatexArgument();
+    if (base === null)
+        return [lhs, [SQRT]];
+    if (degree !== null)
+        return [lhs, [ROOT, base !== null && base !== void 0 ? base : NOTHING, degree]];
+    return [lhs, [SQRT, base]];
+}
+function parseMinusSign(lhs, scanner, minPrec, _latex) {
+    if (276 < minPrec)
+        return [lhs, null];
+    const rhs = scanner.matchExpression(lhs === null ? 400 : 276);
+    if (rhs === null)
+        return [null, lhs];
+    if (lhs === null)
+        return [null, [NEGATE, rhs]];
+    return [null, [SUBTRACT, lhs, rhs]];
+}
+function parsePlusSign(lhs, scanner, minPrec, _latex) {
+    if (275 < minPrec)
+        return [lhs, null];
+    const rhs = scanner.matchExpression(lhs === null ? 400 : 275);
+    if (rhs === null)
+        return [null, lhs];
+    if (lhs === null)
+        return [null, rhs];
+    return scanner.applyOperator(ADD, lhs, rhs);
+}
+function emitAdd(emitter, expr) {
+    // "add" doesn't increase the "level" for styling purposes
+    // so, preventatively decrease it now.
+    emitter.level -= 1;
+    const name = getFunctionName(expr);
+    let result = '';
+    let arg = getArg(expr, 1);
+    let argWasNumber = !isNaN(getNumberValue(arg));
+    if (name === NEGATE) {
+        result = '-' + emitter.wrap(arg, 276);
+    }
+    else if (name === ADD) {
+        result = emitter.emit(arg);
+        const last = getArgCount(expr) + 1;
+        for (let i = 2; i < last; i++) {
+            arg = getArg(expr, i);
+            const val = getNumberValue(arg);
+            const argIsNumber = !isNaN(val);
+            if (arg !== null) {
+                const [numer, denom] = getRationalValue(arg);
+                if (argWasNumber &&
+                    isFinite(numer) &&
+                    isFinite(denom) &&
+                    denom !== 1) {
+                    // Don't include the '+' sign, it's a rational, use 'invisible plus'
+                    result += emitter.options.invisiblePlus + emitter.emit(arg);
+                }
+                else if (val < 0) {
+                    // Don't include the minus sign, it will be emitted for the arg
+                    result += emitter.emit(arg);
+                }
+                else if (getFunctionName(arg) === NEGATE) {
+                    result += emitter.wrap(arg, 275);
+                }
+                else {
+                    const term = emitter.wrap(arg, 275);
+                    if (term[0] === '-' || term[0] === '+') {
+                        result += term;
+                    }
+                    else {
+                        result = result + '+' + term;
+                    }
+                }
+            }
+            argWasNumber = argIsNumber;
+        }
+    }
+    else if (name === SUBTRACT) {
+        const arg2 = getArg(expr, 2);
+        if (arg2 !== null) {
+            result = emitter.wrap(arg, 275) + '-' + emitter.wrap(arg2, 275);
+        }
+        else {
+            result = emitter.wrap(arg, 275);
+        }
+    }
+    // Restore the level
+    emitter.level += 1;
+    return result;
+}
+function emitMultiply(emitter, expr) {
+    if (expr === null)
+        return '';
+    // "multiply" doesn't increase the "level" for styling purposes
+    // so, preventatively decrease it now.
+    emitter.level -= 1;
+    let result = '';
+    //
+    // Is it a fraction?
+    // (i.e. does it have a denominator, i.e. some factors with a negative power)
+    //
+    const [numer, denom] = numeratorDenominator(expr);
+    if (numer !== null && denom !== null && denom.length > 0) {
+        if (denom.length === 1 && denom[0] === 1) {
+            if (numer.length === 0) {
+                result = '1';
+            }
+            else if (numer.length === 1) {
+                result = emitter.emit(numer[0]);
+            }
+            else {
+                result = emitMultiply(emitter, [MULTIPLY, ...numer]);
+            }
+        }
+        else {
+            result = emitter.emit([
+                DIVIDE,
+                numer.length === 1 ? numer[0] : [MULTIPLY, ...numer],
+                denom.length === 1 ? denom[0] : [MULTIPLY, ...denom],
+            ]);
+        }
+    }
+    if (result) {
+        // Restore the level
+        emitter.level += 1;
+        return result;
+    }
+    let isNegative = false;
+    let arg = null;
+    const count = getArgCount(expr) + 1;
+    for (let i = 1; i < count; i++) {
+        arg = getArg(expr, i);
+        if (arg !== null) {
+            let term;
+            //
+            // 1. Should the terms be separated by an explicit MULTIPLY?
+            //
+            if (typeof arg === 'number' || isNumberObject(arg)) {
+                term = emitter.emit(arg);
+                if (term[0] === '-') {
+                    term = term.slice(1);
+                    isNegative = !isNegative;
+                }
+                if (term !== '1') {
+                    if (!result) {
+                        // First term
+                        result = term;
+                    }
+                    else {
+                        result = result
+                            ? joinLatex([
+                                result,
+                                emitter.options.multiply,
+                                term,
+                            ])
+                            : term;
+                    }
+                }
+            }
+            else if (getFunctionName(arg) === POWER &&
+                !isNaN(getNumberValue(getArg(arg, 1)))) {
+                // It's a power and the base is a number...
+                // add a multiply...
+                result = result
+                    ? joinLatex([
+                        result,
+                        emitter.options.multiply,
+                        emitter.emit(arg),
+                    ])
+                    : emitter.emit(arg);
+            }
+            else {
+                if (getFunctionName(arg) === NEGATE) {
+                    arg = getArg(arg, 1);
+                    isNegative = !isNegative;
+                }
+                // 2.1 Wrap the term if necessary
+                // (if it's an operator of precedence less than 390)
+                term = emitter.wrap(arg, 390);
+                // 2.2. The terms can be separated by an invisible multiply.
+                if (!result) {
+                    // First term
+                    result = term;
+                }
+                else {
+                    // Not first term, use invisible multiply
+                    if (!emitter.options.invisibleMultiply) {
+                        // Replace, joining the terms correctly
+                        // i.e. inserting a space between '\pi' and 'x'
+                        result = joinLatex([result, term]);
+                    }
+                    else {
+                        result = joinLatex([
+                            result,
+                            emitter.options.invisibleMultiply,
+                            term,
+                        ]);
+                    }
+                }
+            }
+        }
+    }
+    // Restore the level
+    emitter.level += 1;
+    return isNegative ? '-' + result : result;
+}
+function parseFraction(lhs, scanner, _minPrec, _latex) {
+    var _a, _b, _c, _d;
+    const numer = (_a = scanner.matchRequiredLatexArgument()) !== null && _a !== void 0 ? _a : MISSING;
+    const denom = (_b = scanner.matchRequiredLatexArgument()) !== null && _b !== void 0 ? _b : MISSING;
+    if (getFunctionName(numer) === 'PartialDerivative' &&
+        (getFunctionName(denom) === 'PartialDerivative' ||
+            (getFunctionName(denom) === MULTIPLY &&
+                getFunctionName(getArg(denom, 1)) === 'PartialDerivative'))) {
+        // It's a Leibniz notation partial derivative
+        // `∂f(x)/∂x` or `∂^2f(x)/∂x∂y` or `∂/∂x f(x)`
+        const degree = (_c = getArg(numer, 3)) !== null && _c !== void 0 ? _c : NOTHING;
+        // Expect: getArg(numer, 2) === NOTHING -- no args
+        let fn = getArg(numer, 1);
+        if (fn === null || fn === NOTHING) {
+            fn = (_d = scanner.matchExpression()) !== null && _d !== void 0 ? _d : NOTHING;
+        }
+        let vars = [];
+        if (getFunctionName(denom) === MULTIPLY) {
+            // ?/∂x∂y
+            for (const arg of getArgs(denom)) {
+                if (getFunctionHead(arg) === 'PartialDerivative') {
+                    vars.push(getArg(arg, 2));
+                }
+            }
+        }
+        else {
+            // ?/∂x
+            vars.push(getArg(denom, 2));
+        }
+        if (vars.length > 1) {
+            vars = [LIST, ...vars];
+        }
+        return [
+            lhs,
+            ['PartialDerivative', fn, vars, degree === NOTHING ? 1 : degree],
+        ];
+    }
+    return [lhs, [DIVIDE, numer, denom]];
+}
+function emitFraction(emitter, expr) {
+    console.assert(getFunctionName(expr) === DIVIDE);
+    if (getArgCount(expr) === 1)
+        return emitter.emit(getArg(expr, 1));
+    const style = getFractionStyle(expr, emitter.level);
+    if (style === 'inline-solidus' || style === 'nice-solidus') {
+        const numerStr = emitter.wrapShort(getArg(expr, 1));
+        const denomStr = emitter.wrapShort(getArg(expr, 2));
+        if (style === 'nice-solidus') {
+            return `^{${numerStr}}\\!\\!/\\!_{${denomStr}}`;
+        }
+        return `${numerStr}\\/${denomStr}`;
+    }
+    else if (style === 'reciprocal') {
+        return (emitter.wrap(getArg(expr, 1)) +
+            emitter.wrap(getArg(expr, 2)) +
+            '^{-1}');
+    }
+    else if (style === 'factor') {
+        return ('\\frac{1}{' +
+            emitter.emit(getArg(expr, 2)) +
+            '}' +
+            emitter.wrap(getArg(expr, 1)));
+    }
+    // Quotient (default)
+    return ('\\frac{' +
+        emitter.emit(getArg(expr, 1)) +
+        '}{' +
+        emitter.emit(getArg(expr, 2)) +
+        '}');
+}
+function emitPower(emitter, expr) {
+    const arg1 = getArg(expr, 1);
+    const arg2 = getArg(expr, 2);
+    if (arg2 === null) {
+        return emitter.emit(arg1);
+    }
+    if (arg1 === null) {
+        return '';
+    }
+    const name = getFunctionName(expr);
+    if (name === SQRT || name === ROOT) {
+        const style = getRootStyle(expr, emitter.level);
+        return emitRoot(emitter, style, getArg(expr, 1), getArg(expr, 2));
+    }
+    const val2 = getNumberValue(arg2);
+    if (val2 === -1) {
+        return emitter.emit([DIVIDE, '1', arg1]);
+    }
+    else if (val2 < 0) {
+        return emitter.emit([DIVIDE, '1', [POWER, arg1, -val2]]);
+    }
+    else if (getFunctionName(arg2) === DIVIDE) {
+        if (getNumberValue(getArg(arg2, 1)) === 1) {
+            // It's x^{1/n} -> it's a root
+            const style = getRootStyle(expr, emitter.level);
+            return emitRoot(emitter, style, arg1, getArg(arg2, 2));
+        }
+    }
+    else if (getFunctionName(arg2) === POWER) {
+        if (getNumberValue(getArg(arg2, 2)) === -1) {
+            // It's x^{n^-1} -> it's a root
+            const style = getRootStyle(expr, emitter.level);
+            return emitRoot(emitter, style, arg1, getArg(arg2, 1));
+        }
+    }
+    return emitter.wrapShort(arg1) + '^{' + emitter.emit(arg2) + '}';
+}
+const DEFINITIONS_ARITHMETIC = [
+    { trigger: { symbol: '\\infty' }, parse: { num: 'Infinity' } },
+    {
+        name: COMPLEX_INFINITY,
+        trigger: { symbol: ['\\tilde', '\\infty'] },
+        emit: '\\tilde\\infty',
+    },
+    {
+        name: COMPLEX_INFINITY,
+        trigger: { symbol: ['\\tilde', '<{>', '\\infty', '<}>'] },
+        emit: '\\tilde\\infty',
+    },
+    { name: PI, trigger: { symbol: '\\pi' } },
+    { name: PI, trigger: { symbol: 'π' }, emit: '\\pi' },
+    { name: EXPONENTIAL_E, trigger: { symbol: 'e' }, emit: 'e' },
+    { name: IMAGINARY_I, trigger: { symbol: 'i' }, emit: '\\imaginaryI' },
+    { name: IMAGINARY_I, trigger: { symbol: '\\imaginaryI' } },
+    {
+        name: ADD,
+        trigger: { prefix: '+', infix: '+' },
+        parse: parsePlusSign,
+        emit: emitAdd,
+        associativity: 'both',
+        precedence: 275,
+    },
+    {
+        name: NEGATE,
+        trigger: { prefix: '-' },
+        parse: parseMinusSign,
+        associativity: 'left',
+        precedence: 275,
+    },
+    {
+        name: SUBTRACT,
+        trigger: { infix: '-' },
+        parse: parseMinusSign,
+        associativity: 'both',
+        precedence: 275,
+    },
+    {
+        name: MULTIPLY,
+        trigger: { infix: '\\times' },
+        emit: emitMultiply,
+        associativity: 'both',
+        precedence: 390,
+    },
+    {
+        name: MULTIPLY,
+        trigger: { infix: '\\cdot' },
+        emit: emitMultiply,
+        associativity: 'both',
+        precedence: 390,
+    },
+    {
+        name: MULTIPLY,
+        trigger: { infix: '*' },
+        emit: emitMultiply,
+        associativity: 'both',
+        precedence: 390,
+    },
+    {
+        name: DIVIDE,
+        trigger: '\\frac',
+        // For \frac specifically, not for \div, etc..
+        // handles Leibnitz notation for partial derivatives
+        parse: parseFraction,
+        emit: emitFraction,
+        requiredLatexArg: 2,
+    },
+    {
+        name: DIVIDE,
+        trigger: { infix: '\\/' },
+        emit: emitFraction,
+        associativity: 'non',
+        precedence: 660,
+    },
+    {
+        name: DIVIDE,
+        trigger: { infix: '/' },
+        emit: emitFraction,
+        associativity: 'non',
+        precedence: 660,
+    },
+    {
+        name: DIVIDE,
+        trigger: { infix: '\\div' },
+        emit: emitFraction,
+        associativity: 'non',
+        precedence: 660,
+    },
+    {
+        name: POWER,
+        trigger: { infix: '^' },
+        associativity: 'non',
+        precedence: 720,
+        emit: emitPower,
+    },
+    {
+        name: POWER,
+        trigger: { infix: ['*', '*'] },
+        associativity: 'non',
+        precedence: 720,
+        emit: emitPower,
+    },
+    {
+        name: SQRT,
+        trigger: '\\sqrt',
+        optionalLatexArg: 1,
+        requiredLatexArg: 1,
+        parse: parseRoot,
+        emit: emitPower,
+    },
+    {
+        name: ROOT,
+        trigger: '\\sqrt',
+        optionalLatexArg: 1,
+        requiredLatexArg: 1,
+        parse: parseRoot,
+    },
+    {
+        /** If the argument is a vector */
+        /** @todo: domain check */
+        name: 'Norm',
+        trigger: { matchfix: '\\lVert' },
+        closeFence: '\\rVert',
+    },
+    {
+        /** If the argument is a vector */
+        /** @todo: domain check */
+        name: 'Norm',
+        trigger: { matchfix: '\\|' },
+        closeFence: '\\|',
+    },
+    {
+        /** If the argument is a vector */
+        /** @todo: domain check */
+        name: 'Norm',
+        trigger: { matchfix: ['|', '|'] },
+        closeFence: ['|', '|'],
+    },
+    {
+        /** Could be the determinant if the argument is a matrix */
+        /** @todo: domain check */
+        /** If a literal matrix, the emit should be custom, the parens are
+         * replaced with bars */
+        name: 'Abs',
+        trigger: { matchfix: '|' },
+        closeFence: '|',
+    },
+    {
+        name: 'Abs',
+        trigger: { matchfix: '\\lvert' },
+        closeFence: '\\rvert',
+    },
+    {
+        name: 'Factorial',
+        trigger: { postfix: '!' },
+        precedence: 810,
+    },
+    {
+        name: 'Factorial2',
+        trigger: { postfix: ['!', '!'] },
+        precedence: 810,
+    },
+];
+
+/**
+ * Trigonometric functions have some special conventions that require a
+ * custom parser: they can be followed by a "-1" superscript indicating
+ * that the inversion function should be used, i.e. "sin^{-1}" for "arcsin".
+ *
+ */
+function parseTrig(_lhs, scanner, _minPrec, latex) {
+    var _a;
+    let isInverse = false;
+    let primeLevel = 0;
+    scanner.skipSpace();
+    if (scanner.match('^')) {
+        scanner.skipSpace();
+        if (scanner.match('<{>')) {
+            scanner.skipSpace();
+            // There's a superscript..., parse it.
+            if (scanner.match('-') && scanner.match('1')) {
+                isInverse = true;
+            }
+            do {
+                if (scanner.match('\\doubleprime')) {
+                    primeLevel += 2;
+                }
+                if (scanner.match('\\prime')) {
+                    primeLevel += 1;
+                }
+                if (scanner.match("'")) {
+                    primeLevel += 1;
+                }
+            } while (!scanner.match('<}>') && !scanner.atEnd());
+        }
+        let done = false;
+        while (!done) {
+            scanner.skipSpace();
+            if (scanner.match('\\doubleprime')) {
+                primeLevel += 2;
+            }
+            else if (scanner.match('\\prime')) {
+                primeLevel += 1;
+            }
+            else if (scanner.match("'")) {
+                primeLevel += 1;
+            }
+            else {
+                done = true;
+            }
+        }
+    }
+    // Note: names as per NIST-DLMF
+    let head = (_a = {
+        '\\arcsin': 'Arcsin',
+        '\\arccos': 'Arccos',
+        '\\arctan': 'Arctan',
+        '\\arctg': 'Arctan',
+        '\\arcctg': 'Arctan',
+        '\\arcsec': 'Arcsec',
+        '\\arccsc': ' Arccsc',
+        '\\arsinh': 'Arsinh',
+        '\\arcosh': 'Arcosh',
+        '\\artanh': 'Artanh',
+        '\\arcsech': 'Arcsech',
+        '\\arccsch': 'Arcsch',
+        // '\\arg',
+        '\\ch': 'Cosh',
+        '\\cos': 'Cos',
+        '\\cosec': 'Csc',
+        '\\cosh': 'Csch',
+        '\\cot': 'Cot',
+        '\\cotg': 'Cot',
+        '\\coth': 'Coth',
+        '\\csc': 'Csc',
+        '\\ctg': 'Cot',
+        '\\cth': 'Coth',
+        '\\sec': 'Sec',
+        '\\sin': 'Sin',
+        '\\sinh': 'Sinh',
+        '\\sh': 'Sinh',
+        '\\tan': 'Tan',
+        '\\tanh': 'Tanh',
+        '\\tg': 'Tan',
+        '\\th': 'Tanh',
+    }[latex]) !== null && _a !== void 0 ? _a : latex;
+    if (isInverse) {
+        head = [INVERSE_FUNCTION, head];
+    }
+    if (primeLevel >= 1) {
+        head = [DERIVATIVE, primeLevel, head];
+    }
+    const args = scanner.matchArguments('implicit');
+    if (args === null) {
+        return [null, head];
+    }
+    return [null, [head, ...args]];
+}
+const DEFINITIONS_TRIGONOMETRY = [
+    {
+        name: 'Arcsin',
+        trigger: '\\arcsin',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Arccos',
+        trigger: '\\arccos',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Arctan',
+        trigger: '\\arctan',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Arctan',
+        trigger: '\\arctg',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Arccot',
+        trigger: '\\arcctg',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Arcsec',
+        trigger: '\\arcsec',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Arccsc',
+        trigger: '\\arccsc',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Arsinh',
+        trigger: '\\arsinh',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Arcosh',
+        trigger: '\\arcosh',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Artanh',
+        trigger: '\\artanh',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Arsech',
+        trigger: '\\arsech',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Arcsch',
+        trigger: '\\arcsch',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Cosh',
+        trigger: '\\ch',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Cosec',
+        trigger: '\\cosec',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Cosh',
+        trigger: '\\cosh',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Cot',
+        trigger: '\\cot',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Cot',
+        trigger: '\\cotg',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Coth',
+        trigger: '\\coth',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Csc',
+        trigger: '\\csc',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Cot',
+        trigger: '\\ctg',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Coth',
+        trigger: '\\cth',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Sec',
+        trigger: '\\sec',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Sinh',
+        trigger: '\\sinh',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Sinh',
+        trigger: '\\sh',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Tan',
+        trigger: '\\tan',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Tanh',
+        trigger: '\\tanh',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Tan',
+        trigger: '\\tg',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Tanh',
+        trigger: '\\th',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Cos',
+        trigger: '\\cos',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Sin',
+        trigger: '\\sin',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+    {
+        name: 'Tan',
+        trigger: '\\tan',
+        arguments: 'implicit',
+        parse: parseTrig,
+    },
+];
+
+const DEFINITIONS_ALGEBRA = [
+    {
+        name: 'To',
+        trigger: { infix: '\\to' },
+        precedence: 270,
+    },
+];
+
+function parseIntegral(lhs, scanner, _minPrec, _latex) {
+    var _a;
+    // There could be some superscript and subscripts
+    let sup = NOTHING;
+    let sub = NOTHING;
+    let done = false;
+    while (!done) {
+        scanner.skipSpace();
+        if (scanner.match('_')) {
+            sub = scanner.matchRequiredLatexArgument();
+        }
+        else if (scanner.match('^')) {
+            sup = scanner.matchRequiredLatexArgument();
+        }
+        else {
+            done = true;
+        }
+    }
+    // Find the next
+    let fn = null;
+    if (scanner.match('<{>')) {
+        const start = scanner.getIndex();
+        let level = 1;
+        while (!scanner.atEnd() && level !== 0) {
+            if (scanner.match('<{>')) {
+                level += 1;
+            }
+            else if (scanner.match('<}>')) {
+                level -= 1;
+            }
+            else {
+                scanner.next();
+            }
+        }
+        const exprScanner = scanner.clone(start, scanner.getIndex() - 1);
+        fn = (_a = exprScanner.matchExpression()) !== null && _a !== void 0 ? _a : '';
+    }
+    return [lhs, ['Integral', fn, sup, sub]];
+}
+function emitIntegral(_emitter, _expr) {
+    return '';
+}
+const DEFINITIONS_CALCULUS = [
+    { trigger: { symbol: '\\int' }, parse: parseIntegral, emit: emitIntegral },
+];
+
+const DEFINITIONS_SYMBOLS = [
+    // Greek
+    { trigger: { symbol: '\\alpha' }, parse: '\u03b1' },
+    { trigger: { symbol: '\\beta' }, parse: '\u03b2' },
+    { trigger: { symbol: '\\gamma' }, parse: '\u03b3' },
+    { trigger: { symbol: '\\delta' }, parse: '\u03b4' },
+    { trigger: { symbol: '\\epsilon' }, parse: '\u03f5' },
+    { trigger: { symbol: '\\varepsilon' }, parse: '\u03b5' },
+    { trigger: { symbol: '\\zeta' }, parse: '\u03b6' },
+    { trigger: { symbol: '\\eta' }, parse: '\u03b7' },
+    { trigger: { symbol: '\\theta' }, parse: '\u03b8' },
+    { trigger: { symbol: '\\vartheta' }, parse: '\u03d1' },
+    { trigger: { symbol: '\\iota' }, parse: '\u03b9' },
+    { trigger: { symbol: '\\kappa' }, parse: '\u03ba' },
+    { trigger: { symbol: '\\varkappa' }, parse: '\u03f0' },
+    { trigger: { symbol: '\\lambda' }, parse: '\u03bb' },
+    { trigger: { symbol: '\\mu' }, parse: '\u03bc' },
+    { trigger: { symbol: '\\nu' }, parse: '\u03bd' },
+    { trigger: { symbol: '\\xi' }, parse: '\u03be' },
+    { trigger: { symbol: '\\omicron' }, parse: '\u03bf' },
+    // { trigger: { symbol: '\\pi' }, parse: '\u03c0' },
+    { trigger: { symbol: '\\varpi' }, parse: '\u03d6' },
+    { trigger: { symbol: '\\rho' }, parse: '\u03c1' },
+    { trigger: { symbol: '\\varrho' }, parse: '\u03f1' },
+    { trigger: { symbol: '\\sigma' }, parse: '\u03c3' },
+    { trigger: { symbol: '\\varsigma' }, parse: '\u03c2' },
+    { trigger: { symbol: '\\tau' }, parse: '\u03c4' },
+    { trigger: { symbol: '\\phi' }, parse: '\u03d5' },
+    { trigger: { symbol: '\\varphi' }, parse: '\u03c6' },
+    { trigger: { symbol: '\\upsilon' }, parse: '\u03c5' },
+    { trigger: { symbol: '\\chi' }, parse: '\u03c7' },
+    { trigger: { symbol: '\\psi' }, parse: '\u03c8' },
+    { trigger: { symbol: '\\omega' }, parse: '\u03c9' },
+    { trigger: { symbol: '\\Gamma' }, parse: '\u0393' },
+    { trigger: { symbol: '\\Delta' }, parse: '\u0394' },
+    { trigger: { symbol: '\\Theta' }, parse: '\u0398' },
+    { trigger: { symbol: '\\Lambda' }, parse: '\u039b' },
+    { trigger: { symbol: '\\Xi' }, parse: '\u039e' },
+    { trigger: { symbol: '\\Pi' }, parse: '\u03a0' },
+    { trigger: { symbol: '\\Sigma' }, parse: '\u03a3' },
+    { trigger: { symbol: '\\Upsilon' }, parse: '\u03a5' },
+    { trigger: { symbol: '\\Phi' }, parse: '\u03a6' },
+    { trigger: { symbol: '\\Psi' }, parse: '\u03a8' },
+    { trigger: { symbol: '\\Omega' }, parse: '\u03a9' },
+    { trigger: { symbol: '\\digamma' }, parse: '\u03dd' },
+    // Hebrew
+    { trigger: { symbol: '\\aleph' }, parse: '\u2135' },
+    { trigger: { symbol: '\\beth' }, parse: '\u2136' },
+    { trigger: { symbol: '\\daleth' }, parse: '\u2138' },
+    { trigger: { symbol: '\\gimel' }, parse: '\u2137' },
+    // Letter-like
+    { trigger: { symbol: '\\Finv' }, parse: '\u2132' },
+    { trigger: { symbol: '\\Game' }, parse: '\u2141' },
+    { trigger: { symbol: '\\wp' }, parse: '\u2118' },
+    { trigger: { symbol: '\\eth' }, parse: '\u00f0' },
+    { trigger: { symbol: '\\mho' }, parse: '\u2127' },
+    // Symbols
+    { trigger: { symbol: '\\clubsuit' }, parse: '\u2663' },
+    { trigger: { symbol: '\\heartsuit' }, parse: '\u2661' },
+    { trigger: { symbol: '\\spadesuit' }, parse: '\u2660' },
+    { trigger: { symbol: '\\diamondsuit' }, parse: '\u2662' },
+    { trigger: { symbol: '\\sharp' }, parse: '\u266f' },
+    { trigger: { symbol: '\\flat' }, parse: '\u266d' },
+    { trigger: { symbol: '\\natural' }, parse: '\u266e' },
+];
+
+function triggerLength(trigger) {
+    if (Array.isArray(trigger))
+        return trigger.length;
+    return 1;
+}
+function triggerString(trigger) {
+    if (Array.isArray(trigger))
+        return tokensToString(trigger);
+    return trigger;
+}
+// function hasDef(dic: LatexDictionary, latex: string): boolean {
+//     let result = false;
+//     dic.forEach((x) => {
+//         if (x.trigger) {
+//             if (typeof x.trigger === 'string' && x.trigger === latex) {
+//                 result = true;
+//             } else if (
+//                 typeof x.trigger !== 'string' &&
+//                 (triggerString(x.trigger.infix) === latex ||
+//                     triggerString(x.trigger.postfix) === latex ||
+//                     triggerString(x.trigger.symbol) === latex ||
+//                     triggerString(x.trigger.prefix) === latex ||
+//                     triggerString(x.trigger.matchfix) === latex ||
+//                     triggerString(x.closeFence) === latex)
+//             ) {
+//                 result = true;
+//             }
+//         }
+//     });
+//     return result;
+// }
+function indexLatexDictionary(dic, onError) {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+    const result = {
+        lookahead: 1,
+        name: new Map(),
+        prefix: [],
+        infix: [],
+        postfix: [],
+        matchfix: [],
+        superfix: [],
+        subfix: [],
+        symbol: [],
+        environment: new Map(),
+    };
+    for (const x of dic) {
+        const record = x;
+        if (typeof record.parse === 'undefined') {
+            // By default, when a latex string triggers, the generated
+            // output is the name of this record, i.e. MULTIPLY
+            record.parse = record.name;
+        }
+        // If the trigger is a string, it's a shortcut for a symbol
+        if (typeof record.trigger === 'string') {
+            record.trigger = { symbol: record.trigger };
+        }
+        if (typeof record.emit === 'string') {
+            if (typeof ((_a = record.trigger) === null || _a === void 0 ? void 0 : _a.symbol) !== 'undefined') {
+                if (/#[0-9]/.test(record.emit)) {
+                    onError({ code: 'unexpected-argument', arg: record.name });
+                }
+            }
+        }
+        if (typeof record.emit === 'undefined') {
+            // By default, when latex is emitted for this record,
+            // it is the same as the trigger (note there could be multiple
+            // triggers, so we just pick one)
+            if (typeof ((_b = record.trigger) === null || _b === void 0 ? void 0 : _b.postfix) !== 'undefined') {
+                record.emit = '#1' + triggerString(record.trigger.postfix);
+            }
+            else if (typeof ((_c = record.trigger) === null || _c === void 0 ? void 0 : _c.prefix) !== 'undefined') {
+                record.emit = triggerString(record.trigger.prefix) + '#1';
+            }
+            else if (typeof ((_d = record.trigger) === null || _d === void 0 ? void 0 : _d.infix) !== 'undefined') {
+                record.emit = '#1' + triggerString(record.trigger.infix) + '#2';
+            }
+            else if (typeof ((_e = record.trigger) === null || _e === void 0 ? void 0 : _e.symbol) !== 'undefined') {
+                record.emit = triggerString(record.trigger.symbol);
+            }
+            else if (typeof ((_f = record.trigger) === null || _f === void 0 ? void 0 : _f.superfix) !== 'undefined') {
+                record.emit =
+                    '#1^{' + triggerString((_g = record.trigger) === null || _g === void 0 ? void 0 : _g.superfix) + '}';
+            }
+            else if (typeof ((_h = record.trigger) === null || _h === void 0 ? void 0 : _h.subfix) !== 'undefined') {
+                record.emit =
+                    '#1_{' + triggerString((_j = record.trigger) === null || _j === void 0 ? void 0 : _j.subfix) + '}';
+            }
+            else {
+                record.emit = '';
+            }
+        }
+        if (typeof ((_k = record.trigger) === null || _k === void 0 ? void 0 : _k.infix) !== 'undefined') {
+            if (typeof record.precedence === 'undefined') {
+                onError({
+                    code: 'syntax-error',
+                    arg: 'Infix operators require a precedence',
+                });
+            }
+            if (!record.associativity) {
+                record.associativity = 'non';
+            }
+        }
+        if (typeof ((_l = record.trigger) === null || _l === void 0 ? void 0 : _l.symbol) !== 'undefined') {
+            record.arguments = (_m = record.arguments) !== null && _m !== void 0 ? _m : '';
+            record.optionalLatexArg = (_o = record.optionalLatexArg) !== null && _o !== void 0 ? _o : 0;
+            record.requiredLatexArg = (_p = record.requiredLatexArg) !== null && _p !== void 0 ? _p : 0;
+        }
+        if (typeof ((_q = record.trigger) === null || _q === void 0 ? void 0 : _q.matchfix) !== 'undefined') {
+            if (record.parse !== 'function' && !record.closeFence) {
+                onError({
+                    code: 'syntax-error',
+                    arg: 'Matchfix operators require a close fence or a custom parse function',
+                });
+            }
+        }
+        if (typeof record.trigger !== 'undefined') {
+            [
+                'infix',
+                'prefix',
+                'postfix',
+                'symbol',
+                'matchfix',
+                'superfix',
+                'subfix',
+            ].forEach((x) => {
+                const n = triggerLength(record.trigger[x]);
+                result.lookahead = Math.max(result.lookahead, n);
+                if (typeof result[x][n] === 'undefined') {
+                    result[x][n] = new Map();
+                }
+                result[x][n].set(triggerString(record.trigger[x]), record);
+            });
+            if (typeof record.trigger.environment !== 'undefined') {
+                result.environment.set(record.trigger.environment, record);
+            }
+        }
+        if (record.name) {
+            result.name.set(triggerString(record.name), record);
+        }
+        if (typeof record.trigger === 'undefined' && !record.name) {
+            // A trigger OR a name is required.
+            // The trigger maps latex -> json
+            // The name maps json -> latex
+            onError({
+                code: 'syntax-error',
+                arg: 'Need at least a trigger or a name',
+            });
+        }
+    }
+    return result;
+}
+function getDefaultLatexDictionary(domain = 'all') {
+    let result;
+    if (domain === 'all') {
+        result = [];
+        Object.keys(DEFAULT_LATEX_DICTIONARY).forEach((x) => {
+            result = [...result, ...DEFAULT_LATEX_DICTIONARY[x]];
+        });
+    }
+    else {
+        result = [...DEFAULT_LATEX_DICTIONARY[domain]];
+    }
+    return result;
+}
+// left-operators, supfix/subfix:
+// subscript
+// sub-plus     super-plus
+// sub-minus    super-minus
+// sub-star     super-star
+//              super-dagger
+// over-bar     under-bar
+// over-vector
+// over-tilde
+// over-hat
+// over-dot
+// overscript   underscript
+// matchfix:
+// angle-brack
+// floor
+// ceiling
+// infix operators:
+// ->   rule
+// :>   rule-delayed
+// ==   eq
+// !=   ne
+// https://reference.wolfram.com/language/tutorial/OperatorInputForms.html
+const DEFAULT_LATEX_DICTIONARY = {
+    algebra: DEFINITIONS_ALGEBRA,
+    arithmetic: DEFINITIONS_ARITHMETIC,
+    calculus: DEFINITIONS_CALCULUS,
+    core: DEFINITIONS_CORE,
+    inequalities: DEFINITIONS_INEQUALITIES,
+    other: DEFINITIONS_OTHERS,
+    physics: [
+        {
+            name: 'mu-0',
+            trigger: { symbol: ['\\mu', '_', '0'] },
+        },
+    ],
+    symbols: DEFINITIONS_SYMBOLS,
+    trigonometry: DEFINITIONS_TRIGONOMETRY,
+};
+// {
+//     const defaultDic = getDefaultLatexDictionary();
+//     let i = 0;
+//     for (const x of Object.keys(FUNCTIONS)) {
+//         if (x.startsWith('\\') && !hasDef(defaultDic, x)) {
+//             i++;
+//             console.log(i + ' No def for function ' + x);
+//         }
+//     }
+//     for (const x of Object.keys(MATH_SYMBOLS)) {
+//         if (x.startsWith('\\') && !hasDef(defaultDic, x)) {
+//             i++;
+//             console.log(i + ' No def for symbol ' + x);
+//         }
+//     }
+// }
+// {
+//     const defaultLatexDic = indexLatexDictionary(
+//         getDefaultLatexDictionary('all'),
+//         () => {
+//             return;
+//         }
+//     );
+//     const defaultDic = getDefaultDictionary('all');
+//     let i = 0;
+//     Array.from(defaultLatexDic.name.keys()).forEach((x) => {
+//         if (!findInDictionary(defaultDic, x)) {
+//             console.log(Number(i++).toString() + ' No entry for ' + x);
+//         }
+//     });
+// }
+
+class Scanner {
+    constructor(tokens, options) {
+        var _a;
+        this.index = 0;
+        this.options = { ...DEFAULT_PARSE_LATEX_OPTIONS, ...options };
+        this.tokens = tokens;
+        this.onError = (err) => {
+            return options.onError({
+                ...err,
+                before: this.latexBefore(),
+                after: this.latexAfter(),
+            });
+        };
+        this.dictionary = (_a = options.indexedLatexDictionary) !== null && _a !== void 0 ? _a : indexLatexDictionary(options.dictionary, options.onError);
+        let def;
+        this.invisibleOperatorPrecedence = 0;
+        if (this.options.invisibleOperator) {
+            def = this.dictionary.name.get(this.options.invisibleOperator);
+            if (typeof def === 'undefined') {
+                options.onError({
+                    code: 'unknown-operator',
+                    arg: this.options.invisibleOperator,
+                });
+            }
+            else if (typeof def.precedence === 'undefined') {
+                options.onError({
+                    code: 'expected-operator',
+                    arg: this.options.invisibleOperator,
+                });
+            }
+            else {
+                this.invisibleOperatorPrecedence = def.precedence;
+            }
+        }
+    }
+    clone(start, end) {
+        const result = new Scanner(this.tokens.slice(start, end), {
+            ...this.options,
+            dictionary: [],
+            indexedLatexDictionary: this.dictionary,
+            onError: this.onError,
+        });
+        return result;
+    }
+    getIndex() {
+        return this.index;
+    }
+    setIndex(n) {
+        this.index = n;
+    }
+    atEnd() {
+        return this.index >= this.tokens.length;
+    }
+    peek() {
+        return this.tokens[this.index];
+    }
+    latex(start, end) {
+        return tokensToString(this.tokens.slice(start, end));
+    }
+    latexAhead(n) {
+        return tokensToString(this.tokens.slice(this.index, this.index + n));
+    }
+    latexBefore() {
+        return this.latex(0, this.index);
+    }
+    latexAfter() {
+        return this.latex(this.index);
+    }
+    /**
+     * Return at most `maxLookahead` strings made from the tokens
+     * ahead.
+     *
+     * The index in the returned array correspond to the number of tokens.
+     * Note that since a token can be longer than one char ('\\pi', but also
+     * some astral plane unicode characters), the length of the string
+     * does not match that index. However, knowing the index is important
+     * to know by how many tokens to advance.
+     *
+     */
+    lookAhead() {
+        let n = Math.min(this.dictionary.lookahead, this.tokens.length - this.index);
+        const result = [];
+        while (n > 0) {
+            result[n] = this.latexAhead(n--);
+        }
+        return result;
+    }
+    peekDefinition(kind) {
+        let defs;
+        if (kind === 'operator') {
+            defs = this.lookAhead().map((x, n) => { var _a, _b, _c, _d, _e; return (_d = (_b = (_a = this.dictionary.infix[n]) === null || _a === void 0 ? void 0 : _a.get(x)) !== null && _b !== void 0 ? _b : (_c = this.dictionary.postfix[n]) === null || _c === void 0 ? void 0 : _c.get(x)) !== null && _d !== void 0 ? _d : (_e = this.dictionary.prefix[n]) === null || _e === void 0 ? void 0 : _e.get(x); });
+        }
+        else {
+            defs = this.lookAhead().map((x, n) => { var _a; return (_a = this.dictionary[kind][n]) === null || _a === void 0 ? void 0 : _a.get(x); });
+        }
+        for (let i = defs.length; i > 0; i--) {
+            if (typeof defs[i] !== 'undefined')
+                return [defs[i], i];
+        }
+        return [null, 0];
+    }
+    next() {
+        return this.tokens[this.index++];
+    }
+    skipSpace() {
+        if (!this.options.skipSpace)
+            return false;
+        let result = false;
+        while (this.match('<space>')) {
+            result = true;
+        }
+        return result;
+    }
+    match(target) {
+        if (this.tokens[this.index] === target) {
+            this.index++;
+            return true;
+        }
+        return false;
+    }
+    matchAll(target) {
+        let matched = true;
+        if (typeof target === 'string') {
+            target = [target];
+        }
+        let i = 0;
+        do {
+            matched = this.tokens[this.index + i] === target[i++];
+        } while (matched && i < target.length);
+        if (matched) {
+            this.index += i;
+        }
+        return matched;
+    }
+    matchAny(targets) {
+        if (targets.includes(this.tokens[this.index])) {
+            return this.tokens[this.index++];
+        }
+        return '';
+    }
+    matchWhile(targets) {
+        const result = [];
+        while (targets.includes(this.tokens[this.index])) {
+            result.push(this.tokens[this.index++]);
+        }
+        return result;
+    }
+    matchSign() {
+        let isNegative = false;
+        let done = false;
+        while (!done) {
+            if (this.skipSpace()) {
+                done = false;
+            }
+            else if (this.match('-')) {
+                isNegative = !isNegative;
+                done = false;
+            }
+            else if (this.match('+')) {
+                done = false;
+            }
+            else {
+                done = true;
+            }
+        }
+        return isNegative ? '-' : '+';
+    }
+    matchDigits() {
+        var _a;
+        const result = this.matchWhile([
+            '0',
+            '1',
+            '2',
+            '3',
+            '4',
+            '5',
+            '6',
+            '7',
+            '8',
+            '9',
+            (_a = this.options.groupSeparator) !== null && _a !== void 0 ? _a : '',
+        ]);
+        if (result !== null) {
+            return result
+                .filter((x) => x !== this.options.groupSeparator)
+                .join('');
+        }
+        return '';
+    }
+    matchSignedInteger() {
+        const savedIndex = this.index;
+        const sign = this.matchSign();
+        const result = this.matchDigits();
+        if (result)
+            return (sign === '-' ? '-' : '') + result;
+        this.index = savedIndex;
+        return '';
+    }
+    matchExponent() {
+        const savedIndex = this.index;
+        let result = '';
+        if (this.matchAny(['e', 'E', 'd', 'D'])) {
+            const exponent = this.matchSignedInteger();
+            if (exponent) {
+                result = 'e' + exponent;
+            }
+        }
+        if (result)
+            return result;
+        if (this.match('\\times')) {
+            this.skipSpace();
+            if (this.match('1') && this.match('0') && this.match('^')) {
+                if (/[0-9]/.test(this.peek())) {
+                    return 'e' + this.next();
+                }
+                if (this.match('<{>')) {
+                    this.skipSpace();
+                    const exponent = this.matchSignedInteger();
+                    this.skipSpace();
+                    if (this.match('<}>') && exponent) {
+                        return 'e' + exponent;
+                    }
+                }
+            }
+        }
+        this.index = savedIndex;
+        return '';
+    }
+    matchNumber() {
+        var _a, _b, _c;
+        if (!this.options.parseNumbers)
+            return '';
+        const savedIndex = this.index;
+        let result = this.matchDigits();
+        if (!result)
+            return '';
+        if (this.match((_a = this.options.decimalMarker) !== null && _a !== void 0 ? _a : '')) {
+            result += '.' + ((_b = this.matchDigits()) !== null && _b !== void 0 ? _b : '');
+        }
+        result += (_c = this.matchExponent()) !== null && _c !== void 0 ? _c : '';
+        if (result)
+            return result;
+        this.index = savedIndex;
+        return '';
+    }
+    matchOperator(kind, lhs = null, minPrec = 0) {
+        const [def, n] = this.peekDefinition(kind);
+        if (def === null)
+            return null;
+        if (typeof def.parse === 'function') {
+            // Custom parser found
+            const latex = this.latexAhead(n);
+            this.index += n;
+            let rhs = null;
+            [lhs, rhs] = def.parse(lhs, this, minPrec, latex);
+            if (rhs === null) {
+                this.index -= n;
+                return null;
+            }
+            return this.applyInvisibleOperator(lhs, rhs);
+        }
+        let prec = def.precedence;
+        if (prec < minPrec)
+            return null;
+        prec += def.associativity === 'left' ? 1 : 0;
+        this.index += n;
+        const rhs = this.matchExpression(prec);
+        return this.applyInvisibleOperator(...this.applyOperator(def.parse, lhs, rhs));
+    }
+    matchArguments(kind) {
+        if (!kind)
+            return null;
+        const savedIndex = this.index;
+        let result = null;
+        const group = this.matchMatchfixOperator();
+        if (kind === 'group' && getFunctionName(group) === GROUP) {
+            // We got a group i.e. `f(a, b, c)`
+            result = getArgs(group);
+        }
+        else if (kind === 'implicit') {
+            // Does this function allow arguments with optional parentheses?
+            // (i.e. trig functions, as in `\cos x`.
+            if (getFunctionName(group) === GROUP) {
+                result = getArgs(group);
+            }
+            else if (group !== null) {
+                // There was a matchfix, the "group" is the argument, i.e.
+                // `\sin [a, b, c]`
+                result = [group];
+            }
+            else {
+                // No group, but arguments without parentheses are allowed
+                // Read a primary
+                // (i.e. we interpret `\cos x + 1` as `\cos(x) + 1`)
+                const primary = this.matchPrimary();
+                if (primary !== null)
+                    result = [primary];
+            }
+        }
+        else {
+            // The element following the function does not match
+            // a possible argument list
+            // That's OK, but need to undo the parsing of the matchfix
+            // This is the case: `f[a]` or `f|a|`
+            this.index = savedIndex;
+        }
+        return result;
+    }
+    matchMatchfixOperator() {
+        const savedIndex = this.index;
+        const [def, n] = this.peekDefinition('matchfix');
+        if (def === null)
+            return null;
+        let result = null;
+        if (typeof def.parse === 'function') {
+            // Custom parser: invoke it.
+            const latex = this.latexAhead(n);
+            this.index += n;
+            return this.applyInvisibleOperator(...def.parse(null, this, 0, latex));
+        }
+        this.index += n;
+        result = [def.parse];
+        let foundClosefence = false;
+        let done = false;
+        while (!this.atEnd() && !done && !foundClosefence) {
+            this.skipSpace();
+            // In case of ambiguity, we prioritize close fence over open,
+            // e.g. `|2-a|+b+|3-b|` -> `(|2-a|)+b+(|3-b|)`
+            // So we check *first* if it's a closefence, before trying to
+            // match an expression which would interpret an open fence
+            if (this.matchAll(def.closeFence)) {
+                foundClosefence = true;
+            }
+            else {
+                const expr = this.matchExpression();
+                if (expr === null) {
+                    // No expression. This could be two consecutive separators,
+                    // i.e. `(1,,3)` which is valid
+                    // but it could also be a syntax error, i.def.closeFencee.
+                    // `(?` when `?` is not a valid operator.
+                    if (this.match(def.separator)) {
+                        result.push(NOTHING);
+                    }
+                    else {
+                        done = true;
+                    }
+                }
+                else {
+                    result.push(expr);
+                    // Consume separator, if present
+                    // Note that for Groups, for example, the consumed expression
+                    // is a sequence, so the ',' separator is actually consumed
+                    // by the sequence, not by the group.
+                    // So by the time we reach here, we're at the closing fence.
+                    // @todo: maybe we dont' need def.separator for matchfix operators...
+                    this.skipSpace();
+                    if (!this.match(def.separator)) {
+                        done = true;
+                    }
+                }
+            }
+        }
+        if (!foundClosefence && !this.matchAll(def.closeFence)) {
+            // If we didn't find a close fence, it may be because
+            // we mistook an open fence for a close fence (for `|a+|b|+c|`):
+            // backtrack
+            this.index = savedIndex;
+            return null;
+            // this.onError({
+            //     code: 'unbalanced-matchfix-operator',
+            //     arg:
+            //         typeof def.closeFence === 'string'
+            //             ? def.closeFence
+            //             : tokensToString(def.closeFence),
+            // });
+        }
+        return result;
+    }
+    matchDefinition(kind) {
+        // Find the longest string of tokens with a definition of the
+        // specified kind
+        const [def, tokenCount] = this.peekDefinition(kind);
+        // If there is a custom parsing function associated with this
+        // definition, invoke it.
+        if (typeof (def === null || def === void 0 ? void 0 : def.parse) === 'function') {
+            const latexName = this.latexAhead(tokenCount);
+            this.index += tokenCount;
+            const [, result] = def.parse(null, this, 0, latexName);
+            return [def, result];
+        }
+        this.index += tokenCount;
+        return [def, null];
+    }
+    /**
+     * A symbol can be:
+     * - a constant: `\pi`
+     * - a variable: `x`
+     * - a function with explicit arguments `f(x)`
+     * - a function with implicit arguments: `\cos x`
+     * - a command: `\frac{2}{3}`
+     */
+    matchSymbol() {
+        var _a, _b, _c, _d;
+        const [def, result] = this.matchDefinition('symbol');
+        // If a result is ready (because there was a parsing function associated
+        // with the definition), just
+        if (result !== null)
+            return result;
+        if (def === null) {
+            // This is an unknown symbol.
+            // Can we promote it?
+            if ((_a = this.options.promoteUnknownFunctions) === null || _a === void 0 ? void 0 : _a.test(this.peek())) {
+                const name = this.next();
+                // this.onError({ code: 'unknown-function', arg: name });
+                const group = this.matchMatchfixOperator();
+                // If no arguments, return it as a symbol
+                if (group === null)
+                    return name;
+                if (getFunctionName(group) !== GROUP)
+                    return null;
+                return [name, ...getArgs(group)];
+            }
+            if ((_b = this.options.promoteUnknownSymbols) === null || _b === void 0 ? void 0 : _b.test(this.peek())) {
+                // this.onError({ code: 'unknown-symbol', arg: this.peek() });
+                return this.next();
+            }
+            // Not a symbol (punctuation or fence, maybe?)...
+            return this.matchUnknownLatexCommand();
+        }
+        //
+        // Is it a Latex function, e.g. `\frac{}{}`?
+        //
+        const requiredArgs = [];
+        const optionalArgs = [];
+        let arg;
+        let i = (_c = def.optionalLatexArg) !== null && _c !== void 0 ? _c : 0;
+        while (i > 0) {
+            arg = this.matchOptionalLatexArgument();
+            if (arg !== null)
+                optionalArgs.push(arg);
+            i--;
+        }
+        i = (_d = def.requiredLatexArg) !== null && _d !== void 0 ? _d : 0;
+        while (i > 0) {
+            arg = this.matchRequiredLatexArgument();
+            // `null` indicate that no required argument was found
+            if (arg === null)
+                this.onError({ code: 'expected-argument' });
+            // `""` indicate an empty argument, i.e. `{}` was found
+            if (arg !== null)
+                requiredArgs.push(arg);
+            i--;
+        }
+        const args = this.matchArguments(def.arguments);
+        if (args === null) {
+            // Didn't get arguments
+            if (requiredArgs.length === 0 && optionalArgs.length === 0) {
+                return def.parse;
+            }
+            return [def.parse, ...requiredArgs, ...optionalArgs];
+        }
+        return [def.parse, ...requiredArgs, ...args, ...optionalArgs];
+    }
+    matchOptionalLatexArgument() {
+        this.skipSpace();
+        if (this.match('[')) {
+            const start = this.index;
+            let level = 1;
+            while (!this.atEnd() && level !== 0) {
+                if (this.match('[')) {
+                    level += 1;
+                }
+                else if (this.match(']')) {
+                    level -= 1;
+                }
+                else {
+                    this.next();
+                }
+            }
+            const scanner = this.clone(start, this.index - 1);
+            return scanner.matchExpression();
+        }
+        return null;
+    }
+    /**
+     * Match a required latex argument:
+     * - either enclosed in `{}`
+     * - or a single token.
+     *
+     * Return null if an argument was not found
+     * Return '' if an empty argument `{}` was found
+     */
+    matchRequiredLatexArgument() {
+        var _a;
+        this.skipSpace();
+        if (this.match('<{>')) {
+            const start = this.index;
+            let level = 1;
+            while (!this.atEnd() && level !== 0) {
+                if (this.match('<{>')) {
+                    level += 1;
+                }
+                else if (this.match('<}>')) {
+                    level -= 1;
+                }
+                else {
+                    this.next();
+                }
+            }
+            const scanner = this.clone(start, this.index - 1);
+            return (_a = scanner.matchExpression()) !== null && _a !== void 0 ? _a : '';
+        }
+        // Is it a single digit?
+        if (/^[0-9]$/.test(this.peek())) {
+            // ... only match the digit, i.e. `x^23` is `x^{2}3`, not x^{23}
+            return parseFloat(this.next());
+        }
+        // Is it a single letter (but not a special letter)?
+        if (/^[^\\#]$/.test(this.peek())) {
+            return this.next();
+        }
+        // @todo: check. An expression might be too much, i.e. it
+        // allows \frac{1}2+1. Maybe just match a primary?
+        return this.matchExpression();
+    }
+    matchSupsub(lhs) {
+        let result = null;
+        this.skipSpace();
+        [
+            ['^', 'superfix'],
+            ['_', 'subfix'],
+        ].forEach((x) => {
+            var _a, _b, _c;
+            if (result !== null)
+                return;
+            const [triggerChar, opKind] = x;
+            if (!this.match(triggerChar))
+                return;
+            this.skipSpace();
+            const savedIndex = this.index;
+            let def;
+            let n = 0;
+            if (this.match('<{>')) {
+                // Supsub with an argument
+                this.skipSpace();
+                [def, n] = this.peekDefinition(opKind);
+                this.index += n;
+                this.skipSpace();
+                if ((def === null || def === void 0 ? void 0 : def.name) && this.match('<}>')) {
+                    //
+                    // It's a supfix/subfix operator (
+                    //  i.e. `^{*}` for `superstar`
+                    //
+                    if (typeof def.parse === 'function') {
+                        result = def.parse(lhs, this, 0, def.name)[1];
+                    }
+                    else {
+                        result = [(_a = def.parse) !== null && _a !== void 0 ? _a : def.name, lhs];
+                    }
+                }
+                else {
+                    // Not a supfix/subfix
+                    // For example, "^{-1}", start with `"-"` from `superminus`,
+                    // but the "1" after it makes it not match
+                    this.index = savedIndex;
+                }
+            }
+            else {
+                //
+                // Single token argument for a sup/subfix
+                //
+                [def, n] = this.peekDefinition(opKind);
+                if (def === null || def === void 0 ? void 0 : def.name) {
+                    this.index += n;
+                    if (typeof def.parse === 'function') {
+                        result = def.parse(lhs, this, 0, def.name)[1];
+                    }
+                    else {
+                        result = [(_b = def.parse) !== null && _b !== void 0 ? _b : def.name, lhs];
+                    }
+                }
+            }
+            if (result === null) {
+                def = (_c = this.dictionary.infix[1]) === null || _c === void 0 ? void 0 : _c.get(triggerChar);
+                if (typeof (def === null || def === void 0 ? void 0 : def.parse) === 'function') {
+                    result = def.parse(lhs, this, 0, triggerChar)[1];
+                }
+                else if (typeof (def === null || def === void 0 ? void 0 : def.parse) === 'string') {
+                    [lhs, result] = this.applyOperator(def.parse, lhs, this.matchRequiredLatexArgument());
+                    result = this.applyInvisibleOperator(lhs, result);
+                }
+                else {
+                    result = this.applyInvisibleOperator(lhs, triggerChar);
+                }
+            }
+            if (result !== null) {
+                // There could be some arguments following the supsub, e.g.
+                // `f^{-1}(x)`
+                const args = this.matchArguments(def === null || def === void 0 ? void 0 : def.arguments);
+                if (args !== null)
+                    result = [result, ...args];
+            }
+        });
+        return result;
+    }
+    matchPostfix(lhs) {
+        if (lhs === null)
+            return null;
+        const [def, n] = this.peekDefinition('postfix');
+        if (def === null)
+            return null;
+        if (typeof def.parse === 'function') {
+            const latex = this.latexAhead(n);
+            this.index += n;
+            [, lhs] = def.parse(lhs, this, 0, latex);
+            if (lhs === null) {
+                this.index -= n;
+                return null;
+            }
+            return lhs;
+        }
+        this.index += n;
+        return [def.parse, lhs];
+    }
+    matchString() {
+        let result = '';
+        let done = this.atEnd();
+        while (!done) {
+            if (this.match('<space>')) {
+                result += ' ';
+            }
+            else {
+                const token = this.peek();
+                if (this.peek() === ']') {
+                    done = true;
+                }
+                else if (!/^<({|}|\$|\$\$|space)>$/.test(token)) {
+                    result += this.next();
+                }
+                else if (token[0] === '\\') {
+                    // TeX will give a 'Missing \endcsname inserted' error
+                    // if it encounters any command when expecting a string.
+                    // We're a bit more lax.
+                    this.onError({ code: 'unbalanced-braces' });
+                    result += this.next();
+                }
+                else {
+                    // It's '<{>', '<}>', '<$>' or '<$$>
+                    done = true;
+                }
+            }
+            done = done || this.atEnd();
+        }
+        return result;
+    }
+    matchEnvironmentName(command, envName) {
+        if (this.match(command)) {
+            const savedIndex = this.index;
+            if (this.match('<{>')) {
+                const name = this.matchString();
+                if (this.match('<}>') && name === envName) {
+                    return true;
+                }
+            }
+            this.index = savedIndex;
+        }
+        return false;
+    }
+    /**
+     * Match an expression in a tabular format,
+     * where row are separated by `\\` and columns by `&`
+     *
+     * Return rows of columns (might be sparse)
+     */
+    matchTabular() {
+        // return null;
+        const result = ['list'];
+        // debugger;
+        let row = ['list'];
+        let expr = null;
+        let done = false;
+        while (!this.atEnd() && !done) {
+            if (this.match('&')) {
+                // new column
+                // Push even if expr is NULL (it represent a skipped column)
+                row.push(expr);
+                expr = null;
+            }
+            else if (this.match('\\\\') || this.match('\\cr')) {
+                // new row
+                this.skipSpace();
+                // Parse but drop optional argument (used to indicate spacing between lines)
+                this.matchOptionalLatexArgument();
+                if (expr !== null)
+                    row.push(expr);
+                result.push(row);
+                row = ['list'];
+                expr = null;
+            }
+            else {
+                const rhs = this.matchExpression();
+                if (rhs === null)
+                    done = true;
+                if (expr !== null) {
+                    expr = this.applyInvisibleOperator(expr, rhs);
+                }
+                else {
+                    expr = rhs;
+                }
+            }
+        }
+        // Capture any leftover row
+        if (row.length > 1) {
+            result.push(row);
+        }
+        return result;
+    }
+    matchEnvironment() {
+        var _a;
+        if (this.match('\\begin')) {
+            if (this.match('<{>')) {
+                const name = this.matchString();
+                if (this.match('<}>')) {
+                    const start = this.index;
+                    let end = this.index;
+                    // Find the end of the environment
+                    let level = 1;
+                    while (!this.atEnd() && level !== 0) {
+                        end = this.index;
+                        if (this.matchEnvironmentName('\\begin', name)) {
+                            level += 1;
+                        }
+                        else if (this.matchEnvironmentName('\\end', name)) {
+                            level -= 1;
+                        }
+                        else {
+                            this.next();
+                        }
+                    }
+                    const def = this.dictionary.environment.get(name);
+                    if (typeof (def === null || def === void 0 ? void 0 : def.parse) === 'function') {
+                        return def.parse(null, this.clone(start, end), 0, name)[1];
+                    }
+                    return (_a = def === null || def === void 0 ? void 0 : def.parse) !== null && _a !== void 0 ? _a : null;
+                }
+            }
+        }
+        return null;
+    }
+    /**
+     * Apply the operator `op` to the left-hand-side and right-hand-side
+     * expression. Applies the associativity rule specified by the definition,
+     * i.e. 'op(a, op(b, c))` -> `op(a, b, c)`, etc...
+     *
+     * `op` is the name of the operator which should have a corresponding
+     * definition.
+     *
+     * If `op` is an infix operator, it should have both a lhs and rhs.
+     * If `op` is a postfix operator, it should only have a lhs.
+     * If `op` is a prefix operator, the lhs is returned as the first element
+     * of the return tuple.
+     *
+     * @return a tuple: [lhs, rhs]
+     */
+    applyOperator(op, lhs, rhs) {
+        var _a, _b, _c, _d;
+        const def = this.dictionary.name.get(op);
+        if (typeof def === 'undefined') {
+            this.onError({ code: 'unknown-operator' });
+            return [lhs, rhs];
+        }
+        if (typeof ((_a = def.trigger) === null || _a === void 0 ? void 0 : _a.prefix) !== 'undefined' &&
+            lhs === null &&
+            rhs !== null) {
+            return [null, [def.name, rhs]];
+        }
+        if (typeof ((_b = def.trigger) === null || _b === void 0 ? void 0 : _b.postfix) !== 'undefined' && lhs !== null) {
+            return [null, [def.name, lhs]];
+        }
+        if ((typeof ((_c = def.trigger) === null || _c === void 0 ? void 0 : _c.matchfix) !== 'undefined' ||
+            typeof ((_d = def.trigger) === null || _d === void 0 ? void 0 : _d.infix) !== 'undefined') &&
+            lhs !== null &&
+            rhs !== null) {
+            // infix
+            if (def.associativity === 'non') {
+                return [null, [op, lhs, rhs]];
+            }
+            if (getFunctionName(lhs) === op) {
+                // Possible associativity
+                if (def.associativity === 'both') {
+                    if (getFunctionName(rhs) === op) {
+                        // +(+(a, b), +(c, d)) -> +(a, b, c, d)
+                        if (Array.isArray(lhs)) {
+                            return [null, lhs.concat(getArgs(rhs))];
+                        }
+                        if (isFunctionObject(lhs)) {
+                            return [null, lhs.fn.concat(getArgs(rhs))];
+                        }
+                    }
+                    else {
+                        if (Array.isArray(lhs)) {
+                            lhs.push(rhs);
+                        }
+                        if (isFunctionObject(lhs)) {
+                            lhs.fn.push(rhs);
+                        }
+                    }
+                    return [null, lhs];
+                }
+                if (def.associativity === 'left') {
+                    return [null, [op, lhs, rhs]];
+                }
+                // Right-associative
+                if (Array.isArray(lhs)) {
+                    return [null, [op, lhs[1], [op, lhs[2], rhs]]];
+                }
+                if (isFunctionObject(lhs)) {
+                    lhs.fn[2] = [op, lhs.fn[2], rhs];
+                }
+                return [null, lhs];
+            }
+            else if (getFunctionName(rhs) === op) {
+                // Possible associativity
+                if (def.associativity === 'both') {
+                    if (Array.isArray(rhs)) {
+                        rhs.splice(1, 0, lhs);
+                    }
+                    if (isFunctionObject(rhs)) {
+                        rhs.fn.splice(1, 0, lhs);
+                    }
+                    return [null, rhs];
+                }
+                if (def.associativity === 'right') {
+                    return [null, [op, lhs, rhs]];
+                }
+                // Left-associative
+                if (Array.isArray(rhs)) {
+                    return [null, [op, rhs[1], [op, rhs[2], lhs]]];
+                }
+                if (isFunctionObject(rhs)) {
+                    rhs.fn[2] = [op, rhs.fn[2], lhs];
+                }
+                return [null, rhs];
+            }
+            return [null, [op, lhs, rhs]];
+        }
+        if (typeof def.trigger.infix !== 'undefined') {
+            // Infix, but either right or left operand missing
+            this.onError({ code: 'expected-operand' });
+            return [lhs, null];
+        }
+        return [lhs, null];
+    }
+    /**
+     * Apply an invisible operator between two expressions.
+     *
+     * If no `invisibleOperator` was specified, use the `latex` operator.
+     *
+     * If the lhs is a number and the rhs is a fraction, assume an
+     * 'invisible plus', that is '2 3/4' -> ['add', 2, [divide, 3, 4]]
+     * unless `invisiblePlusOperator` is empty
+     *
+     */
+    applyInvisibleOperator(lhs, rhs) {
+        if (lhs === null)
+            return rhs;
+        if (rhs === null)
+            return lhs;
+        // @todo: handle invisible plus
+        if (this.options.invisiblePlusOperator) {
+            if ((typeof lhs === 'number' || isNumberObject(lhs)) &&
+                getFunctionName(rhs) === DIVIDE) {
+                [lhs, rhs] = this.applyOperator(this.options.invisiblePlusOperator, lhs, rhs);
+                if (lhs === null)
+                    return rhs;
+                return null;
+            }
+        }
+        if (this.options.invisibleOperator) {
+            [lhs, rhs] = this.applyOperator(this.options.invisibleOperator, lhs, rhs);
+            if (lhs === null)
+                return rhs;
+            return null;
+        }
+        // No invisible operator, use 'latex'
+        let fn = [LATEX];
+        if (getFunctionName(lhs) === LATEX) {
+            fn = fn.concat(getArgs(lhs));
+        }
+        else {
+            fn.push(lhs);
+        }
+        if (rhs !== null) {
+            if (getFunctionName(rhs) === LATEX) {
+                fn = fn.concat(getArgs(rhs));
+            }
+            else {
+                fn.push(rhs);
+            }
+        }
+        if (this.options.invisibleOperator) {
+            this.onError({ code: 'unexpected-sequence' });
+        }
+        return fn;
+    }
+    matchUnknownLatexCommand() {
+        const command = this.peek();
+        if (!command || command[0] !== '\\') {
+            return null;
+        }
+        this.next();
+        const optArgs = [];
+        const reqArgs = [];
+        let done = false;
+        do {
+            done = true;
+            let expr = this.matchOptionalLatexArgument();
+            if (expr !== null) {
+                optArgs.push(expr);
+                done = false;
+            }
+            this.skipSpace();
+            if (this.peek() === '<{>') {
+                expr = this.matchRequiredLatexArgument();
+                if (expr !== null) {
+                    reqArgs.push(expr);
+                    done = false;
+                }
+            }
+        } while (!done);
+        if (optArgs.length > 0 || reqArgs.length > 0) {
+            return [command, ...reqArgs, ...optArgs];
+        }
+        return command;
+    }
+    /**
+     * <primary> :=
+     * (<number> | <symbol> | <environment> | <matchfix-expr>) <subsup>* <postfix-operator>*
+     *
+     * <symbol> ::= (<symbol-id> | (<latex-command><latex-arguments>)) <arguments>
+     *
+     * <matchfix-expr> :=
+     *  <matchfix-op-open> <expression> [<matchfix-op-separator> <expression>] <matchfix-op-close>
+     *
+     */
+    matchPrimary(_minPrec) {
+        let result = null;
+        const originalIndex = this.index;
+        //
+        // 1. Is it a number?
+        //
+        const num = this.matchNumber();
+        if (num)
+            result = { num: num };
+        //
+        // 2. Is it a symbol, a Latex command or a function call?
+        //    `x` or `\pi'
+        //    `f(x)` or `\sin(\pi)
+        //    `\frac{1}{2}`
+        //
+        if (result === null)
+            result = this.matchSymbol();
+        //
+        // 3. Is it an environment?
+        // `\begin{...}...\end{...}`
+        //
+        if (result === null)
+            result = this.matchEnvironment();
+        //
+        // 3. Is it a matchfix expression?
+        //    (group fence, absolute value, integral, etc...)
+        //
+        if (result === null)
+            result = this.matchMatchfixOperator();
+        //
+        // 4. Are there subsup or postfix operators?
+        //
+        let supsub = null;
+        do {
+            supsub = this.matchSupsub(result);
+            result = supsub !== null && supsub !== void 0 ? supsub : result;
+        } while (supsub !== null);
+        let postfix = null;
+        do {
+            postfix = this.matchPostfix(result);
+            result = postfix !== null && postfix !== void 0 ? postfix : result;
+        } while (postfix !== null);
+        return this.decorate(result, originalIndex);
+    }
+    /**
+     *  Parse an expression:
+     *
+     * <expresion> ::=
+     *  | <prefix-op> <primary>
+     *  | <primary>
+     *  | <primary> <infix-op> <expression>
+     *
+     * Stop when an operator of precedence less than `minPrec` is encountered
+     */
+    matchExpression(minPrec = 0) {
+        let lhs = null;
+        const originalIndex = this.index;
+        this.skipSpace();
+        //
+        // 1. Do we have a prefix operator?
+        //
+        lhs = this.matchOperator('prefix');
+        //
+        // 2. Do we have a primary?
+        //
+        if (lhs === null)
+            lhs = this.matchPrimary(minPrec);
+        if (lhs === null)
+            return null;
+        //
+        // 3. Are there some infix operators?
+        //
+        let done = false;
+        while (!this.atEnd() && !done) {
+            this.skipSpace();
+            let result = this.matchOperator('infix', lhs, minPrec);
+            if (result === null) {
+                // We've encountered something else than an infix operator
+                // OR an infix operator with a lower priority.
+                // Could be "y" after "x": time to apply the invisible operator
+                // if the next element is:
+                // - a symbol: `2x`, `2f(x)` (after `2`)
+                // - a number: `x2` (after `x`)
+                // - a matchfix open: `x(n+1)` (after `x`)
+                // (i.e. not an operator)
+                const [op] = this.peekDefinition('operator');
+                if (op === null) {
+                    const rhs = this.matchExpression(this.invisibleOperatorPrecedence);
+                    if (rhs === null) {
+                        done = true;
+                    }
+                    else {
+                        result = this.applyInvisibleOperator(lhs, rhs);
+                    }
+                }
+            }
+            if (result !== null) {
+                lhs = result;
+            }
+            else {
+                // We could not apply the infix operator: the rhs may
+                // have been a postfix operator, or something else
+                done = true;
+            }
+        }
+        return this.decorate(lhs, originalIndex);
+    }
+    /**
+     * Add latex or other requested metadata to the expression
+     */
+    decorate(expr, start) {
+        if (this.options.preserveLatex) {
+            const latex = this.latex(start, this.index);
+            if (Array.isArray(expr)) {
+                expr = { latex: latex, fn: expr };
+            }
+            else if (typeof expr === 'number') {
+                expr = { latex: latex, num: Number(expr).toString() };
+            }
+            else if (typeof expr === 'string') {
+                expr = { latex: latex, sym: expr };
+            }
+            else if (typeof expr === 'object' && expr !== null) {
+                expr.latex = latex;
+            }
+        }
+        return expr;
+    }
+}
+
+/**
+ * Return a formatted mantissa:
+ * 1234567 -> 123 456 7...
+ * 1233333 -> 12(3)
+ */
+function formatMantissa(m, config) {
+    const originalLength = m.length;
+    // The last digit may have been rounded, if it exceeds the precison,
+    // which could throw off the repeating pattern detection. Ignore it.
+    m = m.substr(0, config.precision - 2);
+    for (let i = 0; i < m.length - 16; i++) {
+        // Offset is the part of the mantissa that is not repeating
+        const offset = m.substr(0, i);
+        // Try to find a repeating pattern of length j
+        for (let j = 0; j < 17; j++) {
+            const cycle = m.substr(i, j + 1);
+            const times = Math.floor((m.length - offset.length) / cycle.length);
+            if (times > 1) {
+                if ((offset + cycle.repeat(times + 1)).startsWith(m)) {
+                    // We've found a repeating pattern!
+                    if (cycle === '0') {
+                        return offset.replace(/(\d{3})/g, '$1' + config.groupSeparator);
+                    }
+                    return (offset.replace(/(\d{3})/g, '$1' + config.groupSeparator) +
+                        config.beginRepeatingDigits +
+                        cycle.replace(/(\d{3})/g, '$1' + config.groupSeparator) +
+                        config.endRepeatingDigits);
+                }
+            }
+        }
+    }
+    const hasDots = originalLength !== m.length;
+    m = m.replace(/(\d{3})/g, '$1' + config.groupSeparator);
+    if (m.endsWith(config.groupSeparator)) {
+        m = m.slice(0, -1);
+    }
+    return m + (hasDots ? '\\ldots' : '');
+}
+function formatExponent(exp, options) {
+    var _a;
+    if (!exp)
+        return '';
+    if (options.beginExponentMarker) {
+        return (options.beginExponentMarker +
+            exp +
+            ((_a = options.endExponentMarker) !== null && _a !== void 0 ? _a : ''));
+    }
+    return '10^{' + exp + '}';
+}
+function parseFloatToPrecision(num) {
+    return parseFloat(Number(num).toPrecision(15));
+}
+/*
+ * @param expr - A number, can be represented as a string
+ *  particularly useful for arbitrary precision numbers) or a number (-12.45)
+ * @return A LaTeX representation of the expression
+ */
+function emitNumber(options, expr) {
+    var _a, _b;
+    let num;
+    if (typeof expr === 'number') {
+        num = expr;
+    }
+    else if (isNumberObject(expr)) {
+        num = expr.num;
+    }
+    else {
+        return '';
+    }
+    if (num === 'Infinity') {
+        return '\\infty';
+    }
+    else if (num === '-Infinity') {
+        return '-\\infty';
+    }
+    else if (num === 'NaN') {
+        return '\\mathtt{NaN}';
+    }
+    let result = '';
+    let value;
+    const config = options;
+    if (typeof num === 'number') {
+        value = parseFloatToPrecision(num);
+    }
+    else {
+        let sign = '';
+        let exponent = '';
+        if (num[0] === '-') {
+            sign = '-';
+            num = num.substr(1);
+        }
+        else if (num[0] === '+') {
+            num = num.substr(1);
+        }
+        if (num.indexOf('.') >= 0) {
+            const m = num.match(/(\d*)\.(\d*)([e|E]([-+]?[0-9]*))?/);
+            if (!m)
+                return '';
+            const base = m[1];
+            const mantissa = m[2].substring(0, Math.min(config.precision - base.length, m[2].length));
+            exponent = (_a = m[4]) !== null && _a !== void 0 ? _a : '';
+            if (base === '0') {
+                let p = 0; // Index of the first non-zero digit after the decimal
+                while (mantissa[p] === '0' && p < mantissa.length) {
+                    p += 1;
+                }
+                let r = '';
+                if (p <= 4) {
+                    r = '0' + config.decimalMarker;
+                    r += mantissa.substr(0, p);
+                    r += formatMantissa(num.substr(r.length), config);
+                }
+                else if (p + 1 >= config.precision) {
+                    r = '0';
+                    sign = '';
+                }
+                else {
+                    r = num[p];
+                    const f = formatMantissa(num.substr(p + 1), config);
+                    if (f) {
+                        r += config.decimalMarker + f;
+                    }
+                }
+                if (r !== '0') {
+                    if (num.length - 1 > config.precision &&
+                        !r.endsWith('}') &&
+                        !r.endsWith('\\ldots')) {
+                        r += '\\ldots';
+                    }
+                    if (p > 4) {
+                        r +=
+                            config.exponentProduct +
+                                formatExponent((1 - p).toString(), options);
+                    }
+                }
+                num = r;
+            }
+            else {
+                num = base.replace(/\B(?=(\d{3})+(?!\d))/g, config.groupSeparator);
+                const f = formatMantissa(mantissa, config);
+                if (f) {
+                    num += config.decimalMarker + f;
+                    // if (num.length - 1 > config.precision && !num.endsWith('}') && !num.endsWith('\\ldots')) {
+                    //     num += '\\ldots';
+                    // }
+                }
+            }
+        }
+        else if (num.length > config.precision) {
+            const len = num.length;
+            let r = num[0];
+            const f = formatMantissa(num.substr(1), config);
+            if (f) {
+                r += config.decimalMarker + f;
+                if (r[r.length - 1] !== '}') {
+                    r += '\\ldots';
+                }
+            }
+            if (r !== '1') {
+                r += config.exponentProduct;
+            }
+            else {
+                r = '';
+            }
+            num = r + formatExponent((len - 2).toString(), options);
+        }
+        else {
+            const m = num.match(/([0-9]*)\.?([0-9]*)([e|E]([-+]?[0-9]+))?/);
+            if (m) {
+                num = m[1];
+                if (m[2])
+                    num += options.decimalMarker + m[2];
+                exponent = (_b = m[4]) !== null && _b !== void 0 ? _b : '';
+            }
+            num = num.replace(/\B(?=(\d{3})+(?!\d))/g, config.groupSeparator);
+        }
+        const exponentString = formatExponent(exponent, options);
+        return (sign +
+            num +
+            (exponentString ? options.exponentProduct + exponentString : ''));
+    }
+    if (config.notation === 'engineering') {
+        // Ensure the exponent is a multiple of 3
+        if (value === 0) {
+            result = '0';
+        }
+        else {
+            const y = Math.abs(value);
+            let exponent = Math.round(Math.log10(y));
+            exponent = exponent - (exponent % 3);
+            if (y < 1000)
+                exponent = 0;
+            const mantissa = y / Math.pow(10, exponent);
+            let mantissaString = '';
+            const m = mantissa.toString().match(/^(.*)\.(.*)$/);
+            if ((m === null || m === void 0 ? void 0 : m[1]) && m[2]) {
+                mantissaString = m[1] + config.decimalMarker + m[2];
+            }
+            if (config.groupSeparator) {
+                mantissaString = formatMantissa(mantissa.toExponential(), config);
+            }
+            let exponentString = '';
+            if (exponent !== 0) {
+                exponentString = formatExponent(exponent.toString(), options);
+            }
+            result = (value < 0 ? '-' : '') + mantissaString + exponentString;
+        }
+    }
+    else {
+        const valString = typeof num === 'string' ? num : num.toString();
+        let m = valString.match(/^(.*)[e|E]([-+]?[0-9]*)$/i);
+        let base;
+        let exponent;
+        let mantissa;
+        base = valString;
+        mantissa = '';
+        if ((m === null || m === void 0 ? void 0 : m[1]) && m[2]) {
+            // There is an exponent...
+            base = m[1];
+            exponent = formatExponent(m[2], options);
+            if (exponent) {
+                exponent = options.exponentProduct + exponent;
+            }
+        }
+        m = base.match(/^(.*)\.(.*)$/);
+        if ((m === null || m === void 0 ? void 0 : m[1]) && m[2]) {
+            base = m[1];
+            mantissa = m[2];
+        }
+        if (config.groupSeparator) {
+            base = base.replace(/\B(?=(\d{3})+(?!\d))/g, config.groupSeparator);
+            mantissa = formatMantissa(mantissa, config);
+        }
+        if (mantissa)
+            mantissa = config.decimalMarker + mantissa;
+        result = base + mantissa + (exponent !== null && exponent !== void 0 ? exponent : '');
+    }
+    return result;
+}
+
+function getSymbolStyle(expr, _level) {
+    console.assert(typeof expr === 'string' || isSymbolObject(expr));
+    const sym = getSymbolName(expr);
+    if (sym === null)
+        return 'asis';
+    return sym.length > 1 ? 'upright' : 'asis';
+}
+function emitMatchfix(emitter, expr, def) {
+    let segments = [];
+    if (typeof def.trigger.matchfix === 'string') {
+        segments.push(def.trigger.matchfix);
+    }
+    else if (Array.isArray(def.trigger.matchfix)) {
+        segments = [...def.trigger.matchfix];
+    }
+    if (getArgCount(expr) >= 1) {
+        let sep = '';
+        for (const arg of getArgs(expr)) {
+            if (arg) {
+                segments.push(sep);
+                segments.push(emitter.emit(arg));
+                sep = def.separator;
+            }
+        }
+    }
+    if (Array.isArray(def.closeFence)) {
+        segments.push(tokensToString(def.closeFence));
+    }
+    else if (typeof def.closeFence === 'string') {
+        segments.push(def.closeFence);
+    }
+    return joinLatex(segments);
+}
+function emitOperator(emitter, expr, def) {
+    let result = '';
+    const count = getArgCount(expr);
+    const name = getFunctionName(expr);
+    if (def.trigger.superfix || def.trigger.subfix) {
+        if (count !== 1) {
+            emitter.onError({
+                code: 'operator-requires-one-operand',
+                arg: emitter.emitSymbol(name),
+            });
+        }
+        return replaceLatex(def.emit, [
+            emitter.emit(getArg(expr, 1)),
+        ]);
+    }
+    if (def.trigger.postfix) {
+        if (count !== 1) {
+            emitter.onError({
+                code: 'postfix-operator-requires-one-operand',
+                arg: emitter.emitSymbol(name),
+            });
+        }
+        return replaceLatex(def.emit, [
+            emitter.wrap(getArg(expr, 1), def.precedence),
+        ]);
+    }
+    if (def.trigger.prefix) {
+        if (count !== 1) {
+            emitter.onError({
+                code: 'prefix-operator-requires-one-operand',
+                arg: emitter.emitSymbol(name),
+            });
+        }
+        return replaceLatex(def.emit, [
+            emitter.wrap(getArg(expr, 1), def.precedence + 1),
+        ]);
+    }
+    if (def.trigger.infix) {
+        result = emitter.wrap(getArg(expr, 1), def.precedence);
+        for (let i = 2; i < count + 1; i++) {
+            const arg = getArg(expr, i);
+            if (arg !== null) {
+                result = replaceLatex(def.emit, [
+                    result,
+                    emitter.wrap(arg, def.precedence),
+                ]);
+            }
+        }
+    }
+    return result;
+}
+class Emitter {
+    constructor(options) {
+        this.level = -1;
+        this.options = options;
+        if (options.invisibleMultiply) {
+            if (!/#1/.test(options.invisibleMultiply) ||
+                !/#2/.test(options.invisibleMultiply)) {
+                options.onError({
+                    code: 'expected-argument',
+                    arg: 'invisibleMultiply',
+                });
+            }
+        }
+        this.onError = options.onError;
+        this.dictionary = indexLatexDictionary(options.dictionary, options.onError);
+    }
+    /**
+     * Emit the expression, and if the expression is an operator
+     * of precedence less than or equal to prec, wrap it in some paren.
+     * @todo: don't wrap abs
+     */
+    wrap(expr, prec) {
+        if (expr === null)
+            return '';
+        if (typeof prec === 'undefined') {
+            return '(' + this.emit(expr) + ')';
+        }
+        if (typeof expr === 'number' ||
+            isNumberObject(expr) ||
+            typeof expr === 'string' ||
+            isSymbolObject(expr)) {
+            return this.emit(expr);
+        }
+        const name = getFunctionName(expr);
+        if (name) {
+            const def = this.dictionary.name.get(name);
+            if (def &&
+                typeof def.precedence !== 'undefined' &&
+                def.precedence < prec) {
+                return this.wrapString(this.emit(expr), getApplyFunctionStyle(expr, this.level));
+            }
+        }
+        return this.emit(expr);
+    }
+    /** If this is a "short" expression (atomic), wrap it.
+     *
+     */
+    wrapShort(expr) {
+        const exprStr = this.emit(expr);
+        if (getFunctionName(expr) === GROUP)
+            return exprStr;
+        if (typeof expr !== 'number' &&
+            !isNumberObject(expr) &&
+            !/(^(.|\\[a-zA-Z*]+))$/.test(exprStr)) {
+            // It's a long expression, wrap it
+            return this.wrapString(exprStr, getGroupStyle(expr, this.level + 1));
+        }
+        return exprStr;
+    }
+    wrapString(s, style) {
+        if (style === 'none')
+            return s;
+        return '(' + s + ')';
+    }
+    emitSymbol(expr, def) {
+        const head = getFunctionHead(expr);
+        if (!head) {
+            console.assert(typeof expr === 'string' || isSymbolObject(expr));
+            // It's a symbol
+            if (typeof (def === null || def === void 0 ? void 0 : def.emit) === 'string') {
+                return def.emit;
+            }
+            const name = getSymbolName(expr);
+            if (name === null)
+                return '';
+            switch (getSymbolStyle(expr, this.level)) {
+                case 'upright':
+                    return '\\operatorname{' + name + '}';
+                //            case 'asis':
+                default:
+                    return name;
+            }
+        }
+        //
+        // It's a function
+        //
+        const args = getArgs(expr);
+        if (!def) {
+            // We don't know anything about this function
+            if (typeof head === 'string' &&
+                head.length > 0 &&
+                head[0] === '\\') {
+                //
+                // 1. Is is an unknown latex command?
+                //
+                // This looks like a Latex command. Emit
+                // the arguments as Latex arguments
+                let result = head;
+                for (const arg of args) {
+                    result += '{' + this.emit(arg) + '}';
+                }
+                return result;
+            }
+            //
+            // 2. Is is an unknown function call?
+            //
+            // It's a function we don't know.
+            // Maybe it came from `promoteUnknownSymbols`
+            // Emit the arguments as function arguments
+            return this.emit(head) + this.emit([GROUP, ...args]);
+        }
+        if (def.requiredLatexArg > 0) {
+            //
+            // 3. Is it a known Latex command?
+            //
+            // This looks like a Latex command. Emit
+            // the arguments as Latex arguments
+            let optionalArg = '';
+            let requiredArg = '';
+            let i = 0;
+            while (i < def.requiredLatexArg) {
+                requiredArg += '{' + this.emit(args[i++]) + '}';
+            }
+            while (i <
+                Math.min(args.length, def.optionalLatexArg + def.requiredLatexArg)) {
+                const optValue = this.emit(args[1 + i++]);
+                if (optValue) {
+                    optionalArg += '[' + optValue + ']';
+                }
+            }
+            return def.emit + (optionalArg + requiredArg);
+        }
+        //
+        // 4. Is it a known function?
+        //
+        const style = getApplyFunctionStyle(expr, this.level);
+        return def.emit + this.emit([GROUP, ...args]);
+    }
+    emit(expr) {
+        if (expr === null)
+            return '';
+        this.level += 1;
+        //
+        // 1. Is it a number
+        //
+        let result = emitNumber(this.options, expr);
+        if (result) {
+            this.level -= 1;
+            return result;
+        }
+        //
+        // 2. Is it a named symbol (Latex token, constant, variable or
+        //    operator)
+        //
+        const name = getSymbolName(expr);
+        if (name === '<$>') {
+            result = '$';
+        }
+        else if (name === '<$$>') {
+            result = '$$';
+        }
+        else if (name === '<{>') {
+            result = '{';
+        }
+        else if (name === '<}>') {
+            result = '}';
+        }
+        else if (name === '<space>') {
+            result = ' ';
+        }
+        else if (name && (name[0] === '\\' || name[0] === '#')) {
+            //
+            // 2.1 Latex command
+            //
+            // possibly with arguments.
+            // This can happen if we encountered an unrecognized Latex command
+            // during parsing, e.g. "\foo{x + 1}"
+            this.level -= 1;
+            const args = getArgs(expr);
+            if (args.length === 0)
+                return name;
+            return (name +
+                '{' +
+                args
+                    .map((x) => this.emit(x))
+                    .filter((x) => Boolean(x))
+                    .join('}{') +
+                '}');
+        }
+        else if (name !== null) {
+            // It's a symbol
+            result = this.emitSymbol(expr, this.dictionary.name.get(name));
+        }
+        else {
+            //
+            // 2.2 A function, operator or matchfix operator
+            //
+            const def = this.dictionary.name.get(getFunctionName(expr));
+            if (def) {
+                // If there is a custom emitter function, use it.
+                if (typeof def.emit === 'function') {
+                    result = def.emit(this, expr);
+                }
+                else {
+                    if (!result &&
+                        (typeof def.precedence !== 'undefined' ||
+                            def.trigger.superfix ||
+                            def.trigger.subfix)) {
+                        result = emitOperator(this, expr, def);
+                    }
+                    if (!result && def.trigger.matchfix) {
+                        result = emitMatchfix(this, expr, def);
+                    }
+                    if (!result && def.trigger.symbol) {
+                        result = this.emitSymbol(expr, def);
+                    }
+                }
+            }
+            else if (Array.isArray(expr) || isFunctionObject(expr)) {
+                // It's a function, but without definition.
+                // It could be a [['derive', "f"], x]
+                result = this.emitSymbol(expr);
+            }
+            else {
+                //  This doesn't look like a symbol, or a function,
+                // or anything we were expecting.
+                // This is an invalid expression, for example an
+                // object literal with no know fields, or an invalid number:
+                // `{num: 'not a number'}`
+                // `{foo: 'not an expression}`
+                this.onError({
+                    code: 'syntax-error',
+                    arg: JSON.stringify(expr),
+                });
+            }
+        }
+        this.level -= 1;
+        return result;
+    }
+}
+
+function parseLatex(latex, options) {
+    var _a, _b, _c;
+    const scanner = new Scanner(tokenize(latex, []), {
+        ...DEFAULT_LATEX_NUMBER_OPTIONS,
+        ...DEFAULT_PARSE_LATEX_OPTIONS,
+        onError: (err) => {
+            if (typeof window !== 'undefined') {
+                if (!err.before || !err.after) {
+                    console.warn(err.code + (err.arg ? ': ' + err.arg : ''));
+                }
+                else {
+                    console.warn(err.code +
+                        (err.arg ? ': ' + err.arg : '') +
+                        '\n' +
+                        '%c' +
+                        '|  ' +
+                        err.before +
+                        '%c' +
+                        err.after +
+                        '\n' +
+                        '%c' +
+                        '|  ' +
+                        String(' ').repeat(err.before.length) +
+                        '▲', 'font-weight: bold', 'font-weight: normal; color: rgba(160, 160, 160)', 'font-weight: bold; color: hsl(4deg, 90%, 50%)');
+                }
+            }
+            return;
+        },
+        dictionary: getDefaultLatexDictionary('all'),
+        ...options,
+    });
+    const result = scanner.matchExpression();
+    if (!scanner.atEnd()) {
+        // eslint-disable-next-line no-unused-expressions
+        (_a = options === null || options === void 0 ? void 0 : options.onError) === null || _a === void 0 ? void 0 : _a.call(options, { code: 'syntax-error' });
+    }
+    let forms = (_b = options === null || options === void 0 ? void 0 : options.form) !== null && _b !== void 0 ? _b : ['canonical'];
+    if (!Array.isArray(forms)) {
+        forms = [forms];
+    }
+    return (_c = form(getDefaultDictionary('all'), result, forms)) !== null && _c !== void 0 ? _c : '';
+}
+function emitLatex$1(expr, options) {
+    const emitter = new Emitter({
+        ...DEFAULT_LATEX_NUMBER_OPTIONS,
+        ...DEFAULT_EMIT_LATEX_OPTIONS,
+        dictionary: getDefaultLatexDictionary(),
+        onError: (_err) => {
+            // console.error(err.code + (err.arg ? ': ' + err.arg : ''));
+        },
+        ...(options !== null && options !== void 0 ? options : {}),
+    });
+    return emitter.emit(expr);
+}
+
 /**
  * This module parses and outputs an Abstract Syntax Tree representing the
  * formula using the {@tutorial math-json | MathJSON } format.
@@ -25459,7 +31010,7 @@ const OP_PRECEDENCE = {
     ',': 40,
     ';': 30,
 };
-function getArg(ast, index) {
+function getArg$1(ast, index) {
     return isArray(ast.arg) ? ast.arg[index] : undefined;
 }
 /**
@@ -25672,7 +31223,7 @@ function numberRe(node) {
         if (typeof node.num === 'object') {
             result =
                 typeof node.num.re !== 'undefined'
-                    ? parseFloatToPrecision(node.num.re)
+                    ? parseFloatToPrecision$1(node.num.re)
                     : 0;
         }
         else {
@@ -25687,7 +31238,7 @@ function numberIm(node) {
         if (typeof node.num === 'object') {
             result =
                 typeof node.num.im !== 'undefined'
-                    ? parseFloatToPrecision(node.num.im)
+                    ? parseFloatToPrecision$1(node.num.im)
                     : 0;
         }
     }
@@ -26455,8 +32006,8 @@ function parseExpression(expr, options) {
                     lhs = wrapFn('bind', lhs);
                     if (subArg && subArg.fn === 'equal' && lhs.arg) {
                         // This is a subscript of the form "x=..."
-                        lhs.arg.push(getArg(subArg, 0));
-                        lhs.arg.push(getArg(subArg, 1));
+                        lhs.arg.push(getArg$1(subArg, 0));
+                        lhs.arg.push(getArg$1(subArg, 1));
                     }
                     else if (subArg &&
                         lhs.arg &&
@@ -26465,9 +32016,9 @@ function parseExpression(expr, options) {
                         let currentSym = { sym: 'x' };
                         for (let i = 0; i < subArg.arg.length; i++) {
                             if (subArg.arg[i].fn === 'equal') {
-                                currentSym = getArg(subArg.arg[i], 0);
+                                currentSym = getArg$1(subArg.arg[i], 0);
                                 lhs.arg.push(currentSym);
-                                lhs.arg.push(getArg(subArg.arg[i], 1));
+                                lhs.arg.push(getArg$1(subArg.arg[i], 1));
                             }
                             else {
                                 lhs.arg.push(currentSym);
@@ -26506,7 +32057,7 @@ function parseExpression(expr, options) {
                     }
                     else if (lhs && lhs.fn === 'subtract') {
                         // x-y - z      -> add(x, -y, -z)
-                        lhs = wrapFn('add', getArg(lhs, 0), negate(getArg(lhs, 1)), negate(rhs));
+                        lhs = wrapFn('add', getArg$1(lhs, 0), negate(getArg$1(lhs, 1)), negate(rhs));
                     }
                     else if (isNumber$1(lhs) &&
                         !hasSup(lhs) &&
@@ -26532,7 +32083,7 @@ function parseExpression(expr, options) {
                     fn = ASSOCIATIVE_FUNCTION[opName];
                     if (fn === 'add' && lhs && lhs.fn === 'subtract') {
                         // subtract(x, y) + z -> add(x, -y, z)
-                        lhs = wrapFn('add', getArg(lhs, 0), negate(getArg(lhs, 1)), rhs);
+                        lhs = wrapFn('add', getArg$1(lhs, 0), negate(getArg$1(lhs, 1)), rhs);
                     }
                     else if (fn && lhs && lhs.fn === fn && !hasSup(lhs)) {
                         // add(x,y) + z -> add(x, y, z)
@@ -26908,7 +32459,7 @@ function wrapFence(fence, ...args) {
  * @param {Object.<string, any>} config
  * @private
  */
-function formatMantissa(m, config) {
+function formatMantissa$1(m, config) {
     const originalLength = m.length;
     // The last digit may have been rounded, if it exceeds the precison,
     // which could throw off the
@@ -26940,7 +32491,7 @@ function formatMantissa(m, config) {
     }
     return m.replace(/(\d{3})/g, '$1' + config.groupSeparator);
 }
-function parseFloatToPrecision(num) {
+function parseFloatToPrecision$1(num) {
     return parseFloat(parseFloat(num).toPrecision(15));
 }
 /**
@@ -26954,7 +32505,7 @@ function numberAsLatex(num, config) {
     let value;
     if (typeof config.precision === 'number') {
         if (typeof num === 'number') {
-            value = parseFloatToPrecision(num);
+            value = parseFloatToPrecision$1(num);
         }
         else {
             let sign = '';
@@ -26980,7 +32531,7 @@ function numberAsLatex(num, config) {
                     if (p <= 4) {
                         r = '0' + config.decimalMarker;
                         r += mantissa.substr(0, p);
-                        r += formatMantissa(num.substr(r.length), config);
+                        r += formatMantissa$1(num.substr(r.length), config);
                     }
                     else if (p + 1 >= config.precision) {
                         r = '0';
@@ -26988,7 +32539,7 @@ function numberAsLatex(num, config) {
                     }
                     else {
                         r = num[p];
-                        const f = formatMantissa(num.substr(p + 1), config);
+                        const f = formatMantissa$1(num.substr(p + 1), config);
                         if (f) {
                             r += config.decimalMarker + f;
                         }
@@ -27013,7 +32564,7 @@ function numberAsLatex(num, config) {
                 }
                 else {
                     num = base.replace(/\B(?=(\d{3})+(?!\d))/g, config.groupSeparator);
-                    const f = formatMantissa(mantissa, config);
+                    const f = formatMantissa$1(mantissa, config);
                     if (f) {
                         num += config.decimalMarker + f;
                         // if (num.length - 1 > config.precision && !num.endsWith('}') && !num.endsWith('\\ldots')) {
@@ -27025,7 +32576,7 @@ function numberAsLatex(num, config) {
             else if (num.length > config.precision) {
                 const len = num.length;
                 let r = num[0];
-                const f = formatMantissa(num.substr(2), config);
+                const f = formatMantissa$1(num.substr(2), config);
                 if (f) {
                     r += config.decimalMarker + f;
                     if (r[r.length - 1] !== '}') {
@@ -27080,7 +32631,7 @@ function numberAsLatex(num, config) {
                 mantissaString = m[1] + config.decimalMarker + m[2];
             }
             if (config.groupSeparator) {
-                mantissaString = formatMantissa(mantissa.toExponential(), config);
+                mantissaString = formatMantissa$1(mantissa.toExponential(), config);
             }
             let exponentString = '';
             if (exponent === 0) {
@@ -27119,7 +32670,7 @@ function numberAsLatex(num, config) {
         }
         if (config.groupSeparator) {
             base = base.replace(/\B(?=(\d{3})+(?!\d))/g, config.groupSeparator);
-            mantissa = formatMantissa(mantissa, config);
+            mantissa = formatMantissa$1(mantissa, config);
         }
         if (mantissa)
             mantissa = config.decimalMarker + mantissa;
@@ -27214,18 +32765,18 @@ function jsonToLatex(ast, options) {
     }
     else if (ast.fn) {
         if (ast.fn === 'bind') {
-            result = jsonToLatex(getArg(ast, 0), config) + '|_{';
+            result = jsonToLatex(getArg$1(ast, 0), config) + '|_{';
             if (ast.arg && ast.arg.length === 2) {
-                result += jsonToLatex(getArg(ast, 1));
+                result += jsonToLatex(getArg$1(ast, 1));
             }
             else {
                 let sep = '';
                 for (let i = 1; i < ast.arg.length; i += 2) {
                     result +=
                         sep +
-                            jsonToLatex(getArg(ast, i)) +
+                            jsonToLatex(getArg$1(ast, i)) +
                             ' = ' +
-                            jsonToLatex(getArg(ast, i + 1));
+                            jsonToLatex(getArg$1(ast, i + 1));
                     sep = ', ';
                 }
             }
@@ -27234,19 +32785,19 @@ function jsonToLatex(ast, options) {
         else if (ast.fn === 'divide') {
             result =
                 '\\frac{' +
-                    jsonToLatex(getArg(ast, 0), config) +
+                    jsonToLatex(getArg$1(ast, 0), config) +
                     '}{' +
-                    jsonToLatex(getArg(ast, 1), config) +
+                    jsonToLatex(getArg$1(ast, 1), config) +
                     '}';
         }
         else if (ast.fn === 'negate') {
-            result = '-' + jsonToLatex(getArg(ast, 0), config);
+            result = '-' + jsonToLatex(getArg$1(ast, 0), config);
         }
         else if (ast.fn === 'subtract') {
             result =
-                jsonToLatex(getArg(ast, 0), config) +
+                jsonToLatex(getArg$1(ast, 0), config) +
                     ' - ' +
-                    jsonToLatex(getArg(ast, 1), config);
+                    jsonToLatex(getArg$1(ast, 1), config);
         }
         else if ((ast.fn === 'add' || ast.fn === 'multiply') &&
             isArray(ast.arg)) {
@@ -27335,11 +32886,11 @@ function jsonToLatex(ast, options) {
         else if (ast.fn === 'pow' &&
             isArray(ast.arg) &&
             ast.arg.length >= 2) {
-            result = jsonToLatex(getArg(ast, 0), config);
-            if (!isNumber$1(getArg(ast, 0)) && !asSymbol(getArg(ast, 0))) {
+            result = jsonToLatex(getArg$1(ast, 0), config);
+            if (!isNumber$1(getArg$1(ast, 0)) && !asSymbol(getArg$1(ast, 0))) {
                 result = wrapFence(ast.fence || '(),', result);
             }
-            result += '^{' + jsonToLatex(getArg(ast, 1), config) + '}';
+            result += '^{' + jsonToLatex(getArg$1(ast, 1), config) + '}';
         }
         else if (ast.fn === 'equal' && ast.arg && ast.arg.length > 2) {
             result = ast.arg.map((x) => jsonToLatex(x, config)).join(' = ');
@@ -27357,8 +32908,8 @@ function jsonToLatex(ast, options) {
             }
             else if (isArray(ast.arg) && ast.arg.length > 0) {
                 // The parenthesis may be optional...
-                const arg0 = jsonToLatex(getArg(ast, 0), config);
-                const arg1 = jsonToLatex(getArg(ast, 1), config);
+                const arg0 = jsonToLatex(getArg$1(ast, 0), config);
+                const arg1 = jsonToLatex(getArg$1(ast, 1), config);
                 const argsn = [...ast.arg];
                 if (/%0/.test(fn)) {
                     result = result.replace('%0', arg0);
@@ -27914,11 +33465,14 @@ class MathfieldPrivate {
             this.config.textToSpeechMarkup = saveTextToSpeechMarkup;
             // this.config.atomIdsSettings = savedAtomIdsSettings;      // @revisit
         }
+        else if (format === 'mathjson') {
+            const json = parseLatex(root.toLatex(true), {
+                form: 'canonical',
+            });
+            result = JSON.stringify(json);
+        }
         else if (format === 'json') {
             const json = atomtoMathJson(root);
-            // const json = parseLatex(root.toLatex(true), {
-            //     form: 'canonical',
-            // });
             result = JSON.stringify(json);
         }
         else if (format === 'json-2') {
@@ -29939,9 +35493,6 @@ metadata('Triangles', [
 metadata('Shapes', ['\\ast', '\\star'], COMMON);
 metadata('Shapes', ['\\diamond', '\\Diamond', '\\lozenge', '\\blacklozenge', '\\bigstar'], RARE);
 
-// import { ErrorCode, Form, Expression, Dictionary } from './math-json/public';
-// import { parseLatex, emitLatex } from './math-json/math-json';
-// import { ParseLatexOptions, EmitLatexOptions } from './math-json/latex/public';
 function latexToMarkup$2(text, options) {
     var _a;
     options = options !== null && options !== void 0 ? options : {};
@@ -30001,27 +35552,15 @@ function astToLatex(expr, options) {
     return jsonToLatex(typeof expr === 'string' ? JSON.parse(expr) : expr, options);
     // return emitLatex(expr, options);
 }
-// function latexToAST(
-//     latex: string,
-//     options?: ParseLatexOptions & {
-//         macros?: MacroDictionary;
-//         onError?: ErrorListener<ErrorCode>;
-//         form?: Form | Form[];
-//     }
-// ): Expression {
-//     options = options ?? {};
-//     options.macros = { ...MACROS, ...(options.macros ?? {}) };
-//     return parseLatex(latex, options);
-// }
-// function astToLatex(
-//     expr: Expression,
-//     options: EmitLatexOptions & {
-//         dictionary?: Dictionary;
-//         onError?: ErrorListener<ErrorCode>;
-//     }
-// ): string {
-//     return emitLatex(expr, options);
-// }
+function latexToMathjson(latex, options) {
+    var _a;
+    options = options !== null && options !== void 0 ? options : {};
+    options.macros = { ...MACROS, ...((_a = options.macros) !== null && _a !== void 0 ? _a : {}) };
+    return parseLatex(latex, options);
+}
+function mathjsonToLatex(expr, options) {
+    return emitLatex$1(expr, options);
+}
 function latexToSpeakableText(latex, options) {
     var _a;
     options = options !== null && options !== void 0 ? options : {};
@@ -30127,3 +35666,4 @@ var mathlive = {
 };
 
 export default mathlive;
+export { latexToMathjson, mathjsonToLatex };

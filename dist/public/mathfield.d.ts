@@ -13,7 +13,7 @@ import { ParseMode, MacroDictionary, Style } from './core';
 | `"spoken-ssml-withHighlighting"`|Like `"spoken-ssml"` but with additional annotations necessary for synchronized higlighting (read aloud)|
 | `"mathML"`            | A string of MathML markup|
 */
-export declare type OutputFormat = 'latex' | 'latex-expanded' | 'json' | 'json-2' | 'spoken' | 'spoken-text' | 'spoken-ssml' | 'spoken-ssml-withHighlighting' | 'mathML' | 'ASCIIMath';
+export declare type OutputFormat = 'latex' | 'latex-expanded' | 'mathjson' | 'json' | 'json-2' | 'spoken' | 'spoken-text' | 'spoken-ssml' | 'spoken-ssml-withHighlighting' | 'mathML' | 'ASCIIMath';
 export declare type InsertOptions = {
     /** If `"auto"` or omitted, the current mode is used */
     mode?: ParseMode | 'auto';

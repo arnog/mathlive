@@ -173,6 +173,7 @@ const ROLLUP = [
                       format: 'es',
                       file: `${BUILD_DIRECTORY}/mathlive.mjs`,
                       sourcemap: !PRODUCTION,
+                      exports: 'named',
                   },
                   // UMD file, suitable for import, <script> and require()
                   {
@@ -180,6 +181,7 @@ const ROLLUP = [
                       name: 'MathLive',
                       file: `${BUILD_DIRECTORY}/mathlive.js`,
                       sourcemap: !PRODUCTION,
+                      exports: 'named',
                   },
               ]
             : [

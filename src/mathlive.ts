@@ -34,9 +34,9 @@ import { atomsToMathML } from './addons/math-ml';
 import './addons/definitions-metadata';
 import { AutoRenderOptionsPrivate } from './addons/auto-render';
 import { ErrorCode as MathJsonErrorCode } from './math-json/public';
-// import { ErrorCode, Form, Expression, Dictionary } from './math-json/public';
-// import { parseLatex, emitLatex } from './math-json/math-json';
-// import { ParseLatexOptions, EmitLatexOptions } from './math-json/latex/public';
+import { ErrorCode, Form, Expression, Dictionary } from './math-json/public';
+import { parseLatex, emitLatex } from './math-json/math-json';
+import { ParseLatexOptions, EmitLatexOptions } from './math-json/latex/public';
 
 function latexToMarkup(
     text: string,
@@ -157,29 +157,29 @@ function astToLatex(expr: MathJson, options: MathJsonLatexOptions): string {
     );
     // return emitLatex(expr, options);
 }
-// function latexToAST(
-//     latex: string,
-//     options?: ParseLatexOptions & {
-//         macros?: MacroDictionary;
-//         onError?: ErrorListener<ErrorCode>;
-//         form?: Form | Form[];
-//     }
-// ): Expression {
-//     options = options ?? {};
-//     options.macros = { ...MACROS, ...(options.macros ?? {}) };
+export function latexToMathjson(
+    latex: string,
+    options?: ParseLatexOptions & {
+        macros?: MacroDictionary;
+        onError?: ErrorListener<ErrorCode>;
+        form?: Form | Form[];
+    }
+): Expression {
+    options = options ?? {};
+    options.macros = { ...MACROS, ...(options.macros ?? {}) };
 
-//     return parseLatex(latex, options);
-// }
+    return parseLatex(latex, options);
+}
 
-// function astToLatex(
-//     expr: Expression,
-//     options: EmitLatexOptions & {
-//         dictionary?: Dictionary;
-//         onError?: ErrorListener<ErrorCode>;
-//     }
-// ): string {
-//     return emitLatex(expr, options);
-// }
+export function mathjsonToLatex(
+    expr: Expression,
+    options: EmitLatexOptions & {
+        dictionary?: Dictionary;
+        onError?: ErrorListener<ErrorCode>;
+    }
+): string {
+    return emitLatex(expr, options);
+}
 
 function latexToSpeakableText(
     latex: string,
