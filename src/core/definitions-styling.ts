@@ -776,7 +776,49 @@ defineFunction(
         )}}`
 );
 
-defineFunction('rlap', '{:auto}', null, function (name, args) {
+/*
+display: inline-block;
+width: 0;
+line-height: 1;
+*/
+
+/*
+display: inline-block;
+*/
+
+defineFunction(
+    ['phantom', 'vphantom', 'hphantom'],
+    '{:auto*}',
+    {},
+    (name, _args) => {
+        return {
+            type: 'phantom',
+            captureSelection: true,
+            phantomType: name.slice(1),
+            isPhantom: true,
+        };
+    },
+    (name, _parent, atom, emit) =>
+        name + '{' + emit(atom, atom.body as Atom[]) + '}'
+);
+
+defineFunction('smash', '[:string]{:auto}', null, function (_name, args) {
+    let phantomType = 'smash';
+    if (args[0] === 'b') {
+        phantomType = 'bsmash';
+    } else if (args[0] === 't') {
+        phantomType = 'tsmash';
+        // } else if (args[0]) {
+    }
+    return {
+        type: 'phantom',
+        phantomType,
+        skipBoundary: true,
+        body: args[1] as Atom[],
+    };
+});
+
+defineFunction('rlap', '{:auto}', null, function (_name, args) {
     return {
         type: 'overlap',
         align: 'right',
@@ -785,7 +827,7 @@ defineFunction('rlap', '{:auto}', null, function (name, args) {
     };
 });
 
-defineFunction('llap', '{:auto}', null, function (name, args) {
+defineFunction('llap', '{:auto}', null, function (_name, args) {
     return {
         type: 'overlap',
         align: 'left',
@@ -794,7 +836,7 @@ defineFunction('llap', '{:auto}', null, function (name, args) {
     };
 });
 
-defineFunction('mathrlap', '{:auto}', null, function (name, args) {
+defineFunction('mathrlap', '{:auto}', null, function (_name, args) {
     return {
         type: 'overlap',
         mode: 'math',

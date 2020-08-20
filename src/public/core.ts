@@ -3,7 +3,7 @@
  *
  * @deprecated The 'command'mode will be dropped in a future release
  */
-export type ParseMode = 'math' | 'text' | 'command';
+export type ParseMode = 'math' | 'text' | 'command' | 'chem';
 
 /**
  * Error code passed to the [[`ErrorListener`]] function.
@@ -130,6 +130,7 @@ export interface Style {
     fontSize?: string;
     cssId?: string;
     cssClass?: string;
+    isPhantom?: boolean;
     letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
 }
 

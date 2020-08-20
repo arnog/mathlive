@@ -10,7 +10,7 @@ import { stringToColor } from './color';
 import { convertDimenToEm } from './font-metrics';
 import { Token, tokenize } from './tokenizer';
 import { Atom, Colspec, BBoxParam } from './atom';
-import { parseTokens, tokensToString } from './modes';
+import { parseTokens, tokensToString } from './modes-utils';
 import { FunctionDefinition, SymbolDefinition } from './definitions-utils';
 import {
     ErrorListener,

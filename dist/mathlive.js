@@ -6672,7 +6672,39 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             mathtype: name === '\\stackrel' ? 'mrel' : 'mbin',
         };
     }, (name, _parent, atom, emit) => `${name}{${emit(atom, atom.overscript)}}{${emit(atom, atom.body)}}`);
-    defineFunction('rlap', '{:auto}', null, function (name, args) {
+    /*
+    display: inline-block;
+    width: 0;
+    line-height: 1;
+    */
+    /*
+    display: inline-block;
+    */
+    defineFunction(['phantom', 'vphantom', 'hphantom'], '{:auto*}', {}, (name, _args) => {
+        return {
+            type: 'phantom',
+            captureSelection: true,
+            phantomType: name.slice(1),
+            isPhantom: true,
+        };
+    }, (name, _parent, atom, emit) => name + '{' + emit(atom, atom.body) + '}');
+    defineFunction('smash', '[:string]{:auto}', null, function (_name, args) {
+        let phantomType = 'smash';
+        if (args[0] === 'b') {
+            phantomType = 'bsmash';
+        }
+        else if (args[0] === 't') {
+            phantomType = 'tsmash';
+            // } else if (args[0]) {
+        }
+        return {
+            type: 'phantom',
+            phantomType,
+            skipBoundary: true,
+            body: args[1],
+        };
+    });
+    defineFunction('rlap', '{:auto}', null, function (_name, args) {
         return {
             type: 'overlap',
             align: 'right',
@@ -6680,7 +6712,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             body: args[0],
         };
     });
-    defineFunction('llap', '{:auto}', null, function (name, args) {
+    defineFunction('llap', '{:auto}', null, function (_name, args) {
         return {
             type: 'overlap',
             align: 'left',
@@ -6688,7 +6720,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             body: args[0],
         };
     });
-    defineFunction('mathrlap', '{:auto}', null, function (name, args) {
+    defineFunction('mathrlap', '{:auto}', null, function (_name, args) {
         return {
             type: 'overlap',
             mode: 'math',
@@ -8261,7 +8293,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 }
             }
         }
-        else if (atoms) {
+        else if (atoms instanceof Atom) {
             // This is a single atom, decompose it
             result = atoms.decompose(context);
             if (result && displaySelection && atoms.isSelected) {
@@ -8367,6 +8399,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             this.mode = mode;
             this.type = type;
             this.body = body;
+            if (style.isPhantom) {
+                this.setPhantom(true);
+            }
             // Append all the properties in extras to this
             // This can override the mode, type and body
             this.applyStyle(style);
@@ -8443,6 +8478,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         isCharacterBox() {
             const base = this.getInitialBaseElement();
             return /minner|mbin|mrel|mpunct|mopen|mclose|textord/.test(base.type);
+        }
+        setPhantom(isPhantom) {
+            // this.isPhantom = isPhantom;
+            this.forEach((x) => {
+                x.isPhantom = isPhantom;
+            });
         }
         forEach(cb) {
             cb(this);
@@ -9434,149 +9475,54 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return result;
     }
 
-    /**
-     * Gengrac -- Generalized fraction
-     *
-     * Decompose fractions, binomials, and in general anything made
-     * of two expressions on top of each other, optionally separated by a bar,
-     * and optionally surrounded by fences (parentheses, brackets, etc...)
-     *
-     * Depending on the type of fraction the mathstyle is either
-     * display math or inline math (which is indicated by 'textstyle'). This value can
-     * also be set to 'auto', which indicates it should use the current mathstyle
-     */
-    registerAtomType('genfrac', (context, atom) => {
-        const mathstyle = atom.mathstyle === 'auto'
-            ? context.mathstyle
-            : MATHSTYLES[atom.mathstyle];
-        const newContext = context.clone({ mathstyle: mathstyle });
-        let numer = [];
-        if (atom.numerPrefix) {
-            numer.push(makeSpan(atom.numerPrefix, 'mord'));
+    registerAtomType('accent', (context, atom) => {
+        // Accents are handled in the TeXbook pg. 443, rule 12.
+        const mathstyle = context.mathstyle;
+        // Build the base atom
+        let base = decompose(context.cramp(), atom.body);
+        if (atom.superscript || atom.subscript) {
+            // If there is a supsub attached to the accent
+            // apply it to the base.
+            // Note this does not give the same result as TeX when there
+            // are stacked accents, e.g. \vec{\breve{\hat{\acute{...}}}}^2
+            base = [atom.attachSupsub(context, makeSpan(base, '', 'mord'), 'mord')];
         }
-        const numeratorStyle = atom.continuousFraction
-            ? mathstyle
-            : mathstyle.fracNum();
-        numer = numer.concat(decompose(newContext.clone({ mathstyle: numeratorStyle }), atom.numer));
-        const numerReset = makeHlist(numer, context.mathstyle.adjustTo(numeratorStyle));
-        let denom = [];
-        if (atom.denomPrefix) {
-            denom.push(makeSpan(atom.denomPrefix, 'mord'));
+        // Calculate the skew of the accent. This is based on the line "If the
+        // nucleus is not a single character, let s = 0; otherwise set s to the
+        // kern amount for the nucleus followed by the \skewchar of its font."
+        // Note that our skew metrics are just the kern between each character
+        // and the skewchar.
+        let skew$1 = 0;
+        if (isArray(atom.body) &&
+            atom.body.length === 1 &&
+            atom.body[0].isCharacterBox()) {
+            skew$1 = skew(base);
         }
-        const denominatorStyle = atom.continuousFraction
-            ? mathstyle
-            : mathstyle.fracDen();
-        denom = denom.concat(decompose(newContext.clone({ mathstyle: denominatorStyle }), atom.denom));
-        const denomReset = makeHlist(denom, context.mathstyle.adjustTo(denominatorStyle));
-        const ruleWidth = !atom.hasBarLine
-            ? 0
-            : METRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
-        // Rule 15b from TeXBook Appendix G, p.444
-        //
-        // 15b. If C > T, set u ← σ8 and v ← σ11. Otherwise set u ← σ9 or σ10,according
-        // as θ ̸= 0 or θ = 0, and set v ← σ12. (The fraction will be typeset with
-        // its numerator shifted up by an amount u with respect to the current
-        // baseline, and with the denominator shifted down by v, unless the boxes
-        // are unusually large.)
-        let numShift;
-        let clearance = 0;
-        let denomShift;
-        if (mathstyle.size === MATHSTYLES.displaystyle.size) {
-            numShift = mathstyle.metrics.num1; // set u ← σ8
-            if (ruleWidth > 0) {
-                clearance = 3 * ruleWidth; //  φ ← 3θ
-            }
-            else {
-                clearance = 7 * METRICS.defaultRuleThickness; // φ ← 7 ξ8
-            }
-            denomShift = mathstyle.metrics.denom1; // v ← σ11
+        // calculate the amount of space between the body and the accent
+        let clearance = Math.min(height(base), mathstyle.metrics.xHeight);
+        let accentBody;
+        if (atom.svgAccent) {
+            accentBody = makeSVGSpan(atom.svgAccent);
+            clearance = -clearance + METRICS.bigOpSpacing1;
         }
         else {
-            if (ruleWidth > 0) {
-                numShift = mathstyle.metrics.num2; // u ← σ9
-                clearance = ruleWidth; //  φ ← θ
-            }
-            else {
-                numShift = mathstyle.metrics.num3; // u ← σ10
-                clearance = 3 * METRICS.defaultRuleThickness; // φ ← 3 ξ8
-            }
-            denomShift = mathstyle.metrics.denom2; // v ← σ12
+            // Build the accent
+            const accent = makeSymbol('Main-Regular', atom.accent, 'math');
+            // Remove the italic correction of the accent, because it only serves to
+            // shift the accent over to a place we don't want.
+            accent.italic = 0;
+            // The \vec character that the fonts use is a combining character, and
+            // thus shows up much too far to the left. To account for this, we add a
+            // specific class which shifts the accent over to where we want it.
+            const vecClass = atom.accent === '\u20d7' ? ' accent-vec' : '';
+            accentBody = makeSpan(makeSpan(accent), 'accent-body' + vecClass);
         }
-        const numerDepth = numerReset ? depth(numerReset) : 0;
-        const denomHeight = denomReset ? height(denomReset) : 0;
-        let frac;
-        if (ruleWidth === 0) {
-            // Rule 15c from Appendix G
-            // No bar line between numerator and denominator
-            const candidateClearance = numShift - numerDepth - (denomHeight - denomShift);
-            if (candidateClearance < clearance) {
-                numShift += 0.5 * (clearance - candidateClearance);
-                denomShift += 0.5 * (clearance - candidateClearance);
-            }
-            frac = makeVlist(newContext, [numerReset, -numShift, denomReset, denomShift], 'individualShift');
-        }
-        else {
-            // Rule 15d from Appendix G
-            // There is a bar line between the numerator and the denominator
-            const axisHeight = mathstyle.metrics.axisHeight;
-            const numerLine = axisHeight + 0.5 * ruleWidth;
-            const denomLine = axisHeight - 0.5 * ruleWidth;
-            if (numShift - numerDepth - numerLine < clearance) {
-                numShift += clearance - (numShift - numerDepth - numerLine);
-            }
-            if (denomLine - (denomHeight - denomShift) < clearance) {
-                denomShift += clearance - (denomLine - (denomHeight - denomShift));
-            }
-            const mid = makeSpan(null, ' frac-line');
-            mid.applyStyle(atom.getStyle());
-            // Manually set the height of the line because its height is
-            // created in CSS
-            mid.height = ruleWidth / 2;
-            mid.depth = ruleWidth / 2;
-            const elements = [];
-            if (numerReset) {
-                elements.push(numerReset);
-                elements.push(-numShift);
-            }
-            elements.push(mid);
-            elements.push(ruleWidth / 2 - axisHeight);
-            if (denomReset) {
-                elements.push(denomReset);
-                elements.push(denomShift);
-            }
-            frac = makeVlist(newContext, elements, 'individualShift');
-        }
-        // Add a 'mfrac' class to provide proper context for
-        // other css selectors (such as 'frac-line')
-        frac.classes += ' mfrac';
-        // Since we manually change the style sometimes (with \dfrac or \tfrac),
-        // account for the possible size change here.
-        frac.height *= mathstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
-        frac.depth *= mathstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
-        // if (!atom.leftDelim && !atom.rightDelim) {
-        //     return makeOrd(frac,
-        //         context.parentMathstyle.adjustTo(mathstyle) +
-        //         ((context.parentSize !== context.size) ?
-        //             (' sizing reset-' + context.parentSize + ' ' + context.size) : ''));
-        // }
-        // Rule 15e of Appendix G
-        const delimSize = mathstyle.size === MATHSTYLES.displaystyle.size
-            ? mathstyle.metrics.delim1
-            : mathstyle.metrics.delim2;
-        // Optional delimiters
-        const leftDelim = atom.bind(context, makeCustomSizedDelim('mopen', atom.leftDelim, delimSize, true, context.clone({ mathstyle: mathstyle })));
-        const rightDelim = atom.bind(context, makeCustomSizedDelim('mclose', atom.rightDelim, delimSize, true, context.clone({ mathstyle: mathstyle })));
-        leftDelim.applyStyle(atom.getStyle());
-        rightDelim.applyStyle(atom.getStyle());
-        return [
-            atom.bind(context, 
-            // makeStruts(
-            makeSpan([leftDelim, frac, rightDelim], context.parentSize !== context.size
-                ? 'sizing reset-' + context.parentSize + ' ' + context.size
-                : '', 'mord')
-            // )
-            ),
-        ];
+        accentBody = makeVlist(context, [base, -clearance, accentBody]);
+        // Shift the accent over by the skew. Note we shift by twice the skew
+        // because we are centering the accent, so by adding 2*skew to the left,
+        // we shift it to the right by 1*skew.
+        accentBody.children[1].setLeft(2 * skew$1);
+        return [makeSpan([accentBody], 'accent', 'mord')];
     });
 
     registerAtomType('array', (context, atom) => {
@@ -9810,144 +9756,56 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return makeVlist(context, col, 'individualShift');
     }
 
-    // An `overunder` atom has the following attributes:
-    // - body: atoms[]: atoms displayed on the base line
-    // - svgBody: string. A SVG graphic displayed on the base line (if present, the body is ignored)
-    // - overscript: atoms[]: atoms displayed above the body
-    // - svgAbove: string. A named SVG graphic above the element
-    // - underscript: atoms[]: atoms displayed below the body
-    // - svgBelow: string. A named SVG graphic below the element
-    // - skipBoundary: boolean. If true, ignore atom boundary when keyboard navigating
-    registerAtomType('overunder', (context, atom) => {
-        const body = atom.svgBody
-            ? makeSVGSpan(atom.svgBody)
-            : decompose(context, atom.body);
-        const annotationStyle = context.clone({
-            mathstyle: MATHSTYLES.scriptstyle,
-        });
-        let above;
-        let below;
-        if (atom.svgAbove) {
-            above = makeSVGSpan(atom.svgAbove);
-        }
-        else if (atom.overscript) {
-            above = makeSpan(decompose(annotationStyle, atom.overscript), context.mathstyle.adjustTo(annotationStyle.mathstyle));
-        }
-        if (atom.svgBelow) {
-            below = makeSVGSpan(atom.svgBelow);
-        }
-        else if (atom.underscript) {
-            below = makeSpan(decompose(annotationStyle, atom.underscript), context.mathstyle.adjustTo(annotationStyle.mathstyle));
-        }
-        if (above && below) {
-            // Pad the above and below if over a "base"
-            below.setLeft(0.3);
-            below.setRight(0.3);
-            above.setLeft(0.3);
-            above.setRight(0.3);
-        }
-        let result = makeOverunderStack(context, body, above, below, isSpanType(atom.type) ? atom.type : 'mord');
-        if (atom.superscript || atom.subscript) {
-            result = atom.attachLimits(context, result, 0, 0);
-        }
-        return [result];
-    });
-    /**
-     * Combine a nucleus with an atom above and an atom below. Used to form
-     * stacks for the 'overunder' atom type .
-     *
-     * @param nucleus The base over and under which the atoms will
-     * be placed.
-     * @param type The type ('mop', 'mrel', etc...) of the result
-     */
-    function makeOverunderStack(context, nucleus, above, below, type) {
-        // If nothing above and nothing below, nothing to do.
-        if (!above && !below)
-            return isArray(nucleus) ? makeSpan(nucleus) : nucleus;
-        let aboveShift = 0;
-        let belowShift = 0;
-        if (above) {
-            aboveShift = Math.max(METRICS.bigOpSpacing1, METRICS.bigOpSpacing3 - depth(above));
-        }
-        if (below) {
-            belowShift = Math.max(METRICS.bigOpSpacing2, METRICS.bigOpSpacing4 - height(below));
-        }
-        let result = null;
-        if (below && above) {
-            const bottom = height(below) + depth(below) + depth(nucleus);
-            result = makeVlist(context, [
-                0,
-                below,
-                belowShift,
-                nucleus,
-                aboveShift,
-                above,
-                METRICS.bigOpSpacing2,
-            ], 'bottom', bottom);
-        }
-        else if (below && !above) {
-            const top = height(nucleus);
-            result = makeVlist(context, [0, below, belowShift, nucleus], 'top', top);
-        }
-        else if (above && !below) {
-            result = makeVlist(context, [
-                depth(nucleus),
-                nucleus,
-                Math.max(METRICS.bigOpSpacing2, aboveShift),
-                above,
-            ], 'bottom', depth(nucleus));
-        }
-        return makeSpan(result, 'op-over-under', type);
-    }
-
-    registerAtomType('accent', (context, atom) => {
-        // Accents are handled in the TeXbook pg. 443, rule 12.
-        const mathstyle = context.mathstyle;
-        // Build the base atom
-        let base = decompose(context.cramp(), atom.body);
-        if (atom.superscript || atom.subscript) {
-            // If there is a supsub attached to the accent
-            // apply it to the base.
-            // Note this does not give the same result as TeX when there
-            // are stacked accents, e.g. \vec{\breve{\hat{\acute{...}}}}^2
-            base = [atom.attachSupsub(context, makeSpan(base, '', 'mord'), 'mord')];
-        }
-        // Calculate the skew of the accent. This is based on the line "If the
-        // nucleus is not a single character, let s = 0; otherwise set s to the
-        // kern amount for the nucleus followed by the \skewchar of its font."
-        // Note that our skew metrics are just the kern between each character
-        // and the skewchar.
-        let skew$1 = 0;
-        if (isArray(atom.body) &&
-            atom.body.length === 1 &&
-            atom.body[0].isCharacterBox()) {
-            skew$1 = skew(base);
-        }
-        // calculate the amount of space between the body and the accent
-        let clearance = Math.min(height(base), mathstyle.metrics.xHeight);
-        let accentBody;
-        if (atom.svgAccent) {
-            accentBody = makeSVGSpan(atom.svgAccent);
-            clearance = -clearance + METRICS.bigOpSpacing1;
+    registerAtomType('box', (context, atom) => {
+        // The padding extends outside of the base
+        const padding = typeof atom.padding === 'number' ? atom.padding : METRICS.fboxsep;
+        // Base is the main content "inside" the box
+        const content = makeSpan(decompose(context, atom.body), '', 'mord');
+        content.setStyle('vertical-align', -depth(content), 'em');
+        content.setStyle('height', 0);
+        const base = makeSpan(content, '', 'mord');
+        // This span will represent the box (background and border)
+        // It's positioned to overlap the base
+        // The 'ML__box' class is required to prevent the span from being omitted
+        // during rendering (it looks like an empty, no-op span)
+        const box = makeSpan('', 'ML__box');
+        box.setStyle('position', 'absolute');
+        box.setStyle('height', height(base) + depth(base) + 2 * padding, 'em');
+        if (padding !== 0) {
+            box.setStyle('width', 'calc(100% + ' + 2 * padding + 'em)');
         }
         else {
-            // Build the accent
-            const accent = makeSymbol('Main-Regular', atom.accent, 'math');
-            // Remove the italic correction of the accent, because it only serves to
-            // shift the accent over to a place we don't want.
-            accent.italic = 0;
-            // The \vec character that the fonts use is a combining character, and
-            // thus shows up much too far to the left. To account for this, we add a
-            // specific class which shifts the accent over to where we want it.
-            const vecClass = atom.accent === '\u20d7' ? ' accent-vec' : '';
-            accentBody = makeSpan(makeSpan(accent), 'accent-body' + vecClass);
+            box.setStyle('width', '100%');
         }
-        accentBody = makeVlist(context, [base, -clearance, accentBody]);
-        // Shift the accent over by the skew. Note we shift by twice the skew
-        // because we are centering the accent, so by adding 2*skew to the left,
-        // we shift it to the right by 1*skew.
-        accentBody.children[1].setLeft(2 * skew$1);
-        return [makeSpan([accentBody], 'accent', 'mord')];
+        box.setStyle('top', -padding, 'em');
+        box.setStyle('left', -padding, 'em');
+        box.setStyle('z-index', '-1'); // Ensure the box is *behind* the base
+        box.setStyle('box-sizing', 'border-box');
+        if (atom.backgroundcolor) {
+            box.setStyle('background-color', atom.backgroundcolor);
+        }
+        if (atom.framecolor) {
+            box.setStyle('border', METRICS.fboxrule + 'em solid ' + atom.framecolor);
+        }
+        if (atom.border)
+            box.setStyle('border', atom.border);
+        base.setStyle('display', 'inline-block');
+        base.setStyle('height', height(base) + depth(base), 'em');
+        // The result is a span that encloses the box and the base
+        const result = makeSpan([box, base]);
+        // Set its position as relative so that the box can be absolute positioned
+        // over the base
+        result.setStyle('position', 'relative');
+        result.setStyle('vertical-align', -padding + depth(base), 'em');
+        // The padding adds to the width and height of the pod
+        result.height = height(base) + padding;
+        result.depth = depth(base) + padding;
+        result.setLeft(padding);
+        result.setRight(padding);
+        result.setStyle('height', result.height + result.depth - 2 * padding, 'em');
+        result.setStyle('top', -padding, 'em');
+        result.setStyle('display', 'inline-block');
+        return [result];
     });
 
     registerAtomType('enclose', (context, atom) => {
@@ -10118,146 +9976,149 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return [result];
     });
 
-    registerAtomType('box', (context, atom) => {
-        // The padding extends outside of the base
-        const padding = typeof atom.padding === 'number' ? atom.padding : METRICS.fboxsep;
-        // Base is the main content "inside" the box
-        const content = makeSpan(decompose(context, atom.body), '', 'mord');
-        content.setStyle('vertical-align', -depth(content), 'em');
-        content.setStyle('height', 0);
-        const base = makeSpan(content, '', 'mord');
-        // This span will represent the box (background and border)
-        // It's positioned to overlap the base
-        // The 'ML__box' class is required to prevent the span from being omitted
-        // during rendering (it looks like an empty, no-op span)
-        const box = makeSpan('', 'ML__box');
-        box.setStyle('position', 'absolute');
-        box.setStyle('height', height(base) + depth(base) + 2 * padding, 'em');
-        if (padding !== 0) {
-            box.setStyle('width', 'calc(100% + ' + 2 * padding + 'em)');
-        }
-        else {
-            box.setStyle('width', '100%');
-        }
-        box.setStyle('top', -padding, 'em');
-        box.setStyle('left', -padding, 'em');
-        box.setStyle('z-index', '-1'); // Ensure the box is *behind* the base
-        box.setStyle('box-sizing', 'border-box');
-        if (atom.backgroundcolor) {
-            box.setStyle('background-color', atom.backgroundcolor);
-        }
-        if (atom.framecolor) {
-            box.setStyle('border', METRICS.fboxrule + 'em solid ' + atom.framecolor);
-        }
-        if (atom.border)
-            box.setStyle('border', atom.border);
-        base.setStyle('display', 'inline-block');
-        base.setStyle('height', height(base) + depth(base), 'em');
-        // The result is a span that encloses the box and the base
-        const result = makeSpan([box, base]);
-        // Set its position as relative so that the box can be absolute positioned
-        // over the base
-        result.setStyle('position', 'relative');
-        result.setStyle('vertical-align', -padding + depth(base), 'em');
-        // The padding adds to the width and height of the pod
-        result.height = height(base) + padding;
-        result.depth = depth(base) + padding;
-        result.setLeft(padding);
-        result.setRight(padding);
-        result.setStyle('height', result.height + result.depth - 2 * padding, 'em');
-        result.setStyle('top', -padding, 'em');
-        result.setStyle('display', 'inline-block');
-        return [result];
-    });
-
     /**
-     * Operators are handled in the TeXbook pg. 443-444, rule 13(a).
+     * Gengrac -- Generalized fraction
+     *
+     * Decompose fractions, binomials, and in general anything made
+     * of two expressions on top of each other, optionally separated by a bar,
+     * and optionally surrounded by fences (parentheses, brackets, etc...)
+     *
+     * Depending on the type of fraction the mathstyle is either
+     * display math or inline math (which is indicated by 'textstyle'). This value can
+     * also be set to 'auto', which indicates it should use the current mathstyle
      */
-    registerAtomType('mop', (context, atom) => {
-        var _a;
-        const mathstyle = context.mathstyle;
-        let base;
-        let baseShift = 0;
-        let slant = 0;
-        if (atom.isSymbol) {
-            // If this is a symbol, create the symbol.
-            // Most symbol operators get larger in displaystyle (rule 13)
-            const large = mathstyle.size === MATHSTYLES.displaystyle.size &&
-                atom.symbol !== '\\smallint';
-            base = makeSymbol(large ? 'Size2-Regular' : 'Size1-Regular', atom.body, 'op-symbol ' + (large ? 'large-op' : 'small-op'), 'mop');
-            // Shift the symbol so its center lies on the axis (rule 13). It
-            // appears that our fonts have the centers of the symbols already
-            // almost on the axis, so these numbers are very small. Note we
-            // don't actually apply this here, but instead it is used either in
-            // the vlist creation or separately when there are no limits.
-            baseShift =
-                (base.height - base.depth) / 2 -
-                    mathstyle.metrics.axisHeight * mathstyle.sizeMultiplier;
-            // The slant of the symbol is just its italic correction.
-            slant = base.italic;
-            base.applyStyle({
-                color: atom.isPhantom ? 'transparent' : atom.color,
-                backgroundColor: atom.isPhantom
-                    ? 'transparent'
-                    : atom.backgroundColor,
-                cssId: atom.cssId,
-                cssClass: atom.cssClass,
-                letterShapeStyle: context.letterShapeStyle,
-            });
+    registerAtomType('genfrac', (context, atom) => {
+        const mathstyle = atom.mathstyle === 'auto'
+            ? context.mathstyle
+            : MATHSTYLES[atom.mathstyle];
+        const newContext = context.clone({ mathstyle: mathstyle });
+        let numer = [];
+        if (atom.numerPrefix) {
+            numer.push(makeSpan(atom.numerPrefix, 'mord'));
         }
-        else if (isArray(atom.body)) {
-            // If this is a list, decompose that list.
-            base = makeSpan(decompose(context, atom.body), '', 'mop');
+        const numeratorStyle = atom.continuousFraction
+            ? mathstyle
+            : mathstyle.fracNum();
+        numer = numer.concat(decompose(newContext.clone({ mathstyle: numeratorStyle }), atom.numer));
+        const numerReset = makeHlist(numer, context.mathstyle.adjustTo(numeratorStyle));
+        let denom = [];
+        if (atom.denomPrefix) {
+            denom.push(makeSpan(atom.denomPrefix, 'mord'));
         }
-        else {
-            // Otherwise, this is a text operator. Build the text from the
-            // operator's name.
-            console.assert(atom.type === 'mop');
-            base = atom.makeSpan(context, atom.body);
-        }
-        // Bind the generated span and this atom so the atom can be retrieved
-        // from the span later.
-        atom.bind(context, base);
-        if (atom.isSymbol)
-            base.setTop(baseShift);
-        let result = base;
-        if (atom.superscript || atom.subscript) {
-            const limits = (_a = atom.limits) !== null && _a !== void 0 ? _a : 'auto';
-            if (limits === 'limits' ||
-                (limits === 'auto' &&
-                    mathstyle.size === MATHSTYLES.displaystyle.size)) {
-                result = atom.attachLimits(context, base, baseShift, slant);
+        const denominatorStyle = atom.continuousFraction
+            ? mathstyle
+            : mathstyle.fracDen();
+        denom = denom.concat(decompose(newContext.clone({ mathstyle: denominatorStyle }), atom.denom));
+        const denomReset = makeHlist(denom, context.mathstyle.adjustTo(denominatorStyle));
+        const ruleWidth = !atom.hasBarLine
+            ? 0
+            : METRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
+        // Rule 15b from TeXBook Appendix G, p.444
+        //
+        // 15b. If C > T, set u ← σ8 and v ← σ11. Otherwise set u ← σ9 or σ10,according
+        // as θ ̸= 0 or θ = 0, and set v ← σ12. (The fraction will be typeset with
+        // its numerator shifted up by an amount u with respect to the current
+        // baseline, and with the denominator shifted down by v, unless the boxes
+        // are unusually large.)
+        let numShift;
+        let clearance = 0;
+        let denomShift;
+        if (mathstyle.size === MATHSTYLES.displaystyle.size) {
+            numShift = mathstyle.metrics.num1; // set u ← σ8
+            if (ruleWidth > 0) {
+                clearance = 3 * ruleWidth; //  φ ← 3θ
             }
             else {
-                result = atom.attachSupsub(context, base, 'mop');
+                clearance = 7 * METRICS.defaultRuleThickness; // φ ← 7 ξ8
             }
-        }
-        return [result];
-    });
-
-    /**
-     * \overline and \underline
-     */
-    registerAtomType('line', (context, atom) => {
-        const mathstyle = context.mathstyle;
-        // TeXBook:443. Rule 9 and 10
-        const inner = decompose(context.cramp(), atom.body);
-        const ruleWidth = METRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
-        const line = makeSpan(null, context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
-            ' ' +
-            atom.position +
-            '-line');
-        line.height = ruleWidth;
-        line.maxFontSize = 1.0;
-        let vlist;
-        if (atom.position === 'overline') {
-            vlist = makeVlist(context, [inner, 3 * ruleWidth, line, ruleWidth]);
+            denomShift = mathstyle.metrics.denom1; // v ← σ11
         }
         else {
-            const innerSpan = makeSpan(inner);
-            vlist = makeVlist(context, [ruleWidth, line, 3 * ruleWidth, innerSpan], 'top', height(innerSpan));
+            if (ruleWidth > 0) {
+                numShift = mathstyle.metrics.num2; // u ← σ9
+                clearance = ruleWidth; //  φ ← θ
+            }
+            else {
+                numShift = mathstyle.metrics.num3; // u ← σ10
+                clearance = 3 * METRICS.defaultRuleThickness; // φ ← 3 ξ8
+            }
+            denomShift = mathstyle.metrics.denom2; // v ← σ12
         }
-        return [makeSpan(vlist, atom.position, 'mord')];
+        const numerDepth = numerReset ? depth(numerReset) : 0;
+        const denomHeight = denomReset ? height(denomReset) : 0;
+        let frac;
+        if (ruleWidth === 0) {
+            // Rule 15c from Appendix G
+            // No bar line between numerator and denominator
+            const candidateClearance = numShift - numerDepth - (denomHeight - denomShift);
+            if (candidateClearance < clearance) {
+                numShift += 0.5 * (clearance - candidateClearance);
+                denomShift += 0.5 * (clearance - candidateClearance);
+            }
+            frac = makeVlist(newContext, [numerReset, -numShift, denomReset, denomShift], 'individualShift');
+        }
+        else {
+            // Rule 15d from Appendix G
+            // There is a bar line between the numerator and the denominator
+            const axisHeight = mathstyle.metrics.axisHeight;
+            const numerLine = axisHeight + 0.5 * ruleWidth;
+            const denomLine = axisHeight - 0.5 * ruleWidth;
+            if (numShift - numerDepth - numerLine < clearance) {
+                numShift += clearance - (numShift - numerDepth - numerLine);
+            }
+            if (denomLine - (denomHeight - denomShift) < clearance) {
+                denomShift += clearance - (denomLine - (denomHeight - denomShift));
+            }
+            const mid = makeSpan(null, ' frac-line');
+            mid.applyStyle(atom.getStyle());
+            // Manually set the height of the line because its height is
+            // created in CSS
+            mid.height = ruleWidth / 2;
+            mid.depth = ruleWidth / 2;
+            const elements = [];
+            if (numerReset) {
+                elements.push(numerReset);
+                elements.push(-numShift);
+            }
+            elements.push(mid);
+            elements.push(ruleWidth / 2 - axisHeight);
+            if (denomReset) {
+                elements.push(denomReset);
+                elements.push(denomShift);
+            }
+            frac = makeVlist(newContext, elements, 'individualShift');
+        }
+        // Add a 'mfrac' class to provide proper context for
+        // other css selectors (such as 'frac-line')
+        frac.classes += ' mfrac';
+        // Since we manually change the style sometimes (with \dfrac or \tfrac),
+        // account for the possible size change here.
+        frac.height *= mathstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
+        frac.depth *= mathstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
+        // if (!atom.leftDelim && !atom.rightDelim) {
+        //     return makeOrd(frac,
+        //         context.parentMathstyle.adjustTo(mathstyle) +
+        //         ((context.parentSize !== context.size) ?
+        //             (' sizing reset-' + context.parentSize + ' ' + context.size) : ''));
+        // }
+        // Rule 15e of Appendix G
+        const delimSize = mathstyle.size === MATHSTYLES.displaystyle.size
+            ? mathstyle.metrics.delim1
+            : mathstyle.metrics.delim2;
+        // Optional delimiters
+        const leftDelim = atom.bind(context, makeCustomSizedDelim('mopen', atom.leftDelim, delimSize, true, context.clone({ mathstyle: mathstyle })));
+        const rightDelim = atom.bind(context, makeCustomSizedDelim('mclose', atom.rightDelim, delimSize, true, context.clone({ mathstyle: mathstyle })));
+        leftDelim.applyStyle(atom.getStyle());
+        rightDelim.applyStyle(atom.getStyle());
+        return [
+            atom.bind(context, 
+            // makeStruts(
+            makeSpan([leftDelim, frac, rightDelim], context.parentSize !== context.size
+                ? 'sizing reset-' + context.parentSize + ' ' + context.size
+                : '', 'mord')
+            // )
+            ),
+        ];
     });
 
     /**
@@ -10358,6 +10219,207 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return result;
     });
 
+    /**
+     * \overline and \underline
+     */
+    registerAtomType('line', (context, atom) => {
+        const mathstyle = context.mathstyle;
+        // TeXBook:443. Rule 9 and 10
+        const inner = decompose(context.cramp(), atom.body);
+        const ruleWidth = METRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
+        const line = makeSpan(null, context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
+            ' ' +
+            atom.position +
+            '-line');
+        line.height = ruleWidth;
+        line.maxFontSize = 1.0;
+        let vlist;
+        if (atom.position === 'overline') {
+            vlist = makeVlist(context, [inner, 3 * ruleWidth, line, ruleWidth]);
+        }
+        else {
+            const innerSpan = makeSpan(inner);
+            vlist = makeVlist(context, [ruleWidth, line, 3 * ruleWidth, innerSpan], 'top', height(innerSpan));
+        }
+        return [makeSpan(vlist, atom.position, 'mord')];
+    });
+
+    /**
+     * Operators are handled in the TeXbook pg. 443-444, rule 13(a).
+     */
+    registerAtomType('mop', (context, atom) => {
+        var _a;
+        const mathstyle = context.mathstyle;
+        let base;
+        let baseShift = 0;
+        let slant = 0;
+        if (atom.isSymbol) {
+            // If this is a symbol, create the symbol.
+            // Most symbol operators get larger in displaystyle (rule 13)
+            const large = mathstyle.size === MATHSTYLES.displaystyle.size &&
+                atom.symbol !== '\\smallint';
+            base = makeSymbol(large ? 'Size2-Regular' : 'Size1-Regular', atom.body, 'op-symbol ' + (large ? 'large-op' : 'small-op'), 'mop');
+            // Shift the symbol so its center lies on the axis (rule 13). It
+            // appears that our fonts have the centers of the symbols already
+            // almost on the axis, so these numbers are very small. Note we
+            // don't actually apply this here, but instead it is used either in
+            // the vlist creation or separately when there are no limits.
+            baseShift =
+                (base.height - base.depth) / 2 -
+                    mathstyle.metrics.axisHeight * mathstyle.sizeMultiplier;
+            // The slant of the symbol is just its italic correction.
+            slant = base.italic;
+            base.applyStyle({
+                color: atom.isPhantom ? 'transparent' : atom.color,
+                backgroundColor: atom.isPhantom
+                    ? 'transparent'
+                    : atom.backgroundColor,
+                cssId: atom.cssId,
+                cssClass: atom.cssClass,
+                letterShapeStyle: context.letterShapeStyle,
+            });
+        }
+        else if (isArray(atom.body)) {
+            // If this is a list, decompose that list.
+            base = makeSpan(decompose(context, atom.body), '', 'mop');
+        }
+        else {
+            // Otherwise, this is a text operator. Build the text from the
+            // operator's name.
+            console.assert(atom.type === 'mop');
+            base = atom.makeSpan(context, atom.body);
+        }
+        // Bind the generated span and this atom so the atom can be retrieved
+        // from the span later.
+        atom.bind(context, base);
+        if (atom.isSymbol)
+            base.setTop(baseShift);
+        let result = base;
+        if (atom.superscript || atom.subscript) {
+            const limits = (_a = atom.limits) !== null && _a !== void 0 ? _a : 'auto';
+            if (limits === 'limits' ||
+                (limits === 'auto' &&
+                    mathstyle.size === MATHSTYLES.displaystyle.size)) {
+                result = atom.attachLimits(context, base, baseShift, slant);
+            }
+            else {
+                result = atom.attachSupsub(context, base, 'mop');
+            }
+        }
+        return [result];
+    });
+
+    // An `overunder` atom has the following attributes:
+    // - body: atoms[]: atoms displayed on the base line
+    // - svgBody: string. A SVG graphic displayed on the base line (if present, the body is ignored)
+    // - overscript: atoms[]: atoms displayed above the body
+    // - svgAbove: string. A named SVG graphic above the element
+    // - underscript: atoms[]: atoms displayed below the body
+    // - svgBelow: string. A named SVG graphic below the element
+    // - skipBoundary: boolean. If true, ignore atom boundary when keyboard navigating
+    registerAtomType('overunder', (context, atom) => {
+        const body = atom.svgBody
+            ? makeSVGSpan(atom.svgBody)
+            : decompose(context, atom.body);
+        const annotationStyle = context.clone({
+            mathstyle: MATHSTYLES.scriptstyle,
+        });
+        let above;
+        let below;
+        if (atom.svgAbove) {
+            above = makeSVGSpan(atom.svgAbove);
+        }
+        else if (atom.overscript) {
+            above = makeSpan(decompose(annotationStyle, atom.overscript), context.mathstyle.adjustTo(annotationStyle.mathstyle));
+        }
+        if (atom.svgBelow) {
+            below = makeSVGSpan(atom.svgBelow);
+        }
+        else if (atom.underscript) {
+            below = makeSpan(decompose(annotationStyle, atom.underscript), context.mathstyle.adjustTo(annotationStyle.mathstyle));
+        }
+        if (above && below) {
+            // Pad the above and below if over a "base"
+            below.setLeft(0.3);
+            below.setRight(0.3);
+            above.setLeft(0.3);
+            above.setRight(0.3);
+        }
+        let result = makeOverunderStack(context, body, above, below, isSpanType(atom.type) ? atom.type : 'mord');
+        if (atom.superscript || atom.subscript) {
+            result = atom.attachLimits(context, result, 0, 0);
+        }
+        return [result];
+    });
+    /**
+     * Combine a nucleus with an atom above and an atom below. Used to form
+     * stacks for the 'overunder' atom type .
+     *
+     * @param nucleus The base over and under which the atoms will
+     * be placed.
+     * @param type The type ('mop', 'mrel', etc...) of the result
+     */
+    function makeOverunderStack(context, nucleus, above, below, type) {
+        // If nothing above and nothing below, nothing to do.
+        if (!above && !below)
+            return isArray(nucleus) ? makeSpan(nucleus) : nucleus;
+        let aboveShift = 0;
+        let belowShift = 0;
+        if (above) {
+            aboveShift = Math.max(METRICS.bigOpSpacing1, METRICS.bigOpSpacing3 - depth(above));
+        }
+        if (below) {
+            belowShift = Math.max(METRICS.bigOpSpacing2, METRICS.bigOpSpacing4 - height(below));
+        }
+        let result = null;
+        if (below && above) {
+            const bottom = height(below) + depth(below) + depth(nucleus);
+            result = makeVlist(context, [
+                0,
+                below,
+                belowShift,
+                nucleus,
+                aboveShift,
+                above,
+                METRICS.bigOpSpacing2,
+            ], 'bottom', bottom);
+        }
+        else if (below && !above) {
+            const top = height(nucleus);
+            result = makeVlist(context, [0, below, belowShift, nucleus], 'top', top);
+        }
+        else if (above && !below) {
+            result = makeVlist(context, [
+                depth(nucleus),
+                nucleus,
+                Math.max(METRICS.bigOpSpacing2, aboveShift),
+                above,
+            ], 'bottom', depth(nucleus));
+        }
+        return makeSpan(result, 'op-over-under', type);
+    }
+
+    registerAtomType('phantom', (context, atom) => {
+        if (atom.phantomType === 'vphantom') {
+            const content = makeSpan(decompose(context, atom.body), 'inner');
+            return [makeSpan([content, makeSpan(null, 'fix')], 'rlap', 'mord')];
+        }
+        else if (atom.phantomType === 'hphantom' ||
+            atom.phantomType === 'smash' ||
+            atom.phantomType === 'bsmash' ||
+            atom.phantomType === 'tsmash') {
+            const content = makeSpan(decompose(context, atom.body), '', 'mord');
+            if (atom.phantomType !== 'bsmash') {
+                content.height = 0;
+            }
+            if (atom.phantomType !== 'tsmash') {
+                content.depth = 0;
+            }
+            return [makeSpan(makeVlist(context, [content]), '', 'mord')];
+        }
+        return [makeSpan(decompose(context, atom.body), '', 'mord')];
+    });
+
     registerAtomType('surd', (context, atom) => {
         // See the TeXbook pg. 443, Rule 11.
         // http://www.ctex.org/documents/shredder/src/texbook.pdf
@@ -10415,463 +10477,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return [
             atom.bind(context, makeSpan([makeSpan(rootVlist, 'root'), delim, body], 'sqrt', 'mord')),
         ];
-    });
-
-    // Each entry indicate the font-name (to be used to calculate font metrics)
-    // and the CSS classes (for proper markup styling) for each possible
-    // variant combinations.
-    const VARIANTS = {
-        // Handle some special characters which are only available in "main" font (not "math")
-        main: ['Main-Regular', 'ML__cmr'],
-        'main-italic': ['Main-Italic', 'ML__cmr ML__it'],
-        'main-bold': ['Main-Bold', 'ML__cmr ML__bold'],
-        'main-bolditalic': ['Main-BoldItalic', 'ML__cmr ML_bold ML__it'],
-        normal: ['Main-Regular', 'ML__cmr'],
-        'normal-bold': ['Main-Bold', 'ML__mathbf'],
-        'normal-italic': ['Math-Italic', 'ML__mathit'],
-        'normal-bolditalic': ['Math-BoldItalic', 'ML__mathbfit'],
-        // Extended math symbols, arrows, etc.. at their standard Unicode codepoints
-        ams: ['AMS-Regular', 'ML__ams'],
-        'ams-bold': ['AMS-Regular', 'ML__ams'],
-        'ams-italic': ['AMS-Regular', 'ML__ams'],
-        'ams-bolditalic': ['AMS-Regular', 'ML__ams'],
-        'sans-serif': ['SansSerif-Regular', 'ML__sans'],
-        'sans-serif-bold': ['SansSerif-Regular', 'ML__sans ML__bold'],
-        'sans-serif-italic': ['SansSerif-Regular', 'ML__sans'],
-        'sans-serif-bolditalic': ['SansSerif-Regular', 'ML__sans'],
-        calligraphic: ['Caligraphic-Regular', 'ML__cal'],
-        'calligraphic-bold': ['Caligraphic-Regular', 'ML__cal ML__bold'],
-        'calligraphic-italic': ['Caligraphic-Regular', 'ML__cal ML__it'],
-        'calligraphic-bolditalic': [
-            'Caligraphic-Regular',
-            'ML__cal ML__bold ML__it',
-        ],
-        script: ['Script-Regular', 'ML__script'],
-        'script-bold': ['Script-Regular', 'ML__script ML__bold'],
-        'script-italic': ['Script-Regular', 'ML__script ML__it'],
-        'script-bolditalic': ['Script-Regular', 'ML__script ML__bold ML__it'],
-        fraktur: ['Fraktur-Regular', 'ML__frak'],
-        'fraktur-bold': ['Fraktur-Regular', 'ML__frak'],
-        'fraktur-italic': ['Fraktur-Regular', 'ML__frak'],
-        'fraktur-bolditalic': ['Fraktur-Regular', 'ML__frak'],
-        monospace: ['Typewriter-Regular', 'ML__tt'],
-        'monospace-bold': ['Typewriter-Regular', 'ML__tt ML__bold'],
-        'monospace-italic': ['Typewriter-Regular', 'ML__tt ML__it'],
-        'monospace-bolditalic': ['Typewriter-Regular', 'ML__tt ML__bold ML__it'],
-        // Blackboard characters are 'A-Z' in the AMS font
-        'double-struck': ['AMS-Regular', 'ML__bb'],
-        'double-struck-bold': ['AMS-Regular', 'ML__bb'],
-        'double-struck-italic': ['AMS-Regular', 'ML__bb'],
-        'double-struck-bolditalic': ['AMS-Regular', 'ML__bb'],
-    };
-    const VARIANT_REPERTOIRE = {
-        'double-struck': /^[A-Z ]$/,
-        script: /^[A-Z ]$/,
-        calligraphic: /^[0-9A-Z ]$/,
-        fraktur: /^[0-9A-Za-z ]$|^[!"#$%&'()*+,\-./:;=?[]^’‘]$/,
-        monospace: /^[0-9A-Za-z ]$|^[!"&'()*+,\-./:;=?@[\]^_~\u0131\u0237\u0393\u0394\u0398\u039b\u039e\u03A0\u03A3\u03A5\u03A8\u03a9]$/,
-        'sans-serif': /^[0-9A-Za-z ]$|^[!"&'()*+,\-./:;=?@[\]^_~\u0131\u0237\u0393\u0394\u0398\u039b\u039e\u03A0\u03A3\u03A5\u03A8\u03a9]$/,
-    };
-    const GREEK_LOWERCASE = /^[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5]$/;
-    const GREEK_UPPERCASE = /^[\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9]$/;
-    const LETTER_SHAPE_RANGES = [
-        /^[a-z]$/,
-        /^[A-Z]$/,
-        GREEK_LOWERCASE,
-        GREEK_UPPERCASE,
-    ];
-    // The letterShapeStyle property indicates which characters should be
-    // automatically italicized (see LETTER_SHAPE_RANGES)
-    const LETTER_SHAPE_MODIFIER = {
-        iso: ['it', 'it', 'it', 'it'],
-        tex: ['it', 'it', 'it', 'up'],
-        french: ['it', 'up', 'up', 'up'],
-        upright: ['up', 'up', 'up', 'up'],
-    };
-    // See http://ctan.math.illinois.edu/macros/latex/base/fntguide.pdf
-    function emitLatexMathRun(context, run, expandMacro) {
-        let contextValue = context.variant;
-        if (context.variantStyle && context.variantStyle !== 'up') {
-            contextValue += '-' + context.variantStyle;
-        }
-        return joinLatex(getPropertyRuns(run, 'color').map((x) => {
-            const result = joinLatex(getPropertyRuns(x, 'variant').map((x) => {
-                let value = x[0].variant;
-                if (x[0].variantStyle && x[0].variantStyle !== 'up') {
-                    value += '-' + x[0].variantStyle;
-                }
-                // Check if all the atoms in this run have a base
-                // variant identical to the current variant
-                // If so, we can skip wrapping them
-                if (x.every((x) => {
-                    const info = getInfo(x.symbol, context.mode, null);
-                    if (!info || !(info.variant || info.variantStyle)) {
-                        return false;
-                    }
-                    let styledValue = x.variant;
-                    if (x.variantStyle && x.variantStyle !== 'up') {
-                        styledValue += '-' + x.variantStyle;
-                    }
-                    return styledValue === value;
-                })) {
-                    return joinLatex(x.map((x) => x.toLatex(expandMacro)));
-                }
-                let command = '';
-                if (value && value !== contextValue) {
-                    command = {
-                        calligraphic: '\\mathcal{',
-                        fraktur: '\\mathfrak{',
-                        'double-struck': '\\mathbb{',
-                        script: '\\mathscr{',
-                        monospace: '\\mathtt{',
-                        'sans-serif': '\\mathsf{',
-                        normal: '\\mathrm{',
-                        'normal-italic': '\\mathit{',
-                        'normal-bold': '\\mathbf{',
-                        'normal-bolditalic': '\\mathbfit{',
-                        ams: '',
-                        'ams-italic': '\\mathit{',
-                        'ams-bold': '\\mathbf{',
-                        'ams-bolditalic': '\\mathbfit{',
-                        main: '',
-                        'main-italic': '\\mathit{',
-                        'main-bold': '\\mathbf{',
-                        'main-bolditalic': '\\mathbfit{',
-                    }[value];
-                    console.assert(typeof command !== 'undefined');
-                }
-                return (command +
-                    joinLatex(x.map((x) => x.toLatex(expandMacro))) +
-                    (command ? '}' : ''));
-            }));
-            if (x[0].color && (!context || context.color !== x[0].color)) {
-                return ('\\textcolor{' +
-                    colorToString(x[0].color) +
-                    '}{' +
-                    result +
-                    '}');
-            }
-            return result;
-        }));
-    }
-    function applyStyle$1(atom, style) {
-        // letterShapeStyle will usually be set automatically, except when the
-        // locale cannot be determined, in which case its value will be 'auto'
-        // which we default to 'tex'
-        const letterShapeStyle = style.letterShapeStyle === 'auto' || !style.letterShapeStyle
-            ? 'tex'
-            : style.letterShapeStyle;
-        let variant = style.variant || 'normal';
-        let variantStyle = style.variantStyle || '';
-        // 1. Remap to "main" font some characters that don't exist
-        // in the "math" font
-        // There are two fonts that include the roman italic characters, "main-it" and "math"
-        // They are similar, but the "math" font has some different kernings ('f')
-        // and some slightly different character shape. It doesn't include a few
-        // characters, so for those characters, "main" has to be used instead
-        // \imath, \jmath and \pound don't exist in "math" font,
-        // so use "main" italic instead.
-        if (variant === 'normal' &&
-            !variantStyle &&
-            /\u00a3|\u0131|\u0237/.test(atom.body)) {
-            variant = 'main';
-            variantStyle = 'italic';
-        }
-        // 2. If no explicit variant style, auto-italicize some symbols,
-        // depending on the letterShapeStyle
-        if (variant === 'normal' && !variantStyle && atom.body.length === 1) {
-            LETTER_SHAPE_RANGES.forEach((x, i) => {
-                if (x.test(atom.body) &&
-                    LETTER_SHAPE_MODIFIER[letterShapeStyle][i] === 'it') {
-                    variantStyle = 'italic';
-                }
-            });
-        }
-        // 3. Map the variant + variantStyle to a font
-        if (variantStyle === 'up') {
-            variantStyle = '';
-        }
-        const styledVariant = variantStyle ? variant + '-' + variantStyle : variant;
-        console.assert(VARIANTS[styledVariant]);
-        const [fontName, classes] = VARIANTS[styledVariant];
-        // 4. If outside the font repertoire, switch to system font
-        // (return NULL to use default metrics)
-        if (VARIANT_REPERTOIRE[variant] &&
-            !VARIANT_REPERTOIRE[variant].test(atom.body)) {
-            // Map to unicode character
-            atom.body = mathVariantToUnicode(atom.body, variant, variantStyle);
-            atom.variant = '';
-            atom.variantStyle = '';
-            // Return NULL to use default metrics
-            return null;
-        }
-        // Lowercase greek letters have an incomplete repertoire (no bold)
-        // so, for \mathbf to behave correctly, add a 'lcGreek' class.
-        if (GREEK_LOWERCASE.test(atom.body)) {
-            atom.classes += ' lcGreek';
-        }
-        // 5. Assign classes based on the font
-        if (classes) {
-            atom.classes += ' ' + classes;
-        }
-        return fontName;
-    }
-    register('math', {
-        emitLatexRun: emitLatexMathRun,
-        applyStyle: applyStyle$1,
-    });
-
-    function emitStringTextRun(_context, run, _expandMacro) {
-        let needSpace = false;
-        return joinLatex(run.map((x) => {
-            let result = '';
-            let space = '';
-            if (x.latex) {
-                result = x.latex;
-            }
-            else if (typeof x.body === 'string') {
-                result = unicodeStringToLatex('text', x.body);
-            }
-            else if (x.symbol) {
-                result = x.symbol.replace(/\\/g, '\\backslash ');
-            }
-            if (needSpace && (!result || /^[a-zA-Z0-9*]/.test(result))) {
-                space = '{}';
-            }
-            needSpace = /\\[a-zA-Z0-9]+\*?$/.test(result);
-            return space + result;
-        }));
-    }
-    function emitFontShapeTextRun(context, run, expandMacro) {
-        return joinLatex(getPropertyRuns(run, 'fontShape').map((x) => {
-            const result = emitStringTextRun(context, x);
-            if (x[0].fontShape === 'it') {
-                return '\\textit{' + result + '}';
-            }
-            if (x[0].fontShape === 'sl') {
-                return '\\textsl{' + result + '}';
-            }
-            if (x[0].fontShape === 'sc') {
-                return '\\textsc{' + result + '}';
-            }
-            if (x[0].fontShape === 'n') {
-                return '\\textup{' + result + '}';
-            }
-            if (x[0].fontShape) {
-                return '\\fontshape{' + x[0].fontShape + '}' + result;
-            }
-            return result;
-        }));
-    }
-    function emitFontSeriesTextRun(context, run, expandMacro) {
-        return joinLatex(getPropertyRuns(run, 'fontSeries').map((x) => {
-            const result = emitFontShapeTextRun(context, x);
-            if (x[0].fontSeries === 'b') {
-                return '\\textbf{' + result + '}';
-            }
-            if (x[0].fontSeries === 'l') {
-                return '\\textlf{' + result + '}';
-            }
-            if (x[0].fontSeries === 'm') {
-                return '\\textmd{' + result + '}';
-            }
-            if (x[0].fontSeries) {
-                return '\\fontseries{' + x[0].fontSeries + '}' + result;
-            }
-            return result;
-        }));
-    }
-    function emitSizeTextRun(context, run, expandMacro) {
-        return joinLatex(getPropertyRuns(run, 'fontSize').map((x) => {
-            const result = emitFontSeriesTextRun(context, x);
-            const command = {
-                size1: 'tiny',
-                size2: 'scriptsize',
-                size3: 'footnotesize',
-                size4: 'small',
-                size5: 'normalsize',
-                size6: 'large',
-                size7: 'Large',
-                size8: 'LARGE',
-                size9: 'huge',
-                size10: 'Huge',
-            }[x[0].fontSize] || '';
-            if (command) {
-                return '\\' + command + ' ' + result;
-            }
-            return result;
-        }));
-    }
-    function emitFontFamilyTextRun(context, run, expandMacro) {
-        return joinLatex(getPropertyRuns(run, 'fontFamily').map((x) => {
-            const result = emitSizeTextRun(context, x);
-            const command = {
-                roman: 'textrm',
-                monospace: 'texttt',
-                'sans-serif': 'textsf',
-            }[x[0].fontFamily] || '';
-            if (command) {
-                return '\\' + command + '{' + result + '}';
-            }
-            if (x[0].fontFamily) {
-                return '\\fontfamily{' + x[0].fontFamily + '}' + result;
-            }
-            return result;
-        }));
-    }
-    function emitStyledTextRun(context, run, expandMacro) {
-        return emitFontFamilyTextRun(context, run);
-    }
-    function emitColorRun(context, run, expandMacro) {
-        return joinLatex(getPropertyRuns(run, 'color').map((x) => {
-            const result = emitStyledTextRun(context, x);
-            if (x[0].color &&
-                x[0].color !== 'none' &&
-                (!context || context.color !== x[0].color)) {
-                // If there is a color specified, and it is different
-                // from our context color, output a command
-                return ('\\textcolor{' +
-                    colorToString(x[0].color) +
-                    '}{' +
-                    result +
-                    '}');
-            }
-            return result;
-        }));
-    }
-    function emitLatexTextRun(context, run, expandMacro) {
-        const result = emitColorRun(context, run);
-        const allAtomsHaveShapeOrSeriesOrFontFamily = run.every((x) => x.fontSeries || x.fontShape || x.fontFamily);
-        if (!allAtomsHaveShapeOrSeriesOrFontFamily ||
-            run[0].mode !== context.mode) {
-            // Wrap in text, only if there isn't a shape or series on
-            // all the atoms, because if so, it will be wrapped in a
-            // \\textbf, \\textit, etc... and the \\text would be redundant
-            return `\\text{${result}}`;
-        }
-        return result;
-    }
-    const TEXT_FONT_CLASS = {
-        roman: '',
-        'sans-serif': 'ML__sans',
-        monospace: 'ML__tt',
-    };
-    /**
-     * Return the font-family name
-     */
-    function applyStyle$2(span, style) {
-        const fontFamily = style.fontFamily;
-        if (TEXT_FONT_CLASS[fontFamily]) {
-            span.classes += ' ' + TEXT_FONT_CLASS[fontFamily];
-        }
-        else if (fontFamily) {
-            // Not a well-known family. Use a style.
-            span.setStyle('font-family', fontFamily);
-        }
-        if (style.fontShape) {
-            span.classes +=
-                ' ' +
-                    ({
-                        it: 'ML__it',
-                        sl: 'ML__shape_sl',
-                        sc: 'ML__shape_sc',
-                        ol: 'ML__shape_ol',
-                    }[style.fontShape] || '');
-        }
-        if (style.fontSeries) {
-            const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
-            if (m) {
-                span.classes +=
-                    ' ' +
-                        ({
-                            ul: 'ML__series_ul',
-                            el: 'ML__series_el',
-                            l: 'ML__series_l',
-                            sl: 'ML__series_sl',
-                            m: '',
-                            sb: 'ML__series_sb',
-                            b: 'ML__bold',
-                            eb: 'ML__series_eb',
-                            ub: 'ML__series_ub',
-                        }[m[1] || ''] || '');
-                span.classes +=
-                    ' ' +
-                        ({
-                            uc: 'ML__series_uc',
-                            ec: 'ML__series_ec',
-                            c: 'ML__series_c',
-                            sc: 'ML__series_sc',
-                            n: '',
-                            sx: 'ML__series_sx',
-                            x: 'ML__series_x',
-                            ex: 'ML__series_ex',
-                            ux: 'ML__series_ux',
-                        }[m[2] || ''] || '');
-            }
-        }
-        // Always use the metrics of 'Main-Regular' in text mode
-        return 'Main-Regular';
-    }
-    // Given an array of tokens, return an array of atoms
-    // options.args
-    // options.macros
-    // options.smartFence
-    // options.style
-    // options.parser
-    function parse(tokens, error, options) {
-        let result = [];
-        let atom;
-        while (tokens.length > 0) {
-            const token = tokens.shift();
-            if (token === '<space>') {
-                atom = new Atom('text', '', ' ', options.style);
-                atom.symbol = ' ';
-                result.push(atom);
-            }
-            else if (token[0] === '\\') {
-                // Invoke the 'main' parser to handle the command
-                tokens.unshift(token);
-                let atoms;
-                [atoms, tokens] = options.parse('text', tokens, options);
-                result = [...result, ...atoms];
-            }
-            else if (token.length === 1) {
-                const info = getInfo(token, 'text', options.macros);
-                if (!info) {
-                    error({ code: 'unexpected-token' });
-                }
-                else if (!info.mode || info.mode.includes('text')) {
-                    atom = new Atom('text', info ? info.type : '', // @todo: revisit. Use 'text' type?
-                    info ? info.value : token, options.style);
-                    atom.symbol = token;
-                    atom.latex = charToLatex('text', token);
-                    result.push(atom);
-                }
-                else {
-                    error({ code: 'unexpected-token' });
-                }
-            }
-            else if (token === '<$>' || token === '<$$>') {
-                // Mode-shift
-                const subtokens = tokens.slice(0, tokens.findIndex((x) => x === token));
-                tokens = tokens.slice(subtokens.length + 1);
-                const [atoms] = options.parse('math', subtokens, options);
-                result = [...result, ...atoms];
-            }
-            else if (token === '<{>' || token === '<}>') ;
-            else {
-                error({
-                    code: 'unexpected-token',
-                    arg: token,
-                });
-            }
-        }
-        return [result, tokens];
-    }
-    register('text', {
-        emitLatexRun: emitLatexTextRun,
-        applyStyle: applyStyle$2,
-        parse: (tokens, error, options) => parse(tokens, error, options)[0],
     });
 
     // Performance to check first char of string: https://jsben.ch/QLjdZ
@@ -19104,7 +18709,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      * has the style partially applied (i.e. only some sections), remove it from
      * those sections, and apply it to the entire selection.
      */
-    function applyStyle$3(model, style) {
+    function applyStyle$1(model, style) {
         // No selection, nothing to do.
         if (selectionIsCollapsed(model))
             return false;
@@ -22756,7 +22361,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         },
     });
 
-    function applyStyle$4(mathfield, inStyle) {
+    function applyStyle$2(mathfield, inStyle) {
         mathfield.resetKeystrokeBuffer();
         const style = validateStyle(inStyle);
         if (style.mode) {
@@ -22823,12 +22428,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         }
         else {
             // Change the style of the selection
-            applyStyle$3(mathfield.model, style);
+            applyStyle$1(mathfield.model, style);
             mathfield.snapshot();
         }
         return true;
     }
-    register$2({ applyStyle: applyStyle$4 }, { target: 'mathfield' });
+    register$2({ applyStyle: applyStyle$2 }, { target: 'mathfield' });
     /**
      * Validate a style specification object
      */
@@ -25922,6 +25527,2917 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         varsRecursive(dic, result, expr);
         return result;
     }
+
+    // Each entry indicate the font-name (to be used to calculate font metrics)
+    // and the CSS classes (for proper markup styling) for each possible
+    // variant combinations.
+    const VARIANTS = {
+        // Handle some special characters which are only available in "main" font (not "math")
+        main: ['Main-Regular', 'ML__cmr'],
+        'main-italic': ['Main-Italic', 'ML__cmr ML__it'],
+        'main-bold': ['Main-Bold', 'ML__cmr ML__bold'],
+        'main-bolditalic': ['Main-BoldItalic', 'ML__cmr ML_bold ML__it'],
+        normal: ['Main-Regular', 'ML__cmr'],
+        'normal-bold': ['Main-Bold', 'ML__mathbf'],
+        'normal-italic': ['Math-Italic', 'ML__mathit'],
+        'normal-bolditalic': ['Math-BoldItalic', 'ML__mathbfit'],
+        // Extended math symbols, arrows, etc.. at their standard Unicode codepoints
+        ams: ['AMS-Regular', 'ML__ams'],
+        'ams-bold': ['AMS-Regular', 'ML__ams'],
+        'ams-italic': ['AMS-Regular', 'ML__ams'],
+        'ams-bolditalic': ['AMS-Regular', 'ML__ams'],
+        'sans-serif': ['SansSerif-Regular', 'ML__sans'],
+        'sans-serif-bold': ['SansSerif-Regular', 'ML__sans ML__bold'],
+        'sans-serif-italic': ['SansSerif-Regular', 'ML__sans'],
+        'sans-serif-bolditalic': ['SansSerif-Regular', 'ML__sans'],
+        calligraphic: ['Caligraphic-Regular', 'ML__cal'],
+        'calligraphic-bold': ['Caligraphic-Regular', 'ML__cal ML__bold'],
+        'calligraphic-italic': ['Caligraphic-Regular', 'ML__cal ML__it'],
+        'calligraphic-bolditalic': [
+            'Caligraphic-Regular',
+            'ML__cal ML__bold ML__it',
+        ],
+        script: ['Script-Regular', 'ML__script'],
+        'script-bold': ['Script-Regular', 'ML__script ML__bold'],
+        'script-italic': ['Script-Regular', 'ML__script ML__it'],
+        'script-bolditalic': ['Script-Regular', 'ML__script ML__bold ML__it'],
+        fraktur: ['Fraktur-Regular', 'ML__frak'],
+        'fraktur-bold': ['Fraktur-Regular', 'ML__frak'],
+        'fraktur-italic': ['Fraktur-Regular', 'ML__frak'],
+        'fraktur-bolditalic': ['Fraktur-Regular', 'ML__frak'],
+        monospace: ['Typewriter-Regular', 'ML__tt'],
+        'monospace-bold': ['Typewriter-Regular', 'ML__tt ML__bold'],
+        'monospace-italic': ['Typewriter-Regular', 'ML__tt ML__it'],
+        'monospace-bolditalic': ['Typewriter-Regular', 'ML__tt ML__bold ML__it'],
+        // Blackboard characters are 'A-Z' in the AMS font
+        'double-struck': ['AMS-Regular', 'ML__bb'],
+        'double-struck-bold': ['AMS-Regular', 'ML__bb'],
+        'double-struck-italic': ['AMS-Regular', 'ML__bb'],
+        'double-struck-bolditalic': ['AMS-Regular', 'ML__bb'],
+    };
+    const VARIANT_REPERTOIRE = {
+        'double-struck': /^[A-Z ]$/,
+        script: /^[A-Z ]$/,
+        calligraphic: /^[0-9A-Z ]$/,
+        fraktur: /^[0-9A-Za-z ]$|^[!"#$%&'()*+,\-./:;=?[]^’‘]$/,
+        monospace: /^[0-9A-Za-z ]$|^[!"&'()*+,\-./:;=?@[\]^_~\u0131\u0237\u0393\u0394\u0398\u039b\u039e\u03A0\u03A3\u03A5\u03A8\u03a9]$/,
+        'sans-serif': /^[0-9A-Za-z ]$|^[!"&'()*+,\-./:;=?@[\]^_~\u0131\u0237\u0393\u0394\u0398\u039b\u039e\u03A0\u03A3\u03A5\u03A8\u03a9]$/,
+    };
+    const GREEK_LOWERCASE = /^[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5]$/;
+    const GREEK_UPPERCASE = /^[\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9]$/;
+    const LETTER_SHAPE_RANGES = [
+        /^[a-z]$/,
+        /^[A-Z]$/,
+        GREEK_LOWERCASE,
+        GREEK_UPPERCASE,
+    ];
+    // The letterShapeStyle property indicates which characters should be
+    // automatically italicized (see LETTER_SHAPE_RANGES)
+    const LETTER_SHAPE_MODIFIER = {
+        iso: ['it', 'it', 'it', 'it'],
+        tex: ['it', 'it', 'it', 'up'],
+        french: ['it', 'up', 'up', 'up'],
+        upright: ['up', 'up', 'up', 'up'],
+    };
+    // See http://ctan.math.illinois.edu/macros/latex/base/fntguide.pdf
+    function emitLatexMathRun(context, run, expandMacro) {
+        let contextValue = context.variant;
+        if (context.variantStyle && context.variantStyle !== 'up') {
+            contextValue += '-' + context.variantStyle;
+        }
+        return joinLatex(getPropertyRuns(run, 'color').map((x) => {
+            const result = joinLatex(getPropertyRuns(x, 'variant').map((x) => {
+                let value = x[0].variant;
+                if (x[0].variantStyle && x[0].variantStyle !== 'up') {
+                    value += '-' + x[0].variantStyle;
+                }
+                // Check if all the atoms in this run have a base
+                // variant identical to the current variant
+                // If so, we can skip wrapping them
+                if (x.every((x) => {
+                    const info = getInfo(x.symbol, context.mode, null);
+                    if (!info || !(info.variant || info.variantStyle)) {
+                        return false;
+                    }
+                    let styledValue = x.variant;
+                    if (x.variantStyle && x.variantStyle !== 'up') {
+                        styledValue += '-' + x.variantStyle;
+                    }
+                    return styledValue === value;
+                })) {
+                    return joinLatex(x.map((x) => x.toLatex(expandMacro)));
+                }
+                let command = '';
+                if (value && value !== contextValue) {
+                    command = {
+                        calligraphic: '\\mathcal{',
+                        fraktur: '\\mathfrak{',
+                        'double-struck': '\\mathbb{',
+                        script: '\\mathscr{',
+                        monospace: '\\mathtt{',
+                        'sans-serif': '\\mathsf{',
+                        normal: '\\mathrm{',
+                        'normal-italic': '\\mathit{',
+                        'normal-bold': '\\mathbf{',
+                        'normal-bolditalic': '\\mathbfit{',
+                        ams: '',
+                        'ams-italic': '\\mathit{',
+                        'ams-bold': '\\mathbf{',
+                        'ams-bolditalic': '\\mathbfit{',
+                        main: '',
+                        'main-italic': '\\mathit{',
+                        'main-bold': '\\mathbf{',
+                        'main-bolditalic': '\\mathbfit{',
+                    }[value];
+                    console.assert(typeof command !== 'undefined');
+                }
+                return (command +
+                    joinLatex(x.map((x) => x.toLatex(expandMacro))) +
+                    (command ? '}' : ''));
+            }));
+            if (x[0].color && (!context || context.color !== x[0].color)) {
+                return ('\\textcolor{' +
+                    colorToString(x[0].color) +
+                    '}{' +
+                    result +
+                    '}');
+            }
+            return result;
+        }));
+    }
+    function applyStyle$3(atom, style) {
+        // letterShapeStyle will usually be set automatically, except when the
+        // locale cannot be determined, in which case its value will be 'auto'
+        // which we default to 'tex'
+        const letterShapeStyle = style.letterShapeStyle === 'auto' || !style.letterShapeStyle
+            ? 'tex'
+            : style.letterShapeStyle;
+        let variant = style.variant || 'normal';
+        let variantStyle = style.variantStyle || '';
+        // 1. Remap to "main" font some characters that don't exist
+        // in the "math" font
+        // There are two fonts that include the roman italic characters, "main-it" and "math"
+        // They are similar, but the "math" font has some different kernings ('f')
+        // and some slightly different character shape. It doesn't include a few
+        // characters, so for those characters, "main" has to be used instead
+        // \imath, \jmath and \pound don't exist in "math" font,
+        // so use "main" italic instead.
+        if (variant === 'normal' &&
+            !variantStyle &&
+            /\u00a3|\u0131|\u0237/.test(atom.body)) {
+            variant = 'main';
+            variantStyle = 'italic';
+        }
+        // 2. If no explicit variant style, auto-italicize some symbols,
+        // depending on the letterShapeStyle
+        if (variant === 'normal' && !variantStyle && atom.body.length === 1) {
+            LETTER_SHAPE_RANGES.forEach((x, i) => {
+                if (x.test(atom.body) &&
+                    LETTER_SHAPE_MODIFIER[letterShapeStyle][i] === 'it') {
+                    variantStyle = 'italic';
+                }
+            });
+        }
+        // 3. Map the variant + variantStyle to a font
+        if (variantStyle === 'up') {
+            variantStyle = '';
+        }
+        const styledVariant = variantStyle ? variant + '-' + variantStyle : variant;
+        console.assert(VARIANTS[styledVariant]);
+        const [fontName, classes] = VARIANTS[styledVariant];
+        // 4. If outside the font repertoire, switch to system font
+        // (return NULL to use default metrics)
+        if (VARIANT_REPERTOIRE[variant] &&
+            !VARIANT_REPERTOIRE[variant].test(atom.body)) {
+            // Map to unicode character
+            atom.body = mathVariantToUnicode(atom.body, variant, variantStyle);
+            atom.variant = '';
+            atom.variantStyle = '';
+            // Return NULL to use default metrics
+            return null;
+        }
+        // Lowercase greek letters have an incomplete repertoire (no bold)
+        // so, for \mathbf to behave correctly, add a 'lcGreek' class.
+        if (GREEK_LOWERCASE.test(atom.body)) {
+            atom.classes += ' lcGreek';
+        }
+        // 5. Assign classes based on the font
+        if (classes) {
+            atom.classes += ' ' + classes;
+        }
+        return fontName;
+    }
+    register('math', {
+        emitLatexRun: emitLatexMathRun,
+        applyStyle: applyStyle$3,
+    });
+
+    function emitStringTextRun(_context, run, _expandMacro) {
+        let needSpace = false;
+        return joinLatex(run.map((x) => {
+            let result = '';
+            let space = '';
+            if (x.latex) {
+                result = x.latex;
+            }
+            else if (typeof x.body === 'string') {
+                result = unicodeStringToLatex('text', x.body);
+            }
+            else if (x.symbol) {
+                result = x.symbol.replace(/\\/g, '\\backslash ');
+            }
+            if (needSpace && (!result || /^[a-zA-Z0-9*]/.test(result))) {
+                space = '{}';
+            }
+            needSpace = /\\[a-zA-Z0-9]+\*?$/.test(result);
+            return space + result;
+        }));
+    }
+    function emitFontShapeTextRun(context, run, expandMacro) {
+        return joinLatex(getPropertyRuns(run, 'fontShape').map((x) => {
+            const result = emitStringTextRun(context, x);
+            if (x[0].fontShape === 'it') {
+                return '\\textit{' + result + '}';
+            }
+            if (x[0].fontShape === 'sl') {
+                return '\\textsl{' + result + '}';
+            }
+            if (x[0].fontShape === 'sc') {
+                return '\\textsc{' + result + '}';
+            }
+            if (x[0].fontShape === 'n') {
+                return '\\textup{' + result + '}';
+            }
+            if (x[0].fontShape) {
+                return '\\fontshape{' + x[0].fontShape + '}' + result;
+            }
+            return result;
+        }));
+    }
+    function emitFontSeriesTextRun(context, run, expandMacro) {
+        return joinLatex(getPropertyRuns(run, 'fontSeries').map((x) => {
+            const result = emitFontShapeTextRun(context, x);
+            if (x[0].fontSeries === 'b') {
+                return '\\textbf{' + result + '}';
+            }
+            if (x[0].fontSeries === 'l') {
+                return '\\textlf{' + result + '}';
+            }
+            if (x[0].fontSeries === 'm') {
+                return '\\textmd{' + result + '}';
+            }
+            if (x[0].fontSeries) {
+                return '\\fontseries{' + x[0].fontSeries + '}' + result;
+            }
+            return result;
+        }));
+    }
+    function emitSizeTextRun(context, run, expandMacro) {
+        return joinLatex(getPropertyRuns(run, 'fontSize').map((x) => {
+            const result = emitFontSeriesTextRun(context, x);
+            const command = {
+                size1: 'tiny',
+                size2: 'scriptsize',
+                size3: 'footnotesize',
+                size4: 'small',
+                size5: 'normalsize',
+                size6: 'large',
+                size7: 'Large',
+                size8: 'LARGE',
+                size9: 'huge',
+                size10: 'Huge',
+            }[x[0].fontSize] || '';
+            if (command) {
+                return '\\' + command + ' ' + result;
+            }
+            return result;
+        }));
+    }
+    function emitFontFamilyTextRun(context, run, expandMacro) {
+        return joinLatex(getPropertyRuns(run, 'fontFamily').map((x) => {
+            const result = emitSizeTextRun(context, x);
+            const command = {
+                roman: 'textrm',
+                monospace: 'texttt',
+                'sans-serif': 'textsf',
+            }[x[0].fontFamily] || '';
+            if (command) {
+                return '\\' + command + '{' + result + '}';
+            }
+            if (x[0].fontFamily) {
+                return '\\fontfamily{' + x[0].fontFamily + '}' + result;
+            }
+            return result;
+        }));
+    }
+    function emitStyledTextRun(context, run, expandMacro) {
+        return emitFontFamilyTextRun(context, run);
+    }
+    function emitColorRun(context, run, expandMacro) {
+        return joinLatex(getPropertyRuns(run, 'color').map((x) => {
+            const result = emitStyledTextRun(context, x);
+            if (x[0].color &&
+                x[0].color !== 'none' &&
+                (!context || context.color !== x[0].color)) {
+                // If there is a color specified, and it is different
+                // from our context color, output a command
+                return ('\\textcolor{' +
+                    colorToString(x[0].color) +
+                    '}{' +
+                    result +
+                    '}');
+            }
+            return result;
+        }));
+    }
+    function emitLatexTextRun(context, run, expandMacro) {
+        const result = emitColorRun(context, run);
+        const allAtomsHaveShapeOrSeriesOrFontFamily = run.every((x) => x.fontSeries || x.fontShape || x.fontFamily);
+        if (!allAtomsHaveShapeOrSeriesOrFontFamily ||
+            run[0].mode !== context.mode) {
+            // Wrap in text, only if there isn't a shape or series on
+            // all the atoms, because if so, it will be wrapped in a
+            // \\textbf, \\textit, etc... and the \\text would be redundant
+            return `\\text{${result}}`;
+        }
+        return result;
+    }
+    const TEXT_FONT_CLASS = {
+        roman: '',
+        'sans-serif': 'ML__sans',
+        monospace: 'ML__tt',
+    };
+    /**
+     * Return the font-family name
+     */
+    function applyStyle$4(span, style) {
+        const fontFamily = style.fontFamily;
+        if (TEXT_FONT_CLASS[fontFamily]) {
+            span.classes += ' ' + TEXT_FONT_CLASS[fontFamily];
+        }
+        else if (fontFamily) {
+            // Not a well-known family. Use a style.
+            span.setStyle('font-family', fontFamily);
+        }
+        if (style.fontShape) {
+            span.classes +=
+                ' ' +
+                    ({
+                        it: 'ML__it',
+                        sl: 'ML__shape_sl',
+                        sc: 'ML__shape_sc',
+                        ol: 'ML__shape_ol',
+                    }[style.fontShape] || '');
+        }
+        if (style.fontSeries) {
+            const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
+            if (m) {
+                span.classes +=
+                    ' ' +
+                        ({
+                            ul: 'ML__series_ul',
+                            el: 'ML__series_el',
+                            l: 'ML__series_l',
+                            sl: 'ML__series_sl',
+                            m: '',
+                            sb: 'ML__series_sb',
+                            b: 'ML__bold',
+                            eb: 'ML__series_eb',
+                            ub: 'ML__series_ub',
+                        }[m[1] || ''] || '');
+                span.classes +=
+                    ' ' +
+                        ({
+                            uc: 'ML__series_uc',
+                            ec: 'ML__series_ec',
+                            c: 'ML__series_c',
+                            sc: 'ML__series_sc',
+                            n: '',
+                            sx: 'ML__series_sx',
+                            x: 'ML__series_x',
+                            ex: 'ML__series_ex',
+                            ux: 'ML__series_ux',
+                        }[m[2] || ''] || '');
+            }
+        }
+        // Always use the metrics of 'Main-Regular' in text mode
+        return 'Main-Regular';
+    }
+    // Given an array of tokens, return an array of atoms
+    // options.args
+    // options.macros
+    // options.smartFence
+    // options.style
+    // options.parser
+    function parse(tokens, error, options) {
+        let result = [];
+        let atom;
+        while (tokens.length > 0) {
+            const token = tokens.shift();
+            if (token === '<space>') {
+                atom = new Atom('text', '', ' ', options.style);
+                atom.symbol = ' ';
+                result.push(atom);
+            }
+            else if (token[0] === '\\') {
+                // Invoke the 'main' parser to handle the command
+                tokens.unshift(token);
+                let atoms;
+                [atoms, tokens] = options.parse('text', tokens, options);
+                result = [...result, ...atoms];
+            }
+            else if (token.length === 1) {
+                const info = getInfo(token, 'text', options.macros);
+                if (!info) {
+                    error({ code: 'unexpected-token' });
+                }
+                else if (!info.mode || info.mode.includes('text')) {
+                    atom = new Atom('text', info ? info.type : '', // @todo: revisit. Use 'text' type?
+                    info ? info.value : token, options.style);
+                    atom.symbol = token;
+                    atom.latex = charToLatex('text', token);
+                    result.push(atom);
+                }
+                else {
+                    error({ code: 'unexpected-token' });
+                }
+            }
+            else if (token === '<$>' || token === '<$$>') {
+                // Mode-shift
+                const subtokens = tokens.slice(0, tokens.findIndex((x) => x === token));
+                tokens = tokens.slice(subtokens.length + 1);
+                const [atoms] = options.parse('math', subtokens, options);
+                result = [...result, ...atoms];
+            }
+            else if (token === '<{>' || token === '<}>') ;
+            else {
+                error({
+                    code: 'unexpected-token',
+                    arg: token,
+                });
+            }
+        }
+        return [result, tokens];
+    }
+    register('text', {
+        emitLatexRun: emitLatexTextRun,
+        applyStyle: applyStyle$4,
+        parse: (tokens, error, options) => parse(tokens, error, options)[0],
+    });
+
+    /* eslint-disable */
+    defineFunction(['ce', 'pu'], '{chemformula:string}', null, (name, args) => {
+        return {
+            type: 'group',
+            mode: 'chem',
+            body: parseString(texify.go(mhchemParser.go(args[0], name === '\\pu' ? 'pu' : 'ce'))),
+            latexOpen: '\\' + name + '{',
+            latexClose: '}',
+        };
+    }
+    // (name, _parent, atom, emit) => {
+    //     // let args = '';
+    //     // if (typeof atom.index !== 'undefined') {
+    //     //     args += `[${emit(atom, atom.index)}]`;
+    //     // }
+    //     // args += `{${emit(atom, atom.body as Atom[])}}`;
+    //     return '';
+    // }
+    );
+    /*************************************************************
+     *
+     *  KaTeX mhchem.js
+     *
+     *  This file implements a KaTeX version of mhchem version 3.3.0.
+     *  It is adapted from MathJax/extensions/TeX/mhchem.js
+     *  It differs from the MathJax version as follows:
+     *    1. The interface is changed so that it can be called from KaTeX, not MathJax.
+     *    2. \rlap and \llap are replaced with \mathrlap and \mathllap.
+     *    3. Four lines of code are edited in order to use \raisebox instead of \raise.
+     *    4. The reaction arrow code is simplified. All reaction arrows are rendered
+     *       using KaTeX extensible arrows instead of building non-extensible arrows.
+     *    5. \tripledash vertical alignment is slightly adjusted.
+     *
+     *    This code, as other KaTeX code, is released under the MIT license.
+     *
+     * /*************************************************************
+     *
+     *  MathJax/extensions/TeX/mhchem.js
+     *
+     *  Implements the \ce command for handling chemical formulas
+     *  from the mhchem LaTeX package.
+     *
+     *  ---------------------------------------------------------------------
+     *
+     *  Copyright (c) 2011-2015 The MathJax Consortium
+     *  Copyright (c) 2015-2018 Martin Hensel
+     *
+     *  Licensed under the Apache License, Version 2.0 (the "License");
+     *  you may not use this file except in compliance with the License.
+     *  You may obtain a copy of the License at
+     *
+     *      http://www.apache.org/licenses/LICENSE-2.0
+     *
+     *  Unless required by applicable law or agreed to in writing, software
+     *  distributed under the License is distributed on an "AS IS" BASIS,
+     *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     *  See the License for the specific language governing permissions and
+     *  limitations under the License.
+     */
+    //
+    // Coding Style
+    //   - use '' for identifiers that can by minified/uglified
+    //   - use "" for strings that need to stay untouched
+    // version: "3.3.0" for MathJax and KaTeX
+    // Add \ce, \pu, and \tripledash to the KaTeX macros.
+    /*
+    katex.__defineMacro('\\ce', function (context) {
+        return chemParse(context.consumeArgs(1)[0], 'ce');
+    });
+
+    katex.__defineMacro('\\pu', function (context) {
+        return chemParse(context.consumeArgs(1)[0], 'pu');
+    });
+    */
+    //  Needed for \bond for the ~ forms
+    //  Raise by 2.56mu, not 2mu. We're raising a hyphen-minus, U+002D, not
+    //  a mathematical minus, U+2212. So we need that extra 0.56.
+    /*
+    katex.__defineMacro(
+        '\\tripledash',
+        '{\\vphantom{-}\\raisebox{2.56mu}{$\\mkern2mu' +
+            '\\tiny\\text{-}\\mkern1mu\\text{-}\\mkern1mu\\text{-}\\mkern2mu$}}'
+    );
+    */
+    /* import katex from 'katex'; */
+    //
+    //  This is the main function for handing the \ce and \pu commands.
+    //  It takes the argument to \ce or \pu and returns the corresponding TeX string.
+    //
+    /*
+    var chemParse = function (tokens, stateMachine) {
+        // Recreate the argument string from KaTeX's array of tokens.
+        var str = '';
+        var expectedLoc = tokens[tokens.length - 1].loc.start;
+        for (var i = tokens.length - 1; i >= 0; i--) {
+            if (tokens[i].loc.start > expectedLoc) {
+                // context.consumeArgs has eaten a space.
+                str += ' ';
+                expectedLoc = tokens[i].loc.start;
+            }
+            str += tokens[i].text;
+            expectedLoc += tokens[i].text.length;
+        }
+        var tex = texify.go(mhchemParser.go(str, stateMachine));
+        return tex;
+    };
+    */
+    //
+    // Core parser for mhchem syntax  (recursive)
+    //
+    /** @type {MhchemParser} */
+    var mhchemParser = {
+        //
+        // Parses mchem \ce syntax
+        //
+        // Call like
+        //   go("H2O");
+        //
+        go: function (input, stateMachine) {
+            if (!input) {
+                return [];
+            }
+            if (stateMachine === undefined) {
+                stateMachine = 'ce';
+            }
+            var state = '0';
+            //
+            // String buffers for parsing:
+            //
+            // buffer.a == amount
+            // buffer.o == element
+            // buffer.b == left-side superscript
+            // buffer.p == left-side subscript
+            // buffer.q == right-side subscript
+            // buffer.d == right-side superscript
+            //
+            // buffer.r == arrow
+            // buffer.rdt == arrow, script above, type
+            // buffer.rd == arrow, script above, content
+            // buffer.rqt == arrow, script below, type
+            // buffer.rq == arrow, script below, content
+            //
+            // buffer.text_
+            // buffer.rm
+            // etc.
+            //
+            // buffer.parenthesisLevel == int, starting at 0
+            // buffer.sb == bool, space before
+            // buffer.beginsWithBond == bool
+            //
+            // These letters are also used as state names.
+            //
+            // Other states:
+            // 0 == begin of main part (arrow/operator unlikely)
+            // 1 == next entity
+            // 2 == next entity (arrow/operator unlikely)
+            // 3 == next atom
+            // c == macro
+            //
+            /** @type {Buffer} */
+            var buffer = {};
+            buffer['parenthesisLevel'] = 0;
+            input = input.replace(/\n/g, ' ');
+            input = input.replace(/[\u2212\u2013\u2014\u2010]/g, '-');
+            input = input.replace(/[\u2026]/g, '...');
+            //
+            // Looks through mhchemParser.transitions, to execute a matching action
+            // (recursive)
+            //
+            var lastInput;
+            var watchdog = 10;
+            /** @type {ParserOutput[]} */
+            var output = [];
+            while (true) {
+                if (lastInput !== input) {
+                    watchdog = 10;
+                    lastInput = input;
+                }
+                else {
+                    watchdog--;
+                }
+                //
+                // Find actions in transition table
+                //
+                var machine = mhchemParser.stateMachines[stateMachine];
+                var t = machine.transitions[state] || machine.transitions['*'];
+                iterateTransitions: for (var i = 0; i < t.length; i++) {
+                    var matches = mhchemParser.patterns.match_(t[i].pattern, input);
+                    if (matches) {
+                        //
+                        // Execute actions
+                        //
+                        var task = t[i].task;
+                        for (var iA = 0; iA < task.action_.length; iA++) {
+                            var o;
+                            //
+                            // Find and execute action
+                            //
+                            if (machine.actions[task.action_[iA].type_]) {
+                                o = machine.actions[task.action_[iA].type_](buffer, matches.match_, task.action_[iA].option);
+                            }
+                            else if (mhchemParser.actions[task.action_[iA].type_]) {
+                                o = mhchemParser.actions[task.action_[iA].type_](buffer, matches.match_, task.action_[iA].option);
+                            }
+                            else {
+                                throw [
+                                    'MhchemBugA',
+                                    'mhchem bug A. Please report. (' +
+                                        task.action_[iA].type_ +
+                                        ')',
+                                ]; // Trying to use non-existing action
+                            }
+                            //
+                            // Add output
+                            //
+                            mhchemParser.concatArray(output, o);
+                        }
+                        //
+                        // Set next state,
+                        // Shorten input,
+                        // Continue with next character
+                        //   (= apply only one transition per position)
+                        //
+                        state = task.nextState || state;
+                        if (input.length > 0) {
+                            if (!task.revisit) {
+                                input = matches.remainder;
+                            }
+                            if (!task.toContinue) {
+                                break iterateTransitions;
+                            }
+                        }
+                        else {
+                            return output;
+                        }
+                    }
+                }
+                //
+                // Prevent infinite loop
+                //
+                if (watchdog <= 0) {
+                    throw ['MhchemBugU', 'mhchem bug U. Please report.']; // Unexpected character
+                }
+            }
+        },
+        concatArray: function (a, b) {
+            if (b) {
+                if (Array.isArray(b)) {
+                    for (var iB = 0; iB < b.length; iB++) {
+                        a.push(b[iB]);
+                    }
+                }
+                else {
+                    a.push(b);
+                }
+            }
+        },
+        patterns: {
+            //
+            // Matching patterns
+            // either regexps or function that return null or {match_:"a", remainder:"bc"}
+            //
+            patterns: {
+                // property names must not look like integers ("2") for correct property traversal order, later on
+                empty: /^$/,
+                else: /^./,
+                else2: /^./,
+                space: /^\s/,
+                'space A': /^\s(?=[A-Z\\$])/,
+                space$: /^\s$/,
+                'a-z': /^[a-z]/,
+                x: /^x/,
+                x$: /^x$/,
+                i$: /^i$/,
+                letters: /^(?:[a-zA-Z\u03B1-\u03C9\u0391-\u03A9?@]|(?:\\(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|lambda|mu|nu|xi|omicron|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega|Gamma|Delta|Theta|Lambda|Xi|Pi|Sigma|Upsilon|Phi|Psi|Omega)(?:\s+|\{\}|(?![a-zA-Z]))))+/,
+                '\\greek': /^\\(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|lambda|mu|nu|xi|omicron|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega|Gamma|Delta|Theta|Lambda|Xi|Pi|Sigma|Upsilon|Phi|Psi|Omega)(?:\s+|\{\}|(?![a-zA-Z]))/,
+                'one lowercase latin letter $': /^(?:([a-z])(?:$|[^a-zA-Z]))$/,
+                '$one lowercase latin letter$ $': /^\$(?:([a-z])(?:$|[^a-zA-Z]))\$$/,
+                'one lowercase greek letter $': /^(?:\$?[\u03B1-\u03C9]\$?|\$?\\(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|lambda|mu|nu|xi|omicron|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega)\s*\$?)(?:\s+|\{\}|(?![a-zA-Z]))$/,
+                digits: /^[0-9]+/,
+                '-9.,9': /^[+\-]?(?:[0-9]+(?:[,.][0-9]+)?|[0-9]*(?:\.[0-9]+))/,
+                '-9.,9 no missing 0': /^[+\-]?[0-9]+(?:[.,][0-9]+)?/,
+                '(-)(9.,9)(e)(99)': function (input) {
+                    var m = input.match(/^(\+\-|\+\/\-|\+|\-|\\pm\s?)?([0-9]+(?:[,.][0-9]+)?|[0-9]*(?:\.[0-9]+))?(\((?:[0-9]+(?:[,.][0-9]+)?|[0-9]*(?:\.[0-9]+))\))?(?:([eE]|\s*(\*|x|\\times|\u00D7)\s*10\^)([+\-]?[0-9]+|\{[+\-]?[0-9]+\}))?/);
+                    if (m && m[0]) {
+                        return {
+                            match_: m.splice(1),
+                            remainder: input.substr(m[0].length),
+                        };
+                    }
+                    return null;
+                },
+                '(-)(9)^(-9)': function (input) {
+                    var m = input.match(/^(\+\-|\+\/\-|\+|\-|\\pm\s?)?([0-9]+(?:[,.][0-9]+)?|[0-9]*(?:\.[0-9]+)?)\^([+\-]?[0-9]+|\{[+\-]?[0-9]+\})/);
+                    if (m && m[0]) {
+                        return {
+                            match_: m.splice(1),
+                            remainder: input.substr(m[0].length),
+                        };
+                    }
+                    return null;
+                },
+                'state of aggregation $': function (input) {
+                    // ... or crystal system
+                    var a = mhchemParser.patterns.findObserveGroups(input, '', /^\([a-z]{1,3}(?=[\),])/, ')', ''); // (aq), (aq,$\infty$), (aq, sat)
+                    if (a && a.remainder.match(/^($|[\s,;\)\]\}])/)) {
+                        return a;
+                    } //  AND end of 'phrase'
+                    var m = input.match(/^(?:\((?:\\ca\s?)?\$[amothc]\$\))/); // OR crystal system ($o$) (\ca$c$)
+                    if (m) {
+                        return {
+                            match_: m[0],
+                            remainder: input.substr(m[0].length),
+                        };
+                    }
+                    return null;
+                },
+                '_{(state of aggregation)}$': /^_\{(\([a-z]{1,3}\))\}/,
+                '{[(': /^(?:\\\{|\[|\()/,
+                ')]}': /^(?:\)|\]|\\\})/,
+                ', ': /^[,;]\s*/,
+                ',': /^[,;]/,
+                '.': /^[.]/,
+                '. ': /^([.\u22C5\u00B7\u2022])\s*/,
+                '...': /^\.\.\.(?=$|[^.])/,
+                '* ': /^([*])\s*/,
+                '^{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '^{', '', '', '}');
+                },
+                '^($...$)': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '^', '$', '$', '');
+                },
+                '^a': /^\^([0-9]+|[^\\_])/,
+                '^\\x{}{}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '^', /^\\[a-zA-Z]+\{/, '}', '', '', '{', '}', '', true);
+                },
+                '^\\x{}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '^', /^\\[a-zA-Z]+\{/, '}', '');
+                },
+                '^\\x': /^\^(\\[a-zA-Z]+)\s*/,
+                '^(-1)': /^\^(-?\d+)/,
+                "'": /^'/,
+                '_{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '_{', '', '', '}');
+                },
+                '_($...$)': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '_', '$', '$', '');
+                },
+                _9: /^_([+\-]?[0-9]+|[^\\])/,
+                '_\\x{}{}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '_', /^\\[a-zA-Z]+\{/, '}', '', '', '{', '}', '', true);
+                },
+                '_\\x{}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '_', /^\\[a-zA-Z]+\{/, '}', '');
+                },
+                '_\\x': /^_(\\[a-zA-Z]+)\s*/,
+                '^_': /^(?:\^(?=_)|\_(?=\^)|[\^_]$)/,
+                '{}': /^\{\}/,
+                '{...}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '', '{', '}', '');
+                },
+                '{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '{', '', '', '}');
+                },
+                '$...$': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '', '$', '$', '');
+                },
+                '${(...)}$': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '${', '', '', '}$');
+                },
+                '$(...)$': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '$', '', '', '$');
+                },
+                '=<>': /^[=<>]/,
+                '#': /^[#\u2261]/,
+                '+': /^\+/,
+                '-$': /^-(?=[\s_},;\]/]|$|\([a-z]+\))/,
+                '-9': /^-(?=[0-9])/,
+                '- orbital overlap': /^-(?=(?:[spd]|sp)(?:$|[\s,;\)\]\}]))/,
+                '-': /^-/,
+                'pm-operator': /^(?:\\pm|\$\\pm\$|\+-|\+\/-)/,
+                operator: /^(?:\+|(?:[\-=<>]|<<|>>|\\approx|\$\\approx\$)(?=\s|$|-?[0-9]))/,
+                arrowUpDown: /^(?:v|\(v\)|\^|\(\^\))(?=$|[\s,;\)\]\}])/,
+                '\\bond{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\bond{', '', '', '}');
+                },
+                '->': /^(?:<->|<-->|->|<-|<=>>|<<=>|<=>|[\u2192\u27F6\u21CC])/,
+                CMT: /^[CMT](?=\[)/,
+                '[(...)]': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '[', '', '', ']');
+                },
+                '1st-level escape': /^(&|\\\\|\\hline)\s*/,
+                '\\,': /^(?:\\[,\ ;:])/,
+                '\\x{}{}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '', /^\\[a-zA-Z]+\{/, '}', '', '', '{', '}', '', true);
+                },
+                '\\x{}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '', /^\\[a-zA-Z]+\{/, '}', '');
+                },
+                '\\ca': /^\\ca(?:\s+|(?![a-zA-Z]))/,
+                '\\x': /^(?:\\[a-zA-Z]+\s*|\\[_&{}%])/,
+                orbital: /^(?:[0-9]{1,2}[spdfgh]|[0-9]{0,2}sp)(?=$|[^a-zA-Z])/,
+                others: /^[\/~|]/,
+                '\\frac{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\frac{', '', '', '}', '{', '', '', '}');
+                },
+                '\\overset{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\overset{', '', '', '}', '{', '', '', '}');
+                },
+                '\\underset{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\underset{', '', '', '}', '{', '', '', '}');
+                },
+                '\\underbrace{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\underbrace{', '', '', '}_', '{', '', '', '}');
+                },
+                '\\color{(...)}0': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\color{', '', '', '}');
+                },
+                '\\color{(...)}{(...)}1': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\color{', '', '', '}', '{', '', '', '}');
+                },
+                '\\color(...){(...)}2': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\color', '\\', '', /^(?=\{)/, '{', '', '', '}');
+                },
+                '\\ce{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\ce{', '', '', '}');
+                },
+                oxidation$: /^(?:[+-][IVX]+|\\pm\s*0|\$\\pm\$\s*0)$/,
+                'd-oxidation$': /^(?:[+-]?\s?[IVX]+|\\pm\s*0|\$\\pm\$\s*0)$/,
+                'roman numeral': /^[IVX]+/,
+                '1/2$': /^[+\-]?(?:[0-9]+|\$[a-z]\$|[a-z])\/[0-9]+(?:\$[a-z]\$|[a-z])?$/,
+                amount: function (input) {
+                    var match;
+                    // e.g. 2, 0.5, 1/2, -2, n/2, +;  $a$ could be added later in parsing
+                    match = input.match(/^(?:(?:(?:\([+\-]?[0-9]+\/[0-9]+\)|[+\-]?(?:[0-9]+|\$[a-z]\$|[a-z])\/[0-9]+|[+\-]?[0-9]+[.,][0-9]+|[+\-]?\.[0-9]+|[+\-]?[0-9]+)(?:[a-z](?=\s*[A-Z]))?)|[+\-]?[a-z](?=\s*[A-Z])|\+(?!\s))/);
+                    if (match) {
+                        return {
+                            match_: match[0],
+                            remainder: input.substr(match[0].length),
+                        };
+                    }
+                    var a = mhchemParser.patterns.findObserveGroups(input, '', '$', '$', '');
+                    if (a) {
+                        // e.g. $2n-1$, $-$
+                        match = a.match_.match(/^\$(?:\(?[+\-]?(?:[0-9]*[a-z]?[+\-])?[0-9]*[a-z](?:[+\-][0-9]*[a-z]?)?\)?|\+|-)\$$/);
+                        if (match) {
+                            return {
+                                match_: match[0],
+                                remainder: input.substr(match[0].length),
+                            };
+                        }
+                    }
+                    return null;
+                },
+                amount2: function (input) {
+                    return this['amount'](input);
+                },
+                '(KV letters),': /^(?:[A-Z][a-z]{0,2}|i)(?=,)/,
+                formula$: function (input) {
+                    if (input.match(/^\([a-z]+\)$/)) {
+                        return null;
+                    } // state of aggregation = no formula
+                    var match = input.match(/^(?:[a-z]|(?:[0-9\ \+\-\,\.\(\)]+[a-z])+[0-9\ \+\-\,\.\(\)]*|(?:[a-z][0-9\ \+\-\,\.\(\)]+)+[a-z]?)$/);
+                    if (match) {
+                        return {
+                            match_: match[0],
+                            remainder: input.substr(match[0].length),
+                        };
+                    }
+                    return null;
+                },
+                uprightEntities: /^(?:pH|pOH|pC|pK|iPr|iBu)(?=$|[^a-zA-Z])/,
+                '/': /^\s*(\/)\s*/,
+                '//': /^\s*(\/\/)\s*/,
+                '*': /^\s*[*.]\s*/,
+            },
+            findObserveGroups: function (input, begExcl, begIncl, endIncl, endExcl, beg2Excl, beg2Incl, end2Incl, end2Excl, combine) {
+                /** @type {{(input: string, pattern: string | RegExp): string | string[] | null;}} */
+                var _match = function (input, pattern) {
+                    if (typeof pattern === 'string') {
+                        if (input.indexOf(pattern) !== 0) {
+                            return null;
+                        }
+                        return pattern;
+                    }
+                    else {
+                        var match = input.match(pattern);
+                        if (!match) {
+                            return null;
+                        }
+                        return match[0];
+                    }
+                };
+                /** @type {{(input: string, i: number, endChars: string | RegExp): {endMatchBegin: number, endMatchEnd: number} | null;}} */
+                var _findObserveGroups = function (input, i, endChars) {
+                    var braces = 0;
+                    while (i < input.length) {
+                        var a = input.charAt(i);
+                        var match = _match(input.substr(i), endChars);
+                        if (match !== null && braces === 0) {
+                            return {
+                                endMatchBegin: i,
+                                endMatchEnd: i + match.length,
+                            };
+                        }
+                        else if (a === '{') {
+                            braces++;
+                        }
+                        else if (a === '}') {
+                            if (braces === 0) {
+                                throw [
+                                    'ExtraCloseMissingOpen',
+                                    'Extra close brace or missing open brace',
+                                ];
+                            }
+                            else {
+                                braces--;
+                            }
+                        }
+                        i++;
+                    }
+                    if (braces > 0) {
+                        return null;
+                    }
+                    return null;
+                };
+                var match = _match(input, begExcl);
+                if (match === null) {
+                    return null;
+                }
+                input = input.substr(match.length);
+                match = _match(input, begIncl);
+                if (match === null) {
+                    return null;
+                }
+                var e = _findObserveGroups(input, match.length, endIncl || endExcl);
+                if (e === null) {
+                    return null;
+                }
+                var match1 = input.substring(0, endIncl ? e.endMatchEnd : e.endMatchBegin);
+                if (!(beg2Excl || beg2Incl)) {
+                    return {
+                        match_: match1,
+                        remainder: input.substr(e.endMatchEnd),
+                    };
+                }
+                else {
+                    var group2 = this.findObserveGroups(input.substr(e.endMatchEnd), beg2Excl, beg2Incl, end2Incl, end2Excl);
+                    if (group2 === null) {
+                        return null;
+                    }
+                    /** @type {string[]} */
+                    var matchRet = [match1, group2.match_];
+                    return {
+                        match_: combine ? matchRet.join('') : matchRet,
+                        remainder: group2.remainder,
+                    };
+                }
+            },
+            //
+            // Matching function
+            // e.g. match("a", input) will look for the regexp called "a" and see if it matches
+            // returns null or {match_:"a", remainder:"bc"}
+            //
+            match_: function (m, input) {
+                var pattern = mhchemParser.patterns.patterns[m];
+                if (pattern === undefined) {
+                    throw [
+                        'MhchemBugP',
+                        'mhchem bug P. Please report. (' + m + ')',
+                    ]; // Trying to use non-existing pattern
+                }
+                else if (typeof pattern === 'function') {
+                    return mhchemParser.patterns.patterns[m](input); // cannot use cached var pattern here, because some pattern functions need this===mhchemParser
+                }
+                else {
+                    // RegExp
+                    var match = input.match(pattern);
+                    if (match) {
+                        var mm;
+                        if (match[2]) {
+                            mm = [match[1], match[2]];
+                        }
+                        else if (match[1]) {
+                            mm = match[1];
+                        }
+                        else {
+                            mm = match[0];
+                        }
+                        return {
+                            match_: mm,
+                            remainder: input.substr(match[0].length),
+                        };
+                    }
+                    return null;
+                }
+            },
+        },
+        //
+        // Generic state machine actions
+        //
+        actions: {
+            'a=': function (buffer, m) {
+                buffer.a = (buffer.a || '') + m;
+            },
+            'b=': function (buffer, m) {
+                buffer.b = (buffer.b || '') + m;
+            },
+            'p=': function (buffer, m) {
+                buffer.p = (buffer.p || '') + m;
+            },
+            'o=': function (buffer, m) {
+                buffer.o = (buffer.o || '') + m;
+            },
+            'q=': function (buffer, m) {
+                buffer.q = (buffer.q || '') + m;
+            },
+            'd=': function (buffer, m) {
+                buffer.d = (buffer.d || '') + m;
+            },
+            'rm=': function (buffer, m) {
+                buffer.rm = (buffer.rm || '') + m;
+            },
+            'text=': function (buffer, m) {
+                buffer.text_ = (buffer.text_ || '') + m;
+            },
+            insert: function (buffer, m, a) {
+                return { type_: a };
+            },
+            'insert+p1': function (buffer, m, a) {
+                return { type_: a, p1: m };
+            },
+            'insert+p1+p2': function (buffer, m, a) {
+                return { type_: a, p1: m[0], p2: m[1] };
+            },
+            copy: function (buffer, m) {
+                return m;
+            },
+            rm: function (buffer, m) {
+                return { type_: 'rm', p1: m || '' };
+            },
+            text: function (buffer, m) {
+                return mhchemParser.go(m, 'text');
+            },
+            '{text}': function (buffer, m) {
+                var ret = ['{'];
+                mhchemParser.concatArray(ret, mhchemParser.go(m, 'text'));
+                ret.push('}');
+                return ret;
+            },
+            'tex-math': function (buffer, m) {
+                return mhchemParser.go(m, 'tex-math');
+            },
+            'tex-math tight': function (buffer, m) {
+                return mhchemParser.go(m, 'tex-math tight');
+            },
+            bond: function (buffer, m, k) {
+                return { type_: 'bond', kind_: k || m };
+            },
+            'color0-output': function (buffer, m) {
+                return { type_: 'color0', color: m[0] };
+            },
+            ce: function (buffer, m) {
+                return mhchemParser.go(m);
+            },
+            '1/2': function (buffer, m) {
+                /** @type {ParserOutput[]} */
+                var ret = [];
+                if (m.match(/^[+\-]/)) {
+                    ret.push(m.substr(0, 1));
+                    m = m.substr(1);
+                }
+                var n = m.match(/^([0-9]+|\$[a-z]\$|[a-z])\/([0-9]+)(\$[a-z]\$|[a-z])?$/);
+                n[1] = n[1].replace(/\$/g, '');
+                ret.push({ type_: 'frac', p1: n[1], p2: n[2] });
+                if (n[3]) {
+                    n[3] = n[3].replace(/\$/g, '');
+                    ret.push({ type_: 'tex-math', p1: n[3] });
+                }
+                return ret;
+            },
+            '9,9': function (buffer, m) {
+                return mhchemParser.go(m, '9,9');
+            },
+        },
+        //
+        // createTransitions
+        // convert  { 'letter': { 'state': { action_: 'output' } } }  to  { 'state' => [ { pattern: 'letter', task: { action_: [{type_: 'output'}] } } ] }
+        // with expansion of 'a|b' to 'a' and 'b' (at 2 places)
+        //
+        createTransitions: function (o) {
+            var pattern, state;
+            /** @type {string[]} */
+            var stateArray;
+            var i;
+            //
+            // 1. Collect all states
+            //
+            /** @type {Transitions} */
+            var transitions = {};
+            for (pattern in o) {
+                for (state in o[pattern]) {
+                    stateArray = state.split('|');
+                    o[pattern][state].stateArray = stateArray;
+                    for (i = 0; i < stateArray.length; i++) {
+                        transitions[stateArray[i]] = [];
+                    }
+                }
+            }
+            //
+            // 2. Fill states
+            //
+            for (pattern in o) {
+                for (state in o[pattern]) {
+                    stateArray = o[pattern][state].stateArray || [];
+                    for (i = 0; i < stateArray.length; i++) {
+                        //
+                        // 2a. Normalize actions into array:  'text=' ==> [{type_:'text='}]
+                        // (Note to myself: Resolving the function here would be problematic. It would need .bind (for *this*) and currying (for *option*).)
+                        //
+                        /** @type {any} */
+                        var p = o[pattern][state];
+                        if (p.action_) {
+                            p.action_ = [].concat(p.action_);
+                            for (var k = 0; k < p.action_.length; k++) {
+                                if (typeof p.action_[k] === 'string') {
+                                    p.action_[k] = { type_: p.action_[k] };
+                                }
+                            }
+                        }
+                        else {
+                            p.action_ = [];
+                        }
+                        //
+                        // 2.b Multi-insert
+                        //
+                        var patternArray = pattern.split('|');
+                        for (var j = 0; j < patternArray.length; j++) {
+                            if (stateArray[i] === '*') {
+                                // insert into all
+                                for (var t in transitions) {
+                                    transitions[t].push({
+                                        pattern: patternArray[j],
+                                        task: p,
+                                    });
+                                }
+                            }
+                            else {
+                                transitions[stateArray[i]].push({
+                                    pattern: patternArray[j],
+                                    task: p,
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            return transitions;
+        },
+        stateMachines: {},
+    };
+    //
+    // Definition of state machines
+    //
+    mhchemParser.stateMachines = {
+        //
+        // \ce state machines
+        //
+        //#region ce
+        ce: {
+            // main parser
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': { action_: 'output' },
+                },
+                else: {
+                    '0|1|2': {
+                        action_: 'beginsWithBond=false',
+                        revisit: true,
+                        toContinue: true,
+                    },
+                },
+                oxidation$: {
+                    '0': { action_: 'oxidation-output' },
+                },
+                CMT: {
+                    r: { action_: 'rdt=', nextState: 'rt' },
+                    rd: { action_: 'rqt=', nextState: 'rdt' },
+                },
+                arrowUpDown: {
+                    '0|1|2|as': {
+                        action_: ['sb=false', 'output', 'operator'],
+                        nextState: '1',
+                    },
+                },
+                uprightEntities: {
+                    '0|1|2': { action_: ['o=', 'output'], nextState: '1' },
+                },
+                orbital: {
+                    '0|1|2|3': { action_: 'o=', nextState: 'o' },
+                },
+                '->': {
+                    '0|1|2|3': { action_: 'r=', nextState: 'r' },
+                    'a|as': { action_: ['output', 'r='], nextState: 'r' },
+                    '*': { action_: ['output', 'r='], nextState: 'r' },
+                },
+                '+': {
+                    o: { action_: 'd= kv', nextState: 'd' },
+                    'd|D': { action_: 'd=', nextState: 'd' },
+                    q: { action_: 'd=', nextState: 'qd' },
+                    'qd|qD': { action_: 'd=', nextState: 'qd' },
+                    dq: { action_: ['output', 'd='], nextState: 'd' },
+                    '3': {
+                        action_: ['sb=false', 'output', 'operator'],
+                        nextState: '0',
+                    },
+                },
+                amount: {
+                    '0|2': { action_: 'a=', nextState: 'a' },
+                },
+                'pm-operator': {
+                    '0|1|2|a|as': {
+                        action_: [
+                            'sb=false',
+                            'output',
+                            { type_: 'operator', option: '\\pm' },
+                        ],
+                        nextState: '0',
+                    },
+                },
+                operator: {
+                    '0|1|2|a|as': {
+                        action_: ['sb=false', 'output', 'operator'],
+                        nextState: '0',
+                    },
+                },
+                '-$': {
+                    'o|q': {
+                        action_: ['charge or bond', 'output'],
+                        nextState: 'qd',
+                    },
+                    d: { action_: 'd=', nextState: 'd' },
+                    D: {
+                        action_: ['output', { type_: 'bond', option: '-' }],
+                        nextState: '3',
+                    },
+                    q: { action_: 'd=', nextState: 'qd' },
+                    qd: { action_: 'd=', nextState: 'qd' },
+                    'qD|dq': {
+                        action_: ['output', { type_: 'bond', option: '-' }],
+                        nextState: '3',
+                    },
+                },
+                '-9': {
+                    '3|o': {
+                        action_: ['output', { type_: 'insert', option: 'hyphen' }],
+                        nextState: '3',
+                    },
+                },
+                '- orbital overlap': {
+                    o: {
+                        action_: ['output', { type_: 'insert', option: 'hyphen' }],
+                        nextState: '2',
+                    },
+                    d: {
+                        action_: ['output', { type_: 'insert', option: 'hyphen' }],
+                        nextState: '2',
+                    },
+                },
+                '-': {
+                    '0|1|2': {
+                        action_: [
+                            { type_: 'output', option: 1 },
+                            'beginsWithBond=true',
+                            { type_: 'bond', option: '-' },
+                        ],
+                        nextState: '3',
+                    },
+                    '3': { action_: { type_: 'bond', option: '-' } },
+                    a: {
+                        action_: ['output', { type_: 'insert', option: 'hyphen' }],
+                        nextState: '2',
+                    },
+                    as: {
+                        action_: [
+                            { type_: 'output', option: 2 },
+                            { type_: 'bond', option: '-' },
+                        ],
+                        nextState: '3',
+                    },
+                    b: { action_: 'b=' },
+                    o: {
+                        action_: { type_: '- after o/d', option: false },
+                        nextState: '2',
+                    },
+                    q: {
+                        action_: { type_: '- after o/d', option: false },
+                        nextState: '2',
+                    },
+                    'd|qd|dq': {
+                        action_: { type_: '- after o/d', option: true },
+                        nextState: '2',
+                    },
+                    'D|qD|p': {
+                        action_: ['output', { type_: 'bond', option: '-' }],
+                        nextState: '3',
+                    },
+                },
+                amount2: {
+                    '1|3': { action_: 'a=', nextState: 'a' },
+                },
+                letters: {
+                    '0|1|2|3|a|as|b|p|bp|o': { action_: 'o=', nextState: 'o' },
+                    'q|dq': { action_: ['output', 'o='], nextState: 'o' },
+                    'd|D|qd|qD': { action_: 'o after d', nextState: 'o' },
+                },
+                digits: {
+                    o: { action_: 'q=', nextState: 'q' },
+                    'd|D': { action_: 'q=', nextState: 'dq' },
+                    q: { action_: ['output', 'o='], nextState: 'o' },
+                    a: { action_: 'o=', nextState: 'o' },
+                },
+                'space A': {
+                    'b|p|bp': {},
+                },
+                space: {
+                    a: { nextState: 'as' },
+                    '0': { action_: 'sb=false' },
+                    '1|2': { action_: 'sb=true' },
+                    'r|rt|rd|rdt|rdq': { action_: 'output', nextState: '0' },
+                    '*': { action_: ['output', 'sb=true'], nextState: '1' },
+                },
+                '1st-level escape': {
+                    '1|2': {
+                        action_: [
+                            'output',
+                            { type_: 'insert+p1', option: '1st-level escape' },
+                        ],
+                    },
+                    '*': {
+                        action_: [
+                            'output',
+                            { type_: 'insert+p1', option: '1st-level escape' },
+                        ],
+                        nextState: '0',
+                    },
+                },
+                '[(...)]': {
+                    'r|rt': { action_: 'rd=', nextState: 'rd' },
+                    'rd|rdt': { action_: 'rq=', nextState: 'rdq' },
+                },
+                '...': {
+                    'o|d|D|dq|qd|qD': {
+                        action_: ['output', { type_: 'bond', option: '...' }],
+                        nextState: '3',
+                    },
+                    '*': {
+                        action_: [
+                            { type_: 'output', option: 1 },
+                            { type_: 'insert', option: 'ellipsis' },
+                        ],
+                        nextState: '1',
+                    },
+                },
+                '. |* ': {
+                    '*': {
+                        action_: [
+                            'output',
+                            { type_: 'insert', option: 'addition compound' },
+                        ],
+                        nextState: '1',
+                    },
+                },
+                'state of aggregation $': {
+                    '*': {
+                        action_: ['output', 'state of aggregation'],
+                        nextState: '1',
+                    },
+                },
+                '{[(': {
+                    'a|as|o': {
+                        action_: ['o=', 'output', 'parenthesisLevel++'],
+                        nextState: '2',
+                    },
+                    '0|1|2|3': {
+                        action_: ['o=', 'output', 'parenthesisLevel++'],
+                        nextState: '2',
+                    },
+                    '*': {
+                        action_: ['output', 'o=', 'output', 'parenthesisLevel++'],
+                        nextState: '2',
+                    },
+                },
+                ')]}': {
+                    '0|1|2|3|b|p|bp|o': {
+                        action_: ['o=', 'parenthesisLevel--'],
+                        nextState: 'o',
+                    },
+                    'a|as|d|D|q|qd|qD|dq': {
+                        action_: ['output', 'o=', 'parenthesisLevel--'],
+                        nextState: 'o',
+                    },
+                },
+                ', ': {
+                    '*': { action_: ['output', 'comma'], nextState: '0' },
+                },
+                '^_': {
+                    // ^ and _ without a sensible argument
+                    '*': {},
+                },
+                '^{(...)}|^($...$)': {
+                    '0|1|2|as': { action_: 'b=', nextState: 'b' },
+                    p: { action_: 'b=', nextState: 'bp' },
+                    '3|o': { action_: 'd= kv', nextState: 'D' },
+                    q: { action_: 'd=', nextState: 'qD' },
+                    'd|D|qd|qD|dq': { action_: ['output', 'd='], nextState: 'D' },
+                },
+                "^a|^\\x{}{}|^\\x{}|^\\x|'": {
+                    '0|1|2|as': { action_: 'b=', nextState: 'b' },
+                    p: { action_: 'b=', nextState: 'bp' },
+                    '3|o': { action_: 'd= kv', nextState: 'd' },
+                    q: { action_: 'd=', nextState: 'qd' },
+                    'd|qd|D|qD': { action_: 'd=' },
+                    dq: { action_: ['output', 'd='], nextState: 'd' },
+                },
+                '_{(state of aggregation)}$': {
+                    'd|D|q|qd|qD|dq': { action_: ['output', 'q='], nextState: 'q' },
+                },
+                '_{(...)}|_($...$)|_9|_\\x{}{}|_\\x{}|_\\x': {
+                    '0|1|2|as': { action_: 'p=', nextState: 'p' },
+                    b: { action_: 'p=', nextState: 'bp' },
+                    '3|o': { action_: 'q=', nextState: 'q' },
+                    'd|D': { action_: 'q=', nextState: 'dq' },
+                    'q|qd|qD|dq': { action_: ['output', 'q='], nextState: 'q' },
+                },
+                '=<>': {
+                    '0|1|2|3|a|as|o|q|d|D|qd|qD|dq': {
+                        action_: [{ type_: 'output', option: 2 }, 'bond'],
+                        nextState: '3',
+                    },
+                },
+                '#': {
+                    '0|1|2|3|a|as|o': {
+                        action_: [
+                            { type_: 'output', option: 2 },
+                            { type_: 'bond', option: '#' },
+                        ],
+                        nextState: '3',
+                    },
+                },
+                '{}': {
+                    '*': {
+                        action_: { type_: 'output', option: 1 },
+                        nextState: '1',
+                    },
+                },
+                '{...}': {
+                    '0|1|2|3|a|as|b|p|bp': { action_: 'o=', nextState: 'o' },
+                    'o|d|D|q|qd|qD|dq': {
+                        action_: ['output', 'o='],
+                        nextState: 'o',
+                    },
+                },
+                '$...$': {
+                    a: { action_: 'a=' },
+                    '0|1|2|3|as|b|p|bp|o': { action_: 'o=', nextState: 'o' },
+                    'as|o': { action_: 'o=' },
+                    'q|d|D|qd|qD|dq': { action_: ['output', 'o='], nextState: 'o' },
+                },
+                '\\bond{(...)}': {
+                    '*': {
+                        action_: [{ type_: 'output', option: 2 }, 'bond'],
+                        nextState: '3',
+                    },
+                },
+                '\\frac{(...)}': {
+                    '*': {
+                        action_: [{ type_: 'output', option: 1 }, 'frac-output'],
+                        nextState: '3',
+                    },
+                },
+                '\\overset{(...)}': {
+                    '*': {
+                        action_: [{ type_: 'output', option: 2 }, 'overset-output'],
+                        nextState: '3',
+                    },
+                },
+                '\\underset{(...)}': {
+                    '*': {
+                        action_: [
+                            { type_: 'output', option: 2 },
+                            'underset-output',
+                        ],
+                        nextState: '3',
+                    },
+                },
+                '\\underbrace{(...)}': {
+                    '*': {
+                        action_: [
+                            { type_: 'output', option: 2 },
+                            'underbrace-output',
+                        ],
+                        nextState: '3',
+                    },
+                },
+                '\\color{(...)}{(...)}1|\\color(...){(...)}2': {
+                    '*': {
+                        action_: [{ type_: 'output', option: 2 }, 'color-output'],
+                        nextState: '3',
+                    },
+                },
+                '\\color{(...)}0': {
+                    '*': {
+                        action_: [{ type_: 'output', option: 2 }, 'color0-output'],
+                    },
+                },
+                '\\ce{(...)}': {
+                    '*': {
+                        action_: [{ type_: 'output', option: 2 }, 'ce'],
+                        nextState: '3',
+                    },
+                },
+                '\\,': {
+                    '*': {
+                        action_: [{ type_: 'output', option: 1 }, 'copy'],
+                        nextState: '1',
+                    },
+                },
+                '\\x{}{}|\\x{}|\\x': {
+                    '0|1|2|3|a|as|b|p|bp|o|c0': {
+                        action_: ['o=', 'output'],
+                        nextState: '3',
+                    },
+                    '*': { action_: ['output', 'o=', 'output'], nextState: '3' },
+                },
+                others: {
+                    '*': {
+                        action_: [{ type_: 'output', option: 1 }, 'copy'],
+                        nextState: '3',
+                    },
+                },
+                else2: {
+                    a: { action_: 'a to o', nextState: 'o', revisit: true },
+                    as: {
+                        action_: ['output', 'sb=true'],
+                        nextState: '1',
+                        revisit: true,
+                    },
+                    'r|rt|rd|rdt|rdq': {
+                        action_: ['output'],
+                        nextState: '0',
+                        revisit: true,
+                    },
+                    '*': { action_: ['output', 'copy'], nextState: '3' },
+                },
+            }),
+            actions: {
+                'o after d': function (buffer, m) {
+                    var ret;
+                    if ((buffer.d || '').match(/^[0-9]+$/)) {
+                        var tmp = buffer.d;
+                        buffer.d = undefined;
+                        ret = this['output'](buffer);
+                        buffer.b = tmp;
+                    }
+                    else {
+                        ret = this['output'](buffer);
+                    }
+                    mhchemParser.actions['o='](buffer, m);
+                    return ret;
+                },
+                'd= kv': function (buffer, m) {
+                    buffer.d = m;
+                    buffer.dType = 'kv';
+                },
+                'charge or bond': function (buffer, m) {
+                    if (buffer['beginsWithBond']) {
+                        /** @type {ParserOutput[]} */
+                        var ret = [];
+                        mhchemParser.concatArray(ret, this['output'](buffer));
+                        mhchemParser.concatArray(ret, mhchemParser.actions['bond'](buffer, m, '-'));
+                        return ret;
+                    }
+                    else {
+                        buffer.d = m;
+                    }
+                },
+                '- after o/d': function (buffer, m, isAfterD) {
+                    var c1 = mhchemParser.patterns.match_('orbital', buffer.o || '');
+                    var c2 = mhchemParser.patterns.match_('one lowercase greek letter $', buffer.o || '');
+                    var c3 = mhchemParser.patterns.match_('one lowercase latin letter $', buffer.o || '');
+                    var c4 = mhchemParser.patterns.match_('$one lowercase latin letter$ $', buffer.o || '');
+                    var hyphenFollows = m === '-' &&
+                        ((c1 && c1.remainder === '') || c2 || c3 || c4);
+                    if (hyphenFollows &&
+                        !buffer.a &&
+                        !buffer.b &&
+                        !buffer.p &&
+                        !buffer.d &&
+                        !buffer.q &&
+                        !c1 &&
+                        c3) {
+                        buffer.o = '$' + buffer.o + '$';
+                    }
+                    /** @type {ParserOutput[]} */
+                    var ret = [];
+                    if (hyphenFollows) {
+                        mhchemParser.concatArray(ret, this['output'](buffer));
+                        ret.push({ type_: 'hyphen' });
+                    }
+                    else {
+                        c1 = mhchemParser.patterns.match_('digits', buffer.d || '');
+                        if (isAfterD && c1 && c1.remainder === '') {
+                            mhchemParser.concatArray(ret, mhchemParser.actions['d='](buffer, m));
+                            mhchemParser.concatArray(ret, this['output'](buffer));
+                        }
+                        else {
+                            mhchemParser.concatArray(ret, this['output'](buffer));
+                            mhchemParser.concatArray(ret, mhchemParser.actions['bond'](buffer, m, '-'));
+                        }
+                    }
+                    return ret;
+                },
+                'a to o': function (buffer) {
+                    buffer.o = buffer.a;
+                    buffer.a = undefined;
+                },
+                'sb=true': function (buffer) {
+                    buffer.sb = true;
+                },
+                'sb=false': function (buffer) {
+                    buffer.sb = false;
+                },
+                'beginsWithBond=true': function (buffer) {
+                    buffer['beginsWithBond'] = true;
+                },
+                'beginsWithBond=false': function (buffer) {
+                    buffer['beginsWithBond'] = false;
+                },
+                'parenthesisLevel++': function (buffer) {
+                    buffer['parenthesisLevel']++;
+                },
+                'parenthesisLevel--': function (buffer) {
+                    buffer['parenthesisLevel']--;
+                },
+                'state of aggregation': function (buffer, m) {
+                    return {
+                        type_: 'state of aggregation',
+                        p1: mhchemParser.go(m, 'o'),
+                    };
+                },
+                comma: function (buffer, m) {
+                    var a = m.replace(/\s*$/, '');
+                    var withSpace = a !== m;
+                    if (withSpace && buffer['parenthesisLevel'] === 0) {
+                        return { type_: 'comma enumeration L', p1: a };
+                    }
+                    else {
+                        return { type_: 'comma enumeration M', p1: a };
+                    }
+                },
+                output: function (buffer, m, entityFollows) {
+                    // entityFollows:
+                    //   undefined = if we have nothing else to output, also ignore the just read space (buffer.sb)
+                    //   1 = an entity follows, never omit the space if there was one just read before (can only apply to state 1)
+                    //   2 = 1 + the entity can have an amount, so output a\, instead of converting it to o (can only apply to states a|as)
+                    /** @type {ParserOutput | ParserOutput[]} */
+                    var ret;
+                    if (!buffer.r) {
+                        ret = [];
+                        if (!buffer.a &&
+                            !buffer.b &&
+                            !buffer.p &&
+                            !buffer.o &&
+                            !buffer.q &&
+                            !buffer.d &&
+                            !entityFollows) ;
+                        else {
+                            if (buffer.sb) {
+                                ret.push({ type_: 'entitySkip' });
+                            }
+                            if (!buffer.o &&
+                                !buffer.q &&
+                                !buffer.d &&
+                                !buffer.b &&
+                                !buffer.p &&
+                                entityFollows !== 2) {
+                                buffer.o = buffer.a;
+                                buffer.a = undefined;
+                            }
+                            else if (!buffer.o &&
+                                !buffer.q &&
+                                !buffer.d &&
+                                (buffer.b || buffer.p)) {
+                                buffer.o = buffer.a;
+                                buffer.d = buffer.b;
+                                buffer.q = buffer.p;
+                                buffer.a = buffer.b = buffer.p = undefined;
+                            }
+                            else {
+                                if (buffer.o &&
+                                    buffer.dType === 'kv' &&
+                                    mhchemParser.patterns.match_('d-oxidation$', buffer.d || '')) {
+                                    buffer.dType = 'oxidation';
+                                }
+                                else if (buffer.o &&
+                                    buffer.dType === 'kv' &&
+                                    !buffer.q) {
+                                    buffer.dType = undefined;
+                                }
+                            }
+                            ret.push({
+                                type_: 'chemfive',
+                                a: mhchemParser.go(buffer.a, 'a'),
+                                b: mhchemParser.go(buffer.b, 'bd'),
+                                p: mhchemParser.go(buffer.p, 'pq'),
+                                o: mhchemParser.go(buffer.o, 'o'),
+                                q: mhchemParser.go(buffer.q, 'pq'),
+                                d: mhchemParser.go(buffer.d, buffer.dType === 'oxidation'
+                                    ? 'oxidation'
+                                    : 'bd'),
+                                dType: buffer.dType,
+                            });
+                        }
+                    }
+                    else {
+                        // r
+                        /** @type {ParserOutput[]} */
+                        var rd;
+                        if (buffer.rdt === 'M') {
+                            rd = mhchemParser.go(buffer.rd, 'tex-math');
+                        }
+                        else if (buffer.rdt === 'T') {
+                            rd = [{ type_: 'text', p1: buffer.rd || '' }];
+                        }
+                        else {
+                            rd = mhchemParser.go(buffer.rd);
+                        }
+                        /** @type {ParserOutput[]} */
+                        var rq;
+                        if (buffer.rqt === 'M') {
+                            rq = mhchemParser.go(buffer.rq, 'tex-math');
+                        }
+                        else if (buffer.rqt === 'T') {
+                            rq = [{ type_: 'text', p1: buffer.rq || '' }];
+                        }
+                        else {
+                            rq = mhchemParser.go(buffer.rq);
+                        }
+                        ret = {
+                            type_: 'arrow',
+                            r: buffer.r,
+                            rd: rd,
+                            rq: rq,
+                        };
+                    }
+                    for (var p in buffer) {
+                        if (p !== 'parenthesisLevel' && p !== 'beginsWithBond') {
+                            delete buffer[p];
+                        }
+                    }
+                    return ret;
+                },
+                'oxidation-output': function (buffer, m) {
+                    var ret = ['{'];
+                    mhchemParser.concatArray(ret, mhchemParser.go(m, 'oxidation'));
+                    ret.push('}');
+                    return ret;
+                },
+                'frac-output': function (buffer, m) {
+                    return {
+                        type_: 'frac-ce',
+                        p1: mhchemParser.go(m[0]),
+                        p2: mhchemParser.go(m[1]),
+                    };
+                },
+                'overset-output': function (buffer, m) {
+                    return {
+                        type_: 'overset',
+                        p1: mhchemParser.go(m[0]),
+                        p2: mhchemParser.go(m[1]),
+                    };
+                },
+                'underset-output': function (buffer, m) {
+                    return {
+                        type_: 'underset',
+                        p1: mhchemParser.go(m[0]),
+                        p2: mhchemParser.go(m[1]),
+                    };
+                },
+                'underbrace-output': function (buffer, m) {
+                    return {
+                        type_: 'underbrace',
+                        p1: mhchemParser.go(m[0]),
+                        p2: mhchemParser.go(m[1]),
+                    };
+                },
+                'color-output': function (buffer, m) {
+                    return {
+                        type_: 'color',
+                        color1: m[0],
+                        color2: mhchemParser.go(m[1]),
+                    };
+                },
+                'r=': function (buffer, m) {
+                    buffer.r = m;
+                },
+                'rdt=': function (buffer, m) {
+                    buffer.rdt = m;
+                },
+                'rd=': function (buffer, m) {
+                    buffer.rd = m;
+                },
+                'rqt=': function (buffer, m) {
+                    buffer.rqt = m;
+                },
+                'rq=': function (buffer, m) {
+                    buffer.rq = m;
+                },
+                operator: function (buffer, m, p1) {
+                    return { type_: 'operator', kind_: p1 || m };
+                },
+            },
+        },
+        a: {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': {},
+                },
+                '1/2$': {
+                    '0': { action_: '1/2' },
+                },
+                else: {
+                    '0': { nextState: '1', revisit: true },
+                },
+                '$(...)$': {
+                    '*': { action_: 'tex-math tight', nextState: '1' },
+                },
+                ',': {
+                    '*': { action_: { type_: 'insert', option: 'commaDecimal' } },
+                },
+                else2: {
+                    '*': { action_: 'copy' },
+                },
+            }),
+            actions: {},
+        },
+        o: {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': {},
+                },
+                '1/2$': {
+                    '0': { action_: '1/2' },
+                },
+                else: {
+                    '0': { nextState: '1', revisit: true },
+                },
+                letters: {
+                    '*': { action_: 'rm' },
+                },
+                '\\ca': {
+                    '*': { action_: { type_: 'insert', option: 'circa' } },
+                },
+                '\\x{}{}|\\x{}|\\x': {
+                    '*': { action_: 'copy' },
+                },
+                '${(...)}$|$(...)$': {
+                    '*': { action_: 'tex-math' },
+                },
+                '{(...)}': {
+                    '*': { action_: '{text}' },
+                },
+                else2: {
+                    '*': { action_: 'copy' },
+                },
+            }),
+            actions: {},
+        },
+        text: {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': { action_: 'output' },
+                },
+                '{...}': {
+                    '*': { action_: 'text=' },
+                },
+                '${(...)}$|$(...)$': {
+                    '*': { action_: 'tex-math' },
+                },
+                '\\greek': {
+                    '*': { action_: ['output', 'rm'] },
+                },
+                '\\,|\\x{}{}|\\x{}|\\x': {
+                    '*': { action_: ['output', 'copy'] },
+                },
+                else: {
+                    '*': { action_: 'text=' },
+                },
+            }),
+            actions: {
+                output: function (buffer) {
+                    if (buffer.text_) {
+                        /** @type {ParserOutput} */
+                        var ret = { type_: 'text', p1: buffer.text_ };
+                        for (var p in buffer) {
+                            delete buffer[p];
+                        }
+                        return ret;
+                    }
+                },
+            },
+        },
+        pq: {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': {},
+                },
+                'state of aggregation $': {
+                    '*': { action_: 'state of aggregation' },
+                },
+                i$: {
+                    '0': { nextState: '!f', revisit: true },
+                },
+                '(KV letters),': {
+                    '0': { action_: 'rm', nextState: '0' },
+                },
+                formula$: {
+                    '0': { nextState: 'f', revisit: true },
+                },
+                '1/2$': {
+                    '0': { action_: '1/2' },
+                },
+                else: {
+                    '0': { nextState: '!f', revisit: true },
+                },
+                '${(...)}$|$(...)$': {
+                    '*': { action_: 'tex-math' },
+                },
+                '{(...)}': {
+                    '*': { action_: 'text' },
+                },
+                'a-z': {
+                    f: { action_: 'tex-math' },
+                },
+                letters: {
+                    '*': { action_: 'rm' },
+                },
+                '-9.,9': {
+                    '*': { action_: '9,9' },
+                },
+                ',': {
+                    '*': {
+                        action_: {
+                            type_: 'insert+p1',
+                            option: 'comma enumeration S',
+                        },
+                    },
+                },
+                '\\color{(...)}{(...)}1|\\color(...){(...)}2': {
+                    '*': { action_: 'color-output' },
+                },
+                '\\color{(...)}0': {
+                    '*': { action_: 'color0-output' },
+                },
+                '\\ce{(...)}': {
+                    '*': { action_: 'ce' },
+                },
+                '\\,|\\x{}{}|\\x{}|\\x': {
+                    '*': { action_: 'copy' },
+                },
+                else2: {
+                    '*': { action_: 'copy' },
+                },
+            }),
+            actions: {
+                'state of aggregation': function (buffer, m) {
+                    return {
+                        type_: 'state of aggregation subscript',
+                        p1: mhchemParser.go(m, 'o'),
+                    };
+                },
+                'color-output': function (buffer, m) {
+                    return {
+                        type_: 'color',
+                        color1: m[0],
+                        color2: mhchemParser.go(m[1], 'pq'),
+                    };
+                },
+            },
+        },
+        bd: {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': {},
+                },
+                x$: {
+                    '0': { nextState: '!f', revisit: true },
+                },
+                formula$: {
+                    '0': { nextState: 'f', revisit: true },
+                },
+                else: {
+                    '0': { nextState: '!f', revisit: true },
+                },
+                '-9.,9 no missing 0': {
+                    '*': { action_: '9,9' },
+                },
+                '.': {
+                    '*': { action_: { type_: 'insert', option: 'electron dot' } },
+                },
+                'a-z': {
+                    f: { action_: 'tex-math' },
+                },
+                x: {
+                    '*': { action_: { type_: 'insert', option: 'KV x' } },
+                },
+                letters: {
+                    '*': { action_: 'rm' },
+                },
+                "'": {
+                    '*': { action_: { type_: 'insert', option: 'prime' } },
+                },
+                '${(...)}$|$(...)$': {
+                    '*': { action_: 'tex-math' },
+                },
+                '{(...)}': {
+                    '*': { action_: 'text' },
+                },
+                '\\color{(...)}{(...)}1|\\color(...){(...)}2': {
+                    '*': { action_: 'color-output' },
+                },
+                '\\color{(...)}0': {
+                    '*': { action_: 'color0-output' },
+                },
+                '\\ce{(...)}': {
+                    '*': { action_: 'ce' },
+                },
+                '\\,|\\x{}{}|\\x{}|\\x': {
+                    '*': { action_: 'copy' },
+                },
+                else2: {
+                    '*': { action_: 'copy' },
+                },
+            }),
+            actions: {
+                'color-output': function (buffer, m) {
+                    return {
+                        type_: 'color',
+                        color1: m[0],
+                        color2: mhchemParser.go(m[1], 'bd'),
+                    };
+                },
+            },
+        },
+        oxidation: {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': {},
+                },
+                'roman numeral': {
+                    '*': { action_: 'roman-numeral' },
+                },
+                '${(...)}$|$(...)$': {
+                    '*': { action_: 'tex-math' },
+                },
+                else: {
+                    '*': { action_: 'copy' },
+                },
+            }),
+            actions: {
+                'roman-numeral': function (buffer, m) {
+                    return { type_: 'roman numeral', p1: m || '' };
+                },
+            },
+        },
+        'tex-math': {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': { action_: 'output' },
+                },
+                '\\ce{(...)}': {
+                    '*': { action_: ['output', 'ce'] },
+                },
+                '{...}|\\,|\\x{}{}|\\x{}|\\x': {
+                    '*': { action_: 'o=' },
+                },
+                else: {
+                    '*': { action_: 'o=' },
+                },
+            }),
+            actions: {
+                output: function (buffer) {
+                    if (buffer.o) {
+                        /** @type {ParserOutput} */
+                        var ret = { type_: 'tex-math', p1: buffer.o };
+                        for (var p in buffer) {
+                            delete buffer[p];
+                        }
+                        return ret;
+                    }
+                },
+            },
+        },
+        'tex-math tight': {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': { action_: 'output' },
+                },
+                '\\ce{(...)}': {
+                    '*': { action_: ['output', 'ce'] },
+                },
+                '{...}|\\,|\\x{}{}|\\x{}|\\x': {
+                    '*': { action_: 'o=' },
+                },
+                '-|+': {
+                    '*': { action_: 'tight operator' },
+                },
+                else: {
+                    '*': { action_: 'o=' },
+                },
+            }),
+            actions: {
+                'tight operator': function (buffer, m) {
+                    buffer.o = (buffer.o || '') + '{' + m + '}';
+                },
+                output: function (buffer) {
+                    if (buffer.o) {
+                        /** @type {ParserOutput} */
+                        var ret = { type_: 'tex-math', p1: buffer.o };
+                        for (var p in buffer) {
+                            delete buffer[p];
+                        }
+                        return ret;
+                    }
+                },
+            },
+        },
+        '9,9': {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': {},
+                },
+                ',': {
+                    '*': { action_: 'comma' },
+                },
+                else: {
+                    '*': { action_: 'copy' },
+                },
+            }),
+            actions: {
+                comma: function () {
+                    return { type_: 'commaDecimal' };
+                },
+            },
+        },
+        //#endregion
+        //
+        // \pu state machines
+        //
+        //#region pu
+        pu: {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': { action_: 'output' },
+                },
+                space$: {
+                    '*': { action_: ['output', 'space'] },
+                },
+                '{[(|)]}': {
+                    '0|a': { action_: 'copy' },
+                },
+                '(-)(9)^(-9)': {
+                    '0': { action_: 'number^', nextState: 'a' },
+                },
+                '(-)(9.,9)(e)(99)': {
+                    '0': { action_: 'enumber', nextState: 'a' },
+                },
+                space: {
+                    '0|a': {},
+                },
+                'pm-operator': {
+                    '0|a': {
+                        action_: { type_: 'operator', option: '\\pm' },
+                        nextState: '0',
+                    },
+                },
+                operator: {
+                    '0|a': { action_: 'copy', nextState: '0' },
+                },
+                '//': {
+                    d: { action_: 'o=', nextState: '/' },
+                },
+                '/': {
+                    d: { action_: 'o=', nextState: '/' },
+                },
+                '{...}|else': {
+                    '0|d': { action_: 'd=', nextState: 'd' },
+                    a: { action_: ['space', 'd='], nextState: 'd' },
+                    '/|q': { action_: 'q=', nextState: 'q' },
+                },
+            }),
+            actions: {
+                enumber: function (buffer, m) {
+                    /** @type {ParserOutput[]} */
+                    var ret = [];
+                    if (m[0] === '+-' || m[0] === '+/-') {
+                        ret.push('\\pm ');
+                    }
+                    else if (m[0]) {
+                        ret.push(m[0]);
+                    }
+                    if (m[1]) {
+                        mhchemParser.concatArray(ret, mhchemParser.go(m[1], 'pu-9,9'));
+                        if (m[2]) {
+                            if (m[2].match(/[,.]/)) {
+                                mhchemParser.concatArray(ret, mhchemParser.go(m[2], 'pu-9,9'));
+                            }
+                            else {
+                                ret.push(m[2]);
+                            }
+                        }
+                        m[3] = m[4] || m[3];
+                        if (m[3]) {
+                            m[3] = m[3].trim();
+                            if (m[3] === 'e' || m[3].substr(0, 1) === '*') {
+                                ret.push({ type_: 'cdot' });
+                            }
+                            else {
+                                ret.push({ type_: 'times' });
+                            }
+                        }
+                    }
+                    if (m[3]) {
+                        ret.push('10^{' + m[5] + '}');
+                    }
+                    return ret;
+                },
+                'number^': function (buffer, m) {
+                    /** @type {ParserOutput[]} */
+                    var ret = [];
+                    if (m[0] === '+-' || m[0] === '+/-') {
+                        ret.push('\\pm ');
+                    }
+                    else if (m[0]) {
+                        ret.push(m[0]);
+                    }
+                    mhchemParser.concatArray(ret, mhchemParser.go(m[1], 'pu-9,9'));
+                    ret.push('^{' + m[2] + '}');
+                    return ret;
+                },
+                operator: function (buffer, m, p1) {
+                    return { type_: 'operator', kind_: p1 || m };
+                },
+                space: function () {
+                    return { type_: 'pu-space-1' };
+                },
+                output: function (buffer) {
+                    /** @type {ParserOutput | ParserOutput[]} */
+                    var ret;
+                    var md = mhchemParser.patterns.match_('{(...)}', buffer.d || '');
+                    if (md && md.remainder === '') {
+                        buffer.d = md.match_;
+                    }
+                    var mq = mhchemParser.patterns.match_('{(...)}', buffer.q || '');
+                    if (mq && mq.remainder === '') {
+                        buffer.q = mq.match_;
+                    }
+                    if (buffer.d) {
+                        buffer.d = buffer.d.replace(/\u00B0C|\^oC|\^{o}C/g, '{}^{\\circ}C');
+                        buffer.d = buffer.d.replace(/\u00B0F|\^oF|\^{o}F/g, '{}^{\\circ}F');
+                    }
+                    if (buffer.q) {
+                        // fraction
+                        buffer.q = buffer.q.replace(/\u00B0C|\^oC|\^{o}C/g, '{}^{\\circ}C');
+                        buffer.q = buffer.q.replace(/\u00B0F|\^oF|\^{o}F/g, '{}^{\\circ}F');
+                        var b5 = {
+                            d: mhchemParser.go(buffer.d, 'pu'),
+                            q: mhchemParser.go(buffer.q, 'pu'),
+                        };
+                        if (buffer.o === '//') {
+                            ret = { type_: 'pu-frac', p1: b5.d, p2: b5.q };
+                        }
+                        else {
+                            ret = b5.d;
+                            if (b5.d.length > 1 || b5.q.length > 1) {
+                                ret.push({ type_: ' / ' });
+                            }
+                            else {
+                                ret.push({ type_: '/' });
+                            }
+                            mhchemParser.concatArray(ret, b5.q);
+                        }
+                    }
+                    else {
+                        // no fraction
+                        ret = mhchemParser.go(buffer.d, 'pu-2');
+                    }
+                    for (var p in buffer) {
+                        delete buffer[p];
+                    }
+                    return ret;
+                },
+            },
+        },
+        'pu-2': {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': { action_: 'output' },
+                },
+                '*': {
+                    '*': { action_: ['output', 'cdot'], nextState: '0' },
+                },
+                '\\x': {
+                    '*': { action_: 'rm=' },
+                },
+                space: {
+                    '*': { action_: ['output', 'space'], nextState: '0' },
+                },
+                '^{(...)}|^(-1)': {
+                    '1': { action_: '^(-1)' },
+                },
+                '-9.,9': {
+                    '0': { action_: 'rm=', nextState: '0' },
+                    '1': { action_: '^(-1)', nextState: '0' },
+                },
+                '{...}|else': {
+                    '*': { action_: 'rm=', nextState: '1' },
+                },
+            }),
+            actions: {
+                cdot: function () {
+                    return { type_: 'tight cdot' };
+                },
+                '^(-1)': function (buffer, m) {
+                    buffer.rm += '^{' + m + '}';
+                },
+                space: function () {
+                    return { type_: 'pu-space-2' };
+                },
+                output: function (buffer) {
+                    /** @type {ParserOutput | ParserOutput[]} */
+                    var ret = [];
+                    if (buffer.rm) {
+                        var mrm = mhchemParser.patterns.match_('{(...)}', buffer.rm || '');
+                        if (mrm && mrm.remainder === '') {
+                            ret = mhchemParser.go(mrm.match_, 'pu');
+                        }
+                        else {
+                            ret = { type_: 'rm', p1: buffer.rm };
+                        }
+                    }
+                    for (var p in buffer) {
+                        delete buffer[p];
+                    }
+                    return ret;
+                },
+            },
+        },
+        'pu-9,9': {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '0': { action_: 'output-0' },
+                    o: { action_: 'output-o' },
+                },
+                ',': {
+                    '0': { action_: ['output-0', 'comma'], nextState: 'o' },
+                },
+                '.': {
+                    '0': { action_: ['output-0', 'copy'], nextState: 'o' },
+                },
+                else: {
+                    '*': { action_: 'text=' },
+                },
+            }),
+            actions: {
+                comma: function () {
+                    return { type_: 'commaDecimal' };
+                },
+                'output-0': function (buffer) {
+                    /** @type {ParserOutput[]} */
+                    var ret = [];
+                    buffer.text_ = buffer.text_ || '';
+                    if (buffer.text_.length > 4) {
+                        var a = buffer.text_.length % 3;
+                        if (a === 0) {
+                            a = 3;
+                        }
+                        for (var i = buffer.text_.length - 3; i > 0; i -= 3) {
+                            ret.push(buffer.text_.substr(i, 3));
+                            ret.push({ type_: '1000 separator' });
+                        }
+                        ret.push(buffer.text_.substr(0, a));
+                        ret.reverse();
+                    }
+                    else {
+                        ret.push(buffer.text_);
+                    }
+                    for (var p in buffer) {
+                        delete buffer[p];
+                    }
+                    return ret;
+                },
+                'output-o': function (buffer) {
+                    /** @type {ParserOutput[]} */
+                    var ret = [];
+                    buffer.text_ = buffer.text_ || '';
+                    if (buffer.text_.length > 4) {
+                        var a = buffer.text_.length - 3;
+                        for (var i = 0; i < a; i += 3) {
+                            ret.push(buffer.text_.substr(i, 3));
+                            ret.push({ type_: '1000 separator' });
+                        }
+                        ret.push(buffer.text_.substr(i));
+                    }
+                    else {
+                        ret.push(buffer.text_);
+                    }
+                    for (var p in buffer) {
+                        delete buffer[p];
+                    }
+                    return ret;
+                },
+            },
+        },
+    };
+    //
+    // texify: Take MhchemParser output and convert it to TeX
+    //
+    /** @type {Texify} */
+    var texify = {
+        go: function (input, isInner) {
+            // (recursive, max 4 levels)
+            if (!input) {
+                return '';
+            }
+            var res = '';
+            var cee = false;
+            for (var i = 0; i < input.length; i++) {
+                var inputi = input[i];
+                if (typeof inputi === 'string') {
+                    res += inputi;
+                }
+                else {
+                    res += texify._go2(inputi);
+                    if (inputi.type_ === '1st-level escape') {
+                        cee = true;
+                    }
+                }
+            }
+            if (!isInner && !cee && res) {
+                res = '{' + res + '}';
+            }
+            return res;
+        },
+        _goInner: function (input) {
+            if (!input) {
+                return input;
+            }
+            return texify.go(input, true);
+        },
+        _go2: function (buf) {
+            /** @type {undefined | string} */
+            var res;
+            switch (buf.type_) {
+                case 'chemfive':
+                    res = '';
+                    var b5 = {
+                        a: texify._goInner(buf.a),
+                        b: texify._goInner(buf.b),
+                        p: texify._goInner(buf.p),
+                        o: texify._goInner(buf.o),
+                        q: texify._goInner(buf.q),
+                        d: texify._goInner(buf.d),
+                    };
+                    //
+                    // a
+                    //
+                    if (b5.a) {
+                        if (b5.a.match(/^[+\-]/)) {
+                            b5.a = '{' + b5.a + '}';
+                        }
+                        res += b5.a + '\\,';
+                    }
+                    //
+                    // b and p
+                    //
+                    if (b5.b || b5.p) {
+                        res += '{\\vphantom{X}}';
+                        res +=
+                            '^{\\hphantom{' +
+                                (b5.b || '') +
+                                '}}_{\\hphantom{' +
+                                (b5.p || '') +
+                                '}}';
+                        res += '{\\vphantom{X}}';
+                        res +=
+                            '^{\\smash[t]{\\vphantom{2}}\\mathllap{' +
+                                (b5.b || '') +
+                                '}}';
+                        res +=
+                            '_{\\vphantom{2}\\mathllap{\\smash[t]{' +
+                                (b5.p || '') +
+                                '}}}';
+                    }
+                    //
+                    // o
+                    //
+                    if (b5.o) {
+                        if (b5.o.match(/^[+\-]/)) {
+                            b5.o = '{' + b5.o + '}';
+                        }
+                        res += b5.o;
+                    }
+                    //
+                    // q and d
+                    //
+                    if (buf.dType === 'kv') {
+                        if (b5.d || b5.q) {
+                            res += '{\\vphantom{X}}';
+                        }
+                        if (b5.d) {
+                            res += '^{' + b5.d + '}';
+                        }
+                        if (b5.q) {
+                            res += '_{\\smash[t]{' + b5.q + '}}';
+                        }
+                    }
+                    else if (buf.dType === 'oxidation') {
+                        if (b5.d) {
+                            res += '{\\vphantom{X}}';
+                            res += '^{' + b5.d + '}';
+                        }
+                        if (b5.q) {
+                            res += '{\\vphantom{X}}';
+                            res += '_{\\smash[t]{' + b5.q + '}}';
+                        }
+                    }
+                    else {
+                        if (b5.q) {
+                            res += '{\\vphantom{X}}';
+                            res += '_{\\smash[t]{' + b5.q + '}}';
+                        }
+                        if (b5.d) {
+                            res += '{\\vphantom{X}}';
+                            res += '^{' + b5.d + '}';
+                        }
+                    }
+                    break;
+                case 'rm':
+                    res = '\\mathrm{' + buf.p1 + '}';
+                    break;
+                case 'text':
+                    if (buf.p1.match(/[\^_]/)) {
+                        buf.p1 = buf.p1.replace(' ', '~').replace('-', '\\text{-}');
+                        res = '\\mathrm{' + buf.p1 + '}';
+                    }
+                    else {
+                        res = '\\text{' + buf.p1 + '}';
+                    }
+                    break;
+                case 'roman numeral':
+                    res = '\\mathrm{' + buf.p1 + '}';
+                    break;
+                case 'state of aggregation':
+                    res = '\\mskip2mu ' + texify._goInner(buf.p1);
+                    break;
+                case 'state of aggregation subscript':
+                    res = '\\mskip1mu ' + texify._goInner(buf.p1);
+                    break;
+                case 'bond':
+                    res = texify._getBond(buf.kind_);
+                    if (!res) {
+                        throw [
+                            'MhchemErrorBond',
+                            'mhchem Error. Unknown bond type (' + buf.kind_ + ')',
+                        ];
+                    }
+                    break;
+                case 'frac':
+                    var c = '\\frac{' + buf.p1 + '}{' + buf.p2 + '}';
+                    res =
+                        '\\mathchoice{\\textstyle' +
+                            c +
+                            '}{' +
+                            c +
+                            '}{' +
+                            c +
+                            '}{' +
+                            c +
+                            '}';
+                    break;
+                case 'pu-frac':
+                    var d = '\\frac{' +
+                        texify._goInner(buf.p1) +
+                        '}{' +
+                        texify._goInner(buf.p2) +
+                        '}';
+                    res =
+                        '\\mathchoice{\\textstyle' +
+                            d +
+                            '}{' +
+                            d +
+                            '}{' +
+                            d +
+                            '}{' +
+                            d +
+                            '}';
+                    break;
+                case 'tex-math':
+                    res = buf.p1 + ' ';
+                    break;
+                case 'frac-ce':
+                    res =
+                        '\\frac{' +
+                            texify._goInner(buf.p1) +
+                            '}{' +
+                            texify._goInner(buf.p2) +
+                            '}';
+                    break;
+                case 'overset':
+                    res =
+                        '\\overset{' +
+                            texify._goInner(buf.p1) +
+                            '}{' +
+                            texify._goInner(buf.p2) +
+                            '}';
+                    break;
+                case 'underset':
+                    res =
+                        '\\underset{' +
+                            texify._goInner(buf.p1) +
+                            '}{' +
+                            texify._goInner(buf.p2) +
+                            '}';
+                    break;
+                case 'underbrace':
+                    res =
+                        '\\underbrace{' +
+                            texify._goInner(buf.p1) +
+                            '}_{' +
+                            texify._goInner(buf.p2) +
+                            '}';
+                    break;
+                case 'color':
+                    res =
+                        '{\\color{' +
+                            buf.color1 +
+                            '}{' +
+                            texify._goInner(buf.color2) +
+                            '}}';
+                    break;
+                case 'color0':
+                    res = '\\color{' + buf.color + '}';
+                    break;
+                case 'arrow':
+                    var b6 = {
+                        rd: texify._goInner(buf.rd),
+                        rq: texify._goInner(buf.rq),
+                    };
+                    var arrow = '\\x' + texify._getArrow(buf.r);
+                    if (b6.rq) {
+                        arrow += '[{' + b6.rq + '}]';
+                    }
+                    if (b6.rd) {
+                        arrow += '{' + b6.rd + '}';
+                    }
+                    else {
+                        arrow += '{}';
+                    }
+                    res = arrow;
+                    break;
+                case 'operator':
+                    res = texify._getOperator(buf.kind_);
+                    break;
+                case '1st-level escape':
+                    res = buf.p1 + ' '; // &, \\\\, \\hlin
+                    break;
+                case 'space':
+                    res = ' ';
+                    break;
+                case 'entitySkip':
+                    res = '~';
+                    break;
+                case 'pu-space-1':
+                    res = '~';
+                    break;
+                case 'pu-space-2':
+                    res = '\\mkern3mu ';
+                    break;
+                case '1000 separator':
+                    res = '\\mkern2mu ';
+                    break;
+                case 'commaDecimal':
+                    res = '{,}';
+                    break;
+                case 'comma enumeration L':
+                    res = '{' + buf.p1 + '}\\mkern6mu ';
+                    break;
+                case 'comma enumeration M':
+                    res = '{' + buf.p1 + '}\\mkern3mu ';
+                    break;
+                case 'comma enumeration S':
+                    res = '{' + buf.p1 + '}\\mkern1mu ';
+                    break;
+                case 'hyphen':
+                    res = '\\text{-}';
+                    break;
+                case 'addition compound':
+                    res = '\\,{\\cdot}\\,';
+                    break;
+                case 'electron dot':
+                    res = '\\mkern1mu \\bullet\\mkern1mu ';
+                    break;
+                case 'KV x':
+                    res = '{\\times}';
+                    break;
+                case 'prime':
+                    res = '\\prime ';
+                    break;
+                case 'cdot':
+                    res = '\\cdot ';
+                    break;
+                case 'tight cdot':
+                    res = '\\mkern1mu{\\cdot}\\mkern1mu ';
+                    break;
+                case 'times':
+                    res = '\\times ';
+                    break;
+                case 'circa':
+                    res = '{\\sim}';
+                    break;
+                case '^':
+                    res = 'uparrow';
+                    break;
+                case 'v':
+                    res = 'downarrow';
+                    break;
+                case 'ellipsis':
+                    res = '\\ldots ';
+                    break;
+                case '/':
+                    res = '/';
+                    break;
+                case ' / ':
+                    res = '\\,/\\,';
+                    break;
+                default:
+                    throw ['MhchemBugT', 'mhchem bug T. Please report.']; // Missing texify rule or unknown MhchemParser output
+            }
+            return res;
+        },
+        _getArrow: function (a) {
+            switch (a) {
+                case '->':
+                    return 'rightarrow';
+                case '\u2192':
+                    return 'rightarrow';
+                case '\u27F6':
+                    return 'rightarrow';
+                case '<-':
+                    return 'leftarrow';
+                case '<->':
+                    return 'leftrightarrow';
+                case '<-->':
+                    return 'rightleftarrows';
+                case '<=>':
+                    return 'rightleftharpoons';
+                case '\u21CC':
+                    return 'rightleftharpoons';
+                case '<=>>':
+                    return 'rightequilibrium';
+                case '<<=>':
+                    return 'leftequilibrium';
+                default:
+                    throw ['MhchemBugT', 'mhchem bug T. Please report.'];
+            }
+        },
+        _getBond: function (a) {
+            switch (a) {
+                case '-':
+                    return '{-}';
+                case '1':
+                    return '{-}';
+                case '=':
+                    return '{=}';
+                case '2':
+                    return '{=}';
+                case '#':
+                    return '{\\equiv}';
+                case '3':
+                    return '{\\equiv}';
+                case '~':
+                    return '{\\tripledash}';
+                case '~-':
+                    return '{\\mathrlap{\\raisebox{-.1em}{$-$}}\\raisebox{.1em}{$\\tripledash$}}';
+                case '~=':
+                    return '{\\mathrlap{\\raisebox{-.2em}{$-$}}\\mathrlap{\\raisebox{.2em}{$\\tripledash$}}-}';
+                case '~--':
+                    return '{\\mathrlap{\\raisebox{-.2em}{$-$}}\\mathrlap{\\raisebox{.2em}{$\\tripledash$}}-}';
+                case '-~-':
+                    return '{\\mathrlap{\\raisebox{-.2em}{$-$}}\\mathrlap{\\raisebox{.2em}{$-$}}\\tripledash}';
+                case '...':
+                    return '{{\\cdot}{\\cdot}{\\cdot}}';
+                case '....':
+                    return '{{\\cdot}{\\cdot}{\\cdot}{\\cdot}}';
+                case '->':
+                    return '{\\rightarrow}';
+                case '<-':
+                    return '{\\leftarrow}';
+                case '<':
+                    return '{<}';
+                case '>':
+                    return '{>}';
+                default:
+                    throw ['MhchemBugT', 'mhchem bug T. Please report.'];
+            }
+        },
+        _getOperator: function (a) {
+            switch (a) {
+                case '+':
+                    return ' {}+{} ';
+                case '-':
+                    return ' {}-{} ';
+                case '=':
+                    return ' {}={} ';
+                case '<':
+                    return ' {}<{} ';
+                case '>':
+                    return ' {}>{} ';
+                case '<<':
+                    return ' {}\\ll{} ';
+                case '>>':
+                    return ' {}\\gg{} ';
+                case '\\pm':
+                    return ' {}\\pm{} ';
+                case '\\approx':
+                    return ' {}\\approx{} ';
+                case '$\\approx$':
+                    return ' {}\\approx{} ';
+                case 'v':
+                    return ' \\downarrow{} ';
+                case '(v)':
+                    return ' \\downarrow{} ';
+                case '^':
+                    return ' \\uparrow{} ';
+                case '(^)':
+                    return ' \\uparrow{} ';
+                default:
+                    throw ['MhchemBugT', 'mhchem bug T. Please report.'];
+            }
+        },
+    };
 
     const DEFINITIONS_INEQUALITIES = [
         {
@@ -33694,7 +36210,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             deleteChar(this.model);
         }
         $applyStyle(style) {
-            applyStyle$3(this.model, style);
+            applyStyle$1(this.model, style);
         }
         $keystroke(keys, evt) {
             return onKeystroke(this, keys, evt);

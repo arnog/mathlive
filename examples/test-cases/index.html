@@ -27,7 +27,18 @@
         <h1>MathLive Test Cases</h1>
     </header>
     <main>
-        <div class="mathfield" id="mf">a=</div>
+        <div class="mathfield" id="mf">\sqrt{\smash[b]{\frac{a}{b}}}</div>
+        <!-- \ce{ H2O } -->
+        <!-- \ce{ CrO4^2- }   \ce{ ^{227}_{90}Th+ } \ce{ {}^{227}_{90}Th+ } \ce{ KCr(SO4)2.12H2O }  \ce{ C6H5-CHO } \ce{ X=Y#Z } \ce{ A\sbond B\dbond C\tbond D } \ce{ A\bond{-}B\bond{=}C\bond{#}D } \ce{ A\bond{~}B\bond{~-}C } -->
+        <!-- \ce{ $x\,$ Na(NH4)HPO4 ->[\Delta](NaPO3)_{$x$} + $x\,$ NH3 ^ + $x\,$ H2O } -->
+        <!-- \ce{ CO2 + C -> 2CO } -->
+        <!-- \ce{ CO2 + C <=> 2CO } -->
+        <!-- \ce{ H+ + OH- <=>> H2O } -->
+        <!-- \ce{ CO2 + C ->[\alpha][\beta] 2CO } -->
+        <!-- \ce{ $A$ ->C[+H2O] $B$ } -->
+        <!-- \ce{ SO4^2- + Ba^2+ -> BaSO4 v } -->
+        <!-- \ce{ Zn^2+ <=>[\ce{+ 2OH-}][\ce{+ 2H+}]$\underset{\text{amphoteric hydroxide}}{\ce{Zn(OH)2 v}}$<=>C[+2OH-][{+ 2H+}]$\underset{\text{tetrahydroxozincate}}{\cf{[Zn(OH)4]^2-}}$ } -->
+        <!-- \ce{ Hg^2+ ->[\ce{I-}]$\underset{\mathrm{red}}{\ce{HgI2}}$->C[I-]$\underset{\mathrm{red}}{\ce{[Hg^{II}I4]^2-}}$ } -->
         <!-- (x,,2) -->
         <!-- -123, 456.789, -->
         <!-- x_5 -->
@@ -83,7 +94,7 @@
 
     <script type="module">
         import MathLive from '/dist/mathlive.mjs';
-        import { makeMathField, mathjsonToLatex, latexToMathjson } from '/dist/mathlive.mjs';
+        import { mathjsonToLatex, latexToMathjson } from '/dist/mathlive.mjs';
 
         // prettier-ignore
         const TESTING_SAMPLES = [
@@ -523,6 +534,16 @@
                                             f & = g\\left( 3^{3^{3}} + \\text{\\textrm{\\ldots}}\\right.\\\\
                                             & \\qquad \\left.+ 3\\vphantom{3^{3^{3}}} \\right)\\,.
                                         \\end{align*}`,
+            },
+            {
+                id: 'smash-1',
+                title: '\\smash[b]',
+                latex: '\\sqrt{\\smash[b]{\\frac{a}{b}}}'
+            },
+            {
+                id: 'smash-2',
+                title: '\\smash[t]',
+                latex: '\\sqrt{\\smash[t]{\\frac{a}{b}}}'
             },
             {
                 id: 'accent-3',
@@ -1128,6 +1149,7 @@
             },
         ];
         function updateContent(mf) {
+            return;
             const latex = mf.$text('latex-expanded');
 
             document.getElementById('latex').innerHTML = escapeHtml(
@@ -1205,7 +1227,7 @@
         }
         let mf;
         if (true) {
-            mf = makeMathField('mf', {
+            mf = MathLive.makeMathField('mf', {
                 // fontsDirectory: '/dist/fonts/',
                 // letterShapeStyle: 'french', // 'french', 'upright', 'tex'
                 smartFence: true,

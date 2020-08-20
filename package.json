@@ -100,7 +100,7 @@
         "eslint-plugin-prettier": "^3.1.4",
         "http-server": "^0.12.3",
         "husky": "^4.2.5",
-        "jest": "^26.4.0",
+        "jest": "^26.4.1",
         "jest-silent-reporter": "^0.2.1",
         "less": "^3.12.2",
         "lint-staged": "^10.2.11",
@@ -115,7 +115,7 @@
         "rollup-plugin-terser": "^7.0.0",
         "rollup-plugin-typescript2": "^0.27.2",
         "ts-jest": "^26.2.0",
-        "typescript": "^3.9.7"
+        "typescript": "^4.0.2"
     },
     "dependencies": {},
     "keywords": [

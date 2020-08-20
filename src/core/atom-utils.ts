@@ -235,7 +235,7 @@ export function decompose(
                 selection = [];
             }
         }
-    } else if (atoms) {
+    } else if (atoms instanceof Atom) {
         // This is a single atom, decompose it
         result = atoms.decompose(context);
         if (result && displaySelection && atoms.isSelected) {
@@ -354,7 +354,7 @@ export class Atom implements Style {
     isFunction?: boolean;
     isError?: boolean; // Indicate an unknown command
     isSuggestion?: boolean; // This atom is a suggestion
-    readonly isPhantom?: boolean;
+    isPhantom?: boolean;
     readonly skipBoundary?: boolean;
     captureSelection?: boolean;
 
@@ -430,6 +430,14 @@ export class Atom implements Style {
     readonly height?: number; // type = 'rule' (and others?)
     width?: number; // type = 'rule' (and others?)
 
+    readonly phantomType?:
+        | 'phantom'
+        | 'vphantom'
+        | 'hphantom'
+        | 'smash'
+        | 'bsmash'
+        | 'tsmash'; //  type = 'phantom'
+
     private maxFontSize?: number;
     private align?: 'left' | 'right'; // type = 'overlap'
 
@@ -467,6 +475,10 @@ export class Atom implements Style {
         this.mode = mode;
         this.type = type;
         this.body = body;
+
+        if (style.isPhantom) {
+            this.setPhantom(true);
+        }
 
         // Append all the properties in extras to this
         // This can override the mode, type and body
@@ -549,6 +561,13 @@ export class Atom implements Style {
     isCharacterBox(): boolean {
         const base = this.getInitialBaseElement();
         return /minner|mbin|mrel|mpunct|mopen|mclose|textord/.test(base.type);
+    }
+
+    setPhantom(isPhantom: boolean): void {
+        // this.isPhantom = isPhantom;
+        this.forEach((x) => {
+            x.isPhantom = isPhantom;
+        });
     }
 
     forEach(cb: (arg0: this) => void): void {
