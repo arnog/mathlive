@@ -301,7 +301,7 @@ class Parser {
                 result += ' ';
             } else {
                 const token = this.peek();
-                if (this.peek() === ']') {
+                if (token === ']') {
                     done = true;
                 } else if (isLiteral(token)) {
                     result += this.get();
@@ -317,6 +317,42 @@ class Parser {
                 }
             }
             done = done || this.end();
+        }
+        return result;
+    }
+    /**
+     * Return a sequence of characters as a string.
+     * Terminates on a balanced closing bracket
+     * This is used by the `\ce` command
+     */
+    scanBalancedString(): string {
+        let result = '';
+        let done = this.end();
+        let level = 1;
+        while (!done) {
+            if (this.match('<space>')) {
+                result += ' ';
+            } else {
+                const token = this.get();
+                if (token === '<{>') {
+                    result += '{';
+                    level += 1;
+                } else if (token === '<}>') {
+                    level -= 1;
+                    if (level > 0) {
+                        result += '}';
+                    } else {
+                        this.index -= 1;
+                    }
+                } else if (token === '<$>') {
+                    result += '$';
+                } else if (token === '<$$>') {
+                    result += '$$';
+                } else {
+                    result += token;
+                }
+            }
+            done = level === 0 || this.end();
         }
         return result;
     }
@@ -945,7 +981,7 @@ class Parser {
                 explicitGroup = param.type.slice(0, -1) as ParseModePrivate;
             } else {
                 const arg = this.parseArgument(param.type);
-                if (arg) {
+                if (typeof arg !== 'undefined') {
                     args.push(arg);
                 } else {
                     // Report an error
@@ -995,6 +1031,9 @@ class Parser {
         const saveAtoms = this.swapAtoms([]);
         if (parseMode === 'string') {
             result = this.scanString();
+            this.skipUntilToken('<}>');
+        } else if (parseMode === 'balanced-string') {
+            result = this.scanBalancedString();
             this.skipUntilToken('<}>');
         } else if (parseMode === 'number') {
             result = this.scanNumber();
@@ -1065,7 +1104,7 @@ class Parser {
         }
         this.parseMode = savedParseMode;
         const atoms = this.swapAtoms(saveAtoms);
-        return result ? result : atoms;
+        return result ?? atoms;
     }
     parseOptionalArgument(
         parseMode: ParseModePrivate
@@ -1131,7 +1170,7 @@ class Parser {
         }
         this.parseMode = savedParseMode;
         const atoms = this.swapAtoms(saveAtoms);
-        return result ? result : atoms;
+        return result ?? atoms;
     }
 
     parseSimpleToken(): Atom[] {

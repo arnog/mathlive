@@ -3,6 +3,8 @@
 ### New Features
 
 -   Added support for `\phantom`, `\vphantom`, `\hphantom` and `\smash[]`
+-   **#182** Added support for the mhchem package, with the commands `\ce` and `\pu` to
+    display chemical equations
 
 ## 0.55.0 (2020-08-17)
 

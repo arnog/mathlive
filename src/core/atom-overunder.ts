@@ -1,5 +1,3 @@
-import { isArray } from '../common/types';
-
 import { registerAtomType, decompose, Atom } from './atom-utils';
 import {
     Span,
@@ -34,7 +32,7 @@ registerAtomType('overunder', (context: Context, atom: Atom): Span[] => {
     let below: Span;
     if (atom.svgAbove) {
         above = makeSVGSpan(atom.svgAbove);
-    } else if (atom.overscript) {
+    } else if (atom.overscript && atom.overscript.length > 0) {
         above = makeSpan(
             decompose(annotationStyle, atom.overscript),
             context.mathstyle.adjustTo(annotationStyle.mathstyle)
@@ -42,7 +40,7 @@ registerAtomType('overunder', (context: Context, atom: Atom): Span[] => {
     }
     if (atom.svgBelow) {
         below = makeSVGSpan(atom.svgBelow);
-    } else if (atom.underscript) {
+    } else if (atom.underscript && atom.underscript.length > 0) {
         below = makeSpan(
             decompose(annotationStyle, atom.underscript),
             context.mathstyle.adjustTo(annotationStyle.mathstyle)
@@ -60,7 +58,7 @@ registerAtomType('overunder', (context: Context, atom: Atom): Span[] => {
         body,
         above,
         below,
-        isSpanType(atom.type) ? atom.type : 'mord'
+        isSpanType(atom.type) ? atom.type : 'mrel'
     );
     if (atom.superscript || atom.subscript) {
         result = atom.attachLimits(context, result, 0, 0);
@@ -85,7 +83,10 @@ function makeOverunderStack(
     type: SpanType
 ): Span {
     // If nothing above and nothing below, nothing to do.
-    if (!above && !below) return isArray(nucleus) ? makeSpan(nucleus) : nucleus;
+    if (!above && !below) {
+        return makeSpan(nucleus, 'op-over-under', type);
+        // return isArray(nucleus) ? makeSpan(nucleus) : nucleus;
+    }
 
     let aboveShift = 0;
     let belowShift = 0;

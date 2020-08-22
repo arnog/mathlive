@@ -10,6 +10,8 @@
  * This file is an adptation of KaTeX's adaption of MathJax's mhchem
  * implementation of the mhchem Latex extension of the same name.
  *
+ *
+ * See https://mhchem.github.io/MathJax-mhchem/
  */
 
 import { defineFunction } from './definitions-utils';
@@ -17,20 +19,17 @@ import { parseString } from './parser';
 
 defineFunction(
     ['ce', 'pu'],
-    '{chemformula:string}',
+    '{chemformula:balanced-string}',
     null,
     (name, args) => {
+        const tex = texify.go(
+            mhchemParser.go(args[0] as string, name === '\\pu' ? 'pu' : 'ce')
+        );
+        // console.log(tex);
         return {
             type: 'group',
             mode: 'chem',
-            body: parseString(
-                texify.go(
-                    mhchemParser.go(
-                        args[0] as string,
-                        name === '\\pu' ? 'pu' : 'ce'
-                    )
-                )
-            ) as Atom[],
+            body: parseString(tex) as Atom[],
             latexOpen: '\\' + name + '{',
             latexClose: '}',
         };
@@ -46,22 +45,6 @@ defineFunction(
 );
 
 /*************************************************************
- *
- *  KaTeX mhchem.js
- *
- *  This file implements a KaTeX version of mhchem version 3.3.0.
- *  It is adapted from MathJax/extensions/TeX/mhchem.js
- *  It differs from the MathJax version as follows:
- *    1. The interface is changed so that it can be called from KaTeX, not MathJax.
- *    2. \rlap and \llap are replaced with \mathrlap and \mathllap.
- *    3. Four lines of code are edited in order to use \raisebox instead of \raise.
- *    4. The reaction arrow code is simplified. All reaction arrows are rendered
- *       using KaTeX extensible arrows instead of building non-extensible arrows.
- *    5. \tripledash vertical alignment is slightly adjusted.
- *
- *    This code, as other KaTeX code, is released under the MIT license.
- *
- * /*************************************************************
  *
  *  MathJax/extensions/TeX/mhchem.js
  *
@@ -85,62 +68,6 @@ defineFunction(
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-//
-// Coding Style
-//   - use '' for identifiers that can by minified/uglified
-//   - use "" for strings that need to stay untouched
-
-// version: "3.3.0" for MathJax and KaTeX
-
-// Add \ce, \pu, and \tripledash to the KaTeX macros.
-
-/*
-katex.__defineMacro('\\ce', function (context) {
-    return chemParse(context.consumeArgs(1)[0], 'ce');
-});
-
-katex.__defineMacro('\\pu', function (context) {
-    return chemParse(context.consumeArgs(1)[0], 'pu');
-});
-*/
-
-//  Needed for \bond for the ~ forms
-//  Raise by 2.56mu, not 2mu. We're raising a hyphen-minus, U+002D, not
-//  a mathematical minus, U+2212. So we need that extra 0.56.
-/*
-katex.__defineMacro(
-    '\\tripledash',
-    '{\\vphantom{-}\\raisebox{2.56mu}{$\\mkern2mu' +
-        '\\tiny\\text{-}\\mkern1mu\\text{-}\\mkern1mu\\text{-}\\mkern2mu$}}'
-);
-*/
-
-/* import katex from 'katex'; */
-
-//
-//  This is the main function for handing the \ce and \pu commands.
-//  It takes the argument to \ce or \pu and returns the corresponding TeX string.
-//
-
-/*
-var chemParse = function (tokens, stateMachine) {
-    // Recreate the argument string from KaTeX's array of tokens.
-    var str = '';
-    var expectedLoc = tokens[tokens.length - 1].loc.start;
-    for (var i = tokens.length - 1; i >= 0; i--) {
-        if (tokens[i].loc.start > expectedLoc) {
-            // context.consumeArgs has eaten a space.
-            str += ' ';
-            expectedLoc = tokens[i].loc.start;
-        }
-        str += tokens[i].text;
-        expectedLoc += tokens[i].text.length;
-    }
-    var tex = texify.go(mhchemParser.go(str, stateMachine));
-    return tex;
-};
-*/
 
 //
 // Core parser for mhchem syntax  (recursive)

@@ -12,7 +12,8 @@ export type ParseModePrivate =
           | 'dimen' // `'25mu'`, `'2pt'`
           | 'number' //`+/-12.56`
           | 'skip' // `'25mu plus 2em minus fiLll'`, `'2pt'`
-          | 'string'
+          | 'string' // delimiter is a non-literal token (e.g. `<}>` `<$>`, etc
+          | 'balanced-string' // Delimiter is a balanced closing brace
       );
 
 export interface ContextInterface {

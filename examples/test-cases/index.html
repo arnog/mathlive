@@ -27,18 +27,7 @@
         <h1>MathLive Test Cases</h1>
     </header>
     <main>
-        <div class="mathfield" id="mf">\sqrt{\smash[b]{\frac{a}{b}}}</div>
-        <!-- \ce{ H2O } -->
-        <!-- \ce{ CrO4^2- }   \ce{ ^{227}_{90}Th+ } \ce{ {}^{227}_{90}Th+ } \ce{ KCr(SO4)2.12H2O }  \ce{ C6H5-CHO } \ce{ X=Y#Z } \ce{ A\sbond B\dbond C\tbond D } \ce{ A\bond{-}B\bond{=}C\bond{#}D } \ce{ A\bond{~}B\bond{~-}C } -->
-        <!-- \ce{ $x\,$ Na(NH4)HPO4 ->[\Delta](NaPO3)_{$x$} + $x\,$ NH3 ^ + $x\,$ H2O } -->
-        <!-- \ce{ CO2 + C -> 2CO } -->
-        <!-- \ce{ CO2 + C <=> 2CO } -->
-        <!-- \ce{ H+ + OH- <=>> H2O } -->
-        <!-- \ce{ CO2 + C ->[\alpha][\beta] 2CO } -->
-        <!-- \ce{ $A$ ->C[+H2O] $B$ } -->
-        <!-- \ce{ SO4^2- + Ba^2+ -> BaSO4 v } -->
-        <!-- \ce{ Zn^2+ <=>[\ce{+ 2OH-}][\ce{+ 2H+}]$\underset{\text{amphoteric hydroxide}}{\ce{Zn(OH)2 v}}$<=>C[+2OH-][{+ 2H+}]$\underset{\text{tetrahydroxozincate}}{\cf{[Zn(OH)4]^2-}}$ } -->
-        <!-- \ce{ Hg^2+ ->[\ce{I-}]$\underset{\mathrm{red}}{\ce{HgI2}}$->C[I-]$\underset{\mathrm{red}}{\ce{[Hg^{II}I4]^2-}}$ } -->
+        <div class="mathfield" id="mf">\sqrt</div>
         <!-- (x,,2) -->
         <!-- -123, 456.789, -->
         <!-- x_5 -->
@@ -98,6 +87,86 @@
 
         // prettier-ignore
         const TESTING_SAMPLES = [
+            {
+                title: 'Chemistry',
+                latex: '\\ce{ CrO4^2- }'
+            },
+            {
+                title: 'Chemistry',
+                latex: '\\ce{ CrO4^2-}'
+            },
+            {
+                title: 'Chemistry',
+                latex: '\\ce{^{227}_{90}Th+ }'
+            },
+            {
+                title: 'Chemistry',
+                latex: '\\ce{ {}^{227}_{90}Th+ }'
+            },
+            {
+                title: 'Chemistry',
+                latex: '\\ce{ KCr(SO4)2.12H2O }'
+            },
+            {
+                title: 'Chemistry',
+                latex: '\\ce{ C6H5-CHO}'
+            },
+            {
+                title: 'Chemistry',
+                latex: '\\ce{X=Y#Z }'
+            },
+            {
+                title: 'Chemistry',
+                latex: '\\ce{A\\sbond B\\dbond C\\tbond D }'
+            },
+            {
+                title: 'Chemistry',
+                latex: '\\ce{ A\\bond{-}B\\bond{=}C\\bond{#}D}'
+            },
+            // {
+            //     title: 'Chemistry',
+            //     latex: '\\ce{ A\\bond{~}B\\bond{~-}C}'
+            // },
+            {
+                title: 'Chemistry',
+                latex: '\\ce{$x\\,$ Na(NH4)HPO4 ->[\\Delta](NaPO3)_{$x$} + $x\\,$ NH3 ^ + $x\\,$ H2O }'
+            },
+            {
+                title: 'Chemistry',
+                latex: '\\ce{ CO2 + C -> 2CO}'
+            },
+            {
+                title: 'Chemistry',
+                latex: '\\ce{CO2 + C <=> 2CO }'
+            },
+            {
+                title: 'Chemistry',
+                latex: '\\ce{H+ + OH- <=>> H2O }'
+            },
+            {
+                title: 'Chemistry',
+                latex: '\\ce{ CO2 + C ->[\\alpha][\\beta] 2CO } '
+            },
+            {
+                title: 'Chemistry',
+                latex: '\\ce{ $A$ ->C[+H2O] $B$ } '
+            },
+            {
+                title: 'Chemistry',
+                latex: '\\ce{ SO4^2- + Ba^2+ -> BaSO4 v } '
+            },
+            {
+                title: 'Chemistry',
+                latex: '\\ce{ Zn^2+ <=>[\\ce{+ 2OH-}][\\ce{+ 2H+}]$\\underset{\\text{amphoteric hydroxide}}{\\ce{Zn(OH)2 v}}$<=>C[+2OH-][{+ 2H+}]$\\underset{\\text{tetrahydroxozincate}}{\\ce{[Zn(OH)4]^2-}}$ }'
+            },
+            {
+                title: 'Chemistry',
+                latex: '\\ce{ Hg^2+ ->[\\ce{I-}]$\\underset{\\mathrm{red}}{\\ce{HgI2}}$->C[I-]$\\underset{\\mathrm{red}}{\\ce{[Hg^{II}I4]^2-}}$ } '
+            },
+
+
+
+
             {
                 title: 'Ordinary Symbols and letterShapeStyle',
                 id: 'ordinary-1',
@@ -1256,12 +1325,12 @@
             });
             updateContent(mf);
         }
-        // MathLive.renderMathInDocument({
-        //     onError: (err) => {
-        //         console.error(err.latex, err.code + ' ' + (err.arg ?? ''));
-        //     },
-        // });
-        if (false) {
+        MathLive.renderMathInDocument({
+            onError: (err) => {
+                console.error(err.latex, err.code + ' ' + (err.arg ?? ''));
+            },
+        });
+        if (true) {
             let error = [];
             let savedMathfieldContent;
             if (mf) {

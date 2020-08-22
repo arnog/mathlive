@@ -89,6 +89,11 @@ defineFunction(
     '[:auto]{:auto}',
     null,
     (name, args) => {
+        // The overscript is optional, i.e. `\xtofrom` is valid
+        let overscript: Atom[] | null = args[1] as Atom[];
+        if (overscript?.length === 0) {
+            overscript = null;
+        }
         return {
             type: 'overunder',
 
@@ -98,7 +103,7 @@ defineFunction(
             // Set the "svgBody" to the name of a SVG object (which is the same
             // as the command name)
             svgBody: name.slice(1),
-            overscript: args[1],
+            overscript: overscript,
             underscript: args[0],
 
             skipBoundary: true,

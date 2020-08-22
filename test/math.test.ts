@@ -551,7 +551,7 @@ describe('SURDS', function () {
     isNoError('\\sqrt5');
 
     isNoError('\\sqrt{}');
-    isError('\\sqrt', 'missing-argument');
+    // isError('\\sqrt', 'missing-argument');
 
     isNoError(
         'ax^2+bx+c = a \\left( x - \\frac{-b + \\sqrt {b^2-4ac}}{2a} \\right) \\left( x - \\frac{-b - \\sqrt {b^2-4ac}}{2a} \\right)'

@@ -872,26 +872,26 @@ function atomToMathML(atom, options): string {
                     (atom.svgBelow || underscript)
                 ) {
                     body = atom.body;
-                } else if (overscript) {
+                } else if (overscript && overscript.length > 0) {
                     body = atom.body;
                     if (atom.body?.[0]?.underscript) {
                         underscript = atom.body[0].underscript;
                         body = atom.body[0].body;
                     } else if (
-                        atom?.body[0]?.type === 'first' &&
-                        atom?.body[1]?.underscript
+                        atom.body?.[0]?.type === 'first' &&
+                        atom.body?.[1]?.underscript
                     ) {
                         underscript = atom.body[1].underscript;
                         body = atom.body[1].body;
                     }
-                } else if (underscript) {
+                } else if (underscript && underscript.length > 0) {
                     body = atom.body;
-                    if (atom?.body?.[0]?.overscript) {
+                    if (atom.body?.[0]?.overscript) {
                         overscript = atom.body[0].overscript;
                         body = atom.body[0].body;
                     } else if (
-                        atom?.body[0]?.type === 'first' &&
-                        atom?.body[1]?.overscript
+                        atom.body?.[0]?.type === 'first' &&
+                        atom.body?.[1]?.overscript
                     ) {
                         overscript = atom.body[1].overscript;
                         body = atom.body[1].body;
@@ -1081,6 +1081,13 @@ function atomToMathML(atom, options): string {
             case 'space':
                 result += '&nbsp;';
                 break;
+
+            case 'msupsub':
+                break;
+
+            case 'phantom':
+                break;
+
             default:
                 console.log(
                     'In conversion to MathML, unknown type : ' + atom.type

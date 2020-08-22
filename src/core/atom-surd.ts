@@ -20,8 +20,9 @@ registerAtomType('surd', (context: Context, atom: Atom): Span[] => {
     const mathstyle = context.mathstyle;
     // First, we do the same steps as in overline to build the inner group
     // and line
-    console.assert(isArray(atom.body));
-    const inner = decompose(context.cramp(), atom.body as Atom[]);
+    console.assert(atom.body === null || isArray(atom.body));
+    const inner =
+        decompose(context.cramp(), atom.body as Atom[]) ?? makeSpan('');
     const ruleWidth =
         FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
     let phi = ruleWidth;
