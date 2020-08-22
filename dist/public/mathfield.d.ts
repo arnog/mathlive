@@ -62,6 +62,7 @@ export declare type InsertOptions = {
     resetStyle?: boolean;
 };
 export interface Mathfield {
+    mode: ParseMode;
     getConfig(keys: keyof MathfieldConfig): any;
     getConfig(keys: string[]): MathfieldConfig;
     getConfig(keys: keyof MathfieldConfig | string[]): any | MathfieldConfig;
