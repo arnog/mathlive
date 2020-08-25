@@ -635,8 +635,11 @@ export function up(
         }
     } else {
         model.announce('line');
-        if (!model.suppressChangeNotifications) {
-            model.hooks?.moveOut(model, 'upward');
+        if (
+            !model.suppressChangeNotifications &&
+            !model.hooks?.moveOut(model, 'upward')
+        ) {
+            return false;
         }
     }
     return true;
@@ -678,8 +681,11 @@ export function down(
         }
     } else {
         model.announce('line');
-        if (!model.suppressChangeNotifications) {
-            model.hooks?.moveOut(model, 'downward');
+        if (
+            !model.suppressChangeNotifications &&
+            !model.hooks?.moveOut(model, 'downward')
+        ) {
+            return false;
         }
     }
     return true;
