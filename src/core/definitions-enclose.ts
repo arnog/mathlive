@@ -73,7 +73,7 @@ defineFunction(
 
         // Normalize the list of notations.
         result.notation = {};
-        (args[0] as string)
+        (args[0] as string ?? '')
             .split(/[, ]/)
             .filter((v) => v.length > 0)
             .forEach((x) => {
