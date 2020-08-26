@@ -31,7 +31,7 @@ export type ModelHooks = {
     ) => void;
     moveOut?: (
         sender: ModelPrivate,
-        direction: 'forward' | 'backward'
+        direction: 'forward' | 'backward' | 'upward' | 'downward'
     ) => boolean;
     tabOut?: (
         sender: ModelPrivate,
