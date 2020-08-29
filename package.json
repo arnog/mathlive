@@ -103,7 +103,7 @@
         "jest": "^26.4.1",
         "jest-silent-reporter": "^0.2.1",
         "less": "^3.12.2",
-        "lint-staged": "^10.2.11",
+        "lint-staged": "^10.2.13",
         "postcss-cli": "^7.1.1",
         "prettier": "^2.0.5",
         "rimraf": "^3.0.2",
