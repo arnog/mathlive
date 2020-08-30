@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html lang="en-US">
-    <head>
-        <meta charset="utf-8" />
-        <title>MathLive Basic Example</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="stylesheet" href="../style.css" />
-    </head>
-    <body>
-        <header>
-            <h1>MathLive Customization Example</h1>
-        </header>
-        <main>
-            <textarea></textarea>
-            <div class="mathfield" id="mf1">f(x)=</div>
-            <div class="mathfield" id="mf2">
-                1 + \frac{q^2}{(1-q)}+\frac{q^6}{(1-q)(1-q^2)}+\cdots =
-                \prod_{j=0}^{\infty}\frac{1}{(1-q^{5j+2})(1-q^{5j+3})},
-                \quad\quad \text{for $|q|<1$}
-            </div>
-            <div class="mathfield" id="mf3">
-                \frac{1}{4\pi t}e^{-\frac{x^2+y^2}{4t}}
-            </div>
-            <!-- <div class="mathfield" id='mf3' >\begin{array}{lc}          
+
+<head>
+    <meta charset="utf-8" />
+    <title>MathLive Basic Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="../style.css" />
+</head>
+
+<body>
+    <header>
+        <h1>MathLive Customization Example</h1>
+    </header>
+    <main>
+        <textarea></textarea>
+        <div class="mathfield" id="mf1">f(x)=</div>
+        <div class="mathfield" id="mf2">
+            1 + \frac{q^2}{(1-q)}+\frac{q^6}{(1-q)(1-q^2)}+\cdots =
+            \prod_{j=0}^{\infty}\frac{1}{(1-q^{5j+2})(1-q^{5j+3})},
+            \quad\quad \text{for $|q|<1$} </div>
+                <div class="mathfield" id="mf3">
+                    \frac{1}{4\pi t}e^{-\frac{x^2+y^2}{4t}}
+                </div>
+                <!-- <div class="mathfield" id='mf3' >\begin{array}{lc}          
     \text{Given:}\
     &    f(x)=\operatorname {li}(x)-\sum _{\rho }\operatorname {li}(x^{\rho })-\log(2)+\int _{x}^{\infty }{\frac  {dt}{t(t^{2}-1)\log(t)}}\
     \text{with}\\
@@ -33,82 +34,72 @@
     \text{where}\\
     &    \( \Pi _{0}(x) \) \text{is Riemann's prime counting function.}
     \end{array}</div> -->
-            <div class="output" id="latex"></div>
-            <div class="output" id="mathjson"></div>
-        </main>
+                <div class="output" id="latex"></div>
+                <div class="output" id="mathjson"></div>
+    </main>
 
-        <footer>
-            <a
-                href="https://github.com/arnog/mathlive/tree/master/examples/customization"
-                ><svg
-                    class="fa-w-24"
-                    height="24px"
-                    style="vertical-align: -3px; margin-right: 6px;"
-                >
-                    <use xlink:href="../icons.svg#github" /></svg
-                >View source&nbsp;<svg class="fa-w-24" height="24px">
-                    <use xlink:href="../icons.svg#angle-right" /></svg
-            ></a>
-            <a href="../"
-                >More examples&nbsp;<svg class="fa-w-24" height="24px">
-                    <use xlink:href="../icons.svg#angle-right" /></svg
-            ></a>
-            <a href="/"
-                >Return to the homepage&nbsp;<svg class="fa-w-24" height="24px">
-                    <use xlink:href="../icons.svg#angle-right" /></svg
-            ></a>
-        </footer>
+    <footer>
+        <a href="https://github.com/arnog/mathlive/tree/master/examples/customization"><svg class="fa-w-24"
+                height="24px" style="vertical-align: -3px; margin-right: 6px;">
+                <use xlink:href="../icons.svg#github" /></svg>View source&nbsp;<svg class="fa-w-24" height="24px">
+                <use xlink:href="../icons.svg#angle-right" /></svg></a>
+        <a href="../">More examples&nbsp;<svg class="fa-w-24" height="24px">
+                <use xlink:href="../icons.svg#angle-right" /></svg></a>
+        <a href="/">Return to the homepage&nbsp;<svg class="fa-w-24" height="24px">
+                <use xlink:href="../icons.svg#angle-right" /></svg></a>
+    </footer>
 
-        <script type="module">
-            // import MathLive from '/dist/mathlive.mjs';
-            import MathLive from '/dist/src/mathlive.js';
+    <script type="module">
+        import MathLive from '/dist/mathlive.mjs';
+        // import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
 
-            MathLive.makeMathField('mf1', {
-                smartMode: true, // Makes text entry easier
-                virtualKeyboardMode: 'manual', // Always show virtual keyboard glyph
-                onContentDidChange: updateOutput,
-            });
+        MathLive.makeMathField('mf1', {
+            smartMode: true, // Makes text entry easier
+            virtualKeyboardMode: 'manual', // Always show virtual keyboard glyph
+            onContentDidChange: updateOutput,
+        });
 
-            MathLive.makeMathField('mf2', {
-                virtualKeyboardMode: 'onfocus', // Show the virtual keyboard on focus
-                smartMode: false,
-                onContentDidChange: updateOutput,
-            });
+        MathLive.makeMathField('mf2', {
+            virtualKeyboardMode: 'onfocus', // Show the virtual keyboard on focus
+            smartMode: false,
+            onContentDidChange: updateOutput,
+        });
 
-            MathLive.makeMathField('mf3', {
-                smartMode: true,
-                onContentDidChange: updateOutput,
-            });
+        MathLive.makeMathField('mf3', {
+            smartMode: true,
+            onContentDidChange: updateOutput,
+        });
 
-            function updateOutput(mf) {
-                const latex = mf.$text();
-                document.getElementById('latex').innerHTML = escapeHtml(latex);
+        function updateOutput(mf) {
+            const latex = mf.$text();
+            document.getElementById('latex').innerHTML = escapeHtml(latex);
 
-                const mathJSON = MathLive.latexToAST(latex);
-                document.getElementById('mathjson').innerHTML = escapeHtml(
-                    JSON.stringify(mathJSON)
+            const mathJSON = MathLive.latexToAST(latex);
+            document.getElementById('mathjson').innerHTML = escapeHtml(
+                JSON.stringify(mathJSON)
+            );
+        }
+
+        function escapeHtml(string) {
+            return String(string).replace(/[&<>"'`=/\u200b]/g, function (
+                s
+            ) {
+                return (
+                    {
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#39;',
+                        '/': '&#x2F;',
+                        '`': '&#x60;',
+                        '=': '&#x3D;',
+                        '\u200b': '&amp;#zws;',
+                    }[s] || s
                 );
-            }
+            });
+        }
+    </script>
+</body>
 
-            function escapeHtml(string) {
-                return String(string).replace(/[&<>"'`=/\u200b]/g, function (
-                    s
-                ) {
-                    return (
-                        {
-                            '&': '&amp;',
-                            '<': '&lt;',
-                            '>': '&gt;',
-                            '"': '&quot;',
-                            "'": '&#39;',
-                            '/': '&#x2F;',
-                            '`': '&#x60;',
-                            '=': '&#x3D;',
-                            '\u200b': '&amp;#zws;',
-                        }[s] || s
-                    );
-                });
-            }
-        </script>
-    </body>
 </html>

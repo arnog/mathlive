@@ -4856,6 +4856,7 @@ defineFunction('c', '{:string}', {}, (_name, args) => {
 // here: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/menclose
 // The second, optional, specifies the style to use for the notations.
 defineFunction('enclose', '{notation:string}[style:string]{body:auto}', null, (_name, args) => {
+    var _a;
     const result = {
         type: 'enclose',
         strokeColor: 'currentColor',
@@ -4916,7 +4917,7 @@ defineFunction('enclose', '{notation:string}[style:string]{body:auto}', null, (_
             result.strokeColor;
     // Normalize the list of notations.
     result.notation = {};
-    args[0]
+    ((_a = args[0]) !== null && _a !== void 0 ? _a : '')
         .split(/[, ]/)
         .filter((v) => v.length > 0)
         .forEach((x) => {
@@ -7797,7 +7798,8 @@ function makeLeftRightDelim(type, delim, height, depth, context, classes = '') {
  */
 function makeNullFence(type, context, classes) {
     return makeSpan('', 'sizing' + // @todo not useful, redundant with 'nulldelimiter'
-        // 'reset-' + context.size, 'size5',                 // @todo: that seems like a lot of resizing... do we need both?
+        // 'reset-' + context.size, 'size5',
+        // @todo: that seems like a lot of resizing... do we need both?
         context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
         ' nulldelimiter ' + // The null delimiter has a width, specified by class 'nulldelimiter'
         (classes || ''), type);
@@ -13056,7 +13058,7 @@ function move(model, dist, options) {
     return true;
 }
 function up(model, options) {
-    var _a;
+    var _a, _b;
     options = options !== null && options !== void 0 ? options : { extend: false };
     const extend = (_a = options.extend) !== null && _a !== void 0 ? _a : false;
     collapseSelectionBackward(model);
@@ -13090,11 +13092,15 @@ function up(model, options) {
     }
     else {
         model.announce('line');
+        if (!model.suppressChangeNotifications &&
+            !((_b = model.hooks) === null || _b === void 0 ? void 0 : _b.moveOut(model, 'upward'))) {
+            return false;
+        }
     }
     return true;
 }
 function down(model, options) {
-    var _a;
+    var _a, _b;
     options = options !== null && options !== void 0 ? options : { extend: false };
     const extend = (_a = options.extend) !== null && _a !== void 0 ? _a : false;
     collapseSelectionForward(model);
@@ -13129,6 +13135,10 @@ function down(model, options) {
     }
     else {
         model.announce('line');
+        if (!model.suppressChangeNotifications &&
+            !((_b = model.hooks) === null || _b === void 0 ? void 0 : _b.moveOut(model, 'downward'))) {
+            return false;
+        }
     }
     return true;
 }

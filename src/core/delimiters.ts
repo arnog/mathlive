@@ -695,9 +695,10 @@ function makeNullFence(
     return makeSpan(
         '',
         'sizing' + // @todo not useful, redundant with 'nulldelimiter'
-        // 'reset-' + context.size, 'size5',                 // @todo: that seems like a lot of resizing... do we need both?
-        context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
-        ' nulldelimiter ' + // The null delimiter has a width, specified by class 'nulldelimiter'
+            // 'reset-' + context.size, 'size5',
+            // @todo: that seems like a lot of resizing... do we need both?
+            context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
+            ' nulldelimiter ' + // The null delimiter has a width, specified by class 'nulldelimiter'
             (classes || ''),
         type
     );

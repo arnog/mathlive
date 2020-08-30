@@ -337,14 +337,14 @@ export interface MathfieldHooks {
      * point to leave the mathfield.
      *
      * - <var>direction</var> indicates the direction of the navigation, either
-     * `"forward"` or `"backward"`.
+     * `"forward"` or `"backward"` or `"upward"` or `"downward"`.
      *
      * Return `false` to prevent the move, `true` to wrap around to the
      * start of the field.
      *
      * By default, the insertion point will wrap around.
      */
-    onMoveOutOf?: (sender: Mathfield, direction: 'forward' | 'backward') => boolean;
+    onMoveOutOf?: (sender: Mathfield, direction: 'forward' | 'backward' | 'upward' | 'downward') => boolean;
     /**
      * A hook invoked when pressing tab (or shift-tab) would cause the
      * insertion point to leave the mathfield.
