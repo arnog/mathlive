@@ -68,7 +68,7 @@ registerAtomType('surd', (context: Context, atom: Atom): Span[] => {
 
     const body = makeVlist(context, [inner, lineClearance, line, ruleWidth]);
 
-    if (typeof atom.index === 'undefined') {
+    if (!atom.index) {
         return [atom.bind(context, makeSpan([delim, body], 'sqrt', 'mord'))];
     }
 
@@ -93,10 +93,12 @@ registerAtomType('surd', (context: Context, atom: Atom): Span[] => {
     // Add a class surrounding it so we can add on the appropriate
     // kerning
 
-    return [
-        atom.bind(
-            context,
-            makeSpan([makeSpan(rootVlist, 'root'), delim, body], 'sqrt', 'mord')
-        ),
-    ];
+    const result = makeSpan(
+        [makeSpan(rootVlist, 'root'), delim, body],
+        'sqrt',
+        'mord'
+    );
+    result.height = delim.height;
+    result.depth = delim.depth;
+    return [atom.bind(context, result)];
 });
