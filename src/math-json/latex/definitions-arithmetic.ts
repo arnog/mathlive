@@ -250,20 +250,9 @@ function emitMultiply(emitter: Emitter, expr: Expression | null): string {
                     term = term.slice(1);
                     isNegative = !isNegative;
                 }
-                if (term !== '1') {
-                    if (!result) {
-                        // First term
-                        result = term;
-                    } else {
-                        result = result
-                            ? joinLatex([
-                                  result,
-                                  emitter.options.multiply,
-                                  term,
-                              ])
-                            : term;
-                    }
-                }
+                result = result
+                    ? joinLatex([result, emitter.options.multiply, term])
+                    : term;
             } else if (
                 getFunctionName(arg) === POWER &&
                 !isNaN(getNumberValue(getArg(arg, 1)))
