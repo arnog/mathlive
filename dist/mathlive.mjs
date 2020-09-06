@@ -10461,7 +10461,7 @@ registerAtomType('surd', (context, atom) => {
     line.applyStyle(atom.getStyle());
     line.height = ruleWidth;
     const body = makeVlist(context, [inner, lineClearance, line, ruleWidth]);
-    if (typeof atom.index === 'undefined') {
+    if (!atom.index) {
         return [atom.bind(context, makeSpan([delim, body], 'sqrt', 'mord'))];
     }
     // Handle the optional root index
@@ -10480,9 +10480,10 @@ registerAtomType('surd', (context, atom) => {
     const rootVlist = makeVlist(context, [root], 'shift', -toShift);
     // Add a class surrounding it so we can add on the appropriate
     // kerning
-    return [
-        atom.bind(context, makeSpan([makeSpan(rootVlist, 'root'), delim, body], 'sqrt', 'mord')),
-    ];
+    const result = makeSpan([makeSpan(rootVlist, 'root'), delim, body], 'sqrt', 'mord');
+    result.height = delim.height;
+    result.depth = delim.depth;
+    return [atom.bind(context, result)];
 });
 
 // Performance to check first char of string: https://jsben.ch/QLjdZ
@@ -17859,7 +17860,7 @@ const INLINE_SHORTCUTS = {
     '∑': { mode: 'math', value: '\\sum' },
     sum: { mode: 'math', value: '\\sum_{#?}^{#?}' },
     prod: { mode: 'math', value: '\\prod_{#?}^{#?}' },
-    sqrt: { mode: 'math', value: '\\sqrt' },
+    sqrt: { mode: 'math', value: '\\sqrt{#?}' },
     // '∫':                    '\\int',             // There's a alt-B command for this
     '∆': { mode: 'math', value: '\\differentialD' },
     '∂': { mode: 'math', value: '\\differentialD' },
@@ -30518,21 +30519,9 @@ function emitMultiply(emitter, expr) {
                     term = term.slice(1);
                     isNegative = !isNegative;
                 }
-                if (term !== '1') {
-                    if (!result) {
-                        // First term
-                        result = term;
-                    }
-                    else {
-                        result = result
-                            ? joinLatex([
-                                result,
-                                emitter.options.multiply,
-                                term,
-                            ])
-                            : term;
-                    }
-                }
+                result = result
+                    ? joinLatex([result, emitter.options.multiply, term])
+                    : term;
             }
             else if (getFunctionName(arg) === POWER &&
                 !isNaN(getNumberValue(getArg(arg, 1)))) {

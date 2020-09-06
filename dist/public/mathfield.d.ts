@@ -63,7 +63,7 @@ export declare type InsertOptions = {
 };
 export interface Mathfield {
     mode: ParseMode;
-    getConfig(keys: keyof MathfieldConfig): any;
+    getConfig<T extends keyof MathfieldConfig>(key: T): MathfieldConfig[T];
     getConfig(keys: string[]): MathfieldConfig;
     getConfig(keys: keyof MathfieldConfig | string[]): any | MathfieldConfig;
     $setConfig(config: MathfieldConfig): void;

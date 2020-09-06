@@ -57,7 +57,7 @@ export interface Disposable {
 
 export type EventListener = (...payload: any[]) => void;
 
-export class EventEmitter<T> {
+export class EventEmitter {
     events: Map<string, EventListener[]>;
 
     constructor() {
