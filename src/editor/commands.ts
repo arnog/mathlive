@@ -52,7 +52,7 @@ export function register(
 
 export function perform(
     mathfield: MathfieldPrivate,
-    command: SelectorPrivate | any[]
+    command: SelectorPrivate | [SelectorPrivate, ...any[]]
 ): boolean {
     if (!command) {
         return false;

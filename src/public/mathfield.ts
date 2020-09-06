@@ -119,7 +119,7 @@ export interface Mathfield {
      * In the above example, both calls invoke the same selector.
      *
      */
-    $perform(command: Selector | any[]): boolean;
+    $perform(command: Selector | [Selector, ...any[]]): boolean;
 
     /**
      * Returns a textual representation of the mathfield.

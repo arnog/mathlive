@@ -659,7 +659,7 @@ export class MathfieldPrivate implements Mathfield {
         updatePopoverPosition(this);
     }
 
-    $perform(command: SelectorPrivate | any[]): boolean {
+    $perform(command: SelectorPrivate | [SelectorPrivate, ...any[]]): boolean {
         return perform(this, command);
     }
 
