@@ -88,7 +88,7 @@ export interface Mathfield {
     getConfig<K extends keyof MathfieldConfig>(key: K): MathfieldConfig[K];
     getConfig(): MathfieldConfig;
 
-    $setConfig(config: MathfieldConfig): void;
+    $setConfig(config: Partial<MathfieldConfig>): void;
 
     /**
      * Reverts this mathfield to its original content.
