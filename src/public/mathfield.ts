@@ -82,11 +82,13 @@ export type InsertOptions = {
 export interface Mathfield {
     mode: ParseMode;
 
-    getConfig<T extends keyof MathfieldConfig>(key: T): MathfieldConfig[T];
-    getConfig(keys: string[]): MathfieldConfig;
-    getConfig(keys: keyof MathfieldConfig | string[]): any | MathfieldConfig;
+    getConfig<K extends keyof MathfieldConfig>(
+        keys: K[]
+    ): Pick<MathfieldConfig, K>;
+    getConfig<K extends keyof MathfieldConfig>(key: K): MathfieldConfig[K];
+    getConfig(): MathfieldConfig;
 
-    $setConfig(config: MathfieldConfig): void;
+    $setConfig(config: Partial<MathfieldConfig>): void;
 
     /**
      * Reverts this mathfield to its original content.
@@ -117,7 +119,7 @@ export interface Mathfield {
      * In the above example, both calls invoke the same selector.
      *
      */
-    $perform(command: Selector | any[]): boolean;
+    $perform(command: Selector | [Selector, ...any[]]): boolean;
 
     /**
      * Returns a textual representation of the mathfield.

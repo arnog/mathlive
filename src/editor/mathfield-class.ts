@@ -469,11 +469,16 @@ export class MathfieldPrivate implements Mathfield {
         requestUpdate(this);
     }
 
-    getConfig(keys: keyof MathfieldConfigPrivate): boolean | number | string;
-    getConfig(keys: string[]): MathfieldConfigPrivate;
+    getConfig<K extends keyof MathfieldConfigPrivate>(
+        keys: K[]
+    ): Pick<MathfieldConfigPrivate, K>;
+    getConfig<K extends keyof MathfieldConfigPrivate>(
+        key: K
+    ): MathfieldConfigPrivate[K];
+    getConfig(): MathfieldConfigPrivate;
     getConfig(
-        keys: keyof MathfieldConfigPrivate | string[]
-    ): boolean | number | string | MathfieldConfigPrivate {
+        keys?: keyof MathfieldConfigPrivate | (keyof MathfieldConfigPrivate)[]
+    ): any | MathfieldConfigPrivate {
         return getConfig(this.config, keys);
     }
 
@@ -654,7 +659,7 @@ export class MathfieldPrivate implements Mathfield {
         updatePopoverPosition(this);
     }
 
-    $perform(command: SelectorPrivate | any[]): boolean {
+    $perform(command: SelectorPrivate | [SelectorPrivate, ...any[]]): boolean {
         return perform(this, command);
     }
 
