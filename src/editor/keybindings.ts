@@ -53,7 +53,7 @@ export function getCommandForKeybinding(
     keybindings: Keybinding[],
     mode: ParseMode,
     keystroke: string
-): Selector | any[] | '' {
+): Selector | [Selector, ...any[]] | '' {
     if (keybindings.length === 0) return '';
 
     // Try to match using a virtual keystroke

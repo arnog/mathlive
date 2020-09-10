@@ -115,7 +115,7 @@ export function onKeystroke(
     // 5. Let's try to find a matching shortcut or command
     let shortcut: string;
     let stateIndex: number;
-    let selector: Selector | '' | any[];
+    let selector: Selector | '' | [Selector, ...any[]];
     let resetKeystrokeBuffer = false;
     // 5.1 Check if the keystroke, prefixed with the previously typed keystrokes,
     // would match a long shortcut (i.e. '~~')
