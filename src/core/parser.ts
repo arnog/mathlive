@@ -1472,7 +1472,8 @@ class Parser {
         );
         atom.captureSelection = true;
         atom.symbol = macro;
-        atom.latex = macro + tokensToString(this.tokens.slice(initialIndex));
+        atom.latex =
+            macro + tokensToString(this.tokens.slice(initialIndex, this.index));
         return atom;
     }
     /**
