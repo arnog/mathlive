@@ -258,6 +258,9 @@ export interface Mathfield {
      * @category Changing the Content
      */
     $typedText(text: string): void;
+
+    getCaretPosition(): { x: number; y: number } | null;
+    setCaretPosition(x: number, y: number): boolean;
 }
 
 export interface Model {

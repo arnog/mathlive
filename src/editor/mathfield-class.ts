@@ -24,6 +24,7 @@ import {
     getAnchorStyle,
     getSelectedAtoms,
     getAnchorMode,
+    setPath,
 } from './model-selection';
 import { removeSuggestion } from './model-utils';
 import {
@@ -61,7 +62,7 @@ import {
 
 import { onCut, onCopy, onPaste } from './mathfield-clipboard';
 import { attachButtonHandlers } from './mathfield-buttons';
-import { onPointerDown } from './mathfield-pointer-input';
+import { onPointerDown, pathFromPoint } from './mathfield-pointer-input';
 import {
     showVirtualKeyboard,
     hideVirtualKeyboard,
@@ -923,6 +924,20 @@ export class MathfieldPrivate implements Mathfield {
     $typedText(text: string): void {
         onTypedText(this, text);
     }
+
+    getCaretPosition(): { x: number; y: number } | null {
+        const caretPosition = getCaretPosition(this.field);
+        return caretPosition
+            ? { x: caretPosition.x, y: caretPosition.y }
+            : null;
+    }
+    setCaretPosition(x: number, y: number): boolean {
+        const anchor = pathFromPoint(this, x, y, { bias: 0 });
+        const result = setPath(this.model, anchor, 0);
+        requestUpdate(this);
+        return result;
+    }
+
     canUndo(): boolean {
         return this.undoManager.canUndo();
     }

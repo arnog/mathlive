@@ -112,7 +112,7 @@ function findElementWithCaret(el: Element): Element {
  */
 export function getCaretPosition(
     el: Element
-): { x: number; y: number; height: number } {
+): { x: number; y: number; height: number } | null {
     const caret = findElementWithCaret(el);
     if (caret) {
         const bounds = caret.getBoundingClientRect();
