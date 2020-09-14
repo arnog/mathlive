@@ -735,11 +735,11 @@ export function unicodeStringToLatex(
     return result;
 }
 
-export function getValue(mode: ParseModePrivate, symbol: string): string {
-    if (mode === 'math') {
-        return MATH_SYMBOLS[symbol]?.value ?? symbol;
-    }
-    return TEXT_SYMBOLS[symbol] ? TEXT_SYMBOLS[symbol] : symbol;
+/**
+ * Gets the value of a symbol in math mode
+ */
+export function getValue(symbol: string): string {
+    return MATH_SYMBOLS[symbol]?.value ?? symbol;
 }
 
 export function emit(
