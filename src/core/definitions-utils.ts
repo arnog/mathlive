@@ -735,28 +735,6 @@ export function unicodeStringToLatex(
     return result;
 }
 
-/**
- *
- * @return True if command is allowed in the mode
- * (note that command can also be a single character, e.g. "a")
- */
-export function commandAllowed(
-    mode: ParseModePrivate,
-    command: string
-): boolean {
-    if (
-        FUNCTIONS[command] &&
-        (!FUNCTIONS[command].mode || FUNCTIONS[command].mode.includes(mode))
-    ) {
-        return true;
-    }
-    if ({ text: TEXT_SYMBOLS, math: MATH_SYMBOLS }[mode][command]) {
-        return true;
-    }
-
-    return false;
-}
-
 export function getValue(mode: ParseModePrivate, symbol: string): string {
     if (mode === 'math') {
         return MATH_SYMBOLS[symbol]?.value ?? symbol;
