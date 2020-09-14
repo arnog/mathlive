@@ -439,9 +439,14 @@ export function charToLatex(parseMode: ParseModePrivate, s: string): string {
         return REVERSE_MATH_SYMBOLS[s] || s;
     }
     if (parseMode === 'text') {
-        return (
-            Object.keys(TEXT_SYMBOLS).find((x) => TEXT_SYMBOLS[x] === s) || s
+        let textSymbol = Object.keys(TEXT_SYMBOLS).find(
+            (x) => TEXT_SYMBOLS[x] === s
         );
+        if (!textSymbol) {
+            const hex = s.codePointAt(0).toString(16);
+            textSymbol = '^'.repeat(hex.length) + hex;
+        }
+        return textSymbol;
     }
     return s;
 }
@@ -856,6 +861,8 @@ export function getInfo(
             info = MATH_SYMBOLS[symbol];
         } else if (TEXT_SYMBOLS[symbol]) {
             info = { value: TEXT_SYMBOLS[symbol] };
+        } else if (parseMode === 'text') {
+            info = { value: symbol };
         }
     }
 

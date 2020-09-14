@@ -293,7 +293,7 @@ function parse(
             let atoms: Atom[];
             [atoms, tokens] = options.parse('text', tokens, options);
             result = [...result, ...atoms];
-        } else if (token.length === 1) {
+        } else if ([...token].length === 1) {
             const info = getInfo(token, 'text', options.macros);
             if (!info) {
                 error({ code: 'unexpected-token' });
