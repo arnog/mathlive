@@ -932,8 +932,10 @@ export class MathfieldPrivate implements Mathfield {
             : null;
     }
     setCaretPosition(x: number, y: number): boolean {
+        const oldPath = this.model.clone();
         const anchor = pathFromPoint(this, x, y, { bias: 0 });
         const result = setPath(this.model, anchor, 0);
+        this.model.announce('move', oldPath);
         requestUpdate(this);
         return result;
     }
