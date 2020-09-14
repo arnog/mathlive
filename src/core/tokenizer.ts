@@ -137,14 +137,14 @@ class Tokenizer {
             if (this.peek() === '^') {
                 // It might be a ^^ command (inline hex character)
                 this.get();
-                let hex = this.match(/^\^\^[0-9a-f][0-9a-f][0-9a-f][0-9a-f]/);
+                // There can be zero to six carets with the same number of hex digits
+                const hex = this.match(
+                    /^(\^(\^(\^(\^[0-9a-f])?[0-9a-f])?[0-9a-f])?[0-9a-f])?[0-9a-f][0-9a-f]/
+                );
                 if (hex) {
-                    // It's a ^^^^ hex char
-                    return String.fromCodePoint(parseInt(hex.slice(2), 16));
-                }
-                hex = this.match(/^[0-9a-f][0-9a-f]/);
-                if (hex) {
-                    return String.fromCodePoint(parseInt(hex, 16));
+                    return String.fromCodePoint(
+                        parseInt(hex.slice(hex.lastIndexOf('^') + 1), 16)
+                    );
                 }
             }
             return next;
