@@ -293,7 +293,20 @@ function parse(
             let atoms: Atom[];
             [atoms, tokens] = options.parse('text', tokens, options);
             result = [...result, ...atoms];
-        } else if ([...token].length === 1) {
+        } else if (token === '<$>' || token === '<$$>') {
+            // Mode-shift
+            const subtokens = tokens.slice(
+                0,
+                tokens.findIndex((x: Token) => x === token)
+            );
+            tokens = tokens.slice(subtokens.length + 1);
+            const [atoms] = options.parse('math', subtokens, options);
+            result = [...result, ...atoms];
+        } else if (token === '<{>' || token === '<}>') {
+            // Spurious braces are ignored by TeX in text mode
+            // In text mode, braces are sometimes used to separate adjacent
+            // commands without inserting a space, e.g. "\backlash{}command"
+        } else {
             const info = getInfo(token, 'text', options.macros);
             if (!info) {
                 error({ code: 'unexpected-token' });
@@ -310,24 +323,6 @@ function parse(
             } else {
                 error({ code: 'unexpected-token' });
             }
-        } else if (token === '<$>' || token === '<$$>') {
-            // Mode-shift
-            const subtokens = tokens.slice(
-                0,
-                tokens.findIndex((x: Token) => x === token)
-            );
-            tokens = tokens.slice(subtokens.length + 1);
-            const [atoms] = options.parse('math', subtokens, options);
-            result = [...result, ...atoms];
-        } else if (token === '<{>' || token === '<}>') {
-            // Spurious braces are ignored by TeX in text mode
-            // In text mode, braces are sometimes used to separate adjacent
-            // commands without inserting a space, e.g. "\backlash{}command"
-        } else {
-            error({
-                code: 'unexpected-token',
-                arg: token,
-            });
         }
     }
     return [result, tokens];
