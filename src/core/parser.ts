@@ -882,7 +882,7 @@ class Parser {
         // consider the `\right` missing and set the `rightDelim` to undefined
         const rightDelim = this.scanDelim();
 
-        const result = new Atom(this.parseMode, 'leftright');
+        const result = new Atom(this.parseMode, 'leftright', '', this.style);
         result.leftDelim = leftDelim;
         result.rightDelim = rightDelim ?? undefined;
         result.inner = close === 'right';
