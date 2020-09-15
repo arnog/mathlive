@@ -69,8 +69,8 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
         command: 'moveToPreviousPlaceholder',
     },
 
-    { key: '[Escape]', ifMode: 'math', command: ['switch-mode', 'command'] },
-    { key: '\\', ifMode: 'math', command: ['switch-mode', 'command'] },
+    { key: '[Escape]', ifMode: 'math', command: ['switchMode', 'command'] },
+    { key: '\\', ifMode: 'math', command: ['switchMode', 'command'] },
 
     {
         key: 'alt+[Equal]',
@@ -176,7 +176,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     {
         key: 'shift+[Quote]',
         ifMode: 'text',
-        command: ['switch-mode', 'math', '”', ''],
+        command: ['switchMode', 'math', '”', ''],
     }, // ??
 
     // WOLFRAM MATHEMATICA BINDINGS
