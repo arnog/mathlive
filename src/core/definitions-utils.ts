@@ -762,8 +762,10 @@ export function emit(
     if (atom.body && FUNCTIONS[symbol]?.params?.length === 1) {
         return symbol + '{' + emitFn(atom, atom.body as Atom[]) + '}';
     }
-    // No custom emit function provided, return the symbol (could be a character)
-    return symbol;
+
+    // No custom emit function provided, return an escaped version of the symbol
+    const hex = symbol.codePointAt(0).toString(16);
+    return '^'.repeat(hex.length) + hex;
 }
 
 export function getEnvironmentDefinition(name: string): EnvironmentDefinition {
