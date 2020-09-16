@@ -125,7 +125,17 @@ export function onKeystroke(
         mathfield.mode !== 'command' &&
         (!evt || (!evt.ctrlKey && !evt.metaKey))
     ) {
-        if (!mightProducePrintableCharacter(evt)) {
+        if (keystroke === '[Backspace]') {
+            // Special case for backspace
+            mathfield.keystrokeBuffer = mathfield.keystrokeBuffer.slice(0, -1);
+            mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
+            if (mathfield.config.inlineShortcutTimeout) {
+                // Set a timer to reset the shortcut buffer
+                mathfield.keystrokeBufferResetTimer = setTimeout(() => {
+                    mathfield.resetKeystrokeBuffer();
+                }, mathfield.config.inlineShortcutTimeout);
+            }
+        } else if (!mightProducePrintableCharacter(evt)) {
             // It was a non-alpha character (PageUp, End, etc...)
             mathfield.resetKeystrokeBuffer();
         } else {

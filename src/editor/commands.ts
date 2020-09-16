@@ -76,7 +76,9 @@ export function perform(
     ) as SelectorPrivate;
     if (COMMANDS[selector]?.target === 'model') {
         if (/^(delete|transpose|add)/.test(selector)) {
-            mathfield.resetKeystrokeBuffer();
+            if (selector !== 'deletePreviousChar') {
+                mathfield.resetKeystrokeBuffer();
+            }
         }
         if (
             /^(delete|transpose|add)/.test(selector) &&
