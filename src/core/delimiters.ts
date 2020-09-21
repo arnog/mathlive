@@ -46,7 +46,7 @@ function makeSmallDelim(
     context: Context,
     classes = ''
 ): Span {
-    const text = makeSymbol('Main-Regular', getValue('math', delim));
+    const text = makeSymbol('Main-Regular', getValue(delim));
 
     const span = makeStyleWrap(type, text, context.mathstyle, style, classes);
 
@@ -80,7 +80,7 @@ function makeLargeDelim(
         type,
         makeSymbol(
             'Size' + size + '-Regular',
-            getValue('math', delim),
+            getValue(delim),
             'delimsizing size' + size
         ),
         context.mathstyle,
@@ -115,11 +115,7 @@ function makeInner(symbol: string, font: string): Span {
         sizeClass = ' delim-size4';
     }
 
-    return makeSymbol(
-        font,
-        getValue('math', symbol),
-        'delimsizinginner' + sizeClass
-    );
+    return makeSymbol(font, getValue(symbol), 'delimsizinginner' + sizeClass);
 }
 
 /**
@@ -140,7 +136,7 @@ function makeStackedDelim(
     let middle: string;
     let repeat: string;
     let bottom: string;
-    top = repeat = bottom = getValue('math', delim);
+    top = repeat = bottom = getValue(delim);
     middle = null;
     // Also keep track of what font the delimiters are in
     let font = 'Size1-Regular';
@@ -268,19 +264,16 @@ function makeStackedDelim(
     }
 
     // Get the metrics of the four sections
-    const topMetrics = getCharacterMetrics(getValue('math', top), font);
+    const topMetrics = getCharacterMetrics(getValue(top), font);
     const topHeightTotal = topMetrics.height + topMetrics.depth;
-    const repeatMetrics = getCharacterMetrics(getValue('math', repeat), font);
+    const repeatMetrics = getCharacterMetrics(getValue(repeat), font);
     const repeatHeightTotal = repeatMetrics.height + repeatMetrics.depth;
-    const bottomMetrics = getCharacterMetrics(getValue('math', bottom), font);
+    const bottomMetrics = getCharacterMetrics(getValue(bottom), font);
     const bottomHeightTotal = bottomMetrics.height + bottomMetrics.depth;
     let middleHeightTotal = 0;
     let middleFactor = 1;
     if (middle !== null) {
-        const middleMetrics = getCharacterMetrics(
-            getValue('math', middle),
-            font
-        );
+        const middleMetrics = getCharacterMetrics(getValue(middle), font);
         middleHeightTotal = middleMetrics.height + middleMetrics.depth;
         middleFactor = 2; // repeat symmetrically above and below middle
     }
@@ -607,7 +600,7 @@ export function makeCustomSizedDelim(
 
     // Look through the sequence
     const delimType = traverseSequence(
-        getValue('math', delim),
+        getValue(delim),
         height,
         sequence,
         context
@@ -695,10 +688,10 @@ function makeNullFence(
     return makeSpan(
         '',
         'sizing' + // @todo not useful, redundant with 'nulldelimiter'
-            // 'reset-' + context.size, 'size5',
-            // @todo: that seems like a lot of resizing... do we need both?
-            context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
-            ' nulldelimiter ' + // The null delimiter has a width, specified by class 'nulldelimiter'
+        // 'reset-' + context.size, 'size5',
+        // @todo: that seems like a lot of resizing... do we need both?
+        context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
+        ' nulldelimiter ' + // The null delimiter has a width, specified by class 'nulldelimiter'
             (classes || ''),
         type
     );

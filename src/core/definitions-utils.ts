@@ -439,9 +439,14 @@ export function charToLatex(parseMode: ParseModePrivate, s: string): string {
         return REVERSE_MATH_SYMBOLS[s] || s;
     }
     if (parseMode === 'text') {
-        return (
-            Object.keys(TEXT_SYMBOLS).find((x) => TEXT_SYMBOLS[x] === s) || s
+        let textSymbol = Object.keys(TEXT_SYMBOLS).find(
+            (x) => TEXT_SYMBOLS[x] === s
         );
+        if (!textSymbol) {
+            const hex = s.codePointAt(0).toString(16);
+            textSymbol = '^'.repeat(hex.length) + hex;
+        }
+        return textSymbol;
     }
     return s;
 }
@@ -731,32 +736,10 @@ export function unicodeStringToLatex(
 }
 
 /**
- *
- * @return True if command is allowed in the mode
- * (note that command can also be a single character, e.g. "a")
+ * Gets the value of a symbol in math mode
  */
-export function commandAllowed(
-    mode: ParseModePrivate,
-    command: string
-): boolean {
-    if (
-        FUNCTIONS[command] &&
-        (!FUNCTIONS[command].mode || FUNCTIONS[command].mode.includes(mode))
-    ) {
-        return true;
-    }
-    if ({ text: TEXT_SYMBOLS, math: MATH_SYMBOLS }[mode][command]) {
-        return true;
-    }
-
-    return false;
-}
-
-export function getValue(mode: ParseModePrivate, symbol: string): string {
-    if (mode === 'math') {
-        return MATH_SYMBOLS[symbol]?.value ?? symbol;
-    }
-    return TEXT_SYMBOLS[symbol] ? TEXT_SYMBOLS[symbol] : symbol;
+export function getValue(symbol: string): string {
+    return MATH_SYMBOLS[symbol]?.value ?? symbol;
 }
 
 export function emit(
@@ -779,8 +762,10 @@ export function emit(
     if (atom.body && FUNCTIONS[symbol]?.params?.length === 1) {
         return symbol + '{' + emitFn(atom, atom.body as Atom[]) + '}';
     }
-    // No custom emit function provided, return the symbol (could be a character)
-    return symbol;
+
+    // No custom emit function provided, return an escaped version of the symbol
+    const hex = symbol.codePointAt(0).toString(16);
+    return '^'.repeat(hex.length) + hex;
 }
 
 export function getEnvironmentDefinition(name: string): EnvironmentDefinition {
@@ -856,6 +841,8 @@ export function getInfo(
             info = MATH_SYMBOLS[symbol];
         } else if (TEXT_SYMBOLS[symbol]) {
             info = { value: TEXT_SYMBOLS[symbol] };
+        } else if (parseMode === 'text') {
+            info = { value: symbol };
         }
     }
 
