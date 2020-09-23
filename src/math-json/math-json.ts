@@ -13,9 +13,9 @@ import { ParseLatexOptions, EmitLatexOptions } from './latex/public';
 import { getDefaultLatexDictionary } from './latex/definitions';
 import { getDefaultDictionary } from './dictionary/dictionary';
 
-declare let process: {
-    env: { [key: string]: string };
-};
+// declare let process: {
+//     env: { [key: string]: string };
+// };
 
 export function parseLatex(
     latex: string,

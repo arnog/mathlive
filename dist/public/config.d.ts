@@ -92,7 +92,7 @@ export declare type Keybinding = {
      */
     key: string;
     /** The command is a single selector, or a selector with arguments */
-    command: Selector | any[];
+    command: Selector | [Selector, ...any[]];
     /**
      * If specified, this indicate in which mode this keybinding will apply.
      * If none is specified, the keybinding apply in every mode.

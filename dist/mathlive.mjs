@@ -4181,7 +4181,12 @@ function charToLatex(parseMode, s) {
         return REVERSE_MATH_SYMBOLS[s] || s;
     }
     if (parseMode === 'text') {
-        return (Object.keys(TEXT_SYMBOLS).find((x) => TEXT_SYMBOLS[x] === s) || s);
+        let textSymbol = Object.keys(TEXT_SYMBOLS).find((x) => TEXT_SYMBOLS[x] === s);
+        if (!textSymbol) {
+            const hex = s.codePointAt(0).toString(16);
+            textSymbol = '^'.repeat(hex.length) + hex;
+        }
+        return textSymbol;
     }
     return s;
 }
@@ -4433,12 +4438,12 @@ function unicodeStringToLatex(parseMode, s) {
     }
     return result;
 }
-function getValue(mode, symbol) {
+/**
+ * Gets the value of a symbol in math mode
+ */
+function getValue(symbol) {
     var _a, _b;
-    if (mode === 'math') {
-        return (_b = (_a = MATH_SYMBOLS[symbol]) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : symbol;
-    }
-    return TEXT_SYMBOLS[symbol] ? TEXT_SYMBOLS[symbol] : symbol;
+    return (_b = (_a = MATH_SYMBOLS[symbol]) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : symbol;
 }
 function emit(symbol, parent, atom, emitFn) {
     var _a, _b, _c;
@@ -4453,8 +4458,9 @@ function emit(symbol, parent, atom, emitFn) {
     if (atom.body && ((_c = (_b = FUNCTIONS[symbol]) === null || _b === void 0 ? void 0 : _b.params) === null || _c === void 0 ? void 0 : _c.length) === 1) {
         return symbol + '{' + emitFn(atom, atom.body) + '}';
     }
-    // No custom emit function provided, return the symbol (could be a character)
-    return symbol;
+    // No custom emit function provided, return an escaped version of the symbol
+    const hex = symbol.codePointAt(0).toString(16);
+    return '^'.repeat(hex.length) + hex;
 }
 function getEnvironmentDefinition(name) {
     var _a;
@@ -4534,6 +4540,9 @@ function getInfo(symbol, parseMode, macros) {
         }
         else if (TEXT_SYMBOLS[symbol]) {
             info = { value: TEXT_SYMBOLS[symbol] };
+        }
+        else if (parseMode === 'text') {
+            info = { value: symbol };
         }
     }
     // Special case `f`, `g` and `h` are recognized as functions.
@@ -7304,7 +7313,7 @@ defineSymbol('"', '\u201D'); // Double Prime
  * scriptscriptstyle.
  */
 function makeSmallDelim(type, delim, style, center, context, classes = '') {
-    const text = makeSymbol('Main-Regular', getValue('math', delim));
+    const text = makeSymbol('Main-Regular', getValue(delim));
     const span = makeStyleWrap(type, text, context.mathstyle, style, classes);
     if (center) {
         span.setTop((1 - context.mathstyle.sizeMultiplier / style.sizeMultiplier) *
@@ -7321,7 +7330,7 @@ function makeSmallDelim(type, delim, style, center, context, classes = '') {
  * Size3, or Size4 fonts. It is always rendered in textstyle.
  */
 function makeLargeDelim(type, delim, size, center, context, classes = '') {
-    const result = makeStyleWrap(type, makeSymbol('Size' + size + '-Regular', getValue('math', delim), 'delimsizing size' + size), context.mathstyle, MATHSTYLES.textstyle, classes);
+    const result = makeStyleWrap(type, makeSymbol('Size' + size + '-Regular', getValue(delim), 'delimsizing size' + size), context.mathstyle, MATHSTYLES.textstyle, classes);
     if (center) {
         result.setTop((1 - context.mathstyle.sizeMultiplier) *
             context.mathstyle.metrics.axisHeight);
@@ -7345,7 +7354,7 @@ function makeInner(symbol, font) {
     else if (font === 'Size4-Regular') {
         sizeClass = ' delim-size4';
     }
-    return makeSymbol(font, getValue('math', symbol), 'delimsizinginner' + sizeClass);
+    return makeSymbol(font, getValue(symbol), 'delimsizinginner' + sizeClass);
 }
 /**
  * Make a stacked delimiter out of a given delimiter, with the total height at
@@ -7358,7 +7367,7 @@ function makeStackedDelim(type, delim, heightTotal, center, context, classes = '
     let middle;
     let repeat;
     let bottom;
-    top = repeat = bottom = getValue('math', delim);
+    top = repeat = bottom = getValue(delim);
     middle = null;
     // Also keep track of what font the delimiters are in
     let font = 'Size1-Regular';
@@ -7506,16 +7515,16 @@ function makeStackedDelim(type, delim, heightTotal, center, context, classes = '
         repeat = top = ' ';
     }
     // Get the metrics of the four sections
-    const topMetrics = getCharacterMetrics(getValue('math', top), font);
+    const topMetrics = getCharacterMetrics(getValue(top), font);
     const topHeightTotal = topMetrics.height + topMetrics.depth;
-    const repeatMetrics = getCharacterMetrics(getValue('math', repeat), font);
+    const repeatMetrics = getCharacterMetrics(getValue(repeat), font);
     const repeatHeightTotal = repeatMetrics.height + repeatMetrics.depth;
-    const bottomMetrics = getCharacterMetrics(getValue('math', bottom), font);
+    const bottomMetrics = getCharacterMetrics(getValue(bottom), font);
     const bottomHeightTotal = bottomMetrics.height + bottomMetrics.depth;
     let middleHeightTotal = 0;
     let middleFactor = 1;
     if (middle !== null) {
-        const middleMetrics = getCharacterMetrics(getValue('math', middle), font);
+        const middleMetrics = getCharacterMetrics(getValue(middle), font);
         middleHeightTotal = middleMetrics.height + middleMetrics.depth;
         middleFactor = 2; // repeat symmetrically above and below middle
     }
@@ -7759,7 +7768,7 @@ function makeCustomSizedDelim(type, delim, height, center, context, classes = ''
         sequence = stackAlwaysDelimiterSequence;
     }
     // Look through the sequence
-    const delimType = traverseSequence(getValue('math', delim), height, sequence, context);
+    const delimType = traverseSequence(getValue(delim), height, sequence, context);
     // Depending on the sequence element we decided on,
     // call the appropriate function.
     if (delimType.type === 'small') {
@@ -9296,14 +9305,10 @@ class Tokenizer {
             if (this.peek() === '^') {
                 // It might be a ^^ command (inline hex character)
                 this.get();
-                let hex = this.match(/^\^\^[0-9a-f][0-9a-f][0-9a-f][0-9a-f]/);
+                // There can be zero to six carets with the same number of hex digits
+                const hex = this.match(/^(\^(\^(\^(\^[0-9a-f])?[0-9a-f])?[0-9a-f])?[0-9a-f])?[0-9a-f][0-9a-f]/);
                 if (hex) {
-                    // It's a ^^^^ hex char
-                    return String.fromCodePoint(parseInt(hex.slice(2), 16));
-                }
-                hex = this.match(/^[0-9a-f][0-9a-f]/);
-                if (hex) {
-                    return String.fromCodePoint(parseInt(hex, 16));
+                    return String.fromCodePoint(parseInt(hex.slice(hex.lastIndexOf('^') + 1), 16));
                 }
             }
             return next;
@@ -11327,7 +11332,7 @@ class Parser {
         // there isn't a valid delimiter after `\right`, we'll
         // consider the `\right` missing and set the `rightDelim` to undefined
         const rightDelim = this.scanDelim();
-        const result = new Atom(this.parseMode, 'leftright');
+        const result = new Atom(this.parseMode, 'leftright', '', this.style);
         result.leftDelim = leftDelim;
         result.rightDelim = rightDelim !== null && rightDelim !== void 0 ? rightDelim : undefined;
         result.inner = close === 'right';
@@ -11876,7 +11881,8 @@ class Parser {
         const atom = new Atom(this.parseMode, 'group', parseString(def, this.parseMode, args, this.macros, false, this.onError));
         atom.captureSelection = true;
         atom.symbol = macro;
-        atom.latex = macro + tokensToString(this.tokens.slice(initialIndex));
+        atom.latex =
+            macro + tokensToString(this.tokens.slice(initialIndex, this.index));
         return atom;
     }
     /**
@@ -14824,8 +14830,8 @@ const DEFAULT_KEYBINDINGS = [
         ifMode: 'text',
         command: 'moveToPreviousPlaceholder',
     },
-    { key: '[Escape]', ifMode: 'math', command: ['switch-mode', 'command'] },
-    { key: '\\', ifMode: 'math', command: ['switch-mode', 'command'] },
+    { key: '[Escape]', ifMode: 'math', command: ['switchMode', 'command'] },
+    { key: '\\', ifMode: 'math', command: ['switchMode', 'command'] },
     {
         key: 'alt+[Equal]',
         ifMode: 'math',
@@ -14922,7 +14928,7 @@ const DEFAULT_KEYBINDINGS = [
     {
         key: 'shift+[Quote]',
         ifMode: 'text',
-        command: ['switch-mode', 'math', '”', ''],
+        command: ['switchMode', 'math', '”', ''],
     },
     // WOLFRAM MATHEMATICA BINDINGS
     {
@@ -17282,7 +17288,9 @@ function perform(mathfield, command) {
     selector = selector.replace(/-\w/g, (m) => m[1].toUpperCase());
     if (((_a = COMMANDS[selector]) === null || _a === void 0 ? void 0 : _a.target) === 'model') {
         if (/^(delete|transpose|add)/.test(selector)) {
-            mathfield.resetKeystrokeBuffer();
+            if (selector !== 'deletePreviousChar') {
+                mathfield.resetKeystrokeBuffer();
+            }
         }
         if (/^(delete|transpose|add)/.test(selector) &&
             mathfield.mode !== 'command') {
@@ -21994,7 +22002,18 @@ function onKeystroke(mathfield, keystroke, evt) {
     // see 5.3)
     if (mathfield.mode !== 'command' &&
         (!evt || (!evt.ctrlKey && !evt.metaKey))) {
-        if (!mightProducePrintableCharacter(evt)) {
+        if (keystroke === '[Backspace]') {
+            // Special case for backspace
+            mathfield.keystrokeBuffer = mathfield.keystrokeBuffer.slice(0, -1);
+            mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
+            if (mathfield.config.inlineShortcutTimeout) {
+                // Set a timer to reset the shortcut buffer
+                mathfield.keystrokeBufferResetTimer = setTimeout(() => {
+                    mathfield.resetKeystrokeBuffer();
+                }, mathfield.config.inlineShortcutTimeout);
+            }
+        }
+        else if (!mightProducePrintableCharacter(evt)) {
             // It was a non-alpha character (PageUp, End, etc...)
             mathfield.resetKeystrokeBuffer();
         }
@@ -26011,7 +26030,15 @@ function parse(tokens, error, options) {
             [atoms, tokens] = options.parse('text', tokens, options);
             result = [...result, ...atoms];
         }
-        else if (token.length === 1) {
+        else if (token === '<$>' || token === '<$$>') {
+            // Mode-shift
+            const subtokens = tokens.slice(0, tokens.findIndex((x) => x === token));
+            tokens = tokens.slice(subtokens.length + 1);
+            const [atoms] = options.parse('math', subtokens, options);
+            result = [...result, ...atoms];
+        }
+        else if (token === '<{>' || token === '<}>') ;
+        else {
             const info = getInfo(token, 'text', options.macros);
             if (!info) {
                 error({ code: 'unexpected-token' });
@@ -26026,20 +26053,6 @@ function parse(tokens, error, options) {
             else {
                 error({ code: 'unexpected-token' });
             }
-        }
-        else if (token === '<$>' || token === '<$$>') {
-            // Mode-shift
-            const subtokens = tokens.slice(0, tokens.findIndex((x) => x === token));
-            tokens = tokens.slice(subtokens.length + 1);
-            const [atoms] = options.parse('math', subtokens, options);
-            result = [...result, ...atoms];
-        }
-        else if (token === '<{>' || token === '<}>') ;
-        else {
-            error({
-                code: 'unexpected-token',
-                arg: token,
-            });
         }
     }
     return [result, tokens];
@@ -33120,6 +33133,9 @@ class Emitter {
     }
 }
 
+// declare let process: {
+//     env: { [key: string]: string };
+// };
 function parseLatex(latex, options) {
     var _a, _b, _c;
     const scanner = new Scanner(tokenize(latex, []), {
@@ -36208,6 +36224,20 @@ class MathfieldPrivate {
     }
     $typedText(text) {
         onTypedText(this, text);
+    }
+    getCaretPosition() {
+        const caretPosition = getCaretPosition(this.field);
+        return caretPosition
+            ? { x: caretPosition.x, y: caretPosition.y }
+            : null;
+    }
+    setCaretPosition(x, y) {
+        const oldPath = this.model.clone();
+        const anchor = pathFromPoint(this, x, y, { bias: 0 });
+        const result = setPath(this.model, anchor, 0);
+        this.model.announce('move', oldPath);
+        requestUpdate(this);
+        return result;
     }
     canUndo() {
         return this.undoManager.canUndo();
