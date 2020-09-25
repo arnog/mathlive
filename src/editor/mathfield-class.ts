@@ -143,7 +143,7 @@ export class MathfieldPrivate implements Mathfield {
      * @param element - The DOM element that this mathfield is attached to.
      * Note that `element.mathfield` is this object.
      */
-    constructor(element: HTMLElement, config: MathfieldConfigPrivate) {
+    constructor(element: HTMLElement, config: Partial<MathfieldConfigPrivate>) {
         // Setup default config options
         this.config = updateConfig(getDefaultConfig(), config);
 
@@ -427,7 +427,7 @@ export class MathfieldPrivate implements Mathfield {
         requestUpdate(this);
     }
 
-    $setConfig(config: MathfieldConfigPrivate): void {
+    $setConfig(config: Partial<MathfieldConfigPrivate>): void {
         this.config = updateConfig(this.config, config);
         this.model.setListeners({
             onContentDidChange: (_sender: ModelPrivate) =>
@@ -479,7 +479,7 @@ export class MathfieldPrivate implements Mathfield {
     getConfig(): MathfieldConfigPrivate;
     getConfig(
         keys?: keyof MathfieldConfigPrivate | (keyof MathfieldConfigPrivate)[]
-    ): any | MathfieldConfigPrivate {
+    ): any | Partial<MathfieldConfigPrivate> {
         return getConfig(this.config, keys);
     }
 

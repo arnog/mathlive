@@ -1,3 +1,36 @@
+## [Unreleased]
+
+### New Features
+
+    - **#101**: added `getCaretPosition()` and `setCaretPosition()`
+
+### Improvements
+
+    - The Typescript types for `Selector` has been improved
+    - The Typescript type for getConfig() are more accurate
+    - The "sqrt" inline shortcut now inserts an argument
+    - Don't throw an error if the first argument of `\enclose` is empty
+    - **#591**: add `upward` and `downward` hooks when navigating out of the
+    mathfield.
+
+### Bug Fixes
+
+    - **#637**: in Chrome, thin lines, such as fraction bars or square root lines
+    would not display at some zoom levels
+    - **#599**: some characters, for example "ü", would not be correctly parsed or
+    displayed. Note that technically, those characters are ignored by TeX,
+    but it's a reasonable behavior nowadays to accept them as input.
+    - **#198**: typing backspace while typing inline shortcuts would prevent the
+    shortcuts from being recognized
+    - **#573**: brackets were not properly styled (i.e. color applied to them)
+    - **#628**: typing "e" repeatedly inside a matrix would corrupt the emited
+    Latex and render incorrectly.
+
+### Thanks
+
+    - Thanks to @stefnotch for contributing several of the improvements in this
+    release
+
 ## 0.56.0 (2020-08-22)
 
 ### New Features
@@ -141,7 +174,6 @@
 
     The necessary CSS is now injected dynamically into the page. This simplifies the use of the library, but also reduces the amount of CSS in the page, potentially improving performance. That's particularly the case when the virtual keyboard is not used, as the CSS stylesheet for the virtual keyboard is substantial, and it is now injected only when the keyboard is used.
 
-
     To transition, you should remove from your code any instance of:
 
     ```html
@@ -158,7 +190,6 @@
     either a relative path or a full URL pointing to the directory that contains
     the fonts. (Fix for **#425**)
 
-
     You no longer need to manually specify the stylesheets when using
     `renderMathInElement()` or `renderMathInDocument()` either.
     The necessary stylesheet will get injected in the
@@ -167,7 +198,6 @@
     the editor is in use. These two functions also gain a property to specify the
     location of the 'fonts' directory, if necessary (by default, the 'fonts'
     directory is expected to be next to the 'mathlive.js', 'mathlive.mjs' file.)
-
 
     In some rare cases, you may have used the CSS stylesheet without the Mathlive library, for example, after you may have saved the output of `latexToMarkup()` to a database
     and use it to render later in a page. In that case, you would need to use the

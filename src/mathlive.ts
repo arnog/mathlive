@@ -101,9 +101,8 @@ function latexToMarkup(
 
 function makeMathField(
     element: HTMLElement,
-    config?: MathfieldConfig
+    config: Partial<MathfieldConfig> = {}
 ): Mathfield {
-    config = config ?? {};
     config.speakHook = config.speakHook ?? defaultSpeakHook;
     config.readAloudHook = config.readAloudHook ?? defaultReadAloudHook;
     return new MathfieldPrivate(getElement(element), config);
@@ -111,13 +110,12 @@ function makeMathField(
 
 function latexToMathML(
     latex: string,
-    options?: {
-        macros?: MacroDictionary;
-        onError?: ErrorListener<ParserErrorCode>;
-        generateID?: boolean;
-    }
+    options: Partial<{
+        macros: MacroDictionary;
+        onError: ErrorListener<ParserErrorCode>;
+        generateID: boolean;
+    }> = {}
 ): string {
-    options = options ?? {};
     options.macros = { ...MACROS, ...(options.macros ?? {}) };
 
     return atomsToMathML(
@@ -183,12 +181,13 @@ export function mathjsonToLatex(
 
 function latexToSpeakableText(
     latex: string,
-    options: TextToSpeechOptions & {
-        macros?: MacroDictionary;
-        onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
-    }
+    options: Partial<
+        TextToSpeechOptions & {
+            macros?: MacroDictionary;
+            onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
+        }
+    > = {}
 ): string {
-    options = options ?? {};
     options.macros = options.macros ?? {};
     Object.assign(options.macros, MACROS);
 

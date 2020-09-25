@@ -46,9 +46,9 @@
         <div id="output"></div>
     </main>
 
-    <!-- <script src="https://unpkg.com/mathlive/dist/mathlive.min.js"></script> -->
-    <script src="../../dist/mathlive.min.js"></script>
-    <script>
+    <script type="module">
+        import MathLive from 'mathlive';
+        // import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
         const mf = MathLive.makeMathField('mf', {
             onContentDidChange: (mf) => {
                 document.getElementById('output').innerHTML = mf.$text();

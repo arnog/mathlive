@@ -17,7 +17,7 @@ performance, and it does not pollute the global environment.
 </script>
 ```
 
-The file `mathlive.mjs` in the `dist` directory is a JavaScript
+The file `mathlive.min.mjs` in the `dist` directory is a JavaScript
 module, indicated by the `mjs` file extension.
 
 In order to use the `import` statement, the `<script>` tag has an attribute

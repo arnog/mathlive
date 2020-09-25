@@ -494,7 +494,7 @@ function toMathML(
     input: number | boolean | string | Atom | Atom[],
     initial: number,
     final: number,
-    options: MathfieldConfig
+    options: Partial<MathfieldConfig>
 ): {
     atoms: number | boolean | string | Atom | Atom[];
     index: number;
@@ -1099,7 +1099,7 @@ function atomToMathML(atom, options): string {
 
 export function atomsToMathML(
     atoms: Atom | Atom[],
-    options: MathfieldConfig
+    options: Partial<MathfieldConfig>
 ): string {
     return toMathML(atoms, 0, 0, options).mathML;
 }

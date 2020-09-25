@@ -47,7 +47,7 @@ function highlightAtomID(element: Element, atomID?: string): void {
 export function defaultReadAloudHook(
     element: HTMLElement,
     text: string,
-    config: MathfieldConfig
+    config: Partial<MathfieldConfig>
 ): void {
     if (!window) {
         return;
@@ -55,7 +55,6 @@ export function defaultReadAloudHook(
     if (!config && window['mathlive']) {
         config = window['mathlive'].config;
     }
-    config = config ?? {};
 
     if (config.speechEngine !== 'amazon') {
         console.warn('Use Amazon TTS Engine for synchronized highlighting');

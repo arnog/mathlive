@@ -202,7 +202,7 @@ export type TextToSpeechOptions = {
      * **See**
      * {@link https://github.com/arnog/mathlive/tree/master/examples/speech | speech example}
      */
-    textToSpeechRules?: 'mathlive' | 'sre';
+    textToSpeechRules: 'mathlive' | 'sre';
     /**
      * The markup syntax to use for the output of conversion to spoken text.
      *
@@ -210,7 +210,7 @@ export type TextToSpeechOptions = {
      * markup, i.e. `&#91;&#91;ltr&#93;&#93;`.
      *
      */
-    textToSpeechMarkup?: '' | 'ssml' | 'ssml_step' | 'mac';
+    textToSpeechMarkup: '' | 'ssml' | 'ssml_step' | 'mac';
     /**
      * A set of key/value pairs that can be used to configure the speech rule
      * engine.
@@ -220,7 +220,7 @@ export type TextToSpeechOptions = {
      * options for the SRE engine are documented
      * {@link https://github.com/zorkow/speech-rule-engine | here}
      */
-    textToSpeechRulesOptions?: { [key: string]: string };
+    textToSpeechRulesOptions: { [key: string]: string };
     /**
      * Indicates which speech engine to use for speech output.
      *
@@ -232,7 +232,7 @@ export type TextToSpeechOptions = {
      * **See**
      * {@link https://github.com/arnog/mathlive/tree/master/examples/speech | speech example}
      */
-    speechEngine?: 'local' | 'amazon';
+    speechEngine: 'local' | 'amazon';
     /**
      * Indicates the voice to use with the speech engine.
      *
@@ -241,7 +241,7 @@ export type TextToSpeechOptions = {
      *
      */
 
-    speechEngineVoice?: string;
+    speechEngineVoice: string;
     /**
      * Sets the speed of the selected voice.
      *
@@ -251,9 +251,9 @@ export type TextToSpeechOptions = {
      * Range is `20%` to `200%` For example `200%` to indicate a speaking rate
      * twice the default rate.
      */
-    speechEngineRate?: string;
-    speakHook?: (text: string, config: MathfieldConfig) => void; // @revisit 1.0: rename speakHook
-    readAloudHook?: (
+    speechEngineRate: string;
+    speakHook: (text: string, config: Partial<MathfieldConfig>) => void; // @revisit 1.0: rename speakHook
+    readAloudHook: (
         element: HTMLElement,
         text: string,
         config: MathfieldConfig
@@ -265,7 +265,7 @@ export type VirtualKeyboardOptions = {
      * If specified, the markup to be used to display the virtual keyboard
      * toggle glyph. If none is specified a default keyboard icon is used.
      */
-    virtualKeyboardToggleGlyph?: string;
+    virtualKeyboardToggleGlyph: string;
     /**
      * -   `'manual'`: pressing the virtual keyboard toggle button will show or hide
      *     the virtual keyboard. If hidden, the virtual keyboard is not shown when
@@ -280,7 +280,7 @@ export type VirtualKeyboardOptions = {
      * devices and to `'off'` otherwise.
      *
      */
-    virtualKeyboardMode?: 'auto' | 'manual' | 'onfocus' | 'off';
+    virtualKeyboardMode: 'auto' | 'manual' | 'onfocus' | 'off';
     /**
      * A space separated list of the keyboards that should be available. The
      * keyboard `'all'` is synonym with `'numeric'`, `'roman'`, `'greek'`,
@@ -288,7 +288,7 @@ export type VirtualKeyboardOptions = {
      *
      * The keyboards will be displayed in the order indicated.
      */
-    virtualKeyboards?:
+    virtualKeyboards:
         | 'all'
         | 'numeric'
         | 'roman'
@@ -296,7 +296,7 @@ export type VirtualKeyboardOptions = {
         | 'functions'
         | 'command'
         | string;
-    virtualKeyboardLayout?:
+    virtualKeyboardLayout:
         | 'auto'
         | 'qwerty'
         | 'azerty'
@@ -315,8 +315,8 @@ export type VirtualKeyboardOptions = {
      * {@link https://github.com/arnog/mathlive/tree/master/examples/virtual_keyboard | virtual keyboard example}
      *
      */
-    customVirtualKeyboardLayers?: { [layer: string]: string };
-    customVirtualKeyboards?: { [layer: string]: string };
+    customVirtualKeyboardLayers: { [layer: string]: string };
+    customVirtualKeyboards: { [layer: string]: string };
     /**
      * The visual theme used for the virtual keyboard.
      *
@@ -324,12 +324,12 @@ export type VirtualKeyboardOptions = {
      * running on. The two supported themes are 'material' and 'apple' (the
      * default).
      */
-    virtualKeyboardTheme?: 'material' | 'apple' | '';
+    virtualKeyboardTheme: 'material' | 'apple' | '';
     /**
      * When a key on the virtual keyboard is pressed, produce a short haptic
      * feedback, if the device supports it.
      */
-    keypressVibration?: boolean;
+    keypressVibration: boolean;
     /**
      * When a key on the virtual keyboard is pressed, produce a short audio
      * feedback. The value should be either a URL to a sound file or an object
@@ -342,7 +342,7 @@ export type VirtualKeyboardOptions = {
      *     the others are optional. If they are missing, this sound is played as
      *     well.
      */
-    keypressSound?:
+    keypressSound:
         | string
         | HTMLAudioElement
         | {
@@ -372,7 +372,7 @@ export interface MathfieldHooks {
      *
      * Return `false` to stop the handling of the event.
      */
-    onKeystroke?: (
+    onKeystroke: (
         sender: Mathfield,
         keystroke: string,
         ev: KeyboardEvent
@@ -389,7 +389,7 @@ export interface MathfieldHooks {
      *
      * By default, the insertion point will wrap around.
      */
-    onMoveOutOf?: (
+    onMoveOutOf: (
         sender: Mathfield,
         direction: 'forward' | 'backward' | 'upward' | 'downward'
     ) => boolean;
@@ -404,7 +404,7 @@ export interface MathfieldHooks {
      * element.
      *
      */
-    onTabOutOf?: (
+    onTabOutOf: (
         sender: Mathfield,
         direction: 'forward' | 'backward'
     ) => boolean;
@@ -422,26 +422,26 @@ export type UndoStateChangeListener = (
 
 export interface MathfieldListeners {
     /** The mathfield has lost keyboard focus */
-    onBlur?: (sender: Mathfield) => void;
+    onBlur: (sender: Mathfield) => void;
     /** The mathfield has gained keyboard focus */
-    onFocus?: (sender: Mathfield) => void;
-    onContentWillChange?: (sender: Mathfield) => void;
-    onContentDidChange?: (sender: Mathfield) => void;
-    onSelectionWillChange?: (sender: Mathfield) => void;
-    onSelectionDidChange?: (sender: Mathfield) => void;
-    onUndoStateWillChange?: UndoStateChangeListener;
-    onUndoStateDidChange?: UndoStateChangeListener;
-    onModeChange?: (sender: Mathfield, mode: ParseMode) => void;
-    onVirtualKeyboardToggle?: (
+    onFocus: (sender: Mathfield) => void;
+    onContentWillChange: (sender: Mathfield) => void;
+    onContentDidChange: (sender: Mathfield) => void;
+    onSelectionWillChange: (sender: Mathfield) => void;
+    onSelectionDidChange: (sender: Mathfield) => void;
+    onUndoStateWillChange: UndoStateChangeListener;
+    onUndoStateDidChange: UndoStateChangeListener;
+    onModeChange: (sender: Mathfield, mode: ParseMode) => void;
+    onVirtualKeyboardToggle: (
         sender: Mathfield,
         visible: boolean,
         keyboardElement: HTMLElement
     ) => void;
-    onReadAloudStatus?: (sender: Mathfield) => void;
+    onReadAloudStatus: (sender: Mathfield) => void;
 }
 
 export type KeyboardOptions = {
-    keybindings?: Keybinding[];
+    keybindings: Keybinding[];
 };
 
 export type InlineShortcutsOptions = {
@@ -455,7 +455,7 @@ export type InlineShortcutsOptions = {
      * )
      * ```
      * to add `newShortcuts` to the default ones */
-    overrideDefaultInlineShortcuts?: boolean;
+    overrideDefaultInlineShortcuts: boolean;
     /**
      * The keys of this object literal indicate the sequence of characters
      * that will trigger an inline shortcut.
@@ -463,7 +463,7 @@ export type InlineShortcutsOptions = {
      * {@inheritDoc InlineShortcutDefinition}
      */
 
-    inlineShortcuts?: { [key: string]: InlineShortcutDefinition };
+    inlineShortcuts: { [key: string]: InlineShortcutDefinition };
     /**
      * Maximum time, in milliseconds, between consecutive characters for them to be
      * considered part of the same shortcut sequence.
@@ -486,7 +486,7 @@ export type InlineShortcutsOptions = {
      * losing the focus on the mathfield, will automatically timeout the
      * shortcuts.
      */
-    inlineShortcutTimeout?: number;
+    inlineShortcutTimeout: number;
 };
 
 export type LocalizationOptions = {
@@ -496,7 +496,7 @@ export type LocalizationOptions = {
      * If not is provided, the locale of the browser is used.
      *
      */
-    locale?: string;
+    locale: string;
     /**
  * An object whose keys are a locale string, and whose values are an object of
  * string identifier to localized string.
@@ -514,12 +514,12 @@ export type LocalizationOptions = {
  *
  * This will override the default localized strings.
 */
-    strings?: { [locale: string]: { [key: string]: string } };
+    strings: { [locale: string]: { [key: string]: string } };
 };
 
 export type EditingOptions = {
     /** When true, the user cannot edit the mathfield. */
-    readOnly?: boolean;
+    readOnly: boolean;
     /**
      * When true, during text input the field will switch automatically between
      * 'math' and 'text' mode depending on what is typed and the context of the
@@ -554,7 +554,7 @@ export type EditingOptions = {
      * -   For all n in NN
      *
      */
-    smartMode?: boolean;
+    smartMode: boolean;
     /**
      * When `true` and an open fence is entered via `typedText()` it will
      * generate a contextually appropriate markup, for example using
@@ -562,7 +562,7 @@ export type EditingOptions = {
      *
      * When `false`, the literal value of the character will be inserted instead.
      */
-    smartFence?: boolean;
+    smartFence: boolean;
     /**
      * When `true`, when a digit is entered in an empty superscript, the cursor
      * leaps automatically out of the superscript. This makes entry of common
@@ -575,7 +575,7 @@ export type EditingOptions = {
      * manually.
      *
      */
-    smartSuperscript?: boolean;
+    smartSuperscript: boolean;
     /**
      * This option controls how many levels of subscript/superscript can be entered. For
      * example, if `scriptDepth` is "1", there can be one level of superscript or
@@ -591,22 +591,22 @@ export type EditingOptions = {
      * second element the depth of superscript. Thus, a value of `[0, 1]` would
      * suppress the entry of subscripts, and allow one level of superscripts.
      */
-    scriptDepth?: number | [number, number]; // For [superscript, subscript] or for both
+    scriptDepth: number | [number, number]; // For [superscript, subscript] or for both
     /**
      * If `true`, extra parentheses around a numerator or denominator are
      * removed automatically.
      */
-    removeExtraneousParentheses?: boolean;
+    removeExtraneousParentheses: boolean;
     /**
      * When `true` and the spacebar is pressed, no space is inserted.
      *
      * When `false`, a space is inserted when the spacebar is pressed.
      */
-    ignoreSpacebarInMathMode?: boolean;
+    ignoreSpacebarInMathMode: boolean;
 };
 
 export type LayoutOptions = {
-    defaultMode?: 'math' | 'text';
+    defaultMode: 'math' | 'text';
     /**
  *A dictionary of LaTeX macros to be used to interpret and render the content.
  *
@@ -630,7 +630,7 @@ mf.setConfig({
 \smallfrac{5}{16}
 ```
  */
-    macros?: MacroDictionary;
+    macros: MacroDictionary;
 
     /**
      * Scaling factor to be applied to horizontal spacing between elements of
@@ -638,7 +638,7 @@ mf.setConfig({
      * legibility.
      *
      */
-    horizontalSpacingScale?: number;
+    horizontalSpacingScale: number;
     /**
      * Control the letter shape style:
 
@@ -669,7 +669,7 @@ mf.setConfig({
      * that this convention is not universally followed.
      * ---
     */
-    letterShapeStyle?: 'auto' | 'tex' | 'iso' | 'french' | 'upright';
+    letterShapeStyle: 'auto' | 'tex' | 'iso' | 'french' | 'upright';
 };
 
 /**
@@ -693,7 +693,7 @@ export type MathfieldConfig = LayoutOptions &
          *
          * It is empty by default.
          */
-        namespace?: string;
+        namespace: string;
 
         /**
          * An optional listener function that will be
@@ -707,7 +707,7 @@ export type MathfieldConfig = LayoutOptions &
          * This could also be another kind of error, such as an invalid keybinding.
          *
          */
-        onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
+        onError: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
 
         /**
          * This function provides the option of substituting the focusable DOM
@@ -720,7 +720,7 @@ export type MathfieldConfig = LayoutOptions &
          *
          * Alternatively, the ID of a DOM element can be provided.
          */
-        substituteTextArea?: string | (() => HTMLElement);
+        substituteTextArea: string | (() => HTMLElement);
 
         /**
          * A URL fragment pointing to the directory containing the fonts
@@ -757,7 +757,7 @@ export type MathfieldConfig = LayoutOptions &
          * ```
          *
          */
-        fontsDirectory?: string;
+        fontsDirectory: string;
 
         /**
          * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
@@ -766,7 +766,7 @@ export type MathfieldConfig = LayoutOptions &
          * injected in the DOM, allowing that string to be sanitized
          * according to a policy defined by the host.
          */
-        createHTML?: (html: string) => any;
+        createHTML: (html: string) => any;
         // @todo https://github.com/microsoft/TypeScript/issues/30024
     };
 

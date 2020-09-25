@@ -165,7 +165,10 @@ function speak(
     return false;
 }
 
-export function defaultSpeakHook(text: string, config: MathfieldConfig): void {
+export function defaultSpeakHook(
+    text: string,
+    config?: Partial<MathfieldConfig>
+): void {
     if (!config && window && window['mathlive']) {
         config = window['mathlive'].config;
     }

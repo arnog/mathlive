@@ -19,7 +19,7 @@ const NO_OP_LISTENER = (): void => {
 };
 
 export type MathfieldConfigPrivate = MathfieldConfig & {
-    onAnnounce?: (
+    onAnnounce: (
         target: MathfieldPrivate,
         command: string, // verb
         modelBefore: ModelPrivate,
@@ -54,7 +54,7 @@ function unloadSound(
 
 export function update(
     current: Required<MathfieldConfigPrivate>,
-    updates: MathfieldConfigPrivate
+    updates: Partial<MathfieldConfigPrivate>
 ): Required<MathfieldConfigPrivate> {
     const result: Required<MathfieldConfigPrivate> = get(
         current,
@@ -232,7 +232,7 @@ export function update(
 export function get(
     config: Required<MathfieldConfigPrivate>,
     keys?: keyof MathfieldConfigPrivate | string[]
-): any | MathfieldConfigPrivate {
+): any | Partial<MathfieldConfigPrivate> {
     let resolvedKeys: string[];
     if (typeof keys === 'string') {
         resolvedKeys = [keys];
@@ -241,7 +241,7 @@ export function get(
     } else {
         resolvedKeys = keys;
     }
-    const result: MathfieldConfigPrivate = {};
+    const result: Partial<MathfieldConfigPrivate> = {};
     resolvedKeys.forEach((x) => {
         if (isArray(result[x])) {
             result[x] = [...result[x]];
