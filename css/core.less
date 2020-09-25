@@ -295,13 +295,15 @@ body.ML__fonts-loading .ML__base {
                 content: '';
                 display: block;
                 margin-top: -0.04em;
-                border-bottom-style: solid;
-                border-bottom-width: 0.04em;
                 min-height: 0.04em;
                 /* There's a bug since Chrome 62 where 
                 sub-pixel border lines don't draw at some zoom 
-                levels (110%, 90%). Setting the min-height seems to work around it.
+                levels (110%, 90%). 
+                Setting the min-height used to work around it, but that workaround
+                broke in Chrome 84 or so.
+                Setting the background (and the min-height) seems to work for now.
                 */
+                background: currentColor;
                 box-sizing: content-box; /* Vuetify sets the box-sizing to inherit 
                 causes the fraction line to not draw at all sizes (see #26) */
             }
@@ -543,13 +545,8 @@ body.ML__fonts-loading .ML__base {
                 content: '';
                 display: block;
                 margin-top: -0.04em;
-                border-bottom-style: solid;
-                border-bottom-width: 0.04em;
-                min-height: 0.5px;
-                /* There's a bug since Chrome 62 where 
-                sub-pixel border lines don't draw at some zoom 
-                levels (110%, 90%). Setting the min-height seems to work around it.
-                */
+                min-height: 0.04em;
+                background: currentColor;
             }
 
             &:after {
