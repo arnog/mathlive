@@ -467,6 +467,17 @@ export class MathfieldPrivate implements Mathfield {
         if (!this.config.readOnly) {
             this._onBlur();
         }
+        // Changing some config options (i.e. `macros`) may
+        // require the content to be reparsed and re-rendered
+        const content = this.model.root.toLatex();
+        insert(this.model, content, {
+            insertionMode: 'replaceAll',
+            selectionMode: 'after',
+            format: 'latex',
+            mode: 'math',
+            suppressChangeNotifications: true,
+            macros: this.config.macros,
+        });
         requestUpdate(this);
     }
 
