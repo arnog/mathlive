@@ -92,7 +92,10 @@ export function update(
                 break;
             case 'locale':
                 result.locale =
-                    updates.locale === 'auto' ? l10n.locale : updates.locale;
+                    updates.locale === 'auto'
+                        ? navigator?.language.slice(0, 5) ?? 'en'
+                        : updates.locale;
+                l10n.locale = result.locale;
                 break;
             case 'strings':
                 l10n.merge(updates.strings);
