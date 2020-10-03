@@ -283,7 +283,7 @@ export function getDefault(): Required<MathfieldConfigPrivate> {
         ignoreSpacebarInMathMode: true,
 
         locale: l10n.locale,
-        strings: {},
+        strings: l10n.strings,
 
         keybindings: DEFAULT_KEYBINDINGS,
 
