@@ -99,6 +99,7 @@ export function update(
                 break;
             case 'strings':
                 l10n.merge(updates.strings);
+                result.strings = l10n.strings;
                 break;
             case 'virtualKeyboardLayout':
                 if (updates.virtualKeyboardLayout === 'auto') {
