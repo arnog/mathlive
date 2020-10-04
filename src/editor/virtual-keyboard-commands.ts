@@ -340,6 +340,7 @@ function toggleVirtualKeyboard(
 ): boolean {
     mathfield.virtualKeyboardVisible = !mathfield.virtualKeyboardVisible;
     if (mathfield.virtualKeyboardVisible) {
+        mathfield.$focus();
         if (mathfield.virtualKeyboard) {
             mathfield.virtualKeyboard.classList.add('is-visible');
         } else {
