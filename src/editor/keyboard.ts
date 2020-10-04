@@ -182,6 +182,8 @@ export function delegateKeyboardEvents(
     let keydownEvent = null;
     let keypressEvent = null;
     let compositionInProgress = false;
+    let focusInProgress = false;
+    let blurInProgress = false;
     let deadKey = false;
 
     // This callback is invoked after a keyboard event has been processed
@@ -292,17 +294,25 @@ export function delegateKeyboardEvents(
     );
     target.addEventListener(
         'blur',
-        () => {
-            keydownEvent = null;
-            keypressEvent = null;
-            if (handlers.blur) handlers.blur();
+        (_ev) => {
+            if (!blurInProgress && !focusInProgress) {
+                blurInProgress = true;
+                keydownEvent = null;
+                keypressEvent = null;
+                if (handlers.blur) handlers.blur();
+                blurInProgress = false;
+            }
         },
         true
     );
     target.addEventListener(
         'focus',
-        () => {
-            if (handlers.focus) handlers.focus();
+        (_ev) => {
+            if (!blurInProgress && !focusInProgress) {
+                focusInProgress = true;
+                if (handlers.focus) handlers.focus();
+                focusInProgress = false;
+            }
         },
         true
     );

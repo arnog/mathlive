@@ -129,6 +129,8 @@ export class MathfieldPrivate implements Mathfield {
     mode: ParseMode;
     style: Style;
 
+    private eventHandlingInProgress = '';
+
     readonly keypressSound: HTMLAudioElement; // @revisit. Is this used? The sounds are in config, no?
     readonly spacebarKeypressSound: HTMLAudioElement;
     readonly returnKeypressSound: HTMLAudioElement;
@@ -275,13 +277,13 @@ export class MathfieldPrivate implements Mathfield {
             'mathlive-popover-panel',
             'ML__popover'
         );
-        this.stylesheets.push(injectStylesheet(element, popoverStylesheet));
+        this.stylesheets.push(injectStylesheet(null, popoverStylesheet));
         this.keystrokeCaption = getSharedElement(
             'mathlive-keystroke-caption-panel',
             'ML__keystroke-caption'
         );
         this.stylesheets.push(
-            injectStylesheet(element, keystrokeCaptionStylesheet)
+            injectStylesheet(null, keystrokeCaptionStylesheet)
         );
         // The keystroke caption panel and the command bar are
         // initially hidden
@@ -497,7 +499,7 @@ export class MathfieldPrivate implements Mathfield {
     /*
      * handleEvent is a function invoked when an event is registered with an
      * object instead ( see `addEventListener()` in `on()`)
-     * The name is defined by addEventListener() and cannot be changed.
+     * The name is defined by `addEventListener()` and cannot be changed.
      * This pattern is used to be able to release bound event handlers,
      * (event handlers that need access to `this`) as the bind() function
      * would create a new function that would have to be kept track off
@@ -506,10 +508,18 @@ export class MathfieldPrivate implements Mathfield {
     handleEvent(evt: Event): void {
         switch (evt.type) {
             case 'focus':
-                this._onFocus();
+                if (!this.eventHandlingInProgress) {
+                    this.eventHandlingInProgress = 'focus';
+                    this._onFocus();
+                    this.eventHandlingInProgress = '';
+                }
                 break;
             case 'blur':
-                this._onBlur();
+                if (!this.eventHandlingInProgress) {
+                    this.eventHandlingInProgress = 'blur';
+                    this._onBlur();
+                    this.eventHandlingInProgress = '';
+                }
                 break;
             case 'touchstart':
             case 'mousedown':
@@ -625,6 +635,7 @@ export class MathfieldPrivate implements Mathfield {
     private _onFocus(): void {
         if (this.config.readOnly) return;
         if (this.blurred) {
+            console.log('focus');
             this.blurred = false;
             // The textarea may be a span (on mobile, for example), so check that
             // it has a focus() before calling it.
@@ -643,9 +654,10 @@ export class MathfieldPrivate implements Mathfield {
     }
     private _onBlur(): void {
         if (!this.blurred) {
+            console.log('blur');
             this.blurred = true;
             this.ariaLiveText.textContent = '';
-            if (this.config.virtualKeyboardMode === 'onfocus') {
+            if (/onfocus|manual/.test(this.config.virtualKeyboardMode)) {
                 hideVirtualKeyboard(this);
             }
             complete(this, { discard: true });
