@@ -124,7 +124,8 @@ function parseMathExpression(
                 inlineShortcuts: options?.inlineShortcuts ?? {},
                 noWrap: true,
             });
-            s = '\\sqrt{' + m.match + '}';
+            const sqrtArgument = m.match || '\\placeholder{}';
+            s = '\\sqrt{' + sqrtArgument + '}';
             s += parseMathExpression(m.rest, options);
             done = true;
         }
@@ -138,7 +139,8 @@ function parseMathExpression(
                 inlineShortcuts: options?.inlineShortcuts ?? {},
                 noWrap: true,
             });
-            s = '\\sqrt[3]{' + m.match + '}';
+            const sqrtArgument = m.match || '\\placeholder{}';
+            s = '\\sqrt[3]{' + sqrtArgument + '}';
             s += parseMathExpression(m.rest, options);
             done = true;
         }
