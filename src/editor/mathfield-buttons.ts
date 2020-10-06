@@ -114,7 +114,10 @@ export function attachButtonHandlers(
             if (ev.type !== 'mousedown' || ev.buttons === 1) {
                 // The primary button was pressed or the screen was tapped.
                 ev.stopPropagation();
-                ev.preventDefault();
+                // Can't preventDefault() in a passive listener
+                if (ev.type !== 'touchstart') {
+                    ev.preventDefault();
+                }
                 el.classList.add('pressed');
                 pressHoldStart = Date.now();
                 // Record the ID of the primary touch point for tracking on touchmove
@@ -169,7 +172,7 @@ export function attachButtonHandlers(
             // to the target that was originally tapped on. For consistency,
             // we want to mimic the behavior of the mouse interaction by
             // tracking the touch events and dispatching them to potential targets
-            ev.preventDefault();
+            // ev.preventDefault(); // can't preventDefault inside a passive event handler
             for (let i = 0; i < ev.changedTouches.length; i++) {
                 if (ev.changedTouches[i].identifier === touchID) {
                     // Found a touch matching our primary/tracked touch
