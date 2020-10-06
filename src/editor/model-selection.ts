@@ -178,30 +178,13 @@ export function leap(
                 model.hooks.tabOut(model, dir > 0 ? 'forward' : 'backward') &&
                 document.activeElement
             ) {
-                const focussableElements = `a[href]:not([disabled]),
-                    button:not([disabled]),
-                    textarea:not([disabled]),
-                    input[type=text]:not([disabled]),
-                    select:not([disabled]),
-                    [contentEditable="true"],
-                    [tabindex]:not([disabled]):not([tabindex="-1"])`;
-                // Get all the potentially focusable elements
-                // and exclude (1) those that are invisible (width and height = 0)
-                // (2) not the active element
-                // (3) the ancestor of the active element
-
-                const focussable = Array.prototype.filter.call(
-                    document.querySelectorAll(focussableElements),
-                    (element) =>
-                        ((element.offsetWidth > 0 ||
-                            element.offsetHeight > 0) &&
-                            !element.contains(document.activeElement)) ||
-                        element === document.activeElement
-                );
-                let index = focussable.indexOf(document.activeElement) + dir;
-                if (index < 0) index = focussable.length - 1;
-                if (index >= focussable.length) index = 0;
-                focussable[index].focus();
+                const tabbable = getTabbableElements();
+                let index =
+                    tabbable.indexOf(document.activeElement as HTMLElement) +
+                    dir;
+                if (index < 0) index = tabbable.length - 1;
+                if (index >= tabbable.length) index = 0;
+                tabbable[index].focus();
             }
         }
         model.suppressChangeNotifications = savedSuppressChangeNotifications;
@@ -216,6 +199,173 @@ export function leap(
     selectionDidChange(model);
     model.suppressChangeNotifications = savedSuppressChangeNotifications;
     return true;
+}
+
+/**
+ * Return an array of tabbable elements, approximately in the order a browser
+ * would (the browsers are inconsistent), which is first by accounting
+ * for non-null tabIndex, then null tabIndex, then document order of focusable
+ * elements.
+ */
+function getTabbableElements(): HTMLElement[] {
+    // const focussableElements = `a[href]:not([disabled]),
+    // button:not([disabled]),
+    // textarea:not([disabled]),
+    // input[type=text]:not([disabled]),
+    // select:not([disabled]),
+    // [contentEditable="true"],
+    // [tabindex]:not([disabled]):not([tabindex="-1"])`;
+    // // Get all the potentially focusable elements
+    // // and exclude (1) those that are invisible (width and height = 0)
+    // // (2) not the active element
+    // // (3) the ancestor of the active element
+
+    // return Array.prototype.filter.call(
+    //     document.querySelectorAll(focussableElements),
+    //     (element) =>
+    //         ((element.offsetWidth > 0 || element.offsetHeight > 0) &&
+    //             !element.contains(document.activeElement)) ||
+    //         element === document.activeElement
+    // );
+
+    function tabbable(el: HTMLElement) {
+        const regularTabbables = [];
+        const orderedTabbables = [];
+
+        const candidates = Array.from(
+            el.querySelectorAll<
+                HTMLElement
+            >(`input, select, textarea, a[href], button, 
+        [tabindex], audio[controls], video[controls],
+        [contenteditable]:not([contenteditable="false"]), details>summary`)
+        ).filter(isNodeMatchingSelectorTabbable);
+
+        candidates.forEach((candidate, i) => {
+            const candidateTabindex = getTabindex(candidate);
+            if (candidateTabindex === 0) {
+                regularTabbables.push(candidate);
+            } else {
+                orderedTabbables.push({
+                    documentOrder: i,
+                    tabIndex: candidateTabindex,
+                    node: candidate,
+                });
+            }
+        });
+
+        return orderedTabbables
+            .sort((a, b) =>
+                a.tabIndex === b.tabIndex
+                    ? a.documentOrder - b.documentOrder
+                    : a.tabIndex - b.tabIndex
+            )
+            .map((a) => a.node)
+            .concat(regularTabbables);
+    }
+
+    function isNodeMatchingSelectorTabbable(el: HTMLElement): boolean {
+        if (
+            !isNodeMatchingSelectorFocusable(el) ||
+            isNonTabbableRadio(el) ||
+            getTabindex(el) < 0
+        ) {
+            return false;
+        }
+        return true;
+    }
+
+    function isNodeMatchingSelectorFocusable(node) {
+        if (
+            node.disabled ||
+            (node.tagName === 'INPUT' && node.type === 'hidden') ||
+            isHidden(node)
+        ) {
+            return false;
+        }
+        return true;
+    }
+
+    function getTabindex(node: HTMLElement): number {
+        const tabindexAttr = parseInt(node.getAttribute('tabindex'), 10);
+
+        if (!isNaN(tabindexAttr)) {
+            return tabindexAttr;
+        }
+
+        // Browsers do not return `tabIndex` correctly for contentEditable nodes;
+        // so if they don't have a tabindex attribute specifically set, assume it's 0.
+        if (node.contentEditable === 'true') {
+            return 0;
+        }
+
+        // in Chrome, <audio controls/> and <video controls/> elements get a default
+        //  `tabIndex` of -1 when the 'tabindex' attribute isn't specified in the DOM,
+        //  yet they are still part of the regular tab order; in FF, they get a default
+        //  `tabIndex` of 0; since Chrome still puts those elements in the regular tab
+        //  order, consider their tab index to be 0
+        if (
+            (node.nodeName === 'AUDIO' || node.nodeName === 'VIDEO') &&
+            node.getAttribute('tabindex') === null
+        ) {
+            return 0;
+        }
+
+        return node.tabIndex;
+    }
+
+    function isNonTabbableRadio(node: HTMLElement): boolean {
+        return (
+            node.tagName === 'INPUT' &&
+            (node as HTMLInputElement).type === 'radio' &&
+            !isTabbableRadio(node as HTMLInputElement)
+        );
+    }
+
+    function getCheckedRadio(nodes, form) {
+        for (let i = 0; i < nodes.length; i++) {
+            if (nodes[i].checked && nodes[i].form === form) {
+                return nodes[i];
+            }
+        }
+        return null;
+    }
+
+    function isTabbableRadio(node: HTMLInputElement): boolean {
+        if (!node.name) {
+            return true;
+        }
+        const radioScope = node.form || node.ownerDocument;
+        const radioSet = radioScope.querySelectorAll(
+            'input[type="radio"][name="' + node.name + '"]'
+        );
+        const checked = getCheckedRadio(radioSet, node.form);
+        return !checked || checked === node;
+    }
+
+    function isHidden(el: HTMLElement) {
+        if (
+            el === document.activeElement ||
+            el.contains(document.activeElement)
+        ) {
+            return false;
+        }
+
+        if (getComputedStyle(el).visibility === 'hidden') return true;
+
+        // Note that browsers generally don't consider the bounding rect
+        // as a criteria to determine if an item is focusable, but we want
+        // to exclude the invisible textareas used to capture keyoard input.
+        const bounds = el.getBoundingClientRect();
+        if (bounds.width === 0 || bounds.height === 0) return true;
+
+        while (el) {
+            if (getComputedStyle(el).display === 'none') return true;
+            el = el.parentElement;
+        }
+
+        return false;
+    }
+    return tabbable(document.body);
 }
 
 /**
