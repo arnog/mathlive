@@ -18495,7 +18495,8 @@ function parseMathExpression(s, options) {
                 inlineShortcuts: (_b = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _b !== void 0 ? _b : {},
                 noWrap: true,
             });
-            s = '\\sqrt{' + m.match + '}';
+            const sqrtArgument = m.match || '\\placeholder{}';
+            s = '\\sqrt{' + sqrtArgument + '}';
             s += parseMathExpression(m.rest, options);
             done = true;
         }
@@ -18508,7 +18509,8 @@ function parseMathExpression(s, options) {
                 inlineShortcuts: (_c = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _c !== void 0 ? _c : {},
                 noWrap: true,
             });
-            s = '\\sqrt[3]{' + m.match + '}';
+            const sqrtArgument = m.match || '\\placeholder{}';
+            s = '\\sqrt[3]{' + sqrtArgument + '}';
             s += parseMathExpression(m.rest, options);
             done = true;
         }
