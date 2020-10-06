@@ -86,10 +86,10 @@ export type BBoxParam = {
     border?: string;
 };
 
-export const ATOM_REGISTRY = {};
+const ATOM_REGISTRY = {};
 
 // A table of size -> font size for the different sizing functions
-export const SIZING_MULTIPLIER = {
+const SIZING_MULTIPLIER = {
     size1: 0.5,
     size2: 0.7,
     size3: 0.8,
