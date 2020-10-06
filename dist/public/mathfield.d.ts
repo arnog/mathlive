@@ -63,10 +63,10 @@ export declare type InsertOptions = {
 };
 export interface Mathfield {
     mode: ParseMode;
-    getConfig<K extends keyof MathfieldConfig>(keys: K[]): Pick<MathfieldConfig, K>;
-    getConfig<K extends keyof MathfieldConfig>(key: K): MathfieldConfig[K];
-    getConfig(): MathfieldConfig;
-    $setConfig(config: Partial<MathfieldConfig>): void;
+    getConfig?<K extends keyof MathfieldConfig>(keys: K[]): Pick<MathfieldConfig, K>;
+    getConfig?<K extends keyof MathfieldConfig>(key: K): MathfieldConfig[K];
+    getConfig?(): MathfieldConfig;
+    $setConfig?(config: Partial<MathfieldConfig>): void;
     /**
      * Reverts this mathfield to its original content.
      *
@@ -76,7 +76,7 @@ export interface Mathfield {
      * To turn the element back into a mathfield, call
      * `MathLive.makeMathField()` on the element again to get a new mathfield object.
      */
-    $revertToOriginalContent(): void;
+    $revertToOriginalContent?(): void;
     /**
      * Performs a command defined by a selector.
      *
@@ -95,7 +95,7 @@ export interface Mathfield {
      * In the above example, both calls invoke the same selector.
      *
      */
-    $perform(command: Selector | [Selector, ...any[]]): boolean;
+    $perform?(command: Selector | [Selector, ...any[]]): boolean;
     /**
      * Returns a textual representation of the mathfield.
      *
@@ -104,7 +104,7 @@ export interface Mathfield {
      * @return {string}
      * @category Accessing the Content
      */
-    $text(format?: OutputFormat): string;
+    $text?(format?: OutputFormat): string;
     /**
      * Returns a textual representation of the selection in the mathfield.
      *
@@ -112,16 +112,16 @@ export interface Mathfield {
      * **Default** = `"latex"`
      * @category Accessing the Content
      */
-    $selectedText(format?: OutputFormat): string;
-    $select(): void;
-    $clearSelection(): void;
+    $selectedText?(format?: OutputFormat): string;
+    $select?(): void;
+    $clearSelection?(): void;
     /**
      * Checks if the selection is collapsed.
      *
      * @return True if the length of the selection is 0, that is, if it is a single
      * insertion point.
      */
-    $selectionIsCollapsed(): boolean;
+    $selectionIsCollapsed?(): boolean;
     /**
      * Returns the depth of the selection group.
      *
@@ -131,15 +131,15 @@ export interface Mathfield {
      * which is at the root level, return 1. Note that in that case, the numerator
      * would be the "selection group".
      */
-    $selectionDepth(): number;
+    $selectionDepth?(): number;
     /**
      * Checks if the selection starts at the beginning of the selection group.
      */
-    $selectionAtStart(): boolean;
+    $selectionAtStart?(): boolean;
     /**
      * Checks if the selection extends to the end of the selection group.
      */
-    $selectionAtEnd(): boolean;
+    $selectionAtEnd?(): boolean;
     /**
      * Sets or gets the content of the mathfield.
      *
@@ -151,13 +151,13 @@ export interface Mathfield {
      *
      * @category Accessing the Content
      */
-    $latex(text?: string, options?: InsertOptions): string;
+    $latex?(text?: string, options?: InsertOptions): string;
     /**
      * Return the DOM element associated with this mathfield.
      *
      * Note that `this.$el().mathfield === this`
      */
-    $el(): HTMLElement;
+    $el?(): HTMLElement;
     /**
      * Inserts a block of text at the current insertion point.
      *
@@ -170,19 +170,19 @@ export interface Mathfield {
      *
      * @category Changing the Content
      */
-    $insert(s: string, options?: InsertOptions): boolean;
+    $insert?(s: string, options?: InsertOptions): boolean;
     /**
      * @category Focus
      */
-    $hasFocus(): boolean;
+    $hasFocus?(): boolean;
     /**
      * @category Focus
      */
-    $focus(): void;
+    $focus?(): void;
     /**
      * @category Focus
      */
-    $blur(): void;
+    $blur?(): void;
     /**
      * Updates the style (color, bold, italic, etc...) of the selection or sets
      * the style to be applied to future input.
@@ -196,7 +196,7 @@ export interface Mathfield {
      * If there is no selection, the style will apply to the next character typed.
      *
      */
-    $applyStyle(style: Style): void;
+    $applyStyle?(style: Style): void;
     /**
      * @param keys - A string representation of a key combination.
      *
@@ -212,14 +212,14 @@ export interface Mathfield {
      * @return Return true if the field need to be re-rendered
      * @category Changing the Content
      */
-    $keystroke(keys: string, evt?: KeyboardEvent): boolean;
+    $keystroke?(keys: string, evt?: KeyboardEvent): boolean;
     /**
      * Simulates a user typing the keys indicated by text.
      *
      * @param text - A sequence of one or more characters.
      * @category Changing the Content
      */
-    $typedText(text: string): void;
+    $typedText?(text: string): void;
     getCaretPosition(): {
         x: number;
         y: number;

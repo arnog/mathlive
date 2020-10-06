@@ -232,6 +232,59 @@ export declare type TextToSpeechOptions = {
     speakHook: (text: string, config: Partial<MathfieldConfig>) => void;
     readAloudHook: (element: HTMLElement, text: string, config: MathfieldConfig) => void;
 };
+/**
+ *
+ */
+export interface VirtualKeyboardKeycap {
+    /**
+     * The string displayed for the keycap
+     */
+    label?: string;
+    /**
+     * Command to perform when the keycap is pressed
+     */
+    command?: string;
+    /**
+     * Latex fragment to insert when the keycap is pressed
+     * (ignored if command is specified)
+     */
+    insert?: string;
+    /**
+     * Label of the key as a Latex expression, also the Latex
+     * inserted if no `command` or `insert` property is specified.
+     */
+    latex?: string;
+    /**
+     * Key to insert when keycap is pressed
+     * (ignored if `command`, `insert` or `latex` is specified)
+     */
+    key?: string;
+    /** CSS class to apply to the keycap.
+     */
+    class?: string;
+    /**
+     * Markup displayed with the key label (for example to explain what the symbol of the key is)
+     */
+    aside?: string;
+    /**
+     * A named set of alternate keys to display when there is a long press on the key.
+     */
+    altKeys?: string;
+    /**
+     * Markup for the label of the key when the shift key is pressed
+     */
+    shifted?: string;
+    /**
+     * Command to perform when the shifted key is pressed
+     */
+    shiftedCommand?: string;
+}
+export interface VirtualKeyboardLayer {
+    styles?: string;
+    backdrop?: string;
+    container?: string;
+    rows?: VirtualKeyboardKeycap[][];
+}
 export declare type VirtualKeyboardOptions = {
     /**
      * If specified, the markup to be used to display the virtual keyboard
@@ -255,12 +308,12 @@ export declare type VirtualKeyboardOptions = {
     virtualKeyboardMode: 'auto' | 'manual' | 'onfocus' | 'off';
     /**
      * A space separated list of the keyboards that should be available. The
-     * keyboard `'all'` is synonym with `'numeric'`, `'roman'`, `'greek'`,
-     * `'functions'` and `'command'`
+     * keyboard `'all'` is synonym with `'numeric'`, `'functions'``, `'symbols'``
+     * `'roman'` and `'greek'`,
      *
      * The keyboards will be displayed in the order indicated.
      */
-    virtualKeyboards: 'all' | 'numeric' | 'roman' | 'greek' | 'functions' | 'command' | string;
+    virtualKeyboards: 'all' | 'numeric' | 'roman' | 'greek' | 'functions' | 'symbols' | 'command' | string;
     virtualKeyboardLayout: 'auto' | 'qwerty' | 'azerty' | 'qwertz' | 'dvorak' | 'colemak';
     /**
      * Some additional custom virtual keyboard layers.
@@ -275,10 +328,10 @@ export declare type VirtualKeyboardOptions = {
      *
      */
     customVirtualKeyboardLayers: {
-        [layer: string]: string;
+        [layerName: string]: string | VirtualKeyboardLayer;
     };
     customVirtualKeyboards: {
-        [layer: string]: string;
+        [layerName: string]: string;
     };
     /**
      * The visual theme used for the virtual keyboard.
@@ -430,7 +483,7 @@ export declare type LocalizationOptions = {
     /**
      * The locale (language + region) to use for string localization.
      *
-     * If not is provided, the locale of the browser is used.
+     * If none is provided, the locale of the browser is used.
      *
      */
     locale: string;

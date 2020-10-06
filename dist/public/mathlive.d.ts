@@ -18,11 +18,13 @@
  *
  */
 import { Mathfield } from './mathfield';
+import { MathfieldElement } from './mathfield-element';
 import { MathfieldConfig, TextToSpeechOptions } from './config';
 import { MacroDictionary, ErrorListener, ParserErrorCode } from './core';
 import { ErrorCode as MathJsonErrorCode } from '../math-json/public';
 export { Mathfield };
 export { MathfieldConfig };
+export { MathfieldElement };
 /**
  * Current version: `0.56.0`
  *

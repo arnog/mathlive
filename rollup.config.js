@@ -1,6 +1,6 @@
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
-import resolve from 'rollup-plugin-node-resolve';
+import resolve from '@rollup/plugin-node-resolve';
 import { eslint } from 'rollup-plugin-eslint';
 import postcss from 'rollup-plugin-postcss';
 
@@ -80,7 +80,7 @@ function buildProgress() {
             ) {
                 process.stdout.clearLine();
                 process.stdout.cursorTo(0);
-                process.stdout.write('Building ' + chalk.grey(file));
+                process.stdout.write(chalk.green(' ●') + '  Building ' + chalk.grey(file));
             } else {
                 console.log(chalk.grey(file));
             }
@@ -121,7 +121,8 @@ function buildProgress() {
                     process.stdout.clearLine();
                     process.stdout.cursorTo(0);
                 }
-                console.log('         🚀 Launching server');
+                console.log(chalk.green(' ✔') + '  Build complete ');
+                console.log(' 🚀 Launching server');
                 exec(
                     "npx http-server . -s -c-1 --cors='*' -o /examples/test-cases/index.html",
                     (error, stdout, stderr) => {

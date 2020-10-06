@@ -38,6 +38,8 @@ import { ErrorCode, Form, Expression, Dictionary } from './math-json/public';
 import { parseLatex, emitLatex } from './math-json/math-json';
 import { ParseLatexOptions, EmitLatexOptions } from './math-json/latex/public';
 
+export { MathfieldElement } from './public/mathfield-element';
+
 function latexToMarkup(
     text: string,
     options: {

@@ -233,6 +233,14 @@
         // (they are turned on later in the "overrides" section)
         "@typescript-eslint/explicit-module-boundary-types": "off",
 
+        // We use @ts-ignore to generate the .d.ts files using tsc, even though
+        // they import .less file which tsc doesn't know to handle.
+        "@typescript-eslint/ban-ts-comment": "off",
+
+        // When used with optional chaining, eslint can give an incorrect warning
+        "no-unused-expressions": "off",
+        "@typescript-eslint/no-unused-expressions": "warn",
+
         "prettier/prettier": [
             "error",
             {
@@ -288,7 +296,6 @@
         "no-self-compare": "error",
         "no-sequences": "warn",
         "no-unneeded-ternary": "warn",
-        "no-unused-expressions": "warn",
         "no-useless-call": "warn",
         "no-var": "error",
         "no-with": "error",

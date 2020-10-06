@@ -79,10 +79,14 @@ import { atomToSpeakableText } from './atom-to-speakable-text';
 import { atomsToMathML } from '../addons/math-ml';
 import { updateUndoRedoButtons } from './virtual-keyboard';
 
+// @ts-ignore
 import mathfieldStylesheet from '../../css/mathfield.less';
+// @ts-ignore
 import coreStylesheet from '../../css/core.less';
 
+// @ts-ignore
 import popoverStylesheet from '../../css/popover.less';
+// @ts-ignore
 import keystrokeCaptionStylesheet from '../../css/keystroke-caption.less';
 import { parseLatex } from '../math-json/math-json';
 import { atomtoMathJson } from '../addons/math-json';
@@ -106,7 +110,7 @@ export class MathfieldPrivate implements Mathfield {
 
     textarea: HTMLElement;
     field: HTMLElement;
-    virtualKeyboardToggleDOMNode: HTMLElement;
+    virtualKeyboardToggle: HTMLElement;
     ariaLiveText: HTMLElement;
     accessibleNode: HTMLElement;
     popover: HTMLElement;
@@ -122,7 +126,7 @@ export class MathfieldPrivate implements Mathfield {
 
     keystrokeBuffer: string;
     keystrokeBufferStates: UndoRecord[];
-    keystrokeBufferResetTimer: number;
+    keystrokeBufferResetTimer: ReturnType<typeof setTimeout>;
 
     suggestionIndex: number;
 
@@ -182,7 +186,7 @@ export class MathfieldPrivate implements Mathfield {
                 // bringing up the OS virtual keyboard
                 markup += `<span class='ML__textarea'>
                 <span class='ML__textarea__textarea'
-                    tabindex="0" role="textbox"
+                    tabindex="-1" role="textbox"
                     style='display:inline-block;height:1px;width:1px' >
                 </span>
             </span>`;
@@ -190,7 +194,9 @@ export class MathfieldPrivate implements Mathfield {
                 markup +=
                     '<span class="ML__textarea">' +
                     '<textarea class="ML__textarea__textarea" autocapitalize="off" autocomplete="off" ' +
-                    'autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="0">' +
+                    `autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="${
+                        element.tabIndex ?? 0
+                    }">` +
                     '</textarea>' +
                     '</span>';
             }
@@ -211,7 +217,7 @@ export class MathfieldPrivate implements Mathfield {
         // Only display the virtual keyboard toggle if the virtual keyboard mode is
         // 'manual'
         if (this.config.virtualKeyboardMode === 'manual') {
-            markup += `<div class="ML__virtual-keyboard-toggle" role="button" data-ML__tooltip="${l10n(
+            markup += `<div part='virtual-keyboard-toggle' class="ML__virtual-keyboard-toggle" role="button" data-ML__tooltip="${l10n(
                 'tooltip.toggle virtual keyboard'
             )}">`;
             // data-ML__tooltip='Toggle Virtual Keyboard'
@@ -260,9 +266,9 @@ export class MathfieldPrivate implements Mathfield {
             },
             { passive: false }
         );
-        this.virtualKeyboardToggleDOMNode = this.element.children[iChild++]
+        this.virtualKeyboardToggle = this.element.children[iChild++]
             .children[1] as HTMLElement;
-        attachButtonHandlers(this, this.virtualKeyboardToggleDOMNode, {
+        attachButtonHandlers(this, this.virtualKeyboardToggle, {
             default: 'toggleVirtualKeyboard',
             alt: 'toggleVirtualKeyboardAlt',
             shift: 'toggleVirtualKeyboardShift',
@@ -562,8 +568,8 @@ export class MathfieldPrivate implements Mathfield {
         off(this.textarea, 'paste', this);
         this.textarea.remove();
         delete this.textarea;
-        this.virtualKeyboardToggleDOMNode.remove();
-        delete this.virtualKeyboardToggleDOMNode;
+        this.virtualKeyboardToggle.remove();
+        delete this.virtualKeyboardToggle;
         releaseSharedElement(this.popover);
         delete this.popover;
         releaseSharedElement(this.keystrokeCaption);
@@ -635,7 +641,6 @@ export class MathfieldPrivate implements Mathfield {
     private _onFocus(): void {
         if (this.config.readOnly) return;
         if (this.blurred) {
-            console.log('focus');
             this.blurred = false;
             // The textarea may be a span (on mobile, for example), so check that
             // it has a focus() before calling it.
@@ -654,7 +659,6 @@ export class MathfieldPrivate implements Mathfield {
     }
     private _onBlur(): void {
         if (!this.blurred) {
-            console.log('blur');
             this.blurred = true;
             this.ariaLiveText.textContent = '';
             if (/onfocus|manual/.test(this.config.virtualKeyboardMode)) {

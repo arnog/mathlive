@@ -11,7 +11,9 @@ import type { MathfieldPrivate } from './mathfield-class';
 
 import { inject as injectStylesheet } from '../common/stylesheet';
 
+// @ts-ignore
 import virtualKeyboardStylesheet from '../../css/virtual-keyboard.less';
+import { VirtualKeyboardLayer } from '../public/config';
 
 const KEYBOARDS = {
     numeric: {
@@ -1296,7 +1298,7 @@ export function makeKeyboard(
 
     let markup = svgIcons;
 
-    injectStylesheet(mf.element, virtualKeyboardStylesheet);
+    injectStylesheet(null, virtualKeyboardStylesheet);
 
     // Auto-populate the ALT_KEYS table
     ALT_KEYS_BASE['foreground-color'] = [];
@@ -1434,7 +1436,9 @@ export function makeKeyboard(
         'numeric functions symbols roman  greek'
     );
 
-    const layers = {
+    const layers: {
+        [layerName: string]: string | VirtualKeyboardLayer;
+    } = {
         ...LAYERS,
         ...(mf.config.customVirtualKeyboardLayers ?? {}),
     };
@@ -1457,103 +1461,103 @@ export function makeKeyboard(
         }
         keyboardLayers = Array.from(new Set(keyboardLayers));
 
-        for (const layer of keyboardLayers) {
-            if (!layers[layer]) {
+        for (const layerName of keyboardLayers) {
+            if (!layers[layerName]) {
                 console.error(
-                    'Unknown virtual keyboard layer: "' + layer + '"'
+                    'Unknown virtual keyboard layer: "' + layerName + '"'
                 );
                 break;
             }
 
-            if (typeof layers[layer] === 'object') {
+            if (typeof layers[layerName] === 'object') {
+                const layer = layers[layerName] as VirtualKeyboardLayer;
                 // Process JSON layer to web element based layer.
 
-                let tempLayer = ``;
-                if (layers[layer].styles) {
-                    tempLayer += `<style>${layers[layer].styles}</style>`;
+                let tempLayer = '';
+                if (layer.styles) {
+                    tempLayer += `<style>${layer.styles}</style>`;
                 }
 
-                if (layers[layer].backdrop) {
-                    tempLayer += `<div class='${layers[layer].backdrop}'>`;
+                if (layer.backdrop) {
+                    tempLayer += `<div class='${layer.backdrop}'>`;
                 }
 
-                if (layers[layer].container) {
-                    tempLayer += `<div class='${layers[layer].container}'>`;
+                if (layer.container) {
+                    tempLayer += `<div class='${layer.container}'>`;
                 }
 
-                if (layers[layer].rows) {
+                if (layer.rows) {
                     tempLayer += `<div class='rows'>`;
-                    for (const row of layers[layer].rows) {
+                    for (const row of layer.rows) {
                         tempLayer += `<ul>`;
-                        for (const col of row) {
+                        for (const keycap of row) {
                             tempLayer += `<li`;
-                            if (col.class) {
-                                tempLayer += ` class="${col.class}"`;
+                            if (keycap.class) {
+                                tempLayer += ` class="${keycap.class}"`;
                             }
-                            if (col.key) {
-                                tempLayer += ` data-key="${col.key}"`;
+                            if (keycap.key) {
+                                tempLayer += ` data-key="${keycap.key}"`;
                             }
 
-                            if (col.command) {
-                                if (typeof col.command === 'string') {
-                                    tempLayer += ` data-command='"${col.command}"'`;
+                            if (keycap.command) {
+                                if (typeof keycap.command === 'string') {
+                                    tempLayer += ` data-command='"${keycap.command}"'`;
                                 } else {
                                     tempLayer += ` data-command='`;
-                                    tempLayer += JSON.stringify(col.command);
+                                    tempLayer += JSON.stringify(keycap.command);
                                     tempLayer += `'`;
                                 }
                             }
-                            if (col.insert) {
-                                tempLayer += ` data-insert="${col.insert}"`;
+                            if (keycap.insert) {
+                                tempLayer += ` data-insert="${keycap.insert}"`;
                             }
 
-                            if (col.latex) {
-                                tempLayer += ` data-latex="${col.latex}"`;
+                            if (keycap.latex) {
+                                tempLayer += ` data-latex="${keycap.latex}"`;
                             }
 
-                            if (col.aside) {
-                                tempLayer += ` data-aside="${col.aside}"`;
+                            if (keycap.aside) {
+                                tempLayer += ` data-aside="${keycap.aside}"`;
                             }
 
-                            if (col.altKeys) {
-                                tempLayer += ` data-alt-keys="${col.altKeys}"`;
+                            if (keycap.altKeys) {
+                                tempLayer += ` data-alt-keys="${keycap.altKeys}"`;
                             }
 
-                            if (col.shifted) {
-                                tempLayer += ` data-shifted="${col.shifted}"`;
+                            if (keycap.shifted) {
+                                tempLayer += ` data-shifted="${keycap.shifted}"`;
                             }
 
-                            if (col.shiftedCommand) {
-                                tempLayer += ` data-shifted-command="${col.shiftedCommand}"`;
+                            if (keycap.shiftedCommand) {
+                                tempLayer += ` data-shifted-command="${keycap.shiftedCommand}"`;
                             }
 
-                            tempLayer += `>${col.label ? col.label : ''}</li>`;
+                            tempLayer += `>${
+                                keycap.label ? keycap.label : ''
+                            }</li>`;
                         }
                         tempLayer += `</ul>`;
                     }
                     tempLayer += `</div>`;
                 }
 
-                if (layers[layer].container) {
+                if (layer.container) {
                     tempLayer += '</div>';
                 }
 
-                if (layers[layer].backdrop) {
+                if (layer.backdrop) {
                     tempLayer += '</div>';
                 }
 
-                layers[layer] = tempLayer;
+                layers[layerName] = tempLayer;
             }
 
             markup +=
                 `<div tabindex="-1" class='keyboard-layer' data-layer='` +
-                layer +
+                layerName +
                 `'>`;
             markup += makeKeyboardToolbar(mf, keyboardIDs, keyboard);
-            const layerMarkup =
-                typeof layers[layer] === 'function'
-                    ? layers[layer]()
-                    : layers[layer];
+            const layerMarkup = layers[layerName];
             // A layer can contain 'shortcuts' (i.e. <row> tags) that need to
             // be expanded
             markup += expandLayerMarkup(mf, layerMarkup);

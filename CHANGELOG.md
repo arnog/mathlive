@@ -1,34 +1,93 @@
 ## [Unreleased]
 
+### Major New Feature
+
+-   **#665**: add support for `MathfieldElement` custom element/web component and `<math-field>` tag.
+
+    The `makeMathField()` method is still supported, but it will be removed in an upcoming version. You should transition to using `<math-field>` or
+    `MathfieldElement` instead.
+
+    This transition require the following changes:
+
+    -   create mathfields using `MathfieldElement` or declaratively
+
+        ```javascript
+        // Before
+        let mf = MathLive.makeMathField(document.createElement('div'), {
+            virtualKeyboardMode: 'manual',
+        });
+        mf.$latex('f(x) = \\sin x');
+        document.body.appendChild(mf.$el());
+
+        // After
+        let mfe = new MathfieldElement({
+            virtualKeyboardMode: 'manual',
+        });
+        mfe.value = 'f(x) = \\sin x'; // or `mfe.$latex('f(x) - \\sin x')`
+        document.body.appendChild(mfe);
+        ```
+
+        or:
+
+        ```html
+        <math-field virtual-keyboard-mode="manual">f(x) = \sin x</math-field>
+        ```
+
+    -   use events instead of callbacks
+
+        ```javascript
+            // Before
+            mf.setConfig({ onContentDidChange: (mf) => {
+                console.log(mf.$latex())
+            });
+
+            // After
+            mf.addEventListener('change', (ev) => {
+                console.log(mf.value);
+            });
+        ```
+
 ### New Features
 
-    - **#101**: added `getCaretPosition()` and `setCaretPosition()`
+-   **#101**: added `getCaretPosition()` and `setCaretPosition()`
 
 ### Improvements
 
-    - The Typescript types for `Selector` has been improved
-    - The Typescript type for getConfig() are more accurate
-    - The "sqrt" inline shortcut now inserts an argument
-    - Don't throw an error if the first argument of `\enclose` is empty
-    - **#591**: add `upward` and `downward` hooks when navigating out of the
-    mathfield.
+-   The Typescript types for `Selector` has been improved
+-   The Typescript type for `getConfig()` are more accurate
+-   The "sqrt" inline shortcut now inserts an argument
+-   Don't throw an error if the first argument of `\enclose` is empty
+-   **#591**: add `upward` and `downward` hooks when navigating out of the
+    mathfield (now sent also sent as `focus-out` events)
+-   Improved layout of the virtual keyboard on narrow mobile devices (fill the available width).
 
 ### Bug Fixes
 
-    - **#637**: in Chrome, thin lines, such as fraction bars or square root lines
-    would not display at some zoom levels
-    - **#599**: some characters, for example "ü", would not be correctly parsed or
+-   **#198**: typing backspace while typing inline shortcuts would prevent the
+    shortcuts from being recognized
+-   **#573**: brackets were not properly styled (i.e. color applied to them)
+-   **#543**: spurious focus/blur events were dispatched if `tabIndex` was
+    set to 0 on the mathfield and some area of the mathfield were clicked on.
+    The issue was that with `tabIndex="0"` the mathfield frame would be focusable
+    and when that happened the focus would correctly switch to the invisible
+    `<textarea>` element which is normally focused to receive keyboard events,
+    but this generated an incorrect `blur` event (for the container losing focus)
+    and an incorrect `focus` event (for the `<textarea>` gaining focus)
+-   **#599**: some characters, for example "ü", would not be correctly parsed or
     displayed. Note that technically, those characters are ignored by TeX,
     but it's a reasonable behavior nowadays to accept them as input.
-    - **#198**: typing backspace while typing inline shortcuts would prevent the
-    shortcuts from being recognized
-    - **#573**: brackets were not properly styled (i.e. color applied to them)
-    - **#628**: typing "e" repeatedly inside a matrix would corrupt the emited
-    Latex and render incorrectly.
+-   **#628**: typing "e" repeatedly inside a matrix would corrupt the emited
+-   **#637**: in Chrome, thin lines, such as fraction bars or square root lines
+    would not display at some zoom levels
+-   The locale was not properly taking into account when it was set manually
+-   The `config.strings` property did not reflect the state of the localization strings
+-   When configs was updated (e.g. new macros added), the content of the mathfield was not properly re-parsed and rendered
+-   When making the virtual keyboard visible, the mathfield would not be focused
+-   The virtual keyboard would not display correctly when the mathfield was inside a shadow DOM
 
-### Thanks
+### Special Thanks
 
-    - Thanks to @stefnotch for contributing several of the improvements in this
+-   Thanks to `@stefnotch` for contributing several of the improvements in this
     release
 
 ## 0.56.0 (2020-08-22)

@@ -47,10 +47,12 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
     # Clean output directories
     printf "\033[32m ● \033[0m Cleaning output directories"
     rm -rf ./dist
+    rm -rf ./declarations
     rm -rf ./build
     rm -rf ./coverage
 
     mkdir -p dist
+    mkdir -p declaration
     echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Output directories cleaned out"
 
     if [ "$BUILD" != "production" ]; then
@@ -63,7 +65,9 @@ if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "produ
     # Even though we only generate declaration file, the target must be set high-enough
     # to prevent tsc from complaining (!)
     printf "\033[32m ● \033[0m Building declaration files (.d.ts)"
-    npx tsc --target "ES5" -d --emitDeclarationOnly --outDir ./dist ./src/public/mathlive.ts 
+    npx tsc --target "es2020" -d --moduleResolution "node" --emitDeclarationOnly --outDir ./declarations ./src/public/mathlive.ts 
+    mv ./declarations/public ./dist
+    rm -rf ./declarations
     echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Declaration files built"
 
     # Copy fonts
