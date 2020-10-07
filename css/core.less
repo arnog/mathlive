@@ -306,6 +306,10 @@ body.ML__fonts-loading .ML__base {
                 background: currentColor;
                 box-sizing: content-box; /* Vuetify sets the box-sizing to inherit 
                 causes the fraction line to not draw at all sizes (see #26) */
+                /* On some versions of Firefox on Windows, the line fails to 
+                draw at some zoom levels, but setting the transform triggers
+                the hardware accelerated path, which works */
+                transform: translate(0, 0);
             }
         }
     }
@@ -550,12 +554,14 @@ body.ML__fonts-loading .ML__base {
             }
 
             &:after {
-                border: 0.02em solid currentColor;
+                border-bottom-width: 1px;
                 content: ' ';
                 display: block;
-                margin-top: -0.04em;
-                min-height: 0.04em;
-                background: currentColor;
+                margin-top: -0.1em;
+                /* On some versions of Firefox on Windows, the line fails to 
+                draw at some zoom levels, but setting the transform triggers
+                the hardware accelerated path, which works */
+                transform: translate(0, 0);
             }
         }
 
