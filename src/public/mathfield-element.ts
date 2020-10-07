@@ -19,8 +19,6 @@ import { MathfieldPrivate } from '../editor/mathfield-class';
     Some events bubble up through the DOM tree, so that they are detectable by
      any element on the page.
 
-    Whether or not an event bubbles depends on the value of its bubbles property.
-
     Bubbling events fired from within shadow DOM are retargeted so that, to any
     listener external to your component, they appear to come from your component itself.
 
@@ -30,8 +28,7 @@ import { MathfieldPrivate } from '../editor/mathfield-class';
     bubbling when it reaches the shadow root.
 
     To make a custom event pass through shadow DOM boundaries, you must set
-    both the composed and bubbles flags to true:
-
+    both the `composed` and `bubbles` flags to true.
 */
 
 /**
@@ -66,10 +63,10 @@ export type KeystrokeEvent = {
 
 /**
  * This event signals that the mathfield has lost focus through keyboard
- * navigation, using either arrow keys or tab.
+ * navigation with arrow keys or the tab key.
  *
  * The event `detail.direction` property indicates the direction the cursor
- * was moving which can be useful to decide what to focus next.
+ * was moving which can be useful to decide which element to focus next.
  */
 export type FocusOutEvent = {
     direction: 'forward' | 'backward' | 'upward' | 'downward';
@@ -98,29 +95,23 @@ MATHFIELD_TEMPLATE.innerHTML = `<style>
 :host([disabled]) {
     opacity:  .5;
 }
-
 :host(:host:focus), :host(:host:focus-within) {
-    -moz-outline: 5px auto rgba(0, 150, 255, 1);
-    -o-outline: 5px auto rgba(0, 150, 255, 1);
     outline: -webkit-focus-ring-color auto 1px;
-  }
+}
 :host(:host:focus:not(:focus-visible)) {
-    -moz-outline: none;
-    -o-outline: none;
     outline: none;
 }
-
 </style>
 <div></div><slot style="display:none"></slot>`;
 
 //
 // Deferred State
 //
-// Methods such as setOptions() or getOptions() could be called before
-// the element has been connected (i.e. mf = new MathfieldElement(); mf.setConfig()...)
+// Methods such as `setOptions()` or `getOptions()` could be called before
+// the element has been connected (i.e. `mf = new MathfieldElement(); mf.setConfig()`...)
 // and therefore before the matfield instance has been created.
-// So we'll stash any deferred operations on options here, and will apply them
-// to the element when it gets connected to the DOM.
+// So we'll stash any deferred operations on options (and value) here, and
+// will apply them to the element when it gets connected to the DOM.
 //
 const gDeferredState = new WeakMap<
     MathfieldElement,
@@ -146,6 +137,11 @@ const gDeferredState = new WeakMap<
  *  getElementById('mf').value = '\\sin x';
  *  getElementById('mf').$setConfig({horizontalSpacingScale: 1.1});
  * ```
+ *
+ * Most properties are reflected: changing the attribute will also change the
+ * property and vice versa) except for `value` whose attribute value is not
+ * updated.
+ *
  *
  * In addition, the following [global attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes)
  * can also be used:
@@ -182,6 +178,8 @@ const gDeferredState = new WeakMap<
  * | `virtual-keyboard-mode` | `options.keyboardMode` |
  * | `virtual-keyboard-theme` | `options.keyboardTheme` |
  * | `virtual-keyboards` | `options.keyboards` |
+ *
+ *  See {@see config} for more details about these options.
  *
  * ### Events
  *
@@ -266,6 +264,16 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         super();
         this.attachShadow({ mode: 'open' });
         this.shadowRoot.appendChild(MATHFIELD_TEMPLATE.content.cloneNode(true));
+        const slot = this.shadowRoot.querySelector<HTMLSlotElement>(
+            'slot:not([name])'
+        );
+        this.value =
+            slot
+                ?.assignedNodes()
+                .map((x) => (x.nodeType === 3 ? x.textContent : ''))
+                .join('')
+                .trim() ?? '';
+
         this.shadowRoot
             .querySelector('slot')
             .addEventListener('slotchange', (e) => {
@@ -273,28 +281,17 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
                 if (slot.name === '') {
                     const value = slot
                         .assignedNodes()
-                        .map((x) => x.textContent)
+                        .map((x) => (x.nodeType === 3 ? x.textContent : ''))
                         .join('')
                         .trim();
-                    if (!value) return;
                     if (!this.#mathfield) {
-                        if (gDeferredState.has(this)) {
-                            gDeferredState.set(this, {
-                                value,
-                                options: gDeferredState.get(this).options,
-                            });
-                        } else {
-                            gDeferredState.set(this, {
-                                value,
-                                options: {},
-                            });
-                        }
-                        return;
+                        this.value = value;
+                    } else {
+                        this.#mathfield.$latex(value, {
+                            insertionMode: 'replaceAll',
+                            suppressChangeNotifications: true,
+                        });
                     }
-                    this.#mathfield.$latex(value, {
-                        insertionMode: 'replaceAll',
-                        suppressChangeNotifications: true,
-                    });
                 }
             });
 
@@ -303,6 +300,20 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         this.shadowRoot.host.addEventListener('focus', (_event) =>
             this.#mathfield?.$focus()
         );
+
+        // Inline options (as a JSON structure in the markup)
+        try {
+            const json = slot
+                .assignedElements()
+                .filter((x) => x['type'] !== 'application/json')
+                .map((x) => x.textContent)
+                .join('');
+            if (json) {
+                this.$setConfig(JSON.parse(json));
+            }
+        } catch (e) {
+            console.log(e);
+        }
 
         // Record the (optional) configuration options, as a deferred state
         if (options) {
@@ -702,6 +713,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         });
     }
 
+    /**
+     * The content of the mathfield as a Latex expression.
+     * ```
+     * document.querySelector('mf').value = '\\frac{1}{\\pi}'
+     * ```
+     */
     get value(): string {
         if (this.#mathfield) {
             return this.#mathfield.$latex();
