@@ -1,28 +1,8 @@
-## Prerequisites
-
--   [ ] New issue
-        [Did you check the [issue tracker](https://github.com/arnog/mathlive/issues) to see if this issue has already been reported? If it has, you can +1 it to indicate your interest and be notified when it gets resolved.]
-
-[For more information, see the `CONTRIBUTING` guide.]
-
 ## Description
 
 [Description of the bug or feature.]
 
-[Include screenshots or code fragments if applicable]
-
-### Actual behavior
-
-[What actually happened]
-
-[If there are any error messages, include the exact text shown,
-or upload a screenshot. Some error messages may displayed in the Javascript console.]
-
-### Expected Behavior
-
-[What you expected to happen]
-
-[Is this a regression: did it use to work in a previous version?]
+[Include screenshots, screen recordings, code fragments or CodePen if applicable]
 
 ## Steps to Reproduce
 
@@ -32,11 +12,22 @@ or upload a screenshot. Some error messages may displayed in the Javascript cons
 2. [Second Step]
 3. [and so on...]
 
+### Actual Behavior
+
+[What happens when you follow the steps above]
+
+[If there are any error messages, include the exact text shown,
+or upload a screenshot. Some error messages may be displayed in the Javascript console.]
+
+### Expected Behavior
+
+[What did you expect to happen insteead]
+
+[Is this a regression: did it use to work in a previous version?]
+
 ### Environment
 
 **Operating System**
 [macOS, Windows, iOS. Include the version if possible]
 
 **Browser** [Safari, Chrome, IE, Firefox, etc...]
-
-**URL** [URL where the problem can be reproduced, if available]
