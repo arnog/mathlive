@@ -1,16 +1,15 @@
-<img alt="math live" src="assets/logo.png?raw=true">
+<h1 align="center">
+    <img alt="math live" src="assets/logo.png?raw=true">
+</h1>
 
-[![Maintenance](https://img.shields.io/maintenance/yes/2020.svg)]()
-[![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://raw.githubusercontent.com/arnog/mathlive/master/LICENSE.txt)
+<p align="center">
+    <img width="479" alt="Screenshot" src="assets/screenshots/mathlive-demo.png">
+</p>
 
-[![Build Status](https://travis-ci.org/arnog/mathlive.svg?branch=master)](https://travis-ci.org/arnog/mathlive)
-[![David](https://img.shields.io/david/dev/arnog/mathlive.svg)]()
+## MathLive: A Web Component for Math Input
 
-<img alt="Screenshot" src="assets/screenshots/screenshot.jpg">
-
-MathLive: Math Input Made Easy
-
--   [x] JavaScript library easy to integrate in your project
+-   [x] A Web Component easy to integrate in your project, regardless of the
+        framework you use (or even if you use no framework)
 -   [x] Beautiful, TeX-quality typesetting
 -   [x] Easy to use interface for formula editing
 -   [x] Designed for mobile devices with an extensive set of virtual keyboards
@@ -18,7 +17,12 @@ MathLive: Math Input Made Easy
 -   [x] Outputs **LaTeX**, **MathML** and **MathJSON** (Abstract Syntax Tree)
 -   [x] And it is easy to customize to your needs!
 
-Try it at [mathlive.io](https://mathlive.io).
+[![Maintenance](https://img.shields.io/maintenance/yes/2020.svg)]()
+[![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://raw.githubusercontent.com/arnog/mathlive/master/LICENSE.txt)
+[![Build Status](https://travis-ci.org/arnog/mathlive.svg?branch=master)](https://travis-ci.org/arnog/mathlive)
+[![David](https://img.shields.io/david/dev/arnog/mathlive.svg)]()
+
+See [cortexjs.io](http://cortexjs.io/mathlive/) for more info or try it at [mathlive.io](https://mathlive.io)
 
 <table align="center" >
     <tr>
@@ -42,12 +46,29 @@ Try it at [mathlive.io](https://mathlive.io).
     </tr>
 </table>
 
-## How To Use MathLive
+## Using MathLive
 
-### Displaying Math
+### Editing Math
 
-Render math equations by
-[adding a two lines to your web page](tutorials/USAGE_GUIDE.md).
+To add a mathfield element in your page use a `<math-field>` tag. It works
+just like a `<textarea>` or `<button>`. You can manipulate the mathfield using
+methods of the element and listen for events to be notified when its internal
+state changes.
+
+```html
+<!DOCTYPE html>
+<html lang="en-US">
+    <body>
+        <math-field>f(x)=</math-field>
+        <script src="https://unpkg.com/mathlive/dist/mathlive.mjs"></script>
+    </body>
+</html>
+```
+
+### Displaying Static Math
+
+Render static math equations by
+[adding two lines to your web page](tutorials/USAGE_GUIDE.md).
 
 ```html
 <!DOCTYPE html>
@@ -57,38 +78,17 @@ Render math equations by
         <p>$$e^{i\pi} + 1 = 0$$</p>
 
         <script type="module">
-            import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
-            MathLive.renderMathInDocument();
+            import { renderMathInDocument } from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
+            renderMathInDocument();
         </script>
     </body>
 </html>
 ```
 
-### Editing Math
-
-You can also incorporate a “mathfield” to edit math just like you would edit
-text. The MathLive APIs allow you to interact with the mathfield,
-including extracting its content, inserting placeholders and more.
-
-```html
-<!DOCTYPE html>
-<html lang="en-US">
-    <body>
-        <div id="mathfield">f(x)=</div>
-
-        <script type="module">
-            import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
-            MathLive.makeMathField('mathfield');
-        </script>
-    </body>
-</html>
-```
-
-## How You Can Help
+## Want to Help?
 
 -   Using MathLive in your project? Want to support the project ongoing maintenance?
-    Consider becoming a patron on [Patreon](https://patreon.com/arnog) or making a
-    donation with [PayPal](https://www.paypal.me/arnogourdol)
+    Consider making a donation with [PayPal](https://www.paypal.me/arnogourdol)
 -   Something wrong? Got ideas for new features? Write up an issue. Read about
     [Contributing](CONTRIBUTING.md) and follow our [Code of Conduct](CODE_OF_CONDUCT.md)
 -   Want to contribute some code for an issue or a feature? Read the
@@ -98,8 +98,8 @@ including extracting its content, inserting placeholders and more.
 
 ## More Questions?
 
--   Look at some [examples](https://mathlive.io/examples/)
--   Want to use MathLive in your web page? The [Usage Guide](tutorials/USAGE_GUIDE.md) has all the details
+-   Read the [Getting Started Guide](http://cortexjs.io/guides/mathfield-getting-started/)
+-   Look at some [examples](http://cortexjs.io/mathlive/)
 -   [Read the API documentation](https://cortexjs.io/docs/mathlive/)
 -   Join our [Gitter community](https://gitter.im/cortex-js/community)
 -   Drop a line to arno@arno.org or [/u/real_arnog](https://www.reddit.com/user/real_arnog)

@@ -14,11 +14,8 @@ Using a CDN is the simplest approach, as it does not require any configuration:
 ```html
 <!DOCTYPE html>
 <html lang="en-US">
-    <div id="mathfield">f(x)</div>
-    <script type="module">
-        import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
-        MathLive.makeMathField('mathfield');
-    </script>
+    <math-field>f(x)</math-field>
+    <script src="https://unpkg.com/mathlive/dist/mathlive.mjs'"></script>
 </html>
 ```
 
@@ -64,8 +61,8 @@ in the document.
 
 ```html
 <script type="module">
-    import MathLive from 'dist/mathlive.mjs';
-    MathLive.renderMathInDocument();
+    import { renderMathInDocument } from 'dist/mathlive.mjs';
+    renderMathInDocument();
 </script>
 ```
 
@@ -155,50 +152,45 @@ MathLive.renderMathInElement(document.getElementById('formulas'), {
 
 ## Using the Math Editor with JavaScript
 
-To transform an existing HTML element into a mathfield, call
-{@linkcode module:mathlive#makeMathField | MathLive.makeMathField(element, options)}.
+You can place a mathfield on a page using the `<math-field>` tag or
+create a new Mathfield element with `new MathfieldElement()`.
 
-Think of this original element as a placeholder. Typically, a `<div>` would
-be appropriate. If the element contains some LaTeX text, it will be used as the
-initial value of the mathfield.
-
-For example:
+You can interact with the mathfield using the methods of the Mathfield interface
+or register event handlers to be notified when the internal state of the
+mathfield changes.
 
 ```html
 <!DOCTYPE html>
 <html lang="en-US">
     <body>
-        <div id="mathfield" style="border: 1px solid #999;padding:5px;">
+        <math-field id="mathfield" style="border: 1px solid #999;padding:5px;">
             f(x)=
         </div>
         <script type="module">
-            import MathLive from 'dist/mathlive.mjs';
-            const mathfield = MathLive.makeMathField(
-                document.getElementById('mathfield')
+            import 'dist/mathlive.mjs';
+            document.getElementById('mathfield').addEventListener('change', (mf) =>
+                console.log(mf.value)
             );
         </script>
     </body>
 </html>
 ```
 
-You can control the mathfield using the public methods of `Mathfield`.
 Here's a short list for some common operations:
 
--   `$el()` the DOM element associated with this mathfield
--   `$text(format)` return a textual representation of the content of the math
+-   `getValue(format)` return a textual representation of the content of the math
     field, `format` can be either `"latex"` (default), `"spoken"` or `"mathML"`.
--   `$insert(content, options)` insert the specified content at the current
+    You can also directly access the latex value with `mathfield.value`
+-   `insert(content, options)` insert the specified content at the current
     insertion point. With `options` it is possible to specify the insertion mode,
     as well as what will be selected after the insertion. If the content contains
     a `#?` a placeholder will be indicated in its stead. The `#0` sequence will
     be replaced by the item currently selected (or a placeholder if nothing is
     selected)
--   `$setConfig()` customize how the mathfield behaves, as well as provide
+-   `setOptions()` customize how the mathfield behaves, as well as provide
     notification handlers, for example when the selection changes, or when
     navigation exists the mathfield.
--   `$select()` select all the items in the mathfield
--   `$clearSelection()` deletes the selection
--   `$perform()` executes a command such as moving the insertion point. Typically
+-   `excuteCommand()` executes a command such as moving the insertion point. Typically
     invoked in response to a user action, such as pressing a keyboard shortcut
     or pushing a button. The command will be undoable. See the list of available
     commands in the **Selectors** section below.
@@ -206,14 +198,14 @@ Here's a short list for some common operations:
 ## Selectors
 
 User initiated commands that control the mathfield can be dispatched using
-the [`perform()`]{@link Mathfield#perform} commands. Commands are identified by
+the [`executeCommand()`]{@link Mathfield#executeCommand} commands. Commands are identified by
 a string called the **selector**. Most commands take no parameters. When a
 command does have a parameter, an array made up of the selector and the
-commands arguments can be passed to [`Mathfield.$perform()`]{@link Mathfield#\$perform}.
+commands arguments can be passed to [`Mathfield.executeCommand()`]{@link Mathfield#executeCommand}.
 For example:
 
 ```javascript
-mf.$perform(['insert', '(#0)']);
+mf.executeCommand(['insert', '(#0)']);
 ```
 
 will insert an open and close parenthesis around the selection (the `#0`
