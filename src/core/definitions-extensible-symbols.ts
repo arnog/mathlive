@@ -105,8 +105,6 @@ defineFunction(
             svgBody: name.slice(1),
             overscript: overscript,
             underscript: args[0],
-
-            skipBoundary: true,
         };
     },
     (name, _parent, atom, emit) =>
