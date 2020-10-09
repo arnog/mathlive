@@ -1,0 +1,4 @@
+[submodule "submodules/math-json"]
+	path = submodules/math-json
+	url = https://github.com/cortex-js/math-json.git
+	branch = master
