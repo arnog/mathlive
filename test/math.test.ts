@@ -1,20 +1,18 @@
-import MathLive from '../dist/mathlive';
+import { debug, convertLatexToMarkup } from '../dist/mathlive';
 import { MathfieldErrorCode, ParserErrorCode } from '../src/public/core';
-
-const MathLiveDebug = MathLive['debug'];
 
 function getStyle(s: any, symbol, prop) {
     if (typeof s === 'string') s = toSpan(s);
-    return MathLiveDebug.getStyle(s, symbol, prop);
+    return debug.getStyle(s, symbol, prop);
 }
 
 function getType(s, symbol) {
     if (typeof s === 'string') s = toSpan(s);
-    return MathLiveDebug.getType(s, symbol);
+    return debug.getType(s, symbol);
 }
 
 function toSpan(formula) {
-    return MathLive.latexToMarkup(formula, {
+    return convertLatexToMarkup(formula, {
         mathstyle: 'displaystyle',
         format: 'span',
     } as unknown); // 'span' is a secret format, so force it with 'unknown'
@@ -25,7 +23,7 @@ function isError(
     expectedError: ParserErrorCode | MathfieldErrorCode
 ) {
     let errorCode;
-    MathLive.latexToMarkup(formula, {
+    convertLatexToMarkup(formula, {
         mathstyle: 'displaystyle',
         format: 'span',
         onError: (err) => {
@@ -44,9 +42,7 @@ function isNoError(formula: string) {
 
 function spanToString(span: any): string {
     if (typeof span === 'string') span = toSpan(span);
-    return MathLiveDebug.spanToString(span)
-        .replace(/\t/g, '  ')
-        .replace(/\n/g, '\n');
+    return debug.spanToString(span).replace(/\t/g, '  ').replace(/\n/g, '\n');
 }
 
 function hasClass(s, symbol, cls: string) {
@@ -55,9 +51,7 @@ function hasClass(s, symbol, cls: string) {
         span = toSpan(s);
     }
 
-    test(s, () =>
-        expect(MathLiveDebug.hasClass(span, symbol, cls)).toBeTruthy()
-    );
+    test(s, () => expect(debug.hasClass(span, symbol, cls)).toBeTruthy());
 }
 
 function hasType(
@@ -74,7 +68,7 @@ function notHasClass(s, symbol, cls) {
         span = toSpan(s);
     }
 
-    const result = !MathLiveDebug.hasClass(span, symbol, cls);
+    const result = !debug.hasClass(span, symbol, cls);
 
     test(s, () => expect(result).toBeTruthy());
 }
@@ -87,8 +81,8 @@ function equalSpan(formula1: string, formula2: string) {
 
 function equalASCIIMath(latex: string, ascii: string) {
     test(latex, () => {
-        expect(MathLiveDebug.latexToAsciiMath(latex)).toBe(ascii);
-        expect(MathLiveDebug.asciiMathToLatex(ascii)).toBe(latex);
+        expect(debug.latexToAsciiMath(latex)).toBe(ascii);
+        expect(debug.asciiMathToLatex(ascii)).toBe(latex);
     });
 }
 
@@ -670,13 +664,11 @@ describe('ASCII MATH', function () {
     equalASCIIMath('npq', 'npq');
     equalASCIIMath('2npq', '2npq');
 
-    expect(MathLiveDebug.latexToAsciiMath('(x)')).toBe('(x)');
-    expect(MathLiveDebug.asciiMathToLatex('(x)')).toBe('\\left(x\\right)');
+    expect(debug.latexToAsciiMath('(x)')).toBe('(x)');
+    expect(debug.asciiMathToLatex('(x)')).toBe('\\left(x\\right)');
 
-    expect(MathLiveDebug.latexToAsciiMath('(x + 1)')).toBe('(x+1)');
-    expect(MathLiveDebug.asciiMathToLatex('(x + 1)')).toBe(
-        '\\left(x +1\\right)'
-    );
+    expect(debug.latexToAsciiMath('(x + 1)')).toBe('(x+1)');
+    expect(debug.asciiMathToLatex('(x + 1)')).toBe('\\left(x +1\\right)');
 
     equalASCIIMath('f\\mleft(x\\mright)=\\sin x', 'f(x)=sin x');
 

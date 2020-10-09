@@ -8,7 +8,7 @@ import { isArray } from '../common/types';
 
 import { Atom, AtomType } from '../core/atom';
 import { parseString } from '../core/parser';
-import { joinLatex } from '../core/modes-utils';
+import { joinLatex } from '../core/tokenizer';
 import {
     unicodeStringToLatex,
     getInfo,

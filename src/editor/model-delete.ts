@@ -1,12 +1,11 @@
 import type { ModelPrivate } from './model-class';
 import { removeSuggestion, invalidateVerbatimLatex } from './model-utils';
+import { selectionDidChange, contentDidChange } from './model-listeners';
 import {
-    selectionWillChange,
-    selectionDidChange,
-    contentDidChange,
-    contentWillChange,
-} from './model-listeners';
-import { setSelection, move, selectionIsCollapsed } from './model-selection';
+    setSelectionOffset,
+    move,
+    selectionIsCollapsed,
+} from './model-selection';
 import {
     arrayFirstCellByRow,
     arrayColRow,
@@ -26,9 +25,6 @@ import {
  * If dir = 0, delete only if the selection is not collapsed
  */
 function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0): void {
-    // Dispatch notifications
-    contentWillChange(model);
-    selectionWillChange(model);
     const contentWasChanging = model.suppressChangeNotifications;
     model.suppressChangeNotifications = true;
 
@@ -45,7 +41,11 @@ function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0): void {
                 const atoms = arrayJoinRows(array);
                 model.path.pop();
                 model.siblings().splice(model.anchorOffset(), 1, ...atoms);
-                setSelection(model, model.anchorOffset() - 1, atoms.length);
+                setSelectionOffset(
+                    model,
+                    model.anchorOffset() - 1,
+                    atoms.length
+                );
             } else {
                 const colRow = arrayColRow(array, model.relation());
                 if (colRow.col === 0) {
@@ -66,7 +66,7 @@ function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0): void {
                     array[dest.row][dest.col] = array[dest.row][
                         dest.col
                     ].concat(atoms);
-                    setSelection(model, destLength - 1, atoms.length);
+                    setSelectionOffset(model, destLength - 1, atoms.length);
 
                     // (2.2) Remove row
                     arrayRemoveRow(array, colRow.row);
@@ -79,7 +79,7 @@ function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0): void {
                         model.path[model.path.length - 1].relation =
                             'cell' + arrayIndex(array, colRow);
                         const destCell = array[colRow.row][colRow.col];
-                        setSelection(model, destCell.length - 1, 0);
+                        setSelectionOffset(model, destCell.length - 1, 0);
                     }
                     // (3.2) merge cell with cell in previous column
                 }
@@ -104,7 +104,7 @@ function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0): void {
         siblings.splice(first, last - first);
 
         // Adjust the anchor
-        setSelection(model, first - 1);
+        setSelectionOffset(model, first - 1);
     } else {
         const anchorOffset = model.anchorOffset();
         if (dir < 0) {
@@ -115,14 +115,14 @@ function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0): void {
                 const sibling = model.sibling(0);
                 if (sibling.type === 'leftright') {
                     sibling.rightDelim = '?';
-                    move(model, -1);
+                    move(model, 'backward');
                 } else if (
                     !sibling.captureSelection &&
                     /^(group|array|genfrac|surd|leftright|overlap|overunder|box|mathstyle|sizing)$/.test(
                         sibling.type
                     )
                 ) {
-                    move(model, -1);
+                    move(model, 'backward');
                 } else {
                     model.announce(
                         'deleted',
@@ -130,7 +130,7 @@ function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0): void {
                         siblings.slice(anchorOffset, anchorOffset + 1)
                     );
                     siblings.splice(anchorOffset, 1);
-                    setSelection(model, anchorOffset - 1);
+                    setSelectionOffset(model, anchorOffset - 1);
                 }
             } else {
                 // We're at the beginning of the sibling list.
@@ -152,7 +152,7 @@ function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0): void {
                     // );
                     // @revisit
                     model.siblings().splice(model.anchorOffset(), 0, ...supsub);
-                    setSelection(model, model.anchorOffset() - 1);
+                    setSelectionOffset(model, model.anchorOffset() - 1);
                     model.announce('deleted: ' + relation);
                 } else if (relation === 'denom') {
                     // Fraction denominator
@@ -183,7 +183,7 @@ function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0): void {
                     // );
                     // @revisit
                     model.siblings().splice(model.anchorOffset(), 0, ...numer);
-                    setSelection(
+                    setSelectionOffset(
                         model,
                         model.anchorOffset() + numer.length - 1
                     );
@@ -195,19 +195,14 @@ function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0): void {
                     if (model.path.length > 1) {
                         body.shift(); // Remove the 'first' atom
                         model.path.pop();
-                        // Array.prototype.splice.apply(
-                        //     model.siblings(),
-                        //     [model.anchorOffset(), 1].concat(body)
-                        // );
-                        // @revisit
                         model
                             .siblings()
                             .splice(model.anchorOffset(), 1, ...body);
-                        setSelection(model, model.anchorOffset() - 1);
+                        setSelectionOffset(model, model.anchorOffset() - 1);
                         model.announce('deleted: root');
                     }
                 } else {
-                    move(model, -1);
+                    move(model, 'backward');
                     deleteChar(model, -1);
                 }
             }
@@ -218,7 +213,7 @@ function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0): void {
                         model.sibling(1).type
                     )
                 ) {
-                    move(model, +1);
+                    move(model, 'forward');
                 } else {
                     model.announce(
                         'deleted',
@@ -257,13 +252,13 @@ function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0): void {
                     // @revisit
                     model.siblings().splice(model.anchorOffset(), 1, ...denom);
                     model.siblings().splice(model.anchorOffset(), 0, ...numer);
-                    setSelection(
+                    setSelectionOffset(
                         model,
                         model.anchorOffset() + numer.length - 1
                     );
                     model.announce('deleted: numerator');
                 } else {
-                    move(model, 1);
+                    move(model, 'forward');
                     deleteChar(model, -1);
                 }
             }
@@ -287,7 +282,7 @@ export function deleteAtoms(model: ModelPrivate, count: number): void {
         model.siblings().splice(model.anchorOffset() + 1, count);
     } else {
         model.siblings().splice(model.anchorOffset() + count + 1, -count);
-        setSelection(model, model.anchorOffset() + count);
+        setSelectionOffset(model, model.anchorOffset() + count);
     }
 }
 

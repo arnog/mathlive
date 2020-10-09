@@ -34,90 +34,86 @@ fi
 # Read the first argument, set it to "development" if not set
 export BUILD="${1-development}"
 
-if [ "$BUILD" = "development" ] || [ "$BUILD" = "watch" ] || [ "$BUILD" = "production" ]; then
-    # export GIT_VERSION=`git describe --long --dirty`
+# export GIT_VERSION=`git describe --long --dirty`
 
-    export SDK_VERSION=$(cat package.json \
-    | grep version \
-    | head -1 \
-    | awk -F: '{ print $2 }' \
-    | sed 's/[",]//g' \
-    | tr -d '[[:space:]]')
+export SDK_VERSION=$(cat package.json \
+| grep version \
+| head -1 \
+| awk -F: '{ print $2 }' \
+| sed 's/[",]//g' \
+| tr -d '[[:space:]]')
 
-    # Clean output directories
-    printf "\033[32m ● \033[0m Cleaning output directories"
-    rm -rf ./dist
-    rm -rf ./declarations
-    rm -rf ./build
-    rm -rf ./coverage
+# Clean output directories
+printf "\033[32m ● \033[0m Cleaning output directories"
+rm -rf ./dist
+rm -rf ./declarations
+rm -rf ./build
+rm -rf ./coverage
 
-    mkdir -p dist
-    mkdir -p declaration
-    echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Output directories cleaned out"
+mkdir -p dist
+mkdir -p declarations
+echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Output directories cleaned out"
 
-    if [ "$BUILD" != "production" ]; then
-        # Write sentinel file. It will be checked in the pre-push.sh script
-        # to prevent commiting a dev build to the repo.
-        touch dist/DEVELOPMENT-BUILD
-    fi
-
-    # Bundle declaration files (.d.ts)
-    # Even though we only generate declaration file, the target must be set high-enough
-    # to prevent tsc from complaining (!)
-    printf "\033[32m ● \033[0m Building declaration files (.d.ts)"
-    npx tsc --target "es2020" -d --moduleResolution "node" --emitDeclarationOnly --outDir ./declarations ./src/public/mathlive.ts 
-    mv ./declarations/public ./dist
-    rm -rf ./declarations
-    echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Declaration files built"
-
-    # Copy fonts
-    printf "\033[32m ● \033[0m Copying static assets (fonts)"
-    cp -f -R css/fonts dist/
-    echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Static assest copied"
-
-    # Build CSS
-    printf "\033[32m ● \033[0m Building static CSS"
-    npx lessc css/mathlive-static.less dist/mathlive-static.css
-    npx lessc css/mathlive-fonts.less dist/mathlive-fonts.css
-    echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Static CSS built"
-
-    if [ "$BUILD" = "watch" ]; then
-        # Do dev build and watch
-        printf "\033[32m ● \033[0m Making a \033[33mdevelopment\033[0m build"
-        npx rollup --silent --config --watch
-        echo -e "\033[2K\033[80D\033[32m ✔ \033[33mdevelopment\033[0m build done"
-    else
-        # Do build (development or production)
-        printf "\033[32m ● \033[0m Making a \033[33m" $BUILD "\033[0m build"
-        npx rollup --silent --config 
-        echo -e "\033[2K\033[80D\033[32m ✔ \033[33m" $BUILD "\033[0m build done"
-
-        if [ "$BUILD" = "production" ]; then
-            # Optimize CSS
-            printf "\033[32m ● \033[0m Optimizing CSS"
-            npx postcss dist/*.css -d dist
-            echo -e "\033[2K\033[80D\033[32m ✔ \033[0m CSS Optimized"
-
-            # Stamp the SDK version number
-            printf "\033[32m ● \033[0m Stamping output files"
-            find ./dist -type f -name '*.css' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\//" {}' \;
-            find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec bash -c 'sedi s/{{SDK_VERSION}}/$SDK_VERSION/g {}' \;
-            find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\/$(printf '"'"'\r'"'"')/" {}' \;
-            find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "s/{{SDK_VERSION}}/$SDK_VERSION/" {}' \;
-            echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Output files stamped"
-
-            # Linting
-            # echo -e "\033[40m`basename "$0"`\033[0m 🚀 Linting"
-            # npm run lint
-
-            # Run test suite
-            printf "\033[32m ● \033[0m Running test suite"
-            npx jest test/math.test --silent --reporters jest-silent-reporter
-            echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Test suite complete"
-        fi
-    fi
-
-else
-    echo -e "\033[40m`basename "$0"`\033[0m\033[31m ERROR \033[0m Expected: 'development' (default), 'watch' or 'production'"
-    exit 1
+if [ "$BUILD" != "production" ]; then
+    # Write sentinel file. It will be checked in the pre-push.sh script
+    # to prevent commiting a dev build to the repo.
+    touch dist/DEVELOPMENT-BUILD
 fi
+
+# Bundle declaration files (.d.ts)
+# Even though we only generate declaration file, the target must be set high-enough
+# to prevent tsc from complaining (!)
+printf "\033[32m ● \033[0m Building declaration files (.d.ts)"
+npx tsc --target "es2020" -d --moduleResolution "node" --emitDeclarationOnly --outDir ./declarations ./src/public/mathlive.ts 
+mv ./declarations/public ./dist
+# mv ./declarations/math-json/ ./dist
+rm -rf ./declarations
+echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Declaration files built"
+
+# Copy fonts
+printf "\033[32m ● \033[0m Copying static assets (fonts)"
+cp -f -R css/fonts dist/
+echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Static assest copied"
+
+# Build CSS
+printf "\033[32m ● \033[0m Building static CSS"
+npx lessc css/mathlive-static.less dist/mathlive-static.css
+npx lessc css/mathlive-fonts.less dist/mathlive-fonts.css
+echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Static CSS built"
+
+if [ "$BUILD" = "watch" ]; then
+    # Do dev build and watch
+    printf "\033[32m ● \033[0m Making a \033[33mdevelopment\033[0m build"
+    npx rollup --silent --config --watch
+    echo -e "\033[2K\033[80D\033[32m ✔ \033[33mdevelopment\033[0m build done"
+else
+    # Do build (development or production)
+    printf "\033[32m ● \033[0m Making a \033[33m%s\033[0m build" "$BUILD"
+    npx rollup --silent --config 
+    echo -e "\033[2K\033[80D\033[32m ✔ \033[33m" $BUILD "\033[0m build done"
+
+    if [ "$BUILD" = "production" ]; then
+        # Optimize CSS
+        printf "\033[32m ● \033[0m Optimizing CSS"
+        npx postcss dist/*.css -d dist
+        echo -e "\033[2K\033[80D\033[32m ✔ \033[0m CSS Optimized"
+
+        # Stamp the SDK version number
+        printf "\033[32m ● \033[0m Stamping output files"
+        find ./dist -type f -name '*.css' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\//" {}' \;
+        find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec bash -c 'sedi s/{{SDK_VERSION}}/$SDK_VERSION/g {}' \;
+        find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\/$(printf '"'"'\r'"'"')/" {}' \;
+        find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "s/{{SDK_VERSION}}/$SDK_VERSION/" {}' \;
+        echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Output files stamped"
+
+        # Linting
+        # echo -e "\033[40m`basename "$0"`\033[0m 🚀 Linting"
+        # npm run lint
+
+        # Run test suite
+        printf "\033[32m ● \033[0m Running test suite"
+        npx jest test/math.test --silent --reporters jest-silent-reporter
+        echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Test suite complete"
+    fi
+fi
+

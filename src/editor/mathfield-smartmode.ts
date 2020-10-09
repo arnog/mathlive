@@ -1,6 +1,6 @@
 import { eventToChar } from './keyboard';
-import { selectionIsCollapsed, setSelection } from './model-selection';
-import { contentDidChange, contentWillChange } from './model-listeners';
+import { selectionIsCollapsed, setSelectionOffset } from './model-selection';
+import { contentDidChange } from './model-listeners';
 import type { MathfieldPrivate } from './mathfield-class';
 import { mightProducePrintableCharacter } from './keyboard';
 
@@ -24,7 +24,6 @@ function convertLastAtomsToText(
     }
     let i = 0;
     let done = false;
-    contentWillChange(mathfield.model);
     while (!done) {
         const atom = mathfield.model.sibling(i);
         done =
@@ -66,7 +65,6 @@ function convertLastAtomsToMath(
     if (typeof count === 'undefined') {
         count = Infinity;
     }
-    contentWillChange(mathfield.model);
     let i = 0;
     let done = false;
     while (!done) {
@@ -109,7 +107,6 @@ export function removeIsolatedSpace(mathfield: MathfieldPrivate): void {
         (!mathfield.model.sibling(i - 1) ||
             mathfield.model.sibling(i - 1).mode === 'math')
     ) {
-        contentWillChange(mathfield.model);
         mathfield.model.siblings().splice(i - 1, 1);
         contentDidChange(mathfield.model);
         // We need to adjust the selection after doing some surgery on the atoms list
@@ -117,7 +114,7 @@ export function removeIsolatedSpace(mathfield: MathfieldPrivate): void {
         // which could have a side effect of changing the mode :(
         const save = mathfield.model.suppressChangeNotifications;
         mathfield.model.suppressChangeNotifications = true;
-        setSelection(mathfield.model, mathfield.model.anchorOffset() - 1);
+        setSelectionOffset(mathfield.model, mathfield.model.anchorOffset() - 1);
         mathfield.model.suppressChangeNotifications = save;
     }
 }

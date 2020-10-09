@@ -80,7 +80,9 @@ function buildProgress() {
             ) {
                 process.stdout.clearLine();
                 process.stdout.cursorTo(0);
-                process.stdout.write(chalk.green(' ●') + '  Building ' + chalk.grey(file));
+                process.stdout.write(
+                    chalk.green(' ●') + '  Building ' + chalk.grey(file)
+                );
             } else {
                 console.log(chalk.grey(file));
             }
@@ -162,7 +164,11 @@ const ROLLUP = [
                 plugins: [],
                 minimize: PRODUCTION,
             }),
-            resolve(),
+            resolve({
+                customResolveOptions: {
+                    moduleDirectory: 'submodules/math-json/src',
+                },
+            }),
             typescript(TYPESCRIPT_OPTIONS),
         ],
         output: true
@@ -199,19 +205,19 @@ const ROLLUP = [
     },
 ];
 
-if (PRODUCTION) {
-    // MathLive Vue-js adapter
-    ROLLUP.push({
-        input: 'src/vue-mathlive.js',
-        plugins: [terser(TERSER_OPTIONS)],
-        output: {
-            // JavaScript native module
-            sourcemap: false,
-            file: 'dist/vue-mathlive.mjs',
-            format: 'es',
-        },
-    });
+// MathLive Vue-js adapter
+ROLLUP.push({
+    input: 'src/vue-mathlive.js',
+    plugins: [terser(TERSER_OPTIONS)],
+    output: {
+        // JavaScript native module
+        sourcemap: false,
+        file: 'dist/vue-mathlive.mjs',
+        format: 'es',
+    },
+});
 
+if (PRODUCTION) {
     // Minified versions
     ROLLUP.push({
         onwarn(warning, warn) {

@@ -60,7 +60,8 @@ export function arrayColRow(
  */
 export function arrayCell(
     array: Atom[][][],
-    colrow: string | number | { col: number; row: number }
+    colrow: string | number | { col: number; row: number },
+    addMisingFirstAtom = true
 ): Atom[] {
     if (typeof colrow !== 'object') colrow = arrayColRow(array, colrow);
     let result: Atom[];
@@ -68,7 +69,11 @@ export function arrayCell(
         result = array[colrow.row][colrow.col] ?? null;
     }
     // If the 'first' math atom is missing, insert it
-    if (result && (result.length === 0 || result[0].type !== 'first')) {
+    if (
+        addMisingFirstAtom &&
+        result &&
+        (result.length === 0 || result[0].type !== 'first')
+    ) {
         result.unshift(new Atom('math', 'first'));
     }
     return result;

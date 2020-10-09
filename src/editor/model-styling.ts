@@ -1,6 +1,6 @@
 import { Atom, isAtomArray } from '../core/atom';
 import type { ModelPrivate } from './model-class';
-import { contentDidChange, contentWillChange } from './model-listeners';
+import { contentDidChange } from './model-listeners';
 import { selectionIsCollapsed, forEachSelected } from './model-selection';
 
 import { Style, FontSeries, FontShape } from '../public/core';
@@ -98,7 +98,6 @@ export function applyStyle(
         style.fontSize = 'size5';
     }
 
-    contentWillChange(model);
     forEachSelected(model, (x) => x.applyStyle(style), { recursive: true });
     contentDidChange(model);
 

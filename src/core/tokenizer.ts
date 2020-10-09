@@ -319,3 +319,43 @@ export function tokenize(s: string, args: string[]): Token[] {
 
     return result;
 }
+
+export function joinLatex(segments: string[]): string {
+    let sep = '';
+    let result = '';
+    for (const segment of segments) {
+        if (segment) {
+            if (/[a-zA-Z*]/.test(segment[0])) {
+                // If the segment begins with a char that *could* be in a command
+                // name... insert a separator (if one was needed for the previous segment)
+                result += sep;
+            }
+            // If the segment ends in a command...
+            if (/\\[a-zA-Z]+\*?$/.test(segment)) {
+                // ... potentially add a space before the next segment
+                sep = ' ';
+            } else {
+                sep = '';
+            }
+            result += segment;
+        }
+    }
+    return result;
+}
+
+export function tokensToString(tokens: Token[]): string {
+    const result = joinLatex(
+        tokens.map((token) => {
+            return (
+                {
+                    '<space>': ' ',
+                    '<$$>': '$$',
+                    '<$>': '$',
+                    '<{>': '{',
+                    '<}>': '}',
+                }[token] ?? token
+            );
+        })
+    );
+    return result;
+}

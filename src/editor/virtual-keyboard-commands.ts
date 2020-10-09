@@ -87,7 +87,7 @@ registerCommand(
                 markup += '</li>';
             }
             markup = '<ul>' + markup + '</ul>';
-            altContainer.innerHTML = mathfield.config.createHTML(markup);
+            altContainer.innerHTML = mathfield.options.createHTML(markup);
             makeKeycap(
                 mathfield,
                 [].slice.call(altContainer.getElementsByTagName('li')),
@@ -139,7 +139,7 @@ export function switchKeyboardLayer(
     mathfield: MathfieldPrivate,
     layer: string
 ): boolean {
-    if (mathfield.config.virtualKeyboardMode !== 'off') {
+    if (mathfield.options.virtualKeyboardMode !== 'off') {
         if (
             layer !== 'lower-command' &&
             layer !== 'upper-command' &&
@@ -176,7 +176,7 @@ export function switchKeyboardLayer(
                 }
             }
         }
-        mathfield.$focus();
+        mathfield.focus();
     }
     return true;
 }
@@ -203,11 +203,11 @@ registerCommand(
                         if (!shiftedContent) {
                             shiftedContent = keycap.innerHTML.toUpperCase();
                         }
-                        keycap.innerHTML = mathfield.config.createHTML(
+                        keycap.innerHTML = mathfield.options.createHTML(
                             shiftedContent
                         );
                         const command = keycap.getAttribute(
-                            'data-' + mathfield.config.namespace + 'command'
+                            'data-' + mathfield.options.namespace + 'command'
                         );
                         if (command) {
                             keycap.setAttribute(
@@ -220,7 +220,7 @@ registerCommand(
                             if (shifteCommand) {
                                 keycap.setAttribute(
                                     'data-' +
-                                        mathfield.config.namespace +
+                                        mathfield.options.namespace +
                                         'command',
                                     shifteCommand
                                 );
@@ -231,7 +231,7 @@ registerCommand(
                                 }
                                 keycap.setAttribute(
                                     'data-' +
-                                        mathfield.config.namespace +
+                                        mathfield.options.namespace +
                                         'command',
                                     JSON.stringify(commandObj)
                                 );
@@ -258,7 +258,7 @@ registerCommand(
          */
         performAlternateKeys: (mathfield: MathfieldPrivate, command) => {
             hideAlternateKeys(mathfield);
-            return mathfield.$perform(command);
+            return mathfield.executeCommand(command);
         },
         switchKeyboardLayer: (mathfield: MathfieldPrivate, layer) =>
             switchKeyboardLayer(mathfield, layer),
@@ -266,7 +266,7 @@ registerCommand(
             unshiftKeyboardLayer(mathfield),
 
         insertAndUnshiftKeyboardLayer: (mathfield: MathfieldPrivate, c) => {
-            mathfield.$insert(c);
+            mathfield.insert(c);
             unshiftKeyboardLayer(mathfield);
             return true;
         },
@@ -292,14 +292,14 @@ registerCommand(
         },
         /** Toggle the virtual keyboard, but switch another keyboard layout */
         toggleVirtualKeyboardShift: (mathfield: MathfieldPrivate) => {
-            mathfield.config.virtualKeyboardLayout = {
+            mathfield.options.virtualKeyboardLayout = {
                 qwerty: 'azerty',
 
                 azerty: 'qwertz',
                 qwertz: 'dvorak',
                 dvorak: 'colemak',
                 colemak: 'qwerty',
-            }[mathfield.config.virtualKeyboardLayout];
+            }[mathfield.options.virtualKeyboardLayout];
             const layer =
                 mathfield.virtualKeyboard?.querySelector(
                     'div.keyboard-layer.is-visible'
@@ -340,7 +340,7 @@ function toggleVirtualKeyboard(
 ): boolean {
     mathfield.virtualKeyboardVisible = !mathfield.virtualKeyboardVisible;
     if (mathfield.virtualKeyboardVisible) {
-        mathfield.$focus();
+        mathfield.focus();
         if (mathfield.virtualKeyboard) {
             mathfield.virtualKeyboard.classList.add('is-visible');
         } else {
@@ -351,7 +351,7 @@ function toggleVirtualKeyboard(
                 mathfield.virtualKeyboard,
                 'touchstart:passive mousedown',
                 () => {
-                    mathfield.$focus();
+                    mathfield.focus();
                 }
             );
             document.body.appendChild(mathfield.virtualKeyboard);
@@ -364,8 +364,8 @@ function toggleVirtualKeyboard(
     } else if (mathfield.virtualKeyboard) {
         mathfield.virtualKeyboard.classList.remove('is-visible');
     }
-    if (typeof mathfield.config.onVirtualKeyboardToggle === 'function') {
-        mathfield.config.onVirtualKeyboardToggle(
+    if (typeof mathfield.options.onVirtualKeyboardToggle === 'function') {
+        mathfield.options.onVirtualKeyboardToggle(
             mathfield,
             mathfield.virtualKeyboardVisible,
             mathfield.virtualKeyboard

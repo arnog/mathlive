@@ -12,7 +12,7 @@ import {
     spliceCommandStringAroundInsertionPoint,
 } from './model-command-mode';
 import { removeSuggestion } from './model-utils';
-import { positionInsertionPointAfterCommitedCommand } from './model-selection';
+import { setPositionAfterCommitedCommand } from './model-selection';
 import type { MathfieldPrivate } from './mathfield-class';
 import { requestUpdate } from './mathfield-render';
 
@@ -82,7 +82,7 @@ export function complete(
                 command,
                 'math',
                 null,
-                mathfield.config.macros
+                mathfield.options.macros
             );
             if (mathlist) {
                 spliceCommandStringAroundInsertionPoint(
@@ -104,7 +104,7 @@ export function complete(
 }
 
 function updateSuggestion(mathfield: MathfieldPrivate): boolean {
-    positionInsertionPointAfterCommitedCommand(mathfield.model);
+    setPositionAfterCommitedCommand(mathfield.model);
     removeSuggestion(mathfield.model);
     const command = extractCommandStringAroundInsertionPoint(mathfield.model);
     const suggestions = suggest(command);

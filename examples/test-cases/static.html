@@ -34,8 +34,14 @@
     </main>
 
     <script type="module">
-        import MathLive from '/dist/mathlive.mjs';
-        import { mathjsonToLatex, latexToMathjson } from '/dist/mathlive.mjs';
+        import {
+            makeMathField,
+            renderMathInDocument,
+            renderMathInElement,
+        } from '/dist/mathlive.mjs';
+
+        import { emitLatex, parseLatex } from '../dist/math-json.js';
+
 
         // prettier-ignore
         const TESTING_SAMPLES = [
@@ -1169,38 +1175,38 @@
                 latex: `\\sum ^{\\infty }_{n=2}2^{-n}`,
             },
         ];
-        const mf = MathLive.makeMathField('mf', {
+        const mf = makeMathField('mf', {
             // fontsDirectory: '/dist/fonts/',
             // letterShapeStyle: 'french', // 'french', 'upright', 'tex'
             smartFence: true,
             smartMode: true,
             virtualKeyboardMode: 'manual',
             onContentDidChange: (mf) => {
-                const latex = mf.$text('latex-expanded');
+                const latex = mf.getValue('latex-expanded');
                 try {
                     let errors = [];
-                    let expr = latexToMathjson(latex, {
+                    let expr = parseLatex(latex, {
                         form: 'canonical',
                         onError: (err) =>
                             errors.push('parse: ' + err.code + (err.arg ? ' ' + err.arg : '')),
                     });
-                    let jsonLatex = mathjsonToLatex(expr, {
+                    let jsonLatex = emitLatex(expr, {
                         precision: 100, onError: (err) =>
                             errors.push('emit: ' + err.code + (err.arg ? ' ' + err.arg : '')),
                     });
                     errors = [];
-                    expr = latexToMathjson(latex, {
+                    expr = parseLatex(latex, {
                         form: 'full',
                         preserveLatex: true,
                         onError: (err) =>
                             errors.push('parse: ' + err.code + (err.arg ? ' ' + err.arg : '')),
                     });
-                    jsonLatex = mathjsonToLatex(expr, {
+                    jsonLatex = emitLatex(expr, {
                         precision: 100, onError: (err) =>
                             errors.push('emit: ' + err.code + (err.arg ? ' ' + err.arg : '')),
                     });
                     errors = [];
-                    expr = latexToMathjson(latex, {
+                    expr = parseLatex(latex, {
                         form: 'full',
                         invisibleOperator: '',
                         superscriptOperator: '',
@@ -1216,10 +1222,10 @@
                         onError: (err) =>
                             errors.push(err.code + (err.arg ? ' ' + err.arg : '')),
                     });
-                    const mathAscci = mf.$text('ASCIIMath');
-                } catch(e) {
-                    console.error("Error converting %c " + latex + '%c ' + 
-                        e.toString(), 'color: red;  background: hsla(0, 60%, 90%)',  'background: transparent');
+                    const mathAscci = mf.getValue('ASCIIMath');
+                } catch (e) {
+                    console.error("Error converting %c " + latex + '%c ' +
+                        e.toString(), 'color: red;  background: hsla(0, 60%, 90%)', 'background: transparent');
                 }
             },
             onError: (err) => {
@@ -1229,7 +1235,7 @@
                 );
             },
         });
-        mf.$setConfig({
+        mf.setOptions({
             macros: {
                 ...mf.getConfig('macros'),
                 myMacro: '\\operatorname{\\text{#1}}',
@@ -1238,14 +1244,14 @@
             //     console.log('undo state changed');
             // },
         });
-        MathLive.renderMathInDocument({
+        renderMathInDocument({
             onError: (err) => {
                 console.error(err.latex, err.code + ' ' + (err.arg ?? ''));
             },
         });
         if (true) {
             let error = [];
-            mf.$setConfig({
+            mf.setOptions({
                 onError: (err) =>
                     error.push(
                         'At "' +
@@ -1262,16 +1268,14 @@
                 'examples'
             ).innerHTML = TESTING_SAMPLES.map((x) => {
                 let result =
-                    `<h2>${x.title}</h2><p>${
-                    x.comment || ''
+                    `<h2>${x.title}</h2><p>${x.comment || ''
                     }</p><code>${escapeHtml(
                         x.latex
-                    )}</code><p class="formula"><script type='math/tex'>${
-                    x.latex
+                    )}</code><p class="formula"><script type='math/tex'>${x.latex
                     }</` + 'script></p>';
                 error = [];
                 if (mf) {
-                    mf.$latex(x.latex);
+                    mf.setValue(x.latex);
                     if (error.length > 0) {
                         result +=
                             '<p><code style="color: red">Parsing Errors:</code>';
@@ -1282,11 +1286,11 @@
                     }
                     result +=
                         '<p><code style="color: #0066ce">' +
-                        escapeHtml(mf.$text('latex-expanded')) +
+                        escapeHtml(mf.getValue('latex-expanded')) +
                         '</code></p>';
                     /* result +=
                                     '<p><code style="color: #0066ce">' +
-                                    escapeHtml(mf.$text('json-2')) +
+                                    escapeHtml(mf.getValue('json-2')) +
                                     '</code></p>'; */
                 }
                 if (x.pic) {
@@ -1294,7 +1298,7 @@
                 }
                 return result;
             }).join('');
-            MathLive.renderMathInElement('examples', {
+            renderMathInElement('examples', {
                 processClass: 'formula',
             });
         }

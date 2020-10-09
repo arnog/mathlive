@@ -20,12 +20,11 @@
 
 import { Mathfield } from './mathfield';
 import { MathfieldElement } from './mathfield-element';
-import { MathfieldConfig, TextToSpeechOptions } from './config';
+import { MathfieldOptions, TextToSpeechOptions } from './options';
 import { MacroDictionary, ErrorListener, ParserErrorCode } from './core';
-import { ErrorCode as MathJsonErrorCode } from '../math-json/public';
 
 export { Mathfield };
-export { MathfieldConfig };
+export { MathfieldOptions as MathfieldConfig };
 export { MathfieldElement };
 
 /**
@@ -40,6 +39,32 @@ export { MathfieldElement };
  * * **`PATCH`** is incremented for bug fixes
  */
 export declare const version: string;
+
+/**
+ * Convert a DOM element into an editable mathfield.
+ *
+ * The `mathfield` property of the DOM element is a reference to the corresponding
+ * `Mathfield` object. This value is also returned by `makeMathField()`.
+ *
+ * @param element A DOM element, for example as obtained
+ * by `document.getElementById()`, or the ID of a DOM element as a string.
+ *
+ *
+ * Given the HTML markup:
+ * ```html
+ * <span id='equation'>$f(x)=sin(x)$</span>
+ * ```
+ * The following code will turn the span into an editable mathfield.
+ * ```javascript
+ * import { makeMathField } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+ * makeMathField('equation');
+ * ```
+ * @keywords create, make, mathfield
+ */
+export declare function makeMathField(
+    element: HTMLElement | string,
+    config: MathfieldOptions
+): Mathfield;
 
 /**
  * Convert a LaTeX string to a string of HTML markup.
@@ -63,9 +88,9 @@ export declare const version: string;
  * @category Converting
  * @keywords convert, latex, markup
  */
-export declare function latexToMarkup(
+export declare function convertLatexToMarkup(
     text: string,
-    options: {
+    options?: {
         mathstyle?: 'displaystyle' | 'textstyle';
         letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
         macros?: MacroDictionary;
@@ -74,30 +99,17 @@ export declare function latexToMarkup(
 ): string;
 
 /**
- * Convert a DOM element into an editable mathfield.
- *
- * The `mathfield` property of the DOM element is a reference to the corresponding
- * `Mathfield` object. This value is also returned by `makeMathField()`.
- *
- * @param element A DOM element, for example as obtained
- * by `document.getElementById()`, or the ID of a DOM element as a string.
- *
- *
- * Given the HTML markup:
- * ```html
- * <span id='equation'>$f(x)=sin(x)$</span>
- * ```
- * The following code will turn the span into an editable mathfield.
- * ```javascript
- * import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
- * MathLive.makeMathField('equation');
- * ```
- * @keywords create, make, mathfield
+ * * @deprecated Use {@See convertLatexToMarkup }
  */
-export declare function makeMathField(
-    element: HTMLElement | string,
-    config: MathfieldConfig
-): Mathfield;
+export declare function latexToMarkup(
+    text: string,
+    options?: {
+        mathstyle?: 'displaystyle' | 'textstyle';
+        letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
+        macros?: MacroDictionary;
+        onError?: ErrorListener<ParserErrorCode>;
+    }
+): string;
 
 /**
  * Convert a LaTeX string to a string of MathML markup.
@@ -110,9 +122,21 @@ export declare function makeMathField(
  * @param options.onError Callback invoked when an error is encountered while
  * parsing the input string.
  */
+export declare function convertLatexToMathMl(
+    latex: string,
+    options?: {
+        macros?: MacroDictionary;
+        generateID: boolean;
+        onError?: ErrorListener<ParserErrorCode>;
+    }
+): string;
+
+/**
+ * @deprecated Use {@See convertLatexToMathMl }
+ */
 export declare function latexToMathML(
     latex: string,
-    options: {
+    options?: {
         macros?: MacroDictionary;
         generateID: boolean;
         onError?: ErrorListener<ParserErrorCode>;
@@ -133,12 +157,13 @@ export declare function latexToMathML(
  * @return  The Abstract Syntax Tree as an object literal using the MathJSON format.
  * @category Converting
  * @keywords convert, latex, mathjson, ast
+ * @deprecated Use MathJSON
  */
 export declare function latexToAST(
     latex: string,
     options?: {
         macros?: MacroDictionary;
-        onError?: ErrorListener<ParserErrorCode | MathJsonErrorCode>;
+        onError?: ErrorListener<ParserErrorCode | string>;
     }
 );
 
@@ -150,6 +175,7 @@ export declare function latexToAST(
  * @return The LaTeX representation of the Abstract Syntax Tree, if valid.
  * @category Converting
  * @keywords convert, latex, mathjson, ast
+ * @deprecated Use MathJSON
  */
 export declare function astToLatex(
     mathJson: any,
@@ -187,10 +213,21 @@ export declare function astToLatex(
  *
  * @return The spoken representation of the input LaTeX.
  * @example
- * console.log(MathLive.latexToSpeakableText('\\frac{1}{2}'));
+ * console.log(MathLive.convertLatexToSpeakableText('\\frac{1}{2}'));
  * // 'half'
  * @category Converting
  * @keywords convert, latex, speech, speakable, text, speakable text
+ */
+export declare function convertLatexToSpeakableText(
+    latex: string,
+    options: TextToSpeechOptions & {
+        macros?: MacroDictionary;
+        onError?: ErrorListener<ParserErrorCode>;
+    }
+): string;
+
+/**
+ * @deprecated Use {@See convertLatexToSpeakableText }
  */
 export declare function latexToSpeakableText(
     latex: string,
@@ -199,6 +236,7 @@ export declare function latexToSpeakableText(
         onError?: ErrorListener<ParserErrorCode>;
     }
 ): string;
+
 export type AutoRenderOptions = {
     /** Namespace that is added to `data-`  attributes to avoid collisions with other libraries.
      *
@@ -311,8 +349,8 @@ export type AutoRenderOptions = {
      * ```javascript
      *      elem.innerHTML = elem.dataset.originalContent;
      * ```
+     * @deprecatd
      *
-     * **Default**: `'mathml'`
      */
     preserveOriginalContent?: boolean;
 
@@ -391,6 +429,7 @@ export declare function renderMathInElement(
  *
  * @category Rendering
  * @keywords revert, original, content
+ * @deprecated
  */
 
 export declare function revertToOriginalContent(
@@ -427,6 +466,7 @@ export declare function revertToOriginalContent(
  *
  * @category Rendering
  * @keywords original, content
+ * @deprecated
  */
 export declare function getOriginalContent(
     element: string | HTMLElement,

@@ -1,89 +1,85 @@
 <!DOCTYPE html>
 <html lang="en-US">
-    <head>
-        <meta charset="utf-8" />
-        <title>MathLive Four Operation Calculator</title>
 
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="stylesheet" href="../style.css" />
-    </head>
-    <body>
-        <header>
-            <h1>MathLive Four Function Calculator</h1>
-        </header>
-        <main>
-            Press the Virtual Keyboard icon to show some custom virtual
-            keyboards.
-            <div class="mathfield" id="mf"></div>
-            <div class="output" id="result"></div>
-            <div class="output" id="output"></div>
-        </main>
+<head>
+    <meta charset="utf-8" />
+    <title>MathLive Four Operation Calculator</title>
 
-        <footer>
-            <a href="../"
-                >More examples&nbsp;<svg class="fa-w-24" height="24px">
-                    <use xlink:href="../icons.svg#angle-right" /></svg
-            ></a>
-            <a href="/"
-                >Return to the homepage&nbsp;<svg class="fa-w-24" height="24px">
-                    <use xlink:href="../icons.svg#angle-right" /></svg
-            ></a>
-        </footer>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="../style.css" />
+</head>
 
-        <!-- <script src="/dist/src/mathlive.js"></script> -->
-        <script type="module">
-            import MathLive from '/dist/mathlive.mjs';
-            // import MathLive from '/src/mathlive.js';
-            (function () {
-                const mf = MathLive.makeMathField('mf', {
-                    smartMode: true,
-                    virtualKeyboardMode: 'manual',
-                    customVirtualKeyboardLayers: {
-                        'layer-name': {
-                            styles: '',
-                            rows: [
-                                [
-                                    {
-                                        class: 'keycap',
-                                        latex: '\\frac{x}{y}',
-                                    },
-                                ],
-                            ],
-                        },
-                    },
-                    customVirtualKeyboards: {
-                        'keyboard-name': {
-                            label: 'Json',
-                            tooltip: 'Json keyboard',
-                            layer: 'layer-name',
-                        },
-                    },
-                    virtualKeyboards: 'keyboard-name',
+<body>
+    <header>
+        <h1>MathLive Four Function Calculator</h1>
+    </header>
+    <main>
+        Press the Virtual Keyboard icon to show some custom virtual
+        keyboards.
+        <div class="mathfield" id="mf"></div>
+        <div class="output" id="result"></div>
+        <div class="output" id="output"></div>
+    </main>
 
-                    onContentDidChange: (mf) => {
-                        const latex = mf.$text();
-                        document.getElementById('latex').innerHTML = escapeHtml(
-                            latex
-                        );
+    <footer>
+        <a href="../">More examples&nbsp;<svg class="fa-w-24" height="24px">
+                <use xlink:href="../icons.svg#angle-right" /></svg></a>
+        <a href="/">Return to the homepage&nbsp;<svg class="fa-w-24" height="24px">
+                <use xlink:href="../icons.svg#angle-right" /></svg></a>
+    </footer>
 
-                        //   const mathJSON = MathLive.latexToAST(latex);
-                        //   document.getElementById('mathjson').innerHTML = escapeHtml(
-                        //       JSON.stringify(mathJSON)
-                        //  );
-                    },
-                });
+    <!-- <script src="/dist/src/mathlive.js"></script> -->
+    <script type="module">
+        import { makeMathField } from '/dist/mathlive.mjs';
+        const mf = makeMathField('mf', {
+            smartMode: true,
+            virtualKeyboardMode: 'manual',
+            customVirtualKeyboardLayers: {
+                'layer-name': {
+                    styles: '',
+                    rows: [
+                        [
+                            {
+                                class: 'keycap',
+                                latex: '\\frac{x}{y}',
+                            },
+                        ],
+                    ],
+                },
+            },
+            customVirtualKeyboards: {
+                'keyboard-name': {
+                    label: 'Json',
+                    tooltip: 'Json keyboard',
+                    layer: 'layer-name',
+                },
+            },
+            virtualKeyboards: 'keyboard-name',
 
-                function updateOutput(mathfield) {
-                    const ast = MathLive.latexToAST(mathfield.$text());
-                    const result = evaluate(ast);
-                    document.getElementById('result').innerHTML =
-                        typeof result !== 'undefined' ? result.toString() : '';
+            onContentDidChange: (mf) => {
+                const latex = mf.getValue();
+                document.getElementById('latex').innerHTML = escapeHtml(
+                    latex
+                );
 
-                    document.getElementById('output').innerHTML = escapeHtml(
-                        JSON.stringify(ast)
-                    );
-                }
-            })();
-        </script>
-    </body>
+                //   const mathJSON = MathLive.latexToAST(latex);
+                //   document.getElementById('mathjson').innerHTML = escapeHtml(
+                //       JSON.stringify(mathJSON)
+                //  );
+            },
+        });
+
+        function updateOutput(mathfield) {
+            const ast = MathLive.latexToAST(mathfield.getValue());
+            const result = evaluate(ast);
+            document.getElementById('result').innerHTML =
+                typeof result !== 'undefined' ? result.toString() : '';
+
+            document.getElementById('output').innerHTML = escapeHtml(
+                JSON.stringify(ast)
+            );
+        }
+    </script>
+</body>
+
 </html>

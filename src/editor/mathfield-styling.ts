@@ -20,14 +20,14 @@ export function applyStyle(
             const previousMode = mathfield.mode;
             const targetMode =
                 (getAnchorMode(mathfield.model) ||
-                    mathfield.config.defaultMode) === 'math'
+                    mathfield.options.defaultMode) === 'math'
                     ? 'text'
                     : 'math';
             let convertedSelection = mathfield.$selectedText('ASCIIMath');
             if (targetMode === 'math' && /^"[^"]+"$/.test(convertedSelection)) {
                 convertedSelection = convertedSelection.slice(1, -1);
             }
-            mathfield.$insert(convertedSelection, {
+            mathfield.insert(convertedSelection, {
                 mode: targetMode,
                 selectionMode: 'item',
                 format: targetMode === 'text' ? 'text' : 'ASCIIMath',
@@ -47,9 +47,9 @@ export function applyStyle(
             // Notify of mode change
             if (
                 mathfield.mode !== previousMode &&
-                typeof mathfield.config.onModeChange === 'function'
+                typeof mathfield.options.onModeChange === 'function'
             ) {
-                mathfield.config.onModeChange(mathfield, mathfield.mode);
+                mathfield.options.onModeChange(mathfield, mathfield.mode);
             }
         }
         delete style.mode;

@@ -1,7 +1,7 @@
 import type { ModelPrivate } from './model';
 import { insert } from './model-insert';
-import { setPath } from './model-selection';
-import { UndoStateChangeListener } from '../public/config';
+import { setPath } from './model-selection-utils';
+import { UndoStateChangeListener } from '../public/options';
 
 export type UndoRecord = {
     latex: string;

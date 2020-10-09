@@ -1,5 +1,5 @@
 import type { Mathfield } from './public/mathfield';
-import type { MathfieldConfig, TextToSpeechOptions } from './public/config';
+import type { MathfieldOptions, TextToSpeechOptions } from './public/options';
 import type {
     ErrorListener,
     ParserErrorCode,
@@ -33,16 +33,35 @@ import { atomsToMathML } from './addons/math-ml';
 
 import './addons/definitions-metadata';
 import { AutoRenderOptionsPrivate } from './addons/auto-render';
-import { ErrorCode as MathJsonErrorCode } from './math-json/public';
-import { ErrorCode, Form, Expression, Dictionary } from './math-json/public';
-import { parseLatex, emitLatex } from './math-json/math-json';
-import { ParseLatexOptions, EmitLatexOptions } from './math-json/latex/public';
 
 export { MathfieldElement } from './public/mathfield-element';
 
+export function makeMathField(
+    element: HTMLElement,
+    options: Partial<MathfieldOptions> = {}
+): Mathfield {
+    options.speakHook = options.speakHook ?? defaultSpeakHook;
+    options.readAloudHook = options.readAloudHook ?? defaultReadAloudHook;
+    return new MathfieldPrivate(getElement(element), options);
+}
+
+/** @deprecated */
 function latexToMarkup(
     text: string,
-    options: {
+    options?: {
+        mathstyle?: 'displaystyle' | 'textstyle';
+        letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
+        macros?: MacroDictionary;
+        onError?: ErrorListener<ParserErrorCode>;
+        format?: string;
+    }
+): string {
+    return convertLatexToMarkup(text, options);
+}
+
+export function convertLatexToMarkup(
+    text: string,
+    options?: {
         mathstyle?: 'displaystyle' | 'textstyle';
         letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
         macros?: MacroDictionary;
@@ -101,16 +120,7 @@ function latexToMarkup(
     return wrapper.toMarkup();
 }
 
-function makeMathField(
-    element: HTMLElement,
-    config: Partial<MathfieldConfig> = {}
-): Mathfield {
-    config.speakHook = config.speakHook ?? defaultSpeakHook;
-    config.readAloudHook = config.readAloudHook ?? defaultReadAloudHook;
-    return new MathfieldPrivate(getElement(element), config);
-}
-
-function latexToMathML(
+export function convertLatexToMathMl(
     latex: string,
     options: Partial<{
         macros: MacroDictionary;
@@ -125,11 +135,25 @@ function latexToMathML(
         options
     );
 }
+
+/** @deprecated */
+function latexToMathML(
+    latex: string,
+    options?: Partial<{
+        macros: MacroDictionary;
+        onError: ErrorListener<ParserErrorCode>;
+        generateID: boolean;
+    }>
+): string {
+    return convertLatexToMathMl(latex, options);
+}
+
+/** @deprecated Use MathJSON */
 function latexToAST(
     latex: string,
     options?: MathJsonLatexOptions & {
         macros?: MacroDictionary;
-        onError?: ErrorListener<ParserErrorCode | MathJsonErrorCode>;
+        onError?: ErrorListener<ParserErrorCode | string>;
     }
 ): MathJson {
     options = options ?? {};
@@ -150,6 +174,7 @@ function latexToAST(
     );
 }
 
+/** @deprecated Use MathJSON */
 function astToLatex(expr: MathJson, options: MathJsonLatexOptions): string {
     return jsonToLatex(
         typeof expr === 'string' ? JSON.parse(expr) : expr,
@@ -157,31 +182,8 @@ function astToLatex(expr: MathJson, options: MathJsonLatexOptions): string {
     );
     // return emitLatex(expr, options);
 }
-export function latexToMathjson(
-    latex: string,
-    options?: ParseLatexOptions & {
-        macros?: MacroDictionary;
-        onError?: ErrorListener<ErrorCode>;
-        form?: Form | Form[];
-    }
-): Expression {
-    options = options ?? {};
-    options.macros = { ...MACROS, ...(options.macros ?? {}) };
 
-    return parseLatex(latex, options);
-}
-
-export function mathjsonToLatex(
-    expr: Expression,
-    options: EmitLatexOptions & {
-        dictionary?: Dictionary;
-        onError?: ErrorListener<ErrorCode>;
-    }
-): string {
-    return emitLatex(expr, options);
-}
-
-function latexToSpeakableText(
+export function convertLatexToSpeakableText(
     latex: string,
     options: Partial<
         TextToSpeechOptions & {
@@ -207,6 +209,18 @@ function latexToSpeakableText(
         options as Required<TextToSpeechOptions>
     );
 }
+/** @deprecated */
+function latexToSpeakableText(
+    latex: string,
+    options?: Partial<
+        TextToSpeechOptions & {
+            macros?: MacroDictionary;
+            onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
+        }
+    >
+): string {
+    return convertLatexToSpeakableText(latex, options);
+}
 
 function renderMathInDocument(options: AutoRenderOptionsPrivate): void {
     renderMathInElement(document.body, options);
@@ -228,10 +242,10 @@ function renderMathInElement(
     options: AutoRenderOptionsPrivate
 ): void {
     options = options ?? {};
-    options.renderToMarkup = options.renderToMarkup ?? latexToMarkup;
-    options.renderToMathML = options.renderToMathML ?? latexToMathML;
+    options.renderToMarkup = options.renderToMarkup ?? convertLatexToMarkup;
+    options.renderToMathML = options.renderToMathML ?? convertLatexToMathMl;
     options.renderToSpeakableText =
-        options.renderToSpeakableText ?? latexToSpeakableText;
+        options.renderToSpeakableText ?? convertLatexToSpeakableText;
     options.macros = options.macros ?? MACROS;
     AutoRender.renderMathInElement(getElement(element), options);
 }
@@ -249,31 +263,35 @@ function validateNamespace(options): void {
     }
 }
 
+/** @deprecated */
 function revertToOriginalContent(
-    element: string | HTMLElement | MathfieldPrivate,
+    element: string | HTMLElement,
     options: AutoRenderOptionsPrivate
 ): void {
-    if (element instanceof MathfieldPrivate) {
-        element.$revertToOriginalContent();
-    } else {
-        // element is a pair: accessible span, math -- set it to the math part
-        element = getElement(element).children[1] as HTMLElement;
-        options = options ?? {};
-        validateNamespace(options);
-        const html = element.getAttribute(
-            'data-' + (options.namespace ?? '') + 'original-content'
-        );
-        element.innerHTML =
-            typeof options.createHTML === 'function'
-                ? options.createHTML(html)
-                : html;
-    }
+    deprecated('revertToOriginalContent');
+    //  if (element instanceof MathfieldPrivate) {
+    //      element.$revertToOriginalContent();
+    //    } else {
+    // element is a pair: accessible span, math -- set it to the math part
+    element = getElement(element).children[1] as HTMLElement;
+    options = options ?? {};
+    validateNamespace(options);
+    const html = element.getAttribute(
+        'data-' + (options.namespace ?? '') + 'original-content'
+    );
+    element.innerHTML =
+        typeof options.createHTML === 'function'
+            ? options.createHTML(html)
+            : html;
+    //  }
 }
 
+/** @deprecated */
 function getOriginalContent(
     element: string | HTMLElement,
     options: AutoRenderOptionsPrivate
 ): string {
+    deprecated('getOriginalContent');
     if (element instanceof MathfieldPrivate) {
         return element.originalContent;
     }
@@ -289,38 +307,135 @@ function getOriginalContent(
 // This SDK_VERSION variable will be replaced during the build process.
 const version = '{{SDK_VERSION}}';
 
+function deprecated(method: string) {
+    console.warn(`Function "${method}" is deprecated`);
+}
+export const debug = {
+    getStyle: MathLiveDebug.getStyle,
+    getType: MathLiveDebug.getType,
+    spanToString: MathLiveDebug.spanToString,
+    hasClass: MathLiveDebug.hasClass,
+    latexToAsciiMath: MathLiveDebug.latexToAsciiMath,
+    asciiMathToLatex: MathLiveDebug.asciiMathToLatex,
+    FUNCTIONS: MathLiveDebug.FUNCTIONS,
+    MATH_SYMBOLS: MathLiveDebug.MATH_SYMBOLS,
+    TEXT_SYMBOLS: MathLiveDebug.TEXT_SYMBOLS,
+    ENVIRONMENTS: MathLiveDebug.ENVIRONMENTS,
+    MACROS: MathLiveDebug.MACROS,
+    DEFAULT_KEYBINDINGS: MathLiveDebug.DEFAULT_KEYBINDINGS,
+    getKeybindingMarkup: MathLiveDebug.getKeybindingMarkup,
+};
+
 export default {
-    version,
-    latexToMarkup,
-    latexToMathML,
-    latexToSpeakableText,
-    latexToAST,
-    astToLatex,
-    makeMathField,
-    renderMathInDocument,
-    renderMathInElement,
-    revertToOriginalContent,
-    getOriginalContent,
+    version: (): string => {
+        deprecated('export default version');
+        return version;
+    },
+    latexToMarkup: (
+        text: string,
+        options?: {
+            mathstyle?: 'displaystyle' | 'textstyle';
+            letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
+            macros?: MacroDictionary;
+            onError?: ErrorListener<ParserErrorCode>;
+            format?: string;
+        }
+    ): string => {
+        deprecated('export default latexToMarkup');
+        return latexToMarkup(text, options);
+    },
+    latexToMathML: (
+        latex: string,
+        options?: Partial<{
+            macros: MacroDictionary;
+            onError: ErrorListener<ParserErrorCode>;
+            generateID: boolean;
+        }>
+    ): string => {
+        deprecated('export default latexToMathML');
+        return latexToMathML(latex, options);
+    },
+    latexToSpeakableText: (
+        latex: string,
+        options: Partial<
+            TextToSpeechOptions & {
+                macros?: MacroDictionary;
+                onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
+            }
+        >
+    ): string => {
+        deprecated('export default latexToSpeakableText');
+        return latexToSpeakableText(latex, options);
+    },
+    latexToAST: (
+        latex: string,
+        options?: MathJsonLatexOptions & {
+            macros?: MacroDictionary;
+            onError?: ErrorListener<ParserErrorCode | string>;
+        }
+    ): string => {
+        deprecated('export default latexToAST: use MathJSON');
+        return latexToAST(latex, options);
+    },
+    astToLatex: (expr: MathJson, options: MathJsonLatexOptions): string => {
+        deprecated('export default astToLatex: use MathJSON');
+        return astToLatex(expr, options);
+    },
+    makeMathField: (
+        element: HTMLElement,
+        options: Partial<MathfieldOptions>
+    ): Mathfield => {
+        deprecated('export default makeMathField');
+        return makeMathField(element, options);
+    },
+    renderMathInDocument: (options?: AutoRenderOptionsPrivate): void => {
+        deprecated('export default renderMathInDocument');
+        renderMathInDocument(options);
+    },
+    renderMathInElement: (
+        el: HTMLElement,
+        options: AutoRenderOptionsPrivate
+    ): void => {
+        deprecated('export default renderMathInElement');
+        renderMathInElement(el, options);
+    },
+    revertToOriginalContent: (
+        el: string | HTMLElement,
+        options: AutoRenderOptionsPrivate
+    ): void => {
+        deprecated('export default revertToOriginalContent');
+        revertToOriginalContent(el, options);
+    },
+    getOriginalContent: (
+        el: string | HTMLElement,
+        options: AutoRenderOptionsPrivate
+    ): void => {
+        deprecated('export default getOriginalContent');
+        getOriginalContent(el, options);
+    },
 
-    readAloud: defaultReadAloudHook,
-    readAloudStatus,
-    pauseReadAloud,
-    resumeReadAloud,
-    playReadAloud,
-
-    debug: {
-        getStyle: MathLiveDebug.getStyle,
-        getType: MathLiveDebug.getType,
-        spanToString: MathLiveDebug.spanToString,
-        hasClass: MathLiveDebug.hasClass,
-        latexToAsciiMath: MathLiveDebug.latexToAsciiMath,
-        asciiMathToLatex: MathLiveDebug.asciiMathToLatex,
-        FUNCTIONS: MathLiveDebug.FUNCTIONS,
-        MATH_SYMBOLS: MathLiveDebug.MATH_SYMBOLS,
-        TEXT_SYMBOLS: MathLiveDebug.TEXT_SYMBOLS,
-        ENVIRONMENTS: MathLiveDebug.ENVIRONMENTS,
-        MACROS: MathLiveDebug.MACROS,
-        DEFAULT_KEYBINDINGS: MathLiveDebug.DEFAULT_KEYBINDINGS,
-        getKeybindingMarkup: MathLiveDebug.getKeybindingMarkup,
+    readAloud: (
+        element: HTMLElement,
+        text: string,
+        config: Partial<MathfieldOptions>
+    ): void => {
+        deprecated('export default readAloud');
+        return defaultReadAloudHook(element, text, config);
+    },
+    readAloudStatus: (): string => {
+        deprecated('export default readAloudStatus');
+        return readAloudStatus();
+    },
+    pauseReadAloud: (): void => {
+        deprecated('export default pauseReadAloud');
+        pauseReadAloud();
+    },
+    resumeReadAloud: (): void => {
+        deprecated('export default resumeReadAloud');
+        resumeReadAloud();
+    },
+    playReadAloud: (token: string, count: number): void => {
+        deprecated('export default playReadAloud');
+        playReadAloud(token, count);
     },
 };

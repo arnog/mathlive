@@ -12,3 +12,4 @@ import './span';
 export * from './span';
 import './font-metrics';
 export * from './font-metrics';
+import './modes';

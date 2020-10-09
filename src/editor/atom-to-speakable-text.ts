@@ -1,4 +1,4 @@
-import { TextToSpeechOptions } from '../public/config';
+import { TextToSpeechOptions } from '../public/options';
 
 import { Atom, isAtomArray } from '../core/atom';
 

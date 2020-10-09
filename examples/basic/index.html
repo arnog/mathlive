@@ -16,7 +16,7 @@
             margin: auto;
         }
 
-        .mathfield {
+        math-field {
             border: 1px solid #ddd;
             padding: 5px;
             margin: 10px 0 10px 0;
@@ -42,17 +42,15 @@
 <body>
     <main>
         <h2>MathLive Basic Example</h2>
-        <div class="mathfield" id="mf">f(x)=</div>
+        <math-field id="mf" virtual-keyboard-mode="manual">f(x)=</math-field>
         <div id="output"></div>
     </main>
 
     <script type="module">
-        import MathLive from 'mathlive';
-        // import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
-        const mf = MathLive.makeMathField('mf', {
-            onContentDidChange: (mf) => {
-                document.getElementById('output').innerHTML = mf.$text();
-            },
+        import { makeMathField } from '/dist/mathlive.mjs';
+        // import {makeMathField} from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+        document.getElementById('mf').addEventListener('change', (ev) => {
+            document.getElementById('output').innerHTML = ev.target.getValue();
         });
     </script>
 </body>

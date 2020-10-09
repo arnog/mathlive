@@ -35,7 +35,6 @@
     &    \( \Pi _{0}(x) \) \text{is Riemann's prime counting function.}
     \end{array}</div> -->
                 <div class="output" id="latex"></div>
-                <div class="output" id="mathjson"></div>
     </main>
 
     <footer>
@@ -50,34 +49,29 @@
     </footer>
 
     <script type="module">
-        import MathLive from '/dist/mathlive.mjs';
-        // import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+        import { makeMathField } from '/dist/mathlive.mjs';
+        // import { makeMathField } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
 
-        MathLive.makeMathField('mf1', {
+        makeMathField('mf1', {
             smartMode: true, // Makes text entry easier
             virtualKeyboardMode: 'manual', // Always show virtual keyboard glyph
             onContentDidChange: updateOutput,
         });
 
-        MathLive.makeMathField('mf2', {
+        makeMathField('mf2', {
             virtualKeyboardMode: 'onfocus', // Show the virtual keyboard on focus
             smartMode: false,
             onContentDidChange: updateOutput,
         });
 
-        MathLive.makeMathField('mf3', {
+        makeMathField('mf3', {
             smartMode: true,
             onContentDidChange: updateOutput,
         });
 
         function updateOutput(mf) {
-            const latex = mf.$text();
+            const latex = mf.getValue();
             document.getElementById('latex').innerHTML = escapeHtml(latex);
-
-            const mathJSON = MathLive.latexToAST(latex);
-            document.getElementById('mathjson').innerHTML = escapeHtml(
-                JSON.stringify(mathJSON)
-            );
         }
 
         function escapeHtml(string) {

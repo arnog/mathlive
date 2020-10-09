@@ -10,7 +10,7 @@ export default {
             type: String,
             default: '',
         },
-        config: {
+        options: {
             type: Object,
             default: () => ({}),
         },
@@ -36,9 +36,9 @@ export default {
     /*
      * To register this component, call:
      * ```
-     *     import MathLive from './mathlive.mjs';
-     *     import Mathfield from './vue-mathlive.mjs';
-     *     Vue.use(Mathfield, MathLive);
+     *     import * as MathLive from './mathlive.mjs';
+     *     import MathfieldComponent from './vue-mathlive.mjs';
+     *     Vue.use(MathfieldComponent, MathLive);
      * ```
      *
      * The HTML tag for this component is `<mathlive-mathfield>`
@@ -64,15 +64,15 @@ export default {
             // update the mathfield to stay in sync, but don't send back content
             // change notifications, to avoid infinite loops.
             if (newValue !== oldValue) {
-                this.$el.mathfield.$latex(newValue, {
+                this.$el.mathfield.setValue(newValue, {
                     suppressChangeNotifications: true,
                 });
             }
         },
-        config: {
+        options: {
             deep: true,
-            handler: function (config) {
-                this.$el.mathfield.$setConfig(config);
+            handler: function (options) {
+                this.$el.mathfield.setOptions(options);
             },
         },
     },
@@ -82,14 +82,14 @@ export default {
         this.$nextTick(() => {
             // ... then make the Mathfield
             this.$mathlive.makeMathField(this.$el, {
-                ...this.config,
+                ...this.options,
                 // To support the 'model' directive, this handler will connect
                 // the content of the mathfield to the ViewModel
                 onContentDidChange: (_) => {
                     // When the mathfield is updated, notify the model.
                     // The initial input value is generated from the <slot>
                     // content, so it may need to be updated.
-                    this.$emit('input', this.$el.mathfield.$text());
+                    this.$emit('input', this.$el.mathfield.getValue());
                 },
                 // Those asynchronous notification handlers are translated to events
                 onFocus: (_) => {
@@ -97,15 +97,6 @@ export default {
                 },
                 onBlur: (_) => {
                     this.$emit('blur');
-                },
-                onContentWillChange: (_) => {
-                    this.$emit('content-will-change');
-                },
-                onSelectionWillChange: (_) => {
-                    this.$emit('selection-will-change');
-                },
-                onUndoStateWillChange: (_, command) => {
-                    this.$emit('undo-state-will-change', command);
                 },
                 onUndoStateDidChange: (_, command) => {
                     this.$emit('undo-state-did-change', command);
@@ -118,7 +109,7 @@ export default {
                     );
                 },
                 onReadAloudStatus: (_, status) => {
-                    this.$emit('read-aloud-status', status);
+                    this.$emit('read-aloud-status-change', status);
                 },
 
                 // Those notification handlers expect an answer back, so translate
@@ -140,53 +131,33 @@ export default {
          *
          * @param {string} selector
          */
-        perform: function (selector) {
-            this.$el.mathfield.$perform(selector);
+        executeCommand: function (selector) {
+            this.$el.mathfield.executeCommand(selector);
         },
         /*
          * @return {boolean}
          */
         hasFocus: function () {
-            return this.$el.mathfield.$hasFocus();
+            return this.$el.mathfield.hasFocus();
         },
         focus: function () {
-            this.$el.mathfield.$focus();
+            this.$el.mathfield.focus();
         },
         blur: function () {
-            this.$el.mathfield.$blur();
+            this.$el.mathfield.blur();
         },
-        text: function (format) {
-            return this.$el.mathfield.$text(format);
+        getValue: function (format) {
+            return this.$el.mathfield.getValue(format);
         },
+        /** @deprecated */
         selectedText: function (format) {
             return this.$el.mathfield.$selectedText(format);
         },
         insert: function (text, options) {
-            this.$el.mathfield.$insert(text, options);
-        },
-        keystroke: function (keys, evt) {
-            return this.$el.mathfield.$keystroke(keys, evt);
-        },
-        typedText: function (text) {
-            this.$el.mathfield.$keystroke(text);
-        },
-        selectionIsCollapsed: function () {
-            return this.$el.mathfield.$selectionIsCollapsed();
-        },
-        selectionDepth: function () {
-            return this.$el.mathfield.$selectionDepth();
-        },
-        selectionAtStart: function () {
-            return this.$el.mathfield.$selectionAtStart();
-        },
-        selectionAtEnd: function () {
-            return this.$el.mathfield.$selectionAtEnd();
+            this.$el.mathfield.insert(text, options);
         },
         select: function () {
-            this.$el.mathfield.$select();
-        },
-        clearSelection: function () {
-            this.$el.mathfield.$clearSelection();
+            this.$el.mathfield.select();
         },
     },
 };

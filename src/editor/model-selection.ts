@@ -1,16 +1,15 @@
 import { isArray } from '../common/types';
 
 import type { ParseMode } from '../public/core';
+import type { Range } from '../public/mathfield';
 
 import { LETTER_AND_DIGITS } from '../core/definitions';
 import { Atom } from '../core/atom';
 import {
-    Selection,
     Path,
     pathDistance,
     clone as clonePath,
     pathCommonAncestor,
-    pathFromString,
 } from './path';
 
 import { ModelPrivate } from './model-class'; // @revisit. Circular dependency because
@@ -24,7 +23,10 @@ import {
     arrayColRow,
     arrayAdjustRow,
 } from './model-array-utils';
-import { selectionDidChange, selectionWillChange } from './model-listeners';
+import { selectionDidChange } from './model-listeners';
+import { PositionIterator } from './model-iterator';
+
+import { getAnchor, setPath, adjustPlaceholder } from './model-selection-utils';
 
 /**
  * Return true if the atom could be a part of a number
@@ -65,16 +67,14 @@ export function getCommandOffsets(
     return null;
 }
 
-export function positionInsertionPointAfterCommitedCommand(
-    model: ModelPrivate
-): void {
+export function setPositionAfterCommitedCommand(model: ModelPrivate): void {
     const siblings = model.siblings();
     const command = getCommandOffsets(model);
     let i = command.start;
     while (i < command.end && !siblings[i].isSuggestion) {
         i++;
     }
-    setSelection(model, i - 1);
+    setSelectionOffset(model, i - 1);
 }
 
 export function getAnchorMode(model: ModelPrivate): ParseMode {
@@ -92,44 +92,6 @@ export function getAnchorMode(model: ModelPrivate): ParseMode {
     let ancestor = model.ancestor(i);
     while (!result && ancestor) {
         if (ancestor) result = ancestor.mode as ParseMode;
-        i += 1;
-        ancestor = model.ancestor(i);
-    }
-    return result;
-}
-
-// @revisit any
-export function getAnchorStyle(model: ModelPrivate): any {
-    const anchor = selectionIsCollapsed(model)
-        ? getAnchor(model)
-        : model.sibling(1);
-    let result;
-    if (anchor && anchor.type !== 'first') {
-        if (anchor.type === 'command') {
-            return {};
-        }
-        result = {
-            color: anchor.color,
-            backgroundColor: anchor.backgroundColor,
-            fontFamily: anchor.fontFamily,
-            fontShape: anchor.fontShape,
-            fontSeries: anchor.fontSeries,
-            fontSize: anchor.fontSize,
-        };
-    }
-    let i = 1;
-    let ancestor = model.ancestor(i);
-    while (!result && ancestor) {
-        if (ancestor) {
-            result = {
-                color: ancestor.color,
-                backgroundColor: ancestor.backgroundColor,
-                fontFamily: ancestor.fontFamily,
-                fontShape: ancestor.fontShape,
-                fontSeries: ancestor.fontSeries,
-                fontSize: ancestor.fontSize,
-            };
-        }
         i += 1;
         ancestor = model.ancestor(i);
     }
@@ -192,7 +154,6 @@ export function leap(
     }
 
     // Set the selection to the next placeholder
-    selectionWillChange(model);
     setPath(model, placeholders[0]);
     if (getAnchor(model).type === 'placeholder') setSelectionExtent(model, -1);
     model.announce('move', oldPath);
@@ -381,10 +342,10 @@ function getTabbableElements(): HTMLElement[] {
  * @param relation e.g. `'body'`, `'superscript'`, etc...
  * @return False if the relation is invalid (no such children)
  */
-export function setSelection(
+export function setSelectionOffset(
     model: ModelPrivate,
     offset = 0,
-    extent: number | 'end' | 'start' = 0,
+    extent: number | 'end' = 0,
     relation = ''
 ): boolean {
     // If no relation ("children", "superscript", etc...) is specified
@@ -420,15 +381,13 @@ export function setSelection(
     const oldExtent = model.extent;
     if (extent === 'end') {
         extent = siblingsCount - offset - 1;
-    } else if (extent === 'start') {
-        extent = -offset;
     }
     setSelectionExtent(model, extent);
     const extentChanged = model.extent !== oldExtent;
     setSelectionExtent(model, oldExtent);
 
     // Calculate the new offset, and make sure it is in range
-    // (setSelection can be called with an offset that greater than
+    // (`setSelectionOffset()` can be called with an offset that greater than
     // the number of children, for example when doing an up from a
     // numerator to a smaller denominator, e.g. "1/(x+1)".
     if (offset < 0) {
@@ -443,7 +402,6 @@ export function setSelection(
         if (relationChanged) {
             adjustPlaceholder(model);
         }
-        selectionWillChange(model);
 
         model.path[model.path.length - 1].relation = relation;
         model.path[model.path.length - 1].offset = offset;
@@ -456,12 +414,11 @@ export function setSelection(
 }
 
 /**
- * Move the anchor to the next permissible atom
+ * Move the anchor to the next permissible atom.
+ * Used by `move()`.
+ * Does not send selection change notifications.
  */
-export function next(
-    model: ModelPrivate,
-    options?: { iterateAll?: boolean }
-): void {
+function next(model: ModelPrivate, options?: { iterateAll?: boolean }): void {
     options = options ?? {};
 
     const NEXT_RELATION = {
@@ -487,7 +444,7 @@ export function next(
 
         // We found a new relation/set of siblings...
         if (relation) {
-            setSelection(model, 0, 0, relation);
+            setSelectionOffset(model, 0, 0, relation);
             return;
         }
 
@@ -499,8 +456,10 @@ export function next(
             while (cellIndex < maxCellCount) {
                 const cell = arrayCell(model.parent().array, cellIndex);
                 // Some cells could be null (sparse array), so skip them
-                if (cell && setSelection(model, 0, 0, 'cell' + cellIndex)) {
-                    selectionDidChange(model);
+                if (
+                    cell &&
+                    setSelectionOffset(model, 0, 0, 'cell' + cellIndex)
+                ) {
                     return;
                 }
                 cellIndex += 1;
@@ -528,12 +487,11 @@ export function next(
             }
         }
 
-        selectionDidChange(model);
         return;
     }
 
     // Still some siblings to go through. Move on to the next one.
-    setSelection(model, model.anchorOffset() + 1);
+    setSelectionOffset(model, model.anchorOffset() + 1);
     const anchor = getAnchor(model);
 
     // Dive into its components, if the new anchor is a compound atom,
@@ -554,7 +512,7 @@ export function next(
             }
             console.assert(relation);
             model.path.push({ relation: relation, offset: 0 });
-            setSelection(model, 0, 0, relation);
+            setSelectionOffset(model, 0, 0, relation);
             return;
         }
         relation = 'body';
@@ -572,7 +530,7 @@ export function next(
     }
 }
 
-export function previous(
+function previous(
     model: ModelPrivate,
     options?: { iterateAll?: boolean }
 ): void {
@@ -593,13 +551,13 @@ export function previous(
         model.parent() &&
         model.parent().skipBoundary
     ) {
-        setSelection(model, 0);
+        setSelectionOffset(model, 0);
     }
     if (model.anchorOffset() < 1) {
         // We've reached the first of these siblings.
         // Is there another set of siblings to consider?
         let relation = PREVIOUS_RELATION[model.relation()];
-        while (relation && !setSelection(model, -1, 0, relation)) {
+        while (relation && !setSelectionOffset(model, -1, 0, relation)) {
             relation = PREVIOUS_RELATION[relation];
         }
         // Ignore the body of the subsup scaffolding and of
@@ -616,16 +574,16 @@ export function previous(
 
         adjustPlaceholder(model);
 
-        selectionWillChange(model);
-
         // No more siblings, check if we have a sibling cell in an array
         if (model.relation().startsWith('cell')) {
             let cellIndex =
                 parseInt(model.relation().match(/cell([0-9]*)$/)[1]) - 1;
             while (cellIndex >= 0) {
                 const cell = arrayCell(model.parent().array, cellIndex);
-                if (cell && setSelection(model, -1, 0, 'cell' + cellIndex)) {
-                    selectionDidChange(model);
+                if (
+                    cell &&
+                    setSelectionOffset(model, -1, 0, 'cell' + cellIndex)
+                ) {
                     return;
                 }
                 cellIndex -= 1;
@@ -645,10 +603,9 @@ export function previous(
             }
         } else {
             model.path.pop();
-            setSelection(model, model.anchorOffset() - 1);
+            setSelectionOffset(model, model.anchorOffset() - 1);
         }
 
-        selectionDidChange(model);
         return;
     }
 
@@ -675,7 +632,7 @@ export function previous(
                 relation: relation,
                 offset: arrayCell(anchor.array, cellIndex).length - 1,
             });
-            setSelection(model, -1, 0, relation);
+            setSelectionOffset(model, -1, 0, relation);
             return;
         }
         relation = 'superscript';
@@ -686,7 +643,7 @@ export function previous(
                     offset: anchor[relation].length - 1,
                 });
 
-                setSelection(model, -1, 0, relation);
+                setSelectionOffset(model, -1, 0, relation);
                 return;
             }
             relation = PREVIOUS_RELATION[relation];
@@ -694,7 +651,7 @@ export function previous(
     }
     // There wasn't a component to navigate to, so...
     // Still some siblings to go through: move on to the previous one.
-    setSelection(model, model.anchorOffset() - 1);
+    setSelectionOffset(model, model.anchorOffset() - 1);
 
     if (
         !options.iterateAll &&
@@ -707,22 +664,32 @@ export function previous(
 
 export function move(
     model: ModelPrivate,
-    dist: number,
-    options?: { extend: any }
+    direction: 'forward' | 'backward' | 'upward' | 'downward' | number,
+    options?: { extend: boolean }
 ): boolean {
     options = options ?? { extend: false };
-    const extend = options.extend ?? false;
 
     removeSuggestion(model);
+    const oldPath = model.clone();
 
-    if (extend) {
-        extend(model, dist, options);
+    if (direction === 'upward') {
+        up(model, options);
+    } else if (direction === 'downward') {
+        down(model, options);
     } else {
-        const oldPath = model.clone();
+        let dist: number =
+            direction === 'forward'
+                ? 1
+                : direction === 'backward'
+                ? -1
+                : (direction as number);
+
+        if (options.extend) {
+            return extend(model, dist);
+        }
         // const previousParent = model.parent();
         // const previousRelation = model.relation();
         // const previousSiblings = model.siblings();
-
         if (dist > 0) {
             if (collapseSelectionForward(model)) dist--;
             while (dist > 0) {
@@ -744,15 +711,15 @@ export function move(
         //         previousParent[previousRelation] = null;
         //     }
         // }
-        model.announce('move', oldPath);
     }
+
+    selectionDidChange(model);
+    model.announce('move', oldPath);
+
     return true;
 }
 
-export function up(
-    model: ModelPrivate,
-    options?: { extend: boolean }
-): boolean {
+function up(model: ModelPrivate, options?: { extend: boolean }): boolean {
     options = options ?? { extend: false };
     const extend = options.extend ?? false;
 
@@ -761,13 +728,11 @@ export function up(
 
     if (relation === 'denom') {
         if (extend) {
-            selectionWillChange(model);
             model.path.pop();
             model.path[model.path.length - 1].offset -= 1;
             setSelectionExtent(model, 1);
-            selectionDidChange(model);
         } else {
-            setSelection(model, model.anchorOffset(), 0, 'numer');
+            setSelectionOffset(model, model.anchorOffset(), 0, 'numer');
         }
         model.announce('moveUp');
     } else if (model.parent().array) {
@@ -777,11 +742,11 @@ export function up(
         if (colRow && arrayCell(model.parent().array, colRow)) {
             model.path[model.path.length - 1].relation =
                 'cell' + arrayIndex(model.parent().array, colRow);
-            setSelection(model, model.anchorOffset());
+            setSelectionOffset(model, model.anchorOffset());
 
             model.announce('moveUp');
         } else {
-            move(model, -1, options);
+            move(model, 'backward', options);
         }
     } else {
         model.announce('line');
@@ -795,10 +760,7 @@ export function up(
     return true;
 }
 
-export function down(
-    model: ModelPrivate,
-    options?: { extend: boolean }
-): boolean {
+function down(model: ModelPrivate, options?: { extend: boolean }): boolean {
     options = options ?? { extend: false };
     const extend = options.extend ?? false;
 
@@ -806,13 +768,11 @@ export function down(
     const relation = model.relation();
     if (relation === 'numer') {
         if (extend) {
-            selectionWillChange(model);
             model.path.pop();
             model.path[model.path.length - 1].offset -= 1;
             setSelectionExtent(model, 1);
-            selectionDidChange(model);
         } else {
-            setSelection(model, model.anchorOffset(), 0, 'denom');
+            setSelectionOffset(model, model.anchorOffset(), 0, 'denom');
         }
         model.announce('moveDown');
     } else if (model.parent().array) {
@@ -823,11 +783,11 @@ export function down(
         if (colRow && arrayCell(model.parent().array, colRow)) {
             model.path[model.path.length - 1].relation =
                 'cell' + arrayIndex(model.parent().array, colRow);
-            setSelection(model, model.anchorOffset());
+            setSelectionOffset(model, model.anchorOffset());
 
             model.announce('moveDown');
         } else {
-            move(model, +1, options);
+            move(model, 'forward', options);
         }
     } else {
         model.announce('line');
@@ -859,7 +819,6 @@ export function extend(model: ModelPrivate, dist: number): boolean {
         // We're trying to extend beyond the first element.
         // Go up to the parent.
         if (model.path.length > 1) {
-            selectionWillChange(model);
             model.path.pop();
             // model.path[model.path.length - 1].offset -= 1;
             setSelectionExtent(model, -1);
@@ -875,7 +834,6 @@ export function extend(model: ModelPrivate, dist: number): boolean {
         // We're trying to extend beyond the last element.
         // Go up to the parent
         if (model.path.length > 1) {
-            selectionWillChange(model);
             model.path.pop();
             model.path[model.path.length - 1].offset -= 1;
             setSelectionExtent(model, 1);
@@ -889,7 +847,7 @@ export function extend(model: ModelPrivate, dist: number): boolean {
         }
         extent -= 1;
     }
-    setSelection(model, offset, extent);
+    setSelectionOffset(model, offset, extent);
     model.announce('move', oldPath);
     return true;
 }
@@ -926,11 +884,11 @@ export function skip(
         // We're in a text zone, skip word by word
         offset = wordBoundaryOffset(model, offset, dir);
         if (offset < 0 && !extend) {
-            setSelection(model, 0);
+            setSelectionOffset(model, 0);
             return;
         }
         if (offset > siblings.length) {
-            setSelection(model, siblings.length - 1);
+            setSelectionOffset(model, siblings.length - 1);
             move(model, dir, options);
             return;
         }
@@ -969,9 +927,9 @@ export function skip(
 
     if (extend) {
         const anchor = model.anchorOffset();
-        setSelection(model, anchor, offset - anchor);
+        setSelectionOffset(model, anchor, offset - anchor);
     } else {
-        setSelection(model, offset);
+        setSelectionOffset(model, offset);
     }
     model.announce('move', oldPath);
 }
@@ -1103,11 +1061,11 @@ export function selectGroup(model: ModelPrivate): boolean {
         end -= 1;
         if (start >= end) {
             // No word found. Select a single character
-            setSelection(model, model.endOffset() - 1, 1);
+            setSelectionOffset(model, model.endOffset() - 1, 1);
             return true;
         }
 
-        setSelection(model, start, end - start);
+        setSelectionOffset(model, start, end - start);
     } else {
         // In a math zone, select all the sibling nodes
         if (
@@ -1121,9 +1079,9 @@ export function selectGroup(model: ModelPrivate): boolean {
             while (isNumber(siblings[start])) start -= 1;
             while (isNumber(siblings[end])) end += 1;
             end -= 1;
-            setSelection(model, start, end - start);
+            setSelectionOffset(model, start, end - start);
         } else {
-            setSelection(model, 0, 'end');
+            setSelectionOffset(model, 0, 'end');
         }
     }
     return true;
@@ -1131,7 +1089,7 @@ export function selectGroup(model: ModelPrivate): boolean {
 
 export function selectAll(model: ModelPrivate): boolean {
     model.path = [{ relation: 'body', offset: 0 }];
-    return setSelection(model, 0, 'end');
+    return setSelectionOffset(model, 0, 'end');
 }
 
 /**
@@ -1141,25 +1099,21 @@ export function selectionIsCollapsed(model: ModelPrivate): boolean {
     return model.extent === 0;
 }
 
-export function setSelectionExtent(
-    model: ModelPrivate,
-    extent: number
-): boolean {
+export function setSelectionExtent(model: ModelPrivate, extent: number): void {
     model.extent = extent;
-    return true;
 }
 
 export function collapseSelectionForward(model: ModelPrivate): boolean {
     if (model.extent === 0) return false;
 
-    setSelection(model, model.endOffset());
+    setSelectionOffset(model, model.endOffset());
     return true;
 }
 
 export function collapseSelectionBackward(model: ModelPrivate): boolean {
     if (model.extent === 0) return false;
 
-    setSelection(model, model.startOffset());
+    setSelectionOffset(model, model.startOffset());
     return true;
 }
 
@@ -1176,23 +1130,8 @@ export function moveAfterParent(model: ModelPrivate): boolean {
 }
 
 /**
- * The atom where the selection starts.
- *
- * When the selection is extended the anchor remains fixed. The anchor
- * could be either before or after the focus.
- */
-export function getAnchor(model: ModelPrivate): Atom {
-    if (model.parent().array) {
-        return arrayCell(model.parent().array, model.relation())[
-            model.anchorOffset()
-        ];
-    }
-    const siblings = model.siblings();
-    return siblings[Math.min(siblings.length - 1, model.anchorOffset())];
-}
-
-/**
- * Extend the selection between `from` and `to` nodes
+ * Extend the selection between `from` and `to` nodes.
+ * Called during dragging.
  *
  * @param {object} options
  * - options.extendToWordBoundary
@@ -1273,71 +1212,24 @@ export function setRange(
     return setPath(model, commonAncestor, extent);
 }
 
-/**
- *
- * @param  extent the length of the selection
- * @return true if the path has actually changed
- */
-export function setPath(
-    model: ModelPrivate,
-    inSelection: string | Path | Selection,
-    extent = 0
-): boolean {
-    let selection: Selection;
-    // Convert to a path array if necessary
-    if (typeof inSelection === 'string') {
-        selection = pathFromString(inSelection);
-    } else if (isArray(inSelection)) {
-        // need to temporarily change the path of this to use 'sibling()'
-        const newPath = clonePath(inSelection as Path);
-        const oldPath = model.path;
-        model.path = newPath;
-        if (extent === 0 && getAnchor(model).type === 'placeholder') {
-            // select the placeholder
-            newPath[newPath.length - 1].offset = model.anchorOffset() - 1;
-            extent = 1;
-        }
-        selection = {
-            path: newPath,
-            extent: extent || 0,
-        };
-        model.path = oldPath;
+export function setSelection(model: ModelPrivate, value: Range[]): void {
+    // @todo: for now, only consider the first range
+    const range = value[0];
+
+    // Normalize the range
+    const iter = new PositionIterator(model.root);
+    if (!range.direction) range.direction = 'forward';
+    if (typeof range.end === 'undefined') range.end = range.start;
+    if (range.end < 0) range.end = iter.lastPosition;
+
+    let anchorPath: string;
+    if (range.direction === 'backward') {
+        anchorPath = iter.at(range.end).path;
     } else {
-        selection = inSelection;
+        anchorPath = iter.at(range.start).path;
     }
 
-    const pathChanged = pathDistance(model.path, selection.path) !== 0;
-    const extentChanged = selection.extent !== model.extent;
-
-    if (pathChanged || extentChanged) {
-        if (pathChanged) {
-            adjustPlaceholder(model);
-        }
-        selectionWillChange(model);
-
-        model.path = clonePath(selection.path);
-
-        if (model.siblings().length < model.anchorOffset()) {
-            // The new path is out of bounds.
-            // Reset the path to something valid
-            console.warn(
-                'Invalid selection: ' +
-                    model.toString() +
-                    ' in "' +
-                    model.root.toLatex(false) +
-                    '"'
-            );
-
-            model.path = [{ relation: 'body', offset: 0 }];
-            model.extent = 0;
-        } else {
-            setSelectionExtent(model, selection.extent);
-        }
-
-        selectionDidChange(model);
-    }
-
-    return pathChanged || extentChanged;
+    setPath(model, anchorPath, range.end - range.start);
 }
 
 /**
@@ -1425,48 +1317,6 @@ export function getContentFromSiblings(
         i++;
     }
     return result;
-}
-
-/**
- * When changing the selection, if the former selection is an empty list,
- * insert a placeholder if necessary. For example, if in an empty numerator.
- */
-function adjustPlaceholder(model: ModelPrivate): void {
-    // Should we insert a placeholder?
-    // Check if we're an empty list that is the child of a fraction
-    const siblings = model.siblings();
-    if (siblings && siblings.length <= 1) {
-        let placeholder;
-        const relation = model.relation();
-        if (relation === 'numer') {
-            placeholder = 'numerator';
-        } else if (relation === 'denom') {
-            placeholder = 'denominator';
-        } else if (model.parent().type === 'surd' && relation === 'body') {
-            // Surd (roots)
-            placeholder = 'radicand';
-        } else if (model.parent().type === 'overunder' && relation === 'body') {
-            placeholder = 'base';
-        } else if (relation === 'underscript' || relation === 'overscript') {
-            placeholder = 'annotation';
-        }
-        if (placeholder) {
-            // ◌ ⬚
-            // const placeholderAtom = [
-            //     new Atom('math', 'placeholder', '⬚', getAnchorStyle(model)),
-            // ];
-            // Array.prototype.splice.apply(
-            //     siblings,
-            //     [1, 0].concat(placeholderAtom)
-            // );
-            // @revisit
-            siblings.splice(
-                1,
-                0,
-                new Atom('math', 'placeholder', '⬚', getAnchorStyle(model))
-            );
-        }
-    }
 }
 
 function wordBoundary(model: ModelPrivate, path, dir): Path {
@@ -1606,7 +1456,7 @@ function wordBoundaryOffset(
  */
 export function filter(
     model: ModelPrivate,
-    cb: (path: Path, anchor: Atom) => boolean,
+    cb: (path: Path, atom: Atom) => boolean,
     dir: -1 | 1 = +1
 ): string[] {
     dir = dir < 0 ? -1 : +1;
@@ -1622,7 +1472,7 @@ export function filter(
         collapseSelectionForward(iter);
     } else {
         collapseSelectionBackward(iter);
-        move(iter, 1);
+        move(iter, 'forward');
     }
     const initialAnchor = getAnchor(iter);
     do {

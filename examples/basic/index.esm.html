@@ -32,14 +32,14 @@
     </footer>
 
     <script type="module">
-        import MathLive from '/dist/mathlive.mjs';
-        // import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+        import { makeMathField } from '/dist/mathlive.mjs';
+        // import {makeMathField} from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
 
-        const mf = MathLive.makeMathField('mf', {
+        const mf = makeMathField('mf', {
             smartMode: true,
             virtualKeyboardMode: 'manual',
             onContentDidChange: (mf) => {
-                const latex = mf.$text();
+                const latex = mf.getValue();
                 document.getElementById('latex').innerHTML = escapeHtml(
                     latex
                 );

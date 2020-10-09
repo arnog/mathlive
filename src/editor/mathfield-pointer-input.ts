@@ -1,11 +1,7 @@
 import { pathFromString, clone as clonePath, Path } from './path';
-import {
-    setPath,
-    selectGroup,
-    setRange,
-    selectAll,
-    filter,
-} from './model-selection';
+
+import { setPath } from './model-selection-utils';
+import { selectGroup, setRange, selectAll, filter } from './model-selection';
 import { on, off } from './mathfield-utils';
 import type { MathfieldPrivate } from './mathfield-class';
 import { requestUpdate } from './mathfield-render';
@@ -143,7 +139,7 @@ export function onPointerDown(
         anchorY <= bounds.bottom
     ) {
         // Focus the mathfield
-        if (!mathfield.$hasFocus()) {
+        if (!mathfield.hasFocus()) {
             dirty = true;
             if (mathfield.textarea.focus) {
                 mathfield.textarea.focus();
@@ -306,51 +302,54 @@ export function pathFromPoint(
 ): Path {
     options = options ?? {};
     options.bias = options.bias ?? 0;
-    let result;
     // Try to find the deepest element that is near the point that was
     // clicked on (the point could be outside of the element)
     const nearest = nearestElementFromPoint(mathfield.field, x, y);
     const el = nearest.element;
     const id = el ? el.getAttribute('data-atom-id') : null;
-    if (id) {
-        // Let's find the atom that has a matching ID with the element that
-        // was clicked on (or near)
-        const paths = filter(mathfield.model, (_path, atom) => {
-            // If the atom allows children to be selected, match only if
-            // the ID of  the atom matches the one we're looking for.
-            if (!atom.captureSelection) {
-                return atom.id === id;
-            }
-            // If the atom does not allow children to be selected
-            // (captureSelection === true), the element matches if any of
-            // its children has an ID that matches.
-            return atom.filter((childAtom) => childAtom.id === id).length > 0;
-        });
-        if (paths && paths.length > 0) {
-            // (There should be exactly one atom that matches this ID...)
-            // Set the result to the path to this atom
-            result = pathFromString(paths[0]).path;
-            if (options.bias === 0) {
-                // If the point clicked is to the left of the vertical midline,
-                // adjust the path to *before* the atom (i.e. after the
-                // preceding atom)
-                const bounds = el.getBoundingClientRect();
-                if (
-                    x < bounds.left + bounds.width / 2 &&
-                    !el.classList.contains('ML__placeholder')
-                ) {
-                    result[result.length - 1].offset = Math.max(
-                        0,
-                        result[result.length - 1].offset - 1
-                    );
-                }
-            } else if (options.bias < 0) {
-                result[result.length - 1].offset = Math.min(
-                    mathfield.model.siblings().length - 1,
-                    Math.max(0, result[result.length - 1].offset + options.bias)
-                );
-            }
+    if (!id) return undefined;
+
+    // Let's find the atom that has a matching ID with the element that
+    // was clicked on (or near)
+    const paths = filter(mathfield.model, (_path, atom) => {
+        // If the atom allows children to be selected, match only if
+        // the ID of  the atom matches the one we're looking for.
+        if (!atom.captureSelection) {
+            return atom.id === id;
         }
+        // If the atom does not allow children to be selected
+        // (captureSelection === true), the element matches if any of
+        // its children has an ID that matches.
+        let found = false;
+        atom.forEach((x) => {
+            if (x.id === id) found = true;
+        });
+        return found;
+    });
+    if (!paths || paths.length === 0) return undefined;
+
+    // (There should be exactly one atom that matches this ID...)
+    // Set the result to the path to this atom
+    const result = pathFromString(paths[0]).path;
+    if (options.bias === 0) {
+        // If the point clicked is to the left of the vertical midline,
+        // adjust the path to *before* the atom (i.e. after the
+        // preceding atom)
+        const bounds = el.getBoundingClientRect();
+        if (
+            x < bounds.left + bounds.width / 2 &&
+            !el.classList.contains('ML__placeholder')
+        ) {
+            result[result.length - 1].offset = Math.max(
+                0,
+                result[result.length - 1].offset - 1
+            );
+        }
+    } else if (options.bias < 0) {
+        result[result.length - 1].offset = Math.min(
+            mathfield.model.siblings().length - 1,
+            Math.max(0, result[result.length - 1].offset + options.bias)
+        );
     }
     return result;
 }

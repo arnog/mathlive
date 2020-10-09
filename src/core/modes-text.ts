@@ -1,12 +1,7 @@
 import { ErrorListener, Style, ParserErrorCode } from '../public/core';
-import {
-    joinLatex,
-    register,
-    getPropertyRuns,
-    ParseTokensOptions,
-} from './modes-utils';
+import { register, getPropertyRuns, ParseTokensOptions } from './modes-utils';
 import { colorToString } from './color';
-import { Token } from './tokenizer';
+import { joinLatex, Token } from './tokenizer';
 import { Span } from './span';
 import { Atom } from './atom';
 import { getInfo, charToLatex, unicodeStringToLatex } from './definitions';

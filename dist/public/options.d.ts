@@ -229,8 +229,8 @@ export declare type TextToSpeechOptions = {
      * twice the default rate.
      */
     speechEngineRate: string;
-    speakHook: (text: string, config: Partial<MathfieldConfig>) => void;
-    readAloudHook: (element: HTMLElement, text: string, config: MathfieldConfig) => void;
+    speakHook: (text: string, config: Partial<MathfieldOptions>) => void;
+    readAloudHook: (element: HTMLElement, text: string, config: MathfieldOptions) => void;
 };
 /**
  *
@@ -665,7 +665,7 @@ mf.setConfig({
 /**
  * @keywords security, trust, sanitize, errors
  */
-export declare type MathfieldConfig = LayoutOptions & EditingOptions & LocalizationOptions & InlineShortcutsOptions & KeyboardOptions & VirtualKeyboardOptions & TextToSpeechOptions & MathfieldHooks & MathfieldListeners & {
+export declare type MathfieldOptions = LayoutOptions & EditingOptions & LocalizationOptions & InlineShortcutsOptions & KeyboardOptions & VirtualKeyboardOptions & TextToSpeechOptions & MathfieldHooks & MathfieldListeners & {
     /**
      * Namespace that is added to `data-` attributes to avoid collisions
      * with other libraries.
@@ -745,6 +745,10 @@ export declare type MathfieldConfig = LayoutOptions & EditingOptions & Localizat
      */
     createHTML: (html: string) => any;
 };
+/**
+ * @deprecated Use MathfieldOptions
+ */
+export declare type MathfieldConfig = MathfieldOptions;
 /**
  *  | Name | Platform | Display name |
  *  | :----- | :----- | :----- |

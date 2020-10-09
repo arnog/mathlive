@@ -1,4 +1,4 @@
-import type { Keybinding } from '../public/config';
+import type { Keybinding } from '../public/options';
 
 export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     { key: 'ctrl+alt+e', command: ['insert', '\\text{cmd+alt+e}'] },

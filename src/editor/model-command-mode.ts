@@ -3,12 +3,12 @@ import { isArray } from '../common/types';
 import type { Atom } from '../core/atom';
 
 import type { ModelPrivate } from './model-class';
-import { contentDidChange, contentWillChange } from './model-listeners';
+import { contentDidChange } from './model-listeners';
 import { arrayCellCount, arrayCell } from './model-array-utils';
 import {
     getCommandOffsets,
     setSelectionExtent,
-    setSelection,
+    setSelectionOffset,
     leap,
 } from './model-selection';
 
@@ -72,12 +72,9 @@ export function spliceCommandStringAroundInsertionPoint(
 ): void {
     const command = getCommandOffsets(model);
     if (command) {
-        // Dispatch notifications
-        contentWillChange(model);
-
         if (!mathlist) {
             model.siblings().splice(command.start, command.end - command.start);
-            setSelection(model, command.start - 1, 0);
+            setSelectionOffset(model, command.start - 1, 0);
         } else {
             // Array.prototype.splice.apply(
             //     model.siblings(),
@@ -91,11 +88,11 @@ export function spliceCommandStringAroundInsertionPoint(
                     command.end - command.start,
                     ...mathlist
                 );
-            let newPlaceholders = [];
+            const newPlaceholders = [];
             for (const atom of mathlist) {
-                newPlaceholders = newPlaceholders.concat(
-                    atom.filter((atom) => atom.type === 'placeholder')
-                );
+                atom.forEach((x) => {
+                    if (x.type === 'placeholder') newPlaceholders.push(x);
+                });
             }
             setSelectionExtent(model, 0);
 
@@ -105,7 +102,7 @@ export function spliceCommandStringAroundInsertionPoint(
             model.path[model.path.length - 1].offset = command.start - 1;
 
             if (newPlaceholders.length === 0 || !leap(model, +1, false)) {
-                setSelection(model, command.start + mathlist.length - 1);
+                setSelectionOffset(model, command.start + mathlist.length - 1);
             }
         }
 
@@ -145,7 +142,6 @@ function removeCommandStringFromAtom(atom: Atom | Atom[]): void {
 }
 
 export function removeCommandString(model: ModelPrivate): void {
-    contentWillChange(model);
     const contentWasChanging = model.suppressChangeNotifications;
     model.suppressChangeNotifications = true;
 

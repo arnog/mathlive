@@ -12,7 +12,7 @@ performance, and it does not pollute the global environment.
 
 ```html
 <script type="module">
-    import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
+    import { makeMathField } from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
     // ...
 </script>
 ```
@@ -55,7 +55,7 @@ mathfield, and displaying it in an output element.
 ```javascript
 const mf = MathLive.makeMathField('mf', {
     onContentDidChange: (mf) => {
-        console.log(mf.$text());
+        console.log(mf.getValue());
     },
 });
 ```

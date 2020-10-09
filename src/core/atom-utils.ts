@@ -86,7 +86,7 @@ export type BBoxParam = {
     border?: string;
 };
 
-const ATOM_REGISTRY = {};
+export const ATOM_REGISTRY = {};
 
 // A table of size -> font size for the different sizing functions
 const SIZING_MULTIPLIER = {
@@ -570,7 +570,11 @@ export class Atom implements Style {
         });
     }
 
-    forEach(cb: (arg0: this) => void): void {
+    /**
+     * Iterate over all the child atoms of this atom, this included,
+     * and invoke the cb callback.
+     */
+    forEach(cb: (atom: Atom) => void): void {
         cb(this);
         if (isArray(this.body)) {
             for (const atom of this.body) if (atom) atom.forEach(cb);
@@ -607,40 +611,6 @@ export class Atom implements Style {
                 }
             }
         }
-    }
-
-    /**
-     * Iterate over all the child atoms of this atom, this included,
-     * and return an array of all the atoms for which the predicate callback
-     * is true.
-     */
-    filter(cb: (atom: Atom) => boolean): Atom[] {
-        let result: Atom[] = [];
-        if (cb(this)) result.push(this);
-        for (const relation of [
-            'body',
-            'superscript',
-            'subscript',
-            'overscript',
-            'underscript',
-            'numer',
-            'denom',
-            'index',
-        ]) {
-            if (isArray(this[relation])) {
-                for (const atom of this[relation]) {
-                    if (atom) result = result.concat(atom.filter(cb));
-                }
-            }
-        }
-        if (isArray(this.array)) {
-            for (const row of this.array) {
-                for (const cell of row) {
-                    if (cell) result = result.concat(cell.filter(cb));
-                }
-            }
-        }
-        return result;
     }
 
     decomposeGroup(context: Context): Span {

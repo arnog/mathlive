@@ -46,7 +46,7 @@ registerCommand({
         return true;
     },
     insert: (mathfield: MathfieldPrivate, s: string, options) =>
-        mathfield.$insert(s, options),
+        mathfield.insert(s, options),
     typedText: (mathfield: MathfieldPrivate, text: string) => {
         onTypedText(mathfield, text);
         return true;

@@ -150,8 +150,8 @@ export function performWithFeedback(
     selector: SelectorPrivate
 ): boolean {
     // @revisit: have a registry of commands -> sound
-    mathfield.$focus();
-    if (mathfield.config.keypressVibration && navigator?.vibrate) {
+    mathfield.focus();
+    if (mathfield.options.keypressVibration && navigator?.vibrate) {
         navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
     }
     // Convert kebab case to camel case.
@@ -195,7 +195,7 @@ export function performWithFeedback(
         mathfield.keypressSound.load();
         mathfield.keypressSound.play().catch((err) => console.warn(err));
     }
-    return mathfield.$perform(selector);
+    return mathfield.executeCommand(selector);
 }
 
 register({

@@ -13,7 +13,7 @@ import { inject as injectStylesheet } from '../common/stylesheet';
 
 // @ts-ignore
 import virtualKeyboardStylesheet from '../../css/virtual-keyboard.less';
-import { VirtualKeyboardLayer } from '../public/config';
+import { VirtualKeyboardLayer } from '../public/options';
 
 const KEYBOARDS = {
     numeric: {
@@ -863,9 +863,9 @@ function latexToMarkup(latex: string, arg, mf: MathfieldPrivate): string {
             decompose(
                 {
                     mathstyle: MATHSTYLES.displaystyle,
-                    macros: mf.config.macros,
+                    macros: mf.options.macros,
                 },
-                parseString(latex, 'math', arg, mf.config.macros)
+                parseString(latex, 'math', arg, mf.options.macros)
             ),
             'ML__base'
         ),
@@ -887,7 +887,7 @@ function makeKeyboardToolbar(
     if (keyboardList.length > 1) {
         const keyboards = {
             ...KEYBOARDS,
-            ...(mf.config.customVirtualKeyboards ?? {}),
+            ...(mf.options.customVirtualKeyboards ?? {}),
         };
         for (const keyboard of keyboardList) {
             if (!keyboards[keyboard]) {
@@ -995,7 +995,7 @@ export function makeKeycap(
                 '</aside>';
         }
         if (typeof html !== 'undefined') {
-            el.innerHTML = mf.config.createHTML(html);
+            el.innerHTML = mf.options.createHTML(html);
         }
         if (el.getAttribute('data-classes')) {
             el.classList.add(el.getAttribute('data-classes'));
@@ -1129,8 +1129,8 @@ function expandLayerMarkup(mf: MathfieldPrivate, layer): string {
             'upper-3': '^ZXCVBKM~',
         },
     };
-    const layout = ROWS[mf.config.virtualKeyboardLayout]
-        ? ROWS[mf.config.virtualKeyboardLayout]
+    const layout = ROWS[mf.options.virtualKeyboardLayout]
+        ? ROWS[mf.options.virtualKeyboardLayout]
         : ROWS['qwerty'];
 
     let result = layer;
@@ -1427,7 +1427,7 @@ export function makeKeyboard(
         });
     }
 
-    let keyboardIDs = mf.config.virtualKeyboards;
+    let keyboardIDs = mf.options.virtualKeyboards;
     if (!keyboardIDs) {
         keyboardIDs = 'all';
     }
@@ -1440,11 +1440,11 @@ export function makeKeyboard(
         [layerName: string]: string | VirtualKeyboardLayer;
     } = {
         ...LAYERS,
-        ...(mf.config.customVirtualKeyboardLayers ?? {}),
+        ...(mf.options.customVirtualKeyboardLayers ?? {}),
     };
     const keyboards = {
         ...KEYBOARDS,
-        ...(mf.config.customVirtualKeyboards ?? {}),
+        ...(mf.options.customVirtualKeyboards ?? {}),
     };
 
     const keyboardList = keyboardIDs.replace(/\s+/g, ' ').split(' ');
@@ -1569,10 +1569,10 @@ export function makeKeyboard(
     result.className = 'ML__keyboard';
     if (theme) {
         result.classList.add(theme);
-    } else if (mf.config.virtualKeyboardTheme) {
-        result.classList.add(mf.config.virtualKeyboardTheme);
+    } else if (mf.options.virtualKeyboardTheme) {
+        result.classList.add(mf.options.virtualKeyboardTheme);
     }
-    result.innerHTML = mf.config.createHTML(markup);
+    result.innerHTML = mf.options.createHTML(markup);
 
     // Attach the element handlers
     makeKeycap(
@@ -1682,12 +1682,12 @@ export function unshiftKeyboardLayer(mathfield: MathfieldPrivate): boolean {
             const keycap = keycaps[i];
             const content = keycap.getAttribute('data-unshifted-content');
             if (content) {
-                keycap.innerHTML = mathfield.config.createHTML(content);
+                keycap.innerHTML = mathfield.options.createHTML(content);
             }
             const command = keycap.getAttribute('data-unshifted-command');
             if (command) {
                 keycap.setAttribute(
-                    'data-' + mathfield.config.namespace + 'command',
+                    'data-' + mathfield.options.namespace + 'command',
                     command
                 );
             }

@@ -1,19 +1,16 @@
 import { register } from './commands';
 import type { ModelPrivate } from './model-class';
+import { getAnchor, getAnchorStyle } from './model-selection-utils';
 import {
-    setSelection,
     move,
     leap,
     skip,
     jumpToMathFieldBoundary,
-    up,
-    down,
     collapseSelectionForward,
-    getAnchor,
-    getAnchorStyle,
     selectGroup,
     extend,
     setSelectionExtent,
+    setSelectionOffset,
     selectAll,
     moveAfterParent,
 } from './model-selection';
@@ -35,10 +32,8 @@ export function moveToSuperscript(model: ModelPrivate): boolean {
             const sibling = model.sibling(1);
             if (sibling?.superscript) {
                 model.path[model.path.length - 1].offset += 1;
-                //            setSelection(model, model.anchorOffset() + 1);
             } else if (sibling?.subscript) {
                 model.path[model.path.length - 1].offset += 1;
-                //            setSelection(model, model.anchorOffset() + 1);
                 getAnchor(model).superscript = [
                     new Atom(model.parent().mode, 'first'),
                 ];
@@ -57,7 +52,6 @@ export function moveToSuperscript(model: ModelPrivate): boolean {
                             )
                         );
                     model.path[model.path.length - 1].offset += 1;
-                    //            setSelection(model, model.anchorOffset() + 1);
                 }
                 getAnchor(model).superscript = [
                     new Atom(model.parent().mode, 'first'),
@@ -85,10 +79,8 @@ export function moveToSubscript(model: ModelPrivate): boolean {
             const sibling = model.sibling(1);
             if (sibling?.subscript) {
                 model.path[model.path.length - 1].offset += 1;
-                // setSelection(model, model.anchorOffset() + 1);
             } else if (sibling?.superscript) {
                 model.path[model.path.length - 1].offset += 1;
-                // setSelection(model, model.anchorOffset() + 1);
                 getAnchor(model).subscript = [
                     new Atom(model.parent().mode, 'first'),
                 ];
@@ -107,7 +99,6 @@ export function moveToSubscript(model: ModelPrivate): boolean {
                             )
                         );
                     model.path[model.path.length - 1].offset += 1;
-                    // setSelection(model, model.anchorOffset() + 1);
                 }
                 getAnchor(model).subscript = [
                     new Atom(model.parent().mode, 'first'),
@@ -150,13 +141,13 @@ register(
                 ];
             }
 
-            setSelection(model, 0, 'end', oppositeRelation);
+            setSelectionOffset(model, 0, 'end', oppositeRelation);
             return true;
         },
         moveBeforeParent: (model: ModelPrivate): boolean => {
             if (model.path.length > 1) {
                 model.path.pop();
-                setSelection(model, model.anchorOffset() - 1);
+                setSelectionOffset(model, model.anchorOffset() - 1);
                 return true;
             }
             model.announce('plonk');
@@ -169,16 +160,18 @@ register(
             leap(model, +1),
         moveToPreviousPlaceholder: (model: ModelPrivate): boolean =>
             leap(model, -1),
-        moveToNextChar: (model: ModelPrivate): boolean => move(model, +1),
-        moveToPreviousChar: (model: ModelPrivate): boolean => move(model, -1),
-        moveUp: (model: ModelPrivate): boolean => up(model),
-        moveDown: (model: ModelPrivate): boolean => down(model),
+        moveToNextChar: (model: ModelPrivate): boolean =>
+            move(model, 'forward'),
+        moveToPreviousChar: (model: ModelPrivate): boolean =>
+            move(model, 'backward'),
+        moveUp: (model: ModelPrivate): boolean => move(model, 'upward'),
+        moveDown: (model: ModelPrivate): boolean => move(model, 'downward'),
         moveToNextWord: (model: ModelPrivate): boolean => skip(model, +1),
         moveToPreviousWord: (model: ModelPrivate): boolean => skip(model, -1),
         moveToGroupStart: (model: ModelPrivate): boolean =>
-            setSelection(model, 0),
+            setSelectionOffset(model, 0),
         moveToGroupEnd: (model: ModelPrivate): boolean =>
-            setSelection(model, -1),
+            setSelectionOffset(model, -1),
         moveToMathFieldStart: (model: ModelPrivate): boolean =>
             jumpToMathFieldBoundary(model, -1),
         moveToMathFieldEnd: (model: ModelPrivate): boolean =>
@@ -203,9 +196,10 @@ register(
             skip(model, +1, { extend: true }),
         extendToPreviousWord: (model: ModelPrivate): boolean =>
             skip(model, -1, { extend: true }),
-        extendUp: (model: ModelPrivate): boolean => up(model, { extend: true }),
+        extendUp: (model: ModelPrivate): boolean =>
+            move(model, 'upward', { extend: true }),
         extendDown: (model: ModelPrivate): boolean =>
-            down(model, { extend: true }),
+            move(model, 'downward', { extend: true }),
         /**
          * Extend the selection until the next boundary is reached. A boundary
          * is defined by an atom of a different type (mbin, mord, etc...)
@@ -225,13 +219,17 @@ register(
          */
         extendToPreviousBoundary: (model: ModelPrivate): boolean =>
             skip(model, -1, { extend: true }),
-        extendToGroupStart: (model: ModelPrivate): boolean =>
-            setSelectionExtent(model, -model.anchorOffset()),
-        extendToGroupEnd: (model: ModelPrivate): boolean =>
+        extendToGroupStart: (model: ModelPrivate): boolean => {
+            setSelectionExtent(model, -model.anchorOffset());
+            return true;
+        },
+        extendToGroupEnd: (model: ModelPrivate): boolean => {
             setSelectionExtent(
                 model,
                 model.siblings().length - model.anchorOffset()
-            ),
+            );
+            return true;
+        },
         extendToMathFieldStart: (model: ModelPrivate): boolean =>
             jumpToMathFieldBoundary(model, -1, { extend: true }),
         extendToMathFieldEnd: (model: ModelPrivate): boolean =>

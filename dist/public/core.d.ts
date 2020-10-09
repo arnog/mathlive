@@ -6,7 +6,7 @@ export declare type ParseMode = 'math' | 'text' | 'command' | 'chem';
 /**
  * Error code passed to the [[`ErrorListener`]] function.
  *
- * See [[`MathfieldConfig`]], [[`latexToMarkup`]],  [[`latexToMathML`]],  [[`latexToAST`]],
+ * See {@See MathfieldOptions}, {@See convertLlatexToMarkup},  {@See convertLatexToMathMl}
  *
  *
     |  | |
@@ -41,7 +41,7 @@ export declare type ErrorListener<T> = (err: {
  * Variants indicate a stylistic alternate for some characters.
  *
  * Typically, those are controlled with explicit commands, such as `\mathbb{}` or
- * `\mathfrak{}`. This type is used with the [[`$applyStyle`]] method to change
+ * `\mathfrak{}`. This type is used with the {@See applyStyle} method to change
  * the styling of a range of selected characters.
  *
  * In mathematical notation these variants are used not only for visual
@@ -106,7 +106,7 @@ export declare type MacroDefinition = {
  *
  * For example:
 ```typescript
-mf.$setConfig({
+mf.setOptions({
     macros: {
         smallfrac: '^{#1}\\!\\!/\\!_{#2}',
     },

@@ -1,6 +1,6 @@
-/* 0.56.0 */import { MathfieldConfig } from './config';
+/* 0.56.0 */import { MathfieldOptions } from './options';
 import { Selector } from './commands';
-import { InsertOptions, Mathfield, OutputFormat } from './mathfield';
+import { InsertOptions, Mathfield, OutputFormat, Range } from './mathfield';
 import { MathfieldErrorCode, ParseMode, ParserErrorCode, Style } from './core';
 /**
  * The `math-error` custom event signals an error while parsing an expression.
@@ -32,10 +32,10 @@ export declare type KeystrokeEvent = {
 };
 /**
  * This event signals that the mathfield has lost focus through keyboard
- * navigation, using either arrow keys or tab.
+ * navigation with arrow keys or the tab key.
  *
  * The event `detail.direction` property indicates the direction the cursor
- * was moving which can be useful to decide what to focus next.
+ * was moving which can be useful to decide which element to focus next.
  */
 export declare type FocusOutEvent = {
     direction: 'forward' | 'backward' | 'upward' | 'downward';
@@ -64,12 +64,17 @@ declare global {
  *
  * The supported attributes are listed in the table below with their correspnding
  * property. The property can be changed either directly on the
- * `MathfieldElement` object, or using `$setConfig()` when it is prefixed with
+ * `MathfieldElement` object, or using `setOptions()` when it is prefixed with
  * `options.`, for example
  * ```
  *  getElementById('mf').value = '\\sin x';
- *  getElementById('mf').$setConfig({horizontalSpacingScale: 1.1});
+ *  getElementById('mf').setOptions({horizontalSpacingScale: 1.1});
  * ```
+ *
+ * Most properties are reflected: changing the attribute will also change the
+ * property and vice versa) except for `value` whose attribute value is not
+ * updated.
+ *
  *
  * In addition, the following [global attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes)
  * can also be used:
@@ -106,6 +111,8 @@ declare global {
  * | `virtual-keyboard-mode` | `options.keyboardMode` |
  * | `virtual-keyboard-theme` | `options.keyboardTheme` |
  * | `virtual-keyboards` | `options.keyboards` |
+ *
+ *  See {@see config} for more details about these options.
  *
  * ### Events
  *
@@ -149,43 +156,33 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
     mfe.value = "\\frac{\\sin(x)}{\\cos(x)}";
     // Options can be set either as an attribute (for simple options)...
     mfe.setAttribute('virtual-keyboard-layout', 'dvorak');
-    // ... or using `$setConfig()`
-    mfe.$setConfig({
+    // ... or using `setOptions()`
+    mfe.setOptions({
         virtualKeyboardMode: 'manual',
     });
     // Attach the element
     document.body.appendChild(mfe);
     * ```
     */
-    constructor(options?: Partial<MathfieldConfig>);
+    constructor(options?: Partial<MathfieldOptions>);
     get mode(): ParseMode;
     set mode(value: ParseMode);
-    getConfig<K extends keyof MathfieldConfig>(keys: K[]): Pick<MathfieldConfig, K>;
-    getConfig<K extends keyof MathfieldConfig>(key: K): MathfieldConfig[K];
-    getConfig(): MathfieldConfig;
-    $setConfig(options: Partial<MathfieldConfig>): void;
-    $revertToOriginalContent(): void;
+    getOptions<K extends keyof MathfieldOptions>(keys: K[]): Pick<MathfieldOptions, K>;
+    getOptions(): MathfieldOptions;
+    getOption<K extends keyof MathfieldOptions>(key: K): MathfieldOptions[K];
+    setOptions(options: Partial<MathfieldOptions>): void;
     /**
-     * {@inheritDoc Mathfield.$perform}
+     * {@inheritDoc Mathfield.executeCommand}
      */
-    $perform(command: Selector | [Selector, ...any[]]): boolean;
-    $text(format?: OutputFormat): string;
-    $selectedText(format?: OutputFormat): string;
-    $select(): void;
-    $clearSelection(): void;
-    $selectionIsCollapsed(): boolean;
-    $selectionDepth(): number;
-    $selectionAtStart(): boolean;
-    $selectionAtEnd(): boolean;
-    $latex(text?: string, options?: InsertOptions): string;
-    $el(): HTMLElement;
-    $insert(s: string, options?: InsertOptions): boolean;
-    $hasFocus(): boolean;
-    $focus(): void;
-    $blur(): void;
-    $applyStyle(style: Style): void;
-    $keystroke(keys: string, evt?: KeyboardEvent): boolean;
-    $typedText(text: string): void;
+    executeCommand(command: Selector | [Selector, ...any[]]): boolean;
+    getValue(format?: OutputFormat): string;
+    setValue(value?: string, options?: InsertOptions): void;
+    hasFocus(): boolean;
+    focus(): void;
+    blur(): void;
+    select(): void;
+    insert(s: string, options?: InsertOptions): boolean;
+    applyStyle(style: Style): void;
     getCaretPosition(): {
         x: number;
         y: number;
@@ -214,7 +211,34 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
     set disabled(value: boolean);
     get disabled(): boolean;
     set value(value: string);
+    /**
+     * The content of the mathfield as a Latex expression.
+     * ```
+     * document.querySelector('mf').value = '\\frac{1}{\\pi}'
+     * ```
+     */
     get value(): string;
+    /**
+     * A range representing the selection.
+     *
+     */
+    get selection(): Range[];
+    /**
+     * Change the selection
+     *
+     */
+    set selection(value: Range[]);
+    /**
+     * Read the position of the caret
+     *
+     */
+    get position(): number;
+    /**
+     * Change the position of the caret
+     *
+     */
+    set position(value: number);
+    get lastPosition(): number;
 }
 export default MathfieldElement;
 declare global {

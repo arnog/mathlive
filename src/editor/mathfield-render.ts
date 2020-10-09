@@ -3,11 +3,8 @@ import { makeSpan, makeStruts } from '../core/span';
 import { MATHSTYLES } from '../core/mathstyle';
 
 import { pathToString } from './path';
-import {
-    selectionIsCollapsed,
-    getAnchor,
-    forEachSelected,
-} from './model-selection';
+import { getAnchor } from './model-selection-utils';
+import { selectionIsCollapsed, forEachSelected } from './model-selection';
 import { getSelectionBounds, isValidMathfield } from './mathfield-utils';
 import type { MathfieldPrivate } from './mathfield-class';
 
@@ -75,17 +72,17 @@ export function render(
         a.isSelected = false;
         a.containsCaret = false;
     });
-    const hasFocus = mathfield.$hasFocus();
+    const hasFocus = mathfield.hasFocus();
     if (selectionIsCollapsed(mathfield.model)) {
         getAnchor(mathfield.model).caret =
-            hasFocus && !mathfield.config.readOnly ? mathfield.mode : '';
+            hasFocus && !mathfield.options.readOnly ? mathfield.mode : '';
     } else {
         forEachSelected(mathfield.model, (a) => {
             a.isSelected = true;
         });
     }
 
-    if (hasFocus && !mathfield.config.readOnly) {
+    if (hasFocus && !mathfield.options.readOnly) {
         let ancestor = mathfield.model.ancestor(1);
         let i = 1;
         let done = false;
@@ -104,7 +101,7 @@ export function render(
     const spans = decompose(
         {
             mathstyle: MATHSTYLES.displaystyle,
-            letterShapeStyle: mathfield.config.letterShapeStyle,
+            letterShapeStyle: mathfield.options.letterShapeStyle,
             atomIdsSettings: {
                 // Using the hash as a seed for the ID
                 // keeps the IDs the same until the content of the field changes.
@@ -114,8 +111,8 @@ export function render(
                 // consecutive digits to represent a number.
                 groupNumbers: renderOptions.forHighlighting,
             },
-            smartFence: mathfield.config.smartFence,
-            macros: mathfield.config.macros,
+            smartFence: mathfield.options.smartFence,
+            macros: mathfield.options.macros,
         },
         mathfield.model.root
     );
@@ -136,17 +133,17 @@ export function render(
     //
     // 6. Generate markup and accessible node
     //
-    mathfield.field.innerHTML = mathfield.config.createHTML(
-        wrapper.toMarkup(0, mathfield.config.horizontalSpacingScale)
+    mathfield.field.innerHTML = mathfield.options.createHTML(
+        wrapper.toMarkup(0, mathfield.options.horizontalSpacingScale)
     );
     mathfield.field.classList.toggle(
         'ML__focused',
-        hasFocus && !mathfield.config.readOnly
+        hasFocus && !mathfield.options.readOnly
     );
 
-    mathfield.accessibleNode.innerHTML = mathfield.config.createHTML(
+    mathfield.accessibleNode.innerHTML = mathfield.options.createHTML(
         '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
-            atomsToMathML(mathfield.model.root, mathfield.config) +
+            atomsToMathML(mathfield.model.root, mathfield.options) +
             '</math>'
     );
     //mathfield.ariaLiveText.textContent = "";

@@ -2,50 +2,137 @@
 
 ### Major New Feature
 
--   **#665**: add support for `MathfieldElement` custom element/web component and `<math-field>` tag.
+This release introduce two major new features which will require code changes.
+For now, the older API remains supported but it will be dropped in an
+upcoming release.
 
-    The `makeMathField()` method is still supported, but it will be removed in an upcoming version. You should transition to using `<math-field>` or
-    `MathfieldElement` instead.
+#### **#665: Web Component**
 
-    This transition require the following changes:
+Support for `MathfieldElement` custom element/web component and `<math-field>` tag.
 
-    -   create mathfields using `MathfieldElement` or declaratively
+The `makeMathField()` method is still supported, but it will be removed in an upcoming version. You should transition to using `<math-field>` or
+`MathfieldElement` instead.
 
-        ```javascript
-        // Before
-        let mf = MathLive.makeMathField(document.createElement('div'), {
-            virtualKeyboardMode: 'manual',
-        });
-        mf.$latex('f(x) = \\sin x');
-        document.body.appendChild(mf.$el());
+This transition require the following changes:
 
-        // After
-        let mfe = new MathfieldElement({
-            virtualKeyboardMode: 'manual',
-        });
-        mfe.value = 'f(x) = \\sin x'; // or `mfe.$latex('f(x) - \\sin x')`
-        document.body.appendChild(mfe);
-        ```
+1.  Create mathfields using `MathfieldElement` or declaratively
 
-        or:
+```javascript
+// Before
+let mf = MathLive.makeMathField(document.createElement('div'), {
+    virtualKeyboardMode: 'manual',
+});
+mf.$latex('f(x) = \\sin x');
+document.body.appendChild(mf.$el());
 
-        ```html
-        <math-field virtual-keyboard-mode="manual">f(x) = \sin x</math-field>
-        ```
+// After
+let mfe = new MathfieldElement({
+    virtualKeyboardMode: 'manual',
+});
+mfe.value = 'f(x) = \\sin x';
+document.body.appendChild(mfe);
+```
 
-    -   use events instead of callbacks
+or:
 
-        ```javascript
-            // Before
-            mf.setConfig({ onContentDidChange: (mf) => {
-                console.log(mf.$latex())
-            });
+```html
+<math-field virtual-keyboard-mode="manual">f(x) = \sin x</math-field>
+```
 
-            // After
-            mf.addEventListener('change', (ev) => {
-                console.log(mf.value);
-            });
-        ```
+2.  Use events instead of callbacks
+
+```javascript
+    // Before
+    mf.setConfig({ onContentDidChange: (mf) => {
+        console.log(mf.$latex())
+    });
+
+    // After
+    mfe.addEventListener('change', (ev) => {
+        console.log(mfe.value);
+    });
+```
+
+#### **#667 Modernized Public API**
+
+Support for web component is an opportunity to revisit the MathLive public API and modernize it.
+
+The goals are:
+
+-   clarity. For example, the `$latex()` can be used to read or change the content of the mathfield.
+-   expressiveness. For example, `$selectedText()` can return the value of the selection,
+    but there is no way to inspect (or save/restore) the selection.
+-   consistency with web platform APIs when applicable, otherwise following the [**monaco**](https://github.com/Microsoft/monaco-editor/blob/master/monaco.d.ts) (VSCode editor) or [**CodeMirror**](https://codemirror.net/doc/manual.html#api) conventions primarily. As part of this proposal, the APIs of **TinyMCE**, **CKEditor** and **QuillJS** were also considered. For example, the method equivalent to `getConfig()` is called `getOptions()` in most
+    Javascript text editor libraries.
+
+**Mathfield methods**
+
+The following `Mathfield` methods have been renamed as indicated:
+
+| Before                       | After                                    |
+| :--------------------------- | :--------------------------------------- |
+| `$setConfig()`               | `setOptions()`                           |
+| `getConfig()`                | `getOptions()` and `getOption()`         |
+| `$text()`                    | `getValue()`                             |
+| `$latex()`                   | `value`, `getValue()` and `setValue()`   |
+| `$insert()`                  | `insert()`                               |
+| `$hasFocus()`                | `hasFocus()`                             |
+| `$focus()`                   | `focus()`                                |
+| `$blur()`                    | `blur()`                                 |
+| `$selectedText()`            | `mf.getValue(mf.selection)`              |
+| `$selectionIsCollapsed()`    | `mf.selection[0].collapsed`              |
+| `$selectionDepth()`          | `mf.selection[0].depth`                  |
+| `$selectionAtStart()`        | `mf.position === 0`                      |
+| `$selectionAtEnd()`          | `mf.position === mf.lastPosition`        |
+| `$select()`                  | `select()`                               |
+| `$clearSelection()`          | `executeCommand('delete-previous-char')` |
+| `$keystroke()`               | `executeCommand()`                       |
+| `$typedText()`               | `executeCommand('typed-text')`           |
+| `$perform()`                 | `executeCommand()`                       |
+| `$revertToOriginalContent()` | n/a                                      |
+| `$el()`                      | n/a                                      |
+| n/a                          | `selection`                              |
+| n/a                          | `position`                               |
+
+The methods indicated with "n/a" in the **After** column have been dropped.
+
+Only the new methods are available on `MathfieldElement` (i.e. when using web components). The `Mathfield` class retains both the old methods and the
+new ones to facilitate the transition, but the old ones will be dropped
+in an upcoming version.
+
+There is also a new `selection` property on `Mathfield` and `MathfieldElement`
+which can be used to inspect and change the selection and a `position`
+property to inspect and change the insertion point (caret).
+
+The `getValue()` method also now take an (optional) `Range`, which is
+the type of the `selection` property, to extract a fragment of the expression.
+
+**Default Exports**
+
+While default exports have the benefits of expediency, particularly when converting an existing code base to ES Modules, they are problematic for effective tree shaking. Therefore the default export will be eliminated.
+
+This means that instead of:
+
+```javascript
+import Mathlive from 'mathlive';
+Mathlive.renderMathInDocument();
+```
+
+you will need to use:
+
+```javascript
+import { renderMathInDocument } from 'mathlive';
+renderMathInDocument();
+```
+
+The following functions have been renamed:
+
+| Before                            | After                           |
+| :-------------------------------- | :------------------------------ |
+| `MathLive.latexToAST()`           | Use MathJSON                    |
+| `MathLive.latexToMarkup()`        | `convertLatexToMarkup()`        |
+| `MathLive.latexToMathML()`        | `convertLatexToMathMl()`        |
+| `MathLive.latexToSpeakableText()` | `convertLatexToSpeakableText(`) |
 
 ### New Features
 
@@ -54,11 +141,11 @@
 ### Improvements
 
 -   The Typescript types for `Selector` has been improved
--   The Typescript type for `getConfig()` are more accurate
+-   The Typescript type for `getOptions()` (`getConfig()`) are more accurate
 -   The "sqrt" inline shortcut now inserts an argument
 -   Don't throw an error if the first argument of `\enclose` is empty
 -   **#591**: add `upward` and `downward` hooks when navigating out of the
-    mathfield (now sent also sent as `focus-out` events)
+    mathfield (now also sent as a `focus-out` event)
 -   Improved layout of the virtual keyboard on narrow mobile devices (fill the available width).
 
 ### Bug Fixes

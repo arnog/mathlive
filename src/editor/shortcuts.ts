@@ -1,8 +1,8 @@
-import type { InlineShortcutDefinition } from '../public/config';
+import type { InlineShortcutDefinition } from '../public/options';
 import { LETTER } from '../core/definitions';
 import type { Atom } from '../core/atom';
 
-import { MathfieldConfigPrivate } from './config';
+import { MathfieldOptionsPrivate } from './options';
 import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 
 export { InlineShortcutDefinition };
@@ -13,7 +13,7 @@ export { INLINE_SHORTCUTS } from './shortcuts-definitions';
  */
 export function getInlineShortcutsStartingWith(
     s: string,
-    config: MathfieldConfigPrivate
+    config: MathfieldOptionsPrivate
 ): string[] {
     const result = [];
 

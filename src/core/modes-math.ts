@@ -1,7 +1,8 @@
 import { colorToString } from './color';
-import { joinLatex, register, getPropertyRuns } from './modes-utils';
 import { getInfo, mathVariantToUnicode } from './definitions-utils';
 import type { Atom } from './atom';
+import { joinLatex } from './tokenizer';
+import { getPropertyRuns, register } from './modes-utils';
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible

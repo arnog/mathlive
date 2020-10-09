@@ -2,7 +2,7 @@ import { isArray } from '../common/types';
 
 import type { ParseMode } from '../public/core';
 import type { Selector } from '../public/commands';
-import type { Keybinding } from '../public/config';
+import type { Keybinding } from '../public/options';
 
 import { getCodeForKey } from './keyboard-layout';
 import { REVERSE_KEYBINDINGS } from './keybindings-definitions';

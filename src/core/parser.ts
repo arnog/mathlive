@@ -8,9 +8,9 @@ import {
 } from './definitions';
 import { stringToColor } from './color';
 import { convertDimenToEm } from './font-metrics';
-import { Token, tokenize } from './tokenizer';
+import { Token, tokenize, tokensToString } from './tokenizer';
 import { Atom, Colspec, BBoxParam } from './atom';
-import { parseTokens, tokensToString } from './modes-utils';
+import { parseTokens } from './modes-utils';
 import { FunctionDefinition, SymbolDefinition } from './definitions-utils';
 import {
     ErrorListener,

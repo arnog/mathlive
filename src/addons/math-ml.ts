@@ -1,4 +1,4 @@
-import type { MathfieldConfig } from '../public/config';
+import type { MathfieldOptions } from '../public/options';
 import { Atom } from '../core/atom';
 import { stringToColor } from '../core/color';
 const SPECIAL_OPERATORS = {
@@ -494,7 +494,7 @@ function toMathML(
     input: number | boolean | string | Atom | Atom[],
     initial: number,
     final: number,
-    options: Partial<MathfieldConfig>
+    options: Partial<MathfieldOptions>
 ): {
     atoms: number | boolean | string | Atom | Atom[];
     index: number;
@@ -1099,7 +1099,7 @@ function atomToMathML(atom, options): string {
 
 export function atomsToMathML(
     atoms: Atom | Atom[],
-    options: Partial<MathfieldConfig>
+    options: Partial<MathfieldOptions>
 ): string {
     return toMathML(atoms, 0, 0, options).mathML;
 }

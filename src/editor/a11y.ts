@@ -1,4 +1,4 @@
-import type { TextToSpeechOptions } from '../public/config';
+import type { TextToSpeechOptions } from '../public/options';
 
 import type { Atom } from '../core/atom';
 
@@ -35,7 +35,7 @@ export function defaultAnnounceHook(
         // As a side effect, reset the keystroke buffer
         mathfield.resetKeystrokeBuffer();
     } else if (action === 'delete') {
-        liveText = speakableText(mathfield.config, 'deleted: ', atoms);
+        liveText = speakableText(mathfield.options, 'deleted: ', atoms);
         //*** FIX: could also be moveUp or moveDown -- do something different like provide context???
     } else if (action === 'focus' || /move/.test(action)) {
         //*** FIX -- should be xxx selected/unselected */
@@ -45,16 +45,16 @@ export function defaultAnnounceHook(
     } else if (action === 'replacement') {
         // announce the contents
         liveText = speakableText(
-            mathfield.config,
+            mathfield.options,
             '',
             mathfield.model.sibling(0)
         );
     } else if (action === 'line') {
         // announce the current line -- currently that's everything
-        liveText = speakableText(mathfield.config, '', mathfield.model.root);
-        mathfield.accessibleNode.innerHTML = mathfield.config.createHTML(
+        liveText = speakableText(mathfield.options, '', mathfield.model.root);
+        mathfield.accessibleNode.innerHTML = mathfield.options.createHTML(
             '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
-                atomsToMathML(mathfield.model.root, mathfield.config) +
+                atomsToMathML(mathfield.model.root, mathfield.options) +
                 '</math>'
         );
 
@@ -69,7 +69,7 @@ export function defaultAnnounceHook(
         // });
     } else {
         liveText = atoms
-            ? speakableText(mathfield.config, action + ' ', atoms)
+            ? speakableText(mathfield.options, action + ' ', atoms)
             : action;
     }
     // aria-live regions are only spoken when it changes; force a change by
@@ -122,7 +122,7 @@ function nextAtomSpeechText(
     }
     if (!selectionIsCollapsed(mathfield.model)) {
         return speakableText(
-            mathfield.config as Required<TextToSpeechOptions>,
+            mathfield.options as Required<TextToSpeechOptions>,
             '',
             getSelectedAtoms(mathfield.model)
         );
@@ -136,7 +136,7 @@ function nextAtomSpeechText(
     const atom = mathfield.model.sibling(Math.max(1, mathfield.model.extent));
     if (atom) {
         result += speakableText(
-            mathfield.config as Required<TextToSpeechOptions>,
+            mathfield.options as Required<TextToSpeechOptions>,
             '',
             atom
         );

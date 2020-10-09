@@ -8,6 +8,5 @@ export * from './model-insert';
 export * from './model-listeners';
 export * from './model-selection';
 export * from './model-styling';
-export * from './model-smartfence';
 
 import './model-commands';

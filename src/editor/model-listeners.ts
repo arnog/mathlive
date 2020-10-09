@@ -13,30 +13,12 @@ export type ModelListeners = {
     onError: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
 };
 
-export function selectionWillChange(model: ModelPrivate): void {
-    if (
-        typeof model.listeners?.onSelectionWillChange === 'function' &&
-        !model.suppressChangeNotifications
-    ) {
-        model.listeners.onSelectionWillChange(model);
-    }
-}
-
 export function selectionDidChange(model: ModelPrivate): void {
     if (
         typeof model.listeners?.onSelectionDidChange === 'function' &&
         !model.suppressChangeNotifications
     ) {
         model.listeners.onSelectionDidChange(model);
-    }
-}
-
-export function contentWillChange(model: ModelPrivate): void {
-    if (
-        typeof model.listeners?.onContentWillChange === 'function' &&
-        !model.suppressChangeNotifications
-    ) {
-        model.listeners.onContentWillChange(model);
     }
 }
 

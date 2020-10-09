@@ -1,4 +1,4 @@
-import type { MathfieldConfig } from '../public/config';
+import type { MathfieldOptions } from '../public/options';
 
 import { isArray } from '../common/types';
 
@@ -18,7 +18,7 @@ const NO_OP_LISTENER = (): void => {
     return;
 };
 
-export type MathfieldConfigPrivate = MathfieldConfig & {
+export type MathfieldOptionsPrivate = MathfieldOptions & {
     onAnnounce: (
         target: MathfieldPrivate,
         command: string, // verb
@@ -53,13 +53,13 @@ function unloadSound(
 }
 
 export function update(
-    current: Required<MathfieldConfigPrivate>,
-    updates: Partial<MathfieldConfigPrivate>
-): Required<MathfieldConfigPrivate> {
-    const result: Required<MathfieldConfigPrivate> = get(
+    current: Required<MathfieldOptionsPrivate>,
+    updates: Partial<MathfieldOptionsPrivate>
+): Required<MathfieldOptionsPrivate> {
+    const result: Required<MathfieldOptionsPrivate> = get(
         current,
         Object.keys(current)
-    ) as Required<MathfieldConfigPrivate>;
+    ) as Required<MathfieldOptionsPrivate>;
     Object.keys(updates).forEach((key) => {
         switch (key) {
             case 'scriptDepth':
@@ -234,9 +234,9 @@ export function update(
 }
 
 export function get(
-    config: Required<MathfieldConfigPrivate>,
-    keys?: keyof MathfieldConfigPrivate | string[]
-): any | Partial<MathfieldConfigPrivate> {
+    config: Required<MathfieldOptionsPrivate>,
+    keys?: keyof MathfieldOptionsPrivate | string[]
+): any | Partial<MathfieldOptionsPrivate> {
     let resolvedKeys: string[];
     if (typeof keys === 'string') {
         resolvedKeys = [keys];
@@ -245,7 +245,7 @@ export function get(
     } else {
         resolvedKeys = keys;
     }
-    const result: Partial<MathfieldConfigPrivate> = {};
+    const result: Partial<MathfieldOptionsPrivate> = {};
     resolvedKeys.forEach((x) => {
         if (isArray(result[x])) {
             result[x] = [...result[x]];
@@ -262,7 +262,7 @@ export function get(
     return result;
 }
 
-export function getDefault(): Required<MathfieldConfigPrivate> {
+export function getDefault(): Required<MathfieldOptionsPrivate> {
     return {
         namespace: '',
         substituteTextArea: undefined,

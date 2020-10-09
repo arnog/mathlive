@@ -1,4 +1,4 @@
-import type { KeyboardLayoutName as KeyboardLayoutId } from '../public/config';
+import type { KeyboardLayoutName as KeyboardLayoutId } from '../public/options';
 
 // From https://www.w3.org/TR/uievents-code/
 type Keycode =

@@ -27,10 +27,13 @@ export function onCopy(mathfield: MathfieldPrivate, e: ClipboardEvent): void {
     if (selectionIsCollapsed(mathfield.model)) {
         e.clipboardData.setData(
             'text/plain',
-            '$$' + mathfield.$text('latex-expanded') + '$$'
+            '$$' + mathfield.getValue('latex-expanded') + '$$'
         );
-        e.clipboardData.setData('application/json', mathfield.$text('json'));
-        e.clipboardData.setData('application/xml', mathfield.$text('mathML'));
+        e.clipboardData.setData('application/json', mathfield.getValue('json'));
+        e.clipboardData.setData(
+            'application/xml',
+            mathfield.getValue('mathML')
+        );
     } else {
         e.clipboardData.setData(
             'text/plain',
@@ -52,24 +55,24 @@ export function onCopy(mathfield: MathfieldPrivate, e: ClipboardEvent): void {
 registerCommand(
     {
         copyToClipboard: (mathfield: MathfieldPrivate) => {
-            mathfield.$focus();
+            mathfield.focus();
             // If the selection is empty, select the entire field before
             // copying it.
             if (selectionIsCollapsed(mathfield.model)) {
-                mathfield.$select();
+                mathfield.select();
             }
             document.execCommand('copy');
             return false;
         },
 
         cutToClipboard: (mathfield: MathfieldPrivate) => {
-            mathfield.$focus();
+            mathfield.focus();
             document.execCommand('cut');
             return true;
         },
 
         pasteFromClipboard: (mathfield: MathfieldPrivate) => {
-            mathfield.$focus();
+            mathfield.focus();
             document.execCommand('paste');
             return true;
         },

@@ -1,4 +1,4 @@
-import type { InlineShortcutDefinition } from '../public/config';
+import type { InlineShortcutDefinition } from '../public/options';
 
 /**
  * These shortcut strings are replaced with the corresponding LaTeX expression

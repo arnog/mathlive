@@ -1,173 +1,184 @@
 <!DOCTYPE html>
 <html lang="en-US">
-    <head>
-        <meta charset="utf-8" />
-        <title>MathLive Latex Editor</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="stylesheet" href="../style.css" />
-        <link
-        crossorigin
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,700;1,400;1,700&family=IBM+Plex+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
-    />
-            <style>
-            /* .buttonbar button { */
-             button {
-                background: none;
-                border: 1px solid rgba(0, 0, 0, 0.12);
-                border-radius: 4px;
-                color: #0066ce;
-                fill: currentColor;
-                position: relative;
-                height: 36px;
-                line-height: 36px;
-                margin: 0 18px 0 0;
-                min-width: 64px;
-                padding: 0 16px;
-                display: inline-block;
-                overflow: hidden;
-                will-change: box-shadow;
-                transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1),
-                    background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-                    color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-                outline: none;
-                cursor: pointer;
-                text-decoration: none;
-                text-align: center;
-                vertical-align: middle;
-                -webkit-user-select: none;
-                user-select: none;
 
-                font-size: 16px;
-                letter-spacing: 0.08929em;
-                text-transform: uppercase;
-                box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.2),
-                    0px 2px 2px 0px rgba(0, 0, 0, 0.14),
-                    0px 3px 1px -2px rgba(0, 0, 0, 0.12);
-            }
-            button:first-child {
-                margin-left: 0;
-            }
-            button:hover {
-                background-color: rgba(0, 0, 0, 0.08);
-            }
-            button:active {
-                background-color: white;
-            }
-            button.primary,
-            button.active {
-                color: white;
-                fill: currentColor;
-                background: #0066ce;
-            }
+<head>
+    <meta charset="utf-8" />
+    <title>MathLive Latex Editor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="../style.css" />
+    <link crossorigin rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,700;1,400;1,700&family=IBM+Plex+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" />
+    <style>
+        /* .buttonbar button { */
+        button {
+            background: none;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            border-radius: 4px;
+            color: #0066ce;
+            fill: currentColor;
+            position: relative;
+            height: 36px;
+            line-height: 36px;
+            margin: 0 18px 0 0;
+            min-width: 64px;
+            padding: 0 16px;
+            display: inline-block;
+            overflow: hidden;
+            will-change: box-shadow;
+            transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1),
+                background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            vertical-align: middle;
+            -webkit-user-select: none;
+            user-select: none;
 
-            button.primary:hover {
-                background-color: rgba(0, 102, 206, 0.58);
-            }
-            button.primary:active {
-                color: #0066ce;
-                fill: currentColor;
-                background-color: white;
-            }
-            button.round {
-                width: 64px;
-                height: 64px;
-                border-radius: 50%;
-            }
-            .buttonbar {
-                margin-top: 1em;
-            }
-            #inputs {
-                display: flex;
-                flex-flow: column;
-            }
-            #mf,
-            #latex {
-                width: 100%;
-            }
-            #latex {
-                font-size: 16px;
-            }
-            #latex::selection {
-                background: rgba(240, 198, 116, 0.99);
-                color: #333;
-                opacity: 1;
-            }
-        </style>
-    </head>
-    <body>
-        <header>
-            <h1>MathLive Latex Editor</h1>
-        </header>
-        <main>
-            <div id="inputs">
-                <label>Formula</label>
-                <div class="mathfield" id="mf"></div>
-                <label>Latex</label>
-                <textarea class="output" id="latex" autocapitalize="off" autocomplete="off"
-                autocorrect="off" spellcheck="false"></textarea></textarea>
-            </div>
-            <div class="buttonbar">
-                <button id="save-to-png">Save to PNG</button>
-            </div>
-        </main>
+            font-size: 16px;
+            letter-spacing: 0.08929em;
+            text-transform: uppercase;
+            box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2),
+                0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                0 3px 1px -2px rgba(0, 0, 0, 0.12);
+        }
 
-        <footer></footer>
+        button:first-child {
+            margin-left: 0;
+        }
 
-        <script type="module">
-            import MathLive from '/dist/mathlive.mjs';
-            import * as htmlToImage from './html-to-image/index.mjs';
-            // import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
+        button:hover {
+            background-color: rgba(0, 0, 0, 0.08);
+        }
 
-            const mf = MathLive.makeMathField('mf', {
-                smartMode: true,
-                virtualKeyboardMode: 'manual',
-                onContentDidChange: (mf) => {
-                    const latex = mf.$text();
-                    document.getElementById('latex').value = latex;
-                },
+        button:active {
+            background-color: white;
+        }
+
+        button.primary,
+        button.active {
+            color: white;
+            fill: currentColor;
+            background: #0066ce;
+        }
+
+        button.primary:hover {
+            background-color: rgba(0, 102, 206, 0.58);
+        }
+
+        button.primary:active {
+            color: #0066ce;
+            fill: currentColor;
+            background-color: white;
+        }
+
+        button.round {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+        }
+
+        .buttonbar {
+            margin-top: 1em;
+        }
+
+        #inputs {
+            display: flex;
+            flex-flow: column;
+        }
+
+        #mf,
+        #latex {
+            width: 100%;
+        }
+
+        #latex {
+            font-size: 16px;
+        }
+
+        #latex::selection {
+            background: rgba(240, 198, 116, 0.99);
+            color: #333;
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>MathLive Latex Editor</h1>
+    </header>
+    <main>
+        <div id="inputs">
+            <label>Formula</label>
+            <div class="mathfield" id="mf"></div>
+            <label>Latex</label>
+            <textarea class="output" id="latex" autocapitalize="off" autocomplete="off" autocorrect="off"
+                spellcheck="false"></textarea></textarea>
+        </div>
+        <div class="buttonbar">
+            <button id="save-to-png">Save to PNG</button>
+        </div>
+    </main>
+
+    <footer></footer>
+
+    <script type="module">
+        import { makeMathField } from '/dist/mathlive.mjs';
+        import * as htmlToImage from './html-to-image/index.mjs';
+        // import { makeMathField } from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
+
+        const mf = makeMathField('mf', {
+            smartMode: true,
+            virtualKeyboardMode: 'manual',
+            onContentDidChange: (mf) => {
+                const latex = mf.getValue();
+                document.getElementById('latex').value = latex;
+            },
+        });
+
+        document.getElementById('latex').addEventListener('input', (ev) => {
+            mf.setValue(ev.target.value);
+        });
+
+        document
+            .getElementById('save-to-png')
+            .addEventListener('click', (ev) => {
+                htmlToImage
+                    .toPng(
+                        document
+                            .getElementById('mf')
+                            .querySelector('.ML__mathlive')
+                    )
+                    .then((data) => {
+                        var link = document.createElement('a');
+                        link.download = 'formula.png';
+                        link.href = data;
+                        link.click();
+                    });
             });
 
-            document.getElementById('latex').addEventListener('input', (ev) => {
-                mf.$latex(ev.target.value);
+        function escapeHtml(string) {
+            return String(string).replace(/[&<>"'`=/\u200b]/g, function (
+                s
+            ) {
+                return (
+                    {
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#39;',
+                        '/': '&#x2F;',
+                        '`': '&#x60;',
+                        '=': '&#x3D;',
+                        '\u200b': '&amp;#zws;',
+                    }[s] || s
+                );
             });
+        }
+    </script>
+</body>
 
-            document
-                .getElementById('save-to-png')
-                .addEventListener('click', (ev) => {
-                    htmlToImage
-                        .toPng(
-                            document
-                                .getElementById('mf')
-                                .querySelector('.ML__mathlive')
-                        )
-                        .then((data) => {
-                            var link = document.createElement('a');
-                            link.download = 'formula.png';
-                            link.href = data;
-                            link.click();
-                        });
-                });
-
-            function escapeHtml(string) {
-                return String(string).replace(/[&<>"'`=/\u200b]/g, function (
-                    s
-                ) {
-                    return (
-                        {
-                            '&': '&amp;',
-                            '<': '&lt;',
-                            '>': '&gt;',
-                            '"': '&quot;',
-                            "'": '&#39;',
-                            '/': '&#x2F;',
-                            '`': '&#x60;',
-                            '=': '&#x3D;',
-                            '\u200b': '&amp;#zws;',
-                        }[s] || s
-                    );
-                });
-            }
-        </script>
-    </body>
 </html>

@@ -252,11 +252,11 @@ export type TextToSpeechOptions = {
      * twice the default rate.
      */
     speechEngineRate: string;
-    speakHook: (text: string, config: Partial<MathfieldConfig>) => void; // @revisit 1.0: rename speakHook
+    speakHook: (text: string, config: Partial<MathfieldOptions>) => void; // @revisit 1.0: rename speakHook
     readAloudHook: (
         element: HTMLElement,
         text: string,
-        config: MathfieldConfig
+        config: MathfieldOptions
     ) => void; // @revisit 1.0: rename readAloudHook
 };
 
@@ -737,7 +737,7 @@ mf.setConfig({
  * @keywords security, trust, sanitize, errors
  */
 
-export type MathfieldConfig = LayoutOptions &
+export type MathfieldOptions = LayoutOptions &
     EditingOptions &
     LocalizationOptions &
     InlineShortcutsOptions &
@@ -830,6 +830,11 @@ export type MathfieldConfig = LayoutOptions &
         createHTML: (html: string) => any;
         // @todo https://github.com/microsoft/TypeScript/issues/30024
     };
+
+/**
+ * @deprecated Use MathfieldOptions
+ */
+export type MathfieldConfig = MathfieldOptions;
 
 /**
  *  | Name | Platform | Display name |

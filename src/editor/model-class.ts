@@ -100,7 +100,7 @@ export class ModelPrivate implements Model {
     /**
      * @return array of children of the parent
      */
-    siblings(): Atom[] {
+    siblings(addMisingFirstAtom = true): Atom[] {
         if (this.path.length === 0) return [];
 
         let siblings: Atom[];
@@ -112,7 +112,10 @@ export class ModelPrivate implements Model {
         }
 
         // If the 'first' atom is missing, insert it
-        if (siblings.length === 0 || siblings[0].type !== 'first') {
+        if (
+            addMisingFirstAtom &&
+            (siblings.length === 0 || siblings[0].type !== 'first')
+        ) {
             siblings.unshift(new Atom(this.parent().mode, 'first'));
         }
 

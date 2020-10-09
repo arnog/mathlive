@@ -46,25 +46,25 @@ export function attachButtonHandlers(
         // Attach the default (no modifiers pressed) command to the element
         if (command.default) {
             el.setAttribute(
-                'data-' + mathfield.config.namespace + 'command',
+                'data-' + mathfield.options.namespace + 'command',
                 JSON.stringify(command.default)
             );
         }
         if (command.alt) {
             el.setAttribute(
-                'data-' + mathfield.config.namespace + 'command-alt',
+                'data-' + mathfield.options.namespace + 'command-alt',
                 JSON.stringify(command.alt)
             );
         }
         if (command.altshift) {
             el.setAttribute(
-                'data-' + mathfield.config.namespace + 'command-altshift',
+                'data-' + mathfield.options.namespace + 'command-altshift',
                 JSON.stringify(command.altshift)
             );
         }
         if (command.shift) {
             el.setAttribute(
-                'data-' + mathfield.config.namespace + 'command-shift',
+                'data-' + mathfield.options.namespace + 'command-shift',
                 JSON.stringify(command.shift)
             );
         }
@@ -73,14 +73,14 @@ export function attachButtonHandlers(
         // the button is released
         if (command.pressed) {
             el.setAttribute(
-                'data-' + mathfield.config.namespace + 'command-pressed',
+                'data-' + mathfield.options.namespace + 'command-pressed',
                 JSON.stringify(command.pressed)
             );
         }
         if (command.pressAndHoldStart) {
             el.setAttribute(
                 'data-' +
-                    mathfield.config.namespace +
+                    mathfield.options.namespace +
                     'command-pressAndHoldStart',
                 JSON.stringify(command.pressAndHoldStart)
             );
@@ -88,7 +88,7 @@ export function attachButtonHandlers(
         if (command.pressAndHoldEnd) {
             el.setAttribute(
                 'data-' +
-                    mathfield.config.namespace +
+                    mathfield.options.namespace +
                     'command-pressAndHoldEnd',
                 JSON.stringify(command.pressAndHoldEnd)
             );
@@ -98,7 +98,7 @@ export function attachButtonHandlers(
         // associated with the button (the command could be an array made of a
         // selector and one or more parameters)
         el.setAttribute(
-            'data-' + mathfield.config.namespace + 'command',
+            'data-' + mathfield.options.namespace + 'command',
             JSON.stringify(command)
         );
     }
@@ -127,16 +127,16 @@ export function attachButtonHandlers(
                 // Parse the JSON to get the command (and its optional arguments)
                 // and perform it immediately
                 const command = el.getAttribute(
-                    'data-' + mathfield.config.namespace + 'command-pressed'
+                    'data-' + mathfield.options.namespace + 'command-pressed'
                 );
                 if (command) {
-                    mathfield.$perform(JSON.parse(command));
+                    mathfield.executeCommand(JSON.parse(command));
                 }
                 // If there is a `press and hold start` command, perform it
                 // after a delay, if we're still pressed by then.
                 const pressAndHoldStartCommand = el.getAttribute(
                     'data-' +
-                        mathfield.config.namespace +
+                        mathfield.options.namespace +
                         'command-pressAndHoldStart'
                 );
                 if (pressAndHoldStartCommand) {
@@ -146,7 +146,7 @@ export function attachButtonHandlers(
                     }
                     pressAndHoldTimer = window.setTimeout(function () {
                         if (el.classList.contains('pressed')) {
-                            mathfield.$perform(
+                            mathfield.executeCommand(
                                 JSON.parse(pressAndHoldStartCommand)
                             );
                         }
@@ -161,7 +161,7 @@ export function attachButtonHandlers(
         //     'command-pressAndHoldEnd');
         // const now = Date.now();
         // if (command && now > pressHoldStart + 300) {
-        //     mathfield.$perform(JSON.parse(command));
+        //     mathfield.executeCommand(JSON.parse(command));
         // }
     });
     on(
@@ -235,7 +235,9 @@ export function attachButtonHandlers(
                 el.classList.remove('active');
             }, 150);
             let command = el.getAttribute(
-                'data-' + mathfield.config.namespace + 'command-pressAndHoldEnd'
+                'data-' +
+                    mathfield.options.namespace +
+                    'command-pressAndHoldEnd'
             );
             const now = Date.now();
             // If the button has not been pressed for very long or if we were
@@ -246,28 +248,28 @@ export function attachButtonHandlers(
             }
             if (!command && ev.altKey && ev.shiftKey) {
                 command = el.getAttribute(
-                    'data-' + mathfield.config.namespace + 'command-altshift'
+                    'data-' + mathfield.options.namespace + 'command-altshift'
                 );
             }
             if (!command && ev.altKey) {
                 command = el.getAttribute(
-                    'data-' + mathfield.config.namespace + 'command-alt'
+                    'data-' + mathfield.options.namespace + 'command-alt'
                 );
             }
             if (!command && ev.shiftKey) {
                 command = el.getAttribute(
-                    'data-' + mathfield.config.namespace + 'command-shift'
+                    'data-' + mathfield.options.namespace + 'command-shift'
                 );
             }
             if (!command) {
                 command = el.getAttribute(
-                    'data-' + mathfield.config.namespace + 'command'
+                    'data-' + mathfield.options.namespace + 'command'
                 );
             }
             if (command) {
                 // Parse the JSON to get the command (and its optional arguments)
                 // and perform it
-                mathfield.$perform(JSON.parse(command));
+                mathfield.executeCommand(JSON.parse(command));
             }
             ev.stopPropagation();
             ev.preventDefault();
