@@ -1,4 +1,4 @@
-/* 0.56.0 */import { MathfieldOptions } from './options';
+/* 0.57.0 */import { MathfieldOptions } from './options';
 import { Selector } from './commands';
 import { InsertOptions, Mathfield, OutputFormat, Range } from './mathfield';
 import { MathfieldErrorCode, ParseMode, ParserErrorCode, Style } from './core';
