@@ -127,13 +127,8 @@ export function onKeystroke(
         if (keystroke === '[Backspace]') {
             // Special case for backspace
             mathfield.keystrokeBuffer = mathfield.keystrokeBuffer.slice(0, -1);
-            mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
-            if (mathfield.options.inlineShortcutTimeout) {
-                // Set a timer to reset the shortcut buffer
-                mathfield.keystrokeBufferResetTimer = setTimeout(() => {
-                    mathfield.resetKeystrokeBuffer();
-                }, mathfield.options.inlineShortcutTimeout);
-            }
+            mathfield.keystrokeBufferStates.pop();
+            mathfield.resetKeystrokeBuffer({ defer: true });
         } else if (!mightProducePrintableCharacter(evt)) {
             // It was a non-alpha character (PageUp, End, etc...)
             mathfield.resetKeystrokeBuffer();
@@ -167,17 +162,10 @@ export function onKeystroke(
                     candidate.slice(i),
                     mathfield.options.inlineShortcuts
                 );
-                console.log(
-                    'shortcut ',
-                    '@ ',
-                    i,
-                    candidate.slice(i),
-                    ' = ',
-                    shortcut
-                );
                 i += 1;
             }
-            stateIndex = mathfield.keystrokeBufferStates.length - i + 1;
+            stateIndex =
+                mathfield.keystrokeBufferStates.length - (candidate.length - i);
             mathfield.keystrokeBuffer += c;
             mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
             if (
@@ -186,12 +174,7 @@ export function onKeystroke(
             ) {
                 resetKeystrokeBuffer = true;
             } else {
-                if (mathfield.options.inlineShortcutTimeout) {
-                    // Set a timer to reset the shortcut buffer
-                    mathfield.keystrokeBufferResetTimer = setTimeout(() => {
-                        mathfield.resetKeystrokeBuffer();
-                    }, mathfield.options.inlineShortcutTimeout);
-                }
+                mathfield.resetKeystrokeBuffer({ defer: true });
             }
         }
     }

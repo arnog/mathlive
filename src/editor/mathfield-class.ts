@@ -628,7 +628,17 @@ export class MathfieldPrivate implements Mathfield {
         this.stylesheets.forEach((x) => x.release());
     }
 
-    resetKeystrokeBuffer(): void {
+    resetKeystrokeBuffer(options?: { defer: boolean }): void {
+        options = options ?? { defer: false };
+        if (options.defer) {
+            if (this.options.inlineShortcutTimeout) {
+                // Set a timer to reset the shortcut buffer
+                this.keystrokeBufferResetTimer = setTimeout(() => {
+                    this.resetKeystrokeBuffer();
+                }, this.options.inlineShortcutTimeout);
+            }
+            return;
+        }
         this.keystrokeBuffer = '';
         this.keystrokeBufferStates = [];
         clearTimeout(this.keystrokeBufferResetTimer);

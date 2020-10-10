@@ -25210,13 +25210,8 @@ function onKeystroke(mathfield, keystroke, evt) {
         if (keystroke === '[Backspace]') {
             // Special case for backspace
             mathfield.keystrokeBuffer = mathfield.keystrokeBuffer.slice(0, -1);
-            mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
-            if (mathfield.options.inlineShortcutTimeout) {
-                // Set a timer to reset the shortcut buffer
-                mathfield.keystrokeBufferResetTimer = setTimeout(() => {
-                    mathfield.resetKeystrokeBuffer();
-                }, mathfield.options.inlineShortcutTimeout);
-            }
+            mathfield.keystrokeBufferStates.pop();
+            mathfield.resetKeystrokeBuffer({ defer: true });
         }
         else if (!mightProducePrintableCharacter(evt)) {
             // It was a non-alpha character (PageUp, End, etc...)
@@ -25241,10 +25236,10 @@ function onKeystroke(mathfield, keystroke, evt) {
                     siblings = mathfield.model.siblings();
                 }
                 shortcut = getInlineShortcut(siblings, candidate.slice(i), mathfield.options.inlineShortcuts);
-                console.log('shortcut ', '@ ', i, candidate.slice(i), ' = ', shortcut);
                 i += 1;
             }
-            stateIndex = mathfield.keystrokeBufferStates.length - i + 1;
+            stateIndex =
+                mathfield.keystrokeBufferStates.length - (candidate.length - i);
             mathfield.keystrokeBuffer += c;
             mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
             if (getInlineShortcutsStartingWith(candidate, mathfield.options)
@@ -25252,12 +25247,7 @@ function onKeystroke(mathfield, keystroke, evt) {
                 resetKeystrokeBuffer = true;
             }
             else {
-                if (mathfield.options.inlineShortcutTimeout) {
-                    // Set a timer to reset the shortcut buffer
-                    mathfield.keystrokeBufferResetTimer = setTimeout(() => {
-                        mathfield.resetKeystrokeBuffer();
-                    }, mathfield.options.inlineShortcutTimeout);
-                }
+                mathfield.resetKeystrokeBuffer({ defer: true });
             }
         }
     }
@@ -30746,7 +30736,17 @@ class MathfieldPrivate {
         delete this.element;
         this.stylesheets.forEach((x) => x.release());
     }
-    resetKeystrokeBuffer() {
+    resetKeystrokeBuffer(options) {
+        options = options !== null && options !== void 0 ? options : { defer: false };
+        if (options.defer) {
+            if (this.options.inlineShortcutTimeout) {
+                // Set a timer to reset the shortcut buffer
+                this.keystrokeBufferResetTimer = setTimeout(() => {
+                    this.resetKeystrokeBuffer();
+                }, this.options.inlineShortcutTimeout);
+            }
+            return;
+        }
         this.keystrokeBuffer = '';
         this.keystrokeBufferStates = [];
         clearTimeout(this.keystrokeBufferResetTimer);
