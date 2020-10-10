@@ -1,3 +1,20 @@
+## [Unreleased]
+
+### New Features
+
+-   Added `mount` and `unmount` event to the web component
+-   The `$text()` method, which is deprecated, was accidentally prematurely removed.
+    It has been added back.
+
+### Bug Fixes
+
+-   Inline shortcuts would not always be triggered correctly,
+    for example `x=sin` -> `x\sin` instead of `x=\sin`
+-   The text in tooltip was not vertically centered in narrow layouts (mobile devices)
+-   **#668** Extensible symbols, such as `\xrightarrow` were incorrectly
+    treated as if they had an invisible boundary, resulting in the cursor
+    being positioned incorrectly when navigating with the keyboard.
+
 ## 0.57.0 (2020-10-09)
 
 ### Major New Feature
