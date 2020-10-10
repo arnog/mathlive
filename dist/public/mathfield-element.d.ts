@@ -57,7 +57,7 @@ declare global {
  * elements.
  *
  * It inherits many useful properties and methods from [[`HTMLElement`]] such
- * as `style`, `tabIndex`,
+ * as `style`, `tabIndex`, `addListener()`, etc...
  *
  * To create a new `MathfieldElement`:
  *
@@ -85,7 +85,7 @@ declare global {
  * |:---|:---|
  * | `--hue` | Hue of the highlight color and the caret |
  * | `--highlight` | Color of the selection |
- * | `--highlight` | Color of the selection, when the mathfield is not focused |
+ * | `--highlight-inactive` | Color of the selection, when the mathfield is not focused |
  * | `--caret` | Color of the caret/insertion point |
  * | `--primary` | Primary accent color, used for example in the virtual keyboard |
  *

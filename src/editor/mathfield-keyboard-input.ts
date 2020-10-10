@@ -1,6 +1,6 @@
 import type { Selector } from '../public/commands';
 import { suggest } from '../core/definitions';
-import { makeRoot } from '../core/atom';
+import { Atom, makeRoot } from '../core/atom';
 import { parseString } from '../core/parser';
 import { ModelPrivate, removeSuggestion } from './model';
 import { moveAfterParent } from './model-selection';
@@ -21,9 +21,9 @@ import {
     extractCommandStringAroundInsertionPoint,
 } from './model-command-mode';
 
-import { contentDidChange } from './model-listeners';
+import { contentDidChange, selectionDidChange } from './model-listeners';
 
-import { insert, insertSmartFence } from './model-insert';
+import { insert, insertSmartFence, normalizeModel } from './model-insert';
 import { requestUpdate } from './mathfield-render';
 
 import type { MathfieldPrivate } from './mathfield-class';
@@ -143,7 +143,7 @@ export function onKeystroke(
             const candidate = mathfield.keystrokeBuffer + c;
             let i = 0;
             while (!shortcut && i < candidate.length) {
-                let siblings;
+                let siblings: Atom[];
                 if (mathfield.keystrokeBufferStates[i]) {
                     const iter = new ModelPrivate();
                     iter.root = makeRoot(
@@ -155,6 +155,7 @@ export function onKeystroke(
                             mathfield.options.macros
                         )
                     );
+                    normalizeModel(iter);
                     iter.selection =
                         mathfield.keystrokeBufferStates[i].selection;
                     siblings = iter.siblings();
@@ -166,9 +167,17 @@ export function onKeystroke(
                     candidate.slice(i),
                     mathfield.options.inlineShortcuts
                 );
+                console.log(
+                    'shortcut ',
+                    '@ ',
+                    i,
+                    candidate.slice(i),
+                    ' = ',
+                    shortcut
+                );
                 i += 1;
             }
-            stateIndex = i - 1;
+            stateIndex = mathfield.keystrokeBufferStates.length - i + 1;
             mathfield.keystrokeBuffer += c;
             mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
             if (
@@ -227,13 +236,21 @@ export function onKeystroke(
         return true;
     }
 
-    // 6. Perform the action matching this shortcut
+    //
+    // 6. Perform the action matching this selector or insert the shortcut
+    //
+
+    //
     // 6.1 Remove any error indicator (wavy underline) on the current command
     // sequence (if there are any)
+    //
     decorateCommandStringAroundInsertionPoint(mathfield.model, false);
+
+    //
     // 6.2 If we have a `moveAfterParent` selector (usually triggered with
     // `spacebar), and we're at the end of a smart fence, close the fence with
     // an empty (.) right delimiter
+    //
     const parent = mathfield.model.parent();
     if (
         selector === 'moveAfterParent' &&
@@ -248,8 +265,10 @@ export function onKeystroke(
         selector = '';
         requestUpdate(mathfield); // Re-render the closed smartFence
     }
+    //
     // 6.3 If this is the Spacebar and we're just before or right after
     // a text zone, insert the space inside the text zone
+    //
     if (mathfield.mode === 'math' && keystroke === '[Spacebar]' && !shortcut) {
         const nextSibling = mathfield.model.sibling(1);
         const previousSibling = mathfield.model.sibling(-1);
@@ -260,14 +279,22 @@ export function onKeystroke(
             insert(mathfield.model, ' ', { mode: 'text' });
         }
     }
+    //
     // 6.4 If there's a selector, perform it.
+    //
     if (selector) {
         mathfield.executeCommand(selector);
     } else if (shortcut) {
-        // 5.5 Insert the shortcut
+        //
+        // 6.5 Insert the shortcut
         // If the shortcut is a mandatory escape sequence (\}, etc...)
         // don't make it undoable, this would result in syntactically incorrect
         // formulas
+        //
+        const style = {
+            ...getAnchorStyle(mathfield.model),
+            ...mathfield.style,
+        };
         if (
             !/^(\\{|\\}|\\[|\\]|\\@|\\#|\\$|\\%|\\^|\\_|\\backslash)$/.test(
                 shortcut
@@ -275,16 +302,12 @@ export function onKeystroke(
         ) {
             // To enable the substitution to be undoable,
             // insert the character before applying the substitution
-            const style = {
-                ...getAnchorStyle(mathfield.model),
-                ...mathfield.style,
-            };
+            const saveMode = mathfield.mode;
             insert(mathfield.model, eventToChar(evt), {
                 suppressChangeNotifications: true,
                 mode: mathfield.mode,
                 style: style,
             });
-            const saveMode = mathfield.mode;
             // Create a snapshot with the inserted character
             mathfield.snapshotAndCoalesce();
             // Revert to the state before the beginning of the shortcut
@@ -297,10 +320,6 @@ export function onKeystroke(
         const save = mathfield.model.suppressChangeNotifications;
         mathfield.model.suppressChangeNotifications = true;
         // Insert the substitute, possibly as a smart fence
-        const style = {
-            ...getAnchorStyle(mathfield.model),
-            ...mathfield.style,
-        };
         insert(mathfield.model, shortcut, {
             format: 'latex',
             mode: mathfield.mode,
@@ -317,8 +336,9 @@ export function onKeystroke(
         }
         mathfield.model.suppressChangeNotifications = save;
         contentDidChange(mathfield.model);
+        selectionDidChange(mathfield.model);
         mathfield.snapshot();
-        requestUpdate(mathfield);
+        mathfield.dirty = true; // Mark the field as dirty. It will get rendered in scrollIntoView()
         mathfield.model.announce('replacement');
         // If we're done with the shortcuts (found a unique one), reset it.
         if (resetKeystrokeBuffer) {
@@ -326,11 +346,15 @@ export function onKeystroke(
         }
     }
 
+    //
     // 7. Make sure the insertion point is scrolled into view
+    //
     mathfield.scrollIntoView();
 
+    //
     // 8. Keystroke has been handled, if it wasn't caught in the default
     // case, so prevent propagation
+    //
     if (evt?.preventDefault) {
         evt.preventDefault();
         evt.stopPropagation();

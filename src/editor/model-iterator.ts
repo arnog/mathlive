@@ -2,6 +2,7 @@ import { isArray } from '../common/types';
 import { Atom } from '../core/atom';
 import { arrayCell, arrayCellCount } from './model-array-utils';
 import { ModelPrivate } from './model-class';
+import { normalizeModel } from './model-insert';
 
 export type Position = { path: string; atom: Atom; depth: number };
 
@@ -14,6 +15,7 @@ export class PositionIterator {
         this.root = root;
         const model = new ModelPrivate();
         model.root = root;
+        normalizeModel(model);
         do {
             this.positions.push({
                 path: model.toString(),

@@ -39,7 +39,7 @@ export declare const version: string;
 /**
  * Convert a DOM element into an editable mathfield.
  *
- * Consider using a `<math-field>` tag instead or `new MathfieldElement()` instead.
+ * Consider using a `<math-field>` tag or `new MathfieldElement()` instead. {.notice--warning}
  *
  * The `mathfield` property of the DOM element is a reference to the corresponding
  * `Mathfield` object. This value is also returned by `makeMathField()`.

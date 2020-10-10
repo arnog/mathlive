@@ -12103,16 +12103,28 @@ function invalidateVerbatimLatex(model) {
         atom = model.ancestor(depth);
     }
 }
-function normalizeRange(iter, range) {
+/**
+ * Ensure that the range is valid and canonical, i.e.
+ * start <= end
+ * collapsed = start === end
+ * start >= 0, end >=0
+ * If optins.accesibleAtomsOnly, the range is limited to the values
+ * that can produce an atom, specifically, the last value is excluded (it's
+ * a valid position to insert, but it can't be read from)
+ */
+function normalizeRange(iter, range, options = { accessibleAtomsOnly: false }) {
     const result = { ...range };
+    const lastPosition = options.accessibleAtomsOnly
+        ? iter.lastPosition - 1
+        : iter.lastPosition;
     if (result.end === -1) {
-        result.end = iter.lastPosition;
+        result.end = lastPosition;
     }
     else if (isNaN(result.end)) {
         result.end = result.start;
     }
     else {
-        result.end = Math.min(result.end, iter.lastPosition);
+        result.end = Math.min(result.end, lastPosition);
     }
     if (result.start < result.end) {
         result.direction = 'forward';
@@ -12317,160 +12329,6 @@ function arrayAdjustRow(array, colRow, dir) {
             return null;
     }
     return result;
-}
-
-class PositionIterator {
-    constructor(root) {
-        this.positions = [];
-        this.root = root;
-        const model = new ModelPrivate();
-        model.root = root;
-        do {
-            this.positions.push({
-                path: model.toString(),
-                atom: getCurrentAtom(model),
-                depth: model.path.length,
-            });
-        } while (nextPosition(model));
-    }
-    at(index) {
-        return this.positions[index];
-    }
-    find(atom) {
-        for (let i = 0; i < this.positions.length; i++) {
-            if (this.positions[i].atom === atom) {
-                return i;
-            }
-        }
-        return -1;
-    }
-    get lastPosition() {
-        return this.positions.length;
-    }
-    paths(indexes) {
-        return indexes.map((i) => this.at(i).path);
-    }
-}
-function nextPosition(model) {
-    const NEXT_RELATION = {
-        body: 'numer',
-        numer: 'denom',
-        denom: 'index',
-        index: 'overscript',
-        overscript: 'underscript',
-        underscript: 'subscript',
-        subscript: 'superscript',
-    };
-    if (model.anchorOffset() === model.siblings(false).length - 1) {
-        // We've reached the end of this list.
-        // Is there another list to consider?
-        let relation = NEXT_RELATION[model.relation()];
-        const parent = model.parent();
-        while (relation && !parent[relation]) {
-            relation = NEXT_RELATION[relation];
-        }
-        // We found a new relation/set of siblings...
-        if (relation) {
-            setPosition(model, 0, relation);
-            return true;
-        }
-        // No more siblings, check if we have a sibling cell in an array
-        if (model.parent().array) {
-            const maxCellCount = arrayCellCount(model.parent().array);
-            let cellIndex = parseInt(model.relation().match(/cell([0-9]*)$/)[1]) + 1;
-            while (cellIndex < maxCellCount) {
-                const cell = arrayCell(model.parent().array, cellIndex, false);
-                // Some cells could be null (sparse array), so skip them
-                if (cell && setPosition(model, 0, 'cell' + cellIndex)) {
-                    return true;
-                }
-                cellIndex += 1;
-            }
-        }
-        // No more siblings, go up to the parent.
-        if (model.path.length === 1) {
-            // We're already at the top: nowhere else to go
-            return false;
-        }
-        // We've reached the end of the siblings.
-        model.path.pop();
-        return true;
-    }
-    // Still some siblings to go through. Move on to the next one.
-    setPosition(model, model.anchorOffset() + 1);
-    const anchor = getCurrentAtom(model);
-    // Dive into its components, if the new anchor is a compound atom,
-    // and allows capture of the selection by its sub-elements
-    if (anchor && !anchor.captureSelection) {
-        let relation;
-        if (anchor.array) {
-            // Find the first non-empty cell in this array
-            let cellIndex = 0;
-            relation = '';
-            const maxCellCount = arrayCellCount(anchor.array);
-            while (!relation && cellIndex < maxCellCount) {
-                // Some cells could be null (sparse array), so skip them
-                if (arrayCell(anchor.array, cellIndex, false)) {
-                    relation = 'cell' + cellIndex.toString();
-                }
-                cellIndex += 1;
-            }
-            console.assert(relation);
-            model.path.push({ relation: relation, offset: 0 });
-            setPosition(model, 0, relation);
-            return true;
-        }
-        relation = 'body';
-        while (relation) {
-            if (isArray(anchor[relation])) {
-                model.path.push({ relation: relation, offset: 0 });
-                return true;
-            }
-            relation = NEXT_RELATION[relation];
-        }
-    }
-    return true;
-}
-function setPosition(model, offset = 0, relation = '') {
-    // If no relation ("children", "superscript", etc...) is specified
-    // keep the current relation
-    const oldRelation = model.path[model.path.length - 1].relation;
-    if (!relation)
-        relation = oldRelation;
-    // If the relation is invalid, exit and return false
-    const parent = model.parent();
-    if (!parent && relation !== 'body')
-        return false;
-    const arrayRelation = relation.startsWith('cell');
-    if ((!arrayRelation && !parent[relation]) ||
-        (arrayRelation && !parent.array)) {
-        return false;
-    }
-    // Temporarily set the path to the potentially new relation to get the
-    // right siblings
-    model.path[model.path.length - 1].relation = relation;
-    const siblings = model.siblings(false);
-    const siblingsCount = siblings.length;
-    // Restore the relation
-    model.path[model.path.length - 1].relation = oldRelation;
-    // Calculate the new offset, and make sure it is in range
-    // (`setSelectionOffset()` can be called with an offset greater than
-    // the number of children, for example when doing an up from a
-    // numerator to a smaller denominator, e.g. "1/(x+1)".
-    if (offset < 0) {
-        offset = siblingsCount + offset;
-    }
-    offset = Math.max(0, Math.min(offset, siblingsCount - 1));
-    model.path[model.path.length - 1].relation = relation;
-    model.path[model.path.length - 1].offset = offset;
-    return true;
-}
-function getCurrentAtom(model) {
-    if (model.parent().array) {
-        return arrayCell(model.parent().array, model.relation())[model.anchorOffset()];
-    }
-    const siblings = model.siblings(false);
-    return siblings[Math.min(siblings.length - 1, model.anchorOffset())];
 }
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
@@ -15316,6 +15174,777 @@ var texify = {
     },
 };
 
+/**
+ * These shortcut strings are replaced with the corresponding LaTeX expression
+ * without requiring an escape sequence or command.
+ */
+const INLINE_SHORTCUTS = {
+    // Primes
+    "''": { mode: 'math', value: '^{\\doubleprime}' },
+    // Greek letters
+    alpha: '\\alpha',
+    delta: '\\delta',
+    Delta: '\\Delta',
+    pi: { mode: 'math', value: '\\pi' },
+    'pi ': { mode: 'text', value: '\\pi ' },
+    Pi: { mode: 'math', value: '\\Pi' },
+    theta: '\\theta',
+    Theta: '\\Theta',
+    // Letter-like
+    ii: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\imaginaryI',
+    },
+    jj: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\imaginaryJ',
+    },
+    ee: {
+        mode: 'math',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\exponentialE',
+    },
+    nabla: { mode: 'math', value: '\\nabla' },
+    grad: { mode: 'math', value: '\\nabla' },
+    del: { mode: 'math', value: '\\partial' },
+    '\u221e': '\\infty',
+    // '&infin;': '\\infty',
+    // '&#8734;': '\\infty',
+    oo: {
+        mode: 'math',
+        after: 'nothing+digit+frac+surd+binop+relop+punct+array+openfence+closefence+space',
+        value: '\\infty',
+    },
+    // Big operators
+    '∑': { mode: 'math', value: '\\sum' },
+    sum: { mode: 'math', value: '\\sum_{#?}^{#?}' },
+    prod: { mode: 'math', value: '\\prod_{#?}^{#?}' },
+    sqrt: { mode: 'math', value: '\\sqrt{#?}' },
+    // '∫':                    '\\int',             // There's a alt-B command for this
+    '∆': { mode: 'math', value: '\\differentialD' },
+    '∂': { mode: 'math', value: '\\differentialD' },
+    // Functions
+    arcsin: { mode: 'math', value: '\\arcsin' },
+    arccos: { mode: 'math', value: '\\arccos' },
+    arctan: { mode: 'math', value: '\\arctan' },
+    sin: { mode: 'math', value: '\\sin' },
+    sinh: { mode: 'math', value: '\\sinh' },
+    cos: { mode: 'math', value: '\\cos' },
+    cosh: { mode: 'math', value: '\\cosh' },
+    tan: { mode: 'math', value: '\\tan' },
+    tanh: { mode: 'math', value: '\\tanh' },
+    sec: { mode: 'math', value: '\\sec' },
+    csc: { mode: 'math', value: '\\csc' },
+    cot: { mode: 'math', value: '\\cot' },
+    log: { mode: 'math', value: '\\log' },
+    ln: { mode: 'math', value: '\\ln' },
+    exp: { mode: 'math', value: '\\exp' },
+    lim: { mode: 'math', value: '\\lim_{#?}' },
+    // Differentials
+    // According to ISO31/XI (ISO 80000-2), differentials should be upright
+    dx: {
+        mode: 'math',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\differentialD x',
+    },
+    dy: {
+        mode: 'math',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\differentialD y',
+    },
+    dt: {
+        mode: 'math',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\differentialD t',
+    },
+    // Logic
+    AA: { mode: 'math', value: '\\forall' },
+    EE: { mode: 'math', value: '\\exists' },
+    '!EE': { mode: 'math', value: '\\nexists' },
+    '&&': { mode: 'math', value: '\\land' },
+    // The shortcut for the greek letter "xi" is interfering with "x in"
+    xin: {
+        mode: 'math',
+        after: 'nothing+text+relop+punct+openfence+space',
+        value: 'x \\in',
+    },
+    in: {
+        mode: 'math',
+        after: 'nothing+letter+closefence',
+        value: '\\in',
+    },
+    '!in': { mode: 'math', value: '\\notin' },
+    // Sets
+    NN: '\\N',
+    ZZ: '\\Z',
+    QQ: '\\Q',
+    RR: '\\R',
+    CC: '\\C',
+    PP: '\\P',
+    // Operators
+    xx: { mode: 'math', value: '\\times' },
+    '+-': { mode: 'math', value: '\\pm' },
+    // Relational operators
+    '!=': { mode: 'math', value: '\\ne' },
+    '>=': { mode: 'math', value: '\\ge' },
+    '<=': { mode: 'math', value: '\\le' },
+    '<<': { mode: 'math', value: '\\ll' },
+    '>>': { mode: 'math', value: '\\gg' },
+    '~~': { mode: 'math', value: '\\approx' },
+    // More operators
+    '≈': { mode: 'math', value: '\\approx' },
+    '?=': { mode: 'math', value: '\\questeq' },
+    '÷': { mode: 'math', value: '\\div' },
+    '¬': { mode: 'math', value: '\\neg' },
+    ':=': { mode: 'math', value: '\\coloneq' },
+    '::': { mode: 'math', value: '\\Colon' },
+    // Fences
+    '(:': { mode: 'math', value: '\\langle' },
+    ':)': { mode: 'math', value: '\\rangle' },
+    // More Greek letters
+    beta: '\\beta',
+    chi: '\\chi',
+    epsilon: '\\epsilon',
+    varepsilon: '\\varepsilon',
+    eta: {
+        mode: 'math',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\eta',
+    },
+    'eta ': {
+        mode: 'text',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\eta ',
+    },
+    gamma: '\\gamma',
+    Gamma: '\\Gamma',
+    iota: '\\iota',
+    kappa: '\\kappa',
+    lambda: '\\lambda',
+    Lambda: '\\Lambda',
+    mu: {
+        mode: 'math',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\mu',
+    },
+    'mu ': {
+        mode: 'text',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\mu ',
+    },
+    nu: {
+        mode: 'math',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\nu',
+    },
+    'nu ': {
+        mode: 'text',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\nu ',
+    },
+    µ: '\\mu',
+    phi: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\phi',
+    },
+    Phi: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\Phi',
+    },
+    varphi: '\\varphi',
+    psi: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\psi',
+    },
+    Psi: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\Psi',
+    },
+    rho: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\rho',
+    },
+    sigma: '\\sigma',
+    Sigma: '\\Sigma',
+    tau: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\tau',
+    },
+    vartheta: '\\vartheta',
+    upsilon: '\\upsilon',
+    xi: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\xi',
+    },
+    Xi: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\Xi',
+    },
+    zeta: '\\zeta',
+    omega: '\\omega',
+    Omega: '\\Omega',
+    Ω: '\\omega',
+    // More Logic
+    forall: { mode: 'math', value: '\\forall' },
+    exists: {
+        mode: 'math',
+        value: '\\exists',
+    },
+    '!exists': {
+        mode: 'math',
+        value: '\\nexists',
+    },
+    ':.': {
+        mode: 'math',
+        value: '\\therefore',
+    },
+    // MORE FUNCTIONS
+    // 'arg': '\\arg',
+    liminf: '\\operatorname*{lim~inf}_{#?}',
+    limsup: '\\operatorname*{lim~sup}_{#?}',
+    argmin: '\\operatorname*{arg~min}_{#?}',
+    argmax: '\\operatorname*{arg~max}_{#?}',
+    det: '\\det',
+    mod: {
+        mode: 'math',
+        value: '\\mod',
+    },
+    max: {
+        mode: 'math',
+        value: '\\max',
+    },
+    min: {
+        mode: 'math',
+        value: '\\min',
+    },
+    erf: '\\operatorname{erf}',
+    erfc: '\\operatorname{erfc}',
+    bessel: {
+        mode: 'math',
+        value: '\\operatorname{bessel}',
+    },
+    mean: {
+        mode: 'math',
+        value: '\\operatorname{mean}',
+    },
+    median: {
+        mode: 'math',
+        value: '\\operatorname{median}',
+    },
+    fft: {
+        mode: 'math',
+        value: '\\operatorname{fft}',
+    },
+    lcm: {
+        mode: 'math',
+        value: '\\operatorname{lcm}',
+    },
+    gcd: {
+        mode: 'math',
+        value: '\\operatorname{gcd}',
+    },
+    randomReal: '\\operatorname{randomReal}',
+    randomInteger: '\\operatorname{randomInteger}',
+    Re: {
+        mode: 'math',
+        value: '\\operatorname{Re}',
+    },
+    Im: {
+        mode: 'math',
+        value: '\\operatorname{Im}',
+    },
+    // UNITS
+    mm: {
+        mode: 'math',
+        after: 'nothing+digit',
+        value: '\\operatorname{mm}',
+    },
+    cm: {
+        mode: 'math',
+        after: 'nothing+digit',
+        value: '\\operatorname{cm}',
+    },
+    km: {
+        mode: 'math',
+        after: 'nothing+digit',
+        value: '\\operatorname{km}',
+    },
+    kg: {
+        mode: 'math',
+        after: 'nothing+digit',
+        value: '\\operatorname{kg}',
+    },
+    // '||':                   '\\lor',
+    '...': '\\ldots',
+    '+...': '+\\cdots',
+    '-...': '-\\cdots',
+    '->...': '\\to\\cdots',
+    '->': '\\to',
+    '|->': '\\mapsto',
+    '-->': '\\longrightarrow',
+    //    '<-':                   '\\leftarrow',
+    '<--': '\\longleftarrow',
+    '=>': '\\Rightarrow',
+    '==>': '\\Longrightarrow',
+    // '<=': '\\Leftarrow',     // CONFLICTS WITH LESS THAN OR EQUAL
+    '<=>': '\\Leftrightarrow',
+    '<->': '\\leftrightarrow',
+    '(.)': '\\odot',
+    '(+)': '\\oplus',
+    '(/)': '\\oslash',
+    '(*)': '\\otimes',
+    '(-)': '\\ominus',
+    // '(-)':                  '\\circleddash',
+    '||': '\\Vert',
+    '{': '\\{',
+    '}': '\\}',
+    '*': '\\cdot',
+};
+
+/**
+ * Return an array of potential shortcuts
+ */
+function getInlineShortcutsStartingWith(s, config) {
+    const result = [];
+    const skipDefaultShortcuts = config.overrideDefaultInlineShortcuts;
+    for (let i = 0; i <= s.length - 1; i++) {
+        const s2 = s.substring(i);
+        if (!skipDefaultShortcuts) {
+            Object.keys(INLINE_SHORTCUTS).forEach((key) => {
+                if (key.startsWith(s2) && !result.includes(key)) {
+                    result.push(key);
+                }
+            });
+        }
+        const customInlineShortcuts = (config === null || config === void 0 ? void 0 : config.inlineShortcuts) ? config.inlineShortcuts
+            : null;
+        if (customInlineShortcuts) {
+            Object.keys(customInlineShortcuts).forEach((key) => {
+                if (key.startsWith(s2)) {
+                    result.push(key);
+                }
+            });
+        }
+    }
+    return result;
+}
+/**
+ *
+ * @param siblings atoms preceding this potential shortcut
+ */
+function validateShortcut(siblings, shortcut) {
+    if (!shortcut)
+        return '';
+    // If it's a simple shortcut (no conditional), it's always valid
+    if (typeof shortcut === 'string')
+        return shortcut;
+    // If we have no context, we assume all the shortcuts are valid
+    if (!siblings)
+        return shortcut.value;
+    let nothing = false;
+    let letter = false;
+    let digit = false;
+    let isFunction = false;
+    let frac = false;
+    let surd = false;
+    let binop = false;
+    let relop = false;
+    let punct = false;
+    let array = false;
+    let openfence = false;
+    let closefence = false;
+    let text = false;
+    let space = false;
+    let sibling = siblings[siblings.length - 1];
+    let index = siblings.length - 1;
+    while (sibling && /msubsup|placeholder/.test(sibling.type)) {
+        index -= 1;
+        sibling = siblings[index];
+    }
+    nothing = !sibling || sibling.type === 'first'; // start of a group
+    if (sibling) {
+        if (typeof shortcut.mode !== 'undefined' &&
+            sibling.mode !== shortcut.mode) {
+            return '';
+        }
+        text = sibling.mode === 'text';
+        letter =
+            !text &&
+                sibling.type === 'mord' &&
+                LETTER.test(sibling.body);
+        digit =
+            !text &&
+                sibling.type === 'mord' &&
+                /[0-9]+$/.test(sibling.body);
+        isFunction = !text && sibling.isFunction;
+        frac = sibling.type === 'genfrac';
+        surd = sibling.type === 'surd';
+        binop = sibling.type === 'mbin';
+        relop = sibling.type === 'mrel';
+        punct = sibling.type === 'mpunct' || sibling.type === 'minner';
+        array = Boolean(sibling.array);
+        openfence = sibling.type === 'mopen';
+        closefence = sibling.type === 'mclose' || sibling.type === 'leftright';
+        space = sibling.type === 'space';
+    }
+    if (typeof shortcut.after !== 'undefined') {
+        // If this is a conditional shortcut, consider the conditions now
+        if ((/nothing/.test(shortcut.after) && nothing) ||
+            (/letter/.test(shortcut.after) && letter) ||
+            (/digit/.test(shortcut.after) && digit) ||
+            (/function/.test(shortcut.after) && isFunction) ||
+            (/frac/.test(shortcut.after) && frac) ||
+            (/surd/.test(shortcut.after) && surd) ||
+            (/binop/.test(shortcut.after) && binop) ||
+            (/relop/.test(shortcut.after) && relop) ||
+            (/punct/.test(shortcut.after) && punct) ||
+            (/array/.test(shortcut.after) && array) ||
+            (/openfence/.test(shortcut.after) && openfence) ||
+            (/closefence/.test(shortcut.after) && closefence) ||
+            (/text/.test(shortcut.after) && text) ||
+            (/space/.test(shortcut.after) && space)) {
+            return shortcut.value;
+        }
+        return '';
+    }
+    return shortcut.value;
+}
+/**
+ *
+ * @param context - atoms preceding the candidate, potentially used
+ * to reduce which shortcuts are applicable. If 'null', no restrictions are
+ * applied.
+ * @param s - candidate inline shortcuts (e.g. `'pi'`)
+ * @return A replacement string matching the shortcut (e.g. `'\pi'`)
+ */
+function getInlineShortcut(context, s, shortcuts) {
+    var _a;
+    return validateShortcut(context, (_a = shortcuts === null || shortcuts === void 0 ? void 0 : shortcuts[s]) !== null && _a !== void 0 ? _a : INLINE_SHORTCUTS[s]);
+}
+
+/**
+ * Attempts to parse and interpret a string in an unknown format, possibly
+ * ASCIIMath and return a canonical LaTeX string.
+ *
+ * The format recognized are one of these variations:
+ * - ASCIIMath: Only supports a subset
+ * (1/2x)
+ * 1/2sin x                     -> \frac {1}{2}\sin x
+ * 1/2sinx                      -> \frac {1}{2}\sin x
+ * (1/2sin x (x^(2+1))          // Unbalanced parentheses
+ * (1/2sin(x^(2+1))             -> \left(\frac {1}{2}\sin \left(x^{2+1}\right)\right)
+ * alpha + (pi)/(4)             -> \alpha +\frac {\pi }{4}
+ * x=(-b +- sqrt(b^2 – 4ac))/(2a)
+ * alpha/beta
+ * sqrt2 + sqrtx + sqrt(1+a) + sqrt(1/2)
+ * f(x) = x^2 "when" x >= 0
+ * AA n in QQ
+ * AA x in RR "," |x| > 0
+ * AA x in RR "," abs(x) > 0
+ *
+ * - UnicodeMath (generated by Microsoft Word): also only supports a subset
+ *      - See https://www.unicode.org/notes/tn28/UTN28-PlainTextMath-v3.1.pdf
+ * √(3&x+1)
+ * {a+b/c}
+ * [a+b/c]
+ * _a^b x
+ * lim_(n->\infty) n
+ * \iint_(a=0)^\infty  a
+ *
+ * - "JavaScript Latex": a variant that is LaTeX, but with escaped backslashes
+ *  \\frac{1}{2} \\sin x
+ */
+function parseMathString(s, options) {
+    if (!s)
+        return ['latex', ''];
+    // Nothing to do if a single character
+    if (s.length <= 1)
+        return ['latex', s];
+    if (!options || options.format !== 'ASCIIMath') {
+        // This is not explicitly ASCIIMath. Try to infer if this is LaTex...
+        // If the strings is surrounded by `$..$` or `$$..$$`, assumes it is LaTeX
+        const trimedString = s.trim();
+        if ((trimedString.startsWith('$$') && trimedString.endsWith('$$')) ||
+            (trimedString.startsWith('\\[') && trimedString.endsWith('\\]')) ||
+            (trimedString.startsWith('\\(') && trimedString.endsWith('\\)'))) {
+            return [
+                'latex',
+                trimedString.substring(2, trimedString.length - 2),
+            ];
+        }
+        if (trimedString.startsWith('$') && trimedString.endsWith('$')) {
+            return [
+                'latex',
+                trimedString.substring(1, trimedString.length - 1),
+            ];
+        }
+        // Replace double-backslash (coming from JavaScript) to a single one
+        s = s.replace(/\\\\([^\s\n])/g, '\\$1');
+        if (/\\/.test(s)) {
+            // If the string includes a '\' it's probably a LaTeX string
+            // (that's not completely true, it could be a UnicodeMath string, since
+            // UnicodeMath supports some LaTeX commands. However, we need to pick
+            // one in order to correctly interpret {} (which are argument delimiters
+            // in LaTeX, and are fences in UnicodeMath)
+            return ['latex', s];
+        }
+    }
+    s = s.replace(/\u2061/gu, ''); // Remove function application
+    s = s.replace(/\u3016/gu, '{'); // WHITE LENTICULAR BRACKET (grouping)
+    s = s.replace(/\u3017/gu, '}'); // WHITE LENTICULAR BRACKET (grouping)
+    s = s.replace(/([^\\])sinx/g, '$1\\sin x'); // common typo
+    s = s.replace(/([^\\])cosx/g, '$1\\cos x '); // common typo
+    s = s.replace(/\u2013/g, '-'); // EN-DASH, sometimes used as a minus sign
+    return [
+        (options === null || options === void 0 ? void 0 : options.format) || 'ASCIIMath',
+        parseMathExpression(s, options !== null && options !== void 0 ? options : {}),
+    ];
+}
+function parseMathExpression(s, options) {
+    var _a, _b, _c, _d, _e, _f, _g;
+    if (!s)
+        return '';
+    let done = false;
+    let m;
+    if (!done && (s[0] === '^' || s[0] === '_')) {
+        // Superscript and subscript
+        m = parseMathArgument(s.substr(1), {
+            inlineShortcuts: (_a = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _a !== void 0 ? _a : {},
+            noWrap: true,
+        });
+        s = s[0] + '{' + m.match + '}';
+        s += parseMathExpression(m.rest, options);
+        done = true;
+    }
+    if (!done) {
+        m = s.match(/^(sqrt|\u221a)(.*)/);
+        if (m) {
+            // Square root
+            m = parseMathArgument(m[2], {
+                inlineShortcuts: (_b = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _b !== void 0 ? _b : {},
+                noWrap: true,
+            });
+            const sqrtArgument = m.match || '\\placeholder{}';
+            s = '\\sqrt{' + sqrtArgument + '}';
+            s += parseMathExpression(m.rest, options);
+            done = true;
+        }
+    }
+    if (!done) {
+        m = s.match(/^(\\cbrt|\u221b)(.*)/);
+        if (m) {
+            // Cube root
+            m = parseMathArgument(m[2], {
+                inlineShortcuts: (_c = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _c !== void 0 ? _c : {},
+                noWrap: true,
+            });
+            const sqrtArgument = m.match || '\\placeholder{}';
+            s = '\\sqrt[3]{' + sqrtArgument + '}';
+            s += parseMathExpression(m.rest, options);
+            done = true;
+        }
+    }
+    if (!done) {
+        m = s.match(/^abs(.*)/);
+        if (m) {
+            // Absolute value
+            m = parseMathArgument(m[1], {
+                inlineShortcuts: (_d = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _d !== void 0 ? _d : {},
+                noWrap: true,
+            });
+            s = '\\left|' + m.match + '\\right|';
+            s += parseMathExpression(m.rest, options);
+            done = true;
+        }
+    }
+    if (!done) {
+        m = s.match(/^["”“](.*?)["”“](.*)/);
+        if (m) {
+            // Quoted text
+            s = '\\text{' + m[1] + '}';
+            s += parseMathExpression(m[2], options);
+            done = true;
+        }
+    }
+    if (!done) {
+        m = s.match(/^([^a-zA-Z({[_^\\\s"]+)(.*)/);
+        // A string of symbols...
+        // Could be a binary or relational operator, etc...
+        if (m) {
+            s = paddedShortcut(m[1], options);
+            s += parseMathExpression(m[2], options);
+            done = true;
+        }
+    }
+    if (!done && /^(f|g|h)[^a-zA-Z]/.test(s)) {
+        // This could be a function...
+        m = parseMathArgument(s.substring(1), {
+            inlineShortcuts: (_e = options.inlineShortcuts) !== null && _e !== void 0 ? _e : {},
+            noWrap: true,
+        });
+        if (s[1] === '(') {
+            s = s[0] + '\\mleft(' + m.match + '\\mright)';
+        }
+        else {
+            s = s[0] + m.match;
+        }
+        s += parseMathExpression(m.rest, options);
+        done = true;
+    }
+    if (!done) {
+        m = s.match(/^([a-zA-Z]+)(.*)/);
+        if (m) {
+            // Some alphabetical string...
+            // Could be a function name (sin) or symbol name (alpha)
+            s = paddedShortcut(m[1], options);
+            s += parseMathExpression(m[2], options);
+            done = true;
+        }
+    }
+    if (!done) {
+        m = parseMathArgument(s, {
+            inlineShortcuts: (_f = options.inlineShortcuts) !== null && _f !== void 0 ? _f : {},
+            noWrap: true,
+        });
+        if (m.match && m.rest[0] === '/') {
+            // Fraction
+            const m2 = parseMathArgument(m.rest.substr(1), {
+                inlineShortcuts: (_g = options.inlineShortcuts) !== null && _g !== void 0 ? _g : {},
+                noWrap: true,
+            });
+            if (m2.match) {
+                s =
+                    '\\frac{' +
+                        m.match +
+                        '}{' +
+                        m2.match +
+                        '}' +
+                        parseMathExpression(m2.rest, options);
+            }
+            done = true;
+        }
+        else if (m.match) {
+            if (s[0] === '(') {
+                s =
+                    '\\left(' +
+                        m.match +
+                        '\\right)' +
+                        parseMathExpression(m.rest, options);
+            }
+            else {
+                s = m.match + parseMathExpression(m.rest, options);
+            }
+            done = true;
+        }
+    }
+    if (!done) {
+        m = s.match(/^(\s+)(.*)$/);
+        // Whitespace
+        if (m) {
+            s = ' ' + parseMathExpression(m[2], options);
+            done = true;
+        }
+    }
+    return s;
+}
+/**
+ * Parse a math argument, as defined by ASCIIMath and UnicodeMath:
+ * - Either an expression fenced in (), {} or []
+ * - a number (- sign, digits, decimal point, digits)
+ * - a single [a-zA-Z] letter (an identifier)
+ * - a multi-letter shortcut (e.g., pi)
+ * - a LaTeX command (\pi) (for UnicodeMath)
+ * @return
+ * - match: the parsed (and converted) portion of the string that is an argument
+ * - rest: the raw, unconverted, rest of the string
+ */
+function parseMathArgument(s, options) {
+    let match = '';
+    s = s.trim();
+    let rest = s;
+    let lFence = s.charAt(0);
+    let rFence = { '(': ')', '{': '}', '[': ']' }[lFence];
+    if (rFence) {
+        // It's a fence
+        let level = 1;
+        let i = 1;
+        while (i < s.length && level > 0) {
+            if (s[i] === lFence)
+                level++;
+            if (s[i] === rFence)
+                level--;
+            i++;
+        }
+        if (level === 0) {
+            // We've found the matching closing fence
+            if (options.noWrap && lFence === '(') {
+                match = parseMathExpression(s.substring(1, i - 1), options);
+            }
+            else {
+                if (lFence === '{' && rFence === '}') {
+                    lFence = '\\{';
+                    rFence = '\\}';
+                }
+                match =
+                    '\\left' +
+                        lFence +
+                        parseMathExpression(s.substring(1, i - 1), options) +
+                        '\\right' +
+                        rFence;
+            }
+            rest = s.substring(i);
+        }
+        else {
+            // Unbalanced fence...
+            match = s.substring(1, i);
+            rest = '';
+        }
+    }
+    else {
+        let m = s.match(/^([a-zA-Z]+)/);
+        if (m) {
+            // It's a string of letter, maybe a shortcut
+            let shortcut = getInlineShortcut(null, s, options.inlineShortcuts);
+            if (shortcut) {
+                shortcut = shortcut.replace('_{#?}', '');
+                shortcut = shortcut.replace('^{#?}', '');
+                return { match: shortcut, rest: s.substring(shortcut.length) };
+            }
+        }
+        m = s.match(/^([a-zA-Z])/);
+        if (m) {
+            // It's a single letter
+            return { match: m[1], rest: s.substring(1) };
+        }
+        m = s.match(/^(-)?\d+(\.\d*)?/);
+        if (m) {
+            // It's a number
+            return { match: m[0], rest: s.substring(m[0].length) };
+        }
+        if (!/^\\(left|right)/.test(s)) {
+            // It's a LaTeX command (but not a \left\right)
+            m = s.match(/^(\\[a-zA-Z]+)/);
+            if (m) {
+                rest = s.substring(m[1].length);
+                match = m[1];
+            }
+        }
+    }
+    return { match: match, rest: rest };
+}
+function paddedShortcut(s, options) {
+    let result = getInlineShortcut(null, s, options);
+    if (result) {
+        result = result.replace('_{#?}', '');
+        result = result.replace('^{#?}', '');
+        result += ' ';
+    }
+    else {
+        result = s;
+    }
+    return result;
+}
+
 function selectionDidChange(model) {
     var _a;
     if (typeof ((_a = model.listeners) === null || _a === void 0 ? void 0 : _a.onSelectionDidChange) === 'function' &&
@@ -15518,240 +16147,6 @@ function getAnchorStyle(model) {
         ancestor = model.ancestor(i);
     }
     return result;
-}
-
-class ModelPrivate {
-    constructor(options, listeners, hooks, target) {
-        this.options = {
-            mode: 'math',
-            removeExtraneousParentheses: false,
-            ...options,
-        };
-        this.root = makeRoot(this.options.mode);
-        this.path = [{ relation: 'body', offset: 0 }];
-        this.extent = 0;
-        this.setListeners(listeners);
-        this.setHooks(hooks);
-        this.mathfield = target;
-        this.suppressChangeNotifications = false;
-    }
-    clone() {
-        const result = new ModelPrivate(this.options, this.listeners, this.hooks, this.mathfield);
-        result.root = this.root;
-        result.path = clone(this.path);
-        return result;
-    }
-    setListeners(listeners) {
-        this.listeners = listeners;
-    }
-    setHooks(hooks) {
-        this.hooks = {
-            announce: (hooks === null || hooks === void 0 ? void 0 : hooks.announce) ? hooks.announce
-                : (_target, _command, _modelBefore, _atoms) => {
-                    return;
-                },
-            moveOut: (hooks === null || hooks === void 0 ? void 0 : hooks.moveOut) ? hooks.moveOut
-                : () => {
-                    return true;
-                },
-            tabOut: (hooks === null || hooks === void 0 ? void 0 : hooks.tabOut) ? hooks.tabOut
-                : () => {
-                    return true;
-                },
-        };
-    }
-    get selection() {
-        const anchor = getAnchor(this);
-        let focus = undefined;
-        if (this.parent().array) {
-            focus = arrayCell(this.parent().array, this.relation())[this.focusOffset()];
-        }
-        else {
-            const siblings = this.siblings();
-            focus = siblings[Math.min(siblings.length - 1, this.focusOffset())];
-        }
-        const iter = new PositionIterator(this.root);
-        return [
-            normalizeRange(iter, {
-                start: iter.find(anchor),
-                end: iter.find(focus),
-            }),
-        ];
-    }
-    set selection(value) {
-        setSelection(this, value);
-    }
-    get lastPosition() {
-        const iter = new PositionIterator(this.root);
-        return iter.lastPosition;
-    }
-    announce(command, // @revisit: be more explicit
-    modelBefore, atoms = []) {
-        this.hooks.announce(this.mathfield, command, modelBefore, atoms);
-    }
-    /**
-     * Return a string representation of the selection.
-     * @todo This is a bad name for this function, since it doesn't return
-     * a representation of the content, which one might expect...
-     *
-     * Note: Not private: used by filter
-     *
-     */
-    toString() {
-        return pathToString(this.path, this.extent);
-    }
-    /**
-     * Note: used by model-utils, so not private.
-     * @return array of children of the parent
-     */
-    siblings(addMisingFirstAtom = true) {
-        var _a;
-        if (this.path.length === 0)
-            return [];
-        let siblings;
-        if (this.parent().array) {
-            siblings = arrayCell(this.parent().array, this.relation());
-        }
-        else {
-            siblings = (_a = this.parent()[this.relation()]) !== null && _a !== void 0 ? _a : [];
-            if (typeof siblings === 'string')
-                siblings = [];
-        }
-        // If the 'first' atom is missing, insert it
-        if (addMisingFirstAtom &&
-            (siblings.length === 0 || siblings[0].type !== 'first')) {
-            siblings.unshift(new Atom(this.parent().mode, 'first'));
-        }
-        return siblings;
-    }
-    anchorOffset() {
-        return this.path.length > 0
-            ? this.path[this.path.length - 1].offset
-            : 0;
-    }
-    focusOffset() {
-        return this.path.length > 0
-            ? this.path[this.path.length - 1].offset + this.extent
-            : 0;
-    }
-    /**
-     *  True if the entire group is selected
-     */
-    groupIsSelected() {
-        return (this.startOffset() === 0 &&
-            this.endOffset() >= this.siblings().length - 1);
-    }
-    /**
-     * Offset of the first atom included in the selection
-     * i.e. `=1` => selection starts with and includes first atom
-     * With expression _x=_ and atoms :
-     * - 0: _<first>_
-     * - 1: _x_
-     * - 2: _=_
-     *
-     * - if caret is before _x_:  `start` = 0, `end` = 0
-     * - if caret is after _x_:   `start` = 1, `end` = 1
-     * - if _x_ is selected:      `start` = 1, `end` = 2
-     * - if _x=_ is selected:   `start` = 1, `end` = 3
-     * Note: accessed by model-selection, not private
-     */
-    startOffset() {
-        return Math.min(this.focusOffset(), this.anchorOffset());
-    }
-    /**
-     * Offset of the first atom not included in the selection
-     * i.e. max value of `siblings.length`
-     * `endOffset - startOffset = extent`
-     *
-     * Note: accessed by model-selection, not private
-     */
-    endOffset() {
-        return Math.max(this.focusOffset(), this.anchorOffset());
-    }
-    /**
-     * Sibling, relative to `anchor`
-     * `sibling(0)` = start of selection
-     * `sibling(-1)` = sibling immediately left of start offset
-     */
-    sibling(offset) {
-        return this.siblings()[this.startOffset() + offset];
-    }
-    // @revisit: move ancestor, and anything related to the selection to model-selection
-    /**
-     * Note: used by model-utils, so not private.
-     * @param ancestor distance from self to ancestor.
-     * - `ancestor` = 0: self
-     * - `ancestor` = 1: parent
-     * - `ancestor` = 2: grand-parent
-     * - etc...
-     */
-    ancestor(ancestor) {
-        // If the requested ancestor goes beyond what's available,
-        // return null
-        if (ancestor > this.path.length)
-            return null;
-        // Start with the root
-        let result = this.root;
-        // Iterate over the path segments, selecting the appropriate
-        for (let i = 0; i < this.path.length - ancestor; i++) {
-            const segment = this.path[i];
-            if (result.array) {
-                result = arrayCell(result.array, segment.relation)[segment.offset];
-            }
-            else if (!result[segment.relation]) {
-                // There is no such relation... (the path got out of sync with the tree)
-                return null;
-            }
-            else {
-                // Make sure the 'first' atom has been inserted, otherwise
-                // the segment.offset might be invalid
-                if (result[segment.relation].length === 0 ||
-                    result[segment.relation][0].type !== 'first') {
-                    result[segment.relation].unshift(new Atom(result[segment.relation][0].mode, 'first'));
-                }
-                const offset = Math.min(segment.offset, result[segment.relation].length - 1);
-                result = result[segment.relation][offset];
-            }
-        }
-        return result;
-    }
-    parent() {
-        return this.ancestor(1);
-    }
-    relation() {
-        return this.path.length > 0
-            ? this.path[this.path.length - 1].relation
-            : '';
-    }
-    /**
-     * If necessary, insert a `first` atom in the sibling list.
-     * If there's already a `first` atom, do nothing.
-     * The `first` atom is used as a 'placeholder' to hold the blinking caret when
-     * the caret is positioned at the very beginning of the mathlist.
-     */
-    insertFirstAtom() {
-        this.siblings();
-    }
-}
-function setSelection(model, value) {
-    // @todo: for now, only consider the first range
-    const range = Array.isArray(value) ? value[0] : value;
-    // Normalize the range
-    const iter = new PositionIterator(model.root);
-    if (!range.direction)
-        range.direction = 'forward';
-    if (typeof range.end === 'undefined')
-        range.end = range.start;
-    if (range.end < 0)
-        range.end = iter.lastPosition;
-    let anchorPath;
-    if (range.direction === 'backward') {
-        anchorPath = iter.at(range.end).path;
-    }
-    else {
-        anchorPath = iter.at(range.start).path;
-    }
-    setPath(model, anchorPath, range.end - range.start);
 }
 
 /**
@@ -20972,777 +21367,6 @@ function deleteChar(model, count = 0) {
     return true;
 }
 
-/**
- * These shortcut strings are replaced with the corresponding LaTeX expression
- * without requiring an escape sequence or command.
- */
-const INLINE_SHORTCUTS = {
-    // Primes
-    "''": { mode: 'math', value: '^{\\doubleprime}' },
-    // Greek letters
-    alpha: '\\alpha',
-    delta: '\\delta',
-    Delta: '\\Delta',
-    pi: { mode: 'math', value: '\\pi' },
-    'pi ': { mode: 'text', value: '\\pi ' },
-    Pi: { mode: 'math', value: '\\Pi' },
-    theta: '\\theta',
-    Theta: '\\Theta',
-    // Letter-like
-    ii: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\imaginaryI',
-    },
-    jj: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\imaginaryJ',
-    },
-    ee: {
-        mode: 'math',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\exponentialE',
-    },
-    nabla: { mode: 'math', value: '\\nabla' },
-    grad: { mode: 'math', value: '\\nabla' },
-    del: { mode: 'math', value: '\\partial' },
-    '\u221e': '\\infty',
-    // '&infin;': '\\infty',
-    // '&#8734;': '\\infty',
-    oo: {
-        mode: 'math',
-        after: 'nothing+digit+frac+surd+binop+relop+punct+array+openfence+closefence+space',
-        value: '\\infty',
-    },
-    // Big operators
-    '∑': { mode: 'math', value: '\\sum' },
-    sum: { mode: 'math', value: '\\sum_{#?}^{#?}' },
-    prod: { mode: 'math', value: '\\prod_{#?}^{#?}' },
-    sqrt: { mode: 'math', value: '\\sqrt{#?}' },
-    // '∫':                    '\\int',             // There's a alt-B command for this
-    '∆': { mode: 'math', value: '\\differentialD' },
-    '∂': { mode: 'math', value: '\\differentialD' },
-    // Functions
-    arcsin: { mode: 'math', value: '\\arcsin' },
-    arccos: { mode: 'math', value: '\\arccos' },
-    arctan: { mode: 'math', value: '\\arctan' },
-    sin: { mode: 'math', value: '\\sin' },
-    sinh: { mode: 'math', value: '\\sinh' },
-    cos: { mode: 'math', value: '\\cos' },
-    cosh: { mode: 'math', value: '\\cosh' },
-    tan: { mode: 'math', value: '\\tan' },
-    tanh: { mode: 'math', value: '\\tanh' },
-    sec: { mode: 'math', value: '\\sec' },
-    csc: { mode: 'math', value: '\\csc' },
-    cot: { mode: 'math', value: '\\cot' },
-    log: { mode: 'math', value: '\\log' },
-    ln: { mode: 'math', value: '\\ln' },
-    exp: { mode: 'math', value: '\\exp' },
-    lim: { mode: 'math', value: '\\lim_{#?}' },
-    // Differentials
-    // According to ISO31/XI (ISO 80000-2), differentials should be upright
-    dx: {
-        mode: 'math',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\differentialD x',
-    },
-    dy: {
-        mode: 'math',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\differentialD y',
-    },
-    dt: {
-        mode: 'math',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\differentialD t',
-    },
-    // Logic
-    AA: { mode: 'math', value: '\\forall' },
-    EE: { mode: 'math', value: '\\exists' },
-    '!EE': { mode: 'math', value: '\\nexists' },
-    '&&': { mode: 'math', value: '\\land' },
-    // The shortcut for the greek letter "xi" is interfering with "x in"
-    xin: {
-        mode: 'math',
-        after: 'nothing+text+relop+punct+openfence+space',
-        value: 'x \\in',
-    },
-    in: {
-        mode: 'math',
-        after: 'nothing+letter+closefence',
-        value: '\\in',
-    },
-    '!in': { mode: 'math', value: '\\notin' },
-    // Sets
-    NN: '\\N',
-    ZZ: '\\Z',
-    QQ: '\\Q',
-    RR: '\\R',
-    CC: '\\C',
-    PP: '\\P',
-    // Operators
-    xx: { mode: 'math', value: '\\times' },
-    '+-': { mode: 'math', value: '\\pm' },
-    // Relational operators
-    '!=': { mode: 'math', value: '\\ne' },
-    '>=': { mode: 'math', value: '\\ge' },
-    '<=': { mode: 'math', value: '\\le' },
-    '<<': { mode: 'math', value: '\\ll' },
-    '>>': { mode: 'math', value: '\\gg' },
-    '~~': { mode: 'math', value: '\\approx' },
-    // More operators
-    '≈': { mode: 'math', value: '\\approx' },
-    '?=': { mode: 'math', value: '\\questeq' },
-    '÷': { mode: 'math', value: '\\div' },
-    '¬': { mode: 'math', value: '\\neg' },
-    ':=': { mode: 'math', value: '\\coloneq' },
-    '::': { mode: 'math', value: '\\Colon' },
-    // Fences
-    '(:': { mode: 'math', value: '\\langle' },
-    ':)': { mode: 'math', value: '\\rangle' },
-    // More Greek letters
-    beta: '\\beta',
-    chi: '\\chi',
-    epsilon: '\\epsilon',
-    varepsilon: '\\varepsilon',
-    eta: {
-        mode: 'math',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\eta',
-    },
-    'eta ': {
-        mode: 'text',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\eta ',
-    },
-    gamma: '\\gamma',
-    Gamma: '\\Gamma',
-    iota: '\\iota',
-    kappa: '\\kappa',
-    lambda: '\\lambda',
-    Lambda: '\\Lambda',
-    mu: {
-        mode: 'math',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\mu',
-    },
-    'mu ': {
-        mode: 'text',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\mu ',
-    },
-    nu: {
-        mode: 'math',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\nu',
-    },
-    'nu ': {
-        mode: 'text',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\nu ',
-    },
-    µ: '\\mu',
-    phi: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\phi',
-    },
-    Phi: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\Phi',
-    },
-    varphi: '\\varphi',
-    psi: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\psi',
-    },
-    Psi: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\Psi',
-    },
-    rho: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\rho',
-    },
-    sigma: '\\sigma',
-    Sigma: '\\Sigma',
-    tau: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\tau',
-    },
-    vartheta: '\\vartheta',
-    upsilon: '\\upsilon',
-    xi: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\xi',
-    },
-    Xi: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\Xi',
-    },
-    zeta: '\\zeta',
-    omega: '\\omega',
-    Omega: '\\Omega',
-    Ω: '\\omega',
-    // More Logic
-    forall: { mode: 'math', value: '\\forall' },
-    exists: {
-        mode: 'math',
-        value: '\\exists',
-    },
-    '!exists': {
-        mode: 'math',
-        value: '\\nexists',
-    },
-    ':.': {
-        mode: 'math',
-        value: '\\therefore',
-    },
-    // MORE FUNCTIONS
-    // 'arg': '\\arg',
-    liminf: '\\operatorname*{lim~inf}_{#?}',
-    limsup: '\\operatorname*{lim~sup}_{#?}',
-    argmin: '\\operatorname*{arg~min}_{#?}',
-    argmax: '\\operatorname*{arg~max}_{#?}',
-    det: '\\det',
-    mod: {
-        mode: 'math',
-        value: '\\mod',
-    },
-    max: {
-        mode: 'math',
-        value: '\\max',
-    },
-    min: {
-        mode: 'math',
-        value: '\\min',
-    },
-    erf: '\\operatorname{erf}',
-    erfc: '\\operatorname{erfc}',
-    bessel: {
-        mode: 'math',
-        value: '\\operatorname{bessel}',
-    },
-    mean: {
-        mode: 'math',
-        value: '\\operatorname{mean}',
-    },
-    median: {
-        mode: 'math',
-        value: '\\operatorname{median}',
-    },
-    fft: {
-        mode: 'math',
-        value: '\\operatorname{fft}',
-    },
-    lcm: {
-        mode: 'math',
-        value: '\\operatorname{lcm}',
-    },
-    gcd: {
-        mode: 'math',
-        value: '\\operatorname{gcd}',
-    },
-    randomReal: '\\operatorname{randomReal}',
-    randomInteger: '\\operatorname{randomInteger}',
-    Re: {
-        mode: 'math',
-        value: '\\operatorname{Re}',
-    },
-    Im: {
-        mode: 'math',
-        value: '\\operatorname{Im}',
-    },
-    // UNITS
-    mm: {
-        mode: 'math',
-        after: 'nothing+digit',
-        value: '\\operatorname{mm}',
-    },
-    cm: {
-        mode: 'math',
-        after: 'nothing+digit',
-        value: '\\operatorname{cm}',
-    },
-    km: {
-        mode: 'math',
-        after: 'nothing+digit',
-        value: '\\operatorname{km}',
-    },
-    kg: {
-        mode: 'math',
-        after: 'nothing+digit',
-        value: '\\operatorname{kg}',
-    },
-    // '||':                   '\\lor',
-    '...': '\\ldots',
-    '+...': '+\\cdots',
-    '-...': '-\\cdots',
-    '->...': '\\to\\cdots',
-    '->': '\\to',
-    '|->': '\\mapsto',
-    '-->': '\\longrightarrow',
-    //    '<-':                   '\\leftarrow',
-    '<--': '\\longleftarrow',
-    '=>': '\\Rightarrow',
-    '==>': '\\Longrightarrow',
-    // '<=': '\\Leftarrow',     // CONFLICTS WITH LESS THAN OR EQUAL
-    '<=>': '\\Leftrightarrow',
-    '<->': '\\leftrightarrow',
-    '(.)': '\\odot',
-    '(+)': '\\oplus',
-    '(/)': '\\oslash',
-    '(*)': '\\otimes',
-    '(-)': '\\ominus',
-    // '(-)':                  '\\circleddash',
-    '||': '\\Vert',
-    '{': '\\{',
-    '}': '\\}',
-    '*': '\\cdot',
-};
-
-/**
- * Return an array of potential shortcuts
- */
-function getInlineShortcutsStartingWith(s, config) {
-    const result = [];
-    const skipDefaultShortcuts = config.overrideDefaultInlineShortcuts;
-    for (let i = 0; i <= s.length - 1; i++) {
-        const s2 = s.substring(i);
-        if (!skipDefaultShortcuts) {
-            Object.keys(INLINE_SHORTCUTS).forEach((key) => {
-                if (key.startsWith(s2) && !result.includes(key)) {
-                    result.push(key);
-                }
-            });
-        }
-        const customInlineShortcuts = (config === null || config === void 0 ? void 0 : config.inlineShortcuts) ? config.inlineShortcuts
-            : null;
-        if (customInlineShortcuts) {
-            Object.keys(customInlineShortcuts).forEach((key) => {
-                if (key.startsWith(s2)) {
-                    result.push(key);
-                }
-            });
-        }
-    }
-    return result;
-}
-/**
- *
- * @param siblings atoms preceding this potential shortcut
- */
-function validateShortcut(siblings, shortcut) {
-    if (!shortcut)
-        return '';
-    // If it's a simple shortcut (no conditional), it's always valid
-    if (typeof shortcut === 'string')
-        return shortcut;
-    // If we have no context, we assume all the shortcuts are valid
-    if (!siblings)
-        return shortcut.value;
-    let nothing = false;
-    let letter = false;
-    let digit = false;
-    let isFunction = false;
-    let frac = false;
-    let surd = false;
-    let binop = false;
-    let relop = false;
-    let punct = false;
-    let array = false;
-    let openfence = false;
-    let closefence = false;
-    let text = false;
-    let space = false;
-    let sibling = siblings[siblings.length - 1];
-    let index = siblings.length - 1;
-    while (sibling && /msubsup|placeholder/.test(sibling.type)) {
-        index -= 1;
-        sibling = siblings[index];
-    }
-    nothing = !sibling || sibling.type === 'first'; // start of a group
-    if (sibling) {
-        if (typeof shortcut.mode !== 'undefined' &&
-            sibling.mode !== shortcut.mode) {
-            return '';
-        }
-        text = sibling.mode === 'text';
-        letter =
-            !text &&
-                sibling.type === 'mord' &&
-                LETTER.test(sibling.body);
-        digit =
-            !text &&
-                sibling.type === 'mord' &&
-                /[0-9]+$/.test(sibling.body);
-        isFunction = !text && sibling.isFunction;
-        frac = sibling.type === 'genfrac';
-        surd = sibling.type === 'surd';
-        binop = sibling.type === 'mbin';
-        relop = sibling.type === 'mrel';
-        punct = sibling.type === 'mpunct' || sibling.type === 'minner';
-        array = Boolean(sibling.array);
-        openfence = sibling.type === 'mopen';
-        closefence = sibling.type === 'mclose' || sibling.type === 'leftright';
-        space = sibling.type === 'space';
-    }
-    if (typeof shortcut.after !== 'undefined') {
-        // If this is a conditional shortcut, consider the conditions now
-        if ((/nothing/.test(shortcut.after) && nothing) ||
-            (/letter/.test(shortcut.after) && letter) ||
-            (/digit/.test(shortcut.after) && digit) ||
-            (/function/.test(shortcut.after) && isFunction) ||
-            (/frac/.test(shortcut.after) && frac) ||
-            (/surd/.test(shortcut.after) && surd) ||
-            (/binop/.test(shortcut.after) && binop) ||
-            (/relop/.test(shortcut.after) && relop) ||
-            (/punct/.test(shortcut.after) && punct) ||
-            (/array/.test(shortcut.after) && array) ||
-            (/openfence/.test(shortcut.after) && openfence) ||
-            (/closefence/.test(shortcut.after) && closefence) ||
-            (/text/.test(shortcut.after) && text) ||
-            (/space/.test(shortcut.after) && space)) {
-            return shortcut.value;
-        }
-        return '';
-    }
-    return shortcut.value;
-}
-/**
- *
- * @param context - atoms preceding the candidate, potentially used
- * to reduce which shortcuts are applicable. If 'null', no restrictions are
- * applied.
- * @param s - candidate inline shortcuts (e.g. `'pi'`)
- * @return A replacement string matching the shortcut (e.g. `'\pi'`)
- */
-function getInlineShortcut(context, s, shortcuts) {
-    var _a;
-    return validateShortcut(context, (_a = shortcuts === null || shortcuts === void 0 ? void 0 : shortcuts[s]) !== null && _a !== void 0 ? _a : INLINE_SHORTCUTS[s]);
-}
-
-/**
- * Attempts to parse and interpret a string in an unknown format, possibly
- * ASCIIMath and return a canonical LaTeX string.
- *
- * The format recognized are one of these variations:
- * - ASCIIMath: Only supports a subset
- * (1/2x)
- * 1/2sin x                     -> \frac {1}{2}\sin x
- * 1/2sinx                      -> \frac {1}{2}\sin x
- * (1/2sin x (x^(2+1))          // Unbalanced parentheses
- * (1/2sin(x^(2+1))             -> \left(\frac {1}{2}\sin \left(x^{2+1}\right)\right)
- * alpha + (pi)/(4)             -> \alpha +\frac {\pi }{4}
- * x=(-b +- sqrt(b^2 – 4ac))/(2a)
- * alpha/beta
- * sqrt2 + sqrtx + sqrt(1+a) + sqrt(1/2)
- * f(x) = x^2 "when" x >= 0
- * AA n in QQ
- * AA x in RR "," |x| > 0
- * AA x in RR "," abs(x) > 0
- *
- * - UnicodeMath (generated by Microsoft Word): also only supports a subset
- *      - See https://www.unicode.org/notes/tn28/UTN28-PlainTextMath-v3.1.pdf
- * √(3&x+1)
- * {a+b/c}
- * [a+b/c]
- * _a^b x
- * lim_(n->\infty) n
- * \iint_(a=0)^\infty  a
- *
- * - "JavaScript Latex": a variant that is LaTeX, but with escaped backslashes
- *  \\frac{1}{2} \\sin x
- */
-function parseMathString(s, options) {
-    if (!s)
-        return ['latex', ''];
-    // Nothing to do if a single character
-    if (s.length <= 1)
-        return ['latex', s];
-    if (!options || options.format !== 'ASCIIMath') {
-        // This is not explicitly ASCIIMath. Try to infer if this is LaTex...
-        // If the strings is surrounded by `$..$` or `$$..$$`, assumes it is LaTeX
-        const trimedString = s.trim();
-        if ((trimedString.startsWith('$$') && trimedString.endsWith('$$')) ||
-            (trimedString.startsWith('\\[') && trimedString.endsWith('\\]')) ||
-            (trimedString.startsWith('\\(') && trimedString.endsWith('\\)'))) {
-            return [
-                'latex',
-                trimedString.substring(2, trimedString.length - 2),
-            ];
-        }
-        if (trimedString.startsWith('$') && trimedString.endsWith('$')) {
-            return [
-                'latex',
-                trimedString.substring(1, trimedString.length - 1),
-            ];
-        }
-        // Replace double-backslash (coming from JavaScript) to a single one
-        s = s.replace(/\\\\([^\s\n])/g, '\\$1');
-        if (/\\/.test(s)) {
-            // If the string includes a '\' it's probably a LaTeX string
-            // (that's not completely true, it could be a UnicodeMath string, since
-            // UnicodeMath supports some LaTeX commands. However, we need to pick
-            // one in order to correctly interpret {} (which are argument delimiters
-            // in LaTeX, and are fences in UnicodeMath)
-            return ['latex', s];
-        }
-    }
-    s = s.replace(/\u2061/gu, ''); // Remove function application
-    s = s.replace(/\u3016/gu, '{'); // WHITE LENTICULAR BRACKET (grouping)
-    s = s.replace(/\u3017/gu, '}'); // WHITE LENTICULAR BRACKET (grouping)
-    s = s.replace(/([^\\])sinx/g, '$1\\sin x'); // common typo
-    s = s.replace(/([^\\])cosx/g, '$1\\cos x '); // common typo
-    s = s.replace(/\u2013/g, '-'); // EN-DASH, sometimes used as a minus sign
-    return [
-        (options === null || options === void 0 ? void 0 : options.format) || 'ASCIIMath',
-        parseMathExpression(s, options !== null && options !== void 0 ? options : {}),
-    ];
-}
-function parseMathExpression(s, options) {
-    var _a, _b, _c, _d, _e, _f, _g;
-    if (!s)
-        return '';
-    let done = false;
-    let m;
-    if (!done && (s[0] === '^' || s[0] === '_')) {
-        // Superscript and subscript
-        m = parseMathArgument(s.substr(1), {
-            inlineShortcuts: (_a = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _a !== void 0 ? _a : {},
-            noWrap: true,
-        });
-        s = s[0] + '{' + m.match + '}';
-        s += parseMathExpression(m.rest, options);
-        done = true;
-    }
-    if (!done) {
-        m = s.match(/^(sqrt|\u221a)(.*)/);
-        if (m) {
-            // Square root
-            m = parseMathArgument(m[2], {
-                inlineShortcuts: (_b = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _b !== void 0 ? _b : {},
-                noWrap: true,
-            });
-            const sqrtArgument = m.match || '\\placeholder{}';
-            s = '\\sqrt{' + sqrtArgument + '}';
-            s += parseMathExpression(m.rest, options);
-            done = true;
-        }
-    }
-    if (!done) {
-        m = s.match(/^(\\cbrt|\u221b)(.*)/);
-        if (m) {
-            // Cube root
-            m = parseMathArgument(m[2], {
-                inlineShortcuts: (_c = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _c !== void 0 ? _c : {},
-                noWrap: true,
-            });
-            const sqrtArgument = m.match || '\\placeholder{}';
-            s = '\\sqrt[3]{' + sqrtArgument + '}';
-            s += parseMathExpression(m.rest, options);
-            done = true;
-        }
-    }
-    if (!done) {
-        m = s.match(/^abs(.*)/);
-        if (m) {
-            // Absolute value
-            m = parseMathArgument(m[1], {
-                inlineShortcuts: (_d = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _d !== void 0 ? _d : {},
-                noWrap: true,
-            });
-            s = '\\left|' + m.match + '\\right|';
-            s += parseMathExpression(m.rest, options);
-            done = true;
-        }
-    }
-    if (!done) {
-        m = s.match(/^["”“](.*?)["”“](.*)/);
-        if (m) {
-            // Quoted text
-            s = '\\text{' + m[1] + '}';
-            s += parseMathExpression(m[2], options);
-            done = true;
-        }
-    }
-    if (!done) {
-        m = s.match(/^([^a-zA-Z({[_^\\\s"]+)(.*)/);
-        // A string of symbols...
-        // Could be a binary or relational operator, etc...
-        if (m) {
-            s = paddedShortcut(m[1], options);
-            s += parseMathExpression(m[2], options);
-            done = true;
-        }
-    }
-    if (!done && /^(f|g|h)[^a-zA-Z]/.test(s)) {
-        // This could be a function...
-        m = parseMathArgument(s.substring(1), {
-            inlineShortcuts: (_e = options.inlineShortcuts) !== null && _e !== void 0 ? _e : {},
-            noWrap: true,
-        });
-        if (s[1] === '(') {
-            s = s[0] + '\\mleft(' + m.match + '\\mright)';
-        }
-        else {
-            s = s[0] + m.match;
-        }
-        s += parseMathExpression(m.rest, options);
-        done = true;
-    }
-    if (!done) {
-        m = s.match(/^([a-zA-Z]+)(.*)/);
-        if (m) {
-            // Some alphabetical string...
-            // Could be a function name (sin) or symbol name (alpha)
-            s = paddedShortcut(m[1], options);
-            s += parseMathExpression(m[2], options);
-            done = true;
-        }
-    }
-    if (!done) {
-        m = parseMathArgument(s, {
-            inlineShortcuts: (_f = options.inlineShortcuts) !== null && _f !== void 0 ? _f : {},
-            noWrap: true,
-        });
-        if (m.match && m.rest[0] === '/') {
-            // Fraction
-            const m2 = parseMathArgument(m.rest.substr(1), {
-                inlineShortcuts: (_g = options.inlineShortcuts) !== null && _g !== void 0 ? _g : {},
-                noWrap: true,
-            });
-            if (m2.match) {
-                s =
-                    '\\frac{' +
-                        m.match +
-                        '}{' +
-                        m2.match +
-                        '}' +
-                        parseMathExpression(m2.rest, options);
-            }
-            done = true;
-        }
-        else if (m.match) {
-            if (s[0] === '(') {
-                s =
-                    '\\left(' +
-                        m.match +
-                        '\\right)' +
-                        parseMathExpression(m.rest, options);
-            }
-            else {
-                s = m.match + parseMathExpression(m.rest, options);
-            }
-            done = true;
-        }
-    }
-    if (!done) {
-        m = s.match(/^(\s+)(.*)$/);
-        // Whitespace
-        if (m) {
-            s = ' ' + parseMathExpression(m[2], options);
-            done = true;
-        }
-    }
-    return s;
-}
-/**
- * Parse a math argument, as defined by ASCIIMath and UnicodeMath:
- * - Either an expression fenced in (), {} or []
- * - a number (- sign, digits, decimal point, digits)
- * - a single [a-zA-Z] letter (an identifier)
- * - a multi-letter shortcut (e.g., pi)
- * - a LaTeX command (\pi) (for UnicodeMath)
- * @return
- * - match: the parsed (and converted) portion of the string that is an argument
- * - rest: the raw, unconverted, rest of the string
- */
-function parseMathArgument(s, options) {
-    let match = '';
-    s = s.trim();
-    let rest = s;
-    let lFence = s.charAt(0);
-    let rFence = { '(': ')', '{': '}', '[': ']' }[lFence];
-    if (rFence) {
-        // It's a fence
-        let level = 1;
-        let i = 1;
-        while (i < s.length && level > 0) {
-            if (s[i] === lFence)
-                level++;
-            if (s[i] === rFence)
-                level--;
-            i++;
-        }
-        if (level === 0) {
-            // We've found the matching closing fence
-            if (options.noWrap && lFence === '(') {
-                match = parseMathExpression(s.substring(1, i - 1), options);
-            }
-            else {
-                if (lFence === '{' && rFence === '}') {
-                    lFence = '\\{';
-                    rFence = '\\}';
-                }
-                match =
-                    '\\left' +
-                        lFence +
-                        parseMathExpression(s.substring(1, i - 1), options) +
-                        '\\right' +
-                        rFence;
-            }
-            rest = s.substring(i);
-        }
-        else {
-            // Unbalanced fence...
-            match = s.substring(1, i);
-            rest = '';
-        }
-    }
-    else {
-        let m = s.match(/^([a-zA-Z]+)/);
-        if (m) {
-            // It's a string of letter, maybe a shortcut
-            let shortcut = getInlineShortcut(null, s, options.inlineShortcuts);
-            if (shortcut) {
-                shortcut = shortcut.replace('_{#?}', '');
-                shortcut = shortcut.replace('^{#?}', '');
-                return { match: shortcut, rest: s.substring(shortcut.length) };
-            }
-        }
-        m = s.match(/^([a-zA-Z])/);
-        if (m) {
-            // It's a single letter
-            return { match: m[1], rest: s.substring(1) };
-        }
-        m = s.match(/^(-)?\d+(\.\d*)?/);
-        if (m) {
-            // It's a number
-            return { match: m[0], rest: s.substring(m[0].length) };
-        }
-        if (!/^\\(left|right)/.test(s)) {
-            // It's a LaTeX command (but not a \left\right)
-            m = s.match(/^(\\[a-zA-Z]+)/);
-            if (m) {
-                rest = s.substring(m[1].length);
-                match = m[1];
-            }
-        }
-    }
-    return { match: match, rest: rest };
-}
-function paddedShortcut(s, options) {
-    let result = getInlineShortcut(null, s, options);
-    if (result) {
-        result = result.replace('_{#?}', '');
-        result = result.replace('^{#?}', '');
-        result += ' ';
-    }
-    else {
-        result = s;
-    }
-    return result;
-}
-
 function applyStyleToUnstyledAtoms(atom, style) {
     if (!atom || !style)
         return;
@@ -22308,6 +21932,395 @@ function insertSmartFence(model, fence, style) {
         return false;
     }
     return false;
+}
+
+class PositionIterator {
+    constructor(root) {
+        this.positions = [];
+        this.root = root;
+        const model = new ModelPrivate();
+        model.root = root;
+        normalizeModel(model);
+        do {
+            this.positions.push({
+                path: model.toString(),
+                atom: getCurrentAtom(model),
+                depth: model.path.length,
+            });
+        } while (nextPosition(model));
+    }
+    at(index) {
+        return this.positions[index];
+    }
+    find(atom) {
+        for (let i = 0; i < this.positions.length; i++) {
+            if (this.positions[i].atom === atom) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    get lastPosition() {
+        return this.positions.length;
+    }
+    paths(indexes) {
+        return indexes.map((i) => this.at(i).path);
+    }
+}
+function nextPosition(model) {
+    const NEXT_RELATION = {
+        body: 'numer',
+        numer: 'denom',
+        denom: 'index',
+        index: 'overscript',
+        overscript: 'underscript',
+        underscript: 'subscript',
+        subscript: 'superscript',
+    };
+    if (model.anchorOffset() === model.siblings(false).length - 1) {
+        // We've reached the end of this list.
+        // Is there another list to consider?
+        let relation = NEXT_RELATION[model.relation()];
+        const parent = model.parent();
+        while (relation && !parent[relation]) {
+            relation = NEXT_RELATION[relation];
+        }
+        // We found a new relation/set of siblings...
+        if (relation) {
+            setPosition(model, 0, relation);
+            return true;
+        }
+        // No more siblings, check if we have a sibling cell in an array
+        if (model.parent().array) {
+            const maxCellCount = arrayCellCount(model.parent().array);
+            let cellIndex = parseInt(model.relation().match(/cell([0-9]*)$/)[1]) + 1;
+            while (cellIndex < maxCellCount) {
+                const cell = arrayCell(model.parent().array, cellIndex, false);
+                // Some cells could be null (sparse array), so skip them
+                if (cell && setPosition(model, 0, 'cell' + cellIndex)) {
+                    return true;
+                }
+                cellIndex += 1;
+            }
+        }
+        // No more siblings, go up to the parent.
+        if (model.path.length === 1) {
+            // We're already at the top: nowhere else to go
+            return false;
+        }
+        // We've reached the end of the siblings.
+        model.path.pop();
+        return true;
+    }
+    // Still some siblings to go through. Move on to the next one.
+    setPosition(model, model.anchorOffset() + 1);
+    const anchor = getCurrentAtom(model);
+    // Dive into its components, if the new anchor is a compound atom,
+    // and allows capture of the selection by its sub-elements
+    if (anchor && !anchor.captureSelection) {
+        let relation;
+        if (anchor.array) {
+            // Find the first non-empty cell in this array
+            let cellIndex = 0;
+            relation = '';
+            const maxCellCount = arrayCellCount(anchor.array);
+            while (!relation && cellIndex < maxCellCount) {
+                // Some cells could be null (sparse array), so skip them
+                if (arrayCell(anchor.array, cellIndex, false)) {
+                    relation = 'cell' + cellIndex.toString();
+                }
+                cellIndex += 1;
+            }
+            console.assert(relation);
+            model.path.push({ relation: relation, offset: 0 });
+            setPosition(model, 0, relation);
+            return true;
+        }
+        relation = 'body';
+        while (relation) {
+            if (isArray(anchor[relation])) {
+                model.path.push({ relation: relation, offset: 0 });
+                return true;
+            }
+            relation = NEXT_RELATION[relation];
+        }
+    }
+    return true;
+}
+function setPosition(model, offset = 0, relation = '') {
+    // If no relation ("children", "superscript", etc...) is specified
+    // keep the current relation
+    const oldRelation = model.path[model.path.length - 1].relation;
+    if (!relation)
+        relation = oldRelation;
+    // If the relation is invalid, exit and return false
+    const parent = model.parent();
+    if (!parent && relation !== 'body')
+        return false;
+    const arrayRelation = relation.startsWith('cell');
+    if ((!arrayRelation && !parent[relation]) ||
+        (arrayRelation && !parent.array)) {
+        return false;
+    }
+    // Temporarily set the path to the potentially new relation to get the
+    // right siblings
+    model.path[model.path.length - 1].relation = relation;
+    const siblings = model.siblings(false);
+    const siblingsCount = siblings.length;
+    // Restore the relation
+    model.path[model.path.length - 1].relation = oldRelation;
+    // Calculate the new offset, and make sure it is in range
+    // (`setSelectionOffset()` can be called with an offset greater than
+    // the number of children, for example when doing an up from a
+    // numerator to a smaller denominator, e.g. "1/(x+1)".
+    if (offset < 0) {
+        offset = siblingsCount + offset;
+    }
+    offset = Math.max(0, Math.min(offset, siblingsCount - 1));
+    model.path[model.path.length - 1].relation = relation;
+    model.path[model.path.length - 1].offset = offset;
+    return true;
+}
+function getCurrentAtom(model) {
+    if (model.parent().array) {
+        return arrayCell(model.parent().array, model.relation())[model.anchorOffset()];
+    }
+    const siblings = model.siblings(false);
+    return siblings[Math.min(siblings.length - 1, model.anchorOffset())];
+}
+
+class ModelPrivate {
+    constructor(options, listeners, hooks, target) {
+        this.options = {
+            mode: 'math',
+            removeExtraneousParentheses: false,
+            ...options,
+        };
+        this.root = makeRoot(this.options.mode);
+        this.path = [{ relation: 'body', offset: 0 }];
+        this.extent = 0;
+        this.setListeners(listeners);
+        this.setHooks(hooks);
+        this.mathfield = target;
+        this.suppressChangeNotifications = false;
+    }
+    clone() {
+        const result = new ModelPrivate(this.options, this.listeners, this.hooks, this.mathfield);
+        result.root = this.root;
+        result.path = clone(this.path);
+        return result;
+    }
+    setListeners(listeners) {
+        this.listeners = listeners;
+    }
+    setHooks(hooks) {
+        this.hooks = {
+            announce: (hooks === null || hooks === void 0 ? void 0 : hooks.announce) ? hooks.announce
+                : (_target, _command, _modelBefore, _atoms) => {
+                    return;
+                },
+            moveOut: (hooks === null || hooks === void 0 ? void 0 : hooks.moveOut) ? hooks.moveOut
+                : () => {
+                    return true;
+                },
+            tabOut: (hooks === null || hooks === void 0 ? void 0 : hooks.tabOut) ? hooks.tabOut
+                : () => {
+                    return true;
+                },
+        };
+    }
+    get selection() {
+        const anchor = getAnchor(this);
+        let focus = undefined;
+        if (this.parent().array) {
+            focus = arrayCell(this.parent().array, this.relation())[this.focusOffset()];
+        }
+        else {
+            const siblings = this.siblings();
+            focus = siblings[Math.min(siblings.length - 1, this.focusOffset())];
+        }
+        const iter = new PositionIterator(this.root);
+        return [
+            normalizeRange(iter, {
+                start: iter.find(anchor),
+                end: iter.find(focus),
+            }),
+        ];
+    }
+    set selection(value) {
+        setSelection(this, value);
+    }
+    get lastPosition() {
+        const iter = new PositionIterator(this.root);
+        return iter.lastPosition;
+    }
+    announce(command, // @revisit: be more explicit
+    modelBefore, atoms = []) {
+        this.hooks.announce(this.mathfield, command, modelBefore, atoms);
+    }
+    /**
+     * Return a string representation of the selection.
+     * @todo This is a bad name for this function, since it doesn't return
+     * a representation of the content, which one might expect...
+     *
+     * Note: Not private: used by filter
+     *
+     */
+    toString() {
+        return pathToString(this.path, this.extent);
+    }
+    /**
+     * Note: used by model-utils, so not private.
+     * @return array of children of the parent
+     */
+    siblings(addMisingFirstAtom = true) {
+        var _a;
+        if (this.path.length === 0)
+            return [];
+        let siblings;
+        if (this.parent().array) {
+            siblings = arrayCell(this.parent().array, this.relation());
+        }
+        else {
+            siblings = (_a = this.parent()[this.relation()]) !== null && _a !== void 0 ? _a : [];
+            if (typeof siblings === 'string')
+                siblings = [];
+        }
+        // If the 'first' atom is missing, insert it
+        if (addMisingFirstAtom &&
+            (siblings.length === 0 || siblings[0].type !== 'first')) {
+            siblings.unshift(new Atom(this.parent().mode, 'first'));
+        }
+        return siblings;
+    }
+    anchorOffset() {
+        return this.path.length > 0
+            ? this.path[this.path.length - 1].offset
+            : 0;
+    }
+    focusOffset() {
+        return this.path.length > 0
+            ? this.path[this.path.length - 1].offset + this.extent
+            : 0;
+    }
+    /**
+     *  True if the entire group is selected
+     */
+    groupIsSelected() {
+        return (this.startOffset() === 0 &&
+            this.endOffset() >= this.siblings().length - 1);
+    }
+    /**
+     * Offset of the first atom included in the selection
+     * i.e. `=1` => selection starts with and includes first atom
+     * With expression _x=_ and atoms :
+     * - 0: _<first>_
+     * - 1: _x_
+     * - 2: _=_
+     *
+     * - if caret is before _x_:  `start` = 0, `end` = 0
+     * - if caret is after _x_:   `start` = 1, `end` = 1
+     * - if _x_ is selected:      `start` = 1, `end` = 2
+     * - if _x=_ is selected:   `start` = 1, `end` = 3
+     * Note: accessed by model-selection, not private
+     */
+    startOffset() {
+        return Math.min(this.focusOffset(), this.anchorOffset());
+    }
+    /**
+     * Offset of the first atom not included in the selection
+     * i.e. max value of `siblings.length`
+     * `endOffset - startOffset = extent`
+     *
+     * Note: accessed by model-selection, not private
+     */
+    endOffset() {
+        return Math.max(this.focusOffset(), this.anchorOffset());
+    }
+    /**
+     * Sibling, relative to `anchor`
+     * `sibling(0)` = start of selection
+     * `sibling(-1)` = sibling immediately left of start offset
+     */
+    sibling(offset) {
+        return this.siblings()[this.startOffset() + offset];
+    }
+    // @revisit: move ancestor, and anything related to the selection to model-selection
+    /**
+     * Note: used by model-utils, so not private.
+     * @param ancestor distance from self to ancestor.
+     * - `ancestor` = 0: self
+     * - `ancestor` = 1: parent
+     * - `ancestor` = 2: grand-parent
+     * - etc...
+     */
+    ancestor(ancestor) {
+        // If the requested ancestor goes beyond what's available,
+        // return null
+        if (ancestor > this.path.length)
+            return null;
+        // Start with the root
+        let result = this.root;
+        // Iterate over the path segments, selecting the appropriate
+        for (let i = 0; i < this.path.length - ancestor; i++) {
+            const segment = this.path[i];
+            if (result.array) {
+                result = arrayCell(result.array, segment.relation)[segment.offset];
+            }
+            else if (!result[segment.relation]) {
+                // There is no such relation... (the path got out of sync with the tree)
+                return null;
+            }
+            else {
+                // Make sure the 'first' atom has been inserted, otherwise
+                // the segment.offset might be invalid
+                if (result[segment.relation].length === 0 ||
+                    result[segment.relation][0].type !== 'first') {
+                    result[segment.relation].unshift(new Atom(result[segment.relation][0].mode, 'first'));
+                }
+                const offset = Math.min(segment.offset, result[segment.relation].length - 1);
+                result = result[segment.relation][offset];
+            }
+        }
+        return result;
+    }
+    parent() {
+        return this.ancestor(1);
+    }
+    relation() {
+        return this.path.length > 0
+            ? this.path[this.path.length - 1].relation
+            : '';
+    }
+    /**
+     * If necessary, insert a `first` atom in the sibling list.
+     * If there's already a `first` atom, do nothing.
+     * The `first` atom is used as a 'placeholder' to hold the blinking caret when
+     * the caret is positioned at the very beginning of the mathlist.
+     */
+    insertFirstAtom() {
+        this.siblings();
+    }
+}
+function setSelection(model, value) {
+    // @todo: for now, only consider the first range
+    const range = Array.isArray(value) ? value[0] : value;
+    // Normalize the range
+    const iter = new PositionIterator(model.root);
+    if (!range.direction)
+        range.direction = 'forward';
+    if (typeof range.end === 'undefined')
+        range.end = range.start;
+    if (range.end < 0)
+        range.end = iter.lastPosition;
+    let anchorPath;
+    if (range.direction === 'backward') {
+        anchorPath = iter.at(range.end).path;
+    }
+    else {
+        anchorPath = iter.at(range.start).path;
+    }
+    setPath(model, anchorPath, range.end - range.start);
 }
 
 /**
@@ -25219,6 +25232,7 @@ function onKeystroke(mathfield, keystroke, evt) {
                 if (mathfield.keystrokeBufferStates[i]) {
                     const iter = new ModelPrivate();
                     iter.root = makeRoot('math', parseString(mathfield.keystrokeBufferStates[i].latex, mathfield.options.defaultMode, null, mathfield.options.macros));
+                    normalizeModel(iter);
                     iter.selection =
                         mathfield.keystrokeBufferStates[i].selection;
                     siblings = iter.siblings();
@@ -25227,9 +25241,10 @@ function onKeystroke(mathfield, keystroke, evt) {
                     siblings = mathfield.model.siblings();
                 }
                 shortcut = getInlineShortcut(siblings, candidate.slice(i), mathfield.options.inlineShortcuts);
+                console.log('shortcut ', '@ ', i, candidate.slice(i), ' = ', shortcut);
                 i += 1;
             }
-            stateIndex = i - 1;
+            stateIndex = mathfield.keystrokeBufferStates.length - i + 1;
             mathfield.keystrokeBuffer += c;
             mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
             if (getInlineShortcutsStartingWith(candidate, mathfield.options)
@@ -25281,13 +25296,19 @@ function onKeystroke(mathfield, keystroke, evt) {
     if (mathfield.options.readOnly && selector[0] === 'insert') {
         return true;
     }
-    // 6. Perform the action matching this shortcut
+    //
+    // 6. Perform the action matching this selector or insert the shortcut
+    //
+    //
     // 6.1 Remove any error indicator (wavy underline) on the current command
     // sequence (if there are any)
+    //
     decorateCommandStringAroundInsertionPoint(mathfield.model, false);
+    //
     // 6.2 If we have a `moveAfterParent` selector (usually triggered with
     // `spacebar), and we're at the end of a smart fence, close the fence with
     // an empty (.) right delimiter
+    //
     const parent = mathfield.model.parent();
     if (selector === 'moveAfterParent' &&
         parent &&
@@ -25300,8 +25321,10 @@ function onKeystroke(mathfield, keystroke, evt) {
         selector = '';
         requestUpdate(mathfield); // Re-render the closed smartFence
     }
+    //
     // 6.3 If this is the Spacebar and we're just before or right after
     // a text zone, insert the space inside the text zone
+    //
     if (mathfield.mode === 'math' && keystroke === '[Spacebar]' && !shortcut) {
         const nextSibling = mathfield.model.sibling(1);
         const previousSibling = mathfield.model.sibling(-1);
@@ -25310,28 +25333,32 @@ function onKeystroke(mathfield, keystroke, evt) {
             insert(mathfield.model, ' ', { mode: 'text' });
         }
     }
+    //
     // 6.4 If there's a selector, perform it.
+    //
     if (selector) {
         mathfield.executeCommand(selector);
     }
     else if (shortcut) {
-        // 5.5 Insert the shortcut
+        //
+        // 6.5 Insert the shortcut
         // If the shortcut is a mandatory escape sequence (\}, etc...)
         // don't make it undoable, this would result in syntactically incorrect
         // formulas
+        //
+        const style = {
+            ...getAnchorStyle(mathfield.model),
+            ...mathfield.style,
+        };
         if (!/^(\\{|\\}|\\[|\\]|\\@|\\#|\\$|\\%|\\^|\\_|\\backslash)$/.test(shortcut)) {
             // To enable the substitution to be undoable,
             // insert the character before applying the substitution
-            const style = {
-                ...getAnchorStyle(mathfield.model),
-                ...mathfield.style,
-            };
+            const saveMode = mathfield.mode;
             insert(mathfield.model, eventToChar(evt), {
                 suppressChangeNotifications: true,
                 mode: mathfield.mode,
                 style: style,
             });
-            const saveMode = mathfield.mode;
             // Create a snapshot with the inserted character
             mathfield.snapshotAndCoalesce();
             // Revert to the state before the beginning of the shortcut
@@ -25342,10 +25369,6 @@ function onKeystroke(mathfield, keystroke, evt) {
         const save = mathfield.model.suppressChangeNotifications;
         mathfield.model.suppressChangeNotifications = true;
         // Insert the substitute, possibly as a smart fence
-        const style = {
-            ...getAnchorStyle(mathfield.model),
-            ...mathfield.style,
-        };
         insert(mathfield.model, shortcut, {
             format: 'latex',
             mode: mathfield.mode,
@@ -25362,18 +25385,23 @@ function onKeystroke(mathfield, keystroke, evt) {
         }
         mathfield.model.suppressChangeNotifications = save;
         contentDidChange(mathfield.model);
+        selectionDidChange(mathfield.model);
         mathfield.snapshot();
-        requestUpdate(mathfield);
+        mathfield.dirty = true; // Mark the field as dirty. It will get rendered in scrollIntoView()
         mathfield.model.announce('replacement');
         // If we're done with the shortcuts (found a unique one), reset it.
         if (resetKeystrokeBuffer) {
             mathfield.resetKeystrokeBuffer();
         }
     }
+    //
     // 7. Make sure the insertion point is scrolled into view
+    //
     mathfield.scrollIntoView();
+    //
     // 8. Keystroke has been handled, if it wasn't caught in the default
     // case, so prevent propagation
+    //
     if (evt === null || evt === void 0 ? void 0 : evt.preventDefault) {
         evt.preventDefault();
         evt.stopPropagation();
@@ -27994,7 +28022,7 @@ register$2({
     showVirtualKeyboard: (mathfield, theme) => showVirtualKeyboard(mathfield, theme),
 }, { target: 'virtual-keyboard' });
 
-var css_248z$1 = "@-webkit-keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}@keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}.ML__caret:after{content:\"\";border:none;border-radius:2px;border-right:2px solid var(--caret);margin-right:-2px;position:relative;left:-1px;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__text-caret:after{content:\"\";border:none;border-radius:1px;border-right:1px solid var(--caret);margin-right:-1px;position:relative;left:0;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__command-caret:after{content:\"_\";border:none;margin-right:-1ex;position:relative;color:var(--caret);-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__fieldcontainer{display:flex;flex-flow:row;justify-content:space-between;align-items:flex-end;min-height:39px;touch-action:none;width:100%;--hue:212;--highlight:hsl(var(--hue),97%,85%);--caret:hsl(var(--hue),40%,49%);--highlight-inactive:#ccc;--primary:hsl(var(--hue),40%,50%);--secondary:hsl(var(--hue),19%,26%);--on-secondary:hsl(var(--hue),19%,26%)}@media (prefers-color-scheme:dark){body:not([theme=light]) .ML__fieldcontainer{--highlight:hsl(var(--hue),40%,49%);--highlight-inactive:hsl(var(--hue),10%,35%);--caret:hsl(var(--hue),97%,85%);--secondary:hsl(var(--hue),25%,35%);--on-secondary:#fafafa}}body[theme=dark] .ML__fieldcontainer{--highlight:hsl(var(--hue),40%,49%);--highlight-inactive:hsl(var(--hue),10%,35%);--caret:hsl(var(--hue),97%,85%);--secondary:hsl(var(--hue),25%,35%);--on-secondary:#fafafa}.ML__fieldcontainer:focus{outline:2px solid var(--primary);outline-offset:3px}.ML__fieldcontainer__field{align-self:center;position:relative;overflow:hidden;line-height:0;padding:2px;width:100%}.ML__virtual-keyboard-toggle{display:flex;align-self:center;align-items:center;flex-shrink:0;flex-direction:column;justify-content:center;width:34px;height:34px;padding:0;margin-right:4px;cursor:pointer;box-sizing:border-box;border-radius:50%;border:1px solid transparent;transition:background .2s cubic-bezier(.64,.09,.08,1);color:var(--primary);fill:currentColor;background:transparent}.ML__virtual-keyboard-toggle:hover{background:hsl(var(--hue),25%,35%);color:#fafafa;fill:currentColor;border-radius:50%;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2)}.ML__popover{visibility:hidden;min-width:160px;background-color:rgba(97,97,97,.95);color:#fff;text-align:center;border-radius:6px;position:fixed;z-index:1;display:flex;flex-direction:column;justify-content:center;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);transition:all .2s cubic-bezier(.64,.09,.08,1)}.ML__popover:after{content:\"\";position:absolute;top:-5px;left:calc(50% - 3px);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;font-size:1rem;border-bottom:5px solid rgba(97,97,97,.9)}.ML__popover--reverse-direction:after{top:auto;bottom:-5px;border-top:5px solid rgba(97,97,97,.9);border-bottom:0}.ML__textarea__textarea{transform:scale(0);resize:none;position:absolute;clip:rect(0 0 0 0);width:1px;height:1px;font-size:16px}.ML__focused .ML__text{background:hsla(var(--hue),40%,50%,.1)}.ML__smart-fence__close{opacity:.5}.ML__selection{background:var(--highlight-inactive);box-sizing:border-box}.ML__focused .ML__selection{background:var(--highlight)!important;color:var(--on-highlight)}.ML__contains-caret.ML__close,.ML__contains-caret.ML__open,.ML__contains-caret>.ML__close,.ML__contains-caret>.ML__open,.sqrt.ML__contains-caret>.sqrt-sign,.sqrt.ML__contains-caret>.vlist>span>.sqrt-line{color:var(--caret)}.ML__command{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace;letter-spacing:-1px;font-weight:400;line-height:1em;color:var(--primary)}:not(.ML__command)+.ML__command{margin-left:.25em}.ML__command+:not(.ML__command){padding-left:.25em}.ML__suggestion{opacity:.5}.ML__virtual-keyboard-toggle.pressed{background:hsla(0,0%,70%,.5)}.ML__virtual-keyboard-toggle:focus{outline:none;border-radius:50%;border:2px solid var(--primary)}.ML__virtual-keyboard-toggle.active,.ML__virtual-keyboard-toggle.active:hover{background:hsla(0,0%,70%,.5);color:#000;fill:currentColor}.ML__scroller{position:fixed;z-index:1;top:0;height:100vh;width:200px}[data-ML__tooltip]{position:relative}[data-ML__tooltip][data-placement=top]:after{top:inherit;bottom:100%}[data-ML__tooltip]:after{position:absolute;visibility:hidden;content:attr(data-ML__tooltip);display:inline-table;top:110%;width:-webkit-max-content;width:-moz-max-content;width:max-content;max-width:200px;padding:8px;background:#616161;color:#fff;text-align:center;z-index:2;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);border-radius:2px;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-weight:400;font-size:12px;opacity:0;transform:scale(.5);transition:all .15s cubic-bezier(.4,0,1,1)}@media only screen and (max-width:767px){[data-ML__tooltip]:after{height:32px;padding:4px 16px;font-size:14px}}[data-ML__tooltip]:hover{position:relative}[data-ML__tooltip]:hover:after{visibility:visible;opacity:1;transform:scale(1)}[data-ML__tooltip][data-delay]:after{transition-delay:0s}[data-ML__tooltip][data-delay]:hover:after{transition-delay:1s}";
+var css_248z$1 = "@-webkit-keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}@keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}.ML__caret:after{content:\"\";border:none;border-radius:2px;border-right:2px solid var(--caret);margin-right:-2px;position:relative;left:-1px;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__text-caret:after{content:\"\";border:none;border-radius:1px;border-right:1px solid var(--caret);margin-right:-1px;position:relative;left:0;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__command-caret:after{content:\"_\";border:none;margin-right:-1ex;position:relative;color:var(--caret);-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__fieldcontainer{display:flex;flex-flow:row;justify-content:space-between;align-items:flex-end;min-height:39px;touch-action:none;width:100%;--hue:212;--highlight:hsl(var(--hue),97%,85%);--caret:hsl(var(--hue),40%,49%);--highlight-inactive:#ccc;--primary:hsl(var(--hue),40%,50%);--secondary:hsl(var(--hue),19%,26%);--on-secondary:hsl(var(--hue),19%,26%)}@media (prefers-color-scheme:dark){body:not([theme=light]) .ML__fieldcontainer{--highlight:hsl(var(--hue),40%,49%);--highlight-inactive:hsl(var(--hue),10%,35%);--caret:hsl(var(--hue),97%,85%);--secondary:hsl(var(--hue),25%,35%);--on-secondary:#fafafa}}body[theme=dark] .ML__fieldcontainer{--highlight:hsl(var(--hue),40%,49%);--highlight-inactive:hsl(var(--hue),10%,35%);--caret:hsl(var(--hue),97%,85%);--secondary:hsl(var(--hue),25%,35%);--on-secondary:#fafafa}.ML__fieldcontainer:focus{outline:2px solid var(--primary);outline-offset:3px}.ML__fieldcontainer__field{align-self:center;position:relative;overflow:hidden;line-height:0;padding:2px;width:100%}.ML__virtual-keyboard-toggle{display:flex;align-self:center;align-items:center;flex-shrink:0;flex-direction:column;justify-content:center;width:34px;height:34px;padding:0;margin-right:4px;cursor:pointer;box-sizing:border-box;border-radius:50%;border:1px solid transparent;transition:background .2s cubic-bezier(.64,.09,.08,1);color:var(--primary);fill:currentColor;background:transparent}.ML__virtual-keyboard-toggle:hover{background:hsl(var(--hue),25%,35%);color:#fafafa;fill:currentColor;border-radius:50%;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2)}.ML__popover{visibility:hidden;min-width:160px;background-color:rgba(97,97,97,.95);color:#fff;text-align:center;border-radius:6px;position:fixed;z-index:1;display:flex;flex-direction:column;justify-content:center;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);transition:all .2s cubic-bezier(.64,.09,.08,1)}.ML__popover:after{content:\"\";position:absolute;top:-5px;left:calc(50% - 3px);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;font-size:1rem;border-bottom:5px solid rgba(97,97,97,.9)}.ML__popover--reverse-direction:after{top:auto;bottom:-5px;border-top:5px solid rgba(97,97,97,.9);border-bottom:0}.ML__textarea__textarea{transform:scale(0);resize:none;position:absolute;clip:rect(0 0 0 0);width:1px;height:1px;font-size:16px}.ML__focused .ML__text{background:hsla(var(--hue),40%,50%,.1)}.ML__smart-fence__close{opacity:.5}.ML__selection{background:var(--highlight-inactive);box-sizing:border-box}.ML__focused .ML__selection{background:var(--highlight)!important;color:var(--on-highlight)}.ML__contains-caret.ML__close,.ML__contains-caret.ML__open,.ML__contains-caret>.ML__close,.ML__contains-caret>.ML__open,.sqrt.ML__contains-caret>.sqrt-sign,.sqrt.ML__contains-caret>.vlist>span>.sqrt-line{color:var(--caret)}.ML__command{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace;letter-spacing:-1px;font-weight:400;line-height:1em;color:var(--primary)}:not(.ML__command)+.ML__command{margin-left:.25em}.ML__command+:not(.ML__command){padding-left:.25em}.ML__suggestion{opacity:.5}.ML__virtual-keyboard-toggle.pressed{background:hsla(0,0%,70%,.5)}.ML__virtual-keyboard-toggle:focus{outline:none;border-radius:50%;border:2px solid var(--primary)}.ML__virtual-keyboard-toggle.active,.ML__virtual-keyboard-toggle.active:hover{background:hsla(0,0%,70%,.5);color:#000;fill:currentColor}.ML__scroller{position:fixed;z-index:1;top:0;height:100vh;width:200px}[data-ML__tooltip]{position:relative}[data-ML__tooltip][data-placement=top]:after{top:inherit;bottom:100%}[data-ML__tooltip]:after{position:absolute;visibility:hidden;content:attr(data-ML__tooltip);display:inline-table;top:110%;width:-webkit-max-content;width:-moz-max-content;width:max-content;max-width:200px;padding:8px;background:#616161;color:#fff;text-align:center;z-index:2;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);border-radius:2px;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-weight:400;font-size:12px;opacity:0;transform:scale(.5);transition:all .15s cubic-bezier(.4,0,1,1)}@media only screen and (max-width:767px){[data-ML__tooltip]:after{padding:8px 16px;font-size:14px}}[data-ML__tooltip]:hover{position:relative}[data-ML__tooltip]:hover:after{visibility:visible;opacity:1;transform:scale(1)}[data-ML__tooltip][data-delay]:after{transition-delay:0s}[data-ML__tooltip][data-delay]:hover:after{transition-delay:1s}";
 
 var css_248z$2 = ".ML__sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}body.ML__fonts-loading .ML__base{visibility:hidden}.ML__base{visibility:inherit;display:inline-block;position:relative;cursor:text}.ML__strut,.ML__strut--bottom{display:inline-block;min-height:.5em}.ML__small-delim{font-family:KaTeX_Main}.ML__text{font-family:var(--ml_text-font-family,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",\"Roboto\",\"Oxygen\",\"Ubuntu\",\"Cantarell\",\"Fira Sans\",\"Droid Sans\",\"Helvetica Neue\",sans-serif);white-space:pre}.ML__cmr{font-family:KaTeX_Main;font-style:normal}.ML__mathit{font-family:KaTeX_Math;font-style:italic}.ML__mathbf{font-family:KaTeX_Main;font-weight:700}.lcGreek.ML__mathbf{font-family:KaTeX_Math;font-weight:400}.ML__mathbfit{font-family:KaTeX_Math;font-weight:700;font-style:italic}.ML__ams,.ML__bb{font-family:KaTeX_AMS}.ML__cal{font-family:KaTeX_Caligraphic}.ML__frak{font-family:KaTeX_Fraktur}.ML__tt{font-family:KaTeX_Typewriter}.ML__script{font-family:KaTeX_Script}.ML__sans{font-family:KaTeX_SansSerif}.ML__series_el,.ML__series_ul{font-weight:100}.ML__series_l{font-weight:200}.ML__series_sl{font-weight:300}.ML__series_sb{font-weight:500}.ML__bold,.ML__boldsymbol{font-weight:700}.ML__series_eb{font-weight:800}.ML__series_ub{font-weight:900}.ML__series_uc{font-stretch:ultra-condensed}.ML__series_ec{font-stretch:extra-condensed}.ML__series_c{font-stretch:condensed}.ML__series_sc{font-stretch:semi-condensed}.ML__series_sx{font-stretch:semi-expanded}.ML__series_x{font-stretch:expanded}.ML__series_ex{font-stretch:extra-expanded}.ML__series_ux{font-stretch:ultra-expanded}.ML__it{font-style:italic}.ML__shape_ol{-webkit-text-stroke:1px #000;text-stroke:1px #000;color:transparent}.ML__shape_sc{font-variant:small-caps}.ML__shape_sl{font-style:oblique}.ML__emph{color:#bc2612}.ML__emph .ML__emph{color:#0c7f99}.ML__highlight{color:#007cb2;background:#edd1b0}.ML__mathlive{display:inline-block;line-height:0;direction:ltr;text-align:left;text-indent:0;text-rendering:auto;font-family:KaTeX_Main;font-style:normal;font-size-adjust:none;letter-spacing:normal;word-wrap:normal;word-spacing:normal;white-space:nowrap;text-shadow:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:-webkit-min-content;width:-moz-min-content;width:min-content;transform:translateZ(0)}.ML__mathlive .reset-textstyle.scriptstyle{font-size:.7em}.ML__mathlive .reset-textstyle.scriptscriptstyle{font-size:.5em}.ML__mathlive .reset-scriptstyle.textstyle{font-size:1.42857em}.ML__mathlive .reset-scriptstyle.scriptscriptstyle{font-size:.71429em}.ML__mathlive .reset-scriptscriptstyle.textstyle{font-size:2em}.ML__mathlive .reset-scriptscriptstyle.scriptstyle{font-size:1.4em}.ML__mathlive .style-wrap{position:relative}.ML__mathlive .vlist{display:inline-block}.ML__mathlive .vlist>span{display:block;height:0;position:relative;line-height:0}.ML__mathlive .vlist>span>span{display:inline-block}.ML__mathlive .msubsup{text-align:left}.ML__mathlive .mfrac>span{text-align:center}.ML__mathlive .mfrac .frac-line{width:100%}.ML__mathlive .mfrac .frac-line:after{content:\"\";display:block;margin-top:-.04em;min-height:.04em;background:currentColor;box-sizing:content-box;transform:translate(0)}.ML__mathlive .rspace.negativethinspace{margin-right:-.16667em}.ML__mathlive .rspace.thinspace{margin-right:.16667em}.ML__mathlive .rspace.negativemediumspace{margin-right:-.22222em}.ML__mathlive .rspace.mediumspace{margin-right:.22222em}.ML__mathlive .rspace.thickspace{margin-right:.27778em}.ML__mathlive .rspace.sixmuspace{margin-right:.333333em}.ML__mathlive .rspace.eightmuspace{margin-right:.444444em}.ML__mathlive .rspace.enspace{margin-right:.5em}.ML__mathlive .rspace.twelvemuspace{margin-right:.666667em}.ML__mathlive .rspace.quad{margin-right:1em}.ML__mathlive .rspace.qquad{margin-right:2em}.ML__mathlive .mspace{display:inline-block}.ML__mathlive .mspace.negativethinspace{margin-left:-.16667em}.ML__mathlive .mspace.thinspace{width:.16667em}.ML__mathlive .mspace.negativemediumspace{margin-left:-.22222em}.ML__mathlive .mspace.mediumspace{width:.22222em}.ML__mathlive .mspace.thickspace{width:.27778em}.ML__mathlive .mspace.sixmuspace{width:.333333em}.ML__mathlive .mspace.eightmuspace{width:.444444em}.ML__mathlive .mspace.enspace{width:.5em}.ML__mathlive .mspace.twelvemuspace{width:.666667em}.ML__mathlive .mspace.quad{width:1em}.ML__mathlive .mspace.qquad{width:2em}.ML__mathlive .llap,.ML__mathlive .rlap{width:0;position:relative}.ML__mathlive .llap>.inner,.ML__mathlive .rlap>.inner{position:absolute}.ML__mathlive .llap>.fix,.ML__mathlive .rlap>.fix{display:inline-block}.ML__mathlive .llap>.inner{right:0}.ML__mathlive .rlap>.inner{left:0}.ML__mathlive .rule{display:inline-block;border:0 solid;position:relative}.ML__mathlive .overline .overline-line,.ML__mathlive .underline .underline-line{width:100%}.ML__mathlive .overline .overline-line:before,.ML__mathlive .underline .underline-line:before{border-bottom-style:solid;border-bottom-width:.04em;content:\"\";display:block}.ML__mathlive .overline .overline-line:after,.ML__mathlive .underline .underline-line:after{border-bottom-style:solid;border-bottom-width:.04em;min-height:thin;content:\"\";display:block;margin-top:-1px}.ML__mathlive .stretchy{display:block;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .stretchy:after,.ML__mathlive .stretchy:before{content:\"\"}.ML__mathlive .stretchy svg{display:block;position:absolute;width:100%;height:inherit;fill:currentColor;stroke:currentColor;fill-rule:nonzero;fill-opacity:1;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1}.ML__mathlive .slice-1-of-2{left:0}.ML__mathlive .slice-1-of-2,.ML__mathlive .slice-2-of-2{display:inline-flex;position:absolute;width:50.2%;overflow:hidden}.ML__mathlive .slice-2-of-2{right:0}.ML__mathlive .slice-1-of-3{display:inline-flex;position:absolute;left:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-2-of-3{display:inline-flex;position:absolute;left:25%;width:50%;overflow:hidden}.ML__mathlive .slice-3-of-3{display:inline-flex;position:absolute;right:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-1-of-1{display:inline-flex;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .sqrt{display:inline-block}.ML__mathlive .sqrt>.sqrt-sign{font-family:KaTeX_Main;position:relative}.ML__mathlive .sqrt .sqrt-line{height:.04em;width:100%}.ML__mathlive .sqrt .sqrt-line:before{content:\"\";display:block;margin-top:-.04em;min-height:.04em;background:currentColor}.ML__mathlive .sqrt .sqrt-line:after{border-bottom-width:1px;content:\" \";display:block;margin-top:-.1em;transform:translate(0)}.ML__mathlive .sqrt>.root{margin-left:.27777778em;margin-right:-.55555556em}.ML__mathlive .fontsize-ensurer,.ML__mathlive .sizing{display:inline-block}.ML__mathlive .fontsize-ensurer.reset-size1.size1,.ML__mathlive .sizing.reset-size1.size1{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size1.size2,.ML__mathlive .sizing.reset-size1.size2{font-size:1.4em}.ML__mathlive .fontsize-ensurer.reset-size1.size3,.ML__mathlive .sizing.reset-size1.size3{font-size:1.6em}.ML__mathlive .fontsize-ensurer.reset-size1.size4,.ML__mathlive .sizing.reset-size1.size4{font-size:1.8em}.ML__mathlive .fontsize-ensurer.reset-size1.size5,.ML__mathlive .sizing.reset-size1.size5{font-size:2em}.ML__mathlive .fontsize-ensurer.reset-size1.size6,.ML__mathlive .sizing.reset-size1.size6{font-size:2.4em}.ML__mathlive .fontsize-ensurer.reset-size1.size7,.ML__mathlive .sizing.reset-size1.size7{font-size:2.88em}.ML__mathlive .fontsize-ensurer.reset-size1.size8,.ML__mathlive .sizing.reset-size1.size8{font-size:3.46em}.ML__mathlive .fontsize-ensurer.reset-size1.size9,.ML__mathlive .sizing.reset-size1.size9{font-size:4.14em}.ML__mathlive .fontsize-ensurer.reset-size1.size10,.ML__mathlive .sizing.reset-size1.size10{font-size:4.98em}.ML__mathlive .fontsize-ensurer.reset-size2.size1,.ML__mathlive .sizing.reset-size2.size1{font-size:.71428571em}.ML__mathlive .fontsize-ensurer.reset-size2.size2,.ML__mathlive .sizing.reset-size2.size2{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size2.size3,.ML__mathlive .sizing.reset-size2.size3{font-size:1.14285714em}.ML__mathlive .fontsize-ensurer.reset-size2.size4,.ML__mathlive .sizing.reset-size2.size4{font-size:1.28571429em}.ML__mathlive .fontsize-ensurer.reset-size2.size5,.ML__mathlive .sizing.reset-size2.size5{font-size:1.42857143em}.ML__mathlive .fontsize-ensurer.reset-size2.size6,.ML__mathlive .sizing.reset-size2.size6{font-size:1.71428571em}.ML__mathlive .fontsize-ensurer.reset-size2.size7,.ML__mathlive .sizing.reset-size2.size7{font-size:2.05714286em}.ML__mathlive .fontsize-ensurer.reset-size2.size8,.ML__mathlive .sizing.reset-size2.size8{font-size:2.47142857em}.ML__mathlive .fontsize-ensurer.reset-size2.size9,.ML__mathlive .sizing.reset-size2.size9{font-size:2.95714286em}.ML__mathlive .fontsize-ensurer.reset-size2.size10,.ML__mathlive .sizing.reset-size2.size10{font-size:3.55714286em}.ML__mathlive .fontsize-ensurer.reset-size3.size1,.ML__mathlive .sizing.reset-size3.size1{font-size:.625em}.ML__mathlive .fontsize-ensurer.reset-size3.size2,.ML__mathlive .sizing.reset-size3.size2{font-size:.875em}.ML__mathlive .fontsize-ensurer.reset-size3.size3,.ML__mathlive .sizing.reset-size3.size3{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size3.size4,.ML__mathlive .sizing.reset-size3.size4{font-size:1.125em}.ML__mathlive .fontsize-ensurer.reset-size3.size5,.ML__mathlive .sizing.reset-size3.size5{font-size:1.25em}.ML__mathlive .fontsize-ensurer.reset-size3.size6,.ML__mathlive .sizing.reset-size3.size6{font-size:1.5em}.ML__mathlive .fontsize-ensurer.reset-size3.size7,.ML__mathlive .sizing.reset-size3.size7{font-size:1.8em}.ML__mathlive .fontsize-ensurer.reset-size3.size8,.ML__mathlive .sizing.reset-size3.size8{font-size:2.1625em}.ML__mathlive .fontsize-ensurer.reset-size3.size9,.ML__mathlive .sizing.reset-size3.size9{font-size:2.5875em}.ML__mathlive .fontsize-ensurer.reset-size3.size10,.ML__mathlive .sizing.reset-size3.size10{font-size:3.1125em}.ML__mathlive .fontsize-ensurer.reset-size4.size1,.ML__mathlive .sizing.reset-size4.size1{font-size:.55555556em}.ML__mathlive .fontsize-ensurer.reset-size4.size2,.ML__mathlive .sizing.reset-size4.size2{font-size:.77777778em}.ML__mathlive .fontsize-ensurer.reset-size4.size3,.ML__mathlive .sizing.reset-size4.size3{font-size:.88888889em}.ML__mathlive .fontsize-ensurer.reset-size4.size4,.ML__mathlive .sizing.reset-size4.size4{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size4.size5,.ML__mathlive .sizing.reset-size4.size5{font-size:1.11111111em}.ML__mathlive .fontsize-ensurer.reset-size4.size6,.ML__mathlive .sizing.reset-size4.size6{font-size:1.33333333em}.ML__mathlive .fontsize-ensurer.reset-size4.size7,.ML__mathlive .sizing.reset-size4.size7{font-size:1.6em}.ML__mathlive .fontsize-ensurer.reset-size4.size8,.ML__mathlive .sizing.reset-size4.size8{font-size:1.92222222em}.ML__mathlive .fontsize-ensurer.reset-size4.size9,.ML__mathlive .sizing.reset-size4.size9{font-size:2.3em}.ML__mathlive .fontsize-ensurer.reset-size4.size10,.ML__mathlive .sizing.reset-size4.size10{font-size:2.76666667em}.ML__mathlive .fontsize-ensurer.reset-size5.size1,.ML__mathlive .sizing.reset-size5.size1{font-size:.5em}.ML__mathlive .fontsize-ensurer.reset-size5.size2,.ML__mathlive .sizing.reset-size5.size2{font-size:.7em}.ML__mathlive .fontsize-ensurer.reset-size5.size3,.ML__mathlive .sizing.reset-size5.size3{font-size:.8em}.ML__mathlive .fontsize-ensurer.reset-size5.size4,.ML__mathlive .sizing.reset-size5.size4{font-size:.9em}.ML__mathlive .fontsize-ensurer.reset-size5.size5,.ML__mathlive .sizing.reset-size5.size5{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size5.size6,.ML__mathlive .sizing.reset-size5.size6{font-size:1.2em}.ML__mathlive .fontsize-ensurer.reset-size5.size7,.ML__mathlive .sizing.reset-size5.size7{font-size:1.44em}.ML__mathlive .fontsize-ensurer.reset-size5.size8,.ML__mathlive .sizing.reset-size5.size8{font-size:1.73em}.ML__mathlive .fontsize-ensurer.reset-size5.size9,.ML__mathlive .sizing.reset-size5.size9{font-size:2.07em}.ML__mathlive .fontsize-ensurer.reset-size5.size10,.ML__mathlive .sizing.reset-size5.size10{font-size:2.49em}.ML__mathlive .fontsize-ensurer.reset-size6.size1,.ML__mathlive .sizing.reset-size6.size1{font-size:.41666667em}.ML__mathlive .fontsize-ensurer.reset-size6.size2,.ML__mathlive .sizing.reset-size6.size2{font-size:.58333333em}.ML__mathlive .fontsize-ensurer.reset-size6.size3,.ML__mathlive .sizing.reset-size6.size3{font-size:.66666667em}.ML__mathlive .fontsize-ensurer.reset-size6.size4,.ML__mathlive .sizing.reset-size6.size4{font-size:.75em}.ML__mathlive .fontsize-ensurer.reset-size6.size5,.ML__mathlive .sizing.reset-size6.size5{font-size:.83333333em}.ML__mathlive .fontsize-ensurer.reset-size6.size6,.ML__mathlive .sizing.reset-size6.size6{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size6.size7,.ML__mathlive .sizing.reset-size6.size7{font-size:1.2em}.ML__mathlive .fontsize-ensurer.reset-size6.size8,.ML__mathlive .sizing.reset-size6.size8{font-size:1.44166667em}.ML__mathlive .fontsize-ensurer.reset-size6.size9,.ML__mathlive .sizing.reset-size6.size9{font-size:1.725em}.ML__mathlive .fontsize-ensurer.reset-size6.size10,.ML__mathlive .sizing.reset-size6.size10{font-size:2.075em}.ML__mathlive .fontsize-ensurer.reset-size7.size1,.ML__mathlive .sizing.reset-size7.size1{font-size:.34722222em}.ML__mathlive .fontsize-ensurer.reset-size7.size2,.ML__mathlive .sizing.reset-size7.size2{font-size:.48611111em}.ML__mathlive .fontsize-ensurer.reset-size7.size3,.ML__mathlive .sizing.reset-size7.size3{font-size:.55555556em}.ML__mathlive .fontsize-ensurer.reset-size7.size4,.ML__mathlive .sizing.reset-size7.size4{font-size:.625em}.ML__mathlive .fontsize-ensurer.reset-size7.size5,.ML__mathlive .sizing.reset-size7.size5{font-size:.69444444em}.ML__mathlive .fontsize-ensurer.reset-size7.size6,.ML__mathlive .sizing.reset-size7.size6{font-size:.83333333em}.ML__mathlive .fontsize-ensurer.reset-size7.size7,.ML__mathlive .sizing.reset-size7.size7{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size7.size8,.ML__mathlive .sizing.reset-size7.size8{font-size:1.20138889em}.ML__mathlive .fontsize-ensurer.reset-size7.size9,.ML__mathlive .sizing.reset-size7.size9{font-size:1.4375em}.ML__mathlive .fontsize-ensurer.reset-size7.size10,.ML__mathlive .sizing.reset-size7.size10{font-size:1.72916667em}.ML__mathlive .fontsize-ensurer.reset-size8.size1,.ML__mathlive .sizing.reset-size8.size1{font-size:.28901734em}.ML__mathlive .fontsize-ensurer.reset-size8.size2,.ML__mathlive .sizing.reset-size8.size2{font-size:.40462428em}.ML__mathlive .fontsize-ensurer.reset-size8.size3,.ML__mathlive .sizing.reset-size8.size3{font-size:.46242775em}.ML__mathlive .fontsize-ensurer.reset-size8.size4,.ML__mathlive .sizing.reset-size8.size4{font-size:.52023121em}.ML__mathlive .fontsize-ensurer.reset-size8.size5,.ML__mathlive .sizing.reset-size8.size5{font-size:.57803468em}.ML__mathlive .fontsize-ensurer.reset-size8.size6,.ML__mathlive .sizing.reset-size8.size6{font-size:.69364162em}.ML__mathlive .fontsize-ensurer.reset-size8.size7,.ML__mathlive .sizing.reset-size8.size7{font-size:.83236994em}.ML__mathlive .fontsize-ensurer.reset-size8.size8,.ML__mathlive .sizing.reset-size8.size8{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size8.size9,.ML__mathlive .sizing.reset-size8.size9{font-size:1.19653179em}.ML__mathlive .fontsize-ensurer.reset-size8.size10,.ML__mathlive .sizing.reset-size8.size10{font-size:1.43930636em}.ML__mathlive .fontsize-ensurer.reset-size9.size1,.ML__mathlive .sizing.reset-size9.size1{font-size:.24154589em}.ML__mathlive .fontsize-ensurer.reset-size9.size2,.ML__mathlive .sizing.reset-size9.size2{font-size:.33816425em}.ML__mathlive .fontsize-ensurer.reset-size9.size3,.ML__mathlive .sizing.reset-size9.size3{font-size:.38647343em}.ML__mathlive .fontsize-ensurer.reset-size9.size4,.ML__mathlive .sizing.reset-size9.size4{font-size:.43478261em}.ML__mathlive .fontsize-ensurer.reset-size9.size5,.ML__mathlive .sizing.reset-size9.size5{font-size:.48309179em}.ML__mathlive .fontsize-ensurer.reset-size9.size6,.ML__mathlive .sizing.reset-size9.size6{font-size:.57971014em}.ML__mathlive .fontsize-ensurer.reset-size9.size7,.ML__mathlive .sizing.reset-size9.size7{font-size:.69565217em}.ML__mathlive .fontsize-ensurer.reset-size9.size8,.ML__mathlive .sizing.reset-size9.size8{font-size:.83574879em}.ML__mathlive .fontsize-ensurer.reset-size9.size9,.ML__mathlive .sizing.reset-size9.size9{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size9.size10,.ML__mathlive .sizing.reset-size9.size10{font-size:1.20289855em}.ML__mathlive .fontsize-ensurer.reset-size10.size1,.ML__mathlive .sizing.reset-size10.size1{font-size:.20080321em}.ML__mathlive .fontsize-ensurer.reset-size10.size2,.ML__mathlive .sizing.reset-size10.size2{font-size:.2811245em}.ML__mathlive .fontsize-ensurer.reset-size10.size3,.ML__mathlive .sizing.reset-size10.size3{font-size:.32128514em}.ML__mathlive .fontsize-ensurer.reset-size10.size4,.ML__mathlive .sizing.reset-size10.size4{font-size:.36144578em}.ML__mathlive .fontsize-ensurer.reset-size10.size5,.ML__mathlive .sizing.reset-size10.size5{font-size:.40160643em}.ML__mathlive .fontsize-ensurer.reset-size10.size6,.ML__mathlive .sizing.reset-size10.size6{font-size:.48192771em}.ML__mathlive .fontsize-ensurer.reset-size10.size7,.ML__mathlive .sizing.reset-size10.size7{font-size:.57831325em}.ML__mathlive .fontsize-ensurer.reset-size10.size8,.ML__mathlive .sizing.reset-size10.size8{font-size:.69477912em}.ML__mathlive .fontsize-ensurer.reset-size10.size9,.ML__mathlive .sizing.reset-size10.size9{font-size:.8313253em}.ML__mathlive .fontsize-ensurer.reset-size10.size10,.ML__mathlive .sizing.reset-size10.size10{font-size:1em}.ML__mathlive .delimsizing.size1{font-family:KaTeX_Size1}.ML__mathlive .delimsizing.size2{font-family:KaTeX_Size2}.ML__mathlive .delimsizing.size3{font-family:KaTeX_Size3}.ML__mathlive .delimsizing.size4{font-family:KaTeX_Size4}.ML__mathlive .delimsizing.mult .delim-size1{font-family:KaTeX_Size1;vertical-align:top}.ML__mathlive .delimsizing.mult .delim-size4{font-family:KaTeX_Size4;vertical-align:top}.ML__mathlive .nulldelimiter{width:.12em}.ML__mathlive .op-symbol{position:relative}.ML__mathlive .op-symbol.small-op{font-family:KaTeX_Size1}.ML__mathlive .op-symbol.large-op{font-family:KaTeX_Size2}.ML__mathlive .op-limits .vlist>span{text-align:center}.ML__mathlive .op-over-under{position:relative}.ML__mathlive .op-over-under>.vlist>span:first-child,.ML__mathlive .op-over-under>.vlist>span:last-child{text-align:center}.ML__mathlive .accent>.vlist>span{text-align:center}.ML__mathlive .accent .accent-body>span{font-family:KaTeX_Main;width:0}.ML__mathlive .accent .accent-body.accent-vec>span{position:relative;left:.326em}.ML__mathlive .mtable .vertical-separator{display:inline-block;margin:0 -.025em;border-right:.05em solid}.ML__mathlive .mtable .arraycolsep{display:inline-block}.ML__mathlive .mtable .col-align-m>.vlist{text-align:center}.ML__mathlive .mtable .col-align-c>.vlist{text-align:center}.ML__mathlive .mtable .col-align-l>.vlist{text-align:left}.ML__mathlive .mtable .col-align-r>.vlist{text-align:right}.ML__error{background-image:radial-gradient(ellipse at center,#cc0041,transparent 70%);background-repeat:repeat-x;background-size:3px 3px;background-position:0 98%}.ML__placeholder{opacity:.7;padding-left:.4ex;padding-right:.4ex;padding-top:.4ex}";
 
@@ -30880,6 +30908,10 @@ class MathfieldPrivate {
     set selection(value) {
         this.model.selection = value;
     }
+    /** @deprecated */
+    $text(format) {
+        return this.atomToString(this.model.root, format);
+    }
     getValue(arg1, arg2, arg3) {
         if (typeof arg1 === 'undefined') {
             return this.atomToString(this.model.root, 'latex');
@@ -30909,7 +30941,9 @@ class MathfieldPrivate {
         const result = ranges
             .map((range) => {
             let res = '';
-            range = normalizeRange(iter, range);
+            range = normalizeRange(iter, range, {
+                accessibleAtomsOnly: true,
+            });
             if (range.start >= 0 && !range.collapsed) {
                 const depth = iter.at(range.start).depth;
                 for (let i = range.start + 1; i <= range.end; i++) {
@@ -33061,7 +33095,7 @@ const gDeferredState = new WeakMap();
  * elements.
  *
  * It inherits many useful properties and methods from [[`HTMLElement`]] such
- * as `style`, `tabIndex`,
+ * as `style`, `tabIndex`, `addListener()`, etc...
  *
  * To create a new `MathfieldElement`:
  *
@@ -33089,7 +33123,7 @@ const gDeferredState = new WeakMap();
  * |:---|:---|
  * | `--hue` | Hue of the highlight color and the caret |
  * | `--highlight` | Color of the selection |
- * | `--highlight` | Color of the selection, when the mathfield is not focused |
+ * | `--highlight-inactive` | Color of the selection, when the mathfield is not focused |
  * | `--caret` | Color of the caret/insertion point |
  * | `--primary` | Primary accent color, used for example in the virtual keyboard |
  *
