@@ -155,6 +155,9 @@ const gDeferredState = new WeakMap<
  * | `--highlight-inactive` | Color of the selection, when the mathfield is not focused |
  * | `--caret` | Color of the caret/insertion point |
  * | `--primary` | Primary accent color, used for example in the virtual keyboard |
+ * | `--text-font-family` | The font stack used in text mode |
+ * | `--keyboard-zindex` | The z-index attribute of the virtual keyboard panel |
+ *
  *
  * ### Attributes
  *
@@ -595,14 +598,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
                         })
                     );
                 },
-                // onContentWillChange: () => {
-                //     this.dispatchEvent(
-                //         new Event('content-will-change', {
-                //             cancelable: false,
-                //             bubbles: true,
-                //         })
-                //     );
-                // },
                 onError: (err: {
                     code: ParserErrorCode | MathfieldErrorCode;
                     arg?: string;
@@ -696,14 +691,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
                         })
                     );
                 },
-                // onSelectionWillChange: () => {
-                //     this.dispatchEvent(
-                //         new Event('selection-will-change', {
-                //             cancelable: false,
-                //             bubbles: true,
-                //         })
-                //     );
-                // },
                 onUndoStateDidChange: () => {
                     this.dispatchEvent(
                         new Event('undo-state-change', {
@@ -712,14 +699,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
                         })
                     );
                 },
-                // onUndoStateWillChange: () => {
-                //     this.dispatchEvent(
-                //         new Event('undo-state-will-change', {
-                //             cancelable: false,
-                //             bubbles: true,
-                //         })
-                //     );
-                // },
                 onVirtualKeyboardToggle: (
                     _sender: Mathfield,
                     _visible: boolean,
@@ -742,6 +721,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         }
 
         this.upgradeProperty('disabled');
+
+        // Notify listeners that we're mounted and ready
+        this.dispatchEvent(
+            new Event('mount', {
+                cancelable: false,
+                bubbles: true,
+            })
+        );
     }
 
     /**
@@ -749,6 +736,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      * @internal
      */
     disconnectedCallback(): void {
+        // Notify listeners that we're about to be unmounted
+        this.dispatchEvent(
+            new Event('unmount', {
+                cancelable: false,
+                bubbles: true,
+            })
+        );
+
         if (!this.#mathfield) return;
 
         // Save the state (in case the elements get reconnected later)

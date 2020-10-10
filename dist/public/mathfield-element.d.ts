@@ -88,6 +88,9 @@ declare global {
  * | `--highlight-inactive` | Color of the selection, when the mathfield is not focused |
  * | `--caret` | Color of the caret/insertion point |
  * | `--primary` | Primary accent color, used for example in the virtual keyboard |
+ * | `--text-font-family` | The font stack used in text mode |
+ * | `--keyboard-zindex` | The z-index attribute of the virtual keyboard panel |
+ *
  *
  * ### Attributes
  *

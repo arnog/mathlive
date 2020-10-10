@@ -5,12 +5,12 @@ body {
     --editable-surface: #fff;
     --editable-surface-border: #fafafa;
     --secondary: #f2f2f2;
-    --on-secondary: hsl(var(--hue), 19%, 26%);
+    --on-secondary: hsl(var(--hue, 212), 19%, 26%);
     --secondary-border: hsl(0, 0%, 91%);
-    --on-surface: hsl(var(--hue), 19%, 26%);
-    --on-surface-dimmed: hsla(var(--hue), 19%, 26%, 0.4);
-    --link: hsl(var(--hue), 40%, 49%);
-    --primary: hsl(var(--hue), 40%, 50%);
+    --on-surface: hsl(var(--hue, 212), 19%, 26%);
+    --on-surface-dimmed: hsla(var(--hue, 212), 19%, 26%, 0.4);
+    --link: hsl(var(--hue, 212), 40%, 49%);
+    --primary: hsl(var(--hue, 212), 40%, 50%);
     --on-primary: #fafafa;
 
     --kbd-surface: #f5f5f5;
@@ -19,35 +19,35 @@ body {
 }
 @media (prefers-color-scheme: dark) {
     body:not([theme='light']) {
-        --surface: hsl(var(--hue), 19%, 26%);
+        --surface: hsl(var(--hue, 212), 19%, 26%);
         --surface-border: hsl(0, 0%, 20%);
         --editable-surface: #333;
         --editable-surface-border: hsl(0, 0%, 13%);
-        --secondary: hsl(var(--hue), 25%, 35%);
+        --secondary: hsl(var(--hue, 212), 25%, 35%);
         --on-secondary: hsl(0, 0%, 98%);
-        --secondary-border: hsl(var(--hue), 25%, 18%);
+        --secondary-border: hsl(var(--hue, 212), 25%, 18%);
         --on-surface: hsl(0, 0%, 98%);
         --on-surface-dimmed: hsla(0, 0%, 98%, 0.4);
-        --link: hsl(var(--hue), 36%, 84%);
+        --link: hsl(var(--hue, 212), 36%, 84%);
 
-        --kbd-surface: hsl(var(--hue), 19%, 19%);
+        --kbd-surface: hsl(var(--hue, 212), 19%, 19%);
         --on-kbd: #eee;
         --kbd-shadow: #333;
     }
 }
 body[theme='dark'] {
-    --surface: hsl(var(--hue), 19%, 26%);
+    --surface: hsl(var(--hue, 212), 19%, 26%);
     --surface-border: hsl(0, 0%, 20%);
     --editable-surface: #333;
     --editable-surface-border: hsl(0, 0%, 13%);
-    --secondary: hsl(var(--hue), 25%, 35%);
+    --secondary: hsl(var(--hue, 212), 25%, 35%);
     --on-secondary: hsl(0, 0%, 98%);
-    --secondary-border: hsl(var(--hue), 25%, 18%);
+    --secondary-border: hsl(var(--hue, 212), 25%, 18%);
     --on-surface: hsl(0, 0%, 98%);
     --on-surface-dimmed: hsla(0, 0%, 98%, 0.4);
-    --link: hsl(var(--hue), 36%, 84%);
+    --link: hsl(var(--hue, 212), 36%, 84%);
 
-    --kbd-surface: hsl(var(--hue), 19%, 19%);
+    --kbd-surface: hsl(var(--hue, 212), 19%, 19%);
     --on-kbd: #eee;
     --kbd-shadow: #333;
 }
@@ -111,7 +111,7 @@ a.skip-main:active {
     padding: 15px;
 
     color: #fff;
-    background-color: var(--primary);
+    background-color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
     border-radius: 15px;
     border: 4px solid #fefefe;
     box-shadow: 0 3px 8px 0 rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.08);
@@ -125,7 +125,7 @@ a.skip-main:active {
         'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue',
         sans-serif;
     font-weight: 900;
-    color: var(--primary);
+    color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
 }
 
 .mathlive > svg {
@@ -213,7 +213,7 @@ nav ul > li:hover {
 nav ul > li.is-selected,
 nav ul > li.is-selected:hover {
     border: 1px solid transparent;
-    background: var(--primary);
+    background: var(--primary, hsl(var(--hue, 212), 40%, 50%));
 }
 nav ul > li.is-selected a,
 nav ul > li.is-selected a:visited,
@@ -494,7 +494,7 @@ div#content > header {
     flex-flow: column;
     justify-content: center;
 
-    background-color: var(--primary);
+    background-color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
     height: 48px;
     padding: 8px;
 
@@ -548,8 +548,8 @@ p {
 
 h2,
 h3 {
-    border-color: var(--primary);
-    color: var(--primary);
+    border-color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
+    color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
 }
 h2 {
     font-size: 48px;
@@ -627,7 +627,7 @@ kbd {
 
 .pill.selected {
     color: #fff;
-    background: var(--primary);
+    background: var(--primary, hsl(var(--hue, 212), 40%, 50%));
 }
 
 .pill-group .pill {
@@ -636,7 +636,7 @@ kbd {
     line-height: 40px;
     padding: 0 10px;
     text-align: center;
-    border: 1px solid var(--primary);
+    border: 1px solid var(--primary, hsl(var(--hue, 212), 40%, 50%));
     border-width: 1px 1px 1px 0;
     box-sizing: border-box;
     width: 55px;
@@ -694,11 +694,11 @@ kbd {
 }
 
 input:checked + .slider {
-    background-color: var(--primary);
+    background-color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
 }
 
 input:focus + .slider {
-    box-shadow: 0 0 1px var(--primary);
+    box-shadow: 0 0 1px var(--primary, hsl(var(--hue, 212), 40%, 50%));
 }
 
 input:checked + .slider:before {

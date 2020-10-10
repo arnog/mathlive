@@ -13,15 +13,15 @@ html {
 
 body {
     --hue: 210;
-    --on-primary: hsl(var(--hue), 0%, 95%);
-    --primary: hsl(var(--hue), 40%, 50%);
+    --on-primary: hsl(var(--hue, 212), 0%, 95%);
+    --primary: hsl(var(--hue, 212), 40%, 50%);
     --surface: #fafafa;
     --surface-border: #fff;
-    --on-surface: hsl(var(--hue), 19%, 26%);
+    --on-surface: hsl(var(--hue, 212), 19%, 26%);
 
     --secondary-surface: hsl(0, 0%, 99.5%);
     --secondary-surface-border: hsl(0, 0%, 93%);
-    --link: hsl(var(--hue), 100%, 40%);
+    --link: hsl(var(--hue, 212), 100%, 40%);
 
     --editable: #fff;
     --editable-border: #ddd;
@@ -53,7 +53,7 @@ h4 {
 
 h3 strong,
 h4 strong {
-    color: var(--primary);
+    color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
 }
 
 h4 {
@@ -174,7 +174,7 @@ a:hover {
 }
 
 body > header {
-    background-color: var(--primary);
+    background-color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
     height: 130px;
     display: flex;
     justify-content: center;
@@ -240,14 +240,14 @@ footer a:active {
 
 @media (prefers-color-scheme: dark) {
     body {
-        --surface: hsl(var(--hue), 19%, 26%);
+        --surface: hsl(var(--hue, 212), 19%, 26%);
         --surface-border: hsl(0, 0%, 20%);
         --on-surface: hsl(0, 0%, 98%);
-        --primary: hsl(var(--hue), 100%, 50%);
+        --primary: hsl(var(--hue, 212), 100%, 50%);
 
         --secondary-surface: hsl(0, 0%, 19%, 0.3);
         --secondary-surface-border: hsl(0, 0%, 22%);
-        --link: hsl(var(--hue), 100%, 63%);
+        --link: hsl(var(--hue, 212), 100%, 63%);
 
         --editable: #333;
         --editable-border: hsl(0, 0%, 13%);
@@ -255,6 +255,6 @@ footer a:active {
     }
     h2,
     h3 {
-        color: hsl(var(--hue), 20%, 90%);
+        color: hsl(var(--hue, 212), 20%, 90%);
     }
 }
