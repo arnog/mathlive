@@ -415,6 +415,14 @@ export declare type UndoStateChangeListener = (target: Mathfield, action: 'undo'
 /**
  * The methods provide a notification that an event is about to occur or has
  * occured.
+ *
+ * In general instead of using this interface you should be listening to the
+ * corresponding event on `MathfieldElement`, i.e.
+ * ```javascript
+mfe.addEventListener('change', (ev) => {
+    console.log(ev.target.value);
+});
+ * ```
  */
 export interface MathfieldListeners {
     /** The mathfield has lost keyboard focus */
@@ -746,7 +754,7 @@ export declare type MathfieldOptions = LayoutOptions & EditingOptions & Localiza
     createHTML: (html: string) => any;
 };
 /**
- * @deprecated Use MathfieldOptions
+ * @deprecated Use [[`MathfieldOptions`]]
  */
 export declare type MathfieldConfig = MathfieldOptions;
 /**

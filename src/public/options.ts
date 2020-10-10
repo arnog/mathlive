@@ -479,6 +479,14 @@ export type UndoStateChangeListener = (
 /**
  * The methods provide a notification that an event is about to occur or has
  * occured.
+ *
+ * In general instead of using this interface you should be listening to the
+ * corresponding event on `MathfieldElement`, i.e.
+ * ```javascript
+mfe.addEventListener('change', (ev) => {
+    console.log(ev.target.value);
+});
+ * ```
  */
 
 export interface MathfieldListeners {
@@ -832,7 +840,7 @@ export type MathfieldOptions = LayoutOptions &
     };
 
 /**
- * @deprecated Use MathfieldOptions
+ * @deprecated Use [[`MathfieldOptions`]]
  */
 export type MathfieldConfig = MathfieldOptions;
 

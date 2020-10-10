@@ -39,6 +39,8 @@ export declare const version: string;
 /**
  * Convert a DOM element into an editable mathfield.
  *
+ * Consider using a `<math-field>` tag instead or `new MathfieldElement()` instead.
+ *
  * The `mathfield` property of the DOM element is a reference to the corresponding
  * `Mathfield` object. This value is also returned by `makeMathField()`.
  *
@@ -56,8 +58,9 @@ export declare const version: string;
  * makeMathField('equation');
  * ```
  * @keywords create, make, mathfield
+ * @deprecated Use `MathfieldElement`.
  */
-export declare function makeMathField(element: HTMLElement | string, config: MathfieldOptions): Mathfield;
+export declare function makeMathField(element: HTMLElement | string, options: MathfieldOptions): Mathfield;
 /**
  * Convert a LaTeX string to a string of HTML markup.
  *
@@ -87,7 +90,8 @@ export declare function convertLatexToMarkup(text: string, options?: {
     onError?: ErrorListener<ParserErrorCode>;
 }): string;
 /**
- * * @deprecated Use {@See convertLatexToMarkup }
+ * @deprecated Use [[`convertLatexToMarkup`]]
+ * @category Converting
  */
 export declare function latexToMarkup(text: string, options?: {
     mathstyle?: 'displaystyle' | 'textstyle';
@@ -105,6 +109,8 @@ export declare function latexToMarkup(text: string, options?: {
  * to map items on the screen with their MathML representation or vice-versa.
  * @param options.onError Callback invoked when an error is encountered while
  * parsing the input string.
+ *
+ * @category Converting
  */
 export declare function convertLatexToMathMl(latex: string, options?: {
     macros?: MacroDictionary;
@@ -112,7 +118,8 @@ export declare function convertLatexToMathMl(latex: string, options?: {
     onError?: ErrorListener<ParserErrorCode>;
 }): string;
 /**
- * @deprecated Use {@See convertLatexToMathMl }
+ * @deprecated Use [[`convertLatexToMathMl`]]
+ * @category Converting
  */
 export declare function latexToMathML(latex: string, options?: {
     macros?: MacroDictionary;
@@ -191,7 +198,8 @@ export declare function convertLatexToSpeakableText(latex: string, options: Text
     onError?: ErrorListener<ParserErrorCode>;
 }): string;
 /**
- * @deprecated Use {@See convertLatexToSpeakableText }
+ * @deprecated Use [[`convertLatexToSpeakableText`]]
+ * @category Converting
  */
 export declare function latexToSpeakableText(latex: string, options: TextToSpeechOptions & {
     macros?: MacroDictionary;

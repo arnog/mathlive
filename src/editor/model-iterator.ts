@@ -2,7 +2,6 @@ import { isArray } from '../common/types';
 import { Atom } from '../core/atom';
 import { arrayCell, arrayCellCount } from './model-array-utils';
 import { ModelPrivate } from './model-class';
-import { getAnchor, setPath } from './model-selection-utils';
 
 export type Position = { path: string; atom: Atom; depth: number };
 
@@ -18,7 +17,7 @@ export class PositionIterator {
         do {
             this.positions.push({
                 path: model.toString(),
-                atom: getAnchor(model),
+                atom: getCurrentAtom(model),
                 depth: model.path.length,
             });
         } while (nextPosition(model));
@@ -27,17 +26,12 @@ export class PositionIterator {
         return this.positions[index];
     }
     find(atom: Atom): number {
-        let result = -1;
-        let i = 0;
-        const model = new ModelPrivate();
-        model.root = this.root;
-        do {
-            setPath(model, this.positions[i++].path);
-            if (atom === getCurrentAtom(model)) {
-                result = i - 1;
+        for (let i = 0; i < this.positions.length; i++) {
+            if (this.positions[i].atom === atom) {
+                return i;
             }
-        } while (result < 0 && i < this.lastPosition);
-        return result;
+        }
+        return -1;
     }
     get lastPosition(): number {
         return this.positions.length;
@@ -136,11 +130,7 @@ function nextPosition(model: ModelPrivate): boolean {
     return true;
 }
 
-export function setPosition(
-    model: ModelPrivate,
-    offset = 0,
-    relation = ''
-): boolean {
+function setPosition(model: ModelPrivate, offset = 0, relation = ''): boolean {
     // If no relation ("children", "superscript", etc...) is specified
     // keep the current relation
     const oldRelation = model.path[model.path.length - 1].relation;

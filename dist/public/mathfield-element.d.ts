@@ -56,6 +56,38 @@ declare global {
  * methods to control the display and behavior of `<math-field>`
  * elements.
  *
+ * It inherits many useful properties and methods from [[`HTMLElement`]] such
+ * as `style`, `tabIndex`,
+ *
+ * To create a new `MathfieldElement`:
+ *
+ * ```javascript
+ * // Create a new MathfieldElement
+ * const mfe = new MathfieldElement();
+ * // Attach it to the document
+ * document.body.appendChild(mfe);
+ * ```
+ *
+ * The `MathfieldElement` constructor has an optional argument of
+ * [[`MathfieldOptions`]] to configure the element. The options can also
+ * be modified later:
+ * ```javascript
+ * mfe.setOptions({smartFence: true});
+ * ```
+ *
+ * ### CSS Variables
+ *
+ * The following CSS variables, if applied to the mathfield element or
+ * to one of its ancestors, can be used to customize the appearance of the
+ * mathfield.
+ *
+ * | CSS Variable | Usage |
+ * |:---|:---|
+ * | `--hue` | Hue of the highlight color and the caret |
+ * | `--highlight` | Color of the selection |
+ * | `--highlight` | Color of the selection, when the mathfield is not focused |
+ * | `--caret` | Color of the caret/insertion point |
+ * | `--primary` | Primary accent color, used for example in the virtual keyboard |
  *
  * ### Attributes
  *
@@ -112,7 +144,7 @@ declare global {
  * | `virtual-keyboard-theme` | `options.keyboardTheme` |
  * | `virtual-keyboards` | `options.keyboards` |
  *
- *  See {@see config} for more details about these options.
+ *  See [[`MathfieldOptions`]] for more details about these options.
  *
  * ### Events
  *
@@ -167,26 +199,110 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
     constructor(options?: Partial<MathfieldOptions>);
     get mode(): ParseMode;
     set mode(value: ParseMode);
+    /**
+     *  @category Options
+     */
     getOptions<K extends keyof MathfieldOptions>(keys: K[]): Pick<MathfieldOptions, K>;
     getOptions(): MathfieldOptions;
     getOption<K extends keyof MathfieldOptions>(key: K): MathfieldOptions[K];
+    /**
+     *  @category Options
+     */
     setOptions(options: Partial<MathfieldOptions>): void;
     /**
-     * {@inheritDoc Mathfield.executeCommand}
+     * Execute a [[`Commands`|command]] defined by a selector.
+     * ```javascript
+     * mfe.executeCommand('add-column-after');
+     * mfe.executeCommand(['switch-mode', 'math']);
+     * ```
+     *
+     * @param command - A selector, or an array whose first element
+     * is a selector, and whose subsequent elements are arguments to the selector.
+     *
+     * Selectors can be passed either in camelCase or kebab-case.
+     *
+     * ```javascript
+     * // Both calls do the same thing
+     * mfe.executeCommand('selectAll');
+     * mfe.executeCommand('select-all');
+     * ```
      */
     executeCommand(command: Selector | [Selector, ...any[]]): boolean;
+    /**
+     *  @category Accessing and Changing the content
+     */
     getValue(format?: OutputFormat): string;
+    /**
+     *  @category Accessing and Changing the content
+     */
     setValue(value?: string, options?: InsertOptions): void;
+    /**
+     * Return true if the mathfield is currently focused (responds to keyboard
+     * input).
+     *
+     * @category Focus
+     *
+     */
     hasFocus(): boolean;
+    /**
+     * Sets the focus to the mathfield (will respond to keyboard input).
+     *
+     * @category Focus
+     *
+     */
     focus(): void;
+    /**
+     * Remove the focus from the mathfield (will no longer respond to keyboard
+     * input).
+     *
+     * @category Focus
+     *
+     */
     blur(): void;
+    /**
+     * Select the content of the mathfield.
+     * @category Selection
+     */
     select(): void;
+    /**
+     * Inserts a block of text at the current insertion point.
+     *
+     * This method can be called explicitly or invoked as a selector with
+     * `executeCommand("insert")`.
+     *
+     * After the insertion, the selection will be set according to the
+     * `options.selectionMode`.
+     *
+     *  @category Accessing and Changing the content
+     */
     insert(s: string, options?: InsertOptions): boolean;
+    /**
+     * Updates the style (color, bold, italic, etc...) of the selection or sets
+     * the style to be applied to future input.
+     *
+     * If there is a selection, the style is applied to the selection
+     *
+     * If the selection already has this style, it is removed.
+     *
+     * If the selection has the style partially applied (i.e. only some
+     * sections), it is removed from those sections, and applied to the
+     * entire selection.
+     *
+     * If there is no selection, the style will apply to the next character typed.
+     *
+     * @category Accessing and Changing the content
+     */
     applyStyle(style: Style): void;
+    /**
+     * @category Selection
+     */
     getCaretPosition(): {
         x: number;
         y: number;
     };
+    /**
+     * @category Selection
+     */
     setCaretPosition(x: number, y: number): boolean;
     /**
      * Custom elements lifecycle hooks
@@ -210,34 +326,49 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
     attributeChangedCallback(name: string, oldValue: unknown, newValue: unknown): void;
     set disabled(value: boolean);
     get disabled(): boolean;
+    /**
+     *  @category Accessing and Changing the content
+     */
     set value(value: string);
     /**
      * The content of the mathfield as a Latex expression.
      * ```
      * document.querySelector('mf').value = '\\frac{1}{\\pi}'
      * ```
+     *  @category Accessing and Changing the content
      */
     get value(): string;
     /**
-     * A range representing the selection.
+     * An array of ranges representing the selection.
+     *
+     * It is guaranteed there will be at least one element. If a discontinuous
+     * selection is present, the result will include more than one element.
+     *
+     * @category Selection
      *
      */
     get selection(): Range[];
     /**
      * Change the selection
      *
+     * @category Selection
      */
     set selection(value: Range[]);
     /**
-     * Read the position of the caret
+     * The position of the caret/insertion point, from 0 to `lastPosition`.
+     *
+     * @category Selection
      *
      */
     get position(): number;
     /**
-     * Change the position of the caret
-     *
+     * @category Selection
      */
     set position(value: number);
+    /**
+     * The last valid position.
+     * @category Selection
+     */
     get lastPosition(): number;
 }
 export default MathfieldElement;

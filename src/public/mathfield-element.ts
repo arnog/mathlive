@@ -123,6 +123,38 @@ const gDeferredState = new WeakMap<
  * methods to control the display and behavior of `<math-field>`
  * elements.
  *
+ * It inherits many useful properties and methods from [[`HTMLElement`]] such
+ * as `style`, `tabIndex`, `addListener()`, etc...
+ *
+ * To create a new `MathfieldElement`:
+ *
+ * ```javascript
+ * // Create a new MathfieldElement
+ * const mfe = new MathfieldElement();
+ * // Attach it to the document
+ * document.body.appendChild(mfe);
+ * ```
+ *
+ * The `MathfieldElement` constructor has an optional argument of
+ * [[`MathfieldOptions`]] to configure the element. The options can also
+ * be modified later:
+ * ```javascript
+ * mfe.setOptions({smartFence: true});
+ * ```
+ *
+ * ### CSS Variables
+ *
+ * The following CSS variables, if applied to the mathfield element or
+ * to one of its ancestors, can be used to customize the appearance of the
+ * mathfield.
+ *
+ * | CSS Variable | Usage |
+ * |:---|:---|
+ * | `--hue` | Hue of the highlight color and the caret |
+ * | `--highlight` | Color of the selection |
+ * | `--highlight` | Color of the selection, when the mathfield is not focused |
+ * | `--caret` | Color of the caret/insertion point |
+ * | `--primary` | Primary accent color, used for example in the virtual keyboard |
  *
  * ### Attributes
  *
@@ -179,7 +211,7 @@ const gDeferredState = new WeakMap<
  * | `virtual-keyboard-theme` | `options.keyboardTheme` |
  * | `virtual-keyboards` | `options.keyboards` |
  *
- *  See {@see config} for more details about these options.
+ *  See [[`MathfieldOptions`]] for more details about these options.
  *
  * ### Events
  *
@@ -334,6 +366,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         if (!this.#mathfield) return;
         this.#mathfield.mode = value;
     }
+
+    /**
+     *  @category Options
+     */
     getOptions<K extends keyof MathfieldOptions>(
         keys: K[]
     ): Pick<MathfieldOptions, K>;
@@ -357,6 +393,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         return (this.getOptions([key]) as unknown) as MathfieldOptions[K];
     }
 
+    /**
+     *  @category Options
+     */
     setOptions(options: Partial<MathfieldOptions>): void {
         if (this.#mathfield) {
             this.#mathfield.setOptions(options);
@@ -383,11 +422,30 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         reflectAttributes(this);
     }
     /**
-     * {@inheritDoc Mathfield.executeCommand}
+     * Execute a [[`Commands`|command]] defined by a selector.
+     * ```javascript
+     * mfe.executeCommand('add-column-after');
+     * mfe.executeCommand(['switch-mode', 'math']);
+     * ```
+     *
+     * @param command - A selector, or an array whose first element
+     * is a selector, and whose subsequent elements are arguments to the selector.
+     *
+     * Selectors can be passed either in camelCase or kebab-case.
+     *
+     * ```javascript
+     * // Both calls do the same thing
+     * mfe.executeCommand('selectAll');
+     * mfe.executeCommand('select-all');
+     * ```
      */
     executeCommand(command: Selector | [Selector, ...any[]]): boolean {
         return this.#mathfield?.executeCommand(command) ?? false;
     }
+
+    /**
+     *  @category Accessing and Changing the content
+     */
     getValue(format?: OutputFormat): string {
         if (this.#mathfield) {
             return this.#mathfield.getValue(format);
@@ -398,6 +456,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         return '';
     }
 
+    /**
+     *  @category Accessing and Changing the content
+     */
     setValue(value?: string, options?: InsertOptions): void {
         if (this.#mathfield) {
             this.#mathfield.setValue(value, options);
@@ -418,28 +479,86 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         });
     }
 
+    /**
+     * Return true if the mathfield is currently focused (responds to keyboard
+     * input).
+     *
+     * @category Focus
+     *
+     */
     hasFocus(): boolean {
         return this.#mathfield?.hasFocus() ?? false;
     }
+    /**
+     * Sets the focus to the mathfield (will respond to keyboard input).
+     *
+     * @category Focus
+     *
+     */
     focus(): void {
         this.#mathfield?.focus();
     }
+    /**
+     * Remove the focus from the mathfield (will no longer respond to keyboard
+     * input).
+     *
+     * @category Focus
+     *
+     */
     blur(): void {
         this.#mathfield?.blur();
     }
 
+    /**
+     * Select the content of the mathfield.
+     * @category Selection
+     */
     select(): void {
         this.#mathfield?.select();
     }
+    /**
+     * Inserts a block of text at the current insertion point.
+     *
+     * This method can be called explicitly or invoked as a selector with
+     * `executeCommand("insert")`.
+     *
+     * After the insertion, the selection will be set according to the
+     * `options.selectionMode`.
+     *
+     *  @category Accessing and Changing the content
+     */
     insert(s: string, options?: InsertOptions): boolean {
         return this.#mathfield?.insert(s, options) ?? false;
     }
+    /**
+     * Updates the style (color, bold, italic, etc...) of the selection or sets
+     * the style to be applied to future input.
+     *
+     * If there is a selection, the style is applied to the selection
+     *
+     * If the selection already has this style, it is removed.
+     *
+     * If the selection has the style partially applied (i.e. only some
+     * sections), it is removed from those sections, and applied to the
+     * entire selection.
+     *
+     * If there is no selection, the style will apply to the next character typed.
+     *
+     * @category Accessing and Changing the content
+     */
     applyStyle(style: Style): void {
         return this.#mathfield?.applyStyle(style);
     }
+
+    /**
+     * @category Selection
+     */
     getCaretPosition(): { x: number; y: number } {
         return this.#mathfield?.getCaretPosition() ?? null;
     }
+    /**
+     * @category Selection
+     */
     setCaretPosition(x: number, y: number): boolean {
         return this.#mathfield?.setCaretPosition(x, y) ?? false;
     }
@@ -696,6 +815,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         return this.hasAttribute('disabled');
     }
 
+    /**
+     *  @category Accessing and Changing the content
+     */
     set value(value: string) {
         this.setValue(value);
     }
@@ -705,13 +827,19 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      * ```
      * document.querySelector('mf').value = '\\frac{1}{\\pi}'
      * ```
+     *  @category Accessing and Changing the content
      */
     get value(): string {
         return this.getValue();
     }
 
     /**
-     * A range representing the selection.
+     * An array of ranges representing the selection.
+     *
+     * It is guaranteed there will be at least one element. If a discontinuous
+     * selection is present, the result will include more than one element.
+     *
+     * @category Selection
      *
      */
     get selection(): Range[] {
@@ -727,6 +855,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     /**
      * Change the selection
      *
+     * @category Selection
      */
     set selection(value: Range[]) {
         if (this.#mathfield) {
@@ -748,7 +877,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     /**
-     * Read the position of the caret
+     * The position of the caret/insertion point, from 0 to `lastPosition`.
+     *
+     * @category Selection
      *
      */
     get position(): number {
@@ -760,13 +891,16 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     /**
-     * Change the position of the caret
-     *
+     * @category Selection
      */
     set position(value: number) {
         this.selection = [{ start: value }];
     }
 
+    /**
+     * The last valid position.
+     * @category Selection
+     */
     get lastPosition(): number {
         return this.#mathfield?.lastPosition ?? -1;
     }

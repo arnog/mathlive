@@ -5377,7 +5377,6 @@ defineFunction([
         svgBody: name.slice(1),
         overscript: overscript,
         underscript: args[0],
-        skipBoundary: true,
     };
 }, (name, _parent, atom, emit) => name +
     (typeof atom.underscript !== 'undefined'
@@ -12104,6 +12103,33 @@ function invalidateVerbatimLatex(model) {
         atom = model.ancestor(depth);
     }
 }
+function normalizeRange(iter, range) {
+    const result = { ...range };
+    if (result.end === -1) {
+        result.end = iter.lastPosition;
+    }
+    else if (isNaN(result.end)) {
+        result.end = result.start;
+    }
+    else {
+        result.end = Math.min(result.end, iter.lastPosition);
+    }
+    if (result.start < result.end) {
+        result.direction = 'forward';
+    }
+    else {
+        [result.start, result.end] = [result.end, result.start];
+        result.direction = 'backward';
+    }
+    result.collapsed = result.start === result.end;
+    if (result.collapsed) {
+        result.direction = 'none';
+    }
+    if (iter.positions[result.start]) {
+        result.depth = iter.positions[result.start].depth - 1;
+    }
+    return result;
+}
 
 function pathToString(path, extent) {
     let result = '';
@@ -12293,237 +12319,159 @@ function arrayAdjustRow(array, colRow, dir) {
     return result;
 }
 
-class ModelPrivate {
-    constructor(options, listeners, hooks, target) {
-        this.options = {
-            mode: 'math',
-            removeExtraneousParentheses: false,
-            ...options,
-        };
-        this.root = makeRoot(this.options.mode);
-        this.path = [{ relation: 'body', offset: 0 }];
-        this.extent = 0;
-        this.setListeners(listeners);
-        this.setHooks(hooks);
-        this.mathfield = target;
-        this.suppressChangeNotifications = false;
+class PositionIterator {
+    constructor(root) {
+        this.positions = [];
+        this.root = root;
+        const model = new ModelPrivate();
+        model.root = root;
+        do {
+            this.positions.push({
+                path: model.toString(),
+                atom: getCurrentAtom(model),
+                depth: model.path.length,
+            });
+        } while (nextPosition(model));
     }
-    clone() {
-        const result = new ModelPrivate(this.options, this.listeners, this.hooks, this.mathfield);
-        result.root = this.root;
-        result.path = clone(this.path);
-        return result;
+    at(index) {
+        return this.positions[index];
     }
-    setListeners(listeners) {
-        this.listeners = listeners;
-    }
-    setHooks(hooks) {
-        this.hooks = {
-            announce: (hooks === null || hooks === void 0 ? void 0 : hooks.announce) ? hooks.announce
-                : (_target, _command, _modelBefore, _atoms) => {
-                    return;
-                },
-            moveOut: (hooks === null || hooks === void 0 ? void 0 : hooks.moveOut) ? hooks.moveOut
-                : () => {
-                    return true;
-                },
-            tabOut: (hooks === null || hooks === void 0 ? void 0 : hooks.tabOut) ? hooks.tabOut
-                : () => {
-                    return true;
-                },
-        };
-    }
-    announce(command, // @revisit: be more explicit
-    modelBefore, atoms = []) {
-        this.hooks.announce(this.mathfield, command, modelBefore, atoms);
-    }
-    /**
-     * Return a string representation of the selection.
-     * @todo This is a bad name for this function, since it doesn't return
-     * a representation of the content, which one might expect...
-     */
-    toString() {
-        return pathToString(this.path, this.extent);
-    }
-    /**
-     * @return array of children of the parent
-     */
-    siblings(addMisingFirstAtom = true) {
-        var _a;
-        if (this.path.length === 0)
-            return [];
-        let siblings;
-        if (this.parent().array) {
-            siblings = arrayCell(this.parent().array, this.relation());
-        }
-        else {
-            siblings = (_a = this.parent()[this.relation()]) !== null && _a !== void 0 ? _a : [];
-            if (typeof siblings === 'string')
-                siblings = [];
-        }
-        // If the 'first' atom is missing, insert it
-        if (addMisingFirstAtom &&
-            (siblings.length === 0 || siblings[0].type !== 'first')) {
-            siblings.unshift(new Atom(this.parent().mode, 'first'));
-        }
-        return siblings;
-    }
-    anchorOffset() {
-        return this.path.length > 0
-            ? this.path[this.path.length - 1].offset
-            : 0;
-    }
-    focusOffset() {
-        return this.path.length > 0
-            ? this.path[this.path.length - 1].offset + this.extent
-            : 0;
-    }
-    /**
-     * Offset of the first atom included in the selection
-     * i.e. `=1` => selection starts with and includes first atom
-     * With expression _x=_ and atoms :
-     * - 0: _<first>_
-     * - 1: _x_
-     * - 2: _=_
-     *
-     * - if caret is before _x_:  `start` = 0, `end` = 0
-     * - if caret is after _x_:   `start` = 1, `end` = 1
-     * - if _x_ is selected:      `start` = 1, `end` = 2
-     * - if _x=_ is selected:   `start` = 1, `end` = 3
-     */
-    startOffset() {
-        return Math.min(this.focusOffset(), this.anchorOffset());
-    }
-    /**
-     * Offset of the first atom not included in the selection
-     * i.e. max value of `siblings.length`
-     * `endOffset - startOffset = extent`
-     */
-    endOffset() {
-        return Math.max(this.focusOffset(), this.anchorOffset());
-    }
-    /**
-     * Sibling, relative to `anchor`
-     * `sibling(0)` = start of selection
-     * `sibling(-1)` = sibling immediately left of start offset
-     */
-    sibling(offset) {
-        return this.siblings()[this.startOffset() + offset];
-    }
-    // @revisit: move ancestor, and anything related to the selection to model-selection
-    /**
-     * @param ancestor distance from self to ancestor.
-     * - `ancestor` = 0: self
-     * - `ancestor` = 1: parent
-     * - `ancestor` = 2: grand-parent
-     * - etc...
-     */
-    ancestor(ancestor) {
-        // If the requested ancestor goes beyond what's available,
-        // return null
-        if (ancestor > this.path.length)
-            return null;
-        // Start with the root
-        let result = this.root;
-        // Iterate over the path segments, selecting the appropriate
-        for (let i = 0; i < this.path.length - ancestor; i++) {
-            const segment = this.path[i];
-            if (result.array) {
-                result = arrayCell(result.array, segment.relation)[segment.offset];
+    find(atom) {
+        for (let i = 0; i < this.positions.length; i++) {
+            if (this.positions[i].atom === atom) {
+                return i;
             }
-            else if (!result[segment.relation]) {
-                // There is no such relation... (the path got out of sync with the tree)
-                return null;
-            }
-            else {
-                // Make sure the 'first' atom has been inserted, otherwise
-                // the segment.offset might be invalid
-                if (result[segment.relation].length === 0 ||
-                    result[segment.relation][0].type !== 'first') {
-                    result[segment.relation].unshift(new Atom(result[segment.relation][0].mode, 'first'));
+        }
+        return -1;
+    }
+    get lastPosition() {
+        return this.positions.length;
+    }
+    paths(indexes) {
+        return indexes.map((i) => this.at(i).path);
+    }
+}
+function nextPosition(model) {
+    const NEXT_RELATION = {
+        body: 'numer',
+        numer: 'denom',
+        denom: 'index',
+        index: 'overscript',
+        overscript: 'underscript',
+        underscript: 'subscript',
+        subscript: 'superscript',
+    };
+    if (model.anchorOffset() === model.siblings(false).length - 1) {
+        // We've reached the end of this list.
+        // Is there another list to consider?
+        let relation = NEXT_RELATION[model.relation()];
+        const parent = model.parent();
+        while (relation && !parent[relation]) {
+            relation = NEXT_RELATION[relation];
+        }
+        // We found a new relation/set of siblings...
+        if (relation) {
+            setPosition(model, 0, relation);
+            return true;
+        }
+        // No more siblings, check if we have a sibling cell in an array
+        if (model.parent().array) {
+            const maxCellCount = arrayCellCount(model.parent().array);
+            let cellIndex = parseInt(model.relation().match(/cell([0-9]*)$/)[1]) + 1;
+            while (cellIndex < maxCellCount) {
+                const cell = arrayCell(model.parent().array, cellIndex, false);
+                // Some cells could be null (sparse array), so skip them
+                if (cell && setPosition(model, 0, 'cell' + cellIndex)) {
+                    return true;
                 }
-                const offset = Math.min(segment.offset, result[segment.relation].length - 1);
-                result = result[segment.relation][offset];
+                cellIndex += 1;
             }
         }
-        return result;
+        // No more siblings, go up to the parent.
+        if (model.path.length === 1) {
+            // We're already at the top: nowhere else to go
+            return false;
+        }
+        // We've reached the end of the siblings.
+        model.path.pop();
+        return true;
     }
-    parent() {
-        return this.ancestor(1);
+    // Still some siblings to go through. Move on to the next one.
+    setPosition(model, model.anchorOffset() + 1);
+    const anchor = getCurrentAtom(model);
+    // Dive into its components, if the new anchor is a compound atom,
+    // and allows capture of the selection by its sub-elements
+    if (anchor && !anchor.captureSelection) {
+        let relation;
+        if (anchor.array) {
+            // Find the first non-empty cell in this array
+            let cellIndex = 0;
+            relation = '';
+            const maxCellCount = arrayCellCount(anchor.array);
+            while (!relation && cellIndex < maxCellCount) {
+                // Some cells could be null (sparse array), so skip them
+                if (arrayCell(anchor.array, cellIndex, false)) {
+                    relation = 'cell' + cellIndex.toString();
+                }
+                cellIndex += 1;
+            }
+            console.assert(relation);
+            model.path.push({ relation: relation, offset: 0 });
+            setPosition(model, 0, relation);
+            return true;
+        }
+        relation = 'body';
+        while (relation) {
+            if (isArray(anchor[relation])) {
+                model.path.push({ relation: relation, offset: 0 });
+                return true;
+            }
+            relation = NEXT_RELATION[relation];
+        }
     }
-    relation() {
-        return this.path.length > 0
-            ? this.path[this.path.length - 1].relation
-            : '';
-    }
-    /**
-     * If necessary, insert a `first` atom in the sibling list.
-     * If there's already a `first` atom, do nothing.
-     * The `first` atom is used as a 'placeholder' to hold the blinking caret when
-     * the caret is positioned at the very beginning of the mathlist.
-     */
-    insertFirstAtom() {
-        this.siblings();
-    }
+    return true;
 }
-
-function selectionDidChange(model) {
-    var _a;
-    if (typeof ((_a = model.listeners) === null || _a === void 0 ? void 0 : _a.onSelectionDidChange) === 'function' &&
-        !model.suppressChangeNotifications) {
-        model.listeners.onSelectionDidChange(model);
+function setPosition(model, offset = 0, relation = '') {
+    // If no relation ("children", "superscript", etc...) is specified
+    // keep the current relation
+    const oldRelation = model.path[model.path.length - 1].relation;
+    if (!relation)
+        relation = oldRelation;
+    // If the relation is invalid, exit and return false
+    const parent = model.parent();
+    if (!parent && relation !== 'body')
+        return false;
+    const arrayRelation = relation.startsWith('cell');
+    if ((!arrayRelation && !parent[relation]) ||
+        (arrayRelation && !parent.array)) {
+        return false;
     }
-}
-function contentDidChange(model) {
-    var _a;
-    if (typeof ((_a = model.listeners) === null || _a === void 0 ? void 0 : _a.onContentDidChange) === 'function' &&
-        !model.suppressChangeNotifications) {
-        model.listeners.onContentDidChange(model);
+    // Temporarily set the path to the potentially new relation to get the
+    // right siblings
+    model.path[model.path.length - 1].relation = relation;
+    const siblings = model.siblings(false);
+    const siblingsCount = siblings.length;
+    // Restore the relation
+    model.path[model.path.length - 1].relation = oldRelation;
+    // Calculate the new offset, and make sure it is in range
+    // (`setSelectionOffset()` can be called with an offset greater than
+    // the number of children, for example when doing an up from a
+    // numerator to a smaller denominator, e.g. "1/(x+1)".
+    if (offset < 0) {
+        offset = siblingsCount + offset;
     }
+    offset = Math.max(0, Math.min(offset, siblingsCount - 1));
+    model.path[model.path.length - 1].relation = relation;
+    model.path[model.path.length - 1].offset = offset;
+    return true;
 }
-/*
-// type User = { name: string };
-
-// interface UserEvents {
-//     login(user: User): void;
-//     logout(): string;
-// }
-
-type Filter<T, Cond, U extends keyof T = keyof T> = {
-    [K in U]: T[K] extends Cond ? K : never;
-}[U];
-
-type In<T> = T extends (...args: infer U) => any ? U : [];
-type Out<T> = T extends () => infer U ? U : never;
-
-// Extract an array type of valid event keys
-type EventKey<T> = Filter<T, Function> & string;
-
-// Extract the argument/return types of a valid event
-type Arguments<T> = T extends (...args: infer U) => any ? U : [];
-type Result<T> = T extends () => infer U ? U : never;
-
-type EventIn<T, K extends EventKey<T>> = In<T[K]>;
-type EventOut<T, K extends EventKey<T>> = Out<T[K]> | void;
-
-export type Listener<T, K extends EventKey<T> = EventKey<T>> = (
-    ...args: EventIn<T, K>
-) => EventOut<T, K>;
-
-export type ListenerMap<T> = Partial<{ [K in EventKey<T>]: Listener<T, K> }>;
-
-interface Emitter<T> {
-    on<K extends EventKey<T>>(key: K, fn: Listener<T, K>): typeof fn;
+function getCurrentAtom(model) {
+    if (model.parent().array) {
+        return arrayCell(model.parent().array, model.relation())[model.anchorOffset()];
+    }
+    const siblings = model.siblings(false);
+    return siblings[Math.min(siblings.length - 1, model.anchorOffset())];
 }
-
-// import { EventEmitter } from 'events';
-// const ee = (new EventEmitter() as unknown) as Emitter<UserEvents>;
-
-// ee.on('login', (user: string) => {});
-// ee.on('logout', () => {
-//     return 'done';
-// });
-*/
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible
@@ -15368,6 +15316,64 @@ var texify = {
     },
 };
 
+function selectionDidChange(model) {
+    var _a;
+    if (typeof ((_a = model.listeners) === null || _a === void 0 ? void 0 : _a.onSelectionDidChange) === 'function' &&
+        !model.suppressChangeNotifications) {
+        model.listeners.onSelectionDidChange(model);
+    }
+}
+function contentDidChange(model) {
+    var _a;
+    if (typeof ((_a = model.listeners) === null || _a === void 0 ? void 0 : _a.onContentDidChange) === 'function' &&
+        !model.suppressChangeNotifications) {
+        model.listeners.onContentDidChange(model);
+    }
+}
+/*
+// type User = { name: string };
+
+// interface UserEvents {
+//     login(user: User): void;
+//     logout(): string;
+// }
+
+type Filter<T, Cond, U extends keyof T = keyof T> = {
+    [K in U]: T[K] extends Cond ? K : never;
+}[U];
+
+type In<T> = T extends (...args: infer U) => any ? U : [];
+type Out<T> = T extends () => infer U ? U : never;
+
+// Extract an array type of valid event keys
+type EventKey<T> = Filter<T, Function> & string;
+
+// Extract the argument/return types of a valid event
+type Arguments<T> = T extends (...args: infer U) => any ? U : [];
+type Result<T> = T extends () => infer U ? U : never;
+
+type EventIn<T, K extends EventKey<T>> = In<T[K]>;
+type EventOut<T, K extends EventKey<T>> = Out<T[K]> | void;
+
+export type Listener<T, K extends EventKey<T> = EventKey<T>> = (
+    ...args: EventIn<T, K>
+) => EventOut<T, K>;
+
+export type ListenerMap<T> = Partial<{ [K in EventKey<T>]: Listener<T, K> }>;
+
+interface Emitter<T> {
+    on<K extends EventKey<T>>(key: K, fn: Listener<T, K>): typeof fn;
+}
+
+// import { EventEmitter } from 'events';
+// const ee = (new EventEmitter() as unknown) as Emitter<UserEvents>;
+
+// ee.on('login', (user: string) => {});
+// ee.on('logout', () => {
+//     return 'done';
+// });
+*/
+
 /**
  * The atom where the selection starts.
  *
@@ -15514,163 +15520,238 @@ function getAnchorStyle(model) {
     return result;
 }
 
-class PositionIterator {
-    constructor(root) {
-        this.positions = [];
-        this.root = root;
-        const model = new ModelPrivate();
-        model.root = root;
-        do {
-            this.positions.push({
-                path: model.toString(),
-                atom: getAnchor(model),
-                depth: model.path.length,
-            });
-        } while (nextPosition(model));
+class ModelPrivate {
+    constructor(options, listeners, hooks, target) {
+        this.options = {
+            mode: 'math',
+            removeExtraneousParentheses: false,
+            ...options,
+        };
+        this.root = makeRoot(this.options.mode);
+        this.path = [{ relation: 'body', offset: 0 }];
+        this.extent = 0;
+        this.setListeners(listeners);
+        this.setHooks(hooks);
+        this.mathfield = target;
+        this.suppressChangeNotifications = false;
     }
-    at(index) {
-        return this.positions[index];
-    }
-    find(atom) {
-        let result = -1;
-        let i = 0;
-        const model = new ModelPrivate();
-        model.root = this.root;
-        do {
-            setPath(model, this.positions[i++].path);
-            if (atom === getCurrentAtom(model)) {
-                result = i - 1;
-            }
-        } while (result < 0 && i < this.lastPosition);
+    clone() {
+        const result = new ModelPrivate(this.options, this.listeners, this.hooks, this.mathfield);
+        result.root = this.root;
+        result.path = clone(this.path);
         return result;
     }
-    get lastPosition() {
-        return this.positions.length;
+    setListeners(listeners) {
+        this.listeners = listeners;
     }
-    paths(indexes) {
-        return indexes.map((i) => this.at(i).path);
-    }
-}
-function nextPosition(model) {
-    const NEXT_RELATION = {
-        body: 'numer',
-        numer: 'denom',
-        denom: 'index',
-        index: 'overscript',
-        overscript: 'underscript',
-        underscript: 'subscript',
-        subscript: 'superscript',
-    };
-    if (model.anchorOffset() === model.siblings(false).length - 1) {
-        // We've reached the end of this list.
-        // Is there another list to consider?
-        let relation = NEXT_RELATION[model.relation()];
-        const parent = model.parent();
-        while (relation && !parent[relation]) {
-            relation = NEXT_RELATION[relation];
-        }
-        // We found a new relation/set of siblings...
-        if (relation) {
-            setPosition(model, 0, relation);
-            return true;
-        }
-        // No more siblings, check if we have a sibling cell in an array
-        if (model.parent().array) {
-            const maxCellCount = arrayCellCount(model.parent().array);
-            let cellIndex = parseInt(model.relation().match(/cell([0-9]*)$/)[1]) + 1;
-            while (cellIndex < maxCellCount) {
-                const cell = arrayCell(model.parent().array, cellIndex, false);
-                // Some cells could be null (sparse array), so skip them
-                if (cell && setPosition(model, 0, 'cell' + cellIndex)) {
+    setHooks(hooks) {
+        this.hooks = {
+            announce: (hooks === null || hooks === void 0 ? void 0 : hooks.announce) ? hooks.announce
+                : (_target, _command, _modelBefore, _atoms) => {
+                    return;
+                },
+            moveOut: (hooks === null || hooks === void 0 ? void 0 : hooks.moveOut) ? hooks.moveOut
+                : () => {
                     return true;
+                },
+            tabOut: (hooks === null || hooks === void 0 ? void 0 : hooks.tabOut) ? hooks.tabOut
+                : () => {
+                    return true;
+                },
+        };
+    }
+    get selection() {
+        const anchor = getAnchor(this);
+        let focus = undefined;
+        if (this.parent().array) {
+            focus = arrayCell(this.parent().array, this.relation())[this.focusOffset()];
+        }
+        else {
+            const siblings = this.siblings();
+            focus = siblings[Math.min(siblings.length - 1, this.focusOffset())];
+        }
+        const iter = new PositionIterator(this.root);
+        return [
+            normalizeRange(iter, {
+                start: iter.find(anchor),
+                end: iter.find(focus),
+            }),
+        ];
+    }
+    set selection(value) {
+        setSelection(this, value);
+    }
+    get lastPosition() {
+        const iter = new PositionIterator(this.root);
+        return iter.lastPosition;
+    }
+    announce(command, // @revisit: be more explicit
+    modelBefore, atoms = []) {
+        this.hooks.announce(this.mathfield, command, modelBefore, atoms);
+    }
+    /**
+     * Return a string representation of the selection.
+     * @todo This is a bad name for this function, since it doesn't return
+     * a representation of the content, which one might expect...
+     *
+     * Note: Not private: used by filter
+     *
+     */
+    toString() {
+        return pathToString(this.path, this.extent);
+    }
+    /**
+     * Note: used by model-utils, so not private.
+     * @return array of children of the parent
+     */
+    siblings(addMisingFirstAtom = true) {
+        var _a;
+        if (this.path.length === 0)
+            return [];
+        let siblings;
+        if (this.parent().array) {
+            siblings = arrayCell(this.parent().array, this.relation());
+        }
+        else {
+            siblings = (_a = this.parent()[this.relation()]) !== null && _a !== void 0 ? _a : [];
+            if (typeof siblings === 'string')
+                siblings = [];
+        }
+        // If the 'first' atom is missing, insert it
+        if (addMisingFirstAtom &&
+            (siblings.length === 0 || siblings[0].type !== 'first')) {
+            siblings.unshift(new Atom(this.parent().mode, 'first'));
+        }
+        return siblings;
+    }
+    anchorOffset() {
+        return this.path.length > 0
+            ? this.path[this.path.length - 1].offset
+            : 0;
+    }
+    focusOffset() {
+        return this.path.length > 0
+            ? this.path[this.path.length - 1].offset + this.extent
+            : 0;
+    }
+    /**
+     *  True if the entire group is selected
+     */
+    groupIsSelected() {
+        return (this.startOffset() === 0 &&
+            this.endOffset() >= this.siblings().length - 1);
+    }
+    /**
+     * Offset of the first atom included in the selection
+     * i.e. `=1` => selection starts with and includes first atom
+     * With expression _x=_ and atoms :
+     * - 0: _<first>_
+     * - 1: _x_
+     * - 2: _=_
+     *
+     * - if caret is before _x_:  `start` = 0, `end` = 0
+     * - if caret is after _x_:   `start` = 1, `end` = 1
+     * - if _x_ is selected:      `start` = 1, `end` = 2
+     * - if _x=_ is selected:   `start` = 1, `end` = 3
+     * Note: accessed by model-selection, not private
+     */
+    startOffset() {
+        return Math.min(this.focusOffset(), this.anchorOffset());
+    }
+    /**
+     * Offset of the first atom not included in the selection
+     * i.e. max value of `siblings.length`
+     * `endOffset - startOffset = extent`
+     *
+     * Note: accessed by model-selection, not private
+     */
+    endOffset() {
+        return Math.max(this.focusOffset(), this.anchorOffset());
+    }
+    /**
+     * Sibling, relative to `anchor`
+     * `sibling(0)` = start of selection
+     * `sibling(-1)` = sibling immediately left of start offset
+     */
+    sibling(offset) {
+        return this.siblings()[this.startOffset() + offset];
+    }
+    // @revisit: move ancestor, and anything related to the selection to model-selection
+    /**
+     * Note: used by model-utils, so not private.
+     * @param ancestor distance from self to ancestor.
+     * - `ancestor` = 0: self
+     * - `ancestor` = 1: parent
+     * - `ancestor` = 2: grand-parent
+     * - etc...
+     */
+    ancestor(ancestor) {
+        // If the requested ancestor goes beyond what's available,
+        // return null
+        if (ancestor > this.path.length)
+            return null;
+        // Start with the root
+        let result = this.root;
+        // Iterate over the path segments, selecting the appropriate
+        for (let i = 0; i < this.path.length - ancestor; i++) {
+            const segment = this.path[i];
+            if (result.array) {
+                result = arrayCell(result.array, segment.relation)[segment.offset];
+            }
+            else if (!result[segment.relation]) {
+                // There is no such relation... (the path got out of sync with the tree)
+                return null;
+            }
+            else {
+                // Make sure the 'first' atom has been inserted, otherwise
+                // the segment.offset might be invalid
+                if (result[segment.relation].length === 0 ||
+                    result[segment.relation][0].type !== 'first') {
+                    result[segment.relation].unshift(new Atom(result[segment.relation][0].mode, 'first'));
                 }
-                cellIndex += 1;
+                const offset = Math.min(segment.offset, result[segment.relation].length - 1);
+                result = result[segment.relation][offset];
             }
         }
-        // No more siblings, go up to the parent.
-        if (model.path.length === 1) {
-            // We're already at the top: nowhere else to go
-            return false;
-        }
-        // We've reached the end of the siblings.
-        model.path.pop();
-        return true;
+        return result;
     }
-    // Still some siblings to go through. Move on to the next one.
-    setPosition(model, model.anchorOffset() + 1);
-    const anchor = getCurrentAtom(model);
-    // Dive into its components, if the new anchor is a compound atom,
-    // and allows capture of the selection by its sub-elements
-    if (anchor && !anchor.captureSelection) {
-        let relation;
-        if (anchor.array) {
-            // Find the first non-empty cell in this array
-            let cellIndex = 0;
-            relation = '';
-            const maxCellCount = arrayCellCount(anchor.array);
-            while (!relation && cellIndex < maxCellCount) {
-                // Some cells could be null (sparse array), so skip them
-                if (arrayCell(anchor.array, cellIndex, false)) {
-                    relation = 'cell' + cellIndex.toString();
-                }
-                cellIndex += 1;
-            }
-            console.assert(relation);
-            model.path.push({ relation: relation, offset: 0 });
-            setPosition(model, 0, relation);
-            return true;
-        }
-        relation = 'body';
-        while (relation) {
-            if (isArray(anchor[relation])) {
-                model.path.push({ relation: relation, offset: 0 });
-                return true;
-            }
-            relation = NEXT_RELATION[relation];
-        }
+    parent() {
+        return this.ancestor(1);
     }
-    return true;
+    relation() {
+        return this.path.length > 0
+            ? this.path[this.path.length - 1].relation
+            : '';
+    }
+    /**
+     * If necessary, insert a `first` atom in the sibling list.
+     * If there's already a `first` atom, do nothing.
+     * The `first` atom is used as a 'placeholder' to hold the blinking caret when
+     * the caret is positioned at the very beginning of the mathlist.
+     */
+    insertFirstAtom() {
+        this.siblings();
+    }
 }
-function setPosition(model, offset = 0, relation = '') {
-    // If no relation ("children", "superscript", etc...) is specified
-    // keep the current relation
-    const oldRelation = model.path[model.path.length - 1].relation;
-    if (!relation)
-        relation = oldRelation;
-    // If the relation is invalid, exit and return false
-    const parent = model.parent();
-    if (!parent && relation !== 'body')
-        return false;
-    const arrayRelation = relation.startsWith('cell');
-    if ((!arrayRelation && !parent[relation]) ||
-        (arrayRelation && !parent.array)) {
-        return false;
+function setSelection(model, value) {
+    // @todo: for now, only consider the first range
+    const range = Array.isArray(value) ? value[0] : value;
+    // Normalize the range
+    const iter = new PositionIterator(model.root);
+    if (!range.direction)
+        range.direction = 'forward';
+    if (typeof range.end === 'undefined')
+        range.end = range.start;
+    if (range.end < 0)
+        range.end = iter.lastPosition;
+    let anchorPath;
+    if (range.direction === 'backward') {
+        anchorPath = iter.at(range.end).path;
     }
-    // Temporarily set the path to the potentially new relation to get the
-    // right siblings
-    model.path[model.path.length - 1].relation = relation;
-    const siblings = model.siblings(false);
-    const siblingsCount = siblings.length;
-    // Restore the relation
-    model.path[model.path.length - 1].relation = oldRelation;
-    // Calculate the new offset, and make sure it is in range
-    // (`setSelectionOffset()` can be called with an offset greater than
-    // the number of children, for example when doing an up from a
-    // numerator to a smaller denominator, e.g. "1/(x+1)".
-    if (offset < 0) {
-        offset = siblingsCount + offset;
+    else {
+        anchorPath = iter.at(range.start).path;
     }
-    offset = Math.max(0, Math.min(offset, siblingsCount - 1));
-    model.path[model.path.length - 1].relation = relation;
-    model.path[model.path.length - 1].offset = offset;
-    return true;
-}
-function getCurrentAtom(model) {
-    if (model.parent().array) {
-        return arrayCell(model.parent().array, model.relation())[model.anchorOffset()];
-    }
-    const siblings = model.siblings(false);
-    return siblings[Math.min(siblings.length - 1, model.anchorOffset())];
+    setPath(model, anchorPath, range.end - range.start);
 }
 
 /**
@@ -15757,8 +15838,8 @@ function leap(model, dir = 1, callHooks = true) {
     // Candidate placeholders are atom of type 'placeholder'
     // or empty children list (except for the root: if the root is empty,
     // it is not a valid placeholder)
-    const placeholders = filter(model, (path, atom) => atom.type === 'placeholder' ||
-        (path.length > 1 && model.siblings().length === 1), dir);
+    const placeholders = filter(model, (atom, iter) => atom.type === 'placeholder' ||
+        (iter.path.length > 1 && iter.siblings().length === 1), dir);
     // If no placeholders were found, call handler or move to the next focusable
     // element in the document
     if (placeholders.length === 0) {
@@ -16682,26 +16763,6 @@ function setRange(model, from, to, options = {
     }
     return setPath(model, commonAncestor, extent);
 }
-function setSelection(model, value) {
-    // @todo: for now, only consider the first range
-    const range = value[0];
-    // Normalize the range
-    const iter = new PositionIterator(model.root);
-    if (!range.direction)
-        range.direction = 'forward';
-    if (typeof range.end === 'undefined')
-        range.end = range.start;
-    if (range.end < 0)
-        range.end = iter.lastPosition;
-    let anchorPath;
-    if (range.direction === 'backward') {
-        anchorPath = iter.at(range.end).path;
-    }
-    else {
-        anchorPath = iter.at(range.start).path;
-    }
-    setPath(model, anchorPath, range.end - range.start);
-}
 /**
  * Locate the offset before the insertion point that would indicate
  * a good place to select as an implicit argument.
@@ -16914,7 +16975,7 @@ function filter(model, cb, dir = +1) {
     }
     const initialAnchor = getAnchor(iter);
     do {
-        if (cb.bind(iter)(iter.path, getAnchor(iter))) {
+        if (cb(getAnchor(iter), iter)) {
             result.push(iter.toString());
         }
         if (dir >= 0) {
@@ -22841,7 +22902,7 @@ class UndoManager {
         // Add a new entry
         this.stack.push({
             latex: this.model.root.toLatex(false),
-            selection: this.model.toString(),
+            selection: this.model.selection,
         });
         this.index++;
         // If we've reached the maximum number of undo operations, forget the
@@ -22869,7 +22930,7 @@ class UndoManager {
     save() {
         return {
             latex: this.model.root.toLatex(false),
-            selection: this.model.toString(),
+            selection: this.model.selection,
         };
     }
     /**
@@ -22893,7 +22954,7 @@ class UndoManager {
             smartFence: false,
         });
         // Restore the selection
-        setPath(this.model, state ? state.selection : [{ relation: 'body', offset: 0 }]);
+        this.model.selection = state ? state.selection : [{ start: 0 }];
         this.model.suppressChangeNotifications = wasSuppressing;
     }
 }
@@ -25156,10 +25217,11 @@ function onKeystroke(mathfield, keystroke, evt) {
             while (!shortcut && i < candidate.length) {
                 let siblings;
                 if (mathfield.keystrokeBufferStates[i]) {
-                    const mathlist = new ModelPrivate();
-                    mathlist.root = makeRoot('math', parseString(mathfield.keystrokeBufferStates[i].latex, mathfield.options.defaultMode, null, mathfield.options.macros));
-                    setPath(mathlist, mathfield.keystrokeBufferStates[i].selection);
-                    siblings = mathlist.siblings();
+                    const iter = new ModelPrivate();
+                    iter.root = makeRoot('math', parseString(mathfield.keystrokeBufferStates[i].latex, mathfield.options.defaultMode, null, mathfield.options.macros));
+                    iter.selection =
+                        mathfield.keystrokeBufferStates[i].selection;
+                    siblings = iter.siblings();
                 }
                 else {
                     siblings = mathfield.model.siblings();
@@ -25601,7 +25663,7 @@ function applyStyle$4(mathfield, inStyle) {
                 format: targetMode === 'text' ? 'text' : 'ASCIIMath',
             });
             mathfield.mode = targetMode;
-            if (mathfield.groupIsSelected()) {
+            if (mathfield.model.groupIsSelected()) {
                 // The entire group was selected. Adjust parent mode if
                 // appropriate
                 const parent = mathfield.model.parent();
@@ -26045,7 +26107,7 @@ function pathFromPoint(mathfield, x, y, options) {
         return undefined;
     // Let's find the atom that has a matching ID with the element that
     // was clicked on (or near)
-    const paths = filter(mathfield.model, (_path, atom) => {
+    const paths = filter(mathfield.model, (atom) => {
         // If the atom allows children to be selected, match only if
         // the ID of  the atom matches the one we're looking for.
         if (!atom.captureSelection) {
@@ -30758,7 +30820,7 @@ class MathfieldPrivate {
     executeCommand(command) {
         return perform(this, command);
     }
-    formatMathlist(root, format) {
+    atomToString(root, format) {
         format = format || 'latex';
         let result = '';
         if (format === 'latex' || format === 'latex-expanded') {
@@ -30809,14 +30871,23 @@ class MathfieldPrivate {
         }
         return result;
     }
+    get lastPosition() {
+        return this.model.lastPosition;
+    }
+    get selection() {
+        return this.model.selection;
+    }
+    set selection(value) {
+        this.model.selection = value;
+    }
     getValue(arg1, arg2, arg3) {
         if (typeof arg1 === 'undefined') {
-            return this.formatMathlist(this.model.root, 'latex');
+            return this.atomToString(this.model.root, 'latex');
         }
         let format;
         if (typeof arg1 === 'string') {
             format = arg1;
-            return this.formatMathlist(this.model.root, format);
+            return this.atomToString(this.model.root, format);
         }
         let ranges;
         if (typeof arg1 === 'number' && typeof arg2 === 'number') {
@@ -30843,7 +30914,7 @@ class MathfieldPrivate {
                 const depth = iter.at(range.start).depth;
                 for (let i = range.start + 1; i <= range.end; i++) {
                     if (iter.at(i).depth === depth) {
-                        res += this.formatMathlist(iter.at(i).atom, 'latex');
+                        res += this.atomToString(iter.at(i).atom, 'latex');
                     }
                 }
             }
@@ -30853,20 +30924,19 @@ class MathfieldPrivate {
         return result;
     }
     setValue(value, options) {
-        const oldValue = this.model.root.toLatex();
-        if (value !== oldValue) {
-            options = options !== null && options !== void 0 ? options : { mode: 'math' };
-            insert(this.model, value, {
-                insertionMode: 'replaceAll',
-                selectionMode: 'after',
-                format: 'latex',
-                mode: 'math',
-                suppressChangeNotifications: options.suppressChangeNotifications,
-                macros: this.options.macros,
-            });
-            this.undoManager.snapshot(this.options);
-            requestUpdate(this);
-        }
+        if (value === this.getValue())
+            return;
+        options = options !== null && options !== void 0 ? options : { mode: 'math' };
+        insert(this.model, value, {
+            insertionMode: 'replaceAll',
+            selectionMode: 'after',
+            format: 'latex',
+            mode: 'math',
+            suppressChangeNotifications: options.suppressChangeNotifications,
+            macros: this.options.macros,
+        });
+        this.undoManager.snapshot(this.options);
+        requestUpdate(this);
     }
     /** @deprecated */
     $selectedText(format) {
@@ -30875,33 +30945,7 @@ class MathfieldPrivate {
         if (!atoms) {
             return '';
         }
-        return this.formatMathlist(makeRoot('math', atoms), format);
-    }
-    get selection() {
-        const anchor = getAnchor(this.model);
-        let focus = undefined;
-        if (this.model.parent().array) {
-            focus = arrayCell(this.model.parent().array, this.model.relation())[this.model.focusOffset()];
-        }
-        else {
-            const siblings = this.model.siblings();
-            focus =
-                siblings[Math.min(siblings.length - 1, this.model.focusOffset())];
-        }
-        const iter = new PositionIterator(this.model.root);
-        return [
-            normalizeRange(iter, {
-                start: iter.find(anchor),
-                end: iter.find(focus),
-            }),
-        ];
-    }
-    set selection(value) {
-        setSelection(this.model, value);
-    }
-    get lastPosition() {
-        const iter = new PositionIterator(this.model.root);
-        return iter.lastPosition;
+        return this.atomToString(makeRoot('math', atoms), format);
     }
     /** @deprecated */
     $selectionIsCollapsed() {
@@ -30920,19 +30964,12 @@ class MathfieldPrivate {
      */
     $selectionAtStart() {
         deprecated('$selectionAtStart');
-        return this.model.startOffset() === 0;
+        return false;
     }
     /** @deprecated */
     $selectionAtEnd() {
         deprecated('$selectionAtEnd');
-        return this.model.endOffset() >= this.model.siblings().length - 1;
-    }
-    /**
-     *  True if the entire group is selected
-     */
-    groupIsSelected() {
-        return (this.model.startOffset() === 0 &&
-            this.model.endOffset() >= this.model.siblings().length - 1);
+        return false;
     }
     /** @deprecated */
     $latex(text, options) {
@@ -31220,33 +31257,6 @@ function deepActiveElement(root = document) {
         return deepActiveElement(root.activeElement.shadowRoot);
     }
     return root.activeElement;
-}
-function normalizeRange(iter, range) {
-    const result = { ...range };
-    if (result.end === -1) {
-        result.end = iter.lastPosition;
-    }
-    else if (isNaN(result.end)) {
-        result.end = result.start;
-    }
-    else {
-        result.end = Math.min(result.end, iter.lastPosition);
-    }
-    if (result.start < result.end) {
-        result.direction = 'forward';
-    }
-    else {
-        [result.start, result.end] = [result.end, result.start];
-        result.direction = 'backward';
-    }
-    result.collapsed = result.start === result.end;
-    if (result.collapsed) {
-        result.direction = 'none';
-    }
-    if (iter.positions[result.start]) {
-        result.depth = iter.positions[result.start].depth - 1;
-    }
-    return result;
 }
 function deprecated(method) {
     console.warn(`Method "${method}" is deprecated`);
@@ -33050,6 +33060,38 @@ const gDeferredState = new WeakMap();
  * methods to control the display and behavior of `<math-field>`
  * elements.
  *
+ * It inherits many useful properties and methods from [[`HTMLElement`]] such
+ * as `style`, `tabIndex`,
+ *
+ * To create a new `MathfieldElement`:
+ *
+ * ```javascript
+ * // Create a new MathfieldElement
+ * const mfe = new MathfieldElement();
+ * // Attach it to the document
+ * document.body.appendChild(mfe);
+ * ```
+ *
+ * The `MathfieldElement` constructor has an optional argument of
+ * [[`MathfieldOptions`]] to configure the element. The options can also
+ * be modified later:
+ * ```javascript
+ * mfe.setOptions({smartFence: true});
+ * ```
+ *
+ * ### CSS Variables
+ *
+ * The following CSS variables, if applied to the mathfield element or
+ * to one of its ancestors, can be used to customize the appearance of the
+ * mathfield.
+ *
+ * | CSS Variable | Usage |
+ * |:---|:---|
+ * | `--hue` | Hue of the highlight color and the caret |
+ * | `--highlight` | Color of the selection |
+ * | `--highlight` | Color of the selection, when the mathfield is not focused |
+ * | `--caret` | Color of the caret/insertion point |
+ * | `--primary` | Primary accent color, used for example in the virtual keyboard |
  *
  * ### Attributes
  *
@@ -33106,7 +33148,7 @@ const gDeferredState = new WeakMap();
  * | `virtual-keyboard-theme` | `options.keyboardTheme` |
  * | `virtual-keyboards` | `options.keyboards` |
  *
- *  See {@see config} for more details about these options.
+ *  See [[`MathfieldOptions`]] for more details about these options.
  *
  * ### Events
  *
@@ -33258,6 +33300,9 @@ class MathfieldElement extends HTMLElement {
     getOption(key) {
         return this.getOptions([key]);
     }
+    /**
+     *  @category Options
+     */
     setOptions(options) {
         if (__classPrivateFieldGet(this, _mathfield)) {
             __classPrivateFieldGet(this, _mathfield).setOptions(options);
@@ -33285,12 +33330,30 @@ class MathfieldElement extends HTMLElement {
         reflectAttributes(this);
     }
     /**
-     * {@inheritDoc Mathfield.executeCommand}
+     * Execute a [[`Commands`|command]] defined by a selector.
+     * ```javascript
+     * mfe.executeCommand('add-column-after');
+     * mfe.executeCommand(['switch-mode', 'math']);
+     * ```
+     *
+     * @param command - A selector, or an array whose first element
+     * is a selector, and whose subsequent elements are arguments to the selector.
+     *
+     * Selectors can be passed either in camelCase or kebab-case.
+     *
+     * ```javascript
+     * // Both calls do the same thing
+     * mfe.executeCommand('selectAll');
+     * mfe.executeCommand('select-all');
+     * ```
      */
     executeCommand(command) {
         var _a, _b;
         return (_b = (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.executeCommand(command)) !== null && _b !== void 0 ? _b : false;
     }
+    /**
+     *  @category Accessing and Changing the content
+     */
     getValue(format) {
         if (__classPrivateFieldGet(this, _mathfield)) {
             return __classPrivateFieldGet(this, _mathfield).getValue(format);
@@ -33300,6 +33363,9 @@ class MathfieldElement extends HTMLElement {
         }
         return '';
     }
+    /**
+     *  @category Accessing and Changing the content
+     */
     setValue(value, options) {
         if (__classPrivateFieldGet(this, _mathfield)) {
             __classPrivateFieldGet(this, _mathfield).setValue(value, options);
@@ -33319,34 +33385,91 @@ class MathfieldElement extends HTMLElement {
             options: getOptionsFromAttributes(this),
         });
     }
+    /**
+     * Return true if the mathfield is currently focused (responds to keyboard
+     * input).
+     *
+     * @category Focus
+     *
+     */
     hasFocus() {
         var _a, _b;
         return (_b = (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.hasFocus()) !== null && _b !== void 0 ? _b : false;
     }
+    /**
+     * Sets the focus to the mathfield (will respond to keyboard input).
+     *
+     * @category Focus
+     *
+     */
     focus() {
         var _a;
         (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.focus();
     }
+    /**
+     * Remove the focus from the mathfield (will no longer respond to keyboard
+     * input).
+     *
+     * @category Focus
+     *
+     */
     blur() {
         var _a;
         (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.blur();
     }
+    /**
+     * Select the content of the mathfield.
+     * @category Selection
+     */
     select() {
         var _a;
         (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.select();
     }
+    /**
+     * Inserts a block of text at the current insertion point.
+     *
+     * This method can be called explicitly or invoked as a selector with
+     * `executeCommand("insert")`.
+     *
+     * After the insertion, the selection will be set according to the
+     * `options.selectionMode`.
+     *
+     *  @category Accessing and Changing the content
+     */
     insert(s, options) {
         var _a, _b;
         return (_b = (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.insert(s, options)) !== null && _b !== void 0 ? _b : false;
     }
+    /**
+     * Updates the style (color, bold, italic, etc...) of the selection or sets
+     * the style to be applied to future input.
+     *
+     * If there is a selection, the style is applied to the selection
+     *
+     * If the selection already has this style, it is removed.
+     *
+     * If the selection has the style partially applied (i.e. only some
+     * sections), it is removed from those sections, and applied to the
+     * entire selection.
+     *
+     * If there is no selection, the style will apply to the next character typed.
+     *
+     * @category Accessing and Changing the content
+     */
     applyStyle(style) {
         var _a;
         return (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.applyStyle(style);
     }
+    /**
+     * @category Selection
+     */
     getCaretPosition() {
         var _a, _b;
         return (_b = (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.getCaretPosition()) !== null && _b !== void 0 ? _b : null;
     }
+    /**
+     * @category Selection
+     */
     setCaretPosition(x, y) {
         var _a, _b;
         return (_b = (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.setCaretPosition(x, y)) !== null && _b !== void 0 ? _b : false;
@@ -33544,6 +33667,9 @@ class MathfieldElement extends HTMLElement {
     get disabled() {
         return this.hasAttribute('disabled');
     }
+    /**
+     *  @category Accessing and Changing the content
+     */
     set value(value) {
         this.setValue(value);
     }
@@ -33552,12 +33678,18 @@ class MathfieldElement extends HTMLElement {
      * ```
      * document.querySelector('mf').value = '\\frac{1}{\\pi}'
      * ```
+     *  @category Accessing and Changing the content
      */
     get value() {
         return this.getValue();
     }
     /**
-     * A range representing the selection.
+     * An array of ranges representing the selection.
+     *
+     * It is guaranteed there will be at least one element. If a discontinuous
+     * selection is present, the result will include more than one element.
+     *
+     * @category Selection
      *
      */
     get selection() {
@@ -33572,6 +33704,7 @@ class MathfieldElement extends HTMLElement {
     /**
      * Change the selection
      *
+     * @category Selection
      */
     set selection(value) {
         if (__classPrivateFieldGet(this, _mathfield)) {
@@ -33592,7 +33725,9 @@ class MathfieldElement extends HTMLElement {
         });
     }
     /**
-     * Read the position of the caret
+     * The position of the caret/insertion point, from 0 to `lastPosition`.
+     *
+     * @category Selection
      *
      */
     get position() {
@@ -33604,12 +33739,15 @@ class MathfieldElement extends HTMLElement {
         return (_a = selection[0].end) !== null && _a !== void 0 ? _a : selection[0].start;
     }
     /**
-     * Change the position of the caret
-     *
+     * @category Selection
      */
     set position(value) {
         this.selection = [{ start: value }];
     }
+    /**
+     * The last valid position.
+     * @category Selection
+     */
     get lastPosition() {
         var _a, _b;
         return (_b = (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.lastPosition) !== null && _b !== void 0 ? _b : -1;

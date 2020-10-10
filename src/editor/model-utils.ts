@@ -1,9 +1,10 @@
 import type { ParseMode } from '../public/core';
-import type { Mathfield } from '../public/mathfield';
+import type { Mathfield, Range } from '../public/mathfield';
 import type { ModelPrivate } from './model-class';
 
 import type { MacroDictionary } from '../core/definitions';
 import type { Atom } from '../core/atom';
+import { PositionIterator } from './model-iterator';
 
 export type ModelOptions = {
     mode: ParseMode;
@@ -67,4 +68,30 @@ export function invalidateVerbatimLatex(model: ModelPrivate): void {
         depth += 1;
         atom = model.ancestor(depth);
     }
+}
+
+export function normalizeRange(iter: PositionIterator, range: Range): Range {
+    const result: Range = { ...range };
+
+    if (result.end === -1) {
+        result.end = iter.lastPosition;
+    } else if (isNaN(result.end)) {
+        result.end = result.start;
+    } else {
+        result.end = Math.min(result.end, iter.lastPosition);
+    }
+    if (result.start < result.end) {
+        result.direction = 'forward';
+    } else {
+        [result.start, result.end] = [result.end, result.start];
+        result.direction = 'backward';
+    }
+    result.collapsed = result.start === result.end;
+    if (result.collapsed) {
+        result.direction = 'none';
+    }
+    if (iter.positions[result.start]) {
+        result.depth = iter.positions[result.start].depth - 1;
+    }
+    return result;
 }

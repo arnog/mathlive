@@ -15,7 +15,7 @@ import type { Mathfield, Model } from './mathfield';
 export declare type SpeechScope = 'all' | 'selection' | 'left' | 'right' | 'group' | 'parent';
 /**
  * Commands return true if they resulted in a dirty state
- * @command mathfield.perform
+ * @command executeCommand
  */
 export interface Commands {
     undo: (mathfield: Mathfield) => boolean;

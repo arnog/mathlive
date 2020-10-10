@@ -1,11 +1,14 @@
+import type { Model, Mathfield, Range } from '../public/mathfield';
+
 import { Atom, makeRoot } from '../core/atom';
-import type { Model, Mathfield } from '../public/mathfield';
 import type { MathfieldPrivate } from './mathfield-class';
 import { Path, clone as clonePath, pathToString } from './path';
 import { arrayCell } from './model-array-utils';
 import { ModelListeners } from './model-listeners';
 
-import { ModelOptions, ModelHooks } from './model-utils';
+import { ModelOptions, ModelHooks, normalizeRange } from './model-utils';
+import { PositionIterator } from './model-iterator';
+import { getAnchor, setPath } from './model-selection-utils';
 
 export class ModelPrivate implements Model {
     readonly mathfield: MathfieldPrivate;
@@ -80,6 +83,36 @@ export class ModelPrivate implements Model {
                   },
         };
     }
+    get selection(): Range[] {
+        const anchor = getAnchor(this);
+        let focus = undefined;
+        if (this.parent().array) {
+            focus = arrayCell(this.parent().array, this.relation())[
+                this.focusOffset()
+            ];
+        } else {
+            const siblings = this.siblings();
+            focus = siblings[Math.min(siblings.length - 1, this.focusOffset())];
+        }
+
+        const iter = new PositionIterator(this.root);
+        return [
+            normalizeRange(iter, {
+                start: iter.find(anchor),
+                end: iter.find(focus),
+            }),
+        ];
+    }
+
+    set selection(value: Range[]) {
+        setSelection(this, value);
+    }
+
+    get lastPosition(): number {
+        const iter = new PositionIterator(this.root);
+        return iter.lastPosition;
+    }
+
     announce(
         command: string, // @revisit: be more explicit
         modelBefore?: ModelPrivate,
@@ -92,12 +125,16 @@ export class ModelPrivate implements Model {
      * Return a string representation of the selection.
      * @todo This is a bad name for this function, since it doesn't return
      * a representation of the content, which one might expect...
+     *
+     * Note: Not private: used by filter
+     *
      */
     toString(): string {
         return pathToString(this.path, this.extent);
     }
 
     /**
+     * Note: used by model-utils, so not private.
      * @return array of children of the parent
      */
     siblings(addMisingFirstAtom = true): Atom[] {
@@ -135,6 +172,16 @@ export class ModelPrivate implements Model {
     }
 
     /**
+     *  True if the entire group is selected
+     */
+    groupIsSelected(): boolean {
+        return (
+            this.startOffset() === 0 &&
+            this.endOffset() >= this.siblings().length - 1
+        );
+    }
+
+    /**
      * Offset of the first atom included in the selection
      * i.e. `=1` => selection starts with and includes first atom
      * With expression _x=_ and atoms :
@@ -146,6 +193,7 @@ export class ModelPrivate implements Model {
      * - if caret is after _x_:   `start` = 1, `end` = 1
      * - if _x_ is selected:      `start` = 1, `end` = 2
      * - if _x=_ is selected:   `start` = 1, `end` = 3
+     * Note: accessed by model-selection, not private
      */
     startOffset(): number {
         return Math.min(this.focusOffset(), this.anchorOffset());
@@ -155,6 +203,8 @@ export class ModelPrivate implements Model {
      * Offset of the first atom not included in the selection
      * i.e. max value of `siblings.length`
      * `endOffset - startOffset = extent`
+     *
+     * Note: accessed by model-selection, not private
      */
     endOffset(): number {
         return Math.max(this.focusOffset(), this.anchorOffset());
@@ -170,6 +220,7 @@ export class ModelPrivate implements Model {
 
     // @revisit: move ancestor, and anything related to the selection to model-selection
     /**
+     * Note: used by model-utils, so not private.
      * @param ancestor distance from self to ancestor.
      * - `ancestor` = 0: self
      * - `ancestor` = 1: parent
@@ -235,4 +286,27 @@ export class ModelPrivate implements Model {
     insertFirstAtom(): void {
         this.siblings();
     }
+}
+
+export function setSelection(
+    model: ModelPrivate,
+    value: Range[] | Range
+): void {
+    // @todo: for now, only consider the first range
+    const range = Array.isArray(value) ? value[0] : value;
+
+    // Normalize the range
+    const iter = new PositionIterator(model.root);
+    if (!range.direction) range.direction = 'forward';
+    if (typeof range.end === 'undefined') range.end = range.start;
+    if (range.end < 0) range.end = iter.lastPosition;
+
+    let anchorPath: string;
+    if (range.direction === 'backward') {
+        anchorPath = iter.at(range.end).path;
+    } else {
+        anchorPath = iter.at(range.start).path;
+    }
+
+    setPath(model, anchorPath, range.end - range.start);
 }

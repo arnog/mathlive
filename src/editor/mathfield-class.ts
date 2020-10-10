@@ -20,14 +20,13 @@ import { hidePopover, updatePopoverPosition } from './popover';
 import { atomToAsciiMath } from './atom-to-ascii-math';
 import { localize as l10n } from './l10n';
 import { HAPTIC_FEEDBACK_DURATION, SelectorPrivate, perform } from './commands';
-import { setPath, getAnchor, getAnchorStyle } from './model-selection-utils';
+import { setPath, getAnchorStyle } from './model-selection-utils';
 import {
     selectionIsCollapsed,
     getSelectedAtoms,
     getAnchorMode,
-    setSelection,
 } from './model-selection';
-import { removeSuggestion } from './model-utils';
+import { normalizeRange, removeSuggestion } from './model-utils';
 import {
     commitCommandStringBeforeInsertionPoint,
     removeCommandString,
@@ -44,7 +43,7 @@ import {
 } from './options';
 import { insert } from './model-insert';
 import { deleteChar } from './model-delete';
-import { addRowAfter, addColumnAfter, arrayCell } from './model-array';
+import { addRowAfter, addColumnAfter } from './model-array';
 import { onTypedText, onKeystroke } from './mathfield-keyboard-input';
 import { render } from './mathfield-render';
 
@@ -741,7 +740,7 @@ export class MathfieldPrivate implements Mathfield {
         return perform(this, command);
     }
 
-    private formatMathlist(root: Atom, format: OutputFormat): string {
+    private atomToString(root: Atom, format: OutputFormat): string {
         format = format || 'latex';
         let result = '';
         if (format === 'latex' || format === 'latex-expanded') {
@@ -786,6 +785,15 @@ export class MathfieldPrivate implements Mathfield {
         }
         return result;
     }
+    get lastPosition(): number {
+        return this.model.lastPosition;
+    }
+    get selection(): Range[] {
+        return this.model.selection;
+    }
+    set selection(value: Range[]) {
+        this.model.selection = value;
+    }
 
     getValue(): string;
     getValue(format: OutputFormat): string;
@@ -798,12 +806,12 @@ export class MathfieldPrivate implements Mathfield {
         arg3?: OutputFormat
     ): string {
         if (typeof arg1 === 'undefined') {
-            return this.formatMathlist(this.model.root, 'latex');
+            return this.atomToString(this.model.root, 'latex');
         }
         let format: OutputFormat;
         if (typeof arg1 === 'string') {
             format = arg1;
-            return this.formatMathlist(this.model.root, format);
+            return this.atomToString(this.model.root, format);
         }
         let ranges: Range[];
         if (typeof arg1 === 'number' && typeof arg2 === 'number') {
@@ -828,10 +836,7 @@ export class MathfieldPrivate implements Mathfield {
                     const depth = iter.at(range.start).depth;
                     for (let i = range.start + 1; i <= range.end; i++) {
                         if (iter.at(i).depth === depth) {
-                            res += this.formatMathlist(
-                                iter.at(i).atom,
-                                'latex'
-                            );
+                            res += this.atomToString(iter.at(i).atom, 'latex');
                         }
                     }
                 }
@@ -843,21 +848,18 @@ export class MathfieldPrivate implements Mathfield {
     }
 
     setValue(value: string, options?: InsertOptions): void {
-        const oldValue = this.model.root.toLatex();
-        if (value !== oldValue) {
-            options = options ?? { mode: 'math' };
-            insert(this.model, value, {
-                insertionMode: 'replaceAll',
-                selectionMode: 'after',
-                format: 'latex',
-                mode: 'math',
-                suppressChangeNotifications:
-                    options.suppressChangeNotifications,
-                macros: this.options.macros,
-            });
-            this.undoManager.snapshot(this.options);
-            requestUpdate(this);
-        }
+        if (value === this.getValue()) return;
+        options = options ?? { mode: 'math' };
+        insert(this.model, value, {
+            insertionMode: 'replaceAll',
+            selectionMode: 'after',
+            format: 'latex',
+            mode: 'math',
+            suppressChangeNotifications: options.suppressChangeNotifications,
+            macros: this.options.macros,
+        });
+        this.undoManager.snapshot(this.options);
+        requestUpdate(this);
     }
 
     /** @deprecated */
@@ -867,40 +869,7 @@ export class MathfieldPrivate implements Mathfield {
         if (!atoms) {
             return '';
         }
-        return this.formatMathlist(makeRoot('math', atoms), format);
-    }
-
-    get selection(): Range[] {
-        const anchor = getAnchor(this.model);
-        let focus = undefined;
-        if (this.model.parent().array) {
-            focus = arrayCell(this.model.parent().array, this.model.relation())[
-                this.model.focusOffset()
-            ];
-        } else {
-            const siblings = this.model.siblings();
-            focus =
-                siblings[
-                    Math.min(siblings.length - 1, this.model.focusOffset())
-                ];
-        }
-
-        const iter = new PositionIterator(this.model.root);
-        return [
-            normalizeRange(iter, {
-                start: iter.find(anchor),
-                end: iter.find(focus),
-            }),
-        ];
-    }
-
-    set selection(value: Range[]) {
-        setSelection(this.model, value);
-    }
-
-    get lastPosition(): number {
-        const iter = new PositionIterator(this.model.root);
-        return iter.lastPosition;
+        return this.atomToString(makeRoot('math', atoms), format);
     }
 
     /** @deprecated */
@@ -921,21 +890,12 @@ export class MathfieldPrivate implements Mathfield {
      */
     $selectionAtStart(): boolean {
         deprecated('$selectionAtStart');
-        return this.model.startOffset() === 0;
+        return false;
     }
     /** @deprecated */
     $selectionAtEnd(): boolean {
         deprecated('$selectionAtEnd');
-        return this.model.endOffset() >= this.model.siblings().length - 1;
-    }
-    /**
-     *  True if the entire group is selected
-     */
-    groupIsSelected(): boolean {
-        return (
-            this.model.startOffset() === 0 &&
-            this.model.endOffset() >= this.model.siblings().length - 1
-        );
+        return false;
     }
 
     /** @deprecated */
@@ -1230,32 +1190,6 @@ function deepActiveElement(
         return deepActiveElement(root.activeElement.shadowRoot);
     }
     return root.activeElement;
-}
-
-function normalizeRange(iter: PositionIterator, range: Range): Range {
-    const result: Range = { ...range };
-
-    if (result.end === -1) {
-        result.end = iter.lastPosition;
-    } else if (isNaN(result.end)) {
-        result.end = result.start;
-    } else {
-        result.end = Math.min(result.end, iter.lastPosition);
-    }
-    if (result.start < result.end) {
-        result.direction = 'forward';
-    } else {
-        [result.start, result.end] = [result.end, result.start];
-        result.direction = 'backward';
-    }
-    result.collapsed = result.start === result.end;
-    if (result.collapsed) {
-        result.direction = 'none';
-    }
-    if (iter.positions[result.start]) {
-        result.depth = iter.positions[result.start].depth - 1;
-    }
-    return result;
 }
 
 function deprecated(method: string) {

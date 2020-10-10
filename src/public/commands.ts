@@ -26,7 +26,7 @@ export type SpeechScope =
 // @revisit: maybe a command attribute instead?
 /**
  * Commands return true if they resulted in a dirty state
- * @command mathfield.perform
+ * @command executeCommand
  */
 export interface Commands {
     undo: (mathfield: Mathfield) => boolean;

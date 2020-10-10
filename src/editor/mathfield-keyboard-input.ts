@@ -14,7 +14,7 @@ import {
 import { hidePopover, showPopoverWithLatex } from './popover';
 import { splitGraphemes } from '../core/grapheme-splitter';
 import { HAPTIC_FEEDBACK_DURATION } from './commands';
-import { getAnchorStyle, setPath } from './model-selection-utils';
+import { getAnchorStyle } from './model-selection-utils';
 import { insertSuggestion } from './autocomplete';
 import {
     decorateCommandStringAroundInsertionPoint,
@@ -145,8 +145,8 @@ export function onKeystroke(
             while (!shortcut && i < candidate.length) {
                 let siblings;
                 if (mathfield.keystrokeBufferStates[i]) {
-                    const mathlist = new ModelPrivate();
-                    mathlist.root = makeRoot(
+                    const iter = new ModelPrivate();
+                    iter.root = makeRoot(
                         'math',
                         parseString(
                             mathfield.keystrokeBufferStates[i].latex,
@@ -155,11 +155,9 @@ export function onKeystroke(
                             mathfield.options.macros
                         )
                     );
-                    setPath(
-                        mathlist,
-                        mathfield.keystrokeBufferStates[i].selection
-                    );
-                    siblings = mathlist.siblings();
+                    iter.selection =
+                        mathfield.keystrokeBufferStates[i].selection;
+                    siblings = iter.siblings();
                 } else {
                     siblings = mathfield.model.siblings();
                 }

@@ -16,6 +16,8 @@ import { ParseMode, MacroDictionary, Style } from './core';
  * "backward" and pressing the left arrow key will set the insertion point at
  * the end of the range.
  *
+ * **See Also**
+ * * [[`selection`]]
  */
 export interface Range {
     /**
@@ -110,22 +112,22 @@ export declare type InsertOptions = {
 export interface Mathfield {
     mode: ParseMode;
     /**
-     * @deprecated use {@see getOptions}
+     * @deprecated Use [[`getOptions`]]
      */
     getConfig?<K extends keyof MathfieldOptions>(keys: K[]): Pick<MathfieldOptions, K>;
     /**
-     * @deprecated use {@see getOptions}
+     * @deprecated Use [[`getOptions`]]
      */
     getConfig?<K extends keyof MathfieldOptions>(key: K): MathfieldOptions[K];
     /**
-     * @deprecated use {@see getOptions}
+     * @deprecated Use [[`getOptions`]]
      */
     getConfig?(): MathfieldOptions;
     getOptions(): MathfieldOptions;
     getOptions<K extends keyof MathfieldOptions>(keys: K[]): Pick<MathfieldOptions, K>;
     getOption<K extends keyof MathfieldOptions>(key: K): MathfieldOptions[K];
     /**
-     * @deprecated use {@see setOptions}
+     * @deprecated Use [[`setOptions`]]
      */
     setConfig?(options: Partial<MathfieldOptions>): void;
     setOptions(options: Partial<MathfieldOptions>): void;
@@ -142,7 +144,11 @@ export interface Mathfield {
      */
     $revertToOriginalContent?(): void;
     /**
-     * Execute a command defined by a selector.
+     * Execute a [[`Commands`|command]] defined by a selector.
+     * ```javascript
+     * mfe.executeCommand('add-column-after');
+     * mfe.executeCommand(['switch-mode', 'math']);
+     * ```
      *
      * @param command - A selector, or an array whose first element
      * is a selector, and whose subsequent elements are arguments to the selector.
@@ -151,14 +157,13 @@ export interface Mathfield {
      *
      * ```javascript
      * // Both calls do the same thing
-     * mathfield.executeCommand('selectAll');
-     * mathfield.executeCommand('select-all');
+     * mfe.executeCommand('selectAll');
+     * mfe.executeCommand('select-all');
      * ```
-     *
      */
     executeCommand(command: Selector | [Selector, ...any[]]): boolean;
     /**
-     * @deprecated Use {@see executeCommand }
+     * @deprecated Use [[`executeCommand`]]
      */
     $perform?(command: Selector | [Selector, ...any[]]): boolean;
     /**
@@ -166,12 +171,11 @@ export interface Mathfield {
      *
      * @param format - The format of the result.
      * **Default** = `"latex"`
-     * @return {string}
      * @category Accessing the Content
      */
     getValue(format?: OutputFormat): string;
     /**
-     * @deprecated Use {@see getValue }
+     * @deprecated Use [[`getValue`]]
      */
     $text?(format?: OutputFormat): string;
     /**
@@ -185,11 +189,11 @@ export interface Mathfield {
     $selectedText?(format?: OutputFormat): string;
     select(): void;
     /**
-     * @deprecated Use {@see executeCommand }
+     * @deprecated Use [[`executeCommand`]]
      */
     $select?(): void;
     /**
-     * @deprecated Use {@see executeCommand }
+     * @deprecated Use [[`executeCommand`]]
      */
     $clearSelection?(): void;
     /**
@@ -198,7 +202,7 @@ export interface Mathfield {
      * @return True if the length of the selection is 0, that is, if it is a single
      * insertion point.
      *
-     * @deprecated
+     * @deprecated Use `selection[0].collapsed`
      */
     $selectionIsCollapsed?(): boolean;
     /**
@@ -210,7 +214,7 @@ export interface Mathfield {
      * which is at the root level, return 1. Note that in that case, the numerator
      * would be the "selection group".
      *
-     * @deprecated
+     * @deprecated Use `mf.selection[0].depth`
      */
     $selectionDepth?(): number;
     /**
@@ -232,7 +236,7 @@ export interface Mathfield {
      *
      * @category Accessing the Content
      */
-    setValue(text?: string, options?: InsertOptions): void;
+    setValue(latex?: string, options?: InsertOptions): void;
     /**
      * Sets or gets the content of the mathfield.
      *
@@ -244,7 +248,7 @@ export interface Mathfield {
      *
      * @category Accessing the Content
      *
-     * @deprecated use {@see setValue} and {@see getValue}
+     * @deprecated Use [[`setValue`]] and [[`getValue`]]
      */
     $latex?(text?: string, options?: InsertOptions): string;
     /**
@@ -269,13 +273,13 @@ export interface Mathfield {
     insert(s: string, options?: InsertOptions): boolean;
     /**
      *
-     * @deprecated Use {$see insert}
+     * @deprecated Use [[`insert`]]
      */
     $insert?(s: string, options?: InsertOptions): boolean;
     /**
      * @category Focus
      *
-     * @deprecated Use {@See hasFocus}
+     * @deprecated Use [[`hasFocus`]]
      */
     $hasFocus?(): boolean;
     /**
@@ -285,12 +289,12 @@ export interface Mathfield {
     hasFocus(): boolean;
     /**
      * @category Focus
-     * @deprecated Use `focus()`
+     * @deprecated Use [[`focus`]]
      */
     $focus?(): void;
     /**
      * @category Focus
-     * @deprecated Use `blur()`
+     * @deprecated Use [[`blur`]]
      */
     $blur?(): void;
     /**
@@ -316,7 +320,7 @@ export interface Mathfield {
      */
     applyStyle(style: Style): void;
     /**
-     * @deprecated Use {@See applyStyle}
+     * @deprecated Use [[`applyStyle`]]
      */
     $applyStyle?(style: Style): void;
     /**
@@ -333,7 +337,7 @@ export interface Mathfield {
      * click or other event not involving a keyboard), omit it.
      * @return Return true if the field need to be re-rendered
      * @category Changing the Content
-     * @deprecated Use {@See executeCommand} or {@See setValue}
+     * @deprecated Use [[`executeCommand`]] or [[`setValue`]]
      */
     $keystroke?(keys: string, evt?: KeyboardEvent): boolean;
     /**
@@ -341,7 +345,7 @@ export interface Mathfield {
      *
      * @param text - A sequence of one or more characters.
      * @category Changing the Content
-     * @deprecated Use {@See executeCommand} or {@See setValue}
+     * @deprecated Use [[`executeCommand`]] or [[`setValue`]]
      */
     $typedText?(text: string): void;
     getCaretPosition(): {

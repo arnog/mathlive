@@ -43,6 +43,8 @@ export declare const version: string;
 /**
  * Convert a DOM element into an editable mathfield.
  *
+ * Consider using a `<math-field>` tag or `new MathfieldElement()` instead. {.notice--warning}
+ *
  * The `mathfield` property of the DOM element is a reference to the corresponding
  * `Mathfield` object. This value is also returned by `makeMathField()`.
  *
@@ -60,10 +62,11 @@ export declare const version: string;
  * makeMathField('equation');
  * ```
  * @keywords create, make, mathfield
+ * @deprecated Use `MathfieldElement`.
  */
 export declare function makeMathField(
     element: HTMLElement | string,
-    config: MathfieldOptions
+    options: MathfieldOptions
 ): Mathfield;
 
 /**
@@ -99,7 +102,8 @@ export declare function convertLatexToMarkup(
 ): string;
 
 /**
- * * @deprecated Use {@See convertLatexToMarkup }
+ * @deprecated Use [[`convertLatexToMarkup`]]
+ * @category Converting
  */
 export declare function latexToMarkup(
     text: string,
@@ -121,6 +125,8 @@ export declare function latexToMarkup(
  * to map items on the screen with their MathML representation or vice-versa.
  * @param options.onError Callback invoked when an error is encountered while
  * parsing the input string.
+ *
+ * @category Converting
  */
 export declare function convertLatexToMathMl(
     latex: string,
@@ -132,7 +138,8 @@ export declare function convertLatexToMathMl(
 ): string;
 
 /**
- * @deprecated Use {@See convertLatexToMathMl }
+ * @deprecated Use [[`convertLatexToMathMl`]]
+ * @category Converting
  */
 export declare function latexToMathML(
     latex: string,
@@ -227,7 +234,8 @@ export declare function convertLatexToSpeakableText(
 ): string;
 
 /**
- * @deprecated Use {@See convertLatexToSpeakableText }
+ * @deprecated Use [[`convertLatexToSpeakableText`]]
+ * @category Converting
  */
 export declare function latexToSpeakableText(
     latex: string,

@@ -33,7 +33,7 @@ export function applyStyle(
                 format: targetMode === 'text' ? 'text' : 'ASCIIMath',
             });
             mathfield.mode = targetMode;
-            if (mathfield.groupIsSelected()) {
+            if (mathfield.model.groupIsSelected()) {
                 // The entire group was selected. Adjust parent mode if
                 // appropriate
                 const parent = mathfield.model.parent();

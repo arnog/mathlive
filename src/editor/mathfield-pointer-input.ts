@@ -311,7 +311,7 @@ export function pathFromPoint(
 
     // Let's find the atom that has a matching ID with the element that
     // was clicked on (or near)
-    const paths = filter(mathfield.model, (_path, atom) => {
+    const paths = filter(mathfield.model, (atom) => {
         // If the atom allows children to be selected, match only if
         // the ID of  the atom matches the one we're looking for.
         if (!atom.captureSelection) {

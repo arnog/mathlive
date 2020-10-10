@@ -1,7 +1,6 @@
 import { isArray } from '../common/types';
 
 import type { ParseMode } from '../public/core';
-import type { Range } from '../public/mathfield';
 
 import { LETTER_AND_DIGITS } from '../core/definitions';
 import { Atom } from '../core/atom';
@@ -24,7 +23,6 @@ import {
     arrayAdjustRow,
 } from './model-array-utils';
 import { selectionDidChange } from './model-listeners';
-import { PositionIterator } from './model-iterator';
 
 import { getAnchor, setPath, adjustPlaceholder } from './model-selection-utils';
 
@@ -123,9 +121,9 @@ export function leap(
     // it is not a valid placeholder)
     const placeholders = filter(
         model,
-        (path, atom) =>
+        (atom, iter) =>
             atom.type === 'placeholder' ||
-            (path.length > 1 && model.siblings().length === 1),
+            (iter.path.length > 1 && iter.siblings().length === 1),
         dir
     );
 
@@ -1212,26 +1210,6 @@ export function setRange(
     return setPath(model, commonAncestor, extent);
 }
 
-export function setSelection(model: ModelPrivate, value: Range[]): void {
-    // @todo: for now, only consider the first range
-    const range = value[0];
-
-    // Normalize the range
-    const iter = new PositionIterator(model.root);
-    if (!range.direction) range.direction = 'forward';
-    if (typeof range.end === 'undefined') range.end = range.start;
-    if (range.end < 0) range.end = iter.lastPosition;
-
-    let anchorPath: string;
-    if (range.direction === 'backward') {
-        anchorPath = iter.at(range.end).path;
-    } else {
-        anchorPath = iter.at(range.start).path;
-    }
-
-    setPath(model, anchorPath, range.end - range.start);
-}
-
 /**
  * Locate the offset before the insertion point that would indicate
  * a good place to select as an implicit argument.
@@ -1456,7 +1434,7 @@ function wordBoundaryOffset(
  */
 export function filter(
     model: ModelPrivate,
-    cb: (path: Path, atom: Atom) => boolean,
+    cb: (atom: Atom, iter: ModelPrivate) => boolean,
     dir: -1 | 1 = +1
 ): string[] {
     dir = dir < 0 ? -1 : +1;
@@ -1476,7 +1454,7 @@ export function filter(
     }
     const initialAnchor = getAnchor(iter);
     do {
-        if (cb.bind(iter)(iter.path, getAnchor(iter))) {
+        if (cb(getAnchor(iter), iter)) {
             result.push(iter.toString());
         }
         if (dir >= 0) {
