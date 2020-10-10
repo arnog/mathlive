@@ -70,15 +70,34 @@ export function invalidateVerbatimLatex(model: ModelPrivate): void {
     }
 }
 
-export function normalizeRange(iter: PositionIterator, range: Range): Range {
+/**
+ * Ensure that the range is valid and canonical, i.e.
+ * start <= end
+ * collapsed = start === end
+ * start >= 0, end >=0
+ * If optins.accesibleAtomsOnly, the range is limited to the values
+ * that can produce an atom, specifically, the last value is excluded (it's
+ * a valid position to insert, but it can't be read from)
+ */
+export function normalizeRange(
+    iter: PositionIterator,
+    range: Range,
+    options: {
+        accessibleAtomsOnly?: boolean;
+    } = { accessibleAtomsOnly: false }
+): Range {
     const result: Range = { ...range };
 
+    const lastPosition = options.accessibleAtomsOnly
+        ? iter.lastPosition - 1
+        : iter.lastPosition;
+
     if (result.end === -1) {
-        result.end = iter.lastPosition;
+        result.end = lastPosition;
     } else if (isNaN(result.end)) {
         result.end = result.start;
     } else {
-        result.end = Math.min(result.end, iter.lastPosition);
+        result.end = Math.min(result.end, lastPosition);
     }
     if (result.start < result.end) {
         result.direction = 'forward';

@@ -795,6 +795,11 @@ export class MathfieldPrivate implements Mathfield {
         this.model.selection = value;
     }
 
+    /** @deprecated */
+    $text(format: OutputFormat): string {
+        return this.atomToString(this.model.root, format);
+    }
+
     getValue(): string;
     getValue(format: OutputFormat): string;
     getValue(start: number, end: number, format: OutputFormat): string;
@@ -831,7 +836,9 @@ export class MathfieldPrivate implements Mathfield {
         const result = ranges
             .map((range): string => {
                 let res = '';
-                range = normalizeRange(iter, range);
+                range = normalizeRange(iter, range, {
+                    accessibleAtomsOnly: true,
+                });
                 if (range.start >= 0 && !range.collapsed) {
                     const depth = iter.at(range.start).depth;
                     for (let i = range.start + 1; i <= range.end; i++) {
