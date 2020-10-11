@@ -1,4 +1,4 @@
-/* 0.57.0 *//**
+/* 0.58.0 *//**
  *
  * Use MathLive to render and edit mathematical formulas.
  *
@@ -13,8 +13,8 @@
  * console.log(MathLive.latexToAST('e^{i\\pi}+1=0'));
  * </script>
  *
- * @packageDocumentation MathLive SDK Reference 0.57.0
- * @version 0.57.0
+ * @packageDocumentation MathLive SDK Reference 0.58.0
+ * @version 0.58.0
  *
  */
 import { Mathfield } from './mathfield';
@@ -25,7 +25,7 @@ export { Mathfield };
 export { MathfieldOptions as MathfieldConfig };
 export { MathfieldElement };
 /**
- * Current version: `0.57.0`
+ * Current version: `0.58.0`
  *
  * The version string of the SDK using the [semver](https://semver.org/) convention:
  *
