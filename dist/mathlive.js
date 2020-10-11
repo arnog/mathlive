@@ -18517,7 +18517,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         { key: 'ctrl+[Comma]', ifMode: 'math', command: 'addColumnAfter' },
         { key: 'cmd+[Comma]', ifMode: 'math', command: 'addColumnAfter' },
         { key: 'ctrl+shift+[Comma]', ifMode: 'math', command: 'addColumnAfter' },
-        { key: 'cmd+shift[Comma]', ifMode: 'math', command: 'addColumnAfter' },
+        { key: 'cmd+shift+[Comma]', ifMode: 'math', command: 'addColumnAfter' },
         // Excel keybindings:
         // shift+space: select entire row, ctrl+space: select an entire column
         // ctrl+shift++ or ctrl+numpad+
@@ -33165,6 +33165,17 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      * | `--primary` | Primary accent color, used for example in the virtual keyboard |
      * | `--text-font-family` | The font stack used in text mode |
      * | `--keyboard-zindex` | The z-index attribute of the virtual keyboard panel |
+     *
+     * ### CSS Parts
+     *
+     * The `virtual-keyboard-toggle` CSS part can be used to style the virtual
+     * keyboard toggle. To use it, define a CSS style with a `::part()` selector
+     * for example:
+     * ```css
+     * math-field::part(virtual-keyboard-toggle) {
+     *  color: red;
+     * }
+     * ```
      *
      *
      * ### Attributes

@@ -211,7 +211,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     { key: 'ctrl+[Comma]', ifMode: 'math', command: 'addColumnAfter' },
     { key: 'cmd+[Comma]', ifMode: 'math', command: 'addColumnAfter' },
     { key: 'ctrl+shift+[Comma]', ifMode: 'math', command: 'addColumnAfter' },
-    { key: 'cmd+shift[Comma]', ifMode: 'math', command: 'addColumnAfter' },
+    { key: 'cmd+shift+[Comma]', ifMode: 'math', command: 'addColumnAfter' },
 
     // Excel keybindings:
     // shift+space: select entire row, ctrl+space: select an entire column

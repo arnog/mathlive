@@ -158,6 +158,17 @@ const gDeferredState = new WeakMap<
  * | `--text-font-family` | The font stack used in text mode |
  * | `--keyboard-zindex` | The z-index attribute of the virtual keyboard panel |
  *
+ * ### CSS Parts
+ *
+ * The `virtual-keyboard-toggle` CSS part can be used to style the virtual
+ * keyboard toggle. To use it, define a CSS style with a `::part()` selector
+ * for example:
+ * ```css
+ * math-field::part(virtual-keyboard-toggle) {
+ *  color: red;
+ * }
+ * ```
+ *
  *
  * ### Attributes
  *
