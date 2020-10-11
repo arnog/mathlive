@@ -60,7 +60,7 @@ state changes.
 <html lang="en-US">
     <body>
         <math-field>f(x)=</math-field>
-        <script src="https://unpkg.com/mathlive/dist/mathlive.mjs"></script>
+        <script src="https://unpkg.com/mathlive/dist/mathlive.min.js"></script>
     </body>
 </html>
 ```
@@ -78,7 +78,7 @@ Render static math equations by
         <p>$$e^{i\pi} + 1 = 0$$</p>
 
         <script type="module">
-            import { renderMathInDocument } from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
+            import { renderMathInDocument } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
             renderMathInDocument();
         </script>
     </body>

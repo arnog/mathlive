@@ -169,7 +169,7 @@ function keyboardEventToString(evt: KeyboardEvent): string {
  * emoji, only `typedtext()` will be invoked.
  */
 export function delegateKeyboardEvents(
-    textarea: HTMLElement,
+    textarea: HTMLTextAreaElement,
     handlers: {
         allowDeadKey: () => boolean;
         typedText: (text: string) => void;
@@ -191,7 +191,7 @@ export function delegateKeyboardEvents(
     let callbackTimeoutID: number;
     function defer(cb: () => void): void {
         clearTimeout(callbackTimeoutID);
-        callbackTimeoutID = setTimeout(function () {
+        callbackTimeoutID = setTimeout(() => {
             clearTimeout(callbackTimeoutID);
             cb();
         });
@@ -201,10 +201,10 @@ export function delegateKeyboardEvents(
         // Some browsers (Firefox, Opera) fire a keypress event for commands
         // such as command-C where there might be a non-empty selection.
         // We need to ignore these.
-        if (hasSelection(textarea)) return;
+        if (textarea.selectionStart !== textarea.selectionEnd) return;
 
-        const text = textarea['value'];
-        textarea['value'] = '';
+        const text = textarea.value;
+        textarea.value = '';
         if (text.length > 0) handlers.typedText(text);
     }
 
@@ -240,7 +240,7 @@ export function delegateKeyboardEvents(
             if (
                 !compositionInProgress &&
                 e.code !== 'CapsLock' &&
-                !/(Control|Meta|Alt|Shift)(Right|Left)/.test(e.code)
+                !/(Control|Meta|Alt|Shift)(Left|Right)/.test(e.code)
             ) {
                 keydownEvent = e;
                 keypressEvent = null;
@@ -286,8 +286,8 @@ export function delegateKeyboardEvents(
             // In some cases (Linux browsers), the text area might not be focused
             // when doing a middle-click paste command.
             textarea.focus();
-            const text = textarea['value'];
-            textarea['value'] = '';
+            const text = textarea.value;
+            textarea.value = '';
             if (text.length > 0) handlers.paste(text);
         },
         true
@@ -355,10 +355,6 @@ export function delegateKeyboardEvents(
             defer(handleTypedText);
         }
     });
-}
-
-function hasSelection(textarea): boolean {
-    return textarea.selectionStart !== textarea.selectionEnd;
 }
 
 export function eventToChar(evt: KeyboardEvent): string {

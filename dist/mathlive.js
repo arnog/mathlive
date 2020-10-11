@@ -18506,12 +18506,18 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             ifMode: 'math',
             command: ['insert', '$$\\left\\lbrace #0 \\right\\rbrace$$'],
         },
-        { key: '[Return]', ifMode: 'math', command: 'addRowAfter' },
-        { key: '[Enter]', ifMode: 'math', command: 'addRowAfter' },
+        { key: 'ctrl+[Return]', ifMode: 'math', command: 'addRowAfter' },
+        { key: 'ctrl+[Enter]', ifMode: 'math', command: 'addRowAfter' },
+        { key: 'cmd+[Return]', ifMode: 'math', command: 'addRowAfter' },
+        { key: 'cmd+[Enter]', ifMode: 'math', command: 'addRowAfter' },
+        { key: 'ctrl+;', ifMode: 'math', command: 'addRowAfter' },
+        { key: 'cmd+;', ifMode: 'math', command: 'addRowAfter' },
+        { key: 'ctrl+shift+;', ifMode: 'math', command: 'addRowBefore' },
+        { key: 'cmd+shift+;', ifMode: 'math', command: 'addRowBefore' },
         { key: 'ctrl+[Comma]', ifMode: 'math', command: 'addColumnAfter' },
-        { key: '[Return]', ifMode: 'text', command: 'addRowAfter' },
-        { key: '[Enter]', ifMode: 'text', command: 'addRowAfter' },
-        { key: 'ctrl+[Comma]', ifMode: 'text', command: 'addColumnAfter' },
+        { key: 'cmd+[Comma]', ifMode: 'math', command: 'addColumnAfter' },
+        { key: 'ctrl+shift+[Comma]', ifMode: 'math', command: 'addColumnAfter' },
+        { key: 'cmd+shift[Comma]', ifMode: 'math', command: 'addColumnAfter' },
         // Excel keybindings:
         // shift+space: select entire row, ctrl+space: select an entire column
         // ctrl+shift++ or ctrl+numpad+
@@ -22704,7 +22710,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         let callbackTimeoutID;
         function defer(cb) {
             clearTimeout(callbackTimeoutID);
-            callbackTimeoutID = setTimeout(function () {
+            callbackTimeoutID = setTimeout(() => {
                 clearTimeout(callbackTimeoutID);
                 cb();
             });
@@ -22713,10 +22719,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // Some browsers (Firefox, Opera) fire a keypress event for commands
             // such as command-C where there might be a non-empty selection.
             // We need to ignore these.
-            if (hasSelection(textarea))
+            if (textarea.selectionStart !== textarea.selectionEnd)
                 return;
-            const text = textarea['value'];
-            textarea['value'] = '';
+            const text = textarea.value;
+            textarea.value = '';
             if (text.length > 0)
                 handlers.typedText(text);
         }
@@ -22747,7 +22753,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }
             if (!compositionInProgress &&
                 e.code !== 'CapsLock' &&
-                !/(Control|Meta|Alt|Shift)(Right|Left)/.test(e.code)) {
+                !/(Control|Meta|Alt|Shift)(Left|Right)/.test(e.code)) {
                 keydownEvent = e;
                 keypressEvent = null;
                 return handlers.keystroke(keyboardEventToString(e), e);
@@ -22776,8 +22782,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // In some cases (Linux browsers), the text area might not be focused
             // when doing a middle-click paste command.
             textarea.focus();
-            const text = textarea['value'];
-            textarea['value'] = '';
+            const text = textarea.value;
+            textarea.value = '';
             if (text.length > 0)
                 handlers.paste(text);
         }, true);
@@ -22830,9 +22836,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 defer(handleTypedText);
             }
         });
-    }
-    function hasSelection(textarea) {
-        return textarea.selectionStart !== textarea.selectionEnd;
     }
     function eventToChar(evt) {
         var _a;
@@ -24732,6 +24735,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 case 'onUndoStateWillChange':
                 case 'onUndoStateDidChange':
                 case 'onModeChange':
+                case 'onCommit':
                 case 'onVirtualKeyboardToggle':
                 case 'onReadAloudStatus':
                 case 'onError':
@@ -24857,6 +24861,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             onModeChange: NO_OP_LISTENER,
             onVirtualKeyboardToggle: NO_OP_LISTENER,
             onReadAloudStatus: NO_OP_LISTENER,
+            onCommit: NO_OP_LISTENER,
             onError: () => {
                 return;
             },
@@ -25285,6 +25290,19 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         if (!shortcut && !selector) {
             selector = getCommandForKeybinding(mathfield.keybindings, mathfield.mode, keystroke);
         }
+        if (!shortcut &&
+            !selector &&
+            (keystroke === '[Enter]' || keystroke === '[Return]')) {
+            // No matching keybinding: trigger a commit
+            if (typeof mathfield.options.onCommit === 'function') {
+                mathfield.options.onCommit(mathfield);
+                if (evt === null || evt === void 0 ? void 0 : evt.preventDefault) {
+                    evt.preventDefault();
+                    evt.stopPropagation();
+                }
+                return false;
+            }
+        }
         // No shortcut :( We're done.
         if (!shortcut && !selector) {
             return true;
@@ -25657,6 +25675,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         insert: (mathfield, s, options) => mathfield.insert(s, options),
         typedText: (mathfield, text) => {
             onTypedText(mathfield, text);
+            return true;
+        },
+        commit: (mathfield) => {
+            if (typeof mathfield.options.onCommit === 'function') {
+                mathfield.options.onCommit(mathfield);
+            }
             return true;
         },
     });
@@ -30521,12 +30545,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             delegateKeyboardEvents(this.textarea, {
                 allowDeadKey: () => this.mode === 'text',
                 typedText: (text) => onTypedText(this, text),
-                paste: () => {
-                    return onPaste(this);
-                },
+                paste: () => onPaste(this),
                 keystroke: (keystroke, e) => onKeystroke(this, keystroke, e),
-                focus: () => this._onFocus(),
-                blur: () => this._onBlur(),
+                focus: () => this.onFocus(),
+                blur: () => this.onBlur(),
             });
             // Delegate mouse and touch events
             if (window.PointerEvent) {
@@ -30629,7 +30651,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 console.log(e.join('\n'));
             });
             if (!this.options.readOnly) {
-                this._onBlur();
+                this.onBlur();
             }
             // Changing some config options (i.e. `macros`) may
             // require the content to be reparsed and re-rendered
@@ -30669,14 +30691,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 case 'focus':
                     if (!this.eventHandlingInProgress) {
                         this.eventHandlingInProgress = 'focus';
-                        this._onFocus();
+                        this.onFocus();
                         this.eventHandlingInProgress = '';
                     }
                     break;
                 case 'blur':
                     if (!this.eventHandlingInProgress) {
                         this.eventHandlingInProgress = 'blur';
-                        this._onBlur();
+                        this.onBlur();
                         this.eventHandlingInProgress = '';
                     }
                     break;
@@ -30799,7 +30821,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 this.options.onSelectionDidChange(this);
             }
         }
-        _onFocus() {
+        onFocus() {
             if (this.options.readOnly)
                 return;
             if (this.blurred) {
@@ -30816,10 +30838,15 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 if (this.options.onFocus) {
                     this.options.onFocus(this);
                 }
+                // Save the current value.
+                // It will be compared in `onBlur()` to see if the
+                // `onCommit` listener needs to be invoked. This
+                // mimic the `<input>` and `<textarea>` behavior
+                this.valueOnFocus = this.getValue();
                 requestUpdate(this);
             }
         }
-        _onBlur() {
+        onBlur() {
             if (!this.blurred) {
                 this.blurred = true;
                 this.ariaLiveText.textContent = '';
@@ -30828,8 +30855,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 }
                 complete(this, { discard: true });
                 requestUpdate(this);
-                if (this.options.onBlur) {
+                if (typeof this.options.onBlur === 'function') {
                     this.options.onBlur(this);
+                }
+                if (typeof this.options.onCommit === 'function' &&
+                    this.getValue() !== this.valueOnFocus) {
+                    this.options.onCommit(this);
                 }
             }
         }
@@ -33200,17 +33231,18 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      *
      * | Event Name | Event Arguments | Description |
      * |:---|:---|:---|
-     * | `blur` |  | The mathfield is losing focus |
-     * | `change` |  | The value of the mathfield has changed |
-     * | `math-error` | `ErrorListener<ParserErrorCode | MathfieldErrorCode>` | A parsing or configuration error happened |
-     * | `focus` |  | The mathfield is gaining focus |
-     * | `keystroke` | `(keystroke: string, event: KeyboardEvent): boolean` | The user typed a keystroke with a physical keyboard |
-     * | `mode-change` |  | The mode of the mathfield has changed |
-     * | `focus-out` | `(direction: 'forward' | 'backward' | 'upward' | 'downward'): boolean` | The user is navigating out of the mathfield, typically using the keyboard |
-     * | `read-aloud-status-change` |  | The status of a read aloud operation has changed |
+     * | `input |  | The value of the mathfield has been modified |
+     * | `change` |  | The user has commited the value of the mathfield |
      * | `selection-change` |  | The selection of the mathfield has changed |
+     * | `mode-change` |  | The mode of the mathfield has changed |
      * | `undo-state-change` |  | The state of the undo stack has changed |
+     * | `read-aloud-status-change` |  | The status of a read aloud operation has changed |
      * | `virtual-keyboard-toggle` |  | The visibility of the virtual keyboard has changed |
+     * | `blur` |  | The mathfield is losing focus |
+     * | `focus` |  | The mathfield is gaining focus |
+     * | `focus-out` | `(direction: 'forward' | 'backward' | 'upward' | 'downward'): boolean` | The user is navigating out of the mathfield, typically using the keyboard |
+     * | `math-error` | `ErrorListener<ParserErrorCode | MathfieldErrorCode>` | A parsing or configuration error happened |
+     * | `keystroke` | `(keystroke: string, event: KeyboardEvent): boolean` | The user typed a keystroke with a physical keyboard |
      * | `mount` | | Fired once when the element has been attached to the DOM |
      * | `unmount` | | Fired once when the element is about to be removed from the DOM |
      *
@@ -33239,28 +33271,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             this.attachShadow({ mode: 'open' });
             this.shadowRoot.appendChild(MATHFIELD_TEMPLATE.content.cloneNode(true));
             const slot = this.shadowRoot.querySelector('slot:not([name])');
-            this.value = (_a = slot === null || slot === void 0 ? void 0 : slot.assignedNodes().map((x) => (x.nodeType === 3 ? x.textContent : '')).join('').trim()) !== null && _a !== void 0 ? _a : '';
-            this.shadowRoot
-                .querySelector('slot')
-                .addEventListener('slotchange', (e) => {
-                const slot = e.target;
-                if (slot.name === '') {
-                    const value = slot
-                        .assignedNodes()
-                        .map((x) => (x.nodeType === 3 ? x.textContent : ''))
-                        .join('')
-                        .trim();
-                    if (!__classPrivateFieldGet(this, _mathfield)) {
-                        this.value = value;
-                    }
-                    else {
-                        __classPrivateFieldGet(this, _mathfield).setValue(value, {
-                            insertionMode: 'replaceAll',
-                            suppressChangeNotifications: true,
-                        });
-                    }
-                }
-            });
             // When the elements get focused (through tabbing for example)
             // focus the mathfield
             this.shadowRoot.host.addEventListener('focus', (_event) => this.focus());
@@ -33287,6 +33297,28 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             if (this.hasAttribute('value')) {
                 this.value = this.getAttribute('value');
             }
+            else {
+                this.value = (_a = slot === null || slot === void 0 ? void 0 : slot.assignedNodes().map((x) => (x.nodeType === 3 ? x.textContent : '')).join('').trim()) !== null && _a !== void 0 ? _a : '';
+            }
+            slot.addEventListener('slotchange', (e) => {
+                if (e.target !== slot)
+                    return;
+                const value = slot
+                    .assignedNodes()
+                    .map((x) => (x.nodeType === 3 ? x.textContent : ''))
+                    .join('')
+                    .trim();
+                if (!__classPrivateFieldGet(this, _mathfield)) {
+                    this.value = value;
+                }
+                else {
+                    // Don't suppress notification changes. We need to know
+                    // if the value has changed indirectly through slot manipulation
+                    __classPrivateFieldGet(this, _mathfield).setValue(value, {
+                        insertionMode: 'replaceAll',
+                    });
+                }
+            });
         }
         /**
          * Private lifecycle hooks
@@ -33541,7 +33573,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     }));
                 },
                 onContentDidChange: () => {
-                    this.dispatchEvent(new Event('change', {
+                    this.dispatchEvent(new Event('input', {
                         cancelable: false,
                         bubbles: true,
                     }));
@@ -33577,6 +33609,15 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 },
                 onModeChange: (_sender, _mode) => {
                     this.dispatchEvent(new Event('mode-change', {
+                        cancelable: false,
+                        bubbles: true,
+                    }));
+                },
+                onCommit: (_sender) => {
+                    // Match the DOM event sent by `<input>`, `<textarea>`, etc...
+                    // Sent when the [Return] or [Enter] key is pressed, or on
+                    // focus loss if the content has changed.
+                    this.dispatchEvent(new Event('change', {
                         cancelable: false,
                         bubbles: true,
                     }));
@@ -33621,9 +33662,13 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 },
             }));
             if (gDeferredState.has(this)) {
+                const suppressChangeNotifications = __classPrivateFieldGet(this, _mathfield).model
+                    .suppressChangeNotifications;
+                __classPrivateFieldGet(this, _mathfield).model.suppressChangeNotifications = true;
                 __classPrivateFieldGet(this, _mathfield).setValue(gDeferredState.get(this).value);
                 __classPrivateFieldGet(this, _mathfield).selection = gDeferredState.get(this).selection;
                 gDeferredState.delete(this);
+                __classPrivateFieldGet(this, _mathfield).model.suppressChangeNotifications = suppressChangeNotifications;
             }
             this.upgradeProperty('disabled');
             // Notify listeners that we're mounted and ready

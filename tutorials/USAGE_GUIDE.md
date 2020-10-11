@@ -15,7 +15,7 @@ Using a CDN is the simplest approach, as it does not require any configuration:
 <!DOCTYPE html>
 <html lang="en-US">
     <math-field>f(x)</math-field>
-    <script src="https://unpkg.com/mathlive/dist/mathlive.mjs'"></script>
+    <script src="https://unpkg.com/mathlive/dist/mathlive.min.js'"></script>
 </html>
 ```
 
@@ -61,7 +61,7 @@ in the document.
 
 ```html
 <script type="module">
-    import { renderMathInDocument } from 'dist/mathlive.mjs';
+    import { renderMathInDocument } from 'dist/mathlive.min.mjs';
     renderMathInDocument();
 </script>
 ```
@@ -163,14 +163,16 @@ mathfield changes.
 <!DOCTYPE html>
 <html lang="en-US">
     <body>
-        <math-field id="mathfield" style="border: 1px solid #999;padding:5px;">
+        <math-field id="formula" style="border: 1px solid #999;padding:5px;">
             f(x)=
-        </div>
+        </math-field>
         <script type="module">
-            import 'dist/mathlive.mjs';
-            document.getElementById('mathfield').addEventListener('change', (mf) =>
-                console.log(mf.value)
-            );
+            import 'dist/mathlive.min.mjs';
+            document
+                .getElementById('formula')
+                .addEventListener('input', (ev) =>
+                    console.log(ev.target.value)
+                );
         </script>
     </body>
 </html>

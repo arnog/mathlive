@@ -211,6 +211,22 @@ export function onKeystroke(
             keystroke
         );
     }
+    if (
+        !shortcut &&
+        !selector &&
+        (keystroke === '[Enter]' || keystroke === '[Return]')
+    ) {
+        // No matching keybinding: trigger a commit
+        if (typeof mathfield.options.onCommit === 'function') {
+            mathfield.options.onCommit(mathfield);
+            if (evt?.preventDefault) {
+                evt.preventDefault();
+                evt.stopPropagation();
+            }
+            return false;
+        }
+    }
+
     // No shortcut :( We're done.
     if (!shortcut && !selector) {
         return true;

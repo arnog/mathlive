@@ -2,7 +2,27 @@
 
 ### New Features
 
--   Added `mount` and `unmount` event to the web component
+-   **#225** Added `onCommit` listener to `mf.options`. This listener is invoked when
+    the user presses **Enter** or **Return** key, or when the field loses focus
+    and its value has changed since it acquired it.
+    In addition, a `change` event is triggered when using a `MathfieldElement`.
+    The event previously named `change` has been renamed to `input`.
+    This mimics the behavior of `<input>` and `<textarea>` elements.
+-   **#225** Changed the keyboard shortcuts to add columns and rows:
+    | Shortcut | Command |
+    |:---|:---|
+    | **ctrl**/**cmd** + **Return**/**Enter** | `addRowAfter` |
+    | **ctrl**/**cmd** + **shift** + **Return**/**Enter** | `addRowBefore` |
+    | **ctrl**/**cmd** + **;** | `addRowAfter` |
+    | **ctrl**/**cmd** + **shift** + **;** | `addRowBefore` |
+    | **ctrl**/**cmd** + **,** | `addColumnAfter` |
+    | **ctrl**/**cmd** + **shift** + **,** | `addColumnBefore` |
+
+    Note that **Enter**/**Return** no longer create a matrix/vector when inside a parenthesized expression. Use **ctrl/cmd** + **Return**/**Enter** instead.
+
+-   Added a `commit` command to programmatically trigger the `onCommit` listener
+    `change` event.
+-   Added `mount` and `unmount` events to `MathfieldElement`
 -   The `$text()` method, which is deprecated, was accidentally prematurely removed.
     It has been added back.
 
@@ -65,7 +85,7 @@ or:
     });
 
     // After
-    mfe.addEventListener('change', (ev) => {
+    mfe.addEventListener('input', (ev) => {
         console.log(mfe.value);
     });
 ```

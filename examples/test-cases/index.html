@@ -20,6 +20,7 @@
             color: #666;
         }
 
+
         #mathfield-container {
             padding: 8px;
             min-width: 50px;
@@ -33,11 +34,13 @@
         <h1>MathLive Test Cases</h1>
     </header>
     <main>
-        <math-field id="mf" class="mathfield" style="width:100%" tabindex="0" virtual-keyboard-mode="manual">
-            x=\frac{1}{x^{2+1}}-\sqrt{x^{2+x}}+345.45
+        <input id='ta'></input>
+        <math-field id="mf" class="mathfield" style="max-width: 250px; width:100%" tabindex="0"
+            virtual-keyboard-mode="manual">
+            \text{before} = \xrightarrow[\text{above}]{\text{below}}\text{after}
         </math-field>
 
-        <h2>Selection</h2>
+        <h2 style='margin-top: 5em'>Selection</h2>
         <div class="output" id="selection"></div>
 
         <!-- <math-field class="mathfield" style="width:100%" tabindex="4" virtual-keyboard-mode="manual">f_{4}(x) =
@@ -93,9 +96,15 @@
     <script type="module">
         import { convertLatexToMarkup } from '/dist/mathlive.mjs';
 
+        const ta = document.getElementById('ta');
+        ta.addEventListener('change', (ev) => console.log('ta change ', ev.detail));
+
         const mf = document.getElementById('mf');
         mf.selection = [{ start: 2, end: 5 }];
-        mf.addEventListener('change', (ev) => updateContent(mf));
+        mf.addEventListener('input', (ev) => updateContent(mf));
+        mf.addEventListener('change', (ev) => {
+            console.log('Change Event: ' + ev.target.value);
+        });
         mf.addEventListener('selection-change', (ev) => {
             const selection = mf.selection[0];
             document.getElementById('selection').innerHTML =
@@ -104,7 +113,7 @@
                 "depth     " + selection.depth + "<br>" +
                 "direction \"" + selection.direction + "\"<br>" +
                 "collapsed " + (selection.collapsed ? "true" : "false") + "<br>" +
-                "value     " + mf.getValue(selection)
+                "value     \"" + mf.getValue(selection) + '"'
         });
         updateContent(mf);
 
@@ -157,6 +166,14 @@
                 console.error("Error converting %c " + latex + '%c ' +
                     e.toString(), 'color: red;  background: hsla(0, 60%, 90%)', 'background: transparent');
             }
+            const selection = mf.selection[0];
+            document.getElementById('selection').innerHTML =
+                "start     " + selection.start + "<br>" +
+                "end       " + selection.end + "<br>" +
+                "depth     " + selection.depth + "<br>" +
+                "direction \"" + selection.direction + "\"<br>" +
+                "collapsed " + (selection.collapsed ? "true" : "false") + "<br>" +
+                "value     \"" + mf.getValue(selection) + '"'
         }
 
 

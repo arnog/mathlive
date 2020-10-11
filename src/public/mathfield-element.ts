@@ -223,17 +223,18 @@ const gDeferredState = new WeakMap<
  *
  * | Event Name | Event Arguments | Description |
  * |:---|:---|:---|
- * | `blur` |  | The mathfield is losing focus |
- * | `change` |  | The value of the mathfield has changed |
- * | `math-error` | `ErrorListener<ParserErrorCode | MathfieldErrorCode>` | A parsing or configuration error happened |
- * | `focus` |  | The mathfield is gaining focus |
- * | `keystroke` | `(keystroke: string, event: KeyboardEvent): boolean` | The user typed a keystroke with a physical keyboard |
- * | `mode-change` |  | The mode of the mathfield has changed |
- * | `focus-out` | `(direction: 'forward' | 'backward' | 'upward' | 'downward'): boolean` | The user is navigating out of the mathfield, typically using the keyboard |
- * | `read-aloud-status-change` |  | The status of a read aloud operation has changed |
+ * | `input |  | The value of the mathfield has been modified |
+ * | `change` |  | The user has commited the value of the mathfield |
  * | `selection-change` |  | The selection of the mathfield has changed |
+ * | `mode-change` |  | The mode of the mathfield has changed |
  * | `undo-state-change` |  | The state of the undo stack has changed |
+ * | `read-aloud-status-change` |  | The status of a read aloud operation has changed |
  * | `virtual-keyboard-toggle` |  | The visibility of the virtual keyboard has changed |
+ * | `blur` |  | The mathfield is losing focus |
+ * | `focus` |  | The mathfield is gaining focus |
+ * | `focus-out` | `(direction: 'forward' | 'backward' | 'upward' | 'downward'): boolean` | The user is navigating out of the mathfield, typically using the keyboard |
+ * | `math-error` | `ErrorListener<ParserErrorCode | MathfieldErrorCode>` | A parsing or configuration error happened |
+ * | `keystroke` | `(keystroke: string, event: KeyboardEvent): boolean` | The user typed a keystroke with a physical keyboard |
  * | `mount` | | Fired once when the element has been attached to the DOM |
  * | `unmount` | | Fired once when the element is about to be removed from the DOM |
  *
@@ -304,33 +305,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         const slot = this.shadowRoot.querySelector<HTMLSlotElement>(
             'slot:not([name])'
         );
-        this.value =
-            slot
-                ?.assignedNodes()
-                .map((x) => (x.nodeType === 3 ? x.textContent : ''))
-                .join('')
-                .trim() ?? '';
-
-        this.shadowRoot
-            .querySelector('slot')
-            .addEventListener('slotchange', (e) => {
-                const slot = e.target as HTMLSlotElement;
-                if (slot.name === '') {
-                    const value = slot
-                        .assignedNodes()
-                        .map((x) => (x.nodeType === 3 ? x.textContent : ''))
-                        .join('')
-                        .trim();
-                    if (!this.#mathfield) {
-                        this.value = value;
-                    } else {
-                        this.#mathfield.setValue(value, {
-                            insertionMode: 'replaceAll',
-                            suppressChangeNotifications: true,
-                        });
-                    }
-                }
-            });
 
         // When the elements get focused (through tabbing for example)
         // focus the mathfield
@@ -361,7 +335,32 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         // of the mathfield from it
         if (this.hasAttribute('value')) {
             this.value = this.getAttribute('value');
+        } else {
+            this.value =
+                slot
+                    ?.assignedNodes()
+                    .map((x) => (x.nodeType === 3 ? x.textContent : ''))
+                    .join('')
+                    .trim() ?? '';
         }
+
+        slot.addEventListener('slotchange', (e) => {
+            if (e.target !== slot) return;
+            const value = slot
+                .assignedNodes()
+                .map((x) => (x.nodeType === 3 ? x.textContent : ''))
+                .join('')
+                .trim();
+            if (!this.#mathfield) {
+                this.value = value;
+            } else {
+                // Don't suppress notification changes. We need to know
+                // if the value has changed indirectly through slot manipulation
+                this.#mathfield.setValue(value, {
+                    insertionMode: 'replaceAll',
+                });
+            }
+        });
     }
 
     get mode(): ParseMode {
@@ -594,7 +593,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
                 },
                 onContentDidChange: () => {
                     this.dispatchEvent(
-                        new Event('change', {
+                        new Event('input', {
                             cancelable: false,
                             bubbles: true,
                         })
@@ -648,6 +647,17 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
                 onModeChange: (_sender: Mathfield, _mode: ParseMode) => {
                     this.dispatchEvent(
                         new Event('mode-change', {
+                            cancelable: false,
+                            bubbles: true,
+                        })
+                    );
+                },
+                onCommit: (_sender: Mathfield) => {
+                    // Match the DOM event sent by `<input>`, `<textarea>`, etc...
+                    // Sent when the [Return] or [Enter] key is pressed, or on
+                    // focus loss if the content has changed.
+                    this.dispatchEvent(
+                        new Event('change', {
                             cancelable: false,
                             bubbles: true,
                         })
@@ -717,9 +727,13 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         );
 
         if (gDeferredState.has(this)) {
+            const suppressChangeNotifications = this.#mathfield.model
+                .suppressChangeNotifications;
+            this.#mathfield.model.suppressChangeNotifications = true;
             this.#mathfield.setValue(gDeferredState.get(this).value);
             this.#mathfield.selection = gDeferredState.get(this).selection;
             gDeferredState.delete(this);
+            this.#mathfield.model.suppressChangeNotifications = suppressChangeNotifications;
         }
 
         this.upgradeProperty('disabled');

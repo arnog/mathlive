@@ -197,6 +197,7 @@ export function update(
             case 'onUndoStateWillChange':
             case 'onUndoStateDidChange':
             case 'onModeChange':
+            case 'onCommit':
             case 'onVirtualKeyboardToggle':
             case 'onReadAloudStatus':
             case 'onError':
@@ -329,6 +330,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
         onModeChange: NO_OP_LISTENER,
         onVirtualKeyboardToggle: NO_OP_LISTENER,
         onReadAloudStatus: NO_OP_LISTENER,
+        onCommit: NO_OP_LISTENER,
 
         onError: (): void => {
             return;

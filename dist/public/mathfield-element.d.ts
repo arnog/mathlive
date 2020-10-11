@@ -156,17 +156,18 @@ declare global {
  *
  * | Event Name | Event Arguments | Description |
  * |:---|:---|:---|
- * | `blur` |  | The mathfield is losing focus |
- * | `change` |  | The value of the mathfield has changed |
- * | `math-error` | `ErrorListener<ParserErrorCode | MathfieldErrorCode>` | A parsing or configuration error happened |
- * | `focus` |  | The mathfield is gaining focus |
- * | `keystroke` | `(keystroke: string, event: KeyboardEvent): boolean` | The user typed a keystroke with a physical keyboard |
- * | `mode-change` |  | The mode of the mathfield has changed |
- * | `focus-out` | `(direction: 'forward' | 'backward' | 'upward' | 'downward'): boolean` | The user is navigating out of the mathfield, typically using the keyboard |
- * | `read-aloud-status-change` |  | The status of a read aloud operation has changed |
+ * | `input |  | The value of the mathfield has been modified |
+ * | `change` |  | The user has commited the value of the mathfield |
  * | `selection-change` |  | The selection of the mathfield has changed |
+ * | `mode-change` |  | The mode of the mathfield has changed |
  * | `undo-state-change` |  | The state of the undo stack has changed |
+ * | `read-aloud-status-change` |  | The status of a read aloud operation has changed |
  * | `virtual-keyboard-toggle` |  | The visibility of the virtual keyboard has changed |
+ * | `blur` |  | The mathfield is losing focus |
+ * | `focus` |  | The mathfield is gaining focus |
+ * | `focus-out` | `(direction: 'forward' | 'backward' | 'upward' | 'downward'): boolean` | The user is navigating out of the mathfield, typically using the keyboard |
+ * | `math-error` | `ErrorListener<ParserErrorCode | MathfieldErrorCode>` | A parsing or configuration error happened |
+ * | `keystroke` | `(keystroke: string, event: KeyboardEvent): boolean` | The user typed a keystroke with a physical keyboard |
  * | `mount` | | Fired once when the element has been attached to the DOM |
  * | `unmount` | | Fired once when the element is about to be removed from the DOM |
  *

@@ -51,4 +51,10 @@ registerCommand({
         onTypedText(mathfield, text);
         return true;
     },
+    commit: (mathfield: MathfieldPrivate) => {
+        if (typeof mathfield.options.onCommit === 'function') {
+            mathfield.options.onCommit(mathfield);
+        }
+        return true;
+    },
 });

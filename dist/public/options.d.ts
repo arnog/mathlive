@@ -419,7 +419,7 @@ export declare type UndoStateChangeListener = (target: Mathfield, action: 'undo'
  * In general instead of using this interface you should be listening to the
  * corresponding event on `MathfieldElement`, i.e.
  * ```javascript
-mfe.addEventListener('change', (ev) => {
+mfe.addEventListener('input', (ev) => {
     console.log(ev.target.value);
 });
  * ```
@@ -435,6 +435,7 @@ export interface MathfieldListeners {
     onSelectionDidChange: (sender: Mathfield) => void;
     onUndoStateWillChange: UndoStateChangeListener;
     onUndoStateDidChange: UndoStateChangeListener;
+    onCommit: (sender: Mathfield) => void;
     onModeChange: (sender: Mathfield, mode: ParseMode) => void;
     onVirtualKeyboardToggle: (sender: Mathfield, visible: boolean, keyboardElement: HTMLElement) => void;
     onReadAloudStatus: (sender: Mathfield) => void;

@@ -98,6 +98,10 @@ export class MathfieldPrivate implements Mathfield {
     private undoManager: UndoManager;
 
     private blurred: boolean;
+    // The value of the mathfield when it is focussed.
+    // If this value is different when the field is blured
+    // the `onCommit` listener is triggered
+    private valueOnFocus: string;
     dirty: boolean; // If true, need to be redrawn
     pasteInProgress: boolean;
     smartModeSuppressed: boolean;
@@ -326,15 +330,13 @@ export class MathfieldPrivate implements Mathfield {
         on(this.textarea, 'copy', this);
         on(this.textarea, 'paste', this);
         // Delegate keyboard events
-        delegateKeyboardEvents(this.textarea, {
+        delegateKeyboardEvents(this.textarea as HTMLTextAreaElement, {
             allowDeadKey: () => this.mode === 'text',
             typedText: (text: string): void => onTypedText(this, text),
-            paste: () => {
-                return onPaste(this);
-            },
+            paste: () => onPaste(this),
             keystroke: (keystroke, e) => onKeystroke(this, keystroke, e),
-            focus: () => this._onFocus(),
-            blur: () => this._onBlur(),
+            focus: () => this.onFocus(),
+            blur: () => this.onBlur(),
         });
 
         // Delegate mouse and touch events
@@ -487,7 +489,7 @@ export class MathfieldPrivate implements Mathfield {
         );
 
         if (!this.options.readOnly) {
-            this._onBlur();
+            this.onBlur();
         }
         // Changing some config options (i.e. `macros`) may
         // require the content to be reparsed and re-rendered
@@ -550,14 +552,14 @@ export class MathfieldPrivate implements Mathfield {
             case 'focus':
                 if (!this.eventHandlingInProgress) {
                     this.eventHandlingInProgress = 'focus';
-                    this._onFocus();
+                    this.onFocus();
                     this.eventHandlingInProgress = '';
                 }
                 break;
             case 'blur':
                 if (!this.eventHandlingInProgress) {
                     this.eventHandlingInProgress = 'blur';
-                    this._onBlur();
+                    this.onBlur();
                     this.eventHandlingInProgress = '';
                 }
                 break;
@@ -689,7 +691,7 @@ export class MathfieldPrivate implements Mathfield {
         }
     }
 
-    private _onFocus(): void {
+    private onFocus(): void {
         if (this.options.readOnly) return;
         if (this.blurred) {
             this.blurred = false;
@@ -705,10 +707,15 @@ export class MathfieldPrivate implements Mathfield {
             if (this.options.onFocus) {
                 this.options.onFocus(this);
             }
+            // Save the current value.
+            // It will be compared in `onBlur()` to see if the
+            // `onCommit` listener needs to be invoked. This
+            // mimic the `<input>` and `<textarea>` behavior
+            this.valueOnFocus = this.getValue();
             requestUpdate(this);
         }
     }
-    private _onBlur(): void {
+    private onBlur(): void {
         if (!this.blurred) {
             this.blurred = true;
             this.ariaLiveText.textContent = '';
@@ -717,8 +724,14 @@ export class MathfieldPrivate implements Mathfield {
             }
             complete(this, { discard: true });
             requestUpdate(this);
-            if (this.options.onBlur) {
+            if (typeof this.options.onBlur === 'function') {
                 this.options.onBlur(this);
+            }
+            if (
+                typeof this.options.onCommit === 'function' &&
+                this.getValue() !== this.valueOnFocus
+            ) {
+                this.options.onCommit(this);
             }
         }
     }
