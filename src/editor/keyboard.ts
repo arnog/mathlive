@@ -177,6 +177,9 @@ export function delegateKeyboardEvents(
         keystroke: (keystroke: string, e: KeyboardEvent) => void;
         focus: () => void;
         blur: () => void;
+        compositionStart: (composition: string) => void;
+        compositionUpdate: (composition: string) => void;
+        compositionEnd: (composition: string) => void;
     }
 ): void {
     let keydownEvent = null;
@@ -212,7 +215,12 @@ export function delegateKeyboardEvents(
 
     target.addEventListener(
         'keydown',
-        (e) => {
+        (e: KeyboardEvent): void => {
+            if (compositionInProgress) return;
+            // "Process" key indicates commit of IME session (on Firefox)
+            // It's handled with compositionEnd so it can be safely ignored
+            if (e.key === 'Process') return;
+
             const allowDeadKey = handlers.allowDeadKey();
             if (
                 !allowDeadKey &&
@@ -244,15 +252,15 @@ export function delegateKeyboardEvents(
             ) {
                 keydownEvent = e;
                 keypressEvent = null;
-                return handlers.keystroke(keyboardEventToString(e), e);
+                handlers.keystroke(keyboardEventToString(e), e);
             }
-            return true;
         },
         true
     );
     target.addEventListener(
         'keypress',
         (e) => {
+            if (compositionInProgress) return;
             // If this is not the first keypress after a keydown, that is,
             // if this is a repeated keystroke, call the keystroke handler.
             if (!compositionInProgress) {
@@ -272,6 +280,7 @@ export function delegateKeyboardEvents(
     target.addEventListener(
         'keyup',
         () => {
+            if (compositionInProgress) return;
             // If we've received a keydown, but no keypress, check what's in the
             // textarea field.
             if (!compositionInProgress && keydownEvent && !keypressEvent) {
@@ -295,41 +304,53 @@ export function delegateKeyboardEvents(
     target.addEventListener(
         'blur',
         (_ev) => {
-            if (!blurInProgress && !focusInProgress) {
-                blurInProgress = true;
-                keydownEvent = null;
-                keypressEvent = null;
-                if (handlers.blur) handlers.blur();
-                blurInProgress = false;
-            }
+            if (blurInProgress || focusInProgress) return;
+
+            blurInProgress = true;
+            keydownEvent = null;
+            keypressEvent = null;
+            if (handlers.blur) handlers.blur();
+            blurInProgress = false;
         },
         true
     );
     target.addEventListener(
         'focus',
         (_ev) => {
-            if (!blurInProgress && !focusInProgress) {
-                focusInProgress = true;
-                if (handlers.focus) handlers.focus();
-                focusInProgress = false;
-            }
+            if (blurInProgress || focusInProgress) return;
+
+            focusInProgress = true;
+            if (handlers.focus) handlers.focus();
+            focusInProgress = false;
         },
         true
     );
     target.addEventListener(
         'compositionstart',
-        () => {
+        (ev: CompositionEvent) => {
             compositionInProgress = true;
+            textarea.value = '';
+
+            if (handlers.compositionStart) handlers.compositionStart(ev.data);
+        },
+        true
+    );
+    target.addEventListener(
+        'compositionupdate',
+        (ev: CompositionEvent) => {
+            if (handlers.compositionUpdate) handlers.compositionUpdate(ev.data);
         },
         true
     );
     target.addEventListener(
         'compositionend',
-        () => {
+        (ev: CompositionEvent) => {
             compositionInProgress = false;
-            if (deadKey && handlers.allowDeadKey()) {
-                defer(handleTypedText);
-            }
+            if (handlers.compositionEnd) handlers.compositionEnd(ev.data);
+
+            // if (deadKey && handlers.allowDeadKey()) {
+            //     defer(handleTypedText);
+            // }
         },
         true
     );
@@ -337,6 +358,7 @@ export function delegateKeyboardEvents(
     // The `input` handler gets called when the field is changed,
     // for example with input methods or emoji input...
     target.addEventListener('input', () => {
+        if (compositionInProgress) return;
         if (deadKey) {
             const savedBlur = handlers.blur;
             const savedFocus = handlers.focus;

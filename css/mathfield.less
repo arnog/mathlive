@@ -175,6 +175,9 @@ to make sure it doesn't show. */
     transform: scale(0);
     resize: none;
 
+    outline: none;
+    border: none;
+
     /* Need these for Microsoft Edge */
     position: absolute;
     clip: rect(0 0 0 0);
@@ -183,7 +186,8 @@ to make sure it doesn't show. */
     /*-ms-transform: scale(0);*/
 
     /* Need this to prevent iOS Safari from auto-zooming */
-    font-size: 16px;
+    font-size: 1em;
+    font-family: KaTeX_Main;
 }
 
 .ML__focused .ML__text {

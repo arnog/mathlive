@@ -2256,6 +2256,13 @@
         }
         else if (cjkRegex.test(character[0])) {
             ch = 77; // 'M'.charCodeAt(0);
+            return {
+                defaultMetrics: true,
+                depth: 0.2,
+                height: 0.9,
+                italic: 0,
+                skew: 0,
+            };
         }
         const metrics = METRICS_MAP[fontName][ch];
         if (!metrics) {
@@ -3064,6 +3071,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         // 'mtable',
         'first',
         'command',
+        'composition',
         'error',
         'placeholder',
         'textord',
@@ -8552,6 +8560,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             case 'error':
                 result += atom.latex;
                 break;
+            case 'composition':
+                result = '';
+                break;
             case '':
                 console.assert(atom.mode === 'text', 'Null atom type in mode ' + atom.mode);
                 console.error('Attempting to emit a text atom');
@@ -9113,6 +9124,13 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 if (this.isSuggestion) {
                     result.classes += ' ML__suggestion';
                 }
+            }
+            else if (this.type === 'composition') {
+                // In theory one would like to be able to draw the clauses
+                // in an active composition. Unfortunately, there are
+                // no API to give access to those clauses :(
+                result = this.makeSpan(context, this.body);
+                result.classes = 'ML__composition';
             }
             else if (this.type === 'placeholder') {
                 result = this.makeSpan(context, '⬚');
@@ -16107,14 +16125,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }
             if (placeholder) {
                 // ◌ ⬚
-                // const placeholderAtom = [
-                //     new Atom('math', 'placeholder', '⬚', getAnchorStyle(model)),
-                // ];
-                // Array.prototype.splice.apply(
-                //     siblings,
-                //     [1, 0].concat(placeholderAtom)
-                // );
-                // @revisit
                 siblings.splice(1, 0, new Atom('math', 'placeholder', '⬚', getAnchorStyle(model)));
             }
         }
@@ -16124,7 +16134,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         const anchor = model.extent === 0 ? getAnchor(model) : model.sibling(1);
         let result;
         if (anchor && anchor.type !== 'first') {
-            if (anchor.type === 'command') {
+            if (anchor.type === 'command' || anchor.type === 'composition') {
                 return {};
             }
             result = {
@@ -18979,18 +18989,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      * Return the element which has the caret
      */
     function findElementWithCaret(el) {
-        if (el.classList.contains('ML__caret') ||
-            el.classList.contains('ML__text-caret') ||
-            el.classList.contains('ML__command-caret')) {
-            return el;
-        }
-        let result;
-        for (const child of el.children) {
-            result = findElementWithCaret(child);
-            if (result)
-                break;
-        }
-        return result;
+        var _a, _b;
+        return ((_b = (_a = el.querySelector('.ML__caret')) !== null && _a !== void 0 ? _a : el.querySelector('.ML__text-caret')) !== null && _b !== void 0 ? _b : el.querySelector('.ML__command-carett'));
     }
     /**
      * Return the (x,y) client coordinates of the caret
@@ -20678,6 +20678,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     break;
                 case 'phantom':
                     break;
+                case 'composition':
+                    break;
                 default:
                     console.log('In conversion to MathML, unknown type : ' + atom.type);
             }
@@ -21714,6 +21716,35 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         contentDidChange(model);
         model.suppressChangeNotifications = suppressChangeNotifications;
     }
+    /**
+     * Create, remove or update a composition atom at the current location
+     */
+    function updateComposition(model, s) {
+        const anchor = getAnchor(model);
+        if (s === null) {
+            // Remove the composition zone
+            if (anchor.type === 'composition') {
+                model.siblings().splice(model.anchorOffset(), 1);
+                model.path[model.path.length - 1].offset -= 1;
+            }
+            // An event will be sent later to insert the commited composition
+            return;
+        }
+        // We're creating or updating a composition
+        if (anchor.type === 'composition') {
+            // Composition already in progress, update it
+            anchor.body = s;
+        }
+        else {
+            // No composition yet, create one
+            anchor.caret = '';
+            const atom = new Atom(anchor.mode, 'composition', s);
+            atom.caret = anchor.mode;
+            model.siblings().splice(model.anchorOffset() + 1, 0, atom);
+            //Move cursor one past the composition zone
+            model.path[model.path.length - 1].offset += 1;
+        }
+    }
     function removeParen(list) {
         if (!list)
             return undefined;
@@ -21973,7 +22004,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             return -1;
         }
         get lastPosition() {
-            return this.positions.length;
+            return this.positions.length - 1;
         }
         paths(indexes) {
             return indexes.map((i) => this.at(i).path);
@@ -22321,10 +22352,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         const iter = new PositionIterator(model.root);
         if (!range.direction)
             range.direction = 'forward';
+        if (range.start < 0 || range.start > iter.lastPosition) {
+            range.start = iter.lastPosition;
+        }
         if (typeof range.end === 'undefined')
             range.end = range.start;
-        if (range.end < 0)
+        if (range.end < 0 || range.end > iter.lastPosition) {
             range.end = iter.lastPosition;
+        }
         let anchorPath;
         if (range.direction === 'backward') {
             anchorPath = iter.at(range.end).path;
@@ -22728,6 +22763,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         }
         const target = textarea;
         target.addEventListener('keydown', (e) => {
+            if (compositionInProgress)
+                return;
+            // "Process" key indicates commit of IME session (on Firefox)
+            // It's handled with compositionEnd so it can be safely ignored
+            if (e.key === 'Process')
+                return;
             const allowDeadKey = handlers.allowDeadKey();
             if (!allowDeadKey &&
                 (e.key === 'Dead' ||
@@ -22756,11 +22797,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 !/(Control|Meta|Alt|Shift)(Left|Right)/.test(e.code)) {
                 keydownEvent = e;
                 keypressEvent = null;
-                return handlers.keystroke(keyboardEventToString(e), e);
+                handlers.keystroke(keyboardEventToString(e), e);
             }
-            return true;
         }, true);
         target.addEventListener('keypress', (e) => {
+            if (compositionInProgress)
+                return;
             // If this is not the first keypress after a keydown, that is,
             // if this is a repeated keystroke, call the keystroke handler.
             if (!compositionInProgress) {
@@ -22772,6 +22814,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }
         }, true);
         target.addEventListener('keyup', () => {
+            if (compositionInProgress)
+                return;
             // If we've received a keydown, but no keypress, check what's in the
             // textarea field.
             if (!compositionInProgress && keydownEvent && !keypressEvent) {
@@ -22788,35 +22832,46 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 handlers.paste(text);
         }, true);
         target.addEventListener('blur', (_ev) => {
-            if (!blurInProgress && !focusInProgress) {
-                blurInProgress = true;
-                keydownEvent = null;
-                keypressEvent = null;
-                if (handlers.blur)
-                    handlers.blur();
-                blurInProgress = false;
-            }
+            if (blurInProgress || focusInProgress)
+                return;
+            blurInProgress = true;
+            keydownEvent = null;
+            keypressEvent = null;
+            if (handlers.blur)
+                handlers.blur();
+            blurInProgress = false;
         }, true);
         target.addEventListener('focus', (_ev) => {
-            if (!blurInProgress && !focusInProgress) {
-                focusInProgress = true;
-                if (handlers.focus)
-                    handlers.focus();
-                focusInProgress = false;
-            }
+            if (blurInProgress || focusInProgress)
+                return;
+            focusInProgress = true;
+            if (handlers.focus)
+                handlers.focus();
+            focusInProgress = false;
         }, true);
-        target.addEventListener('compositionstart', () => {
+        target.addEventListener('compositionstart', (ev) => {
             compositionInProgress = true;
+            textarea.value = '';
+            if (handlers.compositionStart)
+                handlers.compositionStart(ev.data);
         }, true);
-        target.addEventListener('compositionend', () => {
+        target.addEventListener('compositionupdate', (ev) => {
+            if (handlers.compositionUpdate)
+                handlers.compositionUpdate(ev.data);
+        }, true);
+        target.addEventListener('compositionend', (ev) => {
             compositionInProgress = false;
-            if (deadKey && handlers.allowDeadKey()) {
-                defer(handleTypedText);
-            }
+            if (handlers.compositionEnd)
+                handlers.compositionEnd(ev.data);
+            // if (deadKey && handlers.allowDeadKey()) {
+            //     defer(handleTypedText);
+            // }
         }, true);
         // The `input` handler gets called when the field is changed,
         // for example with input methods or emoji input...
         target.addEventListener('input', () => {
+            if (compositionInProgress)
+                return;
             if (deadKey) {
                 const savedBlur = handlers.blur;
                 const savedFocus = handlers.focus;
@@ -28042,9 +28097,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         showVirtualKeyboard: (mathfield, theme) => showVirtualKeyboard(mathfield, theme),
     }, { target: 'virtual-keyboard' });
 
-    var css_248z$1 = "@-webkit-keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}@keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}.ML__caret:after{content:\"\";border:none;border-radius:2px;border-right:2px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-2px;position:relative;left:-1px;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__text-caret:after{content:\"\";border:none;border-radius:1px;border-right:1px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-1px;position:relative;left:0;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__command-caret:after{content:\"_\";border:none;margin-right:-1ex;position:relative;color:var(--caret,hsl(var(--hue,212),40%,49%));-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__fieldcontainer{display:flex;flex-flow:row;justify-content:space-between;align-items:flex-end;min-height:39px;touch-action:none;width:100%;--hue:212;--secondary:hsl(var(--hue,212),19%,26%);--on-secondary:hsl(var(--hue,212),19%,26%)}.ML__fieldcontainer:focus{outline:2px solid var(--primary,hsl(var(--hue,212),40%,50%));outline-offset:3px}.ML__fieldcontainer__field{align-self:center;position:relative;overflow:hidden;line-height:0;padding:2px;width:100%}.ML__virtual-keyboard-toggle{display:flex;align-self:center;align-items:center;flex-shrink:0;flex-direction:column;justify-content:center;width:34px;height:34px;padding:0;margin-right:4px;cursor:pointer;box-sizing:border-box;border-radius:50%;border:1px solid transparent;transition:background .2s cubic-bezier(.64,.09,.08,1);color:var(--primary,hsl(var(--hue,212),40%,50%));fill:currentColor;background:transparent}.ML__virtual-keyboard-toggle:hover{background:hsl(var(--hue,212),25%,35%);color:#fafafa;fill:currentColor;border-radius:50%;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2)}.ML__popover{visibility:hidden;min-width:160px;background-color:rgba(97,97,97,.95);color:#fff;text-align:center;border-radius:6px;position:fixed;z-index:1;display:flex;flex-direction:column;justify-content:center;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);transition:all .2s cubic-bezier(.64,.09,.08,1)}.ML__popover:after{content:\"\";position:absolute;top:-5px;left:calc(50% - 3px);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;font-size:1rem;border-bottom:5px solid rgba(97,97,97,.9)}.ML__popover--reverse-direction:after{top:auto;bottom:-5px;border-top:5px solid rgba(97,97,97,.9);border-bottom:0}.ML__textarea__textarea{transform:scale(0);resize:none;position:absolute;clip:rect(0 0 0 0);width:1px;height:1px;font-size:16px}.ML__focused .ML__text{background:hsla(var(--hue,212),40%,50%,.1)}.ML__smart-fence__close{opacity:.5}.ML__selection{background:var(--highlight-inactive,#ccc);box-sizing:border-box}.ML__focused .ML__selection{background:var(--highlight,hsl(var(--hue,212),97%,85%))!important;color:var(--on-highlight)}.ML__contains-caret.ML__close,.ML__contains-caret.ML__open,.ML__contains-caret>.ML__close,.ML__contains-caret>.ML__open,.sqrt.ML__contains-caret>.sqrt-sign,.sqrt.ML__contains-caret>.vlist>span>.sqrt-line{color:var(--caret,hsl(var(--hue,212),40%,49%))}.ML__command{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace;letter-spacing:-1px;font-weight:400;line-height:1em;color:var(--primary,hsl(var(--hue,212),40%,50%))}:not(.ML__command)+.ML__command{margin-left:.25em}.ML__command+:not(.ML__command){padding-left:.25em}.ML__suggestion{opacity:.5}.ML__virtual-keyboard-toggle.pressed{background:hsla(0,0%,70%,.5)}.ML__virtual-keyboard-toggle:focus{outline:none;border-radius:50%;border:2px solid var(--primary,hsl(var(--hue,212),40%,50%))}.ML__virtual-keyboard-toggle.active,.ML__virtual-keyboard-toggle.active:hover{background:hsla(0,0%,70%,.5);color:#000;fill:currentColor}.ML__scroller{position:fixed;z-index:1;top:0;height:100vh;width:200px}[data-ML__tooltip]{position:relative}[data-ML__tooltip][data-placement=top]:after{top:inherit;bottom:100%}[data-ML__tooltip]:after{position:absolute;visibility:hidden;content:attr(data-ML__tooltip);display:inline-table;top:110%;width:-webkit-max-content;width:-moz-max-content;width:max-content;max-width:200px;padding:8px;background:#616161;color:#fff;text-align:center;z-index:2;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);border-radius:2px;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-weight:400;font-size:12px;opacity:0;transform:scale(.5);transition:all .15s cubic-bezier(.4,0,1,1)}@media only screen and (max-width:767px){[data-ML__tooltip]:after{padding:8px 16px;font-size:14px}}[data-ML__tooltip]:hover{position:relative}[data-ML__tooltip]:hover:after{visibility:visible;opacity:1;transform:scale(1)}[data-ML__tooltip][data-delay]:after{transition-delay:0s}[data-ML__tooltip][data-delay]:hover:after{transition-delay:1s}";
+    var css_248z$1 = "@-webkit-keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}@keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}.ML__caret:after{content:\"\";border:none;border-radius:2px;border-right:2px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-2px;position:relative;left:-1px;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__text-caret:after{content:\"\";border:none;border-radius:1px;border-right:1px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-1px;position:relative;left:0;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__command-caret:after{content:\"_\";border:none;margin-right:-1ex;position:relative;color:var(--caret,hsl(var(--hue,212),40%,49%));-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__fieldcontainer{display:flex;flex-flow:row;justify-content:space-between;align-items:flex-end;min-height:39px;touch-action:none;width:100%;--hue:212;--secondary:hsl(var(--hue,212),19%,26%);--on-secondary:hsl(var(--hue,212),19%,26%)}.ML__fieldcontainer:focus{outline:2px solid var(--primary,hsl(var(--hue,212),40%,50%));outline-offset:3px}.ML__fieldcontainer__field{align-self:center;position:relative;overflow:hidden;line-height:0;padding:2px;width:100%}.ML__virtual-keyboard-toggle{display:flex;align-self:center;align-items:center;flex-shrink:0;flex-direction:column;justify-content:center;width:34px;height:34px;padding:0;margin-right:4px;cursor:pointer;box-sizing:border-box;border-radius:50%;border:1px solid transparent;transition:background .2s cubic-bezier(.64,.09,.08,1);color:var(--primary,hsl(var(--hue,212),40%,50%));fill:currentColor;background:transparent}.ML__virtual-keyboard-toggle:hover{background:hsl(var(--hue,212),25%,35%);color:#fafafa;fill:currentColor;border-radius:50%;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2)}.ML__popover{visibility:hidden;min-width:160px;background-color:rgba(97,97,97,.95);color:#fff;text-align:center;border-radius:6px;position:fixed;z-index:1;display:flex;flex-direction:column;justify-content:center;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);transition:all .2s cubic-bezier(.64,.09,.08,1)}.ML__popover:after{content:\"\";position:absolute;top:-5px;left:calc(50% - 3px);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;font-size:1rem;border-bottom:5px solid rgba(97,97,97,.9)}.ML__popover--reverse-direction:after{top:auto;bottom:-5px;border-top:5px solid rgba(97,97,97,.9);border-bottom:0}.ML__textarea__textarea{transform:scale(0);resize:none;outline:none;border:none;position:absolute;clip:rect(0 0 0 0);width:1px;height:1px;font-size:1em;font-family:KaTeX_Main}.ML__focused .ML__text{background:hsla(var(--hue,212),40%,50%,.1)}.ML__smart-fence__close{opacity:.5}.ML__selection{background:var(--highlight-inactive,#ccc);box-sizing:border-box}.ML__focused .ML__selection{background:var(--highlight,hsl(var(--hue,212),97%,85%))!important;color:var(--on-highlight)}.ML__contains-caret.ML__close,.ML__contains-caret.ML__open,.ML__contains-caret>.ML__close,.ML__contains-caret>.ML__open,.sqrt.ML__contains-caret>.sqrt-sign,.sqrt.ML__contains-caret>.vlist>span>.sqrt-line{color:var(--caret,hsl(var(--hue,212),40%,49%))}.ML__command{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace;letter-spacing:-1px;font-weight:400;line-height:1em;color:var(--primary,hsl(var(--hue,212),40%,50%))}:not(.ML__command)+.ML__command{margin-left:.25em}.ML__command+:not(.ML__command){padding-left:.25em}.ML__suggestion{opacity:.5}.ML__virtual-keyboard-toggle.pressed{background:hsla(0,0%,70%,.5)}.ML__virtual-keyboard-toggle:focus{outline:none;border-radius:50%;border:2px solid var(--primary,hsl(var(--hue,212),40%,50%))}.ML__virtual-keyboard-toggle.active,.ML__virtual-keyboard-toggle.active:hover{background:hsla(0,0%,70%,.5);color:#000;fill:currentColor}.ML__scroller{position:fixed;z-index:1;top:0;height:100vh;width:200px}[data-ML__tooltip]{position:relative}[data-ML__tooltip][data-placement=top]:after{top:inherit;bottom:100%}[data-ML__tooltip]:after{position:absolute;visibility:hidden;content:attr(data-ML__tooltip);display:inline-table;top:110%;width:-webkit-max-content;width:-moz-max-content;width:max-content;max-width:200px;padding:8px;background:#616161;color:#fff;text-align:center;z-index:2;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);border-radius:2px;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-weight:400;font-size:12px;opacity:0;transform:scale(.5);transition:all .15s cubic-bezier(.4,0,1,1)}@media only screen and (max-width:767px){[data-ML__tooltip]:after{padding:8px 16px;font-size:14px}}[data-ML__tooltip]:hover{position:relative}[data-ML__tooltip]:hover:after{visibility:visible;opacity:1;transform:scale(1)}[data-ML__tooltip][data-delay]:after{transition-delay:0s}[data-ML__tooltip][data-delay]:hover:after{transition-delay:1s}";
 
-    var css_248z$2 = ".ML__sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}body.ML__fonts-loading .ML__base{visibility:hidden}.ML__base{visibility:inherit;display:inline-block;position:relative;cursor:text}.ML__strut,.ML__strut--bottom{display:inline-block;min-height:.5em}.ML__small-delim{font-family:KaTeX_Main}.ML__text{font-family:var(--text-font-family,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",\"Roboto\",\"Oxygen\",\"Ubuntu\",\"Cantarell\",\"Fira Sans\",\"Droid Sans\",\"Helvetica Neue\",sans-serif);white-space:pre}.ML__cmr{font-family:KaTeX_Main;font-style:normal}.ML__mathit{font-family:KaTeX_Math;font-style:italic}.ML__mathbf{font-family:KaTeX_Main;font-weight:700}.lcGreek.ML__mathbf{font-family:KaTeX_Math;font-weight:400}.ML__mathbfit{font-family:KaTeX_Math;font-weight:700;font-style:italic}.ML__ams,.ML__bb{font-family:KaTeX_AMS}.ML__cal{font-family:KaTeX_Caligraphic}.ML__frak{font-family:KaTeX_Fraktur}.ML__tt{font-family:KaTeX_Typewriter}.ML__script{font-family:KaTeX_Script}.ML__sans{font-family:KaTeX_SansSerif}.ML__series_el,.ML__series_ul{font-weight:100}.ML__series_l{font-weight:200}.ML__series_sl{font-weight:300}.ML__series_sb{font-weight:500}.ML__bold,.ML__boldsymbol{font-weight:700}.ML__series_eb{font-weight:800}.ML__series_ub{font-weight:900}.ML__series_uc{font-stretch:ultra-condensed}.ML__series_ec{font-stretch:extra-condensed}.ML__series_c{font-stretch:condensed}.ML__series_sc{font-stretch:semi-condensed}.ML__series_sx{font-stretch:semi-expanded}.ML__series_x{font-stretch:expanded}.ML__series_ex{font-stretch:extra-expanded}.ML__series_ux{font-stretch:ultra-expanded}.ML__it{font-style:italic}.ML__shape_ol{-webkit-text-stroke:1px #000;text-stroke:1px #000;color:transparent}.ML__shape_sc{font-variant:small-caps}.ML__shape_sl{font-style:oblique}.ML__emph{color:#bc2612}.ML__emph .ML__emph{color:#0c7f99}.ML__highlight{color:#007cb2;background:#edd1b0}.ML__mathlive{display:inline-block;line-height:0;direction:ltr;text-align:left;text-indent:0;text-rendering:auto;font-family:KaTeX_Main;font-style:normal;font-size-adjust:none;letter-spacing:normal;word-wrap:normal;word-spacing:normal;white-space:nowrap;text-shadow:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:-webkit-min-content;width:-moz-min-content;width:min-content;transform:translateZ(0)}.ML__mathlive .reset-textstyle.scriptstyle{font-size:.7em}.ML__mathlive .reset-textstyle.scriptscriptstyle{font-size:.5em}.ML__mathlive .reset-scriptstyle.textstyle{font-size:1.42857em}.ML__mathlive .reset-scriptstyle.scriptscriptstyle{font-size:.71429em}.ML__mathlive .reset-scriptscriptstyle.textstyle{font-size:2em}.ML__mathlive .reset-scriptscriptstyle.scriptstyle{font-size:1.4em}.ML__mathlive .style-wrap{position:relative}.ML__mathlive .vlist{display:inline-block}.ML__mathlive .vlist>span{display:block;height:0;position:relative;line-height:0}.ML__mathlive .vlist>span>span{display:inline-block}.ML__mathlive .msubsup{text-align:left}.ML__mathlive .mfrac>span{text-align:center}.ML__mathlive .mfrac .frac-line{width:100%}.ML__mathlive .mfrac .frac-line:after{content:\"\";display:block;margin-top:-.04em;min-height:.04em;background:currentColor;box-sizing:content-box;transform:translate(0)}.ML__mathlive .rspace.negativethinspace{margin-right:-.16667em}.ML__mathlive .rspace.thinspace{margin-right:.16667em}.ML__mathlive .rspace.negativemediumspace{margin-right:-.22222em}.ML__mathlive .rspace.mediumspace{margin-right:.22222em}.ML__mathlive .rspace.thickspace{margin-right:.27778em}.ML__mathlive .rspace.sixmuspace{margin-right:.333333em}.ML__mathlive .rspace.eightmuspace{margin-right:.444444em}.ML__mathlive .rspace.enspace{margin-right:.5em}.ML__mathlive .rspace.twelvemuspace{margin-right:.666667em}.ML__mathlive .rspace.quad{margin-right:1em}.ML__mathlive .rspace.qquad{margin-right:2em}.ML__mathlive .mspace{display:inline-block}.ML__mathlive .mspace.negativethinspace{margin-left:-.16667em}.ML__mathlive .mspace.thinspace{width:.16667em}.ML__mathlive .mspace.negativemediumspace{margin-left:-.22222em}.ML__mathlive .mspace.mediumspace{width:.22222em}.ML__mathlive .mspace.thickspace{width:.27778em}.ML__mathlive .mspace.sixmuspace{width:.333333em}.ML__mathlive .mspace.eightmuspace{width:.444444em}.ML__mathlive .mspace.enspace{width:.5em}.ML__mathlive .mspace.twelvemuspace{width:.666667em}.ML__mathlive .mspace.quad{width:1em}.ML__mathlive .mspace.qquad{width:2em}.ML__mathlive .llap,.ML__mathlive .rlap{width:0;position:relative}.ML__mathlive .llap>.inner,.ML__mathlive .rlap>.inner{position:absolute}.ML__mathlive .llap>.fix,.ML__mathlive .rlap>.fix{display:inline-block}.ML__mathlive .llap>.inner{right:0}.ML__mathlive .rlap>.inner{left:0}.ML__mathlive .rule{display:inline-block;border:0 solid;position:relative}.ML__mathlive .overline .overline-line,.ML__mathlive .underline .underline-line{width:100%}.ML__mathlive .overline .overline-line:before,.ML__mathlive .underline .underline-line:before{border-bottom-style:solid;border-bottom-width:.04em;content:\"\";display:block}.ML__mathlive .overline .overline-line:after,.ML__mathlive .underline .underline-line:after{border-bottom-style:solid;border-bottom-width:.04em;min-height:thin;content:\"\";display:block;margin-top:-1px}.ML__mathlive .stretchy{display:block;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .stretchy:after,.ML__mathlive .stretchy:before{content:\"\"}.ML__mathlive .stretchy svg{display:block;position:absolute;width:100%;height:inherit;fill:currentColor;stroke:currentColor;fill-rule:nonzero;fill-opacity:1;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1}.ML__mathlive .slice-1-of-2{left:0}.ML__mathlive .slice-1-of-2,.ML__mathlive .slice-2-of-2{display:inline-flex;position:absolute;width:50.2%;overflow:hidden}.ML__mathlive .slice-2-of-2{right:0}.ML__mathlive .slice-1-of-3{display:inline-flex;position:absolute;left:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-2-of-3{display:inline-flex;position:absolute;left:25%;width:50%;overflow:hidden}.ML__mathlive .slice-3-of-3{display:inline-flex;position:absolute;right:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-1-of-1{display:inline-flex;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .sqrt{display:inline-block}.ML__mathlive .sqrt>.sqrt-sign{font-family:KaTeX_Main;position:relative}.ML__mathlive .sqrt .sqrt-line{height:.04em;width:100%}.ML__mathlive .sqrt .sqrt-line:before{content:\"\";display:block;margin-top:-.04em;min-height:.04em;background:currentColor}.ML__mathlive .sqrt .sqrt-line:after{border-bottom-width:1px;content:\" \";display:block;margin-top:-.1em;transform:translate(0)}.ML__mathlive .sqrt>.root{margin-left:.27777778em;margin-right:-.55555556em}.ML__mathlive .fontsize-ensurer,.ML__mathlive .sizing{display:inline-block}.ML__mathlive .fontsize-ensurer.reset-size1.size1,.ML__mathlive .sizing.reset-size1.size1{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size1.size2,.ML__mathlive .sizing.reset-size1.size2{font-size:1.4em}.ML__mathlive .fontsize-ensurer.reset-size1.size3,.ML__mathlive .sizing.reset-size1.size3{font-size:1.6em}.ML__mathlive .fontsize-ensurer.reset-size1.size4,.ML__mathlive .sizing.reset-size1.size4{font-size:1.8em}.ML__mathlive .fontsize-ensurer.reset-size1.size5,.ML__mathlive .sizing.reset-size1.size5{font-size:2em}.ML__mathlive .fontsize-ensurer.reset-size1.size6,.ML__mathlive .sizing.reset-size1.size6{font-size:2.4em}.ML__mathlive .fontsize-ensurer.reset-size1.size7,.ML__mathlive .sizing.reset-size1.size7{font-size:2.88em}.ML__mathlive .fontsize-ensurer.reset-size1.size8,.ML__mathlive .sizing.reset-size1.size8{font-size:3.46em}.ML__mathlive .fontsize-ensurer.reset-size1.size9,.ML__mathlive .sizing.reset-size1.size9{font-size:4.14em}.ML__mathlive .fontsize-ensurer.reset-size1.size10,.ML__mathlive .sizing.reset-size1.size10{font-size:4.98em}.ML__mathlive .fontsize-ensurer.reset-size2.size1,.ML__mathlive .sizing.reset-size2.size1{font-size:.71428571em}.ML__mathlive .fontsize-ensurer.reset-size2.size2,.ML__mathlive .sizing.reset-size2.size2{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size2.size3,.ML__mathlive .sizing.reset-size2.size3{font-size:1.14285714em}.ML__mathlive .fontsize-ensurer.reset-size2.size4,.ML__mathlive .sizing.reset-size2.size4{font-size:1.28571429em}.ML__mathlive .fontsize-ensurer.reset-size2.size5,.ML__mathlive .sizing.reset-size2.size5{font-size:1.42857143em}.ML__mathlive .fontsize-ensurer.reset-size2.size6,.ML__mathlive .sizing.reset-size2.size6{font-size:1.71428571em}.ML__mathlive .fontsize-ensurer.reset-size2.size7,.ML__mathlive .sizing.reset-size2.size7{font-size:2.05714286em}.ML__mathlive .fontsize-ensurer.reset-size2.size8,.ML__mathlive .sizing.reset-size2.size8{font-size:2.47142857em}.ML__mathlive .fontsize-ensurer.reset-size2.size9,.ML__mathlive .sizing.reset-size2.size9{font-size:2.95714286em}.ML__mathlive .fontsize-ensurer.reset-size2.size10,.ML__mathlive .sizing.reset-size2.size10{font-size:3.55714286em}.ML__mathlive .fontsize-ensurer.reset-size3.size1,.ML__mathlive .sizing.reset-size3.size1{font-size:.625em}.ML__mathlive .fontsize-ensurer.reset-size3.size2,.ML__mathlive .sizing.reset-size3.size2{font-size:.875em}.ML__mathlive .fontsize-ensurer.reset-size3.size3,.ML__mathlive .sizing.reset-size3.size3{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size3.size4,.ML__mathlive .sizing.reset-size3.size4{font-size:1.125em}.ML__mathlive .fontsize-ensurer.reset-size3.size5,.ML__mathlive .sizing.reset-size3.size5{font-size:1.25em}.ML__mathlive .fontsize-ensurer.reset-size3.size6,.ML__mathlive .sizing.reset-size3.size6{font-size:1.5em}.ML__mathlive .fontsize-ensurer.reset-size3.size7,.ML__mathlive .sizing.reset-size3.size7{font-size:1.8em}.ML__mathlive .fontsize-ensurer.reset-size3.size8,.ML__mathlive .sizing.reset-size3.size8{font-size:2.1625em}.ML__mathlive .fontsize-ensurer.reset-size3.size9,.ML__mathlive .sizing.reset-size3.size9{font-size:2.5875em}.ML__mathlive .fontsize-ensurer.reset-size3.size10,.ML__mathlive .sizing.reset-size3.size10{font-size:3.1125em}.ML__mathlive .fontsize-ensurer.reset-size4.size1,.ML__mathlive .sizing.reset-size4.size1{font-size:.55555556em}.ML__mathlive .fontsize-ensurer.reset-size4.size2,.ML__mathlive .sizing.reset-size4.size2{font-size:.77777778em}.ML__mathlive .fontsize-ensurer.reset-size4.size3,.ML__mathlive .sizing.reset-size4.size3{font-size:.88888889em}.ML__mathlive .fontsize-ensurer.reset-size4.size4,.ML__mathlive .sizing.reset-size4.size4{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size4.size5,.ML__mathlive .sizing.reset-size4.size5{font-size:1.11111111em}.ML__mathlive .fontsize-ensurer.reset-size4.size6,.ML__mathlive .sizing.reset-size4.size6{font-size:1.33333333em}.ML__mathlive .fontsize-ensurer.reset-size4.size7,.ML__mathlive .sizing.reset-size4.size7{font-size:1.6em}.ML__mathlive .fontsize-ensurer.reset-size4.size8,.ML__mathlive .sizing.reset-size4.size8{font-size:1.92222222em}.ML__mathlive .fontsize-ensurer.reset-size4.size9,.ML__mathlive .sizing.reset-size4.size9{font-size:2.3em}.ML__mathlive .fontsize-ensurer.reset-size4.size10,.ML__mathlive .sizing.reset-size4.size10{font-size:2.76666667em}.ML__mathlive .fontsize-ensurer.reset-size5.size1,.ML__mathlive .sizing.reset-size5.size1{font-size:.5em}.ML__mathlive .fontsize-ensurer.reset-size5.size2,.ML__mathlive .sizing.reset-size5.size2{font-size:.7em}.ML__mathlive .fontsize-ensurer.reset-size5.size3,.ML__mathlive .sizing.reset-size5.size3{font-size:.8em}.ML__mathlive .fontsize-ensurer.reset-size5.size4,.ML__mathlive .sizing.reset-size5.size4{font-size:.9em}.ML__mathlive .fontsize-ensurer.reset-size5.size5,.ML__mathlive .sizing.reset-size5.size5{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size5.size6,.ML__mathlive .sizing.reset-size5.size6{font-size:1.2em}.ML__mathlive .fontsize-ensurer.reset-size5.size7,.ML__mathlive .sizing.reset-size5.size7{font-size:1.44em}.ML__mathlive .fontsize-ensurer.reset-size5.size8,.ML__mathlive .sizing.reset-size5.size8{font-size:1.73em}.ML__mathlive .fontsize-ensurer.reset-size5.size9,.ML__mathlive .sizing.reset-size5.size9{font-size:2.07em}.ML__mathlive .fontsize-ensurer.reset-size5.size10,.ML__mathlive .sizing.reset-size5.size10{font-size:2.49em}.ML__mathlive .fontsize-ensurer.reset-size6.size1,.ML__mathlive .sizing.reset-size6.size1{font-size:.41666667em}.ML__mathlive .fontsize-ensurer.reset-size6.size2,.ML__mathlive .sizing.reset-size6.size2{font-size:.58333333em}.ML__mathlive .fontsize-ensurer.reset-size6.size3,.ML__mathlive .sizing.reset-size6.size3{font-size:.66666667em}.ML__mathlive .fontsize-ensurer.reset-size6.size4,.ML__mathlive .sizing.reset-size6.size4{font-size:.75em}.ML__mathlive .fontsize-ensurer.reset-size6.size5,.ML__mathlive .sizing.reset-size6.size5{font-size:.83333333em}.ML__mathlive .fontsize-ensurer.reset-size6.size6,.ML__mathlive .sizing.reset-size6.size6{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size6.size7,.ML__mathlive .sizing.reset-size6.size7{font-size:1.2em}.ML__mathlive .fontsize-ensurer.reset-size6.size8,.ML__mathlive .sizing.reset-size6.size8{font-size:1.44166667em}.ML__mathlive .fontsize-ensurer.reset-size6.size9,.ML__mathlive .sizing.reset-size6.size9{font-size:1.725em}.ML__mathlive .fontsize-ensurer.reset-size6.size10,.ML__mathlive .sizing.reset-size6.size10{font-size:2.075em}.ML__mathlive .fontsize-ensurer.reset-size7.size1,.ML__mathlive .sizing.reset-size7.size1{font-size:.34722222em}.ML__mathlive .fontsize-ensurer.reset-size7.size2,.ML__mathlive .sizing.reset-size7.size2{font-size:.48611111em}.ML__mathlive .fontsize-ensurer.reset-size7.size3,.ML__mathlive .sizing.reset-size7.size3{font-size:.55555556em}.ML__mathlive .fontsize-ensurer.reset-size7.size4,.ML__mathlive .sizing.reset-size7.size4{font-size:.625em}.ML__mathlive .fontsize-ensurer.reset-size7.size5,.ML__mathlive .sizing.reset-size7.size5{font-size:.69444444em}.ML__mathlive .fontsize-ensurer.reset-size7.size6,.ML__mathlive .sizing.reset-size7.size6{font-size:.83333333em}.ML__mathlive .fontsize-ensurer.reset-size7.size7,.ML__mathlive .sizing.reset-size7.size7{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size7.size8,.ML__mathlive .sizing.reset-size7.size8{font-size:1.20138889em}.ML__mathlive .fontsize-ensurer.reset-size7.size9,.ML__mathlive .sizing.reset-size7.size9{font-size:1.4375em}.ML__mathlive .fontsize-ensurer.reset-size7.size10,.ML__mathlive .sizing.reset-size7.size10{font-size:1.72916667em}.ML__mathlive .fontsize-ensurer.reset-size8.size1,.ML__mathlive .sizing.reset-size8.size1{font-size:.28901734em}.ML__mathlive .fontsize-ensurer.reset-size8.size2,.ML__mathlive .sizing.reset-size8.size2{font-size:.40462428em}.ML__mathlive .fontsize-ensurer.reset-size8.size3,.ML__mathlive .sizing.reset-size8.size3{font-size:.46242775em}.ML__mathlive .fontsize-ensurer.reset-size8.size4,.ML__mathlive .sizing.reset-size8.size4{font-size:.52023121em}.ML__mathlive .fontsize-ensurer.reset-size8.size5,.ML__mathlive .sizing.reset-size8.size5{font-size:.57803468em}.ML__mathlive .fontsize-ensurer.reset-size8.size6,.ML__mathlive .sizing.reset-size8.size6{font-size:.69364162em}.ML__mathlive .fontsize-ensurer.reset-size8.size7,.ML__mathlive .sizing.reset-size8.size7{font-size:.83236994em}.ML__mathlive .fontsize-ensurer.reset-size8.size8,.ML__mathlive .sizing.reset-size8.size8{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size8.size9,.ML__mathlive .sizing.reset-size8.size9{font-size:1.19653179em}.ML__mathlive .fontsize-ensurer.reset-size8.size10,.ML__mathlive .sizing.reset-size8.size10{font-size:1.43930636em}.ML__mathlive .fontsize-ensurer.reset-size9.size1,.ML__mathlive .sizing.reset-size9.size1{font-size:.24154589em}.ML__mathlive .fontsize-ensurer.reset-size9.size2,.ML__mathlive .sizing.reset-size9.size2{font-size:.33816425em}.ML__mathlive .fontsize-ensurer.reset-size9.size3,.ML__mathlive .sizing.reset-size9.size3{font-size:.38647343em}.ML__mathlive .fontsize-ensurer.reset-size9.size4,.ML__mathlive .sizing.reset-size9.size4{font-size:.43478261em}.ML__mathlive .fontsize-ensurer.reset-size9.size5,.ML__mathlive .sizing.reset-size9.size5{font-size:.48309179em}.ML__mathlive .fontsize-ensurer.reset-size9.size6,.ML__mathlive .sizing.reset-size9.size6{font-size:.57971014em}.ML__mathlive .fontsize-ensurer.reset-size9.size7,.ML__mathlive .sizing.reset-size9.size7{font-size:.69565217em}.ML__mathlive .fontsize-ensurer.reset-size9.size8,.ML__mathlive .sizing.reset-size9.size8{font-size:.83574879em}.ML__mathlive .fontsize-ensurer.reset-size9.size9,.ML__mathlive .sizing.reset-size9.size9{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size9.size10,.ML__mathlive .sizing.reset-size9.size10{font-size:1.20289855em}.ML__mathlive .fontsize-ensurer.reset-size10.size1,.ML__mathlive .sizing.reset-size10.size1{font-size:.20080321em}.ML__mathlive .fontsize-ensurer.reset-size10.size2,.ML__mathlive .sizing.reset-size10.size2{font-size:.2811245em}.ML__mathlive .fontsize-ensurer.reset-size10.size3,.ML__mathlive .sizing.reset-size10.size3{font-size:.32128514em}.ML__mathlive .fontsize-ensurer.reset-size10.size4,.ML__mathlive .sizing.reset-size10.size4{font-size:.36144578em}.ML__mathlive .fontsize-ensurer.reset-size10.size5,.ML__mathlive .sizing.reset-size10.size5{font-size:.40160643em}.ML__mathlive .fontsize-ensurer.reset-size10.size6,.ML__mathlive .sizing.reset-size10.size6{font-size:.48192771em}.ML__mathlive .fontsize-ensurer.reset-size10.size7,.ML__mathlive .sizing.reset-size10.size7{font-size:.57831325em}.ML__mathlive .fontsize-ensurer.reset-size10.size8,.ML__mathlive .sizing.reset-size10.size8{font-size:.69477912em}.ML__mathlive .fontsize-ensurer.reset-size10.size9,.ML__mathlive .sizing.reset-size10.size9{font-size:.8313253em}.ML__mathlive .fontsize-ensurer.reset-size10.size10,.ML__mathlive .sizing.reset-size10.size10{font-size:1em}.ML__mathlive .delimsizing.size1{font-family:KaTeX_Size1}.ML__mathlive .delimsizing.size2{font-family:KaTeX_Size2}.ML__mathlive .delimsizing.size3{font-family:KaTeX_Size3}.ML__mathlive .delimsizing.size4{font-family:KaTeX_Size4}.ML__mathlive .delimsizing.mult .delim-size1{font-family:KaTeX_Size1;vertical-align:top}.ML__mathlive .delimsizing.mult .delim-size4{font-family:KaTeX_Size4;vertical-align:top}.ML__mathlive .nulldelimiter{width:.12em}.ML__mathlive .op-symbol{position:relative}.ML__mathlive .op-symbol.small-op{font-family:KaTeX_Size1}.ML__mathlive .op-symbol.large-op{font-family:KaTeX_Size2}.ML__mathlive .op-limits .vlist>span{text-align:center}.ML__mathlive .op-over-under{position:relative}.ML__mathlive .op-over-under>.vlist>span:first-child,.ML__mathlive .op-over-under>.vlist>span:last-child{text-align:center}.ML__mathlive .accent>.vlist>span{text-align:center}.ML__mathlive .accent .accent-body>span{font-family:KaTeX_Main;width:0}.ML__mathlive .accent .accent-body.accent-vec>span{position:relative;left:.326em}.ML__mathlive .mtable .vertical-separator{display:inline-block;margin:0 -.025em;border-right:.05em solid}.ML__mathlive .mtable .arraycolsep{display:inline-block}.ML__mathlive .mtable .col-align-m>.vlist{text-align:center}.ML__mathlive .mtable .col-align-c>.vlist{text-align:center}.ML__mathlive .mtable .col-align-l>.vlist{text-align:left}.ML__mathlive .mtable .col-align-r>.vlist{text-align:right}.ML__error{background-image:radial-gradient(ellipse at center,#cc0041,transparent 70%);background-repeat:repeat-x;background-size:3px 3px;background-position:0 98%}.ML__placeholder{opacity:.7;padding-left:.4ex;padding-right:.4ex;padding-top:.4ex}";
+    var css_248z$2 = ".ML__sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}body.ML__fonts-loading .ML__base{visibility:hidden}.ML__base{visibility:inherit;display:inline-block;position:relative;cursor:text}.ML__strut,.ML__strut--bottom{display:inline-block;min-height:.5em}.ML__small-delim{font-family:KaTeX_Main}.ML__text{font-family:var(--text-font-family,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",\"Roboto\",\"Oxygen\",\"Ubuntu\",\"Cantarell\",\"Fira Sans\",\"Droid Sans\",\"Helvetica Neue\",sans-serif);white-space:pre}.ML__cmr{font-family:KaTeX_Main;font-style:normal}.ML__mathit{font-family:KaTeX_Math;font-style:italic}.ML__mathbf{font-family:KaTeX_Main;font-weight:700}.lcGreek.ML__mathbf{font-family:KaTeX_Math;font-weight:400}.ML__mathbfit{font-family:KaTeX_Math;font-weight:700;font-style:italic}.ML__ams,.ML__bb{font-family:KaTeX_AMS}.ML__cal{font-family:KaTeX_Caligraphic}.ML__frak{font-family:KaTeX_Fraktur}.ML__tt{font-family:KaTeX_Typewriter}.ML__script{font-family:KaTeX_Script}.ML__sans{font-family:KaTeX_SansSerif}.ML__series_el,.ML__series_ul{font-weight:100}.ML__series_l{font-weight:200}.ML__series_sl{font-weight:300}.ML__series_sb{font-weight:500}.ML__bold,.ML__boldsymbol{font-weight:700}.ML__series_eb{font-weight:800}.ML__series_ub{font-weight:900}.ML__series_uc{font-stretch:ultra-condensed}.ML__series_ec{font-stretch:extra-condensed}.ML__series_c{font-stretch:condensed}.ML__series_sc{font-stretch:semi-condensed}.ML__series_sx{font-stretch:semi-expanded}.ML__series_x{font-stretch:expanded}.ML__series_ex{font-stretch:extra-expanded}.ML__series_ux{font-stretch:ultra-expanded}.ML__it{font-style:italic}.ML__shape_ol{-webkit-text-stroke:1px #000;text-stroke:1px #000;color:transparent}.ML__shape_sc{font-variant:small-caps}.ML__shape_sl{font-style:oblique}.ML__emph{color:#bc2612}.ML__emph .ML__emph{color:#0c7f99}.ML__highlight{color:#007cb2;background:#edd1b0}.ML__mathlive{display:inline-block;line-height:0;direction:ltr;text-align:left;text-indent:0;text-rendering:auto;font-family:KaTeX_Main;font-style:normal;font-size-adjust:none;letter-spacing:normal;word-wrap:normal;word-spacing:normal;white-space:nowrap;text-shadow:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:-webkit-min-content;width:-moz-min-content;width:min-content;transform:translateZ(0)}.ML__mathlive .reset-textstyle.scriptstyle{font-size:.7em}.ML__mathlive .reset-textstyle.scriptscriptstyle{font-size:.5em}.ML__mathlive .reset-scriptstyle.textstyle{font-size:1.42857em}.ML__mathlive .reset-scriptstyle.scriptscriptstyle{font-size:.71429em}.ML__mathlive .reset-scriptscriptstyle.textstyle{font-size:2em}.ML__mathlive .reset-scriptscriptstyle.scriptstyle{font-size:1.4em}.ML__mathlive .style-wrap{position:relative}.ML__mathlive .vlist{display:inline-block}.ML__mathlive .vlist>span{display:block;height:0;position:relative;line-height:0}.ML__mathlive .vlist>span>span{display:inline-block}.ML__mathlive .msubsup{text-align:left}.ML__mathlive .mfrac>span{text-align:center}.ML__mathlive .mfrac .frac-line{width:100%}.ML__mathlive .mfrac .frac-line:after{content:\"\";display:block;margin-top:-.04em;min-height:.04em;background:currentColor;box-sizing:content-box;transform:translate(0)}.ML__mathlive .rspace.negativethinspace{margin-right:-.16667em}.ML__mathlive .rspace.thinspace{margin-right:.16667em}.ML__mathlive .rspace.negativemediumspace{margin-right:-.22222em}.ML__mathlive .rspace.mediumspace{margin-right:.22222em}.ML__mathlive .rspace.thickspace{margin-right:.27778em}.ML__mathlive .rspace.sixmuspace{margin-right:.333333em}.ML__mathlive .rspace.eightmuspace{margin-right:.444444em}.ML__mathlive .rspace.enspace{margin-right:.5em}.ML__mathlive .rspace.twelvemuspace{margin-right:.666667em}.ML__mathlive .rspace.quad{margin-right:1em}.ML__mathlive .rspace.qquad{margin-right:2em}.ML__mathlive .mspace{display:inline-block}.ML__mathlive .mspace.negativethinspace{margin-left:-.16667em}.ML__mathlive .mspace.thinspace{width:.16667em}.ML__mathlive .mspace.negativemediumspace{margin-left:-.22222em}.ML__mathlive .mspace.mediumspace{width:.22222em}.ML__mathlive .mspace.thickspace{width:.27778em}.ML__mathlive .mspace.sixmuspace{width:.333333em}.ML__mathlive .mspace.eightmuspace{width:.444444em}.ML__mathlive .mspace.enspace{width:.5em}.ML__mathlive .mspace.twelvemuspace{width:.666667em}.ML__mathlive .mspace.quad{width:1em}.ML__mathlive .mspace.qquad{width:2em}.ML__mathlive .llap,.ML__mathlive .rlap{width:0;position:relative}.ML__mathlive .llap>.inner,.ML__mathlive .rlap>.inner{position:absolute}.ML__mathlive .llap>.fix,.ML__mathlive .rlap>.fix{display:inline-block}.ML__mathlive .llap>.inner{right:0}.ML__mathlive .rlap>.inner{left:0}.ML__mathlive .rule{display:inline-block;border:0 solid;position:relative}.ML__mathlive .overline .overline-line,.ML__mathlive .underline .underline-line{width:100%}.ML__mathlive .overline .overline-line:before,.ML__mathlive .underline .underline-line:before{border-bottom-style:solid;border-bottom-width:.04em;content:\"\";display:block}.ML__mathlive .overline .overline-line:after,.ML__mathlive .underline .underline-line:after{border-bottom-style:solid;border-bottom-width:.04em;min-height:thin;content:\"\";display:block;margin-top:-1px}.ML__mathlive .stretchy{display:block;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .stretchy:after,.ML__mathlive .stretchy:before{content:\"\"}.ML__mathlive .stretchy svg{display:block;position:absolute;width:100%;height:inherit;fill:currentColor;stroke:currentColor;fill-rule:nonzero;fill-opacity:1;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1}.ML__mathlive .slice-1-of-2{left:0}.ML__mathlive .slice-1-of-2,.ML__mathlive .slice-2-of-2{display:inline-flex;position:absolute;width:50.2%;overflow:hidden}.ML__mathlive .slice-2-of-2{right:0}.ML__mathlive .slice-1-of-3{display:inline-flex;position:absolute;left:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-2-of-3{display:inline-flex;position:absolute;left:25%;width:50%;overflow:hidden}.ML__mathlive .slice-3-of-3{display:inline-flex;position:absolute;right:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-1-of-1{display:inline-flex;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .sqrt{display:inline-block}.ML__mathlive .sqrt>.sqrt-sign{font-family:KaTeX_Main;position:relative}.ML__mathlive .sqrt .sqrt-line{height:.04em;width:100%}.ML__mathlive .sqrt .sqrt-line:before{content:\"\";display:block;margin-top:-.04em;min-height:.04em;background:currentColor}.ML__mathlive .sqrt .sqrt-line:after{border-bottom-width:1px;content:\" \";display:block;margin-top:-.1em;transform:translate(0)}.ML__mathlive .sqrt>.root{margin-left:.27777778em;margin-right:-.55555556em}.ML__mathlive .fontsize-ensurer,.ML__mathlive .sizing{display:inline-block}.ML__mathlive .fontsize-ensurer.reset-size1.size1,.ML__mathlive .sizing.reset-size1.size1{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size1.size2,.ML__mathlive .sizing.reset-size1.size2{font-size:1.4em}.ML__mathlive .fontsize-ensurer.reset-size1.size3,.ML__mathlive .sizing.reset-size1.size3{font-size:1.6em}.ML__mathlive .fontsize-ensurer.reset-size1.size4,.ML__mathlive .sizing.reset-size1.size4{font-size:1.8em}.ML__mathlive .fontsize-ensurer.reset-size1.size5,.ML__mathlive .sizing.reset-size1.size5{font-size:2em}.ML__mathlive .fontsize-ensurer.reset-size1.size6,.ML__mathlive .sizing.reset-size1.size6{font-size:2.4em}.ML__mathlive .fontsize-ensurer.reset-size1.size7,.ML__mathlive .sizing.reset-size1.size7{font-size:2.88em}.ML__mathlive .fontsize-ensurer.reset-size1.size8,.ML__mathlive .sizing.reset-size1.size8{font-size:3.46em}.ML__mathlive .fontsize-ensurer.reset-size1.size9,.ML__mathlive .sizing.reset-size1.size9{font-size:4.14em}.ML__mathlive .fontsize-ensurer.reset-size1.size10,.ML__mathlive .sizing.reset-size1.size10{font-size:4.98em}.ML__mathlive .fontsize-ensurer.reset-size2.size1,.ML__mathlive .sizing.reset-size2.size1{font-size:.71428571em}.ML__mathlive .fontsize-ensurer.reset-size2.size2,.ML__mathlive .sizing.reset-size2.size2{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size2.size3,.ML__mathlive .sizing.reset-size2.size3{font-size:1.14285714em}.ML__mathlive .fontsize-ensurer.reset-size2.size4,.ML__mathlive .sizing.reset-size2.size4{font-size:1.28571429em}.ML__mathlive .fontsize-ensurer.reset-size2.size5,.ML__mathlive .sizing.reset-size2.size5{font-size:1.42857143em}.ML__mathlive .fontsize-ensurer.reset-size2.size6,.ML__mathlive .sizing.reset-size2.size6{font-size:1.71428571em}.ML__mathlive .fontsize-ensurer.reset-size2.size7,.ML__mathlive .sizing.reset-size2.size7{font-size:2.05714286em}.ML__mathlive .fontsize-ensurer.reset-size2.size8,.ML__mathlive .sizing.reset-size2.size8{font-size:2.47142857em}.ML__mathlive .fontsize-ensurer.reset-size2.size9,.ML__mathlive .sizing.reset-size2.size9{font-size:2.95714286em}.ML__mathlive .fontsize-ensurer.reset-size2.size10,.ML__mathlive .sizing.reset-size2.size10{font-size:3.55714286em}.ML__mathlive .fontsize-ensurer.reset-size3.size1,.ML__mathlive .sizing.reset-size3.size1{font-size:.625em}.ML__mathlive .fontsize-ensurer.reset-size3.size2,.ML__mathlive .sizing.reset-size3.size2{font-size:.875em}.ML__mathlive .fontsize-ensurer.reset-size3.size3,.ML__mathlive .sizing.reset-size3.size3{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size3.size4,.ML__mathlive .sizing.reset-size3.size4{font-size:1.125em}.ML__mathlive .fontsize-ensurer.reset-size3.size5,.ML__mathlive .sizing.reset-size3.size5{font-size:1.25em}.ML__mathlive .fontsize-ensurer.reset-size3.size6,.ML__mathlive .sizing.reset-size3.size6{font-size:1.5em}.ML__mathlive .fontsize-ensurer.reset-size3.size7,.ML__mathlive .sizing.reset-size3.size7{font-size:1.8em}.ML__mathlive .fontsize-ensurer.reset-size3.size8,.ML__mathlive .sizing.reset-size3.size8{font-size:2.1625em}.ML__mathlive .fontsize-ensurer.reset-size3.size9,.ML__mathlive .sizing.reset-size3.size9{font-size:2.5875em}.ML__mathlive .fontsize-ensurer.reset-size3.size10,.ML__mathlive .sizing.reset-size3.size10{font-size:3.1125em}.ML__mathlive .fontsize-ensurer.reset-size4.size1,.ML__mathlive .sizing.reset-size4.size1{font-size:.55555556em}.ML__mathlive .fontsize-ensurer.reset-size4.size2,.ML__mathlive .sizing.reset-size4.size2{font-size:.77777778em}.ML__mathlive .fontsize-ensurer.reset-size4.size3,.ML__mathlive .sizing.reset-size4.size3{font-size:.88888889em}.ML__mathlive .fontsize-ensurer.reset-size4.size4,.ML__mathlive .sizing.reset-size4.size4{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size4.size5,.ML__mathlive .sizing.reset-size4.size5{font-size:1.11111111em}.ML__mathlive .fontsize-ensurer.reset-size4.size6,.ML__mathlive .sizing.reset-size4.size6{font-size:1.33333333em}.ML__mathlive .fontsize-ensurer.reset-size4.size7,.ML__mathlive .sizing.reset-size4.size7{font-size:1.6em}.ML__mathlive .fontsize-ensurer.reset-size4.size8,.ML__mathlive .sizing.reset-size4.size8{font-size:1.92222222em}.ML__mathlive .fontsize-ensurer.reset-size4.size9,.ML__mathlive .sizing.reset-size4.size9{font-size:2.3em}.ML__mathlive .fontsize-ensurer.reset-size4.size10,.ML__mathlive .sizing.reset-size4.size10{font-size:2.76666667em}.ML__mathlive .fontsize-ensurer.reset-size5.size1,.ML__mathlive .sizing.reset-size5.size1{font-size:.5em}.ML__mathlive .fontsize-ensurer.reset-size5.size2,.ML__mathlive .sizing.reset-size5.size2{font-size:.7em}.ML__mathlive .fontsize-ensurer.reset-size5.size3,.ML__mathlive .sizing.reset-size5.size3{font-size:.8em}.ML__mathlive .fontsize-ensurer.reset-size5.size4,.ML__mathlive .sizing.reset-size5.size4{font-size:.9em}.ML__mathlive .fontsize-ensurer.reset-size5.size5,.ML__mathlive .sizing.reset-size5.size5{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size5.size6,.ML__mathlive .sizing.reset-size5.size6{font-size:1.2em}.ML__mathlive .fontsize-ensurer.reset-size5.size7,.ML__mathlive .sizing.reset-size5.size7{font-size:1.44em}.ML__mathlive .fontsize-ensurer.reset-size5.size8,.ML__mathlive .sizing.reset-size5.size8{font-size:1.73em}.ML__mathlive .fontsize-ensurer.reset-size5.size9,.ML__mathlive .sizing.reset-size5.size9{font-size:2.07em}.ML__mathlive .fontsize-ensurer.reset-size5.size10,.ML__mathlive .sizing.reset-size5.size10{font-size:2.49em}.ML__mathlive .fontsize-ensurer.reset-size6.size1,.ML__mathlive .sizing.reset-size6.size1{font-size:.41666667em}.ML__mathlive .fontsize-ensurer.reset-size6.size2,.ML__mathlive .sizing.reset-size6.size2{font-size:.58333333em}.ML__mathlive .fontsize-ensurer.reset-size6.size3,.ML__mathlive .sizing.reset-size6.size3{font-size:.66666667em}.ML__mathlive .fontsize-ensurer.reset-size6.size4,.ML__mathlive .sizing.reset-size6.size4{font-size:.75em}.ML__mathlive .fontsize-ensurer.reset-size6.size5,.ML__mathlive .sizing.reset-size6.size5{font-size:.83333333em}.ML__mathlive .fontsize-ensurer.reset-size6.size6,.ML__mathlive .sizing.reset-size6.size6{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size6.size7,.ML__mathlive .sizing.reset-size6.size7{font-size:1.2em}.ML__mathlive .fontsize-ensurer.reset-size6.size8,.ML__mathlive .sizing.reset-size6.size8{font-size:1.44166667em}.ML__mathlive .fontsize-ensurer.reset-size6.size9,.ML__mathlive .sizing.reset-size6.size9{font-size:1.725em}.ML__mathlive .fontsize-ensurer.reset-size6.size10,.ML__mathlive .sizing.reset-size6.size10{font-size:2.075em}.ML__mathlive .fontsize-ensurer.reset-size7.size1,.ML__mathlive .sizing.reset-size7.size1{font-size:.34722222em}.ML__mathlive .fontsize-ensurer.reset-size7.size2,.ML__mathlive .sizing.reset-size7.size2{font-size:.48611111em}.ML__mathlive .fontsize-ensurer.reset-size7.size3,.ML__mathlive .sizing.reset-size7.size3{font-size:.55555556em}.ML__mathlive .fontsize-ensurer.reset-size7.size4,.ML__mathlive .sizing.reset-size7.size4{font-size:.625em}.ML__mathlive .fontsize-ensurer.reset-size7.size5,.ML__mathlive .sizing.reset-size7.size5{font-size:.69444444em}.ML__mathlive .fontsize-ensurer.reset-size7.size6,.ML__mathlive .sizing.reset-size7.size6{font-size:.83333333em}.ML__mathlive .fontsize-ensurer.reset-size7.size7,.ML__mathlive .sizing.reset-size7.size7{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size7.size8,.ML__mathlive .sizing.reset-size7.size8{font-size:1.20138889em}.ML__mathlive .fontsize-ensurer.reset-size7.size9,.ML__mathlive .sizing.reset-size7.size9{font-size:1.4375em}.ML__mathlive .fontsize-ensurer.reset-size7.size10,.ML__mathlive .sizing.reset-size7.size10{font-size:1.72916667em}.ML__mathlive .fontsize-ensurer.reset-size8.size1,.ML__mathlive .sizing.reset-size8.size1{font-size:.28901734em}.ML__mathlive .fontsize-ensurer.reset-size8.size2,.ML__mathlive .sizing.reset-size8.size2{font-size:.40462428em}.ML__mathlive .fontsize-ensurer.reset-size8.size3,.ML__mathlive .sizing.reset-size8.size3{font-size:.46242775em}.ML__mathlive .fontsize-ensurer.reset-size8.size4,.ML__mathlive .sizing.reset-size8.size4{font-size:.52023121em}.ML__mathlive .fontsize-ensurer.reset-size8.size5,.ML__mathlive .sizing.reset-size8.size5{font-size:.57803468em}.ML__mathlive .fontsize-ensurer.reset-size8.size6,.ML__mathlive .sizing.reset-size8.size6{font-size:.69364162em}.ML__mathlive .fontsize-ensurer.reset-size8.size7,.ML__mathlive .sizing.reset-size8.size7{font-size:.83236994em}.ML__mathlive .fontsize-ensurer.reset-size8.size8,.ML__mathlive .sizing.reset-size8.size8{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size8.size9,.ML__mathlive .sizing.reset-size8.size9{font-size:1.19653179em}.ML__mathlive .fontsize-ensurer.reset-size8.size10,.ML__mathlive .sizing.reset-size8.size10{font-size:1.43930636em}.ML__mathlive .fontsize-ensurer.reset-size9.size1,.ML__mathlive .sizing.reset-size9.size1{font-size:.24154589em}.ML__mathlive .fontsize-ensurer.reset-size9.size2,.ML__mathlive .sizing.reset-size9.size2{font-size:.33816425em}.ML__mathlive .fontsize-ensurer.reset-size9.size3,.ML__mathlive .sizing.reset-size9.size3{font-size:.38647343em}.ML__mathlive .fontsize-ensurer.reset-size9.size4,.ML__mathlive .sizing.reset-size9.size4{font-size:.43478261em}.ML__mathlive .fontsize-ensurer.reset-size9.size5,.ML__mathlive .sizing.reset-size9.size5{font-size:.48309179em}.ML__mathlive .fontsize-ensurer.reset-size9.size6,.ML__mathlive .sizing.reset-size9.size6{font-size:.57971014em}.ML__mathlive .fontsize-ensurer.reset-size9.size7,.ML__mathlive .sizing.reset-size9.size7{font-size:.69565217em}.ML__mathlive .fontsize-ensurer.reset-size9.size8,.ML__mathlive .sizing.reset-size9.size8{font-size:.83574879em}.ML__mathlive .fontsize-ensurer.reset-size9.size9,.ML__mathlive .sizing.reset-size9.size9{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size9.size10,.ML__mathlive .sizing.reset-size9.size10{font-size:1.20289855em}.ML__mathlive .fontsize-ensurer.reset-size10.size1,.ML__mathlive .sizing.reset-size10.size1{font-size:.20080321em}.ML__mathlive .fontsize-ensurer.reset-size10.size2,.ML__mathlive .sizing.reset-size10.size2{font-size:.2811245em}.ML__mathlive .fontsize-ensurer.reset-size10.size3,.ML__mathlive .sizing.reset-size10.size3{font-size:.32128514em}.ML__mathlive .fontsize-ensurer.reset-size10.size4,.ML__mathlive .sizing.reset-size10.size4{font-size:.36144578em}.ML__mathlive .fontsize-ensurer.reset-size10.size5,.ML__mathlive .sizing.reset-size10.size5{font-size:.40160643em}.ML__mathlive .fontsize-ensurer.reset-size10.size6,.ML__mathlive .sizing.reset-size10.size6{font-size:.48192771em}.ML__mathlive .fontsize-ensurer.reset-size10.size7,.ML__mathlive .sizing.reset-size10.size7{font-size:.57831325em}.ML__mathlive .fontsize-ensurer.reset-size10.size8,.ML__mathlive .sizing.reset-size10.size8{font-size:.69477912em}.ML__mathlive .fontsize-ensurer.reset-size10.size9,.ML__mathlive .sizing.reset-size10.size9{font-size:.8313253em}.ML__mathlive .fontsize-ensurer.reset-size10.size10,.ML__mathlive .sizing.reset-size10.size10{font-size:1em}.ML__mathlive .delimsizing.size1{font-family:KaTeX_Size1}.ML__mathlive .delimsizing.size2{font-family:KaTeX_Size2}.ML__mathlive .delimsizing.size3{font-family:KaTeX_Size3}.ML__mathlive .delimsizing.size4{font-family:KaTeX_Size4}.ML__mathlive .delimsizing.mult .delim-size1{font-family:KaTeX_Size1;vertical-align:top}.ML__mathlive .delimsizing.mult .delim-size4{font-family:KaTeX_Size4;vertical-align:top}.ML__mathlive .nulldelimiter{width:.12em}.ML__mathlive .op-symbol{position:relative}.ML__mathlive .op-symbol.small-op{font-family:KaTeX_Size1}.ML__mathlive .op-symbol.large-op{font-family:KaTeX_Size2}.ML__mathlive .op-limits .vlist>span{text-align:center}.ML__mathlive .op-over-under{position:relative}.ML__mathlive .op-over-under>.vlist>span:first-child,.ML__mathlive .op-over-under>.vlist>span:last-child{text-align:center}.ML__mathlive .accent>.vlist>span{text-align:center}.ML__mathlive .accent .accent-body>span{font-family:KaTeX_Main;width:0}.ML__mathlive .accent .accent-body.accent-vec>span{position:relative;left:.326em}.ML__mathlive .mtable .vertical-separator{display:inline-block;margin:0 -.025em;border-right:.05em solid}.ML__mathlive .mtable .arraycolsep{display:inline-block}.ML__mathlive .mtable .col-align-m>.vlist{text-align:center}.ML__mathlive .mtable .col-align-c>.vlist{text-align:center}.ML__mathlive .mtable .col-align-l>.vlist{text-align:left}.ML__mathlive .mtable .col-align-r>.vlist{text-align:right}.ML__error{background-image:radial-gradient(ellipse at center,#cc0041,transparent 70%);background-repeat:repeat-x;background-size:3px 3px;background-position:0 98%}.ML__composition{-webkit-text-decoration:underline var(--caret,hsl(var(--hue,212),40%,49%));text-decoration:underline var(--caret,hsl(var(--hue,212),40%,49%))}.ML__placeholder{opacity:.7;padding-left:.4ex;padding-right:.4ex;padding-top:.4ex}";
 
     var css_248z$3 = "div.ML__popover.is-visible{visibility:inherit;-webkit-animation:ML__fade-in .15s cubic-bezier(0,0,.2,1);animation:ML__fade-in .15s cubic-bezier(0,0,.2,1)}@-webkit-keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}@keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}.ML__popover__content{border-radius:6px;padding:2px;cursor:pointer;min-height:100px;display:flex;flex-direction:column;justify-content:center;margin-left:8px;margin-right:8px}.ML__popover__content a{color:#5ea6fd;padding-top:.3em;margin-top:.4em;display:block}.ML__popover__content a:hover{color:#5ea6fd;text-decoration:underline}.ML__popover__content.active,.ML__popover__content.pressed,.ML__popover__content:hover{background:hsla(0,0%,100%,.1)}.ML__popover__command{font-size:1.6rem}.ML__popover__prev-shortcut{height:31px;opacity:.1;cursor:pointer;margin-left:8px;margin-right:8px;padding-top:4px;padding-bottom:2px}.ML__popover__next-shortcut:hover,.ML__popover__prev-shortcut:hover{opacity:.3}.ML__popover__next-shortcut.active,.ML__popover__next-shortcut.pressed,.ML__popover__prev-shortcut.active,.ML__popover__prev-shortcut.pressed{opacity:1}.ML__popover__next-shortcut>span,.ML__popover__prev-shortcut>span{padding:5px;border-radius:50%;width:20px;height:20px;display:inline-block}.ML__popover__prev-shortcut>span>span{margin-top:-2px;display:block}.ML__popover__next-shortcut>span>span{margin-top:2px;display:block}.ML__popover__next-shortcut:hover>span,.ML__popover__prev-shortcut:hover>span{background:hsla(0,0%,100%,.1)}.ML__popover__next-shortcut{height:34px;opacity:.1;cursor:pointer;margin-left:8px;margin-right:8px;padding-top:2px;padding-bottom:4px}.ML__popover__shortcut{font-size:.8em;margin-top:.25em}.ML__popover__note,.ML__popover__shortcut{font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;opacity:.7;padding-top:.25em}.ML__popover__note{font-size:.8rem;line-height:1em;padding-left:.5em;padding-right:.5em}.ML__shortcut-join{opacity:.5}";
 
@@ -30549,6 +30604,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 keystroke: (keystroke, e) => onKeystroke(this, keystroke, e),
                 focus: () => this.onFocus(),
                 blur: () => this.onBlur(),
+                compositionStart: (composition) => this.onCompositionStart(composition),
+                compositionUpdate: (composition) => this.onCompositionUpdate(composition),
+                compositionEnd: (composition) => this.onCompositionEnd(composition),
             });
             // Delegate mouse and touch events
             if (window.PointerEvent) {
@@ -30714,7 +30772,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     if (this.resizeTimer) {
                         window.cancelAnimationFrame(this.resizeTimer);
                     }
-                    this.resizeTimer = window.requestAnimationFrame(() => isValidMathfield(this) && this._onResize());
+                    this.resizeTimer = window.requestAnimationFrame(() => isValidMathfield(this) && this.onResize());
                     break;
                 }
                 case 'cut':
@@ -30864,7 +30922,28 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 }
             }
         }
-        _onResize() {
+        onCompositionStart(_composition) {
+            // Clear the selection if there is one
+            deleteChar(this.model);
+            requestAnimationFrame(() => {
+                render(this); // Recalculate the position of the caret
+                // Synchronize the location and style of textarea
+                // so that the IME candidate window can align with the composition
+                const position = getCaretPosition(this.field);
+                if (!position)
+                    return;
+                this.textarea.style.top = position.y + 'px';
+                this.textarea.style.left = position.x + 'px';
+            });
+        }
+        onCompositionUpdate(composition) {
+            updateComposition(this.model, composition);
+            requestUpdate(this);
+        }
+        onCompositionEnd(_composition) {
+            updateComposition(this.model, null);
+        }
+        onResize() {
             this.element.classList.remove('ML__isNarrowWidth', 'ML__isWideWidth', 'ML__isExtendedWidth');
             if (window.innerWidth >= 1024) {
                 this.element.classList.add('ML__isExtendedWidth');
@@ -31151,6 +31230,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             return false;
         }
         switchMode(mode, prefix = '', suffix = '') {
+            if (this.mode === mode)
+                return;
             this.resetKeystrokeBuffer();
             // Suppress (temporarily) smart mode if switching to/from text or math
             // This prevents switching to/from command mode from supressing smart mode.

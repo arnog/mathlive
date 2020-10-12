@@ -356,6 +356,9 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
         case 'error':
             result += atom.latex;
             break;
+        case 'composition':
+            result = '';
+            break;
 
         case '':
             console.assert(

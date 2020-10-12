@@ -41,7 +41,7 @@ import {
     getDefault as getDefaultOptions,
     get as getOptions,
 } from './options';
-import { insert } from './model-insert';
+import { insert, updateComposition } from './model-insert';
 import { deleteChar } from './model-delete';
 import { addRowAfter, addColumnAfter } from './model-array';
 import { onTypedText, onKeystroke } from './mathfield-keyboard-input';
@@ -337,6 +337,12 @@ export class MathfieldPrivate implements Mathfield {
             keystroke: (keystroke, e) => onKeystroke(this, keystroke, e),
             focus: () => this.onFocus(),
             blur: () => this.onBlur(),
+            compositionStart: (composition: string) =>
+                this.onCompositionStart(composition),
+            compositionUpdate: (composition: string) =>
+                this.onCompositionUpdate(composition),
+            compositionEnd: (composition: string) =>
+                this.onCompositionEnd(composition),
         });
 
         // Delegate mouse and touch events
@@ -576,7 +582,7 @@ export class MathfieldPrivate implements Mathfield {
                     window.cancelAnimationFrame(this.resizeTimer);
                 }
                 this.resizeTimer = window.requestAnimationFrame(
-                    () => isValidMathfield(this) && this._onResize()
+                    () => isValidMathfield(this) && this.onResize()
                 );
                 break;
             }
@@ -735,7 +741,27 @@ export class MathfieldPrivate implements Mathfield {
             }
         }
     }
-    private _onResize(): void {
+    private onCompositionStart(_composition: string): void {
+        // Clear the selection if there is one
+        deleteChar(this.model);
+        requestAnimationFrame(() => {
+            render(this); // Recalculate the position of the caret
+            // Synchronize the location and style of textarea
+            // so that the IME candidate window can align with the composition
+            const position = getCaretPosition(this.field);
+            if (!position) return;
+            this.textarea.style.top = position.y + 'px';
+            this.textarea.style.left = position.x + 'px';
+        });
+    }
+    private onCompositionUpdate(composition: string): void {
+        updateComposition(this.model, composition);
+        requestUpdate(this);
+    }
+    private onCompositionEnd(_composition: string): void {
+        updateComposition(this.model, null);
+    }
+    private onResize(): void {
         this.element.classList.remove(
             'ML__isNarrowWidth',
             'ML__isWideWidth',
@@ -1034,6 +1060,7 @@ export class MathfieldPrivate implements Mathfield {
         return false;
     }
     switchMode(mode: ParseMode, prefix = '', suffix = ''): void {
+        if (this.mode === mode) return;
         this.resetKeystrokeBuffer();
         // Suppress (temporarily) smart mode if switching to/from text or math
         // This prevents switching to/from command mode from supressing smart mode.

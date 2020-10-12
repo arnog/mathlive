@@ -92,19 +92,11 @@ export function isValidMathfield(mf: MathfieldPrivate): boolean {
  * Return the element which has the caret
  */
 function findElementWithCaret(el: Element): Element {
-    if (
-        el.classList.contains('ML__caret') ||
-        el.classList.contains('ML__text-caret') ||
-        el.classList.contains('ML__command-caret')
-    ) {
-        return el;
-    }
-    let result;
-    for (const child of el.children) {
-        result = findElementWithCaret(child);
-        if (result) break;
-    }
-    return result;
+    return (
+        el.querySelector('.ML__caret') ??
+        el.querySelector('.ML__text-caret') ??
+        el.querySelector('.ML__command-carett')
+    );
 }
 
 /**

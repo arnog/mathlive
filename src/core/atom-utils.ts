@@ -44,6 +44,7 @@ export type AtomType =
     | 'array'
     | 'box'
     | 'command'
+    | 'composition' // IME composition area
     | 'delim'
     | 'enclose'
     | 'error'
@@ -763,6 +764,12 @@ export class Atom implements Style {
             if (this.isSuggestion) {
                 result.classes += ' ML__suggestion';
             }
+        } else if (this.type === 'composition') {
+            // In theory one would like to be able to draw the clauses
+            // in an active composition. Unfortunately, there are
+            // no API to give access to those clauses :(
+            result = this.makeSpan(context, this.body as string);
+            result.classes = 'ML__composition';
         } else if (this.type === 'placeholder') {
             result = this.makeSpan(context, '⬚');
         } else if (this.type === 'first') {

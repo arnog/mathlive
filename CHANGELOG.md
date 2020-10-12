@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### New Feature
+
+    - **#555** Support for IME (Input Method Engines) for Japanese, Chinese,
+    Korean and other complex scripts.
+
 ## 0.58.0 (2020-10-11)
 
 ### New Features

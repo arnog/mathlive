@@ -120,14 +120,6 @@ export function adjustPlaceholder(model: ModelPrivate): void {
         }
         if (placeholder) {
             // ◌ ⬚
-            // const placeholderAtom = [
-            //     new Atom('math', 'placeholder', '⬚', getAnchorStyle(model)),
-            // ];
-            // Array.prototype.splice.apply(
-            //     siblings,
-            //     [1, 0].concat(placeholderAtom)
-            // );
-            // @revisit
             siblings.splice(
                 1,
                 0,
@@ -142,7 +134,7 @@ export function getAnchorStyle(model: ModelPrivate): any {
     const anchor = model.extent === 0 ? getAnchor(model) : model.sibling(1);
     let result;
     if (anchor && anchor.type !== 'first') {
-        if (anchor.type === 'command') {
+        if (anchor.type === 'command' || anchor.type === 'composition') {
             return {};
         }
         result = {

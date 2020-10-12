@@ -1087,7 +1087,8 @@ function atomToMathML(atom, options): string {
 
             case 'phantom':
                 break;
-
+            case 'composition':
+                break;
             default:
                 console.log(
                     'In conversion to MathML, unknown type : ' + atom.type

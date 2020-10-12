@@ -37,7 +37,6 @@
         <input id='ta'></input>
         <math-field id="mf" class="mathfield" style="max-width: 250px; width:100%" tabindex="0"
             virtual-keyboard-mode="manual">
-            \text{before} = \xrightarrow[\text{above}]{\text{below}}\text{after}
         </math-field>
 
         <h2 style='margin-top: 5em'>Selection</h2>
@@ -95,6 +94,14 @@
 
     <script type="module">
         import { convertLatexToMarkup } from '/dist/mathlive.mjs';
+
+        document.getElementById('mf').setOptions({
+            inlineShortcuts: {
+                // ㄱ: '\\sqrt',
+                sq: '\\sqrt{$0}',
+                ㄱㄴ: '\\sqrt{$0}',
+            }
+        });
 
         const ta = document.getElementById('ta');
         ta.addEventListener('change', (ev) => console.log('ta change ', ev.detail));

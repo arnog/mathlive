@@ -31,7 +31,7 @@ import {
     getContentFromSiblings,
 } from './model-selection';
 
-import type { Style } from '../public/core';
+import type { ParseMode, Style } from '../public/core';
 import { RIGHT_DELIM } from '../core/definitions';
 
 /**
@@ -346,6 +346,42 @@ export function insert(
     contentDidChange(model);
 
     model.suppressChangeNotifications = suppressChangeNotifications;
+}
+
+/**
+ * Create, remove or update a composition atom at the current location
+ */
+export function updateComposition(
+    model: ModelPrivate,
+    s?: string | null
+): void {
+    const anchor = getAnchor(model);
+    if (s === null) {
+        // Remove the composition zone
+        if (anchor.type === 'composition') {
+            model.siblings().splice(model.anchorOffset(), 1);
+            model.path[model.path.length - 1].offset -= 1;
+        }
+        // An event will be sent later to insert the commited composition
+        return;
+    }
+
+    // We're creating or updating a composition
+    if (anchor.type === 'composition') {
+        // Composition already in progress, update it
+        anchor.body = s;
+    } else {
+        // No composition yet, create one
+        anchor.caret = '';
+
+        const atom = new Atom(anchor.mode, 'composition', s);
+        atom.caret = anchor.mode as ParseMode | '';
+
+        model.siblings().splice(model.anchorOffset() + 1, 0, atom);
+
+        //Move cursor one past the composition zone
+        model.path[model.path.length - 1].offset += 1;
+    }
 }
 
 function removeParen(list: Atom[]): Atom[] {

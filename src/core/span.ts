@@ -27,6 +27,7 @@ const SPAN_TYPE = [
     // 'mtable',
     'first',
     'command',
+    'composition',
     'error',
     'placeholder',
     'textord', // @revisit

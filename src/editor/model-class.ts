@@ -298,8 +298,13 @@ export function setSelection(
     // Normalize the range
     const iter = new PositionIterator(model.root);
     if (!range.direction) range.direction = 'forward';
+    if (range.start < 0 || range.start > iter.lastPosition) {
+        range.start = iter.lastPosition;
+    }
     if (typeof range.end === 'undefined') range.end = range.start;
-    if (range.end < 0) range.end = iter.lastPosition;
+    if (range.end < 0 || range.end > iter.lastPosition) {
+        range.end = iter.lastPosition;
+    }
 
     let anchorPath: string;
     if (range.direction === 'backward') {

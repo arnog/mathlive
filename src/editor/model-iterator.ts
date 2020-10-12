@@ -36,7 +36,7 @@ export class PositionIterator {
         return -1;
     }
     get lastPosition(): number {
-        return this.positions.length;
+        return this.positions.length - 1;
     }
     paths(indexes: number[]): string[] {
         return indexes.map((i): string => this.at(i).path);

@@ -236,6 +236,13 @@ export function getCharacterMetrics(
         ch = extraCharacterMap[character[0]].charCodeAt(0);
     } else if (cjkRegex.test(character[0])) {
         ch = 77; // 'M'.charCodeAt(0);
+        return {
+            defaultMetrics: true,
+            depth: 0.2,
+            height: 0.9,
+            italic: 0,
+            skew: 0,
+        };
     }
     const metrics = METRICS_MAP[fontName][ch];
 
