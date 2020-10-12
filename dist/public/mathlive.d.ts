@@ -8,9 +8,9 @@
  * @example
  * <script type="module">
  * // Load the `Mathlive` module from a CDN
- * import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+ * import { convertLatexToSpeakableText } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
  *
- * console.log(MathLive.latexToAST('e^{i\\pi}+1=0'));
+ * console.log(convertLatexToSpeakableText('e^{i\\pi}+1=0'));
  * </script>
  *
  * @packageDocumentation MathLive SDK Reference 0.58.0
@@ -58,11 +58,24 @@ export declare const version: string;
  * makeMathField('equation');
  * ```
  * @keywords create, make, mathfield
- * @deprecated Use `MathfieldElement`.
+ * @deprecated Use `new [[MathfieldElement]]()`
  */
 export declare function makeMathField(element: HTMLElement | string, options: MathfieldOptions): Mathfield;
 /**
  * Convert a LaTeX string to a string of HTML markup.
+ *
+ * **(Note)**
+ *
+ * This function does not interact with the DOM. It can be used
+ * on the server side. The function does not load fonts or inject stylesheets
+ * in the document. To get the output of this function to correctly display
+ * in a document, use the mathlive static style sheet by adding the following
+ * to the `<head>` of the document:
+ * ```html
+ *     <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive-static.css" />
+ * ```
+ *
+ * ---
  *
  * @param text A string of valid LaTeX. It does not have to start
  * with a mode token such as `$$` or `\(`.
@@ -188,7 +201,7 @@ export declare function astToLatex(mathJson: any, options?: {
  *
  * @return The spoken representation of the input LaTeX.
  * @example
- * console.log(MathLive.convertLatexToSpeakableText('\\frac{1}{2}'));
+ * console.log(convertLatexToSpeakableText('\\frac{1}{2}'));
  * // 'half'
  * @category Converting
  * @keywords convert, latex, speech, speakable, text, speakable text
@@ -352,9 +365,9 @@ export declare type AutoRenderOptions = {
  * Read {@tutorial mathfield-getting-started | Getting Started}.
  *
  * @example
- * import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+ * import { renderMathInDocument } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
  * document.addEventListener("load", () => {
- *     MathLive.renderMathInDocument();
+ *     renderMathInDocument();
  * });
  *
  * @category Rendering
@@ -402,8 +415,8 @@ options?: {
  * ```
  * The following code:
  * ```javascript
- * MathLive.renderMathInElement('equation');
- * console.log(MathLive.getOriginalContent('equation'));
+ * renderMathInElement('equation');
+ * console.log(getOriginalContent('equation'));
  * ```
  * will output:
  * ```

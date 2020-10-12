@@ -20,9 +20,9 @@ import type { Selector } from './commands';
  *      "command": "selectAll",
  * },
  * {
- *      key: 'ctrl+[Digit2]',
- *      ifMode: 'math',
- *      command: ['insert', '\\sqrt{#0}'],
+ *      "key": 'ctrl+[Digit2]',
+ *      "ifMode": 'math',
+ *      "command": ['insert', '\\sqrt{#0}'],
  * }
  * ```
  *
@@ -101,7 +101,7 @@ export type Keybinding = {
     /** The command is a single selector, or a selector with arguments */
     command: Selector | [Selector, ...any[]];
     /**
-     * If specified, this indicate in which mode this keybinding will apply.
+     * If specified, this indicates in which mode this keybinding will apply.
      * If none is specified, the keybinding apply in every mode.
      */
     ifMode?: ParseMode;
@@ -423,6 +423,8 @@ export type VirtualKeyboardOptions = {
 /**
  * These methods provide an opportunity to intercept or modify an action.
  * Their return value indicate whether the default handling should proceed.
+ *
+ * @deprecated Use corresponding events of `MathfieldEvent` instead
  */
 export interface MathfieldHooks {
     /**
@@ -458,8 +460,7 @@ export interface MathfieldHooks {
      * A hook invoked when pressing tab (or shift-tab) would cause the
      * insertion point to leave the mathfield.
      *
-     * <var>direction</var> indicates the direction of the navigation, either
-     * `"forward"` or `"backward"`.
+     * <var>direction</var> indicates the direction of the navigation.
      *
      * By default, the insertion point jumps to the next/previous focussable
      * element.
@@ -487,6 +488,7 @@ mfe.addEventListener('input', (ev) => {
     console.log(ev.target.value);
 });
  * ```
+ * @deprecated Use corresponding events of `MathfieldEvent` instead
  */
 
 export interface MathfieldListeners {
@@ -598,11 +600,13 @@ export type EditingOptions = {
      *
      * For example, when typing "if x >0":
      *
-     * -   "i" -> math mode, imaginary unit
-     * -   "if" -> text mode, english word "if"
-     * -   "if x" -> all in text mode, maybe the next word is xylophone?
-     * -   "if x >" -> "if" stays in text mode, but now "x >" is in math mode
-     * -   "if x > 0" -> "if" in text mode, "x > 0" in math mode
+     * | Type  | Interpretation |
+     * |---:|:---|
+     * | "i" | math mode, imaginary unit |
+     * | "if" | text mode, english word "if" |
+     * | "if x" | all in text mode, maybe the next word is xylophone? |
+     * | "if x >" | "if" stays in text mode, but now "x >" is in math mode |
+     * | "if x > 0" | "if" in text mode, "x > 0" in math mode |
      *
      * Smart Mode is off by default.
      *
@@ -685,13 +689,13 @@ export type LayoutOptions = {
 ```javascript
 mf.setConfig({
     macros: {
-        ...mf.getConfig('macros'),
+        ...mf.getOption('macros'),
         smallfrac: '^{#1}\\!\\!/\\!_{#2}',
     },
 });
 ```
  *
- * Note that `getConfig()` is called to keep the existing macros and add to them.
+ * Note that `getOption()` is called to keep the existing macros and add to them.
  * Otherwise, all the macros are replaced with the new definition.
  *
  * The code above will support the following notation:
@@ -762,6 +766,8 @@ export type MathfieldOptions = LayoutOptions &
          * The namespace should be a string of lowercase letters.
          *
          * It is empty by default.
+         *
+         * @deprecated
          */
         namespace: string;
 
@@ -846,6 +852,8 @@ export type MathfieldOptions = LayoutOptions &
 export type MathfieldConfig = MathfieldOptions;
 
 /**
+ * See [[`setKeyboardLayout`]].
+ *
  *  | Name | Platform | Display name |
  *  | :----- | :----- | :----- |
  *  | `'apple.en-intl'`         |  Apple | English (International) |
@@ -877,7 +885,7 @@ export type KeyboardLayoutName =
  *
  * Note that this affects some keybindings, but not general text input.
  *
- * If set to `auto` the keyboard layout is guessed approximately.
+ * If set to `auto` the keyboard layout is guessed.
  *
  */
 export declare function setKeyboardLayout(

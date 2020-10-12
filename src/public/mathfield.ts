@@ -217,14 +217,14 @@ export interface Mathfield {
      * @param format - The format of the result.
      * **Default** = `"latex"`
      * @category Accessing the Content
-     * @deprecated
+     * @deprecated Use `mfe.getValue(mfe.getSelection())`
      */
     $selectedText?(format?: OutputFormat): string;
 
     select(): void;
 
     /**
-     * @deprecated Use [[`executeCommand`]]
+     * @deprecated Use [[`select`]]
      */
     $select?(): void;
 
@@ -239,7 +239,7 @@ export interface Mathfield {
      * @return True if the length of the selection is 0, that is, if it is a single
      * insertion point.
      *
-     * @deprecated Use `selection[0].collapsed`
+     * @deprecated Use `mfe.selection[0].collapsed`
      */
     $selectionIsCollapsed?(): boolean;
 
@@ -252,7 +252,7 @@ export interface Mathfield {
      * which is at the root level, return 1. Note that in that case, the numerator
      * would be the "selection group".
      *
-     * @deprecated Use `mf.selection[0].depth`
+     * @deprecated Use `mfe.selection[0].depth`
      */
     $selectionDepth?(): number;
 

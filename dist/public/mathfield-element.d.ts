@@ -26,16 +26,34 @@ export declare type MathErrorEvent = {
     before?: string;
     after?: string;
 };
+/**
+ * The `keystroke` event is fired when a keystroke is about to be procesed.
+ * The event is cancellable, which wills suprress further handling of the event.
+ *
+ */
 export declare type KeystrokeEvent = {
+    /** A string descring the keystroke, for example `"Alt-KeyU". See [W3C UIEvents](https://www.w3.org/TR/uievents/#keys-keyvalues)
+     * for more information on the format of the descriptor.
+     *
+     */
     keystroke: string;
-    event: KeyboardEvent;
+    /** The native keyboard event */
+    event?: KeyboardEvent;
 };
 /**
- * This event signals that the mathfield has lost focus through keyboard
+ * The `focus-out` event signals that the mathfield has lost focus through keyboard
  * navigation with arrow keys or the tab key.
  *
  * The event `detail.direction` property indicates the direction the cursor
  * was moving which can be useful to decide which element to focus next.
+ *
+ * The event is cancelable, which will prevent the field from losing focus.
+ *
+ * ```javascript
+ * mfe.addEventListener('focus-out', (ev) => {
+ *  console.log("Losing focus ", ev.detail.direction);
+ * });
+ * ```
  */
 export declare type FocusOutEvent = {
     direction: 'forward' | 'backward' | 'upward' | 'downward';
@@ -57,29 +75,37 @@ declare global {
  * elements.
  *
  * It inherits many useful properties and methods from [[`HTMLElement`]] such
- * as `style`, `tabIndex`, `addListener()`, etc...
+ * as `style`, `tabIndex`, `addEventListener()`, `getAttribute()`,  etc...
  *
  * To create a new `MathfieldElement`:
  *
  * ```javascript
- * // Create a new MathfieldElement
+ * // 1. Create a new MathfieldElement
  * const mfe = new MathfieldElement();
- * // Attach it to the document
+ * // 2. Attach it to the DOM
  * document.body.appendChild(mfe);
  * ```
  *
  * The `MathfieldElement` constructor has an optional argument of
  * [[`MathfieldOptions`]] to configure the element. The options can also
  * be modified later:
+ *
  * ```javascript
+ * // Setting options during construction
+ * const mfe = new MathfieldElement({smartFence: false});
+ * // Modifying options after construction
  * mfe.setOptions({smartFence: true});
  * ```
  *
  * ### CSS Variables
  *
- * The following CSS variables, if applied to the mathfield element or
- * to one of its ancestors, can be used to customize the appearance of the
- * mathfield.
+ * To customize the appearance of the mathfield, declare the following CSS
+ * variables (custom properties) in a ruleset that applied to the mathfield.
+ * ```css
+ * math-field {
+ *  --hue: 10       // Set the highlight color and caret to a reddish hue
+ * }
+ * ```
  *
  * | CSS Variable | Usage |
  * |:---|:---|
@@ -93,8 +119,8 @@ declare global {
  *
  * ### CSS Parts
  *
- * The `virtual-keyboard-toggle` CSS part can be used to style the virtual
- * keyboard toggle. To use it, define a CSS style with a `::part()` selector
+ * To style the virtual keyboard toggle, use the `virtual-keyboard-toggle` CSS
+ * part. To use it, define a CSS rule with a `::part()` selector
  * for example:
  * ```css
  * math-field::part(virtual-keyboard-toggle) {
@@ -105,32 +131,38 @@ declare global {
  *
  * ### Attributes
  *
- * An attribute is a key-value pair set as part of the tag, for example in
- * `<math-field locale="fr"></math-field>`, `locale` is an attribute.
+ * An attribute is a key-value pair set as part of the tag:
+ *
+ * ```html
+ * `<math-field locale="fr"></math-field>
+ * ```
  *
  * The supported attributes are listed in the table below with their correspnding
- * property. The property can be changed either directly on the
- * `MathfieldElement` object, or using `setOptions()` when it is prefixed with
+ * property.
+ *
+ * The property can be changed either directly on the
+ * `MathfieldElement` object, or using `setOptions()` if it is prefixed with
  * `options.`, for example
- * ```
+ * ```javascript
  *  getElementById('mf').value = '\\sin x';
  *  getElementById('mf').setOptions({horizontalSpacingScale: 1.1});
  * ```
  *
- * Most properties are reflected: changing the attribute will also change the
- * property and vice versa) except for `value` whose attribute value is not
- * updated.
+ * The values of attributes and properties are reflected, which means you can change one or the
+ * other, for example:
+ * ```javascript
+ * // Both lines have the same effect
+ * getElementById('mf').setAttribute('virtual-keyboard-mode',  'manual');
+ * console.log(getElementById('mf').getOption('virtualKeyboardMode));
+ * // Result: "manual"
+ * getElementById('mf').setOptions({virtualKeyboardMode: 'onfocus');
+ * console.log(getElementById('mf').getAttribute('virtual-keyboard-mode');
+ * // Result: 'onfocus'
+ * ```
  *
+ * An exception is the `value` property, which is not reflected on the `value`
+ * attribute.
  *
- * In addition, the following [global attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes)
- * can also be used:
- * - `class`
- * - `data-*`
- * - `hidden`
- * - `id`
- * - `item*`
- * - `style`
- * - `tabindex`
  *
  * | Attribute | Property |
  * |:---|:---|
@@ -153,34 +185,46 @@ declare global {
  * | `speech-engine-voice` | `options.speechEngineVoice` |
  * | `text-to-speech-markup` | `options.textToSpeechMarkup` |
  * | `text-to-speech-rules` | `options.textToSpeechRules` |
+ * | `value` | value |
  * | `virtual-keyboard-layout` | `options.keyboardLayout` |
  * | `virtual-keyboard-mode` | `options.keyboardMode` |
  * | `virtual-keyboard-theme` | `options.keyboardTheme` |
  * | `virtual-keyboards` | `options.keyboards` |
  *
- *  See [[`MathfieldOptions`]] for more details about these options.
+ * See [[`MathfieldOptions`]] for more details about these options.
+ *
+ * In addition, the following [global attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes)
+ * can also be used:
+ * - `class`
+ * - `data-*`
+ * - `hidden`
+ * - `id`
+ * - `item*`
+ * - `style`
+ * - `tabindex`
+ *
  *
  * ### Events
  *
  * Listen to these events by using `addEventListener()`. For events with additional
  * arguments, the arguments are availble in `event.detail`.
  *
- * | Event Name | Event Arguments | Description |
- * |:---|:---|:---|
- * | `input |  | The value of the mathfield has been modified |
- * | `change` |  | The user has commited the value of the mathfield |
- * | `selection-change` |  | The selection of the mathfield has changed |
- * | `mode-change` |  | The mode of the mathfield has changed |
- * | `undo-state-change` |  | The state of the undo stack has changed |
- * | `read-aloud-status-change` |  | The status of a read aloud operation has changed |
- * | `virtual-keyboard-toggle` |  | The visibility of the virtual keyboard has changed |
- * | `blur` |  | The mathfield is losing focus |
- * | `focus` |  | The mathfield is gaining focus |
- * | `focus-out` | `(direction: 'forward' | 'backward' | 'upward' | 'downward'): boolean` | The user is navigating out of the mathfield, typically using the keyboard |
- * | `math-error` | `ErrorListener<ParserErrorCode | MathfieldErrorCode>` | A parsing or configuration error happened |
- * | `keystroke` | `(keystroke: string, event: KeyboardEvent): boolean` | The user typed a keystroke with a physical keyboard |
- * | `mount` | | Fired once when the element has been attached to the DOM |
- * | `unmount` | | Fired once when the element is about to be removed from the DOM |
+ * | Event Name  | Description |
+ * |:---|:---|
+ * | `input | The value of the mathfield has been modified |
+ * | `change` | The user has commited the value of the mathfield |
+ * | `selection-change` | The selection of the mathfield has changed |
+ * | `mode-change` | The mode (`math`, `text`) of the mathfield has changed |
+ * | `undo-state-change` |  The state of the undo stack has changed |
+ * | `read-aloud-status-change` | The status of a read aloud operation has changed |
+ * | `virtual-keyboard-toggle` | The visibility of the virtual keyboard has changed |
+ * | `blur` | The mathfield is losing focus |
+ * | `focus` | The mathfield is gaining focus |
+ * | `focus-out` | The user is navigating out of the mathfield, typically using the keyboard<br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
+ * | `math-error` | A parsing or configuration error happened <br> `detail: ErrorListener<ParserErrorCode | MathfieldErrorCode>` |
+ * | `keystroke` | The user typed a keystroke with a physical keyboard <br> `detail: {keystroke: string, event: KeyboardEvent}` |
+ * | `mount` | The element has been attached to the DOM |
+ * | `unmount` | The element is about to be removed from the DOM |
  *
  */
 export declare class MathfieldElement extends HTMLElement implements Mathfield {
@@ -198,7 +242,7 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      */
     static get observedAttributes(): string[];
     /**
-     * A new mathfield can be created using
+     * To create programmatically a new mahfield use:
      * ```javascript
     let mfe = new MathfieldElement();
     // Set initial value and options
@@ -209,7 +253,7 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
     mfe.setOptions({
         virtualKeyboardMode: 'manual',
     });
-    // Attach the element
+    // Attach the element to the DOM
     document.body.appendChild(mfe);
     * ```
     */
@@ -221,6 +265,9 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      */
     getOptions<K extends keyof MathfieldOptions>(keys: K[]): Pick<MathfieldOptions, K>;
     getOptions(): MathfieldOptions;
+    /**
+     *  @category Options
+     */
     getOption<K extends keyof MathfieldOptions>(key: K): MathfieldOptions[K];
     /**
      *  @category Options
@@ -366,7 +413,6 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      */
     get selection(): Range[];
     /**
-     * Change the selection
      *
      * @category Selection
      */
