@@ -508,14 +508,51 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     /**
      *  @category Accessing and Changing the content
      */
-    getValue(format?: OutputFormat): string {
+    getValue(format?: OutputFormat): string;
+    getValue(start: number, end?: number, format?: OutputFormat): string;
+    getValue(range: Range, format?: OutputFormat): string;
+    getValue(ranges: Range[], format?: OutputFormat): string;
+    getValue(
+        arg1?: number | OutputFormat | Range | Range[],
+        arg2?: number | OutputFormat,
+        arg3?: OutputFormat
+    ): string {
+        let ranges: Range[];
+        let format: OutputFormat;
+        if (typeof arg1 === 'undefined') {
+            format = 'latex';
+            ranges = [{ start: 0, end: -1 }];
+        } else if (typeof arg1 === 'string') {
+            format = arg1;
+            ranges = [{ start: 0, end: -1 }];
+        } else if (typeof arg1 === 'number' && typeof arg2 === 'number') {
+            ranges = [
+                {
+                    start: arg1,
+                    end: arg2 ?? -1,
+                },
+            ];
+            format = arg3 ?? 'latex';
+        } else if (Array.isArray(arg1)) {
+            ranges = arg1;
+            format = (arg2 as OutputFormat) ?? 'latex';
+        } else {
+            ranges = [arg1 as Range];
+            format = (arg2 as OutputFormat) ?? 'latex';
+        }
         if (this.#mathfield) {
-            return this.#mathfield.getValue(format);
+            return this.#mathfield.getValue(ranges, format);
         }
         if (gDeferredState.has(this)) {
-            return gDeferredState.get(this).value;
+            const fullRange =
+                ranges.length === 1 &&
+                ranges[0].start === 0 &&
+                ranges[0].end === -1;
+            if (format === 'latex' && fullRange) {
+                return gDeferredState.get(this).value;
+            }
         }
-        return '';
+        return undefined;
     }
 
     /**

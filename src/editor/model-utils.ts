@@ -72,43 +72,45 @@ export function invalidateVerbatimLatex(model: ModelPrivate): void {
 
 /**
  * Ensure that the range is valid and canonical, i.e.
- * start <= end
- * collapsed = start === end
- * start >= 0, end >=0
- * If optins.accesibleAtomsOnly, the range is limited to the values
- * that can produce an atom, specifically, the last value is excluded (it's
- * a valid position to insert, but it can't be read from)
+ * - start <= end
+ * - collapsed = start === end
+ * - start >= 0, end >=0
  */
-export function normalizeRange(
-    iter: PositionIterator,
-    range: Range,
-    options: {
-        accessibleAtomsOnly?: boolean;
-    } = { accessibleAtomsOnly: false }
-): Range {
+export function normalizeRange(iter: PositionIterator, range: Range): Range {
     const result: Range = { ...range };
 
-    const lastPosition = options.accessibleAtomsOnly
-        ? iter.lastPosition - 1
-        : iter.lastPosition;
+    const lastPosition = iter.lastPosition;
 
-    if (result.end === -1) {
-        result.end = lastPosition;
+    // 1. Normalize the start
+    if (result.start < 0) {
+        result.start = Math.max(0, lastPosition + result.start + 1);
+    } else if (isNaN(result.start)) {
+        result.start = 0;
+    } else {
+        result.start = Math.min(result.start, lastPosition);
+    }
+
+    // 2. Normalize the end
+    if (result.end < 0) {
+        result.end = Math.max(0, lastPosition + result.end + 1);
     } else if (isNaN(result.end)) {
         result.end = result.start;
     } else {
         result.end = Math.min(result.end, lastPosition);
     }
+    // 3. Normalize the direction
     if (result.start < result.end) {
         result.direction = 'forward';
     } else {
         [result.start, result.end] = [result.end, result.start];
         result.direction = 'backward';
     }
+    // 4. Normalize `collapsed`
     result.collapsed = result.start === result.end;
     if (result.collapsed) {
         result.direction = 'none';
     }
+    // 5. Normalize the depth
     if (iter.positions[result.start]) {
         result.depth = iter.positions[result.start].depth - 1;
     }

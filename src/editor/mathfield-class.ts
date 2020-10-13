@@ -851,9 +851,9 @@ export class MathfieldPrivate implements Mathfield {
 
     getValue(): string;
     getValue(format: OutputFormat): string;
-    getValue(start: number, end: number, format: OutputFormat): string;
-    getValue(range: Range, format: OutputFormat): string;
-    getValue(ranges: Range[], format: OutputFormat): string;
+    getValue(start: number, end?: number, format?: OutputFormat): string;
+    getValue(range: Range, format?: OutputFormat): string;
+    getValue(ranges: Range[], format?: OutputFormat): string;
     getValue(
         arg1?: number | OutputFormat | Range | Range[],
         arg2?: number | OutputFormat,
@@ -864,31 +864,35 @@ export class MathfieldPrivate implements Mathfield {
         }
         let format: OutputFormat;
         if (typeof arg1 === 'string') {
+            // Output format only
             format = arg1;
             return this.atomToString(this.model.root, format);
         }
         let ranges: Range[];
-        if (typeof arg1 === 'number' && typeof arg2 === 'number') {
+        if (
+            typeof arg1 === 'number' &&
+            (typeof arg2 === 'number' || typeof arg2 === 'undefined')
+        ) {
             ranges = [
                 {
                     start: arg1,
-                    end: arg2,
+                    end: arg2 ?? -1,
                 },
             ];
             format = arg3 ?? 'latex';
         } else if (Array.isArray(arg1)) {
             ranges = arg1;
+            format = arg2 as OutputFormat;
         } else {
             ranges = [arg1 as Range];
+            format = arg2 as OutputFormat;
         }
         const iter = new PositionIterator(this.model.root);
         const result = ranges
             .map((range): string => {
                 let res = '';
-                range = normalizeRange(iter, range, {
-                    accessibleAtomsOnly: true,
-                });
-                if (range.start >= 0 && !range.collapsed) {
+                range = normalizeRange(iter, range);
+                if (!range.collapsed) {
                     const depth = iter.at(range.start).depth;
                     for (let i = range.start + 1; i <= range.end; i++) {
                         if (iter.at(i).depth === depth) {
