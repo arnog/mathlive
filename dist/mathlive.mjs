@@ -18998,7 +18998,7 @@ function findElementWithCaret(el) {
 /**
  * Return the (x,y) client coordinates of the caret
  */
-function getCaretPosition(el) {
+function getCaretPoint(el) {
     const caret = findElementWithCaret(el);
     if (caret) {
         const bounds = caret.getBoundingClientRect();
@@ -19556,18 +19556,18 @@ function updatePopoverPosition(mf, options) {
             }
             else {
                 // ... get the caret position
-                const position = getCaretPosition(mf.field);
-                if (position)
-                    setPopoverPosition(mf, position);
+                const caretPoint = getCaretPoint(mf.field);
+                if (caretPoint)
+                    setPopoverPosition(mf, caretPoint);
             }
         }
     }
 }
 function showPopover(mf, markup) {
     mf.popover.innerHTML = mf.options.createHTML(markup);
-    const position = getCaretPosition(mf.field);
-    if (position)
-        setPopoverPosition(mf, position);
+    const caretPoint = getCaretPoint(mf.field);
+    if (caretPoint)
+        setPopoverPosition(mf, caretPoint);
     mf.popover.classList.add('is-visible');
 }
 function setPopoverPosition(mf, position) {
@@ -30930,11 +30930,11 @@ class MathfieldPrivate {
             render(this); // Recalculate the position of the caret
             // Synchronize the location and style of textarea
             // so that the IME candidate window can align with the composition
-            const position = getCaretPosition(this.field);
-            if (!position)
+            const caretPoint = getCaretPoint(this.field);
+            if (!caretPoint)
                 return;
-            this.textarea.style.top = position.y + 'px';
-            this.textarea.style.left = position.x + 'px';
+            this.textarea.style.top = caretPoint.y + 'px';
+            this.textarea.style.left = caretPoint.x + 'px';
         });
     }
     onCompositionUpdate(composition) {
@@ -31162,19 +31162,19 @@ class MathfieldPrivate {
         if (this.dirty) {
             render(this);
         }
-        let pos = (_a = getCaretPosition(this.field)) === null || _a === void 0 ? void 0 : _a.x;
+        let caretPoint = (_a = getCaretPoint(this.field)) === null || _a === void 0 ? void 0 : _a.x;
         const fieldBounds = this.field.getBoundingClientRect();
-        if (typeof pos === 'undefined') {
+        if (typeof caretPoint === 'undefined') {
             const selectionBounds = getSelectionBounds(this.field);
             if (selectionBounds !== null) {
-                pos =
+                caretPoint =
                     selectionBounds.right +
                         fieldBounds.left -
                         this.field.scrollLeft;
             }
         }
-        if (typeof pos !== 'undefined') {
-            const x = pos - window.scrollX;
+        if (typeof caretPoint !== 'undefined') {
+            const x = caretPoint - window.scrollX;
             if (x < fieldBounds.left) {
                 this.field.scroll({
                     top: 0,
@@ -31340,13 +31340,13 @@ class MathfieldPrivate {
         deprecated('$typedText');
         onTypedText(this, text);
     }
-    getCaretPosition() {
-        const caretPosition = getCaretPosition(this.field);
+    getCaretPoint() {
+        const caretPosition = getCaretPoint(this.field);
         return caretPosition
             ? { x: caretPosition.x, y: caretPosition.y }
             : null;
     }
-    setCaretPosition(x, y) {
+    setCaretPoint(x, y) {
         const oldPath = this.model.clone();
         const anchor = pathFromPoint(this, x, y, { bias: 0 });
         const result = setPath(this.model, anchor, 0);
@@ -33278,7 +33278,7 @@ const gDeferredState = new WeakMap();
  * An attribute is a key-value pair set as part of the tag:
  *
  * ```html
- * `<math-field locale="fr"></math-field>
+ * <math-field locale="fr"></math-field>
  * ```
  *
  * The supported attributes are listed in the table below with their correspnding
@@ -33295,9 +33295,8 @@ const gDeferredState = new WeakMap();
  * The values of attributes and properties are reflected, which means you can change one or the
  * other, for example:
  * ```javascript
- * // Both lines have the same effect
  * getElementById('mf').setAttribute('virtual-keyboard-mode',  'manual');
- * console.log(getElementById('mf').getOption('virtualKeyboardMode));
+ * console.log(getElementById('mf').getOption('virtualKeyboardMode'));
  * // Result: "manual"
  * getElementById('mf').setOptions({virtualKeyboardMode: 'onfocus');
  * console.log(getElementById('mf').getAttribute('virtual-keyboard-mode');
@@ -33305,7 +33304,7 @@ const gDeferredState = new WeakMap();
  * ```
  *
  * An exception is the `value` property, which is not reflected on the `value`
- * attribute.
+ * attribute: the `value` attribute remains at its initial value.
  *
  *
  * | Attribute | Property |
@@ -33355,13 +33354,13 @@ const gDeferredState = new WeakMap();
  *
  * | Event Name  | Description |
  * |:---|:---|
- * | `input | The value of the mathfield has been modified |
- * | `change` | The user has commited the value of the mathfield |
- * | `selection-change` | The selection of the mathfield has changed |
+ * | `input` | The value of the mathfield has been modified. This happens on almost every keystroke in the mathfield.  |
+ * | `change` | The user has commited the value of the mathfield. This happens when the user presses **Return** or leaves the mathfield. |
+ * | `selection-change` | The selection (or caret position) in the mathfield has changed |
  * | `mode-change` | The mode (`math`, `text`) of the mathfield has changed |
  * | `undo-state-change` |  The state of the undo stack has changed |
  * | `read-aloud-status-change` | The status of a read aloud operation has changed |
- * | `virtual-keyboard-toggle` | The visibility of the virtual keyboard has changed |
+ * | `virtual-keyboard-toggle` | The visibility of the virtual keyboard panel has changed |
  * | `blur` | The mathfield is losing focus |
  * | `focus` | The mathfield is gaining focus |
  * | `focus-out` | The user is navigating out of the mathfield, typically using the keyboard<br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
@@ -33695,18 +33694,26 @@ class MathfieldElement extends HTMLElement {
         return (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.applyStyle(style);
     }
     /**
+     * The bottom location of the caret (insertion point) in viewport
+     * coordinates.
      * @category Selection
      */
-    getCaretPosition() {
+    get caretPoint() {
         var _a, _b;
-        return (_b = (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.getCaretPosition()) !== null && _b !== void 0 ? _b : null;
+        return (_b = (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.getCaretPoint()) !== null && _b !== void 0 ? _b : null;
+    }
+    set caretPoint(point) {
+        var _a;
+        (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.setCaretPoint(point.x, point.y);
     }
     /**
+     * `x` and `y` are in viewport coordinates.
+     * Return true if the location of the point is valid caret location
      * @category Selection
      */
-    setCaretPosition(x, y) {
+    setCaretPoint(x, y) {
         var _a, _b;
-        return (_b = (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.setCaretPosition(x, y)) !== null && _b !== void 0 ? _b : false;
+        return (_b = (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.setCaretPoint(x, y)) !== null && _b !== void 0 ? _b : false;
     }
     /**
      * Custom elements lifecycle hooks

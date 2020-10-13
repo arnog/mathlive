@@ -134,7 +134,7 @@ declare global {
  * An attribute is a key-value pair set as part of the tag:
  *
  * ```html
- * `<math-field locale="fr"></math-field>
+ * <math-field locale="fr"></math-field>
  * ```
  *
  * The supported attributes are listed in the table below with their correspnding
@@ -151,9 +151,8 @@ declare global {
  * The values of attributes and properties are reflected, which means you can change one or the
  * other, for example:
  * ```javascript
- * // Both lines have the same effect
  * getElementById('mf').setAttribute('virtual-keyboard-mode',  'manual');
- * console.log(getElementById('mf').getOption('virtualKeyboardMode));
+ * console.log(getElementById('mf').getOption('virtualKeyboardMode'));
  * // Result: "manual"
  * getElementById('mf').setOptions({virtualKeyboardMode: 'onfocus');
  * console.log(getElementById('mf').getAttribute('virtual-keyboard-mode');
@@ -161,7 +160,7 @@ declare global {
  * ```
  *
  * An exception is the `value` property, which is not reflected on the `value`
- * attribute.
+ * attribute: the `value` attribute remains at its initial value.
  *
  *
  * | Attribute | Property |
@@ -211,13 +210,13 @@ declare global {
  *
  * | Event Name  | Description |
  * |:---|:---|
- * | `input | The value of the mathfield has been modified |
- * | `change` | The user has commited the value of the mathfield |
- * | `selection-change` | The selection of the mathfield has changed |
+ * | `input` | The value of the mathfield has been modified. This happens on almost every keystroke in the mathfield.  |
+ * | `change` | The user has commited the value of the mathfield. This happens when the user presses **Return** or leaves the mathfield. |
+ * | `selection-change` | The selection (or caret position) in the mathfield has changed |
  * | `mode-change` | The mode (`math`, `text`) of the mathfield has changed |
  * | `undo-state-change` |  The state of the undo stack has changed |
  * | `read-aloud-status-change` | The status of a read aloud operation has changed |
- * | `virtual-keyboard-toggle` | The visibility of the virtual keyboard has changed |
+ * | `virtual-keyboard-toggle` | The visibility of the virtual keyboard panel has changed |
  * | `blur` | The mathfield is losing focus |
  * | `focus` | The mathfield is gaining focus |
  * | `focus-out` | The user is navigating out of the mathfield, typically using the keyboard<br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
@@ -361,16 +360,24 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      */
     applyStyle(style: Style): void;
     /**
+     * The bottom location of the caret (insertion point) in viewport
+     * coordinates.
      * @category Selection
      */
-    getCaretPosition(): {
+    get caretPoint(): {
         x: number;
         y: number;
     };
+    set caretPoint(point: {
+        x: number;
+        y: number;
+    });
     /**
+     * `x` and `y` are in viewport coordinates.
+     * Return true if the location of the point is valid caret location
      * @category Selection
      */
-    setCaretPosition(x: number, y: number): boolean;
+    setCaretPoint(x: number, y: number): boolean;
     /**
      * Custom elements lifecycle hooks
      * @internal

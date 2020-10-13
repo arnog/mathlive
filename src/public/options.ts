@@ -518,7 +518,7 @@ export type KeyboardOptions = {
 
 export type InlineShortcutsOptions = {
     /** @deprecated Use:
-     * ```typescript
+     * ```javascript
      * mf.setConfig(
      *      'inlineShortcuts',
      *      {   ...mf.getConfig('inlineShortcuts'),

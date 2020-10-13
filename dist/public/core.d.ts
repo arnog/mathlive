@@ -114,7 +114,7 @@ export declare type MacroDefinition = {
  * A dictionary of LaTeX macros to be used to interpret and render the content.
  *
  * For example:
-```typescript
+```javascript
 mf.setOptions({
     macros: {
         smallfrac: '^{#1}\\!\\!/\\!_{#2}',

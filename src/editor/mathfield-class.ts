@@ -51,7 +51,7 @@ import './mathfield-commands';
 import './mathfield-styling';
 
 import {
-    getCaretPosition,
+    getCaretPoint,
     getSelectionBounds,
     getSharedElement,
     releaseSharedElement,
@@ -747,10 +747,10 @@ export class MathfieldPrivate implements Mathfield {
             render(this); // Recalculate the position of the caret
             // Synchronize the location and style of textarea
             // so that the IME candidate window can align with the composition
-            const position = getCaretPosition(this.field);
-            if (!position) return;
-            this.textarea.style.top = position.y + 'px';
-            this.textarea.style.left = position.x + 'px';
+            const caretPoint = getCaretPoint(this.field);
+            if (!caretPoint) return;
+            this.textarea.style.top = caretPoint.y + 'px';
+            this.textarea.style.left = caretPoint.x + 'px';
         });
     }
     private onCompositionUpdate(composition: string): void {
@@ -995,19 +995,19 @@ export class MathfieldPrivate implements Mathfield {
         if (this.dirty) {
             render(this);
         }
-        let pos: number = getCaretPosition(this.field)?.x;
+        let caretPoint: number = getCaretPoint(this.field)?.x;
         const fieldBounds = this.field.getBoundingClientRect();
-        if (typeof pos === 'undefined') {
+        if (typeof caretPoint === 'undefined') {
             const selectionBounds = getSelectionBounds(this.field);
             if (selectionBounds !== null) {
-                pos =
+                caretPoint =
                     selectionBounds.right +
                     fieldBounds.left -
                     this.field.scrollLeft;
             }
         }
-        if (typeof pos !== 'undefined') {
-            const x = pos - window.scrollX;
+        if (typeof caretPoint !== 'undefined') {
+            const x = caretPoint - window.scrollX;
             if (x < fieldBounds.left) {
                 this.field.scroll({
                     top: 0,
@@ -1175,13 +1175,13 @@ export class MathfieldPrivate implements Mathfield {
         onTypedText(this, text);
     }
 
-    getCaretPosition(): { x: number; y: number } | null {
-        const caretPosition = getCaretPosition(this.field);
+    getCaretPoint(): { x: number; y: number } | null {
+        const caretPosition = getCaretPoint(this.field);
         return caretPosition
             ? { x: caretPosition.x, y: caretPosition.y }
             : null;
     }
-    setCaretPosition(x: number, y: number): boolean {
+    setCaretPoint(x: number, y: number): boolean {
         const oldPath = this.model.clone();
         const anchor = pathFromPoint(this, x, y, { bias: 0 });
         const result = setPath(this.model, anchor, 0);

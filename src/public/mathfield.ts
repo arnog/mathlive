@@ -400,8 +400,8 @@ export interface Mathfield {
      */
     $typedText?(text: string): void;
 
-    getCaretPosition(): { x: number; y: number } | null;
-    setCaretPosition(x: number, y: number): boolean;
+    getCaretPoint?(): { x: number; y: number } | null;
+    setCaretPoint(x: number, y: number): boolean;
 }
 
 export interface Model {

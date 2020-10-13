@@ -11,7 +11,7 @@ import {
 import { getAnchor } from './model-selection-utils';
 import { getKeybindingsForCommand } from './keybindings';
 import { attachButtonHandlers } from './mathfield-buttons';
-import { getCaretPosition } from './mathfield-utils';
+import { getCaretPoint } from './mathfield-utils';
 
 import type { MathfieldPrivate } from './mathfield-class';
 
@@ -366,8 +366,8 @@ export function updatePopoverPosition(
                 hidePopover(mf);
             } else {
                 // ... get the caret position
-                const position = getCaretPosition(mf.field);
-                if (position) setPopoverPosition(mf, position);
+                const caretPoint = getCaretPoint(mf.field);
+                if (caretPoint) setPopoverPosition(mf, caretPoint);
             }
         }
     }
@@ -376,8 +376,8 @@ export function updatePopoverPosition(
 export function showPopover(mf: MathfieldPrivate, markup: string): void {
     mf.popover.innerHTML = mf.options.createHTML(markup);
 
-    const position = getCaretPosition(mf.field);
-    if (position) setPopoverPosition(mf, position);
+    const caretPoint = getCaretPoint(mf.field);
+    if (caretPoint) setPopoverPosition(mf, caretPoint);
 
     mf.popover.classList.add('is-visible');
 }

@@ -348,11 +348,11 @@ export interface Mathfield {
      * @deprecated Use [[`executeCommand`]] or [[`setValue`]]
      */
     $typedText?(text: string): void;
-    getCaretPosition(): {
+    getCaretPoint?(): {
         x: number;
         y: number;
     } | null;
-    setCaretPosition(x: number, y: number): boolean;
+    setCaretPoint(x: number, y: number): boolean;
 }
 export interface Model {
     readonly mathfield: Mathfield;

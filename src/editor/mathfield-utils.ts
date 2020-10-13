@@ -102,7 +102,7 @@ function findElementWithCaret(el: Element): Element {
 /**
  * Return the (x,y) client coordinates of the caret
  */
-export function getCaretPosition(
+export function getCaretPoint(
     el: Element
 ): { x: number; y: number; height: number } | null {
     const caret = findElementWithCaret(el);

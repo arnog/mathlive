@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+### Breaking Change
+
+    - Renamed `getCaretPosition()` and `setCaretPosition()` to `get/set caretPoint`
+    and `setCaretPoint()`. "Position" refers to an index denoting the boundaries
+    between elements making up the formula.
+
 ### New Feature
 
     - **#555** Support for IME (Input Method Engines) for Japanese, Chinese,
