@@ -296,6 +296,9 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      *  @category Accessing and Changing the content
      */
     getValue(format?: OutputFormat): string;
+    getValue(start: number, end?: number, format?: OutputFormat): string;
+    getValue(range: Range, format?: OutputFormat): string;
+    getValue(ranges: Range[], format?: OutputFormat): string;
     /**
      *  @category Accessing and Changing the content
      */

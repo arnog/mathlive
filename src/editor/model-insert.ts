@@ -31,7 +31,7 @@ import {
     getContentFromSiblings,
 } from './model-selection';
 
-import type { ParseMode, Style } from '../public/core';
+import type { Style } from '../public/core';
 import { RIGHT_DELIM } from '../core/definitions';
 
 /**
@@ -351,20 +351,8 @@ export function insert(
 /**
  * Create, remove or update a composition atom at the current location
  */
-export function updateComposition(
-    model: ModelPrivate,
-    s?: string | null
-): void {
+export function updateComposition(model: ModelPrivate, s: string): void {
     const anchor = getAnchor(model);
-    if (s === null) {
-        // Remove the composition zone
-        if (anchor.type === 'composition') {
-            model.siblings().splice(model.anchorOffset(), 1);
-            model.path[model.path.length - 1].offset -= 1;
-        }
-        // An event will be sent later to insert the commited composition
-        return;
-    }
 
     // We're creating or updating a composition
     if (anchor.type === 'composition') {
@@ -372,15 +360,30 @@ export function updateComposition(
         anchor.body = s;
     } else {
         // No composition yet, create one
+
+        // Remove previous caret
+        const caret = anchor.caret;
         anchor.caret = '';
 
+        // Create 'composition' atom, with caret
         const atom = new Atom(anchor.mode, 'composition', s);
-        atom.caret = anchor.mode as ParseMode | '';
+        atom.caret = caret;
 
         model.siblings().splice(model.anchorOffset() + 1, 0, atom);
 
         //Move cursor one past the composition zone
         model.path[model.path.length - 1].offset += 1;
+    }
+}
+
+/**
+ * Remve the composition zone
+ */
+export function removeComposition(model: ModelPrivate): void {
+    const anchor = getAnchor(model);
+    if (anchor.type === 'composition') {
+        model.siblings().splice(model.anchorOffset(), 1);
+        model.path[model.path.length - 1].offset -= 1;
     }
 }
 

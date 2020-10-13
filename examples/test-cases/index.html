@@ -98,12 +98,17 @@
         document.getElementById('mf').setOptions({
             inlineShortcuts: {
                 // ㄱ: '\\sqrt',
-                sq: '\\sqrt{$0}',
-                ㄱㄴ: '\\sqrt{$0}',
+                sq: '\\sqrt{#0}',
+                // ㄱㄴ: '\\sqrt{#0}',
+                "ㄱㄴ": '\\sqrt{#0}',
             }
         });
 
         const ta = document.getElementById('ta');
+        ta.addEventListener('change', (ev) => console.log('ta change ', ev.detail));
+        ta.addEventListener('compositionupdate', (ev) => console.log('ta composition update ', ev.data));
+        ta.addEventListener('compositionend', (ev) => console.log('ta composition end ', ev.data));
+        ta.addEventListener('change', (ev) => console.log('ta change ', ev.detail));
         ta.addEventListener('change', (ev) => console.log('ta change ', ev.detail));
 
         const mf = document.getElementById('mf');

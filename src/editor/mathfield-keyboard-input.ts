@@ -77,7 +77,7 @@ export function onKeystroke(
 
     const activeLayout = getActiveKeyboardLayout();
     if (mathfield.keyboardLayout !== activeLayout.id) {
-        console.log('Switching to keyboard layout ' + activeLayout.id);
+        // console.log('Switching to keyboard layout ' + activeLayout.id);
         mathfield.keyboardLayout = activeLayout.id;
         mathfield.keybindings = normalizeKeybindings(
             mathfield.options.keybindings,
@@ -164,6 +164,7 @@ export function onKeystroke(
                 );
                 i += 1;
             }
+
             stateIndex =
                 mathfield.keystrokeBufferStates.length - (candidate.length - i);
             mathfield.keystrokeBuffer += c;

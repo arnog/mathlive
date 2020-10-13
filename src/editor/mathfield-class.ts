@@ -41,7 +41,7 @@ import {
     getDefault as getDefaultOptions,
     get as getOptions,
 } from './options';
-import { insert, updateComposition } from './model-insert';
+import { insert, removeComposition, updateComposition } from './model-insert';
 import { deleteChar } from './model-delete';
 import { addRowAfter, addColumnAfter } from './model-array';
 import { onTypedText, onKeystroke } from './mathfield-keyboard-input';
@@ -331,7 +331,6 @@ export class MathfieldPrivate implements Mathfield {
         on(this.textarea, 'paste', this);
         // Delegate keyboard events
         delegateKeyboardEvents(this.textarea as HTMLTextAreaElement, {
-            allowDeadKey: () => this.mode === 'text',
             typedText: (text: string): void => onTypedText(this, text),
             paste: () => onPaste(this),
             keystroke: (keystroke, e) => onKeystroke(this, keystroke, e),
@@ -758,8 +757,11 @@ export class MathfieldPrivate implements Mathfield {
         updateComposition(this.model, composition);
         requestUpdate(this);
     }
-    private onCompositionEnd(_composition: string): void {
-        updateComposition(this.model, null);
+    private onCompositionEnd(composition: string): void {
+        removeComposition(this.model);
+        onTypedText(this, composition, {
+            simulateKeystroke: true,
+        });
     }
     private onResize(): void {
         this.element.classList.remove(

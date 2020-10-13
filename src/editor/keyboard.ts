@@ -106,13 +106,15 @@ const PRINTABLE_KEYCODE = [
 
 export function mightProducePrintableCharacter(evt: KeyboardEvent): boolean {
     if (evt.ctrlKey || evt.metaKey) {
-        // ignore ctrl/cmd-combination but not shift/alt-combinatios
+        // ignore ctrl/cmd-combination but not shift/alt-combinations
         return false;
     }
 
-    if (evt.key === 'Dead') {
-        return false;
-    }
+    // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
+    if (evt.key === 'Dead') return false;
+
+    // When issued via a composition, the `code` field is empty
+    if (evt.code === '') return true;
 
     return PRINTABLE_KEYCODE.indexOf(evt.code) >= 0;
 }
@@ -171,10 +173,9 @@ function keyboardEventToString(evt: KeyboardEvent): string {
 export function delegateKeyboardEvents(
     textarea: HTMLTextAreaElement,
     handlers: {
-        allowDeadKey: () => boolean;
         typedText: (text: string) => void;
         paste: (text: string) => void;
-        keystroke: (keystroke: string, e: KeyboardEvent) => void;
+        keystroke: (keystroke: string, e: KeyboardEvent) => boolean;
         focus: () => void;
         blur: () => void;
         compositionStart: (composition: string) => void;
@@ -187,7 +188,6 @@ export function delegateKeyboardEvents(
     let compositionInProgress = false;
     let focusInProgress = false;
     let blurInProgress = false;
-    let deadKey = false;
 
     // This callback is invoked after a keyboard event has been processed
     // by the textarea
@@ -202,7 +202,7 @@ export function delegateKeyboardEvents(
 
     function handleTypedText(): void {
         // Some browsers (Firefox, Opera) fire a keypress event for commands
-        // such as command-C where there might be a non-empty selection.
+        // such as cmd+C where there might be a non-empty selection.
         // We need to ignore these.
         if (textarea.selectionStart !== textarea.selectionEnd) return;
 
@@ -216,43 +216,23 @@ export function delegateKeyboardEvents(
     target.addEventListener(
         'keydown',
         (e: KeyboardEvent): void => {
-            if (compositionInProgress) return;
             // "Process" key indicates commit of IME session (on Firefox)
             // It's handled with compositionEnd so it can be safely ignored
-            if (e.key === 'Process') return;
-
-            const allowDeadKey = handlers.allowDeadKey();
             if (
-                !allowDeadKey &&
-                (e.key === 'Dead' ||
-                    e.key === 'Unidentified' ||
-                    e.keyCode === 229)
+                compositionInProgress ||
+                e.key === 'Process' ||
+                e.code === 'CapsLock' ||
+                /(Control|Meta|Alt|Shift)(Left|Right)/.test(e.code)
             ) {
-                deadKey = true;
-                compositionInProgress = false;
-                // This sequence seems to cancel dead keys
-                // but don't call our blur/focus handlers
-                const savedBlur = handlers.blur;
-                const savedFocus = handlers.focus;
-                handlers.blur = null;
-                handlers.focus = null;
-                if (typeof textarea.blur === 'function') {
-                    textarea.blur();
-                    textarea.focus();
-                }
-                handlers.blur = savedBlur;
-                handlers.focus = savedFocus;
-            } else {
-                deadKey = false;
+                keydownEvent = null;
+                return;
             }
-            if (
-                !compositionInProgress &&
-                e.code !== 'CapsLock' &&
-                !/(Control|Meta|Alt|Shift)(Left|Right)/.test(e.code)
-            ) {
-                keydownEvent = e;
-                keypressEvent = null;
-                handlers.keystroke(keyboardEventToString(e), e);
+
+            keydownEvent = e;
+            keypressEvent = null;
+            if (!handlers.keystroke(keyboardEventToString(e), e)) {
+                keydownEvent = null;
+                textarea.value = '';
             }
         },
         true
@@ -328,6 +308,28 @@ export function delegateKeyboardEvents(
     target.addEventListener(
         'compositionstart',
         (ev: CompositionEvent) => {
+            if (!keydownEvent) {
+                // Previous keydown event has handled this input. Don't start
+                // a composition session. This happens for example when pressing
+                // alt+u (which is handled as a keybinding) but which could
+                // also trigger a dead key composition session for ¨
+                // (Note: `preventDefault()` on the event doesn't seem to cancel it :()
+                textarea.value = '';
+                // This sequence blur/focus seems to cancel the composition session
+                // without invoking our blur/focus handlers
+                if (typeof textarea.blur === 'function') {
+                    setTimeout(() => {
+                        const savedBlur = handlers.blur;
+                        const savedFocus = handlers.focus;
+                        handlers.blur = null;
+                        handlers.focus = null;
+                        textarea.blur();
+                        textarea.focus();
+                        handlers.blur = savedBlur;
+                        handlers.focus = savedFocus;
+                    });
+                }
+            }
             compositionInProgress = true;
             textarea.value = '';
 
@@ -338,6 +340,7 @@ export function delegateKeyboardEvents(
     target.addEventListener(
         'compositionupdate',
         (ev: CompositionEvent) => {
+            if (!compositionInProgress) return;
             if (handlers.compositionUpdate) handlers.compositionUpdate(ev.data);
         },
         true
@@ -345,37 +348,26 @@ export function delegateKeyboardEvents(
     target.addEventListener(
         'compositionend',
         (ev: CompositionEvent) => {
+            textarea.value = '';
+            if (!compositionInProgress) return;
             compositionInProgress = false;
             if (handlers.compositionEnd) handlers.compositionEnd(ev.data);
-
-            // if (deadKey && handlers.allowDeadKey()) {
-            //     defer(handleTypedText);
-            // }
         },
         true
     );
 
     // The `input` handler gets called when the field is changed,
-    // for example with input methods or emoji input...
-    target.addEventListener('input', () => {
+    // but no other relevant events have been triggered
+    // for example with emoji input...
+    target.addEventListener('input', (ev: InputEvent) => {
         if (compositionInProgress) return;
-        if (deadKey) {
-            const savedBlur = handlers.blur;
-            const savedFocus = handlers.focus;
-            handlers.blur = null;
-            handlers.focus = null;
-            textarea.blur();
-            textarea.focus();
-            handlers.blur = savedBlur;
-            handlers.focus = savedFocus;
-            deadKey = false;
-            compositionInProgress = false;
-            if (handlers.allowDeadKey()) {
-                defer(handleTypedText);
-            }
-        } else if (!compositionInProgress) {
-            defer(handleTypedText);
-        }
+        // If this was an `input` event sent as a result of a commit of
+        // IME, ignore it.
+        // (This is what FireFox does, even though the spec says it shouldn't happen)
+        // See https://github.com/w3c/uievents/issues/202
+        if (ev.inputType === 'insertCompositionText') return;
+
+        defer(handleTypedText);
     });
 }
 
