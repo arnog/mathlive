@@ -726,9 +726,16 @@ body.ML__fonts-loading .ML__base {
 }
 
 .ML__composition {
-    background: #fefebf;
+    background: #fff1c2;
     color: black;
     text-decoration: underline var(--caret, hsl(var(--hue, 212), 40%, 49%));
+}
+
+@media (prefers-color-scheme: dark) {
+    .ML__composition {
+        background: #69571c;
+        color: white;
+    }
 }
 
 .ML__placeholder {

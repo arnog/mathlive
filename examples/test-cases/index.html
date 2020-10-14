@@ -26,20 +26,38 @@
             min-width: 50px;
             border: 1px solid #ddd;
         }
+
+        #ta {
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .label {
+            font-weight: 700;
+        }
     </style>
 </head>
 
 <body>
     <header>
-        <h1>MathLive Test Cases</h1>
+        <h1>MathLive Testing Playground</h1>
     </header>
-    <main>
-        <input id='ta'></input>
-        <math-field id="mf" class="mathfield" style="max-width: 250px; width:100%" tabindex="0"
-            virtual-keyboard-mode="manual">
-        </math-field>
+    <main class='centered'>
+        <math-field id="mf" class="mathfield" style="max-width: 400px; width:100%" tabindex="0"
+            virtual-keyboard-mode="manual"></math-field>
 
-        <h2 style='margin-top: 5em'>Selection</h2>
+        <div class="centered"><input id='ta' placeholder="Find Latex"></input></div>
+
+        <div id="search-results" class='centered'>
+            <h2 style='margin-top: 1em'>Search Results</h2>
+            <div class="output" id="search-results-output"></div>
+        </div>
+
+        <h2 style='margin-top: 1em'>Selection</h2>
         <div class="output" id="selection"></div>
 
         <!-- <math-field class="mathfield" style="width:100%" tabindex="4" virtual-keyboard-mode="manual">f_{4}(x) =
@@ -95,6 +113,24 @@
     <script type="module">
         import { convertLatexToMarkup } from '/dist/mathlive.mjs';
 
+        let gSearchLatex;
+
+        function applySearchTerm() {
+            if (!gSearchLatex) {
+                document.getElementById('search-results').classList.add('hidden');
+                return;
+            }
+            document.getElementById('search-results').classList.remove('hidden');
+            const md = document.getElementById('mf');
+            const searchResults = mf.find(gSearchLatex);
+
+            document.getElementById('search-results-output').innerHTML =
+                searchResults.
+                    map(range => `${range.start}, ${range.end} = "${mf.getValue(range)}"`).
+                    join('<br>');
+
+        }
+
         document.getElementById('mf').setOptions({
             inlineShortcuts: {
                 // ㄱ: '\\sqrt',
@@ -105,29 +141,31 @@
         });
 
         const ta = document.getElementById('ta');
-        ta.addEventListener('change', (ev) => console.log('ta change ', ev.detail));
-        ta.addEventListener('compositionupdate', (ev) => console.log('ta composition update ', ev.data));
-        ta.addEventListener('compositionend', (ev) => console.log('ta composition end ', ev.data));
-        ta.addEventListener('change', (ev) => console.log('ta change ', ev.detail));
-        ta.addEventListener('change', (ev) => console.log('ta change ', ev.detail));
+        ta.addEventListener('change', (ev) => {
+            gSearchLatex = ta.value;
+            applySearchTerm();
+        });
 
         const mf = document.getElementById('mf');
         mf.selection = [{ start: 2, end: 5 }];
-        mf.addEventListener('input', (ev) => updateContent(mf));
+        mf.addEventListener('input', (ev) => {
+            updateContent(mf);
+            applySearchTerm();
+        });
         mf.addEventListener('change', (ev) => {
-            console.log('Change Event: ' + ev.target.value);
         });
         mf.addEventListener('selection-change', (ev) => {
             const selection = mf.selection[0];
             document.getElementById('selection').innerHTML =
-                "start     " + selection.start + "<br>" +
-                "end       " + selection.end + "<br>" +
-                "depth     " + selection.depth + "<br>" +
-                "direction \"" + selection.direction + "\"<br>" +
-                "collapsed " + (selection.collapsed ? "true" : "false") + "<br>" +
-                "value     \"" + mf.getValue(selection) + '"'
+                label("start     ") + selection.start + "<br>" +
+                label("end       ") + selection.end + "<br>" +
+                label("depth     ") + selection.depth + "<br>" +
+                label("direction ") + '\"' + selection.direction + "\"<br>" +
+                label("collapsed ") + (selection.collapsed ? "true" : "false") + "<br>" +
+                label("value     ") + '\"' + mf.getValue(selection) + '"'
         });
         updateContent(mf);
+        applySearchTerm();
 
         let mathfieldContainer = document.getElementById('mathfield-container');
         if (mathfieldContainer) {
@@ -178,21 +216,15 @@
                 console.error("Error converting %c " + latex + '%c ' +
                     e.toString(), 'color: red;  background: hsla(0, 60%, 90%)', 'background: transparent');
             }
-            const selection = mf.selection[0];
-            document.getElementById('selection').innerHTML =
-                "start     " + selection.start + "<br>" +
-                "end       " + selection.end + "<br>" +
-                "depth     " + selection.depth + "<br>" +
-                "direction \"" + selection.direction + "\"<br>" +
-                "collapsed " + (selection.collapsed ? "true" : "false") + "<br>" +
-                "value     \"" + mf.getValue(selection) + '"'
         }
 
 
-
+        function label(s) {
+            return `<span class='label'>${s}</span>`;
+        }
 
         function escapeHtml(string) {
-            return String(string).replace(/[&<>"'`=/\u200b]/g, function (
+            return String(string).replace(/[&<>"'`= /\u200b]/g, function (
                 s
             ) {
                 return (

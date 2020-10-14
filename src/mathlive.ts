@@ -175,7 +175,10 @@ function latexToAST(
 }
 
 /** @deprecated Use MathJSON */
-function astToLatex(expr: MathJson, options: MathJsonLatexOptions): string {
+export function astToLatex(
+    expr: MathJson,
+    options: MathJsonLatexOptions
+): string {
     return jsonToLatex(
         typeof expr === 'string' ? JSON.parse(expr) : expr,
         options

@@ -2,11 +2,39 @@ import { register as registerCommand } from './commands';
 import { selectionIsCollapsed } from './model-selection';
 import type { MathfieldPrivate } from './mathfield-class';
 import { requestUpdate } from './mathfield-render';
+import { insert } from './model-insert';
+import { astToLatex } from '../mathlive';
 
-export function onPaste(mathfield: MathfieldPrivate): boolean {
-    // Make note we're in the process of pasting. The subsequent call to
-    // onTypedText() will take care of interpreting the clipboard content
-    mathfield.pasteInProgress = true;
+export function onPaste(
+    mathfield: MathfieldPrivate,
+    ev: ClipboardEvent
+): boolean {
+    let text = '';
+
+    // Try to get a MathJSON data type
+    const json = ev.clipboardData.getData('application/json');
+    if (json) {
+        try {
+            text = astToLatex(json, {});
+        } catch (e) {
+            text = '';
+        }
+    }
+    // If that didn't work, try some plain text
+    if (!text) {
+        text = ev.clipboardData.getData('text/plain');
+    }
+
+    if (text) {
+        insert(mathfield.model, text, {
+            smartFence: mathfield.options.smartFence,
+            mode: 'math',
+        });
+
+        requestUpdate(mathfield);
+        ev.preventDefault();
+        ev.stopPropagation();
+    }
     return true;
 }
 export function onCut(mathfield: MathfieldPrivate): boolean {
@@ -37,15 +65,17 @@ export function onCopy(mathfield: MathfieldPrivate, e: ClipboardEvent): void {
     } else {
         e.clipboardData.setData(
             'text/plain',
-            '$$' + mathfield.$selectedText('latex-expanded') + '$$'
+            '$$' +
+                mathfield.getValue(mathfield.selection, 'latex-expanded') +
+                '$$'
         );
         e.clipboardData.setData(
             'application/json',
-            mathfield.$selectedText('json')
+            mathfield.getValue(mathfield.selection, 'json')
         );
         e.clipboardData.setData(
             'application/xml',
-            mathfield.$selectedText('mathML')
+            mathfield.getValue(mathfield.selection, 'mathML')
         );
     }
     // Prevent the current document selection from being written to the clipboard.

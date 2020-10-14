@@ -286,7 +286,17 @@ export function onKeystroke(
         mathfield.executeCommand(selector);
     } else if (shortcut) {
         //
-        // 6.5 Insert the shortcut
+        // 6.5 Cancel the (upcoming) composition
+
+        // This is to prevent starting a composition when the keyboard event
+        // has already been handled.
+        // Example: alt+U -> \cup, but could also be diaeresis deak key (¨) which
+        // starts a composition
+        //
+        mathfield.keyboardDelegate.cancelComposition();
+
+        //
+        // 6.6 Insert the shortcut
         // If the shortcut is a mandatory escape sequence (\}, etc...)
         // don't make it undoable, this would result in syntactically incorrect
         // formulas
@@ -423,117 +433,107 @@ export function onTypedText(
     // If the selection is not collapsed, the content will be deleted first.
     let popoverText = '';
     let displayArrows = false;
-    if (mathfield.pasteInProgress) {
-        mathfield.pasteInProgress = false;
-        // This call was made in response to a paste event.
-        // Interpret `text` as a 'smart' expression (could be LaTeX, could be
-        // UnicodeMath)
-        insert(mathfield.model, text, {
-            smartFence: mathfield.options.smartFence,
-            mode: 'math',
-        });
-    } else {
-        const style = {
-            ...getAnchorStyle(mathfield.model),
-            ...mathfield.style,
-        };
-        // Decompose the string into an array of graphemes.
-        // This is necessary to correctly process what is displayed as a single
-        // glyph (a grapheme) but which is composed of multiple Unicode
-        // codepoints. This is the case in particular for some emojis, such as
-        // those with a skin tone modifier, the country flags emojis or
-        // compound emojis such as the professional emojis, including the
-        // David Bowie emoji: 👨🏻‍🎤
-        const graphemes = splitGraphemes(text);
-        for (const c of graphemes) {
-            if (mathfield.mode === 'command') {
-                removeSuggestion(mathfield.model);
-                mathfield.suggestionIndex = 0;
-                const command = extractCommandStringAroundInsertionPoint(
-                    mathfield.model
-                );
-                const suggestions = suggest(command + c);
-                displayArrows = suggestions.length > 1;
-                if (suggestions.length === 0) {
-                    insert(mathfield.model, c, { mode: 'command' });
-                    if (/^\\[a-zA-Z\\*]+$/.test(command + c)) {
-                        // This looks like a command name, but not a known one
-                        decorateCommandStringAroundInsertionPoint(
-                            mathfield.model,
-                            true
-                        );
-                    }
-                    hidePopover(mathfield);
-                } else {
-                    insert(mathfield.model, c, { mode: 'command' });
-                    if (suggestions[0].match !== command + c) {
-                        insertSuggestion(
-                            mathfield.model,
-                            suggestions[0].match,
-                            -suggestions[0].match.length + command.length + 1
-                        );
-                    }
-                    popoverText = suggestions[0].match;
+
+    const style = {
+        ...getAnchorStyle(mathfield.model),
+        ...mathfield.style,
+    };
+    // Decompose the string into an array of graphemes.
+    // This is necessary to correctly process what is displayed as a single
+    // glyph (a grapheme) but which is composed of multiple Unicode
+    // codepoints. This is the case in particular for some emojis, such as
+    // those with a skin tone modifier, the country flags emojis or
+    // compound emojis such as the professional emojis, including the
+    // David Bowie emoji: 👨🏻‍🎤
+    const graphemes = splitGraphemes(text);
+    for (const c of graphemes) {
+        if (mathfield.mode === 'command') {
+            removeSuggestion(mathfield.model);
+            mathfield.suggestionIndex = 0;
+            const command = extractCommandStringAroundInsertionPoint(
+                mathfield.model
+            );
+            const suggestions = suggest(command + c);
+            displayArrows = suggestions.length > 1;
+            if (suggestions.length === 0) {
+                insert(mathfield.model, c, { mode: 'command' });
+                if (/^\\[a-zA-Z\\*]+$/.test(command + c)) {
+                    // This looks like a command name, but not a known one
+                    decorateCommandStringAroundInsertionPoint(
+                        mathfield.model,
+                        true
+                    );
                 }
-            } else if (mathfield.mode === 'math') {
-                // Some characters are mapped to commands. Handle them here.
-                // This is important to handle synthetic text input and
-                // non-US keyboards, on which, fop example, the '^' key is
-                // not mapped to  'Shift-Digit6'.
-                const selector = {
-                    '^': 'moveToSuperscript',
-                    _: 'moveToSubscript',
-                    ' ': 'moveAfterParent',
-                }[c];
-                if (selector) {
-                    if (selector === 'moveToSuperscript') {
-                        if (
-                            superscriptDepth(mathfield) >=
-                            mathfield.options.scriptDepth[1]
-                        ) {
-                            mathfield.model.announce('plonk');
-                            return;
-                        }
-                    } else if (selector === 'moveToSubscript') {
-                        if (
-                            subscriptDepth(mathfield) >=
-                            mathfield.options.scriptDepth[0]
-                        ) {
-                            mathfield.model.announce('plonk');
-                            return;
-                        }
-                    }
-                    mathfield.executeCommand(selector);
-                } else {
-                    if (
-                        mathfield.options.smartSuperscript &&
-                        mathfield.model.relation() === 'superscript' &&
-                        /[0-9]/.test(c) &&
-                        mathfield.model
-                            .siblings()
-                            .filter((x) => x.type !== 'first').length === 0
-                    ) {
-                        // We are inserting a digit into an empty superscript
-                        // If smartSuperscript is on, insert the digit, and
-                        // exit the superscript.
-                        insert(mathfield.model, c, {
-                            mode: 'math',
-                            style: style,
-                        });
-                        moveAfterParent(mathfield.model);
-                    } else {
-                        insert(mathfield.model, c, {
-                            mode: 'math',
-                            style: style,
-                            smartFence: mathfield.options.smartFence,
-                        });
-                    }
+                hidePopover(mathfield);
+            } else {
+                insert(mathfield.model, c, { mode: 'command' });
+                if (suggestions[0].match !== command + c) {
+                    insertSuggestion(
+                        mathfield.model,
+                        suggestions[0].match,
+                        -suggestions[0].match.length + command.length + 1
+                    );
                 }
-            } else if (mathfield.mode === 'text') {
-                insert(mathfield.model, c, { mode: 'text', style: style });
+                popoverText = suggestions[0].match;
             }
+        } else if (mathfield.mode === 'math') {
+            // Some characters are mapped to commands. Handle them here.
+            // This is important to handle synthetic text input and
+            // non-US keyboards, on which, fop example, the '^' key is
+            // not mapped to  'Shift-Digit6'.
+            const selector = {
+                '^': 'moveToSuperscript',
+                _: 'moveToSubscript',
+                ' ': 'moveAfterParent',
+            }[c];
+            if (selector) {
+                if (selector === 'moveToSuperscript') {
+                    if (
+                        superscriptDepth(mathfield) >=
+                        mathfield.options.scriptDepth[1]
+                    ) {
+                        mathfield.model.announce('plonk');
+                        return;
+                    }
+                } else if (selector === 'moveToSubscript') {
+                    if (
+                        subscriptDepth(mathfield) >=
+                        mathfield.options.scriptDepth[0]
+                    ) {
+                        mathfield.model.announce('plonk');
+                        return;
+                    }
+                }
+                mathfield.executeCommand(selector);
+            } else {
+                if (
+                    mathfield.options.smartSuperscript &&
+                    mathfield.model.relation() === 'superscript' &&
+                    /[0-9]/.test(c) &&
+                    mathfield.model.siblings().filter((x) => x.type !== 'first')
+                        .length === 0
+                ) {
+                    // We are inserting a digit into an empty superscript
+                    // If smartSuperscript is on, insert the digit, and
+                    // exit the superscript.
+                    insert(mathfield.model, c, {
+                        mode: 'math',
+                        style: style,
+                    });
+                    moveAfterParent(mathfield.model);
+                } else {
+                    insert(mathfield.model, c, {
+                        mode: 'math',
+                        style: style,
+                        smartFence: mathfield.options.smartFence,
+                    });
+                }
+            }
+        } else if (mathfield.mode === 'text') {
+            insert(mathfield.model, c, { mode: 'text', style: style });
         }
     }
+
     if (mathfield.mode !== 'command') {
         mathfield.snapshotAndCoalesce();
     }

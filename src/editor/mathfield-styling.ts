@@ -23,7 +23,10 @@ export function applyStyle(
                     mathfield.options.defaultMode) === 'math'
                     ? 'text'
                     : 'math';
-            let convertedSelection = mathfield.$selectedText('ASCIIMath');
+            let convertedSelection = mathfield.getValue(
+                mathfield.selection,
+                'ASCIIMath'
+            );
             if (targetMode === 'math' && /^"[^"]+"$/.test(convertedSelection)) {
                 convertedSelection = convertedSelection.slice(1, -1);
             }

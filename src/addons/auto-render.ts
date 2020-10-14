@@ -5,6 +5,7 @@ import { AutoRenderOptions } from '../public/mathlive';
 import { ErrorListener, ParserErrorCode } from '../public/core';
 import { loadFonts } from '../core/fonts';
 import { inject as injectStylesheet } from '../common/stylesheet';
+// @ts-ignore
 import coreStylesheet from '../../css/core.less';
 
 export type AutoRenderOptionsPrivate = AutoRenderOptions & {

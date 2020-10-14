@@ -14,7 +14,7 @@ import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
 
 import { ModelPrivate } from './model';
 import { applyStyle } from './model-styling';
-import { delegateKeyboardEvents } from './keyboard';
+import { delegateKeyboardEvents, KeyboardDelegate } from './keyboard';
 import { UndoRecord, UndoManager } from './undo';
 import { hidePopover, updatePopoverPosition } from './popover';
 import { atomToAsciiMath } from './atom-to-ascii-math';
@@ -103,7 +103,6 @@ export class MathfieldPrivate implements Mathfield {
     // the `onCommit` listener is triggered
     private valueOnFocus: string;
     dirty: boolean; // If true, need to be redrawn
-    pasteInProgress: boolean;
     smartModeSuppressed: boolean;
     private resizeTimer: number; // Timer handle
 
@@ -113,7 +112,7 @@ export class MathfieldPrivate implements Mathfield {
 
     private stylesheets: Stylesheet[] = [];
 
-    textarea: HTMLElement;
+    keyboardDelegate: KeyboardDelegate;
     field: HTMLElement;
     virtualKeyboardToggle: HTMLElement;
     ariaLiveText: HTMLElement;
@@ -249,10 +248,11 @@ export class MathfieldPrivate implements Mathfield {
         this.element.innerHTML = this.options.createHTML(markup);
 
         let iChild = 0; // index of child -- used to make changes below easier
+        let textarea: HTMLElement;
         if (typeof this.options.substituteTextArea === 'function') {
-            this.textarea = this.options.substituteTextArea();
+            textarea = this.options.substituteTextArea();
         } else {
-            this.textarea = this.element.children[iChild++]
+            textarea = this.element.children[iChild++]
                 .firstElementChild as HTMLElement;
         }
         this.field = this.element.children[iChild].children[0] as HTMLElement;
@@ -318,31 +318,33 @@ export class MathfieldPrivate implements Mathfield {
         // enters a mode changing command.
         this.mode = this.options.defaultMode;
         this.smartModeSuppressed = false;
-        // Current style (color, weight, italic, etc...)
-        // Reflects the style to be applied on next insertion, if any
+        // Current style (color, weight, italic, etc...):
+        // reflects the style to be applied on next insertion.
         this.style = {};
         // Focus/blur state
         this.blurred = true;
         on(this.element, 'focus', this);
         on(this.element, 'blur', this);
         // Capture clipboard events
-        on(this.textarea, 'cut', this);
-        on(this.textarea, 'copy', this);
-        on(this.textarea, 'paste', this);
         // Delegate keyboard events
-        delegateKeyboardEvents(this.textarea as HTMLTextAreaElement, {
-            typedText: (text: string): void => onTypedText(this, text),
-            paste: () => onPaste(this),
-            keystroke: (keystroke, e) => onKeystroke(this, keystroke, e),
-            focus: () => this.onFocus(),
-            blur: () => this.onBlur(),
-            compositionStart: (composition: string) =>
-                this.onCompositionStart(composition),
-            compositionUpdate: (composition: string) =>
-                this.onCompositionUpdate(composition),
-            compositionEnd: (composition: string) =>
-                this.onCompositionEnd(composition),
-        });
+        this.keyboardDelegate = delegateKeyboardEvents(
+            textarea as HTMLTextAreaElement,
+            {
+                typedText: (text: string): void => onTypedText(this, text),
+                cut: () => onCut(this),
+                copy: (ev) => onCopy(this, ev),
+                paste: (ev) => onPaste(this, ev),
+                keystroke: (keystroke, e) => onKeystroke(this, keystroke, e),
+                focus: () => this.onFocus(),
+                blur: () => this.onBlur(),
+                compositionStart: (composition: string) =>
+                    this.onCompositionStart(composition),
+                compositionUpdate: (composition: string) =>
+                    this.onCompositionUpdate(composition),
+                compositionEnd: (composition: string) =>
+                    this.onCompositionEnd(composition),
+            }
+        );
 
         // Delegate mouse and touch events
         if (window.PointerEvent) {
@@ -585,15 +587,6 @@ export class MathfieldPrivate implements Mathfield {
                 );
                 break;
             }
-            case 'cut':
-                onCut(this);
-                break;
-            case 'copy':
-                onCopy(this, evt as ClipboardEvent);
-                break;
-            case 'paste':
-                onPaste(this);
-                break;
             default:
                 console.warn('Unexpected event type', evt.type);
         }
@@ -610,11 +603,7 @@ export class MathfieldPrivate implements Mathfield {
         delete this.accessibleNode;
         delete this.ariaLiveText;
         delete this.field;
-        off(this.textarea, 'cut', this);
-        off(this.textarea, 'copy', this);
-        off(this.textarea, 'paste', this);
-        this.textarea.remove();
-        delete this.textarea;
+        delete this.keyboardDelegate;
         this.virtualKeyboardToggle.remove();
         delete this.virtualKeyboardToggle;
         releaseSharedElement(this.popover);
@@ -659,18 +648,9 @@ export class MathfieldPrivate implements Mathfield {
         const result = selectionIsCollapsed(this.model)
             ? ''
             : makeRoot('math', getSelectedAtoms(this.model)).toLatex(false);
-        const textarea = this.textarea as HTMLInputElement;
-        if (result) {
-            textarea.value = result;
-            // The textarea may be a span (on mobile, for example), so check that
-            // it has a select() before calling it.
-            if (this.hasFocus() && textarea.select) {
-                textarea.select();
-            }
-        } else {
-            textarea.value = '';
-            textarea.setAttribute('aria-label', '');
-        }
+
+        this.keyboardDelegate.setValue(result);
+
         // Update the mode
         {
             const previousMode = this.mode;
@@ -700,11 +680,7 @@ export class MathfieldPrivate implements Mathfield {
         if (this.options.readOnly) return;
         if (this.blurred) {
             this.blurred = false;
-            // The textarea may be a span (on mobile, for example), so check that
-            // it has a focus() before calling it.
-            if (this.textarea.focus) {
-                this.textarea.focus();
-            }
+            this.keyboardDelegate.focus();
             if (this.options.virtualKeyboardMode === 'onfocus') {
                 showVirtualKeyboard(this);
             }
@@ -749,8 +725,7 @@ export class MathfieldPrivate implements Mathfield {
             // so that the IME candidate window can align with the composition
             const caretPoint = getCaretPoint(this.field);
             if (!caretPoint) return;
-            this.textarea.style.top = caretPoint.y + 'px';
-            this.textarea.style.left = caretPoint.x + 'px';
+            this.keyboardDelegate.moveTo(caretPoint.x, caretPoint.y);
         });
     }
     private onCompositionUpdate(composition: string): void {
@@ -898,7 +873,7 @@ export class MathfieldPrivate implements Mathfield {
                     const depth = iter.at(range.start).depth;
                     for (let i = range.start + 1; i <= range.end; i++) {
                         if (iter.at(i).depth === depth) {
-                            res += this.atomToString(iter.at(i).atom, 'latex');
+                            res += this.atomToString(iter.at(i).atom, format);
                         }
                     }
                 }
@@ -922,6 +897,42 @@ export class MathfieldPrivate implements Mathfield {
         });
         this.undoManager.snapshot(this.options);
         requestUpdate(this);
+    }
+
+    find(latex: string): Range[] {
+        const result = [];
+        const iter = new PositionIterator(this.model.root);
+        const lastPosition = iter.lastPosition;
+
+        for (let i = 0; i < lastPosition; i++) {
+            const depth = iter.at(i).depth;
+            // @todo: adjust for depth, use the smallest depth of start and end
+            // and adjust start/end to be at the same depth
+            // if parent of start and end is not the same,
+            // look at common ancestor, if start's parent is common ancestor,
+            // use start, otherwise start =  position of common ancestor.
+            // if end's parent is common ancestor, use end, otherwise use position
+            // of common ancestor + 1.
+            // And maybe that "adjustment" need to be in getValue()? but then
+            // the range result might include duplicates
+            for (let j = i; j < lastPosition; j++) {
+                let value = '';
+                for (let k = i + 1; k <= j; k++) {
+                    if (iter.at(k).depth === depth) {
+                        value += this.atomToString(iter.at(k).atom, 'latex');
+                        console.log(
+                            `value(${
+                                i + 1
+                            }, ${j}) = "${value}" = '${this.getValue(i, j)}'`
+                        );
+                    }
+                }
+                if (value === latex) {
+                    result.push(normalizeRange(iter, { start: i, end: j }));
+                }
+            }
+        }
+        return result;
     }
 
     /** @deprecated */
@@ -1111,25 +1122,17 @@ export class MathfieldPrivate implements Mathfield {
         return this.hasFocus();
     }
     hasFocus(): boolean {
-        return (
-            document.hasFocus() && deepActiveElement(document) === this.textarea
-        );
+        return document.hasFocus() && this.keyboardDelegate.hasFocus();
     }
     focus(): void {
         if (!this.hasFocus()) {
-            // The textarea may be a span (on mobile, for example), so check that
-            // it has a focus() before calling it.
-            if (typeof this.textarea.focus === 'function') {
-                this.textarea.focus();
-            }
+            this.keyboardDelegate.focus();
             this.model.announce('line');
         }
     }
     blur(): void {
         if (this.hasFocus()) {
-            if (typeof this.textarea.blur === 'function') {
-                this.textarea.blur();
-            }
+            this.keyboardDelegate.blur();
         }
     }
     /** @deprecated */
@@ -1244,15 +1247,6 @@ export class MathfieldPrivate implements Mathfield {
             },
         });
     }
-}
-
-function deepActiveElement(
-    root: DocumentOrShadowRoot = document
-): Element | null {
-    if (root.activeElement?.shadowRoot?.activeElement) {
-        return deepActiveElement(root.activeElement.shadowRoot);
-    }
-    return root.activeElement;
 }
 
 function deprecated(method: string) {

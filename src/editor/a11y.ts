@@ -51,14 +51,14 @@ export function defaultAnnounceHook(
         );
     } else if (action === 'line') {
         // announce the current line -- currently that's everything
-        liveText = speakableText(mathfield.options, '', mathfield.model.root);
         mathfield.accessibleNode.innerHTML = mathfield.options.createHTML(
             '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
                 atomsToMathML(mathfield.model.root, mathfield.options) +
                 '</math>'
         );
 
-        mathfield.textarea.setAttribute('aria-label', 'after: ' + liveText);
+        liveText = speakableText(mathfield.options, '', mathfield.model.root);
+        mathfield.keyboardDelegate.setAriaLabel('after: ' + liveText);
 
         /*** FIX -- testing hack for setting braille ***/
         // mathfield.accessibleNode.focus();

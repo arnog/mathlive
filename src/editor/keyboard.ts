@@ -146,6 +146,16 @@ function keyboardEventToString(evt: KeyboardEvent): string {
     return modifiers.join('+');
 }
 
+export interface KeyboardDelegate {
+    cancelComposition: () => void;
+    blur: () => void;
+    focus: () => void;
+    hasFocus: () => boolean;
+    setValue: (value: string) => void;
+    setAriaLabel: (value: string) => void;
+    moveTo: (x: number, y: number) => void;
+}
+
 /**
  * Setup to capture the keyboard events from a `TextArea` and redispatch them to
  * handlers.
@@ -174,15 +184,17 @@ export function delegateKeyboardEvents(
     textarea: HTMLTextAreaElement,
     handlers: {
         typedText: (text: string) => void;
-        paste: (text: string) => void;
-        keystroke: (keystroke: string, e: KeyboardEvent) => boolean;
+        cut: () => void;
+        copy: (ev: ClipboardEvent) => void;
+        paste: (ev: ClipboardEvent) => void;
+        keystroke: (keystroke: string, ev: KeyboardEvent) => boolean;
         focus: () => void;
         blur: () => void;
         compositionStart: (composition: string) => void;
         compositionUpdate: (composition: string) => void;
         compositionEnd: (composition: string) => void;
     }
-): void {
+): KeyboardDelegate {
     let keydownEvent = null;
     let keypressEvent = null;
     let compositionInProgress = false;
@@ -263,7 +275,7 @@ export function delegateKeyboardEvents(
             if (compositionInProgress) return;
             // If we've received a keydown, but no keypress, check what's in the
             // textarea field.
-            if (!compositionInProgress && keydownEvent && !keypressEvent) {
+            if (keydownEvent && !keypressEvent) {
                 handleTypedText();
             }
         },
@@ -271,13 +283,26 @@ export function delegateKeyboardEvents(
     );
     target.addEventListener(
         'paste',
-        () => {
+        (ev: ClipboardEvent) => {
             // In some cases (Linux browsers), the text area might not be focused
             // when doing a middle-click paste command.
             textarea.focus();
-            const text = textarea.value;
             textarea.value = '';
-            if (text.length > 0) handlers.paste(text);
+            handlers.paste(ev);
+        },
+        true
+    );
+    target.addEventListener(
+        'cut',
+        () => {
+            handlers.cut();
+        },
+        true
+    );
+    target.addEventListener(
+        'copy',
+        (ev) => {
+            handlers.copy(ev);
         },
         true
     );
@@ -308,28 +333,6 @@ export function delegateKeyboardEvents(
     target.addEventListener(
         'compositionstart',
         (ev: CompositionEvent) => {
-            if (!keydownEvent) {
-                // Previous keydown event has handled this input. Don't start
-                // a composition session. This happens for example when pressing
-                // alt+u (which is handled as a keybinding) but which could
-                // also trigger a dead key composition session for ¨
-                // (Note: `preventDefault()` on the event doesn't seem to cancel it :()
-                textarea.value = '';
-                // This sequence blur/focus seems to cancel the composition session
-                // without invoking our blur/focus handlers
-                if (typeof textarea.blur === 'function') {
-                    setTimeout(() => {
-                        const savedBlur = handlers.blur;
-                        const savedFocus = handlers.focus;
-                        handlers.blur = null;
-                        handlers.focus = null;
-                        textarea.blur();
-                        textarea.focus();
-                        handlers.blur = savedBlur;
-                        handlers.focus = savedFocus;
-                    });
-                }
-            }
             compositionInProgress = true;
             textarea.value = '';
 
@@ -367,8 +370,73 @@ export function delegateKeyboardEvents(
         // See https://github.com/w3c/uievents/issues/202
         if (ev.inputType === 'insertCompositionText') return;
 
+        // Paste is handled in paste handler
+        if (ev.inputType === 'insertFromPaste') {
+            ev.preventDefault();
+            ev.stopPropagation();
+            return;
+        }
+
         defer(handleTypedText);
     });
+
+    return {
+        cancelComposition: (): void => {
+            const savedBlur = handlers.blur;
+            const savedFocus = handlers.focus;
+            handlers.blur = null;
+            handlers.focus = null;
+            textarea.blur();
+            textarea.focus();
+            handlers.blur = savedBlur;
+            handlers.focus = savedFocus;
+        },
+        blur: (): void => {
+            if (typeof textarea.blur === 'function') {
+                textarea.blur();
+            }
+        },
+        focus: (): void => {
+            if (typeof textarea.blur === 'function') {
+                textarea.focus();
+            }
+        },
+        hasFocus: (): boolean => {
+            return deepActiveElement(document) === textarea;
+        },
+        setValue: (value: string): void => {
+            if (value) {
+                textarea.value = value;
+                // The textarea may be a span (on mobile, for example), so check that
+                // it has a select() before calling it.
+                if (
+                    deepActiveElement(document) === textarea &&
+                    textarea.select
+                ) {
+                    textarea.select();
+                }
+            } else {
+                textarea.value = '';
+                textarea.setAttribute('aria-label', '');
+            }
+        },
+        setAriaLabel: (value: string): void => {
+            textarea.setAttribute('aria-label', 'after: ' + value);
+        },
+        moveTo: (x: number, y: number): void => {
+            textarea.style.top = y + 'px';
+            textarea.style.left = x + 'px';
+        },
+    };
+}
+
+function deepActiveElement(
+    root: DocumentOrShadowRoot = document
+): Element | null {
+    if (root.activeElement?.shadowRoot?.activeElement) {
+        return deepActiveElement(root.activeElement.shadowRoot);
+    }
+    return root.activeElement;
 }
 
 export function eventToChar(evt: KeyboardEvent): string {

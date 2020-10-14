@@ -113,11 +113,9 @@ MATHFIELD_TEMPLATE.innerHTML = `<style>
 :host([disabled]) {
     opacity:  .5;
 }
-:host(:host:focus), :host(:host:focus-within) {
+:host(:focus), :host(:focus-within) {
+    outline: Highlight auto 1px;    /* For Firefox */
     outline: -webkit-focus-ring-color auto 1px;
-}
-:host(:host:focus:not(:focus-visible)) {
-    outline: none;
 }
 </style>
 <div></div><slot style="display:none"></slot>`;
@@ -505,7 +503,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     /**
-     *  @category Accessing and Changing the content
+     *  @category Accessing and changing the content
      */
     getValue(format?: OutputFormat): string;
     getValue(start: number, end?: number, format?: OutputFormat): string;
@@ -555,7 +553,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     /**
-     *  @category Accessing and Changing the content
+     *  @category Accessing and changing the content
      */
     setValue(value?: string, options?: InsertOptions): void {
         if (this.#mathfield) {
@@ -623,7 +621,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      * After the insertion, the selection will be set according to the
      * `options.selectionMode`.
      *
-     *  @category Accessing and Changing the content
+     *  @category Accessing and changing the content
      */
     insert(s: string, options?: InsertOptions): boolean {
         return this.#mathfield?.insert(s, options) ?? false;
@@ -642,7 +640,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      *
      * If there is no selection, the style will apply to the next character typed.
      *
-     * @category Accessing and Changing the content
+     * @category Accessing and changing the content
      */
     applyStyle(style: Style): void {
         return this.#mathfield?.applyStyle(style);
@@ -651,6 +649,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     /**
      * The bottom location of the caret (insertion point) in viewport
      * coordinates.
+     *
+     * See also [[`setCaretPoint`]]
      * @category Selection
      */
     get caretPoint(): { x: number; y: number } {
@@ -661,13 +661,25 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
     /**
      * `x` and `y` are in viewport coordinates.
-     * Return true if the location of the point is valid caret location
+     *
+     * Return true if the location of the point is a valid caret location.
+     *
+     * See also [[`caretPoint`]]
      * @category Selection
      */
     setCaretPoint(x: number, y: number): boolean {
         return this.#mathfield?.setCaretPoint(x, y) ?? false;
     }
 
+    /**
+     *  Return an array of ranges matching the argument.
+     *
+     * An array is always returned, but it has no element if there are no
+     * matching items.
+     */
+    find(latex: string): Range[] {
+        return this.#mathfield?.find(latex) ?? [];
+    }
     /**
      * Custom elements lifecycle hooks
      * @internal
@@ -928,7 +940,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     /**
-     *  @category Accessing and Changing the content
+     *  @category Accessing and changing the content
      */
     set value(value: string) {
         this.setValue(value);
@@ -939,7 +951,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      * ```
      * document.querySelector('mf').value = '\\frac{1}{\\pi}'
      * ```
-     *  @category Accessing and Changing the content
+     *  @category Accessing and changing the content
      */
     get value(): string {
         return this.getValue();

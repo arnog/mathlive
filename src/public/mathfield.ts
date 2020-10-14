@@ -402,6 +402,8 @@ export interface Mathfield {
 
     getCaretPoint?(): { x: number; y: number } | null;
     setCaretPoint(x: number, y: number): boolean;
+
+    find(latex: string): Range[];
 }
 
 export interface Model {

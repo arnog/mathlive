@@ -97,6 +97,13 @@ kbd {
     border-radius: 5px;
 }
 
+.centered {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+}
+
 .links {
     display: flex;
     justify-content: space-around;
@@ -112,21 +119,21 @@ kbd {
 }
 
 .output {
-    font-family: 'IBM Plex mono', 'Source Code Pro', Menlo,
-        'Bitstream Vera Sans Mono', Monaco, Courier, 'Andale Mono', monospace;
-    color: #f0c674;
-
-    background: #35434e;
-
-    padding: 5px;
     margin: 10px 0 10px 0;
     border-radius: 5px;
     border: 1px solid #333;
 
     min-height: 1em;
+    padding: 5px;
     padding-top: 0.5em;
     padding-bottom: 0.5em;
+    width: calc(100% - 10px); /* Subtract horizontal padding */
 
+    font-family: 'IBM Plex mono', 'Source Code Pro', Menlo,
+        'Bitstream Vera Sans Mono', Monaco, Courier, 'Andale Mono', monospace;
+    color: #f0c674;
+
+    background: #35434e;
     word-break: break-word;
     white-space: pre-wrap;
 }
@@ -138,6 +145,19 @@ kbd {
     border-radius: 5px;
     background: var(--editable);
     color: var(--on-editable);
+}
+
+input,
+textarea {
+    border: 1px solid var(--editable-border);
+    border-radius: 5px;
+    background: var(--editable);
+    color: var(--on-editable);
+    padding: 5px;
+}
+
+input::placeholder {
+    opacity: 0.5;
 }
 
 .fa-w-24 {
